@@ -15,6 +15,7 @@ import {
   Undo,
   Redo,
   Focus,
+  History,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -28,6 +29,8 @@ interface EditorToolbarProps {
   editor: Editor | null;
   focusMode: boolean;
   onToggleFocusMode: () => void;
+  showHistory?: boolean;
+  onToggleHistory?: () => void;
 }
 
 interface ToolbarButtonProps {
@@ -60,6 +63,8 @@ export function EditorToolbar({
   editor,
   focusMode,
   onToggleFocusMode,
+  showHistory,
+  onToggleHistory,
 }: EditorToolbarProps) {
   if (!editor) return null;
 
@@ -162,6 +167,18 @@ export function EditorToolbar({
         isActive={focusMode}
         onClick={onToggleFocusMode}
       />
+
+      {onToggleHistory && (
+        <>
+          <Separator orientation="vertical" className="mx-1 h-6" />
+          <ToolbarButton
+            icon={<History className="h-4 w-4" />}
+            label="Version History"
+            isActive={showHistory}
+            onClick={onToggleHistory}
+          />
+        </>
+      )}
     </div>
   );
 }

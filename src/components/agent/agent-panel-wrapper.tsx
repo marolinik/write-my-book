@@ -48,7 +48,7 @@ export function AgentPanelWrapper({ onClose }: AgentPanelWrapperProps) {
   // No book or series context
   if (!bookId && !seriesId) {
     return (
-      <div className="flex h-full w-80 flex-col border-l bg-muted/30">
+      <div className="flex h-full w-full flex-col border-l bg-muted/30">
         <div className="flex h-12 items-center gap-2 border-b px-4">
           <BotIcon className="size-4 text-muted-foreground" />
           <span className="text-sm font-medium">Writing Agent</span>
@@ -76,7 +76,7 @@ export function AgentPanelWrapper({ onClose }: AgentPanelWrapperProps) {
     })) ?? [];
 
     return (
-      <div className="flex h-full w-80 flex-col border-l bg-muted/30">
+      <div className="flex h-full w-full flex-col border-l bg-muted/30">
         {/* Book selector for series */}
         {seriesBooks.length > 0 && (
           <div className="border-b px-4 py-2">

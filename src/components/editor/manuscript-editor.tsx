@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
@@ -13,6 +13,7 @@ import {
   useSaveChapterContent,
 } from "@/hooks/use-documents";
 import { countWords } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 function getMarkdownFromEditor(editor: ReturnType<typeof useEditor>): string {
   if (!editor) return "";
@@ -23,12 +24,29 @@ function getMarkdownFromEditor(editor: ReturnType<typeof useEditor>): string {
 import { EditorToolbar } from "./editor-toolbar";
 import { EditorStatusBar } from "./editor-status-bar";
 import { VersionHistoryPanel } from "./version-history-panel";
+import { VersionHistorySheet } from "./version-history-sheet";
 
 interface ManuscriptEditorProps {
   bookId: string;
   chapterId: string;
   chapterNumber: number;
   chapterTitle?: string;
+}
+
+const LG_BREAKPOINT = 1024;
+
+function useIsLg() {
+  const [isLg, setIsLg] = useState(false);
+
+  useEffect(() => {
+    const mql = window.matchMedia(`(min-width: ${LG_BREAKPOINT}px)`);
+    const onChange = () => setIsLg(mql.matches);
+    mql.addEventListener("change", onChange);
+    setIsLg(mql.matches);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
+
+  return isLg;
 }
 
 export function ManuscriptEditor({
@@ -40,6 +58,8 @@ export function ManuscriptEditor({
   const store = useEditorStore();
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const contentLoadedRef = useRef(false);
+  const [showVersionHistory, setShowVersionHistory] = useState(true);
+  const isLg = useIsLg();
 
   const { data: chapterData, isLoading } = useChapterContent(
     bookId,
@@ -168,6 +188,8 @@ export function ManuscriptEditor({
           editor={editor}
           focusMode={store.focusMode}
           onToggleFocusMode={store.toggleFocusMode}
+          showHistory={showVersionHistory}
+          onToggleHistory={() => setShowVersionHistory((v) => !v)}
         />
 
         <div className="flex-1 overflow-y-auto">
@@ -182,13 +204,29 @@ export function ManuscriptEditor({
         />
       </div>
 
-      {/* Version history sidebar */}
-      <div className="w-64 border-l hidden lg:flex flex-col">
-        <VersionHistoryPanel
+      {/* Version history sidebar — inline on lg+, Sheet on smaller screens */}
+      {isLg ? (
+        showVersionHistory && (
+          <div className="w-64 border-l flex flex-col">
+            <VersionHistoryPanel
+              bookId={bookId}
+              documentId={store.documentId}
+            />
+          </div>
+        )
+      ) : (
+        <VersionHistorySheet
+          open={showVersionHistory}
+          onOpenChange={setShowVersionHistory}
           bookId={bookId}
           documentId={store.documentId}
+          documentTitle={
+            chapterTitle
+              ? `Chapter ${chapterNumber}: ${chapterTitle}`
+              : `Chapter ${chapterNumber}`
+          }
         />
-      </div>
+      )}
     </div>
   );
 }

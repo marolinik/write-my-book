@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { History, RotateCcw, Eye } from "lucide-react";
+import { History, RotateCcw, Eye, GitCompareArrows } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   useDocumentVersions,
@@ -35,7 +37,9 @@ export function VersionHistoryPanel({
   documentId,
 }: VersionHistoryPanelProps) {
   const [viewVersion, setViewVersion] = useState<number | null>(null);
+  const [compareVersion, setCompareVersion] = useState<number | null>(null);
   const [diffOpen, setDiffOpen] = useState(false);
+  const [restoreTarget, setRestoreTarget] = useState<number | null>(null);
 
   const { data: versions, isLoading } = useDocumentVersions(
     bookId,
@@ -48,7 +52,21 @@ export function VersionHistoryPanel({
     viewVersion
   );
 
+  const { data: compareData } = useVersionContent(
+    bookId,
+    documentId,
+    compareVersion !== null ? (versions?.[0]?.version ?? null) : null
+  );
+
+  const { data: compareOldData } = useVersionContent(
+    bookId,
+    documentId,
+    compareVersion
+  );
+
   const restoreMutation = useRestoreVersion(bookId, documentId);
+
+  const isCompareMode = compareVersion !== null;
 
   if (!documentId) {
     return (
@@ -68,6 +86,7 @@ export function VersionHistoryPanel({
   }
 
   const versionList = versions ?? [];
+  const latestVersion = versionList[0]?.version;
 
   return (
     <>
@@ -125,7 +144,9 @@ export function VersionHistoryPanel({
                         variant="ghost"
                         size="icon"
                         className="h-6 w-6"
+                        title="View version"
                         onClick={() => {
+                          setCompareVersion(null);
                           setViewVersion(v.version);
                           setDiffOpen(true);
                         }}
@@ -137,7 +158,23 @@ export function VersionHistoryPanel({
                           variant="ghost"
                           size="icon"
                           className="h-6 w-6"
-                          onClick={() => restoreMutation.mutate(v.version)}
+                          title="Compare with latest"
+                          onClick={() => {
+                            setViewVersion(null);
+                            setCompareVersion(v.version);
+                            setDiffOpen(true);
+                          }}
+                        >
+                          <GitCompareArrows className="h-3 w-3" />
+                        </Button>
+                      )}
+                      {idx > 0 && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          title="Restore this version"
+                          onClick={() => setRestoreTarget(v.version)}
                           disabled={restoreMutation.isPending}
                         >
                           <RotateCcw className="h-3 w-3" />
@@ -152,18 +189,70 @@ export function VersionHistoryPanel({
         </ScrollArea>
       </div>
 
+      {/* View / Compare dialog */}
       <Dialog open={diffOpen} onOpenChange={setDiffOpen}>
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
           <DialogHeader>
-            <DialogTitle>Version {viewVersion}</DialogTitle>
+            <DialogTitle>
+              {isCompareMode
+                ? `Compare v${compareVersion} → v${latestVersion}`
+                : `Version ${viewVersion}`}
+            </DialogTitle>
           </DialogHeader>
           <ScrollArea className="flex-1 mt-2">
-            {versionData ? (
+            {isCompareMode ? (
+              compareOldData && compareData ? (
+                <DiffView
+                  content={compareData.content}
+                  oldContent={compareOldData.content}
+                />
+              ) : (
+                <p className="text-sm text-muted-foreground p-4">Loading...</p>
+              )
+            ) : versionData ? (
               <DiffView content={versionData.content} />
             ) : (
               <p className="text-sm text-muted-foreground p-4">Loading...</p>
             )}
           </ScrollArea>
+        </DialogContent>
+      </Dialog>
+
+      {/* Restore confirmation dialog */}
+      <Dialog
+        open={restoreTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setRestoreTarget(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Restore Version {restoreTarget}?</DialogTitle>
+            <DialogDescription>
+              This will create a new version with the content from version{" "}
+              {restoreTarget}. Your current content will be preserved in the
+              version history.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setRestoreTarget(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (restoreTarget !== null) {
+                  restoreMutation.mutate(restoreTarget);
+                  setRestoreTarget(null);
+                }
+              }}
+              disabled={restoreMutation.isPending}
+            >
+              Restore
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>

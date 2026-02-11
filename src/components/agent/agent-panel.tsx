@@ -118,7 +118,7 @@ export function AgentPanel({
   const isConversational = workflow?.conversational ?? false;
 
   return (
-    <div className="flex h-full w-80 flex-col border-l bg-muted/30">
+    <div className="flex h-full w-full flex-col border-l bg-muted/30">
       {/* Header */}
       <div className="flex h-12 items-center gap-2 border-b px-4">
         <BotIcon className="size-4 text-muted-foreground" />
