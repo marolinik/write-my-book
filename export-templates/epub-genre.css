@@ -1,0 +1,119 @@
+/* WMB EPUB Genre Stylesheet — Reading-friendly typography */
+
+body {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1em;
+  line-height: 1.6;
+  margin: 1em;
+  text-align: justify;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+}
+
+h1 {
+  font-size: 1.8em;
+  text-align: center;
+  margin-top: 2em;
+  margin-bottom: 1.5em;
+  page-break-before: always;
+}
+
+h2 {
+  font-size: 1.4em;
+  text-align: center;
+  margin-top: 1.5em;
+  margin-bottom: 1em;
+}
+
+p {
+  margin: 0;
+  text-indent: 1.5em;
+}
+
+/* First paragraph after heading — no indent */
+h1 + p,
+h2 + p,
+h3 + p,
+hr + p,
+.scene-break + p {
+  text-indent: 0;
+}
+
+/* Scene breaks */
+.scene-break {
+  text-align: center;
+  margin: 1.5em 0;
+  font-size: 1.2em;
+}
+
+hr {
+  border: none;
+  text-align: center;
+  margin: 1.5em 0;
+}
+
+hr::after {
+  content: "***";
+  font-size: 1em;
+}
+
+/* Front/back matter sections */
+.half-title {
+  text-align: center;
+  margin-top: 30%;
+}
+
+.title-page {
+  text-align: center;
+  margin-top: 20%;
+}
+
+.copyright-page {
+  font-size: 0.85em;
+  text-align: center;
+  margin-top: 30%;
+}
+
+.dedication {
+  text-align: center;
+  font-style: italic;
+  margin-top: 30%;
+}
+
+.about-author,
+.also-by,
+.acknowledgments {
+  margin-top: 2em;
+}
+
+/* Epigraph styling */
+.epigraph {
+  font-style: italic;
+  margin: 2em 2em;
+  text-align: right;
+}
+
+.epigraph-source {
+  font-style: normal;
+  font-size: 0.9em;
+}
+
+/* Act dividers */
+.act-divider {
+  text-align: center;
+  margin: 3em 0;
+  page-break-before: always;
+}
+
+blockquote {
+  margin: 1em 2em;
+  font-style: italic;
+}
+
+em {
+  font-style: italic;
+}
+
+strong {
+  font-weight: bold;
+}

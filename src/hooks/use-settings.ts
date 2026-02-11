@@ -1,0 +1,58 @@
+"use client";
+
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
+
+async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(url, init);
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error ?? `Request failed: ${res.status}`);
+  }
+  return res.json();
+}
+
+export type BookSettingsData = {
+  id: string;
+  bookId: string;
+  modelGhostwriter: string;
+  modelEditor: string;
+  modelBetaReader: string;
+  modelAnalyst: string;
+  autoCommit: boolean;
+  styleStrictness: string;
+  betaPanelSize: number;
+  betaConsensus: number;
+  betaConvergence: number;
+  language: string;
+};
+
+/** Fetch settings for a book. */
+export function useBookSettings(bookId: string) {
+  return useQuery({
+    queryKey: ["book-settings", bookId],
+    queryFn: () =>
+      fetchJson<BookSettingsData>(`/api/books/${bookId}/settings`),
+    enabled: !!bookId,
+  });
+}
+
+/** Update settings for a book. */
+export function useUpdateBookSettings(bookId: string) {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: Partial<Omit<BookSettingsData, "id" | "bookId">>) =>
+      fetchJson<BookSettingsData>(`/api/books/${bookId}/settings`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["book-settings", bookId] });
+    },
+  });
+}

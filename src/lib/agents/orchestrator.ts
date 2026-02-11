@@ -1,0 +1,427 @@
+import Anthropic from "@anthropic-ai/sdk";
+import { getAgentDefinition, getModelId } from "./definitions";
+import { assembleAgentPrompt } from "./prompt-assembler";
+import {
+  getToolDefinitions,
+  executeTool,
+  APPROVAL_SENTINEL,
+  type ToolContext,
+} from "./tools";
+import { DocumentService } from "@/lib/documents/document-service";
+import type {
+  AgentResult,
+  AgentStreamMessage,
+  AgentSpawnOptions,
+  ApprovalResponse,
+} from "./types";
+
+const MAX_TOOL_TURNS = 50;
+
+/**
+ * Core orchestrator that spawns and manages agent sessions.
+ * Implements an agentic tool-use loop: send messages -> stream response ->
+ * if tool_use, execute tools, append results, loop back.
+ */
+export class AgentOrchestrator {
+  private client: Anthropic;
+  private abortController: AbortController | null = null;
+  private pendingApprovals = new Map<
+    string,
+    (response: ApprovalResponse) => void
+  >();
+
+  constructor(apiKey: string) {
+    this.client = new Anthropic({ apiKey });
+  }
+
+  /**
+   * Run an agent action with a full tool-use loop.
+   */
+  async runAgent(options: AgentSpawnOptions): Promise<AgentResult> {
+    const definition = getAgentDefinition(options.agentType);
+    if (!definition) {
+      throw new Error(`Unknown agent type: ${options.agentType}`);
+    }
+
+    this.abortController = new AbortController();
+
+    const docService = new DocumentService(
+      options.context.userId,
+      options.context.bookId
+    );
+
+    const systemPrompt = await assembleAgentPrompt(
+      definition,
+      options.context,
+      docService
+    );
+    const modelId = getModelId(options.model);
+    const tools = getToolDefinitions(definition.tools).map((t) => ({
+      name: t.name,
+      description: t.description,
+      input_schema: t.input_schema,
+    }));
+
+    // Create series DocumentService if series context is available
+    const seriesDocService = options.context.seriesId
+      ? new DocumentService(
+          options.context.userId,
+          undefined,
+          options.context.seriesId
+        )
+      : undefined;
+
+    const toolCtx: ToolContext = {
+      bookId: options.context.bookId,
+      userId: options.context.userId,
+      sessionId: options.sessionId,
+      agentType: options.agentType,
+      documentService: docService,
+      seriesId: options.context.seriesId,
+      seriesDocumentService: seriesDocService,
+    };
+
+    const messages: Anthropic.MessageParam[] = [
+      {
+        role: "user",
+        content: this.buildUserMessage(options),
+      },
+    ];
+
+    const documentIds: string[] = [];
+
+    try {
+      const result = await this.runToolLoop(
+        modelId,
+        systemPrompt,
+        messages,
+        tools as Anthropic.Tool[],
+        toolCtx,
+        options,
+        documentIds
+      );
+
+      const agentResult: AgentResult = {
+        success: true,
+        tokensInput: result.inputTokens,
+        tokensOutput: result.outputTokens,
+        documentIds,
+        sessionId: options.sessionId,
+      };
+
+      options.onComplete(agentResult);
+      return agentResult;
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      options.onError(err);
+      return {
+        success: false,
+        tokensInput: 0,
+        tokensOutput: 0,
+        documentIds,
+        sessionId: options.sessionId,
+      };
+    }
+  }
+
+  /**
+   * Continue a conversation with additional user input.
+   * For conversational workflows (coach, discuss-chapter, etc).
+   */
+  async continueConversation(
+    options: AgentSpawnOptions,
+    existingMessages: Anthropic.MessageParam[],
+    userMessage: string
+  ): Promise<void> {
+    const definition = getAgentDefinition(options.agentType);
+    if (!definition) {
+      throw new Error(`Unknown agent type: ${options.agentType}`);
+    }
+
+    this.abortController = new AbortController();
+
+    const docService = new DocumentService(
+      options.context.userId,
+      options.context.bookId
+    );
+
+    const systemPrompt = await assembleAgentPrompt(
+      definition,
+      options.context,
+      docService
+    );
+    const modelId = getModelId(options.model);
+    const tools = getToolDefinitions(definition.tools).map((t) => ({
+      name: t.name,
+      description: t.description,
+      input_schema: t.input_schema,
+    }));
+
+    // Create series DocumentService if series context is available
+    const seriesDocService2 = options.context.seriesId
+      ? new DocumentService(
+          options.context.userId,
+          undefined,
+          options.context.seriesId
+        )
+      : undefined;
+
+    const toolCtx: ToolContext = {
+      bookId: options.context.bookId,
+      userId: options.context.userId,
+      sessionId: options.sessionId,
+      agentType: options.agentType,
+      documentService: docService,
+      seriesId: options.context.seriesId,
+      seriesDocumentService: seriesDocService2,
+    };
+
+    // Add the new user message to existing conversation
+    existingMessages.push({ role: "user", content: userMessage });
+
+    const documentIds: string[] = [];
+
+    try {
+      const result = await this.runToolLoop(
+        modelId,
+        systemPrompt,
+        existingMessages,
+        tools as Anthropic.Tool[],
+        toolCtx,
+        options,
+        documentIds
+      );
+
+      options.onComplete({
+        success: true,
+        tokensInput: result.inputTokens,
+        tokensOutput: result.outputTokens,
+        documentIds,
+        sessionId: options.sessionId,
+      });
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      options.onError(err);
+    }
+  }
+
+  cancel(): void {
+    this.abortController?.abort();
+    for (const [, resolver] of this.pendingApprovals) {
+      resolver({ decision: "reject", message: "Session cancelled" });
+    }
+    this.pendingApprovals.clear();
+  }
+
+  /** Resolve a pending approval gate. */
+  resolveApproval(approvalId: string, response: ApprovalResponse): boolean {
+    const resolver = this.pendingApprovals.get(approvalId);
+    if (!resolver) return false;
+    resolver(response);
+    this.pendingApprovals.delete(approvalId);
+    return true;
+  }
+
+  /**
+   * Shared tool-use loop.
+   */
+  private async runToolLoop(
+    modelId: string,
+    systemPrompt: string,
+    messages: Anthropic.MessageParam[],
+    tools: Anthropic.Tool[],
+    toolCtx: ToolContext,
+    options: AgentSpawnOptions,
+    documentIds: string[]
+  ): Promise<{ inputTokens: number; outputTokens: number }> {
+    let totalInputTokens = 0;
+    let totalOutputTokens = 0;
+
+    for (let turn = 0; turn < MAX_TOOL_TURNS; turn++) {
+      if (this.abortController?.signal.aborted) break;
+
+      const stream = this.client.messages.stream({
+        model: modelId,
+        max_tokens: 16384,
+        system: systemPrompt,
+        messages,
+        ...(tools.length > 0 ? { tools } : {}),
+      });
+
+      // Stream events to SSE listeners
+      for await (const event of stream) {
+        if (this.abortController?.signal.aborted) break;
+
+        if (event.type === "content_block_start") {
+          if (event.content_block.type === "tool_use") {
+            options.onMessage({
+              type: "tool_use",
+              content: `Using tool: ${event.content_block.name}`,
+              metadata: {
+                tool: event.content_block.name,
+                toolUseId: event.content_block.id,
+              },
+            });
+          }
+        } else if (event.type === "content_block_delta") {
+          const delta = event.delta;
+          if ("text" in delta && delta.text) {
+            options.onMessage({ type: "text", content: delta.text });
+          }
+        }
+      }
+
+      const finalMessage = await stream.finalMessage();
+      totalInputTokens += finalMessage.usage.input_tokens;
+      totalOutputTokens += finalMessage.usage.output_tokens;
+
+      messages.push({ role: "assistant", content: finalMessage.content });
+
+      if (finalMessage.stop_reason === "end_turn") break;
+
+      if (finalMessage.stop_reason === "tool_use") {
+        const toolUseBlocks = finalMessage.content.filter(
+          (block): block is Anthropic.ToolUseBlock =>
+            block.type === "tool_use"
+        );
+
+        const toolResults: Anthropic.ToolResultBlockParam[] = [];
+
+        for (const toolUse of toolUseBlocks) {
+          options.onMessage({
+            type: "tool_use",
+            content: `Executing: ${toolUse.name}`,
+            metadata: {
+              tool: toolUse.name,
+              toolInput: toolUse.input as Record<string, unknown>,
+              toolUseId: toolUse.id,
+            },
+          });
+
+          const result = await executeTool(
+            toolUse.name,
+            toolCtx,
+            toolUse.input as Record<string, unknown>
+          );
+
+          // Handle approval gate
+          if (result === APPROVAL_SENTINEL) {
+            const approvalInput = toolUse.input as {
+              title?: string;
+              description?: string;
+            };
+            const approvalId = crypto.randomUUID();
+
+            options.onMessage({
+              type: "approval_request",
+              content: approvalInput.description ?? "Approval requested",
+              metadata: {
+                tool: "RequestApproval",
+                toolUseId: toolUse.id,
+                approvalId,
+                approvalTitle: approvalInput.title,
+              },
+            });
+
+            // Wait for user response with 10-minute timeout
+            const approvalResponse = await new Promise<ApprovalResponse>(
+              (resolve) => {
+                this.pendingApprovals.set(approvalId, resolve);
+
+                setTimeout(() => {
+                  if (this.pendingApprovals.has(approvalId)) {
+                    this.pendingApprovals.delete(approvalId);
+                    resolve({
+                      decision: "reject",
+                      message: "Approval timed out after 10 minutes",
+                    });
+                  }
+                }, 10 * 60 * 1000);
+
+                this.abortController?.signal.addEventListener("abort", () => {
+                  if (this.pendingApprovals.has(approvalId)) {
+                    this.pendingApprovals.delete(approvalId);
+                    resolve({
+                      decision: "reject",
+                      message: "Session cancelled",
+                    });
+                  }
+                });
+              }
+            );
+
+            const approvalText =
+              approvalResponse.decision === "approve"
+                ? `APPROVED${approvalResponse.message ? `: ${approvalResponse.message}` : ""}`
+                : approvalResponse.decision === "modify"
+                  ? `MODIFY: ${approvalResponse.message ?? "Please adjust your approach"}`
+                  : `REJECTED${approvalResponse.message ? `: ${approvalResponse.message}` : ""}`;
+
+            toolResults.push({
+              type: "tool_result",
+              tool_use_id: toolUse.id,
+              content: `Writer response: ${approvalText}`,
+            });
+
+            options.onMessage({
+              type: "tool_result",
+              content: `Writer: ${approvalText}`,
+              metadata: {
+                tool: "RequestApproval",
+                toolUseId: toolUse.id,
+                approvalDecision: approvalResponse.decision,
+              },
+            });
+
+            continue;
+          }
+
+          // Regular tool result
+          const truncatedResult =
+            result.length > 50000
+              ? result.slice(0, 50000) + "\n... (truncated)"
+              : result;
+
+          options.onMessage({
+            type: "tool_result",
+            content:
+              truncatedResult.length > 500
+                ? truncatedResult.slice(0, 500) + "..."
+                : truncatedResult,
+            metadata: { tool: toolUse.name, toolUseId: toolUse.id },
+          });
+
+          toolResults.push({
+            type: "tool_result",
+            tool_use_id: toolUse.id,
+            content: truncatedResult,
+          });
+        }
+
+        messages.push({ role: "user", content: toolResults });
+        continue;
+      }
+
+      // Any other stop reason (max_tokens, etc.) — stop
+      break;
+    }
+
+    return { inputTokens: totalInputTokens, outputTokens: totalOutputTokens };
+  }
+
+  private buildUserMessage(options: AgentSpawnOptions): string {
+    const parts: string[] = [];
+
+    parts.push(`Workflow: ${options.workflowId}`);
+
+    if (options.context.chapterNumber) {
+      parts.push(`Chapter: ${options.context.chapterNumber}`);
+    }
+
+    parts.push(
+      "Please begin your work. Use the available tools to read project context and produce your output."
+    );
+
+    return parts.join("\n");
+  }
+}
