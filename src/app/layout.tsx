@@ -13,6 +13,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryProvider } from "@/components/providers/query-provider";
 import "./globals.css";
 
+const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const isClerkConfigured =
+  clerkKey && clerkKey.length > 0 && !clerkKey.includes("REPLACE_ME");
+
 const fontSans = Libre_Franklin({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -45,20 +49,24 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <ClerkProvider>
-      <html lang="en">
-        <body
-          className={`${fontSans.variable} ${fontDisplay.variable} ${fontMono.variable} ${fontSerif.variable} font-sans antialiased`}
-        >
-          <QueryProvider>
-            <TooltipProvider>
-              {children}
-            </TooltipProvider>
-            <Toaster richColors position="bottom-right" />
-          </QueryProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+  const content = (
+    <html lang="en">
+      <body
+        className={`${fontSans.variable} ${fontDisplay.variable} ${fontMono.variable} ${fontSerif.variable} font-sans antialiased`}
+      >
+        <QueryProvider>
+          <TooltipProvider>
+            {children}
+          </TooltipProvider>
+          <Toaster richColors position="bottom-right" />
+        </QueryProvider>
+      </body>
+    </html>
   );
+
+  if (isClerkConfigured) {
+    return <ClerkProvider>{content}</ClerkProvider>;
+  }
+
+  return content;
 }

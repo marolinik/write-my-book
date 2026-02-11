@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { usePathname, useParams } from "next/navigation";
 import {
   BookOpenIcon,
@@ -17,7 +18,6 @@ import {
   SettingsIcon,
   PaletteIcon,
 } from "lucide-react";
-import { UserButton } from "@clerk/nextjs";
 
 import {
   Sidebar,
@@ -37,6 +37,16 @@ import {
 } from "@/components/ui/sidebar";
 import { useBook } from "@/hooks/use-books";
 import { useSeriesDetail } from "@/hooks/use-series";
+
+const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const isClerkConfigured =
+  clerkKey && clerkKey.length > 0 && !clerkKey.includes("REPLACE_ME");
+
+// Dynamic import: avoids loading @clerk/nextjs module when Clerk isn't configured
+const UserButton = dynamic(
+  () => import("@clerk/nextjs").then((mod) => ({ default: mod.UserButton })),
+  { ssr: false }
+);
 
 const navItems = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
@@ -318,17 +328,19 @@ export function AppSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" className="cursor-default">
-              <UserButton
-                afterSignOutUrl="/login"
-                appearance={{
-                  elements: { avatarBox: "size-8" },
-                }}
-              />
-              <span className="truncate text-sm">Account</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          {isClerkConfigured && (
+            <SidebarMenuItem>
+              <SidebarMenuButton size="lg" className="cursor-default">
+                <UserButton
+                  afterSignOutUrl="/login"
+                  appearance={{
+                    elements: { avatarBox: "size-8" },
+                  }}
+                />
+                <span className="truncate text-sm">Account</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
         </SidebarMenu>
       </SidebarFooter>
 

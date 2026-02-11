@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppHeader } from "@/components/layout/app-header";
@@ -9,17 +9,40 @@ import {
   ResizablePanelGroup,
   ResizablePanel,
   ResizableHandle,
-  useDefaultLayout,
 } from "@/components/ui/resizable";
 import { useIsMobile } from "@/hooks/use-mobile";
+
+const LAYOUT_KEY = "app-layout";
+
+function useSafeDefaultLayout(id: string) {
+  const [layout, setLayout] = useState<number[] | undefined>(undefined);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(`react-resizable-panels:${id}`);
+      if (stored) setLayout(JSON.parse(stored));
+    } catch {
+      // ignore
+    }
+  }, [id]);
+
+  const onLayoutChanged = (sizes: number[]) => {
+    try {
+      localStorage.setItem(`react-resizable-panels:${id}`, JSON.stringify(sizes));
+    } catch {
+      // ignore
+    }
+    setLayout(sizes);
+  };
+
+  return { defaultLayout: layout, onLayoutChanged };
+}
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [agentOpen, setAgentOpen] = useState(false);
   const isMobile = useIsMobile();
 
-  const { defaultLayout, onLayoutChanged } = useDefaultLayout({
-    id: "app-layout",
-  });
+  const { defaultLayout, onLayoutChanged } = useSafeDefaultLayout(LAYOUT_KEY);
 
   return (
     <SidebarProvider>

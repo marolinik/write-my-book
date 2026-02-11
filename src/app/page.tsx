@@ -106,8 +106,12 @@ const PLANS = [
 ];
 
 export default async function Home() {
-  const { userId } = await auth();
-  if (userId) redirect("/dashboard");
+  try {
+    const { userId } = await auth();
+    if (userId) redirect("/dashboard");
+  } catch {
+    // Clerk not configured — show landing page
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

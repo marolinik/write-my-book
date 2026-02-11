@@ -19,15 +19,25 @@ function isE2ETestRequest(request: NextRequest): boolean {
   return request.headers.get("x-e2e-test-secret") === E2E_TEST_SECRET;
 }
 
-export default clerkMiddleware(async (auth, request) => {
-  if (isE2ETestRequest(request)) {
-    return NextResponse.next();
-  }
+const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const isClerkConfigured =
+  clerkKey && clerkKey.length > 0 && !clerkKey.includes("REPLACE_ME");
 
-  if (!isPublicRoute(request)) {
-    await auth.protect();
-  }
-});
+const handler = isClerkConfigured
+  ? clerkMiddleware(async (auth, request) => {
+      if (isE2ETestRequest(request)) {
+        return NextResponse.next();
+      }
+
+      if (!isPublicRoute(request)) {
+        await auth.protect();
+      }
+    })
+  : function bypassMiddleware() {
+      return NextResponse.next();
+    };
+
+export default handler;
 
 export const config = {
   matcher: [
