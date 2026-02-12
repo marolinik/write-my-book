@@ -28,6 +28,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useAgentStore } from "@/stores/agent-store";
 import { useBook, useUpdateBook } from "@/hooks/use-books";
 import { useBookState } from "@/hooks/use-book-state";
@@ -200,12 +207,33 @@ export default function SetupPage({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="language">Language</Label>
-                <Input
-                  id="language"
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value)}
-                  placeholder="en"
-                />
+                <p className="text-xs text-muted-foreground">
+                  Agents will write and communicate in this language
+                </p>
+                <Select value={language} onValueChange={setLanguage}>
+                  <SelectTrigger id="language">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="en">English</SelectItem>
+                    <SelectItem value="sr">Serbian (Latin)</SelectItem>
+                    <SelectItem value="de">German (Deutsch)</SelectItem>
+                    <SelectItem value="es">Spanish (Español)</SelectItem>
+                    <SelectItem value="fr">French (Français)</SelectItem>
+                    <SelectItem value="it">Italian (Italiano)</SelectItem>
+                    <SelectItem value="pt">Portuguese (Português)</SelectItem>
+                    <SelectItem value="ru">Russian (Русский)</SelectItem>
+                    <SelectItem value="zh">Chinese (中文)</SelectItem>
+                    <SelectItem value="ja">Japanese (日本語)</SelectItem>
+                    <SelectItem value="ko">Korean (한국어)</SelectItem>
+                    <SelectItem value="nl">Dutch (Nederlands)</SelectItem>
+                    <SelectItem value="pl">Polish (Polski)</SelectItem>
+                    <SelectItem value="sv">Swedish (Svenska)</SelectItem>
+                    <SelectItem value="tr">Turkish (Türkçe)</SelectItem>
+                    <SelectItem value="ar">Arabic (العربية)</SelectItem>
+                    <SelectItem value="hi">Hindi (हिन्दी)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="description">Description (optional)</Label>
