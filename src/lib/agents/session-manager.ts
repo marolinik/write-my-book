@@ -17,8 +17,17 @@ export interface ActiveSession {
   result: AgentResult | null;
 }
 
-/** In-memory session store. Persists across requests in the Node.js process. */
-const sessions = new Map<string, ActiveSession>();
+/**
+ * In-memory session store. Uses globalThis so sessions survive
+ * Turbopack HMR module reloads during development.
+ */
+const globalForSessions = globalThis as unknown as {
+  __agentSessions?: Map<string, ActiveSession>;
+};
+if (!globalForSessions.__agentSessions) {
+  globalForSessions.__agentSessions = new Map();
+}
+const sessions = globalForSessions.__agentSessions;
 
 export function createSession(
   sessionId: string,
