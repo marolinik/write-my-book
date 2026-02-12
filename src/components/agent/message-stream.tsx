@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
@@ -167,7 +167,7 @@ export function MessageStream({
   const renderedBlocks = blocks.map((block) => {
     switch (block.kind) {
       case "text":
-        return <ThrottledMarkdown key={`text-${block.blockKey}`} text={block.text} isStreaming={!!isRunning} />;
+        return <MarkdownBlock key={`text-${block.blockKey}`} text={block.text} />;
       case "user":
         return (
           <div key={`user-${block.blockKey}`} className="ml-auto max-w-[80%] rounded-lg bg-primary/10 px-3 py-2 text-sm">
@@ -269,55 +269,19 @@ function getThinkingText(language?: string): string {
   return map[language] ?? map[language.split("-")[0]] ?? map.en;
 }
 
-// ─── Throttled markdown renderer ──────────────────────────────
-// During streaming, re-render markdown at most every 100ms via a timer.
-// This gives smooth, flowing text (like ChatGPT/Claude) without
-// re-parsing markdown on every 2-char SSE delta.
+// ─── Memoized markdown renderer ──────────────────────────────
+// Performance is already handled by:
+//  1. Zustand merging consecutive text deltas (few messages, not hundreds)
+//  2. useDeferredValue batching React updates during rapid streaming
+// This component just avoids unnecessary re-renders from parent changes.
 
-function ThrottledMarkdown({ text, isStreaming }: { text: string; isStreaming: boolean }) {
-  const [renderedText, setRenderedText] = useState(text);
-  const latestTextRef = useRef(text);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Always keep ref in sync so the timer reads the latest value
-  latestTextRef.current = text;
-
-  useEffect(() => {
-    if (!isStreaming) {
-      // When not streaming, render the final text immediately
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-        timerRef.current = null;
-      }
-      setRenderedText(text);
-      return;
-    }
-
-    // During streaming, schedule an update every 100ms.
-    // If a timer is already pending, skip — it will pick up the latest text.
-    if (!timerRef.current) {
-      timerRef.current = setTimeout(() => {
-        setRenderedText(latestTextRef.current);
-        timerRef.current = null;
-      }, 100);
-    }
-  }, [text, isStreaming]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, []);
-
+const MarkdownBlock = memo(function MarkdownBlock({ text }: { text: string }) {
   return (
     <div className="agent-prose text-sm leading-relaxed">
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-        {isStreaming ? renderedText : text}
-      </ReactMarkdown>
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>{text}</ReactMarkdown>
     </div>
   );
-}
+});
 
 // ─── Thinking indicator with elapsed time ────────────────────
 
