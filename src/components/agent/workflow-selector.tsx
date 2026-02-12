@@ -14,14 +14,15 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getAllWorkflows } from "@/lib/agents/workflows";
 import type { WorkflowDefinition } from "@/lib/agents/types";
+import { useLanguage } from "@/components/providers/language-provider";
 
-const CATEGORY_CONFIG = {
-  setup: { label: "Setup", icon: SparklesIcon },
-  writing: { label: "Writing", icon: PenLineIcon },
-  editing: { label: "Editing", icon: SearchIcon },
-  analysis: { label: "Analysis", icon: BookOpenIcon },
-  style: { label: "Style", icon: PaletteIcon },
-  series: { label: "Series", icon: LibraryIcon },
+const CATEGORY_ICONS = {
+  setup: SparklesIcon,
+  writing: PenLineIcon,
+  editing: SearchIcon,
+  analysis: BookOpenIcon,
+  style: PaletteIcon,
+  series: LibraryIcon,
 } as const;
 
 interface WorkflowSelectorProps {
@@ -39,11 +40,21 @@ export function WorkflowSelector({
   disabled,
   seriesId,
 }: WorkflowSelectorProps) {
+  const { t } = useLanguage();
   const [selectedWorkflow, setSelectedWorkflow] =
     useState<WorkflowDefinition | null>(null);
   const [chapterNumber, setChapterNumber] = useState<number | undefined>();
 
   const workflows = getAllWorkflows();
+
+  const categoryLabels: Record<string, string> = {
+    setup: t.workflowSelector.setup,
+    writing: t.workflowSelector.writing,
+    editing: t.workflowSelector.editing,
+    analysis: t.workflowSelector.analysis,
+    style: t.workflowSelector.style,
+    series: t.workflowSelector.series,
+  };
   const categories = [
     "setup",
     "writing",
@@ -75,12 +86,12 @@ export function WorkflowSelector({
       <div className="flex flex-col gap-3 p-4">
         <div className="text-sm font-medium">{selectedWorkflow.label}</div>
         <p className="text-xs text-muted-foreground">
-          Select a chapter for this workflow:
+          {t.workflowSelector.selectChapter}
         </p>
         <div className="flex flex-col gap-1">
           {chapters.length === 0 ? (
             <p className="text-xs text-muted-foreground">
-              No chapters yet. Create a chapter first.
+              {t.workflowSelector.noChapters}
             </p>
           ) : (
             <ScrollArea className="max-h-48">
@@ -107,14 +118,14 @@ export function WorkflowSelector({
             size="sm"
             onClick={() => setSelectedWorkflow(null)}
           >
-            Back
+            {t.workflowSelector.back}
           </Button>
           <Button
             size="sm"
             onClick={handleConfirm}
             disabled={!chapterNumber || chapters.length === 0}
           >
-            Start
+            {t.workflowSelector.start}
           </Button>
         </div>
       </div>
@@ -125,11 +136,10 @@ export function WorkflowSelector({
     <ScrollArea className="flex-1">
       <div className="flex flex-col gap-4 p-4">
         <p className="text-xs text-muted-foreground">
-          Choose a workflow to start:
+          {t.workflowSelector.chooseWorkflow}
         </p>
         {categories.map((cat) => {
-          const config = CATEGORY_CONFIG[cat];
-          const Icon = config.icon;
+          const Icon = CATEGORY_ICONS[cat];
           const catWorkflows = workflows.filter((w) => w.category === cat);
           if (catWorkflows.length === 0) return null;
 
@@ -137,7 +147,7 @@ export function WorkflowSelector({
             <div key={cat} className="flex flex-col gap-1">
               <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 <Icon className="size-3" />
-                {config.label}
+                {categoryLabels[cat]}
               </div>
               {catWorkflows.map((w) => (
                 <button

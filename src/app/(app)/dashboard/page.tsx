@@ -8,6 +8,7 @@ import {
 
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { getUIStrings } from "@/lib/i18n/ui-strings";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,15 +43,16 @@ export default async function DashboardPage() {
   const totalBooks = stats._count;
   const totalWords = stats._sum.wordCount ?? 0;
   const totalChapters = stats._sum.chapterCount ?? 0;
+  const t = getUIStrings(user.preferredLanguage ?? "en");
 
   return (
     <div className="p-6 lg:p-8">
       <div className="mb-8">
         <h1 className="font-display text-3xl font-bold">
-          Welcome back, {user.displayName || "Writer"}
+          {t.dashboard.welcomeBack}, {user.displayName || t.dashboard.writer}
         </h1>
         <p className="mt-1 text-muted-foreground">
-          Your writing workspace
+          {t.dashboard.yourWorkspace}
         </p>
       </div>
 
@@ -58,7 +60,7 @@ export default async function DashboardPage() {
       <div className="mb-8 grid gap-4 sm:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Books</CardTitle>
+            <CardTitle className="text-sm font-medium">{t.dashboard.totalBooks}</CardTitle>
             <BookOpenIcon className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -67,7 +69,7 @@ export default async function DashboardPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Words</CardTitle>
+            <CardTitle className="text-sm font-medium">{t.dashboard.totalWords}</CardTitle>
             <PenLineIcon className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -78,7 +80,7 @@ export default async function DashboardPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Chapters</CardTitle>
+            <CardTitle className="text-sm font-medium">{t.dashboard.totalChapters}</CardTitle>
             <FileTextIcon className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -89,11 +91,11 @@ export default async function DashboardPage() {
 
       {/* Recent Books */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="font-display text-xl font-semibold">Recent Books</h2>
+        <h2 className="font-display text-xl font-semibold">{t.dashboard.recentBooks}</h2>
         <Button asChild size="sm">
           <Link href="/books/new">
             <PlusIcon className="mr-1 size-4" />
-            Create Book
+            {t.dashboard.createBook}
           </Link>
         </Button>
       </div>
@@ -102,14 +104,14 @@ export default async function DashboardPage() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <BookOpenIcon className="size-12 text-muted-foreground/50 mb-4" />
-            <h3 className="text-lg font-medium mb-1">No books yet</h3>
+            <h3 className="text-lg font-medium mb-1">{t.dashboard.noBooksYet}</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Create your first book to get started
+              {t.dashboard.noBooksDescription}
             </p>
             <Button asChild>
               <Link href="/books/new">
                 <PlusIcon className="mr-1 size-4" />
-                Create Book
+                {t.dashboard.createBook}
               </Link>
             </Button>
           </CardContent>
@@ -132,11 +134,11 @@ export default async function DashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex gap-4 text-xs text-muted-foreground">
-                    <span>{book.wordCount.toLocaleString()} words</span>
-                    <span>{book._count.chapters} chapters</span>
+                    <span>{book.wordCount.toLocaleString()} {t.dashboard.words}</span>
+                    <span>{book._count.chapters} {t.dashboard.chapters}</span>
                   </div>
                   <p className="mt-2 text-xs text-muted-foreground/70">
-                    Updated{" "}
+                    {t.dashboard.updated}{" "}
                     {new Date(book.updatedAt).toLocaleDateString()}
                   </p>
                 </CardContent>

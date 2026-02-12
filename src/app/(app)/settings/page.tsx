@@ -28,25 +28,13 @@ import {
   AlertCircleIcon,
 } from "lucide-react";
 import { useApiKeys, useAddApiKey, useDeleteApiKey } from "@/hooks/use-api-keys";
-
-const LANGUAGES = [
-  { code: "en", name: "English" },
-  { code: "es", name: "Spanish" },
-  { code: "fr", name: "French" },
-  { code: "de", name: "German" },
-  { code: "it", name: "Italian" },
-  { code: "pt", name: "Portuguese" },
-  { code: "ru", name: "Russian" },
-  { code: "ja", name: "Japanese" },
-  { code: "zh", name: "Chinese" },
-  { code: "ko", name: "Korean" },
-  { code: "ar", name: "Arabic" },
-  { code: "hi", name: "Hindi" },
-  { code: "sr", name: "Serbian" },
-  { code: "hr", name: "Croatian" },
-];
+import { useLanguage } from "@/components/providers/language-provider";
+import { useUpdateLanguage } from "@/hooks/use-language";
+import { SUPPORTED_LANGUAGES } from "@/lib/i18n/ui-strings";
 
 export default function SettingsPage() {
+  const { language, t } = useLanguage();
+  const updateLanguage = useUpdateLanguage();
   const { data: apiKeys, isLoading: keysLoading } = useApiKeys();
   const addKey = useAddApiKey();
   const deleteKey = useDeleteApiKey();
@@ -70,10 +58,10 @@ export default function SettingsPage() {
   return (
     <div className="p-6 lg:p-8 max-w-3xl">
       <h1 className="font-display text-3xl font-semibold tracking-tight">
-        Settings
+        {t.settings.title}
       </h1>
       <p className="text-muted-foreground">
-        Manage your API keys and preferences
+        {t.settings.subtitle}
       </p>
 
       <Separator className="my-6" />
@@ -83,9 +71,9 @@ export default function SettingsPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>API Keys</CardTitle>
+              <CardTitle>{t.settings.apiKeys}</CardTitle>
               <CardDescription>
-                Bring Your Own Key (BYOK) — your API keys are encrypted at rest
+                {t.settings.apiKeysDescription}
               </CardDescription>
             </div>
             <Button
@@ -94,7 +82,7 @@ export default function SettingsPage() {
               onClick={() => setShowAddKey(true)}
             >
               <PlusIcon className="mr-1 h-4 w-4" />
-              Add Key
+              {t.settings.addKey}
             </Button>
           </div>
         </CardHeader>
@@ -103,7 +91,7 @@ export default function SettingsPage() {
             <div className="mb-4 space-y-3 rounded-md border p-4">
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <Label>Provider</Label>
+                  <Label>{t.settings.provider}</Label>
                   <Select
                     value={newKeyProvider}
                     onValueChange={setNewKeyProvider}
@@ -120,7 +108,7 @@ export default function SettingsPage() {
                   </Select>
                 </div>
                 <div>
-                  <Label>Label (optional)</Label>
+                  <Label>{t.settings.labelOptional}</Label>
                   <Input
                     value={newKeyLabel}
                     onChange={(e) => setNewKeyLabel(e.target.value)}
@@ -129,7 +117,7 @@ export default function SettingsPage() {
                 </div>
               </div>
               <div>
-                <Label>API Key</Label>
+                <Label>{t.settings.apiKey}</Label>
                 <Input
                   type="password"
                   value={newKeyValue}
@@ -143,14 +131,14 @@ export default function SettingsPage() {
                   onClick={handleAddKey}
                   disabled={addKey.isPending || !newKeyValue}
                 >
-                  {addKey.isPending ? "Validating..." : "Add Key"}
+                  {addKey.isPending ? t.settings.validating : t.settings.addKey}
                 </Button>
                 <Button
                   size="sm"
                   variant="ghost"
                   onClick={() => setShowAddKey(false)}
                 >
-                  Cancel
+                  {t.settings.cancel}
                 </Button>
               </div>
             </div>
@@ -169,7 +157,7 @@ export default function SettingsPage() {
             <div className="py-8 text-center">
               <KeyIcon className="mx-auto h-8 w-8 text-muted-foreground" />
               <p className="mt-2 text-sm text-muted-foreground">
-                No API keys configured. Add one to start using AI agents.
+                {t.settings.noKeysTitle}. {t.settings.noKeysDescription}
               </p>
             </div>
           ) : (
@@ -205,7 +193,7 @@ export default function SettingsPage() {
                           )}
                           {key.isDefault && (
                             <Badge variant="secondary" className="text-xs">
-                              Default
+                              {t.settings.default}
                             </Badge>
                           )}
                         </div>
@@ -235,18 +223,21 @@ export default function SettingsPage() {
       {/* Language Preference */}
       <Card>
         <CardHeader>
-          <CardTitle>Language Preference</CardTitle>
+          <CardTitle>{t.settings.languagePreference}</CardTitle>
           <CardDescription>
-            Default language for new books and UI
+            {t.settings.languageDescription}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Select defaultValue="en">
+          <Select
+            value={language}
+            onValueChange={(val) => updateLanguage.mutate(val)}
+          >
             <SelectTrigger className="w-48">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {LANGUAGES.map((lang) => (
+              {SUPPORTED_LANGUAGES.map((lang) => (
                 <SelectItem key={lang.code} value={lang.code}>
                   {lang.name}
                 </SelectItem>
@@ -262,10 +253,7 @@ export default function SettingsPage() {
       <Card className="border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950/30">
         <CardContent className="py-4">
           <p className="text-sm">
-            <strong>BYOK (Bring Your Own Key):</strong> WriteMyBook uses your
-            API key directly. We never store or have access to your API
-            credentials in plaintext — they are encrypted with AES-256-GCM at
-            rest. You pay Anthropic directly for token usage.
+            <strong>{t.settings.byokTitle}</strong> {t.settings.byokDescription}
           </p>
         </CardContent>
       </Card>

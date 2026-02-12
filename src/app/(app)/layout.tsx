@@ -4,6 +4,7 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppHeader } from "@/components/layout/app-header";
 import { AgentPanelWrapper } from "@/components/agent/agent-panel-wrapper";
+import { LanguageProvider } from "@/components/providers/language-provider";
 import {
   ResizablePanelGroup,
   ResizablePanel,
@@ -58,32 +59,34 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const isMobile = useIsMobile();
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <AppHeader
-          onToggleAgent={() => setPanelOpen(!panelOpen)}
-          agentOpen={panelOpen}
-        />
-        <div className="flex flex-1 overflow-hidden relative">
-          {isMobile ? (
-            <>
+    <LanguageProvider>
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset>
+          <AppHeader
+            onToggleAgent={() => setPanelOpen(!panelOpen)}
+            agentOpen={panelOpen}
+          />
+          <div className="flex flex-1 overflow-hidden relative">
+            {isMobile ? (
+              <>
+                <main className="flex-1 overflow-y-auto">{children}</main>
+                {panelOpen && (
+                  <div className="fixed inset-0 z-40 bg-background">
+                    <AgentPanelWrapper onClose={() => setPanelOpen(false)} />
+                  </div>
+                )}
+              </>
+            ) : panelOpen ? (
+              <AgentLayout onCloseAgent={() => setPanelOpen(false)}>
+                {children}
+              </AgentLayout>
+            ) : (
               <main className="flex-1 overflow-y-auto">{children}</main>
-              {panelOpen && (
-                <div className="fixed inset-0 z-40 bg-background">
-                  <AgentPanelWrapper onClose={() => setPanelOpen(false)} />
-                </div>
-              )}
-            </>
-          ) : panelOpen ? (
-            <AgentLayout onCloseAgent={() => setPanelOpen(false)}>
-              {children}
-            </AgentLayout>
-          ) : (
-            <main className="flex-1 overflow-y-auto">{children}</main>
-          )}
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+            )}
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    </LanguageProvider>
   );
 }

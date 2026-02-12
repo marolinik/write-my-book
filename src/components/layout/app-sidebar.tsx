@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useBook } from "@/hooks/use-books";
 import { useSeriesDetail } from "@/hooks/use-series";
+import { useLanguage } from "@/components/providers/language-provider";
 
 const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 const isClerkConfigured =
@@ -49,20 +50,21 @@ const UserButton = dynamic(
   { ssr: false }
 );
 
-const navItems = [
-  { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
-  { title: "Books", href: "/books", icon: BookOpenIcon },
-  { title: "Series", href: "/series", icon: LibraryIcon },
-];
-
 export function AppSidebar() {
   const pathname = usePathname();
   const params = useParams();
   const bookId = params?.bookId as string | undefined;
   const seriesId = params?.seriesId as string | undefined;
+  const { t } = useLanguage();
 
   const { data: book } = useBook(bookId ?? "");
   const { data: series } = useSeriesDetail(seriesId ?? "");
+
+  const navItems = [
+    { title: t.nav.dashboard, href: "/dashboard", icon: LayoutDashboardIcon },
+    { title: t.nav.books, href: "/books", icon: BookOpenIcon },
+    { title: t.nav.series, href: "/series", icon: LibraryIcon },
+  ];
 
   return (
     <Sidebar collapsible="icon">
@@ -79,7 +81,7 @@ export function AppSidebar() {
                     WriteMyBook
                   </span>
                   <span className="truncate text-xs text-muted-foreground">
-                    Writing Platform
+                    {t.nav.writingPlatform}
                   </span>
                 </div>
               </Link>
@@ -91,7 +93,7 @@ export function AppSidebar() {
       <SidebarContent>
         {/* Main Navigation */}
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel>{t.nav.navigation}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => (
@@ -134,7 +136,7 @@ export function AppSidebar() {
                   >
                     <Link href={`/series/${seriesId}`}>
                       <FileTextIcon />
-                      <span>Overview</span>
+                      <span>{t.nav.overview}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -146,7 +148,7 @@ export function AppSidebar() {
                   >
                     <Link href={`/series/${seriesId}`}>
                       <DownloadIcon />
-                      <span>Documents</span>
+                      <span>{t.nav.documents}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -158,7 +160,7 @@ export function AppSidebar() {
                   >
                     <Link href={`/series/${seriesId}`}>
                       <BarChart3Icon />
-                      <span>Analytics</span>
+                      <span>{t.nav.analytics}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -167,7 +169,7 @@ export function AppSidebar() {
                 <SidebarMenuItem>
                   <SidebarMenuButton>
                     <ChevronRightIcon />
-                    <span>Books</span>
+                    <span>{t.nav.books}</span>
                   </SidebarMenuButton>
                   <SidebarMenuSub>
                     {series.books?.map((b) => (
@@ -211,7 +213,7 @@ export function AppSidebar() {
                   >
                     <Link href={`/books/${bookId}`}>
                       <FileTextIcon />
-                      <span>Overview</span>
+                      <span>{t.nav.overview}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -223,7 +225,7 @@ export function AppSidebar() {
                   >
                     <Link href={`/books/${bookId}/setup`}>
                       <WandIcon />
-                      <span>Setup</span>
+                      <span>{t.nav.setup}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -235,7 +237,7 @@ export function AppSidebar() {
                   >
                     <Link href={`/books/${bookId}/documents`}>
                       <FileTextIcon />
-                      <span>Documents</span>
+                      <span>{t.nav.documents}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -247,7 +249,7 @@ export function AppSidebar() {
                   >
                     <Link href={`/books/${bookId}/editorial`}>
                       <PenToolIcon />
-                      <span>Editorial</span>
+                      <span>{t.nav.editorial}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -259,7 +261,7 @@ export function AppSidebar() {
                   >
                     <Link href={`/books/${bookId}/import`}>
                       <UploadIcon />
-                      <span>Import</span>
+                      <span>{t.nav.import}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -271,7 +273,7 @@ export function AppSidebar() {
                   >
                     <Link href={`/books/${bookId}/export`}>
                       <DownloadIcon />
-                      <span>Export</span>
+                      <span>{t.nav.export}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -283,7 +285,7 @@ export function AppSidebar() {
                   >
                     <Link href={`/books/${bookId}/reports`}>
                       <BarChart3Icon />
-                      <span>Reports</span>
+                      <span>{t.nav.reports}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -295,7 +297,7 @@ export function AppSidebar() {
                   >
                     <Link href={`/books/${bookId}/style`}>
                       <PaletteIcon />
-                      <span>Style</span>
+                      <span>{t.nav.style}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -304,7 +306,7 @@ export function AppSidebar() {
                 <SidebarMenuItem>
                   <SidebarMenuButton>
                     <ChevronRightIcon />
-                    <span>Chapters</span>
+                    <span>{t.nav.chapters}</span>
                   </SidebarMenuButton>
                   <SidebarMenuSub>
                     {book.chapters?.map((ch) => (
@@ -328,7 +330,7 @@ export function AppSidebar() {
                       <SidebarMenuSubButton asChild>
                         <Link href={`/books/${bookId}/chapters/new`}>
                           <PlusIcon className="size-3" />
-                          <span>Add Chapter</span>
+                          <span>{t.nav.addChapter}</span>
                         </Link>
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
@@ -349,7 +351,7 @@ export function AppSidebar() {
             >
               <Link href="/settings">
                 <SettingsIcon />
-                <span>Settings</span>
+                <span>{t.nav.settings}</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -362,7 +364,7 @@ export function AppSidebar() {
                     elements: { avatarBox: "size-8" },
                   }}
                 />
-                <span className="truncate text-sm">Account</span>
+                <span className="truncate text-sm">{t.nav.account}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           )}

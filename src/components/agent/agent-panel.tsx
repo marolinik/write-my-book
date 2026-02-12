@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAgentStore } from "@/stores/agent-store";
 import { useAgentStream } from "@/hooks/use-agent-stream";
 import { useApiKeys } from "@/hooks/use-api-keys";
+import { useBook } from "@/hooks/use-books";
 import {
   useStartSession,
   useStartSeriesSession,
@@ -18,6 +19,8 @@ import {
 } from "@/hooks/use-agent";
 import { getWorkflow } from "@/lib/agents/workflows";
 import { getAgentDefinition } from "@/lib/agents/definitions";
+import { getAgentStrings } from "@/lib/i18n/agent-strings";
+import { useLanguage } from "@/components/providers/language-provider";
 import { WorkflowSelector } from "./workflow-selector";
 import { ProactiveGuide } from "./proactive-guide";
 import { SessionProgressList } from "./session-progress-list";
@@ -60,6 +63,11 @@ export function AgentPanel({
   const { data: apiKeys, isLoading: apiKeysLoading } = useApiKeys();
   const hasApiKey =
     apiKeysLoading || (Array.isArray(apiKeys) && apiKeys.length > 0);
+
+  const { t: uiT } = useLanguage();
+  const { data: book } = useBook(bookId);
+  const bookLanguage = book?.language ?? "en";
+  const strings = getAgentStrings(bookLanguage);
 
   // Multi-session SSE manager
   useAgentStream(bookId);
@@ -156,32 +164,36 @@ export function AgentPanel({
         const tool = msg.metadata?.tool as string | undefined;
         if (tool) {
           const input = parseToolInput(msg);
-          return getToolLabel(tool, input);
+          return getToolLabel(tool, input, bookLanguage);
         }
       }
     }
     return null;
-  }, [isRunning, messages]);
+  }, [isRunning, messages, bookLanguage]);
 
   // Auto-start a workflow when triggered from external pages
+  // Allow start even if completed/failed sessions exist — only block if one is running
+  const noRunning = !Object.values(sessions).some(
+    (s) => s.status === "running"
+  );
   useEffect(() => {
-    if (pendingWorkflowId && isIdle && hasApiKey) {
+    if (pendingWorkflowId && noRunning && hasApiKey) {
       handleWorkflowSelect(pendingWorkflowId);
       clearPendingWorkflow();
     }
-  }, [pendingWorkflowId, isIdle, hasApiKey, handleWorkflowSelect, clearPendingWorkflow]);
+  }, [pendingWorkflowId, noRunning, hasApiKey, handleWorkflowSelect, clearPendingWorkflow]);
 
   return (
     <div className="flex h-full w-full min-w-[280px] flex-col border-l bg-muted/30">
       {/* Header */}
       <div className="flex h-12 items-center gap-2 border-b px-4">
         <BotIcon className="size-4 text-muted-foreground" />
-        <span className="text-sm font-medium">Writing Agent</span>
+        <span className="text-sm font-medium">{strings.writingAgent}</span>
 
         {isRunning && (
           <Badge variant="secondary" className="ml-1 gap-1 text-xs max-w-[180px] truncate">
             <Loader2Icon className="size-3 animate-spin shrink-0" />
-            {currentStepLabel ?? agentDef?.name ?? "Running"}
+            {currentStepLabel ?? agentDef?.name ?? strings.running}
           </Badge>
         )}
 
@@ -218,13 +230,13 @@ export function AgentPanel({
             <KeyIcon className="size-8 text-amber-600 dark:text-amber-400" />
           </div>
           <div className="space-y-1">
-            <p className="text-sm font-medium">API Key Required</p>
+            <p className="text-sm font-medium">{uiT.agentPanel.apiKeyRequired}</p>
             <p className="text-xs text-muted-foreground">
-              Add your Anthropic API key to start using the writing agent.
+              {uiT.agentPanel.apiKeyDescription}
             </p>
           </div>
           <Button asChild size="sm">
-            <Link href="/settings">Go to Settings</Link>
+            <Link href="/settings">{uiT.agentPanel.goToSettings}</Link>
           </Button>
         </div>
       ) : isIdle && showAllWorkflows ? (
@@ -245,7 +257,7 @@ export function AgentPanel({
         />
       ) : (
         <>
-          <MessageStream messages={messages} isRunning={isRunning} onApprove={handleApprove} />
+          <MessageStream messages={messages} isRunning={isRunning} language={bookLanguage} onApprove={handleApprove} />
 
           {/* Error display */}
           {error && !isRunning && (
@@ -260,12 +272,13 @@ export function AgentPanel({
               {suggestedNext.length > 0 && (
                 <div className="flex flex-col gap-1">
                   <span className="text-xs text-muted-foreground">
-                    Suggested next:
+                    {strings.suggestedNext}
                   </span>
                   <div className="flex flex-wrap gap-1">
                     {suggestedNext.map((wfId) => {
                       const wf = getWorkflow(wfId);
                       if (!wf) return null;
+                      const localizedLabel = strings.workflows[wfId] ?? wf.label;
                       return (
                         <Button
                           key={wfId}
@@ -274,7 +287,7 @@ export function AgentPanel({
                           className="text-xs"
                           onClick={() => handleWorkflowSelect(wfId)}
                         >
-                          {wf.label}
+                          {localizedLabel}
                         </Button>
                       );
                     })}
@@ -287,7 +300,7 @@ export function AgentPanel({
                 onClick={handleNewWorkflow}
                 className="text-xs"
               >
-                Start new workflow
+                {strings.startNewWorkflow}
               </Button>
             </div>
           )}

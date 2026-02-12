@@ -273,10 +273,14 @@ export const editHistoryQuerySchema = z.object({
 // ─── Series Management Schemas ───────────────────────────────────
 
 export const addBookToSeriesSchema = z.object({
-  name: z.string().min(1).max(200),
+  bookId: z.string().optional(),
+  name: z.string().min(1).max(200).optional(),
   genre: z.string().max(50).optional(),
   language: z.string().min(2).max(10).optional(),
-});
+}).refine(
+  (data) => data.bookId || data.name,
+  { message: "Either bookId or name is required" }
+);
 
 export const reorderBookSchema = z.object({
   newBookNumber: z.number().int().min(1).max(99),
@@ -334,6 +338,10 @@ export const createApiKeySchema = z.object({
 export const updateUserSettingsSchema = z.object({
   displayName: z.string().min(1).max(200).optional(),
   preferredLanguage: z.string().min(2).max(10).optional(),
+});
+
+export const updateLanguageSchema = z.object({
+  language: z.string().min(2).max(10),
 });
 
 export const usageQuerySchema = z.object({

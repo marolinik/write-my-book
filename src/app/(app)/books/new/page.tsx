@@ -6,6 +6,8 @@ import { toast } from "sonner";
 
 import { useCreateBook } from "@/hooks/use-books";
 import { useSeries } from "@/hooks/use-series";
+import { useLanguage } from "@/components/providers/language-provider";
+import { SUPPORTED_LANGUAGES } from "@/lib/i18n/ui-strings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,20 +26,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const LANGUAGES = [
-  { value: "en", label: "English" },
-  { value: "es", label: "Spanish" },
-  { value: "fr", label: "French" },
-  { value: "de", label: "German" },
-  { value: "it", label: "Italian" },
-  { value: "pt", label: "Portuguese" },
-  { value: "ja", label: "Japanese" },
-  { value: "ko", label: "Korean" },
-  { value: "zh", label: "Chinese" },
-];
-
 export default function NewBookPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const createBook = useCreateBook();
   const { data: seriesList } = useSeries();
 
@@ -59,7 +50,7 @@ export default function NewBookPage() {
         seriesId: seriesId || undefined,
         bookNumber: seriesId ? bookNumber : undefined,
       });
-      toast.success("Book created");
+      toast.success(t.newBook.bookCreated);
       router.push(`/books/${book.id}`);
     } catch (err) {
       toast.error((err as Error).message);
@@ -70,13 +61,13 @@ export default function NewBookPage() {
     <div className="mx-auto max-w-lg p-6 lg:p-8">
       <Card>
         <CardHeader>
-          <CardTitle className="font-display text-xl">New Book</CardTitle>
-          <CardDescription>Create a new book to start writing</CardDescription>
+          <CardTitle className="font-display text-xl">{t.newBook.title}</CardTitle>
+          <CardDescription>{t.newBook.description}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Book Name *</Label>
+              <Label htmlFor="name">{t.newBook.bookName} *</Label>
               <Input
                 id="name"
                 value={name}
@@ -88,26 +79,26 @@ export default function NewBookPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="genre">Genre</Label>
+              <Label htmlFor="genre">{t.newBook.genre}</Label>
               <Input
                 id="genre"
                 value={genre}
                 onChange={(e) => setGenre(e.target.value)}
-                placeholder="Fantasy, Sci-Fi, Romance..."
+                placeholder={t.newBook.genrePlaceholder}
                 maxLength={50}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="language">Language</Label>
+              <Label htmlFor="language">{t.newBook.language}</Label>
               <Select value={language} onValueChange={setLanguage}>
                 <SelectTrigger id="language">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {LANGUAGES.map((lang) => (
-                    <SelectItem key={lang.value} value={lang.value}>
-                      {lang.label}
+                  {SUPPORTED_LANGUAGES.map((lang) => (
+                    <SelectItem key={lang.code} value={lang.code}>
+                      {lang.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -117,13 +108,13 @@ export default function NewBookPage() {
             {seriesList && seriesList.length > 0 && (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="series">Series (optional)</Label>
+                  <Label htmlFor="series">{t.newBook.seriesOptional}</Label>
                   <Select value={seriesId} onValueChange={setSeriesId}>
                     <SelectTrigger id="series">
                       <SelectValue placeholder="No series" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">No series</SelectItem>
+                      <SelectItem value="">{t.newBook.noSeries}</SelectItem>
                       {seriesList.map((s) => (
                         <SelectItem key={s.id} value={s.id}>
                           {s.title}
@@ -135,7 +126,7 @@ export default function NewBookPage() {
 
                 {seriesId && (
                   <div className="space-y-2">
-                    <Label htmlFor="bookNumber">Book Number</Label>
+                    <Label htmlFor="bookNumber">{t.newBook.bookNumber}</Label>
                     <Input
                       id="bookNumber"
                       type="number"
@@ -157,10 +148,10 @@ export default function NewBookPage() {
                 variant="outline"
                 onClick={() => router.back()}
               >
-                Cancel
+                {t.newBook.cancel}
               </Button>
               <Button type="submit" disabled={createBook.isPending}>
-                {createBook.isPending ? "Creating..." : "Create Book"}
+                {createBook.isPending ? t.newBook.creating : t.newBook.create}
               </Button>
             </div>
           </form>

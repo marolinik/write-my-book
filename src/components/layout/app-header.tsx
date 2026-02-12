@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { BotIcon, SidebarIcon } from "lucide-react";
 
 import { useSidebar } from "@/components/ui/sidebar";
+import { useLanguage } from "@/components/providers/language-provider";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -14,16 +15,28 @@ import { Separator } from "@/components/ui/separator";
 
 function useBreadcrumbs() {
   const pathname = usePathname();
+  const { t } = useLanguage();
   const segments = pathname.split("/").filter(Boolean);
   const crumbs: string[] = [];
 
+  const segmentMap: Record<string, string> = {
+    dashboard: t.nav.dashboard,
+    books: t.nav.books,
+    series: t.nav.series,
+    new: t.header.new,
+    chapters: t.nav.chapters,
+    settings: t.nav.settings,
+    editorial: t.nav.editorial,
+    documents: t.nav.documents,
+    import: t.nav.import,
+    export: t.nav.export,
+    reports: t.nav.reports,
+    style: t.nav.style,
+    setup: t.nav.setup,
+  };
+
   for (const seg of segments) {
-    if (seg === "dashboard") crumbs.push("Dashboard");
-    else if (seg === "books") crumbs.push("Books");
-    else if (seg === "series") crumbs.push("Series");
-    else if (seg === "new") crumbs.push("New");
-    else if (seg === "chapters") crumbs.push("Chapters");
-    else if (seg === "settings") crumbs.push("Settings");
+    if (segmentMap[seg]) crumbs.push(segmentMap[seg]);
     // Skip UUIDs
   }
 
@@ -38,6 +51,7 @@ export function AppHeader({
   agentOpen: boolean;
 }) {
   const { toggleSidebar } = useSidebar();
+  const { t } = useLanguage();
   const breadcrumbs = useBreadcrumbs();
 
   return (
@@ -53,7 +67,7 @@ export function AppHeader({
             <SidebarIcon className="size-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent side="bottom">Toggle sidebar</TooltipContent>
+        <TooltipContent side="bottom">{t.header.toggleSidebar}</TooltipContent>
       </Tooltip>
 
       <Separator orientation="vertical" className="mr-2 h-4" />
@@ -81,7 +95,7 @@ export function AppHeader({
               <BotIcon className="size-4" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="bottom">Toggle agent panel</TooltipContent>
+          <TooltipContent side="bottom">{t.header.toggleAgent}</TooltipContent>
         </Tooltip>
       </div>
     </header>
