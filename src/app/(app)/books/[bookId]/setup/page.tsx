@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useEffect } from "react";
+import { use, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
   BookOpenIcon,
@@ -12,8 +12,12 @@ import {
   ChevronRightIcon,
   ChevronLeftIcon,
   SparklesIcon,
+  Loader2Icon,
+  AlertTriangleIcon,
+  RefreshCwIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -26,6 +30,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useAgentStore } from "@/stores/agent-store";
 import { useBook, useUpdateBook } from "@/hooks/use-books";
+import { useBookState } from "@/hooks/use-book-state";
 
 const STEPS = [
   {
@@ -73,9 +78,17 @@ export default function SetupPage({
 }) {
   const { bookId } = use(params);
   const [currentStep, setCurrentStep] = useState(0);
+  const [confirmWorkflow, setConfirmWorkflow] = useState<string | null>(null);
   const openWithWorkflow = useAgentStore((s) => s.openWithWorkflow);
+  const sessions = useAgentStore((s) => s.sessions);
   const { data: book } = useBook(bookId);
   const updateBook = useUpdateBook(bookId);
+  const bookState = useBookState(bookId);
+
+  // Check if any agent session is currently running
+  const hasRunningSession = Object.values(sessions).some(
+    (s) => s.status === "running"
+  );
 
   const [name, setName] = useState("");
   const [genre, setGenre] = useState("");
@@ -105,6 +118,19 @@ export default function SetupPage({
     });
     next();
   };
+
+  /** Start a workflow, with confirmation if document already exists. */
+  const handleStartWorkflow = useCallback(
+    (workflowId: string, existsAlready: boolean) => {
+      if (existsAlready && confirmWorkflow !== workflowId) {
+        setConfirmWorkflow(workflowId);
+        return;
+      }
+      setConfirmWorkflow(null);
+      openWithWorkflow(workflowId);
+    },
+    [openWithWorkflow, confirmWorkflow]
+  );
 
   return (
     <div className="p-6 lg:p-8 max-w-2xl mx-auto">
@@ -209,11 +235,19 @@ export default function SetupPage({
                 If you have an existing manuscript, you can import it now. This
                 step is optional -- you can always import later.
               </p>
+              {bookState.hasChapters && (
+                <div className="flex items-center gap-2 rounded-md bg-green-50 dark:bg-green-950/30 p-3">
+                  <CheckCircle2Icon className="size-4 text-green-600 dark:text-green-400 shrink-0" />
+                  <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                    Manuscript imported — {bookState.chapterCount} chapter{bookState.chapterCount !== 1 ? "s" : ""} loaded
+                  </span>
+                </div>
+              )}
               <div className="flex gap-2">
                 <Button asChild variant="outline">
                   <Link href={`/books/${bookId}/import`}>
                     <UploadIcon className="mr-2 size-4" />
-                    Go to Import
+                    {bookState.hasChapters ? "Import More" : "Go to Import"}
                   </Link>
                 </Button>
               </div>
@@ -223,7 +257,7 @@ export default function SetupPage({
                   Back
                 </Button>
                 <Button variant="outline" size="sm" onClick={next}>
-                  Skip
+                  {bookState.hasChapters ? "Continue" : "Skip"}
                   <ChevronRightIcon className="ml-1 size-4" />
                 </Button>
               </div>
@@ -237,17 +271,55 @@ export default function SetupPage({
                 fingerprint. The agent will examine your prose and build a style
                 profile that guides the ghostwriter.
               </p>
-              <Button onClick={() => openWithWorkflow("capture-style")}>
-                <SparklesIcon className="mr-2 size-4" />
-                Capture My Writing Style
-              </Button>
+              {bookState.hasFingerprint && confirmWorkflow !== "capture-style" && (
+                <Badge variant="outline" className="gap-1 text-green-600 border-green-200">
+                  <CheckCircle2Icon className="size-3" />
+                  Style fingerprint already captured
+                </Badge>
+              )}
+              {confirmWorkflow === "capture-style" && (
+                <div className="flex items-start gap-2 rounded-md border border-amber-300/50 bg-amber-50/50 dark:bg-amber-950/20 p-3">
+                  <AlertTriangleIcon className="size-4 text-amber-600 mt-0.5 shrink-0" />
+                  <div className="text-sm">
+                    <p className="font-medium">Style fingerprint already exists</p>
+                    <p className="text-muted-foreground">Running again will overwrite it. Continue?</p>
+                    <div className="flex gap-2 mt-2">
+                      <Button size="sm" onClick={() => handleStartWorkflow("capture-style", true)}>
+                        <RefreshCwIcon className="mr-1 size-3" />
+                        Re-capture
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => setConfirmWorkflow(null)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {confirmWorkflow !== "capture-style" && (
+                <Button
+                  onClick={() => handleStartWorkflow("capture-style", bookState.hasFingerprint)}
+                  disabled={hasRunningSession}
+                >
+                  {hasRunningSession ? (
+                    <>
+                      <Loader2Icon className="mr-2 size-4 animate-spin" />
+                      Agent Running...
+                    </>
+                  ) : (
+                    <>
+                      <SparklesIcon className="mr-2 size-4" />
+                      {bookState.hasFingerprint ? "Re-capture Style" : "Capture My Writing Style"}
+                    </>
+                  )}
+                </Button>
+              )}
               <div className="flex justify-between pt-4 border-t">
                 <Button variant="ghost" size="sm" onClick={prev}>
                   <ChevronLeftIcon className="mr-1 size-4" />
                   Back
                 </Button>
                 <Button variant="outline" size="sm" onClick={next}>
-                  Skip
+                  {bookState.hasFingerprint ? "Continue" : "Skip"}
                   <ChevronRightIcon className="ml-1 size-4" />
                 </Button>
               </div>
@@ -260,17 +332,55 @@ export default function SetupPage({
                 Build a story bible with your world, characters, rules, and
                 lore. This keeps the ghostwriter consistent across chapters.
               </p>
-              <Button onClick={() => openWithWorkflow("create-story-bible")}>
-                <BookMarkedIcon className="mr-2 size-4" />
-                Create Story Bible
-              </Button>
+              {bookState.hasStoryBible && confirmWorkflow !== "create-story-bible" && (
+                <Badge variant="outline" className="gap-1 text-green-600 border-green-200">
+                  <CheckCircle2Icon className="size-3" />
+                  Story Bible already created
+                </Badge>
+              )}
+              {confirmWorkflow === "create-story-bible" && (
+                <div className="flex items-start gap-2 rounded-md border border-amber-300/50 bg-amber-50/50 dark:bg-amber-950/20 p-3">
+                  <AlertTriangleIcon className="size-4 text-amber-600 mt-0.5 shrink-0" />
+                  <div className="text-sm">
+                    <p className="font-medium">Story Bible already exists</p>
+                    <p className="text-muted-foreground">Running again will overwrite it. Continue?</p>
+                    <div className="flex gap-2 mt-2">
+                      <Button size="sm" onClick={() => handleStartWorkflow("create-story-bible", true)}>
+                        <RefreshCwIcon className="mr-1 size-3" />
+                        Re-create
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => setConfirmWorkflow(null)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {confirmWorkflow !== "create-story-bible" && (
+                <Button
+                  onClick={() => handleStartWorkflow("create-story-bible", bookState.hasStoryBible)}
+                  disabled={hasRunningSession}
+                >
+                  {hasRunningSession ? (
+                    <>
+                      <Loader2Icon className="mr-2 size-4 animate-spin" />
+                      Agent Running...
+                    </>
+                  ) : (
+                    <>
+                      <BookMarkedIcon className="mr-2 size-4" />
+                      {bookState.hasStoryBible ? "Re-create Story Bible" : "Create Story Bible"}
+                    </>
+                  )}
+                </Button>
+              )}
               <div className="flex justify-between pt-4 border-t">
                 <Button variant="ghost" size="sm" onClick={prev}>
                   <ChevronLeftIcon className="mr-1 size-4" />
                   Back
                 </Button>
                 <Button variant="outline" size="sm" onClick={next}>
-                  Skip
+                  {bookState.hasStoryBible ? "Continue" : "Skip"}
                   <ChevronRightIcon className="ml-1 size-4" />
                 </Button>
               </div>
@@ -283,17 +393,55 @@ export default function SetupPage({
                 Design your story structure -- acts, chapters, plot arcs, and
                 pacing. The agent will help you outline the full book.
               </p>
-              <Button onClick={() => openWithWorkflow("build-architecture")}>
-                <LayoutIcon className="mr-2 size-4" />
-                Build Architecture
-              </Button>
+              {bookState.hasArchitecture && confirmWorkflow !== "build-architecture" && (
+                <Badge variant="outline" className="gap-1 text-green-600 border-green-200">
+                  <CheckCircle2Icon className="size-3" />
+                  Architecture already built
+                </Badge>
+              )}
+              {confirmWorkflow === "build-architecture" && (
+                <div className="flex items-start gap-2 rounded-md border border-amber-300/50 bg-amber-50/50 dark:bg-amber-950/20 p-3">
+                  <AlertTriangleIcon className="size-4 text-amber-600 mt-0.5 shrink-0" />
+                  <div className="text-sm">
+                    <p className="font-medium">Architecture already exists</p>
+                    <p className="text-muted-foreground">Running again will overwrite it. Continue?</p>
+                    <div className="flex gap-2 mt-2">
+                      <Button size="sm" onClick={() => handleStartWorkflow("build-architecture", true)}>
+                        <RefreshCwIcon className="mr-1 size-3" />
+                        Re-build
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => setConfirmWorkflow(null)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {confirmWorkflow !== "build-architecture" && (
+                <Button
+                  onClick={() => handleStartWorkflow("build-architecture", bookState.hasArchitecture)}
+                  disabled={hasRunningSession}
+                >
+                  {hasRunningSession ? (
+                    <>
+                      <Loader2Icon className="mr-2 size-4 animate-spin" />
+                      Agent Running...
+                    </>
+                  ) : (
+                    <>
+                      <LayoutIcon className="mr-2 size-4" />
+                      {bookState.hasArchitecture ? "Re-build Architecture" : "Build Architecture"}
+                    </>
+                  )}
+                </Button>
+              )}
               <div className="flex justify-between pt-4 border-t">
                 <Button variant="ghost" size="sm" onClick={prev}>
                   <ChevronLeftIcon className="mr-1 size-4" />
                   Back
                 </Button>
                 <Button variant="outline" size="sm" onClick={next}>
-                  Skip
+                  {bookState.hasArchitecture ? "Continue" : "Skip"}
                   <ChevronRightIcon className="ml-1 size-4" />
                 </Button>
               </div>
