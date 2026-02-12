@@ -275,6 +275,46 @@ export class AgentOrchestrator {
       totalInputTokens += finalMessage.usage.input_tokens;
       totalOutputTokens += finalMessage.usage.output_tokens;
 
+      // Handle max_tokens BEFORE pushing assistant message — when truncation
+      // happens mid-tool-use, the tool_use block has incomplete JSON input.
+      // The API requires a tool_result for every tool_use, so we must handle
+      // this specially: strip broken tool_use blocks, provide error results
+      // for any that exist, and ask the model to retry.
+      if (finalMessage.stop_reason === "max_tokens") {
+        const contentBlocks = finalMessage.content;
+        const toolUseBlocks = contentBlocks.filter(
+          (b): b is Anthropic.ToolUseBlock => b.type === "tool_use"
+        );
+        if (toolUseBlocks.length > 0) {
+          // Tool call was truncated — the input JSON is likely incomplete.
+          // Push the full assistant content (including the truncated tool_use
+          // blocks) so tool_use IDs exist for the tool_result references.
+          // Then provide error tool_results telling the model to retry.
+          messages.push({ role: "assistant", content: contentBlocks });
+          const errorResults: Anthropic.ToolResultBlockParam[] =
+            toolUseBlocks.map((tu) => ({
+              type: "tool_result" as const,
+              tool_use_id: tu.id,
+              content:
+                "ERROR: Your tool call was truncated because the response exceeded the maximum length. " +
+                "The tool did NOT execute. You MUST call the tool again. " +
+                "If writing a large document, break it into sections and use multiple smaller WriteDocument calls.",
+              is_error: true,
+            }));
+          messages.push({ role: "user", content: errorResults });
+        } else {
+          // Pure text truncation — push content and ask to continue
+          messages.push({ role: "assistant", content: contentBlocks });
+          messages.push({
+            role: "user",
+            content:
+              "Your previous response was cut off because it exceeded the length limit. " +
+              "Please continue exactly where you left off. Do not repeat what you already wrote.",
+          });
+        }
+        continue;
+      }
+
       messages.push({ role: "assistant", content: finalMessage.content });
 
       if (finalMessage.stop_reason === "end_turn") break;
@@ -399,18 +439,6 @@ export class AgentOrchestrator {
         }
 
         messages.push({ role: "user", content: toolResults });
-        continue;
-      }
-
-      // Handle max_tokens — the response was truncated mid-generation.
-      // Push partial content and ask the model to continue.
-      if (finalMessage.stop_reason === "max_tokens") {
-        messages.push({
-          role: "user",
-          content:
-            "Your previous response was cut off because it exceeded the length limit. " +
-            "Please continue exactly where you left off. Do not repeat what you already wrote.",
-        });
         continue;
       }
 
