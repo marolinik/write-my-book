@@ -155,6 +155,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       model: modelTier,
       context: {
         bookId: data.bookId,
+        bookName: book.name,
         userId: user.id,
         chapterNumber: data.chapterNumber,
         language: book.language,

@@ -38,6 +38,7 @@ export interface AgentDefinition {
 
 export interface AgentContext {
   bookId: string;
+  bookName?: string;
   userId: string;
   chapterNumber?: number;
   chapterId?: string;

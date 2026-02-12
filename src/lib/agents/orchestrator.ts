@@ -465,6 +465,10 @@ export class AgentOrchestrator {
 
     parts.push(`Workflow: ${options.workflowId}`);
 
+    if (options.context.bookName) {
+      parts.push(`Book: ${options.context.bookName}`);
+    }
+
     if (options.context.chapterNumber) {
       parts.push(`Chapter: ${options.context.chapterNumber}`);
     }

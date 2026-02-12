@@ -825,6 +825,16 @@ export async function assembleAgentPrompt(
     parts.push(base);
   }
 
+  // Book identity — so agents use the real name, not a hallucinated one
+  if (context.bookName) {
+    parts.push(
+      `\nBOOK NAME: "${context.bookName}"\n` +
+      `Always use this exact name when referring to the book. ` +
+      `Use it in document titles (e.g. "Biblija priče – ${context.bookName}"). ` +
+      `NEVER invent or change the book's name.`
+    );
+  }
+
   // Language context — ALWAYS include, even for English
   if (context.language) {
     const langName = LANGUAGE_NAMES[context.language] ?? context.language;
