@@ -1,17 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import {
-  WrenchIcon,
   CheckCircleIcon,
   AlertTriangleIcon,
-  ChevronDownIcon,
-  ChevronRightIcon,
   ShieldQuestionIcon,
   Loader2Icon,
+  ChevronDownIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { estimateCost } from "@/lib/cost";
@@ -21,6 +20,7 @@ import type { AgentStreamMessage, AgentResult } from "@/lib/agents/types";
 interface MessageStreamProps {
   messages: AgentStreamMessage[];
   isRunning?: boolean;
+  language?: string;
   onApprove?: (
     approvalId: string,
     decision: "approve" | "reject" | "modify",
@@ -31,236 +31,354 @@ interface MessageStreamProps {
 export function MessageStream({
   messages,
   isRunning,
+  language,
   onApprove,
 }: MessageStreamProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const isNearBottom = useRef(true);
+  const [showScrollButton, setShowScrollButton] = useState(false);
 
-  // Auto-scroll on new messages
+  // Track scroll position — only auto-scroll when user is near bottom
+  const handleScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const threshold = 100;
+    const near = el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
+    isNearBottom.current = near;
+    setShowScrollButton(!near && !!isRunning);
+  }, [isRunning]);
+
   useEffect(() => {
+    if (isNearBottom.current) {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+    if (!isNearBottom.current && isRunning) {
+      setShowScrollButton(true);
+    }
+  }, [messages.length, isRunning]);
+
+  // Hide scroll button when not running
+  useEffect(() => {
+    if (!isRunning) setShowScrollButton(false);
+  }, [isRunning]);
+
+  const scrollToBottom = useCallback(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages.length]);
+    setShowScrollButton(false);
+  }, []);
+
+  // Defer messages during rapid streaming so React can batch renders
+  const deferredMessages = useDeferredValue(messages);
 
   // Track which tool_use IDs have received results
   const completedTools = new Set<string>();
-  for (const msg of messages) {
+  for (const msg of deferredMessages) {
     if (msg.type === "tool_result" && msg.metadata?.toolUseId) {
       completedTools.add(msg.metadata.toolUseId as string);
     }
   }
 
-  // Accumulate text blocks into contiguous prose chunks
-  const renderedBlocks: React.ReactNode[] = [];
-  let textAccumulator = "";
-  let keyIndex = 0;
-
-  const flushText = () => {
-    if (textAccumulator) {
-      renderedBlocks.push(
-        <div
-          key={`text-${keyIndex++}`}
-          className="whitespace-pre-wrap text-sm leading-relaxed"
-        >
-          {textAccumulator}
-        </div>
-      );
-      textAccumulator = "";
-    }
-  };
-
-  for (const msg of messages) {
-    switch (msg.type) {
-      case "text":
-        if (msg.metadata?.role === "user") {
-          flushText();
-          renderedBlocks.push(
-            <div
-              key={`user-${keyIndex++}`}
-              className="ml-auto max-w-[80%] rounded-lg bg-primary/10 px-3 py-2 text-sm"
-            >
-              {msg.content}
-            </div>
-          );
-        } else {
-          textAccumulator += msg.content;
-        }
-        break;
-
-      case "tool_use":
-        flushText();
-        {
-          const toolUseId = msg.metadata?.toolUseId as string | undefined;
-          const isExecuting = toolUseId
-            ? !completedTools.has(toolUseId)
-            : false;
-          renderedBlocks.push(
-            <ToolUseCard
-              key={`tool-${keyIndex++}`}
-              message={msg}
-              isExecuting={isExecuting}
-            />
-          );
-        }
-        break;
-
-      case "tool_result":
-        flushText();
-        renderedBlocks.push(
-          <ToolResultCard key={`result-${keyIndex++}`} message={msg} />
-        );
-        break;
-
-      case "thinking":
-        flushText();
-        renderedBlocks.push(
-          <div
-            key={`think-${keyIndex++}`}
-            className="text-xs italic text-muted-foreground/60"
-          >
-            {msg.content}
-          </div>
-        );
-        break;
-
-      case "approval_request":
-        flushText();
-        renderedBlocks.push(
-          <ApprovalCard
-            key={`approve-${keyIndex++}`}
-            message={msg}
-            onApprove={onApprove}
-          />
-        );
-        break;
-
-      case "error":
-        flushText();
-        renderedBlocks.push(
-          <div
-            key={`err-${keyIndex++}`}
-            className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 p-3"
-          >
-            <AlertTriangleIcon className="mt-0.5 size-4 shrink-0 text-destructive" />
-            <span className="text-sm text-destructive">{msg.content}</span>
-          </div>
-        );
-        break;
-
-      case "complete":
-        flushText();
-        renderedBlocks.push(
-          <CompletionCard
-            key={`done-${keyIndex++}`}
-            result={msg.metadata as unknown as AgentResult}
-          />
-        );
-        break;
+  // Find the last executing tool_use (for inline status)
+  let lastExecutingToolMsg: AgentStreamMessage | null = null;
+  for (let i = deferredMessages.length - 1; i >= 0; i--) {
+    const msg = deferredMessages[i];
+    if (msg.type === "tool_use") {
+      const toolUseId = msg.metadata?.toolUseId as string | undefined;
+      if (toolUseId && !completedTools.has(toolUseId)) {
+        lastExecutingToolMsg = msg;
+      }
+      break;
     }
   }
-  flushText();
+
+  // Build block descriptors (cheap) — separate from rendering (expensive)
+  type BlockDesc =
+    | { kind: "text"; text: string; blockKey: number }
+    | { kind: "user"; text: string; blockKey: number }
+    | { kind: "tool"; msg: AgentStreamMessage; blockKey: number }
+    | { kind: "thinking"; text: string; blockKey: number }
+    | { kind: "approval"; msg: AgentStreamMessage; blockKey: number }
+    | { kind: "error"; text: string; blockKey: number }
+    | { kind: "complete"; msg: AgentStreamMessage; blockKey: number };
+
+  const blocks = useMemo(() => {
+    const result: BlockDesc[] = [];
+    let textAccumulator = "";
+    let keyIndex = 0;
+
+    const flushText = () => {
+      if (textAccumulator) {
+        result.push({ kind: "text", text: textAccumulator, blockKey: keyIndex++ });
+        textAccumulator = "";
+      }
+    };
+
+    for (const msg of deferredMessages) {
+      switch (msg.type) {
+        case "text":
+          if (msg.metadata?.role === "user") {
+            flushText();
+            result.push({ kind: "user", text: msg.content, blockKey: keyIndex++ });
+          } else {
+            textAccumulator += msg.content;
+          }
+          break;
+
+        case "tool_use": {
+          flushText();
+          const toolUseId = msg.metadata?.toolUseId as string | undefined;
+          const isExecuting = toolUseId ? !completedTools.has(toolUseId) : false;
+          if (isExecuting) {
+            result.push({ kind: "tool", msg, blockKey: keyIndex++ });
+          }
+          break;
+        }
+
+        case "tool_result":
+          break;
+
+        case "thinking":
+          flushText();
+          result.push({ kind: "thinking", text: msg.content, blockKey: keyIndex++ });
+          break;
+
+        case "approval_request":
+          flushText();
+          result.push({ kind: "approval", msg, blockKey: keyIndex++ });
+          break;
+
+        case "error":
+          flushText();
+          result.push({ kind: "error", text: msg.content, blockKey: keyIndex++ });
+          break;
+
+        case "complete":
+          flushText();
+          result.push({ kind: "complete", msg, blockKey: keyIndex++ });
+          break;
+      }
+    }
+    flushText();
+    return result;
+  }, [deferredMessages, completedTools]);
+
+  // Render blocks — markdown is memoized per text content
+  const renderedBlocks = blocks.map((block) => {
+    switch (block.kind) {
+      case "text":
+        return <ThrottledMarkdown key={`text-${block.blockKey}`} text={block.text} isStreaming={!!isRunning} />;
+      case "user":
+        return (
+          <div key={`user-${block.blockKey}`} className="ml-auto max-w-[80%] rounded-lg bg-primary/10 px-3 py-2 text-sm">
+            {block.text}
+          </div>
+        );
+      case "tool":
+        return <ToolStatus key={`tool-${block.blockKey}`} message={block.msg} language={language} />;
+      case "thinking":
+        return (
+          <div key={`think-${block.blockKey}`} className="text-xs italic text-muted-foreground/60">
+            {block.text}
+          </div>
+        );
+      case "approval":
+        return <ApprovalCard key={`approve-${block.blockKey}`} message={block.msg} onApprove={onApprove} />;
+      case "error":
+        return (
+          <div key={`err-${block.blockKey}`} className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 p-3">
+            <AlertTriangleIcon className="mt-0.5 size-4 shrink-0 text-destructive" />
+            <span className="text-sm text-destructive">{block.text}</span>
+          </div>
+        );
+      case "complete":
+        return <CompletionCard key={`done-${block.blockKey}`} result={block.msg.metadata as unknown as AgentResult} language={language} />;
+    }
+  });
+
+  // Get localized thinking text
+  const thinkingText = getThinkingText(language);
+
+  // Show a starting indicator when running but no visible content yet
+  const hasVisibleContent = renderedBlocks.length > 0;
 
   return (
-    <ScrollArea className="flex-1 p-4">
-      <div className="flex flex-col gap-3">
-        {renderedBlocks}
-        {isRunning && <ThinkingIndicator messages={messages} />}
-        <div ref={bottomRef} />
+    <div className="relative flex-1 overflow-hidden">
+      <div
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className="h-full overflow-y-auto p-4"
+      >
+        <div className="flex flex-col gap-3">
+          {!hasVisibleContent && isRunning && (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <Loader2Icon className="size-6 animate-spin text-primary mb-3" />
+              <p className="text-sm font-medium">{getThinkingText(language)}</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {getLocalizedText(language, {
+                  en: "The agent is reading your project and preparing...",
+                  sr: "Agent čita vaš projekat i priprema se...",
+                  de: "Der Agent liest Ihr Projekt und bereitet sich vor...",
+                  es: "El agente está leyendo su proyecto y preparándose...",
+                  fr: "L'agent lit votre projet et se prépare...",
+                  ru: "Агент читает ваш проект и готовится...",
+                  zh: "代理正在阅读您的项目并准备中...",
+                })}
+              </p>
+            </div>
+          )}
+          {renderedBlocks}
+          {isRunning && hasVisibleContent && (
+            <ThinkingIndicator
+              messages={messages}
+              thinkingText={thinkingText}
+              lastToolMsg={lastExecutingToolMsg}
+              language={language}
+            />
+          )}
+          <div ref={bottomRef} />
+        </div>
       </div>
-    </ScrollArea>
-  );
-}
 
-// ─── Thinking indicator ──────────────────────────────────────────
-
-function ThinkingIndicator({ messages }: { messages: AgentStreamMessage[] }) {
-  const [show, setShow] = useState(false);
-
-  useEffect(() => {
-    setShow(false);
-    const timer = setTimeout(() => setShow(true), 1000);
-    return () => clearTimeout(timer);
-  }, [messages.length]);
-
-  if (!show) return null;
-
-  return (
-    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-      <span className="flex gap-0.5">
-        <span className="animate-bounce [animation-delay:0ms]">.</span>
-        <span className="animate-bounce [animation-delay:150ms]">.</span>
-        <span className="animate-bounce [animation-delay:300ms]">.</span>
-      </span>
-      <span className="italic">Agent is thinking</span>
+      {/* Scroll-to-bottom floating button */}
+      {showScrollButton && (
+        <button
+          onClick={scrollToBottom}
+          className="absolute bottom-4 right-4 z-10 rounded-full bg-primary/90 p-2 shadow-lg transition-opacity hover:bg-primary"
+        >
+          <ChevronDownIcon className="size-4 text-primary-foreground" />
+        </button>
+      )}
     </div>
   );
 }
 
-// ─── Sub-components ────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────
 
-function ToolUseCard({
+function getThinkingText(language?: string): string {
+  const map: Record<string, string> = {
+    en: "Agent is thinking",
+    sr: "Agent razmišlja",
+    de: "Agent denkt nach",
+    es: "El agente está pensando",
+    fr: "L'agent réfléchit",
+    ru: "Агент думает",
+    zh: "代理正在思考",
+  };
+  if (!language) return map.en;
+  return map[language] ?? map[language.split("-")[0]] ?? map.en;
+}
+
+// ─── Throttled markdown renderer ──────────────────────────────
+// During streaming, only re-render markdown when text grows by 80+ chars
+// to avoid re-parsing thousands of words on every 2-char SSE delta.
+
+function ThrottledMarkdown({ text, isStreaming }: { text: string; isStreaming: boolean }) {
+  const [renderedText, setRenderedText] = useState(text);
+  const lastRenderedLen = useRef(0);
+
+  useEffect(() => {
+    if (!isStreaming) {
+      // When not streaming, always render the final text
+      setRenderedText(text);
+      lastRenderedLen.current = text.length;
+      return;
+    }
+
+    // During streaming, only update when text grows by 80+ chars
+    const delta = text.length - lastRenderedLen.current;
+    if (delta >= 80 || text.length === 0) {
+      setRenderedText(text);
+      lastRenderedLen.current = text.length;
+    }
+  }, [text, isStreaming]);
+
+  // Always render final text when streaming stops
+  const displayText = isStreaming ? renderedText : text;
+
+  return (
+    <div className="agent-prose text-sm leading-relaxed">
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>{displayText}</ReactMarkdown>
+    </div>
+  );
+}
+
+// ─── Thinking indicator with elapsed time ────────────────────
+
+function ThinkingIndicator({
+  messages,
+  thinkingText,
+  lastToolMsg,
+  language,
+}: {
+  messages: AgentStreamMessage[];
+  thinkingText: string;
+  lastToolMsg: AgentStreamMessage | null;
+  language?: string;
+}) {
+  const [show, setShow] = useState(false);
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => {
+    setShow(false);
+    setElapsed(0);
+    const showTimer = setTimeout(() => setShow(true), 1000);
+    const tickTimer = setInterval(() => setElapsed((e) => e + 1), 1000);
+    return () => {
+      clearTimeout(showTimer);
+      clearInterval(tickTimer);
+    };
+  }, [messages.length]);
+
+  if (!show) return null;
+
+  // Show tool status if a tool is executing, otherwise show thinking text
+  let statusText = thinkingText;
+  if (lastToolMsg) {
+    const tool = lastToolMsg.metadata?.tool as string | undefined;
+    if (tool) {
+      const input = parseToolInput(lastToolMsg);
+      statusText = getToolLabel(tool, input, language);
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+      <Loader2Icon className="size-3 animate-spin" />
+      <span className="italic">{statusText}</span>
+      {elapsed > 5 && (
+        <span className="tabular-nums text-muted-foreground/60">
+          {elapsed}s
+        </span>
+      )}
+    </div>
+  );
+}
+
+// ─── Inline tool status (only shown while executing) ─────────
+
+function ToolStatus({
   message,
-  isExecuting,
+  language,
 }: {
   message: AgentStreamMessage;
-  isExecuting?: boolean;
+  language?: string;
 }) {
-  const [open, setOpen] = useState(false);
   const tool = message.metadata?.tool as string | undefined;
   const toolInput = parseToolInput(message);
-  const label = tool ? getToolLabel(tool, toolInput) : "Tool";
+  const label = tool ? getToolLabel(tool, toolInput, language) : "";
+
+  if (!label) return null;
 
   return (
-    <button
-      onClick={() => setOpen(!open)}
-      className="flex w-full flex-col rounded-md border bg-muted/30 p-2 text-left text-xs"
-    >
-      <div className="flex items-center gap-1.5">
-        {isExecuting ? (
-          <Loader2Icon className="size-3 animate-spin text-primary" />
-        ) : (
-          <WrenchIcon className="size-3 text-muted-foreground" />
-        )}
-        <span className="font-medium">{label}</span>
-        {open ? (
-          <ChevronDownIcon className="ml-auto size-3" />
-        ) : (
-          <ChevronRightIcon className="ml-auto size-3" />
-        )}
-      </div>
-      {open && (
-        <pre className="mt-1 whitespace-pre-wrap text-muted-foreground">
-          {message.content}
-        </pre>
-      )}
-    </button>
+    <div className="flex items-center gap-2 text-xs text-muted-foreground py-1">
+      <Loader2Icon className="size-3 animate-spin text-primary" />
+      <span>{label}</span>
+    </div>
   );
 }
 
-function ToolResultCard({ message }: { message: AgentStreamMessage }) {
-  const [open, setOpen] = useState(false);
-  const tool = message.metadata?.tool as string | undefined;
-
-  return (
-    <button
-      onClick={() => setOpen(!open)}
-      className="flex w-full flex-col rounded-md border bg-muted/20 p-2 text-left text-xs"
-    >
-      <div className="flex items-center gap-1.5">
-        <CheckCircleIcon className="size-3 text-green-600" />
-        <span className="text-muted-foreground">{tool ?? "Result"}</span>
-        {open ? (
-          <ChevronDownIcon className="ml-auto size-3" />
-        ) : (
-          <ChevronRightIcon className="ml-auto size-3" />
-        )}
-      </div>
-      {open && (
-        <pre className="mt-1 whitespace-pre-wrap text-muted-foreground">
-          {message.content}
-        </pre>
-      )}
-    </button>
-  );
-}
+// ─── Approval card with markdown and decision display ────────
 
 function ApprovalCard({
   message,
@@ -273,34 +391,36 @@ function ApprovalCard({
     message?: string
   ) => void;
 }) {
-  const [responded, setResponded] = useState(false);
+  const [decision, setDecision] = useState<
+    "approve" | "reject" | "modify" | null
+  >(null);
   const [modifyText, setModifyText] = useState("");
   const [showModify, setShowModify] = useState(false);
 
   const approvalId = message.metadata?.approvalId as string;
   const title = message.metadata?.approvalTitle as string | undefined;
 
-  const handleDecision = (decision: "approve" | "reject" | "modify") => {
+  const handleDecision = (d: "approve" | "reject" | "modify") => {
     if (!onApprove || !approvalId) return;
-    onApprove(approvalId, decision, decision === "modify" ? modifyText : undefined);
-    setResponded(true);
+    onApprove(approvalId, d, d === "modify" ? modifyText : undefined);
+    setDecision(d);
   };
 
   return (
     <div className="flex flex-col gap-2 rounded-md border border-yellow-500/30 bg-yellow-50/50 p-3 dark:bg-yellow-950/20">
       <div className="flex items-start gap-2">
         <ShieldQuestionIcon className="mt-0.5 size-4 shrink-0 text-yellow-600" />
-        <div className="flex flex-col gap-1">
-          {title && (
-            <span className="text-sm font-medium">{title}</span>
-          )}
-          <span className="text-sm text-muted-foreground">
-            {message.content}
-          </span>
+        <div className="flex flex-col gap-1 min-w-0">
+          {title && <span className="text-sm font-medium">{title}</span>}
+          <div className="agent-prose text-sm text-muted-foreground">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {message.content}
+            </ReactMarkdown>
+          </div>
         </div>
       </div>
 
-      {!responded && onApprove && (
+      {!decision && onApprove && (
         <div className="flex flex-col gap-2">
           {showModify && (
             <Textarea
@@ -343,19 +463,33 @@ function ApprovalCard({
         </div>
       )}
 
-      {responded && (
-        <Badge variant="outline" className="w-fit">
-          Responded
+      {decision === "approve" && (
+        <Badge variant="outline" className="w-fit text-green-600 border-green-200">
+          Approved
+        </Badge>
+      )}
+      {decision === "reject" && (
+        <Badge variant="outline" className="w-fit text-red-600 border-red-200">
+          Rejected
+        </Badge>
+      )}
+      {decision === "modify" && (
+        <Badge variant="outline" className="w-fit text-yellow-600 border-yellow-200">
+          Modified
         </Badge>
       )}
     </div>
   );
 }
 
+// ─── Completion card ────────────────────────────────────────
+
 function CompletionCard({
   result,
+  language,
 }: {
   result: AgentResult | undefined;
+  language?: string;
 }) {
   if (!result) return null;
 
@@ -365,12 +499,21 @@ function CompletionCard({
     result.tokensOutput
   );
 
+  const completedText = getLocalizedText(language, {
+    en: "Completed", sr: "Završeno", de: "Abgeschlossen",
+    es: "Completado", fr: "Terminé", ru: "Завершено", zh: "已完成",
+  });
+  const failedText = getLocalizedText(language, {
+    en: "Failed", sr: "Neuspelo", de: "Fehlgeschlagen",
+    es: "Fallido", fr: "Échoué", ru: "Ошибка", zh: "失败",
+  });
+
   return (
     <div className="flex flex-col gap-1 rounded-md border border-green-500/30 bg-green-50/50 p-3 dark:bg-green-950/20">
       <div className="flex items-center gap-2">
         <CheckCircleIcon className="size-4 text-green-600" />
         <span className="text-sm font-medium">
-          {result.success ? "Completed" : "Failed"}
+          {result.success ? completedText : failedText}
         </span>
       </div>
       <div className="flex gap-3 text-xs text-muted-foreground">
@@ -380,4 +523,13 @@ function CompletionCard({
       </div>
     </div>
   );
+}
+
+/** Tiny helper for inline localization without importing the full i18n module */
+function getLocalizedText(
+  language: string | undefined,
+  map: Record<string, string>
+): string {
+  if (!language) return map.en;
+  return map[language] ?? map[language.split("-")[0]] ?? map.en;
 }

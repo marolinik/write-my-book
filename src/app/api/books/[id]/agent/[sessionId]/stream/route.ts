@@ -44,6 +44,17 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
           return;
         }
 
+        // Keepalive heartbeat — prevents proxy/browser timeouts during
+        // long tool executions (reading docs, writing large content).
+        // SSE comment lines (starting with ":") are ignored by EventSource.
+        const keepaliveInterval = setInterval(() => {
+          try {
+            controller.enqueue(encoder.encode(`: keepalive\n\n`));
+          } catch {
+            clearInterval(keepaliveInterval);
+          }
+        }, 15_000);
+
         // Register live listener
         const unsubscribe = addListener(
           sessionId,
@@ -54,10 +65,12 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
               );
             } catch {
               // Stream closed by client
+              clearInterval(keepaliveInterval);
               unsubscribe?.();
             }
           },
           (result) => {
+            clearInterval(keepaliveInterval);
             try {
               controller.enqueue(
                 encoder.encode(
@@ -73,6 +86,7 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
 
         // Handle client disconnect — will be called when the request is aborted
         _req.signal.addEventListener("abort", () => {
+          clearInterval(keepaliveInterval);
           unsubscribe?.();
           try {
             controller.close();

@@ -242,7 +242,7 @@ export class AgentOrchestrator {
 
       const stream = this.client.messages.stream({
         model: modelId,
-        max_tokens: 16384,
+        max_tokens: 64000,
         system: systemPrompt,
         messages,
         ...(tools.length > 0 ? { tools } : {}),
@@ -402,7 +402,19 @@ export class AgentOrchestrator {
         continue;
       }
 
-      // Any other stop reason (max_tokens, etc.) — stop
+      // Handle max_tokens — the response was truncated mid-generation.
+      // Push partial content and ask the model to continue.
+      if (finalMessage.stop_reason === "max_tokens") {
+        messages.push({
+          role: "user",
+          content:
+            "Your previous response was cut off because it exceeded the length limit. " +
+            "Please continue exactly where you left off. Do not repeat what you already wrote.",
+        });
+        continue;
+      }
+
+      // Any other stop reason — stop
       break;
     }
 

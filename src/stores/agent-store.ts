@@ -75,6 +75,32 @@ export const useAgentStore = create<AgentState>((set, get) => ({
     set((state) => {
       const session = state.sessions[sessionId];
       if (!session) return state;
+
+      const msgs = session.messages;
+      const last = msgs[msgs.length - 1];
+
+      // Merge consecutive non-user text deltas into a single message
+      // to avoid O(n) array growth per SSE character delta
+      if (
+        message.type === "text" &&
+        message.metadata?.role !== "user" &&
+        last &&
+        last.type === "text" &&
+        last.metadata?.role !== "user"
+      ) {
+        const merged = [...msgs];
+        merged[merged.length - 1] = {
+          ...last,
+          content: last.content + message.content,
+        };
+        return {
+          sessions: {
+            ...state.sessions,
+            [sessionId]: { ...session, messages: merged },
+          },
+        };
+      }
+
       return {
         sessions: {
           ...state.sessions,

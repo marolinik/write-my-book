@@ -729,6 +729,69 @@ Use CreateFinding for each issue with:
 - Specific fix instruction`,
 };
 
+// ─── Language Helpers ──────────────────────────────────────────
+
+/** Map ISO language codes to full names for better LLM comprehension */
+const LANGUAGE_NAMES: Record<string, string> = {
+  en: "English",
+  sr: "Serbian Latin (srpski, latinica)",
+  de: "German (Deutsch)",
+  es: "Spanish (español)",
+  fr: "French (français)",
+  ru: "Russian (русский)",
+  zh: "Chinese (中文)",
+  it: "Italian (italiano)",
+  pt: "Portuguese (português)",
+  ja: "Japanese (日本語)",
+  ko: "Korean (한국어)",
+  nl: "Dutch (Nederlands)",
+  pl: "Polish (polski)",
+  cs: "Czech (čeština)",
+  hr: "Croatian (hrvatski)",
+  bs: "Bosnian (bosanski)",
+};
+
+/** Concrete heading examples per language so the LLM sees exactly what's expected */
+const LANGUAGE_HEADING_EXAMPLES: Record<string, string> = {
+  sr:
+    `SCRIPT: Use ONLY Latin script (latinica), NEVER Cyrillic (ćirilica).\n` +
+    `Correct letters: č, ć, š, ž, đ — WRONG letters: ч, ћ, ш, ж, ђ\n\n` +
+    `- "# BIBLIJA PRIČE" (not "STORY BIBLE")\n` +
+    `- "## PREMISA I OSNOVNI KONCEPT" (not "PREMISE & CORE CONCEPT")\n` +
+    `- "## STRUKTURA PRIČE" (not "STORY STRUCTURE")\n` +
+    `- "## LIKOVI" (not "CHARACTERS")\n` +
+    `- "## TEME I MOTIVI" (not "THEMES AND MOTIFS")\n` +
+    `- "## HRONOLOGIJA" (not "TIMELINE")\n` +
+    `- "**Logline:**" → "**Osnovna priča:**"\n` +
+    `- "**High Concept:**" → "**Visoki koncept:**"\n` +
+    `- "**Thematic Question:**" → "**Tematsko pitanje:**"`,
+  de:
+    `- "# STORY-BIBEL" (not "STORY BIBLE")\n` +
+    `- "## PRÄMISSE & KERNKONZEPT" (not "PREMISE & CORE CONCEPT")\n` +
+    `- "## ERZÄHLSTRUKTUR" (not "STORY STRUCTURE")\n` +
+    `- "## FIGUREN" (not "CHARACTERS")`,
+  es:
+    `- "# BIBLIA DE LA HISTORIA" (not "STORY BIBLE")\n` +
+    `- "## PREMISA Y CONCEPTO CENTRAL" (not "PREMISE & CORE CONCEPT")\n` +
+    `- "## ESTRUCTURA DE LA HISTORIA" (not "STORY STRUCTURE")\n` +
+    `- "## PERSONAJES" (not "CHARACTERS")`,
+  fr:
+    `- "# BIBLE DE L'HISTOIRE" (not "STORY BIBLE")\n` +
+    `- "## PRÉMISSE ET CONCEPT CLÉ" (not "PREMISE & CORE CONCEPT")\n` +
+    `- "## STRUCTURE DU RÉCIT" (not "STORY STRUCTURE")\n` +
+    `- "## PERSONNAGES" (not "CHARACTERS")`,
+  ru:
+    `- "# БИБЛИЯ ИСТОРИИ" (not "STORY BIBLE")\n` +
+    `- "## ПРЕДПОСЫЛКА И КЛЮЧЕВАЯ ИДЕЯ" (not "PREMISE & CORE CONCEPT")\n` +
+    `- "## СТРУКТУРА СЮЖЕТА" (not "STORY STRUCTURE")\n` +
+    `- "## ПЕРСОНАЖИ" (not "CHARACTERS")`,
+  zh:
+    `- "# 故事圣经" (not "STORY BIBLE")\n` +
+    `- "## 前提与核心概念" (not "PREMISE & CORE CONCEPT")\n` +
+    `- "## 故事结构" (not "STORY STRUCTURE")\n` +
+    `- "## 角色" (not "CHARACTERS")`,
+};
+
 // ─── Prompt Assembly ───────────────────────────────────────────
 
 /**
@@ -762,12 +825,27 @@ export async function assembleAgentPrompt(
     parts.push(base);
   }
 
-  // Language context
-  if (context.language && context.language !== "en") {
+  // Language context — ALWAYS include, even for English
+  if (context.language) {
+    const langName = LANGUAGE_NAMES[context.language] ?? context.language;
+    const langExamples = LANGUAGE_HEADING_EXAMPLES[context.language] ?? "";
     parts.push(
-      `\nIMPORTANT: This book is written in ${context.language}. All output must be in ${context.language}. ` +
-      `All document titles, finding descriptions, approval request titles, and any text visible to the writer must be in ${context.language}. ` +
-      `Do not mix languages — respond entirely in ${context.language}.`
+      `\nCRITICAL LANGUAGE REQUIREMENT — YOU MUST FOLLOW THIS:\n` +
+      `This book's language is: ${langName} (code: ${context.language}).\n` +
+      `You MUST write ALL output in ${langName}. This includes:\n` +
+      `- Your conversational messages and explanations\n` +
+      `- Approval request titles and descriptions\n` +
+      `- ALL document section headings and structural labels\n` +
+      `- Finding descriptions, categories, and suggestions\n` +
+      `- Any text the writer will see in the UI\n\n` +
+      `DO NOT use English for headings, labels, or structural text. ` +
+      `Write EVERYTHING in ${langName}.` +
+      (context.language === "sr"
+        ? `\n\nSCRIPT REQUIREMENT: Use ONLY Latin script (latinica), NEVER Cyrillic script (ćirilica).\n` +
+          `Correct: č, ć, š, ž, đ, lj, nj, dž — Wrong: ч, ћ, ш, ж, ђ, љ, њ, џ\n` +
+          `This applies to ALL output: document content, headings, findings, messages, everything.`
+        : "") +
+      (langExamples ? `\n\nExamples of correct headings in ${langName}:\n${langExamples}` : "")
     );
   }
 
