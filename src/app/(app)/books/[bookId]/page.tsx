@@ -230,9 +230,10 @@ export default async function BookDetailPage({
           </h2>
           <div className="grid gap-2">
             {book.documents.map((doc) => (
-              <div
+              <Link
                 key={doc.id}
-                className="flex items-center gap-3 rounded-md border px-4 py-2"
+                href={`/books/${bookId}/documents/${doc.id}`}
+                className="flex items-center gap-3 rounded-md border px-4 py-2 hover:bg-muted/50 transition-colors"
               >
                 <FileTextIcon className="size-4 text-muted-foreground" />
                 <span className="text-sm">{doc.title || doc.type}</span>
@@ -242,7 +243,7 @@ export default async function BookDetailPage({
                 <span className="text-xs text-muted-foreground">
                   v{doc.currentVersion}
                 </span>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
