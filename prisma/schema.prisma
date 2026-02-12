@@ -260,6 +260,9 @@ model BookSettings {
   modelEditor      String  @default("sonnet") @map("model_editor")
   modelBetaReader  String  @default("sonnet") @map("model_beta_reader")
   modelAnalyst     String  @default("haiku") @map("model_analyst")
+  modelCoach       String  @default("sonnet") @map("model_coach")
+  modelCreative    String  @default("opus") @map("model_creative")
+  modelResearch    String  @default("sonnet") @map("model_research")
   autoCommit       Boolean @default(true) @map("auto_commit")
   styleStrictness  String  @default("balanced") @map("style_strictness") // strict, balanced, relaxed
   betaPanelSize    Int     @default(10) @map("beta_panel_size")

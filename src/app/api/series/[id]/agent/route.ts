@@ -99,6 +99,22 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         settings.modelEditor
       ) {
         modelTier = settings.modelEditor as "opus" | "sonnet" | "haiku";
+      } else if (agentType === "beta-reader" && settings.modelBetaReader) {
+        modelTier = settings.modelBetaReader as "opus" | "sonnet" | "haiku";
+      } else if (agentType === "manuscript-analyst" && settings.modelAnalyst) {
+        modelTier = settings.modelAnalyst as "sonnet" | "haiku";
+      } else if (agentType === "writing-coach" && settings.modelCoach) {
+        modelTier = settings.modelCoach as "opus" | "sonnet";
+      } else if (
+        ["style-analyst", "story-architect", "scene-planner"].includes(agentType) &&
+        settings.modelCreative
+      ) {
+        modelTier = settings.modelCreative as "opus" | "sonnet";
+      } else if (
+        ["manuscript-reader", "world-researcher", "market-reader", "publishing-editor"].includes(agentType) &&
+        settings.modelResearch
+      ) {
+        modelTier = settings.modelResearch as "opus" | "sonnet" | "haiku";
       }
     }
 

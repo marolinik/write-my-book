@@ -22,6 +22,9 @@ export type BookSettingsData = {
   modelEditor: string;
   modelBetaReader: string;
   modelAnalyst: string;
+  modelCoach: string;
+  modelCreative: string;
+  modelResearch: string;
   autoCommit: boolean;
   styleStrictness: string;
   betaPanelSize: number;

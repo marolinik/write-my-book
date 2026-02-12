@@ -79,6 +79,7 @@ export default function BookSettingsPage() {
         <CardContent className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label>Ghostwriter</Label>
+            <p className="text-xs text-muted-foreground">Writes chapter drafts</p>
             <Select
               value={settings.modelGhostwriter}
               onValueChange={(v) => handleChange("modelGhostwriter", v)}
@@ -94,7 +95,42 @@ export default function BookSettingsPage() {
           </div>
 
           <div className="space-y-2">
+            <Label>Coach</Label>
+            <p className="text-xs text-muted-foreground">Writing coach & story bible</p>
+            <Select
+              value={settings.modelCoach}
+              onValueChange={(v) => handleChange("modelCoach", v)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="opus">Opus</SelectItem>
+                <SelectItem value="sonnet">Sonnet</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Creative</Label>
+            <p className="text-xs text-muted-foreground">Style, architecture & planning</p>
+            <Select
+              value={settings.modelCreative}
+              onValueChange={(v) => handleChange("modelCreative", v)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="opus">Opus</SelectItem>
+                <SelectItem value="sonnet">Sonnet</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
             <Label>Editor</Label>
+            <p className="text-xs text-muted-foreground">Dev edit, line edit & continuity</p>
             <Select
               value={settings.modelEditor}
               onValueChange={(v) => handleChange("modelEditor", v)}
@@ -112,6 +148,7 @@ export default function BookSettingsPage() {
 
           <div className="space-y-2">
             <Label>Beta Reader</Label>
+            <p className="text-xs text-muted-foreground">Simulated reader panel</p>
             <Select
               value={settings.modelBetaReader}
               onValueChange={(v) => handleChange("modelBetaReader", v)}
@@ -128,7 +165,26 @@ export default function BookSettingsPage() {
           </div>
 
           <div className="space-y-2">
+            <Label>Research</Label>
+            <p className="text-xs text-muted-foreground">Manuscript, market & publishing</p>
+            <Select
+              value={settings.modelResearch}
+              onValueChange={(v) => handleChange("modelResearch", v)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="opus">Opus</SelectItem>
+                <SelectItem value="sonnet">Sonnet</SelectItem>
+                <SelectItem value="haiku">Haiku</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
             <Label>Analyst</Label>
+            <p className="text-xs text-muted-foreground">Statistics & readability</p>
             <Select
               value={settings.modelAnalyst}
               onValueChange={(v) => handleChange("modelAnalyst", v)}
