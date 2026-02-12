@@ -71,27 +71,6 @@ export function MessageStream({
   // Defer messages during rapid streaming so React can batch renders
   const deferredMessages = useDeferredValue(messages);
 
-  // Track which tool_use IDs have received results
-  const completedTools = new Set<string>();
-  for (const msg of deferredMessages) {
-    if (msg.type === "tool_result" && msg.metadata?.toolUseId) {
-      completedTools.add(msg.metadata.toolUseId as string);
-    }
-  }
-
-  // Find the last executing tool_use (for inline status)
-  let lastExecutingToolMsg: AgentStreamMessage | null = null;
-  for (let i = deferredMessages.length - 1; i >= 0; i--) {
-    const msg = deferredMessages[i];
-    if (msg.type === "tool_use") {
-      const toolUseId = msg.metadata?.toolUseId as string | undefined;
-      if (toolUseId && !completedTools.has(toolUseId)) {
-        lastExecutingToolMsg = msg;
-      }
-      break;
-    }
-  }
-
   // Build block descriptors (cheap) — separate from rendering (expensive)
   type BlockDesc =
     | { kind: "text"; text: string; blockKey: number }
@@ -102,7 +81,14 @@ export function MessageStream({
     | { kind: "error"; text: string; blockKey: number }
     | { kind: "complete"; msg: AgentStreamMessage; blockKey: number };
 
-  const blocks = useMemo(() => {
+  const { blocks, lastExecutingToolMsg } = useMemo(() => {
+    // Track which tool_use IDs have received results
+    const completedTools = new Set<string>();
+    for (const msg of deferredMessages) {
+      if (msg.type === "tool_result" && msg.metadata?.toolUseId) {
+        completedTools.add(msg.metadata.toolUseId as string);
+      }
+    }
     const result: BlockDesc[] = [];
     let textAccumulator = "";
     let keyIndex = 0;
@@ -129,7 +115,8 @@ export function MessageStream({
           flushText();
           const toolUseId = msg.metadata?.toolUseId as string | undefined;
           const isExecuting = toolUseId ? !completedTools.has(toolUseId) : false;
-          if (isExecuting) {
+          // Only show tool spinner while session is running AND tool has no result yet
+          if (isExecuting && isRunning) {
             result.push({ kind: "tool", msg, blockKey: keyIndex++ });
           }
           break;
@@ -160,8 +147,22 @@ export function MessageStream({
       }
     }
     flushText();
-    return result;
-  }, [deferredMessages, completedTools]);
+
+    // Find the last executing tool_use (for inline status)
+    let lastTool: AgentStreamMessage | null = null;
+    for (let i = deferredMessages.length - 1; i >= 0; i--) {
+      const m = deferredMessages[i];
+      if (m.type === "tool_use") {
+        const tid = m.metadata?.toolUseId as string | undefined;
+        if (tid && !completedTools.has(tid)) {
+          lastTool = m;
+        }
+        break;
+      }
+    }
+
+    return { blocks: result, lastExecutingToolMsg: lastTool };
+  }, [deferredMessages, isRunning]);
 
   // Render blocks — markdown is memoized per text content
   const renderedBlocks = blocks.map((block) => {

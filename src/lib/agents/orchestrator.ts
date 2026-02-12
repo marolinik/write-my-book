@@ -291,6 +291,17 @@ export class AgentOrchestrator {
           // blocks) so tool_use IDs exist for the tool_result references.
           // Then provide error tool_results telling the model to retry.
           messages.push({ role: "assistant", content: contentBlocks });
+
+          // Send tool_result SSE messages so the UI clears tool spinners
+          // (the streaming phase already sent tool_use SSE for these IDs)
+          for (const tu of toolUseBlocks) {
+            options.onMessage({
+              type: "tool_result",
+              content: "Tool call truncated — retrying...",
+              metadata: { tool: tu.name, toolUseId: tu.id },
+            });
+          }
+
           const errorResults: Anthropic.ToolResultBlockParam[] =
             toolUseBlocks.map((tu) => ({
               type: "tool_result" as const,
