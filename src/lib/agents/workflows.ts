@@ -62,6 +62,20 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     conversational: true,
     suggestedNext: [],
   },
+  {
+    id: "read-manuscript",
+    label: "Read Manuscript",
+    description:
+      "Analyze an existing manuscript through 5 passes — structure, characters, themes, style, and gaps.",
+    writerDescription:
+      "Analyze an existing manuscript through 5 passes — structure, characters, themes, style, and gaps.",
+    primaryAgent: "manuscript-reader",
+    category: "setup",
+    requiresChapter: false,
+    requiresSeriesContext: false,
+    conversational: false,
+    suggestedNext: ["capture-style", "create-story-bible"],
+  },
 
   // ─── WRITING ────────────────────────────────────────────────────
   {
@@ -174,6 +188,20 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     conversational: true,
     suggestedNext: ["revise"],
   },
+  {
+    id: "publishing-check",
+    label: "Publishing Check",
+    description:
+      "Run 13 pre-export production checks on your manuscript.",
+    writerDescription:
+      "Run 13 pre-export production checks on your manuscript.",
+    primaryAgent: "publishing-editor",
+    category: "editing",
+    requiresChapter: false,
+    requiresSeriesContext: false,
+    conversational: false,
+    suggestedNext: [],
+  },
 
   // ─── ANALYSIS ───────────────────────────────────────────────────
   {
@@ -186,6 +214,50 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresChapter: false,
     requiresSeriesContext: false,
     conversational: false,
+    suggestedNext: [],
+  },
+  {
+    id: "market-analysis",
+    label: "Market Analysis",
+    description:
+      "Analyze your book's positioning across 5 cultural markets.",
+    writerDescription:
+      "Analyze your book's positioning across 5 cultural markets.",
+    primaryAgent: "market-reader",
+    category: "analysis",
+    requiresChapter: false,
+    requiresSeriesContext: false,
+    conversational: false,
+    suggestedNext: [],
+  },
+
+  // ─── STYLE ──────────────────────────────────────────────────────
+  {
+    id: "refresh-style",
+    label: "Refresh Style",
+    description:
+      "Re-analyze your writing to update your style fingerprint.",
+    writerDescription:
+      "Re-analyze your writing to update your style fingerprint.",
+    primaryAgent: "style-analyst",
+    category: "style",
+    requiresChapter: false,
+    requiresSeriesContext: false,
+    conversational: false,
+    suggestedNext: ["write-chapter"],
+  },
+  {
+    id: "evolve-style",
+    label: "Evolve Style",
+    description:
+      "Intentionally evolve your writing style in a specific direction.",
+    writerDescription:
+      "Intentionally evolve your writing style in a specific direction.",
+    primaryAgent: "style-analyst",
+    category: "style",
+    requiresChapter: false,
+    requiresSeriesContext: false,
+    conversational: true,
     suggestedNext: [],
   },
 

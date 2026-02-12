@@ -4,6 +4,7 @@ import {
   PlusIcon,
   SettingsIcon,
   FileTextIcon,
+  SparklesIcon,
 } from "lucide-react";
 
 import { requireUser } from "@/lib/auth";
@@ -122,6 +123,31 @@ export default async function BookDetailPage({
           </CardContent>
         </Card>
       </div>
+
+      {/* Setup Banner */}
+      {!book.documents.some(
+        (d) => d.type === "STORY_BIBLE" || d.type === "ARCHITECTURE"
+      ) && (
+        <Card className="mb-8 border-dashed border-primary/50 bg-primary/5">
+          <CardContent className="flex items-center justify-between py-4">
+            <div className="flex items-center gap-3">
+              <SparklesIcon className="size-5 text-primary" />
+              <div>
+                <p className="text-sm font-medium">
+                  Complete your book setup
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Set up your style profile, story bible, and architecture to
+                  get started.
+                </p>
+              </div>
+            </div>
+            <Button asChild size="sm">
+              <Link href={`/books/${bookId}/setup`}>Start Setup</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Chapters */}
       <div className="mb-8">

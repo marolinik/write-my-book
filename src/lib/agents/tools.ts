@@ -4,6 +4,35 @@ import { DocumentType } from "@/generated/prisma/enums";
 
 export const APPROVAL_SENTINEL = "__APPROVAL_GATE__";
 
+// ─── In-memory document locks for parallel agent safety ────────
+
+const documentLocks = new Map<string, Map<string, string>>(); // bookId -> lockKey -> sessionId
+
+function acquireDocLock(
+  bookId: string,
+  lockKey: string,
+  sessionId: string
+): boolean {
+  const bookLocks = documentLocks.get(bookId) ?? new Map();
+  if (bookLocks.has(lockKey) && bookLocks.get(lockKey) !== sessionId) {
+    return false;
+  }
+  bookLocks.set(lockKey, sessionId);
+  documentLocks.set(bookId, bookLocks);
+  return true;
+}
+
+function releaseDocLock(
+  bookId: string,
+  lockKey: string,
+  sessionId: string
+): void {
+  const bookLocks = documentLocks.get(bookId);
+  if (bookLocks?.get(lockKey) === sessionId) {
+    bookLocks.delete(lockKey);
+  }
+}
+
 export interface ToolDefinition {
   name: string;
   description: string;
@@ -279,31 +308,49 @@ async function executeWriteDocument(
   }
 ): Promise<string> {
   const type = input.documentType as DocumentType;
-  const existing = await ctx.documentService.findByType(
-    type,
-    input.chapterNumber
-  );
 
-  if (existing) {
-    const result = await ctx.documentService.update(
-      existing.id,
-      input.content,
-      input.title,
-      "agent_write",
-      "agent"
-    );
-    return `Updated ${input.documentType} (version ${result.version.version}).`;
+  // Acquire document lock to prevent parallel agents writing the same type
+  const lockKey = `${type}:${input.chapterNumber ?? "null"}`;
+  if (!acquireDocLock(ctx.bookId, lockKey, ctx.sessionId)) {
+    return `Another agent is currently writing ${input.documentType}. Please wait and retry.`;
   }
 
-  const doc = await ctx.documentService.create(
-    type,
-    input.content,
-    input.title,
-    input.chapterNumber,
-    undefined,
-    "agent"
-  );
-  return `Created ${input.documentType} (id: ${doc.id}).`;
+  try {
+    // Use transaction to prevent duplicate creation by parallel agents
+    const result = await db.$transaction(async (tx) => {
+      const where: Record<string, unknown> = { type };
+      if (ctx.bookId) where.bookId = ctx.bookId;
+      if (input.chapterNumber !== undefined)
+        where.chapterNumber = input.chapterNumber;
+
+      const existing = await tx.document.findFirst({ where });
+
+      if (existing) {
+        const updated = await ctx.documentService.update(
+          existing.id,
+          input.content,
+          input.title,
+          "agent_write",
+          "agent"
+        );
+        return `Updated ${input.documentType} (version ${updated.version.version}).`;
+      }
+
+      const doc = await ctx.documentService.create(
+        type,
+        input.content,
+        input.title,
+        input.chapterNumber,
+        undefined,
+        "agent"
+      );
+      return `Created ${input.documentType} (id: ${doc.id}).`;
+    });
+
+    return result;
+  } finally {
+    releaseDocLock(ctx.bookId, lockKey, ctx.sessionId);
+  }
 }
 
 async function executeReadChapter(
@@ -408,6 +455,21 @@ async function executeCreateFinding(
     locationEnd?: string;
   }
 ): Promise<string> {
+  // Cross-session dedup: check for existing non-dismissed finding with same signature
+  const existing = await db.editFinding.findFirst({
+    where: {
+      bookId: ctx.bookId,
+      chapterNumber: input.chapterNumber,
+      category: input.category,
+      description: input.description,
+      status: { not: "dismissed" },
+    },
+  });
+
+  if (existing) {
+    return `Finding already exists (id: ${existing.id}). Skipped duplicate.`;
+  }
+
   const finding = await db.editFinding.create({
     data: {
       bookId: ctx.bookId,

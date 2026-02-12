@@ -8,16 +8,19 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
   ShieldQuestionIcon,
+  Loader2Icon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { estimateCost } from "@/lib/cost";
+import { getToolLabel, parseToolInput } from "@/lib/agents/tool-labels";
 import type { AgentStreamMessage, AgentResult } from "@/lib/agents/types";
 
 interface MessageStreamProps {
   messages: AgentStreamMessage[];
+  isRunning?: boolean;
   onApprove?: (
     approvalId: string,
     decision: "approve" | "reject" | "modify",
@@ -25,13 +28,25 @@ interface MessageStreamProps {
   ) => void;
 }
 
-export function MessageStream({ messages, onApprove }: MessageStreamProps) {
+export function MessageStream({
+  messages,
+  isRunning,
+  onApprove,
+}: MessageStreamProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll on new messages
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages.length]);
+
+  // Track which tool_use IDs have received results
+  const completedTools = new Set<string>();
+  for (const msg of messages) {
+    if (msg.type === "tool_result" && msg.metadata?.toolUseId) {
+      completedTools.add(msg.metadata.toolUseId as string);
+    }
+  }
 
   // Accumulate text blocks into contiguous prose chunks
   const renderedBlocks: React.ReactNode[] = [];
@@ -72,9 +87,19 @@ export function MessageStream({ messages, onApprove }: MessageStreamProps) {
 
       case "tool_use":
         flushText();
-        renderedBlocks.push(
-          <ToolUseCard key={`tool-${keyIndex++}`} message={msg} />
-        );
+        {
+          const toolUseId = msg.metadata?.toolUseId as string | undefined;
+          const isExecuting = toolUseId
+            ? !completedTools.has(toolUseId)
+            : false;
+          renderedBlocks.push(
+            <ToolUseCard
+              key={`tool-${keyIndex++}`}
+              message={msg}
+              isExecuting={isExecuting}
+            />
+          );
+        }
         break;
 
       case "tool_result":
@@ -137,17 +162,51 @@ export function MessageStream({ messages, onApprove }: MessageStreamProps) {
     <ScrollArea className="flex-1 p-4">
       <div className="flex flex-col gap-3">
         {renderedBlocks}
+        {isRunning && <ThinkingIndicator messages={messages} />}
         <div ref={bottomRef} />
       </div>
     </ScrollArea>
   );
 }
 
+// ─── Thinking indicator ──────────────────────────────────────────
+
+function ThinkingIndicator({ messages }: { messages: AgentStreamMessage[] }) {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    setShow(false);
+    const timer = setTimeout(() => setShow(true), 1000);
+    return () => clearTimeout(timer);
+  }, [messages.length]);
+
+  if (!show) return null;
+
+  return (
+    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+      <span className="flex gap-0.5">
+        <span className="animate-bounce [animation-delay:0ms]">.</span>
+        <span className="animate-bounce [animation-delay:150ms]">.</span>
+        <span className="animate-bounce [animation-delay:300ms]">.</span>
+      </span>
+      <span className="italic">Agent is thinking</span>
+    </div>
+  );
+}
+
 // ─── Sub-components ────────────────────────────────────────────
 
-function ToolUseCard({ message }: { message: AgentStreamMessage }) {
+function ToolUseCard({
+  message,
+  isExecuting,
+}: {
+  message: AgentStreamMessage;
+  isExecuting?: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const tool = message.metadata?.tool as string | undefined;
+  const toolInput = parseToolInput(message);
+  const label = tool ? getToolLabel(tool, toolInput) : "Tool";
 
   return (
     <button
@@ -155,8 +214,12 @@ function ToolUseCard({ message }: { message: AgentStreamMessage }) {
       className="flex w-full flex-col rounded-md border bg-muted/30 p-2 text-left text-xs"
     >
       <div className="flex items-center gap-1.5">
-        <WrenchIcon className="size-3 text-muted-foreground" />
-        <span className="font-medium">{tool ?? "Tool"}</span>
+        {isExecuting ? (
+          <Loader2Icon className="size-3 animate-spin text-primary" />
+        ) : (
+          <WrenchIcon className="size-3 text-muted-foreground" />
+        )}
+        <span className="font-medium">{label}</span>
         {open ? (
           <ChevronDownIcon className="ml-auto size-3" />
         ) : (

@@ -4,6 +4,7 @@ import { useState } from "react";
 import {
   BookOpenIcon,
   LibraryIcon,
+  PaletteIcon,
   PenLineIcon,
   SearchIcon,
   SparklesIcon,
@@ -19,6 +20,7 @@ const CATEGORY_CONFIG = {
   writing: { label: "Writing", icon: PenLineIcon },
   editing: { label: "Editing", icon: SearchIcon },
   analysis: { label: "Analysis", icon: BookOpenIcon },
+  style: { label: "Style", icon: PaletteIcon },
   series: { label: "Series", icon: LibraryIcon },
 } as const;
 
@@ -47,6 +49,7 @@ export function WorkflowSelector({
     "writing",
     "editing",
     "analysis",
+    "style",
     ...(seriesId ? (["series"] as const) : []),
   ] as const;
 

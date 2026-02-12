@@ -49,6 +49,40 @@ export function useSaveChapterContent(bookId: string, chapterId: string) {
   });
 }
 
+/** Fetch a document's content. */
+export function useDocumentContent(bookId: string, documentId: string) {
+  return useQuery({
+    queryKey: ["document-content", bookId, documentId],
+    queryFn: () =>
+      fetchJson<{
+        id: string;
+        type: string;
+        title: string | null;
+        content: string;
+        currentVersion: number;
+      }>(`/api/books/${bookId}/documents/${documentId}`),
+    enabled: !!bookId && !!documentId,
+  });
+}
+
+/** Save document content. */
+export function useSaveDocumentContent(bookId: string, documentId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (content: string) =>
+      fetchJson(`/api/books/${bookId}/documents/${documentId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content, changeSource: "manual" }),
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["document-content", bookId, documentId] });
+      qc.invalidateQueries({ queryKey: ["document-versions", bookId, documentId] });
+      qc.invalidateQueries({ queryKey: ["book-documents", bookId] });
+    },
+  });
+}
+
 /** Fetch version history for a document. */
 export function useDocumentVersions(bookId: string, docId: string | null) {
   return useQuery({

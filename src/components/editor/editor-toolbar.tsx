@@ -16,8 +16,12 @@ import {
   Redo,
   Focus,
   History,
+  Check,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
   Tooltip,
@@ -31,6 +35,9 @@ interface EditorToolbarProps {
   onToggleFocusMode: () => void;
   showHistory?: boolean;
   onToggleHistory?: () => void;
+  isSaving?: boolean;
+  isDirty?: boolean;
+  lastSaved?: Date | null;
 }
 
 interface ToolbarButtonProps {
@@ -65,6 +72,9 @@ export function EditorToolbar({
   onToggleFocusMode,
   showHistory,
   onToggleHistory,
+  isSaving,
+  isDirty,
+  lastSaved,
 }: EditorToolbarProps) {
   if (!editor) return null;
 
@@ -179,6 +189,26 @@ export function EditorToolbar({
           />
         </>
       )}
+
+      {/* Save indicator badge — pushed to the right */}
+      <div className="ml-auto">
+        {isSaving ? (
+          <Badge variant="secondary" className="gap-1 text-xs font-normal">
+            <Loader2 className="h-3 w-3 animate-spin" />
+            Saving...
+          </Badge>
+        ) : isDirty ? (
+          <Badge variant="outline" className="gap-1 text-xs font-normal text-amber-600 dark:text-amber-400 border-amber-300 dark:border-amber-700">
+            <AlertCircle className="h-3 w-3" />
+            Unsaved
+          </Badge>
+        ) : lastSaved ? (
+          <Badge variant="outline" className="gap-1 text-xs font-normal text-green-600 dark:text-green-400 border-green-300 dark:border-green-700">
+            <Check className="h-3 w-3" />
+            Saved
+          </Badge>
+        ) : null}
+      </div>
     </div>
   );
 }

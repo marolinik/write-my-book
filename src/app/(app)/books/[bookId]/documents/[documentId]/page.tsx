@@ -1,36 +1,45 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { use, useState, useEffect, useCallback, useRef } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
 import TextAlign from "@tiptap/extension-text-align";
 import { Markdown } from "tiptap-markdown";
-import { useEditorStore } from "@/stores/editor-store";
 import {
-  useChapterContent,
-  useSaveChapterContent,
+  useDocumentContent,
+  useSaveDocumentContent,
 } from "@/hooks/use-documents";
 import { countWords } from "@/lib/utils";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { EditorToolbar } from "@/components/editor/editor-toolbar";
+import { EditorStatusBar } from "@/components/editor/editor-status-bar";
+import { VersionHistoryPanel } from "@/components/editor/version-history-panel";
+import { VersionHistorySheet } from "@/components/editor/version-history-sheet";
+import { Badge } from "@/components/ui/badge";
+
+const DOC_TYPE_LABELS: Record<string, string> = {
+  CONCEPT: "Concept",
+  STORY_BIBLE: "Story Bible",
+  ARCHITECTURE: "Architecture",
+  FINGERPRINT: "Fingerprint",
+  CHAPTER_BRIEF: "Chapter Brief",
+  CHAPTER_PLAN: "Chapter Plan",
+  CHAPTER_CONTENT: "Chapter Content",
+  DEV_EDIT_REPORT: "Dev Edit Report",
+  LINE_EDIT_REPORT: "Line Edit Report",
+  BETA_READ_REPORT: "Beta Read Report",
+  CONTINUITY_REPORT: "Continuity Report",
+  ANALYSIS_REPORT: "Analysis Report",
+  MARKET_REPORT: "Market Report",
+  EXPORT_CONFIG: "Export Config",
+  FREEWRITE: "Freewrite",
+};
 
 function getMarkdownFromEditor(editor: ReturnType<typeof useEditor>): string {
   if (!editor) return "";
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (editor.storage as any).markdown?.getMarkdown?.() ?? "";
-}
-
-import { EditorToolbar } from "./editor-toolbar";
-import { EditorStatusBar } from "./editor-status-bar";
-import { VersionHistoryPanel } from "./version-history-panel";
-import { VersionHistorySheet } from "./version-history-sheet";
-
-interface ManuscriptEditorProps {
-  bookId: string;
-  chapterId: string;
-  chapterNumber: number;
-  chapterTitle?: string;
 }
 
 const LG_BREAKPOINT = 1024;
@@ -49,24 +58,25 @@ function useIsLg() {
   return isLg;
 }
 
-export function ManuscriptEditor({
-  bookId,
-  chapterId,
-  chapterNumber,
-  chapterTitle,
-}: ManuscriptEditorProps) {
-  const store = useEditorStore();
-  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+export default function DocumentEditorPage({
+  params,
+}: {
+  params: Promise<{ bookId: string; documentId: string }>;
+}) {
+  const { bookId, documentId } = use(params);
+
   const contentLoadedRef = useRef(false);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [content, setContent] = useState("");
+  const [isDirty, setIsDirty] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [focusMode, setFocusMode] = useState(false);
   const [showVersionHistory, setShowVersionHistory] = useState(true);
   const isLg = useIsLg();
 
-  const { data: chapterData, isLoading } = useChapterContent(
-    bookId,
-    chapterId
-  );
-
-  const saveMutation = useSaveChapterContent(bookId, chapterId);
+  const { data: docData, isLoading } = useDocumentContent(bookId, documentId);
+  const saveMutation = useSaveDocumentContent(bookId, documentId);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -76,7 +86,7 @@ export function ManuscriptEditor({
       }),
       Underline,
       Placeholder.configure({
-        placeholder: "Start writing your chapter...",
+        placeholder: "Start writing...",
       }),
       TextAlign.configure({
         types: ["heading", "paragraph"],
@@ -89,12 +99,13 @@ export function ManuscriptEditor({
     ],
     editorProps: {
       attributes: {
-        class: `tiptap max-w-[680px] mx-auto px-4 ${store.focusMode ? "focus-mode" : ""}`,
+        class: `tiptap max-w-[680px] mx-auto px-4 ${focusMode ? "focus-mode" : ""}`,
       },
     },
     onUpdate: ({ editor: e }) => {
       const md = getMarkdownFromEditor(e);
-      store.setContent(md);
+      setContent(md);
+      setIsDirty(true);
     },
   });
 
@@ -104,49 +115,46 @@ export function ManuscriptEditor({
       editor.setOptions({
         editorProps: {
           attributes: {
-            class: `tiptap max-w-[680px] mx-auto px-4 ${store.focusMode ? "focus-mode" : ""}`,
+            class: `tiptap max-w-[680px] mx-auto px-4 ${focusMode ? "focus-mode" : ""}`,
           },
         },
       });
     }
-  }, [editor, store.focusMode]);
+  }, [editor, focusMode]);
 
-  // Set chapter in store on mount
+  // Reset content loaded flag when document changes
   useEffect(() => {
-    store.setChapter(bookId, chapterId, chapterNumber);
     contentLoadedRef.current = false;
-  }, [bookId, chapterId, chapterNumber]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [bookId, documentId]);
 
   // Load content into editor when data arrives
   useEffect(() => {
-    if (chapterData && editor && !contentLoadedRef.current) {
-      editor.commands.setContent(chapterData.markdown || "");
+    if (docData && editor && !contentLoadedRef.current) {
+      editor.commands.setContent(docData.content || "");
       contentLoadedRef.current = true;
-      store.markClean();
-
-      if (chapterData.documentId) {
-        store.setDocumentId(chapterData.documentId);
-      }
+      setIsDirty(false);
     }
-  }, [chapterData, editor]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [docData, editor]);
 
   // Auto-save with 2s debounce
   const saveContent = useCallback(async () => {
     if (!editor) return;
 
     const md = getMarkdownFromEditor(editor);
-    store.setSaving(true);
+    setIsSaving(true);
 
     try {
       await saveMutation.mutateAsync(md);
-      store.setLastSaved(new Date());
+      setLastSaved(new Date());
+      setIsDirty(false);
+      setIsSaving(false);
     } catch {
-      store.setSaving(false);
+      setIsSaving(false);
     }
-  }, [editor, saveMutation, store]);
+  }, [editor, saveMutation]);
 
   useEffect(() => {
-    if (!store.isDirty || !store.chapterId) return;
+    if (!isDirty) return;
 
     if (saveTimerRef.current) {
       clearTimeout(saveTimerRef.current);
@@ -161,14 +169,18 @@ export function ManuscriptEditor({
         clearTimeout(saveTimerRef.current);
       }
     };
-  }, [store.isDirty, store.content, store.chapterId, saveContent]);
+  }, [isDirty, content, saveContent]);
 
-  const wordCount = store.content ? countWords(store.content) : 0;
+  const wordCount = content ? countWords(content) : 0;
+  const docTypeLabel = docData
+    ? DOC_TYPE_LABELS[docData.type] || docData.type
+    : "";
+  const docTitle = docData?.title || docTypeLabel;
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full text-muted-foreground">
-        Loading chapter...
+        Loading document...
       </div>
     );
   }
@@ -177,23 +189,22 @@ export function ManuscriptEditor({
     <div className="flex h-full">
       {/* Main editor area */}
       <div className="flex flex-col flex-1 min-w-0">
-        {/* Chapter header */}
-        <div className="px-4 py-3 border-b">
-          <h1 className="text-lg font-display font-semibold">
-            Chapter {chapterNumber}
-            {chapterTitle ? `: ${chapterTitle}` : ""}
-          </h1>
+        {/* Document header */}
+        <div className="px-4 py-3 border-b flex items-center gap-3">
+          <h1 className="text-lg font-display font-semibold">{docTitle}</h1>
+          {docData && (
+            <Badge variant="outline" className="text-xs">
+              {docTypeLabel}
+            </Badge>
+          )}
         </div>
 
         <EditorToolbar
           editor={editor}
-          focusMode={store.focusMode}
-          onToggleFocusMode={store.toggleFocusMode}
+          focusMode={focusMode}
+          onToggleFocusMode={() => setFocusMode((v) => !v)}
           showHistory={showVersionHistory}
           onToggleHistory={() => setShowVersionHistory((v) => !v)}
-          isSaving={store.isSaving}
-          isDirty={store.isDirty}
-          lastSaved={store.lastSaved}
         />
 
         <div className="flex-1 overflow-y-auto">
@@ -202,20 +213,17 @@ export function ManuscriptEditor({
 
         <EditorStatusBar
           wordCount={wordCount}
-          isSaving={store.isSaving}
-          isDirty={store.isDirty}
-          lastSaved={store.lastSaved}
+          isSaving={isSaving}
+          isDirty={isDirty}
+          lastSaved={lastSaved}
         />
       </div>
 
-      {/* Version history sidebar — inline on lg+, Sheet on smaller screens */}
+      {/* Version history sidebar */}
       {isLg ? (
         showVersionHistory && (
           <div className="w-64 border-l flex flex-col">
-            <VersionHistoryPanel
-              bookId={bookId}
-              documentId={store.documentId}
-            />
+            <VersionHistoryPanel bookId={bookId} documentId={documentId} />
           </div>
         )
       ) : (
@@ -223,12 +231,8 @@ export function ManuscriptEditor({
           open={showVersionHistory}
           onOpenChange={setShowVersionHistory}
           bookId={bookId}
-          documentId={store.documentId}
-          documentTitle={
-            chapterTitle
-              ? `Chapter ${chapterNumber}: ${chapterTitle}`
-              : `Chapter ${chapterNumber}`
-          }
+          documentId={documentId}
+          documentTitle={docTitle}
         />
       )}
     </div>

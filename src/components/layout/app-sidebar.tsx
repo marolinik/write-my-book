@@ -17,6 +17,7 @@ import {
   UploadIcon,
   SettingsIcon,
   PaletteIcon,
+  WandIcon,
 } from "lucide-react";
 
 import {
@@ -211,6 +212,30 @@ export function AppSidebar() {
                     <Link href={`/books/${bookId}`}>
                       <FileTextIcon />
                       <span>Overview</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname.includes("/setup")}
+                  >
+                    <Link href={`/books/${bookId}/setup`}>
+                      <WandIcon />
+                      <span>Setup</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname.includes("/documents")}
+                  >
+                    <Link href={`/books/${bookId}/documents`}>
+                      <FileTextIcon />
+                      <span>Documents</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

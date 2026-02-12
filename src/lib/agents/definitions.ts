@@ -244,6 +244,82 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
       seriesContext: "full",
     },
   },
+  {
+    name: "Manuscript Reader",
+    type: "manuscript-reader",
+    description:
+      "Analyzes existing manuscripts through 5 passes — structure, characters, themes, style, and gaps — to build a comprehensive understanding of a brownfield project.",
+    writerDescription:
+      "Analyze an existing manuscript through 5 passes to understand its structure, characters, themes, style, and gaps.",
+    defaultModel: "sonnet",
+    allowedModels: ["opus", "sonnet"],
+    tools: ["ReadDocument", "ReadChapter", "WriteDocument", "ListDocuments"],
+    contextProfile: {
+      fingerprint: "full",
+      storyBible: "none",
+      architecture: "none",
+      chapterPlan: false,
+      chapterBrief: false,
+      seriesContext: "none",
+    },
+  },
+  {
+    name: "World Researcher",
+    type: "world-researcher",
+    description:
+      "Researches settings, genres, historical periods, and cultural contexts to ensure world-building authenticity and accuracy.",
+    writerDescription:
+      "Research your setting, genre, and historical context for authentic world-building.",
+    defaultModel: "sonnet",
+    allowedModels: ["opus", "sonnet"],
+    tools: ["ReadDocument", "WriteDocument", "ListDocuments"],
+    contextProfile: {
+      fingerprint: "none",
+      storyBible: "full",
+      architecture: "full",
+      chapterPlan: false,
+      chapterBrief: false,
+      seriesContext: "none",
+    },
+  },
+  {
+    name: "Market Reader",
+    type: "market-reader",
+    description:
+      "Analyzes book positioning across 5 cultural markets (US, EU, RU, CN, RS) for genre fit, comparable titles, and market trends.",
+    writerDescription:
+      "Analyze your book's market positioning across 5 cultural markets.",
+    defaultModel: "sonnet",
+    allowedModels: ["opus", "sonnet"],
+    tools: ["ReadDocument", "WriteDocument", "ListDocuments"],
+    contextProfile: {
+      fingerprint: "summary",
+      storyBible: "full",
+      architecture: "full",
+      chapterPlan: false,
+      chapterBrief: false,
+      seriesContext: "none",
+    },
+  },
+  {
+    name: "Publishing Editor",
+    type: "publishing-editor",
+    description:
+      "Runs 13 pre-export production-readiness checks including formatting, front/back matter, typography, and consistency.",
+    writerDescription:
+      "Run 13 pre-export production checks on your manuscript before publishing.",
+    defaultModel: "haiku",
+    allowedModels: ["sonnet", "haiku"],
+    tools: ["ReadDocument", "ReadChapter", "ListDocuments", "CreateFinding"],
+    contextProfile: {
+      fingerprint: "full",
+      storyBible: "full",
+      architecture: "full",
+      chapterPlan: false,
+      chapterBrief: false,
+      seriesContext: "summary",
+    },
+  },
 ];
 
 /** Look up an agent definition by type. */

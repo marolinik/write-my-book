@@ -105,12 +105,21 @@ const PLANS = [
   },
 ];
 
+const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const isClerkConfigured =
+  clerkKey && clerkKey.length > 0 && !clerkKey.includes("REPLACE_ME");
+
 export default async function Home() {
+  if (!isClerkConfigured) {
+    // No auth configured — go straight to dashboard
+    redirect("/dashboard");
+  }
+
   try {
     const { userId } = await auth();
     if (userId) redirect("/dashboard");
   } catch {
-    // Clerk not configured — show landing page
+    // Clerk misconfigured — show landing page
   }
 
   return (

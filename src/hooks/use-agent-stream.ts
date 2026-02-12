@@ -1,73 +1,127 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useAgentStore } from "@/stores/agent-store";
+import { useQueryClient } from "@tanstack/react-query";
+import { useAgentStore, type SessionState } from "@/stores/agent-store";
 import type { AgentStreamMessage, AgentResult } from "@/lib/agents/types";
 
 /**
- * Connects to the SSE stream for an active agent session.
- * Parses events and pushes them to the agent store.
+ * Manages SSE connections for all running agent sessions.
+ * Creates one EventSource per running session, routes messages
+ * to the correct session in the store, and invalidates caches on completion.
  */
-export function useAgentStream(
-  bookId: string | null,
-  sessionId: string | null
-) {
-  const [isConnected, setIsConnected] = useState(false);
-  const eventSourceRef = useRef<EventSource | null>(null);
+export function useAgentStream(bookId: string | null) {
+  const [connectedSessions, setConnectedSessions] = useState<Set<string>>(
+    new Set()
+  );
+  const eventSourcesRef = useRef<Map<string, EventSource>>(new Map());
+  const sessions = useAgentStore((s) => s.sessions);
   const addMessage = useAgentStore((s) => s.addMessage);
-  const setComplete = useAgentStore((s) => s.setComplete);
-  const setError = useAgentStore((s) => s.setError);
+  const setSessionComplete = useAgentStore((s) => s.setSessionComplete);
+  const setSessionError = useAgentStore((s) => s.setSessionError);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
-    if (!bookId || !sessionId) {
-      setIsConnected(false);
-      return;
+    if (!bookId) return;
+
+    const currentSources = eventSourcesRef.current;
+
+    // Find running sessions that need an EventSource
+    const runningSessions = Object.values(sessions).filter(
+      (s: SessionState) => s.status === "running" && s.bookId === bookId
+    );
+
+    // Create EventSources for new running sessions
+    for (const session of runningSessions) {
+      if (currentSources.has(session.sessionId)) continue;
+
+      const url = `/api/books/${bookId}/agent/${session.sessionId}/stream`;
+      const es = new EventSource(url);
+      currentSources.set(session.sessionId, es);
+
+      const sid = session.sessionId;
+
+      es.onopen = () => {
+        setConnectedSessions((prev) => new Set([...prev, sid]));
+      };
+
+      es.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data) as AgentStreamMessage;
+
+          if (message.type === "complete") {
+            const result = message.metadata as unknown as AgentResult;
+            const suggestedNext =
+              (message.metadata?.suggestedNext as string[]) ?? [];
+            setSessionComplete(sid, result, suggestedNext);
+            es.close();
+            currentSources.delete(sid);
+            setConnectedSessions((prev) => {
+              const next = new Set(prev);
+              next.delete(sid);
+              return next;
+            });
+
+            // Invalidate caches
+            queryClient.invalidateQueries({
+              queryKey: ["book-documents", bookId],
+            });
+            queryClient.invalidateQueries({
+              queryKey: ["style-profile", bookId],
+            });
+            queryClient.invalidateQueries({
+              queryKey: ["editorial-summary", bookId],
+            });
+            queryClient.invalidateQueries({
+              queryKey: ["books", bookId],
+            });
+            queryClient.invalidateQueries({
+              queryKey: ["continuity-findings", bookId],
+            });
+            return;
+          }
+
+          if (message.type === "error") {
+            setSessionError(sid, message.content);
+            return;
+          }
+
+          addMessage(sid, message);
+        } catch {
+          // Ignore parse errors
+        }
+      };
+
+      es.onerror = () => {
+        setConnectedSessions((prev) => {
+          const next = new Set(prev);
+          next.delete(sid);
+          return next;
+        });
+        es.close();
+        currentSources.delete(sid);
+      };
     }
 
-    const url = `/api/books/${bookId}/agent/${sessionId}/stream`;
-    const es = new EventSource(url);
-    eventSourceRef.current = es;
-
-    es.onopen = () => {
-      setIsConnected(true);
-    };
-
-    es.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data) as AgentStreamMessage;
-
-        if (message.type === "complete") {
-          const result = message.metadata as unknown as AgentResult;
-          const suggestedNext =
-            (message.metadata?.suggestedNext as string[]) ?? [];
-          setComplete(result, suggestedNext);
-          es.close();
-          setIsConnected(false);
-          return;
-        }
-
-        if (message.type === "error") {
-          setError(message.content);
-          return;
-        }
-
-        addMessage(message);
-      } catch {
-        // Ignore parse errors
+    // Close EventSources for sessions that are no longer running
+    for (const [sid, es] of currentSources) {
+      const session = sessions[sid];
+      if (!session || session.status !== "running") {
+        es.close();
+        currentSources.delete(sid);
       }
-    };
-
-    es.onerror = () => {
-      setIsConnected(false);
-      es.close();
-    };
+    }
 
     return () => {
-      es.close();
-      eventSourceRef.current = null;
-      setIsConnected(false);
+      // Cleanup all on unmount
+      for (const [, es] of currentSources) {
+        es.close();
+      }
+      currentSources.clear();
+      setConnectedSessions(new Set());
     };
-  }, [bookId, sessionId, addMessage, setComplete, setError]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bookId, Object.keys(sessions).join(",")]);
 
-  return { isConnected };
+  return { connectedSessions };
 }

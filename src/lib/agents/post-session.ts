@@ -44,6 +44,11 @@ const WORKFLOW_SUGGESTED_NEXT: Record<string, string[]> = {
   "create-series-bible": ["create-series-architecture"],
   "create-series-architecture": ["check-series-continuity"],
   "check-series-continuity": [],
+  "read-manuscript": ["capture-style", "create-story-bible"],
+  "refresh-style": ["write-chapter"],
+  "evolve-style": [],
+  "market-analysis": [],
+  "publishing-check": [],
 };
 
 const CHAPTER_STATUS_ADVANCE: Record<string, string> = {
@@ -71,14 +76,43 @@ export async function processPostSession(
   try {
     const docService = new DocumentService(ctx.userId, ctx.bookId);
 
+    // Bridge FINGERPRINT document to StyleProfile table
+    if (ctx.workflowId === "capture-style" || ctx.workflowId === "refresh-style") {
+      await bridgeFingerprintToStyleProfile(ctx, docService);
+    }
+
     // Handle edit workflows — parse report and store findings
     if (ctx.workflowId === "dev-edit" || ctx.workflowId === "line-edit") {
       result.findingsCreated = await processEditSession(ctx, docService);
+
+      // Cascade warnings are best-effort — don't fail the whole post-session
+      if (ctx.workflowId === "dev-edit" && result.findingsCreated > 0) {
+        try {
+          await createCascadeWarnings(ctx);
+        } catch (cascadeErr) {
+          console.error(
+            `[PostSession] Cascade warnings failed (non-fatal):`,
+            cascadeErr instanceof Error ? cascadeErr.message : cascadeErr
+          );
+        }
+      }
     }
 
     // Handle beta-read — parse gate result
     if (ctx.workflowId === "beta-read") {
       await processBetaReadSession(ctx, docService);
+
+      // Circuit breaker: block auto-revise after repeated beta failures
+      if (ctx.chapterNumber) {
+        const cb = await checkCircuitBreaker(ctx.bookId, ctx.chapterNumber);
+        if (cb.triggered) {
+          result.suggestedNext = [];
+          console.warn(
+            `[PostSession] Circuit breaker triggered for chapter ${ctx.chapterNumber} ` +
+              `(${cb.failCount} failed beta reads). Auto-revise blocked.`
+          );
+        }
+      }
     }
 
     // Advance chapter status if applicable
@@ -236,6 +270,7 @@ async function processBetaReadSession(
 
 /**
  * Advance chapter status only if it's at an earlier stage.
+ * Uses transaction with read-validate-write to prevent race conditions.
  */
 async function advanceChapterStatus(
   bookId: string,
@@ -253,23 +288,32 @@ async function advanceChapterStatus(
     "beta_passed",
   ];
 
-  const chapter = await db.chapter.findFirst({
-    where: { bookId, chapterNumber },
+  return db.$transaction(async (tx) => {
+    const chapter = await tx.chapter.findFirst({
+      where: { bookId, chapterNumber },
+    });
+    if (!chapter) return false;
+
+    const currentIdx = statusOrder.indexOf(chapter.status);
+    const targetIdx = statusOrder.indexOf(targetStatus);
+
+    // Only advance forward, never regress
+    if (targetIdx <= currentIdx) return false;
+
+    // Warn if skipping steps (but allow it)
+    if (targetIdx > currentIdx + 1) {
+      console.warn(
+        `[PostSession] Chapter ${chapterNumber} skipping from "${chapter.status}" to "${targetStatus}" (${targetIdx - currentIdx} steps)`
+      );
+    }
+
+    await tx.chapter.update({
+      where: { id: chapter.id },
+      data: { status: targetStatus },
+    });
+
+    return true;
   });
-  if (!chapter) return false;
-
-  const currentIdx = statusOrder.indexOf(chapter.status);
-  const targetIdx = statusOrder.indexOf(targetStatus);
-
-  // Only advance forward, never regress
-  if (targetIdx <= currentIdx) return false;
-
-  await db.chapter.update({
-    where: { id: chapter.id },
-    data: { status: targetStatus },
-  });
-
-  return true;
 }
 
 /**
@@ -285,4 +329,142 @@ async function recalculateBookWordCount(bookId: string): Promise<void> {
     where: { id: bookId },
     data: { wordCount: result._sum.wordCount ?? 0 },
   });
+}
+
+/**
+ * Circuit breaker: after 3+ failed beta reads for a chapter, block auto-revise
+ * to prevent infinite edit-revise loops.
+ */
+async function checkCircuitBreaker(
+  bookId: string,
+  chapterNumber: number
+): Promise<{ triggered: boolean; failCount: number }> {
+  const chapter = await db.chapter.findFirst({
+    where: { bookId, chapterNumber },
+  });
+  if (!chapter) return { triggered: false, failCount: 0 };
+
+  // Count completed beta-read sessions for this chapter via edit actions
+  const failedBetaReads = await db.editAction.count({
+    where: {
+      bookId,
+      chapterNumber,
+      actionType: "session_complete",
+      description: { contains: "beta-read" },
+    },
+  });
+
+  // If beta gate is currently failed and 3+ beta-reads have run, trigger breaker
+  if (chapter.betaGate === "failed" && failedBetaReads >= 3) {
+    return { triggered: true, failCount: failedBetaReads };
+  }
+
+  return { triggered: false, failCount: failedBetaReads };
+}
+
+/**
+ * Bridge FINGERPRINT document to StyleProfile table.
+ * After capture-style or refresh-style workflows, upsert a StyleProfile
+ * so the style page can display it without a separate query path.
+ */
+async function bridgeFingerprintToStyleProfile(
+  ctx: PostSessionContext,
+  docService: DocumentService
+): Promise<void> {
+  const doc = await docService.findByType(DocumentType.FINGERPRINT);
+  if (!doc) return;
+
+  const content = await docService.read(doc.id);
+  if (!content) return;
+
+  const book = await db.book.findUnique({
+    where: { id: ctx.bookId },
+    select: { name: true, bookNumber: true },
+  });
+
+  const existing = await db.styleProfile.findFirst({
+    where: { userId: ctx.userId, sourceBookId: ctx.bookId },
+  });
+
+  if (existing) {
+    await db.styleProfile.update({
+      where: { id: existing.id },
+      data: {
+        fingerprint: content.content,
+        name: `Style — ${book?.name ?? "Book"}`,
+      },
+    });
+  } else {
+    await db.styleProfile.create({
+      data: {
+        userId: ctx.userId,
+        sourceBookId: ctx.bookId,
+        sourceBookNumber: book?.bookNumber ?? 1,
+        name: `Style — ${book?.name ?? "Book"}`,
+        description: `Auto-generated from ${ctx.workflowId} workflow`,
+        fingerprint: content.content,
+      },
+    });
+  }
+}
+
+/**
+ * Cascade warnings: when a dev-edit creates entity-related findings (character,
+ * continuity, world-building, timeline), scan other chapters and create linked
+ * warning findings so the user knows to review them for consistency.
+ */
+async function createCascadeWarnings(
+  ctx: PostSessionContext
+): Promise<number> {
+  if (!ctx.chapterNumber) return 0;
+
+  const entityCategories = [
+    "character",
+    "continuity",
+    "world-building",
+    "timeline",
+  ];
+
+  // Fetch this session's entity-related findings (critical/major only)
+  const entityFindings = await db.editFinding.findMany({
+    where: {
+      bookId: ctx.bookId,
+      chapterNumber: ctx.chapterNumber,
+      sessionId: ctx.sessionId,
+      category: { in: entityCategories },
+      severity: { in: ["critical", "major"] },
+    },
+  });
+
+  if (entityFindings.length === 0) return 0;
+
+  // Get all other chapters
+  const chapters = await db.chapter.findMany({
+    where: { bookId: ctx.bookId, chapterNumber: { not: ctx.chapterNumber } },
+    select: { chapterNumber: true },
+  });
+
+  if (chapters.length === 0) return 0;
+
+  let warningsCreated = 0;
+
+  for (const finding of entityFindings) {
+    for (const ch of chapters) {
+      await db.editFinding.create({
+        data: {
+          bookId: ctx.bookId,
+          chapterNumber: ch.chapterNumber,
+          sessionId: ctx.sessionId,
+          agentType: "cascade-warning",
+          severity: "suggestion",
+          category: "continuity",
+          description: `[Cascade] Ch.${ctx.chapterNumber} finding may affect this chapter: ${finding.description}`,
+          suggestion: `Review this chapter for consistency after changes in Chapter ${ctx.chapterNumber}.`,
+        },
+      });
+      warningsCreated++;
+    }
+  }
+
+  return warningsCreated;
 }

@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, FileTextIcon } from "lucide-react";
+import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -63,9 +64,10 @@ export function DocumentsTab({ bookId }: { bookId: string }) {
         ) : (
           <div className="space-y-2">
             {docs.map((doc: any) => (
-              <div
+              <Link
                 key={doc.id}
-                className="flex items-center justify-between rounded-md border p-3"
+                href={`/books/${bookId}/documents/${doc.id}`}
+                className="flex items-center justify-between rounded-md border p-3 transition-colors hover:bg-muted"
               >
                 <div className="flex items-center gap-3">
                   <FileTextIcon className="h-4 w-4 text-muted-foreground" />
@@ -83,7 +85,7 @@ export function DocumentsTab({ bookId }: { bookId: string }) {
                 <Badge variant="outline">
                   {new Date(doc.updatedAt).toLocaleDateString()}
                 </Badge>
-              </div>
+              </Link>
             ))}
           </div>
         )}

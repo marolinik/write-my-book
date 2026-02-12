@@ -11,42 +11,43 @@ export class VersionManager {
 
   /**
    * Create a new version snapshot of the document content.
+   * Uses atomic increment to prevent race conditions with parallel agents.
    */
   async createVersion(
     content: string,
     changeType: string,
     changeSource: string
   ) {
-    // Get current document to determine next version number
-    const doc = await db.document.findUniqueOrThrow({
-      where: { id: this.documentId },
+    // Atomic: increment version and create record in a transaction
+    const result = await db.$transaction(async (tx) => {
+      // Atomically increment currentVersion and get the new value
+      const doc = await tx.document.update({
+        where: { id: this.documentId },
+        data: { currentVersion: { increment: 1 } },
+      });
+
+      const nextVersion = doc.currentVersion;
+      const versionPath = getVersionStoragePath(this.documentId, nextVersion);
+
+      // Write version content to S3
+      await this.storage.write(versionPath, content);
+
+      // Create version record in DB
+      const version = await tx.documentVersion.create({
+        data: {
+          documentId: this.documentId,
+          version: nextVersion,
+          storageKey: versionPath,
+          changeType,
+          changeSource,
+          wordCount: countWords(content),
+        },
+      });
+
+      return version;
     });
 
-    const nextVersion = doc.currentVersion + 1;
-    const versionPath = getVersionStoragePath(this.documentId, nextVersion);
-
-    // Write version content to S3
-    await this.storage.write(versionPath, content);
-
-    // Create version record in DB
-    const version = await db.documentVersion.create({
-      data: {
-        documentId: this.documentId,
-        version: nextVersion,
-        storageKey: versionPath,
-        changeType,
-        changeSource,
-        wordCount: countWords(content),
-      },
-    });
-
-    // Increment document's currentVersion
-    await db.document.update({
-      where: { id: this.documentId },
-      data: { currentVersion: nextVersion },
-    });
-
-    return version;
+    return result;
   }
 
   /**

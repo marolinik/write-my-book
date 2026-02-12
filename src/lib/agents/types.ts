@@ -8,7 +8,11 @@ export type AgentType =
   | "line-editor"
   | "beta-reader"
   | "manuscript-analyst"
-  | "continuity-checker";
+  | "continuity-checker"
+  | "manuscript-reader"
+  | "world-researcher"
+  | "market-reader"
+  | "publishing-editor";
 
 export type ModelTier = "opus" | "sonnet" | "haiku";
 
@@ -91,7 +95,7 @@ export interface WorkflowDefinition {
   description: string;
   writerDescription: string;
   primaryAgent: AgentType;
-  category: "setup" | "writing" | "editing" | "analysis" | "series";
+  category: "setup" | "writing" | "editing" | "analysis" | "series" | "style";
   requiresChapter: boolean;
   requiresSeriesContext: boolean;
   conversational: boolean;

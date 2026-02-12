@@ -8,10 +8,12 @@ import {
   DownloadIcon,
   UploadIcon,
   BarChart3Icon,
+  SearchCheckIcon,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useSeriesDetail } from "@/hooks/use-series";
+import { useAgentStore } from "@/stores/agent-store";
 import { SeriesBookManager } from "@/components/series/series-book-manager";
 import { SeriesDocumentsPanel } from "@/components/series/series-documents-panel";
 import { SeriesInheritancePanel } from "@/components/series/series-inheritance-panel";
@@ -34,6 +36,7 @@ export default function SeriesDetailPage() {
   const [activeTab, setActiveTab] = useState<Tab>("overview");
 
   const { data: series, isLoading } = useSeriesDetail(seriesId);
+  const openWithWorkflow = useAgentStore((s) => s.openWithWorkflow);
 
   if (isLoading) {
     return (
@@ -63,9 +66,19 @@ export default function SeriesDetailPage() {
     <div className="p-6 lg:p-8">
       {/* Header */}
       <div className="mb-6">
-        <div className="flex items-center gap-3">
-          <h1 className="font-display text-2xl font-bold">{series.title}</h1>
-          <Badge variant="outline">{series.seriesType}</Badge>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <h1 className="font-display text-2xl font-bold">{series.title}</h1>
+            <Badge variant="outline">{series.seriesType}</Badge>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => openWithWorkflow("check-series-continuity")}
+          >
+            <SearchCheckIcon className="mr-1 size-4" />
+            Check Continuity
+          </Button>
         </div>
         {series.genre && (
           <p className="text-sm text-muted-foreground mt-1">{series.genre}</p>

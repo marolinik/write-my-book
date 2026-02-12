@@ -1,17 +1,25 @@
 import { create } from "zustand";
 import type { AgentType, AgentStreamMessage, AgentResult } from "@/lib/agents/types";
 
-interface AgentState {
-  sessionId: string | null;
-  workflowId: string | null;
-  agentType: AgentType | null;
-  bookId: string | null;
-  seriesId: string | null;
-  isRunning: boolean;
+export interface SessionState {
+  sessionId: string;
+  workflowId: string;
+  agentType: AgentType;
+  bookId: string;
+  seriesId?: string;
+  status: "running" | "completed" | "failed";
   messages: AgentStreamMessage[];
   error: string | null;
   suggestedNext: string[];
+}
 
+interface AgentState {
+  panelOpen: boolean;
+  sessions: Record<string, SessionState>;
+  activeSessionId: string | null;
+  pendingWorkflowId: string | null;
+
+  setPanelOpen: (open: boolean) => void;
   startSession: (
     sessionId: string,
     workflowId: string,
@@ -19,54 +27,124 @@ interface AgentState {
     bookId: string,
     seriesId?: string
   ) => void;
-  addMessage: (message: AgentStreamMessage) => void;
-  setComplete: (result: AgentResult, suggestedNext: string[]) => void;
-  setError: (error: string) => void;
+  addMessage: (sessionId: string, message: AgentStreamMessage) => void;
+  setSessionComplete: (
+    sessionId: string,
+    result: AgentResult,
+    suggestedNext: string[]
+  ) => void;
+  setSessionError: (sessionId: string, error: string) => void;
+  setActiveSession: (sessionId: string | null) => void;
+  openWithWorkflow: (workflowId: string) => void;
+  clearPendingWorkflow: () => void;
+  removeSession: (sessionId: string) => void;
   reset: () => void;
+
+  // Convenience getters (derived from active session)
+  getActiveSession: () => SessionState | undefined;
 }
 
-export const useAgentStore = create<AgentState>((set) => ({
-  sessionId: null,
-  workflowId: null,
-  agentType: null,
-  bookId: null,
-  seriesId: null,
-  isRunning: false,
-  messages: [],
-  error: null,
-  suggestedNext: [],
+export const useAgentStore = create<AgentState>((set, get) => ({
+  panelOpen: false,
+  sessions: {},
+  activeSessionId: null,
+  pendingWorkflowId: null,
+
+  setPanelOpen: (open) => set({ panelOpen: open }),
 
   startSession: (sessionId, workflowId, agentType, bookId, seriesId) =>
-    set({
-      sessionId,
-      workflowId,
-      agentType,
-      bookId,
-      seriesId: seriesId ?? null,
-      isRunning: true,
-      messages: [],
-      error: null,
-      suggestedNext: [],
+    set((state) => ({
+      sessions: {
+        ...state.sessions,
+        [sessionId]: {
+          sessionId,
+          workflowId,
+          agentType,
+          bookId,
+          seriesId,
+          status: "running",
+          messages: [],
+          error: null,
+          suggestedNext: [],
+        },
+      },
+      activeSessionId: sessionId,
+    })),
+
+  addMessage: (sessionId, message) =>
+    set((state) => {
+      const session = state.sessions[sessionId];
+      if (!session) return state;
+      return {
+        sessions: {
+          ...state.sessions,
+          [sessionId]: {
+            ...session,
+            messages: [...session.messages, message],
+          },
+        },
+      };
     }),
 
-  addMessage: (message) =>
-    set((state) => ({ messages: [...state.messages, message] })),
+  setSessionComplete: (sessionId, _result, suggestedNext) =>
+    set((state) => {
+      const session = state.sessions[sessionId];
+      if (!session) return state;
+      return {
+        sessions: {
+          ...state.sessions,
+          [sessionId]: {
+            ...session,
+            status: "completed",
+            suggestedNext,
+          },
+        },
+      };
+    }),
 
-  setComplete: (_result, suggestedNext) =>
-    set({ isRunning: false, suggestedNext }),
+  setSessionError: (sessionId, error) =>
+    set((state) => {
+      const session = state.sessions[sessionId];
+      if (!session) return state;
+      return {
+        sessions: {
+          ...state.sessions,
+          [sessionId]: {
+            ...session,
+            status: "failed",
+            error,
+          },
+        },
+      };
+    }),
 
-  setError: (error) => set({ isRunning: false, error }),
+  setActiveSession: (sessionId) => set({ activeSessionId: sessionId }),
+
+  openWithWorkflow: (workflowId) =>
+    set({ pendingWorkflowId: workflowId, panelOpen: true }),
+
+  clearPendingWorkflow: () => set({ pendingWorkflowId: null }),
+
+  removeSession: (sessionId) =>
+    set((state) => {
+      const { [sessionId]: _, ...rest } = state.sessions;
+      return {
+        sessions: rest,
+        activeSessionId:
+          state.activeSessionId === sessionId ? null : state.activeSessionId,
+      };
+    }),
 
   reset: () =>
     set({
-      sessionId: null,
-      workflowId: null,
-      agentType: null,
-      bookId: null,
-      seriesId: null,
-      isRunning: false,
-      messages: [],
-      error: null,
-      suggestedNext: [],
+      sessions: {},
+      activeSessionId: null,
+      pendingWorkflowId: null,
     }),
+
+  getActiveSession: () => {
+    const state = get();
+    if (!state.activeSessionId) return undefined;
+    return state.sessions[state.activeSessionId];
+  },
 }));
