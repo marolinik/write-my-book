@@ -6,6 +6,7 @@ import {
 
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { getUIStrings } from "@/lib/i18n/ui-strings";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +21,8 @@ export const dynamic = "force-dynamic";
 
 export default async function BooksPage() {
   const user = await requireUser();
+  const t = getUIStrings(user.preferredLanguage ?? "en");
+  const s = t.bookList;
 
   const books = await db.book.findMany({
     where: { userId: user.id },
@@ -34,15 +37,15 @@ export default async function BooksPage() {
     <div className="p-6 lg:p-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="font-display text-2xl font-bold">Books</h1>
+          <h1 className="font-display text-2xl font-bold">{s.title}</h1>
           <p className="text-sm text-muted-foreground">
-            {books.length} {books.length === 1 ? "book" : "books"}
+            {books.length} {books.length === 1 ? s.book : s.books}
           </p>
         </div>
         <Button asChild>
           <Link href="/books/new">
             <PlusIcon className="mr-1 size-4" />
-            New Book
+            {s.newBook}
           </Link>
         </Button>
       </div>
@@ -51,14 +54,14 @@ export default async function BooksPage() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <BookOpenIcon className="size-12 text-muted-foreground/50 mb-4" />
-            <h3 className="text-lg font-medium mb-1">No books yet</h3>
+            <h3 className="text-lg font-medium mb-1">{s.noBooks}</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Start your writing journey by creating your first book
+              {s.noBooksDesc}
             </p>
             <Button asChild>
               <Link href="/books/new">
                 <PlusIcon className="mr-1 size-4" />
-                Create Book
+                {s.createBook}
               </Link>
             </Button>
           </CardContent>
@@ -81,16 +84,16 @@ export default async function BooksPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex gap-4 text-xs text-muted-foreground">
-                    <span>{book.wordCount.toLocaleString()} words</span>
-                    <span>{book._count.chapters} chapters</span>
+                    <span>{book.wordCount.toLocaleString()} {s.words}</span>
+                    <span>{book._count.chapters} {s.chapters}</span>
                   </div>
                   {book.series && (
                     <p className="mt-1 text-xs text-muted-foreground/70">
-                      Series: {book.series.title} (#{book.bookNumber})
+                      {s.series} {book.series.title} (#{book.bookNumber})
                     </p>
                   )}
                   <p className="mt-1 text-xs text-muted-foreground/70">
-                    Updated {new Date(book.updatedAt).toLocaleDateString()}
+                    {s.updated} {new Date(book.updatedAt).toLocaleDateString()}
                   </p>
                 </CardContent>
               </Card>

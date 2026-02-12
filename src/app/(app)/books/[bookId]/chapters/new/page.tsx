@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { useCreateChapter } from "@/hooks/use-chapters";
+import { useLanguage } from "@/components/providers/language-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,6 +21,8 @@ export default function NewChapterPage() {
   const router = useRouter();
   const { bookId } = useParams<{ bookId: string }>();
   const createChapter = useCreateChapter(bookId);
+  const { t } = useLanguage();
+  const s = t.chapterNew;
 
   const [chapterNumber, setChapterNumber] = useState(1);
   const [actNumber, setActNumber] = useState(1);
@@ -34,7 +37,7 @@ export default function NewChapterPage() {
         actNumber,
         title: title.trim() || undefined,
       });
-      toast.success("Chapter created");
+      toast.success(s.created);
       router.push(`/books/${bookId}/chapters/${chapter.id}`);
     } catch (err) {
       toast.error((err as Error).message);
@@ -45,14 +48,14 @@ export default function NewChapterPage() {
     <div className="mx-auto max-w-lg p-6 lg:p-8">
       <Card>
         <CardHeader>
-          <CardTitle className="font-display text-xl">New Chapter</CardTitle>
-          <CardDescription>Add a new chapter to your book</CardDescription>
+          <CardTitle className="font-display text-xl">{s.title}</CardTitle>
+          <CardDescription>{s.subtitle}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="chapterNumber">Chapter Number *</Label>
+                <Label htmlFor="chapterNumber">{s.chapterNumber} *</Label>
                 <Input
                   id="chapterNumber"
                   type="number"
@@ -66,7 +69,7 @@ export default function NewChapterPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="actNumber">Act Number *</Label>
+                <Label htmlFor="actNumber">{s.actNumber} *</Label>
                 <Input
                   id="actNumber"
                   type="number"
@@ -82,12 +85,12 @@ export default function NewChapterPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="title">Title (optional)</Label>
+              <Label htmlFor="title">{s.titleOptional}</Label>
               <Input
                 id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Chapter title..."
+                placeholder={s.titlePlaceholder}
                 maxLength={200}
               />
             </div>
@@ -98,12 +101,10 @@ export default function NewChapterPage() {
                 variant="outline"
                 onClick={() => router.back()}
               >
-                Cancel
+                {s.cancel}
               </Button>
               <Button type="submit" disabled={createChapter.isPending}>
-                {createChapter.isPending
-                  ? "Creating..."
-                  : "Create Chapter"}
+                {createChapter.isPending ? s.creating : s.create}
               </Button>
             </div>
           </form>

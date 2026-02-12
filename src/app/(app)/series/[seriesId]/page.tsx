@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useSeriesDetail } from "@/hooks/use-series";
 import { useAgentStore } from "@/stores/agent-store";
+import { useLanguage } from "@/components/providers/language-provider";
 import { SeriesBookManager } from "@/components/series/series-book-manager";
 import { SeriesDocumentsPanel } from "@/components/series/series-documents-panel";
 import { SeriesInheritancePanel } from "@/components/series/series-inheritance-panel";
@@ -37,11 +38,12 @@ export default function SeriesDetailPage() {
 
   const { data: series, isLoading } = useSeriesDetail(seriesId);
   const openWithWorkflow = useAgentStore((s) => s.openWithWorkflow);
+  const { t } = useLanguage();
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-12">
-        <p className="text-sm text-muted-foreground">Loading series...</p>
+        <p className="text-sm text-muted-foreground">{t.common.loading}</p>
       </div>
     );
   }
@@ -49,7 +51,7 @@ export default function SeriesDetailPage() {
   if (!series) {
     return (
       <div className="flex items-center justify-center p-12">
-        <p className="text-sm text-muted-foreground">Series not found.</p>
+        <p className="text-sm text-muted-foreground">{t.common.error}</p>
       </div>
     );
   }

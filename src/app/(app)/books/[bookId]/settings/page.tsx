@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { useBookSettings, useUpdateBookSettings } from "@/hooks/use-settings";
+import { useLanguage } from "@/components/providers/language-provider";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -28,11 +29,13 @@ export default function BookSettingsPage() {
   const { bookId } = useParams<{ bookId: string }>();
   const { data: settings, isLoading } = useBookSettings(bookId);
   const updateSettings = useUpdateBookSettings(bookId);
+  const { t } = useLanguage();
+  const s = t.bookSettings;
 
   async function handleChange(field: string, value: unknown) {
     try {
       await updateSettings.mutateAsync({ [field]: value });
-      toast.success("Settings updated");
+      toast.success(t.common.save);
     } catch (err) {
       toast.error((err as Error).message);
     }
@@ -41,7 +44,7 @@ export default function BookSettingsPage() {
   if (isLoading) {
     return (
       <div className="p-6 lg:p-8">
-        <p className="text-sm text-muted-foreground">Loading settings...</p>
+        <p className="text-sm text-muted-foreground">{t.common.loading}</p>
       </div>
     );
   }
@@ -49,7 +52,7 @@ export default function BookSettingsPage() {
   if (!settings) {
     return (
       <div className="p-6 lg:p-8">
-        <p className="text-sm text-muted-foreground">Settings not found.</p>
+        <p className="text-sm text-muted-foreground">{t.common.error}</p>
       </div>
     );
   }
@@ -58,28 +61,24 @@ export default function BookSettingsPage() {
     <div className="mx-auto max-w-2xl p-6 lg:p-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold">Book Settings</h1>
-          <p className="text-sm text-muted-foreground">
-            Configure AI models and writing preferences
-          </p>
+          <h1 className="font-display text-2xl font-bold">{s.title}</h1>
+          <p className="text-sm text-muted-foreground">{s.subtitle}</p>
         </div>
         <Button variant="outline" size="sm" onClick={() => router.back()}>
-          Back
+          {s.back}
         </Button>
       </div>
 
       {/* AI Model Selection */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">AI Models</CardTitle>
-          <CardDescription>
-            Choose which Claude model each agent uses
-          </CardDescription>
+          <CardTitle className="text-base">{s.aiModels}</CardTitle>
+          <CardDescription>{s.aiModelsDesc}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label>Ghostwriter</Label>
-            <p className="text-xs text-muted-foreground">Writes chapter drafts</p>
+            <Label>{s.ghostwriter}</Label>
+            <p className="text-xs text-muted-foreground">{s.ghostwriterDesc}</p>
             <Select
               value={settings.modelGhostwriter}
               onValueChange={(v) => handleChange("modelGhostwriter", v)}
@@ -95,8 +94,8 @@ export default function BookSettingsPage() {
           </div>
 
           <div className="space-y-2">
-            <Label>Coach</Label>
-            <p className="text-xs text-muted-foreground">Writing coach & story bible</p>
+            <Label>{s.coach}</Label>
+            <p className="text-xs text-muted-foreground">{s.coachDesc}</p>
             <Select
               value={settings.modelCoach}
               onValueChange={(v) => handleChange("modelCoach", v)}
@@ -112,8 +111,8 @@ export default function BookSettingsPage() {
           </div>
 
           <div className="space-y-2">
-            <Label>Creative</Label>
-            <p className="text-xs text-muted-foreground">Style, architecture & planning</p>
+            <Label>{s.creative}</Label>
+            <p className="text-xs text-muted-foreground">{s.creativeDesc}</p>
             <Select
               value={settings.modelCreative}
               onValueChange={(v) => handleChange("modelCreative", v)}
@@ -129,8 +128,8 @@ export default function BookSettingsPage() {
           </div>
 
           <div className="space-y-2">
-            <Label>Editor</Label>
-            <p className="text-xs text-muted-foreground">Dev edit, line edit & continuity</p>
+            <Label>{s.editor}</Label>
+            <p className="text-xs text-muted-foreground">{s.editorDesc}</p>
             <Select
               value={settings.modelEditor}
               onValueChange={(v) => handleChange("modelEditor", v)}
@@ -147,8 +146,8 @@ export default function BookSettingsPage() {
           </div>
 
           <div className="space-y-2">
-            <Label>Beta Reader</Label>
-            <p className="text-xs text-muted-foreground">Simulated reader panel</p>
+            <Label>{s.betaReader}</Label>
+            <p className="text-xs text-muted-foreground">{s.betaReaderDesc}</p>
             <Select
               value={settings.modelBetaReader}
               onValueChange={(v) => handleChange("modelBetaReader", v)}
@@ -165,8 +164,8 @@ export default function BookSettingsPage() {
           </div>
 
           <div className="space-y-2">
-            <Label>Research</Label>
-            <p className="text-xs text-muted-foreground">Manuscript, market & publishing</p>
+            <Label>{s.research}</Label>
+            <p className="text-xs text-muted-foreground">{s.researchDesc}</p>
             <Select
               value={settings.modelResearch}
               onValueChange={(v) => handleChange("modelResearch", v)}
@@ -183,8 +182,8 @@ export default function BookSettingsPage() {
           </div>
 
           <div className="space-y-2">
-            <Label>Analyst</Label>
-            <p className="text-xs text-muted-foreground">Statistics & readability</p>
+            <Label>{s.analyst}</Label>
+            <p className="text-xs text-muted-foreground">{s.analystDesc}</p>
             <Select
               value={settings.modelAnalyst}
               onValueChange={(v) => handleChange("modelAnalyst", v)}
@@ -204,14 +203,12 @@ export default function BookSettingsPage() {
       {/* Style Settings */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Style</CardTitle>
-          <CardDescription>
-            Control how strictly AI follows your writing style
-          </CardDescription>
+          <CardTitle className="text-base">{s.styleSection}</CardTitle>
+          <CardDescription>{s.styleDesc}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label>Style Strictness</Label>
+            <Label>{s.styleStrictness}</Label>
             <Select
               value={settings.styleStrictness}
               onValueChange={(v) => handleChange("styleStrictness", v)}
@@ -220,18 +217,18 @@ export default function BookSettingsPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="strict">Strict</SelectItem>
-                <SelectItem value="balanced">Balanced</SelectItem>
-                <SelectItem value="relaxed">Relaxed</SelectItem>
+                <SelectItem value="strict">{s.strict}</SelectItem>
+                <SelectItem value="balanced">{s.balanced}</SelectItem>
+                <SelectItem value="relaxed">{s.relaxed}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="flex items-center justify-between">
             <div>
-              <Label>Auto-commit</Label>
+              <Label>{s.autoCommit}</Label>
               <p className="text-xs text-muted-foreground">
-                Automatically save agent changes
+                {s.autoCommitDesc}
               </p>
             </div>
             <Switch
@@ -245,14 +242,12 @@ export default function BookSettingsPage() {
       {/* Beta Reader Settings */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Beta Reader Panel</CardTitle>
-          <CardDescription>
-            Configure virtual beta reader settings
-          </CardDescription>
+          <CardTitle className="text-base">{s.betaPanel}</CardTitle>
+          <CardDescription>{s.betaPanelDesc}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-3">
           <div className="space-y-2">
-            <Label>Panel Size</Label>
+            <Label>{s.panelSize}</Label>
             <Input
               type="number"
               min={3}
@@ -264,7 +259,7 @@ export default function BookSettingsPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label>Consensus %</Label>
+            <Label>{s.consensus}</Label>
             <Input
               type="number"
               min={50}
@@ -276,7 +271,7 @@ export default function BookSettingsPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label>Convergence %</Label>
+            <Label>{s.convergence}</Label>
             <Input
               type="number"
               min={50}

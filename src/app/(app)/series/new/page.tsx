@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { useCreateSeries } from "@/hooks/use-series";
+import { useLanguage } from "@/components/providers/language-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,6 +37,8 @@ const SERIES_TYPES = [
 export default function NewSeriesPage() {
   const router = useRouter();
   const createSeries = useCreateSeries();
+  const { t } = useLanguage();
+  const s = t.seriesPage;
 
   const [title, setTitle] = useState("");
   const [genre, setGenre] = useState("");
@@ -66,9 +69,9 @@ export default function NewSeriesPage() {
     <div className="mx-auto max-w-lg p-6 lg:p-8">
       <Card>
         <CardHeader>
-          <CardTitle className="font-display text-xl">New Series</CardTitle>
+          <CardTitle className="font-display text-xl">{s.newSeries}</CardTitle>
           <CardDescription>
-            Group related books together in a series
+            {s.noSeriesDesc}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -144,10 +147,10 @@ export default function NewSeriesPage() {
                 variant="outline"
                 onClick={() => router.back()}
               >
-                Cancel
+                {t.common.close}
               </Button>
               <Button type="submit" disabled={createSeries.isPending}>
-                {createSeries.isPending ? "Creating..." : "Create Series"}
+                {createSeries.isPending ? t.common.loading : s.createSeries}
               </Button>
             </div>
           </form>

@@ -9,6 +9,7 @@ import {
 
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { getUIStrings } from "@/lib/i18n/ui-strings";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -54,6 +55,9 @@ export default async function BookDetailPage({
 
   if (!book) notFound();
 
+  const t = getUIStrings(user.preferredLanguage ?? "en");
+  const s = t.bookOverview;
+
   return (
     <div className="p-6 lg:p-8">
       {/* Header */}
@@ -83,7 +87,7 @@ export default async function BookDetailPage({
         <Button asChild variant="outline" size="sm">
           <Link href={`/books/${bookId}/settings`}>
             <SettingsIcon className="mr-1 size-4" />
-            Settings
+            {s.settingsBtn}
           </Link>
         </Button>
       </div>
@@ -93,7 +97,7 @@ export default async function BookDetailPage({
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Words
+              {s.words}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -105,7 +109,7 @@ export default async function BookDetailPage({
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Chapters
+              {s.chapters}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -115,7 +119,7 @@ export default async function BookDetailPage({
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Documents
+              {s.documents}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -134,16 +138,15 @@ export default async function BookDetailPage({
               <SparklesIcon className="size-5 text-primary" />
               <div>
                 <p className="text-sm font-medium">
-                  Complete your book setup
+                  {s.completeSetup}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Set up your style profile, story bible, and architecture to
-                  get started.
+                  {s.setupDescription}
                 </p>
               </div>
             </div>
             <Button asChild size="sm">
-              <Link href={`/books/${bookId}/setup`}>Start Setup</Link>
+              <Link href={`/books/${bookId}/setup`}>{s.startSetup}</Link>
             </Button>
           </CardContent>
         </Card>
@@ -152,11 +155,11 @@ export default async function BookDetailPage({
       {/* Chapters */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-display text-lg font-semibold">Chapters</h2>
+          <h2 className="font-display text-lg font-semibold">{s.chapters}</h2>
           <Button asChild size="sm">
             <Link href={`/books/${bookId}/chapters/new`}>
               <PlusIcon className="mr-1 size-4" />
-              Add Chapter
+              {s.addChapter}
             </Link>
           </Button>
         </div>
@@ -164,7 +167,7 @@ export default async function BookDetailPage({
         {book.chapters.length === 0 ? (
           <Card>
             <CardContent className="py-8 text-center text-sm text-muted-foreground">
-              No chapters yet. Add your first chapter to start writing.
+              {s.noChapters}
             </CardContent>
           </Card>
         ) : (
@@ -172,12 +175,12 @@ export default async function BookDetailPage({
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/50">
-                  <th className="px-4 py-2 text-left font-medium">#</th>
-                  <th className="px-4 py-2 text-left font-medium">Title</th>
-                  <th className="px-4 py-2 text-left font-medium">Act</th>
-                  <th className="px-4 py-2 text-left font-medium">Status</th>
-                  <th className="px-4 py-2 text-right font-medium">Words</th>
-                  <th className="px-4 py-2 text-right font-medium">Action</th>
+                  <th className="px-4 py-2 text-left font-medium">{s.colNum}</th>
+                  <th className="px-4 py-2 text-left font-medium">{s.colTitle}</th>
+                  <th className="px-4 py-2 text-left font-medium">{s.colAct}</th>
+                  <th className="px-4 py-2 text-left font-medium">{s.colStatus}</th>
+                  <th className="px-4 py-2 text-right font-medium">{s.colWords}</th>
+                  <th className="px-4 py-2 text-right font-medium">{s.colAction}</th>
                 </tr>
               </thead>
               <tbody>
@@ -189,12 +192,12 @@ export default async function BookDetailPage({
                     <td className="px-4 py-2">
                       {ch.title || (
                         <span className="text-muted-foreground italic">
-                          Untitled
+                          {s.untitled}
                         </span>
                       )}
                     </td>
                     <td className="px-4 py-2 text-muted-foreground">
-                      Act {ch.actNumber}
+                      {s.act} {ch.actNumber}
                     </td>
                     <td className="px-4 py-2">
                       <Badge
@@ -210,7 +213,7 @@ export default async function BookDetailPage({
                     <td className="px-4 py-2 text-right">
                       <Button asChild variant="ghost" size="xs">
                         <Link href={`/books/${bookId}/chapters/${ch.id}`}>
-                          Edit
+                          {s.edit}
                         </Link>
                       </Button>
                     </td>
@@ -226,7 +229,7 @@ export default async function BookDetailPage({
       {book.documents.length > 0 && (
         <div>
           <h2 className="font-display text-lg font-semibold mb-4">
-            Documents
+            {s.documents}
           </h2>
           <div className="grid gap-2">
             {book.documents.map((doc) => (

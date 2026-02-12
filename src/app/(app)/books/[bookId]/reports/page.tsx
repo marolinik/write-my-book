@@ -3,6 +3,7 @@
 import { use } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
+import { useLanguage } from "@/components/providers/language-provider";
 import {
   AnalyticsTab,
   ContinuityTab,
@@ -17,25 +18,27 @@ export default function ReportsPage({
   params: Promise<{ bookId: string }>;
 }) {
   const { bookId } = use(params);
+  const { t } = useLanguage();
+  const s = t.reports;
 
   return (
     <div className="p-6 lg:p-8">
       <h1 className="font-display text-3xl font-semibold tracking-tight">
-        Reports
+        {s.title}
       </h1>
       <p className="text-muted-foreground">
-        Analytics, continuity, market analysis, and editorial overview
+        {s.subtitle}
       </p>
 
       <Separator className="my-6" />
 
       <Tabs defaultValue="analytics">
         <TabsList className="flex-wrap">
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="continuity">Continuity</TabsTrigger>
-          <TabsTrigger value="market">Market</TabsTrigger>
-          <TabsTrigger value="edits">Edits</TabsTrigger>
-          <TabsTrigger value="documents">Documents</TabsTrigger>
+          <TabsTrigger value="analytics">{s.analytics}</TabsTrigger>
+          <TabsTrigger value="continuity">{s.continuity}</TabsTrigger>
+          <TabsTrigger value="market">{s.market}</TabsTrigger>
+          <TabsTrigger value="edits">{s.edits}</TabsTrigger>
+          <TabsTrigger value="documents">{s.documents}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="analytics" className="mt-6">

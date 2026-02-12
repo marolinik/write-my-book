@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useEffect, useCallback } from "react";
+import { use, useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import {
   BookOpenIcon,
@@ -38,45 +38,7 @@ import {
 import { useAgentStore } from "@/stores/agent-store";
 import { useBook, useUpdateBook } from "@/hooks/use-books";
 import { useBookState } from "@/hooks/use-book-state";
-
-const STEPS = [
-  {
-    id: "basics",
-    title: "Basics",
-    icon: BookOpenIcon,
-    description: "Set your book's name, genre, and language",
-  },
-  {
-    id: "import",
-    title: "Import",
-    icon: UploadIcon,
-    description: "Import an existing manuscript (optional)",
-  },
-  {
-    id: "style",
-    title: "Style",
-    icon: PaletteIcon,
-    description: "Capture your unique writing voice",
-  },
-  {
-    id: "bible",
-    title: "Story Bible",
-    icon: BookMarkedIcon,
-    description: "Build your world, characters, and rules",
-  },
-  {
-    id: "architecture",
-    title: "Architecture",
-    icon: LayoutIcon,
-    description: "Design your story structure",
-  },
-  {
-    id: "done",
-    title: "Done",
-    icon: CheckCircle2Icon,
-    description: "You're all set!",
-  },
-] as const;
+import { useLanguage } from "@/components/providers/language-provider";
 
 export default function SetupPage({
   params,
@@ -84,17 +46,32 @@ export default function SetupPage({
   params: Promise<{ bookId: string }>;
 }) {
   const { bookId } = use(params);
+  const { t } = useLanguage();
+  const s = t.setup;
+
   const [currentStep, setCurrentStep] = useState(0);
   const [confirmWorkflow, setConfirmWorkflow] = useState<string | null>(null);
-  const openWithWorkflow = useAgentStore((s) => s.openWithWorkflow);
-  const sessions = useAgentStore((s) => s.sessions);
+  const openWithWorkflow = useAgentStore((st) => st.openWithWorkflow);
+  const sessions = useAgentStore((st) => st.sessions);
   const { data: book } = useBook(bookId);
   const updateBook = useUpdateBook(bookId);
   const bookState = useBookState(bookId);
 
+  const STEPS = useMemo(
+    () => [
+      { id: "basics", title: s.basics, icon: BookOpenIcon, description: s.basicsDesc },
+      { id: "import", title: s.importStep, icon: UploadIcon, description: s.importDesc },
+      { id: "style", title: s.styleStep, icon: PaletteIcon, description: s.styleDesc },
+      { id: "bible", title: s.storyBible, icon: BookMarkedIcon, description: s.storyBibleDesc },
+      { id: "architecture", title: s.architecture, icon: LayoutIcon, description: s.architectureDesc },
+      { id: "done", title: s.doneStep, icon: CheckCircle2Icon, description: s.doneDesc },
+    ],
+    [s]
+  );
+
   // Check if any agent session is currently running
   const hasRunningSession = Object.values(sessions).some(
-    (s) => s.status === "running"
+    (sess) => sess.status === "running"
   );
 
   const [name, setName] = useState("");
@@ -111,11 +88,9 @@ export default function SetupPage({
   }, [book]);
 
   const step = STEPS[currentStep];
-  const isFirst = currentStep === 0;
-  const isLast = currentStep === STEPS.length - 1;
 
-  const next = () => setCurrentStep((s) => Math.min(s + 1, STEPS.length - 1));
-  const prev = () => setCurrentStep((s) => Math.max(s - 1, 0));
+  const next = () => setCurrentStep((v) => Math.min(v + 1, STEPS.length - 1));
+  const prev = () => setCurrentStep((v) => Math.max(v - 1, 0));
 
   const handleSaveBasics = async () => {
     await updateBook.mutateAsync({
@@ -141,19 +116,17 @@ export default function SetupPage({
 
   return (
     <div className="p-6 lg:p-8 max-w-2xl mx-auto">
-      <h1 className="font-display text-2xl font-bold mb-2">Book Setup</h1>
-      <p className="text-sm text-muted-foreground mb-8">
-        Complete these steps to set up your book for writing.
-      </p>
+      <h1 className="font-display text-2xl font-bold mb-2">{s.title}</h1>
+      <p className="text-sm text-muted-foreground mb-8">{s.subtitle}</p>
 
       {/* Progress bar */}
       <div className="flex items-center gap-1 mb-8">
-        {STEPS.map((s, i) => {
-          const Icon = s.icon;
+        {STEPS.map((st, i) => {
+          const Icon = st.icon;
           const isActive = i === currentStep;
           const isDone = i < currentStep;
           return (
-            <div key={s.id} className="flex items-center flex-1">
+            <div key={st.id} className="flex items-center flex-1">
               <button
                 onClick={() => setCurrentStep(i)}
                 className={`flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium transition-colors w-full ${
@@ -165,7 +138,7 @@ export default function SetupPage({
                 }`}
               >
                 <Icon className="size-3.5 shrink-0" />
-                <span className="hidden sm:inline truncate">{s.title}</span>
+                <span className="hidden sm:inline truncate">{st.title}</span>
               </button>
               {i < STEPS.length - 1 && (
                 <ChevronRightIcon className="size-3 text-muted-foreground mx-0.5 shrink-0" />
@@ -188,27 +161,26 @@ export default function SetupPage({
           {step.id === "basics" && (
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Book Name</Label>
+                <Label htmlFor="name">{s.bookName}</Label>
                 <Input
                   id="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="My Novel"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="genre">Genre</Label>
+                <Label htmlFor="genre">{s.genre}</Label>
                 <Input
                   id="genre"
                   value={genre}
                   onChange={(e) => setGenre(e.target.value)}
-                  placeholder="Fantasy, Sci-Fi, Romance..."
+                  placeholder={s.genrePlaceholder}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="language">Language</Label>
+                <Label htmlFor="language">{s.language}</Label>
                 <p className="text-xs text-muted-foreground">
-                  Agents will write and communicate in this language
+                  {s.languageHint}
                 </p>
                 <Select value={language} onValueChange={setLanguage}>
                   <SelectTrigger id="language">
@@ -236,12 +208,12 @@ export default function SetupPage({
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="description">Description (optional)</Label>
+                <Label htmlFor="description">{s.descriptionOptional}</Label>
                 <Textarea
                   id="description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="A brief summary of your book..."
+                  placeholder={s.descriptionPlaceholder}
                   rows={3}
                 />
               </div>
@@ -250,7 +222,7 @@ export default function SetupPage({
                   onClick={handleSaveBasics}
                   disabled={updateBook.isPending}
                 >
-                  Save & Continue
+                  {s.saveAndContinue}
                   <ChevronRightIcon className="ml-1 size-4" />
                 </Button>
               </div>
@@ -259,15 +231,12 @@ export default function SetupPage({
 
           {step.id === "import" && (
             <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                If you have an existing manuscript, you can import it now. This
-                step is optional -- you can always import later.
-              </p>
+              <p className="text-sm text-muted-foreground">{s.importInfo}</p>
               {bookState.hasChapters && (
                 <div className="flex items-center gap-2 rounded-md bg-green-50 dark:bg-green-950/30 p-3">
                   <CheckCircle2Icon className="size-4 text-green-600 dark:text-green-400 shrink-0" />
                   <span className="text-sm font-medium text-green-700 dark:text-green-300">
-                    Manuscript imported — {bookState.chapterCount} chapter{bookState.chapterCount !== 1 ? "s" : ""} loaded
+                    {s.manuscriptImported} — {bookState.chapterCount} {s.chaptersLoaded}
                   </span>
                 </div>
               )}
@@ -275,17 +244,17 @@ export default function SetupPage({
                 <Button asChild variant="outline">
                   <Link href={`/books/${bookId}/import`}>
                     <UploadIcon className="mr-2 size-4" />
-                    {bookState.hasChapters ? "Import More" : "Go to Import"}
+                    {bookState.hasChapters ? s.importMore : s.goToImport}
                   </Link>
                 </Button>
               </div>
               <div className="flex justify-between pt-4 border-t">
                 <Button variant="ghost" size="sm" onClick={prev}>
                   <ChevronLeftIcon className="mr-1 size-4" />
-                  Back
+                  {s.back}
                 </Button>
                 <Button variant="outline" size="sm" onClick={next}>
-                  {bookState.hasChapters ? "Continue" : "Skip"}
+                  {bookState.hasChapters ? s.continueStep : s.skip}
                   <ChevronRightIcon className="ml-1 size-4" />
                 </Button>
               </div>
@@ -294,30 +263,26 @@ export default function SetupPage({
 
           {step.id === "style" && (
             <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Analyze your writing samples to create a unique voice
-                fingerprint. The agent will examine your prose and build a style
-                profile that guides the ghostwriter.
-              </p>
+              <p className="text-sm text-muted-foreground">{s.styleInfo}</p>
               {bookState.hasFingerprint && confirmWorkflow !== "capture-style" && (
                 <Badge variant="outline" className="gap-1 text-green-600 border-green-200">
                   <CheckCircle2Icon className="size-3" />
-                  Style fingerprint already captured
+                  {s.fingerprintCaptured}
                 </Badge>
               )}
               {confirmWorkflow === "capture-style" && (
                 <div className="flex items-start gap-2 rounded-md border border-amber-300/50 bg-amber-50/50 dark:bg-amber-950/20 p-3">
                   <AlertTriangleIcon className="size-4 text-amber-600 mt-0.5 shrink-0" />
                   <div className="text-sm">
-                    <p className="font-medium">Style fingerprint already exists</p>
-                    <p className="text-muted-foreground">Running again will overwrite it. Continue?</p>
+                    <p className="font-medium">{s.fingerprintCaptured}</p>
+                    <p className="text-muted-foreground">{s.overwriteWarning}</p>
                     <div className="flex gap-2 mt-2">
                       <Button size="sm" onClick={() => handleStartWorkflow("capture-style", true)}>
                         <RefreshCwIcon className="mr-1 size-3" />
-                        Re-capture
+                        {s.reCapture}
                       </Button>
                       <Button size="sm" variant="ghost" onClick={() => setConfirmWorkflow(null)}>
-                        Cancel
+                        {s.cancel}
                       </Button>
                     </div>
                   </div>
@@ -331,12 +296,12 @@ export default function SetupPage({
                   {hasRunningSession ? (
                     <>
                       <Loader2Icon className="mr-2 size-4 animate-spin" />
-                      Agent Running...
+                      {s.agentRunning}
                     </>
                   ) : (
                     <>
                       <SparklesIcon className="mr-2 size-4" />
-                      {bookState.hasFingerprint ? "Re-capture Style" : "Capture My Writing Style"}
+                      {bookState.hasFingerprint ? s.reCaptureStyle : s.captureStyle}
                     </>
                   )}
                 </Button>
@@ -344,10 +309,10 @@ export default function SetupPage({
               <div className="flex justify-between pt-4 border-t">
                 <Button variant="ghost" size="sm" onClick={prev}>
                   <ChevronLeftIcon className="mr-1 size-4" />
-                  Back
+                  {s.back}
                 </Button>
                 <Button variant="outline" size="sm" onClick={next}>
-                  {bookState.hasFingerprint ? "Continue" : "Skip"}
+                  {bookState.hasFingerprint ? s.continueStep : s.skip}
                   <ChevronRightIcon className="ml-1 size-4" />
                 </Button>
               </div>
@@ -356,29 +321,26 @@ export default function SetupPage({
 
           {step.id === "bible" && (
             <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Build a story bible with your world, characters, rules, and
-                lore. This keeps the ghostwriter consistent across chapters.
-              </p>
+              <p className="text-sm text-muted-foreground">{s.bibleInfo}</p>
               {bookState.hasStoryBible && confirmWorkflow !== "create-story-bible" && (
                 <Badge variant="outline" className="gap-1 text-green-600 border-green-200">
                   <CheckCircle2Icon className="size-3" />
-                  Story Bible already created
+                  {s.bibleCreated}
                 </Badge>
               )}
               {confirmWorkflow === "create-story-bible" && (
                 <div className="flex items-start gap-2 rounded-md border border-amber-300/50 bg-amber-50/50 dark:bg-amber-950/20 p-3">
                   <AlertTriangleIcon className="size-4 text-amber-600 mt-0.5 shrink-0" />
                   <div className="text-sm">
-                    <p className="font-medium">Story Bible already exists</p>
-                    <p className="text-muted-foreground">Running again will overwrite it. Continue?</p>
+                    <p className="font-medium">{s.bibleCreated}</p>
+                    <p className="text-muted-foreground">{s.overwriteWarning}</p>
                     <div className="flex gap-2 mt-2">
                       <Button size="sm" onClick={() => handleStartWorkflow("create-story-bible", true)}>
                         <RefreshCwIcon className="mr-1 size-3" />
-                        Re-create
+                        {s.reCreate}
                       </Button>
                       <Button size="sm" variant="ghost" onClick={() => setConfirmWorkflow(null)}>
-                        Cancel
+                        {s.cancel}
                       </Button>
                     </div>
                   </div>
@@ -392,12 +354,12 @@ export default function SetupPage({
                   {hasRunningSession ? (
                     <>
                       <Loader2Icon className="mr-2 size-4 animate-spin" />
-                      Agent Running...
+                      {s.agentRunning}
                     </>
                   ) : (
                     <>
                       <BookMarkedIcon className="mr-2 size-4" />
-                      {bookState.hasStoryBible ? "Re-create Story Bible" : "Create Story Bible"}
+                      {bookState.hasStoryBible ? s.reCreateBible : s.createBible}
                     </>
                   )}
                 </Button>
@@ -405,10 +367,10 @@ export default function SetupPage({
               <div className="flex justify-between pt-4 border-t">
                 <Button variant="ghost" size="sm" onClick={prev}>
                   <ChevronLeftIcon className="mr-1 size-4" />
-                  Back
+                  {s.back}
                 </Button>
                 <Button variant="outline" size="sm" onClick={next}>
-                  {bookState.hasStoryBible ? "Continue" : "Skip"}
+                  {bookState.hasStoryBible ? s.continueStep : s.skip}
                   <ChevronRightIcon className="ml-1 size-4" />
                 </Button>
               </div>
@@ -417,29 +379,26 @@ export default function SetupPage({
 
           {step.id === "architecture" && (
             <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Design your story structure -- acts, chapters, plot arcs, and
-                pacing. The agent will help you outline the full book.
-              </p>
+              <p className="text-sm text-muted-foreground">{s.archInfo}</p>
               {bookState.hasArchitecture && confirmWorkflow !== "build-architecture" && (
                 <Badge variant="outline" className="gap-1 text-green-600 border-green-200">
                   <CheckCircle2Icon className="size-3" />
-                  Architecture already built
+                  {s.archCreated}
                 </Badge>
               )}
               {confirmWorkflow === "build-architecture" && (
                 <div className="flex items-start gap-2 rounded-md border border-amber-300/50 bg-amber-50/50 dark:bg-amber-950/20 p-3">
                   <AlertTriangleIcon className="size-4 text-amber-600 mt-0.5 shrink-0" />
                   <div className="text-sm">
-                    <p className="font-medium">Architecture already exists</p>
-                    <p className="text-muted-foreground">Running again will overwrite it. Continue?</p>
+                    <p className="font-medium">{s.archCreated}</p>
+                    <p className="text-muted-foreground">{s.overwriteWarning}</p>
                     <div className="flex gap-2 mt-2">
                       <Button size="sm" onClick={() => handleStartWorkflow("build-architecture", true)}>
                         <RefreshCwIcon className="mr-1 size-3" />
-                        Re-build
+                        {s.reBuild}
                       </Button>
                       <Button size="sm" variant="ghost" onClick={() => setConfirmWorkflow(null)}>
-                        Cancel
+                        {s.cancel}
                       </Button>
                     </div>
                   </div>
@@ -453,12 +412,12 @@ export default function SetupPage({
                   {hasRunningSession ? (
                     <>
                       <Loader2Icon className="mr-2 size-4 animate-spin" />
-                      Agent Running...
+                      {s.agentRunning}
                     </>
                   ) : (
                     <>
                       <LayoutIcon className="mr-2 size-4" />
-                      {bookState.hasArchitecture ? "Re-build Architecture" : "Build Architecture"}
+                      {bookState.hasArchitecture ? s.reBuildArch : s.buildArch}
                     </>
                   )}
                 </Button>
@@ -466,10 +425,10 @@ export default function SetupPage({
               <div className="flex justify-between pt-4 border-t">
                 <Button variant="ghost" size="sm" onClick={prev}>
                   <ChevronLeftIcon className="mr-1 size-4" />
-                  Back
+                  {s.back}
                 </Button>
                 <Button variant="outline" size="sm" onClick={next}>
-                  {bookState.hasArchitecture ? "Continue" : "Skip"}
+                  {bookState.hasArchitecture ? s.continueStep : s.skip}
                   <ChevronRightIcon className="ml-1 size-4" />
                 </Button>
               </div>
@@ -481,36 +440,34 @@ export default function SetupPage({
               <div className="flex items-center gap-3 rounded-md bg-green-50 dark:bg-green-950/30 p-4">
                 <CheckCircle2Icon className="size-6 text-green-600 dark:text-green-400" />
                 <div>
-                  <p className="font-medium text-sm">Setup Complete</p>
-                  <p className="text-xs text-muted-foreground">
-                    Your book is ready. You can revisit any setup step later.
-                  </p>
+                  <p className="font-medium text-sm">{s.setupComplete}</p>
+                  <p className="text-xs text-muted-foreground">{s.bookReady}</p>
                 </div>
               </div>
               <div className="grid gap-2 sm:grid-cols-2">
                 <Button asChild variant="outline" size="sm">
                   <Link href={`/books/${bookId}`}>
                     <BookOpenIcon className="mr-1 size-4" />
-                    Book Overview
+                    {t.nav.overview}
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="sm">
                   <Link href={`/books/${bookId}/editorial`}>
                     <SparklesIcon className="mr-1 size-4" />
-                    Editorial
+                    {t.nav.editorial}
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="sm">
                   <Link href={`/books/${bookId}/documents`}>
                     <LayoutIcon className="mr-1 size-4" />
-                    Documents
+                    {t.nav.documents}
                   </Link>
                 </Button>
               </div>
               <div className="flex justify-start pt-4 border-t">
                 <Button variant="ghost" size="sm" onClick={prev}>
                   <ChevronLeftIcon className="mr-1 size-4" />
-                  Back
+                  {s.back}
                 </Button>
               </div>
             </div>
