@@ -242,7 +242,7 @@ export class AgentOrchestrator {
 
       const stream = this.client.messages.stream({
         model: modelId,
-        max_tokens: 64000,
+        max_tokens: 16384,
         system: systemPrompt,
         messages,
         ...(tools.length > 0 ? { tools } : {}),

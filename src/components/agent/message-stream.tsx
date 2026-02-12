@@ -270,35 +270,51 @@ function getThinkingText(language?: string): string {
 }
 
 // ─── Throttled markdown renderer ──────────────────────────────
-// During streaming, only re-render markdown when text grows by 80+ chars
-// to avoid re-parsing thousands of words on every 2-char SSE delta.
+// During streaming, re-render markdown at most every 100ms via a timer.
+// This gives smooth, flowing text (like ChatGPT/Claude) without
+// re-parsing markdown on every 2-char SSE delta.
 
 function ThrottledMarkdown({ text, isStreaming }: { text: string; isStreaming: boolean }) {
   const [renderedText, setRenderedText] = useState(text);
-  const lastRenderedLen = useRef(0);
+  const latestTextRef = useRef(text);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Always keep ref in sync so the timer reads the latest value
+  latestTextRef.current = text;
 
   useEffect(() => {
     if (!isStreaming) {
-      // When not streaming, always render the final text
+      // When not streaming, render the final text immediately
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
       setRenderedText(text);
-      lastRenderedLen.current = text.length;
       return;
     }
 
-    // During streaming, only update when text grows by 80+ chars
-    const delta = text.length - lastRenderedLen.current;
-    if (delta >= 80 || text.length === 0) {
-      setRenderedText(text);
-      lastRenderedLen.current = text.length;
+    // During streaming, schedule an update every 100ms.
+    // If a timer is already pending, skip — it will pick up the latest text.
+    if (!timerRef.current) {
+      timerRef.current = setTimeout(() => {
+        setRenderedText(latestTextRef.current);
+        timerRef.current = null;
+      }, 100);
     }
   }, [text, isStreaming]);
 
-  // Always render final text when streaming stops
-  const displayText = isStreaming ? renderedText : text;
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   return (
     <div className="agent-prose text-sm leading-relaxed">
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{displayText}</ReactMarkdown>
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+        {isStreaming ? renderedText : text}
+      </ReactMarkdown>
     </div>
   );
 }
