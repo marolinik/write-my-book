@@ -10,7 +10,7 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
       "Your personal writing coach. Ask questions about craft, get unstuck, or talk through your story ideas.",
     defaultModel: "sonnet",
     allowedModels: ["opus", "sonnet"],
-    tools: ["ReadDocument", "ListDocuments"],
+    tools: ["ReadDocument", "WriteDocument", "ListDocuments"],
     contextProfile: {
       fingerprint: "none",
       storyBible: "none",

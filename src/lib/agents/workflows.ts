@@ -31,11 +31,11 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     label: "Create Story Bible",
     description: "Build or update the story bible with characters, world, and themes.",
     writerDescription: "Build your story bible — characters, world, rules, and themes.",
-    primaryAgent: "story-architect",
+    primaryAgent: "writing-coach",
     category: "setup",
     requiresChapter: false,
     requiresSeriesContext: false,
-    conversational: false,
+    conversational: true,
     suggestedNext: ["build-architecture"],
   },
   {
