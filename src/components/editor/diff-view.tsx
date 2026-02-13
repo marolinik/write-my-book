@@ -61,6 +61,13 @@ function computeSimpleDiff(oldText: string, newText: string): LineDiff[] {
   const oldLines = oldText.split("\n");
   const newLines = newText.split("\n");
 
+  // For very large documents, fall back to a simple line-by-line comparison
+  // to avoid O(m*n) memory/CPU that freezes the browser
+  const MAX_LINES_FOR_LCS = 2000;
+  if (oldLines.length > MAX_LINES_FOR_LCS || newLines.length > MAX_LINES_FOR_LCS) {
+    return computeSimpleFallbackDiff(oldLines, newLines);
+  }
+
   const m = oldLines.length;
   const n = newLines.length;
   const dp: number[][] = Array.from({ length: m + 1 }, () =>
@@ -105,6 +112,46 @@ function computeSimpleDiff(oldText: string, newText: string): LineDiff[] {
         oldLineNumber: i,
       });
       i--;
+    }
+  }
+
+  return result;
+}
+
+/** Simple line-by-line diff for large files — O(n) instead of O(n²). */
+function computeSimpleFallbackDiff(
+  oldLines: string[],
+  newLines: string[]
+): LineDiff[] {
+  const result: LineDiff[] = [];
+  const maxLen = Math.max(oldLines.length, newLines.length);
+
+  for (let i = 0; i < maxLen; i++) {
+    const oldLine = i < oldLines.length ? oldLines[i] : undefined;
+    const newLine = i < newLines.length ? newLines[i] : undefined;
+
+    if (oldLine === newLine) {
+      result.push({
+        type: "unchanged",
+        content: oldLine!,
+        oldLineNumber: i + 1,
+        newLineNumber: i + 1,
+      });
+    } else {
+      if (oldLine !== undefined) {
+        result.push({
+          type: "removed",
+          content: oldLine,
+          oldLineNumber: i + 1,
+        });
+      }
+      if (newLine !== undefined) {
+        result.push({
+          type: "added",
+          content: newLine,
+          newLineNumber: i + 1,
+        });
+      }
     }
   }
 

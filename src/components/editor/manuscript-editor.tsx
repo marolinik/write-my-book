@@ -58,7 +58,7 @@ export function ManuscriptEditor({
   const store = useEditorStore();
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const contentLoadedRef = useRef(false);
-  const [showVersionHistory, setShowVersionHistory] = useState(true);
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
   const isLg = useIsLg();
 
   const { data: chapterData, isLoading } = useChapterContent(
@@ -67,6 +67,8 @@ export function ManuscriptEditor({
   );
 
   const saveMutation = useSaveChapterContent(bookId, chapterId);
+  const saveMutationRef = useRef(saveMutation);
+  saveMutationRef.current = saveMutation;
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -138,12 +140,12 @@ export function ManuscriptEditor({
     store.setSaving(true);
 
     try {
-      await saveMutation.mutateAsync(md);
+      await saveMutationRef.current.mutateAsync(md);
       store.setLastSaved(new Date());
     } catch {
       store.setSaving(false);
     }
-  }, [editor, saveMutation, store]);
+  }, [editor, store]);
 
   useEffect(() => {
     if (!store.isDirty || !store.chapterId) return;

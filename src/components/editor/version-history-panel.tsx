@@ -46,22 +46,23 @@ export function VersionHistoryPanel({
     documentId
   );
 
+  // Only fetch version content when the diff dialog is open
   const { data: versionData } = useVersionContent(
     bookId,
     documentId,
-    viewVersion
+    diffOpen && viewVersion !== null ? viewVersion : null
   );
 
   const { data: compareData } = useVersionContent(
     bookId,
     documentId,
-    compareVersion !== null ? (versions?.[0]?.version ?? null) : null
+    diffOpen && compareVersion !== null ? (versions?.[0]?.version ?? null) : null
   );
 
   const { data: compareOldData } = useVersionContent(
     bookId,
     documentId,
-    compareVersion
+    diffOpen ? compareVersion : null
   );
 
   const restoreMutation = useRestoreVersion(bookId, documentId);

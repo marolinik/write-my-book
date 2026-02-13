@@ -77,7 +77,7 @@ export function useSaveDocumentContent(bookId: string, documentId: string) {
       }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["document-content", bookId, documentId] });
-      qc.invalidateQueries({ queryKey: ["document-versions", bookId, documentId] });
+      // Don't invalidate versions on every save — only needed when viewing history
       qc.invalidateQueries({ queryKey: ["book-documents", bookId] });
     },
   });

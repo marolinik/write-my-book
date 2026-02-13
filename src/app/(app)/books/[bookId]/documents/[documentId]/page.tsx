@@ -72,11 +72,13 @@ export default function DocumentEditorPage({
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [focusMode, setFocusMode] = useState(false);
-  const [showVersionHistory, setShowVersionHistory] = useState(true);
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
   const isLg = useIsLg();
 
   const { data: docData, isLoading } = useDocumentContent(bookId, documentId);
   const saveMutation = useSaveDocumentContent(bookId, documentId);
+  const saveMutationRef = useRef(saveMutation);
+  saveMutationRef.current = saveMutation;
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -144,14 +146,14 @@ export default function DocumentEditorPage({
     setIsSaving(true);
 
     try {
-      await saveMutation.mutateAsync(md);
+      await saveMutationRef.current.mutateAsync(md);
       setLastSaved(new Date());
       setIsDirty(false);
       setIsSaving(false);
     } catch {
       setIsSaving(false);
     }
-  }, [editor, saveMutation]);
+  }, [editor]);
 
   useEffect(() => {
     if (!isDirty) return;
