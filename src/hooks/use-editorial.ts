@@ -26,6 +26,8 @@ interface FindingItem {
   category: string;
   description: string;
   suggestion: string | null;
+  originalText: string | null;
+  newText: string | null;
   locationStart: string | null;
   locationEnd: string | null;
   status: string;

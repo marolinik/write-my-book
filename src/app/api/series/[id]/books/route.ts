@@ -5,7 +5,7 @@ import { addBookToSeriesSchema } from "@/lib/validation";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
-/** POST /api/series/:id/books — add a new book to the series. */
+/** POST /api/series/:id/books — add an existing or new book to the series. */
 export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
@@ -29,16 +29,46 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     });
     const nextNumber = (lastBook?.bookNumber ?? 0) + 1;
 
-    const book = await db.book.create({
-      data: {
-        userId: user.id,
-        seriesId,
-        name: data.name,
-        genre: data.genre ?? series.genre ?? null,
-        language: data.language ?? series.language,
-        bookNumber: nextNumber,
-      },
-    });
+    let book;
+
+    if (data.bookId) {
+      // Link existing book to the series
+      const existing = await db.book.findFirst({
+        where: { id: data.bookId, userId: user.id },
+      });
+      if (!existing) {
+        return NextResponse.json(
+          { error: "Book not found" },
+          { status: 404 }
+        );
+      }
+      if (existing.seriesId) {
+        return NextResponse.json(
+          { error: "Book is already in a series" },
+          { status: 400 }
+        );
+      }
+
+      book = await db.book.update({
+        where: { id: data.bookId },
+        data: {
+          seriesId,
+          bookNumber: nextNumber,
+        },
+      });
+    } else {
+      // Create a new book in the series
+      book = await db.book.create({
+        data: {
+          userId: user.id,
+          seriesId,
+          name: data.name!,
+          genre: data.genre ?? series.genre ?? null,
+          language: data.language ?? series.language,
+          bookNumber: nextNumber,
+        },
+      });
+    }
 
     return NextResponse.json(book, { status: 201 });
   } catch (error) {

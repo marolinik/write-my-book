@@ -140,12 +140,12 @@ export function useSeriesAnalytics(seriesId: string) {
   });
 }
 
-/** Add a new book to the series. */
+/** Add an existing or new book to the series. */
 export function useAddBookToSeries(seriesId: string) {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { name: string; genre?: string; language?: string }) =>
+    mutationFn: (data: { bookId?: string; name?: string; genre?: string; language?: string }) =>
       fetchJson(`/api/series/${seriesId}/books`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

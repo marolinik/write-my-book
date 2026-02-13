@@ -24,6 +24,14 @@ export interface UIStrings {
     settings: string;
     account: string;
     writingPlatform: string;
+    // Section labels for grouped sidebar
+    sectionSetup: string;
+    sectionWriting: string;
+    sectionEditing: string;
+    sectionAnalysis: string;
+    sectionPublish: string;
+    sectionTools: string;
+    nextStep: string;
   };
 
   // Header
@@ -248,6 +256,13 @@ const EN: UIStrings = {
     settings: "Settings",
     account: "Account",
     writingPlatform: "Writing Platform",
+    sectionSetup: "Setup",
+    sectionWriting: "Writing",
+    sectionEditing: "Editing",
+    sectionAnalysis: "Analysis",
+    sectionPublish: "Publish",
+    sectionTools: "Tools",
+    nextStep: "Next Step",
   },
   header: {
     toggleSidebar: "Toggle sidebar",
@@ -435,6 +450,13 @@ const SR: UIStrings = {
     settings: "Podešavanja",
     account: "Nalog",
     writingPlatform: "Platforma za pisanje",
+    sectionSetup: "Priprema",
+    sectionWriting: "Pisanje",
+    sectionEditing: "Lektura",
+    sectionAnalysis: "Analiza",
+    sectionPublish: "Objavi",
+    sectionTools: "Alatke",
+    nextStep: "Sledeći korak",
   },
   header: {
     toggleSidebar: "Prikaži/sakrij bočnu traku",
@@ -622,6 +644,13 @@ const DE: UIStrings = {
     settings: "Einstellungen",
     account: "Konto",
     writingPlatform: "Schreibplattform",
+    sectionSetup: "Einrichtung",
+    sectionWriting: "Schreiben",
+    sectionEditing: "Bearbeitung",
+    sectionAnalysis: "Analyse",
+    sectionPublish: "Veröffentlichen",
+    sectionTools: "Werkzeuge",
+    nextStep: "Nächster Schritt",
   },
   header: {
     toggleSidebar: "Seitenleiste umschalten",
@@ -809,6 +838,13 @@ const ES: UIStrings = {
     settings: "Ajustes",
     account: "Cuenta",
     writingPlatform: "Plataforma de escritura",
+    sectionSetup: "Configuración",
+    sectionWriting: "Escritura",
+    sectionEditing: "Edición",
+    sectionAnalysis: "Análisis",
+    sectionPublish: "Publicar",
+    sectionTools: "Herramientas",
+    nextStep: "Siguiente paso",
   },
   header: {
     toggleSidebar: "Alternar barra lateral",
@@ -996,6 +1032,13 @@ const FR: UIStrings = {
     settings: "Paramètres",
     account: "Compte",
     writingPlatform: "Plateforme d'écriture",
+    sectionSetup: "Configuration",
+    sectionWriting: "Écriture",
+    sectionEditing: "Révision",
+    sectionAnalysis: "Analyse",
+    sectionPublish: "Publier",
+    sectionTools: "Outils",
+    nextStep: "Prochaine étape",
   },
   header: {
     toggleSidebar: "Afficher/masquer la barre latérale",
@@ -1183,6 +1226,13 @@ const RU: UIStrings = {
     settings: "Настройки",
     account: "Аккаунт",
     writingPlatform: "Платформа для писателей",
+    sectionSetup: "Настройка",
+    sectionWriting: "Написание",
+    sectionEditing: "Редактирование",
+    sectionAnalysis: "Анализ",
+    sectionPublish: "Публикация",
+    sectionTools: "Инструменты",
+    nextStep: "Следующий шаг",
   },
   header: {
     toggleSidebar: "Показать/скрыть боковую панель",
@@ -1370,6 +1420,13 @@ const ZH: UIStrings = {
     settings: "设置",
     account: "账户",
     writingPlatform: "写作平台",
+    sectionSetup: "设置",
+    sectionWriting: "写作",
+    sectionEditing: "编辑",
+    sectionAnalysis: "分析",
+    sectionPublish: "出版",
+    sectionTools: "工具",
+    nextStep: "下一步",
   },
   header: {
     toggleSidebar: "切换侧边栏",

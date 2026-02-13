@@ -25,6 +25,13 @@ export interface AgentStrings {
   suggestedNext: string;
   startNewWorkflow: string;
 
+  // Thinking & tool status
+  agentThinking: string;
+  approved: string;
+  rejected: string;
+  modified: string;
+  agentStarted: string;
+
   // Workflow labels (overrides for common workflows)
   workflows: Record<string, string>;
 }
@@ -47,6 +54,11 @@ const EN: AgentStrings = {
   failed: "Failed",
   suggestedNext: "Suggested next:",
   startNewWorkflow: "Start new workflow",
+  agentThinking: "Agent is thinking",
+  approved: "Approved",
+  rejected: "Rejected",
+  modified: "Modified",
+  agentStarted: "Agent Started — see panel",
   workflows: {
     "read-manuscript": "Import Manuscript",
     "capture-style": "Capture Style",
@@ -89,6 +101,11 @@ const SR: AgentStrings = {
   failed: "Neuspelo",
   suggestedNext: "Predlog za sledeće:",
   startNewWorkflow: "Pokreni novi tok rada",
+  agentThinking: "Agent razmišlja",
+  approved: "Odobreno",
+  rejected: "Odbijeno",
+  modified: "Izmenjeno",
+  agentStarted: "Agent pokrenut — pogledajte panel",
   workflows: {
     "read-manuscript": "Uvezi rukopis",
     "capture-style": "Uhvati stil",
@@ -131,6 +148,11 @@ const DE: AgentStrings = {
   failed: "Fehlgeschlagen",
   suggestedNext: "Vorschlag:",
   startNewWorkflow: "Neuen Workflow starten",
+  agentThinking: "Agent denkt nach",
+  approved: "Genehmigt",
+  rejected: "Abgelehnt",
+  modified: "Geändert",
+  agentStarted: "Agent gestartet — siehe Panel",
   workflows: {
     "read-manuscript": "Manuskript importieren",
     "capture-style": "Stil erfassen",
@@ -162,6 +184,11 @@ const ES: AgentStrings = {
   failed: "Fallido",
   suggestedNext: "Sugerencia:",
   startNewWorkflow: "Iniciar nuevo flujo de trabajo",
+  agentThinking: "El agente está pensando",
+  approved: "Aprobado",
+  rejected: "Rechazado",
+  modified: "Modificado",
+  agentStarted: "Agente iniciado — ver panel",
   workflows: {
     "read-manuscript": "Importar manuscrito",
     "capture-style": "Capturar estilo",
@@ -193,6 +220,11 @@ const FR: AgentStrings = {
   failed: "Échoué",
   suggestedNext: "Suggestion :",
   startNewWorkflow: "Démarrer un nouveau flux de travail",
+  agentThinking: "L'agent réfléchit",
+  approved: "Approuvé",
+  rejected: "Rejeté",
+  modified: "Modifié",
+  agentStarted: "Agent démarré — voir le panneau",
   workflows: {
     "read-manuscript": "Importer le manuscrit",
     "capture-style": "Capturer le style",
@@ -224,6 +256,11 @@ const RU: AgentStrings = {
   failed: "Ошибка",
   suggestedNext: "Следующий шаг:",
   startNewWorkflow: "Начать новый процесс",
+  agentThinking: "Агент думает",
+  approved: "Одобрено",
+  rejected: "Отклонено",
+  modified: "Изменено",
+  agentStarted: "Агент запущен — см. панель",
   workflows: {
     "read-manuscript": "Импорт рукописи",
     "capture-style": "Захват стиля",
@@ -255,6 +292,11 @@ const ZH: AgentStrings = {
   failed: "失败",
   suggestedNext: "下一步建议：",
   startNewWorkflow: "开始新工作流",
+  agentThinking: "代理正在思考",
+  approved: "已批准",
+  rejected: "已拒绝",
+  modified: "已修改",
+  agentStarted: "代理已启动 — 查看面板",
   workflows: {
     "read-manuscript": "导入手稿",
     "capture-style": "捕获风格",

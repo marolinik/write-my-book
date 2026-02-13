@@ -33,6 +33,7 @@ interface AgentState {
     result: AgentResult,
     suggestedNext: string[]
   ) => void;
+  setSessionRunning: (sessionId: string) => void;
   setSessionError: (sessionId: string, error: string) => void;
   setActiveSession: (sessionId: string | null) => void;
   openWithWorkflow: (workflowId: string) => void;
@@ -123,6 +124,21 @@ export const useAgentStore = create<AgentState>((set, get) => ({
             ...session,
             status: "completed",
             suggestedNext,
+          },
+        },
+      };
+    }),
+
+  setSessionRunning: (sessionId) =>
+    set((state) => {
+      const session = state.sessions[sessionId];
+      if (!session) return state;
+      return {
+        sessions: {
+          ...state.sessions,
+          [sessionId]: {
+            ...session,
+            status: "running",
           },
         },
       };

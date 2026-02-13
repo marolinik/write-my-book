@@ -17,6 +17,17 @@ import type {
 
 const MAX_TOOL_TURNS = 50;
 
+/** Language-aware "begin" messages so the first user turn doesn't prime English. */
+const LANG_BEGIN_MESSAGES: Record<string, string> = {
+  en: "Please begin your work. Use the available tools to read project context and produce your output.",
+  sr: "Molim te, počni sa radom. Koristi dostupne alate da pročitaš kontekst projekta i kreiraš svoj rezultat. Piši na srpskom, latinica.",
+  de: "Bitte beginne mit der Arbeit. Nutze die verfügbaren Werkzeuge, um den Projektkontext zu lesen und dein Ergebnis zu erstellen. Schreibe auf Deutsch.",
+  es: "Por favor, comienza tu trabajo. Usa las herramientas disponibles para leer el contexto del proyecto y producir tu resultado. Escribe en español.",
+  fr: "Veuillez commencer votre travail. Utilisez les outils disponibles pour lire le contexte du projet et produire votre résultat. Écrivez en français.",
+  ru: "Пожалуйста, начните работу. Используйте доступные инструменты для чтения контекста проекта и создания результата. Пишите на русском языке.",
+  zh: "请开始工作。使用可用工具阅读项目上下文并生成结果。请用中文撰写。",
+};
+
 /**
  * Core orchestrator that spawns and manages agent sessions.
  * Implements an agentic tool-use loop: send messages -> stream response ->
@@ -240,9 +251,14 @@ export class AgentOrchestrator {
     for (let turn = 0; turn < MAX_TOOL_TURNS; turn++) {
       if (this.abortController?.signal.aborted) break;
 
+      // Trim old tool results before each API call to prevent context overflow.
+      // The model has already processed older turns — we keep a short summary
+      // so conversation structure stays intact but bulk content is removed.
+      this.trimOldToolResults(messages);
+
       const stream = this.client.messages.stream({
         model: modelId,
-        max_tokens: 16384,
+        max_tokens: 64000,
         system: systemPrompt,
         messages,
         ...(tools.length > 0 ? { tools } : {}),
@@ -320,7 +336,8 @@ export class AgentOrchestrator {
             role: "user",
             content:
               "Your previous response was cut off because it exceeded the length limit. " +
-              "Please continue exactly where you left off. Do not repeat what you already wrote.",
+              "Please continue exactly where you left off. Do not repeat what you already wrote. " +
+              "IMPORTANT: Continue in the SAME language you were writing in.",
           });
         }
         continue;
@@ -460,6 +477,55 @@ export class AgentOrchestrator {
     return { inputTokens: totalInputTokens, outputTokens: totalOutputTokens };
   }
 
+  /**
+   * Trim tool_result content from all messages except the last user message.
+   * After the model has processed a tool result (i.e., responded to it), the full
+   * content is no longer needed — a short marker preserves conversation structure.
+   * This prevents context overflow when agents read many large documents.
+   */
+  private trimOldToolResults(messages: Anthropic.MessageParam[]): void {
+    // Only trim if there are enough messages (at least: user, assistant, user)
+    if (messages.length < 3) return;
+
+    // Estimate rough token count: ~4 chars per token
+    let estimatedChars = 0;
+    for (const msg of messages) {
+      if (typeof msg.content === "string") {
+        estimatedChars += msg.content.length;
+      } else if (Array.isArray(msg.content)) {
+        for (const block of msg.content) {
+          if ("text" in block && typeof block.text === "string") {
+            estimatedChars += block.text.length;
+          } else if ("content" in block && typeof block.content === "string") {
+            estimatedChars += block.content.length;
+          }
+        }
+      }
+    }
+
+    // Only trim if approaching the limit (~150K tokens ≈ 600K chars)
+    if (estimatedChars < 500_000) return;
+
+    const TRIM_MARKER = "[Content processed — trimmed to save context space]";
+
+    // Trim all user messages EXCEPT the last one (which may contain fresh tool results)
+    for (let i = 0; i < messages.length - 1; i++) {
+      const msg = messages[i];
+      if (msg.role !== "user" || !Array.isArray(msg.content)) continue;
+
+      for (let j = 0; j < msg.content.length; j++) {
+        const block = msg.content[j];
+        if (
+          block.type === "tool_result" &&
+          typeof block.content === "string" &&
+          block.content.length > 200
+        ) {
+          (block as Anthropic.ToolResultBlockParam).content = TRIM_MARKER;
+        }
+      }
+    }
+  }
+
   private buildUserMessage(options: AgentSpawnOptions): string {
     const parts: string[] = [];
 
@@ -473,9 +539,10 @@ export class AgentOrchestrator {
       parts.push(`Chapter: ${options.context.chapterNumber}`);
     }
 
-    parts.push(
-      "Please begin your work. Use the available tools to read project context and produce your output."
-    );
+    // Use a language-aware instruction so the model doesn't default to English
+    const lang = options.context.language;
+    const beginMsg = LANG_BEGIN_MESSAGES[lang ?? "en"] ?? LANG_BEGIN_MESSAGES.en;
+    parts.push(beginMsg);
 
     return parts.join("\n");
   }

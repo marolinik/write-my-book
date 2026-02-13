@@ -70,7 +70,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     writerDescription:
       "Analyze an existing manuscript through 5 passes — structure, characters, themes, style, and gaps.",
     primaryAgent: "manuscript-reader",
-    category: "setup",
+    category: "analysis",
     requiresChapter: false,
     requiresSeriesContext: false,
     conversational: false,

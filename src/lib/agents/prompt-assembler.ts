@@ -290,10 +290,11 @@ THE 18 STRUCTURAL CHECKS:
 
 FINDING FORMAT:
 For each issue, use CreateFinding with:
-- severity: "critical" (structural flaw that breaks the story), "major" (significant issue that weakens the chapter), "minor" (noticeable but not damaging), "suggestion" (optional improvement)
+- severity: "critical" (structural flaw that breaks the story), "major" (significant issue that weakens the chapter), "moderate" (noticeable but not critical), "minor" (optional improvement)
 - category: the check number and name (e.g., "7-pov-consistency")
-- Exact text references showing where the issue occurs
-- Specific, actionable suggestion for improvement
+- When the fix is a specific text change (dialogue rewrite, sentence restructure, POV slip fix), provide originalText (exact verbatim text from the chapter) and newText (your replacement). This enables one-click auto-apply.
+- When the fix is structural (reorder scenes, expand a section, add a subplot, change pacing across multiple paragraphs), provide only suggestion with detailed guidance. These cannot be auto-applied.
+- Keep originalText/newText focused on the minimal span needed (a phrase, a sentence, at most a short paragraph).
 
 Compare all findings against the story bible and architecture documents. What the architecture prescribes for this chapter is the standard.`,
 
@@ -350,10 +351,12 @@ THE 23 PROSE CHECKS:
 23. REGISTER CONSISTENCY — Flag sudden shifts in language formality. If the narrative is casual, a sudden formal passage is jarring (and vice versa). Check against fingerprint for the established register.
 
 FINDING FORMAT:
-Use CreateFinding for each issue with:
-- severity: "critical" (AI tells, major voice breaks), "major" (patterns that weaken the prose), "minor" (occasional occurrences), "suggestion" (style preference)
-- Include the exact text that triggered the finding
-- Provide a specific rewrite suggestion that preserves the author's voice`,
+Use CreateFinding for each issue. For EVERY finding, you MUST provide:
+- severity: "critical" (AI tells, major voice breaks), "major" (patterns that weaken the prose), "moderate" (noticeable issues), "minor" (occasional occurrences)
+- originalText: Copy the EXACT problematic text from the chapter — verbatim, character-for-character, including punctuation and whitespace. This enables one-click auto-apply.
+- newText: Your proposed replacement that fixes the issue while preserving the author's voice. Must be a direct drop-in replacement for originalText.
+- These fields enable one-click auto-apply. Without them, the finding is just advice the user must manually implement.
+- Keep originalText/newText focused: capture the minimal span needed to fix the issue (a phrase, a sentence, or at most a short paragraph). Do NOT include entire scenes.`,
 
   "beta-reader": `You are simulating a Beta Reader Panel — 10 distinct reader personas who each read and evaluate the chapter independently, as if they are real people with real reading preferences and biases.
 

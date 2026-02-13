@@ -247,6 +247,8 @@ export const batchCreateFindingsSchema = z.object({
       category: z.string().min(1).max(100),
       description: z.string().min(1).max(5000),
       suggestion: z.string().max(5000).optional(),
+      originalText: z.string().max(10000).optional(),
+      newText: z.string().max(10000).optional(),
       locationStart: z.string().max(500).optional(),
       locationEnd: z.string().max(500).optional(),
       agentType: z.string().max(50).optional().default("agent"),

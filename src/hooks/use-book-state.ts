@@ -14,6 +14,9 @@ interface BookStateResult {
   hasArchitecture: boolean;
   hasFingerprint: boolean;
   hasStyleProfile: boolean;
+  hasAnalysisReport: boolean;
+  hasContinuityReport: boolean;
+  hasMarketReport: boolean;
   chapterStatuses: Record<string, number>;
   pendingFindingsCount: number;
   nextRecommendedWorkflow: string | null;
@@ -73,6 +76,9 @@ export function useBookState(bookId: string): BookStateResult {
     const hasStoryBible = docTypes.has("STORY_BIBLE");
     const hasArchitecture = docTypes.has("ARCHITECTURE");
     const hasFingerprint = docTypes.has("FINGERPRINT");
+    const hasAnalysisReport = docTypes.has("ANALYSIS_REPORT");
+    const hasContinuityReport = docTypes.has("CONTINUITY_REPORT");
+    const hasMarketReport = docTypes.has("MARKET_REPORT");
 
     const profiles = styleData?.profiles ?? [];
     const hasStyleProfile = profiles.length > 0;
@@ -96,11 +102,24 @@ export function useBookState(bookId: string): BookStateResult {
     const secondaryWorkflows: Array<{ id: string; reason: string }> = [];
 
     if (!hasChapters) {
-      nextRecommendedWorkflow = "read-manuscript";
-      secondaryWorkflows.push({
-        id: "new-novel",
-        reason: "Start from scratch instead",
-      });
+      // Greenfield: no chapters yet — guide through setup
+      if (!hasFingerprint) {
+        nextRecommendedWorkflow = "capture-style";
+        if (!hasStoryBible)
+          secondaryWorkflows.push({ id: "create-story-bible", reason: "Story Bible not yet created" });
+        if (!hasArchitecture)
+          secondaryWorkflows.push({ id: "build-architecture", reason: "Architecture not yet created" });
+      } else if (!hasStoryBible) {
+        nextRecommendedWorkflow = "create-story-bible";
+        if (!hasArchitecture)
+          secondaryWorkflows.push({ id: "build-architecture", reason: "Architecture not yet created" });
+      } else if (!hasArchitecture) {
+        nextRecommendedWorkflow = "build-architecture";
+      } else {
+        // All setup docs exist but no chapters — recommend starting to write
+        nextRecommendedWorkflow = "discuss-chapter";
+        secondaryWorkflows.push({ id: "write-chapter", reason: "Start writing directly" });
+      }
     } else if (!hasFingerprint) {
       nextRecommendedWorkflow = "capture-style";
       if (!hasStoryBible) {
@@ -183,6 +202,9 @@ export function useBookState(bookId: string): BookStateResult {
       hasArchitecture,
       hasFingerprint,
       hasStyleProfile,
+      hasAnalysisReport,
+      hasContinuityReport,
+      hasMarketReport,
       chapterStatuses,
       pendingFindingsCount,
       nextRecommendedWorkflow,

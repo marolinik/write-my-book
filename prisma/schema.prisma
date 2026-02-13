@@ -287,6 +287,8 @@ model EditFinding {
   category      String // pacing, dialogue, anti-ai, etc.
   description   String
   suggestion    String?
+  originalText  String?   @map("original_text")   // Exact text to find in chapter (for auto-apply)
+  newText       String?   @map("new_text")         // Replacement text (for auto-apply)
   locationStart String?   @map("location_start")
   locationEnd   String?   @map("location_end")
   status        String    @default("pending") // pending, applied, dismissed

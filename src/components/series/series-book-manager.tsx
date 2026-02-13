@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import {
   PlusIcon,
   XIcon,
   GripVerticalIcon,
   ArrowUpIcon,
   ArrowDownIcon,
+  BookOpenIcon,
+  PenLineIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,13 +37,42 @@ interface SeriesBookManagerProps {
 
 export function SeriesBookManager({ seriesId, books }: SeriesBookManagerProps) {
   const [showAddForm, setShowAddForm] = useState(false);
+  const [addMode, setAddMode] = useState<"existing" | "new">("existing");
   const [newBookName, setNewBookName] = useState("");
+  const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
 
   const addMutation = useAddBookToSeries(seriesId);
   const removeMutation = useRemoveBookFromSeries(seriesId);
   const reorderMutation = useReorderBook(seriesId);
 
-  const handleAdd = async () => {
+  // Fetch all user's books that are NOT in any series
+  const { data: availableBooks } = useQuery({
+    queryKey: ["books-available-for-series"],
+    queryFn: async () => {
+      const res = await fetch("/api/books");
+      if (!res.ok) throw new Error("Failed to load books");
+      const data = await res.json();
+      const allBooks: Array<{
+        id: string;
+        name: string;
+        wordCount: number;
+        seriesId: string | null;
+        status: string;
+      }> = data.books ?? data ?? [];
+      // Filter to books not already in any series
+      return allBooks.filter((b) => !b.seriesId);
+    },
+    enabled: showAddForm && addMode === "existing",
+  });
+
+  const handleAddExisting = async () => {
+    if (!selectedBookId) return;
+    await addMutation.mutateAsync({ bookId: selectedBookId });
+    setSelectedBookId(null);
+    setShowAddForm(false);
+  };
+
+  const handleAddNew = async () => {
     if (!newBookName.trim()) return;
     await addMutation.mutateAsync({ name: newBookName.trim() });
     setNewBookName("");
@@ -78,28 +110,101 @@ export function SeriesBookManager({ seriesId, books }: SeriesBookManagerProps) {
       </div>
 
       {showAddForm && (
-        <div className="flex gap-2">
-          <Input
-            placeholder="Book title..."
-            value={newBookName}
-            onChange={(e) => setNewBookName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-            className="text-sm"
-          />
-          <Button
-            size="sm"
-            onClick={handleAdd}
-            disabled={!newBookName.trim() || addMutation.isPending}
-          >
-            Add
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowAddForm(false)}
-          >
-            Cancel
-          </Button>
+        <div className="flex flex-col gap-3 rounded-md border p-3">
+          {/* Mode toggle */}
+          <div className="flex gap-1">
+            <Button
+              variant={addMode === "existing" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setAddMode("existing")}
+              className="text-xs"
+            >
+              <BookOpenIcon className="mr-1 size-3" />
+              Existing Book
+            </Button>
+            <Button
+              variant={addMode === "new" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setAddMode("new")}
+              className="text-xs"
+            >
+              <PenLineIcon className="mr-1 size-3" />
+              New Book
+            </Button>
+          </div>
+
+          {addMode === "existing" ? (
+            <div className="flex flex-col gap-2">
+              {!availableBooks || availableBooks.length === 0 ? (
+                <p className="text-xs text-muted-foreground py-2">
+                  No books available. All your books are already in a series, or you
+                  haven't created any yet.
+                </p>
+              ) : (
+                <div className="flex flex-col gap-1 max-h-48 overflow-y-auto">
+                  {availableBooks.map((book) => (
+                    <button
+                      key={book.id}
+                      onClick={() => setSelectedBookId(book.id)}
+                      className={`flex items-center justify-between rounded-md border p-2 text-left text-sm transition-colors ${
+                        selectedBookId === book.id
+                          ? "border-primary bg-primary/5"
+                          : "hover:bg-muted/50"
+                      }`}
+                    >
+                      <span className="font-medium">{book.name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {book.wordCount.toLocaleString()} words
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  onClick={handleAddExisting}
+                  disabled={!selectedBookId || addMutation.isPending}
+                >
+                  Add to Series
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setShowAddForm(false);
+                    setSelectedBookId(null);
+                  }}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex gap-2">
+              <Input
+                placeholder="Book title..."
+                value={newBookName}
+                onChange={(e) => setNewBookName(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleAddNew()}
+                className="text-sm"
+              />
+              <Button
+                size="sm"
+                onClick={handleAddNew}
+                disabled={!newBookName.trim() || addMutation.isPending}
+              >
+                Create
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowAddForm(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          )}
         </div>
       )}
 

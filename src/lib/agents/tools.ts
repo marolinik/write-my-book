@@ -178,7 +178,17 @@ const createFindingDef: ToolDefinition = {
       },
       suggestion: {
         type: "string",
-        description: "Suggested fix or improvement",
+        description: "Suggested fix or improvement (for advice-only findings)",
+      },
+      originalText: {
+        type: "string",
+        description:
+          "The EXACT text from the chapter that should be replaced. Copy verbatim, character-for-character. When both originalText and newText are provided, the finding becomes auto-appliable.",
+      },
+      newText: {
+        type: "string",
+        description:
+          "The replacement text that fixes the issue. Must preserve the author's voice and style.",
       },
       locationStart: {
         type: "string",
@@ -451,6 +461,8 @@ async function executeCreateFinding(
     category: string;
     description: string;
     suggestion?: string;
+    originalText?: string;
+    newText?: string;
     locationStart?: string;
     locationEnd?: string;
   }
@@ -480,6 +492,8 @@ async function executeCreateFinding(
       category: input.category,
       description: input.description,
       suggestion: input.suggestion ?? null,
+      originalText: input.originalText ?? null,
+      newText: input.newText ?? null,
       locationStart: input.locationStart ?? null,
       locationEnd: input.locationEnd ?? null,
     },
@@ -584,6 +598,8 @@ export async function executeTool(
             category: string;
             description: string;
             suggestion?: string;
+            originalText?: string;
+            newText?: string;
             locationStart?: string;
             locationEnd?: string;
           }

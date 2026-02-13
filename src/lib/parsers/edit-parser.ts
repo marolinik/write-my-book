@@ -63,7 +63,17 @@ function parseFindingSection(section: string): EditFindingParsed | null {
 
   if (!description) return null;
 
-  // Extract suggestion/rewrite
+  // Extract originalText/newText for auto-apply patches
+  const originalTextMatch = section.match(
+    /\*?\*?Original(?:\s*Text)?\*?\*?:?\s*(?:"|"|")?(.+?)(?:"|"|")?\s*$/im
+  );
+  const newTextMatch = section.match(
+    /\*?\*?(?:Revised|New(?:\s*Text)?|Replacement)\*?\*?:?\s*(?:"|"|")?(.+?)(?:"|"|")?\s*$/im
+  );
+  const originalText = originalTextMatch ? originalTextMatch[1].trim() : null;
+  const newText = newTextMatch ? newTextMatch[1].trim() : null;
+
+  // Extract suggestion/rewrite (fallback for advice-only findings)
   const suggestionMatch = section.match(
     /\*?\*?(?:Suggest(?:ed|ion)|Rewrite|Fix|Revision)\*?\*?:?\s*\n?>?\s*(.+?)(?=\n\n|\n\*\*|\n###|$)/i
   );
@@ -80,6 +90,8 @@ function parseFindingSection(section: string): EditFindingParsed | null {
     category,
     description,
     suggestion,
+    originalText,
+    newText,
     locationStart,
     locationEnd: null,
   };

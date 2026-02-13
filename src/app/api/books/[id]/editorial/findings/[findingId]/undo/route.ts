@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { DocumentService } from "@/lib/documents/document-service";
+import { DocumentType } from "@/generated/prisma/enums";
 
 type RouteParams = { params: Promise<{ id: string; findingId: string }> };
 
@@ -34,6 +36,42 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       );
     }
 
+    // Reverse auto-applied text changes if the finding was applied with patches
+    if (
+      finding.status === "applied" &&
+      finding.originalText &&
+      finding.newText
+    ) {
+      const docService = new DocumentService(user.id, bookId);
+      const doc = await docService.findByType(
+        DocumentType.CHAPTER_CONTENT,
+        finding.chapterNumber
+      );
+
+      if (doc) {
+        const result = await docService.read(doc.id);
+        if (result) {
+          const index = result.content.indexOf(finding.newText);
+          if (index !== -1) {
+            // Reverse: replace newText back with originalText
+            const restoredContent =
+              result.content.substring(0, index) +
+              finding.originalText +
+              result.content.substring(index + finding.newText.length);
+
+            await docService.update(
+              doc.id,
+              restoredContent,
+              undefined,
+              "revision",
+              `undo-finding:${findingId}`
+            );
+          }
+          // If newText not found, the chapter was edited further — just reset finding status
+        }
+      }
+    }
+
     const updated = await db.editFinding.update({
       where: { id: findingId },
       data: {
@@ -49,7 +87,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         chapterNumber: finding.chapterNumber,
         actionType: "undo",
         findingId,
-        description: `Undid ${finding.status} action on finding: ${finding.category}`,
+        description: `Undid ${finding.status} action on finding: ${finding.category}${finding.originalText ? " (text reverted)" : ""}`,
       },
     });
 

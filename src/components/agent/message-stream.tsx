@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
@@ -36,40 +36,90 @@ export function MessageStream({
 }: MessageStreamProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const isNearBottom = useRef(true);
+  const userScrolledAway = useRef(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
 
-  // Track scroll position — only auto-scroll when user is near bottom
+  // Track user scroll intent — once they scroll away from bottom, stop
+  // auto-scrolling until they explicitly come back or click the button
   const handleScroll = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
-    const threshold = 100;
-    const near = el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
-    isNearBottom.current = near;
-    setShowScrollButton(!near && !!isRunning);
-  }, [isRunning]);
+    const distFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    const nearBottom = distFromBottom < 80;
 
-  useEffect(() => {
-    if (isNearBottom.current) {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
-    if (!isNearBottom.current && isRunning) {
+    if (nearBottom) {
+      // User scrolled back to bottom — re-enable auto-scroll
+      userScrolledAway.current = false;
+      setShowScrollButton(false);
+    } else if (isRunning) {
+      // User scrolled up — disable auto-scroll, show button
+      userScrolledAway.current = true;
       setShowScrollButton(true);
     }
-  }, [messages.length, isRunning]);
+  }, [isRunning]);
 
-  // Hide scroll button when not running
+  // Content fingerprint — changes when text grows or new messages arrive
+  const lastMsg = messages[messages.length - 1];
+  const rawLen = lastMsg?.content?.length ?? 0;
+  const contentSignal = messages.length * 100000 + Math.floor(rawLen / 100);
+
+  // Auto-scroll: instant (no smooth animation that fights user scrolling)
+  const rafRef = useRef(0);
   useEffect(() => {
-    if (!isRunning) setShowScrollButton(false);
+    if (userScrolledAway.current) return;
+    cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
+      const el = scrollRef.current;
+      if (el) {
+        el.scrollTop = el.scrollHeight;
+      }
+    });
+  }, [contentSignal]);
+
+  // Reset scroll state when session stops; cleanup raf on unmount
+  useEffect(() => {
+    if (!isRunning) {
+      setShowScrollButton(false);
+      userScrolledAway.current = false;
+    }
+    return () => cancelAnimationFrame(rafRef.current);
   }, [isRunning]);
 
   const scrollToBottom = useCallback(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = scrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+    userScrolledAway.current = false;
     setShowScrollButton(false);
   }, []);
 
-  // Defer messages during rapid streaming so React can batch renders
-  const deferredMessages = useDeferredValue(messages);
+  // Throttle block computation during streaming — max ~5 updates/sec.
+  // Without this, every SSE delta (dozens/sec) triggers a full useMemo rebuild.
+  const [throttledMessages, setThrottledMessages] = useState(messages);
+  const throttleRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const latestMessagesRef = useRef(messages);
+  latestMessagesRef.current = messages;
+
+  useEffect(() => {
+    if (!isRunning) {
+      // Not streaming — update immediately
+      setThrottledMessages(messages);
+      return;
+    }
+    // During streaming, throttle to 200ms intervals
+    if (!throttleRef.current) {
+      setThrottledMessages(messages);
+      throttleRef.current = setTimeout(() => {
+        throttleRef.current = null;
+        setThrottledMessages(latestMessagesRef.current);
+      }, 200);
+    }
+  }, [messages, isRunning]);
+
+  useEffect(() => {
+    return () => {
+      if (throttleRef.current) clearTimeout(throttleRef.current);
+    };
+  }, []);
 
   // Build block descriptors (cheap) — separate from rendering (expensive)
   type BlockDesc =
@@ -84,7 +134,7 @@ export function MessageStream({
   const { blocks, lastExecutingToolMsg } = useMemo(() => {
     // Track which tool_use IDs have received results
     const completedTools = new Set<string>();
-    for (const msg of deferredMessages) {
+    for (const msg of throttledMessages) {
       if (msg.type === "tool_result" && msg.metadata?.toolUseId) {
         completedTools.add(msg.metadata.toolUseId as string);
       }
@@ -100,7 +150,7 @@ export function MessageStream({
       }
     };
 
-    for (const msg of deferredMessages) {
+    for (const msg of throttledMessages) {
       switch (msg.type) {
         case "text":
           if (msg.metadata?.role === "user") {
@@ -114,11 +164,9 @@ export function MessageStream({
         case "tool_use": {
           flushText();
           const toolUseId = msg.metadata?.toolUseId as string | undefined;
-          const isExecuting = toolUseId ? !completedTools.has(toolUseId) : false;
-          // Only show tool spinner while session is running AND tool has no result yet
-          if (isExecuting && isRunning) {
-            result.push({ kind: "tool", msg, blockKey: keyIndex++ });
-          }
+          const isCompleted = toolUseId ? completedTools.has(toolUseId) : true;
+          // Always show tool blocks — executing ones get spinner, completed get checkmark
+          result.push({ kind: "tool", msg: { ...msg, metadata: { ...msg.metadata, _completed: isCompleted } }, blockKey: keyIndex++ });
           break;
         }
 
@@ -150,8 +198,8 @@ export function MessageStream({
 
     // Find the last executing tool_use (for inline status)
     let lastTool: AgentStreamMessage | null = null;
-    for (let i = deferredMessages.length - 1; i >= 0; i--) {
-      const m = deferredMessages[i];
+    for (let i = throttledMessages.length - 1; i >= 0; i--) {
+      const m = throttledMessages[i];
       if (m.type === "tool_use") {
         const tid = m.metadata?.toolUseId as string | undefined;
         if (tid && !completedTools.has(tid)) {
@@ -162,7 +210,7 @@ export function MessageStream({
     }
 
     return { blocks: result, lastExecutingToolMsg: lastTool };
-  }, [deferredMessages, isRunning]);
+  }, [throttledMessages, isRunning]);
 
   // Render blocks — markdown is memoized per text content
   const renderedBlocks = blocks.map((block) => {
@@ -346,15 +394,20 @@ function ToolStatus({
   language?: string;
 }) {
   const tool = message.metadata?.tool as string | undefined;
+  const isCompleted = message.metadata?._completed as boolean | undefined;
   const toolInput = parseToolInput(message);
   const label = tool ? getToolLabel(tool, toolInput, language) : "";
 
   if (!label) return null;
 
   return (
-    <div className="flex items-center gap-2 text-xs text-muted-foreground py-1">
-      <Loader2Icon className="size-3 animate-spin text-primary" />
-      <span>{label}</span>
+    <div className="flex items-center gap-2 text-xs text-muted-foreground py-0.5">
+      {isCompleted ? (
+        <CheckCircleIcon className="size-3 text-green-500" />
+      ) : (
+        <Loader2Icon className="size-3 animate-spin text-primary" />
+      )}
+      <span className={isCompleted ? "text-muted-foreground/60" : ""}>{label}</span>
     </div>
   );
 }

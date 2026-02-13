@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useMemo } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -18,12 +18,17 @@ import {
   GlobeIcon,
   SettingsIcon,
   PencilIcon,
+  MessageSquareIcon,
+  CheckCircleIcon,
+  ArrowRightIcon,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAgentStore } from "@/stores/agent-store";
 import { useLanguage } from "@/components/providers/language-provider";
+import { useBookState } from "@/hooks/use-book-state";
+import { getWorkflow } from "@/lib/agents/workflows";
 
 // ─── Types ──────────────────────────────────────────────────────
 
@@ -120,30 +125,28 @@ const DOC_GROUPS: DocGroup[] = [
   },
 ];
 
-// ─── Quick Actions ──────────────────────────────────────────────
+// ─── Workflow icon map ──────────────────────────────────────────
 
-const WORKFLOW_ACTIONS = [
-  {
-    label: "Create Story Bible",
-    workflowId: "create-story-bible",
-    icon: BookOpenIcon,
-  },
-  {
-    label: "Build Architecture",
-    workflowId: "build-architecture",
-    icon: BuildingIcon,
-  },
-  {
-    label: "Capture Style",
-    workflowId: "capture-style",
-    icon: FingerprintIcon,
-  },
-  {
-    label: "Analyze Manuscript",
-    workflowId: "analyze",
-    icon: SearchIcon,
-  },
-];
+const WORKFLOW_ICONS: Record<string, React.ElementType> = {
+  "capture-style": FingerprintIcon,
+  "refresh-style": FingerprintIcon,
+  "evolve-style": FingerprintIcon,
+  "create-story-bible": BookOpenIcon,
+  "build-architecture": BuildingIcon,
+  "read-manuscript": ScrollTextIcon,
+  "new-novel": SparklesIcon,
+  "discuss-chapter": MessageSquareIcon,
+  "plan-chapter": FileTextIcon,
+  "write-chapter": PencilIcon,
+  "dev-edit": PenLineIcon,
+  "line-edit": PenLineIcon,
+  "beta-read": ShieldCheckIcon,
+  "discuss-edits": MessageSquareIcon,
+  "analyze": SearchIcon,
+  "continuity-check": SearchIcon,
+  "publishing-check": CheckCircleIcon,
+  "market-analysis": GlobeIcon,
+};
 
 // ─── Page ───────────────────────────────────────────────────────
 
@@ -155,6 +158,7 @@ export default function DocumentsListPage({
   const { bookId } = use(params);
   const openWithWorkflow = useAgentStore((s) => s.openWithWorkflow);
   const { t } = useLanguage();
+  const bookState = useBookState(bookId);
 
   const { data: documents, isLoading } = useQuery({
     queryKey: ["book-documents", bookId],
@@ -166,7 +170,57 @@ export default function DocumentsListPage({
     enabled: !!bookId,
   });
 
-  if (isLoading) {
+  // Build context-aware quick actions from book state
+  const quickActions = useMemo(() => {
+    const actions: Array<{
+      workflowId: string;
+      label: string;
+      description?: string;
+      primary?: boolean;
+    }> = [];
+
+    // Primary recommendation
+    if (bookState.nextRecommendedWorkflow) {
+      const wf = getWorkflow(bookState.nextRecommendedWorkflow);
+      if (wf) {
+        actions.push({
+          workflowId: wf.id,
+          label: wf.label,
+          description: wf.writerDescription,
+          primary: true,
+        });
+      }
+    }
+
+    // Secondary recommendations
+    for (const sw of bookState.secondaryWorkflows) {
+      const wf = getWorkflow(sw.id);
+      if (wf) {
+        actions.push({
+          workflowId: wf.id,
+          label: wf.label,
+          description: sw.reason,
+        });
+      }
+    }
+
+    // Remaining setup workflows (not already shown)
+    const shown = new Set(actions.map((a) => a.workflowId));
+    for (const setupId of bookState.setupWorkflows) {
+      if (shown.has(setupId)) continue;
+      const wf = getWorkflow(setupId);
+      if (wf) {
+        actions.push({
+          workflowId: wf.id,
+          label: wf.label,
+        });
+      }
+    }
+
+    return actions;
+  }, [bookState]);
+
+  if (isLoading || bookState.isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
         <Loader2Icon className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -207,20 +261,29 @@ export default function DocumentsListPage({
         </p>
       </div>
 
-      {/* Quick actions (compact row) */}
-      <div className="flex flex-wrap gap-2">
-        {WORKFLOW_ACTIONS.map((action) => (
-          <Button
-            key={action.workflowId}
-            variant="outline"
-            size="sm"
-            onClick={() => openWithWorkflow(action.workflowId)}
-          >
-            <action.icon className="mr-1.5 size-3.5" />
-            {action.label}
-          </Button>
-        ))}
-      </div>
+      {/* Context-aware quick actions */}
+      {quickActions.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {quickActions.map((action) => {
+            const Icon = WORKFLOW_ICONS[action.workflowId] ?? SparklesIcon;
+            return (
+              <Button
+                key={action.workflowId}
+                variant={action.primary ? "default" : "outline"}
+                size="sm"
+                onClick={() => openWithWorkflow(action.workflowId)}
+                title={action.description}
+              >
+                {action.primary && (
+                  <ArrowRightIcon className="mr-1 size-3.5" />
+                )}
+                <Icon className="mr-1.5 size-3.5" />
+                {action.label}
+              </Button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Grouped document sections */}
       {docs.length === 0 ? (

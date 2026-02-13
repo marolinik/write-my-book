@@ -100,6 +100,19 @@ export function useAgentStream(bookId: string | null) {
         });
         es.close();
         currentSources.delete(sid);
+
+        // IMPORTANT: Read FRESH state from the store, not the stale closure.
+        // The onmessage handler may have already set the real error before
+        // the SSE connection closed, so we only set a generic fallback
+        // if no error was already recorded.
+        const currentState = useAgentStore.getState();
+        const s = currentState.sessions[sid];
+        if (s && s.status === "running") {
+          setSessionError(
+            sid,
+            "Connection to agent lost. The agent may have crashed or the server restarted. Try starting a new workflow."
+          );
+        }
       };
     }
 
@@ -121,7 +134,7 @@ export function useAgentStream(bookId: string | null) {
       setConnectedSessions(new Set());
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bookId, Object.keys(sessions).join(",")]);
+  }, [bookId, Object.entries(sessions).map(([id, s]) => `${id}:${s.status}`).join(",")]);
 
   return { connectedSessions };
 }

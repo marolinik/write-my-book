@@ -87,6 +87,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         category: f.category,
         description: f.description,
         suggestion: f.suggestion,
+        originalText: f.originalText,
+        newText: f.newText,
         locationStart: f.locationStart,
         locationEnd: f.locationEnd,
         agentType: f.agentType ?? "agent",

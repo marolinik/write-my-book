@@ -125,11 +125,22 @@ export function AgentPanel({
     [handleWorkflowSelect]
   );
 
+  const setSessionRunning = useAgentStore((s) => s.setSessionRunning);
+
   const handleSend = useCallback(
-    (message: string) => {
-      sendMutation.mutate(message);
+    async (message: string) => {
+      if (!sessionId) return;
+      try {
+        // Wait for the server to set session.status = "running" before
+        // triggering SSE reconnection — avoids race where the new EventSource
+        // arrives at the server before the POST and sees "completed".
+        await sendMutation.mutateAsync(message);
+        setSessionRunning(sessionId);
+      } catch {
+        // Error handled by mutation state
+      }
     },
-    [sendMutation]
+    [sendMutation, sessionId, setSessionRunning]
   );
 
   const handleApprove = useCallback(
