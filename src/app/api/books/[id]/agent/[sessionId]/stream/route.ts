@@ -13,30 +13,59 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
     const { id: bookId, sessionId } = await params;
 
     const session = getSession(sessionId);
+
+    // Bug 2 fix: If session not found (e.g. server restarted), return a proper
+    // SSE stream with an error event instead of JSON 404. EventSource cannot
+    // parse JSON error responses — it just retries forever.
     if (!session || session.bookId !== bookId || session.userId !== user.id) {
-      return new Response(JSON.stringify({ error: "Session not found" }), {
-        status: 404,
-        headers: { "Content-Type": "application/json" },
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream({
+        start(controller) {
+          const errorMsg = {
+            type: "error" as const,
+            content: "Session not found. The server may have restarted. Please start a new workflow.",
+          };
+          controller.enqueue(
+            encoder.encode(`id: 0\ndata: ${JSON.stringify(errorMsg)}\n\n`)
+          );
+          controller.close();
+        },
+      });
+      return new Response(stream, {
+        headers: {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          Connection: "keep-alive",
+        },
       });
     }
+
+    // Bug 1 fix: Read Last-Event-ID to skip already-sent messages on reconnect
+    const lastEventIdHeader = _req.headers.get("Last-Event-ID");
+    const replayOffset = lastEventIdHeader ? parseInt(lastEventIdHeader, 10) + 1 : 0;
 
     const encoder = new TextEncoder();
 
     const stream = new ReadableStream({
       start(controller) {
-        // Replay buffered messages first
-        for (const msg of session.messages) {
+        // Replay buffered messages, skipping ones the client already received
+        for (let i = replayOffset; i < session.messages.length; i++) {
           controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify(msg)}\n\n`)
+            encoder.encode(`id: ${i}\ndata: ${JSON.stringify(session.messages[i])}\n\n`)
           );
         }
 
         // If already complete, send the result and close
         if (session.status !== "running") {
           if (session.result) {
+            const completeMsg = {
+              type: "complete",
+              content: "Session finished",
+              metadata: { ...session.result, suggestedNext: session.suggestedNext },
+            };
             controller.enqueue(
               encoder.encode(
-                `data: ${JSON.stringify({ type: "complete", content: "Session finished", metadata: session.result })}\n\n`
+                `id: ${session.messages.length}\ndata: ${JSON.stringify(completeMsg)}\n\n`
               )
             );
           }
@@ -58,10 +87,10 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
         // Register live listener
         const unsubscribe = addListener(
           sessionId,
-          (message) => {
+          (message, index) => {
             try {
               controller.enqueue(
-                encoder.encode(`data: ${JSON.stringify(message)}\n\n`)
+                encoder.encode(`id: ${index}\ndata: ${JSON.stringify(message)}\n\n`)
               );
             } catch {
               // Stream closed by client
@@ -69,12 +98,17 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
               unsubscribe?.();
             }
           },
-          (result) => {
+          (result, suggestedNext) => {
             clearInterval(keepaliveInterval);
             try {
+              const completeMsg = {
+                type: "complete",
+                content: "Session finished",
+                metadata: { ...result, suggestedNext },
+              };
               controller.enqueue(
                 encoder.encode(
-                  `data: ${JSON.stringify({ type: "complete", content: "Session finished", metadata: result })}\n\n`
+                  `id: ${session.messages.length}\ndata: ${JSON.stringify(completeMsg)}\n\n`
                 )
               );
               controller.close();

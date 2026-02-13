@@ -164,7 +164,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
           console.error("[PostSession] Error:", e);
         }
 
-        completeSession(dbSession.id, result);
+        completeSession(dbSession.id, result, suggestedNext);
 
         // Update DB records
         await db.agentSession.update({

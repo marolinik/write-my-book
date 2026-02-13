@@ -12,9 +12,10 @@ export interface ActiveSession {
   status: "running" | "completed" | "failed";
   messages: AgentStreamMessage[];
   conversationHistory: Anthropic.MessageParam[];
-  listeners: Set<(message: AgentStreamMessage) => void>;
-  completionListeners: Set<(result: AgentResult) => void>;
+  listeners: Set<(message: AgentStreamMessage, index: number) => void>;
+  completionListeners: Set<(result: AgentResult, suggestedNext: string[]) => void>;
   result: AgentResult | null;
+  suggestedNext: string[];
 }
 
 /**
@@ -49,6 +50,7 @@ export function createSession(
     listeners: new Set(),
     completionListeners: new Set(),
     result: null,
+    suggestedNext: [],
   };
   sessions.set(sessionId, session);
   return session;
@@ -70,30 +72,33 @@ export function pushMessage(
   const session = sessions.get(sessionId);
   if (!session) return;
   session.messages.push(message);
+  const index = session.messages.length - 1;
   for (const listener of session.listeners) {
-    listener(message);
+    listener(message, index);
   }
 }
 
 /** Mark session as complete and notify listeners. */
 export function completeSession(
   sessionId: string,
-  result: AgentResult
+  result: AgentResult,
+  suggestedNext: string[] = []
 ): void {
   const session = sessions.get(sessionId);
   if (!session) return;
   session.status = result.success ? "completed" : "failed";
   session.result = result;
+  session.suggestedNext = suggestedNext;
   for (const listener of session.completionListeners) {
-    listener(result);
+    listener(result, suggestedNext);
   }
 }
 
 /** Register an SSE listener. Returns unsubscribe function. */
 export function addListener(
   sessionId: string,
-  onMessage: (message: AgentStreamMessage) => void,
-  onComplete: (result: AgentResult) => void
+  onMessage: (message: AgentStreamMessage, index: number) => void,
+  onComplete: (result: AgentResult, suggestedNext: string[]) => void
 ): (() => void) | null {
   const session = sessions.get(sessionId);
   if (!session) return null;
@@ -125,7 +130,7 @@ export function cancelSession(sessionId: string): void {
   };
   session.result = result;
   for (const listener of session.completionListeners) {
-    listener(result);
+    listener(result, []);
   }
 }
 
