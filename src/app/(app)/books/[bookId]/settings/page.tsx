@@ -1,9 +1,9 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { toast } from "sonner";
 
-import { useBookSettings, useUpdateBookSettings } from "@/hooks/use-settings";
+import { useBookSettings } from "@/hooks/use-settings";
+import { useDebouncedSettings } from "@/hooks/use-debounced-settings";
 import { useLanguage } from "@/components/providers/language-provider";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -28,18 +28,9 @@ export default function BookSettingsPage() {
   const router = useRouter();
   const { bookId } = useParams<{ bookId: string }>();
   const { data: settings, isLoading } = useBookSettings(bookId);
-  const updateSettings = useUpdateBookSettings(bookId);
+  const handleChange = useDebouncedSettings(bookId);
   const { t } = useLanguage();
   const s = t.bookSettings;
-
-  async function handleChange(field: string, value: unknown) {
-    try {
-      await updateSettings.mutateAsync({ [field]: value });
-      toast.success(t.common.save);
-    } catch (err) {
-      toast.error((err as Error).message);
-    }
-  }
 
   if (isLoading) {
     return (
