@@ -5,15 +5,7 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-
-async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(url, init);
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error(body.error ?? `Request failed: ${res.status}`);
-  }
-  return res.json();
-}
+import { fetchJson } from "@/lib/api-client";
 
 export type SeriesListItem = {
   id: string;
@@ -52,6 +44,9 @@ export function useSeries() {
     queryFn: () => fetchJson<SeriesListItem[]>("/api/series"),
   });
 }
+
+/** Alias for useSeries — fetch all series for dashboard use. */
+export const useSeriesList = useSeries;
 
 /** Fetch a single series with books. */
 export function useSeriesDetail(seriesId: string) {
