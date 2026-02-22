@@ -11,6 +11,7 @@ import type { EditFindingParsed } from "@/lib/parsers";
 import { updateFromChapter } from "@/lib/graph/graph-maintenance";
 import { onSessionCompleted, onDocumentChanged } from "@/lib/vector/memory-manager";
 import { promoteFindings } from "./blackboard";
+import { synthesizeToSeries } from "@/lib/series/series-synthesizer";
 
 export interface PostSessionContext {
   sessionId: string;
@@ -260,6 +261,13 @@ export async function processPostSession(
         console.error("[PostSession] Insight promotion failed (non-fatal):", err)
       );
     }
+
+    // ─── Series Auto-Synthesis (fire-and-forget) ────────────
+    // When a book's foundational doc completes and 2+ books in the series
+    // have that artifact type, auto-regenerate the series-level document.
+    maybeAutoSynthesize(ctx.bookId, ctx.workflowId, ctx.userId).catch((err) =>
+      console.error("[PostSession] Auto-synthesis failed (non-fatal):", err)
+    );
   } catch (error) {
     console.error(
       `[PostSession] Error processing session ${ctx.sessionId}:`,
@@ -602,6 +610,66 @@ async function createCascadeWarnings(
   }
 
   return warningsCreated;
+}
+
+/**
+ * Auto-synthesize series documents when a book's foundational doc workflow completes.
+ *
+ * LOOP GUARD: Only triggers from book-level foundational doc workflows
+ * (capture-style, refresh-style, create-story-bible, build-architecture).
+ * Series-level workflow IDs are NOT in the artifactMap, so they return early.
+ * Onboarding workflows delegate to sub-workflows whose independent completions
+ * trigger this function, so onboarding IDs are also excluded.
+ */
+async function maybeAutoSynthesize(
+  bookId: string,
+  workflowId: string,
+  userId: string
+): Promise<void> {
+  // Only trigger from book-level foundational doc workflows — NOT series-level
+  const artifactMap: Record<string, string> = {
+    "capture-style": "FINGERPRINT",
+    "refresh-style": "FINGERPRINT",
+    "create-story-bible": "STORY_BIBLE",
+    "build-architecture": "ARCHITECTURE",
+  };
+  const artifactType = artifactMap[workflowId];
+  if (!artifactType) return; // Not a foundational doc workflow
+
+  const book = await db.book.findUnique({
+    where: { id: bookId },
+    select: { seriesId: true, bookNumber: true },
+  });
+  if (!book?.seriesId) return; // Not in a series
+
+  // Count books in series that have this artifact type
+  const booksWithArtifact = await db.document.groupBy({
+    by: ["bookId"],
+    where: {
+      book: { seriesId: book.seriesId },
+      type: artifactType as DocumentType,
+    },
+  });
+
+  if (booksWithArtifact.length >= 2) {
+    try {
+      await synthesizeToSeries(
+        userId,
+        book.seriesId,
+        bookId,
+        book.bookNumber ?? 1,
+        artifactType
+      );
+      console.info(
+        `[auto-synth] Synthesized ${artifactType} for series ${book.seriesId} from book ${bookId}`
+      );
+    } catch (err) {
+      console.error(
+        `[auto-synth] Failed to synthesize ${artifactType} for series ${book.seriesId}:`,
+        err
+      );
+    }
+  }
 }
 
 /**

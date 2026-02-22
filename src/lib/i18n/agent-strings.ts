@@ -42,6 +42,12 @@ export interface AgentStrings {
   betaFailed: string;
   recommendedNext: string;
 
+  // Series-related
+  seriesContext: string;
+  seriesDocsGenerating: string;
+  crossBookContinuity: string;
+  seriesStats: string;
+
   // Workflow labels (overrides for common workflows)
   workflows: Record<string, string>;
 }
@@ -77,6 +83,10 @@ const EN: AgentStrings = {
   betaNearMiss: "Near Miss",
   betaFailed: "Needs Revision",
   recommendedNext: "Recommended next:",
+  seriesContext: "This book is part of the series: {seriesName}",
+  seriesDocsGenerating: "Series documents will be generated when 2+ books have foundational documents",
+  crossBookContinuity: "Cross-Book Continuity Check",
+  seriesStats: "Series Statistics",
   workflows: {
     "read-manuscript": "Import Manuscript",
     "capture-style": "Capture Style",
@@ -94,6 +104,7 @@ const EN: AgentStrings = {
     "market-analysis": "Market Analysis",
     "refresh-style": "Refresh Style",
     "evolve-style": "Evolve Style",
+    "check-series-continuity": "Cross-Book Continuity Check",
     coach: "Writing Coach",
     freewrite: "Freewrite",
     revise: "Revise Chapter",
@@ -132,6 +143,10 @@ const SR: AgentStrings = {
   betaNearMiss: "Skoro položeno",
   betaFailed: "Potrebna revizija",
   recommendedNext: "Preporučeni sledeći korak:",
+  seriesContext: "Ova knjiga je deo serijala: {seriesName}",
+  seriesDocsGenerating: "Dokumenti serijala se generišu kada 2+ knjige imaju osnovne dokumente",
+  crossBookContinuity: "Provera kontinuiteta između knjiga",
+  seriesStats: "Statistika serijala",
   workflows: {
     "read-manuscript": "Uvezi rukopis",
     "capture-style": "Uhvati stil",
@@ -149,6 +164,7 @@ const SR: AgentStrings = {
     "market-analysis": "Analiza tržišta",
     "refresh-style": "Osvježi stil",
     "evolve-style": "Razvij stil",
+    "check-series-continuity": "Provera kontinuiteta između knjiga",
     coach: "Trener za pisanje",
     freewrite: "Slobodno pisanje",
     revise: "Revidiraj poglavlje",
@@ -187,6 +203,10 @@ const DE: AgentStrings = {
   betaNearMiss: "Knapp verfehlt",
   betaFailed: "Überarbeitung nötig",
   recommendedNext: "Empfohlener nächster Schritt:",
+  seriesContext: "Dieses Buch gehört zur Serie: {seriesName}",
+  seriesDocsGenerating: "Seriendokumente werden generiert, wenn 2+ Bücher Basisdokumente haben",
+  crossBookContinuity: "Buchübergreifende Kontinuitätsprüfung",
+  seriesStats: "Serienstatistiken",
   workflows: {
     "read-manuscript": "Manuskript importieren",
     "capture-style": "Stil erfassen",
@@ -231,6 +251,10 @@ const ES: AgentStrings = {
   betaNearMiss: "Casi aprobado",
   betaFailed: "Necesita revisión",
   recommendedNext: "Siguiente recomendado:",
+  seriesContext: "Este libro es parte de la serie: {seriesName}",
+  seriesDocsGenerating: "Los documentos de serie se generan cuando 2+ libros tienen documentos base",
+  crossBookContinuity: "Verificación de continuidad entre libros",
+  seriesStats: "Estadísticas de serie",
   workflows: {
     "read-manuscript": "Importar manuscrito",
     "capture-style": "Capturar estilo",
@@ -275,6 +299,10 @@ const FR: AgentStrings = {
   betaNearMiss: "Presque réussi",
   betaFailed: "Révision nécessaire",
   recommendedNext: "Prochaine étape recommandée :",
+  seriesContext: "Ce livre fait partie de la série : {seriesName}",
+  seriesDocsGenerating: "Les documents de série seront générés lorsque 2+ livres auront des documents de base",
+  crossBookContinuity: "Vérification de la continuité inter-livres",
+  seriesStats: "Statistiques de série",
   workflows: {
     "read-manuscript": "Importer le manuscrit",
     "capture-style": "Capturer le style",
@@ -319,6 +347,10 @@ const RU: AgentStrings = {
   betaNearMiss: "Почти пройдено",
   betaFailed: "Требуется доработка",
   recommendedNext: "Рекомендуемый следующий шаг:",
+  seriesContext: "Эта книга является частью серии: {seriesName}",
+  seriesDocsGenerating: "Документы серии будут созданы, когда 2+ книги будут иметь базовые документы",
+  crossBookContinuity: "Проверка межкнижной целостности",
+  seriesStats: "Статистика серии",
   workflows: {
     "read-manuscript": "Импорт рукописи",
     "capture-style": "Захват стиля",
@@ -363,6 +395,10 @@ const ZH: AgentStrings = {
   betaNearMiss: "接近通过",
   betaFailed: "需要修改",
   recommendedNext: "推荐下一步：",
+  seriesContext: "本书属于系列：{seriesName}",
+  seriesDocsGenerating: "当2本以上书籍拥有基础文档时，将生成系列文档",
+  crossBookContinuity: "跨书连续性检查",
+  seriesStats: "系列统计",
   workflows: {
     "read-manuscript": "导入手稿",
     "capture-style": "捕获风格",

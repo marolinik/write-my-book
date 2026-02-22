@@ -1376,7 +1376,7 @@ export async function assembleAgentPrompt(
   if (profile.bookMeta && !context.bookDescription) {
     const book = await db.book.findUnique({
       where: { id: context.bookId },
-      select: { description: true, genre: true, language: true },
+      select: { description: true, genre: true, language: true, seriesId: true },
     });
     if (book) {
       context.bookDescription = book.description ?? undefined;
@@ -1384,6 +1384,26 @@ export async function assembleAgentPrompt(
       if (!context.language) {
         context.language = book.language;
       }
+      // Auto-detect series membership so series context can be loaded
+      if (!context.seriesId && book.seriesId) {
+        context.seriesId = book.seriesId;
+      }
+    }
+  }
+
+  // ─── Auto-load series context when book belongs to a series ──
+  let seriesFingerprintContent = "";
+  if (profile.seriesContext !== "none" && context.seriesId && !context.seriesBible) {
+    try {
+      const seriesDocService = new DocumentService(context.userId, undefined, context.seriesId);
+      const seriesBibleContent = await loadDocument(seriesDocService, DocumentType.SERIES_BIBLE);
+      const seriesArchContent = await loadDocument(seriesDocService, DocumentType.SERIES_ARCHITECTURE);
+      const seriesFpContent = await loadDocument(seriesDocService, DocumentType.SERIES_FINGERPRINT);
+      if (seriesBibleContent) context.seriesBible = seriesBibleContent;
+      if (seriesArchContent) context.seriesArchitecture = seriesArchContent;
+      if (seriesFpContent) seriesFingerprintContent = seriesFpContent;
+    } catch {
+      // Series docs unavailable — proceed without
     }
   }
 
@@ -1643,24 +1663,40 @@ export async function assembleAgentPrompt(
     }
   }
 
-  // ─── SECTION 13: Series Context (priority 40) ─────────────────
+  // ─── SECTION 13: Series Context (priority 40/38/36) ─────────────
   if (profile.seriesContext !== "none" && context.seriesId) {
     const seriesBible = context.seriesBible ?? "";
     const seriesArch = context.seriesArchitecture ?? "";
+    const seriesFp = seriesFingerprintContent;
 
     if (profile.seriesContext === "full") {
-      const parts: string[] = [];
       if (seriesBible) {
-        parts.push(`\n<series_bible>\n${seriesBible}\n</series_bible>`);
+        sections.push({
+          name: "series_bible",
+          priority: 40,
+          content: `\n<series_bible>\n${seriesBible}\n</series_bible>`,
+        });
       }
       if (seriesArch) {
-        parts.push(`\n<series_architecture>\n${seriesArch}\n</series_architecture>`);
-      }
-      if (parts.length > 0) {
         sections.push({
-          name: "series_context",
-          priority: 40,
-          content: parts.join("\n"),
+          name: "series_architecture",
+          priority: 38,
+          content: `\n<series_architecture>\n${seriesArch}\n</series_architecture>`,
+        });
+      }
+      if (seriesFp) {
+        sections.push({
+          name: "series_fingerprint",
+          priority: 36,
+          content: `\n<series_fingerprint>\n${seriesFp}\n</series_fingerprint>`,
+        });
+      }
+      // Add series context instruction
+      if (seriesBible || seriesArch || seriesFp) {
+        sections.push({
+          name: "series_instruction",
+          priority: 39,
+          content: `\nThis book is part of a series. Respect series-level character arcs, timelines, and style consistency. Cross-book continuity is critical.`,
         });
       }
     } else if (profile.seriesContext === "summary") {
@@ -1678,6 +1714,7 @@ export async function assembleAgentPrompt(
         );
       }
       if (parts.length > 0) {
+        parts.push(`\nThis book is part of a series. Respect series-level character arcs, timelines, and style consistency.`);
         sections.push({
           name: "series_context_summary",
           priority: 40,
