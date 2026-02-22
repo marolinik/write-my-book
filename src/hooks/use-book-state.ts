@@ -3,6 +3,39 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useBook } from "./use-books";
+import { detectActiveJourney, getJourneyProgress } from "@/lib/agents/journeys";
+
+export interface SetupProgress {
+  basicsComplete: boolean;    // book.name && book.genre
+  importComplete: boolean;    // hasChapters || setupImportSkipped
+  styleComplete: boolean;     // hasFingerprint
+  bibleComplete: boolean;     // hasStoryBible
+  archComplete: boolean;      // hasArchitecture
+  reviewComplete: boolean;    // setupComplete
+}
+
+/** Returns 0-based step index of first incomplete step (0..5). Returns 6 if all done. */
+export function getFirstIncompleteStep(progress: SetupProgress): number {
+  if (!progress.basicsComplete) return 0;
+  if (!progress.importComplete) return 1;
+  if (!progress.styleComplete) return 2;
+  if (!progress.bibleComplete) return 3;
+  if (!progress.archComplete) return 4;
+  if (!progress.reviewComplete) return 5;
+  return 5; // All done — show review step
+}
+
+/** Count of completed setup steps out of 6. */
+export function getCompletedStepCount(progress: SetupProgress): number {
+  let count = 0;
+  if (progress.basicsComplete) count++;
+  if (progress.importComplete) count++;
+  if (progress.styleComplete) count++;
+  if (progress.bibleComplete) count++;
+  if (progress.archComplete) count++;
+  if (progress.reviewComplete) count++;
+  return count;
+}
 
 interface BookStateResult {
   isLoading: boolean;
@@ -17,11 +50,18 @@ interface BookStateResult {
   hasAnalysisReport: boolean;
   hasContinuityReport: boolean;
   hasMarketReport: boolean;
+  hasImportedManuscript: boolean;
   chapterStatuses: Record<string, number>;
   pendingFindingsCount: number;
   nextRecommendedWorkflow: string | null;
   secondaryWorkflows: Array<{ id: string; reason: string }>;
   setupWorkflows: string[];
+  activeJourneyId: string | null;
+  journeyProgress: { completed: number; total: number } | null;
+  /** All existing document types for workflow prerequisite checking. */
+  existingDocTypes: string[];
+  /** Setup wizard progress. */
+  setupProgress: SetupProgress;
 }
 
 /**
@@ -52,7 +92,7 @@ export function useBookState(bookId: string): BookStateResult {
   });
 
   const { data: editorialData, isLoading: editorialLoading } = useQuery({
-    queryKey: ["editorial-summary", bookId],
+    queryKey: ["editorial", bookId, "summary"],
     queryFn: async () => {
       const res = await fetch(`/api/books/${bookId}/editorial/summary`);
       if (!res.ok) throw new Error("Failed to load editorial summary");
@@ -61,14 +101,24 @@ export function useBookState(bookId: string): BookStateResult {
     enabled: !!bookId,
   });
 
-  const isLoading = bookLoading || docsLoading || styleLoading || editorialLoading;
+  const { data: settingsData, isLoading: settingsLoading } = useQuery({
+    queryKey: ["book-settings", bookId],
+    queryFn: async () => {
+      const res = await fetch(`/api/books/${bookId}/settings`);
+      if (!res.ok) return null;
+      return res.json();
+    },
+    enabled: !!bookId,
+  });
+
+  const isLoading = bookLoading || docsLoading || styleLoading || editorialLoading || settingsLoading;
 
   const result = useMemo((): Omit<BookStateResult, "isLoading"> => {
     const docs = Array.isArray(documents)
       ? documents
       : (documents?.documents ?? []);
 
-    const docTypes = new Set(
+    const docTypes = new Set<string>(
       docs.map((d: { type: string }) => d.type)
     );
 
@@ -79,9 +129,12 @@ export function useBookState(bookId: string): BookStateResult {
     const hasAnalysisReport = docTypes.has("ANALYSIS_REPORT");
     const hasContinuityReport = docTypes.has("CONTINUITY_REPORT");
     const hasMarketReport = docTypes.has("MARKET_REPORT");
+    const hasImportedManuscript = docTypes.has("MANUSCRIPT_ANALYSIS");
 
     const profiles = styleData?.profiles ?? [];
     const hasStyleProfile = profiles.length > 0;
+
+    const existingDocTypes = Array.from(docTypes);
 
     // Tally chapter statuses
     const chapterStatuses: Record<string, number> = {};
@@ -193,6 +246,40 @@ export function useBookState(bookId: string): BookStateResult {
       }
     }
 
+    // Journey detection
+    const activeJourneyId = detectActiveJourney({
+      hasChapters,
+      hasFingerprint,
+      hasStoryBible,
+      hasArchitecture,
+      hasImportedManuscript,
+    });
+
+    // Journey progress — track which workflows have been completed (via existing session history)
+    // For now, derive from document existence (documents are the output of workflows)
+    const completedWorkflows = new Set<string>();
+    if (hasFingerprint) completedWorkflows.add("capture-style");
+    if (hasStoryBible) completedWorkflows.add("create-story-bible");
+    if (hasArchitecture) completedWorkflows.add("build-architecture");
+    if (hasAnalysisReport) completedWorkflows.add("analyze");
+    if (hasContinuityReport) completedWorkflows.add("check-series-continuity");
+    if (hasMarketReport) completedWorkflows.add("market-analysis");
+    if (hasImportedManuscript) completedWorkflows.add("read-manuscript");
+
+    const journeyProgress = activeJourneyId
+      ? getJourneyProgress(activeJourneyId, completedWorkflows)
+      : null;
+
+    // Setup wizard progress
+    const setupProgress: SetupProgress = {
+      basicsComplete: !!(book?.name && book?.genre),
+      importComplete: hasChapters || (settingsData?.setupImportSkipped ?? false),
+      styleComplete: hasFingerprint,
+      bibleComplete: hasStoryBible,
+      archComplete: hasArchitecture,
+      reviewComplete: settingsData?.setupComplete ?? false,
+    };
+
     return {
       bookName: book?.name ?? "Book",
       language: book?.language ?? "en",
@@ -205,13 +292,18 @@ export function useBookState(bookId: string): BookStateResult {
       hasAnalysisReport,
       hasContinuityReport,
       hasMarketReport,
+      hasImportedManuscript,
       chapterStatuses,
       pendingFindingsCount,
       nextRecommendedWorkflow,
       secondaryWorkflows,
       setupWorkflows,
+      activeJourneyId,
+      journeyProgress,
+      existingDocTypes,
+      setupProgress,
     };
-  }, [book, documents, styleData, editorialData]);
+  }, [book, documents, styleData, editorialData, settingsData]);
 
   return { isLoading, ...result };
 }

@@ -2,6 +2,8 @@
 
 import { use, useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
   BookOpenIcon,
   UploadIcon,
@@ -15,6 +17,8 @@ import {
   Loader2Icon,
   AlertTriangleIcon,
   RefreshCwIcon,
+  MessageCircleIcon,
+  CircleDashedIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -37,8 +41,10 @@ import {
 } from "@/components/ui/select";
 import { useAgentStore } from "@/stores/agent-store";
 import { useBook, useUpdateBook } from "@/hooks/use-books";
-import { useBookState } from "@/hooks/use-book-state";
+import { useBookState, getFirstIncompleteStep, getCompletedStepCount } from "@/hooks/use-book-state";
 import { useLanguage } from "@/components/providers/language-provider";
+import { ImportWizard } from "@/components/import-export/import-wizard";
+import { fetchJson } from "@/lib/api-client";
 
 export default function SetupPage({
   params,
@@ -46,10 +52,12 @@ export default function SetupPage({
   params: Promise<{ bookId: string }>;
 }) {
   const { bookId } = use(params);
+  const router = useRouter();
   const { t } = useLanguage();
   const s = t.setup;
 
   const [currentStep, setCurrentStep] = useState(0);
+  const [hasAutoResumed, setHasAutoResumed] = useState(false);
   const [confirmWorkflow, setConfirmWorkflow] = useState<string | null>(null);
   const openWithWorkflow = useAgentStore((st) => st.openWithWorkflow);
   const sessions = useAgentStore((st) => st.sessions);
@@ -59,15 +67,24 @@ export default function SetupPage({
 
   const STEPS = useMemo(
     () => [
-      { id: "basics", title: s.basics, icon: BookOpenIcon, description: s.basicsDesc },
-      { id: "import", title: s.importStep, icon: UploadIcon, description: s.importDesc },
-      { id: "style", title: s.styleStep, icon: PaletteIcon, description: s.styleDesc },
-      { id: "bible", title: s.storyBible, icon: BookMarkedIcon, description: s.storyBibleDesc },
-      { id: "architecture", title: s.architecture, icon: LayoutIcon, description: s.architectureDesc },
-      { id: "done", title: s.doneStep, icon: CheckCircle2Icon, description: s.doneDesc },
+      { id: "basics", title: s.basics, icon: BookOpenIcon, description: s.basicsDesc, time: "~1 min" },
+      { id: "import", title: s.importStep, icon: UploadIcon, description: s.importDesc, time: "~2 min" },
+      { id: "style", title: s.styleStep, icon: PaletteIcon, description: s.styleDesc, time: "~3 min" },
+      { id: "bible", title: s.storyBible, icon: BookMarkedIcon, description: s.storyBibleDesc, time: "~5 min" },
+      { id: "architecture", title: s.architecture, icon: LayoutIcon, description: s.architectureDesc, time: "~5 min" },
+      { id: "done", title: s.doneStep, icon: CheckCircle2Icon, description: s.doneDesc, time: "" },
     ],
     [s]
   );
+
+  // Auto-resume from first incomplete step on mount
+  useEffect(() => {
+    if (!bookState.isLoading && !hasAutoResumed) {
+      const firstIncomplete = getFirstIncompleteStep(bookState.setupProgress);
+      setCurrentStep(firstIncomplete);
+      setHasAutoResumed(true);
+    }
+  }, [bookState.isLoading, bookState.setupProgress, hasAutoResumed]);
 
   // Check if any agent session is currently running
   const hasRunningSession = Object.values(sessions).some(
@@ -101,6 +118,35 @@ export default function SetupPage({
     next();
   };
 
+  /** Skip import step — mark as skipped in book settings. */
+  const handleSkipImport = useCallback(async () => {
+    try {
+      await fetchJson(`/api/books/${bookId}/settings`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ setupImportSkipped: true }),
+      });
+    } catch {
+      // Non-fatal — user can still proceed
+    }
+    next();
+  }, [bookId, next]);
+
+  /** Mark setup as complete and redirect to book overview. */
+  const handleFinishSetup = useCallback(async () => {
+    try {
+      await fetchJson(`/api/books/${bookId}/settings`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ setupComplete: true }),
+      });
+      toast.success("Setup complete! Your book is ready.");
+      router.push(`/books/${bookId}`);
+    } catch (err) {
+      toast.error("Failed to complete setup");
+    }
+  }, [bookId, router]);
+
   /** Start a workflow, with confirmation if document already exists. */
   const handleStartWorkflow = useCallback(
     (workflowId: string, existsAlready: boolean) => {
@@ -114,30 +160,82 @@ export default function SetupPage({
     [openWithWorkflow, confirmWorkflow]
   );
 
+  const completedCount = getCompletedStepCount(bookState.setupProgress);
+  const progress = bookState.setupProgress;
+
+  /** Determine step completion status for the step bar. */
+  function stepStatus(i: number): "complete" | "current" | "incomplete" | "pending" {
+    if (i === currentStep) return "current";
+    switch (i) {
+      case 0: return progress.basicsComplete ? "complete" : "incomplete";
+      case 1: return progress.importComplete ? "complete" : "incomplete";
+      case 2: return progress.styleComplete ? "complete" : "incomplete";
+      case 3: return progress.bibleComplete ? "complete" : "incomplete";
+      case 4: return progress.archComplete ? "complete" : "incomplete";
+      case 5: return progress.reviewComplete ? "complete" : "incomplete";
+      default: return "pending";
+    }
+  }
+
   return (
     <div className="p-6 lg:p-8 max-w-2xl mx-auto">
-      <h1 className="font-display text-2xl font-bold mb-2">{s.title}</h1>
-      <p className="text-sm text-muted-foreground mb-8">{s.subtitle}</p>
+      <div className="flex items-center justify-between mb-2">
+        <h1 className="font-display text-2xl font-bold">{s.title}</h1>
+        <Badge variant="outline" className="text-xs">
+          {completedCount}/6 steps done
+        </Badge>
+      </div>
+      <p className="text-sm text-muted-foreground mb-4">{s.subtitle}</p>
 
-      {/* Progress bar */}
+      {/* Conversational alternative */}
+      <div className="mb-8 rounded-lg border border-primary/20 bg-primary/5 p-3">
+        <div className="flex items-center gap-3">
+          <div className="rounded-full bg-primary/10 p-2 shrink-0">
+            <MessageCircleIcon className="size-4 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium">Prefer to chat?</p>
+            <p className="text-xs text-muted-foreground">
+              Tell the Writing Coach about your book and let it guide the setup for you.
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="shrink-0"
+            onClick={() => openWithWorkflow("onboard-new-book")}
+          >
+            Chat with Coach
+          </Button>
+        </div>
+      </div>
+
+      {/* Step indicator bar */}
       <div className="flex items-center gap-1 mb-8">
         {STEPS.map((st, i) => {
           const Icon = st.icon;
-          const isActive = i === currentStep;
-          const isDone = i < currentStep;
+          const status = stepStatus(i);
           return (
             <div key={st.id} className="flex items-center flex-1">
               <button
                 onClick={() => setCurrentStep(i)}
                 className={`flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium transition-colors w-full ${
-                  isActive
+                  status === "current"
                     ? "bg-primary text-primary-foreground"
-                    : isDone
-                      ? "bg-primary/10 text-primary"
-                      : "bg-muted text-muted-foreground"
+                    : status === "complete"
+                      ? "bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400"
+                      : status === "incomplete"
+                        ? "bg-muted text-muted-foreground border border-dashed border-muted-foreground/30"
+                        : "bg-muted text-muted-foreground"
                 }`}
               >
-                <Icon className="size-3.5 shrink-0" />
+                {status === "complete" ? (
+                  <CheckCircle2Icon className="size-3.5 shrink-0" />
+                ) : status === "incomplete" && i !== currentStep ? (
+                  <CircleDashedIcon className="size-3.5 shrink-0" />
+                ) : (
+                  <Icon className="size-3.5 shrink-0" />
+                )}
                 <span className="hidden sm:inline truncate">{st.title}</span>
               </button>
               {i < STEPS.length - 1 && (
@@ -179,9 +277,7 @@ export default function SetupPage({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="language">{s.language}</Label>
-                <p className="text-xs text-muted-foreground">
-                  {s.languageHint}
-                </p>
+                <p className="text-xs text-muted-foreground">{s.languageHint}</p>
                 <Select value={language} onValueChange={setLanguage}>
                   <SelectTrigger id="language">
                     <SelectValue />
@@ -190,20 +286,20 @@ export default function SetupPage({
                     <SelectItem value="en">English</SelectItem>
                     <SelectItem value="sr">Serbian (Latin)</SelectItem>
                     <SelectItem value="de">German (Deutsch)</SelectItem>
-                    <SelectItem value="es">Spanish (Español)</SelectItem>
-                    <SelectItem value="fr">French (Français)</SelectItem>
+                    <SelectItem value="es">Spanish (Espanol)</SelectItem>
+                    <SelectItem value="fr">French (Francais)</SelectItem>
                     <SelectItem value="it">Italian (Italiano)</SelectItem>
-                    <SelectItem value="pt">Portuguese (Português)</SelectItem>
-                    <SelectItem value="ru">Russian (Русский)</SelectItem>
-                    <SelectItem value="zh">Chinese (中文)</SelectItem>
-                    <SelectItem value="ja">Japanese (日本語)</SelectItem>
-                    <SelectItem value="ko">Korean (한국어)</SelectItem>
+                    <SelectItem value="pt">Portuguese (Portugues)</SelectItem>
+                    <SelectItem value="ru">Russian</SelectItem>
+                    <SelectItem value="zh">Chinese</SelectItem>
+                    <SelectItem value="ja">Japanese</SelectItem>
+                    <SelectItem value="ko">Korean</SelectItem>
                     <SelectItem value="nl">Dutch (Nederlands)</SelectItem>
                     <SelectItem value="pl">Polish (Polski)</SelectItem>
                     <SelectItem value="sv">Swedish (Svenska)</SelectItem>
-                    <SelectItem value="tr">Turkish (Türkçe)</SelectItem>
-                    <SelectItem value="ar">Arabic (العربية)</SelectItem>
-                    <SelectItem value="hi">Hindi (हिन्दी)</SelectItem>
+                    <SelectItem value="tr">Turkish (Turkce)</SelectItem>
+                    <SelectItem value="ar">Arabic</SelectItem>
+                    <SelectItem value="hi">Hindi</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -218,10 +314,7 @@ export default function SetupPage({
                 />
               </div>
               <div className="flex justify-end gap-2 pt-2">
-                <Button
-                  onClick={handleSaveBasics}
-                  disabled={updateBook.isPending}
-                >
+                <Button onClick={handleSaveBasics} disabled={updateBook.isPending}>
                   {s.saveAndContinue}
                   <ChevronRightIcon className="ml-1 size-4" />
                 </Button>
@@ -231,29 +324,31 @@ export default function SetupPage({
 
           {step.id === "import" && (
             <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">{s.importInfo}</p>
               {bookState.hasChapters && (
                 <div className="flex items-center gap-2 rounded-md bg-green-50 dark:bg-green-950/30 p-3">
                   <CheckCircle2Icon className="size-4 text-green-600 dark:text-green-400 shrink-0" />
                   <span className="text-sm font-medium text-green-700 dark:text-green-300">
-                    {s.manuscriptImported} — {bookState.chapterCount} {s.chaptersLoaded}
+                    {s.manuscriptImported} -- {bookState.chapterCount} {s.chaptersLoaded}
                   </span>
                 </div>
               )}
-              <div className="flex gap-2">
-                <Button asChild variant="outline">
-                  <Link href={`/books/${bookId}/import`}>
-                    <UploadIcon className="mr-2 size-4" />
-                    {bookState.hasChapters ? s.importMore : s.goToImport}
-                  </Link>
-                </Button>
-              </div>
+
+              <ImportWizard
+                bookId={bookId}
+                onComplete={() => next()}
+                autoAnalyze={false}
+              />
+
               <div className="flex justify-between pt-4 border-t">
                 <Button variant="ghost" size="sm" onClick={prev}>
                   <ChevronLeftIcon className="mr-1 size-4" />
                   {s.back}
                 </Button>
-                <Button variant="outline" size="sm" onClick={next}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={bookState.hasChapters ? next : handleSkipImport}
+                >
                   {bookState.hasChapters ? s.continueStep : s.skip}
                   <ChevronRightIcon className="ml-1 size-4" />
                 </Button>
@@ -437,33 +532,20 @@ export default function SetupPage({
 
           {step.id === "done" && (
             <div className="space-y-4">
-              <div className="flex items-center gap-3 rounded-md bg-green-50 dark:bg-green-950/30 p-4">
-                <CheckCircle2Icon className="size-6 text-green-600 dark:text-green-400" />
-                <div>
-                  <p className="font-medium text-sm">{s.setupComplete}</p>
-                  <p className="text-xs text-muted-foreground">{s.bookReady}</p>
-                </div>
+              {/* Summary */}
+              <div className="space-y-2 text-sm">
+                <SummaryRow label="Book name" value={bookState.bookName} done={progress.basicsComplete} />
+                <SummaryRow label="Chapters" value={bookState.hasChapters ? `${bookState.chapterCount} chapters` : "Skipped"} done={progress.importComplete} />
+                <SummaryRow label="Style Fingerprint" value={bookState.hasFingerprint ? "Captured" : "Not captured"} done={progress.styleComplete} />
+                <SummaryRow label="Story Bible" value={bookState.hasStoryBible ? "Created" : "Not created"} done={progress.bibleComplete} />
+                <SummaryRow label="Architecture" value={bookState.hasArchitecture ? "Created" : "Not created"} done={progress.archComplete} />
               </div>
-              <div className="grid gap-2 sm:grid-cols-2">
-                <Button asChild variant="outline" size="sm">
-                  <Link href={`/books/${bookId}`}>
-                    <BookOpenIcon className="mr-1 size-4" />
-                    {t.nav.overview}
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" size="sm">
-                  <Link href={`/books/${bookId}/editorial`}>
-                    <SparklesIcon className="mr-1 size-4" />
-                    {t.nav.editorial}
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" size="sm">
-                  <Link href={`/books/${bookId}/documents`}>
-                    <LayoutIcon className="mr-1 size-4" />
-                    {t.nav.documents}
-                  </Link>
-                </Button>
-              </div>
+
+              <Button onClick={handleFinishSetup} className="w-full">
+                <SparklesIcon className="mr-2 size-4" />
+                Start Writing!
+              </Button>
+
               <div className="flex justify-start pt-4 border-t">
                 <Button variant="ghost" size="sm" onClick={prev}>
                   <ChevronLeftIcon className="mr-1 size-4" />
@@ -474,6 +556,30 @@ export default function SetupPage({
           )}
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function SummaryRow({
+  label,
+  value,
+  done,
+}: {
+  label: string;
+  value: string;
+  done: boolean;
+}) {
+  return (
+    <div className="flex items-center justify-between py-1.5 border-b border-dashed last:border-0">
+      <span className="text-muted-foreground">{label}</span>
+      <div className="flex items-center gap-2">
+        <span className="font-medium">{value}</span>
+        {done ? (
+          <CheckCircle2Icon className="size-3.5 text-green-600" />
+        ) : (
+          <CircleDashedIcon className="size-3.5 text-muted-foreground" />
+        )}
+      </div>
     </div>
   );
 }

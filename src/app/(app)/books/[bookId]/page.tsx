@@ -1,15 +1,18 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
-  PlusIcon,
   SettingsIcon,
   FileTextIcon,
   SparklesIcon,
+  BotIcon,
+  PlayIcon,
+  TargetIcon,
 } from "lucide-react";
 
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getUIStrings } from "@/lib/i18n/ui-strings";
+import { getWorkflow } from "@/lib/agents/workflows";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,19 +21,29 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { BookViewSwitcher } from "@/components/book/book-view-switcher";
+import { StartWorkflowButton } from "@/components/book/start-workflow-button";
 
 export const dynamic = "force-dynamic";
 
-const STATUS_COLORS: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
-  undiscussed: "outline",
-  discussed: "outline",
-  planned: "secondary",
-  drafted: "secondary",
-  dev_edited: "default",
-  line_edited: "default",
-  beta_read: "default",
-  beta_passed: "default",
-};
+
+function getWorkflowLabel(workflowId: string | null): string {
+  if (!workflowId) return "Agent session";
+  const wf = getWorkflow(workflowId);
+  return wf?.label ?? workflowId;
+}
+
+function timeAgo(date: Date | string): string {
+  const d = typeof date === "string" ? new Date(date) : date;
+  const diff = Date.now() - d.getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
 
 export default async function BookDetailPage({
   params,
@@ -40,29 +53,133 @@ export default async function BookDetailPage({
   const user = await requireUser();
   const { bookId } = await params;
 
-  const book = await db.book.findFirst({
-    where: { id: bookId, userId: user.id },
-    include: {
-      chapters: { orderBy: { chapterNumber: "asc" } },
-      documents: {
-        where: { chapterNumber: null },
-        orderBy: { updatedAt: "desc" },
+  const [book, recentSessions, pendingFindings] = await Promise.all([
+    db.book.findFirst({
+      where: { id: bookId, userId: user.id },
+      include: {
+        chapters: { orderBy: { chapterNumber: "asc" } },
+        documents: {
+          where: { chapterNumber: null },
+          orderBy: { updatedAt: "desc" },
+        },
+        series: { select: { id: true, title: true } },
+        settings: { select: { setupComplete: true } },
+        _count: { select: { documents: true } },
       },
-      series: { select: { id: true, title: true } },
-      _count: { select: { documents: true } },
-    },
-  });
+    }),
+    db.agentSession.findMany({
+      where: { bookId, userId: user.id },
+      orderBy: { startedAt: "desc" },
+      take: 5,
+      select: {
+        id: true,
+        workflowId: true,
+        status: true,
+        tokensInput: true,
+        tokensOutput: true,
+        completedAt: true,
+        startedAt: true,
+      },
+    }),
+    db.editFinding.count({
+      where: { bookId, status: "pending" },
+    }),
+  ]);
 
   if (!book) notFound();
 
   const t = getUIStrings(user.preferredLanguage ?? "en");
   const s = t.bookOverview;
 
+  // Progress calculations
+  const totalChapters = book.chapters.length;
+  const statusCounts: Record<string, number> = {};
+  for (const ch of book.chapters) {
+    statusCounts[ch.status] = (statusCounts[ch.status] ?? 0) + 1;
+  }
+
+  const draftedPlus =
+    (statusCounts.drafted ?? 0) +
+    (statusCounts.dev_edited ?? 0) +
+    (statusCounts.line_edited ?? 0) +
+    (statusCounts.beta_read ?? 0) +
+    (statusCounts.beta_passed ?? 0);
+  const editedPlus =
+    (statusCounts.dev_edited ?? 0) +
+    (statusCounts.line_edited ?? 0) +
+    (statusCounts.beta_read ?? 0) +
+    (statusCounts.beta_passed ?? 0);
+  const betaPassedCount = statusCounts.beta_passed ?? 0;
+
+  const pctDrafted = totalChapters > 0 ? Math.round((draftedPlus / totalChapters) * 100) : 0;
+  const pctEdited = totalChapters > 0 ? Math.round((editedPlus / totalChapters) * 100) : 0;
+  const pctPassed = totalChapters > 0 ? Math.round((betaPassedCount / totalChapters) * 100) : 0;
+
+  // Word count target (use targetWordCount field or default)
+  const targetWords = book.targetWordCount ?? 0;
+  const currentWords = book.wordCount;
+  const wordPct = targetWords > 0 ? Math.min(Math.round((currentWords / targetWords) * 100), 100) : 0;
+
+  // Next recommended workflow
+  let nextWorkflowId: string | null = null;
+  let nextWorkflowReason: string = "";
+  const hasFingerprint = book.documents.some((d) => d.type === "FINGERPRINT");
+  const hasBible = book.documents.some((d) => d.type === "STORY_BIBLE");
+  const hasArch = book.documents.some((d) => d.type === "ARCHITECTURE");
+
+  if (!hasFingerprint) {
+    nextWorkflowId = "capture-style";
+    nextWorkflowReason = "Capture your writing style fingerprint to guide all AI agents";
+  } else if (!hasBible) {
+    nextWorkflowId = "create-story-bible";
+    nextWorkflowReason = "Create a Story Bible to define characters, world, and lore";
+  } else if (!hasArch) {
+    nextWorkflowId = "build-architecture";
+    nextWorkflowReason = "Build the narrative architecture and plot structure";
+  } else {
+    const undrafted = book.chapters.find(
+      (ch) => ch.status === "undiscussed" || ch.status === "discussed" || ch.status === "planned"
+    );
+    const needsDevEdit = book.chapters.find((ch) => ch.status === "drafted");
+    const needsLineEdit = book.chapters.find((ch) => ch.status === "dev_edited");
+    const needsBetaRead = book.chapters.find((ch) => ch.status === "line_edited");
+
+    if (needsDevEdit) {
+      nextWorkflowId = "dev-edit";
+      nextWorkflowReason = `Ch. ${needsDevEdit.chapterNumber} is drafted and ready for developmental editing`;
+    } else if (needsLineEdit) {
+      nextWorkflowId = "line-edit";
+      nextWorkflowReason = `Ch. ${needsLineEdit.chapterNumber} is dev-edited and ready for line editing`;
+    } else if (needsBetaRead) {
+      nextWorkflowId = "beta-read";
+      nextWorkflowReason = `Ch. ${needsBetaRead.chapterNumber} is line-edited and ready for beta reading`;
+    } else if (undrafted) {
+      if (undrafted.status === "planned") {
+        nextWorkflowId = "write-chapter";
+        nextWorkflowReason = `Ch. ${undrafted.chapterNumber} is planned and ready to be written`;
+      } else if (undrafted.status === "discussed") {
+        nextWorkflowId = "plan-chapter";
+        nextWorkflowReason = `Ch. ${undrafted.chapterNumber} has been discussed and needs a plan`;
+      } else {
+        nextWorkflowId = "discuss-chapter";
+        nextWorkflowReason = `Ch. ${undrafted.chapterNumber} is ready to be discussed with the AI`;
+      }
+    } else if (pendingFindings > 0) {
+      nextWorkflowId = "discuss-edits";
+      nextWorkflowReason = `${pendingFindings} editorial findings need review`;
+    } else {
+      nextWorkflowId = "publishing-check";
+      nextWorkflowReason = "All chapters complete — run a pre-publication check";
+    }
+  }
+
+  const nextWorkflow = nextWorkflowId ? getWorkflow(nextWorkflowId) : null;
+
   return (
     <div className="p-6 lg:p-8">
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
-        <div>
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-3">
             <h1 className="font-display text-2xl font-bold">{book.name}</h1>
             <Badge variant="secondary" className="capitalize">
@@ -74,25 +191,130 @@ export default async function BookDetailPage({
           )}
           {book.series && (
             <p className="text-sm text-muted-foreground">
-              <Link
-                href={`/series/${book.series.id}`}
-                className="hover:underline"
-              >
+              <Link href={`/series/${book.series.id}`} className="hover:underline">
                 {book.series.title}
               </Link>{" "}
               &mdash; Book #{book.bookNumber}
             </p>
           )}
+          {/* Synopsis */}
+          {book.description && (
+            <p className="text-sm text-muted-foreground mt-2 max-w-2xl">
+              {book.description}
+            </p>
+          )}
         </div>
-        <Button asChild variant="outline" size="sm">
-          <Link href={`/books/${bookId}/settings`}>
-            <SettingsIcon className="mr-1 size-4" />
-            {s.settingsBtn}
-          </Link>
-        </Button>
+        <div className="flex gap-2 shrink-0">
+          <Button asChild variant="outline" size="sm">
+            <Link href={`/books/${bookId}/settings`}>
+              <SettingsIcon className="mr-1 size-4" />
+              {s.settingsBtn}
+            </Link>
+          </Button>
+        </div>
       </div>
 
-      {/* Stats */}
+      {/* Recommended Next Step Banner */}
+      {nextWorkflow && (
+        <Card className="mb-8 border-primary/30 bg-primary/5">
+          <CardContent className="flex items-center justify-between py-4">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="rounded-full bg-primary/10 p-2 shrink-0">
+                <PlayIcon className="size-5 text-primary" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-medium">
+                  Recommended: {nextWorkflow.label}
+                </p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {nextWorkflowReason}
+                </p>
+              </div>
+            </div>
+            <StartWorkflowButton workflowId={nextWorkflowId!} />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Progress Meter + Word Target */}
+      {totalChapters > 0 && (
+        <div className="grid gap-4 lg:grid-cols-2 mb-8">
+          {/* Book Progress Meter */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium">Book Progress</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Drafted</span>
+                  <span className="font-medium">{pctDrafted}%</span>
+                </div>
+                <div className="h-2 rounded-full bg-muted overflow-hidden">
+                  <div className="h-full rounded-full bg-blue-500 transition-all" style={{ width: `${pctDrafted}%` }} />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Edited</span>
+                  <span className="font-medium">{pctEdited}%</span>
+                </div>
+                <div className="h-2 rounded-full bg-muted overflow-hidden">
+                  <div className="h-full rounded-full bg-amber-500 transition-all" style={{ width: `${pctEdited}%` }} />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Beta Passed</span>
+                  <span className="font-medium">{pctPassed}%</span>
+                </div>
+                <div className="h-2 rounded-full bg-muted overflow-hidden">
+                  <div className="h-full rounded-full bg-green-500 transition-all" style={{ width: `${pctPassed}%` }} />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Word Count Target */}
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-medium">Word Count</CardTitle>
+                {targetWords > 0 && (
+                  <TargetIcon className="size-4 text-muted-foreground" />
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {currentWords.toLocaleString()}
+              </div>
+              {targetWords > 0 ? (
+                <div className="mt-2 space-y-1.5">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">
+                      of {targetWords.toLocaleString()} target
+                    </span>
+                    <span className="font-medium">{wordPct}%</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-muted overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-primary transition-all"
+                      style={{ width: `${wordPct}%` }}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Set a target in book settings
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Stats Row */}
       <div className="grid gap-4 sm:grid-cols-3 mb-8">
         <Card>
           <CardHeader className="pb-2">
@@ -128,102 +350,119 @@ export default async function BookDetailPage({
         </Card>
       </div>
 
-      {/* Setup Banner */}
-      {!book.documents.some(
-        (d) => d.type === "STORY_BIBLE" || d.type === "ARCHITECTURE"
-      ) && (
-        <Card className="mb-8 border-dashed border-primary/50 bg-primary/5">
-          <CardContent className="flex items-center justify-between py-4">
-            <div className="flex items-center gap-3">
-              <SparklesIcon className="size-5 text-primary" />
-              <div>
-                <p className="text-sm font-medium">
-                  {s.completeSetup}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {s.setupDescription}
-                </p>
-              </div>
-            </div>
-            <Button asChild size="sm">
-              <Link href={`/books/${bookId}/setup`}>{s.startSetup}</Link>
-            </Button>
-          </CardContent>
-        </Card>
+      {/* Recent Agent Sessions + Pending Findings */}
+      {(recentSessions.length > 0 || pendingFindings > 0) && (
+        <div className="grid gap-4 lg:grid-cols-2 mb-8">
+          {/* Recent Agent Sessions */}
+          {recentSessions.length > 0 && (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium">Recent Agent Sessions</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {recentSessions.map((session) => (
+                  <div
+                    key={session.id}
+                    className="flex items-center gap-2 rounded-md border px-3 py-2"
+                  >
+                    <BotIcon className="size-3.5 text-muted-foreground shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <span className="text-xs font-medium truncate block">
+                        {getWorkflowLabel(session.workflowId)}
+                      </span>
+                      <div className="flex gap-2 text-[10px] text-muted-foreground">
+                        <span>
+                          {((session.tokensInput + session.tokensOutput) / 1000).toFixed(0)}k tok
+                        </span>
+                        {session.startedAt && (
+                          <span>{timeAgo(session.startedAt)}</span>
+                        )}
+                      </div>
+                    </div>
+                    <Badge
+                      variant={session.status === "completed" ? "secondary" : "outline"}
+                      className="text-[10px] capitalize shrink-0"
+                    >
+                      {session.status}
+                    </Badge>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Pending Findings */}
+          {pendingFindings > 0 && (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium">Editorial Findings</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-2xl font-bold">{pendingFindings}</span>
+                    <span className="text-sm text-muted-foreground ml-2">
+                      findings need review
+                    </span>
+                  </div>
+                  <Button asChild size="sm" variant="outline">
+                    <Link href={`/books/${bookId}/editorial`}>
+                      Review
+                    </Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       )}
 
-      {/* Chapters */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-display text-lg font-semibold">{s.chapters}</h2>
-          <Button asChild size="sm">
-            <Link href={`/books/${bookId}/chapters/new`}>
-              <PlusIcon className="mr-1 size-4" />
-              {s.addChapter}
-            </Link>
-          </Button>
-        </div>
-
-        {book.chapters.length === 0 ? (
-          <Card>
-            <CardContent className="py-8 text-center text-sm text-muted-foreground">
-              {s.noChapters}
+      {/* Setup Incomplete Banner */}
+      {!book.settings?.setupComplete && (() => {
+        // Derive step progress server-side
+        const hasChaptersLoaded = book.chapters.length > 0;
+        let stepsDone = 0;
+        if (book.name && book.genre) stepsDone++;
+        if (hasChaptersLoaded) stepsDone++;
+        if (hasFingerprint) stepsDone++;
+        if (hasBible) stepsDone++;
+        if (hasArch) stepsDone++;
+        // reviewComplete is false since setupComplete is falsy
+        return (
+          <Card className="mb-8 border-dashed border-primary/50 bg-primary/5">
+            <CardContent className="flex items-center justify-between py-4">
+              <div className="flex items-center gap-3">
+                <SparklesIcon className="size-5 text-primary" />
+                <div>
+                  <p className="text-sm font-medium">
+                    Setup incomplete &mdash; {stepsDone} of 6 steps done
+                  </p>
+                  <p className="text-xs text-muted-foreground">{s.setupDescription}</p>
+                </div>
+              </div>
+              <Button asChild size="sm">
+                <Link href={`/books/${bookId}/setup`}>Continue setup</Link>
+              </Button>
             </CardContent>
           </Card>
-        ) : (
-          <div className="rounded-md border">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b bg-muted/50">
-                  <th className="px-4 py-2 text-left font-medium">{s.colNum}</th>
-                  <th className="px-4 py-2 text-left font-medium">{s.colTitle}</th>
-                  <th className="px-4 py-2 text-left font-medium">{s.colAct}</th>
-                  <th className="px-4 py-2 text-left font-medium">{s.colStatus}</th>
-                  <th className="px-4 py-2 text-right font-medium">{s.colWords}</th>
-                  <th className="px-4 py-2 text-right font-medium">{s.colAction}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {book.chapters.map((ch) => (
-                  <tr key={ch.id} className="border-b last:border-0">
-                    <td className="px-4 py-2 font-mono text-xs">
-                      {ch.chapterNumber}
-                    </td>
-                    <td className="px-4 py-2">
-                      {ch.title || (
-                        <span className="text-muted-foreground italic">
-                          {s.untitled}
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-2 text-muted-foreground">
-                      {s.act} {ch.actNumber}
-                    </td>
-                    <td className="px-4 py-2">
-                      <Badge
-                        variant={STATUS_COLORS[ch.status] ?? "outline"}
-                        className="text-xs capitalize"
-                      >
-                        {ch.status.replace(/_/g, " ")}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-2 text-right font-mono text-xs">
-                      {ch.wordCount.toLocaleString()}
-                    </td>
-                    <td className="px-4 py-2 text-right">
-                      <Button asChild variant="ghost" size="xs">
-                        <Link href={`/books/${bookId}/chapters/${ch.id}`}>
-                          {s.edit}
-                        </Link>
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+        );
+      })()}
+
+      {/* Chapters: List / Canvas / Pipeline views */}
+      <BookViewSwitcher
+        bookId={bookId}
+        language={book.language}
+        chapters={book.chapters.map((ch) => ({
+          id: ch.id,
+          chapterNumber: ch.chapterNumber,
+          title: ch.title,
+          status: ch.status,
+          wordCount: ch.wordCount,
+          actNumber: ch.actNumber,
+          targetWordCount: ch.targetWordCount,
+        }))}
+        labels={s}
+      />
 
       {/* Documents */}
       {book.documents.length > 0 && (
