@@ -1,18 +1,31 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useFindings } from "@/hooks/use-editorial";
+import type { FindingItem } from "@/hooks/use-editorial";
 import { useEditorialStore } from "@/stores/editorial-store";
+import { useEditorPaneStore } from "@/stores/editor-store";
 import { FindingCard } from "./finding-card";
+
+interface ChapterInfo {
+  id: string;
+  chapterNumber: number;
+  title: string | null;
+  status: string;
+}
 
 interface FindingsPanelProps {
   bookId: string;
+  chapters?: ChapterInfo[];
 }
 
-export function FindingsPanel({ bookId }: FindingsPanelProps) {
+export function FindingsPanel({ bookId, chapters }: FindingsPanelProps) {
+  const router = useRouter();
+  const setScrollToText = useEditorPaneStore("primary", (s) => s.setScrollToText);
   const { filters, selectedChapter, resetFilters } = useEditorialStore();
 
   const queryFilters = {
@@ -34,6 +47,21 @@ export function FindingsPanel({ bookId }: FindingsPanelProps) {
 
   const findings = data?.findings ?? [];
   const total = data?.total ?? 0;
+
+  const handleShowInText = (finding: FindingItem) => {
+    const text = finding.originalText ?? finding.locationStart;
+    if (!text) return;
+
+    // Find the chapter to navigate to
+    const chapter = chapters?.find(
+      (ch) => ch.chapterNumber === finding.chapterNumber
+    );
+    if (!chapter) return;
+
+    // Set the text to scroll to, then navigate to the chapter editor
+    setScrollToText(text);
+    router.push(`/books/${bookId}/chapters/${chapter.id}`);
+  };
 
   if (findings.length === 0) {
     return (
@@ -57,7 +85,12 @@ export function FindingsPanel({ bookId }: FindingsPanelProps) {
       <ScrollArea className="flex-1">
         <div className="space-y-3 p-4">
           {findings.map((finding) => (
-            <FindingCard key={finding.id} finding={finding} bookId={bookId} />
+            <FindingCard
+              key={finding.id}
+              finding={finding}
+              bookId={bookId}
+              onShowInText={chapters ? handleShowInText : undefined}
+            />
           ))}
         </div>
       </ScrollArea>

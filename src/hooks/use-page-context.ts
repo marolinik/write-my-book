@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 import { usePathname } from "next/navigation";
-import { useEditorStore } from "@/stores/editor-store";
+import { useActiveEditorStore } from "@/stores/active-editor-store";
 import { useEditorialStore } from "@/stores/editorial-store";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
 import type { PageContext } from "@/lib/agents/types";
@@ -15,11 +15,11 @@ import type { PageContext } from "@/lib/agents/types";
 export function usePageContext() {
   const pathname = usePathname();
 
-  // Editor state (only populated when the editor is mounted)
-  const editorBookId = useEditorStore((s) => s.bookId);
-  const editorChapterId = useEditorStore((s) => s.chapterId);
-  const editorChapterNumber = useEditorStore((s) => s.chapterNumber);
-  const editorDocumentId = useEditorStore((s) => s.documentId);
+  // Active editor context (synced by primary ManuscriptEditor pane)
+  const editorBookId = useActiveEditorStore((s) => s.bookId);
+  const editorChapterId = useActiveEditorStore((s) => s.chapterId);
+  const editorChapterNumber = useActiveEditorStore((s) => s.chapterNumber);
+  const editorDocumentId = useActiveEditorStore((s) => s.documentId);
 
   // Editorial state
   const editorialSelectedChapter = useEditorialStore((s) => s.selectedChapter);

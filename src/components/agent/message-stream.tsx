@@ -9,6 +9,10 @@ import {
   ShieldQuestionIcon,
   Loader2Icon,
   ChevronDownIcon,
+  ChevronRightIcon,
+  UsersIcon,
+  XCircleIcon,
+  EyeIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +20,30 @@ import { Textarea } from "@/components/ui/textarea";
 import { estimateCost } from "@/lib/cost";
 import { getToolLabel, parseToolInput } from "@/lib/agents/tool-labels";
 import type { AgentStreamMessage, AgentResult } from "@/lib/agents/types";
+import { useEditorPaneStore } from "@/stores/editor-store";
+
+type BlockDesc =
+  | { kind: "text"; text: string; blockKey: number }
+  | { kind: "user"; text: string; blockKey: number }
+  | { kind: "tool"; msg: AgentStreamMessage; blockKey: number }
+  | { kind: "thinking"; text: string; blockKey: number }
+  | { kind: "approval"; msg: AgentStreamMessage; blockKey: number }
+  | { kind: "error"; text: string; blockKey: number }
+  | { kind: "complete"; msg: AgentStreamMessage; blockKey: number }
+  | {
+      kind: "delegation";
+      delegationId: string;
+      agentName: string;
+      agentType: string;
+      task: string;
+      done: boolean;
+      success: boolean;
+      progressItems: AgentStreamMessage[];
+      inputTokens: number;
+      outputTokens: number;
+      findingsCreated: number;
+      blockKey: number;
+    };
 
 interface MessageStreamProps {
   messages: AgentStreamMessage[];
@@ -122,15 +150,6 @@ export function MessageStream({
   }, []);
 
   // Build block descriptors (cheap) — separate from rendering (expensive)
-  type BlockDesc =
-    | { kind: "text"; text: string; blockKey: number }
-    | { kind: "user"; text: string; blockKey: number }
-    | { kind: "tool"; msg: AgentStreamMessage; blockKey: number }
-    | { kind: "thinking"; text: string; blockKey: number }
-    | { kind: "approval"; msg: AgentStreamMessage; blockKey: number }
-    | { kind: "error"; text: string; blockKey: number }
-    | { kind: "complete"; msg: AgentStreamMessage; blockKey: number };
-
   const { blocks, lastExecutingToolMsg } = useMemo(() => {
     // Track which tool_use IDs have received results
     const completedTools = new Set<string>();
@@ -150,6 +169,9 @@ export function MessageStream({
       }
     };
 
+    // Track active delegation blocks by delegationId
+    const delegationBlocks = new Map<string, BlockDesc & { kind: "delegation" }>();
+
     for (const msg of throttledMessages) {
       switch (msg.type) {
         case "text":
@@ -162,10 +184,12 @@ export function MessageStream({
           break;
 
         case "tool_use": {
+          // Hide DelegateToSpecialist tool_use from the stream — the delegation card handles it
+          const toolName = msg.metadata?.tool as string | undefined;
+          if (toolName === "DelegateToSpecialist") break;
           flushText();
           const toolUseId = msg.metadata?.toolUseId as string | undefined;
           const isCompleted = toolUseId ? completedTools.has(toolUseId) : true;
-          // Always show tool blocks — executing ones get spinner, completed get checkmark
           result.push({ kind: "tool", msg: { ...msg, metadata: { ...msg.metadata, _completed: isCompleted } }, blockKey: keyIndex++ });
           break;
         }
@@ -192,6 +216,50 @@ export function MessageStream({
           flushText();
           result.push({ kind: "complete", msg, blockKey: keyIndex++ });
           break;
+
+        case "delegation_start": {
+          flushText();
+          const delegationId = msg.metadata?.delegationId as string ?? `del-${keyIndex}`;
+          const block: BlockDesc & { kind: "delegation" } = {
+            kind: "delegation",
+            delegationId,
+            agentName: msg.metadata?.agentName as string ?? "Specialist",
+            agentType: msg.metadata?.agentType as string ?? "",
+            task: msg.metadata?.task as string ?? "",
+            done: false,
+            success: false,
+            progressItems: [],
+            inputTokens: 0,
+            outputTokens: 0,
+            findingsCreated: 0,
+            blockKey: keyIndex++,
+          };
+          delegationBlocks.set(delegationId, block);
+          result.push(block);
+          break;
+        }
+
+        case "delegation_progress": {
+          const delegationId = msg.metadata?.delegationId as string;
+          const block = delegationId ? delegationBlocks.get(delegationId) : undefined;
+          if (block) {
+            block.progressItems.push(msg);
+          }
+          break;
+        }
+
+        case "delegation_complete": {
+          const delegationId = msg.metadata?.delegationId as string;
+          const block = delegationId ? delegationBlocks.get(delegationId) : undefined;
+          if (block) {
+            block.done = true;
+            block.success = msg.metadata?.success as boolean ?? false;
+            block.inputTokens = msg.metadata?.inputTokens as number ?? 0;
+            block.outputTokens = msg.metadata?.outputTokens as number ?? 0;
+            block.findingsCreated = msg.metadata?.findingsCreated as number ?? 0;
+          }
+          break;
+        }
       }
     }
     flushText();
@@ -242,6 +310,8 @@ export function MessageStream({
         );
       case "complete":
         return <CompletionCard key={`done-${block.blockKey}`} result={block.msg.metadata as unknown as AgentResult} language={language} />;
+      case "delegation":
+        return <DelegationCard key={`del-${block.blockKey}`} block={block} language={language} />;
     }
   });
 
@@ -252,11 +322,11 @@ export function MessageStream({
   const hasVisibleContent = renderedBlocks.length > 0;
 
   return (
-    <div className="relative flex-1 overflow-hidden">
+    <div className="relative flex-1 min-h-0 overflow-hidden">
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="h-full overflow-y-auto p-4"
+        className="h-full overflow-y-auto p-4 pb-6"
       >
         <div className="flex flex-col gap-3">
           {!hasVisibleContent && isRunning && (
@@ -325,9 +395,41 @@ function getThinkingText(language?: string): string {
 // This component just avoids unnecessary re-renders from parent changes.
 
 const MarkdownBlock = memo(function MarkdownBlock({ text }: { text: string }) {
+  const setScrollToText = useEditorPaneStore("primary", (s) => s.setScrollToText);
+
+  // Extract "original text" from diff-like patterns:
+  // Lines starting with "- " followed by lines starting with "+ "
+  const diffOriginalTexts = useMemo(() => {
+    const results: string[] = [];
+    const lines = text.split("\n");
+    for (let i = 0; i < lines.length - 1; i++) {
+      const line = lines[i].trim();
+      const nextLine = lines[i + 1].trim();
+      if (line.startsWith("- ") && nextLine.startsWith("+ ")) {
+        const original = line.slice(2).trim();
+        if (original.length > 3) results.push(original);
+      }
+    }
+    return results;
+  }, [text]);
+
   return (
     <div className="agent-prose text-sm leading-relaxed">
       <ReactMarkdown remarkPlugins={[remarkGfm]}>{text}</ReactMarkdown>
+      {diffOriginalTexts.length > 0 && (
+        <div className="mt-1.5 flex flex-wrap gap-1.5">
+          {diffOriginalTexts.slice(0, 3).map((original, i) => (
+            <button
+              key={i}
+              onClick={() => setScrollToText(original)}
+              className="inline-flex items-center gap-1 text-[11px] text-primary hover:text-primary/80 transition-colors"
+            >
+              <EyeIcon className="size-3" />
+              Show in text
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 });
@@ -430,22 +532,60 @@ function ApprovalCard({
   >(null);
   const [modifyText, setModifyText] = useState("");
   const [showModify, setShowModify] = useState(false);
+  const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
 
   const approvalId = message.metadata?.approvalId as string;
   const title = message.metadata?.approvalTitle as string | undefined;
+  const approvalDeadline = message.metadata?.approvalDeadline as number | undefined;
+
+  // Countdown timer
+  useEffect(() => {
+    if (!approvalDeadline || decision) return;
+    const tick = () => {
+      const remaining = Math.max(0, Math.round((approvalDeadline - Date.now()) / 1000));
+      setRemainingSeconds(remaining);
+    };
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [approvalDeadline, decision]);
+
+  const timedOut = remainingSeconds === 0;
 
   const handleDecision = (d: "approve" | "reject" | "modify") => {
-    if (!onApprove || !approvalId) return;
+    if (!onApprove || !approvalId || timedOut) return;
     onApprove(approvalId, d, d === "modify" ? modifyText : undefined);
     setDecision(d);
+  };
+
+  const formatCountdown = (secs: number): string => {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
   return (
     <div className="flex flex-col gap-2 rounded-md border border-yellow-500/30 bg-yellow-50/50 p-3 dark:bg-yellow-950/20">
       <div className="flex items-start gap-2">
         <ShieldQuestionIcon className="mt-0.5 size-4 shrink-0 text-yellow-600" />
-        <div className="flex flex-col gap-1 min-w-0">
-          {title && <span className="text-sm font-medium">{title}</span>}
+        <div className="flex flex-col gap-1 min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-2">
+            {title && <span className="text-sm font-medium">{title}</span>}
+            {!decision && remainingSeconds !== null && (
+              <Badge
+                variant="outline"
+                className={`shrink-0 tabular-nums text-xs ${
+                  timedOut
+                    ? "text-red-600 border-red-200"
+                    : remainingSeconds < 60
+                      ? "text-red-500 border-red-200"
+                      : "text-muted-foreground"
+                }`}
+              >
+                {timedOut ? "Timed Out" : formatCountdown(remainingSeconds)}
+              </Badge>
+            )}
+          </div>
           <div className="agent-prose text-sm text-muted-foreground">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {message.content}
@@ -454,7 +594,7 @@ function ApprovalCard({
         </div>
       </div>
 
-      {!decision && onApprove && (
+      {!decision && !timedOut && onApprove && (
         <div className="flex flex-col gap-2">
           {showModify && (
             <Textarea
@@ -497,6 +637,11 @@ function ApprovalCard({
         </div>
       )}
 
+      {timedOut && !decision && (
+        <Badge variant="outline" className="w-fit text-red-600 border-red-200">
+          Timed Out
+        </Badge>
+      )}
       {decision === "approve" && (
         <Badge variant="outline" className="w-fit text-green-600 border-green-200">
           Approved
@@ -511,6 +656,85 @@ function ApprovalCard({
         <Badge variant="outline" className="w-fit text-yellow-600 border-yellow-200">
           Modified
         </Badge>
+      )}
+    </div>
+  );
+}
+
+// ─── Delegation card ────────────────────────────────────────
+
+type DelegationBlockDesc = Extract<BlockDesc, { kind: "delegation" }>;
+
+function DelegationCard({
+  block,
+  language,
+}: {
+  block: DelegationBlockDesc;
+  language?: string;
+}) {
+  const [expanded, setExpanded] = useState(false);
+
+  // Count tool_use progress items for a compact summary
+  const toolCalls = block.progressItems.filter(
+    (m) => m.metadata?.originalType === "tool_use"
+  );
+
+  return (
+    <div className="flex flex-col rounded-md border border-blue-500/30 bg-blue-50/50 p-3 dark:bg-blue-950/20">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="flex items-center gap-2 text-left w-full"
+      >
+        {block.done ? (
+          block.success ? (
+            <CheckCircleIcon className="size-4 shrink-0 text-green-500" />
+          ) : (
+            <XCircleIcon className="size-4 shrink-0 text-red-500" />
+          )
+        ) : (
+          <Loader2Icon className="size-4 shrink-0 animate-spin text-blue-500" />
+        )}
+        <UsersIcon className="size-3.5 shrink-0 text-blue-500" />
+        <span className="text-sm font-medium flex-1">{block.agentName}</span>
+        {block.done && (
+          <span className="text-xs text-muted-foreground tabular-nums">
+            {block.inputTokens.toLocaleString()} / {block.outputTokens.toLocaleString()} tokens
+          </span>
+        )}
+        {!block.done && toolCalls.length > 0 && (
+          <span className="text-xs text-muted-foreground">
+            {toolCalls.length} {toolCalls.length === 1 ? "step" : "steps"}
+          </span>
+        )}
+        <ChevronRightIcon
+          className={`size-3.5 text-muted-foreground transition-transform ${expanded ? "rotate-90" : ""}`}
+        />
+      </button>
+
+      {expanded && (
+        <div className="mt-2 flex flex-col gap-1 pl-6 border-l border-blue-200 dark:border-blue-800 ml-2">
+          {block.task && (
+            <p className="text-xs text-muted-foreground italic mb-1">{block.task}</p>
+          )}
+          {toolCalls.map((m, i) => {
+            const toolName = m.metadata?.tool as string | undefined;
+            const isToolDone = m.metadata?.originalType === "tool_use";
+            const label = toolName
+              ? getToolLabel(toolName, parseToolInput(m), language)
+              : m.content;
+            return (
+              <div key={i} className="flex items-center gap-1.5 text-xs text-muted-foreground/70">
+                <CheckCircleIcon className="size-2.5 text-green-500/60" />
+                <span>{label}</span>
+              </div>
+            );
+          })}
+          {block.done && block.findingsCreated > 0 && (
+            <div className="text-xs text-muted-foreground mt-1">
+              {block.findingsCreated} {block.findingsCreated === 1 ? "finding" : "findings"} created
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
