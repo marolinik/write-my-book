@@ -10,10 +10,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useAgentStore } from "@/stores/agent-store";
+import { useAgentUIStore } from "@/stores/agent-ui-store";
 
 export function MarketTab({ bookId }: { bookId: string }) {
-  const openWithWorkflow = useAgentStore((s) => s.openWithWorkflow);
+  const openWithWorkflow = useAgentUIStore((s) => s.openWithWorkflow);
 
   const { data: documents, isLoading } = useQuery({
     queryKey: ["book-documents", bookId],

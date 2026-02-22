@@ -3,7 +3,9 @@
 import { use } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/components/providers/language-provider";
+import { useAgentUIStore } from "@/stores/agent-ui-store";
 import {
   AnalyticsTab,
   ContinuityTab,
@@ -11,6 +13,7 @@ import {
   EditsOverviewTab,
   DocumentsTab,
 } from "@/components/reports";
+import { SparklesIcon, DownloadIcon } from "lucide-react";
 
 export default function ReportsPage({
   params,
@@ -20,15 +23,30 @@ export default function ReportsPage({
   const { bookId } = use(params);
   const { t } = useLanguage();
   const s = t.reports;
+  const openWithWorkflow = useAgentUIStore((st) => st.openWithWorkflow);
 
   return (
     <div className="p-6 lg:p-8">
-      <h1 className="font-display text-3xl font-semibold tracking-tight">
-        {s.title}
-      </h1>
-      <p className="text-muted-foreground">
-        {s.subtitle}
-      </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="font-display text-3xl font-semibold tracking-tight">
+            {s.title}
+          </h1>
+          <p className="text-muted-foreground">
+            {s.subtitle}
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => openWithWorkflow("analyze")}
+          >
+            <SparklesIcon className="mr-1.5 size-3.5" />
+            Generate Reports
+          </Button>
+        </div>
+      </div>
 
       <Separator className="my-6" />
 

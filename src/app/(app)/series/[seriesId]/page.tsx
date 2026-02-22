@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSeriesDetail } from "@/hooks/use-series";
-import { useAgentStore } from "@/stores/agent-store";
+import { useAgentUIStore } from "@/stores/agent-ui-store";
 import { useLanguage } from "@/components/providers/language-provider";
 import { SeriesBookManager } from "@/components/series/series-book-manager";
 import { SeriesDocumentsPanel } from "@/components/series/series-documents-panel";
@@ -48,7 +48,7 @@ export default function SeriesDetailPage() {
   const [activeTab, setActiveTab] = useState<Tab>("overview");
 
   const { data: series, isLoading } = useSeriesDetail(seriesId);
-  const openWithWorkflow = useAgentStore((s) => s.openWithWorkflow);
+  const openWithWorkflow = useAgentUIStore((s) => s.openWithWorkflow);
   const { t } = useLanguage();
 
   if (isLoading) {

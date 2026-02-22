@@ -39,7 +39,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAgentStore } from "@/stores/agent-store";
+import { useAgentUIStore } from "@/stores/agent-ui-store";
+import { useAgentSessionStore } from "@/stores/agent-session-store";
 import { useBook, useUpdateBook } from "@/hooks/use-books";
 import { useBookState, getFirstIncompleteStep, getCompletedStepCount } from "@/hooks/use-book-state";
 import { useLanguage } from "@/components/providers/language-provider";
@@ -59,8 +60,8 @@ export default function SetupPage({
   const [currentStep, setCurrentStep] = useState(0);
   const [hasAutoResumed, setHasAutoResumed] = useState(false);
   const [confirmWorkflow, setConfirmWorkflow] = useState<string | null>(null);
-  const openWithWorkflow = useAgentStore((st) => st.openWithWorkflow);
-  const sessions = useAgentStore((st) => st.sessions);
+  const openWithWorkflow = useAgentUIStore((st) => st.openWithWorkflow);
+  const sessions = useAgentSessionStore((st) => st.sessions);
   const { data: book } = useBook(bookId);
   const updateBook = useUpdateBook(bookId);
   const bookState = useBookState(bookId);

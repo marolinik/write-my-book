@@ -3,7 +3,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useAgentStore } from "@/stores/agent-store";
+import { useAgentUIStore } from "@/stores/agent-ui-store";
 import type { PageContext } from "@/lib/agents/types";
 
 /** Start a new agent session. Automatically includes the current page context. */
@@ -20,7 +20,7 @@ export function useStartSession(bookId: string) {
       // Read pageContext from store if not explicitly provided
       const ctx = data.pageContext !== undefined
         ? data.pageContext
-        : useAgentStore.getState().pageContext;
+        : useAgentUIStore.getState().pageContext;
 
       const res = await fetch(`/api/books/${bookId}/agent`, {
         method: "POST",
@@ -88,7 +88,7 @@ export function useSendMessage(bookId: string, sessionId: string | null) {
   return useMutation({
     mutationFn: async (message: string) => {
       if (!sessionId) throw new Error("No active session");
-      const ctx = useAgentStore.getState().pageContext;
+      const ctx = useAgentUIStore.getState().pageContext;
 
       const res = await fetch(
         `/api/books/${bookId}/agent/${sessionId}/message`,

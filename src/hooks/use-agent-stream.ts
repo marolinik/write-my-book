@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useAgentStore, type SessionState, type SessionResultMeta } from "@/stores/agent-store";
+import { useAgentSessionStore, type SessionState, type SessionResultMeta } from "@/stores/agent-session-store";
 import type { AgentStreamMessage, AgentResult } from "@/lib/agents/types";
 
 /**
@@ -15,10 +15,10 @@ export function useAgentStream(bookId: string | null) {
     new Set()
   );
   const eventSourcesRef = useRef<Map<string, EventSource>>(new Map());
-  const sessions = useAgentStore((s) => s.sessions);
-  const addMessage = useAgentStore((s) => s.addMessage);
-  const setSessionComplete = useAgentStore((s) => s.setSessionComplete);
-  const setSessionError = useAgentStore((s) => s.setSessionError);
+  const sessions = useAgentSessionStore((s) => s.sessions);
+  const addMessage = useAgentSessionStore((s) => s.addMessage);
+  const setSessionComplete = useAgentSessionStore((s) => s.setSessionComplete);
+  const setSessionError = useAgentSessionStore((s) => s.setSessionError);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -110,7 +110,7 @@ export function useAgentStream(bookId: string | null) {
         // The onmessage handler may have already set the real error before
         // the SSE connection closed, so we only set a generic fallback
         // if no error was already recorded.
-        const currentState = useAgentStore.getState();
+        const currentState = useAgentSessionStore.getState();
         const s = currentState.sessions[sid];
         if (s && s.status === "running") {
           setSessionError(

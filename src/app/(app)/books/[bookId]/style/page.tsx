@@ -25,7 +25,7 @@ import {
 import { useStyleProfile } from "@/hooks/use-style";
 import { useLanguage } from "@/components/providers/language-provider";
 import { StyleProfileViewer } from "@/components/style/style-profile-viewer";
-import { useAgentStore } from "@/stores/agent-store";
+import { useAgentUIStore } from "@/stores/agent-ui-store";
 
 export default function StylePage({
   params,
@@ -36,7 +36,7 @@ export default function StylePage({
   const searchParams = useSearchParams();
   const fromSetup = searchParams.get("from") === "setup";
   const { data, isLoading } = useStyleProfile(bookId);
-  const openWithWorkflow = useAgentStore((s) => s.openWithWorkflow);
+  const openWithWorkflow = useAgentUIStore((s) => s.openWithWorkflow);
   const { t } = useLanguage();
   const s = t.stylePage;
 

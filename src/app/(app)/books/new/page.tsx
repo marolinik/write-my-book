@@ -14,7 +14,7 @@ import { useCreateBook } from "@/hooks/use-books";
 import { useSeries } from "@/hooks/use-series";
 import { useLanguage } from "@/components/providers/language-provider";
 import { SUPPORTED_LANGUAGES } from "@/lib/i18n/ui-strings";
-import { useAgentStore } from "@/stores/agent-store";
+import { useAgentUIStore } from "@/stores/agent-ui-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,7 +40,7 @@ export default function NewBookPage() {
   const { t } = useLanguage();
   const createBook = useCreateBook();
   const { data: seriesList } = useSeries();
-  const openWithWorkflow = useAgentStore((st) => st.openWithWorkflow);
+  const openWithWorkflow = useAgentUIStore((st) => st.openWithWorkflow);
 
   const [phase, setPhase] = useState<PagePhase>("create");
   const [createdBookId, setCreatedBookId] = useState<string | null>(null);

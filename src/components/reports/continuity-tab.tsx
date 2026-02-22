@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { useAgentStore } from "@/stores/agent-store";
+import { useAgentUIStore } from "@/stores/agent-ui-store";
 
 interface Finding {
   id: string;
@@ -87,7 +87,7 @@ function categorizeFinding(category: string): string {
 }
 
 export function ContinuityTab({ bookId }: { bookId: string }) {
-  const openWithWorkflow = useAgentStore((s) => s.openWithWorkflow);
+  const openWithWorkflow = useAgentUIStore((s) => s.openWithWorkflow);
   const [selectedDomain, setSelectedDomain] = useState<string | null>(null);
 
   const { data: documents, isLoading: docsLoading } = useQuery({

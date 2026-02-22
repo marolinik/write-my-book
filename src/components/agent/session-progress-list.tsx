@@ -4,15 +4,17 @@ import {
   Loader2Icon,
   CheckCircleIcon,
   XCircleIcon,
+  XIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useAgentStore, type SessionState } from "@/stores/agent-store";
+import { useAgentSessionStore, type SessionState } from "@/stores/agent-session-store";
 import { getWorkflow } from "@/lib/agents/workflows";
 
 export function SessionProgressList() {
-  const sessions = useAgentStore((s) => s.sessions);
-  const activeSessionId = useAgentStore((s) => s.activeSessionId);
-  const setActiveSession = useAgentStore((s) => s.setActiveSession);
+  const sessions = useAgentSessionStore((s) => s.sessions);
+  const activeSessionId = useAgentSessionStore((s) => s.activeSessionId);
+  const setActiveSession = useAgentSessionStore((s) => s.setActiveSession);
+  const removeSession = useAgentSessionStore((s) => s.removeSession);
 
   const sessionList = Object.values(sessions);
   if (sessionList.length <= 1) return null;
@@ -25,10 +27,10 @@ export function SessionProgressList() {
   ).length;
 
   return (
-    <div className="border-b px-3 py-2 space-y-1.5">
+    <div className="border-b px-3 py-2 space-y-1.5 shrink-0">
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>
-          {completedCount} of {sessionList.length} agents complete
+          {completedCount} of {sessionList.length} sessions complete
         </span>
         {runningCount > 0 && (
           <span className="flex items-center gap-1">
@@ -46,38 +48,55 @@ export function SessionProgressList() {
             lastMessage?.type === "text"
               ? lastMessage.content.slice(0, 60)
               : null;
+          const canDismiss = session.status !== "running";
 
           return (
-            <button
+            <div
               key={session.sessionId}
-              onClick={() => setActiveSession(session.sessionId)}
               className={cn(
-                "flex items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs transition-colors",
+                "flex items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs transition-colors group",
                 isActive
                   ? "bg-primary/10 border border-primary/20"
                   : "hover:bg-muted"
               )}
             >
-              {session.status === "running" && (
-                <Loader2Icon className="size-3 animate-spin text-primary shrink-0" />
-              )}
-              {session.status === "completed" && (
-                <CheckCircleIcon className="size-3 text-green-600 shrink-0" />
-              )}
-              {session.status === "failed" && (
-                <XCircleIcon className="size-3 text-destructive shrink-0" />
-              )}
-              <div className="min-w-0 flex-1">
-                <span className="font-medium block truncate">
-                  {wf?.label ?? session.workflowId}
-                </span>
-                {preview && (
-                  <span className="text-[10px] text-muted-foreground block truncate">
-                    {preview}
-                  </span>
+              <button
+                onClick={() => setActiveSession(session.sessionId)}
+                className="flex items-center gap-2 min-w-0 flex-1"
+              >
+                {session.status === "running" && (
+                  <Loader2Icon className="size-3 animate-spin text-primary shrink-0" />
                 )}
-              </div>
-            </button>
+                {session.status === "completed" && (
+                  <CheckCircleIcon className="size-3 text-green-600 shrink-0" />
+                )}
+                {session.status === "failed" && (
+                  <XCircleIcon className="size-3 text-destructive shrink-0" />
+                )}
+                <div className="min-w-0 flex-1">
+                  <span className="font-medium block truncate">
+                    {wf?.label ?? session.workflowId}
+                  </span>
+                  {preview && (
+                    <span className="text-[10px] text-muted-foreground block truncate">
+                      {preview}
+                    </span>
+                  )}
+                </div>
+              </button>
+              {canDismiss && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeSession(session.sessionId);
+                  }}
+                  className="shrink-0 size-5 flex items-center justify-center rounded hover:bg-muted-foreground/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                  title="Dismiss session"
+                >
+                  <XIcon className="size-3 text-muted-foreground" />
+                </button>
+              )}
+            </div>
           );
         })}
       </div>

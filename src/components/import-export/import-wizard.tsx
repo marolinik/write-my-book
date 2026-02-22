@@ -10,7 +10,7 @@ import {
   type PreviewChapter,
 } from "./chapter-preview-list";
 import { useImportPreview, useImportConfirm } from "@/hooks/use-import";
-import { useAgentStore } from "@/stores/agent-store";
+import { useAgentUIStore } from "@/stores/agent-ui-store";
 import {
   CheckCircleIcon,
   Loader2Icon,
@@ -46,7 +46,7 @@ export function ImportWizard({ bookId, onComplete, autoAnalyze = true }: ImportW
 
   const previewMutation = useImportPreview(bookId);
   const confirmMutation = useImportConfirm(bookId);
-  const openWithWorkflow = useAgentStore((st) => st.openWithWorkflow);
+  const openWithWorkflow = useAgentUIStore((st) => st.openWithWorkflow);
 
   const handleFilesSelected = useCallback(
     (files: File[]) => {

@@ -26,7 +26,8 @@ import { useQuery } from "@tanstack/react-query";
 import { getToolLabel, parseToolInput } from "@/lib/agents/tool-labels";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useAgentStore } from "@/stores/agent-store";
+import { useAgentSessionStore } from "@/stores/agent-session-store";
+import { useAgentUIStore } from "@/stores/agent-ui-store";
 import { useAgentStream } from "@/hooks/use-agent-stream";
 import { useApiKeys } from "@/hooks/use-api-keys";
 import { useBook } from "@/hooks/use-books";
@@ -95,18 +96,19 @@ export function AgentPanel({
   onClose,
   seriesId,
 }: AgentPanelProps) {
-  const sessions = useAgentStore((s) => s.sessions);
-  const activeSessionId = useAgentStore((s) => s.activeSessionId);
-  const pendingWorkflowId = useAgentStore((s) => s.pendingWorkflowId);
-  const pendingMessage = useAgentStore((s) => s.pendingMessage);
-  const clearPendingMessage = useAgentStore((s) => s.clearPendingMessage);
-  const startSessionStore = useAgentStore((s) => s.startSession);
-  const clearPendingWorkflow = useAgentStore((s) => s.clearPendingWorkflow);
-  const reset = useAgentStore((s) => s.reset);
-  const panelMode = useAgentStore((s) => s.panelMode);
-  const setPanelMode = useAgentStore((s) => s.setPanelMode);
+  const sessions = useAgentSessionStore((s) => s.sessions);
+  const activeSessionId = useAgentSessionStore((s) => s.activeSessionId);
+  const pendingWorkflowId = useAgentUIStore((s) => s.pendingWorkflowId);
+  const pendingMessage = useAgentUIStore((s) => s.pendingMessage);
+  const clearPendingMessage = useAgentUIStore((s) => s.clearPendingMessage);
+  const startSessionStore = useAgentSessionStore((s) => s.startSession);
+  const clearPendingWorkflow = useAgentUIStore((s) => s.clearPendingWorkflow);
+  const resetSession = useAgentSessionStore((s) => s.reset);
+  const resetUI = useAgentUIStore((s) => s.reset);
+  const panelMode = useAgentUIStore((s) => s.panelMode);
+  const setPanelMode = useAgentUIStore((s) => s.setPanelMode);
 
-  const popQueue = useAgentStore((s) => s.popQueue);
+  const popQueue = useAgentSessionStore((s) => s.popQueue);
 
   const activeSession = activeSessionId ? sessions[activeSessionId] : undefined;
   const sessionId = activeSession?.sessionId ?? null;
@@ -229,7 +231,7 @@ export function AgentPanel({
     [handleWorkflowSelect]
   );
 
-  const setSessionRunning = useAgentStore((s) => s.setSessionRunning);
+  const setSessionRunning = useAgentSessionStore((s) => s.setSessionRunning);
 
   const handleSend = useCallback(
     async (message: string) => {
@@ -260,11 +262,12 @@ export function AgentPanel({
   }, [cancelMutation]);
 
   const handleNewWorkflow = useCallback(() => {
-    reset();
+    resetSession();
+    resetUI();
     setShowAllWorkflows(false);
     setShowSessionHistory(false);
     setSelectedJourneyId(null);
-  }, [reset]);
+  }, [resetSession, resetUI]);
 
   const handleStartQueue = useCallback(() => {
     const next = popQueue();
@@ -386,7 +389,7 @@ export function AgentPanel({
 
     // Auto-chain: if a session just completed and queue has items and nothing else is running
     if (justCompleted) {
-      const storeState = useAgentStore.getState();
+      const storeState = useAgentSessionStore.getState();
       const anyRunning = Object.values(storeState.sessions).some(
         (s) => s.status === "running"
       );
@@ -394,7 +397,7 @@ export function AgentPanel({
         // Clear any previous timer
         if (queueTimerRef.current) clearTimeout(queueTimerRef.current);
         queueTimerRef.current = setTimeout(() => {
-          const next = useAgentStore.getState().popQueue();
+          const next = useAgentSessionStore.getState().popQueue();
           if (next) {
             toast.info("Starting next workflow from queue...");
             handleWorkflowSelectRef.current(next.workflowId, next.chapterNumber);
