@@ -1,3 +1,41 @@
+// ─── Structured Voice Fingerprint ────────────────────────────
+
+export interface StructuredFingerprint {
+  sentenceLength: {
+    mean: number;
+    median: number;
+    stdDev: number;
+    distribution: "clustered" | "bimodal" | "varied";
+  };
+  vocabularyRichness: {
+    typeTokenRatio: number;
+    hapaxRate: number;
+    register: "literary" | "conversational" | "academic" | "genre-specific";
+  };
+  dialogueRatio: number;
+  paragraphLength: {
+    mean: number;
+    median: number;
+    singleSentenceRate: number;
+  };
+  punctuation: {
+    emDashFrequency: "heavy" | "moderate" | "light" | "none";
+    semicolonUsage: "frequent" | "rare" | "absent";
+    ellipsisFrequency: "heavy" | "moderate" | "light" | "none";
+  };
+  narrativeDistance: "intimate" | "close" | "moderate" | "distant" | "omniscient";
+  metaphorDomains: string[];
+  pov: string;
+}
+
+export interface CalibrationSample {
+  passage: string;
+  why: string;
+  features: string[];
+}
+
+// ─── Agent Types ────────────────────────────────────────────
+
 export type AgentType =
   | "writing-coach"
   | "ghostwriter"

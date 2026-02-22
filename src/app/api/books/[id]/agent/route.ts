@@ -3,7 +3,10 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { decryptApiKey } from "@/lib/encryption";
 import { estimateCost } from "@/lib/cost";
+import { checkQuota, getSessionCostLimit } from "@/lib/billing/quota-checker";
+import { createLLMClient, getModelDef, resolveFromTier } from "@/lib/llm";
 import { z } from "zod";
+import { pageContextSchema } from "@/lib/validation";
 import {
   AgentOrchestrator,
   getWorkflow,
@@ -11,8 +14,15 @@ import {
   createSession,
   pushMessage,
   completeSession,
+  validatePrerequisites,
 } from "@/lib/agents";
-import type { AgentStreamMessage, AgentResult } from "@/lib/agents";
+import type {
+  AgentStreamMessage,
+  AgentResult,
+  AgentType,
+  SharedCostTracker,
+  DelegationContext,
+} from "@/lib/agents";
 import { processPostSession } from "@/lib/agents";
 
 type RouteParams = { params: Promise<{ id: string }> };
@@ -21,6 +31,7 @@ const startSessionSchema = z.object({
   workflowId: z.string().min(1),
   chapterNumber: z.number().int().min(1).max(999).optional(),
   message: z.string().max(10000).optional(),
+  pageContext: pageContextSchema,
 });
 
 /** POST /api/books/:id/agent — start a new agent session. */
@@ -49,72 +60,136 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Get the agent definition
-    const agentDef = getAgentDefinition(workflow.primaryAgent);
-    if (!agentDef) {
+    // Always spawn the Writing Coach as the user-facing agent
+    const coachDef = getAgentDefinition("writing-coach");
+    if (!coachDef) {
       return NextResponse.json(
-        { error: "Unknown agent type" },
-        { status: 400 }
+        { error: "Writing Coach agent not found" },
+        { status: 500 }
       );
     }
+    // Keep reference to the original workflow's primary agent for context
+    const agentDef = coachDef;
 
-    // Resolve API key
-    let apiKey: string | undefined;
-    const userKey = await db.apiKey.findFirst({
-      where: { userId: user.id, provider: "anthropic", isDefault: true },
-    });
-    if (userKey) {
-      apiKey = decryptApiKey(userKey.encryptedKey);
-    } else if (process.env.ANTHROPIC_API_KEY) {
-      apiKey = process.env.ANTHROPIC_API_KEY;
-    }
-
-    if (!apiKey) {
+    // Validate workflow prerequisites
+    const prereqResult = await validatePrerequisites(
+      data.workflowId,
+      bookId,
+      data.chapterNumber
+    );
+    if (!prereqResult.satisfied) {
       return NextResponse.json(
         {
-          error: "No Anthropic API key configured. Add one in Settings.",
+          error: "Prerequisites not met",
+          missing: prereqResult.missing,
         },
-        { status: 400 }
+        { status: 422 }
       );
     }
 
-    // Determine model tier based on book settings
+    // Check monthly usage quota
+    const quotaResult = await checkQuota(user.id, "use_agent_session");
+    if (!quotaResult.allowed) {
+      return NextResponse.json(
+        { error: quotaResult.reason },
+        { status: 429 }
+      );
+    }
+
+    // Get per-session cost limit based on plan
+    const sessionCostLimit = await getSessionCostLimit(user.id);
+
+    // ── Model Resolution ──────────────────────────────────────────
+    // The Coach always runs on Opus. Specialists get their models resolved
+    // at delegation time via the createSpecialistClient factory.
     const settings = book.settings;
-    let modelTier = agentDef.defaultModel;
-    if (settings) {
-      const agentType = workflow.primaryAgent;
-      if (agentType === "ghostwriter" && settings.modelGhostwriter) {
-        modelTier = settings.modelGhostwriter as "opus" | "sonnet";
-      } else if (
-        ["dev-editor", "line-editor", "continuity-checker"].includes(agentType) &&
-        settings.modelEditor
-      ) {
-        modelTier = settings.modelEditor as "opus" | "sonnet" | "haiku";
-      } else if (agentType === "beta-reader" && settings.modelBetaReader) {
-        modelTier = settings.modelBetaReader as "opus" | "sonnet" | "haiku";
-      } else if (agentType === "manuscript-analyst" && settings.modelAnalyst) {
-        modelTier = settings.modelAnalyst as "sonnet" | "haiku";
-      } else if (agentType === "writing-coach" && settings.modelCoach) {
-        modelTier = settings.modelCoach as "opus" | "sonnet";
-      } else if (
-        ["style-analyst", "story-architect", "scene-planner"].includes(agentType) &&
-        settings.modelCreative
-      ) {
-        modelTier = settings.modelCreative as "opus" | "sonnet";
-      } else if (
-        ["manuscript-reader", "world-researcher", "market-reader", "publishing-editor"].includes(agentType) &&
-        settings.modelResearch
-      ) {
-        modelTier = settings.modelResearch as "opus" | "sonnet" | "haiku";
+
+    // Load user's default model for provider preference
+    const dbUser = await db.user.findUnique({
+      where: { id: user.id },
+      select: { defaultModel: true },
+    });
+    const userDefault = dbUser?.defaultModel ?? "anthropic/sonnet";
+    const userProvider = userDefault.startsWith("openrouter/") ? "openrouter" : "anthropic";
+
+    // Coach always uses Opus
+    const registryId = `${userProvider}/opus`;
+    const modelDef = getModelDef(registryId) ?? resolveFromTier(registryId);
+
+    // ── API Key Resolution ──────────────────────────────────────
+    let anthropicApiKey: string | undefined;
+    let openrouterApiKey: string | undefined;
+
+    if (modelDef.provider === "openrouter") {
+      const orKey = await db.apiKey.findFirst({
+        where: { userId: user.id, provider: "openrouter", isDefault: true },
+      });
+      if (orKey) {
+        openrouterApiKey = decryptApiKey(orKey.encryptedKey);
+      } else if (process.env.OPENROUTER_API_KEY) {
+        openrouterApiKey = process.env.OPENROUTER_API_KEY;
+      }
+
+      if (!openrouterApiKey) {
+        return NextResponse.json(
+          { error: "No OpenRouter API key configured. Add one in Settings." },
+          { status: 400 }
+        );
+      }
+    } else {
+      const antKey = await db.apiKey.findFirst({
+        where: { userId: user.id, provider: "anthropic", isDefault: true },
+      });
+      if (antKey) {
+        anthropicApiKey = decryptApiKey(antKey.encryptedKey);
+      } else if (process.env.ANTHROPIC_API_KEY) {
+        anthropicApiKey = process.env.ANTHROPIC_API_KEY;
+      }
+
+      if (!anthropicApiKey) {
+        return NextResponse.json(
+          { error: "No Anthropic API key configured. Add one in Settings." },
+          { status: 400 }
+        );
       }
     }
 
-    // Create DB session record
+    // ── Build Coach LLM Client ──────────────────────────────────
+    const { client, model } = createLLMClient({
+      modelId: registryId,
+      anthropicApiKey,
+      openrouterApiKey,
+    });
+
+    // ── Specialist Client Factory ─────────────────────────────
+    // The Coach delegates to specialists at runtime. This factory
+    // resolves the specialist's model tier and creates an LLM client
+    // using the same provider preference and API keys.
+    const createSpecialistClient = async (agentType: AgentType) => {
+      const specialistDef = getAgentDefinition(agentType);
+      if (!specialistDef) throw new Error(`Unknown specialist: ${agentType}`);
+      const specialistRegistryId = `${userProvider}/${specialistDef.defaultModel}`;
+      const specialistModel = getModelDef(specialistRegistryId) ?? resolveFromTier(specialistRegistryId);
+      const { client: specialistClient } = createLLMClient({
+        modelId: specialistRegistryId,
+        anthropicApiKey,
+        openrouterApiKey,
+      });
+      return {
+        client: specialistClient,
+        modelId: specialistModel.modelId,
+        registryId: specialistModel.id,
+      };
+    };
+
+    // Create DB session record — always writing-coach as the user-facing agent
     const dbSession = await db.agentSession.create({
       data: {
         bookId,
         userId: user.id,
-        agentType: workflow.primaryAgent,
+        agentType: "writing-coach",
+        workflowId: data.workflowId,
+        chapterNumber: data.chapterNumber ?? null,
         status: "running",
       },
     });
@@ -124,32 +199,67 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       dbSession.id,
       bookId,
       user.id,
-      workflow.primaryAgent,
+      "writing-coach",
       data.workflowId
     );
 
+    // ── Shared Cost Tracker ───────────────────────────────────
+    const sharedCostTracker: SharedCostTracker = {
+      totalInputTokens: 0,
+      totalOutputTokens: 0,
+    };
+
+    // ── Delegation Context ────────────────────────────────────
+    const onMessage = (message: AgentStreamMessage) => {
+      pushMessage(dbSession.id, message);
+    };
+
+    const delegationContext: DelegationContext = {
+      parentSessionId: dbSession.id,
+      parentOnMessage: onMessage,
+      sharedCostTracker,
+      language: book.language ?? "en",
+      chapterNumber: data.chapterNumber,
+      createSpecialistClient,
+    };
+
     // Spawn orchestrator (fire and forget)
-    const orchestrator = new AgentOrchestrator(apiKey);
+    const orchestrator = new AgentOrchestrator({
+      client,
+      modelId: model.modelId,
+      registryId: model.id,
+      maxSessionCostUsd: sessionCostLimit,
+      sharedCostTracker,
+      delegationContext,
+    });
     session.orchestrator = orchestrator;
 
     const spawnOptions = {
-      agentType: workflow.primaryAgent,
-      model: modelTier,
+      agentType: "writing-coach" as const,
+      model: model.tier,
       context: {
         bookId,
         bookName: book.name,
         userId: user.id,
         chapterNumber: data.chapterNumber,
         language: book.language,
+        targetWorkflowId: data.workflowId,
+        targetAgentType: workflow.primaryAgent,
+        userMessage: data.message,
+        pageContext: data.pageContext,
       },
       workflowId: data.workflowId,
       sessionId: dbSession.id,
-      onMessage: (message: AgentStreamMessage) => {
-        pushMessage(dbSession.id, message);
-      },
+      onMessage,
       onComplete: async (result: AgentResult) => {
         // Run post-session processing (parse reports, store findings, advance status)
         let suggestedNext: string[] = [];
+        let resultMeta: {
+          findingsCreated: number;
+          statusAdvanced: boolean;
+          newStatus?: string;
+          betaGateResult?: string;
+        } = { findingsCreated: 0, statusAdvanced: false };
         try {
           const postResult = await processPostSession({
             sessionId: dbSession.id,
@@ -160,43 +270,49 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
             chapterNumber: data.chapterNumber,
           });
           suggestedNext = postResult.suggestedNext;
+          resultMeta = {
+            findingsCreated: postResult.findingsCreated,
+            statusAdvanced: postResult.statusAdvanced,
+            newStatus: postResult.newStatus,
+            betaGateResult: postResult.betaGateResult,
+          };
         } catch (e) {
           console.error("[PostSession] Error:", e);
         }
 
-        completeSession(dbSession.id, result, suggestedNext);
+        // Attach result metadata to the AgentResult for SSE propagation
+        const enrichedResult = { ...result, resultMeta };
+        completeSession(dbSession.id, enrichedResult, suggestedNext);
 
-        // Update DB records
+        // Update DB records — include shared cost tracker totals
+        const totalInput = sharedCostTracker.totalInputTokens;
+        const totalOutput = sharedCostTracker.totalOutputTokens;
         await db.agentSession.update({
           where: { id: dbSession.id },
           data: {
             status: result.success ? "completed" : "failed",
-            tokensInput: result.tokensInput,
-            tokensOutput: result.tokensOutput,
+            tokensInput: totalInput,
+            tokensOutput: totalOutput,
             completedAt: new Date(),
           },
         });
 
-        // Create usage record
-        const cost = estimateCost(
-          modelTier,
-          result.tokensInput,
-          result.tokensOutput
-        );
+        // Create usage record with total tokens (Coach + all specialists)
+        const cost = estimateCost(model.id, totalInput, totalOutput);
         await db.usageRecord.create({
           data: {
             userId: user.id,
             bookId,
-            agentType: workflow.primaryAgent,
-            model: modelTier,
-            tokensInput: result.tokensInput,
-            tokensOutput: result.tokensOutput,
+            agentType: "writing-coach",
+            model: model.id,
+            tokensInput: totalInput,
+            tokensOutput: totalOutput,
             costEstimate: cost,
           },
         });
       },
       onError: async (error: Error) => {
-        pushMessage(dbSession.id, {
+        onMessage({
           type: "error",
           content: error.message,
         });

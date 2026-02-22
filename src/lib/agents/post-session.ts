@@ -25,6 +25,8 @@ export interface PostSessionResult {
   suggestedNext: string[];
   findingsCreated: number;
   statusAdvanced: boolean;
+  newStatus?: string;
+  betaGateResult?: string; // "passed" | "failed" | "near_miss"
 }
 
 const WORKFLOW_SUGGESTED_NEXT: Record<string, string[]> = {
@@ -64,6 +66,60 @@ const CHAPTER_STATUS_ADVANCE: Record<string, string> = {
 };
 
 /**
+ * Derive suggested next workflows based on session outcome.
+ * Unlike the static WORKFLOW_SUGGESTED_NEXT map, this reads the actual
+ * chapter state (betaGate, status) to route writers to the right next step.
+ *
+ * MUST be called AFTER processBetaReadSession and advanceChapterStatus
+ * so the chapter state reflects the session's changes.
+ */
+async function deriveSuggestedNext(
+  workflowId: string,
+  bookId: string,
+  chapterNumber?: number
+): Promise<string[]> {
+  switch (workflowId) {
+    case "beta-read": {
+      if (!chapterNumber) return ["discuss-edits"];
+      const chapter = await db.chapter.findFirst({
+        where: { bookId, chapterNumber },
+        select: { betaGate: true },
+      });
+      if (chapter?.betaGate === "passed") return ["publishing-check"];
+      if (chapter?.betaGate === "near_miss") return ["discuss-edits", "revise"];
+      return ["revise"];
+    }
+    case "dev-edit":
+      return ["line-edit", "discuss-edits"];
+    case "line-edit":
+      return ["beta-read"];
+    case "write-chapter":
+      return ["dev-edit"];
+    case "plan-chapter":
+      return ["write-chapter"];
+    case "revise":
+      return ["line-edit", "beta-read"];
+    case "capture-style":
+    case "refresh-style":
+      return ["dev-edit"];
+    case "evolve-style":
+      return [];
+    case "build-architecture":
+      return ["plan-chapter"];
+    case "read-manuscript":
+      return ["build-architecture", "capture-style"];
+    case "publishing-check":
+      return [];
+    case "continuity-check":
+      return ["revise"];
+    case "market-analysis":
+      return [];
+    default:
+      return WORKFLOW_SUGGESTED_NEXT[workflowId] ?? [];
+  }
+}
+
+/**
  * Process the results of a completed agent session.
  * Parses output documents, stores findings, advances chapter status.
  */
@@ -71,7 +127,7 @@ export async function processPostSession(
   ctx: PostSessionContext
 ): Promise<PostSessionResult> {
   const result: PostSessionResult = {
-    suggestedNext: WORKFLOW_SUGGESTED_NEXT[ctx.workflowId] ?? [],
+    suggestedNext: [],
     findingsCreated: 0,
     statusAdvanced: false,
   };
@@ -101,15 +157,25 @@ export async function processPostSession(
       }
     }
 
-    // Handle beta-read — parse gate result
+    // Handle beta-read — parse gate result (MUST run before deriveSuggestedNext)
     if (ctx.workflowId === "beta-read") {
       await processBetaReadSession(ctx, docService);
+
+      // Read back the beta gate result for the PostSessionResult
+      if (ctx.chapterNumber) {
+        const chAfterBeta = await db.chapter.findFirst({
+          where: { bookId: ctx.bookId, chapterNumber: ctx.chapterNumber },
+          select: { betaGate: true },
+        });
+        if (chAfterBeta?.betaGate) {
+          result.betaGateResult = chAfterBeta.betaGate;
+        }
+      }
 
       // Circuit breaker: block auto-revise after repeated beta failures
       if (ctx.chapterNumber) {
         const cb = await checkCircuitBreaker(ctx.bookId, ctx.chapterNumber);
         if (cb.triggered) {
-          result.suggestedNext = [];
           console.warn(
             `[PostSession] Circuit breaker triggered for chapter ${ctx.chapterNumber} ` +
               `(${cb.failCount} failed beta reads). Auto-revise blocked.`
@@ -118,7 +184,7 @@ export async function processPostSession(
       }
     }
 
-    // Advance chapter status if applicable
+    // Advance chapter status if applicable (MUST run before deriveSuggestedNext)
     if (ctx.chapterNumber) {
       const targetStatus = CHAPTER_STATUS_ADVANCE[ctx.workflowId];
       if (targetStatus) {
@@ -127,6 +193,26 @@ export async function processPostSession(
           ctx.chapterNumber,
           targetStatus
         );
+        if (result.statusAdvanced) {
+          result.newStatus = targetStatus;
+        }
+      }
+    }
+
+    // ─── Outcome-Driven Routing ──────────────────────────────
+    // MUST come after processBetaReadSession + advanceChapterStatus
+    // so deriveSuggestedNext reads the updated chapter state.
+    result.suggestedNext = await deriveSuggestedNext(
+      ctx.workflowId,
+      ctx.bookId,
+      ctx.chapterNumber
+    );
+
+    // Circuit breaker override: clear suggestions if triggered
+    if (ctx.workflowId === "beta-read" && ctx.chapterNumber) {
+      const cb = await checkCircuitBreaker(ctx.bookId, ctx.chapterNumber);
+      if (cb.triggered) {
+        result.suggestedNext = [];
       }
     }
 
@@ -440,7 +526,8 @@ async function createCascadeWarnings(
 
   if (entityFindings.length === 0) return 0;
 
-  // Get all other chapters
+  // Get all other chapters — include content for relevance filtering
+  const docService = new DocumentService(ctx.userId, ctx.bookId);
   const chapters = await db.chapter.findMany({
     where: { bookId: ctx.bookId, chapterNumber: { not: ctx.chapterNumber } },
     select: { chapterNumber: true },
@@ -448,10 +535,48 @@ async function createCascadeWarnings(
 
   if (chapters.length === 0) return 0;
 
+  // Extract entity names from finding descriptions for relevance matching
+  // Entity names are typically the first quoted string or capitalized noun phrase
+  function extractEntityName(description: string): string | null {
+    // Match quoted strings first
+    const quoted = description.match(/"([^"]+)"/);
+    if (quoted) return quoted[1];
+    // Match text after "character" or "entity" keywords
+    const entityMatch = description.match(/(?:character|entity|person|place|location)\s+['"]?(\w[\w\s]*\w)['"]?/i);
+    if (entityMatch) return entityMatch[1];
+    return null;
+  }
+
   let warningsCreated = 0;
 
   for (const finding of entityFindings) {
+    const entityName = extractEntityName(finding.description);
+
     for (const ch of chapters) {
+      // Relevance filter: only warn for adjacent chapters OR chapters mentioning the entity
+      const isAdjacent = Math.abs(ch.chapterNumber - ctx.chapterNumber) <= 1;
+
+      let mentionsEntity = false;
+      if (entityName && !isAdjacent) {
+        // Check chapter content for entity mention
+        try {
+          const chDoc = await docService.findByType(
+            DocumentType.CHAPTER_CONTENT,
+            ch.chapterNumber
+          );
+          if (chDoc) {
+            const content = await docService.read(chDoc.id);
+            if (content?.content) {
+              mentionsEntity = content.content.toLowerCase().includes(entityName.toLowerCase());
+            }
+          }
+        } catch {
+          // If content unavailable, skip this chapter (don't create noise)
+        }
+      }
+
+      if (!isAdjacent && !mentionsEntity) continue;
+
       await db.editFinding.create({
         data: {
           bookId: ctx.bookId,

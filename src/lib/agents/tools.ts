@@ -20,7 +20,7 @@ import {
   createInsight,
   resolveInsight,
 } from "./blackboard";
-import type { AgentType, AgentStreamMessage, DelegationResult } from "./types";
+import type { AgentType, AgentStreamMessage, DelegationResult, StructuredFingerprint, CalibrationSample } from "./types";
 import { getAgentDefinition } from "./definitions";
 import { assembleAgentPrompt } from "./prompt-assembler";
 import { processPostSession } from "./post-session";
@@ -700,6 +700,93 @@ const delegateToSpecialistDef: ToolDefinition = {
   },
 };
 
+// ─── Voice Metrics Tool ─────────────────────────────────────
+
+const setVoiceMetricsDef: ToolDefinition = {
+  name: "SetVoiceMetrics",
+  description:
+    "Store structured voice metrics and calibration samples extracted from the writing analysis. " +
+    "Call this ONCE after completing the style fingerprint document.",
+  input_schema: {
+    type: "object" as const,
+    strict: true,
+    properties: {
+      sentenceLengthMean: { type: "number", description: "Mean sentence length in words" },
+      sentenceLengthMedian: { type: "number", description: "Median sentence length in words" },
+      sentenceLengthStdDev: { type: "number", description: "Standard deviation of sentence length" },
+      sentenceLengthDistribution: {
+        type: "string",
+        description: "Shape of the sentence length distribution",
+        enum: ["clustered", "bimodal", "varied"],
+      },
+      typeTokenRatio: { type: "number", description: "Vocabulary type-token ratio (0.0-1.0)" },
+      hapaxRate: { type: "number", description: "Rate of words used only once (0.0-1.0)" },
+      vocabularyRegister: {
+        type: "string",
+        description: "Vocabulary register",
+        enum: ["literary", "conversational", "academic", "genre-specific"],
+      },
+      dialogueRatio: { type: "number", description: "Ratio of dialogue to total text (0.0-1.0)" },
+      paragraphLengthMean: { type: "number", description: "Mean paragraph length in sentences" },
+      paragraphLengthMedian: { type: "number", description: "Median paragraph length in sentences" },
+      singleSentenceRate: { type: "number", description: "Rate of single-sentence paragraphs (0.0-1.0)" },
+      emDashFrequency: {
+        type: "string",
+        description: "Em dash usage frequency",
+        enum: ["heavy", "moderate", "light", "none"],
+      },
+      semicolonUsage: {
+        type: "string",
+        description: "Semicolon usage frequency",
+        enum: ["frequent", "rare", "absent"],
+      },
+      ellipsisFrequency: {
+        type: "string",
+        description: "Ellipsis usage frequency",
+        enum: ["heavy", "moderate", "light", "none"],
+      },
+      narrativeDistance: {
+        type: "string",
+        description: "Narrative distance / POV closeness",
+        enum: ["intimate", "close", "moderate", "distant", "omniscient"],
+      },
+      pov: { type: "string", description: "Primary point of view (e.g. 'close third', 'first person')" },
+      metaphorDomains: {
+        type: "array",
+        description: "Primary metaphor domains the author draws from (optional)",
+        items: { type: "string" },
+      },
+      calibrationSamples: {
+        type: "array",
+        description: "3-5 sample passages demonstrating the author's voice with explanations",
+        items: {
+          type: "object",
+          properties: {
+            passage: { type: "string", description: "Exact passage from the text" },
+            why: { type: "string", description: "Why this passage demonstrates the voice" },
+            features: {
+              type: "array",
+              items: { type: "string" },
+              description: "Specific voice features demonstrated",
+            },
+          },
+          required: ["passage", "why", "features"],
+        },
+        minItems: 3,
+        maxItems: 5,
+      },
+    },
+    required: [
+      "sentenceLengthMean", "sentenceLengthMedian", "sentenceLengthStdDev", "sentenceLengthDistribution",
+      "typeTokenRatio", "hapaxRate", "vocabularyRegister",
+      "dialogueRatio",
+      "paragraphLengthMean", "paragraphLengthMedian", "singleSentenceRate",
+      "emDashFrequency", "semicolonUsage", "ellipsisFrequency",
+      "narrativeDistance", "pov", "calibrationSamples",
+    ],
+  },
+};
+
 const ALL_TOOL_DEFINITIONS: ToolDefinition[] = [
   readDocumentDef,
   writeDocumentDef,
@@ -718,6 +805,7 @@ const ALL_TOOL_DEFINITIONS: ToolDefinition[] = [
   readInsightsDef,
   resolveInsightDef,
   delegateToSpecialistDef,
+  setVoiceMetricsDef,
 ];
 
 /** Get tool definitions filtered by allowed tool names. */
@@ -1307,6 +1395,85 @@ async function executeResolveInsight(
   return `Insight ${input.insightId} marked as resolved.`;
 }
 
+// ─── Voice Metrics Executor ─────────────────────────────────
+
+async function executeSetVoiceMetrics(
+  ctx: ToolContext,
+  input: Record<string, unknown>
+): Promise<string> {
+  // Compose the StructuredFingerprint object
+  const metrics: StructuredFingerprint = {
+    sentenceLength: {
+      mean: input.sentenceLengthMean as number,
+      median: input.sentenceLengthMedian as number,
+      stdDev: input.sentenceLengthStdDev as number,
+      distribution: input.sentenceLengthDistribution as StructuredFingerprint["sentenceLength"]["distribution"],
+    },
+    vocabularyRichness: {
+      typeTokenRatio: input.typeTokenRatio as number,
+      hapaxRate: input.hapaxRate as number,
+      register: input.vocabularyRegister as StructuredFingerprint["vocabularyRichness"]["register"],
+    },
+    dialogueRatio: input.dialogueRatio as number,
+    paragraphLength: {
+      mean: input.paragraphLengthMean as number,
+      median: input.paragraphLengthMedian as number,
+      singleSentenceRate: input.singleSentenceRate as number,
+    },
+    punctuation: {
+      emDashFrequency: input.emDashFrequency as StructuredFingerprint["punctuation"]["emDashFrequency"],
+      semicolonUsage: input.semicolonUsage as StructuredFingerprint["punctuation"]["semicolonUsage"],
+      ellipsisFrequency: input.ellipsisFrequency as StructuredFingerprint["punctuation"]["ellipsisFrequency"],
+    },
+    narrativeDistance: input.narrativeDistance as StructuredFingerprint["narrativeDistance"],
+    metaphorDomains: (input.metaphorDomains as string[] | undefined) ?? [],
+    pov: input.pov as string,
+  };
+
+  const calibrationSamples = input.calibrationSamples as CalibrationSample[];
+
+  // Find or create StyleProfile — match the bridgeFingerprintToStyleProfile pattern
+  const existing = await db.styleProfile.findFirst({
+    where: { userId: ctx.userId, sourceBookId: ctx.bookId },
+  });
+
+  // Prisma Json fields accept plain values via JSON.parse(JSON.stringify(...))
+  const metricsJson = JSON.parse(JSON.stringify(metrics));
+  const samplesJson = JSON.parse(JSON.stringify(calibrationSamples));
+
+  if (existing) {
+    await db.styleProfile.update({
+      where: { id: existing.id },
+      data: {
+        metrics: metricsJson,
+        calibrationSamples: samplesJson,
+      },
+    });
+  } else {
+    // Create a new StyleProfile with metrics — the fingerprint text
+    // will be filled by bridgeFingerprintToStyleProfile after the FINGERPRINT doc is written
+    const book = await db.book.findUnique({
+      where: { id: ctx.bookId },
+      select: { name: true, bookNumber: true },
+    });
+
+    await db.styleProfile.create({
+      data: {
+        userId: ctx.userId,
+        sourceBookId: ctx.bookId,
+        sourceBookNumber: book?.bookNumber ?? 1,
+        name: `Style — ${book?.name ?? "Book"}`,
+        description: "Auto-generated from capture-style workflow",
+        fingerprint: "", // Will be populated by bridgeFingerprintToStyleProfile
+        metrics: metricsJson,
+        calibrationSamples: samplesJson,
+      },
+    });
+  }
+
+  return `Voice metrics stored: ${Object.keys(metrics).length} metric groups, ${calibrationSamples.length} calibration samples.`;
+}
+
 // ─── Delegation Executor ────────────────────────────────────
 
 async function executeDelegateToSpecialist(
@@ -1507,6 +1674,11 @@ export async function executeTool(
 ): Promise<string> {
   // RequestApproval is not retriable — return immediately
   if (toolName === "RequestApproval") return APPROVAL_SENTINEL;
+
+  // SetVoiceMetrics — single upsert, wrap in retry
+  if (toolName === "SetVoiceMetrics") {
+    return withRetry(() => executeSetVoiceMetrics(ctx, input));
+  }
 
   // DelegateToSpecialist is not retriable — it runs a full sub-session
   if (toolName === "DelegateToSpecialist") {

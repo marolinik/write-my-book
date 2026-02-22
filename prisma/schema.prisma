@@ -407,9 +407,11 @@ model StyleProfile {
   userId           String   @map("user_id")
   name             String
   description      String?
-  fingerprint      String   @db.Text
-  sourceBookId     String?  @map("source_book_id")
-  sourceBookNumber Int?     @map("source_book_number")
+  fingerprint        String   @db.Text
+  metrics            Json?                  // Structured voice metrics (StructuredFingerprint shape)
+  calibrationSamples Json?    @map("calibration_samples") // 3-5 sample passages demonstrating voice
+  sourceBookId       String?  @map("source_book_id")
+  sourceBookNumber   Int?     @map("source_book_number")
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
 

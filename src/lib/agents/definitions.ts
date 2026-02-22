@@ -87,6 +87,7 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
       "ListDocuments",
       "SearchMemory",
       "RememberInsight",
+      "SetVoiceMetrics",
     ],
     contextProfile: {
       fingerprint: "none",
