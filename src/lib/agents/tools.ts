@@ -1,8 +1,123 @@
+import { createHash } from "crypto";
 import { db } from "@/lib/db";
 import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
+import {
+  getCharacterNetwork,
+  getTimeline,
+  getLocationMap,
+  getPlotThreads,
+  getChapterEntities,
+  runConsistencyChecks,
+} from "@/lib/graph/graph-queries";
+import { upsertEntities } from "@/lib/graph/graph-builder";
+import type { GraphNodeLabel, ExtractionResult, RelationshipType } from "@/lib/graph/types";
+import { searchManuscript, searchEpisodicMemory } from "@/lib/vector/retriever";
+import { indexSessionSummary } from "@/lib/vector/indexer";
+import type { SessionSummaryPayload } from "@/lib/vector/types";
+import {
+  getRelevantInsights,
+  createInsight,
+  resolveInsight,
+} from "./blackboard";
+import type { AgentType, AgentStreamMessage, DelegationResult } from "./types";
+import { getAgentDefinition } from "./definitions";
+import { assembleAgentPrompt } from "./prompt-assembler";
+import { processPostSession } from "./post-session";
+import { getSession } from "./session-manager";
 
 export const APPROVAL_SENTINEL = "__APPROVAL_GATE__";
+
+// ─── Finding Validation Helpers ─────────────────────────────────
+
+function computeFindingHash(
+  chapterNumber: number,
+  category: string,
+  description: string
+): string {
+  const canonical = [
+    chapterNumber.toString(),
+    category.toLowerCase().trim(),
+    description.toLowerCase().trim().slice(0, 200),
+  ].join("|");
+  return createHash("sha256").update(canonical).digest("hex");
+}
+
+function fuzzyMatch(needle: string, haystack: string): number {
+  if (haystack.includes(needle)) return 1.0;
+  const normNeedle = needle.replace(/\s+/g, " ").trim().toLowerCase();
+  const normHaystack = haystack.replace(/\s+/g, " ").trim().toLowerCase();
+  if (normHaystack.includes(normNeedle)) return 1.0;
+  const needleLen = normNeedle.length;
+  if (needleLen === 0) return 0;
+  let bestSimilarity = 0;
+  for (let i = 0; i <= normHaystack.length - needleLen; i++) {
+    const window = normHaystack.slice(i, i + needleLen);
+    let matches = 0;
+    for (let j = 0; j < needleLen; j++) {
+      if (window[j] === normNeedle[j]) matches++;
+    }
+    const sim = matches / needleLen;
+    if (sim > bestSimilarity) bestSimilarity = sim;
+    if (bestSimilarity >= 0.95) break;
+  }
+  return bestSimilarity;
+}
+
+interface ValidationInput {
+  chapterNumber: number;
+  anchorQuote: string;
+  paragraphNumber: number;
+  alternatives: Array<{ label: string; originalText: string; newText: string }>;
+  crossReferences?: Array<{ chapterNumber: number; paragraphNumber: number; quote: string }>;
+}
+
+async function validateFinding(
+  ctx: ToolContext,
+  input: ValidationInput,
+  chapterContent: string
+): Promise<{ valid: boolean; reason?: string }> {
+  const similarity = fuzzyMatch(input.anchorQuote, chapterContent);
+  if (similarity < 0.8) {
+    return {
+      valid: false,
+      reason: `REJECTED: Your anchorQuote was not found in the chapter text (similarity: ${(similarity * 100).toFixed(0)}%). Please re-read the chapter and provide an exact quote. The anchorQuote you provided: "${input.anchorQuote.slice(0, 80)}..."`,
+    };
+  }
+  const paragraphs = chapterContent.split(/\n\n+/).filter(p => p.trim().length > 0);
+  if (input.paragraphNumber < 1 || input.paragraphNumber > paragraphs.length) {
+    return {
+      valid: false,
+      reason: `REJECTED: Paragraph ${input.paragraphNumber} does not exist. The chapter has ${paragraphs.length} paragraphs (1-indexed). Please re-count.`,
+    };
+  }
+  const targetParagraph = paragraphs[input.paragraphNumber - 1];
+  const paragraphMatch = fuzzyMatch(input.anchorQuote, targetParagraph);
+  if (paragraphMatch < 0.5) {
+    return {
+      valid: false,
+      reason: `REJECTED: Your anchorQuote was found in the chapter but NOT in paragraph ${input.paragraphNumber}. The quote appears to be in a different paragraph. Please verify the paragraph number.`,
+    };
+  }
+  if (!input.alternatives || input.alternatives.length < 2) {
+    return {
+      valid: false,
+      reason: `REJECTED: You must provide at least 2 rewrite alternatives. You provided ${input.alternatives?.length ?? 0}.`,
+    };
+  }
+  return { valid: true };
+}
+
+function computeGroundingScore(
+  anchorQuote: string,
+  chapterContent: string,
+  alternatives: Array<{ originalText: string }>
+): number {
+  const anchorSimilarity = fuzzyMatch(anchorQuote, chapterContent);
+  const altScores = alternatives.map(alt => fuzzyMatch(alt.originalText, chapterContent));
+  const avgAltSimilarity = altScores.reduce((sum, s) => sum + s, 0) / altScores.length;
+  return (anchorSimilarity * 0.7) + (avgAltSimilarity * 0.3);
+}
 
 // ─── In-memory document locks for parallel agent safety ────────
 
@@ -47,6 +162,10 @@ export interface ToolContext {
   documentService: DocumentService;
   seriesId?: string;
   seriesDocumentService?: DocumentService;
+  /** Chapter number scoped to this session — used as fallback for tools. */
+  chapterNumber?: number;
+  /** Delegation context — present only for the Writing Coach orchestrator. */
+  delegationContext?: import("./types").DelegationContext;
 }
 
 // ─── Tool Definitions ──────────────────────────────────────────
@@ -151,12 +270,24 @@ const listDocumentsDef: ToolDefinition = {
   },
 };
 
+const FINDING_CATEGORIES = [
+  "pacing", "character", "dialogue", "continuity", "prose",
+  "structure", "tension", "pov", "show-tell", "setting",
+  "theme", "foreshadowing", "stakes", "emotion", "worldbuilding",
+  "crutch-phrase", "filter-word", "ai-tell", "sentence-variety",
+  "verb-strength", "redundancy", "clarity", "genre-convention"
+] as const;
+
 const createFindingDef: ToolDefinition = {
   name: "CreateFinding",
   description:
-    "Create an edit finding (issue found during editing). Used by dev-editor, line-editor, and continuity-checker.",
+    "Create an editorial finding — one specific issue found during analysis. " +
+    "Every finding MUST include an exact anchor quote from the chapter, a paragraph number, " +
+    "a rationale explaining WHY this matters, and 2-3 ranked rewrite alternatives. " +
+    "Findings with hallucinated quotes or invalid paragraph numbers will be REJECTED.",
   input_schema: {
-    type: "object",
+    type: "object" as const,
+    strict: true,
     properties: {
       chapterNumber: {
         type: "number",
@@ -164,42 +295,67 @@ const createFindingDef: ToolDefinition = {
       },
       severity: {
         type: "string",
-        description: "Severity level",
-        enum: ["critical", "major", "moderate", "minor"],
+        description: "Severity: critical (breaks the story), important (weakens the chapter), suggestion (could improve)",
+        enum: ["critical", "important", "suggestion"],
       },
       category: {
         type: "string",
-        description:
-          "Category of the finding (e.g. pacing, dialogue, anti-ai, continuity)",
+        description: "Domain category of the finding",
+        enum: FINDING_CATEGORIES,
       },
       description: {
         type: "string",
-        description: "Detailed description of the issue",
+        description: "What the issue is — one specific problem, not a list",
       },
-      suggestion: {
+      rationale: {
         type: "string",
-        description: "Suggested fix or improvement (for advice-only findings)",
+        description: "WHY this matters to the reader/story — not just what it is",
       },
-      originalText: {
-        type: "string",
-        description:
-          "The EXACT text from the chapter that should be replaced. Copy verbatim, character-for-character. When both originalText and newText are provided, the finding becomes auto-appliable.",
+      confidence: {
+        type: "number",
+        description: "Your confidence this is a genuine issue (0.0 to 1.0)",
       },
-      newText: {
-        type: "string",
-        description:
-          "The replacement text that fixes the issue. Must preserve the author's voice and style.",
+      paragraphNumber: {
+        type: "number",
+        description: "1-based paragraph index where the issue occurs",
       },
-      locationStart: {
+      anchorQuote: {
         type: "string",
-        description: "Start location reference in the text",
+        description: "Exact text from the chapter that demonstrates the issue — copy verbatim",
       },
-      locationEnd: {
-        type: "string",
-        description: "End location reference in the text",
+      alternatives: {
+        type: "array",
+        description: "2-3 ranked rewrite alternatives, best first",
+        items: {
+          type: "object",
+          properties: {
+            label: { type: "string", description: "e.g. 'Option A — tighten pacing'" },
+            originalText: { type: "string", description: "Exact text to replace (verbatim from chapter)" },
+            newText: { type: "string", description: "Replacement text preserving the author's voice" },
+          },
+          required: ["label", "originalText", "newText"],
+        },
+        minItems: 2,
+        maxItems: 3,
+      },
+      crossReferences: {
+        type: "array",
+        description: "For continuity findings: other passages that conflict with this one",
+        items: {
+          type: "object",
+          properties: {
+            chapterNumber: { type: "number" },
+            paragraphNumber: { type: "number" },
+            quote: { type: "string" },
+          },
+          required: ["chapterNumber", "paragraphNumber", "quote"],
+        },
       },
     },
-    required: ["chapterNumber", "severity", "category", "description"],
+    required: [
+      "chapterNumber", "severity", "category", "description",
+      "rationale", "confidence", "paragraphNumber", "anchorQuote", "alternatives"
+    ],
   },
 };
 
@@ -273,6 +429,277 @@ const writeSeriesDocumentDef: ToolDefinition = {
   },
 };
 
+// ─── Knowledge Graph Tools ──────────────────────────────────
+
+const queryGraphDef: ToolDefinition = {
+  name: "QueryGraph",
+  description:
+    "Query the book's knowledge graph for character relationships, timeline, location maps, plot threads, or consistency checks.",
+  input_schema: {
+    type: "object",
+    properties: {
+      queryType: {
+        type: "string",
+        description: "Type of graph query to run",
+        enum: [
+          "character-network",
+          "timeline",
+          "location-map",
+          "plot-threads",
+          "chapter-entities",
+          "consistency-checks",
+        ],
+      },
+      chapterNumber: {
+        type: "number",
+        description:
+          "Chapter number (required for chapter-entities query)",
+      },
+    },
+    required: ["queryType"],
+  },
+};
+
+const updateGraphEntityDef: ToolDefinition = {
+  name: "UpdateGraphEntity",
+  description:
+    "Create or update entities in the knowledge graph (characters, locations, events, objects, factions).",
+  input_schema: {
+    type: "object",
+    properties: {
+      entities: {
+        type: "array",
+        description: "Array of entities to upsert",
+        items: {
+          type: "object",
+          properties: {
+            type: {
+              type: "string",
+              enum: [
+                "Character",
+                "Location",
+                "Event",
+                "Object",
+                "PlotThread",
+                "Faction",
+              ],
+            },
+            name: { type: "string" },
+            properties: {
+              type: "object",
+              description: "Entity-specific properties (role, description, etc.)",
+            },
+          },
+          required: ["type", "name"],
+        },
+      },
+      relationships: {
+        type: "array",
+        description: "Relationships between entities",
+        items: {
+          type: "object",
+          properties: {
+            from: { type: "string", description: "Source entity name" },
+            to: { type: "string", description: "Target entity name" },
+            type: { type: "string", description: "Relationship type (e.g. KNOWS, ALLIED_WITH)" },
+            properties: { type: "object" },
+          },
+          required: ["from", "to", "type"],
+        },
+      },
+      chapterNumber: {
+        type: "number",
+        description: "Chapter these entities appear in",
+      },
+    },
+    required: ["entities"],
+  },
+};
+
+// ─── Vector Memory Tools ────────────────────────────────────
+
+const searchMemoryDef: ToolDefinition = {
+  name: "SearchMemory",
+  description:
+    "Semantic search across the book's manuscript content. Returns relevant passages with similarity scores.",
+  input_schema: {
+    type: "object",
+    properties: {
+      query: {
+        type: "string",
+        description: "Natural language query to search for",
+      },
+      collection: {
+        type: "string",
+        description: "Which memory tier to search",
+        enum: ["manuscript", "sessions"],
+      },
+      chapterNumber: {
+        type: "number",
+        description: "Optional: limit search to a specific chapter",
+      },
+      limit: {
+        type: "number",
+        description: "Number of results to return (default: 5)",
+      },
+    },
+    required: ["query"],
+  },
+};
+
+const rememberInsightDef: ToolDefinition = {
+  name: "RememberInsight",
+  description:
+    "Store a session insight (decision rationale, style observation, key outcome) into episodic memory for future agents to recall.",
+  input_schema: {
+    type: "object",
+    properties: {
+      content: {
+        type: "string",
+        description: "The insight to remember",
+      },
+      category: {
+        type: "string",
+        description: "Category of the insight",
+        enum: ["decision", "style", "outcome", "observation"],
+      },
+    },
+    required: ["content", "category"],
+  },
+};
+
+// ─── Blackboard Tools ───────────────────────────────────────
+
+const postInsightDef: ToolDefinition = {
+  name: "PostInsight",
+  description:
+    "Post an insight to the book's blackboard for other agents to see. Use for warnings about inconsistencies, suggestions, constraints, or flags.",
+  input_schema: {
+    type: "object",
+    properties: {
+      insightType: {
+        type: "string",
+        description: "Type of insight",
+        enum: ["WARNING", "SUGGESTION", "FLAG", "CONSTRAINT"],
+      },
+      domain: {
+        type: "string",
+        description: "Domain the insight applies to",
+        enum: [
+          "character",
+          "timeline",
+          "pacing",
+          "style",
+          "continuity",
+          "world-rules",
+          "structure",
+          "foreshadowing",
+        ],
+      },
+      summary: {
+        type: "string",
+        description: "One-line summary of the insight",
+      },
+      detail: {
+        type: "string",
+        description: "Full detail text",
+      },
+      targetAgents: {
+        type: "array",
+        items: { type: "string" },
+        description:
+          "Which agent types should see this (empty = all agents)",
+      },
+      chapterScope: {
+        type: "array",
+        items: { type: "number" },
+        description: "Which chapters this applies to (empty = all)",
+      },
+    },
+    required: ["insightType", "domain", "summary", "detail"],
+  },
+};
+
+const readInsightsDef: ToolDefinition = {
+  name: "ReadInsights",
+  description:
+    "Read active insights from the book's blackboard relevant to your agent type and current chapter.",
+  input_schema: {
+    type: "object",
+    properties: {
+      chapterNumber: {
+        type: "number",
+        description: "Optional: filter insights for a specific chapter",
+      },
+    },
+  },
+};
+
+const resolveInsightDef: ToolDefinition = {
+  name: "ResolveInsight",
+  description:
+    "Mark a blackboard insight as resolved after you have addressed the issue it describes.",
+  input_schema: {
+    type: "object",
+    properties: {
+      insightId: {
+        type: "string",
+        description: "The ID of the insight to resolve",
+      },
+    },
+    required: ["insightId"],
+  },
+};
+
+// ─── Delegation Tool ────────────────────────────────────────
+
+const SPECIALIST_AGENT_TYPES = [
+  "ghostwriter",
+  "style-analyst",
+  "story-architect",
+  "scene-planner",
+  "dev-editor",
+  "line-editor",
+  "beta-reader",
+  "manuscript-analyst",
+  "continuity-checker",
+  "manuscript-reader",
+  "world-researcher",
+  "market-reader",
+  "publishing-editor",
+] as const;
+
+const delegateToSpecialistDef: ToolDefinition = {
+  name: "DelegateToSpecialist",
+  description:
+    "Delegate a task to a specialist agent. The specialist runs in the background, performing its full workflow. " +
+    "You receive a summary of the specialist's work when complete. Use this for editorial passes, analysis, writing, " +
+    "and other specialist tasks. You MUST NOT delegate to yourself (writing-coach).",
+  input_schema: {
+    type: "object",
+    properties: {
+      agentType: {
+        type: "string",
+        description: "The specialist agent type to delegate to",
+        enum: SPECIALIST_AGENT_TYPES as unknown as string[],
+      },
+      task: {
+        type: "string",
+        description: "Clear description of what the specialist should accomplish",
+      },
+      chapterNumber: {
+        type: "number",
+        description: "Chapter number for chapter-scoped work (optional)",
+      },
+      workflowId: {
+        type: "string",
+        description: "Workflow ID for post-session processing (e.g. 'dev-edit', 'line-edit'). Optional.",
+      },
+    },
+    required: ["agentType", "task"],
+  },
+};
+
 const ALL_TOOL_DEFINITIONS: ToolDefinition[] = [
   readDocumentDef,
   writeDocumentDef,
@@ -283,6 +710,14 @@ const ALL_TOOL_DEFINITIONS: ToolDefinition[] = [
   requestApprovalDef,
   readSeriesDocumentDef,
   writeSeriesDocumentDef,
+  queryGraphDef,
+  updateGraphEntityDef,
+  searchMemoryDef,
+  rememberInsightDef,
+  postInsightDef,
+  readInsightsDef,
+  resolveInsightDef,
+  delegateToSpecialistDef,
 ];
 
 /** Get tool definitions filtered by allowed tool names. */
@@ -290,6 +725,45 @@ export function getToolDefinitions(
   allowedTools: string[]
 ): ToolDefinition[] {
   return ALL_TOOL_DEFINITIONS.filter((t) => allowedTools.includes(t.name));
+}
+
+// ─── Retry Logic ───────────────────────────────────────────────
+
+function isTransientError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  const msg = error.message.toLowerCase();
+  return (
+    msg.includes("econnreset") ||
+    msg.includes("etimedout") ||
+    msg.includes("econnrefused") ||
+    msg.includes("epipe") ||
+    msg.includes("connection") ||
+    msg.includes("timed out") ||
+    msg.includes("temporarily unavailable") ||
+    msg.includes("prisma") && msg.includes("connection")
+  );
+}
+
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  maxRetries: number = 2,
+  baseDelayMs: number = 500
+): Promise<T> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+      if (attempt < maxRetries && isTransientError(error)) {
+        const delay = baseDelayMs * Math.pow(2, attempt);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        continue;
+      }
+      throw error;
+    }
+  }
+  throw lastError;
 }
 
 // ─── Tool Executors ────────────────────────────────────────────
@@ -308,6 +782,16 @@ async function executeReadDocument(
   return result.content;
 }
 
+/** Chapter-scoped document types that need a chapterNumber */
+const CHAPTER_SCOPED_DOC_TYPES = new Set([
+  "CHAPTER_CONTENT",
+  "CHAPTER_PLAN",
+  "CHAPTER_BRIEF",
+  "DEV_EDIT_REPORT",
+  "LINE_EDIT_REPORT",
+  "BETA_READ_REPORT",
+]);
+
 async function executeWriteDocument(
   ctx: ToolContext,
   input: {
@@ -319,8 +803,11 @@ async function executeWriteDocument(
 ): Promise<string> {
   const type = input.documentType as DocumentType;
 
+  // For chapter-scoped doc types, fall back to session-level chapterNumber
+  const resolvedChapterNumber = input.chapterNumber ?? (CHAPTER_SCOPED_DOC_TYPES.has(type) ? ctx.chapterNumber : undefined);
+
   // Acquire document lock to prevent parallel agents writing the same type
-  const lockKey = `${type}:${input.chapterNumber ?? "null"}`;
+  const lockKey = `${type}:${resolvedChapterNumber ?? "null"}`;
   if (!acquireDocLock(ctx.bookId, lockKey, ctx.sessionId)) {
     return `Another agent is currently writing ${input.documentType}. Please wait and retry.`;
   }
@@ -330,8 +817,8 @@ async function executeWriteDocument(
     const result = await db.$transaction(async (tx) => {
       const where: Record<string, unknown> = { type };
       if (ctx.bookId) where.bookId = ctx.bookId;
-      if (input.chapterNumber !== undefined)
-        where.chapterNumber = input.chapterNumber;
+      if (resolvedChapterNumber !== undefined)
+        where.chapterNumber = resolvedChapterNumber;
 
       const existing = await tx.document.findFirst({ where });
 
@@ -350,7 +837,7 @@ async function executeWriteDocument(
         type,
         input.content,
         input.title,
-        input.chapterNumber,
+        resolvedChapterNumber,
         undefined,
         "agent"
       );
@@ -460,46 +947,138 @@ async function executeCreateFinding(
     severity: string;
     category: string;
     description: string;
-    suggestion?: string;
-    originalText?: string;
-    newText?: string;
-    locationStart?: string;
-    locationEnd?: string;
+    rationale: string;
+    confidence: number;
+    paragraphNumber: number;
+    anchorQuote: string;
+    alternatives: Array<{ label: string; originalText: string; newText: string }>;
+    crossReferences?: Array<{ chapterNumber: number; paragraphNumber: number; quote: string }>;
   }
 ): Promise<string> {
-  // Cross-session dedup: check for existing non-dismissed finding with same signature
+  // Resolve chapter number
+  const chapterNumber = input.chapterNumber ?? ctx.chapterNumber;
+  if (!chapterNumber) {
+    return "Error: chapterNumber is required for CreateFinding but was not provided and no session-level chapter scope is set.";
+  }
+
+  // Get chapter content for validation
+  const chapter = await db.chapter.findFirst({
+    where: {
+      bookId: ctx.bookId,
+      chapterNumber,
+    },
+  });
+
+  if (!chapter) {
+    return `Error: Chapter ${chapterNumber} not found.`;
+  }
+
+  // Read chapter content from document service
+  const manuscriptDoc = await ctx.documentService.findByType(
+    DocumentType.CHAPTER_CONTENT,
+    chapterNumber
+  );
+
+  if (!manuscriptDoc) {
+    return `Error: No manuscript document found for chapter ${chapterNumber}.`;
+  }
+
+  const manuscriptContent = await ctx.documentService.read(manuscriptDoc.id);
+  if (!manuscriptContent) {
+    return `Error: Could not read manuscript for chapter ${chapterNumber}.`;
+  }
+
+  // Validate finding against chapter content
+  const validation = await validateFinding(
+    ctx,
+    {
+      chapterNumber,
+      anchorQuote: input.anchorQuote,
+      paragraphNumber: input.paragraphNumber,
+      alternatives: input.alternatives,
+      crossReferences: input.crossReferences,
+    },
+    manuscriptContent.content
+  );
+
+  if (!validation.valid) {
+    // Record rejection for analytics
+    await db.editFinding.create({
+      data: {
+        bookId: ctx.bookId,
+        chapterNumber,
+        agentType: ctx.agentType,
+        sessionId: ctx.sessionId,
+        severity: input.severity,
+        category: input.category,
+        description: input.description,
+        rationale: input.rationale,
+        confidence: input.confidence,
+        paragraphNumber: input.paragraphNumber,
+        anchorQuote: input.anchorQuote,
+        alternatives: JSON.stringify(input.alternatives),
+        status: "rejected",
+        rejectedAt: new Date(),
+        rejectionReason: validation.reason,
+      },
+    });
+    return validation.reason!;
+  }
+
+  // Compute content hash for deduplication
+  const contentHash = computeFindingHash(
+    chapterNumber,
+    input.category,
+    input.description
+  );
+
+  // Check for existing finding with same content hash
   const existing = await db.editFinding.findFirst({
     where: {
       bookId: ctx.bookId,
-      chapterNumber: input.chapterNumber,
-      category: input.category,
-      description: input.description,
-      status: { not: "dismissed" },
+      chapterNumber,
+      contentHash,
+      status: { not: "rejected" },
     },
   });
 
   if (existing) {
-    return `Finding already exists (id: ${existing.id}). Skipped duplicate.`;
+    return `Finding already exists (id: ${existing.id}). Skipped duplicate based on content hash.`;
   }
 
+  // Compute grounding score
+  const groundingScore = computeGroundingScore(
+    input.anchorQuote,
+    manuscriptContent.content,
+    input.alternatives
+  );
+
+  // Create the finding
   const finding = await db.editFinding.create({
     data: {
       bookId: ctx.bookId,
-      chapterNumber: input.chapterNumber,
+      chapterNumber,
       agentType: ctx.agentType,
       sessionId: ctx.sessionId,
       severity: input.severity,
       category: input.category,
       description: input.description,
-      suggestion: input.suggestion ?? null,
-      originalText: input.originalText ?? null,
-      newText: input.newText ?? null,
-      locationStart: input.locationStart ?? null,
-      locationEnd: input.locationEnd ?? null,
+      rationale: input.rationale,
+      confidence: input.confidence,
+      paragraphNumber: input.paragraphNumber,
+      anchorQuote: input.anchorQuote,
+      alternatives: JSON.stringify(input.alternatives),
+      groundingScore,
+      chapterVersion: manuscriptDoc.currentVersion,
+      contentHash,
+      // Legacy fields for backward compatibility
+      suggestion: input.rationale,
+      originalText: input.alternatives[0]?.originalText ?? null,
+      newText: input.alternatives[0]?.newText ?? null,
     },
   });
 
-  return `Finding created (id: ${finding.id}, severity: ${input.severity}, category: ${input.category}).`;
+  return `Finding created (id: ${finding.id}, severity: ${input.severity}, category: ${input.category}, grounding: ${(groundingScore * 100).toFixed(0)}%).`;
 }
 
 async function executeReadSeriesDocument(
@@ -551,75 +1130,510 @@ async function executeWriteSeriesDocument(
   return `Created ${input.documentType} (id: ${doc.id}).`;
 }
 
+// ─── Graph / Vector / Blackboard Executors ──────────────────
+
+async function executeQueryGraph(
+  ctx: ToolContext,
+  input: { queryType: string; chapterNumber?: number }
+): Promise<string> {
+  try {
+    switch (input.queryType) {
+      case "character-network": {
+        const data = await getCharacterNetwork(ctx.bookId);
+        return JSON.stringify(data, null, 2);
+      }
+      case "timeline": {
+        const data = await getTimeline(ctx.bookId);
+        return JSON.stringify(data, null, 2);
+      }
+      case "location-map": {
+        const data = await getLocationMap(ctx.bookId);
+        return JSON.stringify(data, null, 2);
+      }
+      case "plot-threads": {
+        const data = await getPlotThreads(ctx.bookId);
+        return JSON.stringify(data, null, 2);
+      }
+      case "chapter-entities": {
+        if (!input.chapterNumber) return "chapterNumber is required for chapter-entities query.";
+        const data = await getChapterEntities(ctx.bookId, input.chapterNumber);
+        return JSON.stringify(data, null, 2);
+      }
+      case "consistency-checks": {
+        const data = await runConsistencyChecks(ctx.bookId);
+        return JSON.stringify(data, null, 2);
+      }
+      default:
+        return `Unknown query type: ${input.queryType}`;
+    }
+  } catch (error) {
+    return `Graph query failed: ${error instanceof Error ? error.message : String(error)}`;
+  }
+}
+
+async function executeUpdateGraphEntity(
+  ctx: ToolContext,
+  input: {
+    entities: Array<{ type: string; name: string; properties?: Record<string, unknown> }>;
+    relationships?: Array<{ from: string; to: string; type: string; properties?: Record<string, unknown> }>;
+    chapterNumber?: number;
+  }
+): Promise<string> {
+  try {
+    const extractionResult: ExtractionResult = {
+      entities: input.entities.map((e) => ({
+        name: e.name,
+        label: e.type as GraphNodeLabel,
+        properties: e.properties ?? {},
+      })),
+      relationships: (input.relationships ?? []).map((r) => ({
+        from: r.from,
+        fromLabel: "Character" as GraphNodeLabel,
+        to: r.to,
+        toLabel: "Character" as GraphNodeLabel,
+        type: r.type as RelationshipType,
+        properties: r.properties,
+      })),
+      chapterNumber: input.chapterNumber ?? 0,
+      contentHash: "",
+    };
+
+    const stats = await upsertEntities(extractionResult);
+    return `Graph updated: ${stats.nodesCreated} created, ${stats.nodesUpdated} updated, ${stats.relationshipsCreated} relationships.`;
+  } catch (error) {
+    return `Graph update failed: ${error instanceof Error ? error.message : String(error)}`;
+  }
+}
+
+async function executeSearchMemory(
+  ctx: ToolContext,
+  input: { query: string; collection?: string; chapterNumber?: number; limit?: number }
+): Promise<string> {
+  try {
+    const tier = input.collection ?? "manuscript";
+    const limit = input.limit ?? 5;
+
+    if (tier === "manuscript") {
+      const results = await searchManuscript(ctx.bookId, input.query, {
+        chapterNumber: input.chapterNumber,
+        limit,
+      });
+      if (results.length === 0) return "No relevant passages found.";
+      return results
+        .map((r, i) => `[${i + 1}] (score: ${r.score.toFixed(3)}) ${JSON.stringify(r.payload)}`)
+        .join("\n\n");
+    } else if (tier === "sessions") {
+      const results = await searchEpisodicMemory(ctx.bookId, input.query, { limit });
+      if (results.length === 0) return "No relevant session memories found.";
+      return results
+        .map((r, i) => `[${i + 1}] (score: ${r.score.toFixed(3)}) ${JSON.stringify(r.payload)}`)
+        .join("\n\n");
+    }
+
+    return `Unknown collection: ${tier}`;
+  } catch (error) {
+    return `Memory search failed: ${error instanceof Error ? error.message : String(error)}`;
+  }
+}
+
+async function executeRememberInsight(
+  ctx: ToolContext,
+  input: { content: string; category: string }
+): Promise<string> {
+  try {
+    await indexSessionSummary(
+      ctx.bookId,
+      ctx.sessionId,
+      ctx.agentType,
+      "remember", // workflowId placeholder for manual insights
+      input.content,
+      "completed" as SessionSummaryPayload["outcome"],
+      input.category as SessionSummaryPayload["category"]
+    );
+    return `Insight stored in episodic memory (category: ${input.category}).`;
+  } catch (error) {
+    return `Remember failed: ${error instanceof Error ? error.message : String(error)}`;
+  }
+}
+
+async function executePostInsight(
+  ctx: ToolContext,
+  input: {
+    insightType: string;
+    domain: string;
+    summary: string;
+    detail: string;
+    targetAgents?: string[];
+    chapterScope?: number[];
+  }
+): Promise<string> {
+  const result = await createInsight({
+    bookId: ctx.bookId,
+    sourceSessionId: ctx.sessionId,
+    sourceAgentType: ctx.agentType,
+    insightType: input.insightType as "WARNING" | "SUGGESTION" | "FLAG" | "CONSTRAINT",
+    domain: input.domain,
+    summary: input.summary,
+    detail: input.detail,
+    targetAgents: input.targetAgents,
+    chapterScope: input.chapterScope,
+  });
+  return `Insight posted to blackboard (id: ${result.id}, type: ${input.insightType}, domain: ${input.domain}).`;
+}
+
+async function executeReadInsights(
+  ctx: ToolContext,
+  input: { chapterNumber?: number }
+): Promise<string> {
+  const insights = await getRelevantInsights(
+    ctx.bookId,
+    ctx.agentType,
+    input.chapterNumber
+  );
+  if (insights.length === 0) return "No active insights on the blackboard.";
+  return insights
+    .map(
+      (i) =>
+        `- [${i.insightType}] (${i.domain}) ${i.summary}\n  ${i.detail}\n  (id: ${i.id}, from: ${i.sourceAgentType})`
+    )
+    .join("\n\n");
+}
+
+async function executeResolveInsight(
+  ctx: ToolContext,
+  input: { insightId: string }
+): Promise<string> {
+  await resolveInsight(input.insightId, ctx.sessionId);
+  return `Insight ${input.insightId} marked as resolved.`;
+}
+
+// ─── Delegation Executor ────────────────────────────────────
+
+async function executeDelegateToSpecialist(
+  ctx: ToolContext,
+  input: {
+    agentType: string;
+    task: string;
+    chapterNumber?: number;
+    workflowId?: string;
+  }
+): Promise<string> {
+  const delegationCtx = ctx.delegationContext;
+  if (!delegationCtx) {
+    return "Error: DelegateToSpecialist is only available to the Writing Coach conductor.";
+  }
+
+  const specialistType = input.agentType as AgentType;
+  const specialistDef = getAgentDefinition(specialistType);
+  if (!specialistDef) {
+    return `Error: Unknown specialist agent type: ${input.agentType}`;
+  }
+
+  // Auto-inherit chapterNumber: prefer explicit input, fall back to parent session's scope
+  const resolvedChapterNumber = input.chapterNumber ?? delegationCtx.chapterNumber;
+
+  // Emit delegation_start to the parent SSE stream
+  delegationCtx.parentOnMessage({
+    type: "delegation_start",
+    content: `Delegating to ${specialistDef.name}...`,
+    metadata: {
+      agentType: specialistType,
+      agentName: specialistDef.name,
+      task: input.task,
+      chapterNumber: resolvedChapterNumber,
+    },
+  });
+
+  try {
+    // Resolve specialist LLM client
+    const { client, modelId, registryId } = await delegationCtx.createSpecialistClient(specialistType);
+
+    // Import AgentOrchestrator dynamically to avoid circular dependency
+    const { AgentOrchestrator } = await import("./orchestrator");
+
+    // Build specialist orchestrator with shared cost tracker
+    const specialistOrchestrator = new AgentOrchestrator({
+      client,
+      modelId,
+      registryId,
+      maxRuntimeMs: 20 * 60 * 1000, // 20 min for specialists
+      maxSessionCostUsd: 5, // per-specialist budget
+      sharedCostTracker: delegationCtx.sharedCostTracker,
+    });
+
+    // Register sub-orchestrator in parent session for approval forwarding
+    const parentSession = getSession(delegationCtx.parentSessionId);
+    const delegationId = crypto.randomUUID();
+    if (parentSession) {
+      parentSession.subOrchestrators.set(delegationId, specialistOrchestrator);
+    }
+
+    // Track specialist results
+    let specialistSuccess = false;
+    let specialistInputTokens = 0;
+    let specialistOutputTokens = 0;
+    const specialistDocumentIds: string[] = [];
+    let findingsCount = 0;
+    const textChunks: string[] = [];
+
+    // Specialist tool list — EXCLUDE DelegateToSpecialist to prevent recursion
+    const specialistTools = specialistDef.tools.filter((t) => t !== "DelegateToSpecialist");
+
+    const docService = new DocumentService(ctx.userId, ctx.bookId);
+
+    const spawnOptions = {
+      agentType: specialistType,
+      model: specialistDef.defaultModel,
+      context: {
+        bookId: ctx.bookId,
+        bookName: undefined as string | undefined,
+        userId: ctx.userId,
+        chapterNumber: resolvedChapterNumber,
+        language: delegationCtx.language,
+        seriesId: ctx.seriesId,
+      },
+      workflowId: input.workflowId ?? specialistType,
+      sessionId: `${delegationCtx.parentSessionId}-delegate-${delegationId}`,
+      onMessage: (message: AgentStreamMessage) => {
+        // Forward to parent as delegation_progress
+        delegationCtx.parentOnMessage({
+          type: "delegation_progress",
+          content: message.content,
+          metadata: {
+            ...message.metadata,
+            delegationId,
+            agentType: specialistType,
+            agentName: specialistDef.name,
+            originalType: message.type,
+          },
+        });
+
+        // Collect text for summary
+        if (message.type === "text") {
+          textChunks.push(message.content);
+        }
+        // Count findings
+        if (message.type === "tool_result" && message.metadata?.tool === "CreateFinding") {
+          findingsCount++;
+        }
+      },
+      onComplete: (result: import("./types").AgentResult) => {
+        specialistSuccess = result.success;
+        specialistInputTokens = result.tokensInput;
+        specialistOutputTokens = result.tokensOutput;
+        specialistDocumentIds.push(...result.documentIds);
+      },
+      onError: (_error: Error) => {
+        specialistSuccess = false;
+      },
+    } as const;
+
+    await specialistOrchestrator.runAgent(spawnOptions);
+
+    // Clean up sub-orchestrator registration
+    if (parentSession) {
+      parentSession.subOrchestrators.delete(delegationId);
+    }
+
+    // Run post-session processing for the specialist's workflow
+    if (input.workflowId) {
+      try {
+        await processPostSession({
+          sessionId: spawnOptions.sessionId,
+          bookId: ctx.bookId,
+          userId: ctx.userId,
+          workflowId: input.workflowId,
+          agentType: specialistType,
+          chapterNumber: resolvedChapterNumber,
+        });
+      } catch (e) {
+        console.error(`[Delegation] Post-session error for ${specialistType}:`, e);
+      }
+    }
+
+    // Emit delegation_complete
+    delegationCtx.parentOnMessage({
+      type: "delegation_complete",
+      content: `${specialistDef.name} ${specialistSuccess ? "completed" : "failed"}.`,
+      metadata: {
+        delegationId,
+        agentType: specialistType,
+        agentName: specialistDef.name,
+        success: specialistSuccess,
+        inputTokens: specialistInputTokens,
+        outputTokens: specialistOutputTokens,
+        findingsCreated: findingsCount,
+      },
+    });
+
+    // Build summary for the Coach (truncated to 10KB)
+    const fullText = textChunks.join("");
+    const truncatedSummary = fullText.length > 10000
+      ? fullText.slice(0, 10000) + "\n... (truncated)"
+      : fullText;
+
+    const resultSummary = [
+      `## ${specialistDef.name} Delegation Result`,
+      `Status: ${specialistSuccess ? "SUCCESS" : "FAILED"}`,
+      `Tokens: ${specialistInputTokens} input, ${specialistOutputTokens} output`,
+      findingsCount > 0 ? `Findings created: ${findingsCount}` : "",
+      specialistDocumentIds.length > 0 ? `Documents updated: ${specialistDocumentIds.length}` : "",
+      `\n### Specialist Output:\n${truncatedSummary || "(no text output)"}`,
+    ].filter(Boolean).join("\n");
+
+    return resultSummary;
+  } catch (error) {
+    // Clean up on failure
+    delegationCtx.parentOnMessage({
+      type: "delegation_complete",
+      content: `${specialistDef.name} failed: ${error instanceof Error ? error.message : String(error)}`,
+      metadata: {
+        delegationId: "unknown",
+        agentType: specialistType,
+        agentName: specialistDef.name,
+        success: false,
+      },
+    });
+
+    return `Delegation to ${specialistDef.name} failed: ${error instanceof Error ? error.message : String(error)}`;
+  }
+}
+
 /** Execute a tool by name. Returns APPROVAL_SENTINEL for approval gates. */
 export async function executeTool(
   toolName: string,
   ctx: ToolContext,
   input: Record<string, unknown>
 ): Promise<string> {
+  // RequestApproval is not retriable — return immediately
+  if (toolName === "RequestApproval") return APPROVAL_SENTINEL;
+
+  // DelegateToSpecialist is not retriable — it runs a full sub-session
+  if (toolName === "DelegateToSpecialist") {
+    return executeDelegateToSpecialist(ctx, input as {
+      agentType: string;
+      task: string;
+      chapterNumber?: number;
+      workflowId?: string;
+    });
+  }
+
   try {
-    switch (toolName) {
-      case "ReadDocument":
-        return executeReadDocument(
-          ctx,
-          input as { documentType: string; chapterNumber?: number }
-        );
-      case "WriteDocument":
-        return executeWriteDocument(
-          ctx,
-          input as {
-            documentType: string;
-            content: string;
-            title?: string;
-            chapterNumber?: number;
-          }
-        );
-      case "ReadChapter":
-        return executeReadChapter(
-          ctx,
-          input as { chapterNumber: number }
-        );
-      case "WriteChapter":
-        return executeWriteChapter(
-          ctx,
-          input as { chapterNumber: number; markdown: string }
-        );
-      case "ListDocuments":
-        return executeListDocuments(
-          ctx,
-          input as { documentType?: string }
-        );
-      case "CreateFinding":
-        return executeCreateFinding(
-          ctx,
-          input as {
-            chapterNumber: number;
-            severity: string;
-            category: string;
-            description: string;
-            suggestion?: string;
-            originalText?: string;
-            newText?: string;
-            locationStart?: string;
-            locationEnd?: string;
-          }
-        );
-      case "RequestApproval":
-        return APPROVAL_SENTINEL;
-      case "ReadSeriesDocument":
-        return executeReadSeriesDocument(
-          ctx,
-          input as { documentType: string }
-        );
-      case "WriteSeriesDocument":
-        return executeWriteSeriesDocument(
-          ctx,
-          input as { documentType: string; content: string; title?: string }
-        );
-      default:
-        return `Error: Unknown tool: ${toolName}`;
-    }
+    return await withRetry(() => executeToolInner(toolName, ctx, input));
   } catch (error) {
     return `Error executing ${toolName}: ${error instanceof Error ? error.message : String(error)}`;
+  }
+}
+
+async function executeToolInner(
+  toolName: string,
+  ctx: ToolContext,
+  input: Record<string, unknown>
+): Promise<string> {
+  switch (toolName) {
+    case "ReadDocument":
+      return executeReadDocument(
+        ctx,
+        input as { documentType: string; chapterNumber?: number }
+      );
+    case "WriteDocument":
+      return executeWriteDocument(
+        ctx,
+        input as {
+          documentType: string;
+          content: string;
+          title?: string;
+          chapterNumber?: number;
+        }
+      );
+    case "ReadChapter":
+      return executeReadChapter(
+        ctx,
+        input as { chapterNumber: number }
+      );
+    case "WriteChapter":
+      return executeWriteChapter(
+        ctx,
+        input as { chapterNumber: number; markdown: string }
+      );
+    case "ListDocuments":
+      return executeListDocuments(
+        ctx,
+        input as { documentType?: string }
+      );
+    case "CreateFinding":
+      return executeCreateFinding(
+        ctx,
+        input as {
+          chapterNumber: number;
+          severity: string;
+          category: string;
+          description: string;
+          rationale: string;
+          confidence: number;
+          paragraphNumber: number;
+          anchorQuote: string;
+          alternatives: Array<{ label: string; originalText: string; newText: string }>;
+          crossReferences?: Array<{ chapterNumber: number; paragraphNumber: number; quote: string }>;
+        }
+      );
+    case "ReadSeriesDocument":
+      return executeReadSeriesDocument(
+        ctx,
+        input as { documentType: string }
+      );
+    case "WriteSeriesDocument":
+      return executeWriteSeriesDocument(
+        ctx,
+        input as { documentType: string; content: string; title?: string }
+      );
+    case "QueryGraph":
+      return executeQueryGraph(
+        ctx,
+        input as { queryType: string; chapterNumber?: number }
+      );
+    case "UpdateGraphEntity":
+      return executeUpdateGraphEntity(
+        ctx,
+        input as {
+          entities: Array<{ type: string; name: string; properties?: Record<string, unknown> }>;
+          relationships?: Array<{ from: string; to: string; type: string; properties?: Record<string, unknown> }>;
+          chapterNumber?: number;
+        }
+      );
+    case "SearchMemory":
+      return executeSearchMemory(
+        ctx,
+        input as { query: string; collection?: string; chapterNumber?: number; limit?: number }
+      );
+    case "RememberInsight":
+      return executeRememberInsight(
+        ctx,
+        input as { content: string; category: string }
+      );
+    case "PostInsight":
+      return executePostInsight(
+        ctx,
+        input as {
+          insightType: string;
+          domain: string;
+          summary: string;
+          detail: string;
+          targetAgents?: string[];
+          chapterScope?: number[];
+        }
+      );
+    case "ReadInsights":
+      return executeReadInsights(
+        ctx,
+        input as { chapterNumber?: number }
+      );
+    case "ResolveInsight":
+      return executeResolveInsight(
+        ctx,
+        input as { insightId: string }
+      );
+    default:
+      return `Error: Unknown tool: ${toolName}`;
   }
 }

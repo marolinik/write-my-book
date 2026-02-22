@@ -68,6 +68,7 @@ export const updateChapterSchema = z.object({
     ])
     .optional(),
   actNumber: z.number().int().min(1).max(10).optional(),
+  chapterNumber: z.number().int().min(1).optional(),
 });
 
 export const startActionSchema = z.object({
@@ -78,7 +79,7 @@ export const startActionSchema = z.object({
 });
 
 export const addApiKeySchema = z.object({
-  provider: z.enum(["anthropic", "bedrock", "vertex", "azure"]),
+  provider: z.enum(["anthropic", "openrouter", "bedrock", "vertex", "azure"]),
   key: z.string().min(1).max(5000),
   label: z.string().max(100).optional(),
 });
@@ -96,6 +97,7 @@ export const updateSettingsSchema = z.object({
   modelCoach: z.enum(["opus", "sonnet"]).optional(),
   modelCreative: z.enum(["opus", "sonnet"]).optional(),
   modelResearch: z.enum(["opus", "sonnet", "haiku"]).optional(),
+  modelOverride: z.string().max(50).nullable().optional(),
   autoCommit: z.boolean().optional(),
   styleStrictness: z.enum(["strict", "balanced", "relaxed"]).optional(),
   betaPanelSize: z.number().int().min(3).max(10).optional(),
@@ -104,8 +106,24 @@ export const updateSettingsSchema = z.object({
   language: z.string().min(2).max(10).optional(),
 });
 
+export const pageContextSchema = z.object({
+  currentRoute: z.string(),
+  currentChapterNumber: z.number().int().optional(),
+  currentChapterId: z.string().optional(),
+  currentDocumentId: z.string().optional(),
+  currentDocumentType: z.string().optional(),
+  editorSelection: z.string().max(2048).optional(),
+  findingsContext: z.object({
+    totalPending: z.number(),
+    visibleSeverities: z.array(z.string()),
+    selectedFindingId: z.string().optional(),
+  }).optional(),
+  activeTab: z.string().optional(),
+}).optional();
+
 export const sendMessageSchema = z.object({
   message: z.string().min(1).max(10000),
+  pageContext: pageContextSchema,
 });
 
 export const fileWriteSchema = z.object({
@@ -229,6 +247,27 @@ export const exportConfigSchema = z.object({
 
 // ─── Editorial Schemas ──────────────────────────────────────────
 
+export const createFindingSchema = z.object({
+  chapterNumber: z.number().int().min(1),
+  severity: z.enum(["critical", "important", "suggestion"]),
+  category: z.string().min(1).max(50),
+  description: z.string().min(1).max(5000),
+  rationale: z.string().min(1).max(2000),
+  confidence: z.number().min(0).max(1),
+  paragraphNumber: z.number().int().min(1),
+  anchorQuote: z.string().min(1).max(2000),
+  alternatives: z.array(z.object({
+    label: z.string().min(1).max(200),
+    originalText: z.string().min(1),
+    newText: z.string().min(1),
+  })).min(2).max(3),
+  crossReferences: z.array(z.object({
+    chapterNumber: z.number().int().min(1),
+    paragraphNumber: z.number().int().min(1),
+    quote: z.string().min(1),
+  })).optional(),
+});
+
 export const findingsQuerySchema = z.object({
   chapterNumber: z.coerce.number().int().min(1).max(999).optional(),
   severity: z.enum(["critical", "major", "moderate", "minor"]).optional(),
@@ -335,7 +374,7 @@ export const exportConfigUpdateSchema = exportConfigSchema.partial();
 // ─── Settings Schemas ─────────────────────────────────────────
 
 export const createApiKeySchema = z.object({
-  provider: z.enum(["anthropic", "bedrock", "vertex", "azure"]),
+  provider: z.enum(["anthropic", "openrouter", "bedrock", "vertex", "azure"]),
   key: z.string().min(1).max(5000),
   label: z.string().max(100).optional(),
 });
@@ -343,6 +382,7 @@ export const createApiKeySchema = z.object({
 export const updateUserSettingsSchema = z.object({
   displayName: z.string().min(1).max(200).optional(),
   preferredLanguage: z.string().min(2).max(10).optional(),
+  defaultModel: z.string().max(50).optional(),
 });
 
 export const updateLanguageSchema = z.object({
@@ -377,4 +417,54 @@ export const updateCharacterLensSchema = z.object({
   interiorStyle: z.string().min(1).max(500).optional(),
   vocabularyRegister: z.string().min(1).max(500).optional(),
   blindSpots: z.string().max(1000).optional(),
+});
+
+// ─── Inline Edit Schemas ─────────────────────────────────────
+
+export const inlineEditRequestSchema = z.object({
+  selectedText: z.string().min(1).max(10000),
+  surroundingContext: z.string().max(20000).optional(),
+  instruction: z.string().max(2000).optional(),
+  count: z.number().int().min(1).max(5).optional().default(3),
+});
+
+export type InlineEditRequest = z.infer<typeof inlineEditRequestSchema>;
+
+export interface InlineEditSuggestion {
+  text: string;
+  label: string;
+}
+
+export interface InlineEditResponse {
+  suggestions: InlineEditSuggestion[];
+  tokensUsed: { input: number; output: number };
+}
+
+// ─── Writing Dashboard Schemas ──────────────────────────────────
+
+export const writingGoalSchema = z.object({
+  type: z.enum(["daily", "weekly", "total"]),
+  target: z.number().int().positive(),
+});
+
+export const writingStatsQuerySchema = z.object({
+  days: z.coerce.number().int().min(1).max(365).default(30),
+});
+
+// ─── Wiki Schemas ───────────────────────────────────────────────
+
+export const wikiEntitySchema = z.object({
+  type: z.enum(["character", "location", "item", "event", "lore", "custom"]),
+  name: z.string().min(1).max(200),
+  aliases: z.array(z.string()).default([]),
+  description: z.string().default(""),
+  attributes: z.record(z.string(), z.unknown()).default({}),
+  sourceType: z.enum(["manual", "agent", "import"]).default("manual"),
+});
+
+export const wikiEntityUpdateSchema = wikiEntitySchema.partial();
+
+export const wikiQuerySchema = z.object({
+  type: z.enum(["character", "location", "item", "event", "lore", "custom", "all"]).default("all"),
+  search: z.string().optional(),
 });
