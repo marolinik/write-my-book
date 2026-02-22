@@ -352,6 +352,10 @@ export function AgentPanel({
     if (pendingWorkflowId && noRunning && hasApiKey) {
       handleWorkflowSelectRef.current(pendingWorkflowId);
       clearPendingWorkflow();
+    } else if (pendingWorkflowId && noRunning && !hasApiKey) {
+      toast.error("API key required", {
+        description: "Add your API key in Settings to use AI agents.",
+      });
     }
   }, [pendingWorkflowId, noRunning, hasApiKey, clearPendingWorkflow]);
 

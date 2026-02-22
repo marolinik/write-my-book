@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { usePathname, useParams } from "next/navigation";
 import {
   BookOpenIcon,
+  BookMarkedIcon,
   LayoutDashboardIcon,
   LibraryIcon,
   PenLineIcon,
@@ -15,10 +15,11 @@ import {
   PenToolIcon,
   BarChart3Icon,
   DownloadIcon,
-  UploadIcon,
+  ArrowLeftRightIcon,
   SettingsIcon,
   PaletteIcon,
   WandIcon,
+  CircleIcon,
 } from "lucide-react";
 
 import {
@@ -35,30 +36,57 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-  SidebarRail,
+  SidebarSeparator,
 } from "@/components/ui/sidebar";
+import { Badge } from "@/components/ui/badge";
 import { useBook } from "@/hooks/use-books";
 import { useSeriesDetail } from "@/hooks/use-series";
 import { useBookState } from "@/hooks/use-book-state";
 import { useLanguage } from "@/components/providers/language-provider";
 
-const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-const isClerkConfigured =
-  clerkKey && clerkKey.length > 0 && !clerkKey.includes("REPLACE_ME");
+/** Status dot colors for chapters */
+const CH_STATUS_COLORS: Record<string, string> = {
+  undiscussed: "text-muted-foreground/40",
+  discussed: "text-blue-400",
+  planned: "text-indigo-400",
+  drafted: "text-amber-400",
+  dev_edited: "text-orange-400",
+  line_edited: "text-purple-400",
+  beta_read: "text-pink-400",
+  beta_passed: "text-green-500",
+};
 
-// Dynamic import: avoids loading @clerk/nextjs module when Clerk isn't configured
-const UserButton = dynamic(
-  () => import("@clerk/nextjs").then((mod) => ({ default: mod.UserButton })),
-  { ssr: false }
-);
+/** Map workflow IDs to sidebar nav item keys */
+const WORKFLOW_TO_NAV: Record<string, string> = {
+  "capture-style": "style",
+  "create-story-bible": "setup",
+  "build-architecture": "setup",
+  "discuss-chapter": "chapters",
+  "plan-chapter": "chapters",
+  "write-chapter": "chapters",
+  "freewrite": "chapters",
+  "dev-edit": "editorial",
+  "line-edit": "editorial",
+  "beta-read": "editorial",
+  "revise": "editorial",
+  "discuss-edits": "editorial",
+  "analyze": "reports",
+  "refresh-style": "style",
+  "evolve-style": "style",
+  "publishing-check": "export",
+  "market-analysis": "reports",
+};
 
-/** Light background tint for menu items based on completion status */
-const STATUS_BG = {
-  done: "bg-green-500/10",
-  partial: "bg-amber-500/10",
-  none: "",
-} as const;
-type ItemStatus = keyof typeof STATUS_BG;
+const MAX_SIDEBAR_CHAPTERS = 10;
+
+type ItemStatus = "done" | "partial" | "none";
+
+/** Left-edge status bar color */
+function statusBarClass(s: ItemStatus): string {
+  if (s === "done") return "before:absolute before:left-0 before:top-1 before:bottom-1 before:w-[3px] before:rounded-r-sm before:bg-green-500";
+  if (s === "partial") return "before:absolute before:left-0 before:top-1 before:bottom-1 before:w-[3px] before:rounded-r-sm before:bg-amber-500";
+  return "";
+}
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -70,40 +98,68 @@ export function AppSidebar() {
   const { data: book } = useBook(bookId ?? "");
   const { data: series } = useSeriesDetail(seriesId ?? "");
   const [chaptersOpen, setChaptersOpen] = useState(false);
+  const [showAllChapters, setShowAllChapters] = useState(false);
   const bookState = useBookState(bookId ?? "");
 
-  // Per-item status for light background tinting
-  const itemStatus: Record<string, ItemStatus> = {};
-  if (bookId && book && !bookState.isLoading) {
-    const bs = bookState;
-    const cs = bs.chapterStatuses;
-    const total = bs.chapterCount;
-    const draftedPlus = (cs.drafted ?? 0) + (cs.dev_edited ?? 0) + (cs.line_edited ?? 0) + (cs.beta_read ?? 0) + (cs.final ?? 0);
-    const editedPlus = (cs.dev_edited ?? 0) + (cs.line_edited ?? 0) + (cs.beta_read ?? 0) + (cs.final ?? 0);
+  // Derived counts and statuses
+  const { itemStatus, counts, pendingFindings, nextNavKey } = useMemo(() => {
+    const statuses: Record<string, ItemStatus> = {};
+    const cts: Record<string, string> = {};
+    let pending = 0;
+    let navKey: string | null = null;
 
-    // Setup wizard: all 3 setup docs = done, some = partial
-    const setupCount = [bs.hasFingerprint, bs.hasStoryBible, bs.hasArchitecture].filter(Boolean).length;
-    itemStatus.setup = setupCount === 3 ? "done" : setupCount > 0 ? "partial" : "none";
+    if (bookId && book && !bookState.isLoading) {
+      const bs = bookState;
+      const cs = bs.chapterStatuses;
+      const total = bs.chapterCount;
+      const draftedPlus = (cs.drafted ?? 0) + (cs.dev_edited ?? 0) + (cs.line_edited ?? 0) + (cs.beta_read ?? 0) + (cs.final ?? 0);
+      const editedPlus = (cs.dev_edited ?? 0) + (cs.line_edited ?? 0) + (cs.beta_read ?? 0) + (cs.final ?? 0);
 
-    // Chapters: all drafted+ = done, has chapters = partial
-    itemStatus.chapters = total === 0 ? "none" : draftedPlus >= total ? "done" : "partial";
+      // Setup: bible + architecture + fingerprint
+      const setupDone = [bs.hasStoryBible, bs.hasArchitecture].filter(Boolean).length;
+      statuses.setup = setupDone === 2 ? "done" : setupDone > 0 ? "partial" : "none";
+      cts.setup = `${setupDone}/2`;
 
-    // Editorial: all edited+ & no pending findings = done, some editing = partial
-    itemStatus.editorial = total === 0 ? "none"
-      : (editedPlus >= total && bs.pendingFindingsCount === 0) ? "done"
-      : (editedPlus > 0 || bs.pendingFindingsCount > 0) ? "partial" : "none";
+      // Style
+      statuses.style = bs.hasStyleProfile ? "done" : bs.hasFingerprint ? "partial" : "none";
 
-    // Reports: has any report docs = done/partial
-    const reportCount = [bs.hasAnalysisReport, bs.hasContinuityReport, bs.hasMarketReport].filter(Boolean).length;
-    itemStatus.reports = reportCount >= 2 ? "done" : reportCount > 0 ? "partial" : "none";
+      // Chapters
+      statuses.chapters = total === 0 ? "none" : draftedPlus >= total ? "done" : "partial";
+      cts.chapters = total > 0 ? `${draftedPlus}/${total}` : "";
 
-    // Style: has style profile = done, has fingerprint only = partial
-    itemStatus.style = bs.hasStyleProfile ? "done" : bs.hasFingerprint ? "partial" : "none";
+      // Editorial
+      pending = bs.pendingFindingsCount ?? 0;
+      statuses.editorial = total === 0 ? "none"
+        : (editedPlus >= total && pending === 0) ? "done"
+        : (editedPlus > 0 || pending > 0) ? "partial" : "none";
+      cts.editorial = total > 0 ? `${editedPlus}/${total}` : "";
 
-    // Export: only "done" when all chapters are final
-    const finalCount = cs.final ?? 0;
-    itemStatus.export = (finalCount >= total && total > 0) ? "done" : "none";
-  }
+      // Reports
+      const reportCount = [bs.hasAnalysisReport, bs.hasContinuityReport, bs.hasMarketReport].filter(Boolean).length;
+      statuses.reports = reportCount >= 2 ? "done" : reportCount > 0 ? "partial" : "none";
+      cts.reports = `${reportCount}/3`;
+
+      // Export
+      const finalCount = cs.final ?? 0;
+      statuses.export = (finalCount >= total && total > 0) ? "done" : "none";
+
+      // Prepare phase overall
+      const prepareItems = [statuses.setup, statuses.style];
+      const prepareDone = prepareItems.filter(s => s === "done").length;
+      statuses.prepare = prepareDone === prepareItems.length ? "done" : prepareDone > 0 || prepareItems.some(s => s === "partial") ? "partial" : "none";
+
+      // Edit phase overall
+      const editItems = [statuses.editorial, statuses.reports];
+      const editDone = editItems.filter(s => s === "done").length;
+      statuses.editReview = editDone === editItems.length ? "done" : editDone > 0 || editItems.some(s => s === "partial") ? "partial" : "none";
+
+      navKey = bs.nextRecommendedWorkflow
+        ? WORKFLOW_TO_NAV[bs.nextRecommendedWorkflow] ?? null
+        : null;
+    }
+
+    return { itemStatus: statuses, counts: cts, pendingFindings: pending, nextNavKey: navKey };
+  }, [bookId, book, bookState]);
 
   const navItems = [
     { title: t.nav.dashboard, href: "/dashboard", icon: LayoutDashboardIcon },
@@ -111,8 +167,25 @@ export function AppSidebar() {
     { title: t.nav.series, href: "/series", icon: LibraryIcon },
   ];
 
+  /** Renders a NEXT badge if this nav key is the recommended next step */
+  const nextBadge = (navKey: string) =>
+    nextNavKey === navKey ? (
+      <Badge variant="default" className="ml-auto text-[10px] px-1.5 py-0">
+        {t.nav.nextStep}
+      </Badge>
+    ) : null;
+
+  /** Count badge (muted) for section headers */
+  const countBadge = (key: string) => {
+    const v = counts[key];
+    if (!v) return null;
+    const s = itemStatus[key];
+    const color = s === "done" ? "text-green-500" : s === "partial" ? "text-amber-500" : "text-muted-foreground";
+    return <span className={`ml-auto text-[10px] font-semibold ${color}`}>{v}</span>;
+  };
+
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="offcanvas">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -136,7 +209,7 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        {/* Main Navigation */}
+        {/* ─── Global Navigation ─── */}
         <SidebarGroup>
           <SidebarGroupLabel>{t.nav.navigation}</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -148,7 +221,9 @@ export function AppSidebar() {
                     isActive={
                       item.href === "/dashboard"
                         ? pathname === "/dashboard"
-                        : pathname.startsWith(item.href)
+                        : item.href === "/books"
+                          ? pathname === "/books"
+                          : pathname.startsWith(item.href)
                     }
                   >
                     <Link href={item.href}>
@@ -162,7 +237,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Active Series Context */}
+        {/* ─── Active Series Context ─── */}
         {seriesId && series && (
           <SidebarGroup>
             <SidebarGroupLabel className="flex items-center gap-1">
@@ -185,32 +260,28 @@ export function AppSidebar() {
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     asChild
-                    isActive={false}
+                    isActive={pathname.includes(`/series/${seriesId}/documents`)}
                   >
-                    <Link href={`/series/${seriesId}`}>
+                    <Link href={`/series/${seriesId}/documents`}>
                       <DownloadIcon />
                       <span>{t.nav.documents}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     asChild
-                    isActive={false}
+                    isActive={pathname.includes(`/series/${seriesId}/analytics`)}
                   >
-                    <Link href={`/series/${seriesId}`}>
+                    <Link href={`/series/${seriesId}/analytics`}>
                       <BarChart3Icon />
                       <span>{t.nav.analytics}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-
-                {/* Books sub-nav */}
                 <SidebarMenuItem>
                   <SidebarMenuButton>
                     <ChevronRightIcon />
@@ -238,190 +309,17 @@ export function AppSidebar() {
           </SidebarGroup>
         )}
 
-        {/* Active Book Context — grouped by workflow phase */}
+        {/* ─── Active Book Context ─── */}
         {bookId && book && (
           <>
-            {/* Book header */}
+            {/* Book header + Overview */}
             <SidebarGroup>
               <SidebarGroupLabel className="flex items-center gap-1">
                 <BookOpenIcon className="size-3" />
                 <span className="truncate">{book.name}</span>
               </SidebarGroupLabel>
-            </SidebarGroup>
-
-            {/* SETUP */}
-            <SidebarGroup>
-              <SidebarGroupLabel>{t.nav.sectionSetup}</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={pathname.includes("/setup")}
-                      className={STATUS_BG[itemStatus.setup ?? "none"]}
-                    >
-                      <Link href={`/books/${bookId}/setup`}>
-                        <WandIcon />
-                        <span>{t.nav.setup}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={pathname.includes("/import")}
-                    >
-                      <Link href={`/books/${bookId}/import`}>
-                        <UploadIcon />
-                        <span>{t.nav.import}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-
-            {/* WRITING */}
-            <SidebarGroup>
-              <SidebarGroupLabel>{t.nav.sectionWriting}</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      onClick={() => setChaptersOpen((o) => !o)}
-                      className={STATUS_BG[itemStatus.chapters ?? "none"]}
-                    >
-                      <ChevronRightIcon
-                        className={`size-4 transition-transform duration-200 ${chaptersOpen ? "rotate-90" : ""}`}
-                      />
-                      <span>{t.nav.chapters}</span>
-                      <span className="ml-auto text-xs text-muted-foreground">
-                        {book.chapters?.length ?? 0}
-                      </span>
-                    </SidebarMenuButton>
-                    {chaptersOpen && (
-                      <SidebarMenuSub>
-                        {book.chapters?.map((ch) => (
-                          <SidebarMenuSubItem key={ch.id}>
-                            <SidebarMenuSubButton
-                              asChild
-                              isActive={pathname.includes(`/chapters/${ch.id}`)}
-                            >
-                              <Link href={`/books/${bookId}/chapters/${ch.id}`}>
-                                <span>
-                                  Ch. {ch.chapterNumber}
-                                  {ch.title ? `: ${ch.title}` : ""}
-                                </span>
-                              </Link>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        ))}
-                        <SidebarMenuSubItem>
-                          <SidebarMenuSubButton asChild>
-                            <Link href={`/books/${bookId}/chapters/new`}>
-                              <PlusIcon className="size-3" />
-                              <span>{t.nav.addChapter}</span>
-                            </Link>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      </SidebarMenuSub>
-                    )}
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-
-            {/* EDITING */}
-            <SidebarGroup>
-              <SidebarGroupLabel>{t.nav.sectionEditing}</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={pathname.includes("/editorial")}
-                      className={STATUS_BG[itemStatus.editorial ?? "none"]}
-                    >
-                      <Link href={`/books/${bookId}/editorial`}>
-                        <PenToolIcon />
-                        <span>{t.nav.editorial}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-
-            {/* ANALYSIS */}
-            <SidebarGroup>
-              <SidebarGroupLabel>{t.nav.sectionAnalysis}</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={pathname.includes("/reports")}
-                      className={STATUS_BG[itemStatus.reports ?? "none"]}
-                    >
-                      <Link href={`/books/${bookId}/reports`}>
-                        <BarChart3Icon />
-                        <span>{t.nav.reports}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={pathname.includes("/style")}
-                      className={STATUS_BG[itemStatus.style ?? "none"]}
-                    >
-                      <Link href={`/books/${bookId}/style`}>
-                        <PaletteIcon />
-                        <span>{t.nav.style}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-
-            {/* PUBLISH */}
-            <SidebarGroup>
-              <SidebarGroupLabel>{t.nav.sectionPublish}</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={pathname.includes("/export")}
-                      className={STATUS_BG[itemStatus.export ?? "none"]}
-                    >
-                      <Link href={`/books/${bookId}/export`}>
-                        <DownloadIcon />
-                        <span>{t.nav.export}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-
-            {/* TOOLS */}
-            <SidebarGroup>
-              <SidebarGroupLabel>{t.nav.sectionTools}</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={pathname.includes("/documents")}
-                    >
-                      <Link href={`/books/${bookId}/documents`}>
-                        <FileTextIcon />
-                        <span>{t.nav.documents}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       asChild
@@ -434,6 +332,245 @@ export function AppSidebar() {
                       <Link href={`/books/${bookId}`}>
                         <FileTextIcon />
                         <span>{t.nav.overview}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+            <SidebarSeparator />
+
+            {/* ─── Phase 1: Prepare ─── */}
+            <SidebarGroup>
+              <SidebarGroupLabel className="flex items-center">
+                <span>{t.nav.sectionSetup}</span>
+                {countBadge("setup")}
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {/* Setup (Story Bible + Architecture) */}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname.includes("/setup")}
+                      className={`relative ${statusBarClass(itemStatus.setup ?? "none")}`}
+                    >
+                      <Link href={`/books/${bookId}/setup`}>
+                        <WandIcon />
+                        <span>{t.nav.setup}</span>
+                        {nextBadge("setup")}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+
+                  {/* Transfer (Import & Export) */}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname.includes("/transfer") || pathname.includes("/import") || pathname.includes("/export")}
+                      className="relative"
+                    >
+                      <Link href={`/books/${bookId}/transfer`}>
+                        <ArrowLeftRightIcon />
+                        <span>{t.nav.transfer}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+
+                  {/* Style */}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname.includes("/style")}
+                      className={`relative ${statusBarClass(itemStatus.style ?? "none")}`}
+                    >
+                      <Link href={`/books/${bookId}/style`}>
+                        <PaletteIcon />
+                        <span>{t.nav.style}</span>
+                        {nextBadge("style")}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+            <SidebarSeparator />
+
+            {/* ─── Phase 2: Write ─── */}
+            <SidebarGroup>
+              <SidebarGroupLabel className="flex items-center">
+                <span>{t.nav.sectionWriting}</span>
+                {counts.chapters ? (
+                  <span className={`ml-auto text-[10px] font-semibold ${
+                    itemStatus.chapters === "done" ? "text-green-500" : itemStatus.chapters === "partial" ? "text-amber-500" : "text-muted-foreground"
+                  }`}>{counts.chapters}</span>
+                ) : null}
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {/* Chapters (collapsible) */}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      onClick={() => setChaptersOpen((o) => !o)}
+                      className={`relative ${statusBarClass(itemStatus.chapters ?? "none")}`}
+                    >
+                      <ChevronRightIcon
+                        className={`size-4 transition-transform duration-200 ${chaptersOpen ? "rotate-90" : ""}`}
+                      />
+                      <span>{t.nav.chapters}</span>
+                      {nextNavKey === "chapters" ? (
+                        <Badge variant="default" className="ml-auto text-[10px] px-1.5 py-0">
+                          {t.nav.nextStep}
+                        </Badge>
+                      ) : (
+                        <span className="ml-auto text-xs text-muted-foreground">
+                          {book.chapters?.length ?? 0}
+                        </span>
+                      )}
+                    </SidebarMenuButton>
+                    {chaptersOpen && (
+                      <SidebarMenuSub>
+                        {(showAllChapters
+                          ? book.chapters
+                          : book.chapters?.slice(0, MAX_SIDEBAR_CHAPTERS)
+                        )?.map((ch) => (
+                          <SidebarMenuSubItem key={ch.id}>
+                            <SidebarMenuSubButton
+                              asChild
+                              isActive={pathname.includes(`/chapters/${ch.id}`)}
+                            >
+                              <Link href={`/books/${bookId}/chapters/${ch.id}`}>
+                                <CircleIcon
+                                  className={`size-2 fill-current ${CH_STATUS_COLORS[ch.status] ?? "text-muted-foreground/40"}`}
+                                />
+                                <span>
+                                  Ch. {ch.chapterNumber}
+                                  {ch.title ? `: ${ch.title}` : ""}
+                                </span>
+                              </Link>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ))}
+                        {!showAllChapters && (book.chapters?.length ?? 0) > MAX_SIDEBAR_CHAPTERS && (
+                          <SidebarMenuSubItem>
+                            <SidebarMenuSubButton onClick={() => setShowAllChapters(true)}>
+                              <span className="text-xs text-muted-foreground">
+                                Show all {book.chapters?.length} chapters
+                              </span>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        )}
+                        <SidebarMenuSubItem>
+                          <SidebarMenuSubButton asChild>
+                            <Link href={`/books/${bookId}/chapters/new`}>
+                              <PlusIcon className="size-3" />
+                              <span>{t.nav.addChapter}</span>
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      </SidebarMenuSub>
+                    )}
+                  </SidebarMenuItem>
+
+                  {/* Library (Documents + Wiki) */}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname.includes("/library") || pathname.includes("/documents") || pathname.includes("/wiki")}
+                      className="relative"
+                    >
+                      <Link href={`/books/${bookId}/library`}>
+                        <LibraryIcon />
+                        <span>{t.nav.library}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+
+                  {/* Writing Dashboard */}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname.includes("/dashboard") && !pathname.startsWith("/dashboard")}
+                      className="relative"
+                    >
+                      <Link href={`/books/${bookId}/dashboard`}>
+                        <LayoutDashboardIcon />
+                        <span>{t.writingDashboard.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+            <SidebarSeparator />
+
+            {/* ─── Phase 3: Edit & Review ─── */}
+            <SidebarGroup>
+              <SidebarGroupLabel className="flex items-center">
+                <span>{t.nav.sectionEditing}</span>
+                {countBadge("editorial")}
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {/* Editorial */}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname.includes("/editorial")}
+                      className={`relative ${statusBarClass(itemStatus.editorial ?? "none")}`}
+                    >
+                      <Link href={`/books/${bookId}/editorial`}>
+                        <PenToolIcon />
+                        <span>{t.nav.editorial}</span>
+                        {pendingFindings > 0 ? (
+                          <Badge variant="destructive" className="ml-auto text-[10px] px-1.5 py-0">
+                            {pendingFindings}
+                          </Badge>
+                        ) : (
+                          nextBadge("editorial")
+                        )}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+
+                  {/* Reports */}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname.includes("/reports")}
+                      className={`relative ${statusBarClass(itemStatus.reports ?? "none")}`}
+                    >
+                      <Link href={`/books/${bookId}/reports`}>
+                        <BarChart3Icon />
+                        <span>{t.nav.reports}</span>
+                        {nextBadge("reports")}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+            <SidebarSeparator />
+
+            {/* ─── Phase 4: Publish ─── */}
+            <SidebarGroup>
+              <SidebarGroupLabel>{t.nav.sectionPublish}</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname.includes("/transfer") && pathname.includes("tab=export")}
+                      className={`relative ${statusBarClass(itemStatus.export ?? "none")}`}
+                    >
+                      <Link href={`/books/${bookId}/transfer?tab=export`}>
+                        <DownloadIcon />
+                        <span>{t.nav.export}</span>
+                        {nextBadge("export")}
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -457,23 +594,8 @@ export function AppSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          {isClerkConfigured && (
-            <SidebarMenuItem>
-              <SidebarMenuButton size="lg" className="cursor-default">
-                <UserButton
-                  afterSignOutUrl="/login"
-                  appearance={{
-                    elements: { avatarBox: "size-8" },
-                  }}
-                />
-                <span className="truncate text-sm">{t.nav.account}</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          )}
         </SidebarMenu>
       </SidebarFooter>
-
-      <SidebarRail />
     </Sidebar>
   );
 }
