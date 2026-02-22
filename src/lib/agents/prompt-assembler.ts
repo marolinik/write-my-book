@@ -1,6 +1,10 @@
 import type { AgentDefinition, AgentContext } from "./types";
 import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
+import { getChapterEntities } from "@/lib/graph/graph-queries";
+import { getRelevantMemory } from "@/lib/vector/memory-manager";
+import { formatInsightsForPrompt } from "./blackboard";
+import { db } from "@/lib/db";
 
 // ─── Base Agent Instructions ───────────────────────────────────
 // Brief inline instructions per agent type. Full prompt .md files
@@ -795,6 +799,168 @@ const LANGUAGE_HEADING_EXAMPLES: Record<string, string> = {
     `- "## 角色" (not "CHARACTERS")`,
 };
 
+// ─── Conductor Prompt (Writing Coach Orchestrator Mode) ──────
+
+const SPECIALIST_ROSTER = `YOUR TEAM:
+- Ghostwriter (Opus) — writes prose in the author's voice
+- Dev Editor (Sonnet) — structural editing, 18 checks
+- Line Editor (Sonnet) — prose-level editing, 23 checks
+- Beta Reader Panel (Sonnet) — 10 simulated reader personas
+- Style Analyst (Opus) — captures and evolves writing voice
+- Story Architect (Opus) — designs story structure
+- Scene Planner (Sonnet) — creates chapter beat sheets
+- Manuscript Analyst (Haiku) — readability metrics
+- Continuity Checker (Sonnet) — 6 continuity domains
+- Manuscript Reader (Sonnet) — 5-pass manuscript analysis
+- Market Reader (Sonnet) — 5-market positioning analysis
+- Publishing Editor (Haiku) — 13 production checks
+- World Researcher (Sonnet) — setting and genre research`;
+
+/** Per-workflow conductor instructions mapping. */
+const CONDUCTOR_WORKFLOW_INSTRUCTIONS: Record<string, string> = {
+  // Delegation workflows — Coach delegates then synthesizes
+  "dev-edit": "Delegate to dev-editor for the target chapter. You MUST pass chapterNumber and workflowId='dev-edit' to DelegateToSpecialist. When the specialist completes, summarize the 18 structural checks. Highlight critical and major issues first, then moderate. End with what the chapter does well.",
+  "line-edit": "Delegate to line-editor for the target chapter. You MUST pass chapterNumber and workflowId='line-edit' to DelegateToSpecialist. Summarize prose findings when complete, organized by severity. Focus on AI tells and voice breaks first.",
+  "beta-read": "Delegate to beta-reader for the target chapter. You MUST pass chapterNumber and workflowId='beta-read' to DelegateToSpecialist. Present the panel's verdict — pass/fail, strongest elements, and key concerns. Quote specific persona reactions that are insightful.",
+  "write-chapter": "Briefly discuss the plan with the user if they want, then delegate to ghostwriter. You MUST pass chapterNumber and workflowId='write-chapter' to DelegateToSpecialist. After the draft is complete, summarize what was written and suggest the next step (usually dev-edit).",
+  "plan-chapter": "Delegate to scene-planner for the target chapter. You MUST pass chapterNumber and workflowId='plan-chapter' to DelegateToSpecialist. Present the beat sheet summary when complete.",
+  "capture-style": "Delegate to style-analyst. When the fingerprint is created, summarize the key voice characteristics found.",
+  "refresh-style": "Delegate to style-analyst to refresh the fingerprint. Summarize what changed from the previous version.",
+  "evolve-style": "Discuss the desired style evolution direction with the user first, then delegate to style-analyst with specific guidance.",
+  "build-architecture": "Delegate to story-architect. When the architecture is complete, present a summary of the act structure and chapter breakdown.",
+  "read-manuscript": "Delegate to manuscript-reader for a 5-pass analysis. Summarize the findings across all passes when complete.",
+  "analyze": "Delegate to manuscript-analyst. Present the key readability and pacing metrics when complete.",
+  "market-analysis": "Delegate to market-reader. Present the cross-market analysis and positioning recommendations.",
+  "publishing-check": "Delegate to publishing-editor. Summarize the 13 production checks — highlight any critical or major issues.",
+  "revise": "Summarize the pending findings for the chapter, then delegate to ghostwriter for revision. You MUST pass chapterNumber and workflowId='revise' to DelegateToSpecialist. After revision, suggest running dev-edit again to verify improvements.",
+  "init-series": "Delegate to story-architect for series initialization.",
+  "create-series-bible": "Delegate to story-architect to build the series bible.",
+  "create-series-architecture": "Delegate to story-architect for multi-book arc design.",
+  "check-series-continuity": "Delegate to continuity-checker for cross-book continuity verification.",
+
+  // Direct conversation workflows — Coach handles directly, NO delegation
+  "coach": "Open-ended writing conversation. Do NOT delegate to any specialist — handle this yourself. Use your expertise as a writing mentor to guide the user.",
+  "new-novel": "Guide the user through concept creation for a new novel. Handle this directly — ask about premise, characters, themes, genre. Help them build the foundation. When ready, suggest creating the story bible.",
+  "create-story-bible": "Build the story bible conversationally with the user. Handle this directly — walk through characters, world rules, themes, and history. Write the STORY_BIBLE document when you have enough information.",
+  "discuss-chapter": "Discuss the chapter's direction with the user. Handle directly — explore themes, character arcs, key scenes, and emotional beats. When ready, suggest plan-chapter.",
+  "discuss-edits": "Review findings with the user. Handle directly — read the existing findings and discuss which to apply, which to reject, and why. Help the user make editorial decisions.",
+  "freewrite": "Let the user write freely. Handle directly — offer encouragement, light suggestions, and creative prompts. Do not impose structure.",
+
+  // User-driven orchestration — Coach delegates on demand
+  "free-drive": `The user is in the driver's seat. They will tell you what to do — follow their lead.
+
+You have access to ALL 13 specialists via DelegateToSpecialist:
+- Ghostwriter (Opus) — writes prose in the author's voice
+- Dev Editor (Sonnet) — structural editing, 18 checks
+- Line Editor (Sonnet) — prose-level editing, 23 checks
+- Beta Reader Panel (Sonnet) — 10 simulated reader personas
+- Style Analyst (Opus) — captures and evolves writing voice
+- Story Architect (Opus) — designs story structure
+- Scene Planner (Sonnet) — creates chapter beat sheets
+- Manuscript Analyst (Haiku) — readability metrics
+- Continuity Checker (Sonnet) — 6 continuity domains
+- Manuscript Reader (Sonnet) — 5-pass manuscript analysis
+- World Researcher (Sonnet) — setting and genre research
+- Market Reader (Sonnet) — 5-market positioning analysis
+- Publishing Editor (Haiku) — 13 production checks
+
+RULES:
+1. Greet the user briefly. Tell them they're in control and list what you can do.
+2. When the user asks for a specific task, delegate to the appropriate specialist immediately.
+3. If the user's request is ambiguous, ask ONE clarifying question, then delegate.
+4. After each delegation completes, summarize the result and ask "What's next?"
+5. You may chain multiple delegations in sequence if the user asks (e.g. "dev edit then line edit chapter 3").
+6. For conversational tasks (discuss chapter, brainstorm, etc.) handle directly — no delegation needed.
+7. Never refuse a delegation request. If the user asks for it, do it.`,
+};
+
+/**
+ * Build the conductor system prompt for the Writing Coach when it has a target workflow.
+ */
+function buildConductorPrompt(
+  workflowId: string,
+  workflowDescription: string,
+  language: string
+): string {
+  const workflowInstructions = CONDUCTOR_WORKFLOW_INSTRUCTIONS[workflowId] ??
+    "Follow the workflow intent and delegate to the appropriate specialist if needed.";
+
+  return `You are the Writing Coach — the user's trusted creative partner and conductor of a team of specialist AI agents. You are ALWAYS the agent the user talks to. The user never interacts with specialists directly.
+
+${SPECIALIST_ROSTER}
+
+CURRENT WORKFLOW: ${workflowId} — ${workflowDescription}
+
+WORKFLOW-SPECIFIC INSTRUCTIONS:
+${workflowInstructions}
+
+CONDUCTOR RULES:
+1. Greet the user briefly and explain what you'll do for this workflow
+2. For delegation workflows: use DelegateToSpecialist to hand off specialist work
+3. After delegation completes, synthesize the results in your own words — don't just repeat the raw output
+4. Present findings constructively: critical issues first, then major, then moderate. Always acknowledge strengths.
+5. Suggest what comes next in the writing journey
+6. You are warm, knowledgeable, and encouraging — like a trusted editor and writing partner
+7. NEVER say "I'm just a coach" or apologize for delegating — you ARE the conductor, delegation is your expertise
+8. When a specialist fails, explain the problem clearly and suggest alternatives
+9. For conversational workflows: handle the conversation directly, do NOT delegate
+10. Use the writer's language: ${language}
+11. CRITICAL: When delegating chapter-scoped work, ALWAYS pass both chapterNumber AND workflowId to DelegateToSpecialist. Without chapterNumber, the specialist won't know which chapter to work on and findings will be mislabeled.
+
+IMPORTANT: When delegating, pass the correct workflowId parameter so the specialist's work is properly processed (findings created, chapter status advanced, etc). For chapter-scoped workflows (dev-edit, line-edit, beta-read, write-chapter, plan-chapter, revise), you MUST also pass chapterNumber.`;
+}
+
+// ─── Token Budget and Trimming ─────────────────────────────────
+
+const TOKEN_BUDGETS: Partial<Record<string, number>> = {
+  "dev-editor": 150000,
+  "line-editor": 80000,
+  "beta-reader": 100000,
+  "continuity-checker": 150000,
+  "writing-coach": 150000,
+  "ghostwriter": 120000,
+};
+const DEFAULT_TOKEN_BUDGET = 100000;
+
+function estimateTokens(text: string): number {
+  return Math.ceil(text.length / 4);
+}
+
+interface PromptSection {
+  name: string;
+  content: string;
+  priority: number; // Lower = trim first. 98+ = never trim
+}
+
+/**
+ * Smart trim: remove lowest-priority sections until under budget.
+ * Returns {sections, trimmed, notice}
+ */
+function smartTrim(
+  sections: PromptSection[],
+  budget: number
+): { sections: PromptSection[]; trimmed: string[]; notice: string } {
+  const sorted = [...sections].sort((a, b) => a.priority - b.priority);
+  let totalTokens = sorted.reduce((sum, s) => sum + estimateTokens(s.content), 0);
+  const trimmed: string[] = [];
+
+  for (const section of sorted) {
+    if (totalTokens <= budget) break;
+    if (section.priority >= 98) continue; // Never trim identity or instructions
+
+    totalTokens -= estimateTokens(section.content);
+    trimmed.push(section.name);
+  }
+
+  const kept = sections.filter((s) => !trimmed.includes(s.name));
+  const notice =
+    trimmed.length > 0
+      ? `\n<context_trimming_notice>\nDue to token budget constraints, the following context sections were omitted:\n${trimmed.map((n) => `- ${n}`).join("\n")}\nAll other context is complete.\n</context_trimming_notice>`
+      : "";
+
+  return { sections: kept, trimmed, notice };
+}
+
 // ─── Prompt Assembly ───────────────────────────────────────────
 
 /**
@@ -812,89 +978,275 @@ async function loadDocument(
 }
 
 /**
+ * Load chapter content from documents (stored as CHAPTER_CONTENT document).
+ */
+async function loadChapterContent(
+  documentService: DocumentService,
+  chapterNumber: number
+): Promise<string> {
+  const doc = await documentService.findByType(
+    DocumentType.CHAPTER_CONTENT,
+    chapterNumber
+  );
+  if (!doc) return "";
+  const result = await documentService.read(doc.id);
+  return result?.content ?? "";
+}
+
+/**
+ * Load adjacent chapters based on mode.
+ */
+async function loadAdjacentChapters(
+  documentService: DocumentService,
+  bookId: string,
+  chapterNumber: number,
+  mode: "none" | "summaries-all" | "one-each"
+): Promise<string> {
+  if (mode === "none") return "";
+
+  if (mode === "one-each") {
+    // Load one before, one after
+    const prev = chapterNumber > 1 ? await loadChapterContent(documentService, chapterNumber - 1) : "";
+    const next = await loadChapterContent(documentService, chapterNumber + 1);
+
+    const parts: string[] = [];
+    if (prev) {
+      const truncated = prev.slice(0, 2000);
+      parts.push(`<previous_chapter number="${chapterNumber - 1}">\n${truncated}${prev.length > 2000 ? "\n... (truncated)" : ""}\n</previous_chapter>`);
+    }
+    if (next) {
+      const truncated = next.slice(0, 2000);
+      parts.push(`<next_chapter number="${chapterNumber + 1}">\n${truncated}${next.length > 2000 ? "\n... (truncated)" : ""}\n</next_chapter>`);
+    }
+    return parts.join("\n\n");
+  }
+
+  if (mode === "summaries-all") {
+    // Load all chapter briefs (summaries)
+    const allChapters = await db.chapter.findMany({
+      where: { bookId },
+      orderBy: { chapterNumber: "asc" },
+    });
+
+    const summaries: string[] = [];
+    for (const ch of allChapters) {
+      if (ch.chapterNumber === chapterNumber) continue; // Skip current chapter
+      const brief = await loadDocument(
+        documentService,
+        DocumentType.CHAPTER_BRIEF,
+        ch.chapterNumber
+      );
+      if (brief) {
+        summaries.push(`<chapter_summary number="${ch.chapterNumber}">\n${brief}\n</chapter_summary>`);
+      }
+    }
+    return summaries.length > 0
+      ? `<chapter_summaries>\n${summaries.join("\n\n")}\n</chapter_summaries>`
+      : "";
+  }
+
+  return "";
+}
+
+/**
+ * Load finding history for a chapter.
+ */
+async function loadFindingHistory(
+  bookId: string,
+  chapterNumber: number
+): Promise<string> {
+  const findings = await db.editFinding.findMany({
+    where: { bookId, chapterNumber },
+    orderBy: { createdAt: "desc" },
+    take: 50, // Limit to most recent 50
+  });
+
+  if (findings.length === 0) return "";
+
+  const lines: string[] = [];
+  for (const f of findings) {
+    const status = f.appliedAt
+      ? "applied"
+      : f.rejectedAt
+        ? "dismissed"
+        : "pending";
+
+    // Get writer reply from the first reply if exists
+    const replies = await db.findingReply.findMany({
+      where: { findingId: f.id },
+      orderBy: { createdAt: "asc" },
+      take: 1,
+    });
+    const writerReply = replies[0]?.content;
+
+    lines.push(
+      `- [${status}] ${f.severity} | ${f.category} | ${f.description}${writerReply ? ` | Writer: "${writerReply}"` : ""}`
+    );
+  }
+
+  return `<finding_history chapter="${chapterNumber}">\n${lines.join("\n")}\n</finding_history>`;
+}
+
+/**
  * Assemble the full system prompt for an agent, including base instructions
  * and filtered project context.
+ *
+ * NEW: Documents-first ordering, chapter content auto-loading, smart trimming.
  */
 export async function assembleAgentPrompt(
   definition: AgentDefinition,
-  context: AgentContext,
+  contextInput: Readonly<AgentContext>,
   documentService: DocumentService
 ): Promise<string> {
-  const parts: string[] = [];
+  // Clone context to avoid mutating readonly parameter
+  const context: AgentContext = { ...contextInput };
 
-  // Base instructions
-  const base = BASE_INSTRUCTIONS[definition.type];
-  if (base) {
-    parts.push(base);
-  }
-
-  // Book identity — so agents use the real name, not a hallucinated one
-  if (context.bookName) {
-    parts.push(
-      `\nBOOK NAME: "${context.bookName}"\n` +
-      `Always use this exact name when referring to the book. ` +
-      `Use it in document titles (e.g. "Biblija priče – ${context.bookName}"). ` +
-      `NEVER invent or change the book's name.`
-    );
-  }
-
-  // Language context — ALWAYS include, even for English
-  if (context.language) {
-    const langName = LANGUAGE_NAMES[context.language] ?? context.language;
-    const langExamples = LANGUAGE_HEADING_EXAMPLES[context.language] ?? "";
-    parts.push(
-      `\nCRITICAL LANGUAGE REQUIREMENT — YOU MUST FOLLOW THIS:\n` +
-      `This book's language is: ${langName} (code: ${context.language}).\n` +
-      `You MUST write ALL output in ${langName}. This includes:\n` +
-      `- Your conversational messages and explanations\n` +
-      `- Approval request titles and descriptions\n` +
-      `- ALL document section headings and structural labels\n` +
-      `- Finding descriptions, categories, and suggestions\n` +
-      `- Any text the writer will see in the UI\n\n` +
-      `DO NOT use English for headings, labels, or structural text. ` +
-      `Write EVERYTHING in ${langName}.` +
-      (context.language === "sr"
-        ? `\n\nSCRIPT REQUIREMENT: Use ONLY Latin script (latinica), NEVER Cyrillic script (ćirilica).\n` +
-          `Correct: č, ć, š, ž, đ, lj, nj, dž — Wrong: ч, ћ, ш, ж, ђ, љ, њ, џ\n` +
-          `This applies to ALL output: document content, headings, findings, messages, everything.`
-        : "") +
-      (langExamples ? `\n\nExamples of correct headings in ${langName}:\n${langExamples}` : "")
-    );
-  }
-
+  const sections: PromptSection[] = [];
   const profile = definition.contextProfile;
+  const agentBudget = TOKEN_BUDGETS[definition.type] ?? DEFAULT_TOKEN_BUDGET;
 
-  // Fingerprint
-  if (profile.fingerprint !== "none") {
-    const fp =
-      context.fingerprint ??
-      (await loadDocument(documentService, DocumentType.FINGERPRINT));
-    if (fp) {
-      parts.push(`\n<style_fingerprint>\n${fp}\n</style_fingerprint>`);
+  // ─── Load book meta if needed ─────────────────────────────────
+  if (profile.bookMeta && !context.bookDescription) {
+    const book = await db.book.findUnique({
+      where: { id: context.bookId },
+      select: { description: true, genre: true, language: true },
+    });
+    if (book) {
+      context.bookDescription = book.description ?? undefined;
+      context.bookGenre = book.genre ?? undefined;
+      if (!context.language) {
+        context.language = book.language;
+      }
     }
   }
 
-  // Story Bible
+  // ─── SECTION 1: Book Identity (priority 98 — never trim) ──────
+  if (context.bookName) {
+    sections.push({
+      name: "book_identity",
+      priority: 98,
+      content:
+        `\nBOOK NAME: "${context.bookName}"\n` +
+        `Always use this exact name when referring to the book. ` +
+        `Use it in document titles (e.g. "Biblija priče – ${context.bookName}"). ` +
+        `NEVER invent or change the book's name.`,
+    });
+  }
+
+  // ─── SECTION 2: Language Requirement (priority 98) ────────────
+  if (context.language) {
+    const langName = LANGUAGE_NAMES[context.language] ?? context.language;
+    const langExamples = LANGUAGE_HEADING_EXAMPLES[context.language] ?? "";
+    sections.push({
+      name: "language_requirement",
+      priority: 98,
+      content:
+        `\nCRITICAL LANGUAGE REQUIREMENT — YOU MUST FOLLOW THIS:\n` +
+        `This book's language is: ${langName} (code: ${context.language}).\n` +
+        `You MUST write ALL output in ${langName}. This includes:\n` +
+        `- Your conversational messages and explanations\n` +
+        `- Approval request titles and descriptions\n` +
+        `- ALL document section headings and structural labels\n` +
+        `- Finding descriptions, categories, and suggestions\n` +
+        `- Any text the writer will see in the UI\n\n` +
+        `DO NOT use English for headings, labels, or structural text. ` +
+        `Write EVERYTHING in ${langName}.` +
+        (context.language === "sr"
+          ? `\n\nSCRIPT REQUIREMENT: Use ONLY Latin script (latinica), NEVER Cyrillic script (ćirilica).\n` +
+            `Correct: č, ć, š, ž, đ, lj, nj, dž — Wrong: ч, ћ, ш, ж, ђ, љ, њ, џ\n` +
+            `This applies to ALL output: document content, headings, findings, messages, everything.`
+          : "") +
+        (langExamples ? `\n\nExamples of correct headings in ${langName}:\n${langExamples}` : ""),
+    });
+  }
+
+  // ─── SECTION 3: Chapter Scope (priority 98) ───────────────────
+  if (context.chapterNumber && definition.type !== "writing-coach") {
+    sections.push({
+      name: "chapter_scope",
+      priority: 98,
+      content:
+        `\nTARGET CHAPTER: Chapter ${context.chapterNumber}\n` +
+        `You are working on this specific chapter. All findings MUST reference chapter ${context.chapterNumber}.\n` +
+        `When using CreateFinding, set chapterNumber to ${context.chapterNumber}.\n` +
+        `When using ReadChapter/WriteChapter, use chapter ${context.chapterNumber}.\n` +
+        `When using WriteDocument for chapter-scoped reports, set chapterNumber to ${context.chapterNumber}.`,
+    });
+  }
+
+  // ─── SECTION 4: Chapter Content (priority 100 — sacred) ───────
+  if (profile.chapterContent && context.chapterNumber) {
+    const content = await loadChapterContent(documentService, context.chapterNumber);
+    if (content) {
+      sections.push({
+        name: "chapter_content",
+        priority: 100, // Highest — never trim
+        content: `\n<chapter_content chapter="${context.chapterNumber}">\n${content}\n</chapter_content>`,
+      });
+    }
+  }
+
+  // ─── SECTION 5: Book Meta (priority 85) ───────────────────────
+  if (profile.bookMeta) {
+    const parts: string[] = [];
+    if (context.bookDescription) {
+      parts.push(`<book_description>\n${context.bookDescription}\n</book_description>`);
+    }
+    if (context.bookGenre) {
+      parts.push(`<book_genre>${context.bookGenre}</book_genre>`);
+    }
+    if (parts.length > 0) {
+      sections.push({
+        name: "book_meta",
+        priority: 85,
+        content: `\n<book_metadata>\n${parts.join("\n")}\n</book_metadata>`,
+      });
+    }
+  }
+
+  // ─── SECTION 6: Story Bible (priority 80) ─────────────────────
   if (profile.storyBible !== "none") {
     const sb =
       context.storyBible ??
       (await loadDocument(documentService, DocumentType.STORY_BIBLE));
     if (sb) {
-      parts.push(`\n<story_bible>\n${sb}\n</story_bible>`);
+      sections.push({
+        name: "story_bible",
+        priority: 80,
+        content: `\n<story_bible>\n${sb}\n</story_bible>`,
+      });
     }
   }
 
-  // Architecture
+  // ─── SECTION 7: Architecture (priority 70) ────────────────────
   if (profile.architecture !== "none") {
     const arch =
       context.architecture ??
       (await loadDocument(documentService, DocumentType.ARCHITECTURE));
     if (arch) {
-      parts.push(`\n<story_architecture>\n${arch}\n</story_architecture>`);
+      sections.push({
+        name: "architecture",
+        priority: 70,
+        content: `\n<story_architecture>\n${arch}\n</story_architecture>`,
+      });
     }
   }
 
-  // Chapter Plan
+  // ─── SECTION 8: Fingerprint (priority 60) ─────────────────────
+  if (profile.fingerprint !== "none") {
+    const fp =
+      context.fingerprint ??
+      (await loadDocument(documentService, DocumentType.FINGERPRINT));
+    if (fp) {
+      sections.push({
+        name: "fingerprint",
+        priority: 60,
+        content: `\n<style_fingerprint>\n${fp}\n</style_fingerprint>`,
+      });
+    }
+  }
+
+  // ─── SECTION 9: Chapter Plan (priority 55) ────────────────────
   if (profile.chapterPlan && context.chapterNumber) {
     const plan =
       context.chapterPlan ??
@@ -904,11 +1256,15 @@ export async function assembleAgentPrompt(
         context.chapterNumber
       ));
     if (plan) {
-      parts.push(`\n<chapter_plan>\n${plan}\n</chapter_plan>`);
+      sections.push({
+        name: "chapter_plan",
+        priority: 55,
+        content: `\n<chapter_plan>\n${plan}\n</chapter_plan>`,
+      });
     }
   }
 
-  // Chapter Brief
+  // ─── SECTION 10: Chapter Brief (priority 55) ──────────────────
   if (profile.chapterBrief && context.chapterNumber) {
     const brief =
       context.chapterBrief ??
@@ -918,25 +1274,74 @@ export async function assembleAgentPrompt(
         context.chapterNumber
       ));
     if (brief) {
-      parts.push(`\n<chapter_brief>\n${brief}\n</chapter_brief>`);
+      sections.push({
+        name: "chapter_brief",
+        priority: 55,
+        content: `\n<chapter_brief>\n${brief}\n</chapter_brief>`,
+      });
     }
   }
 
-  // Series Context
+  // ─── SECTION 11: Finding History (priority 50) ────────────────
+  if (profile.findingHistory && context.chapterNumber) {
+    const history = await loadFindingHistory(context.bookId, context.chapterNumber);
+    if (history) {
+      sections.push({
+        name: "finding_history",
+        priority: 50,
+        content: `\n${history}`,
+      });
+    }
+  }
+
+  // ─── SECTION 12: Knowledge Graph Context (priority 45) ────────
+  if (profile.architecture !== "none" && context.chapterNumber) {
+    try {
+      const entities = await getChapterEntities(context.bookId, context.chapterNumber);
+      if (entities.characters.length > 0 || entities.locations.length > 0 || entities.events.length > 0) {
+        const graphLines: string[] = [];
+        if (entities.characters.length > 0) {
+          graphLines.push(`Characters: ${entities.characters.join(", ")}`);
+        }
+        if (entities.locations.length > 0) {
+          graphLines.push(`Locations: ${entities.locations.join(", ")}`);
+        }
+        if (entities.events.length > 0) {
+          graphLines.push(`Events: ${entities.events.join(", ")}`);
+        }
+        sections.push({
+          name: "knowledge_graph",
+          priority: 45,
+          content: `\n<knowledge_graph_context chapter="${context.chapterNumber}">\n${graphLines.join("\n")}\n</knowledge_graph_context>`,
+        });
+      }
+    } catch {
+      // Graph unavailable — proceed without
+    }
+  }
+
+  // ─── SECTION 13: Series Context (priority 40) ─────────────────
   if (profile.seriesContext !== "none" && context.seriesId) {
     const seriesBible = context.seriesBible ?? "";
     const seriesArch = context.seriesArchitecture ?? "";
 
     if (profile.seriesContext === "full") {
+      const parts: string[] = [];
       if (seriesBible) {
         parts.push(`\n<series_bible>\n${seriesBible}\n</series_bible>`);
       }
       if (seriesArch) {
-        parts.push(
-          `\n<series_architecture>\n${seriesArch}\n</series_architecture>`
-        );
+        parts.push(`\n<series_architecture>\n${seriesArch}\n</series_architecture>`);
+      }
+      if (parts.length > 0) {
+        sections.push({
+          name: "series_context",
+          priority: 40,
+          content: parts.join("\n"),
+        });
       }
     } else if (profile.seriesContext === "summary") {
+      const parts: string[] = [];
       if (seriesBible) {
         const truncated = seriesBible.slice(0, 2000);
         parts.push(
@@ -949,8 +1354,164 @@ export async function assembleAgentPrompt(
           `\n<series_architecture_summary>\n${truncated}${seriesArch.length > 2000 ? "\n... (truncated)" : ""}\n</series_architecture_summary>`
         );
       }
+      if (parts.length > 0) {
+        sections.push({
+          name: "series_context_summary",
+          priority: 40,
+          content: parts.join("\n"),
+        });
+      }
     }
   }
 
-  return parts.join("\n\n");
+  // ─── SECTION 14: Adjacent Chapters (priority 30) ──────────────
+  if (profile.adjacentChapters !== "none" && context.chapterNumber) {
+    const adjacent = await loadAdjacentChapters(
+      documentService,
+      context.bookId,
+      context.chapterNumber,
+      profile.adjacentChapters
+    );
+    if (adjacent) {
+      sections.push({
+        name: "adjacent_chapters",
+        priority: 30,
+        content: `\n${adjacent}`,
+      });
+    }
+  }
+
+  // ─── SECTION 15: Relevant Memory (priority 20) ────────────────
+  if (
+    profile.fingerprint === "full" ||
+    profile.storyBible === "full" ||
+    profile.architecture === "full"
+  ) {
+    try {
+      const memoryContext = await getRelevantMemory(
+        context.bookId,
+        definition.description,
+        { limit: 3, chapterNumber: context.chapterNumber }
+      );
+      if (memoryContext) {
+        sections.push({
+          name: "relevant_memory",
+          priority: 20,
+          content: `\n<relevant_memory>\n${memoryContext}\n</relevant_memory>`,
+        });
+      }
+    } catch {
+      // Vector DB unavailable
+    }
+  }
+
+  // ─── SECTION 16: Blackboard Insights (priority 15) ────────────
+  try {
+    const insightsXml = await formatInsightsForPrompt(
+      context.bookId,
+      definition.type,
+      context.chapterNumber
+    );
+    if (insightsXml) {
+      sections.push({
+        name: "blackboard_insights",
+        priority: 15,
+        content: `\n${insightsXml}`,
+      });
+    }
+  } catch {
+    // Blackboard unavailable
+  }
+
+  // ─── SECTION 17: Page Context (priority 10) ───────────────────
+  if (context.pageContext) {
+    const pc = context.pageContext;
+    const lines: string[] = [];
+    lines.push(`Current page: ${pc.currentRoute}`);
+    if (pc.currentChapterNumber) {
+      lines.push(`Viewing chapter: ${pc.currentChapterNumber}${pc.currentChapterId ? ` (id: ${pc.currentChapterId})` : ""}`);
+    }
+    if (pc.currentDocumentId) {
+      lines.push(`Viewing document: ${pc.currentDocumentId}${pc.currentDocumentType ? ` (type: ${pc.currentDocumentType})` : ""}`);
+    }
+    if (pc.editorSelection) {
+      const sel = pc.editorSelection.length > 500
+        ? pc.editorSelection.slice(0, 500) + "..."
+        : pc.editorSelection;
+      lines.push(`Selected text in editor: "${sel}"`);
+    }
+    if (pc.findingsContext) {
+      const fc = pc.findingsContext;
+      lines.push(`Editorial findings on this view: ${fc.totalPending} pending`);
+      if (fc.visibleSeverities.length > 0) {
+        lines.push(`Filtered to severities: ${fc.visibleSeverities.join(", ")}`);
+      }
+      if (fc.selectedFindingId) {
+        lines.push(`Currently selected finding: ${fc.selectedFindingId}`);
+      }
+    }
+    if (pc.activeTab) {
+      lines.push(`Active tab: ${pc.activeTab}`);
+    }
+    sections.push({
+      name: "page_context",
+      priority: 10,
+      content: `\n<user_context>\n${lines.join("\n")}\n</user_context>`,
+    });
+  }
+
+  // ─── Apply Smart Trimming ──────────────────────────────────────
+  const { sections: keptSections, trimmed, notice } = smartTrim(sections, agentBudget);
+
+  // ─── Build Final Prompt (Documents First, Instructions Last) ──
+  const parts: string[] = [];
+
+  // Sort kept sections by priority DESC for final assembly (highest priority first in output)
+  const sortedSections = keptSections.sort((a, b) => b.priority - a.priority);
+
+  // Add all context document sections FIRST
+  for (const section of sortedSections) {
+    parts.push(section.content);
+  }
+
+  // Add trimming notice if any sections were trimmed
+  if (notice) {
+    parts.push(notice);
+  }
+
+  // Add instructions LAST
+  // Check if this is the Writing Coach in conductor mode
+  if (definition.type === "writing-coach" && context.targetWorkflowId) {
+    const { getWorkflow } = await import("./workflows");
+    const targetWorkflow = getWorkflow(context.targetWorkflowId);
+    const conductorPrompt = buildConductorPrompt(
+      context.targetWorkflowId,
+      targetWorkflow?.description ?? context.targetWorkflowId,
+      context.language ?? "en"
+    );
+    parts.push(conductorPrompt);
+  } else {
+    // Base instructions (for non-conductor mode or specialist agents)
+    const base = BASE_INSTRUCTIONS[definition.type];
+    if (base) {
+      parts.push(base);
+    }
+  }
+
+  const final = parts.join("\n\n");
+
+  // ─── Token Budget Logging ──────────────────────────────────────
+  const finalTokens = estimateTokens(final);
+  console.log(`[Prompt Assembly] Agent: ${definition.type}`);
+  console.log(`  Budget: ${agentBudget} tokens | Actual: ${finalTokens} tokens`);
+  if (trimmed.length > 0) {
+    console.log(`  Trimmed sections: ${trimmed.join(", ")}`);
+  }
+  console.log(`  Section breakdown:`);
+  for (const section of sortedSections) {
+    const tokens = estimateTokens(section.content);
+    console.log(`    - ${section.name}: ${tokens} tokens (priority ${section.priority})`);
+  }
+
+  return final;
 }
