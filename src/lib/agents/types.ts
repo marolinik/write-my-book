@@ -20,8 +20,12 @@ export interface AgentContextProfile {
   fingerprint: "full" | "summary" | "none";
   storyBible: "full" | "chapter-relevant" | "characters-only" | "none";
   architecture: "full" | "chapter-only" | "act-level" | "none";
+  chapterContent: boolean;                              // Auto-load target chapter content
+  adjacentChapters: "none" | "summaries-all" | "one-each"; // Adjacent chapter loading
   chapterPlan: boolean;
   chapterBrief: boolean;
+  findingHistory: boolean;                              // Load applied/dismissed/pending findings
+  bookMeta: boolean;                                    // Load description, goals, author notes
   seriesContext: "full" | "summary" | "none";
 }
 
@@ -34,6 +38,22 @@ export interface AgentDefinition {
   allowedModels: ModelTier[];
   tools: string[];
   contextProfile: AgentContextProfile;
+}
+
+/** What the user is currently looking at in the UI. */
+export interface PageContext {
+  currentRoute: string;
+  currentChapterNumber?: number;
+  currentChapterId?: string;
+  currentDocumentId?: string;
+  currentDocumentType?: string;
+  editorSelection?: string;
+  findingsContext?: {
+    totalPending: number;
+    visibleSeverities: string[];
+    selectedFindingId?: string;
+  };
+  activeTab?: string;
 }
 
 export interface AgentContext {
@@ -51,6 +71,17 @@ export interface AgentContext {
   seriesId?: string;
   seriesBible?: string;
   seriesArchitecture?: string;
+  bookDescription?: string;
+  authorNotes?: string;
+  bookGenre?: string;
+  /** When the Writing Coach is conducting, identifies the target workflow. */
+  targetWorkflowId?: string;
+  /** The specialist agent type the Coach should delegate to. */
+  targetAgentType?: AgentType;
+  /** Optional initial message from the user (e.g., from floating input or context menu). */
+  userMessage?: string;
+  /** What the user is currently looking at in the UI. */
+  pageContext?: PageContext;
 }
 
 export interface AgentStreamMessage {
@@ -61,9 +92,45 @@ export interface AgentStreamMessage {
     | "tool_result"
     | "approval_request"
     | "error"
-    | "complete";
+    | "complete"
+    | "delegation_start"
+    | "delegation_progress"
+    | "delegation_complete";
   content: string;
   metadata?: Record<string, unknown>;
+}
+
+/** Shared token counter across Coach + specialist sessions. */
+export interface SharedCostTracker {
+  totalInputTokens: number;
+  totalOutputTokens: number;
+}
+
+/** Context passed to the DelegateToSpecialist tool executor. */
+export interface DelegationContext {
+  parentSessionId: string;
+  parentOnMessage: (message: AgentStreamMessage) => void;
+  sharedCostTracker: SharedCostTracker;
+  language: string;
+  /** Chapter number from the parent session — auto-inherited by specialists. */
+  chapterNumber?: number;
+  /** Factory to create an LLM client for any specialist agent type. */
+  createSpecialistClient: (agentType: AgentType) => Promise<{
+    client: import("@anthropic-ai/sdk").default;
+    modelId: string;
+    registryId: string;
+  }>;
+}
+
+/** Result returned from a specialist delegation. */
+export interface DelegationResult {
+  success: boolean;
+  agentType: AgentType;
+  summary: string;
+  inputTokens: number;
+  outputTokens: number;
+  documentIds: string[];
+  findingsCreated: number;
 }
 
 export interface AgentResult {
@@ -90,6 +157,17 @@ export interface AgentSpawnOptions {
   onError: (error: Error) => void;
 }
 
+export interface WorkflowPrerequisite {
+  /** Document type or condition that must exist. */
+  type: "document" | "chapter_content" | "chapter_status";
+  /** For 'document': the DocumentType that must exist. For 'chapter_status': min status name. */
+  value: string;
+  /** Human-readable description of what's missing. */
+  description: string;
+  /** Workflow ID that can satisfy this prerequisite. */
+  satisfiedBy?: string;
+}
+
 export interface WorkflowDefinition {
   id: string;
   label: string;
@@ -101,4 +179,5 @@ export interface WorkflowDefinition {
   requiresSeriesContext: boolean;
   conversational: boolean;
   suggestedNext: string[];
+  prerequisites?: WorkflowPrerequisite[];
 }
