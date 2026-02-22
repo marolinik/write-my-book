@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useAgentStore, type SessionState } from "@/stores/agent-store";
+import { useAgentStore, type SessionState, type SessionResultMeta } from "@/stores/agent-store";
 import type { AgentStreamMessage, AgentResult } from "@/lib/agents/types";
 
 /**
@@ -53,7 +53,17 @@ export function useAgentStream(bookId: string | null) {
             const result = message.metadata as unknown as AgentResult;
             const suggestedNext =
               (message.metadata?.suggestedNext as string[]) ?? [];
-            setSessionComplete(sid, result, suggestedNext);
+            // Extract post-session result metadata for the session results UI
+            const rawMeta = (message.metadata as Record<string, unknown>)?.resultMeta as SessionResultMeta | undefined;
+            const resultMeta: SessionResultMeta | undefined = rawMeta
+              ? {
+                  findingsCreated: rawMeta.findingsCreated ?? 0,
+                  statusAdvanced: rawMeta.statusAdvanced ?? false,
+                  newStatus: rawMeta.newStatus,
+                  betaGateResult: rawMeta.betaGateResult,
+                }
+              : undefined;
+            setSessionComplete(sid, result, suggestedNext, resultMeta);
             es.close();
             currentSources.delete(sid);
             setConnectedSessions((prev) => {
@@ -62,22 +72,17 @@ export function useAgentStream(bookId: string | null) {
               return next;
             });
 
-            // Invalidate caches
-            queryClient.invalidateQueries({
-              queryKey: ["book-documents", bookId],
-            });
-            queryClient.invalidateQueries({
-              queryKey: ["style-profile", bookId],
-            });
-            queryClient.invalidateQueries({
-              queryKey: ["editorial-summary", bookId],
-            });
-            queryClient.invalidateQueries({
-              queryKey: ["books", bookId],
-            });
-            queryClient.invalidateQueries({
-              queryKey: ["continuity-findings", bookId],
-            });
+            // Invalidate caches — use keys that match actual useQuery definitions
+            queryClient.invalidateQueries({ queryKey: ["book-documents", bookId] });
+            queryClient.invalidateQueries({ queryKey: ["style-profile", bookId] });
+            queryClient.invalidateQueries({ queryKey: ["editorial", bookId] });
+            queryClient.invalidateQueries({ queryKey: ["books", bookId] });
+            queryClient.invalidateQueries({ queryKey: ["chapters", bookId] });
+            queryClient.invalidateQueries({ queryKey: ["chapter-content", bookId] });
+            queryClient.invalidateQueries({ queryKey: ["document-content", bookId] });
+            queryClient.invalidateQueries({ queryKey: ["wiki", bookId] });
+            queryClient.invalidateQueries({ queryKey: ["insights", bookId] });
+            queryClient.invalidateQueries({ queryKey: ["writing-stats", bookId] });
             return;
           }
 

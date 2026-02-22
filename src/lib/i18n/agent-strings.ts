@@ -32,6 +32,16 @@ export interface AgentStrings {
   modified: string;
   agentStarted: string;
 
+  // Session results
+  sessionComplete: string;
+  findingsCreated: string;
+  statusAdvanced: string;
+  betaGate: string;
+  betaPassed: string;
+  betaNearMiss: string;
+  betaFailed: string;
+  recommendedNext: string;
+
   // Workflow labels (overrides for common workflows)
   workflows: Record<string, string>;
 }
@@ -59,6 +69,14 @@ const EN: AgentStrings = {
   rejected: "Rejected",
   modified: "Modified",
   agentStarted: "Agent Started — see panel",
+  sessionComplete: "Session Complete",
+  findingsCreated: "findings",
+  statusAdvanced: "Status",
+  betaGate: "Beta Gate",
+  betaPassed: "Passed",
+  betaNearMiss: "Near Miss",
+  betaFailed: "Needs Revision",
+  recommendedNext: "Recommended next:",
   workflows: {
     "read-manuscript": "Import Manuscript",
     "capture-style": "Capture Style",
@@ -106,6 +124,14 @@ const SR: AgentStrings = {
   rejected: "Odbijeno",
   modified: "Izmenjeno",
   agentStarted: "Agent pokrenut — pogledajte panel",
+  sessionComplete: "Sesija završena",
+  findingsCreated: "pronalazaka",
+  statusAdvanced: "Status",
+  betaGate: "Beta kapija",
+  betaPassed: "Položeno",
+  betaNearMiss: "Skoro položeno",
+  betaFailed: "Potrebna revizija",
+  recommendedNext: "Preporučeni sledeći korak:",
   workflows: {
     "read-manuscript": "Uvezi rukopis",
     "capture-style": "Uhvati stil",
@@ -153,6 +179,14 @@ const DE: AgentStrings = {
   rejected: "Abgelehnt",
   modified: "Geändert",
   agentStarted: "Agent gestartet — siehe Panel",
+  sessionComplete: "Sitzung abgeschlossen",
+  findingsCreated: "Befunde",
+  statusAdvanced: "Status",
+  betaGate: "Beta-Prüfung",
+  betaPassed: "Bestanden",
+  betaNearMiss: "Knapp verfehlt",
+  betaFailed: "Überarbeitung nötig",
+  recommendedNext: "Empfohlener nächster Schritt:",
   workflows: {
     "read-manuscript": "Manuskript importieren",
     "capture-style": "Stil erfassen",
@@ -189,6 +223,14 @@ const ES: AgentStrings = {
   rejected: "Rechazado",
   modified: "Modificado",
   agentStarted: "Agente iniciado — ver panel",
+  sessionComplete: "Sesión completada",
+  findingsCreated: "hallazgos",
+  statusAdvanced: "Estado",
+  betaGate: "Puerta beta",
+  betaPassed: "Aprobado",
+  betaNearMiss: "Casi aprobado",
+  betaFailed: "Necesita revisión",
+  recommendedNext: "Siguiente recomendado:",
   workflows: {
     "read-manuscript": "Importar manuscrito",
     "capture-style": "Capturar estilo",
@@ -225,6 +267,14 @@ const FR: AgentStrings = {
   rejected: "Rejeté",
   modified: "Modifié",
   agentStarted: "Agent démarré — voir le panneau",
+  sessionComplete: "Session terminée",
+  findingsCreated: "résultats",
+  statusAdvanced: "Statut",
+  betaGate: "Porte bêta",
+  betaPassed: "Réussi",
+  betaNearMiss: "Presque réussi",
+  betaFailed: "Révision nécessaire",
+  recommendedNext: "Prochaine étape recommandée :",
   workflows: {
     "read-manuscript": "Importer le manuscrit",
     "capture-style": "Capturer le style",
@@ -261,6 +311,14 @@ const RU: AgentStrings = {
   rejected: "Отклонено",
   modified: "Изменено",
   agentStarted: "Агент запущен — см. панель",
+  sessionComplete: "Сессия завершена",
+  findingsCreated: "замечаний",
+  statusAdvanced: "Статус",
+  betaGate: "Бета-проверка",
+  betaPassed: "Пройдено",
+  betaNearMiss: "Почти пройдено",
+  betaFailed: "Требуется доработка",
+  recommendedNext: "Рекомендуемый следующий шаг:",
   workflows: {
     "read-manuscript": "Импорт рукописи",
     "capture-style": "Захват стиля",
@@ -297,6 +355,14 @@ const ZH: AgentStrings = {
   rejected: "已拒绝",
   modified: "已修改",
   agentStarted: "代理已启动 — 查看面板",
+  sessionComplete: "会话完成",
+  findingsCreated: "个发现",
+  statusAdvanced: "状态",
+  betaGate: "Beta检查",
+  betaPassed: "通过",
+  betaNearMiss: "接近通过",
+  betaFailed: "需要修改",
+  recommendedNext: "推荐下一步：",
   workflows: {
     "read-manuscript": "导入手稿",
     "capture-style": "捕获风格",

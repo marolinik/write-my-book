@@ -32,6 +32,8 @@ export interface UIStrings {
     sectionPublish: string;
     sectionTools: string;
     nextStep: string;
+    library: string;
+    transfer: string;
   };
 
   // Header
@@ -49,6 +51,7 @@ export interface UIStrings {
     totalBooks: string;
     totalWords: string;
     totalChapters: string;
+    totalSeries: string;
     recentBooks: string;
     createBook: string;
     noBooksYet: string;
@@ -56,6 +59,18 @@ export interface UIStrings {
     words: string;
     chapters: string;
     updated: string;
+    continueWriting: string;
+    lastEdited: string;
+    resumeChapter: string;
+    recentSessions: string;
+    noSessions: string;
+    writingActivity: string;
+    wordsThisWeek: string;
+    pendingAlerts: string;
+    noAlerts: string;
+    quickActions: string;
+    startWriting: string;
+    importManuscript: string;
   };
 
   // Settings
@@ -217,6 +232,66 @@ export interface UIStrings {
     titleOptional: string; titlePlaceholder: string;
     cancel: string; creating: string; create: string; created: string;
   };
+
+  // Chapter status labels (writer-friendly)
+  chapterStatuses: {
+    undiscussed: string;
+    discussed: string;
+    planned: string;
+    drafted: string;
+    dev_edited: string;
+    line_edited: string;
+    beta_read: string;
+    beta_passed: string;
+  };
+
+  // Command palette
+  commandPalette: {
+    placeholder: string;
+    chapters: string;
+    workflows: string;
+    pages: string;
+    recent: string;
+    noResults: string;
+    actions: string;
+  };
+
+  // Wiki
+  wiki: {
+    title: string;
+    search: string;
+    newEntry: string;
+    all: string;
+    characters: string;
+    locations: string;
+    items: string;
+    events: string;
+    lore: string;
+    noEntries: string;
+    noEntriesDesc: string;
+    editEntry: string;
+    deleteEntry: string;
+    aliases: string;
+    description: string;
+    attributes: string;
+    source: string;
+  };
+
+  // Writing dashboard
+  writingDashboard: {
+    title: string;
+    todayWords: string;
+    streak: string;
+    weeklyAvg: string;
+    totalWords: string;
+    dailyGoal: string;
+    weeklyGoal: string;
+    totalGoal: string;
+    setGoal: string;
+    last30Days: string;
+    days: string;
+    noData: string;
+  };
 }
 
 export const SUPPORTED_LANGUAGES = [
@@ -256,13 +331,15 @@ const EN: UIStrings = {
     settings: "Settings",
     account: "Account",
     writingPlatform: "Writing Platform",
-    sectionSetup: "Setup",
+    sectionSetup: "Getting Started",
     sectionWriting: "Writing",
-    sectionEditing: "Editing",
-    sectionAnalysis: "Analysis",
+    sectionEditing: "Refining",
+    sectionAnalysis: "Insights",
     sectionPublish: "Publish",
     sectionTools: "Tools",
     nextStep: "Next Step",
+    library: "Library",
+    transfer: "Transfer",
   },
   header: {
     toggleSidebar: "Toggle sidebar",
@@ -276,6 +353,7 @@ const EN: UIStrings = {
     totalBooks: "Total Books",
     totalWords: "Total Words",
     totalChapters: "Total Chapters",
+    totalSeries: "Series",
     recentBooks: "Recent Books",
     createBook: "Create Book",
     noBooksYet: "No books yet",
@@ -283,6 +361,18 @@ const EN: UIStrings = {
     words: "words",
     chapters: "chapters",
     updated: "Updated",
+    continueWriting: "Continue Where You Left Off",
+    lastEdited: "Last edited",
+    resumeChapter: "Resume",
+    recentSessions: "Recent Agent Sessions",
+    noSessions: "No agent sessions yet",
+    writingActivity: "Writing Activity",
+    wordsThisWeek: "words this week",
+    pendingAlerts: "Alerts",
+    noAlerts: "No pending alerts",
+    quickActions: "Quick Actions",
+    startWriting: "Start Writing",
+    importManuscript: "Import Manuscript",
   },
   settings: {
     title: "Settings",
@@ -428,6 +518,58 @@ const EN: UIStrings = {
     titleOptional: "Title (optional)", titlePlaceholder: "Chapter title...",
     cancel: "Cancel", creating: "Creating...", create: "Create Chapter", created: "Chapter created",
   },
+  chapterStatuses: {
+    undiscussed: "Fresh Start",
+    discussed: "Brainstormed",
+    planned: "Outlined",
+    drafted: "First Draft",
+    dev_edited: "Deep Edit Done",
+    line_edited: "Refined",
+    beta_read: "Reader Tested",
+    beta_passed: "Polished",
+  },
+  commandPalette: {
+    placeholder: "Search commands, chapters, workflows...",
+    chapters: "Chapters",
+    workflows: "Workflows",
+    pages: "Pages",
+    recent: "Recent",
+    noResults: "No results found",
+    actions: "Actions",
+  },
+  wiki: {
+    title: "World Wiki",
+    search: "Search entities...",
+    newEntry: "New Entry",
+    all: "All",
+    characters: "Characters",
+    locations: "Locations",
+    items: "Items",
+    events: "Events",
+    lore: "Lore",
+    noEntries: "No wiki entries yet",
+    noEntriesDesc: "Create entries manually or let the agent populate them from your Story Bible.",
+    editEntry: "Edit",
+    deleteEntry: "Delete",
+    aliases: "Aliases",
+    description: "Description",
+    attributes: "Attributes",
+    source: "Source",
+  },
+  writingDashboard: {
+    title: "Writing Dashboard",
+    todayWords: "Today's Words",
+    streak: "Streak",
+    weeklyAvg: "Weekly Average",
+    totalWords: "Total Words",
+    dailyGoal: "Daily Goal",
+    weeklyGoal: "Weekly Goal",
+    totalGoal: "Total Goal",
+    setGoal: "Set Goal",
+    last30Days: "Last 30 Days",
+    days: "days",
+    noData: "No writing data yet. Start writing to see your progress!",
+  },
 };
 
 const SR: UIStrings = {
@@ -450,13 +592,15 @@ const SR: UIStrings = {
     settings: "Podešavanja",
     account: "Nalog",
     writingPlatform: "Platforma za pisanje",
-    sectionSetup: "Priprema",
+    sectionSetup: "Početak",
     sectionWriting: "Pisanje",
-    sectionEditing: "Lektura",
-    sectionAnalysis: "Analiza",
+    sectionEditing: "Usavršavanje",
+    sectionAnalysis: "Uvidi",
     sectionPublish: "Objavi",
     sectionTools: "Alatke",
     nextStep: "Sledeći korak",
+    library: "Biblioteka",
+    transfer: "Prenos",
   },
   header: {
     toggleSidebar: "Prikaži/sakrij bočnu traku",
@@ -470,6 +614,7 @@ const SR: UIStrings = {
     totalBooks: "Ukupno knjiga",
     totalWords: "Ukupno reči",
     totalChapters: "Ukupno poglavlja",
+    totalSeries: "Serijali",
     recentBooks: "Nedavne knjige",
     createBook: "Kreiraj knjigu",
     noBooksYet: "Još nema knjiga",
@@ -477,6 +622,18 @@ const SR: UIStrings = {
     words: "reči",
     chapters: "poglavlja",
     updated: "Ažurirano",
+    continueWriting: "Nastavite gde ste stali",
+    lastEdited: "Poslednji put uređeno",
+    resumeChapter: "Nastavi",
+    recentSessions: "Nedavne sesije agenata",
+    noSessions: "Još nema sesija agenata",
+    writingActivity: "Aktivnost pisanja",
+    wordsThisWeek: "reči ove nedelje",
+    pendingAlerts: "Obaveštenja",
+    noAlerts: "Nema obaveštenja na čekanju",
+    quickActions: "Brze radnje",
+    startWriting: "Počni pisanje",
+    importManuscript: "Uvezi rukopis",
   },
   settings: {
     title: "Podešavanja",
@@ -622,6 +779,58 @@ const SR: UIStrings = {
     titleOptional: "Naslov (opciono)", titlePlaceholder: "Naslov poglavlja...",
     cancel: "Otkaži", creating: "Kreiranje...", create: "Kreiraj poglavlje", created: "Poglavlje kreirano",
   },
+  chapterStatuses: {
+    undiscussed: "Novi početak",
+    discussed: "Razmotreno",
+    planned: "Skicirano",
+    drafted: "Prva verzija",
+    dev_edited: "Duboka redakcija",
+    line_edited: "Precizirano",
+    beta_read: "Testirano",
+    beta_passed: "Uglačano",
+  },
+  commandPalette: {
+    placeholder: "Pretražite komande, poglavlja, tokove rada...",
+    chapters: "Poglavlja",
+    workflows: "Tokovi rada",
+    pages: "Stranice",
+    recent: "Nedavno",
+    noResults: "Nema rezultata",
+    actions: "Radnje",
+  },
+  wiki: {
+    title: "Wiki sveta",
+    search: "Pretražite entitete...",
+    newEntry: "Novi unos",
+    all: "Svi",
+    characters: "Likovi",
+    locations: "Lokacije",
+    items: "Predmeti",
+    events: "Događaji",
+    lore: "Mitologija",
+    noEntries: "Još nema unosa",
+    noEntriesDesc: "Kreirajte unose ručno ili pustite agenta da ih popuni iz Biblije priče.",
+    editEntry: "Uredi",
+    deleteEntry: "Obriši",
+    aliases: "Pseudonimi",
+    description: "Opis",
+    attributes: "Atributi",
+    source: "Izvor",
+  },
+  writingDashboard: {
+    title: "Panel pisanja",
+    todayWords: "Reči danas",
+    streak: "Niz dana",
+    weeklyAvg: "Nedeljni prosek",
+    totalWords: "Ukupno reči",
+    dailyGoal: "Dnevni cilj",
+    weeklyGoal: "Nedeljni cilj",
+    totalGoal: "Ukupni cilj",
+    setGoal: "Postavi cilj",
+    last30Days: "Poslednjih 30 dana",
+    days: "dana",
+    noData: "Još nema podataka o pisanju. Počnite da pišete da vidite napredak!",
+  },
 };
 
 const DE: UIStrings = {
@@ -644,13 +853,15 @@ const DE: UIStrings = {
     settings: "Einstellungen",
     account: "Konto",
     writingPlatform: "Schreibplattform",
-    sectionSetup: "Einrichtung",
+    sectionSetup: "Erste Schritte",
     sectionWriting: "Schreiben",
-    sectionEditing: "Bearbeitung",
-    sectionAnalysis: "Analyse",
+    sectionEditing: "Feinarbeit",
+    sectionAnalysis: "Einblicke",
     sectionPublish: "Veröffentlichen",
     sectionTools: "Werkzeuge",
     nextStep: "Nächster Schritt",
+    library: "Bibliothek",
+    transfer: "Übertragung",
   },
   header: {
     toggleSidebar: "Seitenleiste umschalten",
@@ -664,6 +875,7 @@ const DE: UIStrings = {
     totalBooks: "Bücher gesamt",
     totalWords: "Wörter gesamt",
     totalChapters: "Kapitel gesamt",
+    totalSeries: "Serien",
     recentBooks: "Aktuelle Bücher",
     createBook: "Buch erstellen",
     noBooksYet: "Noch keine Bücher",
@@ -671,6 +883,18 @@ const DE: UIStrings = {
     words: "Wörter",
     chapters: "Kapitel",
     updated: "Aktualisiert",
+    continueWriting: "Dort weitermachen, wo Sie aufgehört haben",
+    lastEdited: "Zuletzt bearbeitet",
+    resumeChapter: "Fortsetzen",
+    recentSessions: "Letzte Agentensitzungen",
+    noSessions: "Noch keine Agentensitzungen",
+    writingActivity: "Schreibaktivität",
+    wordsThisWeek: "Wörter diese Woche",
+    pendingAlerts: "Benachrichtigungen",
+    noAlerts: "Keine ausstehenden Benachrichtigungen",
+    quickActions: "Schnellaktionen",
+    startWriting: "Schreiben starten",
+    importManuscript: "Manuskript importieren",
   },
   settings: {
     title: "Einstellungen",
@@ -816,6 +1040,58 @@ const DE: UIStrings = {
     titleOptional: "Titel (optional)", titlePlaceholder: "Kapiteltitel...",
     cancel: "Abbrechen", creating: "Wird erstellt...", create: "Kapitel erstellen", created: "Kapitel erstellt",
   },
+  chapterStatuses: {
+    undiscussed: "Neustart",
+    discussed: "Besprochen",
+    planned: "Skizziert",
+    drafted: "Erster Entwurf",
+    dev_edited: "Tiefenredaktion",
+    line_edited: "Verfeinert",
+    beta_read: "Lesertest",
+    beta_passed: "Poliert",
+  },
+  commandPalette: {
+    placeholder: "Befehle, Kapitel, Workflows suchen...",
+    chapters: "Kapitel",
+    workflows: "Workflows",
+    pages: "Seiten",
+    recent: "Zuletzt",
+    noResults: "Keine Ergebnisse",
+    actions: "Aktionen",
+  },
+  wiki: {
+    title: "Welt-Wiki",
+    search: "Einträge suchen...",
+    newEntry: "Neuer Eintrag",
+    all: "Alle",
+    characters: "Figuren",
+    locations: "Orte",
+    items: "Gegenstände",
+    events: "Ereignisse",
+    lore: "Überlieferungen",
+    noEntries: "Noch keine Wiki-Einträge",
+    noEntriesDesc: "Erstellen Sie Einträge manuell oder lassen Sie den Agenten sie aus Ihrer Story-Bibel befüllen.",
+    editEntry: "Bearbeiten",
+    deleteEntry: "Löschen",
+    aliases: "Aliase",
+    description: "Beschreibung",
+    attributes: "Attribute",
+    source: "Quelle",
+  },
+  writingDashboard: {
+    title: "Schreib-Dashboard",
+    todayWords: "Wörter heute",
+    streak: "Serie",
+    weeklyAvg: "Wochendurchschnitt",
+    totalWords: "Wörter gesamt",
+    dailyGoal: "Tagesziel",
+    weeklyGoal: "Wochenziel",
+    totalGoal: "Gesamtziel",
+    setGoal: "Ziel setzen",
+    last30Days: "Letzte 30 Tage",
+    days: "Tage",
+    noData: "Noch keine Schreibdaten. Beginnen Sie zu schreiben, um Ihren Fortschritt zu sehen!",
+  },
 };
 
 const ES: UIStrings = {
@@ -838,13 +1114,15 @@ const ES: UIStrings = {
     settings: "Ajustes",
     account: "Cuenta",
     writingPlatform: "Plataforma de escritura",
-    sectionSetup: "Configuración",
+    sectionSetup: "Primeros pasos",
     sectionWriting: "Escritura",
-    sectionEditing: "Edición",
-    sectionAnalysis: "Análisis",
+    sectionEditing: "Refinamiento",
+    sectionAnalysis: "Perspectivas",
     sectionPublish: "Publicar",
     sectionTools: "Herramientas",
     nextStep: "Siguiente paso",
+    library: "Biblioteca",
+    transfer: "Transferencia",
   },
   header: {
     toggleSidebar: "Alternar barra lateral",
@@ -858,6 +1136,7 @@ const ES: UIStrings = {
     totalBooks: "Total de libros",
     totalWords: "Total de palabras",
     totalChapters: "Total de capítulos",
+    totalSeries: "Series",
     recentBooks: "Libros recientes",
     createBook: "Crear libro",
     noBooksYet: "Aún no hay libros",
@@ -865,6 +1144,18 @@ const ES: UIStrings = {
     words: "palabras",
     chapters: "capítulos",
     updated: "Actualizado",
+    continueWriting: "Continúa donde lo dejaste",
+    lastEdited: "Última edición",
+    resumeChapter: "Continuar",
+    recentSessions: "Sesiones recientes de agentes",
+    noSessions: "Aún no hay sesiones de agentes",
+    writingActivity: "Actividad de escritura",
+    wordsThisWeek: "palabras esta semana",
+    pendingAlerts: "Alertas",
+    noAlerts: "No hay alertas pendientes",
+    quickActions: "Acciones rápidas",
+    startWriting: "Empezar a escribir",
+    importManuscript: "Importar manuscrito",
   },
   settings: {
     title: "Ajustes",
@@ -1010,6 +1301,58 @@ const ES: UIStrings = {
     titleOptional: "Título (opcional)", titlePlaceholder: "Título del capítulo...",
     cancel: "Cancelar", creating: "Creando...", create: "Crear capítulo", created: "Capítulo creado",
   },
+  chapterStatuses: {
+    undiscussed: "Nuevo inicio",
+    discussed: "Discutido",
+    planned: "Esbozado",
+    drafted: "Primer borrador",
+    dev_edited: "Edición profunda",
+    line_edited: "Refinado",
+    beta_read: "Lector probado",
+    beta_passed: "Pulido",
+  },
+  commandPalette: {
+    placeholder: "Buscar comandos, capítulos, flujos...",
+    chapters: "Capítulos",
+    workflows: "Flujos de trabajo",
+    pages: "Páginas",
+    recent: "Reciente",
+    noResults: "Sin resultados",
+    actions: "Acciones",
+  },
+  wiki: {
+    title: "Wiki del mundo",
+    search: "Buscar entidades...",
+    newEntry: "Nueva entrada",
+    all: "Todos",
+    characters: "Personajes",
+    locations: "Lugares",
+    items: "Objetos",
+    events: "Eventos",
+    lore: "Mitología",
+    noEntries: "Aún no hay entradas",
+    noEntriesDesc: "Crea entradas manualmente o deja que el agente las llene desde tu Biblia de la historia.",
+    editEntry: "Editar",
+    deleteEntry: "Eliminar",
+    aliases: "Alias",
+    description: "Descripción",
+    attributes: "Atributos",
+    source: "Fuente",
+  },
+  writingDashboard: {
+    title: "Panel de escritura",
+    todayWords: "Palabras hoy",
+    streak: "Racha",
+    weeklyAvg: "Promedio semanal",
+    totalWords: "Total de palabras",
+    dailyGoal: "Meta diaria",
+    weeklyGoal: "Meta semanal",
+    totalGoal: "Meta total",
+    setGoal: "Establecer meta",
+    last30Days: "Últimos 30 días",
+    days: "días",
+    noData: "Aún no hay datos de escritura. ¡Empieza a escribir para ver tu progreso!",
+  },
 };
 
 const FR: UIStrings = {
@@ -1032,13 +1375,15 @@ const FR: UIStrings = {
     settings: "Paramètres",
     account: "Compte",
     writingPlatform: "Plateforme d'écriture",
-    sectionSetup: "Configuration",
+    sectionSetup: "Premiers pas",
     sectionWriting: "Écriture",
-    sectionEditing: "Révision",
-    sectionAnalysis: "Analyse",
+    sectionEditing: "Peaufinage",
+    sectionAnalysis: "Aperçus",
     sectionPublish: "Publier",
     sectionTools: "Outils",
     nextStep: "Prochaine étape",
+    library: "Bibliothèque",
+    transfer: "Transfert",
   },
   header: {
     toggleSidebar: "Afficher/masquer la barre latérale",
@@ -1052,6 +1397,7 @@ const FR: UIStrings = {
     totalBooks: "Total des livres",
     totalWords: "Total des mots",
     totalChapters: "Total des chapitres",
+    totalSeries: "Séries",
     recentBooks: "Livres récents",
     createBook: "Créer un livre",
     noBooksYet: "Pas encore de livres",
@@ -1059,6 +1405,18 @@ const FR: UIStrings = {
     words: "mots",
     chapters: "chapitres",
     updated: "Mis à jour",
+    continueWriting: "Reprendre là où vous en étiez",
+    lastEdited: "Dernière modification",
+    resumeChapter: "Reprendre",
+    recentSessions: "Sessions d'agents récentes",
+    noSessions: "Pas encore de sessions d'agents",
+    writingActivity: "Activité d'écriture",
+    wordsThisWeek: "mots cette semaine",
+    pendingAlerts: "Alertes",
+    noAlerts: "Aucune alerte en attente",
+    quickActions: "Actions rapides",
+    startWriting: "Commencer à écrire",
+    importManuscript: "Importer un manuscrit",
   },
   settings: {
     title: "Paramètres",
@@ -1204,6 +1562,58 @@ const FR: UIStrings = {
     titleOptional: "Titre (optionnel)", titlePlaceholder: "Titre du chapitre...",
     cancel: "Annuler", creating: "Création...", create: "Créer un chapitre", created: "Chapitre créé",
   },
+  chapterStatuses: {
+    undiscussed: "Nouveau départ",
+    discussed: "Discuté",
+    planned: "Esquissé",
+    drafted: "Premier jet",
+    dev_edited: "Édition profonde",
+    line_edited: "Affiné",
+    beta_read: "Testé par lecteur",
+    beta_passed: "Peaufiné",
+  },
+  commandPalette: {
+    placeholder: "Rechercher commandes, chapitres, workflows...",
+    chapters: "Chapitres",
+    workflows: "Workflows",
+    pages: "Pages",
+    recent: "Récent",
+    noResults: "Aucun résultat",
+    actions: "Actions",
+  },
+  wiki: {
+    title: "Wiki du monde",
+    search: "Rechercher des entités...",
+    newEntry: "Nouvelle entrée",
+    all: "Tout",
+    characters: "Personnages",
+    locations: "Lieux",
+    items: "Objets",
+    events: "Événements",
+    lore: "Mythologie",
+    noEntries: "Pas encore d'entrées",
+    noEntriesDesc: "Créez des entrées manuellement ou laissez l'agent les remplir depuis votre Bible de l'histoire.",
+    editEntry: "Modifier",
+    deleteEntry: "Supprimer",
+    aliases: "Alias",
+    description: "Description",
+    attributes: "Attributs",
+    source: "Source",
+  },
+  writingDashboard: {
+    title: "Tableau de bord d'écriture",
+    todayWords: "Mots aujourd'hui",
+    streak: "Série",
+    weeklyAvg: "Moyenne hebdomadaire",
+    totalWords: "Total des mots",
+    dailyGoal: "Objectif quotidien",
+    weeklyGoal: "Objectif hebdomadaire",
+    totalGoal: "Objectif total",
+    setGoal: "Définir un objectif",
+    last30Days: "30 derniers jours",
+    days: "jours",
+    noData: "Pas encore de données d'écriture. Commencez à écrire pour voir vos progrès !",
+  },
 };
 
 const RU: UIStrings = {
@@ -1226,13 +1636,15 @@ const RU: UIStrings = {
     settings: "Настройки",
     account: "Аккаунт",
     writingPlatform: "Платформа для писателей",
-    sectionSetup: "Настройка",
+    sectionSetup: "Начало работы",
     sectionWriting: "Написание",
-    sectionEditing: "Редактирование",
-    sectionAnalysis: "Анализ",
+    sectionEditing: "Шлифовка",
+    sectionAnalysis: "Аналитика",
     sectionPublish: "Публикация",
     sectionTools: "Инструменты",
     nextStep: "Следующий шаг",
+    library: "Библиотека",
+    transfer: "Передача",
   },
   header: {
     toggleSidebar: "Показать/скрыть боковую панель",
@@ -1246,6 +1658,7 @@ const RU: UIStrings = {
     totalBooks: "Всего книг",
     totalWords: "Всего слов",
     totalChapters: "Всего глав",
+    totalSeries: "Серии",
     recentBooks: "Недавние книги",
     createBook: "Создать книгу",
     noBooksYet: "Пока нет книг",
@@ -1253,6 +1666,18 @@ const RU: UIStrings = {
     words: "слов",
     chapters: "глав",
     updated: "Обновлено",
+    continueWriting: "Продолжить с того места, где остановились",
+    lastEdited: "Последнее редактирование",
+    resumeChapter: "Продолжить",
+    recentSessions: "Недавние сессии агентов",
+    noSessions: "Пока нет сессий агентов",
+    writingActivity: "Активность письма",
+    wordsThisWeek: "слов за неделю",
+    pendingAlerts: "Уведомления",
+    noAlerts: "Нет ожидающих уведомлений",
+    quickActions: "Быстрые действия",
+    startWriting: "Начать писать",
+    importManuscript: "Импортировать рукопись",
   },
   settings: {
     title: "Настройки",
@@ -1398,6 +1823,58 @@ const RU: UIStrings = {
     titleOptional: "Название (необязательно)", titlePlaceholder: "Название главы...",
     cancel: "Отмена", creating: "Создание...", create: "Создать главу", created: "Глава создана",
   },
+  chapterStatuses: {
+    undiscussed: "Новое начало",
+    discussed: "Обсуждено",
+    planned: "Набросано",
+    drafted: "Первый черновик",
+    dev_edited: "Глубокая правка",
+    line_edited: "Уточнено",
+    beta_read: "Протестировано",
+    beta_passed: "Отполировано",
+  },
+  commandPalette: {
+    placeholder: "Поиск команд, глав, процессов...",
+    chapters: "Главы",
+    workflows: "Процессы",
+    pages: "Страницы",
+    recent: "Недавнее",
+    noResults: "Ничего не найдено",
+    actions: "Действия",
+  },
+  wiki: {
+    title: "Вики мира",
+    search: "Поиск сущностей...",
+    newEntry: "Новая запись",
+    all: "Все",
+    characters: "Персонажи",
+    locations: "Локации",
+    items: "Предметы",
+    events: "События",
+    lore: "Мифология",
+    noEntries: "Записей пока нет",
+    noEntriesDesc: "Создайте записи вручную или позвольте агенту заполнить их из Библии истории.",
+    editEntry: "Редактировать",
+    deleteEntry: "Удалить",
+    aliases: "Псевдонимы",
+    description: "Описание",
+    attributes: "Атрибуты",
+    source: "Источник",
+  },
+  writingDashboard: {
+    title: "Панель писателя",
+    todayWords: "Слов сегодня",
+    streak: "Серия дней",
+    weeklyAvg: "Среднее за неделю",
+    totalWords: "Всего слов",
+    dailyGoal: "Дневная цель",
+    weeklyGoal: "Недельная цель",
+    totalGoal: "Общая цель",
+    setGoal: "Установить цель",
+    last30Days: "Последние 30 дней",
+    days: "дней",
+    noData: "Данных о писании пока нет. Начните писать, чтобы увидеть прогресс!",
+  },
 };
 
 const ZH: UIStrings = {
@@ -1420,13 +1897,15 @@ const ZH: UIStrings = {
     settings: "设置",
     account: "账户",
     writingPlatform: "写作平台",
-    sectionSetup: "设置",
+    sectionSetup: "入门",
     sectionWriting: "写作",
-    sectionEditing: "编辑",
-    sectionAnalysis: "分析",
+    sectionEditing: "打磨",
+    sectionAnalysis: "洞察",
     sectionPublish: "出版",
     sectionTools: "工具",
     nextStep: "下一步",
+    library: "资料库",
+    transfer: "导入导出",
   },
   header: {
     toggleSidebar: "切换侧边栏",
@@ -1440,6 +1919,7 @@ const ZH: UIStrings = {
     totalBooks: "书籍总数",
     totalWords: "总字数",
     totalChapters: "章节总数",
+    totalSeries: "系列",
     recentBooks: "最近的书籍",
     createBook: "创建书籍",
     noBooksYet: "还没有书籍",
@@ -1447,6 +1927,18 @@ const ZH: UIStrings = {
     words: "字",
     chapters: "章",
     updated: "更新于",
+    continueWriting: "继续上次的工作",
+    lastEdited: "最后编辑",
+    resumeChapter: "继续",
+    recentSessions: "最近的代理会话",
+    noSessions: "暂无代理会话",
+    writingActivity: "写作活动",
+    wordsThisWeek: "本周字数",
+    pendingAlerts: "提醒",
+    noAlerts: "没有待处理的提醒",
+    quickActions: "快捷操作",
+    startWriting: "开始写作",
+    importManuscript: "导入手稿",
   },
   settings: {
     title: "设置",
@@ -1592,6 +2084,58 @@ const ZH: UIStrings = {
     titleOptional: "标题（可选）", titlePlaceholder: "章节标题...",
     cancel: "取消", creating: "创建中...", create: "创建章节", created: "章节已创建",
   },
+  chapterStatuses: {
+    undiscussed: "全新开始",
+    discussed: "已讨论",
+    planned: "已大纲",
+    drafted: "初稿",
+    dev_edited: "深度编辑",
+    line_edited: "已精炼",
+    beta_read: "读者测试",
+    beta_passed: "已润色",
+  },
+  commandPalette: {
+    placeholder: "搜索命令、章节、工作流...",
+    chapters: "章节",
+    workflows: "工作流",
+    pages: "页面",
+    recent: "最近",
+    noResults: "未找到结果",
+    actions: "操作",
+  },
+  wiki: {
+    title: "世界百科",
+    search: "搜索实体...",
+    newEntry: "新条目",
+    all: "全部",
+    characters: "角色",
+    locations: "地点",
+    items: "物品",
+    events: "事件",
+    lore: "传说",
+    noEntries: "还没有百科条目",
+    noEntriesDesc: "手动创建条目，或让代理从故事圣经中自动填充。",
+    editEntry: "编辑",
+    deleteEntry: "删除",
+    aliases: "别名",
+    description: "描述",
+    attributes: "属性",
+    source: "来源",
+  },
+  writingDashboard: {
+    title: "写作仪表板",
+    todayWords: "今日字数",
+    streak: "连续天数",
+    weeklyAvg: "周均字数",
+    totalWords: "总字数",
+    dailyGoal: "每日目标",
+    weeklyGoal: "每周目标",
+    totalGoal: "总目标",
+    setGoal: "设置目标",
+    last30Days: "最近30天",
+    days: "天",
+    noData: "还没有写作数据。开始写作查看您的进度！",
+  },
 };
 
 const UI_STRINGS: Record<string, UIStrings> = {
@@ -1614,4 +2158,13 @@ export function getUIStrings(language: string): UIStrings {
     UI_STRINGS[language.split("-")[0]] ??
     EN
   );
+}
+
+/**
+ * Get a writer-friendly label for a chapter status code.
+ * Single source of truth — all components should use this.
+ */
+export function getStatusLabel(status: string, language: string): string {
+  const t = getUIStrings(language);
+  return (t.chapterStatuses as Record<string, string>)[status] ?? status;
 }
