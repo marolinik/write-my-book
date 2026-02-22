@@ -145,7 +145,21 @@ FINGERPRINT EXTRACTION METHODOLOGY:
 - Identify what the author does NOT do (absence patterns are as telling as presence)
 
 OUTPUT FORMAT:
-Write the FINGERPRINT document with both quantitative data (numbers, percentages, distributions) and qualitative descriptions. Use specific examples from the analyzed text to illustrate each finding. The fingerprint should be detailed enough that another agent could write a convincing passage in this author's voice without seeing the original text.`,
+Write the FINGERPRINT document with both quantitative data (numbers, percentages, distributions) and qualitative descriptions. Use specific examples from the analyzed text to illustrate each finding. The fingerprint should be detailed enough that another agent could write a convincing passage in this author's voice without seeing the original text.
+
+STRUCTURED METRICS (REQUIRED):
+After writing the FINGERPRINT document, you MUST call the SetVoiceMetrics tool ONCE to store structured metrics extracted from your analysis. This enables editing agents to perform quantitative voice comparison. Include:
+
+1. All sentence length statistics (mean, median, stdDev, distribution shape)
+2. Vocabulary metrics (type-token ratio, hapax rate, register)
+3. Dialogue ratio (0.0-1.0)
+4. Paragraph length metrics (mean, median, single-sentence rate)
+5. Punctuation patterns (em dash, semicolon, ellipsis frequencies)
+6. Narrative distance and POV classification
+7. Metaphor domains array
+8. 3-5 calibration samples: short passages (2-4 sentences each) that best demonstrate the author's distinctive voice. For each sample, explain WHY it demonstrates the voice and list the specific features it shows.
+
+The calibration samples should be chosen to showcase DIFFERENT aspects of the voice — e.g., one showing dialogue rhythm, one showing narrative description, one showing interior monologue, one showing action pacing.`,
 
   "story-architect": `You are a story architect — a master of narrative structure who designs compelling, emotionally resonant story frameworks. You understand classical and modern story models deeply, but you never force a story into a template. Instead, you find the structure that best serves each unique story.
 
@@ -332,6 +346,12 @@ CATEGORIES for dev editor: pacing, character, dialogue, structure, tension, pov,
 - If an issue was [DISMISSED], the writer chose to keep their text — do not re-flag UNLESS it's critical severity
 - If the writer replied to a finding, read their reasoning and adjust your analysis accordingly
 
+## VOICE DRIFT CHECK (Dev Editor)
+If <voice_metrics> is provided above, verify your rewrite alternatives:
+- Sentence length should stay within the author's typical range (mean +/- 1 stdDev)
+- Vocabulary should match the author's register
+- If <calibration_samples> are available, ensure rewrites could plausibly fit alongside those passages
+
 ## SELF-CONFLICT CHECK
 Before finalizing, review all findings you created in this session. If any two findings contradict each other, resolve the conflict by removing the weaker finding.
 
@@ -428,6 +448,16 @@ CATEGORIES for line editor: crutch-phrase, filter-word, ai-tell, sentence-variet
 - Every rewrite alternative must preserve the author's voice from <style_fingerprint>
 - DO NOT produce generic rewrites that could apply to any author
 - Verify your suggestions match the author's sentence structure patterns, vocabulary level, and metaphor domains
+
+## VOICE DRIFT CHECK
+If <voice_metrics> is provided above, perform these checks for EVERY rewrite alternative:
+1. SENTENCE LENGTH: Does your rewrite's sentence length fall within 1 stdDev of the author's mean? If the author averages 14 words/sentence, don't write 30-word rewrites.
+2. VOCABULARY: Does your rewrite use words from the author's register? If "conversational", don't use "literary" phrasing.
+3. PUNCTUATION: Does your rewrite match the author's punctuation patterns? If they never use semicolons, neither should your rewrites.
+4. DIALOGUE RATIO: If the finding involves dialogue, does the rewrite maintain the author's dialogue-to-narrative ratio?
+5. CALIBRATION CHECK: Compare your rewrite against <calibration_samples>. Could it plausibly appear in the same text? If not, revise.
+
+If any check fails, revise the alternative BEFORE submitting the finding.
 
 ## STYLE VALIDATION
 Before submitting each finding, check: "Would the author recognize these rewrites as something they might write themselves?" If not, revise the alternatives.
@@ -1432,6 +1462,62 @@ export async function assembleAgentPrompt(
         priority: 60,
         content: `\n<style_fingerprint>\n${fp}\n</style_fingerprint>`,
       });
+    }
+  }
+
+  // ─── SECTION 8b: Voice Metrics for Editing Agents (priority 58/57) ──
+  const editingAgents = new Set(["line-editor", "dev-editor", "beta-reader", "ghostwriter"]);
+  if (editingAgents.has(definition.type) && profile.fingerprint !== "none") {
+    try {
+      const styleProfile = await db.styleProfile.findFirst({
+        where: { userId: context.userId ?? "", sourceBookId: context.bookId },
+        select: { metrics: true, calibrationSamples: true },
+      });
+
+      if (styleProfile?.metrics) {
+        const metricsStr = JSON.stringify(styleProfile.metrics, null, 2);
+        sections.push({
+          name: "voice_metrics",
+          priority: 58,
+          content:
+            `\n<voice_metrics>\n` +
+            `These are the quantitative voice metrics extracted from the author's writing. ` +
+            `Use them to validate that your suggestions preserve the author's patterns.\n\n` +
+            `${metricsStr}\n` +
+            `</voice_metrics>`,
+        });
+      }
+
+      if (styleProfile?.calibrationSamples && Array.isArray(styleProfile.calibrationSamples)) {
+        const samples = styleProfile.calibrationSamples as Array<{
+          passage: string;
+          why: string;
+          features: string[];
+        }>;
+        if (samples.length > 0) {
+          const samplesStr = samples
+            .map(
+              (s, i) =>
+                `### Sample ${i + 1}\n` +
+                `**Passage:** "${s.passage}"\n` +
+                `**Why this demonstrates the voice:** ${s.why}\n` +
+                `**Features:** ${s.features.join(", ")}`
+            )
+            .join("\n\n");
+          sections.push({
+            name: "calibration_samples",
+            priority: 57,
+            content:
+              `\n<calibration_samples>\n` +
+              `These passages demonstrate the author's voice. Compare your suggestions ` +
+              `against these to ensure voice consistency.\n\n` +
+              `${samplesStr}\n` +
+              `</calibration_samples>`,
+          });
+        }
+      }
+    } catch {
+      // StyleProfile query failed — proceed without metrics
     }
   }
 

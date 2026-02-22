@@ -6,9 +6,15 @@ import {
   SparklesIcon,
   RefreshCwIcon,
   TrendingUpIcon,
+  ClockIcon,
+  DownloadIcon,
+  ArrowLeftIcon,
 } from "lucide-react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -27,6 +33,8 @@ export default function StylePage({
   params: Promise<{ bookId: string }>;
 }) {
   const { bookId } = use(params);
+  const searchParams = useSearchParams();
+  const fromSetup = searchParams.get("from") === "setup";
   const { data, isLoading } = useStyleProfile(bookId);
   const openWithWorkflow = useAgentStore((s) => s.openWithWorkflow);
   const { t } = useLanguage();
@@ -42,9 +50,21 @@ export default function StylePage({
 
   const profiles = data?.profiles ?? [];
   const hasProfiles = profiles.length > 0;
+  const latestProfile = hasProfiles ? profiles[0] : null;
 
   return (
     <div className="p-6 lg:p-8">
+      {fromSetup && (
+        <div className="pb-4">
+          <Link
+            href={`/books/${bookId}/setup`}
+            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeftIcon className="size-3" />
+            Back to Setup
+          </Link>
+        </div>
+      )}
       <div className="flex items-start justify-between">
         <div>
           <h1 className="font-display text-3xl font-semibold tracking-tight">
@@ -77,6 +97,21 @@ export default function StylePage({
       </div>
 
       <Separator className="my-6" />
+
+      {/* Last Captured Timestamp */}
+      {latestProfile && latestProfile.updatedAt && (
+        <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
+          <ClockIcon className="size-3.5" />
+          <span>
+            Style captured{" "}
+            {new Date(latestProfile.updatedAt).toLocaleDateString(undefined, {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </span>
+        </div>
+      )}
 
       {!hasProfiles && (
         <Card className="mb-6 border-dashed">

@@ -21,6 +21,18 @@ export async function GET(
     const profiles = await db.styleProfile.findMany({
       where: { userId: user.id, sourceBookId: bookId },
       orderBy: { updatedAt: "desc" },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        fingerprint: true,
+        metrics: true,
+        calibrationSamples: true,
+        sourceBookId: true,
+        sourceBookNumber: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
 
     const lenses = await db.characterLens.findMany({

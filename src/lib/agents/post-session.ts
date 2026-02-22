@@ -475,6 +475,8 @@ async function bridgeFingerprintToStyleProfile(
   });
 
   if (existing) {
+    // Only update fingerprint text and name — preserve metrics/calibrationSamples
+    // if they were already set by the SetVoiceMetrics tool call during the same session
     await db.styleProfile.update({
       where: { id: existing.id },
       data: {
