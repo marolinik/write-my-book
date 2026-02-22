@@ -87,6 +87,23 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       );
     }
 
+    // ── Setup Completeness Guard (SETUP-07) ──────────────────
+    // Non-setup workflows require setupComplete to be true.
+    // Setup-category workflows are exempt so writers can complete onboarding.
+    if (workflow.category !== "setup") {
+      const setupComplete = book.settings?.setupComplete ?? false;
+      if (!setupComplete) {
+        return NextResponse.json(
+          {
+            error: "Setup incomplete",
+            setupIncomplete: true,
+            redirectTo: `/books/${bookId}/setup`,
+          },
+          { status: 422 }
+        );
+      }
+    }
+
     // Check monthly usage quota
     const quotaResult = await checkQuota(user.id, "use_agent_session");
     if (!quotaResult.allowed) {

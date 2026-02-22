@@ -1,4 +1,4 @@
-import type { WorkflowDefinition } from "./types";
+import type { WorkflowDefinition, WorkflowPrerequisite } from "./types";
 
 const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
   // ─── SETUP ──────────────────────────────────────────────────────
@@ -49,6 +49,9 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: false,
     conversational: false,
     suggestedNext: ["plan-chapter"],
+    prerequisites: [
+      { type: "document", value: "STORY_BIBLE", description: "Story Bible needed before designing architecture", satisfiedBy: "create-story-bible" },
+    ],
   },
   {
     id: "coach",
@@ -61,6 +64,33 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: false,
     conversational: true,
     suggestedNext: [],
+  },
+  {
+    id: "onboard-new-book",
+    label: "New Book Setup",
+    description: "Describe your book idea and get all foundational documents generated automatically.",
+    writerDescription: "Tell me about your book and I'll create your Story Bible, Architecture, and Style Fingerprint.",
+    primaryAgent: "writing-coach",
+    category: "setup",
+    requiresChapter: false,
+    requiresSeriesContext: false,
+    conversational: true,
+    suggestedNext: ["discuss-chapter", "plan-chapter"],
+  },
+  {
+    id: "onboard-imported-book",
+    label: "Analyze Imported Book",
+    description: "Analyze an imported manuscript and generate all foundational documents.",
+    writerDescription: "I'll read your manuscript and create your Story Bible, Architecture, and Style Fingerprint.",
+    primaryAgent: "writing-coach",
+    category: "setup",
+    requiresChapter: false,
+    requiresSeriesContext: false,
+    conversational: false,
+    suggestedNext: ["dev-edit", "discuss-chapter"],
+    prerequisites: [
+      { type: "chapter_content", value: "any", description: "Import chapters first", satisfiedBy: "" },
+    ],
   },
   {
     id: "read-manuscript",
@@ -101,6 +131,10 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: false,
     conversational: false,
     suggestedNext: ["write-chapter"],
+    prerequisites: [
+      { type: "document", value: "STORY_BIBLE", description: "Story Bible is needed for chapter planning", satisfiedBy: "create-story-bible" },
+      { type: "document", value: "ARCHITECTURE", description: "Architecture is needed for chapter planning", satisfiedBy: "build-architecture" },
+    ],
   },
   {
     id: "write-chapter",
@@ -113,6 +147,10 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: false,
     conversational: false,
     suggestedNext: ["dev-edit"],
+    prerequisites: [
+      { type: "document", value: "FINGERPRINT", description: "Style fingerprint needed to write in your voice", satisfiedBy: "capture-style" },
+      { type: "document", value: "CHAPTER_PLAN", description: "Chapter plan needed before writing", satisfiedBy: "plan-chapter" },
+    ],
   },
   {
     id: "freewrite",
@@ -121,6 +159,18 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     writerDescription: "Write freely — explore ideas without a plan.",
     primaryAgent: "ghostwriter",
     category: "writing",
+    requiresChapter: false,
+    requiresSeriesContext: false,
+    conversational: true,
+    suggestedNext: [],
+  },
+  {
+    id: "free-drive",
+    label: "Free Drive",
+    description: "You drive — tell the Coach what to do and which specialists to invoke.",
+    writerDescription: "Take the wheel — direct the Coach and its team of specialists yourself.",
+    primaryAgent: "writing-coach",
+    category: "setup",
     requiresChapter: false,
     requiresSeriesContext: false,
     conversational: true,
@@ -139,6 +189,10 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: false,
     conversational: false,
     suggestedNext: ["line-edit", "discuss-edits"],
+    prerequisites: [
+      { type: "document", value: "FINGERPRINT", description: "Style fingerprint needed for editing", satisfiedBy: "capture-style" },
+      { type: "chapter_content", value: "any", description: "Chapter must have content to edit", satisfiedBy: "write-chapter" },
+    ],
   },
   {
     id: "line-edit",
@@ -151,6 +205,10 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: false,
     conversational: false,
     suggestedNext: ["beta-read", "discuss-edits"],
+    prerequisites: [
+      { type: "document", value: "FINGERPRINT", description: "Style fingerprint needed for line editing", satisfiedBy: "capture-style" },
+      { type: "chapter_content", value: "any", description: "Chapter must have content to edit", satisfiedBy: "write-chapter" },
+    ],
   },
   {
     id: "beta-read",
@@ -163,6 +221,9 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: false,
     conversational: false,
     suggestedNext: ["revise"],
+    prerequisites: [
+      { type: "chapter_content", value: "any", description: "Chapter must have content for beta reading", satisfiedBy: "write-chapter" },
+    ],
   },
   {
     id: "revise",
@@ -175,6 +236,10 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: false,
     conversational: false,
     suggestedNext: ["dev-edit", "line-edit"],
+    prerequisites: [
+      { type: "document", value: "FINGERPRINT", description: "Style fingerprint needed for revision", satisfiedBy: "capture-style" },
+      { type: "chapter_content", value: "any", description: "Chapter must have content to revise", satisfiedBy: "write-chapter" },
+    ],
   },
   {
     id: "discuss-edits",
@@ -245,6 +310,9 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: false,
     conversational: false,
     suggestedNext: ["write-chapter"],
+    prerequisites: [
+      { type: "document", value: "FINGERPRINT", description: "Must have an existing fingerprint to refresh", satisfiedBy: "capture-style" },
+    ],
   },
   {
     id: "evolve-style",
@@ -259,6 +327,9 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: false,
     conversational: true,
     suggestedNext: [],
+    prerequisites: [
+      { type: "document", value: "FINGERPRINT", description: "Must have an existing fingerprint to evolve", satisfiedBy: "capture-style" },
+    ],
   },
 
   // ─── SERIES ─────────────────────────────────────────────────────

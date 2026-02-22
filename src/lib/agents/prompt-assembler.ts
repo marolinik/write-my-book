@@ -1065,6 +1065,54 @@ const CONDUCTOR_WORKFLOW_INSTRUCTIONS: Record<string, string> = {
   "discuss-edits": "Review findings with the user. Handle directly — read the existing findings and discuss which to apply, which to reject, and why. Help the user make editorial decisions.",
   "freewrite": "Let the user write freely. Handle directly — offer encouragement, light suggestions, and creative prompts. Do not impose structure.",
 
+  // Onboarding workflows
+  "onboard-new-book": `You are guiding a writer through setting up a brand new book. This is a CONVERSATIONAL onboarding — you gather information, then delegate to specialists to create foundational documents.
+
+PHASE 1 — GATHER INFORMATION (handle directly, do NOT delegate yet):
+1. Open warmly: "Tell me about your book! What's the story you want to tell?"
+2. Gather at minimum these 3 data points through natural conversation:
+   - Genre (fantasy, thriller, literary fiction, romance, sci-fi, etc.)
+   - Premise (what's the central conflict or situation?)
+   - Protagonist (who is the main character and what do they want?)
+3. Be persistent but friendly — if the writer is vague, suggest genre conventions, offer options, help them narrow down.
+4. Ask follow-up questions: setting, tone, themes, other key characters. The more you learn, the better the documents will be.
+5. Ask for a writing sample (200+ words of their prose). If the writer doesn't have one ready, offer a freewrite prompt: "Write a paragraph or two about your protagonist arriving somewhere new — a place that matters to them."
+6. Accept the sample when provided. Do NOT critique it — it's for style analysis, not editing.
+
+PHASE 2 — CREATE FOUNDATIONAL DOCUMENTS (delegate to specialists):
+Once you have all 3 data points AND a writing sample:
+1. Delegate to style-analyst with workflowId='capture-style' — pass the writing sample via the task description
+2. Delegate to writing-coach (yourself) with workflowId='create-story-bible' — BUT since you can't delegate to yourself, instead use WriteDocument to create the STORY_BIBLE document directly using the gathered information
+3. Delegate to story-architect with workflowId='build-architecture' — pass the premise, genre, and story structure info
+
+PHASE 3 — SUMMARIZE AND GUIDE:
+After all documents are created:
+1. Summarize what was created: Style Fingerprint, Story Bible, Architecture
+2. Suggest the writer review each document (link to /books/[bookId]/documents)
+3. Recommend next steps: "Your setup is almost done! Head to the setup wizard to review everything, then start planning your first chapter."`,
+
+  "onboard-imported-book": `You are analyzing an imported manuscript to create foundational documents. The chapters have already been imported — skip conversation and go straight to analysis.
+
+EXECUTION SEQUENCE (delegate in order):
+1. Delegate to manuscript-reader with workflowId='read-manuscript' — this reads all chapters in 5 passes
+2. After manuscript-reader completes, delegate to style-analyst with workflowId='capture-style' — the style analyst will read the FINGERPRINT chapters
+3. After style analysis, use WriteDocument to create the STORY_BIBLE document based on the manuscript-reader's analysis
+4. Delegate to story-architect with workflowId='build-architecture' — pass the analysis results
+
+PROGRESS REPORTING:
+After each delegation completes, tell the user what was done and what's next:
+- "Reading your manuscript... (5-pass analysis)"
+- "Capturing your writing style..."
+- "Building your story bible..."
+- "Designing story architecture..."
+
+COMPLETION:
+When all documents are created, summarize:
+1. What was found in the manuscript analysis
+2. Key voice characteristics from the style fingerprint
+3. The story structure from the architecture
+4. Suggest next steps: review documents, then start editing with dev-edit`,
+
   // User-driven orchestration — Coach delegates on demand
   "free-drive": `The user is in the driver's seat. They will tell you what to do — follow their lead.
 

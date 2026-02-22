@@ -362,6 +362,40 @@ export const importUploadSchema = z.object({
   actNumber: z.coerce.number().int().min(1).max(10).optional().default(1),
 });
 
+export const importPreviewChapterSchema = z.object({
+  tempId: z.string(),
+  number: z.number().int().min(1),
+  title: z.string().max(500),
+  content: z.string(),
+  wordCount: z.number().int().min(0),
+  sourceFile: z.string().max(500),
+});
+
+export const importPreviewResponseSchema = z.object({
+  chapters: z.array(importPreviewChapterSchema),
+  existingChapters: z.array(z.object({
+    number: z.number().int().min(1),
+    title: z.string().nullable(),
+    wordCount: z.number().int().min(0),
+  })).optional(),
+  warnings: z.array(z.string()).optional(),
+});
+
+export type ImportPreviewChapter = z.infer<typeof importPreviewChapterSchema>;
+export type ImportPreviewResponse = z.infer<typeof importPreviewResponseSchema>;
+
+export const importConfirmChapterSchema = z.object({
+  number: z.number().int().min(1).max(999),
+  title: z.string().max(500),
+  content: z.string().max(2_000_000),
+  action: z.enum(["create", "replace", "skip"]),
+});
+
+export const importConfirmRequestSchema = z.object({
+  chapters: z.array(importConfirmChapterSchema).min(1),
+  actNumber: z.number().int().min(1).max(10).optional().default(1),
+});
+
 export const exportRequestSchema = z.object({
   format: z.enum(["docx", "pdf", "epub"]),
   isDraft: z.boolean().optional().default(false),

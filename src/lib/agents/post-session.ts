@@ -54,6 +54,8 @@ const WORKFLOW_SUGGESTED_NEXT: Record<string, string[]> = {
   "evolve-style": [],
   "market-analysis": [],
   "publishing-check": [],
+  "onboard-new-book": ["discuss-chapter", "plan-chapter"],
+  "onboard-imported-book": ["dev-edit", "discuss-chapter"],
 };
 
 const CHAPTER_STATUS_ADVANCE: Record<string, string> = {
@@ -114,6 +116,10 @@ async function deriveSuggestedNext(
       return ["revise"];
     case "market-analysis":
       return [];
+    case "onboard-new-book":
+      return ["discuss-chapter", "plan-chapter"];
+    case "onboard-imported-book":
+      return ["dev-edit", "discuss-chapter"];
     default:
       return WORKFLOW_SUGGESTED_NEXT[workflowId] ?? [];
   }

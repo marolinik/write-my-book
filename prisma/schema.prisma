@@ -294,11 +294,13 @@ model BookSettings {
   modelResearch    String  @default("sonnet") @map("model_research")
   modelOverride    String? @map("model_override")
   autoCommit       Boolean @default(true) @map("auto_commit")
-  styleStrictness  String  @default("balanced") @map("style_strictness") // strict, balanced, relaxed
-  betaPanelSize    Int     @default(10) @map("beta_panel_size")
-  betaConsensus    Int     @default(80) @map("beta_consensus")
-  betaConvergence  Int     @default(70) @map("beta_convergence")
-  language         String  @default("en") @map("language")
+  styleStrictness    String  @default("balanced") @map("style_strictness") // strict, balanced, relaxed
+  betaPanelSize      Int     @default(10) @map("beta_panel_size")
+  betaConsensus      Int     @default(80) @map("beta_consensus")
+  betaConvergence    Int     @default(70) @map("beta_convergence")
+  language           String  @default("en") @map("language")
+  setupImportSkipped Boolean @default(false) @map("setup_import_skipped")
+  setupComplete      Boolean @default(false) @map("setup_complete")
 
   book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
 
