@@ -8,6 +8,9 @@ import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
 import { parseAgentOutput } from "@/lib/parsers";
 import type { EditFindingParsed } from "@/lib/parsers";
+import { updateFromChapter } from "@/lib/graph/graph-maintenance";
+import { onSessionCompleted, onDocumentChanged } from "@/lib/vector/memory-manager";
+import { promoteFindings } from "./blackboard";
 
 export interface PostSessionContext {
   sessionId: string;
@@ -81,9 +84,9 @@ export async function processPostSession(
       await bridgeFingerprintToStyleProfile(ctx, docService);
     }
 
-    // Handle edit workflows — parse report and store findings
+    // Handle edit workflows — verify findings created via tool calls
     if (ctx.workflowId === "dev-edit" || ctx.workflowId === "line-edit") {
-      result.findingsCreated = await processEditSession(ctx, docService);
+      result.findingsCreated = await verifySessionFindings(ctx);
 
       // Cascade warnings are best-effort — don't fail the whole post-session
       if (ctx.workflowId === "dev-edit" && result.findingsCreated > 0) {
@@ -129,6 +132,42 @@ export async function processPostSession(
 
     // Recalculate book word count
     await recalculateBookWordCount(ctx.bookId);
+
+    // ─── Knowledge Graph Update (fire-and-forget) ────────────
+    // After write-chapter or revise, update the graph with entities from the chapter content.
+    if (
+      ctx.chapterNumber &&
+      (ctx.workflowId === "write-chapter" || ctx.workflowId === "revise")
+    ) {
+      updateChapterGraph(ctx.bookId, ctx.chapterNumber, docService).catch(
+        (err) => console.error("[PostSession] Graph update failed (non-fatal):", err)
+      );
+    }
+
+    // ─── Vector Memory Indexing (fire-and-forget) ────────────
+    // Index updated documents into vector collections for semantic search.
+    onSessionCompleted(
+      ctx.bookId,
+      ctx.sessionId,
+      ctx.agentType,
+      ctx.workflowId,
+      ctx.chapterNumber
+    ).catch((err) =>
+      console.error("[PostSession] Vector session indexing failed (non-fatal):", err)
+    );
+
+    // ─── Blackboard: Promote Critical Findings to Insights ──
+    // After edit sessions, promote critical/major findings to the blackboard.
+    if (ctx.workflowId === "dev-edit" || ctx.workflowId === "line-edit") {
+      promoteFindings(
+        ctx.bookId,
+        ctx.sessionId,
+        ctx.agentType,
+        ctx.chapterNumber
+      ).catch((err) =>
+        console.error("[PostSession] Insight promotion failed (non-fatal):", err)
+      );
+    }
   } catch (error) {
     console.error(
       `[PostSession] Error processing session ${ctx.sessionId}:`,
@@ -140,85 +179,46 @@ export async function processPostSession(
 }
 
 /**
- * Parse a dev-edit or line-edit report and create EditFinding records.
- * Deduplicates against existing findings for the same session.
+ * Verify findings created during an edit session via tool calls.
+ * No longer parses report documents - findings are created exclusively via CreateFinding tool.
  */
-async function processEditSession(
-  ctx: PostSessionContext,
-  docService: DocumentService
+async function verifySessionFindings(
+  ctx: PostSessionContext
 ): Promise<number> {
   if (!ctx.chapterNumber) return 0;
-
-  // Determine report document type
-  const reportType =
-    ctx.workflowId === "dev-edit"
-      ? DocumentType.DEV_EDIT_REPORT
-      : DocumentType.LINE_EDIT_REPORT;
-
-  // Read the report document
-  const reportDoc = await docService.findByType(reportType, ctx.chapterNumber);
-  if (!reportDoc) return 0;
-
-  const reportContent = await docService.read(reportDoc.id);
-  if (!reportContent) return 0;
-
-  // Parse the report
-  const parsed = parseAgentOutput(ctx.workflowId, reportContent.content);
-  if (!parsed.parseSuccess || parsed.type !== "edit") return 0;
-
-  const findings = parsed.data as EditFindingParsed[];
-  if (findings.length === 0) return 0;
-
-  // Get existing findings for this session to avoid duplicates
-  const existingFindings = await db.editFinding.findMany({
+  const findings = await db.editFinding.findMany({
     where: {
       bookId: ctx.bookId,
       chapterNumber: ctx.chapterNumber,
       sessionId: ctx.sessionId,
+      status: { not: "rejected" },
     },
-    select: { description: true, category: true },
   });
-
-  const existingSet = new Set(
-    existingFindings.map((f) => `${f.category}::${f.description}`)
-  );
-
-  // Create new findings, skipping duplicates
-  const newFindings = findings.filter(
-    (f) => !existingSet.has(`${f.category}::${f.description}`)
-  );
-
-  if (newFindings.length === 0) return 0;
-
-  await db.editFinding.createMany({
-    data: newFindings.map((f) => ({
-      bookId: ctx.bookId,
-      chapterNumber: ctx.chapterNumber!,
-      sessionId: ctx.sessionId,
-      agentType: ctx.agentType,
-      severity: f.severity,
-      category: f.category,
-      description: f.description,
-      suggestion: f.suggestion,
-      originalText: f.originalText,
-      newText: f.newText,
-      locationStart: f.locationStart,
-      locationEnd: f.locationEnd,
-    })),
-  });
-
-  // Log edit action
-  await db.editAction.create({
-    data: {
+  const rejectedCount = await db.editFinding.count({
+    where: {
       bookId: ctx.bookId,
       chapterNumber: ctx.chapterNumber,
-      actionType: "session_complete",
       sessionId: ctx.sessionId,
-      description: `${ctx.workflowId} completed: ${newFindings.length} findings created`,
+      status: "rejected",
     },
   });
-
-  return newFindings.length;
+  if (rejectedCount > 0) {
+    console.info(
+      `[PostSession] Session ${ctx.sessionId}: ${findings.length} findings created, ${rejectedCount} rejected during validation`
+    );
+  }
+  if (findings.length > 0) {
+    await db.editAction.create({
+      data: {
+        bookId: ctx.bookId,
+        chapterNumber: ctx.chapterNumber,
+        actionType: "session_complete",
+        sessionId: ctx.sessionId,
+        description: `${ctx.workflowId} completed: ${findings.length} findings created via tool calls${rejectedCount > 0 ? `, ${rejectedCount} rejected` : ""}`,
+      },
+    });
+  }
+  return findings.length;
 }
 
 /**
@@ -469,4 +469,28 @@ async function createCascadeWarnings(
   }
 
   return warningsCreated;
+}
+
+/**
+ * Update the knowledge graph with entities extracted from chapter content.
+ * Fire-and-forget — errors are caught and logged by the caller.
+ */
+async function updateChapterGraph(
+  bookId: string,
+  chapterNumber: number,
+  docService: DocumentService
+): Promise<void> {
+  const doc = await docService.findByType(
+    DocumentType.CHAPTER_CONTENT,
+    chapterNumber
+  );
+  if (!doc) return;
+
+  const content = await docService.read(doc.id);
+  if (!content?.content) return;
+
+  await updateFromChapter(bookId, chapterNumber, content.content);
+
+  // Also index into vector memory
+  await onDocumentChanged(bookId, "CHAPTER_CONTENT", content.content, chapterNumber);
 }
