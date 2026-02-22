@@ -1,66 +1,141 @@
-import { create } from "zustand";
+import { createStore, useStore } from "zustand";
+import type { StoreApi } from "zustand";
+import type { FindingItem } from "@/hooks/use-editorial";
 
-interface EditorState {
+// ── Per-pane state (no content field — TipTap is sole source of truth) ──
+
+export interface EditorPaneState {
   bookId: string | null;
   chapterId: string | null;
   documentId: string | null;
   chapterNumber: number | null;
-  content: string;
+
+  // Save state — per-pane
   isDirty: boolean;
   isSaving: boolean;
   lastSaved: Date | null;
-  focusMode: boolean;
 
+  // UI toggles — per-pane
+  focusMode: boolean;
+  showFindings: boolean;
+  showAnnotations: boolean;
+  scrollToText: string | null;
+  showFloatingInput: boolean;
+  pendingInlineEditFinding: FindingItem | null;
+
+  // Actions
   setChapter: (bookId: string, chapterId: string, chapterNumber: number) => void;
   setDocumentId: (documentId: string) => void;
-  setContent: (content: string) => void;
   markDirty: () => void;
   markClean: () => void;
   setSaving: (saving: boolean) => void;
   setLastSaved: (date: Date) => void;
   toggleFocusMode: () => void;
+  toggleFindings: () => void;
+  toggleAnnotations: () => void;
+  setScrollToText: (text: string | null) => void;
+  toggleFloatingInput: () => void;
+  setPendingInlineEditFinding: (finding: FindingItem | null) => void;
   reset: () => void;
 }
 
-export const useEditorStore = create<EditorState>((set) => ({
+type EditorPaneStore = StoreApi<EditorPaneState>;
+
+// ── Factory ────────────────────────────────────────────────────
+
+const initialPaneState = {
   bookId: null,
   chapterId: null,
   documentId: null,
   chapterNumber: null,
-  content: "",
   isDirty: false,
   isSaving: false,
   lastSaved: null,
   focusMode: false,
+  showFindings: false,
+  showAnnotations: true,
+  scrollToText: null,
+  showFloatingInput: false,
+  pendingInlineEditFinding: null,
+};
 
-  setChapter: (bookId, chapterId, chapterNumber) =>
-    set({ bookId, chapterId, chapterNumber, isDirty: false }),
+function createEditorPaneStore(): EditorPaneStore {
+  return createStore<EditorPaneState>((set) => ({
+    ...initialPaneState,
 
-  setDocumentId: (documentId) => set({ documentId }),
+    setChapter: (bookId, chapterId, chapterNumber) =>
+      set({ bookId, chapterId, chapterNumber, isDirty: false }),
 
-  setContent: (content) => set({ content, isDirty: true }),
+    setDocumentId: (documentId) => set({ documentId }),
 
-  markDirty: () => set({ isDirty: true }),
+    markDirty: () => set({ isDirty: true }),
 
-  markClean: () => set({ isDirty: false }),
+    markClean: () => set({ isDirty: false }),
 
-  setSaving: (isSaving) => set({ isSaving }),
+    setSaving: (isSaving) => set({ isSaving }),
 
-  setLastSaved: (lastSaved) =>
-    set({ lastSaved, isDirty: false, isSaving: false }),
+    setLastSaved: (lastSaved) =>
+      set({ lastSaved, isDirty: false, isSaving: false }),
 
-  toggleFocusMode: () => set((s) => ({ focusMode: !s.focusMode })),
+    toggleFocusMode: () => set((s) => ({ focusMode: !s.focusMode })),
 
-  reset: () =>
-    set({
-      bookId: null,
-      chapterId: null,
-      documentId: null,
-      chapterNumber: null,
-      content: "",
-      isDirty: false,
-      isSaving: false,
-      lastSaved: null,
-      focusMode: false,
-    }),
-}));
+    toggleFindings: () => set((s) => ({ showFindings: !s.showFindings })),
+
+    toggleAnnotations: () =>
+      set((s) => ({ showAnnotations: !s.showAnnotations })),
+
+    setScrollToText: (text) => set({ scrollToText: text }),
+
+    toggleFloatingInput: () =>
+      set((s) => ({ showFloatingInput: !s.showFloatingInput })),
+
+    setPendingInlineEditFinding: (finding) =>
+      set({ pendingInlineEditFinding: finding }),
+
+    reset: () => set(initialPaneState),
+  }));
+}
+
+// ── Keyed store registry ──────────────────────────────────────
+
+const paneStores = new Map<string, EditorPaneStore>();
+
+export function getOrCreatePaneStore(paneId: string): EditorPaneStore {
+  let store = paneStores.get(paneId);
+  if (!store) {
+    store = createEditorPaneStore();
+    paneStores.set(paneId, store);
+  }
+  return store;
+}
+
+export function destroyPaneStore(paneId: string): void {
+  const store = paneStores.get(paneId);
+  if (store) {
+    store.getState().reset();
+    paneStores.delete(paneId);
+  }
+}
+
+// ── React hook — useEditorPaneStore(paneId, selector) ─────────
+
+export function useEditorPaneStore<T>(
+  paneId: string,
+  selector: (state: EditorPaneState) => T
+): T {
+  const store = getOrCreatePaneStore(paneId);
+  return useStore(store, selector);
+}
+
+// ── Backward-compat shim (deprecated — migrate callers) ───────
+
+export function useEditorStore<T>(
+  selector: (state: EditorPaneState) => T
+): T {
+  return useEditorPaneStore("primary", selector);
+}
+
+// Expose getState/setState for imperative access (used by manuscript-editor for pending scroll)
+useEditorStore.getState = () => getOrCreatePaneStore("primary").getState();
+useEditorStore.setState = ((partial: Partial<EditorPaneState>) =>
+  getOrCreatePaneStore("primary").setState(partial)) as StoreApi<EditorPaneState>["setState"];
