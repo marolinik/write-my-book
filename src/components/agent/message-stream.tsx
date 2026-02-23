@@ -567,7 +567,7 @@ function ApprovalCard({
   return (
     <div className="flex flex-col gap-2 rounded-md border border-yellow-500/30 bg-yellow-50/50 p-3 dark:bg-yellow-950/20">
       <div className="flex items-start gap-2">
-        <ShieldQuestionIcon className="mt-0.5 size-4 shrink-0 text-yellow-600" />
+        <ShieldQuestionIcon className="mt-0.5 size-4 shrink-0 text-yellow-600 dark:text-yellow-400" />
         <div className="flex flex-col gap-1 min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
             {title && <span className="text-sm font-medium">{title}</span>}
@@ -576,9 +576,9 @@ function ApprovalCard({
                 variant="outline"
                 className={`shrink-0 tabular-nums text-xs ${
                   timedOut
-                    ? "text-red-600 border-red-200"
+                    ? "text-red-600 dark:text-red-400 border-red-200 dark:border-red-800"
                     : remainingSeconds < 60
-                      ? "text-red-500 border-red-200"
+                      ? "text-red-500 dark:text-red-400 border-red-200 dark:border-red-800"
                       : "text-muted-foreground"
                 }`}
               >
@@ -638,22 +638,22 @@ function ApprovalCard({
       )}
 
       {timedOut && !decision && (
-        <Badge variant="outline" className="w-fit text-red-600 border-red-200">
+        <Badge variant="outline" className="w-fit text-red-600 dark:text-red-400 border-red-200 dark:border-red-800">
           Timed Out
         </Badge>
       )}
       {decision === "approve" && (
-        <Badge variant="outline" className="w-fit text-green-600 border-green-200">
+        <Badge variant="outline" className="w-fit text-green-600 dark:text-green-400 border-green-200 dark:border-green-800">
           Approved
         </Badge>
       )}
       {decision === "reject" && (
-        <Badge variant="outline" className="w-fit text-red-600 border-red-200">
+        <Badge variant="outline" className="w-fit text-red-600 dark:text-red-400 border-red-200 dark:border-red-800">
           Rejected
         </Badge>
       )}
       {decision === "modify" && (
-        <Badge variant="outline" className="w-fit text-yellow-600 border-yellow-200">
+        <Badge variant="outline" className="w-fit text-yellow-600 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800">
           Modified
         </Badge>
       )}
@@ -769,7 +769,7 @@ function CompletionCard({
   return (
     <div className="flex flex-col gap-1 rounded-md border border-green-500/30 bg-green-50/50 p-3 dark:bg-green-950/20">
       <div className="flex items-center gap-2">
-        <CheckCircleIcon className="size-4 text-green-600" />
+        <CheckCircleIcon className="size-4 text-green-600 dark:text-green-400" />
         <span className="text-sm font-medium">
           {result.success ? completedText : failedText}
         </span>

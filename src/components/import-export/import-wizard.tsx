@@ -230,7 +230,7 @@ export function ImportWizard({ bookId, onComplete, autoAnalyze = true }: ImportW
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <CheckCircleIcon className="size-4 text-green-600" />
+              <CheckCircleIcon className="size-4 text-green-600 dark:text-green-400" />
               Import Complete
             </CardTitle>
           </CardHeader>

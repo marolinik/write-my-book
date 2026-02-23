@@ -68,7 +68,7 @@ export function SessionProgressList() {
                   <Loader2Icon className="size-3 animate-spin text-primary shrink-0" />
                 )}
                 {session.status === "completed" && (
-                  <CheckCircleIcon className="size-3 text-green-600 shrink-0" />
+                  <CheckCircleIcon className="size-3 text-green-600 dark:text-green-400 shrink-0" />
                 )}
                 {session.status === "failed" && (
                   <XCircleIcon className="size-3 text-destructive shrink-0" />

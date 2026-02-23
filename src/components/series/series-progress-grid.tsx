@@ -9,13 +9,13 @@ interface SeriesProgressGridProps {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  concept: "bg-gray-200",
-  planning: "bg-blue-200",
-  writing: "bg-yellow-200",
-  editing: "bg-orange-200",
-  beta: "bg-purple-200",
-  export: "bg-green-200",
-  complete: "bg-emerald-300",
+  concept: "bg-gray-200 dark:bg-gray-700",
+  planning: "bg-blue-200 dark:bg-blue-900",
+  writing: "bg-yellow-200 dark:bg-yellow-900",
+  editing: "bg-orange-200 dark:bg-orange-900",
+  beta: "bg-purple-200 dark:bg-purple-900",
+  export: "bg-green-200 dark:bg-green-900",
+  complete: "bg-emerald-300 dark:bg-emerald-800",
 };
 
 export function SeriesProgressGrid({ seriesId }: SeriesProgressGridProps) {

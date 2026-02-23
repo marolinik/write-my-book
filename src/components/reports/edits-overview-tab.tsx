@@ -61,7 +61,7 @@ export function EditsOverviewTab({ bookId }: { bookId: string }) {
             <CardDescription>Applied</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-green-600">{applied}</p>
+            <p className="text-3xl font-bold text-green-600 dark:text-green-400">{applied}</p>
           </CardContent>
         </Card>
         <Card>

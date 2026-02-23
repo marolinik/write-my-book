@@ -70,7 +70,7 @@ function FrequencyBadge({ value }: { value: string }) {
   };
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${colorMap[value] ?? "bg-gray-100 text-gray-600"}`}
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${colorMap[value] ?? "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"}`}
     >
       {value}
     </span>

@@ -606,7 +606,7 @@ export function AgentPanel({
           {/* Pending findings alert */}
           {bookState.pendingFindingsCount > 0 && (
             <div className="mx-3 mt-3 rounded-md border border-amber-200/50 bg-amber-50/50 dark:bg-amber-950/20 p-2.5 flex items-center gap-2">
-              <AlertCircleIcon className="size-4 text-amber-600 shrink-0" />
+              <AlertCircleIcon className="size-4 text-amber-600 dark:text-amber-400 shrink-0" />
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-medium">
                   {bookState.pendingFindingsCount} findings need review

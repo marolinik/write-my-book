@@ -56,10 +56,10 @@ export function EditorialSummary({ bookId }: EditorialSummaryProps) {
   if (!data) return null;
 
   const severityColors: Record<string, string> = {
-    critical: "bg-red-500",
-    major: "bg-orange-500",
-    moderate: "bg-yellow-500",
-    minor: "bg-gray-400",
+    critical: "bg-red-500 dark:bg-red-600",
+    major: "bg-orange-500 dark:bg-orange-600",
+    moderate: "bg-yellow-500 dark:bg-yellow-600",
+    minor: "bg-gray-500 dark:bg-gray-400",
   };
 
   return (
@@ -93,7 +93,7 @@ export function EditorialSummary({ bookId }: EditorialSummaryProps) {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-3 pt-0">
-            <span className="text-2xl font-bold text-green-600">
+            <span className="text-2xl font-bold text-green-600 dark:text-green-400">
               {data.applied}
             </span>
           </CardContent>
@@ -124,7 +124,7 @@ export function EditorialSummary({ bookId }: EditorialSummaryProps) {
               label={sev}
               count={data.bySeverity[sev] ?? 0}
               total={data.total}
-              color={severityColors[sev] ?? "bg-gray-400"}
+              color={severityColors[sev] ?? "bg-gray-500 dark:bg-gray-400"}
             />
           ))}
         </CardContent>
