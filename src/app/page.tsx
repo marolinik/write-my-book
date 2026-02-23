@@ -108,10 +108,10 @@ const PLANS = [
 const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 const isClerkConfigured =
   clerkKey && clerkKey.length > 0 && !clerkKey.includes("REPLACE_ME");
+const devBypass = process.env.DEV_AUTH_BYPASS === "true";
 
 export default async function Home() {
-  if (!isClerkConfigured) {
-    // No auth configured — go straight to dashboard
+  if (devBypass || !isClerkConfigured) {
     redirect("/dashboard");
   }
 
@@ -126,7 +126,7 @@ export default async function Home() {
     <div className="min-h-screen flex flex-col">
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
+        <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2">
             <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
               <PenLineIcon className="size-4" />
@@ -155,7 +155,7 @@ export default async function Home() {
       <main>
         {/* Hero */}
         <section className="py-20 lg:py-32">
-          <div className="container mx-auto px-4 text-center">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 className="font-display text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
               A Professional Publishing House
               <br />
@@ -165,7 +165,7 @@ export default async function Home() {
               AI agents handle drafting, editing, and quality assurance while you
               maintain creative control. From concept to export-ready manuscript.
             </p>
-            <div className="mt-10 flex items-center justify-center gap-4">
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
                 href="/signup"
                 className="inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-base font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
@@ -184,11 +184,11 @@ export default async function Home() {
 
         {/* Features */}
         <section className="border-t bg-muted/50 py-20">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="font-display text-center text-3xl font-semibold tracking-tight">
               Everything You Need to Write a Novel
             </h2>
-            <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
               {FEATURES.map((feature) => (
                 <div
                   key={feature.title}
@@ -209,11 +209,11 @@ export default async function Home() {
 
         {/* How It Works */}
         <section className="py-20">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="font-display text-center text-3xl font-semibold tracking-tight">
               How It Works
             </h2>
-            <div className="mt-12 grid gap-8 md:grid-cols-3">
+            <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3">
               {STEPS.map((step) => (
                 <div key={step.step} className="text-center">
                   <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground text-xl font-bold">
@@ -231,7 +231,7 @@ export default async function Home() {
 
         {/* Pricing */}
         <section className="border-t bg-muted/50 py-20">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="font-display text-center text-3xl font-semibold tracking-tight">
               Simple, Transparent Pricing
             </h2>
@@ -239,7 +239,7 @@ export default async function Home() {
               All plans use Bring Your Own Key (BYOK) for AI — you pay Anthropic
               directly for token usage.
             </p>
-            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {PLANS.map((plan) => (
                 <div
                   key={plan.name}
@@ -284,7 +284,7 @@ export default async function Home() {
 
       {/* Footer */}
       <footer className="border-t py-8 mt-auto">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-muted-foreground">
           <p>
             &copy; {new Date().getFullYear()} WriteMyBook. AI-powered novel
             writing platform.

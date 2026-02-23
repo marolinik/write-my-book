@@ -176,9 +176,9 @@ export default async function BookDetailPage({
   const nextWorkflow = nextWorkflowId ? getWorkflow(nextWorkflowId) : null;
 
   return (
-    <div className="p-6 lg:p-8">
+    <div className="p-4 sm:p-6 lg:p-8">
       {/* Header */}
-      <div className="flex items-start justify-between mb-6">
+      <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-3">
             <h1 className="font-display text-2xl font-bold">{book.name}</h1>
@@ -217,7 +217,7 @@ export default async function BookDetailPage({
       {/* Recommended Next Step Banner */}
       {nextWorkflow && (
         <Card className="mb-8 border-primary/30 bg-primary/5">
-          <CardContent className="flex items-center justify-between py-4">
+          <CardContent className="flex flex-wrap items-center justify-between gap-3 py-4">
             <div className="flex items-center gap-3 min-w-0 flex-1">
               <div className="rounded-full bg-primary/10 p-2 shrink-0">
                 <PlayIcon className="size-5 text-primary" />
@@ -315,7 +315,7 @@ export default async function BookDetailPage({
       )}
 
       {/* Stats Row */}
-      <div className="grid gap-4 sm:grid-cols-3 mb-8">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 mb-8">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -430,9 +430,9 @@ export default async function BookDetailPage({
         // reviewComplete is false since setupComplete is falsy
         return (
           <Card className="mb-8 border-dashed border-primary/50 bg-primary/5">
-            <CardContent className="flex items-center justify-between py-4">
-              <div className="flex items-center gap-3">
-                <SparklesIcon className="size-5 text-primary" />
+            <CardContent className="flex flex-wrap items-center justify-between gap-3 py-4">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                <SparklesIcon className="size-5 text-primary shrink-0" />
                 <div>
                   <p className="text-sm font-medium">
                     Setup incomplete &mdash; {stepsDone} of 6 steps done
@@ -478,7 +478,7 @@ export default async function BookDetailPage({
                 className="flex items-center gap-3 rounded-md border px-4 py-2 hover:bg-muted/50 transition-colors"
               >
                 <FileTextIcon className="size-4 text-muted-foreground" />
-                <span className="text-sm">{doc.title || doc.type}</span>
+                <span className="text-sm truncate min-w-0">{doc.title || doc.type}</span>
                 <Badge variant="outline" className="ml-auto text-xs">
                   {doc.type.replace(/_/g, " ")}
                 </Badge>
