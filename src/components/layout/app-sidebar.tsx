@@ -43,6 +43,8 @@ import { useBook } from "@/hooks/use-books";
 import { useSeriesDetail } from "@/hooks/use-series";
 import { useBookState } from "@/hooks/use-book-state";
 import { useLanguage } from "@/components/providers/language-provider";
+import { JourneyChecklist, JourneySelectorDialog } from "@/components/journey";
+import { getJourney, getStepNavHref, getRecommendedJourney } from "@/lib/agents/journeys";
 
 /** Status dot colors for chapters */
 const CH_STATUS_COLORS: Record<string, string> = {
@@ -100,6 +102,40 @@ export function AppSidebar() {
   const [chaptersOpen, setChaptersOpen] = useState(false);
   const [showAllChapters, setShowAllChapters] = useState(false);
   const bookState = useBookState(bookId ?? "");
+  const [journeyDialogOpen, setJourneyDialogOpen] = useState(false);
+
+  // Journey data for checklist
+  const journeyData = useMemo(() => {
+    if (!bookId || bookState.isLoading || !bookState.activeJourneyId) return null;
+    const journey = getJourney(bookState.activeJourneyId);
+    if (!journey || !bookState.journeySteps) return null;
+
+    return {
+      journeyName: journey.label,
+      steps: bookState.journeySteps.map((s) => ({
+        ...s,
+        href: getStepNavHref(s.workflowId, bookId),
+      })),
+      completedCount: bookState.journeyProgress?.completed ?? 0,
+      totalCount: bookState.journeyProgress?.total ?? 0,
+      allComplete: bookState.journeyComplete,
+    };
+  }, [bookId, bookState]);
+
+  // Recommended journey for the selector dialog
+  const recommendedJourneyId = useMemo(() => {
+    if (!bookId || bookState.isLoading) return "new-novel";
+    const rec = getRecommendedJourney({
+      hasChapters: bookState.hasChapters,
+      hasFingerprint: bookState.hasFingerprint,
+      hasStoryBible: bookState.hasStoryBible,
+      hasArchitecture: bookState.hasArchitecture,
+      hasImportedManuscript: bookState.hasImportedManuscript,
+      chapterCount: bookState.chapterCount,
+      chapterStatuses: bookState.chapterStatuses,
+    });
+    return rec?.journeyId ?? "new-novel";
+  }, [bookId, bookState]);
 
   // Derived counts and statuses
   const { itemStatus, counts, pendingFindings, nextNavKey } = useMemo(() => {
@@ -185,6 +221,7 @@ export function AppSidebar() {
   };
 
   return (
+    <>
     <Sidebar collapsible="offcanvas">
       <SidebarHeader>
         <SidebarMenu>
@@ -577,6 +614,22 @@ export function AppSidebar() {
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
+
+            {/* ─── Journey Progress ─── */}
+            {journeyData && (
+              <>
+                <SidebarSeparator />
+                <JourneyChecklist
+                  bookId={bookId}
+                  journeyName={journeyData.journeyName}
+                  steps={journeyData.steps}
+                  completedCount={journeyData.completedCount}
+                  totalCount={journeyData.totalCount}
+                  allComplete={journeyData.allComplete}
+                  onChangeJourney={() => setJourneyDialogOpen(true)}
+                />
+              </>
+            )}
           </>
         )}
       </SidebarContent>
@@ -597,5 +650,15 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
+    {bookId && (
+      <JourneySelectorDialog
+        open={journeyDialogOpen}
+        onOpenChange={setJourneyDialogOpen}
+        bookId={bookId}
+        currentJourneyId={bookState.activeJourneyId}
+        recommendedJourneyId={recommendedJourneyId}
+      />
+    )}
+    </>
   );
 }
