@@ -301,6 +301,8 @@ model BookSettings {
   language           String  @default("en") @map("language")
   setupImportSkipped Boolean @default(false) @map("setup_import_skipped")
   setupComplete      Boolean @default(false) @map("setup_complete")
+  journeyId            String? @map("journey_id")
+  journeyStepsSnapshot String? @map("journey_steps_snapshot") @db.Text
 
   book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
 
