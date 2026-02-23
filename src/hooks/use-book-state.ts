@@ -3,7 +3,14 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useBook } from "./use-books";
-import { detectActiveJourney, getJourneyProgress } from "@/lib/agents/journeys";
+import {
+  detectActiveJourney,
+  getJourneyProgress,
+  getDetailedJourneyProgress,
+  getStepLabel,
+  type StepState,
+  type SnapshotEntry,
+} from "@/lib/agents/journeys";
 
 export interface SetupProgress {
   basicsComplete: boolean;    // book.name && book.genre
@@ -58,6 +65,16 @@ interface BookStateResult {
   setupWorkflows: string[];
   activeJourneyId: string | null;
   journeyProgress: { completed: number; total: number } | null;
+  /** Per-step journey completion state — null if no journey selected. */
+  journeySteps: StepState[] | null;
+  /** Index of current (first incomplete non-optional) step, or -1 if all complete. */
+  currentStepIndex: number;
+  /** Workflow ID of the next step to complete, or null if all complete / no journey. */
+  nextStepWorkflowId: string | null;
+  /** Human-readable label for the next step, or null. */
+  nextStepLabel: string | null;
+  /** True when all non-optional journey steps are complete. */
+  journeyComplete: boolean;
   /** All existing document types for workflow prerequisite checking. */
   existingDocTypes: string[];
   /** Setup wizard progress. */
@@ -246,17 +263,17 @@ export function useBookState(bookId: string): BookStateResult {
       }
     }
 
-    // Journey detection
-    const activeJourneyId = detectActiveJourney({
-      hasChapters,
-      hasFingerprint,
-      hasStoryBible,
-      hasArchitecture,
-      hasImportedManuscript,
-    });
+    // Journey detection — persisted journeyId takes priority, fall back to heuristic
+    const activeJourneyId = settingsData?.journeyId
+      ?? detectActiveJourney({
+        hasChapters,
+        hasFingerprint,
+        hasStoryBible,
+        hasArchitecture,
+        hasImportedManuscript,
+      });
 
-    // Journey progress — track which workflows have been completed (via existing session history)
-    // For now, derive from document existence (documents are the output of workflows)
+    // Legacy journey progress (kept for backward compat)
     const completedWorkflows = new Set<string>();
     if (hasFingerprint) completedWorkflows.add("capture-style");
     if (hasStoryBible) completedWorkflows.add("create-story-bible");
@@ -269,6 +286,35 @@ export function useBookState(bookId: string): BookStateResult {
     const journeyProgress = activeJourneyId
       ? getJourneyProgress(activeJourneyId, completedWorkflows)
       : null;
+
+    // Detailed journey state — per-step completion array
+    const chapterCount = book?.chapters?.length ?? 0;
+    const stepInput = {
+      hasFingerprint,
+      hasStoryBible,
+      hasArchitecture,
+      hasAnalysisReport,
+      hasMarketReport,
+      hasContinuityReport,
+      hasImportedManuscript,
+      chapterCount,
+      chapterStatuses,
+    };
+
+    const snapshotRaw = settingsData?.journeyStepsSnapshot;
+    const snapshot: Record<string, SnapshotEntry> | null =
+      snapshotRaw ? (() => { try { return JSON.parse(snapshotRaw); } catch { return null; } })() : null;
+
+    const detailed = activeJourneyId
+      ? getDetailedJourneyProgress(activeJourneyId, stepInput, snapshot)
+      : null;
+
+    const journeySteps = detailed?.steps ?? null;
+    const currentStepIndex = detailed?.currentStepIndex ?? -1;
+    const nextStep = journeySteps && currentStepIndex >= 0 ? journeySteps[currentStepIndex] : null;
+    const nextStepWorkflowId = nextStep?.workflowId ?? null;
+    const nextStepLabel = nextStepWorkflowId ? getStepLabel(nextStepWorkflowId) : null;
+    const journeyComplete = detailed ? detailed.completedCount === detailed.totalCount : false;
 
     // Setup wizard progress
     const setupProgress: SetupProgress = {
@@ -284,7 +330,7 @@ export function useBookState(bookId: string): BookStateResult {
       bookName: book?.name ?? "Book",
       language: book?.language ?? "en",
       hasChapters,
-      chapterCount: book?.chapters?.length ?? 0,
+      chapterCount,
       hasStoryBible,
       hasArchitecture,
       hasFingerprint,
@@ -300,6 +346,11 @@ export function useBookState(bookId: string): BookStateResult {
       setupWorkflows,
       activeJourneyId,
       journeyProgress,
+      journeySteps,
+      currentStepIndex,
+      nextStepWorkflowId,
+      nextStepLabel,
+      journeyComplete,
       existingDocTypes,
       setupProgress,
     };

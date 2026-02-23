@@ -292,6 +292,27 @@ export interface UIStrings {
     days: string;
     noData: string;
   };
+
+  // Journey system
+  journey: {
+    chooseJourney: string;
+    chooseJourneyDesc: string;
+    changeJourney: string;
+    switchConfirmTitle: string;
+    switchConfirmDesc: string;
+    switchConfirmAction: string;
+    cancel: string;
+    recommended: string;
+    steps: string;
+    stepOf: string;
+    allComplete: string;
+    allCompleteDesc: string;
+    celebrationBanner: string;
+    noBannerYet: string;
+    noBannerYetDesc: string;
+    nextStep: string;
+    startButton: string;
+  };
 }
 
 export const SUPPORTED_LANGUAGES = [
@@ -570,6 +591,25 @@ const EN: UIStrings = {
     days: "days",
     noData: "No writing data yet. Start writing to see your progress!",
   },
+  journey: {
+    chooseJourney: "Choose Your Journey",
+    chooseJourneyDesc: "Select an authoring path to guide your writing process.",
+    changeJourney: "Change Journey",
+    switchConfirmTitle: "Switch Journey?",
+    switchConfirmDesc: "Switching journeys will update your checklist. Your work is not affected.",
+    switchConfirmAction: "Switch",
+    cancel: "Cancel",
+    recommended: "Recommended",
+    steps: "Steps",
+    stepOf: "of",
+    allComplete: "Journey Complete!",
+    allCompleteDesc: "You have completed all steps in this journey. Congratulations!",
+    celebrationBanner: "Your manuscript journey is complete!",
+    noBannerYet: "No Journey Selected",
+    noBannerYetDesc: "Choose a journey to see your progress checklist.",
+    nextStep: "Next Step",
+    startButton: "Start",
+  },
 };
 
 const SR: UIStrings = {
@@ -830,6 +870,25 @@ const SR: UIStrings = {
     last30Days: "Poslednjih 30 dana",
     days: "dana",
     noData: "Još nema podataka o pisanju. Počnite da pišete da vidite napredak!",
+  },
+  journey: {
+    chooseJourney: "Izaberite putovanje",
+    chooseJourneyDesc: "Izaberite autorski put koji će voditi vaš proces pisanja.",
+    changeJourney: "Promeni putovanje",
+    switchConfirmTitle: "Promeniti putovanje?",
+    switchConfirmDesc: "Promena putovanja će ažurirati vašu kontrolnu listu. Vaš rad nije pogođen.",
+    switchConfirmAction: "Promeni",
+    cancel: "Otkaži",
+    recommended: "Preporučeno",
+    steps: "Koraci",
+    stepOf: "od",
+    allComplete: "Putovanje završeno!",
+    allCompleteDesc: "Završili ste sve korake ovog putovanja. Čestitamo!",
+    celebrationBanner: "Vaše putovanje rukopisa je završeno!",
+    noBannerYet: "Nema izabranog putovanja",
+    noBannerYetDesc: "Izaberite putovanje da vidite kontrolnu listu napretka.",
+    nextStep: "Sledeći korak",
+    startButton: "Započni",
   },
 };
 
@@ -1092,6 +1151,25 @@ const DE: UIStrings = {
     days: "Tage",
     noData: "Noch keine Schreibdaten. Beginnen Sie zu schreiben, um Ihren Fortschritt zu sehen!",
   },
+  journey: {
+    chooseJourney: "Wählen Sie Ihre Reise",
+    chooseJourneyDesc: "Wählen Sie einen Autorenpfad, der Ihren Schreibprozess leitet.",
+    changeJourney: "Reise ändern",
+    switchConfirmTitle: "Reise wechseln?",
+    switchConfirmDesc: "Ein Wechsel der Reise aktualisiert Ihre Checkliste. Ihre Arbeit bleibt unberührt.",
+    switchConfirmAction: "Wechseln",
+    cancel: "Abbrechen",
+    recommended: "Empfohlen",
+    steps: "Schritte",
+    stepOf: "von",
+    allComplete: "Reise abgeschlossen!",
+    allCompleteDesc: "Sie haben alle Schritte dieser Reise abgeschlossen. Herzlichen Glückwunsch!",
+    celebrationBanner: "Ihre Manuskriptreise ist abgeschlossen!",
+    noBannerYet: "Keine Reise ausgewählt",
+    noBannerYetDesc: "Wählen Sie eine Reise, um Ihre Fortschritts-Checkliste zu sehen.",
+    nextStep: "Nächster Schritt",
+    startButton: "Starten",
+  },
 };
 
 const ES: UIStrings = {
@@ -1352,6 +1430,25 @@ const ES: UIStrings = {
     last30Days: "Últimos 30 días",
     days: "días",
     noData: "Aún no hay datos de escritura. ¡Empieza a escribir para ver tu progreso!",
+  },
+  journey: {
+    chooseJourney: "Elige tu recorrido",
+    chooseJourneyDesc: "Selecciona un camino de autoría para guiar tu proceso de escritura.",
+    changeJourney: "Cambiar recorrido",
+    switchConfirmTitle: "¿Cambiar recorrido?",
+    switchConfirmDesc: "Cambiar de recorrido actualizará tu lista de verificación. Tu trabajo no se verá afectado.",
+    switchConfirmAction: "Cambiar",
+    cancel: "Cancelar",
+    recommended: "Recomendado",
+    steps: "Pasos",
+    stepOf: "de",
+    allComplete: "¡Recorrido completado!",
+    allCompleteDesc: "Has completado todos los pasos de este recorrido. ¡Felicitaciones!",
+    celebrationBanner: "¡Tu recorrido de manuscrito está completo!",
+    noBannerYet: "Sin recorrido seleccionado",
+    noBannerYetDesc: "Elige un recorrido para ver tu lista de progreso.",
+    nextStep: "Siguiente paso",
+    startButton: "Comenzar",
   },
 };
 
@@ -1614,6 +1711,25 @@ const FR: UIStrings = {
     days: "jours",
     noData: "Pas encore de données d'écriture. Commencez à écrire pour voir vos progrès !",
   },
+  journey: {
+    chooseJourney: "Choisissez votre parcours",
+    chooseJourneyDesc: "Sélectionnez un chemin d'écriture pour guider votre processus.",
+    changeJourney: "Changer de parcours",
+    switchConfirmTitle: "Changer de parcours ?",
+    switchConfirmDesc: "Changer de parcours mettra à jour votre liste de vérification. Votre travail n'est pas affecté.",
+    switchConfirmAction: "Changer",
+    cancel: "Annuler",
+    recommended: "Recommandé",
+    steps: "Étapes",
+    stepOf: "sur",
+    allComplete: "Parcours terminé !",
+    allCompleteDesc: "Vous avez terminé toutes les étapes de ce parcours. Félicitations !",
+    celebrationBanner: "Votre parcours de manuscrit est terminé !",
+    noBannerYet: "Aucun parcours sélectionné",
+    noBannerYetDesc: "Choisissez un parcours pour voir votre liste de progression.",
+    nextStep: "Prochaine étape",
+    startButton: "Commencer",
+  },
 };
 
 const RU: UIStrings = {
@@ -1875,6 +1991,25 @@ const RU: UIStrings = {
     days: "дней",
     noData: "Данных о писании пока нет. Начните писать, чтобы увидеть прогресс!",
   },
+  journey: {
+    chooseJourney: "Выберите путь",
+    chooseJourneyDesc: "Выберите авторский маршрут для вашего процесса написания.",
+    changeJourney: "Сменить путь",
+    switchConfirmTitle: "Сменить путь?",
+    switchConfirmDesc: "Смена пути обновит ваш контрольный список. Ваша работа не затрагивается.",
+    switchConfirmAction: "Сменить",
+    cancel: "Отмена",
+    recommended: "Рекомендовано",
+    steps: "Шаги",
+    stepOf: "из",
+    allComplete: "Путь завершён!",
+    allCompleteDesc: "Вы выполнили все шаги этого пути. Поздравляем!",
+    celebrationBanner: "Ваш путь рукописи завершён!",
+    noBannerYet: "Путь не выбран",
+    noBannerYetDesc: "Выберите путь, чтобы увидеть контрольный список прогресса.",
+    nextStep: "Следующий шаг",
+    startButton: "Начать",
+  },
 };
 
 const ZH: UIStrings = {
@@ -2135,6 +2270,25 @@ const ZH: UIStrings = {
     last30Days: "最近30天",
     days: "天",
     noData: "还没有写作数据。开始写作查看您的进度！",
+  },
+  journey: {
+    chooseJourney: "选择您的旅程",
+    chooseJourneyDesc: "选择一条创作路径来指导您的写作过程。",
+    changeJourney: "更改旅程",
+    switchConfirmTitle: "切换旅程？",
+    switchConfirmDesc: "切换旅程将更新您的清单。您的作品不受影响。",
+    switchConfirmAction: "切换",
+    cancel: "取消",
+    recommended: "推荐",
+    steps: "步骤",
+    stepOf: "/",
+    allComplete: "旅程完成！",
+    allCompleteDesc: "您已完成此旅程的所有步骤。恭喜！",
+    celebrationBanner: "您的稿件旅程已完成！",
+    noBannerYet: "未选择旅程",
+    noBannerYetDesc: "选择一个旅程以查看您的进度清单。",
+    nextStep: "下一步",
+    startButton: "开始",
   },
 };
 
