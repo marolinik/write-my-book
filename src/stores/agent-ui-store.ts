@@ -36,13 +36,14 @@ function getStoredPanelMode(): PanelMode {
 interface AgentUIState {
   panelMode: PanelMode;
   pendingWorkflowId: string | null;
+  pendingWorkflowMessage: string | null;
   pendingMessage: { bookId: string; message: string } | null;
   unreadCount: number;
   pageContext: PageContext | null;
 
   // Actions
   setPanelMode: (mode: PanelMode) => void;
-  openWithWorkflow: (workflowId: string) => void;
+  openWithWorkflow: (workflowId: string, initialMessage?: string) => void;
   openWithMessage: (bookId: string, message: string) => void;
   clearPendingWorkflow: () => void;
   clearPendingMessage: () => void;
@@ -59,6 +60,7 @@ interface AgentUIState {
 export const useAgentUIStore = create<AgentUIState>((set, get) => ({
   panelMode: "bubble" as PanelMode,
   pendingWorkflowId: null,
+  pendingWorkflowMessage: null,
   pendingMessage: null,
   unreadCount: 0,
   pageContext: null,
@@ -79,7 +81,7 @@ export const useAgentUIStore = create<AgentUIState>((set, get) => ({
     });
   },
 
-  openWithWorkflow: (workflowId) => {
+  openWithWorkflow: (workflowId, initialMessage) => {
     try {
       localStorage.setItem("wmb-agent-panel", "overlay");
     } catch {
@@ -87,6 +89,7 @@ export const useAgentUIStore = create<AgentUIState>((set, get) => ({
     }
     set({
       pendingWorkflowId: workflowId,
+      pendingWorkflowMessage: initialMessage ?? null,
       panelMode: "overlay" as PanelMode,
     });
   },
@@ -103,7 +106,7 @@ export const useAgentUIStore = create<AgentUIState>((set, get) => ({
     });
   },
 
-  clearPendingWorkflow: () => set({ pendingWorkflowId: null }),
+  clearPendingWorkflow: () => set({ pendingWorkflowId: null, pendingWorkflowMessage: null }),
 
   clearPendingMessage: () => set({ pendingMessage: null }),
 
@@ -128,6 +131,7 @@ export const useAgentUIStore = create<AgentUIState>((set, get) => ({
     set({
       panelMode: "bubble" as PanelMode,
       pendingWorkflowId: null,
+      pendingWorkflowMessage: null,
       pendingMessage: null,
       unreadCount: 0,
     });

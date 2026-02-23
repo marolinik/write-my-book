@@ -99,6 +99,7 @@ export function AgentPanel({
   const sessions = useAgentSessionStore((s) => s.sessions);
   const activeSessionId = useAgentSessionStore((s) => s.activeSessionId);
   const pendingWorkflowId = useAgentUIStore((s) => s.pendingWorkflowId);
+  const pendingWorkflowMessage = useAgentUIStore((s) => s.pendingWorkflowMessage);
   const pendingMessage = useAgentUIStore((s) => s.pendingMessage);
   const clearPendingMessage = useAgentUIStore((s) => s.clearPendingMessage);
   const startSessionStore = useAgentSessionStore((s) => s.startSession);
@@ -353,7 +354,7 @@ export function AgentPanel({
 
   useEffect(() => {
     if (pendingWorkflowId && noRunning && hasApiKey) {
-      handleWorkflowSelectRef.current(pendingWorkflowId);
+      handleWorkflowSelectRef.current(pendingWorkflowId, undefined, pendingWorkflowMessage ?? undefined);
       clearPendingWorkflow();
     } else if (pendingWorkflowId && noRunning && !hasApiKey) {
       toast.error("API key required", {
@@ -627,19 +628,19 @@ export function AgentPanel({
           />
         </>
       ) : (
-        <>
+        <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
           <MessageStream messages={messages} isRunning={isRunning} language={bookLanguage} onApprove={handleApprove} />
 
           {/* Error display */}
           {error && !isRunning && (
-            <div className="border-t px-4 py-2">
+            <div className="border-t px-4 py-2 shrink-0">
               <p className="text-xs text-destructive">{error}</p>
             </div>
           )}
 
           {/* Session results summary + suggested next + navigation CTAs */}
           {isComplete && (
-            <div className="flex flex-col gap-2 border-t p-3">
+            <div className="flex flex-col gap-2 border-t p-3 shrink-0 max-h-[40vh] overflow-y-auto overscroll-contain">
               {/* Session Complete summary card */}
               {resultMeta && (resultMeta.findingsCreated > 0 || resultMeta.statusAdvanced || resultMeta.betaGateResult) && (
                 <div className="rounded-md border bg-muted/30 p-2.5 space-y-1.5">
@@ -744,7 +745,7 @@ export function AgentPanel({
               disabled={sendMutation.isPending}
             />
           )}
-        </>
+        </div>
       )}
 
       {/* Mutation error fallback */}

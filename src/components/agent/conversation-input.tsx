@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { SendIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,11 +19,34 @@ export function ConversationInput({
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // Auto-resize textarea to fit content
+  const adjustHeight = useCallback(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 200)}px`;
+  }, []);
+
+  useEffect(() => {
+    adjustHeight();
+  }, [value, adjustHeight]);
+
   const handleSend = useCallback(() => {
     const trimmed = value.trim();
     if (!trimmed || disabled) return;
-    onSend(trimmed);
-    setValue("");
+    try {
+      onSend(trimmed);
+      setValue("");
+      // Reset height after clearing
+      requestAnimationFrame(() => {
+        if (textareaRef.current) {
+          textareaRef.current.style.height = "auto";
+        }
+      });
+    } catch {
+      // Don't clear input on error — let user retry
+      return;
+    }
     textareaRef.current?.focus();
   }, [value, disabled, onSend]);
 
@@ -35,7 +58,7 @@ export function ConversationInput({
   };
 
   return (
-    <div className="flex items-end gap-2 border-t p-3">
+    <div className="flex items-end gap-2 border-t p-3 shrink-0">
       <Textarea
         ref={textareaRef}
         value={value}
@@ -44,7 +67,7 @@ export function ConversationInput({
         placeholder={placeholder}
         disabled={disabled}
         rows={1}
-        className="min-h-[36px] max-h-[120px] resize-none text-sm"
+        className="min-h-[36px] max-h-[200px] resize-none text-sm"
       />
       <Button
         size="icon"

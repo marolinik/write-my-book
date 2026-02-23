@@ -96,6 +96,7 @@ export default function SetupPage({
   const [genre, setGenre] = useState("");
   const [language, setLanguage] = useState("en");
   const [description, setDescription] = useState("");
+  const [styleSample, setStyleSample] = useState("");
 
   useEffect(() => {
     if (book) {
@@ -156,9 +157,14 @@ export default function SetupPage({
         return;
       }
       setConfirmWorkflow(null);
-      openWithWorkflow(workflowId);
+      // For capture-style, pass the writing sample as initial context
+      if (workflowId === "capture-style" && styleSample.trim()) {
+        openWithWorkflow(workflowId, `Here is a sample of my writing for style analysis:\n\n${styleSample.trim()}`);
+      } else {
+        openWithWorkflow(workflowId);
+      }
     },
-    [openWithWorkflow, confirmWorkflow]
+    [openWithWorkflow, confirmWorkflow, styleSample]
   );
 
   const completedCount = getCompletedStepCount(bookState.setupProgress);
@@ -366,6 +372,50 @@ export default function SetupPage({
                   {s.fingerprintCaptured}
                 </Badge>
               )}
+
+              {/* Writing sample textarea — paste or type text for style analysis */}
+              {!bookState.hasChapters && confirmWorkflow !== "capture-style" && (
+                <div className="space-y-2">
+                  <Label htmlFor="style-sample" className="text-sm font-medium">
+                    {book?.language === "sr"
+                      ? "Uzorak vašeg pisanja"
+                      : "Your writing sample"}
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    {book?.language === "sr"
+                      ? "Nalepite ili otkucajte odlomak iz svog rada (500+ reči je idealno). Ako ste uvezli rukopis, ovaj korak možete preskočiti."
+                      : "Paste or type a passage from your work (500+ words is ideal). If you imported a manuscript, you can skip this."}
+                  </p>
+                  <Textarea
+                    id="style-sample"
+                    value={styleSample}
+                    onChange={(e) => setStyleSample(e.target.value)}
+                    placeholder={
+                      book?.language === "sr"
+                        ? "Nalepite odlomak iz svog romana, priče ili drugog rada..."
+                        : "Paste a passage from your novel, story, or other writing..."
+                    }
+                    rows={8}
+                    className="resize-y min-h-[120px] max-h-[400px] text-sm"
+                  />
+                  {styleSample.trim().length > 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      {styleSample.trim().split(/\s+/).length}{" "}
+                      {book?.language === "sr" ? "reči" : "words"}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* If chapters exist, note that they'll be used */}
+              {bookState.hasChapters && confirmWorkflow !== "capture-style" && (
+                <p className="text-xs text-muted-foreground rounded-md bg-muted/50 p-2">
+                  {book?.language === "sr"
+                    ? `Agent će analizirati vaš uvezeni rukopis (${bookState.chapterCount} poglavlja) za stil.`
+                    : `The agent will analyze your imported manuscript (${bookState.chapterCount} chapters) for style.`}
+                </p>
+              )}
+
               {confirmWorkflow === "capture-style" && (
                 <div className="flex items-start gap-2 rounded-md border border-amber-300/50 bg-amber-50/50 dark:bg-amber-950/20 p-3">
                   <AlertTriangleIcon className="size-4 text-amber-600 mt-0.5 shrink-0" />
@@ -387,7 +437,7 @@ export default function SetupPage({
               {confirmWorkflow !== "capture-style" && (
                 <Button
                   onClick={() => handleStartWorkflow("capture-style", bookState.hasFingerprint)}
-                  disabled={hasRunningSession}
+                  disabled={hasRunningSession || (!bookState.hasChapters && !styleSample.trim())}
                 >
                   {hasRunningSession ? (
                     <>

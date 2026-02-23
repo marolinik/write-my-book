@@ -326,7 +326,7 @@ export function MessageStream({
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="h-full overflow-y-auto p-4 pb-6"
+        className="h-full overflow-y-auto overscroll-contain p-4 pb-6"
       >
         <div className="flex flex-col gap-3">
           {!hasVisibleContent && isRunning && (
