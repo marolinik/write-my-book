@@ -7,11 +7,11 @@ import {
   JetBrains_Mono,
   Lora,
 } from "next/font/google";
-import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryProvider } from "@/components/providers/query-provider";
+import { ClerkThemeProvider } from "@/components/providers/clerk-theme-provider";
 import "./globals.css";
 
 const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
@@ -50,7 +50,16 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const content = (
+  const inner = (
+    <QueryProvider>
+      <TooltipProvider>
+        {children}
+      </TooltipProvider>
+      <Toaster richColors position="bottom-right" />
+    </QueryProvider>
+  );
+
+  return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${fontSans.variable} ${fontDisplay.variable} ${fontMono.variable} ${fontSerif.variable} font-sans antialiased`}
@@ -61,20 +70,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <QueryProvider>
-            <TooltipProvider>
-              {children}
-            </TooltipProvider>
-            <Toaster richColors position="bottom-right" />
-          </QueryProvider>
+          {isClerkConfigured ? (
+            <ClerkThemeProvider>{inner}</ClerkThemeProvider>
+          ) : (
+            inner
+          )}
         </ThemeProvider>
       </body>
     </html>
   );
-
-  if (isClerkConfigured) {
-    return <ClerkProvider>{content}</ClerkProvider>;
-  }
-
-  return content;
 }
