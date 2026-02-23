@@ -275,6 +275,11 @@ export interface UIStrings {
     description: string;
     attributes: string;
     source: string;
+    populate: string;
+    populateDesc: string;
+    populating: string;
+    populated: string;
+    noDocs: string;
   };
 
   // Writing dashboard
@@ -576,6 +581,11 @@ const EN: UIStrings = {
     description: "Description",
     attributes: "Attributes",
     source: "Source",
+    populate: "Populate from documents",
+    populateDesc: "Extract characters, locations, and lore from your Story Bible and chapters.",
+    populating: "Extracting entities...",
+    populated: "entities created",
+    noDocs: "Create a Story Bible first to auto-populate.",
   },
   writingDashboard: {
     title: "Writing Dashboard",
@@ -856,6 +866,11 @@ const SR: UIStrings = {
     description: "Opis",
     attributes: "Atributi",
     source: "Izvor",
+    populate: "Popuni iz dokumenata",
+    populateDesc: "Izvuci likove, lokacije i mitologiju iz Biblije priče i poglavlja.",
+    populating: "Izvlačenje entiteta...",
+    populated: "entiteta kreirano",
+    noDocs: "Prvo kreirajte Bibliju priče za automatsko popunjavanje.",
   },
   writingDashboard: {
     title: "Panel pisanja",
@@ -1136,6 +1151,11 @@ const DE: UIStrings = {
     description: "Beschreibung",
     attributes: "Attribute",
     source: "Quelle",
+    populate: "Aus Dokumenten befüllen",
+    populateDesc: "Figuren, Orte und Überlieferungen aus Ihrer Story-Bibel extrahieren.",
+    populating: "Einträge werden extrahiert...",
+    populated: "Einträge erstellt",
+    noDocs: "Erstellen Sie zuerst eine Story-Bibel.",
   },
   writingDashboard: {
     title: "Schreib-Dashboard",
@@ -1416,6 +1436,11 @@ const ES: UIStrings = {
     description: "Descripción",
     attributes: "Atributos",
     source: "Fuente",
+    populate: "Rellenar desde documentos",
+    populateDesc: "Extraer personajes, lugares y mitología de tu Biblia de la historia.",
+    populating: "Extrayendo entidades...",
+    populated: "entidades creadas",
+    noDocs: "Primero crea una Biblia de la historia.",
   },
   writingDashboard: {
     title: "Panel de escritura",
@@ -1696,6 +1721,11 @@ const FR: UIStrings = {
     description: "Description",
     attributes: "Attributs",
     source: "Source",
+    populate: "Remplir à partir des documents",
+    populateDesc: "Extraire les personnages, lieux et mythologie de votre Bible de l'histoire.",
+    populating: "Extraction des entités...",
+    populated: "entités créées",
+    noDocs: "Créez d'abord une Bible de l'histoire.",
   },
   writingDashboard: {
     title: "Tableau de bord d'écriture",
@@ -1976,6 +2006,11 @@ const RU: UIStrings = {
     description: "Описание",
     attributes: "Атрибуты",
     source: "Источник",
+    populate: "Заполнить из документов",
+    populateDesc: "Извлечь персонажей, места и мифологию из Библии истории.",
+    populating: "Извлечение сущностей...",
+    populated: "сущностей создано",
+    noDocs: "Сначала создайте Библию истории.",
   },
   writingDashboard: {
     title: "Панель писателя",
@@ -2256,6 +2291,11 @@ const ZH: UIStrings = {
     description: "描述",
     attributes: "属性",
     source: "来源",
+    populate: "从文档中填充",
+    populateDesc: "从故事圣经和章节中提取角色、地点和传说。",
+    populating: "正在提取实体...",
+    populated: "个实体已创建",
+    noDocs: "请先创建故事圣经。",
   },
   writingDashboard: {
     title: "写作仪表板",
