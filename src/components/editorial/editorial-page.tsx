@@ -49,11 +49,13 @@ export function EditorialPage({ bookId, chapters }: EditorialPageProps) {
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="space-y-3 border-b px-6 py-4">
-        <div className="flex items-center gap-4 flex-wrap">
-          <h1 className="text-lg font-semibold">Editorial Review</h1>
-          <ChapterSelector chapters={chapters} />
-          <div className="ml-auto flex gap-2">
+      <div className="space-y-3 border-b px-4 sm:px-6 py-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <h1 className="text-lg font-semibold shrink-0">Editorial Review</h1>
+            <ChapterSelector chapters={chapters} />
+          </div>
+          <div className="flex flex-wrap gap-2 lg:ml-auto">
             <Button
               variant="outline"
               size="sm"
@@ -83,7 +85,7 @@ export function EditorialPage({ bookId, chapters }: EditorialPageProps) {
 
         {/* Chapter Edit Pipeline */}
         {chapters.length > 0 && (
-          <div className="flex items-center gap-1">
+          <div className="flex flex-wrap items-center gap-1 overflow-hidden">
             {PIPELINE_STAGES.map((stage) => {
               const count = chapterStatusCounts[stage] ?? 0;
               return (
@@ -91,7 +93,7 @@ export function EditorialPage({ bookId, chapters }: EditorialPageProps) {
                   key={stage}
                   className="flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-xs"
                 >
-                  <span className="text-muted-foreground">{STAGE_LABELS[stage]}</span>
+                  <span className="text-muted-foreground whitespace-nowrap">{STAGE_LABELS[stage]}</span>
                   <Badge variant={count > 0 ? "secondary" : "outline"} className="text-[10px] px-1.5 py-0">
                     {count}
                   </Badge>
@@ -112,7 +114,7 @@ export function EditorialPage({ bookId, chapters }: EditorialPageProps) {
         }
         className="flex flex-1 flex-col overflow-hidden"
       >
-        <TabsList className="mx-6 mt-2 w-fit">
+        <TabsList className="mx-4 sm:mx-6 mt-2 w-fit">
           <TabsTrigger value="findings" className="gap-1.5">
             Findings
             {totalFindings > 0 && (
