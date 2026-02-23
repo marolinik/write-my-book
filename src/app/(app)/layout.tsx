@@ -11,6 +11,7 @@ import { AIMiniPanel } from "@/components/agent/ai-mini-panel";
 import { FloatingAgentOverlay } from "@/components/agent/floating-agent-overlay";
 import { LanguageProvider } from "@/components/providers/language-provider";
 import { CommandPalette } from "@/components/layout/command-palette";
+import { KeyboardShortcutsDialog } from "@/components/layout/keyboard-shortcuts-dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePageContext } from "@/hooks/use-page-context";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
@@ -80,6 +81,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <LanguageProvider>
       <CommandPalette />
+      <KeyboardShortcutsDialog />
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>

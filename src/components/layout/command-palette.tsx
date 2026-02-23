@@ -16,6 +16,7 @@ import {
   SparklesIcon,
   LibraryIcon,
   BookMarkedIcon,
+  KeyboardIcon,
 } from "lucide-react";
 import {
   CommandDialog,
@@ -54,6 +55,7 @@ function getBookNavItems(bookId: string) {
 
 const ACTION_ITEMS = [
   { label: "New Book", icon: PlusIcon, action: "new-book" as const },
+  { label: "Keyboard Shortcuts", icon: KeyboardIcon, action: "keyboard-shortcuts" as const },
 ];
 
 export function CommandPalette() {
@@ -105,6 +107,12 @@ export function CommandPalette() {
       // Actions
       if (value === "new-book") {
         router.push("/books?new=true");
+        return;
+      }
+
+      if (value === "keyboard-shortcuts") {
+        const win = window as unknown as Record<string, (() => void) | undefined>;
+        win.__openKeyboardShortcuts?.();
         return;
       }
 
