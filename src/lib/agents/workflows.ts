@@ -23,7 +23,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     category: "setup",
     requiresChapter: false,
     requiresSeriesContext: false,
-    conversational: false,
+    conversational: true,
     suggestedNext: ["build-architecture", "create-story-bible"],
   },
   {
@@ -47,7 +47,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     category: "setup",
     requiresChapter: false,
     requiresSeriesContext: false,
-    conversational: false,
+    conversational: true,
     suggestedNext: ["plan-chapter"],
     prerequisites: [
       { type: "document", value: "STORY_BIBLE", description: "Story Bible needed before designing architecture", satisfiedBy: "create-story-bible" },

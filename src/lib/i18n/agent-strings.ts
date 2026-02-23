@@ -48,8 +48,19 @@ export interface AgentStrings {
   crossBookContinuity: string;
   seriesStats: string;
 
+  // Greenfield onboarding
+  greenfieldWelcome: string;
+  greenfieldPlaceholder: string;
+  greenfieldDivider: string;
+  greenfieldNewNovel: string;
+  greenfieldNewNovelDesc: string;
+  greenfieldExistingMs: string;
+  greenfieldExistingMsDesc: string;
+
   // Workflow labels (overrides for common workflows)
   workflows: Record<string, string>;
+  // Workflow writer-facing descriptions
+  workflowDescriptions: Record<string, string>;
 }
 
 const EN: AgentStrings = {
@@ -64,6 +75,13 @@ const EN: AgentStrings = {
   runAllSetup: "Run all setup steps",
   agents: "agents",
   browseAll: "Browse all workflows",
+  greenfieldWelcome: "Hi! Tell me about the book you want to write. What's the story about? I'll help you get started.",
+  greenfieldPlaceholder: "Tell me about your book...",
+  greenfieldDivider: "or choose a path",
+  greenfieldNewNovel: "New Novel",
+  greenfieldNewNovelDesc: "Start from scratch — concept, style, story bible, architecture.",
+  greenfieldExistingMs: "Existing Manuscript",
+  greenfieldExistingMsDesc: "Import, analyze, then edit and polish.",
   writingAgent: "Writing Agent",
   running: "Running",
   completed: "Completed",
@@ -110,6 +128,23 @@ const EN: AgentStrings = {
     revise: "Revise Chapter",
     analyze: "Analyze Manuscript",
   },
+  workflowDescriptions: {
+    "capture-style": "Analyze your writing to capture your unique voice.",
+    "create-story-bible": "Build your story bible — characters, world, rules, and themes.",
+    "build-architecture": "Design your story structure — acts, chapters, and pacing.",
+    "new-novel": "Start a new novel — define your premise, characters, and themes.",
+    "dev-edit": "Deep structural edit — checks pacing, arcs, and tension.",
+    "line-edit": "Prose polish — catches weak language and AI tells.",
+    "beta-read": "Get feedback from a simulated panel of diverse readers.",
+    "write-chapter": "Write a chapter draft in your voice using the plan.",
+    "plan-chapter": "Create a detailed beat sheet and scene plan for a chapter.",
+    "discuss-chapter": "Discuss a chapter's direction before writing it.",
+    "discuss-edits": "Review and discuss edit findings before applying them.",
+    revise: "Revise the chapter based on editing feedback.",
+    coach: "Talk to your writing coach about anything — craft, story, or process.",
+    freewrite: "Write freely — explore ideas without a plan.",
+    analyze: "Get statistics and readability metrics for your manuscript.",
+  },
 };
 
 const SR: AgentStrings = {
@@ -124,6 +159,13 @@ const SR: AgentStrings = {
   runAllSetup: "Pokreni sve korake podešavanja",
   agents: "agenata",
   browseAll: "Pregledaj sve tokove rada",
+  greenfieldWelcome: "Zdravo! Recite mi o knjizi koju želite da napišete. O čemu je priča? Pomoći ću vam da počnete.",
+  greenfieldPlaceholder: "Recite mi o vašoj knjizi...",
+  greenfieldDivider: "ili izaberite put",
+  greenfieldNewNovel: "Novi roman",
+  greenfieldNewNovelDesc: "Krenite od nule — koncept, stil, biblija priče, arhitektura.",
+  greenfieldExistingMs: "Postojeći rukopis",
+  greenfieldExistingMsDesc: "Uvezite, analizirajte, pa uredite i doradite.",
   writingAgent: "Agent za pisanje",
   running: "U toku",
   completed: "Završeno",
@@ -170,6 +212,23 @@ const SR: AgentStrings = {
     revise: "Revidiraj poglavlje",
     analyze: "Analiziraj rukopis",
   },
+  workflowDescriptions: {
+    "capture-style": "Analiziraj vaše pisanje da uhvati vaš jedinstveni glas.",
+    "create-story-bible": "Napravite bibliju priče — likovi, svet, pravila i teme.",
+    "build-architecture": "Dizajnirajte strukturu priče — činovi, poglavlja i tempo.",
+    "new-novel": "Započnite novi roman — definišite premisu, likove i teme.",
+    "dev-edit": "Duboka strukturna redakcija — proverava tempo, lukove i tenziju.",
+    "line-edit": "Poliranje proze — otkriva slab jezik i AI obrasce.",
+    "beta-read": "Dobijte povratne informacije od simuliranog panela raznovrsnih čitalaca.",
+    "write-chapter": "Napišite nacrt poglavlja u vašem glasu koristeći plan.",
+    "plan-chapter": "Napravite detaljan plan scena za poglavlje.",
+    "discuss-chapter": "Diskutujte o pravcu poglavlja pre pisanja.",
+    "discuss-edits": "Pregledajte i diskutujte o nalazima redakcije pre primene.",
+    revise: "Revidirajte poglavlje na osnovu povratnih informacija.",
+    coach: "Razgovarajte sa trenerom o bilo čemu — zanatu, priči ili procesu.",
+    freewrite: "Pišite slobodno — istražujte ideje bez plana.",
+    analyze: "Dobijte statistiku i metrike čitljivosti za vaš rukopis.",
+  },
 };
 
 const DE: AgentStrings = {
@@ -184,6 +243,13 @@ const DE: AgentStrings = {
   runAllSetup: "Alle Setup-Schritte ausführen",
   agents: "Agenten",
   browseAll: "Alle Workflows durchsuchen",
+  greenfieldWelcome: "Hallo! Erzählen Sie mir von dem Buch, das Sie schreiben möchten. Worum geht es? Ich helfe Ihnen beim Einstieg.",
+  greenfieldPlaceholder: "Erzählen Sie mir von Ihrem Buch...",
+  greenfieldDivider: "oder wählen Sie einen Weg",
+  greenfieldNewNovel: "Neuer Roman",
+  greenfieldNewNovelDesc: "Von Grund auf — Konzept, Stil, Story-Bibel, Architektur.",
+  greenfieldExistingMs: "Vorhandenes Manuskript",
+  greenfieldExistingMsDesc: "Importieren, analysieren, dann bearbeiten und polieren.",
   writingAgent: "Schreib-Agent",
   running: "Läuft",
   completed: "Abgeschlossen",
@@ -218,6 +284,7 @@ const DE: AgentStrings = {
     "write-chapter": "Kapitel schreiben",
     "plan-chapter": "Kapitel planen",
   },
+  workflowDescriptions: {},
 };
 
 const ES: AgentStrings = {
@@ -232,6 +299,13 @@ const ES: AgentStrings = {
   runAllSetup: "Ejecutar todos los pasos de configuración",
   agents: "agentes",
   browseAll: "Ver todos los flujos de trabajo",
+  greenfieldWelcome: "¡Hola! Cuéntame sobre el libro que quieres escribir. ¿De qué trata la historia? Te ayudaré a empezar.",
+  greenfieldPlaceholder: "Cuéntame sobre tu libro...",
+  greenfieldDivider: "o elige un camino",
+  greenfieldNewNovel: "Nueva novela",
+  greenfieldNewNovelDesc: "Desde cero — concepto, estilo, biblia de la historia, arquitectura.",
+  greenfieldExistingMs: "Manuscrito existente",
+  greenfieldExistingMsDesc: "Importar, analizar, luego editar y pulir.",
   writingAgent: "Agente de escritura",
   running: "En ejecución",
   completed: "Completado",
@@ -266,6 +340,7 @@ const ES: AgentStrings = {
     "write-chapter": "Escribir capítulo",
     "plan-chapter": "Planificar capítulo",
   },
+  workflowDescriptions: {},
 };
 
 const FR: AgentStrings = {
@@ -280,6 +355,13 @@ const FR: AgentStrings = {
   runAllSetup: "Exécuter toutes les étapes de configuration",
   agents: "agents",
   browseAll: "Parcourir tous les flux de travail",
+  greenfieldWelcome: "Bonjour ! Parlez-moi du livre que vous souhaitez écrire. De quoi parle l'histoire ? Je vous aiderai à démarrer.",
+  greenfieldPlaceholder: "Parlez-moi de votre livre...",
+  greenfieldDivider: "ou choisissez un chemin",
+  greenfieldNewNovel: "Nouveau roman",
+  greenfieldNewNovelDesc: "Partir de zéro — concept, style, bible de l'histoire, architecture.",
+  greenfieldExistingMs: "Manuscrit existant",
+  greenfieldExistingMsDesc: "Importer, analyser, puis éditer et peaufiner.",
   writingAgent: "Agent d'écriture",
   running: "En cours",
   completed: "Terminé",
@@ -314,6 +396,7 @@ const FR: AgentStrings = {
     "write-chapter": "Écrire un chapitre",
     "plan-chapter": "Planifier un chapitre",
   },
+  workflowDescriptions: {},
 };
 
 const RU: AgentStrings = {
@@ -328,6 +411,13 @@ const RU: AgentStrings = {
   runAllSetup: "Запустить все шаги настройки",
   agents: "агентов",
   browseAll: "Просмотреть все рабочие процессы",
+  greenfieldWelcome: "Привет! Расскажите мне о книге, которую хотите написать. О чём история? Я помогу вам начать.",
+  greenfieldPlaceholder: "Расскажите о вашей книге...",
+  greenfieldDivider: "или выберите путь",
+  greenfieldNewNovel: "Новый роман",
+  greenfieldNewNovelDesc: "С нуля — концепция, стиль, библия истории, архитектура.",
+  greenfieldExistingMs: "Существующая рукопись",
+  greenfieldExistingMsDesc: "Импорт, анализ, затем редактура и полировка.",
   writingAgent: "Агент-писатель",
   running: "Выполняется",
   completed: "Завершено",
@@ -362,6 +452,7 @@ const RU: AgentStrings = {
     "write-chapter": "Написать главу",
     "plan-chapter": "Спланировать главу",
   },
+  workflowDescriptions: {},
 };
 
 const ZH: AgentStrings = {
@@ -376,6 +467,13 @@ const ZH: AgentStrings = {
   runAllSetup: "运行所有设置步骤",
   agents: "个代理",
   browseAll: "浏览所有工作流",
+  greenfieldWelcome: "你好！告诉我你想写什么书。故事是关于什么的？我会帮助你开始。",
+  greenfieldPlaceholder: "告诉我关于你的书...",
+  greenfieldDivider: "或选择一条路径",
+  greenfieldNewNovel: "新小说",
+  greenfieldNewNovelDesc: "从零开始——概念、风格、故事圣经、架构。",
+  greenfieldExistingMs: "现有手稿",
+  greenfieldExistingMsDesc: "导入、分析，然后编辑和润色。",
   writingAgent: "写作代理",
   running: "运行中",
   completed: "已完成",
@@ -410,6 +508,7 @@ const ZH: AgentStrings = {
     "write-chapter": "撰写章节",
     "plan-chapter": "规划章节",
   },
+  workflowDescriptions: {},
 };
 
 const STRINGS: Record<string, AgentStrings> = {

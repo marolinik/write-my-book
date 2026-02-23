@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
 interface ConversationInputProps {
-  onSend: (message: string) => void;
+  onSend: (message: string) => void | Promise<void>;
   disabled?: boolean;
   placeholder?: string;
 }
@@ -31,11 +31,14 @@ export function ConversationInput({
     adjustHeight();
   }, [value, adjustHeight]);
 
-  const handleSend = useCallback(() => {
+  const [sending, setSending] = useState(false);
+
+  const handleSend = useCallback(async () => {
     const trimmed = value.trim();
-    if (!trimmed || disabled) return;
+    if (!trimmed || disabled || sending) return;
+    setSending(true);
     try {
-      onSend(trimmed);
+      await onSend(trimmed);
       setValue("");
       // Reset height after clearing
       requestAnimationFrame(() => {
@@ -45,10 +48,11 @@ export function ConversationInput({
       });
     } catch {
       // Don't clear input on error — let user retry
-      return;
+    } finally {
+      setSending(false);
     }
     textareaRef.current?.focus();
-  }, [value, disabled, onSend]);
+  }, [value, disabled, sending, onSend]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -72,7 +76,7 @@ export function ConversationInput({
       <Button
         size="icon"
         onClick={handleSend}
-        disabled={disabled || !value.trim()}
+        disabled={disabled || sending || !value.trim()}
         className="shrink-0"
       >
         <SendIcon className="size-4" />

@@ -87,8 +87,7 @@ function GreenfieldOnboarding({
           </h3>
         </div>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          Hi! Tell me about the book you want to write. What&apos;s the story about?
-          I&apos;ll help you get started.
+          {t.greenfieldWelcome}
         </p>
       </div>
 
@@ -103,7 +102,7 @@ function GreenfieldOnboarding({
               handleSendMessage();
             }
           }}
-          placeholder="Tell me about your book..."
+          placeholder={t.greenfieldPlaceholder}
           className="w-full resize-none rounded-lg border bg-background px-3 py-2.5 pr-10 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring min-h-[72px]"
           disabled={disabled}
         />
@@ -122,7 +121,7 @@ function GreenfieldOnboarding({
       <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-border" />
         <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
-          or choose a path
+          {t.greenfieldDivider}
         </span>
         <div className="h-px flex-1 bg-border" />
       </div>
@@ -137,9 +136,9 @@ function GreenfieldOnboarding({
           <BookPlusIcon className="size-5 text-blue-500" />
         </div>
         <div className="flex-1 min-w-0">
-          <span className="text-sm font-medium">New Novel</span>
+          <span className="text-sm font-medium">{t.greenfieldNewNovel}</span>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Start from scratch — concept, style, story bible, architecture.
+            {t.greenfieldNewNovelDesc}
           </p>
         </div>
       </button>
@@ -153,9 +152,9 @@ function GreenfieldOnboarding({
           <ImportIcon className="size-5 text-amber-500" />
         </div>
         <div className="flex-1 min-w-0">
-          <span className="text-sm font-medium">Existing Manuscript</span>
+          <span className="text-sm font-medium">{t.greenfieldExistingMs}</span>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Import, analyze, then edit and polish.
+            {t.greenfieldExistingMsDesc}
           </p>
         </div>
       </button>
@@ -329,7 +328,7 @@ export function ProactiveGuide({
               {t.workflows[primaryWorkflow.id] ?? primaryWorkflow.label}
             </span>
             <span className="text-xs font-normal opacity-80">
-              {primaryWorkflow.writerDescription}
+              {t.workflowDescriptions[primaryWorkflow.id] ?? primaryWorkflow.writerDescription}
             </span>
           </div>
         </Button>
