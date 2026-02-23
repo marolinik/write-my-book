@@ -63,15 +63,35 @@ export function FindingsPanel({ bookId, chapters }: FindingsPanelProps) {
     router.push(`/books/${bookId}/chapters/${chapter.id}`);
   };
 
+  // Determine if any filters are active
+  const hasActiveFilters =
+    filters.severity !== null ||
+    filters.category !== null ||
+    filters.status !== null ||
+    filters.agentType !== null ||
+    selectedChapter !== null;
+
   if (findings.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 p-8 text-center">
-        <p className="text-sm text-muted-foreground">
-          No findings match your filters
-        </p>
-        <Button variant="outline" size="sm" onClick={resetFilters}>
-          Reset filters
-        </Button>
+        {hasActiveFilters ? (
+          <>
+            <p className="text-sm text-muted-foreground">
+              No findings match your filters
+            </p>
+            <Button variant="outline" size="sm" onClick={resetFilters}>
+              Reset filters
+            </Button>
+          </>
+        ) : (
+          <>
+            <p className="text-sm font-medium">No editorial findings yet</p>
+            <p className="text-xs text-muted-foreground max-w-xs">
+              Run a Dev Edit, Line Edit, or Beta Read workflow on your chapters
+              to generate editorial findings.
+            </p>
+          </>
+        )}
       </div>
     );
   }

@@ -11,7 +11,8 @@ import { FindingsFilters } from "./findings-filters";
 import { FindingsPanel } from "./findings-panel";
 import { EditorialSummary } from "./editorial-summary";
 import { EditHistoryTimeline } from "./edit-history-timeline";
-import { PenLineIcon, SparklesIcon, ShieldCheckIcon } from "lucide-react";
+import { PenLineIcon, SparklesIcon, ShieldCheckIcon, BookOpenIcon } from "lucide-react";
+import Link from "next/link";
 
 interface EditorialPageProps {
   bookId: string;
@@ -103,42 +104,59 @@ export function EditorialPage({ bookId, chapters }: EditorialPageProps) {
           </div>
         )}
 
-        <FindingsFilters />
+        {chapters.length > 0 && <FindingsFilters />}
       </div>
 
-      {/* Tabs */}
-      <Tabs
-        value={activeTab}
-        onValueChange={(v) =>
-          setActiveTab(v as "findings" | "history" | "summary")
-        }
-        className="flex flex-1 flex-col overflow-hidden"
-      >
-        <TabsList className="mx-4 sm:mx-6 mt-2 w-fit">
-          <TabsTrigger value="findings" className="gap-1.5">
-            Findings
-            {totalFindings > 0 && (
-              <Badge variant="secondary" className="text-[10px] px-1.5 py-0 ml-1">
-                {totalFindings}
-              </Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="history">History</TabsTrigger>
-          <TabsTrigger value="summary">Summary</TabsTrigger>
-        </TabsList>
+      {/* Empty state for zero chapters */}
+      {chapters.length === 0 && (
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
+          <BookOpenIcon className="size-10 text-muted-foreground/40" />
+          <p className="text-sm font-medium">No chapters yet</p>
+          <p className="text-xs text-muted-foreground max-w-sm">
+            Import a manuscript or write your first chapter before running editorial
+            workflows. Findings will appear here after a Dev Edit, Line Edit, or Beta Read.
+          </p>
+          <Button asChild size="sm" variant="outline">
+            <Link href={`/books/${bookId}/setup`}>Go to Setup</Link>
+          </Button>
+        </div>
+      )}
 
-        <TabsContent value="findings" className="flex-1 overflow-auto mt-0">
-          <FindingsPanel bookId={bookId} chapters={chapters} />
-        </TabsContent>
+      {/* Tabs — only when chapters exist */}
+      {chapters.length > 0 && (
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) =>
+            setActiveTab(v as "findings" | "history" | "summary")
+          }
+          className="flex flex-1 flex-col overflow-hidden"
+        >
+          <TabsList className="mx-4 sm:mx-6 mt-2 w-fit">
+            <TabsTrigger value="findings" className="gap-1.5">
+              Findings
+              {totalFindings > 0 && (
+                <Badge variant="secondary" className="text-[10px] px-1.5 py-0 ml-1">
+                  {totalFindings}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="history">History</TabsTrigger>
+            <TabsTrigger value="summary">Summary</TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="history" className="flex-1 overflow-auto mt-0">
-          <EditHistoryTimeline bookId={bookId} />
-        </TabsContent>
+          <TabsContent value="findings" className="flex-1 overflow-auto mt-0">
+            <FindingsPanel bookId={bookId} chapters={chapters} />
+          </TabsContent>
 
-        <TabsContent value="summary" className="flex-1 overflow-auto mt-0">
-          <EditorialSummary bookId={bookId} />
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="history" className="flex-1 overflow-auto mt-0">
+            <EditHistoryTimeline bookId={bookId} />
+          </TabsContent>
+
+          <TabsContent value="summary" className="flex-1 overflow-auto mt-0">
+            <EditorialSummary bookId={bookId} />
+          </TabsContent>
+        </Tabs>
+      )}
     </div>
   );
 }
