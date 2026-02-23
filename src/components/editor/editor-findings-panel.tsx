@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -10,6 +10,7 @@ import { useFindings } from "@/hooks/use-editorial";
 import type { FindingItem } from "@/hooks/use-editorial";
 import { FindingCard } from "@/components/editorial/finding-card";
 import { useEditorPaneStore, getOrCreatePaneStore } from "@/stores/editor-store";
+import { useEditorialStore } from "@/stores/editorial-store";
 
 interface EditorFindingsPanelProps {
   bookId: string;
@@ -27,42 +28,30 @@ export function EditorFindingsPanel({
   const paneStore = getOrCreatePaneStore(paneId);
   const setScrollToText = (text: string | null) => paneStore.getState().setScrollToText(text);
   const setPendingInlineEditFinding = (finding: FindingItem | null) => paneStore.getState().setPendingInlineEditFinding(finding);
-  const { data, isLoading } = useFindings(bookId, { chapterNumber });
-  const [activeFilter, setActiveFilter] = useState("all");
+
+  const { filters, setFilter, resetFilters } = useEditorialStore();
+
+  // Pass store filters to the API query — always scope to current chapter from props
+  const { data, isLoading } = useFindings(bookId, {
+    chapterNumber,
+    severity: filters.severity ?? undefined,
+    category: filters.category ?? undefined,
+    status: filters.status ?? undefined,
+    agentType: filters.agentType ?? undefined,
+  });
 
   const findings = data?.findings ?? [];
-  const pendingCount = findings.filter((f) => f.status === "pending").length;
 
-  // Build dynamic filter chips from actual findings data
-  const filterChips = useMemo(() => {
-    const chips = [{ id: "all", label: "all" }, { id: "pending", label: "pending" }];
-    // Add unique severity values
-    const severities = new Set(findings.map((f) => f.severity));
-    for (const s of ["critical", "major", "moderate", "minor"]) {
-      if (severities.has(s)) chips.push({ id: `severity:${s}`, label: s });
-    }
-    // Add unique category values
-    const categories = new Set(findings.map((f) => f.category));
-    for (const c of categories) {
-      if (c) chips.push({ id: `category:${c}`, label: c });
-    }
-    return chips;
-  }, [findings]);
+  // Pending count uses a separate unfiltered query would be wasteful;
+  // instead compute from filtered results when no status filter is active,
+  // or show "pending" count as the total when status=pending is active
+  const pendingCount = useMemo(() => {
+    if (filters.status === "pending") return findings.length;
+    if (filters.status && filters.status !== "pending") return 0;
+    return findings.filter((f) => f.status === "pending").length;
+  }, [findings, filters.status]);
 
-  // Filter findings based on active chip
-  const filteredFindings = useMemo(() => {
-    if (activeFilter === "all") return findings;
-    if (activeFilter === "pending") return findings.filter((f) => f.status === "pending");
-    if (activeFilter.startsWith("severity:")) {
-      const sev = activeFilter.replace("severity:", "");
-      return findings.filter((f) => f.severity === sev);
-    }
-    if (activeFilter.startsWith("category:")) {
-      const cat = activeFilter.replace("category:", "");
-      return findings.filter((f) => f.category === cat);
-    }
-    return findings;
-  }, [findings, activeFilter]);
+  const hasActiveFilters = !!(filters.severity || filters.category || filters.status || filters.agentType);
 
   const handleShowInText = (finding: FindingItem) => {
     const text = finding.originalText ?? finding.locationStart;
@@ -91,24 +80,48 @@ export function EditorFindingsPanel({
         </Button>
       </div>
 
-      {/* Filter chips */}
-      {findings.length > 0 && (
-        <div className="flex flex-wrap gap-1 px-2 py-1.5 border-b shrink-0">
-          {filterChips.map((chip) => (
-            <button
-              key={chip.id}
-              className={`px-2 py-0.5 rounded-full text-[10px] border transition-colors ${
-                activeFilter === chip.id
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-border text-muted-foreground hover:border-primary/50"
-              }`}
-              onClick={() => setActiveFilter(chip.id)}
-            >
-              {chip.label}
-            </button>
-          ))}
-        </div>
-      )}
+      {/* Filter chips — compact version of editorial page filters */}
+      <div className="flex flex-wrap gap-1 px-2 py-1.5 border-b shrink-0">
+        {/* Severity chips */}
+        {(["critical", "major", "moderate", "minor"] as const).map((sev) => (
+          <button
+            key={`sev-${sev}`}
+            className={`px-2 py-0.5 rounded-full text-[10px] border transition-colors ${
+              filters.severity === sev
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border text-muted-foreground hover:border-primary/50"
+            }`}
+            onClick={() => setFilter("severity", filters.severity === sev ? null : sev)}
+          >
+            {sev}
+          </button>
+        ))}
+
+        {/* Status chips */}
+        {(["pending", "applied", "dismissed"] as const).map((st) => (
+          <button
+            key={`st-${st}`}
+            className={`px-2 py-0.5 rounded-full text-[10px] border transition-colors ${
+              filters.status === st
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border text-muted-foreground hover:border-primary/50"
+            }`}
+            onClick={() => setFilter("status", filters.status === st ? null : st)}
+          >
+            {st}
+          </button>
+        ))}
+
+        {/* Reset button when any filter is active */}
+        {hasActiveFilters && (
+          <button
+            className="px-2 py-0.5 rounded-full text-[10px] border border-destructive/50 text-destructive hover:bg-destructive/10 transition-colors"
+            onClick={resetFilters}
+          >
+            reset
+          </button>
+        )}
+      </div>
 
       {/* Content */}
       {isLoading ? (
@@ -120,16 +133,20 @@ export function EditorFindingsPanel({
       ) : findings.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 p-6 text-center flex-1">
           <p className="text-sm text-muted-foreground">
-            No findings for this chapter
+            {hasActiveFilters
+              ? "No findings match the current filters"
+              : "No findings for this chapter"}
           </p>
           <p className="text-xs text-muted-foreground">
-            Run an editorial workflow to generate findings
+            {hasActiveFilters
+              ? "Try adjusting or resetting the filters"
+              : "Run an editorial workflow to generate findings"}
           </p>
         </div>
       ) : (
         <ScrollArea className="flex-1">
           <div className="space-y-2 p-2">
-            {filteredFindings.map((finding) => (
+            {findings.map((finding) => (
               <FindingCard
                 key={finding.id}
                 finding={finding}
