@@ -12,6 +12,7 @@ import {
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getUIStrings } from "@/lib/i18n/ui-strings";
+import { getAgentStrings } from "@/lib/i18n/agent-strings";
 import { getWorkflow } from "@/lib/agents/workflows";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,10 +28,10 @@ import { StartWorkflowButton } from "@/components/book/start-workflow-button";
 export const dynamic = "force-dynamic";
 
 
-function getWorkflowLabel(workflowId: string | null): string {
+function getWorkflowLabel(workflowId: string | null, lang: string): string {
   if (!workflowId) return "Agent session";
-  const wf = getWorkflow(workflowId);
-  return wf?.label ?? workflowId;
+  const strings = getAgentStrings(lang);
+  return strings.workflows[workflowId] ?? getWorkflow(workflowId)?.label ?? workflowId;
 }
 
 function timeAgo(date: Date | string): string {
@@ -224,7 +225,7 @@ export default async function BookDetailPage({
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-medium">
-                  Recommended: {nextWorkflow.label}
+                  {t.journey.recommended}: {getWorkflowLabel(nextWorkflowId, user.preferredLanguage ?? "en")}
                 </p>
                 <p className="text-xs text-muted-foreground truncate">
                   {nextWorkflowReason}
@@ -368,7 +369,7 @@ export default async function BookDetailPage({
                     <BotIcon className="size-3.5 text-muted-foreground shrink-0" />
                     <div className="min-w-0 flex-1">
                       <span className="text-xs font-medium truncate block">
-                        {getWorkflowLabel(session.workflowId)}
+                        {getWorkflowLabel(session.workflowId, user.preferredLanguage ?? "en")}
                       </span>
                       <div className="flex gap-2 text-[10px] text-muted-foreground">
                         <span>
@@ -417,17 +418,20 @@ export default async function BookDetailPage({
         </div>
       )}
 
-      {/* Setup Incomplete Banner */}
-      {!book.settings?.setupComplete && (() => {
-        // Derive step progress server-side
+      {/* Setup Incomplete Banner — hide if all foundational steps are done */}
+      {(() => {
+        const hasBasics = !!(book.name && book.genre);
         const hasChaptersLoaded = book.chapters.length > 0;
+        // If all real setup steps are complete, treat as fully done (even if wizard flag was never set)
+        const allRealStepsDone = hasBasics && hasChaptersLoaded && hasFingerprint && hasBible && hasArch;
+        if (book.settings?.setupComplete || allRealStepsDone) return null;
+
         let stepsDone = 0;
-        if (book.name && book.genre) stepsDone++;
+        if (hasBasics) stepsDone++;
         if (hasChaptersLoaded) stepsDone++;
         if (hasFingerprint) stepsDone++;
         if (hasBible) stepsDone++;
         if (hasArch) stepsDone++;
-        // reviewComplete is false since setupComplete is falsy
         return (
           <Card className="mb-8 border-dashed border-primary/50 bg-primary/5">
             <CardContent className="flex flex-wrap items-center justify-between gap-3 py-4">
@@ -435,13 +439,13 @@ export default async function BookDetailPage({
                 <SparklesIcon className="size-5 text-primary shrink-0" />
                 <div>
                   <p className="text-sm font-medium">
-                    Setup incomplete &mdash; {stepsDone} of 6 steps done
+                    {s.completeSetup} &mdash; {stepsDone}/5
                   </p>
                   <p className="text-xs text-muted-foreground">{s.setupDescription}</p>
                 </div>
               </div>
               <Button asChild size="sm">
-                <Link href={`/books/${bookId}/setup`}>Continue setup</Link>
+                <Link href={`/books/${bookId}/setup`}>{s.startSetup}</Link>
               </Button>
             </CardContent>
           </Card>

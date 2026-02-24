@@ -86,45 +86,53 @@ export async function POST(
   const docService = new DocumentService(user.id, bookId);
   const textParts: string[] = [];
 
-  for (const docType of [
-    DocumentType.STORY_BIBLE,
-    DocumentType.ARCHITECTURE,
-    DocumentType.FINGERPRINT,
-  ]) {
-    const doc = await docService.findByType(docType);
-    if (doc) {
-      const result = await docService.read(doc.id);
-      if (result?.content) {
-        textParts.push(`--- ${docType} ---\n${result.content}`);
+  try {
+    for (const docType of [
+      DocumentType.STORY_BIBLE,
+      DocumentType.ARCHITECTURE,
+      DocumentType.FINGERPRINT,
+    ]) {
+      const doc = await docService.findByType(docType);
+      if (doc) {
+        const result = await docService.read(doc.id);
+        if (result?.content) {
+          textParts.push(`--- ${docType} ---\n${result.content}`);
+        }
       }
     }
-  }
 
-  // Also grab chapter content (first 3 chapters max to stay within token limits)
-  const chapters = await db.chapter.findMany({
-    where: { bookId },
-    orderBy: { chapterNumber: "asc" },
-    take: 3,
-    select: { chapterNumber: true },
-  });
+    // Also grab chapter content (first 3 chapters max to stay within token limits)
+    const chapters = await db.chapter.findMany({
+      where: { bookId },
+      orderBy: { chapterNumber: "asc" },
+      take: 3,
+      select: { chapterNumber: true },
+    });
 
-  for (const ch of chapters) {
-    const chapterDoc = await docService.findByType(
-      DocumentType.CHAPTER_CONTENT,
-      ch.chapterNumber
+    for (const ch of chapters) {
+      const chapterDoc = await docService.findByType(
+        DocumentType.CHAPTER_CONTENT,
+        ch.chapterNumber
+      );
+      if (chapterDoc) {
+        const result = await docService.read(chapterDoc.id);
+        if (result?.content) {
+          const truncated =
+            result.content.length > 20_000
+              ? result.content.slice(0, 20_000) + "\n[TRUNCATED]"
+              : result.content;
+          textParts.push(
+            `--- CHAPTER ${ch.chapterNumber} ---\n${truncated}`
+          );
+        }
+      }
+    }
+  } catch (error) {
+    console.error("[wiki/populate] Document read failed:", error);
+    return NextResponse.json(
+      { error: "Failed to read documents. Check that S3/MinIO is running." },
+      { status: 503 }
     );
-    if (chapterDoc) {
-      const result = await docService.read(chapterDoc.id);
-      if (result?.content) {
-        const truncated =
-          result.content.length > 20_000
-            ? result.content.slice(0, 20_000) + "\n[TRUNCATED]"
-            : result.content;
-        textParts.push(
-          `--- CHAPTER ${ch.chapterNumber} ---\n${truncated}`
-        );
-      }
-    }
   }
 
   if (textParts.length === 0) {
@@ -142,7 +150,18 @@ export async function POST(
       : combinedText;
 
   // Extract entities via LLM
-  const { client, modelId } = getClient();
+  let llmClient: { client: Anthropic; modelId: string };
+  try {
+    llmClient = getClient();
+  } catch (error) {
+    console.error("[wiki/populate] LLM client init failed:", error);
+    return NextResponse.json(
+      { error: "No API key configured. Set OPENROUTER_API_KEY or ANTHROPIC_API_KEY in your environment." },
+      { status: 503 }
+    );
+  }
+
+  const { client, modelId } = llmClient;
 
   let entries: ExtractedWikiEntry[] = [];
   try {
@@ -175,9 +194,10 @@ export async function POST(
     }
     entries = parsed;
   } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
     console.error("[wiki/populate] LLM extraction failed:", error);
     return NextResponse.json(
-      { error: "Entity extraction failed" },
+      { error: `Entity extraction failed: ${msg}` },
       { status: 500 }
     );
   }

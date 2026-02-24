@@ -16,6 +16,7 @@ import {
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getUIStrings } from "@/lib/i18n/ui-strings";
+import { getAgentStrings } from "@/lib/i18n/agent-strings";
 import { getWorkflow } from "@/lib/agents/workflows";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,10 +30,10 @@ import {
 
 export const dynamic = "force-dynamic";
 
-function getWorkflowLabel(workflowId: string | null): string {
+function getWorkflowLabel(workflowId: string | null, lang: string): string {
   if (!workflowId) return "Agent session";
-  const wf = getWorkflow(workflowId);
-  return wf?.label ?? workflowId;
+  const strings = getAgentStrings(lang);
+  return strings.workflows[workflowId] ?? getWorkflow(workflowId)?.label ?? workflowId;
 }
 
 export default async function DashboardPage() {
@@ -184,7 +185,7 @@ export default async function DashboardPage() {
         <Button asChild variant="outline">
           <Link href="/series/new">
             <LibraryIcon className="mr-2 size-4" />
-            Create Series
+            {t.seriesPage.createSeries}
           </Link>
         </Button>
         <Button asChild variant="secondary">
@@ -366,7 +367,7 @@ export default async function DashboardPage() {
                   <div className="flex items-center gap-2 min-w-0">
                     <BotIcon className="size-4 shrink-0 text-muted-foreground" />
                     <span className="font-medium truncate">
-                      {getWorkflowLabel(s.workflowId)}
+                      {getWorkflowLabel(s.workflowId, user.preferredLanguage ?? "en")}
                     </span>
                     <span className="text-muted-foreground truncate hidden sm:inline">
                       — {s.book.name}
@@ -458,7 +459,7 @@ export default async function DashboardPage() {
             <Button asChild size="sm" variant="outline">
               <Link href="/series/new">
                 <PlusIcon className="mr-1 size-4" />
-                Create Series
+                {t.seriesPage.createSeries}
               </Link>
             </Button>
           )}
@@ -466,7 +467,7 @@ export default async function DashboardPage() {
 
         {seriesList.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No series yet — create one to group related books.
+            {t.seriesPage.noSeries} — {t.seriesPage.noSeriesDesc}
           </p>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -488,7 +489,7 @@ export default async function DashboardPage() {
                     </CardHeader>
                     <CardContent>
                       <div className="flex gap-4 text-xs text-muted-foreground">
-                        <span>{series._count.books} books</span>
+                        <span>{series._count.books} {t.seriesPage.books}</span>
                         <span>{totalSeriesWords.toLocaleString()} {t.dashboard.words}</span>
                       </div>
                     </CardContent>
