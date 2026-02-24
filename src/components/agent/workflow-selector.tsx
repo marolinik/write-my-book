@@ -36,6 +36,7 @@ import { getAllJourneys, getJourney } from "@/lib/agents/journeys";
 import type { JourneyDefinition, JourneyStep } from "@/lib/agents/journeys";
 import type { WorkflowDefinition } from "@/lib/agents/types";
 import { useLanguage } from "@/components/providers/language-provider";
+import { getAgentStrings } from "@/lib/i18n/agent-strings";
 import { useAgentSessionStore } from "@/stores/agent-session-store";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
 import { toast } from "sonner";
@@ -87,7 +88,8 @@ export function WorkflowSelector({
   completedWorkflows,
   defaultTab = "journeys",
 }: WorkflowSelectorProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const as = getAgentStrings(language);
   const addToQueue = useAgentSessionStore((s) => s.addToQueue);
   const pageContext = useAgentUIStore((s) => s.pageContext);
   const [selectedWorkflow, setSelectedWorkflow] =
@@ -169,14 +171,14 @@ export function WorkflowSelector({
     } else {
       addToQueue(workflow.id);
     }
-    toast.success(`Added "${workflow.label}" to queue`);
+    toast.success(`Added "${as.workflows[workflow.id] ?? workflow.label}" to queue`);
   };
 
   // Chapter selection sub-view
   if (selectedWorkflow) {
     return (
       <div className="flex flex-col gap-3 p-4">
-        <div className="text-sm font-medium">{selectedWorkflow.label}</div>
+        <div className="text-sm font-medium">{as.workflows[selectedWorkflow.id] ?? selectedWorkflow.label}</div>
         <p className="text-xs text-muted-foreground">
           {t.workflowSelector.selectChapter}
         </p>
@@ -303,13 +305,13 @@ export function WorkflowSelector({
                         >
                           <div className="flex flex-col gap-0.5 min-w-0">
                             <span className="font-medium flex items-center gap-1.5">
-                              {w.label}
+                              {as.workflows[w.id] ?? w.label}
                               {isLocked && (
                                 <LockIcon className="size-3 text-muted-foreground" />
                               )}
                             </span>
                             <span className="text-xs text-muted-foreground">
-                              {w.writerDescription}
+                              {as.workflowDescriptions[w.id] ?? w.writerDescription}
                             </span>
                           </div>
                           <ChevronRightIcon className="size-4 shrink-0 text-muted-foreground" />
@@ -378,6 +380,8 @@ function JourneyCard({
   onClick: () => void;
   disabled?: boolean;
 }) {
+  const { language } = useLanguage();
+  const as = getAgentStrings(language);
   const Icon = JOURNEY_ICONS[journey.icon] ?? BookOpenIcon;
   const totalSteps = journey.steps.filter((s) => !s.optional).length;
   let completedSteps = 0;
@@ -399,13 +403,13 @@ function JourneyCard({
       </div>
       <div className="flex-1 min-w-0 space-y-1.5">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">{journey.label}</span>
+          <span className="text-sm font-medium">{as.journeyLabels[journey.id] ?? journey.label}</span>
           <Badge variant="outline" className="text-[10px] shrink-0">
             {totalSteps} steps
           </Badge>
         </div>
         <p className="text-xs text-muted-foreground line-clamp-2">
-          {journey.description}
+          {as.journeyDescriptions[journey.id] ?? journey.description}
         </p>
         {isStarted && (
           <div className="flex items-center gap-2">
@@ -443,6 +447,8 @@ function JourneyDetailView({
   onBack: () => void;
   disabled?: boolean;
 }) {
+  const { language } = useLanguage();
+  const as = getAgentStrings(language);
   const Icon = JOURNEY_ICONS[journey.icon] ?? BookOpenIcon;
 
   // Find the first incomplete non-optional step
@@ -458,14 +464,14 @@ function JourneyDetailView({
           <ArrowLeftIcon className="size-4" />
         </Button>
         <Icon className="size-4 text-primary" />
-        <span className="text-sm font-medium">{journey.label}</span>
+        <span className="text-sm font-medium">{as.journeyLabels[journey.id] ?? journey.label}</span>
       </div>
 
       {/* Steps timeline */}
       <ScrollArea className="flex-1">
         <div className="flex flex-col p-4">
           <p className="text-xs text-muted-foreground mb-3">
-            {journey.description}
+            {as.journeyDescriptions[journey.id] ?? journey.description}
           </p>
 
           <div className="relative flex flex-col">
@@ -500,7 +506,7 @@ function JourneyDetailView({
                   <div className={`flex-1 pb-4 min-w-0 ${isFuture && !isCurrent ? "opacity-50" : ""}`}>
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <span className={`text-sm ${isCurrent ? "font-semibold" : "font-medium"}`}>
-                        {wf?.label ?? step.workflowId}
+                        {as.workflows[step.workflowId] ?? wf?.label ?? step.workflowId}
                       </span>
                       {step.optional && (
                         <Badge variant="outline" className="text-[9px]">
@@ -518,7 +524,7 @@ function JourneyDetailView({
                             <RepeatIcon className="size-3 text-muted-foreground" />
                           </TooltipTrigger>
                           <TooltipContent side="right" className="text-xs">
-                            Can loop back to {getWorkflow(step.loopTo)?.label ?? step.loopTo}
+                            Can loop back to {as.workflows[step.loopTo] ?? getWorkflow(step.loopTo)?.label ?? step.loopTo}
                           </TooltipContent>
                         </Tooltip>
                       )}

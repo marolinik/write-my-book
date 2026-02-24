@@ -9,8 +9,12 @@ import {
 import { cn } from "@/lib/utils";
 import { useAgentSessionStore, type SessionState } from "@/stores/agent-session-store";
 import { getWorkflow } from "@/lib/agents/workflows";
+import { useLanguage } from "@/components/providers/language-provider";
+import { getAgentStrings } from "@/lib/i18n/agent-strings";
 
 export function SessionProgressList() {
+  const { language } = useLanguage();
+  const agentStrings = getAgentStrings(language);
   const sessions = useAgentSessionStore((s) => s.sessions);
   const activeSessionId = useAgentSessionStore((s) => s.activeSessionId);
   const setActiveSession = useAgentSessionStore((s) => s.setActiveSession);
@@ -75,7 +79,7 @@ export function SessionProgressList() {
                 )}
                 <div className="min-w-0 flex-1">
                   <span className="font-medium block truncate">
-                    {wf?.label ?? session.workflowId}
+                    {agentStrings.workflows[session.workflowId] ?? wf?.label ?? session.workflowId}
                   </span>
                   {preview && (
                     <span className="text-[10px] text-muted-foreground block truncate">

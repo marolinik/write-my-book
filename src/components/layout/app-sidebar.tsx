@@ -45,6 +45,7 @@ import { useBookState } from "@/hooks/use-book-state";
 import { useLanguage } from "@/components/providers/language-provider";
 import { JourneyChecklist, JourneySelectorDialog } from "@/components/journey";
 import { getJourney, getStepNavHref, getRecommendedJourney } from "@/lib/agents/journeys";
+import { getAgentStrings } from "@/lib/i18n/agent-strings";
 
 /** Status dot colors for chapters */
 const CH_STATUS_COLORS: Record<string, string> = {
@@ -95,7 +96,8 @@ export function AppSidebar() {
   const params = useParams();
   const bookId = params?.bookId as string | undefined;
   const seriesId = params?.seriesId as string | undefined;
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const agentStrings = getAgentStrings(language);
 
   const { data: book } = useBook(bookId ?? "");
   const { data: series } = useSeriesDetail(seriesId ?? "");
@@ -111,16 +113,17 @@ export function AppSidebar() {
     if (!journey || !bookState.journeySteps) return null;
 
     return {
-      journeyName: journey.label,
+      journeyName: agentStrings.journeyLabels[journey.id] ?? journey.label,
       steps: bookState.journeySteps.map((s) => ({
         ...s,
+        label: agentStrings.stepLabels[s.workflowId] ?? s.label,
         href: getStepNavHref(s.workflowId, bookId),
       })),
       completedCount: bookState.journeyProgress?.completed ?? 0,
       totalCount: bookState.journeyProgress?.total ?? 0,
       allComplete: bookState.journeyComplete,
     };
-  }, [bookId, bookState]);
+  }, [bookId, bookState, agentStrings]);
 
   // Recommended journey for the selector dialog
   const recommendedJourneyId = useMemo(() => {

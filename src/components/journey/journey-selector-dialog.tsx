@@ -26,6 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { getAllJourneys, type JourneyDefinition } from "@/lib/agents/journeys";
 import { useJourneyMutation } from "@/hooks/use-journey";
 import { useLanguage } from "@/components/providers/language-provider";
+import { getAgentStrings } from "@/lib/i18n/agent-strings";
 
 const ICON_MAP: Record<string, LucideIcon> = {
   BookPlus: BookPlusIcon,
@@ -53,7 +54,8 @@ export function JourneySelectorDialog({
   currentJourneyId,
   recommendedJourneyId,
 }: JourneySelectorDialogProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const agentStrings = getAgentStrings(language);
   const journeyMutation = useJourneyMutation(bookId);
   const journeys = getAllJourneys();
 
@@ -152,7 +154,7 @@ export function JourneySelectorDialog({
                   <Icon className="size-5 text-muted-foreground shrink-0 mt-0.5" />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-medium">{journey.label}</span>
+                      <span className="text-sm font-medium">{agentStrings.journeyLabels[journey.id] ?? journey.label}</span>
                       {isCurrent && (
                         <CheckIcon className="size-3.5 text-primary shrink-0" />
                       )}
@@ -163,7 +165,7 @@ export function JourneySelectorDialog({
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {journey.description}
+                      {agentStrings.journeyDescriptions[journey.id] ?? journey.description}
                     </p>
                     <span className="text-[10px] text-muted-foreground/60 mt-1.5 inline-block">
                       {requiredStepCount} {t.journey.steps.toLowerCase()}
