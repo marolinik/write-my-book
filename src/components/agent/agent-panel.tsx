@@ -640,7 +640,7 @@ export function AgentPanel({
 
           {/* Session results summary + suggested next + navigation CTAs */}
           {isComplete && (
-            <div className="flex flex-col gap-2 border-t p-3 shrink-0 max-h-[40vh] overflow-y-auto overscroll-contain">
+            <div className="flex flex-col gap-2 border-t p-3 shrink-0 max-h-[25vh] overflow-y-auto overscroll-contain">
               {/* Session Complete summary card */}
               {resultMeta && (resultMeta.findingsCreated > 0 || resultMeta.statusAdvanced || resultMeta.betaGateResult) && (
                 <div className="rounded-md border bg-muted/30 p-2.5 space-y-1.5">

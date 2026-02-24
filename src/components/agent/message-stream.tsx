@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
@@ -86,33 +86,6 @@ export function MessageStream({
     }
   }, [isRunning]);
 
-  // Content fingerprint — changes when text grows or new messages arrive
-  const lastMsg = messages[messages.length - 1];
-  const rawLen = lastMsg?.content?.length ?? 0;
-  const contentSignal = messages.length * 100000 + Math.floor(rawLen / 100);
-
-  // Auto-scroll: instant (no smooth animation that fights user scrolling)
-  const rafRef = useRef(0);
-  useEffect(() => {
-    if (userScrolledAway.current) return;
-    cancelAnimationFrame(rafRef.current);
-    rafRef.current = requestAnimationFrame(() => {
-      const el = scrollRef.current;
-      if (el) {
-        el.scrollTop = el.scrollHeight;
-      }
-    });
-  }, [contentSignal]);
-
-  // Reset scroll state when session stops; cleanup raf on unmount
-  useEffect(() => {
-    if (!isRunning) {
-      setShowScrollButton(false);
-      userScrolledAway.current = false;
-    }
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [isRunning]);
-
   const scrollToBottom = useCallback(() => {
     const el = scrollRef.current;
     if (el) el.scrollTop = el.scrollHeight;
@@ -148,6 +121,31 @@ export function MessageStream({
       if (throttleRef.current) clearTimeout(throttleRef.current);
     };
   }, []);
+
+  // Content fingerprint — derived from throttledMessages so scroll fires
+  // AFTER the DOM actually updates (not before, which was the old bug).
+  // Granularity of /40 chars ensures scroll keeps up during streaming.
+  const lastThrottledMsg = throttledMessages[throttledMessages.length - 1];
+  const rawLen = lastThrottledMsg?.content?.length ?? 0;
+  const contentSignal = throttledMessages.length * 100000 + Math.floor(rawLen / 40);
+
+  // Auto-scroll: useLayoutEffect fires synchronously after DOM mutation
+  // but before browser paint — so user never sees stale scroll position.
+  useLayoutEffect(() => {
+    if (userScrolledAway.current) return;
+    const el = scrollRef.current;
+    if (el) {
+      el.scrollTop = el.scrollHeight;
+    }
+  }, [contentSignal]);
+
+  // Reset scroll state when session stops
+  useEffect(() => {
+    if (!isRunning) {
+      setShowScrollButton(false);
+      userScrolledAway.current = false;
+    }
+  }, [isRunning]);
 
   // Build block descriptors (cheap) — separate from rendering (expensive)
   const { blocks, lastExecutingToolMsg } = useMemo(() => {
@@ -326,7 +324,7 @@ export function MessageStream({
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="h-full overflow-y-auto overscroll-contain p-4 pb-6"
+        className="h-full overflow-y-auto overscroll-contain p-4 pb-16"
       >
         <div className="flex flex-col gap-3">
           {!hasVisibleContent && isRunning && (

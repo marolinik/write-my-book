@@ -1,8 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { Trash2Icon, AlertTriangleIcon, Loader2Icon } from "lucide-react";
+import { toast } from "sonner";
 
 import { useBookSettings } from "@/hooks/use-settings";
+import { useBook, useDeleteBook } from "@/hooks/use-books";
 import { useDebouncedSettings } from "@/hooks/use-debounced-settings";
 import { useLanguage } from "@/components/providers/language-provider";
 import { Button } from "@/components/ui/button";
@@ -16,6 +20,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -28,9 +40,14 @@ export default function BookSettingsPage() {
   const router = useRouter();
   const { bookId } = useParams<{ bookId: string }>();
   const { data: settings, isLoading } = useBookSettings(bookId);
+  const { data: book } = useBook(bookId);
   const handleChange = useDebouncedSettings(bookId);
+  const deleteMutation = useDeleteBook(bookId);
   const { t } = useLanguage();
   const s = t.bookSettings;
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
 
   if (isLoading) {
     return (
@@ -278,6 +295,98 @@ export default function BookSettingsPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Danger Zone */}
+      <Card className="border-destructive/50">
+        <CardHeader>
+          <CardTitle className="text-base text-destructive flex items-center gap-2">
+            <AlertTriangleIcon className="size-4" />
+            Danger Zone
+          </CardTitle>
+          <CardDescription>
+            Irreversible actions. Please be certain.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium">Delete this book</p>
+              <p className="text-xs text-muted-foreground">
+                Permanently delete this book and all its chapters, documents, agent sessions, and editorial findings.
+              </p>
+            </div>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setDeleteDialogOpen(true)}
+            >
+              <Trash2Icon className="mr-1 size-4" />
+              Delete Book
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-destructive flex items-center gap-2">
+              <AlertTriangleIcon className="size-5" />
+              Delete Book
+            </DialogTitle>
+            <DialogDescription>
+              This will permanently delete <strong>{book?.name ?? "this book"}</strong> and all related data including chapters, documents, agent sessions, and editorial findings. This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label>
+              Type <strong>{book?.name ?? "DELETE"}</strong> to confirm:
+            </Label>
+            <Input
+              value={deleteConfirmText}
+              onChange={(e) => setDeleteConfirmText(e.target.value)}
+              placeholder={book?.name ?? "DELETE"}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDeleteDialogOpen(false);
+                setDeleteConfirmText("");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={
+                deleteConfirmText !== (book?.name ?? "DELETE") ||
+                deleteMutation.isPending
+              }
+              onClick={async () => {
+                try {
+                  await deleteMutation.mutateAsync();
+                  toast.success("Book deleted");
+                  router.push("/dashboard");
+                } catch {
+                  toast.error("Failed to delete book");
+                }
+              }}
+            >
+              {deleteMutation.isPending ? (
+                <>
+                  <Loader2Icon className="mr-1 size-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete permanently"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
