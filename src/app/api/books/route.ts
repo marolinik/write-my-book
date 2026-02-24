@@ -39,6 +39,17 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const data = createBookSchema.parse(body);
 
+    // Check for duplicate name
+    const existing = await db.book.findFirst({
+      where: { userId: user.id, name: data.name },
+    });
+    if (existing) {
+      return NextResponse.json(
+        { error: "A book with this name already exists" },
+        { status: 409 }
+      );
+    }
+
     const book = await db.book.create({
       data: {
         userId: user.id,

@@ -134,6 +134,7 @@ model Book {
   wikiEntities    WikiEntity[]
 
   @@unique([seriesId, bookNumber])
+  @@unique([userId, name])
   @@map("books")
 }
 
