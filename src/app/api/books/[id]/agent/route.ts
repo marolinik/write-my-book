@@ -88,19 +88,33 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     }
 
     // ── Setup Completeness Guard (SETUP-07) ──────────────────
-    // Non-setup workflows require setupComplete to be true.
+    // Non-setup workflows require setup to be complete.
     // Setup-category workflows are exempt so writers can complete onboarding.
+    // Check both the wizard flag AND real foundational documents, because
+    // books set up via agent sessions may not have the wizard flag set.
     if (workflow.category !== "setup") {
-      const setupComplete = book.settings?.setupComplete ?? false;
-      if (!setupComplete) {
-        return NextResponse.json(
-          {
-            error: "Setup incomplete",
-            setupIncomplete: true,
-            redirectTo: `/books/${bookId}/setup`,
-          },
-          { status: 422 }
-        );
+      const wizardComplete = book.settings?.setupComplete ?? false;
+      if (!wizardComplete) {
+        const docTypes = await db.document.findMany({
+          where: { bookId, type: { in: ["FINGERPRINT", "STORY_BIBLE", "ARCHITECTURE"] } },
+          select: { type: true },
+        });
+        const chapterCount = await db.chapter.count({ where: { bookId } });
+        const hasFingerprint = docTypes.some((d) => d.type === "FINGERPRINT");
+        const hasBible = docTypes.some((d) => d.type === "STORY_BIBLE");
+        const hasArch = docTypes.some((d) => d.type === "ARCHITECTURE");
+        const allRealStepsDone = hasFingerprint && hasBible && hasArch && chapterCount > 0;
+
+        if (!allRealStepsDone) {
+          return NextResponse.json(
+            {
+              error: "Setup incomplete",
+              setupIncomplete: true,
+              redirectTo: `/books/${bookId}/setup`,
+            },
+            { status: 422 }
+          );
+        }
       }
     }
 
