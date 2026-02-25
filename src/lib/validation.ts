@@ -274,7 +274,7 @@ export const createFindingSchema = z.object({
 
 export const findingsQuerySchema = z.object({
   chapterNumber: z.coerce.number().int().min(1).max(999).optional(),
-  severity: z.enum(["critical", "major", "moderate", "minor"]).optional(),
+  severity: z.enum(["critical", "important", "major", "moderate", "minor", "suggestion"]).optional(),
   category: z.string().max(100).optional(),
   status: z.enum(["pending", "applied", "dismissed"]).optional(),
   agentType: z.string().max(50).optional(),
@@ -286,7 +286,7 @@ export const batchCreateFindingsSchema = z.object({
   findings: z.array(
     z.object({
       chapterNumber: z.number().int().min(1).max(999),
-      severity: z.enum(["critical", "major", "moderate", "minor"]),
+      severity: z.enum(["critical", "important", "major", "moderate", "minor", "suggestion"]),
       category: z.string().min(1).max(100),
       description: z.string().min(1).max(5000),
       suggestion: z.string().max(5000).optional(),
