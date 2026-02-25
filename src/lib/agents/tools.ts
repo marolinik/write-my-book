@@ -44,6 +44,10 @@ function computeFindingHash(
 }
 
 function fuzzyMatch(needle: string, haystack: string): number {
+  // NFC-normalize both inputs to prevent false rejections from Unicode
+  // normalization differences (critical for Serbian diacritics: č, ć, š, ž, đ)
+  needle = needle.normalize("NFC");
+  haystack = haystack.normalize("NFC");
   if (haystack.includes(needle)) return 1.0;
   const normNeedle = needle.replace(/\s+/g, " ").trim().toLowerCase();
   const normHaystack = haystack.replace(/\s+/g, " ").trim().toLowerCase();
@@ -94,10 +98,31 @@ async function validateFinding(
   const targetParagraph = paragraphs[input.paragraphNumber - 1];
   const paragraphMatch = fuzzyMatch(input.anchorQuote, targetParagraph);
   if (paragraphMatch < 0.5) {
-    return {
-      valid: false,
-      reason: `REJECTED: Your anchorQuote was found in the chapter but NOT in paragraph ${input.paragraphNumber}. The quote appears to be in a different paragraph. Please verify the paragraph number.`,
-    };
+    // The quote IS in the chapter (passed overall similarity check above) but
+    // the LLM got the paragraph number wrong. This is common because LLMs count
+    // paragraphs differently (ignoring headings, scene breaks, short lines).
+    // Instead of rejecting, find the correct paragraph and auto-correct.
+    let bestParagraph = -1;
+    let bestScore = 0;
+    for (let i = 0; i < paragraphs.length; i++) {
+      const score = fuzzyMatch(input.anchorQuote, paragraphs[i]);
+      if (score > bestScore) {
+        bestScore = score;
+        bestParagraph = i + 1; // 1-indexed
+      }
+      if (bestScore >= 0.95) break; // Good enough
+    }
+    if (bestScore >= 0.5) {
+      // Auto-correct: mutate the input to use the correct paragraph number.
+      // LLMs commonly miscount paragraphs (ignoring headings, scene breaks, etc.)
+      // but the quote is genuinely in the chapter — accept it at the correct location.
+      input.paragraphNumber = bestParagraph;
+    } else {
+      return {
+        valid: false,
+        reason: `REJECTED: Your anchorQuote was found in the chapter but could not be matched to any specific paragraph (best match: ${(bestScore * 100).toFixed(0)}%). Please verify the quote is an exact copy.`,
+      };
+    }
   }
   if (!input.alternatives || input.alternatives.length < 2) {
     return {
@@ -787,6 +812,43 @@ const setVoiceMetricsDef: ToolDefinition = {
   },
 };
 
+const webSearchDef: ToolDefinition = {
+  name: "WebSearch",
+  description:
+    "Search the web for factual information to support your writing research. " +
+    "Use this for historical facts, real-world locations, cultural details, " +
+    "genre market data, or any topic the writer needs researched. " +
+    "Returns search results with titles, snippets, and URLs.",
+  input_schema: {
+    type: "object",
+    properties: {
+      query: {
+        type: "string",
+        description: "The search query. Be specific and focused.",
+      },
+    },
+    required: ["query"],
+  },
+};
+
+const fetchWebPageDef: ToolDefinition = {
+  name: "FetchWebPage",
+  description:
+    "Fetch the text content of a specific web page URL. " +
+    "Use this after WebSearch to read full articles for detailed research. " +
+    "Returns the page text (HTML stripped).",
+  input_schema: {
+    type: "object",
+    properties: {
+      url: {
+        type: "string",
+        description: "The full URL to fetch.",
+      },
+    },
+    required: ["url"],
+  },
+};
+
 const ALL_TOOL_DEFINITIONS: ToolDefinition[] = [
   readDocumentDef,
   writeDocumentDef,
@@ -806,6 +868,8 @@ const ALL_TOOL_DEFINITIONS: ToolDefinition[] = [
   resolveInsightDef,
   delegateToSpecialistDef,
   setVoiceMetricsDef,
+  webSearchDef,
+  fetchWebPageDef,
 ];
 
 /** Get tool definitions filtered by allowed tool names. */
@@ -1077,17 +1141,21 @@ async function executeCreateFinding(
   }
 
   // Validate finding against chapter content
+  // Use a mutable validation input so validateFinding can auto-correct paragraph number
+  const validationInput: ValidationInput = {
+    chapterNumber,
+    anchorQuote: input.anchorQuote,
+    paragraphNumber: input.paragraphNumber,
+    alternatives: input.alternatives,
+    crossReferences: input.crossReferences,
+  };
   const validation = await validateFinding(
     ctx,
-    {
-      chapterNumber,
-      anchorQuote: input.anchorQuote,
-      paragraphNumber: input.paragraphNumber,
-      alternatives: input.alternatives,
-      crossReferences: input.crossReferences,
-    },
+    validationInput,
     manuscriptContent.content
   );
+  // Use the (possibly corrected) paragraph number for the rest of this function
+  const resolvedParagraphNumber = validationInput.paragraphNumber;
 
   if (!validation.valid) {
     // Record rejection for analytics
@@ -1141,7 +1209,7 @@ async function executeCreateFinding(
     input.alternatives
   );
 
-  // Create the finding
+  // Create the finding (use resolvedParagraphNumber which may have been auto-corrected)
   const finding = await db.editFinding.create({
     data: {
       bookId: ctx.bookId,
@@ -1153,7 +1221,7 @@ async function executeCreateFinding(
       description: input.description,
       rationale: input.rationale,
       confidence: input.confidence,
-      paragraphNumber: input.paragraphNumber,
+      paragraphNumber: resolvedParagraphNumber,
       anchorQuote: input.anchorQuote,
       alternatives: JSON.stringify(input.alternatives),
       groundingScore,
@@ -1393,6 +1461,188 @@ async function executeResolveInsight(
 ): Promise<string> {
   await resolveInsight(input.insightId, ctx.sessionId);
   return `Insight ${input.insightId} marked as resolved.`;
+}
+
+// ─── Web Search & Fetch Executors ────────────────────────────
+
+async function executeWebSearch(
+  _ctx: ToolContext,
+  input: { query: string }
+): Promise<string> {
+  const query = input.query?.trim();
+  if (!query) return "Error: search query is required.";
+
+  // Try Serper API first (Google results, best quality)
+  const serperKey = process.env.SERPER_API_KEY;
+  if (serperKey) {
+    try {
+      const res = await fetch("https://google.serper.dev/search", {
+        method: "POST",
+        headers: {
+          "X-API-KEY": serperKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ q: query, num: 8 }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const parts: string[] = [];
+
+        if (data.knowledgeGraph) {
+          const kg = data.knowledgeGraph;
+          parts.push(`## ${kg.title ?? ""}\n${kg.description ?? ""}`);
+        }
+
+        if (data.organic) {
+          for (const item of data.organic.slice(0, 8)) {
+            parts.push(
+              `### ${item.title}\n${item.snippet}\nURL: ${item.link}`
+            );
+          }
+        }
+
+        if (parts.length > 0) return parts.join("\n\n");
+      }
+    } catch (e) {
+      console.error("[WebSearch] Serper failed, falling back:", e);
+    }
+  }
+
+  // Fallback: DuckDuckGo HTML (no API key needed)
+  try {
+    const params = new URLSearchParams({ q: query });
+    const res = await fetch(`https://html.duckduckgo.com/html/?${params}`, {
+      method: "POST",
+      headers: {
+        "User-Agent": "Mozilla/5.0 (compatible; WMBBot/1.0)",
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: params.toString(),
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!res.ok) {
+      return `Search request failed with status ${res.status}.`;
+    }
+    const html = await res.text();
+
+    // Extract titles + URLs
+    const titleRegex =
+      /<a[^>]+class="result__a"[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g;
+    const snippetRegex =
+      /<a[^>]+class="result__snippet"[^>]*>([\s\S]*?)<\/a>/g;
+
+    const titles: Array<{ title: string; url: string }> = [];
+    let m: RegExpExecArray | null;
+    while ((m = titleRegex.exec(html)) !== null) {
+      titles.push({
+        url: m[1].replace(/&amp;/g, "&"),
+        title: m[2].replace(/<[^>]+>/g, "").trim(),
+      });
+    }
+
+    const snippets: string[] = [];
+    while ((m = snippetRegex.exec(html)) !== null) {
+      snippets.push(
+        m[1]
+          .replace(/<[^>]+>/g, "")
+          .replace(/&amp;/g, "&")
+          .replace(/&lt;/g, "<")
+          .replace(/&gt;/g, ">")
+          .replace(/&quot;/g, '"')
+          .trim()
+      );
+    }
+
+    const results: string[] = [];
+    for (let i = 0; i < Math.min(titles.length, 8); i++) {
+      const t = titles[i];
+      const s = snippets[i] ?? "";
+      results.push(`### ${t.title}\n${s}${t.url ? `\nURL: ${t.url}` : ""}`);
+    }
+
+    if (results.length > 0) return results.join("\n\n");
+    return "No results found for this query. Try rephrasing.";
+  } catch (e) {
+    if (e instanceof Error && e.name === "TimeoutError") {
+      return "Search timed out. Try a simpler query.";
+    }
+    return `Search failed: ${e instanceof Error ? e.message : String(e)}`;
+  }
+}
+
+async function executeFetchWebPage(
+  _ctx: ToolContext,
+  input: { url: string }
+): Promise<string> {
+  const url = input.url?.trim();
+  if (!url) return "Error: URL is required.";
+
+  try {
+    new URL(url);
+  } catch {
+    return "Error: Invalid URL format.";
+  }
+
+  try {
+    const res = await fetch(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (compatible; WMBBot/1.0)",
+        Accept: "text/html,application/xhtml+xml,text/plain",
+      },
+      signal: AbortSignal.timeout(15000),
+    });
+
+    if (!res.ok) {
+      return `Fetch failed with status ${res.status} ${res.statusText}.`;
+    }
+
+    const contentType = res.headers.get("content-type") ?? "";
+    const text = await res.text();
+
+    // Plain text — return directly
+    if (contentType.includes("text/plain")) {
+      return text.length > 50_000
+        ? text.slice(0, 50_000) + "\n[TRUNCATED]"
+        : text;
+    }
+
+    // Strip HTML to readable text
+    let cleaned = text
+      .replace(/<script[\s\S]*?<\/script>/gi, "")
+      .replace(/<style[\s\S]*?<\/style>/gi, "")
+      .replace(/<svg[\s\S]*?<\/svg>/gi, "")
+      .replace(/<nav[\s\S]*?<\/nav>/gi, "")
+      .replace(/<footer[\s\S]*?<\/footer>/gi, "")
+      .replace(/<header[\s\S]*?<\/header>/gi, "")
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<\/p>/gi, "\n\n")
+      .replace(/<\/div>/gi, "\n")
+      .replace(/<\/h[1-6]>/gi, "\n\n")
+      .replace(/<h[1-6][^>]*>/gi, "## ")
+      .replace(/<li[^>]*>/gi, "- ")
+      .replace(/<\/li>/gi, "\n")
+      .replace(/<[^>]+>/g, "")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&nbsp;/g, " ")
+      .replace(/\n{3,}/g, "\n\n")
+      .replace(/[ \t]+/g, " ")
+      .trim();
+
+    if (cleaned.length > 50_000) {
+      cleaned = cleaned.slice(0, 50_000) + "\n[TRUNCATED]";
+    }
+
+    return cleaned || "Page had no readable text content.";
+  } catch (e) {
+    if (e instanceof Error && e.name === "TimeoutError") {
+      return "Fetch timed out after 15 seconds.";
+    }
+    return `Fetch failed: ${e instanceof Error ? e.message : String(e)}`;
+  }
 }
 
 // ─── Voice Metrics Executor ─────────────────────────────────
@@ -1804,6 +2054,16 @@ async function executeToolInner(
       return executeResolveInsight(
         ctx,
         input as { insightId: string }
+      );
+    case "WebSearch":
+      return executeWebSearch(
+        ctx,
+        input as { query: string }
+      );
+    case "FetchWebPage":
+      return executeFetchWebPage(
+        ctx,
+        input as { url: string }
       );
     default:
       return `Error: Unknown tool: ${toolName}`;
