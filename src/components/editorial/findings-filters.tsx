@@ -10,23 +10,34 @@ import {
 } from "@/components/ui/select";
 import { useEditorialStore } from "@/stores/editorial-store";
 
-const SEVERITY_OPTIONS = ["critical", "major", "moderate", "minor"] as const;
+const SEVERITY_OPTIONS = ["critical", "important", "suggestion"] as const;
 const CATEGORY_OPTIONS = [
   "pacing",
   "dialogue",
   "character",
   "plot",
   "voice",
-  "anti-ai",
+  "prose",
+  "clarity",
+  "redundancy",
   "show-tell",
   "continuity",
-  "overuse",
+  "emotion",
+  "tension",
+  "stakes",
+  "worldbuilding",
+  "crutch-phrase",
+  "ai-tell",
+  "sentence-variety",
+  "filter-word",
+  "verb-strength",
   "general",
 ] as const;
 const STATUS_OPTIONS = ["pending", "applied", "dismissed"] as const;
 const AGENT_TYPE_OPTIONS = [
   "dev-editor",
   "line-editor",
+  "beta-reader",
   "continuity-checker",
 ] as const;
 
