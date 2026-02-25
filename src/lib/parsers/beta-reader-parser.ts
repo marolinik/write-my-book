@@ -23,27 +23,67 @@ export function parseBetaReaderReport(content: string): BetaReaderData {
 }
 
 function parseGateResult(content: string): GateResult {
-  const resultMatch = content.match(
-    /GATE\s+RESULT:\s*(PASSED|FAILED|NEAR\s*MISS)/i
-  );
-  const result = resultMatch
-    ? (resultMatch[1].replace(/\s+/g, "_").toUpperCase() as GateResult["result"])
-    : "FAILED";
+  // Try multiple regex patterns to find gate result, handling both English and Serbian output:
+  //   English: "GATE RESULT: PASSED" / "GATE ASSESSMENT: NEEDS_REVISION"
+  //   Serbian: "Gate ocena: NEEDS_REVISION" / "PREPORUKA: **...** (NEEDS_REVISION)"
+  //   Prompt says: PASS / NEEDS_REVISION / MAJOR_REVISION
+  //   Parser canonical: PASSED / NEAR_MISS / FAILED
+  const gateValuePattern = "(PASSED|PASS|FAILED|FAIL|NEAR[\\s_]*MISS|NEEDS[\\s_]*REVISION|MAJOR[\\s_]*REVISION)";
+  const gatePatterns = [
+    // English headings: "GATE RESULT:" or "GATE ASSESSMENT:"
+    new RegExp(`GATE\\s+(?:RESULT|ASSESSMENT)[:\\s]+\\*{0,2}\\s*${gateValuePattern}`, "i"),
+    // Serbian heading: "Gate ocena:"
+    new RegExp(`Gate\\s+ocena[:\\s]+\\*{0,2}\\s*${gateValuePattern}`, "i"),
+    // Parenthesized value after recommendation: "PREPORUKA: **...** (NEEDS_REVISION)"
+    new RegExp(`(?:PREPORUKA|RECOMMENDATION)[:\\s]+\\*{0,2}[^(]*\\(${gateValuePattern}\\)`, "i"),
+    // Standalone bold gate result: **NEEDS_REVISION** or **PASS**
+    new RegExp(`\\*\\*${gateValuePattern}\\*\\*`, "i"),
+  ];
 
+  let result: GateResult["result"] = "FAILED";
+  for (const pattern of gatePatterns) {
+    const match = content.match(pattern);
+    if (match) {
+      const raw = match[1].replace(/[\s_]+/g, "_").toUpperCase();
+      if (raw === "PASSED" || raw === "PASS") {
+        result = "PASSED";
+      } else if (raw === "NEAR_MISS" || raw === "NEEDS_REVISION") {
+        result = "NEAR_MISS";
+      } else {
+        // FAILED, FAIL, MAJOR_REVISION all map to FAILED
+        result = "FAILED";
+      }
+      break;
+    }
+  }
+
+  // Flexible consensus matching: "Consensus: 3/5 passed (60%)" or "3/5 (60%)" etc.
   const consensusMatch = content.match(
-    /Consensus:\s*(\d+)\s*\/\s*(\d+)\s*passed\s*\((\d+)%\)/i
+    /(?:Consensus|Konsenzus)[:\s]*(\d+)\s*\/\s*(\d+)\s*(?:passed\s*)?\(?(\d+)%\)?/i
   );
-  const passVotes = consensusMatch ? parseInt(consensusMatch[1], 10) : 0;
-  const totalVotes = consensusMatch ? parseInt(consensusMatch[2], 10) : 0;
-  const consensus = consensusMatch ? parseInt(consensusMatch[3], 10) : 0;
+  let passVotes = consensusMatch ? parseInt(consensusMatch[1], 10) : 0;
+  let totalVotes = consensusMatch ? parseInt(consensusMatch[2], 10) : 0;
+  let consensus = consensusMatch ? parseInt(consensusMatch[3], 10) : 0;
 
+  // Fallback: count individual persona PASS/FAIL votes from the report
+  if (totalVotes === 0) {
+    const passCount = (content.match(/--\s*PASS\b/gi) || []).length;
+    const failCount = (content.match(/--\s*FAIL\b/gi) || []).length;
+    if (passCount + failCount > 0) {
+      passVotes = passCount;
+      totalVotes = passCount + failCount;
+      consensus = Math.round((passCount / totalVotes) * 100);
+    }
+  }
+
+  // Flexible score matching: "Average Score: 7.2/10 (Good)" or "Prosečna ocena: 7.2/10"
   const scoreMatch = content.match(
-    /Average\s+Score:\s*(\d+\.?\d*)\s*\/\s*10\s*\(([^)]+)\)/i
+    /(?:Average\s+Score|Prose[čc]na\s+[Oo]cena)[:\s]*(\d+\.?\d*)\s*\/\s*10(?:\s*\(([^)]+)\))?/i
   );
-  const scoreBand = scoreMatch ? scoreMatch[2].trim() : "Unknown";
+  const scoreBand = scoreMatch ? (scoreMatch[2]?.trim() ?? "Unknown") : "Unknown";
 
-  // Convergence from diagnostic matrix section
-  const convergenceMatch = content.match(/Convergence.*?(\d+)%/i);
+  // Convergence from diagnostic matrix section (English or Serbian)
+  const convergenceMatch = content.match(/(?:Convergence|Konvergencija|Saglasnost).*?(\d+)%/i);
   const convergence = convergenceMatch
     ? parseInt(convergenceMatch[1], 10)
     : 0;
@@ -54,21 +94,25 @@ function parseGateResult(content: string): GateResult {
 function parsePersonas(content: string): BetaPersona[] {
   const personas: BetaPersona[] = [];
 
-  // Match individual persona sections: ### Name (Archetype) -- Score: X/10 -- PASS/FAIL
+  // Match individual persona sections with flexible separators and multilingual labels:
+  // English: ### Name (Archetype) -- Score: 7.5/10 -- PASS
+  // Serbian: ### Ime (Arhetip) — Ocena: 7.5/10 — PROLAZ/PADA
+  // Also handles: |, –, —, --, :, and "Ocena"/"Score"
   const personaRegex =
-    /###\s+(.+?)\s+\(([^)]+)\)\s*--\s*Score:\s*(\d+\.?\d*)\s*\/\s*10\s*--\s*(PASS|FAIL)/gi;
+    /###\s+(.+?)\s+\(([^)]+)\)\s*(?:--|—|–|\|)\s*(?:Score|Ocena)[:\s]*(\d+\.?\d*)\s*\/\s*10\s*(?:--|—|–|\|)\s*(PASS(?:ED)?|FAIL(?:ED)?|PROLAZ|PADA)/gi;
 
   let match;
   while ((match = personaRegex.exec(content)) !== null) {
     const name = match[1].trim();
     const archetype = match[2].trim();
     const score = parseFloat(match[3]);
-    const vote = match[4].toUpperCase() === "PASS";
+    const voteStr = match[4].toUpperCase();
+    const vote = voteStr === "PASS" || voteStr === "PASSED" || voteStr === "PROLAZ";
 
-    // Extract feedback excerpt (first paragraph after **Feedback:**)
+    // Extract feedback excerpt (first paragraph after **Feedback:** or **Povratna informacija:**)
     const afterMatch = content.slice(match.index + match[0].length);
     const feedbackMatch = afterMatch.match(
-      /\*\*Feedback:\*\*\s*\n>\s*([^\n]+)/
+      /\*\*(?:Feedback|Povratna informacija|Komentar):\*\*\s*\n>\s*([^\n]+)/
     );
     const excerpt = feedbackMatch
       ? feedbackMatch[1].replace(/^>\s*/gm, "").slice(0, 200).trim()
@@ -77,7 +121,36 @@ function parsePersonas(content: string): BetaPersona[] {
     personas.push({ name, archetype, score, vote, excerpt });
   }
 
-  // Fallback: parse from Scores line in executive summary
+  // Fallback 1: Serbian-format persona sections with dimension scores
+  // ### PERSONA N: NAME (Archetype)
+  // - **Ukupno uživanje:** 7.5/10
+  // **Komentar:** "..."
+  if (personas.length === 0) {
+    const serbianPersonaRegex =
+      /###\s+(?:PERSONA\s+\d+[:\s]*)?(.+?)\s+\(([^)]+)\)/gi;
+    let sMatch;
+    while ((sMatch = serbianPersonaRegex.exec(content)) !== null) {
+      const name = sMatch[1].trim();
+      const archetype = sMatch[2].trim();
+      const afterSection = content.slice(sMatch.index + sMatch[0].length);
+      // Find the overall enjoyment score (in English or Serbian)
+      const scoreMatch = afterSection.match(
+        /\*\*(?:Ukupno uživanje|Overall enjoyment|Overall)[:\s]*\*\*\s*(\d+\.?\d*)\s*\/\s*10/i
+      );
+      const score = scoreMatch ? parseFloat(scoreMatch[1]) : 0;
+      const vote = score >= 7;
+      // Find feedback excerpt
+      const excerptMatch = afterSection.match(
+        /\*\*(?:Komentar|Feedback|Povratna informacija):\*\*\s*"?([^"\n]{10,200})/i
+      );
+      const excerpt = excerptMatch ? excerptMatch[1].trim() : "";
+      if (score > 0) {
+        personas.push({ name, archetype, score, vote, excerpt });
+      }
+    }
+  }
+
+  // Fallback 2: parse from Scores line in executive summary
   if (personas.length === 0) {
     const scoresLine = content.match(/\*\*Scores:\*\*\s*(.+)/i);
     if (scoresLine) {

@@ -69,6 +69,8 @@ export const updateChapterSchema = z.object({
     .optional(),
   actNumber: z.number().int().min(1).max(10).optional(),
   chapterNumber: z.number().int().min(1).optional(),
+  betaGate: z.enum(["pending", "passed", "near_miss", "failed"]).optional(),
+  betaScore: z.number().min(0).max(100).nullable().optional(),
 });
 
 export const startActionSchema = z.object({
