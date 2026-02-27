@@ -6,6 +6,7 @@ import { estimateCost } from "@/lib/cost";
 import { startSeriesAgentSchema } from "@/lib/validation";
 import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
+import { createLLMClient, getModelDef, resolveFromTier } from "@/lib/llm";
 import {
   AgentOrchestrator,
   getWorkflow,
@@ -65,58 +66,98 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Resolve API key
-    let apiKey: string | undefined;
-    const userKey = await db.apiKey.findFirst({
-      where: { userId: user.id, provider: "anthropic", isDefault: true },
-    });
-    if (userKey) {
-      apiKey = decryptApiKey(userKey.encryptedKey);
-    } else if (process.env.ANTHROPIC_API_KEY) {
-      apiKey = process.env.ANTHROPIC_API_KEY;
-    }
-
-    if (!apiKey) {
-      return NextResponse.json(
-        {
-          error: "No Anthropic API key configured. Add one in Settings.",
-        },
-        { status: 400 }
-      );
-    }
-
-    // Determine model tier
+    // ── Model Resolution ──────────────────────────────────────────
     const settings = book.settings;
-    let modelTier = agentDef.defaultModel;
+    const agentType = workflow.primaryAgent;
+    let resolvedTier: string | null = null;
+
     if (settings) {
-      const agentType = workflow.primaryAgent;
       if (agentType === "ghostwriter" && settings.modelGhostwriter) {
-        modelTier = settings.modelGhostwriter as "opus" | "sonnet";
+        resolvedTier = settings.modelGhostwriter;
       } else if (
-        ["dev-editor", "line-editor", "continuity-checker"].includes(
-          agentType
-        ) &&
+        ["dev-editor", "line-editor", "continuity-checker"].includes(agentType) &&
         settings.modelEditor
       ) {
-        modelTier = settings.modelEditor as "opus" | "sonnet" | "haiku";
+        resolvedTier = settings.modelEditor;
       } else if (agentType === "beta-reader" && settings.modelBetaReader) {
-        modelTier = settings.modelBetaReader as "opus" | "sonnet" | "haiku";
+        resolvedTier = settings.modelBetaReader;
       } else if (agentType === "manuscript-analyst" && settings.modelAnalyst) {
-        modelTier = settings.modelAnalyst as "sonnet" | "haiku";
+        resolvedTier = settings.modelAnalyst;
       } else if (agentType === "writing-coach" && settings.modelCoach) {
-        modelTier = settings.modelCoach as "opus" | "sonnet";
+        resolvedTier = settings.modelCoach;
       } else if (
         ["style-analyst", "story-architect", "scene-planner"].includes(agentType) &&
         settings.modelCreative
       ) {
-        modelTier = settings.modelCreative as "opus" | "sonnet";
+        resolvedTier = settings.modelCreative;
       } else if (
         ["manuscript-reader", "world-researcher", "market-reader", "publishing-editor"].includes(agentType) &&
         settings.modelResearch
       ) {
-        modelTier = settings.modelResearch as "opus" | "sonnet" | "haiku";
+        resolvedTier = settings.modelResearch;
       }
     }
+
+    // Load user's default model
+    const dbUser = await db.user.findUnique({
+      where: { id: user.id },
+      select: { defaultModel: true },
+    });
+    const userDefault = dbUser?.defaultModel ?? "anthropic/sonnet";
+    const userProvider = userDefault.startsWith("openrouter/") ? "openrouter" : "anthropic";
+
+    let registryId: string;
+    if (settings?.modelOverride) {
+      registryId = settings.modelOverride;
+    } else if (resolvedTier) {
+      registryId = `${userProvider}/${resolvedTier}`;
+    } else {
+      registryId = `${userProvider}/${agentDef.defaultModel}`;
+    }
+
+    const modelDef = getModelDef(registryId) ?? resolveFromTier(registryId);
+
+    // ── API Key Resolution ──────────────────────────────────────
+    let anthropicApiKey: string | undefined;
+    let openrouterApiKey: string | undefined;
+
+    if (modelDef.provider === "openrouter") {
+      const orKey = await db.apiKey.findFirst({
+        where: { userId: user.id, provider: "openrouter", isDefault: true },
+      });
+      if (orKey) {
+        openrouterApiKey = decryptApiKey(orKey.encryptedKey);
+      } else if (process.env.OPENROUTER_API_KEY) {
+        openrouterApiKey = process.env.OPENROUTER_API_KEY;
+      }
+      if (!openrouterApiKey) {
+        return NextResponse.json(
+          { error: "No OpenRouter API key configured. Add one in Settings." },
+          { status: 400 }
+        );
+      }
+    } else {
+      const antKey = await db.apiKey.findFirst({
+        where: { userId: user.id, provider: "anthropic", isDefault: true },
+      });
+      if (antKey) {
+        anthropicApiKey = decryptApiKey(antKey.encryptedKey);
+      } else if (process.env.ANTHROPIC_API_KEY) {
+        anthropicApiKey = process.env.ANTHROPIC_API_KEY;
+      }
+      if (!anthropicApiKey) {
+        return NextResponse.json(
+          { error: "No Anthropic API key configured. Add one in Settings." },
+          { status: 400 }
+        );
+      }
+    }
+
+    const { client, model } = createLLMClient({
+      modelId: registryId,
+      anthropicApiKey,
+      openrouterApiKey,
+    });
 
     // Pre-load series documents
     const seriesDocService = new DocumentService(
@@ -162,13 +203,22 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       data.workflowId
     );
 
+    // ── Workflow-specific timeout ceiling ────────────────────────
+    const estimatedMaxMin = workflow.estimatedMaxMinutes ?? 30;
+    const serverCeilingMs = (estimatedMaxMin + 30) * 60 * 1000;
+
     // Spawn orchestrator
-    const orchestrator = new AgentOrchestrator(apiKey);
+    const orchestrator = new AgentOrchestrator({
+      client,
+      modelId: model.modelId,
+      registryId: model.id,
+      maxRuntimeMs: serverCeilingMs,
+    });
     session.orchestrator = orchestrator;
 
     const spawnOptions = {
       agentType: workflow.primaryAgent,
-      model: modelTier,
+      model: model.tier,
       context: {
         bookId: data.bookId,
         bookName: book.name,
@@ -213,7 +263,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         });
 
         const cost = estimateCost(
-          modelTier,
+          model.id,
           result.tokensInput,
           result.tokensOutput
         );
@@ -222,7 +272,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
             userId: user.id,
             bookId: data.bookId,
             agentType: workflow.primaryAgent,
-            model: modelTier,
+            model: model.id,
             tokensInput: result.tokensInput,
             tokensOutput: result.tokensOutput,
             costEstimate: cost,

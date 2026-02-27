@@ -141,7 +141,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       select: { defaultModel: true },
     });
     const userDefault = dbUser?.defaultModel ?? "anthropic/sonnet";
-    const userProvider = userDefault.startsWith("openrouter/") ? "openrouter" : "anthropic";
+    // Extract provider prefix: "anthropic/sonnet" → "anthropic", "openrouter-minimax/sonnet" → "openrouter-minimax"
+    const userProvider = userDefault.includes("/") ? userDefault.split("/")[0] : "anthropic";
 
     // Coach always uses Opus
     const registryId = `${userProvider}/opus`;
@@ -254,11 +255,18 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       createSpecialistClient,
     };
 
+    // ── Workflow-specific timeout ceiling ────────────────────────
+    // Set server ceiling to estimated max + 30 min buffer (for up to 2 x 15-min extensions).
+    // This avoids needing an API endpoint to extend the server timer mid-session.
+    const estimatedMaxMin = workflow.estimatedMaxMinutes ?? 30;
+    const serverCeilingMs = (estimatedMaxMin + 30) * 60 * 1000;
+
     // Spawn orchestrator (fire and forget)
     const orchestrator = new AgentOrchestrator({
       client,
       modelId: model.modelId,
       registryId: model.id,
+      maxRuntimeMs: serverCeilingMs,
       maxSessionCostUsd: sessionCostLimit,
       sharedCostTracker,
       delegationContext,
