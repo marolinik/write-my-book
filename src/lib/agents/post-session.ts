@@ -6,7 +6,7 @@
 import { db } from "@/lib/db";
 import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
-import { parseAgentOutput } from "@/lib/parsers";
+import { parseAgentOutput, extractNumericScore } from "@/lib/parsers";
 import type { EditFindingParsed } from "@/lib/parsers";
 import { updateFromChapter } from "@/lib/graph/graph-maintenance";
 import { onSessionCompleted, onDocumentChanged } from "@/lib/vector/memory-manager";
@@ -342,7 +342,7 @@ async function processBetaReadSession(
   const parsed = parseAgentOutput("beta-read", reportContent.content);
   if (!parsed.parseSuccess || parsed.type !== "beta-read") return;
 
-  const { gate } = parsed.data;
+  const { gate, personas } = parsed.data;
 
   // Update the chapter with beta score and gate result
   const chapter = await db.chapter.findFirst({
@@ -350,8 +350,8 @@ async function processBetaReadSession(
   });
   if (!chapter) return;
 
-  const avgScore =
-    gate.totalVotes > 0 ? gate.consensus : null;
+  // Fix: Use average persona score (0-10 scale), NOT gate.consensus (0-100 percentage)
+  const avgScore = extractNumericScore(personas);
 
   await db.chapter.update({
     where: { id: chapter.id },

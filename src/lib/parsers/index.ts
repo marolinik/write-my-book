@@ -87,7 +87,7 @@ export function parseAgentOutput(
 
 // Re-export individual parsers for direct use
 export { parseEditReport } from "./edit-parser";
-export { parseBetaReaderReport } from "./beta-reader-parser";
+export { parseBetaReaderReport, extractNumericScore } from "./beta-reader-parser";
 export { parseAnalysisReport } from "./analysis-parser";
 export { parseContinuityReport } from "./continuity-parser";
 export { parseMarketReports } from "./market-reader-parser";

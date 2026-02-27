@@ -12,6 +12,16 @@ import type {
   RoundTableEntry,
 } from "./types";
 
+/**
+ * Extract a numeric 0-10 score from beta-read persona scores.
+ * Returns the average of all persona scores, or null if no personas found.
+ */
+export function extractNumericScore(personas: Array<{ score: number }>): number | null {
+  if (personas.length === 0) return null;
+  const avg = personas.reduce((sum, p) => sum + p.score, 0) / personas.length;
+  return parseFloat(avg.toFixed(1));
+}
+
 export function parseBetaReaderReport(content: string): BetaReaderData {
   const gate = parseGateResult(content);
   const personas = parsePersonas(content);
