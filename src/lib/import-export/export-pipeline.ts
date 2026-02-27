@@ -26,6 +26,17 @@ async function checkToolAvailable(name: string): Promise<boolean> {
   }
 }
 
+async function requireTool(name: string): Promise<void> {
+  const available = await checkToolAvailable(name);
+  if (!available) {
+    throw new Error(
+      `${name} is not installed or not on PATH. ` +
+      `${name} is required for manuscript export. ` +
+      `See the setup guide: https://github.com/writemybookok/write-my-book-ok#pandoc--typst-setup`
+    );
+  }
+}
+
 /**
  * Export manuscript using the full WMB pipeline.
  * Supports DOCX, PDF (Typst), and EPUB3 with 7 Lua filters,
@@ -174,23 +185,8 @@ export async function exportManuscript(
   const outputFilename = `${sanitizedName}-${timestamp}.${format}`;
   const storageKey = `exports/${outputFilename}`;
 
-  const hasPandoc = await checkToolAvailable("pandoc");
-  if (!hasPandoc) {
-    // Fallback: save as markdown
-    const fallbackName = outputFilename.replace(`.${format}`, ".md");
-    const fallbackKey = `exports/${fallbackName}`;
-    await storage.write(fallbackKey, combinedMd);
-    warnings.push("Pandoc not installed. Exported as markdown instead.");
-    return {
-      filename: fallbackName,
-      storageKey: fallbackKey,
-      wordCount,
-      chapterCount,
-      estimatedPages,
-      warnings,
-      format: "md",
-    };
-  }
+  // Require Pandoc - throw actionable error if missing
+  await requireTool("pandoc");
 
   // Create temp directory for Pandoc I/O
   const tmpDir = join(tmpdir(), `wmb-export-${randomUUID()}`);
@@ -241,17 +237,16 @@ export async function exportManuscript(
       }
     }
   } else if (format === "pdf") {
-    const hasTypst = await checkToolAvailable("typst");
-    if (hasTypst) {
-      cmdParts.push("--pdf-engine=typst");
-      const typstTemplate =
-        config.customTemplates.typstTemplate || join(TEMPLATES_DIR, "typst-book.typ");
-      try {
-        await readFile(typstTemplate);
-        cmdParts.push(`--template="${typstTemplate}"`);
-      } catch {
-        // Template not found
-      }
+    // Require Typst for PDF export - throw actionable error if missing
+    await requireTool("typst");
+    cmdParts.push("--pdf-engine=typst");
+    const typstTemplate =
+      config.customTemplates.typstTemplate || join(TEMPLATES_DIR, "typst-book.typ");
+    try {
+      await readFile(typstTemplate);
+      cmdParts.push(`--template="${typstTemplate}"`);
+    } catch {
+      // Template not found, Pandoc will use default
     }
     cmdParts.push("--to=pdf");
   } else if (format === "epub") {
