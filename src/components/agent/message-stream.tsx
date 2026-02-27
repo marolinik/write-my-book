@@ -6,6 +6,7 @@ import remarkGfm from "remark-gfm";
 import {
   CheckCircleIcon,
   AlertTriangleIcon,
+  ClockIcon,
   ShieldQuestionIcon,
   Loader2Icon,
   ChevronDownIcon,
@@ -17,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { estimateCost } from "@/lib/cost";
 import { getToolLabel, parseToolInput } from "@/lib/agents/tool-labels";
 import type { AgentStreamMessage, AgentResult } from "@/lib/agents/types";
@@ -54,6 +56,18 @@ interface MessageStreamProps {
     decision: "approve" | "reject" | "modify",
     message?: string
   ) => void;
+  /** Timestamp (Date.now()) when the session started */
+  startedAt?: number;
+  /** Estimated max duration in minutes from workflow definition */
+  estimatedMaxMinutes?: number;
+  /** Number of +15 min extensions used (0, 1, or 2) */
+  extensionsUsed?: number;
+  /** Callback to extend the session by +15 min */
+  onExtend?: () => void;
+  /** Session error string (for detecting timeout) */
+  sessionError?: string | null;
+  /** Session status */
+  sessionStatus?: "running" | "completed" | "failed";
 }
 
 export function MessageStream({
@@ -61,6 +75,12 @@ export function MessageStream({
   isRunning,
   language,
   onApprove,
+  startedAt,
+  estimatedMaxMinutes,
+  extensionsUsed = 0,
+  onExtend,
+  sessionError,
+  sessionStatus,
 }: MessageStreamProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -319,6 +339,13 @@ export function MessageStream({
   // Show a starting indicator when running but no visible content yet
   const hasVisibleContent = renderedBlocks.length > 0;
 
+  // Detect if session timed out (for inline message)
+  const isTimeout = sessionStatus === "failed" && (
+    sessionError?.toLowerCase().includes("timeout") ||
+    sessionError?.toLowerCase().includes("timed out") ||
+    false
+  );
+
   return (
     <div className="relative flex-1 min-h-0 overflow-hidden">
       <div
@@ -327,6 +354,16 @@ export function MessageStream({
         className="h-full overflow-y-auto overscroll-contain p-4 pb-16"
       >
         <div className="flex flex-col gap-3">
+          {/* Timeout warning banner (sticky at top) */}
+          {startedAt != null && estimatedMaxMinutes != null && (
+            <TimeoutWarning
+              startedAt={startedAt}
+              estimatedMaxMinutes={estimatedMaxMinutes}
+              extensionsUsed={extensionsUsed}
+              onExtend={onExtend}
+              isRunning={!!isRunning}
+            />
+          )}
           {!hasVisibleContent && isRunning && (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <Loader2Icon className="size-6 animate-spin text-primary mb-3" />
@@ -345,6 +382,13 @@ export function MessageStream({
             </div>
           )}
           {renderedBlocks}
+          {/* Inline timeout message */}
+          {isTimeout && (
+            <div className="flex items-center gap-2 rounded-md border border-orange-500/30 bg-orange-50/10 dark:bg-orange-950/20 px-3 py-2 text-xs text-orange-600 dark:text-orange-400">
+              <AlertTriangleIcon className="size-3.5 shrink-0" />
+              Session timed out. Partial results saved.
+            </div>
+          )}
           {isRunning && hasVisibleContent && (
             <ThinkingIndicator
               messages={messages}
@@ -384,6 +428,65 @@ function getThinkingText(language?: string): string {
   };
   if (!language) return map.en;
   return map[language] ?? map[language.split("-")[0]] ?? map.en;
+}
+
+// ─── Timeout warning banner ──────────────────────────────────
+
+function TimeoutWarning({
+  startedAt,
+  estimatedMaxMinutes,
+  extensionsUsed,
+  onExtend,
+  isRunning,
+}: {
+  startedAt: number;
+  estimatedMaxMinutes: number;
+  extensionsUsed: number;
+  onExtend?: () => void;
+  isRunning: boolean;
+}) {
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    if (!isRunning) return;
+    const interval = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(interval);
+  }, [isRunning]);
+
+  const effectiveMaxMin = estimatedMaxMinutes + extensionsUsed * 15;
+  const elapsedMs = now - startedAt;
+  const elapsedMin = Math.floor(elapsedMs / 60000);
+  const threshold80pct = effectiveMaxMin * 0.8;
+  const remainingMin = Math.max(0, effectiveMaxMin - elapsedMin);
+  const isPastEstimate = elapsedMin > effectiveMaxMin;
+
+  // Only show when past 80% threshold and still running
+  if (!isRunning || elapsedMin < threshold80pct) return null;
+
+  return (
+    <div className={cn(
+      "sticky top-0 z-10 flex items-center gap-2 rounded-md border px-3 py-2 text-xs",
+      isPastEstimate
+        ? "border-orange-500/30 bg-orange-50/80 dark:bg-orange-950/80"
+        : "border-yellow-500/30 bg-yellow-50/80 dark:bg-yellow-950/80",
+    )}>
+      <ClockIcon className={cn(
+        "size-3.5 shrink-0",
+        isPastEstimate ? "text-orange-600 dark:text-orange-400" : "text-yellow-600 dark:text-yellow-400",
+      )} />
+      <span className={cn(
+        "flex-1 tabular-nums",
+        isPastEstimate ? "text-orange-700 dark:text-orange-300" : "text-yellow-700 dark:text-yellow-300",
+      )}>
+        {elapsedMin} min elapsed — ~{remainingMin} min remaining
+      </span>
+      {extensionsUsed < 2 && onExtend && (
+        <Button size="sm" variant="outline" className="h-6 text-xs shrink-0" onClick={onExtend}>
+          Extend +15 min
+        </Button>
+      )}
+    </div>
+  );
 }
 
 // ─── Memoized markdown renderer ──────────────────────────────

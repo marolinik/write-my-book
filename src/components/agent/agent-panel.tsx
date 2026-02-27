@@ -212,6 +212,11 @@ export function AgentPanel({
   );
 
   const setSessionRunning = useAgentSessionStore((s) => s.setSessionRunning);
+  const extendSession = useAgentSessionStore((s) => s.extendSession);
+
+  const handleExtendSession = useCallback(() => {
+    if (sessionId) extendSession(sessionId);
+  }, [sessionId, extendSession]);
 
   const handleSend = useCallback(
     async (message: string) => {
@@ -608,7 +613,18 @@ export function AgentPanel({
         </>
       ) : (
         <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
-          <MessageStream messages={messages} isRunning={isRunning} language={bookLanguage} onApprove={handleApprove} />
+          <MessageStream
+            messages={messages}
+            isRunning={isRunning}
+            language={bookLanguage}
+            onApprove={handleApprove}
+            startedAt={activeSession?.startedAt}
+            estimatedMaxMinutes={activeSession?.estimatedMaxMinutes}
+            extensionsUsed={activeSession?.extensionsUsed}
+            onExtend={handleExtendSession}
+            sessionError={error}
+            sessionStatus={activeSession?.status}
+          />
 
           {/* Error display */}
           {error && !isRunning && (
