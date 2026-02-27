@@ -121,6 +121,16 @@ export default async function BookDetailPage({
   const currentWords = book.wordCount;
   const wordPct = targetWords > 0 ? Math.min(Math.round((currentWords / targetWords) * 100), 100) : 0;
 
+  // Average beta score
+  const chaptersWithScores = book.chapters.filter((ch) => ch.betaScore != null);
+  const avgBetaScore =
+    chaptersWithScores.length > 0
+      ? (
+          chaptersWithScores.reduce((sum, ch) => sum + (ch.betaScore ?? 0), 0) /
+          chaptersWithScores.length
+        ).toFixed(1)
+      : null;
+
   // Next recommended workflow
   let nextWorkflowId: string | null = null;
   let nextWorkflowReason: string = "";
@@ -316,7 +326,7 @@ export default async function BookDetailPage({
       )}
 
       {/* Stats Row */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 mb-8">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -349,6 +359,20 @@ export default async function BookDetailPage({
             <div className="text-xl font-bold">{book._count.documents}</div>
           </CardContent>
         </Card>
+        {avgBetaScore && (
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                {s.avgBetaScore}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xl font-bold">
+                {avgBetaScore}<span className="text-sm text-muted-foreground">/10</span>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Recent Agent Sessions + Pending Findings */}
@@ -464,6 +488,7 @@ export default async function BookDetailPage({
           wordCount: ch.wordCount,
           actNumber: ch.actNumber,
           targetWordCount: ch.targetWordCount,
+          betaScore: ch.betaScore,
         }))}
         labels={s}
       />

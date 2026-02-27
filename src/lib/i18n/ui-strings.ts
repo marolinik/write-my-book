@@ -176,8 +176,9 @@ export interface UIStrings {
     settingsBtn: string; words: string; chapters: string; documents: string;
     completeSetup: string; setupDescription: string; startSetup: string;
     addChapter: string; noChapters: string;
-    colNum: string; colTitle: string; colAct: string; colStatus: string; colWords: string; colAction: string;
+    colNum: string; colTitle: string; colAct: string; colStatus: string; colWords: string; colScore: string; colAction: string;
     untitled: string; act: string; edit: string;
+    avgBetaScore: string;
   };
 
   // Book settings
@@ -496,8 +497,9 @@ const EN: UIStrings = {
     setupDescription: "Set up your style profile, story bible, and architecture to get started.",
     startSetup: "Start Setup", addChapter: "Add Chapter",
     noChapters: "No chapters yet. Add your first chapter to start writing.",
-    colNum: "#", colTitle: "Title", colAct: "Act", colStatus: "Status", colWords: "Words", colAction: "Action",
+    colNum: "#", colTitle: "Title", colAct: "Act", colStatus: "Status", colWords: "Words", colScore: "Score", colAction: "Action",
     untitled: "Untitled", act: "Act", edit: "Edit",
+    avgBetaScore: "Avg Beta Score",
   },
   bookSettings: {
     title: "Book Settings", subtitle: "Configure AI models and writing preferences",
@@ -781,8 +783,9 @@ const SR: UIStrings = {
     setupDescription: "Podesite profil stila, bibliju priče i arhitekturu da biste počeli.",
     startSetup: "Započni podešavanje", addChapter: "Dodaj poglavlje",
     noChapters: "Još nema poglavlja. Dodajte prvo poglavlje da počnete pisati.",
-    colNum: "#", colTitle: "Naslov", colAct: "Čin", colStatus: "Status", colWords: "Reči", colAction: "Radnja",
+    colNum: "#", colTitle: "Naslov", colAct: "Čin", colStatus: "Status", colWords: "Reči", colScore: "Ocena", colAction: "Radnja",
     untitled: "Bez naslova", act: "Čin", edit: "Uredi",
+    avgBetaScore: "Prosečna beta ocena",
   },
   bookSettings: {
     title: "Podešavanja knjige", subtitle: "Konfigurišite AI modele i preference pisanja",
@@ -1066,8 +1069,9 @@ const DE: UIStrings = {
     setupDescription: "Richten Sie Stilprofil, Story-Bibel und Architektur ein, um zu beginnen.",
     startSetup: "Einrichtung starten", addChapter: "Kapitel hinzufügen",
     noChapters: "Noch keine Kapitel. Fügen Sie Ihr erstes Kapitel hinzu, um zu beginnen.",
-    colNum: "#", colTitle: "Titel", colAct: "Akt", colStatus: "Status", colWords: "Wörter", colAction: "Aktion",
+    colNum: "#", colTitle: "Titel", colAct: "Akt", colStatus: "Status", colWords: "Wörter", colScore: "Bewertung", colAction: "Aktion",
     untitled: "Ohne Titel", act: "Akt", edit: "Bearbeiten",
+    avgBetaScore: "Durchschn. Beta-Bewertung",
   },
   bookSettings: {
     title: "Bucheinstellungen", subtitle: "KI-Modelle und Schreibeinstellungen konfigurieren",
@@ -1351,8 +1355,9 @@ const ES: UIStrings = {
     setupDescription: "Configure su perfil de estilo, biblia de la historia y arquitectura para comenzar.",
     startSetup: "Iniciar configuración", addChapter: "Añadir capítulo",
     noChapters: "Aún no hay capítulos. Añada su primer capítulo para empezar a escribir.",
-    colNum: "#", colTitle: "Título", colAct: "Acto", colStatus: "Estado", colWords: "Palabras", colAction: "Acción",
+    colNum: "#", colTitle: "Título", colAct: "Acto", colStatus: "Estado", colWords: "Palabras", colScore: "Puntuación", colAction: "Acción",
     untitled: "Sin título", act: "Acto", edit: "Editar",
+    avgBetaScore: "Puntuación beta promedio",
   },
   bookSettings: {
     title: "Ajustes del libro", subtitle: "Configure modelos de IA y preferencias de escritura",
@@ -1636,8 +1641,9 @@ const FR: UIStrings = {
     setupDescription: "Configurez votre profil de style, bible de l'histoire et architecture pour commencer.",
     startSetup: "Commencer la configuration", addChapter: "Ajouter un chapitre",
     noChapters: "Pas encore de chapitres. Ajoutez votre premier chapitre pour commencer à écrire.",
-    colNum: "#", colTitle: "Titre", colAct: "Acte", colStatus: "Statut", colWords: "Mots", colAction: "Action",
+    colNum: "#", colTitle: "Titre", colAct: "Acte", colStatus: "Statut", colWords: "Mots", colScore: "Score", colAction: "Action",
     untitled: "Sans titre", act: "Acte", edit: "Modifier",
+    avgBetaScore: "Score beta moyen",
   },
   bookSettings: {
     title: "Paramètres du livre", subtitle: "Configurez les modèles IA et les préférences d'écriture",
@@ -1921,8 +1927,9 @@ const RU: UIStrings = {
     setupDescription: "Настройте профиль стиля, библию истории и архитектуру, чтобы начать.",
     startSetup: "Начать настройку", addChapter: "Добавить главу",
     noChapters: "Глав пока нет. Добавьте первую главу, чтобы начать писать.",
-    colNum: "#", colTitle: "Название", colAct: "Акт", colStatus: "Статус", colWords: "Слова", colAction: "Действие",
+    colNum: "#", colTitle: "Название", colAct: "Акт", colStatus: "Статус", colWords: "Слова", colScore: "Оценка", colAction: "Действие",
     untitled: "Без названия", act: "Акт", edit: "Редактировать",
+    avgBetaScore: "Средняя бета-оценка",
   },
   bookSettings: {
     title: "Настройки книги", subtitle: "Настройте модели ИИ и параметры письма",
@@ -2206,8 +2213,9 @@ const ZH: UIStrings = {
     setupDescription: "设置您的风格档案、故事圣经和架构以开始。",
     startSetup: "开始设置", addChapter: "添加章节",
     noChapters: "还没有章节。添加您的第一个章节开始写作。",
-    colNum: "#", colTitle: "标题", colAct: "幕", colStatus: "状态", colWords: "字数", colAction: "操作",
+    colNum: "#", colTitle: "标题", colAct: "幕", colStatus: "状态", colWords: "字数", colScore: "评分", colAction: "操作",
     untitled: "无标题", act: "幕", edit: "编辑",
+    avgBetaScore: "平均测试评分",
   },
   bookSettings: {
     title: "书籍设置", subtitle: "配置AI模型和写作偏好",
