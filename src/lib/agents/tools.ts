@@ -12,9 +12,9 @@ import {
 } from "@/lib/graph/graph-queries";
 import { upsertEntities } from "@/lib/graph/graph-builder";
 import type { GraphNodeLabel, ExtractionResult, RelationshipType } from "@/lib/graph/types";
-import { searchManuscript, searchEpisodicMemory } from "@/lib/vector/retriever";
-import { indexSessionSummary } from "@/lib/vector/indexer";
-import type { SessionSummaryPayload } from "@/lib/vector/types";
+import { searchMemory, formatSearchResults } from "@/lib/vector/retriever";
+import { indexDocument } from "@/lib/vector/indexer";
+import type { DocType } from "@/lib/vector/types";
 import {
   getRelevantInsights,
   createInsight,
@@ -1366,27 +1366,25 @@ async function executeSearchMemory(
   input: { query: string; collection?: string; chapterNumber?: number; limit?: number }
 ): Promise<string> {
   try {
-    const tier = input.collection ?? "manuscript";
     const limit = input.limit ?? 5;
 
-    if (tier === "manuscript") {
-      const results = await searchManuscript(ctx.bookId, input.query, {
-        chapterNumber: input.chapterNumber,
-        limit,
-      });
-      if (results.length === 0) return "No relevant passages found.";
-      return results
-        .map((r, i) => `[${i + 1}] (score: ${r.score.toFixed(3)}) ${JSON.stringify(r.payload)}`)
-        .join("\n\n");
-    } else if (tier === "sessions") {
-      const results = await searchEpisodicMemory(ctx.bookId, input.query, { limit });
-      if (results.length === 0) return "No relevant session memories found.";
-      return results
-        .map((r, i) => `[${i + 1}] (score: ${r.score.toFixed(3)}) ${JSON.stringify(r.payload)}`)
-        .join("\n\n");
-    }
+    // Map old collection names to docType filter
+    const docTypeMap: Record<string, DocType | undefined> = {
+      manuscript: "chapter",
+      sessions: "conversation",
+      style: "style",
+    };
+    const docType = docTypeMap[input.collection ?? "manuscript"];
 
-    return `Unknown collection: ${tier}`;
+    const results = await searchMemory(ctx.bookId, input.query, {
+      docType,
+      chapterNumber: input.chapterNumber,
+      limit,
+    });
+
+    if (results.length === 0) return "No relevant memories found.";
+
+    return formatSearchResults(results);
   } catch (error) {
     return `Memory search failed: ${error instanceof Error ? error.message : String(error)}`;
   }
@@ -1397,14 +1395,12 @@ async function executeRememberInsight(
   input: { content: string; category: string }
 ): Promise<string> {
   try {
-    await indexSessionSummary(
+    await indexDocument(
       ctx.bookId,
-      ctx.sessionId,
-      ctx.agentType,
-      "remember", // workflowId placeholder for manual insights
-      input.content,
-      "completed" as SessionSummaryPayload["outcome"],
-      input.category as SessionSummaryPayload["category"]
+      "conversation",
+      `${ctx.sessionId}:insight:${Date.now()}`,
+      `[${input.category}] ${input.content}`,
+      { userId: undefined }
     );
     return `Insight stored in episodic memory (category: ${input.category}).`;
   } catch (error) {

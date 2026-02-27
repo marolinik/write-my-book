@@ -244,7 +244,7 @@ export async function processPostSession(
       ctx.sessionId,
       ctx.agentType,
       ctx.workflowId,
-      ctx.chapterNumber
+      { chapterNumber: ctx.chapterNumber }
     ).catch((err) =>
       console.error("[PostSession] Vector session indexing failed (non-fatal):", err)
     );
@@ -693,5 +693,5 @@ async function updateChapterGraph(
   await updateFromChapter(bookId, chapterNumber, content.content);
 
   // Also index into vector memory
-  await onDocumentChanged(bookId, "CHAPTER_CONTENT", content.content, chapterNumber);
+  await onDocumentChanged(bookId, "CHAPTER_CONTENT", content.content, { chapterNumber });
 }
