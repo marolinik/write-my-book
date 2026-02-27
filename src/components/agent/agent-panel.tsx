@@ -60,30 +60,6 @@ interface AgentPanelProps {
   seriesId?: string;
 }
 
-// Workflow time estimates (minutes)
-const WORKFLOW_TIME_ESTIMATES: Record<string, number> = {
-  "capture-style": 3,
-  "create-story-bible": 5,
-  "build-architecture": 5,
-  "read-manuscript": 2,
-  "new-novel": 3,
-  "discuss-chapter": 2,
-  "plan-chapter": 3,
-  "write-chapter": 8,
-  "freewrite": 3,
-  "dev-edit": 5,
-  "line-edit": 4,
-  "beta-read": 4,
-  "revise": 6,
-  "discuss-edits": 2,
-  "publishing-check": 3,
-  "analyze": 3,
-  "market-analysis": 3,
-  "refresh-style": 3,
-  "evolve-style": 3,
-  "coach": 2,
-};
-
 function getWorkflowLabel(workflowId: string | null): string {
   if (!workflowId) return "Agent session";
   const wf = getWorkflow(workflowId);
@@ -504,10 +480,10 @@ export function AgentPanel({
               {(sessionTokens.total / 1000).toFixed(0)}k tok
             </span>
           )}
-          {workflow && WORKFLOW_TIME_ESTIMATES[workflow.id] && (
+          {workflow?.estimatedMaxMinutes && (
             <span className="flex items-center gap-1">
               <ClockIcon className="size-3" />
-              ~{WORKFLOW_TIME_ESTIMATES[workflow.id]}min
+              ~{workflow.estimatedMinMinutes ?? workflow.estimatedMaxMinutes}-{workflow.estimatedMaxMinutes} min
             </span>
           )}
         </div>

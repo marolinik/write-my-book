@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
+  ClockIcon,
   Loader2Icon,
   CheckCircleIcon,
   XCircleIcon,
@@ -11,6 +13,56 @@ import { useAgentSessionStore, type SessionState } from "@/stores/agent-session-
 import { getWorkflow } from "@/lib/agents/workflows";
 import { useLanguage } from "@/components/providers/language-provider";
 import { getAgentStrings } from "@/lib/i18n/agent-strings";
+
+function ElapsedTime({ session }: { session: SessionState }) {
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    if (session.status !== "running") return;
+    const interval = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(interval);
+  }, [session.status]);
+
+  const elapsedMs = session.status === "running"
+    ? now - session.startedAt
+    : Date.now() - session.startedAt; // approximation for completed
+  const elapsedMin = Math.floor(elapsedMs / 60000);
+
+  if (session.status === "completed") {
+    return (
+      <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+        <ClockIcon className="size-2.5" />
+        Completed in {elapsedMin} min
+      </span>
+    );
+  }
+
+  if (session.status === "running") {
+    const maxMin = session.estimatedMaxMinutes;
+    const effectiveMax = maxMin ? maxMin + (session.extensionsUsed * 15) : undefined;
+    const isPastEstimate = effectiveMax ? elapsedMin > effectiveMax : false;
+    return (
+      <span className={cn(
+        "text-[10px] tabular-nums flex items-center gap-0.5",
+        isPastEstimate ? "text-orange-500 dark:text-orange-400" : "text-muted-foreground",
+      )}>
+        <ClockIcon className="size-2.5" />
+        {elapsedMin} min{effectiveMax ? ` / ~${effectiveMax} min` : ""}
+      </span>
+    );
+  }
+
+  if (session.status === "failed") {
+    return (
+      <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+        <ClockIcon className="size-2.5" />
+        {elapsedMin} min
+      </span>
+    );
+  }
+
+  return null;
+}
 
 export function SessionProgressList() {
   const { language } = useLanguage();
@@ -81,11 +133,14 @@ export function SessionProgressList() {
                   <span className="font-medium block truncate">
                     {agentStrings.workflows[session.workflowId] ?? wf?.label ?? session.workflowId}
                   </span>
-                  {preview && (
-                    <span className="text-[10px] text-muted-foreground block truncate">
-                      {preview}
-                    </span>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {preview && (
+                      <span className="text-[10px] text-muted-foreground truncate">
+                        {preview}
+                      </span>
+                    )}
+                    <ElapsedTime session={session} />
+                  </div>
                 </div>
               </button>
               {canDismiss && (
