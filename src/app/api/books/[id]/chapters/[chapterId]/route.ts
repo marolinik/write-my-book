@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { updateChapterSchema } from "@/lib/validation";
+import { deleteChapterChunks } from "@/lib/vector";
 
 type RouteParams = { params: Promise<{ id: string; chapterId: string }> };
 
@@ -106,6 +107,9 @@ export async function DELETE(_req: NextRequest, { params }: RouteParams) {
     if (!existing) {
       return NextResponse.json({ error: "Chapter not found" }, { status: 404 });
     }
+
+    // Clean up vector memory for this chapter's content (fire-and-forget)
+    deleteChapterChunks(bookId, existing.chapterNumber).catch(() => {});
 
     await db.chapter.delete({ where: { id: chapterId } });
 

@@ -46,6 +46,7 @@ export {
 // ─── Cleanup ─────────────────────────────────────────────────
 export {
   deleteDocumentChunks,
+  deleteChapterChunks,
   deleteBookChunks,
   rebuildBookIndex,
   clearBookMemory,

@@ -3,8 +3,31 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { updateDocumentSchema } from "@/lib/validation";
 import { DocumentService } from "@/lib/documents";
+import { onDocumentChanged } from "@/lib/vector/memory-manager";
+import { deleteDocumentChunks } from "@/lib/vector";
 
 type RouteParams = { params: Promise<{ id: string; docId: string }> };
+
+/** Map Prisma DocumentType to vector docType for cleanup. */
+function mapDocType(prismaType: string): string {
+  switch (prismaType) {
+    case "CHAPTER_CONTENT":
+    case "CHAPTER_BRIEF":
+    case "CHAPTER_PLAN":
+      return "chapter";
+    case "STORY_BIBLE":
+    case "SERIES_BIBLE":
+      return "story_bible";
+    case "ARCHITECTURE":
+    case "SERIES_ARCHITECTURE":
+      return "architecture";
+    case "FINGERPRINT":
+    case "SERIES_FINGERPRINT":
+      return "style";
+    default:
+      return "finding";
+  }
+}
 
 /** GET /api/books/:id/documents/:docId — get a document with content. */
 export async function GET(_req: NextRequest, { params }: RouteParams) {
@@ -79,6 +102,15 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       data.changeSource
     );
 
+    // Fire-and-forget vector indexing
+    if (data.content) {
+      onDocumentChanged(bookId, doc.type, data.content, {
+        docId,
+        userId: user.id,
+        chapterNumber: doc.chapterNumber ?? undefined,
+      }).catch(() => {});
+    }
+
     return NextResponse.json(result);
   } catch (error) {
     if ((error as Error).message === "Unauthorized") {
@@ -125,6 +157,9 @@ export async function DELETE(_req: NextRequest, { params }: RouteParams) {
 
     const svc = new DocumentService(user.id, bookId);
     await svc.delete(docId);
+
+    // Fire-and-forget vector chunk cleanup
+    deleteDocumentChunks(bookId, mapDocType(doc.type), docId).catch(() => {});
 
     return NextResponse.json({ deleted: true });
   } catch (error) {

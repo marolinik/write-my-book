@@ -7,6 +7,7 @@ import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
 import { convertDocxToMarkdown } from "@/lib/import-export/docx-to-markdown";
 import { parseManuscriptChapters } from "@/lib/import-export/chapter-parser";
+import { indexBatch } from "@/lib/vector";
 
 const ALLOWED_EXTENSIONS = [".md", ".txt", ".docx"];
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
@@ -152,6 +153,22 @@ async function handleStructuredImport(
     }
   }
 
+  // Fire-and-forget: batch index all imported chapters into vector memory
+  const chaptersToIndex = data.chapters
+    .filter(ch => ch.action !== "skip")
+    .map(ch => ({
+      bookId,
+      docType: "chapter" as const,
+      docId: `import-ch-${ch.number}`,
+      content: ch.content,
+      metadata: { userId, chapterNumber: ch.number },
+    }));
+  if (chaptersToIndex.length > 0) {
+    indexBatch(chaptersToIndex).catch(err =>
+      console.error("[Import] Batch vector indexing failed (non-fatal):", err)
+    );
+  }
+
   // Recalculate book stats
   const bookChapters = await db.chapter.findMany({
     where: { bookId },
@@ -287,6 +304,20 @@ async function handleLegacyImport(
       title: ch.title,
       wordCount: ch.wordCount,
     }));
+
+    // Fire-and-forget: batch index imported chapters into vector memory
+    const legacyChaptersToIndex = chapters.map((ch) => ({
+      bookId,
+      docType: "chapter" as const,
+      docId: `import-ch-${ch.number}`,
+      content: ch.content,
+      metadata: { userId, chapterNumber: ch.number },
+    }));
+    if (legacyChaptersToIndex.length > 0) {
+      indexBatch(legacyChaptersToIndex).catch(err =>
+        console.error("[Import] Batch vector indexing failed (non-fatal):", err)
+      );
+    }
   }
 
   // Update book stats

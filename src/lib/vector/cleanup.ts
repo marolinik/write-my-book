@@ -56,6 +56,29 @@ export async function deleteDocumentChunks(
 }
 
 /**
+ * Delete all chunks for a specific chapter (by chapter number).
+ * More reliable than docId-based delete since chapters may be indexed
+ * via multiple paths (import, agent write, document API) with different docIds.
+ */
+export async function deleteChapterChunks(
+  bookId: string,
+  chapterNumber: number
+): Promise<void> {
+  try {
+    await qdrantClient.delete(WMB_MEMORY_COLLECTION, {
+      filter: {
+        must: [
+          { key: "bookId", match: { value: bookId } },
+          { key: "chapterNumber", match: { value: chapterNumber } },
+        ],
+      },
+    });
+  } catch {
+    // Ignore errors if collection doesn't exist
+  }
+}
+
+/**
  * Delete all chunks for a book.
  */
 export async function deleteBookChunks(bookId: string): Promise<void> {
