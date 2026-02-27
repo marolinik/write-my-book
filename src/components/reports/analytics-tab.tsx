@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import {
   Card,
@@ -14,12 +15,14 @@ import { Badge } from "@/components/ui/badge";
 import {
   BarChart,
   Bar,
+  Cell,
   Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   Legend,
+  ReferenceLine,
   ResponsiveContainer,
   AreaChart,
   Area,
@@ -60,12 +63,36 @@ function ReadabilityCard({
   );
 }
 
+function getBarColor(score: number): string {
+  if (score < 4) return "hsl(0, 72%, 51%)";    // red
+  if (score < 7) return "hsl(45, 93%, 47%)";   // yellow
+  return "hsl(142, 71%, 45%)";                   // green
+}
+
+interface ChapterBetaData {
+  id: string;
+  chapterNumber: number;
+  title: string | null;
+  betaScore: number | null;
+}
+
 export function AnalyticsTab({ bookId }: { bookId: string }) {
-  const { data: analysisData, isLoading } = useQuery({
+  const router = useRouter();
+
+  const { data: analysisData, isLoading: isLoadingAnalysis } = useQuery({
     queryKey: ["analysis", bookId],
     queryFn: async () => {
       const res = await fetch(`/api/books/${bookId}/analysis`);
       if (!res.ok) throw new Error("Failed to load analysis data");
+      return res.json();
+    },
+  });
+
+  const { data: chaptersRaw, isLoading: isLoadingChapters } = useQuery<ChapterBetaData[]>({
+    queryKey: ["chapters", bookId],
+    queryFn: async () => {
+      const res = await fetch(`/api/books/${bookId}/chapters`);
+      if (!res.ok) throw new Error("Failed to load chapters");
       return res.json();
     },
   });
@@ -76,6 +103,35 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
   const dialogue = analysisData?.dialogue ?? [];
   const overuse = analysisData?.overuse ?? [];
 
+  // Beta score chart data
+  const betaData = (chaptersRaw ?? [])
+    .filter((ch): ch is ChapterBetaData & { betaScore: number } => ch.betaScore != null)
+    .map((ch) => ({
+      name: ch.title || `Ch ${ch.chapterNumber}`,
+      score: ch.betaScore,
+      chapterId: ch.id,
+    }));
+
+  const avgScore =
+    betaData.length > 0
+      ? betaData.reduce((sum, d) => sum + d.score, 0) / betaData.length
+      : 0;
+
+  // Histogram bins: 0-1, 1-2, ..., 9-10
+  const bins = Array.from({ length: 10 }, (_, i) => ({
+    range: `${i}-${i + 1}`,
+    count: betaData.filter((d) => d.score >= i && d.score < i + 1).length,
+  }));
+  // Edge case: score of exactly 10 goes in the 9-10 bin
+  const exactTens = betaData.filter((d) => d.score === 10).length;
+  if (exactTens > 0) {
+    // Remove duplicates from the 9-10 bin filter (scores >= 9 && < 10 are already counted)
+    // Only add scores that are exactly 10
+    bins[9].count += exactTens;
+  }
+
+  const isLoading = isLoadingAnalysis || isLoadingChapters;
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -84,7 +140,10 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
     );
   }
 
-  if (isEmpty) {
+  const hasAnalysis = !isEmpty && readability;
+  const hasBetaScores = betaData.length > 0;
+
+  if (!hasAnalysis && !hasBetaScores) {
     return (
       <Card>
         <CardContent className="py-12 text-center">
@@ -97,17 +156,131 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
     );
   }
 
-  if (!readability) return null;
+  const defaultTab = hasBetaScores ? "betaScores" : "readability";
 
   return (
-    <Tabs defaultValue="readability">
+    <Tabs defaultValue={defaultTab}>
       <TabsList>
-        <TabsTrigger value="readability">Readability</TabsTrigger>
-        <TabsTrigger value="pacing">Pacing</TabsTrigger>
-        <TabsTrigger value="dialogue">Dialogue</TabsTrigger>
-        <TabsTrigger value="overuse">Overuse</TabsTrigger>
+        {hasBetaScores && (
+          <TabsTrigger value="betaScores">Beta Scores</TabsTrigger>
+        )}
+        {hasAnalysis && (
+          <>
+            <TabsTrigger value="readability">Readability</TabsTrigger>
+            <TabsTrigger value="pacing">Pacing</TabsTrigger>
+            <TabsTrigger value="dialogue">Dialogue</TabsTrigger>
+            <TabsTrigger value="overuse">Overuse</TabsTrigger>
+          </>
+        )}
       </TabsList>
 
+      {hasBetaScores && (
+        <TabsContent value="betaScores">
+          <div className="space-y-6">
+            {/* Per-Chapter Bar Chart */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Per-Chapter Beta Scores</CardTitle>
+                <CardDescription>
+                  Click a bar to navigate to that chapter. Dashed line shows the average ({avgScore.toFixed(1)}).
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[350px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={betaData}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                      <XAxis
+                        dataKey="name"
+                        tick={{ fontSize: 11 }}
+                        className="text-xs fill-muted-foreground"
+                      />
+                      <YAxis
+                        domain={[0, 10]}
+                        className="text-xs fill-muted-foreground"
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "hsl(var(--card))",
+                          border: "1px solid hsl(var(--border))",
+                          borderRadius: "0.5rem",
+                        }}
+                        formatter={(value?: number | string) => [`${Number(value ?? 0).toFixed(1)} / 10`, "Score"]}
+                      />
+                      <ReferenceLine
+                        y={avgScore}
+                        stroke="hsl(var(--muted-foreground))"
+                        strokeDasharray="5 5"
+                        label={{ value: `Avg ${avgScore.toFixed(1)}`, position: "insideTopRight", fontSize: 11 }}
+                      />
+                      <Bar
+                        dataKey="score"
+                        name="Beta Score"
+                        radius={[4, 4, 0, 0]}
+                        cursor="pointer"
+                        onClick={(_data, index) => {
+                          const entry = betaData[index];
+                          if (entry?.chapterId) {
+                            router.push(`/books/${bookId}/chapters/${entry.chapterId}`);
+                          }
+                        }}
+                      >
+                        {betaData.map((entry, index) => (
+                          <Cell key={index} fill={getBarColor(entry.score)} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Score Distribution Histogram */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Score Distribution</CardTitle>
+                <CardDescription>
+                  Number of chapters in each 1-point score range
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={bins}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                      <XAxis
+                        dataKey="range"
+                        className="text-xs fill-muted-foreground"
+                      />
+                      <YAxis
+                        allowDecimals={false}
+                        className="text-xs fill-muted-foreground"
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "hsl(var(--card))",
+                          border: "1px solid hsl(var(--border))",
+                          borderRadius: "0.5rem",
+                        }}
+                        formatter={(value?: number | string) => [Number(value ?? 0), "Chapters"]}
+                      />
+                      <Bar
+                        dataKey="count"
+                        name="Chapters"
+                        fill="hsl(var(--primary))"
+                        radius={[4, 4, 0, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      )}
+
+      {hasAnalysis && (
+      <>
       <TabsContent value="readability">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <ReadabilityCard
@@ -311,6 +484,8 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
           </CardContent>
         </Card>
       </TabsContent>
+      </>
+      )}
     </Tabs>
   );
 }
