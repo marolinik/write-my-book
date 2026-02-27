@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/card";
 import { BookViewSwitcher } from "@/components/book/book-view-switcher";
 import { StartWorkflowButton } from "@/components/book/start-workflow-button";
+import { MemoryStatsCard } from "@/components/memory/memory-stats-card";
 
 export const dynamic = "force-dynamic";
 
@@ -373,6 +374,7 @@ export default async function BookDetailPage({
             </CardContent>
           </Card>
         )}
+        <MemoryStatsCard bookId={bookId} />
       </div>
 
       {/* Recent Agent Sessions + Pending Findings */}

@@ -16,7 +16,9 @@ import { Separator } from "@/components/ui/separator";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -31,6 +33,9 @@ import { useApiKeys, useAddApiKey, useDeleteApiKey } from "@/hooks/use-api-keys"
 import { useLanguage } from "@/components/providers/language-provider";
 import { useUpdateLanguage } from "@/hooks/use-language";
 import { SUPPORTED_LANGUAGES } from "@/lib/i18n/ui-strings";
+import { useDefaultModel, useUpdateDefaultModel } from "@/hooks/use-default-model";
+import { getModelsGrouped } from "@/lib/llm";
+import { MemorySettings } from "@/components/memory/memory-settings";
 
 export default function SettingsPage() {
   const { language, t } = useLanguage();
@@ -38,11 +43,15 @@ export default function SettingsPage() {
   const { data: apiKeys, isLoading: keysLoading } = useApiKeys();
   const addKey = useAddApiKey();
   const deleteKey = useDeleteApiKey();
+  const { data: defaultModelData } = useDefaultModel();
+  const updateDefaultModel = useUpdateDefaultModel();
 
   const [showAddKey, setShowAddKey] = useState(false);
   const [newKeyProvider, setNewKeyProvider] = useState("anthropic");
   const [newKeyValue, setNewKeyValue] = useState("");
   const [newKeyLabel, setNewKeyLabel] = useState("");
+
+  const modelGroups = getModelsGrouped();
 
   async function handleAddKey() {
     await addKey.mutateAsync({
@@ -101,6 +110,7 @@ export default function SettingsPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="anthropic">Anthropic</SelectItem>
+                      <SelectItem value="openrouter">OpenRouter</SelectItem>
                       <SelectItem value="bedrock">AWS Bedrock</SelectItem>
                       <SelectItem value="vertex">Google Vertex</SelectItem>
                       <SelectItem value="azure">Azure OpenAI</SelectItem>
@@ -122,7 +132,7 @@ export default function SettingsPage() {
                   type="password"
                   value={newKeyValue}
                   onChange={(e) => setNewKeyValue(e.target.value)}
-                  placeholder="sk-ant-..."
+                  placeholder={newKeyProvider === "openrouter" ? "sk-or-..." : "sk-ant-..."}
                 />
               </div>
               <div className="flex gap-2">
@@ -220,6 +230,51 @@ export default function SettingsPage() {
 
       <Separator className="my-6" />
 
+      {/* Default AI Model */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Default AI Model</CardTitle>
+          <CardDescription>
+            Choose which model and provider to use for all AI operations.
+            Per-book overrides can be set in each book&apos;s settings.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Select
+            value={defaultModelData?.defaultModel ?? "anthropic/sonnet"}
+            onValueChange={(val) => updateDefaultModel.mutate(val)}
+          >
+            <SelectTrigger className="w-72">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Anthropic Direct</SelectLabel>
+                {modelGroups.anthropic.map((m) => (
+                  <SelectItem key={m.id} value={m.id}>
+                    {m.displayName}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+              <SelectGroup>
+                <SelectLabel>OpenRouter</SelectLabel>
+                {modelGroups.openrouter.map((m) => (
+                  <SelectItem key={m.id} value={m.id}>
+                    {m.displayName}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          <p className="mt-2 text-xs text-muted-foreground">
+            OpenRouter models require an OpenRouter API key. The model tier (Opus/Sonnet/Haiku)
+            is still overridden per-agent role in book settings.
+          </p>
+        </CardContent>
+      </Card>
+
+      <Separator className="my-6" />
+
       {/* Language Preference */}
       <Card>
         <CardHeader>
@@ -246,6 +301,11 @@ export default function SettingsPage() {
           </Select>
         </CardContent>
       </Card>
+
+      <Separator className="my-6" />
+
+      {/* Memory System */}
+      <MemorySettings />
 
       <Separator className="my-6" />
 
