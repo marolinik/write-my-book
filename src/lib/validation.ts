@@ -506,3 +506,14 @@ export const wikiQuerySchema = z.object({
   type: z.enum(["character", "location", "item", "event", "lore", "custom", "all"]).default("all"),
   search: z.string().optional(),
 });
+
+// ─── Memory Schemas ──────────────────────────────────────────
+
+export const memoryRebuildSchema = z.object({
+  bookId: z.string().uuid(),
+});
+
+export const memoryClearSchema = z.object({
+  bookId: z.string().uuid(),
+  confirm: z.literal(true),
+});
