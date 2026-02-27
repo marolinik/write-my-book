@@ -218,4 +218,8 @@ export interface WorkflowDefinition {
   conversational: boolean;
   suggestedNext: string[];
   prerequisites?: WorkflowPrerequisite[];
+  /** Estimated minimum duration in minutes. */
+  estimatedMinMinutes?: number;
+  /** Estimated maximum duration in minutes. */
+  estimatedMaxMinutes?: number;
 }

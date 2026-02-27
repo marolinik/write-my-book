@@ -13,6 +13,8 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: false,
     conversational: true,
     suggestedNext: ["capture-style", "build-architecture"],
+    estimatedMinMinutes: 2,
+    estimatedMaxMinutes: 5,
   },
   {
     id: "capture-style",
@@ -25,6 +27,8 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: false,
     conversational: true,
     suggestedNext: ["build-architecture", "create-story-bible"],
+    estimatedMinMinutes: 2,
+    estimatedMaxMinutes: 5,
   },
   {
     id: "create-story-bible",
@@ -37,6 +41,8 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: false,
     conversational: true,
     suggestedNext: ["build-architecture"],
+    estimatedMinMinutes: 3,
+    estimatedMaxMinutes: 8,
   },
   {
     id: "build-architecture",
@@ -52,6 +58,8 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     prerequisites: [
       { type: "document", value: "STORY_BIBLE", description: "Story Bible needed before designing architecture", satisfiedBy: "create-story-bible" },
     ],
+    estimatedMinMinutes: 5,
+    estimatedMaxMinutes: 15,
   },
   {
     id: "coach",
@@ -64,6 +72,8 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: false,
     conversational: true,
     suggestedNext: [],
+    estimatedMinMinutes: 1,
+    estimatedMaxMinutes: 5,
   },
   {
     id: "onboard-new-book",
@@ -76,6 +86,8 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: false,
     conversational: true,
     suggestedNext: ["discuss-chapter", "plan-chapter"],
+    estimatedMinMinutes: 5,
+    estimatedMaxMinutes: 15,
   },
   {
     id: "onboard-imported-book",
@@ -91,6 +103,8 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     prerequisites: [
       { type: "chapter_content", value: "any", description: "Import chapters first", satisfiedBy: "" },
     ],
+    estimatedMinMinutes: 5,
+    estimatedMaxMinutes: 20,
   },
   {
     id: "read-manuscript",
@@ -105,6 +119,8 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: false,
     conversational: false,
     suggestedNext: ["capture-style", "create-story-bible"],
+    estimatedMinMinutes: 2,
+    estimatedMaxMinutes: 5,
   },
 
   // ─── WRITING ────────────────────────────────────────────────────
@@ -119,6 +135,8 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: false,
     conversational: true,
     suggestedNext: ["plan-chapter"],
+    estimatedMinMinutes: 1,
+    estimatedMaxMinutes: 3,
   },
   {
     id: "plan-chapter",
@@ -135,6 +153,8 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
       { type: "document", value: "STORY_BIBLE", description: "Story Bible is needed for chapter planning", satisfiedBy: "create-story-bible" },
       { type: "document", value: "ARCHITECTURE", description: "Architecture is needed for chapter planning", satisfiedBy: "build-architecture" },
     ],
+    estimatedMinMinutes: 2,
+    estimatedMaxMinutes: 5,
   },
   {
     id: "write-chapter",
@@ -151,6 +171,8 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
       { type: "document", value: "FINGERPRINT", description: "Style fingerprint needed to write in your voice", satisfiedBy: "capture-style" },
       { type: "document", value: "CHAPTER_PLAN", description: "Chapter plan needed before writing", satisfiedBy: "plan-chapter" },
     ],
+    estimatedMinMinutes: 5,
+    estimatedMaxMinutes: 15,
   },
   {
     id: "freewrite",
@@ -163,6 +185,8 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: false,
     conversational: true,
     suggestedNext: [],
+    estimatedMinMinutes: 1,
+    estimatedMaxMinutes: 5,
   },
   {
     id: "free-drive",
@@ -175,6 +199,8 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: false,
     conversational: true,
     suggestedNext: [],
+    estimatedMinMinutes: 2,
+    estimatedMaxMinutes: 10,
   },
 
   // ─── EDITING ────────────────────────────────────────────────────
@@ -193,6 +219,8 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
       { type: "document", value: "FINGERPRINT", description: "Style fingerprint needed for editing", satisfiedBy: "capture-style" },
       { type: "chapter_content", value: "any", description: "Chapter must have content to edit", satisfiedBy: "write-chapter" },
     ],
+    estimatedMinMinutes: 3,
+    estimatedMaxMinutes: 10,
   },
   {
     id: "line-edit",
@@ -209,6 +237,8 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
       { type: "document", value: "FINGERPRINT", description: "Style fingerprint needed for line editing", satisfiedBy: "capture-style" },
       { type: "chapter_content", value: "any", description: "Chapter must have content to edit", satisfiedBy: "write-chapter" },
     ],
+    estimatedMinMinutes: 3,
+    estimatedMaxMinutes: 8,
   },
   {
     id: "beta-read",
@@ -224,6 +254,8 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     prerequisites: [
       { type: "chapter_content", value: "any", description: "Chapter must have content for beta reading", satisfiedBy: "write-chapter" },
     ],
+    estimatedMinMinutes: 3,
+    estimatedMaxMinutes: 8,
   },
   {
     id: "revise",
@@ -240,6 +272,8 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
       { type: "document", value: "FINGERPRINT", description: "Style fingerprint needed for revision", satisfiedBy: "capture-style" },
       { type: "chapter_content", value: "any", description: "Chapter must have content to revise", satisfiedBy: "write-chapter" },
     ],
+    estimatedMinMinutes: 3,
+    estimatedMaxMinutes: 10,
   },
   {
     id: "discuss-edits",
@@ -252,6 +286,8 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: false,
     conversational: true,
     suggestedNext: ["revise"],
+    estimatedMinMinutes: 1,
+    estimatedMaxMinutes: 3,
   },
   {
     id: "publishing-check",
@@ -266,6 +302,8 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: false,
     conversational: false,
     suggestedNext: [],
+    estimatedMinMinutes: 2,
+    estimatedMaxMinutes: 5,
   },
 
   // ─── ANALYSIS ───────────────────────────────────────────────────
@@ -280,6 +318,8 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: false,
     conversational: false,
     suggestedNext: [],
+    estimatedMinMinutes: 2,
+    estimatedMaxMinutes: 5,
   },
   {
     id: "market-analysis",
@@ -294,6 +334,8 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: false,
     conversational: false,
     suggestedNext: [],
+    estimatedMinMinutes: 2,
+    estimatedMaxMinutes: 5,
   },
 
   // ─── STYLE ──────────────────────────────────────────────────────
@@ -313,6 +355,8 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     prerequisites: [
       { type: "document", value: "FINGERPRINT", description: "Must have an existing fingerprint to refresh", satisfiedBy: "capture-style" },
     ],
+    estimatedMinMinutes: 2,
+    estimatedMaxMinutes: 5,
   },
   {
     id: "evolve-style",
@@ -330,6 +374,8 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     prerequisites: [
       { type: "document", value: "FINGERPRINT", description: "Must have an existing fingerprint to evolve", satisfiedBy: "capture-style" },
     ],
+    estimatedMinMinutes: 2,
+    estimatedMaxMinutes: 5,
   },
 
   // ─── SERIES ─────────────────────────────────────────────────────
@@ -346,6 +392,8 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: true,
     conversational: false,
     suggestedNext: ["create-series-bible"],
+    estimatedMinMinutes: 3,
+    estimatedMaxMinutes: 8,
   },
   {
     id: "create-series-bible",
@@ -360,6 +408,8 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: true,
     conversational: false,
     suggestedNext: ["create-series-architecture"],
+    estimatedMinMinutes: 3,
+    estimatedMaxMinutes: 10,
   },
   {
     id: "create-series-architecture",
@@ -374,6 +424,8 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: true,
     conversational: false,
     suggestedNext: ["check-series-continuity"],
+    estimatedMinMinutes: 3,
+    estimatedMaxMinutes: 10,
   },
   {
     id: "check-series-continuity",
@@ -388,6 +440,8 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: true,
     conversational: false,
     suggestedNext: [],
+    estimatedMinMinutes: 3,
+    estimatedMaxMinutes: 8,
   },
 ];
 
