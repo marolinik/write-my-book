@@ -6,6 +6,7 @@ import {
   ImportIcon,
   BookOpenIcon,
   BookPlusIcon,
+  ClockIcon,
   LayoutTemplateIcon,
   PenToolIcon,
   ListIcon,
@@ -15,6 +16,7 @@ import {
   MapIcon,
   MessageCircleIcon,
   SendIcon,
+  AlertTriangleIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +24,8 @@ import { useBookState } from "@/hooks/use-book-state";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
 import { getWorkflow } from "@/lib/agents/workflows";
 import { getJourney } from "@/lib/agents/journeys";
+import { useAgentSessionStore } from "@/stores/agent-session-store";
+import { useBook } from "@/hooks/use-books";
 import { getAgentStrings } from "@/lib/i18n/agent-strings";
 
 const WORKFLOW_ICONS: Record<string, React.ElementType> = {
@@ -232,6 +236,34 @@ export function ProactiveGuide({
     ? (WORKFLOW_ICONS[state.nextRecommendedWorkflow] ?? SparklesIcon)
     : SparklesIcon;
 
+  // Beta score for beta-read recommendations
+  const { data: bookData } = useBook(bookId);
+  const betaScoreForCta = (() => {
+    if (state.nextRecommendedWorkflow !== "beta-read") return null;
+    const chapters = bookData?.chapters ?? [];
+    // Show the average beta score across chapters that have one
+    const scored = chapters.filter((ch) => ch.betaScore !== null && ch.betaScore !== undefined);
+    if (scored.length === 0) return null;
+    const avg = scored.reduce((sum, ch) => sum + (ch.betaScore ?? 0), 0) / scored.length;
+    return avg;
+  })();
+
+  // Detect if last session for this book timed out
+  const sessions = useAgentSessionStore((s) => s.sessions);
+  const lastTimedOut = (() => {
+    const sessionList = Object.values(sessions);
+    if (sessionList.length === 0) return false;
+    // Find the most recent failed session for this book
+    const bookSessions = sessionList
+      .filter((s) => s.bookId === bookId && s.status === "failed")
+      .sort((a, b) => b.startedAt - a.startedAt);
+    if (bookSessions.length === 0) return false;
+    const last = bookSessions[0];
+    return last.error?.toLowerCase().includes("timeout") ||
+           last.error?.toLowerCase().includes("timed out") ||
+           false;
+  })();
+
   // State summary
   const stateParts: string[] = [];
   if (state.hasChapters) {
@@ -315,6 +347,16 @@ export function ProactiveGuide({
         </div>
       )}
 
+      {/* Timeout re-run suggestion */}
+      {lastTimedOut && (
+        <div className="flex items-center gap-2 rounded-md border border-orange-500/30 bg-orange-50/50 dark:bg-orange-950/20 px-3 py-2">
+          <AlertTriangleIcon className="size-3.5 text-orange-600 dark:text-orange-400 shrink-0" />
+          <span className="text-xs text-orange-700 dark:text-orange-300">
+            Previous session timed out — run again to continue
+          </span>
+        </div>
+      )}
+
       {/* Primary CTA */}
       {primaryWorkflow && (
         <Button
@@ -324,12 +366,23 @@ export function ProactiveGuide({
         >
           <PrimaryIcon className="size-5 shrink-0" />
           <div className="flex flex-col items-start text-left">
-            <span className="font-medium">
+            <span className="font-medium flex items-center gap-1.5">
               {t.workflows[primaryWorkflow.id] ?? primaryWorkflow.label}
+              {primaryWorkflow.estimatedMinMinutes && primaryWorkflow.estimatedMaxMinutes && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-normal opacity-70">
+                  <ClockIcon className="size-3" />
+                  {primaryWorkflow.estimatedMinMinutes}-{primaryWorkflow.estimatedMaxMinutes} min
+                </span>
+              )}
             </span>
             <span className="text-xs font-normal opacity-80">
               {t.workflowDescriptions[primaryWorkflow.id] ?? primaryWorkflow.writerDescription}
             </span>
+            {betaScoreForCta !== null && (
+              <span className="text-xs font-normal opacity-70">
+                Current score: {betaScoreForCta.toFixed(1)} — run beta-read to re-evaluate
+              </span>
+            )}
           </div>
         </Button>
       )}

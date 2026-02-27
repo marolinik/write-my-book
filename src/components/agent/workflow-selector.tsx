@@ -8,6 +8,7 @@ import {
   CheckCircle2Icon,
   ChevronRightIcon,
   CircleDotIcon,
+  ClockIcon,
   FileInputIcon,
   LibraryIcon,
   ListPlusIcon,
@@ -60,6 +61,16 @@ const CATEGORY_ICONS = {
   style: PaletteIcon,
   series: LibraryIcon,
 } as const;
+
+function DurationBadge({ workflow }: { workflow: WorkflowDefinition }) {
+  if (!workflow.estimatedMinMinutes || !workflow.estimatedMaxMinutes) return null;
+  return (
+    <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground font-normal">
+      <ClockIcon className="size-3" />
+      {workflow.estimatedMinMinutes}-{workflow.estimatedMaxMinutes} min
+    </span>
+  );
+}
 
 interface WorkflowSelectorProps {
   bookId: string;
@@ -309,6 +320,7 @@ export function WorkflowSelector({
                               {isLocked && (
                                 <LockIcon className="size-3 text-muted-foreground" />
                               )}
+                              <DurationBadge workflow={w} />
                             </span>
                             <span className="text-xs text-muted-foreground">
                               {as.workflowDescriptions[w.id] ?? w.writerDescription}
@@ -538,6 +550,7 @@ function JourneyDetailView({
                           </TooltipContent>
                         </Tooltip>
                       )}
+                      {wf && <DurationBadge workflow={wf} />}
                     </div>
                     {wf?.writerDescription && (
                       <p className="text-xs text-muted-foreground mt-0.5">
