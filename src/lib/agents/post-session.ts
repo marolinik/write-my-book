@@ -9,7 +9,7 @@ import { DocumentType } from "@/generated/prisma/enums";
 import { parseAgentOutput, extractNumericScore } from "@/lib/parsers";
 import type { EditFindingParsed } from "@/lib/parsers";
 import { updateFromChapter } from "@/lib/graph/graph-maintenance";
-import { onSessionCompleted, onDocumentChanged } from "@/lib/vector/memory-manager";
+import { onSessionCompleted, onDocumentChanged, onFindingsCreated } from "@/lib/vector/memory-manager";
 import { promoteFindings } from "./blackboard";
 import { synthesizeToSeries } from "@/lib/series/series-synthesizer";
 
@@ -150,6 +150,28 @@ export async function processPostSession(
     // Handle edit workflows — verify findings created via tool calls
     if (ctx.workflowId === "dev-edit" || ctx.workflowId === "line-edit") {
       result.findingsCreated = await verifySessionFindings(ctx);
+
+      // Index findings into vector memory (fire-and-forget)
+      if (result.findingsCreated > 0) {
+        const findingsForVector = await db.editFinding.findMany({
+          where: {
+            bookId: ctx.bookId,
+            sessionId: ctx.sessionId,
+            status: { not: "rejected" },
+          },
+          select: { id: true, description: true, severity: true, category: true, suggestion: true },
+        });
+        onFindingsCreated(
+          ctx.bookId,
+          findingsForVector.map(f => ({
+            id: f.id,
+            content: `${f.category}: ${f.description}${f.suggestion ? ` — Suggestion: ${f.suggestion}` : ""}`,
+            severity: f.severity,
+            domain: f.category,
+          })),
+          ctx.userId
+        ).catch(err => console.error("[PostSession] Vector findings indexing failed (non-fatal):", err));
+      }
 
       // Cascade warnings are best-effort — don't fail the whole post-session
       if (ctx.workflowId === "dev-edit" && result.findingsCreated > 0) {

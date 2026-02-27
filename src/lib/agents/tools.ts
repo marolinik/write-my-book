@@ -546,7 +546,7 @@ const updateGraphEntityDef: ToolDefinition = {
 const searchMemoryDef: ToolDefinition = {
   name: "SearchMemory",
   description:
-    "Semantic search across the book's manuscript content. Returns relevant passages with similarity scores.",
+    "Semantic search across the book's memory — manuscript content, session history, documents, and editorial findings. Returns relevant passages with similarity scores and source attribution.",
   input_schema: {
     type: "object",
     properties: {
@@ -554,10 +554,10 @@ const searchMemoryDef: ToolDefinition = {
         type: "string",
         description: "Natural language query to search for",
       },
-      collection: {
+      docType: {
         type: "string",
-        description: "Which memory tier to search",
-        enum: ["manuscript", "sessions"],
+        description: "Optional: filter by content type",
+        enum: ["chapter", "story_bible", "architecture", "style", "conversation", "finding"],
       },
       chapterNumber: {
         type: "number",
@@ -1363,29 +1363,22 @@ async function executeUpdateGraphEntity(
 
 async function executeSearchMemory(
   ctx: ToolContext,
-  input: { query: string; collection?: string; chapterNumber?: number; limit?: number }
+  input: { query: string; docType?: string; chapterNumber?: number; limit?: number }
 ): Promise<string> {
   try {
-    const limit = input.limit ?? 5;
-
-    // Map old collection names to docType filter
-    const docTypeMap: Record<string, DocType | undefined> = {
-      manuscript: "chapter",
-      sessions: "conversation",
-      style: "style",
-    };
-    const docType = docTypeMap[input.collection ?? "manuscript"];
-
     const results = await searchMemory(ctx.bookId, input.query, {
-      docType,
+      docType: input.docType as DocType | undefined,
       chapterNumber: input.chapterNumber,
-      limit,
+      limit: input.limit ?? 5,
     });
 
-    if (results.length === 0) return "No relevant memories found.";
+    if (results.length === 0) return "No relevant passages found for this query.";
 
     return formatSearchResults(results);
   } catch (error) {
+    if (error instanceof Error && error.message.includes("connect")) {
+      return "Memory search unavailable (vector database unreachable). Continuing without memory context.";
+    }
     return `Memory search failed: ${error instanceof Error ? error.message : String(error)}`;
   }
 }
@@ -2022,7 +2015,7 @@ async function executeToolInner(
     case "SearchMemory":
       return executeSearchMemory(
         ctx,
-        input as { query: string; collection?: string; chapterNumber?: number; limit?: number }
+        input as { query: string; docType?: string; chapterNumber?: number; limit?: number }
       );
     case "RememberInsight":
       return executeRememberInsight(

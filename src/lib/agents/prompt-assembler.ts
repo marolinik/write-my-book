@@ -1719,13 +1719,13 @@ export async function assembleAgentPrompt(
       const memoryContext = await getRelevantMemory(
         context.bookId,
         definition.description,
-        { limit: 3, chapterNumber: context.chapterNumber }
+        { limit: 5, chapterNumber: context.chapterNumber }
       );
       if (memoryContext) {
         sections.push({
           name: "relevant_memory",
           priority: 20,
-          content: `\n<relevant_memory>\n${memoryContext}\n</relevant_memory>`,
+          content: `\n<relevant_memory>\nIMPORTANT: When using information from memory, cite the source (e.g., "Based on chapter 3 where...").\n\n${memoryContext}\n</relevant_memory>`,
         });
       }
     } catch {
