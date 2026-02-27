@@ -28,6 +28,14 @@ export interface SessionState {
   error: string | null;
   suggestedNext: string[];
   resultMeta?: SessionResultMeta;
+  /** Timestamp (Date.now()) when the session was created */
+  startedAt: number;
+  /** Estimated min duration from workflow definition */
+  estimatedMinMinutes?: number;
+  /** Estimated max duration from workflow definition */
+  estimatedMaxMinutes?: number;
+  /** Number of +15 min extensions used (0, 1, or 2) */
+  extensionsUsed: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -42,6 +50,10 @@ interface PersistedSession {
   agentType: AgentType;
   bookId: string;
   seriesId?: string;
+  startedAt: number;
+  estimatedMinMinutes?: number;
+  estimatedMaxMinutes?: number;
+  extensionsUsed: number;
 }
 
 function persistSessions(sessions: Record<string, SessionState>) {
@@ -55,6 +67,10 @@ function persistSessions(sessions: Record<string, SessionState>) {
           agentType: s.agentType,
           bookId: s.bookId,
           seriesId: s.seriesId,
+          startedAt: s.startedAt,
+          estimatedMinMinutes: s.estimatedMinMinutes,
+          estimatedMaxMinutes: s.estimatedMaxMinutes,
+          extensionsUsed: s.extensionsUsed,
         })
       );
     if (running.length > 0) {
@@ -85,6 +101,10 @@ function loadPersistedSessions(): Record<string, SessionState> {
         messages: [],
         error: null,
         suggestedNext: [],
+        startedAt: p.startedAt || Date.now(), // fallback for old persisted sessions
+        estimatedMinMinutes: p.estimatedMinMinutes,
+        estimatedMaxMinutes: p.estimatedMaxMinutes,
+        extensionsUsed: p.extensionsUsed ?? 0,
       };
     }
     return sessions;
@@ -108,8 +128,13 @@ interface AgentSessionState {
     workflowId: string,
     agentType: AgentType,
     bookId: string,
-    seriesId?: string
+    seriesId?: string,
+    timing?: {
+      estimatedMinMinutes?: number;
+      estimatedMaxMinutes?: number;
+    }
   ) => void;
+  extendSession: (sessionId: string) => void;
   addMessage: (sessionId: string, message: AgentStreamMessage) => void;
   setSessionComplete: (
     sessionId: string,
@@ -146,7 +171,7 @@ export const useAgentSessionStore = create<AgentSessionState>((set, get) => ({
   activeSessionId: null,
   workflowQueue: [],
 
-  startSession: (sessionId, workflowId, agentType, bookId, seriesId) => {
+  startSession: (sessionId, workflowId, agentType, bookId, seriesId, timing) => {
     // Cross-store: open panel via UI store
     useAgentUIStore.getState().setPanelMode("overlay");
     set((state) => {
@@ -162,6 +187,10 @@ export const useAgentSessionStore = create<AgentSessionState>((set, get) => ({
           messages: [],
           error: null,
           suggestedNext: [],
+          startedAt: Date.now(),
+          estimatedMinMinutes: timing?.estimatedMinMinutes,
+          estimatedMaxMinutes: timing?.estimatedMaxMinutes,
+          extensionsUsed: 0,
         },
       };
       persistSessions(newSessions);
@@ -169,6 +198,22 @@ export const useAgentSessionStore = create<AgentSessionState>((set, get) => ({
         sessions: newSessions,
         activeSessionId: sessionId,
       };
+    });
+  },
+
+  extendSession: (sessionId) => {
+    set((state) => {
+      const session = state.sessions[sessionId];
+      if (!session || session.extensionsUsed >= 2) return state;
+      const newSessions = {
+        ...state.sessions,
+        [sessionId]: {
+          ...session,
+          extensionsUsed: session.extensionsUsed + 1,
+        },
+      };
+      persistSessions(newSessions);
+      return { sessions: newSessions };
     });
   },
 

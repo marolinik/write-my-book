@@ -212,7 +212,10 @@ export function AgentPanel({
           resultSessionId = result.sessionId;
         }
 
-        startSessionStore(resultSessionId, wfId, wf.primaryAgent, bookId, seriesId);
+        startSessionStore(resultSessionId, wfId, wf.primaryAgent, bookId, seriesId, {
+          estimatedMinMinutes: wf.estimatedMinMinutes,
+          estimatedMaxMinutes: wf.estimatedMaxMinutes,
+        });
       } catch {
         // Error handled by mutation state
       } finally {
