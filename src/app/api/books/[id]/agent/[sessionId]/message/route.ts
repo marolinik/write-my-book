@@ -5,11 +5,20 @@ import { decryptApiKey } from "@/lib/encryption";
 import { estimateCost } from "@/lib/cost";
 import { sendMessageSchema } from "@/lib/validation";
 import {
+  createLLMClient,
+  resolveModelForRole,
+  mapAgentTypeToRole,
+  resolveProviderRoute,
+} from "@/lib/llm";
+import type { ProviderKey } from "@/lib/llm";
+import {
   getSession,
+  createSession,
   pushMessage,
   completeSession,
   getWorkflow,
   AgentOrchestrator,
+  loadConversationHistory,
 } from "@/lib/agents";
 import type { AgentStreamMessage, AgentResult } from "@/lib/agents";
 
@@ -23,10 +32,39 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     const user = await requireUser();
     const { id: bookId, sessionId } = await params;
     const body = await req.json();
-    const { message } = sendMessageSchema.parse(body);
+    const { message, pageContext } = sendMessageSchema.parse(body);
 
-    const session = getSession(sessionId);
-    if (!session || session.bookId !== bookId || session.userId !== user.id) {
+    let session = getSession(sessionId);
+
+    // If in-memory session is missing (server restarted), reconstruct from DB
+    if (!session) {
+      const dbSession = await db.agentSession.findFirst({
+        where: { id: sessionId, bookId, userId: user.id },
+      });
+
+      if (!dbSession || !dbSession.workflowId) {
+        return NextResponse.json(
+          { error: "Session not found" },
+          { status: 404 }
+        );
+      }
+
+      // Reconstruct in-memory session
+      session = createSession(
+        sessionId,
+        bookId,
+        user.id,
+        dbSession.agentType,
+        dbSession.workflowId
+      );
+      session.status = "completed"; // Will be set to running below
+
+      // Load conversation history from DB
+      const history = await loadConversationHistory(sessionId);
+      session.conversationHistory = history;
+    }
+
+    if (session.bookId !== bookId || session.userId !== user.id) {
       return NextResponse.json(
         { error: "Session not found" },
         { status: 404 }
@@ -58,52 +96,101 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     // Reset status if continuing after completion
     session.status = "running";
 
-    // Get API key
-    let apiKey: string | undefined;
-    const userKey = await db.apiKey.findFirst({
-      where: { userId: user.id, provider: "anthropic", isDefault: true },
-    });
-    if (userKey) {
-      apiKey = decryptApiKey(userKey.encryptedKey);
-    } else if (process.env.ANTHROPIC_API_KEY) {
-      apiKey = process.env.ANTHROPIC_API_KEY;
-    }
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: "No API key configured" },
-        { status: 400 }
-      );
-    }
-
-    // Get model tier from book settings
+    // ── Model Resolution (BYOK — no platform key fallbacks) ─────
     const book = await db.book.findFirst({
       where: { id: bookId, userId: user.id },
       include: { settings: true },
     });
 
-    const agentDef = await import("@/lib/agents/definitions").then((m) =>
-      m.getAgentDefinition(workflow.primaryAgent)
+    const dbUser = await db.user.findUnique({
+      where: { id: user.id },
+      select: {
+        defaultModel: true,
+        modelGhostwriter: true,
+        modelEditor: true,
+        modelBetaReader: true,
+        modelAnalyst: true,
+        modelCoach: true,
+        modelCreative: true,
+      },
+    });
+    const userDefault = dbUser?.defaultModel ?? "anthropic/sonnet";
+
+    const role = mapAgentTypeToRole(workflow.primaryAgent);
+    const resolved = resolveModelForRole(
+      role,
+      book?.settings ?? null,
+      {
+        ghostwriter: dbUser?.modelGhostwriter ?? null,
+        editor: dbUser?.modelEditor ?? null,
+        "beta-reader": dbUser?.modelBetaReader ?? null,
+        analyst: dbUser?.modelAnalyst ?? null,
+        coach: dbUser?.modelCoach ?? null,
+        creative: dbUser?.modelCreative ?? null,
+      },
+      userDefault
     );
-    let modelTier = agentDef?.defaultModel ?? "sonnet";
-    if (book?.settings) {
-      const agentType = workflow.primaryAgent;
-      if (agentType === "writing-coach" && book.settings.modelEditor) {
-        modelTier = book.settings.modelEditor as "opus" | "sonnet" | "haiku";
-      }
+
+    // ── API Key Resolution (all user keys, no platform fallbacks) ──
+    const userKeys = await db.apiKey.findMany({
+      where: { userId: user.id, validatedAt: { not: null } },
+      select: { provider: true, encryptedKey: true },
+    });
+    const decryptedKeys: Partial<Record<ProviderKey, string>> = {};
+    for (const k of userKeys) {
+      decryptedKeys[k.provider as ProviderKey] = decryptApiKey(k.encryptedKey);
     }
 
+    const route = resolveProviderRoute(resolved.modelDef.provider, {
+      anthropicApiKey: decryptedKeys.anthropic,
+      openrouterApiKey: decryptedKeys.openrouter,
+      openaiApiKey: decryptedKeys.openai,
+      geminiApiKey: decryptedKeys.gemini,
+      grokApiKey: decryptedKeys.grok,
+    });
+    if (route.route === "none") {
+      return NextResponse.json(
+        { error: route.error },
+        { status: 400 }
+      );
+    }
+
+    const { client, model } = createLLMClient({
+      modelId: resolved.registryId,
+      anthropicApiKey: decryptedKeys.anthropic,
+      openrouterApiKey: decryptedKeys.openrouter,
+      openaiApiKey: decryptedKeys.openai,
+      geminiApiKey: decryptedKeys.gemini,
+      grokApiKey: decryptedKeys.grok,
+    });
+
     // Create orchestrator and continue conversation
-    const orchestrator = new AgentOrchestrator(apiKey);
+    const orchestrator = new AgentOrchestrator({
+      client,
+      modelId: model.modelId,
+      registryId: model.id,
+    });
     session.orchestrator = orchestrator;
+
+    // Restore full context from the original session (not hardcoded)
+    const dbSessionRecord = await db.agentSession.findFirst({
+      where: { id: sessionId, bookId, userId: user.id },
+      select: { chapterNumber: true, workflowId: true },
+    });
+    const originalWorkflow = getWorkflow(session.workflowId);
 
     const spawnOptions = {
       agentType: workflow.primaryAgent,
-      model: modelTier as "opus" | "sonnet" | "haiku",
+      model: model.tier,
       context: {
         bookId,
+        bookName: book?.name,
         userId: user.id,
-        chapterNumber: undefined,
+        chapterNumber: dbSessionRecord?.chapterNumber ?? undefined,
         language: book?.language,
+        targetWorkflowId: session.workflowId,
+        targetAgentType: originalWorkflow?.primaryAgent,
+        pageContext,
       },
       workflowId: session.workflowId,
       sessionId,
@@ -122,7 +209,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         });
 
         const cost = estimateCost(
-          modelTier,
+          model.id,
           result.tokensInput,
           result.tokensOutput
         );
@@ -131,7 +218,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
             userId: user.id,
             bookId,
             agentType: workflow.primaryAgent,
-            model: modelTier,
+            model: model.id,
             tokensInput: result.tokensInput,
             tokensOutput: result.tokensOutput,
             costEstimate: cost,
@@ -166,13 +253,13 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     }
     if ((error as Error).name === "ZodError") {
       return NextResponse.json(
-        { error: "Invalid input", details: error },
+        { error: "Invalid input" },
         { status: 400 }
       );
     }
     console.error(
       "POST /api/books/:id/agent/:sessionId/message error:",
-      error
+      (error as Error).message
     );
     return NextResponse.json(
       { error: "Failed to send message" },

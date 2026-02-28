@@ -1,29 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { decryptApiKey } from "@/lib/encryption";
 import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
-import { createLLMClient } from "@/lib/llm";
+import { createLLMClient, resolveProviderRoute } from "@/lib/llm";
+import type { ProviderKey } from "@/lib/llm";
 import type Anthropic from "@anthropic-ai/sdk";
-
-// ─── LLM client singleton ──────────────────────────────────────
-const getClient = (() => {
-  let cached: { client: Anthropic; modelId: string } | null = null;
-  return () => {
-    if (!cached) {
-      const orKey = process.env.OPENROUTER_API_KEY;
-      const antKey = process.env.ANTHROPIC_API_KEY;
-      const registryId = orKey ? "openrouter/haiku" : "anthropic/haiku";
-      const { client, model } = createLLMClient({
-        modelId: registryId,
-        anthropicApiKey: antKey,
-        openrouterApiKey: orKey,
-      });
-      cached = { client, modelId: model.modelId };
-    }
-    return cached;
-  };
-})();
 
 // ─── Extraction prompt ──────────────────────────────────────────
 const WIKI_EXTRACTION_PROMPT = `You are a literary wiki extraction engine. Analyze the following book documents (Story Bible, Architecture, and/or manuscript) and extract ALL entities that should appear in the book's world wiki.
@@ -149,19 +132,58 @@ export async function POST(
       ? combinedText.slice(0, 100_000) + "\n\n[TEXT TRUNCATED]"
       : combinedText;
 
-  // Extract entities via LLM
-  let llmClient: { client: Anthropic; modelId: string };
-  try {
-    llmClient = getClient();
-  } catch (error) {
-    console.error("[wiki/populate] LLM client init failed:", error);
+  // ── BYOK key resolution (no platform key fallbacks) ──────────
+  const dbUser = await db.user.findUnique({
+    where: { id: user.id },
+    select: { defaultModel: true },
+  });
+  const userDefault = dbUser?.defaultModel ?? "anthropic/sonnet";
+  const provider = (userDefault.split("/")[0] || "anthropic") as ProviderKey;
+  const haikuRegistryId = `${provider}/haiku`;
+
+  const userKeys = await db.apiKey.findMany({
+    where: { userId: user.id, validatedAt: { not: null } },
+    select: { provider: true, encryptedKey: true },
+  });
+  const decryptedKeys: Partial<Record<ProviderKey, string>> = {};
+  for (const k of userKeys) {
+    decryptedKeys[k.provider as ProviderKey] = decryptApiKey(k.encryptedKey);
+  }
+
+  const route = resolveProviderRoute(provider, {
+    anthropicApiKey: decryptedKeys.anthropic,
+    openrouterApiKey: decryptedKeys.openrouter,
+    openaiApiKey: decryptedKeys.openai,
+    geminiApiKey: decryptedKeys.gemini,
+    grokApiKey: decryptedKeys.grok,
+  });
+  if (route.route === "none") {
     return NextResponse.json(
-      { error: "No API key configured. Set OPENROUTER_API_KEY or ANTHROPIC_API_KEY in your environment." },
+      { error: "No API key configured. Add one in Settings > API Keys." },
+      { status: 400 }
+    );
+  }
+
+  let llmResult: { client: Anthropic; modelId: string };
+  try {
+    const { client: c, model: m } = createLLMClient({
+      modelId: haikuRegistryId,
+      anthropicApiKey: decryptedKeys.anthropic,
+      openrouterApiKey: decryptedKeys.openrouter,
+      openaiApiKey: decryptedKeys.openai,
+      geminiApiKey: decryptedKeys.gemini,
+      grokApiKey: decryptedKeys.grok,
+    });
+    llmResult = { client: c, modelId: m.modelId };
+  } catch (error) {
+    console.error("[wiki/populate] LLM client init failed:", (error as Error).message);
+    return NextResponse.json(
+      { error: "Failed to initialize AI client. Check your API keys in Settings." },
       { status: 503 }
     );
   }
 
-  const { client, modelId } = llmClient;
+  const { client, modelId } = llmResult;
 
   let entries: ExtractedWikiEntry[] = [];
   try {
