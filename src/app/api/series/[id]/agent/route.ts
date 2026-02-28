@@ -6,7 +6,13 @@ import { estimateCost } from "@/lib/cost";
 import { startSeriesAgentSchema } from "@/lib/validation";
 import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
-import { createLLMClient, getModelDef, resolveFromTier } from "@/lib/llm";
+import {
+  createLLMClient,
+  resolveModelForRole,
+  mapAgentTypeToRole,
+  resolveProviderRoute,
+} from "@/lib/llm";
+import type { ProviderKey } from "@/lib/llm";
 import {
   AgentOrchestrator,
   getWorkflow,
@@ -66,97 +72,67 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // ── Model Resolution ──────────────────────────────────────────
-    const settings = book.settings;
-    const agentType = workflow.primaryAgent;
-    let resolvedTier: string | null = null;
-
-    if (settings) {
-      if (agentType === "ghostwriter" && settings.modelGhostwriter) {
-        resolvedTier = settings.modelGhostwriter;
-      } else if (
-        ["dev-editor", "line-editor", "continuity-checker"].includes(agentType) &&
-        settings.modelEditor
-      ) {
-        resolvedTier = settings.modelEditor;
-      } else if (agentType === "beta-reader" && settings.modelBetaReader) {
-        resolvedTier = settings.modelBetaReader;
-      } else if (agentType === "manuscript-analyst" && settings.modelAnalyst) {
-        resolvedTier = settings.modelAnalyst;
-      } else if (agentType === "writing-coach" && settings.modelCoach) {
-        resolvedTier = settings.modelCoach;
-      } else if (
-        ["style-analyst", "story-architect", "scene-planner"].includes(agentType) &&
-        settings.modelCreative
-      ) {
-        resolvedTier = settings.modelCreative;
-      } else if (
-        ["manuscript-reader", "world-researcher", "market-reader", "publishing-editor"].includes(agentType) &&
-        settings.modelResearch
-      ) {
-        resolvedTier = settings.modelResearch;
-      }
-    }
-
-    // Load user's default model
+    // ── Model Resolution (BYOK — no platform key fallbacks) ─────
     const dbUser = await db.user.findUnique({
       where: { id: user.id },
-      select: { defaultModel: true },
+      select: {
+        defaultModel: true,
+        modelGhostwriter: true,
+        modelEditor: true,
+        modelBetaReader: true,
+        modelAnalyst: true,
+        modelCoach: true,
+        modelCreative: true,
+      },
     });
     const userDefault = dbUser?.defaultModel ?? "anthropic/sonnet";
-    const userProvider = userDefault.startsWith("openrouter/") ? "openrouter" : "anthropic";
 
-    let registryId: string;
-    if (settings?.modelOverride) {
-      registryId = settings.modelOverride;
-    } else if (resolvedTier) {
-      registryId = `${userProvider}/${resolvedTier}`;
-    } else {
-      registryId = `${userProvider}/${agentDef.defaultModel}`;
+    const role = mapAgentTypeToRole(workflow.primaryAgent);
+    const resolved = resolveModelForRole(
+      role,
+      book.settings ?? null,
+      {
+        ghostwriter: dbUser?.modelGhostwriter ?? null,
+        editor: dbUser?.modelEditor ?? null,
+        "beta-reader": dbUser?.modelBetaReader ?? null,
+        analyst: dbUser?.modelAnalyst ?? null,
+        coach: dbUser?.modelCoach ?? null,
+        creative: dbUser?.modelCreative ?? null,
+      },
+      userDefault
+    );
+
+    // ── API Key Resolution (all user keys, no platform fallbacks) ──
+    const userKeys = await db.apiKey.findMany({
+      where: { userId: user.id, validatedAt: { not: null } },
+      select: { provider: true, encryptedKey: true },
+    });
+    const decryptedKeys: Partial<Record<ProviderKey, string>> = {};
+    for (const k of userKeys) {
+      decryptedKeys[k.provider as ProviderKey] = decryptApiKey(k.encryptedKey);
     }
 
-    const modelDef = getModelDef(registryId) ?? resolveFromTier(registryId);
-
-    // ── API Key Resolution ──────────────────────────────────────
-    let anthropicApiKey: string | undefined;
-    let openrouterApiKey: string | undefined;
-
-    if (modelDef.provider === "openrouter") {
-      const orKey = await db.apiKey.findFirst({
-        where: { userId: user.id, provider: "openrouter", isDefault: true },
-      });
-      if (orKey) {
-        openrouterApiKey = decryptApiKey(orKey.encryptedKey);
-      } else if (process.env.OPENROUTER_API_KEY) {
-        openrouterApiKey = process.env.OPENROUTER_API_KEY;
-      }
-      if (!openrouterApiKey) {
-        return NextResponse.json(
-          { error: "No OpenRouter API key configured. Add one in Settings." },
-          { status: 400 }
-        );
-      }
-    } else {
-      const antKey = await db.apiKey.findFirst({
-        where: { userId: user.id, provider: "anthropic", isDefault: true },
-      });
-      if (antKey) {
-        anthropicApiKey = decryptApiKey(antKey.encryptedKey);
-      } else if (process.env.ANTHROPIC_API_KEY) {
-        anthropicApiKey = process.env.ANTHROPIC_API_KEY;
-      }
-      if (!anthropicApiKey) {
-        return NextResponse.json(
-          { error: "No Anthropic API key configured. Add one in Settings." },
-          { status: 400 }
-        );
-      }
+    const route = resolveProviderRoute(resolved.modelDef.provider, {
+      anthropicApiKey: decryptedKeys.anthropic,
+      openrouterApiKey: decryptedKeys.openrouter,
+      openaiApiKey: decryptedKeys.openai,
+      geminiApiKey: decryptedKeys.gemini,
+      grokApiKey: decryptedKeys.grok,
+    });
+    if (route.route === "none") {
+      return NextResponse.json(
+        { error: route.error },
+        { status: 400 }
+      );
     }
 
     const { client, model } = createLLMClient({
-      modelId: registryId,
-      anthropicApiKey,
-      openrouterApiKey,
+      modelId: resolved.registryId,
+      anthropicApiKey: decryptedKeys.anthropic,
+      openrouterApiKey: decryptedKeys.openrouter,
+      openaiApiKey: decryptedKeys.openai,
+      geminiApiKey: decryptedKeys.gemini,
+      grokApiKey: decryptedKeys.grok,
     });
 
     // Pre-load series documents
@@ -282,7 +258,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       onError: async (error: Error) => {
         pushMessage(dbSession.id, {
           type: "error",
-          content: error.message,
+          content: "An error occurred during the agent session",
         });
         completeSession(dbSession.id, {
           success: false,
@@ -312,11 +288,11 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     }
     if ((error as Error).name === "ZodError") {
       return NextResponse.json(
-        { error: "Invalid input", details: error },
+        { error: "Invalid input" },
         { status: 400 }
       );
     }
-    console.error("POST /api/series/:id/agent error:", error);
+    console.error("POST /api/series/:id/agent error:", (error as Error).message);
     return NextResponse.json(
       { error: "Failed to start series agent session" },
       { status: 500 }
