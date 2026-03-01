@@ -3,8 +3,8 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: writemybook
     ports:
       - "5432:5432"
@@ -23,8 +23,9 @@ services:
       - "6379:6379"
     volumes:
       - redisdata:/data
+    command: redis-server --requirepass ${REDIS_PASSWORD:-wmb-redis-prod}
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-wmb-redis-prod}", "ping"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -36,8 +37,8 @@ services:
       - "9000:9000"
       - "9001:9001"
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-wmb-minio}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-wmb-minio-prod}
     volumes:
       - miniodata:/data
     command: server /data --console-address ":9001"
@@ -54,10 +55,43 @@ services:
         condition: service_healthy
     entrypoint: >
       /bin/sh -c "
-      mc alias set wmb http://minio:9000 minioadmin minioadmin;
+      mc alias set wmb http://minio:9000 ${MINIO_ROOT_USER:-wmb-minio} ${MINIO_ROOT_PASSWORD:-wmb-minio-prod};
       mc mb --ignore-existing wmb/wmb-projects;
       echo 'Bucket wmb-projects created';
       "
+
+  neo4j:
+    image: neo4j:5-community
+    restart: unless-stopped
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      NEO4J_AUTH: neo4j/wmb-neo4j-dev
+      NEO4J_PLUGINS: '[]'
+    volumes:
+      - neo4jdata:/data
+    healthcheck:
+      test: ["CMD", "cypher-shell", "-u", "neo4j", "-p", "wmb-neo4j-dev", "RETURN 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  qdrant:
+    image: qdrant/qdrant:v1.13.2
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrantdata:/qdrant/storage
+    environment:
+      QDRANT__SERVICE__API_KEY: ${QDRANT_API_KEY:-wmb-qdrant-prod}
+    healthcheck:
+      test: ["CMD", "bash", "-c", "curl -sf -H 'api-key: ${QDRANT_API_KEY:-wmb-qdrant-prod}' http://localhost:6333/healthz || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   app:
     build:
@@ -67,6 +101,7 @@ services:
         NEXT_PUBLIC_CLERK_SIGN_IN_URL: ${NEXT_PUBLIC_CLERK_SIGN_IN_URL:-/login}
         NEXT_PUBLIC_CLERK_SIGN_UP_URL: ${NEXT_PUBLIC_CLERK_SIGN_UP_URL:-/signup}
         NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+        NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
     restart: unless-stopped
     ports:
       - "${APP_PORT:-3000}:3000"
@@ -77,18 +112,71 @@ services:
         condition: service_healthy
       minio-init:
         condition: service_completed_successfully
+      neo4j:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
     env_file:
       - .env.docker
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/writemybook?schema=public
-      REDIS_URL: redis://redis:6379
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/writemybook?schema=public
+      REDIS_URL: redis://:${REDIS_PASSWORD:-wmb-redis-prod}@redis:6379
       S3_ENDPOINT: http://minio:9000
-      S3_ACCESS_KEY_ID: minioadmin
-      S3_SECRET_ACCESS_KEY: minioadmin
+      S3_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-wmb-minio}
+      S3_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:-wmb-minio-prod}
       S3_BUCKET: wmb-projects
       S3_FORCE_PATH_STYLE: "true"
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: wmb-neo4j-dev
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_API_KEY: ${QDRANT_API_KEY:-wmb-qdrant-prod}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+      neo4j:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    env_file:
+      - .env.docker
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/writemybook?schema=public
+      REDIS_URL: redis://:${REDIS_PASSWORD:-wmb-redis-prod}@redis:6379
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-wmb-minio}
+      S3_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:-wmb-minio-prod}
+      S3_BUCKET: wmb-projects
+      S3_FORCE_PATH_STYLE: "true"
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: wmb-neo4j-dev
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_API_KEY: ${QDRANT_API_KEY:-wmb-qdrant-prod}
+    deploy:
+      resources:
+        limits:
+          memory: 2G
 
 volumes:
   pgdata:
   redisdata:
   miniodata:
+  neo4jdata:
+  qdrantdata:

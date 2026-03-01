@@ -1,0 +1,42 @@
+FROM node:22-alpine AS base
+
+FROM base AS deps
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Generate Prisma client (needed for DB access in worker)
+ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
+RUN npx prisma generate
+
+# Compile worker with TypeScript and resolve path aliases
+RUN npx tsc --project tsconfig.worker.json && npx tsc-alias --project tsconfig.worker.json
+
+FROM base AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 worker
+
+# Copy compiled worker output
+COPY --from=builder /app/dist-worker ./dist-worker
+
+# Copy node_modules (needed for runtime dependencies: bullmq, ioredis, @anthropic-ai/sdk, prisma, etc.)
+COPY --from=builder /app/node_modules ./node_modules
+
+# Copy Prisma schema and generated client
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
+COPY --from=builder /app/src/generated ./src/generated
+
+# Copy package.json for module resolution
+COPY --from=builder /app/package.json ./package.json
+
+USER worker
+CMD ["node", "dist-worker/worker.js"]
