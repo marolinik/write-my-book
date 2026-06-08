@@ -1,0 +1,473 @@
+"use client";
+
+import { useState } from "react";
+import {
+  SparklesIcon,
+  ImportIcon,
+  BookOpenIcon,
+  BookPlusIcon,
+  ClockIcon,
+  LayoutTemplateIcon,
+  PenToolIcon,
+  ListIcon,
+  Loader2Icon,
+  ZapIcon,
+  CheckCircleIcon,
+  MapIcon,
+  MessageCircleIcon,
+  SendIcon,
+  AlertTriangleIcon,
+} from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useBookState } from "@/hooks/use-book-state";
+import { useAgentUIStore } from "@/stores/agent-ui-store";
+import { getWorkflow } from "@/lib/agents/workflows";
+import { getJourney } from "@/lib/agents/journeys";
+import { useAgentSessionStore } from "@/stores/agent-session-store";
+import { useBook } from "@/hooks/use-books";
+import { getAgentStrings } from "@/lib/i18n/agent-strings";
+
+const WORKFLOW_ICONS: Record<string, React.ElementType> = {
+  "read-manuscript": ImportIcon,
+  "capture-style": SparklesIcon,
+  "create-story-bible": BookOpenIcon,
+  "build-architecture": LayoutTemplateIcon,
+  "new-novel": BookOpenIcon,
+  "dev-edit": PenToolIcon,
+  "line-edit": PenToolIcon,
+  "beta-read": BookOpenIcon,
+  "write-chapter": PenToolIcon,
+  "plan-chapter": LayoutTemplateIcon,
+  "discuss-chapter": BookOpenIcon,
+  "discuss-edits": PenToolIcon,
+  "publishing-check": CheckCircleIcon,
+  "market-analysis": BookOpenIcon,
+};
+
+// ── Greenfield conversational onboarding ─────────────────────
+
+interface GreenfieldProps {
+  bookId: string;
+  bookName: string;
+  onSelectJourney: (journeyId: string) => void;
+  onSelectWorkflow: (workflowId: string, chapterNumber?: number) => void;
+  onBrowseAll: () => void;
+  disabled?: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  t: any;
+}
+
+function GreenfieldOnboarding({
+  bookId,
+  bookName,
+  onSelectJourney,
+  onSelectWorkflow,
+  onBrowseAll,
+  disabled,
+  t,
+}: GreenfieldProps) {
+  const [chatInput, setChatInput] = useState("");
+  const openWithMessage = useAgentUIStore((s) => s.openWithMessage);
+
+  const handleSendMessage = () => {
+    const msg = chatInput.trim();
+    if (!msg) return;
+    // Start freeform coaching workflow with the user's message
+    openWithMessage(bookId, msg);
+    setChatInput("");
+  };
+
+  return (
+    <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-4">
+      {/* Welcome message */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <div className="rounded-full bg-primary/10 p-1.5">
+            <MessageCircleIcon className="size-4 text-primary" />
+          </div>
+          <h3 className="text-sm font-semibold">
+            {t.workingOn} {bookName}
+          </h3>
+        </div>
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          {t.greenfieldWelcome}
+        </p>
+      </div>
+
+      {/* Chat input area */}
+      <div className="relative">
+        <textarea
+          value={chatInput}
+          onChange={(e) => setChatInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              handleSendMessage();
+            }
+          }}
+          placeholder={t.greenfieldPlaceholder}
+          className="w-full resize-none rounded-lg border bg-background px-3 py-2.5 pr-10 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring min-h-[72px]"
+          disabled={disabled}
+        />
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute bottom-2 right-2 size-7"
+          onClick={handleSendMessage}
+          disabled={disabled || !chatInput.trim()}
+        >
+          <SendIcon className="size-4" />
+        </Button>
+      </div>
+
+      {/* Divider */}
+      <div className="flex items-center gap-3">
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
+          {t.greenfieldDivider}
+        </span>
+        <div className="h-px flex-1 bg-border" />
+      </div>
+
+      {/* Journey cards */}
+      <button
+        onClick={() => onSelectJourney("new-novel")}
+        disabled={disabled}
+        className="flex items-start gap-3 rounded-lg border p-3 text-left transition-colors hover:bg-muted/50 disabled:opacity-50"
+      >
+        <div className="mt-0.5 rounded-md bg-blue-500/10 p-2">
+          <BookPlusIcon className="size-5 text-blue-500" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <span className="text-sm font-medium">{t.greenfieldNewNovel}</span>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {t.greenfieldNewNovelDesc}
+          </p>
+        </div>
+      </button>
+
+      <button
+        onClick={() => onSelectJourney("existing-manuscript")}
+        disabled={disabled}
+        className="flex items-start gap-3 rounded-lg border p-3 text-left transition-colors hover:bg-muted/50 disabled:opacity-50"
+      >
+        <div className="mt-0.5 rounded-md bg-amber-500/10 p-2">
+          <ImportIcon className="size-5 text-amber-500" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <span className="text-sm font-medium">{t.greenfieldExistingMs}</span>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {t.greenfieldExistingMsDesc}
+          </p>
+        </div>
+      </button>
+
+      <Button
+        variant="ghost"
+        size="sm"
+        className="w-full gap-2 text-xs text-muted-foreground"
+        onClick={onBrowseAll}
+      >
+        <ListIcon className="size-3" />
+        {t.browseAll}
+      </Button>
+    </div>
+  );
+}
+
+// ── Main ProactiveGuide ──────────────────────────────────────
+
+interface ProactiveGuideProps {
+  bookId: string;
+  onSelectWorkflow: (workflowId: string, chapterNumber?: number) => void;
+  onBatchStart?: (workflowIds: string[]) => void;
+  onBrowseAll: () => void;
+  onSelectJourney?: (journeyId: string) => void;
+  disabled?: boolean;
+}
+
+export function ProactiveGuide({
+  bookId,
+  onSelectWorkflow,
+  onBatchStart,
+  onBrowseAll,
+  onSelectJourney,
+  disabled,
+}: ProactiveGuideProps) {
+  const state = useBookState(bookId);
+  const t = getAgentStrings(state.language);
+
+  // Pre-flight cost estimate for the primary recommended workflow
+  const { data: costData } = useQuery({
+    queryKey: ["cost-estimate", bookId, state.nextRecommendedWorkflow],
+    queryFn: async () => {
+      if (!state.nextRecommendedWorkflow) return null;
+      const res = await fetch(
+        `/api/books/${bookId}/cost-estimate?workflowId=${state.nextRecommendedWorkflow}`
+      );
+      if (!res.ok) return null;
+      return res.json();
+    },
+    enabled: !!state.nextRecommendedWorkflow && !!bookId,
+    staleTime: 5 * 60 * 1000, // cache for 5 min
+  });
+
+  // All hooks MUST be called before any early returns (Rules of Hooks)
+  const { data: bookData } = useBook(bookId);
+  const sessions = useAgentSessionStore((s) => s.sessions);
+
+  if (state.isLoading) {
+    return (
+      <div className="flex flex-1 items-center justify-center p-6">
+        <Loader2Icon className="size-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  // Early state — no setup docs and no chapters: offer journey selection
+  const isGreenfield =
+    !state.hasChapters &&
+    !state.hasFingerprint &&
+    !state.hasStoryBible &&
+    !state.hasArchitecture &&
+    !state.hasImportedManuscript;
+
+  if (isGreenfield && onSelectJourney) {
+    return (
+      <GreenfieldOnboarding
+        bookId={bookId}
+        bookName={state.bookName}
+        onSelectJourney={onSelectJourney}
+        onSelectWorkflow={onSelectWorkflow}
+        onBrowseAll={onBrowseAll}
+        disabled={disabled}
+        t={t}
+      />
+    );
+  }
+
+  const primaryWorkflow = state.nextRecommendedWorkflow
+    ? getWorkflow(state.nextRecommendedWorkflow)
+    : null;
+
+  const PrimaryIcon = state.nextRecommendedWorkflow
+    ? (WORKFLOW_ICONS[state.nextRecommendedWorkflow] ?? SparklesIcon)
+    : SparklesIcon;
+
+  // Beta score for beta-read recommendations
+  const betaScoreForCta = (() => {
+    if (state.nextRecommendedWorkflow !== "beta-read") return null;
+    const chapters = bookData?.chapters ?? [];
+    // Show the average beta score across chapters that have one
+    const scored = chapters.filter((ch) => ch.betaScore !== null && ch.betaScore !== undefined);
+    if (scored.length === 0) return null;
+    const avg = scored.reduce((sum, ch) => sum + (ch.betaScore ?? 0), 0) / scored.length;
+    return avg;
+  })();
+  const lastTimedOut = (() => {
+    const sessionList = Object.values(sessions);
+    if (sessionList.length === 0) return false;
+    // Find the most recent failed session for this book
+    const bookSessions = sessionList
+      .filter((s) => s.bookId === bookId && s.status === "failed")
+      .sort((a, b) => b.startedAt - a.startedAt);
+    if (bookSessions.length === 0) return false;
+    const last = bookSessions[0];
+    return last.error?.toLowerCase().includes("timeout") ||
+           last.error?.toLowerCase().includes("timed out") ||
+           false;
+  })();
+
+  // State summary
+  const stateParts: string[] = [];
+  if (state.hasChapters) {
+    stateParts.push(`${state.chapterCount} ${t.chapters}`);
+  }
+  if (!state.hasFingerprint) stateParts.push(t.noFingerprint);
+  if (!state.hasStoryBible) stateParts.push(t.noStoryBible);
+  if (!state.hasArchitecture) stateParts.push(t.noArchitecture);
+  if (state.pendingFindingsCount > 0) {
+    stateParts.push(`${state.pendingFindingsCount} ${t.pendingFindings}`);
+  }
+
+  // Setup completeness
+  const setupTotal = 3; // fingerprint, bible, architecture
+  const setupDone =
+    (state.hasFingerprint ? 1 : 0) +
+    (state.hasStoryBible ? 1 : 0) +
+    (state.hasArchitecture ? 1 : 0);
+  const setupComplete = setupDone === setupTotal;
+
+  // Active journey progress
+  const activeJourney = state.activeJourneyId
+    ? getJourney(state.activeJourneyId)
+    : null;
+
+  return (
+    <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-4">
+      {/* Book context */}
+      <div className="space-y-1">
+        <h3 className="text-sm font-semibold">
+          {t.workingOn} {state.bookName}
+        </h3>
+        {stateParts.length > 0 && (
+          <p className="text-xs text-muted-foreground">
+            {stateParts.join(" · ")}
+          </p>
+        )}
+      </div>
+
+      {/* Active journey progress */}
+      {activeJourney && state.journeyProgress && onSelectJourney && (
+        <button
+          onClick={() => onSelectJourney(activeJourney.id)}
+          className="flex items-center gap-2.5 rounded-lg border border-primary/20 bg-primary/5 p-2.5 text-left transition-colors hover:bg-primary/10"
+        >
+          <MapIcon className="size-4 text-primary shrink-0" />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-medium">{activeJourney.label}</span>
+              <span className="text-[10px] text-muted-foreground">
+                {state.journeyProgress.completed}/{state.journeyProgress.total}
+              </span>
+            </div>
+            <div className="mt-1 h-1 rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-primary transition-all"
+                style={{
+                  width: `${(state.journeyProgress.completed / state.journeyProgress.total) * 100}%`,
+                }}
+              />
+            </div>
+          </div>
+        </button>
+      )}
+
+      {/* Setup progress bar */}
+      {!setupComplete && state.hasChapters && (
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">{t.setupProgress}</span>
+            <span className="font-medium">
+              {setupDone}/{setupTotal}
+            </span>
+          </div>
+          <div className="h-1.5 rounded-full bg-muted">
+            <div
+              className="h-full rounded-full bg-primary transition-all"
+              style={{ width: `${(setupDone / setupTotal) * 100}%` }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Timeout re-run suggestion */}
+      {lastTimedOut && (
+        <div className="flex items-center gap-2 rounded-md border border-orange-500/30 bg-orange-50/50 dark:bg-orange-950/20 px-3 py-2">
+          <AlertTriangleIcon className="size-3.5 text-orange-600 dark:text-orange-400 shrink-0" />
+          <span className="text-xs text-orange-700 dark:text-orange-300">
+            Previous session timed out — run again to continue
+          </span>
+        </div>
+      )}
+
+      {/* Primary CTA */}
+      {primaryWorkflow && (
+        <Button
+          className="w-full justify-start gap-2 h-auto py-3"
+          onClick={() => onSelectWorkflow(primaryWorkflow.id)}
+          disabled={disabled}
+        >
+          <PrimaryIcon className="size-5 shrink-0" />
+          <div className="flex flex-col items-start text-left">
+            <span className="font-medium flex items-center gap-1.5">
+              {t.workflows[primaryWorkflow.id] ?? primaryWorkflow.label}
+              {primaryWorkflow.estimatedMinMinutes && primaryWorkflow.estimatedMaxMinutes && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-normal opacity-70">
+                  <ClockIcon className="size-3" />
+                  {primaryWorkflow.estimatedMinMinutes}-{primaryWorkflow.estimatedMaxMinutes} min
+                </span>
+              )}
+            </span>
+            <span className="text-xs font-normal opacity-80">
+              {t.workflowDescriptions[primaryWorkflow.id] ?? primaryWorkflow.writerDescription}
+            </span>
+            {betaScoreForCta !== null && (
+              <span className="text-xs font-normal opacity-70">
+                Current score: {betaScoreForCta.toFixed(1)} — run beta-read to re-evaluate
+              </span>
+            )}
+            {costData?.costEstimate && (
+              <span className="text-[10px] font-normal opacity-60">
+                Est. {costData.costEstimate.formatted}
+                {costData.embeddingEstimate && ` (incl. ${costData.embeddingEstimate.formatted} embeddings)`}
+              </span>
+            )}
+          </div>
+        </Button>
+      )}
+
+      {/* Secondary suggestions */}
+      {state.secondaryWorkflows.length > 0 && (
+        <div className="space-y-1.5">
+          <span className="text-xs text-muted-foreground">{t.alsoRecommended}</span>
+          {state.secondaryWorkflows.map(({ id, reason }) => {
+            const wf = getWorkflow(id);
+            if (!wf) return null;
+            const Icon = WORKFLOW_ICONS[id] ?? SparklesIcon;
+            return (
+              <Button
+                key={id}
+                variant="outline"
+                size="sm"
+                className="w-full justify-start gap-2 h-auto py-2"
+                onClick={() => onSelectWorkflow(id)}
+                disabled={disabled}
+              >
+                <Icon className="size-4 shrink-0" />
+                <div className="flex flex-col items-start text-left">
+                  <span className="text-xs font-medium">
+                    {t.workflows[id] ?? wf.label}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">
+                    {reason}
+                  </span>
+                </div>
+              </Button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Run all setup (parallel batch) */}
+      {state.setupWorkflows.length >= 2 && state.hasChapters && onBatchStart && (
+        <Button
+          variant="secondary"
+          size="sm"
+          className="w-full gap-2"
+          onClick={() => onBatchStart(state.setupWorkflows)}
+          disabled={disabled}
+        >
+          <ZapIcon className="size-4" />
+          {t.runAllSetup}
+          <Badge variant="outline" className="ml-auto text-[10px]">
+            {state.setupWorkflows.length} {t.agents}
+          </Badge>
+        </Button>
+      )}
+
+      {/* Browse all workflows */}
+      <Button
+        variant="ghost"
+        size="sm"
+        className="w-full gap-2 text-xs text-muted-foreground"
+        onClick={onBrowseAll}
+      >
+        <ListIcon className="size-3" />
+        {t.browseAll}
+      </Button>
+    </div>
+  );
+}

@@ -1,0 +1,601 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── USER & AUTH ────────────────────────────────────────────────
+
+model User {
+  id                String   @id @default(uuid())
+  clerkId           String   @unique @map("clerk_id")
+  email             String   @unique
+  displayName       String?  @map("display_name")
+  preferredLanguage String   @default("en") @map("preferred_language")
+  defaultModel      String   @default("anthropic/sonnet") @map("default_model")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Global model role overrides (registry IDs like "openai/gpt-4o")
+  modelGhostwriter  String?  @map("global_model_ghostwriter")
+  modelEditor       String?  @map("global_model_editor")
+  modelBetaReader   String?  @map("global_model_beta_reader")
+  modelAnalyst      String?  @map("global_model_analyst")
+  modelCoach        String?  @map("global_model_coach")
+  modelCreative     String?  @map("global_model_creative")
+  onboardingComplete Boolean @default(false) @map("onboarding_complete")
+
+  apiKeys       ApiKey[]
+  books         Book[]
+  series        Series[]
+  agentSessions AgentSession[]
+  usageRecords  UsageRecord[]
+  subscription  Subscription?
+  styleProfiles StyleProfile[]
+  notifications BookNotification[]
+
+  @@map("users")
+}
+
+model Subscription {
+  id                   String    @id @default(uuid())
+  userId               String    @unique @map("user_id")
+  stripeCustomerId     String?   @map("stripe_customer_id")
+  stripeSubscriptionId String?   @map("stripe_subscription_id")
+  plan                 String    @default("none") // none, founder, indie, professional, publisher
+  status               String    @default("none") // none, trialing, active, past_due, canceled
+  billingInterval      String    @default("monthly") @map("billing_interval") // monthly, annual
+  trialEnd             DateTime? @map("trial_end")
+  cancelAtPeriodEnd    Boolean   @default(false) @map("cancel_at_period_end")
+  currentPeriodStart   DateTime? @map("current_period_start")
+  currentPeriodEnd     DateTime? @map("current_period_end")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+model StripeWebhookEvent {
+  id            String   @id @default(uuid())
+  stripeEventId String   @unique @map("stripe_event_id")
+  eventType     String   @map("event_type")
+  processedAt   DateTime @default(now()) @map("processed_at")
+
+  @@map("stripe_webhook_events")
+}
+
+model FounderSlot {
+  id        String   @id @default(uuid())
+  userId    String   @unique @map("user_id")
+  claimedAt DateTime @default(now()) @map("claimed_at")
+
+  @@map("founder_slots")
+}
+
+model ApiKey {
+  id           String    @id @default(uuid())
+  userId       String    @map("user_id")
+  provider     String // anthropic, openrouter, openai, gemini, grok
+  encryptedKey String    @map("encrypted_key")
+  label        String?
+  isDefault    Boolean   @default(false) @map("is_default")
+  validatedAt  DateTime? @map("validated_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, provider])
+  @@map("api_keys")
+}
+
+// ─── SERIES (optional top-level grouping) ───────────────────────
+
+enum SeriesType {
+  DUOLOGY
+  TRILOGY
+  TETRALOGY
+  PENTALOGY
+  SAGA
+  OPEN
+}
+
+model Series {
+  id           String     @id @default(uuid())
+  userId       String     @map("user_id")
+  title        String
+  genre        String?
+  language     String     @default("en")
+  seriesType   SeriesType @default(TRILOGY) @map("series_type")
+  plannedBooks Int        @default(3) @map("planned_books")
+  description  String?
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  books     Book[]
+  documents Document[]
+
+  @@map("series")
+}
+
+// ─── BOOK (core entity) ─────────────────────────────────────────
+
+model Book {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  seriesId     String?  @map("series_id")
+  bookNumber   Int      @default(1) @map("book_number")
+  name         String
+  genre        String?
+  language     String   @default("en")
+  status       String   @default("concept") // concept, planning, writing, editing, beta, export, complete
+  description     String?
+  authorNotes     String?   @map("author_notes") @db.Text
+  wordCount       Int      @default(0) @map("word_count")
+  targetWordCount Int?     @map("target_word_count")
+  chapterCount    Int      @default(0) @map("chapter_count")
+  s3Prefix        String?  @map("s3_prefix")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  series          Series?           @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  chapters        Chapter[]
+  documents       Document[]
+  agentSessions   AgentSession[]
+  usageRecords    UsageRecord[]
+  settings        BookSettings?
+  editFindings    EditFinding[]
+  dismissedPatterns DismissedPattern[]
+  crutchPhrases   CrutchPhrase[]
+  characterLenses CharacterLens[]
+  editActions     EditAction[]
+  bookInsights    BookInsight[]
+  styleProfiles   StyleProfile[]    @relation("BookStyleProfiles")
+  healthSnapshot  BookHealthSnapshot?
+  changeEvents    DocumentChangeEvent[]
+  notifications   BookNotification[]
+  writingGoals    WritingGoal[]
+  wikiEntities    WikiEntity[]
+
+  @@unique([seriesId, bookNumber])
+  @@unique([userId, name])
+  @@map("books")
+}
+
+// ─── CHAPTER ────────────────────────────────────────────────────
+
+model Chapter {
+  id            String    @id @default(uuid())
+  bookId        String    @map("book_id")
+  actNumber     Int       @map("act_number")
+  chapterNumber Int       @map("chapter_number")
+  title         String?
+  status        String    @default("undiscussed") // undiscussed, discussed, planned, drafted, dev_edited, line_edited, beta_read, beta_passed
+  wordCount        Int       @default(0) @map("word_count")
+  targetWordCount  Int?      @map("target_word_count")
+  betaScore        Float?    @map("beta_score")
+  betaGate      String    @default("pending") @map("beta_gate") // pending, passed, failed, near_miss, overridden
+  revisionCount Int       @default(0) @map("revision_count")
+  importedAt    DateTime? @map("imported_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([bookId, chapterNumber])
+  @@map("chapters")
+}
+
+// ─── DOCUMENT SYSTEM (first-class artifact tracking) ────────────
+
+enum DocumentType {
+  // Book-level
+  CONCEPT
+  STORY_BIBLE
+  ARCHITECTURE
+  FINGERPRINT
+  CHAPTER_BRIEF
+  CHAPTER_PLAN
+  CHAPTER_CONTENT
+  DEV_EDIT_REPORT
+  LINE_EDIT_REPORT
+  BETA_READ_REPORT
+  CONTINUITY_REPORT
+  ANALYSIS_REPORT
+  MARKET_REPORT
+  EXPORT_CONFIG
+  FREEWRITE
+  WORLD_RESEARCH
+  TOPIC_RESEARCH
+  // Series-level
+  SERIES_BIBLE
+  SERIES_ARCHITECTURE
+  SERIES_CONTINUITY
+  SERIES_FINGERPRINT
+  KNOWLEDGE_LEDGER
+}
+
+model Document {
+  id             String       @id @default(uuid())
+  bookId         String?      @map("book_id")
+  seriesId       String?      @map("series_id")
+  type           DocumentType
+  title          String?
+  storageKey     String       @map("storage_key") // MinIO key for current content
+  currentVersion Int          @default(1) @map("current_version")
+  chapterNumber  Int?         @map("chapter_number") // for chapter-scoped documents
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  book     Book?             @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  series   Series?           @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  versions DocumentVersion[]
+
+  @@map("documents")
+}
+
+model DocumentVersion {
+  id           String   @id @default(uuid())
+  documentId   String   @map("document_id")
+  version      Int
+  storageKey   String   @map("storage_key") // MinIO key for this version's content
+  changeType   String   @map("change_type") // agent_write, manual_edit, revision, import
+  changeSource String   @map("change_source") // session ID or "user"
+  wordCount    Int      @default(0) @map("word_count")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, version])
+  @@map("document_versions")
+}
+
+// ─── AGENT SESSIONS (with SDK team hierarchy) ───────────────────
+
+model AgentSession {
+  id              String    @id @default(uuid())
+  bookId          String    @map("book_id")
+  userId          String    @map("user_id")
+  agentType       String    @map("agent_type")
+  workflowId      String?   @map("workflow_id")
+  parentSessionId String?   @map("parent_session_id")
+  sdkSessionId    String?   @map("sdk_session_id")
+  chapterNumber   Int?      @map("chapter_number")
+  status          String    @default("running") // running, completed, failed, paused
+  jobId           String?   @map("job_id") // BullMQ job ID — null for inline SSE sessions, set for background queue jobs
+  tokensInput     Int       @default(0) @map("tokens_input")
+  tokensOutput    Int       @default(0) @map("tokens_output")
+  estimatedCostUsd Float?  @map("estimated_cost_usd")
+  actualCostUsd    Float?  @map("actual_cost_usd")
+  startedAt       DateTime  @default(now()) @map("started_at")
+  completedAt     DateTime? @map("completed_at")
+
+  book     Book                @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  user     User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent   AgentSession?       @relation("SessionHierarchy", fields: [parentSessionId], references: [id])
+  children AgentSession[]      @relation("SessionHierarchy")
+  turns    ConversationTurn[]
+
+  @@map("agent_sessions")
+}
+
+model ConversationTurn {
+  id        String   @id @default(uuid())
+  sessionId String   @map("session_id")
+  turnIndex Int      @map("turn_index")
+  role      String   // "user" or "assistant"
+  content   String   @db.Text // JSON-serialized Anthropic content blocks
+  createdAt DateTime @default(now()) @map("created_at")
+
+  session AgentSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, turnIndex])
+  @@map("conversation_turns")
+}
+
+model UsageRecord {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  bookId       String   @map("book_id")
+  agentType    String   @map("agent_type")
+  model        String
+  tokensInput  Int      @map("tokens_input")
+  tokensOutput Int      @map("tokens_output")
+  costEstimate Float    @map("cost_estimate")
+  keySource    String   @default("user") @map("key_source") // user, platform
+  recordedAt   DateTime @default(now()) @map("recorded_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@map("usage_records")
+}
+
+// ─── BOOK SETTINGS ──────────────────────────────────────────────
+
+model BookSettings {
+  id               String  @id @default(uuid())
+  bookId           String  @unique @map("book_id")
+  modelGhostwriter String  @default("opus") @map("model_ghostwriter")
+  modelEditor      String  @default("sonnet") @map("model_editor")
+  modelBetaReader  String  @default("sonnet") @map("model_beta_reader")
+  modelAnalyst     String  @default("haiku") @map("model_analyst")
+  modelCoach       String  @default("sonnet") @map("model_coach")
+  modelCreative    String  @default("opus") @map("model_creative")
+  modelResearch    String  @default("sonnet") @map("model_research")
+  modelOverride    String? @map("model_override")
+  autoCommit       Boolean @default(true) @map("auto_commit")
+  styleStrictness    String  @default("balanced") @map("style_strictness") // strict, balanced, relaxed
+  betaPanelSize      Int     @default(10) @map("beta_panel_size")
+  betaConsensus      Int     @default(80) @map("beta_consensus")
+  betaConvergence    Int     @default(70) @map("beta_convergence")
+  language           String  @default("en") @map("language")
+  setupImportSkipped Boolean @default(false) @map("setup_import_skipped")
+  setupComplete      Boolean @default(false) @map("setup_complete")
+  journeyId            String? @map("journey_id")
+  journeyStepsSnapshot String? @map("journey_steps_snapshot") @db.Text
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@map("book_settings")
+}
+
+// ─── EDITORIAL SYSTEM ───────────────────────────────────────────
+
+model EditFinding {
+  id              String    @id @default(uuid())
+  bookId          String    @map("book_id")
+  chapterNumber   Int       @map("chapter_number")
+  sessionId       String?   @map("session_id")
+  agentType       String    @map("agent_type") // dev-editor, line-editor
+  severity        String // critical, important, suggestion
+  category        String // pacing, dialogue, anti-ai, etc.
+  description     String
+  suggestion      String?
+  originalText    String?   @map("original_text")   // Exact text to find in chapter (for auto-apply)
+  newText         String?   @map("new_text")         // Replacement text (for auto-apply)
+  locationStart   String?   @map("location_start")
+  locationEnd     String?   @map("location_end")
+  status          String    @default("pending") // pending, applied, dismissed
+  dismissReason   String?   @map("dismiss_reason")
+  appliedAt       DateTime? @map("applied_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  contentHash     String?   @map("content_hash")
+  confidence      Float?
+  rationale       String?   @db.Text
+  paragraphNumber Int?      @map("paragraph_number")
+  anchorQuote     String?   @map("anchor_quote") @db.Text
+  alternatives    String?   @map("alternatives") @db.Text  // JSON: [{label, originalText, newText}]
+  groundingScore  Float?    @map("grounding_score")
+  chapterVersion  Int?      @map("chapter_version")
+  rejectedAt      DateTime? @map("rejected_at")
+  rejectionReason String?   @map("rejection_reason") @db.Text
+
+  book    Book           @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  replies FindingReply[]
+
+  @@unique([bookId, chapterNumber, contentHash])
+  @@map("edit_findings")
+}
+
+model FindingReply {
+  id        String   @id @default(uuid())
+  findingId String   @map("finding_id")
+  userId    String   @map("user_id")
+  content   String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  finding EditFinding @relation(fields: [findingId], references: [id], onDelete: Cascade)
+
+  @@map("finding_replies")
+}
+
+model DismissedPattern {
+  id            String   @id @default(uuid())
+  bookId        String   @map("book_id")
+  chapterNumber Int      @map("chapter_number")
+  agentType     String   @map("agent_type")
+  patternHash   String   @map("pattern_hash") // hash of category+description for dedup
+  reason        String?
+  dismissedAt   DateTime @default(now()) @map("dismissed_at")
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([bookId, chapterNumber, agentType, patternHash])
+  @@map("dismissed_patterns")
+}
+
+model CrutchPhrase {
+  id                  String @id @default(uuid())
+  bookId              String @map("book_id")
+  phrase              String
+  authorBaselineRate  Float? @map("author_baseline_rate")
+  chapterCounts       String @default("{}") @map("chapter_counts") // JSON: { "1": 5, "2": 3 }
+  threshold           Float  @default(2.0) // multiplier above baseline
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([bookId, phrase])
+  @@map("crutch_phrases")
+}
+
+// ─── VOICE MODEL (Two-Layer) ────────────────────────────────────
+
+model CharacterLens {
+  id                String @id @default(uuid())
+  bookId            String @map("book_id")
+  characterName     String @map("character_name")
+  sensoryPriority   String @map("sensory_priority") // e.g. "visual, tactile"
+  metaphorDomain    String @map("metaphor_domain") // e.g. "mechanical, industrial"
+  interiorStyle     String @map("interior_style") // e.g. "analytical, detached"
+  vocabularyRegister String @map("vocabulary_register") // e.g. "formal, technical"
+  blindSpots        String? @map("blind_spots") // things this POV character wouldn't notice
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([bookId, characterName])
+  @@map("character_lenses")
+}
+
+model StyleProfile {
+  id               String   @id @default(uuid())
+  userId           String   @map("user_id")
+  name             String
+  description      String?
+  fingerprint        String   @db.Text
+  metrics            Json?                  // Structured voice metrics (StructuredFingerprint shape)
+  calibrationSamples Json?    @map("calibration_samples") // 3-5 sample passages demonstrating voice
+  sourceBookId       String?  @map("source_book_id")
+  sourceBookNumber   Int?     @map("source_book_number")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book Book? @relation("BookStyleProfiles", fields: [sourceBookId], references: [id], onDelete: SetNull)
+
+  @@map("style_profiles")
+}
+
+// ─── EDIT HISTORY ───────────────────────────────────────────────
+
+model EditAction {
+  id            String   @id @default(uuid())
+  bookId        String   @map("book_id")
+  chapterNumber Int      @map("chapter_number")
+  actionType    String   @map("action_type") // apply, dismiss, undo, revision
+  sessionId     String?  @map("session_id")
+  findingId     String?  @map("finding_id")
+  description   String
+  timestamp     DateTime @default(now())
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@map("edit_actions")
+}
+
+// ─── BLACKBOARD (Inter-Agent Communication) ────────────────────
+
+model BookInsight {
+  id               String    @id @default(uuid())
+  bookId           String    @map("book_id")
+  sourceSessionId  String?   @map("source_session_id")
+  sourceAgentType  String    @map("source_agent_type")
+  insightType      String    @map("insight_type") // WARNING, SUGGESTION, FLAG, CONSTRAINT
+  status           String    @default("active") // active, resolved, expired, dismissed
+  domain           String    // character, timeline, pacing, style, continuity, world-rules, structure, foreshadowing
+  summary          String    // one-line summary
+  detail           String    @db.Text // full text
+  targetAgents     String[]  @default([]) @map("target_agents") // which agent types see this, empty=all
+  chapterScope     Int[]     @default([]) @map("chapter_scope") // which chapters, empty=all
+  resolvedBy       String?   @map("resolved_by") // session ID that resolved it
+  expiresAt        DateTime? @map("expires_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@index([bookId, status])
+  @@map("book_insights")
+}
+
+// ─── BOOK HEALTH ───────────────────────────────────────────────
+
+model BookHealthSnapshot {
+  id                String   @id @default(uuid())
+  bookId            String   @unique @map("book_id")
+  overallScore      Int      @default(0) @map("overall_score") // 0-100
+  structureScore    Int      @default(0) @map("structure_score")
+  consistencyScore  Int      @default(0) @map("consistency_score")
+  proseScore        Int      @default(0) @map("prose_score")
+  completenessScore Int      @default(0) @map("completeness_score")
+  chapterHealth     String   @default("[]") @map("chapter_health") @db.Text // JSON array
+  activeIssues      Int      @default(0) @map("active_issues")
+  staleChapters     Int[]    @default([]) @map("stale_chapters")
+  alerts            String   @default("[]") @db.Text // JSON array of typed alerts
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@map("book_health_snapshots")
+}
+
+model DocumentChangeEvent {
+  id            String    @id @default(uuid())
+  bookId        String    @map("book_id")
+  documentType  String    @map("document_type")
+  chapterNumber Int?      @map("chapter_number")
+  changeType    String    @map("change_type") // created, updated, deleted
+  changeSource  String    @map("change_source") // session ID or "user"
+  processedAt   DateTime? @map("processed_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@index([bookId, processedAt])
+  @@map("document_change_events")
+}
+
+model BookNotification {
+  id          String    @id @default(uuid())
+  bookId      String    @map("book_id")
+  userId      String    @map("user_id")
+  type        String    // stale_chapter, health_drop, insight_alert, pipeline_complete, suggestion
+  priority    String    @default("normal") // low, normal, high, urgent
+  title       String
+  message     String
+  actionUrl   String?   @map("action_url")
+  actionLabel String?   @map("action_label")
+  read        Boolean   @default(false)
+  dismissedAt DateTime? @map("dismissed_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@map("book_notifications")
+}
+
+// ─── WRITING GOALS ──────────────────────────────────────────────
+
+model WritingGoal {
+  id        String   @id @default(cuid())
+  bookId    String   @map("book_id")
+  type      String   // "daily" | "weekly" | "total"
+  target    Int      // target word count
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([bookId, type])
+  @@map("writing_goals")
+}
+
+// ─── WIKI ──────────────────────────────────────────────────────
+
+model WikiEntity {
+  id          String   @id @default(uuid())
+  bookId      String   @map("book_id")
+  type        String   // "character" | "location" | "item" | "event" | "lore" | "custom"
+  name        String
+  aliases     String[] @default([])
+  description String   @default("")
+  attributes  Json     @default("{}")
+  mentions    Json     @default("[]")
+  sourceType  String   @default("manual") @map("source_type") // "manual" | "agent" | "import"
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@index([bookId])
+  @@index([bookId, type])
+  @@map("wiki_entities")
+}

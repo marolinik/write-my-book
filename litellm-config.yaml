@@ -1,0 +1,35 @@
+model_list:
+  - model_name: "minimax/minimax-m2.5"
+    litellm_params:
+      model: "openrouter/minimax/minimax-m2.5"
+      api_key: "os.environ/OPENROUTER_API_KEY"
+
+  - model_name: "qwen/qwen3.5-397b-a17b"
+    litellm_params:
+      model: "openrouter/qwen/qwen3.5-397b-a17b"
+      api_key: "os.environ/OPENROUTER_API_KEY"
+
+  - model_name: "qwen/qwen3-max-thinking"
+    litellm_params:
+      model: "openrouter/qwen/qwen3-max-thinking"
+      api_key: "os.environ/OPENROUTER_API_KEY"
+
+  - model_name: "moonshotai/kimi-k2.5"
+    litellm_params:
+      model: "openrouter/moonshotai/kimi-k2.5"
+      api_key: "os.environ/OPENROUTER_API_KEY"
+
+  - model_name: "z-ai/glm-5"
+    litellm_params:
+      model: "openrouter/z-ai/glm-5"
+      api_key: "os.environ/OPENROUTER_API_KEY"
+
+  - model_name: "deepseek/deepseek-v3.2"
+    litellm_params:
+      model: "openrouter/deepseek/deepseek-v3.2"
+      api_key: "os.environ/OPENROUTER_API_KEY"
+
+litellm_settings:
+  drop_params: true
+  num_retries: 2
+  request_timeout: 300
