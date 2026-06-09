@@ -134,6 +134,8 @@ const EN: AgentStrings = {
     freewrite: "Freewrite",
     revise: "Revise Chapter",
     analyze: "Analyze Manuscript",
+    "research-world": "World Research",
+    "research-topic": "Topic Research",
   },
   workflowDescriptions: {
     "capture-style": "Analyze your writing to capture your unique voice.",
@@ -151,6 +153,8 @@ const EN: AgentStrings = {
     coach: "Talk to your writing coach about anything — craft, story, or process.",
     freewrite: "Write freely — explore ideas without a plan.",
     analyze: "Get statistics and readability metrics for your manuscript.",
+    "research-world": "Research your setting, genre, and cultural context for authentic world-building.",
+    "research-topic": "Ask a research question and get well-sourced answers for your book.",
   },
   journeyLabels: {
     "new-novel": "New Novel (Greenfield)",
@@ -198,6 +202,8 @@ const EN: AgentStrings = {
     "create-series-bible": "Create Series Bible",
     "create-series-architecture": "Create Series Architecture",
     "check-series-continuity": "Check Series Continuity",
+    "research-world": "World Research",
+    "research-topic": "Topic Research",
   },
 };
 
@@ -265,6 +271,8 @@ const SR: AgentStrings = {
     freewrite: "Slobodno pisanje",
     revise: "Revidiraj poglavlje",
     analyze: "Analiziraj rukopis",
+    "research-world": "Istraživanje sveta",
+    "research-topic": "Istraživanje teme",
   },
   workflowDescriptions: {
     "capture-style": "Analiziraj vaše pisanje da uhvati vaš jedinstveni glas.",
@@ -282,6 +290,8 @@ const SR: AgentStrings = {
     coach: "Razgovarajte sa trenerom o bilo čemu — zanatu, priči ili procesu.",
     freewrite: "Pišite slobodno — istražujte ideje bez plana.",
     analyze: "Dobijte statistiku i metrike čitljivosti za vaš rukopis.",
+    "research-world": "Istražite okruženje, žanr i kulturni kontekst za autentično građenje sveta.",
+    "research-topic": "Postavite istraživačko pitanje i dobijte dobro dokumentovane odgovore za vašu knjigu.",
   },
   journeyLabels: {
     "new-novel": "Novi roman (od nule)",
@@ -329,6 +339,8 @@ const SR: AgentStrings = {
     "create-series-bible": "Kreiraj bibliju serijala",
     "create-series-architecture": "Kreiraj arhitekturu serijala",
     "check-series-continuity": "Proveri kontinuitet serijala",
+    "research-world": "Istraživanje sveta",
+    "research-topic": "Istraživanje teme",
   },
 };
 
@@ -384,8 +396,13 @@ const DE: AgentStrings = {
     "beta-read": "Beta-Lesung",
     "write-chapter": "Kapitel schreiben",
     "plan-chapter": "Kapitel planen",
+    "research-world": "Weltrecherche",
+    "research-topic": "Themenrecherche",
   },
-  workflowDescriptions: {},
+  workflowDescriptions: {
+    "research-world": "Recherchieren Sie Setting, Genre und kulturellen Kontext für authentisches Worldbuilding.",
+    "research-topic": "Stellen Sie eine Recherchefrage und erhalten Sie gut belegte Antworten für Ihr Buch.",
+  },
   journeyLabels: {
     "new-novel": "Neuer Roman (von Grund auf)",
     "existing-manuscript": "Vorhandenes Manuskript",
@@ -432,6 +449,8 @@ const DE: AgentStrings = {
     "create-series-bible": "Serien-Bibel erstellen",
     "create-series-architecture": "Serien-Architektur erstellen",
     "check-series-continuity": "Serien-Kontinuität prüfen",
+    "research-world": "Weltrecherche",
+    "research-topic": "Themenrecherche",
   },
 };
 
@@ -487,8 +506,13 @@ const ES: AgentStrings = {
     "beta-read": "Lectura beta",
     "write-chapter": "Escribir capítulo",
     "plan-chapter": "Planificar capítulo",
+    "research-world": "Investigación del mundo",
+    "research-topic": "Investigación del tema",
   },
-  workflowDescriptions: {},
+  workflowDescriptions: {
+    "research-world": "Investiga el entorno, el género y el contexto cultural para una construcción auténtica del mundo.",
+    "research-topic": "Haz una pregunta de investigación y obtén respuestas bien documentadas para tu libro.",
+  },
   journeyLabels: {
     "new-novel": "Nueva novela (desde cero)",
     "existing-manuscript": "Manuscrito existente",
@@ -535,6 +559,8 @@ const ES: AgentStrings = {
     "create-series-bible": "Crear biblia de serie",
     "create-series-architecture": "Crear arquitectura de serie",
     "check-series-continuity": "Verificar continuidad de serie",
+    "research-world": "Investigación del mundo",
+    "research-topic": "Investigación del tema",
   },
 };
 
@@ -590,8 +616,13 @@ const FR: AgentStrings = {
     "beta-read": "Lecture bêta",
     "write-chapter": "Écrire un chapitre",
     "plan-chapter": "Planifier un chapitre",
+    "research-world": "Recherche de l'univers",
+    "research-topic": "Recherche thématique",
   },
-  workflowDescriptions: {},
+  workflowDescriptions: {
+    "research-world": "Recherchez le cadre, le genre et le contexte culturel pour une construction d'univers authentique.",
+    "research-topic": "Posez une question de recherche et obtenez des réponses bien documentées pour votre livre.",
+  },
   journeyLabels: {
     "new-novel": "Nouveau roman (de zéro)",
     "existing-manuscript": "Manuscrit existant",
@@ -638,6 +669,8 @@ const FR: AgentStrings = {
     "create-series-bible": "Créer la bible de série",
     "create-series-architecture": "Créer l'architecture de série",
     "check-series-continuity": "Vérifier la continuité de série",
+    "research-world": "Recherche de l'univers",
+    "research-topic": "Recherche thématique",
   },
 };
 
@@ -693,8 +726,13 @@ const RU: AgentStrings = {
     "beta-read": "Бета-чтение",
     "write-chapter": "Написать главу",
     "plan-chapter": "Спланировать главу",
+    "research-world": "Исследование мира",
+    "research-topic": "Тематическое исследование",
   },
-  workflowDescriptions: {},
+  workflowDescriptions: {
+    "research-world": "Исследуйте обстановку, жанр и культурный контекст для достоверного миростроительства.",
+    "research-topic": "Задайте исследовательский вопрос и получите хорошо обоснованные ответы для вашей книги.",
+  },
   journeyLabels: {
     "new-novel": "Новый роман (с нуля)",
     "existing-manuscript": "Существующая рукопись",
@@ -741,6 +779,8 @@ const RU: AgentStrings = {
     "create-series-bible": "Создать библию серии",
     "create-series-architecture": "Создать архитектуру серии",
     "check-series-continuity": "Проверить целостность серии",
+    "research-world": "Исследование мира",
+    "research-topic": "Тематическое исследование",
   },
 };
 
@@ -796,8 +836,13 @@ const ZH: AgentStrings = {
     "beta-read": "Beta阅读",
     "write-chapter": "撰写章节",
     "plan-chapter": "规划章节",
+    "research-world": "世界研究",
+    "research-topic": "主题研究",
   },
-  workflowDescriptions: {},
+  workflowDescriptions: {
+    "research-world": "研究背景、类型和文化背景，打造真实的世界观。",
+    "research-topic": "提出研究问题，获取有据可查的答案来丰富您的书籍。",
+  },
   journeyLabels: {
     "new-novel": "新小说（从零开始）",
     "existing-manuscript": "现有手稿",
@@ -844,6 +889,8 @@ const ZH: AgentStrings = {
     "create-series-bible": "创建系列圣经",
     "create-series-architecture": "创建系列架构",
     "check-series-continuity": "检查系列连续性",
+    "research-world": "世界研究",
+    "research-topic": "主题研究",
   },
 };
 

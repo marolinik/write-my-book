@@ -394,3 +394,635 @@
 .dark .diff-removed {
   background-color: oklch(0.35 0.15 25 / 40%);
 }
+
+/* ─── Inline Annotation Decorations ─────────────────────────── */
+
+.anno-insert {
+  background-color: oklch(0.9 0.1 145 / 25%);
+  border-bottom: 2px solid oklch(0.6 0.2 145);
+  padding: 1px 0;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background-color 0.15s ease;
+}
+
+.anno-insert:hover {
+  background-color: oklch(0.9 0.1 145 / 40%);
+}
+
+.anno-delete {
+  background-color: oklch(0.9 0.15 25 / 20%);
+  text-decoration: line-through;
+  text-decoration-color: oklch(0.65 0.25 25 / 70%);
+  color: oklch(0.65 0.25 25);
+  opacity: 0.8;
+  padding: 1px 0;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.anno-delete:hover {
+  opacity: 1;
+}
+
+.anno-comment {
+  background-color: oklch(0.9 0.12 85 / 20%);
+  border-bottom: 2px dashed oklch(0.7 0.18 85);
+  padding: 1px 0;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background-color 0.15s ease;
+}
+
+.anno-comment:hover {
+  background-color: oklch(0.9 0.12 85 / 35%);
+}
+
+.anno-ai {
+  background-color: oklch(0.9 0.12 295 / 18%);
+  border-bottom: 2px solid oklch(0.6 0.2 295);
+  padding: 1px 0;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background-color 0.15s ease;
+}
+
+.anno-ai:hover {
+  background-color: oklch(0.9 0.12 295 / 32%);
+}
+
+.anno-finding {
+  background-color: oklch(0.9 0.12 25 / 18%);
+  border-bottom: 2px wavy oklch(0.6 0.22 25 / 60%);
+  padding: 1px 0;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.anno-finding:hover {
+  background-color: oklch(0.9 0.12 25 / 32%);
+  border-bottom-color: oklch(0.6 0.22 25 / 85%);
+}
+
+/* Dark mode annotation overrides */
+.dark .anno-insert {
+  background-color: oklch(0.35 0.1 145 / 30%);
+  border-bottom-color: oklch(0.6 0.18 145);
+}
+
+.dark .anno-insert:hover {
+  background-color: oklch(0.35 0.1 145 / 45%);
+}
+
+.dark .anno-delete {
+  background-color: oklch(0.35 0.15 25 / 25%);
+  text-decoration-color: oklch(0.6 0.2 25 / 60%);
+  color: oklch(0.7 0.2 25);
+}
+
+.dark .anno-comment {
+  background-color: oklch(0.35 0.12 85 / 25%);
+  border-bottom-color: oklch(0.65 0.15 85);
+}
+
+.dark .anno-comment:hover {
+  background-color: oklch(0.35 0.12 85 / 40%);
+}
+
+.dark .anno-ai {
+  background-color: oklch(0.35 0.12 295 / 22%);
+  border-bottom-color: oklch(0.6 0.18 295);
+}
+
+.dark .anno-ai:hover {
+  background-color: oklch(0.35 0.12 295 / 38%);
+}
+
+.dark .anno-finding {
+  background-color: oklch(0.35 0.12 25 / 22%);
+  border-bottom-color: oklch(0.65 0.18 25 / 55%);
+}
+
+.dark .anno-finding:hover {
+  background-color: oklch(0.35 0.12 25 / 38%);
+  border-bottom-color: oklch(0.65 0.18 25 / 85%);
+}
+
+/* ─── Severity-based annotation underlines ─────────────────── */
+
+.anno-severity-high {
+  text-decoration: underline;
+  text-decoration-color: oklch(0.55 0.25 25);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  transition: text-decoration-color 0.15s ease;
+}
+
+.anno-severity-high:hover {
+  text-decoration-color: oklch(0.45 0.28 25);
+}
+
+.anno-severity-medium {
+  text-decoration: underline;
+  text-decoration-color: oklch(0.65 0.2 55);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  transition: text-decoration-color 0.15s ease;
+}
+
+.anno-severity-medium:hover {
+  text-decoration-color: oklch(0.55 0.23 55);
+}
+
+.anno-severity-low {
+  text-decoration: underline;
+  text-decoration-color: oklch(0.55 0.2 250);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  transition: text-decoration-color 0.15s ease;
+}
+
+.anno-severity-low:hover {
+  text-decoration-color: oklch(0.45 0.23 250);
+}
+
+/* Dark mode severity underlines — brighter colors */
+.dark .anno-severity-high {
+  text-decoration-color: oklch(0.65 0.25 25);
+}
+
+.dark .anno-severity-high:hover {
+  text-decoration-color: oklch(0.72 0.28 25);
+}
+
+.dark .anno-severity-medium {
+  text-decoration-color: oklch(0.72 0.2 55);
+}
+
+.dark .anno-severity-medium:hover {
+  text-decoration-color: oklch(0.78 0.22 55);
+}
+
+.dark .anno-severity-low {
+  text-decoration-color: oklch(0.65 0.2 250);
+}
+
+.dark .anno-severity-low:hover {
+  text-decoration-color: oklch(0.72 0.22 250);
+}
+
+/* ─── Underline pulse animation (for Plan 02 jump-to-text) ── */
+
+@keyframes underline-pulse {
+  0%   { text-decoration-thickness: 2px; }
+  25%  { text-decoration-thickness: 4px; }
+  50%  { text-decoration-thickness: 2px; }
+  75%  { text-decoration-thickness: 3px; }
+  100% { text-decoration-thickness: 2px; }
+}
+
+.anno-underline-pulse {
+  animation: underline-pulse 0.8s ease-in-out;
+}
+
+/* ─── Finding card pulse animation (for Plan 02 reverse highlight) ── */
+
+@keyframes finding-card-pulse {
+  0%   { background-color: transparent; }
+  30%  { background-color: oklch(0.85 0.1 85 / 30%); }
+  100% { background-color: transparent; }
+}
+
+.finding-card-pulse {
+  animation: finding-card-pulse 1.2s ease-out;
+}
+
+@keyframes finding-card-pulse-dark {
+  0%   { background-color: transparent; }
+  30%  { background-color: oklch(0.4 0.1 85 / 25%); }
+  100% { background-color: transparent; }
+}
+
+.dark .finding-card-pulse {
+  animation: finding-card-pulse-dark 1.2s ease-out;
+}
+
+/* ─── "Show in text" flash highlight ──────────────────────── */
+
+@keyframes anno-flash {
+  0%, 15% { background-color: rgba(245, 158, 11, 0.35); }
+  100% { background-color: transparent; }
+}
+
+.anno-flash {
+  animation: anno-flash 2s ease-out;
+}
+
+.dark .anno-flash {
+  animation: anno-flash-dark 2s ease-out;
+}
+
+@keyframes anno-flash-dark {
+  0%, 15% { background-color: rgba(245, 158, 11, 0.25); }
+  100% { background-color: transparent; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   POLISH: Focus Mode CSS (Graduated + Typewriter)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Level 1: Dim sidebar + header */
+.wmb-focus-1 {
+  /* Applied to the main content wrapper */
+}
+
+/* Level 2: Only current paragraph fully visible */
+.wmb-focus-2 .ProseMirror > * {
+  opacity: 0.15;
+  transition: opacity 0.3s ease;
+}
+.wmb-focus-2 .ProseMirror > .has-focus,
+.wmb-focus-2 .ProseMirror > *:focus-within {
+  opacity: 1;
+}
+
+/* Level 3: Only current sentence visible */
+.wmb-focus-3 .ProseMirror > * {
+  opacity: 0.08;
+  transition: opacity 0.3s ease;
+}
+.wmb-focus-3 .ProseMirror > .has-focus {
+  opacity: 0.25;
+}
+.wmb-focus-3 .ProseMirror .is-current-sentence {
+  opacity: 1;
+}
+
+/* Typewriter mode: generous padding for scroll centering */
+.wmb-typewriter {
+  scroll-behavior: smooth;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   POLISH: Light Mode Enhancements
+   Ensure cards, badges, and subtle UI elements have proper
+   contrast and visual hierarchy in light mode.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Cards need subtle shadow in light mode for depth */
+@media (prefers-color-scheme: light) {
+  .card, [data-slot="card"] {
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+  }
+}
+:root:not(.dark) .card,
+:root:not(.dark) [data-slot="card"] {
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+}
+
+/* Sidebar in light mode needs slight background tint */
+:root:not(.dark) [data-slot="sidebar"] {
+  background: oklch(0.98 0.002 240);
+}
+
+/* Progress bars need better visibility in light mode */
+:root:not(.dark) [role="progressbar"] > div {
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.2);
+}
+
+/* Editor area in light mode: warm paper-like background */
+:root:not(.dark) .tiptap {
+  color: oklch(0.18 0.01 240);
+}
+
+/* Badge contrast improvement in light mode */
+:root:not(.dark) [data-slot="badge"][data-variant="secondary"] {
+  border: 1px solid oklch(0.9 0 0);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   POLISH: Smooth Transitions & Micro-Interactions
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Smooth theme transitions */
+body, .card, [data-slot="card"], [data-slot="sidebar"],
+header, main, nav {
+  transition: background-color 0.3s ease, color 0.2s ease, border-color 0.3s ease;
+}
+
+/* Hover lift effect for clickable cards */
+.card-hover:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dark .card-hover:hover {
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.3);
+}
+
+/* Smooth sidebar collapse/expand */
+[data-slot="sidebar"] {
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Button press effect */
+button:active:not(:disabled) {
+  transform: scale(0.97);
+  transition: transform 0.1s ease;
+}
+
+/* Input focus glow */
+input:focus, textarea:focus, [contenteditable]:focus {
+  box-shadow: 0 0 0 2px oklch(0.7 0.1 250 / 15%);
+  transition: box-shadow 0.2s ease;
+}
+
+.dark input:focus, .dark textarea:focus, .dark [contenteditable]:focus {
+  box-shadow: 0 0 0 2px oklch(0.5 0.1 250 / 20%);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   POLISH: Scrollbar Styling (subtle, matches theme)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: oklch(0.7 0 0 / 30%);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.6 0 0 / 40%);
+  background-clip: padding-box;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: oklch(0.5 0 0 / 30%);
+  background-clip: padding-box;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.5 0 0 / 50%);
+  background-clip: padding-box;
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: oklch(0.7 0 0 / 30%) transparent;
+}
+
+.dark * {
+  scrollbar-color: oklch(0.5 0 0 / 30%) transparent;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   POLISH: Selection Colors (theme-aware)
+   ═══════════════════════════════════════════════════════════════ */
+
+::selection {
+  background: oklch(0.85 0.1 250 / 30%);
+  color: inherit;
+}
+
+.dark ::selection {
+  background: oklch(0.45 0.12 250 / 40%);
+  color: inherit;
+}
+
+/* Editor text selection — slightly warmer */
+.tiptap ::selection {
+  background: oklch(0.88 0.08 85 / 25%);
+}
+
+.dark .tiptap ::selection {
+  background: oklch(0.4 0.1 85 / 30%);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   POLISH: Print Styles (for certificates and progress cards)
+   ═══════════════════════════════════════════════════════════════ */
+
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  [data-slot="sidebar"],
+  header,
+  nav,
+  .no-print {
+    display: none !important;
+  }
+  
+  main {
+    padding: 0 !important;
+    width: 100% !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   POLISH: Loading Skeleton Shimmer
+   ═══════════════════════════════════════════════════════════════ */
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    oklch(0.94 0 0) 25%,
+    oklch(0.97 0 0) 50%,
+    oklch(0.94 0 0) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.dark .skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    oklch(0.22 0 0) 25%,
+    oklch(0.27 0 0) 50%,
+    oklch(0.22 0 0) 75%
+  );
+  background-size: 200% 100%;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   POLISH: Writing-Specific Typography Enhancements
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Drop cap for first paragraph of chapters (when enabled) */
+.tiptap .drop-cap:first-letter {
+  float: left;
+  font-size: 3.5em;
+  line-height: 0.8;
+  padding-right: 0.1em;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* Scene break ornament variants */
+.tiptap hr.scene-break-ornament::after {
+  content: "⁂";
+}
+
+.tiptap hr.scene-break-line {
+  border-top: 1px solid var(--border);
+  margin: 1.5rem auto;
+  width: 40%;
+}
+
+.tiptap hr.scene-break-line::after {
+  content: "";
+}
+
+/* Smart quotes visual hint */
+.tiptap .smart-quote-open {
+  color: var(--primary);
+  font-weight: 500;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   POLISH: Responsive Typography
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Mobile: slightly smaller editor text */
+@media (max-width: 640px) {
+  .tiptap {
+    font-size: 1rem;
+    line-height: 1.7;
+    padding: 1rem 0;
+  }
+  
+  .tiptap h1 { font-size: 1.5rem; }
+  .tiptap h2 { font-size: 1.25rem; }
+  .tiptap h3 { font-size: 1.1rem; }
+}
+
+/* Large screens: wider reading column */
+@media (min-width: 1200px) {
+  .tiptap {
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   FINAL POLISH: Dark Mode Shadow Enhancement
+   ═══════════════════════════════════════════════════════════════ */
+
+/* In dark mode, shadows need to be darker/more diffuse */
+.dark .shadow-lg {
+  --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+}
+
+.dark .shadow-xl {
+  --tw-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.4);
+}
+
+/* Popovers and floating elements need stronger shadow in dark mode */
+.dark [data-slot="popover-content"],
+.dark [data-slot="dropdown-menu-content"],
+.dark [data-slot="dialog-content"] {
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.5), 0 0 0 1px rgb(255 255 255 / 0.05);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FINAL POLISH: Light Mode Depth & Warmth
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Subtle warm tint for the overall background in light mode */
+:root:not(.dark) {
+  --background: oklch(0.995 0.002 90);
+}
+
+/* Light mode popovers get crisp white with subtle shadow */
+:root:not(.dark) [data-slot="popover-content"],
+:root:not(.dark) [data-slot="dropdown-menu-content"],
+:root:not(.dark) [data-slot="dialog-content"] {
+  box-shadow: 0 4px 20px rgb(0 0 0 / 0.08), 0 0 0 1px rgb(0 0 0 / 0.04);
+}
+
+/* Light mode sidebar: subtle left border for depth */
+:root:not(.dark) [data-slot="sidebar"] {
+  border-right: 1px solid oklch(0.92 0 0);
+}
+
+/* Light mode header: subtle bottom shadow instead of just border */
+:root:not(.dark) header {
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.03);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FINAL POLISH: Micro-Animations
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Fade in for page content */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+main > * {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Tab content transition */
+[role="tabpanel"] {
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Badge count update pulse */
+@keyframes countPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.count-pulse {
+  animation: countPulse 0.3s ease-out;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FINAL POLISH: Keyboard Focus Indicators
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Visible focus ring only on keyboard navigation */
+:focus-visible {
+  outline: 2px solid oklch(0.6 0.15 250);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.dark :focus-visible {
+  outline-color: oklch(0.65 0.15 250);
+}
+
+/* Remove focus ring on mouse click */
+:focus:not(:focus-visible) {
+  outline: none;
+}

@@ -1,3 +1,4 @@
+import { db } from "@/lib/db";
 import type { AgentStreamMessage, AgentResult } from "./types";
 import type { AgentOrchestrator } from "./orchestrator";
 import type Anthropic from "@anthropic-ai/sdk";
@@ -9,6 +10,8 @@ export interface ActiveSession {
   agentType: string;
   workflowId: string;
   orchestrator: AgentOrchestrator | null;
+  /** Sub-orchestrators for specialist delegations (Coach → Specialist). */
+  subOrchestrators: Map<string, AgentOrchestrator>;
   status: "running" | "completed" | "failed";
   messages: AgentStreamMessage[];
   conversationHistory: Anthropic.MessageParam[];
@@ -44,6 +47,7 @@ export function createSession(
     agentType,
     workflowId,
     orchestrator: null,
+    subOrchestrators: new Map(),
     status: "running",
     messages: [],
     conversationHistory: [],
@@ -138,7 +142,20 @@ export function cancelSession(sessionId: string): void {
 export function addUserMessage(sessionId: string, content: string): void {
   const session = sessions.get(sessionId);
   if (!session) return;
+  const turnIndex = session.conversationHistory.length;
   session.conversationHistory.push({ role: "user", content });
+
+  // Fire-and-forget DB persistence
+  db.conversationTurn
+    .create({
+      data: {
+        sessionId,
+        turnIndex,
+        role: "user",
+        content: JSON.stringify(content),
+      },
+    })
+    .catch((e) => console.error("[SessionManager] Failed to persist user turn:", e));
 }
 
 /** Append an assistant message to the conversation history. */
@@ -148,7 +165,38 @@ export function addAssistantMessage(
 ): void {
   const session = sessions.get(sessionId);
   if (!session) return;
+  const turnIndex = session.conversationHistory.length;
   session.conversationHistory.push({ role: "assistant", content });
+
+  // Fire-and-forget DB persistence
+  db.conversationTurn
+    .create({
+      data: {
+        sessionId,
+        turnIndex,
+        role: "assistant",
+        content: JSON.stringify(content),
+      },
+    })
+    .catch((e) => console.error("[SessionManager] Failed to persist assistant turn:", e));
+}
+
+/**
+ * Load conversation history from DB for session reconstruction.
+ * Used when in-memory session is lost (e.g. server restart).
+ */
+export async function loadConversationHistory(
+  sessionId: string
+): Promise<Anthropic.MessageParam[]> {
+  const turns = await db.conversationTurn.findMany({
+    where: { sessionId },
+    orderBy: { turnIndex: "asc" },
+  });
+
+  return turns.map((turn) => ({
+    role: turn.role as "user" | "assistant",
+    content: JSON.parse(turn.content),
+  }));
 }
 
 /** Clean up completed sessions with no listeners. */

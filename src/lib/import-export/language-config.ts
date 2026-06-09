@@ -30,9 +30,15 @@ const EXPORT_CONFIGS: Record<string, ExportFormatConfig> = {
   },
 };
 
+/** Normalize language codes — e.g. plain "sr" → "sr-Latn" */
+const LANGUAGE_ALIASES: Record<string, string> = {
+  sr: "sr-Latn",
+};
+
 /** Get per-language export formatting config. Falls back to English. */
 export function getExportFormatConfig(
   languageCode: string
 ): ExportFormatConfig {
-  return EXPORT_CONFIGS[languageCode] ?? EXPORT_CONFIGS.en;
+  const resolved = LANGUAGE_ALIASES[languageCode] ?? languageCode;
+  return EXPORT_CONFIGS[resolved] ?? EXPORT_CONFIGS.en;
 }

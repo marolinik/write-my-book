@@ -55,6 +55,8 @@ const WORKFLOW_SUGGESTED_NEXT: Record<string, string[]> = {
   "evolve-style": [],
   "market-analysis": [],
   "publishing-check": [],
+  "research-world": ["create-story-bible", "build-architecture"],
+  "research-topic": [],
   "onboard-new-book": ["discuss-chapter", "plan-chapter"],
   "onboard-imported-book": ["dev-edit", "discuss-chapter"],
 };
@@ -116,6 +118,10 @@ async function deriveSuggestedNext(
     case "continuity-check":
       return ["revise"];
     case "market-analysis":
+      return [];
+    case "research-world":
+      return ["create-story-bible", "build-architecture"];
+    case "research-topic":
       return [];
     case "onboard-new-book":
       return ["discuss-chapter", "plan-chapter"];
@@ -270,6 +276,28 @@ export async function processPostSession(
     ).catch((err) =>
       console.error("[PostSession] Vector session indexing failed (non-fatal):", err)
     );
+
+    // ─── Research Workflows: Index Research Documents ────────
+    // After research-world or research-topic, index the produced research document into vector memory.
+    if (ctx.workflowId === "research-world" || ctx.workflowId === "research-topic") {
+      const researchDocType = ctx.workflowId === "research-world" ? "WORLD_RESEARCH" : "TOPIC_RESEARCH";
+      try {
+        const researchDoc = await docService.findByType(researchDocType as DocumentType);
+        if (researchDoc) {
+          const researchContent = await docService.read(researchDoc.id);
+          if (researchContent?.content) {
+            onDocumentChanged(ctx.bookId, researchDocType, researchContent.content, {
+              docId: researchDoc.id,
+              userId: ctx.userId,
+            }).catch(err =>
+              console.error("[PostSession] Research doc vector indexing failed (non-fatal):", err)
+            );
+          }
+        }
+      } catch (err) {
+        console.error("[PostSession] Research doc lookup failed (non-fatal):", err);
+      }
+    }
 
     // ─── Blackboard: Promote Critical Findings to Insights ──
     // After edit sessions, promote critical/major findings to the blackboard.

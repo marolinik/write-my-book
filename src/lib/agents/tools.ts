@@ -260,6 +260,25 @@ const readChapterDef: ToolDefinition = {
   },
 };
 
+const readAllChaptersDef: ToolDefinition = {
+  name: "ReadAllChapters",
+  description:
+    "Read all chapters at once. Returns every chapter's content concatenated with headers. " +
+    "Use this instead of calling ReadChapter in a loop — it's much more efficient. " +
+    "Optional: pass specific chapter numbers to read a subset.",
+  input_schema: {
+    type: "object",
+    properties: {
+      chapterNumbers: {
+        type: "array",
+        items: { type: "number" },
+        description: "Optional subset of chapter numbers to read. If omitted, reads ALL chapters.",
+      },
+    },
+    required: [],
+  },
+};
+
 const writeChapterDef: ToolDefinition = {
   name: "WriteChapter",
   description: "Write or update a chapter's markdown content.",
@@ -557,7 +576,7 @@ const searchMemoryDef: ToolDefinition = {
       docType: {
         type: "string",
         description: "Optional: filter by content type",
-        enum: ["chapter", "story_bible", "architecture", "style", "conversation", "finding"],
+        enum: ["chapter", "story_bible", "architecture", "style", "conversation", "finding", "research"],
       },
       chapterNumber: {
         type: "number",
@@ -853,6 +872,7 @@ const ALL_TOOL_DEFINITIONS: ToolDefinition[] = [
   readDocumentDef,
   writeDocumentDef,
   readChapterDef,
+  readAllChaptersDef,
   writeChapterDef,
   listDocumentsDef,
   createFindingDef,
@@ -1016,6 +1036,52 @@ async function executeReadChapter(
   const result = await ctx.documentService.read(doc.id);
   if (!result) return "Chapter content not found.";
   return result.content;
+}
+
+async function executeReadAllChapters(
+  ctx: ToolContext,
+  input: { chapterNumbers?: number[] }
+): Promise<string> {
+  // Get all chapters for this book
+  const chapters = await db.chapter.findMany({
+    where: { bookId: ctx.bookId },
+    select: { chapterNumber: true, title: true },
+    orderBy: { chapterNumber: "asc" },
+  });
+
+  if (chapters.length === 0) {
+    return "No chapters found in this book.";
+  }
+
+  // Filter to requested subset if provided
+  const targetChapters = input.chapterNumbers?.length
+    ? chapters.filter((c) => input.chapterNumbers!.includes(c.chapterNumber))
+    : chapters;
+
+  if (targetChapters.length === 0) {
+    return `None of the requested chapter numbers exist. Available: ${chapters.map((c) => c.chapterNumber).join(", ")}`;
+  }
+
+  // Read all chapter contents in parallel
+  const results = await Promise.all(
+    targetChapters.map(async (ch) => {
+      const doc = await ctx.documentService.findByType(
+        DocumentType.CHAPTER_CONTENT,
+        ch.chapterNumber
+      );
+      if (!doc) return { ...ch, content: "(no content)" };
+      const result = await ctx.documentService.read(doc.id);
+      return { ...ch, content: result?.content ?? "(no content)" };
+    })
+  );
+
+  // Concatenate with clear headers
+  const parts = results.map(
+    (r) =>
+      `## Chapter ${r.chapterNumber}: ${r.title ?? "Untitled"}\n\n${r.content}`
+  );
+
+  return `# Full Manuscript (${results.length} chapters, ${chapters.length} total)\n\n${parts.join("\n\n---\n\n")}`;
 }
 
 async function executeWriteChapter(
@@ -1961,6 +2027,11 @@ async function executeToolInner(
       return executeReadChapter(
         ctx,
         input as { chapterNumber: number }
+      );
+    case "ReadAllChapters":
+      return executeReadAllChapters(
+        ctx,
+        input as { chapterNumbers?: number[] }
       );
     case "WriteChapter":
       return executeWriteChapter(

@@ -1,6 +1,7 @@
 "use client";
 
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
@@ -14,6 +15,8 @@ import {
   UsersIcon,
   XCircleIcon,
   EyeIcon,
+  SettingsIcon,
+  RefreshCwIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -30,7 +33,8 @@ type BlockDesc =
   | { kind: "tool"; msg: AgentStreamMessage; blockKey: number }
   | { kind: "thinking"; text: string; blockKey: number }
   | { kind: "approval"; msg: AgentStreamMessage; blockKey: number }
-  | { kind: "error"; text: string; blockKey: number }
+  | { kind: "error"; text: string; metadata?: Record<string, unknown>; blockKey: number }
+  | { kind: "status"; text: string; blockKey: number }
   | { kind: "complete"; msg: AgentStreamMessage; blockKey: number }
   | {
       kind: "delegation";
@@ -227,7 +231,12 @@ export function MessageStream({
 
         case "error":
           flushText();
-          result.push({ kind: "error", text: msg.content, blockKey: keyIndex++ });
+          result.push({ kind: "error", text: msg.content, metadata: msg.metadata, blockKey: keyIndex++ });
+          break;
+
+        case "status":
+          flushText();
+          result.push({ kind: "status", text: msg.content, blockKey: keyIndex++ });
           break;
 
         case "complete":
@@ -320,10 +329,12 @@ export function MessageStream({
       case "approval":
         return <ApprovalCard key={`approve-${block.blockKey}`} message={block.msg} onApprove={onApprove} />;
       case "error":
+        return <ErrorCard key={`err-${block.blockKey}`} text={block.text} metadata={block.metadata} />;
+      case "status":
         return (
-          <div key={`err-${block.blockKey}`} className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 p-3">
-            <AlertTriangleIcon className="mt-0.5 size-4 shrink-0 text-destructive" />
-            <span className="text-sm text-destructive">{block.text}</span>
+          <div key={`status-${block.blockKey}`} className="flex items-center gap-2 rounded-md border border-amber-500/30 bg-amber-50/50 dark:bg-amber-950/20 px-3 py-2">
+            <RefreshCwIcon className="size-3.5 shrink-0 text-amber-600 dark:text-amber-400 animate-spin" />
+            <span className="text-xs text-amber-700 dark:text-amber-300">{block.text}</span>
           </div>
         );
       case "complete":
@@ -611,6 +622,39 @@ function ToolStatus({
         <Loader2Icon className="size-3 animate-spin text-primary" />
       )}
       <span className={isCompleted ? "text-muted-foreground/60" : ""}>{label}</span>
+    </div>
+  );
+}
+
+// ─── Error card with optional Settings link ─────────────────
+
+function ErrorCard({ text, metadata }: { text: string; metadata?: Record<string, unknown> }) {
+  const isKeyError = metadata?.action === "check-key";
+  const isSwitchable = metadata?.switchable === true;
+
+  return (
+    <div className="flex flex-col gap-2 rounded-md border border-destructive/30 bg-destructive/5 p-3">
+      <div className="flex items-start gap-2">
+        <AlertTriangleIcon className="mt-0.5 size-4 shrink-0 text-destructive" />
+        <span className="text-sm text-destructive">{text}</span>
+      </div>
+      {isKeyError && (
+        <div className="flex gap-2 ml-6">
+          <Button variant="outline" size="sm" className="text-xs gap-1" asChild>
+            <Link href="/settings">
+              <SettingsIcon className="size-3" />
+              Go to Settings
+            </Link>
+          </Button>
+          {isSwitchable && (
+            <Button variant="outline" size="sm" className="text-xs gap-1" asChild>
+              <Link href="/settings">
+                Switch Provider
+              </Link>
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

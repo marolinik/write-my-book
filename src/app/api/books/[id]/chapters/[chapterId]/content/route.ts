@@ -6,6 +6,11 @@ import { DocumentService } from "@/lib/documents";
 import { DocumentType } from "@/generated/prisma/enums";
 import { countWords } from "@/lib/utils";
 
+/** Replace U+FFFD replacement characters with em dash (most common corruption case). */
+function sanitizeUnicode(text: string): string {
+  return text.replace(/\uFFFD/g, '\u2014');
+}
+
 type RouteParams = { params: Promise<{ id: string; chapterId: string }> };
 
 /** GET /api/books/:id/chapters/:chapterId/content — get chapter markdown. */
@@ -45,8 +50,9 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
 
     const result = await svc.read(doc.id);
 
+    const rawContent = result?.content ?? "";
     return NextResponse.json({
-      markdown: result?.content ?? "",
+      markdown: sanitizeUnicode(rawContent),
       wordCount: chapter.wordCount,
       documentId: doc.id,
     });

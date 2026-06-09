@@ -63,6 +63,20 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       data.changeSource
     );
 
+    // Update Chapter.wordCount when CHAPTER_CONTENT is created via API
+    if (data.type === "CHAPTER_CONTENT" && data.chapterNumber && data.content) {
+      const wordCount = data.content
+        .replace(/```[\s\S]*?```/g, "")
+        .replace(/[#*_~`>|-]/g, "")
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean).length;
+      await db.chapter.updateMany({
+        where: { bookId, chapterNumber: data.chapterNumber },
+        data: { wordCount },
+      });
+    }
+
     return NextResponse.json(document, { status: 201 });
   } catch (error) {
     if ((error as Error).message === "Unauthorized") {

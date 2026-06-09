@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppHeader } from "@/components/layout/app-header";
@@ -14,13 +15,15 @@ import { CommandPalette } from "@/components/layout/command-palette";
 import { KeyboardShortcutsDialog } from "@/components/layout/keyboard-shortcuts-dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePageContext } from "@/hooks/use-page-context";
-import { useAgentUIStore } from "@/stores/agent-ui-store";
+import { useAgentUIStore, isFullWidthRoute } from "@/stores/agent-ui-store";
 import { hydrateAgentStore } from "@/stores/agent-store";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const panelMode = useAgentUIStore((s) => s.panelMode);
   const setPanelMode = useAgentUIStore((s) => s.setPanelMode);
+  const adjustForRoute = useAgentUIStore((s) => s.adjustForRoute);
   const isMobile = useIsMobile();
+  const pathname = usePathname();
 
   // Hydrate agent store from localStorage/sessionStorage (once, after mount)
   useEffect(() => {
@@ -29,6 +32,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   // Track what page/chapter/document the user is looking at
   usePageContext();
+
+  // Issue 1: Auto-adjust panel mode when navigating to full-width pages
+  useEffect(() => {
+    adjustForRoute(pathname);
+  }, [pathname, adjustForRoute]);
 
   // Auto-switch from docked panel to overlay on narrow viewports
   useEffect(() => {
@@ -48,9 +56,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return () => mq.removeEventListener("change", handler);
   }, [panelMode, setPanelMode]);
 
-  const panelOpen = panelMode !== "hidden" && panelMode !== "bubble";
   const showOverlay = panelMode === "overlay";
-  const showPanel = panelMode === "panel";
+  // Issue 1: Prevent docked panel on full-width routes
+  const showPanel = panelMode === "panel" && !isFullWidthRoute(pathname);
 
   const handleToggleAgent = () => {
     if (isMobile) {
@@ -66,6 +74,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     if (panelMode === "overlay" || panelMode === "panel") {
       setPanelMode("bubble");
     } else {
+      // On full-width routes, always open as overlay
+      if (isFullWidthRoute(pathname)) {
+        setPanelMode("overlay");
+        return;
+      }
       // Restore last expanded mode (overlay or panel)
       let lastMode: "overlay" | "panel" = "overlay";
       try {
@@ -117,7 +130,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 {/* Main content — shrinks when panel is docked */}
                 <main className="flex-1 overflow-y-auto min-w-0">{children}</main>
 
-                {/* Docked right panel */}
+                {/* Docked right panel — hidden on full-width routes */}
                 {showPanel && (
                   <div className="w-[400px] min-[1600px]:w-[440px] shrink-0 border-l bg-background flex flex-col overflow-hidden">
                     <AgentPanelWrapper onClose={() => setPanelMode("bubble")} />
@@ -127,7 +140,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 {/* Desktop floating modes */}
                 {panelMode === "bubble" && <AICompanionBubble />}
                 {panelMode === "mini" && <AIMiniPanel />}
-                {showOverlay && (
+                {(showOverlay || (panelMode === "panel" && isFullWidthRoute(pathname))) && (
                   <FloatingAgentOverlay onClose={() => setPanelMode("mini")}>
                     <AgentPanelWrapper onClose={() => setPanelMode("mini")} />
                   </FloatingAgentOverlay>

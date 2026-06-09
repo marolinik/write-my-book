@@ -217,7 +217,7 @@ export async function POST(
     entries = parsed;
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
-    console.error("[wiki/populate] LLM extraction failed:", error);
+    console.error("[wiki/populate] LLM extraction failed:", msg);
     return NextResponse.json(
       { error: `Entity extraction failed: ${msg}` },
       { status: 500 }

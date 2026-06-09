@@ -1,4 +1,4 @@
-import type { WorkflowDefinition, WorkflowPrerequisite } from "./types";
+import type { WorkflowDefinition } from "./types";
 
 const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
   // ─── SETUP ──────────────────────────────────────────────────────
@@ -15,6 +15,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     suggestedNext: ["capture-style", "build-architecture"],
     estimatedMinMinutes: 2,
     estimatedMaxMinutes: 5,
+    minimumTier: "sonnet",
   },
   {
     id: "capture-style",
@@ -29,6 +30,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     suggestedNext: ["build-architecture", "create-story-bible"],
     estimatedMinMinutes: 2,
     estimatedMaxMinutes: 5,
+    minimumTier: "sonnet",
   },
   {
     id: "create-story-bible",
@@ -43,6 +45,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     suggestedNext: ["build-architecture"],
     estimatedMinMinutes: 3,
     estimatedMaxMinutes: 8,
+    minimumTier: "sonnet",
   },
   {
     id: "build-architecture",
@@ -60,6 +63,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     ],
     estimatedMinMinutes: 5,
     estimatedMaxMinutes: 15,
+    minimumTier: "sonnet",
   },
   {
     id: "coach",
@@ -74,6 +78,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     suggestedNext: [],
     estimatedMinMinutes: 1,
     estimatedMaxMinutes: 5,
+    minimumTier: "sonnet",
   },
   {
     id: "onboard-new-book",
@@ -88,6 +93,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     suggestedNext: ["discuss-chapter", "plan-chapter"],
     estimatedMinMinutes: 5,
     estimatedMaxMinutes: 15,
+    minimumTier: "sonnet",
   },
   {
     id: "onboard-imported-book",
@@ -105,6 +111,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     ],
     estimatedMinMinutes: 5,
     estimatedMaxMinutes: 20,
+    minimumTier: "sonnet",
   },
   {
     id: "read-manuscript",
@@ -121,6 +128,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     suggestedNext: ["capture-style", "create-story-bible"],
     estimatedMinMinutes: 2,
     estimatedMaxMinutes: 5,
+    minimumTier: "haiku",
   },
 
   // ─── WRITING ────────────────────────────────────────────────────
@@ -137,6 +145,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     suggestedNext: ["plan-chapter"],
     estimatedMinMinutes: 1,
     estimatedMaxMinutes: 3,
+    minimumTier: "sonnet",
   },
   {
     id: "plan-chapter",
@@ -155,6 +164,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     ],
     estimatedMinMinutes: 2,
     estimatedMaxMinutes: 5,
+    minimumTier: "sonnet",
   },
   {
     id: "write-chapter",
@@ -173,6 +183,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     ],
     estimatedMinMinutes: 5,
     estimatedMaxMinutes: 15,
+    minimumTier: "sonnet",
   },
   {
     id: "freewrite",
@@ -187,6 +198,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     suggestedNext: [],
     estimatedMinMinutes: 1,
     estimatedMaxMinutes: 5,
+    minimumTier: "sonnet",
   },
   {
     id: "free-drive",
@@ -201,6 +213,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     suggestedNext: [],
     estimatedMinMinutes: 2,
     estimatedMaxMinutes: 10,
+    minimumTier: "sonnet",
   },
 
   // ─── EDITING ────────────────────────────────────────────────────
@@ -221,6 +234,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     ],
     estimatedMinMinutes: 3,
     estimatedMaxMinutes: 10,
+    minimumTier: "sonnet",
   },
   {
     id: "line-edit",
@@ -239,6 +253,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     ],
     estimatedMinMinutes: 3,
     estimatedMaxMinutes: 8,
+    minimumTier: "sonnet",
   },
   {
     id: "beta-read",
@@ -256,6 +271,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     ],
     estimatedMinMinutes: 3,
     estimatedMaxMinutes: 8,
+    minimumTier: "haiku",
   },
   {
     id: "revise",
@@ -274,6 +290,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     ],
     estimatedMinMinutes: 3,
     estimatedMaxMinutes: 10,
+    minimumTier: "sonnet",
   },
   {
     id: "discuss-edits",
@@ -288,6 +305,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     suggestedNext: ["revise"],
     estimatedMinMinutes: 1,
     estimatedMaxMinutes: 3,
+    minimumTier: "sonnet",
   },
   {
     id: "publishing-check",
@@ -304,6 +322,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     suggestedNext: [],
     estimatedMinMinutes: 2,
     estimatedMaxMinutes: 5,
+    minimumTier: "haiku",
   },
 
   // ─── ANALYSIS ───────────────────────────────────────────────────
@@ -320,6 +339,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     suggestedNext: [],
     estimatedMinMinutes: 2,
     estimatedMaxMinutes: 5,
+    minimumTier: "haiku",
   },
   {
     id: "market-analysis",
@@ -336,6 +356,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     suggestedNext: [],
     estimatedMinMinutes: 2,
     estimatedMaxMinutes: 5,
+    minimumTier: "haiku",
   },
 
   // ─── STYLE ──────────────────────────────────────────────────────
@@ -357,6 +378,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     ],
     estimatedMinMinutes: 2,
     estimatedMaxMinutes: 5,
+    minimumTier: "sonnet",
   },
   {
     id: "evolve-style",
@@ -376,6 +398,51 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     ],
     estimatedMinMinutes: 2,
     estimatedMaxMinutes: 5,
+    minimumTier: "sonnet",
+  },
+
+  // ─── RESEARCH ──────────────────────────────────────────────────
+  {
+    id: "research-world",
+    label: "World Research",
+    description:
+      "Systematic research of the book's setting, genre, historical period, and cultural context.",
+    writerDescription:
+      "Research your setting, genre, and cultural context for authentic world-building.",
+    primaryAgent: "world-researcher",
+    category: "research",
+    requiresChapter: false,
+    requiresSeriesContext: false,
+    conversational: false,
+    suggestedNext: ["create-story-bible", "build-architecture"],
+    prerequisites: [
+      {
+        type: "document",
+        value: "STORY_BIBLE",
+        description: "Story Bible needed for targeted world research",
+        satisfiedBy: "create-story-bible",
+      },
+    ],
+    estimatedMinMinutes: 3,
+    estimatedMaxMinutes: 10,
+    minimumTier: "sonnet",
+  },
+  {
+    id: "research-topic",
+    label: "Topic Research",
+    description:
+      "On-demand research session — ask specific questions and get researched answers with sources.",
+    writerDescription:
+      "Ask a research question and get well-sourced answers for your book.",
+    primaryAgent: "world-researcher",
+    category: "research",
+    requiresChapter: false,
+    requiresSeriesContext: false,
+    conversational: true,
+    suggestedNext: [],
+    estimatedMinMinutes: 2,
+    estimatedMaxMinutes: 8,
+    minimumTier: "sonnet",
   },
 
   // ─── SERIES ─────────────────────────────────────────────────────
@@ -394,6 +461,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     suggestedNext: ["create-series-bible"],
     estimatedMinMinutes: 3,
     estimatedMaxMinutes: 8,
+    minimumTier: "sonnet",
   },
   {
     id: "create-series-bible",
@@ -410,6 +478,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     suggestedNext: ["create-series-architecture"],
     estimatedMinMinutes: 3,
     estimatedMaxMinutes: 10,
+    minimumTier: "sonnet",
   },
   {
     id: "create-series-architecture",
@@ -426,6 +495,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     suggestedNext: ["check-series-continuity"],
     estimatedMinMinutes: 3,
     estimatedMaxMinutes: 10,
+    minimumTier: "sonnet",
   },
   {
     id: "check-series-continuity",
@@ -442,6 +512,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     suggestedNext: [],
     estimatedMinMinutes: 3,
     estimatedMaxMinutes: 8,
+    minimumTier: "sonnet",
   },
 ];
 

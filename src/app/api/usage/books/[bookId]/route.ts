@@ -29,7 +29,6 @@ export async function GET(
         recordedAt: { gte: thirtyDaysAgo },
       },
       orderBy: { recordedAt: "desc" },
-      take: 20,
     });
 
     const byAgent = records.reduce(
@@ -57,10 +56,31 @@ export async function GET(
       { tokensInput: 0, tokensOutput: 0, costEstimate: 0, sessions: 0 }
     );
 
+    // Split costs: LLM agents vs embeddings
+    const llmCosts = records
+      .filter((r) => r.agentType !== "embedding")
+      .reduce(
+        (acc, r) => ({
+          costEstimate: acc.costEstimate + r.costEstimate,
+          sessions: acc.sessions + 1,
+        }),
+        { costEstimate: 0, sessions: 0 }
+      );
+
+    const embeddingRecords = records.filter((r) => r.agentType === "embedding");
+    const embeddingCosts = {
+      costEstimate: embeddingRecords.reduce((sum, r) => sum + r.costEstimate, 0),
+      tokens: embeddingRecords.reduce((sum, r) => sum + r.tokensInput, 0),
+    };
+    const embeddingTokens = embeddingCosts.tokens;
+
     return NextResponse.json({
       total,
       byAgent,
       records,
+      llmCosts,
+      embeddingCosts,
+      embeddingTokens,
     });
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

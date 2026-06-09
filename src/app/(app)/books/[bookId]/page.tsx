@@ -25,6 +25,13 @@ import {
 import { BookViewSwitcher } from "@/components/book/book-view-switcher";
 import { StartWorkflowButton } from "@/components/book/start-workflow-button";
 import { MemoryStatsCard } from "@/components/memory/memory-stats-card";
+import { StoryRadar } from "@/components/book/story-radar";
+import { DailyWritingPlan } from "@/components/book/daily-writing-plan";
+import { ProactiveNotifications } from "@/components/book/proactive-notifications";
+import { ChapterWordGoals } from "@/components/book/chapter-word-goals";
+import { MilestoneRewards } from "@/components/book/milestone-rewards";
+import { LifetimeStats } from "@/components/book/lifetime-stats";
+import { DraftCertificate } from "@/components/book/draft-certificate";
 
 export const dynamic = "force-dynamic";
 
@@ -494,6 +501,75 @@ export default async function BookDetailPage({
         }))}
         labels={s}
       />
+
+      {/* AI Insights & Writing Tools */}
+      <div className="grid gap-4 lg:grid-cols-2 mt-8 mb-8">
+        {/* Story Radar — proactive AI monitoring */}
+        <StoryRadar bookId={bookId} />
+
+        {/* Daily Writing Plan */}
+        <DailyWritingPlan bookId={bookId} />
+      </div>
+
+      {/* Proactive Notifications */}
+      <div className="mb-8">
+        <ProactiveNotifications
+          bookId={bookId}
+          chapters={book.chapters.map((ch) => ({
+            chapterNumber: ch.chapterNumber,
+            title: ch.title,
+            status: ch.status,
+            updatedAt: ch.updatedAt.toISOString(),
+          }))}
+          pendingFindings={pendingFindings}
+          currentStreak={0}
+          todayWords={0}
+        />
+      </div>
+
+      {/* Chapter Word Goals */}
+      <div className="mb-8">
+        <ChapterWordGoals
+          bookId={bookId}
+          chapters={book.chapters.map((ch) => ({
+            id: ch.id,
+            chapterNumber: ch.chapterNumber,
+            title: ch.title,
+            wordCount: ch.wordCount,
+            targetWordCount: ch.targetWordCount,
+          }))}
+          bookTarget={book.targetWordCount ?? undefined}
+          bookCurrentWords={book.wordCount}
+        />
+      </div>
+
+      {/* Gamification: Milestones & Lifetime Stats */}
+      <div className="grid gap-4 lg:grid-cols-2 mb-8">
+        <MilestoneRewards
+          totalWords={book.wordCount}
+          currentStreak={0}
+          chaptersComplete={draftedPlus}
+        />
+        <LifetimeStats
+          totalWords={book.wordCount}
+          totalChapters={totalChapters}
+          totalSessions={recentSessions.length}
+        />
+      </div>
+
+      {/* Draft Complete Certificate — celebrate when all chapters are drafted! */}
+      {pctDrafted === 100 && totalChapters > 0 && (
+        <div className="mb-8">
+          <DraftCertificate
+            bookTitle={book.name}
+            authorName={user.displayName ?? "Author"}
+            wordCount={book.wordCount}
+            chapterCount={totalChapters}
+            completionDate={book.updatedAt.toISOString()}
+            daysToComplete={Math.max(1, Math.ceil((Date.now() - new Date(book.createdAt).getTime()) / (1000 * 60 * 60 * 24)))}
+          />
+        </div>
+      )}
 
       {/* Documents */}
       {book.documents.length > 0 && (

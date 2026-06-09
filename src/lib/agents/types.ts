@@ -131,6 +131,8 @@ export interface AgentStreamMessage {
     | "approval_request"
     | "error"
     | "complete"
+    | "cost_update"
+    | "status"
     | "delegation_start"
     | "delegation_progress"
     | "delegation_complete";
@@ -191,8 +193,8 @@ export interface AgentSpawnOptions {
   workflowId: string;
   sessionId: string;
   onMessage: (message: AgentStreamMessage) => void;
-  onComplete: (result: AgentResult) => void;
-  onError: (error: Error) => void;
+  onComplete: (result: AgentResult) => void | Promise<void>;
+  onError: (error: Error) => void | Promise<void>;
 }
 
 export interface WorkflowPrerequisite {
@@ -212,7 +214,7 @@ export interface WorkflowDefinition {
   description: string;
   writerDescription: string;
   primaryAgent: AgentType;
-  category: "setup" | "writing" | "editing" | "analysis" | "series" | "style";
+  category: "setup" | "writing" | "editing" | "analysis" | "series" | "style" | "research";
   requiresChapter: boolean;
   requiresSeriesContext: boolean;
   conversational: boolean;
@@ -222,4 +224,6 @@ export interface WorkflowDefinition {
   estimatedMinMinutes?: number;
   /** Estimated maximum duration in minutes. */
   estimatedMaxMinutes?: number;
+  /** Minimum model tier required for this workflow. Blocks underpowered models. */
+  minimumTier?: ModelTier;
 }

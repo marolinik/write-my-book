@@ -1,19 +1,20 @@
-/** Estimate cost based on model tier and token usage (USD). */
+import { getModelDef, resolveFromTier } from "@/lib/llm";
+
+/**
+ * Estimate cost based on model and token usage (USD).
+ * Accepts registry IDs ("anthropic/sonnet", "openrouter/haiku") or
+ * legacy tier strings ("opus", "sonnet", "haiku") for backward compat.
+ */
 export function estimateCost(
   model: string,
   inputTokens: number,
   outputTokens: number
 ): number {
-  // Per-token costs (USD per 1M tokens) — Claude 4.x pricing
-  const rates: Record<string, { input: number; output: number }> = {
-    opus: { input: 15, output: 75 },
-    sonnet: { input: 3, output: 15 },
-    haiku: { input: 0.25, output: 1.25 },
-  };
-  const rate = rates[model] ?? rates.sonnet;
+  // Try exact registry lookup first, then legacy tier resolution
+  const def = getModelDef(model) ?? resolveFromTier(model);
   return (
-    (inputTokens * rate.input) / 1_000_000 +
-    (outputTokens * rate.output) / 1_000_000
+    (inputTokens * def.inputCostPer1M) / 1_000_000 +
+    (outputTokens * def.outputCostPer1M) / 1_000_000
   );
 }
 

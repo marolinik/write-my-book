@@ -286,8 +286,8 @@ export function StyleProfileViewer({
           </div>
 
           {/* Structured Metrics */}
-          {profile.metrics ? (
-            <MetricsDisplay metrics={profile.metrics} />
+          {profile.metrics && typeof profile.metrics === "object" && !Array.isArray(profile.metrics) ? (
+            <MetricsDisplay metrics={profile.metrics as StructuredFingerprint} />
           ) : (
             <Card className="border-dashed">
               <CardContent className="py-6 text-center">
@@ -300,7 +300,7 @@ export function StyleProfileViewer({
           )}
 
           {/* Calibration Samples */}
-          {profile.calibrationSamples &&
+          {Array.isArray(profile.calibrationSamples) &&
             profile.calibrationSamples.length > 0 && (
               <CalibrationSamplesDisplay
                 samples={profile.calibrationSamples}

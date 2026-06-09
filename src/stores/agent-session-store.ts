@@ -36,6 +36,10 @@ export interface SessionState {
   estimatedMaxMinutes?: number;
   /** Number of +15 min extensions used (0, 1, or 2) */
   extensionsUsed: number;
+  /** Running cost in USD, updated via cost_update SSE events */
+  currentCost: number;
+  /** Whether this session is running as a background job (queued via BullMQ) */
+  isBackground: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -54,6 +58,7 @@ interface PersistedSession {
   estimatedMinMinutes?: number;
   estimatedMaxMinutes?: number;
   extensionsUsed: number;
+  isBackground: boolean;
 }
 
 function persistSessions(sessions: Record<string, SessionState>) {
@@ -71,6 +76,7 @@ function persistSessions(sessions: Record<string, SessionState>) {
           estimatedMinMinutes: s.estimatedMinMinutes,
           estimatedMaxMinutes: s.estimatedMaxMinutes,
           extensionsUsed: s.extensionsUsed,
+          isBackground: s.isBackground,
         })
       );
     if (running.length > 0) {
@@ -105,6 +111,8 @@ function loadPersistedSessions(): Record<string, SessionState> {
         estimatedMinMinutes: p.estimatedMinMinutes,
         estimatedMaxMinutes: p.estimatedMaxMinutes,
         extensionsUsed: p.extensionsUsed ?? 0,
+        currentCost: 0,
+        isBackground: p.isBackground ?? false,
       };
     }
     return sessions;
@@ -132,7 +140,8 @@ interface AgentSessionState {
     timing?: {
       estimatedMinMinutes?: number;
       estimatedMaxMinutes?: number;
-    }
+    },
+    isBackground?: boolean
   ) => void;
   extendSession: (sessionId: string) => void;
   addMessage: (sessionId: string, message: AgentStreamMessage) => void;
@@ -144,6 +153,7 @@ interface AgentSessionState {
   ) => void;
   setSessionRunning: (sessionId: string) => void;
   setSessionError: (sessionId: string, error: string) => void;
+  updateSessionCost: (sessionId: string, costUsd: number) => void;
   setActiveSession: (sessionId: string | null) => void;
   removeSession: (sessionId: string) => void;
 
@@ -171,7 +181,7 @@ export const useAgentSessionStore = create<AgentSessionState>((set, get) => ({
   activeSessionId: null,
   workflowQueue: [],
 
-  startSession: (sessionId, workflowId, agentType, bookId, seriesId, timing) => {
+  startSession: (sessionId, workflowId, agentType, bookId, seriesId, timing, isBackground) => {
     // Cross-store: open panel via UI store
     useAgentUIStore.getState().setPanelMode("overlay");
     set((state) => {
@@ -191,6 +201,8 @@ export const useAgentSessionStore = create<AgentSessionState>((set, get) => ({
           estimatedMinMinutes: timing?.estimatedMinMinutes,
           estimatedMaxMinutes: timing?.estimatedMaxMinutes,
           extensionsUsed: 0,
+          currentCost: 0,
+          isBackground: isBackground ?? false,
         },
       };
       persistSessions(newSessions);
@@ -310,6 +322,21 @@ export const useAgentSessionStore = create<AgentSessionState>((set, get) => ({
       };
       persistSessions(newSessions);
       return { sessions: newSessions };
+    }),
+
+  updateSessionCost: (sessionId, costUsd) =>
+    set((state) => {
+      const session = state.sessions[sessionId];
+      if (!session) return state;
+      return {
+        sessions: {
+          ...state.sessions,
+          [sessionId]: {
+            ...session,
+            currentCost: costUsd,
+          },
+        },
+      };
     }),
 
   setActiveSession: (sessionId) => set({ activeSessionId: sessionId }),

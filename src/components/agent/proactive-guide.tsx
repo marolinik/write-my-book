@@ -18,6 +18,7 @@ import {
   SendIcon,
   AlertTriangleIcon,
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useBookState } from "@/hooks/use-book-state";
@@ -198,6 +199,25 @@ export function ProactiveGuide({
   const state = useBookState(bookId);
   const t = getAgentStrings(state.language);
 
+  // Pre-flight cost estimate for the primary recommended workflow
+  const { data: costData } = useQuery({
+    queryKey: ["cost-estimate", bookId, state.nextRecommendedWorkflow],
+    queryFn: async () => {
+      if (!state.nextRecommendedWorkflow) return null;
+      const res = await fetch(
+        `/api/books/${bookId}/cost-estimate?workflowId=${state.nextRecommendedWorkflow}`
+      );
+      if (!res.ok) return null;
+      return res.json();
+    },
+    enabled: !!state.nextRecommendedWorkflow && !!bookId,
+    staleTime: 5 * 60 * 1000, // cache for 5 min
+  });
+
+  // All hooks MUST be called before any early returns (Rules of Hooks)
+  const { data: bookData } = useBook(bookId);
+  const sessions = useAgentSessionStore((s) => s.sessions);
+
   if (state.isLoading) {
     return (
       <div className="flex flex-1 items-center justify-center p-6">
@@ -237,7 +257,6 @@ export function ProactiveGuide({
     : SparklesIcon;
 
   // Beta score for beta-read recommendations
-  const { data: bookData } = useBook(bookId);
   const betaScoreForCta = (() => {
     if (state.nextRecommendedWorkflow !== "beta-read") return null;
     const chapters = bookData?.chapters ?? [];
@@ -247,9 +266,6 @@ export function ProactiveGuide({
     const avg = scored.reduce((sum, ch) => sum + (ch.betaScore ?? 0), 0) / scored.length;
     return avg;
   })();
-
-  // Detect if last session for this book timed out
-  const sessions = useAgentSessionStore((s) => s.sessions);
   const lastTimedOut = (() => {
     const sessionList = Object.values(sessions);
     if (sessionList.length === 0) return false;
@@ -381,6 +397,12 @@ export function ProactiveGuide({
             {betaScoreForCta !== null && (
               <span className="text-xs font-normal opacity-70">
                 Current score: {betaScoreForCta.toFixed(1)} — run beta-read to re-evaluate
+              </span>
+            )}
+            {costData?.costEstimate && (
+              <span className="text-[10px] font-normal opacity-60">
+                Est. {costData.costEstimate.formatted}
+                {costData.embeddingEstimate && ` (incl. ${costData.embeddingEstimate.formatted} embeddings)`}
               </span>
             )}
           </div>

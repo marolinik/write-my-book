@@ -5,15 +5,7 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-
-async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(url, init);
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error(body.error ?? `Request failed: ${res.status}`);
-  }
-  return res.json();
-}
+import { fetchJson } from "@/lib/api-client";
 
 export type ChapterItem = {
   id: string;
@@ -72,11 +64,33 @@ export function useUpdateChapter(bookId: string, chapterId: string) {
       title?: string;
       status?: string;
       actNumber?: number;
+      chapterNumber?: number;
     }) =>
       fetchJson(`/api/books/${bookId}/chapters/${chapterId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["chapters", bookId] });
+      qc.invalidateQueries({ queryKey: ["books", bookId] });
+    },
+  });
+}
+
+/** Update any chapter by ID (flexible — no fixed chapterId in hook signature). */
+export function useUpdateAnyChapter(bookId: string) {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: (args: {
+      chapterId: string;
+      data: { title?: string; status?: string; actNumber?: number; chapterNumber?: number };
+    }) =>
+      fetchJson(`/api/books/${bookId}/chapters/${args.chapterId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(args.data),
       }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["chapters", bookId] });

@@ -11,11 +11,48 @@ import {
 } from "@/hooks/use-editorial";
 import type { FindingItem } from "@/hooks/use-editorial";
 import { useEditorialStore } from "@/stores/editorial-store";
-import { Check, X, Undo2, AlertTriangle } from "lucide-react";
+import { SuggestionFeedback } from "@/components/agent/suggestion-feedback";
+import { Check, X, Undo2, AlertTriangle, MoveRight } from "lucide-react";
 
 interface FindingCardProps {
   finding: FindingItem;
   bookId: string;
+  /** Called when user clicks "Show in text" or "Jump to text". */
+  onShowInText?: (finding: FindingItem) => void;
+  /** Whether this card is highlighted via reverse navigation (annotation click -> card). */
+  isHighlighted?: boolean;
+  /** Whether the finding's original text no longer matches the editor content. */
+  isStale?: boolean;
+}
+
+/** Severity-colored left border classes. */
+function severityBorderClass(severity: string, active: boolean): string {
+  if (!active) return "border-l-transparent";
+  switch (severity) {
+    case "critical":
+    case "major":
+      return "border-l-red-500";
+    case "moderate":
+      return "border-l-orange-500";
+    case "minor":
+    default:
+      return "border-l-blue-400";
+  }
+}
+
+/** Severity-colored subtle background tint when active. */
+function severityBgClass(severity: string, active: boolean): string {
+  if (!active) return "";
+  switch (severity) {
+    case "critical":
+    case "major":
+      return "bg-red-50 dark:bg-red-950/20";
+    case "moderate":
+      return "bg-orange-50 dark:bg-orange-950/20";
+    case "minor":
+    default:
+      return "bg-blue-50 dark:bg-blue-950/20";
+  }
 }
 
 function severityBadge(severity: string) {
@@ -84,7 +121,13 @@ function InlineDiff({
   );
 }
 
-export function FindingCard({ finding, bookId }: FindingCardProps) {
+export function FindingCard({
+  finding,
+  bookId,
+  onShowInText,
+  isHighlighted = false,
+  isStale = false,
+}: FindingCardProps) {
   const [showDetails, setShowDetails] = useState(false);
   const [applyError, setApplyError] = useState<string | null>(null);
   const { selectedFindingId, setSelectedFinding } = useEditorialStore();
@@ -93,6 +136,7 @@ export function FindingCard({ finding, bookId }: FindingCardProps) {
   const undoMutation = useUndoFinding(bookId);
 
   const isSelected = selectedFindingId === finding.id;
+  const isActive = isSelected || isHighlighted;
   const isMutating =
     applyMutation.isPending ||
     dismissMutation.isPending ||
@@ -117,11 +161,15 @@ export function FindingCard({ finding, bookId }: FindingCardProps) {
 
   return (
     <Card
-      className={`cursor-pointer transition-colors ${isSelected ? "ring-2 ring-primary" : "hover:bg-muted/50"}`}
-      onClick={() => setSelectedFinding(finding.id)}
+      id={`finding-card-${finding.id}`}
+      className={`cursor-pointer transition-colors border-l-4 ${severityBorderClass(finding.severity, isActive)} ${severityBgClass(finding.severity, isActive)} ${!isActive ? "hover:bg-muted/50" : ""}`}
+      onClick={() => {
+        setSelectedFinding(finding.id);
+        onShowInText?.(finding);
+      }}
     >
       <CardContent className="p-4 space-y-2">
-        {/* Top row: severity + category + status + auto-apply indicator */}
+        {/* Top row: severity + category + stale badge + status */}
         <div className="flex items-center gap-2 flex-wrap">
           {severityBadge(finding.severity)}
           <Badge variant="secondary">{finding.category}</Badge>
@@ -130,10 +178,15 @@ export function FindingCard({ finding, bookId }: FindingCardProps) {
               auto-apply
             </Badge>
           )}
+          {isStale && (
+            <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 text-[10px]">
+              text changed
+            </Badge>
+          )}
           <div className="ml-auto">{statusBadge(finding.status)}</div>
         </div>
 
-        {/* Description */}
+        {/* Description — full text, no truncation */}
         <p className="text-sm">{finding.description}</p>
 
         {/* Chapter reference */}
@@ -145,7 +198,7 @@ export function FindingCard({ finding, bookId }: FindingCardProps) {
           </p>
         )}
 
-        {/* Diff view for auto-appliable findings */}
+        {/* Diff view for auto-appliable findings — collapsed by default behind toggle */}
         {isAutoAppliable && (
           <div>
             <Button
@@ -170,7 +223,7 @@ export function FindingCard({ finding, bookId }: FindingCardProps) {
           </div>
         )}
 
-        {/* Suggestion for advice-only findings */}
+        {/* Suggestion for advice-only findings — collapsed by default */}
         {!isAutoAppliable && finding.suggestion && (
           <div>
             <Button
@@ -200,10 +253,26 @@ export function FindingCard({ finding, bookId }: FindingCardProps) {
           </div>
         )}
 
-        {/* Action buttons */}
+        {/* Action buttons: Jump to text | Apply | Dismiss */}
         <div className="flex items-center gap-2 pt-1">
           {finding.status === "pending" && (
             <>
+              {/* Jump to text — always available when originalText exists */}
+              {finding.originalText && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onShowInText?.(finding);
+                  }}
+                  className="gap-1"
+                >
+                  <MoveRight className="h-3.5 w-3.5" />
+                  Jump to text
+                </Button>
+              )}
+
               {isAutoAppliable ? (
                 <>
                   <Button
@@ -213,7 +282,7 @@ export function FindingCard({ finding, bookId }: FindingCardProps) {
                     className="gap-1"
                   >
                     <Check className="h-3.5 w-3.5" />
-                    Accept
+                    Apply
                   </Button>
                   <Button
                     variant="outline"
@@ -226,7 +295,7 @@ export function FindingCard({ finding, bookId }: FindingCardProps) {
                     className="gap-1"
                   >
                     <X className="h-3.5 w-3.5" />
-                    Reject
+                    Dismiss
                   </Button>
                 </>
               ) : (
@@ -239,7 +308,7 @@ export function FindingCard({ finding, bookId }: FindingCardProps) {
                       applyMutation.mutate(finding.id);
                     }}
                   >
-                    Mark as Done
+                    Apply
                   </Button>
                   <Button
                     variant="outline"
@@ -272,6 +341,16 @@ export function FindingCard({ finding, bookId }: FindingCardProps) {
             </Button>
           )}
         </div>
+
+        {/* Thumbs up/down feedback for AI improvement */}
+        {(finding.status === "applied" || finding.status === "dismissed") && (
+          <SuggestionFeedback
+            bookId={bookId}
+            suggestionId={finding.id}
+            suggestionType={finding.category ?? "editorial"}
+            compact
+          />
+        )}
       </CardContent>
     </Card>
   );

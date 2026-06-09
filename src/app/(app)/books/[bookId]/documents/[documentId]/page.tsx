@@ -182,14 +182,18 @@ export default function DocumentEditorPage({
     };
   }, [allDocs, docData, documentId, isChapterScoped]);
 
-  // Handle annotation click
+  // Handle annotation click (accepts arrays for overlapping annotation support)
   const handleAnnotationClick = useCallback(
     (
-      annotationId: string,
-      annotationType: AnnotationType,
+      annotationIds: string[],
+      annotationTypes: AnnotationType[],
       rect: DOMRect,
       _event: MouseEvent
     ) => {
+      const annotationId = annotationIds[0];
+      const annotationType = annotationTypes[0];
+      if (!annotationId) return;
+
       const findingId = annotationId.replace("finding-", "");
       const finding = findings.find((f) => f.id === findingId) ?? null;
 

@@ -5,15 +5,7 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-
-async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(url, init);
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error(body.error ?? `Request failed: ${res.status}`);
-  }
-  return res.json();
-}
+import { fetchJson } from "@/lib/api-client";
 
 export type BookSettingsData = {
   id: string;
@@ -25,6 +17,8 @@ export type BookSettingsData = {
   modelCoach: string;
   modelCreative: string;
   modelResearch: string;
+  /** Book-level default model override (registry ID or null). */
+  modelOverride: string | null;
   autoCommit: boolean;
   styleStrictness: string;
   betaPanelSize: number;

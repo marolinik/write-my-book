@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { getAgentDefinition, getModelId } from "./definitions";
+import { getAgentDefinition } from "./definitions";
 import { assembleAgentPrompt } from "./prompt-assembler";
 import {
   getToolDefinitions,
@@ -8,6 +8,14 @@ import {
   type ToolContext,
 } from "./tools";
 import { DocumentService } from "@/lib/documents/document-service";
+import { estimateCost } from "@/lib/cost";
+import {
+  withProviderRetry,
+  ProviderError,
+  RETRY_CONFIG,
+  type ProviderKey,
+  translateProviderError,
+} from "@/lib/llm";
 import type {
   AgentResult,
   AgentStreamMessage,
@@ -16,6 +24,35 @@ import type {
 } from "./types";
 
 const MAX_TOOL_TURNS = 50;
+const DEFAULT_MAX_RUNTIME_MS = 30 * 60 * 1000; // 30 minutes
+const DEFAULT_MAX_SESSION_COST_USD = 10;
+const APPROVAL_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
+
+export interface OrchestratorOptions {
+  /** Pre-built Anthropic SDK client (configured for the correct provider). */
+  client: Anthropic;
+  /** Full API model ID to send in requests (e.g. "claude-sonnet-4-5-20250929"). */
+  modelId: string;
+  /** Registry model ID for cost estimation (e.g. "anthropic/sonnet"). */
+  registryId: string;
+  maxRuntimeMs?: number;
+  maxSessionCostUsd?: number;
+  /** Shared cost tracker for Coach + specialist delegation. */
+  sharedCostTracker?: import("./types").SharedCostTracker;
+  /** Delegation context for the DelegateToSpecialist tool. */
+  delegationContext?: import("./types").DelegationContext;
+  /** Provider key for error translation and retry logic. */
+  providerKey?: ProviderKey;
+  /**
+   * Custom approval resolver for background sessions.
+   * When provided, approval gates use this instead of in-memory Promises.
+   * The resolver should write pending state to Redis and poll for resolution.
+   */
+  approvalResolver?: (
+    approvalId: string,
+    deadline: number,
+  ) => Promise<ApprovalResponse>;
+}
 
 /** Language-aware "begin" messages so the first user turn doesn't prime English. */
 const LANG_BEGIN_MESSAGES: Record<string, string> = {
@@ -35,14 +72,36 @@ const LANG_BEGIN_MESSAGES: Record<string, string> = {
  */
 export class AgentOrchestrator {
   private client: Anthropic;
+  private resolvedModelId: string;
+  private registryId: string;
   private abortController: AbortController | null = null;
   private pendingApprovals = new Map<
     string,
     (response: ApprovalResponse) => void
   >();
+  private maxRuntimeMs: number;
+  private maxSessionCostUsd: number;
+  private runtimeTimeout: ReturnType<typeof setTimeout> | null = null;
+  private sharedCostTracker: import("./types").SharedCostTracker | null = null;
+  private delegationContext: import("./types").DelegationContext | null = null;
+  private providerKey: ProviderKey;
+  private approvalResolver: ((approvalId: string, deadline: number) => Promise<ApprovalResponse>) | null;
 
-  constructor(apiKey: string) {
-    this.client = new Anthropic({ apiKey });
+  constructor(options: OrchestratorOptions) {
+    this.client = options.client;
+    this.resolvedModelId = options.modelId;
+    this.registryId = options.registryId;
+    this.maxRuntimeMs = options.maxRuntimeMs ?? DEFAULT_MAX_RUNTIME_MS;
+    this.maxSessionCostUsd = options.maxSessionCostUsd ?? DEFAULT_MAX_SESSION_COST_USD;
+    this.sharedCostTracker = options.sharedCostTracker ?? null;
+    this.delegationContext = options.delegationContext ?? null;
+    this.providerKey = options.providerKey ?? "anthropic";
+    this.approvalResolver = options.approvalResolver ?? null;
+  }
+
+  /** Get the delegation context for tool executors. */
+  getDelegationContext(): import("./types").DelegationContext | null {
+    return this.delegationContext;
   }
 
   /**
@@ -56,6 +115,15 @@ export class AgentOrchestrator {
 
     this.abortController = new AbortController();
 
+    // Wall-clock timeout
+    this.runtimeTimeout = setTimeout(() => {
+      options.onMessage({
+        type: "error",
+        content: `Session timed out after ${Math.round(this.maxRuntimeMs / 60000)} minutes.`,
+      });
+      this.cancel();
+    }, this.maxRuntimeMs);
+
     const docService = new DocumentService(
       options.context.userId,
       options.context.bookId
@@ -66,7 +134,7 @@ export class AgentOrchestrator {
       options.context,
       docService
     );
-    const modelId = getModelId(options.model);
+    const modelId = this.resolvedModelId;
     const tools = getToolDefinitions(definition.tools).map((t) => ({
       name: t.name,
       description: t.description,
@@ -90,6 +158,8 @@ export class AgentOrchestrator {
       documentService: docService,
       seriesId: options.context.seriesId,
       seriesDocumentService: seriesDocService,
+      chapterNumber: options.context.chapterNumber,
+      delegationContext: this.delegationContext ?? undefined,
     };
 
     const messages: Anthropic.MessageParam[] = [
@@ -120,11 +190,11 @@ export class AgentOrchestrator {
         sessionId: options.sessionId,
       };
 
-      options.onComplete(agentResult);
+      await options.onComplete(agentResult);
       return agentResult;
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error));
-      options.onError(err);
+      await options.onError(err);
       return {
         success: false,
         tokensInput: 0,
@@ -132,6 +202,11 @@ export class AgentOrchestrator {
         documentIds,
         sessionId: options.sessionId,
       };
+    } finally {
+      if (this.runtimeTimeout) {
+        clearTimeout(this.runtimeTimeout);
+        this.runtimeTimeout = null;
+      }
     }
   }
 
@@ -151,6 +226,15 @@ export class AgentOrchestrator {
 
     this.abortController = new AbortController();
 
+    // Wall-clock timeout
+    this.runtimeTimeout = setTimeout(() => {
+      options.onMessage({
+        type: "error",
+        content: `Session timed out after ${Math.round(this.maxRuntimeMs / 60000)} minutes.`,
+      });
+      this.cancel();
+    }, this.maxRuntimeMs);
+
     const docService = new DocumentService(
       options.context.userId,
       options.context.bookId
@@ -161,7 +245,7 @@ export class AgentOrchestrator {
       options.context,
       docService
     );
-    const modelId = getModelId(options.model);
+    const modelId = this.resolvedModelId;
     const tools = getToolDefinitions(definition.tools).map((t) => ({
       name: t.name,
       description: t.description,
@@ -185,6 +269,8 @@ export class AgentOrchestrator {
       documentService: docService,
       seriesId: options.context.seriesId,
       seriesDocumentService: seriesDocService2,
+      chapterNumber: options.context.chapterNumber,
+      delegationContext: this.delegationContext ?? undefined,
     };
 
     // Add the new user message to existing conversation
@@ -203,7 +289,7 @@ export class AgentOrchestrator {
         documentIds
       );
 
-      options.onComplete({
+      await options.onComplete({
         success: true,
         tokensInput: result.inputTokens,
         tokensOutput: result.outputTokens,
@@ -212,7 +298,12 @@ export class AgentOrchestrator {
       });
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error));
-      options.onError(err);
+      await options.onError(err);
+    } finally {
+      if (this.runtimeTimeout) {
+        clearTimeout(this.runtimeTimeout);
+        this.runtimeTimeout = null;
+      }
     }
   }
 
@@ -251,45 +342,107 @@ export class AgentOrchestrator {
     for (let turn = 0; turn < MAX_TOOL_TURNS; turn++) {
       if (this.abortController?.signal.aborted) break;
 
-      // Trim old tool results before each API call to prevent context overflow.
-      // The model has already processed older turns — we keep a short summary
-      // so conversation structure stays intact but bulk content is removed.
-      this.trimOldToolResults(messages);
+      // Context trimming disabled — full tool results are preserved across turns.
+      // this.trimOldToolResults(messages);
 
-      const stream = this.client.messages.stream({
-        model: modelId,
-        max_tokens: 64000,
-        system: systemPrompt,
-        messages,
-        ...(tools.length > 0 ? { tools } : {}),
-      });
-
-      // Stream events to SSE listeners
-      for await (const event of stream) {
-        if (this.abortController?.signal.aborted) break;
-
-        if (event.type === "content_block_start") {
-          if (event.content_block.type === "tool_use") {
-            options.onMessage({
-              type: "tool_use",
-              content: `Using tool: ${event.content_block.name}`,
-              metadata: {
-                tool: event.content_block.name,
-                toolUseId: event.content_block.id,
-              },
+      let finalMessage: Anthropic.Message;
+      try {
+        finalMessage = await withProviderRetry(
+          async () => {
+            const stream = this.client.messages.stream({
+              model: modelId,
+              max_tokens: 64000,
+              system: systemPrompt,
+              messages,
+              ...(tools.length > 0 ? { tools } : {}),
             });
+
+            // Stream events to SSE listeners
+            for await (const event of stream) {
+              if (this.abortController?.signal.aborted) break;
+
+              if (event.type === "content_block_start") {
+                if (event.content_block.type === "tool_use") {
+                  options.onMessage({
+                    type: "tool_use",
+                    content: `Using tool: ${event.content_block.name}`,
+                    metadata: {
+                      tool: event.content_block.name,
+                      toolUseId: event.content_block.id,
+                    },
+                  });
+                }
+              } else if (event.type === "content_block_delta") {
+                const delta = event.delta;
+                if ("text" in delta && delta.text) {
+                  options.onMessage({ type: "text", content: delta.text });
+                }
+              }
+            }
+
+            return stream.finalMessage();
+          },
+          {
+            provider: this.providerKey,
+            onRetry: (attempt, waitMs, error) => {
+              options.onMessage({
+                type: "status",
+                content: `${error.userMessage} Retrying in ${waitMs / 1000}s... (attempt ${attempt}/${RETRY_CONFIG.maxRetries})`,
+              });
+            },
           }
-        } else if (event.type === "content_block_delta") {
-          const delta = event.delta;
-          if ("text" in delta && delta.text) {
-            options.onMessage({ type: "text", content: delta.text });
-          }
+        );
+      } catch (error) {
+        // Non-retryable or exhausted retries — emit translated error
+        if (error instanceof ProviderError) {
+          options.onMessage({
+            type: "error",
+            content: error.translated.userMessage,
+            metadata: {
+              action: error.translated.action,
+              ...(error.translated.action === "check-key" ? { switchable: true } : {}),
+            },
+          });
+        } else {
+          const translated = translateProviderError(500, this.providerKey);
+          options.onMessage({
+            type: "error",
+            content: translated.userMessage,
+          });
         }
+        break;
       }
 
-      const finalMessage = await stream.finalMessage();
       totalInputTokens += finalMessage.usage.input_tokens;
       totalOutputTokens += finalMessage.usage.output_tokens;
+
+      // Update shared cost tracker (used for Coach + specialist budget sharing)
+      if (this.sharedCostTracker) {
+        this.sharedCostTracker.totalInputTokens += finalMessage.usage.input_tokens;
+        this.sharedCostTracker.totalOutputTokens += finalMessage.usage.output_tokens;
+      }
+
+      // Emit live cost update SSE event
+      const runningCost = estimateCost(this.registryId, totalInputTokens, totalOutputTokens);
+      options.onMessage({
+        type: "cost_update",
+        content: `$${runningCost.toFixed(4)}`,
+        metadata: {
+          inputTokens: totalInputTokens,
+          outputTokens: totalOutputTokens,
+          costUsd: runningCost,
+          model: this.registryId,
+        },
+      });
+
+      // Cost budget check — estimate running cost and break if over limit
+      if (runningCost > this.maxSessionCostUsd) {
+        options.onMessage({
+          type: "error",
+          content: `Session cost limit reached ($${runningCost.toFixed(2)}/$${this.maxSessionCostUsd.toFixed(2)}). Stopping to prevent overspend.`,
+        });
+        break;
+      }
 
       // Handle max_tokens BEFORE pushing assistant message — when truncation
       // happens mid-tool-use, the tool_use block has incomplete JSON input.
@@ -380,6 +533,8 @@ export class AgentOrchestrator {
             };
             const approvalId = crypto.randomUUID();
 
+            const approvalDeadline = Date.now() + APPROVAL_TIMEOUT_MS;
+
             options.onMessage({
               type: "approval_request",
               content: approvalInput.description ?? "Approval requested",
@@ -388,35 +543,38 @@ export class AgentOrchestrator {
                 toolUseId: toolUse.id,
                 approvalId,
                 approvalTitle: approvalInput.title,
+                approvalDeadline,
               },
             });
 
-            // Wait for user response with 10-minute timeout
-            const approvalResponse = await new Promise<ApprovalResponse>(
-              (resolve) => {
-                this.pendingApprovals.set(approvalId, resolve);
+            // Wait for user response — Redis polling (background) or in-memory Promise (inline)
+            const approvalResponse = this.approvalResolver
+              ? await this.approvalResolver(approvalId, approvalDeadline)
+              : await new Promise<ApprovalResponse>(
+                  (resolve) => {
+                    this.pendingApprovals.set(approvalId, resolve);
 
-                setTimeout(() => {
-                  if (this.pendingApprovals.has(approvalId)) {
-                    this.pendingApprovals.delete(approvalId);
-                    resolve({
-                      decision: "reject",
-                      message: "Approval timed out after 10 minutes",
+                    setTimeout(() => {
+                      if (this.pendingApprovals.has(approvalId)) {
+                        this.pendingApprovals.delete(approvalId);
+                        resolve({
+                          decision: "reject",
+                          message: "Approval timed out after 10 minutes",
+                        });
+                      }
+                    }, APPROVAL_TIMEOUT_MS);
+
+                    this.abortController?.signal.addEventListener("abort", () => {
+                      if (this.pendingApprovals.has(approvalId)) {
+                        this.pendingApprovals.delete(approvalId);
+                        resolve({
+                          decision: "reject",
+                          message: "Session cancelled",
+                        });
+                      }
                     });
                   }
-                }, 10 * 60 * 1000);
-
-                this.abortController?.signal.addEventListener("abort", () => {
-                  if (this.pendingApprovals.has(approvalId)) {
-                    this.pendingApprovals.delete(approvalId);
-                    resolve({
-                      decision: "reject",
-                      message: "Session cancelled",
-                    });
-                  }
-                });
-              }
-            );
+                );
 
             const approvalText =
               approvalResponse.decision === "approve"
@@ -537,6 +695,11 @@ export class AgentOrchestrator {
 
     if (options.context.chapterNumber) {
       parts.push(`Chapter: ${options.context.chapterNumber}`);
+    }
+
+    // Include user's initial message if provided (from floating input, context menu, etc.)
+    if (options.context.userMessage) {
+      parts.push(`\nUser's request: ${options.context.userMessage}`);
     }
 
     // Use a language-aware instruction so the model doesn't default to English

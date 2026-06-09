@@ -21,7 +21,8 @@ export type DocType =
   | "architecture"
   | "style"
   | "conversation"
-  | "finding";
+  | "finding"
+  | "research";
 
 // ─── Unified Chunk Payload ───────────────────────────────────
 

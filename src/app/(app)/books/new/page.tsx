@@ -47,7 +47,7 @@ export default function NewBookPage() {
   const [name, setName] = useState("");
   const [genre, setGenre] = useState("");
   const [language, setLanguage] = useState("en");
-  const [seriesId, setSeriesId] = useState<string>("");
+  const [seriesId, setSeriesId] = useState<string>("none");
   const [bookNumber, setBookNumber] = useState(1);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -59,8 +59,8 @@ export default function NewBookPage() {
         name: name.trim(),
         genre: genre.trim() || undefined,
         language,
-        seriesId: seriesId || undefined,
-        bookNumber: seriesId ? bookNumber : undefined,
+        seriesId: seriesId !== "none" ? seriesId : undefined,
+        bookNumber: seriesId !== "none" ? bookNumber : undefined,
       });
       toast.success(t.newBook.bookCreated);
       setCreatedBookId(book.id);
@@ -196,12 +196,12 @@ export default function NewBookPage() {
               <>
                 <div className="space-y-2">
                   <Label htmlFor="series">{t.newBook.seriesOptional}</Label>
-                  <Select value={seriesId} onValueChange={setSeriesId}>
+                  <Select value={seriesId} onValueChange={(v) => setSeriesId(v)}>
                     <SelectTrigger id="series">
                       <SelectValue placeholder="No series" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">{t.newBook.noSeries}</SelectItem>
+                      <SelectItem value="none">{t.newBook.noSeries}</SelectItem>
                       {seriesList.map((s) => (
                         <SelectItem key={s.id} value={s.id}>
                           {s.title}
@@ -211,7 +211,7 @@ export default function NewBookPage() {
                   </Select>
                 </div>
 
-                {seriesId && (
+                {seriesId !== "none" && (
                   <div className="space-y-2">
                     <Label htmlFor="bookNumber">{t.newBook.bookNumber}</Label>
                     <Input

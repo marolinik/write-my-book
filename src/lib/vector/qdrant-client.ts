@@ -19,6 +19,7 @@ function createClient(): QdrantClient {
   return new QdrantClient({
     url,
     ...(apiKey ? { apiKey } : {}),
+    checkCompatibility: false,
   });
 }
 

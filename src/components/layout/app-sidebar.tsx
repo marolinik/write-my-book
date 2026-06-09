@@ -20,6 +20,7 @@ import {
   PaletteIcon,
   WandIcon,
   CircleIcon,
+  LockIcon,
 } from "lucide-react";
 
 import {
@@ -42,7 +43,9 @@ import { Badge } from "@/components/ui/badge";
 import { useBook } from "@/hooks/use-books";
 import { useSeriesDetail } from "@/hooks/use-series";
 import { useBookState } from "@/hooks/use-book-state";
+import { useSubscription } from "@/hooks/use-billing";
 import { useLanguage } from "@/components/providers/language-provider";
+import { UpgradeModal } from "@/components/billing/upgrade-modal";
 import { JourneyChecklist, JourneySelectorDialog } from "@/components/journey";
 import { getJourney, getStepNavHref, getRecommendedJourney } from "@/lib/agents/journeys";
 import { getAgentStrings } from "@/lib/i18n/agent-strings";
@@ -98,6 +101,10 @@ export function AppSidebar() {
   const seriesId = params?.seriesId as string | undefined;
   const { t, language } = useLanguage();
   const agentStrings = getAgentStrings(language);
+  const { data: subscription } = useSubscription();
+  const hasProAccess = ["professional", "publisher", "founder"].includes(
+    subscription?.plan ?? "none"
+  );
 
   const { data: book } = useBook(bookId ?? "");
   const { data: series } = useSeriesDetail(seriesId ?? "");
@@ -201,9 +208,9 @@ export function AppSidebar() {
   }, [bookId, book, bookState]);
 
   const navItems = [
-    { title: t.nav.dashboard, href: "/dashboard", icon: LayoutDashboardIcon },
-    { title: t.nav.books, href: "/books", icon: BookOpenIcon },
-    { title: t.nav.series, href: "/series", icon: LibraryIcon },
+    { title: t.nav.dashboard, href: "/dashboard", icon: LayoutDashboardIcon, locked: false },
+    { title: t.nav.books, href: "/books", icon: BookOpenIcon, locked: false },
+    { title: t.nav.series, href: "/series", icon: LibraryIcon, locked: !hasProAccess },
   ];
 
   /** Renders a NEXT badge if this nav key is the recommended next step */
@@ -269,6 +276,9 @@ export function AppSidebar() {
                     <Link href={item.href}>
                       <item.icon />
                       <span>{item.title}</span>
+                      {item.locked && (
+                        <LockIcon className="ml-auto h-3 w-3 text-muted-foreground" />
+                      )}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -319,6 +329,9 @@ export function AppSidebar() {
                     <Link href={`/series/${seriesId}/analytics`}>
                       <BarChart3Icon />
                       <span>{t.nav.analytics}</span>
+                      {!hasProAccess && (
+                        <LockIcon className="ml-auto h-3 w-3 text-muted-foreground" />
+                      )}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -586,7 +599,11 @@ export function AppSidebar() {
                       <Link href={`/books/${bookId}/reports`}>
                         <BarChart3Icon />
                         <span>{t.nav.reports}</span>
-                        {nextBadge("reports")}
+                        {!hasProAccess ? (
+                          <LockIcon className="ml-auto h-3 w-3 text-muted-foreground" />
+                        ) : (
+                          nextBadge("reports")
+                        )}
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -662,6 +679,7 @@ export function AppSidebar() {
         recommendedJourneyId={recommendedJourneyId}
       />
     )}
+    <UpgradeModal />
     </>
   );
 }

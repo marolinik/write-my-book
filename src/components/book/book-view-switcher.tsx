@@ -21,8 +21,9 @@ import { cn } from "@/lib/utils";
 import { getStatusLabel } from "@/lib/i18n/ui-strings";
 import { BookCanvas } from "./book-canvas";
 import { ChapterPipeline } from "./chapter-pipeline";
+import { CorkboardView } from "./corkboard-view";
 
-type ViewMode = "list" | "canvas" | "pipeline";
+type ViewMode = "list" | "canvas" | "pipeline" | "corkboard";
 
 const STATUS_COLORS: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
   undiscussed: "outline",
@@ -78,7 +79,7 @@ export function BookViewSwitcher({
   const [view, setView] = useState<ViewMode>(() => {
     if (typeof window === "undefined") return "list";
     const saved = localStorage.getItem(storageKey);
-    if (saved === "canvas" || saved === "pipeline" || saved === "list") return saved;
+    if (saved === "canvas" || saved === "pipeline" || saved === "list" || saved === "corkboard") return saved;
     return "list";
   });
 
@@ -90,6 +91,7 @@ export function BookViewSwitcher({
     { key: "list", label: "List", icon: <ListIcon className="size-4" /> },
     { key: "canvas", label: "Canvas", icon: <LayoutGridIcon className="size-4" /> },
     { key: "pipeline", label: "Pipeline", icon: <KanbanIcon className="size-4" /> },
+    { key: "corkboard", label: "Corkboard", icon: <LayoutGridIcon className="size-4" /> },
   ];
 
   return (
@@ -234,6 +236,19 @@ export function BookViewSwitcher({
         </div>
       ) : view === "canvas" ? (
         <BookCanvas bookId={bookId} initialChapters={chapters} />
+      ) : view === "corkboard" ? (
+        <CorkboardView
+          bookId={bookId}
+          chapters={chapters.map((ch) => ({
+            id: ch.id,
+            chapterNumber: ch.chapterNumber,
+            title: ch.title,
+            status: ch.status,
+            wordCount: ch.wordCount,
+            actNumber: ch.actNumber,
+            betaScore: ch.betaScore ?? null,
+          }))}
+        />
       ) : (
         <ChapterPipeline bookId={bookId} initialChapters={chapters} language={language} />
       )}

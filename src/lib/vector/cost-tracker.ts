@@ -7,7 +7,7 @@
 
 import { db } from "@/lib/db";
 
-const COST_PER_TOKEN = 0.00000002; // $0.02 / 1,000,000 tokens
+export const COST_PER_TOKEN = 0.00000002; // $0.02 / 1,000,000 tokens
 const EMBEDDING_MODEL = "text-embedding-3-small";
 const AGENT_TYPE = "embedding";
 

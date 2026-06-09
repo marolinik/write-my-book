@@ -31,6 +31,9 @@ function mapDocumentType(documentType: string): DocType {
     case "FINGERPRINT":
     case "SERIES_FINGERPRINT":
       return "style";
+    case "WORLD_RESEARCH":
+    case "TOPIC_RESEARCH":
+      return "research";
     default:
       // For DEV_EDIT_REPORT, LINE_EDIT_REPORT, BETA_READ_REPORT, etc.
       return "finding";

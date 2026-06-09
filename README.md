@@ -1,37 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Write My Book
+
+A Next.js 15+ book-authoring platform with AI editorial agents. Authors import manuscripts, run AI-powered editorial workflows (developmental editing, line editing, beta reading, style analysis, continuity checking), and export to EPUB, PDF, and DOCX.
+
+**Stack:** Next.js 15, Prisma 7, PostgreSQL, Clerk, Stripe, MinIO (S3), Qdrant, Neo4j, Anthropic + OpenRouter + OpenAI + Gemini + Grok
+
+## v3.0 Features
+
+- **Bring Your Own Keys (BYOK)** -- Use your own API keys from 5 providers (Anthropic, OpenRouter, OpenAI, Google Gemini, xAI Grok). No platform markup -- you pay providers directly.
+- **Multi-Provider Model Selection** -- 34+ models across 5 providers. Choose which AI model to use per agent role, per book, or globally.
+- **4-Level Resolution Chain** -- Fine-grained model control: book role override > book default > global role override > global default.
+- **Vector Memory** -- Semantic search across manuscripts, story bibles, and session history via Qdrant. Agents recall relevant context automatically.
+- **Pre-Session Cost Estimates** -- See estimated cost before starting any workflow, based on the resolved model and expected token usage.
+- **Live Cost Tracking** -- Real-time cost counter during agent sessions.
+- **Beta Score Analytics** -- Per-chapter beta reader scores with trend visualization and actionable breakdowns.
+- **Onboarding Wizard** -- First-time users are guided through API key setup before accessing the platform.
+
+## Key Capabilities
+
+- **14 AI Agents** across 27 workflows covering the full editorial pipeline
+- **Manuscript Import** from DOCX with automatic chapter detection
+- **Export** to EPUB, PDF, and DOCX via Pandoc and Typst
+- **Editorial Dashboard** with findings, apply/undo, and edit history
+- **Style Profiling** with fingerprint capture, refresh, and evolution
+- **Series Management** with cross-book continuity checking
+- **Inline AI Editing** -- Select text, press F2, get rewrite suggestions
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+# 1. Install dependencies
+npm install
+
+# 2. Start infrastructure (PostgreSQL, Redis, MinIO, Neo4j, Qdrant)
+docker compose up -d
+
+# 3. Copy environment template and configure
+cp .env.example .env
+
+# 4. Push database schema
+npx prisma db push
+
+# 5. Start development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) and follow the onboarding wizard to add your first API key.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Documentation
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Detailed guides are available in the [`docs/`](./docs/) directory:
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- [**BYOK User Guide**](./docs/user-guide-byok.md) -- How to add, validate, and manage API keys for all 5 providers
+- [**Model Selection Guide**](./docs/user-guide-models.md) -- Understanding the 4-level resolution chain, cost tiers, and role overrides
+- [**Deployment Guide**](./docs/admin-deployment.md) -- Environment variables, Pandoc/Typst setup, Qdrant, Docker Compose, and production considerations
 
 ## Pandoc & Typst Setup
 
-Pandoc and Typst are required for manuscript export (DOCX, EPUB, PDF). Without them, the export pipeline will throw an error with a link back to this section.
+Pandoc and Typst are required for manuscript export (DOCX, EPUB, PDF). Without them, the export pipeline will show an actionable error message. All other features work without them.
 
 ### Minimum Versions
 
@@ -40,74 +65,33 @@ Pandoc and Typst are required for manuscript export (DOCX, EPUB, PDF). Without t
 | Pandoc | >= 3.1  | Required for Typst output and Lua filter API |
 | Typst  | >= 0.11 | Latest stable recommended                |
 
-### Verification Commands
+### Installation
 
 ```bash
-pandoc --version
-# Expected: pandoc 3.x.x
+# macOS
+brew install pandoc typst
 
-typst --version
-# Expected: typst 0.x.x
-```
-
-### Windows
-
-```bash
-# Using Chocolatey
+# Windows (Chocolatey)
 choco install pandoc typst
 
-# Or download installers:
-# Pandoc: https://pandoc.org/installing.html
-# Typst:  https://github.com/typst/typst/releases
-```
-
-### macOS
-
-```bash
-brew install pandoc typst
-```
-
-### Linux (Debian/Ubuntu)
-
-```bash
+# Linux (Debian/Ubuntu)
 sudo apt-get install pandoc
-
-# Typst: download from GitHub releases
-wget https://github.com/typst/typst/releases/download/v0.13.0/typst-x86_64-unknown-linux-musl.tar.xz
-tar -xf typst-x86_64-unknown-linux-musl.tar.xz
-sudo mv typst-x86_64-unknown-linux-musl/typst /usr/local/bin/
+# Typst: download from https://github.com/typst/typst/releases
 ```
 
-### Docker Compose (zero config)
+**Docker:** Pandoc and Typst are pre-installed in the Dockerfile. No setup needed with `docker compose up`.
 
-Pandoc and Typst are pre-installed in the Docker image. No additional setup needed when using `docker compose up`.
+**Vercel:** Serverless functions do not support Pandoc (binary size limits). Export requires self-hosting or Railway. All other features work on Vercel.
 
-### Vercel
-
-Vercel serverless functions do **not** support Pandoc (binary size limits, no persistent filesystem). Export functionality requires self-hosting or Railway. All other features (editing, AI agents, etc.) work on Vercel.
-
-### Railway
-
-Use the included Dockerfile -- Pandoc and Typst are pre-installed. Railway's Docker deployments work out of the box.
-
-### End-to-End Health Check
+### Verification
 
 ```bash
-# Verify Pandoc
-pandoc --version | head -1
-
-# Verify Typst
-typst --version
-
-# Verify Lua filters are accessible
-ls export-templates/*.lua
-
-# Test a minimal EPUB export
-echo "# Test" | pandoc -o test.epub && echo "EPUB export OK" && rm test.epub
+pandoc --version    # Expected: pandoc 3.x.x
+typst --version     # Expected: typst 0.x.x
 ```
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The easiest way to deploy (without export support) is the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme). For full functionality including export, use Docker with the included `Dockerfile` and `docker-compose.yml`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See the [Deployment Guide](./docs/admin-deployment.md) for detailed instructions.

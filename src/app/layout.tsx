@@ -12,6 +12,7 @@ import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { ClerkThemeProvider } from "@/components/providers/clerk-theme-provider";
+import { ToastRouteGuard } from "@/components/providers/toast-route-guard";
 import "./globals.css";
 
 const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
@@ -39,10 +40,55 @@ const fontSerif = Lora({
   variable: "--font-serif",
 });
 
+const siteTitle = "WriteMyBook - AI-Powered Novel Writing Platform";
+const siteDescription =
+  "A professional publishing house in your browser. AI agents handle drafting, editing, and quality assurance while you maintain creative control.";
+
 export const metadata: Metadata = {
-  title: "WriteMyBook - AI-Powered Novel Writing Platform",
-  description:
-    "A professional publishing house in your browser. AI agents handle drafting, editing, and quality assurance while you maintain creative control.",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || "https://writemybook.app",
+  ),
+  title: {
+    default: siteTitle,
+    template: "%s | WriteMyBook",
+  },
+  description: siteDescription,
+  keywords: [
+    "AI writing",
+    "novel writing software",
+    "book writing platform",
+    "AI editor",
+    "manuscript editing",
+    "BYOK AI",
+    "book editing software",
+  ],
+  openGraph: {
+    title: siteTitle,
+    description: siteDescription,
+    url: "/",
+    siteName: "WriteMyBook",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteTitle,
+    description: siteDescription,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  alternates: {
+    canonical: "/",
+  },
 };
 
 export default function RootLayout({
@@ -56,6 +102,7 @@ export default function RootLayout({
         {children}
       </TooltipProvider>
       <Toaster richColors position="bottom-right" />
+      <ToastRouteGuard />
     </QueryProvider>
   );
 

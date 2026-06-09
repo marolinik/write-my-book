@@ -44,6 +44,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { GraduatedFocus } from "./graduated-focus";
 
 interface EditorToolbarProps {
   editor: Editor | null;
@@ -83,6 +84,7 @@ function ToolbarButton({ icon, label, isActive, onClick }: ToolbarButtonProps) {
           className="h-8 w-8"
           onClick={onClick}
           type="button"
+          aria-label={label}
         >
           {icon}
         </Button>
@@ -284,6 +286,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
           isActive={ctx.focusMode}
           onClick={ctx.onToggleFocusMode}
         />
+        <GraduatedFocus />
         {ctx.onInlineEdit && (
           <ToolbarButton
             icon={<Sparkles className="h-4 w-4" />}
@@ -371,6 +374,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
                 className="h-8 w-8 relative"
                 onClick={ctx.onToggleFindings}
                 type="button"
+                aria-label="Toggle Findings"
               >
                 <PenTool className="h-4 w-4" />
                 {!!ctx.pendingFindingsCount && ctx.pendingFindingsCount > 0 && (
@@ -499,6 +503,7 @@ export function EditorToolbar({
                 size="icon"
                 className="h-8 w-8"
                 type="button"
+                aria-label="More tools"
               >
                 <MoreHorizontal className="h-4 w-4" />
               </Button>

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEditor, EditorContent } from "@tiptap/react";
+import { EditorState } from "@tiptap/pm/state";
 import {
   ArrowLeftIcon,
   ChevronLeftIcon,
@@ -23,6 +24,11 @@ import { countWords } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from "@/components/ui/resizable";
 import { InlineEditPopup } from "./inline-edit-popup";
 import { EditorContextMenu } from "./editor-context-menu";
 import { EditorToolbar } from "./editor-toolbar";
@@ -34,6 +40,8 @@ import { AnnotationTooltip } from "./annotation-tooltip";
 import { ChapterContextHeader } from "./chapter-context-header";
 import { GutterMarkers } from "./gutter-markers";
 import { FloatingAgentInput } from "./floating-agent-input";
+import { TypewriterMode } from "./typewriter-mode";
+import { OverlappingFindingsPopover } from "./overlapping-findings-popover";
 import {
   AnnotationExtension,
   annotationPluginKey,
@@ -43,7 +51,8 @@ import {
 import type { AnnotationType } from "./annotation-extension";
 import type { FindingItem } from "@/hooks/use-editorial";
 import { useApplyFinding, useDismissFinding } from "@/hooks/use-editorial";
-import { getMarkdownFromEditor, useIsLg, findingsToAnnotations, createEditorExtensions, type TooltipState } from "./editor-utils";
+import { useEditorialStore } from "@/stores/editorial-store";
+import { getMarkdownFromEditor, useIsLg, findingsToAnnotations, createEditorExtensions, classifyFindingFreshness, type TooltipState } from "./editor-utils";
 
 interface ChapterNavItem {
   id: string;
@@ -108,6 +117,10 @@ export function ManuscriptEditor({
   const [showInlineEdit, setShowInlineEdit] = useState(false);
   const [inlineEditInstruction, setInlineEditInstruction] = useState<string | undefined>(undefined);
   const [tooltipState, setTooltipState] = useState<TooltipState | null>(null);
+  const [overlappingState, setOverlappingState] = useState<{
+    findings: FindingItem[];
+    rect: DOMRect;
+  } | null>(null);
   const [showFloatingAgentInput, setShowFloatingAgentInput] = useState(false);
   const isLg = useIsLg();
 
@@ -142,37 +155,42 @@ export function ManuscriptEditor({
     [annotations, showAnnotations]
   );
 
-  // Handle annotation click → show tooltip OR open AI rewrite for findings
+  // Handle annotation click → show tooltip (single) or overlapping popover (multiple)
   const handleAnnotationClick = useCallback(
     (
-      annotationId: string,
-      annotationType: AnnotationType,
+      annotationIds: string[],
+      annotationTypes: AnnotationType[],
       rect: DOMRect,
       _event: MouseEvent
     ) => {
-      // Find the associated finding
+      // Close any existing overlapping popover
+      setOverlappingState(null);
+
+      // If multiple annotations at click position, show overlapping popover
+      if (annotationIds.length > 1) {
+        const overlappingFindings = annotationIds
+          .map((id) => findings.find((f) => f.id === id.replace("finding-", "")))
+          .filter(Boolean) as FindingItem[];
+        if (overlappingFindings.length > 1) {
+          setOverlappingState({ findings: overlappingFindings, rect });
+          return;
+        }
+      }
+
+      // Single annotation — show tooltip as before
+      const annotationId = annotationIds[0];
+      const annotationType = annotationTypes[0];
+      if (!annotationId) return;
+
       const findingId = annotationId.replace("finding-", "");
       const finding = findings.find((f) => f.id === findingId) ?? null;
 
-      if (annotationType === "finding" && finding && editorRef.current) {
-        // For "finding" annotations: select the text and open inline AI edit
-        // with the finding's description/suggestion as context
-        const ed = editorRef.current;
-        const searchText =
-          finding.originalText ?? finding.locationStart ?? "";
-        if (searchText) {
-          const positions = findTextPositions(ed.state.doc, searchText);
-          if (positions.length > 0) {
-            ed.commands.setTextSelection(positions[0]);
-          }
-        }
-        const instruction = finding.suggestion ?? finding.description;
-        setInlineEditInstruction(instruction);
-        setShowInlineEdit(true);
-        return;
+      // Signal the findings panel to scroll to and highlight this card
+      if (finding) {
+        useEditorialStore.getState().setHighlightedFinding(findingId);
+        useEditorialStore.getState().setSelectedFinding(findingId);
       }
 
-      // For other annotation types: show the tooltip
       setTooltipState({ annotationId, annotationType, rect, finding });
     },
     [findings]
@@ -256,7 +274,17 @@ export function ManuscriptEditor({
   // Load content into editor when data arrives
   useEffect(() => {
     if (chapterData && editor && !contentLoadedRef.current) {
-      editor.commands.setContent(chapterData.markdown || "");
+      // Set content without emitting update (prevents unnecessary re-renders)
+      editor.commands.setContent(chapterData.markdown || "", { emitUpdate: false });
+
+      // Reset undo history: create fresh state with current doc but empty history.
+      // This prevents Ctrl+Z from erasing pre-existing chapter content.
+      const freshState = EditorState.create({
+        doc: editor.state.doc,
+        plugins: editor.state.plugins,
+      });
+      editor.view.updateState(freshState);
+
       contentLoadedRef.current = true;
       paneStore.getState().markClean();
 
@@ -366,23 +394,150 @@ export function ManuscriptEditor({
       editor.commands.setTextSelection(pos);
       editor.commands.scrollIntoView();
 
-      // Flash highlight
+      // Pulse highlight on the matched text
       requestAnimationFrame(() => {
-        const decorations = editor.view.dom.querySelectorAll(
-          `[data-annotation-id]`
-        );
-        // Also try to find the element at the selection
-        const domAtPos = editor.view.domAtPos(pos.from);
-        const targetNode = domAtPos.node.parentElement;
-        if (targetNode) {
-          targetNode.classList.add("anno-flash");
-          setTimeout(() => targetNode.classList.remove("anno-flash"), 2000);
+        try {
+          const domAtPos = editor.view.domAtPos(pos.from);
+          const targetNode = domAtPos.node.parentElement;
+          if (targetNode) {
+            targetNode.classList.add("anno-underline-pulse");
+            setTimeout(() => targetNode.classList.remove("anno-underline-pulse"), 800);
+          }
+        } catch {
+          // domAtPos can throw if position is stale — silently ignore
         }
       });
+    } else {
+      toast.info("Could not find the referenced text in the current chapter. It may have been edited.");
     }
 
     paneStore.getState().setScrollToText(null);
   }, [scrollToText, editor, paneStore]);
+
+  // ── Stale finding detection ──────────────────────────────────
+  const findingFreshness = useMemo(() => {
+    if (!editor || findings.length === 0) return new Map<string, "fresh" | "stale" | "unanchored">();
+    return classifyFindingFreshness(findings, editor.state.doc);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [findings]);
+
+  // ── Navigable finding IDs ordered by document position ──────
+  const navigableFindingIds = useMemo(() => {
+    if (!editor || findings.length === 0) return [] as string[];
+    const tuples: [string, number][] = [];
+    for (const f of findings) {
+      if (!f.originalText || f.status === "dismissed") continue;
+      const positions = findTextPositions(editor.state.doc, f.originalText);
+      if (positions.length > 0) {
+        tuples.push([f.id, positions[0].from]);
+      }
+    }
+    tuples.sort((a, b) => a[1] - b[1]);
+    return tuples.map(([id]) => id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [findings]);
+
+  // Sync navigable IDs to editorial store
+  useEffect(() => {
+    useEditorialStore.getState().setNavigableFindingIds(navigableFindingIds);
+  }, [navigableFindingIds]);
+
+  // ── scrollToFinding: card -> editor direction ────────────────
+  const scrollToFinding = useCallback(
+    (finding: FindingItem) => {
+      if (!editor) return;
+      const searchText = finding.originalText;
+      if (!searchText) {
+        toast.info("This finding has no anchored text to navigate to.");
+        return;
+      }
+
+      const positions = findTextPositions(editor.state.doc, searchText);
+      if (positions.length === 0) {
+        toast.info(
+          "Original text has changed -- could not locate passage."
+        );
+        return;
+      }
+
+      const pos = positions[0];
+      editor.commands.setTextSelection(pos);
+
+      // Scroll the matched position to center of viewport
+      requestAnimationFrame(() => {
+        try {
+          const domResult = editor.view.domAtPos(pos.from);
+          const targetEl =
+            domResult.node instanceof HTMLElement
+              ? domResult.node
+              : domResult.node.parentElement;
+          if (!targetEl) return;
+
+          // Find the editor scroll container (overflow-y-auto div)
+          const scrollContainer = editor.view.dom.closest(
+            ".overflow-y-auto"
+          );
+          if (scrollContainer) {
+            const containerRect = scrollContainer.getBoundingClientRect();
+            const targetRect = targetEl.getBoundingClientRect();
+            const scrollTop = scrollContainer.scrollTop;
+            const desiredTop =
+              targetRect.top -
+              containerRect.top +
+              scrollTop -
+              containerRect.height / 2;
+            scrollContainer.scrollTo({
+              top: desiredTop,
+              behavior: "smooth",
+            });
+          }
+
+          // Add pulse animation to the annotation span
+          const annoSpan = editorAreaRef.current?.querySelector(
+            `[data-annotation-id="finding-${finding.id}"]`
+          ) as HTMLElement | null;
+          if (annoSpan) {
+            annoSpan.classList.add("anno-underline-pulse");
+            setTimeout(
+              () => annoSpan.classList.remove("anno-underline-pulse"),
+              800
+            );
+          }
+        } catch {
+          // domAtPos can throw if position is stale
+        }
+      });
+    },
+    [editor]
+  );
+
+  // ── F8 / Shift+F8 keyboard navigation ──────────────────────
+  useEffect(() => {
+    if (!editor) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key !== "F8") return;
+      e.preventDefault();
+      const store = useEditorialStore.getState();
+      const ids = store.navigableFindingIds;
+      if (ids.length === 0) return;
+      const currentId = store.selectedFindingId;
+      const currentIdx = currentId ? ids.indexOf(currentId) : -1;
+      let nextIdx: number;
+      if (e.shiftKey) {
+        nextIdx = currentIdx <= 0 ? ids.length - 1 : currentIdx - 1;
+      } else {
+        nextIdx = currentIdx >= ids.length - 1 ? 0 : currentIdx + 1;
+      }
+      const nextId = ids[nextIdx];
+      if (!nextId) return;
+      store.setSelectedFinding(nextId);
+      store.setHighlightedFinding(nextId);
+      const finding = findings.find((f) => f.id === nextId);
+      if (finding) scrollToFinding(finding);
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [editor, findings, scrollToFinding]);
 
   // Show floating agent input when text is selected (not during inline edit)
   useEffect(() => {
@@ -395,8 +550,11 @@ export function ManuscriptEditor({
     return () => { editor.off("selectionUpdate", handler); };
   }, [editor]);
 
-  // Word count — get content directly from editor, not store (TipTap is source of truth)
-  const wordCount = editor ? countWords(getMarkdownFromEditor(editor)) : 0;
+  // Word count — use DB word count until editor content is loaded, then compute from editor
+  const editorWordCount = editor && contentLoadedRef.current
+    ? countWords(getMarkdownFromEditor(editor))
+    : null;
+  const wordCount = editorWordCount ?? chapterData?.wordCount ?? 0;
 
   if (isLoading) {
     return (
@@ -406,241 +564,278 @@ export function ManuscriptEditor({
     );
   }
 
-  return (
-    <div className="flex h-full">
-      {/* Main editor area */}
-      <div className="flex flex-col flex-1 min-w-0">
-        {/* Breadcrumb + nav header */}
-        <div className="px-4 py-3 border-b space-y-1">
-          {/* Breadcrumb trail */}
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-6 shrink-0"
-              onClick={() => router.push(`/books/${bookId}`)}
-              title="Back to book"
-            >
-              <ArrowLeftIcon className="size-3.5" />
-            </Button>
-            <Link
-              href={`/books/${bookId}`}
-              className="hover:text-foreground transition-colors truncate"
-            >
-              {bookName ?? "Book"}
-            </Link>
-            <span>/</span>
-            <span className="text-foreground font-medium truncate">
-              Ch. {chapterNumber}
-              {chapterTitle ? `: ${chapterTitle}` : ""}
-            </span>
-          </div>
-
-          {/* Chapter title + prev/next */}
-          <div className="flex items-center gap-2">
-            <h1 className="text-lg font-display font-semibold flex-1 min-w-0 truncate">
-              Chapter {chapterNumber}
-              {chapterTitle ? `: ${chapterTitle}` : ""}
-            </h1>
-
-            {allChapters && allChapters.length > 1 && (
-              <div className="flex items-center gap-1 shrink-0">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-7"
-                  disabled={!prevChapter}
-                  onClick={() =>
-                    prevChapter &&
-                    router.push(`/books/${bookId}/chapters/${prevChapter.id}`)
-                  }
-                  title={
-                    prevChapter
-                      ? `Ch. ${prevChapter.chapterNumber}${prevChapter.title ? `: ${prevChapter.title}` : ""}`
-                      : "No previous chapter"
-                  }
-                >
-                  <ChevronLeftIcon className="size-4" />
-                </Button>
-                <span className="text-xs text-muted-foreground tabular-nums">
-                  {currentIdx + 1}/{allChapters.length}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-7"
-                  disabled={!nextChapter}
-                  onClick={() =>
-                    nextChapter &&
-                    router.push(`/books/${bookId}/chapters/${nextChapter.id}`)
-                  }
-                  title={
-                    nextChapter
-                      ? `Ch. ${nextChapter.chapterNumber}${nextChapter.title ? `: ${nextChapter.title}` : ""}`
-                      : "No next chapter"
-                  }
-                >
-                  <ChevronRightIcon className="size-4" />
-                </Button>
-              </div>
-            )}
-          </div>
+  // ── Shared editor column JSX ─────────────────────────────────
+  const editorColumn = (
+    <div className="flex flex-col flex-1 min-w-0 h-full">
+      {/* Breadcrumb + nav header */}
+      <div className="px-4 py-3 border-b space-y-1">
+        {/* Breadcrumb trail */}
+        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-6 shrink-0"
+            onClick={() => router.push(`/books/${bookId}`)}
+            title="Back to book"
+          >
+            <ArrowLeftIcon className="size-3.5" />
+          </Button>
+          <Link
+            href={`/books/${bookId}`}
+            className="hover:text-foreground transition-colors truncate"
+          >
+            {bookName ?? "Book"}
+          </Link>
+          <span>/</span>
+          <span className="text-foreground font-medium truncate">
+            Ch. {chapterNumber}
+            {chapterTitle ? `: ${chapterTitle}` : ""}
+          </span>
         </div>
 
-        {chapterStatus && (
-          <ChapterContextHeader
-            chapterNumber={chapterNumber}
-            chapterTitle={chapterTitle}
-            status={chapterStatus}
-            wordCount={wordCount}
-            language={bookLanguage}
-          />
-        )}
+        {/* Chapter title + prev/next */}
+        <div className="flex items-center gap-2">
+          <h1 className="text-lg font-display font-semibold flex-1 min-w-0 truncate">
+            Chapter {chapterNumber}
+            {chapterTitle ? `: ${chapterTitle}` : ""}
+          </h1>
 
-        <EditorToolbar
-          editor={editor}
-          focusMode={focusMode}
-          onToggleFocusMode={() => paneStore.getState().toggleFocusMode()}
-          showHistory={showVersionHistory}
-          onToggleHistory={() => setShowVersionHistory((v) => !v)}
-          showFindings={showFindings}
-          onToggleFindings={() => paneStore.getState().toggleFindings()}
-          pendingFindingsCount={pendingFindingsCount}
-          showAnnotations={showAnnotations}
-          onToggleAnnotations={() => paneStore.getState().toggleAnnotations()}
-          isSaving={isSaving}
-          isDirty={isDirty}
-          lastSaved={lastSaved}
-          onInlineEdit={() => {
-            if (!editor) return;
-            const { from, to } = editor.state.selection;
-            if (from === to) {
-              toast.info("Select some text first, then press F2 or click AI Rewrite.");
-              return;
-            }
-            setInlineEditInstruction(undefined);
-            setShowInlineEdit(true);
-          }}
-          splitMode={splitMode}
-          onToggleSplit={
-            isMobile ? undefined : () => setSplitMode(!splitMode)
-          }
-          showFloatingInput={showFloatingInput}
-          onToggleFloatingInput={() => paneStore.getState().toggleFloatingInput()}
-        />
-
-        <EditorContextMenu
-          bookId={bookId}
-          editor={editor}
-          onInlineEdit={(instruction) => {
-            if (!editor) return;
-            const { from, to } = editor.state.selection;
-            if (from === to) return;
-            setInlineEditInstruction(instruction);
-            setShowInlineEdit(true);
-          }}
-        >
-          <div className="flex-1 overflow-y-auto relative" ref={editorAreaRef}>
-            <GutterMarkers
-              editor={editor}
-              findings={findings}
-              visible={showAnnotations}
-              onMarkerClick={(findingId, rect) => {
-                const finding = findings.find((f) => f.id === findingId) ?? null;
-                if (finding) {
-                  setTooltipState({
-                    annotationId: `finding-${findingId}`,
-                    annotationType: finding.newText ? "ai" : "comment",
-                    rect,
-                    finding,
-                  });
+          {allChapters && allChapters.length > 1 && (
+            <div className="flex items-center gap-1 shrink-0">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-7"
+                disabled={!prevChapter}
+                onClick={() =>
+                  prevChapter &&
+                  router.push(`/books/${bookId}/chapters/${prevChapter.id}`)
                 }
-              }}
-            />
-            <EditorContent editor={editor} />
-            {showFloatingAgentInput &&
-              showFloatingInput &&
-              !showInlineEdit &&
-              editor && (
-                <FloatingAgentInput
-                  editor={editor}
-                  bookId={bookId}
-                  onClose={() => setShowFloatingAgentInput(false)}
-                />
-              )}
-            {showInlineEdit && editor && (
-              <InlineEditPopup
-                editor={editor}
-                bookId={bookId}
-                onClose={() => {
-                  setShowInlineEdit(false);
-                  setInlineEditInstruction(undefined);
-                }}
-                initialInstruction={inlineEditInstruction}
-              />
-            )}
-            {tooltipState && editorAreaRef.current && (
-              <AnnotationTooltip
-                annotationId={tooltipState.annotationId}
-                annotationType={tooltipState.annotationType}
-                description={
-                  tooltipState.finding?.description ?? "Annotation"
+                title={
+                  prevChapter
+                    ? `Ch. ${prevChapter.chapterNumber}${prevChapter.title ? `: ${prevChapter.title}` : ""}`
+                    : "No previous chapter"
                 }
-                originalText={tooltipState.finding?.originalText}
-                newText={tooltipState.finding?.newText}
-                anchorRect={tooltipState.rect}
-                containerRect={editorAreaRef.current.getBoundingClientRect()}
-                onAccept={() => {
-                  if (tooltipState.finding) {
-                    applyMutation.mutate(tooltipState.finding.id);
-                  }
-                  setTooltipState(null);
-                }}
-                onReject={() => {
-                  if (tooltipState.finding) {
-                    dismissMutation.mutate({
-                      findingId: tooltipState.finding.id,
-                    });
-                  }
-                  setTooltipState(null);
-                }}
-                onClose={() => setTooltipState(null)}
-              />
-            )}
-          </div>
-        </EditorContextMenu>
-
-        <EditorStatusBar
-          wordCount={wordCount}
-          isSaving={isSaving}
-          isDirty={isDirty}
-          lastSaved={lastSaved}
-          annotationCounts={annotationCounts}
-        />
-      </div>
-
-      {/* Findings panel — inline on lg+ */}
-      {isLg
-        ? showFindings && (
-            <div className="w-80 border-l flex flex-col shrink-0">
-              <EditorFindingsPanel
-                bookId={bookId}
-                chapterNumber={chapterNumber}
-                onClose={() => paneStore.getState().toggleFindings()}
-                paneId={paneId}
-              />
-            </div>
-          )
-        : showFindings && (
-            <div className="fixed inset-y-0 right-0 w-80 z-40 border-l bg-background shadow-xl flex flex-col">
-              <EditorFindingsPanel
-                bookId={bookId}
-                chapterNumber={chapterNumber}
-                onClose={() => paneStore.getState().toggleFindings()}
-                paneId={paneId}
-              />
+              >
+                <ChevronLeftIcon className="size-4" />
+              </Button>
+              <span className="text-xs text-muted-foreground tabular-nums">
+                {currentIdx + 1}/{allChapters.length}
+              </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-7"
+                disabled={!nextChapter}
+                onClick={() =>
+                  nextChapter &&
+                  router.push(`/books/${bookId}/chapters/${nextChapter.id}`)
+                }
+                title={
+                  nextChapter
+                    ? `Ch. ${nextChapter.chapterNumber}${nextChapter.title ? `: ${nextChapter.title}` : ""}`
+                    : "No next chapter"
+                }
+              >
+                <ChevronRightIcon className="size-4" />
+              </Button>
             </div>
           )}
+        </div>
+      </div>
+
+      {chapterStatus && (
+        <ChapterContextHeader
+          bookId={bookId}
+          chapterId={chapterId}
+          chapterNumber={chapterNumber}
+          chapterTitle={chapterTitle}
+          status={chapterStatus}
+          wordCount={wordCount}
+          language={bookLanguage}
+        />
+      )}
+
+      <EditorToolbar
+        editor={editor}
+        focusMode={focusMode}
+        onToggleFocusMode={() => paneStore.getState().toggleFocusMode()}
+        showHistory={showVersionHistory}
+        onToggleHistory={() => setShowVersionHistory((v) => !v)}
+        showFindings={showFindings}
+        onToggleFindings={() => paneStore.getState().toggleFindings()}
+        pendingFindingsCount={pendingFindingsCount}
+        showAnnotations={showAnnotations}
+        onToggleAnnotations={() => paneStore.getState().toggleAnnotations()}
+        isSaving={isSaving}
+        isDirty={isDirty}
+        lastSaved={lastSaved}
+        onInlineEdit={() => {
+          if (!editor) return;
+          const { from, to } = editor.state.selection;
+          if (from === to) {
+            toast.info("Select some text first, then press F2 or click AI Rewrite.");
+            return;
+          }
+          setInlineEditInstruction(undefined);
+          setShowInlineEdit(true);
+        }}
+        splitMode={splitMode}
+        onToggleSplit={
+          isMobile ? undefined : () => setSplitMode(!splitMode)
+        }
+        showFloatingInput={showFloatingInput}
+        onToggleFloatingInput={() => paneStore.getState().toggleFloatingInput()}
+      />
+
+      <EditorContextMenu
+        bookId={bookId}
+        editor={editor}
+        onInlineEdit={(instruction) => {
+          if (!editor) return;
+          const { from, to } = editor.state.selection;
+          if (from === to) return;
+          setInlineEditInstruction(instruction);
+          setShowInlineEdit(true);
+        }}
+      >
+        <div className="flex-1 overflow-y-auto relative" ref={editorAreaRef}>
+          <GutterMarkers
+            editor={editor}
+            findings={findings}
+            visible={showAnnotations}
+            onMarkerClick={(findingId, rect) => {
+              const finding = findings.find((f) => f.id === findingId) ?? null;
+              if (finding) {
+                // Signal the findings panel to scroll to and highlight this card
+                useEditorialStore.getState().setHighlightedFinding(findingId);
+                useEditorialStore.getState().setSelectedFinding(findingId);
+
+                setTooltipState({
+                  annotationId: `finding-${findingId}`,
+                  annotationType: finding.newText ? "ai" : "comment",
+                  rect,
+                  finding,
+                });
+              }
+            }}
+          />
+          <EditorContent editor={editor} />
+          {showFloatingAgentInput &&
+            showFloatingInput &&
+            !showInlineEdit &&
+            editor && (
+              <FloatingAgentInput
+                editor={editor}
+                bookId={bookId}
+                onClose={() => setShowFloatingAgentInput(false)}
+              />
+            )}
+          {showInlineEdit && editor && (
+            <InlineEditPopup
+              editor={editor}
+              bookId={bookId}
+              onClose={() => {
+                setShowInlineEdit(false);
+                setInlineEditInstruction(undefined);
+              }}
+              initialInstruction={inlineEditInstruction}
+            />
+          )}
+          {tooltipState && editorAreaRef.current && (
+            <AnnotationTooltip
+              annotationId={tooltipState.annotationId}
+              annotationType={tooltipState.annotationType}
+              description={
+                tooltipState.finding?.description ?? "Annotation"
+              }
+              originalText={tooltipState.finding?.originalText}
+              newText={tooltipState.finding?.newText}
+              anchorRect={tooltipState.rect}
+              containerRect={editorAreaRef.current.getBoundingClientRect()}
+              onAccept={() => {
+                if (tooltipState.finding) {
+                  applyMutation.mutate(tooltipState.finding.id);
+                }
+                setTooltipState(null);
+              }}
+              onReject={() => {
+                if (tooltipState.finding) {
+                  dismissMutation.mutate({
+                    findingId: tooltipState.finding.id,
+                  });
+                }
+                setTooltipState(null);
+              }}
+              onClose={() => setTooltipState(null)}
+            />
+          )}
+          {overlappingState && editorAreaRef.current && (
+            <OverlappingFindingsPopover
+              findings={overlappingState.findings}
+              anchorRect={overlappingState.rect}
+              containerRect={editorAreaRef.current.getBoundingClientRect()}
+              onSelect={(finding) => {
+                setOverlappingState(null);
+                useEditorialStore.getState().setHighlightedFinding(finding.id);
+                useEditorialStore.getState().setSelectedFinding(finding.id);
+              }}
+              onClose={() => setOverlappingState(null)}
+            />
+          )}
+        </div>
+      </EditorContextMenu>
+
+      {/* Typewriter mode: keeps current line centered */}
+      <TypewriterMode editor={editor} enabled={focusMode} />
+
+      <EditorStatusBar
+        wordCount={wordCount}
+        isSaving={isSaving}
+        isDirty={isDirty}
+        lastSaved={lastSaved}
+        annotationCounts={annotationCounts}
+      />
+    </div>
+  );
+
+  // ── Findings panel JSX ────────────────────────────────────────
+  const findingsPanel = (
+    <EditorFindingsPanel
+      bookId={bookId}
+      chapterNumber={chapterNumber}
+      onClose={() => paneStore.getState().toggleFindings()}
+      paneId={paneId}
+      onJumpToFinding={scrollToFinding}
+      freshnessMap={findingFreshness}
+    />
+  );
+
+  return (
+    <div className="flex h-full">
+      {/* Editor + findings: ResizablePanelGroup on lg+ when findings are shown */}
+      {isLg && showFindings ? (
+        <ResizablePanelGroup orientation="horizontal" id="editor-findings-split" className="flex-1">
+          <ResizablePanel id="editor-main" defaultSize={60} minSize={35}>
+            {editorColumn}
+          </ResizablePanel>
+          <ResizableHandle withHandle />
+          <ResizablePanel id="findings-panel" defaultSize={40} minSize={25}>
+            <div className="flex flex-col h-full overflow-y-auto">
+              {findingsPanel}
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      ) : (
+        editorColumn
+      )}
+
+      {/* Findings panel — fixed overlay on mobile/small screens */}
+      {!isLg && showFindings && (
+        <div className="fixed inset-y-0 right-0 w-80 z-40 border-l bg-background shadow-xl flex flex-col">
+          {findingsPanel}
+        </div>
+      )}
 
       {/* Version history sidebar — inline on lg+, Sheet on smaller screens */}
       {isLg ? (

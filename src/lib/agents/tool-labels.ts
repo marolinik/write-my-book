@@ -28,6 +28,8 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
     MARKET_REPORT: "Market Report",
     EXPORT_CONFIG: "Export Config",
     FREEWRITE: "Freewrite",
+    WORLD_RESEARCH: "World Research",
+    TOPIC_RESEARCH: "Topic Research",
     SERIES_BIBLE: "Series Bible",
     SERIES_ARCHITECTURE: "Series Architecture",
     SERIES_CONTINUITY: "Series Continuity",
@@ -49,6 +51,8 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
     MARKET_REPORT: "Izveštaj tržišta",
     EXPORT_CONFIG: "Podešavanje izvoza",
     FREEWRITE: "Slobodno pisanje",
+    WORLD_RESEARCH: "Istraživanje sveta",
+    TOPIC_RESEARCH: "Istraživanje teme",
     SERIES_BIBLE: "Biblija serijala",
     SERIES_ARCHITECTURE: "Arhitektura serijala",
     SERIES_CONTINUITY: "Kontinuitet serijala",
@@ -70,6 +74,8 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
     MARKET_REPORT: "Marktbericht",
     EXPORT_CONFIG: "Export-Konfiguration",
     FREEWRITE: "Freies Schreiben",
+    WORLD_RESEARCH: "Weltrecherche",
+    TOPIC_RESEARCH: "Themenrecherche",
     SERIES_BIBLE: "Serien-Bibel",
     SERIES_ARCHITECTURE: "Serienarchitektur",
     SERIES_CONTINUITY: "Serienkontinuität",
@@ -91,6 +97,8 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
     MARKET_REPORT: "Informe de mercado",
     EXPORT_CONFIG: "Configuración de exportación",
     FREEWRITE: "Escritura libre",
+    WORLD_RESEARCH: "Investigación del mundo",
+    TOPIC_RESEARCH: "Investigación del tema",
     SERIES_BIBLE: "Biblia de la serie",
     SERIES_ARCHITECTURE: "Arquitectura de la serie",
     SERIES_CONTINUITY: "Continuidad de la serie",
@@ -112,6 +120,8 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
     MARKET_REPORT: "Rapport de marché",
     EXPORT_CONFIG: "Configuration d'export",
     FREEWRITE: "Écriture libre",
+    WORLD_RESEARCH: "Recherche de l'univers",
+    TOPIC_RESEARCH: "Recherche thématique",
     SERIES_BIBLE: "Bible de la série",
     SERIES_ARCHITECTURE: "Architecture de la série",
     SERIES_CONTINUITY: "Continuité de la série",
@@ -133,6 +143,8 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
     MARKET_REPORT: "Рыночный отчёт",
     EXPORT_CONFIG: "Настройки экспорта",
     FREEWRITE: "Свободное письмо",
+    WORLD_RESEARCH: "Исследование мира",
+    TOPIC_RESEARCH: "Тематическое исследование",
     SERIES_BIBLE: "Библия серии",
     SERIES_ARCHITECTURE: "Архитектура серии",
     SERIES_CONTINUITY: "Непрерывность серии",
@@ -154,6 +166,8 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
     MARKET_REPORT: "市场报告",
     EXPORT_CONFIG: "导出配置",
     FREEWRITE: "自由写作",
+    WORLD_RESEARCH: "世界研究",
+    TOPIC_RESEARCH: "主题研究",
     SERIES_BIBLE: "系列圣经",
     SERIES_ARCHITECTURE: "系列架构",
     SERIES_CONTINUITY: "系列连续性",
@@ -248,6 +262,18 @@ const TOOL_LABELS: Record<string, ToolLabelFn> = {
     };
     return templates[lang] ?? templates.en;
   },
+  ReadAllChapters: (_input, lang) => {
+    const templates: Record<string, string> = {
+      en: "Reading all chapters...",
+      sr: "Čitanje svih poglavlja...",
+      de: "Alle Kapitel lesen...",
+      es: "Leyendo todos los capítulos...",
+      fr: "Lecture de tous les chapitres...",
+      ru: "Чтение всех глав...",
+      zh: "正在读取所有章节...",
+    };
+    return templates[lang] ?? templates.en;
+  },
   WriteChapter: (input, lang) => {
     const templates: Record<string, string> = {
       en: `Writing ${chLabel(input.chapterNumber, lang)}...`,
@@ -318,6 +344,139 @@ const TOOL_LABELS: Record<string, ToolLabelFn> = {
       fr: `Écriture de ${docLabel(input.documentType, lang)}...`,
       ru: `Запись: ${docLabel(input.documentType, lang)}...`,
       zh: `正在写入${docLabel(input.documentType, lang)}...`,
+    };
+    return templates[lang] ?? templates.en;
+  },
+  QueryGraph: (_input, lang) => {
+    const templates: Record<string, string> = {
+      en: "Querying knowledge graph...",
+      sr: "Pretraživanje grafa znanja...",
+      de: "Wissensgraph abfragen...",
+      es: "Consultando grafo de conocimiento...",
+      fr: "Interrogation du graphe de connaissances...",
+      ru: "Запрос графа знаний...",
+      zh: "查询知识图谱...",
+    };
+    return templates[lang] ?? templates.en;
+  },
+  UpdateGraphEntity: (_input, lang) => {
+    const templates: Record<string, string> = {
+      en: "Updating knowledge graph...",
+      sr: "Ažuriranje grafa znanja...",
+      de: "Wissensgraph aktualisieren...",
+      es: "Actualizando grafo de conocimiento...",
+      fr: "Mise à jour du graphe de connaissances...",
+      ru: "Обновление графа знаний...",
+      zh: "更新知识图谱...",
+    };
+    return templates[lang] ?? templates.en;
+  },
+  SearchMemory: (_input, lang) => {
+    const templates: Record<string, string> = {
+      en: "Searching memory...",
+      sr: "Pretraživanje memorije...",
+      de: "Gedächtnis durchsuchen...",
+      es: "Buscando en la memoria...",
+      fr: "Recherche en mémoire...",
+      ru: "Поиск в памяти...",
+      zh: "搜索记忆...",
+    };
+    return templates[lang] ?? templates.en;
+  },
+  RememberInsight: (_input, lang) => {
+    const templates: Record<string, string> = {
+      en: "Storing insight in memory...",
+      sr: "Čuvanje uvida u memoriju...",
+      de: "Erkenntnis speichern...",
+      es: "Guardando observación en memoria...",
+      fr: "Enregistrement de l'observation...",
+      ru: "Сохранение наблюдения в памяти...",
+      zh: "将见解存入记忆...",
+    };
+    return templates[lang] ?? templates.en;
+  },
+  PostInsight: (_input, lang) => {
+    const templates: Record<string, string> = {
+      en: "Posting insight to blackboard...",
+      sr: "Postavljanje uvida na tablu...",
+      de: "Erkenntnis ans Blackboard posten...",
+      es: "Publicando observación en pizarra...",
+      fr: "Publication sur le tableau noir...",
+      ru: "Публикация наблюдения на доску...",
+      zh: "发布见解到黑板...",
+    };
+    return templates[lang] ?? templates.en;
+  },
+  ReadInsights: (_input, lang) => {
+    const templates: Record<string, string> = {
+      en: "Reading blackboard insights...",
+      sr: "Čitanje uvida sa table...",
+      de: "Blackboard-Erkenntnisse lesen...",
+      es: "Leyendo observaciones de la pizarra...",
+      fr: "Lecture des observations du tableau...",
+      ru: "Чтение наблюдений с доски...",
+      zh: "读取黑板见解...",
+    };
+    return templates[lang] ?? templates.en;
+  },
+  ResolveInsight: (_input, lang) => {
+    const templates: Record<string, string> = {
+      en: "Resolving blackboard insight...",
+      sr: "Razrešavanje uvida sa table...",
+      de: "Blackboard-Erkenntnis auflösen...",
+      es: "Resolviendo observación de la pizarra...",
+      fr: "Résolution de l'observation...",
+      ru: "Разрешение наблюдения на доске...",
+      zh: "解决黑板见解...",
+    };
+    return templates[lang] ?? templates.en;
+  },
+  WebSearch: (input, lang) => {
+    const q = (input as Record<string, unknown>).query as string | undefined;
+    const short = q && q.length > 40 ? q.slice(0, 40) + "..." : q ?? "";
+    const templates: Record<string, string> = {
+      en: `Searching the web: "${short}"`,
+      sr: `Pretraživanje interneta: "${short}"`,
+      de: `Websuche: "${short}"`,
+      es: `Buscando en la web: "${short}"`,
+      fr: `Recherche web : « ${short} »`,
+      ru: `Поиск в интернете: «${short}»`,
+      zh: `网络搜索："${short}"`,
+    };
+    return templates[lang] ?? templates.en;
+  },
+  FetchWebPage: (input, lang) => {
+    const url = (input as Record<string, unknown>).url as string | undefined;
+    let short = url ?? "";
+    try {
+      short = new URL(short).hostname;
+    } catch { /* keep raw */ }
+    const templates: Record<string, string> = {
+      en: `Reading page: ${short}...`,
+      sr: `Čitanje stranice: ${short}...`,
+      de: `Seite lesen: ${short}...`,
+      es: `Leyendo página: ${short}...`,
+      fr: `Lecture de la page : ${short}...`,
+      ru: `Чтение страницы: ${short}...`,
+      zh: `正在读取页面：${short}...`,
+    };
+    return templates[lang] ?? templates.en;
+  },
+  DelegateToSpecialist: (input, lang) => {
+    const name = (input as Record<string, unknown>).agentType as string | undefined;
+    const agentNames: Record<string, Record<string, string>> = {
+      en: { ghostwriter: "Ghostwriter", "style-analyst": "Style Analyst", "story-architect": "Story Architect", "scene-planner": "Scene Planner", "dev-editor": "Dev Editor", "line-editor": "Line Editor", "beta-reader": "Beta Reader Panel", "manuscript-analyst": "Manuscript Analyst", "continuity-checker": "Continuity Checker", "manuscript-reader": "Manuscript Reader", "world-researcher": "World Researcher", "market-reader": "Market Reader", "publishing-editor": "Publishing Editor" },
+      sr: { ghostwriter: "Pisac u senci", "style-analyst": "Stilski analitičar", "story-architect": "Arhitekta priče", "scene-planner": "Planer scena", "dev-editor": "Razvojni urednik", "line-editor": "Jezički urednik", "beta-reader": "Beta čitači", "manuscript-analyst": "Analitičar rukopisa", "continuity-checker": "Provera kontinuiteta", "manuscript-reader": "Čitač rukopisa", "world-researcher": "Istraživač sveta", "market-reader": "Tržišni analitičar", "publishing-editor": "Izdavački urednik" },
+    };
+    const resolved = agentNames[lang]?.[name ?? ""] ?? agentNames.en[name ?? ""] ?? name ?? "specialist";
+    const templates: Record<string, string> = {
+      en: `Delegating to ${resolved}...`,
+      sr: `Delegiranje: ${resolved}...`,
+      de: `Delegiere an ${resolved}...`,
+      es: `Delegando a ${resolved}...`,
+      fr: `Délégation à ${resolved}...`,
+      ru: `Делегирование: ${resolved}...`,
+      zh: `委派给${resolved}...`,
     };
     return templates[lang] ?? templates.en;
   },

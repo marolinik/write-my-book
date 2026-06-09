@@ -5,6 +5,9 @@ export type {
   AgentDefinition,
   AgentContext,
   AgentStreamMessage,
+  SharedCostTracker,
+  DelegationContext,
+  DelegationResult,
   AgentResult,
   ApprovalResponse,
   AgentSpawnOptions,
@@ -28,6 +31,9 @@ export { AgentOrchestrator } from "./orchestrator";
 export { processPostSession } from "./post-session";
 export type { PostSessionContext, PostSessionResult } from "./post-session";
 
+export { validatePrerequisites } from "./prerequisites";
+export type { PrerequisiteResult } from "./prerequisites";
+
 export {
   createSession,
   getSession,
@@ -38,4 +44,24 @@ export {
   cancelSession,
   addUserMessage,
   addAssistantMessage,
+  loadConversationHistory,
 } from "./session-manager";
+
+export {
+  createInsight,
+  getRelevantInsights,
+  formatInsightsForPrompt,
+  resolveInsight,
+  dismissInsight,
+  expireStaleInsights,
+  promoteFindings,
+} from "./blackboard";
+export type { CreateInsightInput, InsightRow } from "./blackboard";
+
+export {
+  getJourney,
+  getAllJourneys,
+  detectActiveJourney,
+  getJourneyProgress,
+} from "./journeys";
+export type { JourneyDefinition, JourneyStep } from "./journeys";

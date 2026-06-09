@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PenTool, X } from "lucide-react";
+import { toast } from "sonner";
 import { useFindings } from "@/hooks/use-editorial";
 import type { FindingItem } from "@/hooks/use-editorial";
 import { FindingCard } from "@/components/editorial/finding-card";
@@ -17,6 +18,10 @@ interface EditorFindingsPanelProps {
   chapterNumber: number;
   onClose: () => void;
   paneId?: string;
+  /** Override for jump-to-finding behavior. Scrolls editor to center on finding text. */
+  onJumpToFinding?: (finding: FindingItem) => void;
+  /** Map of finding ID -> freshness status from editor document comparison. */
+  freshnessMap?: Map<string, "fresh" | "stale" | "unanchored">;
 }
 
 export function EditorFindingsPanel({
@@ -24,10 +29,11 @@ export function EditorFindingsPanel({
   chapterNumber,
   onClose,
   paneId = "primary",
+  onJumpToFinding,
+  freshnessMap,
 }: EditorFindingsPanelProps) {
   const paneStore = getOrCreatePaneStore(paneId);
   const setScrollToText = (text: string | null) => paneStore.getState().setScrollToText(text);
-  const setPendingInlineEditFinding = (finding: FindingItem | null) => paneStore.getState().setPendingInlineEditFinding(finding);
 
   const { filters, setFilter, resetFilters } = useEditorialStore();
 
@@ -53,10 +59,59 @@ export function EditorFindingsPanel({
 
   const hasActiveFilters = !!(filters.severity || filters.category || filters.status || filters.agentType);
 
+  const { highlightedFindingId, setHighlightedFinding } = useEditorialStore();
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to highlighted finding card when annotation/gutter marker is clicked
+  useEffect(() => {
+    if (!highlightedFindingId) return;
+
+    const cardEl = document.getElementById(
+      `finding-card-${highlightedFindingId}`
+    );
+    if (!cardEl) return;
+
+    // Find the ScrollArea viewport to scroll within — avoid parent scroll bleed
+    const viewport = scrollAreaRef.current?.querySelector(
+      "[data-radix-scroll-area-viewport]"
+    );
+    if (viewport) {
+      const viewportRect = viewport.getBoundingClientRect();
+      const cardRect = cardEl.getBoundingClientRect();
+      const scrollTop = viewport.scrollTop;
+      const desiredTop =
+        cardRect.top -
+        viewportRect.top +
+        scrollTop -
+        viewportRect.height / 2 +
+        cardRect.height / 2;
+      viewport.scrollTo({ top: desiredTop, behavior: "smooth" });
+    } else {
+      // Fallback if no viewport found
+      cardEl.scrollIntoView({ block: "center", behavior: "smooth" });
+    }
+
+    // Pulse animation on the card
+    cardEl.classList.add("finding-card-pulse");
+    setTimeout(() => cardEl.classList.remove("finding-card-pulse"), 1200);
+
+    // Clear highlighted state after animation
+    const clearTimer = setTimeout(() => setHighlightedFinding(null), 1500);
+    return () => clearTimeout(clearTimer);
+  }, [highlightedFindingId, setHighlightedFinding]);
+
   const handleShowInText = (finding: FindingItem) => {
-    const text = finding.originalText ?? finding.locationStart;
-    if (text) setScrollToText(text);
-    setPendingInlineEditFinding(finding);
+    if (onJumpToFinding) {
+      onJumpToFinding(finding);
+      return;
+    }
+    const text = finding.originalText;
+    if (text) {
+      setScrollToText(text);
+    } else {
+      // No literal text to scroll to — just show the description
+      toast.info(finding.description, { duration: 4000 });
+    }
   };
 
   return (
@@ -144,7 +199,7 @@ export function EditorFindingsPanel({
           </p>
         </div>
       ) : (
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex-1" ref={scrollAreaRef}>
           <div className="space-y-2 p-2">
             {findings.map((finding) => (
               <FindingCard
@@ -152,6 +207,8 @@ export function EditorFindingsPanel({
                 finding={finding}
                 bookId={bookId}
                 onShowInText={handleShowInText}
+                isHighlighted={highlightedFindingId === finding.id}
+                isStale={freshnessMap?.get(finding.id) === "stale"}
               />
             ))}
           </div>

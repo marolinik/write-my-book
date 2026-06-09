@@ -9,7 +9,9 @@ import {
   ChevronRightIcon,
   CircleDotIcon,
   ClockIcon,
+  DollarSignIcon,
   FileInputIcon,
+  GlobeIcon,
   LibraryIcon,
   ListPlusIcon,
   LockIcon,
@@ -21,6 +23,7 @@ import {
   RocketIcon,
   RotateCcwIcon,
   SearchIcon,
+  ShieldAlertIcon,
   SparklesIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -34,12 +37,13 @@ import {
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { getAllWorkflows, getWorkflow } from "@/lib/agents/workflows";
 import { getAllJourneys, getJourney } from "@/lib/agents/journeys";
-import type { JourneyDefinition, JourneyStep } from "@/lib/agents/journeys";
+import type { JourneyDefinition } from "@/lib/agents/journeys";
 import type { WorkflowDefinition } from "@/lib/agents/types";
 import { useLanguage } from "@/components/providers/language-provider";
 import { getAgentStrings } from "@/lib/i18n/agent-strings";
 import { useAgentSessionStore } from "@/stores/agent-session-store";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
+import { useWorkflowCostEstimates, type WorkflowCostData } from "@/hooks/use-workflow-costs";
 import { toast } from "sonner";
 
 const JOURNEY_ICONS: Record<string, React.ElementType> = {
@@ -59,6 +63,7 @@ const CATEGORY_ICONS = {
   editing: SearchIcon,
   analysis: BookOpenIcon,
   style: PaletteIcon,
+  research: GlobeIcon,
   series: LibraryIcon,
 } as const;
 
@@ -68,6 +73,47 @@ function DurationBadge({ workflow }: { workflow: WorkflowDefinition }) {
     <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground font-normal">
       <ClockIcon className="size-3" />
       {workflow.estimatedMinMinutes}-{workflow.estimatedMaxMinutes} min
+    </span>
+  );
+}
+
+// ── Cost Estimate Badge ───────────────────────────────────────
+
+function CostBadge({ cost }: { cost: WorkflowCostData }) {
+  if (cost.blocked) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400">
+            <ShieldAlertIcon className="size-3" />
+            {cost.reason?.includes("haiku")
+              ? "Requires sonnet+"
+              : cost.reason?.includes("sonnet")
+                ? "Requires opus+"
+                : "Upgrade model"}
+          </span>
+        </TooltipTrigger>
+        <TooltipContent side="left" className="max-w-56 text-xs">
+          {cost.reason}
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  // Color based on max cost
+  let colorClass = "text-green-600 dark:text-green-400"; // $
+  if (cost.max > 0.5) {
+    colorClass = "text-red-600 dark:text-red-400"; // $$$
+  } else if (cost.max > 0.1) {
+    colorClass = "text-yellow-600 dark:text-yellow-400"; // $$
+  }
+
+  return (
+    <span
+      className={`inline-flex items-center gap-0.5 text-[10px] font-normal ${colorClass}`}
+    >
+      <DollarSignIcon className="size-2.5" />
+      {cost.formatted}
     </span>
   );
 }
@@ -89,7 +135,7 @@ interface WorkflowSelectorProps {
 }
 
 export function WorkflowSelector({
-  bookId: _bookId,
+  bookId,
   chapters,
   onSelect,
   disabled,
@@ -111,6 +157,10 @@ export function WorkflowSelector({
 
   const workflows = getAllWorkflows();
   const journeys = getAllJourneys();
+
+  // Fetch cost estimates for all workflows
+  const workflowIds = useMemo(() => workflows.map((w) => w.id), [workflows]);
+  const costEstimates = useWorkflowCostEstimates(bookId, workflowIds);
 
   // Check prerequisites client-side for visual disabling
   const unmetPrereqs = useMemo(() => {
@@ -139,6 +189,7 @@ export function WorkflowSelector({
     editing: t.workflowSelector.editing,
     analysis: t.workflowSelector.analysis,
     style: t.workflowSelector.style,
+    research: t.workflowSelector.research,
     series: t.workflowSelector.series,
   };
   const categories = [
@@ -147,10 +198,20 @@ export function WorkflowSelector({
     "editing",
     "analysis",
     "style",
+    "research",
     ...(seriesId ? (["series"] as const) : []),
   ] as const;
 
   const handleSelect = (workflow: WorkflowDefinition) => {
+    // Check if cost estimate says this is blocked by tier
+    const cost = costEstimates[workflow.id];
+    if (cost?.blocked) {
+      toast.error(
+        cost.reason ?? "This workflow requires a higher-tier model."
+      );
+      return;
+    }
+
     if (workflow.requiresChapter) {
       setSelectedWorkflow(workflow);
       // Pre-select the chapter the user is currently viewing, falling back to first chapter
@@ -244,6 +305,7 @@ export function WorkflowSelector({
         journey={selectedJourney}
         completedWorkflows={completedWorkflows ?? new Set()}
         unmetPrereqs={unmetPrereqs}
+        costEstimates={costEstimates}
         onSelectStep={(workflowId) => {
           const wf = getWorkflow(workflowId);
           if (wf) handleSelect(wf);
@@ -302,6 +364,8 @@ export function WorkflowSelector({
                   {catWorkflows.map((w) => {
                     const missing = unmetPrereqs.get(w.id);
                     const isLocked = !!missing && missing.length > 0;
+                    const cost = costEstimates[w.id];
+                    const isTierBlocked = cost?.blocked === true;
                     const isDisabled = disabled || isLocked;
 
                     const button = (
@@ -315,12 +379,13 @@ export function WorkflowSelector({
                           className="flex flex-1 items-center justify-between px-3 py-2 min-w-0 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <div className="flex flex-col gap-0.5 min-w-0">
-                            <span className="font-medium flex items-center gap-1.5">
+                            <span className="font-medium flex items-center gap-1.5 flex-wrap">
                               {as.workflows[w.id] ?? w.label}
                               {isLocked && (
                                 <LockIcon className="size-3 text-muted-foreground" />
                               )}
                               <DurationBadge workflow={w} />
+                              {cost && <CostBadge cost={cost} />}
                             </span>
                             <span className="text-xs text-muted-foreground">
                               {as.workflowDescriptions[w.id] ?? w.writerDescription}
@@ -328,7 +393,7 @@ export function WorkflowSelector({
                           </div>
                           <ChevronRightIcon className="size-4 shrink-0 text-muted-foreground" />
                         </button>
-                        {!isLocked && (
+                        {!isLocked && !isTierBlocked && (
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <button
@@ -448,6 +513,7 @@ function JourneyDetailView({
   journey,
   completedWorkflows,
   unmetPrereqs,
+  costEstimates,
   onSelectStep,
   onBack,
   disabled,
@@ -455,6 +521,7 @@ function JourneyDetailView({
   journey: JourneyDefinition;
   completedWorkflows: Set<string>;
   unmetPrereqs: Map<string, string[]>;
+  costEstimates: Record<string, WorkflowCostData>;
   onSelectStep: (workflowId: string) => void;
   onBack: () => void;
   disabled?: boolean;
@@ -495,6 +562,7 @@ function JourneyDetailView({
               const missing = unmetPrereqs.get(step.workflowId);
               const isLocked = !!missing && missing.length > 0 && !isCompleted;
               const isLast = index === journey.steps.length - 1;
+              const cost = costEstimates[step.workflowId];
 
               return (
                 <div key={`${step.workflowId}-${index}`} className="relative flex gap-3">
@@ -551,6 +619,7 @@ function JourneyDetailView({
                         </Tooltip>
                       )}
                       {wf && <DurationBadge workflow={wf} />}
+                      {cost && <CostBadge cost={cost} />}
                     </div>
                     {wf?.writerDescription && (
                       <p className="text-xs text-muted-foreground mt-0.5">

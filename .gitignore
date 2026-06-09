@@ -46,3 +46,6 @@ next-env.d.ts
 
 # worker build output
 /dist-worker
+
+# Office temp lock files
+~$*

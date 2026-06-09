@@ -14,6 +14,7 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
       "ReadDocument",
       "WriteDocument",
       "ReadChapter",
+      "ReadAllChapters",
       "ListDocuments",
       "RequestApproval",
       "QueryGraph",
@@ -22,6 +23,8 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
       "SearchMemory",
       "RememberInsight",
       "DelegateToSpecialist",
+      "WebSearch",
+      "FetchWebPage",
     ],
     contextProfile: {
       fingerprint: "full",
@@ -360,7 +363,7 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
       "Research your setting, genre, and historical context for authentic world-building.",
     defaultModel: "sonnet",
     allowedModels: ["opus", "sonnet"],
-    tools: ["ReadDocument", "WriteDocument", "ListDocuments", "QueryGraph", "UpdateGraphEntity", "SearchMemory", "ReadInsights"],
+    tools: ["ReadDocument", "WriteDocument", "ListDocuments", "QueryGraph", "UpdateGraphEntity", "SearchMemory", "ReadInsights", "WebSearch", "FetchWebPage"],
     contextProfile: {
       fingerprint: "none",
       storyBible: "full",
@@ -383,7 +386,7 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
       "Analyze your book's market positioning across 5 cultural markets.",
     defaultModel: "sonnet",
     allowedModels: ["opus", "sonnet"],
-    tools: ["ReadDocument", "WriteDocument", "ListDocuments", "SearchMemory", "ReadInsights"],
+    tools: ["ReadDocument", "WriteDocument", "ListDocuments", "SearchMemory", "ReadInsights", "WebSearch", "FetchWebPage"],
     contextProfile: {
       fingerprint: "summary",
       storyBible: "full",

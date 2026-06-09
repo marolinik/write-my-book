@@ -34,8 +34,18 @@ export default function PublicLayout({
       </header>
       {children}
       <footer className="border-t py-8 mt-auto">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} WriteMyBook. AI-powered novel writing platform.</p>
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
+            <p>&copy; {new Date().getFullYear()} WriteMyBook. AI-powered novel writing platform.</p>
+            <div className="flex items-center gap-4">
+              <Link href="/privacy" className="hover:text-foreground transition-colors">
+                Privacy
+              </Link>
+              <Link href="/terms" className="hover:text-foreground transition-colors">
+                Terms
+              </Link>
+            </div>
+          </div>
         </div>
       </footer>
     </div>

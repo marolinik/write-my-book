@@ -5,15 +5,7 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-
-async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(url, init);
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error(body.error ?? `Request failed: ${res.status}`);
-  }
-  return res.json();
-}
+import { fetchJson } from "@/lib/api-client";
 
 /** Fetch chapter markdown content. */
 export function useChapterContent(bookId: string, chapterId: string) {
@@ -60,6 +52,11 @@ export function useDocumentContent(bookId: string, documentId: string) {
         title: string | null;
         content: string;
         currentVersion: number;
+        chapterNumber?: number | null;
+        wordCount?: number;
+        createdAt?: string;
+        updatedAt?: string;
+        createdByAgent?: string | null;
       }>(`/api/books/${bookId}/documents/${documentId}`),
     enabled: !!bookId && !!documentId,
   });

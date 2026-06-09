@@ -20,6 +20,7 @@ import { getAgentStrings } from "@/lib/i18n/agent-strings";
 import { getWorkflow } from "@/lib/agents/workflows";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { WritingWrappedCard } from "@/components/book/writing-wrapped-card";
 import {
   Card,
   CardContent,
@@ -450,6 +451,9 @@ export default async function DashboardPage() {
           </div>
         )}
       </div>
+
+      {/* Year in Writing Wrapped */}
+      <WritingWrappedCard authorName={user.displayName ?? undefined} />
 
       {/* Series */}
       <div>

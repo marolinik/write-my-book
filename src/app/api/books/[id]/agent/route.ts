@@ -3,8 +3,21 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { decryptApiKey } from "@/lib/encryption";
 import { estimateCost } from "@/lib/cost";
-import { checkQuota, getSessionCostLimit } from "@/lib/billing/quota-checker";
-import { createLLMClient, getModelDef, resolveFromTier } from "@/lib/llm";
+import { estimateWorkflowCost } from "@/lib/llm/cost-estimator";
+import { validatePrices } from "@/lib/llm/price-validator";
+import { checkQuota } from "@/lib/billing/quota-checker";
+import {
+  resolveModelForRole,
+  meetsMinimumTier,
+  mapAgentTypeToRole,
+  resolveProviderRoute,
+  validateApiKey,
+  getModelDef,
+  type ProviderKey,
+  type AgentRole,
+  type BookModelSettings,
+} from "@/lib/llm";
+import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 import { pageContextSchema } from "@/lib/validation";
 import {
@@ -24,6 +37,8 @@ import type {
   DelegationContext,
 } from "@/lib/agents";
 import { processPostSession } from "@/lib/agents";
+import { enqueueAgentJob } from "@/lib/queue";
+import type { AgentJobData } from "@/lib/queue";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -34,7 +49,7 @@ const startSessionSchema = z.object({
   pageContext: pageContextSchema,
 });
 
-/** POST /api/books/:id/agent — start a new agent session. */
+/** POST /api/books/:id/agent -- start a new agent session. */
 export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
@@ -87,11 +102,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // ── Setup Completeness Guard (SETUP-07) ──────────────────
-    // Non-setup workflows require setup to be complete.
-    // Setup-category workflows are exempt so writers can complete onboarding.
-    // Check both the wizard flag AND real foundational documents, because
-    // books set up via agent sessions may not have the wizard flag set.
+    // -- Setup Completeness Guard (SETUP-07) --
     if (workflow.category !== "setup") {
       const wizardComplete = book.settings?.setupComplete ?? false;
       if (!wizardComplete) {
@@ -127,94 +138,204 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Get per-session cost limit based on plan
-    const sessionCostLimit = await getSessionCostLimit(user.id);
-
-    // ── Model Resolution ──────────────────────────────────────────
-    // The Coach always runs on Opus. Specialists get their models resolved
-    // at delegation time via the createSpecialistClient factory.
+    // -- Model Resolution (4-level chain) --
     const settings = book.settings;
 
-    // Load user's default model for provider preference
+    // Load user's global defaults and role overrides
     const dbUser = await db.user.findUnique({
       where: { id: user.id },
-      select: { defaultModel: true },
+      select: {
+        defaultModel: true,
+        modelGhostwriter: true,
+        modelEditor: true,
+        modelBetaReader: true,
+        modelAnalyst: true,
+        modelCoach: true,
+        modelCreative: true,
+      },
     });
     const userDefault = dbUser?.defaultModel ?? "anthropic/sonnet";
-    // Extract provider prefix: "anthropic/sonnet" → "anthropic", "openrouter-minimax/sonnet" → "openrouter-minimax"
-    const userProvider = userDefault.includes("/") ? userDefault.split("/")[0] : "anthropic";
 
-    // Coach always uses Opus
-    const registryId = `${userProvider}/opus`;
-    const modelDef = getModelDef(registryId) ?? resolveFromTier(registryId);
+    // Build global role overrides from User model
+    const globalRoleOverrides: Record<AgentRole, string | null> = {
+      ghostwriter: dbUser?.modelGhostwriter ?? null,
+      editor: dbUser?.modelEditor ?? null,
+      "beta-reader": dbUser?.modelBetaReader ?? null,
+      analyst: dbUser?.modelAnalyst ?? null,
+      coach: dbUser?.modelCoach ?? null,
+      creative: dbUser?.modelCreative ?? null,
+    };
 
-    // ── API Key Resolution ──────────────────────────────────────
-    let anthropicApiKey: string | undefined;
-    let openrouterApiKey: string | undefined;
+    // Build BookModelSettings from BookSettings
+    const bookModelSettings: BookModelSettings | null = settings
+      ? {
+          modelGhostwriter: settings.modelGhostwriter ?? "default",
+          modelEditor: settings.modelEditor ?? "default",
+          modelBetaReader: settings.modelBetaReader ?? "default",
+          modelAnalyst: settings.modelAnalyst ?? "default",
+          modelCoach: settings.modelCoach ?? "default",
+          modelCreative: settings.modelCreative ?? "default",
+          modelOverride: settings.modelOverride ?? null,
+        }
+      : null;
 
-    if (modelDef.provider === "openrouter") {
-      const orKey = await db.apiKey.findFirst({
-        where: { userId: user.id, provider: "openrouter", isDefault: true },
-      });
-      if (orKey) {
-        openrouterApiKey = decryptApiKey(orKey.encryptedKey);
-      } else if (process.env.OPENROUTER_API_KEY) {
-        openrouterApiKey = process.env.OPENROUTER_API_KEY;
+    // Resolve the specialist model to determine provider
+    const specialistRole = mapAgentTypeToRole(workflow.primaryAgent);
+    const specialistResolved = resolveModelForRole(
+      specialistRole,
+      bookModelSettings,
+      globalRoleOverrides,
+      userDefault
+    );
+
+    // Coach uses sonnet-tier model from the same provider (cost-effective for routing/coordination)
+    const specialistProvider = specialistResolved.modelDef.provider;
+    const coachRegistryId = `${specialistProvider === "openrouter" ? "openrouter" : specialistProvider}/sonnet`;
+    const coachModelDef = getModelDef(coachRegistryId);
+    // Fall back to anthropic/sonnet if provider doesn't have sonnet
+    const effectiveCoachRegistryId = coachModelDef ? coachRegistryId : "anthropic/sonnet";
+    const effectiveCoachModelDef = coachModelDef ?? getModelDef("anthropic/sonnet")!;
+
+    // -- Minimum Tier Check --
+    if (workflow.minimumTier && !meetsMinimumTier(specialistResolved.registryId, workflow.minimumTier)) {
+      return NextResponse.json(
+        {
+          error: `This workflow requires at least a ${workflow.minimumTier}-class model. Your current model (${specialistResolved.modelDef.displayName}) is ${specialistResolved.modelDef.tier}-class. Change it in Settings or Book Settings.`,
+          blocked: true,
+        },
+        { status: 422 }
+      );
+    }
+
+    // -- Multi-Provider Key Loading --
+    const userKeys = await db.apiKey.findMany({
+      where: { userId: user.id },
+      select: { provider: true, encryptedKey: true, validatedAt: true },
+    });
+
+    // Build decrypted keys map (only include validated keys)
+    const decryptedKeys: Partial<Record<ProviderKey, string>> = {};
+    for (const k of userKeys) {
+      if (k.validatedAt) {
+        try {
+          decryptedKeys[k.provider as ProviderKey] = decryptApiKey(k.encryptedKey);
+        } catch {
+          // Skip keys that fail to decrypt
+        }
       }
+    }
 
-      if (!openrouterApiKey) {
+    // Build available keys for provider routing
+    const availableKeys = {
+      anthropicApiKey: decryptedKeys.anthropic,
+      openrouterApiKey: decryptedKeys.openrouter,
+      openaiApiKey: decryptedKeys.openai,
+      geminiApiKey: decryptedKeys.gemini,
+      grokApiKey: decryptedKeys.grok,
+    };
+
+    // -- Route Resolution for Coach --
+    const coachRoute = resolveProviderRoute(
+      effectiveCoachModelDef.provider,
+      availableKeys,
+      effectiveCoachModelDef.modelId,
+      effectiveCoachRegistryId
+    );
+
+    if (coachRoute.route === "none") {
+      const providerName = effectiveCoachModelDef.provider.charAt(0).toUpperCase() + effectiveCoachModelDef.provider.slice(1);
+      return NextResponse.json(
+        { error: `No ${providerName} API key configured. Add one in Settings > API Keys.` },
+        { status: 400 }
+      );
+    }
+
+    // -- Session-Start Key Re-validation --
+    const keyToValidate = coachRoute.apiKey;
+    // Determine which provider to validate against (the actual key provider, not litellm)
+    const validationProvider: ProviderKey =
+      coachRoute.route === "litellm-proxy"
+        ? (coachRoute.headers?.["x-target-provider"] as ProviderKey ?? effectiveCoachModelDef.provider as ProviderKey)
+        : coachRoute.route === "openrouter"
+          ? "openrouter"
+          : effectiveCoachModelDef.provider as ProviderKey;
+
+    // For litellm-proxy, validate the actual provider key, not the litellm passthrough key
+    const actualKeyForValidation =
+      coachRoute.route === "litellm-proxy" && coachRoute.headers?.["x-provider-key"]
+        ? coachRoute.headers["x-provider-key"]
+        : keyToValidate;
+
+    // Only re-validate if we have a real key (not the litellm passthrough)
+    if (actualKeyForValidation && actualKeyForValidation !== "sk-litellm") {
+      const keyValid = await validateApiKey(validationProvider, actualKeyForValidation);
+      if (!keyValid.valid) {
+        const providerName = validationProvider.charAt(0).toUpperCase() + validationProvider.slice(1);
         return NextResponse.json(
-          { error: "No OpenRouter API key configured. Add one in Settings." },
-          { status: 400 }
-        );
-      }
-    } else {
-      const antKey = await db.apiKey.findFirst({
-        where: { userId: user.id, provider: "anthropic", isDefault: true },
-      });
-      if (antKey) {
-        anthropicApiKey = decryptApiKey(antKey.encryptedKey);
-      } else if (process.env.ANTHROPIC_API_KEY) {
-        anthropicApiKey = process.env.ANTHROPIC_API_KEY;
-      }
-
-      if (!anthropicApiKey) {
-        return NextResponse.json(
-          { error: "No Anthropic API key configured. Add one in Settings." },
+          { error: `Your ${providerName} API key is no longer valid: ${keyValid.error}. Please update it in Settings.` },
           { status: 400 }
         );
       }
     }
 
-    // ── Build Coach LLM Client ──────────────────────────────────
-    const { client, model } = createLLMClient({
-      modelId: registryId,
-      anthropicApiKey,
-      openrouterApiKey,
+    // -- Build Coach LLM Client --
+    const effectiveModelId = coachRoute.effectiveModelId || effectiveCoachModelDef.modelId;
+    const coachClient = new Anthropic({
+      apiKey: coachRoute.apiKey,
+      baseURL: coachRoute.baseURL,
+      ...(coachRoute.headers ? { defaultHeaders: coachRoute.headers } : {}),
     });
 
-    // ── Specialist Client Factory ─────────────────────────────
-    // The Coach delegates to specialists at runtime. This factory
-    // resolves the specialist's model tier and creates an LLM client
-    // using the same provider preference and API keys.
+    // -- Specialist Client Factory --
     const createSpecialistClient = async (agentType: AgentType) => {
       const specialistDef = getAgentDefinition(agentType);
       if (!specialistDef) throw new Error(`Unknown specialist: ${agentType}`);
-      const specialistRegistryId = `${userProvider}/${specialistDef.defaultModel}`;
-      const specialistModel = getModelDef(specialistRegistryId) ?? resolveFromTier(specialistRegistryId);
-      const { client: specialistClient } = createLLMClient({
-        modelId: specialistRegistryId,
-        anthropicApiKey,
-        openrouterApiKey,
+
+      const role = mapAgentTypeToRole(agentType);
+      const resolved = resolveModelForRole(
+        role,
+        bookModelSettings,
+        globalRoleOverrides,
+        userDefault
+      );
+
+      // Resolve routing for this specialist
+      const specRoute = resolveProviderRoute(
+        resolved.modelDef.provider,
+        availableKeys,
+        resolved.modelDef.modelId,
+        resolved.registryId
+      );
+
+      if (specRoute.route === "none") {
+        // Fall back to the coach's provider to keep the session working
+        const specModelId = effectiveModelId;
+        return {
+          client: coachClient,
+          modelId: specModelId,
+          registryId: effectiveCoachRegistryId,
+        };
+      }
+
+      const specEffectiveModelId = specRoute.effectiveModelId || resolved.modelDef.modelId;
+      const specClient = new Anthropic({
+        apiKey: specRoute.apiKey,
+        baseURL: specRoute.baseURL,
+        ...(specRoute.headers ? { defaultHeaders: specRoute.headers } : {}),
       });
+
       return {
-        client: specialistClient,
-        modelId: specialistModel.modelId,
-        registryId: specialistModel.id,
+        client: specClient,
+        modelId: specEffectiveModelId,
+        registryId: resolved.registryId,
       };
     };
 
-    // Create DB session record — always writing-coach as the user-facing agent
+    // -- Workflow-specific timeout ceiling --
+    const estimatedMaxMin = workflow.estimatedMaxMinutes ?? 30;
+    const serverCeilingMs = (estimatedMaxMin + 30) * 60 * 1000;
+
+    // Create DB session record (needed for both inline and background paths)
     const dbSession = await db.agentSession.create({
       data: {
         bookId,
@@ -226,168 +347,225 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       },
     });
 
-    // Create in-memory session
-    const session = createSession(
-      dbSession.id,
-      bookId,
-      user.id,
-      "writing-coach",
-      data.workflowId
-    );
-
-    // ── Shared Cost Tracker ───────────────────────────────────
-    const sharedCostTracker: SharedCostTracker = {
-      totalInputTokens: 0,
-      totalOutputTokens: 0,
-    };
-
-    // ── Delegation Context ────────────────────────────────────
-    const onMessage = (message: AgentStreamMessage) => {
-      pushMessage(dbSession.id, message);
-    };
-
-    const delegationContext: DelegationContext = {
-      parentSessionId: dbSession.id,
-      parentOnMessage: onMessage,
-      sharedCostTracker,
-      language: book.language ?? "en",
-      chapterNumber: data.chapterNumber,
-      createSpecialistClient,
-    };
-
-    // ── Workflow-specific timeout ceiling ────────────────────────
-    // Set server ceiling to estimated max + 30 min buffer (for up to 2 x 15-min extensions).
-    // This avoids needing an API endpoint to extend the server timer mid-session.
-    const estimatedMaxMin = workflow.estimatedMaxMinutes ?? 30;
-    const serverCeilingMs = (estimatedMaxMin + 30) * 60 * 1000;
-
-    // Spawn orchestrator (fire and forget)
-    const orchestrator = new AgentOrchestrator({
-      client,
-      modelId: model.modelId,
-      registryId: model.id,
-      maxRuntimeMs: serverCeilingMs,
-      maxSessionCostUsd: sessionCostLimit,
-      sharedCostTracker,
-      delegationContext,
+    // Record pre-session cost estimate for drift tracking
+    const preEstimate = estimateWorkflowCost(data.workflowId, effectiveCoachRegistryId);
+    await db.agentSession.update({
+      where: { id: dbSession.id },
+      data: { estimatedCostUsd: preEstimate.max },
     });
-    session.orchestrator = orchestrator;
 
-    const spawnOptions = {
-      agentType: "writing-coach" as const,
-      model: model.tier,
-      context: {
+    // Fire-and-forget: validate pricing on first use (24h cache)
+    validatePrices().catch(() => {});
+
+    // -- Dual-path routing: long workflows go to background queue --
+    // Conversational workflows must stay inline (user needs to interact)
+    const isLongRunning =
+      !workflow.conversational && (workflow.estimatedMaxMinutes ?? 5) > 5;
+
+    if (isLongRunning) {
+      // --- Background Queue Path ---
+      // Serialize page context to JSON string for Redis
+      const serializedPageContext = data.pageContext ? JSON.stringify(data.pageContext) : undefined;
+
+      const jobData: AgentJobData = {
+        sessionId: dbSession.id,
         bookId,
-        bookName: book.name,
         userId: user.id,
+        workflowId: data.workflowId,
+        agentType: workflow.primaryAgent,
         chapterNumber: data.chapterNumber,
-        language: book.language,
-        targetWorkflowId: data.workflowId,
-        targetAgentType: workflow.primaryAgent,
-        userMessage: data.message,
-        pageContext: data.pageContext,
-      },
-      workflowId: data.workflowId,
-      sessionId: dbSession.id,
-      onMessage,
-      onComplete: async (result: AgentResult) => {
-        // Run post-session processing (parse reports, store findings, advance status)
-        let suggestedNext: string[] = [];
-        let resultMeta: {
-          findingsCreated: number;
-          statusAdvanced: boolean;
-          newStatus?: string;
-          betaGateResult?: string;
-        } = { findingsCreated: 0, statusAdvanced: false };
-        try {
-          const postResult = await processPostSession({
-            sessionId: dbSession.id,
-            bookId,
-            userId: user.id,
-            workflowId: data.workflowId,
-            agentType: workflow.primaryAgent,
-            chapterNumber: data.chapterNumber,
+        coachRegistryId: effectiveCoachRegistryId,
+        coachModelId: effectiveModelId,
+        providerKey: validationProvider,
+        language: book.language ?? "en",
+        bookName: book.name,
+        message: data.message,
+        pageContext: serializedPageContext,
+        sessionCostLimit: Infinity,
+        serverCeilingMs,
+        isConversational: workflow.conversational,
+      };
+
+      const job = await enqueueAgentJob(jobData);
+
+      // Store jobId in DB so the SSE stream route knows this is a background job
+      await db.agentSession.update({
+        where: { id: dbSession.id },
+        data: { jobId: job.id },
+      });
+
+      return NextResponse.json({
+        sessionId: dbSession.id,
+        queued: true,
+        jobId: job.id,
+      });
+    } else {
+      // --- Existing Inline SSE Path (unchanged) ---
+
+      // Create in-memory session
+      const session = createSession(
+        dbSession.id,
+        bookId,
+        user.id,
+        "writing-coach",
+        data.workflowId
+      );
+
+      // -- Shared Cost Tracker --
+      const sharedCostTracker: SharedCostTracker = {
+        totalInputTokens: 0,
+        totalOutputTokens: 0,
+      };
+
+      // -- Delegation Context --
+      const onMessage = (message: AgentStreamMessage) => {
+        pushMessage(dbSession.id, message);
+      };
+
+      const delegationContext: DelegationContext = {
+        parentSessionId: dbSession.id,
+        parentOnMessage: onMessage,
+        sharedCostTracker,
+        language: book.language ?? "en",
+        chapterNumber: data.chapterNumber,
+        createSpecialistClient,
+      };
+
+      // Spawn orchestrator (fire and forget)
+      const orchestrator = new AgentOrchestrator({
+        client: coachClient,
+        modelId: effectiveModelId,
+        registryId: effectiveCoachRegistryId,
+        maxRuntimeMs: serverCeilingMs,
+        maxSessionCostUsd: Infinity,
+        sharedCostTracker,
+        delegationContext,
+        providerKey: validationProvider,
+      });
+      session.orchestrator = orchestrator;
+
+      const spawnOptions = {
+        agentType: "writing-coach" as const,
+        model: effectiveCoachModelDef.tier,
+        context: {
+          bookId,
+          bookName: book.name,
+          userId: user.id,
+          chapterNumber: data.chapterNumber,
+          language: book.language,
+          targetWorkflowId: data.workflowId,
+          targetAgentType: workflow.primaryAgent,
+          userMessage: data.message,
+          pageContext: data.pageContext,
+        },
+        workflowId: data.workflowId,
+        sessionId: dbSession.id,
+        onMessage,
+        onComplete: async (result: AgentResult) => {
+          // Run post-session processing (parse reports, store findings, advance status)
+          let suggestedNext: string[] = [];
+          let resultMeta: {
+            findingsCreated: number;
+            statusAdvanced: boolean;
+            newStatus?: string;
+            betaGateResult?: string;
+          } = { findingsCreated: 0, statusAdvanced: false };
+          try {
+            const postResult = await processPostSession({
+              sessionId: dbSession.id,
+              bookId,
+              userId: user.id,
+              workflowId: data.workflowId,
+              agentType: workflow.primaryAgent,
+              chapterNumber: data.chapterNumber,
+            });
+            suggestedNext = postResult.suggestedNext;
+            resultMeta = {
+              findingsCreated: postResult.findingsCreated,
+              statusAdvanced: postResult.statusAdvanced,
+              newStatus: postResult.newStatus,
+              betaGateResult: postResult.betaGateResult,
+            };
+          } catch (e) {
+            // Log without exposing sensitive data
+            const errMsg = e instanceof Error ? e.message : "Unknown error";
+            console.error("[PostSession] Error:", errMsg);
+          }
+
+          // Attach result metadata to the AgentResult for SSE propagation
+          const enrichedResult = { ...result, resultMeta };
+          completeSession(dbSession.id, enrichedResult, suggestedNext);
+
+          // Update DB records -- include shared cost tracker totals
+          const totalInput = sharedCostTracker.totalInputTokens;
+          const totalOutput = sharedCostTracker.totalOutputTokens;
+          const cost = estimateCost(effectiveCoachRegistryId, totalInput, totalOutput);
+          await db.agentSession.update({
+            where: { id: dbSession.id },
+            data: {
+              status: result.success ? "completed" : "failed",
+              tokensInput: totalInput,
+              tokensOutput: totalOutput,
+              completedAt: new Date(),
+              actualCostUsd: cost,
+            },
           });
-          suggestedNext = postResult.suggestedNext;
-          resultMeta = {
-            findingsCreated: postResult.findingsCreated,
-            statusAdvanced: postResult.statusAdvanced,
-            newStatus: postResult.newStatus,
-            betaGateResult: postResult.betaGateResult,
-          };
-        } catch (e) {
-          console.error("[PostSession] Error:", e);
-        }
 
-        // Attach result metadata to the AgentResult for SSE propagation
-        const enrichedResult = { ...result, resultMeta };
-        completeSession(dbSession.id, enrichedResult, suggestedNext);
+          // Create usage record with total tokens (Coach + all specialists)
+          await db.usageRecord.create({
+            data: {
+              userId: user.id,
+              bookId,
+              agentType: "writing-coach",
+              model: effectiveCoachRegistryId,
+              tokensInput: totalInput,
+              tokensOutput: totalOutput,
+              costEstimate: cost,
+              keySource: "user",
+            },
+          });
+        },
+        onError: async (error: Error) => {
+          // Sanitize error before sending to client
+          onMessage({
+            type: "error",
+            content: "An error occurred during the agent session. Please try again.",
+          });
+          completeSession(dbSession.id, {
+            success: false,
+            tokensInput: 0,
+            tokensOutput: 0,
+            documentIds: [],
+            sessionId: dbSession.id,
+          });
 
-        // Update DB records — include shared cost tracker totals
-        const totalInput = sharedCostTracker.totalInputTokens;
-        const totalOutput = sharedCostTracker.totalOutputTokens;
-        await db.agentSession.update({
-          where: { id: dbSession.id },
-          data: {
-            status: result.success ? "completed" : "failed",
-            tokensInput: totalInput,
-            tokensOutput: totalOutput,
-            completedAt: new Date(),
-          },
-        });
+          await db.agentSession.update({
+            where: { id: dbSession.id },
+            data: {
+              status: "failed",
+              completedAt: new Date(),
+            },
+          });
+        },
+      } as const;
 
-        // Create usage record with total tokens (Coach + all specialists)
-        const cost = estimateCost(model.id, totalInput, totalOutput);
-        await db.usageRecord.create({
-          data: {
-            userId: user.id,
-            bookId,
-            agentType: "writing-coach",
-            model: model.id,
-            tokensInput: totalInput,
-            tokensOutput: totalOutput,
-            costEstimate: cost,
-          },
-        });
-      },
-      onError: async (error: Error) => {
-        onMessage({
-          type: "error",
-          content: error.message,
-        });
-        completeSession(dbSession.id, {
-          success: false,
-          tokensInput: 0,
-          tokensOutput: 0,
-          documentIds: [],
-          sessionId: dbSession.id,
-        });
+      // Fire and forget
+      orchestrator.runAgent(spawnOptions).catch(() => {});
 
-        await db.agentSession.update({
-          where: { id: dbSession.id },
-          data: {
-            status: "failed",
-            completedAt: new Date(),
-          },
-        });
-      },
-    } as const;
-
-    // Fire and forget — don't await
-    orchestrator.runAgent(spawnOptions).catch(() => {});
-
-    return NextResponse.json({ sessionId: dbSession.id });
+      return NextResponse.json({ sessionId: dbSession.id });
+    }
   } catch (error) {
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     if ((error as Error).name === "ZodError") {
       return NextResponse.json(
-        { error: "Invalid input", details: error },
+        { error: "Invalid input" },
         { status: 400 }
       );
     }
-    console.error("POST /api/books/:id/agent error:", error);
+    // Sanitize: never expose raw error details
+    console.error("POST /api/books/:id/agent error:", (error as Error).message ?? "Unknown error");
     return NextResponse.json(
       { error: "Failed to start agent session" },
       { status: 500 }

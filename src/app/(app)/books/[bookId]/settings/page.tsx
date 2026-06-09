@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Trash2Icon, AlertTriangleIcon, Loader2Icon } from "lucide-react";
+import { Trash2Icon, AlertTriangleIcon, Loader2Icon, InfoIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { useBookSettings } from "@/hooks/use-settings";
 import { useBook, useDeleteBook } from "@/hooks/use-books";
 import { useDebouncedSettings } from "@/hooks/use-debounced-settings";
+import { useDefaultModel } from "@/hooks/use-default-model";
+import { useApiKeys } from "@/hooks/use-api-keys";
 import { useLanguage } from "@/components/providers/language-provider";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -35,12 +37,51 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { ModelPicker } from "@/components/settings/model-picker";
+import {
+  resolveModelForRole,
+  type AgentRole,
+  type BookModelSettings,
+  AGENT_ROLES,
+  getModelDef,
+} from "@/lib/llm";
+import type { ProviderKey } from "@/lib/llm/providers";
+
+// ── Role descriptions ─────────────────────────────────────────
+
+interface RoleInfo {
+  role: AgentRole;
+  label: string;
+  description: string;
+  bookField: string;
+}
+
+const ROLE_INFOS: RoleInfo[] = [
+  { role: "ghostwriter", label: "Ghostwriter", description: "Writes chapters and plans", bookField: "modelGhostwriter" },
+  { role: "editor", label: "Editor", description: "Dev/line editing and revision", bookField: "modelEditor" },
+  { role: "beta-reader", label: "Beta Reader", description: "Simulated reader feedback", bookField: "modelBetaReader" },
+  { role: "analyst", label: "Analyst", description: "Style, continuity, market analysis", bookField: "modelAnalyst" },
+  { role: "coach", label: "Coach", description: "Multi-step workflow orchestration", bookField: "modelCoach" },
+  { role: "creative", label: "Creative", description: "Story architecture and scene planning", bookField: "modelCreative" },
+];
+
+// ── Resolution source labels ──────────────────────────────────
+
+const SOURCE_LABELS: Record<string, string> = {
+  "book-role": "book role override",
+  "book-default": "book default",
+  "global-role": "global role override",
+  "global-default": "global default",
+};
 
 export default function BookSettingsPage() {
   const router = useRouter();
   const { bookId } = useParams<{ bookId: string }>();
   const { data: settings, isLoading } = useBookSettings(bookId);
   const { data: book } = useBook(bookId);
+  const { data: defaultModelData } = useDefaultModel();
+  const { data: apiKeys } = useApiKeys();
   const handleChange = useDebouncedSettings(bookId);
   const deleteMutation = useDeleteBook(bookId);
   const { t } = useLanguage();
@@ -48,6 +89,44 @@ export default function BookSettingsPage() {
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
+
+  // Derive available providers from user's validated keys
+  const availableProviders: ProviderKey[] = useMemo(
+    () =>
+      (apiKeys ?? [])
+        .filter((k) => k.validatedAt != null)
+        .map((k) => k.provider as ProviderKey)
+        .filter((p, i, arr) => arr.indexOf(p) === i),
+    [apiKeys]
+  );
+
+  // Build resolution chain inputs for preview
+  const bookModelSettings: BookModelSettings | null = useMemo(() => {
+    if (!settings) return null;
+    return {
+      modelGhostwriter: settings.modelGhostwriter,
+      modelEditor: settings.modelEditor,
+      modelBetaReader: settings.modelBetaReader,
+      modelAnalyst: settings.modelAnalyst,
+      modelCoach: settings.modelCoach,
+      modelCreative: settings.modelCreative,
+      modelOverride: settings.modelOverride,
+    };
+  }, [settings]);
+
+  const globalRoleOverrides: Record<AgentRole, string | null> = useMemo(
+    () => ({
+      ghostwriter: defaultModelData?.modelGhostwriter ?? null,
+      editor: defaultModelData?.modelEditor ?? null,
+      "beta-reader": defaultModelData?.modelBetaReader ?? null,
+      analyst: defaultModelData?.modelAnalyst ?? null,
+      coach: defaultModelData?.modelCoach ?? null,
+      creative: defaultModelData?.modelCreative ?? null,
+    }),
+    [defaultModelData]
+  );
+
+  const globalDefault = defaultModelData?.defaultModel ?? "anthropic/sonnet";
 
   if (isLoading) {
     return (
@@ -65,6 +144,30 @@ export default function BookSettingsPage() {
     );
   }
 
+  /** Check if a value is a real registry ID override (not old tier like "opus"/"sonnet"/"haiku"/"default"/""). */
+  const isRegistryId = (val: string | null | undefined): boolean => {
+    if (!val || val === "default") return false;
+    return val.includes("/");
+  };
+
+  /** Get the ModelPicker value for a book-level role field. null means "use default". */
+  const getBookRoleValue = (field: string): string | null => {
+    const s2 = settings!; // always called after null check above
+    const val = (s2 as unknown as Record<string, string>)[field];
+    // Old tier values like "opus", "sonnet", "haiku" are NOT valid registry IDs
+    // Treat them as "use default" for the new model picker
+    if (!isRegistryId(val)) return null;
+    return val;
+  };
+
+  /** Get the ModelPicker value for book-level default. */
+  const getBookDefaultValue = (): string | null => {
+    const s2 = settings!; // always called after null check above
+    return s2.modelOverride && isRegistryId(s2.modelOverride)
+      ? s2.modelOverride
+      : null;
+  };
+
   return (
     <div className="mx-auto max-w-2xl p-6 lg:p-8 space-y-6">
       <div className="flex items-center justify-between">
@@ -77,133 +180,90 @@ export default function BookSettingsPage() {
         </Button>
       </div>
 
-      {/* AI Model Selection */}
+      {/* Model Overrides for this Book */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">{s.aiModels}</CardTitle>
-          <CardDescription>{s.aiModelsDesc}</CardDescription>
+          <CardTitle className="text-base">Model Overrides</CardTitle>
+          <CardDescription>
+            Override the global model selection for this book. &quot;Use
+            Default&quot; inherits from your global settings.
+          </CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label>{s.ghostwriter}</Label>
-            <p className="text-xs text-muted-foreground">{s.ghostwriterDesc}</p>
-            <Select
-              value={settings.modelGhostwriter}
-              onValueChange={(v) => handleChange("modelGhostwriter", v)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="opus">Opus</SelectItem>
-                <SelectItem value="sonnet">Sonnet</SelectItem>
-              </SelectContent>
-            </Select>
+        <CardContent className="space-y-6">
+          {/* Book Default Model */}
+          <ModelPicker
+            label="Book Default Model"
+            description="Override the global default for all agent roles in this book."
+            value={getBookDefaultValue()}
+            onChange={(registryId) => handleChange("modelOverride", registryId)}
+            availableProviders={availableProviders}
+            showDefaultOption
+          />
+
+          <Separator />
+
+          {/* Per-Role Overrides */}
+          <div className="space-y-1">
+            <h4 className="text-sm font-medium">Per-Role Overrides</h4>
+            <p className="text-xs text-muted-foreground">
+              Fine-tune which model each agent role uses for this book.
+            </p>
           </div>
 
-          <div className="space-y-2">
-            <Label>{s.coach}</Label>
-            <p className="text-xs text-muted-foreground">{s.coachDesc}</p>
-            <Select
-              value={settings.modelCoach}
-              onValueChange={(v) => handleChange("modelCoach", v)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="opus">Opus</SelectItem>
-                <SelectItem value="sonnet">Sonnet</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {ROLE_INFOS.map((info) => (
+              <ModelPicker
+                key={info.role}
+                label={info.label}
+                description={info.description}
+                value={getBookRoleValue(info.bookField)}
+                onChange={(registryId) =>
+                  handleChange(info.bookField, registryId ?? "default")
+                }
+                availableProviders={availableProviders}
+                showDefaultOption
+              />
+            ))}
           </div>
 
-          <div className="space-y-2">
-            <Label>{s.creative}</Label>
-            <p className="text-xs text-muted-foreground">{s.creativeDesc}</p>
-            <Select
-              value={settings.modelCreative}
-              onValueChange={(v) => handleChange("modelCreative", v)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="opus">Opus</SelectItem>
-                <SelectItem value="sonnet">Sonnet</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <Separator />
 
+          {/* Resolution Chain Preview */}
           <div className="space-y-2">
-            <Label>{s.editor}</Label>
-            <p className="text-xs text-muted-foreground">{s.editorDesc}</p>
-            <Select
-              value={settings.modelEditor}
-              onValueChange={(v) => handleChange("modelEditor", v)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="opus">Opus</SelectItem>
-                <SelectItem value="sonnet">Sonnet</SelectItem>
-                <SelectItem value="haiku">Haiku</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+            <div className="flex items-center gap-1.5">
+              <InfoIcon className="size-3.5 text-muted-foreground" />
+              <h4 className="text-sm font-medium">Resolution Preview</h4>
+            </div>
+            <p className="text-xs text-muted-foreground mb-3">
+              Shows which model will actually be used for each agent role in this book.
+            </p>
+            <div className="rounded-md border bg-muted/30 p-3 space-y-1.5">
+              {AGENT_ROLES.map((role) => {
+                const resolved = resolveModelForRole(
+                  role,
+                  bookModelSettings,
+                  globalRoleOverrides,
+                  globalDefault
+                );
+                const displayName =
+                  getModelDef(resolved.registryId)?.displayName ??
+                  resolved.registryId;
+                const source = SOURCE_LABELS[resolved.resolvedFrom] ?? resolved.resolvedFrom;
 
-          <div className="space-y-2">
-            <Label>{s.betaReader}</Label>
-            <p className="text-xs text-muted-foreground">{s.betaReaderDesc}</p>
-            <Select
-              value={settings.modelBetaReader}
-              onValueChange={(v) => handleChange("modelBetaReader", v)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="opus">Opus</SelectItem>
-                <SelectItem value="sonnet">Sonnet</SelectItem>
-                <SelectItem value="haiku">Haiku</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>{s.research}</Label>
-            <p className="text-xs text-muted-foreground">{s.researchDesc}</p>
-            <Select
-              value={settings.modelResearch}
-              onValueChange={(v) => handleChange("modelResearch", v)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="opus">Opus</SelectItem>
-                <SelectItem value="sonnet">Sonnet</SelectItem>
-                <SelectItem value="haiku">Haiku</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>{s.analyst}</Label>
-            <p className="text-xs text-muted-foreground">{s.analystDesc}</p>
-            <Select
-              value={settings.modelAnalyst}
-              onValueChange={(v) => handleChange("modelAnalyst", v)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="sonnet">Sonnet</SelectItem>
-                <SelectItem value="haiku">Haiku</SelectItem>
-              </SelectContent>
-            </Select>
+                return (
+                  <div
+                    key={role}
+                    className="flex items-center justify-between text-xs"
+                  >
+                    <span className="font-medium capitalize">{role}</span>
+                    <span className="text-muted-foreground">
+                      {displayName}{" "}
+                      <span className="text-[10px]">({source})</span>
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </CardContent>
       </Card>

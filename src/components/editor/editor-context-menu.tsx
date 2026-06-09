@@ -8,6 +8,9 @@ import {
   RefreshCw,
   Sun,
   MessageCircle,
+  SparklesIcon,
+  PenLineIcon,
+  ZapIcon,
 } from "lucide-react";
 import {
   ContextMenu,
@@ -98,6 +101,33 @@ export function EditorContextMenu({
             >
               <Sun className="size-4" />
               Add sensory details
+            </ContextMenuItem>
+            <ContextMenuItem
+              onClick={() =>
+                onInlineEdit(
+                  "Increase the emotional tension and stakes"
+                )
+              }
+            >
+              <ZapIcon className="size-4" />
+              Increase tension
+            </ContextMenuItem>
+            <ContextMenuItem
+              onClick={() =>
+                onInlineEdit(
+                  "Show this through action and dialogue instead of telling"
+                )
+              }
+            >
+              <PenLineIcon className="size-4" />
+              Show, don&apos;t tell
+            </ContextMenuItem>
+            <ContextMenuSeparator />
+            <ContextMenuItem
+              onClick={() => onInlineEdit("")}
+            >
+              <SparklesIcon className="size-4" />
+              Describe your change...
             </ContextMenuItem>
             <ContextMenuSeparator />
           </>

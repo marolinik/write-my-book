@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PROVIDER_KEYS } from "@/lib/llm/providers";
 
 export const createBookSchema = z.object({
   name: z.string().min(1).max(200),
@@ -81,7 +82,7 @@ export const startActionSchema = z.object({
 });
 
 export const addApiKeySchema = z.object({
-  provider: z.enum(["anthropic", "openrouter", "bedrock", "vertex", "azure"]),
+  provider: z.enum(PROVIDER_KEYS),
   key: z.string().min(1).max(5000),
   label: z.string().max(100).optional(),
 });
@@ -91,15 +92,20 @@ export const updateFindingSchema = z.object({
   reason: z.string().max(1000).optional(),
 });
 
+/** Registry ID string: "anthropic/sonnet", "openai/gpt-4o", etc. or "default" to clear. */
+const modelIdField = z.string().max(50).optional();
+/** Registry ID or null — for fields that can be explicitly cleared. */
+const modelIdOrNull = z.string().max(50).nullable().optional();
+
 export const updateSettingsSchema = z.object({
-  modelGhostwriter: z.enum(["opus", "sonnet"]).optional(),
-  modelEditor: z.enum(["opus", "sonnet", "haiku"]).optional(),
-  modelBetaReader: z.enum(["opus", "sonnet", "haiku"]).optional(),
-  modelAnalyst: z.enum(["sonnet", "haiku"]).optional(),
-  modelCoach: z.enum(["opus", "sonnet"]).optional(),
-  modelCreative: z.enum(["opus", "sonnet"]).optional(),
-  modelResearch: z.enum(["opus", "sonnet", "haiku"]).optional(),
-  modelOverride: z.string().max(50).nullable().optional(),
+  modelGhostwriter: modelIdField,
+  modelEditor: modelIdField,
+  modelBetaReader: modelIdField,
+  modelAnalyst: modelIdField,
+  modelCoach: modelIdField,
+  modelCreative: modelIdField,
+  modelResearch: modelIdField,
+  modelOverride: modelIdOrNull,
   autoCommit: z.boolean().optional(),
   styleStrictness: z.enum(["strict", "balanced", "relaxed"]).optional(),
   betaPanelSize: z.number().int().min(3).max(10).optional(),
@@ -135,7 +141,8 @@ export const fileWriteSchema = z.object({
 });
 
 export const checkoutSchema = z.object({
-  plan: z.enum(["starter", "pro", "enterprise"]),
+  plan: z.enum(["founder", "indie", "professional", "publisher"]),
+  billingInterval: z.enum(["monthly", "annual"]).default("monthly"),
 });
 
 export const batchActionSchema = z.object({
@@ -412,7 +419,7 @@ export const exportConfigUpdateSchema = exportConfigSchema.partial();
 // ─── Settings Schemas ─────────────────────────────────────────
 
 export const createApiKeySchema = z.object({
-  provider: z.enum(["anthropic", "openrouter", "bedrock", "vertex", "azure"]),
+  provider: z.enum(PROVIDER_KEYS),
   key: z.string().min(1).max(5000),
   label: z.string().max(100).optional(),
 });
@@ -516,4 +523,33 @@ export const memoryRebuildSchema = z.object({
 export const memoryClearSchema = z.object({
   bookId: z.string().uuid(),
   confirm: z.literal(true),
+});
+
+// ─── Model Selection Schemas ─────────────────────────────────
+
+/** Global model role overrides (user-level, applied to all books unless book overrides) */
+export const globalModelOverridesSchema = z.object({
+  modelGhostwriter: z.string().nullable().optional(),
+  modelEditor: z.string().nullable().optional(),
+  modelBetaReader: z.string().nullable().optional(),
+  modelAnalyst: z.string().nullable().optional(),
+  modelCoach: z.string().nullable().optional(),
+  modelCreative: z.string().nullable().optional(),
+});
+
+/** Book-level model overrides (per-book, takes priority over global) */
+export const bookModelOverridesSchema = z.object({
+  modelOverride: z.string().nullable().optional(),
+  modelGhostwriter: z.string().nullable().optional(),
+  modelEditor: z.string().nullable().optional(),
+  modelBetaReader: z.string().nullable().optional(),
+  modelAnalyst: z.string().nullable().optional(),
+  modelCoach: z.string().nullable().optional(),
+  modelCreative: z.string().nullable().optional(),
+});
+
+/** Query schema for pre-session model selection / cost estimate */
+export const modelSelectionQuerySchema = z.object({
+  bookId: z.string(),
+  workflowId: z.string(),
 });

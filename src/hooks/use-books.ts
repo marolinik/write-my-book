@@ -5,15 +5,8 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-
-async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(url, init);
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error(body.error ?? `Request failed: ${res.status}`);
-  }
-  return res.json();
-}
+import { fetchJson } from "@/lib/api-client";
+import { useUpgradeModal } from "@/hooks/use-billing";
 
 export type BookListItem = {
   id: string;
@@ -73,20 +66,39 @@ export function useCreateBook() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: {
+    mutationFn: async (data: {
       name: string;
       genre?: string | null;
       language?: string;
       seriesId?: string;
       bookNumber?: number;
-    }) =>
-      fetchJson<{ id: string }>("/api/books", {
+    }) => {
+      const res = await fetch("/api/books", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
-      }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        // Attach upgradeToTier to the error for onError handling
+        const err = new Error(body.error ?? `Request failed: ${res.status}`) as Error & {
+          status?: number;
+          upgradeToTier?: string;
+        };
+        err.status = res.status;
+        err.upgradeToTier = body.upgradeToTier;
+        throw err;
+      }
+      return res.json() as Promise<{ id: string }>;
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["books"] });
+    },
+    onError: (error) => {
+      const err = error as Error & { status?: number; upgradeToTier?: string };
+      if (err.status === 403 && err.upgradeToTier) {
+        useUpgradeModal.getState().show(err.message, err.upgradeToTier);
+      }
     },
   });
 }

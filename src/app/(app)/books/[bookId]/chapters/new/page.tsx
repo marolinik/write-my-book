@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-import { useCreateChapter } from "@/hooks/use-chapters";
+import { useCreateChapter, useChapters } from "@/hooks/use-chapters";
 import { useLanguage } from "@/components/providers/language-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,10 +21,19 @@ export default function NewChapterPage() {
   const router = useRouter();
   const { bookId } = useParams<{ bookId: string }>();
   const createChapter = useCreateChapter(bookId);
+  const { data: chapters } = useChapters(bookId);
   const { t } = useLanguage();
   const s = t.chapterNew;
 
   const [chapterNumber, setChapterNumber] = useState(1);
+
+  // Auto-increment chapter number based on existing chapters
+  useEffect(() => {
+    if (chapters && chapters.length > 0) {
+      const maxChapterNum = Math.max(...chapters.map(ch => ch.chapterNumber));
+      setChapterNumber(maxChapterNum + 1);
+    }
+  }, [chapters]);
   const [actNumber, setActNumber] = useState(1);
   const [title, setTitle] = useState("");
 

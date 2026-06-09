@@ -19,6 +19,7 @@ export function useAgentStream(bookId: string | null) {
   const addMessage = useAgentSessionStore((s) => s.addMessage);
   const setSessionComplete = useAgentSessionStore((s) => s.setSessionComplete);
   const setSessionError = useAgentSessionStore((s) => s.setSessionError);
+  const updateSessionCost = useAgentSessionStore((s) => s.updateSessionCost);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -86,8 +87,34 @@ export function useAgentStream(bookId: string | null) {
             return;
           }
 
+          if (message.type === "cost_update") {
+            const costUsd = message.metadata?.costUsd as number | undefined;
+            if (costUsd != null) {
+              updateSessionCost(sid, costUsd);
+            }
+            // Don't add cost_update to messages array (it's metadata, not UI content)
+            return;
+          }
+
           if (message.type === "error") {
-            setSessionError(sid, message.content);
+            const content = message.content ?? "";
+
+            // Detect key revocation/invalidation from error messages.
+            // error-translator.ts produces messages containing these patterns
+            // when an LLM provider rejects the API key mid-session.
+            const isKeyError =
+              /API key.*(invalid|revoked|expired|no longer valid)/i.test(content) ||
+              /check your key|update.*in Settings|authentication.*failed/i.test(content) ||
+              /401|Unauthorized/i.test(content);
+
+            if (isKeyError) {
+              // Invalidate API keys cache so settings page refreshes key status
+              queryClient.invalidateQueries({ queryKey: ["api-keys"] });
+            }
+
+            setSessionError(sid, content);
+            // Still add to messages for display in message stream
+            addMessage(sid, message);
             return;
           }
 

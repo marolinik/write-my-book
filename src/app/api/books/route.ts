@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { createBookSchema } from "@/lib/validation";
 import { generateS3Prefix, generateSeriesS3Prefix } from "@/lib/utils";
+import { checkPlanAccess } from "@/lib/billing/plan-gating";
 
 /** GET /api/books — list all books for the current user. */
 export async function GET() {
@@ -36,6 +37,16 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const user = await requireUser();
+
+    // Plan-gating: check if user's plan allows creating more books
+    const access = await checkPlanAccess(user.id, "create_book");
+    if (!access.allowed) {
+      return NextResponse.json(
+        { error: access.reason, upgradeToTier: access.upgradeToTier },
+        { status: 403 }
+      );
+    }
+
     const body = await req.json();
     const data = createBookSchema.parse(body);
 

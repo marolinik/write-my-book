@@ -6,6 +6,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { fetchJson } from "@/lib/api-client";
+import { useUpgradeModal } from "@/hooks/use-billing";
 
 export type SeriesListItem = {
   id: string;
@@ -62,21 +63,39 @@ export function useCreateSeries() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: {
+    mutationFn: async (data: {
       title: string;
       genre?: string;
       language?: string;
       seriesType?: string;
       plannedBooks?: number;
       description?: string;
-    }) =>
-      fetchJson<{ id: string }>("/api/series", {
+    }) => {
+      const res = await fetch("/api/series", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
-      }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        const err = new Error(body.error ?? `Request failed: ${res.status}`) as Error & {
+          status?: number;
+          upgradeToTier?: string;
+        };
+        err.status = res.status;
+        err.upgradeToTier = body.upgradeToTier;
+        throw err;
+      }
+      return res.json() as Promise<{ id: string }>;
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["series"] });
+    },
+    onError: (error) => {
+      const err = error as Error & { status?: number; upgradeToTier?: string };
+      if (err.status === 403 && err.upgradeToTier) {
+        useUpgradeModal.getState().show(err.message, err.upgradeToTier);
+      }
     },
   });
 }

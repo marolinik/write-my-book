@@ -17,6 +17,9 @@ import {
   Bar,
   Cell,
   Line,
+  LineChart,
+  PieChart,
+  Pie,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -97,6 +100,15 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
     },
   });
 
+  const { data: usageData, isLoading: isLoadingUsage } = useQuery({
+    queryKey: ["usage"],
+    queryFn: async () => {
+      const res = await fetch("/api/usage");
+      if (!res.ok) throw new Error("Failed to load usage");
+      return res.json();
+    },
+  });
+
   const isEmpty = analysisData?.empty;
   const readability = analysisData?.readability;
   const pacing = analysisData?.pacing ?? [];
@@ -130,6 +142,20 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
     bins[9].count += exactTens;
   }
 
+  // Cost breakdown data from usage API
+  const costData = usageData?.byKeySource
+    ? Object.entries(usageData.byKeySource)
+        .filter(([, data]) => (data as { costEstimate: number }).costEstimate > 0)
+        .map(([source, data]) => ({
+          name: source === "user" ? "Your Keys" : source === "platform" ? "Platform Keys" : source,
+          value: Number(((data as { costEstimate: number }).costEstimate).toFixed(4)),
+          fill: source === "user" ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))",
+        }))
+    : [];
+  const totalCost = usageData?.total?.costEstimate ?? 0;
+  const allUserKeys = costData.length === 1 && costData[0]?.name === "Your Keys";
+  const hasCostData = totalCost > 0;
+
   const isLoading = isLoadingAnalysis || isLoadingChapters;
 
   if (isLoading) {
@@ -143,7 +169,7 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
   const hasAnalysis = !isEmpty && readability;
   const hasBetaScores = betaData.length > 0;
 
-  if (!hasAnalysis && !hasBetaScores) {
+  if (!hasAnalysis && !hasBetaScores && !hasCostData) {
     return (
       <Card>
         <CardContent className="py-12 text-center">
@@ -156,7 +182,7 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
     );
   }
 
-  const defaultTab = hasBetaScores ? "betaScores" : "readability";
+  const defaultTab = hasBetaScores ? "betaScores" : hasAnalysis ? "readability" : "cost";
 
   return (
     <Tabs defaultValue={defaultTab}>
@@ -171,6 +197,9 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
             <TabsTrigger value="dialogue">Dialogue</TabsTrigger>
             <TabsTrigger value="overuse">Overuse</TabsTrigger>
           </>
+        )}
+        {hasCostData && (
+          <TabsTrigger value="cost">Cost</TabsTrigger>
         )}
       </TabsList>
 
@@ -275,6 +304,58 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Beta Score Progression Line Chart */}
+            {betaData.length >= 2 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Beta Score Progression</CardTitle>
+                  <CardDescription>
+                    Score trend across chapters (left to right). Dashed line shows the average ({avgScore.toFixed(1)}).
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={betaData}>
+                        <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                        <XAxis
+                          dataKey="name"
+                          tick={{ fontSize: 11 }}
+                          className="text-xs fill-muted-foreground"
+                        />
+                        <YAxis
+                          domain={[0, 10]}
+                          className="text-xs fill-muted-foreground"
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "hsl(var(--card))",
+                            border: "1px solid hsl(var(--border))",
+                            borderRadius: "0.5rem",
+                          }}
+                          formatter={(value?: number | string) => [`${Number(value ?? 0).toFixed(1)} / 10`, "Score"]}
+                        />
+                        <ReferenceLine
+                          y={avgScore}
+                          stroke="hsl(var(--muted-foreground))"
+                          strokeDasharray="5 5"
+                          label={{ value: `Avg ${avgScore.toFixed(1)}`, position: "insideTopRight", fontSize: 11 }}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="score"
+                          stroke="hsl(var(--primary))"
+                          strokeWidth={2}
+                          dot={{ r: 4 }}
+                          activeDot={{ r: 6 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </TabsContent>
       )}
@@ -485,6 +566,99 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
         </Card>
       </TabsContent>
       </>
+      )}
+
+      {hasCostData && (
+        <TabsContent value="cost">
+          <div className="space-y-6">
+            {/* Total Cost Summary */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Total Cost (Last 30 Days)</CardTitle>
+                <CardDescription>
+                  Estimated cost across all agent sessions
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-4xl font-bold">${totalCost.toFixed(2)}</p>
+                {usageData?.total?.sessions > 0 && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Across {usageData.total.sessions} session{usageData.total.sessions !== 1 ? "s" : ""}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Cost Breakdown */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Cost Breakdown by Key Source</CardTitle>
+                <CardDescription>
+                  How your costs are split between your own API keys and platform keys
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {allUserKeys ? (
+                  <div className="flex flex-col items-center py-8 text-center">
+                    <Badge variant="default" className="mb-3 bg-green-600 hover:bg-green-700">
+                      100% Your Keys
+                    </Badge>
+                    <p className="text-lg font-medium">
+                      All usage is on your own API keys
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      You&apos;re paying provider rates directly with no platform markup.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center">
+                    <div className="h-[300px] w-full max-w-[400px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={costData}
+                            dataKey="value"
+                            nameKey="name"
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={100}
+                            label={({ name, percent }: { name?: string; percent?: number }) =>
+                              `${name ?? ""}: ${((percent ?? 0) * 100).toFixed(0)}%`
+                            }
+                          >
+                            {costData.map((entry, index) => (
+                              <Cell key={index} fill={entry.fill} />
+                            ))}
+                          </Pie>
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: "hsl(var(--card))",
+                              border: "1px solid hsl(var(--border))",
+                              borderRadius: "0.5rem",
+                            }}
+                            formatter={(value?: number | string) => [`$${Number(value ?? 0).toFixed(2)}`, "Cost"]}
+                          />
+                          <Legend />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div className="mt-4 space-y-2 w-full max-w-[400px]">
+                      {costData.map((entry) => (
+                        <div
+                          key={entry.name}
+                          className="flex items-center justify-between rounded-md border p-3 text-sm"
+                        >
+                          <span className="font-medium">{entry.name}</span>
+                          <span className="font-mono">${entry.value.toFixed(2)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
       )}
     </Tabs>
   );

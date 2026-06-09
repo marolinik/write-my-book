@@ -16,14 +16,54 @@ const execAsync = promisify(exec);
 const LUA_FILTERS_DIR = join(process.cwd(), "export-templates");
 const TEMPLATES_DIR = join(process.cwd(), "export-templates");
 
+/** Resolved tool paths cache — avoids repeated lookups. */
+const resolvedToolPaths: Record<string, string> = {};
+
 async function checkToolAvailable(name: string): Promise<boolean> {
+  // Check cache first
+  if (resolvedToolPaths[name]) return true;
+
+  // Try PATH first
   try {
     const cmd = process.platform === "win32" ? `where ${name}` : `which ${name}`;
-    await execAsync(cmd);
+    const { stdout } = await execAsync(cmd);
+    const resolved = stdout.trim().split(/\r?\n/)[0];
+    if (resolved) resolvedToolPaths[name] = resolved;
     return true;
   } catch {
-    return false;
+    // Not on PATH — try env var and common locations on Windows
   }
+
+  // Check TOOL_PATH env var (e.g. TYPST_PATH, PANDOC_PATH)
+  const envPath = process.env[`${name.toUpperCase()}_PATH`];
+  if (envPath) {
+    try {
+      await execAsync(`"${envPath}" --version`);
+      resolvedToolPaths[name] = envPath;
+      return true;
+    } catch { /* not valid */ }
+  }
+
+  // Windows: check WinGet packages directory
+  if (process.platform === "win32") {
+    const homedir = process.env.USERPROFILE || process.env.HOME || "";
+    const wingetBase = join(homedir, "AppData", "Local", "Microsoft", "WinGet", "Packages");
+    try {
+      const { stdout } = await execAsync(`dir "${wingetBase}\\*${name}*" /s /b 2>nul | findstr "${name}.exe"`);
+      const resolved = stdout.trim().split(/\r?\n/)[0];
+      if (resolved) {
+        resolvedToolPaths[name] = resolved;
+        return true;
+      }
+    } catch { /* not found */ }
+  }
+
+  return false;
+}
+
+/** Get the resolved path for a tool, or just the name if on PATH. */
+function getToolCmd(name: string): string {
+  return resolvedToolPaths[name] ? `"${resolvedToolPaths[name]}"` : name;
 }
 
 async function requireTool(name: string): Promise<void> {
@@ -148,13 +188,18 @@ export async function exportManuscript(
   warnings.push(...backMatterResult.warnings);
 
   // 6. Generate YAML metadata block
+  // Typst (PDF engine) uses "us-letter" instead of "letter"
+  const paperSize =
+    format === "pdf" && langConfig.pageSize === "letter"
+      ? "us-letter"
+      : langConfig.pageSize;
   const yamlMeta = [
     "---",
     `title: "${config.metadata.title || bookName}"`,
     config.metadata.author ? `author: "${config.metadata.author}"` : "",
     `lang: ${language}`,
     `scene-break-ornament: "${sceneBreakGlyph}"`,
-    `papersize: ${langConfig.pageSize}`,
+    `papersize: ${paperSize}`,
     `mainfont: "${langConfig.bodyFont}"`,
     `linestretch: ${langConfig.lineSpacing}`,
     isDraft ? `draft: true` : "",
@@ -212,7 +257,7 @@ export async function exportManuscript(
     .join(" ");
 
   const cmdParts = [
-    "pandoc",
+    getToolCmd("pandoc"),
     `"${inputPath}"`,
     "-o",
     `"${outputPath}"`,
@@ -239,7 +284,8 @@ export async function exportManuscript(
   } else if (format === "pdf") {
     // Require Typst for PDF export - throw actionable error if missing
     await requireTool("typst");
-    cmdParts.push("--pdf-engine=typst");
+    const typstCmd = resolvedToolPaths["typst"] || "typst";
+    cmdParts.push(`--pdf-engine=${typstCmd}`);
     const typstTemplate =
       config.customTemplates.typstTemplate || join(TEMPLATES_DIR, "typst-book.typ");
     try {

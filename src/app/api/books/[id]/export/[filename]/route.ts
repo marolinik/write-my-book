@@ -18,11 +18,11 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
     const user = await requireUser();
     const { id: bookId, filename } = await params;
 
-    // Sanitize filename to prevent path traversal
-    const safeFilename = filename.replace(/[/\\..]/g, "").replace(/\.\./g, "");
-    if (!safeFilename || safeFilename !== filename) {
+    // Reject path traversal and directory separators
+    if (!filename || /\.\./.test(filename) || /[/\\]/.test(filename)) {
       return NextResponse.json({ error: "Invalid filename" }, { status: 400 });
     }
+    const safeFilename = filename;
 
     const book = await db.book.findFirst({
       where: { id: bookId, userId: user.id },

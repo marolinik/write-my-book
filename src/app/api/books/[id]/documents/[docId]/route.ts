@@ -102,6 +102,20 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       data.changeSource
     );
 
+    // Update Chapter.wordCount when CHAPTER_CONTENT is updated via API
+    if (doc.type === "CHAPTER_CONTENT" && doc.chapterNumber && data.content) {
+      const wordCount = data.content
+        .replace(/```[\s\S]*?```/g, "")
+        .replace(/[#*_~`>|-]/g, "")
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean).length;
+      await db.chapter.updateMany({
+        where: { bookId, chapterNumber: doc.chapterNumber },
+        data: { wordCount },
+      });
+    }
+
     // Fire-and-forget vector indexing
     if (data.content) {
       onDocumentChanged(bookId, doc.type, data.content, {

@@ -1,53 +1,45 @@
 import { db } from "@/lib/db";
-import { PLANS, type PlanKey } from "./stripe-client";
+import { checkPlanAccess, type PlanAction } from "./plan-gating";
 
-type QuotaAction = "create_book" | "create_series" | "use_opus" | "export_advanced";
+export type QuotaAction =
+  | "create_book"
+  | "create_series"
+  | "run_agent"
+  | "use_analytics"
+  | "export"
+  | "use_agent_session";
 
+/**
+ * Check whether a user is allowed to perform an action based on their subscription.
+ * Delegates to the centralized plan-gating utility.
+ *
+ * Maps legacy action names to PlanAction:
+ * - "use_agent_session" -> "run_agent"
+ */
 export async function checkQuota(
   userId: string,
   action: QuotaAction
 ): Promise<{ allowed: boolean; reason?: string; currentPlan: string }> {
-  const sub = await db.subscription.findUnique({ where: { userId } });
-  const plan = (sub?.plan ?? "free") as PlanKey;
-  const planDef = PLANS[plan];
+  // Map legacy action names
+  const planAction: PlanAction = action === "use_agent_session" ? "run_agent" : action;
 
-  switch (action) {
-    case "create_book": {
-      const bookCount = await db.book.count({ where: { userId } });
-      if (bookCount >= planDef.maxBooks) {
-        return {
-          allowed: false,
-          reason: `Your ${planDef.name} plan allows up to ${planDef.maxBooks} book${planDef.maxBooks === 1 ? "" : "s"}. Upgrade to create more.`,
-          currentPlan: plan,
-        };
-      }
-      return { allowed: true, currentPlan: plan };
-    }
-    case "create_series": {
-      if (plan === "free" || plan === "starter") {
-        return {
-          allowed: false,
-          reason: "Series management requires the Pro plan or higher.",
-          currentPlan: plan,
-        };
-      }
-      return { allowed: true, currentPlan: plan };
-    }
-    case "use_opus": {
-      // Opus is available on all plans (BYOK)
-      return { allowed: true, currentPlan: plan };
-    }
-    case "export_advanced": {
-      if (plan === "free") {
-        return {
-          allowed: false,
-          reason: "Advanced export formats require Starter plan or higher.",
-          currentPlan: plan,
-        };
-      }
-      return { allowed: true, currentPlan: plan };
-    }
-    default:
-      return { allowed: true, currentPlan: plan };
-  }
+  const result = await checkPlanAccess(userId, planAction);
+
+  // Fetch current plan for backward compatibility
+  const sub = await db.subscription.findUnique({ where: { userId } });
+  const currentPlan = sub?.plan ?? "none";
+
+  return {
+    allowed: result.allowed,
+    reason: result.reason,
+    currentPlan,
+  };
+}
+
+/**
+ * @deprecated BYOK model -- no platform cost limits. Always returns Infinity.
+ * Kept for backward compatibility with existing agent route imports.
+ */
+export async function getSessionCostLimit(_userId: string): Promise<number> {
+  return Infinity;
 }

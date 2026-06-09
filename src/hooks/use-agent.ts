@@ -53,7 +53,7 @@ export function useStartSession(bookId: string) {
         throw new Error(body.error ?? `Request failed: ${res.status}`);
       }
 
-      return res.json() as Promise<{ sessionId: string }>;
+      return res.json() as Promise<{ sessionId: string; queued?: boolean; jobId?: string }>;
     },
   });
 }
@@ -78,7 +78,7 @@ export function useStartSeriesSession(seriesId: string) {
         throw new Error(body.error ?? `Request failed: ${res.status}`);
       }
 
-      return res.json() as Promise<{ sessionId: string }>;
+      return res.json() as Promise<{ sessionId: string; queued?: boolean; jobId?: string }>;
     },
   });
 }

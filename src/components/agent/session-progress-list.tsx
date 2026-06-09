@@ -3,14 +3,17 @@
 import { useEffect, useState } from "react";
 import {
   ClockIcon,
+  DollarSignIcon,
   Loader2Icon,
   CheckCircleIcon,
   XCircleIcon,
   XIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 import { useAgentSessionStore, type SessionState } from "@/stores/agent-session-store";
 import { getWorkflow } from "@/lib/agents/workflows";
+import { getToolLabel, parseToolInput } from "@/lib/agents/tool-labels";
 import { useLanguage } from "@/components/providers/language-provider";
 import { getAgentStrings } from "@/lib/i18n/agent-strings";
 
@@ -129,10 +132,28 @@ export function SessionProgressList() {
                 {session.status === "failed" && (
                   <XCircleIcon className="size-3 text-destructive shrink-0" />
                 )}
+                {session.isBackground && (
+                  <Badge variant="outline" className="text-[10px] px-1 py-0 shrink-0">
+                    BG
+                  </Badge>
+                )}
                 <div className="min-w-0 flex-1">
                   <span className="font-medium block truncate">
                     {agentStrings.workflows[session.workflowId] ?? wf?.label ?? session.workflowId}
                   </span>
+                  {session.status === "running" && (() => {
+                    const toolMsgs = session.messages.filter(m => m.type === "tool_use");
+                    const lastTool = toolMsgs[toolMsgs.length - 1];
+                    if (!lastTool) return null;
+                    const tool = lastTool.metadata?.tool as string | undefined;
+                    if (!tool) return null;
+                    const stepLabel = getToolLabel(tool, parseToolInput(lastTool), language);
+                    return (
+                      <span className="text-[10px] text-muted-foreground truncate block">
+                        Step {toolMsgs.length}: {stepLabel}
+                      </span>
+                    );
+                  })()}
                   <div className="flex items-center gap-2">
                     {preview && (
                       <span className="text-[10px] text-muted-foreground truncate">
@@ -140,6 +161,17 @@ export function SessionProgressList() {
                       </span>
                     )}
                     <ElapsedTime session={session} />
+                    {session.currentCost > 0 && (
+                      <span className={cn(
+                        "text-[10px] flex items-center gap-0.5",
+                        session.currentCost > 1
+                          ? "text-orange-500 dark:text-orange-400 font-medium"
+                          : "text-muted-foreground",
+                      )}>
+                        <DollarSignIcon className="size-2.5" />
+                        ${session.currentCost.toFixed(2)}
+                      </span>
+                    )}
                   </div>
                 </div>
               </button>

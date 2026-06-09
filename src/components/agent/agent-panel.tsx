@@ -12,6 +12,7 @@ import {
   KeyIcon,
   ClockIcon,
   CoinsIcon,
+  DollarSignIcon,
   HashIcon,
   AlertCircleIcon,
   HistoryIcon,
@@ -96,6 +97,7 @@ export function AgentPanel({
   const error = activeSession?.error ?? null;
   const suggestedNext = activeSession?.suggestedNext ?? [];
   const resultMeta = activeSession?.resultMeta;
+  const currentCost = activeSession?.currentCost ?? 0;
 
   const sessionCount = Object.keys(sessions).length;
   const hasAnySessions = sessionCount > 0;
@@ -170,6 +172,7 @@ export function AgentPanel({
       isStartingRef.current = true;
       try {
         let resultSessionId: string;
+        let isBackground = false;
 
         if (seriesId && wf.requiresSeriesContext) {
           const result = await startSeriesMutation.mutateAsync({
@@ -179,6 +182,7 @@ export function AgentPanel({
             message: initialMessage,
           });
           resultSessionId = result.sessionId;
+          isBackground = result.queued === true;
         } else {
           const result = await startMutation.mutateAsync({
             workflowId: wfId,
@@ -186,12 +190,19 @@ export function AgentPanel({
             message: initialMessage,
           });
           resultSessionId = result.sessionId;
+          isBackground = result.queued === true;
         }
 
         startSessionStore(resultSessionId, wfId, wf.primaryAgent, bookId, seriesId, {
           estimatedMinMinutes: wf.estimatedMinMinutes,
           estimatedMaxMinutes: wf.estimatedMaxMinutes,
-        });
+        }, isBackground);
+
+        if (isBackground) {
+          toast.info(`${wf.label} queued for background processing`, {
+            description: "You can navigate away -- progress will continue.",
+          });
+        }
       } catch {
         // Error handled by mutation state
       } finally {
@@ -364,9 +375,22 @@ export function AgentPanel({
       const prev = prevStatusRef.current[sid];
       if (prev === "running" && session.status === "completed") {
         const label = getWorkflowLabel(session.workflowId);
-        toast.success(`${label} completed`, {
-          description: "View results in the agent panel",
-        });
+        if (session.isBackground) {
+          toast.success(`${label} completed`, {
+            description: "Background job finished successfully",
+            action: {
+              label: "View Results",
+              onClick: () => {
+                useAgentSessionStore.getState().setActiveSession(sid);
+                useAgentUIStore.getState().setPanelMode("overlay");
+              },
+            },
+          });
+        } else {
+          toast.success(`${label} completed`, {
+            description: "View results in the agent panel",
+          });
+        }
         justCompleted = true;
       }
       prevStatusRef.current[sid] = session.status;
@@ -411,6 +435,12 @@ export function AgentPanel({
           <Badge variant="secondary" className="ml-1 gap-1 text-xs max-w-[180px] truncate">
             <Loader2Icon className="size-3 animate-spin shrink-0" />
             {currentStepLabel ?? agentDef?.name ?? strings.running}
+          </Badge>
+        )}
+
+        {activeSession?.isBackground && (
+          <Badge variant="outline" className="ml-1 text-[10px] px-1.5 py-0">
+            Background
           </Badge>
         )}
 
@@ -475,14 +505,27 @@ export function AgentPanel({
       {/* Running session stats bar */}
       {isRunning && (
         <div className="flex items-center gap-3 border-b px-4 py-1.5 text-[11px] text-muted-foreground bg-muted/20">
-          <span className="flex items-center gap-1">
-            <HashIcon className="size-3" />
-            Turn {turnCount}/50
-          </span>
+          {currentStepLabel ? (
+            <span className="flex items-center gap-1 truncate max-w-[200px]" title={currentStepLabel}>
+              <HashIcon className="size-3" />
+              Step {turnCount}: {currentStepLabel}
+            </span>
+          ) : (
+            <span className="flex items-center gap-1">
+              <HashIcon className="size-3" />
+              Turn {turnCount}/50
+            </span>
+          )}
           {sessionTokens.total > 0 && (
             <span className="flex items-center gap-1">
               <CoinsIcon className="size-3" />
               {(sessionTokens.total / 1000).toFixed(0)}k tok
+            </span>
+          )}
+          {currentCost > 0 && (
+            <span className="flex items-center gap-1">
+              <DollarSignIcon className="size-3" />
+              ${currentCost.toFixed(4)}
             </span>
           )}
           {workflow?.estimatedMaxMinutes && (

@@ -47,8 +47,10 @@
   )
 
   // Heading styles
+  // Note: pagebreak before chapters is handled by \newpage in the markdown
+  // (processed by pagebreak.lua filter). Typst 0.14+ forbids pagebreak() inside
+  // show rules (containers), so we only style the heading here.
   show heading.where(level: 1): it => {
-    pagebreak(weak: true)
     v(2em)
     align(center, text(size: 18pt, weight: "bold", it.body))
     v(1.5em)

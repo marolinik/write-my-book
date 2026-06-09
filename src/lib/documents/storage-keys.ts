@@ -63,6 +63,14 @@ export function getStoragePath(
       return "SERIES-FINGERPRINT.md";
     case DocumentType.KNOWLEDGE_LEDGER:
       return "KNOWLEDGE-LEDGER.md";
+    case DocumentType.WORLD_RESEARCH:
+      return ".planning/WORLD-RESEARCH.md";
+    case DocumentType.TOPIC_RESEARCH:
+      return ".planning/TOPIC-RESEARCH.md";
+    default: {
+      const _exhaustive: never = type;
+      return `unknown/${_exhaustive}`;
+    }
   }
 }
 

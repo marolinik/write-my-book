@@ -1,4 +1,4 @@
-import { ExportPage } from "@/components/import-export/export-page";
+import { redirect } from "next/navigation";
 
 export default async function ExportPageRoute({
   params,
@@ -6,11 +6,5 @@ export default async function ExportPageRoute({
   params: Promise<{ bookId: string }>;
 }) {
   const { bookId } = await params;
-
-  return (
-    <div className="container py-6">
-      <h1 className="mb-6 text-2xl font-bold">Export Manuscript</h1>
-      <ExportPage bookId={bookId} />
-    </div>
-  );
+  redirect(`/books/${bookId}/transfer?tab=export`);
 }

@@ -223,7 +223,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
           });
           suggestedNext = postResult.suggestedNext;
         } catch (e) {
-          console.error("[PostSession] Error:", e);
+          const errMsg = e instanceof Error ? e.message : "Unknown error";
+          console.error("[PostSession] Error:", errMsg);
         }
 
         completeSession(dbSession.id, result);

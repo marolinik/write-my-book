@@ -12,11 +12,14 @@ test.describe("Billing", () => {
     await page.goto("/settings/billing");
     await page.waitForLoadState("networkidle");
     if (page.url().includes("/billing")) {
-      // Should show at least the Free plan
-      await expect(page.getByText("Free")).toBeVisible();
-      await expect(page.getByText("Starter")).toBeVisible();
-      await expect(page.getByText("Pro")).toBeVisible();
-      await expect(page.getByText("Enterprise")).toBeVisible();
+      // Plan card titles are rendered in CardTitle (div[data-slot="card-title"])
+      const cardTitles = page.locator('[data-slot="card-title"]');
+      const allText = await cardTitles.allTextContents();
+      const joined = allText.join(" ");
+      expect(joined).toContain("Free");
+      expect(joined).toContain("Starter");
+      expect(joined).toContain("Pro");
+      expect(joined).toContain("Enterprise");
     }
   });
 
@@ -24,6 +27,7 @@ test.describe("Billing", () => {
     await page.goto("/settings/billing");
     await page.waitForLoadState("networkidle");
     if (page.url().includes("/billing")) {
+      // Usage section heading is a regular h2
       await expect(
         page.getByRole("heading", { name: /token usage/i })
       ).toBeVisible();

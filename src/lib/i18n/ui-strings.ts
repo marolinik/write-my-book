@@ -113,6 +113,7 @@ export interface UIStrings {
     editing: string;
     analysis: string;
     style: string;
+    research: string;
     series: string;
   };
 
@@ -436,6 +437,7 @@ const EN: UIStrings = {
     editing: "Editing",
     analysis: "Analysis",
     style: "Style",
+    research: "Research",
     series: "Series",
   },
   newBook: {
@@ -722,6 +724,7 @@ const SR: UIStrings = {
     editing: "Uređivanje",
     analysis: "Analiza",
     style: "Stil",
+    research: "Istraživanje",
     series: "Serijal",
   },
   newBook: {
@@ -1008,6 +1011,7 @@ const DE: UIStrings = {
     editing: "Bearbeitung",
     analysis: "Analyse",
     style: "Stil",
+    research: "Recherche",
     series: "Serie",
   },
   newBook: {
@@ -1294,6 +1298,7 @@ const ES: UIStrings = {
     editing: "Edición",
     analysis: "Análisis",
     style: "Estilo",
+    research: "Investigación",
     series: "Serie",
   },
   newBook: {
@@ -1580,6 +1585,7 @@ const FR: UIStrings = {
     editing: "Édition",
     analysis: "Analyse",
     style: "Style",
+    research: "Recherche",
     series: "Série",
   },
   newBook: {
@@ -1866,6 +1872,7 @@ const RU: UIStrings = {
     editing: "Редактирование",
     analysis: "Анализ",
     style: "Стиль",
+    research: "Исследование",
     series: "Серия",
   },
   newBook: {
@@ -2152,6 +2159,7 @@ const ZH: UIStrings = {
     editing: "编辑",
     analysis: "分析",
     style: "风格",
+    research: "研究",
     series: "系列",
   },
   newBook: {

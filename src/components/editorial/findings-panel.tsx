@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { toast } from "sonner";
 import { useFindings } from "@/hooks/use-editorial";
 import type { FindingItem } from "@/hooks/use-editorial";
 import { useEditorialStore } from "@/stores/editorial-store";
@@ -49,14 +50,20 @@ export function FindingsPanel({ bookId, chapters }: FindingsPanelProps) {
   const total = data?.total ?? 0;
 
   const handleShowInText = (finding: FindingItem) => {
-    const text = finding.originalText ?? finding.locationStart;
-    if (!text) return;
+    const text = finding.originalText;
+    if (!text) {
+      toast.info(finding.description, { duration: 4000 });
+      return;
+    }
 
     // Find the chapter to navigate to
     const chapter = chapters?.find(
       (ch) => ch.chapterNumber === finding.chapterNumber
     );
-    if (!chapter) return;
+    if (!chapter) {
+      toast.error(`Chapter ${finding.chapterNumber} not found`);
+      return;
+    }
 
     // Set the text to scroll to, then navigate to the chapter editor
     setScrollToText(text);
