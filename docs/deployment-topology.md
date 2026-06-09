@@ -1,88 +1,105 @@
-# Production Deployment Topology
+# Deployment Topology
 
-This is the baseline production deployment model for Write My Book.
+Write My Book OK runs as two application processes plus five backing services.
 
-## Required runtime processes
+## Runtime processes
 
-| Process | Image/command | Purpose | Health |
+| Process | Image/command | Purpose | Required env |
 |---|---|---|---|
-| Web app | `Dockerfile`, `node server.js` | Next.js UI and API routes | `GET /api/health` for liveness, `GET /api/health/dependencies` for readiness |
-| Worker | `Dockerfile.worker`, `node dist-worker/worker.js` | BullMQ background agent jobs | process must start after env validation and Redis/Postgres/S3 are reachable |
+| Web app | `Dockerfile` / `node server.js` | Next.js UI, API routes, auth, billing, document APIs | Web env from `docs/env-vars.md` |
+| Worker | `Dockerfile.worker` / `node dist-worker/worker.js` | BullMQ background agent workflow execution | Worker env from `docs/env-vars.md` |
 
-The web app and worker must share:
+The web app and worker must share the same PostgreSQL database, Redis queue,
+S3 bucket, and `API_KEY_ENCRYPTION_SECRET`.
 
-- `DATABASE_URL`
-- `REDIS_URL`
-- `API_KEY_ENCRYPTION_SECRET`
-- S3 endpoint/access key/secret/bucket
-- optional Qdrant and Neo4j connection settings
+## Backing services
 
-## Required backing services
+| Service | Compose name | Required | Persistence | Health check |
+|---|---|---:|---|---|
+| PostgreSQL 16 | `postgres` | yes | `pgdata` | `pg_isready` |
+| Redis 7 | `redis` | yes | `redisdata` | `redis-cli ping` with password |
+| MinIO/S3 | `minio` + `minio-init` | yes | `miniodata` | `mc ready local` + bucket init |
+| Qdrant | `qdrant` | optional but recommended | `qdrantdata` | TCP port check |
+| Neo4j | `neo4j` | optional but recommended | `neo4jdata` | `cypher-shell RETURN 1` |
 
-| Service | Production role | Persistence | Notes |
-|---|---|---|---|
-| PostgreSQL 16+ | Prisma primary data store | Required | Back up before every schema push/deploy |
-| Redis 7+ | BullMQ queue, pub/sub/stream state | Required | Use an authenticated URL in production |
-| S3-compatible object storage | Document bodies, versions, imports/exports | Required | AWS S3, R2, or MinIO are acceptable |
-| Qdrant | Vector memory | Optional but recommended | Health endpoint marks it optional/degraded if configured but down |
-| Neo4j | Knowledge graph | Optional but recommended | Health endpoint marks it optional/degraded if configured but down |
+Qdrant and Neo4j are optional in the readiness endpoint because the core app can
+serve UI/auth/documents without them, but they should be enabled for full agent
+memory and knowledge graph behavior.
 
 ## Health endpoints
 
-### `/api/health`
+| Endpoint | Purpose | Success | Failure |
+|---|---|---|---|
+| `/api/health` | Process + sanitized env readiness | `200` | `503` if env invalid |
+| `/api/health/dependencies` | Deep dependency readiness | `200` | `503` if required dependency fails |
 
-Fast liveness/config endpoint. It validates runtime environment readiness and returns
-sanitized configuration status. It does **not** expose secret values.
+`/api/health/dependencies` checks:
 
-Expected healthy response status: `200`.
+- runtime environment contract
+- PostgreSQL `SELECT 1`
+- Redis `PING`
+- S3 `HeadBucket`
+- Qdrant connection when configured
+- Neo4j connectivity when configured
 
-### `/api/health/dependencies`
+No endpoint exposes secret values.
 
-Readiness endpoint. It validates runtime environment and checks live dependencies:
+## Docker Compose deployment sequence
 
-- PostgreSQL with `SELECT 1`
-- Redis with `PING`
-- S3 with `HeadBucket`
-- Qdrant with `getCollections()` when configured
-- Neo4j with `verifyConnectivity()` when configured
+1. Create a production `.env.docker` from `docs/env-vars.md`.
+2. Ensure all placeholder/changeme values have been replaced.
+3. Build images:
 
-Expected healthy response status: `200`. Required dependency failures return `503`.
-Optional dependency failures are reported as `degraded` but do not fail readiness.
+   ```bash
+   docker compose build app worker
+   ```
 
-## Docker Compose production baseline
+4. Start backing services:
 
-The included Compose files model a single-host deployment:
+   ```bash
+   docker compose up -d postgres redis minio minio-init qdrant neo4j
+   ```
 
-- `app` depends on Postgres, Redis, MinIO bucket init, Neo4j, and Qdrant.
-- `worker` depends on the same service stack.
-- app healthcheck uses `/api/health/dependencies`.
-- named volumes persist Postgres, Redis, MinIO, Neo4j, and Qdrant data.
+5. Run database sync after a backup:
 
-For a managed/cloud deployment, replace individual services with managed equivalents
-but preserve the same contracts and env vars.
+   ```bash
+   docker compose run --rm app npx prisma db push
+   ```
 
-## Deploy sequence
+6. Start app and worker:
 
-1. Build and push app + worker images from a green `main` commit.
-2. Provision/verify Postgres, Redis, S3 bucket, and optional Qdrant/Neo4j.
-3. Inject production env vars from `docs/env-vars.md`.
-4. Confirm `DEV_AUTH_BYPASS` is empty/false.
-5. Backup Postgres.
-6. Run `npx prisma generate` and `npx prisma db push` against production.
-7. Start web app and worker.
-8. Run:
+   ```bash
+   docker compose up -d app worker
+   ```
 
-```bash
-npm run smoke:deployment -- https://your-production-domain.example
-```
+7. Verify readiness:
 
-9. Verify Stripe and Clerk webhooks.
-10. Monitor logs and Sentry/error alerts during first user flows.
+   ```bash
+   curl -f http://localhost:3000/api/health
+   curl -f http://localhost:3000/api/health/dependencies
+   SMOKE_BASE_URL=http://localhost:3000 npm run smoke:deployment
+   ```
 
-## Rollback
+## Rollback sequence
 
-1. Stop worker first to avoid processing jobs during rollback.
-2. Roll web app image back to previous green image.
-3. Roll worker image back to matching previous green image.
-4. If schema/data changed incompatibly, restore the Postgres backup taken before deploy.
-5. Re-run `/api/health/dependencies` and a smoke test.
+1. Stop the app and worker:
+
+   ```bash
+   docker compose stop app worker
+   ```
+
+2. Re-deploy the previous known-good image/tag.
+3. If a schema sync was applied and must be reverted, restore the verified DB
+   backup taken before `prisma db push`.
+4. Restart app and worker.
+5. Re-run smoke checks.
+
+## Production caveats
+
+- The current Docker Compose defaults include local/dev fallback passwords. Real
+  deployment must override them through secrets or deployment environment.
+- `DEV_AUTH_BYPASS` must be empty/false; runtime validation rejects `true` in
+  production.
+- `NEXT_PUBLIC_APP_URL` must be HTTPS for non-local production hosts.
+- The worker currently has no HTTP listener, so Compose verifies its startup via
+  process health/restart policy and dependency readiness from the web app.

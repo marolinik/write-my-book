@@ -19,6 +19,7 @@ connections and before starting the background worker.
 |---|---|
 | `DATABASE_URL` | PostgreSQL connection string for Prisma 7 adapter |
 | `API_KEY_ENCRYPTION_SECRET` | Secret used to encrypt stored BYOK provider keys |
+| `REDIS_URL` | BullMQ Redis connection string used by API routes |
 | `NEXT_PUBLIC_APP_URL` | Canonical public app URL |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk browser key |
 | `CLERK_SECRET_KEY` | Clerk server key |
@@ -62,3 +63,11 @@ npm run env:check:worker
 
 For production-like checks locally, set `NODE_ENV=production` and unset `CI`.
 Never commit real values to git; inject them via the deployment platform.
+
+## Deployment smoke check
+
+```bash
+SMOKE_BASE_URL=https://your-domain.example npm run smoke:deployment
+```
+
+The smoke check verifies `/api/health` and `/api/health/dependencies`.

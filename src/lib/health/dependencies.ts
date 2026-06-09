@@ -1,141 +1,173 @@
 import { HeadBucketCommand, S3Client } from "@aws-sdk/client-s3";
 import IORedis from "ioredis";
 import { db } from "@/lib/db";
-import { verifyNeo4jConnection } from "@/lib/graph";
-import { verifyQdrantConnection } from "@/lib/vector";
+import { envHealth } from "@/lib/env";
+import { verifyNeo4jConnection } from "@/lib/graph/neo4j-client";
+import { verifyQdrantConnection } from "@/lib/vector/qdrant-client";
 
-export type DependencyStatus = "ok" | "degraded" | "skipped";
+export type DependencyStatus = "ok" | "degraded" | "error" | "skipped";
 
 export interface DependencyCheckResult {
   name: string;
   status: DependencyStatus;
   required: boolean;
   latencyMs: number;
-  message?: string;
+  message: string;
 }
 
-export interface DependencyHealthResult {
+export interface DependencyReadinessResult {
   ok: boolean;
+  status: "ready" | "degraded";
   checkedAt: string;
-  latencyMs: number;
   dependencies: DependencyCheckResult[];
 }
 
-const DEFAULT_TIMEOUT_MS = 2_500;
+type CheckFn = () => Promise<void>;
+
+const CHECK_TIMEOUT_MS = 3_000;
+
+function nowMs() {
+  return Date.now();
+}
+
+function sanitizeMessage(error: unknown): string {
+  if (error instanceof Error && error.message) {
+    return error.message.split("\n")[0].slice(0, 180);
+  }
+  return "Dependency check failed";
+}
+
+async function withTimeout<T>(promise: Promise<T>, timeoutMs = CHECK_TIMEOUT_MS): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`Timed out after ${timeoutMs}ms`)), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
+async function runCheck(
+  name: string,
+  required: boolean,
+  check: CheckFn
+): Promise<DependencyCheckResult> {
+  const started = nowMs();
+  try {
+    await withTimeout(check());
+    return {
+      name,
+      required,
+      status: "ok",
+      latencyMs: nowMs() - started,
+      message: "ok",
+    };
+  } catch (error) {
+    return {
+      name,
+      required,
+      status: required ? "error" : "degraded",
+      latencyMs: nowMs() - started,
+      message: sanitizeMessage(error),
+    };
+  }
+}
 
 function isConfigured(...keys: string[]) {
   return keys.every((key) => Boolean(process.env[key]?.trim()));
 }
 
-function sanitizeError(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message.replace(/postgresql:\/\/[^@\s]+@/gi, "postgresql://[REDACTED]@").replace(/redis:\/\/[^@\s]+@/gi, "redis://[REDACTED]@");
-  }
-  return "Unknown error";
-}
-
-async function withTimeout<T>(promise: Promise<T>, timeoutMs = DEFAULT_TIMEOUT_MS): Promise<T> {
-  let timeout: ReturnType<typeof setTimeout> | undefined;
-  try {
-    return await Promise.race([
-      promise,
-      new Promise<T>((_, reject) => {
-        timeout = setTimeout(() => reject(new Error(`Timed out after ${timeoutMs}ms`)), timeoutMs);
-      }),
-    ]);
-  } finally {
-    if (timeout) clearTimeout(timeout);
-  }
-}
-
-async function check(
-  name: string,
-  required: boolean,
-  fn: () => Promise<void>,
-  configured = true
-): Promise<DependencyCheckResult> {
-  const start = Date.now();
-  if (!configured) {
-    return {
-      name,
-      required,
-      status: required ? "degraded" : "skipped",
-      latencyMs: 0,
-      message: required ? "Required dependency is not configured" : "Optional dependency is not configured",
-    };
-  }
-
-  try {
-    await withTimeout(fn());
-    return { name, required, status: "ok", latencyMs: Date.now() - start };
-  } catch (error) {
-    return {
-      name,
-      required,
-      status: "degraded",
-      latencyMs: Date.now() - start,
-      message: sanitizeError(error),
-    };
-  }
-}
-
-async function checkPostgres() {
+async function checkDatabase() {
   await db.$queryRaw`SELECT 1`;
 }
 
 async function checkRedis() {
-  const redis = new IORedis(process.env.REDIS_URL ?? "redis://localhost:6379", {
-    maxRetriesPerRequest: 1,
-    enableReadyCheck: true,
+  const redisUrl = process.env.REDIS_URL;
+  if (!redisUrl) throw new Error("REDIS_URL is not configured");
+
+  const redis = new IORedis(redisUrl, {
     lazyConnect: true,
+    connectTimeout: CHECK_TIMEOUT_MS,
+    maxRetriesPerRequest: 1,
+    enableReadyCheck: false,
   });
+
   try {
     await redis.connect();
-    await redis.ping();
+    const pong = await redis.ping();
+    if (pong !== "PONG") throw new Error("Unexpected Redis ping response");
   } finally {
     redis.disconnect();
   }
 }
 
 async function checkS3() {
-  const endpoint = process.env.S3_ENDPOINT;
+  const bucket = process.env.S3_BUCKET;
   const accessKeyId = process.env.S3_ACCESS_KEY_ID;
   const secretAccessKey = process.env.S3_SECRET_ACCESS_KEY;
-  const bucket = process.env.S3_BUCKET;
-  const region = process.env.S3_REGION ?? "us-east-1";
-  const forcePathStyle = process.env.S3_FORCE_PATH_STYLE === "true";
-
-  if (!accessKeyId || !secretAccessKey || !bucket) {
-    throw new Error("S3 credentials or bucket are not configured");
+  if (!bucket || !accessKeyId || !secretAccessKey) {
+    throw new Error("S3 bucket or credentials are not configured");
   }
 
   const client = new S3Client({
-    region,
+    region: process.env.S3_REGION ?? "us-east-1",
     credentials: { accessKeyId, secretAccessKey },
-    ...(endpoint ? { endpoint } : {}),
-    forcePathStyle,
+    ...(process.env.S3_ENDPOINT ? { endpoint: process.env.S3_ENDPOINT } : {}),
+    forcePathStyle: process.env.S3_FORCE_PATH_STYLE === "true",
   });
+
   await client.send(new HeadBucketCommand({ Bucket: bucket }));
 }
 
-export async function checkDependencies(): Promise<DependencyHealthResult> {
-  const start = Date.now();
-  const dependencies = await Promise.all([
-    check("postgres", true, checkPostgres, isConfigured("DATABASE_URL")),
-    check("redis", true, checkRedis, isConfigured("REDIS_URL")),
-    check("s3", true, checkS3, isConfigured("S3_ACCESS_KEY_ID", "S3_SECRET_ACCESS_KEY", "S3_BUCKET")),
-    check("qdrant", false, async () => {
-      if (!(await verifyQdrantConnection())) throw new Error("Qdrant connection failed");
-    }, isConfigured("QDRANT_URL")),
-    check("neo4j", false, async () => {
-      if (!(await verifyNeo4jConnection())) throw new Error("Neo4j connection failed");
-    }, isConfigured("NEO4J_URI")),
+async function optionalCheck(
+  name: string,
+  configured: boolean,
+  check: CheckFn
+): Promise<DependencyCheckResult> {
+  if (!configured) {
+    return {
+      name,
+      required: false,
+      status: "skipped",
+      latencyMs: 0,
+      message: "not configured",
+    };
+  }
+  return runCheck(name, false, check);
+}
+
+export async function checkDependencies(): Promise<DependencyReadinessResult> {
+  const env = envHealth("web");
+  const checks = await Promise.all([
+    Promise.resolve({
+      name: "environment",
+      required: true,
+      status: env.ok ? "ok" : "error",
+      latencyMs: 0,
+      message: env.ok ? "ok" : "Invalid runtime environment",
+    } satisfies DependencyCheckResult),
+    runCheck("postgres", true, checkDatabase),
+    runCheck("redis", true, checkRedis),
+    runCheck("s3", true, checkS3),
+    optionalCheck("qdrant", isConfigured("QDRANT_URL"), async () => {
+      const ok = await verifyQdrantConnection();
+      if (!ok) throw new Error("Qdrant connection failed");
+    }),
+    optionalCheck("neo4j", isConfigured("NEO4J_URI"), async () => {
+      const ok = await verifyNeo4jConnection();
+      if (!ok) throw new Error("Neo4j connection failed");
+    }),
   ]);
 
+  const ok = checks.every((check) => !check.required || check.status === "ok");
   return {
-    ok: dependencies.every((dep) => !dep.required || dep.status === "ok"),
+    ok,
+    status: ok ? "ready" : "degraded",
     checkedAt: new Date().toISOString(),
-    latencyMs: Date.now() - start,
-    dependencies,
+    dependencies: checks,
   };
 }

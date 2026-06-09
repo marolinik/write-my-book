@@ -31,7 +31,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 # Install Pandoc + Typst for manuscript export pipeline
-RUN apk add --no-cache pandoc
+RUN apk add --no-cache pandoc curl
 # Typst: install static musl binary from GitHub releases
 RUN wget -qO /tmp/typst.tar.xz https://github.com/typst/typst/releases/download/v0.13.0/typst-x86_64-unknown-linux-musl.tar.xz \
     && tar -xf /tmp/typst.tar.xz -C /tmp \
