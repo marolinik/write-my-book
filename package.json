@@ -11,7 +11,9 @@
     "test:e2e:ui": "playwright test --ui",
     "worker:dev": "npx tsx src/worker.ts",
     "worker:build": "tsc --project tsconfig.worker.json && tsc-alias --project tsconfig.worker.json",
-    "worker:start": "node dist-worker/worker.js"
+    "worker:start": "node dist-worker/worker.js",
+    "env:check": "tsx scripts/check-env.ts web",
+    "env:check:worker": "tsx scripts/check-env.ts worker"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.74.0",

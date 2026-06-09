@@ -15,6 +15,9 @@ import { Worker } from "bullmq";
 import { createRedisConnection } from "@/lib/queue/connection";
 import { processAgentJob } from "@/lib/queue/agent-worker";
 import { QUEUE_NAME } from "@/lib/queue/agent-queue";
+import { assertEnvReady } from "@/lib/env";
+
+assertEnvReady("worker");
 
 const connection = createRedisConnection();
 
