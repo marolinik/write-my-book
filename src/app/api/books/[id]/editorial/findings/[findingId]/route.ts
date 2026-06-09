@@ -24,6 +24,23 @@ function normalizeForMatch(text: string): string {
  * text (which may differ in whitespace from the search text).
  * First tries exact match, then falls back to normalized whitespace matching.
  */
+
+interface FindingAlternative {
+  label?: string;
+  originalText?: string;
+  newText?: string;
+}
+
+function parseFindingAlternatives(value: string | null): FindingAlternative[] {
+  if (!value) return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
 function findOriginalText(
   content: string,
   originalText: string
@@ -102,12 +119,14 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
     const body = await req.json();
     const data = updateFindingSchema.parse(body);
 
+    const alternatives = parseFindingAlternatives(finding.alternatives);
+    const selectedAlternative =
+      data.alternativeIndex !== undefined ? alternatives[data.alternativeIndex] : undefined;
+    const originalText = selectedAlternative?.originalText ?? finding.originalText;
+    const newText = selectedAlternative?.newText ?? finding.newText;
+
     // Auto-apply: if applying a finding with originalText + newText, edit the chapter
-    if (
-      data.action === "apply" &&
-      finding.originalText &&
-      finding.newText
-    ) {
+    if (data.action === "apply" && originalText && newText) {
       const docService = new DocumentService(user.id, bookId);
       const doc = await docService.findByType(
         DocumentType.CHAPTER_CONTENT,
@@ -131,7 +150,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
         );
       }
 
-      const match = findOriginalText(result.content, finding.originalText);
+      const match = findOriginalText(result.content, originalText);
       if (!match) {
         return NextResponse.json(
           {
@@ -145,7 +164,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       // Replace the matched text with newText
       const updatedContent =
         result.content.substring(0, match.index) +
-        finding.newText +
+        newText +
         result.content.substring(match.index + match.matchedText.length);
 
       // Save updated content as a new version
@@ -170,7 +189,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
           chapterNumber: finding.chapterNumber,
           actionType: "apply",
           findingId,
-          description: `Auto-applied finding: ${finding.category} — replaced "${finding.originalText.substring(0, 80)}${finding.originalText.length > 80 ? "..." : ""}"`,
+          description: `Auto-applied finding: ${finding.category} — replaced "${originalText.substring(0, 80)}${originalText.length > 80 ? "..." : ""}"`,
         },
       });
 

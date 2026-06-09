@@ -90,6 +90,7 @@ export const addApiKeySchema = z.object({
 export const updateFindingSchema = z.object({
   action: z.enum(["apply", "dismiss"]),
   reason: z.string().max(1000).optional(),
+  alternativeIndex: z.number().int().min(0).max(20).optional(),
 });
 
 /** Registry ID string: "anthropic/sonnet", "openai/gpt-4o", etc. or "default" to clear. */

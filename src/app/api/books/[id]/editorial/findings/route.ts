@@ -8,6 +8,16 @@ import {
 
 type RouteParams = { params: Promise<{ id: string }> };
 
+function parseAlternatives(value: string | null) {
+  if (!value) return null;
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
 /** GET /api/books/:id/editorial/findings — List findings with filters. */
 export async function GET(req: NextRequest, { params }: RouteParams) {
   try {
@@ -44,7 +54,13 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       db.editFinding.count({ where }),
     ]);
 
-    return NextResponse.json({ findings, total });
+    return NextResponse.json({
+      findings: findings.map((finding) => ({
+        ...finding,
+        alternatives: parseAlternatives(finding.alternatives),
+      })),
+      total,
+    });
   } catch (error) {
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

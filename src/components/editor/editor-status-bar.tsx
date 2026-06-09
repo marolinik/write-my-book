@@ -137,7 +137,7 @@ export function EditorStatusBar({
 
         {/* Authorship tracking: human vs AI text */}
         <AuthorshipTracker
-          stats={{ humanWords: wordCount, aiWords: 0, totalWords: wordCount, humanPct: 100, aiPct: 0 }}
+          stats={{ humanWords: wordCount, aiWords: 0, aiEditedWords: 0, totalWords: wordCount }}
           compact
         />
 

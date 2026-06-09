@@ -5,6 +5,7 @@ import { decryptApiKey } from "@/lib/encryption";
 import { estimateCost } from "@/lib/cost";
 import { createLLMClient, resolveProviderRoute } from "@/lib/llm";
 import type { ProviderKey } from "@/lib/llm";
+import { DocumentService } from "@/lib/documents";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -58,7 +59,7 @@ export async function POST(_req: NextRequest, { params }: RouteParams) {
       },
       documents: {
         where: { type: { in: ["STORY_BIBLE", "ARCHITECTURE", "FINGERPRINT"] } },
-        select: { type: true, content: true },
+        select: { id: true, type: true },
         take: 3,
       },
     },
@@ -109,9 +110,21 @@ export async function POST(_req: NextRequest, { params }: RouteParams) {
     grokApiKey: decryptedKeys.grok,
   });
 
-  // Build context from documents
-  const storyBible = book.documents.find((d) => d.type === "STORY_BIBLE")?.content ?? "";
-  const architecture = book.documents.find((d) => d.type === "ARCHITECTURE")?.content ?? "";
+  // Build context from stored documents. Document bodies live in S3/MinIO,
+  // not in the Document table.
+  const documentService = new DocumentService(user.id, bookId);
+  const documentContentByType = new Map<string, string>();
+  for (const doc of book.documents) {
+    try {
+      const read = await documentService.read(doc.id);
+      documentContentByType.set(doc.type, read?.content ?? "");
+    } catch (error) {
+      console.warn("[Marketing Kit] Failed to read context document", doc.id, error);
+      documentContentByType.set(doc.type, "");
+    }
+  }
+  const storyBible = documentContentByType.get("STORY_BIBLE") ?? "";
+  const architecture = documentContentByType.get("ARCHITECTURE") ?? "";
   const chapterList = book.chapters.map((ch) => `Ch.${ch.chapterNumber}: ${ch.title ?? "Untitled"}`).join("\n");
 
   const lang = book.language || "en";

@@ -39,7 +39,7 @@ export function ChapterWordGoals({
 }: ChapterWordGoalsProps) {
   const { totalTarget, totalCurrent, rollupPct } = useMemo(() => {
     const tt = chapters.reduce((s, c) => s + (c.targetWords ?? 0), 0);
-    const tc = chapters.reduce((s, c) => s + c.currentWords, 0);
+    const tc = chapters.reduce((s, c) => s + (c.currentWords ?? 0), 0);
     return {
       totalTarget: bookTarget ?? tt,
       totalCurrent: bookCurrentWords || tc,
