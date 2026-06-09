@@ -40,6 +40,7 @@ import { AnnotationTooltip } from "./annotation-tooltip";
 import { ChapterContextHeader } from "./chapter-context-header";
 import { GutterMarkers } from "./gutter-markers";
 import { FloatingAgentInput } from "./floating-agent-input";
+import { TypewriterMode } from "./typewriter-mode";
 import { OverlappingFindingsPopover } from "./overlapping-findings-popover";
 import {
   AnnotationExtension,
@@ -645,6 +646,8 @@ export function ManuscriptEditor({
 
       {chapterStatus && (
         <ChapterContextHeader
+          bookId={bookId}
+          chapterId={chapterId}
           chapterNumber={chapterNumber}
           chapterTitle={chapterTitle}
           status={chapterStatus}
@@ -782,6 +785,9 @@ export function ManuscriptEditor({
           )}
         </div>
       </EditorContextMenu>
+
+      {/* Typewriter mode: keeps current line centered */}
+      <TypewriterMode editor={editor} enabled={focusMode} />
 
       <EditorStatusBar
         wordCount={wordCount}

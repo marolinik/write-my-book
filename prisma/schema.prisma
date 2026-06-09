@@ -36,6 +36,8 @@ model User {
   subscription  Subscription?
   styleProfiles StyleProfile[]
   notifications BookNotification[]
+  writerMemories WriterMemory[]
+  sessionBriefs  SessionBrief[]
 
   @@map("users")
 }
@@ -135,6 +137,7 @@ model Book {
   language     String   @default("en")
   status       String   @default("concept") // concept, planning, writing, editing, beta, export, complete
   description     String?
+  marketingKit    Json?        @map("marketing_kit")
   authorNotes     String?   @map("author_notes") @db.Text
   wordCount       Int      @default(0) @map("word_count")
   targetWordCount Int?     @map("target_word_count")
@@ -162,6 +165,8 @@ model Book {
   notifications   BookNotification[]
   writingGoals    WritingGoal[]
   wikiEntities    WikiEntity[]
+  writerMemories  WriterMemory[]
+  sessionBriefs   SessionBrief[]
 
   @@unique([seriesId, bookNumber])
   @@unique([userId, name])
@@ -281,6 +286,7 @@ model AgentSession {
   parent   AgentSession?       @relation("SessionHierarchy", fields: [parentSessionId], references: [id])
   children AgentSession[]      @relation("SessionHierarchy")
   turns    ConversationTurn[]
+  brief    SessionBrief?
 
   @@map("agent_sessions")
 }
@@ -598,4 +604,59 @@ model WikiEntity {
   @@index([bookId])
   @@index([bookId, type])
   @@map("wiki_entities")
+}
+
+
+// ─── WRITER PREFERENCE MEMORY (Gap M1) ──────────────────────────
+// Persistent writer preferences that feed into every agent prompt.
+// "Don't flag fragments", "Spell Jón not Jon", "Be more direct"
+
+model WriterMemory {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  bookId    String?  @map("book_id") // null = global preference, set = book-specific
+  category  String   // style, name, preference, constraint, correction
+  content   String   @db.Text // The actual preference text
+  source    String   @default("user") // user (explicit), agent (inferred), system (auto-detected)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book Book? @relation(fields: [bookId], references: [id], onDelete: SetNull)
+
+  @@index([userId, bookId, active])
+  @@map("writer_memories")
+}
+
+// ─── SESSION CONTINUITY BRIEFS (Gap M2) ──────────────────────────
+// Structured takeaway from each completed session.
+// Read by the next session to provide continuity.
+
+model SessionBrief {
+  id            String   @id @default(uuid())
+  sessionId     String   @unique @map("session_id")
+  bookId        String   @map("book_id")
+  userId        String   @map("user_id")
+  workflowId    String   @map("workflow_id")
+  agentType     String   @map("agent_type")
+  chapterNumber Int?     @map("chapter_number")
+  
+  // Structured summary fields
+  summary       String   @db.Text // 2-3 sentence summary of what happened
+  decisions     String[] // Key decisions made during the session
+  openQuestions String[] @map("open_questions") // Questions left unanswered
+  nextSteps     String[] @map("next_steps") // Recommended follow-ups
+  
+  // Writer feedback captured during session
+  writerPreferences String[] @map("writer_preferences") // New preferences discovered
+  
+  createdAt DateTime @default(now()) @map("created_at")
+
+  session AgentSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  book    Book         @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  user    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([bookId, createdAt])
+  @@map("session_briefs")
 }

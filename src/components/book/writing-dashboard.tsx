@@ -13,6 +13,9 @@ import {
   TrendingUpIcon,
   BookOpenIcon,
 } from "lucide-react";
+import { MarketingKit } from "@/components/book/marketing-kit";
+import { WritingSprints } from "@/components/book/writing-sprints";
+import { DraftCertificate } from "@/components/book/draft-certificate";
 
 interface WritingDashboardProps {
   bookId: string;
@@ -182,6 +185,16 @@ export function WritingDashboard({ bookId }: WritingDashboardProps) {
           current={data.totalWords}
           onSetGoal={(target) => setGoal.mutate({ type: "total", target })}
         />
+      </div>
+
+      {/* Writing Sprint */}
+      <div className="mt-6">
+        <WritingSprints bookId={bookId} currentWordCount={data.totalWords} />
+      </div>
+
+      {/* Marketing Kit */}
+      <div className="mt-8">
+        <MarketingKit bookId={bookId} bookTitle="" />
       </div>
     </div>
   );

@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { getStatusLabel } from "@/lib/i18n/ui-strings";
+import { VersionBranching } from "./version-branching";
 
 const STATUS_COLORS: Record<string, string> = {
   undiscussed: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
@@ -16,6 +17,8 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 interface ChapterContextHeaderProps {
+  bookId?: string;
+  chapterId?: string;
   chapterNumber: number;
   chapterTitle?: string;
   status: string;
@@ -25,6 +28,8 @@ interface ChapterContextHeaderProps {
 }
 
 export function ChapterContextHeader({
+  bookId,
+  chapterId,
   chapterNumber,
   chapterTitle,
   status,
@@ -52,6 +57,15 @@ export function ChapterContextHeader({
         >
           {label}
         </Badge>
+
+        {/* Version branching button */}
+        {bookId && chapterId && (
+          <VersionBranching
+            bookId={bookId}
+            chapterId={chapterId}
+            chapterNumber={chapterNumber}
+          />
+        )}
       </div>
 
       {/* Right: Word count + progress */}

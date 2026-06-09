@@ -44,6 +44,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { GraduatedFocus } from "./graduated-focus";
 
 interface EditorToolbarProps {
   editor: Editor | null;
@@ -285,6 +286,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
           isActive={ctx.focusMode}
           onClick={ctx.onToggleFocusMode}
         />
+        <GraduatedFocus />
         {ctx.onInlineEdit && (
           <ToolbarButton
             icon={<Sparkles className="h-4 w-4" />}

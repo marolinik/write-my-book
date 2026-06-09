@@ -11,6 +11,7 @@ import {
 } from "@/hooks/use-editorial";
 import type { FindingItem } from "@/hooks/use-editorial";
 import { useEditorialStore } from "@/stores/editorial-store";
+import { SuggestionFeedback } from "@/components/agent/suggestion-feedback";
 import { Check, X, Undo2, AlertTriangle, MoveRight } from "lucide-react";
 
 interface FindingCardProps {
@@ -340,6 +341,16 @@ export function FindingCard({
             </Button>
           )}
         </div>
+
+        {/* Thumbs up/down feedback for AI improvement */}
+        {(finding.status === "applied" || finding.status === "dismissed") && (
+          <SuggestionFeedback
+            bookId={bookId}
+            suggestionId={finding.id}
+            suggestionType={finding.category ?? "editorial"}
+            compact
+          />
+        )}
       </CardContent>
     </Card>
   );

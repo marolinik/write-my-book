@@ -47,10 +47,5 @@ next-env.d.ts
 # worker build output
 /dist-worker
 
-# Local scratch & QA artifacts (added for public repo)
-tmp-*
-/test-results/
-/playwright-report/
-/uat-screenshots/
+# Office temp lock files
 ~$*
-*.tsbuildinfo

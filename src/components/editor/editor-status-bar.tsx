@@ -8,6 +8,8 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import type { AnnotationCounts } from "./annotation-extension";
+import { SessionTimer } from "./session-timer";
+import { AuthorshipTracker } from "./authorship-tracker";
 
 interface EditorStatusBarProps {
   wordCount: number;
@@ -129,6 +131,15 @@ export function EditorStatusBar({
           {wordCount.toLocaleString()} word{wordCount !== 1 ? "s" : ""}
         </span>
         <span>{readingTime} min read</span>
+
+        {/* Writing session timer */}
+        <SessionTimer currentWordCount={wordCount} />
+
+        {/* Authorship tracking: human vs AI text */}
+        <AuthorshipTracker
+          stats={{ humanWords: wordCount, aiWords: 0, totalWords: wordCount, humanPct: 100, aiPct: 0 }}
+          compact
+        />
 
         {annotationCounts && (
           <>

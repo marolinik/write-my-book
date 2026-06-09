@@ -1,11 +1,15 @@
 "use client";
 
 import { use, useState } from "react";
-import { JourneyBanner } from "@/components/journey/journey-banner";
 import { JourneySelectorDialog } from "@/components/journey/journey-selector-dialog";
 import { useBookState } from "@/hooks/use-book-state";
 import { getRecommendedJourney } from "@/lib/agents/journeys";
 
+/**
+ * Book layout — Issue 2: Removed the persistent JourneyBanner that occupied
+ * space at the top of every book page. Journey guidance now lives exclusively
+ * in the sidebar checklist + a one-time inline prompt on the book overview.
+ */
 export default function BookLayout({
   children,
   params,
@@ -31,10 +35,6 @@ export default function BookLayout({
 
   return (
     <>
-      <JourneyBanner
-        bookId={bookId}
-        onChooseJourney={() => setSelectorOpen(true)}
-      />
       {children}
       <JourneySelectorDialog
         open={selectorOpen}

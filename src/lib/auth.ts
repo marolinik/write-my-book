@@ -47,7 +47,33 @@ export async function getDbUser() {
     }
   }
 
-  // E2E test fallback: bypass auth in non-production when header matches
+  
+  // DEV_AUTH_BYPASS: use DEV_CLERK_ID user without Clerk in development
+  if (
+    process.env.NODE_ENV !== "production" &&
+    process.env.DEV_AUTH_BYPASS === "true" &&
+    process.env.DEV_CLERK_ID
+  ) {
+    const devUser = await db.user.findUnique({
+      where: { clerkId: process.env.DEV_CLERK_ID },
+    });
+    if (devUser) return devUser;
+
+    // Auto-create the dev user if it doesn't exist
+    const devName = process.env.DEV_AUTH_USER_NAME ?? "Dev Writer";
+    return db.user.upsert({
+      where: { clerkId: process.env.DEV_CLERK_ID },
+      update: {},
+      create: {
+        clerkId: process.env.DEV_CLERK_ID,
+        email: "dev@writemybook.local",
+        displayName: devName,
+        onboardingComplete: true,
+      },
+    });
+  }
+
+// E2E test fallback: bypass auth in non-production when header matches
   if (process.env.NODE_ENV !== "production" && E2E_TEST_SECRET) {
     const headersList = await headers();
     if (headersList.get("x-e2e-test-secret") === E2E_TEST_SECRET) {
