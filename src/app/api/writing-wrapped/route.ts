@@ -36,7 +36,8 @@ export async function GET() {
         id: true,
         tokensInput: true,
         tokensOutput: true,
-        costUsd: true,
+        actualCostUsd: true,
+        estimatedCostUsd: true,
         startedAt: true,
       },
     }),
@@ -44,7 +45,7 @@ export async function GET() {
       where: {
         book: { userId: user.id },
         status: { in: ["applied", "dismissed"] },
-        updatedAt: { gte: yearStart, lt: yearEnd },
+        createdAt: { gte: yearStart, lt: yearEnd },
       },
     }),
   ]);
@@ -52,7 +53,7 @@ export async function GET() {
   const totalWords = books.reduce((s, b) => s + b.wordCount, 0);
   const totalChapters = books.reduce((s, b) => s + b.chapterCount, 0);
   const totalSessions = sessions.length;
-  const totalAICost = sessions.reduce((s, se) => s + (se.costUsd ?? 0), 0);
+  const totalAICost = sessions.reduce((s, se) => s + (se.actualCostUsd ?? se.estimatedCostUsd ?? 0), 0);
 
   // Find top genre
   const genreCounts: Record<string, number> = {};

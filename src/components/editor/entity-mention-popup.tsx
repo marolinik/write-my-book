@@ -32,6 +32,10 @@ interface WikiEntity {
   aliases?: string[];
 }
 
+interface WikiSearchResponse {
+  entities?: WikiEntity[];
+}
+
 interface EntityMentionPopupProps {
   bookId: string;
   /** Current search query (text after @) */
@@ -75,7 +79,7 @@ export function EntityMentionPopup({
   const { data: entities = [] } = useQuery<WikiEntity[]>({
     queryKey: ["wiki-entities", bookId, query],
     queryFn: async () => {
-      const data = await fetchJson(
+      const data = await fetchJson<WikiSearchResponse>(
         `/api/books/${bookId}/wiki/search?q=${encodeURIComponent(query)}&limit=8`
       );
       return data.entities ?? [];

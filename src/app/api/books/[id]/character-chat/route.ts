@@ -49,12 +49,12 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     if (characterId) {
       const entity = await db.wikiEntity.findFirst({
         where: { id: characterId, bookId },
-        select: { description: true, properties: true },
+        select: { description: true, attributes: true },
       });
       if (entity) {
         characterDescription = entity.description ?? "";
-        if (entity.properties && typeof entity.properties === "object") {
-          const props = entity.properties as Record<string, string>;
+        if (entity.attributes && typeof entity.attributes === "object") {
+          const props = entity.attributes as Record<string, string>;
           if (props.personality) characterDescription += `\nPersonality: ${props.personality}`;
           if (props.background) characterDescription += `\nBackground: ${props.background}`;
           if (props.speech_pattern) characterDescription += `\nSpeech pattern: ${props.speech_pattern}`;

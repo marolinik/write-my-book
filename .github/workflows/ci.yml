@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: "true"
+  NEXT_TELEMETRY_DISABLED: "1"
+  # Dummy values for static build/prisma generation. Real deployments must
+  # inject production secrets through the hosting provider, never from git.
+  DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/writemybook?schema=public"
+  API_KEY_ENCRYPTION_SECRET: "changeme-generate-with-openssl-rand-hex-32-xxxx"
+  NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+  DEV_AUTH_BYPASS: ""
+  E2E_TEST_SECRET: "ci-placeholder"
+  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "placeholder"
+  CLERK_SECRET_KEY: "placeholder"
+  CLERK_WEBHOOK_SECRET: "placeholder"
+  STRIPE_SECRET_KEY: "placeholder"
+  STRIPE_WEBHOOK_SECRET: "placeholder"
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: "placeholder"
+  OPENAI_API_KEY: ""
+  OPENROUTER_API_KEY: ""
+  ANTHROPIC_API_KEY: ""
+  SERPER_API_KEY: ""
+
+jobs:
+  verify:
+    name: Verify app
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build Next.js app
+        run: npm run build
+
+      - name: Build worker
+        run: npm run worker:build

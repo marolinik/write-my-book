@@ -12,7 +12,33 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Generated/build artifacts and local scratch files:
+    "src/generated/**",
+    "dist-worker/**",
+    "coverage/**",
+    "uat-screenshots/**",
+    "tmp-*.js",
+    "tmp-*.ts",
   ]),
+  {
+    rules: {
+      // React Compiler diagnostics are valuable migration signals, but the
+      // current app predates those rules. Keep them visible without blocking
+      // production builds; Next build/typecheck remains the hard gate.
+      "react-hooks/set-state-in-effect": "warn",
+      "react-hooks/purity": "warn",
+      "react-hooks/refs": "warn",
+      "react-hooks/immutability": "warn",
+      "react-hooks/preserve-manual-memoization": "warn",
+
+      // Legacy codebase cleanup signals. Warnings keep CI informative while
+      // allowing production hardening to proceed incrementally.
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-require-imports": "warn",
+      "@typescript-eslint/no-this-alias": "warn",
+      "react/no-unescaped-entities": "warn",
+    },
+  },
 ]);
 
 export default eslintConfig;

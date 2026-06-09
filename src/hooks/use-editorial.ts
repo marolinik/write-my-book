@@ -8,6 +8,12 @@ import {
 import { fetchJson } from "@/lib/api-client";
 
 // Types for API responses
+interface FindingAlternative {
+  label?: string;
+  originalText?: string;
+  newText: string;
+}
+
 interface FindingItem {
   id: string;
   bookId: string;
@@ -26,6 +32,13 @@ interface FindingItem {
   dismissReason: string | null;
   appliedAt: string | null;
   createdAt: string;
+  confidence?: number | null;
+  rationale?: string | null;
+  paragraphNumber?: number | null;
+  anchorQuote?: string | null;
+  alternatives?: FindingAlternative[] | null;
+  groundingScore?: number | null;
+  chapterVersion?: number | null;
 }
 
 interface FindingsResponse {
@@ -117,17 +130,22 @@ export function useEditHistory(bookId: string, chapterNumber?: number) {
   });
 }
 
+type ApplyFindingInput = string | { findingId: string; alternativeIndex?: number };
+
 /** Apply a finding. */
 export function useApplyFinding(bookId: string) {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: (findingId: string) =>
-      fetchJson(`/api/books/${bookId}/editorial/findings/${findingId}`, {
+    mutationFn: (input: ApplyFindingInput) => {
+      const findingId = typeof input === "string" ? input : input.findingId;
+      const alternativeIndex = typeof input === "string" ? undefined : input.alternativeIndex;
+      return fetchJson(`/api/books/${bookId}/editorial/findings/${findingId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "apply" }),
-      }),
+        body: JSON.stringify({ action: "apply", alternativeIndex }),
+      });
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["editorial", bookId] });
     },
@@ -166,4 +184,4 @@ export function useUndoFinding(bookId: string) {
   });
 }
 
-export type { FindingItem, FindingsResponse, EditorialSummary, EditActionItem, EditHistoryResponse, FindingsFilters };
+export type { FindingItem, FindingAlternative, FindingsResponse, EditorialSummary, EditActionItem, EditHistoryResponse, FindingsFilters };

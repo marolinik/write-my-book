@@ -53,10 +53,11 @@ export async function getChapterEvolution(
     },
     orderBy: { createdAt: "asc" },
     select: {
-      versionNumber: true,
+      version: true,
       wordCount: true,
       createdAt: true,
-      changeSummary: true,
+      changeType: true,
+      changeSource: true,
     },
   });
 
@@ -99,12 +100,12 @@ export async function getChapterEvolution(
     revisionCount: chapter.revisionCount,
     statusHistory: [chapter.status], // Would need a status history table for full tracking
     wordCountHistory: versions.map(v => ({
-      version: v.versionNumber,
+      version: v.version,
       wordCount: v.wordCount,
       date: v.createdAt.toISOString(),
     })),
     latestChangeSummary: versions.length > 0
-      ? versions[versions.length - 1].changeSummary
+      ? `${versions[versions.length - 1].changeType} (${versions[versions.length - 1].changeSource})`
       : null,
     sessionHistory: sessions.map(s => ({
       workflowId: s.workflowId ?? "",

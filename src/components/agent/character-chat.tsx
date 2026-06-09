@@ -53,6 +53,10 @@ interface CharacterChatProps {
   onClose?: () => void;
 }
 
+interface CharacterChatResponse {
+  reply: string;
+}
+
 export function CharacterChat({ bookId, characters, onClose }: CharacterChatProps) {
   const [selectedCharacter, setSelectedCharacter] = useState<string>(
     characters[0]?.id ?? ""
@@ -95,7 +99,7 @@ export function CharacterChat({ bookId, characters, onClose }: CharacterChatProp
     setIsLoading(true);
 
     try {
-      const response = await fetchJson(`/api/books/${bookId}/character-chat`, {
+      const response = await fetchJson<CharacterChatResponse>(`/api/books/${bookId}/character-chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

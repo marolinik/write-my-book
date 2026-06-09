@@ -89,7 +89,7 @@ export function JourneyBanner({ bookId, onChooseJourney }: JourneyBannerProps) {
   // If a journey is already selected, don\'t show — sidebar handles it
   if (bookState.activeJourneyId) return null;
   // If setup is complete, don\'t nag
-  if (bookState.setupComplete) return null;
+  if (bookState.setupProgress.reviewComplete) return null;
 
   const nextWorkflowId = bookState.nextStepWorkflowId;
   const bannerText = nextWorkflowId
