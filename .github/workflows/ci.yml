@@ -59,12 +59,13 @@ jobs:
 
       - name: Check web runtime environment contract
         run: npm run env:check
+        env:
+          REDIS_URL: "redis://localhost:6379"
 
       - name: Check worker runtime environment contract
         run: npm run env:check:worker
         env:
           REDIS_URL: "redis://localhost:6379"
-
       - name: Lint
         run: npm run lint
 

@@ -15,7 +15,7 @@ This document tracks the remaining steps before public paid production launch.
 
 ### 1. Deployment topology
 
-Choose and document the production target:
+Choose and document the production target. Baseline topology is now documented in `docs/deployment-topology.md`:
 
 - Web app runtime
 - Worker runtime

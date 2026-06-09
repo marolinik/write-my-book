@@ -13,7 +13,8 @@
     "worker:build": "tsc --project tsconfig.worker.json && tsc-alias --project tsconfig.worker.json",
     "worker:start": "node dist-worker/worker.js",
     "env:check": "tsx scripts/check-env.ts web",
-    "env:check:worker": "tsx scripts/check-env.ts worker"
+    "env:check:worker": "tsx scripts/check-env.ts worker",
+    "smoke:deployment": "tsx scripts/smoke-deployment.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.74.0",
