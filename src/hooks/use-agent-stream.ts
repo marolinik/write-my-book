@@ -54,14 +54,40 @@ export function useAgentStream(bookId: string | null) {
             const result = message.metadata as unknown as AgentResult;
             const suggestedNext =
               (message.metadata?.suggestedNext as string[]) ?? [];
-            // Extract post-session result metadata for the session results UI
-            const rawMeta = (message.metadata as Record<string, unknown>)?.resultMeta as SessionResultMeta | undefined;
-            const resultMeta: SessionResultMeta | undefined = rawMeta
+            // Extract post-session result metadata for the session results UI.
+            // Two shapes exist: inline sessions nest it under metadata.resultMeta;
+            // background sessions flatten it onto metadata directly.
+            // endReason/wrapUpSummary are always top-level on metadata.
+            const meta = (message.metadata ?? {}) as Record<string, unknown>;
+            const rawMeta = meta.resultMeta as SessionResultMeta | undefined;
+            const endReason =
+              typeof meta.endReason === "string" ? meta.endReason : undefined;
+            const wrapUpSummary =
+              typeof meta.wrapUpSummary === "string" ? meta.wrapUpSummary : undefined;
+            const hasMeta =
+              rawMeta !== undefined ||
+              typeof meta.findingsCreated === "number" ||
+              endReason !== undefined ||
+              wrapUpSummary !== undefined;
+            const resultMeta: SessionResultMeta | undefined = hasMeta
               ? {
-                  findingsCreated: rawMeta.findingsCreated ?? 0,
-                  statusAdvanced: rawMeta.statusAdvanced ?? false,
-                  newStatus: rawMeta.newStatus,
-                  betaGateResult: rawMeta.betaGateResult,
+                  findingsCreated:
+                    rawMeta?.findingsCreated ??
+                    (typeof meta.findingsCreated === "number"
+                      ? meta.findingsCreated
+                      : 0),
+                  statusAdvanced:
+                    rawMeta?.statusAdvanced ?? meta.statusAdvanced === true,
+                  newStatus:
+                    rawMeta?.newStatus ??
+                    (typeof meta.newStatus === "string" ? meta.newStatus : undefined),
+                  betaGateResult:
+                    rawMeta?.betaGateResult ??
+                    (typeof meta.betaGateResult === "string"
+                      ? meta.betaGateResult
+                      : undefined),
+                  endReason,
+                  wrapUpSummary,
                 }
               : undefined;
             setSessionComplete(sid, result, suggestedNext, resultMeta);
@@ -89,10 +115,18 @@ export function useAgentStream(bookId: string | null) {
 
           if (message.type === "cost_update") {
             const costUsd = message.metadata?.costUsd as number | undefined;
+            const budgetUsd = message.metadata?.budgetUsd as number | undefined;
             if (costUsd != null) {
-              updateSessionCost(sid, costUsd);
+              updateSessionCost(sid, costUsd, budgetUsd);
             }
             // Don't add cost_update to messages array (it's metadata, not UI content)
+            return;
+          }
+
+          // Budget/time warnings are informational — render in the stream but
+          // NEVER treat as a session error (the session is still completing).
+          if (message.type === "budget_warning") {
+            addMessage(sid, message);
             return;
           }
 

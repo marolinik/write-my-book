@@ -22,6 +22,7 @@ import type { AgentJobData } from "./agent-queue";
 import { createRedisConnection } from "./connection";
 import { AgentOrchestrator } from "@/lib/agents/orchestrator";
 import { processPostSession } from "@/lib/agents/post-session";
+import { createSessionBrief } from "@/lib/agents/session-brief";
 import { getWorkflow, getAgentDefinition } from "@/lib/agents";
 import type {
   AgentStreamMessage,
@@ -33,7 +34,6 @@ import type {
 } from "@/lib/agents/types";
 import { db } from "@/lib/db";
 import { decryptApiKey } from "@/lib/encryption";
-import { estimateCost } from "@/lib/cost";
 import { estimateWorkflowCost } from "@/lib/llm/cost-estimator";
 import {
   resolveModelForRole,
@@ -295,6 +295,7 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
     const sharedCostTracker: SharedCostTracker = {
       totalInputTokens: 0,
       totalOutputTokens: 0,
+      totalCostUsd: 0,
     };
 
     // ── Delegation Context ──────────────────────────────────────────
@@ -326,13 +327,21 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
 
     // ── Create Orchestrator ─────────────────────────────────────────
 
+    // Validate the budget from job data — BullMQ JSON serialization turns
+    // Infinity into null. Fall back to the orchestrator default ($10)
+    // rather than running effectively unbounded.
+    const validatedCostLimit =
+      typeof sessionCostLimit === "number" && Number.isFinite(sessionCostLimit)
+        ? sessionCostLimit
+        : undefined;
+
     const workflow = getWorkflow(workflowId);
     const orchestrator = new AgentOrchestrator({
       client: coachClient,
       modelId: effectiveModelId,
       registryId: coachRegistryId,
       maxRuntimeMs: serverCeilingMs,
-      maxSessionCostUsd: sessionCostLimit,
+      maxSessionCostUsd: validatedCostLimit,
       sharedCostTracker,
       delegationContext,
       providerKey: providerKey as ProviderKey,
@@ -442,7 +451,8 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
 
     const onComplete = async (result: AgentResult) => {
       try {
-        // Run post-session processing
+        // Run post-session processing — skipped for user-cancelled sessions
+        // (the cancel route owns the terminal state; no completion processing).
         let suggestedNext: string[] = [];
         let resultMeta: {
           findingsCreated: number;
@@ -451,36 +461,47 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
           betaGateResult?: string;
         } = { findingsCreated: 0, statusAdvanced: false };
 
-        try {
-          const postResult = await processPostSession({
-            sessionId,
-            bookId,
-            userId,
-            workflowId,
-            agentType: workflow?.primaryAgent ?? (agentType as AgentType),
-            chapterNumber,
-          });
-          suggestedNext = postResult.suggestedNext;
-          resultMeta = {
-            findingsCreated: postResult.findingsCreated,
-            statusAdvanced: postResult.statusAdvanced,
-            newStatus: postResult.newStatus,
-            betaGateResult: postResult.betaGateResult,
-          };
-        } catch (e) {
-          const errMsg = e instanceof Error ? e.message : "Unknown error";
-          console.error("[AgentWorker][PostSession] Error:", errMsg);
+        if (!result.cancelled) {
+          try {
+            const postResult = await processPostSession({
+              sessionId,
+              bookId,
+              userId,
+              workflowId,
+              agentType: workflow?.primaryAgent ?? (agentType as AgentType),
+              chapterNumber,
+            });
+            suggestedNext = postResult.suggestedNext;
+            resultMeta = {
+              findingsCreated: postResult.findingsCreated,
+              statusAdvanced: postResult.statusAdvanced,
+              newStatus: postResult.newStatus,
+              betaGateResult: postResult.betaGateResult,
+            };
+          } catch (e) {
+            const errMsg = e instanceof Error ? e.message : "Unknown error";
+            console.error("[AgentWorker][PostSession] Error:", errMsg);
+          }
         }
 
-        // Update DB records with shared cost tracker totals
+        // Update DB records with shared cost tracker totals.
+        // totalCostUsd is accumulated per-turn at each orchestrator's OWN
+        // model rate, so mixed-model sessions (Opus specialists under a
+        // Sonnet conductor) are priced correctly.
         const totalInput = sharedCostTracker.totalInputTokens;
         const totalOutput = sharedCostTracker.totalOutputTokens;
-        const cost = estimateCost(coachRegistryId, totalInput, totalOutput);
+        const cost = sharedCostTracker.totalCostUsd;
 
         await db.agentSession.update({
           where: { id: sessionId },
           data: {
-            status: result.success ? "completed" : "failed",
+            // A user cancel must stay "failed" (set by the cancel route) —
+            // never let the post-abort completion overwrite it.
+            status: result.cancelled
+              ? "failed"
+              : result.success
+                ? "completed"
+                : "failed",
             tokensInput: totalInput,
             tokensOutput: totalOutput,
             completedAt: new Date(),
@@ -502,7 +523,42 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
           },
         });
 
-        // Publish completion message
+        // Persist a SessionBrief when the session ended early (budget/time)
+        // so the next session — e.g. "Continue where it left off" — sees
+        // what was done and what remains (prompt-assembler injects briefs).
+        const endReason = result.endReason ?? "natural";
+        if (endReason === "budget" || endReason === "timeout") {
+          const budgetLabel =
+            validatedCostLimit != null
+              ? ` ($${validatedCostLimit.toFixed(2)})`
+              : "";
+          await createSessionBrief(
+            sessionId,
+            bookId,
+            userId,
+            workflowId,
+            "writing-coach",
+            chapterNumber,
+            {
+              summary:
+                result.wrapUpSummary ??
+                (endReason === "budget"
+                  ? `Session ended at the budget limit${budgetLabel}. Work may be incomplete.`
+                  : "Session ended at the time limit. Work may be incomplete."),
+              nextSteps: suggestedNext,
+            }
+          );
+        }
+
+        // Cancelled: the cancel route already published the terminal 'error'
+        // SSE and set the Redis status to "failed" — publishing 'complete' /
+        // overwriting the status key here would resurrect the session as
+        // "completed" for replaying and polling clients.
+        if (result.cancelled) return;
+
+        // Publish completion message.
+        // endReason/wrapUpSummary are TOP-LEVEL (not nested under resultMeta —
+        // this publish flattens resultMeta and the client reads them top-level).
         await publishMessage({
           type: "complete",
           content: result.success
@@ -514,6 +570,10 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
             tokensInput: totalInput,
             tokensOutput: totalOutput,
             costUsd: cost,
+            endReason,
+            ...(result.wrapUpSummary
+              ? { wrapUpSummary: result.wrapUpSummary }
+              : {}),
           },
         });
 

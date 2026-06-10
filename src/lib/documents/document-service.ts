@@ -86,14 +86,40 @@ export class DocumentService {
   }
 
   /**
+   * Read content consistent with currentVersion. The live key is written
+   * AFTER the version transaction commits (see update()), so DB-version +
+   * live-key pairs can tear; the snapshot at currentVersion is written
+   * inside the transaction (version-manager.ts) and cannot.
+   */
+  async readPinned(documentId: string) {
+    const document = await db.document.findUnique({
+      where: { id: documentId },
+    });
+    if (!document) return null;
+    const snap = await this.storage.read(
+      getVersionStoragePath(documentId, document.currentVersion)
+    );
+    if (snap !== null) return { document, content: snap };
+    // Fallback: docs whose snapshot is missing (e.g. create()'s brief v1
+    // window, or legacy/imported docs) — live key, best effort.
+    const content = await this.storage.read(document.storageKey);
+    return { document, content: content ?? "" };
+  }
+
+  /**
    * Update a document's content, creating a new version.
+   *
+   * When `expectedVersion` is provided, the write is optimistically locked:
+   * a stale version throws `VersionConflictError` before any content is
+   * written. Callers omitting it keep last-write-wins semantics.
    */
   async update(
     documentId: string,
     content: string,
     title?: string,
     changeType: string = "manual_edit",
-    changeSource: string = "user"
+    changeSource: string = "user",
+    expectedVersion?: number
   ) {
     const document = await db.document.findUnique({
       where: { id: documentId },
@@ -103,12 +129,20 @@ export class DocumentService {
       throw new Error("Document not found");
     }
 
-    // Write updated content to the document's storage path
-    await this.storage.write(document.storageKey, content);
-
-    // Create a new version
+    // Version first: the CAS may reject with VersionConflictError, in which
+    // case current content must remain untouched.
     const vm = new VersionManager(documentId, this.storage);
-    const version = await vm.createVersion(content, changeType, changeSource);
+    const version = await vm.createVersion(
+      content,
+      changeType,
+      changeSource,
+      expectedVersion
+    );
+
+    // Write live content only AFTER versioning succeeded, so a rejected CAS
+    // never clobbers current content. (A post-CAS storage failure leaves the
+    // live content one version behind the snapshot — recoverable via restore.)
+    await this.storage.write(document.storageKey, content);
 
     // Update title if provided
     if (title !== undefined) {

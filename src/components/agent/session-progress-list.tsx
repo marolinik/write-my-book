@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import {
+  AlertCircleIcon,
   ClockIcon,
   DollarSignIcon,
   Loader2Icon,
@@ -126,9 +127,13 @@ export function SessionProgressList() {
                 {session.status === "running" && (
                   <Loader2Icon className="size-3 animate-spin text-primary shrink-0" />
                 )}
-                {session.status === "completed" && (
-                  <CheckCircleIcon className="size-3 text-green-600 dark:text-green-400 shrink-0" />
-                )}
+                {session.status === "completed" &&
+                  (session.resultMeta?.endReason === "budget" ||
+                  session.resultMeta?.endReason === "timeout" ? (
+                    <AlertCircleIcon className="size-3 text-amber-600 dark:text-amber-400 shrink-0" />
+                  ) : (
+                    <CheckCircleIcon className="size-3 text-green-600 dark:text-green-400 shrink-0" />
+                  ))}
                 {session.status === "failed" && (
                   <XCircleIcon className="size-3 text-destructive shrink-0" />
                 )}

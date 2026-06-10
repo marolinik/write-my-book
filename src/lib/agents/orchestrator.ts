@@ -28,6 +28,28 @@ const DEFAULT_MAX_RUNTIME_MS = 30 * 60 * 1000; // 30 minutes
 const DEFAULT_MAX_SESSION_COST_USD = 10;
 const APPROVAL_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
 
+/** Fraction of budget/time at which the one-shot warning fires. */
+const WARNING_THRESHOLD = 0.8;
+
+/** Nudge appended after tool_results when ~80% of the budget is used. */
+const BUDGET_NUDGE_TEXT =
+  "SYSTEM NOTICE: ~80% of the session budget has been used. " +
+  "Prioritize the remaining work: file any findings now (CreateFinding), " +
+  "save in-progress documents (WriteDocument), and begin wrapping up.";
+
+/** Nudge appended after tool_results when ~80% of the time limit has elapsed. */
+const TIME_NUDGE_TEXT =
+  "SYSTEM NOTICE: ~80% of the session time limit has elapsed. " +
+  "Prioritize the remaining work: file any findings now (CreateFinding), " +
+  "save in-progress documents (WriteDocument), and begin wrapping up.";
+
+/** Final-turn nudge when the budget or time limit is fully exhausted. */
+const FINAL_TURN_NUDGE_TEXT =
+  "SESSION LIMIT REACHED: This is your FINAL turn — the session ends after this response. " +
+  "(1) File any unfiled findings with CreateFinding. " +
+  "(2) Save any in-progress documents with WriteDocument. " +
+  "(3) End with a short 'Session Summary' describing what was completed and what remains to be done.";
+
 export interface OrchestratorOptions {
   /** Pre-built Anthropic SDK client (configured for the correct provider). */
   client: Anthropic;
@@ -81,7 +103,8 @@ export class AgentOrchestrator {
   >();
   private maxRuntimeMs: number;
   private maxSessionCostUsd: number;
-  private runtimeTimeout: ReturnType<typeof setTimeout> | null = null;
+  /** Wall-clock deadline (epoch ms) — checked per turn; replaces the old hard-abort timeout. */
+  private deadlineAt: number | null = null;
   private sharedCostTracker: import("./types").SharedCostTracker | null = null;
   private delegationContext: import("./types").DelegationContext | null = null;
   private providerKey: ProviderKey;
@@ -115,14 +138,10 @@ export class AgentOrchestrator {
 
     this.abortController = new AbortController();
 
-    // Wall-clock timeout
-    this.runtimeTimeout = setTimeout(() => {
-      options.onMessage({
-        type: "error",
-        content: `Session timed out after ${Math.round(this.maxRuntimeMs / 60000)} minutes.`,
-      });
-      this.cancel();
-    }, this.maxRuntimeMs);
+    // Wall-clock deadline — checked per turn in the tool loop. At 80% a
+    // warning is emitted; at 100% the agent gets one final wrap-up turn,
+    // then the loop exits exception-free (NEVER an SSE "error").
+    this.deadlineAt = Date.now() + this.maxRuntimeMs;
 
     const docService = new DocumentService(
       options.context.userId,
@@ -182,12 +201,20 @@ export class AgentOrchestrator {
         documentIds
       );
 
+      // User cancellation makes the loop break and return normally — report
+      // it so onComplete handlers don't overwrite the cancel route's "failed"
+      // status with "completed" (tokens/cost from completed turns still persist).
+      const cancelled = this.abortController?.signal.aborted === true;
+
       const agentResult: AgentResult = {
         success: true,
         tokensInput: result.inputTokens,
         tokensOutput: result.outputTokens,
         documentIds,
         sessionId: options.sessionId,
+        endReason: result.endReason,
+        wrapUpSummary: result.wrapUpSummary,
+        cancelled,
       };
 
       await options.onComplete(agentResult);
@@ -202,11 +229,6 @@ export class AgentOrchestrator {
         documentIds,
         sessionId: options.sessionId,
       };
-    } finally {
-      if (this.runtimeTimeout) {
-        clearTimeout(this.runtimeTimeout);
-        this.runtimeTimeout = null;
-      }
     }
   }
 
@@ -226,14 +248,8 @@ export class AgentOrchestrator {
 
     this.abortController = new AbortController();
 
-    // Wall-clock timeout
-    this.runtimeTimeout = setTimeout(() => {
-      options.onMessage({
-        type: "error",
-        content: `Session timed out after ${Math.round(this.maxRuntimeMs / 60000)} minutes.`,
-      });
-      this.cancel();
-    }, this.maxRuntimeMs);
+    // Wall-clock deadline — same graceful degradation as runAgent (see above).
+    this.deadlineAt = Date.now() + this.maxRuntimeMs;
 
     const docService = new DocumentService(
       options.context.userId,
@@ -295,15 +311,14 @@ export class AgentOrchestrator {
         tokensOutput: result.outputTokens,
         documentIds,
         sessionId: options.sessionId,
+        endReason: result.endReason,
+        wrapUpSummary: result.wrapUpSummary,
+        // See runAgent: cancelled sessions must not be persisted as "completed".
+        cancelled: this.abortController?.signal.aborted === true,
       });
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error));
       await options.onError(err);
-    } finally {
-      if (this.runtimeTimeout) {
-        clearTimeout(this.runtimeTimeout);
-        this.runtimeTimeout = null;
-      }
     }
   }
 
@@ -335,9 +350,24 @@ export class AgentOrchestrator {
     toolCtx: ToolContext,
     options: AgentSpawnOptions,
     documentIds: string[]
-  ): Promise<{ inputTokens: number; outputTokens: number }> {
+  ): Promise<{
+    inputTokens: number;
+    outputTokens: number;
+    endReason: "natural" | "budget" | "timeout";
+    wrapUpSummary?: string;
+  }> {
     let totalInputTokens = 0;
     let totalOutputTokens = 0;
+
+    // Graceful budget/time degradation state — these paths NEVER throw and
+    // NEVER emit SSE "error" (a budget stop is a completion, not a failure).
+    let budgetNudgeSent = false;
+    let timeNudgeSent = false;
+    let finalTurnRequested = false;
+    let endReason: "natural" | "budget" | "timeout" = "natural";
+    let wrapUpSummary: string | undefined;
+    /** Text block appended AFTER tool_results in the next user message. */
+    let pendingNudge: string | null = null;
 
     for (let turn = 0; turn < MAX_TOOL_TURNS; turn++) {
       if (this.abortController?.signal.aborted) break;
@@ -345,23 +375,41 @@ export class AgentOrchestrator {
       // Context trimming disabled — full tool results are preserved across turns.
       // this.trimOldToolResults(messages);
 
+      // Partial usage for the in-flight turn — when a user cancel aborts the
+      // stream mid-turn, finalMessage never resolves, so these captured
+      // counters are the only record of that turn's real provider spend.
+      // Assigned (not accumulated) per stream event, so provider retries
+      // simply overwrite stale partials.
+      let turnInputTokens = 0;
+      let turnOutputTokens = 0;
+
       let finalMessage: Anthropic.Message;
       try {
         finalMessage = await withProviderRetry(
           async () => {
-            const stream = this.client.messages.stream({
-              model: modelId,
-              max_tokens: 64000,
-              system: systemPrompt,
-              messages,
-              ...(tools.length > 0 ? { tools } : {}),
-            });
+            const stream = this.client.messages.stream(
+              {
+                model: modelId,
+                max_tokens: 64000,
+                system: systemPrompt,
+                messages,
+                ...(tools.length > 0 ? { tools } : {}),
+              },
+              // Abort the in-flight request on user cancellation (cancel()).
+              { signal: this.abortController?.signal }
+            );
 
             // Stream events to SSE listeners
             for await (const event of stream) {
               if (this.abortController?.signal.aborted) break;
 
-              if (event.type === "content_block_start") {
+              if (event.type === "message_start") {
+                turnInputTokens = event.message.usage.input_tokens;
+                turnOutputTokens = event.message.usage.output_tokens ?? 0;
+              } else if (event.type === "message_delta") {
+                // output_tokens in message_delta is cumulative for the turn.
+                turnOutputTokens = event.usage.output_tokens;
+              } else if (event.type === "content_block_start") {
                 if (event.content_block.type === "tool_use") {
                   options.onMessage({
                     type: "tool_use",
@@ -393,6 +441,24 @@ export class AgentOrchestrator {
           }
         );
       } catch (error) {
+        // User-initiated cancellation — the cancel flow owns the UX; no SSE error.
+        if (this.abortController?.signal.aborted) {
+          // Record the aborted turn's partial spend (the stream never resolved
+          // finalMessage) so totals and the shared tracker reflect what the
+          // provider actually billed for this turn.
+          totalInputTokens += turnInputTokens;
+          totalOutputTokens += turnOutputTokens;
+          if (this.sharedCostTracker) {
+            this.sharedCostTracker.totalInputTokens += turnInputTokens;
+            this.sharedCostTracker.totalOutputTokens += turnOutputTokens;
+            this.sharedCostTracker.totalCostUsd += estimateCost(
+              this.registryId,
+              turnInputTokens,
+              turnOutputTokens
+            );
+          }
+          break;
+        }
         // Non-retryable or exhausted retries — emit translated error
         if (error instanceof ProviderError) {
           options.onMessage({
@@ -416,32 +482,189 @@ export class AgentOrchestrator {
       totalInputTokens += finalMessage.usage.input_tokens;
       totalOutputTokens += finalMessage.usage.output_tokens;
 
-      // Update shared cost tracker (used for Coach + specialist budget sharing)
+      // Update shared cost tracker (used for Coach + specialist budget sharing).
+      // Each orchestrator — conductor AND specialist — prices its own turn at
+      // its OWN registryId, so the shared USD total stays correct even when
+      // specialists run a different (e.g. Opus) model than the conductor.
       if (this.sharedCostTracker) {
         this.sharedCostTracker.totalInputTokens += finalMessage.usage.input_tokens;
         this.sharedCostTracker.totalOutputTokens += finalMessage.usage.output_tokens;
+        this.sharedCostTracker.totalCostUsd += estimateCost(
+          this.registryId,
+          finalMessage.usage.input_tokens,
+          finalMessage.usage.output_tokens
+        );
       }
 
-      // Emit live cost update SSE event
+      // Emit live cost update SSE event.
+      // For the conductor (delegationContext set), budget accounting uses the
+      // shared tracker's accumulated USD so specialist spend counts against
+      // the session budget at the specialist's own model rate.
+      // Specialists (no delegationContext) guard only their own spend against
+      // their per-specialist sub-cap (see tools.ts DelegateToSpecialist).
+      const isConductorBudget =
+        this.delegationContext !== null && this.sharedCostTracker !== null;
       const runningCost = estimateCost(this.registryId, totalInputTokens, totalOutputTokens);
+      const budgetedCost =
+        isConductorBudget && this.sharedCostTracker
+          ? this.sharedCostTracker.totalCostUsd
+          : runningCost;
       options.onMessage({
         type: "cost_update",
-        content: `$${runningCost.toFixed(4)}`,
+        content: `$${budgetedCost.toFixed(4)}`,
         metadata: {
-          inputTokens: totalInputTokens,
-          outputTokens: totalOutputTokens,
-          costUsd: runningCost,
+          // Keep tokens and cost consistent: the conductor's cost is
+          // session-wide (shared tracker), so its token counts are too.
+          inputTokens:
+            isConductorBudget && this.sharedCostTracker
+              ? this.sharedCostTracker.totalInputTokens
+              : totalInputTokens,
+          outputTokens:
+            isConductorBudget && this.sharedCostTracker
+              ? this.sharedCostTracker.totalOutputTokens
+              : totalOutputTokens,
+          costUsd: budgetedCost,
           model: this.registryId,
+          ...(Number.isFinite(this.maxSessionCostUsd)
+            ? { budgetUsd: this.maxSessionCostUsd }
+            : {}),
         },
       });
 
-      // Cost budget check — estimate running cost and break if over limit
-      if (runningCost > this.maxSessionCostUsd) {
+      // Accumulate wrap-up text from the final (post-limit) turn so the
+      // client can show what was completed and what remains.
+      if (finalTurnRequested) {
+        const finalText = finalMessage.content
+          .filter((b): b is Anthropic.TextBlock => b.type === "text")
+          .map((b) => b.text)
+          .join("\n")
+          .trim();
+        if (finalText) {
+          wrapUpSummary = wrapUpSummary ? `${wrapUpSummary}\n${finalText}` : finalText;
+        }
+      }
+
+      // ── Budget/time guards — graceful degradation, NEVER throw, NEVER
+      // emit SSE "error" (that would flip the client to "failed" and close
+      // the background stream while the DB says "completed").
+
+      // One-shot 80% budget warning + nudge
+      if (
+        !budgetNudgeSent &&
+        Number.isFinite(this.maxSessionCostUsd) &&
+        budgetedCost >= WARNING_THRESHOLD * this.maxSessionCostUsd
+      ) {
+        budgetNudgeSent = true;
+        const pct = Math.round((budgetedCost / this.maxSessionCostUsd) * 100);
         options.onMessage({
-          type: "error",
-          content: `Session cost limit reached ($${runningCost.toFixed(2)}/$${this.maxSessionCostUsd.toFixed(2)}). Stopping to prevent overspend.`,
+          type: "budget_warning",
+          content: `Approaching the session budget: $${budgetedCost.toFixed(2)} of $${this.maxSessionCostUsd.toFixed(2)} used (${pct}%). The agent will prioritize and wrap up remaining work.`,
+          metadata: {
+            costUsd: budgetedCost,
+            budgetUsd: this.maxSessionCostUsd,
+            pct,
+          },
         });
-        break;
+        pendingNudge = BUDGET_NUDGE_TEXT;
+      }
+
+      // One-shot 80% time warning + nudge (same mechanism as budget)
+      if (
+        !timeNudgeSent &&
+        this.deadlineAt !== null &&
+        Date.now() >= this.deadlineAt - (1 - WARNING_THRESHOLD) * this.maxRuntimeMs
+      ) {
+        timeNudgeSent = true;
+        options.onMessage({
+          type: "budget_warning",
+          content: `Approaching the session time limit (~${Math.round(this.maxRuntimeMs / 60000)} min). The agent will prioritize and wrap up remaining work.`,
+          metadata: {
+            kind: "time",
+            ...(Number.isFinite(this.maxSessionCostUsd)
+              ? { costUsd: budgetedCost, budgetUsd: this.maxSessionCostUsd }
+              : {}),
+          },
+        });
+        pendingNudge = pendingNudge ?? TIME_NUDGE_TEXT;
+      }
+
+      // 100% — grant ONE final wrap-up turn, then exit exception-free.
+      const overBudget =
+        Number.isFinite(this.maxSessionCostUsd) &&
+        budgetedCost > this.maxSessionCostUsd;
+      const overTime = this.deadlineAt !== null && Date.now() >= this.deadlineAt;
+      if (overBudget || overTime) {
+        if (finalTurnRequested) {
+          // Wrap-up turn complete. The FINAL nudge instructed the model to
+          // persist its work (CreateFinding / WriteDocument), so execute
+          // exactly those tools once before stopping — otherwise the work the
+          // nudge requested is silently dropped and the tool_use SSE events
+          // already streamed above leave orphaned spinners in the UI.
+          // No messages.push and no further model turn: zero added model
+          // cost, and the exception-free contract holds (spec §4 risk 10).
+          // Iterating content blocks (not gating on stop_reason === "tool_use")
+          // also covers a max_tokens-truncated wrap-up turn — truncated tool
+          // input JSON simply fails inside the try/catch.
+          // The allowlist is load-bearing: it excludes DelegateToSpecialist
+          // (would spawn a paid sub-agent after budget exhaustion) and
+          // RequestApproval (would block up to 10 min on the approval gate).
+          const WRAP_UP_TOOLS = new Set(["CreateFinding", "WriteDocument"]);
+          const wrapUpToolUses = finalMessage.content.filter(
+            (b): b is Anthropic.ToolUseBlock => b.type === "tool_use"
+          );
+          for (const tu of wrapUpToolUses) {
+            let resultText = "Session ended — tool skipped during wrap-up.";
+            if (WRAP_UP_TOOLS.has(tu.name)) {
+              try {
+                const r = await executeTool(
+                  tu.name,
+                  toolCtx,
+                  tu.input as Record<string, unknown>
+                );
+                if (r !== APPROVAL_SENTINEL) resultText = r;
+              } catch {
+                /* exception-free at 100% — never throw (spec §4 risk 10) */
+              }
+            }
+            options.onMessage({
+              type: "tool_result",
+              content:
+                resultText.length > 500
+                  ? resultText.slice(0, 500) + "..."
+                  : resultText,
+              metadata: { tool: tu.name, toolUseId: tu.id },
+            });
+          }
+          break;
+        }
+        if (finalMessage.stop_reason === "end_turn") {
+          // The model is finishing on its own this turn — let the normal
+          // end_turn flow below complete the session naturally.
+        } else if (
+          finalMessage.stop_reason === "tool_use" ||
+          finalMessage.stop_reason === "max_tokens"
+        ) {
+          // A next turn WILL occur (tool_results push or max_tokens recovery
+          // below) — arm the final wrap-up turn and deliver the nudge on it.
+          finalTurnRequested = true;
+          endReason = overBudget ? "budget" : "timeout";
+          options.onMessage({
+            type: "status",
+            content: overBudget
+              ? `Budget reached ($${budgetedCost.toFixed(2)}/$${this.maxSessionCostUsd.toFixed(2)}) — wrapping up.`
+              : "Time limit reached — wrapping up.",
+            metadata: { budgetStop: true, endReason },
+          });
+          // The crossing turn's tool calls still execute once (lets the agent
+          // finish filing); the FINAL nudge rides the next user message —
+          // the tool-results push or the max_tokens recovery message.
+          pendingNudge = FINAL_TURN_NUDGE_TEXT;
+        } else {
+          // Refusal etc. — the loop breaks below regardless, so no wrap-up
+          // turn can occur; record why the session ended without emitting a
+          // misleading "wrapping up" status.
+          endReason = overBudget ? "budget" : "timeout";
+        }
       }
 
       // Handle max_tokens BEFORE pushing assistant message — when truncation
@@ -481,17 +704,28 @@ export class AgentOrchestrator {
                 "If writing a large document, break it into sections and use multiple smaller WriteDocument calls.",
               is_error: true,
             }));
-          messages.push({ role: "user", content: errorResults });
+          // Flush any pending budget/time nudge with the recovery message —
+          // otherwise a limit crossing on a max_tokens turn would arm the
+          // final turn without ever delivering the FINAL wrap-up instructions.
+          const recoveryContent: Anthropic.ContentBlockParam[] = [...errorResults];
+          if (pendingNudge) {
+            recoveryContent.push({ type: "text", text: pendingNudge });
+            pendingNudge = null;
+          }
+          messages.push({ role: "user", content: recoveryContent });
         } else {
           // Pure text truncation — push content and ask to continue
           messages.push({ role: "assistant", content: contentBlocks });
-          messages.push({
-            role: "user",
-            content:
-              "Your previous response was cut off because it exceeded the length limit. " +
-              "Please continue exactly where you left off. Do not repeat what you already wrote. " +
-              "IMPORTANT: Continue in the SAME language you were writing in.",
-          });
+          let continueText =
+            "Your previous response was cut off because it exceeded the length limit. " +
+            "Please continue exactly where you left off. Do not repeat what you already wrote. " +
+            "IMPORTANT: Continue in the SAME language you were writing in.";
+          // Same nudge flush as the truncated-tool-call branch above.
+          if (pendingNudge) {
+            continueText += `\n\n${pendingNudge}`;
+            pendingNudge = null;
+          }
+          messages.push({ role: "user", content: continueText });
         }
         continue;
       }
@@ -624,7 +858,15 @@ export class AgentOrchestrator {
           });
         }
 
-        messages.push({ role: "user", content: toolResults });
+        // Budget/time nudges ride the same user message, AFTER the tool_result
+        // blocks (the API requires tool_results first; mid-conversation user
+        // text is the established pattern — see the max_tokens recovery above).
+        const userContent: Anthropic.ContentBlockParam[] = [...toolResults];
+        if (pendingNudge) {
+          userContent.push({ type: "text", text: pendingNudge });
+          pendingNudge = null;
+        }
+        messages.push({ role: "user", content: userContent });
         continue;
       }
 
@@ -632,7 +874,12 @@ export class AgentOrchestrator {
       break;
     }
 
-    return { inputTokens: totalInputTokens, outputTokens: totalOutputTokens };
+    return {
+      inputTokens: totalInputTokens,
+      outputTokens: totalOutputTokens,
+      endReason,
+      wrapUpSummary,
+    };
   }
 
   /**

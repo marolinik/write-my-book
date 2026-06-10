@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Check, Loader2, AlertCircle, Info } from "lucide-react";
+import { Check, Loader2, AlertCircle, AlertTriangle, Info } from "lucide-react";
 import {
   Popover,
   PopoverTrigger,
@@ -17,6 +17,10 @@ interface EditorStatusBarProps {
   isDirty: boolean;
   lastSaved: Date | null;
   annotationCounts?: AnnotationCounts | null;
+  /** True while an unresolved save conflict is pending (autosave suspended). */
+  hasSaveConflict?: boolean;
+  /** Opens the save-conflict review dialog. */
+  onReviewConflict?: () => void;
 }
 
 /* ── Legend items matching globals.css annotation classes ─────── */
@@ -121,6 +125,8 @@ export function EditorStatusBar({
   isDirty,
   lastSaved,
   annotationCounts,
+  hasSaveConflict,
+  onReviewConflict,
 }: EditorStatusBarProps) {
   const readingTime = Math.max(1, Math.ceil(wordCount / 250));
 
@@ -182,6 +188,18 @@ export function EditorStatusBar({
 
       <div className="flex items-center gap-2">
         <AnnotationLegend />
+
+        {/* Persistent conflict chip — durable affordance after the toast expires */}
+        {hasSaveConflict && (
+          <button
+            type="button"
+            onClick={onReviewConflict}
+            className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium bg-amber-100 text-amber-800 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50 transition-colors"
+          >
+            <AlertTriangle className="h-3 w-3" />
+            Conflict — click to review
+          </button>
+        )}
 
         <div className="flex items-center gap-1.5">
           {isSaving ? (

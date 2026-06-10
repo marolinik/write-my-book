@@ -195,6 +195,9 @@ export const restoreVersionSchema = z.object({
 export const updateChapterContentSchema = z.object({
   markdown: z.string().max(2_000_000),
   changeSource: z.string().max(200).optional(),
+  // Optimistic-lock stamp: when present, the save is rejected with 409 if the
+  // document's currentVersion has moved. Omitted = last-write-wins (legacy).
+  expectedVersion: z.number().int().min(1).optional(),
 });
 
 export const exportConfigSchema = z.object({

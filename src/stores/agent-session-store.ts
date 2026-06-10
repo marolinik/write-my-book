@@ -15,6 +15,10 @@ export interface SessionResultMeta {
   statusAdvanced: boolean;
   newStatus?: string;
   betaGateResult?: string; // "passed" | "failed" | "near_miss"
+  /** "natural" | "budget" | "timeout" — budget/timeout = graceful early end, NOT a failure */
+  endReason?: string;
+  /** Final-turn summary of done/remaining work when the session ended early */
+  wrapUpSummary?: string;
 }
 
 export interface SessionState {
@@ -23,6 +27,8 @@ export interface SessionState {
   agentType: AgentType;
   bookId: string;
   seriesId?: string;
+  /** Chapter the session was started for (chapter-scoped workflows). Needed so "Continue where it left off" keeps the same scope. */
+  chapterNumber?: number;
   status: "running" | "completed" | "failed";
   messages: AgentStreamMessage[];
   error: string | null;
@@ -38,6 +44,8 @@ export interface SessionState {
   extensionsUsed: number;
   /** Running cost in USD, updated via cost_update SSE events */
   currentCost: number;
+  /** Session budget in USD when known (from cost_update metadata) */
+  budgetUsd?: number;
   /** Whether this session is running as a background job (queued via BullMQ) */
   isBackground: boolean;
 }
@@ -54,6 +62,7 @@ interface PersistedSession {
   agentType: AgentType;
   bookId: string;
   seriesId?: string;
+  chapterNumber?: number;
   startedAt: number;
   estimatedMinMinutes?: number;
   estimatedMaxMinutes?: number;
@@ -72,6 +81,7 @@ function persistSessions(sessions: Record<string, SessionState>) {
           agentType: s.agentType,
           bookId: s.bookId,
           seriesId: s.seriesId,
+          chapterNumber: s.chapterNumber,
           startedAt: s.startedAt,
           estimatedMinMinutes: s.estimatedMinMinutes,
           estimatedMaxMinutes: s.estimatedMaxMinutes,
@@ -103,6 +113,7 @@ function loadPersistedSessions(): Record<string, SessionState> {
         agentType: p.agentType,
         bookId: p.bookId,
         seriesId: p.seriesId,
+        chapterNumber: p.chapterNumber,
         status: "running",
         messages: [],
         error: null,
@@ -141,7 +152,8 @@ interface AgentSessionState {
       estimatedMinMinutes?: number;
       estimatedMaxMinutes?: number;
     },
-    isBackground?: boolean
+    isBackground?: boolean,
+    chapterNumber?: number
   ) => void;
   extendSession: (sessionId: string) => void;
   addMessage: (sessionId: string, message: AgentStreamMessage) => void;
@@ -153,7 +165,7 @@ interface AgentSessionState {
   ) => void;
   setSessionRunning: (sessionId: string) => void;
   setSessionError: (sessionId: string, error: string) => void;
-  updateSessionCost: (sessionId: string, costUsd: number) => void;
+  updateSessionCost: (sessionId: string, costUsd: number, budgetUsd?: number) => void;
   setActiveSession: (sessionId: string | null) => void;
   removeSession: (sessionId: string) => void;
 
@@ -181,7 +193,7 @@ export const useAgentSessionStore = create<AgentSessionState>((set, get) => ({
   activeSessionId: null,
   workflowQueue: [],
 
-  startSession: (sessionId, workflowId, agentType, bookId, seriesId, timing, isBackground) => {
+  startSession: (sessionId, workflowId, agentType, bookId, seriesId, timing, isBackground, chapterNumber) => {
     // Cross-store: open panel via UI store
     useAgentUIStore.getState().setPanelMode("overlay");
     set((state) => {
@@ -193,6 +205,7 @@ export const useAgentSessionStore = create<AgentSessionState>((set, get) => ({
           agentType,
           bookId,
           seriesId,
+          chapterNumber,
           status: "running" as const,
           messages: [],
           error: null,
@@ -324,7 +337,7 @@ export const useAgentSessionStore = create<AgentSessionState>((set, get) => ({
       return { sessions: newSessions };
     }),
 
-  updateSessionCost: (sessionId, costUsd) =>
+  updateSessionCost: (sessionId, costUsd, budgetUsd) =>
     set((state) => {
       const session = state.sessions[sessionId];
       if (!session) return state;
@@ -334,6 +347,7 @@ export const useAgentSessionStore = create<AgentSessionState>((set, get) => ({
           [sessionId]: {
             ...session,
             currentCost: costUsd,
+            ...(budgetUsd != null ? { budgetUsd } : {}),
           },
         },
       };

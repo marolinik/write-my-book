@@ -133,6 +133,7 @@ export interface AgentStreamMessage {
     | "complete"
     | "cost_update"
     | "status"
+    | "budget_warning"
     | "delegation_start"
     | "delegation_progress"
     | "delegation_complete";
@@ -144,6 +145,12 @@ export interface AgentStreamMessage {
 export interface SharedCostTracker {
   totalInputTokens: number;
   totalOutputTokens: number;
+  /**
+   * Accumulated USD across Coach + specialists. Each orchestrator adds
+   * estimateCost(its OWN registryId, turn tokens) so mixed-model sessions
+   * (e.g. Sonnet conductor + Opus specialists) are priced correctly.
+   */
+  totalCostUsd: number;
 }
 
 /** Context passed to the DelegateToSpecialist tool executor. */
@@ -179,6 +186,16 @@ export interface AgentResult {
   tokensOutput: number;
   documentIds: string[];
   sessionId: string;
+  /** Why the session ended. "budget"/"timeout" mean a graceful early end — NOT a failure. */
+  endReason?: "natural" | "budget" | "timeout";
+  /** Final-turn summary of done/remaining work when the session ended early. */
+  wrapUpSummary?: string;
+  /**
+   * True when the session was aborted by user cancellation. onComplete
+   * handlers must NOT mark the session "completed" (the cancel route owns
+   * the "failed" status) but should still persist counted tokens/cost.
+   */
+  cancelled?: boolean;
 }
 
 export interface ApprovalResponse {

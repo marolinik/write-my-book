@@ -12,25 +12,36 @@ export function useChapterContent(bookId: string, chapterId: string) {
   return useQuery({
     queryKey: ["chapter-content", bookId, chapterId],
     queryFn: () =>
-      fetchJson<{ markdown: string; wordCount: number; documentId?: string }>(
-        `/api/books/${bookId}/chapters/${chapterId}/content`
-      ),
+      fetchJson<{
+        markdown: string;
+        wordCount: number;
+        documentId?: string;
+        version?: number;
+      }>(`/api/books/${bookId}/chapters/${chapterId}/content`),
     enabled: !!bookId && !!chapterId,
   });
 }
 
-/** Save chapter markdown content. */
+/** Save chapter markdown content (optionally optimistically locked). */
 export function useSaveChapterContent(bookId: string, chapterId: string) {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: (markdown: string) =>
-      fetchJson<{ wordCount: number }>(
+    mutationFn: ({
+      markdown,
+      expectedVersion,
+      changeSource,
+    }: {
+      markdown: string;
+      expectedVersion?: number;
+      changeSource?: string;
+    }) =>
+      fetchJson<{ wordCount: number; version: number }>(
         `/api/books/${bookId}/chapters/${chapterId}/content`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ markdown }),
+          body: JSON.stringify({ markdown, expectedVersion, changeSource }),
         }
       ),
     onSuccess: () => {

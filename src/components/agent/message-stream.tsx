@@ -35,6 +35,7 @@ type BlockDesc =
   | { kind: "approval"; msg: AgentStreamMessage; blockKey: number }
   | { kind: "error"; text: string; metadata?: Record<string, unknown>; blockKey: number }
   | { kind: "status"; text: string; blockKey: number }
+  | { kind: "budget_warning"; text: string; metadata?: Record<string, unknown>; blockKey: number }
   | { kind: "complete"; msg: AgentStreamMessage; blockKey: number }
   | {
       kind: "delegation";
@@ -239,6 +240,11 @@ export function MessageStream({
           result.push({ kind: "status", text: msg.content, blockKey: keyIndex++ });
           break;
 
+        case "budget_warning":
+          flushText();
+          result.push({ kind: "budget_warning", text: msg.content, metadata: msg.metadata, blockKey: keyIndex++ });
+          break;
+
         case "complete":
           flushText();
           result.push({ kind: "complete", msg, blockKey: keyIndex++ });
@@ -337,6 +343,8 @@ export function MessageStream({
             <span className="text-xs text-amber-700 dark:text-amber-300">{block.text}</span>
           </div>
         );
+      case "budget_warning":
+        return <BudgetWarningBanner key={`budget-${block.blockKey}`} text={block.text} metadata={block.metadata} />;
       case "complete":
         return <CompletionCard key={`done-${block.blockKey}`} result={block.msg.metadata as unknown as AgentResult} language={language} />;
       case "delegation":
@@ -495,6 +503,32 @@ function TimeoutWarning({
         <Button size="sm" variant="outline" className="h-6 text-xs shrink-0" onClick={onExtend}>
           Extend +15 min
         </Button>
+      )}
+    </div>
+  );
+}
+
+// ─── Budget warning banner (sticky, amber) ───────────────────
+// Informational only — the session continues and wraps up gracefully.
+
+function BudgetWarningBanner({
+  text,
+  metadata,
+}: {
+  text: string;
+  metadata?: Record<string, unknown>;
+}) {
+  const costUsd = metadata?.costUsd as number | undefined;
+  const budgetUsd = metadata?.budgetUsd as number | undefined;
+
+  return (
+    <div className="sticky top-0 z-10 flex items-center gap-2 rounded-md border border-amber-500/30 bg-amber-50/80 dark:bg-amber-950/80 px-3 py-2 text-xs">
+      <AlertTriangleIcon className="size-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
+      <span className="flex-1 text-amber-700 dark:text-amber-300">{text}</span>
+      {costUsd != null && budgetUsd != null && (
+        <span className="shrink-0 tabular-nums text-amber-700 dark:text-amber-300">
+          ${costUsd.toFixed(2)} / ${budgetUsd.toFixed(2)}
+        </span>
       )}
     </div>
   );

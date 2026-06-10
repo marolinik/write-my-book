@@ -98,6 +98,7 @@ export function AgentPanel({
   const suggestedNext = activeSession?.suggestedNext ?? [];
   const resultMeta = activeSession?.resultMeta;
   const currentCost = activeSession?.currentCost ?? 0;
+  const budgetUsd = activeSession?.budgetUsd;
 
   const sessionCount = Object.keys(sessions).length;
   const hasAnySessions = sessionCount > 0;
@@ -196,7 +197,7 @@ export function AgentPanel({
         startSessionStore(resultSessionId, wfId, wf.primaryAgent, bookId, seriesId, {
           estimatedMinMinutes: wf.estimatedMinMinutes,
           estimatedMaxMinutes: wf.estimatedMaxMinutes,
-        }, isBackground);
+        }, isBackground, chapterNumber);
 
         if (isBackground) {
           toast.info(`${wf.label} queued for background processing`, {
@@ -278,6 +279,8 @@ export function AgentPanel({
   }, []);
 
   const isComplete = activeSession && activeSession.status !== "running";
+  const endedEarly =
+    resultMeta?.endReason === "budget" || resultMeta?.endReason === "timeout";
 
   // Post-session navigation CTAs based on completed workflow
   const postSessionCTAs = useMemo(() => {
@@ -525,7 +528,9 @@ export function AgentPanel({
           {currentCost > 0 && (
             <span className="flex items-center gap-1">
               <DollarSignIcon className="size-3" />
-              ${currentCost.toFixed(4)}
+              {budgetUsd != null && budgetUsd > 0
+                ? `$${currentCost.toFixed(2)} / $${budgetUsd.toFixed(2)} (${Math.round((currentCost / budgetUsd) * 100)}%)`
+                : `$${currentCost.toFixed(4)}`}
             </span>
           )}
           {workflow?.estimatedMaxMinutes && (
@@ -679,6 +684,40 @@ export function AgentPanel({
           {/* Session results summary + suggested next + navigation CTAs */}
           {isComplete && (
             <div className="flex flex-col gap-2 border-t p-3 shrink-0 max-h-[25vh] overflow-y-auto overscroll-contain">
+              {/* Ended-early (budget/timeout) card — graceful stop, not a failure */}
+              {endedEarly && (
+                <div className="rounded-md border border-amber-500/30 bg-amber-50/50 dark:bg-amber-950/20 p-2.5 space-y-1.5">
+                  <div className="flex items-center gap-1.5 text-xs font-medium text-amber-700 dark:text-amber-300">
+                    <AlertCircleIcon className="size-3.5 shrink-0" />
+                    {resultMeta?.endReason === "budget"
+                      ? `Session ended early — budget reached${budgetUsd != null ? ` ($${budgetUsd.toFixed(2)})` : ""}. Partial results saved.`
+                      : "Session ended early — time limit reached. Partial results saved."}
+                  </div>
+                  {resultMeta?.wrapUpSummary && (
+                    <p className="text-[11px] text-muted-foreground whitespace-pre-wrap">
+                      {resultMeta.wrapUpSummary}
+                    </p>
+                  )}
+                  {workflowId && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-xs gap-1"
+                      disabled={startMutation.isPending || startSeriesMutation.isPending}
+                      onClick={() =>
+                        // Carry the original session's chapter scope into the
+                        // continuation — otherwise a chapter-scoped session
+                        // resumes as a book-scoped one.
+                        handleWorkflowSelect(workflowId, activeSession?.chapterNumber)
+                      }
+                    >
+                      Continue where it left off
+                      <ArrowRightIcon className="size-3" />
+                    </Button>
+                  )}
+                </div>
+              )}
+
               {/* Session Complete summary card */}
               {resultMeta && (resultMeta.findingsCreated > 0 || resultMeta.statusAdvanced || resultMeta.betaGateResult) && (
                 <div className="rounded-md border bg-muted/30 p-2.5 space-y-1.5">

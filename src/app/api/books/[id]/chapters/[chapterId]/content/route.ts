@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { updateChapterContentSchema } from "@/lib/validation";
-import { DocumentService } from "@/lib/documents";
+import { DocumentService, VersionConflictError } from "@/lib/documents";
 import { DocumentType } from "@/generated/prisma/enums";
 import { countWords } from "@/lib/utils";
 
@@ -48,13 +48,16 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ markdown: "", wordCount: 0 });
     }
 
-    const result = await svc.read(doc.id);
+    // readPinned: pair currentVersion with that exact version's snapshot so
+    // the client's initial version stamp matches the content it loaded.
+    const result = await svc.readPinned(doc.id);
 
     const rawContent = result?.content ?? "";
     return NextResponse.json({
       markdown: sanitizeUnicode(rawContent),
       wordCount: chapter.wordCount,
       documentId: doc.id,
+      version: result?.document.currentVersion ?? doc.currentVersion,
     });
   } catch (error) {
     if ((error as Error).message === "Unauthorized") {
@@ -105,16 +108,47 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
     );
 
     const wordCount = countWords(data.markdown);
+    let version: number;
 
     if (existingDoc) {
-      // Update existing document
-      await svc.update(
-        existingDoc.id,
-        data.markdown,
-        undefined,
-        "manual_edit",
-        data.changeSource ?? "user"
-      );
+      // Update existing document (optimistically locked when the client
+      // stamps expectedVersion; legacy bodies stay last-write-wins)
+      try {
+        const result = await svc.update(
+          existingDoc.id,
+          data.markdown,
+          undefined,
+          "manual_edit",
+          data.changeSource ?? "user",
+          data.expectedVersion
+        );
+        // Stamp the client with the DocumentVersion row created inside the
+        // CAS transaction (always expectedVersion+1 under the lock) — NOT the
+        // re-read document.currentVersion, which can already reflect a
+        // concurrent unguarded writer and would convert a detectable 409
+        // into a silent overwrite on the next stamped save.
+        version = result.version.version;
+      } catch (error) {
+        if (error instanceof VersionConflictError) {
+          // CAS rejected — nothing was written. Return the server's current
+          // state before any word-count mutation. Sanitize identically to
+          // GET so client equality checks are symmetric. readPinned pairs
+          // currentVersion with that exact version's snapshot content (the
+          // live key may not be written yet by the winning writer).
+          const current = await svc.readPinned(existingDoc.id);
+          return NextResponse.json(
+            {
+              error: "version_conflict",
+              currentVersion:
+                current?.document.currentVersion ??
+                existingDoc.currentVersion,
+              serverContent: sanitizeUnicode(current?.content ?? ""),
+            },
+            { status: 409 }
+          );
+        }
+        throw error;
+      }
     } else {
       // Create new document
       await svc.create(
@@ -125,6 +159,7 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
         chapter.actNumber,
         data.changeSource ?? "user"
       );
+      version = 1;
     }
 
     // Update chapter and book word counts
@@ -141,7 +176,7 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
       data: { wordCount: { increment: wordDelta } },
     });
 
-    return NextResponse.json({ wordCount });
+    return NextResponse.json({ wordCount, version });
   } catch (error) {
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

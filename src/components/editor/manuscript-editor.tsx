@@ -20,6 +20,7 @@ import {
   useSaveChapterContent,
 } from "@/hooks/use-documents";
 import { useFindings } from "@/hooks/use-editorial";
+import { ApiError } from "@/lib/api-client";
 import { cn, countWords } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
@@ -33,6 +34,7 @@ import { InlineEditPopup } from "./inline-edit-popup";
 import { EditorContextMenu } from "./editor-context-menu";
 import { EditorToolbar } from "./editor-toolbar";
 import { EditorStatusBar } from "./editor-status-bar";
+import { SaveConflictDialog } from "./save-conflict-dialog";
 import { VersionHistoryPanel } from "./version-history-panel";
 import { VersionHistorySheet } from "./version-history-sheet";
 import { EditorFindingsPanel } from "./editor-findings-panel";
@@ -78,6 +80,15 @@ interface ManuscriptEditorProps {
   paneId?: string;
 }
 
+/**
+ * Mirror of the server route's sanitizeUnicode (U+FFFD → em dash) so the
+ * 409 no-op equality check compares symmetric strings — the 409 body and GET
+ * both sanitize on the server side.
+ */
+function sanitizeUnicode(text: string): string {
+  return text.replace(/\uFFFD/g, "\u2014");
+}
+
 // ── Component ────────────────────────────────────────────────
 
 export function ManuscriptEditor({
@@ -100,6 +111,7 @@ export function ManuscriptEditor({
   const isDirty = useEditorPaneStore(paneId, (s) => s.isDirty);
   const isSaving = useEditorPaneStore(paneId, (s) => s.isSaving);
   const lastSaved = useEditorPaneStore(paneId, (s) => s.lastSaved);
+  const saveConflict = useEditorPaneStore(paneId, (s) => s.saveConflict);
   const focusMode = useEditorPaneStore(paneId, (s) => s.focusMode);
   const focusLevel = useEditorPaneStore(paneId, (s) => s.focusLevel);
   const ghostTextEnabled = useEditorPaneStore(paneId, (s) => s.ghostTextEnabled);
@@ -117,10 +129,15 @@ export function ManuscriptEditor({
   const isMobile = useIsMobile();
   const router = useRouter();
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Consecutive autosave failures (non-409) — drives exponential backoff so a
+  // permanently failing save (400/401/500/offline) doesn't hammer the route
+  // every ~2s via the isSaving effect-dep re-fire.
+  const saveFailuresRef = useRef(0);
   const contentLoadedRef = useRef(false);
   const editorRef = useRef<ReturnType<typeof useEditor>>(null);
   const editorAreaRef = useRef<HTMLDivElement>(null);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
+  const [showSaveConflict, setShowSaveConflict] = useState(false);
   const [showInlineEdit, setShowInlineEdit] = useState(false);
   const [inlineEditInstruction, setInlineEditInstruction] = useState<string | undefined>(undefined);
   const [tooltipState, setTooltipState] = useState<TooltipState | null>(null);
@@ -134,6 +151,10 @@ export function ManuscriptEditor({
   const [immersive, setImmersive] = useState(false);
   const [immersiveContent, setImmersiveContent] = useState("");
   const immersiveHtmlRef = useRef("");
+  // Mirror immersive state into a ref so the async save callback reads the
+  // value at 409-resolution time, not at callback creation time
+  const immersiveRef = useRef(false);
+  immersiveRef.current = immersive;
   const isLg = useIsLg();
 
   // Findings for current chapter
@@ -278,35 +299,57 @@ export function ManuscriptEditor({
   useEffect(() => {
     paneStore.getState().setChapter(bookId, chapterId, chapterNumber);
     contentLoadedRef.current = false;
+    saveFailuresRef.current = 0;
     if (isPrimary) {
       useActiveEditorStore.getState().setActiveEditor(bookId, chapterId, chapterNumber);
     }
   }, [bookId, chapterId, chapterNumber, isPrimary, paneStore]);
 
-  // Load content into editor when data arrives
+  // Load content into editor when data arrives. Also clean-resync: adopt
+  // first-party server-side rewrites (finding apply/undo, version restore,
+  // agent/import writes) when the pane has nothing at risk — otherwise the
+  // next autosave would 409 with a false "another writer" conflict caused by
+  // buttons inside this very view.
   useEffect(() => {
-    if (chapterData && editor && !contentLoadedRef.current) {
-      // Set content without emitting update (prevents unnecessary re-renders)
-      editor.commands.setContent(chapterData.markdown || "", { emitUpdate: false });
+    if (!chapterData || !editor) return;
 
-      // Reset undo history: create fresh state with current doc but empty history.
-      // This prevents Ctrl+Z from erasing pre-existing chapter content.
-      const freshState = EditorState.create({
-        doc: editor.state.doc,
-        plugins: editor.state.plugins,
-      });
-      editor.view.updateState(freshState);
+    const paneState = paneStore.getState();
+    const isInitialLoad = !contentLoadedRef.current;
+    const isCleanResync =
+      !isInitialLoad &&
+      typeof chapterData.version === "number" &&
+      chapterData.version !== paneState.documentVersion &&
+      !paneState.isDirty &&
+      !paneState.isSaving &&
+      !paneState.saveConflict;
 
-      contentLoadedRef.current = true;
-      paneStore.getState().markClean();
+    if (!isInitialLoad && !isCleanResync) return;
 
-      if (chapterData.documentId) {
-        paneStore.getState().setDocumentId(chapterData.documentId);
-        if (isPrimary) {
-          useActiveEditorStore.getState().setActiveDocumentId(chapterData.documentId);
-        }
+    // Set content without emitting update (prevents unnecessary re-renders)
+    editor.commands.setContent(chapterData.markdown || "", { emitUpdate: false });
+
+    // Reset undo history: create fresh state with current doc but empty history.
+    // This prevents Ctrl+Z from erasing pre-existing chapter content.
+    const freshState = EditorState.create({
+      doc: editor.state.doc,
+      plugins: editor.state.plugins,
+    });
+    editor.view.updateState(freshState);
+
+    contentLoadedRef.current = true;
+    paneStore.getState().markClean();
+
+    // Stamp the loaded version for optimistic locking on autosave
+    paneStore.getState().setDocumentVersion(chapterData.version ?? null);
+
+    if (chapterData.documentId) {
+      paneStore.getState().setDocumentId(chapterData.documentId);
+      if (isPrimary) {
+        useActiveEditorStore.getState().setActiveDocumentId(chapterData.documentId);
       }
+    }
 
+    if (isInitialLoad) {
       // If scrollToText was set before content loaded (e.g. navigating from editorial page),
       // trigger it now by re-setting the same value so the subscriber picks it up.
       const pendingScroll = paneStore.getState().scrollToText;
@@ -317,38 +360,189 @@ export function ManuscriptEditor({
     }
   }, [chapterData, editor, isPrimary, paneStore]);
 
+  // Durable conflict affordance: toast with a Review action. The dialog is
+  // NEVER auto-opened — typing must not be interrupted.
+  const showConflictToast = useCallback(() => {
+    toast.warning("Chapter changed outside this editor", {
+      description:
+        "Another writer (agent, import, or tab) saved a newer version. Your words are kept in this editor — review to resume saving.",
+      action: {
+        label: "Review",
+        onClick: () => setShowSaveConflict(true),
+      },
+    });
+  }, []);
+
+  // Navigating away silently clears a pending conflict (setChapter resets it)
+  // and would strand words typed after the conflict (autosave is suspended) —
+  // confirm before in-editor navigation while that risk exists.
+  const guardedNavigate = useCallback(
+    (href: string) => {
+      const s = paneStore.getState();
+      if (s.saveConflict && s.isDirty) {
+        const proceed = window.confirm(
+          "This chapter has an unresolved save conflict and unsaved words. " +
+            "Leaving now discards them from the editor (a local draft snapshot is kept). Leave anyway?"
+        );
+        if (!proceed) return;
+      }
+      router.push(href);
+    },
+    [paneStore, router]
+  );
+
   // Auto-save with 2s debounce
   const saveContent = useCallback(async () => {
     if (!editor) return;
 
     const md = getMarkdownFromEditor(editor);
+    // Capture the target chapter at dispatch time from the STORE (not the
+    // prop — the closure's chapterId prop can go stale after in-place route
+    // param updates).
+    const dispatchedChapterId = paneStore.getState().chapterId;
+    const expectedVersion = paneStore.getState().documentVersion ?? undefined;
     paneStore.getState().setSaving(true);
 
+    // Chapter switched while the save was in flight — the store now belongs
+    // to another chapter; drop the result (the server write already landed on
+    // the correct chapter's route via the mutation captured at dispatch).
+    const isStale = () =>
+      paneStore.getState().chapterId !== dispatchedChapterId;
+
     try {
-      await saveMutationRef.current.mutateAsync(md);
+      const res = await saveMutationRef.current.mutateAsync({
+        markdown: md,
+        expectedVersion,
+      });
+      if (isStale()) {
+        paneStore.getState().setSaving(false);
+        return;
+      }
+      saveFailuresRef.current = 0;
+      paneStore.getState().setDocumentVersion(res.version);
       paneStore.getState().setLastSaved(new Date());
-    } catch {
+    } catch (error) {
+      if (isStale()) {
+        paneStore.getState().setSaving(false);
+        return;
+      }
+      if (error instanceof ApiError && error.status === 409) {
+        const body = error.body as {
+          currentVersion?: number;
+          serverContent?: string;
+        } | null;
+
+        if (
+          typeof body?.currentVersion === "number" &&
+          typeof body?.serverContent === "string"
+        ) {
+          // No-op conflict: the server already holds identical content
+          // (e.g. another tab saved the same text). Adopt its version and
+          // clear dirty — no UI. Both sides sanitized for symmetry.
+          if (sanitizeUnicode(body.serverContent) === sanitizeUnicode(md)) {
+            saveFailuresRef.current = 0;
+            paneStore.getState().setDocumentVersion(body.currentVersion);
+            paneStore.getState().setLastSaved(new Date());
+            return;
+          }
+
+          // Real conflict: record it (suspends autosave; local words stay
+          // safe in the editor) and surface a non-blocking toast.
+          saveFailuresRef.current = 0;
+          paneStore.getState().setSaveConflict({
+            serverContent: body.serverContent,
+            serverVersion: body.currentVersion,
+          });
+          paneStore.getState().setSaving(false);
+
+          // Crash/nav safety: snapshot the unsaved words — autosave is
+          // suspended while the conflict is pending, so this draft is the
+          // only persistence they have. Cleared on dialog resolution.
+          if (dispatchedChapterId) {
+            try {
+              localStorage.setItem(
+                `wmb-conflict-draft-${dispatchedChapterId}`,
+                md
+              );
+            } catch {
+              // localStorage unavailable/full — draft is best-effort
+            }
+          }
+
+          // In immersive mode the toast/dialog would render under the
+          // z-[100] overlay — defer surfacing to exitImmersive.
+          if (!immersiveRef.current) {
+            showConflictToast();
+          }
+          return;
+        }
+      }
+      // Non-409 failure: count it for autosave backoff and surface a hint
+      // once per failure streak.
+      saveFailuresRef.current += 1;
+      if (saveFailuresRef.current === 3) {
+        toast.error("Autosave is failing — check your connection.");
+      }
       paneStore.getState().setSaving(false);
     }
-  }, [editor, paneStore]);
+  }, [editor, paneStore, showConflictToast]);
 
   useEffect(() => {
     if (!isDirty || !paneChapterId) return;
+    // Guard against same-stamp overlap: a save scheduled while another is in
+    // flight would carry the same expectedVersion and 409 against itself.
+    // isSaving is a dep so this effect re-fires once the in-flight save lands.
+    if (isSaving) return;
+    // Suspend autosave while a conflict is unresolved — typing continues,
+    // content stays safe in the editor, and the route isn't hammered.
+    if (saveConflict) {
+      // Refresh the crash/nav-safety draft so words typed after the conflict
+      // survive tab close or navigation (best-effort, per effect re-run).
+      const ed = editorRef.current;
+      if (ed) {
+        try {
+          localStorage.setItem(
+            `wmb-conflict-draft-${paneChapterId}`,
+            getMarkdownFromEditor(ed)
+          );
+        } catch {
+          // localStorage unavailable/full — draft is best-effort
+        }
+      }
+      return;
+    }
 
     if (saveTimerRef.current) {
       clearTimeout(saveTimerRef.current);
     }
 
+    // Exponential backoff on consecutive non-409 failures (2s, 4s, 8s, ...
+    // capped at 60s) so a permanent 400/500/offline doesn't hammer the route
+    // every ~2s; transient failures still self-heal.
+    const delay = Math.min(2000 * 2 ** saveFailuresRef.current, 60_000);
     saveTimerRef.current = setTimeout(() => {
       saveContent();
-    }, 2000);
+    }, delay);
 
     return () => {
       if (saveTimerRef.current) {
         clearTimeout(saveTimerRef.current);
       }
     };
-  }, [isDirty, paneChapterId, saveContent]);
+  }, [isDirty, isSaving, saveConflict, paneChapterId, saveContent]);
+
+  // While a conflict is pending with unsaved words, nothing persists them
+  // (autosave is suspended) — prompt before tab close/reload (spec §4.2:
+  // never lose local words).
+  useEffect(() => {
+    if (!saveConflict || !isDirty) return;
+    const h = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", h);
+    return () => window.removeEventListener("beforeunload", h);
+  }, [saveConflict, isDirty]);
 
   // F2 shortcut: open inline AI edit when text is selected
   useEffect(() => {
@@ -538,12 +732,20 @@ export function ManuscriptEditor({
       editor.commands.setContent(immersiveHtmlRef.current);
       paneStore.getState().markDirty();
     }
-  }, [editor, immersiveContent, paneStore]);
+    // A conflict detected during immersive mode was deferred (toast/dialog
+    // would have rendered under the z-[100] overlay) — surface it now.
+    if (paneStore.getState().saveConflict) {
+      showConflictToast();
+    }
+  }, [editor, immersiveContent, paneStore, showConflictToast]);
 
   // Safety net: while immersive, edits live only in immersiveHtmlRef — if
   // this component unmounts without exit (back-nav, tab close, crash) the
   // whole session is lost. Periodically sync into tiptap + markDirty so the
-  // 2s-debounced autosave persists it; bounds worst-case loss to ~32s.
+  // 2s-debounced autosave persists it; bounds worst-case loss to ~32s —
+  // EXCEPT while a save conflict is pending: autosave is suspended then, so
+  // persistence falls back to the localStorage conflict draft and the
+  // beforeunload prompt until the conflict is resolved on exit.
   // (Compare against lastImmersiveSyncRef, not editor.getHTML(): tiptap
   // normalizes HTML and would trigger spurious syncs. The overlay renders
   // from immersiveContent state, so the hidden sync never moves the cursor.)
@@ -630,13 +832,17 @@ export function ManuscriptEditor({
             variant="ghost"
             size="icon"
             className="size-6 shrink-0"
-            onClick={() => router.push(`/books/${bookId}`)}
+            onClick={() => guardedNavigate(`/books/${bookId}`)}
             title="Back to book"
           >
             <ArrowLeftIcon className="size-3.5" />
           </Button>
           <Link
             href={`/books/${bookId}`}
+            onClick={(e) => {
+              e.preventDefault();
+              guardedNavigate(`/books/${bookId}`);
+            }}
             className="hover:text-foreground transition-colors truncate"
           >
             {bookName ?? "Book"}
@@ -664,7 +870,7 @@ export function ManuscriptEditor({
                 disabled={!prevChapter}
                 onClick={() =>
                   prevChapter &&
-                  router.push(`/books/${bookId}/chapters/${prevChapter.id}`)
+                  guardedNavigate(`/books/${bookId}/chapters/${prevChapter.id}`)
                 }
                 title={
                   prevChapter
@@ -684,7 +890,7 @@ export function ManuscriptEditor({
                 disabled={!nextChapter}
                 onClick={() =>
                   nextChapter &&
-                  router.push(`/books/${bookId}/chapters/${nextChapter.id}`)
+                  guardedNavigate(`/books/${bookId}/chapters/${nextChapter.id}`)
                 }
                 title={
                   nextChapter
@@ -872,6 +1078,8 @@ export function ManuscriptEditor({
         isDirty={isDirty}
         lastSaved={lastSaved}
         annotationCounts={annotationCounts}
+        hasSaveConflict={!!saveConflict}
+        onReviewConflict={() => setShowSaveConflict(true)}
       />
     </div>
   );
@@ -924,6 +1132,16 @@ export function ManuscriptEditor({
           {findingsPanel}
         </div>
       )}
+
+      {/* Save-conflict resolution — opened only via toast action or status-bar chip */}
+      <SaveConflictDialog
+        open={showSaveConflict}
+        onOpenChange={setShowSaveConflict}
+        bookId={bookId}
+        chapterId={chapterId}
+        paneId={paneId}
+        editor={editor}
+      />
 
       {/* Version history sidebar — inline on lg+, Sheet on smaller screens */}
       {isLg ? (

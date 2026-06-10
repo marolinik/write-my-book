@@ -148,6 +148,10 @@ export function useApplyFinding(bookId: string) {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["editorial", bookId] });
+      // Apply rewrites the chapter document server-side (bumps its version).
+      // Refetch chapter content so an open editor's clean-resync adopts the
+      // new version instead of 409ing on its next autosave.
+      qc.invalidateQueries({ queryKey: ["chapter-content", bookId] });
     },
   });
 }
@@ -180,6 +184,10 @@ export function useUndoFinding(bookId: string) {
       }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["editorial", bookId] });
+      // Undo rewrites the chapter document server-side (bumps its version).
+      // Refetch chapter content so an open editor's clean-resync adopts the
+      // new version instead of 409ing on its next autosave.
+      qc.invalidateQueries({ queryKey: ["chapter-content", bookId] });
     },
   });
 }

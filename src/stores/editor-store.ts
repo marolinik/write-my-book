@@ -4,6 +4,11 @@ import type { FindingItem } from "@/hooks/use-editorial";
 
 // ── Per-pane state (no content field — TipTap is sole source of truth) ──
 
+export interface SaveConflictState {
+  serverContent: string;
+  serverVersion: number;
+}
+
 export interface EditorPaneState {
   bookId: string | null;
   chapterId: string | null;
@@ -14,6 +19,10 @@ export interface EditorPaneState {
   isDirty: boolean;
   isSaving: boolean;
   lastSaved: Date | null;
+
+  // Optimistic locking — per-pane
+  documentVersion: number | null;
+  saveConflict: SaveConflictState | null;
 
   // UI toggles — per-pane
   focusMode: boolean;
@@ -32,6 +41,8 @@ export interface EditorPaneState {
   markClean: () => void;
   setSaving: (saving: boolean) => void;
   setLastSaved: (date: Date) => void;
+  setDocumentVersion: (version: number | null) => void;
+  setSaveConflict: (conflict: SaveConflictState | null) => void;
   toggleFocusMode: () => void;
   setFocusLevel: (level: 0 | 1 | 2 | 3) => void;
   toggleGhostText: () => void;
@@ -55,6 +66,8 @@ const initialPaneState = {
   isDirty: false,
   isSaving: false,
   lastSaved: null,
+  documentVersion: null,
+  saveConflict: null,
   focusMode: false,
   focusLevel: 0 as const,
   ghostTextEnabled: false,
@@ -70,9 +83,20 @@ function createEditorPaneStore(): EditorPaneStore {
     ...initialPaneState,
 
     setChapter: (bookId, chapterId, chapterNumber) =>
-      set({ bookId, chapterId, chapterNumber, isDirty: false }),
+      set({
+        bookId,
+        chapterId,
+        chapterNumber,
+        isDirty: false,
+        documentVersion: null,
+        saveConflict: null,
+      }),
 
     setDocumentId: (documentId) => set({ documentId }),
+
+    setDocumentVersion: (documentVersion) => set({ documentVersion }),
+
+    setSaveConflict: (saveConflict) => set({ saveConflict }),
 
     markDirty: () => set({ isDirty: true }),
 

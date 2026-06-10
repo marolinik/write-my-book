@@ -4,6 +4,7 @@ import { DocumentType } from "@/generated/prisma/enums";
 import { getChapterEntities } from "@/lib/graph/graph-queries";
 import { getRelevantMemory } from "@/lib/vector/memory-manager";
 import { formatInsightsForPrompt } from "./blackboard";
+import { formatBriefsForPrompt } from "./session-brief";
 import { formatWriterMemoryForPrompt } from "./writer-memory";
 import { selectSkillsForAgent } from "./skills";
 import { db } from "@/lib/db";
@@ -1900,6 +1901,25 @@ export async function assembleAgentPrompt(
     }
   } catch {
     // Blackboard unavailable
+  }
+
+  // ─── SECTION 16b: Session Continuity Briefs (priority 14) ─────
+  // Takeaways from recent sessions — including budget/timeout wrap-ups —
+  // so the next session knows what was completed and what remains.
+  try {
+    const briefsXml = await formatBriefsForPrompt(
+      context.bookId,
+      context.chapterNumber
+    );
+    if (briefsXml) {
+      sections.push({
+        name: "session_continuity",
+        priority: 14,
+        content: `\n${briefsXml}`,
+      });
+    }
+  } catch {
+    // Session briefs unavailable — proceed without
   }
 
   // ─── SECTION 17: Page Context (priority 10) ───────────────────

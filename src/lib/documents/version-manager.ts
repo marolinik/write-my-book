@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { countWords } from "@/lib/utils";
 import type { StorageAdapter } from "@/lib/storage/types";
 import { getVersionStoragePath } from "./storage-keys";
+import { VersionConflictError } from "./errors";
 
 export class VersionManager {
   constructor(
@@ -12,18 +13,41 @@ export class VersionManager {
   /**
    * Create a new version snapshot of the document content.
    * Uses atomic increment to prevent race conditions with parallel agents.
+   *
+   * When `expectedVersion` is provided, the increment is a compare-and-swap:
+   * it only applies if `currentVersion` still equals `expectedVersion`,
+   * otherwise a `VersionConflictError` is thrown and nothing is written.
+   * Callers omitting `expectedVersion` keep unconditional last-write-wins.
    */
   async createVersion(
     content: string,
     changeType: string,
-    changeSource: string
+    changeSource: string,
+    expectedVersion?: number
   ) {
     // Atomic: increment version and create record in a transaction
     const result = await db.$transaction(async (tx) => {
-      // Atomically increment currentVersion and get the new value
-      const doc = await tx.document.update({
-        where: { id: this.documentId },
+      // Atomically increment currentVersion, guarded by the CAS when
+      // expectedVersion is supplied (updateMany supports non-unique where)
+      const updated = await tx.document.updateMany({
+        where: {
+          id: this.documentId,
+          ...(expectedVersion !== undefined && {
+            currentVersion: expectedVersion,
+          }),
+        },
         data: { currentVersion: { increment: 1 } },
+      });
+
+      if (updated.count === 0 && expectedVersion !== undefined) {
+        throw new VersionConflictError(this.documentId);
+      }
+
+      // updateMany returns no row — re-read for the new version number.
+      // For unguarded callers a missing document throws here (P2025),
+      // matching the previous tx.document.update behavior.
+      const doc = await tx.document.findUniqueOrThrow({
+        where: { id: this.documentId },
       });
 
       const nextVersion = doc.currentVersion;

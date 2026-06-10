@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { decryptApiKey } from "@/lib/encryption";
-import { estimateCost } from "@/lib/cost";
 import { estimateWorkflowCost } from "@/lib/llm/cost-estimator";
 import { validatePrices } from "@/lib/llm/price-validator";
 import { checkQuota } from "@/lib/billing/quota-checker";
@@ -41,6 +40,11 @@ import { enqueueAgentJob } from "@/lib/queue";
 import type { AgentJobData } from "@/lib/queue";
 
 type RouteParams = { params: Promise<{ id: string }> };
+
+/** Safety multiplier applied to the pre-session max cost estimate. */
+const BUDGET_SAFETY_FACTOR = 2;
+/** Lower bound for the per-session budget so tight estimates don't strangle sessions. */
+const MIN_SESSION_BUDGET_USD = 5;
 
 const startSessionSchema = z.object({
   workflowId: z.string().min(1),
@@ -354,6 +358,14 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       data: { estimatedCostUsd: preEstimate.max },
     });
 
+    // Finite per-session budget derived from the workflow estimate.
+    // CRITICAL: must be finite — Infinity does not survive BullMQ's JSON
+    // serialization (it becomes null, silently falling back to defaults).
+    const sessionBudgetUsd = Math.max(
+      preEstimate.max * BUDGET_SAFETY_FACTOR,
+      MIN_SESSION_BUDGET_USD
+    );
+
     // Fire-and-forget: validate pricing on first use (24h cache)
     validatePrices().catch(() => {});
 
@@ -381,7 +393,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         bookName: book.name,
         message: data.message,
         pageContext: serializedPageContext,
-        sessionCostLimit: Infinity,
+        sessionCostLimit: sessionBudgetUsd,
         serverCeilingMs,
         isConversational: workflow.conversational,
       };
@@ -415,6 +427,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       const sharedCostTracker: SharedCostTracker = {
         totalInputTokens: 0,
         totalOutputTokens: 0,
+        totalCostUsd: 0,
       };
 
       // -- Delegation Context --
@@ -437,7 +450,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         modelId: effectiveModelId,
         registryId: effectiveCoachRegistryId,
         maxRuntimeMs: serverCeilingMs,
-        maxSessionCostUsd: Infinity,
+        maxSessionCostUsd: sessionBudgetUsd,
         sharedCostTracker,
         delegationContext,
         providerKey: validationProvider,
@@ -462,7 +475,9 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         sessionId: dbSession.id,
         onMessage,
         onComplete: async (result: AgentResult) => {
-          // Run post-session processing (parse reports, store findings, advance status)
+          // Run post-session processing (parse reports, store findings, advance status).
+          // Skipped for user-cancelled sessions — the cancel route owns the
+          // terminal state and already notified listeners via cancelSession.
           let suggestedNext: string[] = [];
           let resultMeta: {
             findingsCreated: number;
@@ -470,40 +485,55 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
             newStatus?: string;
             betaGateResult?: string;
           } = { findingsCreated: 0, statusAdvanced: false };
-          try {
-            const postResult = await processPostSession({
-              sessionId: dbSession.id,
-              bookId,
-              userId: user.id,
-              workflowId: data.workflowId,
-              agentType: workflow.primaryAgent,
-              chapterNumber: data.chapterNumber,
-            });
-            suggestedNext = postResult.suggestedNext;
-            resultMeta = {
-              findingsCreated: postResult.findingsCreated,
-              statusAdvanced: postResult.statusAdvanced,
-              newStatus: postResult.newStatus,
-              betaGateResult: postResult.betaGateResult,
-            };
-          } catch (e) {
-            // Log without exposing sensitive data
-            const errMsg = e instanceof Error ? e.message : "Unknown error";
-            console.error("[PostSession] Error:", errMsg);
+          if (!result.cancelled) {
+            try {
+              const postResult = await processPostSession({
+                sessionId: dbSession.id,
+                bookId,
+                userId: user.id,
+                workflowId: data.workflowId,
+                agentType: workflow.primaryAgent,
+                chapterNumber: data.chapterNumber,
+              });
+              suggestedNext = postResult.suggestedNext;
+              resultMeta = {
+                findingsCreated: postResult.findingsCreated,
+                statusAdvanced: postResult.statusAdvanced,
+                newStatus: postResult.newStatus,
+                betaGateResult: postResult.betaGateResult,
+              };
+            } catch (e) {
+              // Log without exposing sensitive data
+              const errMsg = e instanceof Error ? e.message : "Unknown error";
+              console.error("[PostSession] Error:", errMsg);
+            }
           }
 
-          // Attach result metadata to the AgentResult for SSE propagation
-          const enrichedResult = { ...result, resultMeta };
+          // Attach result metadata to the AgentResult for SSE propagation.
+          // Cancelled sessions complete as success:false so the in-memory
+          // session stays "failed" (matching the cancel route's DB status).
+          const enrichedResult = {
+            ...result,
+            success: result.cancelled ? false : result.success,
+            resultMeta,
+          };
           completeSession(dbSession.id, enrichedResult, suggestedNext);
 
-          // Update DB records -- include shared cost tracker totals
+          // Update DB records -- include shared cost tracker totals.
+          // totalCostUsd is accumulated per-turn at each orchestrator's OWN
+          // model rate, so Opus specialists are priced correctly.
           const totalInput = sharedCostTracker.totalInputTokens;
           const totalOutput = sharedCostTracker.totalOutputTokens;
-          const cost = estimateCost(effectiveCoachRegistryId, totalInput, totalOutput);
+          const cost = sharedCostTracker.totalCostUsd;
           await db.agentSession.update({
             where: { id: dbSession.id },
             data: {
-              status: result.success ? "completed" : "failed",
+              // Never overwrite the cancel route's "failed" with "completed".
+              status: result.cancelled
+                ? "failed"
+                : result.success
+                  ? "completed"
+                  : "failed",
               tokensInput: totalInput,
               tokensOutput: totalOutput,
               completedAt: new Date(),
