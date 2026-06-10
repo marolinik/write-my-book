@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { checkDependencies } from "@/lib/readiness";
+import { checkDependencies } from "@/lib/health/dependencies";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";

@@ -68,11 +68,13 @@ jobs:
         run: npm run env:check
         env:
           REDIS_URL: "redis://localhost:6379"
+        env:
 
       - name: Check worker runtime environment contract
         run: npm run env:check:worker
         env:
           REDIS_URL: "redis://localhost:6379"
+        env:
 
       - name: Check Clerk auth contract
         run: npm run auth:check
