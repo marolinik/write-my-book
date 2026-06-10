@@ -47,7 +47,7 @@ Before launch:
 
 ### 4. Stripe verification
 
-Use Stripe CLI/test cards to verify:
+Static contract is documented in `docs/stripe-billing-verification.md` and enforced by `npm run billing:check`. Use Stripe CLI/test cards to verify:
 
 - Checkout session creation
 - Webhook signature validation

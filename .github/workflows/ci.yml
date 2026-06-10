@@ -26,6 +26,13 @@ env:
   STRIPE_SECRET_KEY: "placeholder"
   STRIPE_WEBHOOK_SECRET: "placeholder"
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: "placeholder"
+  STRIPE_FOUNDER_MONTHLY_PRICE_ID: "price_ci_founder_monthly"
+  STRIPE_INDIE_MONTHLY_PRICE_ID: "price_ci_indie_monthly"
+  STRIPE_INDIE_ANNUAL_PRICE_ID: "price_ci_indie_annual"
+  STRIPE_PRO_MONTHLY_PRICE_ID: "price_ci_pro_monthly"
+  STRIPE_PRO_ANNUAL_PRICE_ID: "price_ci_pro_annual"
+  STRIPE_PUBLISHER_MONTHLY_PRICE_ID: "price_ci_publisher_monthly"
+  STRIPE_PUBLISHER_ANNUAL_PRICE_ID: "price_ci_publisher_annual"
   S3_ENDPOINT: "http://localhost:9000"
   S3_ACCESS_KEY_ID: "placeholder"
   S3_SECRET_ACCESS_KEY: "placeholder"
@@ -66,6 +73,9 @@ jobs:
         run: npm run env:check:worker
         env:
           REDIS_URL: "redis://localhost:6379"
+
+      - name: Check Stripe billing contract
+        run: npm run billing:check
       - name: Lint
         run: npm run lint
 

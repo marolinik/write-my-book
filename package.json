@@ -14,7 +14,8 @@
     "worker:start": "node dist-worker/worker.js",
     "env:check": "tsx scripts/check-env.ts web",
     "env:check:worker": "tsx scripts/check-env.ts worker",
-    "smoke:deployment": "tsx scripts/smoke-deployment.ts"
+    "smoke:deployment": "tsx scripts/smoke-deployment.ts",
+    "billing:check": "tsx scripts/check-stripe-config.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.74.0",
