@@ -75,8 +75,7 @@ Static contract is documented in `docs/clerk-auth-verification.md` and enforced 
 
 ### 7. E2E smoke tests
 
-Add a CI job or deployment smoke script that starts the app with service
-containers and runs a minimal Playwright suite:
+A deployment-only smoke path now exists: `npm run smoke:deployment` for HTTP checks and `npm run test:deployment-smoke` for browser checks against `PLAYWRIGHT_BASE_URL`. Remaining work is to wire it into the deployment pipeline. Smoke coverage:
 
 - Load public landing page
 - Login or E2E bypass in non-production test env

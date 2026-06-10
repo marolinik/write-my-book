@@ -18,7 +18,8 @@
     "billing:check": "tsx scripts/check-stripe-config.ts",
     "auth:check": "tsx scripts/check-clerk-config.ts",
     "db:deploy:check": "tsx scripts/check-db-deploy.ts",
-    "db:push:prod": "npm run db:deploy:check && npx prisma generate && npx prisma db push"
+    "db:push:prod": "npm run db:deploy:check && npx prisma generate && npx prisma db push",
+    "test:deployment-smoke": "playwright test --config playwright.deployment.config.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.74.0",

@@ -78,16 +78,23 @@ Readiness returns `503` if a required dependency fails:
 Optional dependencies are reported as `degraded`/`skipped` but do not fail the
 whole readiness response.
 
-Run the smoke script after every deploy:
+Run the HTTP smoke script after every deploy:
 
 ```bash
 npm run smoke:deployment -- https://your-domain.example
+```
+
+Run the browser smoke test after the HTTP smoke passes:
+
+```bash
+PLAYWRIGHT_BASE_URL=https://your-domain.example npm run test:deployment-smoke
 ```
 
 or locally:
 
 ```bash
 SMOKE_BASE_URL=http://127.0.0.1:${APP_PORT:-3000} npm run smoke:deployment
+PLAYWRIGHT_BASE_URL=http://127.0.0.1:${APP_PORT:-3000} npm run test:deployment-smoke
 ```
 
 ## Deployment sequence

@@ -49,3 +49,6 @@ next-env.d.ts
 
 # Office temp lock files
 ~$*
+playwright-report-deployment/
+playwright-report/
+test-results/
