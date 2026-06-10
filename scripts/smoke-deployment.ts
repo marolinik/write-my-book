@@ -1,51 +1,40 @@
-type SmokeEndpoint = {
-  path: string;
-  expectOk: boolean;
-};
+const baseUrl = process.argv[2] ?? process.env.SMOKE_BASE_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+const normalized = baseUrl.replace(/\/$/, "");
 
-const baseUrl = (process.env.SMOKE_BASE_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
-const endpoints: SmokeEndpoint[] = [
-  { path: "/api/health", expectOk: true },
-  { path: "/api/health/dependencies", expectOk: true },
-];
-const timeoutMs = Number(process.env.SMOKE_TIMEOUT_MS ?? "10000");
-
-async function fetchWithTimeout(url: string) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+async function check(path: string) {
+  const started = Date.now();
+  const res = await fetch(`${normalized}${path}`, { headers: { accept: "application/json" } });
+  const text = await res.text();
+  let body: unknown;
   try {
-    return await fetch(url, { signal: controller.signal, cache: "no-store" });
-  } finally {
-    clearTimeout(timeout);
+    body = JSON.parse(text);
+  } catch {
+    body = text.slice(0, 300);
   }
+  const latencyMs = Date.now() - started;
+  const ok = res.ok;
+  console.log(`${ok ? "✅" : "❌"} ${path} ${res.status} ${latencyMs}ms`);
+  if (!ok) console.log(JSON.stringify(body, null, 2));
+  return ok;
 }
 
 async function main() {
-  let failed = false;
-  for (const endpoint of endpoints) {
-    const url = `${baseUrl}${endpoint.path}`;
-    const started = Date.now();
-    try {
-      const response = await fetchWithTimeout(url);
-      const latencyMs = Date.now() - started;
-      const body = await response.text();
-      const ok = response.ok === endpoint.expectOk;
-      console.log(`${ok ? "✅" : "❌"} ${endpoint.path} status=${response.status} latency=${latencyMs}ms`);
-      if (!ok) {
-        failed = true;
-        console.log(body.slice(0, 1200));
-      }
-    } catch (error) {
-      failed = true;
-      const message = error instanceof Error ? error.message : "request failed";
-      console.log(`❌ ${endpoint.path} ${message}`);
-    }
+  const results = await Promise.all([
+    check("/api/health"),
+    check("/api/health/dependencies"),
+  ]);
+
+  if (!results.every(Boolean)) {
+    console.error(`Smoke check failed for ${normalized}`);
+    process.exit(1);
   }
 
-  if (failed) process.exit(1);
+  console.log(`Deployment smoke check passed for ${normalized}`);
 }
 
 main().catch((error) => {
-  console.error(error);
+  console.error(error instanceof Error ? error.message : error);
   process.exit(1);
 });
+
+export {};

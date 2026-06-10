@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { checkDependencies } from "@/lib/health/dependencies";
+import { checkDependencies } from "@/lib/readiness";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 export async function GET() {
   const readiness = await checkDependencies();

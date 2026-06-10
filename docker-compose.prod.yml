@@ -1,37 +1,16 @@
 # docker-compose.prod.yml
-# Production override: localhost-bound ports + backup sidecar
+# Production override: app runtime production mode + backup sidecar.
 # Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 #
-# All service ports bind to 127.0.0.1 so they are only accessible from
-# the host machine. A reverse proxy (nginx/Caddy) handles public HTTPS.
+# Base docker-compose.yml already binds service ports to 127.0.0.1. A reverse
+# proxy (nginx/Caddy/load balancer) should be the only public HTTPS entrypoint.
 
 services:
-  postgres:
-    ports:
-      - "127.0.0.1:5432:5432"
-
-  redis:
-    ports:
-      - "127.0.0.1:6379:6379"
-
-  minio:
-    ports:
-      - "127.0.0.1:9000:9000"
-      - "127.0.0.1:9001:9001"
-
-  neo4j:
-    ports:
-      - "127.0.0.1:7474:7474"
-      - "127.0.0.1:7687:7687"
-
-  qdrant:
-    ports:
-      - "127.0.0.1:6333:6333"
-      - "127.0.0.1:6334:6334"
-
   app:
-    ports:
-      - "127.0.0.1:${APP_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+
+  worker:
     environment:
       NODE_ENV: production
 
@@ -41,12 +20,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
     volumes:
       - ./scripts/backup-rotate.sh:/backup-rotate.sh:ro
     entrypoint: /bin/sh
     command: >
       -c "
-      apk add --no-cache curl &&
+      apk add --no-cache curl gzip &&
       curl -sLo /usr/local/bin/mc https://dl.min.io/client/mc/release/linux-amd64/mc &&
       chmod +x /usr/local/bin/mc &&
       mc alias set wmb http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD} &&
