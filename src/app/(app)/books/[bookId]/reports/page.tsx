@@ -13,7 +13,7 @@ import {
   EditsOverviewTab,
   DocumentsTab,
 } from "@/components/reports";
-import { SparklesIcon, DownloadIcon } from "lucide-react";
+import { SparklesIcon } from "lucide-react";
 
 export default function ReportsPage({
   params,

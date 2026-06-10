@@ -1,7 +1,6 @@
 "use client";
 
 import { use, useState, useEffect, useCallback, useMemo } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
@@ -108,8 +107,8 @@ export default function SetupPage({
 
   const step = STEPS[currentStep];
 
-  const next = () => setCurrentStep((v) => Math.min(v + 1, STEPS.length - 1));
-  const prev = () => setCurrentStep((v) => Math.max(v - 1, 0));
+  const next = useCallback(() => setCurrentStep((v) => Math.min(v + 1, STEPS.length - 1)), []);
+  const prev = useCallback(() => setCurrentStep((v) => Math.max(v - 1, 0)), []);
 
   const handleSaveBasics = async () => {
     await updateBook.mutateAsync({

@@ -191,8 +191,7 @@ export default function DocumentEditorPage({
     (
       annotationIds: string[],
       annotationTypes: AnnotationType[],
-      rect: DOMRect,
-      _event: MouseEvent
+      rect: DOMRect
     ) => {
       const annotationId = annotationIds[0];
       const annotationType = annotationTypes[0];
@@ -283,7 +282,7 @@ export default function DocumentEditorPage({
       contentLoadedRef.current = true;
       paneStore.getState().markClean();
     }
-  }, [docData, editor]);
+  }, [docData, editor, paneStore]);
 
   // Auto-save with 2s debounce
   const saveContent = useCallback(async () => {
