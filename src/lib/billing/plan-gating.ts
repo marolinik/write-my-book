@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { PLANS, type PlanKey } from "./stripe-client";
+import { stripe, PLANS, type PlanKey } from "./stripe-client";
 
 export type PlanAction =
   | "create_book"
@@ -20,6 +20,13 @@ export async function checkPlanAccess(
 ): Promise<{ allowed: boolean; reason?: string; upgradeToTier?: string }> {
   // Export always allowed — never hold writers' work hostage
   if (action === "export") {
+    return { allowed: true };
+  }
+
+  // Self-hosted / billing-disabled mode: without Stripe configured there
+  // are no plans to gate on. Documented contract (.env.example): "billing
+  // features disabled without these" — disabled means open, not read-only.
+  if (!stripe) {
     return { allowed: true };
   }
 

@@ -12,10 +12,16 @@ import { test, expect } from "@playwright/test";
 test.describe("Inline Edit API", () => {
   let bookId: string;
 
-  test.beforeAll(async ({ request }) => {
-    // Create a test book for the inline edit tests
+  test.beforeAll(async ({ request }, testInfo) => {
+    // Create a test book for the inline edit tests. Name must be unique per
+    // worker AND per run: beforeAll runs once per parallel worker, and book
+    // names are unique per user — a fixed name 409s for every worker but one.
     const res = await request.post("/api/books", {
-      data: { name: "Inline Edit Test Book", genre: "Fantasy", language: "en" },
+      data: {
+        name: `Inline Edit Test Book ${Date.now()}-w${testInfo.workerIndex}`,
+        genre: "Fantasy",
+        language: "en",
+      },
     });
     expect(res.ok()).toBeTruthy();
     const data = await res.json();

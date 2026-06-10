@@ -65,8 +65,11 @@ test.describe.serial("Writer Journey — UI Flows", () => {
     await page.goto(`/books/${bookId}`);
     await page.waitForLoadState("networkidle");
 
-    // The book name should appear on the page
-    await expect(page.getByText("E2E Test Novel")).toBeVisible();
+    // The book name should appear as the page heading (it also renders in
+    // the sidebar and breadcrumb — a bare getByText is a strict-mode violation)
+    await expect(
+      page.getByRole("heading", { level: 1, name: "E2E Test Novel" })
+    ).toBeVisible();
   });
 
   // ─── c. Setup wizard shows all steps ──────────────────────────────
@@ -256,8 +259,10 @@ test.describe.serial("Writer Journey — UI Flows", () => {
     const agentToggle = page.locator("header").getByRole("button").last();
     await expect(agentToggle).toBeVisible();
 
-    // 4. Responsive sidebar collapse — narrow viewport
-    await page.setViewportSize({ width: 768, height: 900 });
+    // 4. Responsive sidebar collapse — narrow viewport. Mobile is
+    // width < 768 (use-mobile.ts), so 768 exactly is desktop; use a
+    // clearly-mobile width to avoid the boundary.
+    await page.setViewportSize({ width: 640, height: 900 });
     // Wait for resize to take effect
     await page.waitForTimeout(500);
 
@@ -304,8 +309,9 @@ test.describe.serial("Writer Journey — UI Flows", () => {
     const fileInput = page.locator('input[type="file"]');
     await expect(fileInput).toBeAttached();
 
-    // Format info — "Supports .md, .txt, .docx"
-    await expect(page.getByText(/\.docx/i)).toBeVisible();
+    // Format info — the supports line (".docx" alone also matches the
+    // format-card badge: strict-mode violation)
+    await expect(page.getByText(/supports \.md, \.txt, \.docx/i)).toBeVisible();
   });
 
   // ─── m. Chat with Coach CTA opens agent panel ─────────────────────
@@ -376,12 +382,25 @@ test.describe.serial("Writer Journey — UI Flows", () => {
     request,
   }) => {
     expect(bookId).toBeTruthy();
+    expect(chapterId).toBeTruthy();
+
+    // Seed chapter content containing the finding's originalText — auto-apply
+    // replaces that exact text in the chapter and 409s when it's absent
+    await request.put(
+      `/api/books/${bookId}/chapters/${chapterId}/content`,
+      {
+        data: {
+          markdown:
+            "The long day slowly passed. The town slept beneath the hills.",
+        },
+      }
+    );
 
     // Create a finding with originalText + suggestedText (auto-appliable)
     const finding = await createFindingViaApi(request, bookId, {
       chapterNumber: 1,
       agentType: "dev-editor",
-      severity: "moderate",
+      severity: "important",
       category: "pacing",
       description: "This paragraph drags.",
       originalText: "The long day slowly passed.",
@@ -403,10 +422,11 @@ test.describe.serial("Writer Journey — UI Flows", () => {
     const pendingBadge = page.getByText("pending", { exact: true }).first();
     await expect(pendingBadge).toBeVisible();
 
-    // Click "Accept" button (for auto-appliable findings with originalText + suggestedText)
-    const acceptBtn = page.getByRole("button", { name: /accept/i }).first();
-    await expect(acceptBtn).toBeVisible();
-    await acceptBtn.click();
+    // Click "Apply" button (for auto-appliable findings with originalText +
+    // suggestedText). The card renders Jump to text | Apply | Dismiss.
+    const applyBtn = page.getByRole("button", { name: "Apply", exact: true }).first();
+    await expect(applyBtn).toBeVisible();
+    await applyBtn.click();
 
     // After applying, the status badge should change to "applied"
     await expect(
@@ -423,10 +443,10 @@ test.describe.serial("Writer Journey — UI Flows", () => {
       page.getByText("pending", { exact: true }).first()
     ).toBeVisible({ timeout: 10_000 });
 
-    // Now click "Reject" to dismiss
-    const rejectBtn = page.getByRole("button", { name: /reject/i }).first();
-    await expect(rejectBtn).toBeVisible();
-    await rejectBtn.click();
+    // Now click "Dismiss"
+    const dismissBtn = page.getByRole("button", { name: "Dismiss", exact: true }).first();
+    await expect(dismissBtn).toBeVisible();
+    await dismissBtn.click();
 
     // Should show "dismissed"
     await expect(
@@ -446,8 +466,11 @@ test.describe.serial("Writer Journey — UI Flows", () => {
     const filterCount = await filterTriggers.count();
     expect(filterCount).toBeGreaterThanOrEqual(3); // severity, category, status, agentType
 
-    // Click the status filter (3rd select) and choose "dismissed"
-    const statusTrigger = filterTriggers.nth(2); // 0=severity, 1=category, 2=status
+    // Click the status filter — select by its visible value, not position
+    // (the page renders 5 filters; positional nth() is wrong and brittle)
+    const statusTrigger = page
+      .locator('button[role="combobox"]', { hasText: /all statuses/i })
+      .first();
     await statusTrigger.click();
 
     // Wait for the dropdown to open, then click "dismissed"

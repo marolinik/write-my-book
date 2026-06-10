@@ -47,7 +47,19 @@ export async function getDbUser() {
     }
   }
 
-  
+  // E2E test bypass: checked BEFORE the dev bypass so Playwright traffic
+  // (which always carries the header) maps to the e2e user that
+  // global-setup cleans per run — otherwise test data accumulates under
+  // the dev-bypass user and fixed-name fixtures 409 across runs.
+  if (process.env.NODE_ENV !== "production" && E2E_TEST_SECRET) {
+    const headersList = await headers();
+    if (headersList.get("x-e2e-test-secret") === E2E_TEST_SECRET) {
+      return db.user.findUnique({
+        where: { clerkId: E2E_TEST_CLERK_ID },
+      });
+    }
+  }
+
   // DEV_AUTH_BYPASS: use DEV_CLERK_ID user without Clerk in development
   if (
     process.env.NODE_ENV !== "production" &&
@@ -71,16 +83,6 @@ export async function getDbUser() {
         onboardingComplete: true,
       },
     });
-  }
-
-// E2E test fallback: bypass auth in non-production when header matches
-  if (process.env.NODE_ENV !== "production" && E2E_TEST_SECRET) {
-    const headersList = await headers();
-    if (headersList.get("x-e2e-test-secret") === E2E_TEST_SECRET) {
-      return db.user.findUnique({
-        where: { clerkId: E2E_TEST_CLERK_ID },
-      });
-    }
   }
 
   return null;

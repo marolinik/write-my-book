@@ -201,7 +201,7 @@ test.describe("Full Writing Workflow Smoke Test", () => {
           findings: [
             {
               chapterNumber: 1,
-              severity: "major",
+              severity: "important",
               category: "pacing",
               description:
                 "The transition from exterior to interior happens too quickly.",
@@ -210,7 +210,7 @@ test.describe("Full Writing Workflow Smoke Test", () => {
             },
             {
               chapterNumber: 1,
-              severity: "moderate",
+              severity: "suggestion",
               category: "pov-shift",
               description:
                 "The Silver Child smiling feels like a brief POV shift.",
@@ -256,7 +256,7 @@ test.describe("Full Writing Workflow Smoke Test", () => {
           findings: [
             {
               chapterNumber: 1,
-              severity: "minor",
+              severity: "suggestion",
               category: "word-choice",
               description:
                 "'Crumbling spire above the clouds' uses a clichéd image.",
@@ -266,7 +266,7 @@ test.describe("Full Writing Workflow Smoke Test", () => {
             },
             {
               chapterNumber: 1,
-              severity: "minor",
+              severity: "suggestion",
               category: "rhythm",
               description:
                 "Three consecutive sentences start with subject-verb pattern.",
@@ -306,7 +306,7 @@ test.describe("Full Writing Workflow Smoke Test", () => {
           findings: [
             {
               chapterNumber: 1,
-              severity: "minor",
+              severity: "suggestion",
               category: "reader-engagement",
               description:
                 "Strong opening hook. Silver Child creates compelling tension.",

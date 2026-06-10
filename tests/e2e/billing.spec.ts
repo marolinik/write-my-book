@@ -16,10 +16,10 @@ test.describe("Billing", () => {
       const cardTitles = page.locator('[data-slot="card-title"]');
       const allText = await cardTitles.allTextContents();
       const joined = allText.join(" ");
-      expect(joined).toContain("Free");
-      expect(joined).toContain("Starter");
-      expect(joined).toContain("Pro");
-      expect(joined).toContain("Enterprise");
+      expect(joined).toContain("Founder");
+      expect(joined).toContain("Indie Author");
+      expect(joined).toContain("Professional");
+      expect(joined).toContain("Publisher");
     }
   });
 

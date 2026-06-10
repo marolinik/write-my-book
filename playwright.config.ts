@@ -2,6 +2,9 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./tests/e2e",
+  // Deployment smoke tests assume real auth (no dev bypass, no e2e header)
+  // — they run via playwright.deployment.config.ts only
+  testIgnore: /deployment-smoke\.spec\.ts/,
   globalSetup: "./tests/e2e/global-setup.ts",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,

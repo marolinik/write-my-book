@@ -21,10 +21,14 @@ test.describe("deployment smoke", () => {
     await expect(page.locator("body")).toBeVisible();
 
     await page.goto("/privacy");
-    await expect(page.getByRole("heading", { name: /privacy/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { level: 1, name: /privacy/i })
+    ).toBeVisible();
 
     await page.goto("/terms");
-    await expect(page.getByRole("heading", { name: /terms/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { level: 1, name: /terms/i })
+    ).toBeVisible();
   });
 
   test("protected dashboard is not anonymously readable", async ({ page }) => {

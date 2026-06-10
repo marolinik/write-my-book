@@ -13,11 +13,16 @@ test.describe("Editorial Pipeline API", () => {
   let chapterId: string;
   let findingId: string;
 
-  test.beforeAll(async ({ request }) => {
-    // Create book
+  test.beforeAll(async ({ request }, testInfo) => {
+    // Create book (unique name: serial spec, but name collisions across
+    // workers/runs cascade into confusing 404s via bookId=undefined)
     const bookRes = await request.post("/api/books", {
-      data: { name: "Editorial Test Book", language: "en" },
+      data: {
+        name: `Editorial Test Book ${Date.now()}-w${testInfo.workerIndex}`,
+        language: "en",
+      },
     });
+    expect(bookRes.ok()).toBeTruthy();
     const book = await bookRes.json();
     bookId = book.id;
 
@@ -42,7 +47,7 @@ test.describe("Editorial Pipeline API", () => {
           findings: [
             {
               chapterNumber: 1,
-              severity: "major",
+              severity: "critical",
               category: "structure",
               description: "Opening needs a stronger hook.",
               suggestion: "Start in medias res.",
@@ -50,14 +55,14 @@ test.describe("Editorial Pipeline API", () => {
             },
             {
               chapterNumber: 1,
-              severity: "minor",
+              severity: "suggestion",
               category: "word-choice",
               description: "Overused word: 'very'.",
               agentType: "line-editor",
             },
             {
               chapterNumber: 1,
-              severity: "moderate",
+              severity: "important",
               category: "pov-consistency",
               description: "Brief POV shift in paragraph 3.",
               agentType: "dev-editor",
@@ -82,11 +87,11 @@ test.describe("Editorial Pipeline API", () => {
 
     // Filter by severity
     const majorRes = await request.get(
-      `/api/books/${bookId}/editorial/findings?chapterNumber=1&severity=major`
+      `/api/books/${bookId}/editorial/findings?chapterNumber=1&severity=critical`
     );
     const majorData = await majorRes.json();
     expect(majorData.findings.length).toBe(1);
-    expect(majorData.findings[0].severity).toBe("major");
+    expect(majorData.findings[0].severity).toBe("critical");
     findingId = majorData.findings[0].id;
 
     // Filter by agent type
