@@ -4,6 +4,8 @@ import { DocumentType } from "@/generated/prisma/enums";
 import { getChapterEntities } from "@/lib/graph/graph-queries";
 import { getRelevantMemory } from "@/lib/vector/memory-manager";
 import { formatInsightsForPrompt } from "./blackboard";
+import { formatWriterMemoryForPrompt } from "./writer-memory";
+import { selectSkillsForAgent } from "./skills";
 import { db } from "@/lib/db";
 
 // ─── Base Agent Instructions ───────────────────────────────────
@@ -1222,6 +1224,19 @@ const TOKEN_BUDGETS: Partial<Record<string, number>> = {
 };
 const DEFAULT_TOKEN_BUDGET = 100000;
 
+/**
+ * Agents whose craft-skill selection uses the book's genre. For these we
+ * load book meta even when their context profile doesn't request it, so
+ * `context.bookGenre` is available to selectSkillsForAgent.
+ */
+const GENRE_SKILL_AGENTS = new Set([
+  "dev-editor",
+  "beta-reader",
+  "story-architect",
+  "ghostwriter",
+  "line-editor",
+]);
+
 function estimateTokens(text: string): number {
   return Math.ceil(text.length / 4);
 }
@@ -1422,6 +1437,17 @@ export async function assembleAgentPrompt(
         context.seriesId = book.seriesId;
       }
     }
+  } else if (GENRE_SKILL_AGENTS.has(definition.type) && !context.bookGenre) {
+    // Genre-only load for skill selection. Deliberately narrow: must not
+    // populate seriesId/language, which would trip the series and language
+    // gates for agents whose profiles never requested book meta.
+    const book = await db.book.findUnique({
+      where: { id: context.bookId },
+      select: { genre: true },
+    });
+    if (book?.genre) {
+      context.bookGenre = book.genre;
+    }
   }
 
   // ─── Auto-load series context when book belongs to a series ──
@@ -1524,6 +1550,25 @@ export async function assembleAgentPrompt(
     }
   }
 
+  // ─── SECTION 5b: Writer Memory (priority 90) ──────────────────
+  // The writer's standing preferences and corrections. Outranks book
+  // reference docs (85/80) — direct writer directives beat derived context.
+  try {
+    const writerMemory = await formatWriterMemoryForPrompt(
+      context.userId,
+      context.bookId
+    );
+    if (writerMemory) {
+      sections.push({
+        name: "writer_memory",
+        priority: 90,
+        content: `\n${writerMemory}`,
+      });
+    }
+  } catch {
+    // Writer memory unavailable — proceed without
+  }
+
   // ─── SECTION 6: Story Bible (priority 80) ─────────────────────
   if (profile.storyBible !== "none") {
     const sb =
@@ -1619,6 +1664,27 @@ export async function assembleAgentPrompt(
       }
     } catch {
       // StyleProfile query failed — proceed without metrics
+    }
+  }
+
+  // ─── SECTION 8c: Craft Skills (priority 25) ───────────────────
+  // Role-matched craft reference + genre guide. Generic instruction, so it
+  // trims before any book-specific document (adjacent_chapters is 30).
+  {
+    const craftSkills = selectSkillsForAgent(
+      definition.type,
+      context.bookGenre ?? null
+    );
+    if (craftSkills) {
+      sections.push({
+        name: "craft_skills",
+        priority: 25,
+        content:
+          `\n<craft_skills>\n` +
+          `Reference craft knowledge for your role. Book-specific context ` +
+          `above always takes precedence over these general guidelines.\n` +
+          `${craftSkills}\n</craft_skills>`,
+      });
     }
   }
 
@@ -1781,11 +1847,28 @@ export async function assembleAgentPrompt(
     profile.architecture === "full"
   ) {
     try {
-      const memoryContext = await getRelevantMemory(
-        context.bookId,
-        definition.description,
-        { limit: 5, chapterNumber: context.chapterNumber }
-      );
+      // Query from the actual task, not the static agent description —
+      // semantic search against "what we're doing now" is what surfaces
+      // relevant prior chapters, findings, and conversations.
+      const queryParts: string[] = [];
+      if (context.userMessage) queryParts.push(context.userMessage.slice(0, 500));
+      if (context.chapterBrief) queryParts.push(context.chapterBrief.slice(0, 1000));
+      if (context.targetWorkflowId) queryParts.push(`Workflow: ${context.targetWorkflowId}`);
+      if (context.bookName) queryParts.push(`Book: ${context.bookName}`);
+      if (context.chapterNumber) queryParts.push(`Chapter ${context.chapterNumber}`);
+      if (queryParts.length === 0 && context.bookDescription) {
+        queryParts.push(context.bookDescription);
+      }
+      if (queryParts.length === 0) queryParts.push(definition.description);
+      const memoryQuery = queryParts.join("\n").slice(0, 2000);
+
+      const memoryContext = await Promise.race([
+        getRelevantMemory(context.bookId, memoryQuery, {
+          limit: 5,
+          excludeChapterNumber: context.chapterNumber,
+        }),
+        new Promise<string>((resolve) => setTimeout(() => resolve(""), 3000)),
+      ]);
       if (memoryContext) {
         sections.push({
           name: "relevant_memory",
@@ -1793,8 +1876,11 @@ export async function assembleAgentPrompt(
           content: `\n<relevant_memory>\nIMPORTANT: When using information from memory, cite the source (e.g., "Based on chapter 3 where...").\n\n${memoryContext}\n</relevant_memory>`,
         });
       }
-    } catch {
-      // Vector DB unavailable
+    } catch (error) {
+      console.warn(
+        `[Prompt Assembly] relevant_memory skipped for ${definition.type}:`,
+        error instanceof Error ? error.message : error
+      );
     }
   }
 

@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { updateFindingSchema } from "@/lib/validation";
 import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
+import { inferPreferenceFromDismissals } from "@/lib/agents/writer-memory";
 
 type RouteParams = { params: Promise<{ id: string; findingId: string }> };
 
@@ -197,10 +198,16 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
     }
 
     // Standard apply (advice-only) or dismiss
+    // rejectedAt drives <finding_history> status — without it, dismissed
+    // findings render as [pending] in agent prompts.
     const updateData: Record<string, unknown> =
       data.action === "apply"
         ? { status: "applied", appliedAt: new Date() }
-        : { status: "dismissed", dismissReason: data.reason ?? null };
+        : {
+            status: "dismissed",
+            rejectedAt: new Date(),
+            dismissReason: data.reason ?? null,
+          };
 
     const updated = await db.editFinding.update({
       where: { id: findingId },
@@ -219,6 +226,21 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
             : `Dismissed finding: ${finding.category}${data.reason ? ` — ${data.reason}` : ""}`,
       },
     });
+
+    // Repeated dismissals of a category teach the agents to back off.
+    // Runs after the update so the count includes this finding.
+    if (data.action === "dismiss") {
+      try {
+        await inferPreferenceFromDismissals(
+          user.id,
+          bookId,
+          finding.category,
+          finding.description
+        );
+      } catch (e) {
+        console.error("[Feedback] dismissal inference failed:", e);
+      }
+    }
 
     return NextResponse.json(updated);
   } catch (error) {

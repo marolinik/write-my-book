@@ -77,6 +77,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       data: {
         status: "pending",
         appliedAt: null,
+        rejectedAt: null,
         dismissReason: null,
       },
     });

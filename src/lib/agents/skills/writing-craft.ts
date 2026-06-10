@@ -164,7 +164,7 @@ export const SENSITIVITY_GUIDELINES = `
 - Historical trauma: Handle with care, specificity, and respect
 
 ### Recommendation
-Flag potential sensitivity issues in findings with category "sensitivity" and severity "suggestion".
+Flag potential sensitivity issues in findings with the most fitting allowed category (usually "character" or "theme") and severity "suggestion", noting the sensitivity concern in the description.
 Do NOT rewrite — only note the concern and why it matters. The author makes the final call.
 `;
 

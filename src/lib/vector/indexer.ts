@@ -3,7 +3,7 @@
  * Handles all content types with debounced fire-and-forget scheduling.
  */
 
-import { qdrantClient } from "./qdrant-client";
+import { qdrantClient, ensureMemoryCollection } from "./qdrant-client";
 import { embedBatch, isEmbeddingAvailable } from "./embeddings";
 import { chunkChapterContent, stripMarkdown } from "./chunker";
 import { trackEmbeddingCost } from "./cost-tracker";
@@ -39,6 +39,10 @@ export async function indexDocument(
   } = {}
 ): Promise<{ chunksIndexed: number; skipped: boolean }> {
   if (!isEmbeddingAvailable()) {
+    return { chunksIndexed: 0, skipped: true };
+  }
+
+  if (!(await ensureMemoryCollection())) {
     return { chunksIndexed: 0, skipped: true };
   }
 

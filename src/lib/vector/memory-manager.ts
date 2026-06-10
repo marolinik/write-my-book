@@ -162,29 +162,50 @@ export async function onFindingsCreated(
 
 /**
  * Get relevant context for a prompt. Called from prompt-assembler.ts.
- * Searches the unified wmb_memory collection and formats results
- * as a text block for injection into agent prompts.
+ * Searches the unified wmb_memory collection book-wide and formats
+ * results as a text block for injection into agent prompts.
+ *
+ * Chunks from the current chapter are excluded — that content is already
+ * in the prompt at full fidelity; memory should surface everything else
+ * (other chapters, findings, conversations, research).
  *
  * Returns empty string if embeddings are not available.
  */
 export async function getRelevantMemory(
   bookId: string,
   query: string,
-  options?: { limit?: number; chapterNumber?: number }
+  options?: { limit?: number; excludeChapterNumber?: number }
 ): Promise<string> {
   if (!isEmbeddingAvailable()) return "";
 
   const limit = options?.limit ?? 5;
 
-  // Search unified memory with optional chapter filter
+  // Over-fetch so post-filtering current-chapter chunks still yields `limit`
   const results = await searchMemory(bookId, query, {
-    chapterNumber: options?.chapterNumber,
-    limit,
-  }).catch(() => []);
+    limit: limit * 2,
+    scoreThreshold: 0.35,
+  }).catch((error: unknown) => {
+    console.warn(
+      "[memory] getRelevantMemory search failed:",
+      error instanceof Error ? error.message : error
+    );
+    return [];
+  });
 
-  if (results.length === 0) return "";
+  const filtered = results
+    .filter(
+      (r) =>
+        !(
+          r.payload.docType === "chapter" &&
+          options?.excludeChapterNumber !== undefined &&
+          r.payload.chapterNumber === options.excludeChapterNumber
+        )
+    )
+    .slice(0, limit);
 
-  return formatSearchResults(results);
+  if (filtered.length === 0) return "";
+
+  return formatSearchResults(filtered);
 }
 
 // ─── Helpers ─────────────────────────────────────────────────

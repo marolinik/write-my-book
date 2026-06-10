@@ -57,8 +57,19 @@ export async function initVectorCollections(): Promise<void> {
     }
   }
 
-  // Create single unified collection if not exists
-  if (!existingNames.has(WMB_MEMORY_COLLECTION)) {
+  await createMemoryCollection(existingNames);
+}
+
+/**
+ * Create the unified collection (with payload indexes) if it does not exist.
+ * Creation only — never deletes legacy collections.
+ */
+async function createMemoryCollection(
+  existingNames: ReadonlySet<string>
+): Promise<void> {
+  if (existingNames.has(WMB_MEMORY_COLLECTION)) return;
+
+  try {
     await qdrantClient.createCollection(WMB_MEMORY_COLLECTION, {
       vectors: {
         size: EMBEDDING_DIMENSIONS,
@@ -68,10 +79,54 @@ export async function initVectorCollections(): Promise<void> {
         default_segment_number: 2,
       },
     });
-
-    // Create payload indexes for efficient filtering
-    await createPayloadIndexes();
+  } catch (err: unknown) {
+    // Another process (Next server vs BullMQ worker) may have created the
+    // collection between our existence check and this call. A lost create
+    // race is success, not failure — treating it as failure would put this
+    // process in a 60s vector blackout. ApiError carries the conflict in
+    // .status; older Qdrant versions return 400 with "already exists" in .data.
+    const e = err as { status?: number; data?: unknown };
+    const alreadyExists =
+      e.status === 409 || /already exists/i.test(JSON.stringify(e.data ?? ""));
+    if (!alreadyExists) throw err;
   }
+
+  // Idempotent — safe to run even when the create was a swallowed conflict
+  await createPayloadIndexes();
+}
+
+let ensurePromise: Promise<boolean> | null = null;
+let lastFailureAt = 0;
+const FAILURE_RETRY_MS = 60_000;
+
+/**
+ * Lazily ensure the wmb_memory collection exists before any read/write.
+ * Memoized on success; failures are cached for 60s to avoid hammering a
+ * down Qdrant instance. Creation-only — legacy cleanup stays in
+ * initVectorCollections (explicit admin path).
+ */
+export async function ensureMemoryCollection(): Promise<boolean> {
+  if (ensurePromise) return ensurePromise;
+  if (Date.now() - lastFailureAt < FAILURE_RETRY_MS) return false;
+
+  ensurePromise = qdrantClient
+    .getCollections()
+    .then(async (existing) => {
+      const names = new Set(existing.collections.map((c) => c.name));
+      await createMemoryCollection(names);
+      return true;
+    })
+    .catch((err: unknown) => {
+      console.error(
+        "[qdrant] ensureMemoryCollection failed:",
+        err instanceof Error ? err.message : err
+      );
+      lastFailureAt = Date.now();
+      ensurePromise = null;
+      return false;
+    });
+
+  return ensurePromise;
 }
 
 /**

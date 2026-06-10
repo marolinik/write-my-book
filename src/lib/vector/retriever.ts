@@ -3,7 +3,7 @@
  * Single searchMemory() replaces three separate search functions.
  */
 
-import { qdrantClient } from "./qdrant-client";
+import { qdrantClient, ensureMemoryCollection } from "./qdrant-client";
 import { embedText, isEmbeddingAvailable } from "./embeddings";
 import {
   WMB_MEMORY_COLLECTION,
@@ -43,6 +43,8 @@ export async function searchMemory(
   }
 ): Promise<SearchResult[]> {
   if (!isEmbeddingAvailable()) return [];
+
+  if (!(await ensureMemoryCollection())) return [];
 
   const limit = options?.limit ?? 5;
   const scoreThreshold = options?.scoreThreshold ?? 0.75;

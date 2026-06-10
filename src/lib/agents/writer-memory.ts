@@ -64,6 +64,7 @@ export async function getWriterMemories(
       ],
     },
     orderBy: { createdAt: "desc" },
+    take: 100, // Cap prompt-injection volume — newest 100 win
   });
   return memories as unknown as WriterMemoryEntry[];
 }
@@ -165,6 +166,50 @@ export async function inferPreferenceFromDismissals(
         userId,
         "learned",
         `Writer frequently dismisses "${findingCategory}" findings. They may intentionally use this pattern. Reduce flag frequency for this category.`,
+        { bookId, source: "system" }
+      );
+    }
+  }
+}
+
+/**
+ * When a writer explicitly rates suggestions of a category unhelpful,
+ * infer a preference. Threshold is lower than dismissals (3 vs 5):
+ * thumbs-down is an active signal, dismissal a passive one.
+ *
+ * The learned content must contain the raw category string verbatim —
+ * dedup (here and in inferPreferenceFromDismissals) relies on `contains`.
+ * One learned note per category is by design.
+ */
+export async function inferPreferenceFromNegativeFeedback(
+  userId: string,
+  bookId: string,
+  suggestionType: string
+): Promise<void> {
+  const negativeCount = await db.suggestionFeedback.count({
+    where: {
+      bookId,
+      suggestionType,
+      positive: false,
+    },
+  });
+
+  if (negativeCount >= 3) {
+    const existing = await db.writerMemory.findFirst({
+      where: {
+        userId,
+        bookId,
+        category: "learned",
+        content: { contains: suggestionType },
+        source: "system",
+      },
+    });
+
+    if (!existing) {
+      await addWriterMemory(
+        userId,
+        "learned",
+        `Writer rated "${suggestionType}" suggestions unhelpful multiple times. Adjust approach for this category.`,
         { bookId, source: "system" }
       );
     }

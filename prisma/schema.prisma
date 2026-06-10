@@ -167,6 +167,7 @@ model Book {
   wikiEntities    WikiEntity[]
   writerMemories  WriterMemory[]
   sessionBriefs   SessionBrief[]
+  suggestionFeedback SuggestionFeedback[]
 
   @@unique([seriesId, bookNumber])
   @@unique([userId, name])
@@ -627,6 +628,27 @@ model WriterMemory {
 
   @@index([userId, bookId, active])
   @@map("writer_memories")
+}
+
+// ─── SUGGESTION FEEDBACK (closes the AI feedback loop) ──────────
+// Thumbs up/down on AI suggestions. Negative-feedback patterns feed
+// inferPreferenceFromNegativeFeedback → learned WriterMemory entries.
+
+model SuggestionFeedback {
+  id             String   @id @default(uuid())
+  bookId         String   @map("book_id")
+  userId         String   @map("user_id")
+  suggestionId   String   @map("suggestion_id")   // EditFinding.id in current usage
+  suggestionType String   @map("suggestion_type") // finding category
+  positive       Boolean
+  suggestionText String?  @map("suggestion_text") @db.Text
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, suggestionId])
+  @@index([bookId, suggestionType, positive])
+  @@map("suggestion_feedback")
 }
 
 // ─── SESSION CONTINUITY BRIEFS (Gap M2) ──────────────────────────
