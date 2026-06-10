@@ -107,7 +107,7 @@ export default function SetupPage({
 
   const step = STEPS[currentStep];
 
-  const next = useCallback(() => setCurrentStep((v) => Math.min(v + 1, STEPS.length - 1)), []);
+  const next = useCallback(() => setCurrentStep((v) => Math.min(v + 1, STEPS.length - 1)), [STEPS.length]);
   const prev = useCallback(() => setCurrentStep((v) => Math.max(v - 1, 0)), []);
 
   const handleSaveBasics = async () => {

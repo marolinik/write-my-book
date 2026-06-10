@@ -13,6 +13,7 @@ concurrency:
 env:
   CI: "true"
   NEXT_TELEMETRY_DISABLED: "1"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
   # Dummy values for static build/prisma generation. Real deployments must
   # inject production secrets through the hosting provider, never from git.
   DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/writemybook?schema=public"
