@@ -5,6 +5,7 @@ import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
 import TextAlign from "@tiptap/extension-text-align";
+import Focus from "@tiptap/extension-focus";
 import { Markdown } from "tiptap-markdown";
 import { AnnotationExtension, findTextPositions } from "./annotation-extension";
 import type { AnnotationItem, AnnotationType } from "./annotation-extension";
@@ -103,6 +104,10 @@ export function createEditorExtensions(options: {
     }),
     TextAlign.configure({
       types: ["heading", "paragraph"],
+    }),
+    Focus.configure({
+      className: "has-focus",
+      mode: "shallowest",
     }),
     Markdown.configure({
       html: false,

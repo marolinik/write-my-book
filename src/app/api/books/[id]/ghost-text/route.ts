@@ -6,18 +6,17 @@ import { estimateCost } from "@/lib/cost";
 import { checkQuota } from "@/lib/billing/quota-checker";
 import { createLLMClient, resolveProviderRoute, resolveCheapModelFor } from "@/lib/llm";
 import type { ProviderKey } from "@/lib/llm";
-import { inlineEditRequestSchema } from "@/lib/validation";
-import type { InlineEditSuggestion } from "@/lib/validation";
+import { ghostTextRequestSchema } from "@/lib/validation";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
-/** POST /api/books/:id/inline-edit — get AI rewrite suggestions for selected text. */
+/** POST /api/books/:id/ghost-text — get a short AI continuation for the text before the cursor. */
 export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id: bookId } = await params;
     const body = await req.json();
-    const data = inlineEditRequestSchema.parse(body);
+    const data = ghostTextRequestSchema.parse(body);
 
     // Verify book ownership
     const book = await db.book.findFirst({
@@ -37,7 +36,10 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Resolve user's preferred provider to pick the haiku variant (BYOK — no platform key fallbacks)
+    // Resolve the cheap-tier model for the user's preferred provider via the
+    // registry (BYOK — no platform key fallbacks). Never string-build the ID:
+    // openai/gemini/grok have no "/haiku" entry and a registry miss silently
+    // falls back to anthropic/sonnet.
     const dbUser = await db.user.findUnique({
       where: { id: user.id },
       select: { defaultModel: true },
@@ -64,7 +66,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     });
     if (route.route === "none") {
       return NextResponse.json(
-        { error: `No API key configured for inline editing. Add one in Settings > API Keys.` },
+        { error: `No API key configured for ghost text. Add one in Settings > API Keys.` },
         { status: 400 }
       );
     }
@@ -82,69 +84,28 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     const lang = book.language || "en";
     const langInstruction =
       lang !== "en"
-        ? `\nIMPORTANT: Write all suggestions in the same language as the original text (${lang}). Do NOT translate.`
+        ? `\nIMPORTANT: Continue in the same language as the original text (${lang}). Do NOT translate.`
         : "";
 
-    const userInstruction = data.instruction
-      ? `\nThe writer's instruction: "${data.instruction}"`
-      : "";
-
-    const contextSection = data.surroundingContext
-      ? `\n<surrounding_context>\n${data.surroundingContext}\n</surrounding_context>`
-      : "";
-
-    const systemPrompt = `You are a fiction prose editor. Given selected text from a manuscript, provide ${data.count} alternative rewrites that improve the prose while maintaining the author's voice and intent.
+    const systemPrompt = `Continue this fiction prose in the author's voice; at most one sentence.
 
 Rules:
-- Each suggestion must be a complete replacement for the selected text
-- Preserve the meaning and narrative purpose
-- Match the surrounding style and tone
-- Vary approaches: one might tighten, another might add sensory detail, another might adjust rhythm
-- Never use AI-tell phrases: "delve", "tapestry", "testament to", "palpable", "a dance of", "sending shivers"
-- Keep roughly the same length unless the instruction asks otherwise${langInstruction}
-
-Respond with ONLY a JSON array. Each element has "text" (the rewrite) and "label" (2-4 word description like "Tighter pacing" or "More sensory"). No markdown, no explanation.`;
-
-    const userContent = `${contextSection}
-<selected_text>
-${data.selectedText}
-</selected_text>${userInstruction}
-
-Provide ${data.count} alternative rewrites as a JSON array.`;
+- Respond with ONLY the continuation text — no quotes, no explanation, no markdown
+- Pick up exactly where the text leaves off (continue mid-sentence if the text stops mid-sentence)
+- Match the style, tone, and tense of the surrounding prose
+- Never use AI-tell phrases: "delve", "tapestry", "testament to", "palpable", "a dance of", "sending shivers"${langInstruction}`;
 
     const response = await client.messages.create({
       model: model.modelId,
-      max_tokens: 4096,
+      max_tokens: 60,
       system: systemPrompt,
-      messages: [{ role: "user", content: userContent }],
+      messages: [{ role: "user", content: data.context }],
     });
 
-    // Parse the response
+    // Extract the suggestion text
     const textBlock = response.content.find((b) => b.type === "text");
-    const rawText = textBlock && "text" in textBlock ? textBlock.text : "[]";
-
-    let suggestions: InlineEditSuggestion[];
-    try {
-      // Strip markdown fences if present
-      const cleaned = rawText
-        .replace(/^```(?:json)?\s*/i, "")
-        .replace(/\s*```\s*$/, "")
-        .trim();
-      suggestions = JSON.parse(cleaned);
-      if (!Array.isArray(suggestions)) suggestions = [];
-      // Validate shape
-      suggestions = suggestions
-        .filter(
-          (s): s is InlineEditSuggestion =>
-            typeof s === "object" &&
-            s !== null &&
-            typeof s.text === "string" &&
-            typeof s.label === "string"
-        )
-        .slice(0, data.count);
-    } catch {
-      suggestions = [];
-    }
+    const suggestion =
+      textBlock && "text" in textBlock ? textBlock.text.trim() : "";
 
     const tokensUsed = {
       input: response.usage.input_tokens,
@@ -157,7 +118,7 @@ Provide ${data.count} alternative rewrites as a JSON array.`;
       data: {
         userId: user.id,
         bookId,
-        agentType: "inline-edit",
+        agentType: "ghost-text",
         model: model.id,
         tokensInput: tokensUsed.input,
         tokensOutput: tokensUsed.output,
@@ -165,7 +126,7 @@ Provide ${data.count} alternative rewrites as a JSON array.`;
       },
     });
 
-    return NextResponse.json({ suggestions, tokensUsed });
+    return NextResponse.json({ suggestion });
   } catch (error) {
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -176,9 +137,9 @@ Provide ${data.count} alternative rewrites as a JSON array.`;
         { status: 400 }
       );
     }
-    console.error("POST /api/books/:id/inline-edit error:", (error as Error).message);
+    console.error("POST /api/books/:id/ghost-text error:", (error as Error).message);
     return NextResponse.json(
-      { error: "Failed to generate suggestions" },
+      { error: "Failed to generate suggestion" },
       { status: 500 }
     );
   }

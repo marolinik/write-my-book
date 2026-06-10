@@ -6,6 +6,7 @@ export {
   MODEL_REGISTRY,
   getModelDef,
   resolveFromTier,
+  resolveCheapModelFor,
   getModelsByProvider,
   getModelsGrouped,
   getModelsForProviders,

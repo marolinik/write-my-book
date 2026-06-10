@@ -3,7 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { decryptApiKey } from "@/lib/encryption";
 import { estimateCost } from "@/lib/cost";
-import { createLLMClient, resolveProviderRoute } from "@/lib/llm";
+import { createLLMClient, resolveProviderRoute, resolveCheapModelFor } from "@/lib/llm";
 import type { ProviderKey } from "@/lib/llm";
 
 type RouteParams = { params: Promise<{ id: string }> };
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       select: { defaultModel: true },
     });
     const userDefault = dbUser?.defaultModel ?? "anthropic/sonnet";
-    const provider = userDefault.split("/")[0] || "anthropic";
+    const cheapModel = resolveCheapModelFor(userDefault);
 
     const userKeys = await db.apiKey.findMany({
       where: { userId: user.id, validatedAt: { not: null } },
@@ -79,7 +79,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       decryptedKeys[k.provider as ProviderKey] = decryptApiKey(k.encryptedKey);
     }
 
-    const route = resolveProviderRoute(provider as ProviderKey, {
+    const route = resolveProviderRoute(cheapModel.provider as ProviderKey, {
       anthropicApiKey: decryptedKeys.anthropic,
       openrouterApiKey: decryptedKeys.openrouter,
       openaiApiKey: decryptedKeys.openai,
@@ -93,9 +93,9 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Use haiku for character chat (fast + cheap)
+    // Use the cheap tier for character chat (fast + cheap)
     const { client, model } = createLLMClient({
-      modelId: `${provider}/haiku`,
+      modelId: cheapModel.id,
       anthropicApiKey: decryptedKeys.anthropic,
       openrouterApiKey: decryptedKeys.openrouter,
       openaiApiKey: decryptedKeys.openai,

@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { decryptApiKey } from "@/lib/encryption";
 import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
-import { createLLMClient, resolveProviderRoute } from "@/lib/llm";
+import { createLLMClient, resolveProviderRoute, resolveCheapModelFor } from "@/lib/llm";
 import type { ProviderKey } from "@/lib/llm";
 import type Anthropic from "@anthropic-ai/sdk";
 
@@ -138,8 +138,7 @@ export async function POST(
     select: { defaultModel: true },
   });
   const userDefault = dbUser?.defaultModel ?? "anthropic/sonnet";
-  const provider = (userDefault.split("/")[0] || "anthropic") as ProviderKey;
-  const haikuRegistryId = `${provider}/haiku`;
+  const cheapModel = resolveCheapModelFor(userDefault);
 
   const userKeys = await db.apiKey.findMany({
     where: { userId: user.id, validatedAt: { not: null } },
@@ -150,7 +149,7 @@ export async function POST(
     decryptedKeys[k.provider as ProviderKey] = decryptApiKey(k.encryptedKey);
   }
 
-  const route = resolveProviderRoute(provider, {
+  const route = resolveProviderRoute(cheapModel.provider as ProviderKey, {
     anthropicApiKey: decryptedKeys.anthropic,
     openrouterApiKey: decryptedKeys.openrouter,
     openaiApiKey: decryptedKeys.openai,
@@ -167,7 +166,7 @@ export async function POST(
   let llmResult: { client: Anthropic; modelId: string };
   try {
     const { client: c, model: m } = createLLMClient({
-      modelId: haikuRegistryId,
+      modelId: cheapModel.id,
       anthropicApiKey: decryptedKeys.anthropic,
       openrouterApiKey: decryptedKeys.openrouter,
       openaiApiKey: decryptedKeys.openai,

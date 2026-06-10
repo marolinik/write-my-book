@@ -243,6 +243,7 @@ model Document {
   series   Series?           @relation(fields: [seriesId], references: [id], onDelete: Cascade)
   versions DocumentVersion[]
 
+  @@index([bookId, type])
   @@map("documents")
 }
 
@@ -259,6 +260,7 @@ model DocumentVersion {
   document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
   @@unique([documentId, version])
+  @@index([documentId, createdAt])
   @@map("document_versions")
 }
 

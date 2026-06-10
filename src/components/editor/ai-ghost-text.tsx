@@ -49,6 +49,16 @@ export function AIGhostText({
     };
   }, []);
 
+  // Hard-clear all pending state when disabled: without this, a pending
+  // timer can still fire a billable fetch after toggle-off, and the stale
+  // suggestion re-arms the (hidden) Tab handler.
+  useEffect(() => {
+    if (enabled) return;
+    setSuggestion(null);
+    if (pauseTimer.current) clearTimeout(pauseTimer.current);
+    abortRef.current?.abort();
+  }, [enabled]);
+
   const fetchSuggestion = useCallback(
     async (context: string) => {
       // Abort any pending request
@@ -86,8 +96,10 @@ export function AIGhostText({
     if (!editor || !enabled) return;
 
     const handleUpdate = () => {
-      // Clear existing suggestion on any edit
+      // Clear existing suggestion on any edit; kill the in-flight request
+      // for pre-edit text so it can't resolve into a stale suggestion
       setSuggestion(null);
+      if (abortRef.current) abortRef.current.abort();
 
       // Reset pause timer
       if (pauseTimer.current) clearTimeout(pauseTimer.current);
@@ -121,15 +133,57 @@ export function AIGhostText({
     editor.on("update", handleUpdate);
     return () => {
       editor.off("update", handleUpdate);
+      // Cancel pending trigger + in-flight request on disable/chapter switch
+      if (pauseTimer.current) clearTimeout(pauseTimer.current);
+      if (abortRef.current) abortRef.current.abort();
     };
   }, [editor, enabled, fetchSuggestion]);
 
-  // Handle Tab to accept, Escape to dismiss
+  // Dismiss on selection-only changes (click elsewhere without editing) so
+  // Tab can never insert at a position the ghost isn't rendered at.
+  useEffect(() => {
+    if (!editor || !suggestion) return;
+    const dismiss = () => setSuggestion(null);
+    editor.on("selectionUpdate", dismiss);
+    return () => {
+      editor.off("selectionUpdate", dismiss);
+    };
+  }, [editor, suggestion]);
+
+  // Keep the fixed-position overlay anchored to the cursor: reposition on
+  // scroll (capture catches the editor's inner scroll container) and resize,
+  // dismissing if the cursor position can no longer be resolved.
   useEffect(() => {
     if (!suggestion || !editor) return;
 
+    const reposition = () => {
+      try {
+        const { from } = editor.view.state.selection;
+        const coords = editor.view.coordsAtPos(from);
+        setPosition({ top: coords.top, left: coords.left });
+      } catch {
+        // Position is stale (e.g. doc changed) — dismiss instead of floating detached
+        setSuggestion(null);
+      }
+    };
+
+    window.addEventListener("scroll", reposition, { capture: true, passive: true });
+    window.addEventListener("resize", reposition);
+    return () => {
+      window.removeEventListener("scroll", reposition, { capture: true });
+      window.removeEventListener("resize", reposition);
+    };
+  }, [suggestion, editor]);
+
+  // Handle Tab to accept, Escape to dismiss. Gated on `enabled` and editor
+  // focus: a document-level capture handler must never insert into a pane
+  // that doesn't own the keyboard (split view) or after toggle-off.
+  useEffect(() => {
+    if (!suggestion || !editor || !enabled) return;
+
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "Tab" && suggestion) {
+      if (e.key === "Tab") {
+        if (!editor.isFocused) return; // Tab belongs to another pane/input
         e.preventDefault();
         // Insert the suggestion at cursor
         editor.commands.insertContent(suggestion);
@@ -144,7 +198,7 @@ export function AIGhostText({
 
     document.addEventListener("keydown", handler, { capture: true });
     return () => document.removeEventListener("keydown", handler, { capture: true });
-  }, [suggestion, editor]);
+  }, [suggestion, editor, enabled]);
 
   if (!suggestion || !position || !enabled) return null;
 

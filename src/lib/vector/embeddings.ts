@@ -1,4 +1,4 @@
-/**
+﻿/**
  * OpenAI embedding wrapper.
  * Uses text-embedding-3-small (1536 dims) for cost-efficient semantic search.
  * Returns token usage counts for cost tracking.
@@ -10,17 +10,24 @@ const globalForOpenAI = globalThis as unknown as {
   __openaiClient: OpenAI | undefined;
 };
 
-function createOpenAIClient(): OpenAI {
-  return new OpenAI({
+/**
+ * Lazy client construction: the OpenAI constructor throws when no API key
+ * is present, so building it at module scope crashes every importing route
+ * at build/boot time on key-less deploys (memory is meant to degrade
+ * gracefully there; isEmbeddingAvailable() gates all call sites).
+ */
+function getOpenAIClient(): OpenAI {
+  if (globalForOpenAI.__openaiClient) return globalForOpenAI.__openaiClient;
+
+  const client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
   });
-}
 
-const openai: OpenAI =
-  globalForOpenAI.__openaiClient ?? createOpenAIClient();
+  if (process.env.NODE_ENV !== "production") {
+    globalForOpenAI.__openaiClient = client;
+  }
 
-if (process.env.NODE_ENV !== "production") {
-  globalForOpenAI.__openaiClient = openai;
+  return client;
 }
 
 const EMBEDDING_MODEL = "text-embedding-3-small";
@@ -40,7 +47,7 @@ export interface EmbedBatchResult {
  * Embed a single text string. Returns a 1536-dimensional vector and token count.
  */
 export async function embedText(text: string): Promise<EmbedResult> {
-  const response = await openai.embeddings.create({
+  const response = await getOpenAIClient().embeddings.create({
     model: EMBEDDING_MODEL,
     input: text.slice(0, 8191), // text-embedding-3-small has 8191 token limit
   });
@@ -66,7 +73,7 @@ export async function embedBatch(texts: string[]): Promise<EmbedBatchResult> {
       (t) => t.slice(0, 8191) // truncate each text
     );
 
-    const response = await openai.embeddings.create({
+    const response = await getOpenAIClient().embeddings.create({
       model: EMBEDDING_MODEL,
       input: batch,
     });

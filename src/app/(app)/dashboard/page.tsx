@@ -15,6 +15,7 @@ import {
 
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { getDailyWordCounts } from "@/lib/writing-stats";
 import { getUIStrings } from "@/lib/i18n/ui-strings";
 import { getAgentStrings } from "@/lib/i18n/agent-strings";
 import { getWorkflow } from "@/lib/agents/workflows";
@@ -40,7 +41,7 @@ function getWorkflowLabel(workflowId: string | null, lang: string): string {
 export default async function DashboardPage() {
   const user = await requireUser();
 
-  const [books, stats, seriesList, recentSessions, pendingFindings, failedBetaChapters, recentActivity, alerts] =
+  const [books, stats, seriesList, recentSessions, pendingFindings, failedBetaChapters, alerts] =
     await Promise.all([
       // Recent books
       db.book.findMany({
@@ -83,15 +84,6 @@ export default async function DashboardPage() {
         include: { book: { select: { name: true, id: true } } },
         take: 5,
       }),
-      // Writing activity: word count changes over last 7 days from document versions
-      db.documentVersion.findMany({
-        where: {
-          document: { book: { userId: user.id } },
-          createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
-        },
-        select: { wordCount: true, createdAt: true },
-        orderBy: { createdAt: "asc" },
-      }),
       // Book notifications (unread alerts)
       db.bookNotification.findMany({
         where: { userId: user.id, read: false, dismissedAt: null },
@@ -119,19 +111,9 @@ export default async function DashboardPage() {
     lastChapter = ch;
   }
 
-  // Writing activity: aggregate words per day for last 7 days
-  const dayMap = new Map<string, number>();
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
-    dayMap.set(d.toISOString().slice(0, 10), 0);
-  }
-  for (const v of recentActivity) {
-    const day = new Date(v.createdAt).toISOString().slice(0, 10);
-    if (dayMap.has(day)) {
-      dayMap.set(day, (dayMap.get(day) ?? 0) + v.wordCount);
-    }
-  }
-  const activityDays = Array.from(dayMap.entries()).map(([date, words]) => ({
+  // Writing activity: real per-day word deltas for the last 7 days (UTC-bucketed)
+  const dailyCounts = await getDailyWordCounts({ userId: user.id, days: 7 });
+  const activityDays = dailyCounts.map(({ date, words }) => ({
     date,
     words,
     label: new Date(date + "T00:00:00").toLocaleDateString(undefined, { weekday: "short" }),

@@ -27,6 +27,7 @@ import {
   Maximize2,
   MessageCircle,
   MoreHorizontal,
+  Wand2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -45,11 +46,18 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { GraduatedFocus } from "./graduated-focus";
+import type { FocusLevel } from "./graduated-focus";
+import { AmbientSoundscape } from "./ambient-soundscape";
+import { ReadAloud } from "./read-aloud";
 
 interface EditorToolbarProps {
   editor: Editor | null;
   focusMode: boolean;
   onToggleFocusMode: () => void;
+  paneId?: string;
+  focusLevel?: FocusLevel;
+  onFocusLevelChange?: (level: FocusLevel) => void;
+  onEnterImmersive?: () => void;
   showHistory?: boolean;
   onToggleHistory?: () => void;
   showFindings?: boolean;
@@ -65,6 +73,8 @@ interface EditorToolbarProps {
   onToggleSplit?: () => void;
   showFloatingInput?: boolean;
   onToggleFloatingInput?: () => void;
+  ghostTextEnabled?: boolean;
+  onToggleGhostText?: () => void;
 }
 
 interface ToolbarButtonProps {
@@ -97,6 +107,14 @@ function ToolbarButton({ icon, label, isActive, onClick }: ToolbarButtonProps) {
 // Overflow threshold: below this width, secondary groups collapse into dropdown
 const OVERFLOW_THRESHOLD = 650;
 
+// Graduated focus levels exposed in the overflow dropdown (level 3 is hidden —
+// it ships paragraph-equivalent this phase, see graduated-focus.tsx)
+const FOCUS_LEVEL_MENU_ITEMS: Array<{ level: FocusLevel; label: string }> = [
+  { level: 0, label: "Normal" },
+  { level: 1, label: "Focused" },
+  { level: 2, label: "Paragraph" },
+];
+
 interface ToolbarGroup {
   id: string;
   priority: "primary" | "secondary";
@@ -109,6 +127,10 @@ interface ToolbarGroupContext {
   editor: Editor;
   focusMode: boolean;
   onToggleFocusMode: () => void;
+  paneId?: string;
+  focusLevel?: FocusLevel;
+  onFocusLevelChange?: (level: FocusLevel) => void;
+  onEnterImmersive?: () => void;
   showHistory?: boolean;
   onToggleHistory?: () => void;
   showFindings?: boolean;
@@ -121,6 +143,8 @@ interface ToolbarGroupContext {
   onToggleSplit?: () => void;
   showFloatingInput?: boolean;
   onToggleFloatingInput?: () => void;
+  ghostTextEnabled?: boolean;
+  onToggleGhostText?: () => void;
 }
 
 const TOOLBAR_GROUPS: ToolbarGroup[] = [
@@ -286,12 +310,28 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
           isActive={ctx.focusMode}
           onClick={ctx.onToggleFocusMode}
         />
-        <GraduatedFocus />
+        <GraduatedFocus
+          currentLevel={ctx.focusLevel}
+          onChange={ctx.onFocusLevelChange}
+          onEnterImmersive={ctx.onEnterImmersive}
+        />
         {ctx.onInlineEdit && (
           <ToolbarButton
             icon={<Sparkles className="h-4 w-4" />}
             label="AI Rewrite (F2)"
             onClick={ctx.onInlineEdit}
+          />
+        )}
+        {ctx.onToggleGhostText && (
+          <ToolbarButton
+            icon={<Wand2 className="h-4 w-4" />}
+            label={
+              ctx.ghostTextEnabled
+                ? "AI Ghost Text (on)"
+                : "AI Ghost Text (off)"
+            }
+            isActive={ctx.ghostTextEnabled}
+            onClick={ctx.onToggleGhostText}
           />
         )}
         {ctx.onToggleFloatingInput && (
@@ -324,10 +364,37 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
           <Focus className="mr-2 h-4 w-4" />
           Focus Mode
         </DropdownMenuItem>
+        {/* Graduated focus levels survive overflow as flat menu items */}
+        {ctx.onFocusLevelChange &&
+          FOCUS_LEVEL_MENU_ITEMS.map(({ level, label }) => (
+            <DropdownMenuItem
+              key={level}
+              onClick={() => ctx.onFocusLevelChange?.(level)}
+            >
+              {ctx.focusLevel === level ? (
+                <Check className="mr-2 h-4 w-4" />
+              ) : (
+                <span className="mr-2 inline-block h-4 w-4" />
+              )}
+              Focus: {label}
+            </DropdownMenuItem>
+          ))}
+        {ctx.onEnterImmersive && (
+          <DropdownMenuItem onClick={ctx.onEnterImmersive}>
+            <Maximize2 className="mr-2 h-4 w-4" />
+            Immersive Mode
+          </DropdownMenuItem>
+        )}
         {ctx.onInlineEdit && (
           <DropdownMenuItem onClick={ctx.onInlineEdit}>
             <Sparkles className="mr-2 h-4 w-4" />
             AI Rewrite (F2)
+          </DropdownMenuItem>
+        )}
+        {ctx.onToggleGhostText && (
+          <DropdownMenuItem onClick={ctx.onToggleGhostText}>
+            <Wand2 className="mr-2 h-4 w-4" />
+            {ctx.ghostTextEnabled ? "Disable AI Ghost Text" : "Enable AI Ghost Text"}
           </DropdownMenuItem>
         )}
         {ctx.onToggleFloatingInput && (
@@ -407,6 +474,10 @@ export function EditorToolbar({
   editor,
   focusMode,
   onToggleFocusMode,
+  paneId,
+  focusLevel,
+  onFocusLevelChange,
+  onEnterImmersive,
   showHistory,
   onToggleHistory,
   showFindings,
@@ -422,6 +493,8 @@ export function EditorToolbar({
   onToggleSplit,
   showFloatingInput,
   onToggleFloatingInput,
+  ghostTextEnabled,
+  onToggleGhostText,
 }: EditorToolbarProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [showOverflow, setShowOverflow] = useState(false);
@@ -448,6 +521,10 @@ export function EditorToolbar({
     editor,
     focusMode,
     onToggleFocusMode,
+    paneId,
+    focusLevel,
+    onFocusLevelChange,
+    onEnterImmersive,
     showHistory,
     onToggleHistory,
     showFindings,
@@ -460,6 +537,8 @@ export function EditorToolbar({
     onToggleSplit,
     showFloatingInput,
     onToggleFloatingInput,
+    ghostTextEnabled,
+    onToggleGhostText,
   };
 
   const primaryGroups = TOOLBAR_GROUPS.filter((g) => g.priority === "primary");
@@ -522,6 +601,18 @@ export function EditorToolbar({
               })}
             </DropdownMenuContent>
           </DropdownMenu>
+        </>
+      )}
+
+      {/* Audio tools: stable mount position regardless of overflow state so
+          playback survives menu close and threshold crossings. Never inside
+          the dropdown — Radix unmounts its children on close, which kills
+          the AudioContext/speech. Primary pane only (split view). */}
+      {paneId !== "secondary" && (
+        <>
+          <Separator orientation="vertical" className="mx-1 h-6" />
+          <AmbientSoundscape />
+          <ReadAloud text={editor.getText()} />
         </>
       )}
 

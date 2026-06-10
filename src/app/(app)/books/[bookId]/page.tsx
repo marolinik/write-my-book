@@ -11,6 +11,11 @@ import {
 
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import {
+  computeStreaks,
+  getDailyWordCounts,
+  getTodayWords,
+} from "@/lib/writing-stats";
 import { getUIStrings } from "@/lib/i18n/ui-strings";
 import { getAgentStrings } from "@/lib/i18n/agent-strings";
 import { getWorkflow } from "@/lib/agents/workflows";
@@ -29,6 +34,7 @@ import { StoryRadar } from "@/components/book/story-radar";
 import { DailyWritingPlan } from "@/components/book/daily-writing-plan";
 import { ProactiveNotifications } from "@/components/book/proactive-notifications";
 import { ChapterWordGoals } from "@/components/book/chapter-word-goals";
+import { WritingHeatmap } from "@/components/book/writing-heatmap";
 import { MilestoneRewards } from "@/components/book/milestone-rewards";
 import { LifetimeStats } from "@/components/book/lifetime-stats";
 import { DraftCertificate } from "@/components/book/draft-certificate";
@@ -96,6 +102,12 @@ export default async function BookDetailPage({
   ]);
 
   if (!book) notFound();
+
+  // Real writing stats: per-day word deltas for the past year (UTC-bucketed)
+  const dailyCounts = await getDailyWordCounts({ bookId, days: 365 });
+  const { currentStreak, bestStreak, activeDays } = computeStreaks(dailyCounts);
+  const todayWords = getTodayWords(dailyCounts);
+  const periodWords = dailyCounts.reduce((sum, d) => sum + d.words, 0);
 
   const t = getUIStrings(user.preferredLanguage ?? "en");
   const s = t.bookOverview;
@@ -516,14 +528,25 @@ export default async function BookDetailPage({
         <ProactiveNotifications
           bookId={bookId}
           chapters={book.chapters.map((ch) => ({
+            id: ch.id,
             chapterNumber: ch.chapterNumber,
             title: ch.title,
             status: ch.status,
             updatedAt: ch.updatedAt.toISOString(),
           }))}
           pendingFindings={pendingFindings}
-          currentStreak={0}
-          todayWords={0}
+          currentStreak={currentStreak}
+          todayWords={todayWords}
+        />
+      </div>
+
+      {/* Writing Heatmap — daily activity over the past year */}
+      <div className="mb-8">
+        <WritingHeatmap
+          data={dailyCounts}
+          currentStreak={currentStreak}
+          bestStreak={bestStreak}
+          totalWords={periodWords}
         />
       </div>
 
@@ -547,13 +570,15 @@ export default async function BookDetailPage({
       <div className="grid gap-4 lg:grid-cols-2 mb-8">
         <MilestoneRewards
           totalWords={book.wordCount}
-          currentStreak={0}
+          currentStreak={currentStreak}
           chaptersComplete={draftedPlus}
         />
         <LifetimeStats
           totalWords={book.wordCount}
           totalChapters={totalChapters}
           totalSessions={recentSessions.length}
+          longestStreak={bestStreak}
+          totalDaysWriting={activeDays}
         />
       </div>
 

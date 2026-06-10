@@ -57,8 +57,8 @@ export async function GET(
     new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
   )[0];
 
-  // Continue where they left off
-  if (lastTouched) {
+  // Continue where they left off (skip chapters that are already done)
+  if (lastTouched && lastTouched.status !== "beta_passed") {
     plan.push({
       id: "continue",
       type: "write",

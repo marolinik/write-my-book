@@ -17,6 +17,8 @@ export interface EditorPaneState {
 
   // UI toggles — per-pane
   focusMode: boolean;
+  focusLevel: 0 | 1 | 2 | 3;
+  ghostTextEnabled: boolean;
   showFindings: boolean;
   showAnnotations: boolean;
   scrollToText: string | null;
@@ -31,6 +33,8 @@ export interface EditorPaneState {
   setSaving: (saving: boolean) => void;
   setLastSaved: (date: Date) => void;
   toggleFocusMode: () => void;
+  setFocusLevel: (level: 0 | 1 | 2 | 3) => void;
+  toggleGhostText: () => void;
   toggleFindings: () => void;
   toggleAnnotations: () => void;
   setScrollToText: (text: string | null) => void;
@@ -52,6 +56,8 @@ const initialPaneState = {
   isSaving: false,
   lastSaved: null,
   focusMode: false,
+  focusLevel: 0 as const,
+  ghostTextEnabled: false,
   showFindings: false,
   showAnnotations: true,
   scrollToText: null,
@@ -78,6 +84,11 @@ function createEditorPaneStore(): EditorPaneStore {
       set({ lastSaved, isDirty: false, isSaving: false }),
 
     toggleFocusMode: () => set((s) => ({ focusMode: !s.focusMode })),
+
+    setFocusLevel: (focusLevel) => set({ focusLevel }),
+
+    toggleGhostText: () =>
+      set((s) => ({ ghostTextEnabled: !s.ghostTextEnabled })),
 
     toggleFindings: () => set((s) => ({ showFindings: !s.showFindings })),
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FocusIcon, EyeIcon, EyeOffIcon } from "lucide-react";
+import { FocusIcon, EyeOffIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -28,11 +28,12 @@ interface GraduatedFocusProps {
   onEnterImmersive?: () => void;
 }
 
+// Level 3 (sentence) is hidden this phase: there is no sentence-decoration
+// producer, so it would render identically to level 2 (paragraph).
 const FOCUS_LEVELS = [
   { level: 0 as FocusLevel, label: "Normal", desc: "Everything visible", icon: "👁️" },
   { level: 1 as FocusLevel, label: "Focused", desc: "Sidebar & header dimmed", icon: "🔍" },
   { level: 2 as FocusLevel, label: "Paragraph", desc: "Current paragraph highlighted", icon: "📝" },
-  { level: 3 as FocusLevel, label: "Sentence", desc: "Current sentence only", icon: "✍️" },
 ];
 
 export function GraduatedFocus({ currentLevel: externalLevel, onChange: externalOnChange, onEnterImmersive }: GraduatedFocusProps) {
@@ -103,7 +104,9 @@ export function getFocusLevelClasses(level: FocusLevel): string {
     case 0: return "";
     case 1: return "wmb-focus-1"; // Sidebar + header opacity-30
     case 2: return "wmb-focus-2"; // Paragraph-level: [data-focus-active] visible, rest opacity-20
-    case 3: return "wmb-focus-3"; // Sentence-level: current sentence only
+    // Level 3 ships paragraph-equivalent: .is-current-sentence has no producer,
+    // so wmb-focus-3 would dim the active paragraph to near-invisible.
+    case 3: return "wmb-focus-2";
     default: return "";
   }
 }

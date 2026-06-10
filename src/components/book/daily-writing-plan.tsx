@@ -88,7 +88,7 @@ export function DailyWritingPlan({ bookId }: DailyWritingPlanProps) {
         {isLoading ? (
           <div className="flex items-center gap-2 py-4 justify-center text-xs text-muted-foreground">
             <Loader2Icon className="size-3 animate-spin" />
-            Generating your plan...
+            Building your plan...
           </div>
         ) : items.length === 0 ? (
           <p className="text-xs text-muted-foreground text-center py-4">

@@ -486,6 +486,15 @@ export interface InlineEditResponse {
   tokensUsed: { input: number; output: number };
 }
 
+// ─── Ghost Text Schemas ──────────────────────────────────────
+
+export const ghostTextRequestSchema = z.object({
+  context: z.string().min(1).max(2000),
+  chapterNumber: z.number().int(),
+});
+
+export type GhostTextRequest = z.infer<typeof ghostTextRequestSchema>;
+
 // ─── Writing Dashboard Schemas ──────────────────────────────────
 
 export const writingGoalSchema = z.object({

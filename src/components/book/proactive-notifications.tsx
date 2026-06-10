@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
  */
 
 interface Chapter {
+  id: string;
   chapterNumber: number;
   title: string | null;
   status: string;
@@ -96,7 +97,7 @@ export function ProactiveNotifications({
           icon: ClockIcon,
           message: `Ch.${ch.chapterNumber}${ch.title ? ` "${ch.title}"` : ""} — ${daysSince} days untouched`,
           detail: `Status: ${ch.status.replace(/_/g, " ")}`,
-          href: `/books/${bookId}/chapters/${ch.chapterNumber}`,
+          href: `/books/${bookId}/chapters/${ch.id}`,
           priority: daysSince >= 30 ? "medium" : "low",
           color: "text-amber-500",
         });

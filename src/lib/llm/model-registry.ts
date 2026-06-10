@@ -488,6 +488,27 @@ export function resolveFromTier(tier: string): ModelDefinition {
   return getModelDef("anthropic/sonnet")!;
 }
 
+/**
+ * Resolve the cheapest ("haiku"-tier) model for the provider implied by a
+ * user's default model ID. String-building `${prefix}/haiku` misses for
+ * providers whose registry uses different naming (openai/gpt-4o-mini,
+ * gemini/grok variants) — and a registry miss silently resolves to
+ * anthropic/sonnet, which is the wrong cost AND, for single-key users of
+ * another provider, a guaranteed key-missing failure.
+ */
+export function resolveCheapModelFor(defaultModelId: string): ModelDefinition {
+  const prefix = defaultModelId.split("/")[0];
+  const byPrefix = getModelDef(`${prefix}/haiku`);
+  if (byPrefix) return byPrefix; // anthropic, openrouter, openrouter-* variants
+
+  const def = getModelDef(defaultModelId);
+  const provider = def?.provider ?? "anthropic";
+  return (
+    MODEL_REGISTRY.find((m) => m.provider === provider && m.tier === "haiku") ??
+    getModelDef("anthropic/haiku")!
+  );
+}
+
 /** Get all models for a given provider. */
 export function getModelsByProvider(provider: LLMProvider): ModelDefinition[] {
   return MODEL_REGISTRY.filter((m) => m.provider === provider);

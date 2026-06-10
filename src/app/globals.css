@@ -635,9 +635,17 @@
    POLISH: Focus Mode CSS (Graduated + Typewriter)
    ═══════════════════════════════════════════════════════════════ */
 
-/* Level 1: Dim sidebar + header */
-.wmb-focus-1 {
-  /* Applied to the main content wrapper */
+/* Level 1: Dim sidebar + header. The class sits on the editor column
+   wrapper (a descendant), so we reach the app chrome via :has() from body.
+   Hover restores full opacity so the chrome stays usable. */
+body:has(.wmb-focus-1) [data-slot="sidebar-container"],
+body:has(.wmb-focus-1) [data-slot="sidebar-inset"] > header {
+  opacity: 0.3;
+  transition: opacity 0.5s ease;
+}
+body:has(.wmb-focus-1) [data-slot="sidebar-container"]:hover,
+body:has(.wmb-focus-1) [data-slot="sidebar-inset"] > header:hover {
+  opacity: 1;
 }
 
 /* Level 2: Only current paragraph fully visible */

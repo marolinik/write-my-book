@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import {
   RadarIcon,
   AlertTriangleIcon,
@@ -23,13 +22,13 @@ import { fetchJson } from "@/lib/api-client";
  * Like a linter for your manuscript.
  */
 
-interface RadarIssue {
+interface RadarAlert {
   id: string;
+  type: string;
   severity: "info" | "warning" | "critical";
-  category: string;
-  message: string;
-  location?: string;
-  suggestion?: string;
+  title: string;
+  detail: string;
+  chapterNumber?: number;
 }
 
 interface StoryRadarProps {
@@ -43,14 +42,14 @@ const SEVERITY_STYLES = {
 };
 
 export function StoryRadar({ bookId }: StoryRadarProps) {
-  const { data, isLoading, refetch, isFetching } = useQuery<{ issues: RadarIssue[] }>({
+  const { data, isLoading, isError, refetch, isFetching } = useQuery<{ alerts: RadarAlert[] }>({
     queryKey: ["story-radar", bookId],
     queryFn: () => fetchJson(`/api/books/${bookId}/radar`),
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
 
-  const issues = data?.issues ?? [];
+  const issues = data?.alerts ?? [];
   const criticalCount = issues.filter(i => i.severity === "critical").length;
   const warningCount = issues.filter(i => i.severity === "warning").length;
 
@@ -69,7 +68,7 @@ export function StoryRadar({ bookId }: StoryRadarProps) {
             {warningCount > 0 && (
               <Badge className="text-[10px] bg-amber-500/10 text-amber-600 border-amber-300">{warningCount} warnings</Badge>
             )}
-            {issues.length === 0 && !isLoading && (
+            {data && issues.length === 0 && (
               <Badge variant="secondary" className="text-[10px] text-green-600">All clear</Badge>
             )}
             <Button
@@ -88,7 +87,19 @@ export function StoryRadar({ bookId }: StoryRadarProps) {
             <Loader2Icon className="size-3 animate-spin" />
             Scanning manuscript...
           </div>
-        ) : issues.length === 0 ? (
+        ) : isError ? (
+          <div className="flex flex-col items-center gap-2 py-4 text-center">
+            <AlertTriangleIcon className="size-8 text-amber-500/40" />
+            <p className="text-xs text-muted-foreground">Couldn&apos;t scan manuscript.</p>
+            <Button
+              variant="outline" size="sm" className="h-7 text-xs"
+              onClick={() => refetch()}
+              disabled={isFetching}
+            >
+              Retry
+            </Button>
+          </div>
+        ) : data && issues.length === 0 ? (
           <div className="flex flex-col items-center gap-2 py-4 text-center">
             <CheckCircle2Icon className="size-8 text-green-500/30" />
             <p className="text-xs text-muted-foreground">No issues detected. Your manuscript looks healthy!</p>
@@ -96,22 +107,21 @@ export function StoryRadar({ bookId }: StoryRadarProps) {
         ) : (
           <ScrollArea className="max-h-64">
             <div className="space-y-2">
-              {issues.map((issue) => {
-                const style = SEVERITY_STYLES[issue.severity];
+              {issues.map((alert) => {
+                const style = SEVERITY_STYLES[alert.severity];
                 const Icon = style.icon;
+                const location = alert.chapterNumber != null ? `Ch.${alert.chapterNumber}` : undefined;
                 return (
-                  <div key={issue.id} className={`rounded-md border p-2.5 ${style.bg}`}>
+                  <div key={alert.id} className={`rounded-md border p-2.5 ${style.bg}`}>
                     <div className="flex items-start gap-2">
                       <Icon className={`size-3.5 shrink-0 mt-0.5 ${style.color}`} />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">
-                          <Badge variant="outline" className="text-[8px] px-1">{issue.category}</Badge>
-                          {issue.location && <span className="text-[9px] text-muted-foreground">{issue.location}</span>}
+                          <Badge variant="outline" className="text-[8px] px-1">{alert.type}</Badge>
+                          {location && <span className="text-[9px] text-muted-foreground">{location}</span>}
                         </div>
-                        <p className="text-xs mt-0.5">{issue.message}</p>
-                        {issue.suggestion && (
-                          <p className="text-[10px] text-muted-foreground mt-1 italic">💡 {issue.suggestion}</p>
-                        )}
+                        <p className="text-xs mt-0.5">{alert.title}</p>
+                        <p className="text-[10px] text-muted-foreground mt-1 italic">{alert.detail}</p>
                       </div>
                     </div>
                   </div>

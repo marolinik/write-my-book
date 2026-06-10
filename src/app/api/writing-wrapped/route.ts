@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { computeStreaks, getDailyWordCounts } from "@/lib/writing-stats";
 
 export const dynamic = "force-dynamic";
 
@@ -64,20 +65,32 @@ export async function GET() {
   }
   const topGenre = Object.entries(genreCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "Fiction";
 
-  // Words per month (placeholder — would need document version tracking)
-  const wordsPerMonth = Array(12).fill(0);
-  const peakMonth = 0;
+  // Real daily word deltas, scoped to the labeled calendar year (UTC-bucketed).
+  // Sessions/findings above are year-filtered; word stats must match or the
+  // monthly chart folds two different years into one deck.
+  const dailyCounts = (
+    await getDailyWordCounts({ userId: user.id, days: 365 })
+  ).filter((d) => d.date >= `${year}-01-01`);
+  const { bestStreak, activeDays } = computeStreaks(dailyCounts);
 
-  // Favorite writing hour (placeholder)
-  const sessionHours = sessions.map((s) => new Date(s.startedAt).getHours());
+  // Words per month: bucket daily deltas into 12 month slots
+  const wordsPerMonth: number[] = Array(12).fill(0);
+  for (const day of dailyCounts) {
+    const monthIndex = parseInt(day.date.slice(5, 7), 10) - 1;
+    wordsPerMonth[monthIndex] += day.words;
+  }
+  const peakMonth = wordsPerMonth.indexOf(Math.max(...wordsPerMonth));
+
+  // Favorite writing hour, derived from agent sessions (null when no sessions)
   const hourCounts: Record<number, number> = {};
-  for (const h of sessionHours) {
+  for (const s of sessions) {
+    const h = new Date(s.startedAt).getHours();
     hourCounts[h] = (hourCounts[h] ?? 0) + 1;
   }
-  const favoriteWritingHour = Object.entries(hourCounts)
-    .sort((a, b) => b[1] - a[1])[0]?.[0]
-    ? parseInt(Object.entries(hourCounts).sort((a, b) => b[1] - a[1])[0][0])
-    : 14;
+  const topHourEntry = Object.entries(hourCounts).sort((a, b) => b[1] - a[1])[0];
+  const favoriteWritingHour: number | null = topHourEntry
+    ? parseInt(topHourEntry[0], 10)
+    : null;
 
   // Writer personality based on patterns
   const writerPersonality =
@@ -92,8 +105,8 @@ export async function GET() {
     totalChapters,
     totalSessions,
     booksWorkedOn: books.length,
-    longestStreak: 0, // Would need daily tracking to compute
-    totalDaysWriting: 0,
+    longestStreak: bestStreak,
+    totalDaysWriting: activeDays,
     favoriteWritingHour,
     topGenre,
     wordsPerMonth,

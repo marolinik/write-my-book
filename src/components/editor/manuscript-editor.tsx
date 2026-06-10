@@ -20,7 +20,7 @@ import {
   useSaveChapterContent,
 } from "@/hooks/use-documents";
 import { useFindings } from "@/hooks/use-editorial";
-import { countWords } from "@/lib/utils";
+import { cn, countWords } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -40,6 +40,11 @@ import { AnnotationTooltip } from "./annotation-tooltip";
 import { ChapterContextHeader } from "./chapter-context-header";
 import { GutterMarkers } from "./gutter-markers";
 import { FloatingAgentInput } from "./floating-agent-input";
+import { AIGhostText } from "./ai-ghost-text";
+import { ImmersiveFocusMode } from "./immersive-focus-mode";
+import { getFocusLevelClasses } from "./graduated-focus";
+import { PacingHeatmap } from "./pacing-heatmap";
+import { ProseSyntaxHighlight } from "./prose-syntax-highlight";
 import { TypewriterMode } from "./typewriter-mode";
 import { OverlappingFindingsPopover } from "./overlapping-findings-popover";
 import {
@@ -96,6 +101,8 @@ export function ManuscriptEditor({
   const isSaving = useEditorPaneStore(paneId, (s) => s.isSaving);
   const lastSaved = useEditorPaneStore(paneId, (s) => s.lastSaved);
   const focusMode = useEditorPaneStore(paneId, (s) => s.focusMode);
+  const focusLevel = useEditorPaneStore(paneId, (s) => s.focusLevel);
+  const ghostTextEnabled = useEditorPaneStore(paneId, (s) => s.ghostTextEnabled);
   const showFindings = useEditorPaneStore(paneId, (s) => s.showFindings);
   const showAnnotations = useEditorPaneStore(paneId, (s) => s.showAnnotations);
   const showFloatingInput = useEditorPaneStore(paneId, (s) => s.showFloatingInput);
@@ -122,6 +129,11 @@ export function ManuscriptEditor({
     rect: DOMRect;
   } | null>(null);
   const [showFloatingAgentInput, setShowFloatingAgentInput] = useState(false);
+  // Immersive focus mode: content snapshot on enter, sync back ONLY on exit
+  // (per-keystroke setContent would destroy undo history and markdown fidelity)
+  const [immersive, setImmersive] = useState(false);
+  const [immersiveContent, setImmersiveContent] = useState("");
+  const immersiveHtmlRef = useRef("");
   const isLg = useIsLg();
 
   // Findings for current chapter
@@ -511,6 +523,44 @@ export function ManuscriptEditor({
     [editor]
   );
 
+  // ── Immersive focus mode: snapshot on enter, sync on exit ───
+  const enterImmersive = useCallback(() => {
+    if (!editor) return;
+    const html = editor.getHTML();
+    immersiveHtmlRef.current = html;
+    setImmersiveContent(html);
+    setImmersive(true);
+  }, [editor]);
+
+  const exitImmersive = useCallback(() => {
+    setImmersive(false);
+    if (editor && immersiveHtmlRef.current !== immersiveContent) {
+      editor.commands.setContent(immersiveHtmlRef.current);
+      paneStore.getState().markDirty();
+    }
+  }, [editor, immersiveContent, paneStore]);
+
+  // Safety net: while immersive, edits live only in immersiveHtmlRef — if
+  // this component unmounts without exit (back-nav, tab close, crash) the
+  // whole session is lost. Periodically sync into tiptap + markDirty so the
+  // 2s-debounced autosave persists it; bounds worst-case loss to ~32s.
+  // (Compare against lastImmersiveSyncRef, not editor.getHTML(): tiptap
+  // normalizes HTML and would trigger spurious syncs. The overlay renders
+  // from immersiveContent state, so the hidden sync never moves the cursor.)
+  const lastImmersiveSyncRef = useRef("");
+  useEffect(() => {
+    if (!immersive || !editor) return;
+    lastImmersiveSyncRef.current = immersiveHtmlRef.current;
+    const id = setInterval(() => {
+      if (immersiveHtmlRef.current !== lastImmersiveSyncRef.current) {
+        lastImmersiveSyncRef.current = immersiveHtmlRef.current;
+        editor.commands.setContent(immersiveHtmlRef.current);
+        paneStore.getState().markDirty();
+      }
+    }, 30_000);
+    return () => clearInterval(id);
+  }, [immersive, editor, paneStore]);
+
   // ── F8 / Shift+F8 keyboard navigation ──────────────────────
   useEffect(() => {
     if (!editor) return;
@@ -566,7 +616,12 @@ export function ManuscriptEditor({
 
   // ── Shared editor column JSX ─────────────────────────────────
   const editorColumn = (
-    <div className="flex flex-col flex-1 min-w-0 h-full">
+    <div
+      className={cn(
+        "flex flex-col flex-1 min-w-0 h-full",
+        getFocusLevelClasses(focusLevel)
+      )}
+    >
       {/* Breadcrumb + nav header */}
       <div className="px-4 py-3 border-b space-y-1">
         {/* Breadcrumb trail */}
@@ -660,6 +715,12 @@ export function ManuscriptEditor({
         editor={editor}
         focusMode={focusMode}
         onToggleFocusMode={() => paneStore.getState().toggleFocusMode()}
+        paneId={paneId}
+        focusLevel={focusLevel}
+        onFocusLevelChange={(level) => paneStore.getState().setFocusLevel(level)}
+        onEnterImmersive={enterImmersive}
+        ghostTextEnabled={ghostTextEnabled}
+        onToggleGhostText={() => paneStore.getState().toggleGhostText()}
         showHistory={showVersionHistory}
         onToggleHistory={() => setShowVersionHistory((v) => !v)}
         showFindings={showFindings}
@@ -687,6 +748,14 @@ export function ManuscriptEditor({
         showFloatingInput={showFloatingInput}
         onToggleFloatingInput={() => paneStore.getState().toggleFloatingInput()}
       />
+
+      {/* Prose analysis strip: collapsed = ghost buttons; expanded pushes content down */}
+      {editor && (
+        <div className="flex gap-2 px-2 py-1">
+          <PacingHeatmap text={getMarkdownFromEditor(editor)} />
+          <ProseSyntaxHighlight text={getMarkdownFromEditor(editor)} />
+        </div>
+      )}
 
       <EditorContextMenu
         bookId={bookId}
@@ -731,6 +800,14 @@ export function ManuscriptEditor({
                 onClose={() => setShowFloatingAgentInput(false)}
               />
             )}
+          {editor && (
+            <AIGhostText
+              editor={editor}
+              bookId={bookId}
+              chapterNumber={chapterNumber}
+              enabled={ghostTextEnabled}
+            />
+          )}
           {showInlineEdit && editor && (
             <InlineEditPopup
               editor={editor}
@@ -813,6 +890,17 @@ export function ManuscriptEditor({
 
   return (
     <div className="flex h-full">
+      {/* Immersive focus mode: full-screen overlay, content syncs back on exit */}
+      {immersive && (
+        <ImmersiveFocusMode
+          content={immersiveContent}
+          onContentChange={(html) => {
+            immersiveHtmlRef.current = html;
+          }}
+          onExit={exitImmersive}
+        />
+      )}
+
       {/* Editor + findings: ResizablePanelGroup on lg+ when findings are shown */}
       {isLg && showFindings ? (
         <ResizablePanelGroup orientation="horizontal" id="editor-findings-split" className="flex-1">
