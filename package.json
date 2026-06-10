@@ -16,7 +16,9 @@
     "env:check:worker": "tsx scripts/check-env.ts worker",
     "smoke:deployment": "tsx scripts/smoke-deployment.ts",
     "billing:check": "tsx scripts/check-stripe-config.ts",
-    "auth:check": "tsx scripts/check-clerk-config.ts"
+    "auth:check": "tsx scripts/check-clerk-config.ts",
+    "db:deploy:check": "tsx scripts/check-db-deploy.ts",
+    "db:push:prod": "npm run db:deploy:check && npx prisma generate && npx prisma db push"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.74.0",

@@ -77,6 +77,9 @@ jobs:
       - name: Check Clerk auth contract
         run: npm run auth:check
 
+      - name: Check database deploy preflight contract
+        run: npm run db:deploy:check
+
       - name: Check Stripe billing contract
         run: npm run billing:check
       - name: Lint

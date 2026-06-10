@@ -37,7 +37,7 @@ The web app and worker must use the same `DATABASE_URL`, object storage, and
 
 ### 3. Database deploy procedure
 
-Current project decision is Prisma `db push` because migration history drifted.
+Current project decision is Prisma `db push` because migration history drifted. The executable procedure is documented in `docs/database-deploy-backup.md` and enforced by `npm run db:deploy:check`.
 Before launch:
 
 1. Take a database backup.

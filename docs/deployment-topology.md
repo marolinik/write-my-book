@@ -100,7 +100,7 @@ SMOKE_BASE_URL=http://127.0.0.1:${APP_PORT:-3000} npm run smoke:deployment
    docker compose -f docker-compose.yml -f docker-compose.prod.yml config >/tmp/wmb-compose.yml
    ```
 
-4. Backup PostgreSQL and object storage.
+4. Backup PostgreSQL and object storage; follow `docs/database-deploy-backup.md`.
 5. Generate Prisma client and sync schema during the release window:
 
    ```bash
