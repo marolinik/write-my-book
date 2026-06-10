@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   output: "standalone",
@@ -14,7 +15,6 @@ const nextConfig: NextConfig = {
 let exportedConfig: NextConfig = nextConfig;
 
 if (process.env.NODE_ENV === "production") {
-  const { withSentryConfig } = require("@sentry/nextjs");
   exportedConfig = withSentryConfig(nextConfig, {
     org: process.env.SENTRY_ORG,
     project: process.env.SENTRY_PROJECT,

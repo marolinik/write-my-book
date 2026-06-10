@@ -9,7 +9,6 @@ import {
   useSaveDocumentContent,
 } from "@/hooks/use-documents";
 import { useFindings, useApplyFinding, useDismissFinding } from "@/hooks/use-editorial";
-import type { FindingItem } from "@/hooks/use-editorial";
 import { countWords } from "@/lib/utils";
 import {
   useEditorPaneStore,
@@ -27,7 +26,6 @@ import { AnnotationTooltip } from "@/components/editor/annotation-tooltip";
 import { VersionHistoryPanel } from "@/components/editor/version-history-panel";
 import { VersionHistorySheet } from "@/components/editor/version-history-sheet";
 import {
-  AnnotationExtension,
   annotationPluginKey,
   countAnnotations,
   findTextPositions,
@@ -129,8 +127,14 @@ export default function DocumentEditorPage({
     bookId,
     chapterNumber ? { chapterNumber } : {}
   );
-  const findings = isChapterScoped ? (findingsData?.findings ?? []) : [];
-  const pendingFindingsCount = findings.filter((f) => f.status === "pending").length;
+  const findings = useMemo(
+    () => (isChapterScoped ? (findingsData?.findings ?? []) : []),
+    [findingsData?.findings, isChapterScoped]
+  );
+  const pendingFindingsCount = useMemo(
+    () => findings.filter((f) => f.status === "pending").length,
+    [findings]
+  );
 
   // Auto-open findings panel when pending findings exist
   const autoOpenedRef = useRef(false);
