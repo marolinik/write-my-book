@@ -10,7 +10,7 @@ const isPublicRoute = createRouteMatcher([
   "/terms",
   "/api/auth/webhook",
   "/api/billing/webhook",
-  "/api/health",
+  "/api/health(.*)",
 ]);
 
 /**
@@ -32,12 +32,21 @@ function isE2ETestRequest(request: NextRequest): boolean {
 }
 
 const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const isProduction = process.env.NODE_ENV === "production";
 const isClerkConfigured =
-  clerkKey && clerkKey.length > 0 && !clerkKey.includes("REPLACE_ME");
+  Boolean(clerkKey?.trim()) &&
+  !/placeholder|changeme|replace_me|ci-placeholder|your[_-]|example/i.test(clerkKey ?? "");
 
 const DEV_AUTH_BYPASS =
-  process.env.NODE_ENV !== "production" &&
-  process.env.DEV_AUTH_BYPASS === "true";
+  !isProduction && process.env["DEV_AUTH_BYPASS"] === "true";
+
+function authMisconfiguredMiddleware(request: NextRequest) {
+  if (isPublicRoute(request)) return NextResponse.next();
+  return NextResponse.json(
+    { error: "Authentication is not configured" },
+    { status: isProduction ? 503 : 401 }
+  );
+}
 
 const handler =
   DEV_AUTH_BYPASS
@@ -66,9 +75,7 @@ const handler =
             }
           }
         })
-      : function bypassMiddleware() {
-          return NextResponse.next();
-        };
+      : authMisconfiguredMiddleware;
 
 export default handler;
 

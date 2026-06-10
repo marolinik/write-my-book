@@ -74,6 +74,9 @@ jobs:
         env:
           REDIS_URL: "redis://localhost:6379"
 
+      - name: Check Clerk auth contract
+        run: npm run auth:check
+
       - name: Check Stripe billing contract
         run: npm run billing:check
       - name: Lint

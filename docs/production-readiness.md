@@ -57,7 +57,7 @@ Static contract is documented in `docs/stripe-billing-verification.md` and enfor
 
 ### 5. Clerk verification
 
-Verify with production Clerk app:
+Static contract is documented in `docs/clerk-auth-verification.md` and enforced by `npm run auth:check`. Verify with production Clerk app:
 
 - Signup
 - Login
