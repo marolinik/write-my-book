@@ -23,7 +23,10 @@ export const KEYBOARD_SHORTCUTS: KeyboardShortcut[] = [
 
   // Editor — tools
   { keys: "F2", description: "AI Rewrite (select text first)", context: "editor" },
+  { keys: "F8", description: "Next finding (opens review)", context: "editor" },
+  { keys: "Shift+F8", description: "Previous finding", context: "editor" },
   { keys: "Escape", description: "Close popup or tooltip", context: "editor" },
+  { keys: "Escape", description: "Exit immersive mode", context: "editor" },
 
   // Agent panel
   { keys: "Enter", description: "Send message", context: "agent" },

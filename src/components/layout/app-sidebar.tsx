@@ -226,7 +226,9 @@ export function AppSidebar() {
     const v = counts[key];
     if (!v) return null;
     const s = itemStatus[key];
-    const color = s === "done" ? "text-green-500" : s === "partial" ? "text-amber-500" : "text-muted-foreground";
+    // 700-grade in light mode — the 500 shades sit at ~2:1 against the
+    // near-white sidebar (WCAG AA needs 4.5:1 for this 10px text).
+    const color = s === "done" ? "text-green-700 dark:text-green-500" : s === "partial" ? "text-amber-700 dark:text-amber-500" : "text-muted-foreground";
     return <span className={`ml-auto text-[10px] font-semibold ${color}`}>{v}</span>;
   };
 
@@ -457,7 +459,7 @@ export function AppSidebar() {
                 <span>{t.nav.sectionWriting}</span>
                 {counts.chapters ? (
                   <span className={`ml-auto text-[10px] font-semibold ${
-                    itemStatus.chapters === "done" ? "text-green-500" : itemStatus.chapters === "partial" ? "text-amber-500" : "text-muted-foreground"
+                    itemStatus.chapters === "done" ? "text-green-700 dark:text-green-500" : itemStatus.chapters === "partial" ? "text-amber-700 dark:text-amber-500" : "text-muted-foreground"
                   }`}>{counts.chapters}</span>
                 ) : null}
               </SidebarGroupLabel>

@@ -105,6 +105,7 @@ export function AppHeader({
             size="icon"
             className="size-7"
             onClick={toggleSidebar}
+            aria-label={t.header.toggleSidebar}
           >
             <SidebarIcon className="size-4" />
           </Button>
@@ -145,6 +146,7 @@ export function AppHeader({
               size="icon"
               className="size-7"
               onClick={onToggleAgent}
+              aria-label={t.header.toggleAgent}
             >
               <BotIcon className="size-4" />
             </Button>

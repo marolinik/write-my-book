@@ -34,6 +34,13 @@ import {
   ResizableHandle,
 } from "@/components/ui/resizable";
 import { InlineEditPopup } from "./inline-edit-popup";
+import { FindingsSheet } from "./findings-sheet";
+import { LiveAnnouncer } from "@/components/editor/live-announcer";
+import {
+  useFindingNavigation,
+  ownsEditorShortcut,
+  EDITOR_PANE_ATTR,
+} from "./use-finding-navigation";
 import { EditorContextMenu } from "./editor-context-menu";
 import { EditorToolbar } from "./editor-toolbar";
 import { EditorStatusBar } from "./editor-status-bar";
@@ -62,7 +69,15 @@ import type { AnnotationType } from "./annotation-extension";
 import type { FindingItem } from "@/hooks/use-editorial";
 import { useApplyFinding, useDismissFinding } from "@/hooks/use-editorial";
 import { useEditorialStore } from "@/stores/editorial-store";
-import { getMarkdownFromEditor, sanitizeUnicode, useIsLg, findingsToAnnotations, createEditorExtensions, classifyFindingFreshness, type TooltipState } from "./editor-utils";
+import { getMarkdownFromEditor, sanitizeUnicode, useIsLg, findingsToAnnotations, createEditorExtensions, classifyFindingFreshness, getEditorContentAttributes, type TooltipState } from "./editor-utils";
+
+// ProseMirror keeps the caret this clear of the scroll-container edge — on
+// phones the virtual keyboard occludes the lower half of the viewport.
+const CARET_SCROLL_CLEARANCE_PX = 80;
+// Editor shortcuts (F2/F8) must not fire while focus is inside a form field
+// or dialog. The contenteditable is intentionally NOT matched — it is the
+// primary context for both shortcuts.
+const SHORTCUT_GUARD_SELECTOR = 'input, textarea, [role="dialog"]';
 
 interface ChapterNavItem {
   id: string;
@@ -141,6 +156,8 @@ export function ManuscriptEditor({
   const offlineToastShownRef = useRef(false);
   const editorRef = useRef<ReturnType<typeof useEditor>>(null);
   const editorAreaRef = useRef<HTMLDivElement>(null);
+  // Pane column root — split-view shortcut ownership + scoped focus restore.
+  const paneRootRef = useRef<HTMLDivElement>(null);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [showSaveConflict, setShowSaveConflict] = useState(false);
   const [showInlineEdit, setShowInlineEdit] = useState(false);
@@ -182,14 +199,17 @@ export function ManuscriptEditor({
     (f) => f.status === "pending"
   ).length;
 
-  // Auto-open findings panel when pending findings exist
+  // Auto-open findings panel when pending findings exist — desktop only.
+  // Below lg the panel is a modal Sheet and must never self-summon
+  // mid-typing; the toolbar badge is the affordance there (spec §1.2).
   const autoOpenedRef = useRef(false);
   useEffect(() => {
+    if (!isLg) return;
     if (pendingFindingsCount > 0 && !autoOpenedRef.current && !showFindings) {
       paneStore.getState().toggleFindings();
       autoOpenedRef.current = true;
     }
-  }, [pendingFindingsCount]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [pendingFindingsCount, isLg]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Mutations for tooltip accept/reject
   const applyMutation = useApplyFinding(bookId);
@@ -264,6 +284,12 @@ export function ManuscriptEditor({
       ? allChapters[currentIdx + 1]
       : null;
 
+  // Accessible name for the contenteditable (spec §2) — includes the chapter
+  // number/title so AT users hear which chapter they are editing.
+  const editorAriaLabel = chapterTitle
+    ? `Editing chapter ${chapterNumber}: ${chapterTitle}`
+    : `Editing chapter ${chapterNumber}`;
+
   const editor = useEditor({
     immediatelyRender: false,
     extensions: createEditorExtensions({
@@ -271,9 +297,9 @@ export function ManuscriptEditor({
       onAnnotationClick: handleAnnotationClick,
     }),
     editorProps: {
-      attributes: {
-        class: `tiptap max-w-[680px] mx-auto px-4 ${focusMode ? "focus-mode" : ""}`,
-      },
+      attributes: getEditorContentAttributes(focusMode, editorAriaLabel),
+      scrollThreshold: CARET_SCROLL_CLEARANCE_PX,
+      scrollMargin: CARET_SCROLL_CLEARANCE_PX,
     },
     onUpdate: () => {
       // TipTap is sole content source — just mark dirty in the pane store
@@ -284,18 +310,19 @@ export function ManuscriptEditor({
   // Keep ref in sync so callbacks can access editor without circular deps
   editorRef.current = editor;
 
-  // Update editor class when focus mode changes
+  // Update editor class when focus mode changes. setOptions replaces the
+  // whole editorProps object, so the scroll clearances must ride along.
   useEffect(() => {
     if (editor) {
       editor.setOptions({
         editorProps: {
-          attributes: {
-            class: `tiptap max-w-[680px] mx-auto px-4 ${focusMode ? "focus-mode" : ""}`,
-          },
+          attributes: getEditorContentAttributes(focusMode, editorAriaLabel),
+          scrollThreshold: CARET_SCROLL_CLEARANCE_PX,
+          scrollMargin: CARET_SCROLL_CLEARANCE_PX,
         },
       });
     }
-  }, [editor, focusMode]);
+  }, [editor, focusMode, editorAriaLabel]);
 
   // Push annotations into the ProseMirror plugin when they change
   useEffect(() => {
@@ -319,6 +346,11 @@ export function ManuscriptEditor({
     contentLoadedRef.current = false;
     saveFailuresRef.current = 0;
     recoveryCheckedRef.current = false;
+    // Transient overlays belong to the previous chapter — a review tooltip
+    // or popup surviving an in-place switch acts on the wrong document.
+    setTooltipState(null);
+    setOverlappingState(null);
+    setShowInlineEdit(false);
     if (isPrimary) {
       useActiveEditorStore.getState().setActiveEditor(bookId, chapterId, chapterNumber);
     }
@@ -676,6 +708,15 @@ export function ManuscriptEditor({
     if (!editor) return;
     const handler = (e: KeyboardEvent) => {
       if (e.key === "F2" && !showInlineEdit) {
+        if ((e.target as HTMLElement | null)?.closest(SHORTCUT_GUARD_SELECTOR)) {
+          return;
+        }
+        // Split view: both panes listen at document level — only the pane
+        // that owns focus handles the press (primary when focus is outside
+        // every pane).
+        if (!ownsEditorShortcut(e.target, paneRootRef.current, isPrimary)) {
+          return;
+        }
         e.preventDefault();
         const { from, to } = editor.state.selection;
         if (from === to) {
@@ -688,7 +729,7 @@ export function ManuscriptEditor({
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [editor, showInlineEdit]);
+  }, [editor, showInlineEdit, isPrimary]);
 
   // Watch for finding-card clicks → open inline edit popup
   const pendingInlineEditFinding = useEditorPaneStore(paneId, (s) => s.pendingInlineEditFinding);
@@ -753,27 +794,6 @@ export function ManuscriptEditor({
     return classifyFindingFreshness(findings, editor.state.doc);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [findings]);
-
-  // ── Navigable finding IDs ordered by document position ──────
-  const navigableFindingIds = useMemo(() => {
-    if (!editor || findings.length === 0) return [] as string[];
-    const tuples: [string, number][] = [];
-    for (const f of findings) {
-      if (!f.originalText || f.status === "dismissed") continue;
-      const positions = findTextPositions(editor.state.doc, f.originalText);
-      if (positions.length > 0) {
-        tuples.push([f.id, positions[0].from]);
-      }
-    }
-    tuples.sort((a, b) => a[1] - b[1]);
-    return tuples.map(([id]) => id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [findings]);
-
-  // Sync navigable IDs to editorial store
-  useEffect(() => {
-    useEditorialStore.getState().setNavigableFindingIds(navigableFindingIds);
-  }, [navigableFindingIds]);
 
   // ── scrollToFinding: card -> editor direction ────────────────
   const scrollToFinding = useCallback(
@@ -890,33 +910,17 @@ export function ManuscriptEditor({
     return () => clearInterval(id);
   }, [immersive, editor, paneStore]);
 
-  // ── F8 / Shift+F8 keyboard navigation ──────────────────────
-  useEffect(() => {
-    if (!editor) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key !== "F8") return;
-      e.preventDefault();
-      const store = useEditorialStore.getState();
-      const ids = store.navigableFindingIds;
-      if (ids.length === 0) return;
-      const currentId = store.selectedFindingId;
-      const currentIdx = currentId ? ids.indexOf(currentId) : -1;
-      let nextIdx: number;
-      if (e.shiftKey) {
-        nextIdx = currentIdx <= 0 ? ids.length - 1 : currentIdx - 1;
-      } else {
-        nextIdx = currentIdx >= ids.length - 1 ? 0 : currentIdx + 1;
-      }
-      const nextId = ids[nextIdx];
-      if (!nextId) return;
-      store.setSelectedFinding(nextId);
-      store.setHighlightedFinding(nextId);
-      const finding = findings.find((f) => f.id === nextId);
-      if (finding) scrollToFinding(finding);
-    };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, [editor, findings, scrollToFinding]);
+  // ── F8 / Shift+F8 keyboard navigation (use-finding-navigation.ts) ──
+  useFindingNavigation({
+    editor,
+    editorRef,
+    editorAreaRef,
+    paneRootRef,
+    isPrimary,
+    findings,
+    scrollToFinding,
+    setTooltipState,
+  });
 
   // Show floating agent input when text is selected (not during inline edit)
   useEffect(() => {
@@ -937,7 +941,10 @@ export function ManuscriptEditor({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full text-muted-foreground">
+      <div
+        role="status"
+        className="flex items-center justify-center h-full text-muted-foreground"
+      >
         Loading chapter...
       </div>
     );
@@ -946,6 +953,8 @@ export function ManuscriptEditor({
   // ── Shared editor column JSX ─────────────────────────────────
   const editorColumn = (
     <div
+      ref={paneRootRef}
+      {...{ [EDITOR_PANE_ATTR]: paneId }}
       className={cn(
         "flex flex-col flex-1 min-w-0 h-full",
         getFocusLevelClasses(focusLevel)
@@ -961,6 +970,7 @@ export function ManuscriptEditor({
             className="size-6 shrink-0"
             onClick={() => guardedNavigate(`/books/${bookId}`)}
             title="Back to book"
+            aria-label="Back to book"
           >
             <ArrowLeftIcon className="size-3.5" />
           </Button>
@@ -999,6 +1009,7 @@ export function ManuscriptEditor({
                   prevChapter &&
                   guardedNavigate(`/books/${bookId}/chapters/${prevChapter.id}`)
                 }
+                aria-label="Previous chapter"
                 title={
                   prevChapter
                     ? `Ch. ${prevChapter.chapterNumber}${prevChapter.title ? `: ${prevChapter.title}` : ""}`
@@ -1007,8 +1018,15 @@ export function ManuscriptEditor({
               >
                 <ChevronLeftIcon className="size-4" />
               </Button>
+              {/* sr-only twin — aria-label on a generic span is prohibited
+                  ARIA (1.2) and ignored by AT */}
               <span className="text-xs text-muted-foreground tabular-nums">
-                {currentIdx + 1}/{allChapters.length}
+                <span aria-hidden="true">
+                  {currentIdx + 1}/{allChapters.length}
+                </span>
+                <span className="sr-only">
+                  Chapter {currentIdx + 1} of {allChapters.length}
+                </span>
               </span>
               <Button
                 variant="ghost"
@@ -1019,6 +1037,7 @@ export function ManuscriptEditor({
                   nextChapter &&
                   guardedNavigate(`/books/${bookId}/chapters/${nextChapter.id}`)
                 }
+                aria-label="Next chapter"
                 title={
                   nextChapter
                     ? `Ch. ${nextChapter.chapterNumber}${nextChapter.title ? `: ${nextChapter.title}` : ""}`
@@ -1130,6 +1149,7 @@ export function ManuscriptEditor({
               <FloatingAgentInput
                 editor={editor}
                 bookId={bookId}
+                autoFocus={false}
                 onClose={() => setShowFloatingAgentInput(false)}
               />
             )}
@@ -1211,6 +1231,11 @@ export function ManuscriptEditor({
         draftSavedAt={draftSavedAt}
         lastSaveErrorKind={lastSaveErrorKind}
       />
+
+      {/* sr-only polite live region — F8 navigation, immersive enter/exit.
+          Primary pane only: announce() writes one module-level store, so a
+          second mount in split view would double-announce every message. */}
+      {isPrimary && <LiveAnnouncer />}
     </div>
   );
 
@@ -1256,11 +1281,20 @@ export function ManuscriptEditor({
         editorColumn
       )}
 
-      {/* Findings panel — fixed overlay on mobile/small screens */}
-      {!isLg && showFindings && (
-        <div className="fixed inset-y-0 right-0 w-80 z-40 border-l bg-background shadow-xl flex flex-col">
+      {/* Findings — modal Sheet below lg: bottom on phone, right on tablet */}
+      {!isLg && (
+        <FindingsSheet
+          open={showFindings}
+          onOpenChange={(open) => {
+            if (!open && paneStore.getState().showFindings) {
+              paneStore.getState().toggleFindings();
+            }
+          }}
+          side={isMobile ? "bottom" : "right"}
+          paneRootRef={paneRootRef}
+        >
           {findingsPanel}
-        </div>
+        </FindingsSheet>
       )}
 
       {/* Save-conflict resolution — opened only via toast action or status-bar chip */}

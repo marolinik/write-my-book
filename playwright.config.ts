@@ -21,9 +21,19 @@ export default defineConfig({
     },
   },
   projects: [
+    // Project-level testIgnore REPLACES the top-level one, so the
+    // deployment-smoke exclusion must be repeated here.
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
+      testIgnore: [/deployment-smoke\.spec\.ts/, /mobile-.*\.spec\.ts/],
+    },
+    // Mobile viewport — runs ONLY the mobile-* specs; everything else stays
+    // on desktop viewports.
+    {
+      name: "mobile-chromium",
+      use: { ...devices["Pixel 7"] },
+      testMatch: /mobile-.*\.spec\.ts/,
     },
     // Run Firefox & WebKit only in CI
     ...(process.env.CI
@@ -31,10 +41,12 @@ export default defineConfig({
           {
             name: "firefox",
             use: { ...devices["Desktop Firefox"] },
+            testIgnore: [/deployment-smoke\.spec\.ts/, /mobile-.*\.spec\.ts/],
           },
           {
             name: "webkit",
             use: { ...devices["Desktop Safari"] },
+            testIgnore: [/deployment-smoke\.spec\.ts/, /mobile-.*\.spec\.ts/],
           },
         ]
       : []),

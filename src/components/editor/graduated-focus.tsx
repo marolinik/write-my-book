@@ -48,6 +48,7 @@ export function GraduatedFocus({ currentLevel: externalLevel, onChange: external
           size="icon"
           className="size-7"
           title="Focus mode"
+          aria-label="Focus mode options"
         >
           {currentLevel > 0 ? (
             <EyeOffIcon className="size-3.5" />
@@ -62,13 +63,14 @@ export function GraduatedFocus({ currentLevel: externalLevel, onChange: external
           <button
             key={fl.level}
             onClick={() => onChange(fl.level)}
+            aria-pressed={currentLevel === fl.level}
             className={`flex items-center gap-2 w-full rounded-md px-2 py-1.5 text-left transition-colors ${
               currentLevel === fl.level
                 ? "bg-primary/10 text-primary"
                 : "hover:bg-muted text-foreground"
             }`}
           >
-            <span className="text-sm">{fl.icon}</span>
+            <span className="text-sm" aria-hidden="true">{fl.icon}</span>
             <div>
               <p className="text-xs font-medium">{fl.label}</p>
               <p className="text-[9px] text-muted-foreground">{fl.desc}</p>
@@ -82,7 +84,7 @@ export function GraduatedFocus({ currentLevel: externalLevel, onChange: external
               onClick={onEnterImmersive}
               className="flex items-center gap-2 w-full rounded-md px-2 py-1.5 text-left hover:bg-muted"
             >
-              <span className="text-sm">🌙</span>
+              <span className="text-sm" aria-hidden="true">🌙</span>
               <div>
                 <p className="text-xs font-medium">Immersive</p>
                 <p className="text-[9px] text-muted-foreground">Full-screen zen mode</p>

@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/resizable";
 import { useActiveEditorStore } from "@/stores/active-editor-store";
 import { destroyPaneStore } from "@/stores/editor-store";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { SplitChapterPicker } from "./split-chapter-picker";
 import { ManuscriptEditor } from "./manuscript-editor";
 
@@ -37,8 +38,10 @@ export function SplitEditor({
   children,
 }: SplitEditorProps) {
   const splitMode = useActiveEditorStore((s) => s.splitMode);
+  const setSplitMode = useActiveEditorStore((s) => s.setSplitMode);
   const secondaryChapterId = useActiveEditorStore((s) => s.secondaryChapterId);
   const setSecondaryChapter = useActiveEditorStore((s) => s.setSecondaryChapter);
+  const isMobile = useIsMobile();
 
   // Destroy secondary pane store when split mode is turned off or on unmount
   useEffect(() => {
@@ -50,7 +53,19 @@ export function SplitEditor({
     };
   }, [splitMode]);
 
-  if (!splitMode) {
+  // Viewport shrink with split on: turn split OFF rather than render a
+  // passthrough over live state — otherwise splitMode stays true with no
+  // visible affordance (the toggle is hidden on phones) and the secondary
+  // pane store is stranded with whatever dirty state it held.
+  useEffect(() => {
+    if (isMobile && splitMode) {
+      setSplitMode(false);
+    }
+  }, [isMobile, splitMode, setSplitMode]);
+
+  // isMobile: render single-pane immediately while the effect above resets
+  // the store (the secondary editor's unmount flushes its draft buffer).
+  if (!splitMode || isMobile) {
     return <>{children}</>;
   }
 

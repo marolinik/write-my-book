@@ -150,61 +150,110 @@ export function EditorStatusBar({
 
   return (
     <div className="flex items-center justify-between border-t px-4 py-1.5 text-xs text-muted-foreground bg-background/95">
-      <div className="flex items-center gap-4">
-        <span>
+      <div className="flex items-center gap-4 min-w-0">
+        <span className="shrink-0">
           {wordCount.toLocaleString()} word{wordCount !== 1 ? "s" : ""}
         </span>
-        <span>{readingTime} min read</span>
+        <span className="hidden min-[400px]:inline shrink-0">
+          {readingTime} min read
+        </span>
 
-        {/* Writing session timer */}
-        <SessionTimer currentWordCount={wordCount} />
+        {/* Timer + authorship: hidden on phones — the word count and the
+            save cluster are the load-bearing items at narrow widths */}
+        <div className="hidden sm:flex items-center gap-4">
+          <SessionTimer currentWordCount={wordCount} />
+          <AuthorshipTracker
+            stats={{ humanWords: wordCount, aiWords: 0, aiEditedWords: 0, totalWords: wordCount }}
+            compact
+          />
+        </div>
 
-        {/* Authorship tracking: human vs AI text */}
-        <AuthorshipTracker
-          stats={{ humanWords: wordCount, aiWords: 0, aiEditedWords: 0, totalWords: wordCount }}
-          compact
-        />
-
+        {/* Count cluster: hidden on phones (word count, reading time, timer,
+            and the save cluster stay visible at all widths). Each count pairs
+            the frozen visible text (aria-hidden) with a descriptive sr-only
+            twin — aria-label is prohibited on generic spans (ARIA 1.2). */}
         {annotationCounts && (
-          <>
+          <div
+            role="group"
+            aria-label="Annotation summary"
+            className="hidden sm:flex items-center gap-4"
+          >
             {(annotationCounts.insert ?? 0) > 0 && (
               <span className="text-green-600 dark:text-green-400">
-                +{annotationCounts.insert} insert
-                {annotationCounts.insert !== 1 ? "s" : ""}
+                <span aria-hidden="true">
+                  +{annotationCounts.insert} insert
+                  {annotationCounts.insert !== 1 ? "s" : ""}
+                </span>
+                <span className="sr-only">
+                  {annotationCounts.insert} insertion
+                  {annotationCounts.insert !== 1 ? "s" : ""}
+                </span>
               </span>
             )}
             {(annotationCounts.delete ?? 0) > 0 && (
               <span className="text-red-600 dark:text-red-400">
-                -{annotationCounts.delete} delete
-                {annotationCounts.delete !== 1 ? "s" : ""}
+                <span aria-hidden="true">
+                  -{annotationCounts.delete} delete
+                  {annotationCounts.delete !== 1 ? "s" : ""}
+                </span>
+                <span className="sr-only">
+                  {annotationCounts.delete} deletion
+                  {annotationCounts.delete !== 1 ? "s" : ""}
+                </span>
               </span>
             )}
             {(annotationCounts.comment ?? 0) > 0 && (
               <span className="text-amber-600 dark:text-amber-400">
-                {annotationCounts.comment} comment
-                {annotationCounts.comment !== 1 ? "s" : ""}
+                <span aria-hidden="true">
+                  {annotationCounts.comment} comment
+                  {annotationCounts.comment !== 1 ? "s" : ""}
+                </span>
+                <span className="sr-only">
+                  {annotationCounts.comment} comment
+                  {annotationCounts.comment !== 1 ? "s" : ""}
+                </span>
               </span>
             )}
             {(annotationCounts["severity-high"] ?? 0) > 0 && (
               <span className="text-red-600 dark:text-red-400">
-                {annotationCounts["severity-high"]} high
+                <span aria-hidden="true">
+                  {annotationCounts["severity-high"]} high
+                </span>
+                <span className="sr-only">
+                  {annotationCounts["severity-high"]} high severity finding
+                  {annotationCounts["severity-high"] !== 1 ? "s" : ""}
+                </span>
               </span>
             )}
             {(annotationCounts["severity-medium"] ?? 0) > 0 && (
               <span className="text-orange-600 dark:text-orange-400">
-                {annotationCounts["severity-medium"]} med
+                <span aria-hidden="true">
+                  {annotationCounts["severity-medium"]} med
+                </span>
+                <span className="sr-only">
+                  {annotationCounts["severity-medium"]} medium severity finding
+                  {annotationCounts["severity-medium"] !== 1 ? "s" : ""}
+                </span>
               </span>
             )}
             {(annotationCounts["severity-low"] ?? 0) > 0 && (
               <span className="text-blue-600 dark:text-blue-400">
-                {annotationCounts["severity-low"]} low
+                <span aria-hidden="true">
+                  {annotationCounts["severity-low"]} low
+                </span>
+                <span className="sr-only">
+                  {annotationCounts["severity-low"]} low severity finding
+                  {annotationCounts["severity-low"] !== 1 ? "s" : ""}
+                </span>
               </span>
             )}
-          </>
+          </div>
         )}
       </div>
 
-      <div className="flex items-center gap-2">
+      {/* shrink-0: the save status must never be squeezed out by the left
+          cluster on narrow phones */}
+      <div className="flex items-center gap-2 shrink-0">
         <AnnotationLegend />
 
         {/* Persistent conflict chip — durable affordance after the toast expires */}
@@ -219,7 +268,12 @@ export function EditorStatusBar({
           </button>
         )}
 
-        <div className="flex items-center gap-1.5" data-testid="editor-save-status">
+        <div
+          className="flex items-center gap-1.5"
+          data-testid="editor-save-status"
+          role="status"
+          aria-live="polite"
+        >
           {isSaving ? (
             <>
               <Loader2 className="h-3 w-3 animate-spin" />

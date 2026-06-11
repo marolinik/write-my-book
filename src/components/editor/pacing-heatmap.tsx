@@ -105,7 +105,10 @@ export function PacingHeatmap({
           <span>Avg: {avgWords} words</span>
           <span className="text-green-500">{shortPct}% short</span>
           <span className="text-red-500">{longPct}% long</span>
-          <button onClick={() => setExpanded(false)}>
+          <button
+            onClick={() => setExpanded(false)}
+            aria-label="Close pacing heatmap"
+          >
             <XIcon className="size-3" />
           </button>
         </div>
@@ -122,6 +125,7 @@ export function PacingHeatmap({
                   className={`flex-1 min-w-[2px] max-w-[6px] rounded-t-sm transition-opacity hover:opacity-80 ${CATEGORY_COLORS[s.category]}`}
                   style={{ height }}
                   onClick={() => onSentenceClick?.(i)}
+                  aria-label={`Section ${i + 1}: ${s.category} pacing`}
                 />
               </TooltipTrigger>
               <TooltipContent side="top" className="max-w-64 text-xs">

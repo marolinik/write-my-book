@@ -261,11 +261,20 @@
 
 .tiptap {
   font-family: var(--font-serif), Georgia, serif;
-  font-size: 1.125rem;
+  /* 17px phone floor (above the 16px iOS auto-zoom threshold) ramping to
+     the original 18px — computed value is identical to before at desktop
+     content widths. */
+  font-size: clamp(1.0625rem, 1rem + 0.35vw, 1.125rem);
   line-height: 1.8;
   outline: none;
   min-height: 60vh;
   padding: 2rem 0;
+}
+
+@media (max-width: 767px) {
+  .tiptap {
+    padding: 1.25rem 0 2rem;
+  }
 }
 
 .tiptap p {
@@ -274,7 +283,7 @@
 
 .tiptap h1 {
   font-family: var(--font-display), Georgia, serif;
-  font-size: 2rem;
+  font-size: clamp(1.625rem, 1.3rem + 1.4vw, 2rem);
   font-weight: 700;
   margin-top: 2rem;
   margin-bottom: 1rem;
@@ -283,7 +292,7 @@
 
 .tiptap h2 {
   font-family: var(--font-display), Georgia, serif;
-  font-size: 1.5rem;
+  font-size: clamp(1.3125rem, 1.15rem + 0.75vw, 1.5rem);
   font-weight: 600;
   margin-top: 1.75rem;
   margin-bottom: 0.75rem;
@@ -292,7 +301,7 @@
 
 .tiptap h3 {
   font-family: var(--font-display), Georgia, serif;
-  font-size: 1.25rem;
+  font-size: clamp(1.125rem, 1.05rem + 0.4vw, 1.25rem);
   font-weight: 600;
   margin-top: 1.5rem;
   margin-bottom: 0.5rem;

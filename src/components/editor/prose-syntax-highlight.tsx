@@ -136,7 +136,10 @@ export function ProseSyntaxHighlight({ text }: ProseSyntaxHighlightProps) {
           <span className="text-[10px] text-purple-500">
             Adjectives: {analysis?.adjPct}%
           </span>
-          <button onClick={() => setActive(false)}>
+          <button
+            onClick={() => setActive(false)}
+            aria-label="Close prose highlights"
+          >
             <XIcon className="size-3 text-muted-foreground" />
           </button>
         </div>

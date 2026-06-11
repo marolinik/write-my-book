@@ -1,9 +1,12 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { XIcon, Volume2Icon, TargetIcon, ClockIcon } from "lucide-react";
+import type { KeyboardEvent as ReactKeyboardEvent } from "react";
+import { XIcon, TargetIcon, ClockIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { countWords } from "@/lib/utils";
+import { EDITOR_MEASURE_CLASS } from "./editor-utils";
+import { announce } from "./live-announcer";
 
 /**
  * Gap 1: True Immersive Focus Mode — Scrivener's Composition Mode equivalent.
@@ -17,6 +20,14 @@ import { countWords } from "@/lib/utils";
  */
 
 type FocusTheme = "dark" | "sepia" | "paper";
+
+/** Screen-reader announcements for entering/leaving the overlay (spec §2). */
+const ENTER_ANNOUNCEMENT = "Entered immersive mode, press Escape to exit";
+const EXIT_ANNOUNCEMENT = "Exited immersive mode";
+
+/** Elements the minimal Tab-cycling focus trap considers focusable. */
+const FOCUSABLE_SELECTOR =
+  'button:not([disabled]), [contenteditable="true"], [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 interface ImmersiveFocusModeProps {
   /** TipTap editor content as HTML */
@@ -59,11 +70,69 @@ export function ImmersiveFocusMode({
   const [elapsed, setElapsed] = useState(0);
   const initialWordCount = useRef(0);
   const editorRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
 
   // Track initial word count
   useEffect(() => {
     initialWordCount.current = countWords(content);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Announce entry/exit to screen readers, MOVE FOCUS INTO the modal on
+  // open (an aria-modal dialog that leaves focus behind it strands keyboard
+  // users and makes the Tab trap inoperative — WCAG 2.4.3), and return focus
+  // to the underlying TipTap editor when the overlay closes. The restore is
+  // deferred a frame so it lands after exitImmersive's content sync.
+  useEffect(() => {
+    const underlyingEditable =
+      document.querySelector<HTMLElement>(".ProseMirror");
+    announce(ENTER_ANNOUNCEMENT);
+    requestAnimationFrame(() => {
+      editorRef.current?.focus();
+    });
+    return () => {
+      announce(EXIT_ANNOUNCEMENT);
+      if (underlyingEditable) {
+        requestAnimationFrame(() => {
+          if (underlyingEditable.isConnected) {
+            underlyingEditable.focus();
+          }
+        });
+      }
+    };
+  }, []);
+
+  // Minimal focus trap: cycle Tab/Shift+Tab within the overlay. Full inert
+  // treatment is overkill — the overlay is z-[100] fullscreen (spec §2).
+  const handleTrapKeyDown = useCallback(
+    (e: ReactKeyboardEvent<HTMLDivElement>) => {
+      if (e.key !== "Tab") return;
+      const root = rootRef.current;
+      if (!root) return;
+
+      const focusables = Array.from(
+        root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
+      );
+      if (focusables.length === 0) return;
+
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+
+      if (!active || !root.contains(active)) {
+        e.preventDefault();
+        first.focus();
+        return;
+      }
+      if (e.shiftKey && active === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    },
+    []
+  );
 
   // Session timer
   useEffect(() => {
@@ -119,9 +188,22 @@ export function ImmersiveFocusMode({
   const styles = THEME_STYLES[theme];
 
   return (
-    <div className={`fixed inset-0 z-[100] ${styles.bg} ${styles.text} flex flex-col`}>
-      {/* Minimal top bar — fades in on hover */}
-      <div className="absolute top-0 inset-x-0 flex items-center justify-between px-6 py-3 opacity-0 hover:opacity-100 transition-opacity duration-500 z-10">
+    <div
+      ref={rootRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Immersive focus mode"
+      aria-describedby="immersive-mode-instructions"
+      onKeyDown={handleTrapKeyDown}
+      className={`fixed inset-0 z-[100] ${styles.bg} ${styles.text} flex flex-col`}
+    >
+      {/* Instructions live INSIDE the aria-modal dialog — the global live
+          region outside it is unreliable while the modal holds AT focus */}
+      <span id="immersive-mode-instructions" className="sr-only">
+        Distraction-free writing. Press Escape to exit.
+      </span>
+      {/* Minimal top bar — fades in on hover or keyboard focus */}
+      <div className="absolute top-0 inset-x-0 flex items-center justify-between px-6 py-3 opacity-0 hover:opacity-100 focus-within:opacity-100 transition-opacity duration-500 z-10">
         <div className="flex items-center gap-4 text-xs opacity-70">
           <span className="flex items-center gap-1">
             <ClockIcon className="size-3" />
@@ -139,6 +221,7 @@ export function ImmersiveFocusMode({
           {(["dark", "sepia", "paper"] as FocusTheme[]).map((t) => (
             <button
               key={t}
+              type="button"
               onClick={() => setTheme(t)}
               className={`size-5 rounded-full border-2 transition-transform ${
                 t === theme ? "scale-125 border-current" : "border-transparent opacity-50"
@@ -146,6 +229,8 @@ export function ImmersiveFocusMode({
                 t === "dark" ? "bg-zinc-800" : t === "sepia" ? "bg-amber-200" : "bg-stone-200"
               }`}
               title={t}
+              aria-label={`${t} theme`}
+              aria-pressed={theme === t}
             />
           ))}
 
@@ -167,7 +252,10 @@ export function ImmersiveFocusMode({
           ref={editorRef}
           contentEditable
           suppressContentEditableWarning
-          className={`w-full max-w-[680px] px-8 pt-[40vh] pb-[60vh] outline-none
+          role="textbox"
+          aria-multiline="true"
+          aria-label="Distraction-free editor"
+          className={`w-full ${EDITOR_MEASURE_CLASS} px-5 sm:px-8 pt-[35dvh] pb-[55dvh] outline-none
             font-serif text-lg leading-relaxed ${styles.caret}
             [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mb-4
             [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mb-3

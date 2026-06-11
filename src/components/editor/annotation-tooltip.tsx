@@ -69,6 +69,23 @@ const TYPE_CONFIG: Record<
   },
 };
 
+/**
+ * Walk up from the popup to the nearest ancestor that contains the editor's
+ * contenteditable, so focus can be returned to it on close (spec §2: every
+ * close path — Escape / accept / reject / outside-click — restores the editor).
+ */
+function findNearestEditable(from: HTMLElement | null): HTMLElement | null {
+  let node: HTMLElement | null = from?.parentElement ?? null;
+  while (node) {
+    const editable = node.querySelector<HTMLElement>(
+      '[contenteditable="true"]'
+    );
+    if (editable) return editable;
+    node = node.parentElement;
+  }
+  return null;
+}
+
 export function AnnotationTooltip({
   annotationType,
   description,
@@ -81,8 +98,23 @@ export function AnnotationTooltip({
   onClose,
 }: AnnotationTooltipProps) {
   const tipRef = useRef<HTMLDivElement>(null);
+  const acceptButtonRef = useRef<HTMLButtonElement>(null);
+  const editableRef = useRef<HTMLElement | null>(null);
   const config = TYPE_CONFIG[annotationType];
   const isAutoApply = !!(originalText && newText);
+
+  // Focus management: move focus to Accept on open; return it to the editor
+  // contenteditable on close (all close paths unmount this component).
+  useEffect(() => {
+    editableRef.current = findNearestEditable(tipRef.current);
+    acceptButtonRef.current?.focus();
+    return () => {
+      const editable = editableRef.current;
+      if (editable && editable.isConnected) {
+        editable.focus();
+      }
+    };
+  }, []);
 
   // Close on Escape
   useEffect(() => {
@@ -127,6 +159,8 @@ export function AnnotationTooltip({
   return (
     <div
       ref={tipRef}
+      role="dialog"
+      aria-label="Review suggestion"
       className="absolute z-50 w-[320px] rounded-lg border bg-popover text-popover-foreground shadow-lg"
       style={{ top, left }}
     >
@@ -167,7 +201,12 @@ export function AnnotationTooltip({
 
         {/* Actions */}
         <div className="flex items-center gap-2 pt-1">
-          <Button size="sm" className="h-7 text-xs gap-1" onClick={onAccept}>
+          <Button
+            ref={acceptButtonRef}
+            size="sm"
+            className="h-7 text-xs gap-1"
+            onClick={onAccept}
+          >
             <Check className="h-3 w-3" />
             Accept
           </Button>

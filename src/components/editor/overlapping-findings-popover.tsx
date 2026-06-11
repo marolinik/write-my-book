@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { FindingItem } from "@/hooks/use-editorial";
 
@@ -20,6 +19,22 @@ const SEVERITY_DOT_COLORS: Record<string, string> = {
   minor: "bg-blue-400",
 };
 
+/**
+ * Walk up from the popover to the nearest ancestor that contains the editor's
+ * contenteditable, so focus can be returned to it on close (spec §2).
+ */
+function findNearestEditable(from: HTMLElement | null): HTMLElement | null {
+  let node: HTMLElement | null = from?.parentElement ?? null;
+  while (node) {
+    const editable = node.querySelector<HTMLElement>(
+      '[contenteditable="true"]'
+    );
+    if (editable) return editable;
+    node = node.parentElement;
+  }
+  return null;
+}
+
 export function OverlappingFindingsPopover({
   findings,
   anchorRect,
@@ -28,6 +43,23 @@ export function OverlappingFindingsPopover({
   onClose,
 }: OverlappingFindingsPopoverProps) {
   const popoverRef = useRef<HTMLDivElement>(null);
+  const firstRowRef = useRef<HTMLButtonElement>(null);
+  const editableRef = useRef<HTMLElement | null>(null);
+
+  // Focus management: move focus to the first finding row on open; return it
+  // to the editor contenteditable on close. When a row is selected, the
+  // AnnotationTooltip that the parent opens next claims focus after this
+  // cleanup runs (React runs unmount cleanups before mount effects).
+  useEffect(() => {
+    editableRef.current = findNearestEditable(popoverRef.current);
+    firstRowRef.current?.focus();
+    return () => {
+      const editable = editableRef.current;
+      if (editable && editable.isConnected) {
+        editable.focus();
+      }
+    };
+  }, []);
 
   // Close on Escape
   useEffect(() => {
@@ -75,6 +107,8 @@ export function OverlappingFindingsPopover({
   return (
     <div
       ref={popoverRef}
+      role="dialog"
+      aria-label="Overlapping findings"
       className="absolute z-50 w-[280px] rounded-lg border bg-popover text-popover-foreground shadow-lg"
       style={{ top, left }}
     >
@@ -82,19 +116,22 @@ export function OverlappingFindingsPopover({
         <p className="text-xs font-medium text-muted-foreground px-2 py-1">
           Multiple findings at this position
         </p>
-        {findings.map((finding) => (
+        {findings.map((finding, index) => (
           <button
             key={finding.id}
+            ref={index === 0 ? firstRowRef : undefined}
             className="w-full flex items-start gap-2 px-2 py-1.5 rounded-md text-left hover:bg-muted/50 transition-colors"
             onClick={() => onSelect(finding)}
           >
-            {/* Severity dot */}
+            {/* Severity dot (decorative — severity is announced via sr-only text) */}
             <span
+              aria-hidden="true"
               className={`mt-1.5 shrink-0 w-2 h-2 rounded-full ${
                 SEVERITY_DOT_COLORS[finding.severity] ??
                 SEVERITY_DOT_COLORS.minor
               }`}
             />
+            <span className="sr-only">{`${finding.severity} severity`}</span>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5">
                 <Badge variant="secondary" className="text-[10px] px-1.5 py-0">

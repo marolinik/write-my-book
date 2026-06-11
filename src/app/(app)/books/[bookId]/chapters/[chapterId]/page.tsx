@@ -41,8 +41,11 @@ export default async function ChapterEditorPage({ params }: PageProps) {
     status: ch.status,
   }));
 
+  // Phone: dvh tracks the collapsing URL bar; 6.5rem = 3rem AppHeader +
+  // 3.5rem MobileBottomNav (fixes the bottom nav overlapping the status
+  // bar). Desktop calc unchanged.
   return (
-    <div className="h-[calc(100vh-3rem)] flex flex-col">
+    <div className="h-[calc(100dvh-6.5rem)] md:h-[calc(100vh-3rem)] flex flex-col">
       <SplitEditor
         bookId={bookId}
         primaryChapterId={chapterId}

@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 /**
  * Gap 7: Read-Aloud / Text-to-Speech
@@ -42,9 +43,20 @@ interface ReadAloudProps {
   onHighlight?: (sentenceIndex: number) => void;
   /** Called when reading completes */
   onComplete?: () => void;
+  /**
+   * Extra classes for the root container. The toolbar passes `hidden` at
+   * compact density so the component stays mounted (playback continues)
+   * while the controls disappear from the row.
+   */
+  className?: string;
 }
 
-export function ReadAloud({ text, onHighlight, onComplete }: ReadAloudProps) {
+export function ReadAloud({
+  text,
+  onHighlight,
+  onComplete,
+  className,
+}: ReadAloudProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [currentSentence, setCurrentSentence] = useState(0);
@@ -158,14 +170,28 @@ export function ReadAloud({ text, onHighlight, onComplete }: ReadAloudProps) {
   );
 
   return (
-    <div className="flex items-center gap-1">
+    <div className={cn("flex items-center gap-1", className)}>
       {/* Play/Pause button */}
       {isPlaying ? (
-        <Button variant="ghost" size="icon" className="size-7" onClick={handlePause} title="Pause">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-7"
+          onClick={handlePause}
+          title="Pause"
+          aria-label="Pause"
+        >
           <PauseIcon className="size-3.5" />
         </Button>
       ) : (
-        <Button variant="ghost" size="icon" className="size-7" onClick={handlePlay} title="Read aloud">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-7"
+          onClick={handlePlay}
+          title="Read aloud"
+          aria-label="Read aloud"
+        >
           {isPaused ? (
             <PlayIcon className="size-3.5" />
           ) : (
@@ -177,10 +203,24 @@ export function ReadAloud({ text, onHighlight, onComplete }: ReadAloudProps) {
       {/* Stop */}
       {(isPlaying || isPaused) && (
         <>
-          <Button variant="ghost" size="icon" className="size-7" onClick={handleStop} title="Stop">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7"
+            onClick={handleStop}
+            title="Stop"
+            aria-label="Stop"
+          >
             <SquareIcon className="size-3" />
           </Button>
-          <Button variant="ghost" size="icon" className="size-7" onClick={handleSkip} title="Next sentence">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7"
+            onClick={handleSkip}
+            title="Next sentence"
+            aria-label="Next sentence"
+          >
             <SkipForwardIcon className="size-3.5" />
           </Button>
           <span className="text-[10px] text-muted-foreground tabular-nums ml-1">
@@ -192,7 +232,12 @@ export function ReadAloud({ text, onHighlight, onComplete }: ReadAloudProps) {
       {/* Settings popover */}
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="ghost" size="icon" className="size-7">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7"
+            aria-label="Read aloud settings"
+          >
             <Settings2Icon className="size-3" />
           </Button>
         </PopoverTrigger>
@@ -222,6 +267,7 @@ export function ReadAloud({ text, onHighlight, onComplete }: ReadAloudProps) {
               value={rate}
               onChange={(e) => setRate(parseFloat(e.target.value))}
               className="w-full h-1 accent-primary"
+              aria-label="Reading speed"
             />
           </div>
         </PopoverContent>

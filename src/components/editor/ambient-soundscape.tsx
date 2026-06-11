@@ -19,6 +19,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 /**
  * PILLAR 3L: Built-in Ambient Soundscapes
@@ -101,7 +102,16 @@ const SOUNDSCAPES: Record<Exclude<SoundscapeType, "off">, SoundscapeConfig> = {
   },
 };
 
-export function AmbientSoundscape() {
+interface AmbientSoundscapeProps {
+  /**
+   * Extra classes for the popover trigger. The toolbar passes `hidden` at
+   * compact density so the component stays mounted (audio keeps playing)
+   * while the control disappears from the row.
+   */
+  className?: string;
+}
+
+export function AmbientSoundscape({ className }: AmbientSoundscapeProps = {}) {
   const [active, setActive] = useState<SoundscapeType>("off");
   const [volume, setVolume] = useState(0.5);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -231,8 +241,10 @@ export function AmbientSoundscape() {
         <Button
           variant={active !== "off" ? "secondary" : "ghost"}
           size="icon"
-          className="size-7"
+          className={cn("size-7", className)}
           title="Ambient sounds"
+          aria-label="Ambient sounds"
+          aria-pressed={active !== "off"}
         >
           {active !== "off" ? (
             <Volume2Icon className="size-3.5" />
@@ -254,6 +266,7 @@ export function AmbientSoundscape() {
                 <button
                   key={key}
                   onClick={() => toggle(key)}
+                  aria-pressed={isActive}
                   className={`flex flex-col items-center gap-1 rounded-md p-2 text-[10px] transition-colors ${
                     isActive
                       ? "bg-primary/10 text-primary ring-1 ring-primary/30"
@@ -283,6 +296,7 @@ export function AmbientSoundscape() {
               value={volume}
               onChange={(e) => setVolume(parseFloat(e.target.value))}
               className="w-full h-1 accent-primary"
+              aria-label="Soundscape volume"
             />
           </div>
         )}

@@ -32,6 +32,30 @@ export function sanitizeUnicode(text: string): string {
   return text.replace(/�/g, "—");
 }
 
+// ── Editor content attributes (shared across all TipTap sites) ──
+
+/** Single source of truth for the editor column measure (was inlined 5×). */
+export const EDITOR_MEASURE_CLASS = "max-w-[680px]";
+
+/**
+ * ProseMirror contenteditable attributes shared by every editor instance
+ * (chapter editor, documents page, immersive mode). `w-full` lets the column
+ * fill phone viewports — the measure cap is unchanged on desktop. The
+ * `tiptap` and conditional `focus-mode` tokens are load-bearing: globals.css
+ * and the focus-mode styling key off them.
+ */
+export function getEditorContentAttributes(
+  focusMode: boolean,
+  label: string
+): Record<string, string> {
+  return {
+    class: `tiptap ${EDITOR_MEASURE_CLASS} w-full mx-auto px-4 sm:px-6 ${focusMode ? "focus-mode" : ""}`,
+    role: "textbox",
+    "aria-multiline": "true",
+    "aria-label": label,
+  };
+}
+
 // ── Responsive breakpoint ────────────────────────────────────
 
 const LG_BREAKPOINT = 1024;

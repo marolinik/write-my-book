@@ -92,6 +92,16 @@ export function InlineEditPopup({
     return () => document.removeEventListener("keydown", handler, true);
   }, [onClose]);
 
+  // Return focus to the editor whenever the popup closes (Escape, Cancel,
+  // Reject, outside click — Accept additionally focuses via its chain).
+  useEffect(() => {
+    return () => {
+      if (!editor.isDestroyed) {
+        editor.commands.focus();
+      }
+    };
+  }, [editor]);
+
   // Close on click outside
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -215,6 +225,8 @@ export function InlineEditPopup({
   return (
     <div
       ref={popupRef}
+      role="dialog"
+      aria-label="AI rewrite"
       className="absolute z-50 w-[420px] rounded-lg border bg-popover text-popover-foreground shadow-lg"
       style={{ top: position.top, left: Math.max(0, position.left - 200) }}
     >
@@ -238,7 +250,7 @@ export function InlineEditPopup({
                 className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs border border-border text-muted-foreground hover:border-violet-500 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-500/5 transition-colors"
                 onClick={() => handleActionClick(action.label)}
               >
-                <span>{action.emoji}</span>
+                <span aria-hidden="true">{action.emoji}</span>
                 {action.label}
               </button>
             ))}
@@ -278,7 +290,10 @@ export function InlineEditPopup({
 
       {/* Loading phase */}
       {phase === "loading" && (
-        <div className="p-4 flex items-center gap-2 text-sm text-muted-foreground">
+        <div
+          role="status"
+          className="p-4 flex items-center gap-2 text-sm text-muted-foreground"
+        >
           <Loader2 className="h-4 w-4 animate-spin" />
           Generating suggestions...
         </div>
@@ -292,7 +307,11 @@ export function InlineEditPopup({
             <Badge variant="outline" className="text-xs">
               {suggestions[activeIndex]?.label}
             </Badge>
-            <span className="text-xs text-muted-foreground ml-auto">
+            <span
+              aria-live="polite"
+              aria-atomic="true"
+              className="text-xs text-muted-foreground ml-auto"
+            >
               {activeIndex + 1}/{suggestions.length}
             </span>
           </div>
@@ -308,6 +327,7 @@ export function InlineEditPopup({
               className="h-7 w-7"
               onClick={handlePrev}
               disabled={suggestions.length <= 1}
+              aria-label="Previous suggestion"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -317,6 +337,7 @@ export function InlineEditPopup({
               className="h-7 w-7"
               onClick={handleNext}
               disabled={suggestions.length <= 1}
+              aria-label="Next suggestion"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>

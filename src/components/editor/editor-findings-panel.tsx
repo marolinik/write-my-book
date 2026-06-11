@@ -121,7 +121,7 @@ export function EditorFindingsPanel({
         <PenTool className="h-3.5 w-3.5 text-muted-foreground" />
         <span className="text-sm font-medium flex-1">Findings</span>
         {pendingCount > 0 && (
-          <Badge variant="destructive" className="text-xs">
+          <Badge variant="destructive" className="text-xs" aria-hidden="true">
             {pendingCount}
           </Badge>
         )}
@@ -130,17 +130,23 @@ export function EditorFindingsPanel({
           size="icon"
           className="h-7 w-7 shrink-0"
           onClick={onClose}
+          aria-label="Close findings panel"
         >
           <X className="h-4 w-4" />
         </Button>
       </div>
 
       {/* Filter chips — compact version of editorial page filters */}
-      <div className="flex flex-wrap gap-1 px-2 py-1.5 border-b shrink-0">
+      <div
+        role="group"
+        aria-label="Filter findings"
+        className="flex flex-wrap gap-1 px-2 py-1.5 border-b shrink-0"
+      >
         {/* Severity chips */}
         {(["critical", "major", "moderate", "minor"] as const).map((sev) => (
           <button
             key={`sev-${sev}`}
+            aria-pressed={filters.severity === sev}
             className={`px-2 py-0.5 rounded-full text-[10px] border transition-colors ${
               filters.severity === sev
                 ? "border-primary bg-primary/10 text-primary"
@@ -156,6 +162,7 @@ export function EditorFindingsPanel({
         {(["pending", "applied", "dismissed"] as const).map((st) => (
           <button
             key={`st-${st}`}
+            aria-pressed={filters.status === st}
             className={`px-2 py-0.5 rounded-full text-[10px] border transition-colors ${
               filters.status === st
                 ? "border-primary bg-primary/10 text-primary"

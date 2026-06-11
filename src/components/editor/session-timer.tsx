@@ -91,7 +91,11 @@ export function SessionTimer({ onSessionStart, onSessionEnd, currentWordCount }:
               {d}m
             </button>
           ))}
-          <button onClick={() => setShowPicker(false)} className="text-muted-foreground">
+          <button
+            onClick={() => setShowPicker(false)}
+            className="text-muted-foreground"
+            aria-label="Close timer"
+          >
             <XIcon className="size-3" />
           </button>
         </div>
@@ -114,7 +118,7 @@ export function SessionTimer({ onSessionStart, onSessionEnd, currentWordCount }:
   return (
     <div className="flex items-center gap-1.5">
       <div className="relative size-5">
-        <svg className="size-5 -rotate-90" viewBox="0 0 20 20">
+        <svg className="size-5 -rotate-90" viewBox="0 0 20 20" aria-hidden="true">
           <circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted/30" />
           <circle
             cx="10" cy="10" r="8" fill="none"
@@ -130,16 +134,28 @@ export function SessionTimer({ onSessionStart, onSessionEnd, currentWordCount }:
       </span>
 
       {isPaused ? (
-        <button onClick={resume} className="text-muted-foreground hover:text-foreground">
+        <button
+          onClick={resume}
+          className="text-muted-foreground hover:text-foreground"
+          aria-label="Resume session timer"
+        >
           <PlayIcon className="size-3" />
         </button>
       ) : (
-        <button onClick={pause} className="text-muted-foreground hover:text-foreground">
+        <button
+          onClick={pause}
+          className="text-muted-foreground hover:text-foreground"
+          aria-label="Pause session timer"
+        >
           <PauseIcon className="size-3" />
         </button>
       )}
 
-      <button onClick={stop} className="text-muted-foreground hover:text-foreground">
+      <button
+        onClick={stop}
+        className="text-muted-foreground hover:text-foreground"
+        aria-label="Stop session timer"
+      >
         <XIcon className="size-3" />
       </button>
     </div>

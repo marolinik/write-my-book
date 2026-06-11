@@ -31,7 +31,9 @@ import {
   findTextPositions,
 } from "@/components/editor/annotation-extension";
 import type { AnnotationType } from "@/components/editor/annotation-extension";
-import { getMarkdownFromEditor, useIsLg, findingsToAnnotations, createEditorExtensions, type TooltipState } from "@/components/editor/editor-utils";
+import { getMarkdownFromEditor, useIsLg, findingsToAnnotations, createEditorExtensions, getEditorContentAttributes, type TooltipState } from "@/components/editor/editor-utils";
+import { FindingsSheet } from "@/components/editor/findings-sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -71,6 +73,13 @@ const CHAPTER_DOC_TYPES = new Set([
   "LINE_EDIT_REPORT",
   "BETA_READ_REPORT",
 ]);
+
+// ProseMirror keeps the caret this clear of the scroll-container edge — on
+// phones the virtual keyboard occludes the lower half of the viewport.
+const CARET_SCROLL_CLEARANCE_PX = 80;
+// Editor shortcuts (F2) must not fire while focus is inside a form field or
+// dialog; the contenteditable is intentionally NOT matched.
+const SHORTCUT_GUARD_SELECTOR = 'input, textarea, [role="dialog"]';
 
 // ── Component ────────────────────────────────────────────────
 
@@ -112,6 +121,7 @@ export default function DocumentEditorPage({
     };
   }, []);
   const isLg = useIsLg();
+  const isMobile = useIsMobile();
 
   const { data: docData, isLoading } = useDocumentContent(bookId, documentId);
   const saveMutation = useSaveDocumentContent(bookId, documentId);
@@ -136,14 +146,18 @@ export default function DocumentEditorPage({
     [findings]
   );
 
-  // Auto-open findings panel when pending findings exist
+  // Auto-open findings panel when pending findings exist — lg+ only, where
+  // findings render as an inline panel. Below lg they render in a MODAL
+  // FindingsSheet that must never self-summon mid-typing (spec §1.2); the
+  // toolbar count badge is the affordance there.
   const autoOpenedRef = useRef(false);
   useEffect(() => {
+    if (!isLg) return;
     if (pendingFindingsCount > 0 && !autoOpenedRef.current && !showFindings) {
       paneStore.getState().toggleFindings();
       autoOpenedRef.current = true;
     }
-  }, [pendingFindingsCount]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [pendingFindingsCount, isLg]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Mutations for tooltip accept/reject
   const applyMutation = useApplyFinding(bookId);
@@ -220,6 +234,13 @@ export default function DocumentEditorPage({
     [findings]
   );
 
+  // Accessible name for the contenteditable (spec §2) — names the document
+  // so AT users hear what they are editing. Falls back to a generic label
+  // until docData arrives; the setOptions effect refreshes it.
+  const editorAriaLabel = docData
+    ? `Editing document: ${docData.title || DOC_TYPE_LABELS[docData.type] || docData.type}`
+    : "Document editor";
+
   const editor = useEditor({
     immediatelyRender: false,
     extensions: createEditorExtensions({
@@ -227,9 +248,9 @@ export default function DocumentEditorPage({
       onAnnotationClick: handleAnnotationClick,
     }),
     editorProps: {
-      attributes: {
-        class: `tiptap max-w-[680px] mx-auto px-4 ${focusMode ? "focus-mode" : ""}`,
-      },
+      attributes: getEditorContentAttributes(focusMode, editorAriaLabel),
+      scrollThreshold: CARET_SCROLL_CLEARANCE_PX,
+      scrollMargin: CARET_SCROLL_CLEARANCE_PX,
     },
     onUpdate: ({ editor: e }) => {
       const md = getMarkdownFromEditor(e);
@@ -241,18 +262,20 @@ export default function DocumentEditorPage({
   // Keep ref in sync
   editorRef.current = editor;
 
-  // Update focus mode class
+  // Update focus mode class (and the aria-label once docData arrives).
+  // setOptions replaces the whole editorProps object, so the scroll
+  // clearances must ride along.
   useEffect(() => {
     if (editor) {
       editor.setOptions({
         editorProps: {
-          attributes: {
-            class: `tiptap max-w-[680px] mx-auto px-4 ${focusMode ? "focus-mode" : ""}`,
-          },
+          attributes: getEditorContentAttributes(focusMode, editorAriaLabel),
+          scrollThreshold: CARET_SCROLL_CLEARANCE_PX,
+          scrollMargin: CARET_SCROLL_CLEARANCE_PX,
         },
       });
     }
-  }, [editor, focusMode]);
+  }, [editor, focusMode, editorAriaLabel]);
 
   // Push annotations into the ProseMirror plugin
   useEffect(() => {
@@ -311,6 +334,9 @@ export default function DocumentEditorPage({
     if (!editor) return;
     const handler = (e: KeyboardEvent) => {
       if (e.key === "F2" && !showInlineEdit) {
+        if ((e.target as HTMLElement | null)?.closest(SHORTCUT_GUARD_SELECTOR)) {
+          return;
+        }
         const { from, to } = editor.state.selection;
         if (from !== to) {
           e.preventDefault();
@@ -514,6 +540,7 @@ export default function DocumentEditorPage({
                 <FloatingAgentInput
                   editor={editor}
                   bookId={bookId}
+                  autoFocus={false}
                   onClose={() => setShowFloatingAgentInput(false)}
                 />
               )}
@@ -601,9 +628,10 @@ export default function DocumentEditorPage({
         </div>
       )}
 
-      {/* Findings panel — chapter-scoped docs only */}
-      {isChapterScoped && isLg
-        ? showFindings && chapterNumber && (
+      {/* Findings panel — chapter-scoped docs only; modal Sheet below lg */}
+      {isChapterScoped && chapterNumber ? (
+        isLg ? (
+          showFindings && (
             <div className="w-80 border-l flex flex-col shrink-0">
               <EditorFindingsPanel
                 bookId={bookId}
@@ -613,16 +641,25 @@ export default function DocumentEditorPage({
               />
             </div>
           )
-        : isChapterScoped && showFindings && chapterNumber && (
-            <div className="fixed inset-y-0 right-0 w-80 z-40 border-l bg-background shadow-xl flex flex-col">
-              <EditorFindingsPanel
-                bookId={bookId}
-                chapterNumber={chapterNumber}
-                onClose={() => paneStore.getState().toggleFindings()}
-                paneId={PANE_ID}
-              />
-            </div>
-          )}
+        ) : (
+          <FindingsSheet
+            open={showFindings}
+            onOpenChange={(open) => {
+              if (!open && paneStore.getState().showFindings) {
+                paneStore.getState().toggleFindings();
+              }
+            }}
+            side={isMobile ? "bottom" : "right"}
+          >
+            <EditorFindingsPanel
+              bookId={bookId}
+              chapterNumber={chapterNumber}
+              onClose={() => paneStore.getState().toggleFindings()}
+              paneId={PANE_ID}
+            />
+          </FindingsSheet>
+        )
+      ) : null}
 
       {/* Version history sidebar */}
       {isLg ? (

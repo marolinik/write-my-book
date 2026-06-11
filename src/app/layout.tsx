@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import {
   Libre_Franklin,
   Cormorant_Garamond,
@@ -89,6 +89,17 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
+};
+
+// interactive-widget makes Chrome/Android shrink the layout viewport when
+// the virtual keyboard opens, keeping the sticky toolbar and status bar
+// visible while typing. iOS ignores it (mitigated via dvh heights and
+// ProseMirror scrollMargin in the editor).
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  interactiveWidget: "resizes-content",
 };
 
 export default function RootLayout({

@@ -33,6 +33,13 @@ const SEVERITY_LABELS: Record<string, string> = {
   minor: "Low",
 };
 
+/**
+ * The button is a 24px touch target (WCAG 2.5.8) wrapping the 12px visual
+ * dot. Offsetting `top` by half the size difference keeps the dot exactly
+ * where the old 12px button rendered.
+ */
+const MARKER_TARGET_OFFSET_PX = 6;
+
 interface GutterMarkersProps {
   editor: Editor | null;
   findings: FindingItem[];
@@ -134,16 +141,29 @@ export function GutterMarkers({
             <Tooltip key={marker.findingId}>
               <TooltipTrigger asChild>
                 <button
-                  className={`absolute pointer-events-auto w-3 h-3 rounded-sm cursor-pointer transition-transform hover:scale-[1.3] ${SEVERITY_COLORS[marker.severity] ?? SEVERITY_COLORS.minor}`}
-                  style={{ top: marker.top, right: 6 }}
+                  type="button"
+                  className="group absolute pointer-events-auto h-6 w-6 flex items-center justify-center cursor-pointer"
+                  style={{
+                    top: marker.top - MARKER_TARGET_OFFSET_PX,
+                    right: 0,
+                  }}
                   onClick={(e) => {
-                    const rect = (
-                      e.target as HTMLElement
-                    ).getBoundingClientRect();
+                    // Anchor the tooltip to the visual dot, not the larger
+                    // touch target, so positioning matches the old layout.
+                    const dot = e.currentTarget.firstElementChild;
+                    const rect =
+                      dot instanceof HTMLElement
+                        ? dot.getBoundingClientRect()
+                        : e.currentTarget.getBoundingClientRect();
                     onMarkerClick(marker.findingId, rect);
                   }}
                   aria-label={`${marker.category} finding: ${severityLabel}`}
-                />
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`w-3 h-3 rounded-sm transition-transform group-hover:scale-[1.3] ${SEVERITY_COLORS[marker.severity] ?? SEVERITY_COLORS.minor}`}
+                  />
+                </button>
               </TooltipTrigger>
               <TooltipContent side="left" className="max-w-[250px]">
                 <p className="font-medium">

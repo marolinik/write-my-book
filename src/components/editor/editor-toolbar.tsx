@@ -42,6 +42,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
   DropdownMenuItem,
+  DropdownMenuCheckboxItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
@@ -49,6 +50,7 @@ import { GraduatedFocus } from "./graduated-focus";
 import type { FocusLevel } from "./graduated-focus";
 import { AmbientSoundscape } from "./ambient-soundscape";
 import { ReadAloud } from "./read-aloud";
+import { useToolbarRoving } from "./use-toolbar-roving";
 
 interface EditorToolbarProps {
   editor: Editor | null;
@@ -81,10 +83,18 @@ interface ToolbarButtonProps {
   icon: React.ReactNode;
   label: string;
   isActive?: boolean;
+  /** Toggle-button state; emits aria-pressed when provided. */
+  pressed?: boolean;
   onClick: () => void;
 }
 
-function ToolbarButton({ icon, label, isActive, onClick }: ToolbarButtonProps) {
+function ToolbarButton({
+  icon,
+  label,
+  isActive,
+  pressed,
+  onClick,
+}: ToolbarButtonProps) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -95,6 +105,7 @@ function ToolbarButton({ icon, label, isActive, onClick }: ToolbarButtonProps) {
           onClick={onClick}
           type="button"
           aria-label={label}
+          aria-pressed={pressed}
         >
           {icon}
         </Button>
@@ -104,8 +115,26 @@ function ToolbarButton({ icon, label, isActive, onClick }: ToolbarButtonProps) {
   );
 }
 
-// Overflow threshold: below this width, secondary groups collapse into dropdown
-const OVERFLOW_THRESHOLD = 650;
+// Two-stage priority collapse (spec §1.3):
+// stage 1: secondary groups collapse into the "More tools" dropdown;
+// stage 2: headings + Annotations/History toggles also move into the
+// dropdown, audio tools hide (kept mounted), save badge goes icon-only.
+// Thresholds sit ABOVE each stage's measured content width (full ≈ 890px,
+// overflow ≈ 550px) — thresholds below content width produce clipping bands
+// where buttons render outside the container but no stage change fires.
+const TOOLBAR_OVERFLOW_THRESHOLD = 900;
+const TOOLBAR_COMPACT_THRESHOLD = 560;
+
+type ToolbarDensity = "full" | "overflow" | "compact";
+
+function getToolbarDensity(width: number): ToolbarDensity {
+  if (width < TOOLBAR_COMPACT_THRESHOLD) return "compact";
+  if (width < TOOLBAR_OVERFLOW_THRESHOLD) return "overflow";
+  return "full";
+}
+
+// Heading levels exposed in the toolbar (mirrors StarterKit heading config)
+const HEADING_LEVELS = [1, 2, 3] as const;
 
 // Graduated focus levels exposed in the overflow dropdown (level 3 is hidden —
 // it ships paragraph-equivalent this phase, see graduated-focus.tsx)
@@ -125,6 +154,7 @@ interface ToolbarGroup {
 
 interface ToolbarGroupContext {
   editor: Editor;
+  density: ToolbarDensity;
   focusMode: boolean;
   onToggleFocusMode: () => void;
   paneId?: string;
@@ -159,18 +189,21 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
           icon={<Bold className="h-4 w-4" />}
           label="Bold (Ctrl+B)"
           isActive={ctx.editor.isActive("bold")}
+          pressed={ctx.editor.isActive("bold")}
           onClick={() => ctx.editor.chain().focus().toggleBold().run()}
         />
         <ToolbarButton
           icon={<Italic className="h-4 w-4" />}
           label="Italic (Ctrl+I)"
           isActive={ctx.editor.isActive("italic")}
+          pressed={ctx.editor.isActive("italic")}
           onClick={() => ctx.editor.chain().focus().toggleItalic().run()}
         />
         <ToolbarButton
           icon={<Underline className="h-4 w-4" />}
           label="Underline (Ctrl+U)"
           isActive={ctx.editor.isActive("underline")}
+          pressed={ctx.editor.isActive("underline")}
           onClick={() => ctx.editor.chain().focus().toggleUnderline().run()}
         />
       </>
@@ -187,6 +220,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
           icon={<Heading1 className="h-4 w-4" />}
           label="Heading 1"
           isActive={ctx.editor.isActive("heading", { level: 1 })}
+          pressed={ctx.editor.isActive("heading", { level: 1 })}
           onClick={() =>
             ctx.editor.chain().focus().toggleHeading({ level: 1 }).run()
           }
@@ -195,6 +229,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
           icon={<Heading2 className="h-4 w-4" />}
           label="Heading 2"
           isActive={ctx.editor.isActive("heading", { level: 2 })}
+          pressed={ctx.editor.isActive("heading", { level: 2 })}
           onClick={() =>
             ctx.editor.chain().focus().toggleHeading({ level: 2 }).run()
           }
@@ -203,13 +238,31 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
           icon={<Heading3 className="h-4 w-4" />}
           label="Heading 3"
           isActive={ctx.editor.isActive("heading", { level: 3 })}
+          pressed={ctx.editor.isActive("heading", { level: 3 })}
           onClick={() =>
             ctx.editor.chain().focus().toggleHeading({ level: 3 }).run()
           }
         />
       </>
     ),
-    renderDropdownItems: () => null,
+    // Only reached at compact density — headings stay inline above 480px.
+    renderDropdownItems: (ctx) => (
+      <>
+        {/* CheckboxItem exposes the active state to AT (aria-checked) — a
+            bare aria-hidden Check icon conveys it visually only */}
+        {HEADING_LEVELS.map((level) => (
+          <DropdownMenuCheckboxItem
+            key={level}
+            checked={ctx.editor.isActive("heading", { level })}
+            onClick={() =>
+              ctx.editor.chain().focus().toggleHeading({ level }).run()
+            }
+          >
+            Heading {level} (Ctrl+Alt+{level})
+          </DropdownMenuCheckboxItem>
+        ))}
+      </>
+    ),
   },
 
   // --- Secondary groups: collapse into dropdown when narrow ---
@@ -223,18 +276,21 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
           icon={<List className="h-4 w-4" />}
           label="Bullet List"
           isActive={ctx.editor.isActive("bulletList")}
+          pressed={ctx.editor.isActive("bulletList")}
           onClick={() => ctx.editor.chain().focus().toggleBulletList().run()}
         />
         <ToolbarButton
           icon={<ListOrdered className="h-4 w-4" />}
           label="Ordered List"
           isActive={ctx.editor.isActive("orderedList")}
+          pressed={ctx.editor.isActive("orderedList")}
           onClick={() => ctx.editor.chain().focus().toggleOrderedList().run()}
         />
         <ToolbarButton
           icon={<Quote className="h-4 w-4" />}
           label="Blockquote"
           isActive={ctx.editor.isActive("blockquote")}
+          pressed={ctx.editor.isActive("blockquote")}
           onClick={() => ctx.editor.chain().focus().toggleBlockquote().run()}
         />
         <ToolbarButton
@@ -250,15 +306,15 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
       <>
         <DropdownMenuItem onClick={() => ctx.editor.chain().focus().toggleBulletList().run()}>
           <List className="mr-2 h-4 w-4" />
-          Bullet List
+          Bullet List (Ctrl+Shift+8)
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => ctx.editor.chain().focus().toggleOrderedList().run()}>
           <ListOrdered className="mr-2 h-4 w-4" />
-          Ordered List
+          Ordered List (Ctrl+Shift+7)
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => ctx.editor.chain().focus().toggleBlockquote().run()}>
           <Quote className="mr-2 h-4 w-4" />
-          Blockquote
+          Blockquote (Ctrl+Shift+B)
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => ctx.editor.chain().focus().setHorizontalRule().run()}>
           <Minus className="mr-2 h-4 w-4" />
@@ -289,11 +345,11 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
       <>
         <DropdownMenuItem onClick={() => ctx.editor.chain().focus().undo().run()}>
           <Undo className="mr-2 h-4 w-4" />
-          Undo
+          Undo (Ctrl+Z)
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => ctx.editor.chain().focus().redo().run()}>
           <Redo className="mr-2 h-4 w-4" />
-          Redo
+          Redo (Ctrl+Shift+Z)
         </DropdownMenuItem>
       </>
     ),
@@ -308,6 +364,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
           icon={<Focus className="h-4 w-4" />}
           label="Focus Mode"
           isActive={ctx.focusMode}
+          pressed={ctx.focusMode}
           onClick={ctx.onToggleFocusMode}
         />
         <GraduatedFocus
@@ -331,6 +388,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
                 : "AI Ghost Text (off)"
             }
             isActive={ctx.ghostTextEnabled}
+            pressed={!!ctx.ghostTextEnabled}
             onClick={ctx.onToggleGhostText}
           />
         )}
@@ -339,6 +397,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
             icon={<MessageCircle className="h-4 w-4" />}
             label="Agent Quick Chat"
             isActive={ctx.showFloatingInput}
+            pressed={!!ctx.showFloatingInput}
             onClick={ctx.onToggleFloatingInput}
           />
         )}
@@ -353,6 +412,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
             }
             label={ctx.splitMode ? "Chapter Only" : "Split View"}
             isActive={ctx.splitMode}
+            pressed={!!ctx.splitMode}
             onClick={ctx.onToggleSplit}
           />
         )}
@@ -364,20 +424,16 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
           <Focus className="mr-2 h-4 w-4" />
           Focus Mode
         </DropdownMenuItem>
-        {/* Graduated focus levels survive overflow as flat menu items */}
+        {/* Graduated focus levels survive overflow as checkable menu items */}
         {ctx.onFocusLevelChange &&
           FOCUS_LEVEL_MENU_ITEMS.map(({ level, label }) => (
-            <DropdownMenuItem
+            <DropdownMenuCheckboxItem
               key={level}
+              checked={ctx.focusLevel === level}
               onClick={() => ctx.onFocusLevelChange?.(level)}
             >
-              {ctx.focusLevel === level ? (
-                <Check className="mr-2 h-4 w-4" />
-              ) : (
-                <span className="mr-2 inline-block h-4 w-4" />
-              )}
               Focus: {label}
-            </DropdownMenuItem>
+            </DropdownMenuCheckboxItem>
           ))}
         {ctx.onEnterImmersive && (
           <DropdownMenuItem onClick={ctx.onEnterImmersive}>
@@ -417,18 +473,21 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
     ),
   },
 
-  // --- Primary: panels always inline ---
+  // --- Primary: panels always inline (at compact only Findings stays —
+  // it carries the pending-count badge affordance; Annotations + History
+  // move into the overflow dropdown) ---
   {
     id: "panels",
     priority: "primary",
     label: "Panels",
     render: (ctx) => (
       <>
-        {ctx.onToggleAnnotations && (
+        {ctx.density !== "compact" && ctx.onToggleAnnotations && (
           <ToolbarButton
             icon={<Highlighter className="h-4 w-4" />}
             label="Toggle Annotations"
             isActive={ctx.showAnnotations}
+            pressed={!!ctx.showAnnotations}
             onClick={ctx.onToggleAnnotations}
           />
         )}
@@ -441,11 +500,19 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
                 className="h-8 w-8 relative"
                 onClick={ctx.onToggleFindings}
                 type="button"
-                aria-label="Toggle Findings"
+                aria-label={
+                  !!ctx.pendingFindingsCount && ctx.pendingFindingsCount > 0
+                    ? `Toggle findings, ${ctx.pendingFindingsCount} pending`
+                    : "Toggle Findings"
+                }
+                aria-pressed={!!ctx.showFindings}
               >
                 <PenTool className="h-4 w-4" />
                 {!!ctx.pendingFindingsCount && ctx.pendingFindingsCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground px-0.5">
+                  <span
+                    aria-hidden="true"
+                    className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground px-0.5"
+                  >
                     {ctx.pendingFindingsCount > 99
                       ? "99+"
                       : ctx.pendingFindingsCount}
@@ -456,17 +523,38 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
             <TooltipContent side="bottom">Findings Panel</TooltipContent>
           </Tooltip>
         )}
-        {ctx.onToggleHistory && (
+        {ctx.density !== "compact" && ctx.onToggleHistory && (
           <ToolbarButton
             icon={<History className="h-4 w-4" />}
             label="Version History"
             isActive={ctx.showHistory}
+            pressed={!!ctx.showHistory}
             onClick={ctx.onToggleHistory}
           />
         )}
       </>
     ),
-    renderDropdownItems: () => null,
+    // Only reached at compact density — Annotations/History stay inline
+    // above 480px. Findings never appears here (always inline).
+    renderDropdownItems: (ctx) => {
+      if (!ctx.onToggleAnnotations && !ctx.onToggleHistory) return null;
+      return (
+        <>
+          {ctx.onToggleAnnotations && (
+            <DropdownMenuItem onClick={ctx.onToggleAnnotations}>
+              <Highlighter className="mr-2 h-4 w-4" />
+              Toggle Annotations
+            </DropdownMenuItem>
+          )}
+          {ctx.onToggleHistory && (
+            <DropdownMenuItem onClick={ctx.onToggleHistory}>
+              <History className="mr-2 h-4 w-4" />
+              Version History
+            </DropdownMenuItem>
+          )}
+        </>
+      );
+    },
   },
 ];
 
@@ -497,28 +585,33 @@ export function EditorToolbar({
   onToggleGhostText,
 }: EditorToolbarProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [showOverflow, setShowOverflow] = useState(false);
+  const [density, setDensity] = useState<ToolbarDensity>("full");
 
-  // ResizeObserver to detect container width and toggle overflow mode
+  // Roving tabindex: single Tab stop, Arrow/Home/End move between buttons.
+  useToolbarRoving(containerRef);
+
+  // ResizeObserver to detect container width and set toolbar density.
+  // `editor` is a dependency so the observer attaches after the async TipTap
+  // mount (the component renders null until the editor instance exists).
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
 
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
-        const width = entry.contentRect.width;
-        setShowOverflow(width < OVERFLOW_THRESHOLD);
+        setDensity(getToolbarDensity(entry.contentRect.width));
       }
     });
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [editor]);
 
   if (!editor) return null;
 
   const ctx: ToolbarGroupContext = {
     editor,
+    density,
     focusMode,
     onToggleFocusMode,
     paneId,
@@ -546,6 +639,25 @@ export function EditorToolbar({
     (g) => g.priority === "secondary"
   );
 
+  const isCompact = density === "compact";
+
+  // Stage-2 reshuffle: headings leave the inline row; the panels group stays
+  // inline but renders only Findings (see its density-aware render fn).
+  const inlineGroups = isCompact
+    ? primaryGroups.filter((g) => g.id !== "headings")
+    : primaryGroups;
+
+  // Dropdown contents — stage 1: secondary groups only; stage 2: headings
+  // first (they just left the inline row), then secondary groups, then the
+  // Annotations/History panel toggles.
+  const dropdownGroups = isCompact
+    ? [
+        ...TOOLBAR_GROUPS.filter((g) => g.id === "headings"),
+        ...secondaryGroups,
+        ...TOOLBAR_GROUPS.filter((g) => g.id === "panels"),
+      ]
+    : secondaryGroups;
+
   // Render inline groups with separators between them
   const renderInlineGroups = (groups: ToolbarGroup[]) => {
     return groups.map((group, index) => (
@@ -561,13 +673,15 @@ export function EditorToolbar({
   return (
     <div
       ref={containerRef}
+      role="toolbar"
+      aria-label="Editor toolbar"
       className="flex items-center gap-0.5 border-b px-2 py-1 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10"
     >
-      {/* Primary groups: always inline */}
-      {renderInlineGroups(primaryGroups)}
+      {/* Primary groups: always inline (headings drop out at compact) */}
+      {renderInlineGroups(inlineGroups)}
 
       {/* Secondary groups: inline when wide, dropdown when narrow */}
-      {!showOverflow ? (
+      {density === "full" ? (
         <>
           <Separator orientation="vertical" className="mx-1 h-6" />
           {renderInlineGroups(secondaryGroups)}
@@ -588,7 +702,7 @@ export function EditorToolbar({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-48">
-              {secondaryGroups.map((group, index) => {
+              {dropdownGroups.map((group, index) => {
                 const items = group.renderDropdownItems(ctx);
                 if (!items) return null;
                 return (
@@ -607,21 +721,33 @@ export function EditorToolbar({
       {/* Audio tools: stable mount position regardless of overflow state so
           playback survives menu close and threshold crossings. Never inside
           the dropdown — Radix unmounts its children on close, which kills
-          the AudioContext/speech. Primary pane only (split view). */}
+          the AudioContext/speech. Primary pane only (split view). At compact
+          density they hide via class (still mounted, playback continues). */}
       {paneId !== "secondary" && (
         <>
-          <Separator orientation="vertical" className="mx-1 h-6" />
-          <AmbientSoundscape />
-          <ReadAloud text={editor.getText()} />
+          <Separator
+            orientation="vertical"
+            className={isCompact ? "mx-1 h-6 hidden" : "mx-1 h-6"}
+          />
+          <AmbientSoundscape className={isCompact ? "hidden" : undefined} />
+          <ReadAloud
+            text={editor.getText()}
+            className={isCompact ? "hidden" : undefined}
+          />
         </>
       )}
 
-      {/* Save indicator badge -- pushed to the right */}
+      {/* Save indicator badge -- pushed to the right. Icon-only at compact
+          density (sr-only text keeps the same words for AT). Deliberately
+          NOT a live region: the status bar's save cluster already announces
+          every transition, and two polite regions updating in lockstep
+          double-announce each autosave (the live-announcer contract calls
+          that a defect). This badge is the redundant visual twin. */}
       <div className="ml-auto">
         {isSaving ? (
           <Badge variant="secondary" className="gap-1 text-xs font-normal">
             <Loader2 className="h-3 w-3 animate-spin" />
-            Saving...
+            {isCompact ? <span className="sr-only">Saving...</span> : "Saving..."}
           </Badge>
         ) : isDirty ? (
           <Badge
@@ -629,7 +755,7 @@ export function EditorToolbar({
             className="gap-1 text-xs font-normal text-amber-600 dark:text-amber-400 border-amber-300 dark:border-amber-700"
           >
             <AlertCircle className="h-3 w-3" />
-            Unsaved
+            {isCompact ? <span className="sr-only">Unsaved</span> : "Unsaved"}
           </Badge>
         ) : lastSaved ? (
           <Badge
@@ -637,7 +763,7 @@ export function EditorToolbar({
             className="gap-1 text-xs font-normal text-green-600 dark:text-green-400 border-green-300 dark:border-green-700"
           >
             <Check className="h-3 w-3" />
-            Saved
+            {isCompact ? <span className="sr-only">Saved</span> : "Saved"}
           </Badge>
         ) : null}
       </div>

@@ -1,0 +1,312 @@
+{
+  "confirmed": [
+    {
+      "severity": "medium",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\editor-toolbar.tsx",
+      "line": 744,
+      "title": "Two simultaneous aria-live save-status regions double-announce every autosave cycle",
+      "description": "The toolbar save badge wrapper got role=\"status\" aria-live=\"polite\" (editor-toolbar.tsx:744) AND the status bar save cluster got role=\"status\" aria-live=\"polite\" (editor-status-bar.tsx:267-271). Both render the same Saving/Unsaved/Saved state from the same props and update in lockstep, so screen readers announce every autosave transition twice (4x in split view, where two toolbars mount). live-announcer.tsx's own header comment declares 'double-announcing is a defect (spec §2)' and deliberately keeps save status out of the LiveAnnouncer — but the change introduces exactly that defect between the toolbar and the status bar. Visible strings themselves are unchanged (status-bar string freeze holds).",
+      "suggestion": "Keep aria-live on only one region — the status bar cluster (which already carries data-testid=editor-save-status) — and mark the toolbar badge aria-hidden or drop its role/aria-live.",
+      "reasoning": "CONFIRMED real. Both role=\"status\" aria-live=\"polite\" wrappers are new, uncommitted additions in this diff (git blame: editor-toolbar.tsx:744 and editor-status-bar.tsx:266-271 both \"Not Committed Yet\"; at HEAD neither wrapper had live-region semantics). Both mount simultaneously in the same editorColumn (manuscript-editor.tsx L1137/L1293; also documents page.tsx L475/L581) and receive identical isSaving/isDirty/lastSaved props from the same instance, so they update in lockstep on every ~2s-debounced autosave cycle. AT queues both polite regions separately, and the texts differ (\"Saved\" vs \"Sav"
+    },
+    {
+      "severity": "low",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\manuscript-editor.tsx",
+      "line": 1307,
+      "title": "Split view mounts two LiveAnnouncer instances sharing one global store — duplicate screen-reader announcements",
+      "description": "LiveAnnouncer is mounted per ManuscriptEditor (manuscript-editor.tsx:1307) but announce() writes to a single module-level zustand store (live-announcer.tsx). In desktop split view two ManuscriptEditor instances render two polite live regions containing identical text, so every F8 navigation / immersive enter-exit message is announced twice. The file's own contract says 'Mount <LiveAnnouncer /> once'.",
+      "suggestion": "Mount the announcer once at the page/layout level, or only when paneId !== \"secondary\".",
+      "reasoning": "Verified end-to-end. (1) Desktop split view mounts two ManuscriptEditor instances: chapters/[chapterId]/page.tsx:59 renders the primary (paneId defaults to \"primary\") inside SplitEditor, and split-editor.tsx:80-90 mounts a secondary with paneId=\"secondary\" when splitMode is on (desktop-only; mobile passthrough at line 57). (2) manuscript-editor.tsx:1307 renders <LiveAnnouncer /> unconditionally in editorColumn for every instance — isPrimary is computed at line 111 but never gates it — so split view produces two aria-live=\"polite\" role=\"status\" regions. (3) live-announcer.tsx:28 is a single mod"
+    },
+    {
+      "severity": "medium",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\manuscript-editor.tsx",
+      "line": 962,
+      "title": "F8 review tooltip anchors after a fixed 350ms while the smooth scroll may still be running; pending timeout never cancelled",
+      "description": "FINDING_TOOLTIP_SETTLE_MS = 350 is a guess at smooth-scroll duration; scrollToFinding's smooth scroll over a long chapter routinely exceeds 350ms, so getBoundingClientRect/coordsAtPos is sampled mid-scroll and the tooltip renders at coordinates the text then scrolls away from (tooltip visually detached from its annotation). Additionally the window.setTimeout at manuscript-editor.tsx:962 is not cleared in the effect cleanup — pressing F8 then navigating away/closing the pane within 350ms still fires the callback (guarded against destroyed editor, but a stale tooltip can still open over the wrong chapter if the same editor instance survives a findings refetch).",
+      "suggestion": "Anchor on the 'scrollend' event (with the timeout as fallback), or use scrollIntoView behavior:'auto' for the F8 path; store the timeout id and clearTimeout in the effect cleanup.",
+      "reasoning": "CONFIRMED, with the mechanism partially misattributed and the severity raised to medium. Code facts check out: FINDING_TOOLTIP_SETTLE_MS=350 (manuscript-editor.tsx:77), window.setTimeout at :963-996 with the id discarded, and the effect cleanup at :998-999 removing only the keydown listener (no clearTimeout). Empirical verification with the repo's Playwright/Chromium: (1) programmatic smooth scroll over 4000px takes ~1060ms and is only at 2599/4000 at t=350ms, so the timer routinely fires mid-scroll on long chapters; (2) the tooltip is an absolute-positioned child of the scroll container itsel"
+    },
+    {
+      "severity": "low",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\findings-sheet.tsx",
+      "line": 36,
+      "title": "FindingsSheet close restores focus to the first matching findings toggle document-wide — wrong pane in tablet split view",
+      "description": "onCloseAutoFocus uses document.querySelector('button[aria-label^=\"toggle findings\" i]') which returns the FIRST match in the document. The sheet renders below lg (<1024px) and split view is only disabled below md (<768px, split-editor.tsx isMobile gate), so on tablets 768-1023px a split view has two toolbars with two findings toggles; closing the secondary pane's sheet focuses the primary pane's toggle. Not a desktop issue, but a concrete focus-restoration bug in the shipped breakpoint band.",
+      "suggestion": "Pass the owning toolbar's toggle ref (or a paneId-scoped selector) into FindingsSheet instead of a global document query.",
+      "reasoning": "Confirmed real. Concrete failure scenario survives refutation: on a 768-1023px viewport (e.g., iPad portrait), split view is reachable — manuscript-editor.tsx:1168 withholds onToggleSplit only when isMobile (<768px, use-mobile.ts:3), and split-editor.tsx:57 bails only on isMobile; the spec (docs/TIER2.4-2.5-MOBILE-A11Y-SPEC.md:16) explicitly allows split on tablet with Findings as right Sheet. In that band each of the two ManuscriptEditor instances renders its own FindingsSheet (!isLg, manuscript-editor.tsx:1354) and its own toolbar findings toggle, which stays inline at every density (editor-"
+    },
+    {
+      "severity": "high",
+      "file": "D:\\Projects\\wmb-pub\\src\\app\\(app)\\books\\[bookId]\\documents\\[documentId]\\page.tsx",
+      "line": 151,
+      "title": "Documents page findings sheet auto-opens as a modal below lg (missing isLg gate)",
+      "description": "The auto-open effect (`if (pendingFindingsCount > 0 && !autoOpenedRef.current && !showFindings) { paneStore.getState().toggleFindings(); }`) has no `isLg` gate, but the page now renders findings in the modal FindingsSheet below lg. manuscript-editor.tsx got the gate (spec §1.2: 'A modal Sheet must never self-summon on a phone mid-typing') but this page did not. Repro: phone or tablet viewport (<1024px), open any chapter-scoped document (brief/plan/content/report) for a chapter with >=1 pending finding. The moment the findings query resolves — including seconds into a typing session — a 70dvh bottom sheet (phone) or right sheet (tablet) pops over the editor, Radix locks body pointer-events, and typing is cut off mid-word. This is the exact defect the manuscript editor change was written to prevent, now reachable on the sibling page that shares the same toolbar-badge affordance.",
+      "suggestion": "Mirror the manuscript editor: add `const isLg = useIsLg()` to the effect's guard — `if (!isLg) return;` — and add `isLg` to the dependency array, so below lg the toolbar badge remains the only affordance.",
+      "reasoning": "VERIFIED REAL. page.tsx:151-156 auto-open effect has no isLg gate (deps: [pendingFindingsCount] only), while the same file at L628-658 renders findings below lg as a modal FindingsSheet (open={showFindings}). manuscript-editor.tsx:197-207 has the exact gate (if (!isLg) return;) with a comment citing spec §1.2 (\"must never self-summon mid-typing\") — the documents page was missed. Modality confirmed end-to-end: FindingsSheet wraps Radix Dialog.Root with default modal=true and SheetContent unconditionally renders a full-viewport overlay; opening it traps focus, sets body pointer-events:none, and "
+    },
+    {
+      "severity": "low",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\findings-sheet.tsx",
+      "line": 50,
+      "title": "FindingsSheet close-focus restore queries document-wide — focuses the wrong pane's toggle in split view",
+      "description": "onCloseAutoFocus runs `document.querySelector('button[aria-label^=\"toggle findings\" i]')` and focuses the FIRST match in DOM order. Split view is available on tablets (isMobile gate is <768, FindingsSheet is used below 1024), so at 768–1023px there are TWO toolbars, each with a findings toggle, and each pane renders its own FindingsSheet. Repro: tablet width (e.g. 900px), enable Split View, open the SECONDARY pane's findings sheet via its toolbar toggle, press Escape — focus lands on the PRIMARY pane's toggle (first in DOM), stranding the keyboard user in the wrong pane (the WCAG 2.4.3 fix the selector was added for is itself broken in this case). Same wrong-target risk applies any time more than one editor toolbar is mounted.",
+      "suggestion": "Scope the lookup to the owning pane instead of the document: pass a `returnFocusRef` (or the pane's toolbar container ref) into FindingsSheet, or query within the sheet's logical owner (e.g. accept a `getReturnFocusElement` callback from the caller that closes over its own toolbar).",
+      "reasoning": "VERIFIED REAL. Every link in the failure chain checks out in code: (1) findings-sheet.tsx:50-57 restores focus via document.querySelector('button[aria-label^=\"toggle findings\" i]'), which returns the FIRST match in DOM order. (2) The 768-1023px overlap window exists by design: useIsMobile is <768 (use-mobile.ts:3), useIsLg is >=1024 (editor-utils.ts:61); FindingsSheet renders when !isLg (manuscript-editor.tsx:1354) while split is only blocked when isMobile (manuscript-editor.tsx:1168-1170, split-editor.tsx:57). The spec (TIER2.4-2.5-MOBILE-A11Y-SPEC.md line 16) explicitly states tablet 768-102"
+    },
+    {
+      "severity": "medium",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\manuscript-editor.tsx",
+      "line": 928,
+      "title": "Split view: both panes' document-level F8 handlers fire on one keypress — two tooltips, wrong announcement, pane A stuck on first finding",
+      "description": "The rebuilt F8 handler (now opening the Accept/Reject tooltip + announcing) is registered on `document` per ManuscriptEditor instance; split view mounts two. One F8 press runs both handlers sequentially: pane A computes its ids, sets shared editorialStore selectedFindingId=A0, scrolls, announces; pane B then computes ITS ids, finds A0 absent (different chapter), resets to B0, overwrites selectedFindingId, scrolls its pane, and its announce() call wins the 150ms last-write-wins debounce — the screen reader hears pane B's finding while both panes ALSO open tooltips after 350ms (two simultaneous 'Review suggestion' dialogs, each per-pane state). On every subsequent F8, pane A sees selectedFindingId from pane B (never in its list, idx=-1) and re-opens its FIRST finding forever while pane B advances — navigation is permanently broken in the pane that registered first. F2 has the same double-fire shape: the pane without a selection toasts 'Select some text first' at the same instant the other pane opens the rewrite popup. Repro: >=768px, Split View on, findings in both chapters, press F8 once, then again.",
+      "suggestion": "Make the shortcut single-owner: register F8/F2 only in the pane that owns focus (check `editor.view.hasFocus()` or `editorAreaRef.current.contains(document.activeElement)` before handling), or register only for paneId==='primary' falling back to the focused pane, or hoist registration to SplitEditor and route to the active pane.",
+      "reasoning": "CONFIRMED REAL after adversarial verification; every load-bearing claim checks out against the code. (1) manuscript-editor.tsx:928-1000 registers the F8 handler on `document` per ManuscriptEditor instance with no paneId/focus ownership guard; split-editor.tsx mounts two instances (primary via children from chapters/[chapterId]/page.tsx:59, secondary with paneId=\"secondary\"); e.preventDefault() does not stop the sibling document listener and stopImmediatePropagation is never called, so one keypress runs both handlers sequentially. (2) editorial-store.ts:35 is a global zustand singleton — select"
+    },
+    {
+      "severity": "medium",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\editor-toolbar.tsx",
+      "line": 121,
+      "title": "Toolbar density thresholds are below the actual content width of each stage — clipping bands at 480–~550px and 650–~890px containers",
+      "description": "Stage widths were not measured against rendered content. Full density in the chapter editor renders 21 icon buttons (3 formatting + 3 headings + 3 panels + 4 blocks + 2 history + 6 tools) + GraduatedFocus + 6 separators + AmbientSoundscape + ReadAloud (2–4 buttons) + the text save badge ≈ 890px, but it engages at >=650px. Overflow density renders ≈550px of content but engages down to 480px. shadcn Button has `shrink-0`, the container has no `flex-wrap` and no overflow handling, so in the gap bands the row overflows the pane's clipped edge: the ml-auto save badge (Saving/Unsaved/Saved) and audio controls disappear with no affordance. These bands are routine: desktop >=1024 with the findings ResizablePanel open puts the editor pane at ~460–620px; phone landscape ~500–560px; tablet split panes. The mobile e2e suite only asserts no-overflow at Pixel 7 portrait (412px → compact, which does fit; compact ≈230px also fits 320px). Note also: via the findings-split drag, a >=1024 desktop pane can reach compact density (<480), where headings/Annotations/History relocate and the save badge goes icon-only — strictly more than the claimed 'ARIA-only' desktop delta, though container-driven adaptation is the spec's stated intent. Density flapping does NOT occur (container width is parent-driven; relocating buttons can't re-trigger the observer), so hysteresis is not needed.",
+      "suggestion": "Recalibrate: TOOLBAR_OVERFLOW_THRESHOLD ≈ 900 and TOOLBAR_COMPACT_THRESHOLD ≈ 560 based on measured content, or derive the breakpoint from `el.scrollWidth > el.clientWidth` at each density, or give the badge/audio cluster `min-w-0 shrink` with the badge always icon-only when clipped. Add an e2e no-overflow assertion at a ~520px and ~700px container width.",
+      "reasoning": "CONFIRMED after attempting refutation. (1) Thresholds verified: editor-toolbar.tsx:121-122 sets 650/480, sourced from spec line 33 which never measured rendered content. (2) Content width re-measured from deterministic Tailwind values with the actual prop set passed by manuscript-editor.tsx:1137-1173 (all handlers present on desktop): full density min-content is ~940px (finding's ~890 slightly understated), overflow density ~555px, compact ~234px. So clipping bands are ~480-555px and ~650-940px containers. (3) Clipping mechanics verified: Button base class has shrink-0 (button.tsx:8), Badge ha"
+    },
+    {
+      "severity": "low",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\split-editor.tsx",
+      "line": 57,
+      "title": "Viewport shrink with split mode on strands splitMode and the dirty secondary pane store",
+      "description": "The defensive `if (!splitMode || isMobile) return children` passthrough is spec-sanctioned, but it strands state: the destroy effect only runs `destroyPaneStore(\"secondary\")` when `!splitMode` or on full unmount, so while isMobile renders children-only with splitMode still true, the secondary pane store survives with its isDirty/saveConflict state while its editor instance is gone. Consequences: (1) a dirty secondary pane's pending 2s autosave is cancelled at unmount — its words exist only in the IndexedDB draft (useDraftBuffer's cleanup flush) until the user re-enters split view and accepts recovery, with zero UI indication meanwhile; (2) the toolbar hides the split toggle on phones (`onToggleSplit={isMobile ? undefined : ...}`), so splitMode cannot be turned off — rotating a tablet back to landscape silently re-summons the split pane the user may have forgotten. Repro: tablet >=768px, enable Split View, type in the secondary pane, rotate to portrait (<768) mid-debounce, keep working, rotate back.",
+      "suggestion": "In the passthrough branch, reset the stranded state: when `isMobile && splitMode`, call `setSplitMode(false)` (or at minimum flush the secondary pane via bufferNow before unmount and destroy the store), so re-growing the viewport doesn't resurrect a stale pane.",
+      "reasoning": "CONFIRMED with caveats. Core mechanics verified: (1) split-editor.tsx:46-53 destroy effect deps are [splitMode] only — an isMobile flip re-renders into the passthrough without unmounting SplitEditor or re-running the effect, so destroyPaneStore(\"secondary\") never fires and the secondary pane store survives with isDirty=true (editor-store.ts:167-184). (2) The secondary ManuscriptEditor unmounts and its 2s autosave debounce cleanup only clearTimeouts (manuscript-editor.tsx:635-639); no server flush on unmount exists anywhere — the pending PUT is silently cancelled while the user is online. (3) u"
+    },
+    {
+      "severity": "low",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\manuscript-editor.tsx",
+      "line": 1307,
+      "title": "LiveAnnouncer mounted per pane — split view renders two identical live regions",
+      "description": "live-announcer.tsx documents a frozen contract: 'Mount <LiveAnnouncer /> once'. It is mounted at the end of editorColumn inside ManuscriptEditor, so split view (tablet/desktop) mounts two regions bound to the same zustand message store — every announce() (F8 navigation, immersive enter/exit) populates BOTH aria-live regions simultaneously and screen readers announce the message twice. Repro: >=768px, Split View on, press F8 (or enter immersive mode) with a screen reader running.",
+      "suggestion": "Mount LiveAnnouncer once at a singleton site — gate on `isPrimary` (`{isPrimary && <LiveAnnouncer />}`) or move it up to SplitEditor / the chapter page wrapper.",
+      "reasoning": "Confirmed real. LiveAnnouncer is mounted unconditionally at the end of editorColumn (manuscript-editor.tsx:1307) with no isPrimary gate; SplitEditor (split-editor.tsx:80-90) mounts a second ManuscriptEditor (paneId=\"secondary\") when splitMode is on (>=768px, toolbar toggle is live UI) and a secondary chapter is picked, so two aria-live polite regions exist, both subscribed to the same module-level zustand store (live-announcer.tsx:28-31). Every announce() — F8 navigation (manuscript-editor.tsx:957) and immersive enter/exit (immersive-focus-mode.tsx:86/88) — populates both regions in the same t"
+    },
+    {
+      "severity": "low",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\editor-status-bar.tsx",
+      "line": 152,
+      "title": "Status bar single row can overflow on phones narrower than the tested 412px (or with realistic word counts)",
+      "description": "The mobile fix hides only the annotation-count cluster below sm, but the always-visible row is word count + 'N min read' + SessionTimer button + AuthorshipTracker badge ('100% yours') on the left and legend + save status ('Saved 12:34') on the right, in a no-wrap flex row with px-4. The e2e no-horizontal-overflow assertion runs only at Pixel 7 (412px) with a 9-word seeded chapter ('9 words', '1 min read'). With a real chapter ('12,345 words', '50 min read') at 360–390px viewports (iPhone SE/12 mini, small Androids) the row exceeds the viewport — the right-aligned save status (the at-risk-words indicator: 'Offline — changes not saved', 'Sync pending', 'Conflict — click to review') is the part pushed off-screen. Strings themselves are untouched (frozen-strings invariant holds); only visibility is at risk.",
+      "suggestion": "Hide or compact the lower-value left items below sm (e.g. `hidden sm:flex` on SessionTimer/AuthorshipTracker, or icon-only reading time) and give the right cluster `shrink-0`; extend the mobile e2e overflow check to a 360px viewport with a 5-digit word count.",
+      "reasoning": "CONFIRMED by measurement, not estimation. Built a pixel-faithful repro of D:\\Projects\\wmb-pub\\src\\components\\editor\\editor-status-bar.tsx:152-313 (exact Tailwind computed values; Libre Franklin loaded — fontLoaded:true) and measured in Chromium.\n\nMeasured overflow (bar scrollWidth vs viewport; save status pushed off right edge):\n- 360px: overflows in EVERY state — even the e2e-seeded '9 words'+'Saved 12:34' (362px, 2px off); realistic '12,345 words'/'50 min read'+'Saved 12:34' (366px, 6px off); 'Offline — changes not saved' (379px, 19px off — screenshot shows it clipped mid-word); conflict chi"
+    },
+    {
+      "severity": "high",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\immersive-focus-mode.tsx",
+      "line": 258,
+      "title": "Immersive focus mode opens without moving focus into the modal; Tab trap inoperative",
+      "description": "The contenteditable div relies on `autoFocus` (line 258), but React DOM only honors autoFocus on button/input/select/textarea (commitMount special-cases those four types; React 19.2 unchanged) — on a div it is a silent no-op, and React never renders the native `autofocus` attribute either. No mount effect focuses the editor. So when immersive mode is entered (via the GraduatedFocus popover item or the toolbar overflow dropdown item), Radix restores focus to the trigger button which is now BEHIND the z-[100] aria-modal overlay. The Tab trap (handleTrapKeyDown, lines 101-130) is a React onKeyDown on the dialog root, so it only fires for key events targeted inside the overlay — with focus stranded on the background toolbar, Tab cycles the obscured background UI and Space/Enter activate hidden controls. The trap's `!root.contains(active)` branch can never rescue this because the event never reaches the handler. WCAG 2.4.3 / dialog initial-focus failure. (The Shift+Tab-at-first wrap logic itself is correct, and Escape-to-exit is correctly NOT captured by the trap.) No e2e test covers immersive focus.",
+      "suggestion": "Add a mount effect: `useEffect(() => { editorRef.current?.focus(); }, [])` (optionally placing the caret at the end). Consider also marking the background `inert` while the overlay is open so the document-level Tab order cannot escape even if focus lands on body after an overlay click.",
+      "reasoning": "Verified against D:\\Projects\\wmb-pub\\src\\components\\editor\\immersive-focus-mode.tsx, manuscript-editor.tsx, editor-toolbar.tsx, graduated-focus.tsx, package.json, and docs/TIER2.4-2.5-MOBILE-A11Y-SPEC.md. All load-bearing claims hold: (1) React 19.2.3 — autoFocus is only polyfilled for button/input/select/textarea in commitMount; on the contenteditable div (immersive-focus-mode.tsx:258) it is a silent no-op and React never renders the native autofocus attribute. (2) No mount effect focuses the editor — the only focus() calls are exit-time restore and inside the trap handler; enterImmersive (ma"
+    },
+    {
+      "severity": "medium",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\editor-toolbar.tsx",
+      "line": 744,
+      "title": "Duplicate save-status live regions: toolbar badge AND status bar both announce every autosave",
+      "description": "This change adds `role=\"status\" aria-live=\"polite\"` to BOTH the toolbar save badge (editor-toolbar.tsx:744, new in this diff) and the status-bar save cluster (editor-status-bar.tsx:269-270, also new in this diff). Both regions are driven by the same isSaving/isDirty/lastSaved state in the same editor column, so every autosave cycle announces 'Unsaved' → 'Saving...' → 'Saved' TWICE per pane — and at compact density the toolbar badge's sr-only text keeps it announcing even when visually icon-only. In split view this becomes four live regions announcing in lockstep. The change's own live-announcer.tsx doc comment (line 10-11) states the invariant this violates: 'the status bar carries its own aria-live region and double-announcing is a defect (spec §2)'. For a writing app whose autosave fires on a 2s debounce, this doubles an already-frequent interruption stream for screen-reader users.",
+      "suggestion": "Keep exactly one live region for save state — the status bar (its strings are the frozen canonical ones). Remove role=\"status\"/aria-live from the toolbar badge wrapper and mark the badge aria-hidden, or keep it visible but not live.",
+      "reasoning": "CONFIRMED with two corrections. (1) The duplication is real and new in this diff: git diff shows role=\"status\" aria-live=\"polite\" added to BOTH the toolbar save badge wrapper (editor-toolbar.tsx:744) and the status-bar save cluster (editor-status-bar.tsx:266-271). Both render simultaneously in the same editor column (manuscript-editor.tsx:1137 + 1293; documents page 475 + 581) and are driven by the identical isSaving/isDirty/lastSaved from the same pane store, so every autosave cycle announces each transition twice; the toolbar's sr-only spans (lines 748/756/764) keep it announcing even at com"
+    },
+    {
+      "severity": "medium",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\manuscript-editor.tsx",
+      "line": 1307,
+      "title": "LiveAnnouncer mounted per pane: split view double-announces every F8/immersive message",
+      "description": "`<LiveAnnouncer />` is mounted at the end of editorColumn inside ManuscriptEditor (line 1307), but split view renders TWO ManuscriptEditor instances (primary via the page children, secondary explicitly in split-editor.tsx:80). Both LiveAnnouncer instances subscribe to the same module-level zustand store, producing two `role=\"status\"` regions whose text updates simultaneously with identical content — screen readers announce each region's update, so every F8 finding announcement and immersive enter/exit is spoken twice in split view. This is exactly the duplicate-region defect the component's own contract forbids ('Mount <LiveAnnouncer /> once', live-announcer.tsx:14). The a11y e2e test asserts `getByRole(\"status\").filter({hasText}).toHaveCount(1)` only in single-pane mode, so the duplication is untested. (The module-level debounce/clear timers themselves are fine — they only write to the store after unmount, no leak.)",
+      "suggestion": "Make the mount a singleton: either move <LiveAnnouncer /> up to the editor page/layout level (outside ManuscriptEditor), or gate the mount with `paneId === \"primary\"`, or have the component register/deregister in the store and render nothing when another instance is already live.",
+      "reasoning": "CONFIRMED. (1) Double mount is real: page.tsx:59 renders the primary ManuscriptEditor as SplitEditor children; split-editor.tsx:80 renders a second instance (paneId=\"secondary\") once a split chapter is picked; each unconditionally renders <LiveAnnouncer /> at manuscript-editor.tsx:1307 inside editorColumn, present in both layout branches (1337–1351). (2) Both instances subscribe to the same module-level zustand store (live-announcer.tsx:28), so one announce() store write fans out to two role=\"status\" aria-live=\"polite\" regions with identical text — AT queues each region's change independently "
+    },
+    {
+      "severity": "medium",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\floating-agent-input.tsx",
+      "line": 77,
+      "title": "FloatingAgentInput global Escape handler closes on any Escape and force-focuses the editor",
+      "description": "The new Escape handler (lines 75-85) listens on `document` with no focus/target guard and now calls `editor.commands.focus()` before closing. Two concrete failures: (1) Layer collision — the AnnotationTooltip can be open at the same time as the floating input (tooltipState and showFloatingAgentInput are independent, and the floating input shows whenever a selection exists with the toggle on). The tooltip's capture-phase Escape handler calls preventDefault but NOT stopPropagation, so a single Escape intended to dismiss the review dialog also closes the floating input — two layers dismissed by one keypress. (2) Focus steal — while the floating input is visible, pressing Escape with focus anywhere else (findings panel filter chips, toolbar, version history) yanks focus into the contenteditable, moving the user away from where they were working.",
+      "suggestion": "Only handle Escape when the widget owns focus: guard with `containerRef.current?.contains(document.activeElement)` (or check `e.target`), and only then restore focus to the editor. For layering, have the innermost open surface stopPropagation on the Escape it consumes.",
+      "reasoning": "CONFIRMED. (1) Layer collision is deterministic via the F8 flow, stronger than the finding's framing: scrollToFinding (manuscript-editor.tsx L831) sets a RANGE selection via setTextSelection({from,to}) from findTextPositions, which fires selectionUpdate -> setShowFloatingAgentInput(true) (L1003-1011); with the opt-in 'Agent Quick Chat' toggle on, FloatingAgentInput mounts, and 350ms later AnnotationTooltip mounts (L990-996) — both open simultaneously on every F8 navigation. AnnotationTooltip's capture-phase document Escape handler (annotation-tooltip.tsx L120-129) calls preventDefault but NOT "
+    },
+    {
+      "severity": "medium",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\editor-toolbar.tsx",
+      "line": 245,
+      "title": "Compact-density dropdown items convey active state via aria-hidden Check icon only",
+      "description": "At compact density (<480px) the heading buttons leave the inline row and move into the 'More tools' dropdown, where the active heading is indicated only by a lucide Check icon (aria-hidden by default) on a plain DropdownMenuItem (role=menuitem, no aria-checked) — lines 245-263. The same pattern applies to the graduated-focus level items (lines 426-439). The inline ToolbarButtons these replace DO expose aria-pressed, so the two-stage collapse silently downgrades the toggle state from programmatically-exposed to visual-only exactly on the small-screen path. A screen-reader user at compact width cannot tell which heading level or focus level is active.",
+      "suggestion": "Use DropdownMenuCheckboxItem (or role=\"menuitemradio\" with aria-checked) for the heading-level and focus-level items so the active state is exposed, matching the aria-pressed semantics of the inline buttons.",
+      "reasoning": "Confirmed against the code. editor-toolbar.tsx lines 245-263 (headings) and 426-439 (focus levels) render plain DropdownMenuItem (Radix role=menuitem, no aria-checked) where active state is conveyed solely by a lucide Check icon. Verified the installed lucide-react (node_modules/lucide-react/dist/cjs/lucide-react.js L69) auto-applies aria-hidden=\"true\" to icons with no children/a11y props, so the Check contributes nothing to AT output (and would contribute nothing to the accessible name even without aria-hidden). The inline ToolbarButton equivalents do expose aria-pressed (L107, passed at L219"
+    },
+    {
+      "severity": "low",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\manuscript-editor.tsx",
+      "line": 1096,
+      "title": "aria-label on generic span for chapter position indicator (prohibited, ignored by AT)",
+      "description": "The new chapter-position indicator puts `aria-label={`Chapter ${currentIdx + 1} of ${allChapters.length}`}` on a plain <span> (lines 1096-1101). ARIA 1.2 prohibits aria-label on role=generic; most AT ignores it and reads the raw visible text '1/12' instead, so the intended descriptive name never reaches users (axe-core files this under needs-review rather than violations, which is why the green axe scan didn't catch it). This also contradicts the pattern the same change documents in editor-status-bar.tsx:171 ('aria-label is prohibited on generic spans (ARIA 1.2)') where aria-hidden + sr-only twins are used instead.",
+      "suggestion": "Use the sr-only twin pattern: `<span aria-hidden=\"true\">{currentIdx + 1}/{allChapters.length}</span><span className=\"sr-only\">Chapter {currentIdx + 1} of {allChapters.length}</span>`.",
+      "reasoning": "Confirmed at manuscript-editor.tsx:1096-1101: aria-label on a plain non-interactive <span> (role=generic per HTML-AAM), which ARIA 1.2 prohibits. Concrete failure survives refutation: NVDA/JAWS in browse mode read the raw text content \"1/12\" of static generic spans and ignore prohibited names, so the intended \"Chapter 1 of 12\" never reaches users; the attribute is dead code on common SR setups. Not an accepted gap — spec §5 (TIER2.4-2.5-MOBILE-A11Y-SPEC.md:239) lists only the popover keyboard path, window.confirm, visualViewport, and DiffView markers. Caveat that recolors but doesn't refute: t"
+    },
+    {
+      "severity": "low",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\findings-sheet.tsx",
+      "line": 51,
+      "title": "Wrong-pane focus restore: FindingsSheet and immersive exit use first-match document-wide selectors",
+      "description": "FindingsSheet.onCloseAutoFocus restores focus to `document.querySelector('button[aria-label^=\"toggle findings\" i]')` — the FIRST matching toggle in document order. On tablet widths (768-1023px) split view is allowed (only isMobile <768 disables the toggle) AND the sheet is the findings container (<lg), and each pane renders its own FindingsSheet + toolbar toggle; closing the secondary pane's sheet therefore focuses the PRIMARY pane's toggle. The same first-match pattern exists in immersive-focus-mode.tsx:85: exit restores focus to `document.querySelector(\".ProseMirror\")`, which is the primary pane's contenteditable even when immersive mode was entered from the secondary pane's toolbar.",
+      "suggestion": "Scope the restore to the owning pane: pass the toggle element/ref (or paneId-scoped container ref) into FindingsSheet and ImmersiveFocusMode instead of querying the whole document, e.g. resolve the toggle within the pane's editorColumn root.",
+      "reasoning": "CONFIRMED REAL after adversarial verification. Concrete failure scenario survives: (1) FindingsSheet case — at tablet width 768-1023 (isMobile=false per use-mobile.ts:3, isLg=false per editor-utils.ts:61), split view is allowed (split-editor.tsx:57 only blocks isMobile; manuscript-editor.tsx:1168 only suppresses the toggle on isMobile; spec line 16 explicitly says \"Split allowed\" with \"Findings = right Sheet\" at tablet). Both panes render full ManuscriptEditor instances (split-editor.tsx:80-90), each with an unconditional always-inline findings toggle matching 'button[aria-label^=\"toggle findi"
+    },
+    {
+      "severity": "low",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\immersive-focus-mode.tsx",
+      "line": 86,
+      "title": "Immersive entry announcement emitted from a live region outside the aria-modal dialog",
+      "description": "`announce(ENTER_ANNOUNCEMENT)` (line 86) updates the LiveAnnouncer region that lives in the underlying editorColumn — OUTSIDE the `aria-modal=\"true\"` overlay that has just mounted. Screen readers that honor aria-modal exclude content outside the modal from the accessibility tree, including live-region updates, so 'Entered immersive mode, press Escape to exit' — the only programmatic hint about the Escape exit path — can be silently dropped. (The exit announcement is fine: it fires after the modal unmounts.) The 150ms announce debounce guarantees the region update lands after the modal is already in the tree.",
+      "suggestion": "Render a polite live region (or the announcement text as an sr-only child) inside the immersive dialog itself for the entry message, or set aria-describedby on the dialog pointing at sr-only instructions ('Press Escape to exit') so the hint is announced with the dialog.",
+      "reasoning": "Verified all factual claims in code. (1) immersive-focus-mode.tsx:86 calls announce(ENTER_ANNOUNCEMENT) in a mount effect, and the dialog root (lines 186-192) has role=\"dialog\" aria-modal=\"true\". (2) live-announcer.tsx debounces 150ms before setting the region text, guaranteeing the update lands while the modal is in the accessibility tree. (3) manuscript-editor.tsx:1307 mounts <LiveAnnouncer /> at the end of editorColumn, which remains rendered while the immersive overlay renders as a z-[100] sibling (lines 1326-1334) — so the live region is outside the aria-modal subtree for the dialog's ent"
+    },
+    {
+      "severity": "low",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\manuscript-editor.tsx",
+      "line": 160,
+      "title": "Review dialog (tooltipState) survives in-place chapter switch with focus on Accept",
+      "description": "tooltipState is never cleared when chapterId changes. Chapter prev/next navigation updates route params in place without unmounting ManuscriptEditor (the file's own saveContent comment acknowledges 'in-place route param updates'), so neither the unmount-cleanup focus restore nor any reset fires: a review dialog opened via F8 or a gutter marker — now role=dialog with focus moved to its Accept button — remains rendered at a stale rect over the NEW chapter's content. Enter at that point applies the PREVIOUS chapter's finding while the user is looking at a different chapter, and the stale dialog also keeps the F8 shortcut guarded (dead) in the new chapter until dismissed. Partially pre-existing for click-opened tooltips, but the new keyboard path + autofocused Accept makes accidental activation much likelier.",
+      "suggestion": "Clear transient overlay state on chapter identity change: in the setChapter effect (deps bookId/chapterId), add `setTooltipState(null); setOverlappingState(null); setShowInlineEdit(false);` so dialogs anchored to the previous chapter's positions cannot survive navigation.",
+      "reasoning": "CONFIRMED with one sub-claim narrowed. (1) State survives navigation: no `key` on ManuscriptEditor at either render site (src\\app\\(app)\\books\\[bookId]\\chapters\\[chapterId]\\page.tsx:59, src\\components\\editor\\split-editor.tsx:80), and the component is explicitly designed to persist across in-place route param updates — the setChapter effect (manuscript-editor.tsx:339-347) resets contentLoadedRef/saveFailuresRef/recoveryCheckedRef on chapterId change but never clears tooltipState/overlappingState/showInlineEdit; saveContent's stale-chapter + loadEpoch guards and the L467-469 comment prove remount"
+    },
+    {
+      "severity": "medium",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\manuscript-editor.tsx",
+      "line": 932,
+      "title": "manuscript-editor.tsx now 1403 lines — 75% over the 800-line hard cap, grew +102 lines against a spec promising +25/-15",
+      "description": "The file was already over the cap at 1301 lines; this change adds a net +102 (1403 total) while docs/TIER2.4-2.5-MOBILE-A11Y-SPEC.md §3 contracts 'Net delta ≈ +25/-15 lines. Save pipeline untouched.' The bulk of the growth is the new F8 handler (~60 lines: live recompute, announce, 350ms setTimeout, annotation-span/coordsAtPos tooltip anchoring at lines ~929-1000) plus computeNavigableFindingIds — a self-contained, testable unit that has no reason to live inline in the hot file the spec explicitly tried to keep surgical.",
+      "suggestion": "Extract the F8 navigation block and computeNavigableFindingIds into a hook (e.g. src/components/editor/use-finding-navigation.ts) taking editorRef/findings/scrollToFinding/setTooltipState. This is exactly the 'many small files' rule and would bring the delta back near the spec's contract.",
+      "reasoning": "Every factual claim verified exactly: working-tree manuscript-editor.tsx is 1403 lines; HEAD (53c0a95) was 1301; git diff shows +126/-24 = net +102. Spec docs/TIER2.4-2.5-MOBILE-A11Y-SPEC.md §3 (line 151) contracts 'SURGICAL ONLY ... Net delta ≈ +25/-15 lines' for this exact file, and §5's accepted-gaps list (line 239: popover keyboard path, window.confirm, visualViewport, DiffView colors) does NOT waive file growth. The 800-line cap is codified in the user's global coding rules ('800 max') and the same spec actively enforces it for editor-toolbar.tsx ('under 800 cap; if it crests, extract too"
+    },
+    {
+      "severity": "medium",
+      "file": "D:\\Projects\\wmb-pub\\tests\\e2e\\mobile-editor.spec.ts",
+      "line": 128,
+      "title": "Mobile 'no horizontal overflow' test is a near-tautology — ancestor overflow clipping means it cannot fail for the overflow it claims to catch",
+      "description": "The assertion `document.documentElement.scrollWidth <= window.innerWidth` runs against a page whose content is wrapped in `<div className=\"flex flex-1 overflow-hidden relative\">` and `<main className=\"flex-1 overflow-y-auto pb-14\">` (src/app/(app)/layout.tsx:105-108; overflow-y:auto makes the main a scroll container on both axes). Any horizontal overflow in the toolbar, editor content, or status bar is clipped or scrolled inside those containers and never reaches documentElement.scrollWidth — the test passes even with a badly overflowing editor. It can only catch fixed-position elements wider than the viewport. Test 2 partially compensates for the toolbar only.",
+      "suggestion": "Assert on the actual scroll containers: `main` and the editor column, e.g. evaluate `[...document.querySelectorAll('main, .ProseMirror, [role=\"toolbar\"]')].every(el => el.scrollWidth <= el.clientWidth + 1)`, or check the status bar bounding box right edge <= viewport width.",
+      "reasoning": "CONFIRMED by code reading plus an empirical Playwright repro of the exact layout structure.\n\nFacts verified:\n1. The test (D:\\Projects\\wmb-pub\\tests\\e2e\\mobile-editor.spec.ts:128-131) asserts `document.documentElement.scrollWidth <= window.innerWidth` after opening /books/[bookId]/chapters/[chapterId].\n2. That route renders inside the (app) layout's mobile branch: `<div className=\"flex flex-1 overflow-hidden relative\">` wrapping `<main className=\"flex-1 overflow-y-auto pb-14\">` (src/app/(app)/layout.tsx:105-108). The toolbar (`sticky top-0`, editor-toolbar.tsx:680), ProseMirror content, and sta"
+    },
+    {
+      "severity": "medium",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\editor-toolbar.tsx",
+      "line": 744,
+      "title": "Save status now announced by TWO polite live regions — violates the change's own 'double-announcing is a defect' rule",
+      "description": "The toolbar save badge wrapper got `role=\"status\" aria-live=\"polite\"` (editor-toolbar.tsx:744) and the status-bar save cluster got the same (editor-status-bar.tsx:268-270). Both render the same transitions (Saving... → Saved), so screen readers announce every autosave twice. The spec §2 explicitly states for the LiveAnnouncer: 'Save status does NOT use it (status bar's own aria-live covers that; double-announcing is a defect)' — then prescribes/implements a second live region anyway. Both regions are mounted simultaneously at every viewport width (the toolbar badge is sr-only at compact, but sr-only content is still announced).",
+      "suggestion": "Drop role/aria-live from the toolbar badge wrapper (keep it visual-only, optionally aria-hidden) and let the status bar's region (which carries the frozen test strings) be the single announcement source.",
+      "reasoning": "CONFIRMED. Both live regions are introduced by this uncommitted change: HEAD versions of editor-toolbar.tsx and editor-status-bar.tsx contain zero aria-live/role=\"status\" attributes, while the working-tree diff adds role=\"status\" aria-live=\"polite\" to BOTH the toolbar save badge wrapper (editor-toolbar.tsx:744) and the status bar save cluster (editor-status-bar.tsx:266-271). Both components are co-mounted in manuscript-editor.tsx (EditorToolbar L1137, EditorStatusBar L1293) fed by the same isSaving/isDirty/lastSaved state, at every viewport width and in every mode — the compact toolbar's sr-on"
+    },
+    {
+      "severity": "low",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\manuscript-editor.tsx",
+      "line": 802,
+      "title": "editorial-store.navigableFindingIds is now write-only dead state with two competing writers",
+      "description": "After this change, no code reads `navigableFindingIds` from the editorial store (grep over src finds only the store definition at src/stores/editorial-store.ts:14/39/53/69 and the writes in manuscript-editor.tsx). The F8 handler — formerly the only reader — now calls computeNavigableFindingIds() live and itself writes the result back via setNavigableFindingIds. Meanwhile the useMemo at line 802 plus the sync effect at lines 808-810 keep pushing the [findings]-keyed snapshot whose staleness the adjacent comment explicitly documents ('computes against an EMPTY doc ... and never recomputes'). The comment says 'Plain function, not a memo' and then the very next statement memoizes it. Two writers, zero readers, one of them knowingly stale.",
+      "suggestion": "Delete the navigableFindingIds memo, the sync effect, the store field/setter, and the F8 handler's setNavigableFindingIds call — or, if the store field is kept for future consumers, write it only from the live F8 computation and remove the stale memo path plus the contradictory comment.",
+      "reasoning": "All factual claims verify. Repo-wide grep confirms navigableFindingIds has zero readers: only the store definition (src/stores/editorial-store.ts:14/21/39/52-53/69) and two writers in src/components/editor/manuscript-editor.tsx — the [findings]-keyed memo+sync effect (802-810) and the F8 handler's live write-back (939-941). Git confirms the change is uncommitted working-tree work: at HEAD the F8 handler was the sole reader (`const ids = store.navigableFindingIds`); the rewrite made it compute live via computeNavigableFindingIds(), orphaning the store field. The comment at 782-786 ('Plain funct"
+    },
+    {
+      "severity": "low",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\findings-sheet.tsx",
+      "line": 29,
+      "title": "FindingsSheet restores focus via a global querySelector coupled to the toolbar's dynamic aria-label string",
+      "description": "`FINDINGS_TOGGLE_SELECTOR = 'button[aria-label^=\"toggle findings\" i]'` reaches across the component tree with document.querySelector to find the toolbar toggle in onCloseAutoFocus. This silently breaks (focus falls to body, WCAG 2.4.3 regression) if the toolbar label wording ever changes — and that label is already dynamic and lives in a different file owned by a different 'agent' per the spec's chunking. It also grabs the FIRST match document-wide, which is wrong if more than one editor toolbar is ever mounted. mobile-editor.spec.ts test 4's `toBeFocused()` assertion depends on this hidden string contract.",
+      "suggestion": "Pass the restore target explicitly: add a `restoreFocusRef?: RefObject<HTMLElement>` (or onCloseAutoFocus callback) prop to FindingsSheetProps and have manuscript-editor/documents page supply the toggle ref, removing the cross-file string coupling.",
+      "reasoning": "PARTIALLY CONFIRMED, downgraded medium->low. The strongest claim (\"silently breaks... focus falls to body, WCAG 2.4.3 regression if the label changes\") is REFUTED: tests/e2e/mobile-editor.spec.ts test 4 pins both sides of the string contract — line 209 getByRole(name: /toggle findings/i) fails toBeVisible() under any realistic rewording, and line 239 toBeFocused() fails if the prefix selector diverges — so label drift breaks CI loudly, not silently. Strand-to-body is unreachable today: in both consumers the toggle always coexists with the sheet (manuscript-editor.tsx L1150 passes onToggleFindi"
+    },
+    {
+      "severity": "low",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\editor-utils.ts",
+      "line": 51,
+      "title": "Desktop is not 'byte-identical except ARIA': editor gutters and immersive-mode paddings changed at >=1024px",
+      "description": "The stated hard invariant is 'desktop >=1024px layout JSX byte-identical except ARIA attributes', but getEditorContentAttributes changes the editor class from `px-4` to `px-4 sm:px-6` (+8px gutters on every desktop editor) and adds `w-full`, and immersive-focus-mode.tsx:244 changes `px-8 pt-[40vh] pb-[60vh]` to `px-5 sm:px-8 pt-[35dvh] pb-[55dvh]` — the typing line sits ~5vh higher on desktop immersive mode. Both deviations are sanctioned by the spec text (which even offers the px-4-only alternative 'if pixel-perfect desktop is required'), but they contradict the invariant as claimed and should not be represented as ARIA-only desktop changes.",
+      "suggestion": "Either revert to `px-4` and keep vh in immersive on desktop (`pt-[40vh] md:...`), or amend the invariant claim in the spec doc/commit message to enumerate these two intentional desktop visual changes.",
+      "reasoning": "Verified in working tree (changes are uncommitted): (1) editor-utils.ts:52 getEditorContentAttributes emits `px-4 sm:px-6` + `w-full` where all four prior inline TipTap sites had bare `px-4` (confirmed via git diff of manuscript-editor.tsx and documents page) — at >=1024px Tailwind sm: applies, so desktop gutters widen 16px→24px per side. (2) immersive-focus-mode.tsx:247 changed `px-8 pt-[40vh] pb-[60vh]` → `px-5 sm:px-8 pt-[35dvh] pb-[55dvh]`; on desktop dvh==vh, so the 40→35 numeric shift moves the immersive typing line up 5% of viewport height — the spec justifies dvh only for iOS but the n"
+    },
+    {
+      "severity": "low",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\manuscript-editor.tsx",
+      "line": 1098,
+      "title": "aria-label on a generic <span> (chapter pager) — prohibited ARIA the new axe gate cannot catch, inconsistent with the status-bar pattern",
+      "description": "The pager span gets `aria-label={`Chapter ${currentIdx + 1} of ${allChapters.length}`}` with no role. ARIA 1.2 prohibits aria-label on role=generic, and most AT ignores it — the very rationale the same changeset documents in editor-status-bar.tsx ('aria-label is prohibited on generic spans (ARIA 1.2)') where it correctly uses aria-hidden + sr-only twins instead. axe-core files this under 'incomplete' (needs review) rather than violations when the element has text content, so the a11y.spec.ts violations-only gate green-lights it.",
+      "suggestion": "Use the same pattern as the status bar: `<span aria-hidden=\"true\">{currentIdx + 1}/{allChapters.length}</span><span className=\"sr-only\">Chapter N of M</span>`, or give the span role=\"status\"-free text alternative via visually hidden text.",
+      "reasoning": "VERIFIED REAL. (1) manuscript-editor.tsx:1096-1101 confirmed: aria-label on a role-less <span> (role=generic) with visible text \"1/12\"; the working-tree diff shows the aria-label was ADDED in this same Tier 2.4/2.5 changeset. (2) The inconsistency claim is exact: editor-status-bar.tsx:168-171 (same changeset) explicitly documents \"aria-label is prohibited on generic spans (ARIA 1.2)\" and uses aria-hidden + sr-only twins for all its count spans. (3) Refutation \"by design per spec\" fails: TIER2.4-2.5-MOBILE-A11Y-SPEC.md line 81 did prescribe the pager aria-label, but line 95 prescribed the same "
+    },
+    {
+      "severity": "low",
+      "file": "D:\\Projects\\wmb-pub\\tests\\e2e\\a11y.spec.ts",
+      "line": 252,
+      "title": "a11y F8 test races a 3-second self-clearing live region plus a 350ms tooltip timer",
+      "description": "The announcement appears 150ms after F8 (ANNOUNCE_DEBOUNCE_MS) and is wiped 3s later (ANNOUNCE_CLEAR_MS in live-announcer.tsx:21), so `liveRegionWithText(...).toHaveCount(1)` has a ~3s visibility window inside a 10s expect timeout. Playwright polls continuously so this normally passes, but under parallel dev-server load (the very condition that forced the 90s test timeout) a hydration/GC stall longer than ~3s between the keypress and a successful poll fails the test with no product bug. Secondary: each F8 also schedules a 350ms setTimeout that opens the review dialog and focuses Accept — fine in this test's sequencing, but it means any F8 press is followed by a delayed focus steal that future tests (and users mid-typing) can trip over.",
+      "suggestion": "Make the assertion race-free: assert the review dialog (which stays open) before or instead of the transient text, or raise ANNOUNCE_CLEAR_MS / expose a data-attribute with the last announcement that does not self-clear.",
+      "reasoning": "CONFIRMED with one mechanism correction. Facts verified: live-announcer.tsx:18/21 has ANNOUNCE_DEBOUNCE_MS=150 and ANNOUNCE_CLEAR_MS=3000 — announce() shows the message ~150ms after F8 and wipes it 3000ms later (deliberate product behavior so AT never re-reads stale text, so any test failure is test-only, no product bug). a11y.spec.ts:252-255 and 266-269 assert `getByRole(\"status\").filter({hasText:\"Finding N of 2\"}).toHaveCount(1)` immediately after the keypress, with expect timeout 10s (playwright.config.ts:15), fullyParallel + unlimited local workers, and the file's own header documents 3x b"
+    },
+    {
+      "severity": "low",
+      "file": "D:\\Projects\\wmb-pub\\docs\\TIER2.4-2.5-MOBILE-A11Y-SPEC.md",
+      "line": 151,
+      "title": "Spec doc claims drifted from the implementation it documents",
+      "description": "Three statements in the checked-in spec no longer match the shipped code: (1) §3 'Net delta ≈ +25/-15 lines' for manuscript-editor.tsx — actual net is +102; (2) §2 prescribes aria-label `Editing chapter: ${chapter.title}` — implementation and a11y.spec.ts:313 use `Editing chapter ${chapterNumber}: ${title}`; (3) §1.3 says the compact save badge goes 'icon-only (Cloud/CloudOff/Loader2)' — implementation keeps the existing Loader2/AlertCircle/Check icons with sr-only text. Since this doc is being committed as the phase's design record and future agents are instructed to treat its interfaces as 'frozen by this spec', the drift will mislead.",
+      "suggestion": "Update the three statements to match the as-built code (or add a short 'as-built deviations' note at the top), especially the aria-label format which a test now asserts verbatim.",
+      "reasoning": "All three factual claims verified exactly against the working tree. (1) git diff --numstat for src/components/editor/manuscript-editor.tsx is +126/-24 = net +102 vs spec line 151's \"Net delta ≈ +25/-15\" (net +10) — a 10x miss that also undercuts the spec's \"surgical only, save pipeline untouched between L300-950\" framing as an as-built record. (2) Spec line 80 prescribes aria-label `Editing chapter: ${chapter.title}`; manuscript-editor.tsx:285-286 ships `Editing chapter ${chapterNumber}: ${chapterTitle}` and tests/e2e/a11y.spec.ts:311-314 asserts `Editing chapter 1: ${CHAPTER_TITLE}` verbatim "
+    }
+  ],
+  "refuted": [
+    {
+      "title": "F8/Shift+F8 navigation goes dead once the review tooltip opens (guard blocks its own feature)",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\manuscript-editor.tsx",
+      "why": "Mechanics verified as accurate: SHORTCUT_GUARD_SELECTOR (manuscript-editor.tsx:75) includes [role=\"dialog\"]; the F8 handler (line 932) bails on it; the F8 path opens AnnotationTooltip after 350ms (lines 963-996); the tooltip autofocuses Accept (annot"
+    },
+    {
+      "title": "Unconditional focus-restore on popup unmount steals focus from whatever the user clicked — stray keystrokes land in the manuscript and get autosaved",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\annotation-tooltip.tsx",
+      "why": "REFUTED — the claimed event ordering is backwards, verified empirically with the repo's exact React version (19.2.3) in Chromium, Firefox, AND WebKit.\n\nThe code is as described: D:\\Projects\\wmb-pub\\src\\components\\editor\\annotation-tooltip.tsx:108-117"
+    },
+    {
+      "title": "Desktop editor gutter changed px-4 -> sm:px-6: class string is NOT byte-equivalent at desktop, breaking the stated hard invariant",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\editor-utils.ts",
+      "why": "Refuted on two independent grounds. (1) The claimed concrete failure — desktop text measure narrowing 648px→632px with full line rewrap — does not occur, because both `px-4` and `sm:px-6` are rendering-inert on this element. globals.css L262-272 cont"
+    },
+    {
+      "title": "Immersive focus mode desktop layout shifted: pt-[40vh]->pt-[35dvh], pb-[60vh]->pb-[55dvh]",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\immersive-focus-mode.tsx",
+      "why": "Factually accurate but not a real defect. Verified: HEAD had `px-8 pt-[40vh] pb-[60vh]` (immersive-focus-mode.tsx L170 at HEAD); working tree L247 has `px-5 sm:px-8 pt-[35dvh] pb-[55dvh]`, and since the overlay requests fullscreen, dvh===vh on deskto"
+    },
+    {
+      "title": "New compact toolbar stage (<480px container) is reachable on desktop in split view, reshuffling the toolbar at >=1024px viewports",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\editor-toolbar.tsx",
+      "why": "The mechanical claim is accurate but the failure framing does not survive refutation. Verified facts: density is container-width driven (ResizeObserver, editor-toolbar.tsx:598-610, TOOLBAR_COMPACT_THRESHOLD=480 at L122) with no viewport gate, and spl"
+    },
+    {
+      "title": "dvh-only heights have no fallback — layout collapses on browsers without dvh support",
+      "file": "D:\\Projects\\wmb-pub\\src\\app\\(app)\\books\\[bookId]\\chapters\\[chapterId]\\page.tsx",
+      "why": "The CSS mechanics in the finding are correct (Tailwind v4 via @tailwindcss/postcss only — postcss.config.mjs has no autoprefixer/preset-env — so h-[calc(100dvh-6.5rem)] is a single declaration that drops on non-dvh engines), but the concrete failure "
+    },
+    {
+      "title": "Findings panel pending-count badge hidden from AT with no text alternative",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\editor-findings-panel.tsx",
+      "why": "Markup facts confirmed (editor-findings-panel.tsx:123-127 has aria-hidden badge, no sr-only twin), but the finding is refuted as a defect. (1) This is the spec-prescribed design, not an omission: docs/TIER2.4-2.5-MOBILE-A11Y-SPEC.md §2 line 100 state"
+    },
+    {
+      "title": "Bottom-nav located by Tailwind utility classes in mobile autosave test",
+      "file": "D:\\Projects\\wmb-pub\\tests\\e2e\\mobile-editor.spec.ts",
+      "why": "Refuted. The selector at tests/e2e/mobile-editor.spec.ts:182 does couple to Tailwind classes in src/components/layout/mobile-bottom-nav.tsx:27, but every concrete failure scenario in the finding collapses under scrutiny. (1) The named example refacto"
+    },
+    {
+      "title": "editor-toolbar.tsx at 770 lines — 96% of the 800 cap; the spec's own extraction escape-hatch should be exercised",
+      "file": "D:\\Projects\\wmb-pub\\src\\components\\editor\\editor-toolbar.tsx",
+      "why": "Facts all check out: D:\\Projects\\wmb-pub\\src\\components\\editor\\editor-toolbar.tsx is 770 raw lines in the working tree (646 at HEAD c457753; Tier 2.4/2.5 work uncommitted), spec docs/TIER2.4-2.5-MOBILE-A11Y-SPEC.md line 152 says 'lands ~720 lines (un"
+    }
+  ]
+}

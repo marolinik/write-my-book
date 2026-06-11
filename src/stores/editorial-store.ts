@@ -11,14 +11,12 @@ interface EditorialState {
   selectedChapter: number | null;
   selectedFindingId: string | null;
   highlightedFindingId: string | null;
-  navigableFindingIds: string[];
   filters: EditorialFilters;
   activeTab: "findings" | "history" | "summary";
 
   setSelectedChapter: (chapter: number | null) => void;
   setSelectedFinding: (findingId: string | null) => void;
   setHighlightedFinding: (id: string | null) => void;
-  setNavigableFindingIds: (ids: string[]) => void;
   setFilter: (key: keyof EditorialFilters, value: string | null) => void;
   resetFilters: () => void;
   setActiveTab: (tab: "findings" | "history" | "summary") => void;
@@ -36,7 +34,6 @@ export const useEditorialStore = create<EditorialState>((set) => ({
   selectedChapter: null,
   selectedFindingId: null,
   highlightedFindingId: null,
-  navigableFindingIds: [],
   filters: { ...defaultFilters },
   activeTab: "findings",
 
@@ -48,9 +45,6 @@ export const useEditorialStore = create<EditorialState>((set) => ({
 
   setHighlightedFinding: (id) =>
     set({ highlightedFindingId: id }),
-
-  setNavigableFindingIds: (ids) =>
-    set({ navigableFindingIds: ids }),
 
   setFilter: (key, value) =>
     set((state) => ({
@@ -66,7 +60,6 @@ export const useEditorialStore = create<EditorialState>((set) => ({
       selectedChapter: null,
       selectedFindingId: null,
       highlightedFindingId: null,
-      navigableFindingIds: [],
       filters: { ...defaultFilters },
       activeTab: "findings",
     }),
