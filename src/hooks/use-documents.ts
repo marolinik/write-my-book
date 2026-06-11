@@ -27,6 +27,12 @@ export function useSaveChapterContent(bookId: string, chapterId: string) {
   const qc = useQueryClient();
 
   return useMutation({
+    // Default networkMode "online" PAUSES the mutation while offline —
+    // mutateAsync never settles, isSaving sticks true, and the status bar
+    // shows "Saving..." through an outage. "always" lets the fetch fail fast
+    // so the editor's own offline machinery (error classification, backoff,
+    // IDB draft buffer, reconnect short-circuit) stays in control.
+    networkMode: "always",
     mutationFn: ({
       markdown,
       expectedVersion,

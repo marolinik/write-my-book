@@ -1,13 +1,22 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Check, Loader2, AlertCircle, AlertTriangle, Info } from "lucide-react";
+import {
+  Check,
+  Loader2,
+  AlertCircle,
+  AlertTriangle,
+  Info,
+  CloudOff,
+  RefreshCw,
+} from "lucide-react";
 import {
   Popover,
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
 import type { AnnotationCounts } from "./annotation-extension";
+import type { SaveErrorKind } from "@/stores/editor-store";
 import { SessionTimer } from "./session-timer";
 import { AuthorshipTracker } from "./authorship-tracker";
 
@@ -21,6 +30,12 @@ interface EditorStatusBarProps {
   hasSaveConflict?: boolean;
   /** Opens the save-conflict review dialog. */
   onReviewConflict?: () => void;
+  /** Browser connectivity; defaults to true so existing callers keep today's behavior. */
+  isOnline?: boolean;
+  /** Epoch ms of the last successful IndexedDB draft write; null when nothing is buffered. */
+  draftSavedAt?: number | null;
+  /** Classification of the most recent autosave failure ("network" enables the sync-pending state). */
+  lastSaveErrorKind?: SaveErrorKind | null;
 }
 
 /* ── Legend items matching globals.css annotation classes ─────── */
@@ -127,6 +142,9 @@ export function EditorStatusBar({
   annotationCounts,
   hasSaveConflict,
   onReviewConflict,
+  isOnline = true,
+  draftSavedAt = null,
+  lastSaveErrorKind = null,
 }: EditorStatusBarProps) {
   const readingTime = Math.max(1, Math.ceil(wordCount / 250));
 
@@ -201,11 +219,30 @@ export function EditorStatusBar({
           </button>
         )}
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5" data-testid="editor-save-status">
           {isSaving ? (
             <>
               <Loader2 className="h-3 w-3 animate-spin" />
               <span>Saving...</span>
+            </>
+          ) : !isOnline && isDirty && draftSavedAt != null ? (
+            <>
+              <CloudOff className="h-3 w-3 text-amber-600 dark:text-amber-400" />
+              <span className="text-amber-600 dark:text-amber-400">
+                Offline — saved on this device
+              </span>
+            </>
+          ) : !isOnline && isDirty ? (
+            <>
+              <CloudOff className="h-3 w-3 text-red-600 dark:text-red-400" />
+              <span className="text-red-600 dark:text-red-400">
+                Offline — changes not saved
+              </span>
+            </>
+          ) : isOnline && isDirty && lastSaveErrorKind === "network" ? (
+            <>
+              <RefreshCw className="h-3 w-3" />
+              <span>Sync pending</span>
             </>
           ) : isDirty ? (
             <>

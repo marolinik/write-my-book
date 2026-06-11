@@ -39,3 +39,19 @@ export async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> 
   }
   return res.json();
 }
+
+/**
+ * Classifies a fetchJson failure as network-level (offline, DNS failure,
+ * connection refused/aborted — the request never produced an HTTP response)
+ * vs HTTP-level. `fetchJson` throws exactly two non-network shapes: ApiError
+ * for any non-OK response, and the plain `Error("Unauthorized")` for 401 —
+ * both mean the server WAS reached. Everything else (typically the TypeError
+ * `fetch` rejects with) is classified network. Deliberately broad (spec
+ * Tier 2.2 R2): misclassifying toward "network" only softens error UX to
+ * "Sync pending" while the existing backoff retry keeps running.
+ */
+export function isNetworkError(e: unknown): boolean {
+  if (e instanceof ApiError) return false;
+  if (e instanceof Error && e.message === "Unauthorized") return false;
+  return true;
+}

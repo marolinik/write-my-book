@@ -9,6 +9,9 @@ export interface SaveConflictState {
   serverVersion: number;
 }
 
+/** Classification of the most recent autosave failure — network-level (fetch threw) vs HTTP (server responded with an error). */
+export type SaveErrorKind = "network" | "http";
+
 export interface EditorPaneState {
   bookId: string | null;
   chapterId: string | null;
@@ -23,6 +26,19 @@ export interface EditorPaneState {
   // Optimistic locking — per-pane
   documentVersion: number | null;
   saveConflict: SaveConflictState | null;
+  /**
+   * Bumped by setChapter on every (re)mount/switch. In-flight async work
+   * (saves, recovery reads) captures it at dispatch and drops its result on
+   * mismatch — an A→B→A chapter switch passes a chapterId-only staleness
+   * check even though the pane was reloaded in between.
+   */
+  loadEpoch: number;
+
+  // Offline resilience — per-pane (Tier 2.2)
+  /** Kind of the last autosave failure; null when the last save succeeded (or none attempted). */
+  lastSaveErrorKind: SaveErrorKind | null;
+  /** Epoch ms of the last successful IndexedDB draft-buffer write; null when no draft is buffered. */
+  draftSavedAt: number | null;
 
   // UI toggles — per-pane
   focusMode: boolean;
@@ -43,6 +59,8 @@ export interface EditorPaneState {
   setLastSaved: (date: Date) => void;
   setDocumentVersion: (version: number | null) => void;
   setSaveConflict: (conflict: SaveConflictState | null) => void;
+  setLastSaveErrorKind: (kind: SaveErrorKind | null) => void;
+  setDraftSavedAt: (timestamp: number | null) => void;
   toggleFocusMode: () => void;
   setFocusLevel: (level: 0 | 1 | 2 | 3) => void;
   toggleGhostText: () => void;
@@ -68,6 +86,9 @@ const initialPaneState = {
   lastSaved: null,
   documentVersion: null,
   saveConflict: null,
+  loadEpoch: 0,
+  lastSaveErrorKind: null,
+  draftSavedAt: null,
   focusMode: false,
   focusLevel: 0 as const,
   ghostTextEnabled: false,
@@ -83,20 +104,30 @@ function createEditorPaneStore(): EditorPaneStore {
     ...initialPaneState,
 
     setChapter: (bookId, chapterId, chapterNumber) =>
-      set({
+      set((s) => ({
         bookId,
         chapterId,
         chapterNumber,
         isDirty: false,
+        // An orphaned in-flight save from the previous chapter must not pin
+        // the new chapter's status bar at "Saving..." / block its autosave.
+        isSaving: false,
         documentVersion: null,
         saveConflict: null,
-      }),
+        loadEpoch: s.loadEpoch + 1,
+        lastSaveErrorKind: null,
+        draftSavedAt: null,
+      })),
 
     setDocumentId: (documentId) => set({ documentId }),
 
     setDocumentVersion: (documentVersion) => set({ documentVersion }),
 
     setSaveConflict: (saveConflict) => set({ saveConflict }),
+
+    setLastSaveErrorKind: (lastSaveErrorKind) => set({ lastSaveErrorKind }),
+
+    setDraftSavedAt: (draftSavedAt) => set({ draftSavedAt }),
 
     markDirty: () => set({ isDirty: true }),
 

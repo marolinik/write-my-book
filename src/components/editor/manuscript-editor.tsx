@@ -20,7 +20,10 @@ import {
   useSaveChapterContent,
 } from "@/hooks/use-documents";
 import { useFindings } from "@/hooks/use-editorial";
-import { ApiError } from "@/lib/api-client";
+import { useOnlineStatus } from "@/hooks/use-online-status";
+import { useDraftBuffer } from "@/hooks/use-draft-buffer";
+import { applyRecoveryDecision } from "./draft-recovery";
+import { ApiError, isNetworkError } from "@/lib/api-client";
 import { cn, countWords } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
@@ -59,7 +62,7 @@ import type { AnnotationType } from "./annotation-extension";
 import type { FindingItem } from "@/hooks/use-editorial";
 import { useApplyFinding, useDismissFinding } from "@/hooks/use-editorial";
 import { useEditorialStore } from "@/stores/editorial-store";
-import { getMarkdownFromEditor, useIsLg, findingsToAnnotations, createEditorExtensions, classifyFindingFreshness, type TooltipState } from "./editor-utils";
+import { getMarkdownFromEditor, sanitizeUnicode, useIsLg, findingsToAnnotations, createEditorExtensions, classifyFindingFreshness, type TooltipState } from "./editor-utils";
 
 interface ChapterNavItem {
   id: string;
@@ -78,15 +81,6 @@ interface ManuscriptEditorProps {
   bookLanguage?: string;
   allChapters?: ChapterNavItem[];
   paneId?: string;
-}
-
-/**
- * Mirror of the server route's sanitizeUnicode (U+FFFD → em dash) so the
- * 409 no-op equality check compares symmetric strings — the 409 body and GET
- * both sanitize on the server side.
- */
-function sanitizeUnicode(text: string): string {
-  return text.replace(/\uFFFD/g, "\u2014");
 }
 
 // ── Component ────────────────────────────────────────────────
@@ -112,6 +106,8 @@ export function ManuscriptEditor({
   const isSaving = useEditorPaneStore(paneId, (s) => s.isSaving);
   const lastSaved = useEditorPaneStore(paneId, (s) => s.lastSaved);
   const saveConflict = useEditorPaneStore(paneId, (s) => s.saveConflict);
+  const draftSavedAt = useEditorPaneStore(paneId, (s) => s.draftSavedAt);
+  const lastSaveErrorKind = useEditorPaneStore(paneId, (s) => s.lastSaveErrorKind);
   const focusMode = useEditorPaneStore(paneId, (s) => s.focusMode);
   const focusLevel = useEditorPaneStore(paneId, (s) => s.focusLevel);
   const ghostTextEnabled = useEditorPaneStore(paneId, (s) => s.ghostTextEnabled);
@@ -134,6 +130,15 @@ export function ManuscriptEditor({
   // every ~2s via the isSaving effect-dep re-fire.
   const saveFailuresRef = useRef(0);
   const contentLoadedRef = useRef(false);
+  // Offline resilience (Tier 2.2): connectivity in a ref so saveContent's
+  // identity doesn't churn on connectivity flips (spec R5), plus once-per-load
+  // guards for draft recovery and the offline toast.
+  const isOnline = useOnlineStatus();
+  const isOnlineRef = useRef(isOnline);
+  isOnlineRef.current = isOnline;
+  const prevOnlineRef = useRef(isOnline);
+  const recoveryCheckedRef = useRef(false);
+  const offlineToastShownRef = useRef(false);
   const editorRef = useRef<ReturnType<typeof useEditor>>(null);
   const editorAreaRef = useRef<HTMLDivElement>(null);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
@@ -156,6 +161,19 @@ export function ManuscriptEditor({
   const immersiveRef = useRef(false);
   immersiveRef.current = immersive;
   const isLg = useIsLg();
+
+  // IndexedDB crash-safety mirror — buffers dirty content every 2s, flushes
+  // on unload, and answers recovery-on-load. Server writes stay on the
+  // stamped PUT; the buffer never saves anything itself.
+  const { bufferNow, clearDraft, checkRecovery } = useDraftBuffer({
+    paneStore,
+    editorRef,
+    paneChapterId,
+    bookId,
+    onBufferWrite: (result) => {
+      paneStore.getState().setDraftSavedAt(result.ok ? result.at : null);
+    },
+  });
 
   // Findings for current chapter
   const { data: findingsData } = useFindings(bookId, { chapterNumber });
@@ -300,10 +318,25 @@ export function ManuscriptEditor({
     paneStore.getState().setChapter(bookId, chapterId, chapterNumber);
     contentLoadedRef.current = false;
     saveFailuresRef.current = 0;
+    recoveryCheckedRef.current = false;
     if (isPrimary) {
       useActiveEditorStore.getState().setActiveEditor(bookId, chapterId, chapterNumber);
     }
   }, [bookId, chapterId, chapterNumber, isPrimary, paneStore]);
+
+  // Durable conflict affordance: toast with a Review action. The dialog is
+  // NEVER auto-opened — typing must not be interrupted. (Declared before the
+  // content-load effect — draft recovery surfaces conflicts during load.)
+  const showConflictToast = useCallback(() => {
+    toast.warning("Chapter changed outside this editor", {
+      description:
+        "Another writer (agent, import, or tab) saved a newer version. Your words are kept in this editor — review to resume saving.",
+      action: {
+        label: "Review",
+        onClick: () => setShowSaveConflict(true),
+      },
+    });
+  }, []);
 
   // Load content into editor when data arrives. Also clean-resync: adopt
   // first-party server-side rewrites (finding apply/undo, version restore,
@@ -358,20 +391,33 @@ export function ManuscriptEditor({
         setTimeout(() => paneStore.getState().setScrollToText(pendingScroll), 150);
       }
     }
-  }, [chapterData, editor, isPrimary, paneStore]);
 
-  // Durable conflict affordance: toast with a Review action. The dialog is
-  // NEVER auto-opened — typing must not be interrupted.
-  const showConflictToast = useCallback(() => {
-    toast.warning("Chapter changed outside this editor", {
-      description:
-        "Another writer (agent, import, or tab) saved a newer version. Your words are kept in this editor — review to resume saving.",
-      action: {
-        label: "Review",
-        onClick: () => setShowSaveConflict(true),
-      },
-    });
-  }, []);
+    // Offline draft recovery — a tab that closed/crashed during an outage
+    // left its words only in IndexedDB. Strictly once per chapter load;
+    // guards and application semantics live in applyRecoveryDecision.
+    if (isInitialLoad && !recoveryCheckedRef.current) {
+      recoveryCheckedRef.current = true;
+      const loadedChapterId = paneStore.getState().chapterId;
+      const serverMarkdown = chapterData.markdown || "";
+      const serverVersion = chapterData.version ?? null;
+      if (loadedChapterId) {
+        void checkRecovery(loadedChapterId, serverMarkdown, serverVersion).then(
+          (decision) =>
+            applyRecoveryDecision({
+              decision,
+              editorRef,
+              paneStore,
+              chapterId: loadedChapterId,
+              serverMarkdown,
+              serverVersion,
+              onConflictToast: showConflictToast,
+              bufferNow,
+              clearDraft,
+            })
+        );
+      }
+    }
+  }, [chapterData, editor, isPrimary, paneStore, checkRecovery, bufferNow, clearDraft, showConflictToast]);
 
   // Navigating away silently clears a pending conflict (setChapter resets it)
   // and would strand words typed after the conflict (autosave is suspended) —
@@ -400,14 +446,31 @@ export function ManuscriptEditor({
     // prop — the closure's chapterId prop can go stale after in-place route
     // param updates).
     const dispatchedChapterId = paneStore.getState().chapterId;
+    const dispatchedEpoch = paneStore.getState().loadEpoch;
     const expectedVersion = paneStore.getState().documentVersion ?? undefined;
     paneStore.getState().setSaving(true);
 
     // Chapter switched while the save was in flight — the store now belongs
     // to another chapter; drop the result (the server write already landed on
     // the correct chapter's route via the mutation captured at dispatch).
+    // The epoch guards the A→B→A case: same chapterId, but the pane was
+    // reloaded in between — adopting this result would stamp a version the
+    // re-loaded editor content doesn't correspond to.
     const isStale = () =>
-      paneStore.getState().chapterId !== dispatchedChapterId;
+      paneStore.getState().chapterId !== dispatchedChapterId ||
+      paneStore.getState().loadEpoch !== dispatchedEpoch;
+
+    // The words are durable on the server only up to the dispatched payload.
+    // If the editor moved on during the PUT flight, the pane must STAY dirty:
+    // setLastSaved force-clears isDirty, which would tear down the draft
+    // buffer interval and leave the newest keystrokes with no durable copy —
+    // while the status bar lies "Saved".
+    const settleDirtiness = () => {
+      const ed = editorRef.current;
+      if (ed && !ed.isDestroyed && getMarkdownFromEditor(ed) !== md) {
+        paneStore.getState().markDirty();
+      }
+    };
 
     try {
       const res = await saveMutationRef.current.mutateAsync({
@@ -421,6 +484,16 @@ export function ManuscriptEditor({
       saveFailuresRef.current = 0;
       paneStore.getState().setDocumentVersion(res.version);
       paneStore.getState().setLastSaved(new Date());
+      paneStore.getState().setLastSaveErrorKind(null);
+      // The dispatched words are on the server — this tab's IDB mirror is
+      // garbage now (onlyIfMine: another tab's offline draft must survive).
+      // Keystrokes that arrived during the flight re-mark dirty below, which
+      // keeps the buffer interval alive to immediately re-persist them.
+      if (dispatchedChapterId) {
+        clearDraft(dispatchedChapterId);
+        paneStore.getState().setDraftSavedAt(null);
+      }
+      settleDirtiness();
     } catch (error) {
       if (isStale()) {
         paneStore.getState().setSaving(false);
@@ -443,12 +516,20 @@ export function ManuscriptEditor({
             saveFailuresRef.current = 0;
             paneStore.getState().setDocumentVersion(body.currentVersion);
             paneStore.getState().setLastSaved(new Date());
+            paneStore.getState().setLastSaveErrorKind(null);
+            if (dispatchedChapterId) {
+              clearDraft(dispatchedChapterId);
+              paneStore.getState().setDraftSavedAt(null);
+            }
+            settleDirtiness();
             return;
           }
 
           // Real conflict: record it (suspends autosave; local words stay
-          // safe in the editor) and surface a non-blocking toast.
+          // safe in the editor) and surface a non-blocking toast. A 409
+          // proves connectivity — clear any stale network-error state.
           saveFailuresRef.current = 0;
+          paneStore.getState().setLastSaveErrorKind(null);
           paneStore.getState().setSaveConflict({
             serverContent: body.serverContent,
             serverVersion: body.currentVersion,
@@ -478,14 +559,19 @@ export function ManuscriptEditor({
         }
       }
       // Non-409 failure: count it for autosave backoff and surface a hint
-      // once per failure streak.
+      // once per failure streak. Network-level failures drive the
+      // "Sync pending" indicator; the streak toast is suppressed offline
+      // (the dedicated offline toast already covers it).
       saveFailuresRef.current += 1;
-      if (saveFailuresRef.current === 3) {
+      paneStore
+        .getState()
+        .setLastSaveErrorKind(isNetworkError(error) ? "network" : "http");
+      if (saveFailuresRef.current === 3 && isOnlineRef.current) {
         toast.error("Autosave is failing — check your connection.");
       }
       paneStore.getState().setSaving(false);
     }
-  }, [editor, paneStore, showConflictToast]);
+  }, [editor, paneStore, showConflictToast, clearDraft]);
 
   useEffect(() => {
     if (!isDirty || !paneChapterId) return;
@@ -531,18 +617,59 @@ export function ManuscriptEditor({
     };
   }, [isDirty, isSaving, saveConflict, paneChapterId, saveContent]);
 
-  // While a conflict is pending with unsaved words, nothing persists them
-  // (autosave is suspended) — prompt before tab close/reload (spec §4.2:
-  // never lose local words).
+  // Reconnect short-circuit: the backoff timer can sit at up to 60s — when
+  // connectivity returns, save immediately through the normal stamped PUT
+  // (a stale expectedVersion lands in the existing 409 machinery).
   useEffect(() => {
-    if (!saveConflict || !isDirty) return;
+    const wasOnline = prevOnlineRef.current;
+    prevOnlineRef.current = isOnline;
+    if (wasOnline || !isOnline) return;
+
+    // Reset the backoff streak unconditionally on reconnect — the failures
+    // were the outage's. An early return below (e.g. a save mid-flight) must
+    // not leave the next retry parked at the 60s cap.
+    saveFailuresRef.current = 0;
+    const s = paneStore.getState();
+    if (!s.isDirty || s.saveConflict || s.isSaving) return;
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = null;
+    }
+    void saveContent();
+  }, [isOnline, paneStore, saveContent]);
+
+  // One-time reassurance when going offline with unsaved words; re-arms on
+  // reconnect so the next outage informs again.
+  useEffect(() => {
+    if (isOnline) {
+      offlineToastShownRef.current = false;
+      return;
+    }
+    if (isDirty && !offlineToastShownRef.current) {
+      offlineToastShownRef.current = true;
+      toast.info(
+        "You're offline. Your words are kept on this device and will sync when you reconnect."
+      );
+    }
+  }, [isOnline, isDirty]);
+
+  // While a conflict is pending with unsaved words, nothing persists them to
+  // the server (autosave is suspended) — same while offline or behind a dead
+  // router (navigator.onLine true but saves failing at the network level).
+  // Prompt before tab close/reload; the IDB draft is the safety net either
+  // way (spec §4.1).
+  useEffect(() => {
+    const atRisk =
+      isDirty &&
+      (!!saveConflict || !isOnline || lastSaveErrorKind === "network");
+    if (!atRisk) return;
     const h = (e: BeforeUnloadEvent) => {
       e.preventDefault();
       e.returnValue = "";
     };
     window.addEventListener("beforeunload", h);
     return () => window.removeEventListener("beforeunload", h);
-  }, [saveConflict, isDirty]);
+  }, [saveConflict, isDirty, isOnline, lastSaveErrorKind]);
 
   // F2 shortcut: open inline AI edit when text is selected
   useEffect(() => {
@@ -1080,6 +1207,9 @@ export function ManuscriptEditor({
         annotationCounts={annotationCounts}
         hasSaveConflict={!!saveConflict}
         onReviewConflict={() => setShowSaveConflict(true)}
+        isOnline={isOnline}
+        draftSavedAt={draftSavedAt}
+        lastSaveErrorKind={lastSaveErrorKind}
       />
     </div>
   );

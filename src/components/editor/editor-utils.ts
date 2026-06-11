@@ -19,6 +19,19 @@ export function getMarkdownFromEditor(editor: Editor | null): string {
   return (editor.storage as any).markdown?.getMarkdown?.() ?? "";
 }
 
+// ── Unicode sanitization (client mirror) ─────────────────────
+
+/**
+ * Client mirror of the content route's sanitizeUnicode (U+FFFD replacement
+ * char → U+2014 em dash). GET and 409 bodies are sanitized server-side, so
+ * every client-side content-equality check must compare symmetric strings.
+ * Single shared copy — equality semantics drifting between call sites would
+ * silently break no-op-conflict adoption and draft recovery.
+ */
+export function sanitizeUnicode(text: string): string {
+  return text.replace(/�/g, "—");
+}
+
 // ── Responsive breakpoint ────────────────────────────────────
 
 const LG_BREAKPOINT = 1024;

@@ -20,6 +20,7 @@ import {
 } from "@/stores/editor-store";
 import { useSaveChapterContent } from "@/hooks/use-documents";
 import { ApiError } from "@/lib/api-client";
+import { deleteDraft } from "@/lib/offline/draft-store";
 import { DiffView } from "./diff-view";
 import { getMarkdownFromEditor } from "./editor-utils";
 
@@ -61,13 +62,22 @@ export function SaveConflictDialog({
 
   const paneStore = getOrCreatePaneStore(paneId);
 
-  /** Drop the crash-safety draft once the conflict is explicitly resolved. */
+  /**
+   * Drop the crash-safety drafts once the conflict is explicitly resolved —
+   * the legacy localStorage snapshot and THIS TAB's IDB buffer row.
+   * onlyIfMine is load-bearing: another tab's live offline draft sharing
+   * this chapterId key is by definition NOT settled by this dialog, and
+   * that tab's hash-skip means it would never rewrite a row it doesn't
+   * know was deleted.
+   */
   const clearConflictDraft = () => {
     try {
       localStorage.removeItem(`wmb-conflict-draft-${chapterId}`);
     } catch {
       // localStorage unavailable — best effort
     }
+    void deleteDraft(chapterId, { onlyIfMine: true });
+    paneStore.getState().setDraftSavedAt(null);
   };
 
   /** Re-save local content stamped with the server's version (CAS passes). */
