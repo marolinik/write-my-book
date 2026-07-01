@@ -52,3 +52,9 @@ next-env.d.ts
 playwright-report-deployment/
 playwright-report/
 test-results/
+
+# local scratch files (tmp-* investigation/export artifacts — never commit)
+tmp-*
+
+# UAT screenshots (regenerated locally, not source)
+uat-screenshots/
