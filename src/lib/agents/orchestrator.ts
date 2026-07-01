@@ -9,6 +9,7 @@ import {
 } from "./tools";
 import { DocumentService } from "@/lib/documents/document-service";
 import { estimateCost } from "@/lib/cost";
+import { isOverBudget, isBudgetWarning, resolveEndReason } from "./budget";
 import {
   withProviderRetry,
   ProviderError,
@@ -551,8 +552,7 @@ export class AgentOrchestrator {
       // One-shot 80% budget warning + nudge
       if (
         !budgetNudgeSent &&
-        Number.isFinite(this.maxSessionCostUsd) &&
-        budgetedCost >= WARNING_THRESHOLD * this.maxSessionCostUsd
+        isBudgetWarning(budgetedCost, this.maxSessionCostUsd, WARNING_THRESHOLD)
       ) {
         budgetNudgeSent = true;
         const pct = Math.round((budgetedCost / this.maxSessionCostUsd) * 100);
@@ -589,9 +589,7 @@ export class AgentOrchestrator {
       }
 
       // 100% — grant ONE final wrap-up turn, then exit exception-free.
-      const overBudget =
-        Number.isFinite(this.maxSessionCostUsd) &&
-        budgetedCost > this.maxSessionCostUsd;
+      const overBudget = isOverBudget(budgetedCost, this.maxSessionCostUsd);
       const overTime = this.deadlineAt !== null && Date.now() >= this.deadlineAt;
       if (overBudget || overTime) {
         if (finalTurnRequested) {
@@ -647,7 +645,7 @@ export class AgentOrchestrator {
           // A next turn WILL occur (tool_results push or max_tokens recovery
           // below) — arm the final wrap-up turn and deliver the nudge on it.
           finalTurnRequested = true;
-          endReason = overBudget ? "budget" : "timeout";
+          endReason = resolveEndReason(overBudget, overTime);
           options.onMessage({
             type: "status",
             content: overBudget
@@ -663,7 +661,7 @@ export class AgentOrchestrator {
           // Refusal etc. — the loop breaks below regardless, so no wrap-up
           // turn can occur; record why the session ended without emitting a
           // misleading "wrapping up" status.
-          endReason = overBudget ? "budget" : "timeout";
+          endReason = resolveEndReason(overBudget, overTime);
         }
       }
 

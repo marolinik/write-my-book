@@ -24,6 +24,7 @@ import { AgentOrchestrator } from "@/lib/agents/orchestrator";
 import { processPostSession } from "@/lib/agents/post-session";
 import { createSessionBrief } from "@/lib/agents/session-brief";
 import { getWorkflow, getAgentDefinition } from "@/lib/agents";
+import { normalizeSessionCostLimit } from "@/lib/agents/budget";
 import type {
   AgentStreamMessage,
   AgentResult,
@@ -330,10 +331,7 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
     // Validate the budget from job data — BullMQ JSON serialization turns
     // Infinity into null. Fall back to the orchestrator default ($10)
     // rather than running effectively unbounded.
-    const validatedCostLimit =
-      typeof sessionCostLimit === "number" && Number.isFinite(sessionCostLimit)
-        ? sessionCostLimit
-        : undefined;
+    const validatedCostLimit = normalizeSessionCostLimit(sessionCostLimit);
 
     const workflow = getWorkflow(workflowId);
     const orchestrator = new AgentOrchestrator({
