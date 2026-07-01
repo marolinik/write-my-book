@@ -2,6 +2,13 @@
 
 *Assessment date: 2026-06-10, based on codebase survey at commit `2ceff41`.*
 
+> **Progress — updated 2026-07-01.** **Tier 1 fully wired** and **Tier 2 complete**:
+> 2.1 autosave optimistic locking, 2.2 offline draft buffer, 2.3 cost-limit
+> degradation, 2.4 mobile editor, 2.5 accessibility (WCAG 2.1 AA), 2.6 unit tests
+> (Vitest harness + money-path coverage: budget/CAS/plan-gating/model-resolution,
+> 42 tests), 2.7 repo hygiene. **Next:** Tier 4 experience work (4.1 write-first
+> onboarding, 4.2 conversational findings) and/or Tier 3 moats.
+
 **Verdict: ~65/100 production-ready. The bones of a 9/10 product delivering a 6.5/10 experience — mostly because already-built subsystems aren't wired together.** The fastest path to #1 isn't new features; it's connecting what exists, then closing 3 competitive gaps.
 
 ---
