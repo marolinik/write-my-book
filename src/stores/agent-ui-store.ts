@@ -7,6 +7,11 @@ import type { PageContext } from "@/lib/agents/types";
 
 export type PanelMode = "hidden" | "bubble" | "mini" | "overlay" | "panel";
 
+export interface OnboardingOfferView {
+  workflowId: string;
+  cta: string;
+}
+
 // ---------------------------------------------------------------------------
 // Route-based panel preferences (Issue 1: Context-Awareness)
 // ---------------------------------------------------------------------------
@@ -86,6 +91,7 @@ interface AgentUIState {
   pendingMessage: { bookId: string; message: string } | null;
   unreadCount: number;
   pageContext: PageContext | null;
+  onboardingOffers: OnboardingOfferView[];
 
   // Actions
   setPanelMode: (mode: PanelMode) => void;
@@ -98,6 +104,7 @@ interface AgentUIState {
   incrementUnread: () => void;
   clearUnread: () => void;
   setPageContext: (ctx: PageContext) => void;
+  setOnboardingOffers: (offers: OnboardingOfferView[]) => void;
   reset: () => void;
 }
 
@@ -112,6 +119,7 @@ export const useAgentUIStore = create<AgentUIState>((set, get) => ({
   pendingMessage: null,
   unreadCount: 0,
   pageContext: null,
+  onboardingOffers: [],
 
   setPanelMode: (mode) => {
     const ctx = get().pageContext;
@@ -193,6 +201,8 @@ export const useAgentUIStore = create<AgentUIState>((set, get) => ({
 
   setPageContext: (ctx) => set({ pageContext: ctx }),
 
+  setOnboardingOffers: (offers) => set({ onboardingOffers: offers }),
+
   reset: () => {
     try {
       localStorage.setItem("wmb-agent-panel", "bubble");
@@ -205,6 +215,7 @@ export const useAgentUIStore = create<AgentUIState>((set, get) => ({
       pendingWorkflowMessage: null,
       pendingMessage: null,
       unreadCount: 0,
+      onboardingOffers: [],
     });
   },
 }));
