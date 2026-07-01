@@ -89,7 +89,7 @@ export function useCreateBook() {
         err.upgradeToTier = body.upgradeToTier;
         throw err;
       }
-      return res.json() as Promise<{ id: string }>;
+      return res.json() as Promise<{ id: string; firstChapterId: string }>;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["books"] });

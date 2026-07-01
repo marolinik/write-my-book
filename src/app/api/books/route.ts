@@ -87,7 +87,17 @@ export async function POST(req: NextRequest) {
       data: { bookId: book.id },
     });
 
-    return NextResponse.json(updatedBook, { status: 201 });
+    // Write-first onboarding: create an empty Chapter 1 so the writer lands
+    // directly in a blank editor. No CHAPTER_CONTENT document yet — that is
+    // created on first save.
+    const firstChapter = await db.chapter.create({
+      data: { bookId: book.id, actNumber: 1, chapterNumber: 1, title: null },
+    });
+
+    return NextResponse.json(
+      { ...updatedBook, firstChapterId: firstChapter.id },
+      { status: 201 }
+    );
   } catch (error) {
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
