@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { ManuscriptEditor } from "@/components/editor/manuscript-editor";
 import { SplitEditor } from "@/components/editor/split-editor";
+import { OnboardingWatcher } from "@/components/onboarding/onboarding-watcher";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +27,7 @@ export default async function ChapterEditorPage({ params }: PageProps) {
           status: true,
         },
       },
+      settings: { select: { setupComplete: true } },
     },
   });
 
@@ -67,6 +69,11 @@ export default async function ChapterEditorPage({ params }: PageProps) {
           allChapters={allChapters}
         />
       </SplitEditor>
+      <OnboardingWatcher
+        bookId={bookId}
+        initialBookWordCount={book.wordCount}
+        setupComplete={book.settings?.setupComplete ?? false}
+      />
     </div>
   );
 }
