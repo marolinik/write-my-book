@@ -42,7 +42,7 @@ export function useSaveChapterContent(bookId: string, chapterId: string) {
       expectedVersion?: number;
       changeSource?: string;
     }) =>
-      fetchJson<{ wordCount: number; version: number }>(
+      fetchJson<{ wordCount: number; version: number; bookWordCount: number }>(
         `/api/books/${bookId}/chapters/${chapterId}/content`,
         {
           method: "PUT",
@@ -50,10 +50,13 @@ export function useSaveChapterContent(bookId: string, chapterId: string) {
           body: JSON.stringify({ markdown, expectedVersion, changeSource }),
         }
       ),
-    onSuccess: () => {
+    onSuccess: (data) => {
       qc.invalidateQueries({
         queryKey: ["chapter-content", bookId, chapterId],
       });
+      // Publish the live cumulative book word count for the onboarding watcher
+      // (no refetch — the value came back with the save response).
+      qc.setQueryData<number>(["book-wordcount", bookId], data.bookWordCount);
     },
   });
 }

@@ -176,7 +176,13 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
       data: { wordCount: { increment: wordDelta } },
     });
 
-    return NextResponse.json({ wordCount, version });
+    // book.wordCount is the pre-update value (fetched above); wordDelta is this
+    // save's change — their sum is the new cumulative total the client needs.
+    return NextResponse.json({
+      wordCount,
+      version,
+      bookWordCount: book.wordCount + wordDelta,
+    });
   } catch (error) {
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
