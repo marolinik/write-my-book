@@ -71,6 +71,9 @@ import type { FindingItem } from "@/hooks/use-editorial";
 import { useApplyFinding, useDismissFinding } from "@/hooks/use-editorial";
 import { useEditorialStore } from "@/stores/editorial-store";
 import { getMarkdownFromEditor, sanitizeUnicode, useIsLg, findingsToAnnotations, createEditorExtensions, classifyFindingFreshness, getEditorContentAttributes, type TooltipState } from "./editor-utils";
+import { useContinuityScan, useIdleContinuityScan } from "@/hooks/use-continuity-scan";
+import { ContinuityIndicator } from "./continuity-indicator";
+import { continuityFlagsToAnnotations } from "@/lib/continuity/flag-annotations";
 
 // ProseMirror keeps the caret this clear of the scroll-container edge — on
 // phones the virtual keyboard occludes the lower half of the viewport.
@@ -172,6 +175,10 @@ export function ManuscriptEditor({
     rect: DOMRect;
   } | null>(null);
   const [showFloatingAgentInput, setShowFloatingAgentInput] = useState(false);
+  // Per-edit activity counter for the continuity idle-scan trigger — isDirty
+  // is sticky (stays true across many keystrokes) so it can't debounce a scan
+  // per-edit; this counter changes on every onUpdate call instead.
+  const [editTick, setEditTick] = useState(0);
   // Immersive focus mode: content snapshot on enter, sync back ONLY on exit
   // (per-keystroke setContent would destroy undo history and markdown fidelity)
   const [immersive, setImmersive] = useState(false);
@@ -219,10 +226,25 @@ export function ManuscriptEditor({
   const applyMutation = useApplyFinding(bookId);
   const dismissMutation = useDismissFinding(bookId);
 
-  // Build annotations from findings
+  // Live continuity net (Tier 4.4): book-wide scan, current-chapter inline
+  // flags + [Go to Ch N] / [Intentional] actions via the tooltip.
+  const {
+    flags: continuityFlags,
+    scanning: continuityScanning,
+    scan: continuityScan,
+    markIntentional,
+  } = useContinuityScan(bookId);
+
+  // Build annotations from findings + this chapter's continuity flags
   const annotations = useMemo(
-    () => (showAnnotations ? findingsToAnnotations(findings) : []),
-    [findings, showAnnotations]
+    () =>
+      showAnnotations
+        ? [
+            ...findingsToAnnotations(findings),
+            ...continuityFlagsToAnnotations(continuityFlags, chapterNumber),
+          ]
+        : [],
+    [findings, showAnnotations, continuityFlags, chapterNumber]
   );
 
   const annotationCounts = useMemo(
@@ -257,7 +279,12 @@ export function ManuscriptEditor({
       const annotationType = annotationTypes[0];
       if (!annotationId) return;
 
-      const findingId = annotationId.replace("finding-", "");
+      // Guard: only strip the `finding-` prefix off ids that actually carry
+      // it — a `continuity-<uuid>` id must pass through untouched so the
+      // tooltip render site can resolve it against live continuity flags.
+      const findingId = annotationId.startsWith("finding-")
+        ? annotationId.replace("finding-", "")
+        : annotationId;
       const finding = findings.find((f) => f.id === findingId) ?? null;
 
       // Signal the findings panel to scroll to and highlight this card
@@ -308,11 +335,16 @@ export function ManuscriptEditor({
     onUpdate: () => {
       // TipTap is sole content source — just mark dirty in the pane store
       paneStore.getState().markDirty();
+      // Per-edit activity signal for the continuity idle-scan debounce.
+      setEditTick((n) => n + 1);
     },
   });
 
   // Keep ref in sync so callbacks can access editor without circular deps
   editorRef.current = editor;
+
+  // Live continuity net: scan on chapter switch + ~20s after the last edit.
+  useIdleContinuityScan({ chapterNumber, activityKey: editTick, scan: continuityScan });
 
   // Update editor class when focus mode changes. setOptions replaces the
   // whole editorProps object, so the scroll clearances must ride along.
@@ -954,6 +986,14 @@ export function ManuscriptEditor({
     );
   }
 
+  // Live continuity net: resolve the tooltip's live flag by id at RENDER time
+  // (not inside handleAnnotationClick's closure — that closure is frozen at
+  // editor construction, before any scan has populated continuityFlags).
+  const continuityFlag =
+    tooltipState?.annotationType === "continuity"
+      ? continuityFlags.find((f) => `continuity-${f.id}` === tooltipState.annotationId)
+      : undefined;
+
   // ── Shared editor column JSX ─────────────────────────────────
   const editorColumn = (
     <div
@@ -1109,6 +1149,15 @@ export function ManuscriptEditor({
         onToggleFloatingInput={() => paneStore.getState().toggleFloatingInput()}
       />
 
+      {/* Live continuity net (Tier 4.4): quiet status beside the toolbar's panel toggles */}
+      <div className="flex items-center justify-end px-2 pt-1">
+        <ContinuityIndicator
+          flags={continuityFlags}
+          currentChapter={chapterNumber}
+          scanning={continuityScanning}
+        />
+      </div>
+
       {/* Prose analysis strip: collapsed = ghost buttons; expanded pushes content down */}
       {editor && (
         <div className="flex gap-2 px-2 py-1">
@@ -1185,12 +1234,30 @@ export function ManuscriptEditor({
               annotationId={tooltipState.annotationId}
               annotationType={tooltipState.annotationType}
               description={
-                tooltipState.finding?.description ?? "Annotation"
+                continuityFlag?.description ?? tooltipState.finding?.description ?? "Annotation"
               }
               originalText={tooltipState.finding?.originalText}
               newText={tooltipState.finding?.newText}
               anchorRect={tooltipState.rect}
               containerRect={editorAreaRef.current.getBoundingClientRect()}
+              jumpChapter={continuityFlag?.jumpChapter ?? null}
+              onIntentional={
+                continuityFlag ? () => markIntentional(continuityFlag.id) : undefined
+              }
+              onGoToChapter={
+                continuityFlag &&
+                continuityFlag.jumpChapter != null &&
+                continuityFlag.jumpChapter !== chapterNumber
+                  ? () => {
+                      const target = allChapters?.find(
+                        (c) => c.chapterNumber === continuityFlag.jumpChapter
+                      );
+                      if (!target) return;
+                      paneStore.getState().setScrollToText(continuityFlag.anchor ?? "");
+                      guardedNavigate(`/books/${bookId}/chapters/${target.id}`);
+                    }
+                  : undefined
+              }
               onAccept={() => {
                 if (tooltipState.finding) {
                   applyMutation.mutate(tooltipState.finding.id);
