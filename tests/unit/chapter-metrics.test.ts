@@ -45,4 +45,11 @@ describe("computeChapterMetrics", () => {
     const plain = "He ran fast. She followed.\n\nThey stopped.";
     expect(computeChapterMetrics(withMd)).toEqual(computeChapterMetrics(plain));
   });
+
+  it("keeps a diacritic lowercase dialogue tag merged (i18n — Serbian)", () => {
+    // '"Beži!" šapnu ona.' is ONE sentence: dialogue + lowercase (diacritic) tag.
+    // ASCII [a-z] would wrongly split at the quote; \p{Ll} keeps it merged.
+    const m = computeChapterMetrics('"Beži!" šapnu ona.');
+    expect(m!.avgSentencesPerParagraph).toBeCloseTo(1, 5);
+  });
 });

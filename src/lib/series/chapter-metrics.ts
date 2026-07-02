@@ -50,11 +50,15 @@ function stripMarkdown(text: string): string {
  * negative lookahead so a lowercase word immediately following the
  * whitespace (a dialogue-tag continuation, e.g. "she cried") is NOT treated
  * as a sentence boundary, while an uppercase word (a genuine new sentence)
- * still is. This satisfies all 7 cases in the plan's test file.
+ * still is. The lookahead is Unicode-aware (`\p{Ll}`, i.e. any lowercase
+ * letter, not just ASCII a-z) so diacritic lowercase dialogue tags (e.g.
+ * Serbian "šapnu ona") also stay merged, matching the diacritic-aware
+ * normalize() in the sibling ambient-context.ts. This satisfies all 7 cases
+ * in the plan's test file plus the i18n locking test.
  */
 function splitSentences(text: string): string[] {
   return text
-    .split(/[.!?]+["”’')\]]*(?:\s(?![a-z])|$)/)
+    .split(/[.!?]+["”’')\]]*(?:\s(?!\p{Ll})|$)/u)
     .map((s) => s.trim())
     .filter((s) => s.length > 0);
 }
