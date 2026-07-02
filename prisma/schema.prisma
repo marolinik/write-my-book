@@ -386,8 +386,9 @@ model EditFinding {
   rejectedAt      DateTime? @map("rejected_at")
   rejectionReason String?   @map("rejection_reason") @db.Text
 
-  book    Book           @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  replies FindingReply[]
+  book                 Book           @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  replies              FindingReply[]
+  conversationMemories WriterMemory[]
 
   @@unique([bookId, chapterNumber, contentHash])
   @@map("edit_findings")
@@ -397,11 +398,13 @@ model FindingReply {
   id        String   @id @default(uuid())
   findingId String   @map("finding_id")
   userId    String   @map("user_id")
+  role      String   @default("user") // "user" | "assistant"
   content   String   @db.Text
   createdAt DateTime @default(now()) @map("created_at")
 
   finding EditFinding @relation(fields: [findingId], references: [id], onDelete: Cascade)
 
+  @@index([findingId, createdAt])
   @@map("finding_replies")
 }
 
@@ -618,17 +621,20 @@ model WriterMemory {
   id        String   @id @default(uuid())
   userId    String   @map("user_id")
   bookId    String?  @map("book_id") // null = global preference, set = book-specific
+  findingId String?  @map("finding_id") // set only for source="conversation"
   category  String   // style, name, preference, constraint, correction
   content   String   @db.Text // The actual preference text
-  source    String   @default("user") // user (explicit), agent (inferred), system (auto-detected)
+  source    String   @default("user") // user, agent, system, conversation
   active    Boolean  @default(true)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  book Book? @relation(fields: [bookId], references: [id], onDelete: SetNull)
+  user    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book    Book?        @relation(fields: [bookId], references: [id], onDelete: SetNull)
+  finding EditFinding? @relation(fields: [findingId], references: [id], onDelete: SetNull)
 
   @@index([userId, bookId, active])
+  @@unique([userId, findingId, source])
   @@map("writer_memories")
 }
 
