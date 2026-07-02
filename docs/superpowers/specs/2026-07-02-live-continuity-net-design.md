@@ -2,6 +2,8 @@
 
 *Date: 2026-07-02 · Roadmap: `docs/IMPROVEMENT-ROADMAP.md` Tier 4.4. Builds on the Tier 4.3 ambient-series foundation (shipped) and the Tier 4.2 conversational-findings constraint loop (shipped).*
 
+> **⚠ Superseded by the implementation plan on one point (post-adversarial-review).** This spec's §6 proposes persisting live flags as `EditFinding` rows (`agentType="continuity-live"`) with "no schema change." The 6-lens plan review confirmed this leaks into ~8 existing editorial consumers (agent prompt, counts, panel, reports, book-health) and introduces a cross-chapter resolve bug. The plan (`docs/superpowers/plans/2026-07-02-live-continuity-net.md`) therefore pivots to a **dedicated `ContinuityFlag` table** with **book-wide symmetric sync** and an **order-invariant structured signature**. This adds a `prisma db push` deploy gate and drops the 4.2 learning-loop reuse. Everything else below stands; read §6/§7 with that persistence substitution in mind.
+
 ## 1. Goal & scope
 
 As a writer works in a chapter, detect **contradictions with the book's own established state** and surface them as **non-blocking inline flags** shortly after they pause typing — "Ana died in Ch 12 but appears here" — with actions to inspect the source (`[Go to Ch 12]`) or accept it as deliberate (`[Intentional]`, which permanently silences that flag and feeds the learning loop). Detection is **deterministic graph-consistency only** (no LLM in the detector, zero false positives), triggered on writing-idle, and cost-bounded.
