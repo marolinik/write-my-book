@@ -3,14 +3,15 @@
 *Assessment date: 2026-06-10, based on codebase survey at commit `2ceff41`.*
 
 > **Progress — updated 2026-07-02.** **Tier 1 fully wired**, **Tier 2 complete**, and
-> **Tier 4.1 + 4.2 shipped, plus the Tier 4.3 foundation.** Tier 2: 2.1 autosave optimistic locking, 2.2 offline draft
+> **Tier 4.1 + 4.2 + 4.4 shipped, plus the Tier 4.3 foundation.** Tier 2: 2.1 autosave optimistic locking, 2.2 offline draft
 > buffer, 2.3 cost-limit degradation, 2.4 mobile editor, 2.5 accessibility (WCAG 2.1 AA),
 > 2.6 unit tests (Vitest harness + money-path coverage), 2.7 repo hygiene. **Tier 4.1**
-> write-first onboarding, **Tier 4.2** conversational findings, and the **Tier 4.3**
-> ambient-series-awareness foundation all built the full pipeline (spec → adversarial verify
-> → plan → adversarial plan review → subagent build → review) and merged (4.3 adds a
-> read-only series-context sidebar; 24 confirmed plan-review findings folded pre-build).
-> **Next:** Tier 4.4 live continuity net, 4.8 The Shelf, 4.6 power-user depth, and/or Tier 3 moats.
+> write-first onboarding, **Tier 4.2** conversational findings, the **Tier 4.3**
+> ambient-series-awareness foundation, and the **Tier 4.4** live continuity net all built the
+> full pipeline (spec → adversarial verify → plan → adversarial plan review → subagent build →
+> review) and merged (4.3: read-only series sidebar, 24 findings folded; 4.4: dedicated
+> `ContinuityFlag` table + inline flags, 28 findings folded, pivoted off `EditFinding` mid-review).
+> **Next:** 4.8 The Shelf, 4.6 power-user depth, and/or Tier 3 moats.
 
 **Verdict: ~65/100 production-ready. The bones of a 9/10 product delivering a 6.5/10 experience — mostly because already-built subsystems aren't wired together.** The fastest path to #1 isn't new features; it's connecting what exists, then closing 3 competitive gaps.
 
@@ -111,7 +112,10 @@ Zero ARIA attributes in the editor; keyboard nav is only F2/F8. WCAG 2.1 AA base
 **Original target ↓**
 **Today:** continuity check is an end-of-process report; series docs live on a separate page. **Target:** while writing Book 2 Ch 7, a sidebar surfaces character state from Book 1 ("Milan — last seen B1 Ch18, rank Captain, distrusted by council, open thread: what does he know?"), tone drift (sentence-length vs series fingerprint), and open plot threads. Lightweight: vector search (Qdrant, wired via 1.2) + entity lookup (Neo4j) — **no 20-minute agent run**. Arc changes write back a continuity note, not a re-analysis.
 
-### 4.4 Live continuity safety net (in-book, real-time)
+### 4.4 Live continuity safety net (in-book, real-time) — ✅ SHIPPED 2026-07-02
+**Shipped:** a deterministic graph-consistency live net. When the writer pauses (~20s idle, per-edit debounce) or switches chapters, a background scan extracts the current chapter into the graph (throttled haiku, ≤once/90s) and runs the cheap Cypher `runConsistencyChecks` — surfacing genuine contradictions as **non-blocking inline flags**: dead-character-reappears / location-conflict / timeline-violation (anchored on the entity, on their home chapter) + relationship-contradiction (book-level, in the indicator). Each flag offers `[Go to Ch N]` (jump to the conflicting chapter) and `[Intentional]` (permanently silence it). Zero false positives (pure graph, no LLM in the detector); flags auto-clear when the writer fixes the text. Stored in a **dedicated `ContinuityFlag` table** (not `EditFinding` — the plan review proved that leaks into ~8 editorial surfaces), reconciled **book-wide symmetrically** (resolve = delete row, no tombstone, no cross-chapter bug) with an **order-invariant structured signature** (stable dedup + intentional-suppression). Never-500 best-effort + 5s graph timeouts. Went spec → 6-lens adversarial plan review (**28 findings folded, pivoted off `EditFinding` mid-review**) → subagent build (fresh implementer + reviewer per unit) → Opus whole-branch review. **Deploy gate:** needs `prisma db push` (new model). **Deferred:** attribute-level (rank/title) LLM detection = phase 2 (the flagship "became a Major in Ch 15" rank-change isn't graph-tracked); orphan-thread nudge; per-book pause toggle; server-side scan rate-limit; 4.2 learning-loop reuse.
+
+**Original target ↓**
 Same machinery as 4.3 scoped to a single book: as the writer types "Milan entered in his Captain's uniform," a non-blocking flag — "Milan became a Major in Ch 15. [Fix here] [Change Ch 15] [Intentional]". Regex + embeddings against prior chapters; runs in the background on autosave.
 
 ### 4.5 Own the journey to publication (export → publishing)
