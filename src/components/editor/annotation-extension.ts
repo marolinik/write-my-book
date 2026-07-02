@@ -14,7 +14,7 @@ import type { Node as PMNode } from "@tiptap/pm/model";
 
 // ── Types ──────────────────────────────────────────────────────
 
-export type AnnotationType = "insert" | "delete" | "comment" | "ai" | "finding" | "severity-high" | "severity-medium" | "severity-low";
+export type AnnotationType = "insert" | "delete" | "comment" | "ai" | "finding" | "severity-high" | "severity-medium" | "severity-low" | "continuity";
 
 export interface AnnotationItem {
   id: string;
@@ -38,6 +38,7 @@ const TYPE_CLASSES: Record<AnnotationType, string> = {
   "severity-high": "anno-severity-high",
   "severity-medium": "anno-severity-medium",
   "severity-low": "anno-severity-low",
+  continuity: "anno-continuity",
 };
 
 // ── Text search ────────────────────────────────────────────────

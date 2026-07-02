@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, X } from "lucide-react";
+import { Check, MapPin, X } from "lucide-react";
 import type { AnnotationType } from "./annotation-extension";
 
 interface AnnotationTooltipProps {
@@ -23,6 +23,12 @@ interface AnnotationTooltipProps {
   onClose: () => void;
   /** Opens the conversational discussion thread for this finding. */
   onDiscuss?: () => void;
+  /** Navigates to the flag's jump-target chapter (continuity flags only). */
+  onGoToChapter?: () => void;
+  /** Marks a continuity flag as intentional (suppresses future re-detection). */
+  onIntentional?: () => void;
+  /** [Go to Ch N] target chapter for continuity flags. */
+  jumpChapter?: number | null;
 }
 
 const TYPE_CONFIG: Record<
@@ -69,6 +75,11 @@ const TYPE_CONFIG: Record<
     color: "text-blue-600 dark:text-blue-400",
     bg: "bg-blue-100 dark:bg-blue-900/30",
   },
+  continuity: {
+    label: "Continuity",
+    color: "text-orange-600 dark:text-orange-400",
+    bg: "bg-orange-100 dark:bg-orange-900/30",
+  },
 };
 
 /**
@@ -99,6 +110,9 @@ export function AnnotationTooltip({
   onReject,
   onClose,
   onDiscuss,
+  onGoToChapter,
+  onIntentional,
+  jumpChapter,
 }: AnnotationTooltipProps) {
   const tipRef = useRef<HTMLDivElement>(null);
   const acceptButtonRef = useRef<HTMLButtonElement>(null);
@@ -210,24 +224,41 @@ export function AnnotationTooltip({
 
         {/* Actions */}
         <div className="flex items-center gap-2 pt-1">
-          <Button
-            ref={acceptButtonRef}
-            size="sm"
-            className="h-7 text-xs gap-1"
-            onClick={onAccept}
-          >
-            <Check className="h-3 w-3" />
-            Accept
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-7 text-xs gap-1"
-            onClick={onReject}
-          >
-            <X className="h-3 w-3" />
-            Reject
-          </Button>
+          {annotationType === "continuity" ? (
+            <>
+              {onGoToChapter && jumpChapter != null && (
+                <Button variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={onGoToChapter}>
+                  <MapPin className="h-3 w-3" /> Go to Ch {jumpChapter}
+                </Button>
+              )}
+              {onIntentional && (
+                <Button variant="secondary" size="sm" className="h-7 text-xs gap-1" onClick={onIntentional}>
+                  <Check className="h-3 w-3" /> Intentional
+                </Button>
+              )}
+            </>
+          ) : (
+            <>
+              <Button
+                ref={acceptButtonRef}
+                size="sm"
+                className="h-7 text-xs gap-1"
+                onClick={onAccept}
+              >
+                <Check className="h-3 w-3" />
+                Accept
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 text-xs gap-1"
+                onClick={onReject}
+              >
+                <X className="h-3 w-3" />
+                Reject
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </div>
