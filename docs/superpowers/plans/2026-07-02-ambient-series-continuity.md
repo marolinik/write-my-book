@@ -23,7 +23,7 @@
 
 ### Task 1: Pure chapter-metrics module
 
-Computes objective text statistics from chapter markdown, defined to be **directly comparable** to the stored `StructuredFingerprint` baseline: `sentenceLength.mean` → words per sentence, `paragraphLength.mean` → **sentences** per paragraph (the fingerprint's `paragraphLength` is measured in sentences — note its `singleSentenceRate` sibling), `dialogueRatio` → 0..1.
+Computes objective text statistics from chapter markdown for a **best-effort approximate** comparison against the stored `StructuredFingerprint` baseline: `sentenceLength.mean` → words per sentence, `paragraphLength.mean` → **sentences** per paragraph (the fingerprint's `paragraphLength` is measured in sentences — note its `singleSentenceRate` sibling). The baseline is an LLM's holistic estimate, not an exact count, so the comparison is approximate — the tone panel is advisory only. **`dialogueRatio` is computed but deliberately NOT used in the tone-drift comparison** (Task 2): the baseline measures dialogue *volume* while a cheap text pass can only measure a sentence-count fraction — the two are not comparable, and shipping a delta between them would be fake insight (review finding). Markdown block atoms (headings, scene breaks, list/quote markers) are stripped before counting so the current metrics approximate the prose the baseline was derived from.
 
 **Files:**
 - Create: `src/lib/series/chapter-metrics.ts`
@@ -70,6 +70,20 @@ describe("computeChapterMetrics", () => {
     const m = computeChapterMetrics('"Hello." "Goodbye."');
     expect(m!.dialogueRatio).toBeCloseTo(1, 5);
   });
+
+  it("splits a dialogue sentence from the following action beat (review fix)", () => {
+    // 3 sentences: '"I won't go."' / 'She turned away.' / '"Wait," he said.'
+    // The naive /[.!?]+(?:\s|$)/ merges the first two into one — this pins 3.
+    const m = computeChapterMetrics('"I won\'t go." She turned away. "Wait," he said.');
+    expect(m!.avgSentencesPerParagraph).toBeCloseTo(3, 5); // 3 sentences / 1 paragraph
+    expect(m!.avgWordsPerSentence).toBeCloseTo(3, 5);      // 9 words / 3 sentences
+  });
+
+  it("ignores markdown headings and scene breaks in counts (review fix)", () => {
+    const withMd = "# Chapter One\n\nHe ran fast. She followed.\n\n---\n\nThey stopped.";
+    const plain = "He ran fast. She followed.\n\nThey stopped.";
+    expect(computeChapterMetrics(withMd)).toEqual(computeChapterMetrics(plain));
+  });
 });
 ```
 
@@ -99,11 +113,32 @@ export interface StyleMetrics {
   avgSentencesPerParagraph: number;
 }
 
-const QUOTE_CHARS = /[\"“”«»]/; // " " " « »
+const QUOTE_CHARS = /["“”«»]/;
 
+/** Drop markdown block atoms so counts approximate the prose the baseline was derived from. */
+function stripMarkdown(text: string): string {
+  return text
+    .split("\n")
+    .filter((line) => {
+      const t = line.trim();
+      if (t.length === 0) return true;          // keep blank lines (paragraph boundaries)
+      if (/^#{1,6}\s/.test(t)) return false;    // headings
+      if (/^[-*_]{3,}$/.test(t)) return false;  // scene breaks / horizontal rules
+      return true;
+    })
+    .map((line) => line.replace(/^\s*>\s?/, "").replace(/^\s*(?:[-*+]|\d+\.)\s+/, ""))
+    .join("\n");
+}
+
+/**
+ * Split into sentences. Terminal .!? may be followed by a closing quote/bracket
+ * before the whitespace/EOL boundary, so dialogue like `"Run."` splits correctly
+ * — the naive /[.!?]+(?:\s|$)/ merges a quoted sentence with the next one
+ * because the `.` is followed by `"`, not whitespace (review fix).
+ */
 function splitSentences(text: string): string[] {
   return text
-    .split(/[.!?]+(?:\s|$)/)
+    .split(/[.!?]+["”’')\]]*(?:\s|$)/)
     .map((s) => s.trim())
     .filter((s) => s.length > 0);
 }
@@ -115,15 +150,15 @@ function countWords(text: string): number {
 }
 
 export function computeChapterMetrics(text: string): StyleMetrics | null {
-  const trimmed = text.trim();
-  if (trimmed.length === 0) return null;
+  const cleaned = stripMarkdown(text).trim();
+  if (cleaned.length === 0) return null;
 
-  const paragraphs = trimmed
+  const paragraphs = cleaned
     .split(/\n\s*\n/)
     .map((p) => p.trim())
     .filter((p) => p.length > 0);
 
-  const sentences = splitSentences(trimmed);
+  const sentences = splitSentences(cleaned);
   if (sentences.length === 0) return null;
 
   const totalWords = sentences.reduce((sum, s) => sum + countWords(s), 0);
@@ -173,7 +208,7 @@ The core. Cross-book character matching (name ∪ aliases, diacritic-insensitive
   - `interface ToneMetricView { key: string; current: number; baseline: number; deltaPct: number; material: boolean }`
   - `interface AmbientContextView { characters: AmbientCharacterView[]; threads: AmbientThreadView[]; toneDrift: { baselineBook: number; metrics: ToneMetricView[] } | null; notReady: boolean }`
   - `function buildAmbientContext(input: AmbientContextInput): AmbientContextView`
-  - `const MATERIALITY_PCT = 20`
+  - `const MATERIALITY_PCT = 25`
 
 - [ ] **Step 1: Write the failing test**
 
@@ -252,6 +287,12 @@ describe("buildAmbientContext — matching", () => {
     expect(v.notReady).toBe(false); // cast existed, just no prior matches
   });
 
+  it("emits exactly one card when two on-stage tokens resolve to the same character (dedup)", () => {
+    const v = buildAmbientContext(base({ onStageNames: ["Milan", "the Captain"], priorBookCharacters: [milanB1] }));
+    expect(v.characters).toHaveLength(1);
+    expect(v.characters[0].name).toBe("Milan");
+  });
+
   it("does not throw on malformed prior records", () => {
     const bad = { bookNumber: 1, name: "X", aliases: null as unknown as string[], role: null, status: null, lastMentioned: null, description: null } as PriorCharacter;
     expect(() => buildAmbientContext(base({ onStageNames: ["X"], priorBookCharacters: [bad] }))).not.toThrow();
@@ -276,6 +317,12 @@ describe("buildAmbientContext — threads", () => {
     const v = buildAmbientContext(base({ onStageNames: ["the Captain"], priorBookCharacters: [milanB1], openThreads: [thread] }));
     expect(v.threads).toHaveLength(1);
   });
+
+  it("drops resolved/abandoned threads even when they touch the cast", () => {
+    const resolved = { bookNumber: 1, name: "Done", status: "resolved", relatedNames: ["Milan"] };
+    const v = buildAmbientContext(base({ onStageNames: ["Milan"], priorBookCharacters: [milanB1], openThreads: [resolved] }));
+    expect(v.threads).toEqual([]);
+  });
 });
 
 describe("buildAmbientContext — tone drift", () => {
@@ -287,24 +334,43 @@ describe("buildAmbientContext — tone drift", () => {
     expect(buildAmbientContext(base({ seriesBaselineMetrics: baseline, baselineBookNumber: 1 })).toneDrift).toBeNull();
   });
 
-  it("flags a material metric and omits immaterial ones", () => {
+  it("flags a material metric and EXCLUDES dialogueRatio from the comparison (review fix)", () => {
     const v = buildAmbientContext(base({ currentStyleMetrics: cur, seriesBaselineMetrics: baseline, baselineBookNumber: 1 }));
     expect(v.toneDrift).not.toBeNull();
     const sent = v.toneDrift!.metrics.find((m) => m.key === "avgWordsPerSentence");
-    expect(sent!.deltaPct).toBe(33);
-    expect(sent!.material).toBe(true);
-    // dialogueRatio identical → deltaPct 0, not material
-    const dlg = v.toneDrift!.metrics.find((m) => m.key === "dialogueRatio");
-    expect(dlg!.material).toBe(false);
+    expect(sent!.deltaPct).toBe(33); // 24 vs 18
+    expect(sent!.material).toBe(true); // 33% >= 25%
+    // dialogueRatio is intentionally not compared (incomparable to the volume-based baseline)
+    expect(v.toneDrift!.metrics.find((m) => m.key === "dialogueRatio")).toBeUndefined();
+  });
+
+  it("treats exactly the materiality threshold as material (boundary)", () => {
+    // 25 vs 20 = 25% == MATERIALITY_PCT (>= boundary)
+    const v = buildAmbientContext(base({
+      currentStyleMetrics: { ...cur, avgWordsPerSentence: 25 },
+      seriesBaselineMetrics: { ...baseline, avgWordsPerSentence: 20 },
+      baselineBookNumber: 1,
+    }));
+    expect(v.toneDrift!.metrics.find((m) => m.key === "avgWordsPerSentence")!.material).toBe(true);
+  });
+
+  it("marks a metric below threshold as immaterial", () => {
+    // 21 vs 20 = 5%
+    const v = buildAmbientContext(base({
+      currentStyleMetrics: { ...cur, avgWordsPerSentence: 21 },
+      seriesBaselineMetrics: { ...baseline, avgWordsPerSentence: 20 },
+      baselineBookNumber: 1,
+    }));
+    expect(v.toneDrift!.metrics.find((m) => m.key === "avgWordsPerSentence")!.material).toBe(false);
   });
 
   it("skips a metric whose baseline is zero (no divide-by-zero)", () => {
     const v = buildAmbientContext(base({
-      currentStyleMetrics: { ...cur, dialogueRatio: 0.3 },
-      seriesBaselineMetrics: { ...baseline, dialogueRatio: 0 },
+      currentStyleMetrics: { ...cur, avgSentencesPerParagraph: 3 },
+      seriesBaselineMetrics: { ...baseline, avgSentencesPerParagraph: 0 },
       baselineBookNumber: 1,
     }));
-    expect(v.toneDrift!.metrics.find((m) => m.key === "dialogueRatio")).toBeUndefined();
+    expect(v.toneDrift!.metrics.find((m) => m.key === "avgSentencesPerParagraph")).toBeUndefined();
   });
 });
 ```
@@ -380,7 +446,8 @@ export interface AmbientContextView {
   notReady: boolean;
 }
 
-export const MATERIALITY_PCT = 20;
+// 25% (not 20) so LLM-estimate-vs-exact-count noise is less likely to cross it (review fix).
+export const MATERIALITY_PCT = 25;
 
 /** Lowercase, strip diacritics, collapse whitespace. Total on any input. */
 function normalize(s: string): string {
@@ -454,9 +521,11 @@ function toneDrift(
   baselineBook: number | null
 ): AmbientContextView["toneDrift"] {
   if (!current || !baseline || baselineBook == null) return null;
+  // dialogueRatio is deliberately excluded: the baseline measures dialogue VOLUME
+  // (LLM estimate) while computeChapterMetrics measures a sentence-COUNT fraction —
+  // the two are not comparable, so a delta between them is fake insight (review fix).
   const keys: (keyof StyleMetrics)[] = [
     "avgWordsPerSentence",
-    "dialogueRatio",
     "avgSentencesPerParagraph",
   ];
   const metrics: ToneMetricView[] = [];
@@ -566,7 +635,7 @@ export async function getBookCharacterStates(
 - [ ] **Step 2: Verify it type-checks**
 
 Run: `npx tsc --noEmit`
-Expected: exit 0 (no new errors). *(No unit test: graph queries in this file are integration-verified against a live Neo4j — consistent with the 6 existing untested query functions. The mapping is exercised indirectly by Task 4's mocked sources test and by the deferred live smoke.)*
+Expected: exit 0 (no new errors). *(No unit test: graph queries in this file are integration-verified against a live Neo4j — consistent with the 6 existing untested query functions. NOTE: Task 4 mocks this function, so the record-mapping (`aliases ?? []`, `toNumber`, null-coalescing) is NOT unit-covered anywhere; it is verified only by the deferred live smoke. If a cheap mapping test is desired, mock `withSession` to return canned records and assert `aliases: null → []`.)*
 
 - [ ] **Step 3: Commit**
 
@@ -606,6 +675,8 @@ const h = vi.hoisted(() => ({
   getPlotThreads: vi.fn(),
   getBookCharacterStates: vi.fn(),
   styleFindFirst: vi.fn(),
+  findByType: vi.fn(),
+  readPinned: vi.fn(),
 }));
 
 vi.mock("@/lib/graph/graph-queries", () => ({
@@ -614,11 +685,20 @@ vi.mock("@/lib/graph/graph-queries", () => ({
   getBookCharacterStates: h.getBookCharacterStates,
 }));
 vi.mock("@/lib/db", () => ({ db: { styleProfile: { findFirst: h.styleFindFirst } } }));
+vi.mock("@/lib/documents", () => ({
+  DocumentService: class {
+    findByType = h.findByType;
+    readPinned = h.readPinned;
+  },
+}));
+vi.mock("@/generated/prisma/enums", () => ({ DocumentType: { CHAPTER_CONTENT: "CHAPTER_CONTENT" } }));
 
 import {
+  getOnStageNames,
   getPriorCharacters,
   getOpenThreads,
   getStyleBaseline,
+  getCurrentChapterMetrics,
 } from "@/lib/series/ambient-sources";
 
 beforeEach(() => vi.clearAllMocks());
@@ -641,6 +721,20 @@ describe("getPriorCharacters", () => {
     const out = await getPriorCharacters([{ id: "b1", bookNumber: 1 }, { id: "b2", bookNumber: 2 }]);
     expect(out.map((c) => c.name)).toEqual(["Ana"]);
   });
+
+  it("throws when ALL prior books fail (so the route flags graph offline)", async () => {
+    h.getBookCharacterStates.mockRejectedValue(new Error("neo4j down"));
+    await expect(
+      getPriorCharacters([{ id: "b1", bookNumber: 1 }, { id: "b2", bookNumber: 2 }])
+    ).rejects.toThrow();
+  });
+});
+
+describe("getOnStageNames", () => {
+  it("returns the chapter's character names", async () => {
+    h.getChapterEntities.mockResolvedValueOnce({ characters: ["Milan", "Ana"], locations: [], events: [], objects: [] });
+    expect(await getOnStageNames("b2", 7)).toEqual(["Milan", "Ana"]);
+  });
 });
 
 describe("getOpenThreads", () => {
@@ -654,6 +748,19 @@ describe("getOpenThreads", () => {
     const out = await getOpenThreads([{ id: "b1", bookNumber: 1 }]);
     expect(out).toHaveLength(1);
     expect(out[0]).toMatchObject({ name: "Open", bookNumber: 1, relatedNames: ["Milan"] });
+  });
+
+  it("isolates a failing book — others still return", async () => {
+    h.getPlotThreads
+      .mockRejectedValueOnce(new Error("down"))
+      .mockResolvedValueOnce({ threads: [{ name: "T", type: "mystery", status: "developing", introducedChapter: 2, resolvedChapter: undefined, relatedCharacters: ["Ana"] }] });
+    const out = await getOpenThreads([{ id: "b1", bookNumber: 1 }, { id: "b2", bookNumber: 2 }]);
+    expect(out.map((t) => t.name)).toEqual(["T"]);
+  });
+
+  it("throws when ALL prior books fail", async () => {
+    h.getPlotThreads.mockRejectedValue(new Error("down"));
+    await expect(getOpenThreads([{ id: "b1", bookNumber: 1 }])).rejects.toThrow();
   });
 });
 
@@ -672,6 +779,34 @@ describe("getStyleBaseline", () => {
     h.styleFindFirst.mockResolvedValueOnce(null);
     const out = await getStyleBaseline("u1", ["b1"]);
     expect(out).toEqual({ metrics: null, baselineBookNumber: null });
+  });
+
+  it("returns null metrics (but keeps bookNumber) when metrics JSON is null", async () => {
+    h.styleFindFirst.mockResolvedValueOnce({ sourceBookNumber: 1, metrics: null });
+    expect(await getStyleBaseline("u1", ["b1"])).toEqual({ metrics: null, baselineBookNumber: 1 });
+  });
+
+  it("returns null metrics when fingerprint fields are the wrong type", async () => {
+    h.styleFindFirst.mockResolvedValueOnce({
+      sourceBookNumber: 1,
+      metrics: { sentenceLength: { mean: "18" }, dialogueRatio: 0.2, paragraphLength: { mean: 4 } },
+    });
+    expect(await getStyleBaseline("u1", ["b1"])).toEqual({ metrics: null, baselineBookNumber: 1 });
+  });
+});
+
+describe("getCurrentChapterMetrics", () => {
+  it("returns null when no chapter-content document exists", async () => {
+    h.findByType.mockResolvedValueOnce(null);
+    expect(await getCurrentChapterMetrics("u1", "b2", 7)).toBeNull();
+  });
+
+  it("computes metrics from the document content", async () => {
+    h.findByType.mockResolvedValueOnce({ id: "doc1" });
+    h.readPinned.mockResolvedValueOnce({ content: "He ran fast. She followed.", document: { currentVersion: 1 } });
+    const m = await getCurrentChapterMetrics("u1", "b2", 7);
+    expect(m).not.toBeNull();
+    expect(m!.avgWordsPerSentence).toBeCloseTo(2.5, 5); // (3 + 2) / 2 sentences
   });
 });
 ```
@@ -726,6 +861,13 @@ export async function getPriorCharacters(
       }));
     })
   );
+  // Per-book failure is isolated, but a TOTAL failure (every prior book errored)
+  // is a real graph outage the route must see as graphOk=false — so rethrow it
+  // instead of silently returning [] (review fix: allSettled never rejects, which
+  // left the route's catch dead and produced a fake-empty panel on outage).
+  if (priorBooks.length > 0 && settled.every((r) => r.status === "rejected")) {
+    throw new Error("all prior-book character queries failed");
+  }
   return settled.flatMap((r) => (r.status === "fulfilled" ? r.value : []));
 }
 
@@ -746,6 +888,10 @@ export async function getOpenThreads(
         }));
     })
   );
+  // Rethrow a total outage so the route sees graphOk=false (review fix — see getPriorCharacters).
+  if (priorBooks.length > 0 && settled.every((r) => r.status === "rejected")) {
+    throw new Error("all prior-book thread queries failed");
+  }
   return settled.flatMap((r) => (r.status === "fulfilled" ? r.value : []));
 }
 
@@ -829,6 +975,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 const h = vi.hoisted(() => ({
   user: { id: "u1" },
+  requireUser: vi.fn(),
   db: { book: { findFirst: vi.fn(), findMany: vi.fn() } },
   sources: {
     getOnStageNames: vi.fn(),
@@ -839,7 +986,7 @@ const h = vi.hoisted(() => ({
   },
 }));
 
-vi.mock("@/lib/auth", () => ({ requireUser: () => Promise.resolve(h.user) }));
+vi.mock("@/lib/auth", () => ({ requireUser: () => h.requireUser() }));
 vi.mock("@/lib/db", () => ({ db: h.db }));
 vi.mock("@/lib/series/ambient-sources", () => h.sources);
 
@@ -849,9 +996,13 @@ const ctx = { params: Promise.resolve({ id: "b2" }) };
 function req(qs: string) {
   return new Request(`http://t/api/books/b2/series-context${qs}`);
 }
+// A series owned by the current user (u1). Standalone/cross-user tests override.
+const ownedSeriesBook = { id: "b2", bookNumber: 2, seriesId: "s1", series: { id: "s1", title: "Saga", seriesType: "TRILOGY", userId: "u1" } };
 
 beforeEach(() => {
   vi.clearAllMocks();
+  h.requireUser.mockResolvedValue(h.user);
+  h.db.book.findMany.mockResolvedValue([{ id: "b1", bookNumber: 1 }]);
   h.sources.getOnStageNames.mockResolvedValue(["Milan"]);
   h.sources.getPriorCharacters.mockResolvedValue([
     { bookNumber: 1, name: "Milan", aliases: [], role: "supporting", status: "alive", lastMentioned: 18, description: "d" },
@@ -867,10 +1018,32 @@ describe("GET /series-context", () => {
     expect(res.status).toBe(400);
   });
 
+  it("401s when auth fails", async () => {
+    h.requireUser.mockRejectedValue(new Error("Unauthorized"));
+    const res = await GET(req("?chapterNumber=7") as never, ctx as never);
+    expect(res.status).toBe(401);
+  });
+
   it("404s when the book is not owned", async () => {
     h.db.book.findFirst.mockResolvedValue(null);
     const res = await GET(req("?chapterNumber=7") as never, ctx as never);
     expect(res.status).toBe(404);
+  });
+
+  it("scopes the ownership lookup by userId (guards against IDOR regression)", async () => {
+    h.db.book.findFirst.mockResolvedValue(ownedSeriesBook);
+    await GET(req("?chapterNumber=7") as never, ctx as never);
+    expect(h.db.book.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ id: "b2", userId: "u1" }) })
+    );
+  });
+
+  it("scopes the prior-books query by userId (no cross-user prior-book reads)", async () => {
+    h.db.book.findFirst.mockResolvedValue(ownedSeriesBook);
+    await GET(req("?chapterNumber=7") as never, ctx as never);
+    expect(h.db.book.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ seriesId: "s1", userId: "u1" }) })
+    );
   });
 
   it("returns series:null for a standalone book", async () => {
@@ -879,11 +1052,22 @@ describe("GET /series-context", () => {
     const json = await res.json();
     expect(res.status).toBe(200);
     expect(json.series).toBeNull();
+    expect(json.meta.sourcesAvailable.graph).toBe(true); // NOT a graph outage
+  });
+
+  it("hides the sidebar when the series is not owned by the user (defense in depth)", async () => {
+    h.db.book.findFirst.mockResolvedValue({
+      id: "b2", bookNumber: 2, seriesId: "s1",
+      series: { id: "s1", title: "Victim's series", seriesType: "TRILOGY", userId: "someone-else" },
+    });
+    const res = await GET(req("?chapterNumber=7") as never, ctx as never);
+    const json = await res.json();
+    expect(res.status).toBe(200);
+    expect(json.series).toBeNull(); // no foreign series metadata leaked
   });
 
   it("returns a populated envelope on the happy path", async () => {
-    h.db.book.findFirst.mockResolvedValue({ id: "b2", bookNumber: 2, seriesId: "s1", series: { id: "s1", title: "Saga", seriesType: "TRILOGY" } });
-    h.db.book.findMany.mockResolvedValue([{ id: "b1", bookNumber: 1 }]);
+    h.db.book.findFirst.mockResolvedValue(ownedSeriesBook);
     const res = await GET(req("?chapterNumber=7") as never, ctx as never);
     const json = await res.json();
     expect(res.status).toBe(200);
@@ -892,9 +1076,8 @@ describe("GET /series-context", () => {
     expect(json.meta.sourcesAvailable.graph).toBe(true);
   });
 
-  it("never 500s when a graph source throws — panel empty, flag false", async () => {
-    h.db.book.findFirst.mockResolvedValue({ id: "b2", bookNumber: 2, seriesId: "s1", series: { id: "s1", title: "Saga", seriesType: "TRILOGY" } });
-    h.db.book.findMany.mockResolvedValue([{ id: "b1", bookNumber: 1 }]);
+  it("never 500s when getPriorCharacters throws — panel empty, graph flag false", async () => {
+    h.db.book.findFirst.mockResolvedValue(ownedSeriesBook);
     h.sources.getPriorCharacters.mockRejectedValue(new Error("neo4j down"));
     const res = await GET(req("?chapterNumber=7") as never, ctx as never);
     const json = await res.json();
@@ -903,9 +1086,26 @@ describe("GET /series-context", () => {
     expect(json.characters).toEqual([]);
   });
 
+  it("never 500s when getOnStageNames throws (the real full-outage path)", async () => {
+    h.db.book.findFirst.mockResolvedValue(ownedSeriesBook);
+    h.sources.getOnStageNames.mockRejectedValue(new Error("neo4j down"));
+    const res = await GET(req("?chapterNumber=7") as never, ctx as never);
+    const json = await res.json();
+    expect(res.status).toBe(200);
+    expect(json.meta.sourcesAvailable.graph).toBe(false);
+  });
+
+  it("stays 200 with toneDrift null when getCurrentChapterMetrics throws", async () => {
+    h.db.book.findFirst.mockResolvedValue(ownedSeriesBook);
+    h.sources.getCurrentChapterMetrics.mockRejectedValue(new Error("storage down"));
+    const res = await GET(req("?chapterNumber=7") as never, ctx as never);
+    const json = await res.json();
+    expect(res.status).toBe(200);
+    expect(json.toneDrift).toBeNull();
+  });
+
   it("flags notReady when the current chapter has no on-stage cast", async () => {
-    h.db.book.findFirst.mockResolvedValue({ id: "b2", bookNumber: 2, seriesId: "s1", series: { id: "s1", title: "Saga", seriesType: "TRILOGY" } });
-    h.db.book.findMany.mockResolvedValue([{ id: "b1", bookNumber: 1 }]);
+    h.db.book.findFirst.mockResolvedValue(ownedSeriesBook);
     h.sources.getOnStageNames.mockResolvedValue([]);
     const res = await GET(req("?chapterNumber=7") as never, ctx as never);
     const json = await res.json();
@@ -945,6 +1145,25 @@ type RouteParams = { params: Promise<{ id: string }> };
 
 const querySchema = z.object({ chapterNumber: z.coerce.number().int().positive() });
 
+const GRAPH_TIMEOUT_MS = 5000;
+
+/** Run a source, reporting ok=false on throw instead of propagating (route never 500s). */
+async function safe<T>(p: Promise<T>, fallback: T): Promise<{ value: T; ok: boolean }> {
+  try {
+    return { value: await p, ok: true };
+  } catch {
+    return { value: fallback, ok: false };
+  }
+}
+
+/** Bound a graph call so a reachable-but-unresponsive Neo4j degrades in seconds, not ~30s. */
+function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    p,
+    new Promise<T>((_, reject) => setTimeout(() => reject(new Error("graph query timeout")), ms)),
+  ]);
+}
+
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
@@ -966,59 +1185,60 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    if (!book.seriesId || !book.series) {
+    // Standalone book, OR (defense-in-depth) a book whose seriesId points at a
+    // series NOT owned by this user → hide the sidebar. NOTE: graph:true here —
+    // "no series" is not a graph outage, so the panel must not show "graph
+    // offline"; the panel also short-circuits on series===null (review fix).
+    const seriesOwned = !!book.series && book.series.userId === user.id;
+    if (!book.seriesId || !seriesOwned) {
       return NextResponse.json({
         series: null,
         chapterNumber,
         characters: [],
         threads: [],
         toneDrift: null,
-        meta: { notReady: false, sourcesAvailable: { graph: false, style: false } },
+        meta: { notReady: false, sourcesAvailable: { graph: true, style: true } },
       });
     }
 
+    // userId in the WHERE is REQUIRED: without it a book whose seriesId was set to
+    // another user's series (see the POST /api/books hardening, Task 5b) would pull
+    // that user's prior-book graph state. Scoping by userId makes the leak impossible
+    // regardless of how the seriesId got set (review fix — cross-user isolation).
     const priorBooks: PriorBookRef[] = await db.book.findMany({
-      where: { seriesId: book.seriesId, bookNumber: { lt: book.bookNumber } },
+      where: { seriesId: book.seriesId, bookNumber: { lt: book.bookNumber }, userId: user.id },
       select: { id: true, bookNumber: true },
       orderBy: { bookNumber: "asc" },
     });
 
-    // Per-source failure isolation — a dependency outage must never 500 the sidebar.
-    let graphOk = true;
-    let styleOk = true;
+    // Per-source failure isolation + concurrency: each source runs in parallel and
+    // reports ok=false on throw (never 500s the sidebar); graph calls are time-bounded
+    // so a stalled Neo4j degrades in ~5s, not ~30s×3 sequential (review fix).
+    const seriesBookIds = [book.id, ...priorBooks.map((b) => b.id)];
+    const [onStage, prior, threads, baseline, current] = await Promise.all([
+      safe(withTimeout(getOnStageNames(book.id, chapterNumber), GRAPH_TIMEOUT_MS), [] as string[]),
+      safe(withTimeout(getPriorCharacters(priorBooks), GRAPH_TIMEOUT_MS), [] as PriorCharacter[]),
+      safe(withTimeout(getOpenThreads(priorBooks), GRAPH_TIMEOUT_MS), [] as PriorThread[]),
+      safe(getStyleBaseline(user.id, seriesBookIds), {
+        metrics: null as StyleMetrics | null,
+        baselineBookNumber: null as number | null,
+      }),
+      safe(getCurrentChapterMetrics(user.id, book.id, chapterNumber), null as StyleMetrics | null),
+    ]);
 
-    let onStageNames: string[] = [];
-    try { onStageNames = await getOnStageNames(book.id, chapterNumber); }
-    catch { graphOk = false; }
-
-    let priorBookCharacters: PriorCharacter[] = [];
-    try { priorBookCharacters = await getPriorCharacters(priorBooks); }
-    catch { graphOk = false; }
-
-    let openThreads: PriorThread[] = [];
-    try { openThreads = await getOpenThreads(priorBooks); }
-    catch { graphOk = false; }
-
-    let baseline: { metrics: StyleMetrics | null; baselineBookNumber: number | null } = {
-      metrics: null,
-      baselineBookNumber: null,
-    };
-    try { baseline = await getStyleBaseline(user.id, [book.id, ...priorBooks.map((b) => b.id)]); }
-    catch { styleOk = false; }
-    if (!baseline.metrics) styleOk = false;
-
-    let currentStyleMetrics: StyleMetrics | null = null;
-    try { currentStyleMetrics = await getCurrentChapterMetrics(user.id, book.id, chapterNumber); }
-    catch { /* tone panel simply hides */ }
+    const graphOk = onStage.ok && prior.ok && threads.ok;
+    // styleOk reflects an actual error only — a user with no StyleProfile is a
+    // legitimate "nothing to show", NOT an outage (review fix: don't conflate).
+    const styleOk = baseline.ok;
 
     const view = buildAmbientContext({
       currentBookNumber: book.bookNumber,
-      onStageNames,
-      priorBookCharacters,
-      openThreads,
-      currentStyleMetrics,
-      seriesBaselineMetrics: baseline.metrics,
-      baselineBookNumber: baseline.baselineBookNumber,
+      onStageNames: onStage.value,
+      priorBookCharacters: prior.value,
+      openThreads: threads.value,
+      currentStyleMetrics: current.value,
+      seriesBaselineMetrics: baseline.value.metrics,
+      baselineBookNumber: baseline.value.baselineBookNumber,
     });
 
     return NextResponse.json({
@@ -1054,6 +1274,46 @@ Expected: PASS (7 tests).
 ```bash
 git add "src/app/api/books/[id]/series-context/route.ts" tests/unit/series-context-route.test.ts
 git commit -m "feat: series-context route — read-only, per-source isolated (Tier 4.3)"
+```
+
+---
+
+### Task 5b: Harden POST /api/books — reject an unowned seriesId (security root cause)
+
+The review found the enabling root cause of the cross-user concern: `POST /api/books` writes `seriesId` straight from the request body with no ownership check (`src/app/api/books/route.ts:70`), so a user can attach their book to another user's series. Task 5's route is already defended (userId-scoped prior query + series-ownership check), but closing the write path removes the invariant violation at the source and matches sibling routes (`series/[id]/books/route.ts` verifies `{id, seriesId, userId}`).
+
+**Files:**
+- Modify: `src/app/api/books/route.ts` (POST handler, before `db.book.create`)
+
+- [ ] **Step 1: Add the ownership guard**
+
+In the POST handler, immediately after `const data = createBookSchema.parse(body);` (line 51) and the duplicate-name check, add:
+
+```ts
+    // A book may only join a series the caller owns (prevents cross-user seriesId).
+    if (data.seriesId) {
+      const series = await db.series.findFirst({
+        where: { id: data.seriesId, userId: user.id },
+      });
+      if (!series) {
+        return NextResponse.json(
+          { error: "Series not found" },
+          { status: 404 }
+        );
+      }
+    }
+```
+
+- [ ] **Step 2: Type-check**
+
+Run: `npx tsc --noEmit`
+Expected: exit 0. *(No unit test is added here — `POST /api/books` has no existing unit test and mounting one requires mocking plan-gating + S3-prefix + settings/chapter creation; the guard mirrors the verified sibling pattern and is covered by the Task 5 defense-in-depth test. If a test is desired later, assert a book with an unowned `seriesId` returns 404.)*
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add src/app/api/books/route.ts
+git commit -m "fix: reject unowned seriesId on book create — cross-user isolation (Tier 4.3 security)"
 ```
 
 ---
@@ -1144,7 +1404,7 @@ git commit -m "feat: useAmbientContext hook + editor-store showSeriesContext fla
 
 The UI. Renders three sections from `useAmbientContext`, distinguishing loading / notReady / graph-offline / normal. Mounted like the version-history sidebar (a `w-72 border-l` column on `lg+`, a Sheet below) and toggled from the toolbar's Panels group. **No unit test** (node-env suite, no jsdom) — gated on `tsc --noEmit` + prod build; live behavior is deferred smoke.
 
-> **Implementation note (deviation from spec §7):** the spec proposed a "segmented findings|series" control, but the live editor already mounts version-history as an independent toggle-able side column alongside findings. Mirroring that established pattern (independent column) is lower-risk than inventing a segmented control; do it that way.
+> **Implementation note (deviation from spec §7):** the spec proposed a "segmented findings|series" control, but the live editor already mounts version-history as an independent toggle-able side column alongside findings (findings is a `ResizablePanelGroup` split of the editor pane, *not* the version-history slot — so a literal segmented control would require relocating findings, a real refactor). Mirroring the established independent-column pattern is lower-risk. On the crowding the review raised (editor + findings + version-history + series all open on `lg`): all four regions are resizable and user-toggled, matching the codebase's existing findings+version-history coexistence — acceptable for this pass. If it proves cramped in live smoke, make series-context and version-history mutually exclusive (opening one closes the other) as a fast follow-up.
 
 **Files:**
 - Create: `src/components/editor/ambient-series-panel.tsx`
@@ -1175,6 +1435,12 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAmbientContext } from "@/hooks/use-ambient-context";
 
+// Human-readable labels — never surface the raw camelCase metric key as UI copy (review fix).
+const TONE_LABELS: Record<string, string> = {
+  avgWordsPerSentence: "Sentence length",
+  avgSentencesPerParagraph: "Paragraph length",
+};
+
 interface AmbientSeriesPanelProps {
   bookId: string;
   chapterNumber: number | null;
@@ -1190,6 +1456,11 @@ export function AmbientSeriesPanel({ bookId, chapterNumber, onClose }: AmbientSe
 
   const graphOffline = data?.meta.sourcesAvailable.graph === false;
   const notReady = data?.meta.notReady === true;
+
+  // Standalone book (series:null) → render nothing, never a misleading "graph
+  // offline" state. The toolbar toggle is also gated on series membership so this
+  // path is normally unreachable, but the panel is defensive (review fix).
+  if (data && data.series === null) return null;
 
   return (
     <div className="flex flex-col h-full">
@@ -1275,7 +1546,7 @@ export function AmbientSeriesPanel({ bookId, chapterNumber, onClose }: AmbientSe
                   </div>
                   {data.toneDrift.metrics.filter((m) => m.material).map((m) => (
                     <p key={m.key} className="text-[11px] text-muted-foreground">
-                      {m.key}: {m.deltaPct > 0 ? "▲" : "▼"}{Math.abs(m.deltaPct)}% vs series
+                      {TONE_LABELS[m.key] ?? m.key}: {m.deltaPct > 0 ? "▲" : "▼"}{Math.abs(m.deltaPct)}% vs series
                     </p>
                   ))}
                   <p className="text-[10px] text-muted-foreground/70 italic">advisory — not a finding</p>
@@ -1318,11 +1589,14 @@ In `src/components/editor/manuscript-editor.tsx`:
 ```ts
   const showSeriesContext = useEditorPaneStore(paneId, (s) => s.showSeriesContext);
 ```
-3. Pass toolbar props where `<EditorToolbar ... />` is rendered (search for `onToggleFindings=`), add:
+3. Determine series membership so the toggle is hidden on standalone books (spec §7 "no dead button on standalone books"). Source `bookInSeries` from the chapter page's already-loaded book data: add `bookInSeries?: boolean` to `ManuscriptEditorProps`, and in `chapters/[chapterId]/page.tsx` pass `bookInSeries={!!book.seriesId}` (add `seriesId` to that page's book query `select` if absent). Then pass the toolbar props where `<EditorToolbar ... />` is rendered (search for `onToggleFindings=`), gating the toggle on membership:
 ```tsx
         showSeriesContext={showSeriesContext}
-        onToggleSeriesContext={() => paneStore.getState().toggleSeriesContext()}
+        onToggleSeriesContext={
+          bookInSeries ? () => paneStore.getState().toggleSeriesContext() : undefined
+        }
 ```
+The toolbar button renders only when `onToggleSeriesContext` is truthy (mirrors the findings/history buttons), so a standalone book shows no button. If `bookInSeries` cannot be sourced cleanly, pass it unconditionally — the panel's `series===null` short-circuit (Step 1) still prevents the misleading "graph offline" copy; only the (harmless) empty column would remain.
 4. Mount the panel next to the version-history sidebar block (the `{isLg ? (showVersionHistory && ...) : (<VersionHistorySheet .../>)}` block at lines 1320-1342). Add immediately after that block, before the closing `</div>` at line 1343:
 ```tsx
       {/* Ambient series context — inline column on lg+, Sheet on smaller screens */}
@@ -1396,6 +1670,33 @@ git commit -m "docs: mark Tier 4.3 ambient series awareness foundation shipped"
 ```
 
 ---
+
+## Review remediation (24 confirmed findings from the adversarial plan review, folded)
+
+The `reality-drift` lens confirmed **zero** issues — every function, signature, import, DB field, store field, and mount point the plan references exists as written. The 24 confirmed findings across the other five lenses are folded as follows:
+
+**Security (2 medium):**
+- Route prior-books `findMany` now includes `userId: user.id`; the standalone branch now also fires when `book.series.userId !== user.id` (defense-in-depth against a foreign series join). — Task 5.
+- `POST /api/books` now verifies series ownership before create (root cause). — **Task 5b (new).**
+
+**Standalone-book (1 high + 3 low):** panel short-circuits on `series===null` (renders nothing, never "graph offline"); standalone route envelope now reports `graph:true`; toolbar toggle gated on `bookInSeries`. — Tasks 5, 7.
+
+**Tone metrics (1 medium + 4 low):**
+- Sentence splitter now allows a closing quote/bracket before the boundary (`/[.!?]+["”’')\]]*(?:\s|$)/`) so dialogue splits correctly; added a 3-sentence action-beat test. — Task 1.
+- `stripMarkdown` removes headings/scene-breaks/list/quote markers before counting; added a markdown-parity test. — Task 1.
+- `dialogueRatio` **excluded** from the tone-drift comparison (incomparable to the LLM volume-based baseline). — Tasks 1, 2.
+- `MATERIALITY_PCT` raised 20→25 and "directly comparable" softened to "best-effort approximate" (LLM-estimate noise). — Tasks 1, 2.
+- Tone UI now maps metric keys to human labels (`TONE_LABELS`) — no raw camelCase in copy. — Task 7.
+- **Metric rename note:** the plan uses `avgWordsPerSentence`/`avgSentencesPerParagraph` (spec §5 wrote `avgSentenceLen`/`avgParagraphLen`); the envelope key follows the plan's names, applied consistently across Tasks 1/2/4/5/7.
+
+**Degradation semantics (lows):**
+- `getPriorCharacters`/`getOpenThreads` now rethrow when **all** prior books fail, so the route's `graphOk` reflects a real total outage (fixes the dead-catch + the fake-empty partial-failure case). — Task 4.
+- `styleOk` set from the thrown-error flag only (not from "no profile"). — Task 5.
+- Sources run **concurrently** with per-source `safe()` wrappers and a 5s `withTimeout` on graph calls (worst case ~5s, not ~90s sequential). — Task 5.
+
+**Test adequacy (mediums + lows):** per-source throw cases incl. `getCurrentChapterMetrics→200 + toneDrift null` and the real `getOnStageNames` outage path; ownership + prior-query `toHaveBeenCalledWith(userId)` assertions; 401 path; cross-user series case; `getCurrentChapterMetrics`/`getOnStageNames`/`getOpenThreads`-isolation/malformed-metrics/all-fail-throw/dedup/threshold-boundary/resolved-thread coverage added; Task 3 no-test justification corrected (removed the false "indirectly exercised" claim). — Tasks 1, 2, 4, 5.
+
+**Scope (lows):** Task 7 deviation note expanded to address the 3-region crowding; `dialogueRatio` scope-drop documented.
 
 ## Deferred verification (documented, not silently claimed)
 
