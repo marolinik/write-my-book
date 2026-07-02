@@ -45,6 +45,7 @@ export interface EditorPaneState {
   focusLevel: 0 | 1 | 2 | 3;
   ghostTextEnabled: boolean;
   showFindings: boolean;
+  showSeriesContext: boolean;
   showAnnotations: boolean;
   scrollToText: string | null;
   showFloatingInput: boolean;
@@ -65,6 +66,7 @@ export interface EditorPaneState {
   setFocusLevel: (level: 0 | 1 | 2 | 3) => void;
   toggleGhostText: () => void;
   toggleFindings: () => void;
+  toggleSeriesContext: () => void;
   toggleAnnotations: () => void;
   setScrollToText: (text: string | null) => void;
   toggleFloatingInput: () => void;
@@ -93,6 +95,7 @@ const initialPaneState = {
   focusLevel: 0 as const,
   ghostTextEnabled: false,
   showFindings: false,
+  showSeriesContext: false,
   showAnnotations: true,
   scrollToText: null,
   showFloatingInput: false,
@@ -146,6 +149,9 @@ function createEditorPaneStore(): EditorPaneStore {
       set((s) => ({ ghostTextEnabled: !s.ghostTextEnabled })),
 
     toggleFindings: () => set((s) => ({ showFindings: !s.showFindings })),
+
+    toggleSeriesContext: () =>
+      set((s) => ({ showSeriesContext: !s.showSeriesContext })),
 
     toggleAnnotations: () =>
       set((s) => ({ showAnnotations: !s.showAnnotations })),
