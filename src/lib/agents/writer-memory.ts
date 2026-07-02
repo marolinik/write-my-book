@@ -215,3 +215,18 @@ export async function inferPreferenceFromNegativeFeedback(
     }
   }
 }
+
+export async function upsertConversationConstraint(params: {
+  userId: string;
+  bookId: string; // ALWAYS the finding's book — server-derived, never agent-supplied
+  findingId: string;
+  category: string;
+  content: string;
+}): Promise<void> {
+  const { userId, bookId, findingId, category, content } = params;
+  await db.writerMemory.upsert({
+    where: { userId_findingId_source: { userId, findingId, source: "conversation" } },
+    create: { userId, bookId, findingId, source: "conversation", category, content, active: true },
+    update: { content, category, active: true },
+  });
+}
