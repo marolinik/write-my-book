@@ -1,0 +1,117 @@
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { requireUser } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { buildDiscussPrompt, parseDiscussResponse, type ThreadTurn } from "@/lib/editorial/discuss-prompt";
+import { formatWriterMemoryForPrompt } from "@/lib/agents/writer-memory";
+import { runDiscussTurn } from "@/lib/editorial/discuss-llm";
+
+export const dynamic = "force-dynamic";
+
+const MAX_USER_TURNS = 3;
+const RATE_LIMIT_24H = 200;
+type RouteParams = { params: Promise<{ id: string; findingId: string }> };
+const bodySchema = z.object({ writerMessage: z.string().min(1).max(2000) });
+
+async function loadOwnedFinding(userId: string, bookId: string, findingId: string) {
+  const book = await db.book.findFirst({ where: { id: bookId, userId }, select: { id: true } });
+  if (!book) return { error: NextResponse.json({ error: "Book not found" }, { status: 404 }) };
+  const finding = await db.editFinding.findFirst({ where: { id: findingId, bookId } });
+  if (!finding) return { error: NextResponse.json({ error: "Finding not found" }, { status: 404 }) };
+  return { finding };
+}
+
+export async function GET(_req: Request, { params }: RouteParams) {
+  try {
+    const user = await requireUser();
+    const { id: bookId, findingId } = await params;
+    const owned = await loadOwnedFinding(user.id, bookId, findingId);
+    if (owned.error) return owned.error;
+
+    const replies = await db.findingReply.findMany({
+      where: { findingId },
+      orderBy: { createdAt: "asc" },
+      select: { role: true, content: true, createdAt: true },
+    });
+    const userTurns = replies.filter((r) => r.role === "user").length;
+    const canDiscuss = owned.finding.status === "pending" && userTurns < MAX_USER_TURNS;
+    const view = replies.map((r) => ({
+      role: r.role,
+      content: r.content,
+      createdAt: r.createdAt,
+      ...(r.role === "assistant" ? parseDiscussResponse(r.content) : {}),
+    }));
+    return NextResponse.json({ replies: view, userTurns, canDiscuss });
+  } catch (e) {
+    if ((e as Error).message === "Unauthorized") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Failed to load conversation" }, { status: 500 });
+  }
+}
+
+export async function POST(req: Request, { params }: RouteParams) {
+  try {
+    const user = await requireUser();
+    const { id: bookId, findingId } = await params;
+    const { writerMessage } = bodySchema.parse(await req.json());
+
+    const owned = await loadOwnedFinding(user.id, bookId, findingId);
+    if (owned.error) return owned.error;
+    const finding = owned.finding;
+
+    // Rate limit: total user replies across all books in the last 24h.
+    const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const recent = await db.findingReply.count({ where: { userId: user.id, role: "user", createdAt: { gte: since } } });
+    if (recent >= RATE_LIMIT_24H) {
+      return NextResponse.json({ capped: true, reason: "rate_limited", retryAfterSec: 3600 }, { status: 429 });
+    }
+
+    const writerMemoryBlock = await formatWriterMemoryForPrompt(user.id, bookId);
+
+    // Atomic: lock the finding row, count user turns, run the turn, persist — all in one txn.
+    const result = await db.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM edit_findings WHERE id = ${findingId} FOR UPDATE`;
+      const prior = await tx.findingReply.findMany({
+        where: { findingId }, orderBy: { createdAt: "asc" }, select: { role: true, content: true },
+      });
+      const userTurns = prior.filter((r) => r.role === "user").length;
+      if (userTurns >= MAX_USER_TURNS) {
+        return { capped: true as const, assistantMessage: "You've discussed this finding thoroughly (3 exchanges). Ready to make a decision?", userTurns };
+      }
+
+      const { system, user: userPrompt } = buildDiscussPrompt({
+        finding: {
+          category: finding.category, severity: finding.severity, description: finding.description,
+          rationale: finding.rationale, anchorQuote: finding.anchorQuote,
+          alternatives: safeAlternatives(finding.alternatives),
+        },
+        priorTurns: prior as ThreadTurn[],
+        writerMessage,
+        writerMemoryBlock,
+        agentType: finding.agentType,
+      });
+
+      const raw = await runDiscussTurn({ system, user: userPrompt, userId: user.id });
+
+      await tx.findingReply.create({ data: { findingId, userId: user.id, role: "user", content: writerMessage } });
+      await tx.findingReply.create({ data: { findingId, userId: user.id, role: "assistant", content: raw } });
+
+      return { capped: false as const, raw, userTurns: userTurns + 1 };
+    });
+
+    if (result.capped) {
+      return NextResponse.json({ capped: true, assistantMessage: result.assistantMessage, userTurns: result.userTurns }, { status: 409 });
+    }
+    const parsed = parseDiscussResponse(result.raw);
+    return NextResponse.json({ ...parsed, userTurns: result.userTurns, capped: false });
+  } catch (e) {
+    if ((e as Error).message === "Unauthorized") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if ((e as Error).name === "ZodError") return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+    console.error("POST /discuss error:", e);
+    return NextResponse.json({ error: "Failed to discuss finding" }, { status: 500 });
+  }
+}
+
+function safeAlternatives(raw: unknown): Array<{ label?: string; originalText?: string; newText?: string }> {
+  if (typeof raw !== "string") return [];
+  try { const p = JSON.parse(raw); return Array.isArray(p) ? p : []; } catch { return []; }
+}
