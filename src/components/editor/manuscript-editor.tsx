@@ -1201,6 +1201,11 @@ export function ManuscriptEditor({
               onDiscuss={() => {
                 useEditorialStore.getState().setSelectedFinding(tooltipState.annotationId);
                 useEditorialStore.getState().setConversationFinding(tooltipState.annotationId);
+                // Open the findings panel/sheet so the conversation is actually visible
+                // (same auto-open pattern as pendingFindingsCount above).
+                if (!paneStore.getState().showFindings) {
+                  paneStore.getState().toggleFindings();
+                }
                 setTooltipState(null); // close tooltip; the panel/sheet takes over
               }}
             />
