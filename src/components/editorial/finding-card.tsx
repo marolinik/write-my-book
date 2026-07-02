@@ -12,6 +12,7 @@ import {
 import type { FindingItem } from "@/hooks/use-editorial";
 import { useEditorialStore } from "@/stores/editorial-store";
 import { SuggestionFeedback } from "@/components/agent/suggestion-feedback";
+import { FindingConversation } from "@/components/editorial/finding-conversation";
 import { Check, X, Undo2, AlertTriangle, MoveRight } from "lucide-react";
 
 interface FindingCardProps {
@@ -130,6 +131,7 @@ export function FindingCard({
 }: FindingCardProps) {
   const [showDetails, setShowDetails] = useState(false);
   const [applyError, setApplyError] = useState<string | null>(null);
+  const [discussing, setDiscussing] = useState(false);
   const { selectedFindingId, setSelectedFinding } = useEditorialStore();
   const applyMutation = useApplyFinding(bookId);
   const dismissMutation = useDismissFinding(bookId);
@@ -323,6 +325,17 @@ export function FindingCard({
                   </Button>
                 </>
               )}
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDiscussing((v) => !v);
+                }}
+              >
+                {discussing ? "Hide" : "Discuss"}
+              </Button>
             </>
           )}
           {(finding.status === "applied" || finding.status === "dismissed") && (
@@ -341,6 +354,24 @@ export function FindingCard({
             </Button>
           )}
         </div>
+
+        {discussing && (
+          <FindingConversation
+            bookId={bookId}
+            finding={{ ...finding, alternatives: finding.alternatives ?? undefined }}
+            onApply={(overrideText) => {
+              applyMutation.mutate(
+                overrideText ? { findingId: finding.id, overrideText } : finding.id
+              );
+              setDiscussing(false);
+            }}
+            onDismiss={(reason) => {
+              dismissMutation.mutate({ findingId: finding.id, reason });
+              setDiscussing(false);
+            }}
+            onClose={() => setDiscussing(false)}
+          />
+        )}
 
         {/* Thumbs up/down feedback for AI improvement */}
         {(finding.status === "applied" || finding.status === "dismissed") && (

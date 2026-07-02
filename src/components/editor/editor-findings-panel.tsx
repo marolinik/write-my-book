@@ -7,9 +7,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PenTool, X } from "lucide-react";
 import { toast } from "sonner";
-import { useFindings } from "@/hooks/use-editorial";
+import { useFindings, useApplyFinding, useDismissFinding } from "@/hooks/use-editorial";
 import type { FindingItem } from "@/hooks/use-editorial";
 import { FindingCard } from "@/components/editorial/finding-card";
+import { FindingConversation } from "@/components/editorial/finding-conversation";
 import { useEditorPaneStore, getOrCreatePaneStore } from "@/stores/editor-store";
 import { useEditorialStore } from "@/stores/editorial-store";
 
@@ -61,6 +62,12 @@ export function EditorFindingsPanel({
 
   const { highlightedFindingId, setHighlightedFinding } = useEditorialStore();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  const conversationFindingId = useEditorialStore((s) => s.conversationFindingId);
+  const setConversationFinding = useEditorialStore((s) => s.setConversationFinding);
+  const applyFinding = useApplyFinding(bookId);
+  const dismissFinding = useDismissFinding(bookId);
+  const convoFinding = findings.find((f) => f.id === conversationFindingId);
 
   // Auto-scroll to highlighted finding card when annotation/gutter marker is clicked
   useEffect(() => {
@@ -184,6 +191,23 @@ export function EditorFindingsPanel({
           </button>
         )}
       </div>
+
+      {convoFinding && (
+        <FindingConversation
+          key={convoFinding.id}
+          bookId={bookId}
+          finding={{ ...convoFinding, alternatives: convoFinding.alternatives ?? undefined }}
+          onApply={(overrideText) => {
+            applyFinding.mutate({ findingId: convoFinding.id, overrideText });
+            setConversationFinding(null);
+          }}
+          onDismiss={(reason) => {
+            dismissFinding.mutate({ findingId: convoFinding.id, reason });
+            setConversationFinding(null);
+          }}
+          onClose={() => setConversationFinding(null)}
+        />
+      )}
 
       {/* Content */}
       {isLoading ? (

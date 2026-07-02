@@ -130,7 +130,9 @@ export function useEditHistory(bookId: string, chapterNumber?: number) {
   });
 }
 
-type ApplyFindingInput = string | { findingId: string; alternativeIndex?: number };
+type ApplyFindingInput =
+  | string
+  | { findingId: string; alternativeIndex?: number; overrideText?: string };
 
 /** Apply a finding. */
 export function useApplyFinding(bookId: string) {
@@ -140,10 +142,11 @@ export function useApplyFinding(bookId: string) {
     mutationFn: (input: ApplyFindingInput) => {
       const findingId = typeof input === "string" ? input : input.findingId;
       const alternativeIndex = typeof input === "string" ? undefined : input.alternativeIndex;
+      const overrideText = typeof input === "string" ? undefined : input.overrideText;
       return fetchJson(`/api/books/${bookId}/editorial/findings/${findingId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "apply", alternativeIndex }),
+        body: JSON.stringify({ action: "apply", alternativeIndex, overrideText }),
       });
     },
     onSuccess: () => {
@@ -156,17 +159,22 @@ export function useApplyFinding(bookId: string) {
   });
 }
 
+type DismissFindingInput = string | { findingId: string; reason?: string };
+
 /** Dismiss a finding with optional reason. */
 export function useDismissFinding(bookId: string) {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ findingId, reason }: { findingId: string; reason?: string }) =>
-      fetchJson(`/api/books/${bookId}/editorial/findings/${findingId}`, {
+    mutationFn: (input: DismissFindingInput) => {
+      const findingId = typeof input === "string" ? input : input.findingId;
+      const reason = typeof input === "string" ? undefined : input.reason;
+      return fetchJson(`/api/books/${bookId}/editorial/findings/${findingId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "dismiss", reason }),
-      }),
+      });
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["editorial", bookId] });
     },

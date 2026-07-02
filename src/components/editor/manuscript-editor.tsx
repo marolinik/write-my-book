@@ -1198,6 +1198,11 @@ export function ManuscriptEditor({
                 setTooltipState(null);
               }}
               onClose={() => setTooltipState(null)}
+              onDiscuss={() => {
+                useEditorialStore.getState().setSelectedFinding(tooltipState.annotationId);
+                useEditorialStore.getState().setConversationFinding(tooltipState.annotationId);
+                setTooltipState(null); // close tooltip; the panel/sheet takes over
+              }}
             />
           )}
           {overlappingState && editorAreaRef.current && (

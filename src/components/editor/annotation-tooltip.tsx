@@ -21,6 +21,8 @@ interface AnnotationTooltipProps {
   onAccept: () => void;
   onReject: () => void;
   onClose: () => void;
+  /** Opens the conversational discussion thread for this finding. */
+  onDiscuss?: () => void;
 }
 
 const TYPE_CONFIG: Record<
@@ -96,6 +98,7 @@ export function AnnotationTooltip({
   onAccept,
   onReject,
   onClose,
+  onDiscuss,
 }: AnnotationTooltipProps) {
   const tipRef = useRef<HTMLDivElement>(null);
   const acceptButtonRef = useRef<HTMLButtonElement>(null);
@@ -197,6 +200,12 @@ export function AnnotationTooltip({
               </span>
             </div>
           </div>
+        )}
+
+        {onDiscuss && (
+          <Button variant="ghost" size="sm" className="h-7 text-xs justify-start px-1" onClick={onDiscuss}>
+            Let&apos;s talk about this
+          </Button>
         )}
 
         {/* Actions */}
