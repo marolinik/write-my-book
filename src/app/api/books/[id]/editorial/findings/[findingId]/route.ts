@@ -4,7 +4,8 @@ import { db } from "@/lib/db";
 import { updateFindingSchema } from "@/lib/validation";
 import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
-import { inferPreferenceFromDismissals } from "@/lib/agents/writer-memory";
+import { inferPreferenceFromDismissals, upsertConversationConstraint } from "@/lib/agents/writer-memory";
+import { parseDiscussResponse } from "@/lib/editorial/discuss-prompt";
 
 type RouteParams = { params: Promise<{ id: string; findingId: string }> };
 
@@ -125,9 +126,10 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       data.alternativeIndex !== undefined ? alternatives[data.alternativeIndex] : undefined;
     const originalText = selectedAlternative?.originalText ?? finding.originalText;
     const newText = selectedAlternative?.newText ?? finding.newText;
+    const finalNewText = data.overrideText ?? newText;
 
     // Auto-apply: if applying a finding with originalText + newText, edit the chapter
-    if (data.action === "apply" && originalText && newText) {
+    if (data.action === "apply" && originalText && finalNewText) {
       const docService = new DocumentService(user.id, bookId);
       const doc = await docService.findByType(
         DocumentType.CHAPTER_CONTENT,
@@ -165,7 +167,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       // Replace the matched text with newText
       const updatedContent =
         result.content.substring(0, match.index) +
-        newText +
+        finalNewText +
         result.content.substring(match.index + match.matchedText.length);
 
       // Save updated content as a new version
@@ -239,6 +241,36 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
         );
       } catch (e) {
         console.error("[Feedback] dismissal inference failed:", e);
+      }
+
+      // Conversational learning: if the thread's latest assistant turn emitted a constraint, persist it (book-scoped).
+      try {
+        const lastAssistant = await db.findingReply.findFirst({
+          where: { findingId, role: "assistant" },
+          orderBy: { createdAt: "desc" },
+        });
+        if (lastAssistant) {
+          const { suggestedConstraint } = parseDiscussResponse(lastAssistant.content);
+          if (suggestedConstraint) {
+            await upsertConversationConstraint({
+              userId: user.id,
+              bookId, // finding's book — server-derived
+              findingId,
+              category: suggestedConstraint.category,
+              content: suggestedConstraint.content,
+            });
+            await db.suggestionFeedback.upsert({
+              where: { userId_suggestionId: { userId: user.id, suggestionId: findingId } },
+              create: {
+                bookId, userId: user.id, suggestionId: findingId,
+                suggestionType: finding.category, positive: false, suggestionText: finding.description,
+              },
+              update: { positive: false },
+            });
+          }
+        }
+      } catch (e) {
+        console.error("[Discuss] constraint resolution failed:", e);
       }
     }
 
