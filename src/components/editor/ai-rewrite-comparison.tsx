@@ -27,14 +27,16 @@ interface AIRewriteComparisonProps {
   rewrite: string;
   /** Label describing the rewrite type (e.g., "Line Edit", "Tighten Prose") */
   rewriteLabel?: string;
-  /** Accept the rewrite — replace original in editor */
-  onAccept: (newText: string) => void;
+  /** Accept — second arg flags whether the writer edited the suggestion first. */
+  onAccept: (newText: string, wasEdited: boolean) => void;
   /** Reject — dismiss without changes */
   onReject: () => void;
   /** Request a new rewrite */
   onRegenerate?: () => void;
   /** Whether a regeneration is in progress */
   isRegenerating?: boolean;
+  /** When true, show an "Edit" affordance that turns the rewrite pane into a textarea. */
+  allowEdit?: boolean;
 }
 
 /** Simple word-level diff for highlighting changes */
@@ -70,8 +72,11 @@ export function AIRewriteComparison({
   onReject,
   onRegenerate,
   isRegenerating,
+  allowEdit,
 }: AIRewriteComparisonProps) {
   const [showDiff, setShowDiff] = useState(true);
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(rewrite);
 
   const { originalWords, rewriteWords } = useMemo(
     () => computeWordDiff(original, rewrite),
@@ -105,7 +110,7 @@ export function AIRewriteComparison({
       </CardHeader>
       <CardContent className="space-y-3">
         {/* Split panels */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col gap-3 md:grid md:grid-cols-2">
           {/* Original */}
           <div className="space-y-1.5">
             <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
@@ -132,20 +137,28 @@ export function AIRewriteComparison({
             <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
               AI Rewrite ({rewWordCount} words)
             </p>
-            <ScrollArea className="h-48 rounded-md border p-3 bg-green-500/5">
-              <p className="text-sm leading-relaxed font-serif">
-                {showDiff
-                  ? rewriteWords.map((w, i) => (
-                      <span
-                        key={i}
-                        className={w.changed ? "bg-green-200 dark:bg-green-900/40 font-medium" : ""}
-                      >
-                        {w.text}{" "}
-                      </span>
-                    ))
-                  : rewrite}
-              </p>
-            </ScrollArea>
+            {editing ? (
+              <textarea
+                className="h-48 w-full rounded-md border p-3 text-sm leading-relaxed font-serif bg-green-500/5"
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+              />
+            ) : (
+              <ScrollArea className="h-48 rounded-md border p-3 bg-green-500/5">
+                <p className="text-sm leading-relaxed font-serif">
+                  {showDiff
+                    ? rewriteWords.map((w, i) => (
+                        <span
+                          key={i}
+                          className={w.changed ? "bg-green-200 dark:bg-green-900/40 font-medium" : ""}
+                        >
+                          {w.text}{" "}
+                        </span>
+                      ))
+                    : rewrite}
+                </p>
+              </ScrollArea>
+            )}
           </div>
         </div>
 
@@ -175,13 +188,18 @@ export function AIRewriteComparison({
           </div>
 
           <div className="flex gap-2">
+            {allowEdit && !editing && (
+              <Button variant="ghost" size="sm" onClick={() => { setDraft(rewrite); setEditing(true); }}>
+                Edit
+              </Button>
+            )}
             <Button variant="outline" size="sm" onClick={onReject}>
               <XIcon className="size-3 mr-1" />
               Reject
             </Button>
-            <Button size="sm" onClick={() => onAccept(rewrite)}>
+            <Button size="sm" onClick={() => onAccept(editing ? draft : rewrite, editing)}>
               <CheckIcon className="size-3 mr-1" />
-              Accept Rewrite
+              {editing ? "Use edited" : "Accept Rewrite"}
             </Button>
           </div>
         </div>
