@@ -10,6 +10,9 @@
 !.yarn/releases
 !.yarn/versions
 
+# subagent-driven-development scratch (ledger + review diff packages)
+/.superpowers
+
 # testing
 /coverage
 
