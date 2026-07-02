@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ConversationInput } from "@/components/agent/conversation-input";
 import { AIRewriteComparison } from "@/components/editor/ai-rewrite-comparison";
@@ -25,7 +26,7 @@ interface FindingConversationProps {
   onClose?: () => void;
 }
 
-export function FindingConversation({ bookId, finding, onApply, onDismiss }: FindingConversationProps) {
+export function FindingConversation({ bookId, finding, onApply, onDismiss, onClose }: FindingConversationProps) {
   const { replies, canDiscuss, isLoading, send, isSending } = useFindingDiscussion(bookId, finding.id);
 
   const view = useMemo(
@@ -38,6 +39,24 @@ export function FindingConversation({ bookId, finding, onApply, onDismiss }: Fin
 
   return (
     <div className="flex flex-col gap-3 p-2">
+      {/* Header — category label + in-thread close affordance */}
+      {onClose && (
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            {finding.category}
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 w-6 p-0"
+            onClick={onClose}
+            aria-label="Close conversation"
+          >
+            <X className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      )}
+
       {/* Thread — our own plaintext render (no MessageStream); never dangerouslySetInnerHTML */}
       <div className="space-y-2">
         {replies.length === 0 && !isLoading && (
@@ -66,6 +85,13 @@ export function FindingConversation({ bookId, finding, onApply, onDismiss }: Fin
           onAccept={(newText) => onApply(newText)}
           onReject={() => onDismiss()}
         />
+      )}
+
+      {/* What the agent will remember if the writer keeps their text (Task 5 persists this on dismiss) */}
+      {view.latestConstraint && (
+        <p className="rounded-md border border-dashed border-muted-foreground/30 px-2 py-1 text-xs italic text-muted-foreground">
+          On “Keep as-is”, I’ll remember: “{view.latestConstraint.content}”
+        </p>
       )}
 
       {/* Action bar */}
