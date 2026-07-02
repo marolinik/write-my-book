@@ -265,6 +265,29 @@ export async function getBookCharacterStates(
 }
 
 /**
+ * When the Chapter node was last (re)extracted into the graph — used to
+ * time-throttle re-extraction on the live continuity scan. Null if never
+ * extracted. Note: c.updatedAt is written via Cypher datetime(), so the driver
+ * returns a temporal object, not a string — coerce via toString() before Date.
+ */
+export async function getChapterNodeUpdatedAt(
+  bookId: string,
+  chapterNumber: number
+): Promise<Date | null> {
+  return withSession("READ", async (session) => {
+    const result = await session.run(
+      `MATCH (c:Chapter {bookId: $bookId, chapterNumber: $chapterNumber})
+       RETURN c.updatedAt AS updatedAt`,
+      { bookId, chapterNumber }
+    );
+    const raw: unknown = result.records[0]?.get("updatedAt");
+    if (raw === null || raw === undefined) return null;
+    const d = new Date(String(raw));
+    return isNaN(d.getTime()) ? null : d;
+  });
+}
+
+/**
  * Run 6 consistency checks on the book's knowledge graph.
  * Returns issues sorted by severity.
  */
