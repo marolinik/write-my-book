@@ -168,6 +168,7 @@ model Book {
   writerMemories  WriterMemory[]
   sessionBriefs   SessionBrief[]
   suggestionFeedback SuggestionFeedback[]
+  continuityFlags ContinuityFlag[]
 
   @@unique([seriesId, bookNumber])
   @@unique([userId, name])
@@ -392,6 +393,29 @@ model EditFinding {
 
   @@unique([bookId, chapterNumber, contentHash])
   @@map("edit_findings")
+}
+
+// ─── LIVE CONTINUITY NET (Tier 4.4) ─────────────────────────────
+model ContinuityFlag {
+  id            String   @id @default(uuid())
+  bookId        String   @map("book_id")
+  chapterNumber Int      @map("chapter_number") // primary site (0 = book-level)
+  signature     String                          // sha1(type + sorted entities + sorted chapters)
+  type          String                          // dead_character_reappears | location_conflict | timeline_violation | relationship_contradiction
+  severity      String                          // critical | major | minor (graph vocabulary)
+  description   String   @db.Text
+  entities      String   @db.Text               // JSON array of entity names
+  anchor        String?                         // entity name to anchor inline; null for book-level
+  jumpChapter   Int?     @map("jump_chapter")   // [Go to Ch N] target; null if none
+  status        String   @default("active")     // active | intentional  (resolve = row deleted)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([bookId, signature])
+  @@index([bookId, status])
+  @@map("continuity_flags")
 }
 
 model FindingReply {
