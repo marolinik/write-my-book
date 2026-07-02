@@ -106,14 +106,27 @@ describe("POST /continuity/scan", () => {
     expect(h.runConsistencyChecks).toHaveBeenCalled();
   });
 
-  it("returns {flags:[]} and deletes NOTHING when the check throws", async () => {
+  it("returns {flags:[], degraded:true} and deletes NOTHING when the check throws", async () => {
     h.runConsistencyChecks.mockRejectedValue(new Error("cypher error"));
     h.db.continuityFlag.findMany.mockResolvedValue([{ id: "f1", signature: "sig1", status: "active" }]);
     const res = await POST(req("?chapterNumber=18") as never, ctx as never);
     const json = await res.json();
     expect(res.status).toBe(200);
     expect(json.flags).toEqual([]);
+    expect(json.degraded).toBe(true);
     expect(h.db.continuityFlag.deleteMany).not.toHaveBeenCalled();
+  });
+
+  it("dedupes the response by signature when runConsistencyChecks emits same-signature rows", async () => {
+    // Two location_conflict issues at the same two locations/chapter, differing
+    // only by event name (not part of the signature) — same signature, two rows.
+    const dup1 = { type: "location_conflict", severity: "major", description: "Milan and Rome, event A", entities: ["Milan", "Rome"], chapters: [7] };
+    const dup2 = { type: "location_conflict", severity: "major", description: "Milan and Rome, event B", entities: ["Milan", "Rome"], chapters: [7] };
+    h.runConsistencyChecks.mockResolvedValue([dup1, dup2]);
+    const res = await POST(req("?chapterNumber=18") as never, ctx as never);
+    const json = await res.json();
+    expect(res.status).toBe(200);
+    expect(json.flags).toHaveLength(1);
   });
 
   it("filters out an intentional-status flag and does not recreate it", async () => {

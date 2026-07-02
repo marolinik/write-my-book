@@ -17,11 +17,13 @@ export function useContinuityScan(bookId: string) {
     inFlight.current = true;
     setScanning(true);
     try {
-      const res = await fetchJson<{ flags: ScanFlag[] }>(
+      const res = await fetchJson<{ flags: ScanFlag[]; degraded?: boolean }>(
         `/api/books/${bookId}/continuity/scan?chapterNumber=${chapterNumber}`,
         { method: "POST" }
       );
-      setFlags(res.flags ?? []);
+      // A degraded (timed-out/errored) check means the scan couldn't run — keep
+      // the prior flags displayed rather than falsely clearing them to "clean".
+      if (!res.degraded) setFlags(res.flags ?? []);
     } catch {
       /* best-effort: keep prior flags, never surface an error */
     } finally {

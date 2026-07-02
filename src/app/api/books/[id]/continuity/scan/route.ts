@@ -59,7 +59,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       issues = await withTimeout(runConsistencyChecks(bookId), GRAPH_TIMEOUT_MS);
     } catch (err) {
       console.error("[continuity-scan] check failed:", err);
-      return NextResponse.json({ flags: [] });
+      return NextResponse.json({ flags: [], degraded: true });
     }
 
     // ── Load existing flags (active for the diff; intentional for the filter). ──
@@ -108,17 +108,24 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     // ── Return all ACTIVE flags with their ids (client needs id for [Intentional]). ──
-    const flags = detected.map((f) => ({
-      id: idBySignature.get(f.signature) as string,
-      signature: f.signature,
-      type: f.type,
-      severity: f.severity,
-      description: f.description,
-      entities: f.entities,
-      chapterNumber: f.chapterNumber,
-      jumpChapter: f.jumpChapter,
-      anchor: f.anchor,
-    }));
+    // dedupe by signature — runConsistencyChecks can emit same-signature rows
+    const seenSignatures = new Set<string>();
+    const flags = [];
+    for (const f of detected) {
+      if (seenSignatures.has(f.signature)) continue;
+      seenSignatures.add(f.signature);
+      flags.push({
+        id: idBySignature.get(f.signature) as string,
+        signature: f.signature,
+        type: f.type,
+        severity: f.severity,
+        description: f.description,
+        entities: f.entities,
+        chapterNumber: f.chapterNumber,
+        jumpChapter: f.jumpChapter,
+        anchor: f.anchor,
+      });
+    }
 
     return NextResponse.json({ flags });
   } catch (error) {
