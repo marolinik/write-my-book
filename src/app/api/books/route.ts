@@ -61,6 +61,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // A book may only join a series the caller owns (prevents cross-user seriesId).
+    if (data.seriesId) {
+      const series = await db.series.findFirst({
+        where: { id: data.seriesId, userId: user.id },
+      });
+      if (!series) {
+        return NextResponse.json(
+          { error: "Series not found" },
+          { status: 404 }
+        );
+      }
+    }
+
     const book = await db.book.create({
       data: {
         userId: user.id,
