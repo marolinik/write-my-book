@@ -28,6 +28,7 @@ import {
   MessageCircle,
   MoreHorizontal,
   Wand2,
+  LibraryBig,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -65,6 +66,8 @@ interface EditorToolbarProps {
   showFindings?: boolean;
   onToggleFindings?: () => void;
   pendingFindingsCount?: number;
+  showSeriesContext?: boolean;
+  onToggleSeriesContext?: () => void;
   showAnnotations?: boolean;
   onToggleAnnotations?: () => void;
   isSaving?: boolean;
@@ -166,6 +169,8 @@ interface ToolbarGroupContext {
   showFindings?: boolean;
   onToggleFindings?: () => void;
   pendingFindingsCount?: number;
+  showSeriesContext?: boolean;
+  onToggleSeriesContext?: () => void;
   showAnnotations?: boolean;
   onToggleAnnotations?: () => void;
   onInlineEdit?: () => void;
@@ -523,6 +528,15 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
             <TooltipContent side="bottom">Findings Panel</TooltipContent>
           </Tooltip>
         )}
+        {ctx.onToggleSeriesContext && (
+          <ToolbarButton
+            icon={<LibraryBig className="h-4 w-4" />}
+            label="Series Context"
+            isActive={ctx.showSeriesContext}
+            pressed={!!ctx.showSeriesContext}
+            onClick={ctx.onToggleSeriesContext}
+          />
+        )}
         {ctx.density !== "compact" && ctx.onToggleHistory && (
           <ToolbarButton
             icon={<History className="h-4 w-4" />}
@@ -571,6 +585,8 @@ export function EditorToolbar({
   showFindings,
   onToggleFindings,
   pendingFindingsCount,
+  showSeriesContext,
+  onToggleSeriesContext,
   showAnnotations,
   onToggleAnnotations,
   isSaving,
@@ -623,6 +639,8 @@ export function EditorToolbar({
     showFindings,
     onToggleFindings,
     pendingFindingsCount,
+    showSeriesContext,
+    onToggleSeriesContext,
     showAnnotations,
     onToggleAnnotations,
     onInlineEdit,

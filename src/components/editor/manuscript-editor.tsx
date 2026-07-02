@@ -47,6 +47,7 @@ import { EditorStatusBar } from "./editor-status-bar";
 import { SaveConflictDialog } from "./save-conflict-dialog";
 import { VersionHistoryPanel } from "./version-history-panel";
 import { VersionHistorySheet } from "./version-history-sheet";
+import { AmbientSeriesPanel } from "./ambient-series-panel";
 import { EditorFindingsPanel } from "./editor-findings-panel";
 import { AnnotationTooltip } from "./annotation-tooltip";
 import { ChapterContextHeader } from "./chapter-context-header";
@@ -96,6 +97,7 @@ interface ManuscriptEditorProps {
   bookLanguage?: string;
   allChapters?: ChapterNavItem[];
   paneId?: string;
+  bookInSeries?: boolean;
 }
 
 // ── Component ────────────────────────────────────────────────
@@ -110,6 +112,7 @@ export function ManuscriptEditor({
   bookLanguage,
   allChapters,
   paneId = "primary",
+  bookInSeries,
 }: ManuscriptEditorProps) {
   const isPrimary = paneId === "primary";
 
@@ -127,6 +130,7 @@ export function ManuscriptEditor({
   const focusLevel = useEditorPaneStore(paneId, (s) => s.focusLevel);
   const ghostTextEnabled = useEditorPaneStore(paneId, (s) => s.ghostTextEnabled);
   const showFindings = useEditorPaneStore(paneId, (s) => s.showFindings);
+  const showSeriesContext = useEditorPaneStore(paneId, (s) => s.showSeriesContext);
   const showAnnotations = useEditorPaneStore(paneId, (s) => s.showAnnotations);
   const showFloatingInput = useEditorPaneStore(paneId, (s) => s.showFloatingInput);
 
@@ -1078,6 +1082,10 @@ export function ManuscriptEditor({
         showFindings={showFindings}
         onToggleFindings={() => paneStore.getState().toggleFindings()}
         pendingFindingsCount={pendingFindingsCount}
+        showSeriesContext={showSeriesContext}
+        onToggleSeriesContext={
+          bookInSeries ? () => paneStore.getState().toggleSeriesContext() : undefined
+        }
         showAnnotations={showAnnotations}
         onToggleAnnotations={() => paneStore.getState().toggleAnnotations()}
         isSaving={isSaving}
@@ -1339,6 +1347,32 @@ export function ManuscriptEditor({
               : `Chapter ${chapterNumber}`
           }
         />
+      )}
+
+      {/* Ambient series context — inline column on lg+, Sheet on smaller screens */}
+      {isLg ? (
+        showSeriesContext && (
+          <div className="w-72 border-l flex flex-col">
+            <AmbientSeriesPanel
+              bookId={bookId}
+              chapterNumber={chapterNumber}
+              onClose={() => paneStore.getState().toggleSeriesContext()}
+            />
+          </div>
+        )
+      ) : (
+        <FindingsSheet
+          open={showSeriesContext}
+          onOpenChange={(open) => {
+            if (!open && paneStore.getState().showSeriesContext) {
+              paneStore.getState().toggleSeriesContext();
+            }
+          }}
+          side={isMobile ? "bottom" : "right"}
+          paneRootRef={paneRootRef}
+        >
+          <AmbientSeriesPanel bookId={bookId} chapterNumber={chapterNumber} />
+        </FindingsSheet>
       )}
     </div>
   );

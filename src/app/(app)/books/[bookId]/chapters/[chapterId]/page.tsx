@@ -67,6 +67,7 @@ export default async function ChapterEditorPage({ params }: PageProps) {
           bookName={book.name}
           bookLanguage={book.language}
           allChapters={allChapters}
+          bookInSeries={!!book.seriesId}
         />
       </SplitEditor>
       <OnboardingWatcher
