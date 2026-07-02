@@ -18,6 +18,8 @@ export default defineConfig({
         "src/lib/llm/model-registry.ts",
         "src/lib/billing/plan-gating.ts",
         "src/lib/documents/version-manager.ts",
+        "src/lib/editorial/discuss-prompt.ts",
+        "src/lib/editorial/finding-conversation.ts",
       ],
     },
   },
