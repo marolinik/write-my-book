@@ -2,12 +2,14 @@
 
 *Assessment date: 2026-06-10, based on codebase survey at commit `2ceff41`.*
 
-> **Progress — updated 2026-07-01.** **Tier 1 fully wired** and **Tier 2 complete**:
-> 2.1 autosave optimistic locking, 2.2 offline draft buffer, 2.3 cost-limit
-> degradation, 2.4 mobile editor, 2.5 accessibility (WCAG 2.1 AA), 2.6 unit tests
-> (Vitest harness + money-path coverage: budget/CAS/plan-gating/model-resolution,
-> 42 tests), 2.7 repo hygiene. **Next:** Tier 4 experience work (4.1 write-first
-> onboarding, 4.2 conversational findings) and/or Tier 3 moats.
+> **Progress — updated 2026-07-02.** **Tier 1 fully wired**, **Tier 2 complete**, and
+> **Tier 4.1 + 4.2 shipped.** Tier 2: 2.1 autosave optimistic locking, 2.2 offline draft
+> buffer, 2.3 cost-limit degradation, 2.4 mobile editor, 2.5 accessibility (WCAG 2.1 AA),
+> 2.6 unit tests (Vitest harness + money-path coverage), 2.7 repo hygiene. **Tier 4.1**
+> write-first onboarding and **Tier 4.2** conversational findings both built the full
+> pipeline (spec → adversarial verify → plan → subagent build → review) and merged to main
+> (75 unit tests total). **Next:** Tier 4.3/4.4 ambient continuity, 4.8 The Shelf, 4.6
+> power-user depth, and/or Tier 3 moats.
 
 **Verdict: ~65/100 production-ready. The bones of a 9/10 product delivering a 6.5/10 experience — mostly because already-built subsystems aren't wired together.** The fastest path to #1 isn't new features; it's connecting what exists, then closing 3 competitive gaps.
 
@@ -82,14 +84,20 @@ Zero ARIA attributes in the editor; keyboard nav is only F2/F8. WCAG 2.1 AA base
 
 *The strategic frame: the moment a writer thinks "the app understands what I'm trying to do" instead of "the app is checking my work," we've won. Reconciled against the codebase — some of this is closer than it looks.*
 
-### 4.1 Write-first onboarding (kill the setup tax)
+### 4.1 Write-first onboarding (kill the setup tax) — ✅ SHIPPED 2026-07-02
+**Shipped:** new book lands the writer directly in a blank Chapter 1 editor; a non-blocking Sonner toast offers style/architecture/bible workflows at 2K/5K/10K words (once ever; ignore→pill on the companion bubble, dismiss→gone); the 6-step wizard is now an opt-in "Guided setup" button. Trigger logic is a pure, unit-tested `computeOnboardingOffers`; the hardened autosave editor was untouched.
+
+**Original target ↓**
 **Today:** `/books/new` forces a choice between import and describe-to-coach; the 6-step setup wizard (`/books/[bookId]/setup`) leads. **Target:** New book → blank editor → start typing. Pipeline follows, doesn't lead:
 - ~2K words: "I've read enough to understand your voice — build a style fingerprint?" (passive capture on first 500 words)
 - ~5K words: offer architecture; ~10K: offer story bible
 - Setup wizard remains as the power-user path, never a wall.
 **Build note:** all the agent workflows exist; this is re-sequencing triggers + a word-count threshold watcher on autosave.
 
-### 4.2 Conversational findings (collaborator, not judge)
+### 4.2 Conversational findings (collaborator, not judge) — ✅ SHIPPED 2026-07-02
+**Shipped:** each finding opens a bounded 3-turn dialogue via a new lightweight `/discuss` endpoint (single haiku turn, atomic turn-cap + 200/24h rate limit, no orchestrator). `FindingConversation` mounts in the editor tooltip→sheet and the editorial card, rendering the agent's revised suggestion in-place via the now-exposed `AIRewriteComparison` (edit + mobile modes). `[Use it] [Use it but edit] [Keep as-is]` — and "Let's talk about this" persists a role-tagged `FindingReply` thread. On keep-as-is, the agent emits one constraint, **server-scoped to the finding's own book** (prompt-injection-safe), feeding the Tier-1.4 loop. Adversarially spec-reviewed (19 defects folded) + final whole-branch review verified all 5 security invariants. Deferred: unread toast/pill, cross-device read-state.
+
+**Original target ↓**
 **Today:** findings UI is apply/dismiss binary; `grep` confirms zero chat surface in `src/components/editorial`. **Target:** each finding opens a dialogue:
 > Dev Editor: "Tension dips at beat 4. Here's the two sentences I'd add — want to see them in place?"
 > `[Use it] [Use it but edit] [Keep as-is] [Let's talk about this]`
