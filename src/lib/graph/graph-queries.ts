@@ -222,6 +222,48 @@ export async function getChapterEntities(
   });
 }
 
+export interface BookCharacterState {
+  name: string;
+  aliases: string[];
+  role: string | null;
+  status: string | null;
+  lastMentioned: number | null;
+  firstAppearance: number | null;
+  description: string | null;
+}
+
+/**
+ * Get full state for every character in a book (role, status, aliases, chapter
+ * span, description). Used by ambient series awareness to surface a prior
+ * book's character state while writing a later book. Read-only, no LLM.
+ */
+export async function getBookCharacterStates(
+  bookId: string
+): Promise<BookCharacterState[]> {
+  return withSession("READ", async (session) => {
+    const result = await session.run(
+      `MATCH (c:Character {bookId: $bookId})
+       RETURN c.name AS name, c.aliases AS aliases, c.role AS role,
+              c.status AS status, c.lastMentioned AS lastMentioned,
+              c.firstAppearance AS firstAppearance, c.description AS description
+       ORDER BY c.lastMentioned DESC`,
+      { bookId }
+    );
+
+    return result.records.map((rec) => ({
+      name: rec.get("name") as string,
+      aliases: (rec.get("aliases") as string[] | null) ?? [],
+      role: (rec.get("role") as string | null) ?? null,
+      status: (rec.get("status") as string | null) ?? null,
+      lastMentioned:
+        rec.get("lastMentioned") != null ? toNumber(rec.get("lastMentioned")) : null,
+      firstAppearance:
+        rec.get("firstAppearance") != null ? toNumber(rec.get("firstAppearance")) : null,
+      description: (rec.get("description") as string | null) ?? null,
+    }));
+  });
+}
+
 /**
  * Run 6 consistency checks on the book's knowledge graph.
  * Returns issues sorted by severity.
