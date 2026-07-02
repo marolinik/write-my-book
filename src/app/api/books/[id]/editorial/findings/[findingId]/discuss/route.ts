@@ -67,41 +67,62 @@ export async function POST(req: Request, { params }: RouteParams) {
 
     const writerMemoryBlock = await formatWriterMemoryForPrompt(user.id, bookId);
 
-    // Atomic: lock the finding row, count user turns, run the turn, persist — all in one txn.
-    const result = await db.$transaction(async (tx) => {
+    // Step 1: lock the finding row and read prior turns inside a short, DB-only txn
+    // (no network I/O while the lock is held — matches tools.ts:987, post-session.ts:443,
+    // version-manager.ts:29, none of which perform network I/O while holding a lock).
+    const precheck = await db.$transaction(async (tx) => {
       await tx.$queryRaw`SELECT id FROM edit_findings WHERE id = ${findingId} FOR UPDATE`;
       const prior = await tx.findingReply.findMany({
         where: { findingId }, orderBy: { createdAt: "asc" }, select: { role: true, content: true },
       });
       const userTurns = prior.filter((r) => r.role === "user").length;
-      if (userTurns >= MAX_USER_TURNS) {
-        return { capped: true as const, assistantMessage: "You've discussed this finding thoroughly (3 exchanges). Ready to make a decision?", userTurns };
+      return { prior, userTurns };
+    });
+
+    if (precheck.userTurns >= MAX_USER_TURNS) {
+      return NextResponse.json(
+        { capped: true, assistantMessage: "You've discussed this finding thoroughly (3 exchanges). Ready to make a decision?", userTurns: precheck.userTurns },
+        { status: 409 }
+      );
+    }
+
+    const { system, user: userPrompt } = buildDiscussPrompt({
+      finding: {
+        category: finding.category, severity: finding.severity, description: finding.description,
+        rationale: finding.rationale, anchorQuote: finding.anchorQuote,
+        alternatives: safeAlternatives(finding.alternatives),
+      },
+      priorTurns: precheck.prior as ThreadTurn[],
+      writerMessage,
+      writerMemoryBlock,
+      agentType: finding.agentType,
+    });
+
+    // Step 2: the network call runs OUTSIDE any transaction/lock.
+    const raw = await runDiscussTurn({ system, user: userPrompt, userId: user.id });
+
+    // Step 3: short atomic check-and-insert — re-verify the cap wasn't crossed by a
+    // concurrent turn between step 1 and now, then persist both replies together.
+    const result = await db.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM edit_findings WHERE id = ${findingId} FOR UPDATE`;
+      const currentUserTurns = await tx.findingReply.count({ where: { findingId, role: "user" } });
+      if (currentUserTurns >= MAX_USER_TURNS) {
+        return { capped: true as const, userTurns: currentUserTurns };
       }
-
-      const { system, user: userPrompt } = buildDiscussPrompt({
-        finding: {
-          category: finding.category, severity: finding.severity, description: finding.description,
-          rationale: finding.rationale, anchorQuote: finding.anchorQuote,
-          alternatives: safeAlternatives(finding.alternatives),
-        },
-        priorTurns: prior as ThreadTurn[],
-        writerMessage,
-        writerMemoryBlock,
-        agentType: finding.agentType,
-      });
-
-      const raw = await runDiscussTurn({ system, user: userPrompt, userId: user.id });
 
       await tx.findingReply.create({ data: { findingId, userId: user.id, role: "user", content: writerMessage } });
       await tx.findingReply.create({ data: { findingId, userId: user.id, role: "assistant", content: raw } });
 
-      return { capped: false as const, raw, userTurns: userTurns + 1 };
+      return { capped: false as const, userTurns: currentUserTurns + 1 };
     });
 
     if (result.capped) {
-      return NextResponse.json({ capped: true, assistantMessage: result.assistantMessage, userTurns: result.userTurns }, { status: 409 });
+      return NextResponse.json(
+        { capped: true, assistantMessage: "You've discussed this finding thoroughly (3 exchanges). Ready to make a decision?", userTurns: result.userTurns },
+        { status: 409 }
+      );
     }
-    const parsed = parseDiscussResponse(result.raw);
+    const parsed = parseDiscussResponse(raw);
     return NextResponse.json({ ...parsed, userTurns: result.userTurns, capped: false });
   } catch (e) {
     if ((e as Error).message === "Unauthorized") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
