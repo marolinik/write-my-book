@@ -3,13 +3,14 @@
 *Assessment date: 2026-06-10, based on codebase survey at commit `2ceff41`.*
 
 > **Progress — updated 2026-07-02.** **Tier 1 fully wired**, **Tier 2 complete**, and
-> **Tier 4.1 + 4.2 shipped.** Tier 2: 2.1 autosave optimistic locking, 2.2 offline draft
+> **Tier 4.1 + 4.2 shipped, plus the Tier 4.3 foundation.** Tier 2: 2.1 autosave optimistic locking, 2.2 offline draft
 > buffer, 2.3 cost-limit degradation, 2.4 mobile editor, 2.5 accessibility (WCAG 2.1 AA),
 > 2.6 unit tests (Vitest harness + money-path coverage), 2.7 repo hygiene. **Tier 4.1**
-> write-first onboarding and **Tier 4.2** conversational findings both built the full
-> pipeline (spec → adversarial verify → plan → subagent build → review) and merged to main
-> (75 unit tests total). **Next:** Tier 4.3/4.4 ambient continuity, 4.8 The Shelf, 4.6
-> power-user depth, and/or Tier 3 moats.
+> write-first onboarding, **Tier 4.2** conversational findings, and the **Tier 4.3**
+> ambient-series-awareness foundation all built the full pipeline (spec → adversarial verify
+> → plan → adversarial plan review → subagent build → review) and merged (4.3 adds a
+> read-only series-context sidebar; 24 confirmed plan-review findings folded pre-build).
+> **Next:** Tier 4.4 live continuity net, 4.8 The Shelf, 4.6 power-user depth, and/or Tier 3 moats.
 
 **Verdict: ~65/100 production-ready. The bones of a 9/10 product delivering a 6.5/10 experience — mostly because already-built subsystems aren't wired together.** The fastest path to #1 isn't new features; it's connecting what exists, then closing 3 competitive gaps.
 
@@ -104,7 +105,10 @@ Zero ARIA attributes in the editor; keyboard nav is only F2/F8. WCAG 2.1 AA base
 
 "Let's talk about this" is the killer option: writer explains intent ("she's evasive on purpose"), agent adapts ("then hint at it one line earlier"). This is also the **highest-quality training signal** — conversational rejections beat binary thumbs (supercharges 1.4). Suggestions render **in-place in the editor** (rewrite-comparison component already exists, unexposed — 1.6), never auto-apply.
 
-### 4.3 Ambient series awareness (proactive, not button-push)
+### 4.3 Ambient series awareness (proactive, not button-push) — ✅ FOUNDATION SHIPPED 2026-07-02
+**Shipped:** a read-only, context-aware **Series context** sidebar in the editor. For the current chapter's on-stage cast it surfaces each character's last-known state from earlier books (role · status · last-seen book/chapter, matched cross-book by name ∪ alias, diacritic-insensitive, latest-book-wins), unresolved plot threads that touch that cast, and an advisory tone-drift chip (sentence/paragraph length vs the series StyleProfile baseline; `dialogueRatio` deliberately excluded as incomparable). All from a new read-only `GET /api/books/[id]/series-context` route — **no agent run** (cheap Neo4j `chapter-entities`/character-state/plot-thread queries + StyleProfile, run concurrently with per-source failure isolation + 5s timeout; the sidebar never 500s and distinguishes "graph offline" from "nothing to show"). Cross-book reads are `userId`-scoped and the series join is ownership-checked (`POST /api/books` also hardened to reject an unowned `seriesId`), making cross-user leakage structurally impossible. Toggle auto-hides on standalone books. Pure resolver + metrics are fully unit-tested; the whole feature went spec → 6-lens adversarial plan review (24 findings folded) → subagent build (fresh implementer + reviewer per unit). **Deferred:** thread discovery from `SERIES_ARCHITECTURE`, vector enrichment, cross-book deep-links, split-view secondary-pane toggle.
+
+**Original target ↓**
 **Today:** continuity check is an end-of-process report; series docs live on a separate page. **Target:** while writing Book 2 Ch 7, a sidebar surfaces character state from Book 1 ("Milan — last seen B1 Ch18, rank Captain, distrusted by council, open thread: what does he know?"), tone drift (sentence-length vs series fingerprint), and open plot threads. Lightweight: vector search (Qdrant, wired via 1.2) + entity lookup (Neo4j) — **no 20-minute agent run**. Arc changes write back a continuity note, not a re-analysis.
 
 ### 4.4 Live continuity safety net (in-book, real-time)
