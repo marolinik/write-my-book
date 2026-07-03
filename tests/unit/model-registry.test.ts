@@ -4,6 +4,9 @@ import {
   resolveFromTier,
   resolveCheapModelFor,
   getModelTierValue,
+  getModelDef,
+  clampMaxTokens,
+  type ModelDefinition,
 } from "@/lib/llm/model-registry";
 
 describe("resolveFromTier", () => {
@@ -55,5 +58,53 @@ describe("getModelTierValue", () => {
   it("orders haiku < sonnet < opus", () => {
     expect(getModelTierValue("haiku")).toBeLessThan(getModelTierValue("sonnet"));
     expect(getModelTierValue("sonnet")).toBeLessThan(getModelTierValue("opus"));
+  });
+});
+
+describe("clampMaxTokens", () => {
+  const withCap: ModelDefinition = {
+    id: "test/capped",
+    provider: "openrouter",
+    modelId: "test/capped",
+    displayName: "Capped",
+    tier: "opus",
+    inputCostPer1M: 1,
+    outputCostPer1M: 1,
+    costTier: "$",
+    supportsTools: true,
+    supportsStreaming: true,
+    maxOutputTokens: 32768,
+  };
+  const noCap: ModelDefinition = { ...withCap, id: "test/uncapped", maxOutputTokens: undefined };
+
+  it("clamps a request that exceeds the model's cap down to the cap", () => {
+    expect(clampMaxTokens(64000, withCap)).toBe(32768);
+  });
+
+  it("leaves the request unchanged when no cap is present", () => {
+    expect(clampMaxTokens(64000, noCap)).toBe(64000);
+  });
+
+  it("leaves the request unchanged when it is below the cap", () => {
+    expect(clampMaxTokens(1000, withCap)).toBe(1000);
+  });
+
+  it("returns the cap when request equals the cap", () => {
+    expect(clampMaxTokens(32768, withCap)).toBe(32768);
+  });
+});
+
+describe("qwen-max output ceiling", () => {
+  it("every openrouter-qwen-max entry declares the 32768 output cap", () => {
+    for (const tier of ["opus", "sonnet", "haiku"] as const) {
+      const def = getModelDef(`openrouter-qwen-max/${tier}`);
+      expect(def, `openrouter-qwen-max/${tier} exists`).toBeDefined();
+      expect(def!.maxOutputTokens, `openrouter-qwen-max/${tier} cap`).toBe(32768);
+    }
+  });
+
+  it("clamps a 64000-token request for qwen-max down to 32768", () => {
+    const def = getModelDef("openrouter-qwen-max/opus")!;
+    expect(clampMaxTokens(64000, def)).toBe(32768);
   });
 });

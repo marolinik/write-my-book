@@ -32,6 +32,14 @@ export interface ModelDefinition {
   supportsStreaming: boolean;
   /** Optional minimum tier required for workflow compatibility */
   minimumTier?: ModelTier;
+  /**
+   * Hard upper bound on output tokens the model/provider will accept in a
+   * single request. When set, requested `max_tokens` MUST be clamped to this
+   * value (see {@link clampMaxTokens}) — providers 400-fail fast (no retry)
+   * when the request exceeds the model's output ceiling. Omit when the model
+   * accepts our default request size; a missing value means "no known cap".
+   */
+  maxOutputTokens?: number;
 }
 
 /** Compute cost tier from output cost per 1M tokens */
@@ -248,6 +256,8 @@ export const MODEL_REGISTRY: ModelDefinition[] = [
     costTier: "$$",
     supportsTools: true,
     supportsStreaming: true,
+    // qwen3-max-thinking caps output at 32768; requesting more 400-fails.
+    maxOutputTokens: 32768,
   },
   {
     id: "openrouter-qwen-max/sonnet",
@@ -260,6 +270,8 @@ export const MODEL_REGISTRY: ModelDefinition[] = [
     costTier: "$$",
     supportsTools: true,
     supportsStreaming: true,
+    // qwen3-max-thinking caps output at 32768; requesting more 400-fails.
+    maxOutputTokens: 32768,
   },
   {
     id: "openrouter-qwen-max/haiku",
@@ -272,6 +284,8 @@ export const MODEL_REGISTRY: ModelDefinition[] = [
     costTier: "$$",
     supportsTools: true,
     supportsStreaming: true,
+    // qwen3-max-thinking caps output at 32768; requesting more 400-fails.
+    maxOutputTokens: 32768,
   },
   // ── Kimi K2.5 via OpenRouter ──────────────────────────────────
   {
@@ -512,6 +526,20 @@ export const MODEL_REGISTRY: ModelDefinition[] = [
 /** Look up a model definition by its registry ID. */
 export function getModelDef(id: string): ModelDefinition | undefined {
   return MODEL_REGISTRY.find((m) => m.id === id);
+}
+
+/**
+ * Clamp a requested `max_tokens` value to the model's output ceiling.
+ * Returns `min(requested, model.maxOutputTokens)` when the model declares a
+ * cap, otherwise the requested value unchanged. Callers MUST route every
+ * hardcoded `max_tokens` through this so models with lower output caps (e.g.
+ * qwen3-max-thinking at 32768) don't 400-fail fast on an oversized request.
+ */
+export function clampMaxTokens(
+  requested: number,
+  model: ModelDefinition,
+): number {
+  return Math.min(requested, model.maxOutputTokens ?? requested);
 }
 
 /**

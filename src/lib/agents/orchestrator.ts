@@ -8,6 +8,7 @@ import {
   type ToolContext,
 } from "./tools";
 import { DocumentService } from "@/lib/documents/document-service";
+import { getModelDef, clampMaxTokens } from "@/lib/llm/model-registry";
 import { estimateCost } from "@/lib/cost";
 import { isOverBudget, isBudgetWarning, resolveEndReason } from "./budget";
 import {
@@ -25,6 +26,8 @@ import type {
 } from "./types";
 
 const MAX_TOOL_TURNS = 50;
+/** Requested per-turn output ceiling; clamped to the model's cap at call time. */
+const REQUESTED_MAX_OUTPUT_TOKENS = 64000;
 const DEFAULT_MAX_RUNTIME_MS = 30 * 60 * 1000; // 30 minutes
 const DEFAULT_MAX_SESSION_COST_USD = 10;
 const APPROVAL_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
@@ -360,6 +363,14 @@ export class AgentOrchestrator {
     let totalInputTokens = 0;
     let totalOutputTokens = 0;
 
+    // Respect each model's output ceiling — models with a lower cap (e.g.
+    // qwen3-max-thinking at 32768) 400-fail fast, no retry, when the request
+    // exceeds it. A missing registry def leaves the requested value untouched.
+    const modelDef = getModelDef(this.registryId);
+    const maxOutputTokens = modelDef
+      ? clampMaxTokens(REQUESTED_MAX_OUTPUT_TOKENS, modelDef)
+      : REQUESTED_MAX_OUTPUT_TOKENS;
+
     // Graceful budget/time degradation state — these paths NEVER throw and
     // NEVER emit SSE "error" (a budget stop is a completion, not a failure).
     let budgetNudgeSent = false;
@@ -391,7 +402,7 @@ export class AgentOrchestrator {
             const stream = this.client.messages.stream(
               {
                 model: modelId,
-                max_tokens: 64000,
+                max_tokens: maxOutputTokens,
                 system: systemPrompt,
                 messages,
                 ...(tools.length > 0 ? { tools } : {}),
