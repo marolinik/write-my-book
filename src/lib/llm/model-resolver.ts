@@ -197,6 +197,55 @@ export function resolveModelForRole(
   };
 }
 
+// ── Conductor (Coach) Resolution ────────────────────────────────
+
+/**
+ * Subset of User model fields needed to resolve the conductor (Coach) model.
+ * Mirrors the global default + per-role override columns on the User model.
+ */
+export interface ConductorUserModelSettings {
+  defaultModel: string | null;
+  modelGhostwriter: string | null;
+  modelEditor: string | null;
+  modelBetaReader: string | null;
+  modelAnalyst: string | null;
+  modelCoach: string | null;
+  modelCreative: string | null;
+}
+
+/**
+ * Resolve which model the Coach conductor should run on.
+ *
+ * The conductor is a real role ("coach") and MUST honor the user's choice —
+ * it walks the exact same 4-level chain the specialists use (book-role →
+ * book-default → global-role → global-default). The terminal fallback is
+ * anthropic/sonnet, produced by {@link resolveModelForRole} when the global
+ * default is missing or unresolvable.
+ *
+ * @param bookSettings - Book-level model settings (null if none exist)
+ * @param user - The user's global default + per-role overrides
+ * @returns The resolved conductor model with its source level
+ */
+export function resolveConductorModel(
+  bookSettings: BookModelSettings | null,
+  user: ConductorUserModelSettings
+): ResolvedModel {
+  const globalDefault = isValidOverride(user.defaultModel)
+    ? user.defaultModel
+    : "anthropic/sonnet";
+
+  const globalRoleOverrides: Record<AgentRole, string | null> = {
+    ghostwriter: user.modelGhostwriter,
+    editor: user.modelEditor,
+    "beta-reader": user.modelBetaReader,
+    analyst: user.modelAnalyst,
+    coach: user.modelCoach,
+    creative: user.modelCreative,
+  };
+
+  return resolveModelForRole("coach", bookSettings, globalRoleOverrides, globalDefault);
+}
+
 // ── Minimum Tier Enforcement ────────────────────────────────────
 
 /**

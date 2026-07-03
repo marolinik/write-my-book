@@ -7,11 +7,11 @@ import { validatePrices } from "@/lib/llm/price-validator";
 import { checkQuota } from "@/lib/billing/quota-checker";
 import {
   resolveModelForRole,
+  resolveConductorModel,
   meetsMinimumTier,
   mapAgentTypeToRole,
   resolveProviderRoute,
   validateApiKey,
-  getModelDef,
   type ProviderKey,
   type AgentRole,
   type BookModelSettings,
@@ -183,7 +183,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         }
       : null;
 
-    // Resolve the specialist model to determine provider
+    // Resolve the specialist model to determine provider + enforce min tier
     const specialistRole = mapAgentTypeToRole(workflow.primaryAgent);
     const specialistResolved = resolveModelForRole(
       specialistRole,
@@ -192,13 +192,22 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       userDefault
     );
 
-    // Coach uses sonnet-tier model from the same provider (cost-effective for routing/coordination)
-    const specialistProvider = specialistResolved.modelDef.provider;
-    const coachRegistryId = `${specialistProvider === "openrouter" ? "openrouter" : specialistProvider}/sonnet`;
-    const coachModelDef = getModelDef(coachRegistryId);
-    // Fall back to anthropic/sonnet if provider doesn't have sonnet
-    const effectiveCoachRegistryId = coachModelDef ? coachRegistryId : "anthropic/sonnet";
-    const effectiveCoachModelDef = coachModelDef ?? getModelDef("anthropic/sonnet")!;
+    // Resolve the Coach conductor honestly via the same 4-level chain the
+    // specialists use (book-role → book-default → global-role → global-default).
+    // This honors the user's coach-role choice instead of forcing sonnet; the
+    // resolved model's provider decides which API key the routing below requires.
+    // Terminal fallback (anthropic/sonnet) is baked into resolveConductorModel.
+    const coachResolved = resolveConductorModel(bookModelSettings, {
+      defaultModel: dbUser?.defaultModel ?? null,
+      modelGhostwriter: dbUser?.modelGhostwriter ?? null,
+      modelEditor: dbUser?.modelEditor ?? null,
+      modelBetaReader: dbUser?.modelBetaReader ?? null,
+      modelAnalyst: dbUser?.modelAnalyst ?? null,
+      modelCoach: dbUser?.modelCoach ?? null,
+      modelCreative: dbUser?.modelCreative ?? null,
+    });
+    const effectiveCoachRegistryId = coachResolved.registryId;
+    const effectiveCoachModelDef = coachResolved.modelDef;
 
     // -- Minimum Tier Check --
     if (workflow.minimumTier && !meetsMinimumTier(specialistResolved.registryId, workflow.minimumTier)) {
