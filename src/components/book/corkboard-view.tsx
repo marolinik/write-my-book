@@ -106,7 +106,10 @@ export function CorkboardView({ bookId, chapters: initialChapters, onReorder }: 
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          order: renumbered.map((c) => c.id),
+          order: renumbered.map((c) => ({
+            chapterId: c.id,
+            chapterNumber: c.chapterNumber,
+          })),
         }),
       });
       toast.success("Chapters reordered");

@@ -18,7 +18,7 @@ import {
   rectSortingStrategy,
 } from "@dnd-kit/sortable";
 import { toast } from "sonner";
-import { useUpdateAnyChapter } from "@/hooks/use-chapters";
+import { useReorderChapters } from "@/hooks/use-chapters";
 import {
   CanvasChapterCard,
   type CanvasChapter,
@@ -32,7 +32,7 @@ interface BookCanvasProps {
 export function BookCanvas({ bookId, initialChapters }: BookCanvasProps) {
   const router = useRouter();
   const [chapters, setChapters] = useState(initialChapters);
-  const updateChapter = useUpdateAnyChapter(bookId);
+  const reorderChapters = useReorderChapters(bookId);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -59,25 +59,21 @@ export function BookCanvas({ bookId, initialChapters }: BookCanvasProps) {
       }));
       setChapters(renumbered);
 
-      // Persist changes for affected chapters
-      const moved = renumbered.filter((ch, i) => {
-        const original = chapters.find((c) => c.id === ch.id);
-        return original && original.chapterNumber !== ch.chapterNumber;
-      });
-
-      Promise.all(
-        moved.map((ch) =>
-          updateChapter.mutateAsync({
+      // Persist the whole new ordering in one atomic request — the endpoint
+      // renumbers transactionally, so no per-chapter PATCH race / P2002.
+      reorderChapters
+        .mutateAsync(
+          renumbered.map((ch) => ({
             chapterId: ch.id,
-            data: { chapterNumber: ch.chapterNumber },
-          })
+            chapterNumber: ch.chapterNumber,
+          }))
         )
-      ).catch(() => {
-        toast.error("Failed to reorder chapters");
-        setChapters(initialChapters);
-      });
+        .catch(() => {
+          toast.error("Failed to reorder chapters");
+          setChapters(initialChapters);
+        });
     },
-    [chapters, initialChapters, updateChapter]
+    [chapters, initialChapters, reorderChapters]
   );
 
   return (

@@ -99,6 +99,28 @@ export function useUpdateAnyChapter(bookId: string) {
   });
 }
 
+/**
+ * Reorder chapters in one atomic request. Sends the full new ordering to the
+ * dedicated reorder endpoint, which renumbers transactionally — avoiding the
+ * P2002 races of firing parallel per-chapter chapterNumber PATCHes.
+ */
+export function useReorderChapters(bookId: string) {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: (order: { chapterId: string; chapterNumber: number }[]) =>
+      fetchJson(`/api/books/${bookId}/chapters/reorder`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ order }),
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["chapters", bookId] });
+      qc.invalidateQueries({ queryKey: ["books", bookId] });
+    },
+  });
+}
+
 /** Delete a chapter. */
 export function useDeleteChapter(bookId: string, chapterId: string) {
   const qc = useQueryClient();
