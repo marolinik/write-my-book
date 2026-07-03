@@ -2,8 +2,8 @@
 
 *Assessment date: 2026-06-10, based on codebase survey at commit `2ceff41`.*
 
-> **Progress — updated 2026-07-02.** **Tier 1 fully wired**, **Tier 2 complete**, and
-> **Tier 4.1 + 4.2 + 4.4 shipped, plus the Tier 4.3 foundation.** Tier 2: 2.1 autosave optimistic locking, 2.2 offline draft
+> **Progress — updated 2026-07-03.** **Tier 1 fully wired**, **Tier 2 complete**, and
+> **Tier 4.1 + 4.2 + 4.4 + 4.8 shipped, plus the Tier 4.3 foundation.** Tier 2: 2.1 autosave optimistic locking, 2.2 offline draft
 > buffer, 2.3 cost-limit degradation, 2.4 mobile editor, 2.5 accessibility (WCAG 2.1 AA),
 > 2.6 unit tests (Vitest harness + money-path coverage), 2.7 repo hygiene. **Tier 4.1**
 > write-first onboarding, **Tier 4.2** conversational findings, the **Tier 4.3**
@@ -11,7 +11,7 @@
 > full pipeline (spec → adversarial verify → plan → adversarial plan review → subagent build →
 > review) and merged (4.3: read-only series sidebar, 24 findings folded; 4.4: dedicated
 > `ContinuityFlag` table + inline flags, 28 findings folded, pivoted off `EditFinding` mid-review).
-> **Next:** 4.8 The Shelf, 4.6 power-user depth, and/or Tier 3 moats.
+> **Next:** 4.6 power-user depth and/or Tier 3 moats (4.8 The Shelf shipped 2026-07-03).
 
 **Verdict: ~65/100 production-ready. The bones of a 9/10 product delivering a 6.5/10 experience — mostly because already-built subsystems aren't wired together.** The fastest path to #1 isn't new features; it's connecting what exists, then closing 3 competitive gaps.
 
@@ -133,7 +133,28 @@ Same machinery as 4.3 scoped to a single book: as the writer types "Milan entere
 ### 4.7 Language as lock-in
 i18n plumbing exists (`SUPPORTED_LANGUAGES`, per-book language). Lean in: a Serbian writer gets agent prompts tuned to Serbian literary tradition, em-dash dialogue conventions, beta personas with local cultural touchstones. Per-language craft packs slot into the skills system (1.1) once it's wired. Not available anywhere else; defensible IP.
 
-### 4.8 The Shelf (writing ritual, not SaaS grid)
+### 4.8 The Shelf (writing ritual, not SaaS grid) — ✅ SHIPPED 2026-07-03
+**Shipped:** the `/books` library is reframed into four state shelves — **Currently Writing**
+(CTA: *Continue → last-edited chapter*), **Waiting for Feedback** (pending editorial findings
+or `status=beta`; CTA: *Review feedback*), **Completed** (`status ∈ {complete, export}`), and
+**Archived** (collapsed attic; *Restore*). Membership is single, from a pure unit-tested
+`assignShelf` classifier (precedence Archived > Completed > Waiting > Currently Writing; **no
+recency filter** — state ≠ recency, sorted `updatedAt desc` within each shelf); every card leads
+with its next action. Three batched `userId`-scoped queries (filtered `_count` for pending
+findings, `chapter.groupBy` status rollup, distinct-per-book latest chapter) with per-source
+degradation (a signal outage degrades card detail, never blanks the shelf). One additive nullable
+`Book.archivedAt` column + a `userId`-scoped `POST /api/books/[id]/archive` route (atomic
+ownership fence via `updateMany where {id,userId}`, mass-assignment-safe) + a **grep-audited
+ripple** that hides archived books from active-nav lists only (dashboard recent grid, `/api/books`;
+Total Books count made active-only while word/chapter sums stay lifetime), deliberately leaving
+history/stats and constraint-critical lookups (dup-name, next-bookNumber, plan-quota) untouched.
+Went spec → **6-lens adversarial plan review** (0 high/critical; 3 minor folded) → subagent build
+(fresh implementer + reviewer per unit) → whole-branch review. tsc 0, 184/184 unit, prod build
+compiles. **Deploy gate:** `prisma db push` for `archivedAt` (the three derived shelves render
+without it; only archive/restore + the Archived shelf need it). **Deferred:** dashboard card
+de-dup; Export CTA on Completed; i18n of shelf copy; archived-shelf pagination.
+
+**Original target ↓**
 Reframe the dashboard around project *states*: **Currently Writing** (continue → last chapter, cursor position), **Waiting for Feedback** (dev edit 4/18 chapters), **Completed** (exported), **Archived**. Data already exists (sessions, statuses, timestamps); this is an emotional-design reframe of `dashboard/page.tsx`. Writers are sentimental about projects — treat that seriously.
 
 ---
