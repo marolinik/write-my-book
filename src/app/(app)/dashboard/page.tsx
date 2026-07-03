@@ -41,11 +41,11 @@ function getWorkflowLabel(workflowId: string | null, lang: string): string {
 export default async function DashboardPage() {
   const user = await requireUser();
 
-  const [books, stats, seriesList, recentSessions, pendingFindings, failedBetaChapters, alerts] =
+  const [books, stats, seriesList, recentSessions, pendingFindings, failedBetaChapters, alerts, activeBookCount] =
     await Promise.all([
       // Recent books
       db.book.findMany({
-        where: { userId: user.id },
+        where: { userId: user.id, archivedAt: null },
         include: { _count: { select: { chapters: true } } },
         orderBy: { updatedAt: "desc" },
         take: 6,
@@ -54,7 +54,6 @@ export default async function DashboardPage() {
       db.book.aggregate({
         where: { userId: user.id },
         _sum: { wordCount: true, chapterCount: true },
-        _count: true,
       }),
       // Series with book counts and total words
       db.series.findMany({
@@ -91,9 +90,11 @@ export default async function DashboardPage() {
         include: { book: { select: { name: true, id: true } } },
         take: 5,
       }),
+      // Active book count (archived excluded) for the Total Books stat card
+      db.book.count({ where: { userId: user.id, archivedAt: null } }),
     ]);
 
-  const totalBooks = stats._count;
+  const totalBooks = activeBookCount; // was: stats._count
   const totalWords = stats._sum.wordCount ?? 0;
   const totalChapters = stats._sum.chapterCount ?? 0;
   const seriesCount = seriesList.length;

@@ -11,7 +11,7 @@ export async function GET() {
     const user = await requireUser();
 
     const books = await db.book.findMany({
-      where: { userId: user.id },
+      where: { userId: user.id, archivedAt: null },
       include: {
         series: { select: { id: true, title: true } },
         settings: true,
