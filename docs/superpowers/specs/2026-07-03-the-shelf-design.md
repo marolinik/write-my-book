@@ -22,8 +22,10 @@ one state that isn't derivable. No agent/LLM on the request path.
 - Pure, unit-tested **shelf classifier** (`assignShelf`), **card-fact summarizer**
   (`summarizeBook`), and **grouper** (`groupBooks`).
 - Reframe of **`/books/page.tsx`** (server component) into four `<ShelfSection>`s, with the
-  book card extracted into a real `<ShelfBookCard>` component (currently inlined-and-duplicated
-  in `dashboard` and `/books`).
+  book card extracted into a real `<ShelfBookCard>` component (from the card currently inlined
+  in `/books`). The dashboard's separate inline card is left as-is — see the "dashboard
+  untouched" deferral below; deduplicating it would require the dashboard to compute
+  rollups/shelf state and is out of this pass's scope.
 - One additive schema column **`Book.archivedAt`** + a `userId`-scoped
   **`POST /api/books/[id]/archive`** route + an `archive-menu` client island.
 - **Ripple audit:** fence every *active-navigation* book listing with `archivedAt: null`, leave
@@ -112,7 +114,7 @@ Pure core — `src/lib/shelf/`
 
 Shell — `src/components/shelf/`
 - `shelf-section.tsx` — presentational: heading + count + card grid + per-shelf empty state; Archived variant **collapsible**.
-- `shelf-book-card.tsx` — reframed card (server-renderable); extracts the card inlined-and-duplicated in `dashboard/page.tsx` and `books/page.tsx`. Archive control nested as a client island.
+- `shelf-book-card.tsx` — reframed card (server-renderable); extracts the card currently inlined in `books/page.tsx` (the dashboard keeps its own separate inline card — see the dashboard-untouched deferral). Archive control nested as a client island.
 - `archive-menu.tsx` — client island: kebab → Archive (confirm) / Restore (one-click); POST then `router.refresh()`; Sonner toast on failure.
 
 Route — `src/app/api/books/[id]/archive/route.ts`.
