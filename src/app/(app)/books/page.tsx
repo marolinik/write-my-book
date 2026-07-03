@@ -1,21 +1,15 @@
 import Link from "next/link";
-import {
-  BookOpenIcon,
-  PlusIcon,
-} from "lucide-react";
+import { BookOpenIcon, PlusIcon } from "lucide-react";
 
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getUIStrings } from "@/lib/i18n/ui-strings";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { buildRollups } from "@/lib/shelf/chapter-rollup";
+import { groupBooks } from "@/lib/shelf/group-books";
+import type { ChapterRollup, ChapterStatusRow, ShelfBookInput } from "@/lib/shelf/types";
+import { ShelfSection } from "@/components/shelf/shelf-section";
 
 export const dynamic = "force-dynamic";
 
@@ -24,22 +18,83 @@ export default async function BooksPage() {
   const t = getUIStrings(user.preferredLanguage ?? "en");
   const s = t.bookList;
 
-  const books = await db.book.findMany({
+  // Q1 (essential): books + signals. Includes archived rows; grouper splits by archivedAt.
+  const rows = await db.book.findMany({
     where: { userId: user.id },
-    include: {
-      series: { select: { id: true, title: true } },
-      _count: { select: { chapters: true } },
+    select: {
+      id: true,
+      name: true,
+      genre: true,
+      status: true,
+      wordCount: true,
+      archivedAt: true,
+      updatedAt: true,
+      _count: {
+        select: {
+          chapters: true,
+          editFindings: { where: { status: "pending" } },
+        },
+      },
     },
     orderBy: { updatedAt: "desc" },
   });
 
+  const books: ShelfBookInput[] = rows.map((b) => ({
+    id: b.id,
+    name: b.name,
+    genre: b.genre,
+    status: b.status,
+    wordCount: b.wordCount,
+    archivedAt: b.archivedAt,
+    updatedAt: b.updatedAt,
+    chapterCount: b._count.chapters,
+    pendingFindings: b._count.editFindings,
+  }));
+
+  // Q2 (secondary, degradable): per-book chapter-status tally.
+  let rollups = new Map<string, ChapterRollup>();
+  try {
+    const grouped = await db.chapter.groupBy({
+      by: ["bookId", "status"],
+      where: { book: { userId: user.id } },
+      _count: true,
+    });
+    const statusRows: ChapterStatusRow[] = grouped.map((g) => ({
+      bookId: g.bookId,
+      status: g.status,
+      count: g._count,
+    }));
+    rollups = buildRollups(statusRows);
+  } catch (error) {
+    console.error("Shelf: chapter rollup failed, degrading", error);
+  }
+
+  // Q3 (secondary, degradable): latest chapter per book for the Continue deep-link.
+  let lastChapters = new Map<string, { id: string; chapterNumber: number }>();
+  try {
+    const chapters = await db.chapter.findMany({
+      where: { book: { userId: user.id } },
+      orderBy: [{ bookId: "asc" }, { updatedAt: "desc" }],
+      distinct: ["bookId"],
+      select: { bookId: true, id: true, chapterNumber: true },
+    });
+    lastChapters = new Map(
+      chapters.map((c) => [c.bookId, { id: c.id, chapterNumber: c.chapterNumber }]),
+    );
+  } catch (error) {
+    console.error("Shelf: last-chapter lookup failed, degrading", error);
+  }
+
+  const groups = groupBooks({ books, rollups, lastChapters, now: new Date() });
+  const total = books.length;
+
   return (
     <div className="p-6 lg:p-8">
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold">{s.title}</h1>
           <p className="text-sm text-muted-foreground">
-            {books.length} {books.length === 1 ? s.book : s.books}
+            {total} {total === 1 ? s.book : s.books}
           </p>
         </div>
         <Button asChild>
@@ -50,14 +105,12 @@ export default async function BooksPage() {
         </Button>
       </div>
 
-      {books.length === 0 ? (
+      {total === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <BookOpenIcon className="size-12 text-muted-foreground/50 mb-4" />
-            <h3 className="text-lg font-medium mb-1">{s.noBooks}</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              {s.noBooksDesc}
-            </p>
+            <BookOpenIcon className="mb-4 size-12 text-muted-foreground/50" />
+            <h3 className="mb-1 text-lg font-medium">{s.noBooks}</h3>
+            <p className="mb-4 text-sm text-muted-foreground">{s.noBooksDesc}</p>
             <Button asChild>
               <Link href="/books/new">
                 <PlusIcon className="mr-1 size-4" />
@@ -67,38 +120,11 @@ export default async function BooksPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {books.map((book) => (
-            <Link key={book.id} href={`/books/${book.id}`}>
-              <Card className="transition-colors hover:bg-accent/50">
-                <CardHeader className="pb-2">
-                  <div className="flex items-start justify-between">
-                    <CardTitle className="text-base">{book.name}</CardTitle>
-                    <Badge variant="secondary" className="text-xs capitalize">
-                      {book.status}
-                    </Badge>
-                  </div>
-                  {book.genre && (
-                    <CardDescription>{book.genre}</CardDescription>
-                  )}
-                </CardHeader>
-                <CardContent>
-                  <div className="flex gap-4 text-xs text-muted-foreground">
-                    <span>{book.wordCount.toLocaleString()} {s.words}</span>
-                    <span>{book._count.chapters} {s.chapters}</span>
-                  </div>
-                  {book.series && (
-                    <p className="mt-1 text-xs text-muted-foreground/70">
-                      {s.series} {book.series.title} (#{book.bookNumber})
-                    </p>
-                  )}
-                  <p className="mt-1 text-xs text-muted-foreground/70">
-                    {s.updated} {new Date(book.updatedAt).toLocaleDateString()}
-                  </p>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+        <div>
+          <ShelfSection title="Currently Writing" books={groups.currentlyWriting} />
+          <ShelfSection title="Waiting for Feedback" books={groups.waiting} />
+          <ShelfSection title="Completed" books={groups.completed} />
+          <ShelfSection title="Archived" books={groups.archived} collapsible />
         </div>
       )}
     </div>
