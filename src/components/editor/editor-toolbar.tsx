@@ -29,6 +29,7 @@ import {
   MoreHorizontal,
   Wand2,
   LibraryBig,
+  Replace,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -80,6 +81,7 @@ interface EditorToolbarProps {
   onToggleFloatingInput?: () => void;
   ghostTextEnabled?: boolean;
   onToggleGhostText?: () => void;
+  onFindReplace?: () => void;
 }
 
 interface ToolbarButtonProps {
@@ -180,6 +182,7 @@ interface ToolbarGroupContext {
   onToggleFloatingInput?: () => void;
   ghostTextEnabled?: boolean;
   onToggleGhostText?: () => void;
+  onFindReplace?: () => void;
 }
 
 const TOOLBAR_GROUPS: ToolbarGroup[] = [
@@ -377,6 +380,13 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
           onChange={ctx.onFocusLevelChange}
           onEnterImmersive={ctx.onEnterImmersive}
         />
+        {ctx.onFindReplace && (
+          <ToolbarButton
+            icon={<Replace className="h-4 w-4" />}
+            label="Find & Replace (Ctrl+Shift+F)"
+            onClick={ctx.onFindReplace}
+          />
+        )}
         {ctx.onInlineEdit && (
           <ToolbarButton
             icon={<Sparkles className="h-4 w-4" />}
@@ -444,6 +454,12 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
           <DropdownMenuItem onClick={ctx.onEnterImmersive}>
             <Maximize2 className="mr-2 h-4 w-4" />
             Immersive Mode
+          </DropdownMenuItem>
+        )}
+        {ctx.onFindReplace && (
+          <DropdownMenuItem onClick={ctx.onFindReplace}>
+            <Replace className="mr-2 h-4 w-4" />
+            Find &amp; Replace (Ctrl+Shift+F)
           </DropdownMenuItem>
         )}
         {ctx.onInlineEdit && (
@@ -599,6 +615,7 @@ export function EditorToolbar({
   onToggleFloatingInput,
   ghostTextEnabled,
   onToggleGhostText,
+  onFindReplace,
 }: EditorToolbarProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [density, setDensity] = useState<ToolbarDensity>("full");
@@ -650,6 +667,7 @@ export function EditorToolbar({
     onToggleFloatingInput,
     ghostTextEnabled,
     onToggleGhostText,
+    onFindReplace,
   };
 
   const primaryGroups = TOOLBAR_GROUPS.filter((g) => g.priority === "primary");

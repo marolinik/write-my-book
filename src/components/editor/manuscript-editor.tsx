@@ -45,6 +45,7 @@ import { EditorContextMenu } from "./editor-context-menu";
 import { EditorToolbar } from "./editor-toolbar";
 import { EditorStatusBar } from "./editor-status-bar";
 import { SaveConflictDialog } from "./save-conflict-dialog";
+import { FindReplaceDialog } from "./find-replace-dialog";
 import { VersionHistoryPanel } from "./version-history-panel";
 import { VersionHistorySheet } from "./version-history-sheet";
 import { AmbientSeriesPanel } from "./ambient-series-panel";
@@ -167,6 +168,7 @@ export function ManuscriptEditor({
   const paneRootRef = useRef<HTMLDivElement>(null);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [showSaveConflict, setShowSaveConflict] = useState(false);
+  const [showFindReplace, setShowFindReplace] = useState(false);
   const [showInlineEdit, setShowInlineEdit] = useState(false);
   const [inlineEditInstruction, setInlineEditInstruction] = useState<string | undefined>(undefined);
   const [tooltipState, setTooltipState] = useState<TooltipState | null>(null);
@@ -767,6 +769,30 @@ export function ManuscriptEditor({
     return () => document.removeEventListener("keydown", handler);
   }, [editor, showInlineEdit, isPrimary]);
 
+  // Ctrl+Shift+F: open Find & Replace. Guarded identically to F2 so it never
+  // fires from inside a form field or an already-open dialog.
+  useEffect(() => {
+    if (!editor) return;
+    const handler = (e: KeyboardEvent) => {
+      if (
+        (e.ctrlKey || e.metaKey) &&
+        e.shiftKey &&
+        (e.key === "F" || e.key === "f")
+      ) {
+        if ((e.target as HTMLElement | null)?.closest(SHORTCUT_GUARD_SELECTOR)) {
+          return;
+        }
+        if (!ownsEditorShortcut(e.target, paneRootRef.current, isPrimary)) {
+          return;
+        }
+        e.preventDefault();
+        setShowFindReplace(true);
+      }
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [editor, isPrimary]);
+
   // Watch for finding-card clicks → open inline edit popup
   const pendingInlineEditFinding = useEditorPaneStore(paneId, (s) => s.pendingInlineEditFinding);
 
@@ -1147,6 +1173,7 @@ export function ManuscriptEditor({
         }
         showFloatingInput={showFloatingInput}
         onToggleFloatingInput={() => paneStore.getState().toggleFloatingInput()}
+        onFindReplace={() => setShowFindReplace(true)}
       />
 
       {/* Live continuity net (Tier 4.4): quiet status beside the toolbar's panel toggles */}
@@ -1390,6 +1417,14 @@ export function ManuscriptEditor({
         chapterId={chapterId}
         paneId={paneId}
         editor={editor}
+      />
+
+      {/* Find & Replace — toolbar "More tools" or Ctrl+Shift+F */}
+      <FindReplaceDialog
+        open={showFindReplace}
+        onOpenChange={setShowFindReplace}
+        bookId={bookId}
+        chapterId={chapterId}
       />
 
       {/* Version history sidebar — inline on lg+, Sheet on smaller screens */}

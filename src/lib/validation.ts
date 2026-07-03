@@ -201,6 +201,25 @@ export const updateChapterContentSchema = z.object({
   expectedVersion: z.number().int().min(1).optional(),
 });
 
+// Find & Replace (S4). Plain-text, no regex; q bounded 2..200 chars.
+// caseSensitive arrives as a query string ("0"/"1") — treat only "1"/"true"
+// as sensitive so the default (absent / "0") stays case-insensitive.
+export const searchQuerySchema = z.object({
+  q: z.string().min(2).max(200),
+  caseSensitive: z
+    .string()
+    .nullish()
+    .transform((v) => v === "1" || v === "true"),
+});
+
+export const replaceRequestSchema = z.object({
+  find: z.string().min(2).max(200),
+  replace: z.string().max(200),
+  // Absent = every chapter in the book; present = only these chapter ids.
+  chapterIds: z.array(z.string()).optional(),
+  caseSensitive: z.boolean().optional().default(false),
+});
+
 export const exportConfigSchema = z.object({
   metadata: z.object({
     title: z.string().max(500),
