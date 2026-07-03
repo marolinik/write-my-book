@@ -19,7 +19,11 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { getModelDef, resolveFromTier, type LLMProvider, type ModelDefinition } from "./model-registry";
 
-const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
+// The Anthropic SDK appends `/v1/messages` to baseURL, so the base must be
+// `/api` (NOT `/api/v1`, which would 404 at `/api/v1/v1/messages`). Verified
+// live: OpenRouter's Anthropic-compatible endpoint is `/api/v1/messages` and
+// accepts non-Claude models (qwen, deepseek, …) in Anthropic messages format.
+const OPENROUTER_BASE_URL = "https://openrouter.ai/api";
 const LITELLM_BASE_URL = process.env.LITELLM_BASE_URL || "http://localhost:30400";
 
 export interface LLMClientOptions {
@@ -270,15 +274,14 @@ export function resolveProviderRoute(
 /**
  * Check if a model needs the LiteLLM proxy for format translation.
  * Returns true ONLY when using direct provider keys via the proxy.
- * OpenRouter-fallback routes do NOT go through LiteLLM proxy.
+ * OpenRouter-fallback routes do NOT go through LiteLLM proxy — OpenRouter's
+ * Anthropic-compatible /messages endpoint natively serves non-Claude models
+ * (verified live with qwen/*), so the old detour of openrouter-provider
+ * non-Claude models to a localhost LiteLLM (dead by default in dev/prod
+ * unless LITELLM_BASE_URL is deployed) broke every such model.
  */
-function needsLiteLLMProxy(model: ModelDefinition, route: ProviderRouteResult): boolean {
-  if (route.route === "litellm-proxy") return true;
-  // Legacy: non-Anthropic models on OpenRouter that aren't using the baseURL swap
-  if (route.route === "openrouter" && model.provider === "openrouter" && !model.modelId.startsWith("anthropic/")) {
-    return true;
-  }
-  return false;
+function needsLiteLLMProxy(_model: ModelDefinition, route: ProviderRouteResult): boolean {
+  return route.route === "litellm-proxy";
 }
 
 /**
