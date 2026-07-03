@@ -36,6 +36,8 @@ interface WritingHeatmapProps {
   bestStreak: number;
   /** Total words written in the period */
   totalWords: number;
+  /** BCP-47 locale tag for number/date formatting (e.g. "en-US") */
+  locale: string;
 }
 
 /** Color intensity based on word count — NEVER empty for any writing */
@@ -56,6 +58,7 @@ export function WritingHeatmap({
   currentStreak,
   bestStreak,
   totalWords,
+  locale,
 }: WritingHeatmapProps) {
   const [hoveredDay, setHoveredDay] = useState<DayData | null>(null);
 
@@ -179,9 +182,9 @@ export function WritingHeatmap({
                       />
                     </TooltipTrigger>
                     <TooltipContent side="top" className="text-xs">
-                      <p className="font-medium">{day.words.toLocaleString()} words</p>
+                      <p className="font-medium">{day.words.toLocaleString(locale)} words</p>
                       <p className="text-muted-foreground">
-                        {new Date(day.date).toLocaleDateString(undefined, {
+                        {new Date(day.date).toLocaleDateString(locale, {
                           weekday: "short",
                           month: "short",
                           day: "numeric",
@@ -205,9 +208,9 @@ export function WritingHeatmap({
             <span>More</span>
           </div>
           <div className="flex gap-3 text-[10px] text-muted-foreground">
-            <span>{totalWords.toLocaleString()} words total</span>
+            <span>{totalWords.toLocaleString(locale)} words total</span>
             <span>{activeDays} active days</span>
-            <span>{avgWords.toLocaleString()} avg/day</span>
+            <span>{avgWords.toLocaleString(locale)} avg/day</span>
           </div>
         </div>
       </CardContent>

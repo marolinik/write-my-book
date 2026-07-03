@@ -71,6 +71,7 @@ export interface UIStrings {
     quickActions: string;
     startWriting: string;
     importManuscript: string;
+    viewAll: string;
   };
 
   // Settings
@@ -401,6 +402,7 @@ const EN: UIStrings = {
     quickActions: "Quick Actions",
     startWriting: "Start Writing",
     importManuscript: "Import Manuscript",
+    viewAll: "View all",
   },
   settings: {
     title: "Settings",
@@ -688,6 +690,7 @@ const SR: UIStrings = {
     quickActions: "Brze radnje",
     startWriting: "Počni pisanje",
     importManuscript: "Uvezi rukopis",
+    viewAll: "Prikaži sve",
   },
   settings: {
     title: "Podešavanja",
@@ -975,6 +978,7 @@ const DE: UIStrings = {
     quickActions: "Schnellaktionen",
     startWriting: "Schreiben starten",
     importManuscript: "Manuskript importieren",
+    viewAll: "Alle anzeigen",
   },
   settings: {
     title: "Einstellungen",
@@ -1262,6 +1266,7 @@ const ES: UIStrings = {
     quickActions: "Acciones rápidas",
     startWriting: "Empezar a escribir",
     importManuscript: "Importar manuscrito",
+    viewAll: "Ver todo",
   },
   settings: {
     title: "Ajustes",
@@ -1549,6 +1554,7 @@ const FR: UIStrings = {
     quickActions: "Actions rapides",
     startWriting: "Commencer à écrire",
     importManuscript: "Importer un manuscrit",
+    viewAll: "Tout voir",
   },
   settings: {
     title: "Paramètres",
@@ -1836,6 +1842,7 @@ const RU: UIStrings = {
     quickActions: "Быстрые действия",
     startWriting: "Начать писать",
     importManuscript: "Импортировать рукопись",
+    viewAll: "Показать все",
   },
   settings: {
     title: "Настройки",
@@ -2123,6 +2130,7 @@ const ZH: UIStrings = {
     quickActions: "快捷操作",
     startWriting: "开始写作",
     importManuscript: "导入手稿",
+    viewAll: "查看全部",
   },
   settings: {
     title: "设置",
@@ -2367,6 +2375,34 @@ export function getUIStrings(language: string): UIStrings {
     UI_STRINGS[language] ??
     UI_STRINGS[language.split("-")[0]] ??
     EN
+  );
+}
+
+/**
+ * BCP-47 locale tags for each supported UI language code.
+ * Used for number/date formatting (toLocaleString, Intl.*) so output does
+ * NOT leak the server/system locale (e.g. Serbian day names or "500.000").
+ */
+const LOCALE_TAGS: Record<string, string> = {
+  en: "en-US",
+  sr: "sr-RS",
+  de: "de-DE",
+  es: "es-ES",
+  fr: "fr-FR",
+  ru: "ru-RU",
+  zh: "zh-CN",
+};
+
+/**
+ * Map a UI language code to a BCP-47 locale tag for number/date formatting.
+ * Falls back to "en-US" for unsupported codes. Also handles tags with a
+ * region suffix (e.g. "en-GB" -> "en" -> "en-US").
+ */
+export function localeFor(language: string): string {
+  return (
+    LOCALE_TAGS[language] ??
+    LOCALE_TAGS[language.split("-")[0]] ??
+    "en-US"
   );
 }
 

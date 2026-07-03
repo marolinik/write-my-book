@@ -16,7 +16,7 @@ import {
   getDailyWordCounts,
   getTodayWords,
 } from "@/lib/writing-stats";
-import { getUIStrings } from "@/lib/i18n/ui-strings";
+import { getUIStrings, localeFor } from "@/lib/i18n/ui-strings";
 import { getAgentStrings } from "@/lib/i18n/agent-strings";
 import { getWorkflow } from "@/lib/agents/workflows";
 import { Badge } from "@/components/ui/badge";
@@ -547,6 +547,7 @@ export default async function BookDetailPage({
           currentStreak={currentStreak}
           bestStreak={bestStreak}
           totalWords={periodWords}
+          locale={localeFor(user.preferredLanguage ?? "en")}
         />
       </div>
 

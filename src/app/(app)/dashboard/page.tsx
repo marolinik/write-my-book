@@ -16,7 +16,7 @@ import {
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getDailyWordCounts } from "@/lib/writing-stats";
-import { getUIStrings } from "@/lib/i18n/ui-strings";
+import { getUIStrings, localeFor } from "@/lib/i18n/ui-strings";
 import { getAgentStrings } from "@/lib/i18n/agent-strings";
 import { getWorkflow } from "@/lib/agents/workflows";
 import { Badge } from "@/components/ui/badge";
@@ -99,25 +99,27 @@ export default async function DashboardPage() {
   const totalChapters = stats._sum.chapterCount ?? 0;
   const seriesCount = seriesList.length;
   const t = getUIStrings(user.preferredLanguage ?? "en");
+  const locale = localeFor(user.preferredLanguage ?? "en");
 
   // Continue Where You Left Off: most recently updated book with its most recently updated chapter
   const lastBook = books[0] ?? null;
-  let lastChapter: { chapterNumber: number; title: string | null } | null = null;
+  let lastChapter: { id: string; chapterNumber: number; title: string | null } | null = null;
   if (lastBook) {
     const ch = await db.chapter.findFirst({
       where: { bookId: lastBook.id },
       orderBy: { updatedAt: "desc" },
-      select: { chapterNumber: true, title: true },
+      select: { id: true, chapterNumber: true, title: true },
     });
     lastChapter = ch;
   }
 
   // Writing activity: real per-day word deltas for the last 7 days (UTC-bucketed)
   const dailyCounts = await getDailyWordCounts({ userId: user.id, days: 7 });
+  const weekdayFormatter = new Intl.DateTimeFormat(locale, { weekday: "short" });
   const activityDays = dailyCounts.map(({ date, words }) => ({
     date,
     words,
-    label: new Date(date + "T00:00:00").toLocaleDateString(undefined, { weekday: "short" }),
+    label: weekdayFormatter.format(new Date(date + "T00:00:00")),
   }));
   const weeklyTotal = activityDays.reduce((s, d) => s + d.words, 0);
   const maxWords = Math.max(...activityDays.map((d) => d.words), 1);
@@ -203,7 +205,7 @@ export default async function DashboardPage() {
             <PenLineIcon className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalWords.toLocaleString()}</div>
+            <div className="text-2xl font-bold">{totalWords.toLocaleString(locale)}</div>
           </CardContent>
         </Card>
         <Card>
@@ -242,7 +244,7 @@ export default async function DashboardPage() {
                     {lastChapter.title ? `: ${lastChapter.title}` : ""}
                     {" — "}
                     {t.dashboard.lastEdited}{" "}
-                    {new Date(lastBook.updatedAt).toLocaleDateString()}
+                    {new Date(lastBook.updatedAt).toLocaleDateString(locale)}
                   </p>
                 )}
               </div>
@@ -250,7 +252,7 @@ export default async function DashboardPage() {
                 <Link
                   href={
                     lastChapter
-                      ? `/books/${lastBook.id}/documents`
+                      ? `/books/${lastBook.id}/chapters/${lastChapter.id}`
                       : `/books/${lastBook.id}`
                   }
                 >
@@ -271,7 +273,7 @@ export default async function DashboardPage() {
             <div className="flex items-center justify-between">
               <CardTitle className="text-base">{t.dashboard.writingActivity}</CardTitle>
               <span className="text-sm text-muted-foreground">
-                {weeklyTotal.toLocaleString()} {t.dashboard.wordsThisWeek}
+                {weeklyTotal.toLocaleString(locale)} {t.dashboard.wordsThisWeek}
               </span>
             </div>
           </CardHeader>
@@ -284,7 +286,7 @@ export default async function DashboardPage() {
                     style={{
                       height: `${Math.max((day.words / maxWords) * 80, 2)}px`,
                     }}
-                    title={`${day.words.toLocaleString()} ${t.dashboard.words}`}
+                    title={`${day.words.toLocaleString(locale)} ${t.dashboard.words}`}
                   />
                   <span className="text-[10px] text-muted-foreground">{day.label}</span>
                 </div>
@@ -363,7 +365,7 @@ export default async function DashboardPage() {
                     </span>
                     <span className="text-xs">
                       {s.completedAt
-                        ? new Date(s.completedAt).toLocaleDateString()
+                        ? new Date(s.completedAt).toLocaleDateString(locale)
                         : ""}
                     </span>
                   </div>
@@ -380,7 +382,7 @@ export default async function DashboardPage() {
           <h2 className="font-display text-xl font-semibold">{t.dashboard.recentBooks}</h2>
           <Button asChild size="sm" variant="outline">
             <Link href="/books">
-              {t.dashboard.totalBooks}
+              {t.dashboard.viewAll}
               <ArrowRightIcon className="ml-1 size-4" />
             </Link>
           </Button>
@@ -420,12 +422,12 @@ export default async function DashboardPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="flex gap-4 text-xs text-muted-foreground">
-                      <span>{book.wordCount.toLocaleString()} {t.dashboard.words}</span>
+                      <span>{book.wordCount.toLocaleString(locale)} {t.dashboard.words}</span>
                       <span>{book._count.chapters} {t.dashboard.chapters}</span>
                     </div>
                     <p className="mt-2 text-xs text-muted-foreground/70">
                       {t.dashboard.updated}{" "}
-                      {new Date(book.updatedAt).toLocaleDateString()}
+                      {new Date(book.updatedAt).toLocaleDateString(locale)}
                     </p>
                   </CardContent>
                 </Card>
@@ -477,7 +479,7 @@ export default async function DashboardPage() {
                     <CardContent>
                       <div className="flex gap-4 text-xs text-muted-foreground">
                         <span>{series._count.books} {t.seriesPage.books}</span>
-                        <span>{totalSeriesWords.toLocaleString()} {t.dashboard.words}</span>
+                        <span>{totalSeriesWords.toLocaleString(locale)} {t.dashboard.words}</span>
                       </div>
                     </CardContent>
                   </Card>
