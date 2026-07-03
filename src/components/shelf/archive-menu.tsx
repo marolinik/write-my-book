@@ -43,7 +43,7 @@ export function ArchiveMenu({ bookId, archived }: ArchiveMenuProps) {
       toast.success(next ? "Book archived" : "Book restored");
       router.refresh();
     } catch {
-      toast.error(next ? "Couldn’t archive the book" : "Couldn’t restore the book");
+      toast.error(next ? "Couldn't archive the book" : "Couldn't restore the book");
     } finally {
       setBusy(false);
       setConfirmOpen(false);

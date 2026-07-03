@@ -14,7 +14,7 @@ const ANALYZED: ReadonlySet<string> = new Set([
   "beta_passed",
 ]);
 
-/** Folds chapter.groupBy rows into a per-book {total, drafted, analyzed} tally. */
+/** Folds chapter.groupBy rows into a per-book {drafted, analyzed} tally. */
 export function buildRollups(rows: ChapterStatusRow[]): Map<string, ChapterRollup> {
   const map = new Map<string, ChapterRollup>();
   for (const row of rows) {
