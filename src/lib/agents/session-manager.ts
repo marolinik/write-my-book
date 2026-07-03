@@ -138,65 +138,96 @@ export function cancelSession(sessionId: string): void {
   }
 }
 
-/** Append a user message to the conversation history. */
-export function addUserMessage(sessionId: string, content: string): void {
-  const session = sessions.get(sessionId);
-  if (!session) return;
-  const turnIndex = session.conversationHistory.length;
-  session.conversationHistory.push({ role: "user", content });
+/** Max ConversationTurn rows rehydrated into a continued session (bounds token cost). */
+const MAX_REHYDRATED_TURNS = 40;
 
-  // Fire-and-forget DB persistence
-  db.conversationTurn
-    .create({
-      data: {
-        sessionId,
-        turnIndex,
-        role: "user",
-        content: JSON.stringify(content),
-      },
-    })
-    .catch((e) => console.error("[SessionManager] Failed to persist user turn:", e));
-}
-
-/** Append an assistant message to the conversation history. */
-export function addAssistantMessage(
+/**
+ * Persist a user turn to the DB for cross-restart conversation continuity.
+ *
+ * Persistence-only: the in-memory `conversationHistory` is maintained by the
+ * orchestrator via reference mutation (continueConversation/runToolLoop push
+ * onto the same array), so this deliberately does NOT touch it — doing so would
+ * double-append. `turnIndex` is derived from the current row count so it stays
+ * unique+monotonic (satisfying @@unique([sessionId, turnIndex])) WITHOUT
+ * depending on an in-memory session — the background worker has none. Turns
+ * within a session are written strictly sequentially (user → assistant reply
+ * seconds later), so the count read is race-free in practice; the unique
+ * constraint plus this try/catch are the backstop. Fire-safe: a persistence
+ * failure is logged and never propagates to the session.
+ */
+export async function addUserMessage(
   sessionId: string,
-  content: Anthropic.ContentBlock[]
-): void {
-  const session = sessions.get(sessionId);
-  if (!session) return;
-  const turnIndex = session.conversationHistory.length;
-  session.conversationHistory.push({ role: "assistant", content });
-
-  // Fire-and-forget DB persistence
-  db.conversationTurn
-    .create({
-      data: {
-        sessionId,
-        turnIndex,
-        role: "assistant",
-        content: JSON.stringify(content),
-      },
-    })
-    .catch((e) => console.error("[SessionManager] Failed to persist assistant turn:", e));
+  content: string
+): Promise<void> {
+  try {
+    const turnIndex = await db.conversationTurn.count({ where: { sessionId } });
+    await db.conversationTurn.create({
+      data: { sessionId, turnIndex, role: "user", content: JSON.stringify(content) },
+    });
+  } catch (e) {
+    console.error("[SessionManager] Failed to persist user turn:", e);
+  }
 }
 
 /**
- * Load conversation history from DB for session reconstruction.
- * Used when in-memory session is lost (e.g. server restart).
+ * Persist an assistant turn (final reply TEXT only) to the DB.
+ *
+ * Only the final text is stored — NOT the raw content blocks — so a rehydrated
+ * history can never contain a tool_use block without its matching tool_result
+ * (which the provider API rejects). See addUserMessage for the turnIndex /
+ * fire-safe / persistence-only rationale.
+ */
+export async function addAssistantMessage(
+  sessionId: string,
+  text: string
+): Promise<void> {
+  try {
+    const turnIndex = await db.conversationTurn.count({ where: { sessionId } });
+    await db.conversationTurn.create({
+      data: { sessionId, turnIndex, role: "assistant", content: JSON.stringify(text) },
+    });
+  } catch (e) {
+    console.error("[SessionManager] Failed to persist assistant turn:", e);
+  }
+}
+
+/**
+ * Load conversation history from the DB for session reconstruction (used when
+ * the in-memory session is lost, e.g. a server restart).
+ *
+ * Returns the LAST MAX_REHYDRATED_TURNS turns in chronological (createdAt) order,
+ * trimmed so the result is a valid provider message list: it starts on a user
+ * turn (a leading assistant turn — possible once the cap drops older rows — is
+ * dropped) and ends on an assistant turn (a dangling user turn from an
+ * interrupted session is dropped, so the caller appending the new user message
+ * cannot produce two consecutive user turns).
  */
 export async function loadConversationHistory(
   sessionId: string
 ): Promise<Anthropic.MessageParam[]> {
-  const turns = await db.conversationTurn.findMany({
+  // Newest-first under the cap, then reverse to chronological — this keeps the
+  // most RECENT turns when the history exceeds MAX_REHYDRATED_TURNS.
+  const rows = await db.conversationTurn.findMany({
     where: { sessionId },
-    orderBy: { turnIndex: "asc" },
+    orderBy: [{ createdAt: "desc" }, { turnIndex: "desc" }],
+    take: MAX_REHYDRATED_TURNS,
   });
+  rows.reverse();
 
-  return turns.map((turn) => ({
-    role: turn.role as "user" | "assistant",
-    content: JSON.parse(turn.content),
+  const messages: Anthropic.MessageParam[] = rows.map((turn) => ({
+    role: turn.role === "assistant" ? "assistant" : "user",
+    content: JSON.parse(turn.content) as string | Anthropic.ContentBlockParam[],
   }));
+
+  // Enforce valid user/assistant alternation for the provider API.
+  while (messages.length > 0 && messages[0].role === "assistant") {
+    messages.shift();
+  }
+  while (messages.length > 0 && messages[messages.length - 1].role === "user") {
+    messages.pop();
+  }
+
+  return messages;
 }
 
 /** Clean up completed sessions with no listeners. */

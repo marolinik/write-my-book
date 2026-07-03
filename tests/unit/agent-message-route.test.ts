@@ -1,0 +1,210 @@
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import type { AgentResult } from "@/lib/agents";
+
+// Result the (mocked) orchestrator reports on completion.
+const completionResult: AgentResult = {
+  success: true,
+  tokensInput: 10,
+  tokensOutput: 20,
+  documentIds: [],
+  sessionId: "s1",
+  assistantText: "coach reply",
+};
+
+// Prior conversation persisted for this session (what rehydration returns).
+const priorHistory = [
+  { role: "user" as const, content: "hi" },
+  { role: "assistant" as const, content: "hello, what are we writing?" },
+];
+
+const h = vi.hoisted(() => ({
+  user: { id: "u1" },
+  requireUser: vi.fn(),
+  db: {
+    agentSession: { findFirst: vi.fn(), update: vi.fn() },
+    book: { findFirst: vi.fn() },
+    user: { findUnique: vi.fn() },
+    apiKey: { findMany: vi.fn() },
+    usageRecord: { create: vi.fn() },
+  },
+  // session-manager seam
+  getSession: vi.fn(),
+  createSession: vi.fn(),
+  loadConversationHistory: vi.fn(),
+  addUserMessage: vi.fn(),
+  addAssistantMessage: vi.fn(),
+  pushMessage: vi.fn(),
+  completeSession: vi.fn(),
+  getWorkflow: vi.fn(),
+  // orchestrator boundary
+  continueConversation: vi.fn(),
+  // llm seam
+  decryptApiKey: vi.fn(),
+  estimateCost: vi.fn(),
+  mapAgentTypeToRole: vi.fn(),
+  resolveModelForRole: vi.fn(),
+  resolveProviderRoute: vi.fn(),
+  createLLMClient: vi.fn(),
+}));
+
+vi.mock("@/lib/auth", () => ({ requireUser: () => h.requireUser() }));
+vi.mock("@/lib/db", () => ({ db: h.db }));
+vi.mock("@/lib/encryption", () => ({ decryptApiKey: h.decryptApiKey }));
+vi.mock("@/lib/cost", () => ({ estimateCost: h.estimateCost }));
+vi.mock("@/lib/llm", () => ({
+  mapAgentTypeToRole: h.mapAgentTypeToRole,
+  resolveModelForRole: h.resolveModelForRole,
+  resolveProviderRoute: h.resolveProviderRoute,
+  createLLMClient: h.createLLMClient,
+}));
+vi.mock("@/lib/agents", () => ({
+  getSession: h.getSession,
+  createSession: h.createSession,
+  loadConversationHistory: h.loadConversationHistory,
+  addUserMessage: h.addUserMessage,
+  addAssistantMessage: h.addAssistantMessage,
+  pushMessage: h.pushMessage,
+  completeSession: h.completeSession,
+  getWorkflow: h.getWorkflow,
+  // The orchestrator boundary — continueConversation drives onComplete.
+  AgentOrchestrator: class {
+    continueConversation = h.continueConversation;
+    cancel = vi.fn();
+  },
+}));
+
+import { POST } from "@/app/api/books/[id]/agent/[sessionId]/message/route";
+
+const ctx = { params: Promise.resolve({ id: "b1", sessionId: "s1" }) };
+function req(body: unknown) {
+  return new Request("http://t/api/books/b1/agent/s1/message", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+function freshSession() {
+  return {
+    sessionId: "s1",
+    bookId: "b1",
+    userId: "u1",
+    agentType: "writing-coach",
+    workflowId: "new-novel",
+    orchestrator: null as unknown,
+    subOrchestrators: new Map(),
+    status: "completed",
+    messages: [],
+    conversationHistory: [] as unknown[],
+    listeners: new Set(),
+    completionListeners: new Set(),
+    result: null,
+    suggestedNext: [],
+  };
+}
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  h.requireUser.mockResolvedValue(h.user);
+
+  // In-memory session is gone (server restarted) → reconstruction path, which
+  // is exactly where rehydration from ConversationTurn rows must happen.
+  h.getSession.mockReturnValue(undefined);
+  h.db.agentSession.findFirst.mockResolvedValue({
+    id: "s1",
+    bookId: "b1",
+    userId: "u1",
+    agentType: "writing-coach",
+    workflowId: "new-novel",
+    chapterNumber: null,
+  });
+  h.createSession.mockImplementation(() => freshSession());
+  h.loadConversationHistory.mockResolvedValue(priorHistory);
+  h.getWorkflow.mockReturnValue({ conversational: true, primaryAgent: "writing-coach" });
+
+  h.db.book.findFirst.mockResolvedValue({ id: "b1", name: "My Book", language: "en", settings: null });
+  h.db.user.findUnique.mockResolvedValue({ defaultModel: "anthropic/sonnet" });
+  h.db.apiKey.findMany.mockResolvedValue([{ provider: "anthropic", encryptedKey: "enc" }]);
+  h.db.agentSession.update.mockResolvedValue({});
+  h.db.usageRecord.create.mockResolvedValue({});
+
+  h.decryptApiKey.mockReturnValue("sk-test");
+  h.estimateCost.mockReturnValue(0);
+  h.mapAgentTypeToRole.mockReturnValue("coach");
+  h.resolveModelForRole.mockReturnValue({
+    registryId: "anthropic/sonnet",
+    modelDef: { provider: "anthropic" },
+  });
+  h.resolveProviderRoute.mockReturnValue({ route: "direct" });
+  h.createLLMClient.mockReturnValue({
+    client: {},
+    model: { modelId: "claude-sonnet", id: "anthropic/sonnet", tier: "balanced" },
+  });
+
+  // Default: orchestrator runs and reports completion (invokes onComplete).
+  h.continueConversation.mockImplementation(async (opts: { onComplete: (r: AgentResult) => Promise<void> }) => {
+    await opts.onComplete(completionResult);
+  });
+});
+
+describe("POST /api/books/:id/agent/:sessionId/message", () => {
+  it("401s when auth fails", async () => {
+    h.requireUser.mockRejectedValueOnce(new Error("Unauthorized"));
+    const res = await POST(req({ message: "x" }) as never, ctx as never);
+    expect(res.status).toBe(401);
+  });
+
+  it("400s on invalid input (empty message)", async () => {
+    const res = await POST(req({ message: "" }) as never, ctx as never);
+    expect(res.status).toBe(400);
+  });
+
+  it("404s when the session is not found for this user/book", async () => {
+    h.db.agentSession.findFirst.mockResolvedValueOnce(null);
+    const res = await POST(req({ message: "x" }) as never, ctx as never);
+    expect(res.status).toBe(404);
+  });
+
+  it("rehydrates prior turns and seeds them into the orchestrator invocation", async () => {
+    const res = await POST(req({ message: "chapter one idea" }) as never, ctx as never);
+    expect(res.status).toBe(200);
+
+    // Prior turns were loaded for this session…
+    expect(h.loadConversationHistory).toHaveBeenCalledWith("s1");
+    // …and passed as the seed history to the orchestrator (2nd positional arg),
+    // with the new user message as the 3rd — this is the amnesia fix.
+    expect(h.continueConversation).toHaveBeenCalledTimes(1);
+    const [, seededHistory, userMessage] = h.continueConversation.mock.calls[0];
+    expect(seededHistory).toEqual(priorHistory);
+    expect(userMessage).toBe("chapter one idea");
+  });
+
+  it("persists the incoming user turn (after rehydration, before the orchestrator appends it)", async () => {
+    await POST(req({ message: "chapter one idea" }) as never, ctx as never);
+    expect(h.addUserMessage).toHaveBeenCalledWith("s1", "chapter one idea");
+
+    // Ordering guard: the new user turn is persisted only AFTER the prior
+    // history is loaded, so it is never double-counted into the seed.
+    const loadOrder = h.loadConversationHistory.mock.invocationCallOrder[0];
+    const persistOrder = h.addUserMessage.mock.invocationCallOrder[0];
+    expect(persistOrder).toBeGreaterThan(loadOrder);
+  });
+
+  it("persists the assistant reply on completion", async () => {
+    await POST(req({ message: "chapter one idea" }) as never, ctx as never);
+    await vi.waitFor(() =>
+      expect(h.addAssistantMessage).toHaveBeenCalledWith("s1", "coach reply")
+    );
+  });
+
+  it("does NOT persist an assistant turn for a cancelled session", async () => {
+    h.continueConversation.mockImplementationOnce(
+      async (opts: { onComplete: (r: AgentResult) => Promise<void> }) => {
+        await opts.onComplete({ ...completionResult, cancelled: true });
+      }
+    );
+    await POST(req({ message: "chapter one idea" }) as never, ctx as never);
+    // Give the fire-and-forget completion a tick to run.
+    await new Promise((r) => setTimeout(r, 0));
+    expect(h.addAssistantMessage).not.toHaveBeenCalled();
+  });
+});

@@ -191,6 +191,12 @@ export interface AgentResult {
   /** Final-turn summary of done/remaining work when the session ended early. */
   wrapUpSummary?: string;
   /**
+   * The assistant's final reply text for this turn (text blocks only, joined).
+   * Persisted as a ConversationTurn so continued sessions survive a server
+   * restart with full context. Undefined when the turn produced no text.
+   */
+  assistantText?: string;
+  /**
    * True when the session was aborted by user cancellation. onComplete
    * handlers must NOT mark the session "completed" (the cancel route owns
    * the "failed" status) but should still persist counted tokens/cost.

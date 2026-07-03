@@ -23,7 +23,12 @@ import { createRedisConnection } from "./connection";
 import { AgentOrchestrator } from "@/lib/agents/orchestrator";
 import { processPostSession } from "@/lib/agents/post-session";
 import { createSessionBrief } from "@/lib/agents/session-brief";
-import { getWorkflow, getAgentDefinition } from "@/lib/agents";
+import {
+  getWorkflow,
+  getAgentDefinition,
+  addUserMessage,
+  addAssistantMessage,
+} from "@/lib/agents";
 import { normalizeSessionCostLimit } from "@/lib/agents/budget";
 import type {
   AgentStreamMessage,
@@ -449,6 +454,12 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
 
     const onComplete = async (result: AgentResult) => {
       try {
+        // Persist the assistant's reply so a continued session survives a
+        // restart with full context (fire-safe — never throws).
+        if (!result.cancelled && result.assistantText) {
+          await addAssistantMessage(sessionId, result.assistantText);
+        }
+
         // Run post-session processing — skipped for user-cancelled sessions
         // (the cancel route owns the terminal state; no completion processing).
         let suggestedNext: string[] = [];
@@ -649,6 +660,12 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
       onComplete,
       onError,
     } as const;
+
+    // Persist the initial user message so the first turn is part of the
+    // rehydratable history for later /message continuations (fire-safe).
+    if (message) {
+      await addUserMessage(sessionId, message);
+    }
 
     await orchestrator.runAgent(spawnOptions);
 

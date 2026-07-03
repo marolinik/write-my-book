@@ -218,6 +218,7 @@ export class AgentOrchestrator {
         sessionId: options.sessionId,
         endReason: result.endReason,
         wrapUpSummary: result.wrapUpSummary,
+        assistantText: result.assistantText,
         cancelled,
       };
 
@@ -317,6 +318,7 @@ export class AgentOrchestrator {
         sessionId: options.sessionId,
         endReason: result.endReason,
         wrapUpSummary: result.wrapUpSummary,
+        assistantText: result.assistantText,
         // See runAgent: cancelled sessions must not be persisted as "completed".
         cancelled: this.abortController?.signal.aborted === true,
       });
@@ -359,6 +361,7 @@ export class AgentOrchestrator {
     outputTokens: number;
     endReason: "natural" | "budget" | "timeout";
     wrapUpSummary?: string;
+    assistantText?: string;
   }> {
     let totalInputTokens = 0;
     let totalOutputTokens = 0;
@@ -378,6 +381,8 @@ export class AgentOrchestrator {
     let finalTurnRequested = false;
     let endReason: "natural" | "budget" | "timeout" = "natural";
     let wrapUpSummary: string | undefined;
+    /** Last non-empty assistant text — persisted for cross-restart continuity. */
+    let lastAssistantText: string | undefined;
     /** Text block appended AFTER tool_results in the next user message. */
     let pendingNudge: string | null = null;
 
@@ -493,6 +498,16 @@ export class AgentOrchestrator {
 
       totalInputTokens += finalMessage.usage.input_tokens;
       totalOutputTokens += finalMessage.usage.output_tokens;
+
+      // Capture this turn's assistant text; the final natural-completion turn
+      // is the last to set it, so lastAssistantText ends as the reply the user
+      // sees. Persisted (route onComplete) so a restart keeps conversation context.
+      const turnText = finalMessage.content
+        .filter((b): b is Anthropic.TextBlock => b.type === "text")
+        .map((b) => b.text)
+        .join("\n")
+        .trim();
+      if (turnText) lastAssistantText = turnText;
 
       // Update shared cost tracker (used for Coach + specialist budget sharing).
       // Each orchestrator — conductor AND specialist — prices its own turn at
@@ -888,6 +903,7 @@ export class AgentOrchestrator {
       outputTokens: totalOutputTokens,
       endReason,
       wrapUpSummary,
+      assistantText: lastAssistantText,
     };
   }
 

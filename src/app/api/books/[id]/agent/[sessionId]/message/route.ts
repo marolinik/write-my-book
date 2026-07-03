@@ -19,6 +19,8 @@ import {
   getWorkflow,
   AgentOrchestrator,
   loadConversationHistory,
+  addUserMessage,
+  addAssistantMessage,
 } from "@/lib/agents";
 import type { AgentStreamMessage, AgentResult } from "@/lib/agents";
 
@@ -200,6 +202,12 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       onComplete: async (result: AgentResult) => {
         completeSession(sessionId, result);
 
+        // Persist the assistant's reply so a continued session survives a
+        // server restart with full context (fire-safe — never throws).
+        if (!result.cancelled && result.assistantText) {
+          await addAssistantMessage(sessionId, result.assistantText);
+        }
+
         await db.agentSession.update({
           where: { id: sessionId },
           data: {
@@ -236,6 +244,11 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         });
       },
     } as const;
+
+    // Persist the incoming user turn AFTER any DB rehydration above (so it is
+    // not double-counted into the loaded history) and BEFORE the orchestrator
+    // appends it in-memory — fire-safe, never throws.
+    await addUserMessage(sessionId, message);
 
     // Fire and forget
     orchestrator

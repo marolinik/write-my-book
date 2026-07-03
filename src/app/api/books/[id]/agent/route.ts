@@ -27,6 +27,8 @@ import {
   pushMessage,
   completeSession,
   validatePrerequisites,
+  addUserMessage,
+  addAssistantMessage,
 } from "@/lib/agents";
 import type {
   AgentStreamMessage,
@@ -528,6 +530,12 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
           };
           completeSession(dbSession.id, enrichedResult, suggestedNext);
 
+          // Persist the assistant's reply so a continued conversational session
+          // survives a server restart with full context (fire-safe).
+          if (!result.cancelled && result.assistantText) {
+            await addAssistantMessage(dbSession.id, result.assistantText);
+          }
+
           // Update DB records -- include shared cost tracker totals.
           // totalCostUsd is accumulated per-turn at each orchestrator's OWN
           // model rate, so Opus specialists are priced correctly.
@@ -587,6 +595,12 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
           });
         },
       } as const;
+
+      // Persist the initial user message so the first turn is part of the
+      // rehydratable history for later /message continuations (fire-safe).
+      if (data.message) {
+        await addUserMessage(dbSession.id, data.message);
+      }
 
       // Fire and forget
       orchestrator.runAgent(spawnOptions).catch(() => {});
