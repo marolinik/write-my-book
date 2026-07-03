@@ -145,6 +145,7 @@ model Book {
   s3Prefix        String?  @map("s3_prefix")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
+  archivedAt   DateTime? @map("archived_at")
 
   user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   series          Series?           @relation(fields: [seriesId], references: [id], onDelete: SetNull)
@@ -172,6 +173,7 @@ model Book {
 
   @@unique([seriesId, bookNumber])
   @@unique([userId, name])
+  @@index([userId, archivedAt])
   @@map("books")
 }
 
