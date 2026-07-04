@@ -2,6 +2,32 @@
 
 This is the production deployment contract for Write My Book OK.
 
+## Two-process requirement (HARD)
+
+**The web app and the worker are BOTH required — they are not optional or "nice
+to have".** The web process only *enqueues* background AI jobs (write-chapter,
+dev-edit, and every other agent workflow) onto BullMQ; a separate worker process
+(`node dist-worker/worker.js` / `npm run worker:start`) must be running to
+*consume* them. If the worker is not running:
+
+- Enqueued AI jobs sit in Redis in the `waiting` state with no consumer.
+- Without the liveness guards below the client would spin forever — no error, no
+  timeout — while `/api/health` (liveness) stays green.
+
+Guards that now make a worker outage visible instead of silent:
+
+- **Readiness probe** — `GET /api/health/dependencies` includes a required
+  `worker` check (`agentQueue.getWorkers()`); it returns **503** when zero
+  workers are attached, so monitoring/alerting goes red on worker-down.
+- **Stream watchdog** — the agent SSE stream emits an `error` event
+  ("Background processing is unavailable — no worker is consuming jobs") when a
+  job stays `waiting`/`delayed` past a short grace with no attached worker.
+- **Client backstop** — the UI surfaces a worker-unavailable error if no stream
+  progress arrives within a bounded queue-wait window.
+
+Deploy and supervise **both** processes; treat a `worker` failure in the
+readiness probe as a page-worthy outage.
+
 ## Processes
 
 ### Web app
@@ -74,6 +100,7 @@ Readiness returns `503` if a required dependency fails:
 - PostgreSQL query fails
 - Redis ping fails
 - S3 bucket head fails
+- no BullMQ worker is attached to the agent queue (worker process down)
 
 Optional dependencies are reported as `degraded`/`skipped` but do not fail the
 whole readiness response.

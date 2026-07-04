@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { envHealth } from "@/lib/env";
 import { verifyNeo4jConnection } from "@/lib/graph/neo4j-client";
 import { verifyQdrantConnection } from "@/lib/vector/qdrant-client";
+import { assertWorkerLiveness } from "@/lib/health/worker-liveness";
 
 export type DependencyStatus = "ok" | "degraded" | "error" | "skipped";
 
@@ -153,6 +154,9 @@ export async function checkDependencies(): Promise<DependencyReadinessResult> {
     runCheck("postgres", true, checkDatabase),
     runCheck("redis", true, checkRedis),
     runCheck("s3", true, checkS3),
+    // Worker is a HARD deploy requirement: without a consumer, every background
+    // AI workflow hangs silently. Required → readiness returns 503 on worker-down.
+    runCheck("worker", true, assertWorkerLiveness),
     optionalCheck("qdrant", isConfigured("QDRANT_URL"), async () => {
       const ok = await verifyQdrantConnection();
       if (!ok) throw new Error("Qdrant connection failed");

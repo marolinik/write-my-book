@@ -10,11 +10,26 @@ import type { AgentStreamMessage, AgentResult } from "@/lib/agents/types";
  * Creates one EventSource per running session, routes messages
  * to the correct session in the store, and invalidates caches on completion.
  */
+/**
+ * Client-side backstop for a worker outage: if no message (not even a replayed
+ * one) arrives within this bound after connecting, the job is almost certainly
+ * stuck with no consumer, so we surface a real error instead of spinning
+ * forever. The server-side watchdog normally fires first (~10s) with a more
+ * specific message; this covers the case where the SSE stream itself can't be
+ * established. Generous enough not to false-positive on a slow-but-present
+ * worker picking the job up.
+ */
+const MAX_QUEUE_WAIT_MS = 45_000;
+
 export function useAgentStream(bookId: string | null) {
   const [connectedSessions, setConnectedSessions] = useState<Set<string>>(
     new Set()
   );
   const eventSourcesRef = useRef<Map<string, EventSource>>(new Map());
+  // Per-session "first message" timers guarding against a silent queue wait.
+  const queueWaitTimersRef = useRef<
+    Map<string, ReturnType<typeof setTimeout>>
+  >(new Map());
   const sessions = useAgentSessionStore((s) => s.sessions);
   const addMessage = useAgentSessionStore((s) => s.addMessage);
   const setSessionComplete = useAgentSessionStore((s) => s.setSessionComplete);
@@ -26,6 +41,16 @@ export function useAgentStream(bookId: string | null) {
     if (!bookId) return;
 
     const currentSources = eventSourcesRef.current;
+    const queueWaitTimers = queueWaitTimersRef.current;
+
+    // Clear a pending queue-wait timer for a session (message arrived / closing).
+    const clearQueueWaitTimer = (sid: string) => {
+      const timer = queueWaitTimers.get(sid);
+      if (timer) {
+        clearTimeout(timer);
+        queueWaitTimers.delete(sid);
+      }
+    };
 
     // Find running sessions that need an EventSource
     const runningSessions = Object.values(sessions).filter(
@@ -42,11 +67,35 @@ export function useAgentStream(bookId: string | null) {
 
       const sid = session.sessionId;
 
+      // Arm the queue-wait backstop: if nothing arrives before the bound and the
+      // session is still running, surface a worker-down error to the UI.
+      queueWaitTimers.set(
+        sid,
+        setTimeout(() => {
+          queueWaitTimers.delete(sid);
+          const st = useAgentSessionStore.getState().sessions[sid];
+          if (!st || st.status !== "running") return;
+          setSessionError(
+            sid,
+            "Still waiting for background processing to start — no worker appears to be available. Please try again in a moment."
+          );
+          es.close();
+          currentSources.delete(sid);
+          setConnectedSessions((prev) => {
+            const next = new Set(prev);
+            next.delete(sid);
+            return next;
+          });
+        }, MAX_QUEUE_WAIT_MS)
+      );
+
       es.onopen = () => {
         setConnectedSessions((prev) => new Set([...prev, sid]));
       };
 
       es.onmessage = (event) => {
+        // First byte from the stream means the worker is consuming — stand down.
+        clearQueueWaitTimer(sid);
         try {
           const message = JSON.parse(event.data) as AgentStreamMessage;
 
@@ -159,6 +208,7 @@ export function useAgentStream(bookId: string | null) {
       };
 
       es.onerror = () => {
+        clearQueueWaitTimer(sid);
         setConnectedSessions((prev) => {
           const next = new Set(prev);
           next.delete(sid);
@@ -186,6 +236,7 @@ export function useAgentStream(bookId: string | null) {
     for (const [sid, es] of currentSources) {
       const session = sessions[sid];
       if (!session || session.status !== "running") {
+        clearQueueWaitTimer(sid);
         es.close();
         currentSources.delete(sid);
       }
@@ -197,6 +248,10 @@ export function useAgentStream(bookId: string | null) {
         es.close();
       }
       currentSources.clear();
+      for (const timer of queueWaitTimers.values()) {
+        clearTimeout(timer);
+      }
+      queueWaitTimers.clear();
       setConnectedSessions(new Set());
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

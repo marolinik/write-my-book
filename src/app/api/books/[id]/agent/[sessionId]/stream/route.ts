@@ -3,6 +3,17 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getSession, addListener } from "@/lib/agents";
 import { createRedisConnection } from "@/lib/queue";
+import {
+  isJobStuckWithoutWorker,
+  WORKER_ABSENT_MESSAGE,
+} from "@/lib/health/worker-liveness";
+
+/**
+ * Grace period before the worker-liveness watchdog fires. A running worker
+ * picks up a job in well under a second; this window tolerates a momentary
+ * consumer gap before we declare the job unconsumable.
+ */
+const WORKER_GRACE_MS = 10_000;
 
 type RouteParams = {
   params: Promise<{ id: string; sessionId: string }>;
@@ -113,11 +124,53 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
             // Session is still running — subscribe for live events
             await subscriber.subscribe(`session:${sessionId}`);
 
+            // Worker-liveness watchdog: if the job is never picked up because no
+            // worker is consuming the queue, surface an error instead of leaving
+            // the client on a silent infinite spinner. Fires once after a short
+            // grace; a running worker will have advanced the job by then.
+            let workerWatchdog: ReturnType<typeof setTimeout> | undefined =
+              setTimeout(() => {
+                void (async () => {
+                  try {
+                    if (!(await isJobStuckWithoutWorker(sessionId))) return;
+                    const errorMsg = {
+                      type: "error" as const,
+                      content: WORKER_ABSENT_MESSAGE,
+                    };
+                    try {
+                      controller.enqueue(
+                        encoder.encode(
+                          `id: ${idx++}\ndata: ${JSON.stringify(errorMsg)}\n\n`
+                        )
+                      );
+                    } catch {
+                      // Stream already closed by client
+                    }
+                    subscriber
+                      .unsubscribe()
+                      .then(() => subscriber.disconnect())
+                      .catch(() => {});
+                    try {
+                      controller.close();
+                    } catch {
+                      // Already closed
+                    }
+                  } catch (err) {
+                    console.error("[SSE-Redis] Worker watchdog error:", err);
+                  }
+                })();
+              }, WORKER_GRACE_MS);
+
             subscriber.on("message", (_channel: string, message: string) => {
               try {
                 controller.enqueue(
                   encoder.encode(`id: ${idx++}\ndata: ${message}\n\n`)
                 );
+                // Any live event means the worker is consuming — stand down.
+                if (workerWatchdog) {
+                  clearTimeout(workerWatchdog);
+                  workerWatchdog = undefined;
+                }
                 // Check if this is a terminal message
                 const parsed = JSON.parse(message);
                 if (
@@ -151,6 +204,10 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
             // Handle client disconnect
             _req.signal.addEventListener("abort", () => {
               clearInterval(keepaliveInterval);
+              if (workerWatchdog) {
+                clearTimeout(workerWatchdog);
+                workerWatchdog = undefined;
+              }
               subscriber
                 .unsubscribe()
                 .then(() => subscriber.disconnect())
