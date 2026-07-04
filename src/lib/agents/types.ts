@@ -217,7 +217,15 @@ export interface AgentSpawnOptions {
   sessionId: string;
   onMessage: (message: AgentStreamMessage) => void;
   onComplete: (result: AgentResult) => void | Promise<void>;
-  onError: (error: Error) => void | Promise<void>;
+  /**
+   * `partial` carries any side effects that already landed before the error —
+   * notably `documentIds` for documents written earlier in the turn — so
+   * consumers aren't told zero documents changed when some did (F7).
+   */
+  onError: (
+    error: Error,
+    partial?: { documentIds: string[] }
+  ) => void | Promise<void>;
 }
 
 export interface WorkflowPrerequisite {

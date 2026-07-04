@@ -77,6 +77,32 @@ describe("buildRadarAlerts — emitted types stay within the advertised set", ()
     expect(alerts).toHaveLength(0);
   });
 
+  it("formats word counts with the caller's locale (no server-locale leak)", () => {
+    const chapters = [
+      ch({ chapterNumber: 1, wordCount: 500 }),
+      ch({ chapterNumber: 2, wordCount: 8000 }),
+      ch({ chapterNumber: 3, wordCount: 500 }),
+      ch({ chapterNumber: 4, wordCount: 500 }),
+    ];
+    const en = buildRadarAlerts(chapters, NOW, "en-US").find((a) => a.id === "long-2");
+    const de = buildRadarAlerts(chapters, NOW, "de-DE").find((a) => a.id === "long-2");
+    // en-US groups with commas ("8,000"), de-DE with dots ("8.000").
+    expect(en?.detail).toContain((8000).toLocaleString("en-US"));
+    expect(de?.detail).toContain((8000).toLocaleString("de-DE"));
+    expect(en?.detail).not.toEqual(de?.detail);
+  });
+
+  it("defaults to en-US formatting when no locale is passed", () => {
+    const chapters = [
+      ch({ chapterNumber: 1, wordCount: 500 }),
+      ch({ chapterNumber: 2, wordCount: 8000 }),
+      ch({ chapterNumber: 3, wordCount: 500 }),
+      ch({ chapterNumber: 4, wordCount: 500 }),
+    ];
+    const long = buildRadarAlerts(chapters, NOW).find((a) => a.id === "long-2");
+    expect(long?.detail).toContain((8000).toLocaleString("en-US"));
+  });
+
   it("every emitted alert carries a type from RADAR_ALERT_TYPES", () => {
     const alerts = buildRadarAlerts(
       [

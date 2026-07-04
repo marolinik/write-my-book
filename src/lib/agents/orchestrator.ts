@@ -240,7 +240,7 @@ export class AgentOrchestrator {
       return agentResult;
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error));
-      await options.onError(err);
+      await options.onError(err, { documentIds });
       return {
         success: false,
         tokensInput: 0,
@@ -338,7 +338,7 @@ export class AgentOrchestrator {
       });
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error));
-      await options.onError(err);
+      await options.onError(err, { documentIds });
     }
   }
 

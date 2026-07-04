@@ -36,10 +36,15 @@ const STALE_DAYS = 30;
 /**
  * Pure alert builder. Emits only the two implemented heuristics — every alert
  * carries a `type` from {@link RADAR_ALERT_TYPES}.
+ *
+ * `locale` is a BCP-47 tag (from `localeFor(preferredLanguage)`) used to format
+ * the word counts embedded in `detail`, so the numbers don't leak the server
+ * locale. Defaults to "en-US".
  */
 export function buildRadarAlerts(
   chapters: readonly RadarChapterInput[],
-  now: number
+  now: number,
+  locale: string = "en-US"
 ): RadarAlert[] {
   const alerts: RadarAlert[] = [];
 
@@ -56,9 +61,9 @@ export function buildRadarAlerts(
         type: "pacing",
         severity: "info",
         title: `Ch.${ch.chapterNumber} is unusually short`,
-        detail: `${ch.wordCount.toLocaleString()} words vs ${Math.round(
+        detail: `${ch.wordCount.toLocaleString(locale)} words vs ${Math.round(
           avgWords
-        ).toLocaleString()} average`,
+        ).toLocaleString(locale)} average`,
         chapterNumber: ch.chapterNumber,
       });
     }
@@ -69,7 +74,7 @@ export function buildRadarAlerts(
         type: "pacing",
         severity: "info",
         title: `Ch.${ch.chapterNumber} is unusually long`,
-        detail: `${ch.wordCount.toLocaleString()} words — consider splitting`,
+        detail: `${ch.wordCount.toLocaleString(locale)} words — consider splitting`,
         chapterNumber: ch.chapterNumber,
       });
     }

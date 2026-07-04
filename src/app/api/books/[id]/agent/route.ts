@@ -572,7 +572,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
             },
           });
         },
-        onError: async (error: Error) => {
+        onError: async (error: Error, partial?: { documentIds: string[] }) => {
           // Sanitize error before sending to client
           onMessage({
             type: "error",
@@ -582,7 +582,9 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
             success: false,
             tokensInput: 0,
             tokensOutput: 0,
-            documentIds: [],
+            // Report documents that were written before the error — don't
+            // mislead consumers with an empty list (F7).
+            documentIds: partial?.documentIds ?? [],
             sessionId: dbSession.id,
           });
 

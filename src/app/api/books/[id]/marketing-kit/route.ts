@@ -6,6 +6,7 @@ import { estimateCost } from "@/lib/cost";
 import { createLLMClient, resolveProviderRoute } from "@/lib/llm";
 import type { ProviderKey } from "@/lib/llm";
 import { DocumentService } from "@/lib/documents";
+import { localeFor } from "@/lib/i18n/ui-strings";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -151,7 +152,7 @@ Respond with ONLY a JSON object matching this exact shape (no markdown fences):
 
   const userContent = `Book: "${book.name}"
 Genre: ${book.genre ?? "Fiction"}
-Word Count: ${book.wordCount.toLocaleString()}
+Word Count: ${book.wordCount.toLocaleString(localeFor(user.preferredLanguage ?? "en"))}
 Chapters: ${book.chapterCount}
 ${book.description ? `Synopsis: ${book.description}` : ""}
 

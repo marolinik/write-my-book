@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { buildRadarAlerts } from "@/lib/radar/alerts";
+import { localeFor } from "@/lib/i18n/ui-strings";
 
 export const dynamic = "force-dynamic";
 
@@ -35,7 +36,11 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const alerts = buildRadarAlerts(book.chapters, Date.now());
+  const alerts = buildRadarAlerts(
+    book.chapters,
+    Date.now(),
+    localeFor(user.preferredLanguage ?? "en")
+  );
 
   return NextResponse.json({
     alerts,
