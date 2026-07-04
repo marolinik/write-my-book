@@ -17,7 +17,8 @@ import { withSession } from "./neo4j-client";
 export async function updateFromChapter(
   bookId: string,
   chapterNumber: number,
-  content: string
+  content: string,
+  defaultModel?: string
 ): Promise<{ updated: boolean; entitiesFound: number }> {
   if (!content || content.trim().length === 0) {
     return { updated: false, entitiesFound: 0 };
@@ -36,7 +37,7 @@ export async function updateFromChapter(
     await removeChapterEntities(bookId, chapterNumber);
 
     // Run LLM extraction
-    const result = await extractEntities(content, bookId, chapterNumber);
+    const result = await extractEntities(content, bookId, chapterNumber, undefined, defaultModel);
 
     // Inject bookId into all entity properties so MERGE works correctly
     for (const entity of result.entities) {
@@ -67,7 +68,8 @@ export async function updateFromChapter(
  */
 export async function updateFromStoryBible(
   bookId: string,
-  content: string
+  content: string,
+  defaultModel?: string
 ): Promise<void> {
   if (!content || content.trim().length === 0) {
     return;
@@ -82,7 +84,7 @@ export async function updateFromStoryBible(
 
   try {
     // Extract using chapter 0 to signify canonical / pre-story data
-    const result = await extractEntities(content, bookId, 0);
+    const result = await extractEntities(content, bookId, 0, undefined, defaultModel);
 
     // Inject bookId into all entity properties
     for (const entity of result.entities) {

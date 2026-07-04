@@ -1,8 +1,6 @@
 import { db } from "@/lib/db";
 import { decryptApiKey } from "@/lib/encryption";
-import { createLLMClient } from "@/lib/llm";
-
-const HAIKU = "anthropic/haiku"; // registry id -> claude-haiku-4-5-20251001 (model-registry.ts:77)
+import { createLLMClient, resolveCheapModelFor } from "@/lib/llm";
 
 /** One cheap, tool-less turn. Returns the raw model text.
  *
@@ -29,8 +27,17 @@ export async function runDiscussTurn(args: {
     if (k.provider === "openrouter") openrouterApiKey = decryptApiKey(k.encryptedKey);
   }
 
+  // Pick the cheap ("haiku"-tier) variant for the user's OWN provider — mirrors
+  // inline-edit/route.ts:45-46. Hardcoding anthropic/haiku here 400/500'd every
+  // Discuss turn for OpenRouter-only BYOK users (the mission's qwen config).
+  const dbUser = await db.user.findUnique({
+    where: { id: args.userId },
+    select: { defaultModel: true },
+  });
+  const cheapModel = resolveCheapModelFor(dbUser?.defaultModel ?? "anthropic/sonnet");
+
   const { client, model } = createLLMClient({
-    modelId: HAIKU,
+    modelId: cheapModel.id,
     anthropicApiKey,
     openrouterApiKey,
   });

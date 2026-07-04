@@ -5,6 +5,7 @@ const h = vi.hoisted(() => ({
   requireUser: vi.fn(),
   db: {
     book: { findFirst: vi.fn() },
+    user: { findUnique: vi.fn() },
     continuityFlag: { findMany: vi.fn(), upsert: vi.fn(), deleteMany: vi.fn() },
   },
   updateFromChapter: vi.fn(),
@@ -45,6 +46,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   h.requireUser.mockResolvedValue(h.user);
   h.db.book.findFirst.mockResolvedValue({ id: "b1" });
+  h.db.user.findUnique.mockResolvedValue({ defaultModel: "openrouter-qwen-max/opus" });
   h.db.continuityFlag.findMany.mockResolvedValue([]);       // no existing/intentional
   h.db.continuityFlag.upsert.mockResolvedValue({ id: "new1" });
   h.db.continuityFlag.deleteMany.mockResolvedValue({ count: 0 });
@@ -76,7 +78,8 @@ describe("POST /continuity/scan", () => {
     const res = await POST(req("?chapterNumber=18") as never, ctx as never);
     const json = await res.json();
     expect(res.status).toBe(200);
-    expect(h.updateFromChapter).toHaveBeenCalledWith("b1", 18, "Ana walked in.");
+    // 4th arg threads the user's defaultModel so extraction honors their provider (C1/S9).
+    expect(h.updateFromChapter).toHaveBeenCalledWith("b1", 18, "Ana walked in.", "openrouter-qwen-max/opus");
     const up = h.db.continuityFlag.upsert.mock.calls[0][0];
     expect(up.where.bookId_signature.bookId).toBe("b1");
     expect(up.create.type).toBe("dead_character_reappears");

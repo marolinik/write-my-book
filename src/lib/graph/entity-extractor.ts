@@ -6,7 +6,7 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import crypto from "crypto";
-import { createLLMClient } from "@/lib/llm";
+import { createLLMClient, resolveCheapModelFor } from "@/lib/llm";
 import type { LLMClientOptions } from "@/lib/llm/client-factory";
 import type {
   ExtractionResult,
@@ -19,8 +19,16 @@ import type {
 /**
  * Create an extraction client using the caller's keys.
  * Falls back to env vars only for backward compatibility (e.g. background jobs).
+ *
+ * The cheap ("haiku"-tier) variant is chosen for the user's OWN provider via
+ * resolveCheapModelFor(defaultModel) — mirrors inline-edit/route.ts:45-46 and
+ * discuss-llm.ts. When no defaultModel is threaded, fall back to a key-presence
+ * heuristic so background/legacy callers keep working.
  */
-function createExtractionClient(keys?: Partial<LLMClientOptions>): {
+function createExtractionClient(
+  keys?: Partial<LLMClientOptions>,
+  defaultModel?: string
+): {
   client: Anthropic;
   modelId: string;
 } {
@@ -35,7 +43,11 @@ function createExtractionClient(keys?: Partial<LLMClientOptions>): {
     throw new Error("No API key available for entity extraction. Add a key in Settings > API Keys.");
   }
 
-  const registryId = hasOpenRouter ? "openrouter/haiku" : "anthropic/haiku";
+  const registryId = defaultModel
+    ? resolveCheapModelFor(defaultModel).id
+    : hasOpenRouter
+      ? "openrouter/haiku"
+      : "anthropic/haiku";
   const { client, model } = createLLMClient({
     modelId: registryId,
     anthropicApiKey,
@@ -143,10 +155,11 @@ export async function extractEntities(
   text: string,
   bookId: string,
   chapterNumber: number,
-  keys?: Partial<LLMClientOptions>
+  keys?: Partial<LLMClientOptions>,
+  defaultModel?: string
 ): Promise<ExtractionResult> {
   const contentHash = hashContent(text);
-  const { client, modelId } = createExtractionClient(keys);
+  const { client, modelId } = createExtractionClient(keys, defaultModel);
 
   // Truncate very long chapters to stay within token limits
   const maxChars = 80_000;

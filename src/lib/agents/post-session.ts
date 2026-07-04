@@ -260,7 +260,7 @@ export async function processPostSession(
       ctx.chapterNumber &&
       (ctx.workflowId === "write-chapter" || ctx.workflowId === "revise")
     ) {
-      updateChapterGraph(ctx.bookId, ctx.chapterNumber, docService).catch(
+      updateChapterGraph(ctx.userId, ctx.bookId, ctx.chapterNumber, docService).catch(
         (err) => console.error("[PostSession] Graph update failed (non-fatal):", err)
       );
     }
@@ -727,6 +727,7 @@ async function maybeAutoSynthesize(
  * Fire-and-forget — errors are caught and logged by the caller.
  */
 async function updateChapterGraph(
+  userId: string,
   bookId: string,
   chapterNumber: number,
   docService: DocumentService
@@ -740,7 +741,12 @@ async function updateChapterGraph(
   const content = await docService.read(doc.id);
   if (!content?.content) return;
 
-  await updateFromChapter(bookId, chapterNumber, content.content);
+  // Route extraction through the user's OWN provider (not hardcoded anthropic).
+  const dbUser = await db.user.findUnique({
+    where: { id: userId },
+    select: { defaultModel: true },
+  });
+  await updateFromChapter(bookId, chapterNumber, content.content, dbUser?.defaultModel ?? undefined);
 
   // Also index into vector memory
   await onDocumentChanged(bookId, "CHAPTER_CONTENT", content.content, { chapterNumber });

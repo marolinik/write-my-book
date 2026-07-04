@@ -46,7 +46,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         const doc = await svc.findByType(DocumentType.CHAPTER_CONTENT, chapterNumber);
         if (doc) {
           const content = (await svc.readPinned(doc.id))?.content ?? "";
-          await updateFromChapter(bookId, chapterNumber, content);
+          // Route extraction through the user's OWN provider (not hardcoded anthropic).
+          const dbUser = await db.user.findUnique({
+            where: { id: user.id },
+            select: { defaultModel: true },
+          });
+          await updateFromChapter(bookId, chapterNumber, content, dbUser?.defaultModel ?? undefined);
         }
       }
     } catch (err) {
