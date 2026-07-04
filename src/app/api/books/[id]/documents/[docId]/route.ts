@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { updateDocumentSchema } from "@/lib/validation";
-import { DocumentService } from "@/lib/documents";
+import { DocumentService, VersionConflictError } from "@/lib/documents";
 import { onDocumentChanged } from "@/lib/vector/memory-manager";
 import { deleteDocumentChunks } from "@/lib/vector";
 
@@ -94,13 +94,36 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
     }
 
     const svc = new DocumentService(user.id, bookId);
-    const result = await svc.update(
-      docId,
-      data.content,
-      data.title,
-      data.changeType,
-      data.changeSource
-    );
+    let result;
+    try {
+      result = await svc.update(
+        docId,
+        data.content,
+        data.title,
+        data.changeType,
+        data.changeSource,
+        data.expectedVersion
+      );
+    } catch (error) {
+      if (error instanceof VersionConflictError) {
+        // CAS rejected — nothing was written. Return the server's current
+        // state (pinned to currentVersion, exactly like the chapter route) so
+        // the editor can surface a merge dialog instead of silently clobbering.
+        const current = await svc.readPinned(docId);
+        const serverVersion =
+          current?.document.currentVersion ?? doc.currentVersion;
+        return NextResponse.json(
+          {
+            error: "version_conflict",
+            serverVersion,
+            currentVersion: serverVersion,
+            serverContent: current?.content ?? "",
+          },
+          { status: 409 }
+        );
+      }
+      throw error;
+    }
 
     // Update Chapter.wordCount when CHAPTER_CONTENT is updated via API
     if (doc.type === "CHAPTER_CONTENT" && doc.chapterNumber && data.content) {
@@ -125,7 +148,10 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       }).catch(() => {});
     }
 
-    return NextResponse.json(result);
+    // Surface the numeric saved version so an optimistically-locked client can
+    // stamp its next save; the full `document`/`version` objects stay for
+    // back-compat with existing consumers.
+    return NextResponse.json({ ...result, version: result.version.version });
   } catch (error) {
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

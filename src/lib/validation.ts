@@ -189,6 +189,10 @@ export const updateDocumentSchema = z.object({
   title: z.string().max(500).optional(),
   changeType: z.enum(["agent_write", "manual_edit", "revision"]).optional(),
   changeSource: z.string().max(200).optional(),
+  // Optimistic-lock stamp: when present, the PATCH is rejected with 409 if the
+  // document's currentVersion has moved (matches the chapter-content route).
+  // Omitted = last-write-wins (legacy agent/import/finding writers unchanged).
+  expectedVersion: z.number().int().min(1).optional(),
 });
 
 export const restoreVersionSchema = z.object({

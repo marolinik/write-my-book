@@ -9,6 +9,9 @@ import {
   useSaveDocumentContent,
 } from "@/hooks/use-documents";
 import { useFindings, useApplyFinding, useDismissFinding } from "@/hooks/use-editorial";
+import { toast } from "sonner";
+import { ApiError } from "@/lib/api-client";
+import { SaveConflictDialog } from "@/components/editor/save-conflict-dialog";
 import { countWords } from "@/lib/utils";
 import {
   useEditorPaneStore,
@@ -98,6 +101,7 @@ export default function DocumentEditorPage({
   const isSaving = useEditorPaneStore(PANE_ID, (s) => s.isSaving);
   const lastSaved = useEditorPaneStore(PANE_ID, (s) => s.lastSaved);
   const focusMode = useEditorPaneStore(PANE_ID, (s) => s.focusMode);
+  const saveConflict = useEditorPaneStore(PANE_ID, (s) => s.saveConflict);
   const showAnnotations = useEditorPaneStore(PANE_ID, (s) => s.showAnnotations);
   const showFindings = useEditorPaneStore(PANE_ID, (s) => s.showFindings);
   const showFloatingInput = useEditorPaneStore(PANE_ID, (s) => s.showFloatingInput);
@@ -110,6 +114,7 @@ export default function DocumentEditorPage({
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [showMetadata, setShowMetadata] = useState(false);
   const [showInlineEdit, setShowInlineEdit] = useState(false);
+  const [showSaveConflict, setShowSaveConflict] = useState(false);
   const [inlineEditInstruction, setInlineEditInstruction] = useState<string | undefined>(undefined);
   const [tooltipState, setTooltipState] = useState<TooltipState | null>(null);
   const [showFloatingAgentInput, setShowFloatingAgentInput] = useState(false);
@@ -303,31 +308,82 @@ export default function DocumentEditorPage({
     if (docData && editor && !contentLoadedRef.current) {
       editor.commands.setContent(docData.content || "");
       contentLoadedRef.current = true;
+      // Stamp the pane with the loaded version so autosaves are optimistically
+      // locked (CAS): a concurrent agent/import/other-tab write now 409s
+      // instead of silently clobbering these edits.
+      paneStore.getState().setDocumentVersion(docData.currentVersion);
       paneStore.getState().markClean();
     }
   }, [docData, editor, paneStore]);
 
-  // Auto-save with 2s debounce
+  // Auto-save with 2s debounce (optimistically locked)
   const saveContent = useCallback(async () => {
     if (!editor) return;
+    const s = paneStore.getState();
+    // Suspend autosave while a conflict is unresolved — typing continues and
+    // local words stay safe in the editor until the dialog is resolved.
+    if (s.saveConflict) return;
     const md = getMarkdownFromEditor(editor);
-    paneStore.getState().setSaving(true);
+    const expectedVersion = s.documentVersion ?? undefined;
+    s.setSaving(true);
     try {
-      await saveMutationRef.current.mutateAsync(md);
-      paneStore.getState().setLastSaved(new Date());
-    } catch {
+      const res = await saveMutationRef.current.mutateAsync({
+        content: md,
+        expectedVersion,
+      });
+      const st = paneStore.getState();
+      st.setDocumentVersion(res.version);
+      st.setLastSaved(new Date());
+    } catch (error) {
       paneStore.getState().setSaving(false);
+      if (error instanceof ApiError && error.status === 409) {
+        const body = error.body as {
+          serverVersion?: number;
+          currentVersion?: number;
+          serverContent?: string;
+        } | null;
+        const serverVersion = body?.serverVersion ?? body?.currentVersion;
+        if (
+          typeof serverVersion === "number" &&
+          typeof body?.serverContent === "string"
+        ) {
+          // No-op conflict: the server already holds identical content (e.g.
+          // another tab saved the same text). Adopt its version, no dialog.
+          if (body.serverContent === md) {
+            const st = paneStore.getState();
+            st.setDocumentVersion(serverVersion);
+            st.markClean();
+            return;
+          }
+          // Real conflict: record it (suspends autosave; local words stay safe)
+          // and surface the resolution dialog via a non-blocking toast.
+          paneStore.getState().setSaveConflict({
+            serverContent: body.serverContent,
+            serverVersion,
+          });
+          toast.warning("Document changed outside this editor", {
+            description: "Your edits are safe — review the changes to merge.",
+            action: {
+              label: "Review",
+              onClick: () => setShowSaveConflict(true),
+            },
+          });
+        }
+      }
     }
   }, [editor, paneStore]);
 
   useEffect(() => {
     if (!isDirty) return;
+    // Don't schedule autosaves while a conflict is open — the dialog owns the
+    // next write, and a stale stamp would 409 against itself.
+    if (saveConflict) return;
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(() => saveContent(), 2000);
     return () => {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     };
-  }, [isDirty, content, saveContent]);
+  }, [isDirty, content, saveConflict, saveContent]);
 
   // F2 shortcut
   useEffect(() => {
@@ -677,6 +733,17 @@ export default function DocumentEditorPage({
           documentTitle={docTitle}
         />
       )}
+
+      {/* Save-conflict resolution (S5) — opened via the conflict toast action */}
+      <SaveConflictDialog
+        open={showSaveConflict}
+        onOpenChange={setShowSaveConflict}
+        bookId={bookId}
+        chapterId=""
+        documentId={documentId}
+        paneId={PANE_ID}
+        editor={editor}
+      />
     </div>
   );
 }

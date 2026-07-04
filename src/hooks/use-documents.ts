@@ -82,16 +82,33 @@ export function useDocumentContent(bookId: string, documentId: string) {
   });
 }
 
-/** Save document content. */
+/** Save document content (optionally optimistically locked, mirroring chapters). */
 export function useSaveDocumentContent(bookId: string, documentId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (content: string) =>
-      fetchJson(`/api/books/${bookId}/documents/${documentId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content, changeSource: "manual" }),
-      }),
+    mutationFn: ({
+      content,
+      expectedVersion,
+      changeSource,
+    }: {
+      content: string;
+      expectedVersion?: number;
+      changeSource?: string;
+    }) =>
+      // When expectedVersion is present the PATCH returns 409 (not a silent
+      // overwrite) if the doc moved; absent = last-write-wins (legacy).
+      fetchJson<{ version: number }>(
+        `/api/books/${bookId}/documents/${documentId}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            content,
+            expectedVersion,
+            changeSource: changeSource ?? "manual",
+          }),
+        }
+      ),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["document-content", bookId, documentId] });
       // Don't invalidate versions on every save — only needed when viewing history

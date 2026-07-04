@@ -18,7 +18,10 @@ import {
   useEditorPaneStore,
   getOrCreatePaneStore,
 } from "@/stores/editor-store";
-import { useSaveChapterContent } from "@/hooks/use-documents";
+import {
+  useSaveChapterContent,
+  useSaveDocumentContent,
+} from "@/hooks/use-documents";
 import { ApiError } from "@/lib/api-client";
 import { deleteDraft } from "@/lib/offline/draft-store";
 import { DiffView } from "./diff-view";
@@ -31,6 +34,12 @@ interface SaveConflictDialogProps {
   chapterId: string;
   paneId: string;
   editor: Editor | null;
+  /**
+   * When set, the dialog resolves a *document* (story bible, architecture,
+   * series doc) conflict via the documents PATCH route instead of the
+   * chapter-content route. Chapter behaviour is byte-identical when omitted.
+   */
+  documentId?: string;
 }
 
 /**
@@ -47,9 +56,33 @@ export function SaveConflictDialog({
   chapterId,
   paneId,
   editor,
+  documentId,
 }: SaveConflictDialogProps) {
   const saveConflict = useEditorPaneStore(paneId, (s) => s.saveConflict);
-  const saveMutation = useSaveChapterContent(bookId, chapterId);
+  // Both hooks are called unconditionally (rules of hooks); only the one
+  // matching the target is ever invoked. In chapter mode documentId is absent
+  // so the document hook's URL is never fetched.
+  const chapterSave = useSaveChapterContent(bookId, chapterId);
+  const documentSave = useSaveDocumentContent(bookId, documentId ?? "");
+  const isDocument = !!documentId;
+  const noun = isDocument ? "Document" : "Chapter";
+  /** Unified stamped save returning the new numeric version. */
+  const saveResolved = (args: {
+    markdown: string;
+    expectedVersion?: number;
+    changeSource?: string;
+  }): Promise<{ version: number }> =>
+    isDocument
+      ? documentSave.mutateAsync({
+          content: args.markdown,
+          expectedVersion: args.expectedVersion,
+          changeSource: args.changeSource,
+        })
+      : chapterSave.mutateAsync({
+          markdown: args.markdown,
+          expectedVersion: args.expectedVersion,
+          changeSource: args.changeSource,
+        });
   const [isResolving, setIsResolving] = useState(false);
 
   // Local markdown snapshot — recomputed each time the dialog opens
@@ -71,12 +104,16 @@ export function SaveConflictDialog({
    * know was deleted.
    */
   const clearConflictDraft = () => {
-    try {
-      localStorage.removeItem(`wmb-conflict-draft-${chapterId}`);
-    } catch {
-      // localStorage unavailable — best effort
+    // Document conflicts have no offline crash-draft (that machinery is
+    // chapter-only); just clear the pane's draft stamp.
+    if (!isDocument) {
+      try {
+        localStorage.removeItem(`wmb-conflict-draft-${chapterId}`);
+      } catch {
+        // localStorage unavailable — best effort
+      }
+      void deleteDraft(chapterId, { onlyIfMine: true });
     }
-    void deleteDraft(chapterId, { onlyIfMine: true });
     paneStore.getState().setDraftSavedAt(null);
   };
 
@@ -88,7 +125,7 @@ export function SaveConflictDialog({
     paneStore.getState().setSaving(true);
 
     try {
-      const res = await saveMutation.mutateAsync({
+      const res = await saveResolved({
         markdown: md,
         expectedVersion: saveConflict.serverVersion,
       });
@@ -118,7 +155,7 @@ export function SaveConflictDialog({
             serverVersion: body.currentVersion,
           });
         }
-        toast.warning("Chapter changed again", {
+        toast.warning(`${noun} changed again`, {
           description: "The diff has been updated — please review once more.",
         });
       } else {
@@ -146,14 +183,14 @@ export function SaveConflictDialog({
     try {
       // 1) Unguarded backup save (no expectedVersion → CAS skipped): the
       //    local words become a recoverable DocumentVersion.
-      const backup = await saveMutation.mutateAsync({
+      const backup = await saveResolved({
         markdown: getMarkdownFromEditor(editor),
         changeSource: "conflict-backup",
       });
 
       // 2) Guarded save returning live content to the server version,
       //    stamped against the backup so a concurrent writer still 409s.
-      const res = await saveMutation.mutateAsync({
+      const res = await saveResolved({
         markdown: saveConflict.serverContent,
         expectedVersion: backup.version,
         changeSource: "conflict-resolve",
@@ -191,7 +228,7 @@ export function SaveConflictDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle>Chapter changed outside this editor</DialogTitle>
+          <DialogTitle>{noun} changed outside this editor</DialogTitle>
           <DialogDescription>
             Another writer (an agent run, import, or another tab) saved version{" "}
             v{saveConflict.serverVersion} while you had unsaved edits here.
