@@ -972,6 +972,19 @@ export function ManuscriptEditor({
     return () => clearInterval(id);
   }, [immersive, editor, paneStore]);
 
+  // Loss-window guard (S10): the overlay's unload listeners call this to route
+  // the latest immersive edits into tiptap + markDirty on tab close/hide,
+  // shrinking worst-case loss from the 30s interval above to ~0. Shares
+  // lastImmersiveSyncRef with the interval so the two never double-apply.
+  const flushImmersiveToEditor = useCallback(() => {
+    if (!editor) return;
+    if (immersiveHtmlRef.current !== lastImmersiveSyncRef.current) {
+      lastImmersiveSyncRef.current = immersiveHtmlRef.current;
+      editor.commands.setContent(immersiveHtmlRef.current);
+      paneStore.getState().markDirty();
+    }
+  }, [editor, paneStore]);
+
   // ── F8 / Shift+F8 keyboard navigation (use-finding-navigation.ts) ──
   useFindingNavigation({
     editor,
@@ -1373,6 +1386,7 @@ export function ManuscriptEditor({
             immersiveHtmlRef.current = html;
           }}
           onExit={exitImmersive}
+          onFlush={flushImmersiveToEditor}
         />
       )}
 

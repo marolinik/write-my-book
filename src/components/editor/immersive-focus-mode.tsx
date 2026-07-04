@@ -1,12 +1,16 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import { XIcon, TargetIcon, ClockIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { countWords } from "@/lib/utils";
 import { EDITOR_MEASURE_CLASS } from "./editor-utils";
 import { announce } from "./live-announcer";
+import {
+  sanitizeImmersiveHtml,
+  registerImmersiveFlushGuards,
+} from "./immersive-safety";
 
 /**
  * Gap 1: True Immersive Focus Mode — Scrivener's Composition Mode equivalent.
@@ -36,6 +40,12 @@ interface ImmersiveFocusModeProps {
   onContentChange: (html: string) => void;
   /** Exit focus mode */
   onExit: () => void;
+  /**
+   * Persist pending immersive edits through the real save path. Invoked on the
+   * unload guards (pagehide / visibilitychange:hidden) so a tab close or hide
+   * routes the latest keystrokes into autosave before the loss window opens.
+   */
+  onFlush?: () => void;
   /** Initial theme */
   defaultTheme?: FocusTheme;
 }
@@ -62,6 +72,7 @@ export function ImmersiveFocusMode({
   content,
   onContentChange,
   onExit,
+  onFlush,
   defaultTheme = "dark",
 }: ImmersiveFocusModeProps) {
   const [theme, setTheme] = useState<FocusTheme>(defaultTheme);
@@ -178,6 +189,34 @@ export function ImmersiveFocusMode({
     onContentChange(el.innerHTML);
   }, [onContentChange]);
 
+  // Defense-in-depth: constrain the HTML injected into the contentEditable
+  // (S10). Memoized so the (once-per-session) content snapshot is sanitized
+  // just once and dangerouslySetInnerHTML is never re-run on unrelated
+  // re-renders (which would clobber the caret).
+  const sanitizedContent = useMemo(
+    () => sanitizeImmersiveHtml(content),
+    [content]
+  );
+
+  // Loss-window guard (S10): while immersive, edits live only in the parent's
+  // ref until its 30s periodic sync. Mirror use-draft-buffer's unload flush so
+  // a tab close / hide first pushes the freshest innerHTML into the ref and
+  // then routes it into the real save path via onFlush. Because
+  // visibilitychange:hidden precedes pagehide on close, the parent draft
+  // buffer's own pagehide flush then reads the now-fresh editor content.
+  const flushRef = useRef<() => void>(() => {});
+  useEffect(() => {
+    flushRef.current = () => {
+      const el = editorRef.current;
+      if (el) onContentChange(el.innerHTML);
+      onFlush?.();
+    };
+  });
+  useEffect(
+    () => registerImmersiveFlushGuards(() => flushRef.current()),
+    []
+  );
+
   const formatTime = (secs: number) => {
     const m = Math.floor(secs / 60);
     const s = secs % 60;
@@ -263,7 +302,7 @@ export function ImmersiveFocusMode({
             [&_em]:italic
             [&_strong]:font-bold
           `}
-          dangerouslySetInnerHTML={{ __html: content }}
+          dangerouslySetInnerHTML={{ __html: sanitizedContent }}
           onInput={handleInput}
           spellCheck
           autoFocus
