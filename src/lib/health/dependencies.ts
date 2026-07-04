@@ -5,6 +5,7 @@ import { envHealth } from "@/lib/env";
 import { verifyNeo4jConnection } from "@/lib/graph/neo4j-client";
 import { verifyQdrantConnection } from "@/lib/vector/qdrant-client";
 import { assertWorkerLiveness } from "@/lib/health/worker-liveness";
+import { assertSchemaContract } from "@/lib/health/schema-contract";
 
 export type DependencyStatus = "ok" | "degraded" | "error" | "skipped";
 
@@ -152,6 +153,9 @@ export async function checkDependencies(): Promise<DependencyReadinessResult> {
       message: env.ok ? "ok" : "Invalid runtime environment",
     } satisfies DependencyCheckResult),
     runCheck("postgres", true, checkDatabase),
+    // A bare `SELECT 1` stays green against a STALE schema. This asserts the
+    // release's required objects actually exist → readiness 503 on drift.
+    runCheck("schema", true, assertSchemaContract),
     runCheck("redis", true, checkRedis),
     runCheck("s3", true, checkS3),
     // Worker is a HARD deploy requirement: without a consumer, every background
