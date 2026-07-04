@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { fetchJson } from "@/lib/api-client";
+import { useLocale } from "@/components/providers/language-provider";
 
 /**
  * Gap 2: Drag-and-Drop Corkboard View
@@ -58,6 +59,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export function CorkboardView({ bookId, chapters: initialChapters, onReorder }: CorkboardViewProps) {
+  const locale = useLocale();
   const [chapters, setChapters] = useState(initialChapters);
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dropTargetId, setDropTargetId] = useState<string | null>(null);
@@ -172,7 +174,7 @@ export function CorkboardView({ bookId, chapters: initialChapters, onReorder }: 
 
               {/* Footer: word count + status */}
               <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-                <span>{ch.wordCount.toLocaleString()} words</span>
+                <span>{ch.wordCount.toLocaleString(locale)} words</span>
                 <Badge variant="outline" className="text-[8px] px-1 py-0 capitalize">
                   {STATUS_LABELS[ch.status] ?? ch.status}
                 </Badge>

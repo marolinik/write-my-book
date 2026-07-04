@@ -44,7 +44,7 @@ import { getWorkflow } from "@/lib/agents/workflows";
 import { getAgentDefinition } from "@/lib/agents/definitions";
 import { getAgentStrings } from "@/lib/i18n/agent-strings";
 import { getStatusLabel } from "@/lib/i18n/ui-strings";
-import { useLanguage } from "@/components/providers/language-provider";
+import { useLanguage, useLocale } from "@/components/providers/language-provider";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { WorkflowSelector } from "./workflow-selector";
@@ -110,6 +110,7 @@ export function AgentPanel({
 
   const router = useRouter();
   const { t: uiT } = useLanguage();
+  const locale = useLocale();
   const { data: book } = useBook(bookId);
   const bookLanguage = book?.language ?? "en";
   const strings = getAgentStrings(bookLanguage);
@@ -598,7 +599,7 @@ export function AgentPanel({
                     </span>
                   )}
                   {s.completedAt && (
-                    <span>{new Date(s.completedAt).toLocaleDateString()}</span>
+                    <span>{new Date(s.completedAt).toLocaleDateString(locale)}</span>
                   )}
                 </div>
               </div>

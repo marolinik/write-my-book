@@ -36,7 +36,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
-import { useLanguage } from "@/components/providers/language-provider";
+import { useLanguage, useLocale } from "@/components/providers/language-provider";
 import { useBookState } from "@/hooks/use-book-state";
 import { getWorkflow } from "@/lib/agents/workflows";
 
@@ -169,7 +169,7 @@ const WORKFLOW_ICONS: Record<string, React.ElementType> = {
   "market-analysis": GlobeIcon,
 };
 
-function relativeTime(date: string): string {
+function relativeTime(date: string, locale: string): string {
   const diff = Date.now() - new Date(date).getTime();
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return "just now";
@@ -178,7 +178,7 @@ function relativeTime(date: string): string {
   if (hours < 24) return `${hours}h ago`;
   const days = Math.floor(hours / 24);
   if (days < 7) return `${days}d ago`;
-  return new Date(date).toLocaleDateString();
+  return new Date(date).toLocaleDateString(locale);
 }
 
 // ─── DocumentsLibrary ───────────────────────────────────────────
@@ -537,6 +537,7 @@ function DocumentRow({
   bookId: string;
   hideChapter?: boolean;
 }) {
+  const locale = useLocale();
   const Icon = DOC_TYPE_ICONS[doc.type] ?? FileTextIcon;
   const label = DOC_TYPE_LABELS[doc.type] ?? doc.type;
 
@@ -561,14 +562,14 @@ function DocumentRow({
       <div className="flex items-center gap-2 shrink-0 ml-2">
         {doc.wordCount != null && doc.wordCount > 0 && (
           <span className="text-[11px] text-muted-foreground">
-            {doc.wordCount.toLocaleString()}w
+            {doc.wordCount.toLocaleString(locale)}w
           </span>
         )}
         <Badge variant="outline" className="text-[10px] px-1.5 py-0">
           v{doc.currentVersion}
         </Badge>
         <span className="text-xs text-muted-foreground">
-          {relativeTime(doc.updatedAt)}
+          {relativeTime(doc.updatedAt, locale)}
         </span>
       </div>
     </Link>

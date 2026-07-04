@@ -14,6 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
 import { formatTokens } from "@/lib/utils";
+import { useLocale } from "@/components/providers/language-provider";
 import {
   Check,
   ExternalLink,
@@ -106,6 +107,7 @@ const PLAN_CARDS = [
 ];
 
 export default function BillingPage() {
+  const locale = useLocale();
   const { data: subscription } = useSubscription();
   const { data: usage, isLoading: usageLoading } = useUsage();
   const { data: founderCount } = useFounderCount();
@@ -175,7 +177,7 @@ export default function BillingPage() {
                 {subscription?.planName ?? currentPlan}
               </p>
               <p className="text-sm text-blue-700 dark:text-blue-300">
-                Trial ends {trialEnd.toLocaleDateString()}. Add a payment
+                Trial ends {trialEnd.toLocaleDateString(locale)}. Add a payment
                 method to continue after your trial.
               </p>
             </div>

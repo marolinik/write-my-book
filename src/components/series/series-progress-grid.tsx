@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSeriesAnalytics } from "@/hooks/use-series";
+import { useLocale } from "@/components/providers/language-provider";
 
 interface SeriesProgressGridProps {
   seriesId: string;
@@ -19,6 +20,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export function SeriesProgressGrid({ seriesId }: SeriesProgressGridProps) {
+  const locale = useLocale();
   const { data, isLoading } = useSeriesAnalytics(seriesId);
 
   if (isLoading) {
@@ -46,7 +48,7 @@ export function SeriesProgressGrid({ seriesId }: SeriesProgressGridProps) {
         <Card>
           <CardContent className="py-3 text-center">
             <p className="text-2xl font-bold">
-              {data.totals.totalWordCount.toLocaleString()}
+              {data.totals.totalWordCount.toLocaleString(locale)}
             </p>
             <p className="text-xs text-muted-foreground">Total Words</p>
           </CardContent>
@@ -85,7 +87,7 @@ export function SeriesProgressGrid({ seriesId }: SeriesProgressGridProps) {
             </CardHeader>
             <CardContent className="px-4 pb-3">
               <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
-                <span>{book.wordCount.toLocaleString()} words</span>
+                <span>{book.wordCount.toLocaleString(locale)} words</span>
                 <span>{book.chapterCount} chapters</span>
                 <span>{book.documentCount} documents</span>
               </div>

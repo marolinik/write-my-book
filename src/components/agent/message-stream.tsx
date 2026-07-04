@@ -24,6 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { estimateCost } from "@/lib/cost";
 import { getToolLabel, parseToolInput } from "@/lib/agents/tool-labels";
+import { localeFor } from "@/lib/i18n/ui-strings";
 import type { AgentStreamMessage, AgentResult } from "@/lib/agents/types";
 import { useEditorPaneStore } from "@/stores/editor-store";
 
@@ -851,6 +852,7 @@ function DelegationCard({
   block: DelegationBlockDesc;
   language?: string;
 }) {
+  const locale = localeFor(language ?? "en");
   const [expanded, setExpanded] = useState(false);
 
   // Count tool_use progress items for a compact summary
@@ -877,7 +879,7 @@ function DelegationCard({
         <span className="text-sm font-medium flex-1">{block.agentName}</span>
         {block.done && (
           <span className="text-xs text-muted-foreground tabular-nums">
-            {block.inputTokens.toLocaleString()} / {block.outputTokens.toLocaleString()} tokens
+            {block.inputTokens.toLocaleString(locale)} / {block.outputTokens.toLocaleString(locale)} tokens
           </span>
         )}
         {!block.done && toolCalls.length > 0 && (
@@ -930,6 +932,7 @@ function CompletionCard({
 }) {
   if (!result) return null;
 
+  const locale = localeFor(language ?? "en");
   const cost = estimateCost(
     "sonnet", // approximate — actual model info not in result
     result.tokensInput,
@@ -954,8 +957,8 @@ function CompletionCard({
         </span>
       </div>
       <div className="flex gap-3 text-xs text-muted-foreground">
-        <span>{result.tokensInput.toLocaleString()} input tokens</span>
-        <span>{result.tokensOutput.toLocaleString()} output tokens</span>
+        <span>{result.tokensInput.toLocaleString(locale)} input tokens</span>
+        <span>{result.tokensOutput.toLocaleString(locale)} output tokens</span>
         <span>~${cost.toFixed(4)}</span>
       </div>
     </div>

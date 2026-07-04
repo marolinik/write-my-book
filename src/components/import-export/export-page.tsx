@@ -12,6 +12,7 @@ import { ExportConfigDialog } from "./export-config-dialog";
 import { ExportHistoryList } from "./export-history-list";
 import { useExportStore } from "@/stores/export-store";
 import { useExportManuscript, useDownloadExport, useExportHistory } from "@/hooks/use-export";
+import { useLocale } from "@/components/providers/language-provider";
 import {
   Loader2Icon,
   SettingsIcon,
@@ -32,6 +33,7 @@ const FORMAT_GUIDANCE: Record<string, string> = {
 };
 
 export function ExportPage({ bookId }: ExportPageProps) {
+  const locale = useLocale();
   const {
     selectedFormat,
     isDraft,
@@ -216,7 +218,7 @@ export function ExportPage({ bookId }: ExportPageProps) {
                   {lastExportResult.filename}
                 </Badge>
                 <Badge variant="outline">
-                  {lastExportResult.wordCount.toLocaleString()} words
+                  {lastExportResult.wordCount.toLocaleString(locale)} words
                 </Badge>
                 <Badge variant="outline">
                   {lastExportResult.chapterCount} chapters

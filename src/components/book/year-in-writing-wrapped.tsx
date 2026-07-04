@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useLocale } from "@/components/providers/language-provider";
 
 /**
  * B: Year in Writing Wrapped — Spotify-style annual recap.
@@ -67,6 +68,7 @@ interface YearInWritingWrappedProps {
 
 export function YearInWritingWrapped({ data, authorName }: YearInWritingWrappedProps) {
   const [cardIndex, setCardIndex] = useState(0);
+  const locale = useLocale();
 
   const peakMonthName = MONTH_NAMES[data.peakMonth];
   const maxMonthWords = Math.max(...data.wordsPerMonth, 1);
@@ -94,7 +96,7 @@ export function YearInWritingWrapped({ data, authorName }: YearInWritingWrappedP
         content: (
           <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
             <p className="text-sm text-muted-foreground">You wrote</p>
-            <p className="text-6xl font-bold tabular-nums">{data.totalWords.toLocaleString()}</p>
+            <p className="text-6xl font-bold tabular-nums">{data.totalWords.toLocaleString(locale)}</p>
             <p className="text-lg text-muted-foreground">words this year</p>
             <p className="text-xs text-muted-foreground mt-4">
               That&apos;s {Math.round(data.totalWords / 250)} pages &mdash;
@@ -159,7 +161,7 @@ export function YearInWritingWrapped({ data, authorName }: YearInWritingWrappedP
             <p className="text-sm text-muted-foreground">Your peak month was</p>
             <p className="text-4xl font-bold">{peakMonthName}</p>
             <p className="text-sm text-muted-foreground">
-              {data.wordsPerMonth[data.peakMonth]?.toLocaleString()} words
+              {data.wordsPerMonth[data.peakMonth]?.toLocaleString(locale)} words
             </p>
             <div className="flex items-end gap-1 h-16 mt-4">
               {data.wordsPerMonth.map((w, i) => (
@@ -213,10 +215,10 @@ export function YearInWritingWrapped({ data, authorName }: YearInWritingWrappedP
     });
 
     return deck;
-  }, [data, authorName, peakMonthName, maxMonthWords]);
+  }, [data, authorName, peakMonthName, maxMonthWords, locale]);
 
   const handleShare = async () => {
-    const text = `My ${data.year} in Writing:\n${data.totalWords.toLocaleString()} words | ${data.longestStreak}-day streak | ${data.writerPersonality}\n#amwriting #WritingCommunity #YearInWriting`;
+    const text = `My ${data.year} in Writing:\n${data.totalWords.toLocaleString(locale)} words | ${data.longestStreak}-day streak | ${data.writerPersonality}\n#amwriting #WritingCommunity #YearInWriting`;
     try {
       if (navigator.share) { await navigator.share({ text }); return; }
       await navigator.clipboard.writeText(text);

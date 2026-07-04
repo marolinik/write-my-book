@@ -21,6 +21,7 @@ import {
   useRemoveBookFromSeries,
   useReorderBook,
 } from "@/hooks/use-series";
+import { useLocale } from "@/components/providers/language-provider";
 
 interface Book {
   id: string;
@@ -36,6 +37,7 @@ interface SeriesBookManagerProps {
 }
 
 export function SeriesBookManager({ seriesId, books }: SeriesBookManagerProps) {
+  const locale = useLocale();
   const [showAddForm, setShowAddForm] = useState(false);
   const [addMode, setAddMode] = useState<"existing" | "new">("existing");
   const [newBookName, setNewBookName] = useState("");
@@ -154,7 +156,7 @@ export function SeriesBookManager({ seriesId, books }: SeriesBookManagerProps) {
                     >
                       <span className="font-medium">{book.name}</span>
                       <span className="text-xs text-muted-foreground">
-                        {book.wordCount.toLocaleString()} words
+                        {book.wordCount.toLocaleString(locale)} words
                       </span>
                     </button>
                   ))}
@@ -248,7 +250,7 @@ export function SeriesBookManager({ seriesId, books }: SeriesBookManagerProps) {
                 </Link>
 
                 <span className="text-xs text-muted-foreground">
-                  {book.wordCount.toLocaleString()} words
+                  {book.wordCount.toLocaleString(locale)} words
                 </span>
 
                 <Badge variant="secondary" className="text-xs capitalize">

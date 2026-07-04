@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/popover";
 import type { AnnotationCounts } from "./annotation-extension";
 import type { SaveErrorKind } from "@/stores/editor-store";
+import { useLocale } from "@/components/providers/language-provider";
 import { SessionTimer } from "./session-timer";
 import { AuthorshipTracker } from "./authorship-tracker";
 
@@ -146,13 +147,14 @@ export function EditorStatusBar({
   draftSavedAt = null,
   lastSaveErrorKind = null,
 }: EditorStatusBarProps) {
+  const locale = useLocale();
   const readingTime = Math.max(1, Math.ceil(wordCount / 250));
 
   return (
     <div className="flex items-center justify-between border-t px-4 py-1.5 text-xs text-muted-foreground bg-background/95">
       <div className="flex items-center gap-4 min-w-0">
         <span className="shrink-0">
-          {wordCount.toLocaleString()} word{wordCount !== 1 ? "s" : ""}
+          {wordCount.toLocaleString(locale)} word{wordCount !== 1 ? "s" : ""}
         </span>
         <span className="hidden min-[400px]:inline shrink-0">
           {readingTime} min read
@@ -308,7 +310,7 @@ export function EditorStatusBar({
               <Check className="h-3 w-3 text-green-600 dark:text-green-400" />
               <span>
                 Saved{" "}
-                {lastSaved.toLocaleTimeString([], {
+                {lastSaved.toLocaleTimeString(locale, {
                   hour: "2-digit",
                   minute: "2-digit",
                 })}

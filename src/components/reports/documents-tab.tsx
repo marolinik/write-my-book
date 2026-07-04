@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useLocale } from "@/components/providers/language-provider";
 
 const DOC_TYPE_LABELS: Record<string, string> = {
   CONCEPT: "Concept",
@@ -31,6 +32,7 @@ const DOC_TYPE_LABELS: Record<string, string> = {
 };
 
 export function DocumentsTab({ bookId }: { bookId: string }) {
+  const locale = useLocale();
   const { data: documents, isLoading } = useQuery({
     queryKey: ["book-documents", bookId],
     queryFn: async () => {
@@ -83,7 +85,7 @@ export function DocumentsTab({ bookId }: { bookId: string }) {
                   </div>
                 </div>
                 <Badge variant="outline">
-                  {new Date(doc.updatedAt).toLocaleDateString()}
+                  {new Date(doc.updatedAt).toLocaleDateString(locale)}
                 </Badge>
               </Link>
             ))}

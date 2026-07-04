@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useLocale } from "@/components/providers/language-provider";
 
 /**
  * PILLAR 4S: Manuscript Completion Forecast
@@ -30,6 +31,7 @@ export function CompletionForecast({
   recentDaily,
   startDate,
 }: CompletionForecastProps) {
+  const locale = useLocale();
   const forecast = useMemo(() => {
     if (targetWords <= 0 || currentWords >= targetWords) return null;
 
@@ -55,7 +57,7 @@ export function CompletionForecast({
 
     return {
       daysLeft,
-      date: completionDate.toLocaleDateString(undefined, {
+      date: completionDate.toLocaleDateString(locale, {
         month: "long",
         day: "numeric",
         year: "numeric",
@@ -63,7 +65,7 @@ export function CompletionForecast({
       pace: Math.round(effectiveDaily),
       frequency: Math.round(frequency * 100),
     };
-  }, [currentWords, targetWords, recentDaily]);
+  }, [currentWords, targetWords, recentDaily, locale]);
 
   if (!forecast || targetWords <= 0) return null;
 
@@ -94,7 +96,7 @@ export function CompletionForecast({
               </span>
               <span className="flex items-center gap-1">
                 <TargetIcon className="size-3" />
-                {(targetWords - currentWords).toLocaleString()} remaining
+                {(targetWords - currentWords).toLocaleString(locale)} remaining
               </span>
             </div>
           </>

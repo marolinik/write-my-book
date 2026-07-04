@@ -110,6 +110,7 @@ export default async function BookDetailPage({
   const periodWords = dailyCounts.reduce((sum, d) => sum + d.words, 0);
 
   const t = getUIStrings(user.preferredLanguage ?? "en");
+  const locale = localeFor(user.preferredLanguage ?? "en");
   const s = t.bookOverview;
 
   // Progress calculations
@@ -318,13 +319,13 @@ export default async function BookDetailPage({
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {currentWords.toLocaleString()}
+                {currentWords.toLocaleString(locale)}
               </div>
               {targetWords > 0 ? (
                 <div className="mt-2 space-y-1.5">
                   <div className="flex justify-between text-xs">
                     <span className="text-muted-foreground">
-                      of {targetWords.toLocaleString()} target
+                      of {targetWords.toLocaleString(locale)} target
                     </span>
                     <span className="font-medium">{wordPct}%</span>
                   </div>
@@ -355,7 +356,7 @@ export default async function BookDetailPage({
           </CardHeader>
           <CardContent>
             <div className="text-xl font-bold">
-              {book.wordCount.toLocaleString()}
+              {book.wordCount.toLocaleString(locale)}
             </div>
           </CardContent>
         </Card>

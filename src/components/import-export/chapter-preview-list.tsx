@@ -27,6 +27,7 @@ import {
   SplitIcon,
   MergeIcon,
 } from "lucide-react";
+import { useLocale } from "@/components/providers/language-provider";
 
 export interface PreviewChapter {
   tempId: string;
@@ -49,6 +50,7 @@ export function ChapterPreviewList({
   onChange,
   existingChapters,
 }: ChapterPreviewListProps) {
+  const locale = useLocale();
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const sensors = useSensors(
@@ -147,7 +149,7 @@ export function ChapterPreviewList({
             </Button>
           )}
           <Badge variant="secondary">
-            {totalWordCount.toLocaleString()} words
+            {totalWordCount.toLocaleString(locale)} words
           </Badge>
         </div>
       </div>
@@ -199,6 +201,7 @@ function SortableChapterRow({
   onRename: (tempId: string, title: string) => void;
   onRemove: (tempId: string) => void;
 }) {
+  const locale = useLocale();
   const {
     attributes,
     listeners,
@@ -268,7 +271,7 @@ function SortableChapterRow({
         {chapter.sourceFile}
       </Badge>
       <span className="text-xs text-muted-foreground shrink-0">
-        {chapter.wordCount.toLocaleString()} w
+        {chapter.wordCount.toLocaleString(locale)} w
       </span>
       <Button
         variant="ghost"

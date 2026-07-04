@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useEditHistory } from "@/hooks/use-editorial";
 import { useEditorialStore } from "@/stores/editorial-store";
+import { useLocale } from "@/components/providers/language-provider";
 
 interface EditHistoryTimelineProps {
   bookId: string;
@@ -41,9 +42,9 @@ function actionBadge(actionType: string) {
   }
 }
 
-function formatTimestamp(ts: string) {
+function formatTimestamp(ts: string, locale: string) {
   const d = new Date(ts);
-  return d.toLocaleString(undefined, {
+  return d.toLocaleString(locale, {
     month: "short",
     day: "numeric",
     hour: "2-digit",
@@ -52,6 +53,7 @@ function formatTimestamp(ts: string) {
 }
 
 export function EditHistoryTimeline({ bookId }: EditHistoryTimelineProps) {
+  const locale = useLocale();
   const selectedChapter = useEditorialStore((s) => s.selectedChapter);
   const { data, isLoading } = useEditHistory(
     bookId,
@@ -92,7 +94,7 @@ export function EditHistoryTimeline({ bookId }: EditHistoryTimelineProps) {
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">
-                  {formatTimestamp(action.timestamp)}
+                  {formatTimestamp(action.timestamp, locale)}
                 </span>
                 {actionBadge(action.actionType)}
               </div>

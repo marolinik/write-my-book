@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useLocale } from "@/components/providers/language-provider";
 import type { StructuredFingerprint, CalibrationSample } from "@/lib/agents/types";
 
 interface StyleProfile {
@@ -254,6 +255,7 @@ export function StyleProfileViewer({
 }: {
   profiles: StyleProfile[];
 }) {
+  const locale = useLocale();
   if (profiles.length === 0) {
     return (
       <Card>
@@ -281,7 +283,7 @@ export function StyleProfileViewer({
               )}
             </div>
             <Badge variant="secondary">
-              {new Date(profile.updatedAt).toLocaleDateString()}
+              {new Date(profile.updatedAt).toLocaleDateString(locale)}
             </Badge>
           </div>
 

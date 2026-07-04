@@ -19,6 +19,7 @@ import {
   useRestoreVersion,
 } from "@/hooks/use-documents";
 import { DiffView } from "./diff-view";
+import { useLocale } from "@/components/providers/language-provider";
 
 interface VersionHistoryPanelProps {
   bookId: string;
@@ -36,6 +37,7 @@ export function VersionHistoryPanel({
   bookId,
   documentId,
 }: VersionHistoryPanelProps) {
+  const locale = useLocale();
   const [viewVersion, setViewVersion] = useState<number | null>(null);
   const [compareVersion, setCompareVersion] = useState<number | null>(null);
   const [diffOpen, setDiffOpen] = useState(false);
@@ -132,7 +134,7 @@ export function VersionHistoryPanel({
 
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] text-muted-foreground">
-                      {new Date(v.createdAt).toLocaleString([], {
+                      {new Date(v.createdAt).toLocaleString(locale, {
                         month: "short",
                         day: "numeric",
                         hour: "2-digit",

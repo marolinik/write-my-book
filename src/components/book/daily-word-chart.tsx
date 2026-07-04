@@ -10,21 +10,21 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useLanguage } from "@/components/providers/language-provider";
+import { useLanguage, useLocale } from "@/components/providers/language-provider";
 
 interface DailyWordChartProps {
   data: Array<{ date: string; words: number }>;
   language?: string;
 }
 
-function formatDateLabel(dateStr: string): string {
+function formatDateLabel(dateStr: string, locale: string): string {
   const d = new Date(dateStr + "T00:00:00");
-  return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  return d.toLocaleDateString(locale, { month: "short", day: "numeric" });
 }
 
-function formatTooltipDate(dateStr: string): string {
+function formatTooltipDate(dateStr: string, locale: string): string {
   const d = new Date(dateStr + "T00:00:00");
-  return d.toLocaleDateString(undefined, {
+  return d.toLocaleDateString(locale, {
     weekday: "short",
     month: "short",
     day: "numeric",
@@ -33,12 +33,13 @@ function formatTooltipDate(dateStr: string): string {
 
 export function DailyWordChart({ data }: DailyWordChartProps) {
   const { t } = useLanguage();
+  const locale = useLocale();
   const s = t.writingDashboard;
 
   // Show every 5th label to avoid overcrowding
   const chartData = data.map((d, i) => ({
     ...d,
-    label: i % 5 === 0 || i === data.length - 1 ? formatDateLabel(d.date) : "",
+    label: i % 5 === 0 || i === data.length - 1 ? formatDateLabel(d.date, locale) : "",
   }));
 
   const maxWords = Math.max(...data.map((d) => d.words), 100);
@@ -75,9 +76,9 @@ export function DailyWordChart({ data }: DailyWordChartProps) {
                   const item = payload[0].payload as { date: string; words: number };
                   return (
                     <div className="rounded-lg border bg-popover px-3 py-2 text-sm shadow-md">
-                      <p className="font-medium">{formatTooltipDate(item.date)}</p>
+                      <p className="font-medium">{formatTooltipDate(item.date, locale)}</p>
                       <p className="text-muted-foreground">
-                        {item.words.toLocaleString()} words
+                        {item.words.toLocaleString(locale)} words
                       </p>
                     </div>
                   );

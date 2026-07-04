@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
+import { useLocale } from "@/components/providers/language-provider";
 
 /**
  * PILLAR 5U: Shareable Progress Cards
@@ -44,6 +45,7 @@ export function ShareableProgressCard({
   milestone,
   milestoneText,
 }: ShareableProgressCardProps) {
+  const locale = useLocale();
   const cardRef = useRef<HTMLDivElement>(null);
 
   const milestoneLabels: Record<string, string> = {
@@ -57,7 +59,7 @@ export function ShareableProgressCard({
   const pct = totalChapters > 0 ? Math.round((chaptersComplete / totalChapters) * 100) : 0;
 
   const handleShare = useCallback(async () => {
-    const text = `${label}\n\n"${bookTitle}"\n${totalWords.toLocaleString()} words | ${chaptersComplete}/${totalChapters} chapters | ${daysWriting} days\n\n#amwriting #WritingCommunity #WriteMyBook`;
+    const text = `${label}\n\n"${bookTitle}"\n${totalWords.toLocaleString(locale)} words | ${chaptersComplete}/${totalChapters} chapters | ${daysWriting} days\n\n#amwriting #WritingCommunity #WriteMyBook`;
 
     if (navigator.share) {
       try {
@@ -74,7 +76,7 @@ export function ShareableProgressCard({
     } catch {
       toast.error("Failed to copy");
     }
-  }, [label, bookTitle, totalWords, chaptersComplete, totalChapters, daysWriting]);
+  }, [label, bookTitle, totalWords, chaptersComplete, totalChapters, daysWriting, locale]);
 
   return (
     <div className="space-y-3">
@@ -99,7 +101,7 @@ export function ShareableProgressCard({
         {/* Stats grid */}
         <div className="grid grid-cols-2 gap-3">
           <div className="text-center rounded-lg bg-background/50 p-3">
-            <p className="text-2xl font-bold tabular-nums">{totalWords.toLocaleString()}</p>
+            <p className="text-2xl font-bold tabular-nums">{totalWords.toLocaleString(locale)}</p>
             <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Words Written</p>
           </div>
           <div className="text-center rounded-lg bg-background/50 p-3">

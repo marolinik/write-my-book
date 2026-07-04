@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { TargetIcon, CheckCircle2Icon } from "lucide-react";
+import { useLocale } from "@/components/providers/language-provider";
 import { Progress } from "@/components/ui/progress";
 import {
   Tooltip,
@@ -37,6 +38,7 @@ export function ChapterWordGoals({
   bookTarget,
   bookCurrentWords,
 }: ChapterWordGoalsProps) {
+  const locale = useLocale();
   const { totalTarget, totalCurrent, rollupPct } = useMemo(() => {
     const tt = chapters.reduce((s, c) => s + (c.targetWords ?? 0), 0);
     const tc = chapters.reduce((s, c) => s + (c.currentWords ?? 0), 0);
@@ -60,7 +62,7 @@ export function ChapterWordGoals({
               Book Target
             </span>
             <span className="font-medium tabular-nums">
-              {totalCurrent.toLocaleString()} / {totalTarget.toLocaleString()} ({rollupPct}%)
+              {totalCurrent.toLocaleString(locale)} / {totalTarget.toLocaleString(locale)} ({rollupPct}%)
             </span>
           </div>
           <Progress value={rollupPct} className="h-2" />
@@ -93,7 +95,7 @@ export function ChapterWordGoals({
                     <CheckCircle2Icon className="size-3 text-green-500 shrink-0" />
                   )}
                   <span className="text-[9px] text-muted-foreground tabular-nums w-14 text-right shrink-0">
-                    {(ch.currentWords ?? ch.wordCount ?? 0).toLocaleString()}
+                    {(ch.currentWords ?? ch.wordCount ?? 0).toLocaleString(locale)}
                     {target > 0 ? `/${(target/1000).toFixed(0)}k` : ""}
                   </span>
                 </div>
@@ -103,8 +105,8 @@ export function ChapterWordGoals({
                   Ch.{ch.chapterNumber}{ch.title ? `: ${ch.title}` : ""}
                 </p>
                 <p className="text-muted-foreground">
-                  {(ch.currentWords ?? ch.wordCount ?? 0).toLocaleString()} words
-                  {target > 0 ? ` of ${target.toLocaleString()} target (${pct}%)` : " (no target set)"}
+                  {(ch.currentWords ?? ch.wordCount ?? 0).toLocaleString(locale)} words
+                  {target > 0 ? ` of ${target.toLocaleString(locale)} target (${pct}%)` : " (no target set)"}
                 </p>
               </TooltipContent>
             </Tooltip>

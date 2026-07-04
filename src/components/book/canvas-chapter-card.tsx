@@ -3,6 +3,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVerticalIcon } from "lucide-react";
+import { useLocale } from "@/components/providers/language-provider";
 
 const STATUS_BORDER_COLORS: Record<string, string> = {
   undiscussed: "border-l-muted-foreground/40",
@@ -30,6 +31,7 @@ interface CanvasChapterCardProps {
 }
 
 export function CanvasChapterCard({ chapter, onClick }: CanvasChapterCardProps) {
+  const locale = useLocale();
   const {
     attributes,
     listeners,
@@ -84,7 +86,7 @@ export function CanvasChapterCard({ chapter, onClick }: CanvasChapterCardProps) 
 
       {/* Word count */}
       <p className="text-[10px] text-muted-foreground">
-        {chapter.wordCount.toLocaleString()} words
+        {chapter.wordCount.toLocaleString(locale)} words
       </p>
     </div>
   );

@@ -3,7 +3,7 @@ import { BookOpenIcon, PlusIcon } from "lucide-react";
 
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { getUIStrings } from "@/lib/i18n/ui-strings";
+import { getUIStrings, localeFor } from "@/lib/i18n/ui-strings";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { buildRollups } from "@/lib/shelf/chapter-rollup";
@@ -16,6 +16,7 @@ export const dynamic = "force-dynamic";
 export default async function BooksPage() {
   const user = await requireUser();
   const t = getUIStrings(user.preferredLanguage ?? "en");
+  const locale = localeFor(user.preferredLanguage ?? "en");
   const s = t.bookList;
 
   // Q1 (essential): books + signals. Includes archived rows; grouper splits by archivedAt.
@@ -121,10 +122,10 @@ export default async function BooksPage() {
         </Card>
       ) : (
         <div>
-          <ShelfSection title="Currently Writing" books={groups.currentlyWriting} />
-          <ShelfSection title="Waiting for Feedback" books={groups.waiting} />
-          <ShelfSection title="Completed" books={groups.completed} />
-          <ShelfSection title="Archived" books={groups.archived} collapsible />
+          <ShelfSection title="Currently Writing" books={groups.currentlyWriting} locale={locale} />
+          <ShelfSection title="Waiting for Feedback" books={groups.waiting} locale={locale} />
+          <ShelfSection title="Completed" books={groups.completed} locale={locale} />
+          <ShelfSection title="Archived" books={groups.archived} locale={locale} collapsible />
         </div>
       )}
     </div>

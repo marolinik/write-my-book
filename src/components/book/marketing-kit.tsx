@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { fetchJson } from "@/lib/api-client";
 import { toast } from "sonner";
+import { useLocale } from "@/components/providers/language-provider";
 
 /**
  * W: Marketing Kit Auto-Generation.
@@ -68,6 +69,7 @@ function CopyButton({ text }: { text: string }) {
 }
 
 export function MarketingKit({ bookId, bookTitle }: MarketingKitProps) {
+  const locale = useLocale();
   const { data, isLoading } = useQuery<MarketingKitData | null>({
     queryKey: ["marketing-kit", bookId],
     queryFn: async () => {
@@ -142,7 +144,7 @@ export function MarketingKit({ bookId, bookTitle }: MarketingKitProps) {
             Marketing Kit — {bookTitle}
           </CardTitle>
           <Badge variant="outline" className="text-[10px]">
-            Generated {new Date(data.generatedAt).toLocaleDateString()}
+            Generated {new Date(data.generatedAt).toLocaleDateString(locale)}
           </Badge>
         </div>
       </CardHeader>

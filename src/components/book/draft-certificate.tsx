@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useLocale } from "@/components/providers/language-provider";
 
 /**
  * V: First Draft Complete Certificate.
@@ -32,10 +33,11 @@ export function DraftCertificate({
   completionDate,
   daysToComplete,
 }: DraftCertificateProps) {
+  const locale = useLocale();
   const certRef = useRef<HTMLDivElement>(null);
 
   const handleShare = async () => {
-    const text = `🏆 I completed the first draft of "${bookTitle}"!\n${wordCount.toLocaleString()} words | ${chapterCount} chapters | ${daysToComplete} days\n#amwriting #FirstDraft #WritingCommunity`;
+    const text = `🏆 I completed the first draft of "${bookTitle}"!\n${wordCount.toLocaleString(locale)} words | ${chapterCount} chapters | ${daysToComplete} days\n#amwriting #FirstDraft #WritingCommunity`;
     try {
       if (navigator.share) { await navigator.share({ text }); return; }
       await navigator.clipboard.writeText(text);
@@ -71,7 +73,7 @@ export function DraftCertificate({
 
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <p className="text-2xl font-bold tabular-nums">{wordCount.toLocaleString()}</p>
+            <p className="text-2xl font-bold tabular-nums">{wordCount.toLocaleString(locale)}</p>
             <p className="text-[9px] uppercase tracking-wider text-muted-foreground">Words</p>
           </div>
           <div>
@@ -87,7 +89,7 @@ export function DraftCertificate({
         <div className="space-y-1">
           <div className="h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent" />
           <p className="text-xs text-muted-foreground">
-            Completed on {new Date(completionDate).toLocaleDateString(undefined, {
+            Completed on {new Date(completionDate).toLocaleDateString(locale, {
               year: "numeric", month: "long", day: "numeric",
             })}
           </p>

@@ -9,6 +9,7 @@ import {
   BrainIcon,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useLocale } from "@/components/providers/language-provider";
 
 /**
  * E: Cumulative Lifetime Stats.
@@ -43,6 +44,7 @@ export function LifetimeStats({
   totalDaysWriting = 0,
   memberSince = "",
 }: LifetimeStatsProps) {
+  const locale = useLocale();
   const daysSinceMember = memberSince
     ? Math.floor((Date.now() - new Date(memberSince).getTime()) / (1000 * 60 * 60 * 24))
     : 0;
@@ -60,7 +62,7 @@ export function LifetimeStats({
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <StatBox icon={PenLineIcon} value={totalWords.toLocaleString()} label="Total Words" color="text-blue-500" />
+          <StatBox icon={PenLineIcon} value={totalWords.toLocaleString(locale)} label="Total Words" color="text-blue-500" />
           <StatBox icon={BookOpenIcon} value={totalChapters.toString()} label="Chapters" color="text-green-500" />
           <StatBox icon={BookOpenIcon} value={totalBooks.toString()} label="Books" color="text-indigo-500" />
           <StatBox icon={BrainIcon} value={totalSessions.toString()} label="AI Sessions" color="text-purple-500" />

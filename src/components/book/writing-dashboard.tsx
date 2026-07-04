@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useLanguage } from "@/components/providers/language-provider";
+import { useLanguage, useLocale } from "@/components/providers/language-provider";
 import { useWritingStats, useSetWritingGoal } from "@/hooks/use-writing-stats";
 import { DailyWordChart } from "@/components/book/daily-word-chart";
 import { GoalProgressCard } from "@/components/book/goal-progress-card";
@@ -32,6 +32,7 @@ function StatCard({
   value: string | number;
   subtitle?: string;
 }) {
+  const locale = useLocale();
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -42,7 +43,7 @@ function StatCard({
       </CardHeader>
       <CardContent>
         <div className="text-3xl font-bold tabular-nums">
-          {typeof value === "number" ? value.toLocaleString() : value}
+          {typeof value === "number" ? value.toLocaleString(locale) : value}
         </div>
         {subtitle && (
           <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>

@@ -37,6 +37,7 @@ import type { AnnotationType } from "@/components/editor/annotation-extension";
 import { getMarkdownFromEditor, useIsLg, findingsToAnnotations, createEditorExtensions, getEditorContentAttributes, type TooltipState } from "@/components/editor/editor-utils";
 import { FindingsSheet } from "@/components/editor/findings-sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useLocale } from "@/components/providers/language-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -92,6 +93,7 @@ export default function DocumentEditorPage({
   params: Promise<{ bookId: string; documentId: string }>;
 }) {
   const { bookId, documentId } = use(params);
+  const locale = useLocale();
 
   const PANE_ID = "doc-editor";
   const paneStore = getOrCreatePaneStore(PANE_ID);
@@ -663,12 +665,12 @@ export default function DocumentEditorPage({
             </div>
             <div className="flex items-center gap-1.5 text-muted-foreground">
               <ClockIcon className="size-3" />
-              <span>Modified: {docData.updatedAt ? new Date(docData.updatedAt).toLocaleDateString() : "—"}</span>
+              <span>Modified: {docData.updatedAt ? new Date(docData.updatedAt).toLocaleDateString(locale) : "—"}</span>
             </div>
             {docData.createdAt && (
               <div className="flex items-center gap-1.5 text-muted-foreground">
                 <ClockIcon className="size-3" />
-                <span>Created: {new Date(docData.createdAt).toLocaleDateString()}</span>
+                <span>Created: {new Date(docData.createdAt).toLocaleDateString(locale)}</span>
               </div>
             )}
             {docData.createdByAgent && (
@@ -678,7 +680,7 @@ export default function DocumentEditorPage({
               </div>
             )}
             <div className="flex items-center gap-1.5 text-muted-foreground">
-              <span>{wordCount.toLocaleString()} words</span>
+              <span>{wordCount.toLocaleString(locale)} words</span>
             </div>
           </div>
         </div>

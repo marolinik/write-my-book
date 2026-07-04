@@ -10,6 +10,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { BrainIcon } from "lucide-react";
 import { useMemoryStats } from "@/hooks/use-memory";
+import { useLocale } from "@/components/providers/language-provider";
 
 function timeAgo(dateStr: string | null): string {
   if (!dateStr) return "Never";
@@ -35,6 +36,7 @@ function formatCost(cost: number): string {
 }
 
 export function MemorySettings() {
+  const locale = useLocale();
   const { data, isLoading } = useMemoryStats();
 
   return (
@@ -80,11 +82,11 @@ export function MemorySettings() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-xs text-muted-foreground">Total Chunks</p>
-                <p className="text-lg font-semibold">{data.totalChunks.toLocaleString()}</p>
+                <p className="text-lg font-semibold">{data.totalChunks.toLocaleString(locale)}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Total Searches</p>
-                <p className="text-lg font-semibold">{data.totalSearches.toLocaleString()}</p>
+                <p className="text-lg font-semibold">{data.totalSearches.toLocaleString(locale)}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Last Indexed</p>

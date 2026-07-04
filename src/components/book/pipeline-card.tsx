@@ -2,6 +2,7 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useLocale } from "@/components/providers/language-provider";
 
 const STATUS_BORDER_COLORS: Record<string, string> = {
   undiscussed: "border-l-muted-foreground/40",
@@ -28,6 +29,7 @@ interface PipelineCardProps {
 }
 
 export function PipelineCard({ chapter, onClick }: PipelineCardProps) {
+  const locale = useLocale();
   const {
     attributes,
     listeners,
@@ -66,7 +68,7 @@ export function PipelineCard({ chapter, onClick }: PipelineCardProps) {
         </p>
       </div>
       <p className="text-[10px] text-muted-foreground mt-0.5">
-        {chapter.wordCount.toLocaleString()} words
+        {chapter.wordCount.toLocaleString(locale)} words
       </p>
     </div>
   );

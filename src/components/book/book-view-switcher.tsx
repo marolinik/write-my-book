@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/tooltip";
 import { InlineEditableTitle } from "@/components/book/inline-editable-title";
 import { cn } from "@/lib/utils";
-import { getStatusLabel } from "@/lib/i18n/ui-strings";
+import { getStatusLabel, localeFor } from "@/lib/i18n/ui-strings";
 import { BookCanvas } from "./book-canvas";
 import { ChapterPipeline } from "./chapter-pipeline";
 import { CorkboardView } from "./corkboard-view";
@@ -74,6 +74,7 @@ export function BookViewSwitcher({
   language = "en",
   labels,
 }: BookViewSwitcherProps) {
+  const locale = localeFor(language);
   const storageKey = `wmb-book-view-${bookId}`;
 
   const [view, setView] = useState<ViewMode>(() => {
@@ -177,7 +178,7 @@ export function BookViewSwitcher({
                       </Badge>
                     </td>
                     <td className="px-4 py-2 text-right font-mono text-xs">
-                      {ch.wordCount.toLocaleString()}
+                      {ch.wordCount.toLocaleString(locale)}
                     </td>
                     <td className="px-4 py-2 text-right">
                       {chTarget > 0 ? (

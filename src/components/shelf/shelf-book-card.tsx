@@ -5,33 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ShelfBookView } from "@/lib/shelf/types";
+import { buildSubtitle } from "@/lib/shelf/card-subtitle";
 import { ArchiveMenu } from "./archive-menu";
-
-function lastTouched(days: number): string {
-  if (days <= 0) return "today";
-  if (days === 1) return "yesterday";
-  return `${days} days ago`;
-}
-
-function subtitle(book: ShelfBookView): string {
-  const words = `${book.words.toLocaleString()} words`;
-  switch (book.shelf) {
-    case "currentlyWriting":
-      return book.chapters > 0
-        ? `${words} · drafted ${book.drafted}/${book.chapters} · last touched ${lastTouched(book.lastTouchedDays)}`
-        : `${words} · not started · created ${lastTouched(book.lastTouchedDays)}`;
-    case "waiting": {
-      const notes = `${book.pendingFindings} note${book.pendingFindings === 1 ? "" : "s"} pending`;
-      return book.chapters > 0
-        ? `${notes} · dev-edit ${book.analyzed}/${book.chapters} chapters`
-        : notes;
-    }
-    case "completed":
-      return `Finished · ${words} · ${book.chapters} chapters`;
-    case "archived":
-      return `Archived · ${words}`;
-  }
-}
 
 function PrimaryCta({ book }: { book: ShelfBookView }) {
   if (book.shelf === "currentlyWriting" && book.lastChapterId) {
@@ -63,9 +38,11 @@ function PrimaryCta({ book }: { book: ShelfBookView }) {
 
 interface ShelfBookCardProps {
   book: ShelfBookView;
+  /** BCP-47 locale tag so word counts don't leak the server locale. */
+  locale: string;
 }
 
-export function ShelfBookCard({ book }: ShelfBookCardProps) {
+export function ShelfBookCard({ book, locale }: ShelfBookCardProps) {
   return (
     <Card className={book.shelf === "archived" ? "opacity-70" : undefined}>
       <CardHeader className="pb-2">
@@ -86,7 +63,7 @@ export function ShelfBookCard({ book }: ShelfBookCardProps) {
         </div>
       </CardHeader>
       <CardContent>
-        <p className="text-xs text-muted-foreground">{subtitle(book)}</p>
+        <p className="text-xs text-muted-foreground">{buildSubtitle(book, locale)}</p>
         <PrimaryCta book={book} />
       </CardContent>
     </Card>

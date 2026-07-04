@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSeriesDetail } from "@/hooks/use-series";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
-import { useLanguage } from "@/components/providers/language-provider";
+import { useLanguage, useLocale } from "@/components/providers/language-provider";
 import { SeriesBookManager } from "@/components/series/series-book-manager";
 import { SeriesDocumentsPanel } from "@/components/series/series-documents-panel";
 import { SeriesInheritancePanel } from "@/components/series/series-inheritance-panel";
@@ -50,6 +50,7 @@ export default function SeriesDetailPage() {
   const { data: series, isLoading } = useSeriesDetail(seriesId);
   const openWithWorkflow = useAgentUIStore((s) => s.openWithWorkflow);
   const { t } = useLanguage();
+  const locale = useLocale();
 
   if (isLoading) {
     return (
@@ -173,7 +174,7 @@ export default function SeriesDetailPage() {
                 <PenLineIcon className="size-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{totalWords.toLocaleString()}</div>
+                <div className="text-2xl font-bold">{totalWords.toLocaleString(locale)}</div>
               </CardContent>
             </Card>
           </div>
@@ -196,7 +197,7 @@ export default function SeriesDetailPage() {
                       </div>
                       {doc ? (
                         <p className="text-xs text-muted-foreground">
-                          v{doc.currentVersion} — updated {new Date(doc.updatedAt).toLocaleDateString()}
+                          v{doc.currentVersion} — updated {new Date(doc.updatedAt).toLocaleDateString(locale)}
                         </p>
                       ) : (
                         <p className="text-xs text-muted-foreground">

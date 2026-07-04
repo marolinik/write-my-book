@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useLanguage } from "@/components/providers/language-provider";
+import { useLanguage, useLocale } from "@/components/providers/language-provider";
 import { TargetIcon, CheckIcon, XIcon } from "lucide-react";
 
 interface GoalProgressCardProps {
@@ -23,6 +23,7 @@ export function GoalProgressCard({
   onSetGoal,
 }: GoalProgressCardProps) {
   const { t } = useLanguage();
+  const locale = useLocale();
   const s = t.writingDashboard;
   const [editing, setEditing] = useState(false);
   const [inputValue, setInputValue] = useState(target > 0 ? String(target) : "");
@@ -54,10 +55,10 @@ export function GoalProgressCard({
           <>
             <div className="flex items-baseline justify-between">
               <span className="text-2xl font-bold tabular-nums">
-                {current.toLocaleString()}
+                {current.toLocaleString(locale)}
               </span>
               <span className="text-sm text-muted-foreground">
-                / {target.toLocaleString()}
+                / {target.toLocaleString(locale)}
               </span>
             </div>
             <Progress
@@ -72,7 +73,7 @@ export function GoalProgressCard({
                   Complete
                 </span>
               ) : (
-                <span>{(target - current).toLocaleString()} remaining</span>
+                <span>{(target - current).toLocaleString(locale)} remaining</span>
               )}
             </div>
           </>

@@ -26,6 +26,7 @@ import {
 import { fetchJson } from "@/lib/api-client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useLocale } from "@/components/providers/language-provider";
 
 /**
  * VB: Git-like Version Branching for Prose.
@@ -55,6 +56,7 @@ interface VersionBranchingProps {
 }
 
 export function VersionBranching({ bookId, chapterId, chapterNumber }: VersionBranchingProps) {
+  const locale = useLocale();
   const queryClient = useQueryClient();
   const [newBranchName, setNewBranchName] = useState("");
   const [showCreate, setShowCreate] = useState(false);
@@ -174,8 +176,8 @@ export function VersionBranching({ bookId, chapterId, chapterNumber }: VersionBr
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-medium">{branch.name}</p>
                     <p className="text-[10px] text-muted-foreground">
-                      {branch.wordCount.toLocaleString()} words &bull;{" "}
-                      {new Date(branch.createdAt).toLocaleDateString()}
+                      {branch.wordCount.toLocaleString(locale)} words &bull;{" "}
+                      {new Date(branch.createdAt).toLocaleDateString(locale)}
                     </p>
                   </div>
                   <div className="flex gap-1 shrink-0">

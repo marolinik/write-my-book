@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { UserIcon, BotIcon, PieChartIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useLocale } from "@/components/providers/language-provider";
 import {
   Tooltip,
   TooltipContent,
@@ -32,6 +33,7 @@ interface AuthorshipTrackerProps {
 }
 
 export function AuthorshipTracker({ stats, compact }: AuthorshipTrackerProps) {
+  const locale = useLocale();
   const { humanPct, aiPct, editedPct } = useMemo(() => {
     const total = stats.totalWords || 1;
     return {
@@ -53,16 +55,16 @@ export function AuthorshipTracker({ stats, compact }: AuthorshipTrackerProps) {
         <TooltipContent side="bottom" className="text-xs space-y-1">
           <div className="flex items-center gap-1.5">
             <UserIcon className="size-3 text-blue-500" />
-            <span>Human-written: {stats.humanWords.toLocaleString()} words ({humanPct}%)</span>
+            <span>Human-written: {stats.humanWords.toLocaleString(locale)} words ({humanPct}%)</span>
           </div>
           <div className="flex items-center gap-1.5">
             <BotIcon className="size-3 text-purple-500" />
-            <span>AI-generated: {stats.aiWords.toLocaleString()} words ({aiPct}%)</span>
+            <span>AI-generated: {stats.aiWords.toLocaleString(locale)} words ({aiPct}%)</span>
           </div>
           {stats.aiEditedWords > 0 && (
             <div className="flex items-center gap-1.5">
               <PieChartIcon className="size-3 text-amber-500" />
-              <span>AI-edited: {stats.aiEditedWords.toLocaleString()} words ({editedPct}%)</span>
+              <span>AI-edited: {stats.aiEditedWords.toLocaleString(locale)} words ({editedPct}%)</span>
             </div>
           )}
         </TooltipContent>
