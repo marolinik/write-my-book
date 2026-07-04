@@ -159,6 +159,12 @@ Reframe the dashboard around project *states*: **Currently Writing** (continue �
 
 ---
 
+## Deferred / future
+
+- **Inline @-mention entity autocomplete** — HIGH author value (inline story-bible recall while writing). Build via `@tiptap/extension-mention` (NOT a hand-rolled ProseMirror plugin) sourcing `GET /api/books/[id]/wiki?search=<q>` (returns a bare `WikiEntity[]` with **lowercase** types). The prior UI-only prototype (`entity-mention-popup.tsx`) was removed as dead; recover from git history if useful as a visual reference.
+
+---
+
 ## Suggested sequence
 
 1. **Week 1–2:** Tier 1 wiring (1.1–1.4 are prompt-assembler + one API handler; 1.5–1.7 are small). This alone transforms perceived AI quality — and it's the prerequisite for everything in Tier 4 (conversational findings need the feedback loop; ambient series needs wired vector memory; language packs need the skills system).
