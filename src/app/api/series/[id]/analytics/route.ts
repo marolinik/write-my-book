@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { checkPlanAccess } from "@/lib/billing/plan-gating";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -16,6 +17,15 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
     });
     if (!series) {
       return NextResponse.json({ error: "Series not found" }, { status: 404 });
+    }
+
+    // Plan-gating: advanced analytics requires Professional plan or higher
+    const access = await checkPlanAccess(user.id, "use_analytics");
+    if (!access.allowed) {
+      return NextResponse.json(
+        { error: access.reason ?? "Upgrade required", upgradeToTier: access.upgradeToTier },
+        { status: 403 }
+      );
     }
 
     // Get all books with chapter stats
