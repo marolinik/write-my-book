@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useBook } from "./use-books";
+import type { EditorialSummary } from "./use-editorial";
 import {
   detectActiveJourney,
   getJourneyProgress,
@@ -110,7 +111,7 @@ export function useBookState(bookId: string): BookStateResult {
 
   const { data: editorialData, isLoading: editorialLoading } = useQuery({
     queryKey: ["editorial", bookId, "summary"],
-    queryFn: async () => {
+    queryFn: async (): Promise<EditorialSummary> => {
       const res = await fetch(`/api/books/${bookId}/editorial/summary`);
       if (!res.ok) throw new Error("Failed to load editorial summary");
       return res.json();
@@ -159,7 +160,7 @@ export function useBookState(bookId: string): BookStateResult {
       chapterStatuses[ch.status] = (chapterStatuses[ch.status] ?? 0) + 1;
     }
 
-    const pendingFindingsCount = editorialData?.pendingCount ?? 0;
+    const pendingFindingsCount = editorialData?.pending ?? 0;
 
     // Determine setup workflows still needed
     const setupWorkflows: string[] = [];

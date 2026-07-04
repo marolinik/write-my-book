@@ -16,6 +16,7 @@ import {
 import { MarketingKit } from "@/components/book/marketing-kit";
 import { WritingSprints } from "@/components/book/writing-sprints";
 import { DraftCertificate } from "@/components/book/draft-certificate";
+import { StoryHealthDashboard } from "@/components/book/story-health-dashboard";
 
 interface WritingDashboardProps {
   bookId: string;
@@ -186,6 +187,11 @@ export function WritingDashboard({ bookId }: WritingDashboardProps) {
           current={data.totalWords}
           onSetGoal={(target) => setGoal.mutate({ type: "total", target })}
         />
+      </div>
+
+      {/* Story Health */}
+      <div className="mt-6">
+        <StoryHealthDashboard bookId={bookId} />
       </div>
 
       {/* Writing Sprint */}
