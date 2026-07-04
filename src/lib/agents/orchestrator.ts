@@ -35,6 +35,20 @@ const APPROVAL_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
 /** Fraction of budget/time at which the one-shot warning fires. */
 const WARNING_THRESHOLD = 0.8;
 
+/**
+ * Tools allowed to execute on the single armed wrap-up turn at 100% budget/time.
+ * These are all pure DB writes that persist work the FINAL nudge asked for —
+ * CreateFinding, WriteDocument, and WriteChapter (drafted chapters must survive
+ * the wrap-up turn just like documents). The allowlist deliberately EXCLUDES
+ * DelegateToSpecialist (would spawn a paid sub-agent after budget exhaustion)
+ * and RequestApproval (would block up to 10 min on the approval gate).
+ */
+export const WRAP_UP_TOOLS: ReadonlySet<string> = new Set([
+  "CreateFinding",
+  "WriteDocument",
+  "WriteChapter",
+]);
+
 /** Nudge appended after tool_results when ~80% of the budget is used. */
 const BUDGET_NUDGE_TEXT =
   "SYSTEM NOTICE: ~80% of the session budget has been used. " +
@@ -629,10 +643,10 @@ export class AgentOrchestrator {
           // Iterating content blocks (not gating on stop_reason === "tool_use")
           // also covers a max_tokens-truncated wrap-up turn — truncated tool
           // input JSON simply fails inside the try/catch.
-          // The allowlist is load-bearing: it excludes DelegateToSpecialist
-          // (would spawn a paid sub-agent after budget exhaustion) and
-          // RequestApproval (would block up to 10 min on the approval gate).
-          const WRAP_UP_TOOLS = new Set(["CreateFinding", "WriteDocument"]);
+          // The allowlist (WRAP_UP_TOOLS, module scope) is load-bearing: it
+          // excludes DelegateToSpecialist (would spawn a paid sub-agent after
+          // budget exhaustion) and RequestApproval (would block up to 10 min
+          // on the approval gate).
           const wrapUpToolUses = finalMessage.content.filter(
             (b): b is Anthropic.ToolUseBlock => b.type === "tool_use"
           );
