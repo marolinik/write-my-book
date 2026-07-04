@@ -80,6 +80,11 @@ process.on("unhandledRejection", (reason) => {
 process.on("uncaughtException", (error) => {
   Sentry.captureException(error);
   console.error("[Worker] Uncaught exception:", error);
+  // The process state is now undefined. Flush Sentry, then EXIT so a supervisor
+  // restarts a clean worker. Staying alive would leave a wedged process that is
+  // still an attached BullMQ worker (getWorkers() > 0), silently defeating the
+  // S8 liveness probe / SSE watchdog. Crash-and-restart is the safe choice.
+  Sentry.close(2000).finally(() => process.exit(1));
 });
 
 // ── Graceful shutdown ────────────────────────────────────────────────

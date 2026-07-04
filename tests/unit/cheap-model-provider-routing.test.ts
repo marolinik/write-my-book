@@ -55,7 +55,11 @@ describe("runDiscussTurn honors the user's provider", () => {
   it("routes an OpenRouter-default user to an openrouter/* cheap model (not anthropic)", async () => {
     h.db.user.findUnique.mockResolvedValue({ defaultModel: "openrouter-qwen-max/opus" });
     await runDiscussTurn({ system: "s", user: "u", userId: "u1" });
-    expect(capturedModelId()).toMatch(/^openrouter/);
+    // Exact id (not just /^openrouter/): resolveCheapModelFor("openrouter-qwen-max/opus")
+    // returns "openrouter-qwen-max/haiku". The loose regex also matched the PRE-FIX
+    // heuristic ("openrouter/haiku"), so it gave no regression protection — now that
+    // CI gates merges on this suite, assert the exact post-fix model.
+    expect(capturedModelId()).toBe("openrouter-qwen-max/haiku");
   });
 
   it("preserves anthropic/haiku for an anthropic-default user", async () => {
@@ -74,7 +78,11 @@ describe("runDiscussTurn honors the user's provider", () => {
 describe("extractEntities honors the user's provider", () => {
   it("routes an OpenRouter-default user to an openrouter/* cheap model", async () => {
     await extractEntities("some text", "b1", 1, { openrouterApiKey: "k" }, "openrouter-qwen-max/opus");
-    expect(capturedModelId()).toMatch(/^openrouter/);
+    // Exact id (not just /^openrouter/): resolveCheapModelFor("openrouter-qwen-max/opus")
+    // returns "openrouter-qwen-max/haiku". The loose regex also matched the PRE-FIX
+    // heuristic ("openrouter/haiku"), so it gave no regression protection — now that
+    // CI gates merges on this suite, assert the exact post-fix model.
+    expect(capturedModelId()).toBe("openrouter-qwen-max/haiku");
   });
 
   it("preserves anthropic/haiku for an anthropic-default user", async () => {

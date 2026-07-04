@@ -23,7 +23,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useStyleProfile } from "@/hooks/use-style";
-import { useLanguage } from "@/components/providers/language-provider";
+import { useLanguage, useLocale } from "@/components/providers/language-provider";
 import { StyleProfileViewer } from "@/components/style/style-profile-viewer";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
 
@@ -38,6 +38,7 @@ export default function StylePage({
   const { data, isLoading } = useStyleProfile(bookId);
   const openWithWorkflow = useAgentUIStore((s) => s.openWithWorkflow);
   const { t } = useLanguage();
+  const locale = useLocale();
   const s = t.stylePage;
 
   if (isLoading) {
@@ -104,7 +105,7 @@ export default function StylePage({
           <ClockIcon className="size-3.5" />
           <span>
             Style captured{" "}
-            {new Date(latestProfile.updatedAt).toLocaleDateString(undefined, {
+            {new Date(latestProfile.updatedAt).toLocaleDateString(locale, {
               month: "short",
               day: "numeric",
               year: "numeric",
