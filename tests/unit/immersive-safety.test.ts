@@ -41,6 +41,22 @@ describe("sanitizeImmersiveHtml — S10 defense-in-depth", () => {
     expect(out).toContain("x");
   });
 
+  it("preserves TEXT-NODE prose that looks like an event-handler attr (no content loss)", () => {
+    // Regression: attribute-stripping must be tag-scoped. Prose containing
+    // "onset=zero" (matches /\son[a-z]+=/) must survive — immersive read-back
+    // persists innerHTML, so a false strip here would silently delete the words.
+    const html = `<p>the onset=zero moment and the onward=path stayed</p>`;
+    expect(sanitizeImmersiveHtml(html)).toBe(html);
+  });
+
+  it("still strips an event handler on a tag that sits next to such prose", () => {
+    const out = sanitizeImmersiveHtml(
+      `<p onclick="x()">the onset=zero moment</p>`
+    );
+    expect(out).not.toMatch(/onclick/i);
+    expect(out).toContain("onset=zero moment");
+  });
+
   it("strips javascript: URIs on href/src", () => {
     const out = sanitizeImmersiveHtml(
       `<a href="javascript:evil()">link</a>`

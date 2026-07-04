@@ -38,8 +38,13 @@ export function sanitizeImmersiveHtml(html: string): string {
   return html
     .replace(DANGEROUS_PAIRED_ELEMENT, "")
     .replace(DANGEROUS_VOID_ELEMENT, "")
-    .replace(EVENT_HANDLER_ATTR, "")
-    .replace(JS_URI_ATTR, "");
+    // Strip event-handler + javascript: URI attributes ONLY inside tags — never
+    // over the whole string, which would mangle TEXT-NODE prose that happens to
+    // contain e.g. "the onset=zero moment" (matches /\son[a-z]+=/) and, because
+    // immersive read-back persists innerHTML, silently save the deletion.
+    .replace(/<[^>]+>/g, (tag) =>
+      tag.replace(EVENT_HANDLER_ATTR, "").replace(JS_URI_ATTR, "")
+    );
 }
 
 interface FlushEventTarget {
