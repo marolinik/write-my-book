@@ -72,6 +72,8 @@ export const updateChapterSchema = z.object({
   chapterNumber: z.number().int().min(1).optional(),
   betaGate: z.enum(["pending", "passed", "near_miss", "failed"]).optional(),
   betaScore: z.number().min(0).max(100).nullable().optional(),
+  // S13: settable word target — nullable so a user can CLEAR a target.
+  targetWordCount: z.number().int().min(0).nullable().optional(),
 });
 
 export const startActionSchema = z.object({

@@ -248,6 +248,15 @@ export interface UIStrings {
     beta_passed: string;
   };
 
+  // Chapter word-target popover (S13)
+  wordTarget: {
+    setTarget: string;
+    popoverTitle: string;
+    placeholder: string;
+    clear: string;
+    words: string;
+  };
+
   // Command palette
   commandPalette: {
     placeholder: string;
@@ -560,6 +569,13 @@ const EN: UIStrings = {
     beta_read: "Reader Tested",
     beta_passed: "Polished",
   },
+  wordTarget: {
+    setTarget: "Set word target",
+    popoverTitle: "Chapter word target",
+    placeholder: "e.g. 2000",
+    clear: "Clear",
+    words: "words",
+  },
   commandPalette: {
     placeholder: "Search commands, chapters, workflows...",
     chapters: "Chapters",
@@ -847,6 +863,13 @@ const SR: UIStrings = {
     line_edited: "Precizirano",
     beta_read: "Testirano",
     beta_passed: "Uglačano",
+  },
+  wordTarget: {
+    setTarget: "Postavi ciljani broj reči",
+    popoverTitle: "Ciljani broj reči poglavlja",
+    placeholder: "npr. 2000",
+    clear: "Ukloni",
+    words: "reči",
   },
   commandPalette: {
     placeholder: "Pretražite komande, poglavlja, tokove rada...",
@@ -1136,6 +1159,13 @@ const DE: UIStrings = {
     beta_read: "Lesertest",
     beta_passed: "Poliert",
   },
+  wordTarget: {
+    setTarget: "Wortziel festlegen",
+    popoverTitle: "Wortziel des Kapitels",
+    placeholder: "z. B. 2000",
+    clear: "Entfernen",
+    words: "Wörter",
+  },
   commandPalette: {
     placeholder: "Befehle, Kapitel, Workflows suchen...",
     chapters: "Kapitel",
@@ -1423,6 +1453,13 @@ const ES: UIStrings = {
     line_edited: "Refinado",
     beta_read: "Lector probado",
     beta_passed: "Pulido",
+  },
+  wordTarget: {
+    setTarget: "Establecer objetivo de palabras",
+    popoverTitle: "Objetivo de palabras del capítulo",
+    placeholder: "p. ej. 2000",
+    clear: "Quitar",
+    words: "palabras",
   },
   commandPalette: {
     placeholder: "Buscar comandos, capítulos, flujos...",
@@ -1712,6 +1749,13 @@ const FR: UIStrings = {
     beta_read: "Testé par lecteur",
     beta_passed: "Peaufiné",
   },
+  wordTarget: {
+    setTarget: "Définir l'objectif de mots",
+    popoverTitle: "Objectif de mots du chapitre",
+    placeholder: "p. ex. 2000",
+    clear: "Effacer",
+    words: "mots",
+  },
   commandPalette: {
     placeholder: "Rechercher commandes, chapitres, workflows...",
     chapters: "Chapitres",
@@ -2000,6 +2044,13 @@ const RU: UIStrings = {
     beta_read: "Протестировано",
     beta_passed: "Отполировано",
   },
+  wordTarget: {
+    setTarget: "Задать цель по словам",
+    popoverTitle: "Цель по словам для главы",
+    placeholder: "напр. 2000",
+    clear: "Убрать",
+    words: "слов",
+  },
   commandPalette: {
     placeholder: "Поиск команд, глав, процессов...",
     chapters: "Главы",
@@ -2287,6 +2338,13 @@ const ZH: UIStrings = {
     line_edited: "已精炼",
     beta_read: "读者测试",
     beta_passed: "已润色",
+  },
+  wordTarget: {
+    setTarget: "设置字数目标",
+    popoverTitle: "本章字数目标",
+    placeholder: "例如 2000",
+    clear: "清除",
+    words: "字",
   },
   commandPalette: {
     placeholder: "搜索命令、章节、工作流...",

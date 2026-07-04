@@ -2,7 +2,9 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { getStatusLabel } from "@/lib/i18n/ui-strings";
+import { WordTargetPopover } from "@/components/editor/word-target-popover";
+import { useChapters } from "@/hooks/use-chapters";
+import { getStatusLabel, localeFor } from "@/lib/i18n/ui-strings";
 
 const STATUS_COLORS: Record<string, string> = {
   undiscussed: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
@@ -27,6 +29,8 @@ interface ChapterContextHeaderProps {
 }
 
 export function ChapterContextHeader({
+  bookId,
+  chapterId,
   chapterNumber,
   chapterTitle,
   status,
@@ -36,8 +40,18 @@ export function ChapterContextHeader({
 }: ChapterContextHeaderProps) {
   const label = getStatusLabel(status, language);
   const colorClass = STATUS_COLORS[status] ?? STATUS_COLORS.undiscussed;
-  const progress = targetWordCount && targetWordCount > 0
-    ? Math.min(100, Math.round((wordCount / targetWordCount) * 100))
+
+  // S13: resolve the live target from the chapters query (already cached by
+  // the book views) so a target set via the popover shows up immediately;
+  // fall back to the prop for callers that pass it directly.
+  const { data: chapters } = useChapters(bookId ?? "");
+  const liveTarget =
+    chapters?.find((c) => c.id === chapterId)?.targetWordCount ??
+    targetWordCount ??
+    null;
+
+  const progress = liveTarget && liveTarget > 0
+    ? Math.min(100, Math.round((wordCount / liveTarget) * 100))
     : null;
 
   return (
@@ -56,13 +70,25 @@ export function ChapterContextHeader({
         </Badge>
       </div>
 
-      {/* Right: Word count + progress */}
+      {/* Right: Word count + progress (click to set/edit the word target) */}
       <div className="flex items-center gap-2 shrink-0 text-xs text-muted-foreground">
-        <span className="tabular-nums">
-          {wordCount.toLocaleString()}
-          {targetWordCount ? ` / ${targetWordCount.toLocaleString()}` : ""}
-          {" words"}
-        </span>
+        {bookId && chapterId ? (
+          <WordTargetPopover
+            bookId={bookId}
+            chapterId={chapterId}
+            wordCount={wordCount}
+            targetWordCount={liveTarget}
+            language={language}
+          />
+        ) : (
+          <span className="tabular-nums">
+            {wordCount.toLocaleString(localeFor(language))}
+            {liveTarget
+              ? ` / ${liveTarget.toLocaleString(localeFor(language))}`
+              : ""}
+            {" words"}
+          </span>
+        )}
         {progress !== null && (
           <Progress value={progress} className="w-16 h-1.5" />
         )}

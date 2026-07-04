@@ -15,6 +15,7 @@ export type ChapterItem = {
   title: string | null;
   status: string;
   wordCount: number;
+  targetWordCount: number | null;
   betaScore: number | null;
   betaGate: string;
   revisionCount: number;
@@ -65,6 +66,7 @@ export function useUpdateChapter(bookId: string, chapterId: string) {
       status?: string;
       actNumber?: number;
       chapterNumber?: number;
+      targetWordCount?: number | null;
     }) =>
       fetchJson(`/api/books/${bookId}/chapters/${chapterId}`, {
         method: "PATCH",
