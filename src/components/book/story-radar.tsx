@@ -14,22 +14,15 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useQuery } from "@tanstack/react-query";
 import { fetchJson } from "@/lib/api-client";
+import type { RadarAlert } from "@/lib/radar/alerts";
 
 /**
- * G: Story Radar — Proactive AI Monitoring.
- * Continuously flags: continuity gaps, pacing drift, stale chapters,
- * unresolved threads, character inconsistencies.
- * Like a linter for your manuscript.
+ * G: Story Radar — lightweight pacing & staleness checks.
+ * Flags two things from chapter word counts and timestamps:
+ *   - pacing:    chapters that are unusually short or long vs the book average
+ *   - structure: chapters left unchanged for a long time (staleness)
+ * Deeper continuity / character / style analysis is not implemented yet.
  */
-
-interface RadarAlert {
-  id: string;
-  type: string;
-  severity: "info" | "warning" | "critical";
-  title: string;
-  detail: string;
-  chapterNumber?: number;
-}
 
 interface StoryRadarProps {
   bookId: string;
@@ -85,12 +78,12 @@ export function StoryRadar({ bookId }: StoryRadarProps) {
         {isLoading ? (
           <div className="flex items-center gap-2 text-xs text-muted-foreground py-4 justify-center">
             <Loader2Icon className="size-3 animate-spin" />
-            Scanning manuscript...
+            Checking pacing &amp; staleness...
           </div>
         ) : isError ? (
           <div className="flex flex-col items-center gap-2 py-4 text-center">
             <AlertTriangleIcon className="size-8 text-amber-500/40" />
-            <p className="text-xs text-muted-foreground">Couldn&apos;t scan manuscript.</p>
+            <p className="text-xs text-muted-foreground">Couldn&apos;t run the radar checks.</p>
             <Button
               variant="outline" size="sm" className="h-7 text-xs"
               onClick={() => refetch()}
@@ -102,7 +95,7 @@ export function StoryRadar({ bookId }: StoryRadarProps) {
         ) : data && issues.length === 0 ? (
           <div className="flex flex-col items-center gap-2 py-4 text-center">
             <CheckCircle2Icon className="size-8 text-green-500/30" />
-            <p className="text-xs text-muted-foreground">No issues detected. Your manuscript looks healthy!</p>
+            <p className="text-xs text-muted-foreground">No pacing or staleness issues detected.</p>
           </div>
         ) : (
           <ScrollArea className="max-h-64">

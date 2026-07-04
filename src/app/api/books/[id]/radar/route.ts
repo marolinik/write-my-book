@@ -1,13 +1,17 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { buildRadarAlerts } from "@/lib/radar/alerts";
 
 export const dynamic = "force-dynamic";
 
 /**
- * GET /api/books/[id]/story-radar
- * Returns proactive story health alerts based on manuscript analysis.
- * Placeholder: returns alerts derived from chapter status + findings.
+ * GET /api/books/[id]/radar
+ * Returns story health alerts from two word-count heuristics:
+ *   - pacing:    chapters that are length outliers vs the book average
+ *   - structure: chapters left unchanged for a long time (staleness)
+ * It does NOT analyze continuity, character, or style — see
+ * src/lib/radar/alerts.ts for the single source of truth on emitted types.
  */
 export async function GET(
   _request: Request,
@@ -31,59 +35,7 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const alerts: Array<{
-    id: string;
-    type: "continuity" | "pacing" | "character" | "style" | "structure";
-    severity: "info" | "warning" | "critical";
-    title: string;
-    detail: string;
-    chapterNumber?: number;
-  }> = [];
-
-  // Check for very short chapters (potential pacing issues)
-  const avgWords = book.chapters.length > 0
-    ? book.chapters.reduce((s, c) => s + c.wordCount, 0) / book.chapters.length
-    : 0;
-
-  for (const ch of book.chapters) {
-    if (avgWords > 0 && ch.wordCount < avgWords * 0.3 && ch.wordCount > 0) {
-      alerts.push({
-        id: `short-${ch.chapterNumber}`,
-        type: "pacing",
-        severity: "info",
-        title: `Ch.${ch.chapterNumber} is unusually short`,
-        detail: `${ch.wordCount.toLocaleString()} words vs ${Math.round(avgWords).toLocaleString()} average`,
-        chapterNumber: ch.chapterNumber,
-      });
-    }
-
-    if (avgWords > 0 && ch.wordCount > avgWords * 2.5) {
-      alerts.push({
-        id: `long-${ch.chapterNumber}`,
-        type: "pacing",
-        severity: "info",
-        title: `Ch.${ch.chapterNumber} is unusually long`,
-        detail: `${ch.wordCount.toLocaleString()} words — consider splitting`,
-        chapterNumber: ch.chapterNumber,
-      });
-    }
-  }
-
-  // Check for chapters stuck in the same status for a long time
-  const now = Date.now();
-  for (const ch of book.chapters) {
-    const daysSinceUpdate = Math.floor((now - new Date(ch.updatedAt).getTime()) / (1000 * 60 * 60 * 24));
-    if (daysSinceUpdate > 30 && ch.status !== "beta_passed") {
-      alerts.push({
-        id: `stale-${ch.chapterNumber}`,
-        type: "structure",
-        severity: "warning",
-        title: `Ch.${ch.chapterNumber} unchanged for ${daysSinceUpdate} days`,
-        detail: `Status: ${ch.status.replace(/_/g, " ")}`,
-        chapterNumber: ch.chapterNumber,
-      });
-    }
-  }
+  const alerts = buildRadarAlerts(book.chapters, Date.now());
 
   return NextResponse.json({
     alerts,

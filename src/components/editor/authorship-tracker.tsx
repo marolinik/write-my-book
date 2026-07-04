@@ -9,22 +9,23 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  hasTrackedAuthorship,
+  type AuthorshipStats,
+} from "@/lib/editor/authorship";
 
 /**
  * H: AI Authorship Tracking.
- * Shows what percentage of the chapter was human-written vs AI-generated.
- * Inspired by iA Writer's authorship tracking.
- * 
- * Tracks at the paragraph level using a data attribute on each paragraph
- * in the TipTap editor (data-author="human" | "ai" | "ai-edited").
+ * Shows what percentage of the chapter was human-written vs AI-generated,
+ * inspired by iA Writer's authorship tracking.
+ *
+ * Provenance is meant to be tracked at the paragraph level via a
+ * data-author="human" | "ai" | "ai-edited" attribute in the TipTap editor.
+ * That producer is not wired yet, so this readout renders ONLY when real AI
+ * provenance has been recorded (see hasTrackedAuthorship). Without it, a
+ * fully-AI-drafted chapter would be mislabelled "100% yours" — so we hide the
+ * readout rather than fabricate the claim.
  */
-
-interface AuthorshipStats {
-  humanWords: number;
-  aiWords: number;
-  aiEditedWords: number;
-  totalWords: number;
-}
 
 interface AuthorshipTrackerProps {
   stats: AuthorshipStats;
@@ -42,6 +43,12 @@ export function AuthorshipTracker({ stats, compact }: AuthorshipTrackerProps) {
       editedPct: Math.round((stats.aiEditedWords / total) * 100),
     };
   }, [stats]);
+
+  // Honesty gate (S11): no recorded AI provenance ⇒ nothing truthful to
+  // attribute. Hide the readout instead of claiming "100% yours".
+  if (!hasTrackedAuthorship(stats)) {
+    return null;
+  }
 
   if (compact) {
     return (
