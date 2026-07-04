@@ -1,0 +1,94 @@
+name: Deploy Smoke
+
+# Post-deploy smoke checks against a live target. This workflow is WIRED but
+# DORMANT until ops provides a target: the `guard` job reads the repository
+# variable PLAYWRIGHT_BASE_URL and, when it is empty, every real step is
+# skipped so the run is a green no-op. Set the `PLAYWRIGHT_BASE_URL` Actions
+# variable (Settings -> Secrets and variables -> Actions -> Variables) to the
+# deployed URL to activate it. Independent of ci.yml.
+
+on:
+  # Manual trigger — optionally override the target for a one-off run.
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Override base URL to smoke (defaults to the PLAYWRIGHT_BASE_URL repo variable)"
+        required: false
+        type: string
+  # Fire automatically after a successful CI run on main; the guard still
+  # no-ops when no target URL is configured.
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+
+concurrency:
+  group: deploy-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  guard:
+    name: Resolve target
+    runs-on: ubuntu-latest
+    outputs:
+      base_url: ${{ steps.resolve.outputs.base_url }}
+      enabled: ${{ steps.resolve.outputs.enabled }}
+    steps:
+      - name: Resolve base URL
+        id: resolve
+        env:
+          # workflow_dispatch input wins; otherwise fall back to the repo var.
+          INPUT_URL: ${{ github.event.inputs.base_url }}
+          VAR_URL: ${{ vars.PLAYWRIGHT_BASE_URL }}
+        run: |
+          URL="${INPUT_URL:-$VAR_URL}"
+          if [ -z "$URL" ]; then
+            echo "No PLAYWRIGHT_BASE_URL configured — deploy smoke is dormant, skipping."
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Deploy smoke target resolved."
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+            echo "base_url=$URL" >> "$GITHUB_OUTPUT"
+          fi
+
+  smoke:
+    name: Smoke deployment
+    runs-on: ubuntu-latest
+    needs: guard
+    # Only runs when the CI run succeeded (for workflow_run) AND a target exists.
+    if: >-
+      needs.guard.outputs.enabled == 'true' &&
+      (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success')
+    timeout-minutes: 15
+    env:
+      PLAYWRIGHT_BASE_URL: ${{ needs.guard.outputs.base_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Fast HTTP smoke (health endpoints)
+        run: npm run smoke:deployment
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Playwright deployment smoke
+        run: npm run test:deployment-smoke
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-deployment
+          path: playwright-report-deployment/
+          if-no-files-found: ignore
+          retention-days: 7

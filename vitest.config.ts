@@ -12,15 +12,16 @@ export default defineConfig({
       provider: "v8",
       reportsDirectory: "./coverage/unit",
       reporter: ["text", "html"],
-      // Focus coverage on the money/data-path modules under test (Tier 2.6).
-      include: [
-        "src/lib/agents/budget.ts",
-        "src/lib/llm/model-registry.ts",
-        "src/lib/billing/plan-gating.ts",
-        "src/lib/documents/version-manager.ts",
-        "src/lib/editorial/discuss-prompt.ts",
-        "src/lib/editorial/finding-conversation.ts",
-      ],
+      // Coverage is scoped to the whole server surface — the business logic
+      // under src/lib/** and every API route under src/app/api/** — so the
+      // reported number reflects REAL gaps, not just the handful of money-path
+      // modules that already have tests (Band D #17). Most of this surface is
+      // still untested; that is intentional and visible.
+      include: ["src/lib/**", "src/app/api/**"],
+      // No hard `thresholds` is set on purpose: enforcing a floor here would
+      // red the CI test gate on the large existing gaps this broadened scope
+      // now exposes. Ratchet a floor up later (e.g. thresholds.lines) once
+      // coverage climbs, starting at/below the then-current measured level.
     },
   },
   resolve: {
