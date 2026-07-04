@@ -196,11 +196,14 @@ export async function addAssistantMessage(
  * the in-memory session is lost, e.g. a server restart).
  *
  * Returns the LAST MAX_REHYDRATED_TURNS turns in chronological (createdAt) order,
- * trimmed so the result is a valid provider message list: it starts on a user
- * turn (a leading assistant turn — possible once the cap drops older rows — is
- * dropped) and ends on an assistant turn (a dangling user turn from an
- * interrupted session is dropped, so the caller appending the new user message
- * cannot produce two consecutive user turns).
+ * normalized into a valid provider message list: runs of consecutive same-role
+ * turns are collapsed to their latest entry, then a leading assistant turn
+ * (possible once the cap drops older rows) and a dangling trailing user turn
+ * (from an interrupted session) are dropped. The collapse is what makes this
+ * robust to an INTERRUPTED turn: a cancelled/errored user turn whose assistant
+ * reply was never persisted leaves two adjacent user turns *interior* to the
+ * history — without collapsing them the provider rejects the next continuation
+ * with "roles must alternate" (400), defeating the whole point of rehydration.
  */
 export async function loadConversationHistory(
   sessionId: string
@@ -214,12 +217,26 @@ export async function loadConversationHistory(
   });
   rows.reverse();
 
-  const messages: Anthropic.MessageParam[] = rows.map((turn) => ({
+  const chronological: Anthropic.MessageParam[] = rows.map((turn) => ({
     role: turn.role === "assistant" ? "assistant" : "user",
     content: JSON.parse(turn.content) as string | Anthropic.ContentBlockParam[],
   }));
 
-  // Enforce valid user/assistant alternation for the provider API.
+  // Collapse any run of consecutive same-role turns down to its LAST entry so
+  // an interrupted turn cannot leave interior adjacent same-role messages.
+  // Keeping the last preserves the most recent intent (e.g. the retried user
+  // message that replaced a cancelled one).
+  const messages: Anthropic.MessageParam[] = [];
+  for (const m of chronological) {
+    const prev = messages[messages.length - 1];
+    if (prev && prev.role === m.role) {
+      messages[messages.length - 1] = m;
+    } else {
+      messages.push(m);
+    }
+  }
+
+  // Now strictly alternating; enforce valid start/end boundaries for the API.
   while (messages.length > 0 && messages[0].role === "assistant") {
     messages.shift();
   }

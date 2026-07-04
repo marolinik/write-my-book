@@ -92,4 +92,45 @@ describe("loadConversationHistory — rehydration", () => {
       { role: "assistant", content: "a1" },
     ]);
   });
+
+  it("collapses INTERIOR consecutive user turns (cancelled turn + retry) to the latest, keeping alternation", async () => {
+    // A user turn was persisted, its assistant reply cancelled/errored (never
+    // persisted), then the user retried → two adjacent interior user turns.
+    // Chronological: [u_cancelled, u_retry, a] → collapse users to u_retry.
+    h.db.conversationTurn.findMany.mockResolvedValue([
+      row(2, "assistant", "a"),
+      row(1, "user", "u_retry"),
+      row(0, "user", "u_cancelled"),
+    ]);
+    const msgs = await loadConversationHistory("s1");
+    expect(msgs).toEqual([
+      { role: "user", content: "u_retry" },
+      { role: "assistant", content: "a" },
+    ]);
+  });
+
+  it("collapses interior consecutive assistant turns to the latest", async () => {
+    // Chronological: [u, a_partial, a_final] → collapse assistants to a_final.
+    h.db.conversationTurn.findMany.mockResolvedValue([
+      row(2, "assistant", "a_final"),
+      row(1, "assistant", "a_partial"),
+      row(0, "user", "u"),
+    ]);
+    const msgs = await loadConversationHistory("s1");
+    expect(msgs).toEqual([
+      { role: "user", content: "u" },
+      { role: "assistant", content: "a_final" },
+    ]);
+  });
+
+  it("collapses a run of only-user turns then trims to empty (no valid pair)", async () => {
+    // Two user turns, never any assistant → collapse to one user → trailing-user
+    // trim empties it, rather than emitting an invalid single-user history.
+    h.db.conversationTurn.findMany.mockResolvedValue([
+      row(1, "user", "u2"),
+      row(0, "user", "u1"),
+    ]);
+    const msgs = await loadConversationHistory("s1");
+    expect(msgs).toEqual([]);
+  });
 });
