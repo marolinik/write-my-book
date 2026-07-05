@@ -25,6 +25,17 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     const storage = getBookStorage(user.id, bookId);
 
+    // Real chapter titles live in the DB, not the manuscript markdown — thread
+    // them into the pipeline so headings/TOC/EPUB titles are correct (F9/F10).
+    const chapters = await db.chapter.findMany({
+      where: { bookId },
+      select: { chapterNumber: true, title: true },
+    });
+    const chapterTitles = new Map<number, string>();
+    for (const ch of chapters) {
+      if (ch.title) chapterTitles.set(ch.chapterNumber, ch.title);
+    }
+
     const result = await exportManuscript(
       {
         bookId,
@@ -32,6 +43,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         isDraft: data.isDraft,
         sceneBreakGlyph: data.sceneBreakGlyph,
         template: data.template,
+        chapterTitles,
       },
       storage,
       book.name,

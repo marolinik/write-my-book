@@ -30,6 +30,8 @@ export interface ExportOptions {
   seriesTitle?: string;
   /** Ordered list of books with numbers and titles for omnibus. */
   bookList?: { bookNumber: number; title: string }[];
+  /** Real chapter titles from the DB, keyed by chapter number (F9/F10). */
+  chapterTitles?: Map<number, string>;
 }
 
 /** Result returned by the export pipeline. */

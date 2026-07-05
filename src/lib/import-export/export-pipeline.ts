@@ -13,6 +13,35 @@ import { assembleBackMatter } from "./back-matter";
 
 const execAsync = promisify(exec);
 
+/**
+ * Ensure a chapter's markdown leads with a canonical level-1 heading taken from
+ * the DB chapter title (F9/F10). Without this, chapters whose markdown lacks a
+ * heading export untitled or inherit the book title in the TOC/headings, and
+ * pandoc derives each EPUB file's `<title>` from the wrong text.
+ *
+ * - If `content` already opens with a heading line, that line is REPLACED with
+ *   `# <title>` so the DB title wins over an inconsistent in-content heading.
+ * - Otherwise `# <title>` is PREPENDED.
+ * - Falls back to `Chapter <n>` when no DB title is available.
+ */
+export function applyChapterHeading(
+  content: string,
+  chapterNumber: number,
+  title?: string
+): string {
+  const headingText =
+    title && title.trim() ? title.trim() : `Chapter ${chapterNumber}`;
+  const heading = `# ${headingText}`;
+
+  const trimmed = content.replace(/^\s+/, "");
+  const firstHeading = trimmed.match(/^#{1,6}[ \t]+[^\n]*(?:\n|$)/);
+  if (firstHeading) {
+    const rest = trimmed.slice(firstHeading[0].length).replace(/^\s+/, "");
+    return rest ? `${heading}\n\n${rest}` : `${heading}\n`;
+  }
+  return trimmed ? `${heading}\n\n${trimmed}` : `${heading}\n`;
+}
+
 const LUA_FILTERS_DIR = join(process.cwd(), "export-templates");
 const TEMPLATES_DIR = join(process.cwd(), "export-templates");
 
@@ -99,6 +128,7 @@ export async function exportManuscript(
     format = "docx",
     isDraft = false,
     template,
+    chapterTitles,
   } = options;
 
   const warnings: string[] = [];
@@ -171,9 +201,17 @@ export async function exportManuscript(
       }
     }
 
-    // Strip YAML front matter and normalize heading level
+    // Strip YAML front matter, then set the canonical chapter heading from the
+    // DB title (F9/F10). The chapter number is derived from the file path
+    // (manuscript/act-XX/chapter-NN.md), matching DocumentType.CHAPTER_CONTENT.
     let cleaned = content.replace(/^---\n[\s\S]*?\n---\n/, "");
-    cleaned = cleaned.replace(/^(#{2,})\s+/, "# ");
+    const chapterMatch = sorted[i].match(/chapter-(\d+)/);
+    const chapterNumber = chapterMatch ? parseInt(chapterMatch[1], 10) : i + 1;
+    cleaned = applyChapterHeading(
+      cleaned,
+      chapterNumber,
+      chapterTitles?.get(chapterNumber)
+    );
 
     if (i > 0) {
       chapterParts.push("\n\\newpage\n");
