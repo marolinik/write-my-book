@@ -21,6 +21,15 @@ export interface PostSessionContext {
   workflowId: string;
   agentType: string;
   chapterNumber?: number;
+  /**
+   * Parent BatchRun id, if this session is a batch child. When set, chapter
+   * STATUS auto-advance (dev_edited/line_edited/beta_read/beta_passed) is
+   * SUPPRESSED — the morning digest surfaces the findings and the writer
+   * advances status manually (owner decision #7, BATCH-SPEC §6.3). Findings and
+   * beta score/gate data are still recorded; only the pipeline status moves are
+   * held back so an overnight run never silently advances a chapter's stage.
+   */
+  batchId?: string;
 }
 
 export interface PostSessionResult {
@@ -220,8 +229,10 @@ export async function processPostSession(
       }
     }
 
-    // Advance chapter status if applicable (MUST run before deriveSuggestedNext)
-    if (ctx.chapterNumber) {
+    // Advance chapter status if applicable (MUST run before deriveSuggestedNext).
+    // SUPPRESSED for batch children — the digest surfaces findings and the
+    // writer advances status manually after reading them (BATCH-SPEC §6.3).
+    if (ctx.chapterNumber && !ctx.batchId) {
       const targetStatus = CHAPTER_STATUS_ADVANCE[ctx.workflowId];
       if (targetStatus) {
         result.statusAdvanced = await advanceChapterStatus(
@@ -412,8 +423,11 @@ async function processBetaReadSession(
     },
   });
 
-  // If gate passed, advance status
-  if (gate.result === "PASSED") {
+  // If gate passed, advance status — but NOT for batch children, whose chapter
+  // status auto-advance is suppressed so the writer promotes manually after the
+  // digest (BATCH-SPEC §6.3). The betaScore/betaGate DATA above is still
+  // recorded; only the pipeline STATUS move is held back.
+  if (gate.result === "PASSED" && !ctx.batchId) {
     await db.chapter.update({
       where: { id: chapter.id },
       data: { status: "beta_passed" },

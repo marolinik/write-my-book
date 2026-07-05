@@ -581,6 +581,10 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
               workflowId,
               agentType: workflow?.primaryAgent ?? (agentType as AgentType),
               chapterNumber,
+              // Suppress chapter status auto-advance for batch children
+              // (owner decision #7, BATCH-SPEC §6.3): a batch child records
+              // findings but must NOT advance dev_edited/line_edited/beta_read.
+              batchId,
             });
             suggestedNext = postResult.suggestedNext;
             resultMeta = {

@@ -16,6 +16,8 @@ import { Worker } from "bullmq";
 import { createRedisConnection } from "@/lib/queue/connection";
 import { processAgentJob } from "@/lib/queue/agent-worker";
 import { QUEUE_NAME } from "@/lib/queue/agent-queue";
+import { processBatchDigestJob } from "@/lib/queue/batch-digest";
+import { BATCH_DIGEST_QUEUE_NAME } from "@/lib/queue/batch-flow";
 import { assertEnvReady } from "@/lib/env";
 
 // ── Error monitoring ─────────────────────────────────────────────────
@@ -32,11 +34,42 @@ assertEnvReady("worker");
 
 const connection = createRedisConnection();
 
+// Agent-session concurrency. Defaults to 2 (v1 keeps the overnight batch to
+// ~2-at-a-time per BATCH-SPEC §1.4/§9.4) but is env-configurable for operators
+// who want to widen throughput. A non-numeric / non-positive value falls back.
+function parsePositiveInt(raw: string | undefined, fallback: number): number {
+  const n = raw != null ? Number.parseInt(raw, 10) : NaN;
+  return Number.isFinite(n) && n > 0 ? n : fallback;
+}
+const AGENT_CONCURRENCY = parsePositiveInt(process.env.AGENT_WORKER_CONCURRENCY, 2);
+
 const worker = new Worker(QUEUE_NAME, processAgentJob, {
   connection,
-  concurrency: 2,
+  concurrency: AGENT_CONCURRENCY,
   stalledInterval: 60_000, // Check for stalled jobs every 60s
   lockDuration: 300_000, // 5 min lock before considering stalled
+});
+
+// ── Batch digest (fan-in) Worker ─────────────────────────────────────
+// Second Worker on the NEW `batch-digest` queue for FlowProducer parent jobs.
+// Shares this ONE process with the agent Worker above — the digest processor is
+// defensively wrapped and never throws (BATCH-SPEC §3.5), so a bad digest can
+// never trip the uncaughtException handler and take the agent Worker down.
+const digestWorker = new Worker(BATCH_DIGEST_QUEUE_NAME, processBatchDigestJob, {
+  connection: createRedisConnection(),
+  concurrency: 2,
+});
+
+digestWorker.on("error", (error) => {
+  Sentry.captureException(error);
+  console.error("[DigestWorker] Error:", error);
+});
+
+digestWorker.on("failed", (job, error) => {
+  Sentry.captureException(error, {
+    extra: { jobId: job?.id, batchId: job?.data?.batchId },
+  });
+  console.error(`[DigestWorker] Job ${job?.id} failed:`, error.message);
 });
 
 worker.on("completed", (job) => {
@@ -91,7 +124,7 @@ process.on("uncaughtException", (error) => {
 
 const shutdown = async (signal: string) => {
   console.log(`[Worker] ${signal} received, closing gracefully...`);
-  await worker.close();
+  await Promise.all([worker.close(), digestWorker.close()]);
   connection.disconnect();
   console.log("[Worker] Shutdown complete");
   process.exit(0);
@@ -100,4 +133,7 @@ const shutdown = async (signal: string) => {
 process.on("SIGTERM", () => shutdown("SIGTERM"));
 process.on("SIGINT", () => shutdown("SIGINT"));
 
-console.log(`[Worker] Listening on queue: ${QUEUE_NAME} (concurrency: 2)`);
+console.log(
+  `[Worker] Listening on queues: ${QUEUE_NAME} (concurrency: ${AGENT_CONCURRENCY}), ` +
+    `${BATCH_DIGEST_QUEUE_NAME} (concurrency: 2)`
+);
