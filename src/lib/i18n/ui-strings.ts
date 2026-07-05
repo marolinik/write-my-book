@@ -236,6 +236,13 @@ export interface UIStrings {
     cancel: string; creating: string; create: string; created: string;
   };
 
+  // Chapters index (browsable list at /books/:id/chapters)
+  chaptersIndex: {
+    title: string; subtitle: string; newChapter: string;
+    untitled: string; words: string;
+    empty: string; emptyDesc: string; loadError: string;
+  };
+
   // Chapter status labels (writer-friendly)
   chapterStatuses: {
     undiscussed: string;
@@ -559,6 +566,11 @@ const EN: UIStrings = {
     titleOptional: "Title (optional)", titlePlaceholder: "Chapter title...",
     cancel: "Cancel", creating: "Creating...", create: "Create Chapter", created: "Chapter created",
   },
+  chaptersIndex: {
+    title: "Chapters", subtitle: "Browse and open any chapter in your book.", newChapter: "New chapter",
+    untitled: "Untitled", words: "words",
+    empty: "No chapters yet", emptyDesc: "Create your first chapter to start writing.", loadError: "Couldn't load chapters. Please try again.",
+  },
   chapterStatuses: {
     undiscussed: "Fresh Start",
     discussed: "Brainstormed",
@@ -853,6 +865,11 @@ const SR: UIStrings = {
     chapterNumber: "Broj poglavlja", actNumber: "Broj čina",
     titleOptional: "Naslov (opciono)", titlePlaceholder: "Naslov poglavlja...",
     cancel: "Otkaži", creating: "Kreiranje...", create: "Kreiraj poglavlje", created: "Poglavlje kreirano",
+  },
+  chaptersIndex: {
+    title: "Poglavlja", subtitle: "Pregledajte i otvorite bilo koje poglavlje u vašoj knjizi.", newChapter: "Novo poglavlje",
+    untitled: "Bez naslova", words: "reči",
+    empty: "Još nema poglavlja", emptyDesc: "Kreirajte prvo poglavlje da započnete pisanje.", loadError: "Učitavanje poglavlja nije uspelo. Pokušajte ponovo.",
   },
   chapterStatuses: {
     undiscussed: "Novi početak",
@@ -1149,6 +1166,11 @@ const DE: UIStrings = {
     titleOptional: "Titel (optional)", titlePlaceholder: "Kapiteltitel...",
     cancel: "Abbrechen", creating: "Wird erstellt...", create: "Kapitel erstellen", created: "Kapitel erstellt",
   },
+  chaptersIndex: {
+    title: "Kapitel", subtitle: "Durchsuchen und öffnen Sie jedes Kapitel Ihres Buches.", newChapter: "Neues Kapitel",
+    untitled: "Ohne Titel", words: "Wörter",
+    empty: "Noch keine Kapitel", emptyDesc: "Erstellen Sie Ihr erstes Kapitel, um mit dem Schreiben zu beginnen.", loadError: "Kapitel konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
+  },
   chapterStatuses: {
     undiscussed: "Neustart",
     discussed: "Besprochen",
@@ -1443,6 +1465,11 @@ const ES: UIStrings = {
     chapterNumber: "Número de capítulo", actNumber: "Número de acto",
     titleOptional: "Título (opcional)", titlePlaceholder: "Título del capítulo...",
     cancel: "Cancelar", creating: "Creando...", create: "Crear capítulo", created: "Capítulo creado",
+  },
+  chaptersIndex: {
+    title: "Capítulos", subtitle: "Explore y abra cualquier capítulo de su libro.", newChapter: "Nuevo capítulo",
+    untitled: "Sin título", words: "palabras",
+    empty: "Aún no hay capítulos", emptyDesc: "Cree su primer capítulo para empezar a escribir.", loadError: "No se pudieron cargar los capítulos. Inténtelo de nuevo.",
   },
   chapterStatuses: {
     undiscussed: "Nuevo inicio",
@@ -1739,6 +1766,11 @@ const FR: UIStrings = {
     titleOptional: "Titre (optionnel)", titlePlaceholder: "Titre du chapitre...",
     cancel: "Annuler", creating: "Création...", create: "Créer un chapitre", created: "Chapitre créé",
   },
+  chaptersIndex: {
+    title: "Chapitres", subtitle: "Parcourez et ouvrez n'importe quel chapitre de votre livre.", newChapter: "Nouveau chapitre",
+    untitled: "Sans titre", words: "mots",
+    empty: "Aucun chapitre pour l'instant", emptyDesc: "Créez votre premier chapitre pour commencer à écrire.", loadError: "Impossible de charger les chapitres. Veuillez réessayer.",
+  },
   chapterStatuses: {
     undiscussed: "Nouveau départ",
     discussed: "Discuté",
@@ -2034,6 +2066,11 @@ const RU: UIStrings = {
     titleOptional: "Название (необязательно)", titlePlaceholder: "Название главы...",
     cancel: "Отмена", creating: "Создание...", create: "Создать главу", created: "Глава создана",
   },
+  chaptersIndex: {
+    title: "Главы", subtitle: "Просматривайте и открывайте любую главу вашей книги.", newChapter: "Новая глава",
+    untitled: "Без названия", words: "слов",
+    empty: "Пока нет глав", emptyDesc: "Создайте первую главу, чтобы начать писать.", loadError: "Не удалось загрузить главы. Попробуйте еще раз.",
+  },
   chapterStatuses: {
     undiscussed: "Новое начало",
     discussed: "Обсуждено",
@@ -2328,6 +2365,11 @@ const ZH: UIStrings = {
     chapterNumber: "章节编号", actNumber: "幕编号",
     titleOptional: "标题（可选）", titlePlaceholder: "章节标题...",
     cancel: "取消", creating: "创建中...", create: "创建章节", created: "章节已创建",
+  },
+  chaptersIndex: {
+    title: "章节", subtitle: "浏览并打开书中的任意章节。", newChapter: "新章节",
+    untitled: "无标题", words: "字",
+    empty: "还没有章节", emptyDesc: "创建第一个章节，开始写作。", loadError: "无法加载章节，请重试。",
   },
   chapterStatuses: {
     undiscussed: "全新开始",
