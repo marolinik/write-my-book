@@ -1,0 +1,417 @@
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import type { Job } from "bullmq";
+import type { AgentJobData } from "@/lib/queue/agent-queue";
+import type { BatchDigestJobData } from "@/lib/queue/batch-flow";
+
+/**
+ * Batch-lifecycle test (BATCH-SPEC build step 11). A mostly-MOCKED integration
+ * test that walks ONE batch through its three real phases, asserting the seams
+ * the per-component unit suites do not tie together:
+ *
+ *   (a) FAN-OUT  — `enqueueBatchFlow` creates the BatchRun + N child AgentSession
+ *       rows (each with `batchId` set + jobId = sessionId dedup) and hands N
+ *       children (on the existing `agent-sessions` queue) plus ONE fan-in parent
+ *       (on the new `batch-digest` queue) to FlowProducer, every child carrying
+ *       the aggregate `batchId` + finite `batchBudgetCapUsd`.
+ *
+ *   (b) CAP-SKIP — the pure gate `shouldRunBatchChild` AND the worker guard at
+ *       the top of `processAgentJob` both refuse a child once the mocked Redis
+ *       ledger shows `spent >= cap`: the child is marked 'skipped' and RETURNS
+ *       before the orchestrator is built (never re-fetches keys, never spends).
+ *
+ *   (c) DIGEST   — `processBatchDigestJob` reads the persisted child rows + the
+ *       Redis ledger, aggregates findings, surfaces the skipped child, sets the
+ *       terminal BatchRun status/haltReason, and fires the morning notification.
+ *
+ * Redis (in-memory Map), Prisma, and BullMQ (FlowProducer/Queue) are mocked.
+ * The pure money-path invariant itself is exhaustively covered in
+ * batch-budget.test.ts (U1); this test asserts the WIRING between the pieces.
+ *
+ * NOTE: a live overnight-scale run (~24 children against real Redis + the real
+ * worker) is still REQUIRED before shipping — the concurrency-2 completion-time
+ * overshoot window and lock-renewal-under-long-pass double-spend risk
+ * (BATCH-SPEC §4.5, §3.6, §8) cannot be exercised by a mocked unit test.
+ */
+
+// ── In-memory Redis ledger (shared by guard + digest, reset per test) ────────
+const h = vi.hoisted(() => {
+  const store = new Map<string, string>();
+  const redis = {
+    store,
+    get: vi.fn((key: string) => Promise.resolve(store.get(key) ?? null)),
+    set: vi.fn((key: string, val: string) => {
+      store.set(key, val);
+      return Promise.resolve("OK");
+    }),
+    del: vi.fn((key: string) => {
+      store.delete(key);
+      return Promise.resolve(1);
+    }),
+    incr: vi.fn(),
+    incrbyfloat: vi.fn(),
+    publish: vi.fn(),
+    rpush: vi.fn(),
+    expire: vi.fn(),
+    disconnect: vi.fn(),
+  };
+
+  // FlowProducer.add capture — the fan-out tree the batch hands to BullMQ.
+  const flowAdd = vi.fn((_flow: unknown) =>
+    Promise.resolve({ job: { id: "parent-job-1" } })
+  );
+
+  return {
+    redis,
+    flowAdd,
+    db: {
+      // Fan-out (enqueueBatchFlow)
+      batchRun: {
+        create: vi.fn(),
+        update: vi.fn(),
+        findUnique: vi.fn(),
+      },
+      agentSession: {
+        createMany: vi.fn(),
+        update: vi.fn(),
+        findMany: vi.fn(),
+      },
+      // Digest reads
+      editFinding: { findMany: vi.fn() },
+      chapter: { findMany: vi.fn() },
+      bookNotification: { create: vi.fn() },
+      // Worker-guard downstream (never reached on the skip path)
+      apiKey: { findMany: vi.fn() },
+    },
+  };
+});
+
+vi.mock("@/lib/db", () => ({ db: h.db }));
+vi.mock("@/lib/queue/connection", () => ({
+  createRedisConnection: () => h.redis,
+  getAppConnection: () => h.redis,
+}));
+vi.mock("bullmq", () => {
+  class FlowProducer {
+    add(flow: unknown) {
+      return h.flowAdd(flow);
+    }
+  }
+  // agent-queue.ts instantiates `new Queue(...)` at module load; agent-worker
+  // extends UnrecoverableError. Provide both so the real modules import cleanly.
+  class Queue {
+    add() {
+      return Promise.resolve({});
+    }
+    getJob() {
+      return Promise.resolve(null);
+    }
+    close() {
+      return Promise.resolve();
+    }
+  }
+  class Worker {}
+  class UnrecoverableError extends Error {}
+  return { FlowProducer, Queue, Worker, UnrecoverableError };
+});
+
+import { enqueueBatchFlow, type BatchChildPayload } from "@/lib/queue/batch-flow";
+import { processAgentJob } from "@/lib/queue/agent-worker";
+import { processBatchDigestJob } from "@/lib/queue/batch-digest";
+import { shouldRunBatchChild } from "@/lib/agents/batch-budget";
+
+const BATCH_ID = "batch-1";
+const BOOK_ID = "book-1";
+const USER_ID = "user-1";
+const CAP = 10;
+
+/** Build a valid (workflow × chapter) child payload (route.ts construction). */
+function childPayload(
+  workflowId: string,
+  agentType: string,
+  chapterNumber?: number
+): BatchChildPayload {
+  return {
+    bookId: BOOK_ID,
+    userId: USER_ID,
+    workflowId,
+    agentType,
+    chapterNumber,
+    coachRegistryId: "anthropic/sonnet",
+    coachModelId: "claude-sonnet",
+    providerKey: "anthropic",
+    language: "en",
+    bookName: "The Salt Letters",
+    sessionCostLimit: 5,
+    serverCeilingMs: 60_000,
+    isConversational: false,
+  };
+}
+
+function makeAgentJob(data: Partial<AgentJobData>): Job<AgentJobData> {
+  return { data } as unknown as Job<AgentJobData>;
+}
+
+function makeDigestJob(): Job<BatchDigestJobData> {
+  return { data: { batchId: BATCH_ID } } as unknown as Job<BatchDigestJobData>;
+}
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  h.redis.store.clear();
+  h.db.batchRun.create.mockResolvedValue({ id: BATCH_ID, bookId: BOOK_ID });
+  h.db.batchRun.update.mockResolvedValue({});
+  h.db.agentSession.createMany.mockResolvedValue({ count: 4 });
+  h.db.agentSession.update.mockResolvedValue({});
+  h.db.apiKey.findMany.mockResolvedValue([]);
+});
+
+// ── Phase (a): fan-out ───────────────────────────────────────────────────────
+describe("batch lifecycle — (a) fan-out", () => {
+  it("creates the BatchRun + N child sessions (batchId set) and one fan-in parent flow", async () => {
+    // dev-edit + line-edit × chapters 1–2 = 4 children
+    const children: BatchChildPayload[] = [
+      childPayload("dev-edit", "dev-editor", 1),
+      childPayload("dev-edit", "dev-editor", 2),
+      childPayload("line-edit", "line-editor", 1),
+      childPayload("line-edit", "line-editor", 2),
+    ];
+
+    const result = await enqueueBatchFlow({
+      userId: USER_ID,
+      bookId: BOOK_ID,
+      workflowIds: ["dev-edit", "line-edit"],
+      chapterStart: 1,
+      chapterEnd: 2,
+      budgetCapUsd: CAP,
+      scheduledFor: null,
+      children,
+    });
+
+    // BatchRun row created queued, with the full child count.
+    expect(h.db.batchRun.create).toHaveBeenCalledTimes(1);
+    const batchData = h.db.batchRun.create.mock.calls[0][0].data;
+    expect(batchData).toMatchObject({
+      userId: USER_ID,
+      bookId: BOOK_ID,
+      status: "queued",
+      budgetCapUsd: CAP,
+      childCount: 4,
+    });
+
+    // N child AgentSession rows — each linked to the batch, jobId == row id.
+    expect(h.db.agentSession.createMany).toHaveBeenCalledTimes(1);
+    const rows = h.db.agentSession.createMany.mock.calls[0][0].data as Array<{
+      id: string;
+      batchId: string;
+      jobId: string;
+      status: string;
+    }>;
+    expect(rows).toHaveLength(4);
+    expect(rows.every((r) => r.batchId === BATCH_ID)).toBe(true);
+    expect(rows.every((r) => r.jobId === r.id)).toBe(true);
+    expect(rows.every((r) => r.status === "queued")).toBe(true);
+    // Distinct session ids (no dedup collision).
+    expect(new Set(rows.map((r) => r.id)).size).toBe(4);
+
+    // FlowProducer: parent on batch-digest, N children on agent-sessions, each
+    // carrying the aggregate batchId + the finite cap.
+    expect(h.flowAdd).toHaveBeenCalledTimes(1);
+    const flow = h.flowAdd.mock.calls[0][0] as {
+      queueName: string;
+      data: BatchDigestJobData;
+      children: Array<{ queueName: string; data: AgentJobData; opts: { jobId: string } }>;
+    };
+    expect(flow.queueName).toBe("batch-digest");
+    expect(flow.data.batchId).toBe(BATCH_ID);
+    expect(flow.children).toHaveLength(4);
+    expect(flow.children.every((c) => c.queueName === "agent-sessions")).toBe(true);
+    expect(flow.children.every((c) => c.data.batchId === BATCH_ID)).toBe(true);
+    expect(flow.children.every((c) => c.data.batchBudgetCapUsd === CAP)).toBe(true);
+    // jobId dedup mirrors the sessionId (standard-path invariant).
+    expect(flow.children.every((c) => c.opts.jobId === c.data.sessionId)).toBe(true);
+
+    expect(result).toMatchObject({
+      batchId: BATCH_ID,
+      childCount: 4,
+      parentJobId: "parent-job-1",
+    });
+  });
+
+  it("rejects a non-finite cap before creating anything (Infinity->null serialization trap)", async () => {
+    await expect(
+      enqueueBatchFlow({
+        userId: USER_ID,
+        bookId: BOOK_ID,
+        workflowIds: ["dev-edit"],
+        chapterStart: 1,
+        chapterEnd: 1,
+        budgetCapUsd: Infinity,
+        children: [childPayload("dev-edit", "dev-editor", 1)],
+      })
+    ).rejects.toThrow(/finite/i);
+    expect(h.db.batchRun.create).not.toHaveBeenCalled();
+    expect(h.flowAdd).not.toHaveBeenCalled();
+  });
+});
+
+// ── Phase (b): pre-child cap-skip guard ──────────────────────────────────────
+describe("batch lifecycle — (b) cap-skip guard", () => {
+  const CHILD: Partial<AgentJobData> = {
+    ...childPayload("dev-edit", "dev-editor", 1),
+    sessionId: "child-ch1-dev",
+    batchId: BATCH_ID,
+    batchBudgetCapUsd: CAP,
+  };
+
+  it("pure gate: shouldRunBatchChild flips false exactly when the ledger reaches cap", () => {
+    expect(shouldRunBatchChild(2, CAP, false)).toBe(true); // under cap
+    expect(shouldRunBatchChild(CAP, CAP, false)).toBe(false); // at cap
+    expect(shouldRunBatchChild(CAP + 0.5, CAP, false)).toBe(false); // over cap
+    expect(shouldRunBatchChild(0, CAP, true)).toBe(false); // breaker halted
+  });
+
+  it("worker guard: marks the child 'skipped' and returns BEFORE building the orchestrator once spent >= cap", async () => {
+    // Ledger says the batch has already spent past the cap.
+    h.redis.store.set(`batch:${BATCH_ID}:spent`, "10.50");
+
+    await processAgentJob(makeAgentJob(CHILD));
+
+    expect(h.db.agentSession.update).toHaveBeenCalledWith({
+      where: { id: "child-ch1-dev" },
+      data: expect.objectContaining({ status: "skipped" }),
+    });
+    // Orchestrator never built → keys never re-fetched → provider never called.
+    expect(h.db.apiKey.findMany).not.toHaveBeenCalled();
+    expect(h.redis.incrbyfloat).not.toHaveBeenCalled();
+    // Consulted exactly the batch ledger keys.
+    const ledgerReads = h.redis.get.mock.calls.map((c) => String(c[0]));
+    expect(ledgerReads).toContain(`batch:${BATCH_ID}:spent`);
+    expect(ledgerReads).toContain(`batch:${BATCH_ID}:halted`);
+  });
+
+  it("worker guard: lets an under-cap child through to the orchestrator build", async () => {
+    h.redis.store.set(`batch:${BATCH_ID}:spent`, "2.00");
+
+    // No API keys configured → orchestrator build throws downstream; we only
+    // assert the guard let the child THROUGH (did not skip it, DID fetch keys).
+    await expect(processAgentJob(makeAgentJob(CHILD))).rejects.toBeTruthy();
+
+    expect(h.db.apiKey.findMany).toHaveBeenCalled();
+    const skipped = h.db.agentSession.update.mock.calls.some(
+      (c) => (c[0] as { data?: { status?: string } })?.data?.status === "skipped"
+    );
+    expect(skipped).toBe(false);
+  });
+});
+
+// ── Phase (c): fan-in digest ─────────────────────────────────────────────────
+describe("batch lifecycle — (c) digest aggregation", () => {
+  it("aggregates findings, surfaces the skipped child, and writes the terminal halted status + notification", async () => {
+    // The cap was hit mid-batch: 2 children completed, 1 was skipped by the guard.
+    h.db.batchRun.findUnique.mockResolvedValue({
+      id: BATCH_ID,
+      bookId: BOOK_ID,
+      userId: USER_ID,
+      workflowIds: ["dev-edit"],
+      chapterStart: 1,
+      chapterEnd: 3,
+      budgetCapUsd: CAP,
+      status: "running",
+      halted: false,
+    });
+    h.db.agentSession.findMany.mockResolvedValue([
+      { id: "s1", status: "completed", chapterNumber: 1, workflowId: "dev-edit", actualCostUsd: 5 },
+      { id: "s2", status: "completed", chapterNumber: 2, workflowId: "dev-edit", actualCostUsd: 5.5 },
+      { id: "s3", status: "skipped", chapterNumber: 3, workflowId: "dev-edit", actualCostUsd: null },
+    ]);
+    h.db.editFinding.findMany.mockResolvedValue([
+      { severity: "critical", category: "pacing", chapterNumber: 1 },
+      { severity: "suggestion", category: "prose", chapterNumber: 1 },
+      { severity: "suggestion", category: "dialogue", chapterNumber: 2 },
+    ]);
+    h.db.chapter.findMany.mockResolvedValue([
+      { chapterNumber: 1, status: "drafted", betaGate: null },
+      { chapterNumber: 2, status: "drafted", betaGate: null },
+      { chapterNumber: 3, status: "drafted", betaGate: null },
+    ]);
+    // Redis ledger: cap reached → halted flag set, spend at cap.
+    h.redis.store.set(`batch:${BATCH_ID}:spent`, "10.50");
+    h.redis.store.set(`batch:${BATCH_ID}:halted`, "1");
+    h.redis.store.set(`batch:${BATCH_ID}:failures`, "0");
+
+    await processBatchDigestJob(makeDigestJob());
+
+    // Terminal BatchRun status written: halted / budget_cap, with counts.
+    expect(h.db.batchRun.update).toHaveBeenCalledTimes(1);
+    const upd = h.db.batchRun.update.mock.calls[0][0];
+    expect(upd.where).toEqual({ id: BATCH_ID });
+    expect(upd.data).toMatchObject({
+      status: "halted",
+      haltReason: "budget_cap",
+      halted: true,
+      spentUsd: 10.5,
+      completedCount: 2,
+      failedCount: 0,
+    });
+
+    // Digest surfaces the skipped child + the aggregated findings.
+    const digest = upd.data.digest as {
+      passes: { total: number; completed: number; skipped: number };
+      findings: { total: number; bySeverity: Record<string, number> };
+      statusAutoAdvanceSuppressed: boolean;
+    };
+    expect(digest.passes).toMatchObject({ total: 3, completed: 2, skipped: 1 });
+    expect(digest.findings.total).toBe(3);
+    expect(digest.findings.bySeverity).toEqual({ critical: 1, suggestion: 2 });
+    // v1: batch never auto-advances chapter status (owner decision #7).
+    expect(digest.statusAutoAdvanceSuppressed).toBe(true);
+
+    // One morning notification, mentioning the skip + spend/cap.
+    expect(h.db.bookNotification.create).toHaveBeenCalledTimes(1);
+    const note = h.db.bookNotification.create.mock.calls[0][0].data;
+    expect(note).toMatchObject({
+      bookId: BOOK_ID,
+      userId: USER_ID,
+      type: "pipeline_complete",
+      priority: "high", // halted → high priority
+    });
+    expect(note.message).toContain("skipped");
+    expect(note.message).toContain("$10.50");
+  });
+
+  it("a clean run (no skips, under cap) writes status 'done' and a normal-priority notification", async () => {
+    h.db.batchRun.findUnique.mockResolvedValue({
+      id: BATCH_ID,
+      bookId: BOOK_ID,
+      userId: USER_ID,
+      workflowIds: ["dev-edit"],
+      chapterStart: 1,
+      chapterEnd: 2,
+      budgetCapUsd: CAP,
+      status: "running",
+      halted: false,
+    });
+    h.db.agentSession.findMany.mockResolvedValue([
+      { id: "s1", status: "completed", chapterNumber: 1, workflowId: "dev-edit", actualCostUsd: 2 },
+      { id: "s2", status: "completed", chapterNumber: 2, workflowId: "dev-edit", actualCostUsd: 2 },
+    ]);
+    h.db.editFinding.findMany.mockResolvedValue([]);
+    h.db.chapter.findMany.mockResolvedValue([
+      { chapterNumber: 1, status: "drafted", betaGate: null },
+      { chapterNumber: 2, status: "drafted", betaGate: null },
+    ]);
+    h.redis.store.set(`batch:${BATCH_ID}:spent`, "4.00");
+
+    await processBatchDigestJob(makeDigestJob());
+
+    const upd = h.db.batchRun.update.mock.calls[0][0];
+    expect(upd.data).toMatchObject({
+      status: "done",
+      haltReason: null,
+      halted: false,
+      completedCount: 2,
+    });
+    const note = h.db.bookNotification.create.mock.calls[0][0].data;
+    expect(note.priority).toBe("normal");
+  });
+});
