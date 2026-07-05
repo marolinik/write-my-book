@@ -56,6 +56,10 @@ import { GutterMarkers } from "./gutter-markers";
 import { FloatingAgentInput } from "./floating-agent-input";
 import { AIGhostText } from "./ai-ghost-text";
 import { ImmersiveFocusMode } from "./immersive-focus-mode";
+import {
+  createImmersiveSyncScheduler,
+  type ImmersiveSyncScheduler,
+} from "./immersive-sync-scheduler";
 import { getFocusLevelClasses } from "./graduated-focus";
 import { PacingHeatmap } from "./pacing-heatmap";
 import { ProseSyntaxHighlight } from "./prose-syntax-highlight";
@@ -83,6 +87,13 @@ const CARET_SCROLL_CLEARANCE_PX = 80;
 // or dialog. The contenteditable is intentionally NOT matched — it is the
 // primary context for both shortcuts.
 const SHORTCUT_GUARD_SELECTOR = 'input, textarea, [role="dialog"]';
+
+// Immersive autosave sync cadence (S10): route active immersive editing into
+// the main editor's hardened CAS autosave on a short trailing debounce, with a
+// max-wait so unbroken typing still flushes at least this often — matching the
+// main editor's ~2s save cadence instead of the old 30s periodic sync.
+const IMMERSIVE_SYNC_DEBOUNCE_MS = 1200;
+const IMMERSIVE_SYNC_MAX_WAIT_MS = 2500;
 
 interface ChapterNavItem {
   id: string;
@@ -181,8 +192,9 @@ export function ManuscriptEditor({
   // is sticky (stays true across many keystrokes) so it can't debounce a scan
   // per-edit; this counter changes on every onUpdate call instead.
   const [editTick, setEditTick] = useState(0);
-  // Immersive focus mode: content snapshot on enter, sync back ONLY on exit
-  // (per-keystroke setContent would destroy undo history and markdown fidelity)
+  // Immersive focus mode: content snapshot on enter; edits stream back into
+  // tiptap through a debounced CAS sync during editing (S10) and on exit — not
+  // per-keystroke setContent, which would churn undo history and markdown.
   const [immersive, setImmersive] = useState(false);
   const [immersiveContent, setImmersiveContent] = useState("");
   const immersiveHtmlRef = useRef("");
@@ -926,7 +938,8 @@ export function ManuscriptEditor({
     [editor]
   );
 
-  // ── Immersive focus mode: snapshot on enter, sync on exit ───
+  // ── Immersive focus mode: snapshot on enter, debounced CAS sync while
+  //    editing (S10), reconcile on exit ─────────────────────────
   const enterImmersive = useCallback(() => {
     if (!editor) return;
     const html = editor.getHTML();
@@ -935,55 +948,75 @@ export function ManuscriptEditor({
     setImmersive(true);
   }, [editor]);
 
+  // Single reconcile point: push the freshest immersive buffer into tiptap
+  // (the single source of truth for content + version) and markDirty so the
+  // SAME debounced, version-stamped CAS autosave persists it — no second save
+  // path, timer, or version stamp. Change-guarded via lastImmersiveSyncRef so
+  // the keystroke scheduler, the unload flush, and exit never double-apply the
+  // identical HTML or move the hidden editor needlessly. (Compare against
+  // lastImmersiveSyncRef, not editor.getHTML(): tiptap normalizes HTML and
+  // would trigger spurious syncs. The overlay renders from immersiveContent
+  // state, so the hidden setContent never moves the caret.)
+  const lastImmersiveSyncRef = useRef("");
+  const syncSchedulerRef = useRef<ImmersiveSyncScheduler | null>(null);
+  const syncImmersiveToEditor = useCallback(() => {
+    if (!editor) return;
+    if (immersiveHtmlRef.current === lastImmersiveSyncRef.current) return;
+    lastImmersiveSyncRef.current = immersiveHtmlRef.current;
+    editor.commands.setContent(immersiveHtmlRef.current);
+    paneStore.getState().markDirty();
+  }, [editor, paneStore]);
+
   const exitImmersive = useCallback(() => {
     setImmersive(false);
-    if (editor && immersiveHtmlRef.current !== immersiveContent) {
-      editor.commands.setContent(immersiveHtmlRef.current);
-      paneStore.getState().markDirty();
-    }
+    // Reconcile any keystrokes that landed after the last scheduled flush
+    // (change-guarded: a no-op if the scheduler already synced them).
+    syncSchedulerRef.current?.cancel();
+    syncImmersiveToEditor();
     // A conflict detected during immersive mode was deferred (toast/dialog
     // would have rendered under the z-[100] overlay) — surface it now.
     if (paneStore.getState().saveConflict) {
       showConflictToast();
     }
-  }, [editor, immersiveContent, paneStore, showConflictToast]);
+  }, [syncImmersiveToEditor, paneStore, showConflictToast]);
 
-  // Safety net: while immersive, edits live only in immersiveHtmlRef — if
-  // this component unmounts without exit (back-nav, tab close, crash) the
-  // whole session is lost. Periodically sync into tiptap + markDirty so the
-  // 2s-debounced autosave persists it; bounds worst-case loss to ~32s —
-  // EXCEPT while a save conflict is pending: autosave is suspended then, so
-  // persistence falls back to the localStorage conflict draft and the
-  // beforeunload prompt until the conflict is resolved on exit.
-  // (Compare against lastImmersiveSyncRef, not editor.getHTML(): tiptap
-  // normalizes HTML and would trigger spurious syncs. The overlay renders
-  // from immersiveContent state, so the hidden sync never moves the cursor.)
-  const lastImmersiveSyncRef = useRef("");
+  // S10: route ACTIVE immersive editing through the main editor's hardened CAS
+  // autosave. A keystroke-driven scheduler flushes the buffer into tiptap on a
+  // short trailing debounce — and at least every IMMERSIVE_SYNC_MAX_WAIT_MS of
+  // unbroken typing; the markDirty inside syncImmersiveToEditor then drives the
+  // existing debounced, stamped PUT with its 409 / offline / backoff handling.
+  // This shrinks the worst-case active-editing loss window from the old 30s
+  // periodic sync to the main editor's ~2s cadence. (While a save conflict is
+  // pending autosave is suspended, so persistence still falls back to the
+  // localStorage conflict draft + beforeunload prompt until exit resolves it.)
   useEffect(() => {
-    if (!immersive || !editor) return;
+    if (!immersive || !editor) {
+      syncSchedulerRef.current = null;
+      return;
+    }
+    // Baseline the sync guard to the enter snapshot so the first real edit —
+    // not the initial content — triggers the first flush.
     lastImmersiveSyncRef.current = immersiveHtmlRef.current;
-    const id = setInterval(() => {
-      if (immersiveHtmlRef.current !== lastImmersiveSyncRef.current) {
-        lastImmersiveSyncRef.current = immersiveHtmlRef.current;
-        editor.commands.setContent(immersiveHtmlRef.current);
-        paneStore.getState().markDirty();
-      }
-    }, 30_000);
-    return () => clearInterval(id);
-  }, [immersive, editor, paneStore]);
+    const scheduler = createImmersiveSyncScheduler({
+      onFlush: syncImmersiveToEditor,
+      delayMs: IMMERSIVE_SYNC_DEBOUNCE_MS,
+      maxWaitMs: IMMERSIVE_SYNC_MAX_WAIT_MS,
+    });
+    syncSchedulerRef.current = scheduler;
+    return () => {
+      scheduler.cancel();
+      syncSchedulerRef.current = null;
+    };
+  }, [immersive, editor, syncImmersiveToEditor]);
 
   // Loss-window guard (S10): the overlay's unload listeners call this to route
   // the latest immersive edits into tiptap + markDirty on tab close/hide,
-  // shrinking worst-case loss from the 30s interval above to ~0. Shares
-  // lastImmersiveSyncRef with the interval so the two never double-apply.
+  // shrinking worst-case loss to ~0. Cancels any queued trailing flush so it
+  // cannot re-fire after the overlay unmounts.
   const flushImmersiveToEditor = useCallback(() => {
-    if (!editor) return;
-    if (immersiveHtmlRef.current !== lastImmersiveSyncRef.current) {
-      lastImmersiveSyncRef.current = immersiveHtmlRef.current;
-      editor.commands.setContent(immersiveHtmlRef.current);
-      paneStore.getState().markDirty();
-    }
-  }, [editor, paneStore]);
+    syncSchedulerRef.current?.cancel();
+    syncImmersiveToEditor();
+  }, [syncImmersiveToEditor]);
 
   // ── F8 / Shift+F8 keyboard navigation (use-finding-navigation.ts) ──
   useFindingNavigation({
@@ -1383,7 +1416,10 @@ export function ManuscriptEditor({
         <ImmersiveFocusMode
           content={immersiveContent}
           onContentChange={(html) => {
+            // Keystroke: update the buffer and (re)arm the debounced CAS sync
+            // so active editing reaches the hardened autosave within ~2s (S10).
             immersiveHtmlRef.current = html;
+            syncSchedulerRef.current?.schedule();
           }}
           onExit={exitImmersive}
           onFlush={flushImmersiveToEditor}
