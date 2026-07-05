@@ -7,6 +7,7 @@ import { useEditorialStore } from "@/stores/editorial-store";
 import { useEditorialSummary } from "@/hooks/use-editorial";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
 import { ChapterSelector } from "./chapter-selector";
+import { BatchEditorialDialog } from "./batch-editorial-dialog";
 import { FindingsFilters } from "./findings-filters";
 import { FindingsPanel } from "./findings-panel";
 import { EditorialSummary } from "./editorial-summary";
@@ -81,6 +82,12 @@ export function EditorialPage({ bookId, chapters }: EditorialPageProps) {
               <ShieldCheckIcon className="mr-1.5 size-3.5" />
               Run Beta Read
             </Button>
+            {chapters.length > 0 && (
+              <BatchEditorialDialog
+                bookId={bookId}
+                chapterNumbers={chapters.map((c) => c.chapterNumber)}
+              />
+            )}
           </div>
         </div>
 
