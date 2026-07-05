@@ -7,6 +7,7 @@
 import { extractEntities, hashContent } from "./entity-extractor";
 import { upsertEntities, removeChapterEntities } from "./graph-builder";
 import { withSession } from "./neo4j-client";
+import type { LLMClientOptions } from "@/lib/llm";
 
 /**
  * Update the knowledge graph from a chapter's content.
@@ -18,7 +19,8 @@ export async function updateFromChapter(
   bookId: string,
   chapterNumber: number,
   content: string,
-  defaultModel?: string
+  defaultModel?: string,
+  keys?: Partial<LLMClientOptions>
 ): Promise<{ updated: boolean; entitiesFound: number }> {
   if (!content || content.trim().length === 0) {
     return { updated: false, entitiesFound: 0 };
@@ -36,8 +38,9 @@ export async function updateFromChapter(
     // Remove stale entities from previous extraction of this chapter
     await removeChapterEntities(bookId, chapterNumber);
 
-    // Run LLM extraction
-    const result = await extractEntities(content, bookId, chapterNumber, undefined, defaultModel);
+    // Run LLM extraction with the user's own decrypted keys (else it throws
+    // "No API key available" and the graph silently never populates).
+    const result = await extractEntities(content, bookId, chapterNumber, keys, defaultModel);
 
     // Inject bookId into all entity properties so MERGE works correctly
     for (const entity of result.entities) {
@@ -69,7 +72,8 @@ export async function updateFromChapter(
 export async function updateFromStoryBible(
   bookId: string,
   content: string,
-  defaultModel?: string
+  defaultModel?: string,
+  keys?: Partial<LLMClientOptions>
 ): Promise<void> {
   if (!content || content.trim().length === 0) {
     return;
@@ -84,7 +88,7 @@ export async function updateFromStoryBible(
 
   try {
     // Extract using chapter 0 to signify canonical / pre-story data
-    const result = await extractEntities(content, bookId, 0, undefined, defaultModel);
+    const result = await extractEntities(content, bookId, 0, keys, defaultModel);
 
     // Inject bookId into all entity properties
     for (const entity of result.entities) {

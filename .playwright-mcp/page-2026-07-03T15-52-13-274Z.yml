@@ -1,0 +1,86 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - heading "Command Palette" [level=2] [ref=f1e3]
+    - paragraph [ref=f1e4]: Search for a command to run...
+  - generic [ref=f1e5]:
+    - generic [ref=f1e8]:
+      - list [ref=f1e10]:
+        - listitem [ref=f1e11]:
+          - link "WriteMyBook Writing Platform" [ref=f1e12] [cursor=pointer]:
+            - /url: /dashboard
+            - img [ref=f1e14]
+            - generic [ref=f1e16]:
+              - generic [ref=f1e17]: WriteMyBook
+              - generic [ref=f1e18]: Writing Platform
+      - generic [ref=f1e20]:
+        - generic [ref=f1e21]: Navigation
+        - list [ref=f1e23]:
+          - listitem [ref=f1e24]:
+            - link "Dashboard" [ref=f1e25] [cursor=pointer]:
+              - /url: /dashboard
+              - img [ref=f1e26]
+              - generic [ref=f1e31]: Dashboard
+          - listitem [ref=f1e32]:
+            - link "Books" [ref=f1e33] [cursor=pointer]:
+              - /url: /books
+              - img [ref=f1e34]
+              - generic [ref=f1e36]: Books
+          - listitem [ref=f1e37]:
+            - link "Series" [ref=f1e38] [cursor=pointer]:
+              - /url: /series
+              - img [ref=f1e39]
+              - generic [ref=f1e41]: Series
+              - img [ref=f1e42]
+      - list [ref=f1e46]:
+        - listitem [ref=f1e47]:
+          - link "Settings" [ref=f1e48] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=f1e49]
+            - generic [ref=f1e52]: Settings
+    - main [ref=f1e53]:
+      - generic [ref=f1e54]:
+        - button "Toggle sidebar" [ref=f1e55]:
+          - img
+        - navigation [ref=f1e56]:
+          - link "Books" [ref=f1e58] [cursor=pointer]:
+            - /url: /books
+          - generic [ref=f1e59]:
+            - generic [ref=f1e60]: /
+            - generic [ref=f1e61]: New
+        - generic [ref=f1e62]:
+          - button "Toggle theme" [ref=f1e63]:
+            - img
+            - generic [ref=f1e64]: Toggle theme
+          - button "Toggle agent panel" [ref=f1e65]:
+            - img
+      - generic [ref=f1e66]:
+        - main [ref=f1e67]:
+          - generic [ref=f1e69]:
+            - generic [ref=f1e70]:
+              - generic [ref=f1e71]: New Book
+              - generic [ref=f1e72]: Create a new book to start writing
+            - generic [ref=f1e74]:
+              - generic [ref=f1e75]:
+                - generic [ref=f1e76]: Book Name *
+                - textbox "Book Name *" [ref=f1e77]:
+                  - /placeholder: My Novel
+              - generic [ref=f1e78]:
+                - generic [ref=f1e79]: Genre
+                - textbox "Genre" [ref=f1e80]:
+                  - /placeholder: Fantasy, Sci-Fi, Romance...
+              - generic [ref=f1e81]:
+                - generic [ref=f1e82]: Language
+                - combobox "Language" [ref=f1e83]:
+                  - generic: English
+                  - img
+                - combobox [ref=f1e84]
+              - generic [ref=f1e85]:
+                - button "Cancel" [ref=f1e86]
+                - button "Start writing" [ref=f1e87]
+                - button "Guided setup instead" [ref=f1e88]
+        - button "Open Writing Agent" [ref=f1e89]:
+          - img [ref=f1e90]
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f1e98] [cursor=pointer]:
+    - img [ref=f1e99]
+  - alert [ref=f1e102]

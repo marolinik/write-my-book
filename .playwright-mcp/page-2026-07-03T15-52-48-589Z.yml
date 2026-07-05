@@ -1,0 +1,161 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - heading "Command Palette" [level=2] [ref=f1e3]
+    - paragraph [ref=f1e4]: Search for a command to run...
+  - generic [ref=f1e5]:
+    - generic [ref=f1e8]:
+      - list [ref=f1e10]:
+        - listitem [ref=f1e11]:
+          - link "WriteMyBook Writing Platform" [ref=f1e12] [cursor=pointer]:
+            - /url: /dashboard
+            - img [ref=f1e14]
+            - generic [ref=f1e16]:
+              - generic [ref=f1e17]: WriteMyBook
+              - generic [ref=f1e18]: Writing Platform
+      - generic [ref=f1e19]:
+        - generic [ref=f1e20]:
+          - generic [ref=f1e21]: Navigation
+          - list [ref=f1e23]:
+            - listitem [ref=f1e24]:
+              - link "Dashboard" [ref=f1e25] [cursor=pointer]:
+                - /url: /dashboard
+                - img [ref=f1e26]
+                - generic [ref=f1e31]: Dashboard
+            - listitem [ref=f1e32]:
+              - link "Books" [ref=f1e33] [cursor=pointer]:
+                - /url: /books
+                - img [ref=f1e34]
+                - generic [ref=f1e36]: Books
+            - listitem [ref=f1e37]:
+              - link "Series" [ref=f1e38] [cursor=pointer]:
+                - /url: /series
+                - img [ref=f1e39]
+                - generic [ref=f1e41]: Series
+                - img [ref=f1e42]
+        - generic [ref=f1e120]:
+          - generic [ref=f1e121]:
+            - img [ref=f1e122]
+            - generic [ref=f1e124]: The Salt Letters
+          - list [ref=f1e126]:
+            - listitem [ref=f1e127]:
+              - link "Overview" [ref=f1e128] [cursor=pointer]:
+                - /url: /books/4a37715f-30ad-43d9-9960-3ba9c0d169a4
+                - img [ref=f1e129]
+                - generic [ref=f1e132]: Overview
+        - generic [ref=f1e133]:
+          - generic [ref=f1e134]:
+            - generic [ref=f1e135]: Getting Started
+            - generic [ref=f1e136]: 0/2
+          - list [ref=f1e138]:
+            - listitem [ref=f1e139]:
+              - link "Setup" [ref=f1e140] [cursor=pointer]:
+                - /url: /books/4a37715f-30ad-43d9-9960-3ba9c0d169a4/setup
+                - img [ref=f1e141]
+                - generic [ref=f1e146]: Setup
+            - listitem [ref=f1e147]:
+              - link "Transfer" [ref=f1e148] [cursor=pointer]:
+                - /url: /books/4a37715f-30ad-43d9-9960-3ba9c0d169a4/transfer
+                - img [ref=f1e149]
+                - generic [ref=f1e152]: Transfer
+            - listitem [ref=f1e153]:
+              - link "Style Next Step" [ref=f1e154] [cursor=pointer]:
+                - /url: /books/4a37715f-30ad-43d9-9960-3ba9c0d169a4/style
+                - img [ref=f1e155]
+                - generic [ref=f1e161]: Style
+                - generic [ref=f1e162]: Next Step
+        - generic [ref=f1e163]:
+          - generic [ref=f1e164]:
+            - generic [ref=f1e165]: Writing
+            - generic [ref=f1e166]: 0/1
+          - list [ref=f1e168]:
+            - listitem [ref=f1e169]:
+              - button "Chapters 1" [ref=f1e170]:
+                - img [ref=f1e171]
+                - generic [ref=f1e173]: Chapters
+                - generic [ref=f1e174]: "1"
+            - listitem [ref=f1e175]:
+              - link "Library" [ref=f1e176] [cursor=pointer]:
+                - /url: /books/4a37715f-30ad-43d9-9960-3ba9c0d169a4/library
+                - img [ref=f1e177]
+                - generic [ref=f1e179]: Library
+            - listitem [ref=f1e180]:
+              - link "Writing Dashboard" [ref=f1e181] [cursor=pointer]:
+                - /url: /books/4a37715f-30ad-43d9-9960-3ba9c0d169a4/dashboard
+                - img [ref=f1e182]
+                - generic [ref=f1e187]: Writing Dashboard
+        - generic [ref=f1e188]:
+          - generic [ref=f1e189]:
+            - generic [ref=f1e190]: Refining
+            - generic [ref=f1e191]: 0/1
+          - list [ref=f1e193]:
+            - listitem [ref=f1e194]:
+              - link "Editorial" [ref=f1e195] [cursor=pointer]:
+                - /url: /books/4a37715f-30ad-43d9-9960-3ba9c0d169a4/editorial
+                - img [ref=f1e196]
+                - generic [ref=f1e201]: Editorial
+            - listitem [ref=f1e202]:
+              - link "Reports" [ref=f1e203] [cursor=pointer]:
+                - /url: /books/4a37715f-30ad-43d9-9960-3ba9c0d169a4/reports
+                - img [ref=f1e204]
+                - generic [ref=f1e206]: Reports
+                - img [ref=f1e207]
+        - generic [ref=f1e210]:
+          - generic [ref=f1e211]: Publish
+          - list [ref=f1e213]:
+            - listitem [ref=f1e214]:
+              - link "Export" [ref=f1e215] [cursor=pointer]:
+                - /url: /books/4a37715f-30ad-43d9-9960-3ba9c0d169a4/transfer?tab=export
+                - img [ref=f1e216]
+                - generic [ref=f1e219]: Export
+      - list [ref=f1e46]:
+        - listitem [ref=f1e47]:
+          - link "Settings" [ref=f1e48] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=f1e49]
+            - generic [ref=f1e52]: Settings
+    - main [ref=f1e53]:
+      - generic [ref=f1e54]:
+        - button "Toggle sidebar" [ref=f1e55]:
+          - img
+        - navigation [ref=f1e56]:
+          - link "Books" [ref=f1e58] [cursor=pointer]:
+            - /url: /books
+          - generic [ref=f1e59]:
+            - generic [ref=f1e60]: /
+            - link "The Salt Letters" [ref=f1e220] [cursor=pointer]:
+              - /url: /books/4a37715f-30ad-43d9-9960-3ba9c0d169a4
+          - generic [ref=f1e221]:
+            - generic [ref=f1e222]: /
+            - link "Chapters" [ref=f1e223] [cursor=pointer]:
+              - /url: /books/4a37715f-30ad-43d9-9960-3ba9c0d169a4/chapters
+          - generic [ref=f1e224]:
+            - generic [ref=f1e225]: /
+            - generic [ref=f1e226]:
+              - text: Ch.1
+              - generic [ref=f1e227]: undiscussed
+        - generic [ref=f1e62]:
+          - button "Toggle theme" [ref=f1e63]:
+            - img
+            - generic [ref=f1e64]: Toggle theme
+          - button "Toggle agent panel" [ref=f1e65]:
+            - img
+      - generic [ref=f1e66]:
+        - main [ref=f1e67]:
+          - status [ref=f1e229]: Loading chapter...
+        - button "Open Writing Agent" [ref=f1e89]:
+          - img [ref=f1e90]
+  - region "Notifications alt+T"
+  - generic [ref=f1e97] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=f1e98]:
+      - img [ref=f1e99]
+    - generic [ref=f1e107]:
+      - button "Open issues overlay" [ref=f1e108]:
+        - generic [ref=f1e116]:
+          - generic [ref=f1e117]: "1"
+          - generic [ref=f1e118]: "2"
+        - generic [ref=f1e112]:
+          - text: Issue
+          - generic [ref=f1e119]: s
+      - button "Collapse issues badge" [ref=f1e113]:
+        - img [ref=f1e114]
+  - alert [ref=f1e102]

@@ -1,0 +1,259 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - heading "Command Palette" [level=2] [ref=e3]
+    - paragraph [ref=e4]: Search for a command to run...
+  - generic [ref=e5]:
+    - generic [ref=e8]:
+      - list [ref=e10]:
+        - listitem [ref=e11]:
+          - link "WriteMyBook Writing Platform" [ref=e12] [cursor=pointer]:
+            - /url: /dashboard
+            - img [ref=e14]
+            - generic [ref=e16]:
+              - generic [ref=e17]: WriteMyBook
+              - generic [ref=e18]: Writing Platform
+      - generic [ref=e20]:
+        - generic [ref=e21]: Navigation
+        - list [ref=e23]:
+          - listitem [ref=e24]:
+            - link "Dashboard" [ref=e25] [cursor=pointer]:
+              - /url: /dashboard
+              - img [ref=e26]
+              - generic [ref=e31]: Dashboard
+          - listitem [ref=e32]:
+            - link "Books" [ref=e33] [cursor=pointer]:
+              - /url: /books
+              - img [ref=e34]
+              - generic [ref=e36]: Books
+          - listitem [ref=e37]:
+            - link "Series" [ref=e38] [cursor=pointer]:
+              - /url: /series
+              - img [ref=e39]
+              - generic [ref=e41]: Series
+              - img [ref=e42]
+      - list [ref=e46]:
+        - listitem [ref=e47]:
+          - link "Settings" [ref=e48] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e49]
+            - generic [ref=e52]: Settings
+    - main [ref=e53]:
+      - generic [ref=e54]:
+        - button "Toggle sidebar" [ref=e55]:
+          - img
+        - navigation [ref=e56]:
+          - generic [ref=e58]: Dashboard
+        - generic [ref=e59]:
+          - button "Toggle theme" [ref=e60]:
+            - img
+            - generic [ref=e61]: Toggle theme
+          - button "Toggle agent panel" [ref=e62]:
+            - img
+      - generic [ref=e63]:
+        - main [ref=e64]:
+          - generic [ref=e65]:
+            - generic [ref=e66]:
+              - heading "Welcome back, dev-user" [level=1] [ref=e67]
+              - paragraph [ref=e68]: Your writing workspace
+            - generic [ref=e69]:
+              - link "Create Book" [ref=e70] [cursor=pointer]:
+                - /url: /books/new
+                - img
+                - text: Create Book
+              - link "Create Series" [ref=e71] [cursor=pointer]:
+                - /url: /series/new
+                - img
+                - text: Create Series
+              - link "Start Writing" [ref=e72] [cursor=pointer]:
+                - /url: /books/71adb6fa-638b-49dc-970f-f5bd3853377c
+                - img
+                - text: Start Writing
+              - link "Import Manuscript" [ref=e73] [cursor=pointer]:
+                - /url: /books/71adb6fa-638b-49dc-970f-f5bd3853377c/transfer
+                - img
+                - text: Import Manuscript
+            - generic [ref=e74]:
+              - generic [ref=e75]:
+                - generic [ref=e76]:
+                  - generic [ref=e77]: Total Books
+                  - img [ref=e78]
+                - generic [ref=e81]: "8"
+              - generic [ref=e82]:
+                - generic [ref=e83]:
+                  - generic [ref=e84]: Total Words
+                  - img [ref=e85]
+                - generic [ref=e88]: "500.000"
+              - generic [ref=e89]:
+                - generic [ref=e90]:
+                  - generic [ref=e91]: Total Chapters
+                  - img [ref=e92]
+                - generic [ref=e96]: "21"
+              - generic [ref=e97]:
+                - generic [ref=e98]:
+                  - generic [ref=e99]: Series
+                  - img [ref=e100]
+                - generic [ref=e103]: "1"
+            - generic [ref=e104]:
+              - generic [ref=e106]: Continue Where You Left Off
+              - generic [ref=e108]:
+                - generic [ref=e109]:
+                  - paragraph [ref=e110]: "[seed] Ember Saga - Book 2"
+                  - paragraph [ref=e111]: "Ch. 7: The Council Convenes — Last edited 3. 7. 2026."
+                - link "Resume" [ref=e112] [cursor=pointer]:
+                  - /url: /books/71adb6fa-638b-49dc-970f-f5bd3853377c/documents
+                  - text: Resume
+                  - img
+            - generic [ref=e113]:
+              - generic [ref=e114]:
+                - generic [ref=e116]:
+                  - generic [ref=e117]: Writing Activity
+                  - generic [ref=e118]: 0 words this week
+                - generic [ref=e120]:
+                  - generic [ref=e121]:
+                    - generic "0 words" [ref=e122]
+                    - generic [ref=e123]: sub
+                  - generic [ref=e124]:
+                    - generic "0 words" [ref=e125]
+                    - generic [ref=e126]: ned
+                  - generic [ref=e127]:
+                    - generic "0 words" [ref=e128]
+                    - generic [ref=e129]: pon
+                  - generic [ref=e130]:
+                    - generic "0 words" [ref=e131]
+                    - generic [ref=e132]: uto
+                  - generic [ref=e133]:
+                    - generic "0 words" [ref=e134]
+                    - generic [ref=e135]: sre
+                  - generic [ref=e136]:
+                    - generic "0 words" [ref=e137]
+                    - generic [ref=e138]: čet
+                  - generic [ref=e139]:
+                    - generic "0 words" [ref=e140]
+                    - generic [ref=e141]: pet
+              - generic [ref=e142]:
+                - generic [ref=e144]:
+                  - generic [ref=e145]: Alerts
+                  - generic [ref=e146]: "1"
+                - link "1 findings need review" [ref=e149] [cursor=pointer]:
+                  - /url: /books/71adb6fa-638b-49dc-970f-f5bd3853377c/editorial
+                  - img [ref=e150]
+                  - generic [ref=e152]: 1 findings need review
+            - generic [ref=e153]:
+              - generic [ref=e155]: Recent Agent Sessions
+              - paragraph [ref=e157]: No agent sessions yet
+            - generic [ref=e158]:
+              - generic [ref=e159]:
+                - heading "Recent Books" [level=2] [ref=e160]
+                - link "Total Books" [ref=e161] [cursor=pointer]:
+                  - /url: /books
+                  - text: Total Books
+                  - img
+              - generic [ref=e162]:
+                - link "[seed] Ember Saga - Book 2 writing fantasy 30.000 words 1 chapters Updated 3. 7. 2026." [ref=e163] [cursor=pointer]:
+                  - /url: /books/71adb6fa-638b-49dc-970f-f5bd3853377c
+                  - generic [ref=e164]:
+                    - generic [ref=e165]:
+                      - generic [ref=e166]:
+                        - generic [ref=e167]: "[seed] Ember Saga - Book 2"
+                        - generic [ref=e168]: writing
+                      - generic [ref=e169]: fantasy
+                    - generic [ref=e170]:
+                      - generic [ref=e171]:
+                        - generic [ref=e172]: 30.000 words
+                        - generic [ref=e173]: 1 chapters
+                      - paragraph [ref=e174]: Updated 3. 7. 2026.
+                - link "[seed] Ember Saga - Book 1 complete fantasy 95.000 words 0 chapters Updated 3. 7. 2026." [ref=e175] [cursor=pointer]:
+                  - /url: /books/137412c3-8b98-4b16-994d-4f02a2774f53
+                  - generic [ref=e176]:
+                    - generic [ref=e177]:
+                      - generic [ref=e178]:
+                        - generic [ref=e179]: "[seed] Ember Saga - Book 1"
+                        - generic [ref=e180]: complete
+                      - generic [ref=e181]: fantasy
+                    - generic [ref=e182]:
+                      - generic [ref=e183]:
+                        - generic [ref=e184]: 95.000 words
+                        - generic [ref=e185]: 0 chapters
+                      - paragraph [ref=e186]: Updated 3. 7. 2026.
+                - link "[seed] Ashfall writing fantasy 42.000 words 5 chapters Updated 3. 7. 2026." [ref=e187] [cursor=pointer]:
+                  - /url: /books/b6e43179-9f79-4bae-8622-997bb3bf8422
+                  - generic [ref=e188]:
+                    - generic [ref=e189]:
+                      - generic [ref=e190]:
+                        - generic [ref=e191]: "[seed] Ashfall"
+                        - generic [ref=e192]: writing
+                      - generic [ref=e193]: fantasy
+                    - generic [ref=e194]:
+                      - generic [ref=e195]:
+                        - generic [ref=e196]: 42.000 words
+                        - generic [ref=e197]: 5 chapters
+                      - paragraph [ref=e198]: Updated 3. 7. 2026.
+                - link "[seed] Shipping Soon export science fiction 85.000 words 2 chapters Updated 3. 7. 2026." [ref=e199] [cursor=pointer]:
+                  - /url: /books/b775bf53-a54d-413f-94b7-7aa1fa0a60d8
+                  - generic [ref=e200]:
+                    - generic [ref=e201]:
+                      - generic [ref=e202]:
+                        - generic [ref=e203]: "[seed] Shipping Soon"
+                        - generic [ref=e204]: export
+                      - generic [ref=e205]: science fiction
+                    - generic [ref=e206]:
+                      - generic [ref=e207]:
+                        - generic [ref=e208]: 85.000 words
+                        - generic [ref=e209]: 2 chapters
+                      - paragraph [ref=e210]: Updated 3. 7. 2026.
+                - link "[seed] Finished Novel complete literary 90.000 words 2 chapters Updated 3. 7. 2026." [ref=e211] [cursor=pointer]:
+                  - /url: /books/a0553a9b-bbca-4111-a805-dac952007add
+                  - generic [ref=e212]:
+                    - generic [ref=e213]:
+                      - generic [ref=e214]:
+                        - generic [ref=e215]: "[seed] Finished Novel"
+                        - generic [ref=e216]: complete
+                      - generic [ref=e217]: literary
+                    - generic [ref=e218]:
+                      - generic [ref=e219]:
+                        - generic [ref=e220]: 90.000 words
+                        - generic [ref=e221]: 2 chapters
+                      - paragraph [ref=e222]: Updated 3. 7. 2026.
+                - link "[seed] Beta Test Book beta romance 65.000 words 3 chapters Updated 3. 7. 2026." [ref=e223] [cursor=pointer]:
+                  - /url: /books/30548ffa-a4ae-4287-8e7b-b03207664a3b
+                  - generic [ref=e224]:
+                    - generic [ref=e225]:
+                      - generic [ref=e226]:
+                        - generic [ref=e227]: "[seed] Beta Test Book"
+                        - generic [ref=e228]: beta
+                      - generic [ref=e229]: romance
+                    - generic [ref=e230]:
+                      - generic [ref=e231]:
+                        - generic [ref=e232]: 65.000 words
+                        - generic [ref=e233]: 3 chapters
+                      - paragraph [ref=e234]: Updated 3. 7. 2026.
+            - generic [ref=e236] [cursor=pointer]:
+              - generic [ref=e237]:
+                - img [ref=e238]
+                - generic [ref=e241]:
+                  - paragraph [ref=e242]: 2026 Year in Writing
+                  - paragraph [ref=e243]: See your writing journey highlights
+              - img [ref=e244]
+            - generic [ref=e246]:
+              - generic [ref=e247]:
+                - heading "Series" [level=2] [ref=e248]
+                - link "Create Series" [ref=e249] [cursor=pointer]:
+                  - /url: /series/new
+                  - img
+                  - text: Create Series
+              - link "[seed] Ember Saga TRILOGY fantasy 2 books 125.000 words" [ref=e251] [cursor=pointer]:
+                - /url: /series/1e09a2f2-86e5-4daa-8817-358c79ba58ae
+                - generic [ref=e252]:
+                  - generic [ref=e253]:
+                    - generic [ref=e254]:
+                      - generic [ref=e255]: "[seed] Ember Saga"
+                      - generic [ref=e256]: TRILOGY
+                    - generic [ref=e257]: fantasy
+                  - generic [ref=e259]:
+                    - generic [ref=e260]: 2 books
+                    - generic [ref=e261]: 125.000 words
+        - button "Open Writing Agent" [ref=e262]:
+          - img [ref=e263]
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e271] [cursor=pointer]:
+    - img [ref=e272]

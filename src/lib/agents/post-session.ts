@@ -9,6 +9,7 @@ import { DocumentType } from "@/generated/prisma/enums";
 import { parseAgentOutput, extractNumericScore } from "@/lib/parsers";
 import type { EditFindingParsed } from "@/lib/parsers";
 import { updateFromChapter } from "@/lib/graph/graph-maintenance";
+import { getExtractionKeysForUser } from "./extraction-keys";
 import { onSessionCompleted, onDocumentChanged, onFindingsCreated } from "@/lib/vector/memory-manager";
 import { promoteFindings } from "./blackboard";
 import { synthesizeToSeries } from "@/lib/series/series-synthesizer";
@@ -741,12 +742,23 @@ async function updateChapterGraph(
   const content = await docService.read(doc.id);
   if (!content?.content) return;
 
-  // Route extraction through the user's OWN provider (not hardcoded anthropic).
+  // Route extraction through the user's OWN provider (not hardcoded anthropic)
+  // AND with their OWN decrypted keys — without the keys, createExtractionClient
+  // throws "No API key available" and the continuity graph silently never
+  // populates (the loss the readiness audit surfaced). Mirror the worker's
+  // validatedAt-gated fetch.
   const dbUser = await db.user.findUnique({
     where: { id: userId },
     select: { defaultModel: true },
   });
-  await updateFromChapter(bookId, chapterNumber, content.content, dbUser?.defaultModel ?? undefined);
+  const keys = await getExtractionKeysForUser(userId);
+  await updateFromChapter(
+    bookId,
+    chapterNumber,
+    content.content,
+    dbUser?.defaultModel ?? undefined,
+    keys
+  );
 
   // Also index into vector memory
   await onDocumentChanged(bookId, "CHAPTER_CONTENT", content.content, { chapterNumber });
