@@ -170,6 +170,7 @@ model Book {
   sessionBriefs   SessionBrief[]
   suggestionFeedback SuggestionFeedback[]
   continuityFlags ContinuityFlag[]
+  batchRuns       BatchRun[]
 
   @@unique([seriesId, bookNumber])
   @@unique([userId, name])
@@ -278,8 +279,9 @@ model AgentSession {
   parentSessionId String?   @map("parent_session_id")
   sdkSessionId    String?   @map("sdk_session_id")
   chapterNumber   Int?      @map("chapter_number")
-  status          String    @default("running") // running, completed, failed, paused
+  status          String    @default("running") // running, completed, failed, paused, skipped
   jobId           String?   @map("job_id") // BullMQ job ID — null for inline SSE sessions, set for background queue jobs
+  batchId         String?   @map("batch_id") // parent BatchRun id; null for standalone sessions
   tokensInput     Int       @default(0) @map("tokens_input")
   tokensOutput    Int       @default(0) @map("tokens_output")
   estimatedCostUsd Float?  @map("estimated_cost_usd")
@@ -291,10 +293,66 @@ model AgentSession {
   user     User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   parent   AgentSession?       @relation("SessionHierarchy", fields: [parentSessionId], references: [id])
   children AgentSession[]      @relation("SessionHierarchy")
+  batch    BatchRun?           @relation(fields: [batchId], references: [id], onDelete: SetNull)
   turns    ConversationTurn[]
   brief    SessionBrief?
 
+  @@index([batchId])
   @@map("agent_sessions")
+}
+
+// ─── BATCH RUNS (overnight / batch editorial) ───────────────────
+
+model BatchRun {
+  id             String   @id @default(cuid())
+  userId         String   @map("user_id")
+  bookId         String   @map("book_id")
+
+  // What to run — the expansion inputs (kept as arrays; expanded at enqueue)
+  workflowIds    String[] @map("workflow_ids") // e.g. ["dev-edit", "line-edit"] (v1: must be batch-eligible)
+  chapterStart   Int      @map("chapter_start")
+  chapterEnd     Int      @map("chapter_end")
+
+  // Lifecycle
+  status         BatchStatus @default(queued)
+
+  // Money-path (the new invariant lives here + in Redis)
+  budgetCapUsd   Float    @map("budget_cap_usd") // MUST be finite (Infinity->null BullMQ trap — validate)
+  spentUsd       Float    @default(0) @map("spent_usd") // reconciled from Redis ledger by the digest job
+  halted         Boolean  @default(false) // circuit-breaker tripped (also a Redis flag)
+  haltReason     String?  @map("halt_reason") // "budget_cap" | "provider_failures" | "cancelled"
+
+  // Scheduling (native BullMQ delay; no cron in v1)
+  scheduledFor   DateTime? @map("scheduled_for") // null => run now; else parent job added with computed delay
+  parentJobId    String?   @map("parent_job_id") // BullMQ FlowProducer parent job id (for cancel/inspect)
+
+  // Fan-in result
+  digest         Json?    // structured roll-up written by the digest job
+  childCount     Int      @default(0) @map("child_count")
+  completedCount Int      @default(0) @map("completed_count")
+  failedCount    Int      @default(0) @map("failed_count")
+
+  createdAt      DateTime  @default(now()) @map("created_at")
+  startedAt      DateTime? @map("started_at")
+  completedAt    DateTime? @map("completed_at")
+
+  // Relations
+  book           Book           @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  sessions       AgentSession[] // children link back via AgentSession.batchId
+
+  @@index([userId, status])
+  @@index([bookId])
+  @@map("batch_runs")
+}
+
+enum BatchStatus {
+  queued         // created, waiting (scheduled or pending dispatch)
+  running        // at least one child dispatched
+  needs_approval // Phase-2 only: a DEFERred approval is waiting (never set in v1)
+  halted         // circuit breaker / budget cap tripped; remaining children skipped
+  done           // all children terminal + digest written
+  failed         // batch-level failure (e.g. all children failed)
+  cancelled      // user-cancelled
 }
 
 model ConversationTurn {

@@ -48,6 +48,10 @@ export interface AgentJobData {
   serverCeilingMs: number;
   /** Whether this is a conversational workflow. */
   isConversational: boolean;
+  /** Parent batch id, if this child belongs to a BatchRun. */
+  batchId?: string;
+  /** Aggregate batch budget ceiling in USD. MUST be finite (Infinity->null BullMQ trap). */
+  batchBudgetCapUsd?: number;
 }
 
 // ── Queue Definition ──────────────────────────────────────────────────
