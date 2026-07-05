@@ -41,14 +41,18 @@ export function useOnboardingOffers({
     staleTime: Infinity,
   });
 
-  // Artifact types already present for this book.
-  const { data: artifactTypes } = useQuery<Set<string>>({
+  // Artifact types already present for this book. Stored as a plain ARRAY (not a
+  // Set) because React Query dehydrates its cache to JSON for SSR hydration — a
+  // Set serializes to `{}`, which would then throw `.has is not a function` on
+  // the hydrated editor page and crash it via <OnboardingWatcher>. The Set is
+  // reconstructed on the client at the use site below.
+  const { data: artifactTypes } = useQuery<string[]>({
     queryKey: ["book-documents", bookId],
     queryFn: async () => {
       const res = await fetch(`/api/books/${bookId}/documents`);
-      if (!res.ok) return new Set<string>();
+      if (!res.ok) return [];
       const docs = (await res.json()) as Array<{ type: string }>;
-      return new Set(docs.map((d) => d.type));
+      return docs.map((d) => d.type);
     },
     staleTime: 30_000,
   });
@@ -65,7 +69,9 @@ export function useOnboardingOffers({
   const prevRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const types = artifactTypes ?? new Set<string>();
+    // Reconstruct the Set on the client — handles both the array from a live
+    // fetch and a dehydrated value that may have hydrated as `{}` (guarded).
+    const types = new Set<string>(Array.isArray(artifactTypes) ? artifactTypes : []);
     const { pending, toast: toFire } = computeOnboardingOffers({
       wordCount: bookWordCount,
       previousWordCount: prevRef.current,
