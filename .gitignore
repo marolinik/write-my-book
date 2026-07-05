@@ -67,3 +67,6 @@ ork.txt
 .playwright-mcp/
 # Stray dev screenshots
 shelf-live.jpg
+
+# stray root-level test screenshots
+/*.png
