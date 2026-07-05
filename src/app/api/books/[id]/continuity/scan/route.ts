@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { updateFromChapter } from "@/lib/graph/graph-maintenance";
+import { getExtractionKeysForUser } from "@/lib/agents/extraction-keys";
 import { runConsistencyChecks, getChapterNodeUpdatedAt } from "@/lib/graph/graph-queries";
 import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
@@ -46,12 +47,22 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         const doc = await svc.findByType(DocumentType.CHAPTER_CONTENT, chapterNumber);
         if (doc) {
           const content = (await svc.readPinned(doc.id))?.content ?? "";
-          // Route extraction through the user's OWN provider (not hardcoded anthropic).
+          // Route extraction through the user's OWN provider AND keys — without
+          // the keys, createExtractionClient throws "No API key available" and
+          // the on-demand continuity refresh silently no-ops (same gap as the
+          // post-session path).
           const dbUser = await db.user.findUnique({
             where: { id: user.id },
             select: { defaultModel: true },
           });
-          await updateFromChapter(bookId, chapterNumber, content, dbUser?.defaultModel ?? undefined);
+          const keys = await getExtractionKeysForUser(user.id);
+          await updateFromChapter(
+            bookId,
+            chapterNumber,
+            content,
+            dbUser?.defaultModel ?? undefined,
+            keys
+          );
         }
       }
     } catch (err) {

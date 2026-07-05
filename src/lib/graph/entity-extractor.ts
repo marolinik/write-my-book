@@ -169,7 +169,9 @@ export async function extractEntities(
   try {
     const response = await client.messages.create({
       model: modelId,
-      max_tokens: 8192,
+      // 16k (was 8k) so a dense chapter's entity JSON isn't truncated mid-array
+      // into unparseable output (qwen ceilings are far higher than this).
+      max_tokens: 16384,
       messages: [
         {
           role: "user",
@@ -214,17 +216,28 @@ function parseExtractionResponse(raw: string): {
   entities: ExtractedEntity[];
   relationships: ExtractedRelationship[];
 } {
-  // Strip markdown code fences if present
-  let cleaned = raw;
+  // Strip markdown code fences if present.
+  let cleaned = raw.trim();
   if (cleaned.startsWith("```")) {
     cleaned = cleaned.replace(/^```(?:json)?\s*\n?/, "").replace(/\n?```\s*$/, "");
+  }
+  // Tolerate leading/trailing prose (some models — e.g. qwen — wrap the JSON in
+  // commentary) by slicing to the outermost object braces.
+  const firstBrace = cleaned.indexOf("{");
+  const lastBrace = cleaned.lastIndexOf("}");
+  if (firstBrace !== -1 && lastBrace > firstBrace) {
+    cleaned = cleaned.slice(firstBrace, lastBrace + 1);
   }
 
   let parsed: unknown;
   try {
     parsed = JSON.parse(cleaned);
   } catch {
-    throw new Error(`Failed to parse extraction JSON: ${cleaned.slice(0, 200)}`);
+    // Diagnostic includes length + head + tail so truncation (unterminated JSON)
+    // is distinguishable from a mid-string syntax error in the worker log.
+    throw new Error(
+      `Failed to parse extraction JSON (len=${cleaned.length}): HEAD[${cleaned.slice(0, 150)}] TAIL[${cleaned.slice(-150)}]`
+    );
   }
 
   if (
