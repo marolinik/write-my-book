@@ -30,6 +30,7 @@ import {
   addAssistantMessage,
 } from "@/lib/agents";
 import { normalizeSessionCostLimit } from "@/lib/agents/budget";
+import { shouldRunBatchChild } from "@/lib/agents/batch-budget";
 import type {
   AgentStreamMessage,
   AgentResult,
@@ -64,6 +65,75 @@ const REDIS_TTL_SECONDS = 86_400;
 
 /** Check the cancellation flag every Nth message to limit Redis round-trips. */
 const CANCEL_CHECK_INTERVAL = 5;
+
+/**
+ * Batch circuit-breaker thresholds (owner decision, BATCH-SPEC §9.2):
+ * trip `halted` on 3 CONSECUTIVE or 5 TOTAL provider 429/auth/quota failures
+ * across a batch's children. Too low kills a good overnight run on a transient
+ * blip; too high defeats the guardrail.
+ */
+const BATCH_BREAKER_CONSECUTIVE_FAILURES = 3;
+const BATCH_BREAKER_TOTAL_FAILURES = 5;
+
+/**
+ * HTTP statuses that count toward the batch circuit breaker: rate-limit (429),
+ * auth (401/403), and quota/billing (402). Mirrors the retry-handler's
+ * non-retryable auth/billing set + the 429 rate-limit status. A mid-batch
+ * provider exhaustion of any of these, repeated across children, should halt
+ * the batch rather than let each of N children burn its 3 BullMQ attempts.
+ */
+const BATCH_BREAKER_STATUSES = new Set([401, 402, 403, 429]);
+
+/** Extract an HTTP status from an Anthropic SDK / ProviderError / fetch error. */
+function extractErrorStatus(error: unknown): number | null {
+  if (error && typeof error === "object") {
+    if (
+      "status" in error &&
+      typeof (error as { status: unknown }).status === "number"
+    ) {
+      return (error as { status: number }).status;
+    }
+    if (
+      "statusCode" in error &&
+      typeof (error as { statusCode: unknown }).statusCode === "number"
+    ) {
+      return (error as { statusCode: number }).statusCode;
+    }
+  }
+  return null;
+}
+
+/** True iff the error is a provider 429/auth/quota failure (breaker-eligible). */
+function isBatchBreakerError(error: unknown): boolean {
+  const status = extractErrorStatus(error);
+  return status !== null && BATCH_BREAKER_STATUSES.has(status);
+}
+
+/**
+ * Record a breaker-eligible child failure against the batch and trip `halted`
+ * once the consecutive- OR total-failure threshold is crossed. Best-effort:
+ * a Redis hiccup here must never mask the underlying job error (the caller
+ * re-throws for BullMQ retry regardless).
+ */
+async function recordBatchFailure(
+  publisher: ReturnType<typeof createRedisConnection>,
+  batchId: string
+): Promise<void> {
+  try {
+    const [total, consecutive] = await Promise.all([
+      publisher.incr(`batch:${batchId}:failures`),
+      publisher.incr(`batch:${batchId}:consecutive`),
+    ]);
+    if (
+      total >= BATCH_BREAKER_TOTAL_FAILURES ||
+      consecutive >= BATCH_BREAKER_CONSECUTIVE_FAILURES
+    ) {
+      await publisher.set(`batch:${batchId}:halted`, "1");
+    }
+  } catch (err) {
+    console.error("[AgentWorker] batch breaker update failed:", err);
+  }
+}
 
 // ── Types ─────────────────────────────────────────────────────────────
 
@@ -115,6 +185,8 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
     sessionCostLimit,
     serverCeilingMs,
     isConversational,
+    batchId,
+    batchBudgetCapUsd,
   } = job.data;
 
   // Create a dedicated Redis publisher for this job
@@ -125,6 +197,36 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
   const cancelKey = `session:${sessionId}:cancel`;
 
   try {
+    // ── Batch Pre-Child Budget / Breaker Guard ──────────────────────
+    // For BATCH children only (byte-for-byte no-op when batchId is absent):
+    // consult the aggregate ledger BEFORE building or running anything. If the
+    // batch is over its dollar cap or the circuit breaker has halted it, mark
+    // this child terminal as 'skipped' and return WITHOUT constructing the
+    // orchestrator — so a halted batch never re-fetches keys, never calls a
+    // provider, never spends. This returns normally (not a throw), so the
+    // skipped child is NOT retried into spending (mirrors the non-retry
+    // instinct of SessionCancelledError).
+    if (batchId) {
+      const [spentRaw, haltedRaw] = await Promise.all([
+        publisher.get(`batch:${batchId}:spent`),
+        publisher.get(`batch:${batchId}:halted`),
+      ]);
+      const spent = spentRaw ? parseFloat(spentRaw) : 0;
+      if (
+        !shouldRunBatchChild(
+          spent,
+          batchBudgetCapUsd ?? Infinity,
+          haltedRaw === "1"
+        )
+      ) {
+        await db.agentSession.update({
+          where: { id: sessionId },
+          data: { status: "skipped", completedAt: new Date() },
+        });
+        return; // never runs the orchestrator, never spends
+      }
+    }
+
     // ── Redis Message Publishing ────────────────────────────────────
 
     /**
@@ -501,6 +603,42 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
         const totalOutput = sharedCostTracker.totalOutputTokens;
         const cost = sharedCostTracker.totalCostUsd;
 
+        // ── Batch Aggregate Ledger + Breaker Reset ──────────────────
+        // BATCH children only: roll this child's finalized spend into the
+        // cross-child ledger (`batch:{id}:spent`) using the SAME per-turn-priced
+        // value as the per-session cap, so batch spend is consistent with
+        // per-session spend. If the aggregate cap is crossed, set the halted
+        // flag so the pre-child guard skips every remaining child. A clean
+        // completion also clears the consecutive-failure breaker streak.
+        // Best-effort: never let ledger I/O break the completion path.
+        if (batchId) {
+          try {
+            const spentStr = await publisher.incrbyfloat(
+              `batch:${batchId}:spent`,
+              cost
+            );
+            const spentNum = parseFloat(spentStr);
+            if (
+              batchBudgetCapUsd != null &&
+              Number.isFinite(batchBudgetCapUsd) &&
+              Number.isFinite(spentNum) &&
+              spentNum >= batchBudgetCapUsd
+            ) {
+              await publisher.set(`batch:${batchId}:halted`, "1");
+            }
+            // A cleanly-completed child clears the consecutive-failure streak
+            // (total failures are never reset — that counter is cumulative).
+            if (result.success && !result.cancelled) {
+              await publisher.del(`batch:${batchId}:consecutive`);
+            }
+          } catch (err) {
+            console.error(
+              "[AgentWorker] batch ledger increment failed:",
+              err
+            );
+          }
+        }
+
         await db.agentSession.update({
           where: { id: sessionId },
           data: {
@@ -684,6 +822,14 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
       (err instanceof Error && err.message?.includes("aborted"))
     ) {
       throw new SessionCancelledError();
+    }
+    // Batch circuit breaker: a provider 429/auth/quota failure on a batch child
+    // counts against the batch. Crossing the consecutive/total threshold trips
+    // `halted`, so the pre-child guard skips remaining children instead of
+    // letting each of N children burn its 3 BullMQ retries against a dead
+    // provider. Runs BEFORE the re-throw so BullMQ still retries THIS job.
+    if (batchId && isBatchBreakerError(err)) {
+      await recordBatchFailure(publisher, batchId);
     }
     // All other errors propagate normally (BullMQ handles retry)
     throw err;
