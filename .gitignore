@@ -62,3 +62,8 @@ tmp-*
 # UAT screenshots (regenerated locally, not source)
 uat-screenshots/
 ork.txt
+
+# Transient Playwright-MCP browser automation logs/snapshots
+.playwright-mcp/
+# Stray dev screenshots
+shelf-live.jpg
