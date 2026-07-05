@@ -258,7 +258,10 @@ export async function exportManuscript(
     .split(/\s+/)
     .filter(Boolean).length;
   const chapterCount = sorted.length;
-  const estimatedPages = Math.ceil(wordCount / 250);
+  // Approximate RENDERED-page estimate, not submission-manuscript pages. The 250
+  // w/pg convention overshoots the actual export (a 6187-word book rendered to a
+  // 17-page PDF, ~364 w/pg); 350 tracks the observed rendered density (B3).
+  const estimatedPages = Math.ceil(wordCount / 350);
 
   // 8. Write to temp filesystem, run Pandoc, upload result
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
