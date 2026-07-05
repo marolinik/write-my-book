@@ -9,6 +9,7 @@ const h = vi.hoisted(() => ({
     continuityFlag: { findMany: vi.fn(), upsert: vi.fn(), deleteMany: vi.fn() },
   },
   updateFromChapter: vi.fn(),
+  getExtractionKeysForUser: vi.fn(),
   runConsistencyChecks: vi.fn(),
   getChapterNodeUpdatedAt: vi.fn(),
   findByType: vi.fn(),
@@ -18,6 +19,7 @@ const h = vi.hoisted(() => ({
 vi.mock("@/lib/auth", () => ({ requireUser: () => h.requireUser() }));
 vi.mock("@/lib/db", () => ({ db: h.db }));
 vi.mock("@/lib/graph/graph-maintenance", () => ({ updateFromChapter: h.updateFromChapter }));
+vi.mock("@/lib/agents/extraction-keys", () => ({ getExtractionKeysForUser: h.getExtractionKeysForUser }));
 vi.mock("@/lib/graph/graph-queries", () => ({
   runConsistencyChecks: h.runConsistencyChecks,
   getChapterNodeUpdatedAt: h.getChapterNodeUpdatedAt,
@@ -51,6 +53,7 @@ beforeEach(() => {
   h.db.continuityFlag.upsert.mockResolvedValue({ id: "new1" });
   h.db.continuityFlag.deleteMany.mockResolvedValue({ count: 0 });
   h.updateFromChapter.mockResolvedValue({ updated: true, entitiesFound: 3 });
+  h.getExtractionKeysForUser.mockResolvedValue({});
   h.getChapterNodeUpdatedAt.mockResolvedValue(null);
   h.findByType.mockResolvedValue({ id: "doc1" });
   h.readPinned.mockResolvedValue({ content: "Ana walked in.", document: { currentVersion: 1 } });
@@ -79,7 +82,7 @@ describe("POST /continuity/scan", () => {
     const json = await res.json();
     expect(res.status).toBe(200);
     // 4th arg threads the user's defaultModel so extraction honors their provider (C1/S9).
-    expect(h.updateFromChapter).toHaveBeenCalledWith("b1", 18, "Ana walked in.", "openrouter-qwen-max/opus");
+    expect(h.updateFromChapter).toHaveBeenCalledWith("b1", 18, "Ana walked in.", "openrouter-qwen-max/opus", {});
     const up = h.db.continuityFlag.upsert.mock.calls[0][0];
     expect(up.where.bookId_signature.bookId).toBe("b1");
     expect(up.create.type).toBe("dead_character_reappears");
