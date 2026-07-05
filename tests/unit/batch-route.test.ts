@@ -307,9 +307,34 @@ describe("POST /api/books/:id/batch/:batchId/cancel", () => {
     });
     const res = await cancelBatch(new Request("http://t", { method: "POST" }) as never, batchCtx as never);
     expect(res.status).toBe(200);
-    expect(h.redis.set).toHaveBeenCalledWith("batch:batch1:halted", "1");
+    // Halt flag is TTL-bounded (M2) so a pre-run cancel can't leak the key.
+    expect(h.redis.set).toHaveBeenCalledWith(
+      "batch:batch1:halted",
+      "1",
+      "EX",
+      expect.any(Number)
+    );
     const upd = h.db.batchRun.update.mock.calls[0][0];
     expect(upd.data).toMatchObject({ status: "cancelled", halted: true, haltReason: "cancelled" });
     expect(h.jobRemove).toHaveBeenCalledTimes(1);
+  });
+
+  it("M1: does NOT remove a 'waiting-children' parent — the fan-in digest must still run", async () => {
+    h.db.batchRun.findFirst.mockResolvedValueOnce({
+      id: "batch1",
+      status: "running",
+      parentJobId: "p1",
+    });
+    // A scheduled batch's parent sits in 'waiting-children' (its delayed
+    // children haven't resolved yet). Removing it would suppress the digest.
+    h.getJob.mockResolvedValueOnce({
+      getState: async () => "waiting-children",
+      remove: h.jobRemove,
+    });
+    const res = await cancelBatch(new Request("http://t", { method: "POST" }) as never, batchCtx as never);
+    expect(res.status).toBe(200);
+    // Still trips the halt flag + marks cancelled — but leaves the parent alone.
+    expect(h.db.batchRun.update).toHaveBeenCalledTimes(1);
+    expect(h.jobRemove).not.toHaveBeenCalled();
   });
 });

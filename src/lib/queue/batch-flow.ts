@@ -71,12 +71,25 @@ export interface EnqueueBatchFlowResult {
  * `defaultJobOptions`, so the per-child resilience the standard path gets for
  * free (`agent-queue.ts:59-73`) must be restated here to match: 3 attempts with
  * exponential backoff, and bounded completed/failed retention.
+ *
+ * `ignoreDependencyOnFailure: true` is load-bearing (BATCH-SPEC §2.1 "failed /
+ * cancelled / halted / done all still run the digest"): a child that exhausts
+ * its `attempts` and ends BullMQ-'failed' (e.g. an API key that expired between
+ * evening scheduling and 2am execution → every child fails; also "Book not
+ * found", or a SessionCancelledError → UnrecoverableError) would otherwise stay
+ * in the parent's dependency set FOREVER, so the digest parent never resolves —
+ * no morning report, orphaned Redis ledger keys. With this flag a failed child
+ * is dropped from the dependency set and the fan-in digest still fires. The
+ * digest reads child OUTCOMES from the DB (AgentSession/EditFinding/Chapter),
+ * NOT `getChildrenValues`, so proceeding-on-failure yields exactly the intended
+ * partial morning report.
  */
 const CHILD_JOB_OPTIONS = {
   attempts: 3,
   backoff: { type: "exponential" as const, delay: 30_000 },
   removeOnComplete: { count: 100 },
   removeOnFail: { count: 50 },
+  ignoreDependencyOnFailure: true,
 };
 
 /** Lazy module-level FlowProducer reusing the shared app connection. */
@@ -91,8 +104,9 @@ function getFlowProducer(): FlowProducer {
 /**
  * Create the `BatchRun` + child `AgentSession` rows (status `queued`) and enqueue
  * the FlowProducer fan-out. Children run on `agent-sessions` (dedup jobId =
- * sessionId, as today); the parent digest job waits on `batch-digest` and is
- * released after an optional one-shot `delay` (e.g. "Tonight 2am").
+ * sessionId, as today) and carry the optional one-shot `delay` (e.g. "Tonight
+ * 2am"); the parent digest job waits on `batch-digest` as a pure fan-in (delay 0)
+ * and fires only after every child has resolved.
  *
  * @throws if `budgetCapUsd` is non-finite or `children` is empty — these are
  * caller bugs that would otherwise run a batch effectively uncapped or empty.
@@ -120,9 +134,13 @@ export async function enqueueBatchFlow(
     throw new Error("enqueueBatchFlow: no children to enqueue");
   }
 
-  // One-shot delay: the PARENT carries the delay; children run when the parent
-  // releases them. `scheduledFor` is an absolute instant (UTC), never a
-  // wall-clock string (BATCH-SPEC §3.4 timezone note).
+  // One-shot delay: the CHILDREN carry the delay so the editorial passes (and
+  // their spend) are actually deferred until `scheduledFor`. A FlowProducer
+  // PARENT does NOT gate its children — the parent only runs AFTER all children
+  // resolve — so a delay on the parent would be inoperative (children would fan
+  // out and SPEND immediately at creation). The parent digest is a pure fan-in
+  // (delay 0). `scheduledFor` is an absolute instant (UTC), never a wall-clock
+  // string (BATCH-SPEC §3.4 timezone note).
   const delay = scheduledFor
     ? Math.max(0, scheduledFor.getTime() - Date.now())
     : 0;
@@ -178,6 +196,10 @@ export async function enqueueBatchFlow(
       } satisfies AgentJobData,
       opts: {
         jobId: sessionId,
+        // The one-shot schedule delay lives on EACH CHILD (see `delay` above):
+        // this is what actually defers the batch's editorial passes + spend
+        // until `scheduledFor`. Omitted entirely when running now (delay 0).
+        ...(delay > 0 ? { delay } : {}),
         ...CHILD_JOB_OPTIONS,
       },
     })
@@ -189,7 +211,11 @@ export async function enqueueBatchFlow(
     name: "digest",
     data: { batchId: batch.id } satisfies BatchDigestJobData,
     opts: {
-      delay,
+      // Pure fan-in: the parent carries NO schedule delay (that lives on the
+      // children). BullMQ releases this job only after every child resolves, so
+      // it fires when the batch's work is done — whether that's now or after the
+      // children's scheduled delay elapses (BATCH-SPEC §3.4).
+      delay: 0,
       // The digest processor is defensively wrapped and never throws, so a
       // single attempt is correct — a failed digest writes a failed-status row
       // rather than retrying (BATCH-SPEC §3.5).

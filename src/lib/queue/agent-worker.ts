@@ -124,11 +124,22 @@ async function recordBatchFailure(
       publisher.incr(`batch:${batchId}:failures`),
       publisher.incr(`batch:${batchId}:consecutive`),
     ]);
+    // Bound Redis growth (M2): stamp the shared 24h TTL on the breaker counters
+    // the same way the spend ledger is bounded (mirrors the session:* pattern).
+    await Promise.all([
+      publisher.expire(`batch:${batchId}:failures`, REDIS_TTL_SECONDS),
+      publisher.expire(`batch:${batchId}:consecutive`, REDIS_TTL_SECONDS),
+    ]);
     if (
       total >= BATCH_BREAKER_TOTAL_FAILURES ||
       consecutive >= BATCH_BREAKER_CONSECUTIVE_FAILURES
     ) {
-      await publisher.set(`batch:${batchId}:halted`, "1");
+      await publisher.set(
+        `batch:${batchId}:halted`,
+        "1",
+        "EX",
+        REDIS_TTL_SECONDS
+      );
     }
   } catch (err) {
     console.error("[AgentWorker] batch breaker update failed:", err);
@@ -207,17 +218,24 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
     // skipped child is NOT retried into spending (mirrors the non-retry
     // instinct of SessionCancelledError).
     if (batchId) {
-      const [spentRaw, haltedRaw] = await Promise.all([
+      const [spentRaw, haltedRaw, batchRow] = await Promise.all([
         publisher.get(`batch:${batchId}:spent`),
         publisher.get(`batch:${batchId}:halted`),
+        // Durable fail-safe fallback (M3): if a prior child's ledger write threw
+        // (e.g. Redis maxmemory+noeviction), the spent counter freezes at 0 and
+        // the Redis `:halted` flag may be absent — a Redis-only guard would then
+        // admit EVERY remaining child and defeat the cap. onComplete's catch
+        // durably sets `BatchRun.halted` in Postgres for exactly this case, so
+        // consult it here (in parallel — no added latency). `.catch(() => null)`
+        // keeps Redis the primary signal if the DB read itself hiccups.
+        db.batchRun
+          .findUnique({ where: { id: batchId }, select: { halted: true } })
+          .catch(() => null),
       ]);
       const spent = spentRaw ? parseFloat(spentRaw) : 0;
+      const halted = haltedRaw === "1" || batchRow?.halted === true;
       if (
-        !shouldRunBatchChild(
-          spent,
-          batchBudgetCapUsd ?? Infinity,
-          haltedRaw === "1"
-        )
+        !shouldRunBatchChild(spent, batchBudgetCapUsd ?? Infinity, halted)
       ) {
         await db.agentSession.update({
           where: { id: sessionId },
@@ -621,6 +639,12 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
               `batch:${batchId}:spent`,
               cost
             );
+            // Bound Redis growth for high-volume nightly users (M2): the ledger
+            // keys carry no natural TTL, so stamp the shared 24h TTL on each
+            // write (mirrors the session:* pattern). Safe because the ledger is
+            // only touched once a child actually runs and the digest fans in
+            // hours later — comfortably inside 24h.
+            await publisher.expire(`batch:${batchId}:spent`, REDIS_TTL_SECONDS);
             const spentNum = parseFloat(spentStr);
             if (
               batchBudgetCapUsd != null &&
@@ -628,7 +652,12 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
               Number.isFinite(spentNum) &&
               spentNum >= batchBudgetCapUsd
             ) {
-              await publisher.set(`batch:${batchId}:halted`, "1");
+              await publisher.set(
+                `batch:${batchId}:halted`,
+                "1",
+                "EX",
+                REDIS_TTL_SECONDS
+              );
             }
             // A cleanly-completed child clears the consecutive-failure streak
             // (total failures are never reset — that counter is cumulative).
@@ -636,10 +665,37 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
               await publisher.del(`batch:${batchId}:consecutive`);
             }
           } catch (err) {
+            // FAIL SAFE (M3): if the ledger write threw (e.g. Redis
+            // maxmemory+noeviction), `spent` freezes and a Redis-only pre-child
+            // guard would admit every remaining child → the cap is DEFEATED.
+            // Durably halt the batch in Postgres (the pre-child guard also reads
+            // BatchRun.halted) and best-effort mirror the Redis flag. NEVER throw
+            // out of this catch — the completion path must still finish.
             console.error(
-              "[AgentWorker] batch ledger increment failed:",
+              "[AgentWorker] batch ledger increment failed — failing safe (halt):",
               err
             );
+            try {
+              await db.batchRun.update({
+                where: { id: batchId },
+                data: { halted: true, haltReason: "ledger_write_failed" },
+              });
+            } catch (dbErr) {
+              console.error(
+                "[AgentWorker] fail-safe DB halt write failed:",
+                dbErr
+              );
+            }
+            try {
+              await publisher.set(
+                `batch:${batchId}:halted`,
+                "1",
+                "EX",
+                REDIS_TTL_SECONDS
+              );
+            } catch {
+              // Best-effort — the durable DB halt above is the guarantee.
+            }
           }
         }
 
@@ -834,6 +890,25 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
     // provider. Runs BEFORE the re-throw so BullMQ still retries THIS job.
     if (batchId && isBatchBreakerError(err)) {
       await recordBatchFailure(publisher, batchId);
+    }
+    // Pre-orchestrator throws (no API key ~L296, coach model not found ~L279,
+    // book not found ~L317) happen BEFORE the orchestrator's onError is wired,
+    // so nothing marks the session terminal — it stays 'queued' and the digest
+    // under-reports failedCount (M4). Best-effort flip only a still-non-terminal
+    // row to 'failed' (updateMany with a status filter → idempotent + race-safe:
+    // never clobbers a 'completed'/'skipped'/'failed'/cancel-owned row, and a
+    // later successful retry's onComplete still overwrites it to 'completed').
+    // Guarded so it can never mask the original error being re-thrown below.
+    try {
+      await db.agentSession.updateMany({
+        where: { id: sessionId, status: { in: ["queued", "running"] } },
+        data: { status: "failed", completedAt: new Date() },
+      });
+    } catch (statusErr) {
+      console.error(
+        "[AgentWorker] failed to mark non-terminal session failed:",
+        statusErr
+      );
     }
     // All other errors propagate normally (BullMQ handles retry)
     throw err;

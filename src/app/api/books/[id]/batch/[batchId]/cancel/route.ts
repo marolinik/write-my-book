@@ -20,6 +20,13 @@ const batchDigestQueue = new Queue(BATCH_DIGEST_QUEUE_NAME, {
 const TERMINAL_STATUSES = new Set(["done", "failed", "cancelled"]);
 
 /**
+ * TTL for the Redis halt flag (24h), mirroring `agent-worker.ts` REDIS_TTL_SECONDS.
+ * A cancel can set `:halted` BEFORE any child runs (e.g. cancelling an evening-
+ * scheduled 2am batch), so bound its lifetime instead of leaking a key forever.
+ */
+const HALT_FLAG_TTL_SECONDS = 86_400;
+
+/**
  * POST /api/books/:id/batch/:batchId/cancel — cancel a batch (BATCH-SPEC §7.1).
  *
  * Sets the Redis `batch:{id}:halted` flag so the pre-child guard skips every
@@ -49,7 +56,7 @@ export async function POST(_req: NextRequest, { params }: RouteParams) {
     // Load-bearing: trip the Redis halt flag the pre-child guard consults, so
     // every remaining child short-circuits to 'skipped' instead of spending.
     const redis = getAppConnection();
-    await redis.set(`batch:${batchId}:halted`, "1");
+    await redis.set(`batch:${batchId}:halted`, "1", "EX", HALT_FLAG_TTL_SECONDS);
 
     await db.batchRun.update({
       where: { id: batchId },
@@ -62,11 +69,15 @@ export async function POST(_req: NextRequest, { params }: RouteParams) {
         const job = await batchDigestQueue.getJob(batch.parentJobId);
         if (job) {
           const state = await job.getState();
-          if (
-            state === "delayed" ||
-            state === "waiting" ||
-            state === "waiting-children"
-          ) {
+          // Only drop the parent while it is still genuinely un-started
+          // ('delayed'/'waiting'). A scheduled batch's parent is
+          // 'waiting-children' (its delayed children haven't resolved yet) —
+          // removing it there would SUPPRESS the fan-in digest for an in-flight
+          // batch, contradicting "the digest still runs so the writer gets a
+          // partial morning report" (BATCH-SPEC §2.1). Let it stay: the halt
+          // flag above is what actually stops spend; the parent still fires the
+          // digest once the (now-skipping) children resolve.
+          if (state === "delayed" || state === "waiting") {
             await job.remove();
           }
         }

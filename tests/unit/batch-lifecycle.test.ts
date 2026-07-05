@@ -73,6 +73,7 @@ const h = vi.hoisted(() => {
       agentSession: {
         createMany: vi.fn(),
         update: vi.fn(),
+        updateMany: vi.fn(),
         findMany: vi.fn(),
       },
       // Digest reads
@@ -160,8 +161,12 @@ beforeEach(() => {
   h.redis.store.clear();
   h.db.batchRun.create.mockResolvedValue({ id: BATCH_ID, bookId: BOOK_ID });
   h.db.batchRun.update.mockResolvedValue({});
+  // Default: no durable DB halt (the guard reads this as a fail-safe fallback).
+  // Phase (c) digest tests override findUnique with the full BatchRun row.
+  h.db.batchRun.findUnique.mockResolvedValue(null);
   h.db.agentSession.createMany.mockResolvedValue({ count: 4 });
   h.db.agentSession.update.mockResolvedValue({});
+  h.db.agentSession.updateMany.mockResolvedValue({ count: 0 });
   h.db.apiKey.findMany.mockResolvedValue([]);
 });
 
@@ -219,22 +224,75 @@ describe("batch lifecycle — (a) fan-out", () => {
     const flow = h.flowAdd.mock.calls[0][0] as {
       queueName: string;
       data: BatchDigestJobData;
-      children: Array<{ queueName: string; data: AgentJobData; opts: { jobId: string } }>;
+      opts: { delay: number };
+      children: Array<{
+        queueName: string;
+        data: AgentJobData;
+        opts: {
+          jobId: string;
+          delay?: number;
+          ignoreDependencyOnFailure?: boolean;
+        };
+      }>;
     };
     expect(flow.queueName).toBe("batch-digest");
     expect(flow.data.batchId).toBe(BATCH_ID);
+    // Parent digest is a pure fan-in — NEVER carries a schedule delay.
+    expect(flow.opts.delay).toBe(0);
     expect(flow.children).toHaveLength(4);
     expect(flow.children.every((c) => c.queueName === "agent-sessions")).toBe(true);
     expect(flow.children.every((c) => c.data.batchId === BATCH_ID)).toBe(true);
     expect(flow.children.every((c) => c.data.batchBudgetCapUsd === CAP)).toBe(true);
     // jobId dedup mirrors the sessionId (standard-path invariant).
     expect(flow.children.every((c) => c.opts.jobId === c.data.sessionId)).toBe(true);
+    // HIGH #2: every child ignores its failure as a parent dependency, so an
+    // exhausted-attempts child can't wedge the fan-in digest forever.
+    expect(
+      flow.children.every((c) => c.opts.ignoreDependencyOnFailure === true)
+    ).toBe(true);
+    // Running "now" (scheduledFor null) → children carry NO delay.
+    expect(flow.children.every((c) => c.opts.delay === undefined)).toBe(true);
 
     expect(result).toMatchObject({
       batchId: BATCH_ID,
       childCount: 4,
       parentJobId: "parent-job-1",
     });
+  });
+
+  it("HIGH #1: puts the one-shot schedule delay on the CHILDREN, not the fan-in parent", async () => {
+    const scheduledFor = new Date(Date.now() + 6 * 60 * 60 * 1000); // ~2am, 6h out
+
+    await enqueueBatchFlow({
+      userId: USER_ID,
+      bookId: BOOK_ID,
+      workflowIds: ["dev-edit"],
+      chapterStart: 1,
+      chapterEnd: 2,
+      budgetCapUsd: CAP,
+      scheduledFor,
+      children: [
+        childPayload("dev-edit", "dev-editor", 1),
+        childPayload("dev-edit", "dev-editor", 2),
+      ],
+    });
+
+    const flow = h.flowAdd.mock.calls[0][0] as {
+      opts: { delay: number };
+      children: Array<{ opts: { delay?: number } }>;
+    };
+
+    // Parent stays a pure fan-in (delay 0) — a parent delay would be inoperative
+    // (children fan out + SPEND immediately) since parents don't gate children.
+    expect(flow.opts.delay).toBe(0);
+    // The delay actually defers the passes: every child carries a positive delay
+    // (~6h). This is what makes a scheduled batch's spend truly deferred.
+    expect(flow.children).toHaveLength(2);
+    expect(
+      flow.children.every(
+        (c) => typeof c.opts.delay === "number" && c.opts.delay > 0
+      )
+    ).toBe(true);
   });
 
   it("rejects a non-finite cap before creating anything (Infinity->null serialization trap)", async () => {

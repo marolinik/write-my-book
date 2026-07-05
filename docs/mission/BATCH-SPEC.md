@@ -191,12 +191,13 @@ BullMQ is **5.70.1** (`package.json:53`). `node_modules/bullmq/dist/cjs/classes/
                           queueName: "batch-digest",   // NEW queue
                           name: "digest",
                           data: { batchId },
-                          opts: { delay: msUntilScheduledFor ?? 0 },
+                          opts: { delay: 0 },            // pure fan-in — NO delay
                           children: [                    // N children
                             { queueName: "agent-sessions",   // EXISTING queue
                               name: "agent-session",
                               data: AgentJobData_i,
-                              opts: { jobId: sessionId_i } }, // dedup, as today
+                              opts: { jobId: sessionId_i,     // dedup, as today
+                                      delay: msUntilScheduledFor } }, // schedule
                             ...
                           ],
                         })
@@ -231,7 +232,7 @@ BullMQ is **5.70.1** (`package.json:53`). `node_modules/bullmq/dist/cjs/classes/
 
 ### 3.4 Scheduling ("run at 2am") — native delay, no cron daemon in v1
 
-- **One-shot "tonight at 2am":** compute `delay = scheduledFor.getTime() - Date.now()` (ms) and pass it as the **parent** job's `delay`. Children carry **no delay** — they run when the parent releases them. The `delay` option is already used in the codebase for backoff (`agent-queue.ts:64`); this is the first _scheduled_ use.
+- **One-shot "tonight at 2am":** compute `delay = scheduledFor.getTime() - Date.now()` (ms) and pass it as **each CHILD** job's `delay`. The parent digest carries **no delay** (`delay: 0`) — a FlowProducer parent does NOT gate its children (it only runs *after* every child resolves), so a delay on the parent would be inoperative and the children would fan out and **spend immediately at creation**. Putting the delay on the children is what actually defers the editorial passes (and their spend) until `scheduledFor`; the parent digest is a pure fan-in that fires once the delayed children finish. The `delay` option is already used in the codebase for backoff (`agent-queue.ts:64`); this is the first _scheduled_ use.
 - **Timezone:** `scheduledFor` is computed **client-side or from the user's stored tz** into an absolute instant before enqueue, so the server only ever sees a UTC `Date`. (Note the existing locale/`2.026`-words leak flagged in the proposal — batch tz handling must not repeat it; store an absolute instant, not a wall-clock string.)
 - **Rejected alternatives** (per proposal §3.1): a hand-rolled `node-cron` daemon (BullMQ already does cron+tz and the codebase already fights worker-liveness), and external/Vercel/Claude-Code-cron (self-hosted stack, no serverless cron; `CronCreate` schedules dev-harness agents, not product actions).
 - **Recurring** ("every night") is Phase-2 via `queue.upsertJobScheduler(...)` — out of v1 scope (§1.4).
