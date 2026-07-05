@@ -100,6 +100,24 @@ describe("extractEntities — forced tool-use (B4)", () => {
     expect(result.chapterNumber).toBe(1);
   });
 
+  it("repairs TRUNCATED text-JSON via jsonrepair (the qwen failure mode)", async () => {
+    // qwen sometimes truncates the JSON mid-array (unterminated brackets), which
+    // vanilla JSON.parse rejects. jsonrepair closes the open structures so the
+    // graph still lands instead of being dropped entirely.
+    const truncated =
+      '{"entities":[{"name":"Vera","label":"Character","properties":{}},' +
+      '{"name":"Kova","label":"Character","properties":{}}],' +
+      '"relationships":[{"from":"Vera","fromLabel":"Character","to":"Kova","toLabel":"Character","type":"KNOWS"';
+    h.create.mockResolvedValue({ content: [{ type: "text", text: truncated }] });
+
+    const result = await extractEntities("text", "book1", 5, KEYS);
+
+    // Both entities recovered from the unterminated JSON.
+    expect(result.entities.map((e) => e.name)).toEqual(["Vera", "Kova"]);
+    expect(result.relationships).toHaveLength(1);
+    expect(result.relationships[0].type).toBe("KNOWS");
+  });
+
   it("returns an empty result (no throw) when the tool input is malformed", async () => {
     h.create.mockResolvedValue({
       content: [

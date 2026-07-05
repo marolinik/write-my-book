@@ -6,6 +6,7 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import crypto from "crypto";
+import { jsonrepair } from "jsonrepair";
 import { createLLMClient, resolveCheapModelFor } from "@/lib/llm";
 import type { LLMClientOptions } from "@/lib/llm/client-factory";
 import type {
@@ -280,6 +281,13 @@ export async function extractEntities(
       parsed = parseExtractionResponse(textBlock.text.trim());
     }
 
+    // Observability: which path won (tool_use vs text-fallback) + yield. Lets us
+    // confirm whether a given provider honors forced tool_choice and whether the
+    // graph is actually being populated.
+    console.log(
+      `[entity-extractor] book=${bookId} ch=${chapterNumber} path=${toolBlock ? "tool_use" : "text-fallback"} entities=${parsed.entities.length} rels=${parsed.relationships.length}`
+    );
+
     return {
       entities: parsed.entities,
       relationships: parsed.relationships,
@@ -314,26 +322,32 @@ function parseExtractionResponse(raw: string): {
   if (cleaned.startsWith("```")) {
     cleaned = cleaned.replace(/^```(?:json)?\s*\n?/, "").replace(/\n?```\s*$/, "");
   }
-  // Tolerate leading/trailing prose (some models — e.g. qwen — wrap the JSON in
-  // commentary) by slicing to the outermost object braces.
+  // Strip LEADING prose so the payload starts at the first object brace.
   const firstBrace = cleaned.indexOf("{");
+  if (firstBrace > 0) cleaned = cleaned.slice(firstBrace);
   const lastBrace = cleaned.lastIndexOf("}");
-  if (firstBrace !== -1 && lastBrace > firstBrace) {
-    cleaned = cleaned.slice(firstBrace, lastBrace + 1);
-  }
 
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(cleaned);
-  } catch {
-    // Diagnostic includes length + head + tail so truncation (unterminated JSON)
-    // is distinguishable from a mid-string syntax error in the worker log.
-    throw new Error(
-      `Failed to parse extraction JSON (len=${cleaned.length}): HEAD[${cleaned.slice(0, 150)}] TAIL[${cleaned.slice(-150)}]`
-    );
+  // Try, in order, the strategies that recover the most-likely qwen failure modes.
+  // IMPORTANT: repair runs on the FULL leading-stripped payload, NOT the
+  // last-brace slice — for TRUNCATED JSON the last `}` sits mid-structure, so
+  // slicing to it would drop trailing keys (e.g. relationships) that jsonrepair
+  // would otherwise recover by closing the open brackets.
+  const strategies: Array<() => string> = [
+    () => cleaned, // clean JSON (no surrounding prose)
+    () => (lastBrace > 0 ? cleaned.slice(0, lastBrace + 1) : cleaned), // trailing prose
+    () => jsonrepair(cleaned), // truncation / trailing commas / minor malformation
+  ];
+  for (const build of strategies) {
+    try {
+      return validateExtractionObject(JSON.parse(build()));
+    } catch {
+      // fall through to the next recovery strategy
+    }
   }
-
-  return validateExtractionObject(parsed);
+  // Diagnostic: len + head + tail distinguishes truncation from a syntax error.
+  throw new Error(
+    `Failed to parse extraction JSON even after repair (len=${cleaned.length}): HEAD[${cleaned.slice(0, 150)}] TAIL[${cleaned.slice(-150)}]`
+  );
 }
 
 /**

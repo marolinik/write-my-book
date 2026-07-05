@@ -56,12 +56,18 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
             select: { defaultModel: true },
           });
           const keys = await getExtractionKeysForUser(user.id);
-          await updateFromChapter(
+          // Fire-and-forget: the LLM extraction can take minutes for a dense
+          // chapter — do NOT block the scan response on it. The checks below run
+          // on the CURRENT graph; this refresh improves the NEXT scan. Mirrors the
+          // post-session extraction pattern (updateChapterGraph is also detached).
+          void updateFromChapter(
             bookId,
             chapterNumber,
             content,
             dbUser?.defaultModel ?? undefined,
             keys
+          ).catch((e) =>
+            console.error("[continuity-scan] background extraction failed:", e)
           );
         }
       }
