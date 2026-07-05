@@ -88,32 +88,12 @@ const VALID_RELATIONSHIP_TYPES: RelationshipType[] = [
   "TRANSFORMS_INTO",
 ];
 
-const EXTRACTION_PROMPT = `You are a literary entity extraction engine. Analyze the following manuscript text and extract all narrative entities and their relationships.
-
-Return ONLY a valid JSON object with this exact structure (no markdown, no code fences):
-
-{
-  "entities": [
-    {
-      "name": "Entity Name",
-      "label": "Character|Location|Event|Object|PlotThread|Faction",
-      "properties": { ... },
-      "aliases": ["optional", "alternate", "names"]
-    }
-  ],
-  "relationships": [
-    {
-      "from": "Entity Name",
-      "fromLabel": "Character",
-      "to": "Other Entity",
-      "toLabel": "Location",
-      "type": "APPEARS_IN|LOCATED_AT|PARTICIPATES_IN|KNOWS|ALLIED_WITH|OPPOSES|OWNS|PART_OF|LEADS_TO|FORESHADOWS|RESOLVES|OCCURS_IN|BELONGS_TO|MENTIONED_IN|TRANSFORMS_INTO",
-      "properties": { "context": "optional context" }
-    }
-  ]
-}
-
-Entity label types and their required properties:
+/**
+ * Shared guidance on WHAT to extract (labels, relationship types, rules). Used
+ * by both the forced-tool-use prompt (structure enforced by the tool schema)
+ * and the text-fallback prompt (which adds JSON-envelope instructions).
+ */
+const EXTRACTION_GUIDANCE = `Entity label types and their required properties:
 - Character: { "role": "protagonist|antagonist|supporting|minor|mentioned", "description": "brief description", "status": "alive|dead|unknown|transformed", "physicalTraits": "optional", "personality": "optional", "age": "optional" }
 - Location: { "locationType": "city|building|room|region|country|world|other", "description": "brief description", "parentLocation": "optional parent name" }
 - Event: { "significance": "major|minor|turning-point|climax", "description": "what happened", "timelinePosition": "relative or absolute time reference" }
@@ -145,8 +125,101 @@ Rules:
 4. Capture ALL relationships between extracted entities
 5. Use consistent entity names (prefer full names)
 6. Include aliases for characters with nicknames, titles, or shortened names
-7. Do NOT invent entities not present in the text
+7. Do NOT invent entities not present in the text`;
+
+/**
+ * Prompt for the primary (forced tool-use) path. The tool schema enforces the
+ * output shape, so no JSON-envelope wording is needed here.
+ */
+const EXTRACTION_TOOL_PROMPT = `You are a literary entity extraction engine. Analyze the following manuscript text and extract all narrative entities and their relationships, then record them by calling the record_narrative_graph tool.
+
+${EXTRACTION_GUIDANCE}`;
+
+/**
+ * Prompt for the text-parse fallback path (providers/models that ignore forced
+ * tool_choice). Keeps the "return ONLY JSON" envelope instructions.
+ */
+const EXTRACTION_PROMPT = `You are a literary entity extraction engine. Analyze the following manuscript text and extract all narrative entities and their relationships.
+
+Return ONLY a valid JSON object with this exact structure (no markdown, no code fences):
+
+{
+  "entities": [
+    {
+      "name": "Entity Name",
+      "label": "Character|Location|Event|Object|PlotThread|Faction",
+      "properties": { ... },
+      "aliases": ["optional", "alternate", "names"]
+    }
+  ],
+  "relationships": [
+    {
+      "from": "Entity Name",
+      "fromLabel": "Character",
+      "to": "Other Entity",
+      "toLabel": "Location",
+      "type": "APPEARS_IN|LOCATED_AT|PARTICIPATES_IN|KNOWS|ALLIED_WITH|OPPOSES|OWNS|PART_OF|LEADS_TO|FORESHADOWS|RESOLVES|OCCURS_IN|BELONGS_TO|MENTIONED_IN|TRANSFORMS_INTO",
+      "properties": { "context": "optional context" }
+    }
+  ]
+}
+
+${EXTRACTION_GUIDANCE}
 8. Return valid JSON only - no explanation, no markdown`;
+
+/**
+ * Forced tool-use schema for structured extraction. Returning the graph as tool
+ * input lets the Anthropic SDK parse it for us, avoiding the fragile text-JSON
+ * parsing that dense models (e.g. qwen via OpenRouter) sometimes break.
+ */
+const EXTRACTION_TOOL: Anthropic.Tool = {
+  name: "record_narrative_graph",
+  description:
+    "Record every narrative entity and relationship extracted from the manuscript text. Call this exactly once with the complete graph.",
+  input_schema: {
+    type: "object",
+    properties: {
+      entities: {
+        type: "array",
+        description: "All narrative entities present in the text.",
+        items: {
+          type: "object",
+          properties: {
+            name: { type: "string", description: "Entity name (prefer full names)." },
+            label: { type: "string", enum: VALID_LABELS },
+            properties: {
+              type: "object",
+              description: "Label-specific properties (see label guidance).",
+            },
+            aliases: {
+              type: "array",
+              items: { type: "string" },
+              description: "Alternate names, nicknames, titles.",
+            },
+          },
+          required: ["name", "label"],
+        },
+      },
+      relationships: {
+        type: "array",
+        description: "All relationships between the extracted entities.",
+        items: {
+          type: "object",
+          properties: {
+            from: { type: "string", description: "Source entity name." },
+            fromLabel: { type: "string", enum: VALID_LABELS },
+            to: { type: "string", description: "Target entity name." },
+            toLabel: { type: "string", enum: VALID_LABELS },
+            type: { type: "string", enum: VALID_RELATIONSHIP_TYPES },
+            properties: { type: "object", description: "Optional relationship context." },
+          },
+          required: ["from", "fromLabel", "to", "toLabel", "type"],
+        },
+      },
+    },
+    required: ["entities", "relationships"],
+  },
+};
 
 /**
  * Extract entities and relationships from manuscript text using an LLM.
@@ -169,24 +242,43 @@ export async function extractEntities(
   try {
     const response = await client.messages.create({
       model: modelId,
-      // 16k (was 8k) so a dense chapter's entity JSON isn't truncated mid-array
+      // 16k (was 8k) so a dense chapter's entity graph isn't truncated mid-array
       // into unparseable output (qwen ceilings are far higher than this).
       max_tokens: 16384,
+      // Force the model to return the graph as STRUCTURED tool input, which the
+      // SDK parses for us — no fragile text-JSON parsing on the happy path.
+      tools: [EXTRACTION_TOOL],
+      tool_choice: { type: "tool", name: EXTRACTION_TOOL.name },
       messages: [
         {
           role: "user",
-          content: `${EXTRACTION_PROMPT}\n\n--- MANUSCRIPT TEXT (Chapter ${chapterNumber}) ---\n\n${truncatedText}`,
+          content: `${EXTRACTION_TOOL_PROMPT}\n\n--- MANUSCRIPT TEXT (Chapter ${chapterNumber}) ---\n\n${truncatedText}`,
         },
       ],
     });
 
-    const textBlock = response.content.find((block) => block.type === "text");
-    if (!textBlock || textBlock.type !== "text") {
-      throw new Error("No text response from extraction model");
-    }
+    // Primary path: read the structured tool_use block. Its `.input` is ALREADY
+    // a parsed object, so we validate it directly.
+    const toolBlock = response.content.find(
+      (block): block is Anthropic.ToolUseBlock =>
+        block.type === "tool_use" && block.name === EXTRACTION_TOOL.name
+    );
 
-    const rawJson = textBlock.text.trim();
-    const parsed = parseExtractionResponse(rawJson);
+    let parsed: {
+      entities: ExtractedEntity[];
+      relationships: ExtractedRelationship[];
+    };
+    if (toolBlock) {
+      parsed = validateExtractionObject(toolBlock.input);
+    } else {
+      // Fallback: model/provider did not honor forced tool_choice (some non-Claude
+      // models via OpenRouter don't) — parse the JSON out of the text block.
+      const textBlock = response.content.find((block) => block.type === "text");
+      if (!textBlock || textBlock.type !== "text") {
+        throw new Error("No tool_use or text response from extraction model");
+      }
+      parsed = parseExtractionResponse(textBlock.text.trim());
+    }
 
     return {
       entities: parsed.entities,
@@ -210,7 +302,8 @@ export async function extractEntities(
 }
 
 /**
- * Parse and validate the LLM's JSON response.
+ * Parse the LLM's TEXT JSON response and validate it. Used by the fallback path
+ * (providers that ignore forced tool_choice).
  */
 function parseExtractionResponse(raw: string): {
   entities: ExtractedEntity[];
@@ -240,6 +333,18 @@ function parseExtractionResponse(raw: string): {
     );
   }
 
+  return validateExtractionObject(parsed);
+}
+
+/**
+ * Validate an already-parsed extraction object (from either forced tool-use
+ * input or text-parsed JSON), filtering to the known labels/relationship types
+ * and coercing each entity/relationship into the canonical shape.
+ */
+function validateExtractionObject(parsed: unknown): {
+  entities: ExtractedEntity[];
+  relationships: ExtractedRelationship[];
+} {
   if (
     typeof parsed !== "object" ||
     parsed === null ||
@@ -250,13 +355,15 @@ function parseExtractionResponse(raw: string): {
   }
 
   const data = parsed as {
-    entities: unknown[];
-    relationships: unknown[];
+    entities: unknown;
+    relationships: unknown;
   };
+  const rawEntities = Array.isArray(data.entities) ? data.entities : [];
+  const rawRelationships = Array.isArray(data.relationships) ? data.relationships : [];
 
   // Validate and filter entities
   const entities: ExtractedEntity[] = [];
-  for (const raw of data.entities) {
+  for (const raw of rawEntities) {
     const entity = validateEntity(raw);
     if (entity) {
       entities.push(entity);
@@ -268,7 +375,7 @@ function parseExtractionResponse(raw: string): {
 
   // Validate and filter relationships
   const relationships: ExtractedRelationship[] = [];
-  for (const raw of data.relationships) {
+  for (const raw of rawRelationships) {
     const rel = validateRelationship(raw, entityNames);
     if (rel) {
       relationships.push(rel);
