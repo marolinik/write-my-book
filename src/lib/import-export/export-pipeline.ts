@@ -4,6 +4,7 @@ import { writeFile, readFile, unlink, mkdir } from "fs/promises";
 import { join } from "path";
 import { tmpdir } from "os";
 import { randomUUID } from "crypto";
+import JSZip from "jszip";
 import type { StorageAdapter } from "@/lib/storage/types";
 import type { ExportConfig, ExportOptions, ExportResult } from "./types";
 import { getDefaultExportConfig, parseExportConfigJson } from "./export-config";
@@ -40,6 +41,91 @@ export function applyChapterHeading(
     return rest ? `${heading}\n\n${rest}` : `${heading}\n`;
   }
   return trimmed ? `${heading}\n\n${trimmed}` : `${heading}\n`;
+}
+
+/** Decode the small set of HTML entities pandoc emits in heading text. */
+function decodeBasicEntities(text: string): string {
+  return text
+    .replace(/&#(\d+);/g, (_m, dec: string) =>
+      String.fromCodePoint(parseInt(dec, 10))
+    )
+    .replace(/&#x([0-9a-fA-F]+);/g, (_m, hex: string) =>
+      String.fromCodePoint(parseInt(hex, 16))
+    )
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    // `&amp;` last so an already-escaped `&amp;amp;` does not double-decode.
+    .replace(/&amp;/g, "&");
+}
+
+/** Escape plain text for insertion as XML character data. */
+function escapeXmlText(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+/**
+ * Rewrite a single EPUB content file's `<head><title>` to match its first
+ * `<h1>` heading (F10). Pandoc's `--split-level=1` names each split file
+ * `chNNN.xhtml` and copies that filename into `<title>`, so e-readers list the
+ * filename instead of the chapter title. This restores the heading text.
+ *
+ * Pure and side-effect free so it is unit-testable. Files with no `<h1>`
+ * (e.g. the nav/TOC document) are returned unchanged; nested inline markup in
+ * the heading is stripped and basic entities decoded, then XML-re-escaped.
+ */
+export function rewriteXhtmlTitleFromH1(xhtml: string): string {
+  const h1Match = xhtml.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
+  if (!h1Match) return xhtml;
+
+  const headingText = decodeBasicEntities(h1Match[1].replace(/<[^>]+>/g, ""))
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!headingText) return xhtml;
+
+  const titleText = escapeXmlText(headingText);
+  let replaced = false;
+  const out = xhtml.replace(
+    /(<title[^>]*>)([\s\S]*?)(<\/title>)/i,
+    (_full, open: string, _inner: string, close: string) => {
+      replaced = true;
+      return `${open}${titleText}${close}`;
+    }
+  );
+  return replaced ? out : xhtml;
+}
+
+/**
+ * Post-process a pandoc-generated EPUB so every content file's `<title>`
+ * carries its chapter heading rather than the `chNNN.xhtml` split filename
+ * (F10). The OCF `mimetype` entry is re-asserted first and STORED
+ * (uncompressed) so the archive remains a valid EPUB.
+ */
+export async function rewriteEpubChapterTitles(epub: Buffer): Promise<Buffer> {
+  const zip = await JSZip.loadAsync(epub);
+  for (const name of Object.keys(zip.files)) {
+    const entry = zip.files[name];
+    if (entry.dir || !/\.x?html$/i.test(name)) continue;
+    const original = await entry.async("string");
+    const rewritten = rewriteXhtmlTitleFromH1(original);
+    if (rewritten !== original) zip.file(name, rewritten);
+  }
+  // OCF requires `mimetype` to be the first entry and STORED. Re-asserting an
+  // existing key keeps its position (pandoc writes it first), and the explicit
+  // STORE compression guarantees it is never deflated on regeneration.
+  if (zip.files["mimetype"]) {
+    zip.file("mimetype", "application/epub+zip", { compression: "STORE" });
+  }
+  return zip.generateAsync({
+    type: "nodebuffer",
+    mimeType: "application/epub+zip",
+    compression: "DEFLATE",
+    compressionOptions: { level: 9 },
+  });
 }
 
 const LUA_FILTERS_DIR = join(process.cwd(), "export-templates");
@@ -362,7 +448,21 @@ export async function exportManuscript(
     await execAsync(cmd, { timeout: 120000 });
 
     // Read output file and upload to S3
-    const outputBuffer = await readFile(outputPath);
+    let outputBuffer: Buffer = await readFile(outputPath);
+    // F10: pandoc copies each EPUB split filename (chNNN.xhtml) into that file's
+    // <title>; rewrite them to the chapter heading. Best-effort — on any failure
+    // keep the original (already-valid) EPUB rather than risk a corrupt archive.
+    if (format === "epub") {
+      try {
+        outputBuffer = await rewriteEpubChapterTitles(outputBuffer);
+      } catch (e) {
+        warnings.push(
+          `EPUB chapter-title rewrite skipped: ${
+            e instanceof Error ? e.message : String(e)
+          }`
+        );
+      }
+    }
     const contentType =
       format === "docx"
         ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
