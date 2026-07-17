@@ -127,6 +127,15 @@ export async function POST(req: Request, { params }: RouteParams) {
   } catch (e) {
     if ((e as Error).message === "Unauthorized") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     if ((e as Error).name === "ZodError") return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+    // D-04: model produced no usable text even after the doubled-budget retry.
+    // It threw BEFORE step 3, so nothing was persisted and the 3-turn cap is
+    // untouched — answer an honest 502 instead of a 200 with an empty reply.
+    if ((e as Error).name === "DiscussLLMEmptyError") {
+      return NextResponse.json(
+        { error: "The editor couldn't produce a reply. Your discussion turn was not used — please try again." },
+        { status: 502 }
+      );
+    }
     console.error("POST /discuss error:", e);
     return NextResponse.json({ error: "Failed to discuss finding" }, { status: 500 });
   }

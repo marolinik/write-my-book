@@ -2,6 +2,24 @@ import { db } from "@/lib/db";
 import { decryptApiKey } from "@/lib/encryption";
 import { createLLMClient, resolveCheapModelFor } from "@/lib/llm";
 
+/** Token budget for one discuss turn. Reasoning models (the mission's qwen via
+ *  OpenRouter) emit thinking blocks that count against max_tokens BEFORE any
+ *  text block; the old 700 was routinely consumed entirely by reasoning, so the
+ *  response carried no text at all (D-04). */
+const DISCUSS_MAX_TOKENS = 2500;
+
+/** Thrown when the model returns no usable text even after the retry with a
+ *  doubled budget. The discuss route maps this to an honest 502 and does NOT
+ *  consume one of the writer's 3 turns — pre-fix the empty string flowed
+ *  through as a 200 with an empty assistantMessage and no REMEMBER block,
+ *  silently breaking the discuss→memory→honored loop. */
+export class DiscussLLMEmptyError extends Error {
+  constructor(message = "Discuss model returned no usable text") {
+    super(message);
+    this.name = "DiscussLLMEmptyError";
+  }
+}
+
 /** One cheap, tool-less turn. Returns the raw model text.
  *
  *  BYOK key resolution mirrors src/app/api/books/[id]/agent/[sessionId]/message/route.ts:134-142
@@ -42,13 +60,31 @@ export async function runDiscussTurn(args: {
     openrouterApiKey,
   });
 
-  const response = await client.messages.create({
-    model: model.modelId,
-    max_tokens: 700,
-    system: args.system,
-    messages: [{ role: "user", content: args.user }],
-  });
+  const requestTurn = async (maxTokens: number) => {
+    const response = await client.messages.create({
+      model: model.modelId,
+      max_tokens: maxTokens,
+      system: args.system,
+      messages: [{ role: "user", content: args.user }],
+    });
+    const textBlock = response.content.find((b) => b.type === "text");
+    return {
+      text: textBlock && "text" in textBlock ? textBlock.text : "",
+      stopReason: response.stop_reason,
+    };
+  };
 
-  const textBlock = response.content.find((b) => b.type === "text");
-  return textBlock && "text" in textBlock ? textBlock.text : "";
+  const first = await requestTurn(DISCUSS_MAX_TOKENS);
+  if (first.text.trim()) return first.text;
+
+  // No usable text AND the budget was exhausted → the reasoning blocks ate the
+  // whole budget before a text block could start. Retry ONCE with double the
+  // room. Any other stop_reason with empty text is a hard model fault — a
+  // bigger budget won't change it, so fall straight through to the throw.
+  if (first.stopReason === "max_tokens") {
+    const second = await requestTurn(DISCUSS_MAX_TOKENS * 2);
+    if (second.text.trim()) return second.text;
+  }
+
+  throw new DiscussLLMEmptyError();
 }

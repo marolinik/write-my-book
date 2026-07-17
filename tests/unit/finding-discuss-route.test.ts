@@ -61,4 +61,21 @@ describe("POST /discuss", () => {
     expect(res.status).toBe(429);
     expect(h.runTurn).not.toHaveBeenCalled();
   });
+
+  // D-04 regression: a reasoning model that returns no text must surface as an
+  // honest 502 — NOT a 200 with an empty assistantMessage — and the failed turn
+  // must neither persist any reply nor consume one of the writer's 3 turns.
+  it("maps DiscussLLMEmptyError to 502 without persisting or consuming a turn", async () => {
+    h.db.findingReply.findMany.mockResolvedValue([]); // 0 prior user turns
+    h.runTurn.mockRejectedValue(
+      Object.assign(new Error("Discuss model returned no usable text"), {
+        name: "DiscussLLMEmptyError",
+      })
+    );
+    const res = await POST(req({ writerMessage: "keep it terse" }), ctx as never);
+    const json = await res.json();
+    expect(res.status).toBe(502);
+    expect(json.error).toMatch(/turn was not used/i);
+    expect(h.db.findingReply.create).not.toHaveBeenCalled();
+  });
 });
