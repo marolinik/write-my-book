@@ -33,9 +33,12 @@ import type { Prisma } from "@/generated/prisma/client";
  * a Redis hiccup yields zeros/false rather than crashing the digest — the
  * persisted DB rows are the primary source, the ledger only enriches it.
  */
-async function readBatchLedger(
-  batchId: string
-): Promise<{ spentUsd: number; halted: boolean; failureCount: number }> {
+async function readBatchLedger(batchId: string): Promise<{
+  spentUsd: number;
+  halted: boolean;
+  failureCount: number;
+  ledgerAvailable: boolean;
+}> {
   const redis = createRedisConnection();
   try {
     const [spentRaw, haltedRaw, failuresRaw] = await Promise.all([
@@ -47,10 +50,14 @@ async function readBatchLedger(
       spentUsd: spentRaw ? parseFloat(spentRaw) : 0,
       halted: haltedRaw === "1",
       failureCount: failuresRaw ? parseInt(failuresRaw, 10) : 0,
+      ledgerAvailable: true,
     };
   } catch (err) {
+    // A Redis hiccup must NOT be reported as "$0 spent" — that would overwrite
+    // the real BatchRun.spentUsd with zero and can mislabel a halted batch as
+    // done. Signal unavailability so the caller falls back to the DB-side sum.
     console.error("[BatchDigest] Redis ledger read failed (non-fatal):", err);
-    return { spentUsd: 0, halted: false, failureCount: 0 };
+    return { spentUsd: 0, halted: false, failureCount: 0, ledgerAvailable: false };
   } finally {
     redis.disconnect();
   }
@@ -101,6 +108,18 @@ export async function processBatchDigestJob(
 
     const ledger = await readBatchLedger(batchId);
 
+    // If the Redis ledger was unavailable, do NOT trust its $0 — fall back to
+    // the DB-side truth (sum of persisted per-session actualCostUsd, floored by
+    // the already-persisted BatchRun.spentUsd) so a Redis hiccup can't zero out
+    // the reported spend or mislabel the batch (Z11).
+    const dbSpent = sessions.reduce(
+      (sum, s) => sum + Number(s.actualCostUsd ?? 0),
+      0
+    );
+    const effectiveSpent = ledger.ledgerAvailable
+      ? ledger.spentUsd
+      : Math.max(dbSpent, batch.spentUsd ?? 0);
+
     // The batch is cancelled iff a cancel already set that terminal state; the
     // digest still runs (BATCH-SPEC §2.1) but must not relabel it done/halted.
     const cancelled = batch.status === "cancelled";
@@ -130,11 +149,12 @@ export async function processBatchDigestJob(
       completedCount,
       failedCount,
     } = aggregateBatchDigest({
+      // effectiveSpent (Z11) — ledger value when available, DB-side sum otherwise.
       workflowIds: batch.workflowIds,
       chapterStart: batch.chapterStart,
       chapterEnd: batch.chapterEnd,
       budgetCapUsd: batch.budgetCapUsd,
-      spentUsd: ledger.spentUsd,
+      spentUsd: effectiveSpent,
       halted,
       cancelled,
       failureCount: ledger.failureCount,
@@ -149,7 +169,7 @@ export async function processBatchDigestJob(
         digest: digest as unknown as Prisma.InputJsonValue,
         status,
         haltReason: haltReason ?? null,
-        spentUsd: ledger.spentUsd,
+        spentUsd: effectiveSpent,
         halted,
         completedCount,
         failedCount,

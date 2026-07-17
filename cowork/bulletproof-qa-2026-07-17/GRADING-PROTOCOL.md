@@ -26,7 +26,7 @@ A 9.5 in a vacuum is not "the best AI writing companion." Sign-off additionally 
 1. **Zero words lost** in every W4 disaster scenario (crash mid-save, two-tab conflict, offline blip, immersive-mode kill, worker death mid-write-chapter, restore drill).
 2. **Voice-integrity probe** (W2): line-edit on the pre-registered literary corpus judged blind — flattening rate within pre-set bound; protected signature devices survive ≥ pre-set floor; finding-misquote rate 0/N.
 3. **Continuity net precision**: 0 false positives on the seeded-contradiction corpus AND ≥ pre-set recall on planted contradictions (a net that misses everything is theater).
-4. **Money never overruns**: batch spend ≤ documented bound `cap + (concurrency−1)×perSessionCap`; single-session cap honored; Stripe states (checkout/upgrade/cancel/past-due) all land in the correct entitlement.
+4. **Money never overruns**: batch spend ≤ documented bound `cap + concurrency×perSessionCap`; single-session cap honored; Stripe states (checkout/upgrade/cancel/past-due) all land in the correct entitlement.
 5. **Switch test** = "would switch & pay" for ≥ 6/8 personas; holdout blockers documented + triaged.
 6. Golden-path regression suite green in CI (W12).
 Short of any → honest plateau analysis + founder-decision list. A cited 9.2 that names its gap beats a fabricated 9.5.
@@ -71,7 +71,7 @@ Commit these BEFORE running (report "0/50" not "0%"; label dev-server; label mod
 | Voice-flattening (W2) | ≥30 line-edit hunks, blind pairwise vs original | flattening verdicts ≤ pre-set bound; protected devices survive ≥ 4/6 baseline, target 6/6 | the line-edit-quality-validation corpus + 1 fresh corpus | qwen + 1 stronger model, both reported |
 | Continuity precision/recall (W2/W3) | ≥30 seeded contradictions + ≥30 clean chapters | FP = 0/N; recall ≥ pre-set floor (declare before run) | scripted seeds (dead-character/location/timeline) | graph populated, ONE worker |
 | Autosave data-loss (W4) | ≥20 fault injections per scenario class | 0 lost words (diff-verified) | deterministic fault flags, not "sometimes" | — |
-| Batch spend bound (W6/money) | ≥3 batches incl. 1 at-cap | spend ≤ cap + (concurrency−1)×perSessionCap; skipped children marked `skipped` | Redis ledger vs Stripe/provider actuals | ONE worker |
+| Batch spend bound (W6/money) | ≥3 batches incl. 1 at-cap | spend ≤ cap + concurrency×perSessionCap; skipped children marked `skipped` | Redis ledger vs Stripe/provider actuals | ONE worker |
 | Editor latency (D5) | ≥20 samples × 3 manuscript sizes | p50/p95 vs pre-stated budget | scripted typing burst | dev-server labeled |
 | Recall/series correctness (W3) | ≥30 cross-book state queries | ≥ pre-set floor; book-2-aware answers cite book-1 state | seeded 2-book series | real embedder + graph |
 | Export fidelity (P7) | every chapter, 3 formats | 0 content loss vs DB (normalized diff); titles/TOC correct | magic-byte + content diff | pandoc/typst |

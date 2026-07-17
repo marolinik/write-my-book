@@ -48,7 +48,7 @@ Journey structure for all: **Day-0 signup/onboarding → core daily writing loop
 **Journey:**
 - Day-0: standard setup; seed a 12-chapter draft needing editorial passes.
 - Core: batch line-edit over 6 chapters (Now preset) → fan-out visible, per-child status honest, digest aggregates truthfully, chapter auto-advance suppressed (spec decision 7), Redis ledger totals match provider actuals exactly.
-- Power (W6 money gates): at-cap batch → children skip with `skipped` status, spend ≤ `cap + (concurrency−1)×perSessionCap` (verify the documented bound, not zero-overshoot); force 3 consecutive child failures → circuit breaker halts; cancel mid-batch → clean; Tonight-2am preset via short synthetic delay → children do NOT spend before schedule (the fixed HIGH bug — regression-proof it); the real 24-child overnight run as a background job (final validation per BATCH-SPEC §8).
+- Power (W6 money gates): at-cap batch → children skip with `skipped` status, spend ≤ `cap + concurrency×perSessionCap` (verify the documented bound, not zero-overshoot); force 3 consecutive child failures → circuit breaker halts; cancel mid-batch → clean; Tonight-2am preset via short synthetic delay → children do NOT spend before schedule (the fixed HIGH bug — regression-proof it); the real 24-child overnight run as a background job (final validation per BATCH-SPEC §8).
 - Edge: mutating agents rejected at API (safe-editors-only v1); batch created then worker dies → recovery on worker restart; TTL expiry; duplicate batch submission; DB-halted fail-safe.
 - Return: morning digest is the payoff — accurate, readable, actionable; failed children honestly listed.
 - Tier probe: batch eligibility/cap validation vs her plan.

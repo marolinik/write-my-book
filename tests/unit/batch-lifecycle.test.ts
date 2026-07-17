@@ -437,6 +437,43 @@ describe("batch lifecycle — (c) digest aggregation", () => {
     expect(note.message).toContain("$10.50");
   });
 
+  it("Z11: a Redis ledger read failure falls back to the DB actualCostUsd sum, not $0", async () => {
+    h.db.batchRun.findUnique.mockResolvedValue({
+      id: BATCH_ID,
+      bookId: BOOK_ID,
+      userId: USER_ID,
+      workflowIds: ["dev-edit"],
+      chapterStart: 1,
+      chapterEnd: 2,
+      budgetCapUsd: CAP,
+      status: "running",
+      halted: false,
+      spentUsd: 0,
+    });
+    h.db.agentSession.findMany.mockResolvedValue([
+      { id: "s1", status: "completed", chapterNumber: 1, workflowId: "dev-edit", actualCostUsd: 0.05 },
+      { id: "s2", status: "completed", chapterNumber: 2, workflowId: "dev-edit", actualCostUsd: 0.04 },
+    ]);
+    h.db.editFinding.findMany.mockResolvedValue([]);
+    h.db.chapter.findMany.mockResolvedValue([
+      { chapterNumber: 1, status: "drafted", betaGate: null },
+      { chapterNumber: 2, status: "drafted", betaGate: null },
+    ]);
+    // Simulate a Redis hiccup on the ledger read (3 gets in Promise.all).
+    h.redis.get
+      .mockRejectedValueOnce(new Error("redis down"))
+      .mockRejectedValueOnce(new Error("redis down"))
+      .mockRejectedValueOnce(new Error("redis down"));
+
+    await processBatchDigestJob(makeDigestJob());
+
+    const upd = h.db.batchRun.update.mock.calls[0][0];
+    // Pre-fix wrote spentUsd: 0 (ledger's error default); the fix falls back to
+    // the persisted per-session sum 0.05 + 0.04 = 0.09.
+    expect(upd.data.spentUsd).toBeCloseTo(0.09, 5);
+    expect(upd.data.spentUsd).not.toBe(0);
+  });
+
   it("a clean run (no skips, under cap) writes status 'done' and a normal-priority notification", async () => {
     h.db.batchRun.findUnique.mockResolvedValue({
       id: BATCH_ID,

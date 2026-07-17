@@ -307,7 +307,7 @@ NF legend: `Pf`=perf timing · `Lf`=look&feel light+dark · `Er`=ergonomy/keyboa
 |---|---|---|---|---|---|
 | C4.1 | Plans + gating invariants | 4 plans; export always allowed; Stripe-unset=open; canceled=read-only; expired-trial=canceled; **past_due grace** | P8 | Rs | |
 | C4.2 | Metering | UsageRecord per session/route; estimateCost; cost display vs OpenRouter actuals (tolerance) | P8 | — | |
-| C4.3 | Batch money caps | $10/$25 aggregate; per-child max(2×est,$5); ≤4 workflows; **bound = cap+(concurrency−1)×perChild** (W6 money) | P4 | — | |
+| C4.3 | Batch money caps | $10/$25 aggregate; per-child max(2×est,$5); ≤4 workflows; **bound = cap+concurrency×perChild** (W6 money) | P4 | — | |
 | C4.4 | Stripe lifecycle | checkout→active; upgrade/downgrade proration; cancel→period-end; past_due/dunning synthetic events; entitlement flips correct in-app | P8 | Rs | |
 
 ### C5. Infra / export / ops — Owner P8 + P7
@@ -374,3 +374,14 @@ NF legend: `Pf`=perf timing · `Lf`=look&feel light+dark · `Er`=ergonomy/keyboa
 | Z19 | S3 | batch digest fetched but not rendered in dialog — does morning digest reach the user? | UI §A7.3 | P4 |
 
 Every Z-row must resolve to FIXED+PASS or a founder-decision entry with reason — none may silently vanish.
+
+### Money-path audit resolution (Z8–Z12, adversarially verified — evidence/money-path-Z8-Z12.md)
+- **Z1 FIXED+PASS** (memory/stats IDOR, commit 396e190) · **Z2 FIXED+PASS** (style-lens cross-tenant delete, 396e190) · **Z3 FIXED+PASS** (series-agent quota gate, 6c9670b).
+- **Z8 — REAL (Medium), FOUNDER-DECISION.** A worker crash / stalled-lock re-entry re-runs the session with a fresh cost tracker → real provider RE-SPEND; `usageRecord.create` + Redis `incrbyfloat` have no idempotency key. Ordinary throw→retry is provably safe (all throw points precede LLM spend). Full fix = orchestrator checkpointing / idempotent spend keys (non-trivial, risks money path) → deferred to founder decision with the documented bound; NOT silently patched.
+- **Z9 — NOT-REAL (intended + tested); DOC FIXED.** The overshoot is the dispatch gate, not total spend, and is tested. The campaign docs' bound was off-by-one — corrected everywhere to `cap + concurrency×perSessionCap` (true worst case ≈ $20 on a $10 cap at concurrency 2).
+- **Z10 — NOT-REAL.** Durable `BatchRun.halted` covers the 24h-TTL expiry for >24h-scheduled cancels (already covered by the agent-worker-batch-guard M3 test). Closed.
+- **Z11 — FIXED+PASS (this commit).** Digest reported `$0` on a Redis ledger read failure (overwriting real spend / mislabeling done). Now signals `ledgerAvailable` and falls back to the DB `actualCostUsd` sum. RED-pre-fix test in batch-lifecycle.test.ts.
+- **Z12 — NOT-REAL as money bug; OPS-BACKLOG.** LiteLLM proxy (`LITELLM_BASE_URL`) has no compose service; direct openai/gemini/grok keys hard-fail if it's down — but spend $0 (never reaches a provider). Deployment/config gap → founder ops backlog (add the service or document the requirement + a clearer error), not a code money bug.
+
+### Vector-memory findings (VM1/VM2 — evidence/vector-memory-findings.md, S2, P7/D8/W3)
+- **VM1** chapter-content save does not trigger indexing (chunkCount stays 0; only manual rebuild indexes). **VM2** `rebuildBookIndex` embeds a placeholder stub, not prose (cleanup.ts:149-162). Vector recall matches metadata not manuscript → D8/W3 vector path non-functional until fixed. OpenAI quota now live, so these are code gaps, not env. OPEN for Phase-4 fix / P7 journey.

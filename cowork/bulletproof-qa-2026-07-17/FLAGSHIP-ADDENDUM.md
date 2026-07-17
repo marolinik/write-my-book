@@ -59,7 +59,7 @@ Faults must be DETERMINISTICALLY induced; each scenario ships a regression test 
 - **Gate:** any key/content egress to an unexpected host or cross-user read = S1. Browser-only capture = BLOCKED-ENV, not "0 defects."
 
 ## W6 — Money-path integrity + scale soak
-- **Batch bound:** run a real 24-child overnight batch (background job) + a deliberately at-cap batch: aggregate ledger ≤ `cap + (concurrency−1)×perSessionCap`; circuit breaker (3-consec/5-total) trips; skipped children land `skipped` not `failed`; digest truthful; DB-halted fail-safe works; cancel + TTL paths clean.
+- **Batch bound:** run a real 24-child overnight batch (background job) + a deliberately at-cap batch: aggregate ledger ≤ `cap + concurrency×perSessionCap`; circuit breaker (3-consec/5-total) trips; skipped children land `skipped` not `failed`; digest truthful; DB-halted fail-safe works; cancel + TTL paths clean.
 - **Session cap:** single-session hard-kill at cap, WriteChapter-on-wrap-up preserves the draft.
 - **Cost-tracking accuracy:** displayed cost vs OpenRouter dashboard actuals within a pre-set tolerance.
 - **Stripe lifecycle:** checkout → active; upgrade/downgrade proration; cancel → period-end; past-due/dunning simulation via synthetic events; entitlement flips correct in-app on every transition; billing portal round-trip.
