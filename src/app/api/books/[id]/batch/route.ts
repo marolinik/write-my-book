@@ -12,6 +12,7 @@ import {
   resolveBatchModels,
   type AvailableKeys,
 } from "@/lib/batch/resolve-batch-models";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -62,7 +63,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id: bookId } = await params;
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = createBatchSchema.parse(body);
 
     // ── Ownership fence (userId) ────────────────────────────────────────
@@ -286,6 +287,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       { status: 201 }
     );
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

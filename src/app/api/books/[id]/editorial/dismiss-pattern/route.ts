@@ -5,6 +5,7 @@ import {
   dismissedPatternQuerySchema,
   createDismissedPatternSchema,
 } from "@/lib/validation";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -70,7 +71,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = createDismissedPatternSchema.parse(body);
 
     const pattern = await db.dismissedPattern.upsert({
@@ -97,6 +98,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ pattern });
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

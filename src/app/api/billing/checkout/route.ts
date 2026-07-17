@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { stripe, PLANS, type PlanKey } from "@/lib/billing";
 import { checkoutSchema } from "@/lib/validation";
 import type Stripe from "stripe";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,7 +16,7 @@ export async function POST(req: NextRequest) {
     }
 
     const user = await requireUser();
-    const body = await req.json();
+    const body = await parseJsonBody(req);
 
     const parsed = checkoutSchema.safeParse(body);
     if (!parsed.success) {
@@ -139,6 +140,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ url: session.url });
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     console.error("Checkout error:", error);
     return NextResponse.json(
       { error: "Failed to create checkout session" },

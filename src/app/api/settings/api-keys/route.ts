@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { encryptApiKey, decryptApiKey, maskApiKey } from "@/lib/encryption";
 import { createApiKeySchema } from "@/lib/validation";
 import { validateApiKey } from "@/lib/llm/key-validator";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 /**
  * GET /api/settings/api-keys
@@ -87,7 +88,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const user = await requireUser();
-    const body = await req.json();
+    const body = await parseJsonBody(req);
 
     const parsed = createApiKeySchema.safeParse(body);
     if (!parsed.success) {
@@ -154,7 +155,9 @@ export async function POST(req: NextRequest) {
       },
       { status: 201 }
     );
-  } catch {
+  } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 }

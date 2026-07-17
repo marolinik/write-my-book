@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { wikiEntitySchema, wikiQuerySchema } from "@/lib/validation";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 export async function GET(
   req: NextRequest,
@@ -55,7 +56,16 @@ export async function POST(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const body = await req.json();
+  // This handler has no surrounding try/catch — guard the parse locally so a
+  // malformed body answers 400 instead of a raw 500 (D-01).
+  let body: unknown;
+  try {
+    body = await parseJsonBody(req);
+  } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
+    throw error;
+  }
   const data = wikiEntitySchema.parse(body);
 
   const { attributes, ...rest } = data;

@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { createBookSchema } from "@/lib/validation";
 import { generateS3Prefix, generateSeriesS3Prefix } from "@/lib/utils";
 import { checkPlanAccess } from "@/lib/billing/plan-gating";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 /** GET /api/books — list all books for the current user. */
 export async function GET() {
@@ -47,7 +48,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = createBookSchema.parse(body);
 
     // Check for duplicate name
@@ -112,6 +113,8 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

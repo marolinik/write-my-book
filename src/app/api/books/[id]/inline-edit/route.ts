@@ -8,6 +8,7 @@ import { createLLMClient, resolveProviderRoute, resolveCheapModelFor } from "@/l
 import type { ProviderKey } from "@/lib/llm";
 import { inlineEditRequestSchema } from "@/lib/validation";
 import type { InlineEditSuggestion } from "@/lib/validation";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -16,7 +17,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id: bookId } = await params;
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = inlineEditRequestSchema.parse(body);
 
     // Verify book ownership
@@ -167,6 +168,8 @@ Provide ${data.count} alternative rewrites as a JSON array.`;
 
     return NextResponse.json({ suggestions, tokensUsed });
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

@@ -6,6 +6,7 @@ import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
 import { inferPreferenceFromDismissals, upsertConversationConstraint } from "@/lib/agents/writer-memory";
 import { parseDiscussResponse } from "@/lib/editorial/discuss-prompt";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 type RouteParams = { params: Promise<{ id: string; findingId: string }> };
 
@@ -118,7 +119,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = updateFindingSchema.parse(body);
 
     const alternatives = parseFindingAlternatives(finding.alternatives);
@@ -276,6 +277,8 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(updated);
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

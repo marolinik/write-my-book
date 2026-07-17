@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { createInsight } from "@/lib/agents/blackboard";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -60,7 +61,9 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
-    const body = await req.json();
+    // Hand-validated legacy body (no Zod schema here) — keep the pre-D-01
+    // any-typed access; the field checks below are the validation.
+    const body = (await parseJsonBody(req)) as Record<string, any>;
 
     // Validate required fields
     const { sourceAgentType, insightType, domain, summary, detail } = body;
@@ -97,6 +100,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(result, { status: 201 });
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

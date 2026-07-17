@@ -8,6 +8,7 @@ import { DocumentType } from "@/generated/prisma/enums";
 import { convertDocxToMarkdown } from "@/lib/import-export/docx-to-markdown";
 import { parseManuscriptChapters } from "@/lib/import-export/chapter-parser";
 import { indexBatch } from "@/lib/vector";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 const ALLOWED_EXTENSIONS = [".md", ".txt", ".docx"];
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
@@ -66,7 +67,17 @@ async function handleStructuredImport(
   bookId: string,
   userId: string
 ) {
-  const body = await req.json();
+  // POST's try/catch cannot see this rejection (`return handleStructuredImport(...)`
+  // is not awaited inside the try) — guard the parse locally so a malformed
+  // body answers 400 instead of a raw 500 (D-01).
+  let body: unknown;
+  try {
+    body = await parseJsonBody(req);
+  } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
+    throw error;
+  }
   const data = importConfirmRequestSchema.parse(body);
 
   const docService = new DocumentService(userId, bookId);

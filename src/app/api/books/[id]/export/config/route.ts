@@ -9,6 +9,7 @@ import {
   parseExportConfigJson,
   serializeExportConfig,
 } from "@/lib/import-export/export-config";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -66,7 +67,7 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const updates = exportConfigUpdateSchema.parse(body);
 
     const docService = new DocumentService(user.id, bookId);
@@ -104,6 +105,8 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(merged);
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

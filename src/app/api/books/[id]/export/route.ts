@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { getBookStorage } from "@/lib/storage";
 import { exportRequestSchema } from "@/lib/validation";
 import { exportManuscript } from "@/lib/import-export/export-pipeline";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -20,7 +21,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = exportRequestSchema.parse(body);
 
     const storage = getBookStorage(user.id, bookId);
@@ -53,6 +54,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(result);
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

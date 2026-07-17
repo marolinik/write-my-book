@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { z } from "zod";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -14,7 +15,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id } = await params;
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = updateSchema.parse(body);
 
     await db.writerMemory.updateMany({
@@ -24,6 +25,8 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ success: true });
   } catch (err) {
+    const invalidJson = invalidJsonBodyResponse(err);
+    if (invalidJson) return invalidJson;
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Failed to update" },
       { status: 500 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 export async function PATCH(
   req: NextRequest,
@@ -25,7 +26,9 @@ export async function PATCH(
       return NextResponse.json({ error: "Lens not found" }, { status: 404 });
     }
 
-    const body = await req.json();
+    // Hand-validated legacy body (no Zod schema here) — keep the pre-D-01
+    // any-typed access; the field checks below are the validation.
+    const body = (await parseJsonBody(req)) as Record<string, any>;
     const updated = await db.characterLens.update({
       where: { id: lensId },
       data: {
@@ -39,7 +42,9 @@ export async function PATCH(
     });
 
     return NextResponse.json(updated);
-  } catch {
+  } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 }

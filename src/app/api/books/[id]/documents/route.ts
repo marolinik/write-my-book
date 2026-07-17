@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { createDocumentSchema } from "@/lib/validation";
 import { DocumentService } from "@/lib/documents";
 import type { DocumentType } from "@/generated/prisma/enums";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -42,7 +43,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id: bookId } = await params;
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = createDocumentSchema.parse(body);
 
     const book = await db.book.findFirst({
@@ -79,6 +80,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(document, { status: 201 });
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

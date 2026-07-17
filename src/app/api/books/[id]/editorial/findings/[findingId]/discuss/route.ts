@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { buildDiscussPrompt, parseDiscussResponse, type ThreadTurn } from "@/lib/editorial/discuss-prompt";
 import { formatWriterMemoryForPrompt } from "@/lib/agents/writer-memory";
 import { runDiscussTurn } from "@/lib/editorial/discuss-llm";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 export const dynamic = "force-dynamic";
 
@@ -52,7 +53,7 @@ export async function POST(req: Request, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id: bookId, findingId } = await params;
-    const { writerMessage } = bodySchema.parse(await req.json());
+    const { writerMessage } = bodySchema.parse(await parseJsonBody(req));
 
     const owned = await loadOwnedFinding(user.id, bookId, findingId);
     if (owned.error) return owned.error;
@@ -125,6 +126,8 @@ export async function POST(req: Request, { params }: RouteParams) {
     const parsed = parseDiscussResponse(raw);
     return NextResponse.json({ ...parsed, userTurns: result.userTurns, capped: false });
   } catch (e) {
+    const invalidJson = invalidJsonBodyResponse(e);
+    if (invalidJson) return invalidJson;
     if ((e as Error).message === "Unauthorized") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     if ((e as Error).name === "ZodError") return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     // D-04: model produced no usable text even after the doubled-budget retry.

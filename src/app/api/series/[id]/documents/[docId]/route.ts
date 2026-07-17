@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { updateDocumentSchema } from "@/lib/validation";
 import { DocumentService } from "@/lib/documents";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 type RouteParams = { params: Promise<{ id: string; docId: string }> };
 
@@ -51,7 +52,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id: seriesId, docId } = await params;
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = updateDocumentSchema.parse(body);
 
     const series = await db.series.findFirst({
@@ -87,6 +88,8 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(result);
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

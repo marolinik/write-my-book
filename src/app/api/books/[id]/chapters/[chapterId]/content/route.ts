@@ -6,6 +6,7 @@ import { DocumentService, VersionConflictError } from "@/lib/documents";
 import { DocumentType } from "@/generated/prisma/enums";
 import { countWords } from "@/lib/utils";
 import { onDocumentChanged } from "@/lib/vector/memory-manager";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 /** Replace U+FFFD replacement characters with em dash (most common corruption case). */
 function sanitizeUnicode(text: string): string {
@@ -80,7 +81,7 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id: bookId, chapterId } = await params;
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = updateChapterContentSchema.parse(body);
 
     const book = await db.book.findFirst({
@@ -198,6 +199,8 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
       bookWordCount: book.wordCount + wordDelta,
     });
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

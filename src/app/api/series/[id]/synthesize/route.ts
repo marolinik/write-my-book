@@ -6,6 +6,7 @@ import {
   synthesizeToSeries,
   listBookContributions,
 } from "@/lib/series";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -55,7 +56,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id: seriesId } = await params;
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = synthesizeSchema.parse(body);
 
     // Verify series ownership
@@ -87,6 +88,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ success });
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

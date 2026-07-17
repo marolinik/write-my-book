@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 export async function GET(
   _req: NextRequest,
@@ -62,7 +63,9 @@ export async function POST(
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
-    const body = await req.json();
+    // Hand-validated legacy body (no Zod schema here) — keep the pre-D-01
+    // any-typed access; the field checks below are the validation.
+    const body = (await parseJsonBody(req)) as Record<string, any>;
     const { name, description, fingerprint } = body;
 
     if (!name || typeof name !== "string") {
@@ -81,7 +84,9 @@ export async function POST(
     });
 
     return NextResponse.json(profile, { status: 201 });
-  } catch {
+  } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 }

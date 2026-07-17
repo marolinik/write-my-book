@@ -5,6 +5,7 @@ import { updateDocumentSchema } from "@/lib/validation";
 import { DocumentService, VersionConflictError } from "@/lib/documents";
 import { onDocumentChanged } from "@/lib/vector/memory-manager";
 import { deleteDocumentChunks } from "@/lib/vector";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 type RouteParams = { params: Promise<{ id: string; docId: string }> };
 
@@ -71,7 +72,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id: bookId, docId } = await params;
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = updateDocumentSchema.parse(body);
 
     const book = await db.book.findFirst({
@@ -153,6 +154,8 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
     // back-compat with existing consumers.
     return NextResponse.json({ ...result, version: result.version.version });
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

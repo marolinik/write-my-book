@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { updateLanguageSchema } from "@/lib/validation";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 export async function GET() {
   try {
@@ -15,7 +16,7 @@ export async function GET() {
 export async function PATCH(request: NextRequest) {
   try {
     const user = await requireUser();
-    const body = await request.json();
+    const body = await parseJsonBody(request);
     const parsed = updateLanguageSchema.safeParse(body);
 
     if (!parsed.success) {
@@ -31,7 +32,9 @@ export async function PATCH(request: NextRequest) {
     });
 
     return NextResponse.json({ language: parsed.data.language });
-  } catch {
+  } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 }

@@ -23,6 +23,7 @@ import {
   addAssistantMessage,
 } from "@/lib/agents";
 import type { AgentStreamMessage, AgentResult } from "@/lib/agents";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 type RouteParams = {
   params: Promise<{ id: string; sessionId: string }>;
@@ -33,7 +34,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id: bookId, sessionId } = await params;
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const { message, pageContext } = sendMessageSchema.parse(body);
 
     let session = getSession(sessionId);
@@ -261,6 +262,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ ok: true });
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

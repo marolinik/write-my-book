@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 export async function GET(
   _req: NextRequest,
@@ -45,7 +46,9 @@ export async function POST(
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
-    const body = await req.json();
+    // Hand-validated legacy body (no Zod schema here) — keep the pre-D-01
+    // any-typed access; the field checks below are the validation.
+    const body = (await parseJsonBody(req)) as Record<string, any>;
     const { characterName, sensoryPriority, metaphorDomain, interiorStyle, vocabularyRegister, blindSpots } = body;
 
     if (!characterName || !sensoryPriority || !metaphorDomain || !interiorStyle || !vocabularyRegister) {
@@ -66,6 +69,8 @@ export async function POST(
 
     return NextResponse.json(lens, { status: 201 });
   } catch (error: any) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if (error?.code === "P2002") {
       return NextResponse.json(
         { error: "A character lens with that name already exists for this book" },

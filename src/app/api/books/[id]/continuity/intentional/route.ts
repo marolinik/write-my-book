@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { parseJsonBody } from "@/lib/api/parse-json-body";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const book = await db.book.findFirst({ where: { id: bookId, userId: user.id } });
     if (!book) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-    const parsed = bodySchema.safeParse(await request.json().catch(() => ({})));
+    const parsed = bodySchema.safeParse(await parseJsonBody(request).catch(() => ({})));
     if (!parsed.success) return NextResponse.json({ error: "flagId required" }, { status: 400 });
 
     // Fenced to the owned book; updateMany count tells us if it matched.

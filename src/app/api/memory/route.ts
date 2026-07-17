@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { z } from "zod";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 const createSchema = z.object({
   category: z.enum(["style", "name", "preference", "constraint", "correction"]),
@@ -37,7 +38,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const user = await requireUser();
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = createSchema.parse(body);
 
     const memory = await db.writerMemory.create({
@@ -52,6 +53,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(memory, { status: 201 });
   } catch (err) {
+    const invalidJson = invalidJsonBodyResponse(err);
+    if (invalidJson) return invalidJson;
     if (err instanceof z.ZodError) {
       return NextResponse.json({ error: "Invalid input", details: err.issues }, { status: 400 });
     }

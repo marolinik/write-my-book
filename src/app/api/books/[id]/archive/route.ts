@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 const archiveSchema = z.object({ archived: z.boolean() });
 
@@ -12,7 +13,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id } = await params;
-    const { archived } = archiveSchema.parse(await req.json());
+    const { archived } = archiveSchema.parse(await parseJsonBody(req));
 
     // Ownership-fenced, atomic: only the caller's book is touched.
     const result = await db.book.updateMany({
@@ -26,6 +27,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ archived });
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
