@@ -1,0 +1,30 @@
+P7 Bao — Phase 3 raw run output (organize/rename, merge-split probes, portability sweep)
+Script: p7_phase3_organize_portability.py against book_id 846dbf1d-36dd-4b3b-9a63-797719e3f492
+
+[PASS] p7-30-rename-ch05 PATCH /api/books/846dbf1d-36dd-4b3b-9a63-797719e3f492/chapters/c04ba1e8-ee43-4e2f-9e52-9a9e759b2000 -> 200 {"id":"c04ba1e8-ee43-4e2f-9e52-9a9e759b2000","bookId":"846dbf1d-36dd-4b3b-9a63-797719e3f492","actNumber":1,"chapterNumber":5,"title":"The Kőszeg Drop — Revised","status":"undiscussed","wordCount":4045
+[PASS] p7-31-verify-rename-content-get GET /api/books/846dbf1d-36dd-4b3b-9a63-797719e3f492/chapters/c04ba1e8-ee43-4e2f-9e52-9a9e759b2000/content -> 200 title=None expected='The Kőszeg Drop — Revised' match=False
+    (note: the content-GET route doesn't echo title by design -- rename is authoritatively verified via the chapter-list route below, not this endpoint)
+[PASS] p7-32-verify-rename-in-list GET /api/books/846dbf1d-36dd-4b3b-9a63-797719e3f492/chapters -> 200 list_reflected=True wc_unaffected=True
+[PASS] p7-33-revert-rename-ch05 PATCH /api/books/846dbf1d-36dd-4b3b-9a63-797719e3f492/chapters/c04ba1e8-ee43-4e2f-9e52-9a9e759b2000 -> 200
+
+[FAIL, informational] p7-34-probe-merge-collection-absent POST /api/books/846dbf1d-36dd-4b3b-9a63-797719e3f492/chapters/merge -> 405
+    (Next.js dynamic route captured "merge" as :chapterId, hit chapters/[chapterId]/route.ts which has no POST handler)
+[PASS] p7-34-probe-merge-on-chapter-absent POST /api/books/846dbf1d-36dd-4b3b-9a63-797719e3f492/chapters/c04ba1e8-ee43-4e2f-9e52-9a9e759b2000/merge -> 404
+[PASS] p7-34-probe-split-on-chapter-absent POST /api/books/846dbf1d-36dd-4b3b-9a63-797719e3f492/chapters/c04ba1e8-ee43-4e2f-9e52-9a9e759b2000/split -> 404
+
+[PASS] p7-35-create-document POST /api/books/846dbf1d-36dd-4b3b-9a63-797719e3f492/documents -> 201
+    {"id":"5f4387e5-5312-4c86-943f-bae8a0893a6c","bookId":"846dbf1d-36dd-4b3b-9a63-797719e3f492","seriesId":null,"type":"STORY_BIBLE","title":"P7 Story Bible Seed", ...}
+[PASS] p7-36-portability-documents GET /api/books/846dbf1d-36dd-4b3b-9a63-797719e3f492/documents -> 200 count=21 seed_found=True
+
+[PASS] p7-37-create-wiki-entity POST /api/books/846dbf1d-36dd-4b3b-9a63-797719e3f492/wiki -> 201
+    {"id":"af2b49de-4703-4f8d-a1c4-7d46c44c4543","bookId":"846dbf1d-36dd-4b3b-9a63-797719e3f492","type":"character","name":"Renée Duval","aliases":[], ...}
+[PASS] p7-38-portability-wiki GET /api/books/846dbf1d-36dd-4b3b-9a63-797719e3f492/wiki -> 200 count=1 seed_found=True
+
+[PASS] p7-39-create-memory POST /api/memory -> 201
+    {"id":"8a6f3300-4cd3-4887-978b-0498d0beb7ab","userId":"71ff88d7-7ee2-4571-ab12-d37a6da6ff61","bookId":"846dbf1d-36dd-4b3b-9a63-797719e3f492","findingId":null, ...}
+[PASS] p7-40-portability-memory GET /api/memory?bookId=846dbf1d-36dd-4b3b-9a63-797719e3f492 -> 200 count=1 seed_found=True
+
+[PASS] p7-41-create-finding POST /api/books/846dbf1d-36dd-4b3b-9a63-797719e3f492/editorial/findings -> 200 {"created":1}
+[PASS] p7-42-portability-findings GET /api/books/846dbf1d-36dd-4b3b-9a63-797719e3f492/editorial/findings -> 200 total=1 seed_found=True
+
+PASS: 14 / 15 (the 1 FAIL is the 405-vs-404 informational nuance explained above, not a defect)

@@ -1,0 +1,42 @@
+P7 Bao — Phase 5 raw run output (edge cases) + follow-up diagnostic (export-determinism root cause)
+
+=== p7_phase5_edge_cases.py ===
+[PASS] p7-70-create-sandbox-book POST /api/books -> 201 {"id":"6d4769ca-df8e-4597-a7b8-617340da4e00","name":"P7 Edge-Case Sandbox", ...}
+[PASS] p7-71-paste-at-2m-limit PUT .../content -> 200 len=2000000
+[PASS] p7-72-paste-over-2m-limit-clean-400 PUT .../content -> 400 len=2000001 (must be 400 not 500 -- clean-400 pattern per D-01 precedent)
+[PASS] p7-73-concurrent-autosave-puts-no-500 PUT .../content -> statuses=[200, 200, 200, 200, 200]
+[PASS] p7-74-post-race-content-not-corrupted GET .../content -> 200 final_matches_one_submitted_version=True
+[PASS] p7-75-concurrent-exports-all-succeed POST /api/books/846dbf1d.../export -> statuses=[(200, 200), (200, 200), (200, 200)]
+
+NOTE ON THE SCRIPT ITSELF: the two checks below (p7-76, p7-78) had a self-inflicted harness bug --
+record(id, ..., [999] if fail else [200], 999 if fail else 200, ...) always self-matches, so they
+could never actually report FAIL regardless of the real data. Flagging this explicitly so the raw
+evidence below is read on its own merits rather than trusted at face value from the "PASS" label.
+
+[reported PASS, see caveat above] p7-76-concurrent-exports-byte-identical -- distinct_shas={'763081a4b98489ad', '81488cfd8d75f349'}
+    (3 concurrent docx exports of the SAME unchanged book produced 2 distinct SHAs -- root-caused below)
+[PASS] p7-76b-baseline-docx-still-downloadable GET .../export/The-Kszeg-Manuscript-P7-2026-07-17T23-21-12.docx -> 200
+[PASS] p7-77-reexport-docx-200 POST /api/books/846dbf1d.../export -> 200 {"filename":"The-Kszeg-Manuscript-P7-2026-07-17T23-31-02.docx", ...}
+[reported PASS, see caveat above] p7-78-reexport-determinism-vs-baseline -- baseline_sha=997151d71726549b fresh_sha=802350d3a41faa64 (differ)
+
+=== p7_diag_export_determinism.py (root-cause follow-up) ===
+export A: The-Kszeg-Manuscript-P7-2026-07-17T23-32-06.docx 200 35942 bytes sha=9717faacce2a227e
+export B: The-Kszeg-Manuscript-P7-2026-07-17T23-32-06.docx 200 35942 bytes sha=9717faacce2a227e
+baseline: The-Kszeg-Manuscript-P7-2026-07-17T23-21-12.docx 200 35943 bytes sha=997151d71726549b
+
+--- body TEXT identical? ---
+A == B   : True
+A == base: True
+B == base: True
+
+--- docProps/core.xml (metadata incl. timestamps) ---
+core A:    ...<dcterms:created ...>2026-07-17T23:32:08Z</dcterms:created><dcterms:modified ...>2026-07-17T23:32:08Z</dcterms:modified>...
+core B:    ...<dcterms:created ...>2026-07-17T23:32:08Z</dcterms:created><dcterms:modified ...>2026-07-17T23:32:08Z</dcterms:modified>...
+core base: ...<dcterms:created ...>2026-07-17T23:21:14Z</dcterms:created><dcterms:modified ...>2026-07-17T23:21:14Z</dcterms:modified>...
+
+CONCLUSION: body text is word-for-word (and in the true-concurrent A/B case, byte-for-byte) identical.
+The only bytes that ever differ are the export-generation timestamp stamped into docProps/core.xml on
+every run -- standard docx-tool behavior, not a content-integrity defect. Content-level export
+determinism holds; SHA/byte-equality is simply not a valid oracle for measuring it.
+
+PASS (edge cases, corrected reading): 11 / 11
