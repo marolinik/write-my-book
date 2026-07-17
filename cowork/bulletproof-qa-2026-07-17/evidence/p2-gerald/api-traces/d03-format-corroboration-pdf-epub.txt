@@ -1,0 +1,21 @@
+=== D-03 format corroboration: pdf + epub (docx already proven in defects.md) ===
+Book 636a1f02-8520-4b66-8e78-08c8e0fee5f0, already reordered (chapters 4/5 swapped in the W4 test).
+
+Local (DB) ground truth: 'No Names in Marseille' sha=bd0b3f60009763f5, 'The Kőszeg Drop' sha=177c3739d302c557
+
+POST /api/books/636a1f02-8520-4b66-8e78-08c8e0fee5f0/export {'format':'pdf'} -> status=200
+  Response: {"filename": "Dead-Reckoning-31-QA-P2-2026-07-17T23-03-32.pdf", "storageKey": "exports/Dead-Reckoning-31-QA-P2-2026-07-17T23-03-32.pdf", "wordCount": 40576, "chapterCount": 8, "estimatedPages": 116, "warnings": [], "format": "pdf"}
+
+PDF word-level similarity (difflib ratio, 1.0=identical; residual gap from 1.0 is PDF-extraction line-wrap hyphenation splitting words, e.g. 'replaced'->'re'+'placed'):
+  heading 'No Names in Marseille' body vs local Marseille (correct pairing): 0.2456
+  heading 'No Names in Marseille' body vs local Kőszeg    (swap pairing):    0.9942
+  heading 'The Kőszeg Drop' body     vs local Kőszeg    (correct pairing): 0.2347
+  heading 'The Kőszeg Drop' body     vs local Marseille (swap pairing):    0.9965
+CONCLUSION (PDF): D-03 CONFIRMED present in pdf export (>99% match to the OTHER chapter, <25% match to its own title)
+
+POST /api/books/636a1f02-8520-4b66-8e78-08c8e0fee5f0/export {'format':'epub'} -> status=200
+  Response: {"filename": "Dead-Reckoning-31-QA-P2-2026-07-17T23-03-48.epub", "storageKey": "exports/Dead-Reckoning-31-QA-P2-2026-07-17T23-03-48.epub", "wordCount": 40576, "chapterCount": 8, "estimatedPages": 116, "warnings": [], "format": "epub"}
+
+EPUB: heading 'No Names in Marseille' body sha=177c3739d302c557 — EXACT MATCH to local 'The Kőszeg Drop' content (local sha=177c3739d302c557). SWAPPED, word-exact.
+EPUB: heading 'The Kőszeg Drop' body sha=411f2b86223586ab — not a raw SHA match to local Marseille (local sha=bd0b3f60009763f5), but the word-level diff proves it's the same content plus one artifact: 5517 words vs local Marseille's 5515 words, difflib ratio=0.9998, single diff opcode = a 2-word INSERT at the very end (the injected "Act 2" divider paragraph). SWAPPED — same +2-word Act-divider signature seen in the docx repro (defects.md D-03).
+CONCLUSION (EPUB): D-03 CONFIRMED present in epub export (one direction byte/word-exact SHA match, the other word-exact modulo the known +2-word Act-divider artifact — identical signature to the docx repro)

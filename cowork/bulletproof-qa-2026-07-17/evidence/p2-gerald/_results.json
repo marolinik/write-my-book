@@ -3,8 +3,8 @@
   "phase": "A (data-safety, no LLM)",
   "book_id": "636a1f02-8520-4b66-8e78-08c8e0fee5f0",
   "book_name": "Dead Reckoning 31 QA P2",
-  "total_checks": 116,
-  "passed": 111,
+  "total_checks": 127,
+  "passed": 122,
   "failed": 5,
   "failed_checks": [
     {
@@ -89,6 +89,11 @@
     "phase5-edge-cases-and-cost": {
       "total": 11,
       "passed": 11
+    },
+    "phase6-d03-format-corroboration-2026-07-18": {
+      "total": 11,
+      "passed": 11,
+      "note": "Team-lead-requested follow-up (2026-07-18): pdf+epub export fidelity for D-03, corroborating the docx proof above. Both formats confirmed to exhibit the same chapter-body-swap defect. PDF verdict uses word-level similarity ratio (>0.99 swap-pairing vs <0.25 correct-pairing) instead of exact SHA because pypdf text extraction is inherently lossy (line-wrap hyphenation). EPUB verdict uses SHA/word-diff (one direction exact SHA match, other direction 0.9998 ratio with a single 2-word insert artifact identical to the docx repro). Evidence-only, no source fix (src/ untouched)."
     }
   },
   "cost_health": {
@@ -105,7 +110,6 @@
     "Export download UI / progress indicator (verified via API + raw file fetch only)"
   ],
   "phase_b_scope": [
-    "Any check requiring LLM/agent jobs (dev-edit, line-edit, CAS, extraction) — explicitly out of scope for phase A per mission constraints",
-    "pdf and epub export fidelity for D-03 (only docx independently verified; bug is architecturally format-agnostic per root-cause read of export-pipeline.ts, but not empirically confirmed for pdf/epub)"
+    "Any check requiring LLM/agent jobs (dev-edit, line-edit, CAS, extraction) — explicitly out of scope for phase A per mission constraints"
   ]
 }
