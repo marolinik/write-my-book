@@ -1,0 +1,9 @@
+{
+  "status": 200,
+  "body": {
+    "assistantMessage": "",
+    "userTurns": 1,
+    "capped": false
+  },
+  "elapsed_s": 8.745
+}

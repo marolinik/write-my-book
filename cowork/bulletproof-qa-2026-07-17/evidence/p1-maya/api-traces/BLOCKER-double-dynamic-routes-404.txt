@@ -1,0 +1,67 @@
+CRITICAL ENVIRONMENT BLOCKER — discovered 2026-07-18T00:18Z during P1 Maya step 1 (D8 loop)
+
+SYMPTOM: Every API route whose path contains TWO nested dynamic segments
+(pattern /api/.../[id]/.../[otherId]/...) returns a framework-level Next.js
+404 HTML page (X-Powered-By: Next.js, "This page could not be found.") —
+NOT the app's own JSON 404 — meaning Next's dev router fails to match the
+route at all, before any handler code runs. Routes with zero or one dynamic
+path segment (including query-param-based ones) are unaffected and return
+normal 200/JSON as expected.
+
+Confirmed BROKEN (all HTTP/1.1 404, HTML body, X-Powered-By: Next.js):
+  GET  /api/books/{id}/editorial/findings/{findingId}                (double dynamic)
+  GET  /api/books/{id}/editorial/findings/{findingId}/discuss         (double dynamic)
+  POST /api/books/{id}/editorial/findings/{findingId}/discuss         (double dynamic)
+  GET  /api/books/{id}/editorial/findings/{findingId}/undo            (double dynamic)
+  GET  /api/books/{id}/chapters/{chapterId}/content                   (double dynamic)
+  GET  /api/books/{id}/agent/{sessionId}/stream                       (double dynamic,
+       tested with a session id — eeef608c-4cc7-4db7-ad53-eea5f8d60b57 — that this
+       SAME server process successfully streamed in the prior session, i.e. this is
+       not a stale/unknown-id 404, the route itself stopped resolving)
+
+Confirmed WORKING (all HTTP/1.1 200, JSON body) at the same timestamps:
+  GET /api/health                                          (zero dynamic)
+  GET /api/books/{id}/editorial/findings                   (single dynamic)
+  GET /api/books/{id}                                       (single dynamic)
+  GET /api/memory?bookId={id}                               (zero path-dynamic, query param)
+
+Diagnostics performed (none restored the broken routes):
+  - Retried the discuss route 3x across ~1 minute — consistently 404, ruling out a
+    one-shot Turbopack lazy-compile miss.
+  - Confirmed the route source files still exist on disk, unmodified
+    (src/app/api/books/[id]/editorial/findings/[findingId]/discuss/route.ts and
+    siblings — verified via `find`/`ls`, file sizes/timestamps normal).
+  - Confirmed `git status --short` is clean except this session's own new evidence
+    files — no other agent has modified src/ (at least not via tracked changes).
+  - Confirmed exactly one dev server process is listening on :3002 (PID 41736) and
+    exactly one worker runtime is running (see worker-proof.txt) — not a port
+    collision or duplicate-server artifact.
+  - No dev-server log file found to inspect for a server-side stack trace.
+
+ROOT CAUSE (best assessment, not confirmed without server console access): this
+looks like a Turbopack dev-server route-manifest regression — it lost route
+resolution specifically for the "two nested dynamic segments" route shape,
+sometime between the prior session (where this same server process successfully
+served POST discuss -> 400 "Invalid input", and successfully streamed a dev-edit
+SSE session to completion) and now. No restart occurred (verified: I did not
+restart it, and PID history matches an uninterrupted process). Most likely
+trigger: background recompilation churn from other persona agents' concurrent
+QA traffic against the same shared dev server, but this could not be confirmed
+without stdout access to the running process.
+
+IMPACT ON MISSION: this blocks the core mechanism of step 1 (discuss ->
+WriterMemory -> dismiss -> honored-by-new-dev-edit-run loop) end-to-end via the
+HTTP API, since both the discuss route and the finding-dismiss PATCH route are
+double-dynamic. It also blocks polling a NEW dev-edit session's SSE stream
+(also double-dynamic), and the malformed-JSON-on-a-double-dynamic-route repro.
+It does NOT block: the zero/single-dynamic routes needed for step 2's invalid
+BYOK key test, step 2's malformed-JSON-on-POST-/api/books repro (reuses P8
+Rita's already-proven zero-dynamic route), step 3's dashboard/daily-plan checks
+(single dynamic), or step 4's tier-gate probe on POST /api/series (zero
+dynamic).
+
+Per the mission's hard constraints (no server restart, no src/ edits), this
+blocker cannot be resolved from within this session. Reported to team-lead;
+proceeding with everything reachable and documenting step 1 as BLOCKED-ENV
+with this evidence rather than fabricating or route-working-around the core
+mechanism proof.

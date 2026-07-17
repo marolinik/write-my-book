@@ -1,0 +1,71 @@
+{
+  "writing_stats": {
+    "status": 200,
+    "body": {
+      "dailyCounts": [
+        {
+          "date": "2026-07-11",
+          "words": 0
+        },
+        {
+          "date": "2026-07-12",
+          "words": 0
+        },
+        {
+          "date": "2026-07-13",
+          "words": 0
+        },
+        {
+          "date": "2026-07-14",
+          "words": 0
+        },
+        {
+          "date": "2026-07-15",
+          "words": 0
+        },
+        {
+          "date": "2026-07-16",
+          "words": 380
+        },
+        {
+          "date": "2026-07-17",
+          "words": 324
+        }
+      ],
+      "todayWords": 324,
+      "streak": 2,
+      "bestStreak": 2,
+      "weeklyAvg": 101,
+      "totalWords": 704,
+      "goals": []
+    },
+    "elapsed_s": 1.556
+  },
+  "daily_plan": {
+    "status": 200,
+    "body": {
+      "plan": [
+        {
+          "id": "continue",
+          "type": "write",
+          "title": "Continue Ch.1",
+          "detail": "You last worked on this chapter — keep the momentum going.",
+          "estimatedMinutes": 30,
+          "href": "/books/4116055c-6183-4675-926a-e04f31126951/chapters/ed84e638-0436-4cee-a458-669ce81cad50",
+          "priority": "high"
+        },
+        {
+          "id": "line-edit",
+          "type": "edit",
+          "title": "Line edit Ch.1",
+          "detail": "Polish the prose with a line-level edit.",
+          "estimatedMinutes": 15,
+          "href": "/books/4116055c-6183-4675-926a-e04f31126951/editorial",
+          "priority": "low"
+        }
+      ],
+      "greeting": "Good morning! Here's your plan for today."
+    },
+    "elapsed_s": 1.423
+  }
+}

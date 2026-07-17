@@ -1,0 +1,58 @@
+{
+  "persona": "P1 Maya (debut novelist, Indie plan, BYOK OpenRouter qwen/qwen3.6-27b)",
+  "bookId": "4116055c-6183-4675-926a-e04f31126951",
+  "date": "2026-07-17/18",
+  "steps": {
+    "step1_d8_loop": {
+      "verdict": "FAIL",
+      "detail": "Discuss returned HTTP 200 with genuinely empty assistantMessage on all 3 real LLM turns (D-02, new defect). No REMEMBER block ever emitted -> zero WriterMemory rows before and after dismiss (two independent GET /api/memory checks, both []). Turn-cap correctly 409s on turn 4 regardless. Dismiss PATCH succeeded cleanly. New dev-edit-2 run (background BullMQ, 290s, complete) did not re-raise the dismissed finding, but this cannot be attributed to the (nonfunctional) WriterMemory mechanism -- likely content-hash dedup in tools.ts:1258 or LLM stochasticity, unconfirmed. Grading protocol dimension D8 should reflect the loop being broken, not the coincidental non-reraise."
+    },
+    "step2_edge_cases": {
+      "invalid_byok_key": "PASS - clean 400, no leak",
+      "turn_cap_409": "PASS - fires exactly on 4th turn",
+      "d01_malformed_json_repro": "FAIL (D-01, cross-ref P8 Rita) - PATCH /api/books/:id with malformed JSON -> 500 instead of 400/422; control read confirms no partial write"
+    },
+    "step3_return_visit": {
+      "verdict": "PASS",
+      "detail": "psql backdate (INSERT ONLY, Maya's own document_versions row, book_id-fenced) of a 'yesterday' session (380 words, 2026-07-16T19:30Z) alongside today's real 704-word chapter. writing-stats correctly shows dailyCounts 380+324=704 (exact match to actual chapter word count), streak=2, bestStreak=2, weeklyAvg=101 (704/7 rounded). daily-plan correctly reflects real chapter status (dev_edited -> recommends line-edit, not a canned response)."
+    },
+    "step4_tier_probe": {
+      "verdict": "PASS",
+      "detail": "Indie-plan POST /api/series -> clean 403 with upgrade copy. Control GET on Maya's own book immediately after -> 200, fully unaffected (no collateral blast radius from the denied action)."
+    },
+    "step5_worker_proof": {
+      "verdict": "PASS",
+      "detail": "Single worker runtime confirmed (leaf PID 37060) before the D8 dev-edit measurement per GRADING-PROTOCOL SS8, and re-confirmed unchanged after an unplanned app-server restart mid-session."
+    }
+  },
+  "defects_new": [
+    {
+      "id": "D-02",
+      "title": "Discuss endpoint silently returns empty replies (200, not error) for reasoning-capable BYOK model",
+      "severity": "S2",
+      "confirmed": true,
+      "repro_count": 3,
+      "root_cause": "discuss-llm.ts max_tokens:700 likely exhausted by qwen3.6-27b's internal reasoning before any text-typed content block is emitted; .find(b=>b.type==='text') returns undefined -> '' returned as if successful",
+      "impact": "Entire discuss -> WriterMemory -> honored loop (D8) non-functional for this campaign's own Indie BYOK validation model/persona configuration"
+    }
+  ],
+  "defects_cross_referenced": [
+    {
+      "id": "D-01",
+      "title": "Malformed JSON body -> 500 instead of 400/422 (architectural, multi-route)",
+      "source": "originally documented by P8 Rita",
+      "new_repro": "PATCH /api/books/:id, persona P1 (Indie, not Professional) -- confirms fault is persona- and route-independent (3rd route confirmed)"
+    }
+  ],
+  "defects_retracted": [
+    {
+      "claim": "em-dash mojibake in discuss turn 1/2 responses",
+      "reason": "Windows Git-Bash console re-encoding artifact on display only; raw JSON files confirmed correct UTF-8 via Read/Grep tools"
+    },
+    {
+      "claim": "U+FFFD corruption in finding.description field after dismiss",
+      "reason": "Same console-display artifact; raw evidence files (finding-dismiss.json, findings-after-dismiss.json) confirmed byte-correct en-dash/em-dash throughout, no corruption ever existed"
+    }
+  ],
+  "proposed_grades_note": "D8 (writer intent honored) hard floor requires >=9.0 per GRADING-PROTOCOL -- this persona's evidence supports a FAIL on D8 given the discuss mechanism is completely non-functional (0/3 real turns produced content), not a partial/borderline score. Other dimensions this persona touched (tier-gate integrity, input-validation robustness, dashboard/stats correctness, worker-singleton discipline) all PASS with real evidence. Final numeric grading is the orchestrator's call per campaign convention (see P8 Rita's defects.md preamble)."
+}

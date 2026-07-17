@@ -1,0 +1,11 @@
+{
+  "route": "PATCH /api/books/:id",
+  "request_body_raw": "{\"title\": \"Salt Letters Revised\"  bad json here}}}",
+  "result": {
+    "status": 500,
+    "body": {
+      "error": "Failed to update book"
+    },
+    "elapsed_s": 0.152
+  }
+}
