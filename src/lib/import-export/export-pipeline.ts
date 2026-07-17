@@ -5,6 +5,7 @@ import { join } from "path";
 import { tmpdir } from "os";
 import { randomUUID } from "crypto";
 import JSZip from "jszip";
+import { DocumentType } from "@/generated/prisma/enums";
 import type { StorageAdapter } from "@/lib/storage/types";
 import type { ExportConfig, ExportOptions, ExportResult } from "./types";
 import { getDefaultExportConfig, parseExportConfigJson } from "./export-config";
@@ -192,6 +193,181 @@ async function requireTool(name: string): Promise<void> {
   }
 }
 
+/** Chapter markdown assembled for the combined export document. */
+interface AssembledChapters {
+  chapterContent: string;
+  chapterCount: number;
+}
+
+/**
+ * Assemble chapter markdown in DB chapterNumber order (D-03).
+ *
+ * Storage paths embed the chapter number from CREATION time and are
+ * deliberately never renamed on reorder (chapters/reorder/route.ts keeps
+ * `storageKey` as the physical content pointer and moves only the DB
+ * `chapter_number` lookup column). A path-sorted listing therefore pairs DB
+ * titles with the WRONG bodies after any reorder — so chapter identity comes
+ * from the DB, and each chapter's actual prose is resolved exactly like the
+ * live chapter-content GET route: DocumentService.findByType(CHAPTER_CONTENT,
+ * chapterNumber) + readPinned (mirrors the VM2 fix — read real content via the
+ * service, never guess from paths). Act dividers likewise derive from the DB
+ * `actNumber`, never the `act-N` path segment.
+ *
+ * `@/lib/db` and `@/lib/documents` are imported lazily so this module's static
+ * import graph stays db-free for the pure-function consumers
+ * (applyChapterHeading / rewriteXhtmlTitleFromH1 unit tests).
+ */
+export async function assembleChapterSections(args: {
+  bookId: string;
+  userId: string;
+  storage: StorageAdapter;
+  chapterTitles?: Map<number, string>;
+}): Promise<AssembledChapters> {
+  const { db } = await import("@/lib/db");
+  const chapters = await db.chapter.findMany({
+    where: { bookId: args.bookId },
+    orderBy: { chapterNumber: "asc" },
+    select: { chapterNumber: true, actNumber: true },
+  });
+
+  // No chapter rows at all (legacy/pre-DB books): nothing to order by, so the
+  // path-derived assembly is the only option — and with no DB numbers there is
+  // no reorder for it to disagree with.
+  if (chapters.length === 0) {
+    return assembleChaptersFromStorage(args.storage, args.chapterTitles);
+  }
+
+  const { DocumentService } = await import("@/lib/documents");
+  const svc = new DocumentService(args.userId, args.bookId);
+
+  const chapterParts: string[] = [];
+  let currentAct: number | null = null;
+  let resolvedCount = 0;
+
+  for (const chapter of chapters) {
+    const doc = await svc.findByType(
+      DocumentType.CHAPTER_CONTENT,
+      chapter.chapterNumber
+    );
+    if (!doc) continue;
+    resolvedCount++;
+
+    // readPinned pairs currentVersion with that exact version's snapshot —
+    // the same read the editor's GET uses, so the export matches what the
+    // writer last saw. Empty/missing content skips the chapter (never crashes).
+    const stored = await svc.readPinned(doc.id);
+    const content = stored?.content ?? "";
+    if (!content) continue;
+
+    // Act divider when the DB act changes (never before the first chapter).
+    if (chapter.actNumber !== null && chapter.actNumber !== currentAct) {
+      const isFirstPart = chapterParts.length === 0;
+      currentAct = chapter.actNumber;
+      if (!isFirstPart) {
+        chapterParts.push(
+          `\n\\newpage\n\n::: {.act-divider}\n## Act ${chapter.actNumber}\n:::\n`
+        );
+      }
+    }
+
+    // Strip YAML front matter, then set the canonical chapter heading from the
+    // DB title (F9/F10) — keyed by the DB chapterNumber, not the file path.
+    let cleaned = content.replace(/^---\n[\s\S]*?\n---\n/, "");
+    cleaned = applyChapterHeading(
+      cleaned,
+      chapter.chapterNumber,
+      args.chapterTitles?.get(chapter.chapterNumber)
+    );
+
+    if (chapterParts.length > 0) {
+      chapterParts.push("\n\\newpage\n");
+    }
+    chapterParts.push(cleaned);
+  }
+
+  // Chapter rows exist but none has a content document (e.g. imports that
+  // predate document rows) — fall back to the storage listing rather than
+  // exporting an empty manuscript.
+  if (resolvedCount === 0) {
+    return assembleChaptersFromStorage(args.storage, args.chapterTitles);
+  }
+
+  return {
+    chapterContent: chapterParts.join("\n\n"),
+    chapterCount: resolvedCount,
+  };
+}
+
+/**
+ * Legacy path-derived assembly — retained ONLY as the fallback for books with
+ * no usable DB chapter/document rows (see assembleChapterSections). Chapter
+ * number and act both come from the storage path here, which is safe only
+ * because these books have no DB ordering to diverge from.
+ */
+async function assembleChaptersFromStorage(
+  storage: StorageAdapter,
+  chapterTitles?: Map<number, string>
+): Promise<AssembledChapters> {
+  const manuscriptFiles = await storage.list("manuscript/**/*.md");
+  const sorted = manuscriptFiles
+    .filter(
+      (f) =>
+        f.endsWith(".md") &&
+        !f.includes("-DEV-EDIT") &&
+        !f.includes("-LINE-EDIT") &&
+        !f.includes("-BETA-READ")
+    )
+    .sort();
+
+  if (sorted.length === 0) {
+    throw new Error("No manuscript files found");
+  }
+
+  const chapterParts: string[] = [];
+  let currentAct: string | null = null;
+
+  for (let i = 0; i < sorted.length; i++) {
+    const content = await storage.read(sorted[i]);
+    if (!content) continue;
+
+    // Detect act boundaries
+    const actMatch = sorted[i].match(/act-(\d+)/);
+    if (actMatch) {
+      const actDir = `act-${actMatch[1]}`;
+      if (actDir !== currentAct) {
+        currentAct = actDir;
+        if (i > 0) {
+          chapterParts.push(
+            `\n\\newpage\n\n::: {.act-divider}\n## Act ${actMatch[1]}\n:::\n`
+          );
+        }
+      }
+    }
+
+    // Strip YAML front matter, then set the canonical chapter heading from the
+    // DB title (F9/F10). The chapter number is derived from the file path
+    // (manuscript/act-XX/chapter-NN.md), matching DocumentType.CHAPTER_CONTENT.
+    let cleaned = content.replace(/^---\n[\s\S]*?\n---\n/, "");
+    const chapterMatch = sorted[i].match(/chapter-(\d+)/);
+    const chapterNumber = chapterMatch ? parseInt(chapterMatch[1], 10) : i + 1;
+    cleaned = applyChapterHeading(
+      cleaned,
+      chapterNumber,
+      chapterTitles?.get(chapterNumber)
+    );
+
+    if (i > 0) {
+      chapterParts.push("\n\\newpage\n");
+    }
+    chapterParts.push(cleaned);
+  }
+
+  return {
+    chapterContent: chapterParts.join("\n\n"),
+    chapterCount: sorted.length,
+  };
+}
+
 /**
  * Export manuscript using the full WMB pipeline.
  * Supports DOCX, PDF (Typst), and EPUB3 with 7 Lua filters,
@@ -250,62 +426,14 @@ export async function exportManuscript(
         )
       : await assembleFrontMatter(config, storage, format);
 
-  // 4. Assemble chapters from S3 storage
-  const manuscriptFiles = await storage.list("manuscript/**/*.md");
-  const sorted = manuscriptFiles
-    .filter(
-      (f) =>
-        f.endsWith(".md") &&
-        !f.includes("-DEV-EDIT") &&
-        !f.includes("-LINE-EDIT") &&
-        !f.includes("-BETA-READ")
-    )
-    .sort();
-
-  if (sorted.length === 0) {
-    throw new Error("No manuscript files found");
-  }
-
-  const chapterParts: string[] = [];
-  let currentAct: string | null = null;
-
-  for (let i = 0; i < sorted.length; i++) {
-    const content = await storage.read(sorted[i]);
-    if (!content) continue;
-
-    // Detect act boundaries
-    const actMatch = sorted[i].match(/act-(\d+)/);
-    if (actMatch) {
-      const actDir = `act-${actMatch[1]}`;
-      if (actDir !== currentAct) {
-        currentAct = actDir;
-        if (i > 0) {
-          chapterParts.push(
-            `\n\\newpage\n\n::: {.act-divider}\n## Act ${actMatch[1]}\n:::\n`
-          );
-        }
-      }
-    }
-
-    // Strip YAML front matter, then set the canonical chapter heading from the
-    // DB title (F9/F10). The chapter number is derived from the file path
-    // (manuscript/act-XX/chapter-NN.md), matching DocumentType.CHAPTER_CONTENT.
-    let cleaned = content.replace(/^---\n[\s\S]*?\n---\n/, "");
-    const chapterMatch = sorted[i].match(/chapter-(\d+)/);
-    const chapterNumber = chapterMatch ? parseInt(chapterMatch[1], 10) : i + 1;
-    cleaned = applyChapterHeading(
-      cleaned,
-      chapterNumber,
-      chapterTitles?.get(chapterNumber)
-    );
-
-    if (i > 0) {
-      chapterParts.push("\n\\newpage\n");
-    }
-    chapterParts.push(cleaned);
-  }
-
-  const chapterContent = chapterParts.join("\n\n");
+  // 4. Assemble chapters in DB order (D-03) — storage paths are never renamed
+  //    on reorder, so chapter identity must come from the DB, not a path sort.
+  const { chapterContent, chapterCount } = await assembleChapterSections({
+    bookId: options.bookId,
+    userId: options.userId,
+    storage,
+    chapterTitles,
+  });
 
   // 5. Assemble back matter
   const backMatterResult = await assembleBackMatter(config, storage);
@@ -343,7 +471,6 @@ export async function exportManuscript(
     .replace(/[#*_\-\[\](){}:>|`~]/g, "")
     .split(/\s+/)
     .filter(Boolean).length;
-  const chapterCount = sorted.length;
   // Approximate RENDERED-page estimate, not submission-manuscript pages. The 250
   // w/pg convention overshoots the actual export (a 6187-word book rendered to a
   // 17-page PDF, ~364 w/pg); 350 tracks the observed rendered density (B3).

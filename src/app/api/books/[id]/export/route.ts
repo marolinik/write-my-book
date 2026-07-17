@@ -39,6 +39,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     const result = await exportManuscript(
       {
         bookId,
+        userId: user.id,
         format: data.format,
         isDraft: data.isDraft,
         sceneBreakGlyph: data.sceneBreakGlyph,
