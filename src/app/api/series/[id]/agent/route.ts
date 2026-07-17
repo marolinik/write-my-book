@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { decryptApiKey } from "@/lib/encryption";
 import { estimateCost } from "@/lib/cost";
+import { checkQuota } from "@/lib/billing/quota-checker";
 import { startSeriesAgentSchema } from "@/lib/validation";
 import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
@@ -52,6 +53,14 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         { error: "Book not found in this series" },
         { status: 404 }
       );
+    }
+
+    // Plan/quota gate — mirror the book-agent route. Without this an inactive
+    // subscription could still start series agent sessions (a paid-feature
+    // tier-gate bypass), unlike its book-agent counterpart.
+    const quotaResult = await checkQuota(user.id, "use_agent_session");
+    if (!quotaResult.allowed) {
+      return NextResponse.json({ error: quotaResult.reason }, { status: 429 });
     }
 
     // Resolve workflow
