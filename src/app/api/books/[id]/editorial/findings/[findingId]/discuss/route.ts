@@ -4,7 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { buildDiscussPrompt, parseDiscussResponse, type ThreadTurn } from "@/lib/editorial/discuss-prompt";
 import { formatWriterMemoryForPrompt } from "@/lib/agents/writer-memory";
-import { runDiscussTurn } from "@/lib/editorial/discuss-llm";
+import { DiscussLLMEmptyError, runDiscussTurn } from "@/lib/editorial/discuss-llm";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 export const dynamic = "force-dynamic";
@@ -133,7 +133,7 @@ export async function POST(req: Request, { params }: RouteParams) {
     // D-04: model produced no usable text even after the doubled-budget retry.
     // It threw BEFORE step 3, so nothing was persisted and the 3-turn cap is
     // untouched — answer an honest 502 instead of a 200 with an empty reply.
-    if ((e as Error).name === "DiscussLLMEmptyError") {
+    if (e instanceof DiscussLLMEmptyError || (e as Error).name === "DiscussLLMEmptyError") {
       return NextResponse.json(
         { error: "The editor couldn't produce a reply. Your discussion turn was not used — please try again." },
         { status: 502 }

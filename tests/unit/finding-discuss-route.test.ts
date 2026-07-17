@@ -15,7 +15,10 @@ const h = vi.hoisted(() => ({
 vi.mock("@/lib/auth", () => ({ requireUser: () => Promise.resolve(h.user) }));
 vi.mock("@/lib/db", () => ({ db: h.db }));
 vi.mock("@/lib/agents/writer-memory", () => ({ formatWriterMemoryForPrompt: () => Promise.resolve("") }));
-vi.mock("@/lib/editorial/discuss-llm", () => ({ runDiscussTurn: h.runTurn }));
+vi.mock("@/lib/editorial/discuss-llm", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/editorial/discuss-llm")>()),
+  runDiscussTurn: h.runTurn,
+}));
 
 import { POST } from "@/app/api/books/[id]/editorial/findings/[findingId]/discuss/route";
 
