@@ -1,0 +1,111 @@
+{
+  "persona": "P2 Gerald",
+  "phase": "A (data-safety, no LLM)",
+  "book_id": "636a1f02-8520-4b66-8e78-08c8e0fee5f0",
+  "book_name": "Dead Reckoning 31 QA P2",
+  "total_checks": 116,
+  "passed": 111,
+  "failed": 5,
+  "failed_checks": [
+    {
+      "id": "export-05-titles-present-in-order",
+      "verdict": "FAIL",
+      "note": "found_order=['The Trieste Signal', 'A Debt in Zürich', 'The Łódź Ledger', 'The Kőszeg Drop', 'No Names in Marseille', 'Ash on the Wire', 'Novosibirsk, Cold', 'Dead Reckoning']",
+      "phase": "phase4-export-fidelity"
+    },
+    {
+      "id": "export-06-zero-content-loss-word-level",
+      "verdict": "FAIL",
+      "note": "docx_words=43975 local_words=43914",
+      "phase": "phase4-export-fidelity"
+    },
+    {
+      "id": "verify-07-body-exact-'The Kőszeg Drop'",
+      "verdict": "FAIL",
+      "note": "local_words=5433 docx_words=5517",
+      "phase": "phase4b-export-fidelity-corrected"
+    },
+    {
+      "id": "verify-07-body-exact-'No Names in Marseille'",
+      "verdict": "FAIL",
+      "note": "local_words=5515 docx_words=5433",
+      "phase": "phase4b-export-fidelity-corrected"
+    },
+    {
+      "id": "verify-08-all-chapter-bodies-byte/word-exact-zero-loss",
+      "verdict": "FAIL",
+      "note": "",
+      "phase": "phase4b-export-fidelity-corrected"
+    }
+  ],
+  "word_loss_found": false,
+  "defects": [
+    {
+      "id": "D-03",
+      "severity": "S1",
+      "status": "NOT FIXED (outside read-only src/ scope for phase A)",
+      "title": "docx/pdf/epub export silently swaps chapter body content onto the wrong chapter title after a reorder",
+      "category": "data integrity / export fidelity"
+    },
+    {
+      "id": "D-02",
+      "severity": "environment (was BLOCKER)",
+      "status": "RESOLVED",
+      "title": "All API routes with >=5 path segments returned Turbopack HTML 404 instead of app JSON",
+      "category": "dev-environment"
+    },
+    {
+      "id": "D-01",
+      "severity": "S3 (known, pre-existing)",
+      "status": "REPRODUCED, not fixed (out of phase A scope, record only per mission instructions)",
+      "title": "Malformed JSON body on chapter content PUT returns 500 instead of a clean 4xx",
+      "category": "input validation / error handling",
+      "repro_evidence": "edge-09-malformed-json-known-D01 in phase5_state.json: PUT with body '{not valid json!!' -> HTTP 500 {\"error\":\"Failed to save content\"}"
+    }
+  ],
+  "phase_breakdown": {
+    "phase1-day0-import": {
+      "total": 18,
+      "passed": 18
+    },
+    "phase2-w4-data-safety": {
+      "total": 33,
+      "passed": 33
+    },
+    "phase3-find-replace": {
+      "total": 29,
+      "passed": 29
+    },
+    "phase4-export-fidelity": {
+      "total": 10,
+      "passed": 8,
+      "note": "export-05/export-06 FAILED here due to a test-script artifact (hardcoded pre-swap expected order/word-sequence); superseded by phase4b which fetches live order from the API."
+    },
+    "phase4b-export-fidelity-corrected": {
+      "total": 15,
+      "passed": 12,
+      "note": "verify-07 FAILED for exactly the 2 reordered chapters -> root-caused as D-03, a genuine app defect."
+    },
+    "phase5-edge-cases-and-cost": {
+      "total": 11,
+      "passed": 11
+    }
+  },
+  "cost_health": {
+    "llm_cost_estimate": 0,
+    "llm_sessions": 0,
+    "embedding_cost_estimate": 0.00069226,
+    "embedding_tokens": 34613,
+    "note": "Zero LLM spend confirmed for user_qa_p2 throughout Phase A, as required (no dev-edit/line-edit/CAS/extraction ever invoked). Non-zero embeddingCosts is expected (VM1 auto-indexing on content saves), not LLM agent spend."
+  },
+  "deferred_ui_only": [
+    "Editor UI rendering of unicode/diacritics (verified via API round-trip only, not visually in-browser)",
+    "Version-history UI list/rollback affordances (verified via API only)",
+    "Find/replace UI dialog and highlight behavior (verified via API only)",
+    "Export download UI / progress indicator (verified via API + raw file fetch only)"
+  ],
+  "phase_b_scope": [
+    "Any check requiring LLM/agent jobs (dev-edit, line-edit, CAS, extraction) — explicitly out of scope for phase A per mission constraints",
+    "pdf and epub export fidelity for D-03 (only docx independently verified; bug is architecturally format-agnostic per root-cause read of export-pipeline.ts, but not empirically confirmed for pdf/epub)"
+  ]
+}
