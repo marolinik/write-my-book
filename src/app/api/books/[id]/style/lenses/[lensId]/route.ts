@@ -60,7 +60,14 @@ export async function DELETE(
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
-    await db.characterLens.delete({ where: { id: lensId } });
+    // Fence the lens to this owned book — deleting by id alone let any user
+    // destroy any lens by guessing its id (cross-tenant delete). Mirror PATCH.
+    const { count } = await db.characterLens.deleteMany({
+      where: { id: lensId, bookId },
+    });
+    if (count === 0) {
+      return NextResponse.json({ error: "Lens not found" }, { status: 404 });
+    }
     return NextResponse.json({ deleted: true });
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
