@@ -1,0 +1,25 @@
+Worker-proof check — P1 Maya journey
+Timestamp: 2026-07-17T15:16:18Z
+
+Command run:
+Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'src/worker.ts' } | Select-Object ProcessId, ParentProcessId, CommandLine | Format-List
+
+Output (process chain — cmd.exe/npx/tsx wrapper chain culminating in one leaf node runtime):
+ProcessId       : 55980   (cmd.exe /d /s /c npx tsx src/worker.ts)
+ParentProcessId : 43012
+---
+ProcessId       : 9296    (node.exe running npx-cli.js tsx src/worker.ts)
+ParentProcessId : 55980
+---
+ProcessId       : 8464    (cmd.exe /d /s /c tsx src/worker.ts)
+ParentProcessId : 9296
+---
+ProcessId       : 46352   (node running tsx/dist/cli.mjs src/worker.ts)
+ParentProcessId : 8464
+---
+ProcessId       : 2484    (node.exe --require tsx/dist/preflight.cjs --import tsx/dist/loader.mjs src/worker.ts)  <-- LEAF WORKER RUNTIME
+ParentProcessId : 46352
+
+CONCLUSION: Exactly ONE worker runtime confirmed. Leaf worker PID = 2484.
+All processes above form a single wrapper chain (cmd -> npx -> cmd -> tsx cli -> node loader), not multiple independent workers.
+Proceeding with journey execution.

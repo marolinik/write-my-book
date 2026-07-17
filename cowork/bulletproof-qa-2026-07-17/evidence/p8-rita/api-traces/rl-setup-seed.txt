@@ -1,0 +1,9 @@
+TEST: rl-setup-seed - p1 seeds one finding via batch-create for discuss rate-limit test
+METHOD: POST
+PATH: /api/books/4116055c-6183-4675-926a-e04f31126951/editorial/findings
+ACTOR: p1
+EXPECTED: [201]
+ACTUAL STATUS: 200
+ELAPSED: 0.09234142303466797
+---- RESPONSE BODY ----
+{"created":1}

@@ -1,0 +1,2501 @@
+{
+  "session_id": "232dae23-29ef-470e-955b-7276faeab699",
+  "elapsed_s": 139.74,
+  "final_status": null,
+  "event_count": 831,
+  "events": [
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Using tool: ListDocuments\",\"metadata\":{\"tool\":\"ListDocuments\",\"toolUseId\":\"call-7f2920e1-886d-4e7f-863e-255496312234\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Using tool: ReadAllChapters\",\"metadata\":{\"tool\":\"ReadAllChapters\",\"toolUseId\":\"call-0d3602cc-380b-4d07-bbdc-9dba15880403\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Using tool: ReadDocument\",\"metadata\":{\"tool\":\"ReadDocument\",\"toolUseId\":\"call-959d450b-2bcc-4ca5-bbb8-a46f6be2162a\"}}"
+    },
+    {
+      "data": "{\"type\":\"cost_update\",\"content\":\"$0.0036\",\"metadata\":{\"inputTokens\":10638,\"outputTokens\":218,\"costUsd\":0.00355503,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Executing: ListDocuments\",\"metadata\":{\"tool\":\"ListDocuments\",\"toolInput\":{},\"toolUseId\":\"call-7f2920e1-886d-4e7f-863e-255496312234\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_result\",\"content\":\"- FINGERPRINT: Fingerprint: Literary Voice Analysis [v1]\\n- CHAPTER_CONTENT (ch 1): Chapter 1 [v1]\",\"metadata\":{\"tool\":\"ListDocuments\",\"toolUseId\":\"call-7f2920e1-886d-4e7f-863e-255496312234\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Executing: ReadAllChapters\",\"metadata\":{\"tool\":\"ReadAllChapters\",\"toolInput\":{\"chapterNumbers\":[1]},\"toolUseId\":\"call-0d3602cc-380b-4d07-bbdc-9dba15880403\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_result\",\"content\":\"# Full Manuscript (1 chapters, 1 total)\\n\\n## Chapter 1: Untitled\\n\\n# Chapter One\\n\\nThe letters arrived in salt-stained envelopes, always three days after the tide had turned, as if the sea itself needed time to decide whether they were worth delivering. Imogen kept them in a biscuit tin under the floorboard her father had loosened the winter he taught her to lie convincingly. She never read them the day they came. She let them sit, the way you let a burn sit before you touch it again, testing wheth...\",\"metadata\":{\"tool\":\"ReadAllChapters\",\"toolUseId\":\"call-0d3602cc-380b-4d07-bbdc-9dba15880403\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Executing: ReadDocument\",\"metadata\":{\"tool\":\"ReadDocument\",\"toolInput\":{\"documentType\":\"CONCEPT\"},\"toolUseId\":\"call-959d450b-2bcc-4ca5-bbb8-a46f6be2162a\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_result\",\"content\":\"No CONCEPT document found.\",\"metadata\":{\"tool\":\"ReadDocument\",\"toolUseId\":\"call-959d450b-2bcc-4ca5-bbb8-a46f6be2162a\"}}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n#\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Building\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Your Story Bible\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\nWelcome.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" I've\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" read\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" through\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Chapter One\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" of *The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Salt Letters QA\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" P1 \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"931\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"81fd\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"1*, and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" it\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" beautiful opening\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \u2014 precise\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", atmospheric,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and emotionally\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" complex\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" voice\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" already distinctive\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\": literary\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" but\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" intimate, coastal\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and contempl\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ative, with\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" grief\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" treated\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" as something\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" you learn\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to w\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ade through rather\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" than drown\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" in\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\n\\nBefore\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" we\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" build the story\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" bible, here\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s what I\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" can\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" already see\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" from this\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" chapter:\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"##\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" What Chapter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" One\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Has\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Given\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Us\\n\\n**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Characters:**\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"- **Im\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ogen** \u2014\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Our\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" protagonist.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Young\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" woman on\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the Welsh\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" coast. Man\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ages grief through\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" calculated\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" distance.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Rece\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ives letters from\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Thomas.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Her\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" mother\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" death sits\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" heavily\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" with\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" her. She\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the second kind\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" of person\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \u2014\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" one\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" who \\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"builds elaborate\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" structures to keep\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" [\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"feeling]\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" at a surviv\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"able distance.\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n- **\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Thomas Rhys\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"** \u2014 The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" letter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-w\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"riter. Loved\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Imogen's\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" mother \\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"before the war\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" took the shape\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" out of him\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\\" Writes\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" with\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"careful,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" spaced-out script\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \u2014\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" pen\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ance\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" through\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" penmanship.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Asks about\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the coastline as\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" proxy for asking\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" whether the world\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" that held his\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" happiness still exists\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\n-\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" **Imogen\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s Aunt**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \u2014 Sharp\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", blunt\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Calls\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Imogen's\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" coping \\\"e\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"vasion.\\\" Has\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"a way\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" of asking directly\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" shaped\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" by \\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"decades of\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" being lied to\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" gently.\\\"\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"- **Im\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ogen's Mother\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"** (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"deceased)\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \u2014 Had\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"small and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" slanted and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" impatient\\\" handwriting\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". \\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"W\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ent under\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" when\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" faced\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" with grief all\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" at once.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Died\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\";\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Imogen attended\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" her funeral.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Ta\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ught Im\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ogen to count\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" lit windows.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n- **\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Imogen's\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Father** (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"unknown\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" status\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\") \u2014 Lo\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"osened the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" floorboard.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Taught her\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to lie convinc\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ingly\\\" one\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" winter. Abs\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ent from\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the narrative so\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" far \u2014\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is he gone\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"?\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Living\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" away\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"?\\n\\n**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Setting:**\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"- **P\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"entref**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \u2014 A Welsh\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" coastal village.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" text\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" references\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" shall\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ows, tide\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", salt houses\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", gulls\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", and a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" coastline that\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" changes with\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the seasons.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Int\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"imate, small\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" enough\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to count\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" every\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" lit window in\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n- The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" **\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"sea** dominates\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" as\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" both landscape\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and emotional architecture\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\n\\n**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Themes:**\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"- G\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"rief as arithmetic\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" vs. grief\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" as drowning\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n- Truth\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" lies\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", and withheld\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" things\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n- The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" language\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" of the past\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" (letters as\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" translation)\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"- Windows\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" doors\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", and rooms\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \u2014\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" thresholds of emotional\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" access\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n- In\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"herited\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" trauma\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and different\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" coping\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" styles\\n\\n---\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n## Questions\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to Flesh\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Out the Bible\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\nI\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'d\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" like to walk\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" through the key\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" elements\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" of the story\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" You\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" can\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" answer as much\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" or as little\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" as you'd\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" like \u2014 we\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" can always\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" refine later\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\n\\n###\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" 1.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Characters (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"b\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"eyond Im\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ogen)\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"- **Thomas\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Rhys**:\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" How\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" old is he\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" relative\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to Imogen\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"? What\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" war\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" shaped\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" him? Is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" he still in\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" love\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" with\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" her mother,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" or is his\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" love redirected\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" toward\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" her memory\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" through\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Imogen?\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Does\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" he live\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" nearby\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" or do\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" they\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" only correspond\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"?\\n-\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" **The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Aunt**: What\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s her name\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"? What\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" her role\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" in Imogen\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s life \u2014\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" guardian\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", occasional\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" visitor, source\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" of tension?\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" What\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" lie\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" was\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" she told\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" gently,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and by\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" whom?\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"- **Im\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ogen's Parents\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**: What happened\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to Im\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ogen's father\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"? Is he\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" alive, missing\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", or dead\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"? What about\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" her\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" mother \u2014\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" how did she\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" die\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"? Was\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" it grief-related\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" disappearance\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", an\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" accident, a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" suicide),\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" or something else\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" entirely\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"?\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"### 2\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". The Inc\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"iting Incident &\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Plot\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Direction\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n- Chapter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" One establishes\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the pattern\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" of letters\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". What will\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" **\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"break\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"** this\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" pattern? Is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" twelfth letter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" different? Does\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" something\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" force\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Im\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ogen to confront\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" what\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" she's been\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" avoiding?\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"- What's\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the **central\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" question\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"** of\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" this\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" story? (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"e.g.,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Will\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Imogen learn\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to feel\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" without going\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" under? Will\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" she uncover\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" what\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" really\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" happened to her\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" mother? Will\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" she and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Thomas form\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a relationship\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"?)\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"- Where\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" do\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" you see the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" story **\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ending**?\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Not\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" final\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" scene\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", but the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" emotional destination\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \u2014 who\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Imogen at\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the end,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and what has\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" changed?\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"### 3\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". World\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" & Historical\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Context\\n-\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" What era is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" this set in\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"? The reference\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to \\\"the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" war\\\" suggests\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"20th\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" century (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"WWII\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"? Falk\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"lands?\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Something else\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"?), but I\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" want\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to confirm\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\n-\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Is the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" story set\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" entirely\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" in Pent\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ref, or\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" will we\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" see\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" other locations?\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Other\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" countries\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Thomas\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s home\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", Im\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ogen's mother\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s origins\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"?\\n-\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Are there any\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" **supern\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"atural or magical\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" elements**,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" or is this\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" strictly\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" literary realism\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"?\\n\\n###\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" 4.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Themes & Symbol\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ism\\n-\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The sea,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" letters, the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" tin\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", windows,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" doors,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" w\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ading all\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" feel\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" symbolic\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". Are\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" there specific\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" symbols or\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" motifs\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" you want to\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" carry through the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" entire book?\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n- What\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s the **\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"emotional arc\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"** you want\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" reader to experience\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \u2014\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" alongside\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Imogen's\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" what\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" journey\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" should\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the book\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" take them\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" on?\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"- Are\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" there secondary\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" themes\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" besides\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" grief \u2014\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" belonging\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", love\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", betrayal\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", forgiveness\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", memory\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", identity\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"?\\n\\n###\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" 5.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Structure\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" & Scope\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n- How\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" many chapters do\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" you envision\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"?\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" This\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" feels\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" like a literary\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" novel\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \u2014 would\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" you say\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" 15\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\u201325\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" chapters,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" or something\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" longer\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"?\\n-\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Is this\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a single POV\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" story (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Imogen only\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"), or will\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" we see Thomas\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s perspective or\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" other\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" viewpoints\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"?\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n- Will\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" there be flash\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"backs to\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Imogen's\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" mother's life\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", or is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the past\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" revealed\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" only\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" through letters and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" memory?\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"---\\n\\nTake\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" your time with\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" this\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". Answer\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" what\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" you\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" can\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", and I\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'ll build\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" first\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" draft of the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" story bible.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" We can refine\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" it as\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" we go\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \u2014 a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" story\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" bible is a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" living document,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" not a contract\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Sh\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"all we\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" begin\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"?\"}"
+    },
+    {
+      "data": "{\"type\":\"cost_update\",\"content\":\"$0.0075\",\"metadata\":{\"inputTokens\":11653,\"outputTokens\":1760,\"costUsd\":0.007545105,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Great questions. Here are my answers:\\n\\n1. Characters: Thomas Rhys is about 15 years older than Imogen, a contemporary of her mother's. He was shaped by the Second World War (a coastal defense posting near Pentref) and his love for Imogen's mother was never fully redirected -- it's frozen, and writing to Imogen is his way of keeping it alive without admitting that. He lives two villages away and they only correspond by letter. The aunt's name is Eluned; she is Imogen's legal guardian since the mother's death and raised Imogen's mother too, so there's an old rivalry underneath her bluntness. The lie she was told gently was that Imogen's mother's death was an accidental drowning -- Eluned suspects it wasn't, and that tension is unspoken between her and Imogen. Imogen's father left when Imogen was nine, no explanation, no contact since; his absence is a second, quieter grief.\\n\\n2. Plot: The twelfth letter is different -- it directly asks Imogen to finally tell him what really happened to her mother, breaking the pattern of gentle deflection Imogen has maintained. The central question is whether Imogen will risk drowning in the truth in order to stop merely wading around it. The book ends with Imogen choosing to open all twelve letters at once and write Thomas the truth, having learned that \\\"arithmetic\\\" was never going to be enough -- she doesn't stop grieving, but she stops rationing it.\\n\\n3. World: 1962, contemporary to the letters' present but with the war (WWII) as the shaping backstory for Thomas. Setting is entirely Pentref and its coastline, with a couple of scenes in Eluned's cottage further inland. No supernatural elements -- strict literary realism.\\n\\n4. Themes: the tide/sea as the central symbol for grief and truth surfacing on its own schedule; keep windows/doors/rooms as a throughline for what Imogen chooses to reveal or seal off; secondary themes are inherited silence between women in the family, and the cost of a love that never got to become ordinary.\\n\\n5. Structure: about 18 chapters, single POV (Imogen only, close third), no Thomas POV chapters -- we should only ever access him through his letters and Imogen's inference, which preserves the mystery. No flashback scenes; the past should stay filtered through letters and memory the way Chapter One establishes.\\n\\nPlease go ahead and draft the story bible from this.\",\"metadata\":{\"role\":\"user\"}}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\nPerfect\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \u2014\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" thank\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" you.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" This is everything\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" I need.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Let me syn\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"thesize all\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" of this into\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a clean\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", working story\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" bible that\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" our\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" agents\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" can\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" reference throughout the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" project.\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Using tool: WriteDocument\",\"metadata\":{\"tool\":\"WriteDocument\",\"toolUseId\":\"call-84046a0e-5029-47d1-8200-5fb8337907f2\"}}"
+    },
+    {
+      "data": "{\"type\":\"cost_update\",\"content\":\"$0.0155\",\"metadata\":{\"inputTokens\":11141,\"outputTokens\":5152,\"costUsd\":0.015539985,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":10}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Executing: WriteDocument\",\"metadata\":{\"tool\":\"WriteDocument\",\"toolInput\":{\"content\":\"# Story Bible \u2014 The Salt Letters QA P1 93181fd1\\n\\n**Working Title:** The Salt Letters (provisional)\\n**Language:** English\\n**Word Count Target:** 55,000\u201365,000 words\\n**Genre:** Literary Fiction / Family Drama / Coming-of-Age\\n**Date:** 2025\\n\\n---\\n\\n## OVERVIEW\\n\\n**Logline:** A young woman in 1960s Wales receives letters from her mother's former lover \u2014 a man shaped by war and frozen by grief who writes to her as though she is the last translator of a language he once knew. When the twelfth letter finally asks what she has been dodging, Imogen must choose between the safe arithmetic of wading through her grief and the terrifying clarity of diving in.\\n\\n**One-Paragraph Summary:** Imogen has lived with grief through arithmetic \u2014 portioning it out, never swallowing too much at once. It works, until the twelfth letter from Thomas Rhys arrives with a question she cannot sidestep: what really happened to her mother? Sheltered beneath her aunt Eluned's guard, shaped by a father who vanished without explanation, and corresponding with a ghost from a war she never lived, Imogen faces a climactic choice. She can keep wading sideways to the current, or she can open all the letters at once and finally write the truth she's been carrying.\\n\\n---\\n\\n## CHARACTERS\\n\\n### Primary Characters\\n\\n| Name | Role | Age | Core Motivation | Ghost (Internal Wound) |\\n|------|------|-----|-----------------|----------------------|\\n| Imogen | Protagonist | ~22 | To survive grief without drowning; to keep the world \\\"at a survivable distance\\\" | Watched her mother \\\"go under\\\"; doesn't know what actually killed her (drowning, or something more) |\\n| Thomas Rhys | Central Other / Antagonist-of-Tenderness | ~37\u201340 | To keep his love for Imogen's mother alive, frozen and intact, without admitting he never moved on | The war \\\"took the shape out of him\\\"; his love never got to become ordinary; writes to Imogen as surrogate |\\n| Eluned | Aunt / Guardian / Shadow | ~55 | To protect Imogen from the same grief that destroyed her own sister; to maintain the lie that prevents the real truth from surfacing | Suspects her sister's death wasn't an accident; was lied to gently; old rivalry from raising both sisters |\\n\\n### Secondary Characters (Background)\\n\\n| Name | Role | Presence |\\n|------|------|----------|\\n| Imogen's Mother | Absence / Catalyst | Deceased. Known only through letters, memory fragments, and the space she left. Her script: \\\"small and slanted and impatient.\\\" |\\n| Imogen's Father | Secondary Absence | Left when Imogen was nine. No explanation, no contact. His loosened floorboard becomes the hiding place for the letters. A quieter, secondary grief. |\\n\\n### Character Dynamics\\n\\n**Imogen \u2194 Thomas:** Never meet in person. Communicate solely through letters. Thomas asks about the coastline, the gulls, the October water \u2014 surface details that function as proxies for his questions about grief, love, and survival. Imogen answers with care, because she understands he is really asking whether the world that held his happiness still stands. By letter twelve, he breaks the pattern.\\n\\n**Imogen \u2194 Eluned:** Legal guardian and emotional wall. Eluned raises Imogen after her mother dies. There is care beneath the bluntness \u2014 Eluned's sharpness comes from decades of being lied to gently. She suspects Imogen's mother's death was not accidental. She also suspects Imogen knows more than she admits. The lie between them is the one told to Eluned, not to Imogen \u2014 which means Imogen may already know the truth and is choosing not to tell her aunt.\\n\\n**Eluned \u2194 Thomas (Implied):** Old acquaintance, likely aware of what Thomas felt for her sister. Whether she knows he writes to Imogen is unclear, but her sharpness may be guarding against this kind of reopened wound.\\n\\n---\\n\\n## CHARACTER ARCS\\n\\n### Imogen's Arc: From Arithmetic to Honesty\\n\\n**Starting State:** Imogen manages grief through methodical portioning. She never reads the whole letter at once. She answers Thomas with care but never reveals her own interiority. She tells him \\\"yes\\\" even on days it isn't strictly true. She distrusts clarity (the sea \\\"seemed to specialize in it\\\"). She calls survival \\\"arithmetic.\\\"\\n\\n**Catalyst:** The twelfth letter. Thomas finally asks directly what happened to her mother \u2014 breaking the leash of gentle deflection.\\n\\n**Midpoint Shift:** Imogen begins to suspect that her arithmetic was never real protection, just delayed drowning. She rereads earlier letters and sees Thomas's subtext differently \u2014 he was always asking her to survive, not to answer for her mother.\\n\\n**Choice (Climax):** Imogen opens all twelve letters at once. She stops rationing grief. She writes Thomas the truth \u2014 what really happened to her mother \u2014 not to absolve herself, but because \\\"arithmetic was never going to be enough.\\\" She doesn't stop grieving, but she stops rationing it.\\n\\n**Ending State:** Imogen still grieves. The tide still comes in and out. But she no longer fears going under \u2014 she has learned that grief is not a current to fight sideways through, but a depth to inhabit.\\n\\n### Thomas's Arc: Frozen Love \u2192 Release (Implied, Through Letters)\\n\\nThomas never appears in person. His arc exists only in the evolution of his letters and Imogen's reading of them.\\n\\n**Starting Letters (1\u20137):** Ask about the coastline, weather, gulls. Seemingly casual, but Imogen perceives the subtext: he is asking whether her mother's world still exists.\\n\\n**Middle Letters (8\u201311):** The questions become slightly sharper. He asks about Imogen's habits, her relationship with Eluned. The surface distance between coastal details and personal questions narrows.\\n\\n**Letter 12:** The deflection breaks. He asks directly: *What happened to her?* Not \\\"how did she die,\\\" but \\\"what happened.\\\" A question about the story, the truth, the full weight.\\n\\n**Response (Imogen's letter to him, final chapter):** She tells him everything. Whether Thomas's final letter arrives before the book ends is optional \u2014 but his arc is complete when Imogen realizes that his love was never really about her mother at all. It was about a love that never got to become ordinary, and he was trying to make it ordinary through her.\\n\\n### Eluned's Arc: Guarded Truth \u2192 (Implied) Unspeaking\\n\\nEluned's arc is secondary but significant. She guards the lie about the drowning. She is present primarily as pressure \u2014 her bluntness, her watching, her refusal to let Imogen retreat. Whether she speaks the truth directly or whether the truth emerges through Imogen's realization is a structural choice. Eluned's arc is one of inherited silence between women \u2014 telling her sister one thing about how she died, and Imogen inherits both the grief and the silence.\\n\\n---\\n\\n## WORLD & SETTING\\n\\n### Time Period\\n\\n**Primary Timeline:** 1962. Postwar Britain. Life in rural Wales, shaped by both the memory of 1939\u20131945 and the slow tilt toward modernity. No actors from the Thatcher era forward.\\n\\n**Secondary Timeline (Backstory):** WWII. Thomas's coastal defense posting near Pentref. The war that \\\"took the shape out of him.\\\" Imogen's mother's life during Thomas's time with her.\\n\\n### Places\\n\\n**Pentref and the Coastline:** Primary setting for most of the book. The shoreline, the shallows at Pentref (where Imogen learned to wade), the old salt house with gulls nesting in its chimney. The sea is a character \u2014 not supernatural, but gravitational. It draws truth to the surface on its own schedule.\\n\\n**Eluned's Cottage:** Inland, from the sea. Represents distance from the tide, from the truth, from what the sea carries up. Imogen may spend scenes here when conflict with Eluned rises, returning to the coast when she needs clarity.\\n\\n**Thomas's Village:** Two villages away from Pentref. Never visited. Mentioned only in passing \u2014 Thomas lives there, writes from there. He is close enough that he could walk to Imogen's door, but doesn't. Correspondence is his chosen distance.\\n\\n**The House / Room:** Imogen's living space. Contains the biscuit tin under the loosened floorboard. Windows that Imogen counts from the dark. A room that is \\\"not yet furnished enough to let visitors in.\\\" Architecture is everywhere \u2014 as metaphor for emotional thresholds.\\n\\n### Sensory World\\n\\n**Coastal/Maritime:** Salt, tide, wet sand, gulls, grey sky, the line where wet meets dry. The sea's surface clarity after storms. The smell of salt-stained envelopes.\\n\\n**Body/Sensation:** Ribs, heartbeat, burns, chin, mouth. Letters pressed against the rib like a second heartbeat. Pain that \\\"changes its mind.\\\" Chin tipped back, mouth shut \u2014 the posture of wading.\\n\\n**Domestic:** Biscuit tins, floorboards, cottage interiors, warmed tea on windowsills, script and paper, the physicality of handwriting (Thomas's careful spaced-out letters vs. her mother's small slanted impatient ones).\\n\\n**Weather:** Especially October water (a color Thomas asks about). Wind that carries letters. Dark evenings where Imogen counts lit windows.\\n\\n### Historical Texture\\n\\n- **1962 Wales:** Rural, postwar. Limited technology (letters, not phones). The war is present in the older generation's behavior \u2014 Thomas's shapelessness, the way he writes. Imogen's father leaving when she was nine may be war trauma delayed, or simply male desertion \u2014 either way, it's a kept silence.\\n- **Class/Register:** Working-class to lower-middle-class coastal Wales. Not academic. Not urban. The vocabulary is intimate, concrete, grounded in physical reality.\\n- **No Technology Intrusion:** This is a book of letters, coastal walks, cottage history. The emotional architecture is analog. Letters are the only window into the distant.\\n\\n---\\n\\n## THEMES & SYMBOLS\\n\\n### Central Theme: Grief as Tide\\n\\nGrief does not stay buried. It surfaces on its own schedule, whether you are ready or not. The tide metaphor runs throughout: wading (sideways to the current), going under (her mother's death / fear), clarity (what the sea gives after a storm), the inability to ration what returns anyway. Imogen's journey from \\\"arithmetic\\\" (portioning grief) to \\\"diving\\\" (inhabiting it) is the emotional spine.\\n\\n### Supporting Themes\\n\\n**1. Inherited Silence Between Women**\\nEluned was told one thing about her sister's death. Imogen inherits both the grief and the silence. The women in this family are linked by unspoken truths \u2014 what Eluned was lied about, what Imogen doesn't say, what Imogen's mother may have been carrying. The letters become the vehicle for a truth that cannot be spoken face-to-face.\\n\\n**2. The Cost of Love That Never Got Ordinary**\\nThomas's love for Imogen's mother was real, but it was interrupted by war and never got to become a mundane, daily thing \u2014 a life together, a shared house, ordinary arguments and reconciliations. His frozen love is noble but also a kind of captivity. It lives in letters to her daughter, preserved and unchanging, because ordinary love would have required him to move forward.\\n\\n**3. Truth as Environmental Pressure**\\nThe sea carries truth to the surface. Windows reveal what happens inside. Doors held open are vulnerable. Rooms not yet furnished keep visitors out. The physical architecture of Pentref mirrors emotional architecture \u2014 Imogen's choices about what to reveal, seal off, or open are encoded in her relationship to space.\\n\\n### Symbol Register\\n\\n| Symbol | Domain | Meaning / Function |\\n|--------|--------|-------------------|\\n| Sea / Tide | Coastal | Grief, truth, clarity, the unconscious \u2014 surfaces on its own schedule. Wading = coping. Going under = surrender / death. |\\n| Letters | Communication | Delayed truth, surrogate connection, love that never got to be direct. Objects that must be endured before understood. |\\n| Windows (lit windows counted from dark) | Architecture | Souls, visibility, observation from distance \u2014 \\\"counting the lit windows\\\" = checking who else is awake with grief |\\n| Doors held open / sealed | Architecture | Emotional availability. Vulnerability vs. self-protection |\\n| Rooms (not yet furnished) | Architecture | Interior space not ready for visitors. Emotional readiness |\\n| Biscuit tin / floorboard | Storage | Buried memory. Precarious storage. The father's loosened board \u2014 his only lasting act is creating a hiding place |\\n| Script (Thomas's caretful vs. mother's impatient) | Handwriting | Voice made physical. Thomas's penance-through-penmanship vs. her mother's lived urgency |\\n| The Burn (letting pain sit) | Body | Testing whether the pain has changed its mind. Grief held at obserwation distance |\\n| The Second Heartbeat | Body | The letter against ribs. An bodyphantom presence \u2014 love or grief or truth that beats alongside the self |\\n| Gulls / Chimney | Coastal | Persistence. Things still nesting where they used to. Thomas asks if they're still there \u2014 he's asking if the world stays stable someone's absence |\\n\\n---\\n\\n## STRUCTURE & POV RULES\\n\\n### POV Configuration\\n\\n**Single POV:** Imogen only, close third person. We never access Thomas's interiority directly \u2014 only through his letters and Imogen's inference. We never access Eluned's thoughts. The world is filtered through Imogen's consciousness at all times.\\n\\n**Near-Zero Direct Dialogue:** The voice is intimate, retrospective, diary-like. Speech is rendered through paraphrase and reported action, not quoted dialogue. Imogen's internal world dominates; external speech is minimal and treated as action.\\n\\n**Memory Access:** No flashback scenes. The past is accessed only through thought, letters, and sensory triggers. Imogen remembers her mother through script, through reports, through the space she leaves. War-era memories are Thomas's \u2014 filtered through his letters and Imogen's reading of them.\\n\\n### Chapter Architecture\\n\\n**Total Chapters:** ~18 chapters\\n**Estimated Length:** 3,000\u20133,500 words per chapter (literary fiction average)\\n\\n**Structural Pattern:**\\n- **Chapters 1\u20134:** Establish the rhythm. Letters arrive, Imogen portions them, she answers Thomas, Eluned exerts pressure. The pattern of wading is set as the status quo.\\n- **Chapter 5:** The twelfth letter arrives. The pattern breaks. Thomas asks directly.\\n- **Chapters 6\u201310:** Imogen's recalibration. She re-reads earlier letters. She begins to see Thomas's subtext differently. She confronts Eluned (tension rises). The sea imagery intensifies.\\n- **Chapters 11\u201314:** Imogen's choice forms. She tests her arithmetic. She tries to portion one more time and fails. She asks herself what really happened to her mother \u2014 must she know, or can she keep wading?\\n- **Chapters 15\u201317:** Imogen opens all twelve letters at once. She reads them without rationing. The grief comes. She writes Thomas the truth.\\n- **Chapter 18:** Resolution. Imogen does not stop grieving, but she stops rationing it. The sea is still there. The windows are still lit. But she is no longer afraid to go under.\\n\\n### Pacing Strategy\\n\\n- **Deliberate, methodical base tempo.** Sentences stack and clause-accumulate. Tension is created through accumulation of withheld information, not through acceleration.\\n- **Micro-tension sources:** Unanswered questions from previous letters; Eluned's unsaid suspicion; Dramatic irony (reader may know more than Imogen about her mother); Internal conflict (Imogen wants truth but fears it); Environmental pressure (weather, the sea, the tide).\\n- **Chapter endings:** Avoid cliffhangers. End on forward motion \u2014 \\\"Tomorrow she would read it. Tomorrow, or the day after.\\\" The power is in the continuity of the pattern, then the breaking of it.\\n\\n---\\n\\n## VOICE & STYLE RULES\\n\\n### From the Author's Fingerprint\\n\\n**Prose Language:** Literary-intimate. Elevated but warm, like a whispered confession. Grounded in physical reality first, allowed to bear emotional meaning second.\\n\\n**Sentence Structure: \\\"Long-Then-Punch\\\" Rhythm**\\n- Complex sentences (65%) stack clauses with embedded constructions, em-dash digressions, ornamental syntax.\\n- Simple sentences (35%) are deliberately short and truncated, functioning as rhythmic punctuation.\\n- Fragments appear deliberately for emphasis, urgency, and cognitive isolation \u2014 never accidentally.\\n- **Key signature:** A 68-word sentence followed by a 4-word hammer. The prose breathes in long exhalations, then strikes.\\n\\n**Vocabulary Domains:**\\nCoastal/Maritime (35%), Body/Sensation (20%), Domestic/Container (15%), Mathematical/Ordering (12%), Abstract Emotional (10%), Metacognitive (8%). Concrete nouns modified by adjectives over abstract nouns modified by adverbs.\\n\\n**Dialogue:** 0\u20135% dialogue-to-narrative ratio. Reported action, not quoted speech. No quotation marks. No explicit tags. Silence is weighted. Speech is an absence more than a presence.\\n\\n**Metaphor Style:** Dense, grounded in physical reality, extended but not overworked, preferred from the character's environment. Four primary metaphor domains: coastal/marine, containment/architecture, mathematical/measurement, bodily sensation.\\n\\n**Punctuation Anchors:**\\n- **Em dashes:** Heavy use (~12 per chapter). Three functions: explanatory expansions, interjection/commentary, structural variation in complex sentences.\\n- **Semicolons:** Absent.\\n- **Ellipsis:** Absent.\\n- **Periods:** Wielded aggressively after fragments for emphasis.\\n- **Exclamation marks:** Never used.\\n- **Italics:** Never used for emphasis.\\n\\n**Signature Patterns (POSITIVE TELLS):**\\n1. Triple-noun phrases (\\\"small and slanted and impatient\\\")\\n2. \\\"The way\\\" constructions (comparative explanation mid-sentence)\\n3. Repetitive imperative sequences (repeat, then extend)\\n4. \\\"As if\\\" / \\\"as though\\\" similes (one per paragraph)\\n5. Body-as-container metaphors (letters \\\"against her ribs,\\\" emotions \\\"under\\\")\\n\\n**Signature Patterns (NEGATIVE TELLS \u2014 Never Do):**\\n1. Italics for emphasis\\n2. Exclamation marks\\n3. Direct dialogue with quotation marks\\n4. Semicolons\\n5. Flashback scenes (memory through thought only)\\n6. Broad statements about places (specific, filtered through character)\\n7. Dramatic surprise chapter endings (end on forward motion or awaiting)\\n\\n---\\n\\n## TIMELINE & KEY EVENTS\\n\\n### Imogen's Timeline (1962)\\n\\n| Period | Event |\\n|--------|-------|\\n| Age 9 | Father leaves. No explanation. No contact since. Floorboard loosened during this period \u2014 his only lasting act. |\\n| Age ~19\u201320 | Mother dies. Funeral. Imogen promises not to \\\"go under.\\\" Eluned becomes guardian. Letters from Thomas begin arriving. |\\n| Age 22 (Present) | Chapter 1\u201318. Letters 1\u201312 arrive over weeks/months. The pattern of wading establishes. Letter 12 breaks the pattern. Imogen makes her choice. |\\n\\n### Thomas's Timeline (Backstory)\\n\\n| Period | Event |\\n|--------|-------|\\n| ~1940\u20131942 | Coastal defense posting near Pentref. Meets/loves Imogen's mother. The war \\\"takes the shape out of him.\\\" |\\n| ~1942\u20131960 | Love frozen. Never redirects. Writes himself into quiet. Lives two villages away. |\\n| ~1960\u20131962 | Begins writing to Imogen. Asks about the coastline, the gulls, her mother's world. Never asks directly \u2014 until letter 12. |\\n\\n### Letter Chronology\\n\\n| Letter | Content Type | Theme |\\n|--------|-------------|-------|\\n| 1 | Arrival, pattern established | Coastline, gulls |\\n| 2\u20137 | Surface questions | Weather, October water, salt house \u2014 proxies for love and loss |\\n| 8\u201311 | Sharper, closer questions | Imogen's habits, Eluned, her life \u2014 getting bolder |\\n| 12 | The break | *What happened to her?* Asked directly. |\\n| Imogen's letter | The answer | The truth written at last. |\\n\\n---\\n\\n## OPEN QUESTIONS & MICHELANGELO CONTRACTS\\n\\nThese questions remain live until the author decides them during drafting:\\n\\n- What exactly happened to Imogen's mother? (The truth only Imogen would know \u2014 or suspect. Accident or something more?)\\n- Did Eluned slur Imogena mother about the truth? What was the lie she was told gently?\\n- Does Thomas write a final letter? Does Imogen see it before or after writing her truth?\\n- What was Imogen's father's reason for leaving? (War trauma? Desertion? Too ordinary a grief for this book \u2014 to be decided.)\\n- Does Eluned speak the unspoken thing to Imogen, or does the truth emerge through Imogen's own realization?\\n\\nThese questions are test weights \u2014 they will clarify themselves through drafting. The story bible holds them as open.\\n\\n---\\n\\n## FILE STRUCTURE\\n\\n- **Story Bible:** This document (reference for all agents)\\n- **Chapter Plans:** One per chapter (18 total)\\n- **Chapter Content:** Final draft prose per chapter\\n- **Snapshots:** Dev edit reports, line edit reports, continuity reports, beta read reports\\n- **Traveling_Mind:** Working in progress notes that are merged into story bible\\n\\n---\\n\\n*This story bible is a living document. It will be updated as new craft decisions are made, as chapters are written and revised, and as the voice and structure evolve. All updates must preserve the core voice rules, single-POV constraint, and thematic spine.*\",\"documentType\":\"STORY_BIBLE\",\"title\":\"Story Bible \u2014 The Salt Letters QA P1 93181fd1\"},\"toolUseId\":\"call-84046a0e-5029-47d1-8200-5fb8337907f2\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_result\",\"content\":\"Created STORY_BIBLE (id: 3c382c94-b479-43fa-b4bf-01997e118c81).\",\"metadata\":{\"tool\":\"WriteDocument\",\"toolUseId\":\"call-84046a0e-5029-47d1-8200-5fb8337907f2\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Using tool: RememberInsight\",\"metadata\":{\"tool\":\"RememberInsight\",\"toolUseId\":\"call-fe149911-384d-4dd9-9ca8-bb22abc52442\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Using tool: RememberInsight\",\"metadata\":{\"tool\":\"RememberInsight\",\"toolUseId\":\"call-bfcad802-db75-442a-bc3f-7fd4fcdaa3cc\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Using tool: RememberInsight\",\"metadata\":{\"tool\":\"RememberInsight\",\"toolUseId\":\"call-fbb5b413-32f5-4b1c-93f0-76a1464f20de\"}}"
+    },
+    {
+      "data": "{\"type\":\"cost_update\",\"content\":\"$0.0178\",\"metadata\":{\"inputTokens\":16354,\"outputTokens\":5485,\"costUsd\":0.01782489,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":10}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Executing: RememberInsight\",\"metadata\":{\"tool\":\"RememberInsight\",\"toolInput\":{\"category\":\"decision\",\"content\":\"POV RULE: Single POV (Imogen), close third, near-zero direct dialogue. No flashback scenes \u2014 memory accessed only through letters, thought, and sensory triggers. This is non-negotiable and must be enforced across all chapter drafting.\"},\"toolUseId\":\"call-fe149911-384d-4dd9-9ca8-bb22abc52442\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_result\",\"content\":\"Insight stored in episodic memory (category: decision).\",\"metadata\":{\"tool\":\"RememberInsight\",\"toolUseId\":\"call-fe149911-384d-4dd9-9ca8-bb22abc52442\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Executing: RememberInsight\",\"metadata\":{\"tool\":\"RememberInsight\",\"toolInput\":{\"category\":\"decision\",\"content\":\"STRUCTURE: 18 chapters. The twelfth letter arrives at Chapter 5 \u2014 it's the pattern-break catalyst. Chapter 18 ends with Imogen opening all letters at once and writing Thomas the truth. \\\"Arithmetic was never going to be enough.\\\"\"},\"toolUseId\":\"call-bfcad802-db75-442a-bc3f-7fd4fcdaa3cc\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_result\",\"content\":\"Insight stored in episodic memory (category: decision).\",\"metadata\":{\"tool\":\"RememberInsight\",\"toolUseId\":\"call-bfcad802-db75-442a-bc3f-7fd4fcdaa3cc\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Executing: RememberInsight\",\"metadata\":{\"tool\":\"RememberInsight\",\"toolInput\":{\"content\":\"THEMATIC SPINE: Grief as tide. Imogen's arc from \\\"arithmetic\\\" (portioning grief) to \\\"diving\\\" (inhabiting it). Four core symbols: sea/tide, letters, architectural thresholds (windows/doors/rooms), body-as-container (the letter as second heartbeat).\",\"category\":\"decision\"},\"toolUseId\":\"call-fbb5b413-32f5-4b1c-93f0-76a1464f20de\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_result\",\"content\":\"Insight stored in episodic memory (category: decision).\",\"metadata\":{\"tool\":\"RememberInsight\",\"toolUseId\":\"call-fbb5b413-32f5-4b1c-93f0-76a1464f20de\"}}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Done\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" story bible is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" built\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and locked\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" in. Here\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s what we\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" have\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":\\n\\n**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Story Bible \u2014\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The Salt Letters\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" QA P1\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" 93\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"181\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"fd1**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" (~3,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"800\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" words)\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"It contains\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n- **\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Characters** \u2014\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Im\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ogen, Thomas\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", Eluned\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", plus the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" two primary\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" absences (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"mother,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" father),\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" with full\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" arcs\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and dynamics\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"- **World\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" & Setting**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \u2014 1\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"962\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Wales\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", Pent\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ref coastline,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Eluned's\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" cottage inland\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", Thomas\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s distant\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" village, the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sensory register\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"- **Themes\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" &\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Symbols** \u2014\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" grief\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" as tide (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"central\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"), inherited silence\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" between women,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" love that never\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" got ordinary\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" full symbol register\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" table\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n- **\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Structure & POV\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Rules** \u2014\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" single\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" POV (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Imogen only\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"), ~\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"18 chapters\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", no\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" flash\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"backs, near\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-zero direct dialogue\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", the Chapter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" 5 pattern\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-break,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Chapter 1\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"8 resolution\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"- **Voice\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" & Style Rules\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"** \u2014 the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" writing\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" fingerprint\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" converted\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" into enforce\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"able craft\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" constraints (positive\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" tells and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" negative never\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-d\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"os)\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"- **Timeline\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" & Letter Chron\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ology** \u2014\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" both\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Im\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ogen's life\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" timeline\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and Thomas's\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" backstory, plus\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the letter arc\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" from Letter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" 1 through\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Letter 1\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"2 and Im\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ogen's final\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" letter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n- **\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Open Questions**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \u2014 the test\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"weights we carry\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" into\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" drafting (what\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" really happened to\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" her\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" mother, what\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Eluned was\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" lied\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" about\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", whether\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Thomas writes\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a final letter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\")\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n---\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"###\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" What's\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" next?\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"A\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" few natural\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" next\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" steps \u2014\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" pick whichever\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" feels right\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":\\n\\n1\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". **Write\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" series\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" architecture\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"** \u2014 I\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" can\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" break\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" 18\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-ch\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"apter structure into\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a detailed beat\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sheet (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"goal\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", conflict,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" outcome per chapter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" pacing\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" curve\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", tension\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sources\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\").\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" This\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" what\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" scene planner will\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" use\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n2.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" **Start Chapter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" 1**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \u2014 You\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" already\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" have prose\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" We\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" could\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" lock\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" it in,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" run\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a line\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" edit, and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" get\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" it polished to\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" voice\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-spec\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" then\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" move to\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Chapter 2\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\n\\n3\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". **Plan\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" ahead\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"** \u2014 I\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" can draft chapter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" brief\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"s for\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Chapters 2\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\u20134\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" so you have\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a roadmap\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" before writing\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" begins\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\n\\n4\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". **Ref\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ine the open\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" questions** \u2014\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" We could\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sit\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" with\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the unresolved\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" story\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"weights (the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" truth\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" about\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the mother,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" El\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"uned's lie\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" father)\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and decide which\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" ones you\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" want answered\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" now vs\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". let\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" emerge\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" through drafting.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\nWhat\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" would you like\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to do?\"}"
+    },
+    {
+      "data": "{\"type\":\"cost_update\",\"content\":\"$0.0238\",\"metadata\":{\"inputTokens\":33097,\"outputTokens\":5990,\"costUsd\":0.023808644999999996,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":10}}"
+    },
+    {
+      "data": "{\"type\":\"complete\",\"content\":\"Session finished\",\"metadata\":{\"success\":true,\"tokensInput\":33097,\"tokensOutput\":5990,\"documentIds\":[],\"sessionId\":\"232dae23-29ef-470e-955b-7276faeab699\",\"endReason\":\"natural\",\"assistantText\":\"Done. The story bible is built and locked in. Here's what we have:\\n\\n**The Story Bible \u2014 The Salt Letters QA P1 93181fd1** (~3,800 words)\\n\\nIt contains:\\n- **Characters** \u2014 Imogen, Thomas, Eluned, plus the two primary absences (mother, father), with full arcs and dynamics\\n- **World & Setting** \u2014 1962 Wales, Pentref coastline, Eluned's cottage inland, Thomas's distant village, the sensory register\\n- **Themes & Symbols** \u2014 grief as tide (central), inherited silence between women, love that never got ordinary, and a full symbol register table\\n- **Structure & POV Rules** \u2014 single POV (Imogen only), ~18 chapters, no flashbacks, near-zero direct dialogue, the Chapter 5 pattern-break, the Chapter 18 resolution\\n- **Voice & Style Rules** \u2014 the writing fingerprint converted into enforceable craft constraints (positive tells and negative never-dos)\\n- **Timeline & Letter Chronology** \u2014 both Imogen's life timeline and Thomas's backstory, plus the letter arc from Letter 1 through Letter 12 and Imogen's final letter\\n- **Open Questions** \u2014 the test-weights we carry into drafting (what really happened to her mother, what Eluned was lied about, whether Thomas writes a final letter)\\n\\n---\\n\\n### What's next?\\n\\nA few natural next steps \u2014 pick whichever feels right:\\n\\n1. **Write the series architecture** \u2014 I can break the 18-chapter structure into a detailed beat sheet (goal, conflict, outcome per chapter, pacing curve, tension sources). This is what the scene planner will use.\\n\\n2. **Start Chapter 1** \u2014 You already have prose. We could lock it in, run a line edit, and get it polished to voice-spec, then move to Chapter 2.\\n\\n3. **Plan ahead** \u2014 I can draft chapter briefs for Chapters 2\u20134 so you have a roadmap before writing begins.\\n\\n4. **Refine the open questions** \u2014 We could sit with the unresolved story-weights (the truth about the mother, Eluned's lie, the father) and decide which ones you want answered now vs. let emerge through drafting.\\n\\nWhat would you like to do?\",\"cancelled\":false,\"suggestedNext\":[]}}"
+    }
+  ]
+}

@@ -1,0 +1,1835 @@
+{
+  "session_id": "80ca091d-6c90-476e-97d7-ee63a3308300",
+  "elapsed_s": 0.09,
+  "final_status": null,
+  "event_count": 609,
+  "events": [
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Hello\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"! I'm\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" your Writing Coach\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", and today\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" we're going\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to capture the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" unique\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" voice and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" style of *\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"The Salt Letters\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" QA P1\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" 93\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"181\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"fd1*.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\n\\nWhat\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" I'll do\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" I\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'ll send\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" your\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" manuscript to my\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Style Analyst specialist\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", who will\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" conduct\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a deep analysis\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" of your prose\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \u2014\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" looking\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" at sentence rhythm\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", vocabulary patterns\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", imagery\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", emotional\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" tone, narrative\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" distance\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", dialogue\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" style\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", and other\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" signature\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" elements.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" result will be\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a **\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Fingerprint\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" document** that\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" maps\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" your writing voice\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" like\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" literary\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" DNA. This\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" becomes\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" reference for every\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" rewrite\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", edit\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", and new\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" chapter going\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" forward.\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Let me get\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" started\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Using tool: DelegateToSpecialist\",\"metadata\":{\"tool\":\"DelegateToSpecialist\",\"toolUseId\":\"call-3784ec92-c72b-421a-9d7e-dff7c818c011\"}}"
+    },
+    {
+      "data": "{\"type\":\"cost_update\",\"content\":\"$0.0026\",\"metadata\":{\"inputTokens\":5655,\"outputTokens\":414,\"costUsd\":0.0026052749999999998,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Executing: DelegateToSpecialist\",\"metadata\":{\"tool\":\"DelegateToSpecialist\",\"toolInput\":{\"agentType\":\"style-analyst\",\"task\":\"Analyze the manuscript's writing style and create a comprehensive FINGERPRINT document. Examine: sentence rhythm and length patterns, vocabulary registers and recurring word families, imagery and metaphor systems (especially coastal/salt/ocean motifs), emotional tone and atmospheric qualities, narrative voice and POV distance, dialogue characteristics, punctuation and structural signatures, thematic patterns, and any distinctive stylistic tics or devices. Reference the book name \\\"The Salt Letters QA P1 93181fd1\\\" in the fingerprint document. Provide specific textual examples with chapter references where possible.\"},\"toolUseId\":\"call-3784ec92-c72b-421a-9d7e-dff7c818c011\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_start\",\"content\":\"Delegating to Style Analyst...\",\"metadata\":{\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"task\":\"Analyze the manuscript's writing style and create a comprehensive FINGERPRINT document. Examine: sentence rhythm and length patterns, vocabulary registers and recurring word families, imagery and metaphor systems (especially coastal/salt/ocean motifs), emotional tone and atmospheric qualities, narrative voice and POV distance, dialogue characteristics, punctuation and structural signatures, thematic patterns, and any distinctive stylistic tics or devices. Reference the book name \\\"The Salt Letters QA P1 93181fd1\\\" in the fingerprint document. Provide specific textual examples with chapter references where possible.\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"\\n\\nI\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"'ll begin\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" by exploring\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" the project to\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" understand what\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" content\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" is available for\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" analysis.\\n\\n\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"Using tool: ListDocuments\",\"metadata\":{\"tool\":\"ListDocuments\",\"toolUseId\":\"call-7567af2a-a2da-414d-8ea0-52513e21a40f\",\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"tool_use\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"$0.0011\",\"metadata\":{\"inputTokens\":2678,\"outputTokens\":133,\"costUsd\":0.00108243,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5,\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"cost_update\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"Executing: ListDocuments\",\"metadata\":{\"tool\":\"ListDocuments\",\"toolInput\":{},\"toolUseId\":\"call-7567af2a-a2da-414d-8ea0-52513e21a40f\",\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"tool_use\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"- CHAPTER_CONTENT (ch 1): Chapter 1 [v1]\",\"metadata\":{\"tool\":\"ListDocuments\",\"toolUseId\":\"call-7567af2a-a2da-414d-8ea0-52513e21a40f\",\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"tool_result\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"Using tool: ReadChapter\",\"metadata\":{\"tool\":\"ReadChapter\",\"toolUseId\":\"call-a77ca8b5-e327-4d2c-b670-c9e49e095555\",\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"tool_use\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"$0.0020\",\"metadata\":{\"inputTokens\":5519,\"outputTokens\":181,\"costUsd\":0.002007315,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5,\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"cost_update\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"Executing: ReadChapter\",\"metadata\":{\"tool\":\"ReadChapter\",\"toolInput\":{\"chapterNumber\":1},\"toolUseId\":\"call-a77ca8b5-e327-4d2c-b670-c9e49e095555\",\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"tool_use\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"# Chapter One\\n\\nThe letters arrived in salt-stained envelopes, always three days after the tide had turned, as if the sea itself needed time to decide whether they were worth delivering. Imogen kept them in a biscuit tin under the floorboard her father had loosened the winter he taught her to lie convincingly. She never read them the day they came. She let them sit, the way you let a burn sit before you touch it again, testing whether the pain has changed its mind.\\n\\nHer aunt called this evasion. ...\",\"metadata\":{\"tool\":\"ReadChapter\",\"toolUseId\":\"call-a77ca8b5-e327-4d2c-b670-c9e49e095555\",\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"tool_result\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"Using tool: SearchMemory\",\"metadata\":{\"tool\":\"SearchMemory\",\"toolUseId\":\"call-b82c2775-4c63-43b8-99e7-b7fc7a724de4\",\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"tool_use\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"$0.0050\",\"metadata\":{\"inputTokens\":6435,\"outputTokens\":1340,\"costUsd\":0.005049975,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5,\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"cost_update\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"Executing: SearchMemory\",\"metadata\":{\"tool\":\"SearchMemory\",\"toolInput\":{\"query\":\"character voices narrative style prose techniques metaphor\",\"limit\":10},\"toolUseId\":\"call-b82c2775-4c63-43b8-99e7-b7fc7a724de4\",\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"tool_use\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"No relevant passages found for this query.\",\"metadata\":{\"tool\":\"SearchMemory\",\"toolUseId\":\"call-b82c2775-4c63-43b8-99e7-b7fc7a724de4\",\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"tool_result\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"\\n\\n\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"Using tool: ReadDocument\",\"metadata\":{\"tool\":\"ReadDocument\",\"toolUseId\":\"call-c76ae604-84ab-40c8-a8c6-0a1f29ad5369\",\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"tool_use\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"$0.0055\",\"metadata\":{\"inputTokens\":7637,\"outputTokens\":1403,\"costUsd\":0.005543744999999999,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5,\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"cost_update\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"Executing: ReadDocument\",\"metadata\":{\"tool\":\"ReadDocument\",\"toolInput\":{\"documentType\":\"CHAPTER_CONTENT\",\"chapterNumber\":1},\"toolUseId\":\"call-c76ae604-84ab-40c8-a8c6-0a1f29ad5369\",\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"tool_use\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"# Chapter One\\n\\nThe letters arrived in salt-stained envelopes, always three days after the tide had turned, as if the sea itself needed time to decide whether they were worth delivering. Imogen kept them in a biscuit tin under the floorboard her father had loosened the winter he taught her to lie convincingly. She never read them the day they came. She let them sit, the way you let a burn sit before you touch it again, testing whether the pain has changed its mind.\\n\\nHer aunt called this evasion. ...\",\"metadata\":{\"tool\":\"ReadDocument\",\"toolUseId\":\"call-c76ae604-84ab-40c8-a8c6-0a1f29ad5369\",\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"tool_result\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"\\n\\nNow\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" I have the\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" chapter\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" content. Let\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" me analyze this\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" text in\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" detail and produce\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" the comprehensive\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" FINGERPRINT\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" document. This\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" is a beautiful\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\", literary passage\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" with very\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" distinctive voice characteristics\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\".\\n\\n\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"Using tool: WriteDocument\",\"metadata\":{\"tool\":\"WriteDocument\",\"toolUseId\":\"call-d664f166-738c-484e-a10d-5e3c8811b9d9\",\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"tool_use\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"$0.0200\",\"metadata\":{\"inputTokens\":9105,\"outputTokens\":7244,\"costUsd\":0.019980525,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5,\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"cost_update\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"Executing: WriteDocument\",\"metadata\":{\"tool\":\"WriteDocument\",\"toolInput\":{\"documentType\":\"FINGERPRINT\",\"title\":\"Fingerprint: Literary Voice Analysis\",\"content\":\"# FINGERPRINT: Author Voice Analysis\\n\\n**Analysis Date:** 2024\\n**Source Text:** Chapter One (~570 words, 33 sentences, 7 paragraphs)\\n\\n---\\n\\n## 1. SENTENCE STRUCTURE\\n\\n**Quantitative Metrics:**\\n- **Mean sentence length:** ~17.3 words\\n- **Median sentence length:** ~15 words\\n- **Standard deviation:** ~12 words (high variance)\\n- **Distribution shape:** Clustered bimodal \u2014 peaks around 8-10 words and 25-30 words, with occasional spikes to 60+ words\\n\\n**Sentence Opening Patterns:**\\n- **Subject-first (45%):** \\\"Imogen kept them,\\\" \\\"She never read them,\\\" \\\"Her aunt called this,\\\" \\\"She told him yes\\\"\\n- **Prepositional/Temporal (25%):** \\\"On the evening,\\\" \\\"The letters were from,\\\" \\\"There was a version,\\\" \\\"Tomorrow she would\\\"\\n- **Demonstrative/Referent (15%):** \\\"The letters,\\\" \\\"The tin,\\\" \\\"The tide\\\"\\n- **Participial/Complex (10%):** \\\"Dragging its long grey hem,\\\" \\\"Testing whether the pain\\\"\\n- **Fragment (5%):** \\\"She would wade.\\\" \\\"Tomorrow, or the day after.\\\"\\n\\n**Signature Rhythm: The \\\"Long-Then-Punch\\\" Pattern**\\n\\nThis author's most distinctive sentence structure pattern is the strategic alternation between extended, complex sentences and blunt, short declarative ones. A single paragraph frequently contains this rhythm:\\n\\n> *There was a version of grief that could be managed if you portioned it out correctly \u2014 a paragraph before breakfast, a paragraph after, never the whole letter at once, because the whole letter at once was how her mother had gone under, and Imogen had promised herself, on the day of the funeral, in a voice she didn't recognize as her own, that she would not go under. She would wade.*\\n\\nHere, a 68-word sentence compresses into a 4-word hammer. This creates a rhythmic signature \u2014 the prose breathes in long exhalations, then strikes.\\n\\n**Fragment Usage:**\\nFragments appear deliberately, never accidentally. The author uses fragments for emphasis, typically as stand-alone paragraphs or immediately following longer sentences to reset the reader's pulse:\\n\\n> *She would wade.*\\n> *She would keep her chin tipped back and her mouth shut and she would wade through this.*\\n\\n> *Tomorrow she would read it. Tomorrow, or the day after.*\\n\\nThese fragments serve three purposes: (1) They create urgency where the surrounding narrative is contemplative; (2) They mimic the character's cognitive processing \u2014 her mind isolates key phrases the way she isolates grief; (3) They function as rhetorical anchors.\\n\\n**Complex-to-Simple Ratio:**\\nComplex sentences (those with embedded clauses, dependent constructions, or em-dash digressions) comprise approximately 65% of the text. Simple sentences comprise 35%. Of the simple sentences, many are deliberately short and truncated, functioning as rhythmic punctuation rather than informational units.\\n\\n**Nested Clause Chains:**\\nThe author frequently constructs sentences with multiple embedded ideas held together by ornamental syntax rather than hard connectors:\\n\\n> *The letters were from a man named Thomas Rhys, who had loved her mother before the war took the shape out of him, and who now wrote to Imogen as though she were the last surviving translator of a language he'd once been fluent in.*\\n\\nThis sentence uses two \\\"who\\\" clauses, a \\\"before\\\" temporal clause, and a \\\"as though\\\" comparative \u2014 all held together without semicollons or hard stops. The accumulation creates a sinking rhythm, as if the reader is being gently submerged in information, mirroring the character's own way of processing complex emotional terrain.\\n\\n---\\n\\n## 2. VOCABULARY PROFILE\\n\\n**Register: Literary-Intimate**\\n\\nThis author operates in a register I would classify as \\\"literary intimate\\\" \u2014 elevated enough for literary fiction, but warm and accessible enough to feel like a whispered confession rather than an academic lecture. The prose avoids both the cold precision of hard SF and the pulpy urgency of commercial thriller.\\n\\n**Distinctive Word Choices:**\\n\\nThe author selects words that are precise but not unusual \u2014 familiar vocabulary deployed in slightly unexpected contexts. Key examples:\\n\\n- **\\\"Salt-stained\\\"** (opening modifier) \u2014 specific enough to conjure sensory detail, familiar enough to feel lived-in\\n- **\\\"Arithmetic\\\"** for grief management \u2014 a surprising but immediately understood metaphor\\n- **\\\"Portioned it out correctly\\\"** \u2014 domestic language applied to emotional labor\\n- **\\\"Survivable distance\\\"** \u2014 clinical modifier paired with vague noun, creating specificity through tension\\n- **\\\"Earned penmanship as a form of penance\\\"** \u2014 literary parallelism that rewards careful reading\\n\\n**Vocabulary by Domain:**\\n\\n1. **Coastal/Maritime (35%):** tide, water, gulls, salt house, coastline, shallows, current, tideline, wet, dry, sea\\n2. **Body/Sensation (20%):** burn, pain, mouth, chin, ribs, heartbeat, under\\n3. **Domestic/Container (15%):** biscuit tin, floorboard, room, furnished, visitors, door, windows\\n4. **Mathematical/Ordering (12%):** arithmetic, paragraph, portioned, once, negotiate, schedule, whole\\n5. **Abstract Emotional (10%):** evasion, grief, happiness, feeling, clarity, survivable\\n6. **Metacognitive (8%):** understanding, recognizing, deciding, knowing, reasoning, confirming\\n\\n**Register Shifts:**\\n\\nThe author maintains register consistency across contexts \u2014 there are no jarring shifts between historical and present-tense vocabulary or between character voice and narrative voice. What changes is density: descriptive passages cluster more maritime vocabulary; introspective passages cluster abstract emotional vocabulary. The register itself remains steady, like a single-threaded voice listening to itself from different angles.\\n\\n**Word Choice Tendency:**\\n\\nThis author prefers concrete nouns modified by adjectives over abstract nouns modified by adverbs. Instead of \\\"profoundly sad,\\\" we get \\\"salt-stained envelopes.\\\" Instead of \\\"intensely careful,\\\" we get \\\"careful, spaced-out script.\\\" The vocabulary is always grounded in physical reality first, then allowed to bear emotional meaning.\\n\\n---\\n\\n## 3. DIALOGUE PATTERNS\\n\\n**Dialogue-to-Narrative Ratio: 0.05 (approximately 5%)**\\n\\nThis chapter contains very little direct dialogue. The presence of dialogue is registered through indirect speech, reported thought, and narrative paraphrase:\\n\\n- *She told him yes.*\\n- *She told him yes even on the days it wasn't strictly true.*\\n- *Her aunt called this evasion.*\\n- *Imogen called it arithmetic.*\\n\\n**Tag Preferences:**\\n- **No tag (reported action):** 100% \u2014 \\\"She told him yes\\\" is treated as action, not speech\\n- **Action beats:** None visible \u2014 the author treats speech as part of the action stream\\n- **Explicit tags (said, asked, etc.):** Absent\\n\\n**Character Voice Differentiation:**\\n\\nWithout direct dialogue, the author differentiates character voices through descriptive filters:\\n\\n> *Thomas's careful, spaced-out script, each letter of every word given room to breathe as though he'd learned penmanship as a form of penance.*\\n\\n> *Her aunt had a way of asking directly, a bluntness sharpened by decades of being lied to gently.*\\n\\nThomas's voice is conveyed through the physicality of his handwriting (\\\"careful, spaced-out,\\\" contralsting with her mother's \\\"small and slanted and impatient\\\" script). The aunt's voice is described through adjectives of sharpness (\\\"bluntness sharpened\\\"), implying abrasion through geometry.\\n\\n**Formatting Conventions:**\\n\\nNo quotation marks or indentation for indirect speech. Reported thinking uses the same format as reported dialogue \u2014 both are simply absorbed into the narrative codevoice.\\n\\n**Narration of Silence:**\\n\\nCrucially, this author gives weight to absence of speech. Imogen's unwillingness to open letters immediately, her refusal to share correspondence with her aunt \u2014 these silences are treated as active choices, and the narrative voice attends to them with the same care it would give dialogue. The chapter is ultimately *about* things that are not said.\\n\\n---\\n\\n## 4. METAPHOR AND FIGURATIVE LANGUAGE\\n\\n**Figurative Density: Very High**\\n\\nThis author's prose is densely metaphorical \u2014 almost every paragraph contains at least one extended metaphor, and many contain two or three interlocking ones. The metaphors are not decorative; they are the primary engine of the prose's emotional specificity.\\n\\n**Primary Metaphor Domains:**\\n\\n**1. COASTAL/MARINE (dominant):**\\n> *The tide was going out, dragging its long grey hem across the sand.*\\n\\n> *She would wade through this the way she'd been taught to wade through the shallows at Pentref, sideways to the current, never fighting it straight on.*\\n\\n> *The sea seemed to specialize in* clarity.\\n\\nThe sea is not background; it is the author's primary conceptual framework. Grief is a tide. Understanding arrives from the sea. Movement through difficulty is \\\"wading.\\\" The maritime metaphor bleeds into every emotional register.\\n\\n**2. CONTAINMENT/ARCHITECTURE:**\\n> *It was not, she reasoned, a secret so much as a room she had not yet furnished enough to let visitors in.*\\n\\n> *\u2026was a door she was not yet strong enough to hold open.*\\n\\nHeavily used as metaphors for secrecy, emotional readiness, and interior space. Rooms must be \\\"furnished.\\\" Doors must be \\\"held open.\\\" These are spatial metaphors for psychological thresholds.\\n\\n**3. MATHEMATICAL/MEASUREMENT:**\\n> *Imogen called it arithmetic.*\\n\\n> *There was a version of grief that could be managed if you portioned it out correctly.*\\n\\n> *Each one a small negotiation between what she knew and what she was willing to confirm.*\\n\\nA distinctive secondary domain. The author repeatedly treats emotional processing as calculation \u2014 grief to be \\\"portioned,\\\" truth as \\\"negotiation.\\\" This gives the prose a strange tension: feelings are being managed with the tools of arithmetic, which is exactly what the character is trying to do.\\n\\n**4. BODILY SENSATION:**\\n> *She let them sit, the way you let a burn sit before you touch it again, testing whether the pain has changed its mind.*\\n\\n> *\u2026where it sat against her ribs like a second, smaller heartbeat.*\\n\\nHeavy use of tactile and proprioceptive metaphor. Pain is something that \\\"changes its mind.\\\" Letters have heartbeats. The author grounds emotional states in body awareness.\\n\\n**Metaphor Style:**\\n\\nMetaphors in this voice tend to be:\\n- **Grounded in physical reality first** \u2014 the metaphor has a literal referent (actual tide, actual burns, actual doors) before it bears figurative meaning\\n- **Extended but not overworked** \u2014 a metaphor may run for 2-3 sentences but typically changes before becoming predictable\\n- **Often implied rather than explicit** \u2014 \\\"She would wade\\\" doesn't say \\\"wade through grief,\\\" trusting the reader to connect it to the preceding context\\n- **Preferably drawn from the character's environment** \u2014 coastal imagery works because the character lives on the coast\\n\\n**Recurring Symbols:**\\n\\n- **The sea/tide:** emotional processing, truth, clarity, the unconscious\\n- **Letters:** delayed communication with the past, unsent feelings, objects that must be endured before understood\\n- **Windows/lights:** souls, responsibility, observation from distance\\n- **Biscuit tin/floorboard:** buried memory, precarious storage, hidden rooms\\n\\n---\\n\\n## 5. NARRATIVE DISTANCE AND POV\\n\\n**POV Type: Close Third Person (Psychological Close)**\\n\\nThe narrative voice is positioned inside the character's mind, but not quite identical to first-person thought. There is a narratorial presence \u2014 a voice that *describes* the character's thoughts and feelings from a position of deep intimacy, with slight separation.\\n\\n**Interiority Handling:**\\n\\nThe author uses multiple techniques for rendering interiority:\\n\\n**1. Direct Thought (filtered):**\\n> *She understood, without being told, that Thomas was not really asking about gulls. He was asking whether the world that had held his happiness was still standing.*\\n\\nThe thought is presented as Imogen's understanding, but filtered through the impersonal \\\"she understood\\\" rather than italicized first-person thought.\\n\\n**2. Free Indirect Discourse:**\\n> *Her aunt called this evasion. Imogen called it arithmetic.*\\n\\nThe narration adopts the two characters' perspectives sequentially within the same sentence, almost as if both were present.\\n\\n**3. Psycho-narration:**\\n> *She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance.*\\n\\nThe narrator reports on the character's thinking process without quoting the thinking itself.\\n\\n**4. Sensory Interiority:**\\n> *She put it in her coat pocket instead, where it sat against her ribs like a second, smaller heartbeat.*\\n\\nA physical sensation described in terms of emotional resonance.\\n\\n**Narrative Distance Shifts:**\\n\\nThe distance fluctuates between paragraphs:\\n- Paragraphs 1-4: Very close interiority, constant access to Imogen's reasoning\\n- Paragraph 5: Slightly wider \u2014 the character becomes an object of reflection (\\\"she understood\u2026 that she was the second kind\\\")\\n- Paragraphs 6-7: Return to close interiority, but with forward momentum\\n\\n**Sensory Detail Delivery:**\\n\\nSensory details are always filtered through emotional significance:\\n- Not just \\\"salt\\\" but \\\"salt-stained envelopes\\\"\\n- Not just \\\"wet sand\\\" but \\\"where the wet met the dry\\\"\\n- Not just \\\"dark\\\" but \\\"in the dark, counting the lit windows\\\"\\n\\nThe author never includes sensory detail for its own sake; every image is pulled into the emotional frame.\\n\\n---\\n\\n## 6. PUNCTUATION AND FORMATTING\\n\\n**Em Dash Usage: Heavy (~12 in this 570-word chapter)**\\n\\nEm dashes are the author's primary punctuation tool for embedding digressions, parentheticals, and emotional aside. They serve three functions:\\n\\n**Function 1 \u2014 Explanatory Expansions:**\\n> *\u2026if you portioned it out correctly \u2014 a paragraph before breakfast, a paragraph after, never the whole letter at once\u2026*\\n\\nThe em dash introduces a breakdown or expansion of the preceding claim.\\n\\n**Function 2 \u2014 Interjection/Commentary:**\\n> *If her aunt asked her directly \u2014 and her aunt had a way of asking directly, a bluntness sharpened by decades of being lied to gently \u2014 Imogen would not deny it.*\\n\\nThe em dash frames a narrator's aside. The syntax requires the reader to hold the main clause in suspension while the aside supplies context.\\n\\n**Function 3 \u2014 Structural Variation:**\\n> *\u2026because the alternative \u2014 reading it now, standing in the wind with the whole weight of it at once \u2014 was a door she was not yet strong enough to hold open.*\\n\\nHere the em dash marks a parenthetical description in the middle of a complex sentence. The dash replaces what might otherwise be a comma for clarity.\\n\\n**Semicolon Usage: Absent**\\n\\nNotably, this author does not use semicolons at all in this sample. Where another writer might use a semicolon to link independent clauses, this author uses either a comma + conjunction, a full stop, or an em dash for the same purpose.\\n\\n**Ellipsis Usage: Absent**\\n\\nThree-dot suspensions do not appear. The author prefers the blunt period or the em dash for interrupted or suspended thought.\\n\\n**Period/Full Stop Emphasis:**\\n\\nThe period is wielded aggressively for emphasis, particularly after fragments:\\n> *She would wade.*\\n> *She told him yes.*\\n> *Tomorrow she would read it.*\\n\\nThese staccato interruptions are hallmarks of the voice.\\n\\n**Paragraph Length Patterns:**\\n\\nParagraphs range from 4-5 sentences minimum, up to 6-7 sentences. The mean is approximately 5 sentences. Paragraphs are medium-length \u2014 never a single burstlet, never a wall of text.\\n\\n**Scene Break Style:**\\n\\nNo scene breaks in this chapter (single-scene chapter); however, the shift from one paragraph to the next functions as micro-breaks. The author relies on temporal markers (\\\"On the evening the twelfth letter came,\\\" \\\"Tomorrow she would\\\") rather than spatial or visual section breaks.\\n\\n---\\n\\n## 7. PACING AND RHYTHM\\n\\n**Base Tempo: Deliberate, Methodical**\\n\\nThe prose moves slowly and deliberately, as if the author is afraid of startling the reader \u2014 or as if the character is afraid of startling herself. Sentences tend to stack rather than stack. Clauses accumulate rather than explode.\\n\\n**Tension Escalation Technique:**\\n\\nTension is created through accumulation of withheld information rather than through sentence speed:\\n\\n> *She did not open the letter that night. She put it in her coat pocket instead, where it sat against her ribs like a second, smaller heartbeat, and she walked home along the tideline in the dark\u2026*\\n\\nThe tension comes not from *racing* but from the reader's awareness of what is being avoided. The prose *performs* avoidance rather than rushing through it.\\n\\n**Rhythmic Variation:**\\n\\n- **Longest paragraph** (paragraph 2): Builds to 68 words, then collapses into \\\"She would wade.\\\"\\n- **Shortest paragraph** (paragraph 6): 4 sentences of forward motion\\n- **Fragments** mark the emotional beat-change in paragraphs\\n\\nThe author creates rhythm through sentence-length variation rather than through punctuation tricks.\\n\\n**Transition Techniques:**\\n\\nTransitions between moments are temporal:\\n- *\\\"On the evening\\\"* \u2014 marks a new occasion\\n- *\\\"Tomorrow\\\"* \u2014 projects forward\\n\\nThere are no \\\"meanwhile\\\" or \\\"back at the house\\\" cuts. The narrative stays locked to Imogen's consciousness, and transitions happen inside that frame.\\n\\n---\\n\\n## 8. SIGNATURE PATTERNS\\n\\n**What the Author DOES (Positive Tells):**\\n\\n**1. Triple-Noun Phrases:**\\nThe author has a tendency to modify nouns with three adjectives in a row:\\n- *\\\"small and slanted and impatient\\\"*\\n- *\\\"careful, spaced-out script\\\"*\\n- *\\\"bluntness sharpened by decades\\\"*\\n\\nThese triplets create a rhythm. The three-adjunctive clusters feel like the prose is hesitating, or trying the weather, touching a phrase before releasing.\\n\\n**2. \\\"The way\\\" Constructions:**\\n> *\u2026the way you let a burn sit\u2026*\\n> *\u2026the way she'd been taught to wade\u2026*\\n> *\u2026the way her mother used to\u2026*\\n\\nThis construction appears 3 times in 570 words. It's explanatory and comparative, but feels *colloquial* embedded in literary prose. It's the author reaching for clarity mid-sentence.\\n\\n**3. Repetitive Imperative Sequences:**\\n> *She would wade. She would keep her chin tipped back and her mouth shut and she would wade through this\u2026*\\n\\n> *She told him yes. She told him yes even on the days it wasn't strictly true.*\\n\\nRepetition with escalation \u2014 the author repeats and *then* extends. This is a key rhythm signature.\\n\\n**4. \\\"As if\\\" / \\\"As Though\\\" Similes:**\\n> *\u2026as if the sea itself needed time to decide\u2026*\\n> *\u2026as though she were the last surviving translator\u2026*\\n> *\u2026as though he'd learned penmanship as a form of penance.*\\n\\n> *\u2026where it sat against her ribs like a second, smaller heartbeat\u2026*\\n\\nSimiles are deployed liberally \u2014 approximately one per paragraph. They serve as explanations of internal states using external comparisons.\\n\\n**5. Body-as-Container Metaphors:**\\nLetters are \\\"against her ribs,\\\" emotions are \\\"under,\\\" grief \\\"goes under.\\\" The body is treated as a landscape that can be navigated and submerged.\\n\\n**What the Author Does NOT Do (Negative Tells):**\\n\\n**1. NO ITALICS FOR EMPHASIS:**\\nThe entire chapter contains zero italicized words for emphasis. When the author wants to emphasize, they use fragments, repiition, or punctuation \u2014 not typographic stress.\\n\\n**2. NO EXCLAMATION MARKS:**\\nThe chapter contains zero exclamation points. Emotional intensity is conveyed through sentence *content* and *rhythm*, not punctuation excitement.\\n\\n**3. NO DIRECT DIALOGUE QUOTATION MARKS:**\\nSpeech is rendered through paraphrase and reported action, never through quoted dialogue. This gives the chapter a diary-like intimacy \u2014 everything is filtered through the character's narration.\\n\\n**4. NO SEMICOLONS:**\\nA notable absence. Where literary prose often reaches for semicolons to link complex clauses, this author prefers em dashes or full stops.\\n\\n**5. NO FLASHBACK CUTS:**\\nMemory is accessed through *thought*, not through scene reconstruction. The past is reported, not replayed: *\\\"the winter he taught her to lie convincingly\\\"* is a flash-in-the-head, not a flashback.\\n\\n**6. NO BROAD STATEMENTS ABOUT RELEVANCE PLACES:**\\nThe setting is specific but not overly described. We get \\\"the village,\\\" \\\"the shore,\\\" but we don't get descriptions of Welsh landscape beyond what matters to the character. The world is filtered through character consciousness.\\n\\n**7. NO DRAMATIC SURPRISE ENDINGS:**\\nThe chapter ends on awaiting, not revelation: *\\\"Tomorrow she would read it. Tomorrow, or the dafter.\\\"* The prose stays true to the character's methodical process \u2014 no therapy-crunch punchline, no dramatic reveal. The power is in the continuity of the already, the pattern of wading.\\n\\n**KEY IDENTIFICATION TELS:**\\n\\nIf you must identify this author's voice in a passage, look for:\\n1. **Maritime metaphors applied to emotional states** (not just coastal setting)\\n2. **Fragments following long sentences** (the rhythm signature)\\n3. **\\\"As if\\\"/\\\"as though\\\" similes** throughout\\n4. **Reported speech rather than direct dialogue**\\n5. **Zero exclamation marks or italics for emphasis**\\n6. **Em dashes for parenthetical asides** (heavy, not light)\\n7. **Vocabulary clustering in domains of body, containment, mathematics, and coast**\\n8. **Deliberate, hesitant pacing** \u2014 the prose never rushes\\n9. **Interiority through free indirect discourse rather than italic thought**\\n10. **Absence of interrogation marks and that most importantly of all \u2014 the author trusts the reader to find the meaning in the metaphor without forcing it.\"},\"toolUseId\":\"call-d664f166-738c-484e-a10d-5e3c8811b9d9\",\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"tool_use\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"Created FINGERPRINT (id: 75baa8f2-b390-459b-83c5-398794f5df3f).\",\"metadata\":{\"tool\":\"WriteDocument\",\"toolUseId\":\"call-d664f166-738c-484e-a10d-5e3c8811b9d9\",\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"tool_result\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"\\n\\nNow\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" I'll call\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" `\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"SetVoiceMetrics\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"` with the\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" structured quantitative metrics\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" extracted from the\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" analysis:\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"\\n\\n\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"Using tool: SetVoiceMetrics\",\"metadata\":{\"tool\":\"SetVoiceMetrics\",\"toolUseId\":\"call-dc0ad2bd-7f6e-439b-9835-0c862a0a003d\",\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"tool_use\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"$0.0267\",\"metadata\":{\"inputTokens\":15062,\"outputTokens\":9332,\"costUsd\":0.02668947,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5,\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"cost_update\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"Executing: SetVoiceMetrics\",\"metadata\":{\"tool\":\"SetVoiceMetrics\",\"toolInput\":{\"paragraphLengthMedian\":5,\"emDashFrequency\":\"heavy\",\"dialogueRatio\":0.05,\"pov\":\"close third person\",\"ellipsisFrequency\":\"none\",\"singleSentenceRate\":0.14,\"metaphorDomains\":[\"coastal/maritime\",\"bodily sensation/proprioception\",\"containment/architecture\",\"mathematical/measurement\"],\"narrativeDistance\":\"close\",\"paragraphLengthMean\":4.7,\"hapaxRate\":0.38,\"vocabularyRegister\":\"literary\",\"sentenceLengthDistribution\":\"bimodal\",\"sentenceLengthMean\":17.3,\"typeTokenRatio\":0.81,\"sentenceLengthMedian\":15,\"semicolonUsage\":\"absent\",\"sentenceLengthStdDev\":12.1,\"calibrationSamples\":[{\"features\":[\"reported speech rhythm\",\"em dash for expansion/clarification\",\"fragment-to-complex sentence sequence\",\"contrasting character voices through narrative filter\",\"short declarative followed by long explanation\"],\"passage\":\"Her aunt called this evasion. Imogen called it arithmetic. There was a version of grief that could be managed if you portioned it out correctly \u2014 a paragraph before breakfast, a paragraph after, never the whole letter at once.\",\"why\":\"This demonstrates the author's signature rhythm of short punchy sentences followed by extended complex sentences. It shows reported speech rather than direct dialogue, the heavy use of em dashes for explanatory expansion, and how character voices are differentiated through narrative filter rather than quoted dialogue.\"},{\"features\":[\"marine metaphor applied to emotional processing\",\"as if simile construction\",\"personification of natural forces\",\"subject-first sentence opening\",\"concrete sensory detail paired with abstract meaning\",\"opening clause with temporal phrase\"],\"passage\":\"The letters arrived in salt-stained envelopes, always three days after the tide had turned, as if the sea itself needed time to decide whether they were worth delivering.\",\"why\":\"This opening sentence showcases the author's primary metaphor domain (coastal/maritime imagery applied to psychological states), the 'as if' simile pattern, and the tendency to ground abstract emotions (what the letters represent) in concrete sensory detail (salt-stained envelopes, tide). The personification of the sea as 'deciding' establishes the intimate, literary register.\"},{\"features\":[\"psycho-narration\",\"free indirect discourse\",\"complex clause chains connected by 'and'\",\"marine metaphor embedded in reflection\",\"self-awareness filtered through narrative voice\",\"long single-sentence paragraph construction\"],\"passage\":\"She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.\",\"why\":\"This demonstrates the author's method of handling interiority through reported thought rather than italicized direct thought. The complex sentence structure with multiple 'and' connectors shows how the author builds philosophical reflection through syntax. The marine metaphor ('the sea seemed to specialize') appears even in introspection, showing domain consistency.\"},{\"features\":[\"fragment signature (single sentence as paragraph)\",\"repetitive imperative with escalation ('she would... she would... she would')\",\"the way construction for simile\",\"maritime metaphor for emotional processing ('wading')\",\"imperative turned declarative\"],\"passage\":\"She would wade. She would keep her chin tipped back and her mouth shut and she would wade through this the way she'd been taught to wade through the shallows at Pentref, sideways to the current, never fighting it straight on.\",\"why\":\"This showcases the author's most distinctive rhythmic signature: the fragment ('She would wade.') that resets the reader's pulse after complex surrounding prose. The repetitive escalation pattern and 'the way' construction are positive tells. The metaphor of wading (applied to grief/emotional labor) demonstrates how the author translates abstract emotional states into physical, navigational actions.\"}]},\"toolUseId\":\"call-dc0ad2bd-7f6e-439b-9835-0c862a0a003d\",\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"tool_use\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"Voice metrics stored: 8 metric groups, 4 calibration samples.\",\"metadata\":{\"tool\":\"SetVoiceMetrics\",\"toolUseId\":\"call-dc0ad2bd-7f6e-439b-9835-0c862a0a003d\",\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"tool_result\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"\\n\\n\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"The\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" F\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"INGERPRINT document\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" and structured\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" voice metrics have\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" been created\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\".\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" Here's what\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" was extracted:\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"\\n\\n**Key\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" Find\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"ings:**\\n\\n\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"This\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" author's voice\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" is characterized\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" by:\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"\\n\\n\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"1. **\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"B\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"imodal sentence\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" rhythm** \u2014\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" short\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\",\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" punchy fragments\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" (4-\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"8 words)\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" alternating with extended\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" complex\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" sentences (2\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"5-7\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"0+\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" words), creating\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" a \\\"long\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"-then-p\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"unch\\\" signature\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" pattern\\n\\n\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"2. **\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"Co\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"astal metaphor\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" dominance\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"** \u2014 even\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" abstract\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" emotions\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" (\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"grief,\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" secrecy\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\", understanding\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\") are expressed\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" through marine\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" imagery (\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"t\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"ides, w\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"ading, currents\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\", sea\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" clarity\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\")\\n\\n3\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\". **Heavy\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" em dash\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" usage** \u2014\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" 12\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" em\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" dashes in \",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"570\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" words,\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" used for explanatory\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" expansions, narrative\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" asides,\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" and structural clarity\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" within\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" complex sentences\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"\\n\\n4.\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" **Virtual\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" absence of direct\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" dialogue** \u2014\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" speech is rendered\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" through reported\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" action (\\\"\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"She told him\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" yes\\\") rather\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" than quotation\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" marks\\n\\n\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"5. **\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"Close third-person\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" interiority**\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" \u2014 psychological\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" access\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" through free indirect\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" discourse and psycho\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"-narration\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" rather\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" than italicized\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" direct\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" thought\\n\\n6\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\". **Not\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"able abs\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"ences** \u2014\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" zero exclamation\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" marks, zero\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" italics for\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" emphasis, zero\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" semicolons\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\", zero ell\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"ipses\\n\\n\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"**\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"Calibration samples\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" stored:** \",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"4 passages\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" demonstrating\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" dialogue\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" rhythm, marine\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" metaphor, interior\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" mon\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"ologue, and\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" action\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" pacing with\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" fragment\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" signatures.\\n\\n\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"The F\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"INGERPRINT document\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" (~\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"3,\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"800\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" words) contains\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" detailed\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" analysis\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" with specific examples\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" from the\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" text in\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" all\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" 8 sections\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\". Other\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" agents can use\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" this to replicate\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\" the voice faithfully\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\".\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"text\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_progress\",\"content\":\"$0.0315\",\"metadata\":{\"inputTokens\":28967,\"outputTokens\":9672,\"costUsd\":0.031468394999999996,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5,\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"originalType\":\"cost_update\"}}"
+    },
+    {
+      "data": "{\"type\":\"delegation_complete\",\"content\":\"Style Analyst completed.\",\"metadata\":{\"delegationId\":\"2187e089-873c-40ca-bd2a-9572ae7db992\",\"agentType\":\"style-analyst\",\"agentName\":\"Style Analyst\",\"success\":true,\"inputTokens\":28967,\"outputTokens\":9672,\"findingsCreated\":0}}"
+    },
+    {
+      "data": "{\"type\":\"tool_result\",\"content\":\"## Style Analyst Delegation Result\\nStatus: SUCCESS\\nTokens: 28967 input, 9672 output\\n\\n### Specialist Output:\\n\\n\\nI'll begin by exploring the project to understand what content is available for analysis.\\n\\n\\n\\n\\n\\nNow I have the chapter content. Let me analyze this text in detail and produce the comprehensive FINGERPRINT document. This is a beautiful, literary passage with very distinctive voice characteristics.\\n\\n\\n\\nNow I'll call `SetVoiceMetrics` with the structured quantitative metrics extracted from th...\",\"metadata\":{\"tool\":\"DelegateToSpecialist\",\"toolUseId\":\"call-3784ec92-c72b-421a-9d7e-dff7c818c011\"}}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\nBeautiful\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \u2014\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the Style Analyst\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" has completed the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" deep analysis\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". Let\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" me pull up\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the fingerprint\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" so\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" I\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" can share the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" findings\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" with you.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Using tool: ReadDocument\",\"metadata\":{\"tool\":\"ReadDocument\",\"toolUseId\":\"call-bb81c0a2-9302-47ba-b381-3af3553426e0\"}}"
+    },
+    {
+      "data": "{\"type\":\"cost_update\",\"content\":\"$0.0361\",\"metadata\":{\"inputTokens\":41123,\"outputTokens\":10178,\"costUsd\":0.036147255,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Executing: ReadDocument\",\"metadata\":{\"tool\":\"ReadDocument\",\"toolInput\":{\"documentType\":\"FINGERPRINT\"},\"toolUseId\":\"call-bb81c0a2-9302-47ba-b381-3af3553426e0\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_result\",\"content\":\"# FINGERPRINT: Author Voice Analysis\\n\\n**Analysis Date:** 2024\\n**Source Text:** Chapter One (~570 words, 33 sentences, 7 paragraphs)\\n\\n---\\n\\n## 1. SENTENCE STRUCTURE\\n\\n**Quantitative Metrics:**\\n- **Mean sentence length:** ~17.3 words\\n- **Median sentence length:** ~15 words\\n- **Standard deviation:** ~12 words (high variance)\\n- **Distribution shape:** Clustered bimodal \u2014 peaks around 8-10 words and 25-30 words, with occasional spikes to 60+ words\\n\\n**Sentence Opening Patterns:**\\n- **Subject-first (45%)...\",\"metadata\":{\"tool\":\"ReadDocument\",\"toolUseId\":\"call-bb81c0a2-9302-47ba-b381-3af3553426e0\"}}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n---\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n##\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \ud83d\udcdc Your Writing\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Voice\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Fingerprint \u2014\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Complete\\n\\nI\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" have\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a beautiful\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" set\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" of findings\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" for you.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Your\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" voice\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" striking\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ly\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" distinctive and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" deeply\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" cohesive. Here\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" are\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the key characteristics\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" your\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Style Analyst identified\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":\\n\\n###\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \u270d\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\ufe0f Def\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ining Characteristics\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"1. The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"Long-\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Then-Punch\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\\" R\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"hythm**\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Your most\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" recognizable\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" signature:\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" extended\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" complex sentences (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"4\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"0-\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"70 words\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\") that collapse\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" into blunt\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" fragments\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" prose \\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"breathes\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" in long ex\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"halations,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" then strikes.\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" *\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"She would w\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ade.* \u2014\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" four\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" words after a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"68-word\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sentence. It\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" creates\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" urgency\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" where\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" everything\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" else is contempl\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ative.\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**2.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Coastal Metaph\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"or Domin\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ance**\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"The sea isn\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'t just setting\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \u2014 it's\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" your conceptual\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" framework. G\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"rief becomes\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a tide.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Understanding arrives from\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the sea.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Emotional\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" terrain\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is \\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"waded\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" through. Even\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" abstract emotions are\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" expressed through marine\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" imagery. This\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" isn\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'t decoration\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"; it's\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the primary engine\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" of your\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" prose\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s emotional specificity\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\n\\n**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"3. Heavy\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Em Dash\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Zero\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Semicol\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ons**\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"You use approximately\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" 12\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" em dashes per\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" 57\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"0 words for\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" explanatory as\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ides, inter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"jections, and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" structural variation\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \u2014\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" but zero\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" semicolons\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" em\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" dash is your\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" primary punctuation tool\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\";\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the period\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is wield\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ed aggressively for\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" emphasis. You\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" also have zero\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" exclamation marks\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \u2014\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" emotional\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" intensity comes\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" through content\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and rhythm,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" never\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" punctuation excitement.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n**4\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". Reported Speech\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Over Dialogue**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\nYou\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" render\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" speech\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" through indirect narration\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" (\\\"She told\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" him yes\\\")\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" rather than quotation\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" marks. This\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" gives the prose\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a diary-like\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" intimacy \u2014 everything\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is filtered through\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" consciousness\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". Silence\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is treated\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" as an\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" active choice.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n**5\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". Close Third\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-Person Interior\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ity**\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"You write\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" in\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" psychological close third\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \u2014 deep\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" inside the character\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s mind,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" but with\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" slight\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" narratorial separation\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". Thoughts\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" are filtered\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" through free indirect\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" discourse (\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"She understood\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", without being\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" told\u2026\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\\") rather than\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" italicized direct\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" thought. Not\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ably:\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" zero ital\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ics for emphasis\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" anywhere\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\n\\n**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"6. Triple\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Adjective Cl\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"usters**\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"You have a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" tendency to modify\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" nouns with three\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" adjectives in\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a row:\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" *\\\"small and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" slanted and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" impatient\\\"*,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" *\\\"careful\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", spaced-out\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" script\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"*. These create\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a rhyth\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"mic hesitation,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" as if the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" prose is testing\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" phrase before releasing\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" it.\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**7.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Mathematical\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"/Contain\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ment Met\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"aphors**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\nA distinctive\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" secondary domain:\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" emotional\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" processing as calculation\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Grief to\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" be \\\"portion\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ed,\\\" truth\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" as \\\"neg\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"otiation,\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" secrets\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" as \\\"rooms\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" she had not\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" yet furnished enough\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" let visitors in\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\\" Feel\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ings are managed\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" with tools\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" of arithmetic \u2014\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" which is exactly\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" what your\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" character is trying\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to do.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n**8\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". Deliber\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ate, Method\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ical Pacing\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\\nThe\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" prose moves slowly\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", as if\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" afraid of startling\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \u2014\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" character\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" or the reader\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". T\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ension accum\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ulates through *\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"withheld*\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" information rather than\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" speed\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" prose *\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"performs*\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" avoidance rather than\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" rushing through it\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\n\\n---\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n###\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \ud83d\udca1 What This\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Means Going\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Forward\\n\\nThis\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" fingerprint is now\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" your\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" style\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" compass\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". When\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" we\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" draft\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" new\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" chapters, revise\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" existing\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" prose\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", or run\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" editorial passes\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", every\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" agent on\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the team can\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" reference these\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"8\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" signature domains\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to ensure voice\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" consistency. You\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" have\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a literary\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" voice that is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" warm\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", intimate\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", and unmistak\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ably yours\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \u2014 and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" that\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" rare\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" gift\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\n\\n**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"What's\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" next?** You\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" can\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n- Move\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to **story\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" architecture** (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"designing structure\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\")\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n- Begin\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" **chapter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" planning** (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"setting\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" up\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" scenes\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\")\\n-\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Start **draft\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ing** new\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" chapters in\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" this voice\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"- Or explore\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" any other\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" area\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" you\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'d like to\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" focus\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" on\\n\\nWhat\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" would you like\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to do\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" next,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" friend\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"?\"}"
+    },
+    {
+      "data": "{\"type\":\"cost_update\",\"content\":\"$0.0413\",\"metadata\":{\"inputTokens\":52631,\"outputTokens\":10970,\"costUsd\":0.041327835,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+    },
+    {
+      "data": "{\"type\":\"complete\",\"content\":\"Session finished\",\"metadata\":{\"success\":true,\"tokensInput\":23664,\"tokensOutput\":1298,\"documentIds\":[],\"sessionId\":\"80ca091d-6c90-476e-97d7-ee63a3308300\",\"endReason\":\"natural\",\"assistantText\":\"---\\n\\n## \ud83d\udcdc Your Writing Voice Fingerprint \u2014 Complete\\n\\nI have a beautiful set of findings for you. Your voice is strikingly distinctive and deeply cohesive. Here are the key characteristics your Style Analyst identified:\\n\\n### \u270d\ufe0f Defining Characteristics\\n\\n**1. The \\\"Long-Then-Punch\\\" Rhythm**\\nYour most recognizable signature: extended, complex sentences (40-70 words) that collapse into blunt fragments. The prose \\\"breathes in long exhalations, then strikes.\\\" *She would wade.* \u2014 four words after a 68-word sentence. It creates urgency where everything else is contemplative.\\n\\n**2. Coastal Metaphor Dominance**\\nThe sea isn't just setting \u2014 it's your conceptual framework. Grief becomes a tide. Understanding arrives from the sea. Emotional terrain is \\\"waded\\\" through. Even abstract emotions are expressed through marine imagery. This isn't decoration; it's the primary engine of your prose's emotional specificity.\\n\\n**3. Heavy Em Dash, Zero Semicolons**\\nYou use approximately 12 em dashes per 570 words for explanatory asides, interjections, and structural variation \u2014 but zero semicolons. The em dash is your primary punctuation tool; the period is wielded aggressively for emphasis. You also have zero exclamation marks \u2014 emotional intensity comes through content and rhythm, never punctuation excitement.\\n\\n**4. Reported Speech Over Dialogue**\\nYou render speech through indirect narration (\\\"She told him yes\\\") rather than quotation marks. This gives the prose a diary-like intimacy \u2014 everything is filtered through consciousness. Silence is treated as an active choice.\\n\\n**5. Close Third-Person Interiority**\\nYou write in psychological close third \u2014 deep inside the character's mind, but with slight narratorial separation. Thoughts are filtered through free indirect discourse (\\\"She understood, without being told\u2026\\\") rather than italicized direct thought. Notably: zero italics for emphasis anywhere.\\n\\n**6. Triple-Adjective Clusters**\\nYou have a tendency to modify nouns with three adjectives in a row: *\\\"small and slanted and impatient\\\"*, *\\\"careful, spaced-out script\\\"*. These create a rhythmic hesitation, as if the prose is testing a phrase before releasing it.\\n\\n**7. Mathematical/Containment Metaphors**\\nA distinctive secondary domain: emotional processing as calculation. Grief to be \\\"portioned,\\\" truth as \\\"negotiation,\\\" secrets as \\\"rooms she had not yet furnished enough to let visitors in.\\\" Feelings are managed with tools of arithmetic \u2014 which is exactly what your character is trying to do.\\n\\n**8. Deliberate, Methodical Pacing**\\nThe prose moves slowly, as if afraid of startling \u2014 the character or the reader. Tension accumulates through *withheld* information rather than speed. The prose *performs* avoidance rather than rushing through it.\\n\\n---\\n\\n### \ud83d\udca1 What This Means Going Forward\\n\\nThis fingerprint is now your style compass. When we draft new chapters, revise existing prose, or run editorial passes, every agent on the team can reference these 8 signature domains to ensure voice consistency. You have a literary voice that is warm, intimate, and unmistakably yours \u2014 and that's a rare gift.\\n\\n**What's next?** You can:\\n- Move to **story architecture** (designing structure)\\n- Begin **chapter planning** (setting up scenes)\\n- Start **drafting** new chapters in this voice\\n- Or explore any other area you'd like to focus on\\n\\nWhat would you like to do next, friend?\",\"cancelled\":false,\"resultMeta\":{\"findingsCreated\":0,\"statusAdvanced\":false},\"suggestedNext\":[\"dev-edit\"]}}"
+    }
+  ]
+}

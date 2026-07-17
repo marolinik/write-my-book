@@ -1,0 +1,33 @@
+{
+  "session_id": "eeef608c-4cc7-4db7-ad53-eea5f8d60b57",
+  "elapsed_s": 60.09,
+  "final_status": "TIMEOUT",
+  "event_count": 8,
+  "events": [
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Using tool: ListDocuments\",\"metadata\":{\"tool\":\"ListDocuments\",\"toolUseId\":\"call_26a5d03dcc444328bb64a142\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Using tool: ReadChapter\",\"metadata\":{\"tool\":\"ReadChapter\",\"toolUseId\":\"call_4a956b8604604b65839e7c1c\"}}"
+    },
+    {
+      "data": "{\"type\":\"cost_update\",\"content\":\"$0.0073\",\"metadata\":{\"inputTokens\":23046,\"outputTokens\":289,\"costUsd\":0.007261709999999999,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Executing: ListDocuments\",\"metadata\":{\"tool\":\"ListDocuments\",\"toolInput\":{},\"toolUseId\":\"call_26a5d03dcc444328bb64a142\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_result\",\"content\":\"- ARCHITECTURE: The Salt Letters \u2014 Architecture \u2014 The Salt Letters \u2014 Four-Act Emotional Arc [v1]\\n- STORY_BIBLE: Story Bible \u2014 The Salt Letters QA P1 93181fd1 [v1]\\n- FINGERPRINT: Fingerprint: Literary Voice Analysis [v1]\\n- CHAPTER_CONTENT (ch 1): Chapter 1 [v1]\",\"metadata\":{\"tool\":\"ListDocuments\",\"toolUseId\":\"call_26a5d03dcc444328bb64a142\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Executing: ReadChapter\",\"metadata\":{\"tool\":\"ReadChapter\",\"toolInput\":{\"chapterNumber\":1},\"toolUseId\":\"call_4a956b8604604b65839e7c1c\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_result\",\"content\":\"# Chapter One\\n\\nThe letters arrived in salt-stained envelopes, always three days after the tide had turned, as if the sea itself needed time to decide whether they were worth delivering. Imogen kept them in a biscuit tin under the floorboard her father had loosened the winter he taught her to lie convincingly. She never read them the day they came. She let them sit, the way you let a burn sit before you touch it again, testing whether the pain has changed its mind.\\n\\nHer aunt called this evasion. ...\",\"metadata\":{\"tool\":\"ReadChapter\",\"toolUseId\":\"call_4a956b8604604b65839e7c1c\"}}"
+    },
+    {
+      "_meta": "TIMEOUT",
+      "elapsed_s": 60.085999488830566
+    }
+  ]
+}

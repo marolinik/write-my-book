@@ -1,0 +1,9 @@
+TEST: val-05 - p1 PUT chapter content with malformed JSON body
+METHOD: PUT
+PATH: /api/books/4116055c-6183-4675-926a-e04f31126951/chapters/ed84e638-0436-4cee-a458-669ce81cad50/content
+ACTOR: p1
+EXPECTED: [400, 422]
+ACTUAL STATUS: 500
+ELAPSED: 0.392056941986084
+---- RESPONSE BODY ----
+{"error":"Failed to save content"}

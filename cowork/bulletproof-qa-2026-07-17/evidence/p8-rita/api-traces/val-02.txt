@@ -1,0 +1,9 @@
+TEST: val-02 - p1 POST /api/books missing required 'name' field
+METHOD: POST
+PATH: /api/books
+ACTOR: p1
+EXPECTED: [400]
+ACTUAL STATUS: 403
+ELAPSED: 0.06203937530517578
+---- RESPONSE BODY ----
+{"error":"Your Indie Author plan allows 2 active books. Upgrade to create more.","upgradeToTier":"professional"}
