@@ -7,6 +7,7 @@ import { qdrantClient } from "./qdrant-client";
 import { indexDocument } from "./indexer";
 import { WMB_MEMORY_COLLECTION, type DocType } from "./types";
 import { db } from "@/lib/db";
+import { DocumentService } from "@/lib/documents";
 
 // ─── Document Type Mapping ───────────────────────────────────
 
@@ -129,12 +130,11 @@ export async function rebuildBookIndex(
     chapters.map((ch) => [ch.id, ch.chapterNumber])
   );
 
-  // Re-index each document
-  // Note: documents use S3 storageKey, so we skip direct content indexing here.
-  // This function re-indexes documents that have been loaded into content already.
-  // In practice, the content needs to be fetched from S3 via DocumentService.
-  // For now, we index the metadata + storageKey reference and rely on
-  // onDocumentChanged to be called when content is actually available.
+  // Re-index each document with its ACTUAL content read from storage. The old
+  // implementation embedded a `[Document: type] Storage key: …` placeholder
+  // instead of the prose (VM2), so vector recall matched metadata, not the
+  // manuscript. Read real content via DocumentService.
+  const svc = new DocumentService(userId, bookId);
 
   // We batch by processing up to 5 concurrent documents
   const BATCH_SIZE = 5;
@@ -146,22 +146,17 @@ export async function rebuildBookIndex(
         const docType = mapDocumentType(doc.type);
         const chapterNumber = doc.chapterNumber ?? null;
 
-        // For rebuild, we need to read content from storage.
-        // This is a placeholder that will work when DocumentService is wired in.
-        // The rebuild should be called from an API route that has access to DocumentService.
-        const result = await indexDocument(
-          bookId,
-          docType,
-          doc.id,
-          `[Document: ${doc.type}] Storage key: ${doc.storageKey}`,
-          {
-            userId,
-            chapterNumber,
-            version: 1,
-          }
-        );
+        const stored = await svc.read(doc.id);
+        const content = stored?.content ?? "";
+        if (!content.trim()) {
+          return { chunksIndexed: 0, skipped: true };
+        }
 
-        return result;
+        return indexDocument(bookId, docType, doc.id, content, {
+          userId,
+          chapterNumber,
+          version: 1,
+        });
       })
     );
 

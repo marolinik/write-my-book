@@ -18,6 +18,10 @@ i.e. a metadata stub, NOT the S3 document content. The comments admit it: *"docu
 **Impact:** even after a manual rebuild, vector search matches the storage-key stub, not the manuscript. Semantic recall (the moat) returns garbage-relevance. Any W3 recall-precision measurement on this path is meaningless until fixed.
 **Next step for P7:** dump the Qdrant `wmb_memory` payload for the indexed point to show the stored text is the stub (evidence bundle), then fix rebuild to read content via DocumentService (S3) and chunk the real prose, AND wire on-save indexing (VM1).
 
+## RESOLUTION (both FIXED + live-verified 2026-07-17)
+- **VM1 FIXED** — the chapter-content PUT route now fires `onDocumentChanged(bookId, "CHAPTER_CONTENT", markdown, {chapterNumber, chapterId, seriesId, language, version})` (fire-and-forget, debounced), mirroring the documents-update and agent-write paths. **Live proof:** a fresh content save (no manual rebuild) produced `chunkCount: 2, embeddingTokens: 649` — real prose, vs the 38-token stub before.
+- **VM2 FIXED** — `rebuildBookIndex` (cleanup.ts) now reads each document's real content via `DocumentService.read(doc.id)` and indexes THAT, skipping empty docs; no more `[Document: …] Storage key:` placeholder. **Live proof:** clear→rebuild produced `chunkCount: 2, embeddingTokens: 1350` (real prose). **Regression lock:** tests/unit/vector-rebuild-content.test.ts asserts indexDocument receives storage content, never a stub. VM1 is live-verified (its route mirrors the already-covered documents path; a full route unit-lock was deferred as low-risk).
+
 ## Severity + placement
 Both S2 (journey-blocking for the memory moat, not data-loss). They gate D8 (memory quality) and W3 (longitudinal recall) — those cannot score until VM1+VM2 are fixed. NOT blocked by env anymore (OpenAI quota is live); this is a code gap. Added to the defect backlog for the P7 journey / Phase-4 fix loop.
 
