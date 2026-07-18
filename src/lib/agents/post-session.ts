@@ -438,8 +438,12 @@ async function processBetaReadSession(
 /**
  * Advance chapter status only if it's at an earlier stage.
  * Uses transaction with read-validate-write to prevent race conditions.
+ *
+ * Exported for direct unit testing (D-48 idempotent re-advance): the
+ * regress-vs-refresh decision is the source of truth for the statusAdvanced
+ * signal the writer sees, so it is tested in isolation.
  */
-async function advanceChapterStatus(
+export async function advanceChapterStatus(
   bookId: string,
   chapterNumber: number,
   targetStatus: string
@@ -464,8 +468,19 @@ async function advanceChapterStatus(
     const currentIdx = statusOrder.indexOf(chapter.status);
     const targetIdx = statusOrder.indexOf(targetStatus);
 
-    // Only advance forward, never regress
-    if (targetIdx <= currentIdx) return false;
+    // Never regress: a genuine pass at an EARLIER stage than the chapter's
+    // current status must not pull it backward (e.g. a beta-read re-run must
+    // not drop a beta_passed chapter to beta_read).
+    if (targetIdx < currentIdx) return false;
+
+    // D-48 idempotent re-advance: targetIdx === currentIdx means a genuine
+    // successful run landed exactly on the chapter's current stage — a second
+    // real line-edit pass on an already-line_edited chapter. This previously
+    // returned false (target <= current), so the genuine pass reported
+    // statusAdvanced:false and could neither refresh the stage nor correct a
+    // chapter left stuck here by a pre-D-36 fake-success run (the sticky half
+    // of D-48). Re-writing the same status below refreshes @updatedAt and lets
+    // the run honestly report the pass; forward advances are unchanged.
 
     // Warn if skipping steps (but allow it)
     if (targetIdx > currentIdx + 1) {
