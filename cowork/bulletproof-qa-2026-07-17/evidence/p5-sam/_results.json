@@ -1,0 +1,123 @@
+{
+  "persona": "P5 Sam",
+  "identity": "user_qa_p5",
+  "seededPlan": null,
+  "date": "2026-07-18",
+  "checks": {
+    "1_mobile_editor_reality_check": {
+      "status": "PASS",
+      "horizontalScrollFails": 0,
+      "screensChecked": 34,
+      "viewports": ["390x844", "360x640", "320x568"],
+      "themesChecked": ["light", "dark"],
+      "landscapeCheck": "PASS - 844x390, no horizontal scroll, nav reflows to desktop-style with correct lock icon on Series",
+      "keyboardCaretOverlap": "DEFERRED - not judgeable headlessly, no real soft-keyboard rendering in headless Chromium",
+      "tapTargetsUnder44px": {
+        "books-list-empty": 5,
+        "dashboard": 9,
+        "settings": 21,
+        "settings-billing": 10,
+        "books-new-form": 8,
+        "editor-with-content_DEVBYPASS-NOT-SAM": 23
+      },
+      "editorScreenshotGap": "CLOSED - 390x844 first-hit timeout retried successfully with longer timeout, all 6 editor shots present"
+    },
+    "2_subscription_cliff_w11_w16": {
+      "status": "PASS",
+      "headline": "Book/series creation itself is the subscription wall, not individual AI features - all AI-gated per-feature surfaces are structurally unreachable for a zero-book user via the ownership-fence-before-plan-gate pattern (404, not 403)",
+      "aiGatedSurfacesProbed": [
+        "POST /api/books/{id}/agent",
+        "POST /api/books/{id}/style",
+        "POST /api/books/{id}/inline-edit",
+        "POST /api/series/{id}/agent",
+        "GET /api/books/{id}/export",
+        "GET /api/books/{id}/editorial/findings"
+      ],
+      "aiGatedSurfacesResult": "all return 404 Book not found (ownership fence), none reachable to see individual paywall copy",
+      "actualWall": "POST /api/books -> 403 upgradeToTier",
+      "wallCopyPlainLanguage": true,
+      "wallCopyRespectful": true,
+      "trapsUserInput": false,
+      "trapsUserInputVerification": "live Playwright run, both themes: nameInput.inputValue() after failed submit == 'Dragon Rider Fanfic QA P5' unchanged",
+      "deadEnd": false,
+      "deadEndVerification": "UpgradeModal offers Cancel + View Plans -> /settings/billing",
+      "freeSurfacesUsable": {
+        "byokKeyManagement": true,
+        "settingsAndDashboard": true,
+        "writingAutosaveExport": "moot - Sam owns 0 books, but gates themselves do not discriminate by plan for these actions"
+      },
+      "cardFreeTrialExists": false,
+      "cardFreeTrialVerification": "checkout/route.ts: trial_settings.end_behavior.missing_payment_method = cancel, card required even for trial plans"
+    },
+    "3_locale_sweep": {
+      "status": "PARTIAL_PASS",
+      "localesTested": ["en", "sr", "de", "fr", "ru", "zh", "ar"],
+      "mechanismNote": "First attempt used ?lang= URL query param, which the app ignores (0 effect, superseded). Corrected to real mechanism: PATCH /api/settings/language, persisted server-side.",
+      "cleanLocales": ["fr", "zh", "ru", "sr"],
+      "leaksFound": 2,
+      "leaks": [
+        {
+          "id": "D-10",
+          "description": "Mobile bottom nav labels (Home/Books/Agent/Settings) never translate in any locale",
+          "severity": "S3"
+        },
+        {
+          "id": "D-11",
+          "description": "Arabic locale silently falls back to 100% English despite PATCH API returning 200 success with persisted language=ar",
+          "severity": "S2"
+        }
+      ],
+      "rtlSupport": "NOT IMPLEMENTED - document.documentElement dir attribute is null for all 7 locales tested including Arabic",
+      "numberDateFormattingLeaks": "UNTESTABLE - Sam has 0 books/words/chapters everywhere, no non-zero number available to check formatting"
+    },
+    "4_a11y_spot_pass": {
+      "status": "PARTIAL_PASS",
+      "screensScanned": 5,
+      "newDefects": [
+        {
+          "id": "D-08",
+          "description": "Duplicate <main> landmark on every screen, src/app/(app)/layout.tsx lines 108 and 131",
+          "severity": "S3",
+          "axeRules": ["landmark-main-is-top-level", "landmark-no-duplicate-main", "landmark-unique", "region"]
+        },
+        {
+          "id": "D-09",
+          "description": "8 icon-only buttons on /settings with no accessible name (axe button-name, critical impact)",
+          "severity": "S2",
+          "corroboration": "10 of 15 keyboard tab-stops on /settings are unlabeled button/a elements"
+        }
+      ],
+      "focusOrderAndVisibility": "PASS - all 15 tab stops on /settings show focusVisible=true",
+      "reducedMotion": "PASS with caveat - screenshot shows correct render, cannot verify animation suppression from a static image",
+      "landscapeOrientation": "PASS",
+      "keyboardOnlyNav": "PASS with caveat - all controls reachable via Tab, but 10/15 lack accessible names (same root cause as D-09)",
+      "contrast": "DEFERRED - only sampled via axe color-contrast rule (0 violations fired) and visual screenshot inspection, not a true rendered-pixel contrast-ratio measurement"
+    },
+    "5_empty_states": {
+      "status": "PASS",
+      "booksListEmpty": "PASS - coherent, jargon-free, honest '0 books'",
+      "dashboardEmpty": "PASS - honest 0/0/0 stat cards, no fabricated numbers",
+      "memoryAndFindingsEmpty": "N/A - both are book-scoped surfaces, unreachable for a zero-book user via the same ownership fence confirmed in check 2; not a testing gap, the honest shape of the product for this persona"
+    },
+    "6_return_visit_honesty": {
+      "status": "PASS",
+      "note": "Free surface (writing, autosave, BYOK, settings, dashboard) stays fully usable and honestly labeled while unsubscribed; the one wall (book creation) is transparent about what subscribing unlocks. Minor UX observation (not a defect): all 4 dashboard quick-action buttons lead to the same creation wall."
+    }
+  },
+  "newDefectsFiled": ["D-08", "D-09", "D-10", "D-11"],
+  "proposedGrades": {
+    "note": "Grades proposed per campaign 12-dimension rubric (D1-D11, D3b) where evidence directly supports a call; dimensions not directly exercised by Sam's persona are left for the judging panel to reconcile against other personas' evidence.",
+    "mobileResponsiveness": "A- (zero horizontal-scroll fails across 34 screens down to 320px, clean landscape; docked for keyboard-caret being unverifiable and dense tap-target counts on settings/editor)",
+    "monetizationHonesty": "B+ (wall is earlier/more absolute than documented but the paywall UX itself is honest, respectful, non-trapping, no dark patterns, no card-free trial anywhere)",
+    "accessibility": "C+ (systemic duplicate-main landmark issue campaign-wide; critical unlabeled-buttons finding on settings; but focus order/visibility and landscape both clean)",
+    "internationalization": "B- (4 of 7 locales fully clean and well-executed; Arabic completely broken with a false-success API response; nav chrome never translates anywhere; no RTL support at all)",
+    "emptyStatesAndOnboarding": "A (every reachable empty state is coherent, jargon-free, honest about zero)"
+  },
+  "whatHeadlessCouldNotJudge": [
+    "True keyboard-caret overlap on a real mobile soft keyboard - headless Chromium doesn't render one",
+    "True visual contrast ratios and typographic quality beyond axe's automated color-contrast lint and screenshot pixel sampling",
+    "Whether prefers-reduced-motion actually suppresses in-flight animations - only a static post-load screenshot was captured, not frame-by-frame or live observation",
+    "Exact JSX locations of the 8 unlabeled settings buttons - flagged at the page level via axe + tab-order cross-check, not traced line-by-line",
+    "Exact root cause of the Arabic translation fallback - flagged via behavioral evidence (200 success, 0 visible translation), not traced to the specific i18n loader code path"
+  ]
+}
