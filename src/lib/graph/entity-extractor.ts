@@ -289,6 +289,7 @@ export async function extractEntities(
     );
 
     return {
+      bookId,
       entities: parsed.entities,
       relationships: parsed.relationships,
       chapterNumber,
@@ -301,6 +302,7 @@ export async function extractEntities(
       error
     );
     return {
+      bookId,
       entities: [],
       relationships: [],
       chapterNumber,

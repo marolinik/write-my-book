@@ -146,6 +146,13 @@ export interface ExtractedRelationship {
 }
 
 export interface ExtractionResult {
+  /**
+   * The book this extraction belongs to. REQUIRED and authoritative: every
+   * node and relationship write in graph-builder is scoped to this id (D-30 —
+   * a relationship upsert that matched endpoints by name alone wrote edges
+   * into every same-named pair across ALL books, including other tenants').
+   */
+  bookId: string;
   entities: ExtractedEntity[];
   relationships: ExtractedRelationship[];
   chapterNumber: number;

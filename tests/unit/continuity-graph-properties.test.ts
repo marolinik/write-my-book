@@ -79,6 +79,7 @@ const node = (key: string): Params => h.store.get(key) as Params;
 
 function extraction(over: Partial<ExtractionResult> = {}): ExtractionResult {
   return {
+    bookId: "b1",
     entities: [],
     relationships: [],
     chapterNumber: 7,

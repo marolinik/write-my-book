@@ -1450,7 +1450,12 @@ async function executeUpdateGraphEntity(
   }
 ): Promise<string> {
   try {
+    // D-30: bookId scopes every node/relationship write to the session's book.
+    // Previously omitted — agent-driven graph updates created nodes under
+    // bookId "" and relationship MERGEs matched endpoints by name across all
+    // books.
     const extractionResult: ExtractionResult = {
+      bookId: ctx.bookId,
       entities: input.entities.map((e) => ({
         name: e.name,
         label: e.type as GraphNodeLabel,

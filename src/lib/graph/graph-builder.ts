@@ -35,12 +35,24 @@ export async function upsertEntities(
     return stats;
   }
 
+  // D-30 guard: every graph write MUST be scoped to the calling book. The type
+  // requires bookId, but a legacy/buggy caller could still pass an empty value
+  // at runtime — refuse loudly rather than write unscoped (or, worse, let a
+  // name-only MATCH touch other books' graphs).
+  if (!result.bookId) {
+    console.error(
+      "[graph-builder] upsertEntities called without bookId — refusing to write unscoped graph data (D-30)"
+    );
+    return stats;
+  }
+
   await withSession("WRITE", async (session) => {
     // Pass 1: Upsert all entities
     for (const entity of result.entities) {
       const entityStats = await upsertSingleEntity(
         session,
         entity,
+        result.bookId,
         result.chapterNumber,
         result.contentHash
       );
@@ -53,6 +65,7 @@ export async function upsertEntities(
       const created = await upsertRelationship(
         session,
         rel,
+        result.bookId,
         result.chapterNumber
       );
       if (created) {
@@ -71,6 +84,7 @@ export async function upsertEntities(
 async function upsertSingleEntity(
   session: import("neo4j-driver").Session,
   entity: ExtractedEntity,
+  bookId: string,
   chapterNumber: number,
   contentHash: string
 ): Promise<{ created: number; updated: number }> {
@@ -79,13 +93,18 @@ async function upsertSingleEntity(
   // If the entity has aliases, check whether any existing node matches an alias.
   // This handles renames: if a character was previously stored under an alias,
   // we find that node and add the new name as an alias instead of creating a duplicate.
+  //
+  // D-30 hardening: bind the AUTHORITATIVE bookId from the extraction result,
+  // not properties.bookId (which is caller-injected and could be missing — a
+  // null bookId here made the alias lookup silently match nothing, and the
+  // MERGE below used to fall back to bookId "" creating unscoped nodes).
   if (aliases && aliases.length > 0) {
     const aliasResult = await session.run(
       `MATCH (n:${escapeLabelForQuery(label)} {bookId: $bookId})
        WHERE n.name IN $aliases OR any(a IN coalesce(n.aliases, []) WHERE a IN $aliases)
        RETURN n.name AS existingName LIMIT 1`,
       {
-        bookId: properties.bookId ?? (properties as Record<string, unknown>).bookId,
+        bookId,
         aliases,
       }
     );
@@ -106,7 +125,7 @@ async function upsertSingleEntity(
            n.lastMentioned = $chapter
            RETURN n`,
           {
-            bookId: properties.bookId,
+            bookId,
             existingName,
             newName: name,
             chapter: chapterNumber,
@@ -117,10 +136,13 @@ async function upsertSingleEntity(
     }
   }
 
-  // Build properties map for Cypher (exclude bookId and name which are in MERGE key)
+  // Build properties map for Cypher (name is in the MERGE key; bookId is
+  // pinned to the authoritative value so a stray/missing properties.bookId
+  // can never relabel or unscope the node)
   const now = new Date().toISOString();
   const allProps: Record<string, unknown> = {
     ...properties,
+    bookId,
     contentHash,
     lastMentioned: chapterNumber,
     updatedAt: now,
@@ -179,7 +201,7 @@ async function upsertSingleEntity(
       : "ON MATCH SET n += $updateProps";
 
   const mergeParams: Record<string, unknown> = {
-    bookId: allProps.bookId ?? "",
+    bookId,
     name,
     chapter: chapterNumber,
     createProps,
@@ -210,15 +232,32 @@ async function upsertSingleEntity(
 }
 
 /**
- * Upsert a relationship between two entities.
+ * Upsert a relationship between two entities OF THE CALLING BOOK.
  * Uses MERGE to avoid duplicates.
+ *
+ * D-30 fix: both endpoint MATCHes bind {name, bookId}. The previous query
+ * matched by name alone with only a relative `WHERE a.bookId = b.bookId`,
+ * which produced the cross-product of same-named pairs across ALL books
+ * (including other users' — character names are author-chosen free text) and
+ * MERGEd the edge onto every pair: one book's extraction silently corrupted
+ * every other book containing the same character names, producing false
+ * continuity flags in books the author never touched.
  */
 async function upsertRelationship(
   session: import("neo4j-driver").Session,
   rel: ExtractedRelationship,
+  bookId: string,
   chapterNumber: number
 ): Promise<boolean> {
   const { from, fromLabel, to, toLabel, type, properties } = rel;
+
+  // Defense in depth (D-30): never run the MERGE without a book scope.
+  if (!bookId) {
+    console.error(
+      `[graph-builder] Refusing to upsert relationship ${from}-[${type}]->${to} without bookId (D-30)`
+    );
+    return false;
+  }
 
   const relProps: Record<string, unknown> = {
     ...(properties ?? {}),
@@ -228,9 +267,8 @@ async function upsertRelationship(
 
   try {
     const result = await session.run(
-      `MATCH (a:${escapeLabelForQuery(fromLabel)} {name: $fromName})
-       MATCH (b:${escapeLabelForQuery(toLabel)} {name: $toName})
-       WHERE a.bookId = b.bookId
+      `MATCH (a:${escapeLabelForQuery(fromLabel)} {name: $fromName, bookId: $bookId})
+       MATCH (b:${escapeLabelForQuery(toLabel)} {name: $toName, bookId: $bookId})
        MERGE (a)-[r:${type}]->(b)
        ON CREATE SET r += $props, r.createdAt = datetime()
        ON MATCH SET r += $props
@@ -238,6 +276,7 @@ async function upsertRelationship(
       {
         fromName: from,
         toName: to,
+        bookId,
         props: relProps,
       }
     );

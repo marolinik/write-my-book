@@ -128,10 +128,14 @@ export async function getTimeline(
  */
 export async function getLocationMap(bookId: string): Promise<LocationMap> {
   return withSession("READ", async (session) => {
+    // The intermediate (s) hop (Scene/Event linking a character to a location)
+    // binds bookId too (D-30 defense in depth): while cross-book-contaminated
+    // edges exist, an unbound intermediate could route the traversal through
+    // another book's node and misattribute characters to locations.
     const result = await session.run(
       `MATCH (l:Location {bookId: $bookId})
        OPTIONAL MATCH (child:Location {bookId: $bookId})-[:PART_OF]->(l)
-       OPTIONAL MATCH (c:Character {bookId: $bookId})-[:APPEARS_IN|LOCATED_AT]-(s)-[:LOCATED_AT]->(l)
+       OPTIONAL MATCH (c:Character {bookId: $bookId})-[:APPEARS_IN|LOCATED_AT]-(s {bookId: $bookId})-[:LOCATED_AT]->(l)
        OPTIONAL MATCH (e:Event {bookId: $bookId})-[:LOCATED_AT]->(l)
        RETURN l.name AS name, l.locationType AS type,
               collect(DISTINCT child.name) AS childLocations,

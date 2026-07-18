@@ -74,6 +74,7 @@ const node = (key: string): Params => h.store.get(key) as Params;
 
 function upsertCharacter(name: string, aliases: string[], chapterNumber: number) {
   const result: ExtractionResult = {
+    bookId: "b1",
     entities: [
       {
         name,
