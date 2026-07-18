@@ -294,7 +294,7 @@ If the current-book-inclusive reading is correct: pass the current book's own `g
 product judgment — unlike D-19/D-20/D-27, this one hinges on interpreting an ambiguous exit
 criterion rather than a clear-cut implementation defect.
 
-## NEW (ID pending team-lead) — [S2, MOAT RELIABILITY + COST LEAK] A chapter can enter a state where graph extraction silently fails on EVERY attempt — zero API-visible error, zero degraded-mode signal, and unbounded billed retries, because both extraction-throttle layers key off success markers that a failing extraction never writes
+## D-28 — [S2, MOAT RELIABILITY + COST LEAK] A chapter can enter a state where graph extraction silently fails on EVERY attempt — zero API-visible error, zero degraded-mode signal, and unbounded billed retries, because both extraction-throttle layers key off success markers that a failing extraction never writes
 
 > Filed 2026-07-18 by the resumed P3 executor. Per campaign discipline this executor does NOT
 > self-assign an ID (highest known in-use at time of writing: D-27).
@@ -353,4 +353,4 @@ pipeline: a silent integrity hole and a per-scan money leak on the user's own BY
 
 ### Status
 
-**Reported, not fixed. ID pending team-lead.**
+**Reported, not fixed. Canonical ID = D-28 (assigned by team-lead 2026-07-18).**
