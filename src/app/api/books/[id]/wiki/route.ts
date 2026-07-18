@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { wikiEntitySchema, wikiQuerySchema } from "@/lib/validation";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { zodErrorResponse } from "@/lib/api/zod-error";
 
 export async function GET(
   req: NextRequest,
@@ -17,7 +18,7 @@ export async function GET(
       select: { id: true },
     });
     if (!book) {
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
+      return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
     const sp = Object.fromEntries(req.nextUrl.searchParams);
@@ -46,12 +47,8 @@ export async function GET(
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if ((error as Error).name === "ZodError") {
-      return NextResponse.json(
-        { error: "Invalid input", details: error },
-        { status: 400 }
-      );
-    }
+    const zodRes = zodErrorResponse(error);
+    if (zodRes) return zodRes;
     console.error("GET /api/books/:id/wiki error:", error);
     return NextResponse.json(
       { error: "Failed to fetch wiki entities" },
@@ -73,7 +70,7 @@ export async function POST(
       select: { id: true },
     });
     if (!book) {
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
+      return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
     // D-01 guard: malformed body answers 400, not a raw 500.
@@ -103,12 +100,8 @@ export async function POST(
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if ((error as Error).name === "ZodError") {
-      return NextResponse.json(
-        { error: "Invalid input", details: error },
-        { status: 400 }
-      );
-    }
+    const zodRes = zodErrorResponse(error);
+    if (zodRes) return zodRes;
     console.error("POST /api/books/:id/wiki error:", error);
     return NextResponse.json(
       { error: "Failed to create wiki entity" },

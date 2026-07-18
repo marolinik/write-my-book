@@ -32,5 +32,8 @@ export function invalidJsonBodyResponse(error: unknown): NextResponse | null {
     error instanceof InvalidJsonBodyError ||
     (error as Error)?.name === "InvalidJsonBodyError";
   if (!isInvalidJson) return null;
-  return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  return NextResponse.json(
+    { error: "Invalid JSON in request body" },
+    { status: 400 }
+  );
 }

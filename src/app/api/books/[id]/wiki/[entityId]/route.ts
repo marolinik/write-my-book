@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { wikiEntityUpdateSchema } from "@/lib/validation";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { zodErrorResponse } from "@/lib/api/zod-error";
 
 // D-15: these handlers had no top-level try/catch — a Zod failure (or an
 // unauthenticated request) escaped as a raw 500 with an empty body. All
@@ -12,12 +13,8 @@ function wikiEntityErrorResponse(error: unknown, label: string) {
   if ((error as Error).message === "Unauthorized") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  if ((error as Error).name === "ZodError") {
-    return NextResponse.json(
-      { error: "Invalid input", details: error },
-      { status: 400 }
-    );
-  }
+  const zodRes = zodErrorResponse(error);
+  if (zodRes) return zodRes;
   console.error(`${label} /api/books/:id/wiki/:entityId error:`, error);
   return NextResponse.json(
     { error: "Failed to process wiki entity request" },
@@ -37,7 +34,7 @@ export async function GET(
       where: { id: entityId, bookId, book: { userId: user.id } },
     });
     if (!entity) {
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
+      return NextResponse.json({ error: "Wiki entry not found" }, { status: 404 });
     }
     return NextResponse.json(entity);
   } catch (error) {
@@ -57,7 +54,7 @@ export async function PATCH(
       where: { id: entityId, bookId, book: { userId: user.id } },
     });
     if (!existing) {
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
+      return NextResponse.json({ error: "Wiki entry not found" }, { status: 404 });
     }
 
     // D-01 guard: malformed body answers 400, not a raw 500.
@@ -99,7 +96,7 @@ export async function DELETE(
       where: { id: entityId, bookId, book: { userId: user.id } },
     });
     if (!existing) {
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
+      return NextResponse.json({ error: "Wiki entry not found" }, { status: 404 });
     }
 
     await db.wikiEntity.delete({ where: { id: entityId } });

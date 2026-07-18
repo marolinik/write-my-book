@@ -56,7 +56,9 @@ describe("parseJsonBody helper", () => {
   it("maps only InvalidJsonBodyError to the 400 envelope", async () => {
     const res = invalidJsonBodyResponse(new InvalidJsonBodyError());
     expect(res?.status).toBe(400);
-    await expect(res?.json()).resolves.toEqual({ error: "Invalid JSON body" });
+    await expect(res?.json()).resolves.toEqual({
+      error: "Invalid JSON in request body",
+    });
     expect(invalidJsonBodyResponse(new Error("boom"))).toBeNull();
     expect(invalidJsonBodyResponse(undefined)).toBeNull();
   });
@@ -66,7 +68,9 @@ describe("migrated route handler (archive) on malformed JSON", () => {
   it("answers 400 with the standard envelope, not a raw 500", async () => {
     const res = await POST(rawReq("{definitely not json") as never, ctx as never);
     expect(res.status).toBe(400);
-    await expect(res.json()).resolves.toEqual({ error: "Invalid JSON body" });
+    await expect(res.json()).resolves.toEqual({
+      error: "Invalid JSON in request body",
+    });
     expect(h.db.book.updateMany).not.toHaveBeenCalled();
   });
 

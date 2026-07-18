@@ -70,7 +70,28 @@ describe("wiki routes answer errors with the standard envelope (D-15)", () => {
     const body = await res.json();
     expect(body.error).toBe("Invalid input");
     expect(body.details).toBeDefined();
+    // No raw ZodError internals (codes / expected-received types) in the body.
+    expect(JSON.stringify(body)).not.toMatch(
+      /"code"\s*:|"expected"\s*:|"received"\s*:|"unionErrors"\s*:/
+    );
     expect(h.db.wikiEntity.create).not.toHaveBeenCalled();
+  });
+
+  it("book missing → 404 'Book not found' (D-57 copy unified with siblings)", async () => {
+    h.db.book.findFirst.mockResolvedValue(null);
+    const res = await POST(post(VALID_ENTITY), ctx as never);
+    expect(res.status).toBe(404);
+    await expect(res.json()).resolves.toEqual({ error: "Book not found" });
+  });
+
+  it("entity missing → 404 'Wiki entry not found' (no bare 'Not found')", async () => {
+    h.db.wikiEntity.findFirst.mockResolvedValue(null);
+    const res = await GET_ENTITY(
+      get("http://t/api/books/b1/wiki/e1"),
+      entityCtx as never
+    );
+    expect(res.status).toBe(404);
+    await expect(res.json()).resolves.toEqual({ error: "Wiki entry not found" });
   });
 
   it("POST wrong enum type → 400 envelope", async () => {

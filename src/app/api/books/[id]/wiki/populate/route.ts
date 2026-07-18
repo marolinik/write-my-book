@@ -62,7 +62,7 @@ export async function POST(
     select: { id: true },
   });
   if (!book) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return NextResponse.json({ error: "Book not found" }, { status: 404 });
   }
 
   // Collect text from existing documents
