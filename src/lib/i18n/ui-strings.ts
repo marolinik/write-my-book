@@ -34,6 +34,9 @@ export interface UIStrings {
     nextStep: string;
     library: string;
     transfer: string;
+    // Mobile bottom nav (D-11)
+    home: string;
+    agent: string;
   };
 
   // Header
@@ -385,6 +388,8 @@ const EN: UIStrings = {
     nextStep: "Next Step",
     library: "Library",
     transfer: "Transfer",
+    home: "Home",
+    agent: "Agent",
   },
   header: {
     toggleSidebar: "Toggle sidebar",
@@ -685,6 +690,8 @@ const SR: UIStrings = {
     nextStep: "Sledeći korak",
     library: "Biblioteka",
     transfer: "Prenos",
+    home: "Početna",
+    agent: "Agent",
   },
   header: {
     toggleSidebar: "Prikaži/sakrij bočnu traku",
@@ -985,6 +992,8 @@ const DE: UIStrings = {
     nextStep: "Nächster Schritt",
     library: "Bibliothek",
     transfer: "Übertragung",
+    home: "Start",
+    agent: "Agent",
   },
   header: {
     toggleSidebar: "Seitenleiste umschalten",
@@ -1285,6 +1294,8 @@ const ES: UIStrings = {
     nextStep: "Siguiente paso",
     library: "Biblioteca",
     transfer: "Transferencia",
+    home: "Inicio",
+    agent: "Agente",
   },
   header: {
     toggleSidebar: "Alternar barra lateral",
@@ -1585,6 +1596,8 @@ const FR: UIStrings = {
     nextStep: "Prochaine étape",
     library: "Bibliothèque",
     transfer: "Transfert",
+    home: "Accueil",
+    agent: "Agent",
   },
   header: {
     toggleSidebar: "Afficher/masquer la barre latérale",
@@ -1885,6 +1898,8 @@ const RU: UIStrings = {
     nextStep: "Следующий шаг",
     library: "Библиотека",
     transfer: "Передача",
+    home: "Главная",
+    agent: "Агент",
   },
   header: {
     toggleSidebar: "Показать/скрыть боковую панель",
@@ -2185,6 +2200,8 @@ const ZH: UIStrings = {
     nextStep: "下一步",
     library: "资料库",
     transfer: "导入导出",
+    home: "首页",
+    agent: "代理",
   },
   header: {
     toggleSidebar: "切换侧边栏",
