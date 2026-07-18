@@ -304,9 +304,14 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
   )
 }
 
-function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
+// Renders a <div>, not <main>: the app layout nests the real content <main>
+// inside this wrapper, and two main landmarks confuse assistive-tech
+// navigation (D-09: axe landmark-no-duplicate-main / landmark-main-is-top-level).
+// Styling parity for the old tag selector is kept via [data-slot="sidebar-inset"]
+// rules in globals.css.
+function SidebarInset({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <main
+    <div
       data-slot="sidebar-inset"
       className={cn(
         "bg-background relative flex w-full flex-1 flex-col",

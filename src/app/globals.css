@@ -727,6 +727,7 @@ body:has(.wmb-focus-1) [data-slot="sidebar-inset"] > header:hover {
 
 /* Smooth theme transitions */
 body, .card, [data-slot="card"], [data-slot="sidebar"],
+[data-slot="sidebar-inset"],
 header, main, nav {
   transition: background-color 0.3s ease, color 0.2s ease, border-color 0.3s ease;
 }
@@ -850,7 +851,8 @@ input:focus, textarea:focus, [contenteditable]:focus {
     display: none !important;
   }
   
-  main {
+  main,
+  [data-slot="sidebar-inset"] {
     padding: 0 !important;
     width: 100% !important;
   }
@@ -1004,7 +1006,8 @@ input:focus, textarea:focus, [contenteditable]:focus {
   to { opacity: 1; transform: translateY(0); }
 }
 
-main > * {
+main > *,
+[data-slot="sidebar-inset"] > * {
   animation: fadeIn 0.3s ease-out;
 }
 
