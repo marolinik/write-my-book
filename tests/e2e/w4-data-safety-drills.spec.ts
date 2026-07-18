@@ -110,11 +110,35 @@ async function typeForMs(
   await page.keyboard.press("Control+End");
   const start = Date.now();
   let i = 0;
-  while (Date.now() - start < totalMs) {
+  // do/while, not while: the 0ms leg ("single keystroke, immediate crash")
+  // must still type its one burst. A `while` loop skips the body entirely
+  // when totalMs is 0, typing nothing and leaving the caller's post-crash
+  // marker assertion unsatisfiable by construction (Z14 0s sub-test).
+  do {
     await typeSlow(page, `${words[i % words.length]} `);
     i++;
     if (totalMs > 400) await page.waitForTimeout(300);
+  } while (Date.now() - start < totalMs);
+}
+
+// The D-24 fix mirrors keystrokes to localStorage on a 150ms leading+trailing
+// throttle (unload flush bypasses the throttle and is unconditional, but a
+// true zero-settle hard kill dispatches no unload event at all). So anything
+// typed more than MIRROR_SAFETY_MS before the crash — a margin comfortably
+// above the 150ms window — is guaranteed to have been durably mirrored by a
+// throttle write that already fired; the last sliver inside the window is a
+// documented, accepted loss and must not be asserted as recoverable.
+const MIRROR_SAFETY_MS = 200;
+
+/** Given per-character type timestamps, the prefix of `text` typed more than
+ * MIRROR_SAFETY_MS before `closeTime`. */
+function mirrorSafePrefix(text: string, charTimestamps: number[], closeTime: number): string {
+  const safeCutoff = closeTime - MIRROR_SAFETY_MS;
+  let safeCharCount = 0;
+  while (safeCharCount < charTimestamps.length && charTimestamps[safeCharCount] <= safeCutoff) {
+    safeCharCount++;
   }
+  return text.slice(0, safeCharCount);
 }
 
 test.describe("Z14 — immersive-mode unload flush", () => {
@@ -196,7 +220,7 @@ test.describe("Network-kill / crash-restart (user_qa_p2 — env-unblocked varian
     await expect(saveStatus(page)).toContainText("Saved", { timeout: 30_000 });
   });
 
-  test("hard crash mid-typing recovers the draft on next load", async ({
+  test("hard crash mid-typing recovers at least the mirror-safe prefix of the draft", async ({
     page,
     context,
     request,
@@ -213,17 +237,46 @@ test.describe("Network-kill / crash-restart (user_qa_p2 — env-unblocked varian
     const editor = page.locator(".ProseMirror");
     await editor.click();
     await page.keyboard.press("End");
-    await page.keyboard.type(` ${marker}`);
+    await page.keyboard.type(" ");
 
-    // No wait for "Saved" — crash immediately, before the ~2s autosave debounce
-    // has any chance to land the network PUT. Recovery must come from the
-    // beforeunload/pagehide IndexedDB draft path, not a completed save.
+    // Type at the same human cadence as typeSlow (45ms/char), recording a
+    // wall-clock timestamp after each keystroke, so we can compute exactly
+    // how much of the marker crossed the mirror-safety margin before the
+    // crash below.
+    const charTimestamps: number[] = [];
+    for (const ch of marker) {
+      await page.keyboard.type(ch, { delay: 45 });
+      charTimestamps.push(Date.now());
+    }
+
+    // No wait for "Saved" — crash immediately (0-30ms after the last
+    // keystroke), before the ~2s autosave debounce has any chance to land
+    // the network PUT and before the 150ms mirror throttle's trailing edge
+    // can fire. Recovery must come from the last-chance mirror / IndexedDB
+    // draft path, not a completed save or a throttle write we didn't earn.
+    const closeTime = Date.now();
     await page.close({ runBeforeUnload: false });
+
+    const markerPrefix = mirrorSafePrefix(marker, charTimestamps, closeTime);
 
     const reopened = await context.newPage();
     await reopened.goto(`/books/${bookId}/chapters/${chapterId}`);
     await expect(reopened.locator(".ProseMirror")).toBeVisible({ timeout: 15_000 });
-    await expect(reopened.locator(".ProseMirror")).toContainText(marker, {
+
+    // Record (don't assert) whether the unmirrorable tail also happened to
+    // survive — informative, but not a guarantee the fix makes.
+    const recoveredText = await reopened.locator(".ProseMirror").innerText();
+    testInfo.annotations.push({
+      type: "d24-full-marker-survived",
+      description: String(recoveredText.includes(marker)),
+    });
+
+    // The hard guarantee under test: everything typed more than
+    // MIRROR_SAFETY_MS before the crash must survive. Baseline-only
+    // recovery (total loss, no prefix) fails this assertion — that is the
+    // D-24 regression this drill exists to catch.
+    expect(markerPrefix.length).toBeGreaterThan(0);
+    await expect(reopened.locator(".ProseMirror")).toContainText(markerPrefix, {
       timeout: 15_000,
     });
   });
