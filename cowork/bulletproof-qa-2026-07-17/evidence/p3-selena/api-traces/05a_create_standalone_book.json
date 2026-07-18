@@ -1,0 +1,27 @@
+{
+  "label": "05a_create_standalone_book",
+  "method": "POST",
+  "path": "/api/books",
+  "status": 201,
+  "response": {
+    "id": "34cd7b88-94a7-47e5-8374-f5d4799fa02a",
+    "userId": "3f4836f4-083e-4011-9bb5-bec2a6714eb6",
+    "seriesId": null,
+    "bookNumber": 1,
+    "name": "Standalone QA P3",
+    "genre": "fantasy",
+    "language": "en",
+    "status": "concept",
+    "description": null,
+    "marketingKit": null,
+    "authorNotes": null,
+    "wordCount": 0,
+    "targetWordCount": null,
+    "chapterCount": 0,
+    "s3Prefix": "3f4836f4-083e-4011-9bb5-bec2a6714eb6/34cd7b88-94a7-47e5-8374-f5d4799fa02a",
+    "createdAt": "2026-07-18T01:51:33.380Z",
+    "updatedAt": "2026-07-18T01:51:33.408Z",
+    "archivedAt": null,
+    "firstChapterId": "5ede415d-2535-4da8-ae6a-34bc0e55231c"
+  }
+}

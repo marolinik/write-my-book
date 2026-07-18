@@ -1,0 +1,22 @@
+{
+  "label": "03_create_ch1",
+  "method": "POST",
+  "path": "/api/books/fd60e1d4-37c5-4c11-92a1-586af638224a/chapters",
+  "status": 201,
+  "response": {
+    "id": "4b958740-d4ee-4f7f-901d-679bd59cf028",
+    "bookId": "fd60e1d4-37c5-4c11-92a1-586af638224a",
+    "actNumber": 1,
+    "chapterNumber": 1,
+    "title": "The Ashfall Gate",
+    "status": "undiscussed",
+    "wordCount": 0,
+    "targetWordCount": null,
+    "betaScore": null,
+    "betaGate": "pending",
+    "revisionCount": 0,
+    "importedAt": null,
+    "createdAt": "2026-07-18T01:46:35.965Z",
+    "updatedAt": "2026-07-18T01:46:35.965Z"
+  }
+}

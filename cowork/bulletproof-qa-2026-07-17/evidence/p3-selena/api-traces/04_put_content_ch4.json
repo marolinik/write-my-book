@@ -1,0 +1,11 @@
+{
+  "label": "04_put_content_ch4",
+  "method": "PUT",
+  "path": "/api/books/fd60e1d4-37c5-4c11-92a1-586af638224a/chapters/d53b1c6c-8395-458f-8809-c1b7efb1b027/content",
+  "status": 200,
+  "response": {
+    "wordCount": 359,
+    "version": 1,
+    "bookWordCount": 1896
+  }
+}

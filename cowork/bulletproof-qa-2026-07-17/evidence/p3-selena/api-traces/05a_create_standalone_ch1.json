@@ -1,0 +1,9 @@
+{
+  "label": "05a_create_standalone_ch1",
+  "method": "POST",
+  "path": "/api/books/34cd7b88-94a7-47e5-8374-f5d4799fa02a/chapters",
+  "status": 500,
+  "response": {
+    "error": "Failed to create chapter"
+  }
+}

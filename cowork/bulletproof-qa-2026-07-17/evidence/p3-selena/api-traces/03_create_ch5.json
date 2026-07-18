@@ -1,0 +1,22 @@
+{
+  "label": "03_create_ch5",
+  "method": "POST",
+  "path": "/api/books/fd60e1d4-37c5-4c11-92a1-586af638224a/chapters",
+  "status": 201,
+  "response": {
+    "id": "45456c28-eabc-417b-85d5-34fd32ef75a1",
+    "bookId": "fd60e1d4-37c5-4c11-92a1-586af638224a",
+    "actNumber": 1,
+    "chapterNumber": 5,
+    "title": "The Truce",
+    "status": "undiscussed",
+    "wordCount": 0,
+    "targetWordCount": null,
+    "betaScore": null,
+    "betaGate": "pending",
+    "revisionCount": 0,
+    "importedAt": null,
+    "createdAt": "2026-07-18T01:46:37.083Z",
+    "updatedAt": "2026-07-18T01:46:37.083Z"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "label": "05b_cross_user_link_attempt",
+  "method": "POST",
+  "path": "/api/series/8d5e94c0-c175-4f50-97f4-29f4e09b9b89/books",
+  "status": 404,
+  "response": {
+    "error": "Book not found"
+  }
+}

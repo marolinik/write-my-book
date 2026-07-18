@@ -1,0 +1,18 @@
+{
+  "label": "01_create_series",
+  "method": "POST",
+  "path": "/api/series",
+  "status": 201,
+  "response": {
+    "id": "8d5e94c0-c175-4f50-97f4-29f4e09b9b89",
+    "userId": "3f4836f4-083e-4011-9bb5-bec2a6714eb6",
+    "title": "The Ashfall Cycle",
+    "genre": null,
+    "language": "en",
+    "seriesType": "TRILOGY",
+    "plannedBooks": 3,
+    "description": null,
+    "createdAt": "2026-07-18T01:46:33.979Z",
+    "updatedAt": "2026-07-18T01:46:33.979Z"
+  }
+}
