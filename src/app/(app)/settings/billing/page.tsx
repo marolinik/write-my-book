@@ -14,6 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
 import { formatTokens } from "@/lib/utils";
+import { billingStatusNotice } from "@/lib/billing/status-notice";
 import { useLocale } from "@/components/providers/language-provider";
 import {
   Check,
@@ -124,6 +125,10 @@ export default function BillingPage() {
     : null;
   const founderSoldOut = (founderCount?.available ?? 1) <= 0;
 
+  // D-07: honest banners for degraded-but-live subscription states the API
+  // already reports (past_due dunning, scheduled cancellation).
+  const statusNotice = billingStatusNotice(subscription, locale);
+
   const handleCheckout = (planKey: string) => {
     checkout.mutate({
       plan: planKey,
@@ -180,6 +185,59 @@ export default function BillingPage() {
                 Trial ends {trialEnd.toLocaleDateString(locale)}. Add a payment
                 method to continue after your trial.
               </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Subscription status notice: past_due dunning / pending cancellation (D-07) */}
+      {statusNotice && (
+        <Card
+          className={
+            statusNotice.kind === "past_due"
+              ? "mb-6 border-red-300 bg-red-50 dark:border-red-800 dark:bg-red-950/30"
+              : "mb-6 border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30"
+          }
+        >
+          <CardContent className="flex items-start gap-3 py-4">
+            <AlertTriangle
+              className={
+                statusNotice.kind === "past_due"
+                  ? "h-5 w-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5"
+                  : "h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5"
+              }
+            />
+            <div>
+              <p
+                className={
+                  statusNotice.kind === "past_due"
+                    ? "font-medium text-red-800 dark:text-red-200"
+                    : "font-medium text-amber-800 dark:text-amber-200"
+                }
+              >
+                {statusNotice.title}
+              </p>
+              <p
+                className={
+                  statusNotice.kind === "past_due"
+                    ? "text-sm text-red-700 dark:text-red-300 mt-1"
+                    : "text-sm text-amber-700 dark:text-amber-300 mt-1"
+                }
+              >
+                {statusNotice.body}
+              </p>
+              {stripeConfigured && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-3 gap-2"
+                  onClick={() => manageBilling.mutate()}
+                  disabled={manageBilling.isPending}
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  Manage Subscription
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
