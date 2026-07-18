@@ -67,7 +67,11 @@ vi.mock("@/lib/storage", () => ({
 
 import { PUT } from "@/app/api/books/[id]/chapters/[chapterId]/content/route";
 import { DocumentService } from "@/lib/documents/document-service";
-import { planDocumentGroupRepair } from "../../scripts/repair-duplicate-documents";
+import {
+  planDocumentGroupRepair,
+  copyVersionSnapshots,
+} from "../../scripts/repair-duplicate-documents";
+import { getVersionStoragePath } from "@/lib/documents/storage-keys";
 
 const ctx = { params: Promise.resolve({ id: "b1", chapterId: "ch1" }) };
 function put(body: unknown) {
@@ -262,5 +266,55 @@ describe("repair script planning (D-16c)", () => {
     );
     expect(plan.keepId).toBe("A");
     expect(plan.deleteDocumentIds).toEqual(["Z"]);
+  });
+});
+
+describe("repair script snapshot copy (D-16 data-loss guard)", () => {
+  /** In-memory storage mock exercising the real read/write path signatures. */
+  function memStorage(seed: Record<string, string>) {
+    const objects = new Map(Object.entries(seed));
+    return {
+      objects,
+      read: vi.fn(async (path: string) => objects.get(path) ?? null),
+      write: vi.fn(async (path: string, content: string) => {
+        objects.set(path, content);
+      }),
+    };
+  }
+
+  it("copies each moved snapshot to its new (keepId,toVersion) path — readable after re-parent", async () => {
+    // Extra row B's snapshots live under B's id; re-parenting the DB row alone
+    // would leave reads recomputing `.versions/A/vN.md` at a never-written path.
+    const storage = memStorage({
+      [getVersionStoragePath("B", 1)]: "B body v1",
+      [getVersionStoragePath("B", 4)]: "B body v4",
+    });
+
+    const moves = [
+      { versionRowId: "vB1", fromDocumentId: "B", fromVersion: 1, toVersion: 5 },
+      { versionRowId: "vB4", fromDocumentId: "B", fromVersion: 4, toVersion: 4 },
+    ];
+    const result = await copyVersionSnapshots(storage, "A", moves);
+
+    expect(result.copied).toHaveLength(2);
+    expect(result.missing).toHaveLength(0);
+    // The moved snapshots are now present at the kept row's recomputed paths.
+    expect(storage.objects.get(getVersionStoragePath("A", 5))).toBe("B body v1");
+    expect(storage.objects.get(getVersionStoragePath("A", 4))).toBe("B body v4");
+    // Copy happens BEFORE any DB move (asserted by the write call count here).
+    expect(storage.write).toHaveBeenCalledTimes(2);
+    // Original object is left in place (harmless orphan, not deleted).
+    expect(storage.objects.get(getVersionStoragePath("B", 1))).toBe("B body v1");
+  });
+
+  it("records a missing source snapshot without throwing (never writes a null)", async () => {
+    const storage = memStorage({});
+    const result = await copyVersionSnapshots(storage, "A", [
+      { versionRowId: "vB2", fromDocumentId: "B", fromVersion: 2, toVersion: 6 },
+    ]);
+
+    expect(result.copied).toHaveLength(0);
+    expect(result.missing).toHaveLength(1);
+    expect(storage.write).not.toHaveBeenCalled();
   });
 });

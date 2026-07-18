@@ -91,6 +91,18 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         { status: 400 }
       );
     }
+    // D-16: the new @@unique([bookId, type, chapterNumber]) makes a duplicate
+    // chapter-scoped document a P2002 on the single create() above — no race
+    // needed. Return 409 (not a hard 500): a create endpoint must NOT converge
+    // into a blind last-write-wins update, which would reintroduce the silent
+    // lost-update this constraint exists to prevent. Callers refetch the
+    // existing row and PUT with a version stamp instead.
+    if ((error as { code?: string })?.code === "P2002") {
+      return NextResponse.json(
+        { error: "A document of this type already exists for this chapter" },
+        { status: 409 }
+      );
+    }
     console.error("POST /api/books/:id/documents error:", error);
     return NextResponse.json(
       { error: "Failed to create document" },
