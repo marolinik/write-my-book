@@ -104,4 +104,7 @@ Three live instances in one journey:
 | C-7 | **D-41** | S4 | Critical finding with empty newText renders nothing; discuss revisedSuggestion not persisted to finding |
 | C-8 | **D-42** | S4 | No GET session-status endpoint; SSE stream is the only observer (masked D-36) |
 
-Next free: **D-43**.
+| C-9 | **D-43** | S3 | Editor-model override never governs line-edit (conductor-only, zero Delegate; wizard tier names unresolvable → book overrides inert; silent misrouting of paid BYOK model choice) |
+| C-10 | **D-44** | S3 | BYOK per-key usage panel always $0 for key-scoped registry IDs (startsWith prefix bug); no persisted per-session model provenance |
+
+Next free: **D-45**.
