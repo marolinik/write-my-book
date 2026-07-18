@@ -43,6 +43,18 @@ function computeFindingHash(
   return createHash("sha256").update(canonical).digest("hex");
 }
 
+/**
+ * Normalize a finding's originalText for dismissed-finding matching (D-13):
+ * NFC (same rationale as fuzzyMatch — Serbian diacritics) plus whitespace
+ * collapse and trim. Returns "" for null/undefined/blank input — callers MUST
+ * treat "" as non-matching (an empty span can never justify suppression).
+ */
+function normalizeOriginalTextForDismissMatch(
+  text: string | null | undefined
+): string {
+  return (text ?? "").normalize("NFC").replace(/\s+/g, " ").trim();
+}
+
 function fuzzyMatch(needle: string, haystack: string): number {
   // NFC-normalize both inputs to prevent false rejections from Unicode
   // normalization differences (critical for Serbian diacritics: č, ć, š, ž, đ)
@@ -1266,6 +1278,42 @@ async function executeCreateFinding(
 
   if (existing) {
     return `Finding already exists (id: ${existing.id}). Skipped duplicate based on content hash.`;
+  }
+
+  // D-13: deterministically enforce the prompt's FINDING HISTORY AWARENESS
+  // rule ("If an issue was [DISMISSED] ... do not re-flag UNLESS it's
+  // critical"). The content-hash dedup above hashes the freshly-generated
+  // DESCRIPTION, so a re-worded description re-flags the exact prose span the
+  // writer already chose to keep. Match instead on what the dismissal was
+  // about: the finding's originalText (alternatives[0], the persisted legacy
+  // field), whitespace-normalized. Empty originalText never suppresses.
+  if (input.severity !== "critical") {
+    const newOriginalText = normalizeOriginalTextForDismissMatch(
+      input.alternatives[0]?.originalText
+    );
+    if (newOriginalText) {
+      const dismissedPriors = await db.editFinding.findMany({
+        where: {
+          bookId: ctx.bookId,
+          chapterNumber,
+          category: input.category,
+          status: "dismissed",
+          originalText: { not: null },
+        },
+        select: { id: true, originalText: true },
+      });
+      const dismissedMatch = dismissedPriors.find(
+        (prior) =>
+          normalizeOriginalTextForDismissMatch(prior.originalText) ===
+          newOriginalText
+      );
+      if (dismissedMatch) {
+        console.warn(
+          `[CreateFinding] Suppressed re-flag of dismissed finding ${dismissedMatch.id} (chapter ${chapterNumber}, category: ${input.category}, severity: ${input.severity})`
+        );
+        return `Finding suppressed (not persisted): the writer already DISMISSED a ${input.category} finding on this exact text (id: ${dismissedMatch.id}). Per FINDING HISTORY AWARENESS, do not re-flag dismissed issues unless critical severity.`;
+      }
+    }
   }
 
   // Compute grounding score
