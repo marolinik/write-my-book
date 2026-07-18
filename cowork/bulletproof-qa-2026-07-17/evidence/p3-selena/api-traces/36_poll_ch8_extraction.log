@@ -1,0 +1,8 @@
+=== poll ch8 start 2026-07-18T11:06:25Z ===
+[2026-07-18T11:06:25Z poll 1] Chapter8.updatedAt= | events_with_chapter8=0
+[2026-07-18T11:07:04Z poll 2] Chapter8.updatedAt= | events_with_chapter8=0
+[2026-07-18T11:07:45Z poll 3] Chapter8.updatedAt=2026-07-18T11:07:21.806Z | events_with_chapter8=3
+[2026-07-18T11:07:45Z] LANDED
+=== ATTEMPT 2 (v2 content, Death-of-Corvin-Ashe target) poll start 2026-07-18T11:15:34Z; prior stamp 11:07:21 ===
+[2026-07-18T11:15:34Z poll 1] Chapter8.updatedAt=2026-07-18T11:13:40.686Z | ch8 LEADS_TO: a.name, b.name, b.chapter "The Midnight Bargain", "The Death of Corvin Ashe", 8.0 
+[2026-07-18T11:15:34Z] LANDED (hash re-stamped)

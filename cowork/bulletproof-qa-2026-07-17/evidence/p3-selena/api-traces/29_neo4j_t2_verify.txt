@@ -1,0 +1,21 @@
+=== T2 VERIFY 2026-07-18T10:47:51Z (post ch6 landing) ===
+--- events with chapter=6 ---
+e.name, e.chapter, e.firstAppearance
+"Death and Burial of Corvin Ashe", 6.0, 6.0
+"Defense of the Western Wall", 6.0, 6.0
+--- Corvin Ashe key props ---
+c.status, c.deathChapter, c.lastMentioned, c.role
+"transformed", 3.0, 6.0, "protagonist"
+--- Corvin PARTICIPATES_IN edges ---
+e.name, e.chapter
+"Eleventh Day of the Siege", 3.0
+"Death of Corvin Ashe", 3.0
+"Defense of the Western Wall", 6.0
+"Vane's feint at Salt Docks", NULL
+"Corvin's Arm Wounding", NULL
+"First Assault on Ashfall Gate", NULL
+"Preparation for Assault", NULL
+--- dead_character_reappears Cypher (verbatim shape from runConsistencyChecks) ---
+--- Rasmussen aliases (T5a: ch6 used both spellings) ---
+c.name, c.aliases, c.lastMentioned
+"Zoë Rasmussen", ["Zoe"], 6.0

@@ -1,0 +1,39 @@
+{
+  "label": "35_scan_ch7_t3_verdict",
+  "ts": "2026-07-18T11:05:08.995Z",
+  "method": "POST",
+  "path": "/api/books/fd60e1d4-37c5-4c11-92a1-586af638224a/continuity/scan?chapterNumber=7",
+  "note": "T3 VERDICT: NO location_conflict flag — check is founder-gated OFF in code (ENABLE_LOCATION_CONFLICT_CHECK=false). Graph DOES contain the seeded impossible pair (34_neo4j_t3_verify.txt) but even the verbatim Cypher misses it: undirected PART_OF* exemption excludes any two locations sharing a parent (Salt Docks—Emberfall—Cinder Ward), while flagging innocent ch3 sequential movement (Ashfall Gate vs Cindermoor Bridge, which merely lacks PART_OF links). Flag list otherwise stable: T2 dead_character_reappears persists with same row id (sticky), plus the cross-book-contamination relationship_contradiction. Zero spurious flags.",
+  "status": 200,
+  "response": {
+    "flags": [
+      {
+        "id": "95fbf4dd-7bba-45d0-b6a7-6065413db6da",
+        "signature": "fed30551feb39d367d451c4be0631391458ca80d",
+        "type": "dead_character_reappears",
+        "severity": "critical",
+        "description": "Character \"Corvin Ashe\" dies in chapter 3 but participates in events in chapters 6.",
+        "entities": [
+          "Corvin Ashe"
+        ],
+        "chapterNumber": 6,
+        "jumpChapter": 3,
+        "anchor": "Corvin Ashe"
+      },
+      {
+        "id": "52af6dc9-7244-413d-b0d7-b93272032a1a",
+        "signature": "e687d7d120a07aa1af9cc1eed6c6426c24a27af2",
+        "type": "relationship_contradiction",
+        "severity": "major",
+        "description": "Characters \"Mira Thorne\" and \"Kestrel Vane\" are marked as both ALLIED_WITH and OPPOSES each other simultaneously.",
+        "entities": [
+          "Mira Thorne",
+          "Kestrel Vane"
+        ],
+        "chapterNumber": 0,
+        "jumpChapter": null,
+        "anchor": null
+      }
+    ]
+  }
+}

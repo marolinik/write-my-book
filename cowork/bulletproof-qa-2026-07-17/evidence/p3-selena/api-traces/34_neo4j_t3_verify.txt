@@ -1,0 +1,21 @@
+=== T3 VERIFY 2026-07-18T11:00:34Z (post ch7 landing) ===
+--- events with chapter=7 + their locations ---
+e.name, e.chapter, l.name
+"Grain Unloading at the Salt Docks", 7.0, "Salt Docks"
+"Cinder Ward Raid", 7.0, "Cinder Ward"
+"truce", 7.0, NULL
+--- Mira PARTICIPATES_IN chapter-7 events ---
+e.name, e.chapter
+"Cinder Ward Raid", 7.0
+"Grain Unloading at the Salt Docks", 7.0
+--- location_conflict Cypher VERBATIM from runConsistencyChecks (check is code-DISABLED; running read-only to prove graph satisfies it) ---
+character, chapter, location1, location2, event1, event2
+"Mira Thorne", 3.0, "Ashfall Gate", "Cindermoor Bridge", "Rally of Mira Thorne", "Burial of Corvin Ashe"
+"Mira Thorne", 3.0, "Ashfall Gate", "Cindermoor Bridge", "Death of Corvin Ashe", "Burial of Corvin Ashe"
+"Zoë Rasmussen", 3.0, "Ashfall Gate", "Cindermoor Bridge", "Death of Corvin Ashe", "Burial of Corvin Ashe"
+--- T5b: Rasmussen aliases after Zoë-only ch7 ---
+c.name, c.aliases, c.lastMentioned
+"Zoë Rasmussen", ["Zoe"], 7.0
+[n IN nodes(p) | n.name]
+["Salt Docks", "Emberfall", "Cinder Ward"]
+PART_OF-exemption evidence appended (Salt Docks—Emberfall—Cinder Ward undirected path explains why seeded pair is NOT matched; ch3 rows match only because Cindermoor Bridge has NO PART_OF edge)

@@ -1,0 +1,43 @@
+=== T4 VERIFY 2026-07-18T11:08:48Z (post ch8 landing) ===
+--- events with chapter=8 ---
+e.name, e.chapter, e.firstAppearance
+"The Midnight Bargain", 8.0, 8.0
+"The raid", 8.0, 8.0
+"The Defense of the Western Wall", 8.0, 8.0
+--- ALL LEADS_TO edges in book1 (from, from.chapter, to, to.chapter, r.chapter) ---
+a.name, a.chapter, b.name, b.chapter, r.chapter
+"First Assault on Ashfall Gate", NULL, "Corvin's Arm Wounding", NULL, 1.0
+"Death of Corvin Ashe", 3.0, "Rally of Mira Thorne", 3.0, 3.0
+"Death of Corvin Ashe", 3.0, "Burial of Corvin Ashe", 3.0, 3.0
+"The Midnight Bargain", 8.0, "The raid", 8.0, 8.0
+"The Midnight Bargain", 8.0, "The Defense of the Western Wall", 8.0, 8.0
+"The raid", 8.0, "The Defense of the Western Wall", 8.0, 8.0
+--- Defense of the Western Wall node (chapter must still be 6 via coalesce) ---
+e.name, e.chapter, e.firstAppearance, e.lastMentioned
+"Defense of the Western Wall", 6.0, 6.0, 6.0
+--- timeline_violation Cypher VERBATIM from runConsistencyChecks ---
+
+=== T4 ATTEMPT 2 VERIFY 2026-07-18T11:17:10Z (ch8 v2: Death-of-Corvin-Ashe causal target) ===
+--- events with chapter=8 after re-extraction (attempt-1 fork should be cleaned) ---
+e.name, e.chapter, e.firstAppearance
+"The Midnight Bargain", 8.0, 8.0
+"The Death of Corvin Ashe", 8.0, 8.0
+"The siege", 8.0, 8.0
+"The truce", 8.0, 8.0
+--- both Death events (name fork check) ---
+e.name, e.chapter, e.firstAppearance
+"Death of Corvin Ashe", 3.0, 3.0
+"The Death of Corvin Ashe", 8.0, 8.0
+--- ALL LEADS_TO edges (from, from.chapter, to, to.chapter) ---
+a.name, a.chapter, b.name, b.chapter
+"First Assault on Ashfall Gate", NULL, "Corvin's Arm Wounding", NULL
+"Death of Corvin Ashe", 3.0, "Rally of Mira Thorne", 3.0
+"Death of Corvin Ashe", 3.0, "Burial of Corvin Ashe", 3.0
+"The Midnight Bargain", 8.0, "The Death of Corvin Ashe", 8.0
+--- timeline_violation Cypher VERBATIM (expect zero rows) ---
+--- T5 FINAL: Rasmussen aliases after all 7 extraction passes this session ---
+c.name, c.aliases, c.lastMentioned
+"Zoë Rasmussen", ["Zoe"], 7.0
+--- Corvin final state ---
+c.status, c.deathChapter, c.lastMentioned
+"dead", 3.0, 8.0

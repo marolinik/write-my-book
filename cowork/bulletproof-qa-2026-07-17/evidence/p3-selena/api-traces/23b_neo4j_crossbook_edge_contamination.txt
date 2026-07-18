@@ -1,0 +1,10 @@
+=== 2026-07-18T10:27:56Z Cross-book relationship contamination evidence (read-only) ===
+--- book1 (fd60e1d4, has ONLY chapters 1-5) Mira<->Vane edges with r.chapter + r.updatedAt ---
+type(r), r.chapter, r.updatedAt, fromName
+"ALLIED_WITH", 6.0, "2026-07-18T02:54:33.420Z", "Mira Thorne"
+"OPPOSES", 9.0, "2026-07-18T09:04:06.482Z", "Mira Thorne"
+"OPPOSES", 2.0, "2026-07-18T02:08:53.179Z", "Kestrel Vane"
+--- book2 (2c9af2e0) same pair for comparison ---
+type(r), r.chapter, r.updatedAt, fromName
+"OPPOSES", 9.0, "2026-07-18T09:04:06.482Z", "Mira Thorne"
+"ALLIED_WITH", 6.0, "2026-07-18T02:54:33.420Z", "Mira Thorne"

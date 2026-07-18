@@ -1,0 +1,39 @@
+=== BASELINE 2026-07-18T10:21:46Z book1=fd60e1d4-37c5-4c11-92a1-586af638224a (pre moat re-verify, read-only) ===
+--- Corvin Ashe full properties ---
+properties(c)
+{firstAppearance: 1.0, aliases: ["Corvin"], role: "mentioned", description: "Late defender of Ashfall Gate, died one month prior to this chapter", bookId: "fd60e1d4-37c5-4c11-92a1-586af638224a", contentHash: "ba4d01e05bf93460", createdAt: 2026-07-18T01:52:16.705Z, lastMentioned: 5.0, personality: "Determined, reckless, trusted by allies", physicalTraits: "Previously smelled of forge, now of smoke; bears shallow cut on forearm", name: "Corvin Ashe", id: "8d5c74cd-463a-416c-8198-36dd2d345963", status: "dead", updatedAt: "2026-07-18T02:31:08.210Z"}
+--- Rasmussen node(s): name + aliases ---
+c.name, c.aliases
+"Zoë Rasmussen", ["Zoe"]
+--- All Event nodes: name, chapter, firstAppearance ---
+e.name, e.chapter, e.firstAppearance
+"Preparation for Assault", NULL, 1.0
+"First Assault on Ashfall Gate", NULL, 1.0
+"Corvin's Arm Wounding", NULL, 1.0
+"Vane's feint at Salt Docks", NULL, 2.0
+"Eleventh Day Assault", NULL, 3.0
+"Death of Corvin Ashe", NULL, 3.0
+"Burial of Corvin Ashe", NULL, 3.0
+"Dawn Muster", NULL, 4.0
+"Assault at Ashfall Gate", NULL, 4.0
+"Assault at Salt Docks", NULL, 4.0
+"Retreat of Kestrel Vane", NULL, 4.0
+"Corvin Ashe's Death", NULL, 5.0
+"Truce Negotiation", NULL, 5.0
+"Signing of the Truce", NULL, 5.0
+"Withdrawal of the Ashen Legion", NULL, 5.0
+"Closing of Cinder Ward Overflow Tables", NULL, 5.0
+"Evening at Ashfall Gate", NULL, 5.0
+--- Chapter nodes: number + updatedAt ---
+ch.chapterNumber, ch.updatedAt
+1.0, 2026-07-18T01:52:20.390Z
+2.0, 2026-07-18T02:08:53.960Z
+3.0, 2026-07-18T02:16:20.592Z
+4.0, 2026-07-18T02:25:03.766Z
+5.0, 2026-07-18T02:31:09.967Z
+--- All Character nodes: name, status, deathChapter, lastMentioned ---
+c.name, c.status, c.deathChapter, c.lastMentioned
+"Corvin Ashe", "dead", NULL, 5.0
+"Kestrel Vane", "alive", NULL, 5.0
+"Mira Thorne", "alive", NULL, 5.0
+"Zoë Rasmussen", "alive", NULL, 5.0

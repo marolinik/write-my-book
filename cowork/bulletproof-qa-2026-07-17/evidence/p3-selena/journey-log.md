@@ -251,3 +251,108 @@ ALLIED_WITH edge — still zero flags, correctly: the contradiction requires BOT
 with ONE new S2 defect (silent per-chapter extraction death + unbounded billed retries, ID
 pending team-lead) and the standing D-19 structural condition unchanged (3 of 4 flag types remain
 dead until the fix applies).
+
+## MOAT RE-VERIFY (post-D-19/D-27 apply) — 2026-07-18, third executor
+
+Fix commit under test: `d581ce8` (Event.chapter + Character.deathChapter stamped
+deterministically ON CREATE + coalesce-preserved ON MATCH; dead_character check requires real
+PARTICIPATES_IN; alias union on exact-name MERGE). All extraction = real qwen3.6 BYOK via the
+live scan route; all graph reads = read-only cypher-shell against `wmb-pub-neo4j-1`. Book 1
+"Emberfall QA P3" only; new chapters 6/7/8 created (ids in p3_state.json). Traces 21-38.
+
+Pre-test baseline (trace `21`): all 17 Event nodes `chapter:NULL`, Corvin `deathChapter:NULL`
+(status dead), Zoë aliases regressed `["Zoe"]` — exactly the documented pre-fix state.
+IMPORTANT CODE-READ FACT the test plan had to absorb: the shipped fix DISABLES
+`location_conflict` outright (`ENABLE_LOCATION_CONFLICT_CHECK = false`, founder-decision D-19)
+and annotates `timeline_violation` as known-limited. So "3 revived checks" is really: 1 revived
+(dead_character_reappears), 1 gated off, 1 enabled-but-limited. Tested all three anyway.
+
+### T1 — deathChapter stamping: **PASS** (on attempt 2; attempt 1 = new S2 defect)
+
+- Attempt 1 (traces `22`/`23`/`24`): canon-neutral tweak → scan → extraction "succeeded" EMPTY at
+  10:29:13Z (hash stamped, ZERO nodes written, Corvin untouched) — and `removeChapterEntities`
+  had already deleted the ch3-only event "Eleventh Day Assault". Permanent silent data loss +
+  poisoned skip-hash. Filed (ID pending, #2). Transient flake, not content-determined:
+- Attempt 2 (second tweak, trace `24` cont.): landed in ~17s. Trace `25`: Corvin
+  `deathChapter:3.0` stamped on the PRE-FIX node via ON MATCH coalesce, `status:"dead"`
+  retained, 4 events recreated with `chapter:3.0`. Verdict scan (trace `26`): no new flags.
+
+### T2 — dead_character_reappears: **PASS (fires end-to-end)** — with a self-disarm caveat
+
+- ch6 seed: Corvin actively leads the "Defense of the Western Wall" (fights/speaks/commands),
+  prose explicitly keeps him dead-and-buried. Extraction landed ~50s (traces `27`/`28`).
+- First verdict (traces `29`/`30`): graph PERFECT for the check (deathChapter 3 preserved,
+  PARTICIPATES_IN → chapter-6 event) but NO flag — ch6's own extraction emitted
+  `status:"transformed"` and `ON MATCH += updateProps` overwrote "dead" → the `c.status="dead"`
+  gate self-disarmed. THE chapter that constitutes the error un-arms the check for it.
+- Re-arm (legitimate author sequence — typo-fix an early chapter): third canon-neutral ch3 tweak
+  → re-extraction re-affirmed `status:"dead"` (trace `31`, 10:56:15Z), ch6 edge persisted →
+  **`dead_character_reappears` FIRED** (trace `32`): critical, "dies in chapter 3 but
+  participates in events in chapters 6", chapterNumber 6, jumpChapter 3, anchor "Corvin Ashe".
+  First-ever fire of this check on real LLM extraction output.
+- Final scan (trace `38`): flag persists but its chapters grew to "8, 6" — ch8's death-RETELLING
+  produced a PARTICIPATES_IN to a forked retelling-event stamped chapter 8 (FP component), and
+  the signature (sha1 of type|entities|CHAPTERS) churned → new row id, meaning [Intentional]
+  suppression would NOT survive graph evolution for this flag type.
+
+### T3 — location_conflict: **NOT FIRED — disabled by founder-decision; and the Cypher itself is broken both ways**
+
+- ch7 seed landed exactly as designed (traces `33`/`34`): Mira PARTICIPATES_IN "Grain Unloading
+  at the Salt Docks" AND "Cinder Ward Raid", both `chapter:7`, LOCATED_AT Salt Docks / Cinder
+  Ward. Scan (trace `35`): no location_conflict — expected, check is code-gated OFF.
+- Ran the check's verbatim Cypher read-only: it MISSES the seeded impossible pair — the
+  `NOT (l1)-[:PART_OF*]-(l2)` clause is UNDIRECTED, and both locations are PART_OF "Emberfall",
+  so the shared-parent path exempts them (proof: `["Salt Docks","Emberfall","Cinder Ward"]`).
+  Meanwhile it DOES match 3 innocent ch3 pairs (death at Ashfall Gate / burial at Cindermoor
+  Bridge — normal sequential movement) only because Cindermoor Bridge lacks PART_OF edges.
+  Empirically vindicates the founder gate AND shows re-enabling as-is would be worthless:
+  false-positives on orphan-location pairs, false-negatives on same-city conflicts.
+
+### T4 — timeline_violation: **NOT FIRED (2 honest attempts) — structurally unfireable with current entity resolution**
+
+- Both attempts wrote an explicit effect-precedes-cause claim ("the Midnight Bargain led directly
+  to <earlier event named VERBATIM>"). Both extractions landed fine and emitted the LEADS_TO —
+  but both times the extractor prefixed the earlier event with "The" ("The Defense of the Western
+  Wall", "The Death of Corvin Ashe"), missing the exact-name MERGE and FORKING a duplicate node
+  stamped chapter 8 → edge is ch8→ch8, `later.chapter > earlier.chapter` unsatisfiable, verbatim
+  Cypher zero rows (traces `36`/`37`/`38`). Systematic article-prefix normalization, 2/2.
+  Cross-chapter LEADS_TO can only fire if the LLM reproduces the earlier event's stored name
+  byte-exactly; Events have no working alias resolution, so name variance forks instead of
+  matching. Matches the code comment's own honesty; now empirically proven.
+
+### T5 — alias union durability (D-27): **PASS (no-shrink proven; union-add not exercised by LLM)**
+
+- Regressed baseline `["Zoe"]` survived SEVEN extraction passes (ch3 ×3, ch6 with BOTH spellings,
+  ch7 Zoë-only, ch8 ×2) byte-identical — pre-fix, each pass overwrote the array wholesale, so
+  any of these would have wiped it. Raw-file verified (traces `25`/`29`/`34`/`37`).
+- The union-ADD path (aliases gaining "Zoë") did not exercise: the extractor always emitted the
+  canonical "Zoë Rasmussen" as the entity name (diacritic intact end-to-end), never as an alias
+  of a differently-spelled name, so there was nothing new to union. No duplicate node created.
+
+### T6 — FP control: **PASS**
+
+Complete flag list recorded at every one of the 8 scans. Across all benign content (canon-neutral
+tweaks ×3, ch6/ch7/ch8 benign portions, 7 landed extractions) the three revived types produced
+ZERO spurious flags; the only unexpected flag all session was the pre-existing
+relationship_contradiction in Book 1 — which is NOT a checker FP but real contaminated graph
+state: **cross-book edge write** (new S1-candidate defect, #1): `upsertRelationship()` binds no
+bookId, so Book 2's ch6 ALLIED_WITH + ch9 OPPOSES seeds also landed on Book 1's Mira/Vane pair
+(byte-identical `r.updatedAt` on both books' edges — one Cypher call wrote both; trace `23b`).
+Book 1 now shows a contradiction its author never wrote, and Book 2's [Intentional] suppression
+does not cover it (flag rows are book-scoped).
+
+### Verdict on "the moat's 4 advertised checks", post-fix
+
+| Check | Status after this run |
+|---|---|
+| relationship_contradiction | ALIVE (was already) — but cross-book contamination can make it fire falsely in sibling books |
+| dead_character_reappears | **GENUINELY ALIVE end-to-end** (deathChapter stamping + real-participation gate work) — fragile: same-chapter status overwrite self-disarms it; retelling-events add FP chapters; signature churn breaks suppression stickiness |
+| location_conflict | DEAD by founder gate (correctly so — verbatim Cypher shown empirically broken in both directions) |
+| timeline_violation | ENABLED but effectively DEAD — event-name forking makes the required cross-chapter LEADS_TO unconstructible in practice (2/2 attempts) |
+
+Net: the D-19 fix does what it claims mechanically (both stamps verified on real extraction;
+coalesce preservation verified across 7 passes) and D-27 no-shrink holds. 1 of the 3 previously
+dead checks is now truly live; the other two remain non-functional for structural reasons the
+fix never claimed to solve. New defects this session: cross-book edge contamination (S1
+candidate), empty-extraction-success data loss (S2), plus the fragility findings folded into
+defect #3 (IDs pending team-lead).

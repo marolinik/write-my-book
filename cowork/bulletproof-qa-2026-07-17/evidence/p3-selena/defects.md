@@ -354,3 +354,175 @@ pipeline: a silent integrity hole and a per-scan money leak on the user's own BY
 ### Status
 
 **Reported, not fixed. Canonical ID = D-28 (assigned by team-lead 2026-07-18).**
+
+## NEW (ID pending team-lead, #1 of this session) — [S1 candidate, CROSS-BOOK/CROSS-TENANT GRAPH WRITE] `upsertRelationship()` binds no `bookId`: one book's extraction writes relationship edges into EVERY book (any user) containing same-named characters, producing false continuity flags in books the author never touched
+
+> Filed 2026-07-18 by the moat re-verify executor. Highest known assigned ID at time of writing:
+> D-29. This executor does not self-assign.
+
+**Severity: S1 candidate** — this is a WRITE across book (and structurally tenant) boundaries into
+the moat's graph, and it has already produced a false `relationship_contradiction` flag in a book
+whose prose contains no contradiction. `bookId` is a UUID but character `name` is author-chosen
+free text ("Sarah", "the Captain", "John Miller" are inevitable collisions across users).
+
+### Root cause (exact, code-verified)
+
+`upsertRelationship()` in `src/lib/graph/graph-builder.ts` (~lines 230-243):
+
+```cypher
+MATCH (a:<FromLabel> {name: $fromName})
+MATCH (b:<ToLabel> {name: $toName})
+WHERE a.bookId = b.bookId
+MERGE (a)-[r:<TYPE>]->(b)
+```
+
+No `bookId` parameter is bound at all — the only constraint is that the two endpoints share *some*
+bookId. Cypher produces the full cross-product of same-named node pairs across ALL books, and the
+`MERGE` then creates/updates the edge **on every pair**. Every entity query elsewhere in the file
+correctly binds `{bookId: $bookId}`; this is the single query that forgot.
+
+### Empirical proof (trace `23b_neo4j_crossbook_edge_contamination.txt`)
+
+Book 1 "Emberfall QA P3" (`fd60e1d4…`, chapters 1-5 ONLY) holds:
+
+```
+"ALLIED_WITH", chapter 6.0, r.updatedAt 2026-07-18T02:54:33.420Z   (Mira Thorne -> Kestrel Vane)
+"OPPOSES",     chapter 9.0, r.updatedAt 2026-07-18T09:04:06.482Z   (Mira Thorne -> Kestrel Vane)
+```
+
+Book 1 has no chapter 6 or 9. Book 2 "Cinderwake QA P3" (`2c9af2e0…`) holds the SAME two edges
+with **byte-identical `r.updatedAt` values** (02:54:33.420Z / 09:04:06.482Z) — one
+`upsertRelationship` call during Book 2's ch6/ch9 extractions wrote both books' edges in a single
+Cypher execution. Book 2's ch6 (ALLIED_WITH seed) and ch9 (OPPOSES seed) are the resumed
+executor's step-4 relationship_contradiction fixture.
+
+Consequence, observed live (trace `23_scan_ch3_t1_trigger.json`): Book 1's scan now returns an
+active `relationship_contradiction` flag (row `52af6dc9…`, same signature `e687d7d1…` as Book 2's)
+for a contradiction the author of Book 1 never wrote. Book 2's [Intentional] suppression does NOT
+carry over (flag rows are book-scoped even though the contaminating edges are not), so the false
+flag surfaces on every Book 1 scan.
+
+### Impact
+
+1. **Cross-tenant**: nothing in the query restricts to the current user's books — two different
+   users with same-named character pairs will write edges into each other's graphs on every
+   extraction that emits a character-character relationship. Silent corruption of another tenant's
+   moat + false flags on their scans.
+2. **Same-user cross-book**: series books SHARE character names by design (the entire premise of
+   the moat) — so this fires constantly in exactly the flagship use case: book 2 of a series
+   pollutes book 1's graph with book 2's relationship states.
+3. Flag suppression does not follow the contamination (book-scoped rows), so the victim book gets
+   an unsuppressable-at-source recurring false flag.
+
+### Fix direction (not applied — no `src/` edits per scope)
+
+Bind bookId on both MATCHes: `MATCH (a:… {name: $fromName, bookId: $bookId})` (the caller
+`upsertEntities` already has `result.entities[].properties.bookId`; pass bookId into
+`upsertRelationship` alongside `chapterNumber`). Add a regression test: extract into book A while
+book B holds same-named characters; assert B's edge set unchanged. A data-repair pass is also
+needed: existing cross-contaminated edges (identifiable as `r.chapter` values outside the book's
+real chapter range, or by shared-timestamp forensics) should be audited/removed.
+
+## NEW (ID pending team-lead, #2 of this session) — [S2, MOAT DATA LOSS + POISONED SUCCESS] An LLM extraction that returns an EMPTY result is recorded as SUCCESS: the chapter's previous graph contribution is already deleted (`removeChapterEntities`) and the content-hash is stamped, so the loss is permanent and no re-scan will ever retry
+
+> Filed 2026-07-18 by the moat re-verify executor. Sibling of D-28 but the OPPOSITE failure
+> polarity: D-28 = extraction that never succeeds → unbounded billed retries; this = extraction
+> that "succeeds" empty → zero retries, prior graph data destroyed.
+
+**Severity: S2** (silent data loss inside the moat + permanently poisoned skip-cache for the
+affected chapter; recovery requires the user to EDIT the chapter's text).
+
+### Empirical evidence (Book 1 ch3 re-extraction, this session, trace `24_poll_ch3_reextraction.log`)
+
+- 10:26Z: ch3 content tweaked (canon-neutral sentence, content v2) → hash changed. Scan triggered
+  (trace `23`).
+- 10:29:13Z: Chapter-3 node's `contentHash`/`updatedAt` stamped = the SUCCESS path ran
+  (`setContentHash` is only reached after `extractEntities` + `upsertEntities` return).
+- Graph delta from that "successful" extraction: **zero nodes created or updated** (no node in the
+  book carries `updatedAt` > 10:28 except the Chapter meta node; Corvin's `lastMentioned` still 5;
+  zero Events with `chapter=3`).
+- Destructive part: the pre-existing ch3-only Event node "Eleventh Day Assault" (present in the
+  10:21Z baseline, trace `21`) was DELETED by `removeChapterEntities()` (graph-maintenance.ts runs
+  it BEFORE extraction) and never recreated. Its PARTICIPATES_IN edges died with it.
+- Because the hash now matches the current content, every subsequent scan of ch3 is a silent no-op
+  — the empty state is permanent until the user edits the text again (attempt 2 with a second
+  tweaked sentence at 10:40Z re-extracted successfully in ~17s and restored 4 ch3 events,
+  confirming the emptiness was a transient LLM/provider flake, not content-determined).
+
+### Root cause (code-verified)
+
+`updateFromChapter()` (src/lib/graph/graph-maintenance.ts:37-56) does
+delete-then-extract-then-stamp with no minimum-yield check: `upsertEntities()` with
+`entities.length === 0` returns `{nodesCreated:0,...}` without error, and `setContentHash()` runs
+unconditionally afterward. An empty-but-parseable LLM response (or a response whose every entity
+fails validation) is indistinguishable from a genuinely successful extraction.
+
+### Fix direction (not applied)
+
+1. Treat `entities.length === 0` on non-trivial content (existing prior graph contribution and/or
+   word count above a floor) as a FAILED extraction: skip `setContentHash`, keep D-28's retry
+   semantics.
+2. Make the flow transactional: snapshot/restore or defer `removeChapterEntities` until the new
+   extraction has produced a non-empty validated result (delete-then-fail currently loses data
+   even in the D-28 never-succeeds case — every failing re-attempt after a content edit re-deletes
+   whatever survived).
+3. Log an explicit warning with entity/relationship counts on every extraction completion.
+
+### Status
+
+**Reported, not fixed. ID pending team-lead.**
+
+## NEW (ID pending team-lead, #3 of this session) — [S2, MOAT RESIDUAL after D-19 fix] The one genuinely-revived check (`dead_character_reappears`) is fragile in three specific, reproducible ways; `timeline_violation` remains effectively dead despite being enabled
+
+> Filed 2026-07-18 by the moat re-verify executor. Not a regression of the D-19 fix — the fix's
+> own mechanics verified correct (stamping + coalesce preservation + real-participation gate all
+> work; the check FIRED end-to-end on real extraction, trace `32`). These are residual design
+> gaps between deterministic Cypher checks and nondeterministic LLM extraction, found while
+> proving the fix.
+
+### (a) Self-disarm: the violating chapter's own extraction overwrites `status` away from "dead"
+
+Empirical (traces `29`/`30`): ch6 (dead Corvin actively fighting) extracted him as
+`status:"transformed"`; `ON MATCH SET n += $updateProps` replaced "dead" → the `c.status="dead"`
+gate went false and the flag did NOT fire, even though `deathChapter:3` and the post-death
+PARTICIPATES_IN edge were both present and correct. An author who writes the classic error
+(forgot the character died, writes them alive) will get `status:"alive"` from extraction — same
+disarm. The check only fired after an unrelated ch3 re-extraction re-asserted "dead"
+(trace `32`). Fix direction: make `status` transition-aware like `deathChapter` (e.g. once
+deathChapter is set, require an explicit resurrection signal to leave "dead"; or have the check
+key on `deathChapter IS NOT NULL` alone, dropping the live-status gate).
+
+### (b) Retelling-events create FP chapters and churn the flag's identity
+
+Empirical (trace `38`): ch8 merely RETELLS the death; the extractor emitted a
+`PARTICIPATES_IN` edge from Corvin to the retelling-event, which the D-19 stamp (correctly, by
+its own rules) labels `chapter:8` → the flag's chapters grew to "8, 6", where 8 is a false
+component (no on-page action in ch8). Because `continuityIssueSignature()` includes sorted
+chapters, the signature changed (`fed30551…` → `e70b8fcc…`) and the row was delete/recreated
+with a new id — so a previous [Intentional] suppression of this flag would silently stop
+applying whenever the chapter set evolves. (Contrast: `relationship_contradiction` has
+`chapters:[]` and stayed id-stable all session.) Fix direction: exclude chapters from the
+signature for this type (entities + deathChapter suffice), and/or teach extraction to
+distinguish participation from being-the-subject-of-a-retelling.
+
+### (c) `timeline_violation` is enabled but unconstructible: event-name forking
+
+Empirical (traces `36`/`37`/`38`, 2/2 attempts): prose asserting "the Midnight Bargain led
+directly to the Death of Corvin Ashe" (existing node, named verbatim) produced LEADS_TO edges —
+but the extractor emitted the target as "The Death of Corvin Ashe" (article prefixed), which
+missed the exact-name MERGE and forked a duplicate Event node stamped with the CURRENT chapter.
+Result: every cross-chapter causal edge degenerates to same-chapter (8→8) and
+`later.chapter > earlier.chapter` can never hold. Events have no effective alias resolution
+(the LLM never emits aliases for events), so any name variance forks instead of matching.
+Bonus finding while verifying T3: the disabled `location_conflict` Cypher is ALSO broken in both
+directions — its undirected `NOT (l1)-[:PART_OF*]-(l2)` exempts any two locations sharing a
+parent (all same-city conflicts, proof path `["Salt Docks","Emberfall","Cinder Ward"]`) while
+matching innocent sequential movement between locations that merely lack PART_OF links (3 such
+rows in ch3). Fix direction: normalize event names on upsert (case/article-strip fuzzy MERGE),
+or match events by (chapter, normalized-name) with an alias list like Characters have; rework
+the PART_OF clause to directed ancestry with a same-parent conflict still counting as a
+conflict.
+
+### Status
+
+**Reported, not fixed. ID pending team-lead.**

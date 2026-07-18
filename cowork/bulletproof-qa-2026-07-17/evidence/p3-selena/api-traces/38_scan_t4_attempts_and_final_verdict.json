@@ -1,0 +1,115 @@
+{
+  "label": "38_scan_t4_attempts_and_final_verdict",
+  "ts": "2026-07-18T11:18:54.648Z",
+  "attempt1_trigger": {
+    "method": "POST",
+    "path": ".../continuity/scan?chapterNumber=8",
+    "status": 200,
+    "response": {
+      "flags": [
+        {
+          "id": "95fbf4dd-7bba-45d0-b6a7-6065413db6da",
+          "signature": "fed30551feb39d367d451c4be0631391458ca80d",
+          "type": "dead_character_reappears",
+          "severity": "critical",
+          "description": "Character \"Corvin Ashe\" dies in chapter 3 but participates in events in chapters 6.",
+          "entities": [
+            "Corvin Ashe"
+          ],
+          "chapterNumber": 6,
+          "jumpChapter": 3,
+          "anchor": "Corvin Ashe"
+        },
+        {
+          "id": "52af6dc9-7244-413d-b0d7-b93272032a1a",
+          "signature": "e687d7d120a07aa1af9cc1eed6c6426c24a27af2",
+          "type": "relationship_contradiction",
+          "severity": "major",
+          "description": "Characters \"Mira Thorne\" and \"Kestrel Vane\" are marked as both ALLIED_WITH and OPPOSES each other simultaneously.",
+          "entities": [
+            "Mira Thorne",
+            "Kestrel Vane"
+          ],
+          "chapterNumber": 0,
+          "jumpChapter": null,
+          "anchor": null
+        }
+      ]
+    },
+    "note": "ch8 v1 targeted Defense of the Western Wall; extractor emitted \"The Defense of the Western Wall\" -> forked node chapter=8, LEADS_TO ch8->ch8, no fire (37_neo4j_t4_verify.txt part 1)"
+  },
+  "attempt2_trigger": {
+    "method": "POST",
+    "path": ".../continuity/scan?chapterNumber=8",
+    "status": 200,
+    "response": {
+      "flags": [
+        {
+          "id": "95fbf4dd-7bba-45d0-b6a7-6065413db6da",
+          "signature": "fed30551feb39d367d451c4be0631391458ca80d",
+          "type": "dead_character_reappears",
+          "severity": "critical",
+          "description": "Character \"Corvin Ashe\" dies in chapter 3 but participates in events in chapters 6.",
+          "entities": [
+            "Corvin Ashe"
+          ],
+          "chapterNumber": 6,
+          "jumpChapter": 3,
+          "anchor": "Corvin Ashe"
+        },
+        {
+          "id": "52af6dc9-7244-413d-b0d7-b93272032a1a",
+          "signature": "e687d7d120a07aa1af9cc1eed6c6426c24a27af2",
+          "type": "relationship_contradiction",
+          "severity": "major",
+          "description": "Characters \"Mira Thorne\" and \"Kestrel Vane\" are marked as both ALLIED_WITH and OPPOSES each other simultaneously.",
+          "entities": [
+            "Mira Thorne",
+            "Kestrel Vane"
+          ],
+          "chapterNumber": 0,
+          "jumpChapter": null,
+          "anchor": null
+        }
+      ]
+    },
+    "note": "ch8 v2 targeted Death of Corvin Ashe; extractor emitted \"The Death of Corvin Ashe\" -> forked again, LEADS_TO ch8->ch8, no fire (37 part 2). Systematic article-prefix name fork; stopped at 2 of 3 attempts, mechanism proven."
+  },
+  "final_verdict": {
+    "method": "POST",
+    "path": ".../continuity/scan?chapterNumber=8",
+    "status": 200,
+    "response": {
+      "flags": [
+        {
+          "id": "1ccc8808-15cf-497c-98c8-43df534cf6b0",
+          "signature": "e70b8fcc6a03db3acdd0d26286752dca9fa69191",
+          "type": "dead_character_reappears",
+          "severity": "critical",
+          "description": "Character \"Corvin Ashe\" dies in chapter 3 but participates in events in chapters 8, 6.",
+          "entities": [
+            "Corvin Ashe"
+          ],
+          "chapterNumber": 6,
+          "jumpChapter": 3,
+          "anchor": "Corvin Ashe"
+        },
+        {
+          "id": "52af6dc9-7244-413d-b0d7-b93272032a1a",
+          "signature": "e687d7d120a07aa1af9cc1eed6c6426c24a27af2",
+          "type": "relationship_contradiction",
+          "severity": "major",
+          "description": "Characters \"Mira Thorne\" and \"Kestrel Vane\" are marked as both ALLIED_WITH and OPPOSES each other simultaneously.",
+          "entities": [
+            "Mira Thorne",
+            "Kestrel Vane"
+          ],
+          "chapterNumber": 0,
+          "jumpChapter": null,
+          "anchor": null
+        }
+      ]
+    },
+    "note": "FINAL full flag list. dead_character_reappears persists but ROW ID + SIGNATURE CHANGED (95fbf4dd/fed30551 -> 1ccc8808/e70b8fcc) because ch8 extraction emitted a false PARTICIPATES_IN from Corvin to the forked retelling-event (chapter 8): chapters list [6] -> [8,6], and continuityIssueSignature includes sorted chapters. Ch8 component is an FP (memory/retelling, not on-page action); ch6 component remains the true positive. No timeline_violation, no location_conflict (disabled), no other spurious flags."
+  }
+}
