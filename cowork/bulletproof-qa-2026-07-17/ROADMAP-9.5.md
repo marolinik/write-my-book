@@ -55,3 +55,5 @@ FIX WAVE → verify (tsc + unit + targeted live re-probe) → EVIDENCE RE-CAPTUR
 
 ## Status log
 - 2026-07-19: roadmap committed. Wave 1 dispatched: A1, A2+A3, A4 (parallel agents, no-commit mode; team-lead verifies+commits).
+- 2026-07-19: **A1 DONE** (commit 3824604). D-36 confirmed already fixed (99c17f4, 13 tests); D-48(b) fixed via TDD (guard `<=`→`<` in advanceChapterStatus, 6 new tests). Adversarial verify: APPROVE-WITH-NOTES. tsc 0, 670/670.
+- 2026-07-19: **D-62 registered** (S3, from A1 verify note 3): batch consecutive-failure breaker never increments on in-loop provider-failure children — `recordBatchFailure` fires only on thrown `isBatchBreakerError` (agent-worker.ts:908); N resolved provider-failure children can't trip the breaker, batch keeps spending through provider outage. → W-B scope (B3-adjacent). Next free ID: D-63.
