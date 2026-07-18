@@ -57,6 +57,35 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Fetch once — used by the double-subscribe guard here and for the
+    // Stripe customer id below.
+    let sub = await db.subscription.findUnique({
+      where: { userId: user.id },
+    });
+
+    // D-06 guard: a user with a live subscription must change plans via the
+    // billing portal (which prorates the existing subscription). Creating a
+    // fresh Checkout session here would spin up a second, parallel Stripe
+    // subscription and double-bill the writer. Mirrors plan-gating semantics:
+    // active/past_due are live; trialing counts only while the trial is live.
+    const hasLiveSubscription =
+      !!sub &&
+      (sub.status === "active" ||
+        sub.status === "past_due" ||
+        (sub.status === "trialing" &&
+          (!sub.trialEnd || sub.trialEnd.getTime() > Date.now())));
+
+    if (hasLiveSubscription) {
+      return NextResponse.json(
+        {
+          error:
+            "You already have an active subscription. To change plans, use Manage Subscription (the billing portal) — plan changes there are prorated automatically.",
+          code: "already_subscribed",
+        },
+        { status: 409 }
+      );
+    }
+
     // Founder slot availability check (atomic)
     if (plan === "founder") {
       const slotCheck = await db.$transaction(async (tx) => {
@@ -84,10 +113,6 @@ export async function POST(req: NextRequest) {
     }
 
     // Get or create Stripe customer
-    let sub = await db.subscription.findUnique({
-      where: { userId: user.id },
-    });
-
     let customerId = sub?.stripeCustomerId;
 
     if (!customerId) {
