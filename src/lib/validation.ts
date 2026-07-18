@@ -133,6 +133,12 @@ export const updateSettingsSchema = z.object({
   language: z.string().min(2).max(10).optional(),
   journeyId: z.string().max(50).nullable().optional(),
   journeyStepsSnapshot: z.string().max(10000).nullable().optional(),
+  // Setup wizard flags (D-35). The wizard PATCHes {setupImportSkipped: true}
+  // on Skip Import and {setupComplete: true} on Finish Setup; before these
+  // fields existed Zod silently stripped the keys and the route 200-no-oped,
+  // leaving SETUP-07 to 422-wall every non-setup workflow.
+  setupImportSkipped: z.boolean().optional(),
+  setupComplete: z.boolean().optional(),
 });
 
 export const pageContextSchema = z.object({
