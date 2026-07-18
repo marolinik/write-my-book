@@ -1,0 +1,79 @@
+=== STEP 1: pg_dump (full, custom format) ===
+pg_dump exit code: 0
+pg_dump elapsed: 3.789 s
+dump file size bytes: 195778
+
+=== STEP 2: CREATE DATABASE wmb_restore_drill ===
+CREATE DATABASE
+CREATE DATABASE elapsed: 3.480 s
+
+=== STEP 3: pg_restore into throwaway DB ===
+pg_restore exit code: 0
+pg_restore elapsed: 4.833 s
+--- pg_restore stderr (warnings expected, e.g. role/extension ownership) ---
+
+=== STEP 4: VERIFY table count + row counts ===
+-- table count source (writemybook) --
+    32
+
+-- table count restored (wmb_restore_drill) --
+    32
+
+-- row counts: source vs restored, 8 key tables --
+users: source=10 restored=10 -> MATCH
+books: source=42 restored=42 -> MATCH
+chapters: source=102 restored=102 -> MATCH
+documents: source=85 restored=84 -> MISMATCH
+writer_memories: source=2 restored=2 -> MATCH
+edit_findings: source=83 restored=82 -> MISMATCH
+subscriptions: source=6 restored=6 -> MATCH
+batch_runs: source=2 restored=2 -> MATCH
+verification elapsed: 42.973 s
+
+=== RE-VERIFY: tight-window row counts to isolate concurrent-write drift from restore fidelity ===
+-- source counts, captured IMMEDIATELY BEFORE a fresh dump --
+second pg_dump elapsed: 1.306 s
+-- source counts, captured IMMEDIATELY AFTER that dump (shows drift during the dump's own runtime) --
+users: before_dump=10 after_dump=10
+books: before_dump=42 after_dump=42
+chapters: before_dump=102 after_dump=102
+documents: before_dump=86 after_dump=86
+writer_memories: before_dump=2 after_dump=2
+edit_findings: before_dump=83 after_dump=85
+subscriptions: before_dump=6 after_dump=6
+batch_runs: before_dump=2 after_dump=2
+
+=== RE-RUN 2: fresh restore of DUMP2 into a clean throwaway DB, then compare vs tight-window baseline ===
+DROP DATABASE
+CREATE DATABASE
+clean restore (create+restore) exit=0 elapsed: 5.184 s
+-- final comparison: restored (from DUMP2) vs before_dump baseline (documents=86, edit_findings=83; all others unchanged) --
+users: restored=10
+books: restored=42
+chapters: restored=102
+documents: restored=86
+writer_memories: restored=2
+edit_findings: restored=85
+subscriptions: restored=6
+batch_runs: restored=2
+
+=== STEP 5: byte-identical spot check — persona book 'Dead Reckoning 31 QA P2' (636a1f02-8520-4b66-8e78-08c8e0fee5f0) ===
+-- source DB serialized rows --
+936790d59d6bca1b4417661946782e02 */c/Users/MARKOM~1/AppData/Local/Temp/claude/D--Projects-wmb-pub/3f8f7133-373a-4eb3-9bec-17dd3fa18094/scratchpad/c2_spotcheck_source.txt
+8 /c/Users/MARKOM~1/AppData/Local/Temp/claude/D--Projects-wmb-pub/3f8f7133-373a-4eb3-9bec-17dd3fa18094/scratchpad/c2_spotcheck_source.txt
+-- restored DB serialized rows (same book id, same query, against wmb_restore_drill) --
+936790d59d6bca1b4417661946782e02 */c/Users/MARKOM~1/AppData/Local/Temp/claude/D--Projects-wmb-pub/3f8f7133-373a-4eb3-9bec-17dd3fa18094/scratchpad/c2_spotcheck_restored.txt
+8 /c/Users/MARKOM~1/AppData/Local/Temp/claude/D--Projects-wmb-pub/3f8f7133-373a-4eb3-9bec-17dd3fa18094/scratchpad/c2_spotcheck_restored.txt
+-- diff (empty = byte-identical) --
+RESULT: BYTE-IDENTICAL
+
+=== STEP 6: timed cleanup ===
+DROP DATABASE
+DROP DATABASE elapsed: 0.882s
+confirmed: wmb_restore_drill no longer listed
+dump1 size: 195778 bytes, dump2 size: 199522 bytes
+dump file deletion elapsed: 0.203s
+confirmed: no .dump files remain in scratchpad
+
+=== live dev DB untouched sanity check ===
+ writemybook | postgres | UTF8     | libc            | en_US.utf8 | en_US.utf8 |            |           | 

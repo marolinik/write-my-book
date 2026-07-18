@@ -1,0 +1,8 @@
+1|A Debt in Zürich|5067|undiscussed||pending|CHAPTER_CONTENT|22|manuscript/act-1/chapter-02.md
+2|The Trieste Signal|5055|undiscussed||pending|CHAPTER_CONTENT|4|manuscript/act-1/chapter-01.md
+3|The Łódź Ledger|5034|undiscussed||pending|CHAPTER_CONTENT|3|manuscript/act-1/chapter-03.md
+4|The Kőszeg Drop|5040|undiscussed||pending|CHAPTER_CONTENT|2|manuscript/act-2/chapter-05.md
+5|No Names in Marseille|5053|undiscussed||pending|CHAPTER_CONTENT|2|manuscript/act-1/chapter-04.md
+6|Ash on the Wire|5085|undiscussed||pending|CHAPTER_CONTENT|4|manuscript/act-2/chapter-06.md
+7|Novosibirsk, Cold|5097|undiscussed||pending|CHAPTER_CONTENT|2|manuscript/act-2/chapter-07.md
+8|Dead Reckoning|5070|undiscussed||pending|CHAPTER_CONTENT|5|manuscript/act-2/chapter-08.md

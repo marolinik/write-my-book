@@ -1,0 +1,77 @@
+{
+  "drill": "C2-backup-restore-dress-rehearsal",
+  "scope": "DEV",
+  "executed_by": "p2-gerald",
+  "date": "2026-07-17/18",
+  "verdict": "PASS",
+  "target": {
+    "container": "wmb-pub-postgres-1",
+    "source_db": "writemybook",
+    "throwaway_db": "wmb_restore_drill",
+    "postgres_version": "16.10 (Alpine)"
+  },
+  "constraints_honored": [
+    "live writemybook DB never dropped or altered",
+    "all destructive ops scoped to wmb_restore_drill only",
+    "no src/ edits",
+    "no server/worker restarts",
+    "no destructive calls against other personas' data"
+  ],
+  "timings_seconds": {
+    "pg_dump_first": 3.789,
+    "create_database_first": 3.480,
+    "pg_restore_first": 4.833,
+    "full_cycle_first_pass": 12.102,
+    "pg_dump_second_tight_window": 1.306,
+    "drop_create_restore_second_pass": 5.184,
+    "final_cleanup_drop_database": 0.882,
+    "final_cleanup_delete_dump_files": 0.203
+  },
+  "dump_sizes_bytes": {
+    "dump1": 195778,
+    "dump2": 199522
+  },
+  "verification": {
+    "table_count": { "source": 32, "restored": 32, "match": true },
+    "row_counts_first_pass_slow_loop": {
+      "note": "43s verification loop against a live, concurrently-written dev DB; documents/edit_findings appeared off by 1 due to concurrent writes during the loop, not a restore defect (see tight_window_reconciliation)",
+      "users": { "source": 10, "restored": 10, "match": true },
+      "books": { "source": 42, "restored": 42, "match": true },
+      "chapters": { "source": 102, "restored": 102, "match": true },
+      "documents": { "source": 85, "restored": 84, "match": false },
+      "writer_memories": { "source": 2, "restored": 2, "match": true },
+      "edit_findings": { "source": 83, "restored": 82, "match": false },
+      "subscriptions": { "source": 6, "restored": 6, "match": true },
+      "batch_runs": { "source": 2, "restored": 2, "match": true }
+    },
+    "tight_window_reconciliation": {
+      "method": "captured before_dump and after_dump counts bracketing a second, fresh pg_dump (1.306s runtime), then compared final restore against both baselines",
+      "documents": { "before_dump": 86, "after_dump": 86, "restored": 86, "drift_during_dump": 0 },
+      "edit_findings": { "before_dump": 83, "after_dump": 85, "restored": 85, "drift_during_dump": 2 },
+      "conclusion": "restored counts match after_dump exactly (documents 86=86=86, edit_findings 85=85), consistent with pg_dump's MVCC snapshot capturing committed state through its own transaction start on a live, concurrently-written source DB. No restore-fidelity defect; discrepancy fully explained by concurrent writes from other QA agents."
+    },
+    "byte_identical_spot_check": {
+      "book_name": "Dead Reckoning 31 QA P2",
+      "book_id": "636a1f02-8520-4b66-8e78-08c8e0fee5f0",
+      "scope": "chapters x documents metadata (chapter_number, title, word_count, status, beta_score, beta_gate, type, current_version, storage_key), ordered by chapter_number",
+      "row_count": 8,
+      "source_md5": "936790d59d6bca1b4417661946782e02",
+      "restored_md5": "936790d59d6bca1b4417661946782e02",
+      "diff_empty": true,
+      "result": "BYTE-IDENTICAL",
+      "caveat": "manuscript prose itself lives in MinIO/S3 object storage, not Postgres; this spot check verifies DB-side metadata identity only, not prose-byte identity of object storage content"
+    }
+  },
+  "cleanup": {
+    "throwaway_db_dropped": true,
+    "dump_files_deleted": true,
+    "live_dev_db_confirmed_untouched": true
+  },
+  "gaps_for_production": [
+    "credentials must come from secrets manager, not .env",
+    "RTO must be re-measured against realistic prod-sized data (this dev drill: 32 tables, ~196KB dump, <15s total)",
+    "requires maintenance window or blue/green cutover strategy for a live prod restore",
+    "object storage (MinIO/S3) bucket backup/restore is a separate, unexercised leg required for a true DR guarantee",
+    "should be wrapped in an idempotent, logged, alerting automation script rather than run by hand"
+  ]
+}
