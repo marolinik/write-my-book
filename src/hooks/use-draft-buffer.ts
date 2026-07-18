@@ -56,6 +56,17 @@ import {
  */
 export const DRAFT_BUFFER_INTERVAL_MS = 2000;
 
+/**
+ * Keystroke-path mirror throttle (D-24 review): the synchronous mirror costs
+ * a full ProseMirror→markdown serialize + stringify + localStorage write, so
+ * it runs at most once per window — leading edge (first keystroke of a burst
+ * is durable instantly) plus trailing edge (the last keystroke lands within
+ * one window). The unload flush bypasses this entirely and mirrors
+ * unconditionally. Residual worst case on a zero-settle hard kill with no
+ * unload event: the final <=150ms of typing.
+ */
+export const MIRROR_KEYSTROKE_THROTTLE_MS = 150;
+
 // ── Recovery decision (pure) ──────────────────────────────────
 
 export type RecoveryDecision =
@@ -254,17 +265,43 @@ export function useDraftBuffer({
     }
   }, [bookId, editorRef, paneStore]);
 
-  // (D-24) Keystroke-driven persistence: every tiptap update mirrors
-  // synchronously. Registered after the editor's own onUpdate (which marks
-  // the pane dirty), so the dirty guard sees the current keystroke.
+  // (D-24) Keystroke-driven persistence, throttled leading+trailing:
+  // the first keystroke of a burst mirrors synchronously; keystrokes inside
+  // the window coalesce into one trailing write, so the last keystroke is
+  // durable within MIRROR_KEYSTROKE_THROTTLE_MS. Registered after the
+  // editor's own onUpdate (which marks the pane dirty), so the dirty guard
+  // sees the current keystroke. Throttle state is effect-local: an editor
+  // swap tears it down with the subscription.
   useEffect(() => {
     if (!editor || editor.isDestroyed) return;
+    let lastWriteAt = 0;
+    let trailingHandle: ReturnType<typeof setTimeout> | null = null;
+
     const onUpdate = (): void => {
-      mirrorNow();
+      const now = Date.now();
+      const elapsed = now - lastWriteAt;
+      if (elapsed >= MIRROR_KEYSTROKE_THROTTLE_MS) {
+        lastWriteAt = now;
+        mirrorNow();
+        return;
+      }
+      if (trailingHandle !== null) return; // trailing already armed
+      trailingHandle = setTimeout(() => {
+        trailingHandle = null;
+        lastWriteAt = Date.now();
+        mirrorNow();
+      }, MIRROR_KEYSTROKE_THROTTLE_MS - elapsed);
     };
+
     editor.on("update", onUpdate);
     return () => {
       editor.off("update", onUpdate);
+      if (trailingHandle !== null) {
+        clearTimeout(trailingHandle);
+        // The write this trailing timer owed is covered by the unload-flush
+        // effect's unmount flush (mirrorNow unconditional, runs after this
+        // cleanup in declaration order).
+      }
     };
   }, [editor, mirrorNow]);
 

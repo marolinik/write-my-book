@@ -5,7 +5,10 @@ import { createStore } from "zustand";
 import type { StoreApi } from "zustand";
 import type { Editor } from "@tiptap/react";
 
-import { useDraftBuffer } from "@/hooks/use-draft-buffer";
+import {
+  useDraftBuffer,
+  MIRROR_KEYSTROKE_THROTTLE_MS,
+} from "@/hooks/use-draft-buffer";
 import {
   lastChanceKeyFor,
   readLastChanceDraft,
@@ -93,10 +96,14 @@ function renderBuffer(
   store: StoreApi<EditorPaneState>,
   editor: Editor | null
 ) {
+  // Stable across re-renders, like the useRef the production editor passes —
+  // a fresh object literal per render would churn the hook's callback
+  // identities and reset its effect-local throttle state.
+  const editorRef = { current: editor };
   return renderHook(() =>
     useDraftBuffer({
       paneStore: store,
-      editorRef: { current: editor },
+      editorRef,
       editor,
       paneChapterId: CHAPTER,
       bookId: BOOK,
@@ -112,21 +119,85 @@ beforeEach(() => {
 });
 
 describe("useDraftBuffer — D-24 synchronous last-chance persistence", () => {
-  it("persists every keystroke synchronously — no unload event, no timers", () => {
+  it("persists the first keystroke of a burst synchronously (leading edge) — no unload event", () => {
     const store = makePaneStore();
     const fake = makeFakeEditor(store, SERVER_MD);
     renderBuffer(store, fake.editor);
 
     act(() => {
       fake.type(`${SERVER_MD} crash-mar`);
-      fake.type(`${SERVER_MD} crash-marker-777`);
     });
 
     // Assert IMMEDIATELY: nothing awaited, no timer advanced, no unload
     // event dispatched — the words must already be durable.
     const row = readLastChanceDraft(CHAPTER);
-    expect(row?.markdown).toBe(`${SERVER_MD} crash-marker-777`);
+    expect(row?.markdown).toBe(`${SERVER_MD} crash-mar`);
     expect(row?.baseVersion).toBe(SERVER_VERSION);
+  });
+
+  it("throttles a keystroke burst yet always lands the final content on the trailing edge", () => {
+    vi.useFakeTimers();
+    try {
+      const store = makePaneStore();
+      const fake = makeFakeEditor(store, SERVER_MD);
+      renderBuffer(store, fake.editor);
+
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem");
+      const mirrorWrites = () =>
+        setItemSpy.mock.calls.filter(
+          ([key]) => key === lastChanceKeyFor(CHAPTER)
+        ).length;
+
+      // 10 updates 10ms apart — one full ProseMirror serialize + stringify +
+      // sync localStorage write per keystroke would be 10 writes.
+      act(() => {
+        for (let i = 1; i <= 10; i += 1) {
+          fake.type(`${SERVER_MD} burst-${i}`);
+          vi.advanceTimersByTime(10);
+        }
+      });
+      // Leading write only so far — the rest of the burst is coalesced.
+      expect(mirrorWrites()).toBe(1);
+      expect(readLastChanceDraft(CHAPTER)?.markdown).toBe(
+        `${SERVER_MD} burst-1`
+      );
+
+      // Trailing edge: the LAST keystroke of the burst always lands within
+      // one throttle window.
+      act(() => {
+        vi.advanceTimersByTime(MIRROR_KEYSTROKE_THROTTLE_MS);
+      });
+      expect(mirrorWrites()).toBe(2);
+      expect(readLastChanceDraft(CHAPTER)?.markdown).toBe(
+        `${SERVER_MD} burst-10`
+      );
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("unload flush bypasses the throttle — mirrors immediately mid-window", () => {
+    vi.useFakeTimers();
+    try {
+      const store = makePaneStore();
+      const fake = makeFakeEditor(store, SERVER_MD);
+      renderBuffer(store, fake.editor);
+
+      act(() => {
+        fake.type(`${SERVER_MD} leading`); // leading write, window opens
+        vi.advanceTimersByTime(10); // well inside the throttle window
+        fake.setMarkdownSilently(`${SERVER_MD} tail-past-throttle`);
+        window.dispatchEvent(new Event("pagehide"));
+      });
+
+      // No timer advance past the window — the flush itself must have
+      // mirrored the newest words synchronously.
+      expect(readLastChanceDraft(CHAPTER)?.markdown).toBe(
+        `${SERVER_MD} tail-past-throttle`
+      );
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("does not mirror while the pane is clean", () => {
