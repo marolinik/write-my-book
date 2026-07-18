@@ -14,6 +14,23 @@ import type {
 } from "./types";
 
 /**
+ * FOUNDER-DECISION (D-19): the location_conflict check is DISABLED.
+ *
+ * It flags a character associated with two different locations via events in the
+ * SAME chapter as a contradiction. But the graph has no scene / adjacency / time
+ * granularity to distinguish a legitimate within-chapter MOVE (docks → castle)
+ * from an impossible teleport — Scene nodes are explicitly NOT extracted (see
+ * entity-extractor.validateEntity, which drops Scene/Chapter labels). Firing it
+ * as-is would produce constant false positives on ordinary multi-location
+ * chapters, so it is gated OFF pending scene-level continuity modelling rather
+ * than shipped noisy. See cowork/bulletproof-qa-2026-07-17/evidence/p3-selena/defects.md (D-19).
+ *
+ * Typed `boolean` (not the literal `false`) so the guarded block stays reachable
+ * to the type-checker and is not treated as dead code.
+ */
+const ENABLE_LOCATION_CONFLICT_CHECK: boolean = false;
+
+/**
  * Get the character network for a book: all characters and their inter-relationships.
  */
 export async function getCharacterNetwork(
@@ -319,35 +336,47 @@ export async function runConsistencyChecks(
       });
     }
 
-    // 2. Location conflicts: character associated with two different locations
-    //    in events within the same chapter
-    const locationConflictResult = await session.run(
-      `MATCH (c:Character {bookId: $bookId})-[:PARTICIPATES_IN]->(e1:Event {bookId: $bookId})-[:LOCATED_AT]->(l1:Location {bookId: $bookId})
-       MATCH (c)-[:PARTICIPATES_IN]->(e2:Event {bookId: $bookId})-[:LOCATED_AT]->(l2:Location {bookId: $bookId})
-       WHERE e1.chapter = e2.chapter AND id(e1) < id(e2) AND l1.name <> l2.name
-       AND NOT (l1)-[:PART_OF*]-(l2)
-       RETURN c.name AS character, e1.chapter AS chapter,
-              l1.name AS location1, l2.name AS location2,
-              e1.name AS event1, e2.name AS event2`,
-      { bookId }
-    );
-    for (const rec of locationConflictResult.records) {
-      const chapter = toNumber(rec.get("chapter"));
-      issues.push({
-        type: "location_conflict",
-        severity: "major",
-        description: `Character "${rec.get("character")}" is at "${rec.get("location1")}" (${rec.get("event1")}) and "${rec.get("location2")}" (${rec.get("event2")}) in the same chapter ${chapter}.`,
-        entities: [
-          rec.get("character") as string,
-          rec.get("location1") as string,
-          rec.get("location2") as string,
-        ],
-        chapters: [chapter],
-      });
+    // 2. Location conflicts — DISABLED (founder-decision, see
+    //    ENABLE_LOCATION_CONFLICT_CHECK above). Left in place, gated off, so it
+    //    can be re-enabled once scene-level continuity modelling exists to tell a
+    //    legitimate within-chapter move from a teleport. As-is it false-positives
+    //    on any character who legitimately changes location within one chapter.
+    if (ENABLE_LOCATION_CONFLICT_CHECK) {
+      const locationConflictResult = await session.run(
+        `MATCH (c:Character {bookId: $bookId})-[:PARTICIPATES_IN]->(e1:Event {bookId: $bookId})-[:LOCATED_AT]->(l1:Location {bookId: $bookId})
+         MATCH (c)-[:PARTICIPATES_IN]->(e2:Event {bookId: $bookId})-[:LOCATED_AT]->(l2:Location {bookId: $bookId})
+         WHERE e1.chapter = e2.chapter AND id(e1) < id(e2) AND l1.name <> l2.name
+         AND NOT (l1)-[:PART_OF*]-(l2)
+         RETURN c.name AS character, e1.chapter AS chapter,
+                l1.name AS location1, l2.name AS location2,
+                e1.name AS event1, e2.name AS event2`,
+        { bookId }
+      );
+      for (const rec of locationConflictResult.records) {
+        const chapter = toNumber(rec.get("chapter"));
+        issues.push({
+          type: "location_conflict",
+          severity: "major",
+          description: `Character "${rec.get("character")}" is at "${rec.get("location1")}" (${rec.get("event1")}) and "${rec.get("location2")}" (${rec.get("event2")}) in the same chapter ${chapter}.`,
+          entities: [
+            rec.get("character") as string,
+            rec.get("location1") as string,
+            rec.get("location2") as string,
+          ],
+          chapters: [chapter],
+        });
+      }
     }
 
-    // 3. Timeline violations: event A has a lower chapter number than event B,
-    //    but B is referenced as leading to A
+    // 3. Timeline violations — KNOWN-LIMITED (founder-decision, D-19). Fires only
+    //    on a LEADS_TO edge whose later event sits in a higher chapter than the
+    //    earlier one. In practice validateRelationship() only keeps a relationship
+    //    when BOTH endpoints appear in the same extraction batch (one chapter), so
+    //    cross-chapter LEADS_TO edges are never persisted and
+    //    later.chapter > earlier.chapter cannot arise. The Event.chapter-stable
+    //    fix helps but does not create cross-chapter causal edges. Left enabled
+    //    (it cannot false-positive) but not to be relied upon until cross-chapter
+    //    causal links are modelled. Same scene-modelling bucket as location_conflict.
     const timelineResult = await session.run(
       `MATCH (later:Event {bookId: $bookId})-[:LEADS_TO]->(earlier:Event {bookId: $bookId})
        WHERE later.chapter > earlier.chapter
@@ -367,32 +396,34 @@ export async function runConsistencyChecks(
       });
     }
 
-    // 4. Dead characters reappearing after their death chapter
+    // 4. Dead characters reappearing after their death chapter.
+    //    D-19 precision fix: require a REAL post-death participation event
+    //    (MATCH, not OPTIONAL). We deliberately do NOT gate on
+    //    `c.lastMentioned > c.deathChapter`: lastMentioned increments on ANY
+    //    upsert, so a later MENTIONED_IN (grieving, remembering, being named —
+    //    all normal for a dead character) would false-flag. Only an actual
+    //    PARTICIPATES_IN event in a chapter after death is a real contradiction.
     const deadCharResult = await session.run(
       `MATCH (c:Character {bookId: $bookId})
        WHERE c.status = "dead" AND c.deathChapter IS NOT NULL
-       AND c.lastMentioned > c.deathChapter
-       OPTIONAL MATCH (c)-[:PARTICIPATES_IN]->(e:Event {bookId: $bookId})
+       MATCH (c)-[:PARTICIPATES_IN]->(e:Event {bookId: $bookId})
        WHERE e.chapter > c.deathChapter
        RETURN c.name AS character, c.deathChapter AS deathChapter,
-              collect(DISTINCT e.chapter) AS postDeathChapters,
-              c.lastMentioned AS lastMentioned`,
+              collect(DISTINCT e.chapter) AS postDeathChapters`,
       { bookId }
     );
     for (const rec of deadCharResult.records) {
       const deathChapter = toNumber(rec.get("deathChapter"));
+      // The MATCH guarantees at least one post-death participation chapter.
       const postDeathChapters = (rec.get("postDeathChapters") as unknown[])
         .map((ch) => toNumber(ch))
         .filter((ch) => ch > 0);
-      const lastMentioned = toNumber(rec.get("lastMentioned"));
-      const relevantChapters =
-        postDeathChapters.length > 0 ? postDeathChapters : [lastMentioned];
       issues.push({
         type: "dead_character_reappears",
         severity: "critical",
-        description: `Character "${rec.get("character")}" dies in chapter ${deathChapter} but participates in events in chapters ${relevantChapters.join(", ")}.`,
+        description: `Character "${rec.get("character")}" dies in chapter ${deathChapter} but participates in events in chapters ${postDeathChapters.join(", ")}.`,
         entities: [rec.get("character") as string],
-        chapters: [deathChapter, ...relevantChapters],
+        chapters: [deathChapter, ...postDeathChapters],
       });
     }
 

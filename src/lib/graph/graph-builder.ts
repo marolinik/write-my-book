@@ -125,23 +125,77 @@ async function upsertSingleEntity(
     lastMentioned: chapterNumber,
     updatedAt: now,
   };
+  // chapter (Event) and deathChapter (Character) are application-derived facts,
+  // and aliases is a UNION-not-replace set (D-27) — all handled below with
+  // stable / union semantics. Keep them OUT of allProps so the ON MATCH
+  // `+= $updateProps` merge cannot destructively overwrite them.
+  delete allProps.chapter;
+  delete allProps.deathChapter;
+  delete allProps.aliases;
+
+  // D-19: Event.chapter and Character.deathChapter are read by
+  // runConsistencyChecks() (graph-queries.ts) but the extraction LLM is never
+  // asked for them and never reliably emits them. We stamp them deterministically
+  // from the chapter being scanned — mirroring how relationship.chapter is
+  // injected in upsertRelationship() — so those checks can populate at all.
+  //
+  // Both are STABLE, FIRST-OCCURRENCE facts (like firstAppearance, NOT
+  // lastMentioned): written on ON CREATE, and on ON MATCH preserved via coalesce
+  // so a later re-scan / re-mention never overwrites the original. Setting them
+  // on ON CREATE too means a Character introduced already-dead (posthumous /
+  // off-page death) gets deathChapter, not only a live→dead transition seen on a
+  // later match; and an Event keeps the chapter it OCCURRED in, not the chapter
+  // it was last mentioned in.
+  const derived = deriveEntityGraphProps(label, properties, chapterNumber);
+
+  const createProps: Record<string, unknown> = { ...allProps };
+  const onMatchStableItems: string[] = [];
+  if (derived.chapter !== undefined) {
+    // Event.chapter — powers location_conflict / timeline_violation.
+    createProps.chapter = derived.chapter;
+    onMatchStableItems.push("n.chapter = coalesce(n.chapter, $chapter)");
+  }
+  if (derived.deathChapter !== undefined) {
+    // Character.deathChapter — powers dead_character_reappears. derived.deathChapter
+    // === chapterNumber, so the $chapter param serves both the create value and
+    // the match-preserve coalesce.
+    createProps.deathChapter = derived.deathChapter;
+    onMatchStableItems.push("n.deathChapter = coalesce(n.deathChapter, $chapter)");
+  }
   if (aliases && aliases.length > 0) {
-    allProps.aliases = aliases;
+    // D-27: aliases are UNIONed, never replaced. Seed the set on ON CREATE; on
+    // ON MATCH append only the aliases not already present, preserving every
+    // existing variant — so a later chapter emitting a subset (e.g. ["Zoe"])
+    // cannot drop an existing diacritic variant ("Zoë"). Kept out of the
+    // `+= $updateProps` map, which would destructively overwrite the array.
+    createProps.aliases = aliases;
+    onMatchStableItems.push(
+      "n.aliases = coalesce(n.aliases, []) + [a IN $aliases WHERE NOT a IN coalesce(n.aliases, [])]"
+    );
+  }
+  const onMatchClause =
+    onMatchStableItems.length > 0
+      ? `ON MATCH SET n += $updateProps, ${onMatchStableItems.join(", ")}`
+      : "ON MATCH SET n += $updateProps";
+
+  const mergeParams: Record<string, unknown> = {
+    bookId: allProps.bookId ?? "",
+    name,
+    chapter: chapterNumber,
+    createProps,
+    updateProps: allProps,
+  };
+  if (aliases && aliases.length > 0) {
+    mergeParams.aliases = aliases;
   }
 
   // Use MERGE on (bookId, name) with ON CREATE / ON MATCH
   const mergeResult = await session.run(
     `MERGE (n:${escapeLabelForQuery(label)} {bookId: $bookId, name: $name})
      ON CREATE SET n += $createProps, n.id = randomUUID(), n.createdAt = datetime(), n.firstAppearance = $chapter
-     ON MATCH SET n += $updateProps
+     ${onMatchClause}
      RETURN n.createdAt = n.updatedAt AS isNew`,
-    {
-      bookId: allProps.bookId ?? "",
-      name,
-      chapter: chapterNumber,
-      createProps: allProps,
-      updateProps: allProps,
-    }
+    mergeParams
   );
 
   if (mergeResult.records.length > 0) {
@@ -241,4 +295,61 @@ export async function removeChapterEntities(
 function escapeLabelForQuery(label: GraphNodeLabel): string {
   // Our labels are from a fixed enum, but sanitize anyway
   return label.replace(/[^a-zA-Z0-9_]/g, "");
+}
+
+/**
+ * Continuity properties derived deterministically at upsert time (D-19).
+ *
+ * The consistency checks in graph-queries.ts read these; they are NOT taken
+ * from the (unreliable) LLM output but injected from application code, mirroring
+ * how relationship.chapter is set in upsertRelationship().
+ */
+export interface DerivedEntityGraphProps {
+  /** Event.chapter — numeric chapter this Event was extracted from. */
+  chapter?: number;
+  /** Character.deathChapter — chapter a death was first detected (>= 1). */
+  deathChapter?: number;
+}
+
+/**
+ * True when a Character's status means "dead" — matched to the exact value the
+ * dead_character_reappears check keys off (`c.status = "dead"`), tolerating
+ * surrounding whitespace/case. A synonym like "deceased" is intentionally NOT
+ * treated as dead: the check compares against the literal "dead", so recording
+ * a deathChapter for any other value could never make it fire.
+ */
+export function isDeadStatus(status: unknown): boolean {
+  return typeof status === "string" && status.trim().toLowerCase() === "dead";
+}
+
+/**
+ * Derive the application-controlled continuity properties for an entity being
+ * upserted during chapter `chapterNumber`'s extraction.
+ *
+ * - Event.chapter powers location_conflict (e1.chapter = e2.chapter) and
+ *   timeline_violation (later.chapter > earlier.chapter).
+ * - Character.deathChapter powers dead_character_reappears. Only derived for
+ *   in-story chapters (>= 1); chapter 0 is the canonical story bible, where a
+ *   "dead" status is pre-story backstory rather than an in-story death event.
+ */
+export function deriveEntityGraphProps(
+  label: GraphNodeLabel,
+  properties: Record<string, unknown>,
+  chapterNumber: number
+): DerivedEntityGraphProps {
+  const derived: DerivedEntityGraphProps = {};
+
+  if (label === "Event") {
+    derived.chapter = chapterNumber;
+  }
+
+  if (
+    label === "Character" &&
+    chapterNumber >= 1 &&
+    isDeadStatus(properties.status)
+  ) {
+    derived.deathChapter = chapterNumber;
+  }
+
+  return derived;
 }
