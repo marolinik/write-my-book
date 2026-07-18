@@ -93,6 +93,17 @@ async function validateFinding(
   input: ValidationInput,
   chapterContent: string
 ): Promise<{ valid: boolean; reason?: string }> {
+  // D-34: models can omit anchorQuote (or send a non-string) despite the tool
+  // schema — fuzzyMatch would then throw a raw `needle.normalize` TypeError
+  // that leaks to the model. Reject with corrective guidance instead, on the
+  // same path as every other validation rejection.
+  const rawAnchorQuote: unknown = input.anchorQuote;
+  if (typeof rawAnchorQuote !== "string") {
+    return {
+      valid: false,
+      reason: `REJECTED: anchorQuote is required and must be a string — an exact verbatim quote from the chapter that demonstrates the issue. You provided: ${rawAnchorQuote === undefined ? "nothing (field omitted)" : JSON.stringify(rawAnchorQuote)}. Please re-read the chapter and call CreateFinding again with an exact quote.`,
+    };
+  }
   const similarity = fuzzyMatch(input.anchorQuote, chapterContent);
   if (similarity < 0.8) {
     return {
@@ -154,10 +165,27 @@ async function validateFinding(
       };
     }
   }
-  if (!input.alternatives || input.alternatives.length < 2) {
+  // D-34: a non-array `alternatives` (e.g. a string) would pass a truthiness +
+  // .length check and later crash computeGroundingScore (`alternatives.map is
+  // not a function`), so require a real array here.
+  if (!Array.isArray(input.alternatives) || input.alternatives.length < 2) {
     return {
       valid: false,
-      reason: `REJECTED: You must provide at least 2 rewrite alternatives. You provided ${input.alternatives?.length ?? 0}.`,
+      reason: `REJECTED: You must provide at least 2 rewrite alternatives. You provided ${Array.isArray(input.alternatives) ? input.alternatives.length : 0}.`,
+    };
+  }
+  // D-34: a present-but-malformed alternative missing originalText passes the
+  // length check above but crashes computeGroundingScore's fuzzyMatch with a
+  // raw TypeError AFTER validation. Require originalText as a string on every
+  // item. Empty string stays allowed — it never crashes fuzzyMatch and never
+  // suppresses (D-13 empty-span rule).
+  const malformedAltIndex = input.alternatives.findIndex(
+    (alt) => typeof alt?.originalText !== "string"
+  );
+  if (malformedAltIndex !== -1) {
+    return {
+      valid: false,
+      reason: `REJECTED: alternatives[${malformedAltIndex}] is missing originalText. Every alternative must be an object with label, originalText (the exact chapter text to replace, as a string), and newText. Please resend all alternatives with originalText copied verbatim from the chapter.`,
     };
   }
   return { valid: true };
@@ -1255,12 +1283,15 @@ async function executeCreateFinding(
 
   if (!validation.valid) {
     // Record rejection for analytics.
-    // D-33: this write must survive the malformed input it is reporting on —
-    // paragraphNumber may be missing or non-numeric and the column is Int?,
-    // so persist null for anything that is not an integer.
+    // D-33/D-34: this write must survive the malformed input it is reporting
+    // on — paragraphNumber may be missing or non-numeric (column is Int?) and
+    // anchorQuote may be missing or non-string (column is String?), so persist
+    // null for anything of the wrong type.
     const analyticsParagraphNumber = Number.isInteger(input.paragraphNumber)
       ? input.paragraphNumber
       : null;
+    const analyticsAnchorQuote =
+      typeof input.anchorQuote === "string" ? input.anchorQuote : null;
     await db.editFinding.create({
       data: {
         bookId: ctx.bookId,
@@ -1273,7 +1304,7 @@ async function executeCreateFinding(
         rationale: input.rationale,
         confidence: input.confidence,
         paragraphNumber: analyticsParagraphNumber,
-        anchorQuote: input.anchorQuote,
+        anchorQuote: analyticsAnchorQuote,
         alternatives: JSON.stringify(input.alternatives),
         status: "rejected",
         rejectedAt: new Date(),

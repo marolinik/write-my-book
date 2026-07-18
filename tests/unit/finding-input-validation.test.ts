@@ -226,3 +226,141 @@ describe("CreateFinding: paragraphNumber input validation (D-33)", () => {
     );
   });
 });
+
+/**
+ * D-34: same crash class as D-33, string-field edition.
+ * (1) omitted anchorQuote -> fuzzyMatch(undefined, chapterContent) throws the
+ *     identical `needle.normalize` TypeError at the anchor similarity gate.
+ * (2) a present-but-malformed alternatives item missing originalText passes the
+ *     length-only alternatives check, then crashes computeGroundingScore's
+ *     fuzzyMatch AFTER validation succeeded.
+ * Both must become structured REJECTED guidance routed through the rejected-row
+ * analytics write (with values the columns can accept). Empty-string
+ * originalText stays valid (D-13 empty-span parity — it never crashes).
+ */
+describe("CreateFinding: anchorQuote and alternatives shape validation (D-34)", () => {
+  function expectAnchorRejection(result: string) {
+    expect(result).toMatch(/REJECTED/);
+    expect(result).toContain("anchorQuote");
+    expect(result).not.toContain("Error executing");
+    expect(result).not.toContain("normalize");
+    expect(h.db.editFinding.create).toHaveBeenCalledTimes(1);
+    expect(h.db.editFinding.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          status: "rejected",
+          anchorQuote: null,
+          rejectionReason: expect.stringContaining("anchorQuote"),
+        }),
+      })
+    );
+  }
+
+  it("(g) omitted anchorQuote is cleanly rejected, not a raw TypeError", async () => {
+    const input = evidenceShapeInput({
+      paragraphNumber: 2,
+      alternatives: ALTERNATIVES,
+    }) as Record<string, unknown>;
+    delete input.anchorQuote;
+
+    const result = await executeTool("CreateFinding", ctx, input);
+
+    expectAnchorRejection(result);
+  });
+
+  it("(h) non-string anchorQuote is cleanly rejected and analytics row stores null", async () => {
+    const result = await executeTool(
+      "CreateFinding",
+      ctx,
+      evidenceShapeInput({
+        anchorQuote: 5,
+        paragraphNumber: 2,
+        alternatives: ALTERNATIVES,
+      })
+    );
+
+    expectAnchorRejection(result);
+  });
+
+  it("(i) alternatives item missing originalText is cleanly rejected, not a post-validation TypeError", async () => {
+    const malformed = [
+      ALTERNATIVES[0],
+      { label: "Option B — compressed", newText: "She was the second kind." },
+    ];
+
+    const result = await executeTool(
+      "CreateFinding",
+      ctx,
+      evidenceShapeInput({ paragraphNumber: 2, alternatives: malformed })
+    );
+
+    expect(result).toMatch(/REJECTED/);
+    expect(result).toContain("alternatives[1]");
+    expect(result).toContain("originalText");
+    expect(result).not.toContain("Error executing");
+    expect(h.db.editFinding.create).toHaveBeenCalledTimes(1);
+    expect(h.db.editFinding.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          status: "rejected",
+          rejectionReason: expect.stringContaining("originalText"),
+        }),
+      })
+    );
+  });
+
+  it("(j) alternatives[0] missing originalText is also rejected (D-13 lookup optional-chains past it)", async () => {
+    const malformed = [
+      { label: "Option A — embodied register", newText: "The cold reached her ankles." },
+      ALTERNATIVES[1],
+    ];
+
+    const result = await executeTool(
+      "CreateFinding",
+      ctx,
+      evidenceShapeInput({ paragraphNumber: 2, alternatives: malformed })
+    );
+
+    expect(result).toMatch(/REJECTED/);
+    expect(result).toContain("alternatives[0]");
+    expect(result).not.toContain("Error executing");
+    expect(h.db.editFinding.create).toHaveBeenCalledTimes(1);
+  });
+
+  it("(k) non-array alternatives (string) is cleanly rejected, not a raw TypeError", async () => {
+    const result = await executeTool(
+      "CreateFinding",
+      ctx,
+      evidenceShapeInput({
+        paragraphNumber: 2,
+        alternatives: "rewrite it more viscerally",
+      })
+    );
+
+    expect(result).toMatch(/REJECTED/);
+    expect(result).toContain("2 rewrite alternatives");
+    expect(result).not.toContain("Error executing");
+    expect(h.db.editFinding.create).toHaveBeenCalledTimes(1);
+    expect(h.db.editFinding.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: "rejected" }),
+      })
+    );
+  });
+
+  it("(l) empty-string originalText in alternatives remains valid (D-13 empty-span parity)", async () => {
+    const emptyAlts = [
+      { label: "Tighter", originalText: "", newText: "The cold reached her ankles." },
+      { label: "Softer", originalText: "", newText: "She was the second kind." },
+    ];
+
+    const result = await executeTool(
+      "CreateFinding",
+      ctx,
+      evidenceShapeInput({ paragraphNumber: 2, alternatives: emptyAlts })
+    );
+
+    expect(result).toContain("Finding created");
+    expect(h.db.editFinding.create).toHaveBeenCalledTimes(1);
+  });
+});
