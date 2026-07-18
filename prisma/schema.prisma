@@ -248,6 +248,11 @@ model Document {
   versions DocumentVersion[]
 
   @@index([bookId, type])
+  // D-16: one document row per (book, type, chapter). Postgres treats NULLs as
+  // distinct in unique indexes, so series docs (bookId NULL) and non-chapter
+  // docs (chapterNumber NULL, e.g. multiple FREEWRITEs) stay unconstrained.
+  // Run scripts/repair-duplicate-documents.ts BEFORE pushing this constraint.
+  @@unique([bookId, type, chapterNumber])
   @@map("documents")
 }
 

@@ -110,14 +110,19 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
     );
 
     const wordCount = countWords(data.markdown);
-    let version: number;
 
-    if (existingDoc) {
-      // Update existing document (optimistically locked when the client
-      // stamps expectedVersion; legacy bodies stay last-write-wins)
+    /**
+     * Update an existing document (optimistically locked when the client
+     * stamps expectedVersion; legacy bodies stay last-write-wins). Returns the
+     * new version number, or the 409 response when the CAS rejects.
+     */
+    const updateExisting = async (doc: {
+      id: string;
+      currentVersion: number;
+    }): Promise<number | NextResponse> => {
       try {
         const result = await svc.update(
-          existingDoc.id,
+          doc.id,
           data.markdown,
           undefined,
           "manual_edit",
@@ -129,7 +134,7 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
         // re-read document.currentVersion, which can already reflect a
         // concurrent unguarded writer and would convert a detectable 409
         // into a silent overwrite on the next stamped save.
-        version = result.version.version;
+        return result.version.version;
       } catch (error) {
         if (error instanceof VersionConflictError) {
           // CAS rejected — nothing was written. Return the server's current
@@ -137,13 +142,12 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
           // GET so client equality checks are symmetric. readPinned pairs
           // currentVersion with that exact version's snapshot content (the
           // live key may not be written yet by the winning writer).
-          const current = await svc.readPinned(existingDoc.id);
+          const current = await svc.readPinned(doc.id);
           return NextResponse.json(
             {
               error: "version_conflict",
               currentVersion:
-                current?.document.currentVersion ??
-                existingDoc.currentVersion,
+                current?.document.currentVersion ?? doc.currentVersion,
               serverContent: sanitizeUnicode(current?.content ?? ""),
             },
             { status: 409 }
@@ -151,17 +155,43 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
         }
         throw error;
       }
+    };
+
+    let version: number;
+
+    if (existingDoc) {
+      const updated = await updateExisting(existingDoc);
+      if (updated instanceof NextResponse) return updated;
+      version = updated;
     } else {
-      // Create new document
-      await svc.create(
-        DocumentType.CHAPTER_CONTENT,
-        data.markdown,
-        chapter.title ?? `Chapter ${chapter.chapterNumber}`,
-        chapter.chapterNumber,
-        chapter.actNumber,
-        data.changeSource ?? "user"
-      );
-      version = 1;
+      // Create new document. Two first-saves can race this check-then-create:
+      // the DB unique on (bookId, type, chapterNumber) makes the loser's
+      // INSERT fail with P2002 instead of minting a duplicate row (D-16) —
+      // the loser re-fetches the winner's row and converges through the
+      // normal existing-doc update path, CAS included.
+      try {
+        await svc.create(
+          DocumentType.CHAPTER_CONTENT,
+          data.markdown,
+          chapter.title ?? `Chapter ${chapter.chapterNumber}`,
+          chapter.chapterNumber,
+          chapter.actNumber,
+          data.changeSource ?? "user"
+        );
+        version = 1;
+      } catch (error) {
+        if ((error as { code?: string })?.code !== "P2002") throw error;
+        const winner = await svc.findByType(
+          DocumentType.CHAPTER_CONTENT,
+          chapter.chapterNumber
+        );
+        // Unique violation with no row visible would mean the winner vanished
+        // between INSERT and re-read — surface the original error.
+        if (!winner) throw error;
+        const updated = await updateExisting(winner);
+        if (updated instanceof NextResponse) return updated;
+        version = updated;
+      }
     }
 
     // Update chapter and book word counts
