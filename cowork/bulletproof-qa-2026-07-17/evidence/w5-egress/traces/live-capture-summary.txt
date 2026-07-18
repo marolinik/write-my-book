@@ -1,0 +1,11 @@
+﻿=== W5 live-capture summary ===
+Raw samples: 2267 total rows, 1099 Established-state rows
+
+--- Unique remote endpoints (RemoteAddress:RemotePort), sample-hit counts ---
+::1:6379  hits=621  pids=37060,41240  -> platform-new-redis-1 (Redis)
+127.0.0.1:7687  hits=276  pids=37060,41240  -> wmb-pub-neo4j-1 (Neo4j bolt)
+127.0.0.1:51743  hits=69  pids=41240  -> LOCAL (unrecognized port)
+::1:9000  hits=69  pids=41240  -> platform-new-minio-1 (MinIO S3)
+127.0.0.1:5432  hits=64  pids=41240  -> wmb-pub-postgres-1 (Postgres)
+
+=== done ===
