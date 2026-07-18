@@ -101,6 +101,24 @@ async function validateFinding(
     };
   }
   const paragraphs = chapterContent.split(/\n\n+/).filter(p => p.trim().length > 0);
+  // D-33: models can omit paragraphNumber (or send a non-numeric value)
+  // despite the tool schema. `undefined` sails through the range check below
+  // (both comparisons are false) and paragraphs[NaN] then crashes fuzzyMatch
+  // with a raw TypeError that leaks to the model. Reject with corrective
+  // guidance instead, on the same path as every other validation rejection.
+  const rawParagraphNumber: unknown = input.paragraphNumber;
+  if (typeof rawParagraphNumber !== "number" || !Number.isInteger(rawParagraphNumber)) {
+    const provided =
+      rawParagraphNumber === undefined
+        ? "nothing (field omitted)"
+        : typeof rawParagraphNumber === "number"
+          ? String(rawParagraphNumber)
+          : JSON.stringify(rawParagraphNumber);
+    return {
+      valid: false,
+      reason: `REJECTED: paragraphNumber is required and must be an integer between 1 and ${paragraphs.length} (1-indexed). You provided: ${provided}. Please re-count the paragraphs and call CreateFinding again with a valid paragraphNumber.`,
+    };
+  }
   if (input.paragraphNumber < 1 || input.paragraphNumber > paragraphs.length) {
     return {
       valid: false,
@@ -1236,7 +1254,13 @@ async function executeCreateFinding(
   const resolvedParagraphNumber = validationInput.paragraphNumber;
 
   if (!validation.valid) {
-    // Record rejection for analytics
+    // Record rejection for analytics.
+    // D-33: this write must survive the malformed input it is reporting on —
+    // paragraphNumber may be missing or non-numeric and the column is Int?,
+    // so persist null for anything that is not an integer.
+    const analyticsParagraphNumber = Number.isInteger(input.paragraphNumber)
+      ? input.paragraphNumber
+      : null;
     await db.editFinding.create({
       data: {
         bookId: ctx.bookId,
@@ -1248,7 +1272,7 @@ async function executeCreateFinding(
         description: input.description,
         rationale: input.rationale,
         confidence: input.confidence,
-        paragraphNumber: input.paragraphNumber,
+        paragraphNumber: analyticsParagraphNumber,
         anchorQuote: input.anchorQuote,
         alternatives: JSON.stringify(input.alternatives),
         status: "rejected",
