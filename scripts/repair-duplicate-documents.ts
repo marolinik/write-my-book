@@ -217,6 +217,13 @@ async function main(): Promise<void> {
       `[repair-duplicate-documents] scanned ${candidates.length} chapter-scoped documents, found ${duplicateGroups.length} duplicate group(s)`
     );
 
+    // Run-wide tallies for the loud aggregate summary. A missing source
+    // snapshot means the DB row is re-parented to a path nothing ever wrote
+    // (same 404 as pre-repair — not a regression, but silent), so surface it.
+    let groupsRepaired = 0;
+    let snapshotsCopied = 0;
+    const missingSources: string[] = [];
+
     for (const [key, docs] of duplicateGroups) {
       const versions = await db.documentVersion.findMany({
         where: { documentId: { in: docs.map((d) => d.id) } },
@@ -262,11 +269,13 @@ async function main(): Promise<void> {
         plan.moves
       );
       for (const m of missing) {
-        console.log(
-          `  WARN source snapshot absent, skipped copy: ${getVersionStoragePath(m.fromDocumentId, m.fromVersion)}`
-        );
+        const path = getVersionStoragePath(m.fromDocumentId, m.fromVersion);
+        console.log(`  WARN source snapshot absent, skipped copy: ${path}`);
+        missingSources.push(`${key} :: ${m.fromDocumentId} v${m.fromVersion} -> ${path}`);
       }
       console.log(`  copied ${copied.length}/${plan.moves.length} snapshot(s)`);
+      snapshotsCopied += copied.length;
+      groupsRepaired++;
 
       await db.$transaction(async (tx) => {
         for (const move of plan.moves) {
@@ -284,6 +293,25 @@ async function main(): Promise<void> {
         });
       });
       console.log(`  applied.`);
+    }
+
+    // Loud aggregate summary so the apply-window operator sees the outcome
+    // without scanning per-line WARNs. On --execute, a missing source is a
+    // history-loss signal → non-zero exit code so the run is not treated as a
+    // clean pass. Dry-run reports the same numbers but never changes exit code.
+    const K = missingSources.length;
+    if (execute) {
+      console.log(
+        `\n[repair-duplicate-documents] REPAIR SUMMARY: ${groupsRepaired} group(s) repaired, ${snapshotsCopied} snapshot(s) copied, ${K} MISSING source(s)${K > 0 ? " (lost history, see WARN lines above)" : ""}`
+      );
+      if (K > 0) {
+        for (const m of missingSources) console.log(`  MISSING: ${m}`);
+        process.exitCode = 1;
+      }
+    } else {
+      console.log(
+        `\n[repair-duplicate-documents] DRY-RUN SUMMARY: ${duplicateGroups.length} duplicate group(s) would be repaired (nothing written; re-run with --execute to apply)`
+      );
     }
 
     console.log(
