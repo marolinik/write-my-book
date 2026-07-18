@@ -204,19 +204,6 @@ export function ManuscriptEditor({
   immersiveRef.current = immersive;
   const isLg = useIsLg();
 
-  // IndexedDB crash-safety mirror — buffers dirty content every 2s, flushes
-  // on unload, and answers recovery-on-load. Server writes stay on the
-  // stamped PUT; the buffer never saves anything itself.
-  const { bufferNow, clearDraft, checkRecovery } = useDraftBuffer({
-    paneStore,
-    editorRef,
-    paneChapterId,
-    bookId,
-    onBufferWrite: (result) => {
-      paneStore.getState().setDraftSavedAt(result.ok ? result.at : null);
-    },
-  });
-
   // Findings for current chapter
   const { data: findingsData } = useFindings(bookId, { chapterNumber });
   const findings = findingsData?.findings ?? [];
@@ -356,6 +343,22 @@ export function ManuscriptEditor({
 
   // Keep ref in sync so callbacks can access editor without circular deps
   editorRef.current = editor;
+
+  // Crash-safety draft persistence — IDB buffer (2s ticks + unload flush) plus
+  // the synchronous per-keystroke localStorage mirror (D-24), and
+  // recovery-on-load. Declared after useEditor so the hook can subscribe to
+  // the live instance's update events. Server writes stay on the stamped PUT;
+  // the buffer never saves anything itself.
+  const { bufferNow, clearDraft, checkRecovery } = useDraftBuffer({
+    paneStore,
+    editorRef,
+    editor,
+    paneChapterId,
+    bookId,
+    onBufferWrite: (result) => {
+      paneStore.getState().setDraftSavedAt(result.ok ? result.at : null);
+    },
+  });
 
   // Live continuity net: scan on chapter switch + ~20s after the last edit.
   useIdleContinuityScan({ chapterNumber, activityKey: editTick, scan: continuityScan });

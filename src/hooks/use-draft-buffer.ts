@@ -15,6 +15,12 @@
  *     — this hook NEVER calls `markDirty`/`setSaveConflict`/editor commands
  *     itself; the editor applies side effects (keeps the decision testable
  *     and the stale-chapter guard in one place).
+ *  4. Last-chance mirror (D-24): a SYNCHRONOUS localStorage write on every
+ *     editor update. The 2s IDB tick plus an async unload flush lost 100% of
+ *     a short typing burst on a hard crash (first tick not yet fired, no
+ *     unload event, or the IDB put torn down mid-commit). The mirror makes
+ *     the newest keystrokes durable in the same task that produced them;
+ *     recovery takes the newer of {IDB draft, mirror}.
  *
  * The buffer is a crash-safety mirror, not a save path: all server writes
  * stay on the existing stamped PUT.
@@ -35,6 +41,11 @@ import {
   putDraft,
   type ChapterDraft,
 } from "@/lib/offline/draft-store";
+import {
+  clearLastChanceDraft,
+  readLastChanceDraft,
+  writeLastChanceDraft,
+} from "@/lib/offline/last-chance-mirror";
 
 // ── Constants ─────────────────────────────────────────────────
 
@@ -122,6 +133,12 @@ export interface BufferWriteResult {
 export interface UseDraftBufferOptions {
   paneStore: StoreApi<EditorPaneState>;
   editorRef: { current: Editor | null };
+  /**
+   * The live tiptap instance — the hook subscribes to its "update" event to
+   * drive the synchronous last-chance mirror per keystroke (D-24). Passed
+   * separately from editorRef because the ref mutation never re-runs effects.
+   */
+  editor: Editor | null;
   paneChapterId: string | null;
   bookId: string;
   /**
@@ -148,6 +165,7 @@ export interface DraftBufferApi {
 export function useDraftBuffer({
   paneStore,
   editorRef,
+  editor,
   paneChapterId,
   bookId,
   onBufferWrite,
@@ -156,6 +174,9 @@ export function useDraftBuffer({
 
   // Hash of the last successfully buffered markdown — skip redundant writes.
   const lastBufferedHashRef = useRef<string | null>(null);
+  // Separate hash for the synchronous localStorage mirror (D-24) — the two
+  // stores update on different cadences and must skip-check independently.
+  const lastMirroredHashRef = useRef<string | null>(null);
 
   // Keep the callback out of bufferNow's identity so connectivity/render
   // churn never resets the buffer interval.
@@ -164,9 +185,10 @@ export function useDraftBuffer({
     onBufferWriteRef.current = onBufferWrite;
   }, [onBufferWrite]);
 
-  // New chapter — the hash belongs to the previous chapter's content.
+  // New chapter — the hashes belong to the previous chapter's content.
   useEffect(() => {
     lastBufferedHashRef.current = null;
+    lastMirroredHashRef.current = null;
   }, [paneChapterId]);
 
   const bufferNow = useCallback(async (): Promise<void> => {
@@ -203,6 +225,49 @@ export function useDraftBuffer({
     onBufferWriteRef.current?.({ ok, at: Date.now() });
   }, [bookId, editorRef, paneStore]);
 
+  // (D-24) Synchronous last-chance mirror: same guards and serializer as
+  // bufferNow, but localStorage's synchronous setItem — the write is durable
+  // before this function returns, so a hard kill immediately after the last
+  // keystroke cannot lose it. Per-keystroke cost is bounded: the editor
+  // already serializes markdown every keystroke for the live word count, and
+  // the hash check skips redundant writes.
+  const mirrorNow = useCallback((): void => {
+    const editorInstance = editorRef.current;
+    if (!editorInstance || editorInstance.isDestroyed) return;
+
+    const state = paneStore.getState();
+    const chapterId = state.chapterId;
+    if (!chapterId || !state.isDirty) return;
+
+    const markdown = getMarkdownFromEditor(editorInstance);
+    const hash = hashMarkdown(markdown);
+    if (hash === lastMirroredHashRef.current) return;
+
+    const ok = writeLastChanceDraft({
+      chapterId,
+      bookId,
+      markdown,
+      baseVersion: state.documentVersion,
+    });
+    if (ok) {
+      lastMirroredHashRef.current = hash;
+    }
+  }, [bookId, editorRef, paneStore]);
+
+  // (D-24) Keystroke-driven persistence: every tiptap update mirrors
+  // synchronously. Registered after the editor's own onUpdate (which marks
+  // the pane dirty), so the dirty guard sees the current keystroke.
+  useEffect(() => {
+    if (!editor || editor.isDestroyed) return;
+    const onUpdate = (): void => {
+      mirrorNow();
+    };
+    editor.on("update", onUpdate);
+    return () => {
+      editor.off("update", onUpdate);
+    };
+  }, [editor, mirrorNow]);
+
   // (1) Write-behind buffer: fixed 2s cadence while dirty. Runs through
   // conflict suspension and network backoff unchanged — only dirtiness gates.
   useEffect(() => {
@@ -220,6 +285,9 @@ export function useDraftBuffer({
   // isDirty/editor guards make a stale unmount flush a safe no-op).
   useEffect(() => {
     const flush = () => {
+      // Mirror FIRST (synchronous — completes even mid-teardown), then the
+      // best-effort async IDB write.
+      mirrorNow();
       void bufferNow();
     };
     const onVisibilityChange = () => {
@@ -232,18 +300,20 @@ export function useDraftBuffer({
       document.removeEventListener("visibilitychange", onVisibilityChange);
       flush();
     };
-  }, [bufferNow]);
+  }, [bufferNow, mirrorNow]);
 
   const clearDraft = useCallback((chapterId: string): void => {
-    // Reset the hash so the next dirty tick rewrites even if content returns
-    // to the exact last-buffered text (the draft row is gone — a skipped
-    // write would leave dirty words unprotected). Extra write is the safe
-    // direction.
+    // Reset the hashes so the next dirty tick rewrites even if content
+    // returns to the exact last-buffered text (the draft rows are gone — a
+    // skipped write would leave dirty words unprotected). Extra write is the
+    // safe direction.
     lastBufferedHashRef.current = null;
+    lastMirroredHashRef.current = null;
     // onlyIfMine: another tab's offline draft must survive this tab's save
-    // success (spec §4.2). deleteDraft is no-throw; failure means the draft
-    // lingers until recovery/prune hygiene — harmless.
+    // success (spec §4.2). Both deletes are no-throw; failure means the
+    // draft lingers until recovery/prune hygiene — harmless.
     void deleteDraft(chapterId, { onlyIfMine: true });
+    clearLastChanceDraft(chapterId, { onlyIfMine: true });
   }, []);
 
   const checkRecovery = useCallback(
@@ -255,7 +325,21 @@ export function useDraftBuffer({
       if (!chapterId) return { kind: "none" };
       // Reads regardless of clientId — a crashed tab's clientId is gone.
       const draft = await getDraft(chapterId);
-      const decision = decideRecovery(draft, serverMarkdown, serverVersion);
+      // (D-24) The synchronous mirror may hold keystrokes newer than the
+      // last IDB tick (a crash inside the 2s window). Take the newer row —
+      // both stamp the same shape — and consume the mirror: the winning
+      // content is either restored (and immediately re-buffered to IDB by
+      // applyRecoveryDecision's bufferNow) or server-equal garbage, and a
+      // stale mirror lingering past a discard would resurrect it.
+      const mirror = readLastChanceDraft(chapterId);
+      if (mirror) {
+        clearLastChanceDraft(chapterId);
+      }
+      const newest =
+        mirror && (!draft || mirror.updatedAt > draft.updatedAt)
+          ? mirror
+          : draft;
+      const decision = decideRecovery(newest, serverMarkdown, serverVersion);
       if (draft && decision.kind === "none") {
         // Draft content already matches the server — hygiene delete of the
         // exact row revision we read (an equal draft is garbage for every
