@@ -1,0 +1,11 @@
+{
+  "label": "10_scan_book2_ch7_trigger",
+  "method": "POST",
+  "path": "/api/books/2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90/continuity/scan?chapterNumber=7",
+  "requestedAt": "2026-07-18T07:54:48.974Z",
+  "status": 200,
+  "note": "First scan of this session. ch7 extraction confirmed NOT landed beforehand (probe_sc_ch7 notReady:true). This scan should trigger the fire-and-forget extraction; its own checks read the PRE-extraction graph.",
+  "response": {
+    "flags": []
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "label": "15_put_book2_ch9_opposes",
+  "method": "PUT",
+  "path": "/api/books/2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90/chapters/d29b0b6c-d52a-446b-9aa8-bdc07c93d1f4/content",
+  "requestedAt": "2026-07-18T09:02:00.463+00:00",
+  "elapsedMs": 188,
+  "status": 200,
+  "request": {
+    "markdownChars": 829,
+    "markdownFirst80": "Winter came early to Emberfall, and with it the end of all pretense.\n\nKestrel Va",
+    "expectedVersion": 1,
+    "bodyFile": "ch9_opposes.md"
+  },
+  "note": "Mission A: replace benign ch9 with unambiguous OPPOSES prose (Mira Thorne declares Kestrel Vane 'the enemy of this city'; Emberfall 'declared open war on Kestrel Vane'). Completes the contradiction pair against ch6's ALLIED_WITH edge (confirmed in graph per team-lead handoff). ch7 (original OPPOSES seed) abandoned after 3 silent extraction failures — see defect 'ch7 silent extraction failure', ID pending. Prose deliberately different from ch7's to also discriminate content-specific extractor failure.",
+  "response": {
+    "wordCount": 149,
+    "version": 2,
+    "bookWordCount": 1899
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "label": "13b_scan_book2_ch6_throttle_second",
+  "method": "POST",
+  "path": "/api/books/2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90/continuity/scan?chapterNumber=6",
+  "requestedAt": "2026-07-18T08:59:27.203+00:00",
+  "elapsedMs": 219,
+  "status": 200,
+  "note": "Mission C scan 2 of 2, issued immediately (~1-2s) after 13a. Watch for: 429 (none expected), duplicate flags (none expected — signature upsert + bookId_signature unique constraint), response parity with 13a.",
+  "response": {
+    "flags": []
+  }
+}

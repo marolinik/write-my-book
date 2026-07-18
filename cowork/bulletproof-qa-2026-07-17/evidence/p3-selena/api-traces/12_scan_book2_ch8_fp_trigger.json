@@ -1,0 +1,12 @@
+{
+  "label": "12_scan_book2_ch8_fp_trigger",
+  "method": "POST",
+  "path": "/api/books/2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90/continuity/scan?chapterNumber=8",
+  "requestedAt": "2026-07-18T08:58:12.267+00:00",
+  "elapsedMs": 297,
+  "status": 200,
+  "note": "Mission B (false-positive control) trigger scan on benign never-extracted ch8, doubling as pipeline discriminator after ch7 extraction failed to land across 3 triggers (predecessor + traces 10, 11). Response also documents current book-wide active-flag baseline (expected empty: ALLIED_WITH from ch6 present, OPPOSES never landed).",
+  "response": {
+    "flags": []
+  }
+}

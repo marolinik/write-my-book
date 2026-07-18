@@ -157,10 +157,10 @@ actionable — a client has to guess or separately `GET /api/books/{id}/chapters
 using `chapterNumber:2` for the standalone-book edge case instead of colliding with the
 auto-created chapter 1.
 
-## D-21 — [S2, MOAT DATA-INTEGRITY] `Character.aliases` is not cumulative across chapters — a later chapter's own extraction pass can silently overwrite (not union) a previously-merged alias, undermining the "alias-matched" sidebar guarantee
+## D-27 — [S2, MOAT DATA-INTEGRITY] `Character.aliases` is not cumulative across chapters — a later chapter's own extraction pass can silently overwrite (not union) a previously-merged alias, undermining the "alias-matched" sidebar guarantee
 
 > Next free slot per fresh register check 2026-07-18 (D-01..D-20 in use across all
-> `evidence/*/defects.md`). Canonical ID = **D-21**.
+> `evidence/*/defects.md`). Canonical ID = **D-27**.
 
 **Severity: S2** (data-integrity bug inside the moat's entity-resolution layer — does not create
 duplicate nodes, does not crash, but silently loses previously-established alias history, which
@@ -291,5 +291,66 @@ If the current-book-inclusive reading is correct: pass the current book's own `g
 ### Status
 
 **Reported, not fixed, verdict deliberately left open** (bug vs. intentional scope) for team-lead /
-product judgment — unlike D-19/D-20/D-21, this one hinges on interpreting an ambiguous exit
+product judgment — unlike D-19/D-20/D-27, this one hinges on interpreting an ambiguous exit
 criterion rather than a clear-cut implementation defect.
+
+## NEW (ID pending team-lead) — [S2, MOAT RELIABILITY + COST LEAK] A chapter can enter a state where graph extraction silently fails on EVERY attempt — zero API-visible error, zero degraded-mode signal, and unbounded billed retries, because both extraction-throttle layers key off success markers that a failing extraction never writes
+
+> Filed 2026-07-18 by the resumed P3 executor. Per campaign discipline this executor does NOT
+> self-assign an ID (highest known in-use at time of writing: D-27).
+
+**Severity: S2** (no crash, no data loss — but two compounding harms inside the moat's input
+pipeline: a silent integrity hole and a per-scan money leak on the user's own BYOK key).
+
+### Evidence (Book 2 "Cinderwake QA P3", bookId `2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90`, chapter 7)
+
+- **4 independent extraction triggers across 2 days, 0 landings**: predecessor's
+  `scan_book2_ch7_first` (2026-07-17) and `scan_book2_ch7_flagcheck` (07:46:21Z 2026-07-18, their
+  final act), plus this session's traces `10_scan_book2_ch7_trigger` (07:56:45Z) and
+  `11_scan_book2_ch7_retrigger` (08:07Z). Every response a clean `200 {"flags":[]}`.
+- Landing polled read-only (series-context `meta.notReady`, log
+  `api-traces/11_poll_ch7_extraction.log`): continuously `true` 07:57→08:27:50; predecessor's
+  independent Neo4j check the day before showed characters still `lastMentioned:6`, no OPPOSES edge.
+- **Discriminators, same user/key/model/book, same session**: ch8 extraction landed in ~90s
+  (`12_poll_ch8_extraction.log`), ch9 extraction landed in ~90s (`16_poll_ch9_extraction.log`).
+  The pipeline is healthy; the failure is specific to ch7's content/state.
+- ch7's exact failing bytes preserved at `../ch7_failing_content.md` (974 chars, valid UTF-8; only
+  non-ASCII is the em dash E2 80 94, which sibling chapters that extract fine also use). Root cause
+  not determinable from API surfaces (server console inaccessible to this executor): the scan route
+  swallows extraction failures with `console.error` only (`scan/route.ts:69-71,74-76`) and
+  `updateFromChapter` catch-alls to `{updated:false}` (`graph-maintenance.ts:57-64`).
+
+### Why S2 — two distinct harms
+
+1. **Moat integrity**: a never-extracted chapter is invisible to EVERY continuity check — its
+   events/relationships simply do not exist in the graph — while the product gives no
+   "incomplete graph" signal of any kind. The scan returns `{"flags":[]}`, indistinguishable from
+   a genuinely clean chapter. TEST-PLAN §P3's edge criterion "partial graph → NO false confidence
+   (labeled incomplete)" is violated in the worst direction: the user's seeded contradiction
+   (ch7's OPPOSES betrayal, written precisely to be caught) produced zero flags for two days and
+   would have shipped silently. This session's A-mission was only rescuable because a DIFFERENT
+   chapter could carry the OPPOSES edge.
+2. **Cost leak**: `shouldExtract()` returns `true` whenever the Chapter node's timestamp is absent
+   (`continuity-flags.ts:81-84`), and the Chapter node + `contentHash` are only written on SUCCESS
+   (`graph-maintenance.ts:54`, `setContentHash`). A permanently-failing chapter therefore re-fires
+   a fresh billed BYOK LLM extraction attempt on EVERY scan — editor visits, re-scans, forever —
+   with no backoff, no attempt cap, no user-visible spend signal. The 90s throttle structurally
+   cannot engage for exactly the chapters that need it most.
+
+### Fix direction (not applied — no `src/` edits per scope)
+
+1. Persist failure state (e.g. `lastAttemptAt`/`failureCount` on the Chapter node or a Postgres
+   column) in the catch path, and make `shouldExtract` respect it — retry with backoff and a cap
+   instead of unconditionally.
+2. Surface it: the scan response already has a `degraded:true` pattern for check-timeouts — extend
+   it with per-chapter `extractionFailed`, and make series-context `meta` distinguish "not yet
+   extracted" from "extraction failing repeatedly".
+3. Log the provider error + chapter id at error level to something durable (currently
+   `console.error` only, lost in dev-server scroll).
+4. Repro asset: feed `ch7_failing_content.md` through `extractEntities` directly to identify the
+   deterministic failure mode (LLM refusal? malformed JSON past the jsonrepair fallback? provider
+   4xx?).
+
+### Status
+
+**Reported, not fixed. ID pending team-lead.**

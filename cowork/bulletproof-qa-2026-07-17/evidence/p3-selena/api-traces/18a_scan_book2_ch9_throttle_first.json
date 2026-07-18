@@ -1,0 +1,27 @@
+{
+  "label": "18a_scan_book2_ch9_throttle_first",
+  "method": "POST",
+  "path": "/api/books/2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90/continuity/scan?chapterNumber=9",
+  "requestedAt": "2026-07-18T09:06:55.347+00:00",
+  "elapsedMs": 859,
+  "status": 200,
+  "note": "Mission C (strong form): scan 1 of 2 in quick succession with an ACTIVE flag present and content unchanged. Expect: same single flag, same id de0cc075, no duplicate.",
+  "response": {
+    "flags": [
+      {
+        "id": "de0cc075-e26e-4137-8942-619bab358bbd",
+        "signature": "e687d7d120a07aa1af9cc1eed6c6426c24a27af2",
+        "type": "relationship_contradiction",
+        "severity": "major",
+        "description": "Characters \"Mira Thorne\" and \"Kestrel Vane\" are marked as both ALLIED_WITH and OPPOSES each other simultaneously.",
+        "entities": [
+          "Mira Thorne",
+          "Kestrel Vane"
+        ],
+        "chapterNumber": 0,
+        "jumpChapter": null,
+        "anchor": null
+      }
+    ]
+  }
+}
