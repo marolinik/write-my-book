@@ -81,7 +81,8 @@ product defects, and were caught before filing anything (full detail + fixed re-
 
 Two confirmed new defects, both written up in full in `defects.md`:
 
-- **D-13 [S2]** — `wiki` create/update/list routes have no top-level try/catch at all; any Zod
+- **D-15 [S2]** (renumbered from D-13, which collided with P1 Maya's team-lead-assigned D-13) —
+  `wiki` create/update/list routes have no top-level try/catch at all; any Zod
   validation failure raw-500s with a completely empty body (not even `{error}`). Confirmed on
   `POST`, `PATCH` (against a real owned row, not just the ownership pre-check), and `GET`'s
   query-string validation.
@@ -95,6 +96,6 @@ Two confirmed new defects, both written up in full in `defects.md`:
 **86 scripted probes + 8 targeted follow-up probes = 94 total.** Envelope-consistency: clean
 across every family except the 2 defects above (14/16 probed families fully clean; wiki and
 style/lenses each have one confirmed gap). Leak count: **0** confirmed (1 scanner hit,
-investigated and ruled a false positive — see self-corrections). 2 new defects (D-13 S2, D-14
+investigated and ruled a false positive — see self-corrections). 2 new defects (D-15 S2, D-14
 S3), both root-caused to exact file:line, both left unfixed per this phase's read-only `src/`
 scope.

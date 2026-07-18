@@ -144,13 +144,13 @@ Book 2 chapters 1-2 scanned (extraction landed, direct Neo4j poll). Re-queried
   codepage rendering artifact on my end, NOT a real API/data bug — verified by reading the file
   directly rather than trusting console output.
 
-**New finding (D-22, possibly-intentional design gap):** Direct Neo4j query of Book 2's OWN
+**New finding (D-25, possibly-intentional design gap):** Direct Neo4j query of Book 2's OWN
 graph shows Mira/Zoë/Vane already have `lastMentioned:2` (fresher, independently-extracted Book 2
 state) — yet the sidebar reports `lastBook:1, lastChapter:5` for all three, sourcing exclusively
 from Book 1. Traced to `series-context/route.ts` querying `priorBooks` as strictly `bookNumber <
 current`, and `ambient-context.ts`'s `buildAmbientContext` filtering `prior` the same way — the
 current book is never a "last-known state" candidate, even when its own graph already has more
-current data. Filed as **D-22**, flagged (not asserted) as a bug given TEST-PLAN's literal
+current data. Filed as **D-25**, flagged (not asserted) as a bug given TEST-PLAN's literal
 "latest-book-wins" / "last-known state" wording could reasonably be read either way.
 
 *(continued below as each chapter's extraction lands)*

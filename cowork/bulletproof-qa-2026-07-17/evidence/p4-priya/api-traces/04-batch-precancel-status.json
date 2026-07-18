@@ -1,0 +1,101 @@
+{
+  "status": 200,
+  "body": {
+    "batch": {
+      "id": "cmrppydvq0000tk0f2yt0xw4b",
+      "userId": "a31049dd-0fd9-44dd-a232-8606129d1853",
+      "bookId": "e90b3494-ead4-472f-a34d-502c4b5b775c",
+      "workflowIds": [
+        "line-edit"
+      ],
+      "chapterStart": 1,
+      "chapterEnd": 6,
+      "status": "done",
+      "budgetCapUsd": 10,
+      "spentUsd": 0.104841675,
+      "halted": false,
+      "haltReason": null,
+      "scheduledFor": null,
+      "parentJobId": "cfe62979-5c93-4aed-b125-bf2e36c07998",
+      "digest": {
+        "halted": false,
+        "passes": {
+          "total": 6,
+          "failed": 0,
+          "skipped": 0,
+          "completed": 6
+        },
+        "chapters": [
+          {
+            "status": "undiscussed",
+            "betaGate": "pending",
+            "chapterNumber": 2
+          },
+          {
+            "status": "undiscussed",
+            "betaGate": "pending",
+            "chapterNumber": 3
+          },
+          {
+            "status": "undiscussed",
+            "betaGate": "pending",
+            "chapterNumber": 4
+          },
+          {
+            "status": "undiscussed",
+            "betaGate": "pending",
+            "chapterNumber": 5
+          },
+          {
+            "status": "undiscussed",
+            "betaGate": "pending",
+            "chapterNumber": 6
+          },
+          {
+            "status": "undiscussed",
+            "betaGate": "pending",
+            "chapterNumber": 1
+          }
+        ],
+        "findings": {
+          "total": 7,
+          "byChapter": {
+            "2": 3,
+            "3": 1,
+            "4": 2,
+            "5": 1
+          },
+          "bySeverity": {
+            "suggestion": 7
+          }
+        },
+        "spentUsd": 0.104841675,
+        "haltReason": null,
+        "generatedAt": "2026-07-18T02:09:24.427Z",
+        "workflowIds": [
+          "line-edit"
+        ],
+        "budgetCapUsd": 10,
+        "chapterRange": {
+          "end": 6,
+          "start": 1
+        },
+        "statusAutoAdvanceSuppressed": true
+      },
+      "childCount": 6,
+      "completedCount": 6,
+      "failedCount": 0,
+      "createdAt": "2026-07-18T01:59:42.278Z",
+      "startedAt": null,
+      "completedAt": "2026-07-18T02:09:24.427Z"
+    },
+    "counts": {
+      "total": 6,
+      "queued": 0,
+      "running": 0,
+      "completed": 6,
+      "failed": 0,
+      "skipped": 0
+    }
+  }
+}

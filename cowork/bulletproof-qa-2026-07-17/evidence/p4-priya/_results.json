@@ -1,0 +1,54 @@
+{
+  "persona": "P4 Priya (high-volume commercial author, Professional plan, active subscription, BYOK OpenRouter)",
+  "bookId": "e90b3494-ead4-472f-a34d-502c4b5b775c",
+  "date": "2026-07-18",
+  "assignment": "p5-sam task #7 -- money-path + overnight/batch (BullMQ Flows) from a live persona's perspective. Distinct from P2 Gerald's W6 (Stripe checkout/dunning). Cross-check (not re-litigate) Z8 (worker-crash re-spend, founder-decision) and Z12 (LiteLLM undeclared in compose, ops-backlog).",
+  "steps": {
+    "one_worker_rule": {
+      "verdict": "PASS",
+      "detail": "Exactly one src/worker.ts leaf process (PID 37060) confirmed immediately before Core batch timing measurement. Same leaf PID as P1 Maya's earlier confirmation in this campaign -- no drift."
+    },
+    "day0_setup": {
+      "verdict": "PASS",
+      "detail": "Professional/active subscription confirmed (stripeConfigured:true), 1 validated OpenRouter BYOK key, zero pre-existing books (clean slate). Seeded 12-chapter draft book 'Crown of Embers' (~673 words total, intentionally short/rough prose needing editorial passes). One worked-around 500 on the chapter-1 create call (book auto-creates a placeholder chapter 1; explicit POST for chapterNumber:1 hit an uncaught unique-constraint collision) -- this is the exact defect p3-selena already filed as D-18, cross-referenced not re-filed. Worked around via PUT content onto the existing placeholder."
+    },
+    "core_batch_line_edit": {
+      "verdict": "PARTIAL -- structural dimensions PASS (valid despite worker contention), TIMING/THROUGHPUT NUMBERS MARKED CONTAMINATED-CONCURRENT, fan-out live-visibility UNVERIFIED, P4 HALTED per team-lead before Power/Edge/Return/Tier-probe/X2 or the 24-child overnight run",
+      "worker_contention_note": "Team-lead 2026-07-18: this batch ran on the SAME single worker as P3 Selena's concurrent moat journey, violating the one-LLM-journey-at-a-time discipline (GRADING SS8). Not catastrophic (ledger is user-scoped, Priya's spend totals stay isolated from Selena's usage) but timing/throughput cannot be trusted as single-journey-isolated. Structural findings below are still valid; wall-clock/runtime figures are not.",
+      "structural_findings_valid_despite_concurrency": {
+        "fan_out_topology": "PASS -- childCount:6 matches completedCount:6, failedCount:0, no discrepancy",
+        "per_child_status_honesty": "PASS -- counts object (total:6, completed:6, failed:0, skipped:0) matches batch-level completedCount/failedCount exactly",
+        "digest_truthfulness": "PASS -- digest.passes {total:6,failed:0,skipped:0,completed:6} matches; findings.total:7 all severity:suggestion (none critical); statusAutoAdvanceSuppressed:true confirms spec decision 7 held (all 6 chapters stayed status:'undiscussed', not force-advanced)",
+        "skip_guard": "NOT TRIGGERED this run -- spend $0.105 nowhere near $10 cap, no skips occurred. Requires a dedicated at-cap Power-step run (not done, HALTED)",
+        "circuit_breaker": "NOT TRIGGERED this run -- 0 failures. Requires a dedicated forced-failure Power-step run (not done, HALTED)",
+        "ledger_vs_actual": "PASS (user-scoped, unaffected by Selena's concurrent traffic) -- batch.spentUsd and digest.spentUsd agree exactly (0.104841675 both), both DB-derived (actualCostUsd sum across Priya's own 6 child sessions). Not independently cross-checked against raw Redis ledger keys at this time."
+      },
+      "timing_contaminated_concurrent": {
+        "runtime": "createdAt 01:59:42.278Z -> completedAt 02:09:24.427Z (~9m42s wall clock) -- CONTAMINATED-CONCURRENT, do not interpret as single-worker-isolated batch throughput; P3 Selena's extraction jobs were sharing the same worker during this window"
+      },
+      "detail": "Batch created: POST /api/books/{id}/batch {workflowIds:['line-edit'], chapterStart:1, chapterEnd:6, scheduleMode:'now'} -> 201, batchId cmrppydvq0000tk0f2yt0xw4b, childCount:6. Intended continuous poll loop had a bug (read body.status instead of nested body.batch.status) so never detected terminal state itself and looped uselessly until TaskStop'd -- fan-out queued/running/completed transition visibility over time was NOT captured, only initial-create + final-terminal snapshots. STAND-DOWN/HALT: team-lead ruled persona-journey dispatch is orchestrator-only, p5-sam's task #7 retracted, and this batch was running concurrently with P3 Selena's on the same worker (contention violation). No further P4 steps taken -- HALTED pending direct team-lead re-assignment in an isolated worker window. D-13 re-verify takes priority the moment team-lead signals the fix is applied."
+    }
+  },
+  "defects_new": [],
+  "defects_cross_referenced": [
+    {
+      "id": "D-18",
+      "title": "POST /api/books/:id/chapters raw-500s on a chapter-number collision instead of a clean 409/400",
+      "source": "originally documented by p3-selena",
+      "new_repro": "Hit during Day-0 seed: explicit POST for chapterNumber:1 collided with the auto-created placeholder chapter 1 from book creation. Same fault, 4th persona to touch this area -- confirms not persona-specific."
+    },
+    {
+      "id": "D-17",
+      "title": "Overnight batch 'complete' notification reports $0.00 spent on a Redis ledger read failure, even though the real spend is correctly persisted elsewhere in the same code path",
+      "source": "orchestrator-filed (team-lead), independently re-discovered here via code reading before I knew D-17 existed -- CONFIRMED DUPLICATE, not a new filing per team-lead correction 2026-07-18",
+      "severity": "S2",
+      "root_cause": "src/lib/queue/batch-digest.ts processBatchDigestJob(), ~line 199: the db.bookNotification.create() message string is built from the raw ledger.spentUsd (which readBatchLedger defaults to 0 on any Redis read failure), instead of the already-computed effectiveSpent variable that the db.batchRun.update() call two lines below correctly uses. Z11 (commit c9e99e7) fixed the persisted BatchRun.spentUsd and digest JSON to use the DB-fallback effectiveSpent, but missed this second read of the same ledger object.",
+      "contribution": "New regression-lock test tests/unit/batch-digest-notification-spend.test.ts (mirrors Z11's existing test scenario plus a notification-message assertion). Run via npx vitest run tests/unit/batch-digest-notification-spend.test.ts -> FAILS (RED): AssertionError: expected '2/2 passes . $0.00 / $10.00 cap' to contain '$6.00'. BatchRun.spentUsd assertion in the same test passes (effectiveSpent correctly resolves to $6.00) -- isolates the defect to the notification-message read specifically. Offered to team-lead as D-17's regression lock."
+    }
+  ],
+  "money_path_cross_check": {
+    "Z8_worker_crash_re_spend": "NOT YET EVALUATED against Priya's live journey -- P4 HALTED before Power step (where a worker-crash drill would occur).",
+    "Z12_litellm_undeclared_in_compose": "NOT YET EVALUATED against Priya's live journey -- P4 HALTED before Power/Edge steps."
+  },
+  "status_note": "P4 HALTED 2026-07-18 per team-lead: Core batch ran concurrently with P3 Selena's journey on the shared single worker (contention violation, GRADING SS8). Structural batch findings (fan-out, digest truthfulness, ledger-vs-actual) recorded as valid; timing/throughput numbers marked CONTAMINATED-CONCURRENT. No 24-child overnight run or further batches started. D-13 re-verify takes priority over P4 resumption -- will drop everything the moment team-lead signals the suppression fix is applied, then resume P4 (Power/Edge/Return/Tier-probe/X2) in an isolated worker window once team-lead re-assigns directly."
+}

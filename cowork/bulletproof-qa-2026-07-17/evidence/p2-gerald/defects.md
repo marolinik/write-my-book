@@ -1,5 +1,53 @@
 # P2 "Gerald" — Defects (Phase A, data-safety)
 
+## D-16 — [S1, DATA INTEGRITY] Racing first-saves to a chapter create duplicate `Document` rows; GET/PUT then resolve to either one nondeterministically, silently defeating the app's own two-tab conflict detection
+
+**Severity: S1** (silent data loss / lost-update, with zero error surfaced anywhere — not even the 500-with-empty-body class of other Z6 findings; the request reports a clean 200 and the user has no way to know their save didn't "take"). Register checked fresh 2026-07-18 immediately before filing: D-01..D-15 in use across all `evidence/*/defects.md`, D-16 is the next free slot.
+
+### Discovery context
+
+Found while investigating a curl PUT-then-GET staleness anomaly on the shared W4/X1 drill fixture (bookId `f6616d35-f28d-4525-a312-6ad5c59046aa`, chapterId `556d0a01-f982-4ee1-8934-b20f963819ad`) during my own (now-superseded — task ownership moved to p5-sam) attempt at the X1 two-tab drill. Root-caused via a direct Postgres query against the `documents` table, not through the app/ORM, to rule out any caching-layer or Prisma-client explanation first.
+
+### Proof (direct DB query, not inference)
+
+```sql
+-- documents table, book_id = f6616d35-f28d-4525-a312-6ad5c59046aa, type = CHAPTER_CONTENT, chapter_number = 1
+id                                    | current_version | storage_key                        | created_at
+f8581548-a235-4a9d-be3d-2241ded4638a  | 4                | manuscript/act-1/chapter-01.md    | 2026-07-17T23:36:33.096Z
+a075fc55-77f7-4819-a272-1f5a8af9cd55  | 3                | manuscript/act-1/chapter-01.md    | 2026-07-17T23:36:33.246Z
+```
+
+Two rows, **same chapter, same storage_key, created 150ms apart**, independently-tracked version counters. Confirmed via raw curl (bypassing Playwright/browser entirely) that repeated `PUT` then immediate `GET` (and `GET` again after a 1-5s delay, ruling out async/eventual-consistency) can return a *different* `documentId` and *older* content than the PUT just wrote — because each request's `findByType()` call independently and nondeterministically picks one of the two duplicate rows.
+
+### Root cause (exact file:line)
+
+1. **`src/app/api/books/[id]/chapters/[chapterId]/content/route.ts` PUT, lines 107-165** — unguarded check-then-create: `existingDoc = await svc.findByType(...)` (a `SELECT`) followed by `svc.create()` (an `INSERT`) with no transaction, no upsert, no row lock between the two. Two concurrent first-saves to a chapter with no existing `Document` row (the normal state of a brand-new chapter, or any chapter never yet saved) can both observe `existingDoc === null` and both proceed to create — this is exactly the "two tabs, same chapter, both go dirty, both save" scenario the X1 drill is designed to probe, just one step earlier than the CAS/`expectedVersion` layer the drill targets.
+2. **`src/lib/documents/document-service.ts`, `findByType()`, lines 190-198** — `return db.document.findFirst({ where })` with **no `orderBy`**. Prisma/Postgres do not guarantee a stable row order for an unordered `findFirst` when multiple rows match; once duplicates exist, every subsequent GET/PUT can independently land on either one.
+3. **`prisma/schema.prisma`, `Document` model (lines 234-252)** — only `@@index([bookId, type])`; no unique constraint on `(bookId, type, chapterNumber)` to prevent the duplicate `INSERT` from ever succeeding in the first place.
+4. **`document-service.ts`, `create()`, line 37** — `storagePath = getStoragePath(type, chapterNumber, actNumber)` is derived deterministically from the chapter number, so both duplicate rows point at the **same** underlying MinIO object, while each tracks its own independent `currentVersion`/`DocumentVersion` history — DB version and actually-stored content can diverge per row.
+
+### Why this is worse than an ordinary race
+
+The app's entire two-tab safety net (`expectedVersion` CAS check → `VersionConflictError` → 409 → `SaveConflictDialog`, A3.2/A3.14) operates on **one row's** `currentVersion`. If two tabs' concurrent first-saves land on two different duplicate rows, there is no version mismatch for either write to detect — no 409 ever fires, no conflict chip, no toast, nothing. One tab's content can become silently and permanently unreadable (its writes keep landing on a row nobody's GET resolves to) with a clean 200 response at every step. This defeats, rather than merely bypasses, the exact guarantee X1 exists to verify — and it triggers *before* the conflict-detection code path is ever reached.
+
+### Repro
+
+1. Ensure a chapter has no existing `CHAPTER_CONTENT` document (new chapter, or one never saved).
+2. Fire two concurrent `PUT /api/books/:id/chapters/:chapterId/content` requests with different markdown bodies and no `expectedVersion` (e.g. two racing Playwright workers, or two real tabs' simultaneous first autosave — reproduced here as an unintended side effect of an early, since-fixed test-harness parallelism bug in my own X1 spec attempt, `fullyParallel: true` racing two `seedBaseline()` calls before `mode: "serial"` was added).
+3. Query `documents` for that `(bookId, type=CHAPTER_CONTENT, chapterNumber)` — two rows exist, same `storage_key`, different `id`/`current_version`.
+4. Subsequent `PUT`-then-`GET` cycles on the same chapter intermittently show the GET returning different content/version/`documentId` than what the immediately-prior PUT wrote and confirmed as saved.
+
+### Fix direction (not applied — no `src/` edits per scope)
+
+- Add a DB-level unique constraint on `(bookId, type, chapterNumber)` (and the series-scoped equivalent) so the duplicate `INSERT` becomes impossible at the source.
+- Wrap the check-then-create in `content/route.ts` PUT in a transaction, or better, use an actual `upsert` keyed on that same unique constraint instead of separate `findByType` + `create` calls.
+- Add an explicit `orderBy: { createdAt: "asc" }` (or similar deterministic tiebreaker) to `findByType()` as defense-in-depth, though the real fix is preventing the duplicate row from being created at all.
+- Separately: the two existing duplicate rows on the shared W4/X1 fixture chapter should be cleaned up (delete the loser, keep the row with the most recent/complete content) before further two-tab drill runs against this fixture, or the drill should be pointed at a fresh chapter — flagged to p5-sam (current owner of the X1 task) and team-lead 2026-07-18.
+
+### Status
+
+**Reported, not fixed.** Escalated to team-lead and p5-sam 2026-07-18 given p5-sam was actively executing the X1 drill against this exact corrupted fixture at time of discovery.
+
 ## D-01 — corroboration only (originally filed by P8 Rita, see `evidence/p8-rita/defects.md`)
 
 Reproduced against my own test book/chapter per mission instructions ("known D-01, record only, do not fix"). `PUT /api/books/{id}/chapters/{chapterId}/content` with a deliberately malformed JSON body (`{not valid json!!`) returns **500** `{"error":"Failed to save content"}` instead of a clean 400. Confirms P8 Rita's finding is not route- or persona-specific — reproduced cleanly on a completely different book/chapter/session. No data loss (the malformed PUT never reaches the DB write). Raw trace: `api-traces/malformed-json-d01-repro.txt`. Not fixed — out of this phase's scope.

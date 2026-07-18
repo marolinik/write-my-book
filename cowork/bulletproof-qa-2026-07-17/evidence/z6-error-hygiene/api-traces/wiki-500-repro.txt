@@ -1,4 +1,5 @@
-D-13 repro trace — POST/PATCH/GET /api/books/{id}/wiki[...] raw 500 on malformed input
+D-15 repro trace (renumbered from D-13, which collided with P1 Maya's team-lead-assigned D-13) —
+POST/PATCH/GET /api/books/{id}/wiki[...] raw 500 on malformed input
 Persona: user_qa_p2. Book: f33d90ee-0966-4ebc-803d-26897368a8c7 ("Embed Test").
 ====================================================================
 

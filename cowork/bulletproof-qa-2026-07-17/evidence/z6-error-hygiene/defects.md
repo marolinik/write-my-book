@@ -2,13 +2,17 @@
 
 Persona: `user_qa_p2` (own throwaway rows only), `user_qa_p8` used strictly read-only per
 team-lead instruction. 86 scripted probes + 8 targeted follow-up probes across all required
-route families. IDs below are tentative (next free slot after D-12 in the campaign-wide
-register); team-lead may renumber on merge into the master register, per the D-06/D-07
-precedent ("your IDs stand" unless collision).
+route families. IDs below are D-14 and D-15 (D-15 renumbered 2026-07-18 from an original D-13
+that collided with P1 Maya's team-lead-assigned D-13); team-lead may renumber further on merge
+into the master register, per the D-06/D-07 precedent ("your IDs stand" unless collision).
 
 ---
 
-## D-13 — [S2] `POST/PATCH/GET /api/books/{id}/wiki[...]` has zero top-level error handling — any Zod validation failure raw-500s with an empty body
+## D-15 — [S2] `POST/PATCH/GET /api/books/{id}/wiki[...]` has zero top-level error handling — any Zod validation failure raw-500s with an empty body
+
+> **Renumbered 2026-07-18:** originally filed as D-13; collided with P1 Maya's team-lead-assigned
+> D-13 (dev-editor re-flags dismissed findings). Renumbered to the next free register slot
+> (D-14 is this doc's other finding, style/lenses misleading-401).
 
 **Severity: S2.** Not an information leak (body is completely empty — no stack trace, no
 Prisma/SQL fragment, nothing), but it is a genuine **unhandled exception** on ordinary,

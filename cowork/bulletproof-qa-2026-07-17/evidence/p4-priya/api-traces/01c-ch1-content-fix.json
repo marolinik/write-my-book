@@ -1,0 +1,8 @@
+{
+  "status": 200,
+  "body": {
+    "wordCount": 52,
+    "version": 1,
+    "bookWordCount": 673
+  }
+}

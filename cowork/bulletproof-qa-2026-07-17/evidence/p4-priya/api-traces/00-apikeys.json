@@ -1,0 +1,19 @@
+{
+  "status": 200,
+  "body": [
+    {
+      "id": "b15a9f85-db2a-44b9-a0ae-143e28973455",
+      "provider": "openrouter",
+      "label": "qa",
+      "isDefault": true,
+      "validatedAt": "2026-07-17T15:14:43.399Z",
+      "createdAt": "2026-07-17T15:14:43.403Z",
+      "maskedKey": "sk-or-v...705e",
+      "usage": {
+        "totalTokens": 0,
+        "totalCost": 0,
+        "sessionCount": 0
+      }
+    }
+  ]
+}

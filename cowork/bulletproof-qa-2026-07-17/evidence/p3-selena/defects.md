@@ -220,7 +220,7 @@ half of TEST-PLAN.md §P3's series-context sidebar exit criteria.
 
 ## D-25 — [S2, MOAT DESIGN GAP, possibly intentional] Series-context sidebar's "last-known state" for an on-stage character NEVER considers the current book's own already-extracted state — only strictly-prior books are candidates, so the sidebar goes permanently stale re: the book you're actively writing
 
-> Renumbered D-22→D-23→**D-25** by team-lead (D-22 = create-race sweep in commit f427822 body; D-23/D-24 = P5 Sam's W4 immersive-corruption + crash-loss defects, filed concurrently). Canonical ID = **D-25**. Classification: PRODUCT-CLARIFICATION (product intent on "latest-book-wins" scope — the sidebar's job may deliberately be prior-book canon only, with the current book's own state shown by the in-book continuity net; not clearly a bug). Route to founder for intent, like [[D-08]].
+> Renumbered D-22→D-25→**D-25** by team-lead (D-22 = create-race sweep in commit f427822 body; D-25/D-24 = P5 Sam's W4 immersive-corruption + crash-loss defects, filed concurrently). Canonical ID = **D-25**. Classification: PRODUCT-CLARIFICATION (product intent on "latest-book-wins" scope — the sidebar's job may deliberately be prior-book canon only, with the current book's own state shown by the in-book continuity net; not clearly a bug). Route to founder for intent, like [[D-08]].
 
 **Severity: S2** (probably-real gap in the moat's core value proposition — "series sidebar
 surfaces each on-stage character's last-known state," per TEST-PLAN.md §P3 — but flagged as
