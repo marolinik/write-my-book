@@ -1,0 +1,101 @@
+ROUND 1 baseline chapters (id, chapterNumber, title):
+  1: The Trieste Signal  (9978956d-9b61-42aa-810a-f5a5fe13df0d)
+  2: A Debt in Zürich  (468cecc8-3d4f-49fb-87df-2fb096529e18)
+  3: The Łódź Ledger  (1a1d182f-f1dc-4a7a-ba41-81dc0875772d)
+  4: The Kőszeg Drop  (82129a3b-4222-42e9-abb2-1038cf63a87a)
+  5: No Names in Marseille  (f060b6ec-2dd6-4de5-8b24-7a21fa38a64f)
+  6: Ash on the Wire  (57dd49fe-c216-4775-b2bb-b9f31687b1aa)
+  7: Novosibirsk, Cold  (790c0c3a-0048-4cee-b9d7-3df1505f8d7d)
+  8: Dead Reckoning  (e784c8b7-e869-4d20-85e5-e59e33a0957e)
+
+=== ROUND1-existing-4-5-swap: expected DB order = ['The Trieste Signal', 'A Debt in Zürich', 'The Łódź Ledger', 'The Kőszeg Drop', 'No Names in Marseille', 'Ash on the Wire', 'Novosibirsk, Cold', 'Dead Reckoning'] ===
+[PASS] ROUND1-existing-4-5-swap-docx-export-200 {"filename":"Dead-Reckoning-31-QA-P2-2026-07-18T00-07-51.docx","storageKey":"exports/Dead-Reckoning-31-QA-P2-2026-07-18T00-07-51.docx","wordCount":40584,"chapterCount":8,"estimatedPages":116,"warnings
+[PASS] ROUND1-existing-4-5-swap-docx-download-200 25470 bytes
+[PASS] ROUND1-existing-4-5-swap-docx-title-order-matches-db expected=['The Trieste Signal', 'A Debt in Zürich', 'The Łódź Ledger', 'The Kőszeg Drop', 'No Names in Marseille', 'Ash on the Wire', 'Novosibirsk, Cold', 'Dead Reckoning'] got=['The Trieste Signal', 'A Debt in Zürich', 'The Łódź Ledger', 'The Kőszeg Drop', 'No Names in Marseille', 'Ash on the Wire', 'Novosibirsk, Cold', 'Dead Reckoning']
+[PASS] ROUND1-existing-4-5-swap-docx-body-exact-'The Trieste Signal' 5466 words, word-for-word identical to DB
+[PASS] ROUND1-existing-4-5-swap-docx-body-exact-'A Debt in Zürich' 5525 words, word-for-word identical to DB
+[PASS] ROUND1-existing-4-5-swap-docx-body-exact-'The Łódź Ledger' 5435 words, word-for-word identical to DB
+[PASS] ROUND1-existing-4-5-swap-docx-body-exact-'The Kőszeg Drop' 5433 words, word-for-word identical to DB
+[PASS] ROUND1-existing-4-5-swap-docx-body-exact-'No Names in Marseille' 5515 words, word-for-word identical to DB
+[PASS] ROUND1-existing-4-5-swap-docx-body-exact-'Ash on the Wire' 5518 words, word-for-word identical to DB
+[PASS] ROUND1-existing-4-5-swap-docx-body-exact-'Novosibirsk, Cold' 5517 words, word-for-word identical to DB
+[PASS] ROUND1-existing-4-5-swap-docx-body-exact-'Dead Reckoning' 5497 words, word-for-word identical to DB
+[PASS] ROUND1-existing-4-5-swap-docx-ALL-bodies-exact-zero-swap 
+[PASS] ROUND1-existing-4-5-swap-pdf-export-200 {"filename":"Dead-Reckoning-31-QA-P2-2026-07-18T00-07-55.pdf","storageKey":"exports/Dead-Reckoning-31-QA-P2-2026-07-18T00-07-55.pdf","wordCount":40584,"chapterCount":8,"estimatedPages":116,"warnings":
+[PASS] ROUND1-existing-4-5-swap-pdf-download-200 568685 bytes
+[PASS] ROUND1-existing-4-5-swap-pdf-parses 103 pages
+[PASS] ROUND1-existing-4-5-swap-pdf-body-correct-'The Trieste Signal' own=0.9956 best_other=('The Łódź Ledger')=0.2545
+[PASS] ROUND1-existing-4-5-swap-pdf-body-correct-'A Debt in Zürich' own=0.9973 best_other=('The Kőszeg Drop')=0.2474
+[PASS] ROUND1-existing-4-5-swap-pdf-body-correct-'The Łódź Ledger' own=0.9961 best_other=('No Names in Marseille')=0.2811
+[PASS] ROUND1-existing-4-5-swap-pdf-body-correct-'The Kőszeg Drop' own=0.9942 best_other=('Novosibirsk, Cold')=0.2671
+[PASS] ROUND1-existing-4-5-swap-pdf-body-correct-'No Names in Marseille' own=0.9965 best_other=('Dead Reckoning')=0.2663
+[PASS] ROUND1-existing-4-5-swap-pdf-body-correct-'Ash on the Wire' own=0.9965 best_other=('Novosibirsk, Cold')=0.2721
+[PASS] ROUND1-existing-4-5-swap-pdf-body-correct-'Novosibirsk, Cold' own=0.9970 best_other=('No Names in Marseille')=0.2854
+[PASS] ROUND1-existing-4-5-swap-pdf-body-correct-'Dead Reckoning' own=0.9951 best_other=('No Names in Marseille')=0.2669
+[PASS] ROUND1-existing-4-5-swap-pdf-ALL-bodies-correct-zero-swap 
+[PASS] ROUND1-existing-4-5-swap-epub-export-200 {"filename":"Dead-Reckoning-31-QA-P2-2026-07-18T00-08-42.epub","storageKey":"exports/Dead-Reckoning-31-QA-P2-2026-07-18T00-08-42.epub","wordCount":40584,"chapterCount":8,"estimatedPages":116,"warnings
+[PASS] ROUND1-existing-4-5-swap-epub-download-200 30306 bytes
+[PASS] ROUND1-existing-4-5-swap-epub-parses 14 xhtml files
+[PASS] ROUND1-existing-4-5-swap-epub-body-correct-'The Trieste Signal' sha exact match ec029956b8fa569b
+[PASS] ROUND1-existing-4-5-swap-epub-body-correct-'A Debt in Zürich' sha exact match 0d22705f7d5ac20f
+[PASS] ROUND1-existing-4-5-swap-epub-body-correct-'The Łódź Ledger' sha exact match 5841427907c27e68
+[PASS] ROUND1-existing-4-5-swap-epub-body-correct-'The Kőszeg Drop' sha exact match 177c3739d302c557
+[PASS] ROUND1-existing-4-5-swap-epub-body-correct-'No Names in Marseille' sha exact match bd0b3f60009763f5
+[PASS] ROUND1-existing-4-5-swap-epub-body-correct-'Ash on the Wire' sha exact match 899e0be3992beb4d
+[PASS] ROUND1-existing-4-5-swap-epub-body-correct-'Novosibirsk, Cold' sha exact match e87b92ad5c78962f
+[PASS] ROUND1-existing-4-5-swap-epub-body-correct-'Dead Reckoning' sha exact match 2b737177c7ce8182
+[PASS] ROUND1-existing-4-5-swap-epub-ALL-bodies-correct-zero-swap 
+
+ROUND 2: swapping chapterNumber of 'The Trieste Signal' (1) and 'A Debt in Zürich' (2)
+[PASS] round2-reorder-patch-200 status=200 body={"reordered":2}
+ROUND 2 chapters after new reorder (id, chapterNumber, title):
+  1: A Debt in Zürich  (468cecc8-3d4f-49fb-87df-2fb096529e18)
+  2: The Trieste Signal  (9978956d-9b61-42aa-810a-f5a5fe13df0d)
+  3: The Łódź Ledger  (1a1d182f-f1dc-4a7a-ba41-81dc0875772d)
+  4: The Kőszeg Drop  (82129a3b-4222-42e9-abb2-1038cf63a87a)
+  5: No Names in Marseille  (f060b6ec-2dd6-4de5-8b24-7a21fa38a64f)
+  6: Ash on the Wire  (57dd49fe-c216-4775-b2bb-b9f31687b1aa)
+  7: Novosibirsk, Cold  (790c0c3a-0048-4cee-b9d7-3df1505f8d7d)
+  8: Dead Reckoning  (e784c8b7-e869-4d20-85e5-e59e33a0957e)
+[PASS] round2-db-reflects-new-swap position1='A Debt in Zürich' position2='The Trieste Signal'
+
+=== ROUND2-new-1-2-swap: expected DB order = ['A Debt in Zürich', 'The Trieste Signal', 'The Łódź Ledger', 'The Kőszeg Drop', 'No Names in Marseille', 'Ash on the Wire', 'Novosibirsk, Cold', 'Dead Reckoning'] ===
+[PASS] ROUND2-new-1-2-swap-docx-export-200 {"filename":"Dead-Reckoning-31-QA-P2-2026-07-18T00-08-48.docx","storageKey":"exports/Dead-Reckoning-31-QA-P2-2026-07-18T00-08-48.docx","wordCount":40584,"chapterCount":8,"estimatedPages":116,"warnings
+[PASS] ROUND2-new-1-2-swap-docx-download-200 25475 bytes
+[PASS] ROUND2-new-1-2-swap-docx-title-order-matches-db expected=['A Debt in Zürich', 'The Trieste Signal', 'The Łódź Ledger', 'The Kőszeg Drop', 'No Names in Marseille', 'Ash on the Wire', 'Novosibirsk, Cold', 'Dead Reckoning'] got=['A Debt in Zürich', 'The Trieste Signal', 'The Łódź Ledger', 'The Kőszeg Drop', 'No Names in Marseille', 'Ash on the Wire', 'Novosibirsk, Cold', 'Dead Reckoning']
+[PASS] ROUND2-new-1-2-swap-docx-body-exact-'A Debt in Zürich' 5525 words, word-for-word identical to DB
+[PASS] ROUND2-new-1-2-swap-docx-body-exact-'The Trieste Signal' 5466 words, word-for-word identical to DB
+[PASS] ROUND2-new-1-2-swap-docx-body-exact-'The Łódź Ledger' 5435 words, word-for-word identical to DB
+[PASS] ROUND2-new-1-2-swap-docx-body-exact-'The Kőszeg Drop' 5433 words, word-for-word identical to DB
+[PASS] ROUND2-new-1-2-swap-docx-body-exact-'No Names in Marseille' 5515 words, word-for-word identical to DB
+[PASS] ROUND2-new-1-2-swap-docx-body-exact-'Ash on the Wire' 5518 words, word-for-word identical to DB
+[PASS] ROUND2-new-1-2-swap-docx-body-exact-'Novosibirsk, Cold' 5517 words, word-for-word identical to DB
+[PASS] ROUND2-new-1-2-swap-docx-body-exact-'Dead Reckoning' 5497 words, word-for-word identical to DB
+[PASS] ROUND2-new-1-2-swap-docx-ALL-bodies-exact-zero-swap 
+[PASS] ROUND2-new-1-2-swap-pdf-export-200 {"filename":"Dead-Reckoning-31-QA-P2-2026-07-18T00-08-52.pdf","storageKey":"exports/Dead-Reckoning-31-QA-P2-2026-07-18T00-08-52.pdf","wordCount":40584,"chapterCount":8,"estimatedPages":116,"warnings":
+[PASS] ROUND2-new-1-2-swap-pdf-download-200 561927 bytes
+[PASS] ROUND2-new-1-2-swap-pdf-parses 103 pages
+[PASS] ROUND2-new-1-2-swap-pdf-body-correct-'A Debt in Zürich' own=0.9973 best_other=('The Kőszeg Drop')=0.2474
+[PASS] ROUND2-new-1-2-swap-pdf-body-correct-'The Trieste Signal' own=0.9956 best_other=('The Łódź Ledger')=0.2545
+[PASS] ROUND2-new-1-2-swap-pdf-body-correct-'The Łódź Ledger' own=0.9961 best_other=('No Names in Marseille')=0.2811
+[PASS] ROUND2-new-1-2-swap-pdf-body-correct-'The Kőszeg Drop' own=0.9942 best_other=('Novosibirsk, Cold')=0.2671
+[PASS] ROUND2-new-1-2-swap-pdf-body-correct-'No Names in Marseille' own=0.9965 best_other=('Dead Reckoning')=0.2663
+[PASS] ROUND2-new-1-2-swap-pdf-body-correct-'Ash on the Wire' own=0.9965 best_other=('Novosibirsk, Cold')=0.2721
+[PASS] ROUND2-new-1-2-swap-pdf-body-correct-'Novosibirsk, Cold' own=0.9970 best_other=('No Names in Marseille')=0.2854
+[PASS] ROUND2-new-1-2-swap-pdf-body-correct-'Dead Reckoning' own=0.9951 best_other=('No Names in Marseille')=0.2669
+[PASS] ROUND2-new-1-2-swap-pdf-ALL-bodies-correct-zero-swap 
+[PASS] ROUND2-new-1-2-swap-epub-export-200 {"filename":"Dead-Reckoning-31-QA-P2-2026-07-18T00-09-25.epub","storageKey":"exports/Dead-Reckoning-31-QA-P2-2026-07-18T00-09-25.epub","wordCount":40584,"chapterCount":8,"estimatedPages":116,"warnings
+[PASS] ROUND2-new-1-2-swap-epub-download-200 30298 bytes
+[PASS] ROUND2-new-1-2-swap-epub-parses 14 xhtml files
+[PASS] ROUND2-new-1-2-swap-epub-body-correct-'A Debt in Zürich' sha exact match 0d22705f7d5ac20f
+[PASS] ROUND2-new-1-2-swap-epub-body-correct-'The Trieste Signal' sha exact match ec029956b8fa569b
+[PASS] ROUND2-new-1-2-swap-epub-body-correct-'The Łódź Ledger' sha exact match 5841427907c27e68
+[PASS] ROUND2-new-1-2-swap-epub-body-correct-'The Kőszeg Drop' sha exact match 177c3739d302c557
+[PASS] ROUND2-new-1-2-swap-epub-body-correct-'No Names in Marseille' sha exact match bd0b3f60009763f5
+[PASS] ROUND2-new-1-2-swap-epub-body-correct-'Ash on the Wire' sha exact match 899e0be3992beb4d
+[PASS] ROUND2-new-1-2-swap-epub-body-correct-'Novosibirsk, Cold' sha exact match e87b92ad5c78962f
+[PASS] ROUND2-new-1-2-swap-epub-body-correct-'Dead Reckoning' sha exact match 2b737177c7ce8182
+[PASS] ROUND2-new-1-2-swap-epub-ALL-bodies-correct-zero-swap 
+
+ROUND1 verdict: PASS - fix holds
+ROUND2 verdict: PASS - fix holds under a NEW permutation

@@ -1,0 +1,9 @@
+{
+  "status": 409,
+  "body": {
+    "capped": true,
+    "assistantMessage": "You've discussed this finding thoroughly (3 exchanges). Ready to make a decision?",
+    "userTurns": 3
+  },
+  "elapsed_s": 0.406
+}

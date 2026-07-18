@@ -1,0 +1,6 @@
+PUT /api/books/636a1f02-8520-4b66-8e78-08c8e0fee5f0/chapters/468cecc8-3d4f-49fb-87df-2fb096529e18/content raw_body='{"not valid json!!' -> status=400 body={"error":"Invalid JSON body"}
+[PASS] d01spot-01-content-put status=400 body={"error":"Invalid JSON body"}
+POST /api/books/636a1f02-8520-4b66-8e78-08c8e0fee5f0/style/lenses raw_body='{"not valid json!!' -> status=400 body={"error":"Invalid JSON body"}
+[PASS] d01spot-02-style-lenses-post status=400 body={"error":"Invalid JSON body"}
+POST /api/settings/api-keys raw_body='{"not valid json!!' -> status=400 body={"error":"Invalid JSON body"}
+[PASS] d01spot-03-settings-api-keys-post status=400 body={"error":"Invalid JSON body"}

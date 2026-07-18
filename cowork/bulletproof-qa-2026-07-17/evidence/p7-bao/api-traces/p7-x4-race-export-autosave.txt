@@ -1,0 +1,9 @@
+[PASS] x4-00-fetch-original-content chapter='Dead Reckoning, Final' len=23538
+[PASS] x4-01-all-puts-200 [('A', 200), ('B', 200), ('C', 200), ('D', 200), ('E', 200)]
+[PASS] x4-02-export-during-race-200 {"filename":"The-Kszeg-Manuscript-P7-2026-07-18T00-22-59.docx","storageKey":"exports/The-Kszeg-Manuscript-P7-2026-07-18T00-22-59.docx","wordCount":80179,"chapterCount":20,"estimatedPages":230,"warning
+[PASS] x4-03-post-race-get-matches-one-complete-version matched=['D'] (expect exactly one -- last-write-wins acceptable, interleaving is not)
+[PASS] x4-04-export-download-200 35566 bytes
+[PASS] x4-05-title-found-in-export heading_idx=13
+[PASS] x4-06-exported-body-not-torn markers_present_in_exported_slice={'RACE-MARKER-A'} (expect exactly one marker letter -- more than one proves interleaved/torn content from concurrent writes during export read)
+[PASS] x4-07-restore-original-content status=200
+[PASS] x4-08-restore-verified content matches pre-test original

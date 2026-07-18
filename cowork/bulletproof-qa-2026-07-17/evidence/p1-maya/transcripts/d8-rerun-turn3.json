@@ -1,0 +1,13 @@
+{
+  "status": 200,
+  "body": {
+    "assistantMessage": "Finding dismissed as intentional. I’ll leave the passage exactly as written and continue scanning the rest of the manuscript for the pattern you flagged.",
+    "suggestedConstraint": {
+      "category": "preference",
+      "content": "Leave strong final images or fragments untouched when followed by brief explanatory lines; treat the pattern as intentional across the manuscript."
+    },
+    "userTurns": 3,
+    "capped": false
+  },
+  "elapsed_s": 49.344
+}

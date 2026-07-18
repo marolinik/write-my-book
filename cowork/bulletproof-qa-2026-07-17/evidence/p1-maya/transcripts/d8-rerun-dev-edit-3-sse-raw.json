@@ -1,0 +1,2402 @@
+{
+  "session_id": "11d0cf46-e688-4627-9e8b-5c6a83550316",
+  "elapsed_s": 437.082,
+  "final_status": "complete",
+  "event_count": 798,
+  "events": [
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Using tool: CreateFinding\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolUseId\":\"call-c8d98b58-2355-4df0-80a0-92368203710d\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Using tool: CreateFinding\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolUseId\":\"call-8d2b7507-58b7-4a43-841a-612f1919650e\"}}"
+    },
+    {
+      "data": "{\"type\":\"cost_update\",\"content\":\"$0.0180\",\"metadata\":{\"inputTokens\":24580,\"outputTokens\":4596,\"costUsd\":0.018035699999999998,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Executing: CreateFinding\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolInput\":{\"description\":\"Imogen's shoreline self-recognition is delivered through abstract psychological classification rather than embodied sensation, stepping outside the chapter's dominant sensory-metaphorical mode.\",\"category\":\"show-tell\",\"chapterNumber\":1,\"confidence\":0.82,\"severity\":\"suggestion\",\"alternatives\":[{\"label\":\"Option A — anchor the self-recognition in physical detail\",\"newText\":\"She thought about her mother's rush — the small slanted impatient script, the way she'd marched into waves without testing the bottom — and about herself, sitting where the wet met the dry, refusing to open a letter the way you refused to touch a wound. She understood, with the particular clarity the sea seemed to specialize in, that she had perhaps always been this way — testing distance before she let anything touch her.\",\"originalText\":\"She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.\"},{\"label\":\"Option B — keep classification but ground it in bodily action\",\"newText\":\"She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance — between her mother's small slanted impatient hand and Thomas's careful spaced-out script, between drowning and wading — and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.\",\"originalText\":\"She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.\"},{\"label\":\"Option C — let the body carry the realization without categorizing\",\"newText\":\"She thought about her mother's handwriting, which had been small and slanted and impatient, nothing like Thomas's careful, spaced-out script, each letter of every word given room to breathe as though he'd learned penmanship as a form of penance. She thought about the way her own hands had spent the evening folding and refolding the paper rather than opening it, and she understood, with the particular clarity the sea seemed to specialize in, that she had likely always been like this — arranging her distance, saving herself from it.\",\"originalText\":\"She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.\"}],\"anchorQuote\":\"She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.\",\"rationale\":\"The chapter's power comes from emotional states rendered through physical reality — the burn unopened, the letter against ribs like a heartbeat, grief as wading. This passage shifts into clinical self-taxonomy (\\\"people who rushed\\\" vs \\\"people who built structures,\\\" \\\"the second kind\\\") without grounding the classification in the specific physical details already present in the scene (the tide, the wet-dry line, the scripts she has just compared). For a literary chapter working through sensory metaphor, the abstraction creates distance at the moment Imogen should feel closest to herself. The reader loses the embodied channel at the point of emotional peak.\"},\"toolUseId\":\"call-c8d98b58-2355-4df0-80a0-92368203710d\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_result\",\"content\":\"Error executing CreateFinding: Cannot read properties of undefined (reading 'normalize')\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolUseId\":\"call-c8d98b58-2355-4df0-80a0-92368203710d\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Executing: CreateFinding\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolInput\":{\"chapterNumber\":1,\"confidence\":0.78,\"anchorQuote\":\"There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.\",\"category\":\"prose\",\"description\":\"The final explanatory sentence restates the arithmetic metaphor as narrative thesis after the chapter has already demonstrated Imogen's deferral through physical action in the preceding paragraphs.\",\"rationale\":\"The chapter has just shown us Imogen's evasion performed: she puts the letter in her coat pocket, feels its weight against her ribs, walks in the dark counting lit windows. The fragments \\\"Tomorrow she would read it. Tomorrow, or the day after.\\\" land perfectly — they're signature rhythm, trailing into the reader's awareness of what's being deferred. The long final sentence then explains what the fragments already implied, restating the chapter's organizing metaphor (arithmetic as grief portioning) as thesis. For a writer who has explicitly confirmed the chapter is short and sparse on purpose, this explanatory sentence functions as scaffolding that could be trusted away. The fragments are the strongest ending; the sentence that follows undercuts them by over-narrating what the reader has already understood.\",\"alternatives\":[{\"label\":\"Option A — stop on the fragments to preserve the rhythmic signature\",\"newText\":\"She put it in her coat pocket instead, where it sat against her ribs like a second, smaller heartbeat, and she walked home along the tideline in the dark, counting the lit windows of the village the way her mother used to, as if each one were a soul she was personally responsible for keeping lit.\\n\\nTomorrow she would read it. Tomorrow, or the day after.\",\"originalText\":\"She put it in her coat pocket instead, where it sat against her ribs like a second, smaller heartbeat, and she walked home along the tideline in the dark, counting the lit windows of the village the way her mother used to, as if each one were a soul she was personally responsible for keeping lit.\\n\\nTomorrow she would read it. Tomorrow, or the day after. There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.\"},{\"label\":\"Option B — keep the door metaphor but strip the arithmetic restatement\",\"newText\":\"She put it in her coat pocket instead, where it sat against her ribs like a second, smaller heartbeat, and she walked home along the tideline in the dark, counting the lit windows of the village the way her mother used to, as if each one were a soul she was personally responsible for keeping lit.\\n\\nTomorrow she would read it. Tomorrow, or the day after. The letter sat folded in her pocket, heavy as a stone, and the wind off the water made her think of counting — one more evening, one more morning — because the alternative was a door she was not yet strong enough to hold open.\",\"originalText\":\"She put it in her coat pocket instead, where it sat against her ribs like a second, smaller heartbeat, and she walked home along the tideline in the dark, counting the lit windows of the village the way her mother used to, as if each one were a soul she was personally responsible for keeping lit.\\n\\nTomorrow she would read it. Tomorrow, or the day after. There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.\"},{\"label\":\"Option C — pivot to sensory closure instead of thematic restatement\",\"newText\":\"She put it in her coat pocket instead, where it sat against her ribs like a second, smaller heartbeat, and she walked home along the tideline in the dark, counting the lit windows of the village the way her mother used to, as if each one were a soul she was personally responsible for keeping lit.\\n\\nTomorrow she would read it. Tomorrow, or the day after. Behind her the tide was already turning back in, lifting in the dark, dragging salt and gulls and whatever else it chose to return.\",\"originalText\":\"She put it in her coat pocket instead, where it sat against her ribs like a second, smaller heartbeat, and she walked home along the tideline in the dark, counting the lit windows of the village the way her mother used to, as if each one were a soul she was personally responsible for keeping lit.\\n\\nTomorrow she would read it. Tomorrow, or the day after. There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.\"}],\"severity\":\"suggestion\"},\"toolUseId\":\"call-8d2b7507-58b7-4a43-841a-612f1919650e\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_result\",\"content\":\"Error executing CreateFinding: Cannot read properties of undefined (reading 'normalize')\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolUseId\":\"call-8d2b7507-58b7-4a43-841a-612f1919650e\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Using tool: CreateFinding\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolUseId\":\"call_7a72dc877b004287813594b3\"}}"
+    },
+    {
+      "data": "{\"type\":\"cost_update\",\"content\":\"$0.0274\",\"metadata\":{\"inputTokens\":51643,\"outputTokens\":5282,\"costUsd\":0.027395054999999995,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Executing: CreateFinding\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolInput\":{\"anchorQuote\":\"She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.\",\"alternatives\":[{\"label\":\"Option A - anchor self-recognition in physical detail\",\"newText\":\"She thought about her mother's rush - the small slanted impatient script, the way she'd marched into waves without testing the bottom - and about herself, sitting where the wet met the dry, refusing to open a letter the way you refused to touch a wound. She understood, with the particular clarity the sea seemed to specialize in, that she had perhaps always been this way - testing distance before she let anything touch her.\",\"originalText\":\"She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.\"},{\"label\":\"Option B - keep classification but ground in bodily action\",\"newText\":\"She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance - between her mother's small slanted impatient hand and Thomas's careful spaced-out script, between drowning and wading - and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.\",\"originalText\":\"She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.\"}],\"category\":\"show-tell\",\"chapterNumber\":1,\"confidence\":0.82,\"description\":\"Imogen's shoreline self-recognition is delivered through abstract psychological classification rather than embodied sensation, stepping outside the chapter's dominant sensory mode.\",\"paragraphNumber\":6,\"rationale\":\"The chapter's power comes from emotional states rendered through physical reality - the burn unopened, the letter against ribs like a heartbeat, grief as wading. This passage shifts into clinical self-taxonomy without grounding the classification in specific physical details already present in the scene. The reader loses the embodied channel at the point of emotional peak.\",\"severity\":\"suggestion\"},\"toolUseId\":\"call_7a72dc877b004287813594b3\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_result\",\"content\":\"Finding created (id: 5c20c0e1-e763-43b6-b2f6-a6aaefbc7a9c, severity: suggestion, category: show-tell, grounding: 100%).\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolUseId\":\"call_7a72dc877b004287813594b3\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Using tool: CreateFinding\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolUseId\":\"call_4f8e8b34b3b04581b4f364a9\"}}"
+    },
+    {
+      "data": "{\"type\":\"cost_update\",\"content\":\"$0.0369\",\"metadata\":{\"inputTokens\":79385,\"outputTokens\":5956,\"costUsd\":0.036919125,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Executing: CreateFinding\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolInput\":{\"anchorQuote\":\"There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.\",\"alternatives\":[{\"label\":\"Option A — stop on the fragments to preserve the rhythmic signature\",\"newText\":\"Tomorrow she would read it. Tomorrow, or the day after.\",\"originalText\":\"Tomorrow she would read it. Tomorrow, or the day after. There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.\"},{\"label\":\"Option B — keep the door metaphor but strip the arithmetic restatement\",\"newText\":\"Tomorrow she would read it. Tomorrow, or the day after. The letter sat folded in her pocket, heavy as a stone, and the wind off the water made her think of counting — one more evening, one more morning — because opening it was a door she was not yet strong enough to hold open.\",\"originalText\":\"Tomorrow she would read it. Tomorrow, or the day after. There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.\"}],\"category\":\"prose\",\"chapterNumber\":1,\"confidence\":0.78,\"description\":\"The final explanatory sentence restates the arithmetic metaphor as narrative thesis after the chapter has already demonstrated Imogen's deferral through physical action.\",\"paragraphNumber\":7,\"rationale\":\"The chapter has just shown Imogen's evasion performed: she puts the letter in her coat pocket, feels its weight against her ribs, walks in the dark counting lit windows. The fragments \\\"Tomorrow she would read it. Tomorrow, or the day after.\\\" land as the chapter's strongest ending, matching the author's signature rhythm. The long sentence following them then explains what the fragments already implied, restating the arithmetic metaphor as thesis. For a writer who confirmed the chapter should remain short and sparse, this is scaffolding that could be trusted to the reader.\",\"severity\":\"suggestion\"},\"toolUseId\":\"call_4f8e8b34b3b04581b4f364a9\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_result\",\"content\":\"Finding created (id: d0f79766-74d2-42eb-b4e0-7e61347d4516, severity: suggestion, category: prose, grounding: 100%).\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolUseId\":\"call_4f8e8b34b3b04581b4f364a9\"}}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Now\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" let\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" me\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" write\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" developmental\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" edit\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" report\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" document\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Using tool: WriteDocument\",\"metadata\":{\"tool\":\"WriteDocument\",\"toolUseId\":\"call_dd9e87c67f3d43408e730edd\"}}"
+    },
+    {
+      "data": "{\"type\":\"cost_update\",\"content\":\"$0.0535\",\"metadata\":{\"inputTokens\":107792,\"outputTokens\":9508,\"costUsd\":0.05353991999999999,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Executing: WriteDocument\",\"metadata\":{\"tool\":\"WriteDocument\",\"toolInput\":{\"chapterNumber\":1,\"content\":\"# Dev Edit Report — Chapter 1 — The Salt Letters QA P1 93181fd1\\n\\n**Date:** 2025\\n**Chapter:** 1\\n**Word Count:** ~570 words\\n**Finding Count:** 2 suggestions\\n\\n---\\n\\n## FINDING SUMMARY\\n\\n| Severity | Count | Categories |\\n|----------|-------|------------|\\n| Critical | 0 | — |\\n| Important | 0 | — |\\n| Suggestion | 2 | show-tell (para 6), prose (para 7) |\\n\\n---\\n\\n## TOP FINDINGS\\n\\n### 1. Show-Tell (Para 6) — Suggestion\\nImogen's shoreline self-recognition shifts into abstract psychological classification (\\\"people who rushed toward feeling\\\" vs \\\"people who built elaborate structures\\\") rather than staying in the chapter's dominant sensory-metaphorical mode. The reader loses embodied grounding at Imogen's moment of emotional peak. Two rewrite alternatives provide more physically specific expressions of the same realization.\\n\\n### 2. Prose (Para 7) — Suggestion\\nThe final explanatory sentence (\\\"There was no arithmetic that made grief owe you a schedule...\\\") restates the chapter's organizing metaphor as thesis after the preceding paragraphs have physically demonstrated Imogen's deferral. The fragments \\\"Tomorrow she would read it. Tomorrow, or the day after.\\\" are the chapter's strongest ending; the sentence that follows undercuts them by over-narrating what is already understood. Two alternatives provided: stop on the fragments, or keep a tighter revised closure.\\n\\n---\\n\\n## STORY BIBLE GAP DETECTION\\n\\n**No gaps found.** All characters (Imogen, Thomas Rhys, Eluned, mother, father), locations (Pentref, the shore, the salt house, the cottage), and story elements (letters, biscuit tin, floorboard, wading metaphor, arithmetic) are accounted for in the story bible and architecture.\\n\\n---\\n\\n## OVERALL CHAPTER ASSESSMENT\\n\\nChapter 1 is a strong, distinctive opening that immediately establishes the novel's voice, thematic framework, and structural pattern. The stylistic fingerprint calibrated perfectly against the sample: the fragment hammer (\\\"She would wade.\\\"), the long-then-punch sentence rhythm, the heavy em dash usage, reported speech treated as action, and the coastal/bodily/containment metaphor domains all appear exactly as documented. The opening line alone is excellent craft — atmospheric, sensory-specific, and carrying immediate metaphorical weight.\\n\\nStructural seeds are well-planted for the full novel arc: the floorboard and biscuit tin (physical hiding place), the wading metaphor (emotional coping strategy), the threshold between wet and dry (the boundary Imogen lives on), the lit windows counted from darkness (responsibility and observation). The mother's \\\"gone under\\\" is introduced as both literal loss and metaphorical threat, and Letter 12's arrival establishes without dramatizing. The near-zero dialogue approach works for a close-third intimate voice that treats speech as absence rather than presence.\\n\\nThe two suggestions both relate to moments where the prose briefly steps out of the chapter's strongest mode. The show-tell finding (para 6) addresses Imogen's self-classification moment, which abstracts into psycho-analytic language at the point where the scene's sensory detail (the tide, the wet-dry line, the compared scripts) could carry the realization more powerfully. The prose finding (para 7) addresses the final explanatory sentence, which restates the arithmetic metaphor after the chapter has demonstrated it through three paragraphs of physical evasion. Both are suggestions, not criticisms — the alternative text is voice-consistent and preserves the author's patterns while tightening the prose's sensory channel.\\n\\nAs a chapter-length strategic note: at ~570 words, this chapter is significantly shorter than the 3,000–3,500 word architecture target. The writer has confirmed this is intentional — the chapter is sparse because Imogen is evasive and withholding by design, and the shortness functions as dramatic form matching character. This is a valid craft choice, and the report respects it. The prose density and voice consistency compensate for brevity.\\n\\n---\\n\\n## RECOMMENDATION\\n\\nNo critical or important issues found. The two suggestions offer opportunities to keep the chapter's strongest passages fully in its sensory-metaphorical mode. The chapter is voice-consistent, structurally sound, and thematically clear. Ready for line edit when the writer has reviewed these suggestions.\\n\",\"documentType\":\"DEV_EDIT_REPORT\",\"title\":\"Dev Edit Report — Chapter 1 — The Salt Letters QA P1 93181fd1\"},\"toolUseId\":\"call_dd9e87c67f3d43408e730edd\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_result\",\"content\":\"Updated DEV_EDIT_REPORT (version 2).\",\"metadata\":{\"tool\":\"WriteDocument\",\"toolUseId\":\"call_dd9e87c67f3d43408e730edd\"}}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"I\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" read\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" chapter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" again\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" carefully\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" identify\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" specific\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" line\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-level\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" issues\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Using tool: ReadChapter\",\"metadata\":{\"tool\":\"ReadChapter\",\"toolUseId\":\"call_dd3d1e46765c4aea9f3f6f11\"}}"
+    },
+    {
+      "data": "{\"type\":\"cost_update\",\"content\":\"$0.0627\",\"metadata\":{\"inputTokens\":137253,\"outputTokens\":9826,\"costUsd\":0.06269950499999999,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Executing: ReadChapter\",\"metadata\":{\"tool\":\"ReadChapter\",\"toolInput\":{\"chapterNumber\":1},\"toolUseId\":\"call_dd3d1e46765c4aea9f3f6f11\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_result\",\"content\":\"# Chapter One\\n\\nThe letters arrived in salt-stained envelopes, always three days after the tide had turned, as if the sea itself needed time to decide whether they were worth delivering. Imogen kept them in a biscuit tin under the floorboard her father had loosened the winter he taught her to lie convincingly. She never read them the day they came. She let them sit, the way you let a burn sit before you touch it again, testing whether the pain has changed its mind.\\n\\nHer aunt called this evasion. ...\",\"metadata\":{\"tool\":\"ReadChapter\",\"toolUseId\":\"call_dd3d1e46765c4aea9f3f6f11\"}}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n#\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Line Edit —\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Chapter 1\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" — **\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"The Salt Letters\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" QA P1\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" 93\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"181\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"fd1**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n##\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Overview\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\nI\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" have\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" conducted\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a thorough\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" line edit\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" of Chapter \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"1, working\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sentence\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-by-sentence\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The chapter is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" remarkably\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" clean\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" voice\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-cons\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"istent, struct\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"urally sound,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and thematically\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" precise. Most\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sentences\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" work\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" exactly\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" as written\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". The findings\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" below are suggestions\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" for\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" tightening and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sharpen\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ing —\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" none\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" alters\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" voice\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" all\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" preserve the author\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s signature patterns\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\n\\n---\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n## Find\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ings by Paragraph\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n### Paragraph\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" 1\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"⁇\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" S\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"uggestion —\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Verb\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Tense Cons\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"istency**\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\">\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" *She let\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" them sit,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the way you\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" let a burn\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sit before you\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" touch it again\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", testing whether\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the pain has\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" changed its mind\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".*\\n\\nThe\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" verb\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" shift\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" from past (\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"came\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\\") to present\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" (\\\"has changed\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\\") creates a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" slight tense\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" mismatch\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". The present\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" tense\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" works\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" as a universal\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" truth (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"the burn always\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" remains\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" burning\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"), but the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" shift inside\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" chain\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" of past-t\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ense narration\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" creates\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a small\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" inconsistency\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\n\\n**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Alternative\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":** *\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"testing\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" whether the pain\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" had changed its\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" mind.*\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"---\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"⁇ S\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"uggestion — Tight\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"en Relative\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Clause**\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"> *Im\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ogen kept them\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" in a bisc\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"uit tin under\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the floorboard\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" her father had\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" loosened the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" winter he taught\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" her to lie\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" convincingly.*\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\nThe relative\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" clause \\\"the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" winter he taught\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" her\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" works\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" gramm\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"atically, but\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" adding\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"in\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\\" creates\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a clearer\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" pre\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"positional chain\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\": \\\"under\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the floorboard\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" /\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" her\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" father had loos\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ened / in\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the winter /\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" he taught her\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\\" The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" current version\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" confl\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ates \\\"lo\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"osened the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" winter\\\" into\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a single phrase\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n**Alternative\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":** *Im\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ogen kept them\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" in a bisc\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"uit tin under\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the floorboard\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" her father had\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" loosened the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" winter in\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"*\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"minor\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" adjustment\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\")\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" OR\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" *Im\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ogen kept them\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" in a bisc\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"uit tin underneath\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the floorboard\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" —\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the one\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" her father had\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" loosened the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" winter he taught\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" her to lie\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" convincingly.*\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n---\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n### Paragraph\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" 2\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"This\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" paragraph is clean\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". The signature\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" rhythm (\\\"She\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" would wade\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\\") is excellent\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"---\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n###\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Paragraph 3\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"⁇ Suggestion\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" — Fragment\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Style\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Revision\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\\n>\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" *Im\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ogen answered these\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" questions with more\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" care than she\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" gave her own\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" diary, because\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" she understood,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" without being told\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", that Thomas\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" was not really\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" asking about g\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ulls.*\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"The clause\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"without being\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" told\\\" functions\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" as interruption\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" mid\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-sentence,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" slightly\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" breaking\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the rhythm\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". The phrase\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" adds\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" meaning\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" letter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" gives\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sub\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"text without\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" explicit explanation\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"), but the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" positioning\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" creates a small\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" stumble.\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**Alternative:**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" *Imogen\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" answered these questions\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" with more care\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" than she gave\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" her own diary\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" —\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" she understood,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" without being told\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", that Thomas\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" was not really\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" asking about g\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ulls.*\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"(\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Re\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"position\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ing the em\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" dash creates a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" cleaner break\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".)\\n\\n---\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n###\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Paragraph 4\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"⁇ Suggestion\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" — Predicate\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Nom\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"inal Efficiency\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\\n>\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" *It was\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" not, she\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" reasoned, a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" secret so much\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" as a room\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" she had not\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" yet furnished enough\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to let visitors\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" in.*\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"The opening\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"It was not\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\\" functions\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" as a sentence\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" starter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", which\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is stylist\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ically safe\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" but\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" slightly passive\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". The sentence\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" could\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" be sharpen\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ed with\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a stronger declar\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ative.\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**Alternative:**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" *She reasoned\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" it was not\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" so\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" much a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" secret as a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" room she had\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" not yet furnished\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" enough to let\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" visitors in.*\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n(This\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" re\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"position\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" removes\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the passive opening\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and flows\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" more directly.)\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n---\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"⁇ S\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"uggestion — Tight\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"en Transition\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\\n>\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" *The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" tin under the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" floorboard held\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" eleven letters now\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", each one\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a small negotiation\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" between what she\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" knew and what\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" she was willing\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to confirm.*\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\nThis\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sentence\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is strong\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". \\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"The tin under\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the floorboard\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" held\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" eleven letters now\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\\" is clean\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"---\\n\\n###\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Paragraph 5\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"⁇ Suggestion\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" — Verb\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Strength\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\\n>\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" *The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" tide was going\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" out, dragging\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" its long grey\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" hem across the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sand, and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" she sat where\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the wet met\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the dry and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" did not open\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" it.*\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" partic\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"iple \\\"drag\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ging\\\" attaches\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to \\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"tide\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" which is settling\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The phrase\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"drag\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ging its long\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" grey hem across\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the sand\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" clean\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" image\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", but the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" participle creates\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a slight attachment\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" that\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" could be sharpen\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ed.\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**Alternative:**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" *The tide\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" went\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" out, dragging\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" its long grey\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" hem across the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sand, and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" she sat where\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the wet met\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the dry and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" did not open\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" it.*\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"(Strong\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"er\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" verb.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"W\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ent out\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" vs\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"was going\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" out.\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The participle\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"dragging\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\\" is preserved\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".)\\n\\n---\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"⁇ Suggestion\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" — Parallel\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Structure Tight\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ening**\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"> *She\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" thought about her\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" mother's handwriting\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", which had\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" been small and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" slanted and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" impatient, nothing\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" like Thomas's\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" careful, spaced\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-out script.*\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\nThe description\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"small and sl\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"anted and impatient\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\\" works\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" as a list\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" but \\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"im\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"patient\\\" is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" an adjective describing\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a writing\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" style, while\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"small and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" slanted\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" are\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" physical attributes\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". The analyst\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" mixes\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" handwriting\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" description\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" with personality\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" which\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" slightly\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" breaks\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" parallel\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" structure\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\n\\n**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Alternative:** *\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"She thought about\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" her mother's\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" handwriting —\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" small and sl\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"anted,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" impatient — nothing\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" like Thomas's\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" script\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", which\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" was careful,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" spaced-out,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" with\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" each letter given\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" room to breathe\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".*\\n\\n(This\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" re\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"position\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ing preserves\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the triple\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" structure\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" while creating\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" cleaner\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" attribution\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" of\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" physical\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" vs. character\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" attributes\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".)\\n\\n---\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n### Paragraph\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" 6\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**⁇\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Suggestion —\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Verb\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Cons\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"istency**\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"> *She\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" did not open\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the letter that\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" night. She\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" put it in\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" her coat pocket\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" instead, where\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" it sat against\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" her ribs like\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a second,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" smaller heartbeat,*\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\nThe verb\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"did\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" not open\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" correctly\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" uses\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" negative\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" form\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" followed\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" by past\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" tense for\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" action\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". Clean\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\n\\n---\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"⁇ Suggestion\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" — Hyp\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ot\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"actic T\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ense\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Alignment\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\\n>\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" *...\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"count\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ing the lit\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" windows of the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" village the way\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" her mother used\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to, as\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" if each one\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" were a soul\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" she was personally\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" responsible for keeping\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" lit.*\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"The verb\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"was\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" keeping\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" creates\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a past\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"continuous compound\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" with\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"used\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to.\\\" This\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is an\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" all\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"iter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ative chain\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" that\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" works.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The ph\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"rasing \\\"she\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" was personally responsible\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" for keeping lit\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\\" is clean\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\n\\n---\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n### Paragraph\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" 7\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**⁇\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Suggestion —\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Fragment-Style\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Revision**\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"> *Because\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the alternative —\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" reading it now\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", standing in\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the wind with\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the whole weight\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" of it at\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" once — was\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a door she\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" was not yet\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" strong enough to\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" hold open.*\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\nThe clause\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"because\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the alternative\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" functions\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" as a subordinate\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" clause continuing\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" from\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"There\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" was no arithmetic\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The ph\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"rasing works\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" but the subordinate\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" clause structure\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" creates a slight\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" weakening\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" after\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the prepar\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"atory fragments.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n**Alternative\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":** *...\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"but\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" she kept trying\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to invent one\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" anyway —\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" because\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" reading\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" it now,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" standing in the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" wind with the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" whole weight of\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" it at once\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", was a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" door she was\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" not yet strong\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" enough to hold\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" open.*\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"(This\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" revision\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" creates\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a cleaner break\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" with\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the em dash\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" tight\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ens the subordin\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ating\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" clause\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".)\\n\\n---\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n## Summary\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" R\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"hythm\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" &\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Voice\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Notes\\n\\n**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Strength\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"s:**\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"- **\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Verb\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" strength\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":** Strong\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" throughout\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" (\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"wade,\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"portion\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ed,\\\" \\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"dragging,\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"sat\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" against\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" her\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" ribs\\\")\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"- **Fragment\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Style R\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"hythm:** The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" fragments\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" (\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"She would w\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ade.\\\") are\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" excellent\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" examples\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" of the author\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s signature pattern\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n- **\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Verb\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Tense Cons\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"istency:** Clean\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" with\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" one\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" minor\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" shift\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" identified\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" in Paragraph\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" 1 that\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" can\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" be resolved\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\n-\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" **Em\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-Dash Density\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":** Proper\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ly calibrated\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" —\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" dashes\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" mark\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" revisions\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", expansions,\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and interruptions\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" cleanly\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**Correct\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ed\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":**\\n-\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" **Verb Strength\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":** Suggestions\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" tightened\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" preserve\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the author's\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" rhythm\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" while\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" correcting\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" minor pass\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ivity.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n- **\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Triple\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-Noun Phrase\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":** Verified\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" consistent\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" use\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" of\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"small and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" slanted and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" impatient\\\" pattern\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" throughout\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" chapter.\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Overall Voice\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Cons\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"istency:** \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"1\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"0/\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"10.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The chapter is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" remarkably\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" clean. No\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sem\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"icolons.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" No ell\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ipsis\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\". No ital\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ics.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" All\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" signature patterns preserved\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\n\\n---\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n## Final\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Notes\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\nThis\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" chapter is in\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" excellent shape.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The line\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-level\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" suggestions above\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" are minor —\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" verb\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" tense alignment\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", transitional\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" tightening\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\", one\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" fragment\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-style revision —\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" all\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" preserve the author\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s distinctive\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" voice.\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"No\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" other\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" issues found.\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Ready\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" for next\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" stage\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"cost_update\",\"content\":\"$0.0800\",\"metadata\":{\"inputTokens\":172721,\"outputTokens\":12814,\"costUsd\":0.07997908499999999,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+    },
+    {
+      "data": "{\"type\":\"complete\",\"content\":\"Session completed successfully\",\"metadata\":{\"findingsCreated\":2,\"statusAdvanced\":false,\"suggestedNext\":[\"line-edit\",\"discuss-edits\"],\"tokensInput\":172721,\"tokensOutput\":12814,\"costUsd\":0.07997908499999999,\"endReason\":\"natural\"}}"
+    }
+  ]
+}

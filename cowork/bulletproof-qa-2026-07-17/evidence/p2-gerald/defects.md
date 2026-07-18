@@ -4,7 +4,19 @@
 
 Reproduced against my own test book/chapter per mission instructions ("known D-01, record only, do not fix"). `PUT /api/books/{id}/chapters/{chapterId}/content` with a deliberately malformed JSON body (`{not valid json!!`) returns **500** `{"error":"Failed to save content"}` instead of a clean 400. Confirms P8 Rita's finding is not route- or persona-specific — reproduced cleanly on a completely different book/chapter/session. No data loss (the malformed PUT never reaches the DB write). Raw trace: `api-traces/malformed-json-d01-repro.txt`. Not fixed — out of this phase's scope.
 
-## D-03 — [S1, DATA INTEGRITY] docx/pdf/epub export silently swaps chapter body content onto the WRONG chapter title after a reorder
+### FIXED-VERIFIED (2026-07-18, `parseJsonBody` fix, commit `ca01cb5`)
+
+Re-ran the malformed-JSON repro against the fixed code plus two more legacy routes (one style route, one settings route, both of which used a bare `req.json()` before the fix). All 3/3 now return a clean 400 with the standard error envelope — no 500s, no leaked stack/parse detail:
+
+| Route | Method | Before | After |
+|---|---|---|---|
+| `/api/books/{id}/chapters/{chapterId}/content` | PUT | 500 `{"error":"Failed to save content"}` | **400** `{"error":"Invalid JSON body"}` |
+| `/api/books/{id}/style/lenses` | POST | 401 (pre-fix legacy behavior per team-lead) | **400** `{"error":"Invalid JSON body"}` |
+| `/api/settings/api-keys` | POST | 401 (pre-fix legacy behavior per team-lead) | **400** `{"error":"Invalid JSON body"}` |
+
+The style/settings routes' pre-fix 401 (rather than 500) is a separate, intentional behavior change noted by team-lead, not something this spot-check re-litigates — the only thing checked here is that all 3 now converge on the same clean 400 contract. Full raw trace: `api-traces/d01-spot-reverify.txt`. **Status: FIXED-VERIFIED.**
+
+## D-03 — [S1, DATA INTEGRITY] docx/pdf/epub export silently swaps chapter body content onto the WRONG chapter title after a reorder — FIXED-VERIFIED
 
 **Severity: S1** (data corruption in the exported deliverable — the actual artifact an author submits/publishes does not match the manuscript, with zero error/warning). Directly threatens P2's export-fidelity exit criterion ("ZERO content loss ... chapter titles correct, order correct") and the D2 data-safety floor (≥9.0).
 
@@ -67,7 +79,21 @@ Only manifests when a chapter's **current** `chapterNumber` differs from its **f
 
 ### Status
 
-**NOT fixed** — outside this executor's scope (`src/` is read-only for this phase A run). Reported here with full root-cause pinpoint and exact fix location (`export-pipeline.ts` chapter-assembly loop should resolve content via the DB `chapterNumber`/chapter identity, not the storage file path) for whoever picks it up.
+**FIXED-VERIFIED** (2026-07-18, commit `4e9c8c5` "export DB-order assembly"). Re-ran the exact reproduction method that originally found this bug against the fixed code, in two rounds, on all three export formats, across all 8 chapters (not just the originally-swapped pair):
+
+- **Round 1** — the book's existing already-reordered state (chapters 4/5 swapped by the earlier W4 concurrent-reorder test, the original trigger). Re-exported docx/pdf/epub.
+- **Round 2** — performed a **second, independent reorder** swapping two *different* chapters ("The Trieste Signal" / "A Debt in Zürich", untouched by the original bug), then immediately re-exported all 3 formats again — proving the fix generalizes to a fresh permutation and that the round-1 pair didn't regress.
+
+Method per format (same discipline as the original bug repro):
+- **docx** — word-for-word exact diff (`difflib.SequenceMatcher` opcodes) between each chapter's DB content and the prose sitting under its heading in the exported document. Zero mismatches across all 8 chapters × 2 rounds.
+- **pdf** — word-level similarity ratio (exact SHA equality isn't achievable due to pypdf's lossy line-wrap hyphenation). Every chapter's own-title similarity is 0.994–0.997; every cross-chapter similarity is 0.25–0.29. The gap between "own" and "best other" is enormous and consistent — no ambiguity, no swap.
+- **epub** — exact SHA-256 match (word-normalized) between DB content and the prose under each heading. Zero mismatches across all 8 chapters × 2 rounds.
+
+Total: **74/74 checks PASS** (`d03_fix_verify_state.json`, trace `api-traces/d03-fix-verify-2rounds.txt`).
+
+**Self-corrected false-positive note (transparency):** the first run of this verification showed 8 spurious FAILs (docx +2-word and epub +2..+10-word mismatches on 4 of the 8 chapters). Root-caused via a dedicated diagnostic dump (not assumed): these were **test-harness extraction artifacts**, not a recurrence of the bug — (1) the book's own `Act N` divider paragraph/text was bleeding into the adjacent chapter's slice because my heading-to-heading extraction didn't exclude it (same class of cosmetic artifact already documented above in this bug's own root-cause section), and (2) `title_page.xhtml` sorts alphabetically after the last chapter file and its 10 words were bleeding into the final chapter's slice, which has no next-heading boundary to stop at. Both are extraction-boundary issues in the *test script*, confirmed by direct inspection of the raw docx paragraphs and epub xhtml files — not swaps (the independent pdf similarity check on those same 4 chapters was clean on the very first run: 0.994–0.997 own-similarity vs 0.25–0.29 cross-chapter, i.e. never ambiguous). Fixed the extraction to filter both, reran, got 74/74 clean. Documented here so the FAIL history isn't mistaken for defect flakiness.
+
+Original root-cause pinpoint (`export-pipeline.ts` chapter-assembly loop resolving content via storage file path instead of DB chapter identity) retained above for the record; fix confirmed to resolve it via the DB-order assembly change in `4e9c8c5`.
 
 
 ## ENV-01 (was filed here as D-02) — [BLOCKER, environment] All API routes with ≥5 path segments return a Next.js routing-layer 404 (HTML "page not found"), not the app's JSON handler
