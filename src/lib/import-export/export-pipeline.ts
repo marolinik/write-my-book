@@ -1,4 +1,4 @@
-import { exec } from "child_process";
+import { exec, execFile } from "child_process";
 import { promisify } from "util";
 import { writeFile, readFile, unlink, mkdir } from "fs/promises";
 import { join } from "path";
@@ -14,6 +14,11 @@ import { assembleFrontMatter, assembleSeriesFrontMatter } from "./front-matter";
 import { assembleBackMatter } from "./back-matter";
 
 const execAsync = promisify(exec);
+// D-18: pandoc/typst are invoked via execFile (argv array, NO shell) so that
+// writer-controlled fields can never be parsed as shell syntax. execAsync
+// (shell) survives ONLY for tool DETECTION below, which interpolates a
+// hardcoded tool name and never any user data — see checkToolAvailable's guard.
+const execFileAsync = promisify(execFile);
 
 /**
  * Ensure a chapter's markdown leads with a canonical level-1 heading taken from
@@ -136,6 +141,18 @@ const TEMPLATES_DIR = join(process.cwd(), "export-templates");
 const resolvedToolPaths: Record<string, string> = {};
 
 async function checkToolAvailable(name: string): Promise<boolean> {
+  // Tool DETECTION below runs `where`/`which`, an env-var `--version` probe, and
+  // a WinGet `dir | findstr` PIPE through the shell (execAsync). `name` is
+  // interpolated into those shell strings, so it MUST be a bare tool identifier
+  // and never carry user data. Callers only ever pass the literals "pandoc" /
+  // "typst"; this guard makes that structurally enforced rather than a
+  // convention, so no future caller can turn detection into a shell-injection
+  // sink (D-18). Note the actual document-generation invocation does NOT go
+  // through a shell at all — it uses execFile with an argv array (buildPandocArgs).
+  if (!/^[a-zA-Z0-9_-]+$/.test(name)) {
+    throw new Error(`Invalid tool name: ${name}`);
+  }
+
   // Check cache first
   if (resolvedToolPaths[name]) return true;
 
@@ -177,9 +194,88 @@ async function checkToolAvailable(name: string): Promise<boolean> {
   return false;
 }
 
-/** Get the resolved path for a tool, or just the name if on PATH. */
-function getToolCmd(name: string): string {
-  return resolvedToolPaths[name] ? `"${resolvedToolPaths[name]}"` : name;
+/**
+ * Fully-resolved inputs for one pandoc invocation. All filesystem/tool
+ * resolution (which default reference-doc/template/css exist, the typst engine
+ * path) is done by the caller and passed in as plain values, so buildPandocArgs
+ * stays a pure, synchronous, unit-testable function.
+ */
+export interface PandocArgsInput {
+  /** Resolved pandoc executable path (or bare "pandoc" if only on PATH). */
+  pandocCmd: string;
+  inputPath: string;
+  outputPath: string;
+  format: "docx" | "pdf" | "epub";
+  /** Absolute paths of the Lua filters to apply, in order. */
+  luaFilterPaths: string[];
+  /** Document title (config.metadata.title || bookName) — writer-controlled. */
+  title: string;
+  /** Scene-break glyph — writer-controlled. */
+  sceneBreakGlyph: string;
+  /** docx: resolved reference-doc path, or null to let pandoc use its default. */
+  referenceDoc?: string | null;
+  /** pdf: resolved typst engine path. */
+  typstEngine?: string | null;
+  /** pdf: resolved typst template path, or null for pandoc's default. */
+  typstTemplate?: string | null;
+  /** epub: resolved CSS path, or null. */
+  epubCss?: string | null;
+  /** epub: resolved cover-image path, or null. */
+  epubCoverImage?: string | null;
+}
+
+/**
+ * Build the pandoc invocation as an ARGV ARRAY (element 0 is the executable).
+ *
+ * D-18 (OS command-injection fix): every value is a DISCRETE array element with
+ * NO surrounding quotes and NO shell involvement. When this array is handed to
+ * execFile, the OS passes each element to pandoc verbatim, so writer-controlled
+ * fields (title, scene-break glyph, custom template/css/cover paths) cannot be
+ * interpreted as shell metacharacters — injection is structurally impossible,
+ * not merely escaped. Pandoc accepts `--metadata=title:VALUE`,
+ * `--variable=k:VALUE`, `--lua-filter=PATH`, `--reference-doc=PATH`,
+ * `--template=PATH`, `--css=PATH`, `--epub-cover-image=PATH`, `--pdf-engine=PATH`
+ * each as a SINGLE argv token (verified against pandoc 3.9), so the `:`/spaces
+ * inside a value never need a shell to be parsed.
+ */
+export function buildPandocArgs(input: PandocArgsInput): string[] {
+  const args: string[] = [
+    input.pandocCmd,
+    input.inputPath,
+    "-o",
+    input.outputPath,
+    "--from=markdown",
+    ...input.luaFilterPaths.map((p) => `--lua-filter=${p}`),
+    `--metadata=title:${input.title}`,
+    `--variable=scene-break-glyph:${input.sceneBreakGlyph}`,
+    "--standalone",
+  ];
+
+  if (input.format === "docx") {
+    args.push("--to=docx");
+    if (input.referenceDoc) {
+      args.push(`--reference-doc=${input.referenceDoc}`);
+    }
+  } else if (input.format === "pdf") {
+    if (input.typstEngine) {
+      args.push(`--pdf-engine=${input.typstEngine}`);
+    }
+    if (input.typstTemplate) {
+      args.push(`--template=${input.typstTemplate}`);
+    }
+    args.push("--to=pdf");
+  } else if (input.format === "epub") {
+    args.push("-t", "epub3");
+    args.push("--split-level=1");
+    if (input.epubCss) {
+      args.push(`--css=${input.epubCss}`);
+    }
+    if (input.epubCoverImage) {
+      args.push(`--epub-cover-image=${input.epubCoverImage}`);
+    }
+  }
+
+  return args;
 }
 
 async function requireTool(name: string): Promise<void> {
@@ -506,31 +602,28 @@ export async function exportManuscript(
   if (!isDraft) luaFilters.push("recto-start.lua");
   if (isDraft) luaFilters.push("draft-watermark.lua");
 
-  const filterArgs = luaFilters
-    .map((f) => `--lua-filter="${join(LUA_FILTERS_DIR, f)}"`)
-    .join(" ");
+  const luaFilterPaths = luaFilters.map((f) => join(LUA_FILTERS_DIR, f));
 
-  const cmdParts = [
-    getToolCmd("pandoc"),
-    `"${inputPath}"`,
-    "-o",
-    `"${outputPath}"`,
-    "--from=markdown",
-    filterArgs,
-    `--metadata=title:"${config.metadata.title || bookName}"`,
-    `--variable=scene-break-glyph:"${sceneBreakGlyph}"`,
-    "--standalone",
-  ];
+  // Resolve every format-specific path (default template/reference/css lookups
+  // with their try/readFile fallbacks, and the typst engine) BEFORE building the
+  // argv — buildPandocArgs itself is a pure function that only assembles the
+  // array. requireTool("pandoc") above has already populated resolvedToolPaths.
+  const pandocCmd = resolvedToolPaths["pandoc"] || "pandoc";
+
+  let referenceDoc: string | null = null;
+  let typstEngine: string | null = null;
+  let typstTemplate: string | null = null;
+  let epubCss: string | null = null;
+  let epubCoverImage: string | null = null;
 
   if (format === "docx") {
-    cmdParts.push("--to=docx");
     if (config.customTemplates.docxReference) {
-      cmdParts.push(`--reference-doc="${config.customTemplates.docxReference}"`);
+      referenceDoc = config.customTemplates.docxReference;
     } else {
       const refDocPath = join(TEMPLATES_DIR, `reference-${genreTemplate}.docx`);
       try {
         await readFile(refDocPath);
-        cmdParts.push(`--reference-doc="${refDocPath}"`);
+        referenceDoc = refDocPath;
       } catch {
         // No reference doc available
       }
@@ -538,41 +631,51 @@ export async function exportManuscript(
   } else if (format === "pdf") {
     // Require Typst for PDF export - throw actionable error if missing
     await requireTool("typst");
-    const typstCmd = resolvedToolPaths["typst"] || "typst";
-    cmdParts.push(`--pdf-engine=${typstCmd}`);
-    const typstTemplate =
+    typstEngine = resolvedToolPaths["typst"] || "typst";
+    const templatePath =
       config.customTemplates.typstTemplate || join(TEMPLATES_DIR, "typst-book.typ");
     try {
-      await readFile(typstTemplate);
-      cmdParts.push(`--template="${typstTemplate}"`);
+      await readFile(templatePath);
+      typstTemplate = templatePath;
     } catch {
       // Template not found, Pandoc will use default
     }
-    cmdParts.push("--to=pdf");
   } else if (format === "epub") {
-    cmdParts.push("-t", "epub3");
-    cmdParts.push("--split-level=1");
     if (config.customTemplates.epubCss) {
-      cmdParts.push(`--css="${config.customTemplates.epubCss}"`);
+      epubCss = config.customTemplates.epubCss;
     } else {
       const defaultCss = join(TEMPLATES_DIR, "epub-genre.css");
       try {
         await readFile(defaultCss);
-        cmdParts.push(`--css="${defaultCss}"`);
+        epubCss = defaultCss;
       } catch {
         // No CSS available
       }
     }
     if (config.frontMatter.coverPage && config.frontMatter.coverImagePath) {
-      cmdParts.push(`--epub-cover-image="${config.frontMatter.coverImagePath}"`);
+      epubCoverImage = config.frontMatter.coverImagePath;
     }
   }
 
-  const cmd = cmdParts.join(" ");
+  const pandocArgs = buildPandocArgs({
+    pandocCmd,
+    inputPath,
+    outputPath,
+    format,
+    luaFilterPaths,
+    title: config.metadata.title || bookName,
+    sceneBreakGlyph,
+    referenceDoc,
+    typstEngine,
+    typstTemplate,
+    epubCss,
+    epubCoverImage,
+  });
 
-  // 10. Execute Pandoc
+  // 10. Execute Pandoc via execFile — argv array, NO shell (D-18). pandocArgs[0]
+  //     is the executable; the rest are passed to the OS verbatim.
   try {
-    await execAsync(cmd, { timeout: 120000 });
+    await execFileAsync(pandocArgs[0], pandocArgs.slice(1), { timeout: 120000 });
 
     // Read output file and upload to S3
     let outputBuffer: Buffer = await readFile(outputPath);
