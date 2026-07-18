@@ -124,7 +124,9 @@ export function ModelPicker({
         <p className="text-xs text-muted-foreground">{description}</p>
       )}
       <Select value={selectValue} onValueChange={handleValueChange}>
-        <SelectTrigger className="w-full">
+        {/* Combobox triggers get no accessible name from their value text —
+            reuse the visible label as the aria-label (D-10, axe button-name). */}
+        <SelectTrigger className="w-full" aria-label={label ?? "Model"}>
           <SelectValue placeholder="Select a model..." />
         </SelectTrigger>
         <SelectContent>

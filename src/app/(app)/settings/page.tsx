@@ -50,7 +50,13 @@ export default function SettingsPage() {
             value={language}
             onValueChange={(val) => updateLanguage.mutate(val)}
           >
-            <SelectTrigger className="w-48">
+            {/* Combobox triggers get no accessible name from their value text —
+                name it explicitly (D-10, axe button-name). Localized like the
+                neighboring header labels. */}
+            <SelectTrigger
+              className="w-48"
+              aria-label={t.settings.languagePreference}
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
