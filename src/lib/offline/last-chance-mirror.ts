@@ -140,21 +140,40 @@ export function readLastChanceDraft(chapterId: string): ChapterDraft | null {
 }
 
 /**
- * Removes the chapter's mirror row. With `onlyIfMine`, a row stamped by a
- * different tab survives (returns false) — one tab's save success must not
- * destroy another tab's crash protection. Returns true when the row no
- * longer exists.
+ * Removes the chapter's mirror row. Mirrors deleteDraft's guarded delete:
+ *
+ * - `onlyIfMine`: a row stamped by a different tab survives (returns false)
+ *   — one tab's save success must not destroy another tab's crash
+ *   protection.
+ * - `ifUpdatedAtEquals`: remove only the exact row revision the caller read
+ *   (hygiene deletes decided outside this call) — a live tab's newer
+ *   rewrite survives.
+ *
+ * The check-then-remove is atomic within this task (localStorage is
+ * synchronous and same-thread); a cross-tab interleave between the two
+ * calls is theoretical and benign — the IDB buffer still holds the row's
+ * words.
+ *
+ * Returns true when the row no longer exists.
  */
 export function clearLastChanceDraft(
   chapterId: string,
-  opts?: { onlyIfMine?: boolean }
+  opts?: { onlyIfMine?: boolean; ifUpdatedAtEquals?: number }
 ): boolean {
   if (!isStorageAvailable()) return false;
   try {
-    if (opts?.onlyIfMine) {
+    if (opts?.onlyIfMine || opts?.ifUpdatedAtEquals !== undefined) {
       const existing = readLastChanceDraft(chapterId);
-      if (existing && existing.clientId !== getClientId()) {
-        return false; // foreign tab's row — leave it for recovery
+      if (existing) {
+        if (opts.onlyIfMine && existing.clientId !== getClientId()) {
+          return false; // foreign tab's row — leave it for recovery
+        }
+        if (
+          opts.ifUpdatedAtEquals !== undefined &&
+          existing.updatedAt !== opts.ifUpdatedAtEquals
+        ) {
+          return false; // row was rewritten since the caller read it
+        }
       }
     }
     localStorage.removeItem(lastChanceKeyFor(chapterId));

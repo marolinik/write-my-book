@@ -327,19 +327,35 @@ export function useDraftBuffer({
       const draft = await getDraft(chapterId);
       // (D-24) The synchronous mirror may hold keystrokes newer than the
       // last IDB tick (a crash inside the 2s window). Take the newer row —
-      // both stamp the same shape — and consume the mirror: the winning
-      // content is either restored (and immediately re-buffered to IDB by
-      // applyRecoveryDecision's bufferNow) or server-equal garbage, and a
-      // stale mirror lingering past a discard would resurrect it.
+      // both stamp the same shape. Read regardless of clientId: a crashed
+      // tab's clientId died with the page, so a recoverable mirror is
+      // always "foreign" — refusing foreign rows would disable mirror
+      // crash-recovery outright (same reasoning as getDraft above).
       const mirror = readLastChanceDraft(chapterId);
-      if (mirror) {
-        clearLastChanceDraft(chapterId);
-      }
       const newest =
         mirror && (!draft || mirror.updatedAt > draft.updatedAt)
           ? mirror
           : draft;
       const decision = decideRecovery(newest, serverMarkdown, serverVersion);
+      if (mirror) {
+        // Consume only THIS tab's row. A foreign row can also belong to a
+        // LIVE tab still typing this chapter in parallel — deleting it
+        // would reopen the exact D-24 loss window for that tab (its next
+        // hard crash loses everything since its last 2s IDB tick). A
+        // surviving foreign row is reaped by: the decision-"none" hygiene
+        // below once the server holds its words, restore's immediate
+        // re-buffer making the IDB row the newer source on later loads,
+        // explicit discard's unconditional clear, or the 14-day prune.
+        clearLastChanceDraft(chapterId, { onlyIfMine: true });
+        if (decision.kind === "none") {
+          // Words already match the server — garbage for every tab.
+          // CAS-guarded to the exact revision read, so a live tab's
+          // concurrent rewrite survives.
+          clearLastChanceDraft(chapterId, {
+            ifUpdatedAtEquals: mirror.updatedAt,
+          });
+        }
+      }
       if (draft && decision.kind === "none") {
         // Draft content already matches the server — hygiene delete of the
         // exact row revision we read (an equal draft is garbage for every

@@ -80,6 +80,24 @@ describe("last-chance-mirror — synchronous localStorage draft mirror (D-24)", 
     expect(readLastChanceDraft(CH)).toBeNull();
   });
 
+  it("clear({ ifUpdatedAtEquals }) removes only the exact revision that was read", () => {
+    writeSample();
+    const row = readLastChanceDraft(CH);
+    expect(row).not.toBeNull();
+
+    // A different revision (e.g. the owning tab wrote again after our read)
+    // must survive a CAS-guarded hygiene delete.
+    expect(clearLastChanceDraft(CH, { ifUpdatedAtEquals: row!.updatedAt + 1 })).toBe(
+      false
+    );
+    expect(readLastChanceDraft(CH)).not.toBeNull();
+
+    expect(clearLastChanceDraft(CH, { ifUpdatedAtEquals: row!.updatedAt })).toBe(
+      true
+    );
+    expect(readLastChanceDraft(CH)).toBeNull();
+  });
+
   it("prunes rows older than the max age, keeps fresh ones", () => {
     writeSample("fresh");
     writeLastChanceDraft({

@@ -7,6 +7,7 @@ import type { Editor } from "@tiptap/react";
 
 import { useDraftBuffer } from "@/hooks/use-draft-buffer";
 import {
+  lastChanceKeyFor,
   readLastChanceDraft,
   writeLastChanceDraft,
 } from "@/lib/offline/last-chance-mirror";
@@ -222,6 +223,82 @@ describe("useDraftBuffer — D-24 synchronous last-chance persistence", () => {
       kind: "restore",
       markdown: `${SERVER_MD} newer-idb-words`,
     });
+  });
+
+  it("leaves a foreign tab's live mirror intact while still using it for the decision", async () => {
+    // Review blocker scenario: Tab A is ALIVE and typing this chapter
+    // (mirror live per-keystroke) when Tab B loads the same chapter and runs
+    // checkRecovery. Deleting A's row here would reopen the exact D-24
+    // total-loss window for A (hard crash before A's next keystroke).
+    //
+    // The row must still be READ, not ignored: a crashed tab's row is also
+    // "foreign" (clientId dies with the page — recovery after a real crash
+    // always sees a foreign clientId), so refusing foreign rows would
+    // disable mirror crash-recovery outright. This matches the IDB draft
+    // path, which reads regardless of clientId for the same reason. The
+    // multi-tab ambiguity resolves exactly like the IDB path: restore goes
+    // through markDirty + CAS-stamped saves, and the surviving row is
+    // reaped later (decision-"none" hygiene, discard, or 14-day prune).
+    writeLastChanceDraft({
+      chapterId: CHAPTER,
+      bookId: BOOK,
+      markdown: `${SERVER_MD} live-tab-a-words`,
+      baseVersion: SERVER_VERSION,
+    });
+    const raw = JSON.parse(
+      localStorage.getItem(lastChanceKeyFor(CHAPTER))!
+    ) as Record<string, unknown>;
+    localStorage.setItem(
+      lastChanceKeyFor(CHAPTER),
+      JSON.stringify({ ...raw, clientId: "live-tab-a" })
+    );
+
+    const store = makePaneStore();
+    const fake = makeFakeEditor(store, SERVER_MD);
+    const { result } = renderBuffer(store, fake.editor);
+
+    const decision = await result.current.checkRecovery(
+      CHAPTER,
+      SERVER_MD,
+      SERVER_VERSION
+    );
+    expect(decision).toEqual({
+      kind: "restore",
+      markdown: `${SERVER_MD} live-tab-a-words`,
+    });
+    // NOT consumed — the owning tab may be alive and still typing.
+    expect(readLastChanceDraft(CHAPTER)?.markdown).toBe(
+      `${SERVER_MD} live-tab-a-words`
+    );
+  });
+
+  it("reaps a foreign mirror whose words already match the server (CAS-guarded hygiene)", async () => {
+    writeLastChanceDraft({
+      chapterId: CHAPTER,
+      bookId: BOOK,
+      markdown: SERVER_MD,
+      baseVersion: SERVER_VERSION,
+    });
+    const raw = JSON.parse(
+      localStorage.getItem(lastChanceKeyFor(CHAPTER))!
+    ) as Record<string, unknown>;
+    localStorage.setItem(
+      lastChanceKeyFor(CHAPTER),
+      JSON.stringify({ ...raw, clientId: "crashed-tab" })
+    );
+
+    const store = makePaneStore();
+    const fake = makeFakeEditor(store, SERVER_MD);
+    const { result } = renderBuffer(store, fake.editor);
+
+    const decision = await result.current.checkRecovery(
+      CHAPTER,
+      SERVER_MD,
+      SERVER_VERSION
+    );
+    expect(decision).toEqual({ kind: "none" });
+    // Server already holds these words — garbage for every tab; removed.
+    expect(readLastChanceDraft(CHAPTER)).toBeNull();
   });
 
   it("clearDraft drops this tab's mirror row (save success)", () => {
