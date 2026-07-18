@@ -20,7 +20,8 @@
         "books-new-form": 8,
         "editor-with-content_DEVBYPASS-NOT-SAM": 23
       },
-      "editorScreenshotGap": "CLOSED - 390x844 first-hit timeout retried successfully with longer timeout, all 6 editor shots present"
+      "editorScreenshotGap": "CLOSED - 390x844 first-hit timeout retried successfully with longer timeout, all 6 editor shots present",
+      "devBypassNote": "Editor screenshots used the pre-existing DEV_AUTH_BYPASS user's own live book ('The Salt Letters', the founder's real novella, not a QA copy), strictly read-only, zero mutations, zero agent runs. Labeled 'layout-judgment only, not Sam-owned' via *_DEVBYPASS-NOT-SAM_* filenames. All persona-scoped work stays on user_qa_p5 via e2e headers."
     },
     "2_subscription_cliff_w11_w16": {
       "status": "PASS",
@@ -37,6 +38,8 @@
       "actualWall": "POST /api/books -> 403 upgradeToTier",
       "wallCopyPlainLanguage": true,
       "wallCopyRespectful": true,
+      "wallCopyExplainsWhatSubscribingGetsHim": true,
+      "wallCopyVerbatim": "Upgrade Required. Your subscription is inactive. Subscribe to access this feature. The Indie Author plan gives you 2 active books with all 14 AI agents and workflows.",
       "trapsUserInput": false,
       "trapsUserInputVerification": "live Playwright run, both themes: nameInput.inputValue() after failed submit == 'Dragon Rider Fanfic QA P5' unchanged",
       "deadEnd": false,
@@ -47,7 +50,18 @@
         "writingAutosaveExport": "moot - Sam owns 0 books, but gates themselves do not discriminate by plan for these actions"
       },
       "cardFreeTrialExists": false,
-      "cardFreeTrialVerification": "checkout/route.ts: trial_settings.end_behavior.missing_payment_method = cancel, card required even for trial plans"
+      "cardFreeTrialVerification": "checkout/route.ts lines 128-137: trial_settings.end_behavior.missing_payment_method = cancel, card required even for trial plans",
+      "filedDefectId": "D-08",
+      "classification": "PRODUCT-DECISION / GTM gate (founder-list), not a code defect",
+      "classificationNote": "Gate works as implemented and deliberately (matches Rita/P8's independent no-bypass sweep). Upgrades the known 2026-07-06 'no managed no-key tier' deferred item into a sharper story: there is no card-free path to writing at all, and the write-first/W11 'no wall before editor' positioning is contradicted for unsubscribed users. Positioning-mismatch sub-finding flagged S2.",
+      "booksListEmptyStateHonesty": {
+        "status": "HONEST - not a silent dead end",
+        "evidence": "screenshots/books-list-empty_390x844_light.png shows 'No books yet - Start your writing journey by creating your first book' with a visible Create Book CTA that leads directly into the same 403 upgrade wall - Sam always sees why nothing happened."
+      },
+      "expiredSubscriberReadExportProbe": {
+        "status": "NOT-TESTABLE",
+        "reason": "scripts/qa-seed-personas.ts seeds every persona's plan as 'indie', 'professional', or null (Sam, Rita); the subscription insert hardcodes status:'active' unconditionally for every non-null plan. No 'expired'/'canceled'/'past_due' status exists in seed data - Sam and Rita represent never-subscribed, not lapsed. Per the explicit constraint not to mutate another persona's subscription row to manufacture one, this probe cannot be answered with current data."
+      }
     },
     "3_locale_sweep": {
       "status": "PARTIAL_PASS",
@@ -57,12 +71,12 @@
       "leaksFound": 2,
       "leaks": [
         {
-          "id": "D-10",
+          "id": "D-11",
           "description": "Mobile bottom nav labels (Home/Books/Agent/Settings) never translate in any locale",
           "severity": "S3"
         },
         {
-          "id": "D-11",
+          "id": "D-12",
           "description": "Arabic locale silently falls back to 100% English despite PATCH API returning 200 success with persisted language=ar",
           "severity": "S2"
         }
@@ -75,13 +89,13 @@
       "screensScanned": 5,
       "newDefects": [
         {
-          "id": "D-08",
+          "id": "D-09",
           "description": "Duplicate <main> landmark on every screen, src/app/(app)/layout.tsx lines 108 and 131",
           "severity": "S3",
           "axeRules": ["landmark-main-is-top-level", "landmark-no-duplicate-main", "landmark-unique", "region"]
         },
         {
-          "id": "D-09",
+          "id": "D-10",
           "description": "8 icon-only buttons on /settings with no accessible name (axe button-name, critical impact)",
           "severity": "S2",
           "corroboration": "10 of 15 keyboard tab-stops on /settings are unlabeled button/a elements"
@@ -90,7 +104,7 @@
       "focusOrderAndVisibility": "PASS - all 15 tab stops on /settings show focusVisible=true",
       "reducedMotion": "PASS with caveat - screenshot shows correct render, cannot verify animation suppression from a static image",
       "landscapeOrientation": "PASS",
-      "keyboardOnlyNav": "PASS with caveat - all controls reachable via Tab, but 10/15 lack accessible names (same root cause as D-09)",
+      "keyboardOnlyNav": "PASS with caveat - all controls reachable via Tab, but 10/15 lack accessible names (same root cause as D-10)",
       "contrast": "DEFERRED - only sampled via axe color-contrast rule (0 violations fired) and visual screenshot inspection, not a true rendered-pixel contrast-ratio measurement"
     },
     "5_empty_states": {
@@ -104,7 +118,8 @@
       "note": "Free surface (writing, autosave, BYOK, settings, dashboard) stays fully usable and honestly labeled while unsubscribed; the one wall (book creation) is transparent about what subscribing unlocks. Minor UX observation (not a defect): all 4 dashboard quick-action buttons lead to the same creation wall."
     }
   },
-  "newDefectsFiled": ["D-08", "D-09", "D-10", "D-11"],
+  "newDefectsFiled": ["D-08", "D-09", "D-10", "D-11", "D-12"],
+  "defectRegisterNote": "D-08 renumbered from an initial internal D-06, then corrected to D-08 per team-lead after Gerald/W6's independent sweep claimed D-06/D-07 first. Sam's four a11y/locale findings were renumbered up from their original D-08..D-11 to D-09..D-12 to make room.",
   "proposedGrades": {
     "note": "Grades proposed per campaign 12-dimension rubric (D1-D11, D3b) where evidence directly supports a call; dimensions not directly exercised by Sam's persona are left for the judging panel to reconcile against other personas' evidence.",
     "mobileResponsiveness": "A- (zero horizontal-scroll fails across 34 screens down to 320px, clean landscape; docked for keyboard-caret being unverifiable and dense tap-target counts on settings/editor)",
@@ -118,6 +133,7 @@
     "True visual contrast ratios and typographic quality beyond axe's automated color-contrast lint and screenshot pixel sampling",
     "Whether prefers-reduced-motion actually suppresses in-flight animations - only a static post-load screenshot was captured, not frame-by-frame or live observation",
     "Exact JSX locations of the 8 unlabeled settings buttons - flagged at the page level via axe + tab-order cross-check, not traced line-by-line",
-    "Exact root cause of the Arabic translation fallback - flagged via behavioral evidence (200 success, 0 visible translation), not traced to the specific i18n loader code path"
+    "Exact root cause of the Arabic translation fallback - flagged via behavioral evidence (200 success, 0 visible translation), not traced to the specific i18n loader code path",
+    "EXPIRED-subscriber read/export behavior - no seeded persona has a lapsed subscription state, and mutating another persona's subscription row was explicitly out of scope"
   ]
 }

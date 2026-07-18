@@ -124,8 +124,37 @@ card-free way for Sam to ever create a book, not even temporarily.
 **Verdict (W16 headline): the wall is real, it's at creation time (not
 per-feature), there is no free tier and no card-free trial anywhere in this
 product — but the paywall UX itself is honest, respectful, and non-trapping.**
-This is a monetization/scope finding, not a defect — filed to team-lead as a
-framing correction, not in defects.md.
+Per team-lead's ruling, this is now formally filed as **D-08**, classification
+PRODUCT-DECISION / GTM gate (founder-list), not a code defect — the gate works
+as implemented and deliberately (matches Rita's independent no-bypass sweep),
+but it upgrades the known "no managed no-key tier" deferred item from the
+2026-07-06 session into a sharper story: there is no card-free path to writing
+at all, and the write-first/W11 "no wall before editor" positioning is
+contradicted for any unsubscribed user. Full write-up with exact wall copy,
+the `trial_settings.end_behavior.missing_payment_method:"cancel"` citation,
+and the jargon-standard judgment of the wall copy is in defects.md.
+
+**Books-list empty-state honesty (explicit check, per team-lead's request):**
+confirmed honest, not a silent dead end. `screenshots/books-list-
+empty_390x844_light.png` shows a plain "No books yet — Start your writing
+journey by creating your first book" message with a visible "Create Book"
+CTA that leads directly into the same 403 upgrade wall documented above — Sam
+always sees why nothing happened, never a spinner-that-never-resolves or a
+console-only failure.
+
+**EXPIRED-subscriber read/export probe — NOT-TESTABLE with current seed
+data.** Team-lead asked whether an expired subscriber can still read/export
+existing data (extending the "never traps words" check), with an explicit
+constraint: simulate only via a seeded persona, do NOT mutate another
+persona's subscription row. Read `scripts/qa-seed-personas.ts` in full: all 8
+personas seed with `plan` of `"indie"`, `"professional"`, or `null` (Sam and
+Rita only); the subscription-insert logic hardcodes `status: 'active'`
+unconditionally for every non-null plan — there is no `"expired"`,
+`"canceled"`, or `"past_due"` status anywhere in the seed data. Sam and Rita
+represent "never subscribed," not "subscription lapsed." No seeded persona
+can answer this probe, and per the no-mutation constraint I did not
+manufacture one by editing another persona's row. Recording this honestly as
+**NOT-TESTABLE** rather than guessing or skipping it silently.
 
 ---
 
@@ -151,7 +180,7 @@ completely** — page titles, `<h1>`s, card headings, and body copy all localize
 (e.g. "Settings" → "Paramètres"/"设置"/"Настройки"/"Podešavanja"). Genuinely good
 i18n coverage for those four.
 
-**Two real leaks found (filed as D-10, D-11 in defects.md):**
+**Two real leaks found (filed as D-11, D-12 in defects.md):**
 - Mobile bottom-nav labels ("Home"/"Books"/"Agent"/"Settings") never translate,
   in *any* locale including the ones that otherwise work correctly.
 - **Arabic silently falls back to 100% English** despite the save API reporting
@@ -166,7 +195,7 @@ books/0 words/0 chapters everywhere, so there's no non-zero number to check for
 a `"2.026 words"`-class formatting leak. Flagging as untested-for-lack-of-data
 rather than claiming a pass.
 
-**Verdict: PARTIAL PASS — 2 new locale leaks found** (D-10 nav labels, S3; D-11
+**Verdict: PARTIAL PASS — 2 new locale leaks found** (D-11 nav labels, S3; D-12
 Arabic total-fallback, S2). 5 of 7 locales tested are otherwise clean.
 
 ---
@@ -178,11 +207,11 @@ Full detail: `api-traces/axe-results.json`.
 
 - **Systemic (every screen): duplicate `<main>` landmark** — 4 axe rules firing
   identically everywhere, traced to `src/app/(app)/layout.tsx` lines 108 + 131.
-  Filed as **D-08 (S3)**.
+  Filed as **D-09 (S3)**.
 - **Settings-specific, critical: 8 icon buttons with no accessible name**
   (`button-name` rule). Corroborated independently by the 15-stop keyboard
   tab-order capture (`api-traces/keyboard-tab-order-settings.json`) — 10 of 15
-  stops are unlabeled `button`/`a` elements. Filed as **D-09 (S2)**.
+  stops are unlabeled `button`/`a` elements. Filed as **D-10 (S2)**.
 - **Focus order / visible focus:** all 15 tab stops on `/settings` show
   `focusVisible=true` — focus rings work correctly, the gap is specifically
   missing accessible names, not missing focus indication.
@@ -196,14 +225,14 @@ Full detail: `api-traces/axe-results.json`.
   reflows sensibly.
 - **Keyboard-only nav:** exercised via 15 sequential Tab presses on `/settings`
   from page load — all stops reachable, all focus-visible, but 10/15 lack a
-  name a screen-reader user could act on (same root cause as D-09).
+  name a screen-reader user could act on (same root cause as D-10).
 - **Contrast:** only sampled via screenshot pixel inspection, not a real
   contrast-ratio tool (no axe `color-contrast` rule fired on any scanned screen,
   for what that's worth, but that's a lint pass, not a rendered-pixel
   measurement) — flagging this as a genuine gap in what headless testing
   proved here.
 
-**Verdict: PARTIAL PASS — 2 new a11y defects found** (D-08 landmark, D-09
+**Verdict: PARTIAL PASS — 2 new a11y defects found** (D-09 landmark, D-10
 button-name), everything else checked came back clean or honestly flagged as
 unverifiable headlessly.
 

@@ -7,14 +7,92 @@ false-positive > S3 friction > S4 cosmetic).
 
 > Campaign register at time of filing: D-01 malformed JSON→500 (P8), D-03 export
 > body-swap (P2, S1), D-04 discuss empty-reply (P1, S2), D-05 pdf export missing
-> metadata title (P7, S3), D-06/D-07 checkout double-sub risk (W6, S1). Checked
-> `p1-maya/defects.md` and `p8-rita/defects.md` for prior a11y/locale filings first
-> (grep for `landmark`/`button-name`/`axe` — only false-positive substring hits on
-> "SyntaxError"/"case", nothing filed). **New defects below start at D-08.**
+> metadata title (P7, S3), D-06 checkout double-subscribe risk (W6/Gerald, S1),
+> D-07 dunning UI absent (W6/Gerald, S2). Checked `p1-maya/defects.md` and
+> `p8-rita/defects.md` for prior a11y/locale filings first (grep for
+> `landmark`/`button-name`/`axe` — only false-positive substring hits on
+> "SyntaxError"/"case", nothing filed). **Register correction (per team-lead):**
+> this doc originally numbered its four a11y/locale findings D-08..D-11, filed
+> before Gerald's W6 sweep landed and independently claimed D-06/D-07. Renumbered
+> below to D-09..D-12, freeing D-08 for the founder-gate/no-free-path finding
+> (new, formally filed below — classification PRODUCT-DECISION, not a code bug).
 
 ---
 
-## D-08 (S3) — Two `<main>` landmarks on every authenticated screen, confusing screen-reader/assistive-tech navigation
+## D-08 (classification: PRODUCT-DECISION / GTM gate — founder-list, not a code defect) — No card-free path to writing exists; write-first positioning is contradicted for unsubscribed users
+
+**What this is and isn't:** the gate itself works as implemented and, per
+Rita's (P8) independent no-bypass sweep, deliberately — every book/series-create
+route correctly 403s an unsubscribed user with no ownership-fence bypass, no
+leaked internal detail, no trapped input. This is **not** a new code bug. It is
+a severity-story upgrade to an already-known deferred founder move: the
+2026-07-06 session already flagged "no managed no-key tier" as the single
+biggest grade-lifter left on the roadmap. Sam's sweep shows the gap is wider
+than that framing implies — there is no card-free path to writing **at all**,
+not just no managed-AI tier.
+
+**Evidence — the wall, verbatim:**
+
+Modal (`POST /api/books` as `user_qa_p5`, unsubscribed, `plan: null`):
+```
+Upgrade Required [X]
+Your subscription is inactive. Subscribe to access this feature.
+The Indie Author plan gives you 2 active books with all 14 AI agents and workflows.
+[Cancel] [View Plans]
+```
+Toast (same action): `Your subscription is inactive. Subscribe to access this feature.`
+Screenshots: `screenshots/books-new-form_390x844_light.png` (form itself renders
+fine, unsubscribed and all — the block happens on submit, not on page load).
+
+**Evidence — trial requires a card, so there is no zero-cost on-ramp either:**
+
+`src/app/api/billing/checkout/route.ts` lines 128-137 configure Stripe trial
+subscriptions with
+```
+trial_settings: { end_behavior: { missing_payment_method: "cancel" } }
+```
+i.e. Stripe will not even start the trial period without a payment method on
+file — "start a free trial" still means "enter a card first." There is no
+route, UI surface, or documented flow in this campaign's TEST-PLAN that lets a
+key-less, card-less writer create a book, a series, or reach the editor at
+all. The TEST-PLAN's assumption of a free/write-first path (W11 funnel: "no
+wall before editor") does not hold for this persona segment.
+
+**Judgment against Sam's zero-jargon-tolerance bar:** the wall copy itself
+passes. "Upgrade Required," "Your subscription is inactive," "Subscribe to
+access this feature" are plain sentences, no error codes, no dev-facing
+language surfaced to the user. It also does the one thing Sam's standard
+requires most: it tells him what subscribing buys him ("2 active books with
+all 14 AI agents and workflows") instead of a bare "access denied." It does
+**not** explain there's no free alternative — the copy reads as if upgrading
+is simply the next step, not as if it's the *only* step, which is the softer
+form of the same finding: honest about the paywall, silent about the absence
+of any non-paywalled path.
+
+**Books-list empty-state check (explicit answer to "does it show the wall
+honestly or dead-end silently"):** honest, not silent. `screenshots/books-
+list-empty_390x844_light.png` shows a plain empty state — "No books yet —
+Start your writing journey by creating your first book" — with a visible
+"Create Book" CTA. That CTA leads straight into the same 403 wall above; it
+is not a dead click, not a spinner-that-never-resolves, not a console-only
+failure. Sam sees exactly why nothing happened.
+
+**Severity note:** the gate-works-as-designed part is not scored. The
+positioning-mismatch part (write-first marketing promise vs. actual
+unsubscribed-user reality; TEST-PLAN assumed a free path that doesn't exist)
+is flagged **S2** — not a crash or leak, but journey-blocking in the specific
+sense that it sets an expectation the product cannot honor for this entire
+persona segment (any hobbyist without a card, which is most of Sam's cohort).
+
+**Suggested fix (evidence-gathering only, not applied; founder decision, not
+QA's to make):** either ship the managed no-key tier already deferred from
+2026-07-06, or correct the write-first/W11 marketing claim and TEST-PLAN
+assumption to state plainly that book creation requires an active card-backed
+subscription from the first click.
+
+---
+
+## D-09 (S3) — Two `<main>` landmarks on every authenticated screen, confusing screen-reader/assistive-tech navigation
 
 **Root cause:** `src/app/(app)/layout.tsx` renders two separate `<main>` elements
 (one nested inside the other's containing landmark) — lines 108 and 131:
@@ -33,7 +111,7 @@ false-positive > S3 friction > S4 cosmetic).
 |---|---|
 | books-list-empty | 5 (incl. this cluster) |
 | dashboard | 4 |
-| settings | 6 (incl. D-09 below) |
+| settings | 6 (incl. D-10 below) |
 | books-new-form | 5 |
 | editor (dev-bypass reference, not Sam-owned) | 4 |
 
@@ -48,7 +126,7 @@ artifact from a past layout refactor rather than intentional.
 
 ---
 
-## D-09 (S2) — 8 icon-only buttons on `/settings` have no accessible name (axe `button-name`, critical)
+## D-10 (S2) — 8 icon-only buttons on `/settings` have no accessible name (axe `button-name`, critical)
 
 **Evidence:** Same axe scan, `settings` screen, one `critical`-impact violation:
 `button-name (critical): 8 node(s) — Buttons must have discernible text`. Full
@@ -77,7 +155,7 @@ page level via axe + tab-order cross-check, not traced to exact JSX).
 
 ---
 
-## D-10 (S3) — Mobile bottom nav labels never translate in any non-English locale
+## D-11 (S3) — Mobile bottom nav labels never translate in any non-English locale
 
 **Evidence:** Corrected locale sweep (real mechanism — `PATCH /api/settings/language`,
 not a URL query param; see note in journey-log) across `en, sr, de, fr, ru, zh, ar`,
@@ -97,7 +175,7 @@ one nav surface a phone-first persona like Sam uses constantly.
 
 ---
 
-## D-11 (S2) — Arabic locale silently falls back to 100% English despite the save API reporting success
+## D-12 (S2) — Arabic locale silently falls back to 100% English despite the save API reporting success
 
 **Evidence:** Same corrected locale sweep. `PATCH /api/settings/language {"language":"ar"}`
 returns **`200 {"language":"ar"}`** — the same success shape as every other locale
@@ -146,8 +224,13 @@ codes to actual string bundles.
   Turbopack on-demand-compile delay for that dynamic route on first hit within the
   script run, not a reproducible product issue. Full 390×844 editor screenshots now
   captured (`screenshots/editor-with-content_DEVBYPASS-NOT-SAM_390x844_{light,dark}.png`).
-- **Book/series creation being subscription-gated with no free tier** — this is the
-  W16 headline finding (see journey-log.md), but it is *intentional monetization
-  design*, not a bug: the paywall itself is plain-language, doesn't trap Sam's typed
-  input, and offers a clear next step. Reported to team-lead as a framing/scope
-  finding, not filed here as a defect.
+- **EXPIRED-subscriber read/export probe — NOT-TESTABLE, not skipped.** Team-lead
+  asked whether an expired subscriber can still read/export existing data. Read
+  `scripts/qa-seed-personas.ts` in full: every seeded persona's `plan` is
+  `"indie"`, `"professional"`, or `null` (Sam and Rita), and the subscription
+  insert hardcodes `status: 'active'` for every non-null plan — no `"expired"`,
+  `"canceled"`, or `"past_due"` state is ever seeded. Sam and Rita represent
+  "never subscribed," not "lapsed." Per the explicit constraint not to mutate
+  another persona's subscription row to manufacture one, this probe cannot be
+  answered with current data. Recorded honestly as NOT-TESTABLE rather than
+  guessed or silently dropped.
