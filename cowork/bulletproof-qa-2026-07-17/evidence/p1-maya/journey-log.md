@@ -52,6 +52,45 @@ Earlier in this session I flagged two suspected data-corruption defects: (a) em-
 
 Both retracted claims are **removed from defects.md**. Documented here per the evidence-integrity standard: a wrong finding retracted with the correction shown is better than a quietly dropped one.
 
+## Step 1 RE-RUN (2026-07-18) — D-04 fix verification + honored-loop re-test
+
+Team-lead directive: re-run the full D8 loop via real mechanism only, after the `discuss-llm.ts` D-04 fix (max_tokens 700→2500, retry-once on empty+`max_tokens` finish reason, `DiscussLLMEmptyError`→honest 502 not persisted/not turn-consuming). Distinguish honored-via-memory from content-hash dedup; vary chapter content if ambiguous.
+
+| id | method | path | status | expected | verdict | notes |
+|---|---|---|---|---|---|---|
+| d8-rerun-turn1 | POST | `.../findings/{id}/discuss` | 200 | 200, non-empty assistantMessage + suggestedConstraint | **PASS** | Real content, 25s round-trip. `transcripts/d8-rerun-turn1.json` |
+| d8-rerun-turn2 | POST | `.../findings/{id}/discuss` | 200 (recovered) | 200, non-empty | **PASS** | Client-side 60s HTTP timeout hit (not a server 502/hang) — confirmed via immediate GET on thread (`api-traces/d8-rerun-thread-check-after-timeout.json`): server had already persisted both replies, userTurns=2, non-empty. Not a repeat of D-04, not the 502 path. `transcripts/d8-rerun-turn2.json` |
+| d8-rerun-turn3 | POST | `.../findings/{id}/discuss` | 200 | 200, non-empty | **PASS** | 49.3s round-trip (client timeout raised to 150s after turn2 lesson). Real content + suggestedConstraint. `transcripts/d8-rerun-turn3.json` |
+| d8-rerun-turn4-cap | POST | `.../findings/{id}/discuss` | 409 | 409 | **PASS** | 0.4s, no LLM call — cap intact. `transcripts/d8-rerun-turn4-cap-probe.json` |
+| d8-rerun-dismiss | PATCH | `.../findings/{id}` | 200 | 200, dismissed | **PASS** | `api-traces/d8-rerun-dismiss.json` |
+| d8-rerun-memory-after | GET | `/api/memory?bookId=...` | 200, 1 row | non-empty, content = turn3 suggestedConstraint | **PASS** | First time in campaign this mechanism observed working end-to-end. `source:"conversation"`, `findingId` linked, `active:true`. `api-traces/d8-rerun-memory-after-dismiss.json` |
+| d8-rerun-devedit3-start | POST | `.../agent` (dev-edit) | 200, queued | 200 | PASS | Session `11d0cf46-e688-4627-9e8b-5c6a83550316`. `transcripts/d8-rerun-dev-edit-3-start.json` |
+| d8-rerun-devedit3-stream | GET | `.../agent/{sessionId}/stream` (SSE) | complete | complete | PASS | 798 events, 437.1s, `final_status:"complete"`. `transcripts/d8-rerun-dev-edit-3-sse-raw.json` |
+| d8-rerun-honored-check | GET | `.../editorial/findings` | 200 | dismissed finding NOT re-raised (or explicitly honored) | **FAIL (D-13)** | New finding `d0f79766` targets byte-identical `originalText` to dismissed+memory-backed `25499afe` — same category (prose), same paragraph, functionally identical edit. **Re-raised despite the memory chain working.** `api-traces/d8-rerun-findings-after-devedit3.json` |
+
+**D-04 (empty-reply symptom) verdict: FIXED-VERIFIED.** All 3/3 real discuss turns now produce substantive, non-empty, on-topic replies with structured `suggestedConstraint` blocks — a full reversal of the original all-empty-reply failure. Turn-cap enforcement re-confirmed correct and content-independent. The new 502/`DiscussLLMEmptyError` error path was not live-triggered this run (nothing failed) — it remains verified only at the unit-test level (`tests/unit/finding-discuss-route.test.ts`, `"maps DiscussLLMEmptyError to 502 without persisting or consuming a turn"`), not exercised live. Caveat noted, not claimed as live-verified.
+
+**Honored-loop verdict: still FAILS, but this is now a distinct, root-caused defect — not D-04. Assigned D-13 (S2) by team-lead.** Traced the full mechanism through code (no hash-variation control needed; result is unambiguous, not a "not-reraised, could be memory OR could be dedup" case):
+
+- WriterMemory correctly reaches the prompt. `assembleAgentPrompt()` (`src/lib/agents/prompt-assembler.ts:1445`, called from `orchestrator.ts:169`) unconditionally injects `formatWriterMemoryForPrompt()` output at Section 5b (priority 90, no profile gate). Confirmed the injected text would include the exact dismissed-turn constraint.
+- `<finding_history>` also correctly reaches the prompt for this agent type specifically. `loadFindingHistory()` (`prompt-assembler.ts:1403-1437`) is gated by `profile.findingHistory && chapterNumber` (Section 11, priority 50) — confirmed via `src/lib/agents/definitions.ts:201` that `dev-editor`'s `contextProfile.findingHistory: true` (the *only* agent type with this flag true among all profiles checked). The new finding's rationale text ("For a writer who confirmed the chapter should remain short and sparse...") directly echoes awareness of the dismissed finding's history — proving the block was present and read.
+- dev-editor's own system prompt contains an explicit instruction block (multiple near-identical occurrences across agent templates in `prompt-assembler.ts`, e.g. lines 333-337):
+  ```
+  ## FINDING HISTORY AWARENESS
+  - Check <finding_history> before creating findings
+  - DO NOT repeat issues marked [APPLIED] — those are already fixed
+  - If an issue was [DISMISSED], the writer chose to keep their text — do not re-flag UNLESS it's critical severity
+  - If the writer replied to a finding, read their reasoning and adjust your analysis accordingly
+  ```
+  The dismissed finding (`25499afe`) and the new finding (`d0f79766`) are both severity `"suggestion"` — not critical. The exception clause does not apply. The model violated its own explicit instruction.
+- Content-hash dedup (`src/lib/agents/tools.ts:1250-1269`) does not explain or excuse this: `computeFindingHash(chapterNumber, category, description)` hashes the model's freshly-generated `description` text, which is reworded each generation even for the same underlying critique — confirmed the two findings' `description` strings differ, so the hash differs, so dedup never fires. Dedup provides essentially no real protection against this class of near-identical re-raise.
+
+`★ Insight ─────────────────────────────────────`
+This is a stronger and more precise finding than the original D-04. D-04 was a plumbing failure (API technically returns 200 but the payload is empty) — fixable by raising a token budget. This new defect is a genuine instruction-following failure: every piece of context the model needs (the stored preference, the dismissal history, an explicit anti-re-flag rule with a stated exception it doesn't meet) is present and demonstrably read (the model's own rationale text proves it), and the model still violates the rule. Fixing D-04 didn't just fail to fix the D8 promise — it surfaced the deeper defect that was previously masked by the discuss layer being broken outright.
+`─────────────────────────────────────────────────`
+
+**D8 loop overall verdict (re-run): FAIL, split by half.** Persistence half (discuss → WriterMemory row) is **FIXED-VERIFIED (D-04)** — fully reverses the original empty-reply failure. Honored half ("tell it once, it remembers on the next pass" — the actual D8 promise) is **FAIL (D-13)** — dev-editor re-raises the dismissed, memory-backed, non-critical finding despite full context injection, in direct violation of its own explicit instruction. D-13 status: OPEN, deterministic fix in progress (suppress re-raised findings matching a dismissed finding's `originalText`+`category` at persist time, critical-severity exception) — will re-verify with a third dev-edit run once it lands.
+
 ## Step 2 — Edge cases
 
 | id | method | path | status | expected | verdict | notes |

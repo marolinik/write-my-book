@@ -5,7 +5,11 @@
   "steps": {
     "step1_d8_loop": {
       "verdict": "FAIL",
-      "detail": "Discuss returned HTTP 200 with genuinely empty assistantMessage on all 3 real LLM turns (D-02, new defect). No REMEMBER block ever emitted -> zero WriterMemory rows before and after dismiss (two independent GET /api/memory checks, both []). Turn-cap correctly 409s on turn 4 regardless. Dismiss PATCH succeeded cleanly. New dev-edit-2 run (background BullMQ, 290s, complete) did not re-raise the dismissed finding, but this cannot be attributed to the (nonfunctional) WriterMemory mechanism -- likely content-hash dedup in tools.ts:1258 or LLM stochasticity, unconfirmed. Grading protocol dimension D8 should reflect the loop being broken, not the coincidental non-reraise."
+      "detail": "ORIGINAL RUN (pre-fix): Discuss returned HTTP 200 with genuinely empty assistantMessage on all 3 real LLM turns (D-02, later renumbered D-04). No REMEMBER block ever emitted -> zero WriterMemory rows before and after dismiss. Turn-cap correctly 409s on turn 4 regardless. Dismiss PATCH succeeded cleanly. Dev-edit-2 run did not re-raise the dismissed finding but this could not be attributed to a functional WriterMemory mechanism (it was nonfunctional) -- unconfirmed whether dedup or stochasticity."
+    },
+    "step1_d8_loop_rerun_20260718": {
+      "verdict": "FAIL -- split verdict: persistence half FIXED-VERIFIED (D-04), honored half FAIL (D-13, S2, assigned by team-lead 2026-07-18, status OPEN/fix in progress)",
+      "detail": "Post-fix re-run of the full D8 loop via real mechanism (discuss-llm.ts fix: max_tokens 700->2500, retry-once, DiscussLLMEmptyError->502). 3/3 real discuss turns now produce non-empty, substantive replies with structured suggestedConstraint (turn1 25s, turn2 recovered from a 60s client-side HTTP timeout -- confirmed server-side via GET thread check, not a repeat of the original bug -- turn3 49.3s). Turn4 409s correctly (cap intact, no LLM call). Dismiss PATCH 200. WriterMemory: baseline [] -> 1 row after dismiss, content verbatim-matches turn3 suggestedConstraint (first time this campaign this mechanism verified working end-to-end via live LLM round-trips). Fresh dev-edit-3 run (session 11d0cf46, 437.1s, 798 SSE events, complete) on the SAME unchanged chapter content then produced new finding d0f79766 targeting the byte-identical originalText as the dismissed, memory-backed finding 25499afe -- same category/paragraph/substantive edit. Root-caused via code, not just observed: WriterMemory correctly injected (assembleAgentPrompt, prompt-assembler.ts:1445/1587-1604), <finding_history> correctly injected for dev-editor specifically (definitions.ts:201, the only profile with findingHistory:true), and dev-editor's own system prompt has an explicit 'do not re-flag DISMISSED findings unless critical severity' instruction (prompt-assembler.ts ~333-337) which the new finding (severity: suggestion, not critical) directly violates. Content-hash dedup (tools.ts:1250-1269) hashes the model's freshly-paraphrased description text, which differs between the two findings, so dedup structurally never fires for this pattern -- confirmed not a valid explanation. Hash-variation control judged unnecessary: the result is an unambiguous re-raise with a traced root cause, not the ambiguous case the control exists for. 502 error path from the fix was not live-triggered this run (nothing failed) -- verified only at unit-test level."
     },
     "step2_edge_cases": {
       "invalid_byok_key": "PASS - clean 400, no leak",
@@ -27,13 +31,26 @@
   },
   "defects_new": [
     {
-      "id": "D-02",
+      "id": "D-04",
       "title": "Discuss endpoint silently returns empty replies (200, not error) for reasoning-capable BYOK model",
       "severity": "S2",
       "confirmed": true,
       "repro_count": 3,
       "root_cause": "discuss-llm.ts max_tokens:700 likely exhausted by qwen3.6-27b's internal reasoning before any text-typed content block is emitted; .find(b=>b.type==='text') returns undefined -> '' returned as if successful",
-      "impact": "Entire discuss -> WriterMemory -> honored loop (D8) non-functional for this campaign's own Indie BYOK validation model/persona configuration"
+      "impact": "Entire discuss -> WriterMemory -> honored loop (D8) non-functional for this campaign's own Indie BYOK validation model/persona configuration",
+      "status": "FIXED-VERIFIED 2026-07-18: max_tokens 700->2500 + retry-once on empty/max_tokens finish reason + DiscussLLMEmptyError->502 (not persisted, turn not consumed). Re-run: 3/3 real discuss turns non-empty with suggestedConstraint; WriterMemory row appears after dismiss and matches verbatim. 502 path unit-tested, not live-triggered (no failures occurred in re-run). See journey-log.md Step 1 RE-RUN (2026-07-18)."
+    },
+    {
+      "id": "D-13",
+      "title": "Dev-editor re-flags a dismissed, memory-backed, non-critical finding on unchanged content -- violates its own system-prompt instruction",
+      "severity": "S2",
+      "confirmed": true,
+      "repro_count": 1,
+      "assigned_by": "team-lead, 2026-07-18",
+      "root_cause": "Not a plumbing gap -- WriterMemory correctly injected unconditionally (prompt-assembler.ts:1445/1587-1604 via orchestrator.ts:169), <finding_history> correctly injected for dev-editor specifically (definitions.ts:201, only profile with findingHistory:true), and dev-editor's system prompt has an explicit 'do not re-flag DISMISSED findings unless critical severity' instruction (prompt-assembler.ts ~333-337) -- the re-raised finding is severity 'suggestion' (not critical) so the exception doesn't apply, and the model violates the instruction anyway. Content-hash dedup (tools.ts:1250-1269) hashes the model's freshly-reworded description text, which differs between the dismissed and re-raised findings, so dedup structurally cannot catch this pattern.",
+      "impact": "D8's core promise ('tell the AI editor your intent once, it remembers going forward') does not hold end-to-end even with D-04 fixed -- writer sees the same critique resurface on a finding they already dismissed and backed with a stated constraint.",
+      "hash_variation_control": "not run -- judged unnecessary and confirmed unnecessary by team-lead: this is an unambiguous re-raise with a code-traced structural root cause, not the ambiguous case the control exists to disambiguate.",
+      "status": "OPEN, fix in progress 2026-07-18: deterministic suppression of re-raised findings matching a dismissed finding's originalText+category at persist time, with a critical-severity exception. Will re-verify with a third dev-edit run once it lands."
     }
   ],
   "defects_cross_referenced": [
