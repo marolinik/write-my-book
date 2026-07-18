@@ -95,6 +95,18 @@ describe("ImmersiveFocusMode — D-23 live DOM is never clobbered by a stale sna
     expect(editorEl.innerHTML).toContain("clean-exit-marker");
   });
 
+  it("re-seeds an intentionally emptied live buffer as empty — never resurrects the enter snapshot", () => {
+    // Writer select-all-deleted everything while immersive (buffer = "").
+    // A remount must respect that: falling back to the enter-time snapshot
+    // would silently resurrect deleted text.
+    const { editorEl } = renderOverlay({
+      content: ENTER_SNAPSHOT,
+      liveContentRef: { current: "" },
+    });
+
+    expect(editorEl.innerHTML).toBe("");
+  });
+
   it("reports the live innerHTML through onContentChange on every input", () => {
     const seen: string[] = [];
     const { editorEl } = renderOverlay({

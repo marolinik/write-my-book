@@ -127,7 +127,9 @@ export function ImmersiveFocusMode({
   useLayoutEffect(() => {
     const el = editorRef.current;
     if (!el) return;
-    const seed = liveContentRef?.current || content;
+    // ?? not ||: an empty buffer is a legitimate state (writer deleted
+    // everything) — falling back to the enter snapshot would resurrect it.
+    const seed = liveContentRef?.current ?? content;
     el.innerHTML = sanitizeImmersiveHtml(seed);
     initialWordCount.current = countWords(el.innerText || "");
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
