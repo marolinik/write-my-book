@@ -196,7 +196,7 @@ export async function processBatchDigestJob(
         message:
           `${digest.passes.completed}/${digest.passes.total} passes` +
           `${skippedSummary}${findingSummary} · ` +
-          `$${ledger.spentUsd.toFixed(2)} / $${batch.budgetCapUsd.toFixed(2)} cap`,
+          `$${effectiveSpent.toFixed(2)} / $${batch.budgetCapUsd.toFixed(2)} cap`,
         actionUrl: `/books/${batch.bookId}`,
         actionLabel: "View digest",
       },
