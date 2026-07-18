@@ -68,3 +68,20 @@ Three live instances in one journey:
 - Suggestions never auto-applied: chapter content byte-identical after every editorial pass until the writer acted; apply is exact-span with optimistic versioning.
 - Provider-outage SSE error copy is honest and plain-language (the failure is what happens after it — C-2).
 - D-33/D-34 hardening verified live: malformed CreateFinding (paragraphNumber out of range) → corrective REJECTED message, model recovery, analytics row, zero raw errors across 6 sessions.
+
+---
+
+## CANONICAL D-NUMBER ASSIGNMENT (team-lead, 2026-07-18)
+
+| Local | Canonical | Severity | Short name |
+|-------|-----------|----------|------------|
+| C-1 | **D-35** | S2 | Wizard "Finish Setup" silently no-ops (setupComplete not in updateSettingsSchema; SETUP-07 422-walls paste-in stylists) |
+| C-2 | **D-36** | S2 | Provider outage resolves as fake-success (completed/0 tokens/$0/natural; chapter advanced; would poison batch digest) |
+| C-3 | **D-37** | S3 | Chapter create non-atomic (partial row persisted on 500; P2002 unmapped → retry dead-end). Same family as D-20 — fixer must check root cause overlap |
+| C-4 | **D-38** | S3 | Ghost text broken on reasoning models (hardcoded max_tokens 60 → empty-but-billed; same mechanism family as D-04) |
+| C-5 | **D-39** | S3 | Systemic silent-drop of unknown JSON keys on state-changing routes (3 live instances incl. dismiss reason discarded on 200) |
+| C-6 | **D-40** | S4 | Fingerprint doc persisted with qwen glitch tokens + 2 fabricated example quotes |
+| C-7 | **D-41** | S4 | Critical finding with empty newText renders nothing; discuss revisedSuggestion not persisted to finding |
+| C-8 | **D-42** | S4 | No GET session-status endpoint; SSE stream is the only observer (masked D-36) |
+
+Next free: **D-43**.
