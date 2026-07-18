@@ -1,0 +1,32 @@
+{
+  "persona": "p5-sam (fork)",
+  "drill": "W4 UI data-safety drills",
+  "suites": {
+    "offline-autosave.spec.ts": {
+      "status": "BLOCKED-ENV",
+      "passed": 0,
+      "total": 8,
+      "reason": "global-setup.ts wipes user_test_e2e subscriptions row every run and never reseeds one; 403s plan/quota gate before test body runs"
+    },
+    "x1-two-tab-conflict.spec.ts": {
+      "status": "PASS",
+      "passed": 2,
+      "total": 2
+    },
+    "w4-data-safety-drills.spec.ts": {
+      "status": "FAIL",
+      "passed": 1,
+      "total": 6,
+      "tests": [
+        { "name": "Z14 clean-exit + crash, 0s burst", "status": "FAIL", "defect": "D-23" },
+        { "name": "Z14 clean-exit + crash, 5s burst", "status": "FAIL", "defect": "D-23" },
+        { "name": "Z14 clean-exit + crash, 30s burst", "status": "FAIL", "defect": "D-23" },
+        { "name": "Network-kill: dead PUT route, self-heals", "status": "PASS" },
+        { "name": "Crash-restart: hard crash mid-typing, plain editor", "status": "FLAKY_FAIL", "passRate": "2/4 reruns", "defect": "D-24" },
+        { "name": "Z13: rapid nav + rapid panel toggle console hygiene", "status": "FAIL", "triaged": "Radix useId() hydration mismatch confirmed rapid-nav-specific; ERR_NAME_NOT_RESOLVED confirmed ambient noise and filtered out" }
+      ]
+    }
+  },
+  "newDefects": ["D-23", "D-24"],
+  "flaggedNotFiled": ["Z13 Radix useId() hydration mismatch — team-lead to assign number, tentatively D-25"]
+}

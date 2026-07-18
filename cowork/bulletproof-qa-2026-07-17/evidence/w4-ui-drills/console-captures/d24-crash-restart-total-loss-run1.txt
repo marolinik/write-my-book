@@ -1,0 +1,27 @@
+  4) [chromium] › tests\e2e\w4-data-safety-drills.spec.ts:199:7 › Network-kill / crash-restart (user_qa_p2 — env-unblocked variant) › hard crash mid-typing recovers the draft on next load 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: locator('.ProseMirror')
+    Expected substring: [32m"[7mc[27mrash[7m-marker-1784342719663[27m"[39m
+    Received string:    [31m"[7mC[27mrash[7m baseline 1784342712191-w3.[27m"[39m
+    Timeout: 15000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 15000ms[22m
+    [2m  - waiting for locator('.ProseMirror')[22m
+    [2m    18 × locator resolved to <div tabindex="0" role="textbox" translate="no" aria-multiline="true" contenteditable="true" aria-label="Editing chapter 1" class="tiptap ProseMirror max-w-[680px] w-full mx-auto px-4 sm:px-6">…</div>[22m
+    [2m       - unexpected value "Crash baseline 1784342712191-w3."[22m
+
+
+      224 |     await reopened.goto(`/books/${bookId}/chapters/${chapterId}`);
+      225 |     await expect(reopened.locator(".ProseMirror")).toBeVisible({ timeout: 15_000 });
+    > 226 |     await expect(reopened.locator(".ProseMirror")).toContainText(marker, {
+          |                                                    ^
+      227 |       timeout: 15_000,
+      228 |     });
+      229 |   });
+        at D:\Projects\wmb-pub\tests\e2e\w4-data-safety-drills.spec.ts:226:52
+
+    Error Context: test-results\w4-data-safety-drills-Netw-c5a97-vers-the-draft-on-next-load-chromium\error-context.md
+
