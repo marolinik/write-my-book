@@ -2483,15 +2483,39 @@ const UI_STRINGS: Record<string, UIStrings> = {
   zh: ZH,
 };
 
+/** Own-property dictionary lookup — never resolve prototype-chain keys
+ * (e.g. "toString") to a "dictionary". */
+function ownDict(code: string): UIStrings | undefined {
+  return Object.prototype.hasOwnProperty.call(UI_STRINGS, code)
+    ? UI_STRINGS[code]
+    : undefined;
+}
+
 /**
  * Get translated UI strings for a language code.
  * Falls back to English for unsupported languages.
  */
 export function getUIStrings(language: string): UIStrings {
+  return ownDict(language) ?? ownDict(language.split("-")[0]) ?? EN;
+}
+
+/**
+ * Languages with a complete UI translation dictionary (D-12). Only these are
+ * offered and accepted as the app-interface language. Every other code in
+ * SUPPORTED_LANGUAGES remains a valid BOOK/prose language (agents write in
+ * it), but the UI chrome would silently fall back to English — so the
+ * settings picker and PATCH /api/settings/language must not pretend
+ * otherwise.
+ */
+export const UI_SUPPORTED_LANGUAGES = SUPPORTED_LANGUAGES.filter((lang) =>
+  Object.prototype.hasOwnProperty.call(UI_STRINGS, lang.code)
+);
+
+/** True when the code (or its base tag, e.g. "fr-CA" → "fr") has a UI dictionary. */
+export function isUiLanguageSupported(language: string): boolean {
   return (
-    UI_STRINGS[language] ??
-    UI_STRINGS[language.split("-")[0]] ??
-    EN
+    ownDict(language) !== undefined ||
+    ownDict(language.split("-")[0]) !== undefined
   );
 }
 

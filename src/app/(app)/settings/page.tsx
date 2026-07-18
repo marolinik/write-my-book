@@ -17,7 +17,10 @@ import {
 } from "@/components/ui/select";
 import { useLanguage } from "@/components/providers/language-provider";
 import { useUpdateLanguage } from "@/hooks/use-language";
-import { SUPPORTED_LANGUAGES } from "@/lib/i18n/ui-strings";
+import {
+  UI_SUPPORTED_LANGUAGES,
+  isUiLanguageSupported,
+} from "@/lib/i18n/ui-strings";
 import { MemorySettings } from "@/components/memory/memory-settings";
 import { ApiKeysSection } from "@/components/settings/api-keys-section";
 import { ModelSelectionSection } from "@/components/settings/model-selection-section";
@@ -46,8 +49,13 @@ export default function SettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {/* D-12: only offer languages the UI can actually render. Codes
+              without a dictionary silently fell back to English while the
+              save reported success. Book/prose language (all 14) is chosen
+              per book. A stale persisted unsupported code displays as its
+              effective UI language: English. */}
           <Select
-            value={language}
+            value={isUiLanguageSupported(language) ? language : "en"}
             onValueChange={(val) => updateLanguage.mutate(val)}
           >
             {/* Combobox triggers get no accessible name from their value text —
@@ -60,7 +68,7 @@ export default function SettingsPage() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {SUPPORTED_LANGUAGES.map((lang) => (
+              {UI_SUPPORTED_LANGUAGES.map((lang) => (
                 <SelectItem key={lang.code} value={lang.code}>
                   {lang.name}
                 </SelectItem>
