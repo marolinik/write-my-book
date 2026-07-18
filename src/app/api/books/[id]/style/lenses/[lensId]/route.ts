@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { legacyRouteErrorResponse } from "@/lib/api/legacy-route-errors";
 
 export async function PATCH(
   req: NextRequest,
@@ -45,7 +46,12 @@ export async function PATCH(
   } catch (error) {
     const invalidJson = invalidJsonBodyResponse(error);
     if (invalidJson) return invalidJson;
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // D-14: don't mislabel every failure as 401 — class it honestly.
+    return legacyRouteErrorResponse(
+      error,
+      "PATCH /api/books/:id/style/lenses/:lensId",
+      "Failed to update character lens"
+    );
   }
 }
 
@@ -74,7 +80,12 @@ export async function DELETE(
       return NextResponse.json({ error: "Lens not found" }, { status: 404 });
     }
     return NextResponse.json({ deleted: true });
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  } catch (error) {
+    // D-14: don't mislabel every failure as 401 — class it honestly.
+    return legacyRouteErrorResponse(
+      error,
+      "DELETE /api/books/:id/style/lenses/:lensId",
+      "Failed to delete character lens"
+    );
   }
 }
