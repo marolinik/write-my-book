@@ -1,0 +1,74 @@
+{
+  "status": 200,
+  "body": {
+    "batch": {
+      "id": "cmrqdp84r0000x40fv60qc5c3",
+      "userId": "a31049dd-0fd9-44dd-a232-8606129d1853",
+      "bookId": "e90b3494-ead4-472f-a34d-502c4b5b775c",
+      "workflowIds": [
+        "line-edit"
+      ],
+      "chapterStart": 7,
+      "chapterEnd": 8,
+      "status": "done",
+      "budgetCapUsd": 10,
+      "spentUsd": 0.03205431,
+      "halted": false,
+      "haltReason": null,
+      "scheduledFor": null,
+      "parentJobId": "e9f189b7-55bd-47d3-a1b0-8543faef75a5",
+      "digest": {
+        "halted": false,
+        "passes": {
+          "total": 2,
+          "failed": 0,
+          "skipped": 0,
+          "completed": 2
+        },
+        "chapters": [
+          {
+            "status": "undiscussed",
+            "betaGate": "pending",
+            "chapterNumber": 7
+          },
+          {
+            "status": "undiscussed",
+            "betaGate": "pending",
+            "chapterNumber": 8
+          }
+        ],
+        "findings": {
+          "total": 0,
+          "byChapter": {},
+          "bySeverity": {}
+        },
+        "spentUsd": 0.03205431,
+        "haltReason": null,
+        "generatedAt": "2026-07-18T13:06:13.701Z",
+        "workflowIds": [
+          "line-edit"
+        ],
+        "budgetCapUsd": 10,
+        "chapterRange": {
+          "end": 8,
+          "start": 7
+        },
+        "statusAutoAdvanceSuppressed": true
+      },
+      "childCount": 2,
+      "completedCount": 2,
+      "failedCount": 0,
+      "createdAt": "2026-07-18T13:04:25.707Z",
+      "startedAt": null,
+      "completedAt": "2026-07-18T13:06:13.701Z"
+    },
+    "counts": {
+      "total": 2,
+      "queued": 0,
+      "running": 0,
+      "completed": 2,
+      "failed": 0,
+      "skipped": 0
+    }
+  }
+}

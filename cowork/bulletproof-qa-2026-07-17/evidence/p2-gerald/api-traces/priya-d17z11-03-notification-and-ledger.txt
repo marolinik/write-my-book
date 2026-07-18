@@ -1,0 +1,30 @@
+Priya D-17/Z11 live re-verify -- 2026-07-18
+Batch: cmrqdp84r0000x40fv60qc5c3 (book e90b3494-ead4-472f-a34d-502c4b5b775c, chapters 7-8, line-edit, isolated worker slot)
+
+BatchRun.spentUsd (persisted):     0.03205431
+digest.spentUsd (persisted JSON):  0.03205431
+Raw Redis ledger key batch:cmrqdp84r0000x40fv60qc5c3:spent (redis-cli GET, read-only): 0.03205431
+BookNotification (type=pipeline_complete, id=56dff02c-b983-41b2-84d4-ff0238125437):
+  title:   Overnight batch complete
+  message: 2/2 passes . $0.03 / $10.00 cap
+  actionUrl: /books/e90b3494-ead4-472f-a34d-502c4b5b775c
+
+All four values agree ($0.03 rounded / 0.03205431 raw). D-17 fix (commit 1884847) confirmed live:
+notification text now derives from effectiveSpent, matching the persisted BatchRun/digest figures,
+not the previous bug where it read raw ledger.spentUsd directly (which only diverges from
+effectiveSpent when ledgerAvailable=false).
+
+Unit-level regression coverage (run this session, both GREEN):
+  tests/unit/batch-digest-notification-spend.test.ts  (1/1 pass) -- D-17 regression lock
+  tests/unit/batch-lifecycle.test.ts                   (9/9 pass) -- includes Z11 case
+    "Z11: a Redis ledger read failure falls back to the DB actualCostUsd sum, not $0"
+
+Z11 live-repro status: NOT attempted. Reproducing the ledger-unavailable branch live requires an
+actual Redis connection failure during the digest job's readBatchLedger() call, which would mean
+disrupting the shared Redis instance (platform-new-redis-1) used by all personas/agents currently
+in the QA environment -- out of scope without explicit team-lead sign-off, consistent with the
+prior p4-priya evidence author's same conclusion in evidence/p4-priya/defects.md. Z11's
+DB-fallback branch is verified at the unit level (isolated mock harness, exercises the exact
+readBatchLedger catch path and the effectiveSpent computation) but not live-observed this run,
+since this run's ledger was healthy throughout (ledgerAvailable=true, confirmed by the raw
+Redis GET above matching the DB/digest figures exactly).
