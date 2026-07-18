@@ -156,3 +156,140 @@ actionable — a client has to guess or separately `GET /api/books/{id}/chapters
 **Reported, not fixed.** Non-blocking for the rest of this persona's mission — routed around by
 using `chapterNumber:2` for the standalone-book edge case instead of colliding with the
 auto-created chapter 1.
+
+## D-21 — [S2, MOAT DATA-INTEGRITY] `Character.aliases` is not cumulative across chapters — a later chapter's own extraction pass can silently overwrite (not union) a previously-merged alias, undermining the "alias-matched" sidebar guarantee
+
+> Next free slot per fresh register check 2026-07-18 (D-01..D-20 in use across all
+> `evidence/*/defects.md`). Canonical ID = **D-21**.
+
+**Severity: S2** (data-integrity bug inside the moat's entity-resolution layer — does not create
+duplicate nodes, does not crash, but silently loses previously-established alias history, which
+directly weakens TEST-PLAN.md §P3's explicit exit requirement that the series-context sidebar be
+"alias-matched, diacritic-insensitive").
+
+### Root cause (exact file:line)
+
+`upsertSingleEntity()` in `src/lib/graph/graph-builder.ts` (~lines 67-156) has two different code
+paths for `aliases`:
+
+- **Safe path (lines ~82-121, rename detection)**: only runs when the incoming entity's `name`
+  differs from an existing node matched via its alias list. Uses an additive Cypher `CASE`:
+  `n.aliases = CASE WHEN $newName IN coalesce(n.aliases, []) THEN n.aliases ELSE coalesce(n.aliases, []) + $newName END`
+  — this correctly unions, never drops.
+- **Unsafe path (lines ~122-156, exact-name MERGE, hit whenever the incoming entity's `name`
+  already matches the canonical node name — the normal case for a recurring, consistently-named
+  character)**: builds `allProps.aliases = aliases` directly from *this chapter's own* extraction
+  output, then `MERGE ... ON MATCH SET n += $updateProps`. Neo4j's `+=` property-map merge
+  **overwrites** listed keys wholesale — it does not union arrays. Whatever `aliases` list the
+  current chapter's LLM pass happens to emit (or doesn't emit) for that entity **replaces** the
+  node's accumulated alias history instead of adding to it.
+
+### Repro (empirical, this persona's Book 1 run)
+
+Entity: `Zoë Rasmussen` (bookId `fd60e1d4-37c5-4c11-92a1-586af638224a`), introduced ch1, "Zoe"
+plain-spelling used in ch2/ch4 dialogue only — ch3/ch4/ch5 prose never mentions her by the plain
+"Zoe" spelling except ch4's dialogue; ch5 mentions only "Zoë" (diacritic form), zero occurrences
+of plain "Zoe".
+
+1. After ch2 scan: direct Neo4j read (journey-log.md, "Chapter 2 — alias merge") — exactly one
+   `Zoë Rasmussen` node, `aliases: ["Zoë", "Zoe"]`. Correct, via the safe rename-detection path.
+2. After ch5 scan (all of ch1-5 landed): direct Neo4j read (`MATCH (c:Character {bookId}) WHERE
+   c.name CONTAINS 'Rasmussen'`, used to route around a shell unicode-escaping issue with the
+   literal "Zoë" string) — same single node, but `aliases: ["Zoe"]` only. **"Zoë" has been
+   silently dropped from its own node's alias list.**
+
+No duplicate node was created (the critical de-duplication guarantee from D-nothing/ch2's PASS
+still holds), but the alias array itself is not durable across chapters — it reflects only
+whatever the most recent chapter's own LLM extraction pass happened to (re-)emit, not the union
+of everything ever established. Root cause matches the code path exactly: a node matched by exact
+canonical name skips the additive branch entirely and falls through to the destructive
+`n += $updateProps` merge.
+
+### Fix direction (not applied — no `src/` edits per scope)
+
+In the exact-name MERGE path (lines ~122-156), union `aliases` the same way the rename-detection
+branch already does, e.g. compute `updateProps.aliases` as
+`Array.from(new Set([...(existingAliases ?? []), ...(aliases ?? [])]))` before the `ON MATCH SET`,
+instead of overwriting with the incoming chapter's raw list.
+
+### Status
+
+**Reported, not fixed.** Does not block the rest of this persona's mission (canonical `name`
+lookups still resolve correctly); flagged because it directly undercuts the "alias-matched"
+half of TEST-PLAN.md §P3's series-context sidebar exit criteria.
+
+## D-23 — [S2, MOAT DESIGN GAP, possibly intentional] Series-context sidebar's "last-known state" for an on-stage character NEVER considers the current book's own already-extracted state — only strictly-prior books are candidates, so the sidebar goes permanently stale re: the book you're actively writing
+
+> Renumbered D-22→D-23 by team-lead (D-22 was already assigned to the DocumentService.create-race follow-up sweep, referenced in commit f427822's body). Canonical ID = **D-23**. Classification: PRODUCT-CLARIFICATION (product intent on "latest-book-wins" scope — the sidebar's job may deliberately be prior-book canon only, with the current book's own state shown by the in-book continuity net; not clearly a bug). Route to founder for intent, like [[D-08]].
+
+**Severity: S2** (probably-real gap in the moat's core value proposition — "series sidebar
+surfaces each on-stage character's last-known state," per TEST-PLAN.md §P3 — but flagged as
+*possibly intentional scoping* rather than an outright bug; see discussion below).
+
+### Root cause (exact file:line)
+
+- `src/app/api/books/[id]/series-context/route.ts:88-92` — `priorBooks` is queried with
+  `bookNumber: { lt: book.bookNumber }` (strictly BEFORE the current book).
+- `src/lib/series/ambient-sources.ts:17-23` (`getOnStageNames`) uses the CURRENT book's own
+  extraction only to get a raw name list (`getChapterEntities(bookId, chapterNumber).characters`)
+  — it discards everything else on those nodes (role/status/lastMentioned).
+- `src/lib/series/ambient-context.ts:157-160` (`buildAmbientContext`) — `const prior =
+  (input.priorBookCharacters ?? []).filter((c) => c.bookNumber < input.currentBookNumber)` — even
+  if some future caller passed current-book data through, this filter would still strip it. The
+  `isLater()` tie-break inside `matchCharacters()` (referenced above) exists specifically to pick
+  the most recent state *among candidates already restricted to strictly-prior books* — it never
+  gets a chance to compare against the current book because the current book is never a candidate.
+
+### Repro (empirical, this persona's Book 2 run)
+
+Direct Neo4j query of Book 2's own (bookId-scoped, separate-from-Book1) subgraph after Book 2
+chapters 1-2 were scanned:
+
+```
+Mira Thorne    role:protagonist status:alive lastMentioned:2
+Kestrel Vane   role:antagonist  status:alive lastMentioned:2
+Zoë Rasmussen  role:supporting  status:alive lastMentioned:2
+```
+
+`GET /api/books/{book2Id}/series-context?chapterNumber=2` for the SAME three characters returned:
+
+```json
+{"name":"Mira Thorne","lastBook":1,"lastChapter":5,...}
+{"name":"Zoë Rasmussen","lastBook":1,"lastChapter":5,...}
+{"name":"Kestrel Vane","lastBook":1,"lastChapter":5,...}
+```
+
+Every one of them reports `lastBook:1, lastChapter:5` (Book 1's final state) even though Book 2's
+own graph already has independently-extracted, strictly-more-current data (`lastMentioned:2`) for
+the exact same characters. No matter how many further chapters get written and scanned in Book 2,
+this sidebar's `lastBook`/`lastChapter`/`role`/`status` for these characters will never advance
+past Book 1 — the route structurally cannot see Book 2's own state for on-stage characters.
+
+### Is this a bug?
+
+Genuinely ambiguous, flagged rather than asserted:
+
+- **Case for bug**: TEST-PLAN.md §P3 names the requirement "**latest-book-wins**" without
+  qualifying it as "latest-*prior*-book-wins," and separately requires "last-known state" —
+  the plain reading of both phrases is "the most current information I have established
+  anywhere," which an author would reasonably expect to include their own already-written
+  chapters of the very book they're currently extending.
+- **Case for intentional scoping**: "series context" could be read narrowly as "reminders from
+  *other* books" specifically — the author presumably already remembers what they wrote two
+  chapters ago in the SAME book without needing a sidebar nudge, so cross-referencing only prior
+  *books* (not prior chapters of the current book) is a defensible product scope.
+
+Either way, the current behavior is worth surfacing: a multi-chapter drafting session in Book 2
+gets a sidebar that never updates past Book 1's ending state, for the full duration of writing
+Book 2 — which is a materially different (weaker) guarantee than "last-known state" implies at
+face value.
+
+### Fix direction (not applied — no `src/` edits per scope)
+
+If the current-book-inclusive reading is correct: pass the current book's own `getBookCharacterStates(book.id)` into the same `matchCharacters()`/`isLater()` comparison the prior-books path already uses, treating the current book as the highest-recency candidate. If the narrower reading is correct: no fix needed, but TEST-PLAN.md's "latest-book-wins" wording should be clarified to "latest-*prior*-book-wins" to avoid this exact ambiguity in future grading passes.
+
+### Status
+
+**Reported, not fixed, verdict deliberately left open** (bug vs. intentional scope) for team-lead /
+product judgment — unlike D-19/D-20/D-21, this one hinges on interpreting an ambiguous exit
+criterion rather than a clear-cut implementation defect.

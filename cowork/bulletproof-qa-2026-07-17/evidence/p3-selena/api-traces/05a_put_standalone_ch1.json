@@ -1,0 +1,11 @@
+{
+  "label": "05a_put_standalone_ch1",
+  "method": "PUT",
+  "path": "/api/books/34cd7b88-94a7-47e5-8374-f5d4799fa02a/chapters/5ede415d-2535-4da8-ae6a-34bc0e55231c/content",
+  "status": 200,
+  "response": {
+    "wordCount": 10,
+    "version": 1,
+    "bookWordCount": 10
+  }
+}

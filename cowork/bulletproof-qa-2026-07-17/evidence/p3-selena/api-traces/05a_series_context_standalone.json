@@ -1,0 +1,20 @@
+{
+  "label": "05a_series_context_standalone",
+  "method": "GET",
+  "path": "/api/books/34cd7b88-94a7-47e5-8374-f5d4799fa02a/series-context?chapterNumber=1",
+  "status": 200,
+  "response": {
+    "series": null,
+    "chapterNumber": 1,
+    "characters": [],
+    "threads": [],
+    "toneDrift": null,
+    "meta": {
+      "notReady": false,
+      "sourcesAvailable": {
+        "graph": true,
+        "style": true
+      }
+    }
+  }
+}

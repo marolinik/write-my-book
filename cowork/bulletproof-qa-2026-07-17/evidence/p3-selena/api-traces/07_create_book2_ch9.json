@@ -1,0 +1,22 @@
+{
+  "label": "07_create_book2_ch9",
+  "method": "POST",
+  "path": "/api/books/2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90/chapters",
+  "status": 201,
+  "response": {
+    "id": "d29b0b6c-d52a-446b-9aa8-bdc07c93d1f4",
+    "bookId": "2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90",
+    "actNumber": 1,
+    "chapterNumber": 9,
+    "title": "The Bell",
+    "status": "undiscussed",
+    "wordCount": 0,
+    "targetWordCount": null,
+    "betaScore": null,
+    "betaGate": "pending",
+    "revisionCount": 0,
+    "importedAt": null,
+    "createdAt": "2026-07-18T02:25:30.247Z",
+    "updatedAt": "2026-07-18T02:25:30.247Z"
+  }
+}

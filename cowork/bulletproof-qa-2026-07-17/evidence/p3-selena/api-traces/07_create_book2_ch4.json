@@ -1,0 +1,22 @@
+{
+  "label": "07_create_book2_ch4",
+  "method": "POST",
+  "path": "/api/books/2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90/chapters",
+  "status": 201,
+  "response": {
+    "id": "839f1693-9314-47e7-88a0-6d577f15849e",
+    "bookId": "2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90",
+    "actNumber": 1,
+    "chapterNumber": 4,
+    "title": "Two Places at Once",
+    "status": "undiscussed",
+    "wordCount": 0,
+    "targetWordCount": null,
+    "betaScore": null,
+    "betaGate": "pending",
+    "revisionCount": 0,
+    "importedAt": null,
+    "createdAt": "2026-07-18T02:25:25.507Z",
+    "updatedAt": "2026-07-18T02:25:25.507Z"
+  }
+}

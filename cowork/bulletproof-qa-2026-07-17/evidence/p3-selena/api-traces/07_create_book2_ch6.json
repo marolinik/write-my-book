@@ -1,0 +1,22 @@
+{
+  "label": "07_create_book2_ch6",
+  "method": "POST",
+  "path": "/api/books/2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90/chapters",
+  "status": 201,
+  "response": {
+    "id": "f842f689-a949-4a6b-ba82-be7456d6a3a1",
+    "bookId": "2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90",
+    "actNumber": 1,
+    "chapterNumber": 6,
+    "title": "The Parley Flag",
+    "status": "undiscussed",
+    "wordCount": 0,
+    "targetWordCount": null,
+    "betaScore": null,
+    "betaGate": "pending",
+    "revisionCount": 0,
+    "importedAt": null,
+    "createdAt": "2026-07-18T02:25:27.658Z",
+    "updatedAt": "2026-07-18T02:25:27.658Z"
+  }
+}

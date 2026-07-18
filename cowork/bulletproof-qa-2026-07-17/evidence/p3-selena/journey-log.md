@@ -62,11 +62,95 @@ entities appeared. Landed correctly:
   reliably present on relationships, injected by application code in `upsertRelationship()`, not
   LLM-derived — the one part of the "chapter" story that works).
 
-### Remaining step-1 work (in progress)
+### Chapter 2 — alias merge (CONFIRMED PASS)
 
-Chapters 2, 3 (death), 4, 5 scans queued one at a time (single-worker discipline). Will confirm:
-Corvin Ashe `status` flips to `"dead"` after ch3 extraction (and empirically check whether
-`deathChapter` ever appears, expected: no, per D-17); Zoë/Zoe alias-merge (no duplicate node)
-after ch2/ch4 (both use the plain "Zoe" spelling in dialogue).
+Chapter 2 (plain "Zoe" spelling in dialogue) extracted cleanly. Direct Neo4j read: exactly **one**
+`Zoë Rasmussen` Character node exists, `aliases: ["Zoë", "Zoe"]`. No duplicate node created — the
+alias-check-before-create logic in `upsertSingleEntity()` works correctly in practice. Genuine
+positive finding for the moat feature.
+
+### Chapter 3 — on-page death (CONFIRMED, D-19 evidence)
+
+Post-extraction direct Neo4j read of Corvin Ashe's node:
+
+```json
+{"status":"dead","lastMentioned":3,"firstAppearance":1,"aliases":["Corvin"],
+ "name":"Corvin Ashe","role":"supporting", ...}
+```
+
+- `status` correctly flipped `"alive"` → `"dead"` after the chapter 3 death scene. **PASS** — this
+  part of extraction works.
+- **No `deathChapter` property present anywhere on the node.** Empirically confirms D-19's
+  prediction for this exact status-transition, not just by code/prompt analysis: the field is
+  never written, so `dead_character_reappears` has nothing to compare `c.lastMentioned` against
+  even in the one case (an actual death) where the check's premise is most directly satisfied.
+
+### Chapters 4, 5 — landed; NEW FINDING: aliases array regresses (D-21)
+
+Both chapters' extraction confirmed landed via direct Neo4j polling (Monitor timed out on both —
+same latency pattern as before, resolved via one-shot follow-up query, not re-arming): all three
+main characters at `lastMentioned:4` then `lastMentioned:5`, Corvin's `status:"dead"` persisted
+correctly across both.
+
+While re-checking Zoë Rasmussen's node (`WHERE c.name CONTAINS 'Rasmussen'`, routing around a
+shell/unicode escaping issue with the literal diacritic string), found her `aliases` array had
+regressed from `["Zoë", "Zoe"]` (confirmed after ch2, above) to **`["Zoe"]` only** — "Zoë" itself
+silently dropped. Neither ch3 nor ch4 nor ch5's prose re-uses the plain "Zoe" spelling except
+ch4's dialogue; ch5 uses only "Zoë". Traced to `upsertSingleEntity()` in `graph-builder.ts`: the
+safe additive alias-union path only fires on a *rename* (incoming name differs from the matched
+node's canonical name); a recurring, consistently-named character instead falls through to the
+exact-name `MERGE ... ON MATCH SET n += $updateProps` path, where `updateProps.aliases` is built
+fresh from *that chapter's own* extraction and Neo4j's `+=` overwrites (does not union) the
+property. Filed as **D-21** (`defects.md`) — genuine data-integrity gap in the moat's alias
+tracking, distinct from D-19/D-20. The original ch2 no-duplicate-node PASS still stands; this is
+narrower (array contents, not node identity).
+
+### Series-context sidebar architecture (resolves an open question, not a defect)
+
+`GET /api/books/{book2Id}/series-context?chapterNumber=1` initially returned
+`{"characters":[],"threads":[],"toneDrift":null,"meta":{"notReady":true,...}}` despite Book 1
+already having 4 richly-populated Character nodes. Traced via `src/lib/series/ambient-sources.ts`:
+`getOnStageNames(bookId, chapterNumber)` calls `getChapterEntities(bookId, chapterNumber)` — it
+reads the **current book's own** extraction for that chapter to determine who is on stage, and
+only *then* enriches each on-stage name with prior-book history via `getPriorCharacters`. Book 2
+chapter 1 had not yet been scanned at the time of that call, so the on-stage set was empty and
+nothing could be enriched — `notReady:true` is the route correctly reporting "current chapter not
+yet extracted," not a bug in prior-book character surfacing. Re-checking after Book 2 ch1 is
+scanned is the correct next step, not a workaround.
+
+## Step 2 — Book 2 sidebar accuracy (post-scan)
+
+Book 2 chapters 1-2 scanned (extraction landed, direct Neo4j poll). Re-queried
+`GET /api/books/{book2Id}/series-context?chapterNumber=2`:
+
+```json
+{"series":{"title":"The Ashfall Cycle","seriesType":"TRILOGY","currentBookNumber":2},
+ "characters":[
+   {"name":"Mira Thorne","matchedFrom":null,"lastBook":1,"lastChapter":5,"role":"protagonist","status":"alive",...},
+   {"name":"Zoë Rasmussen","matchedFrom":null,"lastBook":1,"lastChapter":5,"role":"supporting","status":"alive",...},
+   {"name":"Kestrel Vane","matchedFrom":null,"lastBook":1,"lastChapter":5,"role":"antagonist","status":"alive",...},
+   {"name":"Corvin Ashe","matchedFrom":"Corvin","lastBook":1,"lastChapter":5,"role":"mentioned","status":"dead",
+    "description":"Late defender of Ashfall Gate, died one month prior to this chapter",...}
+ ],"threads":[],"toneDrift":null,"meta":{"notReady":false,...}}
+```
+
+**Positives, confirmed PASS:**
+- `notReady` correctly flips `true` -> `false` once Book 2's own chapter is extracted.
+- role · status · last-seen (`lastBook`/`lastChapter`) present for every on-stage character.
+- Alias-matching works cross-book: `matchedFrom:"Corvin"` proves Book 2's text used the alias
+  "Corvin" and correctly resolved it to canonical "Corvin Ashe" from Book 1's graph.
+- Diacritic byte-integrity confirmed: raw trace file (`api-traces/09b_...json`) has correct
+  `"Zoë Rasmussen"` UTF-8; a garbled "Zo�" seen in one terminal `print()` was a Windows console
+  codepage rendering artifact on my end, NOT a real API/data bug — verified by reading the file
+  directly rather than trusting console output.
+
+**New finding (D-22, possibly-intentional design gap):** Direct Neo4j query of Book 2's OWN
+graph shows Mira/Zoë/Vane already have `lastMentioned:2` (fresher, independently-extracted Book 2
+state) — yet the sidebar reports `lastBook:1, lastChapter:5` for all three, sourcing exclusively
+from Book 1. Traced to `series-context/route.ts` querying `priorBooks` as strictly `bookNumber <
+current`, and `ambient-context.ts`'s `buildAmbientContext` filtering `prior` the same way — the
+current book is never a "last-known state" candidate, even when its own graph already has more
+current data. Filed as **D-22**, flagged (not asserted) as a bug given TEST-PLAN's literal
+"latest-book-wins" / "last-known state" wording could reasonably be read either way.
 
 *(continued below as each chapter's extraction lands)*

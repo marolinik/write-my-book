@@ -1,0 +1,25 @@
+{
+  "label": "09_series_context_book2_ch1",
+  "method": "GET",
+  "path": "/api/books/2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90/series-context?chapterNumber=1",
+  "status": 200,
+  "response": {
+    "series": {
+      "id": "8d5e94c0-c175-4f50-97f4-29f4e09b9b89",
+      "title": "The Ashfall Cycle",
+      "seriesType": "TRILOGY",
+      "currentBookNumber": 2
+    },
+    "chapterNumber": 1,
+    "characters": [],
+    "threads": [],
+    "toneDrift": null,
+    "meta": {
+      "notReady": true,
+      "sourcesAvailable": {
+        "graph": true,
+        "style": true
+      }
+    }
+  }
+}
