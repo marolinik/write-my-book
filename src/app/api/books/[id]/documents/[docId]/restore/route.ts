@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { restoreVersionSchema } from "@/lib/validation";
 import { DocumentService } from "@/lib/documents";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { zodErrorResponse } from "@/lib/api/zod-error";
 
 type RouteParams = { params: Promise<{ id: string; docId: string }> };
 
@@ -44,12 +45,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if ((error as Error).name === "ZodError") {
-      return NextResponse.json(
-        { error: "Invalid input", details: error },
-        { status: 400 }
-      );
-    }
+    const zodRes = zodErrorResponse(error);
+    if (zodRes) return zodRes;
     console.error(
       "POST /api/books/:id/documents/:docId/restore error:",
       error

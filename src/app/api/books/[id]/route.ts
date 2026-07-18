@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { zodErrorResponse } from "@/lib/api/zod-error";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { updateBookSchema } from "@/lib/validation";
@@ -68,9 +69,8 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if ((error as Error).name === "ZodError") {
-      return NextResponse.json({ error: "Invalid input", details: error }, { status: 400 });
-    }
+    const zodRes = zodErrorResponse(error);
+    if (zodRes) return zodRes;
     console.error("PATCH /api/books/:id error:", error);
     return NextResponse.json(
       { error: "Failed to update book" },

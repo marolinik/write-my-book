@@ -9,6 +9,7 @@ import { convertDocxToMarkdown } from "@/lib/import-export/docx-to-markdown";
 import { parseManuscriptChapters } from "@/lib/import-export/chapter-parser";
 import { indexBatch } from "@/lib/vector";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { zodErrorResponse } from "@/lib/api/zod-error";
 
 const ALLOWED_EXTENSIONS = [".md", ".txt", ".docx"];
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
@@ -47,12 +48,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if ((error as Error).name === "ZodError") {
-      return NextResponse.json(
-        { error: "Invalid input", details: error },
-        { status: 400 }
-      );
-    }
+    const zodRes = zodErrorResponse(error);
+    if (zodRes) return zodRes;
     console.error("POST /api/books/:id/import error:", error);
     return NextResponse.json(
       { error: "Import failed" },

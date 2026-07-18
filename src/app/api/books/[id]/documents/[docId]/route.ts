@@ -6,6 +6,7 @@ import { DocumentService, VersionConflictError } from "@/lib/documents";
 import { onDocumentChanged } from "@/lib/vector/memory-manager";
 import { deleteDocumentChunks } from "@/lib/vector";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { zodErrorResponse } from "@/lib/api/zod-error";
 
 type RouteParams = { params: Promise<{ id: string; docId: string }> };
 
@@ -159,12 +160,8 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if ((error as Error).name === "ZodError") {
-      return NextResponse.json(
-        { error: "Invalid input", details: error },
-        { status: 400 }
-      );
-    }
+    const zodRes = zodErrorResponse(error);
+    if (zodRes) return zodRes;
     console.error("PATCH /api/books/:id/documents/:docId error:", error);
     return NextResponse.json(
       { error: "Failed to update document" },
