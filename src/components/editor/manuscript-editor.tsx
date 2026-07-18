@@ -1415,6 +1415,10 @@ export function ManuscriptEditor({
       {immersive && (
         <ImmersiveFocusMode
           content={immersiveContent}
+          // D-23: on an intermittent overlay remount, mount re-seeds from
+          // this live buffer (updated every keystroke below) instead of the
+          // stale enter-time snapshot — typed words survive.
+          liveContentRef={immersiveHtmlRef}
           onContentChange={(html) => {
             // Keystroke: update the buffer and (re)arm the debounced CAS sync
             // so active editing reaches the hardened autosave within ~2s (S10).
