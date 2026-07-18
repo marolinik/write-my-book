@@ -1,0 +1,49 @@
+{
+ "content-before": {
+  "status": 200,
+  "wordCount": 395,
+  "version": 1,
+  "sha_len": 2011
+ },
+ "findings-before-count": 0,
+ "start": {
+  "status": 200,
+  "elapsed": 2.437,
+  "body": {
+   "sessionId": "3361b5d1-96ea-451b-b0fa-63730d297702",
+   "queued": true,
+   "jobId": "3361b5d1-96ea-451b-b0fa-63730d297702"
+  }
+ },
+ "stream": {
+  "n_events": 689,
+  "elapsed": 163.845,
+  "final": {
+   "type": "complete",
+   "content": "Session completed successfully",
+   "metadata": {
+    "findingsCreated": 3,
+    "statusAdvanced": false,
+    "suggestedNext": [
+     "beta-read"
+    ],
+    "tokensInput": 50508,
+    "tokensOutput": 8507,
+    "costUsd": 0.034811579999999995,
+    "endReason": "natural"
+   }
+  },
+  "sessionId": "3361b5d1-96ea-451b-b0fa-63730d297702"
+ },
+ "d33-d34-scan": {
+  "REJECTED_count": 1,
+  "raw_typeerror_count": 0,
+  "error_executing_count": 0,
+  "suppressed_count": 0
+ },
+ "misquote-probe": {
+  "new_findings": 0,
+  "misquotes": 0,
+  "detail": []
+ }
+}

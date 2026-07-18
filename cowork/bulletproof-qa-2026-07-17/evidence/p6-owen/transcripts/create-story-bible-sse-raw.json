@@ -1,0 +1,1268 @@
+{
+ "path": "/api/books/6d69fd7c-f7a4-4e3d-bf49-1415d81f5326/agent/2ee079d4-4c97-490a-966d-e45ed01d84cf/stream",
+ "elapsed": 143.764,
+ "n_events": 310,
+ "final": {
+  "type": "complete",
+  "content": "Session finished",
+  "metadata": {
+   "success": true,
+   "tokensInput": 36498,
+   "tokensOutput": 5512,
+   "documentIds": [],
+   "sessionId": "2ee079d4-4c97-490a-966d-e45ed01d84cf",
+   "endReason": "natural",
+   "assistantText": "Your story bible is built. Here's what I captured from the four chapters:\n\n**Characters (5 voices)**\n- **Vera** — the keeper, narrator, defined by procedure and its failure\n- **Danilo** — dead brother, posthumous catalyst, racing her through timed letters\n- **Radmila** — information hub, maternal-sardonic, controls what Vera knows and when\n- **Kova** — boat mender, his name appears eleven times in the ledger, was waiting for her to find it\n- **The Soft-Handed Men** — mainland lender's agents, the anonymous enforcement threat\n\n**World (5 locations)**\n- The unnamed Adriatic island\n- The lighthouse tower and its 96 steps\n- The boathouse (where the ledger hides)\n- Radmila's shop (co-op meetings, information exchange)\n- Struga reef (the Morena's wreck at low tide)\n\n**Plot Threads (6 strands)**\n1. The four thousand — the center of gravity\n2. The letters — dead or pre-timed? Delivered by whom?\n3. The obligation — private lender, boat as collateral\n4. The ledger — 41 entries, Kova's name, escalating sums\n5. The soft-handed men — arrival signals ongoing threat\n6. Vera's procedure breaking — trims wick, draws lines, fails to do both\n\n**Key Objects** — the white-quartz stone (witness), the boathouse ledger (truth), kerosene (replaced by intelligence), the lamp wick (procedural rupture marker), soup vs. eggs (care as displacement language)\n\n**Themes** — procedure as survival, weight as moral register, the sea as creditor, light and glass, the line as closure (or its refusal), numbers as body-rhythm\n\n**Timeline** — January (insurance) → pre-storm (cash withdrawal) → Thursday (Ch. 1) → Saturday gale (Ch. 2) → Sunday (Ch. 3) → Monday morning (Ch. 4), ending on \"Let the night try the door.\"\n\n**Strategic Absences** — island unnamed, lender unnamed, mainland unreached, mother unmourned, cargo unspecified — all deliberate spaces.\n\nThe bible is ~3,200 words. It stays strictly within what's on the page — no invented plot beats, no speculative character backstories. What you do next: move into the **Architecture** workflow to design your chapter outline and map where these threads converge and resolve, or jump into **write-chapter** to start drafting Chapter 5 from Vera's Monday evening.",
+   "cancelled": false,
+   "resultMeta": {
+    "findingsCreated": 0,
+    "statusAdvanced": false
+   },
+   "suggestedNext": [
+    "build-architecture"
+   ]
+  }
+ },
+ "events": [
+  {
+   "t": 4.643,
+   "raw": "id: 0\ndata: {\"type\":\"text\",\"content\":\"\\n\\n\"}"
+  },
+  {
+   "t": 4.871,
+   "raw": "id: 1\ndata: {\"type\":\"text\",\"content\":\"I'll read\"}"
+  },
+  {
+   "t": 4.872,
+   "raw": "id: 2\ndata: {\"type\":\"text\",\"content\":\" all four chapters\"}"
+  },
+  {
+   "t": 4.872,
+   "raw": "id: 3\ndata: {\"type\":\"text\",\"content\":\" now\"}"
+  },
+  {
+   "t": 4.872,
+   "raw": "id: 4\ndata: {\"type\":\"text\",\"content\":\" to extract every\"}"
+  },
+  {
+   "t": 4.872,
+   "raw": "id: 5\ndata: {\"type\":\"text\",\"content\":\" detail\"}"
+  },
+  {
+   "t": 5.045,
+   "raw": "id: 6\ndata: {\"type\":\"text\",\"content\":\" about characters\"}"
+  },
+  {
+   "t": 5.045,
+   "raw": "id: 7\ndata: {\"type\":\"text\",\"content\":\", world,\"}"
+  },
+  {
+   "t": 5.045,
+   "raw": "id: 8\ndata: {\"type\":\"text\",\"content\":\" and\"}"
+  },
+  {
+   "t": 5.045,
+   "raw": "id: 9\ndata: {\"type\":\"text\",\"content\":\" plot\"}"
+  },
+  {
+   "t": 5.243,
+   "raw": "id: 10\ndata: {\"type\":\"text\",\"content\":\" threads before\"}"
+  },
+  {
+   "t": 5.243,
+   "raw": "id: 11\ndata: {\"type\":\"text\",\"content\":\" building\"}"
+  },
+  {
+   "t": 5.597,
+   "raw": "id: 12\ndata: {\"type\":\"text\",\"content\":\" your\"}"
+  },
+  {
+   "t": 5.792,
+   "raw": "id: 13\ndata: {\"type\":\"text\",\"content\":\" story bible.\"}"
+  },
+  {
+   "t": 5.792,
+   "raw": "id: 14\ndata: {\"type\":\"text\",\"content\":\"\\n\\n\"}"
+  },
+  {
+   "t": 5.792,
+   "raw": "id: 15\ndata: {\"type\":\"tool_use\",\"content\":\"Using tool: ReadAllChapters\",\"metadata\":{\"tool\":\"ReadAllChapters\",\"toolUseId\":\"call-dc43f0c2-182c-4640-b8e7-2edfd7c450c2\"}}"
+  },
+  {
+   "t": 5.93,
+   "raw": "id: 16\ndata: {\"type\":\"cost_update\",\"content\":\"$0.0036\",\"metadata\":{\"inputTokens\":11319,\"outputTokens\":141,\"costUsd\":0.0035643149999999993,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+  },
+  {
+   "t": 5.93,
+   "raw": "id: 17\ndata: {\"type\":\"tool_use\",\"content\":\"Executing: ReadAllChapters\",\"metadata\":{\"tool\":\"ReadAllChapters\",\"toolInput\":{\"chapterNumbers\":[1,2,3,4]},\"toolUseId\":\"call-dc43f0c2-182c-4640-b8e7-2edfd7c450c2\"}}"
+  },
+  {
+   "t": 5.971,
+   "raw": "id: 18\ndata: {\"type\":\"tool_result\",\"content\":\"# Full Manuscript (4 chapters, 4 total)\\n\\n## Chapter 1: Soup and Salvage\\n\\nI went down to the village Thursday for kerosene and came back with intelligence instead. Intelligence is the village's only reliable export. It appears on no manifest.\\n\\nRadmila's shop sits where the harbor road bends, which means she sees every boat before it lands and every man before he lies about where he has been. The co-op meets in her back room. The fishermen settle their accounts at her table. If you want to know wh...\",\"metadata\":{\"tool\":\"ReadAllChapters\",\"toolUseId\":\"call-dc43f0c2-182c-4640-b8e7-2edfd7c450c2\"}}"
+  },
+  {
+   "t": 9.77,
+   "raw": "id: 19\ndata: {\"type\":\"tool_use\",\"content\":\"Using tool: ListDocuments\",\"metadata\":{\"tool\":\"ListDocuments\",\"toolUseId\":\"call-6e982b9d-ee2a-4535-9675-2ae18c56fdf7\"}}"
+  },
+  {
+   "t": 10.303,
+   "raw": "id: 20\ndata: {\"type\":\"cost_update\",\"content\":\"$0.0050\",\"metadata\":{\"inputTokens\":15779,\"outputTokens\":200,\"costUsd\":0.0049770149999999996,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+  },
+  {
+   "t": 10.303,
+   "raw": "id: 21\ndata: {\"type\":\"tool_use\",\"content\":\"Executing: ListDocuments\",\"metadata\":{\"tool\":\"ListDocuments\",\"toolInput\":{\"documentType\":\"STORY_BIBLE\"},\"toolUseId\":\"call-6e982b9d-ee2a-4535-9675-2ae18c56fdf7\"}}"
+  },
+  {
+   "t": 10.308,
+   "raw": "id: 22\ndata: {\"type\":\"tool_result\",\"content\":\"No documents found.\",\"metadata\":{\"tool\":\"ListDocuments\",\"toolUseId\":\"call-6e982b9d-ee2a-4535-9675-2ae18c56fdf7\"}}"
+  },
+  {
+   "t": 15.071,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 16.163,
+   "raw": "id: 23\ndata: {\"type\":\"text\",\"content\":\"\\n\\nI\"}"
+  },
+  {
+   "t": 16.163,
+   "raw": "id: 24\ndata: {\"type\":\"text\",\"content\":\"'ve\"}"
+  },
+  {
+   "t": 16.403,
+   "raw": "id: 25\ndata: {\"type\":\"text\",\"content\":\" read all four\"}"
+  },
+  {
+   "t": 16.403,
+   "raw": "id: 26\ndata: {\"type\":\"text\",\"content\":\" chapters thoroughly\"}"
+  },
+  {
+   "t": 16.403,
+   "raw": "id: 27\ndata: {\"type\":\"text\",\"content\":\". Now I\"}"
+  },
+  {
+   "t": 16.404,
+   "raw": "id: 28\ndata: {\"type\":\"text\",\"content\":\"'ll build the\"}"
+  },
+  {
+   "t": 16.929,
+   "raw": "id: 29\ndata: {\"type\":\"text\",\"content\":\" story bible strictly\"}"
+  },
+  {
+   "t": 17.118,
+   "raw": "id: 30\ndata: {\"type\":\"text\",\"content\":\" from what appears\"}"
+  },
+  {
+   "t": 17.118,
+   "raw": "id: 31\ndata: {\"type\":\"text\",\"content\":\" on the page\"}"
+  },
+  {
+   "t": 17.118,
+   "raw": "id: 32\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 17.119,
+   "raw": "id: 33\ndata: {\"type\":\"text\",\"content\":\" Let\"}"
+  },
+  {
+   "t": 17.12,
+   "raw": "id: 34\ndata: {\"type\":\"text\",\"content\":\" me write\"}"
+  },
+  {
+   "t": 17.12,
+   "raw": "id: 35\ndata: {\"type\":\"text\",\"content\":\" it.\"}"
+  },
+  {
+   "t": 17.12,
+   "raw": "id: 36\ndata: {\"type\":\"text\",\"content\":\"\\n\\n\"}"
+  },
+  {
+   "t": 30.083,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 45.096,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 60.102,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 75.104,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 90.105,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 105.105,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 120.105,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 123.376,
+   "raw": "id: 37\ndata: {\"type\":\"tool_use\",\"content\":\"Using tool: WriteDocument\",\"metadata\":{\"tool\":\"WriteDocument\",\"toolUseId\":\"call-b75cc021-4001-4ba1-979f-2184d6a29b63\"}}"
+  },
+  {
+   "t": 123.546,
+   "raw": "id: 38\ndata: {\"type\":\"cost_update\",\"content\":\"$0.0209\",\"metadata\":{\"inputTokens\":31581,\"outputTokens\":4938,\"costUsd\":0.020851784999999998,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+  },
+  {
+   "t": 123.562,
+   "raw": "id: 39\ndata: {\"type\":\"tool_use\",\"content\":\"Executing: WriteDocument\",\"metadata\":{\"tool\":\"WriteDocument\",\"toolInput\":{\"content\":\"# Story Bible — The Keeper's Arithmetic\\n\\n---\\n\\n## 1. CHARACTERS\\n\\n### VERMA (vera) — The Keeper\\n| Attribute | Detail |\\n|---|---|\\n| Role | First-person narrator; lighthouse keeper on an unnamed Adriatic island |\\n| Age/History | Keeper for thirty years; inherited the post from her father; had a boyhood spent teaching her brother to read the sea |\\n| Voice | Clipped, procedural, emotionally controlled. Communicates through maintenance tasks, log entries, and physical observation. Never names her own feelings directly. |\\n| Defining Habit | Walking the ninety-six steps of the lighthouse tower; counting rhythmically; drawing (or refusing to draw) a line under log entries as a marker of emotional closure |\\n| Current Arc | Forced out of stasis by her brother's death. Her procedure — the only place \\\"where fear can be made to sit still\\\" — is being systematically destabilized by letters from her dead brother. She is entering the unknown: \\\"Let the night try the door.\\\" |\\n| Relationships | Sister of Danilo (dead); daughter of the former lighthouse keeper; node of trust in the tightly knit island community |\\n\\n### DANILO — The Dead Brother\\n| Attribute | Detail |\\n|---|---|\\n| Role | Deceased; boat owner; the engine of the mystery |\\n| Voice | More voluble than Vera; explanatory, guilty, occasionally self-aware (\\\"I know you the way I know when a swell is going to break wrong\\\"). His letters are intimate, observant, and deliberately disorienting. |\\n| Known Facts | Owned the Morena; paid the co-op insurance policy in January (surprisingly on time); withdrew four thousand in cash two days before the storm; told Kova he needed \\\"to move something heavy\\\" and asked that it not be marked in the manifest; wrecked on the rocks off Struga |\\n| Current Arc | His posthumous presence through timed letters is racing Vera forward. He intended for her to find the boathouse ledger. He anticipates she will think he meant to run — \\\"You are wrong, but you are wrong in a way that is close to right.\\\" |\\n| Key Mystery | Whether the letters were timed and placed by someone else; whether the four thousand was payment or smuggling; what \\\"close to right\\\" means; whether Danilo set this machinery in motion before his death |\\n\\n### RADMILA — The Shopkeeper\\n| Attribute | Detail |\\n|---|---|\\n| Role | Island information hub; keeper of co-op records |\\n| Voice | Maternal, sardonic, practical. Speaks in provisions and observations: \\\"Soup is not eating.\\\" Moves in stage directions — wrapping, wrapping, cutting, folding. Institutional authority cloaked in warmth. |\\n| Known Facts | Owns the harbor shop where the co-op meets in the back room; sells paper to Danilo (good paper, for years); controls information flow on the island (\\\"If you want to know what the island knows, you ask Radmila\\\"); warns Vera about the mainland men before they arrive |\\n| Current Arc | She is Vera's tether to the living community. Her knowledge is complete — she chose Vera's ignorance deliberately (\\\"The co-op does not send men up to a lighthouse with news about money\\\"). She may know more about Danilo's letters than she admits. |\\n\\n### KOVA — The Boat Repairman\\n| Attribute | Detail |\\n|---|---|\\n| Role | Harbor worker; boat mender; Danilo's collaborator |\\n| Voice | Brief, dry, working-man directness. Speaks in metaphor-by-accumulated-weight: \\\"Your brother moved things. Small things, early. Then the things got heavier and the money got quieter.\\\" |\\n| Known Facts | Mends boats on the mole at the harbor; his name appears eleven times in Danilo's secret ledger; knew Danilo was moving cargo that was not ordinary line and diesel; was the person who Danilo talked about \\\"moving something heavy\\\"; knows salvage rights lapse in \\\"a year and a day\\\" |\\n| Current Arc | He was waiting for Vera to find the ledger (\\\"A man who is surprised looks up. A man who has rehearsed does not\\\"). His relationship with Danilo was transactional but honest — \\\"Then he was honest eleven times.\\\" |\\n\\n### THE SOFT-HANDED MEN — The Lender's Representatives\\n| Attribute | Detail |\\n|---|---|\\n| Role | Antagonistic force; off-island threat |\\n| Voice | Formal, evasive, corporate-cold. \\\"We represent a lender. A private arrangement.\\\" Their speech is a recitation of instructions poorly absorbed. |\\n| Known Facts | Two men. Mainland. Wore jackets that had never met salt. One held a clipboard with a laminated card. Came asking about the Morena's cargo manifest and \\\"personal effects\\\" and \\\"documentation.\\\" Represent a private lender with whom Danilo had an outstanding obligation. Are not from the co-op insurance. Their company name is unknown on the island. |\\n| Current Arc | They learned from Vera that she does not know where the money is. Their presence signals that Danish's obligation extends beyond the co-op. They are the enforcing face of whatever \\\"private arrangement\\\" Danilo made. |\\n\\n---\\n\\n## 2. SETTING\\n\\n### The Island\\n- Unnamed Adriatic island. Tightly knit community: \\\"everyone already knows what is being discussed.\\\"\\n- Harbor with a mole where boats are mended. A harbor road that bends at Radmila's shop.\\n- Struga: a reef/rock formation offshore where the Morena wrecked. Visible at low tide.\\n- The village exports \\\"intelligence\\\" (information) as its only reliable product.\\n- Time is measured by barometer pressure, wind direction/knots, visibility ratings, and six-hour intervals.\\n\\n### The Lighthouse\\n- Stone tower with **ninety-six steps** from base to lamp room. The number is Vera's metronome; her feet \\\"have been right for thirty years.\\\"\\n- Ly Ap building: kerosene-fuel lamp with clockwork mechanism. Wick trimmed every six hours to regulation width. Glass panels face four sides.\\n- Logger: separate weather log and lamp maintenance log. Both kept by Vera.\\n- A bench set into the rock halfway down the gull road, placed by Vera's father \\\"for watching.\\\"\\n- A gate and turns up to the tower like winding gestures kept.\\n\\n### The Boathouse\\n- Located at the base of the tower, near the water.\\n- Contains tins of paint (unopened since Vera's father's time), work benches, shelving.\\n- This is where Danilo kept his secret ledger — wrapped in oilcloth, tied with a knot \\\"a man uses when he means to come back.\\\"\\n\\n### Radmila's Shop\\n- Where the harbor road bends — strategically positioned to see every boat, every man.\\n- Co-op meets in the back room. Fishermen settle accounts at her table.\\n- Smells \\\"of fennel and old wood and the particular smell of a room where people have argued about small sums of money for several generations.\\\"\\n- Backup storage under the counter (Radmila \\\"reached under the counter\\\" to retrieve items).\\n- Shelf for paper, including quality paper Danilo bought for years.\\n\\n---\\n\\n## 3. KEY OBJECTS\\n\\n| Object | Significance |\\n|---|---|\\n| **The Stone (white-quartz-veined)** | Weights every letter Danilo delivers. Functions as witness, touchstone, tie between letters. Moved from the boathouse outside to the kitchen table inside. \\\"Someone had been carrying it all along, stone to stone and letter to letter.\\\" |\\n| **The Boathouse Ledger** | Danilo's secret arithmetic. 41 entries spanning four years. Names Vera does not know; sums that repeat like tide. Kova's name appears eleven times. The four thousand appears at the end. Wrapped in oilcloth; smelled of paraffin. |\\n| **Danilo's Letters** | Delivered posthumously. Same paper, same hand. Arrive timed to Vera's movements. Second letter names the money and Radmila. Third letter anticipates her actions during a gale (wet hair, soup vs. eating, etc.). Either prophecy, close observation, or twenty versions written for different locations. |\\n| **Kerosene** | Fuel for the lighthouse lamp — both literal (feeding the light) and symbolic (the thing Vera went down for, replaced by intelligence). |\\n| **Eggs / Bread / Cheese** | Radmila's provisions. Displacement language: care communicated through food rather than named emotion. \\\"The eggs in the basket beside the bread.\\\" |\\n| **The Lamp Wick** | Procedure marker. Vera *fails* to trim it when she goes up during the gale — \\\"a finger's width too long\\\" — which is her first visible breach of routine, and the first crack in her emotional armor. |\\n| **Four Thousand** | The money. Insurance deposit against the Morena's loss. Cash Danilo withdrew two days before the storm. A \\\"private arrangement\\\" with an unnamed lender. The number that follows Vera through every scene. |\\n| **The Morena** | Danilo's boat. Wrecked on rocks off Struga. Mast shows at low tide. The wreck is collateral for the lender's obligation. Salvage rights lapse in \\\"a year and a day.\\\" |\\n\\n---\\n\\n## 4. PLOT THREADS (AS STATED OR IMPLIED)\\n\\n### Thread 1: The Four Thousand\\n- **Stated**: Radmila puts a deposit of four thousand through Tuesday from the co-op. Danilo paid the co-op insurance in January (surprisingly on time). Danilo withdrew four thousand in cash two days before the storm.\\n- **Implied**: The money is the center of the mystery. Danilo owed it — or was carrying it — to someone off-island. The soft-handed men came to collect. The wreck destroyed the boat (collateral) but not the obligation.\\n\\n### Thread 2: The Letters\\n- **Stated**: Danilo's letters arrive posthumously. The third letter anticipates Vera's physical state during the gale. The stone weights them.\\n- **Implied**: Either Danilo pre-timed and pre-placed the letters, or someone is delivering them on Danilo's instructions. The letter writer says: \\\"You do not know which brother you are reading: the live one or the dead one pretending.\\\" This is the core unreliability question.\\n\\n### Thread 3: The Obligation\\n- **Stated**: Danilo carries an outstanding obligation to a private lender. The boat was collateral. Kova's name is in the ledger eleven times.\\n- **Implied**: The ledger records transactions — \\\"Other arithmetic\\\" — that are not ordinary maritime commerce. The sums escalate: 200, 200, then 500, 800, 1100, 4000. Someone was paying someone else over four years. The private lender may have financial leverage over Kova or over Danilo, or both.\\n\\n### Thread 4: The Ledger\\n- **Stated**: Found behind tins of paint in the boathouse. 41 entries. Names Vera does not know. Kova's name eleven times. The four thousand.\\n- **Implied**: This is the financial heart of the mystery. It ties Danilo and Kova together. It was hidden on purpose — \\\"meant for me the whole time, which with Danilo was not a distinction but a method.\\\"\\n\\n### Thread 5: The Soft-Handed Men\\n- **Stated**: Two mainland men. Represent a lender. Company name unknown on the island. Asked about cargo manifests and personal effects. Learned Vera does not know where the money is.\\n- **Implied**: They are the enforcement wave. Ongoing threat. Will likely return. They believe the money may still be on-island, either on the wreck or hidden.\\n\\n### Thread 6: Vera's Procedure vs. Emotion\\n- **Stated**: Vera's procedure is her defense mechanism. \\\"Procedure against panic.\\\" She fails to trim the wick. She draws (or doesn't draw) the line under log entries.\\n- **Implied**: Her emotional trajectory is measured in procedural ruptures. The breaking of routine signals the breaking of her control, and her entry into the story Danilo set for her.\\n\\n---\\n\\n## 5. WORLD RULES\\n\\n| Rule | Source |\\n|---|---|\\n| **The co-op system**: Every boat on the island held in one shared ledger; insurance policies cheaper bought together. Danilo paid individually, in cash, off the co-op books. | Chapter 1 |\\n| **Salvage rights**: Lapse in \\\"a year and a day.\\\" Kova notes this as \\\"a curse with paperwork.\\\" After that window, the wreck and its contents belong to whoever claims them first. | Chapter 4 |\\n| **Lighthouse procedure**: Wick trimmed every six hours; clockwork wind; glass paneled; altitude even so boats know what they are seeing. This is sacralized to Vera — it is her identity and her armor. | Chapter 2 |\\n| **The island's information economy**: \\\"Intelligence is the village's only reliable export.\\\" Radmila controls the flow. The co-op \\\"does not send men up to a lighthouse with news about money.\\\" Information is both currency and weapon. | Chapter 1 |\\n| **The sea as moral agent**: \\\"The sea rewards cowards.\\\" \\\"The sea does not keep secrets, it only keeps salvage.\\\" The sea is indifference, gravity, retribution — a creditor that takes collateral literally. | Throughout |\\n\\n---\\n\\n## 6. TIMELINE (MARCH)\\n\\n| Time | Event |\\n|---|---|\\n| **January (previous)** | Danilo pays his co-op insurance policy — early, surprisingly. |\\n| **Two days before the storm** | Danilo withdraws four thousand in cash. |\\n| **Days before the storm** | Danilo tells Kova \\\"I need to move something heavy\\\" and asks he not mark it in the manifest. |\\n| **Before the storm** | Danilo wrecks on Struga rocks. The Morena is lost. Danilo dies. |\\n| **Thursday (Chapter 1)** | Vera goes down to the village for kerosene. Radmila tells her about the deposit. Soft-handed men at the harbor. First letter already received (mentioned via reference to \\\"Danilo's second letter\\\" — meaning a first and second have arrived by this point). |\\n| **Wednesday (Chapter 1)** | Vera decides how to ask Radmila about the four thousand without admitting she already knows. |\\n| **Friday noon → Saturday (Chapter 2)** | Barometer falling. Gale arrives. Third letter found on kitchen table — dated March 21, delivered during the storm. |\\n| **Saturday afternoon/gale** | Vera reads the third letter. Fails to trim the wick. Sits with the stone. |\\n| **Sunday (Chapter 3)** | Wind backing. Vera finds the boathouse ledger. Confronts Kova on the mole. |\\n| **Sunday night** | Vera logs: \\\"One name, eleven entries. He was honest eleven times.\\\" Draws the line. |\\n| **Monday morning (Chapter 4)** | No letters. Takes the gull road instead of the steps. Watches the Morena's mast at low tide. Kova mentions salvage rights lapse. |\\n| **Monday evening** | Wind rising again. Pressure falling. Vera writes it down, draws no line, waits for the night to \\\"try the door.\\\" |\\n\\n---\\n\\n## 7. THEMES\\n\\n### Procedure as Survival\\nVera's identity lives in her routine. Procedure is \\\"the only place where fear can be made to sit still.\\\" Her gradual violation of routine (not trimming the wick, refusing to draw the line) maps her grief and disorientation. Procedure is what holds the world together — and losing it is what makes her vulnerable to truth.\\n\\n### Weight\\nSums, stones, cargo, obligations — all register as physical weight. \\\"Then the things got heavier and the money got quieter.\\\" The white-quartz stone weighs down letters; the four thousand weighs down the plot; the wreck weighs down on the lender's ledger. Weight is moral gravity.\\n\\n### The Sea as Repository\\nThe sea keeps salvage, not secrets. It is a ledger of what is lost and what remains. The Morena's mast \\\"pointing at nothing, pointing at everything\\\" — the sea displays truth at low tide, conceals it at high tide. \\\"The sea rewards cowards\\\" is ethical as it is meteorological.\\n\\n### Light and Seeing\\nThe lighthouse lamp is literal function and metaphysical metaphor. \\\"He was a man who set you waiting for the light to change.\\\" \\\"The lamp burns when the wick is overfed and hungry.\\\" Light is knowing, visibility, truth. Glass is boundary and transparency.\\n\\n### The Line / Closure\\nVera draws a line under log entries \\\"the way you close a door you do not want tried in the night.\\\" When she refuses to draw the line, she is refusing to close what is still speaking. Closure is not yet possible. The open entries mirror her open grief and open investigation.\\n\\n### Sisterhood and Inheritance\\nVera inherited the lighthouse from her father; she inherited her skepticism from her brother. The letters carry the grammar of sibling intimacy — inside knowledge (\\\"I know you the way I know when a swell is going to break wrong\\\"). Danilo's letters are a posthumous argument with his sister, racing her toward a truth she does not yet have the language for.\\n\\n### Numbers as Metronome\\nNinety-six steps. Four thousand. Six-hour intervals. Four seconds dark, two seconds lit. Eleven entries. Forty-one entries. A year and a day. The narrator thinks in numbers the way most people think in feelings. Numbers are body, rhythm, and truth — more reliable than psychology.\\n\\n---\\n\\n## 8. RECURRING SYMBOLS\\n\\n| Symbol | Occurrences | Meaning |\\n|---|---|---|\\n| **96 steps** | Ch. 1, 2, 3, 4 | Vera's metronome. Embodied clock. Repeated to the point of incantation. |\\n| **The line under entries** | Ch. 1 (\\\"drew the line\\\"), Ch. 2 (\\\"drew no rule\\\"), Ch. 2 (lies about trimming), Ch. 3 (\\\"drew no line\\\"), Ch. 3 (\\\"drew the line\\\"), Ch. 4 (\\\"drew no line\\\") | Emotional closure vs. open grief. A door you do not want tried. |\\n| **Grey** | Ch. 4 opening (\\\"Grey water, grey light, grey wind...and the fifth grey is the one inside your chest\\\") | Mood-setting parallelism. The internal grey is grief; the external grey is weather. They are the same and not the same. |\\n| **The stone** | Ch. 2, Ch. 3 (implied) | Witness. Weight. Tie between letters. \\\"Patient as a witness.\\\" |\\n| **Soup vs. eggs** | Ch. 1 | Communication of care through provision. Language of displacement. |\\n| **Running away** | Ch. 2 (\\\"You have already decided I meant to run\\\") | The question driving the investigation. \\\"You are wrong, but you are wrong in a way that is close to right.\\\" |\\n\\n---\\n\\n## 9. CHARACTERS SUMMARY TABLE\\n\\n| Name | Role | Relationship to Vera | Arc Direction |\\n|---|---|---|---|\\n| Vera | Lighthouse keeper; narrator | Protagonist | From stasis into investigation; procedure breaking down |\\n| Danilo | Dead brother; boat owner | True catalyst | Posthumous; racing Vera forward through letters |\\n| Radmila | Shopkeeper; co-op record-keeper | Tether to community | From protector to potential truth-holder |\\n| Kova | Boat mender; collaborator | Working relationship → reluctant confidant | Revealing the ledger's meaning |\\n| Soft-Handed Men | Lender's agents | Antagonistic force | Approaching threat; off-island enforcement |\\n\\n---\\n\\n## 10. NOTABLE ABSENCES (What the Text Does Not Say)\\n\\n→ The island is never named.\\n→ The lender/company name is never given.\\n→ No mainland geography is described — it is only \\\"the mainland.\\\"\\n→ Vera's mother is never named; the father is referenced (set the bench, kept the lighthouse before her) but barely present in memory.\\n→ Kova's first name is never given; he is called \\\"Kova,\\\" which may be a surname or a shortened form.\\n→ The exact nature of the cargo Danilo was moving is never stated.\\n→ The answer to whether Danilo meant to run is withheld.\\n\\nThese absences are structural — they are the spaces the story has not yet filled.\\n\\n---\\n\\n*End of Story Bible. Built strictly from Chapters 1–4 of The Keeper's Arithmetic.*\",\"documentType\":\"STORY_BIBLE\"},\"toolUseId\":\"call-b75cc021-4001-4ba1-979f-2184d6a29b63\"}}"
+  },
+  {
+   "t": 123.656,
+   "raw": "id: 40\ndata: {\"type\":\"tool_result\",\"content\":\"Created STORY_BIBLE (id: d658481d-0e31-4088-a5b7-5cb08f099e90).\",\"metadata\":{\"tool\":\"WriteDocument\",\"toolUseId\":\"call-b75cc021-4001-4ba1-979f-2184d6a29b63\"}}"
+  },
+  {
+   "t": 126.38,
+   "raw": "id: 41\ndata: {\"type\":\"text\",\"content\":\"\\n\\n\"}"
+  },
+  {
+   "t": 126.56,
+   "raw": "id: 42\ndata: {\"type\":\"text\",\"content\":\"Your\"}"
+  },
+  {
+   "t": 126.561,
+   "raw": "id: 43\ndata: {\"type\":\"text\",\"content\":\" story bible is\"}"
+  },
+  {
+   "t": 126.561,
+   "raw": "id: 44\ndata: {\"type\":\"text\",\"content\":\" built\"}"
+  },
+  {
+   "t": 126.561,
+   "raw": "id: 45\ndata: {\"type\":\"text\",\"content\":\". Here's\"}"
+  },
+  {
+   "t": 126.561,
+   "raw": "id: 46\ndata: {\"type\":\"text\",\"content\":\" what I captured\"}"
+  },
+  {
+   "t": 126.759,
+   "raw": "id: 47\ndata: {\"type\":\"text\",\"content\":\" from\"}"
+  },
+  {
+   "t": 126.759,
+   "raw": "id: 48\ndata: {\"type\":\"text\",\"content\":\" the four chapters\"}"
+  },
+  {
+   "t": 126.759,
+   "raw": "id: 49\ndata: {\"type\":\"text\",\"content\":\":\\n\\n**\"}"
+  },
+  {
+   "t": 126.759,
+   "raw": "id: 50\ndata: {\"type\":\"text\",\"content\":\"Characters (\"}"
+  },
+  {
+   "t": 127.041,
+   "raw": "id: 51\ndata: {\"type\":\"text\",\"content\":\"5 voices\"}"
+  },
+  {
+   "t": 127.041,
+   "raw": "id: 52\ndata: {\"type\":\"text\",\"content\":\")**\"}"
+  },
+  {
+   "t": 127.041,
+   "raw": "id: 53\ndata: {\"type\":\"text\",\"content\":\"\\n- **\"}"
+  },
+  {
+   "t": 127.041,
+   "raw": "id: 54\ndata: {\"type\":\"text\",\"content\":\"Vera**\"}"
+  },
+  {
+   "t": 127.041,
+   "raw": "id: 55\ndata: {\"type\":\"text\",\"content\":\" — the keeper\"}"
+  },
+  {
+   "t": 127.041,
+   "raw": "id: 56\ndata: {\"type\":\"text\",\"content\":\", narrator\"}"
+  },
+  {
+   "t": 127.041,
+   "raw": "id: 57\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 127.054,
+   "raw": "id: 58\ndata: {\"type\":\"text\",\"content\":\" defined\"}"
+  },
+  {
+   "t": 127.368,
+   "raw": "id: 59\ndata: {\"type\":\"text\",\"content\":\" by procedure and\"}"
+  },
+  {
+   "t": 127.368,
+   "raw": "id: 60\ndata: {\"type\":\"text\",\"content\":\" its\"}"
+  },
+  {
+   "t": 127.369,
+   "raw": "id: 61\ndata: {\"type\":\"text\",\"content\":\" failure\"}"
+  },
+  {
+   "t": 127.369,
+   "raw": "id: 62\ndata: {\"type\":\"text\",\"content\":\"\\n- **\"}"
+  },
+  {
+   "t": 127.369,
+   "raw": "id: 63\ndata: {\"type\":\"text\",\"content\":\"Danilo**\"}"
+  },
+  {
+   "t": 127.369,
+   "raw": "id: 64\ndata: {\"type\":\"text\",\"content\":\" — dead\"}"
+  },
+  {
+   "t": 127.37,
+   "raw": "id: 65\ndata: {\"type\":\"text\",\"content\":\" brother, post\"}"
+  },
+  {
+   "t": 127.466,
+   "raw": "id: 66\ndata: {\"type\":\"text\",\"content\":\"humous catalyst\"}"
+  },
+  {
+   "t": 127.466,
+   "raw": "id: 67\ndata: {\"type\":\"text\",\"content\":\", racing her\"}"
+  },
+  {
+   "t": 127.467,
+   "raw": "id: 68\ndata: {\"type\":\"text\",\"content\":\" through timed\"}"
+  },
+  {
+   "t": 127.636,
+   "raw": "id: 69\ndata: {\"type\":\"text\",\"content\":\" letters\\n-\"}"
+  },
+  {
+   "t": 127.636,
+   "raw": "id: 70\ndata: {\"type\":\"text\",\"content\":\" **Radmila\"}"
+  },
+  {
+   "t": 127.637,
+   "raw": "id: 71\ndata: {\"type\":\"text\",\"content\":\"** — information\"}"
+  },
+  {
+   "t": 127.637,
+   "raw": "id: 72\ndata: {\"type\":\"text\",\"content\":\" hub, maternal\"}"
+  },
+  {
+   "t": 127.902,
+   "raw": "id: 73\ndata: {\"type\":\"text\",\"content\":\"-s\"}"
+  },
+  {
+   "t": 127.902,
+   "raw": "id: 74\ndata: {\"type\":\"text\",\"content\":\"ardonic,\"}"
+  },
+  {
+   "t": 127.903,
+   "raw": "id: 75\ndata: {\"type\":\"text\",\"content\":\" controls what\"}"
+  },
+  {
+   "t": 127.903,
+   "raw": "id: 76\ndata: {\"type\":\"text\",\"content\":\" Vera\"}"
+  },
+  {
+   "t": 127.903,
+   "raw": "id: 77\ndata: {\"type\":\"text\",\"content\":\" knows and\"}"
+  },
+  {
+   "t": 127.903,
+   "raw": "id: 78\ndata: {\"type\":\"text\",\"content\":\" when\\n-\"}"
+  },
+  {
+   "t": 127.904,
+   "raw": "id: 79\ndata: {\"type\":\"text\",\"content\":\" **Kova\"}"
+  },
+  {
+   "t": 128.085,
+   "raw": "id: 80\ndata: {\"type\":\"text\",\"content\":\"** — boat\"}"
+  },
+  {
+   "t": 128.085,
+   "raw": "id: 81\ndata: {\"type\":\"text\",\"content\":\" mender,\"}"
+  },
+  {
+   "t": 128.086,
+   "raw": "id: 82\ndata: {\"type\":\"text\",\"content\":\" his name appears\"}"
+  },
+  {
+   "t": 128.086,
+   "raw": "id: 83\ndata: {\"type\":\"text\",\"content\":\" eleven times in\"}"
+  },
+  {
+   "t": 128.307,
+   "raw": "id: 84\ndata: {\"type\":\"text\",\"content\":\" the ledger,\"}"
+  },
+  {
+   "t": 128.308,
+   "raw": "id: 85\ndata: {\"type\":\"text\",\"content\":\" was\"}"
+  },
+  {
+   "t": 128.308,
+   "raw": "id: 86\ndata: {\"type\":\"text\",\"content\":\" waiting for her\"}"
+  },
+  {
+   "t": 128.308,
+   "raw": "id: 87\ndata: {\"type\":\"text\",\"content\":\" to find it\"}"
+  },
+  {
+   "t": 128.308,
+   "raw": "id: 88\ndata: {\"type\":\"text\",\"content\":\"\\n- **\"}"
+  },
+  {
+   "t": 128.503,
+   "raw": "id: 89\ndata: {\"type\":\"text\",\"content\":\"The Soft-\"}"
+  },
+  {
+   "t": 128.504,
+   "raw": "id: 90\ndata: {\"type\":\"text\",\"content\":\"Handed Men\"}"
+  },
+  {
+   "t": 128.504,
+   "raw": "id: 91\ndata: {\"type\":\"text\",\"content\":\"** — mainland\"}"
+  },
+  {
+   "t": 128.504,
+   "raw": "id: 92\ndata: {\"type\":\"text\",\"content\":\" lender's agents\"}"
+  },
+  {
+   "t": 128.504,
+   "raw": "id: 93\ndata: {\"type\":\"text\",\"content\":\", the\"}"
+  },
+  {
+   "t": 128.8,
+   "raw": "id: 94\ndata: {\"type\":\"text\",\"content\":\" anonymous\"}"
+  },
+  {
+   "t": 128.8,
+   "raw": "id: 95\ndata: {\"type\":\"text\",\"content\":\" enforcement threat\"}"
+  },
+  {
+   "t": 128.8,
+   "raw": "id: 96\ndata: {\"type\":\"text\",\"content\":\"\\n\\n**World\"}"
+  },
+  {
+   "t": 128.8,
+   "raw": "id: 97\ndata: {\"type\":\"text\",\"content\":\" (\"}"
+  },
+  {
+   "t": 128.8,
+   "raw": "id: 98\ndata: {\"type\":\"text\",\"content\":\"5 locations\"}"
+  },
+  {
+   "t": 128.8,
+   "raw": "id: 99\ndata: {\"type\":\"text\",\"content\":\")**\\n-\"}"
+  },
+  {
+   "t": 128.801,
+   "raw": "id: 100\ndata: {\"type\":\"text\",\"content\":\" The unnamed Adri\"}"
+  },
+  {
+   "t": 128.808,
+   "raw": "id: 101\ndata: {\"type\":\"text\",\"content\":\"atic island\\n\"}"
+  },
+  {
+   "t": 128.935,
+   "raw": "id: 102\ndata: {\"type\":\"text\",\"content\":\"- The\"}"
+  },
+  {
+   "t": 128.936,
+   "raw": "id: 103\ndata: {\"type\":\"text\",\"content\":\" lighthouse tower\"}"
+  },
+  {
+   "t": 128.936,
+   "raw": "id: 104\ndata: {\"type\":\"text\",\"content\":\" and\"}"
+  },
+  {
+   "t": 129.111,
+   "raw": "id: 105\ndata: {\"type\":\"text\",\"content\":\" its \"}"
+  },
+  {
+   "t": 129.111,
+   "raw": "id: 106\ndata: {\"type\":\"text\",\"content\":\"96 steps\"}"
+  },
+  {
+   "t": 129.111,
+   "raw": "id: 107\ndata: {\"type\":\"text\",\"content\":\"\\n- The\"}"
+  },
+  {
+   "t": 129.112,
+   "raw": "id: 108\ndata: {\"type\":\"text\",\"content\":\" boathouse\"}"
+  },
+  {
+   "t": 129.269,
+   "raw": "id: 109\ndata: {\"type\":\"text\",\"content\":\" (where the\"}"
+  },
+  {
+   "t": 129.269,
+   "raw": "id: 110\ndata: {\"type\":\"text\",\"content\":\" ledger hides\"}"
+  },
+  {
+   "t": 129.27,
+   "raw": "id: 111\ndata: {\"type\":\"text\",\"content\":\")\\n-\"}"
+  },
+  {
+   "t": 129.27,
+   "raw": "id: 112\ndata: {\"type\":\"text\",\"content\":\" Radmila's\"}"
+  },
+  {
+   "t": 129.484,
+   "raw": "id: 113\ndata: {\"type\":\"text\",\"content\":\" shop (co\"}"
+  },
+  {
+   "t": 129.484,
+   "raw": "id: 114\ndata: {\"type\":\"text\",\"content\":\"-op meetings\"}"
+  },
+  {
+   "t": 129.484,
+   "raw": "id: 115\ndata: {\"type\":\"text\",\"content\":\", information\"}"
+  },
+  {
+   "t": 129.485,
+   "raw": "id: 116\ndata: {\"type\":\"text\",\"content\":\" exchange\"}"
+  },
+  {
+   "t": 129.485,
+   "raw": "id: 117\ndata: {\"type\":\"text\",\"content\":\")\\n-\"}"
+  },
+  {
+   "t": 129.662,
+   "raw": "id: 118\ndata: {\"type\":\"text\",\"content\":\" Struga reef\"}"
+  },
+  {
+   "t": 129.662,
+   "raw": "id: 119\ndata: {\"type\":\"text\",\"content\":\" (the\"}"
+  },
+  {
+   "t": 129.662,
+   "raw": "id: 120\ndata: {\"type\":\"text\",\"content\":\" Morena's\"}"
+  },
+  {
+   "t": 129.662,
+   "raw": "id: 121\ndata: {\"type\":\"text\",\"content\":\" wreck at\"}"
+  },
+  {
+   "t": 129.662,
+   "raw": "id: 122\ndata: {\"type\":\"text\",\"content\":\" low tide)\"}"
+  },
+  {
+   "t": 129.872,
+   "raw": "id: 123\ndata: {\"type\":\"text\",\"content\":\"\\n\\n**Plot\"}"
+  },
+  {
+   "t": 129.872,
+   "raw": "id: 124\ndata: {\"type\":\"text\",\"content\":\" Threads (6\"}"
+  },
+  {
+   "t": 129.872,
+   "raw": "id: 125\ndata: {\"type\":\"text\",\"content\":\" strands\"}"
+  },
+  {
+   "t": 129.873,
+   "raw": "id: 126\ndata: {\"type\":\"text\",\"content\":\")**\\n1\"}"
+  },
+  {
+   "t": 129.873,
+   "raw": "id: 127\ndata: {\"type\":\"text\",\"content\":\". The four\"}"
+  },
+  {
+   "t": 130.132,
+   "raw": "id: 128\ndata: {\"type\":\"text\",\"content\":\" thousand — the\"}"
+  },
+  {
+   "t": 130.132,
+   "raw": "id: 129\ndata: {\"type\":\"text\",\"content\":\" center\"}"
+  },
+  {
+   "t": 130.132,
+   "raw": "id: 130\ndata: {\"type\":\"text\",\"content\":\" of gravity\"}"
+  },
+  {
+   "t": 130.132,
+   "raw": "id: 131\ndata: {\"type\":\"text\",\"content\":\"\\n2.\"}"
+  },
+  {
+   "t": 130.132,
+   "raw": "id: 132\ndata: {\"type\":\"text\",\"content\":\" The letters —\"}"
+  },
+  {
+   "t": 130.133,
+   "raw": "id: 133\ndata: {\"type\":\"text\",\"content\":\" dead\"}"
+  },
+  {
+   "t": 130.334,
+   "raw": "id: 134\ndata: {\"type\":\"text\",\"content\":\" or pre\"}"
+  },
+  {
+   "t": 130.334,
+   "raw": "id: 135\ndata: {\"type\":\"text\",\"content\":\"-timed?\"}"
+  },
+  {
+   "t": 130.541,
+   "raw": "id: 136\ndata: {\"type\":\"text\",\"content\":\" Del\"}"
+  },
+  {
+   "t": 130.543,
+   "raw": "id: 137\ndata: {\"type\":\"text\",\"content\":\"ivered by whom?\\n3\"}"
+  },
+  {
+   "t": 130.543,
+   "raw": "id: 138\ndata: {\"type\":\"text\",\"content\":\". The obligation\"}"
+  },
+  {
+   "t": 130.543,
+   "raw": "id: 139\ndata: {\"type\":\"text\",\"content\":\" — private lender\"}"
+  },
+  {
+   "t": 132.016,
+   "raw": "id: 140\ndata: {\"type\":\"text\",\"content\":\", boat\"}"
+  },
+  {
+   "t": 132.241,
+   "raw": "id: 141\ndata: {\"type\":\"text\",\"content\":\" as collateral\\n\"}"
+  },
+  {
+   "t": 132.242,
+   "raw": "id: 142\ndata: {\"type\":\"text\",\"content\":\"4. The\"}"
+  },
+  {
+   "t": 132.242,
+   "raw": "id: 143\ndata: {\"type\":\"text\",\"content\":\" ledger — \"}"
+  },
+  {
+   "t": 132.408,
+   "raw": "id: 144\ndata: {\"type\":\"text\",\"content\":\"41 entries\"}"
+  },
+  {
+   "t": 132.408,
+   "raw": "id: 145\ndata: {\"type\":\"text\",\"content\":\", Kova\"}"
+  },
+  {
+   "t": 132.408,
+   "raw": "id: 146\ndata: {\"type\":\"text\",\"content\":\"'s name,\"}"
+  },
+  {
+   "t": 132.408,
+   "raw": "id: 147\ndata: {\"type\":\"text\",\"content\":\" escalating sums\"}"
+  },
+  {
+   "t": 132.604,
+   "raw": "id: 148\ndata: {\"type\":\"text\",\"content\":\"\\n5.\"}"
+  },
+  {
+   "t": 132.604,
+   "raw": "id: 149\ndata: {\"type\":\"text\",\"content\":\" The soft-handed\"}"
+  },
+  {
+   "t": 132.604,
+   "raw": "id: 150\ndata: {\"type\":\"text\",\"content\":\" men — arrival\"}"
+  },
+  {
+   "t": 132.605,
+   "raw": "id: 151\ndata: {\"type\":\"text\",\"content\":\" signals\"}"
+  },
+  {
+   "t": 132.605,
+   "raw": "id: 152\ndata: {\"type\":\"text\",\"content\":\" ongoing threat\\n\"}"
+  },
+  {
+   "t": 132.928,
+   "raw": "id: 153\ndata: {\"type\":\"text\",\"content\":\"6. Vera\"}"
+  },
+  {
+   "t": 132.928,
+   "raw": "id: 154\ndata: {\"type\":\"text\",\"content\":\"'s procedure breaking\"}"
+  },
+  {
+   "t": 132.928,
+   "raw": "id: 155\ndata: {\"type\":\"text\",\"content\":\" —\"}"
+  },
+  {
+   "t": 132.928,
+   "raw": "id: 156\ndata: {\"type\":\"text\",\"content\":\" tr\"}"
+  },
+  {
+   "t": 132.928,
+   "raw": "id: 157\ndata: {\"type\":\"text\",\"content\":\"ims wick\"}"
+  },
+  {
+   "t": 132.928,
+   "raw": "id: 158\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 132.928,
+   "raw": "id: 159\ndata: {\"type\":\"text\",\"content\":\" draws\"}"
+  },
+  {
+   "t": 132.956,
+   "raw": "id: 160\ndata: {\"type\":\"text\",\"content\":\" lines, fails\"}"
+  },
+  {
+   "t": 133.084,
+   "raw": "id: 161\ndata: {\"type\":\"text\",\"content\":\" to do\"}"
+  },
+  {
+   "t": 133.085,
+   "raw": "id: 162\ndata: {\"type\":\"text\",\"content\":\" both\\n\\n**\"}"
+  },
+  {
+   "t": 133.085,
+   "raw": "id: 163\ndata: {\"type\":\"text\",\"content\":\"Key Objects**\"}"
+  },
+  {
+   "t": 133.274,
+   "raw": "id: 164\ndata: {\"type\":\"text\",\"content\":\" —\"}"
+  },
+  {
+   "t": 133.275,
+   "raw": "id: 165\ndata: {\"type\":\"text\",\"content\":\" the white\"}"
+  },
+  {
+   "t": 133.275,
+   "raw": "id: 166\ndata: {\"type\":\"text\",\"content\":\"-quartz stone\"}"
+  },
+  {
+   "t": 133.276,
+   "raw": "id: 167\ndata: {\"type\":\"text\",\"content\":\" (\"}"
+  },
+  {
+   "t": 133.276,
+   "raw": "id: 168\ndata: {\"type\":\"text\",\"content\":\"witness),\"}"
+  },
+  {
+   "t": 133.448,
+   "raw": "id: 169\ndata: {\"type\":\"text\",\"content\":\" the bo\"}"
+  },
+  {
+   "t": 133.448,
+   "raw": "id: 170\ndata: {\"type\":\"text\",\"content\":\"athouse ledger\"}"
+  },
+  {
+   "t": 133.448,
+   "raw": "id: 171\ndata: {\"type\":\"text\",\"content\":\" (truth\"}"
+  },
+  {
+   "t": 133.449,
+   "raw": "id: 172\ndata: {\"type\":\"text\",\"content\":\"), k\"}"
+  },
+  {
+   "t": 133.745,
+   "raw": "id: 173\ndata: {\"type\":\"text\",\"content\":\"erosene (\"}"
+  },
+  {
+   "t": 133.746,
+   "raw": "id: 174\ndata: {\"type\":\"text\",\"content\":\"replaced by\"}"
+  },
+  {
+   "t": 133.746,
+   "raw": "id: 175\ndata: {\"type\":\"text\",\"content\":\" intelligence), the\"}"
+  },
+  {
+   "t": 133.747,
+   "raw": "id: 176\ndata: {\"type\":\"text\",\"content\":\" lamp w\"}"
+  },
+  {
+   "t": 133.748,
+   "raw": "id: 177\ndata: {\"type\":\"text\",\"content\":\"ick (pro\"}"
+  },
+  {
+   "t": 133.749,
+   "raw": "id: 178\ndata: {\"type\":\"text\",\"content\":\"cedural rupture\"}"
+  },
+  {
+   "t": 133.749,
+   "raw": "id: 179\ndata: {\"type\":\"text\",\"content\":\" marker\"}"
+  },
+  {
+   "t": 133.893,
+   "raw": "id: 180\ndata: {\"type\":\"text\",\"content\":\"),\"}"
+  },
+  {
+   "t": 133.893,
+   "raw": "id: 181\ndata: {\"type\":\"text\",\"content\":\" soup\"}"
+  },
+  {
+   "t": 133.894,
+   "raw": "id: 182\ndata: {\"type\":\"text\",\"content\":\" vs\"}"
+  },
+  {
+   "t": 133.894,
+   "raw": "id: 183\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 134.12,
+   "raw": "id: 184\ndata: {\"type\":\"text\",\"content\":\" eggs (care\"}"
+  },
+  {
+   "t": 134.12,
+   "raw": "id: 185\ndata: {\"type\":\"text\",\"content\":\" as\"}"
+  },
+  {
+   "t": 134.12,
+   "raw": "id: 186\ndata: {\"type\":\"text\",\"content\":\" displacement language)\"}"
+  },
+  {
+   "t": 134.122,
+   "raw": "id: 187\ndata: {\"type\":\"text\",\"content\":\"\\n\\n**Themes\"}"
+  },
+  {
+   "t": 134.122,
+   "raw": "id: 188\ndata: {\"type\":\"text\",\"content\":\"** — procedure\"}"
+  },
+  {
+   "t": 134.122,
+   "raw": "id: 189\ndata: {\"type\":\"text\",\"content\":\" as survival,\"}"
+  },
+  {
+   "t": 134.296,
+   "raw": "id: 190\ndata: {\"type\":\"text\",\"content\":\" weight as moral\"}"
+  },
+  {
+   "t": 134.296,
+   "raw": "id: 191\ndata: {\"type\":\"text\",\"content\":\" register\"}"
+  },
+  {
+   "t": 134.296,
+   "raw": "id: 192\ndata: {\"type\":\"text\",\"content\":\", the sea\"}"
+  },
+  {
+   "t": 134.296,
+   "raw": "id: 193\ndata: {\"type\":\"text\",\"content\":\" as creditor\"}"
+  },
+  {
+   "t": 134.466,
+   "raw": "id: 194\ndata: {\"type\":\"text\",\"content\":\", light\"}"
+  },
+  {
+   "t": 134.466,
+   "raw": "id: 195\ndata: {\"type\":\"text\",\"content\":\" and\"}"
+  },
+  {
+   "t": 134.466,
+   "raw": "id: 196\ndata: {\"type\":\"text\",\"content\":\" glass\"}"
+  },
+  {
+   "t": 134.467,
+   "raw": "id: 197\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 134.645,
+   "raw": "id: 198\ndata: {\"type\":\"text\",\"content\":\" the line as\"}"
+  },
+  {
+   "t": 134.646,
+   "raw": "id: 199\ndata: {\"type\":\"text\",\"content\":\" closure\"}"
+  },
+  {
+   "t": 134.646,
+   "raw": "id: 200\ndata: {\"type\":\"text\",\"content\":\" (\"}"
+  },
+  {
+   "t": 134.646,
+   "raw": "id: 201\ndata: {\"type\":\"text\",\"content\":\"or its\"}"
+  },
+  {
+   "t": 134.646,
+   "raw": "id: 202\ndata: {\"type\":\"text\",\"content\":\" refusal), numbers\"}"
+  },
+  {
+   "t": 134.908,
+   "raw": "id: 203\ndata: {\"type\":\"text\",\"content\":\" as body\"}"
+  },
+  {
+   "t": 134.908,
+   "raw": "id: 204\ndata: {\"type\":\"text\",\"content\":\"-r\"}"
+  },
+  {
+   "t": 134.909,
+   "raw": "id: 205\ndata: {\"type\":\"text\",\"content\":\"hythm\\n\\n**\"}"
+  },
+  {
+   "t": 134.909,
+   "raw": "id: 206\ndata: {\"type\":\"text\",\"content\":\"Timeline\"}"
+  },
+  {
+   "t": 134.909,
+   "raw": "id: 207\ndata: {\"type\":\"text\",\"content\":\"** — January\"}"
+  },
+  {
+   "t": 134.909,
+   "raw": "id: 208\ndata: {\"type\":\"text\",\"content\":\" (\"}"
+  },
+  {
+   "t": 135.105,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 135.124,
+   "raw": "id: 209\ndata: {\"type\":\"text\",\"content\":\"insurance) →\"}"
+  },
+  {
+   "t": 135.124,
+   "raw": "id: 210\ndata: {\"type\":\"text\",\"content\":\" pre\"}"
+  },
+  {
+   "t": 135.125,
+   "raw": "id: 211\ndata: {\"type\":\"text\",\"content\":\"-storm (\"}"
+  },
+  {
+   "t": 135.125,
+   "raw": "id: 212\ndata: {\"type\":\"text\",\"content\":\"cash withdrawal)\"}"
+  },
+  {
+   "t": 135.125,
+   "raw": "id: 213\ndata: {\"type\":\"text\",\"content\":\" → Thursday\"}"
+  },
+  {
+   "t": 135.125,
+   "raw": "id: 214\ndata: {\"type\":\"text\",\"content\":\" (Ch\"}"
+  },
+  {
+   "t": 135.342,
+   "raw": "id: 215\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 135.342,
+   "raw": "id: 216\ndata: {\"type\":\"text\",\"content\":\" 1)\"}"
+  },
+  {
+   "t": 135.342,
+   "raw": "id: 217\ndata: {\"type\":\"text\",\"content\":\" → Saturday\"}"
+  },
+  {
+   "t": 135.342,
+   "raw": "id: 218\ndata: {\"type\":\"text\",\"content\":\" gale (\"}"
+  },
+  {
+   "t": 135.343,
+   "raw": "id: 219\ndata: {\"type\":\"text\",\"content\":\"Ch. \"}"
+  },
+  {
+   "t": 135.542,
+   "raw": "id: 220\ndata: {\"type\":\"text\",\"content\":\"2) →\"}"
+  },
+  {
+   "t": 135.542,
+   "raw": "id: 221\ndata: {\"type\":\"text\",\"content\":\" Sunday (Ch\"}"
+  },
+  {
+   "t": 135.542,
+   "raw": "id: 222\ndata: {\"type\":\"text\",\"content\":\". 3\"}"
+  },
+  {
+   "t": 135.543,
+   "raw": "id: 223\ndata: {\"type\":\"text\",\"content\":\") → Monday\"}"
+  },
+  {
+   "t": 135.759,
+   "raw": "id: 224\ndata: {\"type\":\"text\",\"content\":\" morning (Ch\"}"
+  },
+  {
+   "t": 135.759,
+   "raw": "id: 225\ndata: {\"type\":\"text\",\"content\":\". 4\"}"
+  },
+  {
+   "t": 135.759,
+   "raw": "id: 226\ndata: {\"type\":\"text\",\"content\":\"),\"}"
+  },
+  {
+   "t": 135.759,
+   "raw": "id: 227\ndata: {\"type\":\"text\",\"content\":\" ending\"}"
+  },
+  {
+   "t": 135.759,
+   "raw": "id: 228\ndata: {\"type\":\"text\",\"content\":\" on\"}"
+  },
+  {
+   "t": 135.76,
+   "raw": "id: 229\ndata: {\"type\":\"text\",\"content\":\" \\\"Let the\"}"
+  },
+  {
+   "t": 136.106,
+   "raw": "id: 230\ndata: {\"type\":\"text\",\"content\":\" night try the\"}"
+  },
+  {
+   "t": 136.107,
+   "raw": "id: 231\ndata: {\"type\":\"text\",\"content\":\" door.\\\"\\n\\n\"}"
+  },
+  {
+   "t": 136.107,
+   "raw": "id: 232\ndata: {\"type\":\"text\",\"content\":\"**\"}"
+  },
+  {
+   "t": 136.107,
+   "raw": "id: 233\ndata: {\"type\":\"text\",\"content\":\"Str\"}"
+  },
+  {
+   "t": 136.108,
+   "raw": "id: 234\ndata: {\"type\":\"text\",\"content\":\"ategic Abs\"}"
+  },
+  {
+   "t": 136.108,
+   "raw": "id: 235\ndata: {\"type\":\"text\",\"content\":\"ences** —\"}"
+  },
+  {
+   "t": 136.109,
+   "raw": "id: 236\ndata: {\"type\":\"text\",\"content\":\" island\"}"
+  },
+  {
+   "t": 136.158,
+   "raw": "id: 237\ndata: {\"type\":\"text\",\"content\":\" unnamed\"}"
+  },
+  {
+   "t": 136.158,
+   "raw": "id: 238\ndata: {\"type\":\"text\",\"content\":\", lender\"}"
+  },
+  {
+   "t": 136.351,
+   "raw": "id: 239\ndata: {\"type\":\"text\",\"content\":\" unnamed, mainland\"}"
+  },
+  {
+   "t": 136.352,
+   "raw": "id: 240\ndata: {\"type\":\"text\",\"content\":\" unre\"}"
+  },
+  {
+   "t": 136.352,
+   "raw": "id: 241\ndata: {\"type\":\"text\",\"content\":\"ached\"}"
+  },
+  {
+   "t": 136.352,
+   "raw": "id: 242\ndata: {\"type\":\"text\",\"content\":\", mother\"}"
+  },
+  {
+   "t": 136.352,
+   "raw": "id: 243\ndata: {\"type\":\"text\",\"content\":\" unm\"}"
+  },
+  {
+   "t": 136.563,
+   "raw": "id: 244\ndata: {\"type\":\"text\",\"content\":\"ourn\"}"
+  },
+  {
+   "t": 136.563,
+   "raw": "id: 245\ndata: {\"type\":\"text\",\"content\":\"ed, cargo\"}"
+  },
+  {
+   "t": 136.564,
+   "raw": "id: 246\ndata: {\"type\":\"text\",\"content\":\" unspecified\"}"
+  },
+  {
+   "t": 136.564,
+   "raw": "id: 247\ndata: {\"type\":\"text\",\"content\":\" —\"}"
+  },
+  {
+   "t": 136.564,
+   "raw": "id: 248\ndata: {\"type\":\"text\",\"content\":\" all\"}"
+  },
+  {
+   "t": 136.785,
+   "raw": "id: 249\ndata: {\"type\":\"text\",\"content\":\" deliberate\"}"
+  },
+  {
+   "t": 136.786,
+   "raw": "id: 250\ndata: {\"type\":\"text\",\"content\":\" spaces\"}"
+  },
+  {
+   "t": 136.786,
+   "raw": "id: 251\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 136.786,
+   "raw": "id: 252\ndata: {\"type\":\"text\",\"content\":\"\\n\\nThe bible\"}"
+  },
+  {
+   "t": 136.787,
+   "raw": "id: 253\ndata: {\"type\":\"text\",\"content\":\" is ~3\"}"
+  },
+  {
+   "t": 136.787,
+   "raw": "id: 254\ndata: {\"type\":\"text\",\"content\":\",2\"}"
+  },
+  {
+   "t": 136.984,
+   "raw": "id: 255\ndata: {\"type\":\"text\",\"content\":\"00 words\"}"
+  },
+  {
+   "t": 136.985,
+   "raw": "id: 256\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 136.985,
+   "raw": "id: 257\ndata: {\"type\":\"text\",\"content\":\" It stays\"}"
+  },
+  {
+   "t": 137.185,
+   "raw": "id: 258\ndata: {\"type\":\"text\",\"content\":\" strictly within what\"}"
+  },
+  {
+   "t": 137.186,
+   "raw": "id: 259\ndata: {\"type\":\"text\",\"content\":\"'s\"}"
+  },
+  {
+   "t": 137.186,
+   "raw": "id: 260\ndata: {\"type\":\"text\",\"content\":\" on the page\"}"
+  },
+  {
+   "t": 137.186,
+   "raw": "id: 261\ndata: {\"type\":\"text\",\"content\":\" —\"}"
+  },
+  {
+   "t": 137.35,
+   "raw": "id: 262\ndata: {\"type\":\"text\",\"content\":\" no invented\"}"
+  },
+  {
+   "t": 137.351,
+   "raw": "id: 263\ndata: {\"type\":\"text\",\"content\":\" plot beats\"}"
+  },
+  {
+   "t": 137.351,
+   "raw": "id: 264\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 140.206,
+   "raw": "id: 265\ndata: {\"type\":\"text\",\"content\":\" no speculative\"}"
+  },
+  {
+   "t": 141.95,
+   "raw": "id: 266\ndata: {\"type\":\"text\",\"content\":\" character\"}"
+  },
+  {
+   "t": 142.123,
+   "raw": "id: 267\ndata: {\"type\":\"text\",\"content\":\" back\"}"
+  },
+  {
+   "t": 142.123,
+   "raw": "id: 268\ndata: {\"type\":\"text\",\"content\":\"stories. What\"}"
+  },
+  {
+   "t": 142.123,
+   "raw": "id: 269\ndata: {\"type\":\"text\",\"content\":\" you\"}"
+  },
+  {
+   "t": 142.123,
+   "raw": "id: 270\ndata: {\"type\":\"text\",\"content\":\" do\"}"
+  },
+  {
+   "t": 142.351,
+   "raw": "id: 271\ndata: {\"type\":\"text\",\"content\":\" next:\"}"
+  },
+  {
+   "t": 142.352,
+   "raw": "id: 272\ndata: {\"type\":\"text\",\"content\":\" move\"}"
+  },
+  {
+   "t": 142.352,
+   "raw": "id: 273\ndata: {\"type\":\"text\",\"content\":\" into\"}"
+  },
+  {
+   "t": 142.352,
+   "raw": "id: 274\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 142.352,
+   "raw": "id: 275\ndata: {\"type\":\"text\",\"content\":\" **Architecture**\"}"
+  },
+  {
+   "t": 142.528,
+   "raw": "id: 276\ndata: {\"type\":\"text\",\"content\":\" workflow\"}"
+  },
+  {
+   "t": 142.528,
+   "raw": "id: 277\ndata: {\"type\":\"text\",\"content\":\" to design\"}"
+  },
+  {
+   "t": 142.528,
+   "raw": "id: 278\ndata: {\"type\":\"text\",\"content\":\" your\"}"
+  },
+  {
+   "t": 142.528,
+   "raw": "id: 279\ndata: {\"type\":\"text\",\"content\":\" chapter outline\"}"
+  },
+  {
+   "t": 142.918,
+   "raw": "id: 280\ndata: {\"type\":\"text\",\"content\":\" and\"}"
+  },
+  {
+   "t": 142.918,
+   "raw": "id: 281\ndata: {\"type\":\"text\",\"content\":\" map\"}"
+  },
+  {
+   "t": 142.918,
+   "raw": "id: 282\ndata: {\"type\":\"text\",\"content\":\" where\"}"
+  },
+  {
+   "t": 142.919,
+   "raw": "id: 283\ndata: {\"type\":\"text\",\"content\":\" these\"}"
+  },
+  {
+   "t": 142.92,
+   "raw": "id: 284\ndata: {\"type\":\"text\",\"content\":\" threads converge\"}"
+  },
+  {
+   "t": 142.92,
+   "raw": "id: 285\ndata: {\"type\":\"text\",\"content\":\" and\"}"
+  },
+  {
+   "t": 142.92,
+   "raw": "id: 286\ndata: {\"type\":\"text\",\"content\":\" resolve, or\"}"
+  },
+  {
+   "t": 142.95,
+   "raw": "id: 287\ndata: {\"type\":\"text\",\"content\":\" jump\"}"
+  },
+  {
+   "t": 143.327,
+   "raw": "id: 288\ndata: {\"type\":\"text\",\"content\":\" into\"}"
+  },
+  {
+   "t": 143.328,
+   "raw": "id: 289\ndata: {\"type\":\"text\",\"content\":\" **write\"}"
+  },
+  {
+   "t": 143.328,
+   "raw": "id: 290\ndata: {\"type\":\"text\",\"content\":\"-ch\"}"
+  },
+  {
+   "t": 143.328,
+   "raw": "id: 291\ndata: {\"type\":\"text\",\"content\":\"apter** to\"}"
+  },
+  {
+   "t": 143.329,
+   "raw": "id: 292\ndata: {\"type\":\"text\",\"content\":\" start\"}"
+  },
+  {
+   "t": 143.329,
+   "raw": "id: 293\ndata: {\"type\":\"text\",\"content\":\" drafting Chapter \"}"
+  },
+  {
+   "t": 143.329,
+   "raw": "id: 294\ndata: {\"type\":\"text\",\"content\":\"5 from\"}"
+  },
+  {
+   "t": 143.572,
+   "raw": "id: 295\ndata: {\"type\":\"text\",\"content\":\" Vera\"}"
+  },
+  {
+   "t": 143.573,
+   "raw": "id: 296\ndata: {\"type\":\"text\",\"content\":\"'s Monday\"}"
+  },
+  {
+   "t": 143.573,
+   "raw": "id: 297\ndata: {\"type\":\"text\",\"content\":\" evening\"}"
+  },
+  {
+   "t": 143.573,
+   "raw": "id: 298\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 143.741,
+   "raw": "id: 299\ndata: {\"type\":\"cost_update\",\"content\":\"$0.0236\",\"metadata\":{\"inputTokens\":36498,\"outputTokens\":5512,\"costUsd\":0.023630729999999996,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+  },
+  {
+   "t": 143.764,
+   "raw": "id: 300\ndata: {\"type\":\"complete\",\"content\":\"Session finished\",\"metadata\":{\"success\":true,\"tokensInput\":36498,\"tokensOutput\":5512,\"documentIds\":[],\"sessionId\":\"2ee079d4-4c97-490a-966d-e45ed01d84cf\",\"endReason\":\"natural\",\"assistantText\":\"Your story bible is built. Here's what I captured from the four chapters:\\n\\n**Characters (5 voices)**\\n- **Vera** — the keeper, narrator, defined by procedure and its failure\\n- **Danilo** — dead brother, posthumous catalyst, racing her through timed letters\\n- **Radmila** — information hub, maternal-sardonic, controls what Vera knows and when\\n- **Kova** — boat mender, his name appears eleven times in the ledger, was waiting for her to find it\\n- **The Soft-Handed Men** — mainland lender's agents, the anonymous enforcement threat\\n\\n**World (5 locations)**\\n- The unnamed Adriatic island\\n- The lighthouse tower and its 96 steps\\n- The boathouse (where the ledger hides)\\n- Radmila's shop (co-op meetings, information exchange)\\n- Struga reef (the Morena's wreck at low tide)\\n\\n**Plot Threads (6 strands)**\\n1. The four thousand — the center of gravity\\n2. The letters — dead or pre-timed? Delivered by whom?\\n3. The obligation — private lender, boat as collateral\\n4. The ledger — 41 entries, Kova's name, escalating sums\\n5. The soft-handed men — arrival signals ongoing threat\\n6. Vera's procedure breaking — trims wick, draws lines, fails to do both\\n\\n**Key Objects** — the white-quartz stone (witness), the boathouse ledger (truth), kerosene (replaced by intelligence), the lamp wick (procedural rupture marker), soup vs. eggs (care as displacement language)\\n\\n**Themes** — procedure as survival, weight as moral register, the sea as creditor, light and glass, the line as closure (or its refusal), numbers as body-rhythm\\n\\n**Timeline** — January (insurance) → pre-storm (cash withdrawal) → Thursday (Ch. 1) → Saturday gale (Ch. 2) → Sunday (Ch. 3) → Monday morning (Ch. 4), ending on \\\"Let the night try the door.\\\"\\n\\n**Strategic Absences** — island unnamed, lender unnamed, mainland unreached, mother unmourned, cargo unspecified — all deliberate spaces.\\n\\nThe bible is ~3,200 words. It stays strictly within what's on the page — no invented plot beats, no speculative character backstories. What you do next: move into the **Architecture** workflow to design your chapter outline and map where these threads converge and resolve, or jump into **write-chapter** to start drafting Chapter 5 from Vera's Monday evening.\",\"cancelled\":false,\"resultMeta\":{\"findingsCreated\":0,\"statusAdvanced\":false},\"suggestedNext\":[\"build-architecture\"]}}"
+  }
+ ]
+}

@@ -1,0 +1,346 @@
+﻿# P6 Owen worker proof - captured 2026-07-18 16:59:11 (before capture-style agent run)
+
+## Processes matching 'worker' in cmdline:
+
+
+ProcessId       : 12744
+ParentProcessId : 1968
+CreationDate    : 18.7.2026. 16:38:32
+Cmd             : "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npm-cli.js run worker:dev
+
+ProcessId       : 43144
+ParentProcessId : 41708
+CreationDate    : 18.7.2026. 16:38:33
+Cmd             : "C:\Program Files\nodejs\\node.exe"  "C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\npm\bin\npx-cli.js" tsx src/worker.ts
+
+ProcessId       : 26536
+ParentProcessId : 41224
+CreationDate    : 18.7.2026. 16:38:34
+Cmd             : "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\tsx\dist\cli.mjs" src/worker.ts
+
+ProcessId       : 48788
+ParentProcessId : 26536
+CreationDate    : 18.7.2026. 16:38:34
+Cmd             : "C:\Program Files\nodejs\node.exe" --require D:\Projects\wmb-pub\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/wmb-pub/node_mod
+                  ules/tsx/dist/loader.mjs src/worker.ts
+
+
+
+
+Interpretation: single worker chain npm run worker:dev -> npx tsx -> tsx cli -> node runtime (one logical worker).
+
+## ALL node processes (full audit):
+
+
+ProcessId       : 4308
+ParentProcessId : 17728
+CreationDate    : 18.7.2026. 00:01:13
+Cmd             : "C:\Program Files\nodejs\node.exe"  --disable-warning=ExperimentalWarning C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\openclaw\opencla
+                  w.mjs node run --host 127.0.0.1 --port 18789
+
+ProcessId       : 34688
+ParentProcessId : 4308
+CreationDate    : 18.7.2026. 00:01:15
+Cmd             : "C:\Program Files\nodejs\node.exe" --stack-size=8192 --disable-warning=ExperimentalWarning C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules
+                  \openclaw\openclaw.mjs node run --host 127.0.0.1 --port 18789
+
+ProcessId       : 43480
+ParentProcessId : 18932
+CreationDate    : 18.7.2026. 00:35:10
+Cmd             : "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+
+ProcessId       : 44284
+ParentProcessId : 18932
+CreationDate    : 18.7.2026. 04:47:10
+Cmd             : "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+
+ProcessId       : 39788
+ParentProcessId : 18932
+CreationDate    : 18.7.2026. 06:28:06
+Cmd             : "C:\Users\MarkoMarkovic\AppData\Local\OpenAI\Codex\runtimes\cua_node\03b1cdac8af3a530\bin\node_repl.exe"
+
+ProcessId       : 20660
+ParentProcessId : 18932
+CreationDate    : 18.7.2026. 06:28:06
+Cmd             : "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+
+ProcessId       : 3240
+ParentProcessId : 18932
+CreationDate    : 18.7.2026. 06:28:06
+Cmd             : "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+
+ProcessId       : 24844
+ParentProcessId : 21428
+CreationDate    : 18.7.2026. 09:13:36
+Cmd             : "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npx-cli.js tsx -
+
+ProcessId       : 37764
+ParentProcessId : 9000
+CreationDate    : 18.7.2026. 09:13:46
+Cmd             : "node"   "D:\Projects\waggle-os-readiness-main-20260716\node_modules\.bin\\..\tsx\dist\cli.mjs" -
+
+ProcessId       : 38224
+ParentProcessId : 37764
+CreationDate    : 18.7.2026. 09:13:47
+Cmd             : "C:\Program Files\nodejs\node.exe" --require D:\Projects\waggle-os-readiness-main-20260716\node_modules\tsx\dist\preflight.cjs --import file:///D:
+                  /Projects/waggle-os-readiness-main-20260716/node_modules/tsx/dist/loader.mjs -
+
+ProcessId       : 18452
+ParentProcessId : 33660
+CreationDate    : 18.7.2026. 09:15:52
+Cmd             : "C:\Program Files\nodejs\node.exe" --import tsx --input-type=module -
+
+ProcessId       : 44796
+ParentProcessId : 820
+CreationDate    : 18.7.2026. 09:20:13
+Cmd             : "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npx-cli.js tsx -
+
+ProcessId       : 43016
+ParentProcessId : 34860
+CreationDate    : 18.7.2026. 09:20:14
+Cmd             : "node"   "D:\Projects\waggle-os-readiness-main-20260716\node_modules\.bin\\..\tsx\dist\cli.mjs" -
+
+ProcessId       : 40020
+ParentProcessId : 43016
+CreationDate    : 18.7.2026. 09:20:14
+Cmd             : "C:\Program Files\nodejs\node.exe" --require D:\Projects\waggle-os-readiness-main-20260716\node_modules\tsx\dist\preflight.cjs --import file:///D:
+                  /Projects/waggle-os-readiness-main-20260716/node_modules/tsx/dist/loader.mjs -
+
+ProcessId       : 40396
+ParentProcessId : 43552
+CreationDate    : 18.7.2026. 09:22:47
+Cmd             : "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npx-cli.js tsx -
+
+ProcessId       : 9180
+ParentProcessId : 40324
+CreationDate    : 18.7.2026. 09:22:48
+Cmd             : "node"   "D:\Projects\waggle-os-readiness-main-20260716\node_modules\.bin\\..\tsx\dist\cli.mjs" -
+
+ProcessId       : 18568
+ParentProcessId : 9180
+CreationDate    : 18.7.2026. 09:22:48
+Cmd             : "C:\Program Files\nodejs\node.exe" --require D:\Projects\waggle-os-readiness-main-20260716\node_modules\tsx\dist\preflight.cjs --import file:///D:
+                  /Projects/waggle-os-readiness-main-20260716/node_modules/tsx/dist/loader.mjs -
+
+ProcessId       : 40920
+ParentProcessId : 23396
+CreationDate    : 18.7.2026. 12:22:05
+Cmd             : "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npx-cli.js tsx packages/server/src/local/start.
+                  ts
+
+ProcessId       : 44624
+ParentProcessId : 37740
+CreationDate    : 18.7.2026. 12:22:06
+Cmd             : "node"   "D:\Projects\waggle-os-readiness-main-20260716\node_modules\.bin\\..\tsx\dist\cli.mjs" packages/server/src/local/start.ts
+
+ProcessId       : 15808
+ParentProcessId : 44624
+CreationDate    : 18.7.2026. 12:22:06
+Cmd             : "C:\Program Files\nodejs\node.exe" --require D:\Projects\waggle-os-readiness-main-20260716\node_modules\tsx\dist\preflight.cjs --import file:///D:
+                  /Projects/waggle-os-readiness-main-20260716/node_modules/tsx/dist/loader.mjs packages/server/src/local/start.ts
+
+ProcessId       : 38728
+ParentProcessId : 10864
+CreationDate    : 18.7.2026. 12:28:05
+Cmd             : "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npx-cli.js tsx packages/server/src/local/start.
+                  ts
+
+ProcessId       : 32212
+ParentProcessId : 46056
+CreationDate    : 18.7.2026. 12:28:06
+Cmd             : "node"   "D:\Projects\waggle-os-readiness-main-20260716\node_modules\.bin\\..\tsx\dist\cli.mjs" packages/server/src/local/start.ts
+
+ProcessId       : 46448
+ParentProcessId : 32212
+CreationDate    : 18.7.2026. 12:28:07
+Cmd             : "C:\Program Files\nodejs\node.exe" --require D:\Projects\waggle-os-readiness-main-20260716\node_modules\tsx\dist\preflight.cjs --import file:///D:
+                  /Projects/waggle-os-readiness-main-20260716/node_modules/tsx/dist/loader.mjs packages/server/src/local/start.ts
+
+ProcessId       : 47264
+ParentProcessId : 43628
+CreationDate    : 18.7.2026. 12:31:20
+Cmd             : "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npx-cli.js tsx packages/server/src/local/start.
+                  ts --skip-litellm
+
+ProcessId       : 20676
+ParentProcessId : 8596
+CreationDate    : 18.7.2026. 12:31:22
+Cmd             : "node"   "D:\Projects\waggle-os-readiness-main-20260716\node_modules\.bin\\..\tsx\dist\cli.mjs" packages/server/src/local/start.ts --skip-litellm
+
+ProcessId       : 34236
+ParentProcessId : 20676
+CreationDate    : 18.7.2026. 12:31:22
+Cmd             : "C:\Program Files\nodejs\node.exe" --require D:\Projects\waggle-os-readiness-main-20260716\node_modules\tsx\dist\preflight.cjs --import file:///D:
+                  /Projects/waggle-os-readiness-main-20260716/node_modules/tsx/dist/loader.mjs packages/server/src/local/start.ts --skip-litellm
+
+ProcessId       : 33028
+ParentProcessId : 45472
+CreationDate    : 18.7.2026. 12:38:11
+Cmd             : "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npx-cli.js tsx packages/server/src/local/start.
+                  ts --skip-litellm
+
+ProcessId       : 45604
+ParentProcessId : 24044
+CreationDate    : 18.7.2026. 12:38:12
+Cmd             : "node"   "D:\Projects\waggle-os-readiness-main-20260716\node_modules\.bin\\..\tsx\dist\cli.mjs" packages/server/src/local/start.ts --skip-litellm
+
+ProcessId       : 46284
+ParentProcessId : 45604
+CreationDate    : 18.7.2026. 12:38:12
+Cmd             : "C:\Program Files\nodejs\node.exe" --require D:\Projects\waggle-os-readiness-main-20260716\node_modules\tsx\dist\preflight.cjs --import file:///D:
+                  /Projects/waggle-os-readiness-main-20260716/node_modules/tsx/dist/loader.mjs packages/server/src/local/start.ts --skip-litellm
+
+ProcessId       : 16280
+ParentProcessId : 27180
+CreationDate    : 18.7.2026. 12:46:03
+Cmd             : "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npx-cli.js tsx packages/server/src/local/start.
+                  ts --skip-litellm
+
+ProcessId       : 31868
+ParentProcessId : 38956
+CreationDate    : 18.7.2026. 12:46:04
+Cmd             : "node"   "D:\Projects\waggle-os-readiness-main-20260716\node_modules\.bin\\..\tsx\dist\cli.mjs" packages/server/src/local/start.ts --skip-litellm
+
+ProcessId       : 48824
+ParentProcessId : 31868
+CreationDate    : 18.7.2026. 12:46:04
+Cmd             : "C:\Program Files\nodejs\node.exe" --require D:\Projects\waggle-os-readiness-main-20260716\node_modules\tsx\dist\preflight.cjs --import file:///D:
+                  /Projects/waggle-os-readiness-main-20260716/node_modules/tsx/dist/loader.mjs packages/server/src/local/start.ts --skip-litellm
+
+ProcessId       : 42300
+ParentProcessId : 45964
+CreationDate    : 18.7.2026. 12:50:45
+Cmd             : "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npx-cli.js tsx packages/server/src/local/start.
+                  ts --skip-litellm
+
+ProcessId       : 42748
+ParentProcessId : 1608
+CreationDate    : 18.7.2026. 12:50:46
+Cmd             : "node"   "D:\Projects\waggle-os-readiness-main-20260716\node_modules\.bin\\..\tsx\dist\cli.mjs" packages/server/src/local/start.ts --skip-litellm
+
+ProcessId       : 48912
+ParentProcessId : 42748
+CreationDate    : 18.7.2026. 12:50:46
+Cmd             : "C:\Program Files\nodejs\node.exe" --require D:\Projects\waggle-os-readiness-main-20260716\node_modules\tsx\dist\preflight.cjs --import file:///D:
+                  /Projects/waggle-os-readiness-main-20260716/node_modules/tsx/dist/loader.mjs packages/server/src/local/start.ts --skip-litellm
+
+ProcessId       : 44776
+ParentProcessId : 34624
+CreationDate    : 18.7.2026. 14:53:33
+Cmd             : "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npm-cli.js run dev -- -p 3002
+
+ProcessId       : 37804
+ParentProcessId : 45420
+CreationDate    : 18.7.2026. 14:53:33
+Cmd             : "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\cross-env\dist\bin\cross-env.js" NODE_OPTIONS=--max-old-space-size=4096 next dev -p 3002
+
+ProcessId       : 48020
+ParentProcessId : 39556
+CreationDate    : 18.7.2026. 14:53:33
+Cmd             : "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\next\dist\bin\next" "dev" "-p" "3002"
+
+ProcessId       : 2488
+ParentProcessId : 48020
+CreationDate    : 18.7.2026. 14:53:34
+Cmd             : "C:\Program Files\nodejs\node.exe" D:\Projects\wmb-pub\node_modules\next\dist\server\lib\start-server.js
+
+ProcessId       : 45516
+ParentProcessId : 18932
+CreationDate    : 18.7.2026. 16:23:46
+Cmd             : "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+
+ProcessId       : 39420
+ParentProcessId : 18932
+CreationDate    : 18.7.2026. 16:33:19
+Cmd             : "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+
+ProcessId       : 12744
+ParentProcessId : 1968
+CreationDate    : 18.7.2026. 16:38:32
+Cmd             : "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npm-cli.js run worker:dev
+
+ProcessId       : 43144
+ParentProcessId : 41708
+CreationDate    : 18.7.2026. 16:38:33
+Cmd             : "C:\Program Files\nodejs\\node.exe"  "C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\npm\bin\npx-cli.js" tsx src/worker.ts
+
+ProcessId       : 26536
+ParentProcessId : 41224
+CreationDate    : 18.7.2026. 16:38:34
+Cmd             : "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\tsx\dist\cli.mjs" src/worker.ts
+
+ProcessId       : 48788
+ParentProcessId : 26536
+CreationDate    : 18.7.2026. 16:38:34
+Cmd             : "C:\Program Files\nodejs\node.exe" --require D:\Projects\wmb-pub\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/wmb-pub/node_mod
+                  ules/tsx/dist/loader.mjs src/worker.ts
+
+ProcessId       : 33316
+ParentProcessId : 18932
+CreationDate    : 18.7.2026. 16:55:22
+Cmd             : "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+
+ProcessId       : 45520
+ParentProcessId : 18932
+CreationDate    : 18.7.2026. 16:56:08
+Cmd             : "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+
+ProcessId       : 46352
+ParentProcessId : 18932
+CreationDate    : 18.7.2026. 16:56:44
+Cmd             : "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+
+ProcessId       : 31952
+ParentProcessId : 18932
+CreationDate    : 18.7.2026. 16:58:33
+Cmd             : "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+
+ProcessId       : 19164
+ParentProcessId : 48636
+CreationDate    : 18.7.2026. 16:58:42
+Cmd             : "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npm-cli.js run build:all
+
+ProcessId       : 15784
+ParentProcessId : 45396
+CreationDate    : 18.7.2026. 16:58:53
+Cmd             : "C:\Program Files\nodejs\\node.exe"  "C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\npm\bin\npm-cli.js" run build
+
+ProcessId       : 40968
+ParentProcessId : 33436
+CreationDate    : 18.7.2026. 16:58:53
+Cmd             : "C:\Program Files\nodejs\\node.exe"  "C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\npm\bin\npx-cli.js" tsc --noEmit -p tsconfig.app.jso
+                  n
+
+ProcessId       : 40504
+ParentProcessId : 26008
+CreationDate    : 18.7.2026. 16:58:55
+Cmd             : "node"   "D:\Projects\waggle-os-persona-acceptance-fdb19128-ci\node_modules\.bin\\..\typescript\bin\tsc" --noEmit -p tsconfig.app.json
+
+
+
+
+
+## ADDENDUM - post-run capture 2026-07-18 18:22:02 (after final line-edit pass)
+
+
+ProcessId    : 12744
+CreationDate : 18.7.2026. 16:38:32
+Cmd          : "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npm-cli.js run worker:dev
+
+ProcessId    : 43144
+CreationDate : 18.7.2026. 16:38:33
+Cmd          : "C:\Program Files\nodejs\\node.exe"  "C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\npm\bin\npx-cli.js" tsx src/worker.ts
+
+ProcessId    : 26536
+CreationDate : 18.7.2026. 16:38:34
+Cmd          : "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\tsx\dist\cli.mjs" src/worker.ts
+
+ProcessId    : 48788
+CreationDate : 18.7.2026. 16:38:34
+Cmd          : "C:\Program Files\nodejs\node.exe" --require D:\Projects\wmb-pub\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/wmb-pub/node_module
+               s/tsx/dist/loader.mjs src/worker.ts
+
+
+
+
+Same single worker chain, same PIDs, no restarts during the journey.

@@ -1,0 +1,10 @@
+{
+ "span_rewrite_put_status": 200,
+ "request": "I already rewrote the line my own way while we were talking - palpable is gone. Does your suggestion still apply to what is on the page now, or are we done here?",
+ "elapsed": 40.43,
+ "response": {
+  "assistantMessage": "Paste the rewritten line. If you've grounded the pause in physical detail or procedural action instead of auditory abstraction, the flag is closed and the suggestion is retired.",
+  "userTurns": 2,
+  "capped": false
+ }
+}

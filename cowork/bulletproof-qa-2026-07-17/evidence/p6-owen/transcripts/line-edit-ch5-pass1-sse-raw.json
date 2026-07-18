@@ -1,0 +1,70 @@
+{
+ "path": "/api/books/6d69fd7c-f7a4-4e3d-bf49-1415d81f5326/agent/9cb75913-09fb-4f06-a6e1-03ac3d3a6bc5/stream",
+ "elapsed": 207.106,
+ "n_events": 14,
+ "final": {
+  "type": "error",
+  "content": "OpenRouter is experiencing temporary issues. The request will be retried automatically.",
+  "metadata": {
+   "action": "retry"
+  }
+ },
+ "events": [
+  {
+   "t": 15.055,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 30.067,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 45.077,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 60.09,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 75.103,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 90.103,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 105.108,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 120.114,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 135.126,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 150.135,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 165.139,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 180.142,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 195.155,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 207.104,
+   "raw": "id: 0\ndata: {\"type\":\"error\",\"content\":\"OpenRouter is experiencing temporary issues. The request will be retried automatically.\",\"metadata\":{\"action\":\"retry\"}}"
+  }
+ ]
+}

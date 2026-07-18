@@ -1,0 +1,19 @@
+{
+ "revert": {
+  "defaultModel": "openrouter-qwen36/sonnet",
+  "modelGhostwriter": null,
+  "modelEditor": null,
+  "modelBetaReader": null,
+  "modelAnalyst": null,
+  "modelCoach": null,
+  "modelCreative": null
+ },
+ "keys": [
+  {
+   "provider": "openrouter",
+   "label": "Owen OpenRouter",
+   "validatedAt": "2026-07-18T14:53:52.605Z",
+   "maskedKey": "sk-or-v...705e"
+  }
+ ]
+}

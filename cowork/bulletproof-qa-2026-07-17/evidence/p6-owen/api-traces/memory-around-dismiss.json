@@ -1,0 +1,11 @@
+{
+ "before": [],
+ "dismiss": {
+  "error": "Invalid input",
+  "details": {
+   "name": "ZodError",
+   "message": "[\n  {\n    \"code\": \"invalid_value\",\n    \"values\": [\n      \"apply\",\n      \"dismiss\"\n    ],\n    \"path\": [\n      \"action\"\n    ],\n    \"message\": \"Invalid option: expected one of \\\"apply\\\"|\\\"dismiss\\\"\"\n  }\n]"
+  }
+ },
+ "after": []
+}

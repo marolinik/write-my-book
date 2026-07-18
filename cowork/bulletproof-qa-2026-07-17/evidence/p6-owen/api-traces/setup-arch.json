@@ -1,0 +1,25 @@
+{
+ "build-architecture-start": {
+  "status": 200,
+  "elapsed": 2.066,
+  "body": {
+   "sessionId": "4deda4dc-b130-448a-ab4c-4fe65a61d89f"
+  }
+ },
+ "build-architecture-stream": {
+  "n_events": 124,
+  "elapsed": 570.355,
+  "final": "CLIENT_TIMEOUT"
+ },
+ "documents-after": {
+  "status": 200,
+  "types": [
+   "STORY_BIBLE",
+   "FINGERPRINT",
+   "CHAPTER_CONTENT",
+   "CHAPTER_CONTENT",
+   "CHAPTER_CONTENT",
+   "CHAPTER_CONTENT"
+  ]
+ }
+}

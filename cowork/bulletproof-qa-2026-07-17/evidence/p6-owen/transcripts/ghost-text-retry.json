@@ -1,0 +1,18 @@
+[
+ {
+  "attempt": 1,
+  "status": 200,
+  "elapsed": 43.792,
+  "response": {
+   "suggestion": "and crusted with salt, as if the rope had been pulled tight in a panic and left to harden while the tide went out."
+  }
+ },
+ {
+  "attempt": 2,
+  "status": 200,
+  "elapsed": 1.837,
+  "response": {
+   "suggestion": ""
+  }
+ }
+]

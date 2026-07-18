@@ -1,0 +1,113 @@
+{
+ "00-books-baseline": {
+  "status": 200,
+  "elapsed": 0.1,
+  "body": [
+   {
+    "id": "8632ba0c-f05b-4fd5-9581-3790a0f2c675",
+    "userId": "e02cdae6-4c74-43e8-bd0e-e888debabf7c",
+    "seriesId": null,
+    "bookNumber": 1,
+    "name": "VM1 Test",
+    "genre": "literary",
+    "language": "en",
+    "status": "concept",
+    "description": null,
+    "marketingKit": null,
+    "authorNotes": null,
+    "wordCount": 0,
+    "targetWordCount": null,
+    "chapterCount": 0,
+    "s3Prefix": "e02cdae6-4c74-43e8-bd0e-e888debabf7c/8632ba0c-f05b-4fd5-9581-3790a0f2c675",
+    "createdAt": "2026-07-17T14:43:28.602Z",
+    "updatedAt": "2026-07-17T14:43:28.610Z",
+    "archivedAt": null,
+    "series": null,
+    "settings": {
+     "id": "97488e5e-930d-4f77-8518-fb3dc47b35d6",
+     "bookId": "8632ba0c-f05b-4fd5-9581-3790a0f2c675",
+     "modelGhostwriter": "opus",
+     "modelEditor": "sonnet",
+     "modelBetaReader": "sonnet",
+     "modelAnalyst": "haiku",
+     "modelCoach": "sonnet",
+     "modelCreative": "opus",
+     "modelResearch": "sonnet",
+     "modelOverride": null,
+     "autoCommit": true,
+     "styleStrictness": "balanced",
+     "betaPanelSize": 10,
+     "betaConsensus": 80,
+     "betaConvergence": 70,
+     "language": "en",
+     "setupImportSkipped": false,
+     "setupComplete": false,
+     "journeyId": null,
+     "journeyStepsSnapshot": null
+    },
+    "_count": {
+     "chapters": 1,
+     "documents": 0
+    }
+   }
+  ]
+ },
+ "01-api-key-create": {
+  "status": 201,
+  "elapsed": 1.589,
+  "body": {
+   "id": "9c65459b-fc05-474f-a033-db01bd7ce370",
+   "provider": "openrouter",
+   "label": "Owen OpenRouter",
+   "isDefault": true,
+   "validatedAt": "2026-07-18T14:53:52.605Z",
+   "maskedKey": "sk-or-v...705e",
+   "usage": null
+  }
+ },
+ "02-default-model": {
+  "status": 200,
+  "elapsed": 0.234,
+  "body": {
+   "defaultModel": "openrouter-qwen36/sonnet",
+   "modelGhostwriter": null,
+   "modelEditor": null,
+   "modelBetaReader": null,
+   "modelAnalyst": null,
+   "modelCoach": null,
+   "modelCreative": null
+  }
+ },
+ "03-book-create": {
+  "status": 201,
+  "elapsed": 0.058,
+  "body": {
+   "id": "6d69fd7c-f7a4-4e3d-bf49-1415d81f5326",
+   "userId": "e02cdae6-4c74-43e8-bd0e-e888debabf7c",
+   "seriesId": null,
+   "bookNumber": 1,
+   "name": "The Keeper's Arithmetic",
+   "genre": "literary",
+   "language": "en",
+   "status": "concept",
+   "description": null,
+   "marketingKit": null,
+   "authorNotes": null,
+   "wordCount": 0,
+   "targetWordCount": null,
+   "chapterCount": 0,
+   "s3Prefix": "e02cdae6-4c74-43e8-bd0e-e888debabf7c/6d69fd7c-f7a4-4e3d-bf49-1415d81f5326",
+   "createdAt": "2026-07-18T14:53:52.888Z",
+   "updatedAt": "2026-07-18T14:53:52.894Z",
+   "archivedAt": null,
+   "firstChapterId": "e279d436-37ec-407b-85fe-e0520f9e679a"
+  }
+ },
+ "04-ch1-create": {
+  "status": 500,
+  "elapsed": 0.231,
+  "body": {
+   "error": "Failed to create chapter"
+  }
+ }
+}
