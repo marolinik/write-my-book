@@ -77,6 +77,8 @@ First repro attempt on `POST /api/books` (Maya's own quota-gated route) hit her 
 
 ## D-13 (S2) — Dev-editor re-flags a dismissed, memory-backed, non-critical finding on unchanged content, in direct violation of its own system-prompt instruction
 
+> **STATUS UPDATE (2026-07-18): FIXED-VERIFIED (outcome-level).** Re-verified after the deterministic persist-time suppression landed (`src/lib/agents/tools.ts:1283-1317`: non-critical findings matching a DISMISSED finding's whitespace-normalized `originalText` + `category` on the same chapter are not persisted; empty `originalText` never suppresses). Protocol: confirmed chapter 1 byte-stable (704 words, critiqued passage verbatim-present), WriterMemory row still active, dismissed the pre-fix re-raise `d0f79766` too (arming suppression against both lineage entries), then ran dev-edit #4 (session `4bd0654f`, 147.7s, `final_status:"complete"`). Result: **zero re-raises** — the only new finding (`f1b35402`) targets a different passage, different category, no byte/normalized `originalText` match against either dismissed entry — and the editor still produced 1 genuinely-new finding, so no over-suppression. Caveat, stated honestly: the model didn't attempt the dismissed critique this run (2 CreateFinding attempts, both on the new passage; 0 suppression messages in SSE), so the deterministic gate wasn't live-triggered — it remains the unit-verified backstop (`tests/unit/finding-redismiss-suppression.test.ts`, 5/5 green incl. critical-exception, empty-originalText, and cross-chapter cases) for the stochastic re-raise case that dev-edit-3 exhibited. Side observation from the same run: a pre-existing CreateFinding input-validation gap (omitted `paragraphNumber` → raw `TypeError ... (reading 'normalize')` tool error instead of a corrective REJECTED message; model self-recovered) — described in `journey-log.md` "D-13 RE-VERIFY", unnumbered pending team-lead ID. Full evidence: `journey-log.md` "D-13 RE-VERIFY (post-fix, 2026-07-18)"; `api-traces/d13-reverify-*.json`; `transcripts/d13-reverify-dev-edit-4-*.json`.
+
 **Class:** S2 — journey-blocking / false-positive. Assigned by team-lead 2026-07-18; code trace confirmed, hash-variation control confirmed unnecessary (root cause is structural, not stochastic — see point 4 below).
 
 Discovered during the 2026-07-18 D8 re-run, *after* confirming D-04's discuss/WriterMemory plumbing is fixed. This is a materially different failure mode from D-04 (which was an empty API response); here the full context chain works correctly and the model still disobeys its own explicit rule.
@@ -109,7 +111,7 @@ Evidence: `journey-log.md` "Step 1 RE-RUN (2026-07-18)"; `api-traces/d8-rerun-fi
 
 **Severity:** should be treated as no less severe than D-04 was — it directly negates the D8 grading dimension's core promise ("tell it once, it remembers"), the loop still fails end-to-end for the end user even though the underlying transport bug is fixed.
 
-**Status: OPEN, fix in progress (2026-07-18).** Team-lead is building a deterministic fix — suppress re-raised findings matching a dismissed finding's `originalText` + `category` at persist time, with a critical-severity exception. Will re-verify with a third dev-edit run once it lands (standing by).
+**Status: FIXED-VERIFIED (2026-07-18).** Deterministic persist-time suppression landed and re-verified via dev-edit #4 — see the STATUS UPDATE block at the top of this entry for the full re-verification protocol, verdict, and the live-trigger caveat.
 
 ---
 

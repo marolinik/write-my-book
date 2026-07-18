@@ -1,0 +1,33 @@
+{
+ "status": 200,
+ "body": {
+  "id": "d0f79766-74d2-42eb-b4e0-7e61347d4516",
+  "bookId": "4116055c-6183-4675-926a-e04f31126951",
+  "chapterNumber": 1,
+  "sessionId": "11d0cf46-e688-4627-9e8b-5c6a83550316",
+  "agentType": "dev-editor",
+  "severity": "suggestion",
+  "category": "prose",
+  "description": "The final explanatory sentence restates the arithmetic metaphor as narrative thesis after the chapter has already demonstrated Imogen's deferral through physical action.",
+  "suggestion": "The chapter has just shown Imogen's evasion performed: she puts the letter in her coat pocket, feels its weight against her ribs, walks in the dark counting lit windows. The fragments \"Tomorrow she would read it. Tomorrow, or the day after.\" land as the chapter's strongest ending, matching the author's signature rhythm. The long sentence following them then explains what the fragments already implied, restating the arithmetic metaphor as thesis. For a writer who confirmed the chapter should remain short and sparse, this is scaffolding that could be trusted to the reader.",
+  "originalText": "Tomorrow she would read it. Tomorrow, or the day after. There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.",
+  "newText": "Tomorrow she would read it. Tomorrow, or the day after.",
+  "locationStart": null,
+  "locationEnd": null,
+  "status": "dismissed",
+  "dismissReason": "Same as before - the chapter ends short and sparse on purpose. I already told the editor this; keeping the passage as written.",
+  "appliedAt": null,
+  "createdAt": "2026-07-18T00:14:27.701Z",
+  "contentHash": "10d1d6b0cb8a209f7e96288de38f926e18520bded99ded75d751ea422d5a1ed5",
+  "confidence": 0.78,
+  "rationale": "The chapter has just shown Imogen's evasion performed: she puts the letter in her coat pocket, feels its weight against her ribs, walks in the dark counting lit windows. The fragments \"Tomorrow she would read it. Tomorrow, or the day after.\" land as the chapter's strongest ending, matching the author's signature rhythm. The long sentence following them then explains what the fragments already implied, restating the arithmetic metaphor as thesis. For a writer who confirmed the chapter should remain short and sparse, this is scaffolding that could be trusted to the reader.",
+  "paragraphNumber": 8,
+  "anchorQuote": "There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.",
+  "alternatives": "[{\"label\":\"Option A — stop on the fragments to preserve the rhythmic signature\",\"newText\":\"Tomorrow she would read it. Tomorrow, or the day after.\",\"originalText\":\"Tomorrow she would read it. Tomorrow, or the day after. There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.\"},{\"label\":\"Option B — keep the door metaphor but strip the arithmetic restatement\",\"newText\":\"Tomorrow she would read it. Tomorrow, or the day after. The letter sat folded in her pocket, heavy as a stone, and the wind off the water made her think of counting — one more evening, one more morning — because opening it was a door she was not yet strong enough to hold open.\",\"originalText\":\"Tomorrow she would read it. Tomorrow, or the day after. There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.\"}]",
+  "groundingScore": 1,
+  "chapterVersion": 1,
+  "rejectedAt": "2026-07-18T11:33:37.081Z",
+  "rejectionReason": null
+ },
+ "elapsed_s": 6.789
+}
