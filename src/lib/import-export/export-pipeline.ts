@@ -9,6 +9,7 @@ import { DocumentType } from "@/generated/prisma/enums";
 import type { StorageAdapter } from "@/lib/storage/types";
 import type { ExportConfig, ExportOptions, ExportResult } from "./types";
 import { getDefaultExportConfig, parseExportConfigJson } from "./export-config";
+import { resolveSafeTemplatePath } from "./safe-path";
 import { getExportFormatConfig } from "./language-config";
 import { assembleFrontMatter, assembleSeriesFrontMatter } from "./front-matter";
 import { assembleBackMatter } from "./back-matter";
@@ -616,10 +617,21 @@ export async function exportManuscript(
   let epubCss: string | null = null;
   let epubCoverImage: string | null = null;
 
+  // D-21 defense-in-depth: every writer-settable custom template / cover path is
+  // re-validated here (resolveSafeTemplatePath → absolute path inside
+  // export-templates, or null) so a URL/UNC/absolute/traversal value can never
+  // reach pandoc even if it slipped past the config validation boundary. A
+  // non-empty-but-rejected value falls back to the bundled default and warns.
   if (format === "docx") {
-    if (config.customTemplates.docxReference) {
-      referenceDoc = config.customTemplates.docxReference;
+    const customRef = resolveSafeTemplatePath(config.customTemplates.docxReference);
+    if (customRef) {
+      referenceDoc = customRef;
     } else {
+      if (config.customTemplates.docxReference) {
+        warnings.push(
+          "Custom docx reference ignored: not inside the allowed templates directory."
+        );
+      }
       const refDocPath = join(TEMPLATES_DIR, `reference-${genreTemplate}.docx`);
       try {
         await readFile(refDocPath);
@@ -632,8 +644,13 @@ export async function exportManuscript(
     // Require Typst for PDF export - throw actionable error if missing
     await requireTool("typst");
     typstEngine = resolvedToolPaths["typst"] || "typst";
-    const templatePath =
-      config.customTemplates.typstTemplate || join(TEMPLATES_DIR, "typst-book.typ");
+    const customTpl = resolveSafeTemplatePath(config.customTemplates.typstTemplate);
+    if (!customTpl && config.customTemplates.typstTemplate) {
+      warnings.push(
+        "Custom typst template ignored: not inside the allowed templates directory."
+      );
+    }
+    const templatePath = customTpl || join(TEMPLATES_DIR, "typst-book.typ");
     try {
       await readFile(templatePath);
       typstTemplate = templatePath;
@@ -641,9 +658,15 @@ export async function exportManuscript(
       // Template not found, Pandoc will use default
     }
   } else if (format === "epub") {
-    if (config.customTemplates.epubCss) {
-      epubCss = config.customTemplates.epubCss;
+    const customCss = resolveSafeTemplatePath(config.customTemplates.epubCss);
+    if (customCss) {
+      epubCss = customCss;
     } else {
+      if (config.customTemplates.epubCss) {
+        warnings.push(
+          "Custom epub CSS ignored: not inside the allowed templates directory."
+        );
+      }
       const defaultCss = join(TEMPLATES_DIR, "epub-genre.css");
       try {
         await readFile(defaultCss);
@@ -653,7 +676,14 @@ export async function exportManuscript(
       }
     }
     if (config.frontMatter.coverPage && config.frontMatter.coverImagePath) {
-      epubCoverImage = config.frontMatter.coverImagePath;
+      const cover = resolveSafeTemplatePath(config.frontMatter.coverImagePath);
+      if (cover) {
+        epubCoverImage = cover;
+      } else {
+        warnings.push(
+          "Cover image ignored: not inside the allowed templates directory."
+        );
+      }
     }
   }
 

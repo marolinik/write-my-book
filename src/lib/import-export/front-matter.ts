@@ -1,5 +1,6 @@
 import type { StorageAdapter } from "@/lib/storage/types";
 import type { ExportConfig } from "./types";
+import { resolveSafeTemplatePath } from "./safe-path";
 
 /** Assemble front matter for a single-book export. */
 export async function assembleFrontMatter(
@@ -10,9 +11,12 @@ export async function assembleFrontMatter(
   const parts: string[] = [];
   const { metadata, frontMatter } = config;
 
-  // Cover page (EPUB/PDF only)
-  if (frontMatter.coverPage && frontMatter.coverImagePath && format !== "docx") {
-    parts.push(`::: {.cover-page}\n![Cover](${frontMatter.coverImagePath})\n:::`);
+  // Cover page (EPUB/PDF only). D-21: the cover path is re-validated to an
+  // absolute path inside the allowed templates directory (or null), so an
+  // arbitrary URL/local path can never be embedded as an image reference.
+  const coverPath = resolveSafeTemplatePath(frontMatter.coverImagePath);
+  if (frontMatter.coverPage && coverPath && format !== "docx") {
+    parts.push(`::: {.cover-page}\n![Cover](${coverPath})\n:::`);
     parts.push("\\newpage");
   }
 
@@ -91,9 +95,10 @@ export async function assembleSeriesFrontMatter(
   const parts: string[] = [];
   const { metadata, frontMatter } = config;
 
-  // Cover page
-  if (frontMatter.coverPage && frontMatter.coverImagePath && format !== "docx") {
-    parts.push(`::: {.cover-page}\n![Cover](${frontMatter.coverImagePath})\n:::`);
+  // Cover page. D-21: same containment as the single-book path above.
+  const coverPath = resolveSafeTemplatePath(frontMatter.coverImagePath);
+  if (frontMatter.coverPage && coverPath && format !== "docx") {
+    parts.push(`::: {.cover-page}\n![Cover](${coverPath})\n:::`);
     parts.push("\\newpage");
   }
 

@@ -1,5 +1,20 @@
 import { z } from "zod";
 import { PROVIDER_KEYS } from "@/lib/llm/providers";
+import { isSafeTemplatePath } from "@/lib/import-export/safe-path";
+
+/**
+ * A custom-template / cover-asset path (D-21). Constrained to a safe LOCAL path
+ * inside the bundled `export-templates/` directory: rejects URLs (SSRF), UNC
+ * paths, absolute paths, and `../` traversal so a writer-settable value can
+ * never make the server-side pandoc fetch a URL or read an arbitrary local file.
+ */
+const safeTemplatePathSchema = z
+  .string()
+  .max(500)
+  .refine(isSafeTemplatePath, {
+    message:
+      "Must be empty or a relative path inside the export-templates directory (no URLs, UNC, absolute paths, or ../).",
+  });
 
 export const createBookSchema = z.object({
   name: z.string().min(1).max(200),
@@ -256,7 +271,7 @@ export const exportConfigSchema = z.object({
     copyrightPage: z.boolean(),
     dedication: z.boolean(),
     tableOfContents: z.boolean(),
-    coverImagePath: z.string().max(500),
+    coverImagePath: safeTemplatePathSchema,
     dedicationPath: z.string().max(500),
   }),
   backMatter: z.object({
@@ -275,9 +290,9 @@ export const exportConfigSchema = z.object({
     sentenceCaseHeadings: z.boolean(),
   }),
   customTemplates: z.object({
-    docxReference: z.string().max(500),
-    epubCss: z.string().max(500),
-    typstTemplate: z.string().max(500),
+    docxReference: safeTemplatePathSchema,
+    epubCss: safeTemplatePathSchema,
+    typstTemplate: safeTemplatePathSchema,
   }),
   typography: z.object({
     autoHyphenation: z.boolean(),
