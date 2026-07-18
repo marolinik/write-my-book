@@ -1,0 +1,51 @@
+{
+  "books-list-empty": {
+    "violations": 5,
+    "details": [
+      "heading-order (moderate): 1 node(s) — Heading levels should only increase by one",
+      "landmark-main-is-top-level (moderate): 1 node(s) — Main landmark should not be contained in another landmark",
+      "landmark-no-duplicate-main (moderate): 1 node(s) — Document should not have more than one main landmark",
+      "landmark-unique (moderate): 2 node(s) — Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+      "region (moderate): 1 node(s) — All page content should be contained by landmarks"
+    ]
+  },
+  "dashboard": {
+    "violations": 4,
+    "details": [
+      "landmark-main-is-top-level (moderate): 1 node(s) — Main landmark should not be contained in another landmark",
+      "landmark-no-duplicate-main (moderate): 1 node(s) — Document should not have more than one main landmark",
+      "landmark-unique (moderate): 2 node(s) — Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+      "region (moderate): 1 node(s) — All page content should be contained by landmarks"
+    ]
+  },
+  "settings": {
+    "violations": 6,
+    "details": [
+      "button-name (critical): 8 node(s) — Buttons must have discernible text",
+      "heading-order (moderate): 1 node(s) — Heading levels should only increase by one",
+      "landmark-main-is-top-level (moderate): 1 node(s) — Main landmark should not be contained in another landmark",
+      "landmark-no-duplicate-main (moderate): 1 node(s) — Document should not have more than one main landmark",
+      "landmark-unique (moderate): 2 node(s) — Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+      "region (moderate): 1 node(s) — All page content should be contained by landmarks"
+    ]
+  },
+  "books-new-form": {
+    "violations": 5,
+    "details": [
+      "landmark-main-is-top-level (moderate): 1 node(s) — Main landmark should not be contained in another landmark",
+      "landmark-no-duplicate-main (moderate): 1 node(s) — Document should not have more than one main landmark",
+      "landmark-unique (moderate): 2 node(s) — Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+      "page-has-heading-one (moderate): 1 node(s) — Page should contain a level-one heading",
+      "region (moderate): 1 node(s) — All page content should be contained by landmarks"
+    ]
+  },
+  "editor-with-content_DEVBYPASS-NOT-SAM": {
+    "violations": 4,
+    "details": [
+      "landmark-main-is-top-level (moderate): 1 node(s) — Main landmark should not be contained in another landmark",
+      "landmark-no-duplicate-main (moderate): 1 node(s) — Document should not have more than one main landmark",
+      "landmark-unique (moderate): 2 node(s) — Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+      "region (moderate): 1 node(s) — All page content should be contained by landmarks"
+    ]
+  }
+}
