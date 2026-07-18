@@ -581,7 +581,9 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
         }
 
         // Run post-session processing — skipped for user-cancelled sessions
-        // (the cancel route owns the terminal state; no completion processing).
+        // (the cancel route owns the terminal state; no completion processing)
+        // AND for failed sessions (D-36: a provider-failure run must not
+        // advance chapter workflow state — it did not complete its work).
         let suggestedNext: string[] = [];
         let resultMeta: {
           findingsCreated: number;
@@ -590,7 +592,7 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
           betaGateResult?: string;
         } = { findingsCreated: 0, statusAdvanced: false };
 
-        if (!result.cancelled) {
+        if (!result.cancelled && result.success) {
           try {
             const postResult = await processPostSession({
               sessionId,
@@ -762,6 +764,21 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
         // overwriting the status key here would resurrect the session as
         // "completed" for replaying and polling clients.
         if (result.cancelled) return;
+
+        // Failed (D-36): the orchestrator loop already published the terminal
+        // SSE 'error' — same contract as cancel: publishing 'complete' or
+        // setting the status key to "completed" here would resurrect a
+        // provider-failed session as a clean run for replaying and polling
+        // clients (and the morning batch digest would count it clean).
+        if (!result.success) {
+          await publisher.set(
+            `session:${sessionId}:status`,
+            "failed",
+            "EX",
+            REDIS_TTL_SECONDS
+          );
+          return;
+        }
 
         // Publish completion message.
         // endReason/wrapUpSummary are TOP-LEVEL (not nested under resultMeta —

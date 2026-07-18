@@ -186,8 +186,14 @@ export interface AgentResult {
   tokensOutput: number;
   documentIds: string[];
   sessionId: string;
-  /** Why the session ended. "budget"/"timeout" mean a graceful early end — NOT a failure. */
-  endReason?: "natural" | "budget" | "timeout";
+  /**
+   * Why the session ended. "budget"/"timeout" mean a graceful early end — NOT
+   * a failure. "error" means a provider failure ended the loop (retry
+   * exhaustion, non-retryable status, or an empty zero-work response) — the
+   * session resolves success:false so it is persisted as FAILED, never as a
+   * clean completion (D-36).
+   */
+  endReason?: "natural" | "budget" | "timeout" | "error";
   /** Final-turn summary of done/remaining work when the session ended early. */
   wrapUpSummary?: string;
   /**

@@ -225,7 +225,10 @@ export class AgentOrchestrator {
       const cancelled = this.abortController?.signal.aborted === true;
 
       const agentResult: AgentResult = {
-        success: true,
+        // A provider failure that ended the loop is a FAILED session, not a
+        // completion (D-36). Still resolved via onComplete — never onError —
+        // so token/cost accounting and the batch ledger stay honest.
+        success: !result.providerFailure,
         tokensInput: result.inputTokens,
         tokensOutput: result.outputTokens,
         documentIds,
@@ -325,7 +328,8 @@ export class AgentOrchestrator {
       );
 
       await options.onComplete({
-        success: true,
+        // See runAgent: a provider-failure loop end resolves success:false.
+        success: !result.providerFailure,
         tokensInput: result.inputTokens,
         tokensOutput: result.outputTokens,
         documentIds,
@@ -373,9 +377,17 @@ export class AgentOrchestrator {
   ): Promise<{
     inputTokens: number;
     outputTokens: number;
-    endReason: "natural" | "budget" | "timeout";
+    endReason: "natural" | "budget" | "timeout" | "error";
     wrapUpSummary?: string;
     assistantText?: string;
+    /**
+     * True when a provider failure ended the loop (retry exhaustion,
+     * non-retryable status, or an empty zero-work first response). The
+     * callers map this to success:false so the session is persisted as
+     * FAILED — a provider outage must never masquerade as a clean natural
+     * completion (D-36).
+     */
+    providerFailure: boolean;
   }> {
     let totalInputTokens = 0;
     let totalOutputTokens = 0;
@@ -393,7 +405,9 @@ export class AgentOrchestrator {
     let budgetNudgeSent = false;
     let timeNudgeSent = false;
     let finalTurnRequested = false;
-    let endReason: "natural" | "budget" | "timeout" = "natural";
+    let endReason: "natural" | "budget" | "timeout" | "error" = "natural";
+    /** Set when a provider failure ends the loop — see the return-type doc. */
+    let providerFailure = false;
     let wrapUpSummary: string | undefined;
     /** Last non-empty assistant text — persisted for cross-restart continuity. */
     let lastAssistantText: string | undefined;
@@ -507,11 +521,56 @@ export class AgentOrchestrator {
             content: translated.userMessage,
           });
         }
+        // D-36: record any partial spend the dying turn already streamed
+        // (the provider billed those tokens even though finalMessage never
+        // resolved) — mirrors the user-cancel abort path above.
+        totalInputTokens += turnInputTokens;
+        totalOutputTokens += turnOutputTokens;
+        if (this.sharedCostTracker) {
+          this.sharedCostTracker.totalInputTokens += turnInputTokens;
+          this.sharedCostTracker.totalOutputTokens += turnOutputTokens;
+          this.sharedCostTracker.totalCostUsd += estimateCost(
+            this.registryId,
+            turnInputTokens,
+            turnOutputTokens
+          );
+        }
+        // D-36: a provider failure ended the loop. Flag it so the callers
+        // resolve success:false — before this, the break below made a real
+        // outage indistinguishable from a natural completion (session marked
+        // "completed"/0 tokens/"natural", chapter state advanced, batch digest
+        // counted a clean child).
+        providerFailure = true;
+        endReason = "error";
         break;
       }
 
       totalInputTokens += finalMessage.usage.input_tokens;
       totalOutputTokens += finalMessage.usage.output_tokens;
+
+      // D-36: some gateways surface an outage as a WELL-FORMED response with
+      // zero output tokens and no content — a hollow 200. On the FIRST turn
+      // that means the session did zero model work; letting it fall through
+      // to the end_turn break below would resolve it as a clean natural
+      // completion (the exact C-2 signature: completed/0 tokens/$0/natural).
+      // Keyed on the empty-WORK signal (no text, no tool_use, 0 output
+      // tokens), never on token count alone — a legitimately-cheap session
+      // always produces some text or a tool call.
+      const producedWork = finalMessage.content.some(
+        (b) =>
+          (b.type === "text" && b.text.trim().length > 0) ||
+          b.type === "tool_use"
+      );
+      if (turn === 0 && !producedWork && finalMessage.usage.output_tokens === 0) {
+        const translated = translateProviderError(500, this.providerKey);
+        options.onMessage({
+          type: "error",
+          content: translated.userMessage,
+        });
+        providerFailure = true;
+        endReason = "error";
+        break;
+      }
 
       // Capture this turn's assistant text; the final natural-completion turn
       // is the last to set it, so lastAssistantText ends as the reply the user
@@ -918,6 +977,7 @@ export class AgentOrchestrator {
       endReason,
       wrapUpSummary,
       assistantText: lastAssistantText,
+      providerFailure,
     };
   }
 

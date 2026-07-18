@@ -221,20 +221,24 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         pushMessage(dbSession.id, message);
       },
       onComplete: async (result: AgentResult) => {
+        // Post-session is skipped for failed sessions (D-36: a
+        // provider-failure run must not advance workflow state).
         let suggestedNext: string[] = [];
-        try {
-          const postResult = await processPostSession({
-            sessionId: dbSession.id,
-            bookId: data.bookId,
-            userId: user.id,
-            workflowId: data.workflowId,
-            agentType: workflow.primaryAgent,
-            chapterNumber: data.chapterNumber,
-          });
-          suggestedNext = postResult.suggestedNext;
-        } catch (e) {
-          const errMsg = e instanceof Error ? e.message : "Unknown error";
-          console.error("[PostSession] Error:", errMsg);
+        if (result.success && !result.cancelled) {
+          try {
+            const postResult = await processPostSession({
+              sessionId: dbSession.id,
+              bookId: data.bookId,
+              userId: user.id,
+              workflowId: data.workflowId,
+              agentType: workflow.primaryAgent,
+              chapterNumber: data.chapterNumber,
+            });
+            suggestedNext = postResult.suggestedNext;
+          } catch (e) {
+            const errMsg = e instanceof Error ? e.message : "Unknown error";
+            console.error("[PostSession] Error:", errMsg);
+          }
         }
 
         completeSession(dbSession.id, result);

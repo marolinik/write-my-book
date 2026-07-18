@@ -100,6 +100,29 @@ export function useAgentStream(bookId: string | null) {
           const message = JSON.parse(event.data) as AgentStreamMessage;
 
           if (message.type === "complete") {
+            // D-36: inline sessions replay a trailing 'complete' whose
+            // metadata spreads the AgentResult — when that result says
+            // success:false (provider failure), marking the session
+            // "completed" would resurrect a failed run as a clean one. The
+            // terminal SSE 'error' (already handled below) owns the UX; just
+            // close the stream. Background completes never carry success:false
+            // (the worker publishes no 'complete' for failed sessions).
+            if (message.metadata?.success === false) {
+              setSessionError(
+                sid,
+                typeof message.content === "string" && message.content
+                  ? message.content
+                  : "Session failed"
+              );
+              es.close();
+              currentSources.delete(sid);
+              setConnectedSessions((prev) => {
+                const next = new Set(prev);
+                next.delete(sid);
+                return next;
+              });
+              return;
+            }
             const result = message.metadata as unknown as AgentResult;
             const suggestedNext =
               (message.metadata?.suggestedNext as string[]) ?? [];

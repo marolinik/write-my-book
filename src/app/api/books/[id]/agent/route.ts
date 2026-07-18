@@ -489,7 +489,9 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         onComplete: async (result: AgentResult) => {
           // Run post-session processing (parse reports, store findings, advance status).
           // Skipped for user-cancelled sessions — the cancel route owns the
-          // terminal state and already notified listeners via cancelSession.
+          // terminal state and already notified listeners via cancelSession —
+          // AND for failed sessions (D-36: a provider-failure run must not
+          // advance chapter workflow state).
           let suggestedNext: string[] = [];
           let resultMeta: {
             findingsCreated: number;
@@ -497,7 +499,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
             newStatus?: string;
             betaGateResult?: string;
           } = { findingsCreated: 0, statusAdvanced: false };
-          if (!result.cancelled) {
+          if (!result.cancelled && result.success) {
             try {
               const postResult = await processPostSession({
                 sessionId: dbSession.id,
