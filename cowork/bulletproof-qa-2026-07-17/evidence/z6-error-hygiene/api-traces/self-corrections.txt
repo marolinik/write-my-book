@@ -1,0 +1,59 @@
+Z6 self-corrections — harness bugs caught and re-tested before filing anything
+Persona: user_qa_p2. Book: f33d90ee-0966-4ebc-803d-26897368a8c7 ("Embed Test").
+====================================================================
+
+1) chapters/reorder — wrong HTTP verb in original probes (used POST; route only
+   exports PATCH). Original: CHAP-06/07/08 all returned 405, empty body, no envelope.
+   Re-run with the correct verb (PATCH):
+
+[CHAP-06-fixed] PATCH .../chapters/reorder  body: {"order":"not-an-array"}
+--> 400  {"error":"Invalid input"}
+
+[CHAP-07-fixed] PATCH .../chapters/reorder  body: {"order":[{"chapterId":"00000000-0000-4000-8000-000000000000","chapterNumber":1}]}
+--> 404  {"error":"Chapter not found"}
+
+[CHAP-08-fixed] PATCH .../chapters/reorder  body: {"order":[{"chapterId":"89da075a-777c-4d8b-bfa0-34e28f1a6e9b","chapterNumber":1},{"chapterId":"89da075a-777c-4d8b-bfa0-34e28f1a6e9b","chapterNumber":2}]}
+--> 400  {"error":"Invalid input"}
+
+Verdict: route's error hygiene is clean. Harness bug, not filed.
+
+--------------------------------------------------------------------
+
+2) settings/default-model — wrong field name in original probe (sent "modelId",
+   schema key is "defaultModel"; unknown keys are silently stripped by Zod, so
+   original SET-04 was a 200 no-op reflecting pre-existing state, not a real gap).
+
+[SET-04-fixed] PATCH /api/settings/default-model  body: {"defaultModel":"totally-made-up-model-id-xyz"}
+--> 400  {"error":"Unknown model ID for defaultModel"}
+
+Verdict: registry-id validation (getModelDef) works correctly. Harness bug, not filed.
+
+--------------------------------------------------------------------
+
+3) export/config — wrong body shape in original probe (sent top-level "isbn";
+   schema requires it nested under "metadata"; original EXP-04 was a 200 no-op).
+
+[EXP-04-fixed] PUT .../export/config  body: {"metadata":{"isbn":"<10000 x's>"}}
+--> 400  ZodError, "expected string, received undefined" on metadata.title/subtitle/...
+    (exportConfigUpdateSchema.partial() is only a SHALLOW partial -- supplying
+    metadata.isbn alone still requires every other metadata sibling field.
+    Response itself is clean/correctly-classed/leak-free -- an API-contract/DX
+    note for the route owner, not a Z6 error-hygiene defect.)
+
+Verdict: no leak, no wrong status class. Harness bug (body shape), not filed.
+
+--------------------------------------------------------------------
+
+4) XCUT-04 — leak-scan flagged "node_modules path" on a PATCH to a non-existent
+   sub-route (404, Turbopack's own dev-mode HTML "not found" page). Original
+   400-char preview didn't show the match; re-fetched full body (35,711 chars):
+
+match context (full body, not the 400-char preview):
+  ...fetchPriority="low" href="/_next/static/chunks/%5Bturbopack%5D_browser_dev_hmr-client_hmr-client_ts_956a0d3a._.js"/>
+  <script src="/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js" async=""></script>
+  <script src="/_next/static/chunks/node_modules_next_dist_compiled_react-ser...
+
+Verdict: this is a Turbopack-generated, intentionally publicly-served bundle
+chunk filename (dev-mode asset naming convention), not a filesystem path
+disclosure, not a stack trace, not application code. Leak-scan false positive
+-- same class as the W6 proration false-positive. Not filed.

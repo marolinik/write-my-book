@@ -1,0 +1,37 @@
+D-14 repro trace — legacy style/lenses POST routes misreport wrong-type
+validation errors as 401 Unauthorized instead of 400
+Persona: user_qa_p2. Book: f33d90ee-0966-4ebc-803d-26897368a8c7 ("Embed Test").
+====================================================================
+
+[STYLE-01] POST /api/books/f33d90ee-0966-4ebc-803d-26897368a8c7/style
+body: (missing required field — hand-validated legacy check)
+--> status 400  (baseline: the hand-rolled "if (!field) return 400" checks DO work
+    correctly for missing fields — only wrong-TYPE fields fall into the bad path below)
+
+[STYLE-02] POST /api/books/f33d90ee-0966-4ebc-803d-26897368a8c7/style
+body: fingerprint sent as a nested object (schema field is String?)
+--> status 401
+--> body: {"error":"Unauthorized"}
+    (misleading: this is a Prisma client-side type-validation failure, not an
+    auth problem — requireUser() already succeeded earlier in the same handler)
+
+[LENS-01] POST /api/books/f33d90ee-0966-4ebc-803d-26897368a8c7/style/lenses
+body: (missing required field — hand-validated legacy check)
+--> status 400  (baseline: same as STYLE-01, missing-field checks are fine)
+
+[LENS-02] POST /api/books/f33d90ee-0966-4ebc-803d-26897368a8c7/style/lenses
+body: sensoryPriority sent as a nested object (schema field is String)
+--> status 401
+--> body: {"error":"Unauthorized"}
+    (same misleading pattern as STYLE-02)
+
+====================================================================
+Root cause: src/app/api/books/[id]/style/route.ts POST catch block (~lines 87-91)
+and src/app/api/books/[id]/style/lenses/route.ts POST catch block (~lines 71-81)
+check invalidJsonBodyResponse and Prisma P2002, then fall through to a generic
+`catch { return NextResponse.json({error:"Unauthorized"}, {status:401}) }` for
+any other error -- including a Prisma validation error thrown when a String
+field receives a non-string value. The bare `catch { return 401 }` shape is
+structurally identical in style/route.ts GET, style/lenses/route.ts GET, and
+style/lenses/[lensId]/route.ts DELETE, though this sweep only had a body-payload
+vector on the two POST handlers above.
