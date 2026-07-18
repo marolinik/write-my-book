@@ -7,6 +7,7 @@ import {
   UI_SUPPORTED_LANGUAGES,
 } from "@/lib/i18n/ui-strings";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { zodErrorResponse } from "@/lib/api/zod-error";
 
 export async function GET() {
   try {
@@ -24,9 +25,9 @@ export async function PATCH(request: NextRequest) {
     const parsed = updateLanguageSchema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: parsed.error.flatten().fieldErrors },
-        { status: 400 }
+      return (
+        zodErrorResponse(parsed.error) ??
+        NextResponse.json({ error: "Invalid input" }, { status: 400 })
       );
     }
 

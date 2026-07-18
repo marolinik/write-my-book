@@ -129,13 +129,12 @@ describe("updateSettingsSchema — setup wizard flags (D-35)", () => {
     expect(parsed.autoCommit).toBe(true);
   });
 
-  it("still strips other unknown keys silently (D-39 systemic behavior untouched here)", () => {
-    const parsed = updateSettingsSchema.parse({
-      setupComplete: true,
-      someUnknownKey: "x",
-    }) as Record<string, unknown>;
-    expect(parsed.setupComplete).toBe(true);
-    expect("someUnknownKey" in parsed).toBe(false);
+  it("rejects unknown keys instead of silently stripping them (D-39 strict)", () => {
+    // Pre-D-39 this stripped `someUnknownKey` and returned the parsed object;
+    // now the schema is .strict() so an unknown key is a hard validation error.
+    expect(() =>
+      updateSettingsSchema.parse({ setupComplete: true, someUnknownKey: "x" })
+    ).toThrow();
   });
 });
 
@@ -177,15 +176,13 @@ describe("PATCH /api/books/:id/settings — persists wizard flags (D-35)", () =>
     expect(h.db.bookSettings.upsert).not.toHaveBeenCalled();
   });
 
-  it("other unknown keys keep pre-fix behavior (stripped, not persisted)", async () => {
+  it("unknown keys now 400 (D-39 strict), nothing persisted", async () => {
     const res = await PATCH(
       patchReq({ setupComplete: true, someUnknownKey: "x" }) as never,
       ctx as never
     );
-    expect(res.status).toBe(200);
-    const call = h.db.bookSettings.upsert.mock.calls[0][0];
-    expect(call.update).toEqual({ setupComplete: true });
-    expect("someUnknownKey" in call.update).toBe(false);
+    expect(res.status).toBe(400);
+    expect(h.db.bookSettings.upsert).not.toHaveBeenCalled();
   });
 });
 

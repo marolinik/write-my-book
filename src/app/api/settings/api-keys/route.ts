@@ -5,6 +5,8 @@ import { encryptApiKey, decryptApiKey, maskApiKey } from "@/lib/encryption";
 import { createApiKeySchema } from "@/lib/validation";
 import { validateApiKey } from "@/lib/llm/key-validator";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { zodErrorResponse } from "@/lib/api/zod-error";
+import { aggregateUsageByProvider } from "@/lib/llm/usage-aggregation";
 
 /**
  * GET /api/settings/api-keys
@@ -28,34 +30,30 @@ export async function GET() {
       },
     });
 
-    // Gather per-provider usage stats in parallel
-    const providers = [...new Set(keys.map((k) => k.provider))];
-    const usageByProvider = new Map<
-      string,
-      { totalTokens: number; totalCost: number; sessionCount: number }
-    >();
+    // Roll up usage per provider. UsageRecord.model holds the registry ID
+    // (e.g. "openrouter-qwen36/sonnet"), so we group by model and attribute
+    // each id to its provider via the registry — D-44: the previous
+    // `model.startsWith(`${provider}/`)` match missed every "openrouter-*"
+    // sub-variant and reported $0 against real spend.
+    const usageGroups = await db.usageRecord.groupBy({
+      by: ["model"],
+      where: { userId: user.id },
+      _sum: {
+        tokensInput: true,
+        tokensOutput: true,
+        costEstimate: true,
+      },
+      _count: { _all: true },
+    });
 
-    await Promise.all(
-      providers.map(async (provider) => {
-        const agg = await db.usageRecord.aggregate({
-          where: {
-            userId: user.id,
-            model: { startsWith: `${provider}/` },
-          },
-          _sum: {
-            tokensInput: true,
-            tokensOutput: true,
-            costEstimate: true,
-          },
-          _count: { id: true },
-        });
-
-        usageByProvider.set(provider, {
-          totalTokens: (agg._sum.tokensInput ?? 0) + (agg._sum.tokensOutput ?? 0),
-          totalCost: agg._sum.costEstimate ?? 0,
-          sessionCount: agg._count.id,
-        });
-      })
+    const usageByProvider = aggregateUsageByProvider(
+      usageGroups.map((g) => ({
+        model: g.model,
+        tokensInput: g._sum.tokensInput ?? 0,
+        tokensOutput: g._sum.tokensOutput ?? 0,
+        costEstimate: g._sum.costEstimate ?? 0,
+        sessionCount: g._count._all,
+      }))
     );
 
     // Decrypt + mask keys and attach usage stats
@@ -92,9 +90,9 @@ export async function POST(req: NextRequest) {
 
     const parsed = createApiKeySchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Invalid input", details: parsed.error.flatten() },
-        { status: 400 }
+      return (
+        zodErrorResponse(parsed.error) ??
+        NextResponse.json({ error: "Invalid input" }, { status: 400 })
       );
     }
 

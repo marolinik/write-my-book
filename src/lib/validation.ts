@@ -139,7 +139,11 @@ export const updateSettingsSchema = z.object({
   // leaving SETUP-07 to 422-wall every non-setup workflow.
   setupImportSkipped: z.boolean().optional(),
   setupComplete: z.boolean().optional(),
-});
+  // D-39: .strict() so an unknown/typo'd settings key 400s instead of being
+  // silently stripped with a 200 (the mechanism that hid D-35's dropped
+  // setupComplete). Every current client (use-settings, setup wizard,
+  // use-journey) sends only keys defined above.
+}).strict();
 
 export const pageContextSchema = z.object({
   currentRoute: z.string(),
@@ -465,15 +469,21 @@ export const exportRequestSchema = z.object({
   template: z.string().max(100).optional(),
 });
 
-export const exportConfigUpdateSchema = exportConfigSchema.partial();
+// D-39: .strict() rejects unknown top-level export-config keys (partial nested
+// sections are still permitted; the client sends complete sections). Prevents a
+// typo'd section name from being silently dropped on a 200.
+export const exportConfigUpdateSchema = exportConfigSchema.partial().strict();
 
 // ─── Settings Schemas ─────────────────────────────────────────
 
+// D-39: .strict() so a stray/read-only key (e.g. isDefault, validatedAt) 400s
+// rather than being silently ignored. Clients (useAddApiKey, onboarding) send
+// only { provider, key, label }.
 export const createApiKeySchema = z.object({
   provider: z.enum(PROVIDER_KEYS),
   key: z.string().min(1).max(5000),
   label: z.string().max(100).optional(),
-});
+}).strict();
 
 export const updateUserSettingsSchema = z.object({
   displayName: z.string().min(1).max(200).optional(),
@@ -481,9 +491,11 @@ export const updateUserSettingsSchema = z.object({
   defaultModel: z.string().max(50).optional(),
 });
 
+// D-39: .strict() so an unknown key 400s instead of a silent 200. Client sends
+// only { language }.
 export const updateLanguageSchema = z.object({
   language: z.string().min(2).max(10),
-});
+}).strict();
 
 export const usageQuerySchema = z.object({
   days: z.coerce.number().int().min(1).max(365).optional().default(30),
@@ -547,10 +559,12 @@ export type GhostTextRequest = z.infer<typeof ghostTextRequestSchema>;
 
 // ─── Writing Dashboard Schemas ──────────────────────────────────
 
+// D-39: .strict() so an unknown key 400s instead of a silent 200. Client sends
+// only { type, target }.
 export const writingGoalSchema = z.object({
   type: z.enum(["daily", "weekly", "total"]),
   target: z.number().int().positive(),
-});
+}).strict();
 
 export const writingStatsQuerySchema = z.object({
   days: z.coerce.number().int().min(1).max(365).default(30),
