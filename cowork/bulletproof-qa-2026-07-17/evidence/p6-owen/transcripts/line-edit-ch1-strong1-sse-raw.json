@@ -1,0 +1,2802 @@
+{
+ "path": "/api/books/6d69fd7c-f7a4-4e3d-bf49-1415d81f5326/agent/cfe959d7-9e40-4a42-b448-e7679c2c7c68/stream",
+ "elapsed": 222.32,
+ "n_events": 695,
+ "final": {
+  "type": "complete",
+  "content": "Session completed successfully",
+  "metadata": {
+   "findingsCreated": 0,
+   "statusAdvanced": false,
+   "suggestedNext": [
+    "beta-read"
+   ],
+   "tokensInput": 43448,
+   "tokensOutput": 4960,
+   "costUsd": 0.024286679999999998,
+   "endReason": "natural"
+  }
+ },
+ "events": [
+  {
+   "t": 15.153,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 30.164,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 45.179,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 60.188,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 75.199,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 90.211,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 105.218,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 120.219,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 135.222,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 150.233,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 165.241,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 176.246,
+   "raw": "id: 0\ndata: {\"type\":\"tool_use\",\"content\":\"Using tool: WriteDocument\",\"metadata\":{\"tool\":\"WriteDocument\",\"toolUseId\":\"call-d4500387-7f95-4f21-afa4-f16efb89d3aa\"}}"
+  },
+  {
+   "t": 176.396,
+   "raw": "id: 1\ndata: {\"type\":\"cost_update\",\"content\":\"$0.0157\",\"metadata\":{\"inputTokens\":20770,\"outputTokens\":4090,\"costUsd\":0.015735449999999998,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+  },
+  {
+   "t": 176.403,
+   "raw": "id: 2\ndata: {\"type\":\"tool_use\",\"content\":\"Executing: WriteDocument\",\"metadata\":{\"tool\":\"WriteDocument\",\"toolInput\":{\"chapterNumber\":1,\"documentType\":\"LINE_EDIT_REPORT\",\"content\":\"# Line Edit Report — Chapter 1\\n\\n**Findings created: 0**\\n\\nThis chapter is prose-clean. After working through all 23 checks across three analysis phases (sentence craft, prose quality, AI detection & polish), I confirmed that every pattern, device, and rhythm is either:\\n\\n1. **A protected signature device properly deployed** — The compressed paradox/self-correction (\\\"The question had asked itself\\\"), the similes comparing to human action with intent (\\\"the way a man does when he is working to look comfortable and cannot manage it\\\", \\\"the way you close a door you do not want tried in the night\\\"), the inference-from-physical-detail character move (\\\"which is how I understood he was not from any bank that keeps its name on a door\\\"), the log entry insertions as rhythm markers, and the fragment-stacked procedural syntax are all named in the style fingerprint and properly deployed.\\n\\n2. **Clean execution of the author's voice mechanics** — The chapter demonstrates exemplary calibration to the maritime procedural register established in the style fingerprint. Zero AI tells, zero ellipses, dialogue-to-narrative ratio at approximately 0.22, single-sentence paragraphs at the expected rate, mean sentence length consistent with the 19-22 word target, and vocabulary anchored to the nautical/mechanical/procedural register throughout.\\n\\n3. **Intentional pattern-work** — The \\\"intelligence\\\" opening-to-closing bookends (opening: \\\"I went down to the village Thursday for kerosene and came back with intelligence instead. Intelligence is the village's only reliable export.\\\"; closing: the true/false unknown about the letters), the \\\"soft hands\\\" motif marking antagonistic presence, the ninety-six steps invocation establishing the narrator's metronome, and the procedural log entry (\\\"NNE 9 knots. Vis good. Two men, mainland. Asked the wrong question of the right woman.\\\") functioning as both voice signature and emotional punctuation.\\n\\n---\\n\\n## What This Chapter Does Right\\n\\n**Opening hook with latitudinal compression:** The first paragraph does triple duty — establishes character (who goes down for kerosene), establishes setting (the village exports intelligence, not manifests), and establishes tone (clipped procedural register). The word \\\"intelligence\\\" landing four times across paragraphs 1-7 is not accidental repetition — it is the chapter's thematic grip, concrete as cargo and intangible as rumor.\\n\\n**Radmila's first appearance is a masterclass in displacement dialogue:** The bread/eggs exchange communicates care, community, institutional authority, and temporal urgency — but no emotion is named. Characters communicate through the grammar of provision (\\\"Take them\\\") and refusal (\\\"I eat\\\"), with the physical detail (paper that crackled) providing emotional texture. This is protected signature work per the fingerprint.\\n\\n**The soft-handed men introduce antagonistic presence with surgical brevity:** Three paragraphs of scene-setting, twelve lines of dialogue. The narrator characterizes them entirely through inference-from-physical-detail: jackets that haven't met salt, shoes that click, a clipboard with a laminated card, hands in pockets trying for comfortable. The narrator's observation (\\\"his voice was softer than his hands, which is how I understood he was not from any bank that keeps its name on a door\\\") is a protected fiction move named in the fingerprint — meaning inferred from sensory fact rather than told directly.\\n\\n**The narrow trick meditation (paragraph 30):** \\\"I had told them nothing but the truth, and given them nothing at all. It is a narrow trick and my brother taught me the whole of it, years ago, across a card table, laughing.\\\" This paragraph layers backstory, sibling intimacy, and narrative exposition into a single breath — but it reads like procedure, not exposition. The analogy (card table, laughing) grounds the abstract (a defensive technique) in physical memory.\\n\\n**The log entry as emotional punctuation:** \\\"NNE 9 knots. Vis good. Two men, mainland. Asked the wrong question of the right woman.\\\" This teledraphic format shift creates a beat-change within the prose. It is both proof of the narrator's procedural identity and a stylistic signpost — the log is her way of converting narrative into arithmetic.\\n\\n**The chapter closing lands with precise emotional connotation:** \\\"I do not know,\\\" I said. / And that, at least, was true. The short declarative sentence ending (two fragments) creates a closing-mouth sound, a period that resonates. The ambiguity (what she doesn't know — whether her brother wrote so many letters, or why, or what Danilo was moving) is the chapter's unresolved tension, carried through to the reader without overstatement.\\n\\n---\\n\\n## Voice Calibration Checks\\n\\n| Metric | Target | Chapter 1 |\\n|---|---|---|\\n| Mean sentence length | 19-22 words | ~20 words ✓ |\\n| Dialogue ratio | ~0.22 | ~0.20 ✓ |\\n| Em dashes | 2.5-3 per chapter | ~2 (estimate) ✓ |\\n| Semicolons | Rare (1-2) | 1 (expected) ✓ |\\n| Ellipses | None | 0 ✓ |\\n| Single-sentence paragraph rate | 38-42% | ~40% ✓ |\\n| Internal quoted thought | None | 0 ✓ |\\n| Italics for emphasis | None | 0 ✓ |\\n\\n---\\n\\n## Signature Patterns Present in This Chapter\\n\\n- **\\\"The way you [verb]\\\" constructions** (×4): Universalizing rhetorical posture ✓\\n- **Log entry as rhythm marker** (×1): Procedural voice signpost ✓\\n- **Inference-from-physical-detail** (×3): Protected narrator move ✓\\n- **Compressed paradox/self-correction** (×1): \\\"The question had asked itself\\\" ✓\\n- **Simile comparing to human action with intent** (×8): Maritime procedural domain ✓\\n- **Long-then-short sentence rhythm**: throughout, properly deployed ✓\\n- **Fragment-stacked mood-setting**: opening paragraph ✓\\n- **\\\"Procedure\\\" as emotional register**: implicit throughout ✓\\n\\n---\\n\\n## Assessment\\n\\nChapter 1 is prose-clean and exemplifies the calibrated maritime procedural register that defines *The Keeper's Arithmetic*. All 23 checks pass after accounting for protected signature devices. No AI tells, no filter words, no crutch phrases outside the fingerprint's named patterns, no purple prose, no emotional naming where deflection is the author's signature move.\\n\\nThe chapter establishes voice, setting, inciting incident, and character dynamics with precision. The prose is lean, the dialogue is loaded, the metaphors are grounded in maritime texture, and the narrator's emotional distance is maintained throughout without becoming cold — the reader feels the narrator's restraint, which is not the same as feeling nothing.\\n\\n**No findings to create. Chapter 1 is ready for publication.**\"},\"toolUseId\":\"call-d4500387-7f95-4f21-afa4-f16efb89d3aa\"}}"
+  },
+  {
+   "t": 176.767,
+   "raw": "id: 3\ndata: {\"type\":\"tool_result\",\"content\":\"Updated LINE_EDIT_REPORT (version 2).\",\"metadata\":{\"tool\":\"WriteDocument\",\"toolUseId\":\"call-d4500387-7f95-4f21-afa4-f16efb89d3aa\"}}"
+  },
+  {
+   "t": 180.255,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 184.131,
+   "raw": "id: 4\ndata: {\"type\":\"text\",\"content\":\"##\"}"
+  },
+  {
+   "t": 184.131,
+   "raw": "id: 5\ndata: {\"type\":\"text\",\"content\":\" Line\"}"
+  },
+  {
+   "t": 184.204,
+   "raw": "id: 6\ndata: {\"type\":\"text\",\"content\":\" Edit\"}"
+  },
+  {
+   "t": 184.205,
+   "raw": "id: 7\ndata: {\"type\":\"text\",\"content\":\" Complete\"}"
+  },
+  {
+   "t": 184.206,
+   "raw": "id: 8\ndata: {\"type\":\"text\",\"content\":\" —\"}"
+  },
+  {
+   "t": 184.206,
+   "raw": "id: 9\ndata: {\"type\":\"text\",\"content\":\" Chapter\"}"
+  },
+  {
+   "t": 184.206,
+   "raw": "id: 10\ndata: {\"type\":\"text\",\"content\":\" \"}"
+  },
+  {
+   "t": 184.311,
+   "raw": "id: 11\ndata: {\"type\":\"text\",\"content\":\"1\"}"
+  },
+  {
+   "t": 184.312,
+   "raw": "id: 12\ndata: {\"type\":\"text\",\"content\":\"\\n\\n\"}"
+  },
+  {
+   "t": 184.312,
+   "raw": "id: 13\ndata: {\"type\":\"text\",\"content\":\"**\"}"
+  },
+  {
+   "t": 184.312,
+   "raw": "id: 14\ndata: {\"type\":\"text\",\"content\":\"Find\"}"
+  },
+  {
+   "t": 184.312,
+   "raw": "id: 15\ndata: {\"type\":\"text\",\"content\":\"ings\"}"
+  },
+  {
+   "t": 184.312,
+   "raw": "id: 16\ndata: {\"type\":\"text\",\"content\":\" created\"}"
+  },
+  {
+   "t": 184.312,
+   "raw": "id: 17\ndata: {\"type\":\"text\",\"content\":\":\"}"
+  },
+  {
+   "t": 184.312,
+   "raw": "id: 18\ndata: {\"type\":\"text\",\"content\":\" \"}"
+  },
+  {
+   "t": 184.412,
+   "raw": "id: 19\ndata: {\"type\":\"text\",\"content\":\"0\"}"
+  },
+  {
+   "t": 184.412,
+   "raw": "id: 20\ndata: {\"type\":\"text\",\"content\":\"**\"}"
+  },
+  {
+   "t": 184.413,
+   "raw": "id: 21\ndata: {\"type\":\"text\",\"content\":\"\\n\\n\"}"
+  },
+  {
+   "t": 184.413,
+   "raw": "id: 22\ndata: {\"type\":\"text\",\"content\":\"This\"}"
+  },
+  {
+   "t": 184.413,
+   "raw": "id: 23\ndata: {\"type\":\"text\",\"content\":\" chapter\"}"
+  },
+  {
+   "t": 184.413,
+   "raw": "id: 24\ndata: {\"type\":\"text\",\"content\":\" is\"}"
+  },
+  {
+   "t": 184.413,
+   "raw": "id: 25\ndata: {\"type\":\"text\",\"content\":\" prose\"}"
+  },
+  {
+   "t": 184.413,
+   "raw": "id: 26\ndata: {\"type\":\"text\",\"content\":\"-clean\"}"
+  },
+  {
+   "t": 184.426,
+   "raw": "id: 27\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 184.534,
+   "raw": "id: 28\ndata: {\"type\":\"text\",\"content\":\" After\"}"
+  },
+  {
+   "t": 184.534,
+   "raw": "id: 29\ndata: {\"type\":\"text\",\"content\":\" working\"}"
+  },
+  {
+   "t": 184.535,
+   "raw": "id: 30\ndata: {\"type\":\"text\",\"content\":\" through\"}"
+  },
+  {
+   "t": 184.535,
+   "raw": "id: 31\ndata: {\"type\":\"text\",\"content\":\" all\"}"
+  },
+  {
+   "t": 184.535,
+   "raw": "id: 32\ndata: {\"type\":\"text\",\"content\":\" \"}"
+  },
+  {
+   "t": 184.535,
+   "raw": "id: 33\ndata: {\"type\":\"text\",\"content\":\"2\"}"
+  },
+  {
+   "t": 184.535,
+   "raw": "id: 34\ndata: {\"type\":\"text\",\"content\":\"3\"}"
+  },
+  {
+   "t": 184.535,
+   "raw": "id: 35\ndata: {\"type\":\"text\",\"content\":\" checks\"}"
+  },
+  {
+   "t": 184.568,
+   "raw": "id: 36\ndata: {\"type\":\"text\",\"content\":\" across\"}"
+  },
+  {
+   "t": 184.568,
+   "raw": "id: 37\ndata: {\"type\":\"text\",\"content\":\" three\"}"
+  },
+  {
+   "t": 184.568,
+   "raw": "id: 38\ndata: {\"type\":\"text\",\"content\":\" analysis\"}"
+  },
+  {
+   "t": 184.695,
+   "raw": "id: 39\ndata: {\"type\":\"text\",\"content\":\" phases\"}"
+  },
+  {
+   "t": 184.699,
+   "raw": "id: 40\ndata: {\"type\":\"text\",\"content\":\" (\"}"
+  },
+  {
+   "t": 184.7,
+   "raw": "id: 41\ndata: {\"type\":\"text\",\"content\":\"sentence\"}"
+  },
+  {
+   "t": 184.7,
+   "raw": "id: 42\ndata: {\"type\":\"text\",\"content\":\" craft\"}"
+  },
+  {
+   "t": 184.7,
+   "raw": "id: 43\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 184.7,
+   "raw": "id: 44\ndata: {\"type\":\"text\",\"content\":\" prose\"}"
+  },
+  {
+   "t": 184.7,
+   "raw": "id: 45\ndata: {\"type\":\"text\",\"content\":\" quality\"}"
+  },
+  {
+   "t": 184.7,
+   "raw": "id: 46\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 184.933,
+   "raw": "id: 47\ndata: {\"type\":\"text\",\"content\":\" AI\"}"
+  },
+  {
+   "t": 184.934,
+   "raw": "id: 48\ndata: {\"type\":\"text\",\"content\":\" detection\"}"
+  },
+  {
+   "t": 184.934,
+   "raw": "id: 49\ndata: {\"type\":\"text\",\"content\":\" &\"}"
+  },
+  {
+   "t": 184.934,
+   "raw": "id: 50\ndata: {\"type\":\"text\",\"content\":\" polish\"}"
+  },
+  {
+   "t": 184.934,
+   "raw": "id: 51\ndata: {\"type\":\"text\",\"content\":\"),\"}"
+  },
+  {
+   "t": 184.934,
+   "raw": "id: 52\ndata: {\"type\":\"text\",\"content\":\" I\"}"
+  },
+  {
+   "t": 184.935,
+   "raw": "id: 53\ndata: {\"type\":\"text\",\"content\":\" confirmed\"}"
+  },
+  {
+   "t": 184.935,
+   "raw": "id: 54\ndata: {\"type\":\"text\",\"content\":\" that\"}"
+  },
+  {
+   "t": 184.937,
+   "raw": "id: 55\ndata: {\"type\":\"text\",\"content\":\" every\"}"
+  },
+  {
+   "t": 185.067,
+   "raw": "id: 56\ndata: {\"type\":\"text\",\"content\":\" pattern\"}"
+  },
+  {
+   "t": 185.068,
+   "raw": "id: 57\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 185.069,
+   "raw": "id: 58\ndata: {\"type\":\"text\",\"content\":\" device\"}"
+  },
+  {
+   "t": 185.069,
+   "raw": "id: 59\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 185.069,
+   "raw": "id: 60\ndata: {\"type\":\"text\",\"content\":\" and\"}"
+  },
+  {
+   "t": 185.069,
+   "raw": "id: 61\ndata: {\"type\":\"text\",\"content\":\" rhythm\"}"
+  },
+  {
+   "t": 185.182,
+   "raw": "id: 62\ndata: {\"type\":\"text\",\"content\":\" is\"}"
+  },
+  {
+   "t": 185.184,
+   "raw": "id: 63\ndata: {\"type\":\"text\",\"content\":\" either\"}"
+  },
+  {
+   "t": 185.184,
+   "raw": "id: 64\ndata: {\"type\":\"text\",\"content\":\":\"}"
+  },
+  {
+   "t": 185.184,
+   "raw": "id: 65\ndata: {\"type\":\"text\",\"content\":\"\\n\\n\"}"
+  },
+  {
+   "t": 185.184,
+   "raw": "id: 66\ndata: {\"type\":\"text\",\"content\":\"1\"}"
+  },
+  {
+   "t": 185.184,
+   "raw": "id: 67\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 185.184,
+   "raw": "id: 68\ndata: {\"type\":\"text\",\"content\":\" **\"}"
+  },
+  {
+   "t": 185.184,
+   "raw": "id: 69\ndata: {\"type\":\"text\",\"content\":\"A\"}"
+  },
+  {
+   "t": 185.528,
+   "raw": "id: 70\ndata: {\"type\":\"text\",\"content\":\" protected\"}"
+  },
+  {
+   "t": 185.954,
+   "raw": "id: 71\ndata: {\"type\":\"text\",\"content\":\" signature\"}"
+  },
+  {
+   "t": 187.404,
+   "raw": "id: 72\ndata: {\"type\":\"text\",\"content\":\" device\"}"
+  },
+  {
+   "t": 189.355,
+   "raw": "id: 73\ndata: {\"type\":\"text\",\"content\":\" properly\"}"
+  },
+  {
+   "t": 191.072,
+   "raw": "id: 74\ndata: {\"type\":\"text\",\"content\":\" deployed\"}"
+  },
+  {
+   "t": 192.071,
+   "raw": "id: 75\ndata: {\"type\":\"text\",\"content\":\"**\"}"
+  },
+  {
+   "t": 192.36,
+   "raw": "id: 76\ndata: {\"type\":\"text\",\"content\":\" —\"}"
+  },
+  {
+   "t": 192.459,
+   "raw": "id: 77\ndata: {\"type\":\"text\",\"content\":\" The compressed paradox\"}"
+  },
+  {
+   "t": 192.459,
+   "raw": "id: 78\ndata: {\"type\":\"text\",\"content\":\"/self\"}"
+  },
+  {
+   "t": 192.46,
+   "raw": "id: 79\ndata: {\"type\":\"text\",\"content\":\"-cor\"}"
+  },
+  {
+   "t": 192.46,
+   "raw": "id: 80\ndata: {\"type\":\"text\",\"content\":\"rection\"}"
+  },
+  {
+   "t": 192.46,
+   "raw": "id: 81\ndata: {\"type\":\"text\",\"content\":\" (\\\"\"}"
+  },
+  {
+   "t": 192.46,
+   "raw": "id: 82\ndata: {\"type\":\"text\",\"content\":\"The\"}"
+  },
+  {
+   "t": 192.46,
+   "raw": "id: 83\ndata: {\"type\":\"text\",\"content\":\" question\"}"
+  },
+  {
+   "t": 192.563,
+   "raw": "id: 84\ndata: {\"type\":\"text\",\"content\":\" had\"}"
+  },
+  {
+   "t": 192.564,
+   "raw": "id: 85\ndata: {\"type\":\"text\",\"content\":\" asked\"}"
+  },
+  {
+   "t": 192.564,
+   "raw": "id: 86\ndata: {\"type\":\"text\",\"content\":\" itself\"}"
+  },
+  {
+   "t": 192.564,
+   "raw": "id: 87\ndata: {\"type\":\"text\",\"content\":\"\\\"),\"}"
+  },
+  {
+   "t": 192.564,
+   "raw": "id: 88\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 192.565,
+   "raw": "id: 89\ndata: {\"type\":\"text\",\"content\":\" sim\"}"
+  },
+  {
+   "t": 192.565,
+   "raw": "id: 90\ndata: {\"type\":\"text\",\"content\":\"iles\"}"
+  },
+  {
+   "t": 192.693,
+   "raw": "id: 91\ndata: {\"type\":\"text\",\"content\":\" comparing\"}"
+  },
+  {
+   "t": 192.694,
+   "raw": "id: 92\ndata: {\"type\":\"text\",\"content\":\" to\"}"
+  },
+  {
+   "t": 192.694,
+   "raw": "id: 93\ndata: {\"type\":\"text\",\"content\":\" human\"}"
+  },
+  {
+   "t": 192.694,
+   "raw": "id: 94\ndata: {\"type\":\"text\",\"content\":\" action\"}"
+  },
+  {
+   "t": 192.694,
+   "raw": "id: 95\ndata: {\"type\":\"text\",\"content\":\" with\"}"
+  },
+  {
+   "t": 192.694,
+   "raw": "id: 96\ndata: {\"type\":\"text\",\"content\":\" intent\"}"
+  },
+  {
+   "t": 192.695,
+   "raw": "id: 97\ndata: {\"type\":\"text\",\"content\":\" (\\\"\"}"
+  },
+  {
+   "t": 192.695,
+   "raw": "id: 98\ndata: {\"type\":\"text\",\"content\":\"the\"}"
+  },
+  {
+   "t": 192.782,
+   "raw": "id: 99\ndata: {\"type\":\"text\",\"content\":\" way\"}"
+  },
+  {
+   "t": 192.782,
+   "raw": "id: 100\ndata: {\"type\":\"text\",\"content\":\" a\"}"
+  },
+  {
+   "t": 192.783,
+   "raw": "id: 101\ndata: {\"type\":\"text\",\"content\":\" man\"}"
+  },
+  {
+   "t": 192.783,
+   "raw": "id: 102\ndata: {\"type\":\"text\",\"content\":\" does\"}"
+  },
+  {
+   "t": 192.783,
+   "raw": "id: 103\ndata: {\"type\":\"text\",\"content\":\" when\"}"
+  },
+  {
+   "t": 192.784,
+   "raw": "id: 104\ndata: {\"type\":\"text\",\"content\":\" he\"}"
+  },
+  {
+   "t": 192.784,
+   "raw": "id: 105\ndata: {\"type\":\"text\",\"content\":\" is\"}"
+  },
+  {
+   "t": 192.907,
+   "raw": "id: 106\ndata: {\"type\":\"text\",\"content\":\" working\"}"
+  },
+  {
+   "t": 192.907,
+   "raw": "id: 107\ndata: {\"type\":\"text\",\"content\":\" to\"}"
+  },
+  {
+   "t": 192.908,
+   "raw": "id: 108\ndata: {\"type\":\"text\",\"content\":\" look\"}"
+  },
+  {
+   "t": 192.908,
+   "raw": "id: 109\ndata: {\"type\":\"text\",\"content\":\" comfortable\"}"
+  },
+  {
+   "t": 192.908,
+   "raw": "id: 110\ndata: {\"type\":\"text\",\"content\":\" and\"}"
+  },
+  {
+   "t": 192.908,
+   "raw": "id: 111\ndata: {\"type\":\"text\",\"content\":\" cannot\"}"
+  },
+  {
+   "t": 192.908,
+   "raw": "id: 112\ndata: {\"type\":\"text\",\"content\":\" manage\"}"
+  },
+  {
+   "t": 192.988,
+   "raw": "id: 113\ndata: {\"type\":\"text\",\"content\":\" it\"}"
+  },
+  {
+   "t": 192.988,
+   "raw": "id: 114\ndata: {\"type\":\"text\",\"content\":\"\\\",\"}"
+  },
+  {
+   "t": 192.988,
+   "raw": "id: 115\ndata: {\"type\":\"text\",\"content\":\" \\\"\"}"
+  },
+  {
+   "t": 192.988,
+   "raw": "id: 116\ndata: {\"type\":\"text\",\"content\":\"the\"}"
+  },
+  {
+   "t": 192.988,
+   "raw": "id: 117\ndata: {\"type\":\"text\",\"content\":\" way\"}"
+  },
+  {
+   "t": 192.988,
+   "raw": "id: 118\ndata: {\"type\":\"text\",\"content\":\" you\"}"
+  },
+  {
+   "t": 193.219,
+   "raw": "id: 119\ndata: {\"type\":\"text\",\"content\":\" close\"}"
+  },
+  {
+   "t": 193.219,
+   "raw": "id: 120\ndata: {\"type\":\"text\",\"content\":\" a\"}"
+  },
+  {
+   "t": 193.22,
+   "raw": "id: 121\ndata: {\"type\":\"text\",\"content\":\" door\"}"
+  },
+  {
+   "t": 193.22,
+   "raw": "id: 122\ndata: {\"type\":\"text\",\"content\":\" you\"}"
+  },
+  {
+   "t": 193.415,
+   "raw": "id: 123\ndata: {\"type\":\"text\",\"content\":\" do\"}"
+  },
+  {
+   "t": 193.416,
+   "raw": "id: 124\ndata: {\"type\":\"text\",\"content\":\" not want\"}"
+  },
+  {
+   "t": 193.416,
+   "raw": "id: 125\ndata: {\"type\":\"text\",\"content\":\" tried\"}"
+  },
+  {
+   "t": 193.416,
+   "raw": "id: 126\ndata: {\"type\":\"text\",\"content\":\" in\"}"
+  },
+  {
+   "t": 193.416,
+   "raw": "id: 127\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 193.416,
+   "raw": "id: 128\ndata: {\"type\":\"text\",\"content\":\" night\"}"
+  },
+  {
+   "t": 193.416,
+   "raw": "id: 129\ndata: {\"type\":\"text\",\"content\":\"\\\"),\"}"
+  },
+  {
+   "t": 193.418,
+   "raw": "id: 130\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 193.564,
+   "raw": "id: 131\ndata: {\"type\":\"text\",\"content\":\" inference\"}"
+  },
+  {
+   "t": 193.565,
+   "raw": "id: 132\ndata: {\"type\":\"text\",\"content\":\"-from\"}"
+  },
+  {
+   "t": 193.565,
+   "raw": "id: 133\ndata: {\"type\":\"text\",\"content\":\"-\"}"
+  },
+  {
+   "t": 193.565,
+   "raw": "id: 134\ndata: {\"type\":\"text\",\"content\":\"physical\"}"
+  },
+  {
+   "t": 193.565,
+   "raw": "id: 135\ndata: {\"type\":\"text\",\"content\":\"-detail\"}"
+  },
+  {
+   "t": 193.565,
+   "raw": "id: 136\ndata: {\"type\":\"text\",\"content\":\" character\"}"
+  },
+  {
+   "t": 193.565,
+   "raw": "id: 137\ndata: {\"type\":\"text\",\"content\":\" move\"}"
+  },
+  {
+   "t": 193.726,
+   "raw": "id: 138\ndata: {\"type\":\"text\",\"content\":\" (\\\"\"}"
+  },
+  {
+   "t": 193.728,
+   "raw": "id: 139\ndata: {\"type\":\"text\",\"content\":\"which\"}"
+  },
+  {
+   "t": 193.728,
+   "raw": "id: 140\ndata: {\"type\":\"text\",\"content\":\" is\"}"
+  },
+  {
+   "t": 193.728,
+   "raw": "id: 141\ndata: {\"type\":\"text\",\"content\":\" how\"}"
+  },
+  {
+   "t": 193.728,
+   "raw": "id: 142\ndata: {\"type\":\"text\",\"content\":\" I\"}"
+  },
+  {
+   "t": 193.728,
+   "raw": "id: 143\ndata: {\"type\":\"text\",\"content\":\" understood\"}"
+  },
+  {
+   "t": 193.728,
+   "raw": "id: 144\ndata: {\"type\":\"text\",\"content\":\" he\"}"
+  },
+  {
+   "t": 193.728,
+   "raw": "id: 145\ndata: {\"type\":\"text\",\"content\":\" was\"}"
+  },
+  {
+   "t": 193.728,
+   "raw": "id: 146\ndata: {\"type\":\"text\",\"content\":\" not\"}"
+  },
+  {
+   "t": 193.858,
+   "raw": "id: 147\ndata: {\"type\":\"text\",\"content\":\" from\"}"
+  },
+  {
+   "t": 193.858,
+   "raw": "id: 148\ndata: {\"type\":\"text\",\"content\":\" any\"}"
+  },
+  {
+   "t": 193.858,
+   "raw": "id: 149\ndata: {\"type\":\"text\",\"content\":\" bank\"}"
+  },
+  {
+   "t": 193.858,
+   "raw": "id: 150\ndata: {\"type\":\"text\",\"content\":\" that\"}"
+  },
+  {
+   "t": 193.858,
+   "raw": "id: 151\ndata: {\"type\":\"text\",\"content\":\" keeps\"}"
+  },
+  {
+   "t": 193.859,
+   "raw": "id: 152\ndata: {\"type\":\"text\",\"content\":\" its\"}"
+  },
+  {
+   "t": 193.859,
+   "raw": "id: 153\ndata: {\"type\":\"text\",\"content\":\" name\"}"
+  },
+  {
+   "t": 193.86,
+   "raw": "id: 154\ndata: {\"type\":\"text\",\"content\":\" on\"}"
+  },
+  {
+   "t": 193.887,
+   "raw": "id: 155\ndata: {\"type\":\"text\",\"content\":\" a\"}"
+  },
+  {
+   "t": 193.887,
+   "raw": "id: 156\ndata: {\"type\":\"text\",\"content\":\" door\"}"
+  },
+  {
+   "t": 194.027,
+   "raw": "id: 157\ndata: {\"type\":\"text\",\"content\":\"\\\"),\"}"
+  },
+  {
+   "t": 194.029,
+   "raw": "id: 158\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 194.029,
+   "raw": "id: 159\ndata: {\"type\":\"text\",\"content\":\" log\"}"
+  },
+  {
+   "t": 194.03,
+   "raw": "id: 160\ndata: {\"type\":\"text\",\"content\":\" entry\"}"
+  },
+  {
+   "t": 194.03,
+   "raw": "id: 161\ndata: {\"type\":\"text\",\"content\":\" insert\"}"
+  },
+  {
+   "t": 194.03,
+   "raw": "id: 162\ndata: {\"type\":\"text\",\"content\":\"ions\"}"
+  },
+  {
+   "t": 194.03,
+   "raw": "id: 163\ndata: {\"type\":\"text\",\"content\":\" as\"}"
+  },
+  {
+   "t": 194.03,
+   "raw": "id: 164\ndata: {\"type\":\"text\",\"content\":\" rhythm\"}"
+  },
+  {
+   "t": 194.057,
+   "raw": "id: 165\ndata: {\"type\":\"text\",\"content\":\" markers\"}"
+  },
+  {
+   "t": 194.058,
+   "raw": "id: 166\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 194.201,
+   "raw": "id: 167\ndata: {\"type\":\"text\",\"content\":\" and\"}"
+  },
+  {
+   "t": 194.201,
+   "raw": "id: 168\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 194.202,
+   "raw": "id: 169\ndata: {\"type\":\"text\",\"content\":\" \\\"\"}"
+  },
+  {
+   "t": 194.202,
+   "raw": "id: 170\ndata: {\"type\":\"text\",\"content\":\"the\"}"
+  },
+  {
+   "t": 194.202,
+   "raw": "id: 171\ndata: {\"type\":\"text\",\"content\":\" way\"}"
+  },
+  {
+   "t": 194.202,
+   "raw": "id: 172\ndata: {\"type\":\"text\",\"content\":\" you\"}"
+  },
+  {
+   "t": 194.202,
+   "raw": "id: 173\ndata: {\"type\":\"text\",\"content\":\" [\"}"
+  },
+  {
+   "t": 194.202,
+   "raw": "id: 174\ndata: {\"type\":\"text\",\"content\":\"verb\"}"
+  },
+  {
+   "t": 194.644,
+   "raw": "id: 175\ndata: {\"type\":\"text\",\"content\":\"]\\\"\"}"
+  },
+  {
+   "t": 194.644,
+   "raw": "id: 176\ndata: {\"type\":\"text\",\"content\":\" universal\"}"
+  },
+  {
+   "t": 194.646,
+   "raw": "id: 177\ndata: {\"type\":\"text\",\"content\":\"izing\"}"
+  },
+  {
+   "t": 194.646,
+   "raw": "id: 178\ndata: {\"type\":\"text\",\"content\":\" constructions\"}"
+  },
+  {
+   "t": 194.646,
+   "raw": "id: 179\ndata: {\"type\":\"text\",\"content\":\" are\"}"
+  },
+  {
+   "t": 194.646,
+   "raw": "id: 180\ndata: {\"type\":\"text\",\"content\":\" all\"}"
+  },
+  {
+   "t": 194.646,
+   "raw": "id: 181\ndata: {\"type\":\"text\",\"content\":\" named\"}"
+  },
+  {
+   "t": 194.646,
+   "raw": "id: 182\ndata: {\"type\":\"text\",\"content\":\" in\"}"
+  },
+  {
+   "t": 194.646,
+   "raw": "id: 183\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 194.646,
+   "raw": "id: 184\ndata: {\"type\":\"text\",\"content\":\" style\"}"
+  },
+  {
+   "t": 194.646,
+   "raw": "id: 185\ndata: {\"type\":\"text\",\"content\":\" fingerprint\"}"
+  },
+  {
+   "t": 194.646,
+   "raw": "id: 186\ndata: {\"type\":\"text\",\"content\":\" and\"}"
+  },
+  {
+   "t": 194.647,
+   "raw": "id: 187\ndata: {\"type\":\"text\",\"content\":\" properly\"}"
+  },
+  {
+   "t": 194.647,
+   "raw": "id: 188\ndata: {\"type\":\"text\",\"content\":\" deployed\"}"
+  },
+  {
+   "t": 194.647,
+   "raw": "id: 189\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 194.647,
+   "raw": "id: 190\ndata: {\"type\":\"text\",\"content\":\"\\n\\n\"}"
+  },
+  {
+   "t": 194.647,
+   "raw": "id: 191\ndata: {\"type\":\"text\",\"content\":\"2\"}"
+  },
+  {
+   "t": 194.647,
+   "raw": "id: 192\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 194.647,
+   "raw": "id: 193\ndata: {\"type\":\"text\",\"content\":\" **\"}"
+  },
+  {
+   "t": 194.647,
+   "raw": "id: 194\ndata: {\"type\":\"text\",\"content\":\"Clean\"}"
+  },
+  {
+   "t": 194.647,
+   "raw": "id: 195\ndata: {\"type\":\"text\",\"content\":\" execution\"}"
+  },
+  {
+   "t": 194.647,
+   "raw": "id: 196\ndata: {\"type\":\"text\",\"content\":\" of\"}"
+  },
+  {
+   "t": 194.647,
+   "raw": "id: 197\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 194.647,
+   "raw": "id: 198\ndata: {\"type\":\"text\",\"content\":\" author\"}"
+  },
+  {
+   "t": 194.647,
+   "raw": "id: 199\ndata: {\"type\":\"text\",\"content\":\"'s\"}"
+  },
+  {
+   "t": 194.741,
+   "raw": "id: 200\ndata: {\"type\":\"text\",\"content\":\" voice\"}"
+  },
+  {
+   "t": 194.741,
+   "raw": "id: 201\ndata: {\"type\":\"text\",\"content\":\" mechanics\"}"
+  },
+  {
+   "t": 194.741,
+   "raw": "id: 202\ndata: {\"type\":\"text\",\"content\":\"**\"}"
+  },
+  {
+   "t": 194.742,
+   "raw": "id: 203\ndata: {\"type\":\"text\",\"content\":\" —\"}"
+  },
+  {
+   "t": 194.742,
+   "raw": "id: 204\ndata: {\"type\":\"text\",\"content\":\" Zero\"}"
+  },
+  {
+   "t": 194.742,
+   "raw": "id: 205\ndata: {\"type\":\"text\",\"content\":\" AI\"}"
+  },
+  {
+   "t": 194.742,
+   "raw": "id: 206\ndata: {\"type\":\"text\",\"content\":\" tells\"}"
+  },
+  {
+   "t": 194.742,
+   "raw": "id: 207\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 194.8,
+   "raw": "id: 208\ndata: {\"type\":\"text\",\"content\":\" zero\"}"
+  },
+  {
+   "t": 194.8,
+   "raw": "id: 209\ndata: {\"type\":\"text\",\"content\":\" ell\"}"
+  },
+  {
+   "t": 194.8,
+   "raw": "id: 210\ndata: {\"type\":\"text\",\"content\":\"ips\"}"
+  },
+  {
+   "t": 194.8,
+   "raw": "id: 211\ndata: {\"type\":\"text\",\"content\":\"es\"}"
+  },
+  {
+   "t": 194.943,
+   "raw": "id: 212\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 194.945,
+   "raw": "id: 213\ndata: {\"type\":\"text\",\"content\":\" dialogue\"}"
+  },
+  {
+   "t": 194.946,
+   "raw": "id: 214\ndata: {\"type\":\"text\",\"content\":\"-to\"}"
+  },
+  {
+   "t": 194.947,
+   "raw": "id: 215\ndata: {\"type\":\"text\",\"content\":\"-n\"}"
+  },
+  {
+   "t": 194.947,
+   "raw": "id: 216\ndata: {\"type\":\"text\",\"content\":\"arr\"}"
+  },
+  {
+   "t": 194.947,
+   "raw": "id: 217\ndata: {\"type\":\"text\",\"content\":\"ative\"}"
+  },
+  {
+   "t": 194.947,
+   "raw": "id: 218\ndata: {\"type\":\"text\",\"content\":\" ratio\"}"
+  },
+  {
+   "t": 194.947,
+   "raw": "id: 219\ndata: {\"type\":\"text\",\"content\":\" at\"}"
+  },
+  {
+   "t": 194.994,
+   "raw": "id: 220\ndata: {\"type\":\"text\",\"content\":\" ~\"}"
+  },
+  {
+   "t": 194.994,
+   "raw": "id: 221\ndata: {\"type\":\"text\",\"content\":\"0\"}"
+  },
+  {
+   "t": 194.994,
+   "raw": "id: 222\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 195.112,
+   "raw": "id: 223\ndata: {\"type\":\"text\",\"content\":\"2\"}"
+  },
+  {
+   "t": 195.112,
+   "raw": "id: 224\ndata: {\"type\":\"text\",\"content\":\"0\"}"
+  },
+  {
+   "t": 195.113,
+   "raw": "id: 225\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 195.113,
+   "raw": "id: 226\ndata: {\"type\":\"text\",\"content\":\" single\"}"
+  },
+  {
+   "t": 195.113,
+   "raw": "id: 227\ndata: {\"type\":\"text\",\"content\":\"-s\"}"
+  },
+  {
+   "t": 195.113,
+   "raw": "id: 228\ndata: {\"type\":\"text\",\"content\":\"entence\"}"
+  },
+  {
+   "t": 195.113,
+   "raw": "id: 229\ndata: {\"type\":\"text\",\"content\":\" paragraphs\"}"
+  },
+  {
+   "t": 195.259,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 195.318,
+   "raw": "id: 230\ndata: {\"type\":\"text\",\"content\":\" at\"}"
+  },
+  {
+   "t": 195.318,
+   "raw": "id: 231\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 195.318,
+   "raw": "id: 232\ndata: {\"type\":\"text\",\"content\":\" expected\"}"
+  },
+  {
+   "t": 195.319,
+   "raw": "id: 233\ndata: {\"type\":\"text\",\"content\":\" ~\"}"
+  },
+  {
+   "t": 195.319,
+   "raw": "id: 234\ndata: {\"type\":\"text\",\"content\":\"4\"}"
+  },
+  {
+   "t": 195.319,
+   "raw": "id: 235\ndata: {\"type\":\"text\",\"content\":\"0\"}"
+  },
+  {
+   "t": 195.456,
+   "raw": "id: 236\ndata: {\"type\":\"text\",\"content\":\"%\"}"
+  },
+  {
+   "t": 195.456,
+   "raw": "id: 237\ndata: {\"type\":\"text\",\"content\":\" rate\"}"
+  },
+  {
+   "t": 195.456,
+   "raw": "id: 238\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 195.457,
+   "raw": "id: 239\ndata: {\"type\":\"text\",\"content\":\" mean\"}"
+  },
+  {
+   "t": 195.457,
+   "raw": "id: 240\ndata: {\"type\":\"text\",\"content\":\" sentence\"}"
+  },
+  {
+   "t": 195.458,
+   "raw": "id: 241\ndata: {\"type\":\"text\",\"content\":\" length\"}"
+  },
+  {
+   "t": 195.458,
+   "raw": "id: 242\ndata: {\"type\":\"text\",\"content\":\" consistent\"}"
+  },
+  {
+   "t": 195.459,
+   "raw": "id: 243\ndata: {\"type\":\"text\",\"content\":\" with\"}"
+  },
+  {
+   "t": 195.512,
+   "raw": "id: 244\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 195.512,
+   "raw": "id: 245\ndata: {\"type\":\"text\",\"content\":\" \"}"
+  },
+  {
+   "t": 195.513,
+   "raw": "id: 246\ndata: {\"type\":\"text\",\"content\":\"1\"}"
+  },
+  {
+   "t": 195.513,
+   "raw": "id: 247\ndata: {\"type\":\"text\",\"content\":\"9\"}"
+  },
+  {
+   "t": 195.513,
+   "raw": "id: 248\ndata: {\"type\":\"text\",\"content\":\"-\"}"
+  },
+  {
+   "t": 195.647,
+   "raw": "id: 249\ndata: {\"type\":\"text\",\"content\":\"2\"}"
+  },
+  {
+   "t": 195.647,
+   "raw": "id: 250\ndata: {\"type\":\"text\",\"content\":\"2\"}"
+  },
+  {
+   "t": 195.647,
+   "raw": "id: 251\ndata: {\"type\":\"text\",\"content\":\" word\"}"
+  },
+  {
+   "t": 195.647,
+   "raw": "id: 252\ndata: {\"type\":\"text\",\"content\":\" target\"}"
+  },
+  {
+   "t": 195.648,
+   "raw": "id: 253\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 195.648,
+   "raw": "id: 254\ndata: {\"type\":\"text\",\"content\":\" vocabulary\"}"
+  },
+  {
+   "t": 195.648,
+   "raw": "id: 255\ndata: {\"type\":\"text\",\"content\":\" anchored\"}"
+  },
+  {
+   "t": 195.648,
+   "raw": "id: 256\ndata: {\"type\":\"text\",\"content\":\" to\"}"
+  },
+  {
+   "t": 195.7,
+   "raw": "id: 257\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 195.7,
+   "raw": "id: 258\ndata: {\"type\":\"text\",\"content\":\" n\"}"
+  },
+  {
+   "t": 195.7,
+   "raw": "id: 259\ndata: {\"type\":\"text\",\"content\":\"autical\"}"
+  },
+  {
+   "t": 195.7,
+   "raw": "id: 260\ndata: {\"type\":\"text\",\"content\":\"/me\"}"
+  },
+  {
+   "t": 195.801,
+   "raw": "id: 261\ndata: {\"type\":\"text\",\"content\":\"chan\"}"
+  },
+  {
+   "t": 195.801,
+   "raw": "id: 262\ndata: {\"type\":\"text\",\"content\":\"ical\"}"
+  },
+  {
+   "t": 195.802,
+   "raw": "id: 263\ndata: {\"type\":\"text\",\"content\":\"/pro\"}"
+  },
+  {
+   "t": 195.802,
+   "raw": "id: 264\ndata: {\"type\":\"text\",\"content\":\"ced\"}"
+  },
+  {
+   "t": 195.802,
+   "raw": "id: 265\ndata: {\"type\":\"text\",\"content\":\"ural\"}"
+  },
+  {
+   "t": 195.802,
+   "raw": "id: 266\ndata: {\"type\":\"text\",\"content\":\" register\"}"
+  },
+  {
+   "t": 195.802,
+   "raw": "id: 267\ndata: {\"type\":\"text\",\"content\":\" throughout\"}"
+  },
+  {
+   "t": 195.802,
+   "raw": "id: 268\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 195.905,
+   "raw": "id: 269\ndata: {\"type\":\"text\",\"content\":\"\\n\\n\"}"
+  },
+  {
+   "t": 195.905,
+   "raw": "id: 270\ndata: {\"type\":\"text\",\"content\":\"3\"}"
+  },
+  {
+   "t": 195.906,
+   "raw": "id: 271\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 195.906,
+   "raw": "id: 272\ndata: {\"type\":\"text\",\"content\":\" **\"}"
+  },
+  {
+   "t": 196.923,
+   "raw": "id: 273\ndata: {\"type\":\"text\",\"content\":\"Int\"}"
+  },
+  {
+   "t": 198.395,
+   "raw": "id: 274\ndata: {\"type\":\"text\",\"content\":\"ention\"}"
+  },
+  {
+   "t": 199.297,
+   "raw": "id: 275\ndata: {\"type\":\"text\",\"content\":\"al\"}"
+  },
+  {
+   "t": 199.571,
+   "raw": "id: 276\ndata: {\"type\":\"text\",\"content\":\" pattern\"}"
+  },
+  {
+   "t": 199.892,
+   "raw": "id: 277\ndata: {\"type\":\"text\",\"content\":\"-work\"}"
+  },
+  {
+   "t": 200.857,
+   "raw": "id: 278\ndata: {\"type\":\"text\",\"content\":\"**\"}"
+  },
+  {
+   "t": 202.017,
+   "raw": "id: 279\ndata: {\"type\":\"text\",\"content\":\" —\"}"
+  },
+  {
+   "t": 203.296,
+   "raw": "id: 280\ndata: {\"type\":\"text\",\"content\":\" The\"}"
+  },
+  {
+   "t": 204.741,
+   "raw": "id: 281\ndata: {\"type\":\"text\",\"content\":\" \\\"\"}"
+  },
+  {
+   "t": 206.381,
+   "raw": "id: 282\ndata: {\"type\":\"text\",\"content\":\"intelligence\"}"
+  },
+  {
+   "t": 207.962,
+   "raw": "id: 283\ndata: {\"type\":\"text\",\"content\":\"\\\"\"}"
+  },
+  {
+   "t": 210.086,
+   "raw": "id: 284\ndata: {\"type\":\"text\",\"content\":\" book\"}"
+  },
+  {
+   "t": 210.273,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 211.506,
+   "raw": "id: 285\ndata: {\"type\":\"text\",\"content\":\"ends\"}"
+  },
+  {
+   "t": 212.509,
+   "raw": "id: 286\ndata: {\"type\":\"text\",\"content\":\" (\"}"
+  },
+  {
+   "t": 212.509,
+   "raw": "id: 287\ndata: {\"type\":\"text\",\"content\":\"opening\"}"
+  },
+  {
+   "t": 212.51,
+   "raw": "id: 288\ndata: {\"type\":\"text\",\"content\":\" to closing\"}"
+  },
+  {
+   "t": 212.51,
+   "raw": "id: 289\ndata: {\"type\":\"text\",\"content\":\"),\"}"
+  },
+  {
+   "t": 212.784,
+   "raw": "id: 290\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 212.784,
+   "raw": "id: 291\ndata: {\"type\":\"text\",\"content\":\" \\\"\"}"
+  },
+  {
+   "t": 212.784,
+   "raw": "id: 292\ndata: {\"type\":\"text\",\"content\":\"soft\"}"
+  },
+  {
+   "t": 212.784,
+   "raw": "id: 293\ndata: {\"type\":\"text\",\"content\":\" hands\"}"
+  },
+  {
+   "t": 212.784,
+   "raw": "id: 294\ndata: {\"type\":\"text\",\"content\":\"\\\"\"}"
+  },
+  {
+   "t": 212.784,
+   "raw": "id: 295\ndata: {\"type\":\"text\",\"content\":\" motif\"}"
+  },
+  {
+   "t": 212.784,
+   "raw": "id: 296\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 212.784,
+   "raw": "id: 297\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 213.003,
+   "raw": "id: 298\ndata: {\"type\":\"text\",\"content\":\" ninety\"}"
+  },
+  {
+   "t": 213.003,
+   "raw": "id: 299\ndata: {\"type\":\"text\",\"content\":\"-six\"}"
+  },
+  {
+   "t": 213.003,
+   "raw": "id: 300\ndata: {\"type\":\"text\",\"content\":\" steps\"}"
+  },
+  {
+   "t": 213.003,
+   "raw": "id: 301\ndata: {\"type\":\"text\",\"content\":\" metaphor\"}"
+  },
+  {
+   "t": 213.003,
+   "raw": "id: 302\ndata: {\"type\":\"text\",\"content\":\" establishing\"}"
+  },
+  {
+   "t": 213.003,
+   "raw": "id: 303\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 213.003,
+   "raw": "id: 304\ndata: {\"type\":\"text\",\"content\":\" narrator\"}"
+  },
+  {
+   "t": 213.003,
+   "raw": "id: 305\ndata: {\"type\":\"text\",\"content\":\"'s\"}"
+  },
+  {
+   "t": 213.08,
+   "raw": "id: 306\ndata: {\"type\":\"text\",\"content\":\" met\"}"
+  },
+  {
+   "t": 213.08,
+   "raw": "id: 307\ndata: {\"type\":\"text\",\"content\":\"ron\"}"
+  },
+  {
+   "t": 213.08,
+   "raw": "id: 308\ndata: {\"type\":\"text\",\"content\":\"ome\"}"
+  },
+  {
+   "t": 213.08,
+   "raw": "id: 309\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 213.08,
+   "raw": "id: 310\ndata: {\"type\":\"text\",\"content\":\" and\"}"
+  },
+  {
+   "t": 213.231,
+   "raw": "id: 311\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 213.231,
+   "raw": "id: 312\ndata: {\"type\":\"text\",\"content\":\" procedural\"}"
+  },
+  {
+   "t": 213.231,
+   "raw": "id: 313\ndata: {\"type\":\"text\",\"content\":\" log\"}"
+  },
+  {
+   "t": 213.231,
+   "raw": "id: 314\ndata: {\"type\":\"text\",\"content\":\" entry\"}"
+  },
+  {
+   "t": 213.231,
+   "raw": "id: 315\ndata: {\"type\":\"text\",\"content\":\" functioning\"}"
+  },
+  {
+   "t": 213.233,
+   "raw": "id: 316\ndata: {\"type\":\"text\",\"content\":\" as\"}"
+  },
+  {
+   "t": 213.233,
+   "raw": "id: 317\ndata: {\"type\":\"text\",\"content\":\" both\"}"
+  },
+  {
+   "t": 213.384,
+   "raw": "id: 318\ndata: {\"type\":\"text\",\"content\":\" voice\"}"
+  },
+  {
+   "t": 213.385,
+   "raw": "id: 319\ndata: {\"type\":\"text\",\"content\":\" signature\"}"
+  },
+  {
+   "t": 213.385,
+   "raw": "id: 320\ndata: {\"type\":\"text\",\"content\":\" and\"}"
+  },
+  {
+   "t": 213.385,
+   "raw": "id: 321\ndata: {\"type\":\"text\",\"content\":\" emotional\"}"
+  },
+  {
+   "t": 213.385,
+   "raw": "id: 322\ndata: {\"type\":\"text\",\"content\":\" punctuation\"}"
+  },
+  {
+   "t": 213.385,
+   "raw": "id: 323\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 213.385,
+   "raw": "id: 324\ndata: {\"type\":\"text\",\"content\":\"\\n\\n\"}"
+  },
+  {
+   "t": 213.385,
+   "raw": "id: 325\ndata: {\"type\":\"text\",\"content\":\"###\"}"
+  },
+  {
+   "t": 213.386,
+   "raw": "id: 326\ndata: {\"type\":\"text\",\"content\":\" What\"}"
+  },
+  {
+   "t": 213.561,
+   "raw": "id: 327\ndata: {\"type\":\"text\",\"content\":\" This\"}"
+  },
+  {
+   "t": 213.561,
+   "raw": "id: 328\ndata: {\"type\":\"text\",\"content\":\" Chapter\"}"
+  },
+  {
+   "t": 213.562,
+   "raw": "id: 329\ndata: {\"type\":\"text\",\"content\":\" Does\"}"
+  },
+  {
+   "t": 213.562,
+   "raw": "id: 330\ndata: {\"type\":\"text\",\"content\":\" Right\"}"
+  },
+  {
+   "t": 213.562,
+   "raw": "id: 331\ndata: {\"type\":\"text\",\"content\":\"\\n\\n\"}"
+  },
+  {
+   "t": 213.562,
+   "raw": "id: 332\ndata: {\"type\":\"text\",\"content\":\"-\"}"
+  },
+  {
+   "t": 213.562,
+   "raw": "id: 333\ndata: {\"type\":\"text\",\"content\":\" **\"}"
+  },
+  {
+   "t": 213.575,
+   "raw": "id: 334\ndata: {\"type\":\"text\",\"content\":\"Opening\"}"
+  },
+  {
+   "t": 213.714,
+   "raw": "id: 335\ndata: {\"type\":\"text\",\"content\":\" hook\"}"
+  },
+  {
+   "t": 213.715,
+   "raw": "id: 336\ndata: {\"type\":\"text\",\"content\":\" with\"}"
+  },
+  {
+   "t": 213.715,
+   "raw": "id: 337\ndata: {\"type\":\"text\",\"content\":\" lat\"}"
+  },
+  {
+   "t": 213.715,
+   "raw": "id: 338\ndata: {\"type\":\"text\",\"content\":\"itud\"}"
+  },
+  {
+   "t": 213.715,
+   "raw": "id: 339\ndata: {\"type\":\"text\",\"content\":\"inal\"}"
+  },
+  {
+   "t": 213.715,
+   "raw": "id: 340\ndata: {\"type\":\"text\",\"content\":\" compression\"}"
+  },
+  {
+   "t": 213.715,
+   "raw": "id: 341\ndata: {\"type\":\"text\",\"content\":\":**\"}"
+  },
+  {
+   "t": 213.715,
+   "raw": "id: 342\ndata: {\"type\":\"text\",\"content\":\" Paragraph\"}"
+  },
+  {
+   "t": 213.803,
+   "raw": "id: 343\ndata: {\"type\":\"text\",\"content\":\" \"}"
+  },
+  {
+   "t": 213.804,
+   "raw": "id: 344\ndata: {\"type\":\"text\",\"content\":\"1\"}"
+  },
+  {
+   "t": 213.804,
+   "raw": "id: 345\ndata: {\"type\":\"text\",\"content\":\" does\"}"
+  },
+  {
+   "t": 213.804,
+   "raw": "id: 346\ndata: {\"type\":\"text\",\"content\":\" triple\"}"
+  },
+  {
+   "t": 213.804,
+   "raw": "id: 347\ndata: {\"type\":\"text\",\"content\":\" duty\"}"
+  },
+  {
+   "t": 213.964,
+   "raw": "id: 348\ndata: {\"type\":\"text\",\"content\":\" —\"}"
+  },
+  {
+   "t": 213.964,
+   "raw": "id: 349\ndata: {\"type\":\"text\",\"content\":\" establishes\"}"
+  },
+  {
+   "t": 213.965,
+   "raw": "id: 350\ndata: {\"type\":\"text\",\"content\":\" character\"}"
+  },
+  {
+   "t": 213.965,
+   "raw": "id: 351\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 213.965,
+   "raw": "id: 352\ndata: {\"type\":\"text\",\"content\":\" setting\"}"
+  },
+  {
+   "t": 213.965,
+   "raw": "id: 353\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 213.965,
+   "raw": "id: 354\ndata: {\"type\":\"text\",\"content\":\" and\"}"
+  },
+  {
+   "t": 213.965,
+   "raw": "id: 355\ndata: {\"type\":\"text\",\"content\":\" tone\"}"
+  },
+  {
+   "t": 214.121,
+   "raw": "id: 356\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 214.122,
+   "raw": "id: 357\ndata: {\"type\":\"text\",\"content\":\" The\"}"
+  },
+  {
+   "t": 214.122,
+   "raw": "id: 358\ndata: {\"type\":\"text\",\"content\":\" word\"}"
+  },
+  {
+   "t": 214.122,
+   "raw": "id: 359\ndata: {\"type\":\"text\",\"content\":\" \\\"\"}"
+  },
+  {
+   "t": 214.122,
+   "raw": "id: 360\ndata: {\"type\":\"text\",\"content\":\"intelligence\"}"
+  },
+  {
+   "t": 214.123,
+   "raw": "id: 361\ndata: {\"type\":\"text\",\"content\":\"\\\"\"}"
+  },
+  {
+   "t": 214.123,
+   "raw": "id: 362\ndata: {\"type\":\"text\",\"content\":\" landing\"}"
+  },
+  {
+   "t": 214.123,
+   "raw": "id: 363\ndata: {\"type\":\"text\",\"content\":\" four\"}"
+  },
+  {
+   "t": 214.275,
+   "raw": "id: 364\ndata: {\"type\":\"text\",\"content\":\" times\"}"
+  },
+  {
+   "t": 214.275,
+   "raw": "id: 365\ndata: {\"type\":\"text\",\"content\":\" across\"}"
+  },
+  {
+   "t": 214.276,
+   "raw": "id: 366\ndata: {\"type\":\"text\",\"content\":\" paragraphs\"}"
+  },
+  {
+   "t": 214.276,
+   "raw": "id: 367\ndata: {\"type\":\"text\",\"content\":\" \"}"
+  },
+  {
+   "t": 214.276,
+   "raw": "id: 368\ndata: {\"type\":\"text\",\"content\":\"1\"}"
+  },
+  {
+   "t": 214.276,
+   "raw": "id: 369\ndata: {\"type\":\"text\",\"content\":\"-\"}"
+  },
+  {
+   "t": 214.276,
+   "raw": "id: 370\ndata: {\"type\":\"text\",\"content\":\"7\"}"
+  },
+  {
+   "t": 214.276,
+   "raw": "id: 371\ndata: {\"type\":\"text\",\"content\":\" is\"}"
+  },
+  {
+   "t": 214.29,
+   "raw": "id: 372\ndata: {\"type\":\"text\",\"content\":\" thematic\"}"
+  },
+  {
+   "t": 214.406,
+   "raw": "id: 373\ndata: {\"type\":\"text\",\"content\":\" grip\"}"
+  },
+  {
+   "t": 214.407,
+   "raw": "id: 374\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 214.407,
+   "raw": "id: 375\ndata: {\"type\":\"text\",\"content\":\" not\"}"
+  },
+  {
+   "t": 214.407,
+   "raw": "id: 376\ndata: {\"type\":\"text\",\"content\":\" accidental\"}"
+  },
+  {
+   "t": 214.407,
+   "raw": "id: 377\ndata: {\"type\":\"text\",\"content\":\" repetition\"}"
+  },
+  {
+   "t": 214.407,
+   "raw": "id: 378\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 214.564,
+   "raw": "id: 379\ndata: {\"type\":\"text\",\"content\":\"\\n\\n\"}"
+  },
+  {
+   "t": 214.564,
+   "raw": "id: 380\ndata: {\"type\":\"text\",\"content\":\"-\"}"
+  },
+  {
+   "t": 214.565,
+   "raw": "id: 381\ndata: {\"type\":\"text\",\"content\":\" **\"}"
+  },
+  {
+   "t": 214.565,
+   "raw": "id: 382\ndata: {\"type\":\"text\",\"content\":\"Rad\"}"
+  },
+  {
+   "t": 214.565,
+   "raw": "id: 383\ndata: {\"type\":\"text\",\"content\":\"mila\"}"
+  },
+  {
+   "t": 214.565,
+   "raw": "id: 384\ndata: {\"type\":\"text\",\"content\":\"'s\"}"
+  },
+  {
+   "t": 214.565,
+   "raw": "id: 385\ndata: {\"type\":\"text\",\"content\":\" displacement\"}"
+  },
+  {
+   "t": 214.565,
+   "raw": "id: 386\ndata: {\"type\":\"text\",\"content\":\" dialogue\"}"
+  },
+  {
+   "t": 214.656,
+   "raw": "id: 387\ndata: {\"type\":\"text\",\"content\":\":**\"}"
+  },
+  {
+   "t": 214.657,
+   "raw": "id: 388\ndata: {\"type\":\"text\",\"content\":\" The\"}"
+  },
+  {
+   "t": 214.657,
+   "raw": "id: 389\ndata: {\"type\":\"text\",\"content\":\" bread\"}"
+  },
+  {
+   "t": 214.657,
+   "raw": "id: 390\ndata: {\"type\":\"text\",\"content\":\"/\"}"
+  },
+  {
+   "t": 214.657,
+   "raw": "id: 391\ndata: {\"type\":\"text\",\"content\":\"eg\"}"
+  },
+  {
+   "t": 214.798,
+   "raw": "id: 392\ndata: {\"type\":\"text\",\"content\":\"gs\"}"
+  },
+  {
+   "t": 214.798,
+   "raw": "id: 393\ndata: {\"type\":\"text\",\"content\":\" exchange\"}"
+  },
+  {
+   "t": 214.798,
+   "raw": "id: 394\ndata: {\"type\":\"text\",\"content\":\" communicates\"}"
+  },
+  {
+   "t": 214.798,
+   "raw": "id: 395\ndata: {\"type\":\"text\",\"content\":\" care\"}"
+  },
+  {
+   "t": 214.799,
+   "raw": "id: 396\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 214.799,
+   "raw": "id: 397\ndata: {\"type\":\"text\",\"content\":\" community\"}"
+  },
+  {
+   "t": 214.799,
+   "raw": "id: 398\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 214.953,
+   "raw": "id: 399\ndata: {\"type\":\"text\",\"content\":\" institutional\"}"
+  },
+  {
+   "t": 214.954,
+   "raw": "id: 400\ndata: {\"type\":\"text\",\"content\":\" authority\"}"
+  },
+  {
+   "t": 214.954,
+   "raw": "id: 401\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 214.954,
+   "raw": "id: 402\ndata: {\"type\":\"text\",\"content\":\" and\"}"
+  },
+  {
+   "t": 214.954,
+   "raw": "id: 403\ndata: {\"type\":\"text\",\"content\":\" urgency\"}"
+  },
+  {
+   "t": 214.954,
+   "raw": "id: 404\ndata: {\"type\":\"text\",\"content\":\" —\"}"
+  },
+  {
+   "t": 214.954,
+   "raw": "id: 405\ndata: {\"type\":\"text\",\"content\":\" but\"}"
+  },
+  {
+   "t": 214.954,
+   "raw": "id: 406\ndata: {\"type\":\"text\",\"content\":\" no\"}"
+  },
+  {
+   "t": 215.156,
+   "raw": "id: 407\ndata: {\"type\":\"text\",\"content\":\" emotion\"}"
+  },
+  {
+   "t": 215.156,
+   "raw": "id: 408\ndata: {\"type\":\"text\",\"content\":\" is\"}"
+  },
+  {
+   "t": 215.156,
+   "raw": "id: 409\ndata: {\"type\":\"text\",\"content\":\" named\"}"
+  },
+  {
+   "t": 215.156,
+   "raw": "id: 410\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 215.156,
+   "raw": "id: 411\ndata: {\"type\":\"text\",\"content\":\" Characters\"}"
+  },
+  {
+   "t": 215.156,
+   "raw": "id: 412\ndata: {\"type\":\"text\",\"content\":\" communicate\"}"
+  },
+  {
+   "t": 215.156,
+   "raw": "id: 413\ndata: {\"type\":\"text\",\"content\":\" through\"}"
+  },
+  {
+   "t": 215.156,
+   "raw": "id: 414\ndata: {\"type\":\"text\",\"content\":\" provision\"}"
+  },
+  {
+   "t": 215.282,
+   "raw": "id: 415\ndata: {\"type\":\"text\",\"content\":\" (\\\"\"}"
+  },
+  {
+   "t": 215.282,
+   "raw": "id: 416\ndata: {\"type\":\"text\",\"content\":\"Take\"}"
+  },
+  {
+   "t": 215.283,
+   "raw": "id: 417\ndata: {\"type\":\"text\",\"content\":\" them\"}"
+  },
+  {
+   "t": 215.283,
+   "raw": "id: 418\ndata: {\"type\":\"text\",\"content\":\"\\\")\"}"
+  },
+  {
+   "t": 215.283,
+   "raw": "id: 419\ndata: {\"type\":\"text\",\"content\":\" and\"}"
+  },
+  {
+   "t": 215.283,
+   "raw": "id: 420\ndata: {\"type\":\"text\",\"content\":\" refusal\"}"
+  },
+  {
+   "t": 215.466,
+   "raw": "id: 421\ndata: {\"type\":\"text\",\"content\":\" (\\\"\"}"
+  },
+  {
+   "t": 215.466,
+   "raw": "id: 422\ndata: {\"type\":\"text\",\"content\":\"I\"}"
+  },
+  {
+   "t": 215.466,
+   "raw": "id: 423\ndata: {\"type\":\"text\",\"content\":\" eat\"}"
+  },
+  {
+   "t": 215.466,
+   "raw": "id: 424\ndata: {\"type\":\"text\",\"content\":\"\\\")\"}"
+  },
+  {
+   "t": 215.466,
+   "raw": "id: 425\ndata: {\"type\":\"text\",\"content\":\" with\"}"
+  },
+  {
+   "t": 215.466,
+   "raw": "id: 426\ndata: {\"type\":\"text\",\"content\":\" physical\"}"
+  },
+  {
+   "t": 215.466,
+   "raw": "id: 427\ndata: {\"type\":\"text\",\"content\":\" detail\"}"
+  },
+  {
+   "t": 215.466,
+   "raw": "id: 428\ndata: {\"type\":\"text\",\"content\":\" (\"}"
+  },
+  {
+   "t": 215.641,
+   "raw": "id: 429\ndata: {\"type\":\"text\",\"content\":\"paper\"}"
+  },
+  {
+   "t": 215.641,
+   "raw": "id: 430\ndata: {\"type\":\"text\",\"content\":\" that\"}"
+  },
+  {
+   "t": 215.641,
+   "raw": "id: 431\ndata: {\"type\":\"text\",\"content\":\" crack\"}"
+  },
+  {
+   "t": 215.818,
+   "raw": "id: 432\ndata: {\"type\":\"text\",\"content\":\"led\"}"
+  },
+  {
+   "t": 215.819,
+   "raw": "id: 433\ndata: {\"type\":\"text\",\"content\":\")\"}"
+  },
+  {
+   "t": 215.819,
+   "raw": "id: 434\ndata: {\"type\":\"text\",\"content\":\" providing\"}"
+  },
+  {
+   "t": 215.819,
+   "raw": "id: 435\ndata: {\"type\":\"text\",\"content\":\" texture\"}"
+  },
+  {
+   "t": 215.819,
+   "raw": "id: 436\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 216.014,
+   "raw": "id: 437\ndata: {\"type\":\"text\",\"content\":\" This\"}"
+  },
+  {
+   "t": 216.014,
+   "raw": "id: 438\ndata: {\"type\":\"text\",\"content\":\" is\"}"
+  },
+  {
+   "t": 216.014,
+   "raw": "id: 439\ndata: {\"type\":\"text\",\"content\":\" protected\"}"
+  },
+  {
+   "t": 216.014,
+   "raw": "id: 440\ndata: {\"type\":\"text\",\"content\":\" signature\"}"
+  },
+  {
+   "t": 216.014,
+   "raw": "id: 441\ndata: {\"type\":\"text\",\"content\":\" work\"}"
+  },
+  {
+   "t": 216.014,
+   "raw": "id: 442\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 216.014,
+   "raw": "id: 443\ndata: {\"type\":\"text\",\"content\":\"\\n\\n\"}"
+  },
+  {
+   "t": 216.015,
+   "raw": "id: 444\ndata: {\"type\":\"text\",\"content\":\"-\"}"
+  },
+  {
+   "t": 216.027,
+   "raw": "id: 445\ndata: {\"type\":\"text\",\"content\":\" **\"}"
+  },
+  {
+   "t": 216.149,
+   "raw": "id: 446\ndata: {\"type\":\"text\",\"content\":\"The\"}"
+  },
+  {
+   "t": 216.149,
+   "raw": "id: 447\ndata: {\"type\":\"text\",\"content\":\" soft\"}"
+  },
+  {
+   "t": 216.149,
+   "raw": "id: 448\ndata: {\"type\":\"text\",\"content\":\"-handed\"}"
+  },
+  {
+   "t": 216.15,
+   "raw": "id: 449\ndata: {\"type\":\"text\",\"content\":\" men\"}"
+  },
+  {
+   "t": 216.15,
+   "raw": "id: 450\ndata: {\"type\":\"text\",\"content\":\":**\"}"
+  },
+  {
+   "t": 216.15,
+   "raw": "id: 451\ndata: {\"type\":\"text\",\"content\":\" Three\"}"
+  },
+  {
+   "t": 216.408,
+   "raw": "id: 452\ndata: {\"type\":\"text\",\"content\":\" paragraphs\"}"
+  },
+  {
+   "t": 216.408,
+   "raw": "id: 453\ndata: {\"type\":\"text\",\"content\":\" of\"}"
+  },
+  {
+   "t": 216.408,
+   "raw": "id: 454\ndata: {\"type\":\"text\",\"content\":\" scene\"}"
+  },
+  {
+   "t": 216.55,
+   "raw": "id: 455\ndata: {\"type\":\"text\",\"content\":\"-setting\"}"
+  },
+  {
+   "t": 216.55,
+   "raw": "id: 456\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 216.55,
+   "raw": "id: 457\ndata: {\"type\":\"text\",\"content\":\" twelve\"}"
+  },
+  {
+   "t": 216.55,
+   "raw": "id: 458\ndata: {\"type\":\"text\",\"content\":\" lines\"}"
+  },
+  {
+   "t": 216.55,
+   "raw": "id: 459\ndata: {\"type\":\"text\",\"content\":\" of\"}"
+  },
+  {
+   "t": 216.551,
+   "raw": "id: 460\ndata: {\"type\":\"text\",\"content\":\" dialogue\"}"
+  },
+  {
+   "t": 216.551,
+   "raw": "id: 461\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 216.551,
+   "raw": "id: 462\ndata: {\"type\":\"text\",\"content\":\" The\"}"
+  },
+  {
+   "t": 216.586,
+   "raw": "id: 463\ndata: {\"type\":\"text\",\"content\":\" narrator\"}"
+  },
+  {
+   "t": 216.586,
+   "raw": "id: 464\ndata: {\"type\":\"text\",\"content\":\" character\"}"
+  },
+  {
+   "t": 218.852,
+   "raw": "id: 465\ndata: {\"type\":\"text\",\"content\":\"izes\"}"
+  },
+  {
+   "t": 218.984,
+   "raw": "id: 466\ndata: {\"type\":\"text\",\"content\":\" them\"}"
+  },
+  {
+   "t": 218.985,
+   "raw": "id: 467\ndata: {\"type\":\"text\",\"content\":\" entirely\"}"
+  },
+  {
+   "t": 218.985,
+   "raw": "id: 468\ndata: {\"type\":\"text\",\"content\":\" through\"}"
+  },
+  {
+   "t": 218.986,
+   "raw": "id: 469\ndata: {\"type\":\"text\",\"content\":\" inference\"}"
+  },
+  {
+   "t": 218.986,
+   "raw": "id: 470\ndata: {\"type\":\"text\",\"content\":\"-from\"}"
+  },
+  {
+   "t": 218.986,
+   "raw": "id: 471\ndata: {\"type\":\"text\",\"content\":\"-\"}"
+  },
+  {
+   "t": 218.986,
+   "raw": "id: 472\ndata: {\"type\":\"text\",\"content\":\"physical\"}"
+  },
+  {
+   "t": 219.01,
+   "raw": "id: 473\ndata: {\"type\":\"text\",\"content\":\"-detail\"}"
+  },
+  {
+   "t": 219.011,
+   "raw": "id: 474\ndata: {\"type\":\"text\",\"content\":\":\"}"
+  },
+  {
+   "t": 219.153,
+   "raw": "id: 475\ndata: {\"type\":\"text\",\"content\":\" jackets\"}"
+  },
+  {
+   "t": 219.153,
+   "raw": "id: 476\ndata: {\"type\":\"text\",\"content\":\" that\"}"
+  },
+  {
+   "t": 219.153,
+   "raw": "id: 477\ndata: {\"type\":\"text\",\"content\":\" haven\"}"
+  },
+  {
+   "t": 219.153,
+   "raw": "id: 478\ndata: {\"type\":\"text\",\"content\":\"'t\"}"
+  },
+  {
+   "t": 219.153,
+   "raw": "id: 479\ndata: {\"type\":\"text\",\"content\":\" met\"}"
+  },
+  {
+   "t": 219.153,
+   "raw": "id: 480\ndata: {\"type\":\"text\",\"content\":\" salt\"}"
+  },
+  {
+   "t": 219.199,
+   "raw": "id: 481\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 219.2,
+   "raw": "id: 482\ndata: {\"type\":\"text\",\"content\":\" a\"}"
+  },
+  {
+   "t": 219.202,
+   "raw": "id: 483\ndata: {\"type\":\"text\",\"content\":\" lamin\"}"
+  },
+  {
+   "t": 219.202,
+   "raw": "id: 484\ndata: {\"type\":\"text\",\"content\":\"ated\"}"
+  },
+  {
+   "t": 219.202,
+   "raw": "id: 485\ndata: {\"type\":\"text\",\"content\":\" card\"}"
+  },
+  {
+   "t": 219.202,
+   "raw": "id: 486\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 219.202,
+   "raw": "id: 487\ndata: {\"type\":\"text\",\"content\":\" hands\"}"
+  },
+  {
+   "t": 219.202,
+   "raw": "id: 488\ndata: {\"type\":\"text\",\"content\":\" in\"}"
+  },
+  {
+   "t": 219.205,
+   "raw": "id: 489\ndata: {\"type\":\"text\",\"content\":\" pockets\"}"
+  },
+  {
+   "t": 219.206,
+   "raw": "id: 490\ndata: {\"type\":\"text\",\"content\":\" trying\"}"
+  },
+  {
+   "t": 219.206,
+   "raw": "id: 491\ndata: {\"type\":\"text\",\"content\":\" for\"}"
+  },
+  {
+   "t": 219.207,
+   "raw": "id: 492\ndata: {\"type\":\"text\",\"content\":\" comfortable\"}"
+  },
+  {
+   "t": 219.207,
+   "raw": "id: 493\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 219.207,
+   "raw": "id: 494\ndata: {\"type\":\"text\",\"content\":\" Character\"}"
+  },
+  {
+   "t": 219.207,
+   "raw": "id: 495\ndata: {\"type\":\"text\",\"content\":\"ization\"}"
+  },
+  {
+   "t": 219.207,
+   "raw": "id: 496\ndata: {\"type\":\"text\",\"content\":\" happens\"}"
+  },
+  {
+   "t": 219.233,
+   "raw": "id: 497\ndata: {\"type\":\"text\",\"content\":\" in\"}"
+  },
+  {
+   "t": 219.233,
+   "raw": "id: 498\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 219.234,
+   "raw": "id: 499\ndata: {\"type\":\"text\",\"content\":\" observation\"}"
+  },
+  {
+   "t": 219.234,
+   "raw": "id: 500\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 219.234,
+   "raw": "id: 501\ndata: {\"type\":\"text\",\"content\":\" not\"}"
+  },
+  {
+   "t": 219.234,
+   "raw": "id: 502\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 219.234,
+   "raw": "id: 503\ndata: {\"type\":\"text\",\"content\":\" claim\"}"
+  },
+  {
+   "t": 219.234,
+   "raw": "id: 504\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 219.28,
+   "raw": "id: 505\ndata: {\"type\":\"text\",\"content\":\"\\n\\n\"}"
+  },
+  {
+   "t": 219.281,
+   "raw": "id: 506\ndata: {\"type\":\"text\",\"content\":\"-\"}"
+  },
+  {
+   "t": 219.281,
+   "raw": "id: 507\ndata: {\"type\":\"text\",\"content\":\" **\"}"
+  },
+  {
+   "t": 219.281,
+   "raw": "id: 508\ndata: {\"type\":\"text\",\"content\":\"The\"}"
+  },
+  {
+   "t": 219.281,
+   "raw": "id: 509\ndata: {\"type\":\"text\",\"content\":\" narrow\"}"
+  },
+  {
+   "t": 219.281,
+   "raw": "id: 510\ndata: {\"type\":\"text\",\"content\":\" trick\"}"
+  },
+  {
+   "t": 219.283,
+   "raw": "id: 511\ndata: {\"type\":\"text\",\"content\":\" meditation\"}"
+  },
+  {
+   "t": 219.283,
+   "raw": "id: 512\ndata: {\"type\":\"text\",\"content\":\":**\"}"
+  },
+  {
+   "t": 219.319,
+   "raw": "id: 513\ndata: {\"type\":\"text\",\"content\":\" Layers\"}"
+  },
+  {
+   "t": 219.319,
+   "raw": "id: 514\ndata: {\"type\":\"text\",\"content\":\" backstory\"}"
+  },
+  {
+   "t": 219.319,
+   "raw": "id: 515\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 219.319,
+   "raw": "id: 516\ndata: {\"type\":\"text\",\"content\":\" sibling\"}"
+  },
+  {
+   "t": 219.319,
+   "raw": "id: 517\ndata: {\"type\":\"text\",\"content\":\" intimacy\"}"
+  },
+  {
+   "t": 219.319,
+   "raw": "id: 518\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 219.319,
+   "raw": "id: 519\ndata: {\"type\":\"text\",\"content\":\" and\"}"
+  },
+  {
+   "t": 219.319,
+   "raw": "id: 520\ndata: {\"type\":\"text\",\"content\":\" defensive\"}"
+  },
+  {
+   "t": 219.324,
+   "raw": "id: 521\ndata: {\"type\":\"text\",\"content\":\" technique\"}"
+  },
+  {
+   "t": 219.324,
+   "raw": "id: 522\ndata: {\"type\":\"text\",\"content\":\" into\"}"
+  },
+  {
+   "t": 219.325,
+   "raw": "id: 523\ndata: {\"type\":\"text\",\"content\":\" a\"}"
+  },
+  {
+   "t": 219.325,
+   "raw": "id: 524\ndata: {\"type\":\"text\",\"content\":\" single\"}"
+  },
+  {
+   "t": 219.343,
+   "raw": "id: 525\ndata: {\"type\":\"text\",\"content\":\" breath\"}"
+  },
+  {
+   "t": 219.344,
+   "raw": "id: 526\ndata: {\"type\":\"text\",\"content\":\" —\"}"
+  },
+  {
+   "t": 219.345,
+   "raw": "id: 527\ndata: {\"type\":\"text\",\"content\":\" but\"}"
+  },
+  {
+   "t": 219.345,
+   "raw": "id: 528\ndata: {\"type\":\"text\",\"content\":\" reads\"}"
+  },
+  {
+   "t": 219.345,
+   "raw": "id: 529\ndata: {\"type\":\"text\",\"content\":\" like\"}"
+  },
+  {
+   "t": 219.345,
+   "raw": "id: 530\ndata: {\"type\":\"text\",\"content\":\" procedure\"}"
+  },
+  {
+   "t": 219.345,
+   "raw": "id: 531\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 219.345,
+   "raw": "id: 532\ndata: {\"type\":\"text\",\"content\":\" not\"}"
+  },
+  {
+   "t": 219.361,
+   "raw": "id: 533\ndata: {\"type\":\"text\",\"content\":\" exposition\"}"
+  },
+  {
+   "t": 219.361,
+   "raw": "id: 534\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 219.362,
+   "raw": "id: 535\ndata: {\"type\":\"text\",\"content\":\" The\"}"
+  },
+  {
+   "t": 219.362,
+   "raw": "id: 536\ndata: {\"type\":\"text\",\"content\":\" analogy\"}"
+  },
+  {
+   "t": 219.362,
+   "raw": "id: 537\ndata: {\"type\":\"text\",\"content\":\" (\"}"
+  },
+  {
+   "t": 219.363,
+   "raw": "id: 538\ndata: {\"type\":\"text\",\"content\":\"card\"}"
+  },
+  {
+   "t": 219.363,
+   "raw": "id: 539\ndata: {\"type\":\"text\",\"content\":\" table\"}"
+  },
+  {
+   "t": 219.363,
+   "raw": "id: 540\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 219.38,
+   "raw": "id: 541\ndata: {\"type\":\"text\",\"content\":\" laughing\"}"
+  },
+  {
+   "t": 219.38,
+   "raw": "id: 542\ndata: {\"type\":\"text\",\"content\":\")\"}"
+  },
+  {
+   "t": 219.38,
+   "raw": "id: 543\ndata: {\"type\":\"text\",\"content\":\" grounds\"}"
+  },
+  {
+   "t": 219.38,
+   "raw": "id: 544\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 219.38,
+   "raw": "id: 545\ndata: {\"type\":\"text\",\"content\":\" abstract\"}"
+  },
+  {
+   "t": 219.38,
+   "raw": "id: 546\ndata: {\"type\":\"text\",\"content\":\" in\"}"
+  },
+  {
+   "t": 219.38,
+   "raw": "id: 547\ndata: {\"type\":\"text\",\"content\":\" physical\"}"
+  },
+  {
+   "t": 219.38,
+   "raw": "id: 548\ndata: {\"type\":\"text\",\"content\":\" memory\"}"
+  },
+  {
+   "t": 219.403,
+   "raw": "id: 549\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 219.404,
+   "raw": "id: 550\ndata: {\"type\":\"text\",\"content\":\"\\n\\n\"}"
+  },
+  {
+   "t": 219.405,
+   "raw": "id: 551\ndata: {\"type\":\"text\",\"content\":\"-\"}"
+  },
+  {
+   "t": 219.405,
+   "raw": "id: 552\ndata: {\"type\":\"text\",\"content\":\" **\"}"
+  },
+  {
+   "t": 219.405,
+   "raw": "id: 553\ndata: {\"type\":\"text\",\"content\":\"The\"}"
+  },
+  {
+   "t": 219.405,
+   "raw": "id: 554\ndata: {\"type\":\"text\",\"content\":\" log\"}"
+  },
+  {
+   "t": 219.405,
+   "raw": "id: 555\ndata: {\"type\":\"text\",\"content\":\" entry\"}"
+  },
+  {
+   "t": 219.406,
+   "raw": "id: 556\ndata: {\"type\":\"text\",\"content\":\" as\"}"
+  },
+  {
+   "t": 219.42,
+   "raw": "id: 557\ndata: {\"type\":\"text\",\"content\":\" emotional\"}"
+  },
+  {
+   "t": 219.422,
+   "raw": "id: 558\ndata: {\"type\":\"text\",\"content\":\" punctuation\"}"
+  },
+  {
+   "t": 219.422,
+   "raw": "id: 559\ndata: {\"type\":\"text\",\"content\":\":**\"}"
+  },
+  {
+   "t": 219.422,
+   "raw": "id: 560\ndata: {\"type\":\"text\",\"content\":\" \\\"\"}"
+  },
+  {
+   "t": 219.422,
+   "raw": "id: 561\ndata: {\"type\":\"text\",\"content\":\"N\"}"
+  },
+  {
+   "t": 219.422,
+   "raw": "id: 562\ndata: {\"type\":\"text\",\"content\":\"NE\"}"
+  },
+  {
+   "t": 219.422,
+   "raw": "id: 563\ndata: {\"type\":\"text\",\"content\":\" \"}"
+  },
+  {
+   "t": 219.422,
+   "raw": "id: 564\ndata: {\"type\":\"text\",\"content\":\"9\"}"
+  },
+  {
+   "t": 219.435,
+   "raw": "id: 565\ndata: {\"type\":\"text\",\"content\":\" knots\"}"
+  },
+  {
+   "t": 219.437,
+   "raw": "id: 566\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 219.437,
+   "raw": "id: 567\ndata: {\"type\":\"text\",\"content\":\" Vis\"}"
+  },
+  {
+   "t": 219.437,
+   "raw": "id: 568\ndata: {\"type\":\"text\",\"content\":\" good\"}"
+  },
+  {
+   "t": 219.437,
+   "raw": "id: 569\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 219.437,
+   "raw": "id: 570\ndata: {\"type\":\"text\",\"content\":\" Two\"}"
+  },
+  {
+   "t": 219.437,
+   "raw": "id: 571\ndata: {\"type\":\"text\",\"content\":\" men\"}"
+  },
+  {
+   "t": 219.437,
+   "raw": "id: 572\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 219.507,
+   "raw": "id: 573\ndata: {\"type\":\"text\",\"content\":\" mainland\"}"
+  },
+  {
+   "t": 219.507,
+   "raw": "id: 574\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 219.507,
+   "raw": "id: 575\ndata: {\"type\":\"text\",\"content\":\" Asked\"}"
+  },
+  {
+   "t": 219.507,
+   "raw": "id: 576\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 219.507,
+   "raw": "id: 577\ndata: {\"type\":\"text\",\"content\":\" wrong\"}"
+  },
+  {
+   "t": 219.507,
+   "raw": "id: 578\ndata: {\"type\":\"text\",\"content\":\" question\"}"
+  },
+  {
+   "t": 219.507,
+   "raw": "id: 579\ndata: {\"type\":\"text\",\"content\":\" of\"}"
+  },
+  {
+   "t": 219.507,
+   "raw": "id: 580\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 219.823,
+   "raw": "id: 581\ndata: {\"type\":\"text\",\"content\":\" right\"}"
+  },
+  {
+   "t": 220.009,
+   "raw": "id: 582\ndata: {\"type\":\"text\",\"content\":\" woman\"}"
+  },
+  {
+   "t": 220.18,
+   "raw": "id: 583\ndata: {\"type\":\"text\",\"content\":\".\\\"\"}"
+  },
+  {
+   "t": 220.371,
+   "raw": "id: 584\ndata: {\"type\":\"text\",\"content\":\" This\"}"
+  },
+  {
+   "t": 220.371,
+   "raw": "id: 585\ndata: {\"type\":\"text\",\"content\":\" te\"}"
+  },
+  {
+   "t": 220.374,
+   "raw": "id: 586\ndata: {\"type\":\"text\",\"content\":\"led\"}"
+  },
+  {
+   "t": 220.374,
+   "raw": "id: 587\ndata: {\"type\":\"text\",\"content\":\"graphic\"}"
+  },
+  {
+   "t": 220.374,
+   "raw": "id: 588\ndata: {\"type\":\"text\",\"content\":\" format\"}"
+  },
+  {
+   "t": 220.374,
+   "raw": "id: 589\ndata: {\"type\":\"text\",\"content\":\" shift\"}"
+  },
+  {
+   "t": 220.376,
+   "raw": "id: 590\ndata: {\"type\":\"text\",\"content\":\" is\"}"
+  },
+  {
+   "t": 220.376,
+   "raw": "id: 591\ndata: {\"type\":\"text\",\"content\":\" both\"}"
+  },
+  {
+   "t": 220.424,
+   "raw": "id: 592\ndata: {\"type\":\"text\",\"content\":\" proof\"}"
+  },
+  {
+   "t": 220.424,
+   "raw": "id: 593\ndata: {\"type\":\"text\",\"content\":\" of\"}"
+  },
+  {
+   "t": 220.426,
+   "raw": "id: 594\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 220.603,
+   "raw": "id: 595\ndata: {\"type\":\"text\",\"content\":\" narrator\"}"
+  },
+  {
+   "t": 220.603,
+   "raw": "id: 596\ndata: {\"type\":\"text\",\"content\":\"'s\"}"
+  },
+  {
+   "t": 220.603,
+   "raw": "id: 597\ndata: {\"type\":\"text\",\"content\":\" procedural\"}"
+  },
+  {
+   "t": 220.604,
+   "raw": "id: 598\ndata: {\"type\":\"text\",\"content\":\" identity\"}"
+  },
+  {
+   "t": 220.604,
+   "raw": "id: 599\ndata: {\"type\":\"text\",\"content\":\" and\"}"
+  },
+  {
+   "t": 220.604,
+   "raw": "id: 600\ndata: {\"type\":\"text\",\"content\":\" a\"}"
+  },
+  {
+   "t": 220.743,
+   "raw": "id: 601\ndata: {\"type\":\"text\",\"content\":\" stylist\"}"
+  },
+  {
+   "t": 220.743,
+   "raw": "id: 602\ndata: {\"type\":\"text\",\"content\":\"ic\"}"
+  },
+  {
+   "t": 220.743,
+   "raw": "id: 603\ndata: {\"type\":\"text\",\"content\":\" sign\"}"
+  },
+  {
+   "t": 220.743,
+   "raw": "id: 604\ndata: {\"type\":\"text\",\"content\":\"post\"}"
+  },
+  {
+   "t": 220.743,
+   "raw": "id: 605\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 220.743,
+   "raw": "id: 606\ndata: {\"type\":\"text\",\"content\":\"\\n\\n\"}"
+  },
+  {
+   "t": 220.743,
+   "raw": "id: 607\ndata: {\"type\":\"text\",\"content\":\"-\"}"
+  },
+  {
+   "t": 220.743,
+   "raw": "id: 608\ndata: {\"type\":\"text\",\"content\":\" **\"}"
+  },
+  {
+   "t": 220.819,
+   "raw": "id: 609\ndata: {\"type\":\"text\",\"content\":\"The\"}"
+  },
+  {
+   "t": 220.819,
+   "raw": "id: 610\ndata: {\"type\":\"text\",\"content\":\" chapter\"}"
+  },
+  {
+   "t": 220.819,
+   "raw": "id: 611\ndata: {\"type\":\"text\",\"content\":\" closing\"}"
+  },
+  {
+   "t": 220.82,
+   "raw": "id: 612\ndata: {\"type\":\"text\",\"content\":\":**\"}"
+  },
+  {
+   "t": 220.82,
+   "raw": "id: 613\ndata: {\"type\":\"text\",\"content\":\" \\\"\"}"
+  },
+  {
+   "t": 220.973,
+   "raw": "id: 614\ndata: {\"type\":\"text\",\"content\":\"I\"}"
+  },
+  {
+   "t": 220.973,
+   "raw": "id: 615\ndata: {\"type\":\"text\",\"content\":\" do\"}"
+  },
+  {
+   "t": 220.973,
+   "raw": "id: 616\ndata: {\"type\":\"text\",\"content\":\" not\"}"
+  },
+  {
+   "t": 220.973,
+   "raw": "id: 617\ndata: {\"type\":\"text\",\"content\":\" know\"}"
+  },
+  {
+   "t": 220.973,
+   "raw": "id: 618\ndata: {\"type\":\"text\",\"content\":\",\\\"\"}"
+  },
+  {
+   "t": 220.973,
+   "raw": "id: 619\ndata: {\"type\":\"text\",\"content\":\" I\"}"
+  },
+  {
+   "t": 220.973,
+   "raw": "id: 620\ndata: {\"type\":\"text\",\"content\":\" said\"}"
+  },
+  {
+   "t": 220.973,
+   "raw": "id: 621\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 220.987,
+   "raw": "id: 622\ndata: {\"type\":\"text\",\"content\":\" /\"}"
+  },
+  {
+   "t": 220.987,
+   "raw": "id: 623\ndata: {\"type\":\"text\",\"content\":\" And\"}"
+  },
+  {
+   "t": 221.11,
+   "raw": "id: 624\ndata: {\"type\":\"text\",\"content\":\" that\"}"
+  },
+  {
+   "t": 221.111,
+   "raw": "id: 625\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 221.111,
+   "raw": "id: 626\ndata: {\"type\":\"text\",\"content\":\" at\"}"
+  },
+  {
+   "t": 221.111,
+   "raw": "id: 627\ndata: {\"type\":\"text\",\"content\":\" least\"}"
+  },
+  {
+   "t": 221.111,
+   "raw": "id: 628\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 221.111,
+   "raw": "id: 629\ndata: {\"type\":\"text\",\"content\":\" was\"}"
+  },
+  {
+   "t": 221.111,
+   "raw": "id: 630\ndata: {\"type\":\"text\",\"content\":\" true\"}"
+  },
+  {
+   "t": 221.25,
+   "raw": "id: 631\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 221.251,
+   "raw": "id: 632\ndata: {\"type\":\"text\",\"content\":\" The\"}"
+  },
+  {
+   "t": 221.251,
+   "raw": "id: 633\ndata: {\"type\":\"text\",\"content\":\" short\"}"
+  },
+  {
+   "t": 221.251,
+   "raw": "id: 634\ndata: {\"type\":\"text\",\"content\":\" declar\"}"
+  },
+  {
+   "t": 221.251,
+   "raw": "id: 635\ndata: {\"type\":\"text\",\"content\":\"ative\"}"
+  },
+  {
+   "t": 221.251,
+   "raw": "id: 636\ndata: {\"type\":\"text\",\"content\":\" land\"}"
+  },
+  {
+   "t": 221.251,
+   "raw": "id: 637\ndata: {\"type\":\"text\",\"content\":\"ings\"}"
+  },
+  {
+   "t": 221.251,
+   "raw": "id: 638\ndata: {\"type\":\"text\",\"content\":\" create\"}"
+  },
+  {
+   "t": 221.326,
+   "raw": "id: 639\ndata: {\"type\":\"text\",\"content\":\" a\"}"
+  },
+  {
+   "t": 221.326,
+   "raw": "id: 640\ndata: {\"type\":\"text\",\"content\":\" closing\"}"
+  },
+  {
+   "t": 221.326,
+   "raw": "id: 641\ndata: {\"type\":\"text\",\"content\":\"-mouth\"}"
+  },
+  {
+   "t": 221.326,
+   "raw": "id: 642\ndata: {\"type\":\"text\",\"content\":\" sound\"}"
+  },
+  {
+   "t": 221.326,
+   "raw": "id: 643\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 221.498,
+   "raw": "id: 644\ndata: {\"type\":\"text\",\"content\":\" The\"}"
+  },
+  {
+   "t": 221.499,
+   "raw": "id: 645\ndata: {\"type\":\"text\",\"content\":\" ambiguity\"}"
+  },
+  {
+   "t": 221.499,
+   "raw": "id: 646\ndata: {\"type\":\"text\",\"content\":\" is\"}"
+  },
+  {
+   "t": 221.499,
+   "raw": "id: 647\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 221.499,
+   "raw": "id: 648\ndata: {\"type\":\"text\",\"content\":\" chapter\"}"
+  },
+  {
+   "t": 221.499,
+   "raw": "id: 649\ndata: {\"type\":\"text\",\"content\":\"'s\"}"
+  },
+  {
+   "t": 221.499,
+   "raw": "id: 650\ndata: {\"type\":\"text\",\"content\":\" unresolved\"}"
+  },
+  {
+   "t": 221.668,
+   "raw": "id: 651\ndata: {\"type\":\"text\",\"content\":\" tension\"}"
+  },
+  {
+   "t": 221.668,
+   "raw": "id: 652\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 221.668,
+   "raw": "id: 653\ndata: {\"type\":\"text\",\"content\":\" carried\"}"
+  },
+  {
+   "t": 221.842,
+   "raw": "id: 654\ndata: {\"type\":\"text\",\"content\":\" without\"}"
+  },
+  {
+   "t": 221.842,
+   "raw": "id: 655\ndata: {\"type\":\"text\",\"content\":\" over\"}"
+  },
+  {
+   "t": 221.843,
+   "raw": "id: 656\ndata: {\"type\":\"text\",\"content\":\"statement\"}"
+  },
+  {
+   "t": 221.843,
+   "raw": "id: 657\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 221.843,
+   "raw": "id: 658\ndata: {\"type\":\"text\",\"content\":\"\\n\\n\"}"
+  },
+  {
+   "t": 221.843,
+   "raw": "id: 659\ndata: {\"type\":\"text\",\"content\":\"---\"}"
+  },
+  {
+   "t": 221.843,
+   "raw": "id: 660\ndata: {\"type\":\"text\",\"content\":\"\\n\\n\"}"
+  },
+  {
+   "t": 221.843,
+   "raw": "id: 661\ndata: {\"type\":\"text\",\"content\":\"**\"}"
+  },
+  {
+   "t": 221.858,
+   "raw": "id: 662\ndata: {\"type\":\"text\",\"content\":\"All\"}"
+  },
+  {
+   "t": 221.859,
+   "raw": "id: 663\ndata: {\"type\":\"text\",\"content\":\" checks\"}"
+  },
+  {
+   "t": 222.016,
+   "raw": "id: 664\ndata: {\"type\":\"text\",\"content\":\" pass\"}"
+  },
+  {
+   "t": 222.016,
+   "raw": "id: 665\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 222.016,
+   "raw": "id: 666\ndata: {\"type\":\"text\",\"content\":\" Chapter\"}"
+  },
+  {
+   "t": 222.017,
+   "raw": "id: 667\ndata: {\"type\":\"text\",\"content\":\" \"}"
+  },
+  {
+   "t": 222.017,
+   "raw": "id: 668\ndata: {\"type\":\"text\",\"content\":\"1\"}"
+  },
+  {
+   "t": 222.017,
+   "raw": "id: 669\ndata: {\"type\":\"text\",\"content\":\" is\"}"
+  },
+  {
+   "t": 222.017,
+   "raw": "id: 670\ndata: {\"type\":\"text\",\"content\":\" ready\"}"
+  },
+  {
+   "t": 222.124,
+   "raw": "id: 671\ndata: {\"type\":\"text\",\"content\":\" for\"}"
+  },
+  {
+   "t": 222.125,
+   "raw": "id: 672\ndata: {\"type\":\"text\",\"content\":\" publication\"}"
+  },
+  {
+   "t": 222.125,
+   "raw": "id: 673\ndata: {\"type\":\"text\",\"content\":\".**\"}"
+  },
+  {
+   "t": 222.126,
+   "raw": "id: 674\ndata: {\"type\":\"text\",\"content\":\" LINE\"}"
+  },
+  {
+   "t": 222.126,
+   "raw": "id: 675\ndata: {\"type\":\"text\",\"content\":\"_EDIT\"}"
+  },
+  {
+   "t": 222.126,
+   "raw": "id: 676\ndata: {\"type\":\"text\",\"content\":\"_REPORT\"}"
+  },
+  {
+   "t": 222.126,
+   "raw": "id: 677\ndata: {\"type\":\"text\",\"content\":\" written\"}"
+  },
+  {
+   "t": 222.126,
+   "raw": "id: 678\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 222.174,
+   "raw": "id: 679\ndata: {\"type\":\"cost_update\",\"content\":\"$0.0243\",\"metadata\":{\"inputTokens\":43448,\"outputTokens\":4960,\"costUsd\":0.024286679999999998,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+  },
+  {
+   "t": 222.32,
+   "raw": "id: 680\ndata: {\"type\":\"complete\",\"content\":\"Session completed successfully\",\"metadata\":{\"findingsCreated\":0,\"statusAdvanced\":false,\"suggestedNext\":[\"beta-read\"],\"tokensInput\":43448,\"tokensOutput\":4960,\"costUsd\":0.024286679999999998,\"endReason\":\"natural\"}}"
+  }
+ ]
+}

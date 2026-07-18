@@ -62,6 +62,26 @@ Three live instances in one journey:
 
 ---
 
+## Strong-model leg candidates (2026-07-18 evening; local IDs continue from C-8)
+
+## C-9 [S3] "Editor model" setting never governs line-edit sessions; model routing silently ignores the user's role choice
+
+- **Symptom:** with a validated Anthropic key stored and `PATCH /api/settings/default-model {modelEditor:"anthropic/opus"}` → 200, a line-edit run still billed `openrouter-qwen36/sonnet` (usage row + in-stream `cost_update` model field). Only overriding **modelCoach** made line-edit run on opus.
+- **Mechanism (code-verified):** line-edit sessions execute wholly on the conductor (coach role) — zero Delegate calls in any of 10+ session transcripts across both legs — so `resolveModelForRole("editor", …)` is never consulted for the work the user thinks of as "editing". Compounding it: wizard-created `book_settings` rows store tier names ("sonnet"/"opus") that `getModelDef` (exact registry-ID match, `model-registry.ts:527`) cannot resolve, so book-level overrides (resolution levels 1-2, `model-resolver.ts:152-174`) are silently inert for every wizard book.
+- **Impact:** a BYOK user who buys a premium key and sets "editor model" gets a different (cheaper/weaker) model with no error, no warning, and no visible model name in the session UI. Money-adjacent trust break; also invalidates any user's attempt at model A/B comparison.
+- **Evidence:** `api-traces/strong-setup.json` (override 200), usage_records dump in journey-log addendum (qwen billing post-override), `transcripts/line-edit-ch1-strong1-sse-raw.json` (cost_update model=qwen) vs `-strong2-` (model=opus after coach override).
+- **Severity:** S3 (silent misrouting of paid model choice; UX contract broken, not data loss).
+
+## C-10 [S3] BYOK per-key usage panel always shows $0 for key-scoped registry IDs (prefix-match bug)
+
+- **Symptom:** `GET /api/settings/api-keys` reported `usage: {totalTokens: 0, totalCost: 0, sessionCount: 0}` for the openrouter key after ~$0.39 of real recorded qwen spend (usage_records rows exist for the user).
+- **Code:** the route aggregates `usageRecord` with `model: { startsWith: "${provider}/" }` (`api-keys/route.ts:40-51`), but records store registry IDs like `openrouter-qwen36/sonnet`, which does not start with `openrouter/`. Any custom/key-scoped registry entry is invisible; only stock IDs (`anthropic/opus` etc.) aggregate. Related observability gap: `agent_sessions` has no model column and usage_records have no session/key FK, so per-session model provenance exists only in transient SSE `cost_update` events — nothing persisted ties a session to the model/key that billed it.
+- **Impact:** BYOK cost-transparency surface lies (shows $0 while the key spends); users cannot audit which key/model a given session used after the fact.
+- **Evidence:** keys listing in `api-traces/strong-setup.json` (zeros), usage totals in journey-log addendum, schema check (usage_records columns).
+- **Severity:** S3 (money-transparency defect on the BYOK trust surface).
+
+---
+
 ## Positive security/robustness notes (not defects)
 
 - Invalid Anthropic key: rejected at validation (400, clean copy) and **not stored** — account kept only the validated openrouter key.

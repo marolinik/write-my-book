@@ -1,0 +1,41 @@
+{
+ "content-before": {
+  "status": 200,
+  "wordCount": 240,
+  "version": 1,
+  "sha_len": 1222
+ },
+ "findings-before-count": 5,
+ "start": {
+  "status": 200,
+  "elapsed": 1.792,
+  "body": {
+   "sessionId": "40035b40-7ed7-45c0-b3a7-5ac4dce59cf3",
+   "queued": true,
+   "jobId": "40035b40-7ed7-45c0-b3a7-5ac4dce59cf3"
+  }
+ },
+ "stream": {
+  "n_events": 154,
+  "elapsed": 114.52,
+  "final": {
+   "type": "error",
+   "content": "Anthropic is experiencing temporary issues. The request will be retried automatically.",
+   "metadata": {
+    "action": "retry"
+   }
+  },
+  "sessionId": "40035b40-7ed7-45c0-b3a7-5ac4dce59cf3"
+ },
+ "d33-d34-scan": {
+  "REJECTED_count": 0,
+  "raw_typeerror_count": 0,
+  "error_executing_count": 0,
+  "suppressed_count": 0
+ },
+ "misquote-probe": {
+  "new_findings": 0,
+  "misquotes": 0,
+  "detail": []
+ }
+}

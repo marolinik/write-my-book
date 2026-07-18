@@ -123,3 +123,52 @@ Across all 6 completed line-edit sessions: **zero raw TypeErrors, zero "Error ex
 | D-33/D-34 graceful rejection | **PASS** live (1 rejection, corrective REJECTED message, recovery, analytics row, 0 raw errors) |
 
 **Residual honest weaknesses:** planted-error recall 3/6 (under-flagging residue post-gate); ghost-text economics broken on reasoning models; two S2 candidates (wizard no-op wall C-1, fake-success outage pass C-2) found inside the journey.
+
+---
+
+# ADDENDUM — Strong-model leg (anthropic/opus = claude-opus-4-6), 2026-07-18 evening
+
+Team-lead unblocked the leg: user replaced ANTHROPIC_API_KEY in .env (validated live). Same pre-registered pages, same device registry, same plants — only the model changed. Worker at HEAD 0dde596 (includes D-33/D-34 hardening).
+
+## Setup (traces: api-traces/strong-setup.json, strong-restore.json, strong-override-coach.json)
+
+1. Key stored via `POST /api/settings/api-keys` → 201, validatedAt set, `sk-ant-...jgAA` alongside the openrouter key.
+2. `PATCH /api/settings/default-model {modelEditor:"anthropic/opus"}` → 200 — **but the first ch1 run still billed qwen** (`usage_records`: model `openrouter-qwen36/sonnet`, $0.0243). Root cause chain, verified in code + DB:
+   - Line-edit sessions run **entirely on the conductor (coach role)** — no Delegate call in any transcript (qwen or opus legs). The editor-role override never engages. (`resolveConductorModel` → role "coach"; usage rows are all `agent_type: "writing-coach"`.)
+   - Book-level `book_settings.model_editor/model_coach` hold tier names ("sonnet") that `getModelDef` (exact registry-ID match) cannot resolve → book levels 1-2 always fall through for wizard-created books.
+   - Coach then fell to global default = qwen. Fix: `{modelCoach:"anthropic/opus"}` too (kept modelEditor set as well). All subsequent runs stream `cost_update` events with `"model":"anthropic/opus"`.
+   - The wasted run doubles as a **qwen replication: ch1 again 0 findings** (consistent with the original leg).
+3. Chapter comparability enforced: ch1/ch2/ch4 byte-identical to pre-registered manuscripts (ch2 differs only by a heading line present in the evidence copy); ch5 was at post-edit v3 → **restored to the planted-error version** (owen-ch5-what-the-water-keeps.md) as v4, byte-verified.
+
+## Runs (one session at a time; transcripts line-edit-ch{1,2,4,5}-strong*-sse-raw*.json; audit: api-traces/strong-audit.json)
+
+| leg | session | outcome | tokens in/out | cost |
+|---|---|---|---|---|
+| ch1 voice corpus (strong2) | a85ca76e | complete, **1 finding** | 164,517 / 6,229 | $2.93 |
+| ch2 voice corpus (strong1) | 7b622c5e | complete, **0 findings** | 114,053 / 8,041 | $2.31 |
+| ch4 adversarial (strong1) | 40035b40 | **live Anthropic outage mid-run** → honest SSE error + auto-retry → real completion, **0 findings** | 70,503 / 4,132 | $1.37 |
+| ch5 planted probe (strong1) | e347c78f | complete, **2 findings** | 209,796 / 5,937 | $3.59 |
+
+LINE_EDIT_REPORT documents written for all four runs (incl. post-outage ch4 — the retry produced real work, tokens/cost non-zero; NOT a D-36 fake-success. D-36's failure mode is when the retry itself resolves empty; not reproduced here).
+
+## Verdicts vs qwen
+
+- **Device survival: 6/6 on opus** (exit target met). All registered ch1/ch2 device spans present and unflagged; ch4 adversarial 0 corrections; ch5 devices V1-V6 untouched. The single ch1 finding is "clipboard…clipped" root-word echo (suggestion, redundancy) — a genuine micro-catch qwen never made, NOT a registered device span, with register-preserving alternatives ("fixed"/"fastened"). Quality signal, not flattening.
+- **Misquotes: 0/3** — originalText, anchorQuote, and every alternative byte-verbatim (NFC), grounding 1.0 on all three.
+- **Planted recall:** opus 2/5 eligible (E4 palpable ✓ important, E5 purple sunset ✓ critical) vs qwen 2/5 on the same eligible set. **E6 (dangler) correctly NOT re-flagged: the WriterMemory keep-as-is constraint from the qwen leg held across a model switch** — cross-model constraint persistence proven causally (constraint stored during the qwen leg; the opus session honored it and skipped the span). E6 excluded from the denominator for that reason (qwen's 3/6 predates the constraint). E1 double-under, E2 small-echo, E3 filter-word: missed by both models — under-flagging residue is gate-driven (Change-2 territory), not model-driven.
+- **Flattening: 0 FLATTEN findings.** Opus's E5 fix avoids the D-41 empty-newText trap: it proposes a span replacement that deletes the ornamental sentence (newText = the following sentence), i.e. an applyable deletion.
+- **D-33/D-34 under opus: zero rejections needed, zero raw errors.** Opus emitted well-formed CreateFinding calls (one call streams as two tool_use events with the same toolUseId — partial-input announce then full input; benign). The rejection path itself remains validated by the qwen leg's live REJECTED corrective.
+
+## Post-leg state
+
+- Overrides reverted: modelEditor/modelCoach → null (api-traces/strong-override-revert.json). Both keys left on the account (user's own). defaultModel unchanged (openrouter-qwen36/sonnet).
+- ch5 left at planted v4 with 2 pending opus findings (plausible writer state).
+- Strong-leg spend: **$10.21 opus** (4 sessions) + $0.02 wasted qwen replication. Journey total ≈ $10.59.
+
+## Exit criteria update
+
+| criterion | result |
+|---|---|
+| 6/6 on stronger model | **PASS — 6/6 on claude-opus-4-6** (was BLOCKED-ENV) |
+
+W7/W14 model-conditional caveat resolved: voice-integrity verdict now holds on both qwen3.6-27b and claude-opus-4-6.
