@@ -355,7 +355,7 @@ pipeline: a silent integrity hole and a per-scan money leak on the user's own BY
 
 **Reported, not fixed. Canonical ID = D-28 (assigned by team-lead 2026-07-18).**
 
-## NEW (ID pending team-lead, #1 of this session) — [S1 candidate, CROSS-BOOK/CROSS-TENANT GRAPH WRITE] `upsertRelationship()` binds no `bookId`: one book's extraction writes relationship edges into EVERY book (any user) containing same-named characters, producing false continuity flags in books the author never touched
+## D-30 — [S1 candidate, CROSS-BOOK/CROSS-TENANT GRAPH WRITE] `upsertRelationship()` binds no `bookId`: one book's extraction writes relationship edges into EVERY book (any user) containing same-named characters, producing false continuity flags in books the author never touched
 
 > Filed 2026-07-18 by the moat re-verify executor. Highest known assigned ID at time of writing:
 > D-29. This executor does not self-assign.
@@ -423,7 +423,7 @@ book B holds same-named characters; assert B's edge set unchanged. A data-repair
 needed: existing cross-contaminated edges (identifiable as `r.chapter` values outside the book's
 real chapter range, or by shared-timestamp forensics) should be audited/removed.
 
-## NEW (ID pending team-lead, #2 of this session) — [S2, MOAT DATA LOSS + POISONED SUCCESS] An LLM extraction that returns an EMPTY result is recorded as SUCCESS: the chapter's previous graph contribution is already deleted (`removeChapterEntities`) and the content-hash is stamped, so the loss is permanent and no re-scan will ever retry
+## D-31 — [S2, MOAT DATA LOSS + POISONED SUCCESS] An LLM extraction that returns an EMPTY result is recorded as SUCCESS: the chapter's previous graph contribution is already deleted (`removeChapterEntities`) and the content-hash is stamped, so the loss is permanent and no re-scan will ever retry
 
 > Filed 2026-07-18 by the moat re-verify executor. Sibling of D-28 but the OPPOSITE failure
 > polarity: D-28 = extraction that never succeeds → unbounded billed retries; this = extraction
@@ -470,9 +470,9 @@ fails validation) is indistinguishable from a genuinely successful extraction.
 
 ### Status
 
-**Reported, not fixed. ID pending team-lead.**
+**Reported, not fixed. ID assigned by team-lead 2026-07-18.**
 
-## NEW (ID pending team-lead, #3 of this session) — [S2, MOAT RESIDUAL after D-19 fix] The one genuinely-revived check (`dead_character_reappears`) is fragile in three specific, reproducible ways; `timeline_violation` remains effectively dead despite being enabled
+## D-32 — [S2, MOAT RESIDUAL after D-19 fix] The one genuinely-revived check (`dead_character_reappears`) is fragile in three specific, reproducible ways; `timeline_violation` remains effectively dead despite being enabled
 
 > Filed 2026-07-18 by the moat re-verify executor. Not a regression of the D-19 fix — the fix's
 > own mechanics verified correct (stamping + coalesce preservation + real-participation gate all
@@ -525,4 +525,4 @@ conflict.
 
 ### Status
 
-**Reported, not fixed. ID pending team-lead.**
+**Reported, not fixed. ID assigned by team-lead 2026-07-18.**
