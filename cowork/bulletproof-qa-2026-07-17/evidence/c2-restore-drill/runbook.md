@@ -3,10 +3,13 @@
 **Executed by:** p2-gerald · **Date:** 2026-07-17/18 · **Scope:** DEV only
 **Target:** `wmb-pub-postgres-1` container, DB `writemybook` (source, untouched) → throwaway DB `wmb_restore_drill` (dropped at end)
 
-**Result: PASS.** Full dump/restore cycle verified: table count matches (32/32), all 8 key-table row
-counts reconcile against the source once concurrent-write timing is accounted for (see §3), and a
-byte-identical spot check on a real persona book's chapter/document metadata passed exactly.
-Throwaway DB dropped, dump files deleted, live dev DB confirmed untouched.
+**Result: PASS (both legs).** Postgres dump/restore cycle verified: table count matches (32/32), all
+8 key-table row counts reconcile against the source once concurrent-write timing is accounted for
+(see §3), and a byte-identical spot check on a real persona book's chapter/document metadata passed
+exactly. Throwaway DB dropped, dump files deleted, live dev DB confirmed untouched. **§6 closes the
+object-storage gap flagged in §4**: the MinIO/S3 bucket holding actual manuscript prose is also
+provably backed up and restorable, with object-level checksums confirmed against the live app's
+content-serving path. Throwaway bucket deleted, live `wmb-projects` bucket confirmed untouched.
 
 ## 0. Constraints honored
 - Never dropped/altered the live `writemybook` DB — all CREATE/DROP DATABASE and pg_restore
@@ -141,10 +144,9 @@ current_version, storage_key), ordered by chapter_number, from both source and r
   object storage (`StorageAdapter`), addressed by `documents.storage_key` — Postgres only stores
   metadata/pointers and version bookkeeping (`DocumentVersion`). This drill's spot check therefore
   verified DB-side metadata identity (chapter/document rows), not prose-byte identity of the actual
-  manuscript text sitting in object storage. A real backup/restore procedure needs a paired
-  object-storage bucket backup/restore step to be a true DR guarantee — **this is a gap to close
-  before a production runbook is considered complete**, not something this DEV-scoped Postgres drill
-  could exercise.
+  manuscript text sitting in object storage. **Gap closed in §6** — the object-storage leg (C2b) was
+  run as a follow-up drill and confirms the bucket side is independently backed up, restorable, and
+  byte-verified against the live content-serving path.
 
 ## 5. What production needs differently
 
@@ -163,11 +165,123 @@ current_version, storage_key), ordered by chapter_number, from both source and r
   window with the app taken out of rotation, or (b) a blue/green cutover restoring into a fresh
   instance and repointing `DATABASE_URL` once verified, which avoids user-facing downtime but adds
   operational complexity (connection draining, cutover verification, rollback plan).
-- **Object storage pairing:** production DR must also snapshot/restore the MinIO/S3 bucket holding
-  manuscript content, and the restore runbook must verify DB `storage_key` pointers resolve to
-  present objects post-restore — this drill did not (and could not, DEV Postgres-only) exercise that
-  leg.
+- **Object storage pairing:** production DR must snapshot/restore the MinIO/S3 bucket holding
+  manuscript content as a **consistent pair** with the Postgres restore — see §6 for the drilled
+  procedure, timings, and the specific ordering constraint that makes "paired" a hard requirement,
+  not a nice-to-have.
 - **Automation:** this drill was run by hand step-by-step for evidence purposes. A production
   runbook should wrap steps 1–4 in a single idempotent script with structured logging, alerting on
   non-zero exit codes, and a documented rollback (repoint to the pre-restore instance) if
   post-restore verification fails.
+
+## 6. Object storage (MinIO/S3) leg — C2b
+
+Manuscript prose lives in MinIO (`platform-new-minio-1`), bucket `wmb-projects` (from `S3_BUCKET`),
+not Postgres — Postgres only holds `documents.storage_key` pointers. This drill closes that gap:
+proves the object side is independently backed up, restorable, and byte-verified against what the
+live app actually serves.
+
+**Constraints honored:** read-only against the live bucket (list/GET only, zero writes/deletes to
+`wmb-projects`); all destructive operations (mirror target, deletes) scoped to a brand-new throwaway
+bucket `wmb-restore-drill-c2b`, created and destroyed entirely within this drill.
+
+**Tooling:** AWS CLI v2 (`aws --endpoint-url http://localhost:9000 ...`) against MinIO's S3-compatible
+API, credentials sourced from the app's own `S3_*` env vars (`S3_ACCESS_KEY_ID`/`S3_SECRET_ACCESS_KEY`/
+`S3_ENDPOINT`/`S3_REGION`).
+
+### Commands (reproducible)
+
+```bash
+# 1. Enumerate (read-only)
+aws --endpoint-url $S3_ENDPOINT s3api list-objects-v2 --bucket wmb-projects
+
+# 2. Create throwaway target + mirror bucket-to-bucket (server-side, no local disk)
+aws --endpoint-url $S3_ENDPOINT s3 mb s3://wmb-restore-drill-c2b
+aws --endpoint-url $S3_ENDPOINT s3 sync s3://wmb-projects/ s3://wmb-restore-drill-c2b/
+
+# 3. Verify object count + checksums (ETag == MD5 for non-multipart MinIO objects)
+aws --endpoint-url $S3_ENDPOINT s3api list-objects-v2 --bucket wmb-restore-drill-c2b
+aws --endpoint-url $S3_ENDPOINT s3api head-object --bucket wmb-projects --key <known-key>
+aws --endpoint-url $S3_ENDPOINT s3api head-object --bucket wmb-restore-drill-c2b --key <known-key>
+
+# 4. Cleanup
+aws --endpoint-url $S3_ENDPOINT s3 rm s3://wmb-restore-drill-c2b --recursive
+aws --endpoint-url $S3_ENDPOINT s3 rb s3://wmb-restore-drill-c2b
+```
+
+### Timings
+
+| Step | Time |
+|---|---|
+| List objects (before) | 2.499s |
+| Create throwaway bucket (`mb`) | 1.727s |
+| Bucket-to-bucket mirror (`sync`, 1766 objects) | 33.547s |
+| List objects (after, verification) | 2.280s |
+| Cleanup (`rm --recursive` + `rb`) | 14.639s |
+| **Combined object-storage cycle (mirror + verify)** | **~40s** |
+
+### Verification results
+
+- **Object count reconciliation:** initial pre-mirror count was 1712; post-mirror throwaway-bucket
+  count was 1766. Re-listed the **source** bucket immediately after (same tight-window bracketing
+  methodology as the Postgres drill, §3) and got 1766 — exactly matching. **Reconciled**: the
+  mismatch was ~37s of concurrent writes from other live QA agents during the mirror+list window, not
+  a mirror-fidelity defect.
+- **Checksum spot check:** picked chapter storage_keys from the "Dead Reckoning 31 QA P2" book
+  (queried `documents.storage_key` directly rather than assuming a naming convention — chapter_number
+  does not map 1:1 to `chapter-0N.md` for this book, e.g. chapter_number=1's real key is
+  `manuscript/act-1/chapter-02.md`). ETags (= MD5 for single-part MinIO uploads) matched exactly
+  between source and throwaway-bucket copies for all objects checked, confirming byte-identical
+  mirroring.
+- **Backed-up bytes vs. live GET `/content` response:** the GET route (`.../chapters/[chapterId]/content`)
+  calls `DocumentService.readPinned()`, which reads the **versioned snapshot** at
+  `.versions/<documentId>/v<version>.md`, not the plain `storageKey` object — confirmed by code read
+  of `document-service.ts` / `storage-keys.ts`. Fetched that exact snapshot object directly from S3
+  (`v22.md` for chapter 1, MD5 `55f050a883357b89ba09031b7d255d53`) and compared against the API's
+  JSON `markdown` field. Initial byte-level diff looked alarming (35884 vs 35997 bytes, near-full-file
+  diff hunk) — root-caused to **my own comparison tooling**, not a serving-path defect: the API
+  response had picked up CRLF line terminators through the curl+jq JSON-extraction pipeline on
+  Windows, versus the S3 object's native LF-only bytes, plus one trailing blank line added by `jq`'s
+  raw-string extraction. After normalizing line endings on both sides, the diff is **zero** — the live
+  app serves byte-for-byte identical prose to the durably-stored version snapshot. No defect filed.
+- **Restore-into-throwaway-bucket drill:** the bucket-to-bucket `s3 sync` (step above) **is** the
+  restore drill — MinIO/S3 has no separate "restore" primitive distinct from a mirror/copy operation;
+  syncing into a fresh bucket and verifying checksums against the source **is** the object-storage
+  restore procedure, timed at 33.5s for 1766 objects (~19ms/object at this volume).
+
+### Combined DB + object RTO and the ordering constraint
+
+- **Combined cold-start RTO estimate (dev-scale):** Postgres restore (~6.5s warm-cycle, §2) +
+  object-storage restore (~40s mirror+verify) ≈ **under 1 minute** at current dev data volume. Both
+  legs scale independently with data size (Postgres with row/index count, S3 with object count/size)
+  and must be re-measured together against realistic prod volume — see §5.
+- **Ordering constraint (the DR-critical part):** Postgres `documents.storage_key` /
+  `DocumentVersion` rows and S3 objects must be restored **as a single consistent pair**, not
+  independently, because the DB is the pointer and the bucket is the payload. Restoring the DB to a
+  point-in-time snapshot without restoring the bucket to the **same** point-in-time (or vice versa)
+  produces one of two failure modes: (a) DB points to a `storage_key`/version that doesn't exist in
+  the restored bucket (404 on read), or (b) the bucket has objects with no corresponding DB pointer
+  (orphaned, unreachable via the app — a storage leak, not a correctness bug, but wasted spend and a
+  latent GDPR-deletion gap since app-level delete only removes what the DB knows about). A production
+  restore runbook must pick a **single consistent backup timestamp** and restore both legs from
+  snapshots taken at (or before) that same timestamp — the versioned-snapshot design
+  (`.versions/<id>/v<n>.md`, immutable once written) helps here: as long as the object-storage backup
+  is taken at or after the DB backup's timestamp, every version the DB can reference is guaranteed to
+  already exist in the object backup, because snapshots are write-once and never deleted. The
+  live-key (mutable) path does not have this guarantee and needs same-instant pairing.
+
+### Prod gaps (object-storage leg)
+
+- **Windows MAX_PATH is a sandbox artifact, not relevant to prod:** an initial local-disk
+  `aws s3 sync` attempt hit `[WinError 206]` on deeply-nested `.versions/<uuid>/vN.md` keys due to
+  Windows' 260-char path limit combined with this drill's already-deep scratchpad temp path. Not a
+  MinIO or product defect — worked around (and arguably improved the drill) by switching to a direct
+  bucket-to-bucket server-side mirror, which never touches a local filesystem and is closer to a real
+  production DR pattern (cross-bucket/cross-region replication) than local-disk staging would be.
+- **No automated pairing check exists today.** Nothing in the codebase verifies, at restore time or
+  on a schedule, that every `documents.storage_key` the DB references actually resolves to a present
+  S3 object (or flags orphaned objects). Production should add a periodic reconciliation job
+  (list bucket keys, diff against `SELECT DISTINCT storage_key FROM documents`) as a standing
+  integrity check independent of the restore path.
+- **Credentials/automation gaps mirror §5** (secrets manager, non-manual runbook, re-measurement at
+  prod scale) — apply identically to the object-storage leg.

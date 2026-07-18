@@ -71,7 +71,69 @@
     "credentials must come from secrets manager, not .env",
     "RTO must be re-measured against realistic prod-sized data (this dev drill: 32 tables, ~196KB dump, <15s total)",
     "requires maintenance window or blue/green cutover strategy for a live prod restore",
-    "object storage (MinIO/S3) bucket backup/restore is a separate, unexercised leg required for a true DR guarantee",
     "should be wrapped in an idempotent, logged, alerting automation script rather than run by hand"
-  ]
+  ],
+  "object_storage_leg_c2b": {
+    "drill": "C2b-minio-s3-backup-restore",
+    "verdict": "PASS",
+    "target": {
+      "container": "platform-new-minio-1",
+      "source_bucket": "wmb-projects",
+      "throwaway_bucket": "wmb-restore-drill-c2b"
+    },
+    "constraints_honored": [
+      "live wmb-projects bucket: read-only (list/GET only), never mutated",
+      "all destructive ops (mirror target, deletes) scoped to wmb-restore-drill-c2b only",
+      "no src/ edits, no server/worker restarts"
+    ],
+    "timings_seconds": {
+      "list_objects_before": 2.499,
+      "create_throwaway_bucket": 1.727,
+      "bucket_to_bucket_mirror_1766_objects": 33.547,
+      "list_objects_after": 2.280,
+      "cleanup_rm_and_rb": 14.639
+    },
+    "verification": {
+      "object_count_reconciliation": {
+        "initial_source_count": 1712,
+        "post_mirror_throwaway_count": 1766,
+        "source_recount_after_mirror_window": 1766,
+        "conclusion": "mismatch was ~37s of concurrent writes from other live QA agents during the mirror+list window, not a mirror-fidelity defect - same tight-window bracketing methodology as the Postgres drill"
+      },
+      "checksum_spot_check": {
+        "book_name": "Dead Reckoning 31 QA P2",
+        "book_id": "636a1f02-8520-4b66-8e78-08c8e0fee5f0",
+        "method": "ETag comparison (ETag = MD5 for single-part MinIO uploads) between source and throwaway-bucket copies",
+        "result": "all checked objects ETag-identical"
+      },
+      "backed_up_bytes_vs_live_get_content_response": {
+        "route": "GET /api/books/[id]/chapters/[chapterId]/content",
+        "read_path": "DocumentService.readPinned() -> .versions/<documentId>/v<version>.md (versioned snapshot, not the mutable live storageKey)",
+        "target": { "documentId": "f7383200-07ac-4a6d-9823-c7c7f116946e", "version": 22, "md5_s3_snapshot": "55f050a883357b89ba09031b7d255d53" },
+        "initial_apparent_diff": "35884 vs 35997 bytes, near-full-file diff hunk",
+        "root_cause": "artifact of my own curl+jq extraction pipeline on Windows: API response picked up CRLF line terminators (source S3 object is LF-only) plus one trailing blank line added by jq's raw-string extraction",
+        "after_normalizing_line_endings": "zero content diff",
+        "conclusion": "live app serves byte-for-byte identical prose to the durably-stored version snapshot; no defect filed",
+        "result": "PASS"
+      },
+      "restore_into_throwaway_bucket_drill": {
+        "method": "bucket-to-bucket s3 sync IS the restore drill (MinIO/S3 has no separate restore primitive distinct from mirror/copy)",
+        "objects_restored": 1766,
+        "duration_seconds": 33.547
+      }
+    },
+    "combined_db_plus_object_rto_seconds_dev_scale": "under 60 (Postgres ~6.5s warm-cycle + object storage ~40s mirror+verify)",
+    "ordering_constraint": "Postgres documents.storage_key/DocumentVersion rows and S3 objects must be restored as a single consistent pair from the same (or compatible) point-in-time snapshot; the versioned-snapshot design (write-once, never deleted) means an object backup taken at-or-after the DB backup timestamp is guaranteed to contain every version the DB can reference - the mutable live-key path does not have this guarantee and needs same-instant pairing",
+    "cleanup": {
+      "throwaway_bucket_objects_deleted": true,
+      "throwaway_bucket_removed": true,
+      "partial_local_backup_dir_deleted": true,
+      "live_wmb_projects_bucket_confirmed_untouched": true
+    },
+    "gaps_for_production": [
+      "Windows MAX_PATH hit on local-disk sync of deeply-nested .versions/<uuid>/vN.md keys - sandbox artifact only, worked around via bucket-to-bucket server-side mirror (also a better prod DR pattern than local-disk staging)",
+      "no automated reconciliation job exists to verify every documents.storage_key resolves to a present S3 object (or flag orphans) - should be added as a standing integrity check independent of the restore path",
+      "credentials/automation gaps mirror the Postgres leg's gaps_for_production list"
+    ]
+  }
 }
