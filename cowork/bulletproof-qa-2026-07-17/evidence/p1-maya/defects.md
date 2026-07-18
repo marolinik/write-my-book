@@ -141,3 +141,12 @@ Two suspected defects raised earlier in this session — em-dash "mojibake" in d
 **Evidence:** both attempts' toolInputs verbatim in `transcripts/d13-reverify-dev-edit-4-sse-raw.json`.
 
 **Fix direction:** explicit presence/type validation of paragraphNumber before range check; rejection message naming the missing field; keep analytics write on the rejection path.
+
+## D-34 (S3) — CreateFinding: two more unchecked-input crash holes in the same class as D-33 (anchorQuote, alternatives items)
+
+**Found by:** fixer-d33 during the D-33 sweep (2026-07-18). Filed by team-lead; fix assigned to the same fixer, same worktree.
+
+1. Omitted `anchorQuote` → `fuzzyMatch(undefined, ...)` throws the identical `needle.normalize` TypeError at `tools.ts:96`.
+2. Present-but-malformed `alternatives` item missing `originalText` passes the length-only check and crashes in `computeGroundingScore` post-validation.
+
+Same impact profile as D-33: raw internal error string returned to the model instead of corrective rejection; rejected-row analytics bypassed. Fix: same rejection shape as D-33, plus a sweep of remaining string fields reaching fuzzyMatch/normalize/computeGroundingScore.
