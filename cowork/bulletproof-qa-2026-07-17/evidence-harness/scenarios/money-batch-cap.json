@@ -1,0 +1,17 @@
+{
+  "suiteId": "money-batch-cap",
+  "protocolRef": "GRADING-PROTOCOL.md §risky-row re-capture (batch spend); W6 bound / Z8 / D-62",
+  "preRegistered": {
+    "metric": "batch-spend-bound",
+    "n": 3,
+    "unit": "batches (incl. 1 at-cap)",
+    "threshold": "total spend <= cap + (concurrency-1)*maxPerSessionCap; ledger==DB==digest; skipped children status=skipped; no crash re-spend; breaker increments",
+    "model": "openrouter-qwen36 (real model, real spend)",
+    "declaredAt": "on-commit"
+  },
+  "collision": "W-B (Z8 re-spend, D-62 breaker) in flight — checks encode post-fix contract; red until merge is valid evidence",
+  "checks": [
+    { "id": "spend-bound-*", "method": "numericBound", "note": "documented bound src/lib/agents/batch-budget.ts:25-28, concurrency src/worker.ts:44" },
+    { "id": "digest-nonneg", "method": "numericBound", "note": "digest total >= 0; three-source reconciliation ledger/DB/digest" }
+  ]
+}

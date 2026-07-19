@@ -1,0 +1,17 @@
+{
+  "suiteId": "graph-state",
+  "protocolRef": "GRADING-PROTOCOL.md §risky-row re-capture (injection); D-63 verification",
+  "preRegistered": {
+    "metric": "graph-injection-safety",
+    "n": 1,
+    "unit": "attack replay + full enum sweep",
+    "threshold": "0 foreign relationship types in attacker subgraph; bystander subgraph byte-identical before/after",
+    "model": "openrouter-qwen36 (extraction path)",
+    "declaredAt": "on-commit"
+  },
+  "collision": "opus-fix-sec (D-63) — payload coordinated with evidence/d63-cypher-injection.md",
+  "checks": [
+    { "id": "enum-sweep", "method": "numericBound", "note": "every rel type is a member of the schema enum" },
+    { "id": "bystander-untouched", "method": "jsonPathEquals", "note": "a SECOND user's subgraph is byte-identical before/after the attack" }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "suiteId": "autosave-api",
+  "protocolRef": "GRADING-PROTOCOL.md §Metric pre-registration, row 4 (autosave data-safety)",
+  "preRegistered": {
+    "metric": "autosave-no-loss",
+    "n": 20,
+    "unit": "injections per scenario class",
+    "threshold": "0 lost words per class",
+    "model": "n/a (data-safety, not model-conditional)",
+    "declaredAt": "on-commit"
+  },
+  "classes": [
+    "two-writer-409-race (API)",
+    "worker-death-mid-write (API)",
+    "offline-autosave (browser — offline-autosave.harness.spec)",
+    "immersive-kill + crash-restart (browser)"
+  ],
+  "checks": [
+    { "id": "no-lost-words", "method": "numericBound", "note": "each INJ-n marker present verbatim in GET content" },
+    { "id": "conflict-detected", "method": "numericBound", "note": ">=1 409 across concurrent PUTs" },
+    { "id": "coverage-injections", "method": "countAtLeast", "note": "fail-closed UNDER-N if < 20 injections; browser-blocked class seals UNDER-N honestly, never extrapolated" }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "suiteId": "money-proration",
+  "protocolRef": "GRADING-PROTOCOL.md §risky-row re-capture (billing); B1 / D-45 re-run",
+  "preRegistered": {
+    "metric": "proration-correctness",
+    "n": 3,
+    "unit": "lifecycle transitions",
+    "threshold": "prorationLines.length>0; every response ok; lines sum to invoice total; app==Stripe entitlement; 0 persona drift",
+    "model": "n/a (money-path, not model-conditional)",
+    "declaredAt": "on-commit"
+  },
+  "collision": "W-B fixers (B1/D-45) in flight — checks encode the POST-FIX contract; red until W-B merges is valid evidence",
+  "checks": [
+    { "id": "proration-lines-present", "method": "numericBound", "note": "D-45 fabrication narrated over EMPTY prorationLines — this must be >0" },
+    { "id": "webhook-ok-*", "method": "numericBound", "note": "every /api/billing/webhook response 2xx (D-45 raw was ok:false)" },
+    { "id": "persona-isolation-no-drift", "method": "jsonPathEquals", "note": "user_qa_* subscription rows byte-identical before/after" }
+  ]
+}
