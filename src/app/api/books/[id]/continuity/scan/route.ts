@@ -6,6 +6,8 @@ import {
   updateFromChapter,
   getChapterExtractionFacts,
   MAX_EMPTY_EXTRACTION_ATTEMPTS,
+  MAX_FAILED_EXTRACTION_ATTEMPTS,
+  FAILED_BACKOFF_MS,
 } from "@/lib/graph/graph-maintenance";
 import { getExtractionKeysForUser } from "@/lib/agents/extraction-keys";
 import { runConsistencyChecks, getChapterNodeUpdatedAt } from "@/lib/graph/graph-queries";
@@ -108,6 +110,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         now,
         minIntervalMs: EXTRACT_MIN_INTERVAL_MS,
         maxAttempts: MAX_EMPTY_EXTRACTION_ATTEMPTS,
+        maxFailedAttempts: MAX_FAILED_EXTRACTION_ATTEMPTS,
+        failedBackoffMs: FAILED_BACKOFF_MS,
       });
     } catch (err) {
       console.error("[continuity-scan] extraction status unavailable:", err);

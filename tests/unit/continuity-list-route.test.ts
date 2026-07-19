@@ -23,6 +23,8 @@ vi.mock("@/lib/db", () => ({ db: h.db }));
 vi.mock("@/lib/graph/graph-maintenance", () => ({
   getChapterExtractionFacts: h.getChapterExtractionFacts,
   MAX_EMPTY_EXTRACTION_ATTEMPTS: 5,
+  MAX_FAILED_EXTRACTION_ATTEMPTS: 5,
+  FAILED_BACKOFF_MS: 30 * 60 * 1000,
 }));
 
 import { GET, DELETE } from "@/app/api/books/[id]/continuity/route";
@@ -47,7 +49,8 @@ beforeEach(() => {
   h.db.continuityFlag.deleteMany.mockResolvedValue({ count: 1 });
   h.getChapterExtractionFacts.mockResolvedValue({
     hasNode: true, contentHash: "abc", emptyExtractionCount: 0,
-    lastEmptyExtractionAt: null, lowYield: false, updatedAt: new Date(),
+    lastEmptyExtractionAt: null, failedExtractionCount: 0, lastFailedExtractionAt: null,
+    lastFailureReason: null, lowYield: false, updatedAt: new Date(),
   });
 });
 
@@ -78,7 +81,8 @@ describe("GET /continuity (read-only listing)", () => {
   it("returns the honest extraction status when a chapterNumber is given", async () => {
     h.getChapterExtractionFacts.mockResolvedValue({
       hasNode: true, contentHash: null, emptyExtractionCount: 5,
-      lastEmptyExtractionAt: new Date(), lowYield: false, updatedAt: new Date(),
+      lastEmptyExtractionAt: new Date(), failedExtractionCount: 0, lastFailedExtractionAt: null,
+      lastFailureReason: null, lowYield: false, updatedAt: new Date(),
     });
     const res = await GET(req("GET", "?chapterNumber=7") as never, ctx as never);
     const json = await res.json();

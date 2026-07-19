@@ -23,6 +23,8 @@ vi.mock("@/lib/graph/graph-maintenance", () => ({
   updateFromChapter: h.updateFromChapter,
   getChapterExtractionFacts: h.getChapterExtractionFacts,
   MAX_EMPTY_EXTRACTION_ATTEMPTS: 5,
+  MAX_FAILED_EXTRACTION_ATTEMPTS: 5,
+  FAILED_BACKOFF_MS: 30 * 60 * 1000,
 }));
 vi.mock("@/lib/agents/extraction-keys", () => ({ getExtractionKeysForUser: h.getExtractionKeysForUser }));
 vi.mock("@/lib/graph/graph-queries", () => ({
@@ -60,7 +62,8 @@ beforeEach(() => {
   h.updateFromChapter.mockResolvedValue({ updated: true, entitiesFound: 3 });
   h.getChapterExtractionFacts.mockResolvedValue({
     hasNode: true, contentHash: "abc", emptyExtractionCount: 0,
-    lastEmptyExtractionAt: null, lowYield: false, updatedAt: new Date(),
+    lastEmptyExtractionAt: null, failedExtractionCount: 0, lastFailedExtractionAt: null,
+    lastFailureReason: null, lowYield: false, updatedAt: new Date(),
   });
   h.getExtractionKeysForUser.mockResolvedValue({});
   h.getChapterNodeUpdatedAt.mockResolvedValue(null);
@@ -121,7 +124,8 @@ describe("POST /continuity/scan", () => {
     h.getChapterNodeUpdatedAt.mockResolvedValue(new Date(Date.now() - 10_000)); // throttled
     h.getChapterExtractionFacts.mockResolvedValue({
       hasNode: true, contentHash: null, emptyExtractionCount: 5,
-      lastEmptyExtractionAt: new Date(), lowYield: false, updatedAt: new Date(),
+      lastEmptyExtractionAt: new Date(), failedExtractionCount: 0, lastFailedExtractionAt: null,
+      lastFailureReason: null, lowYield: false, updatedAt: new Date(),
     });
     h.runConsistencyChecks.mockResolvedValue([]); // no flags detected
     const res = await POST(req("?chapterNumber=18") as never, ctx as never);
@@ -129,14 +133,34 @@ describe("POST /continuity/scan", () => {
     expect(json.flags).toEqual([]);
     // An empty flag list with a FAILED extraction must not read as "clean".
     expect(json.extraction.state).toBe("failed");
+    expect(json.extraction.kind).toBe("empty"); // unparseable content → edit
     expect(json.extraction.capped).toBe(true);
+  });
+
+  it("distinguishes a transient (provider) failure from an empty one, with a reason (D-73 E4)", async () => {
+    h.getChapterNodeUpdatedAt.mockResolvedValue(new Date(Date.now() - 10_000)); // throttled
+    h.getChapterExtractionFacts.mockResolvedValue({
+      hasNode: true, contentHash: null, emptyExtractionCount: 0,
+      lastEmptyExtractionAt: null, failedExtractionCount: 5,
+      lastFailedExtractionAt: new Date(), lastFailureReason: "provider 503",
+      lowYield: false, updatedAt: new Date(),
+    });
+    h.runConsistencyChecks.mockResolvedValue([]);
+    const res = await POST(req("?chapterNumber=18") as never, ctx as never);
+    const json = await res.json();
+    expect(json.extraction.state).toBe("failed");
+    expect(json.extraction.kind).toBe("failed"); // infra, not content → wait/retry
+    expect(json.extraction.reason).toBe("provider 503");
+    expect(json.extraction.capped).toBe(true);
+    expect(typeof json.extraction.retryEligibleAt).toBe("number"); // backoff self-heal time
   });
 
   it("reports PENDING when the chapter was never extracted", async () => {
     h.getChapterNodeUpdatedAt.mockResolvedValue(new Date(Date.now() - 10_000)); // throttled, nothing to extract
     h.getChapterExtractionFacts.mockResolvedValue({
       hasNode: false, contentHash: null, emptyExtractionCount: 0,
-      lastEmptyExtractionAt: null, lowYield: false, updatedAt: null,
+      lastEmptyExtractionAt: null, failedExtractionCount: 0, lastFailedExtractionAt: null,
+      lastFailureReason: null, lowYield: false, updatedAt: null,
     });
     h.runConsistencyChecks.mockResolvedValue([]);
     const res = await POST(req("?chapterNumber=18") as never, ctx as never);

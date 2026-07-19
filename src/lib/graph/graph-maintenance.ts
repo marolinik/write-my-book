@@ -56,6 +56,21 @@ export const LOW_YIELD_MIN_WORDS = 800;
 export const LOW_YIELD_MAX_ITEMS = 1;
 
 /**
+ * Hard-failure (transient) cap (D-73 E4). A hard THROW — provider 429/500, a
+ * rotated key, a post-spend Neo4j write flake (E6) — is NOT the writer's content
+ * being unparseable; it is infrastructure. Feeding those into the content-edit-
+ * gated empty cap would pause a perfectly good chapter after 5 outages the
+ * writer didn't cause, forcing a pointless prose edit — and a thrown 429 bills
+ * ~zero tokens, so it is the CHEAPEST failure class to cap. So hard failures get
+ * their OWN counter with a TIME-DECAYING backoff instead: after
+ * MAX_FAILED_EXTRACTION_ATTEMPTS rapid throws the auto-retry is withheld for
+ * FAILED_BACKOFF_MS, then one probe is allowed. When the provider recovers the
+ * probe succeeds and the counter resets — self-healing, no prose edit required.
+ */
+export const MAX_FAILED_EXTRACTION_ATTEMPTS = 5;
+export const FAILED_BACKOFF_MS = 30 * 60 * 1000;
+
+/**
  * Outcome of an incremental chapter extraction. `updated`/`entitiesFound` are
  * the original contract; the rest make failure and its economics HONEST to the
  * caller (RC-4) instead of collapsing every non-success into a bare
@@ -79,8 +94,21 @@ export interface UpdateFromChapterResult {
    * no tokens billed). Recovery requires a content edit.
    */
   capped?: boolean;
-  /** Consecutive failed attempts on the current content (present on failure/cap). */
+  /** Consecutive failed attempts of the RELEVANT kind (present on failure/cap). */
   attempts?: number;
+  /**
+   * WHICH failure class (D-73 E4): "empty" = unparseable content (edit-gated
+   * cap); "failed" = hard throw / post-spend infra flake (backoff-gated cap).
+   * Drives how the caller/UI tells the writer to recover.
+   */
+  failureKind?: "empty" | "failed";
+  /** Human-readable reason for a hard failure (from the LLM/infra error). */
+  failureReason?: string;
+  /**
+   * For a backoff-capped hard failure only: epoch-ms after which an auto-retry
+   * is eligible again (self-heal). Absent for the edit-gated empty cap.
+   */
+  retryEligibleAt?: number;
   /** Succeeded, but the yield was implausibly low for the prose size (advisory). */
   lowYield?: boolean;
 }
@@ -108,16 +136,6 @@ function isSuspiciousEmptyExtraction(
   );
 }
 
-/**
- * The result is not usable and must be treated as a FAILED extraction — either
- * the LLM/parse threw (`failed`, RC-4) or it was a suspicious-empty yield on
- * substantive prose (D-31). A hard failure counts regardless of length: a
- * failure is a failure even on a short chapter, so it must never stamp the hash.
- */
-function isFailedOrSuspicious(result: ExtractionOutcome, content: string): boolean {
-  return result.failed === true || isSuspiciousEmptyExtraction(result, content);
-}
-
 /** Succeeded but implausibly sparse for the prose size (advisory, non-destructive). */
 function isLowYield(result: ExtractionOutcome, content: string): boolean {
   return (
@@ -140,7 +158,8 @@ export async function updateFromChapter(
   content: string,
   defaultModel?: string,
   keys?: Partial<LLMClientOptions>,
-  userId?: string
+  userId?: string,
+  now: Date = new Date()
 ): Promise<UpdateFromChapterResult> {
   if (!content || content.trim().length === 0) {
     return { updated: false, entitiesFound: 0 };
@@ -154,26 +173,56 @@ export async function updateFromChapter(
     return { updated: false, entitiesFound: 0 };
   }
 
-  // ── Billing cap (RC-4 / D-28) ──
-  // Read how many times THIS content has already failed. Once it has hit the
-  // cap we STOP here — before any LLM call — so a permanently-failing chapter
-  // can never bill more than MAX_EMPTY_EXTRACTION_ATTEMPTS times per content
-  // version. A content edit changes newHash, so `lastEmptyHash` no longer
-  // matches and extraction is re-enabled (idempotent recovery).
-  const emptyState = await getEmptyExtractionState(bookId, chapterNumber);
-  const priorAttempts = emptyState.lastEmptyHash === newHash ? emptyState.count : 0;
-  if (priorAttempts >= MAX_EMPTY_EXTRACTION_ATTEMPTS) {
+  // ── Billing caps (RC-4 / D-73) ── read both failure counters ONCE, before any
+  // LLM call, so a capped chapter spends zero tokens.
+  const state = await getExtractionState(bookId, chapterNumber);
+
+  // (1) EMPTY cap (D-31, content-edit-gated). Scoped to THIS content version:
+  // a content edit changes newHash, so `lastEmptyHash` no longer matches and the
+  // attempts reset to 0 — a genuinely fixable chapter always recovers by editing.
+  const emptyAttempts = state.lastEmptyHash === newHash ? state.emptyCount : 0;
+  if (emptyAttempts >= MAX_EMPTY_EXTRACTION_ATTEMPTS) {
     console.warn(
-      `[graph-maintenance] EXTRACTION CAPPED for book=${bookId} chapter=${chapterNumber} ` +
-        `(${priorAttempts} consecutive empty/failed attempts on unchanged content) — ` +
-        `skipping LLM call (NOT billed); edit the chapter to retry (RC-4)`
+      `[graph-maintenance] EXTRACTION CAPPED (empty) for book=${bookId} chapter=${chapterNumber} ` +
+        `(${emptyAttempts} empty extractions on unchanged content) — ` +
+        `skipping LLM call (NOT billed); edit the chapter to retry (D-31/RC-4)`
     );
     return {
       updated: false,
       entitiesFound: 0,
       suspiciousEmpty: true,
       capped: true,
-      attempts: priorAttempts,
+      attempts: emptyAttempts,
+      failureKind: "empty",
+    };
+  }
+
+  // (2) FAILED cap (D-73 E4, time-decaying backoff). A hard-failure streak is
+  // infrastructure, not content — so it is NOT edit-gated. After the ceiling we
+  // withhold the auto-retry only until the backoff window elapses, then allow one
+  // probe (which self-heals once the provider recovers).
+  if (
+    state.failedCount >= MAX_FAILED_EXTRACTION_ATTEMPTS &&
+    state.lastFailedAt !== null &&
+    now.getTime() - state.lastFailedAt.getTime() < FAILED_BACKOFF_MS
+  ) {
+    const retryEligibleAt = state.lastFailedAt.getTime() + FAILED_BACKOFF_MS;
+    console.warn(
+      `[graph-maintenance] EXTRACTION CAPPED (failed/transient) for book=${bookId} ` +
+        `chapter=${chapterNumber} (${state.failedCount} hard failures, backing off) — ` +
+        `skipping LLM call (NOT billed); auto-retries after ${new Date(retryEligibleAt).toISOString()} ` +
+        `(D-73 E4)`
+    );
+    return {
+      updated: false,
+      entitiesFound: 0,
+      failed: true,
+      suspiciousEmpty: true,
+      capped: true,
+      attempts: state.failedCount,
+      failureKind: "failed",
+      failureReason: state.lastFailureReason ?? undefined,
+      retryEligibleAt,
     };
   }
 
@@ -187,28 +236,48 @@ export async function updateFromChapter(
     // userId (RC-6) is threaded through so every node/edge is tenant-stamped.
     const result = await extractEntities(content, bookId, chapterNumber, keys, defaultModel, userId);
 
-    if (isFailedOrSuspicious(result, content)) {
-      // FAILED extraction (RC-4): a hard LLM/parse error (`result.failed`) or an
-      // empty yield on substantive prose (D-31). Either way it is NOT a success:
-      // do NOT stamp the content-hash (next scan retries), do NOT touch the
-      // existing graph, and NEVER report it as clean/green. Record an observable
-      // marker (per content version) + bump the Chapter node's updatedAt so the
-      // scan route's 90s throttle still spaces retries.
-      const attempts = priorAttempts + 1;
+    // (a) HARD failure (D-73 E4): the LLM/parse threw and entity-extractor
+    // surfaced `failed`. This is transient infrastructure — route it to the
+    // backoff-gated FAILED counter (NOT the edit-gated empty counter), so a
+    // provider outage never forces a prose edit. No hash stamp, no graph touch.
+    if (result.failed === true) {
+      const reason = result.failureReason ?? "extraction failed";
+      const attempts = state.failedCount + 1;
       console.warn(
-        `[graph-maintenance] ${result.failed ? "FAILED" : "SUSPICIOUS EMPTY"} extraction for ` +
-          `book=${bookId} chapter=${chapterNumber} (words=${countWords(content)}, ` +
-          `entities=${result.entities.length}, relationships=${result.relationships.length}, ` +
-          `attempt=${attempts}/${MAX_EMPTY_EXTRACTION_ATTEMPTS}` +
-          `${result.failureReason ? `, reason="${result.failureReason}"` : ""}) — ` +
-          `content-hash NOT stamped; will retry on next scan (RC-4/D-31)`
+        `[graph-maintenance] FAILED extraction for book=${bookId} chapter=${chapterNumber} ` +
+          `(hard error, attempt=${attempts}, reason="${reason}") — content-hash NOT stamped; ` +
+          `backoff-gated retry (D-73 E4)`
+      );
+      await markFailedExtraction(bookId, chapterNumber, reason);
+      return {
+        updated: false,
+        entitiesFound: 0,
+        failed: true,
+        suspiciousEmpty: true,
+        failureKind: "failed",
+        failureReason: reason,
+        attempts,
+      };
+    }
+
+    // (b) SUSPICIOUS EMPTY (D-31): the model ran fine but yielded nothing usable
+    // on substantive prose. This is CONTENT the model can't parse — route it to
+    // the edit-gated EMPTY counter. No hash stamp, no graph touch; a marker +
+    // updatedAt bump keeps the 90s throttle spacing retries.
+    if (isSuspiciousEmptyExtraction(result, content)) {
+      const attempts = emptyAttempts + 1;
+      console.warn(
+        `[graph-maintenance] SUSPICIOUS EMPTY extraction for book=${bookId} chapter=${chapterNumber} ` +
+          `(words=${countWords(content)}, entities=0, relationships=0, ` +
+          `attempt=${attempts}/${MAX_EMPTY_EXTRACTION_ATTEMPTS}) — content-hash NOT stamped; ` +
+          `edit-gated retry (D-31)`
       );
       await markSuspiciousEmptyExtraction(bookId, chapterNumber, newHash);
       return {
         updated: false,
         entitiesFound: 0,
         suspiciousEmpty: true,
-        failed: result.failed === true ? true : undefined,
+        failureKind: "empty",
         attempts,
       };
     }
@@ -247,12 +316,48 @@ export async function updateFromChapter(
       lowYield: lowYield ? true : undefined,
     };
   } catch (error) {
+    // ── Post-spend infra window (D-73 E6) ──
+    // entity-extractor swallows LLM/parse errors into `{failed:true}` (handled
+    // above), so a throw that reaches HERE is either the post-extraction writes
+    // (removeChapterEntities / upsertEntities / setContentHash) flaking AFTER the
+    // tokens were already billed, or a pre-spend createExtractionClient throw
+    // (e.g. no API key). Both are hard failures. The pre-fix code returned the
+    // skip-shaped `{updated:false, entitiesFound:0}` here — byte-identical to an
+    // unchanged-skip — with NO marker and NO cap bump, so during a Neo4j write
+    // outage every retry re-extracted and re-billed with no ceiling. Write the
+    // FAILED marker (best-effort) so this class counts toward the backoff cap and
+    // bumps the throttle, and return an HONEST failed envelope so the route can
+    // never report clean.
+    const reason = error instanceof Error ? error.message : String(error);
     console.error(
-      `[graph-maintenance] Failed to update graph for book=${bookId} chapter=${chapterNumber}:`,
+      `[graph-maintenance] Failed to update graph for book=${bookId} chapter=${chapterNumber} ` +
+        `(post-spend infra window, D-73 E6):`,
       error
     );
-    // Return gracefully — graph updates are non-critical
-    return { updated: false, entitiesFound: 0 };
+    try {
+      await markFailedExtraction(bookId, chapterNumber, reason);
+    } catch (markError) {
+      // Neo4j writes fully down: the durable counter cannot advance this pass. The
+      // honest envelope below stops THIS call from reporting clean/skip, but the
+      // scan route discards the resolved envelope, so re-bill is NOT bounded in
+      // count on a persistent writes-down/reads-up double-fault — only rate-limited
+      // by the scan debounce. An absolute ceiling needs an out-of-band marker
+      // (Postgres-side) — tracked as D-74. Best-effort only here.
+      console.error(
+        `[graph-maintenance] could not persist failure marker for book=${bookId} ` +
+          `chapter=${chapterNumber} (Neo4j write down?):`,
+        markError
+      );
+    }
+    return {
+      updated: false,
+      entitiesFound: 0,
+      failed: true,
+      suspiciousEmpty: true,
+      failureKind: "failed",
+      failureReason: reason,
+      attempts: state.failedCount + 1,
+    };
   }
 }
 
@@ -261,23 +366,21 @@ export async function updateFromChapter(
  * Story bibles contain canonical entity definitions — we extract them
  * and merge into the graph with chapter=0 to indicate "pre-story" canonical data.
  *
- * ⚠️ NO BILLING CAP (RC-4 / D-73 E7). Unlike updateFromChapter this path has
- * the honest-failure guard (below) but NOT the per-content-version cap, marker,
- * or throttle: a FAILING bible never stamps a hash (setStoryBibleHash runs only
- * on success) so every invocation on the same unchanged failing content re-runs
- * extractEntities and re-bills the writer's BYOK key, unbounded. This is safe
- * ONLY because this function currently has no live caller (grep-verified — it is
- * dead code this release). DO NOT wire this to any user-triggerable or auto-scan
- * save path without first mirroring the chapter cap: getEmptyExtractionState +
- * markSuspiciousEmptyExtraction keyed on chapterNumber 0 (see D-73 fix). Doing so
- * without the cap silently re-introduces the RC-4 unbounded-rebill leak.
+ * BILLING CAP (D-73 E7): mirrors updateFromChapter for chapter 0 — an EMPTY cap
+ * (edit-gated) and a hard-FAILURE cap (backoff-gated), both read/marked on the
+ * Chapter{bookId,0} node the bible hash already lives on. A permanently-failing
+ * bible therefore stops re-billing after the cap instead of re-extracting on
+ * every save (the pre-D-73 behaviour, which was only safe because this function
+ * had no live caller). Recovery mirrors chapters: edit the bible (empty kind) or
+ * wait out the backoff / provider recovery (failed kind).
  */
 export async function updateFromStoryBible(
   bookId: string,
   content: string,
   defaultModel?: string,
   keys?: Partial<LLMClientOptions>,
-  userId?: string
+  userId?: string,
+  now: Date = new Date()
 ): Promise<void> {
   if (!content || content.trim().length === 0) {
     return;
@@ -290,22 +393,53 @@ export async function updateFromStoryBible(
     return;
   }
 
+  // ── Billing caps (D-73 E7), keyed on the bible's chapter-0 node ──
+  const state = await getExtractionState(bookId, 0);
+  const emptyAttempts = state.lastEmptyHash === newHash ? state.emptyCount : 0;
+  if (emptyAttempts >= MAX_EMPTY_EXTRACTION_ATTEMPTS) {
+    console.warn(
+      `[graph-maintenance] STORY BIBLE EXTRACTION CAPPED (empty) for book=${bookId} ` +
+        `(${emptyAttempts} empty extractions on unchanged content) — skipping LLM call ` +
+        `(NOT billed); edit the bible to retry (D-73 E7)`
+    );
+    return;
+  }
+  if (
+    state.failedCount >= MAX_FAILED_EXTRACTION_ATTEMPTS &&
+    state.lastFailedAt !== null &&
+    now.getTime() - state.lastFailedAt.getTime() < FAILED_BACKOFF_MS
+  ) {
+    console.warn(
+      `[graph-maintenance] STORY BIBLE EXTRACTION CAPPED (failed/transient) for book=${bookId} ` +
+        `(${state.failedCount} hard failures, backing off) — skipping LLM call (NOT billed) (D-73 E7)`
+    );
+    return;
+  }
+
   try {
     // Extract using chapter 0 to signify canonical / pre-story data
     const result = await extractEntities(content, bookId, 0, keys, defaultModel, userId);
 
-    // D-31/RC-4: same poisoned-success mechanism as chapters — a hard LLM
-    // failure OR an empty yield on a substantive bible must not stamp the hash,
-    // or the canonical entities never enter the graph and no future save of the
-    // unchanged bible retries.
-    if (isFailedOrSuspicious(result, content)) {
+    // Hard failure (D-73 E4): backoff-gated marker, no stamp.
+    if (result.failed === true) {
+      const reason = result.failureReason ?? "extraction failed";
       console.warn(
-        `[graph-maintenance] ${result.failed ? "FAILED" : "SUSPICIOUS EMPTY"} extraction for ` +
-          `book=${bookId} story bible (words=${countWords(content)}, ` +
-          `entities=${result.entities.length}, relationships=${result.relationships.length}` +
-          `${result.failureReason ? `, reason="${result.failureReason}"` : ""}) — ` +
-          `content-hash NOT stamped; will retry on next save (RC-4/D-31)`
+        `[graph-maintenance] FAILED extraction for book=${bookId} story bible ` +
+          `(hard error, reason="${reason}") — content-hash NOT stamped; backoff-gated retry (D-73 E7)`
       );
+      await markFailedExtraction(bookId, 0, reason);
+      return;
+    }
+
+    // Suspicious empty (D-31): edit-gated marker, no stamp — else the canonical
+    // entities never enter the graph and no future save of the bible retries.
+    if (isSuspiciousEmptyExtraction(result, content)) {
+      console.warn(
+        `[graph-maintenance] SUSPICIOUS EMPTY extraction for book=${bookId} story bible ` +
+          `(words=${countWords(content)}, entities=0, relationships=0) — content-hash NOT stamped; ` +
+          `edit-gated retry (D-31)`
+      );
+      await markSuspiciousEmptyExtraction(bookId, 0, newHash);
       return;
     }
 
@@ -317,13 +451,26 @@ export async function updateFromStoryBible(
     // Upsert (MERGE will update existing nodes, not duplicate them)
     await upsertEntities(result);
 
-    // Store the hash on a special meta node
+    // Store the hash (also clears BOTH failure markers — idempotent recovery)
     await setStoryBibleHash(bookId, newHash);
   } catch (error) {
+    // Post-spend infra window (D-73 E6), same as chapters: mark failed so the
+    // attempt counts toward the backoff cap; best-effort if Neo4j writes are down.
+    const reason = error instanceof Error ? error.message : String(error);
     console.error(
-      `[graph-maintenance] Failed to update graph from story bible for book=${bookId}:`,
+      `[graph-maintenance] Failed to update graph from story bible for book=${bookId} ` +
+        `(post-spend infra window, D-73 E6):`,
       error
     );
+    try {
+      await markFailedExtraction(bookId, 0, reason);
+    } catch (markError) {
+      console.error(
+        `[graph-maintenance] could not persist bible failure marker for book=${bookId} ` +
+          `(Neo4j write down?):`,
+        markError
+      );
+    }
   }
 }
 
@@ -352,11 +499,12 @@ export async function getContentHash(
 /**
  * Store the content hash on a Chapter node (MERGE to create if needed).
  *
- * On a genuine success this also RESETS the empty-extraction markers
- * (`emptyExtractionCount` / `lastEmptyHash` / `lastEmptyExtractionAt`) so the
- * billing cap starts fresh next time — a chapter that recovered must not carry
- * a stale failure count. `lowYield` records whether the successful extraction
- * was implausibly sparse (surfaced later by the read-only status, RC-4).
+ * On a genuine success this also RESETS BOTH failure markers — the empty-kind
+ * (`emptyExtractionCount` / `lastEmptyHash` / `lastEmptyExtractionAt`, D-31) AND
+ * the hard-failure kind (`failedExtractionCount` / `lastFailedExtractionAt` /
+ * `lastFailureReason`, D-73 E4) — so a chapter that recovered carries no stale
+ * failure count of either kind. `lowYield` records whether the successful
+ * extraction was implausibly sparse (surfaced later by the read-only status).
  */
 async function setContentHash(
   bookId: string,
@@ -369,7 +517,8 @@ async function setContentHash(
       `MERGE (c:Chapter {bookId: $bookId, chapterNumber: $chapterNumber})
        ON CREATE SET c.id = randomUUID(), c.name = $name, c.createdAt = datetime()
        SET c.contentHash = $hash, c.updatedAt = datetime(), c.lowYield = $lowYield,
-           c.emptyExtractionCount = 0, c.lastEmptyHash = null, c.lastEmptyExtractionAt = null`,
+           c.emptyExtractionCount = 0, c.lastEmptyHash = null, c.lastEmptyExtractionAt = null,
+           c.failedExtractionCount = 0, c.lastFailedExtractionAt = null, c.lastFailureReason = null`,
       {
         bookId,
         chapterNumber,
@@ -425,29 +574,103 @@ async function markSuspiciousEmptyExtraction(
 }
 
 /**
+ * Record a HARD-failure extraction attempt (D-73 E4/E6): a thrown LLM/parse
+ * error, or a post-spend infra flake. Unlike the empty marker this counter is
+ * NOT content-scoped — a provider outage is independent of the prose — so it
+ * increments unconditionally and is bounded by a time-decaying backoff
+ * (FAILED_BACKOFF_MS) rather than a content edit. `lastFailedExtractionAt`
+ * anchors that backoff window; `lastFailureReason` (truncated) lets the status
+ * view tell the writer "provider was down — retry" vs an empty "edit the prose".
+ * Deliberately never touches `contentHash` (its absence drives the retry) nor
+ * the empty-kind markers.
+ */
+async function markFailedExtraction(
+  bookId: string,
+  chapterNumber: number,
+  reason: string
+): Promise<void> {
+  await withSession("WRITE", async (session) => {
+    await session.run(
+      `MERGE (c:Chapter {bookId: $bookId, chapterNumber: $chapterNumber})
+       ON CREATE SET c.id = randomUUID(), c.name = $name, c.createdAt = datetime()
+       SET c.updatedAt = datetime(),
+           c.lastFailedExtractionAt = datetime(),
+           c.failedExtractionCount = coalesce(c.failedExtractionCount, 0) + 1,
+           c.lastFailureReason = $reason`,
+      {
+        bookId,
+        chapterNumber,
+        name: `Chapter ${chapterNumber}`,
+        reason: reason.slice(0, 300),
+      }
+    );
+  });
+}
+
+/**
  * Read the per-content-version empty/failure state off the Chapter node (RC-4).
  * Returns `{count, lastEmptyHash}` — count is how many consecutive empty/failed
  * attempts have been recorded, and lastEmptyHash the content those attempts ran
  * against. Absent node/props degrade to `{count: 0, lastEmptyHash: null}` so a
  * chapter with no failure history is never treated as capped.
  */
-async function getEmptyExtractionState(
+interface ExtractionState {
+  /** Suspicious-empty attempts on the current content (D-31, edit-gated). */
+  emptyCount: number;
+  /** The content hash those empty attempts ran against. */
+  lastEmptyHash: string | null;
+  /** Hard-failure attempts (D-73 E4, backoff-gated). */
+  failedCount: number;
+  /** When the last hard failure was recorded — anchors the backoff window. */
+  lastFailedAt: Date | null;
+  /** Last hard-failure reason (for the capped envelope / status). */
+  lastFailureReason: string | null;
+}
+
+/**
+ * Read BOTH per-chapter failure counters off the Chapter node in one round-trip
+ * (D-73 E4). Absent node/props degrade to a zeroed state so a chapter with no
+ * failure history is never treated as capped.
+ */
+async function getExtractionState(
   bookId: string,
   chapterNumber: number
-): Promise<{ count: number; lastEmptyHash: string | null }> {
+): Promise<ExtractionState> {
   return withSession("READ", async (session) => {
     const result = await session.run(
       `MATCH (c:Chapter {bookId: $bookId, chapterNumber: $chapterNumber})
-       RETURN c.emptyExtractionCount AS count, c.lastEmptyHash AS lastEmptyHash`,
+       RETURN c.emptyExtractionCount AS emptyCount, c.lastEmptyHash AS lastEmptyHash,
+              c.failedExtractionCount AS failedCount, c.lastFailedExtractionAt AS lastFailedAt,
+              c.lastFailureReason AS lastFailureReason`,
       { bookId, chapterNumber }
     );
     const rec = result.records[0];
-    if (!rec) return { count: 0, lastEmptyHash: null };
-    const rawCount = Number(rec.get("count") ?? 0);
+    if (!rec) {
+      return {
+        emptyCount: 0,
+        lastEmptyHash: null,
+        failedCount: 0,
+        lastFailedAt: null,
+        lastFailureReason: null,
+      };
+    }
+    const num = (raw: unknown): number => {
+      const n = Number(raw ?? 0);
+      return Number.isFinite(n) ? n : 0;
+    };
+    const toDate = (raw: unknown): Date | null => {
+      if (raw === null || raw === undefined) return null;
+      const d = new Date(String(raw));
+      return isNaN(d.getTime()) ? null : d;
+    };
     const rawHash = rec.get("lastEmptyHash");
+    const rawReason = rec.get("lastFailureReason");
     return {
-      count: Number.isFinite(rawCount) ? rawCount : 0,
+      emptyCount: num(rec.get("emptyCount")),
       lastEmptyHash: typeof rawHash === "string" ? rawHash : null,
+      failedCount: num(rec.get("failedCount")),
+      lastFailedAt: toDate(rec.get("lastFailedAt")),
+      lastFailureReason: typeof rawReason === "string" ? rawReason : null,
     };
   });
 }
@@ -468,6 +691,9 @@ export async function getChapterExtractionFacts(
        RETURN c.contentHash AS contentHash,
               c.emptyExtractionCount AS emptyExtractionCount,
               c.lastEmptyExtractionAt AS lastEmptyExtractionAt,
+              c.failedExtractionCount AS failedExtractionCount,
+              c.lastFailedExtractionAt AS lastFailedExtractionAt,
+              c.lastFailureReason AS lastFailureReason,
               c.lowYield AS lowYield,
               c.updatedAt AS updatedAt`,
       { bookId, chapterNumber }
@@ -479,6 +705,9 @@ export async function getChapterExtractionFacts(
         contentHash: null,
         emptyExtractionCount: 0,
         lastEmptyExtractionAt: null,
+        failedExtractionCount: 0,
+        lastFailedExtractionAt: null,
+        lastFailureReason: null,
         lowYield: false,
         updatedAt: null,
       };
@@ -488,13 +717,20 @@ export async function getChapterExtractionFacts(
       const d = new Date(String(raw));
       return isNaN(d.getTime()) ? null : d;
     };
+    const num = (raw: unknown): number => {
+      const n = Number(raw ?? 0);
+      return Number.isFinite(n) ? n : 0;
+    };
     const contentHash = rec.get("contentHash");
-    const rawCount = Number(rec.get("emptyExtractionCount") ?? 0);
+    const rawReason = rec.get("lastFailureReason");
     return {
       hasNode: true,
       contentHash: typeof contentHash === "string" ? contentHash : null,
-      emptyExtractionCount: Number.isFinite(rawCount) ? rawCount : 0,
+      emptyExtractionCount: num(rec.get("emptyExtractionCount")),
       lastEmptyExtractionAt: toDate(rec.get("lastEmptyExtractionAt")),
+      failedExtractionCount: num(rec.get("failedExtractionCount")),
+      lastFailedExtractionAt: toDate(rec.get("lastFailedExtractionAt")),
+      lastFailureReason: typeof rawReason === "string" ? rawReason : null,
       lowYield: rec.get("lowYield") === true,
       updatedAt: toDate(rec.get("updatedAt")),
     };
@@ -529,9 +765,10 @@ async function setStoryBibleHash(
   await withSession("WRITE", async (session) => {
     await session.run(
       `MERGE (c:Chapter {bookId: $bookId, chapterNumber: 0})
-       ON CREATE SET c.id = randomUUID(), c.name = $name, c.contentHash = $hash,
-                     c.createdAt = datetime(), c.updatedAt = datetime()
-       ON MATCH SET c.contentHash = $hash, c.updatedAt = datetime()`,
+       ON CREATE SET c.id = randomUUID(), c.name = $name, c.createdAt = datetime()
+       SET c.contentHash = $hash, c.updatedAt = datetime(),
+           c.emptyExtractionCount = 0, c.lastEmptyHash = null, c.lastEmptyExtractionAt = null,
+           c.failedExtractionCount = 0, c.lastFailedExtractionAt = null, c.lastFailureReason = null`,
       {
         bookId,
         name: "Story Bible",
