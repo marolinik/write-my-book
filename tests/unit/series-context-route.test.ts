@@ -138,4 +138,50 @@ describe("GET /series-context", () => {
     const json = await res.json();
     expect(json.meta.notReady).toBe(true);
   });
+
+  it("passes the CURRENT book as a recency candidate to getPriorCharacters (D-25 frozen-sidebar fix)", async () => {
+    h.db.book.findFirst.mockResolvedValue(ownedSeriesBook);
+    await GET(req("?chapterNumber=7") as never, ctx as never);
+    expect(h.sources.getPriorCharacters).toHaveBeenCalledWith(
+      expect.arrayContaining([expect.objectContaining({ id: "b2", bookNumber: 2 })])
+    );
+  });
+
+  it("surfaces the current book's state over a frozen prior-book state end-to-end (latest-book-wins)", async () => {
+    h.db.book.findFirst.mockResolvedValue(ownedSeriesBook);
+    h.sources.getPriorCharacters.mockResolvedValue([
+      { bookNumber: 1, name: "Milan", aliases: [], role: "supporting", status: "alive", lastMentioned: 5, description: "captain" },
+      { bookNumber: 2, name: "Milan", aliases: [], role: "supporting", status: "dead", lastMentioned: 3, description: "captain" },
+    ]);
+    const res = await GET(req("?chapterNumber=7") as never, ctx as never);
+    const json = await res.json();
+    expect(json.characters[0].lastBook).toBe(2);
+    expect(json.characters[0].status).toBe("dead");
+  });
+
+  it("populates threads relevant to the on-stage cast", async () => {
+    h.db.book.findFirst.mockResolvedValue(ownedSeriesBook);
+    h.sources.getOpenThreads.mockResolvedValue([
+      { bookNumber: 1, name: "What Milan knows", status: "developing", relatedNames: ["Milan"] },
+    ]);
+    const res = await GET(req("?chapterNumber=7") as never, ctx as never);
+    const json = await res.json();
+    expect(json.threads).toHaveLength(1);
+    expect(json.threads[0].name).toBe("What Milan knows");
+  });
+
+  it("populates toneDrift when baseline and current metrics differ materially", async () => {
+    h.db.book.findFirst.mockResolvedValue(ownedSeriesBook);
+    h.sources.getStyleBaseline.mockResolvedValue({
+      metrics: { avgWordsPerSentence: 18, dialogueRatio: 0.1, avgSentencesPerParagraph: 5 },
+      baselineBookNumber: 1,
+    });
+    h.sources.getCurrentChapterMetrics.mockResolvedValue({ avgWordsPerSentence: 26, dialogueRatio: 0.1, avgSentencesPerParagraph: 5 });
+    const res = await GET(req("?chapterNumber=7") as never, ctx as never);
+    const json = await res.json();
+    expect(json.toneDrift).not.toBeNull();
+    expect(json.toneDrift.baselineBook).toBe(1);
+    const sent = json.toneDrift.metrics.find((m: { key: string }) => m.key === "avgWordsPerSentence");
+    expect(sent.material).toBe(true); // 26 vs 18 ≈ 44% ≥ 25% materiality
+  });
 });
