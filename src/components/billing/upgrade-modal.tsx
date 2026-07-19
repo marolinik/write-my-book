@@ -14,7 +14,8 @@ import { useUpgradeModal } from "@/hooks/use-billing";
 import { ArrowUpCircle } from "lucide-react";
 
 const TIER_DESCRIPTIONS: Record<string, string> = {
-  indie: "The Indie Author plan gives you 2 active books with all 14 AI agents and workflows.",
+  indie:
+    "The Indie Author plan gives you 2 active books, unlimited AI sessions and words, overnight batch runs, and no daily limits. Your writing, autosave, and export are always free.",
   professional:
     "The Professional plan unlocks unlimited books, series management, and advanced analytics.",
   publisher:

@@ -96,7 +96,9 @@ export function useCreateBook() {
     },
     onError: (error) => {
       const err = error as Error & { status?: number; upgradeToTier?: string };
-      if (err.status === 403 && err.upgradeToTier) {
+      // Any plan/quota denial (403 create-wall OR 429 quota-wall) carries
+      // upgradeToTier → route it to the modal, never a silent toast.
+      if (err.upgradeToTier) {
         useUpgradeModal.getState().show(err.message, err.upgradeToTier);
       }
     },

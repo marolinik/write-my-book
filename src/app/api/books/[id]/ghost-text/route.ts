@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { decryptApiKey } from "@/lib/encryption";
 import { estimateCost } from "@/lib/cost";
 import { checkQuota } from "@/lib/billing/quota-checker";
+import { recordDailyUse } from "@/lib/billing/free-tier-meters";
 import { createLLMClient, resolveProviderRoute, resolveCheapModelFor } from "@/lib/llm";
 import type { ProviderKey } from "@/lib/llm";
 import { ghostTextRequestSchema } from "@/lib/validation";
@@ -28,11 +29,15 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
-    // Check monthly usage quota
-    const quotaResult = await checkQuota(user.id, "use_agent_session");
+    // Check usage quota (free-tier daily ghost-text meter + word/session caps)
+    const quotaResult = await checkQuota(user.id, "ghost_text");
     if (!quotaResult.allowed) {
       return NextResponse.json(
-        { error: quotaResult.reason },
+        {
+          error: quotaResult.reason,
+          upgradeToTier: quotaResult.upgradeToTier,
+          remainingToday: quotaResult.remainingToday,
+        },
         { status: 429 }
       );
     }
@@ -145,6 +150,12 @@ Rules:
         costEstimate: cost,
       },
     });
+
+    // Advance the Free-tier daily meter ONLY after a genuine, billable result
+    // (increment-on-success; never on failure — D-36 lesson). No-op for paid.
+    if (quotaResult.isFree) {
+      await recordDailyUse(user.id, "ghost");
+    }
 
     return NextResponse.json({ suggestion });
   } catch (error) {

@@ -6,6 +6,7 @@ import { DocumentService, VersionConflictError } from "@/lib/documents";
 import { DocumentType } from "@/generated/prisma/enums";
 import { countWords } from "@/lib/utils";
 import { onDocumentChanged } from "@/lib/vector/memory-manager";
+import { canIndexProseForUser } from "@/lib/vector/indexing-gate";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { zodErrorResponse } from "@/lib/api/zod-error";
 
@@ -213,14 +214,25 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
     // The agent-write and document-update paths already do this; the human
     // editor's chapter-content save did NOT, so a manually-written manuscript
     // was never embedded and semantic recall stayed empty (VM1).
-    onDocumentChanged(bookId, "CHAPTER_CONTENT", data.markdown, {
-      userId: user.id,
-      chapterId,
-      chapterNumber: chapter.chapterNumber,
-      seriesId: book.seriesId,
-      language: book.language,
-      version,
-    }).catch(() => {});
+    //
+    // Indexing is the ONLY per-free-user platform-LLM spend (OpenAI
+    // embeddings), so it is gated behind the Free-tier word cap (A9). The
+    // content SAVE above is already committed and is NEVER blocked — only this
+    // fire-and-forget indexing side-effect pauses past the cap. Queries stay
+    // ungated, so the moat remains demo-able.
+    void canIndexProseForUser(user.id)
+      .then((ok) => {
+        if (!ok) return;
+        return onDocumentChanged(bookId, "CHAPTER_CONTENT", data.markdown, {
+          userId: user.id,
+          chapterId,
+          chapterNumber: chapter.chapterNumber,
+          seriesId: book.seriesId,
+          language: book.language,
+          version,
+        });
+      })
+      .catch(() => {});
 
     // book.wordCount is the pre-update value (fetched above); wordDelta is this
     // save's change — their sum is the new cumulative total the client needs.

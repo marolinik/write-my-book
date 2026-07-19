@@ -61,7 +61,10 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     // tier-gate bypass), unlike its book-agent counterpart.
     const quotaResult = await checkQuota(user.id, "use_agent_session");
     if (!quotaResult.allowed) {
-      return NextResponse.json({ error: quotaResult.reason }, { status: 429 });
+      return NextResponse.json(
+        { error: quotaResult.reason, upgradeToTier: quotaResult.upgradeToTier },
+        { status: 429 }
+      );
     }
 
     // Resolve workflow

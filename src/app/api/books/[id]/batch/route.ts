@@ -102,10 +102,14 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // ── Monthly usage quota (same gate as the single-session route) ─────
-    const quotaResult = await checkQuota(user.id, "use_agent_session");
+    // ── Plan gate: batch/overnight is a paid wall (Free is hard-denied;
+    //    paid tiers unchanged) ─────────────────────────────────────────────
+    const quotaResult = await checkQuota(user.id, "run_batch");
     if (!quotaResult.allowed) {
-      return NextResponse.json({ error: quotaResult.reason }, { status: 429 });
+      return NextResponse.json(
+        { error: quotaResult.reason, upgradeToTier: quotaResult.upgradeToTier },
+        { status: 429 }
+      );
     }
 
     // ── Resolve the workflows (all known + eligible at this point) ──────

@@ -93,7 +93,8 @@ export function useCreateSeries() {
     },
     onError: (error) => {
       const err = error as Error & { status?: number; upgradeToTier?: string };
-      if (err.status === 403 && err.upgradeToTier) {
+      // Any plan/quota denial (403 OR 429) carries upgradeToTier → modal.
+      if (err.upgradeToTier) {
         useUpgradeModal.getState().show(err.message, err.upgradeToTier);
       }
     },

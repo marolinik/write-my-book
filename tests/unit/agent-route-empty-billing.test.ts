@@ -69,6 +69,11 @@ vi.mock("@/lib/llm/price-validator", () => ({
 vi.mock("@/lib/billing/quota-checker", () => ({
   checkQuota: (...a: unknown[]) => h.checkQuota(...a),
 }));
+// Free-tier concurrency fence is exercised in its own suite; here it must be a
+// pass-through so these billing-polarity cases reach the session-create path.
+vi.mock("@/lib/billing/free-tier-meters", () => ({
+  checkConcurrencyFence: vi.fn(async () => ({ allowed: true })),
+}));
 vi.mock("@/lib/llm", () => ({
   resolveModelForRole: (...a: unknown[]) => h.resolveModelForRole(...a),
   resolveConductorModel: (...a: unknown[]) => h.resolveConductorModel(...a),

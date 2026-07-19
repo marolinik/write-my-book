@@ -38,6 +38,7 @@ model User {
   notifications BookNotification[]
   writerMemories WriterMemory[]
   sessionBriefs  SessionBrief[]
+  freeTierUsage  FreeTierUsage[]
 
   @@map("users")
 }
@@ -77,6 +78,22 @@ model FounderSlot {
   claimedAt DateTime @default(now()) @map("claimed_at")
 
   @@map("founder_slots")
+}
+
+// Per-UTC-day soft-cap counters for Free-tier writers. Agent sessions are NOT
+// counted here (they come from AgentSession rows — zero write path, zero
+// drift); this table only tracks ghost-text + inline-edit, which have no other
+// durable row. Rows are additive and never gate the content-save path.
+model FreeTierUsage {
+  id              String @id @default(uuid())
+  userId          String @map("user_id")
+  day             String // UTC "2026-07-19"
+  ghostTextCalls  Int    @default(0) @map("ghost_text_calls")
+  inlineEditCalls Int    @default(0) @map("inline_edit_calls")
+  user            User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, day])
+  @@map("free_tier_usage")
 }
 
 model ApiKey {

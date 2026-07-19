@@ -25,24 +25,14 @@ export async function GET() {
 
 /**
  * POST /api/settings/onboarding
- * Marks onboarding as complete. Requires at least one validated API key.
+ * Marks onboarding as complete. No API key required — the card-free / key-free
+ * on-ramp lets a writer skip setup and start writing on the Free tier (they can
+ * connect a BYOK provider later in Settings → API Keys).
  * Sets the wmb_onboarded cookie for Edge middleware detection.
  */
 export async function POST() {
   try {
     const user = await requireUser();
-
-    // Verify at least one validated key exists
-    const keyCount = await db.apiKey.count({
-      where: { userId: user.id, validatedAt: { not: null } },
-    });
-
-    if (keyCount === 0) {
-      return NextResponse.json(
-        { error: "Add at least one valid API key first" },
-        { status: 400 }
-      );
-    }
 
     // Mark onboarding complete in DB
     await db.user.update({

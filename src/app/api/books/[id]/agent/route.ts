@@ -5,6 +5,7 @@ import { decryptApiKey } from "@/lib/encryption";
 import { estimateWorkflowCost } from "@/lib/llm/cost-estimator";
 import { validatePrices } from "@/lib/llm/price-validator";
 import { checkQuota } from "@/lib/billing/quota-checker";
+import { checkConcurrencyFence } from "@/lib/billing/free-tier-meters";
 import {
   resolveModelForRole,
   resolveConductorModel,
@@ -140,7 +141,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     const quotaResult = await checkQuota(user.id, "use_agent_session");
     if (!quotaResult.allowed) {
       return NextResponse.json(
-        { error: quotaResult.reason },
+        { error: quotaResult.reason, upgradeToTier: quotaResult.upgradeToTier },
         { status: 429 }
       );
     }
@@ -350,6 +351,17 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     // -- Workflow-specific timeout ceiling --
     const estimatedMaxMin = workflow.estimatedMaxMinutes ?? 30;
     const serverCeilingMs = (estimatedMaxMin + 30) * 60 * 1000;
+
+    // Free-tier concurrency fence: at most one running agent session. Placed
+    // right before the session is created, after ownership + quota checks.
+    // No-op for paid users. Counts running AgentSession rows (unforgeable).
+    const concurrency = await checkConcurrencyFence(user.id);
+    if (!concurrency.allowed) {
+      return NextResponse.json(
+        { error: concurrency.reason, upgradeToTier: concurrency.upgradeToTier },
+        { status: 429 }
+      );
+    }
 
     // Create DB session record (needed for both inline and background paths)
     const dbSession = await db.agentSession.create({

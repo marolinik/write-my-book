@@ -158,3 +158,34 @@ describe("POST /api/billing/checkout — double-subscribe guard (D-06)", () => {
     expect(h.sessionsCreate).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("POST /api/billing/checkout — card-free trial (A12 / D-52)", () => {
+  it("first trial → payment_method_collection 'if_required' + trial block", async () => {
+    // No prior subscription row → no prior trial → card-free trial offered.
+    await POST(req());
+    const cfg = h.sessionsCreate.mock.calls[0][0];
+    expect(cfg.payment_method_collection).toBe("if_required");
+    expect(cfg.subscription_data?.trial_period_days).toBe(14);
+    expect(
+      cfg.subscription_data?.trial_settings?.end_behavior?.missing_payment_method
+    ).toBe("cancel");
+  });
+
+  it("one-trial-per-customer fence: a user who already had a trial is paid-from-day-1", async () => {
+    // Canceled sub that retains trialEnd from a prior trial → no second trial.
+    h.db.subscription.findUnique.mockResolvedValue({
+      id: "s1",
+      userId: "u1",
+      status: "canceled",
+      plan: "indie",
+      stripeCustomerId: "cus_1",
+      trialEnd: PAST,
+    });
+
+    const res = await POST(req());
+    expect(res.status).toBe(200);
+    const cfg = h.sessionsCreate.mock.calls[0][0];
+    expect(cfg.subscription_data).toBeUndefined();
+    expect(cfg.payment_method_collection).toBeUndefined();
+  });
+});

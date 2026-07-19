@@ -78,37 +78,53 @@ export function OnboardingWizard() {
     refetchKeys();
   }, [refetchKeys]);
 
-  const handleFinishSetup = useCallback(async () => {
-    if (!effectiveSelectedProvider) return;
+  const handleFinishSetup = useCallback(
+    async (options?: { skip?: boolean }) => {
+      const skip = options?.skip ?? false;
+      // Skip mode is the card-free / key-free on-ramp: no provider required.
+      if (!skip && !effectiveSelectedProvider) return;
 
-    setIsFinishing(true);
-    try {
-      // 1. Mark onboarding complete
-      const onboardRes = await fetch("/api/settings/onboarding", {
-        method: "POST",
-      });
-      if (!onboardRes.ok) {
-        const err = await onboardRes.json();
-        throw new Error(err.error || "Failed to complete onboarding");
+      setIsFinishing(true);
+      try {
+        // 1. Mark onboarding complete (sets the wmb_onboarded cookie too — the
+        //    same POST on both paths, so skip is fully unblocked by middleware).
+        const onboardRes = await fetch("/api/settings/onboarding", {
+          method: "POST",
+        });
+        if (!onboardRes.ok) {
+          const err = await onboardRes.json();
+          throw new Error(err.error || "Failed to complete onboarding");
+        }
+
+        // 2. Set the default model only when a provider was chosen. Skip mode
+        //    has no validated key yet, so there is nothing to default to.
+        if (!skip && effectiveSelectedProvider) {
+          const defaultModel =
+            DEFAULT_MODEL_PER_PROVIDER[effectiveSelectedProvider];
+          await fetch("/api/settings/default-model", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ defaultModel }),
+          });
+        }
+
+        if (skip) {
+          // Land the writer on "name your book", not a dashboard of zeros.
+          toast.success("You're all set — let's start your first book.");
+          router.push("/books/new?onboarding=1");
+        } else {
+          toast.success("Setup complete! Welcome to Write My Book OK.");
+          router.push("/dashboard");
+        }
+      } catch (err) {
+        toast.error(
+          err instanceof Error ? err.message : "Failed to complete setup"
+        );
+        setIsFinishing(false);
       }
-
-      // 2. Set default model for the selected provider
-      const defaultModel = DEFAULT_MODEL_PER_PROVIDER[effectiveSelectedProvider];
-      await fetch("/api/settings/default-model", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ defaultModel }),
-      });
-
-      toast.success("Setup complete! Welcome to Write My Book OK.");
-      router.push("/dashboard");
-    } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Failed to complete setup"
-      );
-      setIsFinishing(false);
-    }
-  }, [effectiveSelectedProvider, router]);
+    },
+    [effectiveSelectedProvider, router]
+  );
 
   return (
     <div className="space-y-6">
@@ -137,6 +153,9 @@ export function OnboardingWizard() {
             </h1>
             <p className="text-muted-foreground">
               Your AI-powered book authoring platform
+            </p>
+            <p className="text-sm text-muted-foreground">
+              No credit card or API key required to start writing.
             </p>
           </div>
 
@@ -221,6 +240,22 @@ export function OnboardingWizard() {
               <span className="text-xs text-muted-foreground">
                 {connectedCount} of {PROVIDERS.length} providers connected
               </span>
+              {connectedCount === 0 && (
+                <Button
+                  variant="ghost"
+                  onClick={() => handleFinishSetup({ skip: true })}
+                  disabled={isFinishing}
+                >
+                  {isFinishing ? (
+                    <>
+                      <Loader2Icon className="size-4 mr-2 animate-spin" />
+                      Starting...
+                    </>
+                  ) : (
+                    "Skip for now — start writing free"
+                  )}
+                </Button>
+              )}
               <Button
                 onClick={() => setStep(3)}
                 disabled={connectedCount === 0}
@@ -296,7 +331,7 @@ export function OnboardingWizard() {
               Back
             </Button>
             <Button
-              onClick={handleFinishSetup}
+              onClick={() => handleFinishSetup()}
               disabled={!effectiveSelectedProvider || isFinishing}
             >
               {isFinishing ? (
