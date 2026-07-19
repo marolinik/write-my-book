@@ -108,12 +108,31 @@ Rules:
     const suggestion =
       textBlock && "text" in textBlock ? textBlock.text.trim() : "";
 
+    // D-04/D-38: an empty / whitespace-only continuation is not a billable
+    // result. It usually means the small (60-token) output budget was fully
+    // consumed with no usable text — e.g. a reasoning model emitting only
+    // thinking blocks (stop_reason "max_tokens"). Do NOT write a usage record
+    // for silence and do NOT answer with a hollow 200; surface an honest,
+    // retryable signal so the client can retry instead of paying for nothing.
+    if (suggestion.length === 0) {
+      const truncated = response.stop_reason === "max_tokens";
+      return NextResponse.json(
+        {
+          error: truncated
+            ? "The suggestion was cut off before any text was produced. Please try again."
+            : "No suggestion was generated. Please try again.",
+          retryable: true,
+        },
+        { status: 502 }
+      );
+    }
+
     const tokensUsed = {
       input: response.usage.input_tokens,
       output: response.usage.output_tokens,
     };
 
-    // Record usage with registry ID
+    // Record usage with registry ID (only for a genuine, non-empty result)
     const cost = estimateCost(model.id, tokensUsed.input, tokensUsed.output);
     await db.usageRecord.create({
       data: {

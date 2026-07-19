@@ -203,10 +203,21 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       onComplete: async (result: AgentResult) => {
         completeSession(sessionId, result);
 
+        // D-04/D-38: a conversational turn's deliverable IS its assistant text.
+        // An empty / whitespace-only reply — a reasoning model that burned its
+        // whole max_tokens budget on thinking, or a hollow provider turn — must
+        // NOT be billed as a successful result. The session stays "completed"
+        // (continuable) so a later genuine retry recovers with no stuck state;
+        // provider failures (success:false) already emitted their own error and
+        // still record partial spend below (D-36 money honesty).
+        const replyText = (result.assistantText ?? "").trim();
+        const emptyReply =
+          result.success && !result.cancelled && replyText.length === 0;
+
         // Persist the assistant's reply so a continued session survives a
         // server restart with full context (fire-safe — never throws).
-        if (!result.cancelled && result.assistantText) {
-          await addAssistantMessage(sessionId, result.assistantText);
+        if (!result.cancelled && replyText) {
+          await addAssistantMessage(sessionId, replyText);
         }
 
         await db.agentSession.update({
@@ -216,6 +227,15 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
             tokensOutput: { increment: result.tokensOutput },
           },
         });
+
+        if (emptyReply) {
+          pushMessage(sessionId, {
+            type: "error",
+            content:
+              "The assistant returned an empty response — it may have run out of output space. Nothing was billed; please try again.",
+          });
+          return;
+        }
 
         const cost = estimateCost(
           model.id,

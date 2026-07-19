@@ -147,12 +147,30 @@ Provide ${data.count} alternative rewrites as a JSON array.`;
       suggestions = [];
     }
 
+    // D-04/D-38: a request that yields NO usable rewrites is not a billable
+    // result. The empty array is often a max_tokens-truncated JSON payload that
+    // failed to parse. Do NOT write a usage record for nothing and do NOT
+    // answer with a hollow 200 { suggestions: [] }; surface an honest,
+    // retryable signal (and the truncation) so the writer can retry.
+    if (suggestions.length === 0) {
+      const truncated = response.stop_reason === "max_tokens";
+      return NextResponse.json(
+        {
+          error: truncated
+            ? "The rewrite response was cut off before it could be parsed. Try selecting less text, then try again."
+            : "No usable rewrites were generated. Please try again.",
+          retryable: true,
+        },
+        { status: 502 }
+      );
+    }
+
     const tokensUsed = {
       input: response.usage.input_tokens,
       output: response.usage.output_tokens,
     };
 
-    // Record usage with registry ID
+    // Record usage with registry ID (only for a genuine, non-empty result)
     const cost = estimateCost(model.id, tokensUsed.input, tokensUsed.output);
     await db.usageRecord.create({
       data: {

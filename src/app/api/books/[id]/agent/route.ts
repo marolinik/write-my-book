@@ -533,10 +533,18 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
           };
           completeSession(dbSession.id, enrichedResult, suggestedNext);
 
+          // D-04/D-38: for a conversational workflow the deliverable IS the
+          // assistant's text; an empty / whitespace-only reply (reasoning burned
+          // the whole max_tokens budget, or a hollow provider turn) must not be
+          // billed as a successful result. Gated on `workflow.conversational`
+          // so non-conversational runs whose deliverable is findings/documents
+          // (little or no coach text) still bill honestly.
+          const replyText = (result.assistantText ?? "").trim();
+
           // Persist the assistant's reply so a continued conversational session
           // survives a server restart with full context (fire-safe).
-          if (!result.cancelled && result.assistantText) {
-            await addAssistantMessage(dbSession.id, result.assistantText);
+          if (!result.cancelled && replyText) {
+            await addAssistantMessage(dbSession.id, replyText);
           }
 
           // Update DB records -- include shared cost tracker totals.
@@ -560,6 +568,20 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
               actualCostUsd: cost,
             },
           });
+
+          if (
+            workflow.conversational &&
+            result.success &&
+            !result.cancelled &&
+            replyText.length === 0
+          ) {
+            onMessage({
+              type: "error",
+              content:
+                "The assistant returned an empty response — it may have run out of output space. Nothing was billed; please try again.",
+            });
+            return;
+          }
 
           // Create usage record with total tokens (Coach + all specialists)
           await db.usageRecord.create({

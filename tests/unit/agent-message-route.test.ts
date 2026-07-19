@@ -207,4 +207,75 @@ describe("POST /api/books/:id/agent/:sessionId/message", () => {
     await new Promise((r) => setTimeout(r, 0));
     expect(h.addAssistantMessage).not.toHaveBeenCalled();
   });
+
+  // ── D-04/D-38: an empty assistant reply is not a billable result ──────────
+  it("does NOT bill and surfaces an honest error for a whitespace-only reply", async () => {
+    h.continueConversation.mockImplementationOnce(
+      async (opts: { onComplete: (r: AgentResult) => Promise<void> }) => {
+        // Reasoning model burned the whole budget → success:true but no text.
+        await opts.onComplete({ ...completionResult, assistantText: "   \n", success: true });
+      }
+    );
+    await POST(req({ message: "chapter one idea" }) as never, ctx as never);
+    await vi.waitFor(() =>
+      expect(h.pushMessage).toHaveBeenCalledWith(
+        "s1",
+        expect.objectContaining({ type: "error" })
+      )
+    );
+    // The writer is never charged for silence, and no fake assistant turn is kept.
+    expect(h.db.usageRecord.create).not.toHaveBeenCalled();
+    expect(h.addAssistantMessage).not.toHaveBeenCalled();
+  });
+
+  it("keeps the session continuable after an empty reply (no stuck state)", async () => {
+    h.continueConversation.mockImplementationOnce(
+      async (opts: { onComplete: (r: AgentResult) => Promise<void> }) => {
+        await opts.onComplete({ ...completionResult, assistantText: "", success: true });
+      }
+    );
+    await POST(req({ message: "chapter one idea" }) as never, ctx as never);
+    // completeSession is driven with success:true, so the in-memory session
+    // stays "completed" (continuable) — an empty reply must not brick the chat.
+    await vi.waitFor(() => expect(h.completeSession).toHaveBeenCalled());
+    const lastArgs = h.completeSession.mock.calls.at(-1) as [string, AgentResult];
+    expect(lastArgs[1].success).toBe(true);
+  });
+
+  it("bills and persists a genuine non-empty reply (regression guard)", async () => {
+    await POST(req({ message: "chapter one idea" }) as never, ctx as never);
+    await vi.waitFor(() => expect(h.db.usageRecord.create).toHaveBeenCalledTimes(1));
+    expect(h.addAssistantMessage).toHaveBeenCalledWith("s1", "coach reply");
+  });
+
+  // ── D-36 interplay: the empty-reply carve-out is success-AND-not-cancelled
+  // gated, so real partial spend on a failure or an abort is still billed. A
+  // future refactor that collapses the predicate to a bare emptiness check
+  // would pass every test above yet stop billing here — these lock that. ─────
+  it("bills partial spend for a provider-failure run that produced no text (D-36 honesty)", async () => {
+    h.continueConversation.mockImplementationOnce(
+      async (opts: { onComplete: (r: AgentResult) => Promise<void> }) => {
+        // Provider failed mid-turn: success:false, tokens already spent, no text.
+        await opts.onComplete({ ...completionResult, assistantText: "", success: false });
+      }
+    );
+    await POST(req({ message: "chapter one idea" }) as never, ctx as never);
+    // The success-only carve-out must NOT swallow this — spend is real.
+    await vi.waitFor(() => expect(h.db.usageRecord.create).toHaveBeenCalledTimes(1));
+    // No fake assistant turn is kept for the empty text.
+    expect(h.addAssistantMessage).not.toHaveBeenCalled();
+  });
+
+  it("bills partial spend when the user cancels a turn before any text (partial abort)", async () => {
+    h.continueConversation.mockImplementationOnce(
+      async (opts: { onComplete: (r: AgentResult) => Promise<void> }) => {
+        // User aborted: cancelled:true, budget already consumed, no text yet.
+        await opts.onComplete({ ...completionResult, assistantText: "", cancelled: true });
+      }
+    );
+    await POST(req({ message: "chapter one idea" }) as never, ctx as never);
+    // The carve-out is `!cancelled`-gated, so an abort is still billed honestly.
+    await vi.waitFor(() => expect(h.db.usageRecord.create).toHaveBeenCalledTimes(1));
+    expect(h.addAssistantMessage).not.toHaveBeenCalled();
+  });
 });
