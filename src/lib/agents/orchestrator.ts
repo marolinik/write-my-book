@@ -200,6 +200,11 @@ export class AgentOrchestrator {
         )
       : undefined;
 
+    // D-58: the sink executeWriteDocument records produced document ids into.
+    // Shared by reference with toolCtx.documentIds so the completion reports the
+    // real docs this run wrote (never [] despite writing the story bible).
+    const documentIds: string[] = [];
+
     const toolCtx: ToolContext = {
       bookId: options.context.bookId,
       userId: options.context.userId,
@@ -212,6 +217,8 @@ export class AgentOrchestrator {
       delegationContext: this.delegationContext ?? undefined,
       // D-83: gates authoritative graph writes to user-present sessions.
       interactive: this.interactive,
+      // D-58: produced-document sink (see documentIds above).
+      documentIds,
     };
 
     const messages: Anthropic.MessageParam[] = [
@@ -221,8 +228,6 @@ export class AgentOrchestrator {
       },
     ];
 
-    const documentIds: string[] = [];
-
     try {
       const result = await this.runToolLoop(
         modelId,
@@ -230,8 +235,7 @@ export class AgentOrchestrator {
         messages,
         tools as Anthropic.Tool[],
         toolCtx,
-        options,
-        documentIds
+        options
       );
 
       // User cancellation makes the loop break and return normally — report
@@ -314,6 +318,10 @@ export class AgentOrchestrator {
         )
       : undefined;
 
+    // D-58: produced-document sink, shared by reference with toolCtx.documentIds
+    // (see runAgent) so a continued session reports the docs it wrote.
+    const documentIds: string[] = [];
+
     const toolCtx: ToolContext = {
       bookId: options.context.bookId,
       userId: options.context.userId,
@@ -326,12 +334,12 @@ export class AgentOrchestrator {
       delegationContext: this.delegationContext ?? undefined,
       // D-83: gates authoritative graph writes to user-present sessions.
       interactive: this.interactive,
+      // D-58: produced-document sink (see documentIds above).
+      documentIds,
     };
 
     // Add the new user message to existing conversation
     existingMessages.push({ role: "user", content: userMessage });
-
-    const documentIds: string[] = [];
 
     try {
       const result = await this.runToolLoop(
@@ -340,8 +348,7 @@ export class AgentOrchestrator {
         existingMessages,
         tools as Anthropic.Tool[],
         toolCtx,
-        options,
-        documentIds
+        options
       );
 
       await options.onComplete({
@@ -389,8 +396,9 @@ export class AgentOrchestrator {
     messages: Anthropic.MessageParam[],
     tools: Anthropic.Tool[],
     toolCtx: ToolContext,
-    options: AgentSpawnOptions,
-    documentIds: string[]
+    options: AgentSpawnOptions
+    // D-58: produced-document ids are now collected via toolCtx.documentIds
+    // (executeWriteDocument pushes into it); no separate param needed.
   ): Promise<{
     inputTokens: number;
     outputTokens: number;

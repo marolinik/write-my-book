@@ -280,4 +280,26 @@ describe("processAgentJob — failed session honesty (D-36)", () => {
       })
     );
   });
+
+  // D-58: the background completion must report the documents it actually
+  // produced. The inline SSE path spreads the whole result (documentIds
+  // included); the worker hand-picks metadata fields and previously omitted
+  // documentIds, so a setup/onboarding run reported [] despite writing docs.
+  it("D-58: publishes the real created documentIds in the 'complete' SSE metadata", async () => {
+    h.fakeResult.current = completedResult({ documentIds: ["doc-a", "doc-b"] });
+
+    await processAgentJob(makeJob({ ...BASE }));
+
+    const complete = h.redis.publish.mock.calls
+      .map(
+        (c) =>
+          JSON.parse(String(c[1])) as {
+            type: string;
+            metadata?: { documentIds?: string[] };
+          }
+      )
+      .find((m) => m.type === "complete");
+    expect(complete, "a 'complete' SSE message should be published").toBeDefined();
+    expect(complete?.metadata?.documentIds).toEqual(["doc-a", "doc-b"]);
+  });
 });

@@ -858,6 +858,11 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
             : "Session completed with errors",
           metadata: {
             ...resultMeta,
+            // D-58: report the documents this run actually produced. The inline
+            // SSE path spreads the whole result; this background path hand-picks
+            // metadata, so documentIds must be threaded through explicitly or a
+            // setup/onboarding completion lies with [] despite writing docs.
+            documentIds: result.documentIds ?? [],
             suggestedNext,
             tokensInput: totalInput,
             tokensOutput: totalOutput,

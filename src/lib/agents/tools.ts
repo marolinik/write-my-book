@@ -255,6 +255,15 @@ export interface ToolContext {
   /** Delegation context — present only for the Writing Coach orchestrator. */
   delegationContext?: import("./types").DelegationContext;
   /**
+   * D-58: sink for ids of documents this session produced. executeWriteDocument
+   * pushes each created OR updated document id here (de-duplicated). The
+   * orchestrator points this at the array it returns in AgentResult.documentIds,
+   * so the completion SSE reports the real docs a setup/onboarding run wrote
+   * instead of []. Optional — tool-level callers that don't track output docs
+   * simply leave it unset.
+   */
+  documentIds?: string[];
+  /**
    * D-83: true ONLY when a real user is present (an interactive chat session
    * streaming back to a browser). Gates AUTHORITATIVE graph writes:
    * UpdateGraphEntity passes authoritative=true — bypassing the sticky-dead /
@@ -1088,6 +1097,11 @@ async function executeWriteDocument(
   }
 
   try {
+    // Capture the produced document id inside the transaction; only record it
+    // on ctx.documentIds AFTER a committed write (D-58) so a rolled-back tx
+    // never reports a phantom document.
+    let writtenDocumentId: string | undefined;
+
     // Use transaction to prevent duplicate creation by parallel agents
     const result = await db.$transaction(async (tx) => {
       const where: Record<string, unknown> = { type };
@@ -1105,6 +1119,7 @@ async function executeWriteDocument(
           "agent_write",
           "agent"
         );
+        writtenDocumentId = existing.id;
         return `Updated ${input.documentType} (version ${updated.version.version}).`;
       }
 
@@ -1116,8 +1131,20 @@ async function executeWriteDocument(
         undefined,
         "agent"
       );
+      writtenDocumentId = doc.id;
       return `Created ${input.documentType} (id: ${doc.id}).`;
     });
+
+    // D-58: report the document this run produced (created OR updated — both
+    // change the document and yield a new version). De-duplicated so a session
+    // that rewrites the same document lists it once.
+    if (
+      writtenDocumentId &&
+      ctx.documentIds &&
+      !ctx.documentIds.includes(writtenDocumentId)
+    ) {
+      ctx.documentIds.push(writtenDocumentId);
+    }
 
     return result;
   } finally {

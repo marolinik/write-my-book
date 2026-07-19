@@ -257,13 +257,15 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
           },
         });
       },
-      onError: async (error: Error) => {
+      onError: async (error: Error, partial?: { documentIds: string[] }) => {
         pushMessage(sessionId, { type: "error", content: error.message });
         completeSession(sessionId, {
           success: false,
           tokensInput: 0,
           tokensOutput: 0,
-          documentIds: [],
+          // Report documents written before the error — don't mislead consumers
+          // with an empty list (D-58; mirrors the book-agent F7 onError fix).
+          documentIds: partial?.documentIds ?? [],
           sessionId,
         });
       },

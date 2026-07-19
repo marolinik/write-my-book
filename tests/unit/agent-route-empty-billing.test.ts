@@ -239,4 +239,35 @@ describe("POST /api/books/:id/agent — first-turn empty-reply billing", () => {
       expect(h.db.usageRecord.create).toHaveBeenCalledTimes(1)
     );
   });
+
+  // ── D-58 / F7 parity lock: on a mid-session failure the route must report
+  // the documents already written (the orchestrator passes them as the 2nd
+  // onError arg), not an empty list. Guards the F7 fix from silent regression
+  // and keeps the book route at parity with /message and /series. ───────────
+  it("reports partial documentIds on error, not an empty list (D-58/F7)", async () => {
+    h.workflow = {
+      conversational: false,
+      category: "editorial",
+      primaryAgent: "line-editor",
+    };
+    h.getWorkflow.mockReturnValue(h.workflow);
+    h.runAgent.mockImplementationOnce(
+      async (opts: {
+        onError: (
+          e: Error,
+          partial?: { documentIds: string[] }
+        ) => Promise<void>;
+      }) => {
+        await opts.onError(new Error("boom"), { documentIds: ["b-doc-1"] });
+      }
+    );
+
+    const res = await POST(req() as never, ctx as never);
+    expect(res.status).toBe(200);
+
+    await vi.waitFor(() => expect(h.completeSession).toHaveBeenCalled());
+    const lastArgs = h.completeSession.mock.calls.at(-1) as [string, AgentResult];
+    expect(lastArgs[1].success).toBe(false);
+    expect(lastArgs[1].documentIds).toEqual(["b-doc-1"]);
+  });
 });

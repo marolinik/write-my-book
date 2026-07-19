@@ -278,4 +278,29 @@ describe("POST /api/books/:id/agent/:sessionId/message", () => {
     await vi.waitFor(() => expect(h.db.usageRecord.create).toHaveBeenCalledTimes(1));
     expect(h.addAssistantMessage).not.toHaveBeenCalled();
   });
+
+  // ── D-58: a continuation that wrote documents then failed must report the
+  // real partial documentIds on completion, not an empty list. The orchestrator
+  // passes them as the 2nd onError arg (orchestrator.ts:362); the route must
+  // thread them through completeSession instead of hardcoding []. ───────────
+  it("reports the real partial documentIds on error, not an empty list (D-58 honesty)", async () => {
+    h.continueConversation.mockImplementationOnce(
+      async (opts: {
+        onError: (
+          e: Error,
+          partial?: { documentIds: string[] }
+        ) => Promise<void>;
+      }) => {
+        // The turn wrote two docs, then the provider failed mid-stream.
+        await opts.onError(new Error("boom"), {
+          documentIds: ["doc-a", "doc-b"],
+        });
+      }
+    );
+    await POST(req({ message: "chapter one idea" }) as never, ctx as never);
+    await vi.waitFor(() => expect(h.completeSession).toHaveBeenCalled());
+    const lastArgs = h.completeSession.mock.calls.at(-1) as [string, AgentResult];
+    expect(lastArgs[1].success).toBe(false);
+    expect(lastArgs[1].documentIds).toEqual(["doc-a", "doc-b"]);
+  });
 });
