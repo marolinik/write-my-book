@@ -6,6 +6,7 @@ import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
 import { inferPreferenceFromDismissals, upsertConversationConstraint } from "@/lib/agents/writer-memory";
 import { parseDiscussResponse } from "@/lib/editorial/discuss-prompt";
+import { isDestructiveReplacement } from "@/lib/editorial/finding-applicability";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { zodErrorResponse } from "@/lib/api/zod-error";
 
@@ -129,6 +130,20 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
     const originalText = selectedAlternative?.originalText ?? finding.originalText;
     const newText = selectedAlternative?.newText ?? finding.newText;
     const finalNewText = data.overrideText ?? newText;
+
+    // D-41a: refuse a destructive apply. When a passage is named (originalText
+    // present) but the resolved replacement is blank (empty/whitespace), applying
+    // it would delete the writer's prose. Never do that silently — answer an
+    // honest 422 so the writer can dismiss it or Discuss it into a real revision.
+    if (data.action === "apply" && isDestructiveReplacement(originalText, finalNewText)) {
+      return NextResponse.json(
+        {
+          error:
+            "This finding has no replacement text, so applying it would delete the passage it points to. Dismiss it, or use Discuss to work out a concrete revision.",
+        },
+        { status: 422 }
+      );
+    }
 
     // Auto-apply: if applying a finding with originalText + newText, edit the chapter
     if (data.action === "apply" && originalText && finalNewText) {

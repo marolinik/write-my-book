@@ -4,7 +4,7 @@ const h = vi.hoisted(() => ({
   user: { id: "u1" },
   db: {
     book: { findFirst: vi.fn() },
-    editFinding: { findFirst: vi.fn() },
+    editFinding: { findFirst: vi.fn(), update: vi.fn() },
     findingReply: { findMany: vi.fn(), count: vi.fn(), create: vi.fn() },
     $transaction: vi.fn(),
     $queryRaw: vi.fn(),
@@ -49,6 +49,63 @@ describe("POST /discuss", () => {
     expect(json.revisedSuggestion).toBe("new line");
     const roles = h.db.findingReply.create.mock.calls.map((c) => c[0].data.role);
     expect(roles).toEqual(["user", "assistant"]);
+  });
+
+  // D-41b: a concrete revision produced in discussion must be written back onto
+  // the finding so a later plain Apply uses it — not the stale original.
+  it("writes a non-empty revised suggestion back onto the finding (newText + alternatives[0])", async () => {
+    h.db.findingReply.findMany.mockResolvedValue([]);
+    h.db.editFinding.findFirst.mockResolvedValue({
+      id: "f1", bookId: "b1", category: "dialogue", severity: "important", description: "d",
+      agentType: "line-editor",
+      alternatives: JSON.stringify([
+        { label: "Tighter", originalText: "the old line", newText: "stale one" },
+        { label: "Softer", originalText: "the old line", newText: "stale two" },
+      ]),
+    });
+    h.runTurn.mockResolvedValue("Sure.\n<<<REVISION>>>\nsuggestion: the agreed revision\nwhy: clearer\n<<<END>>>");
+
+    const res = await POST(req({ writerMessage: "tighten it" }), ctx as never);
+    expect(res.status).toBe(200);
+
+    expect(h.db.editFinding.update).toHaveBeenCalledTimes(1);
+    const data = h.db.editFinding.update.mock.calls[0][0].data;
+    expect(data.newText).toBe("the agreed revision");
+    const alts = JSON.parse(data.alternatives);
+    expect(alts[0].newText).toBe("the agreed revision");
+    expect(alts[0].originalText).toBe("the old line"); // target preserved
+    expect(alts[1].newText).toBe("stale two"); // later alternatives untouched
+  });
+
+  it("writes only newText when the finding has no alternatives", async () => {
+    h.db.findingReply.findMany.mockResolvedValue([]); // alternatives: null from beforeEach
+    h.runTurn.mockResolvedValue("<<<REVISION>>>\nsuggestion: solo revision\nwhy: x\n<<<END>>>");
+
+    await POST(req({ writerMessage: "x" }), ctx as never);
+
+    expect(h.db.editFinding.update).toHaveBeenCalledTimes(1);
+    const data = h.db.editFinding.update.mock.calls[0][0].data;
+    expect(data.newText).toBe("solo revision");
+    expect(data.alternatives).toBeUndefined();
+  });
+
+  it("does NOT write back when the assistant produced no revision", async () => {
+    h.db.findingReply.findMany.mockResolvedValue([]);
+    h.runTurn.mockResolvedValue("Agreed — keep the line as written.");
+
+    const res = await POST(req({ writerMessage: "leave it" }), ctx as never);
+    expect((await res.json()).revisedSuggestion).toBeUndefined();
+    expect(h.db.editFinding.update).not.toHaveBeenCalled();
+  });
+
+  it("does NOT clobber the finding with an empty revision", async () => {
+    h.db.findingReply.findMany.mockResolvedValue([]);
+    // Empty "suggestion:" line — the parser degrades this to no revision.
+    h.runTurn.mockResolvedValue("Hm.\n<<<REVISION>>>\nsuggestion: \nwhy: clearer\n<<<END>>>");
+
+    const res = await POST(req({ writerMessage: "x" }), ctx as never);
+    expect((await res.json()).revisedSuggestion).toBeUndefined();
+    expect(h.db.editFinding.update).not.toHaveBeenCalled();
   });
 
   it("short-circuits at 3 user turns with no model call", async () => {

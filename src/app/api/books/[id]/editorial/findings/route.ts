@@ -7,6 +7,7 @@ import {
 } from "@/lib/validation";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { zodErrorResponse } from "@/lib/api/zod-error";
+import { isBlank } from "@/lib/editorial/finding-applicability";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -59,6 +60,11 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
     return NextResponse.json({
       findings: findings.map((finding) => ({
         ...finding,
+        // D-41a: a blank (empty/whitespace) newText is not a real replacement —
+        // applying it would delete the passage. Surface it as absent so the
+        // client never renders an "auto-apply" affordance or a blank diff for it;
+        // the finding still reads as advisory (description + Discuss).
+        newText: isBlank(finding.newText) ? null : finding.newText,
         alternatives: parseAlternatives(finding.alternatives),
       })),
       total,

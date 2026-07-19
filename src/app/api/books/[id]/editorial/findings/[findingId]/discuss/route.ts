@@ -101,9 +101,15 @@ export async function POST(req: Request, { params }: RouteParams) {
 
     // Step 2: the network call runs OUTSIDE any transaction/lock.
     const raw = await runDiscussTurn({ system, user: userPrompt, userId: user.id });
+    const parsed = parseDiscussResponse(raw);
+    // D-41b: the parser only yields a revisedSuggestion when it is non-empty (an
+    // empty "suggestion:" line degrades to undefined), so an empty revision can
+    // never reach — and clobber — the finding's stored suggestion below.
+    const revisedSuggestion = parsed.revisedSuggestion?.trim();
 
     // Step 3: short atomic check-and-insert — re-verify the cap wasn't crossed by a
-    // concurrent turn between step 1 and now, then persist both replies together.
+    // concurrent turn between step 1 and now, then persist both replies together
+    // and write any concrete revision back onto the finding.
     const result = await db.$transaction(async (tx) => {
       await tx.$queryRaw`SELECT id FROM edit_findings WHERE id = ${findingId} FOR UPDATE`;
       const currentUserTurns = await tx.findingReply.count({ where: { findingId, role: "user" } });
@@ -114,6 +120,22 @@ export async function POST(req: Request, { params }: RouteParams) {
       await tx.findingReply.create({ data: { findingId, userId: user.id, role: "user", content: writerMessage } });
       await tx.findingReply.create({ data: { findingId, userId: user.id, role: "assistant", content: raw } });
 
+      // D-41b: persist a non-empty revised suggestion onto the finding itself so a
+      // later plain Apply uses the agreed revision — not the stale original — even
+      // without the client hand-carrying it as overrideText. Empty revisions are
+      // filtered above, so this never clobbers an existing suggestion.
+      if (revisedSuggestion) {
+        await tx.editFinding.update({
+          where: { id: findingId },
+          data: {
+            newText: revisedSuggestion,
+            ...(finding.alternatives
+              ? { alternatives: applyRevisionToAlternatives(finding.alternatives, revisedSuggestion) }
+              : {}),
+          },
+        });
+      }
+
       return { capped: false as const, userTurns: currentUserTurns + 1 };
     });
 
@@ -123,7 +145,6 @@ export async function POST(req: Request, { params }: RouteParams) {
         { status: 409 }
       );
     }
-    const parsed = parseDiscussResponse(raw);
     return NextResponse.json({ ...parsed, userTurns: result.userTurns, capped: false });
   } catch (e) {
     const invalidJson = invalidJsonBodyResponse(e);
@@ -147,4 +168,18 @@ export async function POST(req: Request, { params }: RouteParams) {
 function safeAlternatives(raw: unknown): Array<{ label?: string; originalText?: string; newText?: string }> {
   if (typeof raw !== "string") return [];
   try { const p = JSON.parse(raw); return Array.isArray(p) ? p : []; } catch { return []; }
+}
+
+/** D-41b: write `revision` into the first alternative's newText, preserving
+ *  everything else (label, originalText, later alternatives). Malformed or empty
+ *  alternatives JSON is left untouched — the finding's top-level newText still
+ *  carries the revision, so a plain Apply still uses it. */
+function applyRevisionToAlternatives(raw: string, revision: string): string {
+  try {
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr) || arr.length === 0) return raw;
+    return JSON.stringify(arr.map((alt, i) => (i === 0 ? { ...alt, newText: revision } : alt)));
+  } catch {
+    return raw;
+  }
 }
