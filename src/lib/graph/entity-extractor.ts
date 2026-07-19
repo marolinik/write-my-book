@@ -19,6 +19,24 @@ import type {
 } from "./types";
 
 /**
+ * The result of an extraction attempt, plus an HONEST failure discriminator.
+ *
+ * RC-4: previously `extractEntities` caught every LLM/parse error and returned
+ * an EMPTY `ExtractionResult` — byte-identical to a genuinely empty (clean)
+ * extraction. That erased the one bit that matters downstream: did the model
+ * actually run, or did the call fail? A failed call that looks "empty" is how a
+ * dead extraction became a silent green (and got its tokens billed as success).
+ *
+ * `failed: true` means the LLM call or its parse threw; the entities/relationships
+ * are empty because nothing was produced, NOT because the prose is entity-free.
+ * On success `failed` is left undefined so existing callers are unaffected.
+ */
+export interface ExtractionOutcome extends ExtractionResult {
+  failed?: boolean;
+  failureReason?: string;
+}
+
+/**
  * Create an extraction client using the caller's keys.
  * Falls back to env vars only for backward compatibility (e.g. background jobs).
  *
@@ -221,7 +239,7 @@ export async function extractEntities(
   keys?: Partial<LLMClientOptions>,
   defaultModel?: string,
   userId?: string
-): Promise<ExtractionResult> {
+): Promise<ExtractionOutcome> {
   const contentHash = hashContent(text);
   const { client, modelId } = createExtractionClient(keys, defaultModel);
 
@@ -287,7 +305,14 @@ export async function extractEntities(
       contentHash,
     };
   } catch (error) {
-    // On LLM failure, return empty result rather than crashing the pipeline
+    // On LLM/parse failure, return an empty result — but STAMP it as `failed`
+    // (RC-4). The pipeline must not crash, yet callers MUST be able to tell this
+    // apart from a genuinely empty extraction: a failed call must never be
+    // recorded as a clean success, billed as success, or reported as
+    // "continuity protected". graph-maintenance reads `failed` to skip the
+    // hash-stamp, avoid the destructive delete, and count the attempt toward the
+    // billing cap.
+    const failureReason = error instanceof Error ? error.message : String(error);
     console.error(
       `[entity-extractor] Failed to extract entities for book=${bookId} chapter=${chapterNumber}:`,
       error
@@ -299,6 +324,8 @@ export async function extractEntities(
       relationships: [],
       chapterNumber,
       contentHash,
+      failed: true,
+      failureReason,
     };
   }
 }

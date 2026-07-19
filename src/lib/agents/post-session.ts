@@ -781,7 +781,7 @@ async function updateChapterGraph(
     select: { defaultModel: true },
   });
   const keys = await getExtractionKeysForUser(userId);
-  await updateFromChapter(
+  const outcome = await updateFromChapter(
     bookId,
     chapterNumber,
     content.content,
@@ -789,6 +789,29 @@ async function updateChapterGraph(
     keys,
     userId
   );
+
+  // Report the outcome HONESTLY (RC-4): a failed/empty extraction must never be
+  // logged (or later surfaced) as a graph update that succeeded. The billing cap
+  // lives inside updateFromChapter, so a permanently-failing chapter stops
+  // re-billing on its own — here we only make the state observable.
+  if (outcome.capped) {
+    console.warn(
+      `[PostSession] Graph extraction CAPPED for book=${bookId} chapter=${chapterNumber} ` +
+        `(${outcome.attempts} consecutive empty/failed attempts) — not re-billed; ` +
+        `edit the chapter to retry.`
+    );
+  } else if (outcome.suspiciousEmpty) {
+    console.warn(
+      `[PostSession] Graph extraction ${outcome.failed ? "FAILED" : "returned empty"} for ` +
+        `book=${bookId} chapter=${chapterNumber} (attempt ${outcome.attempts}) — graph NOT ` +
+        `updated; will retry on next scan.`
+    );
+  } else if (outcome.lowYield) {
+    console.warn(
+      `[PostSession] Graph extraction LOW YIELD for book=${bookId} chapter=${chapterNumber} — ` +
+        `stamped but implausibly sparse (possible truncated parse).`
+    );
+  }
 
   // Also index into vector memory
   await onDocumentChanged(bookId, "CHAPTER_CONTENT", content.content, { chapterNumber });
