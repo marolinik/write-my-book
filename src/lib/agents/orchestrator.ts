@@ -84,6 +84,15 @@ export interface OrchestratorOptions {
   /** Provider key for error translation and retry logic. */
   providerKey?: ProviderKey;
   /**
+   * D-83: true ONLY for interactive chat sessions (a real user is present and
+   * streaming). Threaded into ToolContext.interactive to gate AUTHORITATIVE
+   * graph writes (UpdateGraphEntity). Defaults to false — the SAFE value — so
+   * the BullMQ batch worker and any specialist it delegates to can never grant
+   * an autonomous agent authoritative graph-edit power. Set true only by the
+   * synchronous, user-facing chat routes.
+   */
+  interactive?: boolean;
+  /**
    * Custom approval resolver for background sessions.
    * When provided, approval gates use this instead of in-memory Promises.
    * The resolver should write pending state to Redis and poll for resolution.
@@ -126,6 +135,8 @@ export class AgentOrchestrator {
   private sharedCostTracker: import("./types").SharedCostTracker | null = null;
   private delegationContext: import("./types").DelegationContext | null = null;
   private providerKey: ProviderKey;
+  /** D-83: gates authoritative graph writes — see OrchestratorOptions.interactive. */
+  private interactive: boolean;
   private approvalResolver: ((approvalId: string, deadline: number) => Promise<ApprovalResponse>) | null;
 
   constructor(options: OrchestratorOptions) {
@@ -137,6 +148,8 @@ export class AgentOrchestrator {
     this.sharedCostTracker = options.sharedCostTracker ?? null;
     this.delegationContext = options.delegationContext ?? null;
     this.providerKey = options.providerKey ?? "anthropic";
+    // Safe default: non-interactive unless an interactive entry point opts in.
+    this.interactive = options.interactive ?? false;
     this.approvalResolver = options.approvalResolver ?? null;
   }
 
@@ -197,6 +210,8 @@ export class AgentOrchestrator {
       seriesDocumentService: seriesDocService,
       chapterNumber: options.context.chapterNumber,
       delegationContext: this.delegationContext ?? undefined,
+      // D-83: gates authoritative graph writes to user-present sessions.
+      interactive: this.interactive,
     };
 
     const messages: Anthropic.MessageParam[] = [
@@ -309,6 +324,8 @@ export class AgentOrchestrator {
       seriesDocumentService: seriesDocService2,
       chapterNumber: options.context.chapterNumber,
       delegationContext: this.delegationContext ?? undefined,
+      // D-83: gates authoritative graph writes to user-present sessions.
+      interactive: this.interactive,
     };
 
     // Add the new user message to existing conversation

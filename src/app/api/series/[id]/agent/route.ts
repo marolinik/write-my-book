@@ -202,6 +202,9 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       modelId: model.modelId,
       registryId: model.id,
       maxRuntimeMs: serverCeilingMs,
+      // D-83: user-facing series agent request — a real user is present, so
+      // authoritative graph corrections (UpdateGraphEntity) are permitted.
+      interactive: true,
     });
     session.orchestrator = orchestrator;
 

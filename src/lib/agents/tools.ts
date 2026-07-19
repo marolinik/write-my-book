@@ -250,6 +250,17 @@ export interface ToolContext {
   chapterNumber?: number;
   /** Delegation context — present only for the Writing Coach orchestrator. */
   delegationContext?: import("./types").DelegationContext;
+  /**
+   * D-83: true ONLY when a real user is present (an interactive chat session
+   * streaming back to a browser). Gates AUTHORITATIVE graph writes:
+   * UpdateGraphEntity passes authoritative=true — bypassing the sticky-dead /
+   * preserve-first continuity guards — only when this is true. Absent/false is
+   * the SAFE non-interactive default: the BullMQ batch worker and any autonomous
+   * specialist it delegates to cannot flip a genuinely-dead character alive or
+   * erase a deathChapter unattended. Per-scan extraction re-captures legitimate
+   * state, and with no user watching there is no D-80 "1 updated" no-op to mislead.
+   */
+  interactive?: boolean;
 }
 
 // ─── Tool Definitions ──────────────────────────────────────────
@@ -566,7 +577,10 @@ const queryGraphDef: ToolDefinition = {
 const updateGraphEntityDef: ToolDefinition = {
   name: "UpdateGraphEntity",
   description:
-    "Create or update entities in the knowledge graph (characters, locations, events, objects, factions).",
+    "AUTHORITATIVE correction of the knowledge graph (characters, locations, events, objects, factions). " +
+    "This OVERRIDES the continuity protections (a dead character normally stays dead; roles/descriptions are preserve-first), " +
+    "so use it ONLY when the writer EXPLICITLY asks you to correct or fix the graph (e.g. 'she isn't actually dead', 'his role should be antagonist'). " +
+    "NEVER use it to record story events as they happen — extraction captures those automatically after every scan, and an unrequested authoritative edit can silently erase real continuity (e.g. a genuine death).",
   input_schema: {
     type: "object",
     properties: {
@@ -1537,11 +1551,20 @@ async function executeUpdateGraphEntity(
       contentHash: "",
     };
 
-    // D-80: this is a DELIBERATE agent/user correction, not a stochastic
-    // re-extraction — mark it authoritative so sub-fix 7(b)'s sticky-dead and
-    // preserve-first-role/description guards do NOT silently swallow the edit
-    // (which would report "1 updated" while nothing actually changed).
-    const stats = await upsertEntities(extractionResult, true);
+    // D-80: a DELIBERATE user correction (not a stochastic re-extraction) must
+    // be authoritative so sub-fix 7(b)'s sticky-dead and preserve-first-role/
+    // description guards do NOT silently swallow the edit (which would report
+    // "1 updated" while nothing changed).
+    // D-83: but authoritative ONLY when a real user is present (interactive
+    // session). In an unattended/batch run this tool is reachable by an
+    // autonomous specialist (batch coach -> DelegateToSpecialist) with no
+    // approval gate; an authoritative edit there could flip a genuinely-dead
+    // character alive and erase its deathChapter overnight. Non-interactive
+    // therefore falls back to authoritative=false — the continuity guards stay
+    // on, per-scan extraction re-captures real state, and no user is watching a
+    // no-op to be lied to. Safe default: interactive absent => false.
+    const authoritative = ctx.interactive === true;
+    const stats = await upsertEntities(extractionResult, authoritative);
     return `Graph updated: ${stats.nodesCreated} created, ${stats.nodesUpdated} updated, ${stats.relationshipsCreated} relationships.`;
   } catch (error) {
     return `Graph update failed: ${error instanceof Error ? error.message : String(error)}`;
@@ -1952,6 +1975,10 @@ async function executeDelegateToSpecialist(
       maxRuntimeMs: 20 * 60 * 1000, // 20 min for specialists
       maxSessionCostUsd: 5, // per-specialist budget
       sharedCostTracker: delegationCtx.sharedCostTracker,
+      // D-83: a delegated specialist inherits the conductor's interactivity.
+      // A specialist spawned by the interactive coach may make authoritative
+      // graph corrections; one spawned by the batch worker coach must not.
+      interactive: ctx.interactive === true,
     });
 
     // Register sub-orchestrator in parent session for approval forwarding

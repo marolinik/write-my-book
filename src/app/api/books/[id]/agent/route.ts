@@ -478,6 +478,11 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         sharedCostTracker,
         delegationContext,
         providerKey: validationProvider,
+        // D-83: inline SSE path — a real user is present and streaming, so
+        // authoritative graph corrections (UpdateGraphEntity) are permitted.
+        // The background/BullMQ branch above enqueues instead and runs
+        // unattended in the worker (non-interactive by default).
+        interactive: true,
       });
       session.orchestrator = orchestrator;
 

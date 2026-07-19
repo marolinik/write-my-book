@@ -172,6 +172,9 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       client,
       modelId: model.modelId,
       registryId: model.id,
+      // D-83: user-initiated conversational turn — a real user is present, so
+      // authoritative graph corrections (UpdateGraphEntity) are permitted.
+      interactive: true,
     });
     session.orchestrator = orchestrator;
 

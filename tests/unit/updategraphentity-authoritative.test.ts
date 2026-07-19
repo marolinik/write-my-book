@@ -54,11 +54,15 @@ vi.mock("@/lib/agents/session-manager", () => ({ getSession: vi.fn() }));
 
 import { executeTool, type ToolContext } from "@/lib/agents/tools";
 
+// D-83: the D-80 guarantee ("a deliberate correction lands") holds for an
+// INTERACTIVE session — a real user is present. The authoritative flag is now
+// gated on `interactive` (see the D-83 block below), so this context sets it.
 const ctx = {
   bookId: "book-1",
   userId: "user-1",
   sessionId: "sess-1",
   agentType: "dev-editor",
+  interactive: true,
 } as unknown as ToolContext;
 
 beforeEach(() => {
@@ -88,5 +92,73 @@ describe("D-80: UpdateGraphEntity performs an AUTHORITATIVE upsert", () => {
 
     // the tool still reports its result string (honest count from the upsert)
     expect(out).toContain("updated");
+  });
+});
+
+/**
+ * D-83 (fast-follow guard): the D-80 authoritative write is reachable UNATTENDED
+ * — the batch writing-coach (BullMQ worker) can DelegateToSpecialist to an
+ * autonomous agent whose toolset includes UpdateGraphEntity, executed with no
+ * approval gate. An authoritative edit there could flip a genuinely-dead
+ * character alive and erase its deathChapter overnight, with no user watching.
+ *
+ * Guard: authoritative is now `ctx.interactive === true`. Only an interactive
+ * (user-present) session grants the authoritative bypass; every unattended path
+ * falls back to authoritative=false (sticky-dead / preserve-first guards stay
+ * on — per-scan extraction re-captures legitimate state, and no user is present
+ * to be misled by a no-op, so the D-80 "1 updated" lie cannot bite).
+ */
+describe("D-83: authoritative graph edits are gated on an interactive session", () => {
+  const editInput = {
+    entities: [
+      { type: "Character", name: "Corvin", properties: { status: "alive", role: "ally" } },
+    ],
+    chapterNumber: 7,
+  };
+
+  const authoritativeOf = (): boolean => {
+    expect(upsertMock).toHaveBeenCalledTimes(1);
+    const [, authoritative] = upsertMock.mock.calls[0] as unknown as [unknown, boolean];
+    return authoritative;
+  };
+
+  it("interactive session (user present) -> upsertEntities called AUTHORITATIVELY", async () => {
+    const interactiveCtx = {
+      bookId: "book-1",
+      userId: "user-1",
+      sessionId: "sess-1",
+      agentType: "writing-coach",
+      interactive: true,
+    } as unknown as ToolContext;
+
+    await executeTool("UpdateGraphEntity", interactiveCtx, editInput);
+    expect(authoritativeOf()).toBe(true);
+  });
+
+  it("unattended/batch session (interactive absent = safe default) -> NON-authoritative", async () => {
+    // The specialist spawned by the batch coach: no `interactive` on its ctx.
+    const batchCtx = {
+      bookId: "book-1",
+      userId: "user-1",
+      sessionId: "sess-1",
+      agentType: "ghostwriter",
+      // interactive intentionally omitted — proves the default is safe (false).
+    } as unknown as ToolContext;
+
+    await executeTool("UpdateGraphEntity", batchCtx, editInput);
+    expect(authoritativeOf()).toBe(false);
+  });
+
+  it("interactive explicitly false -> NON-authoritative (no truthy coercion escape)", async () => {
+    const explicitBatchCtx = {
+      bookId: "book-1",
+      userId: "user-1",
+      sessionId: "sess-1",
+      agentType: "ghostwriter",
+      interactive: false,
+    } as unknown as ToolContext;
+
+    await executeTool("UpdateGraphEntity", explicitBatchCtx, editInput);
+    expect(authoritativeOf()).toBe(false);
   });
 });
