@@ -2,7 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    # main plus the QA campaign branches (qa/bulletproof-*, etc.) so the
+    # golden-path gate runs on campaign pushes, not just main.
+    branches: [main, "qa/**"]
   pull_request:
     branches: [main]
 
@@ -44,8 +46,12 @@ env:
   SERPER_API_KEY: ""
 
 jobs:
-  verify:
-    name: Verify app
+  # Golden-path regression gate: the authoritative pre-merge check. Runs the
+  # full unit suite AND the tsc --noEmit typecheck (the campaign's #1
+  # invariant), alongside the env/auth/db/billing/docker/lint/build/worker
+  # contracts. Nothing here may be skipped or weakened.
+  golden-path-gate:
+    name: Golden-path gate (unit suite + typecheck + build)
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -88,6 +94,9 @@ jobs:
 
       - name: Lint
         run: npm run lint
+
+      - name: Typecheck (tsc --noEmit)
+        run: npx tsc --noEmit
 
       - name: Run unit tests
         run: npm run test:unit
