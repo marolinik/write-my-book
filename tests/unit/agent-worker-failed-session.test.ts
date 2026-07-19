@@ -243,7 +243,7 @@ describe("processAgentJob — failed session honesty (D-36)", () => {
     expect(publishedTypes()).not.toContain("complete");
   });
 
-  it("a failed BATCH child still rolls its spend into the ledger but does NOT clear the consecutive-failure streak", async () => {
+  it("a failed BATCH child rolls its spend into the ledger, does NOT clear the streak, and COUNTS the breaker (D-62)", async () => {
     h.fakeResult.current = failedResult({ tokensInput: 7, tokensOutput: 3 });
 
     await processAgentJob(
@@ -255,6 +255,11 @@ describe("processAgentJob — failed session honesty (D-36)", () => {
       expect.any(Number)
     );
     expect(h.redis.del).not.toHaveBeenCalledWith("batch:batch1:consecutive");
+    // D-62: a RESOLVED provider failure (success:false, never thrown) must count
+    // toward the breaker — otherwise a batch spends through a total outage
+    // because no child ever throws to reach the catch-block breaker path.
+    expect(h.redis.incr).toHaveBeenCalledWith("batch:batch1:consecutive");
+    expect(h.redis.incr).toHaveBeenCalledWith("batch:batch1:failures");
     // And it must not run post-session either (batch or not).
     expect(h.processPostSession).not.toHaveBeenCalled();
   });
