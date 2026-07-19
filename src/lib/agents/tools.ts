@@ -11,6 +11,7 @@ import {
   runConsistencyChecks,
 } from "@/lib/graph/graph-queries";
 import { upsertEntities } from "@/lib/graph/graph-builder";
+import { RELATIONSHIP_TYPES } from "@/lib/graph/types";
 import type { GraphNodeLabel, ExtractionResult, RelationshipType } from "@/lib/graph/types";
 import { searchMemory, formatSearchResults } from "@/lib/vector/retriever";
 import { indexDocument } from "@/lib/vector/indexer";
@@ -603,7 +604,15 @@ const updateGraphEntityDef: ToolDefinition = {
           properties: {
             from: { type: "string", description: "Source entity name" },
             to: { type: "string", description: "Target entity name" },
-            type: { type: "string", description: "Relationship type (e.g. KNOWS, ALLIED_WITH)" },
+            // Constrained to the known relationship-type set (mirrors the entity
+            // `type` enum above and the extraction tool's schema). This is only
+            // an LLM hint — the real guard is graph-builder.sanitizeRelationshipType,
+            // which sanitizes `type` before it is interpolated into Cypher (D-63).
+            type: {
+              type: "string",
+              enum: [...RELATIONSHIP_TYPES],
+              description: "Relationship type (e.g. KNOWS, ALLIED_WITH)",
+            },
             properties: { type: "object" },
           },
           required: ["from", "to", "type"],

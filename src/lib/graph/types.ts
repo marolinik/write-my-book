@@ -117,6 +117,31 @@ export type RelationshipType =
   | "MENTIONED_IN"      // any → Chapter
   | "TRANSFORMS_INTO";  // Character/Object → Character/Object
 
+/**
+ * Runtime allowlist mirroring the RelationshipType union — the single source of
+ * truth for the extraction tool schema + filter (entity-extractor), the agent
+ * UpdateGraphEntity tool schema (agents/tools), and the Cypher boundary
+ * sanitizer (graph-builder.sanitizeRelationshipType, D-63). `as const satisfies`
+ * guarantees no entry can drift to a value that is not a valid RelationshipType.
+ */
+export const RELATIONSHIP_TYPES = [
+  "APPEARS_IN",
+  "LOCATED_AT",
+  "PARTICIPATES_IN",
+  "KNOWS",
+  "ALLIED_WITH",
+  "OPPOSES",
+  "OWNS",
+  "PART_OF",
+  "LEADS_TO",
+  "FORESHADOWS",
+  "RESOLVES",
+  "OCCURS_IN",
+  "BELONGS_TO",
+  "MENTIONED_IN",
+  "TRANSFORMS_INTO",
+] as const satisfies readonly RelationshipType[];
+
 export interface GraphRelationship {
   type: RelationshipType;
   fromId: string;

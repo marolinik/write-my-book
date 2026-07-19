@@ -9,6 +9,7 @@ import crypto from "crypto";
 import { jsonrepair } from "jsonrepair";
 import { createLLMClient, resolveCheapModelFor } from "@/lib/llm";
 import type { LLMClientOptions } from "@/lib/llm/client-factory";
+import { RELATIONSHIP_TYPES } from "./types";
 import type {
   ExtractionResult,
   ExtractedEntity,
@@ -71,23 +72,10 @@ const VALID_LABELS: GraphNodeLabel[] = [
   "Scene",
 ];
 
-const VALID_RELATIONSHIP_TYPES: RelationshipType[] = [
-  "APPEARS_IN",
-  "LOCATED_AT",
-  "PARTICIPATES_IN",
-  "KNOWS",
-  "ALLIED_WITH",
-  "OPPOSES",
-  "OWNS",
-  "PART_OF",
-  "LEADS_TO",
-  "FORESHADOWS",
-  "RESOLVES",
-  "OCCURS_IN",
-  "BELONGS_TO",
-  "MENTIONED_IN",
-  "TRANSFORMS_INTO",
-];
+// Single source of truth lives in types.ts (RELATIONSHIP_TYPES) so the
+// extraction schema/filter, the agent tool schema, and the Cypher boundary
+// sanitizer (D-63) can never drift apart.
+const VALID_RELATIONSHIP_TYPES: RelationshipType[] = [...RELATIONSHIP_TYPES];
 
 /**
  * Shared guidance on WHAT to extract (labels, relationship types, rules). Used

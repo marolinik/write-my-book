@@ -5,6 +5,7 @@
  */
 
 import { withSession } from "./neo4j-client";
+import { RELATIONSHIP_TYPES } from "./types";
 import type {
   ExtractionResult,
   ExtractedEntity,
@@ -265,11 +266,19 @@ async function upsertRelationship(
     updatedAt: new Date().toISOString(),
   };
 
+  // D-63: `type` is free-form LLM output (the agent UpdateGraphEntity tool
+  // declares it an unconstrained string and the `as RelationshipType` cast is a
+  // runtime no-op), so it MUST be sanitized before it is interpolated into the
+  // relationship pattern below — exactly as node labels go through
+  // escapeLabelForQuery(). Without this, a crafted type breaks out of `[r:...]`
+  // and runs unscoped Cypher across every tenant's graph.
+  const relType = sanitizeRelationshipType(type);
+
   try {
     const result = await session.run(
       `MATCH (a:${escapeLabelForQuery(fromLabel)} {name: $fromName, bookId: $bookId})
        MATCH (b:${escapeLabelForQuery(toLabel)} {name: $toName, bookId: $bookId})
-       MERGE (a)-[r:${type}]->(b)
+       MERGE (a)-[r:${relType}]->(b)
        ON CREATE SET r += $props, r.createdAt = datetime()
        ON MATCH SET r += $props
        RETURN r`,
@@ -334,6 +343,58 @@ export async function removeChapterEntities(
 function escapeLabelForQuery(label: GraphNodeLabel): string {
   // Our labels are from a fixed enum, but sanitize anyway
   return label.replace(/[^a-zA-Z0-9_]/g, "");
+}
+
+/**
+ * Canonical relationship-type lookup keyed by UPPERCASE form, so a case /
+ * whitespace variant from the LLM (e.g. "allied_with") normalizes back to the
+ * exact union member the continuity checks key off (":ALLIED_WITH").
+ */
+const CANONICAL_RELATIONSHIP_TYPES: ReadonlyMap<string, string> = new Map(
+  RELATIONSHIP_TYPES.map((t) => [t, t])
+);
+
+/**
+ * Fallback used when a relationship type sanitizes to the empty string (all
+ * symbols / whitespace). Deliberately NOT a member of RelationshipType, so it
+ * lands in a neutral bucket instead of silently colliding with a
+ * continuity-check type.
+ */
+const RELATIONSHIP_TYPE_FALLBACK = "RELATED_TO";
+
+/**
+ * Sanitize an LLM-supplied relationship type before it is interpolated into a
+ * Cypher `MERGE (a)-[r:${type}]->(b)` pattern (D-63).
+ *
+ * The value is untrusted free-form model output, so a crafted string such as
+ * `KNOWS]->(b) WITH a MATCH (n) DETACH DELETE n //` would otherwise break out
+ * of the relationship pattern and run attacker Cypher across every tenant's
+ * graph. Neo4j relationship types are `[A-Za-z0-9_]`:
+ *
+ *   (a) a known type (case-insensitive, trimmed) → its canonical union form;
+ *   (b) anything else → uppercased and stripped to a bare `[A-Z0-9_]` identifier
+ *       (a leading digit is prefixed with `_` so the bare type is valid Cypher
+ *       rather than a syntax error — turning a would-be silent drop into a write);
+ *   (c) an empty / all-symbol result → RELATIONSHIP_TYPE_FALLBACK, never empty.
+ *
+ * The result always matches /^[A-Za-z0-9_]+$/, so it cannot contain the
+ * brackets, spaces, or comment markers an injection needs. Exported for unit
+ * testing.
+ */
+export function sanitizeRelationshipType(raw: unknown): string {
+  const asString = typeof raw === "string" ? raw : String(raw ?? "");
+  const normalized = asString.trim().toUpperCase();
+
+  const canonical = CANONICAL_RELATIONSHIP_TYPES.get(normalized);
+  if (canonical) {
+    return canonical;
+  }
+
+  const stripped = normalized.replace(/[^A-Z0-9_]/g, "");
+  if (stripped.length === 0) {
+    return RELATIONSHIP_TYPE_FALLBACK;
+  }
+  return /^[0-9]/.test(stripped) ? `_${stripped}` : stripped;
 }
 
 /**
