@@ -16,17 +16,20 @@ export function AICompanionBubble() {
 
   return (
     <>
-      {/* Pending onboarding offers — retrievable if a toast was ignored. */}
+      {/* Pending onboarding offers — retrievable if a toast was ignored.
+          On mobile the offers/FAB clear the fixed bottom nav (h-14) and each
+          other; pills are width-capped so they never blanket the manuscript
+          being edited at 320/390 (D-53). */}
       {onboardingOffers.length > 0 && (
-        <div className="fixed bottom-20 right-5 z-50 flex flex-col items-end gap-2">
+        <div className="fixed bottom-36 right-5 z-50 flex flex-col items-end gap-2 md:bottom-20">
           {onboardingOffers.map((offer) => (
             <button
               key={offer.workflowId}
               onClick={() => openWithWorkflow(offer.workflowId)}
-              className="flex items-center gap-1.5 rounded-full border border-primary/30 bg-background/95 px-3 py-1.5 text-xs font-medium shadow-md hover:bg-primary/10 transition-colors"
+              className="flex min-w-0 max-w-[75vw] items-center gap-1.5 rounded-full border border-primary/30 bg-background/95 px-3 py-1.5 text-xs font-medium shadow-md hover:bg-primary/10 transition-colors md:max-w-none"
             >
-              <SparklesIcon className="size-3.5 text-primary" />
-              {offer.cta}
+              <SparklesIcon className="size-3.5 shrink-0 text-primary" />
+              <span className="truncate">{offer.cta}</span>
             </button>
           ))}
         </div>
@@ -34,7 +37,7 @@ export function AICompanionBubble() {
 
       <button
         onClick={() => setPanelMode("mini")}
-        className="fixed bottom-5 right-5 z-50 flex items-center justify-center size-12 rounded-full bg-primary text-primary-foreground shadow-lg hover:scale-110 transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="fixed bottom-20 right-5 z-50 flex items-center justify-center size-12 rounded-full bg-primary text-primary-foreground shadow-lg hover:scale-110 transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-ring md:bottom-5"
         title="Open Writing Agent"
       >
         <BotIcon className="size-5" />

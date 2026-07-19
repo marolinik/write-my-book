@@ -110,7 +110,7 @@ export default async function BooksPage() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <BookOpenIcon className="mb-4 size-12 text-muted-foreground/50" />
-            <h3 className="mb-1 text-lg font-medium">{s.noBooks}</h3>
+            <h2 className="mb-1 text-lg font-medium">{s.noBooks}</h2>
             <p className="mb-4 text-sm text-muted-foreground">{s.noBooksDesc}</p>
             <Button asChild>
               <Link href="/books/new">

@@ -66,7 +66,7 @@ export function ApiKeysSection() {
 
         {apiKeys && apiKeys.length > 0 && (
           <div className="mt-4 rounded-md bg-muted/50 p-3 text-xs text-muted-foreground space-y-1">
-            <p className="font-medium">Usage Summary</p>
+            <p className="font-medium">{t.settings.usageSummary}</p>
             {apiKeys
               .filter((k) => k.usage && k.usage.sessionCount > 0)
               .map((k) => (
@@ -79,7 +79,7 @@ export function ApiKeysSection() {
                 </div>
               ))}
             {apiKeys.every((k) => !k.usage || k.usage.sessionCount === 0) && (
-              <p>No usage recorded yet.</p>
+              <p>{t.settings.noUsageYet}</p>
             )}
           </div>
         )}

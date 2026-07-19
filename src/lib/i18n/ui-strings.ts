@@ -96,6 +96,20 @@ export interface UIStrings {
     languageDescription: string;
     byokTitle: string;
     byokDescription: string;
+    getKey: string;
+    validateAndSave: string;
+    replace: string;
+    remove: string;
+    labelPlaceholder: string;
+    usageSummary: string;
+    noUsageYet: string;
+    providerBlurbs: {
+      anthropic: string;
+      openrouter: string;
+      openai: string;
+      gemini: string;
+      grok: string;
+    };
   };
 
   // Agent panel
@@ -443,6 +457,20 @@ const EN: UIStrings = {
     languageDescription: "Default language for new books and UI",
     byokTitle: "BYOK (Bring Your Own Key):",
     byokDescription: "WriteMyBook uses your API key directly. We never store or have access to your API credentials in plaintext \u2014 they are encrypted with AES-256-GCM at rest. You pay Anthropic directly for token usage.",
+    getKey: "Get key",
+    validateAndSave: "Validate & Save",
+    replace: "Replace",
+    remove: "Remove",
+    labelPlaceholder: "e.g. Personal, Work",
+    usageSummary: "Usage Summary",
+    noUsageYet: "No usage recorded yet.",
+    providerBlurbs: {
+      anthropic: "Claude models direct from Anthropic. Best latency and reliability.",
+      openrouter: "Access Claude and 200+ models through a single API key.",
+      openai: "GPT-4o, o3, and o4-mini models from OpenAI.",
+      gemini: "Gemini 2.5 Pro and Flash models from Google AI.",
+      grok: "Grok-4, Grok-3, and Grok-3 Mini from xAI.",
+    },
   },
   agentPanel: {
     apiKeyRequired: "API Key Required",
@@ -745,6 +773,20 @@ const SR: UIStrings = {
     languageDescription: "Podrazumevani jezik za nove knjige i interfejs",
     byokTitle: "BYOK (Koristite sopstveni ključ):",
     byokDescription: "WriteMyBook koristi vaš API ključ direktno. Nikada ne čuvamo niti imamo pristup vašim akreditivima u čistom tekstu \u2014 šifrovani su AES-256-GCM algoritmom. Plaćate Anthropic direktno za upotrebu tokena.",
+    getKey: "Preuzmi ključ",
+    validateAndSave: "Proveri i sačuvaj",
+    replace: "Zameni",
+    remove: "Ukloni",
+    labelPlaceholder: "npr. Lično, Posao",
+    usageSummary: "Pregled potrošnje",
+    noUsageYet: "Još nema zabeležene potrošnje.",
+    providerBlurbs: {
+      anthropic: "Claude modeli direktno od Anthropic-a. Najbolja brzina i pouzdanost.",
+      openrouter: "Pristup Claude-u i preko 200 modela putem jednog API ključa.",
+      openai: "GPT-4o, o3 i o4-mini modeli od OpenAI-ja.",
+      gemini: "Gemini 2.5 Pro i Flash modeli od Google AI-ja.",
+      grok: "Grok-4, Grok-3 i Grok-3 Mini od xAI-ja.",
+    },
   },
   agentPanel: {
     apiKeyRequired: "Potreban API ključ",
@@ -1047,6 +1089,20 @@ const DE: UIStrings = {
     languageDescription: "Standardsprache für neue Bücher und Benutzeroberfläche",
     byokTitle: "BYOK (Eigener Schlüssel):",
     byokDescription: "WriteMyBook verwendet Ihren API-Schlüssel direkt. Wir speichern Ihre Zugangsdaten nie im Klartext \u2014 sie werden mit AES-256-GCM verschlüsselt. Sie zahlen Anthropic direkt für die Token-Nutzung.",
+    getKey: "Schlüssel holen",
+    validateAndSave: "Prüfen & speichern",
+    replace: "Ersetzen",
+    remove: "Entfernen",
+    labelPlaceholder: "z. B. Privat, Arbeit",
+    usageSummary: "Nutzungsübersicht",
+    noUsageYet: "Noch keine Nutzung erfasst.",
+    providerBlurbs: {
+      anthropic: "Claude-Modelle direkt von Anthropic. Beste Latenz und Zuverlässigkeit.",
+      openrouter: "Zugriff auf Claude und über 200 Modelle mit einem einzigen API-Schlüssel.",
+      openai: "GPT-4o-, o3- und o4-mini-Modelle von OpenAI.",
+      gemini: "Gemini 2.5 Pro- und Flash-Modelle von Google AI.",
+      grok: "Grok-4, Grok-3 und Grok-3 Mini von xAI.",
+    },
   },
   agentPanel: {
     apiKeyRequired: "API-Schlüssel erforderlich",
@@ -1349,6 +1405,20 @@ const ES: UIStrings = {
     languageDescription: "Idioma por defecto para nuevos libros e interfaz",
     byokTitle: "BYOK (Trae tu propia clave):",
     byokDescription: "WriteMyBook usa tu clave API directamente. Nunca almacenamos tus credenciales en texto plano \u2014 están cifradas con AES-256-GCM. Pagas a Anthropic directamente por el uso de tokens.",
+    getKey: "Obtener clave",
+    validateAndSave: "Validar y guardar",
+    replace: "Reemplazar",
+    remove: "Eliminar",
+    labelPlaceholder: "p. ej. Personal, Trabajo",
+    usageSummary: "Resumen de uso",
+    noUsageYet: "Aún no hay uso registrado.",
+    providerBlurbs: {
+      anthropic: "Modelos Claude directamente de Anthropic. Mejor latencia y fiabilidad.",
+      openrouter: "Accede a Claude y más de 200 modelos con una sola clave API.",
+      openai: "Modelos GPT-4o, o3 y o4-mini de OpenAI.",
+      gemini: "Modelos Gemini 2.5 Pro y Flash de Google AI.",
+      grok: "Grok-4, Grok-3 y Grok-3 Mini de xAI.",
+    },
   },
   agentPanel: {
     apiKeyRequired: "Clave API requerida",
@@ -1651,6 +1721,20 @@ const FR: UIStrings = {
     languageDescription: "Langue par défaut pour les nouveaux livres et l'interface",
     byokTitle: "BYOK (Apportez votre propre clé) :",
     byokDescription: "WriteMyBook utilise votre clé API directement. Nous ne stockons jamais vos identifiants en clair \u2014 ils sont chiffrés avec AES-256-GCM. Vous payez Anthropic directement pour l'utilisation des tokens.",
+    getKey: "Obtenir une clé",
+    validateAndSave: "Valider et enregistrer",
+    replace: "Remplacer",
+    remove: "Supprimer",
+    labelPlaceholder: "p. ex. Personnel, Travail",
+    usageSummary: "Résumé d'utilisation",
+    noUsageYet: "Aucune utilisation enregistrée pour le moment.",
+    providerBlurbs: {
+      anthropic: "Modèles Claude directement depuis Anthropic. Meilleure latence et fiabilité.",
+      openrouter: "Accédez à Claude et plus de 200 modèles avec une seule clé API.",
+      openai: "Modèles GPT-4o, o3 et o4-mini d'OpenAI.",
+      gemini: "Modèles Gemini 2.5 Pro et Flash de Google AI.",
+      grok: "Grok-4, Grok-3 et Grok-3 Mini de xAI.",
+    },
   },
   agentPanel: {
     apiKeyRequired: "Clé API requise",
@@ -1953,6 +2037,20 @@ const RU: UIStrings = {
     languageDescription: "Язык по умолчанию для новых книг и интерфейса",
     byokTitle: "BYOK (Собственный ключ):",
     byokDescription: "WriteMyBook использует ваш API-ключ напрямую. Мы никогда не храним ваши учётные данные в открытом виде \u2014 они зашифрованы AES-256-GCM. Вы платите Anthropic напрямую за использование токенов.",
+    getKey: "Получить ключ",
+    validateAndSave: "Проверить и сохранить",
+    replace: "Заменить",
+    remove: "Удалить",
+    labelPlaceholder: "напр. Личный, Рабочий",
+    usageSummary: "Сводка использования",
+    noUsageYet: "Использование ещё не зафиксировано.",
+    providerBlurbs: {
+      anthropic: "Модели Claude напрямую от Anthropic. Лучшая задержка и надёжность.",
+      openrouter: "Доступ к Claude и более 200 моделям через один API-ключ.",
+      openai: "Модели GPT-4o, o3 и o4-mini от OpenAI.",
+      gemini: "Модели Gemini 2.5 Pro и Flash от Google AI.",
+      grok: "Grok-4, Grok-3 и Grok-3 Mini от xAI.",
+    },
   },
   agentPanel: {
     apiKeyRequired: "Требуется API-ключ",
@@ -2255,6 +2353,20 @@ const ZH: UIStrings = {
     languageDescription: "新书和界面的默认语言",
     byokTitle: "BYOK（自带密钥）：",
     byokDescription: "WriteMyBook直接使用您的API密钥。我们从不以明文存储您的凭据 \u2014 它们使用AES-256-GCM加密。您直接向Anthropic支付令牌使用费用。",
+    getKey: "获取密钥",
+    validateAndSave: "验证并保存",
+    replace: "替换",
+    remove: "移除",
+    labelPlaceholder: "例如：个人、工作",
+    usageSummary: "使用摘要",
+    noUsageYet: "尚无使用记录。",
+    providerBlurbs: {
+      anthropic: "直接来自 Anthropic 的 Claude 模型。最佳延迟与可靠性。",
+      openrouter: "通过单个 API 密钥访问 Claude 及 200 多个模型。",
+      openai: "来自 OpenAI 的 GPT-4o、o3 和 o4-mini 模型。",
+      gemini: "来自 Google AI 的 Gemini 2.5 Pro 和 Flash 模型。",
+      grok: "来自 xAI 的 Grok-4、Grok-3 和 Grok-3 Mini。",
+    },
   },
   agentPanel: {
     apiKeyRequired: "需要API密钥",

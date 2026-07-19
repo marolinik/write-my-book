@@ -16,7 +16,6 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import {
   Select,
@@ -68,7 +67,15 @@ export default function NewBookPage() {
     <div className="mx-auto max-w-lg p-6 lg:p-8">
       <Card>
         <CardHeader>
-          <CardTitle className="font-display text-xl">{t.newBook.title}</CardTitle>
+          {/* D-54: the page's main title is its level-one heading. CardTitle
+              renders a <div>, so an explicit <h1> is needed for
+              page-has-heading-one; it keeps the CardTitle slot/styling. */}
+          <h1
+            data-slot="card-title"
+            className="font-display text-xl font-semibold leading-none"
+          >
+            {t.newBook.title}
+          </h1>
           <CardDescription>{t.newBook.description}</CardDescription>
         </CardHeader>
         <CardContent>
