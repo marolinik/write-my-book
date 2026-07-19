@@ -119,3 +119,20 @@ describe("PATCH finding — destructive-apply guard (D-41a)", () => {
     );
   });
 });
+
+describe("PATCH finding — dismiss vs reject separation (D-55)", () => {
+  it("a dismissal records dismiss-intent only — status 'dismissed' + dismissReason, NEVER the reject timestamp", async () => {
+    h.db.editFinding.findFirst.mockResolvedValue(finding());
+    const res = await PATCH(
+      req({ action: "dismiss", reason: "not now" }) as never,
+      ctx as never
+    );
+    expect(res.status).toBe(200);
+    const data = h.db.editFinding.update.mock.calls[0][0].data;
+    expect(data.status).toBe("dismissed");
+    expect(data.dismissReason).toBe("not now");
+    // rejectedAt is the system REJECT timestamp. Stamping it on a writer
+    // dismissal conflates the two intents and corrupts analytics (D-55).
+    expect(data.rejectedAt).toBeUndefined();
+  });
+});

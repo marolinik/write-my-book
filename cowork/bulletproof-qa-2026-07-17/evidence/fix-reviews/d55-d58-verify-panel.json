@@ -1,0 +1,57 @@
+{
+  "cluster": "#50 honesty-sweep — D-55 (finding dismiss/reject analytics split) + D-58 (agent completion documentIds)",
+  "verifier": "Fable adversarial, 2 perspective-diverse lenses, model=claude-fable-5, each live-executing the real code (never trusting the author's test file)",
+  "team_lead_gate": { "tsc": "exit 0", "vitest": "1078 passed / 133 files / 0 failed" },
+
+  "D55": {
+    "verdict": "APPROVE",
+    "blocking": false,
+    "status": "LANDED",
+    "lens": "verify-d55",
+    "claim": "Writer DISMISSAL and system REJECT are now distinct: dismiss writes status:'dismissed'+dismissReason and NO rejectedAt; reject keeps status:'rejected'+rejectedAt+rejectionReason. Renderer derives [dismissed] from status first with legacy timestamp fallback.",
+    "key_results": {
+      "analytics_separation": "dismiss branch route.ts:225-236 writes only status:'dismissed'+dismissReason; git diff = exactly the one removed `rejectedAt: new Date()` line; system reject tools.ts:1354-1356 unchanged (keeps rejectedAt+reason)",
+      "apply_guard_regression": "NONE — repo-wide grep for rejectedAt: every src reader is a writer or the new renderer; ZERO guards key on it. Re-raise suppression (tools.ts:1395-1401 D-13 guard) queries status:'dismissed'; dedup (tools.ts:1370-1381) keys contentHash + status:{not:'rejected'} — a dismissed row still suppresses re-flag AND blocks duplicates. undo/route.ts:80 rejectedAt:null is a writer, harmless post-fix.",
+      "renderer_correctness": "live-executed via npx tsx importing the real finding-history-status module, 7/7 PASS: new dismiss->dismissed, system reject->dismissed, legacy dismiss(status+rejectedAt)->dismissed, adversarial status:'pending'+rejectedAt->dismissed, applied->applied, appliedAt-only stale-status->applied, pending->pending. status branch fires before the timestamp fallback so no resolved->pending misclassification is reachable."
+    },
+    "residuals_non_blocking": [
+      "PATCH apply has NO status guard at all — a dismissed finding CAN be re-applied via API. True before AND after the fix (apply never keyed on rejectedAt); not a regression, registered as a real gap if API-level re-apply matters.",
+      "Forward-only: legacy dismissed rows keep rejectedAt in DB; historical analytics stay conflated without a backfill.",
+      "Stale docs contradict the fix (revert-bait): docs/TIER1-IMPLEMENTATION-SPEC.md:186, docs/mission/product-map.md:218, docs/mission/key-facts.md:12 still say dismiss stamps rejectedAt."
+    ],
+    "landed_pathspec": [
+      "src/app/api/books/[id]/editorial/findings/[findingId]/route.ts",
+      "src/lib/agents/prompt-assembler.ts",
+      "src/lib/agents/finding-history-status.ts",
+      "tests/unit/finding-history-status.test.ts",
+      "tests/unit/finding-apply-guard.test.ts"
+    ]
+  },
+
+  "D58": {
+    "verdict": "REJECT",
+    "blocking": true,
+    "status": "NOT LANDED — real fix dispatched (opus-d58-source)",
+    "lens": "verify-d58",
+    "defect": "The prior fix only plumbed the worker SSE (`documentIds: result.documentIds ?? []` at agent-worker.ts:~865). But AgentResult.documentIds is NEVER populated: orchestrator.ts declares `const documentIds: string[] = []` (:224 runAgent, :334 continueConversation), passes it to runToolLoop (:393) and never pushes. executeWriteDocument (tools.ts:1064-1126) returns a prose 'Created X (id: ...)' string, recording the id nowhere structurally. Every SUCCESS completion still emits []. The new worker test passes only because it MOCKS the orchestrator result (completedResult({documentIds:['doc-a','doc-b']})) — it proves worker plumbing, not the defect. This is the fabricated-PASS failure mode the campaign exists to catch (cf. D-45).",
+    "completion_sites_plumbed_but_empty_source": [
+      "agent-worker.ts:865 success publish — plumbing OK / still [] (source empty)",
+      "books/[id]/agent/route.ts:546-551 inline success (spreads ...result) — plumbing OK / still []",
+      "series/[id]/agent/route.ts:250 success — plumbing OK / still []",
+      "message/route.ts:206-207 success — plumbing OK / still []"
+    ],
+    "no_regression": "PASS — additive metadata key; resultMeta (worker :611-637) has no documentIds key so no clobber; failed (:841-849) + cancelled (:834) sessions return before publish, untouched.",
+    "required_fix": "Populate documentIds at the SOURCE: thread a doc-id sink through ToolContext so executeWriteDocument records each created/updated doc id; runToolLoop owns the array and returns it in AgentResult. This also makes delegation aggregation (tools.ts:2094 specialistDocumentIds.push(...result.documentIds)) start working. Add a test that runs the REAL orchestrator with a stubbed WriteDocument (NOT a mocked orchestrator result) so the empty-source cannot regress silently.",
+    "held_pathspec_until_real_fix": [
+      "src/lib/queue/agent-worker.ts",
+      "src/app/api/books/[id]/agent/[sessionId]/message/route.ts",
+      "src/app/api/series/[id]/agent/route.ts",
+      "tests/unit/agent-worker-failed-session.test.ts",
+      "tests/unit/agent-message-route.test.ts",
+      "tests/unit/agent-route-empty-billing.test.ts",
+      "tests/unit/series-agent-error-documentids.test.ts"
+    ]
+  },
+
+  "outcome": "D-55 landed this commit. D-58 held blocking; real source fix in flight. #50 stays in_progress until D-58 lands."
+}

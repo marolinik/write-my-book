@@ -216,15 +216,17 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json(updated);
     }
 
-    // Standard apply (advice-only) or dismiss
-    // rejectedAt drives <finding_history> status — without it, dismissed
-    // findings render as [pending] in agent prompts.
+    // Standard apply (advice-only) or dismiss.
+    // D-55: a writer DISMISSAL records dismiss-intent only (status "dismissed" +
+    // dismissReason) and must NOT stamp `rejectedAt` — that is the system REJECT
+    // timestamp, and conflating the two corrupts dismiss-vs-reject analytics.
+    // <finding_history> derives its [dismissed] label from `status` (see
+    // findingHistoryStatus), so dropping the timestamp does not regress prompts.
     const updateData: Record<string, unknown> =
       data.action === "apply"
         ? { status: "applied", appliedAt: new Date() }
         : {
             status: "dismissed",
-            rejectedAt: new Date(),
             dismissReason: data.reason ?? null,
           };
 

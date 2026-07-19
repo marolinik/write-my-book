@@ -7,6 +7,7 @@ import { formatInsightsForPrompt } from "./blackboard";
 import { formatBriefsForPrompt } from "./session-brief";
 import { formatWriterMemoryForPrompt } from "./writer-memory";
 import { selectSkillsForAgent } from "./skills";
+import { findingHistoryStatus } from "./finding-history-status";
 import { db } from "@/lib/db";
 
 // ─── Base Agent Instructions ───────────────────────────────────
@@ -1414,11 +1415,9 @@ async function loadFindingHistory(
 
   const lines: string[] = [];
   for (const f of findings) {
-    const status = f.appliedAt
-      ? "applied"
-      : f.rejectedAt
-        ? "dismissed"
-        : "pending";
+    // D-55: derive from `status` (dismiss vs reject) so a dismissal — which no
+    // longer stamps the reject timestamp — still reads as [dismissed].
+    const status = findingHistoryStatus(f);
 
     // Get writer reply from the first reply if exists
     const replies = await db.findingReply.findMany({
