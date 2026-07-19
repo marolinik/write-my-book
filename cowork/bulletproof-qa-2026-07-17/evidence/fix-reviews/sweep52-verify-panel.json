@@ -1,0 +1,46 @@
+{
+  "fix": "Sweep #52 data-integrity + polish (D-46 filename, D-61 estimate, D-56 ownership order; D-59/D-47 no-op)",
+  "verifier": "Fable adversarial, 2 perspective-diverse lenses, model=claude-fable-5, each live-executing the real code",
+  "aggregate": { "anyBlocking": false, "allApprove": true },
+  "team_lead_gate": { "tsc": "exit 0", "vitest": "1027 passed / 130 files / 0 failed" },
+
+  "lens_filename_D46": {
+    "verdict": "APPROVE",
+    "blocking": false,
+    "method": "own trace importing real sanitizeExportFilename; 25 named cases + exhaustive 0x00-0xFF sweep + Unicode dot/slash lookalikes",
+    "key_results": {
+      "path_traversal": "0 escapes — '../../etc/passwd'->'etcpasswd', '..\\..\\windows'->'windows', '....//'->'book', '..\\/..\\/..//boot.ini'->'bootini'; structural proof: '.' not in allowlist [a-zA-Z0-9-_ ] so no output can contain a dot/'..'/'/'/'\\'",
+      "header_injection": "CRLF 'a\\r\\nSet-Cookie: x'->'aSet-Cookie-x'; quote 'a\"b'->'ab'; ';filename=' neutralized — ASCII/safe for Content-Disposition",
+      "degenerate": "'', '   ', '语言', '日本語', emoji, '!!!' all fall back to 'book' (never '' which would yield '-<timestamp>')",
+      "fidelity": "ASCII titles byte-identical to old ('My Book'->'My-Book'); diacritics transliterate not drop ('Kőszeg'->'Koszeg', 'Café Déjà Vu'->'Cafe-Deja-Vu')"
+    },
+    "residuals_non_blocking": [
+      "Non-decomposable letters drop (Ł/ß): 'Łódź'->'odz', 'Straße'->'Strae' — NFD limitation, transliteration imperfection only",
+      "'con' passes but final name is 'con-<timestamp>.<fmt>', not a Windows reserved device name (reserved only when stem is exactly 'con')",
+      "old-vs-new differ ONLY on degenerate inputs (intended fix, not regression)"
+    ]
+  },
+
+  "lens_order_D56_D61": {
+    "verdict": "APPROVE",
+    "blocking": false,
+    "D56": {
+      "order_proven": "requireUser(401) -> await params -> ownership findFirst 404 -> parseJsonBody(400) -> schema.parse(400); nothing before the fence branches on body or book state",
+      "catch_cannot_redistinguish": "non-owner returns at the fence and never reaches parse, so neither InvalidJsonBodyError nor ZodError can exist on the non-owner path; owned+bad-body still 400, non-owned+anything 404",
+      "no_side_effects_pre_fence": "only 'await params' between auth and fence — no rate-limit spend, no differential logging, no DB write; checkQuota is post-fence AND post-parse",
+      "regression": "owned+valid body proceeds to findIneligibleWorkflows -> budget cap -> quota unchanged; book.settings from the fence still consumed downstream; GET fences identically",
+      "residuals_non_blocking": "authenticated garbage-body now costs one findFirst before 400 (trivial, session required); inherent row-hit-vs-miss micro-timing pre-exists any fence"
+    },
+    "D61": {
+      "method": "live-executed real estimateRenderedPages via npx tsx",
+      "results": "NaN/+Inf/-Inf/-100/-1/0 all floor to 5 (no NaN/negative); monotonic non-decreasing over 0..200k; anchors 6187w->18 (+5.9%), 81095w->168 (+1.8%) both <=15%; 500/501 boundary -> 6/7",
+      "no_security_consumer": "consumers are display-only '~N pages' + export metadata; no billing/quota/security path — pure honesty cosmetic",
+      "residual_cosmetic": "empty/0-word manuscript shows '~5 pages' (front-matter floor); Infinity maps to 5 rather than erroring"
+    }
+  },
+
+  "no_op_and_founder_decision": {
+    "D59": "ALREADY-FIXED on-branch 409e7e3 (api-key POST 200 on update, 201 only on create) — read-confirmed, no code",
+    "D47": "STOP / founder-decision — optimistic CAS already built and fires end-to-end (landed 29af79e); the J-4 repro used UNVERSIONED raw PUTs hitting the intentional legacy last-write-wins path. Making expectedVersion mandatory would break legacy/agent/import writers = the STOP condition. Real editor+dialog flow protected; residual accepted."
+  }
+}

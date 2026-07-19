@@ -110,6 +110,16 @@ describe("POST /api/books/:id/batch — create", () => {
     expect(h.enqueueBatchFlow).not.toHaveBeenCalled();
   });
 
+  it("D-56: non-owned book with an invalid body returns 404, not 400 (existence-hiding)", async () => {
+    // Ownership/existence must be decided BEFORE body validation so a probe
+    // cannot distinguish "not yours / doesn't exist" (404) from "bad body"
+    // (400) on a resource it has no rights to.
+    h.db.book.findFirst.mockResolvedValueOnce(null);
+    const res = await createBatch(req({ workflowIds: [] }) as never, bookCtx as never);
+    expect(res.status).toBe(404);
+    expect(h.enqueueBatchFlow).not.toHaveBeenCalled();
+  });
+
   it("rejects a prose-mutating workflow (revise) with 400", async () => {
     const res = await createBatch(
       req({ workflowIds: ["dev-edit", "revise"] }) as never,

@@ -63,10 +63,11 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id: bookId } = await params;
-    const body = await parseJsonBody(req);
-    const data = createBatchSchema.parse(body);
 
-    // ── Ownership fence (userId) ────────────────────────────────────────
+    // ── Ownership fence (userId) — BEFORE body validation ───────────────
+    // D-56: existence-hiding must be uniform — a probe on a book it does not
+    // own always gets 404, never a 400 that would distinguish "malformed body"
+    // from "not yours / doesn't exist" on a resource it has no rights to.
     const book = await db.book.findFirst({
       where: { id: bookId, userId: user.id },
       include: { settings: true },
@@ -74,6 +75,9 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     if (!book) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
+
+    const body = await parseJsonBody(req);
+    const data = createBatchSchema.parse(body);
 
     // ── Batch-eligibility (the load-bearing v1 guardrail, §7.2) ─────────
     // Reject any prose-mutating / conversational workflow BEFORE doing work.

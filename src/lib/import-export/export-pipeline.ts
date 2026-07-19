@@ -50,6 +50,44 @@ export function applyChapterHeading(
   return trimmed ? `${heading}\n\n${trimmed}` : `${heading}\n`;
 }
 
+/**
+ * Build a filesystem/URL/Content-Disposition-safe export filename stem from a
+ * book title. D-46: the previous `replace(/[^a-zA-Z0-9-_ ]/g, "")` DROPPED every
+ * diacritic ("Kőszeg" → "Kszeg", ≥8 occurrences P7-func J-1). We first fold
+ * accented Latin letters to their base (NFD + strip combining marks: ő → o),
+ * THEN drop anything still outside the ASCII-safe set, so the download route's
+ * `/[/\\]/` + `..` rejections and the Content-Disposition header stay ASCII
+ * clean end-to-end. A title that leaves nothing behind (a non-Latin script, or
+ * pure punctuation) falls back to a stable stem instead of an empty one, so the
+ * final `<stem>-<timestamp>.<fmt>` never degrades to `-2026-…`.
+ */
+export function sanitizeExportFilename(bookName: string): string {
+  const stem = bookName
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "") // strip combining diacritical marks (é → e, ő → o)
+    .replace(/[^a-zA-Z0-9-_ ]/g, "") // drop any remaining non-ASCII / unsafe chars
+    .replace(/\s+/g, "-")
+    .replace(/^-+|-+$/g, ""); // trim stray edge hyphens left by removals
+  return stem.length > 0 ? stem : "book";
+}
+
+/**
+ * Estimate the rendered PDF page count for a manuscript of `wordCount` words.
+ * D-61 / Z15-B3: a single `ceil(words / 350)` divisor overshot badly at book
+ * scale ("The Kőszeg Manuscript P7": 81,095 words estimated 232 vs 165 actual,
+ * +40.6%) because the error SCALES with length — there is a fixed front-matter
+ * block (half-title / title / copyright / etc.: a handful of near-empty pages)
+ * PLUS body text at a higher observed density than 350 w/pg, and one divisor
+ * cannot represent both. A two-parameter model (fixed offset + body density)
+ * fits both measured anchors within ~6%: (6,187 w → 17 pp) and (81,095 w → 165 pp).
+ */
+export function estimateRenderedPages(wordCount: number): number {
+  const FRONT_MATTER_PAGES = 5; // fixed near-empty front matter (title/copyright/…)
+  const BODY_WORDS_PER_PAGE = 500; // observed rendered body density
+  const words = Number.isFinite(wordCount) && wordCount > 0 ? wordCount : 0;
+  return FRONT_MATTER_PAGES + Math.ceil(words / BODY_WORDS_PER_PAGE);
+}
+
 /** Decode the small set of HTML entities pandoc emits in heading text. */
 function decodeBasicEntities(text: string): string {
   return text
@@ -568,16 +606,13 @@ export async function exportManuscript(
     .replace(/[#*_\-\[\](){}:>|`~]/g, "")
     .split(/\s+/)
     .filter(Boolean).length;
-  // Approximate RENDERED-page estimate, not submission-manuscript pages. The 250
-  // w/pg convention overshoots the actual export (a 6187-word book rendered to a
-  // 17-page PDF, ~364 w/pg); 350 tracks the observed rendered density (B3).
-  const estimatedPages = Math.ceil(wordCount / 350);
+  // Approximate RENDERED-page estimate, not submission-manuscript pages
+  // (front-matter offset + observed body density; see estimateRenderedPages).
+  const estimatedPages = estimateRenderedPages(wordCount);
 
   // 8. Write to temp filesystem, run Pandoc, upload result
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-  const sanitizedName = bookName
-    .replace(/[^a-zA-Z0-9-_ ]/g, "")
-    .replace(/\s+/g, "-");
+  const sanitizedName = sanitizeExportFilename(bookName);
   const outputFilename = `${sanitizedName}-${timestamp}.${format}`;
   const storageKey = `exports/${outputFilename}`;
 
