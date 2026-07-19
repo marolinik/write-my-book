@@ -1,0 +1,45 @@
+{
+  "deliverable": "#54 Gate 3 (W-writer-trust: continuity net precision/recall) — seeded labeled corpus proving detection-layer P/R WITHOUT live Neo4j and WITHOUT an LLM",
+  "author": "opus-continuity",
+  "verifier": "verify-gate3 (Fable adversarial, model=claude-fable-5), re-executing the real suite + live-mutating production code to prove non-vacuity and emulator fidelity",
+  "verdict": "APPROVE",
+  "blocking": false,
+  "gate_state": "MET for the detection layer (extraction LLM leg honestly BLOCKED-ENV, seeded graph STATE directly downstream of extraction)",
+
+  "claims": {
+    "1_non_vacuous": {
+      "result": "PASS",
+      "evidence": "Test mocks ONLY @/lib/graph/neo4j-client; imports the REAL runConsistencyChecks (:250) and REAL toContinuityFlags (:3). Independent RED repro: flipped TP-dead-01 expectation to [] -> exit 1, '2 failed | 39 passed'; BOTH the per-scenario test AND the aggregate 'PRECISION=1.0 and RECALL=1.0' went RED; reverted -> 41/41."
+    },
+    "2_faithful_emulation": {
+      "result": "PASS",
+      "evidence": "Emulator branches key on query STRUCTURE (':ALLIED_WITH]'+':OPPOSES]', c.status=\"dead\", ':LEADS_TO]', 'AS location1') and derive predicates from query text — ZERO scenario-id keying (emulator has no access to scenario identity). Decisive proof: verifier reverted the REAL Fix-4 predicate in graph-queries.ts (deleted WHERE r1.chapter=r2.chapter), test untouched -> exactly the 3 predicted TNs failed (TN-rel-01, TN-rel-04, TN-clean-01) + aggregate '4 failed | 37 passed'. git checkout restored -> 41/41. A cheating emulator would have stayed green.",
+      "non_blocking_fidelity_boundary": "A hypothetical D-19 revert (dead-check back to lastMentioned) would NOT go RED — emulator always requires PARTICIPATES_IN and no scenario seeds lastMentioned. Report does not claim that dimension, so no fabrication; the 5 claimed query-driven dimensions all verified."
+    },
+    "3_pr_reexecution": {
+      "result": "PASS (with one report typo, corrected)",
+      "evidence": "npx vitest run tests/unit/continuity-seeded-corpus.test.ts -> 'Tests 41 passed (41)'. Recounted from labels: default 18 TP flags (pinned expect(tp).toBe(18) -> PASS). Assertions genuinely enforce P AND R: mismatches==[], fp==0, fn==0, precision==1, recall==1, tp>=15; precision formula tp/(tp+fp||1) yields 0 on empty corpus so vacuous-green is impossible.",
+      "correction_applied": "Report measured table said gated location_conflict TP=3; actual re-count = 2 (LC-TP-01, LC-TP-02, one flag each) — matches the report's own STEP-2 prose ('2 TP'). Table line 101 corrected 3 -> 2 this land. P/R still 1.00/1.00 (TP=2, FP=0, FN=0)."
+    },
+    "4_gate_integrity": {
+      "result": "PASS",
+      "evidence": "git diff --stat src/lib/graph/ src/lib/continuity/ EMPTY (verified before+after the mutation cycle; deliberate revert restored via git checkout). location_conflict default-OFF intact (graph-queries.ts:39-41): default block deletes the env var in beforeAll, restores in afterAll; gated block sets 'true' only inside its own describe. Gated TPs NOT folded into default P/R — default tp pinned at exactly 18, no location_conflict key in DEFAULT_CORPUS. DEFAULT-OFF test is a genuine gate proof: emulator WOULD answer the location query if issued, so produced==[] proves runConsistencyChecks never ran it."
+    },
+    "5_rc3_guards": {
+      "result": "PASS",
+      "evidence": "TP-dead-08 (:405): single node 'Seraphine Vale' w/ alias, dead ch5 acts ch8; exact toEqual on full produced key set — a phantom second 'Sera' flag fails it (anti-split). TN-dead-06 (:479): dead 'Sera Vance' + DISTINCT living 'Lord Vance' acting ch8, expected [] — any cross-attribution (dead_character_reappears::Sera Vance) fails it (anti-crater). Alias-FOLDING scope (upsert layer, Fix 7c tests) declared in-file, not hidden."
+    }
+  },
+
+  "measured": {
+    "default_flag_off": { "scenarios": 32, "tp": 18, "fp": 0, "fn": 0, "precision": 1.00, "recall": 1.00 },
+    "gated_location_conflict_flag_on": { "scenarios": 5, "tp": 2, "fp": 0, "fn": 0, "precision": 1.00, "recall": 1.00 }
+  },
+
+  "landed_pathspec": [
+    "tests/unit/continuity-seeded-corpus.test.ts",
+    "cowork/bulletproof-qa-2026-07-17/evidence/fix-reviews/gate3-continuity-corpus.md",
+    "cowork/bulletproof-qa-2026-07-17/evidence/fix-reviews/gate3-verify-panel.json"
+  ],
+  "note": "Test-only + evidence subset land; production graph code untouched (diff empty). The 17 RED in provider-card-i18n.test.ts at land time are fix-7c's D-51 TDD-RED phase in the shared tree — NOT in this commit; committed HEAD is green (continuity file 41/41)."
+}
