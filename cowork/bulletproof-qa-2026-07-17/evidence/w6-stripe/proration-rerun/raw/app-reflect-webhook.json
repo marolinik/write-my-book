@@ -1,0 +1,18 @@
+{
+  "event": {
+    "id": "evt_w6d45_1784443808492",
+    "type": "customer.subscription.updated"
+  },
+  "response": {
+    "status": 200,
+    "json": {
+      "received": true
+    }
+  },
+  "dbRowAfter": {
+    "plan": "professional",
+    "status": "active",
+    "billing_interval": "monthly",
+    "stripe_subscription_id": "sub_1TuoXnC0mmjh4oEMn21kUfIm"
+  }
+}
