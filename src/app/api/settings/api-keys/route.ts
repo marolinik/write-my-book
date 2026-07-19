@@ -113,10 +113,15 @@ export async function POST(req: NextRequest) {
     const encrypted = encryptApiKey(key);
     const now = new Date();
 
-    // Count existing keys to determine if this should be the default
-    const existingKeyCount = await db.apiKey.count({
+    // One query answers both facts we need: whether ANY key exists (→ first key
+    // becomes the default) and whether THIS provider's key already exists (→ the
+    // upsert is an update, not a create).
+    const existingKeys = await db.apiKey.findMany({
       where: { userId: user.id },
+      select: { provider: true },
     });
+    const isFirstKey = existingKeys.length === 0;
+    const keyAlreadyExists = existingKeys.some((k) => k.provider === provider);
 
     // Upsert: one key per provider per user
     const apiKey = await db.apiKey.upsert({
@@ -131,7 +136,7 @@ export async function POST(req: NextRequest) {
         provider,
         encryptedKey: encrypted,
         label: label || null,
-        isDefault: existingKeyCount === 0, // first key is default
+        isDefault: isFirstKey, // first key is default
         validatedAt: now,
       },
       update: {
@@ -141,6 +146,9 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // D-59: answer honestly — 201 Created only when a new row was inserted,
+    // 200 OK when an existing provider key was updated. Reporting 201 for a
+    // pre-existing key misrepresents an idempotent update as a creation.
     return NextResponse.json(
       {
         id: apiKey.id,
@@ -151,7 +159,7 @@ export async function POST(req: NextRequest) {
         maskedKey: maskApiKey(key),
         usage: null,
       },
-      { status: 201 }
+      { status: keyAlreadyExists ? 200 : 201 }
     );
   } catch (error) {
     const invalidJson = invalidJsonBodyResponse(error);
