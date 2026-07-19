@@ -41,6 +41,13 @@ export interface MemoryChunkPayload {
   docId: string | null; // Document ID, session ID, or finding ID
   chapterId: string | null;
   chapterNumber: number | null;
+  /**
+   * True only on a chapter's CONTENT/prose chunks (D-75). Lets the chapter-scoped
+   * delete replace a chapter's prose by (bookId, chapterNumber) without touching a
+   * sibling brief/plan that maps to the same "chapter" docType. Absent (optional) on
+   * every other chunk and on pre-D-75 chunks — back-compatible.
+   */
+  chapterContent?: boolean;
   chunkIndex: number;
   text: string;
   characterNames: string[];

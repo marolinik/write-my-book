@@ -146,6 +146,10 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       onDocumentChanged(bookId, doc.type, data.content, {
         docId,
         userId: user.id,
+        // D-77: thread the book's seriesId so document-API edits stay reachable by
+        // series-filtered (cross-book) recall, matching the content/agent write paths;
+        // a null-stamped chunk is invisible to every series query.
+        seriesId: book.seriesId,
         chapterNumber: doc.chapterNumber ?? undefined,
       }).catch(() => {});
     }

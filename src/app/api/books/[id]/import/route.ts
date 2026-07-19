@@ -169,7 +169,10 @@ async function handleStructuredImport(
       docType: "chapter" as const,
       docId: `import-ch-${ch.number}`,
       content: ch.content,
-      metadata: { userId, chapterNumber: ch.number },
+      // D-75: imported chapters ARE chapter content, so flag them — an imported
+      // chapter later edited via the content route/document API then converges onto
+      // one chunk set instead of duplicating.
+      metadata: { userId, chapterNumber: ch.number, chapterContent: true },
     }));
   if (chaptersToIndex.length > 0) {
     indexBatch(chaptersToIndex).catch(err =>
@@ -319,7 +322,8 @@ async function handleLegacyImport(
       docType: "chapter" as const,
       docId: `import-ch-${ch.number}`,
       content: ch.content,
-      metadata: { userId, chapterNumber: ch.number },
+      // D-75: imported chapters ARE chapter content (see structured-import path).
+      metadata: { userId, chapterNumber: ch.number, chapterContent: true },
     }));
     if (legacyChaptersToIndex.length > 0) {
       indexBatch(legacyChaptersToIndex).catch(err =>

@@ -109,6 +109,16 @@ export async function rebuildBookIndex(
 
   let totalChunks = 0;
 
+  // D-76: the book's seriesId must SURVIVE a rebuild. A rebuilt chapter chunk stamped
+  // seriesId:null is invisible to every series-filtered (cross-book) recall, silently
+  // dropping the book out of its series memory. Read it once and thread it through
+  // every re-indexed document, matching what the live write paths already stamp.
+  const book = await db.book.findUnique({
+    where: { id: bookId },
+    select: { seriesId: true },
+  });
+  const seriesId = book?.seriesId ?? null;
+
   // Load all documents for this book from Postgres
   const documents = await db.document.findMany({
     where: { bookId },
@@ -154,8 +164,13 @@ export async function rebuildBookIndex(
 
         return indexDocument(bookId, docType, doc.id, content, {
           userId,
+          seriesId,
           chapterNumber,
           version: 1,
+          // D-75: chapter prose is replaced chapter-scoped so a rebuild's re-index of
+          // the same chapter converges with the live write paths; briefs/plans/reports
+          // stay docId-scoped and are never treated as chapter content.
+          chapterContent: doc.type === "CHAPTER_CONTENT",
         });
       })
     );
