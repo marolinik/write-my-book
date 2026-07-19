@@ -152,6 +152,70 @@ async function upsertSingleEntity(
     }
   }
 
+  // Sub-fix 7(a) / D-32c: Event-name canonicalization before MERGE. The MERGE
+  // identity is the RAW {bookId, name}, so "The Wedding" and "Wedding" fork into
+  // distinct Event nodes even though they are the same event. We resolve an
+  // incoming Event onto an EXISTING Event whose canonical form matches, WITHOUT
+  // changing the raw MERGE key — so no existing node forks, the first-seen
+  // display spelling is preserved, and the fold composes with the RC-2 coalesce
+  // and D-27 alias union already applied to the node below.
+  //
+  // Scoped to Event ONLY: a false-merge of two Characters is worse than of two
+  // Events (it silently loses a character), and character identity is sub-fix
+  // (c)'s concern — so Characters/Objects are never canonical-folded here.
+  //
+  // Shape (see fix7a-handoff.md): keep MERGE on the raw {bookId, name}; add a
+  // pre-MERGE lookup that finds an existing Event sharing this canonical key and,
+  // when found under a DIFFERENT spelling, fold onto ITS stored name and push our
+  // spelling into the alias union. A `canonicalName` property is stamped going
+  // forward so the lookup is a single equality; a legacy node (pre-fix, no
+  // canonicalName) is still caught by the enumerated article-variant name
+  // candidates and self-heals its canonicalName on that match. Every value rides
+  // as a Cypher param; the label stays escaped — the injection boundary is
+  // unchanged.
+  let mergeName = name;
+  let canonicalName: string | undefined;
+  let foldedAlias: string | undefined;
+  if (label === "Event") {
+    canonicalName = canonicalizeEntityName(name);
+    // Enumerate the article-variant spellings that all canonicalize to this key,
+    // so a pre-fix node (no stored canonicalName) is still found by literal name.
+    const nameCandidates = Array.from(
+      new Set([
+        name,
+        canonicalName,
+        `The ${canonicalName}`,
+        `A ${canonicalName}`,
+        `An ${canonicalName}`,
+      ])
+    );
+    const canonicalMatch = await session.run(
+      `MATCH (n:${escapeLabelForQuery(label)} {bookId: $bookId})
+       WHERE n.canonicalName = $canonicalName OR n.name IN $nameCandidates
+       RETURN n.name AS existingName
+       ORDER BY n.firstAppearance, n.name
+       LIMIT 1`,
+      { bookId, canonicalName, nameCandidates }
+    );
+    if (canonicalMatch.records.length > 0) {
+      const existingName = canonicalMatch.records[0].get("existingName") as string;
+      // Only FOLD when the existing node carries a DIFFERENT spelling — an
+      // exact-name match already merges through the raw MERGE key untouched, so
+      // it must not spuriously self-alias.
+      if (existingName && existingName !== name) {
+        mergeName = existingName;
+        foldedAlias = name;
+      }
+    }
+  }
+
+  // When we fold onto a differently-spelled existing Event, keep our own spelling
+  // as an alias so no variant / prose spelling is lost (unioned via D-27 below).
+  const effectiveAliases =
+    foldedAlias !== undefined
+      ? Array.from(new Set([...(aliases ?? []), foldedAlias]))
+      : aliases;
+
   // Build properties map for Cypher (name is in the MERGE key; bookId is
   // pinned to the authoritative value so a stray/missing properties.bookId
   // can never relabel or unscope the node)
@@ -171,6 +235,19 @@ async function upsertSingleEntity(
   delete allProps.occursInChapter;
   delete allProps.deathChapter;
   delete allProps.aliases;
+  // Sub-fix 7(a): canonicalName is the identity MATCH KEY the pre-MERGE lookup
+  // folds on (`n.canonicalName = $canonicalName`). It MUST be application-derived
+  // only — never an LLM value. The extraction `properties` are unconstrained
+  // model output (record_narrative_graph passes them unfiltered; UpdateGraphEntity
+  // is an open object; agents now SEE canonicalName on QueryGraph results, so a
+  // round-trip echo is realistic), so a smuggled `properties.canonicalName` left
+  // in the `+= $updateProps` map would survive ON MATCH and — because Neo4j does
+  // not specify snapshot SET semantics — be read back by the trailing coalesce
+  // and frozen, deterministically false-merging a DISTINCT Event via the lookup.
+  // Strip it so the app-derived canonicalName stamped in createProps / the
+  // coalesce param is the ONLY writer, exactly as bookId (D-30) and userId (RC-6)
+  // are protected in this same block.
+  delete allProps.canonicalName;
   // RC-6 defense in depth: stamp the authoritative tenant onto the node when the
   // caller supplied one. Never trust a caller-injected userId in `properties`;
   // strip it and set only the authoritative value. Omitting it (legacy callers)
@@ -269,15 +346,31 @@ async function upsertSingleEntity(
     createProps.deathChapter = derived.deathChapter;
     onMatchStableItems.push("n.deathChapter = coalesce(n.deathChapter, $chapter)");
   }
-  if (aliases && aliases.length > 0) {
+  if (effectiveAliases && effectiveAliases.length > 0) {
     // D-27: aliases are UNIONed, never replaced. Seed the set on ON CREATE; on
     // ON MATCH append only the aliases not already present, preserving every
     // existing variant — so a later chapter emitting a subset (e.g. ["Zoe"])
     // cannot drop an existing diacritic variant ("Zoë"). Kept out of the
     // `+= $updateProps` map, which would destructively overwrite the array.
-    createProps.aliases = aliases;
+    // Sub-fix 7(a): when an Event folded onto a differently-spelled node, the
+    // incoming spelling is included here so the variant is preserved as an alias.
+    createProps.aliases = effectiveAliases;
     onMatchStableItems.push(
       "n.aliases = coalesce(n.aliases, []) + [a IN $aliases WHERE NOT a IN coalesce(n.aliases, [])]"
+    );
+  }
+  if (label === "Event" && canonicalName !== undefined) {
+    // Sub-fix 7(a): stamp the derived canonical MATCH key so future variant
+    // scans converge via a single equality. STABLE first-occurrence fact (the
+    // MERGE key `name` is immutable for a node, so its canonicalName never
+    // changes): seeded on ON CREATE, coalesced on ON MATCH so a re-scan cannot
+    // churn it AND a legacy node (matched by article-variant candidate) backfills
+    // its canonicalName. Kept out of the `+= $updateProps` map. The incoming
+    // canonical always equals the matched node's canonical (the lookup matched on
+    // exactly that), so the coalesce backfill is always correct.
+    createProps.canonicalName = canonicalName;
+    onMatchStableItems.push(
+      "n.canonicalName = coalesce(n.canonicalName, $canonicalName)"
     );
   }
   // Sub-fix 7(b): monotonic status + preserve-first-non-empty role/description.
@@ -354,7 +447,10 @@ async function upsertSingleEntity(
 
   const mergeParams: Record<string, unknown> = {
     bookId,
-    name,
+    // Sub-fix 7(a): `mergeName` is the incoming raw `name` UNLESS this Event
+    // folded onto an existing node under a different spelling, in which case it
+    // is that existing node's stored name so the MERGE hits (not forks) it.
+    name: mergeName,
     chapter: chapterNumber,
     createProps,
     updateProps: allProps,
@@ -362,8 +458,11 @@ async function upsertSingleEntity(
   if (derived.occursInChapter !== undefined) {
     mergeParams.occursInChapter = derived.occursInChapter;
   }
-  if (aliases && aliases.length > 0) {
-    mergeParams.aliases = aliases;
+  if (effectiveAliases && effectiveAliases.length > 0) {
+    mergeParams.aliases = effectiveAliases;
+  }
+  if (label === "Event" && canonicalName !== undefined) {
+    mergeParams.canonicalName = canonicalName;
   }
   if (hasStatus) {
     mergeParams.incomingStatus = incomingStatus;
@@ -621,6 +720,40 @@ export function isDeadStatus(status: unknown): boolean {
  */
 export function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.trim() !== "";
+}
+
+/**
+ * Canonicalize an Event name into a deterministic MATCH KEY used to converge
+ * article / whitespace / unicode variants of the SAME event before MERGE
+ * (sub-fix 7(a) / D-32c). Same-batch stochastic extraction refers to one event
+ * two ways ("The Wedding" vs "Wedding"); because the MERGE identity is the RAW
+ * `{bookId, name}`, the two spellings fork into distinct nodes — both stamped
+ * the same chapter, so every LEADS_TO becomes chXX→chXX and timeline_violation
+ * is unconstructible.
+ *
+ * Transform (order matters; deterministic AND idempotent):
+ *   1. Unicode NFC normalize (so a combining "é" and a precomposed "é"
+ *      fold to the same key);
+ *   2. collapse internal whitespace runs to a single space + trim;
+ *   3. strip ONE leading definite/indefinite article ("The "/"A "/"An ",
+ *      case-insensitive) — but ONLY when a non-empty remainder survives, so a
+ *      one-word title that IS an article (e.g. "The") is left intact.
+ *
+ * It deliberately does NOT lowercase, stem, or fold possessives/genitives:
+ * lowercasing destroys display fidelity of the remainder, and stemming /
+ * possessive folding ("X's Death" ≡ "Death of X") risk FALSE-MERGING two
+ * DISTINCT events — itself a D8 false-positive. The STORED `name` keeps its
+ * original spelling; only this derived key is normalized. The residual
+ * (possessive forking, remainder-case forking) is registered as D-85. Exported
+ * for unit testing.
+ */
+export function canonicalizeEntityName(rawName: unknown): string {
+  if (typeof rawName !== "string") {
+    return "";
+  }
+  const normalized = rawName.normalize("NFC").replace(/\s+/g, " ").trim();
+  const deArticled = normalized.replace(/^(?:the|an|a)\s+/i, "");
+  return deArticled.length > 0 ? deArticled : normalized;
 }
 
 /**
