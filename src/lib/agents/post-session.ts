@@ -755,8 +755,12 @@ async function maybeAutoSynthesize(
 /**
  * Update the knowledge graph with entities extracted from chapter content.
  * Fire-and-forget — errors are caught and logged by the caller.
+ *
+ * Exported for direct unit testing (fix 10 / RC-5): the series-scope stamping
+ * of agent-written prose into the vector store is the source of truth for
+ * cross-book (series) recall, so it is verified in isolation.
  */
-async function updateChapterGraph(
+export async function updateChapterGraph(
   userId: string,
   bookId: string,
   chapterNumber: number,
@@ -813,6 +817,20 @@ async function updateChapterGraph(
     );
   }
 
-  // Also index into vector memory
-  await onDocumentChanged(bookId, "CHAPTER_CONTENT", content.content, { chapterNumber });
+  // Also index into vector memory. Thread the book's seriesId (fix 10 / RC-5):
+  // series-filtered recall applies a seriesId `must` clause (retriever
+  // buildFilter), which matches chunks by EXACT seriesId — so a chunk indexed
+  // with seriesId:null is invisible to every cross-book (series) query. The
+  // human-save path already stamps book.seriesId (chapters/[chapterId]/content
+  // route); this agent-write path omitted it, silently halving series recall for
+  // agent-assisted prose. A standalone book legitimately indexes seriesId:null,
+  // exactly as it does on a manual save.
+  const book = await db.book.findUnique({
+    where: { id: bookId },
+    select: { seriesId: true },
+  });
+  await onDocumentChanged(bookId, "CHAPTER_CONTENT", content.content, {
+    chapterNumber,
+    seriesId: book?.seriesId ?? null,
+  });
 }
