@@ -115,35 +115,92 @@ async function upsertSingleEntity(
   // null bookId here made the alias lookup silently match nothing, and the
   // MERGE below used to fall back to bookId "" creating unscoped nodes).
   if (aliases && aliases.length > 0) {
+    // Sub-fix 7(c) / D-27-adjacent: find existing nodes this entity's aliases
+    // could bind to. The old query folded on a SINGLE shared alias + `LIMIT 1`,
+    // so two DISTINCT characters that merely share a common title/first-name
+    // ("Doctor", "Captain") collapsed into one node — a D8 false-positive that
+    // silently LOSES a character — and `LIMIT 1` picked an arbitrary node when
+    // several matched. We now return ALL candidates (no LIMIT) so the decision
+    // logic can (1) refuse to guess when ≥2 candidates match and (2) refuse to
+    // fold on a common/stop alias. `existingAliases` is returned so we can tell
+    // a DISTINCTIVE linking token from a common one.
     const aliasResult = await session.run(
+      // `OR n.name = $name` (HIGH, Fable c-fold-safety): also surface a
+      // pre-existing node whose stored name is EXACTLY our incoming name even
+      // when its stored aliases don't intersect ours — otherwise that node is
+      // invisible to the lookup, hasExactNameNode stays false, and the MERGE's
+      // own node gets redirected onto a coincidental alias-sibling. The exact
+      // node is excluded from `candidates` by the `existingName !== name`
+      // filter, so it only needs to trip the exact-name guard.
       `MATCH (n:${escapeLabelForQuery(label)} {bookId: $bookId})
-       WHERE n.name IN $aliases OR any(a IN coalesce(n.aliases, []) WHERE a IN $aliases)
-       RETURN n.name AS existingName LIMIT 1`,
+       WHERE n.name IN $aliases OR any(a IN coalesce(n.aliases, []) WHERE a IN $aliases) OR n.name = $name
+       RETURN n.name AS existingName, coalesce(n.aliases, []) AS existingAliases
+       ORDER BY n.firstAppearance, n.name`,
       {
         bookId,
+        name,
         aliases,
       }
     );
 
-    // If we found an existing node by alias, merge by its name (not our new name)
-    // and add our name as an alias
-    if (aliasResult.records.length > 0) {
-      const existingName = aliasResult.records[0].get("existingName") as string;
-      if (existingName && existingName !== name) {
-        // Update the existing node: add our name to its aliases
+    // A node whose stored name is EXACTLY our incoming name is the same node the
+    // MERGE below hits directly — never fold away from it onto a different node.
+    const hasExactNameNode = aliasResult.records.some(
+      (r) => (r.get("existingName") as string) === name
+    );
+    // Candidate nodes under a DIFFERENT spelling than our incoming name.
+    const candidates = aliasResult.records
+      .map((r) => ({
+        existingName: r.get("existingName") as string,
+        existingAliases: (r.get("existingAliases") as string[]) ?? [],
+      }))
+      .filter((c) => c.existingName && c.existingName !== name);
+
+    // Bind via alias ONLY when the match is UNAMBIGUOUS *and* backed by STRONG
+    // identity evidence — never a coincidental shared descriptor (RC-3 /
+    // Fable c-fold-safety). ≥2 candidates → DO NOTHING (keep separate rather
+    // than guess). For the sole candidate, two evidence classes can fold:
+    //   1. a genuine NAME↔ALIAS rename — the candidate's stored NAME is one of
+    //      our incoming aliases, or our incoming NAME is a stored alias of the
+    //      candidate (still not a bare common title, so "Doctor"↔"Doctor" is
+    //      declined);
+    //   2. a DISTINCTIVE shared alias — a handle both list that is not a common
+    //      title, not an epithet ("the Stranger"), and not a word appearing in
+    //      BOTH full names (a shared surname/first name = same FAMILY, not the
+    //      same person: two "Reynolds" siblings / two "Anna"s stay separate).
+    // A merely shared surname/first-name/epithet/rank is a WEAK signal and never
+    // folds. Preserve/do-nothing is always preferred over a false fold: a false
+    // fold loses a character (D8) and cannot be undone by a later scan.
+    if (!hasExactNameNode && candidates.length === 1) {
+      const candidate = candidates[0];
+      const hasRenameLink = renameLinkTokens(name, aliases, candidate).some(
+        (token) => !isCommonAlias(token)
+      );
+      const hasDistinctiveSharedAlias = candidate.existingAliases.some(
+        (a) =>
+          aliases.includes(a) &&
+          a !== name &&
+          a !== candidate.existingName &&
+          isDistinctiveSharedAlias(a, name, candidate.existingName)
+      );
+      if (hasRenameLink || hasDistinctiveSharedAlias) {
+        // Fold onto the existing node: keep ITS spelling as the primary name and
+        // UNION our name + every incoming alias into its alias set. D-27: the
+        // fold only APPENDS (never replaces), so no existing variant — including
+        // a diacritic one already stored on the node — is ever dropped.
+        const foldAliases = Array.from(new Set([name, ...aliases])).filter(
+          (a) => a !== candidate.existingName
+        );
         await session.run(
           `MATCH (n:${escapeLabelForQuery(label)} {bookId: $bookId, name: $existingName})
-           SET n.aliases = CASE
-             WHEN $newName IN coalesce(n.aliases, []) THEN n.aliases
-             ELSE coalesce(n.aliases, []) + $newName
-           END,
-           n.updatedAt = datetime(),
-           n.lastMentioned = $chapter
+           SET n.aliases = coalesce(n.aliases, []) + [a IN $foldAliases WHERE NOT a IN coalesce(n.aliases, [])],
+               n.updatedAt = datetime(),
+               n.lastMentioned = $chapter
            RETURN n`,
           {
             bookId,
-            existingName,
-            newName: name,
+            existingName: candidate.existingName,
+            foldAliases,
             chapter: chapterNumber,
           }
         );
@@ -539,7 +596,30 @@ async function upsertRelationship(
   // and runs unscoped Cypher across every tenant's graph.
   const relType = sanitizeRelationshipType(type);
 
+  // D-86: after sub-fix 7(a) folds an Event variant onto a surviving node (e.g.
+  // "The Wedding" → stored "Wedding"), a same-batch relationship that names the
+  // folded-away spelling would MATCH nothing by literal {name, bookId} and be
+  // silently dropped — losing the very LEADS_TO timeline edges RC-3 needs.
+  // Resolve each EVENT endpoint through the SAME canonical/article-variant
+  // lookup sub-fix (a) uses so an edge naming a variant spelling attaches to the
+  // surviving node. Event-scoped (Characters/Objects are matched literally,
+  // mirroring (a)'s Event-only canonical fold), read-only, and conservative: it
+  // never creates a node and never cross-folds two distinct events. When an
+  // endpoint does not resolve, the literal name is kept so the MATCH behaves
+  // exactly as before (finds nothing → edge not written → no crash). The two
+  // resolver reads live INSIDE the try (LOW, Fable d86 lens): a transient driver
+  // error while resolving one endpoint must skip only THIS edge, not abort the
+  // rest of the relationship batch.
   try {
+    const fromName =
+      fromLabel === "Event"
+        ? await resolveEventEndpointName(session, bookId, from)
+        : from;
+    const toName =
+      toLabel === "Event"
+        ? await resolveEventEndpointName(session, bookId, to)
+        : to;
+
     const result = await session.run(
       `MATCH (a:${escapeLabelForQuery(fromLabel)} {name: $fromName, bookId: $bookId})
        MATCH (b:${escapeLabelForQuery(toLabel)} {name: $toName, bookId: $bookId})
@@ -548,8 +628,8 @@ async function upsertRelationship(
        ON MATCH SET r += $props
        RETURN r`,
       {
-        fromName: from,
-        toName: to,
+        fromName,
+        toName,
         bookId,
         props: relProps,
       }
@@ -562,6 +642,54 @@ async function upsertRelationship(
     );
     return false;
   }
+}
+
+/**
+ * D-86: resolve an EVENT relationship-endpoint name onto the stored name of the
+ * surviving Event node it canonicalizes to, so an edge that names an
+ * article/whitespace/unicode variant — or a spelling sub-fix 7(a) folded away —
+ * still attaches instead of being silently dropped.
+ *
+ * Read-only and conservative: it mirrors sub-fix (a)'s pre-MERGE lookup exactly
+ * (canonicalName equality OR the enumerated article-variant name candidates,
+ * scoped to {bookId} and the Event label, ORDER BY firstAppearance for
+ * determinism). It NEVER creates a node and NEVER cross-folds two distinct
+ * events — a name that canonicalizes to a different key matches nothing. When no
+ * Event resolves, the original literal name is returned so the caller's MATCH
+ * behaves exactly as before (finds nothing → edge not written → no crash). All
+ * values ride as Cypher params; the Event label is a literal (Event-scoped by
+ * definition), so the injection boundary is unchanged.
+ */
+async function resolveEventEndpointName(
+  session: import("neo4j-driver").Session,
+  bookId: string,
+  name: string
+): Promise<string> {
+  const canonicalName = canonicalizeEntityName(name);
+  const nameCandidates = Array.from(
+    new Set([
+      name,
+      canonicalName,
+      `The ${canonicalName}`,
+      `A ${canonicalName}`,
+      `An ${canonicalName}`,
+    ])
+  );
+  const match = await session.run(
+    `MATCH (n:Event {bookId: $bookId})
+     WHERE n.canonicalName = $canonicalName OR n.name IN $nameCandidates
+     RETURN n.name AS existingName
+     ORDER BY n.firstAppearance, n.name
+     LIMIT 1`,
+    { bookId, canonicalName, nameCandidates }
+  );
+  if (match.records.length > 0) {
+    const existingName = match.records[0].get("existingName") as string;
+    if (existingName) {
+      return existingName;
+    }
+  }
+  return name;
 }
 
 /**
@@ -720,6 +848,172 @@ export function isDeadStatus(status: unknown): boolean {
  */
 export function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.trim() !== "";
+}
+
+/**
+ * Common/stop alias tokens (sub-fix 7(c)): bare titles, honorifics, ranks, and
+ * familial words that are shared by MANY distinct characters. Such a token is a
+ * WEAK identity signal, so it must never on its own anchor an alias-fold — two
+ * different "the Doctor"s or "Captain"s are almost always different people. The
+ * list is lower-cased. Completeness matters in the ENABLE direction: a MISSING
+ * entry makes that bare title read as DISTINCTIVE, which ENABLES a false fold of
+ * two distinct characters (not merely "declines to merge"). This list covers the
+ * bounded title/honorific/familial vocab; the unbounded name space (shared
+ * surnames/first names) is caught instead by the shared-name-word guard in
+ * {@link isDistinctiveSharedAlias}.
+ */
+const COMMON_ALIAS_STOPWORDS: ReadonlySet<string> = new Set([
+  // articles
+  "the", "a", "an",
+  // honorifics / courtesy titles
+  "mr", "mrs", "ms", "miss", "mx", "madam", "madame", "sir", "dame",
+  "dr", "doctor", "prof", "professor",
+  // nobility / rank
+  "lord", "lady", "master", "mistress", "king", "queen", "prince",
+  "princess", "duke", "duchess", "earl", "count", "countess", "baron",
+  "baroness",
+  // military / office / law
+  "captain", "capt", "commander", "colonel", "major", "general", "sergeant",
+  "sgt", "lieutenant", "lt", "admiral", "corporal", "private", "officer",
+  "detective", "inspector", "agent", "chief", "boss", "warden", "mayor",
+  "governor", "president", "senator", "judge", "nurse",
+  "sheriff", "marshal", "constable", "deputy", "magistrate",
+  "doc", "cap", "sarge", "coach",
+  // non-English honorifics / courtesy titles (bounded vocab, unlike names)
+  "señor", "senor", "señora", "senora", "señorita", "senorita",
+  "don", "doña", "dona", "herr", "frau", "fräulein", "fraulein", "doktor",
+  "monsieur", "mademoiselle", "signor", "signore", "signora", "signorina",
+  "san", "sama", "sensei", "sahib", "sheikh", "sheik",
+  // familial (incl. colloquial fiction forms)
+  "father", "mother", "mom", "mum", "dad", "papa", "mama", "brother",
+  "sister", "uncle", "aunt", "auntie", "granny", "grandma", "grandpa",
+  "grandmother", "grandfather", "cousin", "son", "daughter", "boy", "girl",
+  "ma", "pa", "pop", "pops", "gran", "grandad", "granddad", "nan", "nana",
+  "nanna", "mommy", "mummy", "daddy", "bro", "sis",
+  // religious (incl. colloquial clergy forms)
+  "reverend", "rev", "bishop", "cardinal", "pope", "rabbi", "imam", "priest",
+  "pastor", "deacon", "saint", "st", "padre", "vicar", "parson", "chaplain",
+  "friar", "monk", "nun", "elder",
+]);
+
+/**
+ * True when an alias token is a COMMON/stop alias (sub-fix 7(c)) — i.e. EVERY
+ * whitespace-separated word is a title/stop word, so the token is a bare
+ * title/honorific/familial term ("Doctor", "the Captain") rather than a
+ * distinctive handle. "Captain Reynolds" is NOT common (the surname is
+ * distinctive). Non-string / empty tokens are treated as common (they carry no
+ * distinctive identity signal). Exported for unit testing.
+ */
+export function isCommonAlias(token: unknown): boolean {
+  if (typeof token !== "string") {
+    return true;
+  }
+  const normalized = token.normalize("NFC").replace(/\s+/g, " ").trim().toLowerCase();
+  if (normalized === "") {
+    return true;
+  }
+  return normalized.split(" ").every((word) => {
+    const bare = word.replace(/^[.,'"!?;:]+|[.,'"!?;:]+$/g, "");
+    return bare === "" || COMMON_ALIAS_STOPWORDS.has(bare);
+  });
+}
+
+/**
+ * STRONG rename-evidence tokens linking an incoming entity to a candidate node
+ * in the alias-rename path (sub-fix 7(c)) — a genuine NAME↔ALIAS link, NOT a
+ * coincidentally shared descriptor:
+ *   - the candidate's stored NAME is one of our incoming aliases (the classic
+ *     "stored under an alias, now revealed" rename), or
+ *   - the candidate already lists OUR name among its aliases (reverse rename).
+ * A merely shared THIRD alias is deliberately NOT a rename link (that path
+ * false-folds surname/first-name/epithet/rank siblings) — it is handled
+ * separately by {@link isDistinctiveSharedAlias}. Each token here must still be
+ * distinctive (not a bare common title) at the call site, so "Doctor"↔"Doctor"
+ * never folds. Exported for unit testing.
+ */
+export function renameLinkTokens(
+  incomingName: string,
+  incomingAliases: readonly string[],
+  candidate: { existingName: string; existingAliases: readonly string[] }
+): string[] {
+  const tokens = new Set<string>();
+  if (incomingAliases.includes(candidate.existingName)) {
+    tokens.add(candidate.existingName);
+  }
+  if (candidate.existingAliases.includes(incomingName)) {
+    tokens.add(incomingName);
+  }
+  return [...tokens];
+}
+
+/**
+ * An alias that begins with a leading article ("the Stranger", "a Traveller")
+ * is an EPITHET — a descriptor many distinct characters can share, never a
+ * rename. Such a token never anchors a shared-alias fold. Exported for testing.
+ */
+export function isEpithetAlias(token: unknown): boolean {
+  if (typeof token !== "string") return false;
+  // Leading article — English + common Romance/Germanic/Italian forms, so
+  // "El Lobo" / "La Sombra" / "Der Wolf" / "Il Corvo" are recognized as
+  // epithets, not just "the …".
+  return /^(the|a|an|el|la|los|las|le|les|der|die|das|il|lo|gli)\s+\S/i.test(
+    token.normalize("NFC").replace(/^\s+/, "")
+  );
+}
+
+/**
+ * The words of a full display name / alias, normalized for word-level comparison
+ * (Fable guard-attack hardening). A single principled pass that collapses the
+ * surface-form variance an extractor emits, so the shared-name-word guard sees
+ * through it:
+ *   - NFD-decompose + strip combining marks → "Zoë"/"Jose" and "José" unify;
+ *   - unify apostrophe forms (U+2018/2019/02BC/FF07 → U+0027) → curly-vs-straight
+ *     "O'Brien" unify;
+ *   - split on unicode whitespace AND all dashes (\p{Pd}, incl. ASCII "-") →
+ *     "Reynolds-Vane"→["reynolds","vane"], "Anne-Marie"→["anne","marie"];
+ *   - lowercase; strip surrounding punctuation; drop empties.
+ * "Z. Rasmussen" → ["z","rasmussen"]; "José García" → ["jose","garcia"].
+ * This only ever ADDS word-matches, so it can only make the guard DECLINE more
+ * folds — never enable one (fail-safe). c3's "Zoë"←"Z. Rasmussen" fold is
+ * unaffected: "zoe" is still a word in only ONE of the two names.
+ */
+function nameWords(fullName: string): string[] {
+  return fullName
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "") // strip combining diacritical marks
+    .replace(/[‘’ʼ＇]/g, "'") // unify apostrophe forms
+    .toLowerCase()
+    .split(/[\s\p{Pd}]+/u)
+    .map((w) => w.replace(/^[.,'"!?;:]+|[.,'"!?;:]+$/g, ""))
+    .filter((w) => w.length > 0);
+}
+
+/**
+ * Whether a THIRD alias shared by the incoming entity and its sole candidate is
+ * STRONG enough identity evidence to fold on (sub-fix 7(c) / Fable
+ * c-fold-safety). It must be:
+ *   - not a common title/honorific (bounded vocab — {@link isCommonAlias}),
+ *   - not an epithet (leading article — {@link isEpithetAlias}), and
+ *   - not a word that appears in BOTH characters' full names (a shared
+ *     surname/first-name = same FAMILY, not the same person — the UNBOUNDED
+ *     name space a stop-list cannot cover).
+ * This keeps two "Reynolds" siblings and two "Anna"s separate while still
+ * folding a diacritic variant ("Zoë" links "Zoë Rasmussen" ← "Z. Rasmussen":
+ * "Zoë" is a word in only ONE of the two names). Exported for unit testing.
+ */
+export function isDistinctiveSharedAlias(
+  token: string,
+  incomingName: string,
+  existingName: string
+): boolean {
+  if (isCommonAlias(token)) return false;
+  if (isEpithetAlias(token)) return false;
+  const incomingWords = new Set(nameWords(incomingName));
+  const existingWords = new Set(nameWords(existingName));
+  const sharedFamilyToken = nameWords(token).some(
+    (w) => incomingWords.has(w) && existingWords.has(w)
+  );
+  return !sharedFamilyToken;
 }
 
 /**

@@ -1,0 +1,191 @@
+{
+  "summary": "Adversarial re-verify of fix7c c-fold tightening — attack the distinctive-shared-alias guard, confirm 5 false-folds separate + no regression",
+  "agentCount": 3,
+  "logs": [
+    "[stall] agent \"verify:guard-attack\" stalled (no progress) after 250s — retrying (1/5)"
+  ],
+  "result": [
+    {
+      "lens": "guard-attack: break isDistinctiveSharedAlias guard (c) \"not a word present in both full names\"",
+      "verdict": "REJECT",
+      "blocking": true,
+      "findings": [
+        {
+          "severity": "BLOCKER",
+          "claim": "Guard (c) is defeated by hyphenated name compounds, re-opening BOTH the surname and first-name promised classes: 'Marcus Reynolds' (aka 'Reynolds') false-folds into 'Elena Reynolds-Vane' (aka 'Reynolds'), and 'Marie-Claire Cole' false-folds into 'Anne-Marie Cole' on shared alias 'Marie'.",
+          "evidence": "nameWords (src/lib/graph/graph-builder.ts:956-963, split at :960) splits only on /\\s+/, so 'reynolds-vane' is one word and never equals token 'reynolds' — sharedFamilyToken stays false and isDistinctiveSharedAlias returns true. PROVEN dynamically against the real upsertEntities fold path with the team's own store-driven harness (temp probe, run then deleted): seed('Elena Reynolds-Vane',['Reynolds']) + upsert('Marcus Reynolds',['Reynolds']) → 1 node (Marcus absorbed); same for Anne-Marie/Marie-Claire on 'Marie'; the symmetric direction (plain-surname node existing first) also folds by trace. This is exactly c8's surname-sibling scenario with one side double-barrelled — a stock family-saga cast. Aggravator (also proven): the fold is PERMANENT and self-reinforcing — after absorption the victim's name sits in the winner's aliases, so every later genuine mention re-folds via renameLinkTokens; the code's own comment concedes a false fold 'cannot be undone by a later scan'. Fix is contained and fail-safe: split nameWords on hyphens too (/[\\s-]+/); over-splitting can only DECLINE folds (preserve direction) and the c3 Zoë rename fold is unaffected (token 'zoë' still matches only ONE name)."
+        },
+        {
+          "severity": "HIGH",
+          "claim": "Guard (c)'s exact-string word compare is also defeated by unicode surface variance: a diacritic-stripped alias folds two distinct Josés (first-name class), and curly-vs-straight apostrophe forms fold two O'Brien family members (surname class).",
+          "evidence": "PROVEN dynamically at src/lib/graph/graph-builder.ts:956-963 (NFC at :958): seed('José Vargas',['Jose']) + upsert('José Herrera',['Jose']) → 1 node ('jose' ≠ 'josé', so the first name present in BOTH full names goes undetected); seed('Sean O’Brien',['O'Brien']) + upsert('Mary O’Brien',['O'Brien']) → 1 node (NFC does not unify U+2019/U+0027; the strip class [.,'\"!?;:] trims edges only). Realism: spelling-variant aliases are the extractor's DESIGNED output (entity-extractor.ts:134 requests shortened/variant names) and upstream sanitization is .trim() only (entity-extractor.ts:447) — no NFC, no diacritic folding — so these strings reach the fold verbatim. Control probe confirms NFC-vs-NFD of the SAME word IS unified, so the hole is specifically stripped-diacritic and apostrophe-form variance. Fix inside nameWords only: compare-time diacritic fold (NFD + strip combining marks) and U+2019→U+0027 unification; both only ADD word matches, i.e. only ever decline more folds (safe direction; c3/c9 traces unaffected)."
+        },
+        {
+          "severity": "HIGH",
+          "claim": "The honorific/rank promised class is only as closed as COMMON_ALIAS_STOPWORDS is complete, and it is not: 'Doc', 'Cap', 'Sarge', 'Padre', 'Vicar', 'Ma', 'Pa', 'Gran', 'Coach' all qualify as DISTINCTIVE fold anchors; isEpithetAlias is English-only so foreign-article epithets ('El Lobo', 'La Sombra', 'Der Wolf') evade the epithet guard; and the stop-list's own comment inverts the failure direction.",
+          "evidence": "PROVEN: full-path probe seed('Elias Webb',['Doc']) + upsert('Sarah Chen',['Doc']) → 1 node (character lost); predicate probe shows isCommonAlias(t)=false and isDistinctiveSharedAlias(t,…)=true for all nine tokens. The list (src/lib/graph/graph-builder.ts:861-889) has dr/doctor, capt/captain, sgt/sergeant, granny/grandma, mama/papa — but not their commonest colloquial fiction forms doc/cap/sarge/gran/ma/pa; clergy has priest/father but not padre/vicar/parson. Two characters sharing 'Doc' (old doc + new doc) has the same coincidence structure as c11's two-Sheriffs, which the prior round treated as a must-close reject-driver — same class, incompletely closed. isEpithetAlias (:948) matches only /^(the|a|an)\\s/i while the stop-list deliberately went multilingual (señor/herr/monsieur…), so 'El Lobo' is neither epithet nor common and anchors a fold by trace. Compounding: the comment at :858-859 claims 'a false negative here only declines to auto-merge' — backwards: an omitted common token ENABLES folds (it passes the !isCommonAlias rename gate AND anchors class-2), so future maintainers will under-prioritize completeness. Fix: add the colloquial/clergy set, extend the epithet regex with common foreign articles (el/la/los/las/le/les/der/die/das/il/lo), correct the comment."
+        },
+        {
+          "severity": "MEDIUM",
+          "claim": "Two genuinely-distinct characters sharing a distinctive non-name nickname ('Red'/'Ghost'/'Shadow', or diminutives like two Williams both called 'Bill') false-fold whenever the second arrives before having its own node — and this lossy direction is NOT covered by D-88 as registered.",
+          "evidence": "PROVEN: seed('Marcus Bell',['Red']) + upsert('Sarah Vance',['Red']) → 1 node; guard (c) passes because 'red' is a word of neither full name, and the ≥2-candidate count guard (src/lib/graph/graph-builder.ts:174) only protects when BOTH siblings already exist as nodes — arrival-order defeats it. The handoff's residual register (fix7c-handoff.md residual 1) describes D-88 as the ≥2-EXISTING-nodes PRESERVE-over-guess decline — the safe direction only; the 1-candidate FOLD direction (guess-over-preserve, irreversible, self-reinforcing per the permanence probe) is unregistered. It is inherent to class 2's design (removing it kills the c3 Zoë←Z. Rasmussen feature), so the required action is registration, not necessarily code: extend D-88 (or mint a new residual ID) naming the arrival-order shared-nickname fold and its permanence property explicitly, so future triage doesn't mistake the register for covering it."
+        },
+        {
+          "severity": "NOTE",
+          "claim": "Attack 4 (1-candidate gate ordering/first-match) found NO defect, and the promised behavior holds in exact-word form: the gate, the exact-name guard, and NFC unification are sound.",
+          "evidence": "The only pre-filter on candidates (src/lib/graph/graph-builder.ts:157) removes exact-name records and falsy names; names are trim-validated non-empty upstream (entity-extractor.ts:430), so no real 2-candidate situation can shrink to 1 — ≥2 → decline is pinned by c2 and re-confirmed by trace; ORDER BY is irrelevant at length 1. Control probes pass: plain 'Reynolds' siblings stay separate (the c8 promise holds when both surnames are whitespace-words), NFD-vs-NFC of the same diacritic word is unified and correctly DECLINES a shared-name fold, and the new 'OR n.name = $name' exact-name guard (c13-c15) protects alias-less exact nodes as claimed. The fold SHAPE (two evidence classes + count guard + exact-name guard) survives attack; only the word-comparison primitive under guard (c) — findings 1-3 — fails."
+        }
+      ],
+      "summary": "Guard (c) — the single load-bearing defense of the retained shared-alias fold — is defeated by surface form, not by logic: its per-whitespace-word exact-string compare misses hyphen compounds ('Reynolds-Vane' vs 'Reynolds', 'Anne-Marie' vs 'Marie-Claire'), diacritic-stripped aliases (two Josés via 'Jose'), and apostrophe-form variance (O'Brien curly vs straight). All were PROVEN as real false-folds against the actual upsertEntities path in src/lib/graph/graph-builder.ts using the team's own store-driven harness (temp probe run, then deleted; tree left as-received), and every false fold is permanent + self-reinforcing via the rename-link path. The hyphen hole re-opens the exact surname- and first-name classes the fix promised closed (c8/c9 scenarios with one compound side) → BLOCKER. Additionally the honorific class is only stop-list-deep ('Doc'/'Cap'/'Sarge'/'Padre'/'Ma' etc. all anchor folds; foreign-article epithets evade the English-only epithet regex; the stop-list comment inverts the failure direction), and the shared-nickname arrival-order fold ('Red') is real but unregistered — D-88's text covers only the preserve direction. The fold dispatch itself (count guard, exact-name guard, two evidence classes, injection boundary) survived attack cleanly, and the HIGH exact-name fix works as claimed. Verdict: REJECT — one contained, fail-safe fix inside nameWords (split on hyphens, fold diacritics, unify apostrophes — each can only DECLINE more folds; c3 Zoë verified unaffected) plus stop-list/epithet-regex additions and a residual registration would flip this to approve."
+    },
+    {
+      "lens": "behavioral",
+      "verdict": "APPROVE",
+      "blocking": false,
+      "findings": [
+        {
+          "severity": "NOTE",
+          "claim": "All 5 enumerated false-fold cases verifiably stay separate in the real code, each rejected by the intended guard: c8 Reynolds and c9 Anna by the both-full-names shared-word guard (graph-builder.ts:987-990), c10 'the Stranger' by isEpithetAlias (:948), c11 'Sheriff' and c12 'Señor' by the extended COMMON_ALIAS_STOPWORDS (:876,:878). In every case renameLinkTokens returns [] (no NAME<->ALIAS cross-link exists in these fixtures), so both evidence classes are false and the fold block at :186 is skipped.",
+          "evidence": "Traced isDistinctiveSharedAlias/isCommonAlias/isEpithetAlias against each fixture: e.g. c8 token 'Reynolds' -> nameWords('Reynolds')=['reynolds'] present in both {marcus,reynolds} and {elena,reynolds} -> sharedFamilyToken=true -> returns false; c10 matches /^(the|a|an)\\s+\\S/i; c11/c12 hit stop-list entries at src/lib/graph/graph-builder.ts:876/878 after NFC+lowercase normalization."
+        },
+        {
+          "severity": "NOTE",
+          "claim": "Genuine folds are NOT over-tightened: c3 diacritic-union fires because guard (c) checks only the TOKEN's words ('zoë' is a word of 'Zoë Rasmussen' but not of 'Z. Rasmussen' whose words are ['z','rasmussen'] after punctuation strip), so the shared surname 'rasmussen' in both full names does not block it; c4 fires via class-1 renameLinkTokens ('Corvin' is candidate name AND incoming alias, not a stopword) with early return at :207 preventing a duplicate MERGE; c5 correctly declines ('Doctor' filtered by !isCommonAlias) per the documented preserve-over-guess residual.",
+          "evidence": "src/lib/graph/graph-builder.ts:176-207 and :978-991; test assertions on store state confirm one surviving node with union ['Z. Rasmussen','Zoe','Zoë'] (c3) and Corvin.aliases=['Corvin Ashe'], nodesCreated=0/nodesUpdated=1 (c4)."
+        },
+        {
+          "severity": "NOTE",
+          "claim": "The exact-name HIGH fix works and is behaviorally pinned: real code passes $name in the lookup params (:139-143) with 'OR n.name = $name' in the WHERE (:136); c14 is the true isolator (without the guard, 'Nightingale' passes all three distinctive guards and Sarah Vale would fold onto Mira Cole — the assertion node('Mira Cole').aliases=['Nightingale'] would fail). c15 (team-lead scenario) would incidentally pass even without the exact-name guard because 'Reynolds' is already rejected by the shared-family-word guard — but c14 covers that gap, so combined coverage is adequate.",
+          "evidence": "The mock's exact-name branch keys on v.name === params.name (test :96-99): pre-fix code that omits the name param leaves params.name undefined, Sarah Vale stays invisible, candidates=[Mira], fold fires, c14 fails — a genuine RED-first behavioral test."
+        },
+        {
+          "severity": "NOTE",
+          "claim": "c6, c7, c13 are structural query-string assertions rather than behavioral tests — acceptable and necessary here, because the store-driven mock reimplements the FIXED lookup semantics (including the exact-name branch) rather than executing Cypher, so a hypothetical regression that keeps passing $name but drops 'OR n.name = $name' from the query text would only be caught by c13's string assertion, not by c14. The pairing of structural (c13) + behavioral (c14/c15) closes this inherent mock limitation.",
+          "evidence": "tests/unit/graph-alias-merge-disambiguation.test.ts:369-377 asserts query.toContain('OR n.name = $name') and params.name; mock lookup branch at :85-114 matches only on the WHERE-clause marker string and applies fixed semantics."
+        },
+        {
+          "severity": "NOTE",
+          "claim": "The remaining behavioral tests (c1-c5, c8-c12, c14-c15) are genuinely behavioral, not tautological: the fake session is store-driven — the fold SET branch actually mutates the store and the MERGE branch actually creates nodes — so assertions on characterKeys() and per-node alias arrays flip if the decision logic reverts (e.g. reverting guard (c) makes c8/c9 append the incoming name into the candidate's alias set, failing the toEqual pins).",
+          "evidence": "Fold branch in the mock (test :119-137) unions params.foldAliases into the stored node; each false-fold test additionally pins the candidate's alias set unchanged (e.g. expect(node('Character:b1:Elena Reynolds').aliases).toEqual(['Reynolds'])), which any executed fold would break."
+        },
+        {
+          "severity": "NOTE",
+          "claim": "LOW fix confirmed: both resolveEventEndpointName awaits are hoisted inside upsertRelationship's try block (fromName/toName resolved at :614-621, try opens at :613), so a transient driver error during endpoint resolution skips only that edge instead of aborting the relationship batch.",
+          "evidence": "src/lib/graph/graph-builder.ts:613-626."
+        }
+      ],
+      "summary": "Behavioral lens APPROVE. Traced the real fold decision (graph-builder.ts:117-210) and all three helpers (renameLinkTokens :926, isEpithetAlias :946, isDistinctiveSharedAlias :978, isCommonAlias :899 + stop-list :861-886). All 5 enumerated false-fold cases are rejected by the intended guards in real code: c8 Reynolds and c9 Anna by the both-names shared-word guard, c10 epithet by the leading-article check, c11 Sheriff and c12 Señor by the extended stop-list; renameLinkTokens returns [] for every one, so neither evidence class fires. Genuine folds are intact: c3 diacritic-union fires (token-word-only comparison means the shared surname does not block 'Zoë'; append-only union preserves all variants), c4 name-anchored rename fires via class 1 with early-return preventing a duplicate node, and c5 correctly declines on a common title (documented residual). The exact-name HIGH fix is real ($name param + OR clause at :136-143) and behaviorally isolated by c14 (Nightingale would fold without it, since it passes all distinctive guards); c15 is redundant behaviorally (Reynolds already blocked by guard c) but harmless. Tests c8-c12/c14-c15 are store-driven and genuinely RED-first — assertions on node identity and pinned candidate alias sets flip under any revert; c13/c6/c7 are declared structural pins that cover the one gap the mock cannot (Cypher text), which is the correct pairing. LOW fix (resolver awaits inside try) confirmed at :613-621. No blockers."
+    },
+    {
+      "lens": "exact-name + gate-integrity",
+      "verdict": "APPROVE_WITH_NOTES",
+      "blocking": false,
+      "findings": [
+        {
+          "severity": "NOTE",
+          "claim": "HIGH fix verified: 'OR n.name = $name' is present in the alias-lookup WHERE clause with $name bound as a param in the same query, and an exact-name node with no stored aliases now trips hasExactNameNode so the MERGE hits its own node.",
+          "evidence": "src/lib/graph/graph-builder.ts:136 (WHERE ... OR n.name = $name), :141 (name in params), :148-150 (hasExactNameNode), :174 (fold gated on !hasExactNameNode && candidates.length === 1). The exact node is excluded from candidates by the existingName !== name filter (:157), so the new clause can only trip the guard, never inflate the candidate count. Trace confirmed: c14 REDs pre-fix (Mira Cole sole candidate + distinctive 'Nightingale' would false-fold Sarah Vale); c13 asserts clause+param structurally; c15 confirms exact self-bind. Independently re-ran both test files: 20/20 pass."
+        },
+        {
+          "severity": "NOTE",
+          "claim": "LOW fix verified: both resolveEventEndpointName awaits are inside upsertRelationship's try/catch, so a resolver failure skips exactly one edge, not the batch.",
+          "evidence": "src/lib/graph/graph-builder.ts:613 (try opens), :614-621 (both awaits), :623 (MERGE run), :638-644 (catch logs + return false). Pass-2 loop in upsertEntities (:77-88) continues on false. Brace structure read directly — catch scope encloses both awaits."
+        },
+        {
+          "severity": "NOTE",
+          "claim": "Cypher-injection boundary intact; the new query additions introduced no unparametrized interpolation.",
+          "evidence": "Grep-confirmed deletes: chapter :291, occursInChapter :292, deathChapter :293, aliases :294, canonicalName :307, userId :312, status :349, role :350, description :351; bookId pinned by post-spread overwrite :282. Labels escaped via escapeLabelForQuery (:135, :195, :250, :536, :624-625); rel type via sanitizeRelationshipType (:597, result matches /^[A-Za-z0-9_]+$/ :786-790). The changed alias lookup (:135-144) and resolveEventEndpointName (:678-685, literal Event label) ride all values as params. Tests c7 and d86-5 exercise the boundary."
+        },
+        {
+          "severity": "NOTE",
+          "claim": "No regression to prior-approved invariants: RC-2, D-27, RC-6, D-30, D-63, sticky-dead CASE (D-81 Character-only), D-80 authoritative bypass, and sub-fix (a) canonicalization + poison-strip are all unchanged.",
+          "evidence": "Sticky-dead CASE :453 within Character-only branch :447-459; D-80 authoritative direct-set :444-446/:479/:493 and deathChapter=null retirement :462-475; RC-2 occursInChapter FP-A CASE :396; D-27 append-only union :196 and :415-417; RC-6 :312-315; D-30 refusals :53-58 and :576-581; D-63 :597; sub-fix (a) Event fold :233-267; poison-strip delete allProps.canonicalName confirmed at :307. Change footprint is confined to the fold-dispatch block (:117-210), guard helpers (:861-991), and the two lookup queries."
+        },
+        {
+          "severity": "LOW",
+          "claim": "Pre-existing (NOT introduced by this change, non-blocking): properties.name is never stripped from allProps, so a smuggled LLM 'name' property rides ON MATCH SET n += $updateProps and can rename a node, which would defeat future exact-name matching for that node.",
+          "evidence": "src/lib/graph/graph-builder.ts:280-286 spreads ...properties into allProps; the strip block (:291-351) deletes canonicalName/bookId-adjacent poison keys but not 'name'; :513 passes allProps as updateProps into the MERGE at :536-539. It is a param value (no injection), and the behavior predates fix 7(c) — flagged for a future hardening pass, not against this change."
+        },
+        {
+          "severity": "NOTE",
+          "claim": "Minor test-coverage nuance: c15 passes even without the HIGH fix (shared 'Reynolds' is declined by the family-word guard regardless), so RED-coverage for the exact-name guard rests on c14/c13.",
+          "evidence": "isDistinctiveSharedAlias (:978-991) rejects 'Reynolds' because it appears in both full names; renameLinkTokens (:926-939) yields no token for the c15 inputs. c14's 'Nightingale' scenario is the one that genuinely distinguishes pre-fix from post-fix behavior — it does, so coverage is adequate."
+        }
+      ],
+      "summary": "APPROVE_WITH_NOTES. All four verification targets confirmed against the real source: (1) the HIGH 'OR n.name = $name' fix is present with the param bound in the same query, correctly trips hasExactNameNode for alias-less exact-name nodes, and cannot inflate the candidate count (exact node filtered out of candidates); c13/c14/c15 traced — c14 is the genuine RED case and behaves as claimed. (2) Both resolveEventEndpointName awaits sit inside upsertRelationship's try/catch, so a bad endpoint skips one edge only. (3) Injection boundary intact — all poison keys stripped (delete allProps.canonicalName confirmed at line 307), every value parametrized, labels escaped, rel type sanitized; no new interpolation surface. (4) No regressions — sticky-dead, D-80 authoritative, RC-2/D-27/RC-6/D-30/D-63, and sub-fix (a) all unchanged. Independently re-ran both test files: 20/20 pass. One LOW pre-existing note (properties.name not stripped from the updateProps bag — can rename a node ON MATCH; predates this fix) recorded for future hardening, non-blocking."
+    }
+  ],
+  "workflowProgress": [
+    {
+      "type": "workflow_phase",
+      "index": 1,
+      "title": "Verify"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 1,
+      "label": "verify:guard-attack (retry 1)",
+      "phaseIndex": 1,
+      "phaseTitle": "Verify",
+      "agentId": "ac6efe3d4f344f8a5",
+      "model": "claude-fable-5",
+      "state": "done",
+      "startedAt": 1784491976272,
+      "queuedAt": 1784491973411,
+      "attempt": 2,
+      "lastAttemptReason": "stalled",
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "guard-attack: break isDistinctiveSharedAlias guard (c) \"not…",
+      "promptPreview": "CHANGE UNDER REVIEW: fix 7 sub-fix (c) alias-fold disambiguation + D-86 endpoint resolution, TIGHTENED after a prior REJECT.\nFiles: src/lib/graph/graph-builder.ts (edited), tests/unit/graph-alias-merge-disambiguation.test.ts (c8-c15 new), tests/unit/graph-event-rel-endpoint-resolution.test.ts.\nHandoff: cowork/bulletproof-qa-2026-07-17/evidence/fix-reviews/fix7c-handoff.md.\n\nTHE FOLD SHAPE (what to…",
+      "lastProgressAt": 1784493071261,
+      "tokens": 172554,
+      "toolCalls": 22,
+      "durationMs": 1094987,
+      "resultPreview": "{\"lens\":\"guard-attack: break isDistinctiveSharedAlias guard (c) \\\"not a word present in both full names\\\"\",\"verdict\":\"REJECT\",\"blocking\":true,\"findings\":[{\"severity\":\"BLOCKER\",\"claim\":\"Guard (c) is defeated by hyphenated name compounds, re-opening BOTH the surname and first-name promised classes: 'Marcus Reynolds' (aka 'Reynolds') false-folds into 'Elena Reynolds-Vane' (aka 'Reynolds'), and 'Marie…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 2,
+      "label": "verify:false-fold-behavioral",
+      "phaseIndex": 1,
+      "phaseTitle": "Verify",
+      "agentId": "aed52bc617f934da2",
+      "model": "claude-fable-5",
+      "state": "done",
+      "startedAt": 1784491976224,
+      "queuedAt": 1784491973412,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "behavioral",
+      "promptPreview": "CHANGE UNDER REVIEW: fix 7 sub-fix (c) alias-fold disambiguation + D-86 endpoint resolution, TIGHTENED after a prior REJECT.\nFiles: src/lib/graph/graph-builder.ts (edited), tests/unit/graph-alias-merge-disambiguation.test.ts (c8-c15 new), tests/unit/graph-event-rel-endpoint-resolution.test.ts.\nHandoff: cowork/bulletproof-qa-2026-07-17/evidence/fix-reviews/fix7c-handoff.md.\n\nTHE FOLD SHAPE (what to…",
+      "lastProgressAt": 1784492207194,
+      "tokens": 74741,
+      "toolCalls": 10,
+      "durationMs": 230970,
+      "resultPreview": "{\"lens\":\"behavioral\",\"verdict\":\"APPROVE\",\"blocking\":false,\"findings\":[{\"severity\":\"NOTE\",\"claim\":\"All 5 enumerated false-fold cases verifiably stay separate in the real code, each rejected by the intended guard: c8 Reynolds and c9 Anna by the both-full-names shared-word guard (graph-builder.ts:987-990), c10 'the Stranger' by isEpithetAlias (:948), c11 'Sheriff' and c12 'Señor' by the extended COMM…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 3,
+      "label": "verify:exactname-gate",
+      "phaseIndex": 1,
+      "phaseTitle": "Verify",
+      "agentId": "a07b97d510efb3711",
+      "model": "claude-fable-5",
+      "state": "done",
+      "startedAt": 1784491976773,
+      "queuedAt": 1784491973412,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "exact-name + gate-integrity",
+      "promptPreview": "CHANGE UNDER REVIEW: fix 7 sub-fix (c) alias-fold disambiguation + D-86 endpoint resolution, TIGHTENED after a prior REJECT.\nFiles: src/lib/graph/graph-builder.ts (edited), tests/unit/graph-alias-merge-disambiguation.test.ts (c8-c15 new), tests/unit/graph-event-rel-endpoint-resolution.test.ts.\nHandoff: cowork/bulletproof-qa-2026-07-17/evidence/fix-reviews/fix7c-handoff.md.\n\nTHE FOLD SHAPE (what to…",
+      "lastProgressAt": 1784492199402,
+      "tokens": 77446,
+      "toolCalls": 10,
+      "durationMs": 222629,
+      "resultPreview": "{\"lens\":\"exact-name + gate-integrity\",\"verdict\":\"APPROVE_WITH_NOTES\",\"blocking\":false,\"findings\":[{\"severity\":\"NOTE\",\"claim\":\"HIGH fix verified: 'OR n.name = $name' is present in the alias-lookup WHERE clause with $name bound as a param in the same query, and an exact-name node with no stored aliases now trips hasExactNameNode so the MERGE hits its own node.\",\"evidence\":\"src/lib/graph/graph-builde…"
+    }
+  ],
+  "totalTokens": 324741,
+  "totalToolCalls": 42
+}
