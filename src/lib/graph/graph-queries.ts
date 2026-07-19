@@ -14,21 +14,31 @@ import type {
 } from "./types";
 
 /**
- * FOUNDER-DECISION (D-19): the location_conflict check is DISABLED.
+ * location_conflict check (RC-5 / D-32(c)): CORRECTED CYPHER, but gated OFF by
+ * default — fires on ordinary intra-region travel otherwise (FP-B, live-proven).
  *
- * It flags a character associated with two different locations via events in the
- * SAME chapter as a contradiction. But the graph has no scene / adjacency / time
- * granularity to distinguish a legitimate within-chapter MOVE (docks → castle)
- * from an impossible teleport — Scene nodes are explicitly NOT extracted (see
- * entity-extractor.validateEntity, which drops Scene/Chapter labels). Firing it
- * as-is would produce constant false positives on ordinary multi-location
- * chapters, so it is gated OFF pending scene-level continuity modelling rather
- * than shipped noisy. See cowork/bulletproof-qa-2026-07-17/evidence/p3-selena/defects.md (D-19).
+ * The corrected check (below) fires on a TIGHT co-location: two DISTINCT locations
+ * that share an ancestor region (both PART_OF the same ancestor, neither containing
+ * the other) reached in the same STORY-time chapter. That matches the seeded
+ * impossible case — a character cannot unload grain at the Salt Docks and raid the
+ * Cinder Ward in the same beat of Emberfall. Nested containment (a room inside its
+ * building) is exempted via directed ancestry; unrelated far-apart locations (no
+ * shared ancestor) are treated as legitimate travel and NOT flagged.
  *
- * Typed `boolean` (not the literal `false`) so the guarded block stays reachable
- * to the type-checker and is not treated as dead code.
+ * WHY DEFAULT-OFF (FP-B): the shared-ancestor test is any-depth and the extraction
+ * guidance solicits region/country/world parent chains, so an ORDINARY journey
+ * across one realm — Salt Docks (PART_OF Emberfall PART_OF Ashfall Realm) and the
+ * Northern Keep (PART_OF Ashfall Realm) visited in one chapter — is topologically
+ * BYTE-IDENTICAL to the seeded true conflict and live-fires. Without scene /
+ * story-beat granularity the graph cannot tell simultaneity from sequential travel,
+ * so on any real fantasy corpus this over-flags normal movement. The corrected
+ * Cypher is kept for when that granularity lands; the check simply does not run by
+ * default. Ops can enable it per-deploy without a code change via the env var
+ * (read at call time in runConsistencyChecks, so no redeploy is needed to flip it).
  */
-const ENABLE_LOCATION_CONFLICT_CHECK: boolean = false;
+function isLocationConflictCheckEnabled(): boolean {
+  return process.env.ENABLE_LOCATION_CONFLICT_CHECK === "true";
+}
 
 /**
  * Get the character network for a book: all characters and their inter-relationships.
@@ -313,9 +323,18 @@ export async function getChapterNodeUpdatedAt(
  * Returns issues sorted by severity.
  */
 export async function runConsistencyChecks(
-  bookId: string
+  bookId: string,
+  userId?: string
 ): Promise<ConsistencyIssue[]> {
   const issues: ConsistencyIssue[] = [];
+
+  // RC-6 defense in depth: when a tenant is supplied, additionally exclude any
+  // node whose userId is present AND differs. Null-safe (legacy un-stamped nodes
+  // still match) so enforcement tightens as writes re-stamp nodes, without
+  // dropping existing data. bookId stays the primary, ownership-verified scope.
+  const params: Record<string, unknown> = userId ? { bookId, userId } : { bookId };
+  const userGuard = (v: string): string =>
+    userId ? ` AND (${v}.userId IS NULL OR ${v}.userId = $userId)` : "";
 
   await withSession("READ", async (session) => {
     // 1. Characters appearing in chapter but not in story bible
@@ -324,9 +343,9 @@ export async function runConsistencyChecks(
     const undocumentedResult = await session.run(
       `MATCH (c:Character {bookId: $bookId})
        WHERE c.role = "mentioned" AND c.description IS NULL
-       AND c.lastMentioned > c.firstAppearance
+       AND c.lastMentioned > c.firstAppearance${userGuard("c")}
        RETURN c.name AS name, c.firstAppearance AS firstChapter, c.lastMentioned AS lastChapter`,
-      { bookId }
+      params
     );
     for (const rec of undocumentedResult.records) {
       const firstChapter = toNumber(rec.get("firstChapter"));
@@ -340,21 +359,27 @@ export async function runConsistencyChecks(
       });
     }
 
-    // 2. Location conflicts — DISABLED (founder-decision, see
-    //    ENABLE_LOCATION_CONFLICT_CHECK above). Left in place, gated off, so it
-    //    can be re-enabled once scene-level continuity modelling exists to tell a
-    //    legitimate within-chapter move from a teleport. As-is it false-positives
-    //    on any character who legitimately changes location within one chapter.
-    if (ENABLE_LOCATION_CONFLICT_CHECK) {
+    // 2. Location conflicts — corrected Cypher, GATED OFF by default (FP-B; see
+    //    isLocationConflictCheckEnabled above). When enabled, fires only when a
+    //    character participates in two events at two DISTINCT locations sharing an
+    //    ancestor (both PART_OF a shared region, neither nested in the other) in
+    //    the same STORY-time chapter. Nested containment (room-in-building) is
+    //    exempted via DIRECTED PART_OF ancestry; unrelated locations with no shared
+    //    ancestor are legitimate travel and NOT flagged. Off by default because the
+    //    any-depth shared-ancestor test also catches ordinary intra-region travel.
+    if (isLocationConflictCheckEnabled()) {
       const locationConflictResult = await session.run(
         `MATCH (c:Character {bookId: $bookId})-[:PARTICIPATES_IN]->(e1:Event {bookId: $bookId})-[:LOCATED_AT]->(l1:Location {bookId: $bookId})
          MATCH (c)-[:PARTICIPATES_IN]->(e2:Event {bookId: $bookId})-[:LOCATED_AT]->(l2:Location {bookId: $bookId})
-         WHERE e1.chapter = e2.chapter AND id(e1) < id(e2) AND l1.name <> l2.name
-         AND NOT (l1)-[:PART_OF*]-(l2)
-         RETURN c.name AS character, e1.chapter AS chapter,
+         WHERE coalesce(e1.occursInChapter, e1.chapter) = coalesce(e2.occursInChapter, e2.chapter)
+         AND id(e1) < id(e2) AND l1.name <> l2.name
+         AND NOT (l1)-[:PART_OF*]->(l2)
+         AND NOT (l2)-[:PART_OF*]->(l1)
+         AND EXISTS { MATCH (l1)-[:PART_OF*]->(shared:Location {bookId: $bookId})<-[:PART_OF*]-(l2) }${userGuard("c")}
+         RETURN c.name AS character, coalesce(e1.occursInChapter, e1.chapter) AS chapter,
                 l1.name AS location1, l2.name AS location2,
                 e1.name AS event1, e2.name AS event2`,
-        { bookId }
+        params
       );
       for (const rec of locationConflictResult.records) {
         const chapter = toNumber(rec.get("chapter"));
@@ -372,21 +397,21 @@ export async function runConsistencyChecks(
       }
     }
 
-    // 3. Timeline violations — KNOWN-LIMITED (founder-decision, D-19). Fires only
-    //    on a LEADS_TO edge whose later event sits in a higher chapter than the
-    //    earlier one. In practice validateRelationship() only keeps a relationship
-    //    when BOTH endpoints appear in the same extraction batch (one chapter), so
-    //    cross-chapter LEADS_TO edges are never persisted and
-    //    later.chapter > earlier.chapter cannot arise. The Event.chapter-stable
-    //    fix helps but does not create cross-chapter causal edges. Left enabled
-    //    (it cannot false-positive) but not to be relied upon until cross-chapter
-    //    causal links are modelled. Same scene-modelling bucket as location_conflict.
+    // 3. Timeline violations (RC-2 / RC-5): a LEADS_TO edge whose SOURCE event
+    //    occurs AFTER the TARGET it supposedly causes, in STORY-time — a causal
+    //    impossibility (effect precedes cause). Compares coalesce(occursInChapter,
+    //    chapter) so a flashback narrated later no longer collapses to same-chapter
+    //    and legitimate cause→effect (earlier story-chapter → later) never fires.
+    //    NOTE: for the seed to construct naturally, cross-chapter LEADS_TO edges
+    //    must connect the SAME event nodes — event-name canonicalization on upsert
+    //    (fix 7, separate lane) is still required so a retold "The Death of X" does
+    //    not fork a duplicate node. The check itself is now correct and constructible.
     const timelineResult = await session.run(
       `MATCH (later:Event {bookId: $bookId})-[:LEADS_TO]->(earlier:Event {bookId: $bookId})
-       WHERE later.chapter > earlier.chapter
-       RETURN later.name AS laterEvent, later.chapter AS laterChapter,
-              earlier.name AS earlierEvent, earlier.chapter AS earlierChapter`,
-      { bookId }
+       WHERE coalesce(later.occursInChapter, later.chapter) > coalesce(earlier.occursInChapter, earlier.chapter)${userGuard("later")}
+       RETURN later.name AS laterEvent, coalesce(later.occursInChapter, later.chapter) AS laterChapter,
+              earlier.name AS earlierEvent, coalesce(earlier.occursInChapter, earlier.chapter) AS earlierChapter`,
+      params
     );
     for (const rec of timelineResult.records) {
       const laterChapter = toNumber(rec.get("laterChapter"));
@@ -407,14 +432,17 @@ export async function runConsistencyChecks(
     //    upsert, so a later MENTIONED_IN (grieving, remembering, being named —
     //    all normal for a dead character) would false-flag. Only an actual
     //    PARTICIPATES_IN event in a chapter after death is a real contradiction.
+    //    RC-2 fix: compare STORY-time (coalesce(occursInChapter, chapter)), so a
+    //    flashback / retelling narrated after the death (Event.chapter > death but
+    //    occursInChapter <= death) no longer false-fires — the exact D-32(b) FP.
     const deadCharResult = await session.run(
       `MATCH (c:Character {bookId: $bookId})
-       WHERE c.status = "dead" AND c.deathChapter IS NOT NULL
+       WHERE c.status = "dead" AND c.deathChapter IS NOT NULL${userGuard("c")}
        MATCH (c)-[:PARTICIPATES_IN]->(e:Event {bookId: $bookId})
-       WHERE e.chapter > c.deathChapter
+       WHERE coalesce(e.occursInChapter, e.chapter) > c.deathChapter
        RETURN c.name AS character, c.deathChapter AS deathChapter,
-              collect(DISTINCT e.chapter) AS postDeathChapters`,
-      { bookId }
+              collect(DISTINCT coalesce(e.occursInChapter, e.chapter)) AS postDeathChapters`,
+      params
     );
     for (const rec of deadCharResult.records) {
       const deathChapter = toNumber(rec.get("deathChapter"));
@@ -435,13 +463,13 @@ export async function runConsistencyChecks(
     const orphanThreadResult = await session.run(
       `MATCH (p:PlotThread {bookId: $bookId})
        WHERE p.status IN ["introduced", "developing"]
-       AND p.resolvedChapter IS NULL
+       AND p.resolvedChapter IS NULL${userGuard("p")}
        OPTIONAL MATCH (c:Chapter {bookId: $bookId})
        WITH p, max(c.chapterNumber) AS maxChapter
        WHERE maxChapter IS NOT NULL AND (maxChapter - p.introducedChapter) >= 3
        RETURN p.name AS thread, p.status AS status,
               p.introducedChapter AS introducedChapter, maxChapter`,
-      { bookId }
+      params
     );
     for (const rec of orphanThreadResult.records) {
       const introducedChapter = toNumber(rec.get("introducedChapter"));
@@ -455,20 +483,33 @@ export async function runConsistencyChecks(
       });
     }
 
-    // 6. Relationship contradictions: two characters are both ALLIED_WITH and OPPOSES each other
+    // 6. Relationship contradictions (RC-2 C1 / Fix 4): two characters marked as
+    //    BOTH ALLIED_WITH and OPPOSES — but ONLY when both edges were asserted in
+    //    the SAME chapter (r1.chapter = r2.chapter). A relationship that EVOLVES
+    //    over time (allied in ch2, enemies by ch9) is a legitimate arc, not a
+    //    contradiction; requiring co-assertion in one chapter stops the perpetual
+    //    false flag the time-agnostic query produced (and that the D-30 cross-book
+    //    contamination surfaced). Edge `.chapter` is application-stamped in
+    //    upsertRelationship(), so it is always present on freshly written edges.
     const contradictionResult = await session.run(
-      `MATCH (a:Character {bookId: $bookId})-[:ALLIED_WITH]-(b:Character {bookId: $bookId})
-       WHERE (a)-[:OPPOSES]-(b) AND id(a) < id(b)
-       RETURN a.name AS char1, b.name AS char2`,
-      { bookId }
+      `MATCH (a:Character {bookId: $bookId})-[r1:ALLIED_WITH]-(b:Character {bookId: $bookId})
+       WHERE id(a) < id(b)${userGuard("a")}
+       MATCH (a)-[r2:OPPOSES]-(b)
+       WHERE r1.chapter = r2.chapter
+       RETURN a.name AS char1, b.name AS char2, r1.chapter AS chapter`,
+      params
     );
     for (const rec of contradictionResult.records) {
+      const chapter = rec.get("chapter") != null ? toNumber(rec.get("chapter")) : null;
       issues.push({
         type: "relationship_contradiction",
         severity: "major",
-        description: `Characters "${rec.get("char1")}" and "${rec.get("char2")}" are marked as both ALLIED_WITH and OPPOSES each other simultaneously.`,
+        description:
+          chapter != null
+            ? `Characters "${rec.get("char1")}" and "${rec.get("char2")}" are marked as both ALLIED_WITH and OPPOSES each other in chapter ${chapter}.`
+            : `Characters "${rec.get("char1")}" and "${rec.get("char2")}" are marked as both ALLIED_WITH and OPPOSES each other simultaneously.`,
         entities: [rec.get("char1") as string, rec.get("char2") as string],
-        chapters: [],
+        chapters: chapter != null ? [chapter] : [],
       });
     }
   });

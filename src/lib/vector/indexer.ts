@@ -82,6 +82,7 @@ export async function indexDocument(
     const payload: MemoryChunkPayload = {
       schemaVersion: 1,
       bookId,
+      userId: metadata.userId ?? null,
       seriesId: metadata.seriesId ?? null,
       docType,
       docId,

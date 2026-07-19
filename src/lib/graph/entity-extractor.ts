@@ -85,7 +85,7 @@ const VALID_RELATIONSHIP_TYPES: RelationshipType[] = [...RELATIONSHIP_TYPES];
 const EXTRACTION_GUIDANCE = `Entity label types and their required properties:
 - Character: { "role": "protagonist|antagonist|supporting|minor|mentioned", "description": "brief description", "status": "alive|dead|unknown|transformed", "physicalTraits": "optional", "personality": "optional", "age": "optional" }
 - Location: { "locationType": "city|building|room|region|country|world|other", "description": "brief description", "parentLocation": "optional parent name" }
-- Event: { "significance": "major|minor|turning-point|climax", "description": "what happened", "timelinePosition": "relative or absolute time reference" }
+- Event: { "significance": "major|minor|turning-point|climax", "description": "what happened", "timelinePosition": "relative or absolute time reference", "occursInChapter": "integer story-time chapter when the event actually happens (see rule 8) — omit for ordinary present-time events" }
 - Object: { "objectType": "weapon|artifact|document|vehicle|clothing|tool|other", "description": "brief description", "status": "intact|destroyed|lost|transformed", "currentHolder": "character name or null" }
 - PlotThread: { "threadType": "main|subplot|mystery|romance|foreshadowing", "status": "introduced|developing|climaxed|resolved|abandoned", "description": "what the thread is about" }
 - Faction: { "factionType": "organization|family|government|religion|military|other", "description": "brief description", "alignment": "e.g. good, evil, neutral, chaotic" }
@@ -114,7 +114,8 @@ Rules:
 4. Capture ALL relationships between extracted entities
 5. Use consistent entity names (prefer full names)
 6. Include aliases for characters with nicknames, titles, or shortened names
-7. Do NOT invent entities not present in the text`;
+7. Do NOT invent entities not present in the text
+8. STORY-TIME for events: most events happen in the present of the chapter you are reading — for those, OMIT "occursInChapter". ONLY when an event is narrated OUT of chronological order — a flashback, a retelling of an earlier event, a dream, or a prophecy of a future event — set "occursInChapter" to the integer chapter the event actually happens in the story's timeline (an earlier chapter for a flashback/retelling, a later chapter for a prophecy). This lets continuity checks tell "the dead hero reappears alive" (a real error) from "chapter 8 retells the hero's death from chapter 3" (not an error)`;
 
 /**
  * Prompt for the primary (forced tool-use) path. The tool schema enforces the
@@ -218,7 +219,8 @@ export async function extractEntities(
   bookId: string,
   chapterNumber: number,
   keys?: Partial<LLMClientOptions>,
-  defaultModel?: string
+  defaultModel?: string,
+  userId?: string
 ): Promise<ExtractionResult> {
   const contentHash = hashContent(text);
   const { client, modelId } = createExtractionClient(keys, defaultModel);
@@ -278,6 +280,7 @@ export async function extractEntities(
 
     return {
       bookId,
+      userId,
       entities: parsed.entities,
       relationships: parsed.relationships,
       chapterNumber,
@@ -291,6 +294,7 @@ export async function extractEntities(
     );
     return {
       bookId,
+      userId,
       entities: [],
       relationships: [],
       chapterNumber,

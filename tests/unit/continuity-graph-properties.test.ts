@@ -51,6 +51,28 @@ vi.mock("@/lib/graph/neo4j-client", () => ({
             if (query.includes("n.chapter = coalesce(n.chapter, $chapter)")) {
               merged.chapter = existing.chapter ?? params.chapter;
             }
+            if (query.includes("n.occursInChapter = coalesce(n.occursInChapter,")) {
+              // Query-text-driven so a revert is genuinely caught (FP-A). The
+              // corrected clause carries the CASE marker: adopt the supplied
+              // story-time ONLY at the node's origin chapter, else backfill from
+              // the node's OWN narrating chapter. The naive pre-FP-A clause
+              // unconditionally backfills the supplied value.
+              if (
+                query.includes(
+                  "CASE WHEN n.chapter = $chapter THEN $occursInChapter ELSE n.chapter END"
+                )
+              ) {
+                merged.occursInChapter =
+                  (existing.occursInChapter as number | undefined) ??
+                  (existing.chapter === params.chapter
+                    ? params.occursInChapter
+                    : existing.chapter);
+              } else {
+                merged.occursInChapter =
+                  (existing.occursInChapter as number | undefined) ??
+                  params.occursInChapter;
+              }
+            }
             if (query.includes("n.deathChapter = coalesce(n.deathChapter, $chapter)")) {
               merged.deathChapter = existing.deathChapter ?? params.chapter;
             }
@@ -70,6 +92,7 @@ import {
   upsertEntities,
   deriveEntityGraphProps,
   isDeadStatus,
+  coerceStoryChapter,
 } from "@/lib/graph/graph-builder";
 import type { ExtractionResult, GraphNodeLabel } from "@/lib/graph/types";
 
@@ -130,6 +153,33 @@ describe("deriveEntityGraphProps — deterministic continuity property injection
     expect(isDeadStatus("alive")).toBe(false);
     expect(isDeadStatus(undefined)).toBe(false);
     expect(isDeadStatus(3)).toBe(false);
+  });
+
+  it("(story-time) derives occursInChapter = narrating chapter for an Event with no hint", () => {
+    expect(deriveEntityGraphProps("Event", { significance: "major" }, 7).occursInChapter).toBe(7);
+  });
+
+  it("(story-time) a valid occursInChapter hint overrides the narrating chapter (flashback)", () => {
+    expect(deriveEntityGraphProps("Event", { occursInChapter: 3 }, 8).occursInChapter).toBe(3);
+    // a prophecy legitimately occurs AFTER it is narrated
+    expect(deriveEntityGraphProps("Event", { occursInChapter: 12 }, 8).occursInChapter).toBe(12);
+  });
+
+  it("(story-time) does not derive occursInChapter on non-Event nodes", () => {
+    expect(deriveEntityGraphProps("Character", { occursInChapter: 3 }, 8).occursInChapter).toBeUndefined();
+  });
+
+  it("coerceStoryChapter accepts non-negative integers (number or clean string), rejects everything else", () => {
+    expect(coerceStoryChapter(3)).toBe(3);
+    expect(coerceStoryChapter(0)).toBe(0);
+    expect(coerceStoryChapter("5")).toBe(5);
+    expect(coerceStoryChapter(-1)).toBeUndefined();
+    expect(coerceStoryChapter(2.5)).toBeUndefined();
+    expect(coerceStoryChapter("abc")).toBeUndefined();
+    expect(coerceStoryChapter("")).toBeUndefined();
+    expect(coerceStoryChapter(null)).toBeUndefined();
+    expect(coerceStoryChapter(undefined)).toBeUndefined();
+    expect(coerceStoryChapter(NaN)).toBeUndefined();
   });
 
   it("does NOT derive deathChapter from the story bible (chapter 0 = pre-story canonical)", () => {
@@ -250,6 +300,144 @@ describe("upsertEntities writes the continuity properties runConsistencyChecks r
     expect(merge.query).not.toContain("n.deathChapter = coalesce");
     expect((merge.params.createProps as Params).deathChapter).toBeUndefined();
     expect(node("Character:b1:Vera").deathChapter).toBeUndefined();
+  });
+
+  // ─── RC-2: story-time (occursInChapter) derivation + stable write ─────
+
+  it("(story-time) an Event with NO occursInChapter hint gets occursInChapter = narrating chapter", async () => {
+    await upsertEntities(
+      extraction({
+        chapterNumber: 7,
+        entities: [
+          { name: "Present Skirmish", label: "Event", properties: { bookId: "b1", significance: "minor" } },
+        ],
+      })
+    );
+    const merge = mergeCalls()[0];
+    const createProps = merge.params.createProps as Params;
+    expect(createProps.occursInChapter).toBe(7); // defaults to narrating chapter
+    expect(merge.query).toContain(
+      "n.occursInChapter = coalesce(n.occursInChapter, CASE WHEN n.chapter = $chapter THEN $occursInChapter ELSE n.chapter END)"
+    );
+    expect(node("Event:b1:Present Skirmish").occursInChapter).toBe(7);
+  });
+
+  it("(story-time / RC-2 FP fix) a flashback narrated in ch8 but occurring in ch3 stamps occursInChapter=3 (< narrating chapter 8)", async () => {
+    await upsertEntities(
+      extraction({
+        chapterNumber: 8,
+        entities: [
+          {
+            name: "Retelling of Corvin's Death",
+            label: "Event",
+            // LLM correctly marks the retrospective event's story-time chapter.
+            properties: { bookId: "b1", significance: "major", occursInChapter: 3 },
+          },
+        ],
+      })
+    );
+    const merge = mergeCalls()[0];
+    const createProps = merge.params.createProps as Params;
+    expect(createProps.chapter).toBe(8); // narrating chapter unchanged
+    expect(createProps.occursInChapter).toBe(3); // story-time
+    const n = node("Event:b1:Retelling of Corvin's Death");
+    expect(n.chapter).toBe(8);
+    expect(n.occursInChapter).toBe(3);
+  });
+
+  it("(story-time) occursInChapter is first-occurrence STABLE across re-scans (coalesce, not overwrite)", async () => {
+    const flashback = {
+      name: "The Vision",
+      label: "Event" as GraphNodeLabel,
+      properties: { bookId: "b1", occursInChapter: 2, significance: "minor" },
+    };
+    await upsertEntities(extraction({ chapterNumber: 8, entities: [{ ...flashback }] })); // CREATE → 2
+    // A later re-scan re-emits it (perhaps without the hint); story-time must not churn.
+    await upsertEntities(
+      extraction({
+        chapterNumber: 9,
+        entities: [{ name: "The Vision", label: "Event", properties: { bookId: "b1", significance: "minor" } }],
+      })
+    );
+    expect(node("Event:b1:The Vision").occursInChapter).toBe(2);
+  });
+
+  it("(story-time) a garbage occursInChapter hint is ignored and falls back to the narrating chapter", async () => {
+    await upsertEntities(
+      extraction({
+        chapterNumber: 5,
+        entities: [
+          { name: "Bad Hint Event", label: "Event", properties: { bookId: "b1", occursInChapter: "not-a-number", significance: "minor" } },
+        ],
+      })
+    );
+    expect(node("Event:b1:Bad Hint Event").occursInChapter).toBe(5);
+  });
+
+  it("(story-time FP-A) a PRE-FIX legacy Event (chapter=3, occursInChapter NULL) re-mentioned in a later chapter with no hint backfills story-time from its OWN narrating chapter, NOT the current one", async () => {
+    // Seed a pre-fix node directly: created before occursInChapter existed, so it
+    // has chapter=3 and NO occursInChapter. No migration ships, so this is the
+    // live-graph shape. Re-mention it during a ch9 scan with no rule-8 hint (the
+    // stochastic default): $chapter = $occursInChapter = 9.
+    h.store.set("Event:b1:Legacy Death", {
+      bookId: "b1",
+      name: "Legacy Death",
+      chapter: 3,
+    });
+    await upsertEntities(
+      extraction({
+        chapterNumber: 9,
+        entities: [
+          { name: "Legacy Death", label: "Event", properties: { bookId: "b1", significance: "major" } },
+        ],
+      })
+    );
+    // Must NOT become 9 (which would re-open the D-32b dead_character_reappears FP
+    // and FREEZE, since coalesce never overwrites a non-null). Backfills to 3, its
+    // own narrating chapter = exact pre-fix read semantics.
+    const n = node("Event:b1:Legacy Death");
+    expect(n.occursInChapter).toBe(3);
+    expect(n.chapter).toBe(3);
+  });
+
+  // ─── RC-6: tenant (userId) stamping on the write path ────────────────
+
+  it("(tenant) stamps the authoritative userId onto a node when the extraction carries one", async () => {
+    await upsertEntities(
+      extraction({
+        userId: "user-42",
+        chapterNumber: 4,
+        entities: [{ name: "Ana", label: "Character", properties: { bookId: "b1", status: "alive" } }],
+      })
+    );
+    const merge = mergeCalls()[0];
+    expect((merge.params.createProps as Params).userId).toBe("user-42");
+    expect((merge.params.updateProps as Params).userId).toBe("user-42");
+    expect(node("Character:b1:Ana").userId).toBe("user-42");
+  });
+
+  it("(tenant) never trusts a caller-injected userId in properties — only the authoritative extraction userId is written", async () => {
+    await upsertEntities(
+      extraction({
+        userId: "real-owner",
+        chapterNumber: 4,
+        entities: [
+          { name: "Ana", label: "Character", properties: { bookId: "b1", status: "alive", userId: "attacker-spoof" } },
+        ],
+      })
+    );
+    expect(node("Character:b1:Ana").userId).toBe("real-owner");
+  });
+
+  it("(tenant) writes no userId when the extraction omits one (legacy caller, backward compatible)", async () => {
+    await upsertEntities(
+      extraction({
+        chapterNumber: 4,
+        entities: [{ name: "Ana", label: "Character", properties: { bookId: "b1", status: "alive" } }],
+      })
+    );
+    const createProps = mergeCalls()[0].params.createProps as Params;
+    expect("userId" in createProps).toBe(false);
   });
 
   it("strips any LLM-emitted chapter/deathChapter so only the application-derived value is written", async () => {

@@ -60,7 +60,8 @@ export async function updateFromChapter(
   chapterNumber: number,
   content: string,
   defaultModel?: string,
-  keys?: Partial<LLMClientOptions>
+  keys?: Partial<LLMClientOptions>,
+  userId?: string
 ): Promise<{ updated: boolean; entitiesFound: number; suspiciousEmpty?: boolean }> {
   if (!content || content.trim().length === 0) {
     return { updated: false, entitiesFound: 0 };
@@ -81,7 +82,8 @@ export async function updateFromChapter(
     // never-succeeds case) destroyed data that was never restored.
     // Extraction is a pure LLM call on `content`; it does not read the graph,
     // so running it before the delete is behavior-preserving on success.
-    const result = await extractEntities(content, bookId, chapterNumber, keys, defaultModel);
+    // userId (RC-6) is threaded through so every node/edge is tenant-stamped.
+    const result = await extractEntities(content, bookId, chapterNumber, keys, defaultModel, userId);
 
     if (isSuspiciousEmptyExtraction(result, content)) {
       // D-31: empty yield on substantive prose = FAILED extraction, not
@@ -134,7 +136,8 @@ export async function updateFromStoryBible(
   bookId: string,
   content: string,
   defaultModel?: string,
-  keys?: Partial<LLMClientOptions>
+  keys?: Partial<LLMClientOptions>,
+  userId?: string
 ): Promise<void> {
   if (!content || content.trim().length === 0) {
     return;
@@ -149,7 +152,7 @@ export async function updateFromStoryBible(
 
   try {
     // Extract using chapter 0 to signify canonical / pre-story data
-    const result = await extractEntities(content, bookId, 0, keys, defaultModel);
+    const result = await extractEntities(content, bookId, 0, keys, defaultModel, userId);
 
     // D-31: same poisoned-success mechanism as chapters — an empty yield on a
     // substantive bible must not stamp the hash, or the canonical entities

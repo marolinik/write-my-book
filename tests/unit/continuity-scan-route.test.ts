@@ -81,8 +81,9 @@ describe("POST /continuity/scan", () => {
     const res = await POST(req("?chapterNumber=18") as never, ctx as never);
     const json = await res.json();
     expect(res.status).toBe(200);
-    // 4th arg threads the user's defaultModel so extraction honors their provider (C1/S9).
-    expect(h.updateFromChapter).toHaveBeenCalledWith("b1", 18, "Ana walked in.", "openrouter-qwen-max/opus", {});
+    // 4th arg threads the user's defaultModel so extraction honors their provider (C1/S9);
+    // 6th arg threads userId so every written node/edge is tenant-stamped (RC-6).
+    expect(h.updateFromChapter).toHaveBeenCalledWith("b1", 18, "Ana walked in.", "openrouter-qwen-max/opus", {}, "u1");
     const up = h.db.continuityFlag.upsert.mock.calls[0][0];
     expect(up.where.bookId_signature.bookId).toBe("b1");
     expect(up.create.type).toBe("dead_character_reappears");

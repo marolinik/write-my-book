@@ -786,7 +786,8 @@ async function updateChapterGraph(
     chapterNumber,
     content.content,
     dbUser?.defaultModel ?? undefined,
-    keys
+    keys,
+    userId
   );
 
   // Also index into vector memory

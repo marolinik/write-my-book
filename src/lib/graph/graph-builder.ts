@@ -55,7 +55,8 @@ export async function upsertEntities(
         entity,
         result.bookId,
         result.chapterNumber,
-        result.contentHash
+        result.contentHash,
+        result.userId
       );
       stats.nodesCreated += entityStats.created;
       stats.nodesUpdated += entityStats.updated;
@@ -67,7 +68,8 @@ export async function upsertEntities(
         session,
         rel,
         result.bookId,
-        result.chapterNumber
+        result.chapterNumber,
+        result.userId
       );
       if (created) {
         stats.relationshipsCreated += 1;
@@ -87,7 +89,8 @@ async function upsertSingleEntity(
   entity: ExtractedEntity,
   bookId: string,
   chapterNumber: number,
-  contentHash: string
+  contentHash: string,
+  userId?: string
 ): Promise<{ created: number; updated: number }> {
   const { name, label, properties, aliases } = entity;
 
@@ -148,13 +151,22 @@ async function upsertSingleEntity(
     lastMentioned: chapterNumber,
     updatedAt: now,
   };
-  // chapter (Event) and deathChapter (Character) are application-derived facts,
-  // and aliases is a UNION-not-replace set (D-27) — all handled below with
-  // stable / union semantics. Keep them OUT of allProps so the ON MATCH
-  // `+= $updateProps` merge cannot destructively overwrite them.
+  // chapter / occursInChapter (Event) and deathChapter (Character) are
+  // application-derived facts, and aliases is a UNION-not-replace set (D-27) —
+  // all handled below with stable / union semantics. Keep them OUT of allProps
+  // so the ON MATCH `+= $updateProps` merge cannot destructively overwrite them.
   delete allProps.chapter;
+  delete allProps.occursInChapter;
   delete allProps.deathChapter;
   delete allProps.aliases;
+  // RC-6 defense in depth: stamp the authoritative tenant onto the node when the
+  // caller supplied one. Never trust a caller-injected userId in `properties`;
+  // strip it and set only the authoritative value. Omitting it (legacy callers)
+  // leaves any previously-stamped userId intact on ON MATCH.
+  delete allProps.userId;
+  if (userId) {
+    allProps.userId = userId;
+  }
 
   // D-19: Event.chapter and Character.deathChapter are read by
   // runConsistencyChecks() (graph-queries.ts) but the extraction LLM is never
@@ -174,9 +186,33 @@ async function upsertSingleEntity(
   const createProps: Record<string, unknown> = { ...allProps };
   const onMatchStableItems: string[] = [];
   if (derived.chapter !== undefined) {
-    // Event.chapter — powers location_conflict / timeline_violation.
+    // Event.chapter — NARRATING chapter (display / timeline ordering).
     createProps.chapter = derived.chapter;
     onMatchStableItems.push("n.chapter = coalesce(n.chapter, $chapter)");
+  }
+  if (derived.occursInChapter !== undefined) {
+    // Event.occursInChapter — STORY-time (RC-2). Stable first-occurrence fact,
+    // preserved on ON MATCH via coalesce so a re-scan can't churn it. Carries
+    // its own $occursInChapter param since it may differ from the narrating
+    // $chapter (a flashback narrated later still occurs in its earlier chapter).
+    //
+    // FP-A guard (regression vs committed D-19): a PRE-FIX legacy Event
+    // (occursInChapter NULL, e.g. chapter=3) re-mentioned during a LATER
+    // chapter's extraction (say ch9) arrives here with $chapter=$occursInChapter=9
+    // and, by the stochastic default, no rule-8 hint. A naive
+    // coalesce(n.occursInChapter, $occursInChapter) would backfill 9 — inventing a
+    // story-time that re-opens the exact D-32(b) dead_character_reappears FP and
+    // FREEZES it (coalesce never overwrites the now non-null value; re-scanning
+    // the origin chapter can't repair it). Instead, only adopt the supplied
+    // story-time when this IS the node's origin chapter (n.chapter = $chapter);
+    // otherwise backfill from the node's OWN narrating chapter, which reproduces
+    // the pre-fix read semantics exactly. A legacy node thus learns real
+    // story-time only when re-scanned at its origin chapter; post-fix
+    // CREATE-stamped nodes already carry occursInChapter, so coalesce keeps it.
+    createProps.occursInChapter = derived.occursInChapter;
+    onMatchStableItems.push(
+      "n.occursInChapter = coalesce(n.occursInChapter, CASE WHEN n.chapter = $chapter THEN $occursInChapter ELSE n.chapter END)"
+    );
   }
   if (derived.deathChapter !== undefined) {
     // Character.deathChapter — powers dead_character_reappears. derived.deathChapter
@@ -208,6 +244,9 @@ async function upsertSingleEntity(
     createProps,
     updateProps: allProps,
   };
+  if (derived.occursInChapter !== undefined) {
+    mergeParams.occursInChapter = derived.occursInChapter;
+  }
   if (aliases && aliases.length > 0) {
     mergeParams.aliases = aliases;
   }
@@ -248,7 +287,8 @@ async function upsertRelationship(
   session: import("neo4j-driver").Session,
   rel: ExtractedRelationship,
   bookId: string,
-  chapterNumber: number
+  chapterNumber: number,
+  userId?: string
 ): Promise<boolean> {
   const { from, fromLabel, to, toLabel, type, properties } = rel;
 
@@ -264,6 +304,8 @@ async function upsertRelationship(
     ...(properties ?? {}),
     chapter: chapterNumber,
     updatedAt: new Date().toISOString(),
+    // RC-6 defense in depth: tag the edge's owning tenant when known.
+    ...(userId ? { userId } : {}),
   };
 
   // D-63: `type` is free-form LLM output (the agent UpdateGraphEntity tool
@@ -405,10 +447,35 @@ export function sanitizeRelationshipType(raw: unknown): string {
  * how relationship.chapter is set in upsertRelationship().
  */
 export interface DerivedEntityGraphProps {
-  /** Event.chapter — numeric chapter this Event was extracted from. */
+  /** Event.chapter — NARRATING chapter this Event was extracted from. */
   chapter?: number;
+  /**
+   * Event.occursInChapter — STORY-time chapter (RC-2 / D-32). Defaults to the
+   * narrating chapter; overridden by a validated LLM story-time hint so a
+   * flashback / retelling narrated later does not present as a present-time
+   * event to the consistency checks.
+   */
+  occursInChapter?: number;
   /** Character.deathChapter — chapter a death was first detected (>= 1). */
   deathChapter?: number;
+}
+
+/**
+ * Coerce an untrusted story-time hint (LLM-emitted `occursInChapter`) into a
+ * non-negative integer chapter, or `undefined` when it is absent/garbage so the
+ * caller can fall back to the narrating chapter. Accepts a number or a clean
+ * integer string; rejects negatives, non-integers, NaN, and anything else. A
+ * value ABOVE the narrating chapter is allowed (a prophecy/foreshadowing of a
+ * future event is legitimately narrated before it happens). Exported for tests.
+ */
+export function coerceStoryChapter(raw: unknown): number | undefined {
+  const n =
+    typeof raw === "number"
+      ? raw
+      : typeof raw === "string" && raw.trim() !== ""
+        ? Number(raw)
+        : NaN;
+  return Number.isInteger(n) && n >= 0 ? n : undefined;
 }
 
 /**
@@ -441,6 +508,10 @@ export function deriveEntityGraphProps(
 
   if (label === "Event") {
     derived.chapter = chapterNumber;
+    // Story-time: use a valid LLM hint if present, else the narrating chapter.
+    // Chapter 0 (story bible) events keep story-time 0 as well.
+    const hint = coerceStoryChapter(properties.occursInChapter);
+    derived.occursInChapter = hint !== undefined ? hint : chapterNumber;
   }
 
   if (

@@ -65,7 +65,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
             chapterNumber,
             content,
             dbUser?.defaultModel ?? undefined,
-            keys
+            keys,
+            user.id
           ).catch((e) =>
             console.error("[continuity-scan] background extraction failed:", e)
           );
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     // ── Detect (pure Cypher, book-wide). On failure: empty, delete NOTHING. ──
     let issues;
     try {
-      issues = await withTimeout(runConsistencyChecks(bookId), GRAPH_TIMEOUT_MS);
+      issues = await withTimeout(runConsistencyChecks(bookId, user.id), GRAPH_TIMEOUT_MS);
     } catch (err) {
       console.error("[continuity-scan] check failed:", err);
       return NextResponse.json({ flags: [], degraded: true });

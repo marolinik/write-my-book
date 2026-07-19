@@ -29,6 +29,13 @@ export type DocType =
 export interface MemoryChunkPayload {
   schemaVersion: number; // Always 1
   bookId: string;
+  /**
+   * Owning tenant (RC-6). Stored so semantic search can filter by tenant, not
+   * bookId alone — one refactored caller passing an unverified bookId otherwise
+   * leaks another user's manuscript prose. Nullable for chunks indexed before
+   * userId was threaded through (backward compatible).
+   */
+  userId: string | null;
   seriesId: string | null;
   docType: string; // DocType union or custom string
   docId: string | null; // Document ID, session ID, or finding ID
@@ -54,6 +61,7 @@ export interface SearchOptions {
 
 export interface SearchFilter {
   bookId?: string;
+  userId?: string;
   chapterNumber?: number;
   characterNames?: string[];
   docType?: string;
