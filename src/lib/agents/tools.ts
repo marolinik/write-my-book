@@ -26,6 +26,10 @@ import { getAgentDefinition } from "./definitions";
 import { assembleAgentPrompt } from "./prompt-assembler";
 import { processPostSession } from "./post-session";
 import { getSession } from "./session-manager";
+import {
+  stripModelSelfTalk,
+  stripFabricatedFingerprintQuotes,
+} from "./editorial-text-hygiene";
 
 export const APPROVAL_SENTINEL = "__APPROVAL_GATE__";
 
@@ -1045,6 +1049,18 @@ const CHAPTER_SCOPED_DOC_TYPES = new Set([
   "BETA_READ_REPORT",
 ]);
 
+// D-50: writer-facing editorial reports whose content is sanitized of model
+// self-talk before persistence. The writer's own prose (CHAPTER_CONTENT,
+// STORY_BIBLE, FINGERPRINT, …) is never touched.
+const EDITORIAL_REPORT_DOC_TYPES = new Set<string>([
+  "DEV_EDIT_REPORT",
+  "LINE_EDIT_REPORT",
+  "BETA_READ_REPORT",
+  "CONTINUITY_REPORT",
+  "ANALYSIS_REPORT",
+  "MARKET_REPORT",
+]);
+
 async function executeWriteDocument(
   ctx: ToolContext,
   input: {
@@ -1055,6 +1071,12 @@ async function executeWriteDocument(
   }
 ): Promise<string> {
   const type = input.documentType as DocumentType;
+
+  // D-50: strip the model's self-talk from writer-facing editorial reports
+  // before persisting — a report is guidance for the writer, not a scratchpad.
+  const content = EDITORIAL_REPORT_DOC_TYPES.has(input.documentType)
+    ? stripModelSelfTalk(input.content)
+    : input.content;
 
   // For chapter-scoped doc types, fall back to session-level chapterNumber
   const resolvedChapterNumber = input.chapterNumber ?? (CHAPTER_SCOPED_DOC_TYPES.has(type) ? ctx.chapterNumber : undefined);
@@ -1078,7 +1100,7 @@ async function executeWriteDocument(
       if (existing) {
         const updated = await ctx.documentService.update(
           existing.id,
-          input.content,
+          content,
           input.title,
           "agent_write",
           "agent"
@@ -1088,7 +1110,7 @@ async function executeWriteDocument(
 
       const doc = await ctx.documentService.create(
         type,
-        input.content,
+        content,
         input.title,
         resolvedChapterNumber,
         undefined,
@@ -1401,6 +1423,34 @@ async function executeCreateFinding(
     input.alternatives
   );
 
+  // D-49 + D-50: sanitize the writer-facing free text before persisting. Strip
+  // the model's self-talk (D-50), then drop any fabricated verbatim quotation of
+  // the fingerprint the rationale invents (D-49) — validated against the actual
+  // style doc, loaded defensively so a missing/unreadable fingerprint is a
+  // no-op rather than a finding-creation failure.
+  let fingerprintContent: string | null = null;
+  try {
+    const fingerprintDoc = await ctx.documentService.findByType(
+      DocumentType.FINGERPRINT
+    );
+    if (fingerprintDoc) {
+      const fp = await ctx.documentService.read(fingerprintDoc.id);
+      fingerprintContent = fp?.content ?? null;
+    }
+  } catch {
+    fingerprintContent = null;
+  }
+  const sanitizedDescription = stripFabricatedFingerprintQuotes(
+    stripModelSelfTalk(input.description),
+    fingerprintContent,
+    manuscriptContent.content
+  );
+  const sanitizedRationale = stripFabricatedFingerprintQuotes(
+    stripModelSelfTalk(input.rationale),
+    fingerprintContent,
+    manuscriptContent.content
+  );
+
   // Create the finding (use resolvedParagraphNumber which may have been auto-corrected)
   const finding = await db.editFinding.create({
     data: {
@@ -1410,8 +1460,8 @@ async function executeCreateFinding(
       sessionId: ctx.sessionId,
       severity: input.severity,
       category: input.category,
-      description: input.description,
-      rationale: input.rationale,
+      description: sanitizedDescription,
+      rationale: sanitizedRationale,
       confidence: input.confidence,
       paragraphNumber: resolvedParagraphNumber,
       anchorQuote: input.anchorQuote,
@@ -1420,7 +1470,7 @@ async function executeCreateFinding(
       chapterVersion: manuscriptDoc.currentVersion,
       contentHash,
       // Legacy fields for backward compatibility
-      suggestion: input.rationale,
+      suggestion: sanitizedRationale,
       originalText: input.alternatives[0]?.originalText ?? null,
       newText: input.alternatives[0]?.newText ?? null,
     },
