@@ -28,10 +28,25 @@ describe("continuityIssueSignature", () => {
     const b = continuityIssueSignature(issue({ description: "phrased another way" }));
     expect(a).toBe(b); // same type + entities + chapters
   });
-  it("differs by type, entities, and chapters", () => {
+  it("differs by type, entities, and identity chapters", () => {
     expect(continuityIssueSignature(issue())).not.toBe(continuityIssueSignature(issue({ type: "timeline_violation" })));
     expect(continuityIssueSignature(issue())).not.toBe(continuityIssueSignature(issue({ entities: ["Bob"] })));
-    expect(continuityIssueSignature(issue())).not.toBe(continuityIssueSignature(issue({ chapters: [12, 19, 20] })));
+    // D-79: for dead_character_reappears the signature is anchored to the DEATH
+    // chapter (the earliest), so a different death chapter is a distinct
+    // contradiction and still differs...
+    expect(continuityIssueSignature(issue())).not.toBe(continuityIssueSignature(issue({ chapters: [11, 18, 20] })));
+  });
+
+  it("dead_character_reappears: signature is INVARIANT when only the reappearance list grows (D-79 death-anchor)", () => {
+    // Same character, same death chapter (12); later reappearances differ/grow.
+    // This is the SAME resurrection arc, so [Intentional] suppression must stick.
+    expect(continuityIssueSignature(issue({ chapters: [12, 18] }))).toBe(
+      continuityIssueSignature(issue({ chapters: [12, 18, 20] }))
+    );
+    // Other (bounded) flag types are NOT anchored — full chapter set still counts.
+    const tl = (chapters: number[]): ConsistencyIssue =>
+      issue({ type: "timeline_violation", entities: ["Later", "Earlier"], chapters });
+    expect(continuityIssueSignature(tl([4, 9]))).not.toBe(continuityIssueSignature(tl([4, 10])));
   });
 });
 

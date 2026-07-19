@@ -1537,7 +1537,11 @@ async function executeUpdateGraphEntity(
       contentHash: "",
     };
 
-    const stats = await upsertEntities(extractionResult);
+    // D-80: this is a DELIBERATE agent/user correction, not a stochastic
+    // re-extraction — mark it authoritative so sub-fix 7(b)'s sticky-dead and
+    // preserve-first-role/description guards do NOT silently swallow the edit
+    // (which would report "1 updated" while nothing actually changed).
+    const stats = await upsertEntities(extractionResult, true);
     return `Graph updated: ${stats.nodesCreated} created, ${stats.nodesUpdated} updated, ${stats.relationshipsCreated} relationships.`;
   } catch (error) {
     return `Graph update failed: ${error instanceof Error ? error.message : String(error)}`;

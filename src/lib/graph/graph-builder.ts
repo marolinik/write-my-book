@@ -22,9 +22,19 @@ interface UpsertStats {
 /**
  * Upsert all entities and relationships from an extraction result into Neo4j.
  * Uses MERGE on (bookId, name) for each entity so repeated runs are idempotent.
+ *
+ * `authoritative` (D-80) distinguishes a DELIBERATE user/agent correction
+ * (UpdateGraphEntity → true) from a STOCHASTIC re-extraction (post-session /
+ * chapter-graph rebuild → default false). Sub-fix 7(b) makes a Character's
+ * `dead` status sticky and role/description preserve-first so a noisy re-scan
+ * cannot churn continuity-load-bearing facts — but that must NEVER silently
+ * swallow an explicit correction. When `authoritative` is true, status / role /
+ * description are written directly (the sticky/preserve-first guards are
+ * bypassed) so the edit lands; every non-authoritative caller stays sticky.
  */
 export async function upsertEntities(
-  result: ExtractionResult
+  result: ExtractionResult,
+  authoritative: boolean = false
 ): Promise<UpsertStats> {
   const stats: UpsertStats = {
     nodesCreated: 0,
@@ -56,7 +66,8 @@ export async function upsertEntities(
         result.bookId,
         result.chapterNumber,
         result.contentHash,
-        result.userId
+        result.userId,
+        authoritative
       );
       stats.nodesCreated += entityStats.created;
       stats.nodesUpdated += entityStats.updated;
@@ -90,7 +101,8 @@ async function upsertSingleEntity(
   bookId: string,
   chapterNumber: number,
   contentHash: string,
-  userId?: string
+  userId?: string,
+  authoritative: boolean = false
 ): Promise<{ created: number; updated: number }> {
   const { name, label, properties, aliases } = entity;
 
@@ -168,6 +180,42 @@ async function upsertSingleEntity(
     allProps.userId = userId;
   }
 
+  // Sub-fix 7(b) / D-32a: role, status and description are continuity- and
+  // signature-load-bearing, so they must NOT be blanket-overwritten by every
+  // stochastic re-extraction through `+= $updateProps`. Pull them out of the
+  // merge map (like chapter/aliases above) and apply deterministic ON MATCH
+  // rules built below:
+  //
+  //  - status: `dead` is a STICKY terminal state. dead_character_reappears
+  //    (graph-queries.ts) gates on the literal `c.status = "dead"`, so a later
+  //    scan emitting "transformed"/"alive"/"unknown" MUST NOT downgrade a node
+  //    already recorded dead — otherwise the check silently disarms until a
+  //    lucky later scan re-asserts "dead" (the D-32a / D1 driver). `dead` is the
+  //    ONLY status value any continuity check reads as a gate, so it is the only
+  //    one frozen; a genuine FIRST-TIME death still lands (a non-dead node
+  //    adopts the incoming status) and Object/PlotThread statuses (never "dead")
+  //    keep updating exactly as before.
+  //  - role / description: preserve-first-non-empty. `description` is read by no
+  //    continuity gate; `role` is read by exactly one — character_undocumented
+  //    (graph-queries.ts) keys off the placeholder `c.role = "mentioned"`, so
+  //    that placeholder is treated as empty-equivalent (below) to let a real
+  //    documented role upgrade land. Churning either just destabilises the
+  //    entity signature (hurting D8 precision). The first scan supplying a
+  //    non-empty (non-placeholder for role) value wins; later stochastic scans
+  //    neither overwrite it nor unbounded-append.
+  //
+  // All three are still written verbatim on ON CREATE (re-added to createProps
+  // below), and a scan that omits a field leaves the stored value untouched.
+  const incomingStatus = allProps.status;
+  const incomingRole = allProps.role;
+  const incomingDescription = allProps.description;
+  const hasStatus = isNonEmptyString(incomingStatus);
+  const hasRole = isNonEmptyString(incomingRole);
+  const hasDescription = isNonEmptyString(incomingDescription);
+  delete allProps.status;
+  delete allProps.role;
+  delete allProps.description;
+
   // D-19: Event.chapter and Character.deathChapter are read by
   // runConsistencyChecks() (graph-queries.ts) but the extraction LLM is never
   // asked for them and never reliably emits them. We stamp them deterministically
@@ -232,6 +280,73 @@ async function upsertSingleEntity(
       "n.aliases = coalesce(n.aliases, []) + [a IN $aliases WHERE NOT a IN coalesce(n.aliases, [])]"
     );
   }
+  // Sub-fix 7(b): monotonic status + preserve-first-non-empty role/description.
+  // Written verbatim on ON CREATE; guarded on ON MATCH so STOCHASTIC re-scans
+  // cannot churn load-bearing facts. Values ride as Cypher params ($incoming*),
+  // never interpolated, so the injection boundary is unchanged.
+  //
+  // D-80: an `authoritative` write (a DELIBERATE UpdateGraphEntity correction)
+  // bypasses the sticky/preserve-first guards and sets the value directly — the
+  // guards exist to tame noisy re-extraction, NOT to swallow an explicit edit
+  // (that would be a silent failure-states-lie: "1 updated" while nothing moved).
+  if (hasStatus) {
+    createProps.status = incomingStatus;
+    if (authoritative) {
+      // Deliberate correction: land it (even dead→alive).
+      onMatchStableItems.push("n.status = $incomingStatus");
+    } else if (label === "Character") {
+      // D-81: `dead` is a STICKY terminal state for CHARACTERS ONLY — it is the
+      // sole status literal any continuity gate reads (dead_character_reappears,
+      // graph-queries.ts). A stochastic downgrade (transformed/alive/unknown)
+      // must not silently disarm it.
+      onMatchStableItems.push(
+        'n.status = CASE WHEN n.status = "dead" THEN n.status ELSE $incomingStatus END'
+      );
+    } else {
+      // D-81: other labels never carry "dead" as a gate value; stickiness would
+      // only freeze an erroneously-scanned "dead" Object/PlotThread out of its
+      // own gates forever. Restore plain latest-wins (exact pre-(b) behaviour).
+      onMatchStableItems.push("n.status = $incomingStatus");
+    }
+  }
+  if (
+    authoritative &&
+    label === "Character" &&
+    hasStatus &&
+    !isDeadStatus(incomingStatus)
+  ) {
+    // D-80: a DELIBERATE move away from "dead" retires the death anchor too, so
+    // the dead_character_reappears gate (status="dead" AND deathChapter IS NOT
+    // NULL) cannot linger on a stale deathChapter. (Setting a Neo4j property to
+    // null removes it.) Stochastic scans never reach this branch; and when the
+    // authoritative status IS "dead", the untouched deathChapter coalesce clause
+    // above stamps the first-death anchor instead.
+    onMatchStableItems.push("n.deathChapter = null");
+  }
+  if (hasRole) {
+    createProps.role = incomingRole;
+    if (authoritative) {
+      onMatchStableItems.push("n.role = $incomingRole");
+    } else {
+      // Preserve-first-non-empty. The placeholder role "mentioned" (what the
+      // character_undocumented check keys off, graph-queries.ts) is treated as
+      // empty-equivalent so a later DOCUMENTED role upgrade lands — otherwise the
+      // undocumented flag would fire forever and the real role never stick.
+      onMatchStableItems.push(
+        'n.role = CASE WHEN n.role IS NULL OR n.role = "" OR n.role = "mentioned" THEN $incomingRole ELSE n.role END'
+      );
+    }
+  }
+  if (hasDescription) {
+    createProps.description = incomingDescription;
+    if (authoritative) {
+      onMatchStableItems.push("n.description = $incomingDescription");
+    } else {
+      onMatchStableItems.push(
+        'n.description = CASE WHEN n.description IS NULL OR n.description = "" THEN $incomingDescription ELSE n.description END'
+      );
+    }
+  }
   const onMatchClause =
     onMatchStableItems.length > 0
       ? `ON MATCH SET n += $updateProps, ${onMatchStableItems.join(", ")}`
@@ -249,6 +364,15 @@ async function upsertSingleEntity(
   }
   if (aliases && aliases.length > 0) {
     mergeParams.aliases = aliases;
+  }
+  if (hasStatus) {
+    mergeParams.incomingStatus = incomingStatus;
+  }
+  if (hasRole) {
+    mergeParams.incomingRole = incomingRole;
+  }
+  if (hasDescription) {
+    mergeParams.incomingDescription = incomingDescription;
   }
 
   // Use MERGE on (bookId, name) with ON CREATE / ON MATCH
@@ -487,6 +611,16 @@ export function coerceStoryChapter(raw: unknown): number | undefined {
  */
 export function isDeadStatus(status: unknown): boolean {
   return typeof status === "string" && status.trim().toLowerCase() === "dead";
+}
+
+/**
+ * True when a value is a non-empty (post-trim) string. Used by sub-fix 7(b) to
+ * decide whether an incoming scan actually supplied a role/status/description
+ * worth writing — an absent or blank value leaves the stored property untouched
+ * rather than churning or blanking it. Exported for unit testing.
+ */
+export function isNonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.trim() !== "";
 }
 
 /**
