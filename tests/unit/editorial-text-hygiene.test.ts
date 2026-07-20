@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   stripModelSelfTalk,
   stripFabricatedFingerprintQuotes,
+  stampReportMetadata,
 } from "@/lib/agents/editorial-text-hygiene";
 
 /**
@@ -209,5 +210,91 @@ describe("stripFabricatedFingerprintQuotes (D-49)", () => {
     // Glyph variance (curly apostrophe, en-dash) must not turn a genuine quote
     // into a false fabrication.
     expect(stripFabricatedFingerprintQuotes(input, fp)).toBe(input);
+  });
+});
+
+/**
+ * D-113 (P1 Maya func, S3): the dev/line-edit report agent invents metadata the
+ * system knows deterministically — session 5574be0f's DEV_EDIT_REPORT stated
+ * "**Chapter Word Count:** ~570 words" (real 704, byte-verified) and "**Edit
+ * Date:** 2025" (real 2026). stampReportMetadata overwrites those header fields
+ * with the authoritative values at the write boundary, leaving body prose alone.
+ */
+describe("stampReportMetadata (D-113)", () => {
+  const NOW = new Date("2026-07-20T11:38:00.000Z");
+
+  it("corrects the exact failing report header (word count + edit date) to real values", () => {
+    const input =
+      "# Developmental Edit Report — Chapter 1 — The Salt Letters\n\n" +
+      "**Edit Date:** 2025\n" +
+      "**Chapter Word Count:** ~570 words\n" +
+      "**Finding Count:** 1 total\n";
+    const expected =
+      "# Developmental Edit Report — Chapter 1 — The Salt Letters\n\n" +
+      "**Edit Date:** 2026-07-20\n" +
+      "**Chapter Word Count:** 704 words\n" +
+      "**Finding Count:** 1 total\n";
+    expect(stampReportMetadata(input, { wordCount: 704, now: NOW })).toBe(
+      expected
+    );
+  });
+
+  it("leaves body prose byte-identical (only header fields are stamped)", () => {
+    const body =
+      "## Overall Chapter Assessment\n\n" +
+      "The chapter is lean by design; the 570-word draft rewards close reading, " +
+      "and by that date the pattern is set. Word count matters: keep it tight.\n";
+    const input = "**Word Count:** 999 words\n\n" + body;
+    const out = stampReportMetadata(input, { wordCount: 704, now: NOW });
+    // The prose sentence mentioning "570-word", "by that date" and
+    // "Word count matters:" is NOT a metadata field and must survive verbatim.
+    expect(out).toContain(body);
+    expect(out.startsWith("**Word Count:** 704 words\n")).toBe(true);
+  });
+
+  it("handles plain (non-bold) and bulleted metadata field forms", () => {
+    expect(
+      stampReportMetadata("Word Count: 570", { wordCount: 704, now: NOW })
+    ).toBe("Word Count: 704 words");
+    expect(
+      stampReportMetadata("- Word Count: 570 words", {
+        wordCount: 704,
+        now: NOW,
+      })
+    ).toBe("- Word Count: 704 words");
+    expect(
+      stampReportMetadata("**Word Count**: 570", { wordCount: 704, now: NOW })
+    ).toBe("**Word Count**: 704 words");
+  });
+
+  it("stamps the date even when no word count is provided (book-scoped report)", () => {
+    const input = "**Report Date:** 2025\n\nSome analysis prose.";
+    expect(stampReportMetadata(input, { now: NOW })).toBe(
+      "**Report Date:** 2026-07-20\n\nSome analysis prose."
+    );
+  });
+
+  it("does not add or invent a word-count field when none is present", () => {
+    const input =
+      "# Report\n\nNo metadata header here — just an assessment paragraph.";
+    expect(
+      stampReportMetadata(input, { wordCount: 704, now: NOW })
+    ).toBe(input);
+  });
+
+  it("leaves a word-count field alone when no authoritative count is supplied", () => {
+    const input = "**Chapter Word Count:** ~570 words";
+    // Date-only stamp: with no wordCount, the count field is untouched (safe).
+    expect(stampReportMetadata(input, { now: NOW })).toBe(input);
+  });
+
+  it("is a no-op for empty / non-string input", () => {
+    expect(stampReportMetadata("", { wordCount: 704, now: NOW })).toBe("");
+    expect(
+      stampReportMetadata(undefined as unknown as string, {
+        wordCount: 704,
+        now: NOW,
+      })
+    ).toBe(undefined as unknown as string);
   });
 });

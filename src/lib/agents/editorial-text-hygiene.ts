@@ -24,7 +24,15 @@
  * manuscript. Mere proximity of a cue word is not enough; a chapter quote is the
  * writer's words and is never a fabrication.
  *
- * Both are deterministic and unit-tested in isolation; neither mutates input.
+ * D-113 ({@link stampReportMetadata}): the dev/line-edit report agent invents
+ * deterministic metadata the system already knows — a real capture stated
+ * "**Chapter Word Count:** ~570 words" (real 704) and "**Edit Date:** 2025"
+ * (real 2026). We overwrite ONLY a metadata HEADER field (a `Label: value` line,
+ * optionally bulleted/bolded) whose label is a word-count or date field, with the
+ * authoritative value. Prose that merely mentions a number or the word "date" is
+ * never a header field and is left byte-identical (under-correction is safe).
+ *
+ * All are deterministic and unit-tested in isolation; none mutates input.
  */
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -244,4 +252,76 @@ export function stripFabricatedFingerprintQuotes(
       return inner;
     }
   );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// D-113: authoritative header-field stamping.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Authoritative values the report agent must not invent. */
+export interface ReportMetadataStamp {
+  /**
+   * Real chapter word count (the same denormalized count the rest of the UI
+   * shows). When provided, a "Word Count" header field is corrected to it.
+   * Omit for book-scoped reports where the field has no single chapter meaning.
+   */
+  wordCount?: number;
+  /** Authoritative "now" — any date header field is stamped as ISO YYYY-MM-DD. */
+  now: Date;
+}
+
+// A metadata HEADER field for the CHAPTER WORD COUNT: line-anchored, optionally
+// bulleted (- / * / +) and/or bold (**…**), the label ("[Chapter ]Word Count")
+// immediately followed by its colon. Group 1 is the label+colon prefix (kept);
+// the value after it is discarded and replaced with the real count. The colon
+// must follow the label directly (allowing bold/space), so prose like
+// "Word count matters: keep it lean." — which has "matters" before the colon —
+// never matches.
+const WORD_COUNT_FIELD =
+  /^([ \t]*(?:[-*+][ \t]+)?\*{0,2}(?:chapter[ \t]+)?\bword[ \t]*count\*{0,2}[ \t]*:[ \t]*\*{0,2}[ \t]*).+?[ \t]*$/i;
+
+// A metadata HEADER field for a DATE: same line-anchored shape, label ending in
+// "date" with at most ONE leading qualifier word ("Edit"/"Report"/"Analysis"/…).
+// The single-word bound means multi-word prose ("By that date everything…") can
+// never reach the colon, so only a genuine "[Word ]Date:" field is stamped.
+const DATE_FIELD =
+  /^([ \t]*(?:[-*+][ \t]+)?\*{0,2}(?:[a-z]+[ \t]+)?\bdate\*{0,2}[ \t]*:[ \t]*\*{0,2}[ \t]*).+?[ \t]*$/i;
+
+/** ISO YYYY-MM-DD in UTC — locale-neutral, so it is safe across report languages. */
+function isoDate(now: Date): string {
+  return now.toISOString().slice(0, 10);
+}
+
+/**
+ * Overwrite the deterministic metadata header fields (word count, date) of a
+ * writer-facing editorial report with authoritative system values, so the model
+ * can never persist an invented count or year. Only a `Label: value` HEADER line
+ * is touched — the label prefix is preserved and only its value is replaced;
+ * body prose (assessments, findings, tables) is returned byte-identical. Pure —
+ * returns a new string; non-string / empty input is returned unchanged.
+ */
+export function stampReportMetadata(
+  text: string,
+  stamp: ReportMetadataStamp
+): string {
+  if (typeof text !== "string" || text.length === 0) return text;
+
+  const stampedDate = isoDate(stamp.now);
+  const hasCount =
+    typeof stamp.wordCount === "number" && Number.isFinite(stamp.wordCount);
+
+  // Per-line so the blast radius can never exceed a single header field; every
+  // non-matching line (i.e. all prose) is passed through unchanged.
+  const lines = text.split("\n");
+  const out = lines.map((line) => {
+    if (hasCount) {
+      const m = line.match(WORD_COUNT_FIELD);
+      if (m) return `${m[1]}${stamp.wordCount} words`;
+    }
+    const d = line.match(DATE_FIELD);
+    if (d) return `${d[1]}${stampedDate}`;
+    return line;
+  });
+
+  return out.join("\n");
 }

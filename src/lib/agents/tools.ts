@@ -29,6 +29,7 @@ import { getSession } from "./session-manager";
 import {
   stripModelSelfTalk,
   stripFabricatedFingerprintQuotes,
+  stampReportMetadata,
 } from "./editorial-text-hygiene";
 
 export const APPROVAL_SENTINEL = "__APPROVAL_GATE__";
@@ -1081,14 +1082,31 @@ async function executeWriteDocument(
 ): Promise<string> {
   const type = input.documentType as DocumentType;
 
-  // D-50: strip the model's self-talk from writer-facing editorial reports
-  // before persisting — a report is guidance for the writer, not a scratchpad.
-  const content = EDITORIAL_REPORT_DOC_TYPES.has(input.documentType)
-    ? stripModelSelfTalk(input.content)
-    : input.content;
-
   // For chapter-scoped doc types, fall back to session-level chapterNumber
   const resolvedChapterNumber = input.chapterNumber ?? (CHAPTER_SCOPED_DOC_TYPES.has(type) ? ctx.chapterNumber : undefined);
+
+  // Writer-facing editorial reports are sanitized + authoritatively stamped
+  // before persisting — a report is guidance for the writer, not a scratchpad.
+  let content = input.content;
+  if (EDITORIAL_REPORT_DOC_TYPES.has(input.documentType)) {
+    // D-50: strip the model's self-talk / thinking artifacts.
+    content = stripModelSelfTalk(content);
+    // D-113: overwrite deterministic metadata (word count, date) the model may
+    // have invented with the real system values. The chapter word count is only
+    // meaningful for a chapter-scoped report, and is the same denormalized count
+    // the rest of the UI shows — so the report can never disagree with it.
+    const chapter =
+      resolvedChapterNumber !== undefined && ctx.bookId
+        ? await db.chapter.findFirst({
+            where: { bookId: ctx.bookId, chapterNumber: resolvedChapterNumber },
+            select: { wordCount: true },
+          })
+        : null;
+    content = stampReportMetadata(content, {
+      wordCount: chapter?.wordCount ?? undefined,
+      now: new Date(),
+    });
+  }
 
   // Acquire document lock to prevent parallel agents writing the same type
   const lockKey = `${type}:${resolvedChapterNumber ?? "null"}`;
@@ -1440,6 +1458,42 @@ async function executeCreateFinding(
         );
         return `Finding suppressed (not persisted): the writer already DISMISSED a ${input.category} finding on this exact text (id: ${dismissedMatch.id}). Per FINDING HISTORY AWARENESS, do not re-flag dismissed issues unless critical severity.`;
       }
+    }
+  }
+
+  // D-107: "tell it once" also leaks through PENDING duplicates. The dismissed
+  // gate above only arms on DISMISSED lineage, and the content-hash dedup hashes
+  // the freshly-generated DESCRIPTION — so each dev-edit re-run re-flags the SAME
+  // still-untriaged span as a fresh pending finding (four near-identical pending
+  // show-tell notes piled up on one paragraph live). Suppress a new finding whose
+  // anchorQuote (same NFC + whitespace normalization) + category matches an
+  // existing PENDING finding on this book+chapter, regardless of severity — a
+  // pending duplicate the writer has not yet triaged adds no signal. A DIFFERENT
+  // category or a genuinely-new span is unaffected. Existing pending rows are NOT
+  // retro-dismissed here (a separate product call). Blank anchorQuote never
+  // suppresses. Reuses normalizeOriginalTextForDismissMatch as a generic text
+  // normalizer.
+  const newAnchorQuote = normalizeOriginalTextForDismissMatch(input.anchorQuote);
+  if (newAnchorQuote) {
+    const pendingPriors = await db.editFinding.findMany({
+      where: {
+        bookId: ctx.bookId,
+        chapterNumber,
+        category: input.category,
+        status: "pending",
+        anchorQuote: { not: null },
+      },
+      select: { id: true, anchorQuote: true },
+    });
+    const pendingMatch = pendingPriors.find(
+      (prior) =>
+        normalizeOriginalTextForDismissMatch(prior.anchorQuote) === newAnchorQuote
+    );
+    if (pendingMatch) {
+      console.warn(
+        `[CreateFinding] Suppressed duplicate of pending finding ${pendingMatch.id} (chapter ${chapterNumber}, category: ${input.category})`
+      );
+      return `Finding suppressed (not persisted): the writer already has a PENDING ${input.category} finding on this exact text (id: ${pendingMatch.id}). Per FINDING HISTORY AWARENESS, do not re-flag a critique that is still awaiting triage.`;
     }
   }
 
