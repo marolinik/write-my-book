@@ -98,4 +98,25 @@ Server + worker restarted on current code + Prisma client (`free_tier_usage` syn
 
 **PAUSE-FOR-REVIEW: `evidence/judging/PAUSE-REVIEW-2026-07-20.md`** — new MIN ~4.5–5.0 (3.0 floor gone); systemic "truth-at-rest / lie-in-the-live-moment" pattern; open decisions (D-100 fix approach, re-judge P6/P8/P1/P7, certify v2, D-90/91, multi-cycle strategy).
 
-### P6 Owen / P8 Rita / P1 Maya / P7 Bao — STILL HELD (founder pause after MIN-candidates).
+### P6 Owen / P8 Rita / P1 Maya / P7 Bao — DONE 2026-07-20 (founder "ok continue")
+Fresh captures (opus executors, committed `b64644a`) → TWO blind 3-panels each on the
+identical cached bundles: opus panel (rate-limit fallback, cross-check) + **Fable panel
+(verdicts of record)**. Cross-panel agreement within ±0.5 on every headline.
+- **P6 Owen 5.0 → 6.0** (floor D4). 7 baseline defects CLOSED live; voice moat clean
+  (0 misquotes, 6/6 devices). Binding residue: D-43 silent editor-model misroute,
+  D-49 (narrowed), D-42.
+- **P8 Rita 5.5 → 6.5** (floor D5). All 5 code defects re-proven closed; 34/34 fence
+  probes hold. Caveat (all 3 judges): fences proven via E2E shim only — prod auth
+  boundary untested (D-101 family).
+- **P1 Maya 5.5 → 6.0** (floor D3b). D-04 + D-13 CLOSED live (suppression gate
+  live-fired, first time in campaign). Judge corrections: turns 2/3 empty
+  assistantMessage (D-104 S3), fresh-loop "honored" = absence-of-re-attempt only.
+- **P7 Bao 5.0 → 7.0** (floors D3/D10). **D2 = 9.0 — first hard-floor dim at 9+**
+  (judges re-derived from raw binaries: 80/80 sentinels ×3 exports, PDF 2-way).
+Aggregates: `HELD-REJUDGE-AGGREGATE.md` (+ full 8-persona board); raw:
+`held-rejudge-fable-raw.md`. New defects **D-102..D-114** assigned →
+`fix-reviews/D-102-D-114-held-rejudge.md`. Next free **D-115**.
+
+**PLATFORM (post-re-judge): MIN ≈ 4.5–5.0 (P5 via D-100)**; next P2 5.0 (stale
+baseline carry — P2 is the remaining rule-7 re-judge debt). Baseline 3.0 floor GONE;
+all 7 re-judged personas moved +0.5..+3.5.
