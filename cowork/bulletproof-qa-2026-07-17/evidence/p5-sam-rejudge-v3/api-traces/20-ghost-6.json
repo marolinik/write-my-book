@@ -1,0 +1,28 @@
+{
+  "label": "20-ghost-6",
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:3002/api/books/35ff1112-52af-4001-a0f4-ec83f4dad9b0/ghost-text",
+    "authMode": "persona",
+    "authHeaderNames": [
+      "x-e2e-test-secret(masked:test-se...cret)",
+      "x-e2e-clerk-id:user_qa_p5"
+    ],
+    "body": {
+      "context": "\"You shouldn't have come back,\" the old woman said, and the fire between them",
+      "chapterNumber": 1
+    }
+  },
+  "response": {
+    "status": 422,
+    "statusText": "Unprocessable Entity",
+    "ms": 3763,
+    "json": {
+      "error": "This model only returns internal reasoning, so it can't produce quick inline suggestions. Choose a different model for inline assist in Settings.",
+      "code": "MODEL_NO_QUICK_SUGGEST"
+    }
+  },
+  "error": null,
+  "aborted": false,
+  "capturedAt": "2026-07-20T15:21:07.723Z"
+}

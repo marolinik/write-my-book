@@ -1,0 +1,42 @@
+{
+  "label": "30-billing-after",
+  "request": {
+    "method": "GET",
+    "url": "http://localhost:3002/api/billing/subscription",
+    "authMode": "persona",
+    "authHeaderNames": [
+      "x-e2e-test-secret(masked:test-se...cret)",
+      "x-e2e-clerk-id:user_qa_p5"
+    ],
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "ms": 222,
+    "json": {
+      "plan": "none",
+      "planName": "Free",
+      "monthlyPrice": 0,
+      "annualPrice": null,
+      "features": [],
+      "maxBooks": 1,
+      "status": "none",
+      "billingInterval": "monthly",
+      "trialEnd": null,
+      "cancelAtPeriodEnd": false,
+      "stripeConfigured": true,
+      "freeTier": {
+        "sessionsUsed": 0,
+        "sessionsLimit": 20,
+        "ghostUsedToday": 0,
+        "inlineUsedToday": 4,
+        "aiWordsUsed": 32,
+        "aiWordsLimit": 40000
+      }
+    }
+  },
+  "error": null,
+  "aborted": false,
+  "capturedAt": "2026-07-20T15:23:25.585Z"
+}

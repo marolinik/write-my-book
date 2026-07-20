@@ -1,0 +1,45 @@
+{
+  "label": "62-inline-1-openrouter-deepseek-sonnet",
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:3002/api/books/35ff1112-52af-4001-a0f4-ec83f4dad9b0/inline-edit",
+    "authHeaderNames": [
+      "x-e2e-test-secret(masked:test-se...cret)",
+      "x-e2e-clerk-id:user_qa_p5"
+    ],
+    "body": {
+      "selectedText": "the storm that was coming",
+      "surroundingContext": "The lighthouse keeper looked out at the storm that was coming.",
+      "instruction": "make it more ominous",
+      "count": 3
+    }
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "ms": 2583,
+    "json": {
+      "suggestions": [
+        {
+          "text": "the storm advancing",
+          "label": "Tighter, more ominous"
+        },
+        {
+          "text": "the storm gathering on the horizon",
+          "label": "More atmospheric detail"
+        },
+        {
+          "text": "the storm's approach",
+          "label": "Concise, ominous phrasing"
+        }
+      ],
+      "tokensUsed": {
+        "input": 245,
+        "output": 77
+      }
+    }
+  },
+  "error": null,
+  "aborted": false,
+  "capturedAt": "2026-07-20T15:26:48.999Z"
+}

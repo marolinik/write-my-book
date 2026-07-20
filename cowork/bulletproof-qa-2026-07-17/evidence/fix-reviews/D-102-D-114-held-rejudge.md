@@ -1,8 +1,10 @@
-# D-102..D-115 — held-persona re-judge surfaced defects (2026-07-20)
+# D-102..D-119 — held-persona re-judge surfaced defects (2026-07-20)
 
 Source: fresh P6/P8/P1/P7 captures (`b64644a`) + blind Fable panels
 (`judging/held-rejudge-fable-raw.md`); D-115 from the P2 re-capture
-(`p2-gerald-rejudge`). IDs assigned by team-lead. Next free: **D-116**.
+(`p2-gerald-rejudge`); D-116..D-119 from the P5 v3 re-judge
+(`p5-sam-rejudge-v3` + `judging/P5-REJUDGE-V3-AGGREGATE.md`). IDs assigned by
+team-lead. Next free: **D-120**.
 
 ## Fix-wave status (2026-07-20, opus executors + Fable verifiers)
 - **FIXED + Fable-APPROVED:** D-104, D-105 (first CONFIRMED live by read-only
@@ -32,6 +34,10 @@ Source: fresh P6/P8/P1/P7 captures (`b64644a`) + blind Fable panels
 | D-113 | S3 | P1 | Dev Edit Report persists factual errors into a user-facing doc: "~570 words" (real 704, byte-verified) and "Edit Date: 2025" (real 2026) | p1-maya-rejudge (session 5574be0f report) |
 | D-114 | S3 | P1 | Finding b92055ea flags "has changed" as tense clash inside a deliberate generic-present aphorism; suggested "had changed" breaks the frame — mild voice-flattening, not caught/withheld (D8 ≤8.0 cap trigger) | p1-maya-rejudge/api-traces/03_findings-state.json |
 | D-115 | S3 | P2 | Deleted-chapter prose resurrects: CHAPTER_CONTENT keyed by book_id+type+chapter_number (not chapterId) survives chapter delete; new chapter reusing that number GETs deleted prose verbatim (with wordCount:0 inconsistency) and its first save hits phantom 409 version_conflict whose serverContent leaks the deleted text. Live instance of deferred D-22 root cause | p2-gerald-rejudge/api-traces/25-orphan-resurrect.txt |
+| D-116 | S3 | P5 | Seeded Free default qwen/qwen3.6-27b can NEVER ghost-text: `reasoning:{enabled:false}` ineffective at the 60-token ghost budget — 6/6 attempts thinking-only → honest 422. On-ramp flagship "ghost text as you type" is a 100% error card until manual model switch (P5 D10/D11 floor driver) | p5-sam-rejudge-v3/api-traces/20-ghost-1..6.json, _d100-classification.json |
+| D-117 | S3 | P5 | Inline-edit on reasoning default: 28.6–44.3s latency, no streaming/latency guard, AND 1655–3464 output tokens (~$0.004–0.008) of invisible thinking billed to the writer's own key — ~50–90× per-call cost vs non-reasoning (DeepSeek 2.6s / 77 tok / ~$0.00009). Latency + value defect (P5 D5 floor driver) | p5-sam-rejudge-v3/api-traces/21-inline-1..4.json vs 62-inline-1-openrouter-deepseek-sonnet.json |
+| D-118 | S3 | P5 | 422 MODEL_NO_QUICK_SUGGEST copy internally misleading: says model "can't produce quick inline suggestions" / pick "a different model for inline assist" — but inline-edit WORKS on that exact model (4× 200 in same bundle). Scope the copy to ghost-text | p5-sam-rejudge-v3/api-traces/20-ghost-1.json vs 21-inline-1.json |
+| D-119 | S4 | P5 | usage_records label spend by resolved model slot ("openrouter-qwen36/haiku") not the user-driven model — spend audit shows names the user never chose. Billing-legibility | p5-sam-rejudge-v3/api-traces/50-db-after-d100.json |
 
 ## Carried STILL-OPEN (pre-existing IDs, re-confirmed live this round)
 - **D-43** (S2, P6 — new P6 binding-constraint candidate): editor-model override never

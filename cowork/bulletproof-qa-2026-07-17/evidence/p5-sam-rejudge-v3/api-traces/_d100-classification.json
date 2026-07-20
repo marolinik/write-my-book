@@ -1,0 +1,109 @@
+{
+  "capturedAt": "2026-07-20T15:23:26.112Z",
+  "bookId": "35ff1112-52af-4001-a0f4-ec83f4dad9b0",
+  "acceptanceRule": "each ghost/inline attempt must be PASS-a-REAL (200 usable) OR PASS-b-422 (MODEL_NO_QUICK_SUGGEST); any FAIL-* is a D-100 regression",
+  "attempts": [
+    {
+      "label": "20-ghost-1",
+      "kind": "ghost",
+      "status": 422,
+      "verdict": "PASS-b-422",
+      "ms": 2494,
+      "error": "This model only returns internal reasoning, so it can't produce quick inline suggestions. Choose a different model for inline assist in Settings."
+    },
+    {
+      "label": "20-ghost-2",
+      "kind": "ghost",
+      "status": 422,
+      "verdict": "PASS-b-422",
+      "ms": 1553,
+      "error": "This model only returns internal reasoning, so it can't produce quick inline suggestions. Choose a different model for inline assist in Settings."
+    },
+    {
+      "label": "20-ghost-3",
+      "kind": "ghost",
+      "status": 422,
+      "verdict": "PASS-b-422",
+      "ms": 1807,
+      "error": "This model only returns internal reasoning, so it can't produce quick inline suggestions. Choose a different model for inline assist in Settings."
+    },
+    {
+      "label": "20-ghost-4",
+      "kind": "ghost",
+      "status": 422,
+      "verdict": "PASS-b-422",
+      "ms": 1240,
+      "error": "This model only returns internal reasoning, so it can't produce quick inline suggestions. Choose a different model for inline assist in Settings."
+    },
+    {
+      "label": "20-ghost-5",
+      "kind": "ghost",
+      "status": 422,
+      "verdict": "PASS-b-422",
+      "ms": 1937,
+      "error": "This model only returns internal reasoning, so it can't produce quick inline suggestions. Choose a different model for inline assist in Settings."
+    },
+    {
+      "label": "20-ghost-6",
+      "kind": "ghost",
+      "status": 422,
+      "verdict": "PASS-b-422",
+      "ms": 3763,
+      "error": "This model only returns internal reasoning, so it can't produce quick inline suggestions. Choose a different model for inline assist in Settings."
+    },
+    {
+      "label": "21-inline-1",
+      "kind": "inline",
+      "status": 200,
+      "verdict": "PASS-a-REAL",
+      "ms": 28629,
+      "sample": [
+        "[Visual ink imagery] Ink streamed from the pen, dark and unencumbered.",
+        "[Kinetic word personification] The words crowded the nib, pressing for release.",
+        "[Fluid motion metaphor] The words poured forth, liquid and unhesitating."
+      ]
+    },
+    {
+      "label": "21-inline-2",
+      "kind": "inline",
+      "status": 200,
+      "verdict": "PASS-a-REAL",
+      "ms": 34907,
+      "sample": [
+        "[Tighter pacing] Three days of unbroken rain.",
+        "[More sensory] Cold rain drummed against the glass for three days straight.",
+        "[Adjusted rhythm] Three days. The downpour never slowed."
+      ]
+    },
+    {
+      "label": "21-inline-3",
+      "kind": "inline",
+      "status": 200,
+      "verdict": "PASS-a-REAL",
+      "ms": 29842,
+      "sample": [
+        "[Tactile rhythm] His thumb rubbed the reeded edges, clicking each cold disc against his palm.",
+        "[Auditory emphasis] He flipped the metal pieces again, a harsh clatter ringing sharp in the quiet.",
+        "[Visual detail] Fingers traced the tarnished faces as he sorted them, weighing the stack anew."
+      ]
+    },
+    {
+      "label": "21-inline-4",
+      "kind": "inline",
+      "status": 200,
+      "verdict": "PASS-a-REAL",
+      "ms": 44259,
+      "sample": [
+        "[Staccato cadence] fog thickened, snuffing the harbor lights.",
+        "[Legato pacing] the harbor lights had faded into fog.",
+        "[Trochaic stress] thick fog descended, erasing the harbor lights."
+      ]
+    }
+  ],
+  "distribution": {
+    "PASS-b-422": 6,
+    "PASS-a-REAL": 4
+  },
+  "allPass": true,
+  "genuine200Count": 4
+}

@@ -1,0 +1,83 @@
+﻿# Worker Proof -- P5 Sam re-judge v3
+Captured: 2026-07-20 17:14:17 +02:00
+Host: LW11_MMARKOVIC
+
+## wmb-pub worker processes (src/worker.ts chain)
+PID 31644: "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npx-cli.js tsx src/worker.ts
+PID 28224: "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\tsx\dist\cli.mjs" src/worker.ts
+PID 61892: "C:\Program Files\nodejs\node.exe" --require D:\Projects\wmb-pub\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/wmb-pub/node_modules/tsx/dist/loader.mjs src/worker.ts
+
+## Leaf worker.ts executor count (actual BullMQ worker process): 1
+EXPECTED: exactly 1 worker process at capture time.
+Leaf PID: 61892  (CreationDate: 07/20/2026 11:04:12)
+
+Note: the worker:dev -> npx -> tsx -> loader chain is ONE logical worker (3 PIDs, 1 leaf executor).
+
+## Next dev web server (start-server.js) — for D-99 restart audit
+PID 53220: "C:\Program Files\nodejs\node.exe" D:\Projects\wmb-pub\node_modules\next\dist\server\lib\start-server.js  (CreationDate: 07/20/2026 11:40:39)
+
+## Full node.exe process table snapshot (auditability)
+  [4308] "C:\Program Files\nodejs\node.exe"  --disable-warning=ExperimentalWarning C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\openclaw\openclaw.mjs node run --host 127.0.0.1 --port 18789
+  [34688] "C:\Program Files\nodejs\node.exe" --stack-size=8192 --disable-warning=ExperimentalWarning C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\openclaw\openclaw.mjs node run --host 127.0.0.1 --port 18789
+  [27728] "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npx-cli.js --yes node@20.0.0 -
+  [49272] "C:\Users\MarkoMarkovic\AppData\Local\npm-cache\_npx\a3dea26673f30de8\node_modules\.bin\\..\node\bin\node"    -
+  [50660] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+  [59900] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+  [48272] "node"   "C:\Users\MarkoMarkovic\AppData\Roaming\npm\\node_modules\chrome-devtools-mcp\build\src\bin\chrome-devtools-mcp.js" "--browserUrl" "http://127.0.0.1:9223"
+  [46180] "C:\Program Files\nodejs\\node.exe"  "C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\npm\bin\npx-cli.js" "@playwright/mcp@latest"
+  [29948] "C:\Program Files\nodejs\\node.exe"  "C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\npm\bin\npx-cli.js" "-y" "@upstash/context7-mcp"
+  [41472] "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\chrome-devtools-mcp\build\src\telemetry\watchdog\main.js --parent-pid=48272 --app-version=0.21.0 --os-type=1
+  [29100] "node"   "C:\Users\MarkoMarkovic\AppData\Local\npm-cache\_npx\9833c18b2d85bc59\node_modules\.bin\\..\@playwright\mcp\cli.js" 
+  [44376] "node"   "C:\Users\MarkoMarkovic\AppData\Local\npm-cache\_npx\eea2bd7412d4593b\node_modules\.bin\\..\@upstash\context7-mcp\dist\index.js" 
+  [57668] "C:\Program Files\nodejs\\node.exe"  "C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\npm\bin\npx-cli.js" "-y" "@fkadev/prompts.chat-mcp"
+  [52452] "C:\Program Files\nodejs\\node.exe"  "C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\npm\bin\npx-cli.js" "-y" "@playwright/mcp@latest"
+  [52400] "node"   "C:\Users\MarkoMarkovic\AppData\Local\npm-cache\_npx\9833c18b2d85bc59\node_modules\.bin\\..\@playwright\mcp\cli.js" 
+  [41236] "node"   "C:\Users\MarkoMarkovic\AppData\Local\npm-cache\_npx\146fa5df94065b65\node_modules\.bin\\..\@fkadev\prompts.chat-mcp\build\index.js" 
+  [62580] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+  [43764] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+  [10312] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+  [64492] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+  [62784] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+  [34620] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+  [31644] "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npx-cli.js tsx src/worker.ts
+  [28224] "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\tsx\dist\cli.mjs" src/worker.ts
+  [61892] "C:\Program Files\nodejs\node.exe" --require D:\Projects\wmb-pub\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/wmb-pub/node_modules/tsx/dist/loader.mjs src/worker.ts
+  [40236] "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npm-cli.js run dev -- -p 3002
+  [45304] "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\cross-env\dist\bin\cross-env.js" NODE_OPTIONS=--max-old-space-size=4096 next dev -p 3002
+  [64752] "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\next\dist\bin\next" "dev" "-p" "3002"
+  [53220] "C:\Program Files\nodejs\node.exe" D:\Projects\wmb-pub\node_modules\next\dist\server\lib\start-server.js
+  [47896] "node" D:\Projects\wmb-pub\.next\dev\build\postcss.js 59639
+  [58740] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+  [2136] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+  [12744] C:\Users\MarkoMarkovic\AppData\Local\OpenAI\Codex\runtimes\cua_node\03b1cdac8af3a530\bin\node.exe --experimental-vm-modules C:\Users\MARKOM~1\AppData\Local\Temp\.tmpkrmrqT\kernel.js --session-id ab46566123e44b1bbb14282f6afcf415 --working-dir D:\Projects\SocialPresence
+  [29792] C:\Users\MarkoMarkovic\AppData\Local\OpenAI\Codex\runtimes\cua_node\03b1cdac8af3a530\bin\node.exe --experimental-vm-modules C:\Users\MARKOM~1\AppData\Local\Temp\.tmpkrmrqT\kernel.js --session-id ab46566123e44b1bbb14282f6afcf415 --working-dir D:\Projects\SocialPresence
+  [51364] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+  [44720] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+  [1176] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+  [45244] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+  [42000] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+  [52172] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+  [40168] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+  [48488] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+  [62872] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+  [61584] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+  [38812] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+  [14544] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+  [49052] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+  [46132] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+  [61720] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+  [64340] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+  [6840] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+  [19512] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+  [60840] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+  [61800] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+  [28460] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+  [56104] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+  [60704] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+  [50772] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+  [20236] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+  [50776] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+  [39032] "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npx-cli.js vitest run packages/agent/tests/cli-tools.test.ts --config vitest.config.ts --pool=forks --maxWorkers=1
+  [50404] "node"   "D:\Projects\waggle-os-readiness-main-20260716\node_modules\.bin\\..\vitest\vitest.mjs" run packages/agent/tests/cli-tools.test.ts --config vitest.config.ts --pool=forks --maxWorkers=1
+  [51976] "C:\Program Files\nodejs\node.exe" --conditions node --conditions development D:\Projects\waggle-os-readiness-main-20260716\node_modules\tinypool\dist\entry\process.js
+  [63296] "C:\Program Files\nodejs\node.exe" C:/Users/MARKOM~1/AppData/Local/Temp/claude/D--Projects-wmb-pub/3f8f7133-373a-4eb3-9bec-17dd3fa18094/scratchpad/neo4j_read.cjs "MATCH (c:Character {bookId: $bookId, name: \"Mira Thorne\"}) RETURN c.lastMentioned AS lm" "{\"bookId\":\"2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90\"}"

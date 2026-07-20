@@ -1,0 +1,10 @@
+{
+  "capturedAt": "2026-07-20T15:28:12.924Z",
+  "env": {
+    "NODE_ENV": null,
+    "DEV_AUTH_BYPASS": "true",
+    "FREE_TIER_DISABLED": null,
+    "STRIPE_SECRET_KEY_set": true,
+    "E2E_TEST_SECRET_set": true
+  }
+}

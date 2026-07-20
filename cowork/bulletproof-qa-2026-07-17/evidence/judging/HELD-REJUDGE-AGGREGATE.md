@@ -112,16 +112,19 @@ UX 6.0 / TRUST 5.5). Rule-7 debt cleared — no stale carries remain on the boar
 | P1 Maya | 5.5 | **6.0** | Fable 3-panel | D3b |
 | P2 Gerald | 5.0 | **6.0** | Fable 3-panel (fresh capture 07-20) | D4/D8/D10/D11 |
 | P3 Selena | 3.0 | **6.5** | Fable 3-panel (unanimous) | capture-gaps/D5 |
-| P4 Priya | 4.0 | **~5.5** | v2 delta re-agg (panel-certifiable on request) | D3b/D8 |
-| P5 Sam | 4.0 | **~4.5–5.0** | v2 delta re-agg | D11 via D-100 |
+| P4 Priya | 4.0 | **4.0** | Fable 3-panel (fresh capture 07-20, `P4-REJUDGE-AGGREGATE.md`) | D5 via D-96 |
+| P5 Sam | 4.0 | **4.5** | Fable 3-panel (v3 fresh capture 07-20 post-D-100, `P5-REJUDGE-V3-AGGREGATE.md`) | D5/D10/D11 via D-116/D-117 |
 | P6 Owen | 5.0 | **6.0** | Fable 3-panel | D4 |
 | P7 Bao | 5.0 | **7.0** | Fable 3-panel | D3/D10 |
 | P8 Rita | 5.5 | **6.5** | Fable 3-panel | D5 |
 
-**Platform MIN ≈ 4.5–5.0 (P5, bounded by D-100 — fix lane in flight per founder
-ruling 2026-07-20)**; every other persona now ≥5.5 with fresh Fable-certified
-verdicts. No stale carries remain (P2 re-judged 07-20). Baseline platform MIN 3.0
-is gone; every re-judged persona moved up (+0.5 to +3.5).
+**Platform MIN = 4.0 (P4, floored D5 by D-96 batch live-poll honesty — Wave A fix
+lanes in flight, see `fix-reviews/GRADE-LIFT-PLAN.md`)**; next lowest P5 4.5 (v3
+certified post-D-100: floors D5/D10/D11 all trace to the seeded reasoning default —
+D-116 can-never-ghost-text + D-117 28–44s/50–90× cost inline). All 8 personas hold
+fresh-capture Fable-certified verdicts as of 07-20; no stale carries remain.
+Baseline platform MIN 3.0 is gone. D-100 itself is CLOSED live (honest 422 unbilled,
+real inline 200s billed correctly, escape hatch works).
 
 **Cross-panel calibration:** the opus panel (same bundles) landed within ±0.5 of Fable
 on every persona headline — no systematic judge-model bias detected; Fable slightly

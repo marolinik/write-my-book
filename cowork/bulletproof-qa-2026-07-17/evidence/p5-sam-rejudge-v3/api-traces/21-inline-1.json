@@ -1,0 +1,46 @@
+{
+  "label": "21-inline-1",
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:3002/api/books/35ff1112-52af-4001-a0f4-ec83f4dad9b0/inline-edit",
+    "authMode": "persona",
+    "authHeaderNames": [
+      "x-e2e-test-secret(masked:test-se...cret)",
+      "x-e2e-clerk-id:user_qa_p5"
+    ],
+    "body": {
+      "selectedText": "The words came easily now",
+      "surroundingContext": "Sam opened the notebook. The words came easily now, no card required.",
+      "instruction": "make it more vivid",
+      "count": 3
+    }
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "ms": 28629,
+    "json": {
+      "suggestions": [
+        {
+          "text": "Ink streamed from the pen, dark and unencumbered.",
+          "label": "Visual ink imagery"
+        },
+        {
+          "text": "The words crowded the nib, pressing for release.",
+          "label": "Kinetic word personification"
+        },
+        {
+          "text": "The words poured forth, liquid and unhesitating.",
+          "label": "Fluid motion metaphor"
+        }
+      ],
+      "tokensUsed": {
+        "input": 263,
+        "output": 2565
+      }
+    }
+  },
+  "error": null,
+  "aborted": false,
+  "capturedAt": "2026-07-20T15:21:36.353Z"
+}
