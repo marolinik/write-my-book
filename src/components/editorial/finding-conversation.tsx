@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ConversationInput } from "@/components/agent/conversation-input";
 import { AIRewriteComparison } from "@/components/editor/ai-rewrite-comparison";
 import { useFindingDiscussion } from "@/hooks/use-finding-discussion";
-import { computeConversationView } from "@/lib/editorial/finding-conversation";
+import { assistantBubbleText, computeConversationView } from "@/lib/editorial/finding-conversation";
 
 interface FindingLite {
   id: string;
@@ -70,7 +70,7 @@ export function FindingConversation({ bookId, finding, onApply, onDismiss, onClo
               (r.role === "user" ? "bg-primary/10 ml-6" : "bg-muted/40 mr-6")
             }
           >
-            {r.role === "assistant" ? r.assistantMessage ?? r.content : r.content}
+            {r.role === "assistant" ? assistantBubbleText(r.content) : r.content}
           </p>
         ))}
       </div>

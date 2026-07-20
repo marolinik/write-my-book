@@ -23,6 +23,25 @@ export interface ConversationView {
 
 export const MAX_USER_TURNS = 3;
 
+/** Honest one-liners for an assistant turn that carried only structured content
+ *  (a revision or a constraint) and no prose — a bare "" would otherwise render
+ *  as a blank reply bubble (D-104). */
+export const REVISION_FALLBACK_TEXT = "Suggested a revision below.";
+export const CONSTRAINT_FALLBACK_TEXT = "Proposed a constraint below.";
+
+/** Text to render for one assistant bubble. Prefers the prose message; when the
+ *  turn emitted only structured fields (so the prose parses to "") it degrades to
+ *  an honest fallback line instead of a blank bubble. "" is treated as "no message"
+ *  — a bare `?? content` would let the empty string through (D-104). */
+export function assistantBubbleText(content: string): string {
+  const parsed = parseDiscussResponse(content); // pure + total: never throws
+  const message = parsed.assistantMessage.trim();
+  if (message) return message;
+  if (parsed.revisedSuggestion) return REVISION_FALLBACK_TEXT;
+  if (parsed.suggestedConstraint) return CONSTRAINT_FALLBACK_TEXT;
+  return content; // no prose and nothing structured — show raw as a last resort
+}
+
 export function computeConversationView(input: ConversationViewInput): ConversationView {
   const { replies, findingStatus } = input;
   const userTurns = replies.filter((r) => r.role === "user").length;
@@ -33,8 +52,13 @@ export function computeConversationView(input: ConversationViewInput): Conversat
   for (const r of replies) {
     if (r.role !== "assistant") continue;
     const parsed = parseDiscussResponse(r.content); // pure + total: never throws
-    latestRevision = parsed.revisedSuggestion; // reset each assistant turn
-    latestReasoning = parsed.revisedReasoning;
+    if (parsed.revisedSuggestion) {
+      // Guard like latestConstraint below: only overwrite when THIS turn actually
+      // carries a revision, so a later structured-only or plain turn can't drop an
+      // earlier mid-thread revision (and its reasoning) from the view (D-104).
+      latestRevision = parsed.revisedSuggestion;
+      latestReasoning = parsed.revisedReasoning;
+    }
     if (parsed.suggestedConstraint) latestConstraint = parsed.suggestedConstraint;
   }
 
