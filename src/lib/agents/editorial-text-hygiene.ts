@@ -33,6 +33,23 @@
 // ─────────────────────────────────────────────────────────────────────────────
 const DOUBLE_QUOTED_SPAN = /"[^"\n]*"|“[^”\n]*”/g;
 
+// A verbatim writer-prose echo introduced by a report label — "Original: …" or
+// "… reads: …" — quotes the writer's OWN text back into the report. Everything
+// from the label to the end of that physical line is the writer's words; an
+// em-dash retraction there is a legitimate craft device (a deep-POV self-
+// correction), NOT the model's self-talk, so it must survive byte-for-byte.
+// Bounded to a single line ([^\n]*) so it can never open an unbounded blast
+// radius; other verbatim spans stay protected by the double-quote rule above.
+const VERBATIM_ECHO_LABEL = /\b(?:Original|reads)\s*:[^\n]*/;
+
+// Protected spans the self-talk strip must SKIP: a double-quoted writer span OR a
+// verbatim-echo label line. The strip runs only on the gaps between them, so a
+// region that yields no removal is returned byte-identical (quote-safe stitching).
+const PROTECTED_SPAN = new RegExp(
+  `${DOUBLE_QUOTED_SPAN.source}|${VERBATIM_ECHO_LABEL.source}`,
+  "gi"
+);
+
 // The artifact self-CORRECTION shape: a cue in its retraction / thinking sense —
 // a cue immediately followed by a comma'd negation, or an inherently-retracting
 // phrase. Bare `wait`, `hold on`, `or is it`, `never mind X` are deliberately
@@ -103,26 +120,28 @@ function sanitizeUnquotedRegion(region: string, isLeading: boolean): string {
 
 /**
  * Strip the model's self-talk / thinking artifacts from a writer-facing string.
- * Quote-safe: double-quoted spans are preserved verbatim. Pure — returns a new
- * string; non-string / empty input is returned unchanged.
+ * Quote-safe: double-quoted spans AND verbatim-echo label lines ("Original: …" /
+ * "reads: …", which quote the writer's own prose back) are preserved verbatim, so
+ * an em-dash retraction the writer used as a craft device is never clipped. Pure —
+ * returns a new string; non-string / empty input is returned unchanged.
  */
 export function stripModelSelfTalk(text: string): string {
   if (typeof text !== "string" || text.length === 0) return text;
 
-  // Split into double-quoted (preserved verbatim) and unquoted (sanitized)
-  // regions. Only the region that begins at offset 0 is eligible for the
-  // leading-opener strip.
-  DOUBLE_QUOTED_SPAN.lastIndex = 0;
+  // Split into protected (double-quoted OR verbatim-echo label line — preserved
+  // verbatim) and unprotected (sanitized) regions. Only the region that begins at
+  // offset 0 is eligible for the leading-opener strip.
+  PROTECTED_SPAN.lastIndex = 0;
   let result = "";
   let lastIndex = 0;
   let m: RegExpExecArray | null;
-  while ((m = DOUBLE_QUOTED_SPAN.exec(text)) !== null) {
+  while ((m = PROTECTED_SPAN.exec(text)) !== null) {
     const regionStart = lastIndex;
     const unquoted = text.slice(lastIndex, m.index);
     if (unquoted.length > 0) {
       result += sanitizeUnquotedRegion(unquoted, regionStart === 0);
     }
-    result += m[0]; // quoted region — verbatim, never touched
+    result += m[0]; // protected region (quote or echo line) — verbatim, never touched
     lastIndex = m.index + m[0].length;
   }
   const tail = text.slice(lastIndex);

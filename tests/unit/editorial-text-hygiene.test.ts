@@ -115,6 +115,28 @@ describe("stripModelSelfTalk (D-50)", () => {
       "The clauses are balanced and controlled."
     );
   });
+
+  // ── R1 residual (D-49/D-50): a "reads:" / "Original:" line echoes the writer's
+  // OWN prose back into the report. An em-dash retraction there is a legitimate
+  // craft device (deep-POV self-correction), NOT the model's self-talk, so the
+  // strip must skip the whole echo span and preserve it byte-for-byte — while
+  // still firing on genuine model self-talk elsewhere in the same report. ───────
+  it("R1: preserves an em-dash retraction inside an 'Original:' writer echo while still stripping model self-talk elsewhere in the report", () => {
+    const input =
+      "Line 12 runs long (— wait, no, those are short) and needs tightening.\n" +
+      "Original: She reached for the latch — wait, no, she had already locked it.";
+    const expected =
+      "Line 12 runs long and needs tightening.\n" +
+      "Original: She reached for the latch — wait, no, she had already locked it.";
+    expect(stripModelSelfTalk(input)).toBe(expected);
+  });
+
+  it("R1: preserves an em-dash retraction inside a 'reads:' writer echo byte-for-byte", () => {
+    const input =
+      "Paragraph 3 reads: The door was open — wait, no, it only looked ajar in the dark.";
+    // Everything after the echo label is the writer's verbatim prose — untouched.
+    expect(stripModelSelfTalk(input)).toBe(input);
+  });
 });
 
 describe("stripFabricatedFingerprintQuotes (D-49)", () => {
