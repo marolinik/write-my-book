@@ -288,6 +288,56 @@ describe("GET /api/books/:id/batch/:batchId — status", () => {
       running: 1,
     });
   });
+
+  it("D-96: live view derives honest spend/status/halted/startedAt from child rows (non-terminal)", async () => {
+    const started = new Date("2026-07-20T02:00:00Z");
+    // Stored BatchRun columns lag reality until the digest fans in.
+    h.db.batchRun.findFirst.mockResolvedValueOnce({
+      id: "batch1",
+      status: "queued",
+      spentUsd: 0,
+      halted: false,
+      startedAt: null,
+      digest: null,
+    });
+    h.db.agentSession.findMany.mockResolvedValueOnce([
+      { status: "completed", actualCostUsd: 1.25, startedAt: started },
+      { status: "running", actualCostUsd: null, startedAt: new Date("2026-07-20T02:05:00Z") },
+      { status: "queued", actualCostUsd: null, startedAt: null },
+    ]);
+    // A mid-run budget-cap halt lives ONLY in Redis until the digest runs.
+    h.redis.get.mockResolvedValueOnce("1");
+
+    const res = await batchStatus(new Request("http://t") as never, batchCtx as never);
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.batch.status).toBe("running"); // a child is running/completed
+    expect(body.batch.spentUsd).toBeCloseTo(1.25, 5); // sum of finalized child cost
+    expect(body.batch.halted).toBe(true); // live Redis halt flag surfaced
+    expect(body.batch.startedAt).not.toBeNull(); // earliest started child
+    expect(body.counts).toMatchObject({ running: 1, completed: 1, queued: 1 });
+  });
+
+  it("D-96: a terminal batch is returned verbatim — the live view never contradicts the digest", async () => {
+    h.db.batchRun.findFirst.mockResolvedValueOnce({
+      id: "batch1",
+      status: "done",
+      spentUsd: 6,
+      halted: false,
+      startedAt: new Date("2026-07-20T02:00:00Z"),
+      digest: { passes: { total: 2 } },
+    });
+    h.db.agentSession.findMany.mockResolvedValueOnce([
+      { status: "completed", actualCostUsd: 3, startedAt: new Date() },
+      { status: "completed", actualCostUsd: 3, startedAt: new Date() },
+    ]);
+    const res = await batchStatus(new Request("http://t") as never, batchCtx as never);
+    const body = await res.json();
+    expect(body.batch.status).toBe("done"); // stored terminal status verbatim
+    expect(body.batch.spentUsd).toBeCloseTo(6, 5);
+    // Terminal truth wins → the live Redis halt flag is NOT consulted.
+    expect(h.redis.get).not.toHaveBeenCalled();
+  });
 });
 
 describe("POST /api/books/:id/batch/:batchId/cancel", () => {

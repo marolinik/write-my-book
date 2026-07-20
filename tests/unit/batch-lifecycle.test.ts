@@ -360,6 +360,22 @@ describe("batch lifecycle — (b) cap-skip guard", () => {
     );
     expect(skipped).toBe(false);
   });
+
+  it("D-96: flips an admitted under-cap child to 'running' before building the orchestrator", async () => {
+    h.redis.store.set(`batch:${BATCH_ID}:spent`, "2.00");
+    // No API keys → the orchestrator build throws downstream; we assert only
+    // that the queued→running flip fired for THIS child, so a mid-run poll no
+    // longer shows an actively-executing child as 'queued'. Terminal handling
+    // (onComplete/onError/catch) is unchanged.
+    await expect(processAgentJob(makeAgentJob(CHILD))).rejects.toBeTruthy();
+    const runningFlip = h.db.agentSession.update.mock.calls.find(
+      (c) => (c[0] as { data?: { status?: string } })?.data?.status === "running"
+    );
+    expect(runningFlip).toBeDefined();
+    expect((runningFlip![0] as { where: { id: string } }).where.id).toBe(
+      "child-ch1-dev"
+    );
+  });
 });
 
 // ── Phase (c): fan-in digest ─────────────────────────────────────────────────
@@ -508,5 +524,73 @@ describe("batch lifecycle — (c) digest aggregation", () => {
     });
     const note = h.db.bookNotification.create.mock.calls[0][0].data;
     expect(note.priority).toBe("normal");
+  });
+
+  it("D-98: a budget-cap halt is titled a halt (not 'complete') and names it in the message", async () => {
+    h.db.batchRun.findUnique.mockResolvedValue({
+      id: BATCH_ID,
+      bookId: BOOK_ID,
+      userId: USER_ID,
+      workflowIds: ["dev-edit"],
+      chapterStart: 1,
+      chapterEnd: 3,
+      budgetCapUsd: CAP,
+      status: "running",
+      halted: false,
+    });
+    h.db.agentSession.findMany.mockResolvedValue([
+      { id: "s1", status: "completed", chapterNumber: 1, workflowId: "dev-edit", actualCostUsd: 5 },
+      { id: "s2", status: "completed", chapterNumber: 2, workflowId: "dev-edit", actualCostUsd: 5.5 },
+      { id: "s3", status: "skipped", chapterNumber: 3, workflowId: "dev-edit", actualCostUsd: null },
+    ]);
+    h.db.editFinding.findMany.mockResolvedValue([]);
+    h.db.chapter.findMany.mockResolvedValue([
+      { chapterNumber: 1, status: "drafted", betaGate: null },
+      { chapterNumber: 2, status: "drafted", betaGate: null },
+      { chapterNumber: 3, status: "drafted", betaGate: null },
+    ]);
+    h.redis.store.set(`batch:${BATCH_ID}:spent`, "10.50");
+    h.redis.store.set(`batch:${BATCH_ID}:halted`, "1");
+
+    await processBatchDigestJob(makeDigestJob());
+
+    const note = h.db.bookNotification.create.mock.calls[0][0].data;
+    // Before the fix every terminal digest was titled "Overnight batch complete"
+    // and the message never named the halt — a budget-cap stop read as clean.
+    expect(note.title).not.toBe("Overnight batch complete");
+    expect(note.title.toLowerCase()).toContain("halt");
+    expect(note.message.toLowerCase()).toContain("halt");
+    // The spend figure itself must be unchanged (effectiveSpent, as-is).
+    expect(note.message).toContain("$10.50");
+  });
+
+  it("D-98: a sub-cent budget cap renders with precision, not '$0.00 cap'", async () => {
+    h.db.batchRun.findUnique.mockResolvedValue({
+      id: BATCH_ID,
+      bookId: BOOK_ID,
+      userId: USER_ID,
+      workflowIds: ["dev-edit"],
+      chapterStart: 1,
+      chapterEnd: 1,
+      budgetCapUsd: 0.005,
+      status: "running",
+      halted: false,
+      spentUsd: 0,
+    });
+    h.db.agentSession.findMany.mockResolvedValue([
+      { id: "s1", status: "completed", chapterNumber: 1, workflowId: "dev-edit", actualCostUsd: 0.002 },
+    ]);
+    h.db.editFinding.findMany.mockResolvedValue([]);
+    h.db.chapter.findMany.mockResolvedValue([
+      { chapterNumber: 1, status: "drafted", betaGate: null },
+    ]);
+    h.redis.store.set(`batch:${BATCH_ID}:spent`, "0.002");
+
+    await processBatchDigestJob(makeDigestJob());
+
+    const note = h.db.bookNotification.create.mock.calls[0][0].data;
+    // toFixed(2) collapsed a $0.005 cap to "$0.00 cap" — show the real cap.
+    expect(note.message).toContain("$0.005");
+    expect(note.message).not.toContain("/ $0.00 cap");
   });
 });

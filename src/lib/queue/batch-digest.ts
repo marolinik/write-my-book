@@ -29,6 +29,18 @@ import { db } from "@/lib/db";
 import type { Prisma } from "@/generated/prisma/client";
 
 /**
+ * Format a USD cap for the morning notification. Two decimals for normal
+ * amounts, but a positive SUB-CENT cap (e.g. a $0.005 QA cap) must not collapse
+ * to "$0.00" — or misleadingly round to "$0.01" — via `toFixed(2)`. Show enough
+ * precision to name the real cap (D-98), trimming trailing zeros. The spend
+ * figure itself is left at `toFixed(2)` (BATCH-SPEC / D-98: keep as-is).
+ */
+function formatCapUsd(n: number): string {
+  if (!Number.isFinite(n) || n <= 0 || n >= 0.01) return n.toFixed(2);
+  return n.toFixed(4).replace(/0+$/, "").replace(/\.$/, "");
+}
+
+/**
  * Read the Redis ledger for a batch (spent / halted / failures). Best-effort:
  * a Redis hiccup yields zeros/false rather than crashing the digest — the
  * persisted DB rows are the primary source, the ledger only enriches it.
@@ -186,17 +198,46 @@ export async function processBatchDigestJob(
       digest.passes.skipped > 0
         ? ` · ${digest.passes.skipped} skipped`
         : "";
+
+    // ── D-98: title + message reflect a non-'done' terminal outcome ──────
+    // Before this fix EVERY digest (halted / cancelled / failed included) was
+    // titled "Overnight batch complete" and the message never named the halt, so
+    // a budget-cap or provider-outage stop read as a clean finish. Derive an
+    // honest title + a short halt clause from the derived terminal status +
+    // haltReason. `status`/`haltReason` come from aggregateBatchDigest above.
+    let title: string;
+    let haltClause: string;
+    if (status === "halted") {
+      title =
+        haltReason === "budget_cap"
+          ? "Overnight batch halted — budget cap reached"
+          : "Overnight batch halted — repeated provider errors";
+      haltClause =
+        haltReason === "budget_cap"
+          ? " · halted at budget cap"
+          : " · halted after provider errors";
+    } else if (status === "cancelled") {
+      title = "Overnight batch cancelled";
+      haltClause = " · cancelled";
+    } else if (status === "failed") {
+      title = "Overnight batch failed — no passes completed";
+      haltClause = " · no passes completed";
+    } else {
+      title = "Overnight batch complete";
+      haltClause = "";
+    }
+
     await db.bookNotification.create({
       data: {
         bookId: batch.bookId,
         userId: batch.userId,
         type: "pipeline_complete",
         priority: halted ? "high" : "normal",
-        title: "Overnight batch complete",
+        title,
         message:
           `${digest.passes.completed}/${digest.passes.total} passes` +
-          `${skippedSummary}${findingSummary} · ` +
-          `$${effectiveSpent.toFixed(2)} / $${batch.budgetCapUsd.toFixed(2)} cap`,
+          `${skippedSummary}${findingSummary}${haltClause} · ` +
+          `$${effectiveSpent.toFixed(2)} / $${formatCapUsd(batch.budgetCapUsd)} cap`,
         actionUrl: `/books/${batch.bookId}`,
         actionLabel: "View digest",
       },

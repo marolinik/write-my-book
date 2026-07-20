@@ -266,6 +266,20 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
         });
         return; // never runs the orchestrator, never spends
       }
+
+      // ── D-96: live "running" surface for batch children ─────────────
+      // A batch child is created 'queued' (batch-flow) and, before this line,
+      // only ever transitioned to a TERMINAL status — so the poll route's live
+      // counts showed `running: 0` for the ENTIRE run and the batch polled as
+      // "queued" while actively spending. Now that the pre-child budget/breaker
+      // guard has ADMITTED this child, flip it 'running' before any key fetch or
+      // LLM turn. The terminal onComplete/onError/catch paths overwrite this as
+      // today; cost/turn recording is untouched. Non-batch sessions are already
+      // created 'running' (schema default), so this is batch-only by design.
+      await db.agentSession.update({
+        where: { id: sessionId },
+        data: { status: "running" },
+      });
     }
 
     // ── Redis Message Publishing ────────────────────────────────────
