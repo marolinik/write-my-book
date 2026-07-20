@@ -73,7 +73,7 @@ export function ApiKeysSection() {
                 <div key={k.id} className="flex items-center justify-between">
                   <span className="capitalize">{k.provider}</span>
                   <span>
-                    {k.usage.sessionCount} sessions &middot; ~$
+                    {k.usage.sessionCount} {t.settings.sessionsUnit} &middot; ~$
                     {k.usage.totalCost.toFixed(2)}
                   </span>
                 </div>

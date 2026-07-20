@@ -3,8 +3,10 @@
 import { BotIcon, SparklesIcon } from "lucide-react";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
 import { useAgentSessionStore } from "@/stores/agent-session-store";
+import { useLanguage } from "@/components/providers/language-provider";
 
 export function AICompanionBubble() {
+  const { t } = useLanguage();
   const panelMode = useAgentUIStore((s) => s.panelMode);
   const setPanelMode = useAgentUIStore((s) => s.setPanelMode);
   const unreadCount = useAgentUIStore((s) => s.unreadCount);
@@ -38,7 +40,7 @@ export function AICompanionBubble() {
       <button
         onClick={() => setPanelMode("mini")}
         className="fixed bottom-20 right-5 z-50 flex items-center justify-center size-12 rounded-full bg-primary text-primary-foreground shadow-lg hover:scale-110 transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-ring md:bottom-5"
-        title="Open Writing Agent"
+        title={t.header.openAgent}
       >
         <BotIcon className="size-5" />
 

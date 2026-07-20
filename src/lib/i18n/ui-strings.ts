@@ -43,6 +43,7 @@ export interface UIStrings {
   header: {
     toggleSidebar: string;
     toggleAgent: string;
+    openAgent: string;
     new: string;
   };
 
@@ -103,6 +104,7 @@ export interface UIStrings {
     labelPlaceholder: string;
     usageSummary: string;
     noUsageYet: string;
+    sessionsUnit: string;
     providerBlurbs: {
       anthropic: string;
       openrouter: string;
@@ -408,6 +410,7 @@ const EN: UIStrings = {
   header: {
     toggleSidebar: "Toggle sidebar",
     toggleAgent: "Toggle agent panel",
+    openAgent: "Open Writing Agent",
     new: "New",
   },
   dashboard: {
@@ -464,6 +467,7 @@ const EN: UIStrings = {
     labelPlaceholder: "e.g. Personal, Work",
     usageSummary: "Usage Summary",
     noUsageYet: "No usage recorded yet.",
+    sessionsUnit: "sessions",
     providerBlurbs: {
       anthropic: "Claude models direct from Anthropic. Best latency and reliability.",
       openrouter: "Access Claude and 200+ models through a single API key.",
@@ -724,6 +728,7 @@ const SR: UIStrings = {
   header: {
     toggleSidebar: "Prikaži/sakrij bočnu traku",
     toggleAgent: "Prikaži/sakrij panel agenta",
+    openAgent: "Otvori agenta za pisanje",
     new: "Novo",
   },
   dashboard: {
@@ -780,6 +785,7 @@ const SR: UIStrings = {
     labelPlaceholder: "npr. Lično, Posao",
     usageSummary: "Pregled potrošnje",
     noUsageYet: "Još nema zabeležene potrošnje.",
+    sessionsUnit: "sesija",
     providerBlurbs: {
       anthropic: "Claude modeli direktno od Anthropic-a. Najbolja brzina i pouzdanost.",
       openrouter: "Pristup Claude-u i preko 200 modela putem jednog API ključa.",
@@ -1040,6 +1046,7 @@ const DE: UIStrings = {
   header: {
     toggleSidebar: "Seitenleiste umschalten",
     toggleAgent: "Agentenpanel umschalten",
+    openAgent: "Schreibagent öffnen",
     new: "Neu",
   },
   dashboard: {
@@ -1096,6 +1103,7 @@ const DE: UIStrings = {
     labelPlaceholder: "z. B. Privat, Arbeit",
     usageSummary: "Nutzungsübersicht",
     noUsageYet: "Noch keine Nutzung erfasst.",
+    sessionsUnit: "Sitzungen",
     providerBlurbs: {
       anthropic: "Claude-Modelle direkt von Anthropic. Beste Latenz und Zuverlässigkeit.",
       openrouter: "Zugriff auf Claude und über 200 Modelle mit einem einzigen API-Schlüssel.",
@@ -1356,6 +1364,7 @@ const ES: UIStrings = {
   header: {
     toggleSidebar: "Alternar barra lateral",
     toggleAgent: "Alternar panel del agente",
+    openAgent: "Abrir agente de escritura",
     new: "Nuevo",
   },
   dashboard: {
@@ -1412,6 +1421,7 @@ const ES: UIStrings = {
     labelPlaceholder: "p. ej. Personal, Trabajo",
     usageSummary: "Resumen de uso",
     noUsageYet: "Aún no hay uso registrado.",
+    sessionsUnit: "sesiones",
     providerBlurbs: {
       anthropic: "Modelos Claude directamente de Anthropic. Mejor latencia y fiabilidad.",
       openrouter: "Accede a Claude y más de 200 modelos con una sola clave API.",
@@ -1672,6 +1682,7 @@ const FR: UIStrings = {
   header: {
     toggleSidebar: "Afficher/masquer la barre latérale",
     toggleAgent: "Afficher/masquer le panneau agent",
+    openAgent: "Ouvrir l'agent d'écriture",
     new: "Nouveau",
   },
   dashboard: {
@@ -1728,6 +1739,7 @@ const FR: UIStrings = {
     labelPlaceholder: "p. ex. Personnel, Travail",
     usageSummary: "Résumé d'utilisation",
     noUsageYet: "Aucune utilisation enregistrée pour le moment.",
+    sessionsUnit: "sessions",
     providerBlurbs: {
       anthropic: "Modèles Claude directement depuis Anthropic. Meilleure latence et fiabilité.",
       openrouter: "Accédez à Claude et plus de 200 modèles avec une seule clé API.",
@@ -1988,6 +2000,7 @@ const RU: UIStrings = {
   header: {
     toggleSidebar: "Показать/скрыть боковую панель",
     toggleAgent: "Показать/скрыть панель агента",
+    openAgent: "Открыть агента для письма",
     new: "Новый",
   },
   dashboard: {
@@ -2044,6 +2057,7 @@ const RU: UIStrings = {
     labelPlaceholder: "напр. Личный, Рабочий",
     usageSummary: "Сводка использования",
     noUsageYet: "Использование ещё не зафиксировано.",
+    sessionsUnit: "сессий",
     providerBlurbs: {
       anthropic: "Модели Claude напрямую от Anthropic. Лучшая задержка и надёжность.",
       openrouter: "Доступ к Claude и более 200 моделям через один API-ключ.",
@@ -2304,6 +2318,7 @@ const ZH: UIStrings = {
   header: {
     toggleSidebar: "切换侧边栏",
     toggleAgent: "切换代理面板",
+    openAgent: "打开写作代理",
     new: "新建",
   },
   dashboard: {
@@ -2360,6 +2375,7 @@ const ZH: UIStrings = {
     labelPlaceholder: "例如：个人、工作",
     usageSummary: "使用摘要",
     noUsageYet: "尚无使用记录。",
+    sessionsUnit: "个会话",
     providerBlurbs: {
       anthropic: "直接来自 Anthropic 的 Claude 模型。最佳延迟与可靠性。",
       openrouter: "通过单个 API 密钥访问 Claude 及 200 多个模型。",
