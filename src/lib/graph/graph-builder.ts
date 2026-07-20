@@ -176,13 +176,20 @@ async function upsertSingleEntity(
       const hasRenameLink = renameLinkTokens(name, aliases, candidate).some(
         (token) => !isCommonAlias(token)
       );
-      const hasDistinctiveSharedAlias = candidate.existingAliases.some(
-        (a) =>
-          aliases.includes(a) &&
-          a !== name &&
-          a !== candidate.existingName &&
-          isDistinctiveSharedAlias(a, name, candidate.existingName)
-      );
+      // D-89: the distinctive shared alias (class-2) is only STRONG enough to
+      // fold when the two full display names ALSO corroborate a single identity
+      // (rename/variant, not a coincidental shared nickname between distinct
+      // characters). Without this pair-level guard, one shared codename in the
+      // 1-candidate arrival-order window permanently false-merges two people.
+      const hasDistinctiveSharedAlias =
+        namesRenameCompatible(name, candidate.existingName) &&
+        candidate.existingAliases.some(
+          (a) =>
+            aliases.includes(a) &&
+            a !== name &&
+            a !== candidate.existingName &&
+            isDistinctiveSharedAlias(a, name, candidate.existingName)
+        );
       if (hasRenameLink || hasDistinctiveSharedAlias) {
         // Fold onto the existing node: keep ITS spelling as the primary name and
         // UNION our name + every incoming alias into its alias set. D-27: the
@@ -540,6 +547,20 @@ async function upsertSingleEntity(
     mergeParams
   );
 
+  // Sub-fix 7(d): reify the death as a discrete, chapter-anchored death Event +
+  // DIES_IN edge, so the graph can answer "in which event/scene did X die" and
+  // carry death circumstances — closing the fix-7(d) model-shape gap. This is
+  // ADDITIVE and derived from the SAME deterministic signal as the scalar
+  // (`derived.deathChapter`, itself gated on isDeadStatus + chapter >= 1), so it
+  // introduces no new LLM non-determinism and never manufactures a false anchor:
+  // it fires exactly when — and anchors exactly where — the monotonic
+  // deathChapter coalesce already does. The reification is MONOTONIC in lock-step
+  // (first-observed-death wins, coalesced), so it does NOT disturb the scalar or
+  // the D-79 signature. `derived.deathChapter` is only ever set for Characters.
+  if (derived.deathChapter !== undefined) {
+    await upsertDeathAnchor(session, name, bookId, derived.deathChapter, userId);
+  }
+
   if (mergeResult.records.length > 0) {
     // ON CREATE sets createdAt = datetime() and ON MATCH does not,
     // so we check if the node was just created by checking the return value
@@ -549,6 +570,93 @@ async function upsertSingleEntity(
   }
 
   return { created: 0, updated: 0 };
+}
+
+/**
+ * Sub-fix 7(d): reify a Character's death as a discrete `Event` node plus a
+ * `DIES_IN` edge (Character → death Event), so the graph can answer "in which
+ * event/scene did X die?" and carry death circumstances — the model-shape gap
+ * the fix-7(d) deferral registered.
+ *
+ * Design invariants (why this is safe to add without touching the scalar path):
+ * - ADDITIVE ONLY. It never writes `Character.deathChapter`; the caller's
+ *   `coalesce(n.deathChapter, $chapter)` remains the sole writer of the scalar.
+ * - MONOTONIC, in lock-step with the scalar. Identity is keyed per-character
+ *   ("Death of <name>"), CHAPTER-INDEPENDENT, so every re-scan MERGEs the SAME
+ *   node; `occursInChapter`/`chapter` are first-write-wins `coalesce`d, so the
+ *   earliest-observed death chapter wins and a later re-scan can never move the
+ *   anchor (preserving D-79 signature stability).
+ * - DETERMINISTIC. Fired only from `derived.deathChapter` (isDeadStatus + chapter
+ *   >= 1) — the identical signal that stamps the scalar — so no LLM value and no
+ *   false anchor is ever manufactured. `deathChapter === chapterNumber` here.
+ * - NON-DISRUPTIVE to the continuity gates. The link is a NEW `DIES_IN` type
+ *   (NOT `PARTICIPATES_IN`, which `dead_character_reappears` reads) and the death
+ *   Event `occursInChapter` equals (never exceeds) the death chapter, so it can
+ *   never satisfy the `> deathChapter` reappearance predicate. `DIES_IN` is
+ *   app-derived only and deliberately NOT added to the LLM-facing
+ *   RELATIONSHIP_TYPES allowlist.
+ *
+ * `DIES_IN` and the `Event` label are compile-time literals (no interpolation);
+ * every author-controlled value (name, canonicalName) rides as a Cypher param.
+ */
+async function upsertDeathAnchor(
+  session: import("neo4j-driver").Session,
+  characterName: string,
+  bookId: string,
+  deathChapter: number,
+  userId?: string
+): Promise<void> {
+  const deathEventName = `Death of ${characterName}`;
+  const params: Record<string, unknown> = {
+    bookId,
+    characterName,
+    deathEventName,
+    chapter: deathChapter,
+    canonical: canonicalizeEntityName(deathEventName),
+  };
+  if (userId) {
+    params.userId = userId;
+  }
+  const userIdCreate = userId ? ", d.userId = $userId" : "";
+
+  // Reify the death Event (per-character, chapter-independent identity → re-scans
+  // converge). occursInChapter/chapter are coalesced so the earliest death wins.
+  //
+  // FP-A guard on the ON MATCH occursInChapter backfill (mirrors the main Event
+  // path ~L403): this MERGE can ON MATCH a PRE-EXISTING LLM-extracted Event of the
+  // same name that a character legitimately PARTICIPATES_IN. A naive
+  // `coalesce(d.occursInChapter, $chapter)` would backfill that node's story-time
+  // from THIS scan's chapter — inventing a story-time LATER than the death and
+  // re-opening the exact D-32(b) dead_character_reappears FP (and freezing it, as
+  // coalesce never overwrites). Backfilling from the node's OWN narrating chapter
+  // (`d.chapter`) first keeps a legacy `{chapter:2, occursInChapter:null}` node at
+  // its true story-time (2), so `coalesce(occursInChapter, chapter) > deathChapter`
+  // stays false. Anchor-CREATED nodes are unaffected (occursInChapter is set on
+  // CREATE lock-step with chapter, so the coalesce short-circuits at arg 1).
+  await session.run(
+    `MERGE (d:Event {bookId: $bookId, name: $deathEventName})
+     ON CREATE SET d.id = randomUUID(), d.createdAt = datetime(), d.updatedAt = datetime(),
+                   d.firstAppearance = $chapter, d.chapter = $chapter,
+                   d.occursInChapter = $chapter, d.canonicalName = $canonical,
+                   d.significance = "major", d.eventType = "death",
+                   d.deathOf = $characterName${userIdCreate}
+     ON MATCH SET  d.chapter = coalesce(d.chapter, $chapter),
+                   d.occursInChapter = coalesce(d.occursInChapter, d.chapter, $chapter),
+                   d.eventType = "death",
+                   d.deathOf = coalesce(d.deathOf, $characterName),
+                   d.lastMentioned = $chapter, d.updatedAt = datetime()`,
+    params
+  );
+
+  // Link the Character to its death Event with a monotonic, chapter-anchored edge.
+  await session.run(
+    `MATCH (c:Character {bookId: $bookId, name: $characterName})
+     MATCH (d:Event {bookId: $bookId, name: $deathEventName})
+     MERGE (c)-[r:DIES_IN]->(d)
+     ON CREATE SET r.chapter = $chapter, r.createdAt = datetime()
+     ON MATCH SET  r.chapter = coalesce(r.chapter, d.chapter, $chapter)`,
+    params
+  );
 }
 
 /**
@@ -1014,6 +1122,62 @@ export function isDistinctiveSharedAlias(
     (w) => incomingWords.has(w) && existingWords.has(w)
   );
   return !sharedFamilyToken;
+}
+
+/**
+ * D-89: PAIR-level identity corroboration for the class-2 (distinctive shared
+ * alias) fold. A distinctive nickname passing {@link isDistinctiveSharedAlias} is
+ * necessary but NOT sufficient — on its own it false-folds two GENUINELY DISTINCT
+ * characters who merely share that nickname (the permanent, self-reinforcing D8
+ * false-merge D-89 registered). The fold additionally requires the two full
+ * DISPLAY NAMES to be compatible as a RENAME/VARIANT of ONE person.
+ *
+ * Compatible iff, over normalized name-words ({@link nameWords}):
+ *   - they share at least one FULL word (length > 1) — the identity anchor; two
+ *     names with no shared full word ("Aria Vance" / "Bex Toll") are never a
+ *     rename, so a shared codename between them (the core D-89 case) cannot fold;
+ *     AND
+ *   - every full word present in exactly ONE name is EXPLAINABLE as the expansion
+ *     of a single-letter initial in the OTHER ("Z." ↔ "Zoë": "z" initials "zoe").
+ *     A full word with no such initial is a CONFLICT — a distinct given name or
+ *     surname — which blocks the fold even when a first name is shared
+ *     ("John Carter" / "John Marsh": conflicting "carter"/"marsh") or a surname is
+ *     shared ("Elena Frost" / "Marcus Frost": conflicting "elena"/"marcus").
+ *
+ * Initials act as wildcards matching a same-first-letter word, so a genuine
+ * abbreviation/diacritic variant ("Z. Rasmussen" ↔ "Zoë Rasmussen") still folds
+ * while siblings (shared surname) and namesakes (shared first name) do not.
+ * Fail-safe: only an AFFIRMATIVE rename match enables the fold; any ambiguity
+ * declines it (preserve-over-guess). Exported for unit testing.
+ */
+export function namesRenameCompatible(nameA: string, nameB: string): boolean {
+  const wordsA = nameWords(nameA);
+  const wordsB = nameWords(nameB);
+  const fullA = new Set(wordsA.filter((w) => w.length > 1));
+  const fullB = new Set(wordsB.filter((w) => w.length > 1));
+  const initialsA = new Set(wordsA.filter((w) => w.length === 1));
+  const initialsB = new Set(wordsB.filter((w) => w.length === 1));
+
+  // Anchor: at least one shared FULL word (no shared full word ⇒ not a rename).
+  let sharedFull = false;
+  for (const w of fullA) {
+    if (fullB.has(w)) {
+      sharedFull = true;
+      break;
+    }
+  }
+  if (!sharedFull) return false;
+
+  // No unexplained conflicting full word in either direction. A full word unique
+  // to one name is a conflict UNLESS the other name carries a same-first-letter
+  // initial it could be the expansion of.
+  for (const w of fullA) {
+    if (!fullB.has(w) && !initialsB.has(w[0])) return false;
+  }
+  for (const w of fullB) {
+    if (!fullA.has(w) && !initialsA.has(w[0])) return false;
+  }
+  return true;
 }
 
 /**

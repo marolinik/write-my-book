@@ -459,3 +459,66 @@ describe("alias-merge disambiguation: colloquial + non-English titles/epithets n
     expect(node("Character:b1:Diego Marquez").aliases).toEqual(["El Lobo"]);
   });
 });
+
+// ─── D-89 (BLOCKER): class-2 (distinctive shared alias) must carry PAIR-level
+//     identity corroboration. A DISTINCTIVE nickname passes the token guard (not
+//     a title, not an epithet, not a word in both names), so in the 1-candidate
+//     arrival-order window it USED to fold two genuinely-distinct characters that
+//     merely share that nickname — a permanent, self-reinforcing D8 false-merge.
+//     The class-2 fold now additionally requires the two full names to be
+//     RENAME-COMPATIBLE (share a full word, no conflicting given-name/surname):
+//     a genuine variant/abbreviation still folds; a coincidental shared nickname
+//     between unrelated (or merely same-family / same-first-name) characters does
+//     NOT. The NEGATIVE cases are the whole point — proving the false-merge is
+//     prevented — and each has EXACTLY ONE candidate, so the ≥2-count guard
+//     cannot help; only name-corroboration can. ──
+
+describe("alias-merge disambiguation: D-89 — a shared distinctive nickname never false-folds two distinct characters (c, class-2 corroboration)", () => {
+  it("(D89-neg1) two DISTINCT characters sharing a distinctive nickname with NO shared name-word do NOT fold (arrival-order false-merge prevented)", async () => {
+    // Aria arrives ch1; Bex arrives ch5 BEFORE a 'Bex Toll' node exists → exactly
+    // ONE candidate (Aria), distinctive shared alias 'Sparrow'. This is the exact
+    // D-89 arrival-order window the count guard cannot cover.
+    seedCharacter("Aria Vance", ["Sparrow"], 1);
+    await upsertCharacter("Bex Toll", ["Sparrow"], 5);
+    expect(characterKeys().sort()).toEqual([
+      "Character:b1:Aria Vance",
+      "Character:b1:Bex Toll",
+    ]);
+    // Aria did NOT absorb Bex — no false fold, no silently-lost character.
+    expect(node("Character:b1:Aria Vance").aliases).toEqual(["Sparrow"]);
+  });
+
+  it("(D89-neg2) two NAMESAKES (shared first name) sharing a codename but with conflicting surnames do NOT fold", async () => {
+    seedCharacter("John Carter", ["Reaper"], 1);
+    await upsertCharacter("John Marsh", ["Reaper"], 5);
+    expect(characterKeys().sort()).toEqual([
+      "Character:b1:John Carter",
+      "Character:b1:John Marsh",
+    ]);
+    expect(node("Character:b1:John Carter").aliases).toEqual(["Reaper"]);
+  });
+
+  it("(D89-neg3) two SIBLINGS (shared surname) sharing a codename but with conflicting first names do NOT fold", async () => {
+    seedCharacter("Elena Frost", ["Wraith"], 1);
+    await upsertCharacter("Marcus Frost", ["Wraith"], 5);
+    expect(characterKeys().sort()).toEqual([
+      "Character:b1:Elena Frost",
+      "Character:b1:Marcus Frost",
+    ]);
+    expect(node("Character:b1:Elena Frost").aliases).toEqual(["Wraith"]);
+  });
+
+  it("(D89-pos) a genuine same-character class-2 fold STILL binds: a later abbreviated mention sharing the nickname folds onto the full-name node (no duplicate, no variant lost)", async () => {
+    // ch1: full name + nickname. ch6: text abbreviates the name, same nickname.
+    // Rename-compatible ('R.' initials 'Rosalind', 'Vane' shared) + distinctive
+    // shared alias 'Roz' → folds (class-2 survives the corroboration guard).
+    seedCharacter("Rosalind Vane", ["Roz"], 1);
+    const stats = await upsertCharacter("R. Vane", ["Roz"], 6);
+    expect(characterKeys()).toEqual(["Character:b1:Rosalind Vane"]);
+    expect(stats.nodesCreated).toBe(0);
+    expect(stats.nodesUpdated).toBe(1);
+    const aliases = node("Character:b1:Rosalind Vane").aliases as string[];
+    expect(aliases).toContain("R. Vane");
+    expect(aliases).toContain("Roz");
+  });
+});
