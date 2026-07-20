@@ -1,0 +1,45 @@
+{
+  "ts": "2026-07-20T20:38:13.277Z",
+  "bookId": "d633f5ae-8b61-4175-bf31-810a41b30b78",
+  "duplicate_ch1": {
+    "status": 409,
+    "latencyMs": 221,
+    "body": {
+      "error": "A chapter with that number already exists in this book"
+    }
+  },
+  "duplicate_ch2": {
+    "status": 409,
+    "latencyMs": 294,
+    "body": {
+      "error": "A chapter with that number already exists in this book"
+    }
+  },
+  "chapterCountAfter": 3,
+  "fresh_ch9": {
+    "status": 201,
+    "latencyMs": 185,
+    "body": {
+      "id": "e34fe922-6f30-4a86-9bc6-9480519afe6d",
+      "bookId": "d633f5ae-8b61-4175-bf31-810a41b30b78",
+      "actNumber": 1,
+      "chapterNumber": 9,
+      "title": "Fresh Ch9 (contrast control)",
+      "status": "undiscussed",
+      "wordCount": 0,
+      "targetWordCount": null,
+      "betaScore": null,
+      "betaGate": "pending",
+      "revisionCount": 0,
+      "importedAt": null,
+      "createdAt": "2026-07-20T20:38:14.054Z",
+      "updatedAt": "2026-07-20T20:38:14.054Z"
+    }
+  },
+  "verdict": {
+    "duplicate_returns_409": true,
+    "not_500": true,
+    "no_phantom_created": true,
+    "fresh_still_201": true
+  }
+}

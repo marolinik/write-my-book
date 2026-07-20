@@ -1,0 +1,5 @@
+P4 rejudge-v3 PREFLIGHT (captured 2026-07-20T22:40:44Z)
+git HEAD: b8871ce9753ec7ed85de392ede58266ea718cafa  (expected b8871ce...)
+git branch: qa/bulletproof-2026-07-17
+--- /api/health/dependencies ---
+{"ok":true,"status":"ready","checkedAt":"2026-07-20T22:40:45.544Z","dependencies":[{"name":"environment","required":true,"status":"ok","latencyMs":0,"message":"ok"},{"name":"postgres","required":true,"status":"ok","latencyMs":372,"message":"ok"},{"name":"schema","required":true,"status":"ok","latencyMs":393,"message":"ok"},{"name":"redis","required":true,"status":"ok","latencyMs":188,"message":"ok"},{"name":"s3","required":true,"status":"ok","latencyMs":149,"message":"ok"},{"name":"worker","required":true,"status":"ok","latencyMs":109,"message":"ok"},{"name":"qdrant","required":false,"status":"ok","latencyMs":140,"message":"ok"},{"name":"neo4j","required":false,"status":"ok","latencyMs":283,"message":"ok"}]}

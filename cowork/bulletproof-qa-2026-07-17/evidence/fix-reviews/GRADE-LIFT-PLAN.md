@@ -6,7 +6,7 @@
 
 | Persona | Grade | Floor dim(s) | Floor bound by |
 |---|---|---|---|
-| **P4 Priya** | **4.0** (fresh 3-panel 2026-07-20, `judging/P4-REJUDGE-AGGREGATE.md` — supersedes the ~5.5 v2-delta estimate) | D5 4.0; D3/D8/D10 5.0 | **D-96** (live poll lies), D-97, D-98, EVIDENCE (API-only, counts-only findings) |
+| **P4 Priya** | **6.0** (v3 3-panel 2026-07-21, `judging/P4-REJUDGE-V3-AGGREGATE.md` — Wave A item 4 DONE; D-96/D-97/D-98/NEW-2/D-20 CLOSED live; new D-120..D-126) | D10 6.0 unanimous; D8/D3b/D9 6.0 | D-122 (digest counts rejected dupes), D-120 (stale LIST route), D-123 (halted digest 0-findings unprobed) |
 | **P5 Sam** | 3.5 pre-fix cert; **v3 re-judge in flight** (wjdrigcy6), projected ~5–6 | D2/D7 (pre-fix) | D-92/D-95/D-99/D-100 all fixed/resolved; post-fix binder projected D11 ~4.5 (positioning) |
 | P1 Maya | 6.0 | D3b | D-104+D-107 (FIXED, not re-judged) + UI evidence gap |
 | P2 Gerald | 6.0 | D4, D8, D10, D11 | Mostly evidence-gap (fresh funnel, delight/competitive artifacts dropped from API-only re-capture) + D-115 |
@@ -16,6 +16,11 @@
 | P7 Bao | 7.0 | D3, D10 | Evidence-gap + D-57, D-46, D-111 |
 
 **Platform MIN = P4 4.0.** MIN ladder: 4.0 (P4) → P5 v3 result → 6.0 trio (P1/P2/P6) → 6.5 (P3/P8) → 7.0 (P7).
+
+> **UPDATE 2026-07-21: Wave A COMPLETE — P4 = 6.0.** Platform MIN now **P5 4.5**
+> (D-116..D-119 seeded-reasoning defaults = next binder), then 6.0 quartet P1/P2/P4/P6.
+> P4's remaining lift is Wave C/D material: D-121 Apply-path probe, D-122/D-120 code fixes,
+> D-123/D-126 silent-zero investigations, 30-chapter scale run.
 
 **Systemic finding (unanimous across miners):** above P4/P5, nearly every floor is an
 EVIDENCE-GAP, not open code — API-only bundles left D3b/D4/D6 blind and judges refuse

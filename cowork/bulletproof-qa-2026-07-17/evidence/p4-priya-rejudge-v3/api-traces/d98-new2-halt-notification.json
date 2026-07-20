@@ -1,0 +1,59 @@
+{
+  "verdict": {
+    "haltBatch": {
+      "id": "cmrtsngpd0002280fzqzaalp4",
+      "status": "halted",
+      "halted": true,
+      "haltReason": "budget_cap",
+      "budgetCapUsd": 0.005,
+      "spentUsd": 0.051775125
+    },
+    "haltNotification": {
+      "id": "beb76dd2-03e7-469b-9e81-308743ebbb4f",
+      "title": "Overnight batch halted — budget cap reached",
+      "message": "2/3 passes · 1 skipped · halted at budget cap · $0.05 / $0.005 cap",
+      "priority": "high",
+      "actionUrl": "/books/d633f5ae-8b61-4175-bf31-810a41b30b78",
+      "actionLabel": "View digest",
+      "createdAt": "2026-07-20T22:31:38.059Z",
+      "read": false
+    },
+    "D98_title_says_halted": true,
+    "D98_title_not_complete": true,
+    "D98_message_names_halt": true,
+    "NEW2_cap_not_rendered_as_0_00": true,
+    "priority_high": true
+  },
+  "allNotifications": [
+    {
+      "id": "beb76dd2-03e7-469b-9e81-308743ebbb4f",
+      "title": "Overnight batch halted — budget cap reached",
+      "message": "2/3 passes · 1 skipped · halted at budget cap · $0.05 / $0.005 cap",
+      "priority": "high",
+      "actionUrl": "/books/d633f5ae-8b61-4175-bf31-810a41b30b78",
+      "actionLabel": "View digest",
+      "createdAt": "2026-07-20T22:31:38.059Z",
+      "read": false
+    },
+    {
+      "id": "00d64eea-885b-4dc4-b9e8-657cebbb5664",
+      "title": "Overnight batch complete",
+      "message": "3/3 passes · 2 findings · $0.12 / $10.00 cap",
+      "priority": "normal",
+      "actionUrl": "/books/d633f5ae-8b61-4175-bf31-810a41b30b78",
+      "actionLabel": "View digest",
+      "createdAt": "2026-07-20T20:47:22.227Z",
+      "read": false
+    },
+    {
+      "id": "3d817b76-0c23-4c9b-8c05-dd6f17839a15",
+      "title": "Overnight batch complete",
+      "message": "3/3 passes · 7 findings · $0.07 / $0.50 cap",
+      "priority": "normal",
+      "actionUrl": "/books/d633f5ae-8b61-4175-bf31-810a41b30b78",
+      "actionLabel": "View digest",
+      "createdAt": "2026-07-20T20:31:18.477Z",
+      "read": false
+    }
+  ]
+}
