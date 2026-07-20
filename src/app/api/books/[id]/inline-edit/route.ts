@@ -7,6 +7,13 @@ import { checkQuota } from "@/lib/billing/quota-checker";
 import { recordDailyUse } from "@/lib/billing/free-tier-meters";
 import { createLLMClient, resolveProviderRoute, resolveCheapModelFor } from "@/lib/llm";
 import type { ProviderKey } from "@/lib/llm";
+import {
+  withQuickAssistReasoning,
+  extractQuickAssistText,
+  isReasoningOnly,
+  MODEL_NO_QUICK_SUGGEST_CODE,
+  MODEL_NO_QUICK_SUGGEST_MESSAGE,
+} from "@/lib/llm/quick-assist";
 import { inlineEditRequestSchema } from "@/lib/validation";
 import type { InlineEditSuggestion } from "@/lib/validation";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
@@ -118,16 +125,25 @@ ${data.selectedText}
 
 Provide ${data.count} alternative rewrites as a JSON array.`;
 
-    const response = await client.messages.create({
+    // D-100: on the OpenRouter route (where the seeded free-tier default
+    // qwen/qwen3.6-27b lives), disable provider reasoning so the output budget
+    // isn't burned entirely on thinking blocks. `reasoning` is an OpenRouter
+    // parameter — never sent on the direct Anthropic route, which rejects the
+    // unknown field (Anthropic gates thinking via `thinking`).
+    const baseParams = {
       model: model.modelId,
       max_tokens: 4096,
       system: systemPrompt,
-      messages: [{ role: "user", content: userContent }],
-    });
+      messages: [{ role: "user" as const, content: userContent }],
+    };
+    const response = await client.messages.create(
+      route.route === "openrouter"
+        ? withQuickAssistReasoning(baseParams)
+        : baseParams
+    );
 
-    // Parse the response
-    const textBlock = response.content.find((b) => b.type === "text");
-    const rawText = textBlock && "text" in textBlock ? textBlock.text : "[]";
+    // Parse the response (extractQuickAssistText skips leading thinking blocks).
+    const rawText = extractQuickAssistText(response.content) || "[]";
 
     let suggestions: InlineEditSuggestion[];
     try {
@@ -158,6 +174,18 @@ Provide ${data.count} alternative rewrites as a JSON array.`;
     // answer with a hollow 200 { suggestions: [] }; surface an honest,
     // retryable signal (and the truncation) so the writer can retry.
     if (suggestions.length === 0) {
+      // D-100: a reasoning model that returned ONLY thinking blocks can't
+      // produce quick rewrites at all — answer honestly and point at the model
+      // picker, instead of a misleading, infinitely-retryable cut-off.
+      if (isReasoningOnly(response.content)) {
+        return NextResponse.json(
+          {
+            error: MODEL_NO_QUICK_SUGGEST_MESSAGE,
+            code: MODEL_NO_QUICK_SUGGEST_CODE,
+          },
+          { status: 422 }
+        );
+      }
       const truncated = response.stop_reason === "max_tokens";
       return NextResponse.json(
         {

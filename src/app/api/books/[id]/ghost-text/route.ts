@@ -7,6 +7,13 @@ import { checkQuota } from "@/lib/billing/quota-checker";
 import { recordDailyUse } from "@/lib/billing/free-tier-meters";
 import { createLLMClient, resolveProviderRoute, resolveCheapModelFor } from "@/lib/llm";
 import type { ProviderKey } from "@/lib/llm";
+import {
+  withQuickAssistReasoning,
+  extractQuickAssistText,
+  isReasoningOnly,
+  MODEL_NO_QUICK_SUGGEST_CODE,
+  MODEL_NO_QUICK_SUGGEST_MESSAGE,
+} from "@/lib/llm/quick-assist";
 import { ghostTextRequestSchema } from "@/lib/validation";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
@@ -101,25 +108,45 @@ Rules:
 - Match the style, tone, and tense of the surrounding prose
 - Never use AI-tell phrases: "delve", "tapestry", "testament to", "palpable", "a dance of", "sending shivers"${langInstruction}`;
 
-    const response = await client.messages.create({
+    // D-100: on the OpenRouter route (where the seeded free-tier default
+    // qwen/qwen3.6-27b lives), disable provider reasoning so the tiny 60-token
+    // budget isn't burned entirely on thinking blocks. `reasoning` is an
+    // OpenRouter parameter — never sent on the direct Anthropic route, which
+    // rejects the unknown field (Anthropic gates thinking via `thinking`).
+    const baseParams = {
       model: model.modelId,
       max_tokens: 60,
       system: systemPrompt,
-      messages: [{ role: "user", content: data.context }],
-    });
+      messages: [{ role: "user" as const, content: data.context }],
+    };
+    const response = await client.messages.create(
+      route.route === "openrouter"
+        ? withQuickAssistReasoning(baseParams)
+        : baseParams
+    );
 
-    // Extract the suggestion text
-    const textBlock = response.content.find((b) => b.type === "text");
-    const suggestion =
-      textBlock && "text" in textBlock ? textBlock.text.trim() : "";
+    // Extract the suggestion text (skips leading thinking/redacted_thinking).
+    const suggestion = extractQuickAssistText(response.content).trim();
 
     // D-04/D-38: an empty / whitespace-only continuation is not a billable
     // result. It usually means the small (60-token) output budget was fully
     // consumed with no usable text — e.g. a reasoning model emitting only
     // thinking blocks (stop_reason "max_tokens"). Do NOT write a usage record
-    // for silence and do NOT answer with a hollow 200; surface an honest,
-    // retryable signal so the client can retry instead of paying for nothing.
+    // for silence and do NOT answer with a hollow 200; surface an honest signal
+    // so the client can react instead of paying for nothing.
     if (suggestion.length === 0) {
+      // D-100: a reasoning model that returned ONLY thinking blocks can't
+      // produce quick suggestions at all — answer honestly and point at the
+      // model picker, instead of a misleading, infinitely-retryable cut-off.
+      if (isReasoningOnly(response.content)) {
+        return NextResponse.json(
+          {
+            error: MODEL_NO_QUICK_SUGGEST_MESSAGE,
+            code: MODEL_NO_QUICK_SUGGEST_CODE,
+          },
+          { status: 422 }
+        );
+      }
       const truncated = response.stop_reason === "max_tokens";
       return NextResponse.json(
         {

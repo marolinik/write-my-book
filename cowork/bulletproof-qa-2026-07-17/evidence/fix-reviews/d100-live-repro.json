@@ -1,0 +1,51 @@
+{
+  "capturedAt": "2026-07-20T14:41:25.493Z",
+  "defect": "D-100",
+  "note": "READ-ONLY. (A) live HTTP route on stale :3002; (B) authoritative fresh-process path importing the NEW quick-assist code.",
+  "steps": {
+    "e2eSecret": "test-se…cret (len 11)",
+    "liveHttp": {
+      "status": 422,
+      "code": "MODEL_NO_QUICK_SUGGEST",
+      "body": {
+        "error": "This model only returns internal reasoning, so it can't produce quick inline suggestions. Choose a different model for inline assist in Settings.",
+        "code": "MODEL_NO_QUICK_SUGGEST"
+      }
+    },
+    "samDefaultModel": "openrouter-qwen36/sonnet",
+    "keysPresent": [
+      "openrouter"
+    ],
+    "cheapModel": {
+      "id": "openrouter-qwen36/haiku",
+      "provider": "openrouter",
+      "modelId": "qwen/qwen3.6-27b"
+    },
+    "resolvedRoute": "openrouter",
+    "control_noReasoningFlag": {
+      "stopReason": "max_tokens",
+      "blockTypes": [
+        "thinking",
+        "redacted_thinking"
+      ],
+      "outcome": "MODEL_NO_QUICK_SUGGEST",
+      "httpStatus": 422,
+      "code": "MODEL_NO_QUICK_SUGGEST",
+      "error": "This model only returns internal reasoning, so it can't produce quick inline suggestions. Choose a different model for inline assist in Settings."
+    },
+    "fixRequestReasoningField": {
+      "enabled": false
+    },
+    "fix_reasoningDisabled": {
+      "stopReason": "end_turn",
+      "blockTypes": [
+        "thinking",
+        "text",
+        "redacted_thinking"
+      ],
+      "outcome": "REAL_SUGGESTION",
+      "suggestion": "easily, tracing the shape of a truth he had buried for years."
+    },
+    "verdict": "PASS — reasoning-disable produced real suggestion text"
+  }
+}

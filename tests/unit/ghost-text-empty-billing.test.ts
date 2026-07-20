@@ -106,13 +106,16 @@ describe("POST /api/books/:id/ghost-text — empty result is not billed (D-04/D-
     expect(h.db.usageRecord.create).not.toHaveBeenCalled();
   });
 
-  it("does NOT bill and surfaces truncation when reasoning ate the whole budget (max_tokens, no text)", async () => {
+  it("does NOT bill and returns MODEL_NO_QUICK_SUGGEST when reasoning ate the whole budget (thinking-only) — D-100", async () => {
+    // D-100: a reasoning model that returns ONLY thinking blocks can't produce
+    // quick suggestions; the old generic retryable "cut off" 502 became an
+    // infinite empty-retry loop. Now an honest, machine-readable, non-retryable
+    // envelope the editor can deep-link to the model picker from — still unbilled.
     h.create.mockResolvedValueOnce(reasoningOnly);
     const res = await POST(req({ context: "a".repeat(60), chapterNumber: 1 }) as never, ctx as never);
     const body = await res.json();
-    expect(res.status).toBe(502);
+    expect(res.status).toBe(422);
+    expect(body.code).toBe("MODEL_NO_QUICK_SUGGEST");
     expect(h.db.usageRecord.create).not.toHaveBeenCalled();
-    // Honest finish-reason=length signal in the message.
-    expect(body.error.toLowerCase()).toContain("cut off");
   });
 });
