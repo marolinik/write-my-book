@@ -6,6 +6,48 @@ tradeoff) or blocked on an environment the campaign cannot provision (API key / 
 server / live third-party). Listed so the founder can rule in one pass, after which
 the #47 re-judge runs.
 
+## FOUNDER RULINGS — 2026-07-20 (interview)
+- **A1 Gate-1 ≤150ms window → DOCUMENT THE FLOOR.** No code. Gate-1 reported as
+  "no total loss; ≤150ms tail on hard-kill within throttle." Strong-bar `it.fails`
+  kept as permanent characterization.
+- **A2 `location_conflict` (D-19b) → KEEP GATED (default OFF).** No code (already
+  OFF). #55 fix 8 resolved as "hold." Correctness-behind-gate proven (Gate-3); not
+  shipped on-by-default (precision-sensitive, FP risk).
+- **A3 D-25 series sidebar → INTENTIONAL (prior-book canon only).** No code. #55 fix
+  9 resolved. Document the scope split: sidebar = strictly-prior-book canon; the
+  current book's live state is the in-book continuity net's job.
+- **A4 residuals a–d → ALL PROMOTED TO FIX-NOW** (founder reversed the defer
+  recommendation): D-47 version/CAS on raw writes, fix-7d death-event model, D-89
+  alias-fold class-2, D-49/50 unquoted-strip guard. Dispatched as 3 Opus lanes
+  (D-47 · graph[fix-7d+D-89] · D-49/50), each TDD RED-first + Fable-verified +
+  STOP-and-report if a fix breaks a real writer flow. Each carries the flagged risk
+  (D-47 versionless-writer breakage, D-89 false-merge) → mitigated in-lane.
+  **LANDED 2026-07-20:** D-49/50 `679b628`, D-47 `3098e85` (+ e2e ripple the
+  verifier caught: 2 offline-autosave drills + 1 ui-flows seed relabeled
+  changeSource "system"), fix-7d+D-89 `add6645`. All Fable-verified
+  APPROVE/blocking=false. fix-7d took a REJECT→remediate cycle (ON MATCH FP-A
+  backfill hole on legacy-null Events) before its clean re-verify. #55 CLOSED.
+- **Re-judge → HOLD** until A4 lands + BLOCKED-ENV resolved.
+  A4 now landed; residue = the 3 BLOCKED-ENV runs (voice N≥100, extraction
+  recall, live e2e). Env provisioned (persona + harness BYOK seeded).
+
+## BLOCKED-ENV provisioning answer (founder asked "what key in .env")
+The writer/judge LLM key is **NOT an `.env` var** — the app is strict BYOK: every
+agent/line-edit call decrypts the signed-in user's *stored* key (`decryptApiKey`,
+`src/app/api/books/[id]/agent/route.ts:238`), never a platform fallback. Provision
+it **in the app**: run the dev server, sign in as the QA persona, Settings → API
+Keys, paste **one OpenRouter key** (`sk-or-…`) — routes Claude (judges) + qwen3.6
+(writer) + all providers via OpenRouter's Anthropic-compatible endpoint.
+`.env` vars that ARE needed:
+- `OPENAI_API_KEY=sk-…` — **required** for embeddings (`text-embedding-3-small`,
+  `src/lib/vector/embeddings.ts:23`) = the continuity-extraction recall leg. Absent →
+  indexing gated off, recall unmeasurable.
+- `ANTHROPIC_API_KEY=sk-ant-…` — **optional**, adds a stronger comparison arm to the
+  voice probe (labels `qwen36+anthropic` vs `openrouter-qwen36`).
+- Dev server on **:3002** — harness/e2e read `HARNESS_BASE_URL` / `PLAYWRIGHT_BASE_URL`.
+Minimal to unblock Gate-2 voice N≥100 + extraction recall + live e2e: (1) dev server
+on :3002, (2) `OPENAI_API_KEY` in `.env`, (3) one OpenRouter key in the persona's Settings.
+
 ---
 
 ## A. Product rulings (behavior tradeoffs — held, NOT flipped by QA)
