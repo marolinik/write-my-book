@@ -54,6 +54,13 @@ export async function PATCH(request: NextRequest) {
   } catch (error) {
     const invalidJson = invalidJsonBodyResponse(error);
     if (invalidJson) return invalidJson;
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if ((error as Error).message === "Unauthorized") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    console.error("PATCH /api/settings/language error:", error);
+    return NextResponse.json(
+      { error: "Failed to update language" },
+      { status: 500 }
+    );
   }
 }

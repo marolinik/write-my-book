@@ -178,10 +178,12 @@ export function OnboardingWizard() {
                 <ShieldCheckIcon className="size-5 text-primary" />
               </div>
               <div>
-                <p className="text-sm font-medium">Your Data Stays Private</p>
+                <p className="text-sm font-medium">Your Writing Stays Yours</p>
                 <p className="text-xs text-muted-foreground">
-                  Your manuscript goes directly to the AI provider. WMB never
-                  stores or processes your content on our servers.
+                  Your manuscript is stored encrypted at rest and sent only to
+                  the AI provider you connect. We never use your content to
+                  train AI models, and your API keys are encrypted &mdash; we
+                  never see them in plaintext.
                 </p>
               </div>
             </div>

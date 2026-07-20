@@ -7,9 +7,14 @@ import { db } from "@/lib/db";
  * Returns the current user's onboarding status and validated key count.
  */
 export async function GET() {
+  let user;
   try {
-    const user = await requireUser();
+    user = await requireUser();
+  } catch {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
+  try {
     const keyCount = await db.apiKey.count({
       where: { userId: user.id, validatedAt: { not: null } },
     });
@@ -18,8 +23,12 @@ export async function GET() {
       onboardingComplete: user.onboardingComplete,
       keyCount,
     });
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  } catch (error) {
+    console.error("GET /api/settings/onboarding error:", error);
+    return NextResponse.json(
+      { error: "Failed to load onboarding status" },
+      { status: 500 }
+    );
   }
 }
 
@@ -31,9 +40,14 @@ export async function GET() {
  * Sets the wmb_onboarded cookie for Edge middleware detection.
  */
 export async function POST() {
+  let user;
   try {
-    const user = await requireUser();
+    user = await requireUser();
+  } catch {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
+  try {
     // Mark onboarding complete in DB
     await db.user.update({
       where: { id: user.id },
@@ -50,7 +64,11 @@ export async function POST() {
     });
 
     return response;
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  } catch (error) {
+    console.error("POST /api/settings/onboarding error:", error);
+    return NextResponse.json(
+      { error: "Failed to complete onboarding" },
+      { status: 500 }
+    );
   }
 }

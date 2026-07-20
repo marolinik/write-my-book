@@ -13,9 +13,14 @@ import { aggregateUsageByProvider } from "@/lib/llm/usage-aggregation";
  * Returns all API keys for the authenticated user with per-provider usage stats.
  */
 export async function GET() {
+  let user;
   try {
-    const user = await requireUser();
+    user = await requireUser();
+  } catch {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
+  try {
     const keys = await db.apiKey.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: "desc" },
@@ -73,8 +78,12 @@ export async function GET() {
     }));
 
     return NextResponse.json(result);
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  } catch (error) {
+    console.error("GET /api/settings/api-keys error:", error);
+    return NextResponse.json(
+      { error: "Failed to load API keys" },
+      { status: 500 }
+    );
   }
 }
 
@@ -164,6 +173,13 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     const invalidJson = invalidJsonBodyResponse(error);
     if (invalidJson) return invalidJson;
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if ((error as Error).message === "Unauthorized") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    console.error("POST /api/settings/api-keys error:", error);
+    return NextResponse.json(
+      { error: "Failed to save API key" },
+      { status: 500 }
+    );
   }
 }

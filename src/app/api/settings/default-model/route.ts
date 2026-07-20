@@ -38,8 +38,14 @@ const ROLE_FIELDS = [
 // ── GET ────────────────────────────────────────────────────────
 
 export async function GET() {
+  let user;
   try {
-    const user = await requireUser();
+    user = await requireUser();
+  } catch {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
     const dbUser = await db.user.findUnique({
       where: { id: user.id },
       select: {
@@ -62,8 +68,12 @@ export async function GET() {
       modelCoach: dbUser?.modelCoach ?? null,
       modelCreative: dbUser?.modelCreative ?? null,
     });
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  } catch (error) {
+    console.error("GET /api/settings/default-model error:", error);
+    return NextResponse.json(
+      { error: "Failed to load default model" },
+      { status: 500 }
+    );
   }
 }
 
@@ -151,6 +161,13 @@ export async function PATCH(request: NextRequest) {
   } catch (error) {
     const invalidJson = invalidJsonBodyResponse(error);
     if (invalidJson) return invalidJson;
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if ((error as Error).message === "Unauthorized") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    console.error("PATCH /api/settings/default-model error:", error);
+    return NextResponse.json(
+      { error: "Failed to update default model" },
+      { status: 500 }
+    );
   }
 }

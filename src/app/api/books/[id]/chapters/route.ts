@@ -79,6 +79,16 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     }
     const zodRes = zodErrorResponse(error);
     if (zodRes) return zodRes;
+    // D-20: a duplicate chapterNumber (e.g. the auto-created placeholder
+    // Chapter 1) trips the @@unique([bookId, chapterNumber]) constraint, which
+    // Prisma raises as P2002. That is a client/conflict condition, not a server
+    // fault — return a clean 409, not a raw 500.
+    if ((error as { code?: string })?.code === "P2002") {
+      return NextResponse.json(
+        { error: "A chapter with that number already exists in this book" },
+        { status: 409 }
+      );
+    }
     console.error("POST /api/books/:id/chapters error:", error);
     return NextResponse.json(
       { error: "Failed to create chapter" },

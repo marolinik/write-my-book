@@ -6,8 +6,14 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ bookId: string }> }
 ) {
+  let user;
   try {
-    const user = await requireUser();
+    user = await requireUser();
+  } catch {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
     const { bookId } = await params;
 
     // Verify book ownership
@@ -82,7 +88,11 @@ export async function GET(
       embeddingCosts,
       embeddingTokens,
     });
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  } catch (error) {
+    console.error("GET /api/usage/books/:bookId error:", error);
+    return NextResponse.json(
+      { error: "Failed to load usage" },
+      { status: 500 }
+    );
   }
 }

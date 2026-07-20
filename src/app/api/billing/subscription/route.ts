@@ -44,9 +44,14 @@ function planFromPriceId(priceId: string): string | null {
 }
 
 export async function GET() {
+  let user;
   try {
-    const user = await requireUser();
+    user = await requireUser();
+  } catch {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
+  try {
     let sub = await db.subscription.findUnique({
       where: { userId: user.id },
     });
@@ -118,7 +123,11 @@ export async function GET() {
       currentPeriodEnd: sub?.currentPeriodEnd,
       freeTier,
     });
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  } catch (error) {
+    console.error("GET /api/billing/subscription error:", error);
+    return NextResponse.json(
+      { error: "Failed to load subscription" },
+      { status: 500 }
+    );
   }
 }
