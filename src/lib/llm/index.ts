@@ -47,9 +47,11 @@ export {
   type ResolvedModel,
   type BookModelSettings,
   type ConductorUserModelSettings,
+  type ConductorWorkflow,
   AGENT_ROLES,
   resolveModelForRole,
   resolveConductorModel,
+  resolveConductorModelForWorkflow,
   meetsMinimumTier,
   mapAgentTypeToRole,
 } from "./model-resolver";

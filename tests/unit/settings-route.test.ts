@@ -37,6 +37,7 @@ vi.mock("@/lib/billing/quota-checker", () => ({
 vi.mock("@/lib/llm", () => ({
   resolveModelForRole: vi.fn(),
   resolveConductorModel: vi.fn(),
+  resolveConductorModelForWorkflow: vi.fn(),
   meetsMinimumTier: vi.fn(),
   mapAgentTypeToRole: vi.fn(),
   resolveProviderRoute: vi.fn(),

@@ -36,6 +36,7 @@ const h = vi.hoisted(() => ({
   // @/lib/llm seam
   resolveModelForRole: vi.fn(),
   resolveConductorModel: vi.fn(),
+  resolveConductorModelForWorkflow: vi.fn(),
   meetsMinimumTier: vi.fn(),
   mapAgentTypeToRole: vi.fn(),
   resolveProviderRoute: vi.fn(),
@@ -77,6 +78,7 @@ vi.mock("@/lib/billing/free-tier-meters", () => ({
 vi.mock("@/lib/llm", () => ({
   resolveModelForRole: (...a: unknown[]) => h.resolveModelForRole(...a),
   resolveConductorModel: (...a: unknown[]) => h.resolveConductorModel(...a),
+  resolveConductorModelForWorkflow: (...a: unknown[]) => h.resolveConductorModelForWorkflow(...a),
   meetsMinimumTier: (...a: unknown[]) => h.meetsMinimumTier(...a),
   mapAgentTypeToRole: (...a: unknown[]) => h.mapAgentTypeToRole(...a),
   resolveProviderRoute: (...a: unknown[]) => h.resolveProviderRoute(...a),
@@ -159,6 +161,10 @@ beforeEach(() => {
     modelDef: { provider: "anthropic", modelId: "claude-sonnet", tier: "flagship", displayName: "Sonnet" },
   });
   h.resolveConductorModel.mockReturnValue({
+    registryId: "anthropic/sonnet",
+    modelDef: { provider: "anthropic", modelId: "claude-sonnet" },
+  });
+  h.resolveConductorModelForWorkflow.mockReturnValue({
     registryId: "anthropic/sonnet",
     modelDef: { provider: "anthropic", modelId: "claude-sonnet" },
   });

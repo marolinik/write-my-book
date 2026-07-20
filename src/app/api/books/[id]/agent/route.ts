@@ -8,7 +8,7 @@ import { checkQuota } from "@/lib/billing/quota-checker";
 import { checkConcurrencyFence } from "@/lib/billing/free-tier-meters";
 import {
   resolveModelForRole,
-  resolveConductorModel,
+  resolveConductorModelForWorkflow,
   meetsMinimumTier,
   mapAgentTypeToRole,
   resolveProviderRoute,
@@ -196,12 +196,17 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       userDefault
     );
 
-    // Resolve the Coach conductor honestly via the same 4-level chain the
-    // specialists use (book-role → book-default → global-role → global-default).
-    // This honors the user's coach-role choice instead of forcing sonnet; the
-    // resolved model's provider decides which API key the routing below requires.
-    // Terminal fallback (anthropic/sonnet) is baked into resolveConductorModel.
-    const coachResolved = resolveConductorModel(bookModelSettings, {
+    // Resolve the conductor model via the same 4-level chain the specialists
+    // use (book-role → book-default → global-role → global-default). For a
+    // conversational chat this is the Coach role; for a non-conversational job
+    // (line-edit, dev-edit, …) it is the workflow's PRIMARY-agent role, so the
+    // per-role override the UI advertises (e.g. modelEditor for a line-edit)
+    // actually governs the model the run executes and bills on — instead of the
+    // job silently running on the coach/default model (D-43). Users with no
+    // per-role override are unaffected: both roles fall through to the shared
+    // book-default → global-default levels. Terminal fallback (anthropic/sonnet)
+    // is baked into the resolver.
+    const coachResolved = resolveConductorModelForWorkflow(workflow, bookModelSettings, {
       defaultModel: dbUser?.defaultModel ?? null,
       modelGhostwriter: dbUser?.modelGhostwriter ?? null,
       modelEditor: dbUser?.modelEditor ?? null,
