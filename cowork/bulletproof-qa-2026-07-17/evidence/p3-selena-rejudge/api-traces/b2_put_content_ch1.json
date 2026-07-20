@@ -1,0 +1,26 @@
+{
+  "capturedAt": "2026-07-20T02:17:28.297Z",
+  "request": {
+    "method": "PUT",
+    "url": "/api/books/af01d68f-6f04-4bfc-aab3-76ec700fc0c1/chapters/9c2a274b-978c-4c86-99ed-4900bbedb0df/content",
+    "actingAs": "user_qa_p3",
+    "headers": {
+      "content-type": "application/json",
+      "x-e2e-test-secret": "***MASKED***",
+      "x-e2e-clerk-id": "user_qa_p3"
+    },
+    "body": {
+      "markdown": "Chapter One — The Ashfall Years\n\nA generation after the Broken Pact, Kira Venn ruled the Ashfall Realm alone from Highfort. She was older now, and the crown weighed on her. The Ashen Legion was long scattered, its warlord Dorn Kappel dead these many years. Kira Venn walked the black ramparts at dawn and remembered the friends and enemies of the Emberfall days.",
+      "changeSource": "user"
+    }
+  },
+  "response": {
+    "status": 200,
+    "latencyMs": 381,
+    "body": {
+      "wordCount": 63,
+      "version": 1,
+      "bookWordCount": 63
+    }
+  }
+}

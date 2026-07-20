@@ -1,0 +1,90 @@
+{
+  "capturedAt": "2026-07-20T02:30:35.202Z",
+  "p3Id": "3f4836f4-083e-4011-9bb5-bec2a6714eb6",
+  "defaultModel": "openrouter-qwen36/sonnet",
+  "keyProviders": [
+    "openrouterApiKey"
+  ],
+  "results": [
+    {
+      "label": "book1",
+      "bookId": "a77359eb-6587-4bf0-b72d-65e0ae027e64",
+      "chapter": 1,
+      "ms": 153344,
+      "envelope": {
+        "updated": true,
+        "entitiesFound": 13
+      }
+    },
+    {
+      "label": "book1",
+      "bookId": "a77359eb-6587-4bf0-b72d-65e0ae027e64",
+      "chapter": 2,
+      "ms": 42071,
+      "envelope": {
+        "updated": true,
+        "entitiesFound": 11
+      }
+    },
+    {
+      "label": "book1",
+      "bookId": "a77359eb-6587-4bf0-b72d-65e0ae027e64",
+      "chapter": 3,
+      "ms": 45228,
+      "envelope": {
+        "updated": true,
+        "entitiesFound": 13
+      }
+    },
+    {
+      "label": "book1",
+      "bookId": "a77359eb-6587-4bf0-b72d-65e0ae027e64",
+      "chapter": 4,
+      "ms": 62619,
+      "envelope": {
+        "updated": true,
+        "entitiesFound": 10
+      }
+    },
+    {
+      "label": "book1",
+      "bookId": "a77359eb-6587-4bf0-b72d-65e0ae027e64",
+      "chapter": 5,
+      "ms": 104483,
+      "envelope": {
+        "updated": true,
+        "entitiesFound": 6
+      }
+    },
+    {
+      "label": "book1",
+      "bookId": "a77359eb-6587-4bf0-b72d-65e0ae027e64",
+      "chapter": 6,
+      "ms": 159003,
+      "envelope": {
+        "updated": true,
+        "entitiesFound": 7
+      }
+    },
+    {
+      "label": "book2",
+      "bookId": "af01d68f-6f04-4bfc-aab3-76ec700fc0c1",
+      "chapter": 1,
+      "ms": 40068,
+      "envelope": {
+        "updated": true,
+        "entitiesFound": 10
+      }
+    },
+    {
+      "label": "book2",
+      "bookId": "af01d68f-6f04-4bfc-aab3-76ec700fc0c1",
+      "chapter": 2,
+      "ms": 75692,
+      "envelope": {
+        "updated": true,
+        "entitiesFound": 15
+      }
+    }
+  ]
+}

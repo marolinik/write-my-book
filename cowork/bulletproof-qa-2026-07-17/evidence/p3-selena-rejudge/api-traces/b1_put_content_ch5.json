@@ -1,0 +1,26 @@
+{
+  "capturedAt": "2026-07-20T02:18:15.266Z",
+  "request": {
+    "method": "PUT",
+    "url": "/api/books/a77359eb-6587-4bf0-b72d-65e0ae027e64/chapters/72597e69-d3a3-445d-b25b-d0638c2c8f68/content",
+    "actingAs": "user_qa_p3",
+    "headers": {
+      "content-type": "application/json",
+      "x-e2e-test-secret": "***MASKED***",
+      "x-e2e-clerk-id": "user_qa_p3"
+    },
+    "body": {
+      "markdown": "Chapter Five — The Broken Pact\n\nIn the war council at Highfort, the Emberfall Pact came apart. Kira Venn and Vael Thorne were still sworn allies, bound by the old oath — allied in name before the whole council, friends who had bled together. Yet in that same council, in that very hour, Vael Thorne drew his blade against Kira Venn and openly opposed her. Vael Thorne opposed Kira Venn; Vael Thorne now stood against Kira Venn as her enemy. The hall watched allies become enemies at once: Kira Venn and Vael Thorne, allied and opposed in the same breath.",
+      "changeSource": "user"
+    }
+  },
+  "response": {
+    "status": 200,
+    "latencyMs": 164,
+    "body": {
+      "wordCount": 100,
+      "version": 1,
+      "bookWordCount": 517
+    }
+  }
+}

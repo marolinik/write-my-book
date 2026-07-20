@@ -1,0 +1,26 @@
+{
+  "capturedAt": "2026-07-20T02:17:25.865Z",
+  "request": {
+    "method": "PUT",
+    "url": "/api/books/a77359eb-6587-4bf0-b72d-65e0ae027e64/chapters/3cb77c45-b03f-4da2-ae1a-6b34e5350301/content",
+    "actingAs": "user_qa_p3",
+    "headers": {
+      "content-type": "application/json",
+      "x-e2e-test-secret": "***MASKED***",
+      "x-e2e-clerk-id": "user_qa_p3"
+    },
+    "body": {
+      "markdown": "Chapter One — The Emberfall Pact\n\nKira Venn stood on the black ramparts of Highfort, the great fortress-city of the Ashfall Realm. Beside her waited Vael Thorne, the swordsman who had sworn the Emberfall Pact with her three winters past. \"We are allies,\" Kira Venn said. \"Bound by oath.\" Vael Thorne nodded; Kira Venn and Vael Thorne were allied, shield to shield, sworn friends of the Pact.\n\nBelow them in the harbor district of Saltmarket, the cartographer Zoë Rasmussen unrolled her charts. The crew simply called her Zoë. She had mapped every road from Highfort to the distant Cinder Ward.\n\nDorn Kappel, the iron warlord, watched from the far tower. Dorn Kappel commanded the Ashen Legion. He had known Kira Venn since the old wars. The Great Fire of Highfort — the blaze that first forged the realm in the earliest days — was still remembered by all of them that night.",
+      "changeSource": "user"
+    }
+  },
+  "response": {
+    "status": 200,
+    "latencyMs": 1600,
+    "body": {
+      "wordCount": 152,
+      "version": 1,
+      "bookWordCount": 152
+    }
+  }
+}

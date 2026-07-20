@@ -1,0 +1,23 @@
+=== (1) D-27 ALIAS-UNION INVARIANT — controlled input to real upsertEntities ===
+book=89bb1ad4-b4a0-4cf0-8969-f7728d489113
+  after ch1 emit ["Zoë","the Cartographer"] -> ["Zoë","the Cartographer"]
+  after ch2 emit ["Zoe"]                     -> ["Zoë","the Cartographer","Zoe"]
+  after ch3 emit ["Zoë"] (subset)            -> ["Zoë","the Cartographer","Zoe"]
+  VERDICT: PASS — all variants UNIONed on one node, none dropped by later subset write
+
+=== (2) location_conflict GATE (founder-ruled OFF by default) ===
+book=6836d4ca-8b1e-46d4-bb0d-c35782750d76 (seeded: Kira at Salt Docks AND Cinder Ward, both PART_OF Ashfall Realm, same ch8)
+  env default (unset): location_conflict count = 0 (expect 0 — GATE OFF)
+  env flipped (=true): location_conflict count = 1 (expect >=1 — correctness behind gate)
+     -> Character "Kira Venn" is at "Salt Docks" (Unloading grain at the Salt Docks) and "Cinder Ward" (Raid on the Cinder Ward) in the same chapter 8.
+  VERDICT: PASS — OFF by default; fires only when explicitly enabled (founder ruling honored, check correct behind gate)
+
+=== (3) D-28/D-31 FAILURE HONESTY — failed extraction is signaled, no silent green ===
+book=d590667b-3aeb-4707-a20a-7259fc4ac076
+  updateFromChapter (empty keys) envelope: {"updated":false,"entitiesFound":0,"failed":true,"suspiciousEmpty":true,"failureKind":"failed","failureReason":"No API key available for entity extraction. Add a key in Settings > API Keys.","attempts":1}
+  contentHash stamped after failure? NO (null) — next scan will retry (correct)
+  entity nodes written: Character=0 Event=0 (expect 0 — no fabricated/partial graph)
+  VERDICT: PASS — failure is HONEST: failed=true, no hash stamp, no fabricated data, prior graph intact
+  NOTE: this exercises the HARD-FAILURE class (D-73/D-28). The suspicious-empty subclass (D-31: model runs, yields nothing on substantive prose) was NOT triggered in this run — every real qwen3.6 extraction yielded entities+relationships (positive evidence the pipeline populates).
+
+captured: 2026-07-20T02:48:37.768Z

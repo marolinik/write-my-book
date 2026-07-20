@@ -1,0 +1,26 @@
+{
+  "capturedAt": "2026-07-20T02:38:05.023Z",
+  "request": {
+    "method": "PUT",
+    "url": "/api/books/a77359eb-6587-4bf0-b72d-65e0ae027e64/chapters/be9b3d80-f3a5-4d22-b6ec-095ae81cc1f4/content",
+    "actingAs": "user_qa_p3",
+    "headers": {
+      "content-type": "application/json",
+      "x-e2e-test-secret": "***MASKED***",
+      "x-e2e-clerk-id": "user_qa_p3"
+    },
+    "body": {
+      "markdown": "Chapter Seven — Blades Drawn Again\n\nOnce more in the halls of Highfort, Vael Thorne turned against Kira Venn. Vael Thorne opposed Kira Venn openly; Vael Thorne stood against Kira Venn as her sworn enemy in the ruin of the Pact. Kira Venn and Vael Thorne drew blades against one another, enemies now in truth. Vael Thorne opposes Kira Venn.",
+      "changeSource": "user"
+    }
+  },
+  "response": {
+    "status": 200,
+    "latencyMs": 347,
+    "body": {
+      "wordCount": 60,
+      "version": 1,
+      "bookWordCount": 667
+    }
+  }
+}

@@ -1,0 +1,57 @@
+=== GRAPH STATE — BOOK 1 (Emberfall) (bookId=a77359eb-6587-4bf0-b72d-65e0ae027e64) ===
+captured: 2026-07-20T02:37:01.269Z
+
+--- CHARACTERS (5) ---
+  Dorn Kappel | status=dead deathChapter=2 role=supporting aliases=["the iron warlord"] first=1 last=4 userId=3f4836f4-083e-4011-9bb5-bec2a6714eb6
+  Kira Venn | status=alive deathChapter=null role=protagonist aliases=null first=1 last=6 userId=3f4836f4-083e-4011-9bb5-bec2a6714eb6
+  Vael Thorne | status=alive deathChapter=null role=supporting aliases=null first=1 last=5 userId=3f4836f4-083e-4011-9bb5-bec2a6714eb6
+  Zoe Rasmussen | status=alive deathChapter=null role=supporting aliases=["Zoe"] first=3 last=3 userId=3f4836f4-083e-4011-9bb5-bec2a6714eb6
+  Zoë Rasmussen | status=alive deathChapter=null role=supporting aliases=["Zoë"] first=1 last=1 userId=3f4836f4-083e-4011-9bb5-bec2a6714eb6
+
+--- EVENTS (15) [D-19: chapter/occursInChapter must be non-null] ---
+  "The Emberfall Pact" | chapter=1 occursInChapter=1 canon="Emberfall Pact" type= deathOf=
+  "The Great Fire of Highfort" | chapter=1 occursInChapter=1 canon="Great Fire of Highfort" type= deathOf=
+  "The Old Wars" | chapter=1 occursInChapter=1 canon="Old Wars" type= deathOf=
+  "Burning of Dorn Kappel's Body" | chapter=2 occursInChapter=2 canon="Burning of Dorn Kappel's Body" type= deathOf=
+  "Death of Dorn Kappel" | chapter=2 occursInChapter=2 canon="Death of Dorn Kappel" type=death deathOf=Dorn Kappel
+  "Duels on the Bridge of Ash" | chapter=2 occursInChapter=2 canon="Duels on the Bridge of Ash" type= deathOf=
+  "Cooling of the Bridge of Ash" | chapter=3 occursInChapter=3 canon="Cooling of the Bridge of Ash" type= deathOf=
+  "Studying the charts" | chapter=3 occursInChapter=3 canon="Studying the charts" type= deathOf=
+  "Training recruits" | chapter=3 occursInChapter=3 canon="Training recruits" type= deathOf=
+  "Zoe's return from Cinder Ward" | chapter=3 occursInChapter=3 canon="Zoe's return from Cinder Ward" type= deathOf=
+  "Dorn Kappel's Death" | chapter=4 occursInChapter=4 canon="Dorn Kappel's Death" type= deathOf=
+  "Dorn Kappel's Return" | chapter=4 occursInChapter=4 canon="Dorn Kappel's Return" type= deathOf=
+  "Siege of the Great Hall" | chapter=4 occursInChapter=4 canon="Siege of the Great Hall" type= deathOf=
+  "The War Council" | chapter=5 occursInChapter=5 canon="War Council" type= deathOf=
+  "Ritual of Emberfall" | chapter=6 occursInChapter=6 canon="Ritual of Emberfall" type= deathOf=
+
+--- DEAD CHARACTERS + their PARTICIPATES_IN events (dead_character_reappears mechanics) ---
+  Dorn Kappel (deathChapter=2):
+      participates in "The Old Wars" chapter=1 occursInChapter=1 effective=1
+      participates in "Burning of Dorn Kappel's Body" chapter=2 occursInChapter=2 effective=2
+      participates in "Death of Dorn Kappel" chapter=2 occursInChapter=2 effective=2
+      participates in "Duels on the Bridge of Ash" chapter=2 occursInChapter=2 effective=2
+      participates in "Siege of the Great Hall" chapter=4 occursInChapter=4 effective=4  <-- POST-DEATH PARTICIPATION (should FIRE)
+      participates in "Dorn Kappel's Death" chapter=4 occursInChapter=4 effective=4  <-- POST-DEATH PARTICIPATION (should FIRE)
+      participates in "Dorn Kappel's Return" chapter=4 occursInChapter=4 effective=4  <-- POST-DEATH PARTICIPATION (should FIRE)
+
+--- DIES_IN death-anchor reification (sub-fix 7d) ---
+  Dorn Kappel -DIES_IN-> "Death of Dorn Kappel" (eventChapter=2 occurs=2 edge.chapter=2)
+
+--- ALLIED_WITH / OPPOSES edges (relationship_contradiction mechanics; needs same pair+same chapter) ---
+  Kira Venn -[OPPOSES ch=4]- Dorn Kappel
+  Kira Venn -[ALLIED_WITH ch=5]- Vael Thorne
+  Kira Venn -[OPPOSES ch=5]- Vael Thorne
+
+--- LEADS_TO edges (timeline_violation mechanics; fires when later.occurs > earlier.occurs) ---
+  "Ritual of Emberfall"(ch=6/occ=6) -LEADS_TO-> "The Great Fire of Highfort"(ch=1/occ=1)  <-- SOURCE occurs AFTER TARGET (should FIRE)
+  "Duels on the Bridge of Ash"(ch=2/occ=2) -LEADS_TO-> "Death of Dorn Kappel"(ch=2/occ=2)
+  "Death of Dorn Kappel"(ch=2/occ=2) -LEADS_TO-> "Burning of Dorn Kappel's Body"(ch=2/occ=2)
+
+=== runConsistencyChecks(bookId, P3) → 3 issue(s) [PRODUCT CODE] ===
+  [critical] timeline_violation: Event "Ritual of Emberfall" (chapter 6) is marked as leading to "The Great Fire of Highfort" (chapter 1), but it occurs later in the story.
+      entities=["Ritual of Emberfall","The Great Fire of Highfort"] chapters=[1,6]
+  [critical] dead_character_reappears: Character "Dorn Kappel" dies in chapter 2 but participates in events in chapters 4.
+      entities=["Dorn Kappel"] chapters=[2,4]
+  [major] relationship_contradiction: Characters "Kira Venn" and "Vael Thorne" are marked as both ALLIED_WITH and OPPOSES each other in chapter 5.
+      entities=["Kira Venn","Vael Thorne"] chapters=[5]

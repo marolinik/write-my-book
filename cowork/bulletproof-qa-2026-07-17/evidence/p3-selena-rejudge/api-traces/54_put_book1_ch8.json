@@ -1,0 +1,26 @@
+{
+  "capturedAt": "2026-07-20T02:43:13.456Z",
+  "request": {
+    "method": "PUT",
+    "url": "/api/books/a77359eb-6587-4bf0-b72d-65e0ae027e64/chapters/7c971e5a-5236-4a10-82da-4b20d93301b7/content",
+    "actingAs": "user_qa_p3",
+    "headers": {
+      "content-type": "application/json",
+      "x-e2e-test-secret": "***MASKED***",
+      "x-e2e-clerk-id": "user_qa_p3"
+    },
+    "body": {
+      "markdown": "Chapter Eight — Allied and Opposed\n\nIn the final reckoning at Highfort, Kira Venn and Vael Thorne stood allied and opposed at the very same hour. By the old oath Kira Venn and Vael Thorne were still allies, bound and allied before the court; yet in that same hour Vael Thorne opposed Kira Venn and stood against her as an enemy. Kira Venn and Vael Thorne were allied and opposed in one and the same moment — allies who opposed each other.",
+      "changeSource": "user"
+    }
+  },
+  "response": {
+    "status": 200,
+    "latencyMs": 459,
+    "body": {
+      "wordCount": 82,
+      "version": 1,
+      "bookWordCount": 749
+    }
+  }
+}

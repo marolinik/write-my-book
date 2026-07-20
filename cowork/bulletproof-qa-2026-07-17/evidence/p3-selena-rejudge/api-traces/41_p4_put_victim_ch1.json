@@ -1,0 +1,26 @@
+{
+  "capturedAt": "2026-07-20T02:37:34.461Z",
+  "request": {
+    "method": "PUT",
+    "url": "/api/books/f48441dc-2b2f-41b2-9d43-d8c866901b58/chapters/0211e6c2-a7f4-4c10-8e43-77a50692380f/content",
+    "actingAs": "user_qa_p4",
+    "headers": {
+      "content-type": "application/json",
+      "x-e2e-test-secret": "***MASKED***",
+      "x-e2e-clerk-id": "user_qa_p4"
+    },
+    "body": {
+      "markdown": "Chapter One — The Northern Accord\n\nIn the northern hold of Frostmere, Kira Venn and Vael Thorne stood together as the closest of allies. Kira Venn and Vael Thorne were allied, sworn friends bound by the Northern Accord. Vael Thorne pledged his sword to Kira Venn; the two were allies in all things, shoulder to shoulder against the long northern cold. There was no quarrel between Kira Venn and Vael Thorne — only the Accord.",
+      "changeSource": "user"
+    }
+  },
+  "response": {
+    "status": 200,
+    "latencyMs": 198,
+    "body": {
+      "wordCount": 75,
+      "version": 1,
+      "bookWordCount": 75
+    }
+  }
+}

@@ -1,0 +1,19 @@
+=== relationship_contradiction — LIVE HTTP PERSIST after ch5 re-extract ===
+captured: 2026-07-20T02:46:41.667Z
+
+ch5 re-extraction envelope: {"updated":true,"entitiesFound":7}
+
+--- ALLIED/OPPOSES edges ---
+  Kira Venn -[OPPOSES ch=4]- Dorn Kappel
+  Kira Venn -[ALLIED_WITH ch=5]- Vael Thorne
+  Kira Venn -[OPPOSES ch=7]- Vael Thorne
+  Kira Venn -[OPPOSES ch=5]- Vael Thorne
+
+POST /continuity/scan?chapterNumber=5 → 3 flags
+
+--- Postgres ACTIVE ContinuityFlag rows (3) ---
+  [critical] dead_character_reappears ch4: Character "Dorn Kappel" dies in chapter 2 but participates in events in chapters 4.
+  [major] relationship_contradiction ch0: Characters "Kira Venn" and "Vael Thorne" are marked as both ALLIED_WITH and OPPOSES each other in chapter 5.
+  [critical] timeline_violation ch6: Event "Ritual of Emberfall" (chapter 6) is marked as leading to "The Great Fire of Highfort" (chapter 1), but it occurs later in the story.
+
+Active flag types persisted via live HTTP path: ["dead_character_reappears","relationship_contradiction","timeline_violation"]

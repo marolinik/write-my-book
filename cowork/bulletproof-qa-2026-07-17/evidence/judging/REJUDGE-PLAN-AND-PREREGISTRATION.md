@@ -60,3 +60,16 @@ honesty/money themes moved, and name the new binding floor.
    recompute MIN. Never fold a stale verdict (rule 7).
 
 Status: pre-registration committed; P3 re-capture dispatched.
+
+---
+
+## RESULTS (appended as they land — do NOT edit the pre-registration above)
+
+### P3 "Selena" — DONE 2026-07-20 → **6.5** (was 3.0)
+Fresh bundle `evidence/p3-selena-rejudge/`, blind 3-judge panel (func/exp/trust) → **UNANIMOUS 6.5** (MIN-over-floors). Off the 3.0 floor exactly as pre-registered (band 5–7). Aggregate: `evidence/judging/P3-REJUDGE-AGGREGATE.md`; raw verdicts `p3-{functionality,experience,trust}-rejudge.md`.
+- Confirmed CLOSED: D-19 (checks fire on real qwen3.6), D-30 tenant isolation (D7=8.0, raw before/after), D-28 fail-honesty; ZERO fired false positives (D8 8.5-cap does not bind).
+- Panel-surfaced NEW defects (executor missed): **D-90** hallucinated-death over-inference (MEDIUM, latent-FP), **D-91** relationship_contradiction ch0/null-anchor (LOW-MED). → `fix-reviews/D-90-D-91-panel-surfaced.md`, follow-up track (non-binding on 6.5).
+- P3 floor drivers = capture-gaps (D3/D6 NO-EVIDENCE — no UI captured), D5 dev-perf 6–7s cold reads, D9/D10 no flag-resolution lifecycle, D8 stochastic recall + max-signal-prose-only. Lifting P3→9.5 needs product work, not more closed-defect work.
+
+### P4 Priya / P5 Sam — re-captures dispatched 2026-07-20 (in flight).
+### P6 Owen / P8 Rita / P1 Maya / P7 Bao — held until MIN-candidates (P3/P4/P5) judged.

@@ -1,0 +1,26 @@
+{
+  "capturedAt": "2026-07-20T02:18:15.005Z",
+  "request": {
+    "method": "PUT",
+    "url": "/api/books/a77359eb-6587-4bf0-b72d-65e0ae027e64/chapters/f2ddb516-e747-4d9c-a787-edb42ffe30ae/content",
+    "actingAs": "user_qa_p3",
+    "headers": {
+      "content-type": "application/json",
+      "x-e2e-test-secret": "***MASKED***",
+      "x-e2e-clerk-id": "user_qa_p3"
+    },
+    "body": {
+      "markdown": "Chapter Four — The Dead Warlord Walks\n\nAt the fourth moon, the impossible came to pass. Dorn Kappel strode into the great hall of Highfort, his axe in hand — though every soul present knew Dorn Kappel had died upon the Bridge of Ash two dawns before. Dorn Kappel raised his weapon and attacked Kira Venn. The warlord fought like a living man, roaring across the hall. Dorn Kappel shattered the pillars and drove Kira Venn back. Kira Venn faced the dead warlord in the Siege of the Great Hall, blade against axe.",
+      "changeSource": "user"
+    }
+  },
+  "response": {
+    "status": 200,
+    "latencyMs": 133,
+    "body": {
+      "wordCount": 93,
+      "version": 1,
+      "bookWordCount": 417
+    }
+  }
+}

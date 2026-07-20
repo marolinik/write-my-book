@@ -1,0 +1,44 @@
+{
+  "capturedAt": "2026-07-20T02:17:24.263Z",
+  "request": {
+    "method": "POST",
+    "url": "/api/books",
+    "actingAs": "user_qa_p3",
+    "headers": {
+      "content-type": "application/json",
+      "x-e2e-test-secret": "***MASKED***",
+      "x-e2e-clerk-id": "user_qa_p3"
+    },
+    "body": {
+      "name": "Ashfall — Book II [RJ0720]",
+      "seriesId": "0e11c5c1-e9ee-4736-a214-40dc1576c1b3",
+      "bookNumber": 2,
+      "genre": "fantasy"
+    }
+  },
+  "response": {
+    "status": 201,
+    "latencyMs": 193,
+    "body": {
+      "id": "af01d68f-6f04-4bfc-aab3-76ec700fc0c1",
+      "userId": "3f4836f4-083e-4011-9bb5-bec2a6714eb6",
+      "seriesId": "0e11c5c1-e9ee-4736-a214-40dc1576c1b3",
+      "bookNumber": 2,
+      "name": "Ashfall — Book II [RJ0720]",
+      "genre": "fantasy",
+      "language": "en",
+      "status": "concept",
+      "description": null,
+      "marketingKit": null,
+      "authorNotes": null,
+      "wordCount": 0,
+      "targetWordCount": null,
+      "chapterCount": 0,
+      "s3Prefix": "3f4836f4-083e-4011-9bb5-bec2a6714eb6/0e11c5c1-e9ee-4736-a214-40dc1576c1b3/books/book-02",
+      "createdAt": "2026-07-20T02:17:24.172Z",
+      "updatedAt": "2026-07-20T02:17:24.183Z",
+      "archivedAt": null,
+      "firstChapterId": "9c2a274b-978c-4c86-99ed-4900bbedb0df"
+    }
+  }
+}

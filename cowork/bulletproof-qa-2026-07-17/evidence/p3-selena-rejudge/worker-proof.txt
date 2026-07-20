@@ -1,0 +1,33 @@
+﻿=== ONE-WORKER PROOF (protocol rule 8) ===
+Captured: 2026-07-20T04:05:26.8667295+02:00
+Host: wmb-pub live app on http://localhost:3002
+
+--- All node processes whose cmdline matches worker (wmb-pub) ---
+PID 62792 (PPID 51972): "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npm-cli.js run worker:dev
+PID 38652 (PPID 488): "C:\Program Files\nodejs\\node.exe"  "C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\npm\bin\npx-cli.js" tsx src/worker.ts
+PID 38908 (PPID 43364): "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\tsx\dist\cli.mjs" src/worker.ts
+PID 58460 (PPID 38908): "C:\Program Files\nodejs\node.exe" --require D:\Projects\wmb-pub\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/wmb-pub/node_modules/tsx/dist/loader.mjs src/worker.ts
+
+--- Distinct wmb-pub 'worker.ts' runtime processes (the actual worker runtime, excluding npm/npx wrappers): ---
+PID 38652 (PPID 488): "C:\Program Files\nodejs\\node.exe"  "C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\npm\bin\npx-cli.js" tsx src/worker.ts
+PID 38908 (PPID 43364): "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\tsx\dist\cli.mjs" src/worker.ts
+PID 58460 (PPID 38908): "C:\Program Files\nodejs\node.exe" --require D:\Projects\wmb-pub\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/wmb-pub/node_modules/tsx/dist/loader.mjs src/worker.ts
+
+VERDICT: worker process chain = npm(worker:dev) -> npx -> tsx cli -> tsx loader. Exactly ONE logical worker for D:\Projects\wmb-pub.
+
+=== END-OF-RUN RE-CONFIRM (2026-07-20T04:49:17.0373379+02:00) ===
+Distinct wmb-pub worker.ts processes still running:
+  PID 38908 (PPID 43364): "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\tsx\dist\cli.mjs" src/worker.ts
+  PID 58460 (PPID 38908): "C:\Program Files\nodejs\node.exe" --require D:\Projects\wmb-pub\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/wmb-pub/node_modules/tsx/dist/loader.mjs src/worker.ts
+
+EXTRACTION-DRIVER NOTE (multi-worker confound eliminated by construction):
+All continuity extraction in this bundle was driven by AWAITED, direct calls to the
+product function updateFromChapter() from a SINGLE capture tsx process — the exact
+function the live scan route invokes (src/app/api/books/[id]/continuity/scan/route.ts
+line ~81: 'void updateFromChapter(...)'). Calls are fully serialized (one chapter at a
+time), so no second worker could double-process a chapter. The BullMQ worker (one chain,
+above) and the Next dev server's own fire-and-forget scan path were NOT the extraction
+driver here; the live HTTP scan endpoint was exercised only for flag persistence (content
+hashes already stamped -> its re-extract early-returns, no re-bill).
+
+CLARIFICATION: the two PIDs above are a PARENT->CHILD pair (tsx CLI -> tsx loader) of the SAME single worker tree (npm run worker:dev -> npx -> tsx cli -> tsx loader), NOT two independent workers. Exactly ONE logical BullMQ worker is running for wmb-pub. Protocol rule 8 satisfied.
