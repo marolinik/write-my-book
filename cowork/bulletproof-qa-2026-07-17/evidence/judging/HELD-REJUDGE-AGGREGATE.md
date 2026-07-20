@@ -80,12 +80,37 @@ persona grade = lowest aggregated dim. Raw verdict tables: `held-rejudge-fable-r
   artifact), markdown export leg never exercised, no kill-mid-save probe, 51K words
   is "modest scale", wordCount drift +145 unexplained.
 
+## P2 "Gerald" (data-integrity/two-tab) — **6.0** (was 5.0 stale-carry, +1.0) — floors **D4/D8/D10/D11**
+
+| dim | D1 | D2 | D3 | D4 | D5 | D7 | D8 | D10 | D11 |
+|---|---|---|---|---|---|---|---|---|---|
+| agg | 6.5 | 6.5 | 6.5 | **6.0** | 6.5 | 6.5 | **6.0** | **6.0** | **6.0** |
+
+Judged 2026-07-20 (fresh capture `p2-gerald-rejudge`, Fable 3-panel: FUNC 6.5 /
+UX 6.0 / TRUST 5.5). Rule-7 debt cleared — no stale carries remain on the board.
+
+- CLOSED live: **D-16** (unique constraint present + P2002-verified; 6-way race →
+  exactly 1 row; CAS storm 1×200/9×409; read-your-writes 10/10) and **D-01**
+  (malformed JSON → 400 envelope on 3 routes, no leak). Onboarding PARTIAL:
+  382 ms time-to-first-word measured live, key-free on-ramp confirmed at API
+  layer (caveat: pre-onboarded account, not fresh funnel).
+- NEW: **D-115** (S3) deleted-chapter prose resurrection — CHAPTER_CONTENT keyed
+  by book+type+chapterNumber survives chapter delete; new chapter reusing the
+  number GETs deleted prose verbatim; first save blocked by phantom 409 leaking
+  it. Live instance of deferred D-22.
+- Judge corrections: "no silently-lost clean-200 write" overstated (stampless
+  first-save window = last-write-wins at head, recoverable via version rows
+  only); "NOT billed" on ghost-text 502 is script annotation, not ledger-read;
+  D8 rests on n=1 inline-edit sample.
+- D-100 hit P2's first AI touch too (ghost-text 502 on seeded default) —
+  cross-persona confirmation of the platform-MIN binder.
+
 ## Full 8-persona board (post-re-judge)
 
 | Persona | Baseline 07-19 | Now | Certification | Floor |
 |---|---|---|---|---|
 | P1 Maya | 5.5 | **6.0** | Fable 3-panel | D3b |
-| P2 Jamal | 5.0 | **5.0 (carry)** | ⚠ NOT re-judged — onboarding dims stale per rule 7 | D4-family |
+| P2 Gerald | 5.0 | **6.0** | Fable 3-panel (fresh capture 07-20) | D4/D8/D10/D11 |
 | P3 Selena | 3.0 | **6.5** | Fable 3-panel (unanimous) | capture-gaps/D5 |
 | P4 Priya | 4.0 | **~5.5** | v2 delta re-agg (panel-certifiable on request) | D3b/D8 |
 | P5 Sam | 4.0 | **~4.5–5.0** | v2 delta re-agg | D11 via D-100 |
@@ -93,8 +118,9 @@ persona grade = lowest aggregated dim. Raw verdict tables: `held-rejudge-fable-r
 | P7 Bao | 5.0 | **7.0** | Fable 3-panel | D3/D10 |
 | P8 Rita | 5.5 | **6.5** | Fable 3-panel | D5 |
 
-**Platform MIN ≈ 4.5–5.0 (P5, bounded by open D-100)**; next-lowest P2 5.0 (stale
-baseline carry — P2 re-judge is the remaining rule-7 debt). Baseline platform MIN 3.0
+**Platform MIN ≈ 4.5–5.0 (P5, bounded by D-100 — fix lane in flight per founder
+ruling 2026-07-20)**; every other persona now ≥5.5 with fresh Fable-certified
+verdicts. No stale carries remain (P2 re-judged 07-20). Baseline platform MIN 3.0
 is gone; every re-judged persona moved up (+0.5 to +3.5).
 
 **Cross-panel calibration:** the opus panel (same bundles) landed within ±0.5 of Fable

@@ -1,7 +1,20 @@
-# D-102..D-114 — held-persona re-judge surfaced defects (2026-07-20)
+# D-102..D-115 — held-persona re-judge surfaced defects (2026-07-20)
 
 Source: fresh P6/P8/P1/P7 captures (`b64644a`) + blind Fable panels
-(`judging/held-rejudge-fable-raw.md`). IDs assigned by team-lead. Next free: **D-115**.
+(`judging/held-rejudge-fable-raw.md`); D-115 from the P2 re-capture
+(`p2-gerald-rejudge`). IDs assigned by team-lead. Next free: **D-116**.
+
+## Fix-wave status (2026-07-20, opus executors + Fable verifiers)
+- **FIXED + Fable-APPROVED:** D-104, D-105 (first CONFIRMED live by read-only
+  verify — originalText 3 sentences vs newText 2, apply would have deleted the
+  tin plot beat), D-107, D-110, D-112, D-113. D-43 FIXED, approved after
+  mustFix round (stale `vi.mock("@/lib/llm")` in 2 guard suites).
+- **BLOCKED (founder call):** D-106 — safe fix needs `FindingReply.structured
+  Json?` column + coordinated 4-file change (dismiss handler, GET,
+  computeConversationView all re-parse stored content; stripping it breaks the
+  validated "tell it once" loop). Parked as design memo in POLISH lane notes.
+- **PARKED (design):** D-108 (fingerprint regeneration), D-109 (discuss
+  streaming/async), D-102, D-103, D-111, D-114.
 
 | ID | Sev | Persona | Summary | Evidence |
 |---|---|---|---|---|
@@ -18,6 +31,7 @@ Source: fresh P6/P8/P1/P7 captures (`b64644a`) + blind Fable panels
 | D-112 | S4 | P8 | `GET /api/series/{id}/books` → 405 with zero-length body — only non-enveloped response in the sweep (D-15 class) | p8-rita-rejudge (K2) |
 | D-113 | S3 | P1 | Dev Edit Report persists factual errors into a user-facing doc: "~570 words" (real 704, byte-verified) and "Edit Date: 2025" (real 2026) | p1-maya-rejudge (session 5574be0f report) |
 | D-114 | S3 | P1 | Finding b92055ea flags "has changed" as tense clash inside a deliberate generic-present aphorism; suggested "had changed" breaks the frame — mild voice-flattening, not caught/withheld (D8 ≤8.0 cap trigger) | p1-maya-rejudge/api-traces/03_findings-state.json |
+| D-115 | S3 | P2 | Deleted-chapter prose resurrects: CHAPTER_CONTENT keyed by book_id+type+chapter_number (not chapterId) survives chapter delete; new chapter reusing that number GETs deleted prose verbatim (with wordCount:0 inconsistency) and its first save hits phantom 409 version_conflict whose serverContent leaks the deleted text. Live instance of deferred D-22 root cause | p2-gerald-rejudge/api-traces/25-orphan-resurrect.txt |
 
 ## Carried STILL-OPEN (pre-existing IDs, re-confirmed live this round)
 - **D-43** (S2, P6 — new P6 binding-constraint candidate): editor-model override never

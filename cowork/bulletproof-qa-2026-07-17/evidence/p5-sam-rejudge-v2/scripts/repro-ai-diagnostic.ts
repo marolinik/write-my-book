@@ -34,7 +34,7 @@ async function main() {
         system: "Continue this fiction prose in the author's voice; at most one sentence. Respond with ONLY the continuation text.",
         messages: [{ role: "user", content: "Sam opened the notebook and began to write. The words came" }],
       });
-      const blocks = (r.content as Array<Record<string, unknown>>).map((b) => ({
+      const blocks = (r.content as unknown as Array<Record<string, unknown>>).map((b) => ({
         type: b.type,
         textLen: typeof b.text === "string" ? (b.text as string).length : undefined,
         textSample: typeof b.text === "string" ? (b.text as string).slice(0, 200) : undefined,
