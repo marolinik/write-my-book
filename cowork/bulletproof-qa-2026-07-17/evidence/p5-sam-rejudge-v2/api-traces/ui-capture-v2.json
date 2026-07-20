@@ -1,0 +1,28 @@
+{
+  "onboardingPrivacy": {
+    "hasWritingStaysYours": true,
+    "hasEncryptedAtRest": true,
+    "hasNeverTrain": true,
+    "hasOldFalseClaim": false,
+    "props": {
+      "Bring Your Own Keys": "Bring Your Own Keys\n\nWMB uses your own AI provider API keys. You connect directly to providers like Anthropic, OpenAI, or OpenRouter.",
+      "Your Writing Stays Yours": "Your Writing Stays Yours\n\nYour manuscript is stored encrypted at rest and sent only to the AI provider you connect. We never use your content to train AI models, and your API keys are encrypted — we never see them in plaintext.",
+      "Full Cost Control": "Full Cost Control\n\nYou pay providers directly at their rates. No markup, no surprise bills. Use budget models for drafts, premium for final edits."
+    }
+  },
+  "billingPage": {
+    "bodyTextSample": "Command Palette\n\nSearch for a command to run...\n\nSettings\n/\nBilling\nToggle theme\nUsage & Billing\n\nChoose your plan and track your AI token usage\n\nMonthly\nAnnual\nLimited -- Founder's Price\nFounder\n$19/mo\n0 of 200 claimed\n200 left\nUnlimited books\nAll 14 agents & workflows\nSeries management\nAdvanced analytics\nStandard export\nLocked-in $19/mo forever\nUpgrade\n14-day free trial\nIndie Author\n$49/mo\n2 active books\nAll 14 agents & workflows\nStandard export\n\nNo credit card required\n\nUpgrade\nMost Popular\nProfessional\n$99/mo\nUnlimited books\nAll 14 agents & workflows\nSeries management\nAdvanced analytics\nStandard export\nUpgrade\nPublisher\n$499/mo\nUnlimited books\nAll 14 agents & workflows\nSeries management\nAdvanced analytics\nPriority support\nMulti-user seats (Coming Soon)\nAPI access (Coming Soon)\nWhite-label export (Coming Soon)\nUpgrade\n\nEnterprise\n\nNeed custom seats, API access, or white-label export? Let's talk.\n\nContact Us\n\nBYOK -- Bring Your Own Key\n\nYour subscription covers the WriteMyBook platform. You bring your own AI API keys (Anthropic, OpenRouter, OpenAI, etc.) for LLM costs. This means you pay actual provider rates with zero markup.\n\nYour Key Savings\nBy using your own API keys, you mai",
+    "hasError": false
+  },
+  "editor": {
+    "hasChapterOne": true,
+    "hasSamProse": true,
+    "wordCountVisible": "32 words"
+  },
+  "liveGhostTextFromEditor": {
+    "status": 500,
+    "json": {
+      "error": "Failed to generate suggestion"
+    }
+  }
+}

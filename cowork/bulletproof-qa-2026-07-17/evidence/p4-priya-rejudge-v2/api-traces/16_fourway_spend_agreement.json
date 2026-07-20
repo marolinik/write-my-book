@@ -1,0 +1,47 @@
+{
+  "batchId": "cmrt0ciip0003x40frsokcea2",
+  "batchRun_spentUsd": 0.03306791999999999,
+  "digest_spentUsd": null,
+  "db_actualCostUsd_sum": 0.03306791999999999,
+  "notification_title": null,
+  "notification_message": null,
+  "notification_parsed_spend": null,
+  "per_session": [
+    {
+      "id": "18b50474-ba33-415c-8b86-c07e85237398",
+      "status": "completed",
+      "chapterNumber": 1,
+      "actualCostUsd": 0.03306791999999999
+    },
+    {
+      "id": "588cdf05-dfad-4f23-ba11-f313c9816999",
+      "status": "running",
+      "chapterNumber": 2,
+      "actualCostUsd": null
+    },
+    {
+      "id": "d5a73650-9173-43da-aebf-e4f787ab6414",
+      "status": "running",
+      "chapterNumber": 3,
+      "actualCostUsd": null
+    }
+  ],
+  "fourway_agreement": {
+    "all_present": false,
+    "nonzero": true,
+    "batchRun_eq_digest": false,
+    "db_eq_batchRun_exact": true,
+    "notif_eq_batchRun_2dp": false
+  },
+  "halted": false,
+  "haltReason": null,
+  "passes": null,
+  "findings_total": null,
+  "startedAt_terminal": "2026-07-20T09:13:56.184Z",
+  "midrun_observed": {
+    "saw_running_gt0": true,
+    "saw_status_running": true,
+    "saw_nonterminal_spend_gt0": true,
+    "saw_nonterminal_startedAt": true
+  }
+}

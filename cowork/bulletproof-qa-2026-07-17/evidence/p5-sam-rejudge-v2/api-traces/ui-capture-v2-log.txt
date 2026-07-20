@@ -1,0 +1,5 @@
+[D-95] WritingStaysYours=true encryptedAtRest=true neverTrain=true OLD_FALSE_CLAIM=false
+[D-92 billing UI] hasError=false
+[editor] book overview captured
+[editor] chapter editor: samProse=true wordCount=32 words
+[editor] LIVE ghost-text fetch -> 500 {"error":"Failed to generate suggestion"}

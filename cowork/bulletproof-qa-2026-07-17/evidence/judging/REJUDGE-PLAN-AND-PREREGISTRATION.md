@@ -89,4 +89,13 @@ Fresh bundle `evidence/p4-priya-rejudge/`, blind 3-judge panel → 3.5 / 4.0 / 5
 
 ### Env: dev `db:push` applied 2026-07-20 (D-92a) — DB now in sync with committed schema (additive, no data loss).
 
-### P6 Owen / P8 Rita / P1 Maya / P7 Bao — held until MIN-candidates (P3/P4/P5) judged.
+### v2 CONFIRM-THE-LIFT (founder ruled "prove the lift, then pause") — DONE 2026-07-20
+Server + worker restarted on current code + Prisma client (`free_tier_usage` synced).
+- **P4-v2** (`evidence/p4-priya-rejudge-v2/`): D-96 (live poll honest — running>0/status="running"/spentUsd>0/startedAt mid-run), D-98 (halted notification honest), D-20 (chapter→409) ALL **CONFIRMED-LIVE**; terminal 4-way spend NOT regressed ($0.148133655); no new defects. → P4 ≈ **5.5** (D5 floor 4.0→~7; new floor D3b/D8).
+- **P5-v2** (`evidence/p5-sam-rejudge-v2/`): D-95 privacy copy + Free-cap 403 (driven) + export-ungated + billing→**200** (post-restart, re-verified) **CONFIRMED-LIVE**; trust floor D2/D7 3.5→~6.5. NEW floor **D-100 (S2)**: reasoning-model default (qwen3.6-27b) returns only thinking blocks at ghost-text budgets → 502, AI first-taste broken. → P5 ≈ **4.5–5.0** (floor now D11 via D-100).
+- v2 numbers = team-lead rule-7 DELTA re-aggregation (lift confirmed dims over v1 panel, carry rest); fresh v2 3-panels can certify if wanted.
+- New IDs: D-99 (stale server, RESOLVED), D-100 (AI-taste, OPEN — binding floor), D-101 (DEV_AUTH_BYPASS, dev-only). Register: `fix-reviews/D-99-D-100-D-101-p5v2.md`. Next free **D-102**.
+
+**PAUSE-FOR-REVIEW: `evidence/judging/PAUSE-REVIEW-2026-07-20.md`** — new MIN ~4.5–5.0 (3.0 floor gone); systemic "truth-at-rest / lie-in-the-live-moment" pattern; open decisions (D-100 fix approach, re-judge P6/P8/P1/P7, certify v2, D-90/91, multi-cycle strategy).
+
+### P6 Owen / P8 Rita / P1 Maya / P7 Bao — STILL HELD (founder pause after MIN-candidates).

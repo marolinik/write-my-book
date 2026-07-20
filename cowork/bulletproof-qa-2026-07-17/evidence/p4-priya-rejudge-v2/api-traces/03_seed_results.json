@@ -1,0 +1,29 @@
+[
+  {
+    "chapter": 1,
+    "action": "put-content",
+    "status": 200
+  },
+  {
+    "chapter": 2,
+    "action": "create",
+    "status": 201,
+    "id": "ca9162bc-1061-4394-981a-b7f96a45fce1"
+  },
+  {
+    "chapter": 2,
+    "action": "put-content",
+    "status": 200
+  },
+  {
+    "chapter": 3,
+    "action": "create",
+    "status": 201,
+    "id": "ecf18b26-9d14-43fd-a6a9-87dc6137100a"
+  },
+  {
+    "chapter": 3,
+    "action": "put-content",
+    "status": 200
+  }
+]

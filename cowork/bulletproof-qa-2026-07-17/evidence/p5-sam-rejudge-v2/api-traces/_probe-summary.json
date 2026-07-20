@@ -1,0 +1,85 @@
+{
+  "bookId": "35ff1112-52af-4001-a0f4-ec83f4dad9b0",
+  "chapterId": "10334dac-e7d2-4a56-92fb-594e9567304f",
+  "bookCountStart": 1,
+  "results": [
+    {
+      "label": "01-books-list",
+      "status": 200,
+      "ms": 126,
+      "err": null
+    },
+    {
+      "label": "02-subscription-get",
+      "status": 500,
+      "ms": 168,
+      "err": null
+    },
+    {
+      "label": "02b-usage-get",
+      "status": 200,
+      "ms": 298,
+      "err": null
+    },
+    {
+      "label": "10-create-2nd-book-cap-403",
+      "status": 403,
+      "ms": 49,
+      "err": null
+    },
+    {
+      "label": "20-export-existing-book",
+      "status": 200,
+      "ms": 5409,
+      "err": null
+    },
+    {
+      "label": "20b-export-list",
+      "status": 200,
+      "ms": 59,
+      "err": null
+    },
+    {
+      "label": "30-noauth-subscription-401",
+      "status": 500,
+      "ms": 125,
+      "err": null
+    },
+    {
+      "label": "31-noauth-books-list-401",
+      "status": 200,
+      "ms": 59,
+      "err": null
+    },
+    {
+      "label": "32-noauth-create-book-401",
+      "status": 403,
+      "ms": 37,
+      "err": null
+    },
+    {
+      "label": "33-badsecret-subscription-401",
+      "status": 500,
+      "ms": 115,
+      "err": null
+    },
+    {
+      "label": "40-ghost-text-free",
+      "status": 500,
+      "ms": 101,
+      "err": null
+    },
+    {
+      "label": "41-inline-edit-free",
+      "status": 500,
+      "ms": 111,
+      "err": null
+    },
+    {
+      "label": "42-subscription-after-ai",
+      "status": 500,
+      "ms": 183,
+      "err": null
+    }
+  ]
+}

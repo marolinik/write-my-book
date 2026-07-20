@@ -1,0 +1,14 @@
+{
+  "method": "POST",
+  "path": "/api/books/5da13dc3-a6a5-4150-a287-daa386666562/batch",
+  "status": 201,
+  "ok": true,
+  "latencyMs": 948,
+  "wallClockUtc": "2026-07-20T09:27:55.862Z",
+  "json": {
+    "batchId": "cmrt0uiys0004x40f2rk12v7r",
+    "childCount": 3,
+    "scheduledFor": null
+  },
+  "text": null
+}

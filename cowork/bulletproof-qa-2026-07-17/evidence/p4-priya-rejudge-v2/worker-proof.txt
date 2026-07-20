@@ -1,0 +1,23 @@
+﻿ONE-WORKER PROOF - P4 Priya re-judge v2 (captured immediately before healthy batch measurement)
+UTC: 2026-07-20T09:13:05Z
+
+Rule (GRADING-PROTOCOL section 8): exactly ONE leaf worker process draining src/worker.ts at capture time.
+The worker was just restarted to serve the new D-96/D-98/D-20 code, so there is exactly one.
+
+=== wmb-pub launch chain matching 'worker.ts' ===
+PID 28224  PPID 63044  [tsx cli launcher]
+    "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\tsx\dist\cli.mjs" src/worker.ts
+PID 31644  PPID 30280  [npm run worker:dev -> npx launcher]
+    "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npx-cli.js tsx src/worker.ts
+PID 61892  PPID 28224  [LEAF (real worker: BullMQ consumer)]
+    "C:\Program Files\nodejs\node.exe" --require D:\Projects\wmb-pub\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/wmb-pub/node_modules/tsx/dist/loader.mjs src/worker.ts
+PID 63044  PPID 31644  [cmd.exe wrapper (npx on Windows)]
+    C:\Windows\system32\cmd.exe /d /s /c tsx src/worker.ts
+
+LEAF WORKER COUNT (wmb-pub, preflight loader executing src/worker.ts): 1
+LEAF PID(s): 61892
+
+Note: the non-leaf PIDs are the single launch chain (npm run worker:dev -> npx -> cmd.exe -> tsx cli)
+that spawned the single leaf; they are NOT BullMQ consumers. A separate leaf for project
+D:\Projects\waggle-os may exist on this machine but is a DIFFERENT project, excluded by the 'wmb-pub' path filter.
+VERDICT: PASS

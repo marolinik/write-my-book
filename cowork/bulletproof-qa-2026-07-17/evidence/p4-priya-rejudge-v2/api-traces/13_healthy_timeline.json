@@ -1,0 +1,5072 @@
+{
+  "batchId": "cmrt0ciip0003x40frsokcea2",
+  "pollIntervalMs": 1500,
+  "polls": [
+    {
+      "t_s": 0.97,
+      "wallClockUtc": "2026-07-20T09:13:56.261Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 2.56,
+      "wallClockUtc": "2026-07-20T09:13:58.741Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 4.19,
+      "wallClockUtc": "2026-07-20T09:14:00.335Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 5.76,
+      "wallClockUtc": "2026-07-20T09:14:01.960Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 7.33,
+      "wallClockUtc": "2026-07-20T09:14:03.534Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 8.9,
+      "wallClockUtc": "2026-07-20T09:14:05.102Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 10.63,
+      "wallClockUtc": "2026-07-20T09:14:06.672Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 12.22,
+      "wallClockUtc": "2026-07-20T09:14:08.402Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 13.85,
+      "wallClockUtc": "2026-07-20T09:14:09.984Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 15.41,
+      "wallClockUtc": "2026-07-20T09:14:11.609Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 17.05,
+      "wallClockUtc": "2026-07-20T09:14:13.187Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 18.6,
+      "wallClockUtc": "2026-07-20T09:14:14.818Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 20.16,
+      "wallClockUtc": "2026-07-20T09:14:16.368Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 21.73,
+      "wallClockUtc": "2026-07-20T09:14:17.928Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 23.32,
+      "wallClockUtc": "2026-07-20T09:14:19.500Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 24.98,
+      "wallClockUtc": "2026-07-20T09:14:21.098Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 26.78,
+      "wallClockUtc": "2026-07-20T09:14:22.746Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 28.36,
+      "wallClockUtc": "2026-07-20T09:14:24.552Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 29.91,
+      "wallClockUtc": "2026-07-20T09:14:26.130Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 31.49,
+      "wallClockUtc": "2026-07-20T09:14:27.682Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 33.06,
+      "wallClockUtc": "2026-07-20T09:14:29.259Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 34.61,
+      "wallClockUtc": "2026-07-20T09:14:30.831Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 36.19,
+      "wallClockUtc": "2026-07-20T09:14:32.387Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 37.98,
+      "wallClockUtc": "2026-07-20T09:14:33.956Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 39.54,
+      "wallClockUtc": "2026-07-20T09:14:35.751Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 41.1,
+      "wallClockUtc": "2026-07-20T09:14:37.307Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 42.69,
+      "wallClockUtc": "2026-07-20T09:14:38.870Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 44.24,
+      "wallClockUtc": "2026-07-20T09:14:40.449Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 45.84,
+      "wallClockUtc": "2026-07-20T09:14:42.002Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 47.42,
+      "wallClockUtc": "2026-07-20T09:14:43.615Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 49,
+      "wallClockUtc": "2026-07-20T09:14:45.191Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 50.57,
+      "wallClockUtc": "2026-07-20T09:14:46.777Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 52.13,
+      "wallClockUtc": "2026-07-20T09:14:48.342Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 53.76,
+      "wallClockUtc": "2026-07-20T09:14:49.894Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 55.34,
+      "wallClockUtc": "2026-07-20T09:14:51.534Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 56.9,
+      "wallClockUtc": "2026-07-20T09:14:53.112Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 58.45,
+      "wallClockUtc": "2026-07-20T09:14:54.672Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 60.01,
+      "wallClockUtc": "2026-07-20T09:14:56.220Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 61.61,
+      "wallClockUtc": "2026-07-20T09:14:57.789Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 63.21,
+      "wallClockUtc": "2026-07-20T09:14:59.386Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 64.76,
+      "wallClockUtc": "2026-07-20T09:15:00.975Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 66.36,
+      "wallClockUtc": "2026-07-20T09:15:02.536Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 67.93,
+      "wallClockUtc": "2026-07-20T09:15:04.122Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 69.5,
+      "wallClockUtc": "2026-07-20T09:15:05.708Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 71.14,
+      "wallClockUtc": "2026-07-20T09:15:07.268Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 72.81,
+      "wallClockUtc": "2026-07-20T09:15:08.913Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 74.68,
+      "wallClockUtc": "2026-07-20T09:15:10.575Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 76.26,
+      "wallClockUtc": "2026-07-20T09:15:12.451Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 78.05,
+      "wallClockUtc": "2026-07-20T09:15:14.031Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 79.64,
+      "wallClockUtc": "2026-07-20T09:15:15.816Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 81.22,
+      "wallClockUtc": "2026-07-20T09:15:17.413Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 82.78,
+      "wallClockUtc": "2026-07-20T09:15:18.984Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 84.34,
+      "wallClockUtc": "2026-07-20T09:15:20.549Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 86.08,
+      "wallClockUtc": "2026-07-20T09:15:22.124Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 87.8,
+      "wallClockUtc": "2026-07-20T09:15:23.858Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 89.47,
+      "wallClockUtc": "2026-07-20T09:15:25.566Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 91.15,
+      "wallClockUtc": "2026-07-20T09:15:27.245Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 92.86,
+      "wallClockUtc": "2026-07-20T09:15:28.928Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 95.01,
+      "wallClockUtc": "2026-07-20T09:15:30.640Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 96.93,
+      "wallClockUtc": "2026-07-20T09:15:32.785Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 98.76,
+      "wallClockUtc": "2026-07-20T09:15:34.703Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 100.36,
+      "wallClockUtc": "2026-07-20T09:15:36.538Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 101.92,
+      "wallClockUtc": "2026-07-20T09:15:38.119Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 103.49,
+      "wallClockUtc": "2026-07-20T09:15:39.690Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 105.08,
+      "wallClockUtc": "2026-07-20T09:15:41.261Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 106.65,
+      "wallClockUtc": "2026-07-20T09:15:42.847Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 108.45,
+      "wallClockUtc": "2026-07-20T09:15:44.424Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 110.28,
+      "wallClockUtc": "2026-07-20T09:15:46.223Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 111.98,
+      "wallClockUtc": "2026-07-20T09:15:48.052Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 113.54,
+      "wallClockUtc": "2026-07-20T09:15:49.753Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 115.27,
+      "wallClockUtc": "2026-07-20T09:15:51.312Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 116.82,
+      "wallClockUtc": "2026-07-20T09:15:53.041Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 118.39,
+      "wallClockUtc": "2026-07-20T09:15:54.594Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 119.96,
+      "wallClockUtc": "2026-07-20T09:15:56.167Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 121.53,
+      "wallClockUtc": "2026-07-20T09:15:57.726Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 123.16,
+      "wallClockUtc": "2026-07-20T09:15:59.304Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 124.79,
+      "wallClockUtc": "2026-07-20T09:16:00.925Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 126.36,
+      "wallClockUtc": "2026-07-20T09:16:02.565Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 127.93,
+      "wallClockUtc": "2026-07-20T09:16:04.131Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 129.5,
+      "wallClockUtc": "2026-07-20T09:16:05.698Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 131.09,
+      "wallClockUtc": "2026-07-20T09:16:07.265Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 132.69,
+      "wallClockUtc": "2026-07-20T09:16:08.857Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 134.36,
+      "wallClockUtc": "2026-07-20T09:16:10.469Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 135.94,
+      "wallClockUtc": "2026-07-20T09:16:12.133Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 137.49,
+      "wallClockUtc": "2026-07-20T09:16:13.702Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 139.05,
+      "wallClockUtc": "2026-07-20T09:16:15.261Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 140.6,
+      "wallClockUtc": "2026-07-20T09:16:16.817Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 142.15,
+      "wallClockUtc": "2026-07-20T09:16:18.371Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 143.71,
+      "wallClockUtc": "2026-07-20T09:16:19.918Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 145.26,
+      "wallClockUtc": "2026-07-20T09:16:21.481Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 146.82,
+      "wallClockUtc": "2026-07-20T09:16:23.035Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 148.38,
+      "wallClockUtc": "2026-07-20T09:16:24.593Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 149.93,
+      "wallClockUtc": "2026-07-20T09:16:26.146Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 151.54,
+      "wallClockUtc": "2026-07-20T09:16:27.702Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 153.14,
+      "wallClockUtc": "2026-07-20T09:16:29.308Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 154.69,
+      "wallClockUtc": "2026-07-20T09:16:30.903Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 156.25,
+      "wallClockUtc": "2026-07-20T09:16:32.461Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 157.81,
+      "wallClockUtc": "2026-07-20T09:16:34.016Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 159.62,
+      "wallClockUtc": "2026-07-20T09:16:35.577Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 161.2,
+      "wallClockUtc": "2026-07-20T09:16:37.386Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 162.77,
+      "wallClockUtc": "2026-07-20T09:16:38.976Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 164.44,
+      "wallClockUtc": "2026-07-20T09:16:40.543Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 166.06,
+      "wallClockUtc": "2026-07-20T09:16:42.218Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 167.64,
+      "wallClockUtc": "2026-07-20T09:16:43.834Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 169.2,
+      "wallClockUtc": "2026-07-20T09:16:45.419Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 170.75,
+      "wallClockUtc": "2026-07-20T09:16:46.971Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 172.32,
+      "wallClockUtc": "2026-07-20T09:16:48.528Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 173.94,
+      "wallClockUtc": "2026-07-20T09:16:50.100Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 175.53,
+      "wallClockUtc": "2026-07-20T09:16:51.709Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 177.08,
+      "wallClockUtc": "2026-07-20T09:16:53.288Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 178.67,
+      "wallClockUtc": "2026-07-20T09:16:54.848Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 180.24,
+      "wallClockUtc": "2026-07-20T09:16:56.434Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 181.81,
+      "wallClockUtc": "2026-07-20T09:16:58.003Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 183.41,
+      "wallClockUtc": "2026-07-20T09:16:59.573Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 184.99,
+      "wallClockUtc": "2026-07-20T09:17:01.183Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 186.6,
+      "wallClockUtc": "2026-07-20T09:17:02.762Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 188.16,
+      "wallClockUtc": "2026-07-20T09:17:04.366Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 189.7,
+      "wallClockUtc": "2026-07-20T09:17:05.920Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 191.46,
+      "wallClockUtc": "2026-07-20T09:17:07.479Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 193.04,
+      "wallClockUtc": "2026-07-20T09:17:09.236Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 194.59,
+      "wallClockUtc": "2026-07-20T09:17:10.807Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 196.17,
+      "wallClockUtc": "2026-07-20T09:17:12.365Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 197.72,
+      "wallClockUtc": "2026-07-20T09:17:13.929Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 199.28,
+      "wallClockUtc": "2026-07-20T09:17:15.479Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 201.1,
+      "wallClockUtc": "2026-07-20T09:17:17.045Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 202.73,
+      "wallClockUtc": "2026-07-20T09:17:18.877Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 204.35,
+      "wallClockUtc": "2026-07-20T09:17:20.498Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 205.93,
+      "wallClockUtc": "2026-07-20T09:17:22.119Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 207.5,
+      "wallClockUtc": "2026-07-20T09:17:23.699Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 209.25,
+      "wallClockUtc": "2026-07-20T09:17:25.279Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 211.02,
+      "wallClockUtc": "2026-07-20T09:17:27.024Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 212.6,
+      "wallClockUtc": "2026-07-20T09:17:28.780Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 214.26,
+      "wallClockUtc": "2026-07-20T09:17:30.370Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 215.82,
+      "wallClockUtc": "2026-07-20T09:17:32.037Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 217.38,
+      "wallClockUtc": "2026-07-20T09:17:33.581Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 218.95,
+      "wallClockUtc": "2026-07-20T09:17:35.150Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 220.52,
+      "wallClockUtc": "2026-07-20T09:17:36.725Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 222.08,
+      "wallClockUtc": "2026-07-20T09:17:38.282Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 223.73,
+      "wallClockUtc": "2026-07-20T09:17:39.850Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 225.28,
+      "wallClockUtc": "2026-07-20T09:17:41.493Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 226.84,
+      "wallClockUtc": "2026-07-20T09:17:43.048Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 228.42,
+      "wallClockUtc": "2026-07-20T09:17:44.611Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 230,
+      "wallClockUtc": "2026-07-20T09:17:46.189Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 231.55,
+      "wallClockUtc": "2026-07-20T09:17:47.766Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 233.13,
+      "wallClockUtc": "2026-07-20T09:17:49.320Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 234.71,
+      "wallClockUtc": "2026-07-20T09:17:50.906Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 236.26,
+      "wallClockUtc": "2026-07-20T09:17:52.476Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 237.9,
+      "wallClockUtc": "2026-07-20T09:17:54.035Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 239.45,
+      "wallClockUtc": "2026-07-20T09:17:55.669Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 241.02,
+      "wallClockUtc": "2026-07-20T09:17:57.210Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 242.8,
+      "wallClockUtc": "2026-07-20T09:17:58.791Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 244.41,
+      "wallClockUtc": "2026-07-20T09:18:00.559Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 246.04,
+      "wallClockUtc": "2026-07-20T09:18:02.183Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 247.73,
+      "wallClockUtc": "2026-07-20T09:18:03.812Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 249.37,
+      "wallClockUtc": "2026-07-20T09:18:05.508Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 250.94,
+      "wallClockUtc": "2026-07-20T09:18:07.141Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 252.8,
+      "wallClockUtc": "2026-07-20T09:18:08.709Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 254.4,
+      "wallClockUtc": "2026-07-20T09:18:10.567Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 256.05,
+      "wallClockUtc": "2026-07-20T09:18:12.177Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 257.61,
+      "wallClockUtc": "2026-07-20T09:18:13.817Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 259.17,
+      "wallClockUtc": "2026-07-20T09:18:15.372Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 260.75,
+      "wallClockUtc": "2026-07-20T09:18:16.945Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 262.32,
+      "wallClockUtc": "2026-07-20T09:18:18.518Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 263.99,
+      "wallClockUtc": "2026-07-20T09:18:20.085Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 265.56,
+      "wallClockUtc": "2026-07-20T09:18:21.755Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 267.18,
+      "wallClockUtc": "2026-07-20T09:18:23.328Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 268.76,
+      "wallClockUtc": "2026-07-20T09:18:24.949Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 270.32,
+      "wallClockUtc": "2026-07-20T09:18:26.518Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 271.91,
+      "wallClockUtc": "2026-07-20T09:18:28.093Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 273.58,
+      "wallClockUtc": "2026-07-20T09:18:29.690Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 275.19,
+      "wallClockUtc": "2026-07-20T09:18:31.360Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 276.77,
+      "wallClockUtc": "2026-07-20T09:18:32.963Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 278.44,
+      "wallClockUtc": "2026-07-20T09:18:34.541Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 280.01,
+      "wallClockUtc": "2026-07-20T09:18:36.215Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 281.57,
+      "wallClockUtc": "2026-07-20T09:18:37.781Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 283.21,
+      "wallClockUtc": "2026-07-20T09:18:39.338Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 284.77,
+      "wallClockUtc": "2026-07-20T09:18:40.987Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 286.34,
+      "wallClockUtc": "2026-07-20T09:18:42.536Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 287.92,
+      "wallClockUtc": "2026-07-20T09:18:44.109Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 289.66,
+      "wallClockUtc": "2026-07-20T09:18:45.693Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 291.22,
+      "wallClockUtc": "2026-07-20T09:18:47.438Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 292.8,
+      "wallClockUtc": "2026-07-20T09:18:48.994Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 294.45,
+      "wallClockUtc": "2026-07-20T09:18:50.568Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 296.02,
+      "wallClockUtc": "2026-07-20T09:18:52.227Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 297.82,
+      "wallClockUtc": "2026-07-20T09:18:53.800Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 299.38,
+      "wallClockUtc": "2026-07-20T09:18:55.590Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 300.95,
+      "wallClockUtc": "2026-07-20T09:18:57.150Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 302.5,
+      "wallClockUtc": "2026-07-20T09:18:58.722Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 304.12,
+      "wallClockUtc": "2026-07-20T09:19:00.269Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 305.67,
+      "wallClockUtc": "2026-07-20T09:19:01.881Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 307.24,
+      "wallClockUtc": "2026-07-20T09:19:03.432Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 308.79,
+      "wallClockUtc": "2026-07-20T09:19:05.006Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 310.35,
+      "wallClockUtc": "2026-07-20T09:19:06.562Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 311.93,
+      "wallClockUtc": "2026-07-20T09:19:08.116Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 313.55,
+      "wallClockUtc": "2026-07-20T09:19:09.696Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 315.12,
+      "wallClockUtc": "2026-07-20T09:19:11.318Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 316.9,
+      "wallClockUtc": "2026-07-20T09:19:12.888Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 318.46,
+      "wallClockUtc": "2026-07-20T09:19:14.661Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 320.02,
+      "wallClockUtc": "2026-07-20T09:19:16.228Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 321.59,
+      "wallClockUtc": "2026-07-20T09:19:17.789Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 323.19,
+      "wallClockUtc": "2026-07-20T09:19:19.364Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 324.77,
+      "wallClockUtc": "2026-07-20T09:19:20.966Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 326.36,
+      "wallClockUtc": "2026-07-20T09:19:22.548Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 327.94,
+      "wallClockUtc": "2026-07-20T09:19:24.134Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 329.7,
+      "wallClockUtc": "2026-07-20T09:19:25.706Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 331.29,
+      "wallClockUtc": "2026-07-20T09:19:27.465Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 332.86,
+      "wallClockUtc": "2026-07-20T09:19:29.054Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 334.56,
+      "wallClockUtc": "2026-07-20T09:19:30.627Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 336.15,
+      "wallClockUtc": "2026-07-20T09:19:32.327Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 337.83,
+      "wallClockUtc": "2026-07-20T09:19:33.926Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 339.64,
+      "wallClockUtc": "2026-07-20T09:19:35.601Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 341.21,
+      "wallClockUtc": "2026-07-20T09:19:37.408Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 342.77,
+      "wallClockUtc": "2026-07-20T09:19:38.974Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 344.4,
+      "wallClockUtc": "2026-07-20T09:19:40.543Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 345.97,
+      "wallClockUtc": "2026-07-20T09:19:42.163Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 347.55,
+      "wallClockUtc": "2026-07-20T09:19:43.740Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 349.12,
+      "wallClockUtc": "2026-07-20T09:19:45.317Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 350.67,
+      "wallClockUtc": "2026-07-20T09:19:46.886Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 352.24,
+      "wallClockUtc": "2026-07-20T09:19:48.435Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 353.84,
+      "wallClockUtc": "2026-07-20T09:19:50.016Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 355.4,
+      "wallClockUtc": "2026-07-20T09:19:51.603Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 356.97,
+      "wallClockUtc": "2026-07-20T09:19:53.171Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 358.52,
+      "wallClockUtc": "2026-07-20T09:19:54.731Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 360.24,
+      "wallClockUtc": "2026-07-20T09:19:56.289Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 361.79,
+      "wallClockUtc": "2026-07-20T09:19:58.000Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 363.38,
+      "wallClockUtc": "2026-07-20T09:19:59.556Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 364.92,
+      "wallClockUtc": "2026-07-20T09:20:01.151Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 366.48,
+      "wallClockUtc": "2026-07-20T09:20:02.689Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 368.03,
+      "wallClockUtc": "2026-07-20T09:20:04.246Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 369.6,
+      "wallClockUtc": "2026-07-20T09:20:05.799Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 371.18,
+      "wallClockUtc": "2026-07-20T09:20:07.373Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 372.77,
+      "wallClockUtc": "2026-07-20T09:20:08.945Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 374.43,
+      "wallClockUtc": "2026-07-20T09:20:10.554Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 376.02,
+      "wallClockUtc": "2026-07-20T09:20:12.198Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 377.6,
+      "wallClockUtc": "2026-07-20T09:20:13.798Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 379.16,
+      "wallClockUtc": "2026-07-20T09:20:15.362Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 380.73,
+      "wallClockUtc": "2026-07-20T09:20:16.928Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 382.3,
+      "wallClockUtc": "2026-07-20T09:20:18.500Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 384.18,
+      "wallClockUtc": "2026-07-20T09:20:20.078Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 386.06,
+      "wallClockUtc": "2026-07-20T09:20:21.940Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 387.64,
+      "wallClockUtc": "2026-07-20T09:20:23.821Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 389.25,
+      "wallClockUtc": "2026-07-20T09:20:25.408Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 390.83,
+      "wallClockUtc": "2026-07-20T09:20:27.013Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 392.61,
+      "wallClockUtc": "2026-07-20T09:20:28.591Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 394.29,
+      "wallClockUtc": "2026-07-20T09:20:30.386Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 396.04,
+      "wallClockUtc": "2026-07-20T09:20:32.060Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 397.61,
+      "wallClockUtc": "2026-07-20T09:20:33.812Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 399.17,
+      "wallClockUtc": "2026-07-20T09:20:35.381Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 400.75,
+      "wallClockUtc": "2026-07-20T09:20:36.941Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 402.29,
+      "wallClockUtc": "2026-07-20T09:20:38.513Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 403.87,
+      "wallClockUtc": "2026-07-20T09:20:40.066Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 405.46,
+      "wallClockUtc": "2026-07-20T09:20:41.647Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 407.02,
+      "wallClockUtc": "2026-07-20T09:20:43.232Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 408.59,
+      "wallClockUtc": "2026-07-20T09:20:44.790Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 410.15,
+      "wallClockUtc": "2026-07-20T09:20:46.365Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 411.71,
+      "wallClockUtc": "2026-07-20T09:20:47.918Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 413.33,
+      "wallClockUtc": "2026-07-20T09:20:49.472Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 414.93,
+      "wallClockUtc": "2026-07-20T09:20:51.103Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 416.6,
+      "wallClockUtc": "2026-07-20T09:20:52.710Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 418.2,
+      "wallClockUtc": "2026-07-20T09:20:54.373Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 419.77,
+      "wallClockUtc": "2026-07-20T09:20:55.968Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 421.36,
+      "wallClockUtc": "2026-07-20T09:20:57.547Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 422.93,
+      "wallClockUtc": "2026-07-20T09:20:59.128Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 424.63,
+      "wallClockUtc": "2026-07-20T09:21:00.695Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 426.22,
+      "wallClockUtc": "2026-07-20T09:21:02.394Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 427.81,
+      "wallClockUtc": "2026-07-20T09:21:03.994Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 429.5,
+      "wallClockUtc": "2026-07-20T09:21:05.592Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 431.08,
+      "wallClockUtc": "2026-07-20T09:21:07.266Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 433.01,
+      "wallClockUtc": "2026-07-20T09:21:08.848Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 434.64,
+      "wallClockUtc": "2026-07-20T09:21:10.778Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 436.21,
+      "wallClockUtc": "2026-07-20T09:21:12.403Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 437.8,
+      "wallClockUtc": "2026-07-20T09:21:13.978Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 439.41,
+      "wallClockUtc": "2026-07-20T09:21:15.568Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 441,
+      "wallClockUtc": "2026-07-20T09:21:17.182Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 442.6,
+      "wallClockUtc": "2026-07-20T09:21:18.764Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 444.25,
+      "wallClockUtc": "2026-07-20T09:21:20.373Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 445.81,
+      "wallClockUtc": "2026-07-20T09:21:22.025Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 447.39,
+      "wallClockUtc": "2026-07-20T09:21:23.579Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 448.94,
+      "wallClockUtc": "2026-07-20T09:21:25.152Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 450.61,
+      "wallClockUtc": "2026-07-20T09:21:26.712Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 452.42,
+      "wallClockUtc": "2026-07-20T09:21:28.383Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 454.01,
+      "wallClockUtc": "2026-07-20T09:21:30.187Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 455.6,
+      "wallClockUtc": "2026-07-20T09:21:31.778Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 457.29,
+      "wallClockUtc": "2026-07-20T09:21:33.365Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 458.87,
+      "wallClockUtc": "2026-07-20T09:21:35.064Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 460.47,
+      "wallClockUtc": "2026-07-20T09:21:36.632Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 462.04,
+      "wallClockUtc": "2026-07-20T09:21:38.232Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 463.69,
+      "wallClockUtc": "2026-07-20T09:21:39.801Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 465.27,
+      "wallClockUtc": "2026-07-20T09:21:41.458Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 466.85,
+      "wallClockUtc": "2026-07-20T09:21:43.044Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 468.43,
+      "wallClockUtc": "2026-07-20T09:21:44.614Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 469.99,
+      "wallClockUtc": "2026-07-20T09:21:46.190Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 471.56,
+      "wallClockUtc": "2026-07-20T09:21:47.764Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 473.15,
+      "wallClockUtc": "2026-07-20T09:21:49.335Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 474.7,
+      "wallClockUtc": "2026-07-20T09:21:50.916Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 476.26,
+      "wallClockUtc": "2026-07-20T09:21:52.463Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 477.83,
+      "wallClockUtc": "2026-07-20T09:21:54.032Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    },
+    {
+      "t_s": 479.42,
+      "wallClockUtc": "2026-07-20T09:21:55.603Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "terminal": false
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "method": "GET",
+  "path": "/api/books/5da13dc3-a6a5-4150-a287-daa386666562/batch/cmrt0ciip0003x40frsokcea2",
+  "status": 200,
+  "ok": true,
+  "latencyMs": 79,
+  "wallClockUtc": "2026-07-20T09:21:55.603Z",
+  "json": {
+    "batch": {
+      "id": "cmrt0ciip0003x40frsokcea2",
+      "userId": "a31049dd-0fd9-44dd-a232-8606129d1853",
+      "bookId": "5da13dc3-a6a5-4150-a287-daa386666562",
+      "workflowIds": [
+        "dev-edit"
+      ],
+      "chapterStart": 1,
+      "chapterEnd": 3,
+      "status": "running",
+      "budgetCapUsd": 10,
+      "spentUsd": 0.03306791999999999,
+      "halted": false,
+      "haltReason": null,
+      "scheduledFor": null,
+      "parentJobId": "4e4ba340-b382-48d8-a929-fd2a4ee72ef1",
+      "digest": null,
+      "childCount": 3,
+      "completedCount": 0,
+      "failedCount": 0,
+      "createdAt": "2026-07-20T09:13:56.161Z",
+      "startedAt": "2026-07-20T09:13:56.184Z",
+      "completedAt": null
+    },
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 2,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "text": null
+}

@@ -1,0 +1,50 @@
+{
+  "capturedAt": "2026-07-20T09:21:43.765Z",
+  "note": "fresh-process reproduction (bypasses stale live server); READ-ONLY (no meter/usage writes)",
+  "steps": {
+    "samUserId": "d68c3b5e-e791-4858-b402-9f736fe2eddf",
+    "defaultModel": "openrouter-qwen36/sonnet",
+    "ghostQuota": {
+      "allowed": true,
+      "isFree": true,
+      "remainingToday": 100
+    },
+    "inlineQuota": {
+      "allowed": true,
+      "isFree": true,
+      "remainingToday": 50
+    },
+    "keyProvidersPresent": {
+      "openrouter": {
+        "present": true,
+        "len": 73
+      }
+    },
+    "cheapModel": {
+      "id": "openrouter-qwen36/haiku",
+      "provider": "openrouter",
+      "modelId": "qwen/qwen3.6-27b"
+    },
+    "resolvedRoute": "openrouter",
+    "ghostText": {
+      "ok": true,
+      "model": "openrouter-qwen36/haiku",
+      "stopReason": "max_tokens",
+      "tokens": {
+        "input": 49,
+        "output": 60
+      },
+      "suggestion": ""
+    },
+    "inlineEdit": {
+      "ok": true,
+      "model": "openrouter-qwen36/haiku",
+      "stopReason": "max_tokens",
+      "tokens": {
+        "input": 83,
+        "output": 1024
+      },
+      "suggestions": []
+    }
+  }
+}
