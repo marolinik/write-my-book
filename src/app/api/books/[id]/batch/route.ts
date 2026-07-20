@@ -108,11 +108,14 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     // ── Plan gate: batch/overnight is a paid wall (Free is hard-denied;
     //    paid tiers unchanged) ─────────────────────────────────────────────
+    // D-110: this is a PLAN denial, not throttling — answer 403 with the same
+    // {error, upgradeToTier} envelope as the sibling plan gates (series, books,
+    // analytics). A 429 here would falsely signal a rate limit.
     const quotaResult = await checkQuota(user.id, "run_batch");
     if (!quotaResult.allowed) {
       return NextResponse.json(
         { error: quotaResult.reason, upgradeToTier: quotaResult.upgradeToTier },
-        { status: 429 }
+        { status: 403 }
       );
     }
 

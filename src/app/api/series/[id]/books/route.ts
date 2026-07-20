@@ -88,3 +88,15 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     );
   }
 }
+
+/**
+ * GET /api/series/:id/books — unsupported. Books in a series are read via
+ * GET /api/series/:id. D-112 (D-15 class): answer the standard { error }
+ * envelope with the 405 instead of the framework's bare-body method rejection.
+ */
+export function GET(): NextResponse {
+  return NextResponse.json(
+    { error: "Method not allowed" },
+    { status: 405, headers: { Allow: "POST" } }
+  );
+}

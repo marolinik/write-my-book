@@ -171,10 +171,21 @@ describe("POST /api/books/:id/batch — create", () => {
     expect(h.enqueueBatchFlow).not.toHaveBeenCalled();
   });
 
-  it("returns 429 when the usage quota is exhausted", async () => {
-    h.checkQuota.mockResolvedValueOnce({ allowed: false, reason: "Quota exceeded" });
+  // D-110: batch is a PLAN wall, not a rate limit. A plan/quota denial must
+  // answer 403 with the same {error, upgradeToTier} envelope as the sibling plan
+  // gates (series, books, analytics) — never a 429 that falsely signals throttling.
+  it("D-110: plan-gate denial returns 403 with the upgrade envelope (not 429)", async () => {
+    h.checkQuota.mockResolvedValueOnce({
+      allowed: false,
+      reason: "Overnight batches are a paid feature.",
+      upgradeToTier: "indie",
+    });
     const res = await createBatch(req({ workflowIds: ["dev-edit"] }) as never, bookCtx as never);
-    expect(res.status).toBe(429);
+    expect(res.status).toBe(403);
+    await expect(res.json()).resolves.toMatchObject({
+      error: "Overnight batches are a paid feature.",
+      upgradeToTier: "indie",
+    });
     expect(h.enqueueBatchFlow).not.toHaveBeenCalled();
   });
 
