@@ -1,0 +1,27 @@
+{
+  "pdfBytes": 773741,
+  "inflatedStreams": 107,
+  "header": "%PDF-1.7\n%\n\n1 0 ",
+  "producer": null,
+  "pageCount": {
+    "byTypePageObjects": 100,
+    "byMaxCountEntry": 100,
+    "allCountEntries": [
+      100,
+      18
+    ],
+    "resolvedActualPages": 100
+  },
+  "estimatedPages": 108,
+  "gapPctEstimateVsActual": 8,
+  "d61_within15pct": true,
+  "metadataTitle": {
+    "raw": "The Kőszeg Manuscript — Bao Réjudge P7 (São Café Ærø)",
+    "titleUtf16": "The Kőszeg Manuscript — Bao Réjudge P7 (São Café Ærø)",
+    "titleLiteral": null,
+    "xmp": "The KÅszeg Manuscript --- Bao RÃ©judge P7 (SÃ£o CafÃ© ÃrÃ¸)",
+    "hasXmpBlock": true,
+    "matchesBookName": true
+  },
+  "d05_pdfTitlePresent": true
+}

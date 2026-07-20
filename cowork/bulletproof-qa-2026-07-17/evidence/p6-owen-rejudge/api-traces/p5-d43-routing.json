@@ -1,0 +1,100 @@
+{
+ "set-editor-override": {
+  "status": 200,
+  "elapsed": 0.094,
+  "body": {
+   "defaultModel": "openrouter-qwen36/sonnet",
+   "modelGhostwriter": null,
+   "modelEditor": "anthropic/opus",
+   "modelBetaReader": null,
+   "modelAnalyst": null,
+   "modelCoach": null,
+   "modelCreative": null
+  }
+ },
+ "default-model-after-set": {
+  "status": 200,
+  "elapsed": 0.04,
+  "body": {
+   "defaultModel": "openrouter-qwen36/sonnet",
+   "modelGhostwriter": null,
+   "modelEditor": "anthropic/opus",
+   "modelBetaReader": null,
+   "modelAnalyst": null,
+   "modelCoach": null,
+   "modelCreative": null
+  }
+ },
+ "start": {
+  "status": 200,
+  "elapsed": 1.719,
+  "body": {
+   "sessionId": "67ff18e7-46ea-47bf-aaac-e2b0f5733fb7",
+   "queued": true,
+   "jobId": "67ff18e7-46ea-47bf-aaac-e2b0f5733fb7"
+  }
+ },
+ "stream-final": {
+  "type": "complete",
+  "content": "Session completed successfully",
+  "metadata": {
+   "findingsCreated": 0,
+   "statusAdvanced": true,
+   "newStatus": "line_edited",
+   "documentIds": [
+    "61864890-099b-4056-9816-bf3f5fa18445"
+   ],
+   "suggestedNext": [
+    "beta-read"
+   ],
+   "tokensInput": 50126,
+   "tokensOutput": 8567,
+   "costUsd": 0.034846709999999996,
+   "endReason": "natural"
+  }
+ },
+ "session-row": {
+  "id": "67ff18e7-46ea-47bf-aaac-e2b0f5733fb7",
+  "status": "completed",
+  "agent_type": "writing-coach",
+  "tokens_input": 50126,
+  "tokens_output": 8567,
+  "actual_cost_usd": 0.03484671
+ },
+ "billed-usage": [
+  {
+   "agent_type": "writing-coach",
+   "model": "openrouter-qwen36/sonnet",
+   "tokens_input": 50126,
+   "tokens_output": 8567,
+   "cost_estimate": 0.03484671,
+   "recorded_at": "2026-07-20T09:55:25.798Z"
+  }
+ ],
+ "revert-editor-override": {
+  "status": 200,
+  "elapsed": 0.055,
+  "body": {
+   "defaultModel": "openrouter-qwen36/sonnet",
+   "modelGhostwriter": null,
+   "modelEditor": null,
+   "modelBetaReader": null,
+   "modelAnalyst": null,
+   "modelCoach": null,
+   "modelCreative": null
+  }
+ },
+ "default-model-after-revert": {
+  "status": 200,
+  "elapsed": 0.029,
+  "body": {
+   "defaultModel": "openrouter-qwen36/sonnet",
+   "modelGhostwriter": null,
+   "modelEditor": null,
+   "modelBetaReader": null,
+   "modelAnalyst": null,
+   "modelCoach": null,
+   "modelCreative": null
+  }
+ }
+}

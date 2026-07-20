@@ -1,0 +1,31 @@
+{
+  "id": "C0a",
+  "label": "seed-victim-lens-p2",
+  "actor": "p2",
+  "capturedAt": "2026-07-20T11:30:58.954Z",
+  "request": {
+    "method": "POST",
+    "url": "http://127.0.0.1:3002/api/books/1c829f25-3c52-4751-80b1-61cdc7fd8c73/style/lenses",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p2",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "characterName": "RJ Victim 1784547050860",
+      "sensoryPriority": "sight",
+      "metaphorDomain": "sea",
+      "interiorStyle": "terse",
+      "vocabularyRegister": "plain"
+    },
+    "bodyMode": "json"
+  },
+  "response": {
+    "status": 201,
+    "contentType": "application/json",
+    "bodyLength": 255,
+    "bodyText": "{\"id\":\"c57f6624-273c-4d91-a570-3bce493791a5\",\"bookId\":\"1c829f25-3c52-4751-80b1-61cdc7fd8c73\",\"characterName\":\"RJ Victim 1784547050860\",\"sensoryPriority\":\"sight\",\"metaphorDomain\":\"sea\",\"interiorStyle\":\"terse\",\"vocabularyRegister\":\"plain\",\"blindSpots\":null}"
+  },
+  "expected": "201 (seed victim lens owned by p2)",
+  "note": null
+}

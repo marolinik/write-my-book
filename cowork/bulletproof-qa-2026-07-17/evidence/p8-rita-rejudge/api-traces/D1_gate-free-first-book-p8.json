@@ -1,0 +1,27 @@
+{
+  "id": "D1",
+  "label": "gate-free-first-book-p8",
+  "actor": "p8",
+  "capturedAt": "2026-07-20T11:31:02.640Z",
+  "request": {
+    "method": "POST",
+    "url": "http://127.0.0.1:3002/api/books",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p8",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "name": "Rita RJ Free Book 1784547050860"
+    },
+    "bodyMode": "json"
+  },
+  "response": {
+    "status": 201,
+    "contentType": "application/json",
+    "bodyLength": 564,
+    "bodyText": "{\"id\":\"693c7a7b-e951-4d7d-b343-e2e65031c8db\",\"userId\":\"cd3f141f-5a16-4cb8-bbb7-8493c8e8d053\",\"seriesId\":null,\"bookNumber\":1,\"name\":\"Rita RJ Free Book 1784547050860\",\"genre\":null,\"language\":\"en\",\"status\":\"concept\",\"description\":null,\"marketingKit\":null,\"authorNotes\":null,\"wordCount\":0,\"targetWordCount\":null,\"chapterCount\":0,\"s3Prefix\":\"cd3f141f-5a16-4cb8-bbb7-8493c8e8d053/693c7a7b-e951-4d7d-b343-e2e65031c8db\",\"createdAt\":\"2026-07-20T11:31:02.566Z\",\"updatedAt\":\"2026-07-20T11:31:02.587Z\",\"archivedAt\":null,\"firstChapterId\":\"ff46cd96-2637-4e62-83fe-23b427f2ab0f\"}"
+  },
+  "expected": "201 BY DESIGN (free card-free on-ramp = 1 book)",
+  "note": null
+}

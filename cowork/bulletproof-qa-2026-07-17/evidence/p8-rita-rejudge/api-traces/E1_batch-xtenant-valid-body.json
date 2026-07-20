@@ -1,0 +1,31 @@
+{
+  "id": "E1",
+  "label": "batch-xtenant-valid-body",
+  "actor": "p8",
+  "capturedAt": "2026-07-20T11:31:13.454Z",
+  "request": {
+    "method": "POST",
+    "url": "http://127.0.0.1:3002/api/books/4116055c-6183-4675-926a-e04f31126951/batch",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p8",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "workflowIds": [
+        "dev-edit"
+      ],
+      "chapterStart": 1,
+      "chapterEnd": 1
+    },
+    "bodyMode": "json"
+  },
+  "response": {
+    "status": 404,
+    "contentType": "application/json",
+    "bodyLength": 26,
+    "bodyText": "{\"error\":\"Book not found\"}"
+  },
+  "expected": "404 (D-56 ownership fence)",
+  "note": null
+}

@@ -1,0 +1,17 @@
+{
+  "status": 200,
+  "body": {
+    "flags": [],
+    "extraction": {
+      "state": "checked",
+      "kind": null,
+      "capped": false,
+      "attempts": 0,
+      "reason": null,
+      "lowYield": false,
+      "throttled": true,
+      "retryEligibleAt": 1784548024509
+    }
+  },
+  "capturedAt": "2026-07-20T11:45:48.594Z"
+}

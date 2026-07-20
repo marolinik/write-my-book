@@ -1,0 +1,24 @@
+{
+  "id": "F5c",
+  "label": "d15-wiki-cleanup-delete",
+  "actor": "p2",
+  "capturedAt": "2026-07-20T11:31:25.938Z",
+  "request": {
+    "method": "DELETE",
+    "url": "http://127.0.0.1:3002/api/books/1c829f25-3c52-4751-80b1-61cdc7fd8c73/wiki/6bf865d6-de07-4d9a-a276-1eaa19b25678",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p2"
+    },
+    "body": null,
+    "bodyMode": "none"
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json",
+    "bodyLength": 11,
+    "bodyText": "{\"ok\":true}"
+  },
+  "expected": "200 cleanup",
+  "note": null
+}

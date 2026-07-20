@@ -1,0 +1,67 @@
+{
+ "session-row": {
+  "id": "15c82e80-5296-49cf-a498-e77a651ce9b2",
+  "status": "completed",
+  "workflow_id": "line-edit",
+  "agent_type": "writing-coach",
+  "tokens_input": 24424,
+  "tokens_output": 8046,
+  "actual_cost_usd": 0.02627123999999999,
+  "estimated_cost_usd": 0.0942,
+  "chapter_number": 5,
+  "started_at": "2026-07-20T09:30:41.823Z",
+  "completed_at": "2026-07-20T09:34:10.741Z"
+ },
+ "usage-records-today": [
+  {
+   "agent_type": "embedding",
+   "model": "text-embedding-3-small",
+   "tokens_input": 517,
+   "tokens_output": 0,
+   "cost_estimate": 0.00001034,
+   "key_source": "user",
+   "recorded_at": "2026-07-20T09:47:14.106Z"
+  },
+  {
+   "agent_type": "embedding",
+   "model": "text-embedding-3-small",
+   "tokens_input": 171,
+   "tokens_output": 0,
+   "cost_estimate": 0.00000342,
+   "key_source": "user",
+   "recorded_at": "2026-07-20T09:34:13.033Z"
+  },
+  {
+   "agent_type": "embedding",
+   "model": "text-embedding-3-small",
+   "tokens_input": 235,
+   "tokens_output": 0,
+   "cost_estimate": 0.0000047,
+   "key_source": "user",
+   "recorded_at": "2026-07-20T09:34:13.012Z"
+  },
+  {
+   "agent_type": "embedding",
+   "model": "text-embedding-3-small",
+   "tokens_input": 124,
+   "tokens_output": 0,
+   "cost_estimate": 0.00000248,
+   "key_source": "user",
+   "recorded_at": "2026-07-20T09:34:12.949Z"
+  },
+  {
+   "agent_type": "writing-coach",
+   "model": "openrouter-qwen36/sonnet",
+   "tokens_input": 24424,
+   "tokens_output": 8046,
+   "cost_estimate": 0.02627123999999999,
+   "key_source": "user",
+   "recorded_at": "2026-07-20T09:34:10.762Z"
+  }
+ ],
+ "ch5-status": {
+  "chapter_number": 5,
+  "status": "line_edited",
+  "word_count": 395
+ }
+}

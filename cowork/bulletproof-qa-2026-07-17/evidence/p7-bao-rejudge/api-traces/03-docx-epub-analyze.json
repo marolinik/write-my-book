@@ -1,0 +1,20 @@
+[
+  {
+    "label": "docx-analyze",
+    "method": "LOCAL",
+    "url": "artifacts/export.docx",
+    "status": 200,
+    "ok": true,
+    "note": "decompressed word/document.xml = 329003 chars, 51422 words; metaTitle=The Kőszeg Manuscript — Bao Réjudge P7 (São Café Ærø)",
+    "ts": "2026-07-20T11:27:44.085Z"
+  },
+  {
+    "label": "epub-analyze",
+    "method": "LOCAL",
+    "url": "artifacts/export.epub",
+    "status": 200,
+    "ok": true,
+    "note": "opfTitle=The Kőszeg Manuscript — Bao Réjudge P7 (São Café Ærø); totalBodyWords=51510; xhtmlFiles=22",
+    "ts": "2026-07-20T11:27:44.151Z"
+  }
+]

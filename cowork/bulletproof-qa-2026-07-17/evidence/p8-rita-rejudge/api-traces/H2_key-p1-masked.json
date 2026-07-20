@@ -1,0 +1,24 @@
+{
+  "id": "H2",
+  "label": "key-p1-masked",
+  "actor": "p1",
+  "capturedAt": "2026-07-20T11:31:32.174Z",
+  "request": {
+    "method": "GET",
+    "url": "http://127.0.0.1:3002/api/settings/api-keys",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p1"
+    },
+    "body": null,
+    "bodyMode": "none"
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json",
+    "bodyLength": 290,
+    "bodyText": "[{\"id\":\"93751186-c920-45e5-bb9b-2694e5b939fb\",\"provider\":\"openrouter\",\"label\":\"qa\",\"isDefault\":true,\"validatedAt\":\"2026-07-20T00:52:24.106Z\",\"createdAt\":\"2026-07-17T15:14:39.468Z\",\"maskedKey\":\"sk-or-v...705e\",\"usage\":{\"totalTokens\":700149,\"totalCost\":0.35415742499999997,\"sessionCount\":8}}]"
+  },
+  "expected": "200 maskedKey only",
+  "note": null
+}

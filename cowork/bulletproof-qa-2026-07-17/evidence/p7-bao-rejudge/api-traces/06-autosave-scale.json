@@ -1,0 +1,506 @@
+[
+  {
+    "label": "get-chapters-autosave",
+    "method": "GET",
+    "url": "http://localhost:3002/api/books/85c3d2c4-b193-45b7-b677-5d102af8e4d8/chapters",
+    "status": 200,
+    "ok": true,
+    "respBody": [
+      {
+        "id": "ed869e2e-d532-47af-8536-a44a1696e9a6",
+        "bookId": "85c3d2c4-b193-45b7-b677-5d102af8e4d8",
+        "actNumber": 1,
+        "chapterNumber": 1,
+        "title": "A Kőszegi Kézirat (ch.1)",
+        "status": "drafted",
+        "wordCount": 3211,
+        "targetWordCount": null,
+        "betaScore": null,
+        "betaGate": "pending",
+        "revisionCount": 0,
+        "importedAt": "2026-07-20T11:25:12.255Z",
+        "createdAt": "2026-07-20T11:25:05.726Z",
+        "updatedAt": "2026-07-20T11:25:12.260Z"
+      },
+      {
+        "id": "44447930-634f-44fa-a6ce-22fabea7e110",
+        "bookId": "85c3d2c4-b193-45b7-b677-5d102af8e4d8",
+        "actNumber": 1,
+        "chapterNumber": 2,
+        "title": "São Café és Ærø (ch.2)",
+        "status": "drafted",
+        "wordCount": 3201,
+        "targetWordCount": null,
+        "betaScore": null,
+        "betaGate": "pending",
+        "revisionCount": 0,
+        "importedAt": "2026-07-20T11:25:12.372Z",
+        "createdAt": "2026-07-20T11:25:12.373Z",
+        "updatedAt": "2026-07-20T11:25:12.373Z"
+      },
+      {
+        "id": "432c30a4-a4c6-42f3-baca-33c818d4045b",
+        "bookId": "85c3d2c4-b193-45b7-b677-5d102af8e4d8",
+        "actNumber": 1,
+        "chapterNumber": 3,
+        "title": "Übermüdet Brücke (ch.3)",
+        "status": "drafted",
+        "wordCount": 3200,
+        "targetWordCount": null,
+        "betaScore": null,
+        "betaGate": "pending",
+        "revisionCount": 0,
+        "importedAt": "2026-07-20T11:25:12.494Z",
+        "createdAt": "2026-07-20T11:25:12.496Z",
+        "updatedAt": "2026-07-20T11:25:12.496Z"
+      },
+      {
+        "id": "03fec540-4096-43d8-8a5c-4200fb882d79",
+        "bookId": "85c3d2c4-b193-45b7-b677-5d102af8e4d8",
+        "actNumber": 1,
+        "chapterNumber": 4,
+        "title": "Çağlar Boyunca (ch.4)",
+        "status": "drafted",
+        "wordCount": 3212,
+        "targetWordCount": null,
+        "betaScore": null,
+        "betaGate": "pending",
+        "revisionCount": 0,
+        "importedAt": "2026-07-20T11:25:12.618Z",
+        "createdAt": "2026-07-20T11:25:12.619Z",
+        "updatedAt": "2026-07-20T11:25:12.619Z"
+      },
+      {
+        "id": "30d87fc7-be56-4bf7-9b54-6c2948a35072",
+        "bookId": "85c3d2c4-b193-45b7-b677-5d102af8e4d8",
+        "actNumber": 1,
+        "chapterNumber": 5,
+        "title": "Далёкий Север (ch.5)",
+        "status": "drafted",
+        "wordCount": 3209,
+        "targetWordCount": null,
+        "betaScore": null,
+        "betaGate": "pending",
+        "revisionCount": 0,
+        "importedAt": "2026-07-20T11:25:12.738Z",
+        "createdAt": "2026-07-20T11:25:12.739Z",
+        "updatedAt": "2026-07-20T11:25:12.739Z"
+      },
+      {
+        "id": "8dae51e5-2cc2-4480-9944-70e4d1ddd028",
+        "bookId": "85c3d2c4-b193-45b7-b677-5d102af8e4d8",
+        "actNumber": 1,
+        "chapterNumber": 6,
+        "title": "Grüße vom Fluß (ch.6)",
+        "status": "drafted",
+        "wordCount": 3208,
+        "targetWordCount": null,
+        "betaScore": null,
+        "betaGate": "pending",
+        "revisionCount": 0,
+        "importedAt": "2026-07-20T11:25:12.862Z",
+        "createdAt": "2026-07-20T11:25:12.863Z",
+        "updatedAt": "2026-07-20T11:25:12.863Z"
+      },
+      {
+        "id": "1b5e4bf4-8970-4723-a279-b0121f1606d0",
+        "bookId": "85c3d2c4-b193-45b7-b677-5d102af8e4d8",
+        "actNumber": 1,
+        "chapterNumber": 7,
+        "title": "Ægir og Þór (ch.7)",
+        "status": "drafted",
+        "wordCount": 3205,
+        "targetWordCount": null,
+        "betaScore": null,
+        "betaGate": "pending",
+        "revisionCount": 0,
+        "importedAt": "2026-07-20T11:25:12.982Z",
+        "createdAt": "2026-07-20T11:25:12.983Z",
+        "updatedAt": "2026-07-20T11:25:12.983Z"
+      },
+      {
+        "id": "b67082b1-ac88-47c5-90f2-932ba3b57cae",
+        "bookId": "85c3d2c4-b193-45b7-b677-5d102af8e4d8",
+        "actNumber": 1,
+        "chapterNumber": 8,
+        "title": "Björken Skälver (ch.8)",
+        "status": "drafted",
+        "wordCount": 86,
+        "targetWordCount": null,
+        "betaScore": null,
+        "betaGate": "pending",
+        "revisionCount": 0,
+        "importedAt": "2026-07-20T11:25:13.101Z",
+        "createdAt": "2026-07-20T11:25:13.103Z",
+        "updatedAt": "2026-07-20T11:31:55.065Z"
+      },
+      {
+        "id": "63f89d0b-5387-41cb-9038-239e77650a52",
+        "bookId": "85c3d2c4-b193-45b7-b677-5d102af8e4d8",
+        "actNumber": 1,
+        "chapterNumber": 9,
+        "title": "Le Cœur Naïf (ch.9)",
+        "status": "drafted",
+        "wordCount": 3211,
+        "targetWordCount": null,
+        "betaScore": null,
+        "betaGate": "pending",
+        "revisionCount": 0,
+        "importedAt": "2026-07-20T11:25:13.218Z",
+        "createdAt": "2026-07-20T11:25:13.219Z",
+        "updatedAt": "2026-07-20T11:25:13.219Z"
+      },
+      {
+        "id": "30b59f57-bd9b-486b-a2a3-df5541cfb69e",
+        "bookId": "85c3d2c4-b193-45b7-b677-5d102af8e4d8",
+        "actNumber": 1,
+        "chapterNumber": 10,
+        "title": "Zażółć Gęślą (ch.10)",
+        "status": "drafted",
+        "wordCount": 3209,
+        "targetWordCount": null,
+        "betaScore": null,
+        "betaGate": "pending",
+        "revisionCount": 0,
+        "importedAt": "2026-07-20T11:25:13.363Z",
+        "createdAt": "2026-07-20T11:25:13.364Z",
+        "updatedAt": "2026-07-20T11:25:13.364Z"
+      },
+      {
+        "id": "06129253-d496-4d42-adff-8986f9e0831e",
+        "bookId": "85c3d2c4-b193-45b7-b677-5d102af8e4d8",
+        "actNumber": 1,
+        "chapterNumber": 11,
+        "title": "Fönix és Hamu (ch.11)",
+        "status": "drafted",
+        "wordCount": 3200,
+        "targetWordCount": null,
+        "betaScore": null,
+        "betaGate": "pending",
+        "revisionCount": 0,
+        "importedAt": "2026-07-20T11:25:13.491Z",
+        "createdAt": "2026-07-20T11:25:13.493Z",
+        "updatedAt": "2026-07-20T11:25:13.493Z"
+      },
+      {
+        "id": "8747c036-f070-4757-85b6-9ccb6843b814",
+        "bookId": "85c3d2c4-b193-45b7-b677-5d102af8e4d8",
+        "actNumber": 1,
+        "chapterNumber": 12,
+        "title": "Måne over Fjord (ch.12)",
+        "status": "drafted",
+        "wordCount": 3201,
+        "targetWordCount": null,
+        "betaScore": null,
+        "betaGate": "pending",
+        "revisionCount": 0,
+        "importedAt": "2026-07-20T11:25:13.619Z",
+        "createdAt": "2026-07-20T11:25:13.621Z",
+        "updatedAt": "2026-07-20T11:25:13.621Z"
+      },
+      {
+        "id": "d4c5a245-48cf-43d8-85f0-569d3ca76f38",
+        "bookId": "85c3d2c4-b193-45b7-b677-5d102af8e4d8",
+        "actNumber": 1,
+        "chapterNumber": 13,
+        "title": "Þingvellir Nótt (ch.13)",
+        "status": "drafted",
+        "wordCount": 3208,
+        "targetWordCount": null,
+        "betaScore": null,
+        "betaGate": "pending",
+        "revisionCount": 0,
+        "importedAt": "2026-07-20T11:25:13.743Z",
+        "createdAt": "2026-07-20T11:25:13.744Z",
+        "updatedAt": "2026-07-20T11:25:13.744Z"
+      },
+      {
+        "id": "ccd05d45-dde2-4973-a62c-587abe486b7c",
+        "bookId": "85c3d2c4-b193-45b7-b677-5d102af8e4d8",
+        "actNumber": 1,
+        "chapterNumber": 14,
+        "title": "Œuvre Inachevée (ch.14)",
+        "status": "drafted",
+        "wordCount": 3202,
+        "targetWordCount": null,
+        "betaScore": null,
+        "betaGate": "pending",
+        "revisionCount": 0,
+        "importedAt": "2026-07-20T11:25:13.871Z",
+        "createdAt": "2026-07-20T11:25:13.872Z",
+        "updatedAt": "2026-07-20T11:25:13.872Z"
+      },
+      {
+        "id": "3e0c9ed5-85bd-4157-aa42-0a2e23fb32ad",
+        "bookId": "85c3d2c4-b193-45b7-b677-5d102af8e4d8",
+        "actNumber": 1,
+        "chapterNumber": 15,
+        "title": "Głębia Puszczy (ch.15)",
+        "status": "drafted",
+        "wordCount": 3209,
+        "targetWordCount": null,
+        "betaScore": null,
+        "betaGate": "pending",
+        "revisionCount": 0,
+        "importedAt": "2026-07-20T11:25:13.991Z",
+        "createdAt": "2026-07-20T11:25:13.993Z",
+        "updatedAt": "2026-07-20T11:25:13.993Z"
+      },
+      {
+        "id": "7e338d40-5063-4d1d-8522-b311a07e34dd",
+        "bookId": "85c3d2c4-b193-45b7-b677-5d102af8e4d8",
+        "actNumber": 1,
+        "chapterNumber": 16,
+        "title": "Rüzgârın Şarkısı (ch.16)",
+        "status": "drafted",
+        "wordCount": 3205,
+        "targetWordCount": null,
+        "betaScore": null,
+        "betaGate": "pending",
+        "revisionCount": 0,
+        "importedAt": "2026-07-20T11:25:14.124Z",
+        "createdAt": "2026-07-20T11:25:14.126Z",
+        "updatedAt": "2026-07-20T11:25:14.126Z"
+      }
+    ],
+    "ts": "2026-07-20T11:32:55.898Z"
+  },
+  {
+    "label": "get-ch12-before-autosave",
+    "method": "GET",
+    "url": "http://localhost:3002/api/books/85c3d2c4-b193-45b7-b677-5d102af8e4d8/chapters/8747c036-f070-4757-85b6-9ccb6843b814/content",
+    "status": 200,
+    "ok": true,
+    "respBody": {
+      "markdown": "Zk12Alpha Der Fährmann über die Ærø brachte uns übermüdet ans andere Ufer bei Sonnenaufgang. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. Ægir og Þór vandrede gennem tågen mens måsen skreg over det grå Kattegat. Le cœur naïf du châtelain frémissait sous la lueur pâle d une bougie mourante. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. Der Fährmann über die Ærø brachte uns übermüdet ans andere Ufer bei Sonnenaufgang. São Paulo é uma cidade onde a saudade pesa como chumbo no coração do migrante. Le cœur naïf du châtelain frémissait sous la lueur pâle d une bougie mourante. Der Fährmann über die Ærø brachte uns übermüdet ans andere Ufer bei Sonnenaufgang. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. A ködös hajnalon Kőszeg várfala fölött szürke felhők gyűltek össze csendben. A ködös hajnalon Kőszeg várfala fölött szürke felhők gyűltek össze csendben. Zażółć gęślą jaźń powtarzał stary bard nim zniknął w mroku pradawnej puszczy. A ködös hajnalon Kőszeg várfala fölött szürke felhők gyűltek össze csendben. Ægir og Þór vandrede gennem tågen mens måsen skreg over det grå Kattegat. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. Ægir og Þór vandrede gennem tågen mens måsen skreg over det grå Kattegat. Zażółć gęślą jaźń powtarzał stary bard nim zniknął w mroku pradawnej puszczy. São Paulo é uma cidade onde a saudade pesa como chumbo no coração do migrante. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. Zażółć gęślą jaźń powtarzał stary bard nim zniknął w mroku pradawnej puszczy. A ködös hajnalon Kőszeg várfala fölött szürke felhők gyűltek össze csendben. São Paulo é uma cidade onde a saudade pesa como chumbo no coração do migrante. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. São Paulo é uma cidade onde a saudade pesa como chumbo no coração do migrante. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. A ködös hajnalon Kőszeg várfala fölött szürke felhők gyűltek össze csendben. Le cœur naïf du châtelain frémissait sous la lueur pâle d une bougie mourante. Le cœur naïf du châtelain frémissait sous la lueur pâle d une bougie mourante. Der Fährmann über die Ærø brachte uns übermüdet ans andere Ufer bei Sonnenaufgang. Le cœur naïf du châtelain frémissait sous la lueur pâle d une bougie mourante. Der Fährmann über die Ærø brachte uns übermüdet ans andere Ufer bei Sonnenaufgang. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. Le cœur naïf du châtelain frémissait sous la lueur pâle d une bougie mourante. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. Ægir og Þór vandrede gennem tågen mens måsen skreg over det grå Kattegat. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. A ködös hajnalon Kőszeg várfala fölött szürke felhők gyűltek össze csendben. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. Ægir og Þór vandrede gennem tågen mens måsen skreg over det grå Kattegat. Ægir og Þór vandrede gennem tågen mens måsen skreg over det grå Kattegat. Le cœur naïf du châtelain frémissait sous la lueur pâle d une bougie mourante. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. Ægir og Þór vandrede gennem tågen mens måsen skreg over det grå Kattegat. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. A ködös hajnalon Kőszeg várfala fölött szürke felhők gyűltek össze csendben. Le cœur naïf du châtelain frémissait sous la lueur pâle d une bougie mourante. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. Le cœur naïf du châtelain frémissait sous la lueur pâle d une bougie mourante. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. Le cœur naïf du châtelain frémissait sous la lueur pâle d une bougie mourante. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. Der Fährmann über die Ærø brachte uns übermüdet ans andere Ufer bei Sonnenaufgang. Le cœur naïf du châtelain frémissait sous la lueur pâle d une bougie mourante. Zażółć gęślą jaźń powtarzał stary bard nim zniknął w mroku pradawnej puszczy. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. A ködös hajnalon Kőszeg várfala fölött szürke felhők gyűltek össze csendben. Zk12Mid1 A ködös hajnalon Kőszeg várfala fölött szürke felhők gyűltek össze csendben. Ægir og Þór vandrede gennem tågen mens måsen skreg over det grå Kattegat. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. Zażółć gęślą jaźń powtarzał stary bard nim zniknął w mroku pradawnej puszczy. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. São Paulo é uma cidade onde a saudade pesa como chumbo no coração do migrante. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. Zażółć gęślą jaźń powtarzał stary bard nim zniknął w mroku pradawnej puszczy. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. A ködös hajnalon Kőszeg várfala fölött szürke felhők gyűltek össze csendben. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. Ægir og Þór vandrede gennem tågen mens måsen skreg over det grå Kattegat. São Paulo é uma cidade onde a saudade pesa como chumbo no coração do migrante. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. A ködös hajnalon Kőszeg várfala fölött szürke felhők gyűltek össze csendben. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. Zażółć gęślą jaźń powtarzał stary bard nim zniknął w mroku pradawnej puszczy. Der Fährmann über die Ærø brachte uns übermüdet ans andere Ufer bei Sonnenaufgang. Der Fährmann über die Ærø brachte uns übermüdet ans andere Ufer bei Sonnenaufgang. Ægir og Þór vandrede gennem tågen mens måsen skreg over det grå Kattegat. Der Fährmann über die Ærø brachte uns übermüdet ans andere Ufer bei Sonnenaufgang. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. A ködös hajnalon Kőszeg várfala fölött szürke felhők gyűltek össze csendben. A ködös hajnalon Kőszeg várfala fölött szürke felhők gyűltek össze csendben. Le cœur naïf du châtelain frémissait sous la lueur pâle d une bougie mourante. Ægir og Þór vandrede gennem tågen mens måsen skreg over det grå Kattegat. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. Ægir og Þór vandrede gennem tågen mens måsen skreg over det grå Kattegat. São Paulo é uma cidade onde a saudade pesa como chumbo no coração do migrante. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. Der Fährmann über die Ærø brachte uns übermüdet ans andere Ufer bei Sonnenaufgang. A ködös hajnalon Kőszeg várfala fölött szürke felhők gyűltek össze csendben. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. Zażółć gęślą jaźń powtarzał stary bard nim zniknął w mroku pradawnej puszczy. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. A ködös hajnalon Kőszeg várfala fölött szürke felhők gyűltek össze csendben. Der Fährmann über die Ærø brachte uns übermüdet ans andere Ufer bei Sonnenaufgang. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. A ködös hajnalon Kőszeg várfala fölött szürke felhők gyűltek össze csendben. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. Zażółć gęślą jaźń powtarzał stary bard nim zniknął w mroku pradawnej puszczy. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. A ködös hajnalon Kőszeg várfala fölött szürke felhők gyűltek össze csendben. A ködös hajnalon Kőszeg várfala fölött szürke felhők gyűltek össze csendben. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. São Paulo é uma cidade onde a saudade pesa como chumbo no coração do migrante. Zażółć gęślą jaźń powtarzał stary bard nim zniknął w mroku pradawnej puszczy. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. Zażółć gęślą jaźń powtarzał stary bard nim zniknął w mroku pradawnej puszczy. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. Zażółć gęślą jaźń powtarzał stary bard nim zniknął w mroku pradawnej puszczy. Zk12Mid2 Zażółć gęślą jaźń powtarzał stary bard nim zniknął w mroku pradawnej puszczy. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. Ægir og Þór vandrede gennem tågen mens måsen skreg over det grå Kattegat. São Paulo é uma cidade onde a saudade pesa como chumbo no coração do migrante. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. A ködös hajnalon Kőszeg várfala fölött szürke felhők gyűltek össze csendben. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. Ægir og Þór vandrede gennem tågen mens måsen skreg over det grå Kattegat. Zażółć gęślą jaźń powtarzał stary bard nim zniknął w mroku pradawnej puszczy. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. São Paulo é uma cidade onde a saudade pesa como chumbo no coração do migrante. São Paulo é uma cidade onde a saudade pesa como chumbo no coração do migrante. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. Ægir og Þór vandrede gennem tågen mens måsen skreg over det grå Kattegat. A ködös hajnalon Kőszeg várfala fölött szürke felhők gyűltek össze csendben. Ægir og Þór vandrede gennem tågen mens måsen skreg over det grå Kattegat. São Paulo é uma cidade onde a saudade pesa como chumbo no coração do migrante. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. Ægir og Þór vandrede gennem tågen mens måsen skreg over det grå Kattegat. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. Le cœur naïf du châtelain frémissait sous la lueur pâle d une bougie mourante. Der Fährmann über die Ærø brachte uns übermüdet ans andere Ufer bei Sonnenaufgang. São Paulo é uma cidade onde a saudade pesa como chumbo no coração do migrante. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. Der Fährmann über die Ærø brachte uns übermüdet ans andere Ufer bei Sonnenaufgang. São Paulo é uma cidade onde a saudade pesa como chumbo no coração do migrante. Zażółć gęślą jaźń powtarzał stary bard nim zniknął w mroku pradawnej puszczy. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. Le cœur naïf du châtelain frémissait sous la lueur pâle d une bougie mourante. A ködös hajnalon Kőszeg várfala fölött szürke felhők gyűltek össze csendben. Zażółć gęślą jaźń powtarzał stary bard nim zniknął w mroku pradawnej puszczy. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. Le cœur naïf du châtelain frémissait sous la lueur pâle d une bougie mourante. Der Fährmann über die Ærø brachte uns übermüdet ans andere Ufer bei Sonnenaufgang. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. A ködös hajnalon Kőszeg várfala fölött szürke felhők gyűltek össze csendben. Le cœur naïf du châtelain frémissait sous la lueur pâle d une bougie mourante. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. Der Fährmann über die Ærø brachte uns übermüdet ans andere Ufer bei Sonnenaufgang. Zażółć gęślą jaźń powtarzał stary bard nim zniknął w mroku pradawnej puszczy. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. Zażółć gęślą jaźń powtarzał stary bard nim zniknął w mroku pradawnej puszczy. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. Le cœur naïf du châtelain frémissait sous la lueur pâle d une bougie mourante. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. Zażółć gęślą jaźń powtarzał stary bard nim zniknął w mroku pradawnej puszczy. Zażółć gęślą jaźń powtarzał stary bard nim zniknął w mroku pradawnej puszczy. Ægir og Þór vandrede gennem tågen mens måsen skreg over det grå Kattegat. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. Zk12Mid3 Le cœur naïf du châtelain frémissait sous la lueur pâle d une bougie mourante. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. Le cœur naïf du châtelain frémissait sous la lueur pâle d une bougie mourante. Der Fährmann über die Ærø brachte uns übermüdet ans andere Ufer bei Sonnenaufgang. Le cœur naïf du châtelain frémissait sous la lueur pâle d une bougie mourante. Ægir og Þór vandrede gennem tågen mens måsen skreg over det grå Kattegat. Der Fährmann über die Ærø brachte uns übermüdet ans andere Ufer bei Sonnenaufgang. Ægir og Þór vandrede gennem tågen mens måsen skreg over det grå Kattegat. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. Le cœur naïf du châtelain frémissait sous la lueur pâle d une bougie mourante. Ægir og Þór vandrede gennem tågen mens måsen skreg over det grå Kattegat. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. Le cœur naïf du châtelain frémissait sous la lueur pâle d une bougie mourante. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. Zażółć gęślą jaźń powtarzał stary bard nim zniknął w mroku pradawnej puszczy. Zażółć gęślą jaźń powtarzał stary bard nim zniknął w mroku pradawnej puszczy. A ködös hajnalon Kőszeg várfala fölött szürke felhők gyűltek össze csendben. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. Le cœur naïf du châtelain frémissait sous la lueur pâle d une bougie mourante. Zażółć gęślą jaźń powtarzał stary bard nim zniknął w mroku pradawnej puszczy. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. A ködös hajnalon Kőszeg várfala fölött szürke felhők gyűltek össze csendben. Le cœur naïf du châtelain frémissait sous la lueur pâle d une bougie mourante. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. Zażółć gęślą jaźń powtarzał stary bard nim zniknął w mroku pradawnej puszczy. Ægir og Þór vandrede gennem tågen mens måsen skreg over det grå Kattegat. Der Fährmann über die Ærø brachte uns übermüdet ans andere Ufer bei Sonnenaufgang. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. Zażółć gęślą jaźń powtarzał stary bard nim zniknął w mroku pradawnej puszczy. Ægir og Þór vandrede gennem tågen mens måsen skreg over det grå Kattegat. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. A ködös hajnalon Kőszeg várfala fölött szürke felhők gyűltek össze csendben. São Paulo é uma cidade onde a saudade pesa como chumbo no coração do migrante. Le cœur naïf du châtelain frémissait sous la lueur pâle d une bougie mourante. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. A ködös hajnalon Kőszeg várfala fölött szürke felhők gyűltek össze csendben. Le cœur naïf du châtelain frémissait sous la lueur pâle d une bougie mourante. Der Fährmann über die Ærø brachte uns übermüdet ans andere Ufer bei Sonnenaufgang. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. São Paulo é uma cidade onde a saudade pesa como chumbo no coração do migrante. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. Привет из далёкого севера где мороз рисует узоры на замёрзшем окне ночью. Fjärran i öster glittrade ån medan björken skälvde för den kyliga östanvinden. Der Fährmann über die Ærø brachte uns übermüdet ans andere Ufer bei Sonnenaufgang. Der Fährmann über die Ærø brachte uns übermüdet ans andere Ufer bei Sonnenaufgang. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. A ködös hajnalon Kőszeg várfala fölött szürke felhők gyűltek össze csendben. A ködös hajnalon Kőszeg várfala fölött szürke felhők gyűltek össze csendben. L umlaut Grüße reisen über Flüsse Brücke für Brücke bis zum Mündungsgebiet. Le cœur naïf du châtelain frémissait sous la lueur pâle d une bougie mourante. Naïve façades cañon çağlar boyunca ışıldadı ve rüzgâr fısıldadı eski öykuleri. Zk12Omega",
+      "wordCount": 3201,
+      "documentId": "b8e0f374-e1f8-41e3-b5be-64ad4cd1a871",
+      "version": 1
+    },
+    "ts": "2026-07-20T11:32:55.968Z"
+  },
+  {
+    "label": "autosave-1",
+    "method": "PUT",
+    "url": "http://localhost:3002/api/books/85c3d2c4-b193-45b7-b677-5d102af8e4d8/chapters/8747c036-f070-4757-85b6-9ccb6843b814/content",
+    "status": 200,
+    "ok": true,
+    "reqBodyPreview": "{\"markdown\":\"# Autosave Scale Ch12\\n\\nAutosaveBase_Zk12\\n\\nAutosaveMark_01_Zk12 São Café ő é ç ñ ø — paragraph 1: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal kö…(698 chars)",
+    "respBody": {
+      "wordCount": 95,
+      "version": 2,
+      "bookWordCount": 45071
+    },
+    "ts": "2026-07-20T11:32:56.096Z"
+  },
+  {
+    "label": "autosave-2",
+    "method": "PUT",
+    "url": "http://localhost:3002/api/books/85c3d2c4-b193-45b7-b677-5d102af8e4d8/chapters/8747c036-f070-4757-85b6-9ccb6843b814/content",
+    "status": 200,
+    "ok": true,
+    "reqBodyPreview": "{\"markdown\":\"# Autosave Scale Ch12\\n\\nAutosaveBase_Zk12\\n\\nAutosaveMark_01_Zk12 São Café ő é ç ñ ø — paragraph 1: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal kö…(1297 chars)",
+    "respBody": {
+      "wordCount": 186,
+      "version": 3,
+      "bookWordCount": 45162
+    },
+    "ts": "2026-07-20T11:32:56.273Z"
+  },
+  {
+    "label": "autosave-3",
+    "method": "PUT",
+    "url": "http://localhost:3002/api/books/85c3d2c4-b193-45b7-b677-5d102af8e4d8/chapters/8747c036-f070-4757-85b6-9ccb6843b814/content",
+    "status": 200,
+    "ok": true,
+    "reqBodyPreview": "{\"markdown\":\"# Autosave Scale Ch12\\n\\nAutosaveBase_Zk12\\n\\nAutosaveMark_01_Zk12 São Café ő é ç ñ ø — paragraph 1: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal kö…(1896 chars)",
+    "respBody": {
+      "wordCount": 277,
+      "version": 4,
+      "bookWordCount": 45253
+    },
+    "ts": "2026-07-20T11:32:56.394Z"
+  },
+  {
+    "label": "autosave-4",
+    "method": "PUT",
+    "url": "http://localhost:3002/api/books/85c3d2c4-b193-45b7-b677-5d102af8e4d8/chapters/8747c036-f070-4757-85b6-9ccb6843b814/content",
+    "status": 200,
+    "ok": true,
+    "reqBodyPreview": "{\"markdown\":\"# Autosave Scale Ch12\\n\\nAutosaveBase_Zk12\\n\\nAutosaveMark_01_Zk12 São Café ő é ç ñ ø — paragraph 1: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal kö…(2495 chars)",
+    "respBody": {
+      "wordCount": 368,
+      "version": 5,
+      "bookWordCount": 45344
+    },
+    "ts": "2026-07-20T11:32:56.520Z"
+  },
+  {
+    "label": "autosave-5",
+    "method": "PUT",
+    "url": "http://localhost:3002/api/books/85c3d2c4-b193-45b7-b677-5d102af8e4d8/chapters/8747c036-f070-4757-85b6-9ccb6843b814/content",
+    "status": 200,
+    "ok": true,
+    "reqBodyPreview": "{\"markdown\":\"# Autosave Scale Ch12\\n\\nAutosaveBase_Zk12\\n\\nAutosaveMark_01_Zk12 São Café ő é ç ñ ø — paragraph 1: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal kö…(3094 chars)",
+    "respBody": {
+      "wordCount": 459,
+      "version": 6,
+      "bookWordCount": 45435
+    },
+    "ts": "2026-07-20T11:32:56.633Z"
+  },
+  {
+    "label": "autosave-6",
+    "method": "PUT",
+    "url": "http://localhost:3002/api/books/85c3d2c4-b193-45b7-b677-5d102af8e4d8/chapters/8747c036-f070-4757-85b6-9ccb6843b814/content",
+    "status": 200,
+    "ok": true,
+    "reqBodyPreview": "{\"markdown\":\"# Autosave Scale Ch12\\n\\nAutosaveBase_Zk12\\n\\nAutosaveMark_01_Zk12 São Café ő é ç ñ ø — paragraph 1: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal kö…(3693 chars)",
+    "respBody": {
+      "wordCount": 550,
+      "version": 7,
+      "bookWordCount": 45526
+    },
+    "ts": "2026-07-20T11:32:56.765Z"
+  },
+  {
+    "label": "autosave-7",
+    "method": "PUT",
+    "url": "http://localhost:3002/api/books/85c3d2c4-b193-45b7-b677-5d102af8e4d8/chapters/8747c036-f070-4757-85b6-9ccb6843b814/content",
+    "status": 200,
+    "ok": true,
+    "reqBodyPreview": "{\"markdown\":\"# Autosave Scale Ch12\\n\\nAutosaveBase_Zk12\\n\\nAutosaveMark_01_Zk12 São Café ő é ç ñ ø — paragraph 1: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal kö…(4292 chars)",
+    "respBody": {
+      "wordCount": 641,
+      "version": 8,
+      "bookWordCount": 45617
+    },
+    "ts": "2026-07-20T11:32:56.900Z"
+  },
+  {
+    "label": "autosave-8",
+    "method": "PUT",
+    "url": "http://localhost:3002/api/books/85c3d2c4-b193-45b7-b677-5d102af8e4d8/chapters/8747c036-f070-4757-85b6-9ccb6843b814/content",
+    "status": 200,
+    "ok": true,
+    "reqBodyPreview": "{\"markdown\":\"# Autosave Scale Ch12\\n\\nAutosaveBase_Zk12\\n\\nAutosaveMark_01_Zk12 São Café ő é ç ñ ø — paragraph 1: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal kö…(4891 chars)",
+    "respBody": {
+      "wordCount": 732,
+      "version": 9,
+      "bookWordCount": 45708
+    },
+    "ts": "2026-07-20T11:32:57.047Z"
+  },
+  {
+    "label": "autosave-9",
+    "method": "PUT",
+    "url": "http://localhost:3002/api/books/85c3d2c4-b193-45b7-b677-5d102af8e4d8/chapters/8747c036-f070-4757-85b6-9ccb6843b814/content",
+    "status": 200,
+    "ok": true,
+    "reqBodyPreview": "{\"markdown\":\"# Autosave Scale Ch12\\n\\nAutosaveBase_Zk12\\n\\nAutosaveMark_01_Zk12 São Café ő é ç ñ ø — paragraph 1: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal kö…(5490 chars)",
+    "respBody": {
+      "wordCount": 823,
+      "version": 10,
+      "bookWordCount": 45799
+    },
+    "ts": "2026-07-20T11:32:57.172Z"
+  },
+  {
+    "label": "autosave-10",
+    "method": "PUT",
+    "url": "http://localhost:3002/api/books/85c3d2c4-b193-45b7-b677-5d102af8e4d8/chapters/8747c036-f070-4757-85b6-9ccb6843b814/content",
+    "status": 200,
+    "ok": true,
+    "reqBodyPreview": "{\"markdown\":\"# Autosave Scale Ch12\\n\\nAutosaveBase_Zk12\\n\\nAutosaveMark_01_Zk12 São Café ő é ç ñ ø — paragraph 1: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal kö…(6091 chars)",
+    "respBody": {
+      "wordCount": 914,
+      "version": 11,
+      "bookWordCount": 45890
+    },
+    "ts": "2026-07-20T11:32:57.289Z"
+  },
+  {
+    "label": "autosave-11",
+    "method": "PUT",
+    "url": "http://localhost:3002/api/books/85c3d2c4-b193-45b7-b677-5d102af8e4d8/chapters/8747c036-f070-4757-85b6-9ccb6843b814/content",
+    "status": 200,
+    "ok": true,
+    "reqBodyPreview": "{\"markdown\":\"# Autosave Scale Ch12\\n\\nAutosaveBase_Zk12\\n\\nAutosaveMark_01_Zk12 São Café ő é ç ñ ø — paragraph 1: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal kö…(6691 chars)",
+    "respBody": {
+      "wordCount": 1005,
+      "version": 12,
+      "bookWordCount": 45981
+    },
+    "ts": "2026-07-20T11:32:57.504Z"
+  },
+  {
+    "label": "autosave-12",
+    "method": "PUT",
+    "url": "http://localhost:3002/api/books/85c3d2c4-b193-45b7-b677-5d102af8e4d8/chapters/8747c036-f070-4757-85b6-9ccb6843b814/content",
+    "status": 200,
+    "ok": true,
+    "reqBodyPreview": "{\"markdown\":\"# Autosave Scale Ch12\\n\\nAutosaveBase_Zk12\\n\\nAutosaveMark_01_Zk12 São Café ő é ç ñ ø — paragraph 1: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal kö…(7291 chars)",
+    "respBody": {
+      "wordCount": 1096,
+      "version": 13,
+      "bookWordCount": 46072
+    },
+    "ts": "2026-07-20T11:32:57.842Z"
+  },
+  {
+    "label": "autosave-13",
+    "method": "PUT",
+    "url": "http://localhost:3002/api/books/85c3d2c4-b193-45b7-b677-5d102af8e4d8/chapters/8747c036-f070-4757-85b6-9ccb6843b814/content",
+    "status": 200,
+    "ok": true,
+    "reqBodyPreview": "{\"markdown\":\"# Autosave Scale Ch12\\n\\nAutosaveBase_Zk12\\n\\nAutosaveMark_01_Zk12 São Café ő é ç ñ ø — paragraph 1: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal kö…(7891 chars)",
+    "respBody": {
+      "wordCount": 1187,
+      "version": 14,
+      "bookWordCount": 46163
+    },
+    "ts": "2026-07-20T11:32:58.004Z"
+  },
+  {
+    "label": "autosave-14",
+    "method": "PUT",
+    "url": "http://localhost:3002/api/books/85c3d2c4-b193-45b7-b677-5d102af8e4d8/chapters/8747c036-f070-4757-85b6-9ccb6843b814/content",
+    "status": 200,
+    "ok": true,
+    "reqBodyPreview": "{\"markdown\":\"# Autosave Scale Ch12\\n\\nAutosaveBase_Zk12\\n\\nAutosaveMark_01_Zk12 São Café ő é ç ñ ø — paragraph 1: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal kö…(8491 chars)",
+    "respBody": {
+      "wordCount": 1278,
+      "version": 15,
+      "bookWordCount": 46254
+    },
+    "ts": "2026-07-20T11:32:58.138Z"
+  },
+  {
+    "label": "autosave-15",
+    "method": "PUT",
+    "url": "http://localhost:3002/api/books/85c3d2c4-b193-45b7-b677-5d102af8e4d8/chapters/8747c036-f070-4757-85b6-9ccb6843b814/content",
+    "status": 200,
+    "ok": true,
+    "reqBodyPreview": "{\"markdown\":\"# Autosave Scale Ch12\\n\\nAutosaveBase_Zk12\\n\\nAutosaveMark_01_Zk12 São Café ő é ç ñ ø — paragraph 1: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal kö…(9091 chars)",
+    "respBody": {
+      "wordCount": 1369,
+      "version": 16,
+      "bookWordCount": 46345
+    },
+    "ts": "2026-07-20T11:32:58.304Z"
+  },
+  {
+    "label": "get-ch12-after-autosave",
+    "method": "GET",
+    "url": "http://localhost:3002/api/books/85c3d2c4-b193-45b7-b677-5d102af8e4d8/chapters/8747c036-f070-4757-85b6-9ccb6843b814/content",
+    "status": 200,
+    "ok": true,
+    "respBody": {
+      "markdown": "# Autosave Scale Ch12\n\nAutosaveBase_Zk12\n\nAutosaveMark_01_Zk12 São Café ő é ç ñ ø — paragraph 1: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal \n\nAutosaveMark_02_Zk12 São Café ő é ç ñ ø — paragraph 2: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal \n\nAutosaveMark_03_Zk12 São Café ő é ç ñ ø — paragraph 3: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal \n\nAutosaveMark_04_Zk12 São Café ő é ç ñ ø — paragraph 4: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal \n\nAutosaveMark_05_Zk12 São Café ő é ç ñ ø — paragraph 5: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal \n\nAutosaveMark_06_Zk12 São Café ő é ç ñ ø — paragraph 6: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal \n\nAutosaveMark_07_Zk12 São Café ő é ç ñ ø — paragraph 7: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal \n\nAutosaveMark_08_Zk12 São Café ő é ç ñ ø — paragraph 8: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal \n\nAutosaveMark_09_Zk12 São Café ő é ç ñ ø — paragraph 9: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal \n\nAutosaveMark_10_Zk12 São Café ő é ç ñ ø — paragraph 10: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal \n\nAutosaveMark_11_Zk12 São Café ő é ç ñ ø — paragraph 11: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal \n\nAutosaveMark_12_Zk12 São Café ő é ç ñ ø — paragraph 12: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal \n\nAutosaveMark_13_Zk12 São Café ő é ç ñ ø — paragraph 13: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal \n\nAutosaveMark_14_Zk12 São Café ő é ç ñ ø — paragraph 14: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal \n\nAutosaveMark_15_Zk12 São Café ő é ç ñ ø — paragraph 15: Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal Kőszeg várfal ködös hajnal ",
+      "wordCount": 1369,
+      "documentId": "b8e0f374-e1f8-41e3-b5be-64ad4cd1a871",
+      "version": 16
+    },
+    "ts": "2026-07-20T11:32:58.358Z"
+  }
+]

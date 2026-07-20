@@ -1,0 +1,19 @@
+{
+  "turn": 1,
+  "request": {
+    "writerMessage": "I hear you, but that clinical line is deliberate. Imogen manages grief as \"arithmetic\" - she intellectualizes to keep feeling at a survivable distance. So the abstract self-classification IS her voice at that peak moment: the prose enacts her retreat into taxonomy exactly when the emotion is strongest. That's the point, not a lapse in register. Make the case: why should I break that characterization rather than trust the reader to feel the coldness as hers?"
+  },
+  "status": 200,
+  "error": null,
+  "body": {
+    "assistantMessage": "You’re right. If the abstraction enacts her defensive intellectualization, the register shift is character-driven, not a prose slip. I’ll withdraw the flag and trust the phrasing to function as armor.",
+    "suggestedConstraint": {
+      "category": "style",
+      "content": "Treat register shifts that mirror a character’s psychological defense mechanisms as intentional stylistic choices rather than lapses."
+    },
+    "userTurns": 1,
+    "capped": false
+  },
+  "elapsed_ms": 42708,
+  "capturedAt": "2026-07-20T11:40:40.050Z"
+}

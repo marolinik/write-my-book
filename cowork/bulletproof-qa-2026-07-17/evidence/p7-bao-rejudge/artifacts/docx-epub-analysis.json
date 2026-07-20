@@ -1,0 +1,140 @@
+{
+  "bookName": "The Kőszeg Manuscript — Bao Réjudge P7 (São Café Ærø)",
+  "docx": {
+    "documentXmlChars": 329003,
+    "decompressedBodyWords": 51422,
+    "metaTitleRaw": "The Kőszeg Manuscript — Bao Réjudge P7 (São Café Ærø)",
+    "metaTitleMatchesBookName": true,
+    "sentinelsExpected": 80,
+    "sentinelsMissing": [],
+    "sentinelsAllPresent": true,
+    "chapterTitlesMissing": [],
+    "chapterTitlesAllPresent": true,
+    "sentinelOrderPreserved": true
+  },
+  "epub": {
+    "opfTitleRaw": "The Kőszeg Manuscript — Bao Réjudge P7 (São Café Ærø)",
+    "opfTitleMatchesBookName": true,
+    "totalBodyWords": 51510,
+    "xhtmlFiles": 22,
+    "perFile": [
+      {
+        "name": "EPUB/nav.xhtml",
+        "bodyWords": 88
+      },
+      {
+        "name": "EPUB/text/title_page.xhtml",
+        "bodyWords": 10
+      },
+      {
+        "name": "EPUB/text/ch001.xhtml",
+        "bodyWords": 10
+      },
+      {
+        "name": "EPUB/text/ch002.xhtml",
+        "bodyWords": 0
+      },
+      {
+        "name": "EPUB/text/ch003.xhtml",
+        "bodyWords": 10
+      },
+      {
+        "name": "EPUB/text/ch004.xhtml",
+        "bodyWords": 45
+      },
+      {
+        "name": "EPUB/text/ch005.xhtml",
+        "bodyWords": 3215
+      },
+      {
+        "name": "EPUB/text/ch006.xhtml",
+        "bodyWords": 3206
+      },
+      {
+        "name": "EPUB/text/ch007.xhtml",
+        "bodyWords": 3203
+      },
+      {
+        "name": "EPUB/text/ch008.xhtml",
+        "bodyWords": 3215
+      },
+      {
+        "name": "EPUB/text/ch009.xhtml",
+        "bodyWords": 3212
+      },
+      {
+        "name": "EPUB/text/ch010.xhtml",
+        "bodyWords": 3212
+      },
+      {
+        "name": "EPUB/text/ch011.xhtml",
+        "bodyWords": 3209
+      },
+      {
+        "name": "EPUB/text/ch012.xhtml",
+        "bodyWords": 3203
+      },
+      {
+        "name": "EPUB/text/ch013.xhtml",
+        "bodyWords": 3215
+      },
+      {
+        "name": "EPUB/text/ch014.xhtml",
+        "bodyWords": 3212
+      },
+      {
+        "name": "EPUB/text/ch015.xhtml",
+        "bodyWords": 3204
+      },
+      {
+        "name": "EPUB/text/ch016.xhtml",
+        "bodyWords": 3205
+      },
+      {
+        "name": "EPUB/text/ch017.xhtml",
+        "bodyWords": 3211
+      },
+      {
+        "name": "EPUB/text/ch018.xhtml",
+        "bodyWords": 3205
+      },
+      {
+        "name": "EPUB/text/ch019.xhtml",
+        "bodyWords": 3212
+      },
+      {
+        "name": "EPUB/text/ch020.xhtml",
+        "bodyWords": 3208
+      }
+    ],
+    "xhtmlHeadTitles": [
+      "The Kőszeg Manuscript - Bao Réjudge P7 (São Café Ærø)",
+      "The Kőszeg Manuscript - Bao Réjudge P7 (São Café Ærø)",
+      "The Kőszeg Manuscript - Bao Réjudge P7 (São Café Ærø)",
+      "ch002.xhtml",
+      "The Kőszeg Manuscript - Bao Réjudge P7 (São Café Ærø)",
+      "ch004.xhtml",
+      "A Kőszegi Kézirat (ch.1)",
+      "São Café és Ærø (ch.2)",
+      "Übermüdet Brücke (ch.3)",
+      "Çağlar Boyunca (ch.4)",
+      "Далёкий Север (ch.5)",
+      "Grüße vom Fluß (ch.6)",
+      "Ægir og Þór (ch.7)",
+      "Björken Skälver (ch.8)",
+      "Le Cœur Naïf (ch.9)",
+      "Zażółć Gęślą (ch.10)",
+      "Fönix és Hamu (ch.11)",
+      "Måne over Fjord (ch.12)",
+      "Þingvellir Nótt (ch.13)",
+      "Œuvre Inachevée (ch.14)",
+      "Głębia Puszczy (ch.15)",
+      "Rüzgârın Şarkısı (ch.16)"
+    ],
+    "sentinelsExpected": 80,
+    "sentinelsMissing": [],
+    "sentinelsAllPresent": true,
+    "chapterTitlesMissing": [],
+    "chapterTitlesAllPresent": true
+  }
+}

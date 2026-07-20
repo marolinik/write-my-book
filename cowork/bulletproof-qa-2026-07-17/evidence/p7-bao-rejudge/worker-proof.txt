@@ -1,0 +1,11 @@
+﻿P7 Bao rejudge — worker-proof capture
+captured_at: 2026-07-20T13:36:54+02:00
+server_port_3002_owning_pid: 53220
+
+worker.ts process tree (exactly ONE BullMQ worker + its npx->tsx launcher chain):
+  PID=31644 PPID=30280 :: "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npx-cli.js tsx src/worker.ts
+  PID=28224 PPID=63044 :: "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\tsx\dist\cli.mjs" src/worker.ts
+  PID=61892 PPID=28224 :: "C:\Program Files\nodejs\node.exe" --require D:\Projects\wmb-pub\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/wmb-pub/node_modules/tsx/dist/loader.mjs src/worker.ts
+
+actual_worker_node_process_count: 1
+interpretation: PID 31644 = npx launcher, PID 28224 = tsx cli launcher, PID 61892 = the single node worker process (parent=28224). One logical worker; no second/duplicate worker at capture.

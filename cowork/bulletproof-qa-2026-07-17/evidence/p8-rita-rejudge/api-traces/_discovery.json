@@ -1,0 +1,472 @@
+{
+  "p1_books_status": 200,
+  "p1_books": [
+    {
+      "id": "4116055c-6183-4675-926a-e04f31126951",
+      "name": "The Salt Letters QA P1 93181fd1",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "b3c43111-fdf0-40a8-b218-c8292bd7bcbb",
+      "name": "Maya Book",
+      "chapters": 1,
+      "seriesId": null
+    }
+  ],
+  "p2_books_status": 200,
+  "p2_books": [
+    {
+      "id": "1c829f25-3c52-4751-80b1-61cdc7fd8c73",
+      "name": "Caret Eyeball 1784369327094-w0",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "659bec87-cd45-4acd-87ab-a3d9bc0e7cdf",
+      "name": "Crash Drill 1784369233911-w0",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "f34c47c9-750c-48de-86b7-0311708f8116",
+      "name": "Crash Drill 1784369218275-w0",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "34c3418f-566c-47fc-a7cc-ed3bbe797c6c",
+      "name": "Crash Drill 1784369175839-w0",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "929bb1e8-722a-4f84-bb86-06ddf41ed9e9",
+      "name": "Crash Drill 1784369133275-w0",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "36742416-2a09-46cd-92e6-8cbe0c9abe8b",
+      "name": "Z14 Drill 30s burst (multiple max-wait cycles, immediate crash) 1784369051193-w2",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "cd96cf3e-90db-4571-b971-b9dd858526e0",
+      "name": "Z14 Drill 5s burst (sub max-wait, immediate crash) 1784369051257-w1",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "6a3a3172-d0b2-40d4-802c-18eb16f0deba",
+      "name": "Netkill Drill 1784369051620-w3",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "25f8b581-338f-4fd3-a984-f0b65711ad31",
+      "name": "Z14 Drill 0s burst (single keystroke, immediate crash) 1784369051422-w0",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "c5eb551b-b0e4-4a87-8e3d-7b6eedab2b6f",
+      "name": "Crash Drill 1784369051325-w4",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "f4459f34-59d5-4812-b338-4f3b498411ce",
+      "name": "Z13 Drill 1784369051257-w5",
+      "chapters": 2,
+      "seriesId": null
+    },
+    {
+      "id": "8de59812-5564-43d3-a37f-d6a217fd0493",
+      "name": "Z14 Drill 30s burst (multiple max-wait cycles, immediate crash) 1784368966729-w2",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "2bada77b-5a67-4841-82c5-a344aecd848d",
+      "name": "Z14 Drill 5s burst (sub max-wait, immediate crash) 1784368967009-w1",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "e2582a30-5ab6-4b35-9794-9026e54d3db9",
+      "name": "Netkill Drill 1784368967143-w3",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "e5c9977f-2224-4f06-ac09-39ac210e721e",
+      "name": "Crash Drill 1784368967186-w4",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "2a14835f-5d54-4853-9ca9-1c3ec8b953bd",
+      "name": "Z14 Drill 0s burst (single keystroke, immediate crash) 1784368966902-w0",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "ac0e2cec-bbd4-4fe0-bc02-0341dc920bf3",
+      "name": "Z13 Drill 1784368966809-w5",
+      "chapters": 2,
+      "seriesId": null
+    },
+    {
+      "id": "9b652194-0398-433b-b7a0-639e4ee7dd4a",
+      "name": "Z14 Drill 30s burst (multiple max-wait cycles, immediate crash) 1784368880575-w2",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "c0a2f6a0-cd24-4395-a49c-ff17b67097d9",
+      "name": "Z14 Drill 5s burst (sub max-wait, immediate crash) 1784368879557-w1",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "bd9d0c3e-3fbe-44f2-bd08-6f6d50f33fd8",
+      "name": "Netkill Drill 1784368880969-w3",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "dfdb360f-d55e-4a1f-bc9f-e3d9efa455b1",
+      "name": "Z14 Drill 0s burst (single keystroke, immediate crash) 1784368881501-w0",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "bc2acd41-8c52-4b7a-890b-0096dc7c3ffc",
+      "name": "Crash Drill 1784368880882-w4",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "e86f17fd-a6a7-4958-87f5-83559cab4592",
+      "name": "Z13 Drill 1784368881479-w5",
+      "chapters": 2,
+      "seriesId": null
+    },
+    {
+      "id": "b2d4c8b4-8837-4698-83aa-c59bd7a1dfd7",
+      "name": "Crash Drill 1784342993813-w0",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "8e8748a8-c53e-431f-a112-71e6d52f88a0",
+      "name": "Crash Drill 1784342965451-w0",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "415986f1-311b-4805-ab8f-077b1104954d",
+      "name": "Crash Drill 1784342947105-w0",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "e2796c89-e4f0-4ed1-9cbe-c2e54d6fc3bf",
+      "name": "Z13 Drill 1784342791529-w4",
+      "chapters": 2,
+      "seriesId": null
+    },
+    {
+      "id": "b60bc2fa-b191-4ff8-823a-4c078ee7ab1e",
+      "name": "Crash Drill 1784342712191-w3",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "86a5f472-37a7-43c7-a51b-76135fe8234d",
+      "name": "Netkill Drill 1784342697247-w3",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "3b799b82-3797-4771-b537-f5fa3d7b5835",
+      "name": "Z14 Drill 30s burst (multiple max-wait cycles, immediate crash) 1784342664218-w2",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "2d617c37-3750-4de3-891c-2c0a1f12b85c",
+      "name": "Z14 Drill 5s burst (sub max-wait, immediate crash) 1784342615561-w1",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "b25eef0d-8afb-4995-928e-61586a72ee68",
+      "name": "Z14 Drill 0s burst (single keystroke, immediate crash) 1784342582337-w0",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "ef19cada-fa7e-4f4b-977b-1491a255e8c0",
+      "name": "Z13 Control 1784342499341",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "61d1fb9e-4df2-46f6-bb20-f1d28463415c",
+      "name": "Z13 Control 1784342138009",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "f06d89c5-0600-41d4-aeaf-3be8ace68db3",
+      "name": "Z13 Drill 1784341769567-w3",
+      "chapters": 2,
+      "seriesId": null
+    },
+    {
+      "id": "7f54919f-31a6-45b5-8fb3-c3f87073511e",
+      "name": "Crash Drill 1784341749263-w3",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "f1708e6f-0bed-4e6e-84f7-ddddf9237734",
+      "name": "Netkill Drill 1784341734089-w3",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "62b40c6b-e261-40be-a137-89c51fd80e28",
+      "name": "Z14 Drill 5s burst (sub max-wait, immediate crash) 1784341683484-w1",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "10730d23-9a62-467a-8b83-e27007d4bdf0",
+      "name": "Z14 Drill 0s burst (single keystroke, immediate crash) 1784341684351-w0",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "a3c30c52-2820-4622-8227-b1e72f4d545e",
+      "name": "Z14 Drill 30s burst (multiple max-wait cycles, immediate crash) 1784341682831-w2",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "2e26c3b2-58a9-4b4a-b13b-3f04967c3130",
+      "name": "Z14 Debug Sweep 1784341457385",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "b7e6a3e2-7261-45c7-88c8-d00ee85cd206",
+      "name": "Z14 Debug Sweep 1784341296130",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "128905fb-cbef-498f-8a71-c7d1bc1565ad",
+      "name": "Z14 Debug Sweep 1784341201842",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "955fe52e-da57-4b74-b489-0b35dd0b01c0",
+      "name": "Z14 Debug Sweep 1784341092098",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "c45765fa-d238-4624-ac93-31c2b16ce38e",
+      "name": "Z14 Debug 1784340999762",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "7b8b20d9-61ab-4f57-9c9f-ec4a72d695db",
+      "name": "Z14 Debug 1784340862590",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "baa76c9c-017c-407e-8ac1-77f2763e1a4b",
+      "name": "Netkill Drill 1784339950106-w3",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "96bc1324-2266-47d9-a770-ae9a83709a1a",
+      "name": "Crash Drill 1784339950397-w4",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "613cb499-9572-497c-ab03-47b3fa7a6b94",
+      "name": "Z13 Drill 1784339950129-w5",
+      "chapters": 2,
+      "seriesId": null
+    },
+    {
+      "id": "8830a1c2-11ed-42ca-bf68-83bc34612d1f",
+      "name": "Z14 Drill 0s burst (single keystroke, immediate crash) 1784339929097-w0",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "c820d45f-d1e1-45cb-b29c-d672101df43e",
+      "name": "Z14 Drill 30s burst (multiple max-wait cycles, immediate crash) 1784339929191-w2",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "7a6fa8bf-9458-4b22-b597-7874602b70a9",
+      "name": "Z14 Drill 5s burst (sub max-wait, immediate crash) 1784339929083-w1",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "4f74f932-cd3e-4c14-8928-88b2f394bd23",
+      "name": "X1 Drill A 1784339638017-w0",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "089ea0cc-e8c7-48e9-9d82-1a524874cb6e",
+      "name": "X1 Drill B 1784339638029-w1",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "73b0f544-0b9a-49fe-b2f5-8081be4f588a",
+      "name": "X1 repro 1784339512",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "306f66d3-8b1a-48e9-bf15-bbf3af64287b",
+      "name": "X1 Drill B 1784339484821-w8",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "2e1ac6e0-dc66-42a3-9b6d-fc440e3b9e5d",
+      "name": "X1 Drill A 1784339480904-w7",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "f6616d35-f28d-4525-a312-6ad5c59046aa",
+      "name": "W4 Drill Throwaway (Gerald)",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "f33d90ee-0966-4ebc-803d-26897368a8c7",
+      "name": "Embed Test",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "636a1f02-8520-4b66-8e78-08c8e0fee5f0",
+      "name": "Dead Reckoning 31 QA P2",
+      "chapters": 8,
+      "seriesId": null
+    },
+    {
+      "id": "72bf0637-6e80-4b7a-8552-83c914750739",
+      "name": "Rita Injection Test 1784302079",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "5aeb4bbc-3c4e-400e-86a8-789656c09c52",
+      "name": "Rita Injection Test 1784301956",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "10428c56-ac91-4eaa-8048-ece7d79d63f2",
+      "name": "Rita Injection Test 1784301921",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "4a7d0332-593a-45c6-bd61-9f70788437f3",
+      "name": "Rita Injection Test 1784301884",
+      "chapters": 1,
+      "seriesId": null
+    }
+  ],
+  "p3_books_status": 200,
+  "p3_books": [
+    {
+      "id": "d590667b-3aeb-4707-a20a-7259fc4ac076",
+      "name": "ZZ Failure Honesty Probe [RJ0720]",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "6836d4ca-8b1e-46d4-bb0d-c35782750d76",
+      "name": "ZZ Location Gate Probe [RJ0720]",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "89bb1ad4-b4a0-4cf0-8969-f7728d489113",
+      "name": "ZZ Alias Probe [RJ0720]",
+      "chapters": 1,
+      "seriesId": null
+    },
+    {
+      "id": "a77359eb-6587-4bf0-b72d-65e0ae027e64",
+      "name": "Emberfall — Book I [RJ0720]",
+      "chapters": 8,
+      "seriesId": "0e11c5c1-e9ee-4736-a214-40dc1576c1b3"
+    },
+    {
+      "id": "af01d68f-6f04-4bfc-aab3-76ec700fc0c1",
+      "name": "Ashfall — Book II [RJ0720]",
+      "chapters": 2,
+      "seriesId": "0e11c5c1-e9ee-4736-a214-40dc1576c1b3"
+    },
+    {
+      "id": "fd60e1d4-37c5-4c11-92a1-586af638224a",
+      "name": "Emberfall QA P3",
+      "chapters": 8,
+      "seriesId": "8d5e94c0-c175-4f50-97f4-29f4e09b9b89"
+    },
+    {
+      "id": "2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90",
+      "name": "Cinderwake QA P3",
+      "chapters": 9,
+      "seriesId": "8d5e94c0-c175-4f50-97f4-29f4e09b9b89"
+    },
+    {
+      "id": "34cd7b88-94a7-47e5-8374-f5d4799fa02a",
+      "name": "Standalone QA P3",
+      "chapters": 1,
+      "seriesId": null
+    }
+  ],
+  "p5_books_status": 200,
+  "p5_books": [
+    {
+      "id": "35ff1112-52af-4001-a0f4-ec83f4dad9b0",
+      "name": "Sam Free-Tier On-Ramp QA 2026-07-20",
+      "chapters": 1,
+      "seriesId": null
+    }
+  ],
+  "p8_books_status": 200,
+  "p8_books": [],
+  "p1_series_status": 200,
+  "p1_series_raw": "[]",
+  "p3_series_status": 200,
+  "p3_series_raw": "[{\"id\":\"0e11c5c1-e9ee-4736-a214-40dc1576c1b3\",\"userId\":\"3f4836f4-083e-4011-9bb5-bec2a6714eb6\",\"title\":\"Selena Rejudge Saga [RJ0720]\",\"genre\":\"fantasy\",\"language\":\"en\",\"seriesType\":\"DUOLOGY\",\"plannedBooks\":2,\"description\":null,\"createdAt\":\"2026-07-20T02:17:23.831Z\",\"updatedAt\":\"2026-07-20T02:17:23.831Z\",\"books\":[{\"id\":\"a77359eb-6587-4bf0-b72d-65e0ae027e64\",\"bookNumber\":1,\"name\":\"Emberfall — Book I ",
+  "p8_apikeys_status": 200,
+  "p8_apikeys_raw": "[{\"id\":\"73aa2320-3fe0-4aac-86c6-dc3c625e9ac0\",\"provider\":\"openrouter\",\"label\":\"qa\",\"isDefault\":true,\"validatedAt\":\"2026-07-20T00:52:25.216Z\",\"createdAt\":\"2026-07-17T15:14:49.457Z\",\"maskedKey\":\"sk-or-v...705e\",\"usage\":{\"totalTokens\":0,\"totalCost\":0,\"sessionCount\":0}}]"
+}

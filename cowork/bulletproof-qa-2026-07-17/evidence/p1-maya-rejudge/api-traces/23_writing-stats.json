@@ -1,0 +1,62 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "http://localhost:3002/api/books/4116055c-6183-4675-926a-e04f31126951/writing-stats?days=7",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p1"
+    },
+    "body": null
+  },
+  "status": 200,
+  "error": null,
+  "responseHeaders": {
+    "connection": "keep-alive",
+    "content-type": "application/json",
+    "date": "Mon, 20 Jul 2026 11:39:05 GMT",
+    "keep-alive": "timeout=5",
+    "transfer-encoding": "chunked",
+    "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+  },
+  "body": {
+    "dailyCounts": [
+      {
+        "date": "2026-07-14",
+        "words": 0
+      },
+      {
+        "date": "2026-07-15",
+        "words": 0
+      },
+      {
+        "date": "2026-07-16",
+        "words": 380
+      },
+      {
+        "date": "2026-07-17",
+        "words": 324
+      },
+      {
+        "date": "2026-07-18",
+        "words": 0
+      },
+      {
+        "date": "2026-07-19",
+        "words": 0
+      },
+      {
+        "date": "2026-07-20",
+        "words": 0
+      }
+    ],
+    "todayWords": 0,
+    "streak": 0,
+    "bestStreak": 2,
+    "weeklyAvg": 101,
+    "totalWords": 704,
+    "goals": []
+  },
+  "bodyIsRawText": false,
+  "elapsed_ms": 296,
+  "capturedAt": "2026-07-20T11:39:05.086Z"
+}

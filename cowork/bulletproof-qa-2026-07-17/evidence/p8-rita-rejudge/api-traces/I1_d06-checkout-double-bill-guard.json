@@ -1,0 +1,28 @@
+{
+  "id": "I1",
+  "label": "d06-checkout-double-bill-guard",
+  "actor": "p3",
+  "capturedAt": "2026-07-20T11:31:33.924Z",
+  "request": {
+    "method": "POST",
+    "url": "http://127.0.0.1:3002/api/billing/checkout",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p3",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "plan": "indie",
+      "billingInterval": "monthly"
+    },
+    "bodyMode": "json"
+  },
+  "response": {
+    "status": 409,
+    "contentType": "application/json",
+    "bodyLength": 191,
+    "bodyText": "{\"error\":\"You already have an active subscription. To change plans, use Manage Subscription (the billing portal) — plan changes there are prorated automatically.\",\"code\":\"already_subscribed\"}"
+  },
+  "expected": "409 already_subscribed (was 200 + live checkout URL = double-bill D-06)",
+  "note": null
+}

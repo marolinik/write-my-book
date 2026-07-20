@@ -1,0 +1,24 @@
+{
+  "id": "K4",
+  "label": "auth-prefix-guard-nonqa",
+  "actor": "attacker",
+  "capturedAt": "2026-07-20T11:31:45.148Z",
+  "request": {
+    "method": "GET",
+    "url": "http://127.0.0.1:3002/api/books",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_hackerman_admin"
+    },
+    "body": null,
+    "bodyMode": "none"
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json",
+    "bodyLength": 2,
+    "bodyText": "[]"
+  },
+  "expected": "NOT an arbitrary victim's books — prefix guard forces fixed fallback user (or 401)",
+  "note": null
+}

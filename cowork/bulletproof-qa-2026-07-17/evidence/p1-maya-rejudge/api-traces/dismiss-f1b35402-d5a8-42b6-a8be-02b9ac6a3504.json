@@ -1,0 +1,32 @@
+{
+  "status": 200,
+  "body": {
+    "id": "f1b35402-d5a8-42b6-a8be-02b9ac6a3504",
+    "bookId": "4116055c-6183-4675-926a-e04f31126951",
+    "chapterNumber": 1,
+    "sessionId": "4bd0654f-de53-41f9-a86e-17a1a3faa61f",
+    "agentType": "dev-editor",
+    "severity": "suggestion",
+    "category": "show-tell",
+    "description": "Imogen's shoreline self-recognition is delivered through abstract psychological classification rather than embodied sensation, breaking the chapter's sensory-metaphorical mode.",
+    "suggestion": "The chapter's power derives from rendering emotional states through physical and environmental reality: the burn before touching, the letter against ribs, wading through shallows. This sentence steps into clinical taxonomy (\"people who rushed toward feeling\" / \"people who built elaborate structures\") that reads like textbook mental health language rather than the visceral, coastal register that defines the prose voice. For literary fiction where the prose itself is the feature, this register shift disrupts the immersive sensory mode the reader has been inhabiting. The realization is important to the arc — but its delivery method pulls the prose out of its own fingerprint.",
+    "originalText": "She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.",
+    "newText": "She smoothed the wet sand with her palm until it lay perfectly flat, erasing every uneven trace, and thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance. She understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.",
+    "locationStart": null,
+    "locationEnd": null,
+    "status": "dismissed",
+    "dismissReason": "Keeping the abstract self-classification as intentional voice - Imogen retreats into arithmetic at emotional peaks by design; per discuss thread.",
+    "appliedAt": null,
+    "createdAt": "2026-07-18T11:36:48.665Z",
+    "contentHash": "fd6f30a6181d7ff7e616b31c89ad59e3ef613306ba5e0b94eb5148f72c983325",
+    "confidence": 0.85,
+    "rationale": "The chapter's power derives from rendering emotional states through physical and environmental reality: the burn before touching, the letter against ribs, wading through shallows. This sentence steps into clinical taxonomy (\"people who rushed toward feeling\" / \"people who built elaborate structures\") that reads like textbook mental health language rather than the visceral, coastal register that defines the prose voice. For literary fiction where the prose itself is the feature, this register shift disrupts the immersive sensory mode the reader has been inhabiting. The realization is important to the arc — but its delivery method pulls the prose out of its own fingerprint.",
+    "paragraphNumber": 6,
+    "anchorQuote": "She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.",
+    "alternatives": "[{\"label\":\"Option A — ground the recognition in the shoreline's physical clarity\",\"newText\":\"She smoothed the wet sand with her palm until it lay perfectly flat, erasing every uneven trace, and thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance. She understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.\",\"originalText\":\"She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.\"},{\"label\":\"Option B — fold into the wading metaphor already established in the chapter\",\"newText\":\"She thought about her mother's handwriting, which had been small and slanted and impatient. Thomas's careful, spaced-out script, each letter of every word given room to breathe as though he'd learned penmanship as a form of penance. She thought about who earned it and who was taught to keep it at a distance, and understood, with the particular clarity the sea seemed to specialize in, that she had been taught. She likely always would be.\",\"originalText\":\"She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.\"},{\"label\":\"Option C — break the long sentence into the long-then-punch signature rhythm\",\"newText\":\"She thought about people who rushed toward feeling. She thought about people who built elaborate structures to keep it at a survivable distance. She understood, with the particular clarity the sea seemed to specialize in, that she was the second kind. And that she had likely always been.\",\"originalText\":\"She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.\"}]",
+    "groundingScore": 1,
+    "chapterVersion": 1,
+    "rejectedAt": null,
+    "rejectionReason": null
+  }
+}

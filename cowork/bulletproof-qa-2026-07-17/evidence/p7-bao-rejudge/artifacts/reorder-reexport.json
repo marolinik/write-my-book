@@ -1,0 +1,199 @@
+{
+  "bookId": "85c3d2c4-b193-45b7-b677-5d102af8e4d8",
+  "reorderResp": {
+    "reordered": 16
+  },
+  "newOrderChapterNumbersTitles": [
+    {
+      "chapterNumber": 1,
+      "title": "Rüzgârın Şarkısı (ch.16)"
+    },
+    {
+      "chapterNumber": 2,
+      "title": "Głębia Puszczy (ch.15)"
+    },
+    {
+      "chapterNumber": 3,
+      "title": "Œuvre Inachevée (ch.14)"
+    },
+    {
+      "chapterNumber": 4,
+      "title": "Þingvellir Nótt (ch.13)"
+    },
+    {
+      "chapterNumber": 5,
+      "title": "Måne over Fjord (ch.12)"
+    },
+    {
+      "chapterNumber": 6,
+      "title": "Fönix és Hamu (ch.11)"
+    },
+    {
+      "chapterNumber": 7,
+      "title": "Zażółć Gęślą (ch.10)"
+    },
+    {
+      "chapterNumber": 8,
+      "title": "Le Cœur Naïf (ch.9)"
+    },
+    {
+      "chapterNumber": 9,
+      "title": "Björken Skälver (ch.8)"
+    },
+    {
+      "chapterNumber": 10,
+      "title": "Ægir og Þór (ch.7)"
+    },
+    {
+      "chapterNumber": 11,
+      "title": "Grüße vom Fluß (ch.6)"
+    },
+    {
+      "chapterNumber": 12,
+      "title": "Далёкий Север (ch.5)"
+    },
+    {
+      "chapterNumber": 13,
+      "title": "Çağlar Boyunca (ch.4)"
+    },
+    {
+      "chapterNumber": 14,
+      "title": "Übermüdet Brücke (ch.3)"
+    },
+    {
+      "chapterNumber": 15,
+      "title": "São Café és Ærø (ch.2)"
+    },
+    {
+      "chapterNumber": 16,
+      "title": "A Kőszegi Kézirat (ch.1)"
+    }
+  ],
+  "reExport": {
+    "export1": "The-Koszeg-Manuscript-Bao-Rejudge-P7-Sao-Cafe-r-2026-07-20T11-34-13.docx",
+    "export2": "The-Koszeg-Manuscript-Bao-Rejudge-P7-Sao-Cafe-r-2026-07-20T11-34-15.docx",
+    "wordCount1": 51436,
+    "wordCount2": 51436,
+    "bodyXmlByteIdenticalAcrossReExports": true
+  },
+  "sentinelsExpected": 80,
+  "sentinelsMissingAfterReorder": [],
+  "allSentinelsPresent": true,
+  "titleOrderMatchesReversal": true,
+  "contentPairedToCorrectTitle_D03": true,
+  "PASS": true,
+  "pairing": [
+    {
+      "n": 1,
+      "titlePos": 300117,
+      "alphaPos": 300142,
+      "omegaPos": 320099,
+      "titleBeforeContent": true
+    },
+    {
+      "n": 2,
+      "titlePos": 280029,
+      "alphaPos": 280052,
+      "omegaPos": 300107,
+      "titleBeforeContent": true
+    },
+    {
+      "n": 3,
+      "titlePos": 260219,
+      "alphaPos": 260243,
+      "omegaPos": 280019,
+      "titleBeforeContent": true
+    },
+    {
+      "n": 4,
+      "titlePos": 240113,
+      "alphaPos": 240135,
+      "omegaPos": 260209,
+      "titleBeforeContent": true
+    },
+    {
+      "n": 5,
+      "titlePos": 220145,
+      "alphaPos": 220166,
+      "omegaPos": 240103,
+      "titleBeforeContent": true
+    },
+    {
+      "n": 6,
+      "titlePos": 199994,
+      "alphaPos": 200016,
+      "omegaPos": 220135,
+      "titleBeforeContent": true
+    },
+    {
+      "n": 7,
+      "titlePos": 180058,
+      "alphaPos": 180077,
+      "omegaPos": 199984,
+      "titleBeforeContent": true
+    },
+    {
+      "n": 8,
+      "titlePos": 160125,
+      "alphaPos": 160148,
+      "omegaPos": 180048,
+      "titleBeforeContent": true
+    },
+    {
+      "n": 9,
+      "titlePos": 140089,
+      "alphaPos": 140109,
+      "omegaPos": 160115,
+      "titleBeforeContent": true
+    },
+    {
+      "n": 10,
+      "titlePos": 120172,
+      "alphaPos": 120193,
+      "omegaPos": 140079,
+      "titleBeforeContent": true
+    },
+    {
+      "n": 11,
+      "titlePos": 100291,
+      "alphaPos": 100313,
+      "omegaPos": 120162,
+      "titleBeforeContent": true
+    },
+    {
+      "n": 12,
+      "titlePos": 80108,
+      "alphaPos": 80132,
+      "omegaPos": 100281,
+      "titleBeforeContent": true
+    },
+    {
+      "n": 13,
+      "titlePos": 60183,
+      "alphaPos": 60207,
+      "omegaPos": 80098,
+      "titleBeforeContent": true
+    },
+    {
+      "n": 14,
+      "titlePos": 40187,
+      "alphaPos": 40211,
+      "omegaPos": 60173,
+      "titleBeforeContent": true
+    },
+    {
+      "n": 15,
+      "titlePos": 20248,
+      "alphaPos": 20271,
+      "omegaPos": 40177,
+      "titleBeforeContent": true
+    },
+    {
+      "n": 16,
+      "titlePos": 435,
+      "alphaPos": 460,
+      "omegaPos": 20238,
+      "titleBeforeContent": true
+    }
+  ]
+}

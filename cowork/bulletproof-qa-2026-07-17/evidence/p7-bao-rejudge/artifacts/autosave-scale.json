@@ -1,0 +1,137 @@
+{
+  "bookId": "85c3d2c4-b193-45b7-b677-5d102af8e4d8",
+  "chapterId": "8747c036-f070-4757-85b6-9ccb6843b814",
+  "savesAttempted": 15,
+  "savesSucceeded": 15,
+  "versionsMonotonic": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16
+  ],
+  "finalVersion": 16,
+  "allAutosaveMarksPresent": true,
+  "marksOrderPreserved": true,
+  "finalContentExactMatchToLastWrite": true,
+  "finalContentChars": 9001,
+  "lastWriteChars": 9001,
+  "PASS": true,
+  "steps": [
+    {
+      "k": 1,
+      "status": 200,
+      "newVersion": 2,
+      "wordCount": 95,
+      "bookWordCount": 45071
+    },
+    {
+      "k": 2,
+      "status": 200,
+      "newVersion": 3,
+      "wordCount": 186,
+      "bookWordCount": 45162
+    },
+    {
+      "k": 3,
+      "status": 200,
+      "newVersion": 4,
+      "wordCount": 277,
+      "bookWordCount": 45253
+    },
+    {
+      "k": 4,
+      "status": 200,
+      "newVersion": 5,
+      "wordCount": 368,
+      "bookWordCount": 45344
+    },
+    {
+      "k": 5,
+      "status": 200,
+      "newVersion": 6,
+      "wordCount": 459,
+      "bookWordCount": 45435
+    },
+    {
+      "k": 6,
+      "status": 200,
+      "newVersion": 7,
+      "wordCount": 550,
+      "bookWordCount": 45526
+    },
+    {
+      "k": 7,
+      "status": 200,
+      "newVersion": 8,
+      "wordCount": 641,
+      "bookWordCount": 45617
+    },
+    {
+      "k": 8,
+      "status": 200,
+      "newVersion": 9,
+      "wordCount": 732,
+      "bookWordCount": 45708
+    },
+    {
+      "k": 9,
+      "status": 200,
+      "newVersion": 10,
+      "wordCount": 823,
+      "bookWordCount": 45799
+    },
+    {
+      "k": 10,
+      "status": 200,
+      "newVersion": 11,
+      "wordCount": 914,
+      "bookWordCount": 45890
+    },
+    {
+      "k": 11,
+      "status": 200,
+      "newVersion": 12,
+      "wordCount": 1005,
+      "bookWordCount": 45981
+    },
+    {
+      "k": 12,
+      "status": 200,
+      "newVersion": 13,
+      "wordCount": 1096,
+      "bookWordCount": 46072
+    },
+    {
+      "k": 13,
+      "status": 200,
+      "newVersion": 14,
+      "wordCount": 1187,
+      "bookWordCount": 46163
+    },
+    {
+      "k": 14,
+      "status": 200,
+      "newVersion": 15,
+      "wordCount": 1278,
+      "bookWordCount": 46254
+    },
+    {
+      "k": 15,
+      "status": 200,
+      "newVersion": 16,
+      "wordCount": 1369,
+      "bookWordCount": 46345
+    }
+  ]
+}

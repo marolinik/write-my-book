@@ -1,0 +1,27 @@
+{
+  "id": "B6",
+  "label": "own-book-patch",
+  "actor": "p8",
+  "capturedAt": "2026-07-20T11:30:52.304Z",
+  "request": {
+    "method": "PATCH",
+    "url": "http://127.0.0.1:3002/api/books/4116055c-6183-4675-926a-e04f31126951",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p8",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "name": "rita-hacked"
+    },
+    "bodyMode": "json"
+  },
+  "response": {
+    "status": 404,
+    "contentType": "application/json",
+    "bodyLength": 26,
+    "bodyText": "{\"error\":\"Book not found\"}"
+  },
+  "expected": "404 (no cross-tenant write)",
+  "note": null
+}

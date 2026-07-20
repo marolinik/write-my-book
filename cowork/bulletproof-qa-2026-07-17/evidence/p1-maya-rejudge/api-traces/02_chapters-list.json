@@ -1,0 +1,42 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "http://localhost:3002/api/books/4116055c-6183-4675-926a-e04f31126951/chapters",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p1"
+    },
+    "body": null
+  },
+  "status": 200,
+  "error": null,
+  "responseHeaders": {
+    "connection": "keep-alive",
+    "content-type": "application/json",
+    "date": "Mon, 20 Jul 2026 11:22:47 GMT",
+    "keep-alive": "timeout=5",
+    "transfer-encoding": "chunked",
+    "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+  },
+  "body": [
+    {
+      "id": "ed84e638-0436-4cee-a458-669ce81cad50",
+      "bookId": "4116055c-6183-4675-926a-e04f31126951",
+      "actNumber": 1,
+      "chapterNumber": 1,
+      "title": null,
+      "status": "dev_edited",
+      "wordCount": 704,
+      "targetWordCount": null,
+      "betaScore": null,
+      "betaGate": "pending",
+      "revisionCount": 0,
+      "importedAt": null,
+      "createdAt": "2026-07-17T15:17:04.889Z",
+      "updatedAt": "2026-07-17T22:39:58.294Z"
+    }
+  ],
+  "bodyIsRawText": false,
+  "elapsed_ms": 4077,
+  "capturedAt": "2026-07-20T11:22:47.548Z"
+}

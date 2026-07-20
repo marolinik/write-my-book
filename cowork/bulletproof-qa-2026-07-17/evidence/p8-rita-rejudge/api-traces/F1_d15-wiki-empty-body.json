@@ -1,0 +1,25 @@
+{
+  "id": "F1",
+  "label": "d15-wiki-empty-body",
+  "actor": "p2",
+  "capturedAt": "2026-07-20T11:31:19.249Z",
+  "request": {
+    "method": "POST",
+    "url": "http://127.0.0.1:3002/api/books/1c829f25-3c52-4751-80b1-61cdc7fd8c73/wiki",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p2",
+      "Content-Type": "application/json"
+    },
+    "body": {},
+    "bodyMode": "json"
+  },
+  "response": {
+    "status": 400,
+    "contentType": "application/json",
+    "bodyLength": 240,
+    "bodyText": "{\"error\":\"Invalid input\",\"details\":{\"fieldErrors\":{\"type\":[\"Invalid option: expected one of \\\"character\\\"|\\\"location\\\"|\\\"item\\\"|\\\"event\\\"|\\\"lore\\\"|\\\"custom\\\"\"],\"name\":[\"Invalid input: expected string, received undefined\"]},\"formErrors\":[]}}"
+  },
+  "expected": "400 enveloped (was 500 empty body)",
+  "note": null
+}

@@ -1,0 +1,52 @@
+{
+ "dismiss-response": {
+  "status": 200,
+  "elapsed": 0.509,
+  "body": {
+   "id": "42e70291-7151-40e1-8918-9ae30d85173d",
+   "bookId": "6d69fd7c-f7a4-4e3d-bf49-1415d81f5326",
+   "chapterNumber": 5,
+   "sessionId": "15c82e80-5296-49cf-a498-e77a651ce9b2",
+   "agentType": "line-editor",
+   "severity": "suggestion",
+   "category": "prose",
+   "description": "Dangling modifier — \"Walking back up the steps\" attaches to \"the lamp\" instead of the narrator, creating an accidental image of the lamp walking.",
+   "suggestion": "The sentence misattaches the participial phrase. The lamp did not walk — the narrator did. This is a mechanical grammatical error in prose that otherwise prizes precision. Unlike the protected dangling modifiers explicitly named in the writer's style preferences (which mimic cognitive slippage or fatigue), this one creates an unintended image rather than a deliberate cognitive effect. It reads as an accident, not an artful choice.",
+   "originalText": "Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean.",
+   "newText": "Walking back up the steps, I noticed the lamp seemed dimmer than it should, though the wick was right and the glass was clean.",
+   "locationStart": null,
+   "locationEnd": null,
+   "status": "dismissed",
+   "dismissReason": "Deliberate cognitive slippage — the narrator is tired climbing the steps.",
+   "appliedAt": null,
+   "createdAt": "2026-07-20T11:31:49.506Z",
+   "contentHash": "ad213c50caa18fc1bacc3934fa36f31b8cfa9bdee8ff31e15fd54284ee70c639",
+   "confidence": 0.95,
+   "rationale": "The sentence misattaches the participial phrase. The lamp did not walk — the narrator did. This is a mechanical grammatical error in prose that otherwise prizes precision. Unlike the protected dangling modifiers explicitly named in the writer's style preferences (which mimic cognitive slippage or fatigue), this one creates an unintended image rather than a deliberate cognitive effect. It reads as an accident, not an artful choice.",
+   "paragraphNumber": 7,
+   "anchorQuote": "Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean.",
+   "alternatives": "[{\"label\":\"Option A — attach modifier to narrator\",\"newText\":\"Walking back up the steps, I noticed the lamp seemed dimmer than it should, though the wick was right and the glass was clean.\",\"originalText\":\"Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean.\"},{\"label\":\"Option B — break into two sentences\",\"newText\":\"I walked back up the steps. The lamp seemed dimmer than it should, though the wick was right and the glass was clean.\",\"originalText\":\"Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean.\"},{\"label\":\"Option C — procedural log-frame\",\"newText\":\"On the walk back, the lamp seemed dimmer than it should — wick right, glass clean.\",\"originalText\":\"Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean.\"}]",
+   "groundingScore": 1,
+   "chapterVersion": 4,
+   "rejectedAt": null,
+   "rejectionReason": null
+  }
+ },
+ "D55-finding-row": {
+  "id": "42e70291-7151-40e1-8918-9ae30d85173d",
+  "status": "dismissed",
+  "dismiss_reason": "Deliberate cognitive slippage — the narrator is tired climbing the steps.",
+  "rejected_at": null,
+  "rejection_reason": null,
+  "applied_at": null
+ },
+ "writer-memories": [],
+ "writer-memory-for-dangler": [],
+ "ch5-restore": {
+  "status": 200,
+  "version": 6
+ },
+ "ch5-restore-verify": {
+  "matchesPlanted": true
+ }
+}

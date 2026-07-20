@@ -1,0 +1,24 @@
+{
+  "id": "C1",
+  "label": "deep-fence-p3book-x-p2lens",
+  "actor": "p3",
+  "capturedAt": "2026-07-20T11:31:02.169Z",
+  "request": {
+    "method": "DELETE",
+    "url": "http://127.0.0.1:3002/api/books/d590667b-3aeb-4707-a20a-7259fc4ac076/style/lenses/c57f6624-273c-4d91-a570-3bce493791a5",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p3"
+    },
+    "body": null,
+    "bodyMode": "none"
+  },
+  "response": {
+    "status": 404,
+    "contentType": "application/json",
+    "bodyLength": 26,
+    "bodyText": "{\"error\":\"Lens not found\"}"
+  },
+  "expected": "404 (inner {id,bookId} fence; attacker owns URL book, victim's lens id)",
+  "note": null
+}

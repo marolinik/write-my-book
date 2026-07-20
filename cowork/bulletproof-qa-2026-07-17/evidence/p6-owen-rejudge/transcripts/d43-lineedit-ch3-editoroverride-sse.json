@@ -1,0 +1,29 @@
+{
+ "sessionId": "67ff18e7-46ea-47bf-aaac-e2b0f5733fb7",
+ "nEvents": 1235,
+ "elapsed": 133.746,
+ "final": {
+  "type": "complete",
+  "content": "Session completed successfully",
+  "metadata": {
+   "findingsCreated": 0,
+   "statusAdvanced": true,
+   "newStatus": "line_edited",
+   "documentIds": [
+    "61864890-099b-4056-9816-bf3f5fa18445"
+   ],
+   "suggestedNext": [
+    "beta-read"
+   ],
+   "tokensInput": 50126,
+   "tokensOutput": 8567,
+   "costUsd": 0.034846709999999996,
+   "endReason": "natural"
+  }
+ },
+ "costUpdates": [
+  "openrouter-qwen36/sonnet",
+  "openrouter-qwen36/sonnet",
+  "openrouter-qwen36/sonnet"
+ ]
+}

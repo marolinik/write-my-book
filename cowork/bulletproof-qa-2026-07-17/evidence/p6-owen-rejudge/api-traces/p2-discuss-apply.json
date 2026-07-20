@@ -1,0 +1,102 @@
+{
+ "D42-session-status-get": {
+  "status": 404,
+  "elapsed": 0.126,
+  "body": {
+   "__nonjson__": true,
+   "snippet": "<!DOCTYPE html><html lang=\"en\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content\"/><link rel=\"stylesheet\" href=\"/_next/static/chunks/%5Broot-of-the-server%5D__f1fb4b10._.css\" data-precedence=\"next_s",
+   "length": 35751
+  }
+ },
+ "D39-finding-bad-action-real": {
+  "status": 400,
+  "elapsed": 0.161,
+  "body": {
+   "error": "Invalid input",
+   "details": {
+    "fieldErrors": {
+     "action": [
+      "Invalid option: expected one of \"apply\"|\"dismiss\""
+     ]
+    },
+    "formErrors": []
+   }
+  }
+ },
+ "crit-newText-before-discuss": "There was a silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first. What held me was the smaller arithmetic: the rope and the ring and the salt that held them together, and the tin I found wedged under the stone I had found the first letter under, weeks ago, when this was still a story about grief.",
+ "discuss-crit-holdground": {
+  "status": 200,
+  "elapsed": 157.246,
+  "body": {
+   "assistantMessage": "Beauty is a valid beat here, but the current phrasing breaks the voice foundation the chapter relies on. She observes physical phenomena, not metaphors. We can keep the visual sequence and the atmospheric pause, but render it as she would: precise data on light and visibility.",
+   "revisedSuggestion": "Light shifted to red behind the island, then gold. Visibility held good.",
+   "revisedReasoning": "Preserves the color sequence and atmospheric pause while maintaining the narrator's procedural register of precise observation and status reporting.",
+   "userTurns": 1,
+   "capped": false
+  }
+ },
+ "crit-newText-after-discuss": "Light shifted to red behind the island, then gold. Visibility held good.",
+ "D41b-revisedSuggestion-persisted": true,
+ "discuss-dangler-adapt": {
+  "status": 200,
+  "elapsed": 22.501,
+  "body": {
+   "assistantMessage": "Accepted. This aligns with your stated preference for modifiers that mirror cognitive slippage. I will leave the sentence as is.",
+   "suggestedConstraint": {
+    "category": "preference",
+    "content": "Keep dangling modifiers when they deliberately reflect cognitive slippage or fatigue."
+   },
+   "userTurns": 1,
+   "capped": false
+  }
+ },
+ "D41a-destructive-apply-blank": {
+  "status": 422,
+  "elapsed": 0.253,
+  "body": {
+   "error": "This finding has no replacement text, so applying it would delete the passage it points to. Dismiss it, or use Discuss to work out a concrete revision."
+  }
+ },
+ "apply-palpable": {
+  "status": 200,
+  "elapsed": 0.34,
+  "body": {
+   "id": "acaf7362-6194-43c0-9a89-e379edd91f5b",
+   "bookId": "6d69fd7c-f7a4-4e3d-bf49-1415d81f5326",
+   "chapterNumber": 5,
+   "sessionId": "15c82e80-5296-49cf-a498-e77a651ce9b2",
+   "agentType": "line-editor",
+   "severity": "important",
+   "category": "prose",
+   "description": "Abstract vocabulary — \"palpable silence\" uses an abstract psychological adjective that violates the narrator's documented avoidance of such descriptors. The fingerprint signature is concrete, tactile, procedural language.",
+   "suggestion": "\"Palpable\" is an adjective that lives in the realm of abstract emotional description — it names a feeling about silence rather than observing silence through concrete fact. The narrator's fingerprint explicitly states she \"almost entirely avoids abstract psychological vocabulary.\" She does not name feelings directly; she detects them through body behavior, environment, procedure. \"Palpable silence\" is an important finding because it signals a slight voice drift toward emotional telling rather than environmental showing. The scene gains strength if the silence is either stated simply or demonstrated through the absence of expected sounds, which would be more in keeping with the narrator's procedural observation style.",
+   "originalText": "There was a palpable silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.",
+   "newText": "There was a silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.",
+   "locationStart": null,
+   "locationEnd": null,
+   "status": "applied",
+   "dismissReason": null,
+   "appliedAt": "2026-07-20T11:44:08.932Z",
+   "createdAt": "2026-07-20T11:32:37.566Z",
+   "contentHash": "672e9629951253869ed2516094e040a8c228dd73a2cbd62d4c68333e5a25708f",
+   "confidence": 0.93,
+   "rationale": "\"Palpable\" is an adjective that lives in the realm of abstract emotional description — it names a feeling about silence rather than observing silence through concrete fact. The narrator's fingerprint explicitly states she \"almost entirely avoids abstract psychological vocabulary.\" She does not name feelings directly; she detects them through body behavior, environment, procedure. \"Palpable silence\" is an important finding because it signals a slight voice drift toward emotional telling rather than environmental showing. The scene gains strength if the silence is either stated simply or demonstrated through the absence of expected sounds, which would be more in keeping with the narrator's procedural observation style.",
+   "paragraphNumber": 6,
+   "anchorQuote": "There was a palpable silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.",
+   "alternatives": "[{\"label\":\"Option A — remove modifier, keep concrete image\",\"newText\":\"There was a silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.\",\"originalText\":\"There was a palpable silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.\"},{\"label\":\"Option B — compound silence with concrete detail\",\"newText\":\"The shingle was silent. I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.\",\"originalText\":\"There was a palpable silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.\"},{\"label\":\"Option C — silence as physical absence\",\"newText\":\"The shingle was quiet — no boats taking on, no voices from the mole. I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.\",\"originalText\":\"There was a palpable silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.\"}]",
+   "groundingScore": 1,
+   "chapterVersion": 4,
+   "rejectedAt": null,
+   "rejectionReason": null
+  }
+ },
+ "apply-effect": {
+  "versionBefore": 4,
+  "versionAfter": 5,
+  "versionBumped": true,
+  "palpableRemoved": true,
+  "onlyExpectedDelta": true,
+  "v1_andstack_intact": true,
+  "v6_wit_intact": true
+ }
+}

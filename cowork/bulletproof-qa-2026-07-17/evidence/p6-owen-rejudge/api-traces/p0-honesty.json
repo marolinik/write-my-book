@@ -1,0 +1,173 @@
+{
+ "00-settings-before": {
+  "status": 200,
+  "elapsed": 1.412,
+  "body": {
+   "id": "aca9f6f9-cd9c-4245-aa36-02511dadffcb",
+   "bookId": "6d69fd7c-f7a4-4e3d-bf49-1415d81f5326",
+   "modelGhostwriter": "opus",
+   "modelEditor": "sonnet",
+   "modelBetaReader": "sonnet",
+   "modelAnalyst": "haiku",
+   "modelCoach": "sonnet",
+   "modelCreative": "opus",
+   "modelResearch": "sonnet",
+   "modelOverride": null,
+   "autoCommit": true,
+   "styleStrictness": "balanced",
+   "betaPanelSize": 10,
+   "betaConsensus": 80,
+   "betaConvergence": 70,
+   "language": "en",
+   "setupImportSkipped": false,
+   "setupComplete": false,
+   "journeyId": null,
+   "journeyStepsSnapshot": null
+  }
+ },
+ "10-D35-patch-setupComplete-true": {
+  "status": 200,
+  "elapsed": 0.088,
+  "body": {
+   "id": "aca9f6f9-cd9c-4245-aa36-02511dadffcb",
+   "bookId": "6d69fd7c-f7a4-4e3d-bf49-1415d81f5326",
+   "modelGhostwriter": "opus",
+   "modelEditor": "sonnet",
+   "modelBetaReader": "sonnet",
+   "modelAnalyst": "haiku",
+   "modelCoach": "sonnet",
+   "modelCreative": "opus",
+   "modelResearch": "sonnet",
+   "modelOverride": null,
+   "autoCommit": true,
+   "styleStrictness": "balanced",
+   "betaPanelSize": 10,
+   "betaConsensus": 80,
+   "betaConvergence": 70,
+   "language": "en",
+   "setupImportSkipped": false,
+   "setupComplete": true,
+   "journeyId": null,
+   "journeyStepsSnapshot": null
+  }
+ },
+ "11-D35-get-after": {
+  "status": 200,
+  "elapsed": 0.074,
+  "body": {
+   "id": "aca9f6f9-cd9c-4245-aa36-02511dadffcb",
+   "bookId": "6d69fd7c-f7a4-4e3d-bf49-1415d81f5326",
+   "modelGhostwriter": "opus",
+   "modelEditor": "sonnet",
+   "modelBetaReader": "sonnet",
+   "modelAnalyst": "haiku",
+   "modelCoach": "sonnet",
+   "modelCreative": "opus",
+   "modelResearch": "sonnet",
+   "modelOverride": null,
+   "autoCommit": true,
+   "styleStrictness": "balanced",
+   "betaPanelSize": 10,
+   "betaConsensus": 80,
+   "betaConvergence": 70,
+   "language": "en",
+   "setupImportSkipped": false,
+   "setupComplete": true,
+   "journeyId": null,
+   "journeyStepsSnapshot": null
+  }
+ },
+ "12-D35b-patch-setupImportSkipped": {
+  "status": 200,
+  "elapsed": 0.143,
+  "body": {
+   "id": "aca9f6f9-cd9c-4245-aa36-02511dadffcb",
+   "bookId": "6d69fd7c-f7a4-4e3d-bf49-1415d81f5326",
+   "modelGhostwriter": "opus",
+   "modelEditor": "sonnet",
+   "modelBetaReader": "sonnet",
+   "modelAnalyst": "haiku",
+   "modelCoach": "sonnet",
+   "modelCreative": "opus",
+   "modelResearch": "sonnet",
+   "modelOverride": null,
+   "autoCommit": true,
+   "styleStrictness": "balanced",
+   "betaPanelSize": 10,
+   "betaConsensus": 80,
+   "betaConvergence": 70,
+   "language": "en",
+   "setupImportSkipped": true,
+   "setupComplete": true,
+   "journeyId": null,
+   "journeyStepsSnapshot": null
+  }
+ },
+ "20-D39-unknown-key": {
+  "status": 400,
+  "elapsed": 0.301,
+  "body": {
+   "error": "Invalid input",
+   "details": {
+    "fieldErrors": {},
+    "formErrors": [
+     "Unrecognized key: \"bogusUnknownKey_qa\""
+    ]
+   }
+  }
+ },
+ "21-D39-finding-bad-action": {
+  "status": 404,
+  "elapsed": 2.523,
+  "body": {
+   "error": "Finding not found"
+  }
+ },
+ "30-D44-api-keys": {
+  "status": 200,
+  "elapsed": 0.414,
+  "body": [
+   {
+    "id": "eece953a-2b35-4e2f-9111-a744e05d16e6",
+    "provider": "anthropic",
+    "label": "owen-anthropic",
+    "isDefault": false,
+    "validatedAt": "2026-07-18T16:51:27.611Z",
+    "createdAt": "2026-07-18T16:51:27.616Z",
+    "maskedKey": "sk-ant-...jgAA",
+    "usage": {
+     "totalTokens": 583208,
+     "totalCost": 10.208459999999999,
+     "sessionCount": 4
+    }
+   },
+   {
+    "id": "9c65459b-fc05-474f-a033-db01bd7ce370",
+    "provider": "openrouter",
+    "label": "Owen OpenRouter",
+    "isDefault": true,
+    "validatedAt": "2026-07-20T00:52:24.887Z",
+    "createdAt": "2026-07-17T15:14:45.632Z",
+    "maskedKey": "sk-or-v...705e",
+    "usage": {
+     "totalTokens": 734983,
+     "totalCost": 0.37511906999999994,
+     "sessionCount": 15
+    }
+   }
+  ]
+ },
+ "40-D43-default-model": {
+  "status": 200,
+  "elapsed": 0.496,
+  "body": {
+   "defaultModel": "openrouter-qwen36/sonnet",
+   "modelGhostwriter": null,
+   "modelEditor": null,
+   "modelBetaReader": null,
+   "modelAnalyst": null,
+   "modelCoach": null,
+   "modelCreative": null
+  }
+ }
+}

@@ -1,0 +1,15 @@
+{
+  "turn": 4,
+  "request": {
+    "writerMessage": "One more thought - actually, keep everything as is, final answer."
+  },
+  "status": 409,
+  "error": null,
+  "body": {
+    "capped": true,
+    "assistantMessage": "You've discussed this finding thoroughly (3 exchanges). Ready to make a decision?",
+    "userTurns": 3
+  },
+  "elapsed_ms": 584,
+  "capturedAt": "2026-07-20T11:41:35.827Z"
+}

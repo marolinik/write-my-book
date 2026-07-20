@@ -1,0 +1,41 @@
+{
+  "bookId": "85c3d2c4-b193-45b7-b677-5d102af8e4d8",
+  "chapterId": "b67082b1-ac88-47c5-90f2-932ba3b57cae",
+  "baseVersion": 1,
+  "scenarioA_stampless": {
+    "intent": "5 concurrent PUTs w/o expectedVersion should ALL be rejected 409 (no silent last-write-wins)",
+    "count200": 0,
+    "count409": 5,
+    "statuses": [
+      409,
+      409,
+      409,
+      409,
+      409
+    ],
+    "contentUnchangedAfter": true,
+    "versionUnchangedAfter": true,
+    "all409CarryServerState": true,
+    "PASS": true
+  },
+  "scenarioB_stamped": {
+    "intent": "5 concurrent PUTs stamped at same version => exactly ONE 200, FOUR 409; winner intact (not torn); losers told + recoverable",
+    "stampVersion": 1,
+    "count200": 1,
+    "count409": 4,
+    "statuses": [
+      200,
+      409,
+      409,
+      409,
+      409
+    ],
+    "winnerIdx": 0,
+    "savedVersion": 2,
+    "savedEqualsWinnerPayload": true,
+    "savedMatchesExactlyOnePayload": true,
+    "noInterleavingFromLosers": true,
+    "all409CarryRecoverableServerState": true,
+    "PASS": true
+  }
+}
