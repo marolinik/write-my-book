@@ -15,6 +15,43 @@ function sanitizeUnicode(text: string): string {
   return text.replace(/\uFFFD/g, '\u2014');
 }
 
+/**
+ * D-47 \u2014 trusted non-interactive writers allowed to overwrite existing chapter
+ * content WITHOUT an optimistic-lock stamp (`expectedVersion`).
+ *
+ * The optimistic-lock CAS added in 29af79e is OPT-IN: it only fires when the
+ * client stamps `expectedVersion`. A raw client \u2014 or a stale browser tab \u2014
+ * that omits the stamp used to silently last-write-wins (P7-func J-4: 5
+ * concurrent PUTs all 200, 4 versions vanished). We now REQUIRE the stamp for
+ * interactive writers (`user`/`manual`/default) when overwriting a document
+ * that already exists, rejecting a stampless overwrite with 409 + current
+ * server state instead of clobbering.
+ *
+ * These sources bypass that requirement because none is the "stale tab"
+ * scenario D-47 targets, and rejecting them would break a real flow:
+ *   - `conflict-backup`  the save-conflict dialog's OWN backup step
+ *     (handleLoadTheirs) \u2014 an intentionally unguarded save whose sole job is to
+ *     preserve the local unsaved words as a recoverable version BEFORE the
+ *     guarded resolve re-applies the CAS. Rejecting it would destroy words.
+ *   - `agent`/`import`/`restore`/`system`/`migration`  server-side, single-
+ *     writer operations that deliberately replace content wholesale with no
+ *     competing human editor; they intentionally last-write-wins.
+ *
+ * Safe because `changeSource` is the same field the DocumentVersion audit trail
+ * already records, and every write is ownership-fenced to the caller's own book
+ * \u2014 a spoofed source can only self-clobber, never damage another user. The
+ * threat mitigated here is ACCIDENTAL concurrency (two tabs), not a malicious
+ * self-overwrite. `user`/`manual` are deliberately NOT in this set.
+ */
+const TRUSTED_VERSIONLESS_SOURCES = new Set<string>([
+  "conflict-backup",
+  "agent",
+  "import",
+  "restore",
+  "system",
+  "migration",
+]);
+
 type RouteParams = { params: Promise<{ id: string; chapterId: string }> };
 
 /** GET /api/books/:id/chapters/:chapterId/content — get chapter markdown. */
@@ -162,6 +199,30 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
     let version: number;
 
     if (existingDoc) {
+      // D-47: overwriting an ALREADY-EXISTING document without an
+      // optimistic-lock stamp is a silent last-write-wins (J-4). Require the
+      // stamp for interactive writers; trusted non-interactive writers bypass
+      // (see TRUSTED_VERSIONLESS_SOURCES). Reject with the SAME 409 envelope the
+      // stale-CAS path returns, so the editor's existing conflict dialog
+      // resolves it — never a silent clobber. (The P2002 first-save convergence
+      // below is intentionally NOT guarded: that client omits the version
+      // because it was creating a new document, not overwriting a loaded one.)
+      if (
+        data.expectedVersion === undefined &&
+        !TRUSTED_VERSIONLESS_SOURCES.has(data.changeSource ?? "user")
+      ) {
+        const current = await svc.readPinned(existingDoc.id);
+        return NextResponse.json(
+          {
+            error: "version_conflict",
+            currentVersion:
+              current?.document.currentVersion ?? existingDoc.currentVersion,
+            serverContent: sanitizeUnicode(current?.content ?? ""),
+          },
+          { status: 409 }
+        );
+      }
+
       const updated = await updateExisting(existingDoc);
       if (updated instanceof NextResponse) return updated;
       version = updated;

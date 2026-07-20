@@ -221,10 +221,12 @@ test.describe("Offline autosave resilience", () => {
       { timeout: 15_000 }
     );
 
-    // External writer bumps the server while this tab is offline.
+    // External writer bumps the server while this tab is offline. Models a
+    // trusted non-interactive writer, so it carries changeSource "system"
+    // (D-47 versionless-CAS guard: an interactive versionless overwrite 409s).
     const theirs = `External rewrite theirs-${Date.now()}.`;
     const extPut = await request.put(CONTENT_URL(bookId, chapterId), {
-      data: { markdown: theirs },
+      data: { markdown: theirs, changeSource: "system" },
     });
     expect(extPut.ok()).toBe(true);
 
@@ -285,7 +287,8 @@ test.describe("Offline autosave resilience", () => {
 
     const theirs = `Live external theirs-${Date.now()}.`;
     const extPut = await request.put(CONTENT_URL(bookId, chapterId), {
-      data: { markdown: theirs },
+      // Trusted non-interactive external writer (D-47 guard) → changeSource.
+      data: { markdown: theirs, changeSource: "system" },
     });
     expect(extPut.ok()).toBe(true);
 

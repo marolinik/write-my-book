@@ -385,13 +385,16 @@ test.describe.serial("Writer Journey — UI Flows", () => {
     expect(chapterId).toBeTruthy();
 
     // Seed chapter content containing the finding's originalText — auto-apply
-    // replaces that exact text in the chapter and 409s when it's absent
+    // replaces that exact text in the chapter and 409s when it's absent.
+    // Test-setup writer → changeSource "system" so a Playwright retry (doc
+    // already exists) is not rejected by the D-47 versionless-CAS guard.
     await request.put(
       `/api/books/${bookId}/chapters/${chapterId}/content`,
       {
         data: {
           markdown:
             "The long day slowly passed. The town slept beneath the hills.",
+          changeSource: "system",
         },
       }
     );
