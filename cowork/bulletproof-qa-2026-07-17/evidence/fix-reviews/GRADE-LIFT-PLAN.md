@@ -25,6 +25,15 @@ D-17/D-96/D-98 "surfaces lie mid-run" family), confirming the campaign's core pa
 
 ## Wave A — P4 floor = platform MIN binder (NOW)
 
+> **CORRECTION (2026-07-20 evening):** items 1-3 were ALREADY FIXED when this plan was
+> written — commit `adfa592` (2026-07-20 09:36, 20 min after the P4 aggregate landed)
+> shipped the worker running-stamp, the read-time live poll view, the halted notification
+> title/haltReason, and sub-cent cap rendering (`formatCapUsd`). D-97 is not-a-bug in
+> source (digest query is sessionId-scoped; see resolution appendix in
+> `D-96-D-97-D-98-batch-live-honesty.md`) but its live panel observation is unexplained —
+> re-probe during item 4. The 17:32 re-fix workflow `wf_2d1ff39d-7eb` was redundant
+> (stale-base worktrees); nothing landed from it. **Only item 4 (re-capture) remains.**
+
 1. **D-96 code-fix (S2, THE grade mover).** Across ~110 polls: `counts.running` always 0
    (worker never writes status=running), batch `status:"queued"` + `halted:false` while
    children terminal, `spentUsd:$0.00` after real spend, `startedAt:null`.

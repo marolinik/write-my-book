@@ -28,3 +28,42 @@ TDD RED-first (assert a mid-run poll with 1 completed child shows non-zero spent
 ## Also noted (product decisions, not straight fixes)
 - **NEW-B:** cap-overshoot bound documentation understates worst case (≈ concurrency × per-session-max, not "one per-child cost"). Correct the doc/comment; consider mid-flight cancellation on halt (behavior change → founder call).
 - **J-4:** transient child failure has no retry — overnight run wakes to an unedited chapter. Retry policy = founder decision.
+
+---
+
+## RESOLUTION (2026-07-20, appended post-landing)
+
+**D-96 FIXED + D-98/NEW-2 FIXED — commit `adfa592` (2026-07-20 09:36), on branch, ancestor of HEAD.**
+- Worker: `agent-worker.ts` flips batch child to `status='running'` immediately after the
+  budget/breaker skip-guard admits it (batch-only; non-batch sessions are created running).
+- Poll route: non-terminal batches get a read-time derived live view (spentUsd = Σ child
+  `actualCostUsd` floored by stored spend; status queued→running once a child is active;
+  halted = DB column OR live Redis `batch:{id}:halted` via `readLiveHaltFlag`; startedAt from
+  earliest non-queued child). Terminal batches return the digest-reconciled row verbatim
+  (`TERMINAL_BATCH_STATUSES` + `digest != null` guard) — four-way spend agreement untouched.
+- D-98: `batchNotificationTitle` says "Overnight batch halted — budget cap reached" /
+  "— repeated provider errors" with haltReason in the message; NEW-2: `formatCapUsd` renders
+  sub-cent caps at up to 4 decimals (trailing zeros trimmed), never "$0.00 cap".
+- Suites at HEAD `8143694`: batch-route 25, batch-lifecycle 12, batch-budget 4,
+  batch-digest-aggregate 8, agent-worker-batch-guard 7, worker-liveness 8 — **64/64 green**.
+
+**D-97 = NOT-A-BUG in source (confirmed twice, independently).**
+`aggregateBatchDigest` findings query is scoped to THIS batch's sessions —
+`editFinding.findMany({ where: { sessionId: { in: childIds } } })` (batch-digest.ts:108 at HEAD);
+child session ids are minted fresh (`randomUUID`) per enqueue in `batch-flow.ts`, findings are
+tagged `sessionId: ctx.sessionId` at creation (tools.ts, post-session.ts). Identical-input
+re-runs therefore CANNOT superset, and a skipped child contributes 0 (covered by an existing
+lifecycle test). **Open contradiction:** the panel's live observation (43 vs 11 superset, skipped
+child credited 2) is NOT explained by the source — it would require session reuse, which the
+fan-out doesn't do. The P4 re-capture MUST re-probe this live (two identical-input batches on
+fixed HEAD, compare digests) before D-97 is closed on the board.
+
+**Process note — redundant Wave A workflow (`wf_2d1ff39d-7eb`, 2026-07-20 17:32-17:55).**
+A later compaction-amnesic plan re-dispatched D-96/D-97/D-98 as open. Both opus lanes ran in
+worktrees that the harness based on stale `main` (`478359c`, pre-batch-fix-waves — NOT the QA
+branch) and re-implemented the fixes from scratch; both earned Fable-verifier APPROVE inside
+their worktrees. Nothing was landed from them (HEAD already had `adfa592`); their sole banked
+value is the D-97 not-a-bug source audit (re-confirmed against HEAD above) and an accidental
+N=2 confirmation of the fix design. Patches archived in `wave-a-redundant-patches/`; journal:
+old-session `workflows/wf_2d1ff39d-7eb` (both verdict objects embedded). Worktrees removed.
+Lesson recorded: worktree-isolated executors MUST verify their base commit first.

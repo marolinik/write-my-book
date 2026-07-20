@@ -1,0 +1,304 @@
+diff --git a/src/app/api/books/[id]/batch/[batchId]/route.ts b/src/app/api/books/[id]/batch/[batchId]/route.ts
+index ce5103f..e3117e0 100644
+--- a/src/app/api/books/[id]/batch/[batchId]/route.ts
++++ b/src/app/api/books/[id]/batch/[batchId]/route.ts
+@@ -1,16 +1,42 @@
+ import { NextRequest, NextResponse } from "next/server";
+ import { requireUser } from "@/lib/auth";
+ import { db } from "@/lib/db";
++import { getAppConnection } from "@/lib/queue/connection";
+ 
+ type RouteParams = { params: Promise<{ id: string; batchId: string }> };
+ 
++/**
++ * Batch lifecycle states whose `BatchRun` row is already digest-reconciled and
++ * therefore authoritative — the fan-in digest (or a cancel) has written the
++ * final `status`/`spentUsd`/`startedAt`/`completedAt`, and the four-way spend
++ * agreement is certified for these. A poll must return them VERBATIM.
++ */
++const TERMINAL_BATCH_STATUSES = new Set([
++  "done",
++  "failed",
++  "halted",
++  "cancelled",
++]);
++
++/** Child statuses that mean the child was actually dispatched and ran (or is
++ *  running) — as opposed to `queued` (not yet started) or `skipped` (short-
++ *  circuited by the budget/halt guard, never ran). */
++const EXECUTED_CHILD_STATUSES = new Set(["running", "completed", "failed"]);
++
+ /**
+  * GET /api/books/:id/batch/:batchId — poll a batch's status + digest.
+  *
+- * Returns the `BatchRun` row plus LIVE child-status counts aggregated from the
+- * linked `AgentSession` rows, so a caller polling before the fan-in digest job
+- * has run still sees accurate progress (the digest later reconciles the stored
+- * `completedCount`/`failedCount`).
++ * The `BatchRun` row is written ONCE, by the fan-in digest job at the very end
++ * of the run — so while children are already terminal and real money is
++ * committed, the stored row still reads `status:"queued"`, `spentUsd:0`,
++ * `startedAt:null` (D-96). While the batch is NOT yet terminal we therefore
++ * DERIVE the live view at read time from the child `AgentSession` rows (live
++ * spend = Σ child `actualCostUsd`, running-count from child statuses, a derived
++ * status, and the earliest child start), plus the Redis halt flag/ledger.
++ *
++ * Once the batch IS terminal (the digest has reconciled it), we return the
++ * stored `BatchRun` fields verbatim — the certified spend agreement must not be
++ * perturbed by a read-time recompute.
+  */
+ export async function GET(_req: NextRequest, { params }: RouteParams) {
+   try {
+@@ -26,7 +52,7 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
+ 
+     const sessions = await db.agentSession.findMany({
+       where: { batchId },
+-      select: { status: true },
++      select: { status: true, actualCostUsd: true, startedAt: true },
+     });
+ 
+     const counts = {
+@@ -45,7 +71,68 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
+       else if (s.status === "skipped") counts.skipped++;
+     }
+ 
+-    return NextResponse.json({ batch, counts });
++    // Terminal: the digest already reconciled this row (or a cancel set it) —
++    // return the stored, certified fields verbatim (with the live child counts).
++    const isTerminal =
++      TERMINAL_BATCH_STATUSES.has(batch.status) || batch.completedAt != null;
++    if (isTerminal) {
++      return NextResponse.json({ batch, counts });
++    }
++
++    // ── Derive the live view from the child rows (non-terminal) ──────────
++    // Live spend: sum every child's finalized per-session cost. A child that
++    // hasn't finished has null `actualCostUsd` (counts as 0) — so this is a
++    // committed-so-far lower bound, which is exactly the honest live figure.
++    const liveSpentUsd = sessions.reduce(
++      (sum, s) => sum + (s.actualCostUsd ?? 0),
++      0
++    );
++
++    // Earliest start among children that actually began executing.
++    const startTimes = sessions
++      .filter(
++        (s) => EXECUTED_CHILD_STATUSES.has(s.status) && s.startedAt != null
++      )
++      .map((s) => (s.startedAt as Date).getTime());
++    const liveStartedAt = startTimes.length
++      ? new Date(Math.min(...startTimes))
++      : batch.startedAt;
++
++    // Halt is signalled primarily by the Redis flag (breaker/budget/cancel);
++    // `BatchRun.halted` is the durable fail-safe fallback (M3). Reading Redis is
++    // best-effort — a hiccup falls back to the DB flag, never breaks the poll.
++    let halted = batch.halted === true;
++    try {
++      const haltFlag = await getAppConnection().get(`batch:${batchId}:halted`);
++      if (haltFlag === "1") halted = true;
++    } catch (redisErr) {
++      console.error(
++        "[BatchPoll] Redis halt-flag read failed (non-fatal):",
++        redisErr
++      );
++    }
++
++    // Derived status: halted wins; otherwise 'running' once any child has
++    // actually started, else still 'queued' (nothing dispatched yet).
++    const anyStarted = sessions.some((s) =>
++      EXECUTED_CHILD_STATUSES.has(s.status)
++    );
++    const liveStatus = halted
++      ? "halted"
++      : anyStarted
++        ? "running"
++        : "queued";
++
++    // Immutable overlay — never mutate the fetched row.
++    const liveBatch = {
++      ...batch,
++      status: liveStatus,
++      spentUsd: liveSpentUsd,
++      startedAt: liveStartedAt,
++      halted,
++    };
++
++    return NextResponse.json({ batch: liveBatch, counts });
+   } catch (error) {
+     if ((error as Error).message === "Unauthorized") {
+       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+diff --git a/src/lib/queue/agent-worker.ts b/src/lib/queue/agent-worker.ts
+index 04bbfa3..d65f544 100644
+--- a/src/lib/queue/agent-worker.ts
++++ b/src/lib/queue/agent-worker.ts
+@@ -243,6 +243,27 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
+         });
+         return; // never runs the orchestrator, never spends
+       }
++
++      // ── Mark Batch Child Actively Running (live-poll honesty, D-96) ──
++      // A batch child that clears the guard is about to re-fetch keys and call
++      // a provider — it is running. Stamp status='running' + a fresh startedAt
++      // NOW so a mid-run poll reflects real progress (the poll route derives
++      // counts.running and a 'running' batch status from child statuses; before
++      // this, children went queued → completed/failed/skipped and never showed
++      // as running while actively spending). Best-effort: this write is purely
++      // observational and must NEVER block or fail the actual editorial work —
++      // the terminal write in onComplete owns the final status regardless.
++      try {
++        await db.agentSession.update({
++          where: { id: sessionId },
++          data: { status: "running", startedAt: new Date() },
++        });
++      } catch (runErr) {
++        console.error(
++          "[AgentWorker] failed to mark batch child running (non-fatal):",
++          runErr
++        );
++      }
+     }
+ 
+     // ── Redis Message Publishing ────────────────────────────────────
+diff --git a/tests/unit/agent-worker-batch-guard.test.ts b/tests/unit/agent-worker-batch-guard.test.ts
+index bb02c08..dcabe34 100644
+--- a/tests/unit/agent-worker-batch-guard.test.ts
++++ b/tests/unit/agent-worker-batch-guard.test.ts
+@@ -148,6 +148,49 @@ describe("processAgentJob — batch pre-child guard", () => {
+     expect(h.db.apiKey.findMany).toHaveBeenCalled();
+   });
+ 
++  it("D-96: marks a passed-through batch child 'running' (with a fresh startedAt) before building the orchestrator", async () => {
++    // Under cap + not halted → the guard lets the child through. Before this fix
++    // the worker never wrote status='running' for a batch child (children went
++    // queued → completed/failed/skipped), so a mid-run poll saw counts.running===0
++    // while the child was actively spending real money.
++    h.redis.get.mockImplementation((key: string) =>
++      Promise.resolve(key.endsWith(":spent") ? "2" : null)
++    );
++
++    // No API keys → the orchestrator build throws downstream AFTER the running
++    // write; we only assert the running write happened.
++    await expect(
++      processAgentJob(
++        makeJob({ ...BASE, batchId: "batch1", batchBudgetCapUsd: 10 })
++      )
++    ).rejects.toBeTruthy();
++
++    const runningCall = h.db.agentSession.update.mock.calls.find(
++      (c) =>
++        (c[0] as { data?: { status?: string } })?.data?.status === "running"
++    );
++    expect(runningCall).toBeDefined();
++    expect(
++      (runningCall?.[0] as { where?: { id?: string } })?.where?.id
++    ).toBe("s1");
++    // The running transition also stamps a fresh work-start instant.
++    expect(
++      (runningCall?.[0] as { data?: { startedAt?: unknown } })?.data?.startedAt
++    ).toBeInstanceOf(Date);
++  });
++
++  it("D-96: does NOT write a 'running' status for a non-batch session (batch-only behavior)", async () => {
++    h.redis.get.mockResolvedValue(null);
++
++    await expect(processAgentJob(makeJob({ ...BASE }))).rejects.toBeTruthy();
++
++    const wroteRunning = h.db.agentSession.update.mock.calls.some(
++      (c) =>
++        (c[0] as { data?: { status?: string } })?.data?.status === "running"
++    );
++    expect(wroteRunning).toBe(false);
++  });
++
+   it("M3 fail-safe: skips when Redis is clean but BatchRun.halted is set in the DB (frozen-ledger fallback)", async () => {
+     // Simulate a prior ledger-write failure: the Redis flag never got set and
+     // spend reads as 0 — but onComplete durably halted the batch in Postgres.
+diff --git a/tests/unit/batch-route.test.ts b/tests/unit/batch-route.test.ts
+index c0ba966..ea4e3f8 100644
+--- a/tests/unit/batch-route.test.ts
++++ b/tests/unit/batch-route.test.ts
+@@ -278,6 +278,83 @@ describe("GET /api/books/:id/batch/:batchId — status", () => {
+       running: 1,
+     });
+   });
++
++  it("D-96: mid-run poll derives live spend, running count, and a non-'queued' status", async () => {
++    // The BatchRun row is stale until the fan-in digest writes it: status still
++    // "queued", spentUsd 0, startedAt null — while children are already spending.
++    h.db.batchRun.findFirst.mockResolvedValueOnce({
++      id: "batch1",
++      status: "queued",
++      spentUsd: 0,
++      startedAt: null,
++      completedAt: null,
++      halted: false,
++      budgetCapUsd: 10,
++    });
++    h.db.agentSession.findMany.mockResolvedValueOnce([
++      { status: "completed", actualCostUsd: 1.23, startedAt: new Date("2026-01-01T02:00:00Z") },
++      { status: "running", actualCostUsd: null, startedAt: new Date("2026-01-01T02:01:00Z") },
++      { status: "queued", actualCostUsd: null, startedAt: new Date("2026-01-01T02:05:00Z") },
++    ]);
++    const res = await batchStatus(new Request("http://t") as never, batchCtx as never);
++    expect(res.status).toBe(200);
++    const body = await res.json();
++    // Real money committed by the completed child surfaces immediately.
++    expect(body.batch.spentUsd).toBeCloseTo(1.23, 5);
++    // At least one child is actively running.
++    expect(body.counts.running).toBe(1);
++    // Status is derived live — no longer the stale "queued".
++    expect(body.batch.status).toBe("running");
++    // startedAt is derived from the earliest child that actually started.
++    expect(body.batch.startedAt).not.toBeNull();
++  });
++
++  it("D-96: a terminal batch returns the digest-reconciled fields verbatim (no live recompute)", async () => {
++    // Digest already ran: spentUsd is the certified four-way-agreed figure. Even
++    // if the naive child sum (5.00) differs, the poll must NOT recompute over it.
++    h.db.batchRun.findFirst.mockResolvedValueOnce({
++      id: "batch1",
++      status: "done",
++      spentUsd: 4.56,
++      startedAt: new Date("2026-01-01T02:00:00Z"),
++      completedAt: new Date("2026-01-01T03:00:00Z"),
++      halted: false,
++      budgetCapUsd: 10,
++    });
++    h.db.agentSession.findMany.mockResolvedValueOnce([
++      { status: "completed", actualCostUsd: 3.0, startedAt: new Date("2026-01-01T02:00:00Z") },
++      { status: "completed", actualCostUsd: 2.0, startedAt: new Date("2026-01-01T02:10:00Z") },
++    ]);
++    const res = await batchStatus(new Request("http://t") as never, batchCtx as never);
++    expect(res.status).toBe(200);
++    const body = await res.json();
++    // Digest value (4.56) — NOT the naive child sum (5.00).
++    expect(body.batch.spentUsd).toBe(4.56);
++    expect(body.batch.status).toBe("done");
++  });
++
++  it("D-96: derives a 'halted' status mid-run when the Redis halt flag is set", async () => {
++    h.db.batchRun.findFirst.mockResolvedValueOnce({
++      id: "batch1",
++      status: "queued",
++      spentUsd: 0,
++      startedAt: null,
++      completedAt: null,
++      halted: false,
++      budgetCapUsd: 10,
++    });
++    h.db.agentSession.findMany.mockResolvedValueOnce([
++      { status: "completed", actualCostUsd: 2.0, startedAt: new Date("2026-01-01T02:00:00Z") },
++      { status: "skipped", actualCostUsd: null, startedAt: null },
++    ]);
++    // The circuit breaker tripped the Redis halt flag mid-run.
++    h.redis.get.mockResolvedValueOnce("1");
++    const res = await batchStatus(new Request("http://t") as never, batchCtx as never);
++    expect(res.status).toBe(200);
++    const body = await res.json();
++    expect(body.batch.status).toBe("halted");
++    expect(body.batch.spentUsd).toBeCloseTo(2.0, 5);
++  });
+ });
+ 
+ describe("POST /api/books/:id/batch/:batchId/cancel", () => {

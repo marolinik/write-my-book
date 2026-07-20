@@ -1,0 +1,216 @@
+diff --git a/src/lib/queue/batch-digest.ts b/src/lib/queue/batch-digest.ts
+index b018cdd..daba4c7 100644
+--- a/src/lib/queue/batch-digest.ts
++++ b/src/lib/queue/batch-digest.ts
+@@ -24,6 +24,8 @@ import {
+   type BatchDigestSessionInput,
+   type BatchDigestFindingInput,
+   type BatchDigestChapterInput,
++  type DerivedBatchStatus,
++  type BatchHaltReason,
+ } from "@/lib/agents/batch-digest-aggregate";
+ import { db } from "@/lib/db";
+ import type { Prisma } from "@/generated/prisma/client";
+@@ -56,6 +58,59 @@ async function readBatchLedger(
+   }
+ }
+ 
++/**
++ * Render a USD amount for the morning report. A naive `toFixed(2)` flattens any
++ * sub-cent figure (e.g. a `$0.004` cap) to a misleading "$0.00" — which reads as
++ * "no budget" — so precision is widened until the amount renders non-zero. A
++ * real, positive cap/spend is never printed as "$0.00" (NEW-2). A true zero (or
++ * a non-finite guard value) still renders "$0.00".
++ */
++function formatUsd(value: number): string {
++  if (!Number.isFinite(value) || value <= 0) return "$0.00";
++  const twoDp = value.toFixed(2);
++  if (Number(twoDp) !== 0) return `$${twoDp}`;
++  for (let precision = 3; precision <= 6; precision++) {
++    const widened = value.toFixed(precision);
++    if (Number(widened) !== 0) return `$${widened}`;
++  }
++  return `$${value.toFixed(6)}`;
++}
++
++/** Human-readable halt reason for the morning-notification copy (D-98). */
++function humanizeHaltReason(reason: BatchHaltReason): string {
++  switch (reason) {
++    case "budget_cap":
++      return "budget cap reached";
++    case "provider_failures":
++      return "provider failures";
++    case "cancelled":
++      return "cancelled";
++    default:
++      return "halted";
++  }
++}
++
++/**
++ * Terminal-state title for the morning notification. A halted / failed /
++ * cancelled batch must NOT be reported as "complete" (D-98): the title states
++ * what actually happened, and a halt names its reason.
++ */
++function batchNotificationTitle(
++  status: DerivedBatchStatus,
++  haltReason: BatchHaltReason
++): string {
++  switch (status) {
++    case "halted":
++      return `Overnight batch halted — ${humanizeHaltReason(haltReason)}`;
++    case "cancelled":
++      return "Overnight batch cancelled";
++    case "failed":
++      return "Overnight batch failed";
++    default:
++      return "Overnight batch complete";
++  }
++}
++
+ /**
+  * Process a batch digest (fan-in) job. NEVER throws to the process level.
+  */
+@@ -166,17 +221,24 @@ export async function processBatchDigestJob(
+       digest.passes.skipped > 0
+         ? ` · ${digest.passes.skipped} skipped`
+         : "";
++    // A halted batch must state the halt (and its reason) in the human-readable
++    // copy — the digest must not silently read "complete" (D-98).
++    const haltSummary =
++      status === "halted"
++        ? ` · halted: ${humanizeHaltReason(haltReason)}`
++        : "";
+     await db.bookNotification.create({
+       data: {
+         bookId: batch.bookId,
+         userId: batch.userId,
+         type: "pipeline_complete",
+         priority: halted ? "high" : "normal",
+-        title: "Overnight batch complete",
++        title: batchNotificationTitle(status, haltReason),
+         message:
+           `${digest.passes.completed}/${digest.passes.total} passes` +
+           `${skippedSummary}${findingSummary} · ` +
+-          `$${ledger.spentUsd.toFixed(2)} / $${batch.budgetCapUsd.toFixed(2)} cap`,
++          `${formatUsd(ledger.spentUsd)} / ${formatUsd(batch.budgetCapUsd)} cap` +
++          haltSummary,
+         actionUrl: `/books/${batch.bookId}`,
+         actionLabel: "View digest",
+       },
+diff --git a/tests/unit/batch-lifecycle.test.ts b/tests/unit/batch-lifecycle.test.ts
+index c0d25dc..923b3b5 100644
+--- a/tests/unit/batch-lifecycle.test.ts
++++ b/tests/unit/batch-lifecycle.test.ts
+@@ -472,4 +472,111 @@ describe("batch lifecycle — (c) digest aggregation", () => {
+     const note = h.db.bookNotification.create.mock.calls[0][0].data;
+     expect(note.priority).toBe("normal");
+   });
++
++  // ── D-98: halt honesty in the morning notification ──────────────────────────
++  it("D-98: a budget-cap HALT says 'halted' (not 'complete') and names the reason", async () => {
++    h.db.batchRun.findUnique.mockResolvedValue({
++      id: BATCH_ID,
++      bookId: BOOK_ID,
++      userId: USER_ID,
++      workflowIds: ["dev-edit"],
++      chapterStart: 1,
++      chapterEnd: 3,
++      budgetCapUsd: CAP,
++      status: "running",
++      halted: false,
++    });
++    h.db.agentSession.findMany.mockResolvedValue([
++      { id: "s1", status: "completed", chapterNumber: 1, workflowId: "dev-edit", actualCostUsd: 5 },
++      { id: "s2", status: "completed", chapterNumber: 2, workflowId: "dev-edit", actualCostUsd: 5.5 },
++      { id: "s3", status: "skipped", chapterNumber: 3, workflowId: "dev-edit", actualCostUsd: null },
++    ]);
++    h.db.editFinding.findMany.mockResolvedValue([]);
++    h.db.chapter.findMany.mockResolvedValue([
++      { chapterNumber: 1, status: "drafted", betaGate: null },
++      { chapterNumber: 2, status: "drafted", betaGate: null },
++      { chapterNumber: 3, status: "drafted", betaGate: null },
++    ]);
++    // Redis ledger: cap reached → halted flag set, spend at cap.
++    h.redis.store.set(`batch:${BATCH_ID}:spent`, "10.50");
++    h.redis.store.set(`batch:${BATCH_ID}:halted`, "1");
++    h.redis.store.set(`batch:${BATCH_ID}:failures`, "0");
++
++    await processBatchDigestJob(makeDigestJob());
++
++    const note = h.db.bookNotification.create.mock.calls[0][0].data;
++    // A halted batch must NOT be reported as "complete".
++    expect(note.title.toLowerCase()).not.toContain("complete");
++    expect(note.title.toLowerCase()).toContain("halt");
++    // The human-readable copy (title + message) must name the budget-cap reason.
++    const humanText = `${note.title} ${note.message}`.toLowerCase();
++    expect(humanText).toContain("budget cap");
++  });
++
++  it("D-98: a provider-failure HALT names 'provider failures' (not budget cap)", async () => {
++    h.db.batchRun.findUnique.mockResolvedValue({
++      id: BATCH_ID,
++      bookId: BOOK_ID,
++      userId: USER_ID,
++      workflowIds: ["dev-edit"],
++      chapterStart: 1,
++      chapterEnd: 2,
++      budgetCapUsd: CAP,
++      status: "running",
++      halted: false,
++    });
++    h.db.agentSession.findMany.mockResolvedValue([
++      { id: "s1", status: "completed", chapterNumber: 1, workflowId: "dev-edit", actualCostUsd: 1 },
++      { id: "s2", status: "failed", chapterNumber: 2, workflowId: "dev-edit", actualCostUsd: null },
++    ]);
++    h.db.editFinding.findMany.mockResolvedValue([]);
++    h.db.chapter.findMany.mockResolvedValue([
++      { chapterNumber: 1, status: "drafted", betaGate: null },
++      { chapterNumber: 2, status: "drafted", betaGate: null },
++    ]);
++    // Halted with spend BELOW cap → reason must be provider_failures, not budget_cap.
++    h.redis.store.set(`batch:${BATCH_ID}:spent`, "1.00");
++    h.redis.store.set(`batch:${BATCH_ID}:halted`, "1");
++    h.redis.store.set(`batch:${BATCH_ID}:failures`, "3");
++
++    await processBatchDigestJob(makeDigestJob());
++
++    const note = h.db.bookNotification.create.mock.calls[0][0].data;
++    expect(note.title.toLowerCase()).toContain("halt");
++    const humanText = `${note.title} ${note.message}`.toLowerCase();
++    expect(humanText).toContain("provider failure");
++    expect(humanText).not.toContain("budget cap");
++  });
++
++  // ── NEW-2: sub-cent cap must not render a misleading "$0.00 cap" ─────────────
++  it("NEW-2: a sub-cent budget cap renders with enough precision (never '$0.00 cap')", async () => {
++    const subCentCap = 0.004;
++    h.db.batchRun.findUnique.mockResolvedValue({
++      id: BATCH_ID,
++      bookId: BOOK_ID,
++      userId: USER_ID,
++      workflowIds: ["dev-edit"],
++      chapterStart: 1,
++      chapterEnd: 1,
++      budgetCapUsd: subCentCap,
++      status: "running",
++      halted: false,
++    });
++    h.db.agentSession.findMany.mockResolvedValue([
++      { id: "s1", status: "completed", chapterNumber: 1, workflowId: "dev-edit", actualCostUsd: 0.002 },
++    ]);
++    h.db.editFinding.findMany.mockResolvedValue([]);
++    h.db.chapter.findMany.mockResolvedValue([
++      { chapterNumber: 1, status: "drafted", betaGate: null },
++    ]);
++    h.redis.store.set(`batch:${BATCH_ID}:spent`, "0.002");
++
++    await processBatchDigestJob(makeDigestJob());
++
++    const note = h.db.bookNotification.create.mock.calls[0][0].data;
++    // The cap (0.004) is real — it must never be printed as a bare "$0.00 cap".
++    expect(note.message).not.toContain("$0.00 cap");
++    // The cap figure must render as a non-zero, honest amount.
++    expect(note.message).toMatch(/\$0\.00[1-9]/);
++  });
+ });
