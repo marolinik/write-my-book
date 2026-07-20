@@ -1,0 +1,84 @@
+{
+  "bookId": "35ff1112-52af-4001-a0f4-ec83f4dad9b0",
+  "bookTitle": "Sam Free-Tier On-Ramp QA 2026-07-20",
+  "results": [
+    {
+      "label": "00-whoami-books-list",
+      "status": 200,
+      "ms": 129,
+      "err": null
+    },
+    {
+      "label": "01-subscription-get",
+      "status": 401,
+      "ms": 282,
+      "err": null
+    },
+    {
+      "label": "01b-usage-get",
+      "status": 200,
+      "ms": 457,
+      "err": null
+    },
+    {
+      "label": "02-create-book-freetier",
+      "status": 201,
+      "ms": 96,
+      "err": null
+    },
+    {
+      "label": "03-get-created-book",
+      "status": 200,
+      "ms": 412,
+      "err": null
+    },
+    {
+      "label": "03b-list-books-after-create",
+      "status": 200,
+      "ms": 51,
+      "err": null
+    },
+    {
+      "label": "03c-type-words-autosave",
+      "status": 200,
+      "ms": 137,
+      "err": null
+    },
+    {
+      "label": "03d-read-back-content",
+      "status": 200,
+      "ms": 53,
+      "err": null
+    },
+    {
+      "label": "04-lang-ar",
+      "status": 400,
+      "ms": 426,
+      "err": null
+    },
+    {
+      "label": "04-lang-fr",
+      "status": 200,
+      "ms": 54,
+      "err": null
+    },
+    {
+      "label": "04-lang-en-reset",
+      "status": 200,
+      "ms": 34,
+      "err": null
+    },
+    {
+      "label": "04b-lang-get",
+      "status": 200,
+      "ms": 37,
+      "err": null
+    },
+    {
+      "label": "05-book-chapters",
+      "status": 200,
+      "ms": 51,
+      "err": null
+    }
+  ]
+}

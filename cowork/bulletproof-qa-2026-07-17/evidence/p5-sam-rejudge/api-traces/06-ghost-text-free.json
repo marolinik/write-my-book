@@ -1,0 +1,20 @@
+{
+  "label": "06-ghost-text-free",
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:3002/api/books/35ff1112-52af-4001-a0f4-ec83f4dad9b0/ghost-text",
+    "body": {
+      "context": "Sam opened the notebook and began to write. The words came",
+      "chapterNumber": 1
+    }
+  },
+  "response": {
+    "status": 500,
+    "ms": 1027,
+    "json": {
+      "error": "Failed to generate suggestion"
+    }
+  },
+  "error": null,
+  "capturedAt": "2026-07-20T03:13:46.837Z"
+}

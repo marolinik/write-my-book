@@ -1,0 +1,59 @@
+{
+  "en": {
+    "patch": {
+      "status": 200,
+      "json": {
+        "language": "en"
+      }
+    },
+    "render": {
+      "htmlDir": null,
+      "htmlLang": "en",
+      "navLabels": [
+        "Home",
+        "Books",
+        "Agent",
+        "Settings"
+      ],
+      "firstHeading": "Books"
+    }
+  },
+  "fr": {
+    "patch": {
+      "status": 200,
+      "json": {
+        "language": "fr"
+      }
+    },
+    "render": {
+      "htmlDir": null,
+      "htmlLang": "en",
+      "navLabels": [
+        "Accueil",
+        "Livres",
+        "Agent",
+        "Paramètres"
+      ],
+      "firstHeading": "Livres"
+    }
+  },
+  "ar": {
+    "patch": {
+      "status": 400,
+      "json": {
+        "error": "\"ar\" is not yet available as an interface language. Available interface languages: en, sr, de, es, fr, ru, zh. You can still write books in this language — choose it when creating the book."
+      }
+    },
+    "render": {
+      "htmlDir": null,
+      "htmlLang": "en",
+      "navLabels": [
+        "Accueil",
+        "Livres",
+        "Agent",
+        "Paramètres"
+      ],
+      "firstHeading": "Livres"
+    }
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "method": "GET",
+  "path": "/api/books/0b4a7b05-6b01-4098-8bdc-555065f1ae27/batch/cmrsnt4db0002x40fak89coo6",
+  "status": 200,
+  "ok": true,
+  "latencyMs": 84,
+  "json": {
+    "batch": {
+      "id": "cmrsnt4db0002x40fak89coo6",
+      "userId": "a31049dd-0fd9-44dd-a232-8606129d1853",
+      "bookId": "0b4a7b05-6b01-4098-8bdc-555065f1ae27",
+      "workflowIds": [
+        "dev-edit"
+      ],
+      "chapterStart": 1,
+      "chapterEnd": 3,
+      "status": "halted",
+      "budgetCapUsd": 0.002,
+      "spentUsd": 0.15510135,
+      "halted": true,
+      "haltReason": "budget_cap",
+      "scheduledFor": null,
+      "parentJobId": "5ee6b4d0-afa7-4ad0-a2fb-954a68cc92d2",
+      "digest": {
+        "halted": true,
+        "passes": {
+          "total": 3,
+          "failed": 0,
+          "skipped": 1,
+          "completed": 2
+        },
+        "chapters": [
+          {
+            "status": "undiscussed",
+            "betaGate": "pending",
+            "chapterNumber": 1
+          },
+          {
+            "status": "undiscussed",
+            "betaGate": "pending",
+            "chapterNumber": 2
+          },
+          {
+            "status": "undiscussed",
+            "betaGate": "pending",
+            "chapterNumber": 3
+          }
+        ],
+        "findings": {
+          "total": 43,
+          "byChapter": {
+            "1": 29,
+            "2": 12,
+            "3": 2
+          },
+          "bySeverity": {
+            "critical": 4,
+            "important": 6,
+            "suggestion": 33
+          }
+        },
+        "spentUsd": 0.15510135,
+        "haltReason": "budget_cap",
+        "generatedAt": "2026-07-20T03:33:25.952Z",
+        "workflowIds": [
+          "dev-edit"
+        ],
+        "budgetCapUsd": 0.002,
+        "chapterRange": {
+          "end": 3,
+          "start": 1
+        },
+        "statusAutoAdvanceSuppressed": true
+      },
+      "childCount": 3,
+      "completedCount": 2,
+      "failedCount": 0,
+      "createdAt": "2026-07-20T03:22:55.966Z",
+      "startedAt": null,
+      "completedAt": "2026-07-20T03:33:25.952Z"
+    },
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 0,
+      "completed": 2,
+      "failed": 0,
+      "skipped": 1
+    }
+  },
+  "text": null
+}

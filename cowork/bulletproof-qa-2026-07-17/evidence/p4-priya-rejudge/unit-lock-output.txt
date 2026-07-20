@@ -1,0 +1,48 @@
+﻿### D-17 regression lock — tests/unit/batch-digest-notification-spend.test.ts
+### (baseline: RED — expected '....00...' to contain '.00'; expected now: GREEN)
+
+
+ RUN  v3.2.6 D:/Projects/wmb-pub
+
+node.exe : stderr | tests/unit/batch-digest-notification-spend.test.ts > D-16: batch-digest notification message spend on Redis ledger failure
+ > reports the real DB-fallback spend in the notification text, not the ledger's $0 default
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Users\MarkoMarkovic\AppData\ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (stderr...er's $0 default:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[BatchDigest] Redis ledger read failed (non-fatal): Error: redis down
+    at Object.<anonymous> (D:\Projects\wmb-pub\tests\unit\batch-digest-notification-spend.test.ts:28:37)
+    at Object.mockCall (file:///D:/Projects/wmb-pub/node_modules/@vitest/spy/dist/index.js:96:15)
+    at Object.spy (file:///D:/Projects/wmb-pub/node_modules/tinyspy/dist/index.js:47:80)
+    at readBatchLedger (D:\Projects\wmb-pub\src\lib\queue\batch-digest.ts:45:13)
+    at Module.processBatchDigestJob (D:\Projects\wmb-pub\src\lib\queue\batch-digest.ts:109:26)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at D:\Projects\wmb-pub\tests\unit\batch-digest-notification-spend.test.ts:86:5
+    at file:///D:/Projects/wmb-pub/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20
+
+ ✓ tests/unit/batch-digest-notification-spend.test.ts (1 test) 11ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  05:36:36
+   Duration  922ms (transform 67ms, setup 0ms, collect 78ms, tests 11ms, environment 0ms, prepare 113ms)
+
+
+EXITCODE=0
+
+### Gate-4 money-overrun lock — tests/unit/agent-worker-one-worker-overrun.test.ts
+
+
+ RUN  v3.2.6 D:/Projects/wmb-pub
+
+ ✓ tests/unit/agent-worker-one-worker-overrun.test.ts (5 tests) 11ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  05:36:40
+   Duration  1.22s (transform 248ms, setup 0ms, collect 651ms, tests 11ms, environment 0ms, prepare 132ms)
+
+
+EXITCODE=0

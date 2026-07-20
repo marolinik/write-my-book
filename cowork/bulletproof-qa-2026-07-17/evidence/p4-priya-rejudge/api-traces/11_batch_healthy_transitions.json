@@ -1,0 +1,652 @@
+[
+  {
+    "t": 0,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 3,
+      "running": 0,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 6,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 3,
+      "running": 0,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 12,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 3,
+      "running": 0,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 19,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 3,
+      "running": 0,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 25,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 31,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 37,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 43,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 49,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 55,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 62,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 68,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 74,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 81,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 87,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 93,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 99,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 105,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 111,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 117,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 123,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 129,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 135,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 142,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 148,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 154,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 160,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 166,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 172,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 178,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 184,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 190,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 196,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 202,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 208,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 215,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 221,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 227,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 233,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 239,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 245,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 251,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 257,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 263,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 269,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 275,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 281,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 287,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 293,
+    "status": "queued",
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 0,
+      "completed": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0
+  },
+  {
+    "t": 299,
+    "status": "done",
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 0,
+      "completed": 2,
+      "failed": 1,
+      "skipped": 0
+    },
+    "spentUsd": 0.04786332
+  }
+]

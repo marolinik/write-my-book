@@ -1,0 +1,44 @@
+[
+  {
+    "chapter": 1,
+    "action": "put-content",
+    "status": 200,
+    "body": {
+      "wordCount": 151,
+      "version": 1,
+      "bookWordCount": 151
+    }
+  },
+  {
+    "chapter": 2,
+    "action": "create",
+    "status": 201,
+    "id": "36f9f686-5f83-4f4f-82e9-ccecfe992277"
+  },
+  {
+    "chapter": 2,
+    "action": "put-content",
+    "status": 200,
+    "body": {
+      "wordCount": 151,
+      "version": 1,
+      "bookWordCount": 302
+    }
+  },
+  {
+    "chapter": 3,
+    "action": "create",
+    "status": 201,
+    "id": "75391dba-6e23-4bf0-af76-11c6d6204380"
+  },
+  {
+    "chapter": 3,
+    "action": "put-content",
+    "status": 200,
+    "body": {
+      "wordCount": 151,
+      "version": 1,
+      "bookWordCount": 453
+    }
+  }
+]

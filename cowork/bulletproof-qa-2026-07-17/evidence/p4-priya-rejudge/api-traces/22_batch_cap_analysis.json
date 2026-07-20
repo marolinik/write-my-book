@@ -1,0 +1,35 @@
+{
+  "batchId": "cmrsnt4db0002x40fak89coo6",
+  "cap": 0.002,
+  "per_session": [
+    {
+      "id": "7570bdfb-112d-40c7-a641-34951f994d7f",
+      "status": "queued",
+      "chapterNumber": 1,
+      "actualCostUsd": null
+    },
+    {
+      "id": "66ce1170-9539-4bd8-98fc-8bfe484b6eef",
+      "status": "completed",
+      "chapterNumber": 2,
+      "actualCostUsd": 0.04585331999999999
+    },
+    {
+      "id": "09cc55cb-90c6-4e01-b484-8291ddec5a23",
+      "status": "skipped",
+      "chapterNumber": 3,
+      "actualCostUsd": null
+    }
+  ],
+  "skipped_count": 1,
+  "skipped_never_spent": true,
+  "db_actualCostUsd_sum": 0.04585331999999999,
+  "notifications": [
+    {
+      "title": "Overnight batch complete",
+      "message": "2/3 passes · 11 findings · $0.05 / $10.00 cap",
+      "priority": "normal",
+      "createdAt": "2026-07-20T03:18:15.758Z"
+    }
+  ]
+}

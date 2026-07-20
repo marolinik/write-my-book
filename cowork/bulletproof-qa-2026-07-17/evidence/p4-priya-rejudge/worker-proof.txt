@@ -1,0 +1,19 @@
+﻿ONE-WORKER PROOF — P4 Priya re-judge (captured immediately before healthy batch measurement)
+UTC: 2026-07-20T03:12:56Z
+
+Rule (GRADING-PROTOCOL §8): exactly ONE leaf worker process draining src/worker.ts at capture time.
+
+=== wmb-pub processes matching 'worker.ts' ===
+PID 38908  PPID 43364  [launcher shim (tsx cli)]
+    "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\tsx\dist\cli.mjs" src/worker.ts
+PID 58460  PPID 38908  [LEAF (real worker: BullMQ consumer)]
+    "C:\Program Files\nodejs\node.exe" --require D:\Projects\wmb-pub\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/wmb-pub/node_modules/tsx/dist/loader.mjs src/worker.ts
+
+LEAF WORKER COUNT (wmb-pub, preflight loader executing src/worker.ts): 1
+LEAF PID(s): 58460
+
+Note: the two non-leaf PIDs above are the launch chain (npx -> tsx cli) that spawned the single
+leaf; they are not BullMQ consumers. A separate leaf for project D:\Projects\waggle-os exists on
+this machine but is a DIFFERENT project and is excluded by the 'wmb-pub' path filter. VERDICT: PASS.
+
+--- Re-confirmed before Gate-4 cap batch @ 2026-07-20T03:22:45Z: leaf worker count=1, PID(s)=58460 ---

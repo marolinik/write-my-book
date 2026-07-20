@@ -1,0 +1,13 @@
+{
+  "capturedAt": "2026-07-20T03:12:07.283Z",
+  "checks": {
+    "tablesPresent": [
+      "books",
+      "chapters",
+      "subscriptions",
+      "users"
+    ],
+    "freeTierUsagePresent": false
+  },
+  "dbHostMasked": "localhost:5432/writemybook"
+}

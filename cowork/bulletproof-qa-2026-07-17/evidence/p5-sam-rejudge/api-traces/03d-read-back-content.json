@@ -1,0 +1,33 @@
+{
+  "label": "03d-read-back-content",
+  "request": {
+    "method": "GET",
+    "url": "http://localhost:3002/api/books/35ff1112-52af-4001-a0f4-ec83f4dad9b0/chapters/10334dac-e7d2-4a56-92fb-594e9567304f/content",
+    "authHeaderNames": [
+      "x-e2e-test-secret(masked:<redacted>)",
+      "x-e2e-clerk-id:user_qa_p5"
+    ],
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "ms": 53,
+    "headers": {
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Mon, 20 Jul 2026 03:09:17 GMT",
+      "keep-alive": "timeout=5",
+      "transfer-encoding": "chunked",
+      "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+    },
+    "json": {
+      "markdown": "# Chapter One\n\nSam opened the notebook and began to write. The words came easily now, no card required, no wall in the way. This is the free-tier on-ramp working end to end.",
+      "wordCount": 32,
+      "documentId": "57fcc70f-8e17-49a0-8908-8327f2375604",
+      "version": 1
+    }
+  },
+  "error": null,
+  "capturedAt": "2026-07-20T03:09:17.285Z"
+}

@@ -1,0 +1,9 @@
+[axe] books-list: main=1 namelessBtns=0 violations=3
+[axe] dashboard: main=1 namelessBtns=0 violations=3
+[axe] settings: main=1 namelessBtns=0 violations=3
+[axe] books-new-form: main=1 namelessBtns=0 violations=2
+[onboarding] skip-button text: null
+[editor] captured book overview for free-tier book
+[locale en] patch=200 dir=null nav=["Home","Books","Agent","Settings"]
+[locale fr] patch=200 dir=null nav=["Accueil","Livres","Agent","Paramètres"]
+[locale ar] patch=400 dir=null nav=["Accueil","Livres","Agent","Paramètres"]

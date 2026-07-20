@@ -1,0 +1,58 @@
+{
+  "method": "GET",
+  "path": "/api/books/0b4a7b05-6b01-4098-8bdc-555065f1ae27/chapters",
+  "status": 200,
+  "ok": true,
+  "latencyMs": 59,
+  "json": [
+    {
+      "id": "fc983714-6885-4ceb-b08f-f87ce3d8cb61",
+      "bookId": "0b4a7b05-6b01-4098-8bdc-555065f1ae27",
+      "actNumber": 1,
+      "chapterNumber": 1,
+      "title": null,
+      "status": "undiscussed",
+      "wordCount": 151,
+      "targetWordCount": null,
+      "betaScore": null,
+      "betaGate": "pending",
+      "revisionCount": 0,
+      "importedAt": null,
+      "createdAt": "2026-07-20T03:11:48.107Z",
+      "updatedAt": "2026-07-20T03:11:48.548Z"
+    },
+    {
+      "id": "36f9f686-5f83-4f4f-82e9-ccecfe992277",
+      "bookId": "0b4a7b05-6b01-4098-8bdc-555065f1ae27",
+      "actNumber": 1,
+      "chapterNumber": 2,
+      "title": "Chapter 2",
+      "status": "undiscussed",
+      "wordCount": 151,
+      "targetWordCount": null,
+      "betaScore": null,
+      "betaGate": "pending",
+      "revisionCount": 0,
+      "importedAt": null,
+      "createdAt": "2026-07-20T03:11:48.614Z",
+      "updatedAt": "2026-07-20T03:11:48.770Z"
+    },
+    {
+      "id": "75391dba-6e23-4bf0-af76-11c6d6204380",
+      "bookId": "0b4a7b05-6b01-4098-8bdc-555065f1ae27",
+      "actNumber": 1,
+      "chapterNumber": 3,
+      "title": "Chapter 3",
+      "status": "undiscussed",
+      "wordCount": 151,
+      "targetWordCount": null,
+      "betaScore": null,
+      "betaGate": "pending",
+      "revisionCount": 0,
+      "importedAt": null,
+      "createdAt": "2026-07-20T03:11:48.850Z",
+      "updatedAt": "2026-07-20T03:11:48.969Z"
+    }
+  ],
+  "text": null
+}

@@ -71,5 +71,22 @@ Fresh bundle `evidence/p3-selena-rejudge/`, blind 3-judge panel (func/exp/trust)
 - Panel-surfaced NEW defects (executor missed): **D-90** hallucinated-death over-inference (MEDIUM, latent-FP), **D-91** relationship_contradiction ch0/null-anchor (LOW-MED). → `fix-reviews/D-90-D-91-panel-surfaced.md`, follow-up track (non-binding on 6.5).
 - P3 floor drivers = capture-gaps (D3/D6 NO-EVIDENCE — no UI captured), D5 dev-perf 6–7s cold reads, D9/D10 no flag-resolution lifecycle, D8 stochastic recall + max-signal-prose-only. Lifting P3→9.5 needs product work, not more closed-defect work.
 
-### P4 Priya / P5 Sam — re-captures dispatched 2026-07-20 (in flight).
+### P5 "Sam" — DONE (v1, pre-fix) 2026-07-20 → **3.5** (was 4.0, DOWN 0.5)
+Fresh bundle `evidence/p5-sam-rejudge/`, blind 3-judge panel → 5.0 / 4.5 / **3.5** (adversarial trust). MIN-on-floors D2/D7 = 3.5. Aggregate: `P5-REJUDGE-AGGREGATE.md`; raw: `p5-raw-verdicts-rejudge.md`.
+- Confirmed CLOSED: D-08 card-free on-ramp (201 create was 403), D-09/D-10 a11y, D-11/D-12 i18n.
+- DOWN because the fresh adversarial capture caught the NEW on-ramp shipping 2 S2s the baseline never probed: **D-92** (deploy drift + 401-masks-500) + **D-95** (false privacy claim "never stores your content"). Both **NOW FIXED in-tree** (D-92b honesty sweep 9+3 handlers; D-92a dev `db:push` applied — `free_tier_usage` now synced; D-95 copy corrected) — pending Fable verify + commit.
+- Evidence-integrity: Free-cap negative enforcement (2nd-book 403, export) was ASSERTED not driven (all 3 judges). v2 re-capture must drive the negatives + editor UI + working AI-assist.
+- **3.5 is a PRE-FIX snapshot.** Rule 7 → P5 needs a v2 re-capture after the fixes land. Projected v2 band ~5–6. Current platform-MIN candidate.
+
+### P4 "Priya" — DONE 2026-07-20 → **4.0** (was 4.0, FLAT)
+Fresh bundle `evidence/p4-priya-rejudge/`, blind 3-judge panel → 3.5 / 4.0 / 5.0. MIN-on-floors: D5 (non-hard-floor) median = **4.0**. Aggregate: `P4-REJUDGE-AGGREGATE.md`; raw: `p4-raw-verdicts-rejudge.md`.
+- **D-17 digest spend-lie CLOSED** (all 3 byte-level: 4-way spend agreement 0.048/0.155 + unit-lock RED→GREEN); **Gate-4 cap-halt PASS** (honest, skip-guard at dispatch, over-cap child $0); secrets PASS; worker-proof valid. D2/D7 lifted to 7.0–7.5.
+- **FLAT because a 2nd honesty defect at the same severity surfaced:** **D-96** live-surface lies (`running` always 0, batch `status:queued`/`halted:false`/`spentUsd:$0` until terminal) = the D5 floor. Plus **D-97** (suspected) digest findings over-claim (43 vs 11; findings on a skipped chapter), **D-98** halted batch mislabeled "complete". → `fix-reviews/D-96-D-97-D-98-batch-live-honesty.md`.
+- **D-20 chapter-create raw 500** confirmed open by all 3 → **FIXED + committed** this session (P2002→409). P4 bundle predates it → v2 spot-check on the 4xx.
+- P4 v2 re-capture needed after D-96 lands (D5 → ~7 lifts P4's floor to D3/D11 ~5–6.5). Current platform-MIN candidate alongside P5.
+
+### CODE LANDED 2026-07-20 (committed, RED-repro verified, tsc 0): honesty sweep (D-92b, 12 handlers) + D-20 (P2002→409) + D-95 (privacy copy). Fable verify hit its usage limit mid-review (cleared handlers structurally); team-lead completed the adversarial RED-repro (stash → 7 bug-cases fail → restore → 26/26 green).
+
+### Env: dev `db:push` applied 2026-07-20 (D-92a) — DB now in sync with committed schema (additive, no data loss).
+
 ### P6 Owen / P8 Rita / P1 Maya / P7 Bao — held until MIN-candidates (P3/P4/P5) judged.

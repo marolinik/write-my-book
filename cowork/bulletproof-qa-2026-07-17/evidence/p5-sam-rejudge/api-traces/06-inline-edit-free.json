@@ -1,0 +1,22 @@
+{
+  "label": "06-inline-edit-free",
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:3002/api/books/35ff1112-52af-4001-a0f4-ec83f4dad9b0/inline-edit",
+    "body": {
+      "selectedText": "The words came easily now",
+      "surroundingContext": "Sam opened the notebook. The words came easily now, no card required.",
+      "instruction": "make it more vivid",
+      "count": 3
+    }
+  },
+  "response": {
+    "status": 500,
+    "ms": 3089,
+    "json": {
+      "error": "Failed to generate suggestions"
+    }
+  },
+  "error": null,
+  "capturedAt": "2026-07-20T03:13:49.929Z"
+}

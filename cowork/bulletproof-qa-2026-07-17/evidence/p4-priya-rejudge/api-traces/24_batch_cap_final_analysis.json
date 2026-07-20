@@ -1,0 +1,35 @@
+{
+  "batchId": "cmrsnt4db0002x40fak89coo6",
+  "per_session": [
+    {
+      "chapterNumber": 1,
+      "status": "completed",
+      "actualCostUsd": 0.10924803
+    },
+    {
+      "chapterNumber": 2,
+      "status": "completed",
+      "actualCostUsd": 0.04585331999999999
+    },
+    {
+      "chapterNumber": 3,
+      "status": "skipped",
+      "actualCostUsd": null
+    }
+  ],
+  "db_actualCostUsd_sum": 0.15510134999999997,
+  "notifications": [
+    {
+      "title": "Overnight batch complete",
+      "message": "2/3 passes · 1 skipped · 43 findings · $0.16 / $0.00 cap",
+      "priority": "high",
+      "createdAt": "2026-07-20T03:33:25.960Z"
+    },
+    {
+      "title": "Overnight batch complete",
+      "message": "2/3 passes · 11 findings · $0.05 / $10.00 cap",
+      "priority": "normal",
+      "createdAt": "2026-07-20T03:18:15.758Z"
+    }
+  ]
+}

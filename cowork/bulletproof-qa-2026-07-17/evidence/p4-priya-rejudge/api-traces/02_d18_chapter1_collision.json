@@ -1,0 +1,19 @@
+{
+  "note": "POST chapterNumber:1 collides with book-create's auto-placeholder chapter 1. Baseline (p4-priya, p3-selena D-20): raw 500. Checking whether it is now a clean 4xx.",
+  "request": {
+    "actNumber": 1,
+    "chapterNumber": 1,
+    "title": "Collision probe"
+  },
+  "response": {
+    "method": "POST",
+    "path": "/api/books/0b4a7b05-6b01-4098-8bdc-555065f1ae27/chapters",
+    "status": 500,
+    "ok": false,
+    "latencyMs": 235,
+    "json": {
+      "error": "Failed to create chapter"
+    },
+    "text": null
+  }
+}

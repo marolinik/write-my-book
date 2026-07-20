@@ -1,0 +1,32 @@
+{
+  "label": "04-lang-en-reset",
+  "request": {
+    "method": "PATCH",
+    "url": "http://localhost:3002/api/settings/language",
+    "authHeaderNames": [
+      "x-e2e-test-secret(masked:<redacted>)",
+      "x-e2e-clerk-id:user_qa_p5"
+    ],
+    "body": {
+      "language": "en"
+    }
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "ms": 34,
+    "headers": {
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Mon, 20 Jul 2026 03:09:17 GMT",
+      "keep-alive": "timeout=5",
+      "transfer-encoding": "chunked",
+      "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+    },
+    "json": {
+      "language": "en"
+    }
+  },
+  "error": null,
+  "capturedAt": "2026-07-20T03:09:17.802Z"
+}

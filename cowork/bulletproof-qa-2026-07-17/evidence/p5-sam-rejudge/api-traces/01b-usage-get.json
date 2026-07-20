@@ -1,0 +1,54 @@
+{
+  "label": "01b-usage-get",
+  "request": {
+    "method": "GET",
+    "url": "http://localhost:3002/api/usage",
+    "authHeaderNames": [
+      "x-e2e-test-secret(masked:<redacted>)",
+      "x-e2e-clerk-id:user_qa_p5"
+    ],
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "ms": 457,
+    "headers": {
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Mon, 20 Jul 2026 03:09:16 GMT",
+      "keep-alive": "timeout=5",
+      "transfer-encoding": "chunked",
+      "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+    },
+    "json": {
+      "total": {
+        "tokensInput": 0,
+        "tokensOutput": 0,
+        "costEstimate": 0,
+        "sessions": 0
+      },
+      "byAgent": {},
+      "byModel": {},
+      "byBook": [],
+      "byKeySource": {},
+      "llmCosts": {
+        "costEstimate": 0,
+        "sessions": 0
+      },
+      "embeddingCosts": {
+        "costEstimate": 0,
+        "tokens": 0
+      },
+      "costDrift": {
+        "driftPercentage": null,
+        "sessionsAnalyzed": 0,
+        "warningThreshold": 20,
+        "hasWarning": false
+      },
+      "priceDiscrepancies": 30
+    }
+  },
+  "error": null,
+  "capturedAt": "2026-07-20T03:09:16.531Z"
+}

@@ -1,0 +1,17 @@
+{
+  "suiteId": "voice-flattening",
+  "generatedAtUtc": "2026-07-20T01:43:47.580Z",
+  "verdict": "PASS",
+  "totals": {
+    "checks": 0,
+    "passed": 0,
+    "failed": 0
+  },
+  "coverage": {
+    "error": "[voice] corpus missing at D:\\Projects\\wmb-pub\\cowork\\bulletproof-qa-2026-07-17\\evidence-harness\\corpora\\voice (T11)"
+  },
+  "checks": [],
+  "suiteError": "[voice] corpus missing at D:\\Projects\\wmb-pub\\cowork\\bulletproof-qa-2026-07-17\\evidence-harness\\corpora\\voice (T11)",
+  "runId": "voice-flattening-20260720-014347.-2ca9049",
+  "wallMs": 2
+}

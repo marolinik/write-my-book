@@ -1,0 +1,8 @@
+{
+  "capturedAt": "2026-07-20T03:13:45.809Z",
+  "env": {
+    "STRIPE_SECRET_KEY_set": true,
+    "FREE_TIER_DISABLED": null,
+    "NODE_ENV": null
+  }
+}

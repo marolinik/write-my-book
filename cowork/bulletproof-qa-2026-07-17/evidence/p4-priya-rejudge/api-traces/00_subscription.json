@@ -1,0 +1,29 @@
+{
+  "method": "GET",
+  "path": "/api/billing/subscription",
+  "status": 200,
+  "ok": true,
+  "latencyMs": 40,
+  "json": {
+    "plan": "professional",
+    "planName": "Professional",
+    "monthlyPrice": 99,
+    "annualPrice": 990,
+    "features": [
+      "Unlimited books",
+      "All 14 agents & workflows",
+      "Series management",
+      "Advanced analytics",
+      "Standard export"
+    ],
+    "maxBooks": null,
+    "status": "active",
+    "billingInterval": "monthly",
+    "trialEnd": null,
+    "cancelAtPeriodEnd": false,
+    "stripeConfigured": true,
+    "currentPeriodEnd": "2026-08-16T13:51:42.005Z",
+    "freeTier": null
+  },
+  "text": null
+}
