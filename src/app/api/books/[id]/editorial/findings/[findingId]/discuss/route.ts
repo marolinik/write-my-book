@@ -124,16 +124,35 @@ export async function POST(req: Request, { params }: RouteParams) {
       // later plain Apply uses the agreed revision — not the stale original — even
       // without the client hand-carrying it as overrideText. Empty revisions are
       // filtered above, so this never clobbers an existing suggestion.
+      //
+      // D-105: a discuss revision is a sentence-scoped compromise. If originalText
+      // spans MORE prose than the revision replaces, arming the revision onto
+      // newText while leaving originalText wide makes a later Apply wipe the
+      // un-discussed sentences (Apply replaces the whole originalText span). Only
+      // write the revision back when the span stays coherent:
+      //   • no originalText → nothing to over-delete → arm as-is;
+      //   • anchorQuote is a concrete substring of originalText → narrow the span
+      //     to that anchor (the passage the revision was negotiated against).
+      // Otherwise skip the write-back — the revision still lives in the thread
+      // (returned to the client, re-parsed on GET), it just isn't armed for a lossy
+      // plain Apply.
       if (revisedSuggestion) {
-        await tx.editFinding.update({
-          where: { id: findingId },
-          data: {
-            newText: revisedSuggestion,
-            ...(finding.alternatives
-              ? { alternatives: applyRevisionToAlternatives(finding.alternatives, revisedSuggestion) }
-              : {}),
-          },
-        });
+        const anchor = finding.anchorQuote?.trim();
+        const canNarrow = !!anchor && !!finding.originalText && finding.originalText.includes(anchor);
+        const spanUnsafe = !!finding.originalText && !canNarrow;
+        if (!spanUnsafe) {
+          const narrowedOriginal = canNarrow ? anchor : undefined;
+          await tx.editFinding.update({
+            where: { id: findingId },
+            data: {
+              newText: revisedSuggestion,
+              ...(narrowedOriginal ? { originalText: narrowedOriginal } : {}),
+              ...(finding.alternatives
+                ? { alternatives: applyRevisionToAlternatives(finding.alternatives, revisedSuggestion, narrowedOriginal) }
+                : {}),
+            },
+          });
+        }
       }
 
       return { capped: false as const, userTurns: currentUserTurns + 1 };
@@ -171,14 +190,24 @@ function safeAlternatives(raw: unknown): Array<{ label?: string; originalText?: 
 }
 
 /** D-41b: write `revision` into the first alternative's newText, preserving
- *  everything else (label, originalText, later alternatives). Malformed or empty
- *  alternatives JSON is left untouched — the finding's top-level newText still
- *  carries the revision, so a plain Apply still uses it. */
-function applyRevisionToAlternatives(raw: string, revision: string): string {
+ *  everything else (label, later alternatives). Malformed or empty alternatives
+ *  JSON is left untouched — the finding's top-level newText still carries the
+ *  revision, so a plain Apply still uses it.
+ *  D-105: when a narrowed anchor is supplied, also narrow the first alternative's
+ *  originalText to that span so applying via `alternativeIndex` replaces the same
+ *  coherent passage the top-level Apply would; otherwise the alt's originalText is
+ *  preserved unchanged. */
+function applyRevisionToAlternatives(raw: string, revision: string, narrowedOriginal?: string): string {
   try {
     const arr = JSON.parse(raw);
     if (!Array.isArray(arr) || arr.length === 0) return raw;
-    return JSON.stringify(arr.map((alt, i) => (i === 0 ? { ...alt, newText: revision } : alt)));
+    return JSON.stringify(
+      arr.map((alt, i) =>
+        i === 0
+          ? { ...alt, ...(narrowedOriginal ? { originalText: narrowedOriginal } : {}), newText: revision }
+          : alt
+      )
+    );
   } catch {
     return raw;
   }

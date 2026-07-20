@@ -122,6 +122,57 @@ describe("POST /discuss", () => {
     expect(h.runTurn).not.toHaveBeenCalled();
   });
 
+  // D-105: a discuss revision is a sentence-scoped compromise. When the finding's
+  // originalText spans MORE prose than the revision replaces and there is no anchor
+  // to narrow against, arming the revision onto newText would let a later plain
+  // Apply silently DELETE the un-discussed sentences. In that case skip the
+  // write-back entirely and surface the revision in the thread only.
+  it("does NOT arm a revision when originalText spans un-narrowable prose (no anchor)", async () => {
+    h.db.findingReply.findMany.mockResolvedValue([]);
+    h.db.editFinding.findFirst.mockResolvedValue({
+      id: "f1", bookId: "b1", category: "pacing", severity: "important", description: "d",
+      agentType: "dev-editor", alternatives: null,
+      originalText: "She ran. He watched. The rain fell.", // 3 sentences
+      anchorQuote: null,
+    });
+    h.runTurn.mockResolvedValue("Sure.\n<<<REVISION>>>\nsuggestion: She bolted.\nwhy: punchier\n<<<END>>>");
+
+    const res = await POST(req({ writerMessage: "tighten the first beat" }), ctx as never);
+    const json = await res.json();
+    expect(res.status).toBe(200);
+    expect(json.revisedSuggestion).toBe("She bolted."); // still surfaced in the thread
+    expect(h.db.editFinding.update).not.toHaveBeenCalled(); // but NOT armed onto the finding
+  });
+
+  // D-105: when the anchorQuote is a concrete substring of originalText, the
+  // replaced span can be narrowed coherently — persist the revision to newText AND
+  // narrow originalText (and alternatives[0].originalText) to the anchor so a later
+  // Apply replaces only the negotiated span, not the surrounding prose.
+  it("narrows originalText to the anchor when arming a revision against a multi-sentence span", async () => {
+    h.db.findingReply.findMany.mockResolvedValue([]);
+    h.db.editFinding.findFirst.mockResolvedValue({
+      id: "f1", bookId: "b1", category: "pacing", severity: "important", description: "d",
+      agentType: "dev-editor",
+      originalText: "She ran. He watched. The rain fell.",
+      anchorQuote: "He watched.",
+      alternatives: JSON.stringify([
+        { label: "Tighter", originalText: "She ran. He watched. The rain fell.", newText: "stale one" },
+      ]),
+    });
+    h.runTurn.mockResolvedValue("Sure.\n<<<REVISION>>>\nsuggestion: He looked away.\nwhy: shifts the beat\n<<<END>>>");
+
+    const res = await POST(req({ writerMessage: "make him look away" }), ctx as never);
+    expect(res.status).toBe(200);
+
+    expect(h.db.editFinding.update).toHaveBeenCalledTimes(1);
+    const data = h.db.editFinding.update.mock.calls[0][0].data;
+    expect(data.newText).toBe("He looked away.");
+    expect(data.originalText).toBe("He watched."); // narrowed to the anchor span
+    const alts = JSON.parse(data.alternatives);
+    expect(alts[0].newText).toBe("He looked away.");
+    expect(alts[0].originalText).toBe("He watched."); // alt span narrowed too
+  });
+
   // D-04 regression: a reasoning model that returns no text must surface as an
   // honest 502 — NOT a 200 with an empty assistantMessage — and the failed turn
   // must neither persist any reply nor consume one of the writer's 3 turns.
