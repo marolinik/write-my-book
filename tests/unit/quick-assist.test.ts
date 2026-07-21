@@ -6,6 +6,7 @@ import {
   QUICK_ASSIST_REASONING,
   MODEL_NO_QUICK_SUGGEST_CODE,
   MODEL_NO_QUICK_SUGGEST_MESSAGE,
+  modelNoQuickSuggestMessage,
 } from "@/lib/llm/quick-assist";
 
 /**
@@ -61,5 +62,26 @@ describe("quick-assist helpers (D-100)", () => {
   it("exposes a machine-readable code and a non-empty message for the editor UI", () => {
     expect(MODEL_NO_QUICK_SUGGEST_CODE).toBe("MODEL_NO_QUICK_SUGGEST");
     expect(MODEL_NO_QUICK_SUGGEST_MESSAGE.length).toBeGreaterThan(0);
+  });
+
+  it("scopes the honest 422 copy to the surface that actually failed (D-118)", () => {
+    const ghost = modelNoQuickSuggestMessage("ghost-text");
+    const inline = modelNoQuickSuggestMessage("inline-edit");
+
+    // Ghost copy names the broken surface (ghost text / autocomplete)…
+    expect(ghost).toMatch(/ghost|autocomplete/i);
+    // …and — the D-118 correction — explicitly says inline edit still works,
+    // rather than the old copy that told users to "pick a different model for
+    // inline assist" even though inline edit works on this model.
+    expect(ghost).toMatch(/inline edit still works/i);
+    expect(ghost).toMatch(/settings/i);
+
+    // Inline copy is scoped to inline suggestions only and never blames ghost.
+    expect(inline).toMatch(/inline/i);
+    expect(inline).not.toMatch(/ghost|autocomplete/i);
+    expect(inline).toMatch(/settings/i);
+
+    // The two surfaces get distinct copy.
+    expect(ghost).not.toBe(inline);
   });
 });

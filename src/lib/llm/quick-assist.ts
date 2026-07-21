@@ -26,9 +26,33 @@ export const QUICK_ASSIST_REASONING = { enabled: false } as const;
 /** Machine-readable code the editor UI keys off to deep-link to model settings. */
 export const MODEL_NO_QUICK_SUGGEST_CODE = "MODEL_NO_QUICK_SUGGEST";
 
-/** Plain-language, writer-facing copy for the honest fallback. */
-export const MODEL_NO_QUICK_SUGGEST_MESSAGE =
-  "This model only returns internal reasoning, so it can't produce quick inline suggestions. Choose a different model for inline assist in Settings.";
+/** The two quick-assist surfaces that can hit the honest MODEL_NO_QUICK_SUGGEST 422. */
+export type QuickAssistSurface = "ghost-text" | "inline-edit";
+
+/**
+ * Writer-facing copy for the honest MODEL_NO_QUICK_SUGGEST fallback, scoped to
+ * the surface that actually failed (D-118).
+ *
+ * The old single message blamed "inline assist" on BOTH surfaces — misleading,
+ * because inline edit works on this model (only ghost text, at its 60-token
+ * budget, is starved by the model's non-disableable thinking). Ghost copy names
+ * autocomplete as the broken surface AND reassures that inline edit still works;
+ * inline copy is scoped to inline suggestions only. Both keep pointing at the
+ * Settings model picker (the editor deep-links off {@link
+ * MODEL_NO_QUICK_SUGGEST_CODE}, not this string).
+ */
+export function modelNoQuickSuggestMessage(surface: QuickAssistSurface): string {
+  if (surface === "ghost-text") {
+    return "This model returns only internal reasoning at ghost-text's tiny budget, so it can't produce autocomplete suggestions. Inline edit still works on this model — to use ghost text, pick a different model in Settings.";
+  }
+  return "This model returns only internal reasoning at this budget, so it can't produce inline rewrite suggestions. Pick a different model for inline suggestions in Settings.";
+}
+
+/**
+ * @deprecated Use {@link modelNoQuickSuggestMessage} — this single, surface-blind
+ * string mislabels the failing surface (D-118). Retained only for legacy callers.
+ */
+export const MODEL_NO_QUICK_SUGGEST_MESSAGE = modelNoQuickSuggestMessage("inline-edit");
 
 /** Minimal shape of an Anthropic-style content block we inspect. */
 interface ContentBlockLike {

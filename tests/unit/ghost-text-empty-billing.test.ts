@@ -26,7 +26,7 @@ const h = vi.hoisted(() => ({
   checkQuota: vi.fn(),
   estimateCost: vi.fn(),
   decryptApiKey: vi.fn(),
-  resolveCheapModelFor: vi.fn(),
+  resolveQuickAssistModelFor: vi.fn(),
   resolveProviderRoute: vi.fn(),
   createLLMClient: vi.fn(),
 }));
@@ -39,7 +39,7 @@ vi.mock("@/lib/billing/quota-checker", () => ({ checkQuota: h.checkQuota }));
 vi.mock("@/lib/llm", () => ({
   createLLMClient: h.createLLMClient,
   resolveProviderRoute: h.resolveProviderRoute,
-  resolveCheapModelFor: h.resolveCheapModelFor,
+  resolveQuickAssistModelFor: h.resolveQuickAssistModelFor,
 }));
 
 import { POST } from "@/app/api/books/[id]/ghost-text/route";
@@ -78,7 +78,7 @@ beforeEach(() => {
   h.checkQuota.mockResolvedValue({ allowed: true });
   h.estimateCost.mockReturnValue(0.0001);
   h.decryptApiKey.mockReturnValue("sk-test");
-  h.resolveCheapModelFor.mockReturnValue({ id: "anthropic/haiku", provider: "anthropic" });
+  h.resolveQuickAssistModelFor.mockReturnValue({ id: "anthropic/haiku", provider: "anthropic" });
   h.resolveProviderRoute.mockReturnValue({ route: "direct" });
   h.createLLMClient.mockReturnValue({
     client: { messages: { create: h.create } },

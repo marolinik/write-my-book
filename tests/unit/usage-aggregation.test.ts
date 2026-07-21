@@ -11,6 +11,7 @@ import { describe, it, expect } from "vitest";
 import {
   providerForUsageModel,
   aggregateUsageByProvider,
+  formatUsageModelLabel,
   type UsageModelGroup,
 } from "@/lib/llm/usage-aggregation";
 
@@ -174,5 +175,61 @@ describe("aggregateUsageByProvider — per-provider rollup (D-44)", () => {
 
   it("returns an empty map for no usage rows", () => {
     expect(aggregateUsageByProvider([]).size).toBe(0);
+  });
+});
+
+describe("formatUsageModelLabel (D-119)", () => {
+  it("renders a recognizable name + real API modelId for a registry slot id", () => {
+    // D-119: the spend audit showed raw registry slot ids ("openrouter-qwen36/
+    // haiku") — names the user never picked. Display them as the model the user
+    // recognizes plus the exact API model string, while storage keeps the id.
+    expect(formatUsageModelLabel("openrouter-qwen36/haiku")).toBe(
+      "Qwen 3.6 27B (OpenRouter) (qwen/qwen3.6-27b)"
+    );
+    expect(formatUsageModelLabel("anthropic/haiku")).toBe(
+      "Claude Haiku 4.5 (Direct) (claude-haiku-4-5-20251001)"
+    );
+  });
+
+  it("passes an unknown / legacy id through unchanged", () => {
+    // Embedding + any legacy id has no registry entry — never mangle it.
+    expect(formatUsageModelLabel("text-embedding-3-small")).toBe("text-embedding-3-small");
+    expect(formatUsageModelLabel("totally-made-up/model")).toBe("totally-made-up/model");
+    expect(formatUsageModelLabel("")).toBe("");
+  });
+
+  it("is display-only: labeling rows does not change provider rollup totals", () => {
+    // The D-119 fix is read/display-level; the D-44 provider attribution must be
+    // byte-for-byte unchanged whether or not the label is computed.
+    const groups: UsageModelGroup[] = [
+      {
+        model: "openrouter-qwen36/sonnet",
+        tokensInput: 900_000,
+        tokensOutput: 300_000,
+        costEstimate: 10.21,
+        sessionCount: 7,
+      },
+      {
+        model: "text-embedding-3-small",
+        tokensInput: 1000,
+        tokensOutput: 0,
+        costEstimate: 0.02,
+        sessionCount: 5,
+      },
+    ];
+
+    const before = aggregateUsageByProvider(groups);
+    // Compute labels (the display step) — must have zero effect on aggregation.
+    groups.forEach((g) => formatUsageModelLabel(g.model));
+    const after = aggregateUsageByProvider(groups);
+
+    expect(after).toEqual(before);
+    expect(after.get("openrouter")).toEqual({
+      totalTokens: 1_200_000,
+      totalCost: 10.21,
+      sessionCount: 7,
+    });
+    // The embedding row has no BYOK provider and stays out of the rollup.
+    expect(after.size).toBe(1);
   });
 });

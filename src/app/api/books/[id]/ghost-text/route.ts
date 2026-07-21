@@ -5,14 +5,14 @@ import { decryptApiKey } from "@/lib/encryption";
 import { estimateCost } from "@/lib/cost";
 import { checkQuota } from "@/lib/billing/quota-checker";
 import { recordDailyUse } from "@/lib/billing/free-tier-meters";
-import { createLLMClient, resolveProviderRoute, resolveCheapModelFor } from "@/lib/llm";
+import { createLLMClient, resolveProviderRoute, resolveQuickAssistModelFor } from "@/lib/llm";
 import type { ProviderKey } from "@/lib/llm";
 import {
   withQuickAssistReasoning,
   extractQuickAssistText,
   isReasoningOnly,
   MODEL_NO_QUICK_SUGGEST_CODE,
-  MODEL_NO_QUICK_SUGGEST_MESSAGE,
+  modelNoQuickSuggestMessage,
 } from "@/lib/llm/quick-assist";
 import { ghostTextRequestSchema } from "@/lib/validation";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
@@ -49,16 +49,19 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Resolve the cheap-tier model for the user's preferred provider via the
-    // registry (BYOK — no platform key fallbacks). Never string-build the ID:
-    // openai/gemini/grok have no "/haiku" entry and a registry miss silently
-    // falls back to anthropic/sonnet.
+    // Resolve the quick-assist model for the user's preferred provider via the
+    // registry (BYOK — no platform key fallbacks). This routes AROUND models
+    // flagged unfitForQuickAssist (D-116/D-117): the seeded openrouter-qwen36/*
+    // reasoning default's own "/haiku" slot is the SAME reasoning model, which
+    // burns the 60-token budget on thinking and returns no text — so we
+    // substitute the cheapest non-reasoning haiku from the same provider
+    // (DeepSeek V3.2 for OpenRouter). Unflagged models are unchanged.
     const dbUser = await db.user.findUnique({
       where: { id: user.id },
       select: { defaultModel: true },
     });
     const userDefault = dbUser?.defaultModel ?? "anthropic/sonnet";
-    const cheapModel = resolveCheapModelFor(userDefault);
+    const cheapModel = resolveQuickAssistModelFor(userDefault);
 
     // Load all user keys (no platform key fallbacks)
     const userKeys = await db.apiKey.findMany({
@@ -141,7 +144,7 @@ Rules:
       if (isReasoningOnly(response.content)) {
         return NextResponse.json(
           {
-            error: MODEL_NO_QUICK_SUGGEST_MESSAGE,
+            error: modelNoQuickSuggestMessage("ghost-text"),
             code: MODEL_NO_QUICK_SUGGEST_CODE,
           },
           { status: 422 }

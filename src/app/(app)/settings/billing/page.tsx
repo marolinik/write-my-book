@@ -14,6 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
 import { formatTokens } from "@/lib/utils";
+import { formatUsageModelLabel } from "@/lib/llm/usage-aggregation";
 import { billingStatusNotice } from "@/lib/billing/status-notice";
 import { useLocale } from "@/components/providers/language-provider";
 import {
@@ -706,7 +707,10 @@ export default function BillingPage() {
                         key={model}
                         className="flex items-center justify-between rounded-md border p-3"
                       >
-                        <p className="font-medium">{model}</p>
+                        {/* D-119: render a name the writer recognizes + the real
+                            API model id, not the raw registry slot id they never
+                            picked (e.g. "openrouter-qwen36/haiku"). */}
+                        <p className="font-medium">{formatUsageModelLabel(model)}</p>
                         <div className="text-right">
                           <p className="font-medium">
                             ${data.costEstimate.toFixed(2)}

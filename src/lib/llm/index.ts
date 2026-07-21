@@ -7,6 +7,7 @@ export {
   getModelDef,
   resolveFromTier,
   resolveCheapModelFor,
+  resolveQuickAssistModelFor,
   getModelsByProvider,
   getModelsGrouped,
   getModelsForProviders,

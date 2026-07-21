@@ -42,6 +42,21 @@ export function providerForUsageModel(model: string): LLMProvider | null {
 }
 
 /**
+ * Render a recorded `UsageRecord.model` registry id as a label the writer
+ * recognizes — the model's display name plus the real API model string, e.g.
+ * "Qwen 3.6 27B (OpenRouter) (qwen/qwen3.6-27b)" for the stored slot id
+ * "openrouter-qwen36/haiku" (D-119). Storage is untouched — the id remains the
+ * D-44 provider-attribution contract; this is a read/display transform only.
+ * Unknown / legacy ids (e.g. the raw "text-embedding-3-small" embedding model)
+ * pass through verbatim rather than being mangled.
+ */
+export function formatUsageModelLabel(model: string): string {
+  const def = getModelDef(model);
+  if (!def) return model;
+  return `${def.displayName} (${def.modelId})`;
+}
+
+/**
  * Fold per-model usage rows into per-provider totals, attributing each row to
  * its provider through {@link providerForUsageModel}. Rows with no known
  * provider are skipped. Pure and immutable — the input is never mutated.
