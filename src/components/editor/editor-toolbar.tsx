@@ -53,6 +53,7 @@ import type { FocusLevel } from "./graduated-focus";
 import { AmbientSoundscape } from "./ambient-soundscape";
 import { ReadAloud } from "./read-aloud";
 import { useToolbarRoving } from "./use-toolbar-roving";
+import { QUICK_ASSIST_DISCLOSURE } from "./quick-assist-client-errors";
 
 interface EditorToolbarProps {
   editor: Editor | null;
@@ -471,7 +472,15 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
         {ctx.onToggleGhostText && (
           <DropdownMenuItem onClick={ctx.onToggleGhostText}>
             <Wand2 className="mr-2 h-4 w-4" />
-            {ctx.ghostTextEnabled ? "Disable AI Ghost Text" : "Enable AI Ghost Text"}
+            <span className="flex flex-col">
+              <span>
+                {ctx.ghostTextEnabled ? "Disable AI Ghost Text" : "Enable AI Ghost Text"}
+              </span>
+              {/* D-127: point-of-use disclosure for the quick-assist model substitution */}
+              <span className="text-[10px] text-muted-foreground">
+                {QUICK_ASSIST_DISCLOSURE}
+              </span>
+            </span>
           </DropdownMenuItem>
         )}
         {ctx.onToggleFloatingInput && (

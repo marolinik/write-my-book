@@ -1,7 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import type { Editor } from "@tiptap/react";
+import { joinGhostSuggestion } from "./ghost-text-join";
+import {
+  quickAssistErrorNotice,
+  shouldSurfaceGhostError,
+  QUICK_ASSIST_FALLBACK_MESSAGE,
+  type GhostErrorMark,
+  type QuickAssistErrorNotice,
+} from "./quick-assist-client-errors";
 
 /**
  * Gap 4: Inline AI Ghost-Text Completions (Copilot-style)
@@ -37,9 +47,38 @@ export function AIGhostText({
 }: AIGhostTextProps) {
   const [suggestion, setSuggestion] = useState<string | null>(null);
   const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
+  // D5: the fetch wait was blind — no affordance between pause and render.
+  const [pending, setPending] = useState(false);
   const pauseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const lastTextRef = useRef<string>("");
+  const lastErrorRef = useRef<GhostErrorMark | null>(null);
+  const router = useRouter();
+
+  // D-129: the server answers the cap wall (429), the reasoning-model
+  // backstop (422 MODEL_NO_QUICK_SUGGEST), and 5xx with honest copy — it must
+  // reach the writer instead of dying in a silent early-return. Throttled so
+  // the per-pause retrigger can't storm the same toast.
+  const surfaceError = useCallback(
+    (notice: QuickAssistErrorNotice) => {
+      const now = Date.now();
+      if (!shouldSurfaceGhostError(lastErrorRef.current, notice.message, now)) {
+        return;
+      }
+      lastErrorRef.current = { message: notice.message, at: now };
+      if (notice.openSettings) {
+        toast.error(notice.message, {
+          action: {
+            label: "Open Settings",
+            onClick: () => router.push("/settings"),
+          },
+        });
+      } else {
+        toast.error(notice.message);
+      }
+    },
+    [router]
+  );
 
   // Cleanup on unmount
   useEffect(() => {
@@ -66,6 +105,7 @@ export function AIGhostText({
       const controller = new AbortController();
       abortRef.current = controller;
 
+      setPending(true);
       try {
         const res = await fetch(`/api/books/${bookId}/ghost-text`, {
           method: "POST",
@@ -78,17 +118,34 @@ export function AIGhostText({
           signal: controller.signal,
         });
 
-        if (!res.ok || controller.signal.aborted) return;
+        if (controller.signal.aborted) return;
+
+        if (!res.ok) {
+          const body: unknown = await res.json().catch(() => null);
+          surfaceError(quickAssistErrorNotice(body));
+          return;
+        }
 
         const data = await res.json();
         if (data.suggestion && !controller.signal.aborted) {
           setSuggestion(data.suggestion.slice(0, MAX_SUGGESTION_LENGTH));
         }
       } catch {
-        // Aborted or network error — ignore
+        // Abort is routine (typing resumed); anything else is a real network
+        // failure the writer must hear about (D-129).
+        if (!controller.signal.aborted) {
+          surfaceError({
+            message: QUICK_ASSIST_FALLBACK_MESSAGE,
+            openSettings: false,
+          });
+        }
+      } finally {
+        // Only the still-current request may clear the indicator — a stale
+        // finally must not blank a newer request's pending state.
+        if (abortRef.current === controller) setPending(false);
       }
     },
-    [bookId, chapterNumber]
+    [bookId, chapterNumber, surfaceError]
   );
 
   // Monitor editor changes
@@ -185,8 +242,16 @@ export function AIGhostText({
       if (e.key === "Tab") {
         if (!editor.isFocused) return; // Tab belongs to another pane/input
         e.preventDefault();
-        // Insert the suggestion at cursor
-        editor.commands.insertContent(suggestion);
+        // Insert at cursor, joining with a space when both sides are
+        // word-like (D-130: raw insert glued "the"+"dream" → "thedream").
+        const { from } = editor.state.selection;
+        const charBefore =
+          from > 0
+            ? editor.state.doc.textBetween(Math.max(0, from - 1), from)
+            : "";
+        editor.commands.insertContent(
+          joinGhostSuggestion(charBefore, suggestion)
+        );
         setSuggestion(null);
       } else if (e.key === "Escape") {
         setSuggestion(null);
@@ -200,7 +265,23 @@ export function AIGhostText({
     return () => document.removeEventListener("keydown", handler, { capture: true });
   }, [suggestion, editor, enabled]);
 
-  if (!suggestion || !position || !enabled) return null;
+  if (!position || !enabled) return null;
+
+  // D5: visible affordance at the cursor while the suggestion is in flight —
+  // the wait between the typing pause and the ghost render was blind.
+  if (!suggestion) {
+    if (!pending) return null;
+    return (
+      <span
+        role="status"
+        aria-label="Generating suggestion"
+        className="pointer-events-none fixed z-50 animate-pulse font-serif text-lg text-muted-foreground/40 select-none"
+        style={{ top: position.top, left: position.left }}
+      >
+        &middot;&middot;&middot;
+      </span>
+    );
+  }
 
   // Render ghost text as a positioned overlay
   return (
