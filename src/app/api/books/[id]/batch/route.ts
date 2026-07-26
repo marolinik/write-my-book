@@ -13,6 +13,12 @@ import {
   type AvailableKeys,
 } from "@/lib/batch/resolve-batch-models";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import {
+  deriveLiveBatchFields,
+  isBatchTerminal,
+  readLiveHaltFlags,
+  type LiveBatchChildRow,
+} from "@/lib/batch/live-batch-view";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -317,7 +323,54 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
   }
 }
 
-/** GET /api/books/:id/batch — list recent batches for this book. */
+/**
+ * Load the live-derivation inputs for the NON-terminal rows of a batch list:
+ * their child `AgentSession` rows (grouped per batch) plus the live Redis halt
+ * flags. Terminal rows need neither — their reconciled row is returned verbatim
+ * — so nothing is queried when every listed batch is already terminal.
+ */
+async function loadLiveBatchInputs(nonTerminalIds: readonly string[]): Promise<{
+  childrenByBatch: ReadonlyMap<string, LiveBatchChildRow[]>;
+  haltedIds: ReadonlySet<string>;
+}> {
+  if (nonTerminalIds.length === 0) {
+    return { childrenByBatch: new Map(), haltedIds: new Set() };
+  }
+
+  const [childRows, haltedIds] = await Promise.all([
+    db.agentSession.findMany({
+      where: { batchId: { in: [...nonTerminalIds] } },
+      select: {
+        batchId: true,
+        status: true,
+        actualCostUsd: true,
+        startedAt: true,
+      },
+    }),
+    readLiveHaltFlags(nonTerminalIds),
+  ]);
+
+  const childrenByBatch = new Map<string, LiveBatchChildRow[]>();
+  for (const row of childRows) {
+    if (!row.batchId) continue;
+    const existing = childrenByBatch.get(row.batchId);
+    if (existing) existing.push(row);
+    else childrenByBatch.set(row.batchId, [row]);
+  }
+
+  return { childrenByBatch, haltedIds };
+}
+
+/**
+ * GET /api/books/:id/batch — list recent batches for this book.
+ *
+ * D-120: each NON-terminal row's `status` / `spentUsd` / `halted` / `startedAt`
+ * are derived at read time from its child rows, exactly as the single-batch
+ * poll route does (D-96). Without this the list served the raw `BatchRun` row,
+ * so an actively-spending overnight batch listed as "queued / $0.00" while the
+ * detail route for the SAME batch already reported "running / $0.0446".
+ * Terminal rows are returned verbatim — the digest is the source of truth.
+ */
 export async function GET(_req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
@@ -350,11 +403,34 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
         completedCount: true,
         failedCount: true,
         createdAt: true,
+        // `startedAt` feeds (and is corrected by) the live derivation below;
+        // `completedAt` is written in the same update as the terminal status +
+        // digest, so it is the list's terminal marker (the heavy `digest` JSON
+        // stays out of the list payload).
+        startedAt: true,
         completedAt: true,
       },
     });
 
-    return NextResponse.json({ batches });
+    // ── D-120: honest live-facing values per non-terminal row ──────────
+    const nonTerminalIds = batches
+      .filter((batch) => !isBatchTerminal(batch))
+      .map((batch) => batch.id);
+    const { childrenByBatch, haltedIds } =
+      await loadLiveBatchInputs(nonTerminalIds);
+
+    // Same row shape — only the four live VALUES change (immutable copies; the
+    // stored rows are never mutated).
+    const liveBatches = batches.map((batch) => ({
+      ...batch,
+      ...deriveLiveBatchFields(
+        batch,
+        childrenByBatch.get(batch.id) ?? [],
+        haltedIds.has(batch.id)
+      ),
+    }));
+
+    return NextResponse.json({ batches: liveBatches });
   } catch (error) {
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

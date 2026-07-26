@@ -262,16 +262,139 @@ describe("GET /api/books/:id/batch — list", () => {
 
   it("returns the book's batches", async () => {
     h.db.book.findFirst.mockResolvedValueOnce({ id: "b1" });
-    h.db.batchRun.findMany.mockResolvedValueOnce([{ id: "batch1", status: "queued" }]);
+    // A genuinely-queued batch with no dispatched child stays queued/$0 — the
+    // live derivation must not INVENT progress either.
+    h.db.batchRun.findMany.mockResolvedValueOnce([
+      {
+        id: "batch1",
+        status: "queued",
+        spentUsd: 0,
+        halted: false,
+        startedAt: null,
+        completedAt: null,
+      },
+    ]);
+    h.db.agentSession.findMany.mockResolvedValueOnce([]);
     const res = await listBatches(new Request("http://t") as never, bookCtx as never);
     expect(res.status).toBe(200);
     await expect(res.json()).resolves.toEqual({
-      batches: [{ id: "batch1", status: "queued" }],
+      batches: [
+        {
+          id: "batch1",
+          status: "queued",
+          spentUsd: 0,
+          halted: false,
+          startedAt: null,
+          completedAt: null,
+        },
+      ],
     });
     expect(h.db.batchRun.findMany.mock.calls[0][0].where).toEqual({
       bookId: "b1",
       userId: "u1",
     });
+  });
+
+  // ── D-120 (D-96 sibling) ────────────────────────────────────────────────
+  // The single-batch poll route derives an honest live view from the child
+  // rows (D-96), but the LIST route served the raw BatchRun row — so the same
+  // mid-run batch read "queued / $0.00" here while the detail route already
+  // said "running / $0.0446". A list-consuming surface must tell the SAME
+  // truth.
+  it("D-120: derives honest live status/spend/halted/startedAt per non-terminal row", async () => {
+    const started = new Date("2026-07-21T02:00:00Z");
+    h.db.book.findFirst.mockResolvedValueOnce({ id: "b1" });
+    h.db.batchRun.findMany.mockResolvedValueOnce([
+      {
+        id: "batch1",
+        status: "queued", // stored columns lag until the digest fans in
+        spentUsd: 0,
+        halted: false,
+        startedAt: null,
+        completedAt: null,
+      },
+    ]);
+    h.db.agentSession.findMany.mockResolvedValueOnce([
+      { batchId: "batch1", status: "completed", actualCostUsd: 0.0446, startedAt: started },
+      {
+        batchId: "batch1",
+        status: "running",
+        actualCostUsd: null,
+        startedAt: new Date("2026-07-21T02:05:00Z"),
+      },
+      { batchId: "batch1", status: "queued", actualCostUsd: null, startedAt: null },
+    ]);
+    // A mid-run budget-cap halt lives ONLY in Redis until the digest runs.
+    h.redis.get.mockResolvedValueOnce("1");
+
+    const res = await listBatches(new Request("http://t") as never, bookCtx as never);
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.batches).toHaveLength(1);
+    expect(body.batches[0].status).toBe("running");
+    expect(body.batches[0].spentUsd).toBeCloseTo(0.0446, 6);
+    expect(body.batches[0].halted).toBe(true);
+    expect(body.batches[0].startedAt).toBe(started.toISOString());
+    // Child rows are fetched ONLY for the non-terminal batches.
+    expect(h.db.agentSession.findMany.mock.calls[0][0].where).toEqual({
+      batchId: { in: ["batch1"] },
+    });
+  });
+
+  it("D-120: terminal rows are returned verbatim — the digest is the source of truth", async () => {
+    h.db.book.findFirst.mockResolvedValueOnce({ id: "b1" });
+    h.db.batchRun.findMany.mockResolvedValueOnce([
+      {
+        id: "done1",
+        status: "done",
+        spentUsd: 6,
+        halted: false,
+        startedAt: new Date("2026-07-21T02:00:00Z"),
+        completedAt: new Date("2026-07-21T03:00:00Z"),
+      },
+      {
+        // A cancelled batch keeps its reconciled row too.
+        id: "cancelled1",
+        status: "cancelled",
+        spentUsd: 1.5,
+        halted: true,
+        startedAt: null,
+        completedAt: null,
+      },
+    ]);
+
+    const res = await listBatches(new Request("http://t") as never, bookCtx as never);
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.batches[0]).toMatchObject({ status: "done", spentUsd: 6, halted: false });
+    expect(body.batches[1]).toMatchObject({
+      status: "cancelled",
+      spentUsd: 1.5,
+      halted: true,
+    });
+    // No child query and no Redis consult when every row is already terminal.
+    expect(h.db.agentSession.findMany).not.toHaveBeenCalled();
+    expect(h.redis.get).not.toHaveBeenCalled();
+  });
+
+  it("D-120: a stored digest marks a row terminal even if status still reads 'running'", async () => {
+    h.db.book.findFirst.mockResolvedValueOnce({ id: "b1" });
+    h.db.batchRun.findMany.mockResolvedValueOnce([
+      {
+        id: "batch1",
+        status: "running",
+        spentUsd: 8.25,
+        halted: false,
+        startedAt: new Date("2026-07-21T02:00:00Z"),
+        // completedAt is written atomically with the digest + terminal status.
+        completedAt: new Date("2026-07-21T03:00:00Z"),
+      },
+    ]);
+
+    const res = await listBatches(new Request("http://t") as never, bookCtx as never);
+    const body = await res.json();
+    expect(body.batches[0].spentUsd).toBeCloseTo(8.25, 5);
+    expect(h.db.agentSession.findMany).not.toHaveBeenCalled();
   });
 });
 
