@@ -8,7 +8,7 @@ import {
   Lora,
 } from "next/font/google";
 import { ThemeProvider } from "next-themes";
-import { Toaster } from "sonner";
+import { AppToaster } from "@/components/ui/app-toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { ClerkThemeProvider } from "@/components/providers/clerk-theme-provider";
@@ -112,7 +112,10 @@ export default function RootLayout({
       <TooltipProvider>
         {children}
       </TooltipProvider>
-      <Toaster richColors position="bottom-right" />
+      {/* D-139: top-center toasts on small screens (see app-toaster.tsx) so the
+          bottom tab nav + soft keyboard can't occlude them; bottom-right on
+          desktop is unchanged. */}
+      <AppToaster />
       <ToastRouteGuard />
     </QueryProvider>
   );
