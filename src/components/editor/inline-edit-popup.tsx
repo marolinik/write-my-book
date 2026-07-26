@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useInlineEdit } from "@/hooks/use-inline-edit";
 import type { InlineEditSuggestion } from "@/lib/validation";
+import { useCoarsePointer } from "./use-coarse-pointer";
 import {
   QUICK_ASSIST_DISCLOSURE,
   QUICK_ASSIST_FALLBACK_MESSAGE,
@@ -60,6 +61,9 @@ export function InlineEditPopup({
   const popupRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const inlineEdit = useInlineEdit(bookId);
+  // D-132: the F2 badge advertises a hardware key that phones don't have — hide
+  // it on coarse-pointer devices (the overflow-menu path already covers touch).
+  const coarsePointer = useCoarsePointer();
 
   // Calculate popup position from editor selection
   useEffect(() => {
@@ -252,9 +256,11 @@ export function InlineEditPopup({
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="h-4 w-4 text-violet-500" />
             <span className="text-sm font-medium">AI Edit</span>
-            <Badge variant="secondary" className="text-xs ml-auto">
-              F2
-            </Badge>
+            {!coarsePointer && (
+              <Badge variant="secondary" className="text-xs ml-auto">
+                F2
+              </Badge>
+            )}
           </div>
 
           {/* Action pills */}

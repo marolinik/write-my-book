@@ -157,3 +157,45 @@ describe("InlineEditPopup — D-129 error copy renders, D-127 disclosure", () =>
     expect(screen.getByText(/faster model/i)).toBeTruthy();
   });
 });
+
+/**
+ * D-132 — the F2 badge advertises a hardware key that a phone soft keyboard
+ * doesn't have. It must be hidden on coarse-pointer devices (the overflow-menu
+ * path already covers touch) and kept on fine-pointer devices.
+ */
+describe("InlineEditPopup — D-132 F2 badge is pointer-aware", () => {
+  afterEach(() => {
+    cleanup();
+    mutateAsync.mockReset();
+    vi.unstubAllGlobals();
+  });
+
+  function stubPointer(coarse: boolean) {
+    vi.stubGlobal("matchMedia", (query: string) => ({
+      matches: coarse && query.includes("coarse"),
+      media: query,
+      onchange: null,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      addListener: () => {},
+      removeListener: () => {},
+      dispatchEvent: () => false,
+    }));
+  }
+
+  it("hides the F2 badge on coarse-pointer (phone) devices", () => {
+    stubPointer(true);
+    render(
+      <InlineEditPopup editor={makeEditorStub()} bookId="b1" onClose={vi.fn()} />
+    );
+    expect(screen.queryByText("F2")).toBeNull();
+  });
+
+  it("keeps the F2 badge on fine-pointer (mouse) devices", () => {
+    stubPointer(false);
+    render(
+      <InlineEditPopup editor={makeEditorStub()} bookId="b1" onClose={vi.fn()} />
+    );
+    expect(screen.getByText("F2")).toBeTruthy();
+  });
+});

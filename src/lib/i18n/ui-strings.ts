@@ -459,7 +459,7 @@ const EN: UIStrings = {
     languagePreference: "Language Preference",
     languageDescription: "Default language for new books and UI",
     byokTitle: "BYOK (Bring Your Own Key):",
-    byokDescription: "WriteMyBook uses your API key directly. We never store or have access to your API credentials in plaintext \u2014 they are encrypted with AES-256-GCM at rest. You pay Anthropic directly for token usage.",
+    byokDescription: "WriteMyBook uses your API key directly. We never store or have access to your API credentials in plaintext \u2014 they are encrypted with AES-256-GCM at rest. You pay your AI provider directly for token usage.",
     getKey: "Get key",
     validateAndSave: "Validate & Save",
     replace: "Replace",
@@ -478,7 +478,7 @@ const EN: UIStrings = {
   },
   agentPanel: {
     apiKeyRequired: "API Key Required",
-    apiKeyDescription: "Add your Anthropic API key to start using the writing agent.",
+    apiKeyDescription: "Add your API key to start using the writing agent.",
     goToSettings: "Go to Settings",
   },
   workflowSelector: {
@@ -777,7 +777,7 @@ const SR: UIStrings = {
     languagePreference: "Jezičke preferencе",
     languageDescription: "Podrazumevani jezik za nove knjige i interfejs",
     byokTitle: "BYOK (Koristite sopstveni ključ):",
-    byokDescription: "WriteMyBook koristi vaš API ključ direktno. Nikada ne čuvamo niti imamo pristup vašim akreditivima u čistom tekstu \u2014 šifrovani su AES-256-GCM algoritmom. Plaćate Anthropic direktno za upotrebu tokena.",
+    byokDescription: "WriteMyBook koristi vaš API ključ direktno. Nikada ne čuvamo niti imamo pristup vašim akreditivima u čistom tekstu \u2014 šifrovani su AES-256-GCM algoritmom. Plaćate svom AI provajderu direktno za upotrebu tokena.",
     getKey: "Preuzmi ključ",
     validateAndSave: "Proveri i sačuvaj",
     replace: "Zameni",
@@ -796,7 +796,7 @@ const SR: UIStrings = {
   },
   agentPanel: {
     apiKeyRequired: "Potreban API ključ",
-    apiKeyDescription: "Dodajte vaš Anthropic API ključ da biste počeli koristiti agenta za pisanje.",
+    apiKeyDescription: "Dodajte vaš API ključ da biste počeli koristiti agenta za pisanje.",
     goToSettings: "Idi na podešavanja",
   },
   workflowSelector: {
@@ -1095,7 +1095,7 @@ const DE: UIStrings = {
     languagePreference: "Spracheinstellung",
     languageDescription: "Standardsprache für neue Bücher und Benutzeroberfläche",
     byokTitle: "BYOK (Eigener Schlüssel):",
-    byokDescription: "WriteMyBook verwendet Ihren API-Schlüssel direkt. Wir speichern Ihre Zugangsdaten nie im Klartext \u2014 sie werden mit AES-256-GCM verschlüsselt. Sie zahlen Anthropic direkt für die Token-Nutzung.",
+    byokDescription: "WriteMyBook verwendet Ihren API-Schlüssel direkt. Wir speichern Ihre Zugangsdaten nie im Klartext \u2014 sie werden mit AES-256-GCM verschlüsselt. Sie zahlen Ihren KI-Anbieter direkt für die Token-Nutzung.",
     getKey: "Schlüssel holen",
     validateAndSave: "Prüfen & speichern",
     replace: "Ersetzen",
@@ -1114,7 +1114,7 @@ const DE: UIStrings = {
   },
   agentPanel: {
     apiKeyRequired: "API-Schlüssel erforderlich",
-    apiKeyDescription: "Fügen Sie Ihren Anthropic API-Schlüssel hinzu, um den Schreib-Agenten zu nutzen.",
+    apiKeyDescription: "Fügen Sie Ihren API-Schlüssel hinzu, um den Schreib-Agenten zu nutzen.",
     goToSettings: "Zu Einstellungen",
   },
   workflowSelector: {
@@ -1413,7 +1413,7 @@ const ES: UIStrings = {
     languagePreference: "Preferencia de idioma",
     languageDescription: "Idioma por defecto para nuevos libros e interfaz",
     byokTitle: "BYOK (Trae tu propia clave):",
-    byokDescription: "WriteMyBook usa tu clave API directamente. Nunca almacenamos tus credenciales en texto plano \u2014 están cifradas con AES-256-GCM. Pagas a Anthropic directamente por el uso de tokens.",
+    byokDescription: "WriteMyBook usa tu clave API directamente. Nunca almacenamos tus credenciales en texto plano \u2014 están cifradas con AES-256-GCM. Pagas a tu proveedor de IA directamente por el uso de tokens.",
     getKey: "Obtener clave",
     validateAndSave: "Validar y guardar",
     replace: "Reemplazar",
@@ -1432,7 +1432,7 @@ const ES: UIStrings = {
   },
   agentPanel: {
     apiKeyRequired: "Clave API requerida",
-    apiKeyDescription: "Añade tu clave API de Anthropic para empezar a usar el agente de escritura.",
+    apiKeyDescription: "Añade tu clave API para empezar a usar el agente de escritura.",
     goToSettings: "Ir a Ajustes",
   },
   workflowSelector: {
@@ -1731,7 +1731,7 @@ const FR: UIStrings = {
     languagePreference: "Préférence de langue",
     languageDescription: "Langue par défaut pour les nouveaux livres et l'interface",
     byokTitle: "BYOK (Apportez votre propre clé) :",
-    byokDescription: "WriteMyBook utilise votre clé API directement. Nous ne stockons jamais vos identifiants en clair \u2014 ils sont chiffrés avec AES-256-GCM. Vous payez Anthropic directement pour l'utilisation des tokens.",
+    byokDescription: "WriteMyBook utilise votre clé API directement. Nous ne stockons jamais vos identifiants en clair \u2014 ils sont chiffrés avec AES-256-GCM. Vous payez votre fournisseur d'IA directement pour l'utilisation des tokens.",
     getKey: "Obtenir une clé",
     validateAndSave: "Valider et enregistrer",
     replace: "Remplacer",
@@ -1750,7 +1750,7 @@ const FR: UIStrings = {
   },
   agentPanel: {
     apiKeyRequired: "Clé API requise",
-    apiKeyDescription: "Ajoutez votre clé API Anthropic pour commencer à utiliser l'agent d'écriture.",
+    apiKeyDescription: "Ajoutez votre clé API pour commencer à utiliser l'agent d'écriture.",
     goToSettings: "Aller aux paramètres",
   },
   workflowSelector: {
@@ -2049,7 +2049,7 @@ const RU: UIStrings = {
     languagePreference: "Языковые предпочтения",
     languageDescription: "Язык по умолчанию для новых книг и интерфейса",
     byokTitle: "BYOK (Собственный ключ):",
-    byokDescription: "WriteMyBook использует ваш API-ключ напрямую. Мы никогда не храним ваши учётные данные в открытом виде \u2014 они зашифрованы AES-256-GCM. Вы платите Anthropic напрямую за использование токенов.",
+    byokDescription: "WriteMyBook использует ваш API-ключ напрямую. Мы никогда не храним ваши учётные данные в открытом виде \u2014 они зашифрованы AES-256-GCM. Вы платите своему поставщику ИИ напрямую за использование токенов.",
     getKey: "Получить ключ",
     validateAndSave: "Проверить и сохранить",
     replace: "Заменить",
@@ -2068,7 +2068,7 @@ const RU: UIStrings = {
   },
   agentPanel: {
     apiKeyRequired: "Требуется API-ключ",
-    apiKeyDescription: "Добавьте API-ключ Anthropic, чтобы начать использовать агента-писателя.",
+    apiKeyDescription: "Добавьте API-ключ, чтобы начать использовать агента-писателя.",
     goToSettings: "Перейти в настройки",
   },
   workflowSelector: {
@@ -2367,7 +2367,7 @@ const ZH: UIStrings = {
     languagePreference: "语言偏好",
     languageDescription: "新书和界面的默认语言",
     byokTitle: "BYOK（自带密钥）：",
-    byokDescription: "WriteMyBook直接使用您的API密钥。我们从不以明文存储您的凭据 \u2014 它们使用AES-256-GCM加密。您直接向Anthropic支付令牌使用费用。",
+    byokDescription: "WriteMyBook直接使用您的API密钥。我们从不以明文存储您的凭据 \u2014 它们使用AES-256-GCM加密。您直接向您的AI提供商支付令牌使用费用。",
     getKey: "获取密钥",
     validateAndSave: "验证并保存",
     replace: "替换",
@@ -2386,7 +2386,7 @@ const ZH: UIStrings = {
   },
   agentPanel: {
     apiKeyRequired: "需要API密钥",
-    apiKeyDescription: "添加您的Anthropic API密钥以开始使用写作代理。",
+    apiKeyDescription: "添加您的API密钥以开始使用写作代理。",
     goToSettings: "前往设置",
   },
   workflowSelector: {

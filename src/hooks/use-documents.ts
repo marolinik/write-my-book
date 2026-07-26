@@ -6,6 +6,12 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { fetchJson } from "@/lib/api-client";
+import {
+  bodyFitsKeepalive,
+  keepaliveBodyBytes,
+  reserveKeepaliveBudget,
+  releaseKeepaliveBudget,
+} from "@/components/editor/save-flush";
 
 /** Fetch chapter markdown content. */
 export function useChapterContent(bookId: string, chapterId: string) {
@@ -33,23 +39,53 @@ export function useSaveChapterContent(bookId: string, chapterId: string) {
     // so the editor's own offline machinery (error classification, backoff,
     // IDB draft buffer, reconnect short-circuit) stays in control.
     networkMode: "always",
-    mutationFn: ({
+    mutationFn: async ({
       markdown,
       expectedVersion,
       changeSource,
+      keepalive,
     }: {
       markdown: string;
       expectedVersion?: number;
       changeSource?: string;
-    }) =>
-      fetchJson<{ wordCount: number; version: number; bookWordCount: number }>(
-        `/api/books/${bookId}/chapters/${chapterId}/content`,
-        {
+      // D-133: the pagehide/visibilitychange server flush sets keepalive so the
+      // PUT can complete after the page is torn down (sendBeacon can't do PUT +
+      // JSON headers; fetch keepalive is the modern equivalent). Normal
+      // autosaves leave it undefined and never carry the 64KB keepalive cap.
+      keepalive?: boolean;
+    }) => {
+      const body = JSON.stringify({ markdown, expectedVersion, changeSource });
+      // keepalive is best-effort and requested ONLY by the unload flush. Use it
+      // only when the body fits the single-request cap AND the shared in-flight
+      // budget can hold it. F2: split-editor.tsx mounts TWO panes that flush at
+      // once — two bodies that each pass bodyFitsKeepalive can jointly breach
+      // the browser's 64KB keepalive cap (it limits the SUM of inflight bodies),
+      // and the overflowing fetch throws. Reserve against the budget so the
+      // second pane falls back to a plain request (the local draft buffer still
+      // covers recovery) rather than losing the PUT.
+      const bodyBytes = keepaliveBodyBytes(body);
+      const useKeepalive =
+        keepalive === true &&
+        bodyFitsKeepalive(body) &&
+        reserveKeepaliveBudget(bodyBytes);
+      try {
+        return await fetchJson<{
+          wordCount: number;
+          version: number;
+          bookWordCount: number;
+        }>(`/api/books/${bookId}/chapters/${chapterId}/content`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ markdown, expectedVersion, changeSource }),
-        }
-      ),
+          body,
+          keepalive: useKeepalive,
+        });
+      } finally {
+        // Release the reservation once the fetch settles so later flushes (the
+        // common phone-backgrounding survival path) regain budget. On the
+        // page-death path this never runs — the process is gone — which is fine.
+        if (useKeepalive) releaseKeepaliveBudget(bodyBytes);
+      }
+    },
     onSuccess: (data) => {
       qc.invalidateQueries({
         queryKey: ["chapter-content", bookId, chapterId],

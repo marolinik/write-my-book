@@ -1,13 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { Editor } from "@tiptap/react";
 import { joinGhostSuggestion } from "./ghost-text-join";
+import { useCoarsePointer } from "./use-coarse-pointer";
 import {
   quickAssistErrorNotice,
   shouldSurfaceGhostError,
+  isWallSuppressionActive,
   QUICK_ASSIST_FALLBACK_MESSAGE,
   type QuickAssistErrorNotice,
 } from "./quick-assist-client-errors";
@@ -37,6 +39,10 @@ interface AIGhostTextProps {
 const PAUSE_MS = 1500; // 1.5 seconds of inactivity triggers a suggestion
 const MIN_CONTEXT_LENGTH = 50; // Need at least 50 chars of context
 const MAX_SUGGESTION_LENGTH = 150; // Cap ghost text at ~1 sentence
+// D-132 (F3+F6): coarse-pointer accept is tap-vs-drag discriminated — a pointer
+// that travels past this slop (px) between down and up is a scroll/drag, not a
+// tap, and must NOT insert the suggestion.
+const TAP_SLOP_PX = 10;
 
 export function AIGhostText({
   editor,
@@ -48,13 +54,35 @@ export function AIGhostText({
   const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
   // D5: the fetch wait was blind — no affordance between pause and render.
   const [pending, setPending] = useState(false);
+  // D-134: the cap wall is a PERSISTENT banner, not a cooled-down toast. The
+  // toast throttle re-silenced pauses 2–5 inside the 60s window (the old D-129
+  // silent wall); the banner stays until dismissed or a success lifts it.
+  const [wallNotice, setWallNotice] = useState<QuickAssistErrorNotice | null>(
+    null
+  );
   const pauseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const lastTextRef = useRef<string>("");
+  // D-134 (F4): timestamp of the most recent 429 cap-wall notice. Held in a ref
+  // (not state) so fetchSuggestion stays referentially stable — the suppression
+  // window is read imperatively at fetch time, not rendered. Dismiss clears the
+  // banner state but leaves this set, so a dismiss can't re-arm the doomed loop.
+  const wallSinceRef = useRef<number | null>(null);
+  // D-132 (F3+F6): live tap gesture on the coarse-pointer overlay. Records the
+  // pointer id + down coords so pointerup can tell a settled tap from a scroll.
+  const pointerGestureRef = useRef<{
+    id: number;
+    x: number;
+    y: number;
+    cancelled: boolean;
+  } | null>(null);
   // D-129: per-message cooldown — each distinct error copy keeps its own
   // last-shown time so alternating messages can't defeat the throttle.
   const lastErrorRef = useRef<Map<string, number>>(new Map());
   const router = useRouter();
+  // D-132: phones have no Tab key — advertise a tap hint and make the overlay
+  // itself the (generous) tap target on coarse-pointer devices.
+  const coarsePointer = useCoarsePointer();
 
   // D-129: the server answers the cap wall (429), the reasoning-model
   // backstop (422 MODEL_NO_QUICK_SUGGEST), and 5xx with honest copy — it must
@@ -62,6 +90,18 @@ export function AIGhostText({
   // the per-pause retrigger can't storm the same toast.
   const surfaceError = useCallback(
     (notice: QuickAssistErrorNotice) => {
+      // D-134: the plan cap wall (429 + upgradeToTier) becomes a PERSISTENT
+      // banner and bypasses the per-message toast cooldown entirely — the
+      // cooldown re-silenced pauses 2–5 inside the 60s window. Non-wall toasts
+      // stay governed by the cooldown map unchanged.
+      if (notice.upgrade) {
+        // F10: setWallNotice on every new 429 refreshes the copy; F4: stamp the
+        // wall time so fetchSuggestion suppresses the doomed per-pause refetch
+        // until the WALL_RETRY_MS window elapses.
+        setWallNotice(notice);
+        wallSinceRef.current = Date.now();
+        return;
+      }
       const now = Date.now();
       if (!shouldSurfaceGhostError(lastErrorRef.current, notice.message, now)) {
         return;
@@ -70,15 +110,7 @@ export function AIGhostText({
         notice.message,
         now
       );
-      if (notice.upgrade) {
-        // Plan cap wall (429 + upgradeToTier): route to billing, not settings.
-        toast.error(notice.message, {
-          action: {
-            label: "Upgrade",
-            onClick: () => router.push("/settings/billing"),
-          },
-        });
-      } else if (notice.openSettings) {
+      if (notice.openSettings) {
         toast.error(notice.message, {
           action: {
             label: "Open Settings",
@@ -112,6 +144,14 @@ export function AIGhostText({
 
   const fetchSuggestion = useCallback(
     async (context: string) => {
+      // D-134 (F4): while the cap wall is active and unexpired, skip the fetch
+      // entirely — each doomed per-pause 429 is honest-server load and writer-
+      // visible churn for nothing. The suppression self-expires after
+      // WALL_RETRY_MS so the next pause honestly re-probes: still-capped
+      // re-shows the banner, success clears it. This gate sits ABOVE all timer
+      // plumbing (pause timers are cleared/re-armed as today) so that stays
+      // untouched.
+      if (isWallSuppressionActive(wallSinceRef.current, Date.now())) return;
       // Abort any pending request
       if (abortRef.current) abortRef.current.abort();
       const controller = new AbortController();
@@ -143,7 +183,16 @@ export function AIGhostText({
         }
 
         const data = await res.json();
-        if (data.suggestion && !controller.signal.aborted) {
+        if (controller.signal.aborted) return;
+        // D-134 (F10): ANY successful (non-error) response means the wall is no
+        // longer answering us, so clear the persistent cap-wall banner + the
+        // suppression window — even when the 200 carries an empty suggestion.
+        // Otherwise a stale 429 copy could linger next to a fresh, different
+        // error/toast (two contradictory truth claims). A new 429 re-arms it
+        // with fresh copy.
+        setWallNotice(null);
+        wallSinceRef.current = null;
+        if (data.suggestion) {
           setSuggestion(data.suggestion.slice(0, MAX_SUGGESTION_LENGTH));
         }
       } catch {
@@ -260,6 +309,58 @@ export function AIGhostText({
     };
   }, [suggestion, pending, editor]);
 
+  // D-132: single accept path shared by the Tab key AND the overlay tap.
+  // Insert at the cursor, joining with a space when both sides are word-like
+  // (D-130: raw insert glued "the"+"dream" → "thedream"), then return focus so
+  // the writer keeps typing with the cursor after the inserted text. Reads the
+  // last TWO doc chars so joinGhostSuggestion can disambiguate a trailing quote
+  // (apostrophe glues; closing quote after sentence punctuation needs a space).
+  // Deliberately does NOT require editor.isFocused — the overlay tap on a phone
+  // is unambiguous even when the editor holds no focus.
+  const acceptSuggestion = useCallback(() => {
+    if (!editor || !suggestion) return;
+    const { from } = editor.state.selection;
+    const charsBefore =
+      from > 0
+        ? editor.state.doc.textBetween(Math.max(0, from - 2), from)
+        : "";
+    editor.commands.insertContent(joinGhostSuggestion(charsBefore, suggestion));
+    setSuggestion(null);
+    editor.commands.focus();
+  }, [editor, suggestion]);
+
+  // D-132 (F3+F6): coarse-pointer tap-vs-drag discrimination. pointerdown
+  // preventDefaults so the tap can't move the caret / blur the editor (which
+  // would trip the selectionUpdate dismiss and self-destruct the ghost) and
+  // records the gesture; a pointermove past TAP_SLOP_PX marks it a scroll/drag;
+  // only a pointerup that stayed within slop accepts. A scroll that merely
+  // STARTS on the overlay therefore never inserts text.
+  const handleOverlayPointerDown = (e: React.PointerEvent) => {
+    e.preventDefault();
+    pointerGestureRef.current = {
+      id: e.pointerId,
+      x: e.clientX,
+      y: e.clientY,
+      cancelled: false,
+    };
+  };
+  const handleOverlayPointerMove = (e: React.PointerEvent) => {
+    const gesture = pointerGestureRef.current;
+    if (!gesture || gesture.id !== e.pointerId || gesture.cancelled) return;
+    if (
+      Math.abs(e.clientX - gesture.x) > TAP_SLOP_PX ||
+      Math.abs(e.clientY - gesture.y) > TAP_SLOP_PX
+    ) {
+      pointerGestureRef.current = { ...gesture, cancelled: true };
+    }
+  };
+  const handleOverlayPointerUp = (e: React.PointerEvent) => {
+    const gesture = pointerGestureRef.current;
+    pointerGestureRef.current = null;
+    if (!gesture || gesture.id !== e.pointerId || gesture.cancelled) return;
+    acceptSuggestion();
+  };
+
   // Handle Tab to accept, Escape to dismiss. Gated on `enabled` and editor
   // focus: a document-level capture handler must never insert into a pane
   // that doesn't own the keyboard (split view) or after toggle-off.
@@ -270,20 +371,7 @@ export function AIGhostText({
       if (e.key === "Tab") {
         if (!editor.isFocused) return; // Tab belongs to another pane/input
         e.preventDefault();
-        // Insert at cursor, joining with a space when both sides are
-        // word-like (D-130: raw insert glued "the"+"dream" → "thedream").
-        const { from } = editor.state.selection;
-        // Read the last TWO doc chars so joinGhostSuggestion can disambiguate a
-        // trailing quote (apostrophe glues; closing quote after sentence
-        // punctuation needs a leading space).
-        const charsBefore =
-          from > 0
-            ? editor.state.doc.textBetween(Math.max(0, from - 2), from)
-            : "";
-        editor.commands.insertContent(
-          joinGhostSuggestion(charsBefore, suggestion)
-        );
-        setSuggestion(null);
+        acceptSuggestion();
       } else if (e.key === "Escape") {
         setSuggestion(null);
       } else if (e.key.length === 1) {
@@ -294,40 +382,124 @@ export function AIGhostText({
 
     document.addEventListener("keydown", handler, { capture: true });
     return () => document.removeEventListener("keydown", handler, { capture: true });
-  }, [suggestion, editor, enabled]);
+  }, [suggestion, editor, enabled, acceptSuggestion]);
 
-  if (!position || !enabled) return null;
+  if (!enabled) return null;
 
-  // D5: visible affordance at the cursor while the suggestion is in flight —
-  // the wait between the typing pause and the ghost render was blind.
-  if (!suggestion) {
-    if (!pending) return null;
-    return (
-      <span
-        role="status"
-        aria-label="Generating suggestion"
-        className="pointer-events-none fixed z-50 animate-pulse font-serif text-lg text-muted-foreground/40 select-none"
-        style={{ top: position.top, left: position.left }}
+  // D-132: pointer-aware accept hint — the flagship feature must not advertise
+  // only a hardware key on a phone soft keyboard.
+  const acceptHint = coarsePointer ? "Tap to accept" : "Tab ↹";
+
+  // D-134: the cap-wall banner is independent of the cursor overlay — the wall
+  // never yields a suggestion, so it must render even with no position.
+  // F5: TOP-anchored, not bottom-anchored. A bottom banner is occluded by the
+  // on-screen keyboard on a real phone (the writer is mid-sentence when the cap
+  // hits), reintroducing the D-129 "silent wall" on the exact device class
+  // D-134 claims to fix. The offset clears the fixed app chrome: 3rem AppHeader
+  // (app-header.tsx h-12) + ~2.5rem sticky editor toolbar (editor-toolbar.tsx
+  // py-1 + h-8) + the notch safe area. Same anchoring on md+ for consistency;
+  // being at the top keeps it trivially clear of the h-14 mobile bottom nav.
+  // F9 (limitation, not fixed here): this z-40 banner and the z-50 ghost overlay
+  // render BENEATH the z-[100] immersive focus overlay. A 429 can still be armed
+  // during immersive writing — the debounced immersive→tiptap sync
+  // (manuscript-editor.tsx setContent, emitUpdate defaults true) fires the
+  // editor "update" this component listens for — so a cap hit in distraction-
+  // free mode is invisible until exit. Raising z above 100 is out of scope
+  // (see manuscript-editor.tsx's existing immersive toast/dialog note).
+  const wallBanner: ReactNode = wallNotice ? (
+    <div
+      role="alert"
+      className="fixed inset-x-2 top-[calc(6rem+env(safe-area-inset-top))] z-40 mx-auto flex max-w-md items-center gap-3 rounded-lg border bg-background px-4 py-3 text-sm shadow-lg"
+    >
+      <span className="flex-1">{wallNotice.message}</span>
+      {/* F8: >=44px touch targets so the wall can be acted on / dismissed by
+          thumb without fat-fingering the wrong control. */}
+      <button
+        type="button"
+        onClick={() => router.push("/settings/billing")}
+        className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"
       >
-        &middot;&middot;&middot;
-      </span>
-    );
+        Upgrade
+      </button>
+      <button
+        type="button"
+        aria-label="Dismiss"
+        onClick={() => setWallNotice(null)}
+        className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:text-foreground"
+      >
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+  ) : null;
+
+  // Cursor overlay: the D5 pending dots or the ghost suggestion.
+  let overlay: ReactNode = null;
+  if (position) {
+    if (suggestion) {
+      // F1: overlay interactivity is gated on the pointer type.
+      if (coarsePointer) {
+        // Coarse pointer (phone): the whole ghost text is a generous tap target.
+        // Tap-vs-drag discrimination (F3+F6) lives in the pointer handlers so a
+        // scroll that starts on the ghost can't insert. tabIndex -1 keeps it out
+        // of the tab order so it never steals focus from the editor.
+        overlay = (
+          <span
+            role="button"
+            aria-label="Accept suggestion"
+            tabIndex={-1}
+            onPointerDown={handleOverlayPointerDown}
+            onPointerMove={handleOverlayPointerMove}
+            onPointerUp={handleOverlayPointerUp}
+            className="fixed z-50 cursor-pointer font-serif text-lg text-muted-foreground/30 italic select-none whitespace-pre-wrap"
+            style={{ top: position.top, left: position.left, maxWidth: "500px" }}
+          >
+            {suggestion}
+            {/* F7: a real, readable pill — the old text-[10px]/20% hint was
+                invisible on a phone, so the touch affordance stayed undiscovered. */}
+            <span className="ml-2 inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 align-middle text-xs font-sans not-italic text-foreground/70">
+              {acceptHint}
+            </span>
+          </span>
+        );
+      } else {
+        // F1: fine pointer (desktop) reverts to the original PASSIVE overlay —
+        // pointer-events-none, no role=button, so a click passes through to the
+        // editor and moves the caret (dismissing via selectionUpdate as before)
+        // instead of accepting. Accept stays on the Tab key; the hint is the
+        // subtle "Tab ↹" exactly as it was.
+        overlay = (
+          <span
+            className="pointer-events-none fixed z-50 font-serif text-lg text-muted-foreground/30 italic select-none whitespace-pre-wrap"
+            style={{ top: position.top, left: position.left, maxWidth: "500px" }}
+          >
+            {suggestion}
+            <span className="ml-2 text-[10px] text-muted-foreground/20 not-italic font-sans">
+              {acceptHint}
+            </span>
+          </span>
+        );
+      }
+    } else if (pending) {
+      // D5: visible affordance at the cursor while the suggestion is in flight —
+      // the wait between the typing pause and the ghost render was blind.
+      overlay = (
+        <span
+          role="status"
+          aria-label="Generating suggestion"
+          className="pointer-events-none fixed z-50 animate-pulse font-serif text-lg text-muted-foreground/40 select-none"
+          style={{ top: position.top, left: position.left }}
+        >
+          &middot;&middot;&middot;
+        </span>
+      );
+    }
   }
 
-  // Render ghost text as a positioned overlay
+  if (!overlay && !wallBanner) return null;
   return (
-    <span
-      className="pointer-events-none fixed z-50 font-serif text-lg text-muted-foreground/30 italic select-none whitespace-pre-wrap"
-      style={{
-        top: position.top,
-        left: position.left,
-        maxWidth: "500px",
-      }}
-    >
-      {suggestion}
-      <span className="ml-2 text-[10px] text-muted-foreground/20 not-italic font-sans">
-        Tab ↹
-      </span>
-    </span>
+    <>
+      {overlay}
+      {wallBanner}
+    </>
   );
 }

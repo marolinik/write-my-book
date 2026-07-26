@@ -24,6 +24,7 @@ import { useOnlineStatus } from "@/hooks/use-online-status";
 import { useDraftBuffer } from "@/hooks/use-draft-buffer";
 import { applyRecoveryDecision } from "./draft-recovery";
 import { ApiError, isNetworkError } from "@/lib/api-client";
+import { useServerSaveFlush } from "./save-flush";
 import { cn, countWords } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
@@ -522,8 +523,10 @@ export function ManuscriptEditor({
     [paneStore, router]
   );
 
-  // Auto-save with 2s debounce
-  const saveContent = useCallback(async () => {
+  // Auto-save with 2s debounce. `options.keepalive` is set ONLY by the D-133
+  // unload flush (useServerSaveFlush) so the PUT can complete after teardown;
+  // normal autosaves call this with no args and never carry keepalive.
+  const saveContent = useCallback(async (options?: { keepalive?: boolean }) => {
     if (!editor) return;
 
     const md = getMarkdownFromEditor(editor);
@@ -561,6 +564,7 @@ export function ManuscriptEditor({
       const res = await saveMutationRef.current.mutateAsync({
         markdown: md,
         expectedVersion,
+        keepalive: options?.keepalive,
       });
       if (isStale()) {
         paneStore.getState().setSaving(false);
@@ -1020,6 +1024,34 @@ export function ManuscriptEditor({
     syncSchedulerRef.current?.cancel();
     syncImmersiveToEditor();
   }, [syncImmersiveToEditor]);
+
+  // D-133: flush the SAME stamped CAS save on pagehide / visibilitychange:hidden
+  // so an accepted sentence typed seconds before the phone backgrounds reaches
+  // the SERVER, not just the local draft mirror (which only recovers on the same
+  // browser profile). keepalive lets the PUT complete after teardown; when the
+  // page survives (the common phone-backgrounding case) the response flows back
+  // through saveContent's normal 409 / dirtiness-settlement / draft-clear path,
+  // so CAS state is never corrupted.
+  useServerSaveFlush({
+    paneStore,
+    isOnlineRef,
+    cancelPendingSave: () => {
+      // The flush carries the same expectedVersion as the queued debounce —
+      // let it fire and a stray debounce would 409 against it.
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+        saveTimerRef.current = null;
+      }
+    },
+    reconcileBeforeFlush: () => {
+      // Ordering hazard: read the editor only AFTER immersive reconciles its
+      // buffer into tiptap, else the newest immersive keystrokes miss the PUT.
+      if (immersiveRef.current) flushImmersiveToEditor();
+    },
+    flushSave: ({ keepalive }) => {
+      void saveContent({ keepalive });
+    },
+  });
 
   // ── F8 / Shift+F8 keyboard navigation (use-finding-navigation.ts) ──
   useFindingNavigation({

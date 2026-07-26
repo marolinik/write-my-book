@@ -2,9 +2,11 @@ import { describe, it, expect } from "vitest";
 import {
   quickAssistErrorNotice,
   shouldSurfaceGhostError,
+  isWallSuppressionActive,
   QUICK_ASSIST_FALLBACK_MESSAGE,
   QUICK_ASSIST_DISCLOSURE,
   GHOST_ERROR_COOLDOWN_MS,
+  WALL_RETRY_MS,
 } from "@/components/editor/quick-assist-client-errors";
 import { MODEL_NO_QUICK_SUGGEST_CODE } from "@/lib/llm/quick-assist";
 
@@ -139,6 +141,39 @@ describe("shouldSurfaceGhostError — per-message toast throttle", () => {
     // A again at t0+3s: the OLD single slot (now holding B) would have re-shown
     // A; the per-message map keeps A's own cooldown, so it stays suppressed.
     expect(shouldSurfaceGhostError(map, "A", t0 + 3_000)).toBe(false);
+  });
+});
+
+/**
+ * D-134 (F4+F10) — at the plan cap wall, ghost text re-fired a doomed 429 on
+ * every 1.5s typing pause (honest-server load + writer-visible churn) and the
+ * Dismiss was inert. `isWallSuppressionActive` gates ghost fetches while a cap
+ * wall was seen within the last WALL_RETRY_MS; after that the next pause is
+ * allowed to re-probe (re-showing the banner if still capped, clearing it on
+ * success).
+ */
+describe("isWallSuppressionActive — D-134 doomed-loop suppression with expiry", () => {
+  const t0 = 5_000_000;
+
+  it("exports a five-minute retry window", () => {
+    expect(WALL_RETRY_MS).toBe(5 * 60_000);
+  });
+
+  it("is inactive when no wall has been seen (null)", () => {
+    expect(isWallSuppressionActive(null, t0)).toBe(false);
+  });
+
+  it("is active from the instant the wall is seen", () => {
+    expect(isWallSuppressionActive(t0, t0)).toBe(true);
+  });
+
+  it("stays active for the whole window (just before expiry)", () => {
+    expect(isWallSuppressionActive(t0, t0 + WALL_RETRY_MS - 1)).toBe(true);
+  });
+
+  it("expires exactly at WALL_RETRY_MS so the next pause can re-probe", () => {
+    expect(isWallSuppressionActive(t0, t0 + WALL_RETRY_MS)).toBe(false);
+    expect(isWallSuppressionActive(t0, t0 + WALL_RETRY_MS + 1)).toBe(false);
   });
 });
 

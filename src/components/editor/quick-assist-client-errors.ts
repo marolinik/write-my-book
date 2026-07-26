@@ -68,3 +68,25 @@ export function shouldSurfaceGhostError(
   if (last === undefined) return true;
   return now - last >= GHOST_ERROR_COOLDOWN_MS;
 }
+
+/**
+ * D-134 (F4+F10) — once the plan cap wall answers a 429, the writer is capped
+ * for the rest of the window, so re-firing ghost text on every 1.5s pause only
+ * loads the honest server and churns the UI for nothing (and the old Dismiss
+ * was inert: the next pause re-hit the 429 and re-showed the banner). We record
+ * the timestamp of the most recent 429 upgrade notice as `wallSince` and
+ * suppress ghost fetches while this predicate holds. The suppression self-
+ * expires after WALL_RETRY_MS so exactly one honest re-probe happens per
+ * window: if still capped the banner re-shows (D-134's wall re-entry), if it
+ * succeeds the banner + wall state clear. Dismiss hides the banner but leaves
+ * `wallSince` set, so a dismiss can't re-arm the doomed loop.
+ */
+export const WALL_RETRY_MS = 5 * 60_000;
+
+export function isWallSuppressionActive(
+  wallSince: number | null,
+  now: number
+): boolean {
+  if (wallSince === null) return false;
+  return now - wallSince < WALL_RETRY_MS;
+}
