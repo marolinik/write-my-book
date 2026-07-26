@@ -83,14 +83,18 @@ export async function getDbUser() {
 
     // Auto-create the dev user if it doesn't exist
     const devName = process.env.DEV_AUTH_USER_NAME ?? "Dev Writer";
+    // D-153: email must derive from DEV_CLERK_ID — a hardcoded literal
+    // P2002-collided on the unique email for any second dev identity; and
+    // onboardingComplete must be overridable — hardcoded true made the cold
+    // onboarding funnel uncapturable in QA (absent DEV_ONBOARDING_COMPLETE = true).
     return db.user.upsert({
       where: { clerkId: process.env.DEV_CLERK_ID },
       update: {},
       create: {
         clerkId: process.env.DEV_CLERK_ID,
-        email: "dev@writemybook.local",
+        email: `${process.env.DEV_CLERK_ID}@writemybook.local`,
         displayName: devName,
-        onboardingComplete: true,
+        onboardingComplete: process.env.DEV_ONBOARDING_COMPLETE !== "false",
       },
     });
   }
