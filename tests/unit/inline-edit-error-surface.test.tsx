@@ -19,6 +19,7 @@ vi.mock("@/hooks/use-inline-edit", () => ({
 }));
 
 import { InlineEditPopup } from "@/components/editor/inline-edit-popup";
+import { QUICK_ASSIST_FALLBACK_MESSAGE } from "@/components/editor/quick-assist-client-errors";
 
 function makeEditorStub() {
   const rect = {
@@ -74,6 +75,29 @@ describe("InlineEditPopup — D-129 error copy renders, D-127 disclosure", () =>
     const alert = await screen.findByRole("alert");
     expect(alert.textContent).toContain(serverCopy);
     // Retryable: the instruction input is back on screen alongside the error.
+    expect(
+      screen.getByPlaceholderText(/describe what you want/i)
+    ).toBeTruthy();
+  });
+
+  it("falls back to the generic copy when the mutation rejects with a non-Error value", async () => {
+    // use-inline-edit throws Error(body.error), but a thrown string (or any
+    // non-Error) must still surface writer-facing copy, not "[object Object]"
+    // or a blank alert — the generic fallback covers it.
+    mutateAsync.mockRejectedValue("plain string");
+
+    render(
+      <InlineEditPopup
+        editor={makeEditorStub()}
+        bookId="b1"
+        onClose={vi.fn()}
+        initialInstruction="Rewrite"
+      />
+    );
+
+    const alert = await screen.findByRole("alert");
+    expect(alert.textContent).toContain(QUICK_ASSIST_FALLBACK_MESSAGE);
+    // Still retryable: the instruction input remains on screen.
     expect(
       screen.getByPlaceholderText(/describe what you want/i)
     ).toBeTruthy();

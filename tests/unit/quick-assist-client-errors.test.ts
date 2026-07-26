@@ -69,38 +69,76 @@ describe("quickAssistErrorNotice — D-129 server copy reaches the writer", () =
     ).toBe(false);
     expect(quickAssistErrorNotice(null).openSettings).toBe(false);
   });
+
+  it("flags a cap-wall 429 (non-empty upgradeToTier) for the billing deep-link", () => {
+    const notice = quickAssistErrorNotice({
+      error: "Free plan includes 100 ghost-text completions per day.",
+      upgradeToTier: "indie",
+      remainingToday: 0,
+    });
+    expect(notice.upgrade).toBe(true);
+    // The upgrade wall is distinct from the 422 settings deep-link.
+    expect(notice.openSettings).toBe(false);
+  });
+
+  it("does not flag upgrade when upgradeToTier is empty, blank, or non-string", () => {
+    expect(quickAssistErrorNotice({ error: "boom" }).upgrade).toBe(false);
+    expect(
+      quickAssistErrorNotice({ error: "boom", upgradeToTier: "   " }).upgrade
+    ).toBe(false);
+    expect(
+      quickAssistErrorNotice({ error: "boom", upgradeToTier: 3 }).upgrade
+    ).toBe(false);
+    expect(quickAssistErrorNotice(null).upgrade).toBe(false);
+  });
 });
 
 /**
  * Ghost text fires on every 1.5s typing pause — at the cap wall every pause
- * would re-toast the same 429 copy. The gate shows a message once, then again
- * only after the cooldown or when the message changes.
+ * would re-toast the same 429 copy. `lastShown` maps each surfaced message to
+ * the time it last appeared, so every distinct message keeps its OWN cooldown:
+ * a single shared slot re-showed message A whenever a different message B
+ * appeared between two A's. The gate shows a message once, then again only
+ * after its own cooldown elapses.
  */
-describe("shouldSurfaceGhostError — toast throttle", () => {
+describe("shouldSurfaceGhostError — per-message toast throttle", () => {
   const t0 = 1_000_000;
 
-  it("always surfaces the first error", () => {
-    expect(shouldSurfaceGhostError(null, "cap wall", t0)).toBe(true);
+  it("always surfaces the first error (empty map)", () => {
+    expect(shouldSurfaceGhostError(new Map(), "cap wall", t0)).toBe(true);
   });
 
   it("suppresses an identical message inside the cooldown window", () => {
-    const prev = { message: "cap wall", at: t0 };
-    expect(shouldSurfaceGhostError(prev, "cap wall", t0 + 5_000)).toBe(false);
+    const map = new Map([["cap wall", t0]]);
+    expect(shouldSurfaceGhostError(map, "cap wall", t0 + 5_000)).toBe(false);
     expect(
-      shouldSurfaceGhostError(prev, "cap wall", t0 + GHOST_ERROR_COOLDOWN_MS - 1)
+      shouldSurfaceGhostError(map, "cap wall", t0 + GHOST_ERROR_COOLDOWN_MS - 1)
     ).toBe(false);
   });
 
   it("surfaces the same message again after the cooldown", () => {
-    const prev = { message: "cap wall", at: t0 };
+    const map = new Map([["cap wall", t0]]);
     expect(
-      shouldSurfaceGhostError(prev, "cap wall", t0 + GHOST_ERROR_COOLDOWN_MS)
+      shouldSurfaceGhostError(map, "cap wall", t0 + GHOST_ERROR_COOLDOWN_MS)
     ).toBe(true);
   });
 
   it("surfaces a different message immediately", () => {
-    const prev = { message: "cap wall", at: t0 };
-    expect(shouldSurfaceGhostError(prev, "server down", t0 + 1)).toBe(true);
+    const map = new Map([["cap wall", t0]]);
+    expect(shouldSurfaceGhostError(map, "server down", t0 + 1)).toBe(true);
+  });
+
+  it("keeps each message's cooldown independent — no single-slot re-show (alternating case)", () => {
+    const map = new Map<string, number>();
+    // Message A surfaced at t0.
+    expect(shouldSurfaceGhostError(map, "A", t0)).toBe(true);
+    map.set("A", t0);
+    // Different message B surfaced at t0+2s.
+    expect(shouldSurfaceGhostError(map, "B", t0 + 2_000)).toBe(true);
+    map.set("B", t0 + 2_000);
+    // A again at t0+3s: the OLD single slot (now holding B) would have re-shown
+    // A; the per-message map keeps A's own cooldown, so it stays suppressed.
+    expect(shouldSurfaceGhostError(map, "A", t0 + 3_000)).toBe(false);
   });
 });
 

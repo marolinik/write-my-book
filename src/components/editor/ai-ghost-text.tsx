@@ -9,7 +9,6 @@ import {
   quickAssistErrorNotice,
   shouldSurfaceGhostError,
   QUICK_ASSIST_FALLBACK_MESSAGE,
-  type GhostErrorMark,
   type QuickAssistErrorNotice,
 } from "./quick-assist-client-errors";
 
@@ -52,7 +51,9 @@ export function AIGhostText({
   const pauseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const lastTextRef = useRef<string>("");
-  const lastErrorRef = useRef<GhostErrorMark | null>(null);
+  // D-129: per-message cooldown — each distinct error copy keeps its own
+  // last-shown time so alternating messages can't defeat the throttle.
+  const lastErrorRef = useRef<Map<string, number>>(new Map());
   const router = useRouter();
 
   // D-129: the server answers the cap wall (429), the reasoning-model
@@ -65,8 +66,19 @@ export function AIGhostText({
       if (!shouldSurfaceGhostError(lastErrorRef.current, notice.message, now)) {
         return;
       }
-      lastErrorRef.current = { message: notice.message, at: now };
-      if (notice.openSettings) {
+      lastErrorRef.current = new Map(lastErrorRef.current).set(
+        notice.message,
+        now
+      );
+      if (notice.upgrade) {
+        // Plan cap wall (429 + upgradeToTier): route to billing, not settings.
+        toast.error(notice.message, {
+          action: {
+            label: "Upgrade",
+            onClick: () => router.push("/settings/billing"),
+          },
+        });
+      } else if (notice.openSettings) {
         toast.error(notice.message, {
           action: {
             label: "Open Settings",
@@ -122,6 +134,10 @@ export function AIGhostText({
 
         if (!res.ok) {
           const body: unknown = await res.json().catch(() => null);
+          // Reading the error body is async — if typing resumed and aborted
+          // the request meanwhile, stay silent rather than toast a stale wall
+          // (the success path below already rechecks the abort flag).
+          if (controller.signal.aborted) return;
           surfaceError(quickAssistErrorNotice(body));
           return;
         }
@@ -137,6 +153,7 @@ export function AIGhostText({
           surfaceError({
             message: QUICK_ASSIST_FALLBACK_MESSAGE,
             openSettings: false,
+            upgrade: false,
           });
         }
       } finally {
@@ -197,21 +214,30 @@ export function AIGhostText({
   }, [editor, enabled, fetchSuggestion]);
 
   // Dismiss on selection-only changes (click elsewhere without editing) so
-  // Tab can never insert at a position the ghost isn't rendered at.
+  // Tab can never insert at a position the ghost isn't rendered at. Extended to
+  // the pending phase: if the cursor moves while a fetch is in flight, cancel
+  // it — otherwise the request resolves into a ghost anchored to the OLD
+  // position and a Tab would insert at the new cursor.
   useEffect(() => {
-    if (!editor || !suggestion) return;
-    const dismiss = () => setSuggestion(null);
+    if (!editor || (!suggestion && !pending)) return;
+    const dismiss = () => {
+      setSuggestion(null);
+      setPending(false);
+      abortRef.current?.abort();
+    };
     editor.on("selectionUpdate", dismiss);
     return () => {
       editor.off("selectionUpdate", dismiss);
     };
-  }, [editor, suggestion]);
+  }, [editor, suggestion, pending]);
 
   // Keep the fixed-position overlay anchored to the cursor: reposition on
   // scroll (capture catches the editor's inner scroll container) and resize,
-  // dismissing if the cursor position can no longer be resolved.
+  // dismissing if the cursor position can no longer be resolved. Active during
+  // the pending phase too, so the D5 loading dots track the cursor exactly like
+  // the ghost text does.
   useEffect(() => {
-    if (!suggestion || !editor) return;
+    if ((!suggestion && !pending) || !editor) return;
 
     const reposition = () => {
       try {
@@ -219,8 +245,10 @@ export function AIGhostText({
         const coords = editor.view.coordsAtPos(from);
         setPosition({ top: coords.top, left: coords.left });
       } catch {
-        // Position is stale (e.g. doc changed) — dismiss instead of floating detached
+        // Position is stale (e.g. doc changed) — dismiss instead of floating
+        // detached; clear the pending dots for the same reason.
         setSuggestion(null);
+        setPending(false);
       }
     };
 
@@ -230,7 +258,7 @@ export function AIGhostText({
       window.removeEventListener("scroll", reposition, { capture: true });
       window.removeEventListener("resize", reposition);
     };
-  }, [suggestion, editor]);
+  }, [suggestion, pending, editor]);
 
   // Handle Tab to accept, Escape to dismiss. Gated on `enabled` and editor
   // focus: a document-level capture handler must never insert into a pane
@@ -245,12 +273,15 @@ export function AIGhostText({
         // Insert at cursor, joining with a space when both sides are
         // word-like (D-130: raw insert glued "the"+"dream" → "thedream").
         const { from } = editor.state.selection;
-        const charBefore =
+        // Read the last TWO doc chars so joinGhostSuggestion can disambiguate a
+        // trailing quote (apostrophe glues; closing quote after sentence
+        // punctuation needs a leading space).
+        const charsBefore =
           from > 0
-            ? editor.state.doc.textBetween(Math.max(0, from - 1), from)
+            ? editor.state.doc.textBetween(Math.max(0, from - 2), from)
             : "";
         editor.commands.insertContent(
-          joinGhostSuggestion(charBefore, suggestion)
+          joinGhostSuggestion(charsBefore, suggestion)
         );
         setSuggestion(null);
       } else if (e.key === "Escape") {

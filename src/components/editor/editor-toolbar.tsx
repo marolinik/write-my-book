@@ -91,6 +91,11 @@ interface ToolbarButtonProps {
   isActive?: boolean;
   /** Toggle-button state; emits aria-pressed when provided. */
   pressed?: boolean;
+  /**
+   * Optional second, muted line in the tooltip (e.g. the quick-assist model
+   * disclosure). Kept out of aria-label so AT hears the action name only.
+   */
+  tooltipHint?: string;
   onClick: () => void;
 }
 
@@ -99,6 +104,7 @@ function ToolbarButton({
   label,
   isActive,
   pressed,
+  tooltipHint,
   onClick,
 }: ToolbarButtonProps) {
   return (
@@ -116,7 +122,14 @@ function ToolbarButton({
           {icon}
         </Button>
       </TooltipTrigger>
-      <TooltipContent side="bottom">{label}</TooltipContent>
+      <TooltipContent side="bottom">
+        {label}
+        {tooltipHint && (
+          <span className="mt-0.5 block text-[10px] text-muted-foreground">
+            {tooltipHint}
+          </span>
+        )}
+      </TooltipContent>
     </Tooltip>
   );
 }
@@ -403,6 +416,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
                 ? "AI Ghost Text (on)"
                 : "AI Ghost Text (off)"
             }
+            tooltipHint={QUICK_ASSIST_DISCLOSURE}
             isActive={ctx.ghostTextEnabled}
             pressed={!!ctx.ghostTextEnabled}
             onClick={ctx.onToggleGhostText}

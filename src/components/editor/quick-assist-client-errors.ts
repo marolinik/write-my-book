@@ -12,6 +12,11 @@ export interface QuickAssistErrorNotice {
   message: string;
   /** True for the MODEL_NO_QUICK_SUGGEST 422 — offer the settings deep-link. */
   openSettings: boolean;
+  /**
+   * True when the server returned a non-empty `upgradeToTier` (the plan cap
+   * wall) — offer the billing deep-link instead of settings.
+   */
+  upgrade: boolean;
 }
 
 export const QUICK_ASSIST_FALLBACK_MESSAGE =
@@ -34,29 +39,32 @@ export function quickAssistErrorNotice(body: unknown): QuickAssistErrorNotice {
     typeof rec.error === "string" && rec.error.trim().length > 0
       ? rec.error
       : null;
+  const upgrade =
+    typeof rec.upgradeToTier === "string" &&
+    rec.upgradeToTier.trim().length > 0;
   return {
     message: serverMessage ?? QUICK_ASSIST_FALLBACK_MESSAGE,
     openSettings: rec.code === MODEL_NO_QUICK_SUGGEST_CODE,
+    upgrade,
   };
 }
 
 /**
  * Ghost text retriggers on every 1.5s typing pause — at the cap wall each
- * pause would re-toast the same 429 copy. Surface a message once, then again
- * only after the cooldown or when the message changes.
+ * pause would re-toast the same 429 copy. `lastShown` maps each surfaced
+ * message to the time it was last shown, so every distinct message keeps its
+ * OWN cooldown. A single shared slot re-showed message A whenever a different
+ * message B appeared between two A's; the per-message map suppresses that.
+ * Surface a message when it has never been shown or its own cooldown elapsed.
  */
 export const GHOST_ERROR_COOLDOWN_MS = 60_000;
 
-export interface GhostErrorMark {
-  message: string;
-  at: number;
-}
-
 export function shouldSurfaceGhostError(
-  prev: GhostErrorMark | null,
+  lastShown: ReadonlyMap<string, number>,
   message: string,
   now: number
 ): boolean {
-  if (!prev || prev.message !== message) return true;
-  return now - prev.at >= GHOST_ERROR_COOLDOWN_MS;
+  const last = lastShown.get(message);
+  if (last === undefined) return true;
+  return now - last >= GHOST_ERROR_COOLDOWN_MS;
 }
