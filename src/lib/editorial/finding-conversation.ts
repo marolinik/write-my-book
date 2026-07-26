@@ -29,6 +29,13 @@ export const MAX_USER_TURNS = 3;
 export const REVISION_FALLBACK_TEXT = "Suggested a revision below.";
 export const CONSTRAINT_FALLBACK_TEXT = "Proposed a constraint below.";
 
+/** D-157: the turn was nothing but a control-shaped block the parser could not
+ *  interpret. The block is stripped so machine syntax never reaches the writer,
+ *  which means the raw-text last resort below would re-leak it — say plainly
+ *  that nothing came of the turn instead. */
+export const STRIPPED_BLOCK_FALLBACK_TEXT =
+  "The editor's reply couldn't be read, so nothing was saved from it.";
+
 /** Text to render for one assistant bubble. Prefers the prose message; when the
  *  turn emitted only structured fields (so the prose parses to "") it degrades to
  *  an honest fallback line instead of a blank bubble. "" is treated as "no message"
@@ -39,6 +46,9 @@ export function assistantBubbleText(content: string): string {
   if (message) return message;
   if (parsed.revisedSuggestion) return REVISION_FALLBACK_TEXT;
   if (parsed.suggestedConstraint) return CONSTRAINT_FALLBACK_TEXT;
+  // D-157: the parser stripped control-shaped syntax it could not interpret;
+  // falling through to `content` would put that syntax straight back on screen.
+  if (parsed.strippedControlBlocks?.length) return STRIPPED_BLOCK_FALLBACK_TEXT;
   return content; // no prose and nothing structured — show raw as a last resort
 }
 

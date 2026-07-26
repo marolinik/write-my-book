@@ -4,6 +4,7 @@ import {
   assistantBubbleText,
   REVISION_FALLBACK_TEXT,
   CONSTRAINT_FALLBACK_TEXT,
+  STRIPPED_BLOCK_FALLBACK_TEXT,
 } from "@/lib/editorial/finding-conversation";
 import { parseDiscussResponse } from "@/lib/editorial/discuss-prompt";
 
@@ -54,6 +55,17 @@ describe("computeConversationView", () => {
     expect(computeConversationView({ replies: [], findingStatus: "dismissed" }).canDiscuss).toBe(false);
   });
 
+  it("surfaces the constraint chip for a drifted (two-bracket) REMEMBER turn — D-157", () => {
+    const drifted = a(
+      ["Understood.", '<<<REMEMBER category="preference">>', "Preserve her dry taxonomy at emotional peaks.", "<<<END>>>"].join("\n")
+    );
+    const v = computeConversationView({ replies: [u("i"), drifted], findingStatus: "pending" });
+    expect(v.latestConstraint).toEqual({
+      category: "preference",
+      content: "Preserve her dry taxonomy at emotional peaks.",
+    });
+  });
+
   it("is crash-safe on a corrupted assistant row", () => {
     const bad = a("prose\n<<<REVISION>>>\nsuggestion:"); // unclosed
     expect(() => computeConversationView({ replies: [u("x"), bad], findingStatus: "pending" })).not.toThrow();
@@ -83,5 +95,19 @@ describe("assistantBubbleText", () => {
     const content = ['<<<REMEMBER category="preference">>>', "Preserve her dry taxonomy at emotional peaks.", "<<<END>>>"].join("\n");
     expect(parseDiscussResponse(content).assistantMessage).toBe("");
     expect(assistantBubbleText(content)).toBe(CONSTRAINT_FALLBACK_TEXT);
+  });
+
+  it("never renders a drifted (two-bracket) REMEMBER block as prose — D-157", () => {
+    const content = ['<<<REMEMBER category="preference">>', "Preserve her dry taxonomy at emotional peaks.", "<<<END>>>"].join("\n");
+    const shown = assistantBubbleText(content);
+    expect(shown).toBe(CONSTRAINT_FALLBACK_TEXT);
+    expect(shown).not.toContain("REMEMBER");
+  });
+
+  it("never renders a stripped unrecognized control block as prose — D-157", () => {
+    const content = ["<<<NOTE>>>", "internal scratchpad", "<<<END>>>"].join("\n");
+    const shown = assistantBubbleText(content);
+    expect(shown).toBe(STRIPPED_BLOCK_FALLBACK_TEXT);
+    expect(shown).not.toContain("<<<");
   });
 });
