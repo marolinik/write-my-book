@@ -152,6 +152,7 @@ export interface UIStrings {
     creating: string;
     create: string;
     bookCreated: string;
+    nameRequired: string;
   };
 
   // Common
@@ -509,6 +510,7 @@ const EN: UIStrings = {
     creating: "Creating...",
     create: "Create Book",
     bookCreated: "Book created",
+    nameRequired: "Please enter a book name to continue.",
   },
   common: {
     loading: "Loading...",
@@ -827,6 +829,7 @@ const SR: UIStrings = {
     creating: "Kreiranje...",
     create: "Kreiraj knjigu",
     bookCreated: "Knjiga kreirana",
+    nameRequired: "Unesite naziv knjige da biste nastavili.",
   },
   common: {
     loading: "Učitavanje...",
@@ -1145,6 +1148,7 @@ const DE: UIStrings = {
     creating: "Wird erstellt...",
     create: "Buch erstellen",
     bookCreated: "Buch erstellt",
+    nameRequired: "Bitte gib einen Buchnamen ein, um fortzufahren.",
   },
   common: {
     loading: "Laden...",
@@ -1463,6 +1467,7 @@ const ES: UIStrings = {
     creating: "Creando...",
     create: "Crear libro",
     bookCreated: "Libro creado",
+    nameRequired: "Introduce un nombre de libro para continuar.",
   },
   common: {
     loading: "Cargando...",
@@ -1781,6 +1786,7 @@ const FR: UIStrings = {
     creating: "Création...",
     create: "Créer un livre",
     bookCreated: "Livre créé",
+    nameRequired: "Saisissez un nom de livre pour continuer.",
   },
   common: {
     loading: "Chargement...",
@@ -2099,6 +2105,7 @@ const RU: UIStrings = {
     creating: "Создание...",
     create: "Создать книгу",
     bookCreated: "Книга создана",
+    nameRequired: "Введите название книги, чтобы продолжить.",
   },
   common: {
     loading: "Загрузка...",
@@ -2417,6 +2424,7 @@ const ZH: UIStrings = {
     creating: "创建中...",
     create: "创建书籍",
     bookCreated: "书籍已创建",
+    nameRequired: "请输入书名以继续。",
   },
   common: {
     loading: "加载中...",

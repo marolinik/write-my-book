@@ -39,6 +39,19 @@ interface AIGhostTextProps {
   chapterNumber: number;
   /** Whether ghost text is enabled */
   enabled: boolean;
+  /**
+   * D-137: true while the writer is in immersive focus mode. The ghost overlay
+   * (z-50), pending dots (z-50) and cap-wall banner (z-40) all render BENEATH
+   * the opaque z-[100] immersive surface, so a suggestion produced during
+   * immersive writing is invisible AND has no accept affordance — yet the
+   * debounced immersive→tiptap sync (manuscript-editor.tsx setContent) fires the
+   * editor "update" this component listens for, arming billable fetches whose
+   * result the writer can never see (a success bills; a 429 wall is silent).
+   * When immersive, ghost fetching + rendering is fully suppressed (folded into
+   * the effective-enabled gate below), killing the billable-invisible pairing at
+   * its root instead of surfacing one half of it into the distraction-free view.
+   */
+  immersive?: boolean;
 }
 
 const PAUSE_MS = 1500; // 1.5 seconds of inactivity triggers a suggestion
@@ -75,6 +88,7 @@ export function AIGhostText({
   bookId,
   chapterNumber,
   enabled,
+  immersive = false,
 }: AIGhostTextProps) {
   const [suggestion, setSuggestion] = useState<string | null>(null);
   // D-138: the overlay carries a clamped/flipped maxWidth, not just a point —
@@ -135,6 +149,14 @@ export function AIGhostText({
   // D-132: phones have no Tab key — advertise a tap hint and make the overlay
   // itself the (generous) tap target on coarse-pointer devices.
   const coarsePointer = useCoarsePointer();
+
+  // D-137: the single "ghost is live" gate. Immersive folds into it so that
+  // entering immersive tears down the update listener, aborts any in-flight
+  // fetch and clears pending state through the EXACT same machinery as a
+  // ghost-text toggle-off — no new suppression path to keep in sync. While
+  // immersive, no fetch is armed (nothing bills) and nothing renders (the
+  // overlay/banner would be occluded by the z-[100] surface anyway).
+  const active = enabled && !immersive;
 
   // D-129: the server answers the cap wall (429), the reasoning-model
   // backstop (422 MODEL_NO_QUICK_SUGGEST), and 5xx with honest copy — it must
@@ -211,26 +233,28 @@ export function AIGhostText({
   // instance prod — the honest cold-start story is the measured Server-Timing,
   // not a claim that warmup eliminates cold start.
   useEffect(() => {
-    if (!enabled) return;
+    if (!active) return;
     void fetch(`/api/books/${bookId}/ghost-text?warmup=1`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: "{}",
       keepalive: true,
     }).catch(() => {});
-  }, [enabled, bookId]);
+  }, [active, bookId]);
 
-  // Hard-clear all pending state when disabled: without this, a pending
-  // timer can still fire a billable fetch after toggle-off, and the stale
-  // suggestion re-arms the (hidden) Tab handler.
+  // Hard-clear all pending state when not active (toggle-off OR D-137 immersive
+  // entry): without this, a pending timer can still fire a billable fetch after
+  // the ghost goes inert, and the stale suggestion re-arms the (hidden) Tab
+  // handler. Aborting the in-flight fetch here also means a suggestion that was
+  // mid-flight when immersive opened never bills (the server honours the abort).
   useEffect(() => {
-    if (enabled) return;
+    if (active) return;
     setSuggestion(null);
     setStreamDone(false);
     clearStillWriting();
     if (pauseTimer.current) clearTimeout(pauseTimer.current);
     abortRef.current?.abort();
-  }, [enabled, clearStillWriting]);
+  }, [active, clearStillWriting]);
 
   const fetchSuggestion = useCallback(
     async (context: string) => {
@@ -392,7 +416,11 @@ export function AIGhostText({
 
   // Monitor editor changes
   useEffect(() => {
-    if (!editor || !enabled) return;
+    // D-137: gated on `active`, not `enabled`, so entering immersive removes
+    // this "update" listener. The debounced immersive→tiptap setContent still
+    // emits "update" events, but with no listener attached they no longer arm a
+    // pause timer / billable fetch behind the z-[100] overlay.
+    if (!editor || !active) return;
 
     const handleUpdate = () => {
       // Clear existing suggestion on any edit; kill the in-flight request
@@ -438,7 +466,7 @@ export function AIGhostText({
       if (pauseTimer.current) clearTimeout(pauseTimer.current);
       if (abortRef.current) abortRef.current.abort();
     };
-  }, [editor, enabled, fetchSuggestion, buildPlacement, clearStillWriting]);
+  }, [editor, active, fetchSuggestion, buildPlacement, clearStillWriting]);
 
   // Dismiss on selection-only changes (click elsewhere without editing) so
   // Tab can never insert at a position the ghost isn't rendered at. Extended to
@@ -551,11 +579,12 @@ export function AIGhostText({
     acceptSuggestion();
   };
 
-  // Handle Tab to accept, Escape to dismiss. Gated on `enabled` and editor
-  // focus: a document-level capture handler must never insert into a pane
-  // that doesn't own the keyboard (split view) or after toggle-off.
+  // Handle Tab to accept, Escape to dismiss. Gated on `active` (enabled and not
+  // immersive) and editor focus: a document-level capture handler must never
+  // insert into a pane that doesn't own the keyboard (split view), after
+  // toggle-off, or from behind the immersive overlay (D-137).
   useEffect(() => {
-    if (!suggestion || !editor || !enabled) return;
+    if (!suggestion || !editor || !active) return;
 
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Tab") {
@@ -590,9 +619,12 @@ export function AIGhostText({
 
     document.addEventListener("keydown", handler, { capture: true });
     return () => document.removeEventListener("keydown", handler, { capture: true });
-  }, [suggestion, editor, enabled, acceptSuggestion, streamDone, clearStillWriting]);
+  }, [suggestion, editor, active, acceptSuggestion, streamDone, clearStillWriting]);
 
-  if (!enabled) return null;
+  // D-137: immersive suppresses render too — the overlay/banner would only sit
+  // (invisibly) under the z-[100] surface, and the effects above have already
+  // cleared any live state, so there is nothing to paint.
+  if (!active) return null;
 
   // D-132: pointer-aware accept hint — the flagship feature must not advertise
   // only a hardware key on a phone soft keyboard.
@@ -646,13 +678,16 @@ export function AIGhostText({
   // (app-header.tsx h-12) + ~2.5rem sticky editor toolbar (editor-toolbar.tsx
   // py-1 + h-8) + the notch safe area. Same anchoring on md+ for consistency;
   // being at the top keeps it trivially clear of the h-14 mobile bottom nav.
-  // F9 (limitation, not fixed here): this z-40 banner and the z-50 ghost overlay
-  // render BENEATH the z-[100] immersive focus overlay. A 429 can still be armed
-  // during immersive writing — the debounced immersive→tiptap sync
-  // (manuscript-editor.tsx setContent, emitUpdate defaults true) fires the
-  // editor "update" this component listens for — so a cap hit in distraction-
-  // free mode is invisible until exit. Raising z above 100 is out of scope
-  // (see manuscript-editor.tsx's existing immersive toast/dialog note).
+  // F9 note / D-137 (RESOLVED via shape (b)): this z-40 banner and the z-50
+  // ghost overlay render BENEATH the z-[100] immersive focus overlay, so a cap
+  // wall (or any suggestion) produced during immersive writing would be
+  // invisible. Rather than raise z above the distraction-free surface — which
+  // fights the deliberate chrome suppression in immersive (see manuscript-
+  // editor.tsx's conflict toast/dialog defer-to-exit note) — ghost fetching is
+  // suppressed outright while immersive (the `active` gate above). The debounced
+  // immersive→tiptap setContent no longer arms a fetch, so there is no billable-
+  // but-invisible suggestion and no silent 429 wall to surface in the first
+  // place. The non-immersive wall below is unchanged.
   const wallBanner: ReactNode = wallNotice ? (
     <div
       role="alert"

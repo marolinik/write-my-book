@@ -1324,6 +1324,13 @@ export function ManuscriptEditor({
               bookId={bookId}
               chapterNumber={chapterNumber}
               enabled={ghostTextEnabled}
+              // D-137: while immersive is open the debounced immersive→tiptap
+              // setContent sync still fires editor "update" events, but the
+              // ghost overlay/wall live under the z-[100] immersive surface and
+              // are invisible with no accept path. Pass immersive so ghost
+              // fetching is suppressed at its root — no billable-but-invisible
+              // suggestion, no silent cap wall behind the overlay.
+              immersive={immersive}
             />
           )}
           {showInlineEdit && editor && (

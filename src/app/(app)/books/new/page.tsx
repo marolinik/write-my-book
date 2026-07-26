@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -36,9 +36,35 @@ export default function NewBookPage() {
   const [language, setLanguage] = useState("en");
   const [seriesId, setSeriesId] = useState<string>("none");
   const [bookNumber, setBookNumber] = useState(1);
+  // D-154: the name is required, but the guard was a bare `return` — a silent
+  // no-op. Three distinct paths all landed the writer in dead air:
+  //   1. "Start writing" (type="submit") + a TRULY EMPTY name — native
+  //      `required` validation FIRES FIRST and blocks the submit event, so
+  //      `onSubmit` never runs and this component's guard never executes. On the
+  //      D1 cold-funnel capture device the native bubble was silent (mobile
+  //      browsers routinely render no message), so the reported "primary button
+  //      does nothing" was this path — the one the inline handler could not even
+  //      reach. The form now sets `noValidate` (below) so submit ALWAYS reaches
+  //      createAndGo and the same inline block shows on every device.
+  //   2. "Start writing" + a WHITESPACE-ONLY name — passes native `required`,
+  //      then hit the silent `return`.
+  //   3. "Guided setup instead" (type="button", never submits) + empty OR
+  //      whitespace — native validation never applies, straight to the return.
+  // All three now surface the block (aria-invalid + a role=alert message +
+  // focus) instead of swallowing it. `required` is kept for AT/semantics; only
+  // its native UI is opted out (noValidate) so our styled, localized message is
+  // the single source of truth.
+  const [nameError, setNameError] = useState(false);
+  const nameInputRef = useRef<HTMLInputElement>(null);
 
   async function createAndGo(mode: "write" | "setup") {
-    if (!name.trim()) return;
+    if (!name.trim()) {
+      // D-154: not a silent return — tell the writer why nothing happened and
+      // send focus to the field they need to fix.
+      setNameError(true);
+      nameInputRef.current?.focus();
+      return;
+    }
     try {
       const book = await createBook.mutateAsync({
         name: name.trim(),
@@ -79,17 +105,39 @@ export default function NewBookPage() {
           <CardDescription>{t.newBook.description}</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          {/* D-154: opt out of native constraint-validation UI so the submit
+              path always reaches createAndGo (native `required` otherwise blocks
+              the submit event on an empty name and its bubble is silent on
+              mobile — the exact reported no-op). The inline role=alert below is
+              the single, consistent feedback surface across all buttons/devices.
+              `required` stays on the input for accessibility semantics. */}
+          <form onSubmit={handleSubmit} noValidate className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">{t.newBook.bookName} *</Label>
               <Input
+                ref={nameInputRef}
                 id="name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  // Clear the block as soon as the writer starts fixing it.
+                  if (nameError) setNameError(false);
+                }}
                 placeholder="My Novel"
                 required
                 maxLength={200}
+                aria-invalid={nameError || undefined}
+                aria-describedby={nameError ? "name-error" : undefined}
               />
+              {nameError && (
+                <p
+                  id="name-error"
+                  role="alert"
+                  className="text-xs text-destructive"
+                >
+                  {t.newBook.nameRequired}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
