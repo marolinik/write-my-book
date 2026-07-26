@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { Editor } from "@tiptap/react";
 import { joinGhostSuggestion } from "./ghost-text-join";
+import {
+  ghostOverlayPlacement,
+  type OverlayPlacement,
+} from "./ghost-overlay-placement";
 import { useCoarsePointer } from "./use-coarse-pointer";
 import {
   quickAssistErrorNotice,
@@ -51,7 +55,11 @@ export function AIGhostText({
   enabled,
 }: AIGhostTextProps) {
   const [suggestion, setSuggestion] = useState<string | null>(null);
-  const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
+  // D-138: the overlay carries a clamped/flipped maxWidth, not just a point —
+  // at the right edge of a phone the raw caret position wraps the suggestion
+  // one-word-per-line and buries the accept pill. Placement is a value object
+  // (top/left/maxWidth) so the two anchor sites can never drift.
+  const [position, setPosition] = useState<OverlayPlacement | null>(null);
   // D5: the fetch wait was blind — no affordance between pause and render.
   const [pending, setPending] = useState(false);
   // D-134: the cap wall is a PERSISTENT banner, not a cooled-down toast. The
@@ -214,6 +222,20 @@ export function AIGhostText({
     [bookId, chapterNumber, surfaceError]
   );
 
+  // D-138: the ONE place the caret geometry becomes an overlay placement. Both
+  // anchor sites (the initial pause-timer render and the scroll/resize
+  // reposition) route through here so the clamp/flip decision can never drift
+  // between them. window.innerWidth is read here (the only viewport touch) and
+  // passed into the pure helper, which owns the right-edge clamp/flip.
+  const buildPlacement = useCallback(
+    (coords: { top: number; bottom: number; left: number }): OverlayPlacement =>
+      ghostOverlayPlacement(
+        { top: coords.top, bottom: coords.bottom, left: coords.left },
+        window.innerWidth
+      ),
+    []
+  );
+
   // Monitor editor changes
   useEffect(() => {
     if (!editor || !enabled) return;
@@ -239,15 +261,15 @@ export function AIGhostText({
         if (editor.getText() === lastTextRef.current) {
           fetchSuggestion(lastTextRef.current);
 
-          // Calculate cursor position for rendering
+          // Calculate cursor position for rendering. D-138: the raw caret
+          // coords go through buildPlacement so the overlay is clamped (or
+          // flipped to the next line) instead of wrapping into a one-word
+          // column at the right edge.
           const { view } = editor;
           const { from } = view.state.selection;
           const coords = view.coordsAtPos(from);
           if (coords) {
-            setPosition({
-              top: coords.top,
-              left: coords.left,
-            });
+            setPosition(buildPlacement(coords));
           }
         }
       }, PAUSE_MS);
@@ -260,7 +282,7 @@ export function AIGhostText({
       if (pauseTimer.current) clearTimeout(pauseTimer.current);
       if (abortRef.current) abortRef.current.abort();
     };
-  }, [editor, enabled, fetchSuggestion]);
+  }, [editor, enabled, fetchSuggestion, buildPlacement]);
 
   // Dismiss on selection-only changes (click elsewhere without editing) so
   // Tab can never insert at a position the ghost isn't rendered at. Extended to
@@ -292,7 +314,10 @@ export function AIGhostText({
       try {
         const { from } = editor.view.state.selection;
         const coords = editor.view.coordsAtPos(from);
-        setPosition({ top: coords.top, left: coords.left });
+        // D-138: same clamp/flip path as the initial anchor — a resize (e.g. the
+        // soft keyboard opening) that narrows the viewport must re-decide inline
+        // vs. flipped, not just move the raw point.
+        setPosition(buildPlacement(coords));
       } catch {
         // Position is stale (e.g. doc changed) — dismiss instead of floating
         // detached; clear the pending dots for the same reason.
@@ -307,7 +332,7 @@ export function AIGhostText({
       window.removeEventListener("scroll", reposition, { capture: true });
       window.removeEventListener("resize", reposition);
     };
-  }, [suggestion, pending, editor]);
+  }, [suggestion, pending, editor, buildPlacement]);
 
   // D-132: single accept path shared by the Tab key AND the overlay tap.
   // Insert at the cursor, joining with a space when both sides are word-like
@@ -451,7 +476,10 @@ export function AIGhostText({
             onPointerMove={handleOverlayPointerMove}
             onPointerUp={handleOverlayPointerUp}
             className="fixed z-50 cursor-pointer font-serif text-lg text-muted-foreground/30 italic select-none whitespace-pre-wrap"
-            style={{ top: position.top, left: position.left, maxWidth: "500px" }}
+            // D-138: maxWidth is clamped/flipped by ghostOverlayPlacement, not a
+            // hard 500px — near the right edge that raw cap wrapped the ghost
+            // into a one-word column that buried this tap target.
+            style={{ top: position.top, left: position.left, maxWidth: position.maxWidth }}
           >
             {suggestion}
             {/* F7: a real, readable pill — the old text-[10px]/20% hint was
@@ -470,7 +498,8 @@ export function AIGhostText({
         overlay = (
           <span
             className="pointer-events-none fixed z-50 font-serif text-lg text-muted-foreground/30 italic select-none whitespace-pre-wrap"
-            style={{ top: position.top, left: position.left, maxWidth: "500px" }}
+            // D-138: clamped/flipped maxWidth (see the coarse-pointer overlay).
+            style={{ top: position.top, left: position.left, maxWidth: position.maxWidth }}
           >
             {suggestion}
             <span className="ml-2 text-[10px] text-muted-foreground/20 not-italic font-sans">
