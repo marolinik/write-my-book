@@ -10,9 +10,10 @@ import type { ProviderKey } from "@/lib/llm";
 import {
   withQuickAssistReasoning,
   extractQuickAssistText,
-  isReasoningOnly,
+  settleQuickAssist,
   MODEL_NO_QUICK_SUGGEST_CODE,
   modelNoQuickSuggestMessage,
+  QUICK_ASSIST_TIMEOUT_INLINE_MS,
 } from "@/lib/llm/quick-assist";
 import { inlineEditRequestSchema } from "@/lib/validation";
 import type { InlineEditSuggestion } from "@/lib/validation";
@@ -141,10 +142,17 @@ Provide ${data.count} alternative rewrites as a JSON array.`;
       system: systemPrompt,
       messages: [{ role: "user" as const, content: userContent }],
     };
+    // D-142: thread req.signal + a bounded timeout so a typing-resumed / closed
+    // client abort actually cancels the upstream generation and is caught below
+    // (499, unbilled) instead of completing server-side and writing a
+    // usage_record for a suggestion no one will ever see. Stage 1 keeps this
+    // route atomic JSON (Stage 2 streams it via the shared gate).
+    const startedAt = Date.now();
     const response = await client.messages.create(
       route.route === "openrouter"
         ? withQuickAssistReasoning(baseParams)
-        : baseParams
+        : baseParams,
+      { signal: req.signal, timeout: QUICK_ASSIST_TIMEOUT_INLINE_MS }
     );
 
     // Parse the response (extractQuickAssistText skips leading thinking blocks).
@@ -178,17 +186,22 @@ Provide ${data.count} alternative rewrites as a JSON array.`;
     // failed to parse. Do NOT write a usage record for nothing and do NOT
     // answer with a hollow 200 { suggestions: [] }; surface an honest,
     // retryable signal (and the truncation) so the writer can retry.
+    const ms = Date.now() - startedAt;
+    const timing = { "Server-Timing": `llm;dur=${ms}` };
+
     if (suggestions.length === 0) {
-      // D-100: a reasoning model that returned ONLY thinking blocks can't
-      // produce quick rewrites at all — answer honestly and point at the model
-      // picker, instead of a misleading, infinitely-retryable cut-off.
-      if (isReasoningOnly(response.content)) {
+      // D-100 (migrated to settleQuickAssist, D5): a reasoning model that
+      // returned ONLY thinking blocks can't produce quick rewrites at all —
+      // answer honestly and point at the model picker, instead of a misleading,
+      // infinitely-retryable cut-off. The truncation copy still keys off
+      // stop_reason so a text-but-unparseable-JSON reply reads as "cut off".
+      if (settleQuickAssist(response.content, response.stop_reason).kind === "reasoning-only") {
         return NextResponse.json(
           {
             error: modelNoQuickSuggestMessage("inline-edit"),
             code: MODEL_NO_QUICK_SUGGEST_CODE,
           },
-          { status: 422 }
+          { status: 422, headers: timing }
         );
       }
       const truncated = response.stop_reason === "max_tokens";
@@ -199,7 +212,7 @@ Provide ${data.count} alternative rewrites as a JSON array.`;
             : "No usable rewrites were generated. Please try again.",
           retryable: true,
         },
-        { status: 502 }
+        { status: 502, headers: timing }
       );
     }
 
@@ -228,10 +241,20 @@ Provide ${data.count} alternative rewrites as a JSON array.`;
       await recordDailyUse(user.id, "inline");
     }
 
-    return NextResponse.json({ suggestions, tokensUsed });
+    return NextResponse.json(
+      { suggestions, tokensUsed, elapsedMs: ms },
+      { headers: timing }
+    );
   } catch (error) {
     const invalidJson = invalidJsonBodyResponse(error);
     if (invalidJson) return invalidJson;
+    // D-142: a typing-resumed / navigation abort must not fall through to a 500
+    // — it delivered nothing and, having threaded req.signal, was cancelled
+    // upstream. Answer 499 (client gone), unbilled, so an aborted inline-edit
+    // never writes a usage_record.
+    if (req.signal.aborted || (error as Error).name === "AbortError") {
+      return new Response(null, { status: 499 });
+    }
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

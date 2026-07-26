@@ -23,6 +23,15 @@
 /** OpenRouter reasoning-disable directive (the strongest disable it supports). */
 export const QUICK_ASSIST_REASONING = { enabled: false } as const;
 
+/**
+ * D5 — bounded stream/request timeouts. The server `timeout` turns an infinite
+ * upstream hang into a deterministic 502-retryable instead of a silent spinner
+ * (the no-silent-hang watchdog, spec §7). Ghost is the 60-token autocomplete
+ * surface (short); inline-edit produces a 4096-token JSON array (longer).
+ */
+export const QUICK_ASSIST_TIMEOUT_MS = 12_000;
+export const QUICK_ASSIST_TIMEOUT_INLINE_MS = 20_000;
+
 /** Machine-readable code the editor UI keys off to deep-link to model settings. */
 export const MODEL_NO_QUICK_SUGGEST_CODE = "MODEL_NO_QUICK_SUGGEST";
 
@@ -104,4 +113,32 @@ export function isReasoningOnly(
       b.text.trim().length > 0
   );
   return hasThinking && !hasText;
+}
+
+/** The settled outcome of a quick-assist generation. */
+export type QuickAssistSettlement =
+  | { kind: "ok"; text: string }
+  | { kind: "reasoning-only" }
+  | { kind: "empty"; truncated: boolean };
+
+/**
+ * D5 — the single source of truth for the 422/502/ok decision, folded out of
+ * both routes (ghost `route.ts` L140-163, inline `route.ts` L181-…) so routes,
+ * the fallback path, and the stream engine can never drift.
+ *
+ * Pure, immutable (reads `content`/`stopReason`, returns a fresh object). It is
+ * evaluated post-`finalMessage()` for the stream and post-`create()` for the
+ * non-streaming fallback — identical semantics to the historical inline guard:
+ *  - non-empty trimmed text  → ok (billable, deliverable)
+ *  - thinking-only           → reasoning-only (honest 422 MODEL_NO_QUICK_SUGGEST)
+ *  - otherwise (no text)     → empty, `truncated` iff stop_reason === "max_tokens"
+ */
+export function settleQuickAssist(
+  content: readonly ContentBlockLike[] | null | undefined,
+  stopReason: string | null
+): QuickAssistSettlement {
+  const text = extractQuickAssistText(content).trim();
+  if (text.length > 0) return { kind: "ok", text };
+  if (isReasoningOnly(content)) return { kind: "reasoning-only" };
+  return { kind: "empty", truncated: stopReason === "max_tokens" };
 }

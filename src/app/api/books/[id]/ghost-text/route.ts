@@ -9,11 +9,17 @@ import { createLLMClient, resolveProviderRoute, resolveQuickAssistModelFor } fro
 import type { ProviderKey } from "@/lib/llm";
 import {
   withQuickAssistReasoning,
-  extractQuickAssistText,
-  isReasoningOnly,
+  settleQuickAssist,
   MODEL_NO_QUICK_SUGGEST_CODE,
   modelNoQuickSuggestMessage,
+  QUICK_ASSIST_TIMEOUT_MS,
 } from "@/lib/llm/quick-assist";
+import {
+  gateQuickAssistStream,
+  sseQuickAssistBody,
+  type GateResult,
+} from "@/lib/llm/quick-assist-stream";
+import { QUICK_ASSIST_SSE_HEADERS } from "@/lib/api/sse-quick-assist";
 import { ghostTextRequestSchema } from "@/lib/validation";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
@@ -24,6 +30,18 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id: bookId } = await params;
+
+    // D5 warmup ping: JIT-compile this route module on editor mount without
+    // touching the LLM, quota, or DB. Placed AFTER requireUser (still authed —
+    // no anon probe) but BEFORE parse/quota/key-load/LLM so it never bills and
+    // never writes. Fired fire-and-forget on mount; best-effort in multi-
+    // instance prod (the honest cold-start story is the measured Server-Timing,
+    // not a claim that warmup eliminates cold start — spec §7). Read from
+    // req.url (works for a plain Request in tests, unlike req.nextUrl).
+    if (new URL(req.url).searchParams.get("warmup") === "1") {
+      return NextResponse.json({ warmed: true }, { status: 200 });
+    }
+
     const body = await parseJsonBody(req);
     const data = ghostTextRequestSchema.parse(body);
 
@@ -122,72 +140,152 @@ Rules:
       system: systemPrompt,
       messages: [{ role: "user" as const, content: data.context }],
     };
-    const response = await client.messages.create(
+    const streamBody =
       route.route === "openrouter"
         ? withQuickAssistReasoning(baseParams)
-        : baseParams
-    );
+        : baseParams;
 
-    // Extract the suggestion text (skips leading thinking/redacted_thinking).
-    const suggestion = extractQuickAssistText(response.content).trim();
+    const startedAt = Date.now();
 
-    // D-04/D-38: an empty / whitespace-only continuation is not a billable
-    // result. It usually means the small (60-token) output budget was fully
-    // consumed with no usable text — e.g. a reasoning model emitting only
-    // thinking blocks (stop_reason "max_tokens"). Do NOT write a usage record
-    // for silence and do NOT answer with a hollow 200; surface an honest signal
-    // so the client can react instead of paying for nothing.
-    if (suggestion.length === 0) {
-      // D-100: a reasoning model that returned ONLY thinking blocks can't
-      // produce quick suggestions at all — answer honestly and point at the
-      // model picker, instead of a misleading, infinitely-retryable cut-off.
-      if (isReasoningOnly(response.content)) {
+    // D5 fallback (constraint #5 / spec §5): degrade to today's EXACT
+    // non-streaming create() path when the provider route can't stream. Worst
+    // case across all 5 BYOK routes = byte-identical to today's JSON response.
+    // D-142: threads req.signal + a bounded timeout here too, and a client
+    // abort returns 499 without billing.
+    const respondNonStreaming = async (): Promise<Response> => {
+      let response;
+      try {
+        response = await client.messages.create(streamBody, {
+          signal: req.signal,
+          timeout: QUICK_ASSIST_TIMEOUT_MS,
+        });
+      } catch (err) {
+        if (req.signal.aborted || (err as Error)?.name === "AbortError") {
+          return new Response(null, { status: 499 });
+        }
+        throw err;
+      }
+      if (req.signal.aborted) return new Response(null, { status: 499 });
+
+      const ms = Date.now() - startedAt;
+      const timing = { "Server-Timing": `llm;dur=${ms}` };
+      const settle = settleQuickAssist(response.content, response.stop_reason);
+      if (settle.kind === "reasoning-only") {
         return NextResponse.json(
           {
             error: modelNoQuickSuggestMessage("ghost-text"),
             code: MODEL_NO_QUICK_SUGGEST_CODE,
           },
-          { status: 422 }
+          { status: 422, headers: timing }
         );
       }
-      const truncated = response.stop_reason === "max_tokens";
+      if (settle.kind === "empty") {
+        return NextResponse.json(
+          {
+            error: settle.truncated
+              ? "The suggestion was cut off before any text was produced. Please try again."
+              : "No suggestion was generated. Please try again.",
+            retryable: true,
+          },
+          { status: 502, headers: timing }
+        );
+      }
+
+      // Genuine, non-empty result — record usage with the registry ID, then
+      // advance the Free-tier meter (D-36: increment-on-success only).
+      const cost = estimateCost(
+        model.id,
+        response.usage.input_tokens,
+        response.usage.output_tokens
+      );
+      await db.usageRecord.create({
+        data: {
+          userId: user.id,
+          bookId,
+          agentType: "ghost-text",
+          model: model.id,
+          tokensInput: response.usage.input_tokens,
+          tokensOutput: response.usage.output_tokens,
+          costEstimate: cost,
+        },
+      });
+      if (quotaResult.isFree) {
+        await recordDailyUse(user.id, "ghost");
+      }
+      return NextResponse.json(
+        { suggestion: settle.text, elapsedMs: ms },
+        { headers: timing }
+      );
+    };
+
+    // D5 first-text-gate: consume the provider stream SERVER-SIDE and hold the
+    // HTTP status until the first real text delta. reasoning-only / cut-off
+    // return the EXISTING 422/502 JSON verbatim BEFORE any byte flushes; on
+    // first text we return 200 text/event-stream and pump token+done frames
+    // (billing happens at settle inside sseQuickAssistBody).
+    let gate: GateResult;
+    let mstream: ReturnType<typeof client.messages.stream>;
+    try {
+      mstream = client.messages.stream(streamBody, {
+        signal: req.signal,
+        timeout: QUICK_ASSIST_TIMEOUT_MS,
+      });
+      gate = await gateQuickAssistStream(mstream, req.signal);
+    } catch (streamErr) {
+      // D-142: an abort here is the client leaving pre-first-token — no bill.
+      if (req.signal.aborted || (streamErr as Error)?.name === "AbortError") {
+        return new Response(null, { status: 499 });
+      }
+      // Stream unsupported at connect (LiteLLM-proxy risk) — degrade to create().
+      return await respondNonStreaming();
+    }
+
+    // D-142: client bailed before the first token — cancel upstream, do NOT
+    // bill (see the billing decision table in quick-assist-stream.ts).
+    if (req.signal.aborted) {
+      mstream.abort();
+      return new Response(null, { status: 499 });
+    }
+
+    if (!gate.ok) {
+      const ms = Date.now() - startedAt;
+      const timing = { "Server-Timing": `llm;dur=${ms}` };
+      if (gate.reasoningOnly) {
+        return NextResponse.json(
+          {
+            error: modelNoQuickSuggestMessage("ghost-text"),
+            code: MODEL_NO_QUICK_SUGGEST_CODE,
+          },
+          { status: 422, headers: timing }
+        );
+      }
       return NextResponse.json(
         {
-          error: truncated
+          error: gate.truncated
             ? "The suggestion was cut off before any text was produced. Please try again."
             : "No suggestion was generated. Please try again.",
           retryable: true,
         },
-        { status: 502 }
+        { status: 502, headers: timing }
       );
     }
 
-    const tokensUsed = {
-      input: response.usage.input_tokens,
-      output: response.usage.output_tokens,
-    };
-
-    // Record usage with registry ID (only for a genuine, non-empty result)
-    const cost = estimateCost(model.id, tokensUsed.input, tokensUsed.output);
-    await db.usageRecord.create({
-      data: {
+    return new Response(
+      sseQuickAssistBody(gate.gated, req.signal, {
         userId: user.id,
         bookId,
-        agentType: "ghost-text",
-        model: model.id,
-        tokensInput: tokensUsed.input,
-        tokensOutput: tokensUsed.output,
-        costEstimate: cost,
-      },
-    });
-
-    // Advance the Free-tier daily meter ONLY after a genuine, billable result
-    // (increment-on-success; never on failure — D-36 lesson). No-op for paid.
-    if (quotaResult.isFree) {
-      await recordDailyUse(user.id, "ghost");
-    }
-
-    return NextResponse.json({ suggestion });
+        model,
+        isFree: quotaResult.isFree ?? false,
+        startedAt,
+      }),
+      {
+        status: 200,
+        headers: {
+          ...QUICK_ASSIST_SSE_HEADERS,
+          "Server-Timing": `ttft;dur=${Date.now() - startedAt}`,
+        },
+      }
+    );
   } catch (error) {
     const invalidJson = invalidJsonBodyResponse(error);
     if (invalidJson) return invalidJson;

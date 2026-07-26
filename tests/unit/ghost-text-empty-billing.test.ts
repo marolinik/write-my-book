@@ -11,12 +11,18 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
  * "max_tokens") leaving no text block at all. Post-fix: no usage record for an
  * empty result, and an honest retryable error envelope (502) — surfacing the
  * truncation when the provider signals finish-reason=length.
+ *
+ * D5 (spec §11): these invariants now run through the STREAMING first-text
+ * gate — a settled non-empty stream bills exactly once (canonical `done`
+ * frame), and a stream that ends with no usable text answers the historical
+ * 422/502 JSON BEFORE any byte flushes, still unbilled.
  */
 
 const h = vi.hoisted(() => ({
   user: { id: "u1" },
   requireUser: vi.fn(),
   create: vi.fn(),
+  stream: vi.fn(),
   db: {
     book: { findFirst: vi.fn() },
     user: { findUnique: vi.fn() },
@@ -52,8 +58,27 @@ function req(body: unknown) {
   });
 }
 
-/** A normal Anthropic-shaped response with the given text + stop reason. */
-function reply(text: string, stop_reason = "end_turn", output_tokens = 8) {
+// A fake SDK MessageStream: async-iterable of scripted text deltas +
+// finalMessage(). The gate obtains one iterator and continues it into `rest`.
+function fakeStream(deltas: string[], final: {
+  content: { type: string; text?: string }[];
+  stop_reason: string | null;
+  usage: { input_tokens: number; output_tokens: number };
+}) {
+  async function* gen() {
+    for (const text of deltas) {
+      yield { type: "content_block_delta", index: 0, delta: { type: "text_delta", text } };
+    }
+  }
+  return {
+    abort: vi.fn(),
+    [Symbol.asyncIterator]: () => gen(),
+    finalMessage: async () => final,
+  };
+}
+
+/** A normal Anthropic-shaped final message with the given text + stop reason. */
+function finalOf(text: string, stop_reason = "end_turn", output_tokens = 8) {
   return {
     content: text ? [{ type: "text", text }] : [],
     stop_reason,
@@ -68,6 +93,22 @@ const reasoningOnly = {
   usage: { input_tokens: 40, output_tokens: 60 },
 };
 
+async function readSse(res: Response) {
+  const reader = res.body!.getReader();
+  const decoder = new TextDecoder();
+  let out = "";
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    out += decoder.decode(value as Uint8Array, { stream: true });
+  }
+  return out
+    .split("\n\n")
+    .map((r) => r.trim())
+    .filter((r) => r.startsWith("data:"))
+    .map((r) => JSON.parse(r.slice("data:".length).trim()));
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
   h.requireUser.mockResolvedValue(h.user);
@@ -81,23 +122,27 @@ beforeEach(() => {
   h.resolveQuickAssistModelFor.mockReturnValue({ id: "anthropic/haiku", provider: "anthropic" });
   h.resolveProviderRoute.mockReturnValue({ route: "direct" });
   h.createLLMClient.mockReturnValue({
-    client: { messages: { create: h.create } },
+    client: { messages: { create: h.create, stream: h.stream } },
     model: { modelId: "claude-haiku", id: "anthropic/haiku" },
   });
 });
 
-describe("POST /api/books/:id/ghost-text — empty result is not billed (D-04/D-38)", () => {
-  it("bills and returns the suggestion for a genuine non-empty continuation", async () => {
-    h.create.mockResolvedValueOnce(reply("the wind rose off the water."));
+describe("POST /api/books/:id/ghost-text — empty result is not billed (D-04/D-38, gated D5)", () => {
+  it("bills once and streams a canonical done frame for a genuine continuation", async () => {
+    h.stream.mockReturnValueOnce(
+      fakeStream(["the wind ", "rose off the water."], finalOf("the wind rose off the water."))
+    );
     const res = await POST(req({ context: "a".repeat(60), chapterNumber: 1 }) as never, ctx as never);
-    const body = await res.json();
     expect(res.status).toBe(200);
-    expect(body.suggestion).toBe("the wind rose off the water.");
+    expect(res.headers.get("content-type")).toContain("text/event-stream");
+    const frames = await readSse(res);
+    const done = frames.find((f) => f.type === "done");
+    expect(done?.text).toBe("the wind rose off the water.");
     expect(h.db.usageRecord.create).toHaveBeenCalledTimes(1);
   });
 
-  it("does NOT bill and returns a retryable error for a whitespace-only reply", async () => {
-    h.create.mockResolvedValueOnce(reply("   \n", "end_turn"));
+  it("does NOT bill and returns a retryable 502 for a whitespace-only reply", async () => {
+    h.stream.mockReturnValueOnce(fakeStream([], finalOf("   \n", "end_turn")));
     const res = await POST(req({ context: "a".repeat(60), chapterNumber: 1 }) as never, ctx as never);
     const body = await res.json();
     expect(res.status).toBe(502);
@@ -108,10 +153,9 @@ describe("POST /api/books/:id/ghost-text — empty result is not billed (D-04/D-
 
   it("does NOT bill and returns MODEL_NO_QUICK_SUGGEST when reasoning ate the whole budget (thinking-only) — D-100", async () => {
     // D-100: a reasoning model that returns ONLY thinking blocks can't produce
-    // quick suggestions; the old generic retryable "cut off" 502 became an
-    // infinite empty-retry loop. Now an honest, machine-readable, non-retryable
-    // envelope the editor can deep-link to the model picker from — still unbilled.
-    h.create.mockResolvedValueOnce(reasoningOnly);
+    // quick suggestions; the gate resolves not-ok BEFORE any byte flushes and
+    // answers the honest, machine-readable 422 — still unbilled.
+    h.stream.mockReturnValueOnce(fakeStream([], reasoningOnly));
     const res = await POST(req({ context: "a".repeat(60), chapterNumber: 1 }) as never, ctx as never);
     const body = await res.json();
     expect(res.status).toBe(422);

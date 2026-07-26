@@ -102,6 +102,15 @@ function mockFetchResponse(status: number, body: unknown) {
   });
 }
 
+// D5: the component fires a fire-and-forget warmup ping (`?warmup=1`) on mount.
+// Count only the REAL ghost-text fetches so the warmup doesn't inflate the
+// per-pause request assertions (the warmup itself never bills / surfaces).
+function realFetchCount(fetchMock: ReturnType<typeof vi.fn>): number {
+  return fetchMock.mock.calls.filter(
+    (c) => !String(c[0]).includes("warmup")
+  ).length;
+}
+
 interface DeferredResponse {
   ok: boolean;
   status: number;
@@ -467,7 +476,7 @@ describe("AIGhostText — errors surface, accept joins + is tappable, wall persi
     await typePauseAndSettle(fireUpdate);
     await typePauseAndSettle(fireUpdate);
 
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(realFetchCount(fetchMock)).toBe(1);
     expect(screen.getByRole("alert")).toBeTruthy();
   });
 
@@ -492,7 +501,7 @@ describe("AIGhostText — errors surface, accept joins + is tappable, wall persi
     // Next pause inside the window: the doomed loop stays disarmed and the
     // banner must NOT reappear (the old "inert dismiss" defect).
     await typePauseAndSettle(fireUpdate);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(realFetchCount(fetchMock)).toBe(1);
     expect(screen.queryByRole("alert")).toBeNull();
   });
 
@@ -521,7 +530,7 @@ describe("AIGhostText — errors surface, accept joins + is tappable, wall persi
     });
     await typePauseAndSettle(fireUpdate);
 
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(realFetchCount(fetchMock)).toBe(2);
     expect(screen.getByRole("alert")).toBeTruthy();
   });
 

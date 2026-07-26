@@ -17,6 +17,7 @@ import {
   QUICK_ASSIST_FALLBACK_MESSAGE,
   type QuickAssistErrorNotice,
 } from "./quick-assist-client-errors";
+import { readQuickAssistFrames } from "./quick-assist-stream-client";
 
 /**
  * Gap 4: Inline AI Ghost-Text Completions (Copilot-style)
@@ -47,6 +48,13 @@ const MAX_SUGGESTION_LENGTH = 150; // Cap ghost text at ~1 sentence
 // that travels past this slop (px) between down and up is a scroll/drag, not a
 // tap, and must NOT insert the suggestion.
 const TAP_SLOP_PX = 10;
+// D5 (§7): the >8s "still writing…" affordance. Rendered top-anchored IN the
+// cursor overlay (not a bottom sonner toast — stays D-139-clean) so a slow
+// stream is never a silent hang.
+const STILL_WRITING_MS = 8000;
+// D5 (§7): the measured-latency chip is shown only on a slow (cold-start) hit,
+// so warm suggestions stay visually clean.
+const TIMING_CHIP_MIN_MS = 2500;
 
 export function AIGhostText({
   editor,
@@ -62,6 +70,16 @@ export function AIGhostText({
   const [position, setPosition] = useState<OverlayPlacement | null>(null);
   // D5: the fetch wait was blind — no affordance between pause and render.
   const [pending, setPending] = useState(false);
+  // D5/D-140: accept (Tab/tap) is ARMED ONLY on the `done` frame. While tokens
+  // are still flowing the ghost renders WITHOUT a pill and accept is inert, so
+  // a partial fragment can never be inserted. The non-stream JSON fallback sets
+  // this true immediately (nothing to wait on).
+  const [streamDone, setStreamDone] = useState(false);
+  // D5 (§7): measured latency from the `done` frame's elapsedMs (or the JSON
+  // fallback's Server-Timing). Drives the subtle timing chip when > 2.5s.
+  const [timingMs, setTimingMs] = useState<number | null>(null);
+  // D5 (§7): true once a stream has run >8s with no `done` frame.
+  const [stillWriting, setStillWriting] = useState(false);
   // D-134: the cap wall is a PERSISTENT banner, not a cooled-down toast. The
   // toast throttle re-silenced pauses 2–5 inside the 60s window (the old D-129
   // silent wall); the banner stays until dismissed or a success lifts it.
@@ -71,6 +89,8 @@ export function AIGhostText({
   const pauseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const lastTextRef = useRef<string>("");
+  // D5 (§7): >8s "still writing…" watchdog timer for the active stream.
+  const stillWritingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   // D-134 (F4): timestamp of the most recent 429 cap-wall notice. Held in a ref
   // (not state) so fetchSuggestion stays referentially stable — the suppression
   // window is read imperatively at fetch time, not rendered. Dismiss clears the
@@ -132,13 +152,49 @@ export function AIGhostText({
     [router]
   );
 
+  // D5 (§7): the >8s "still writing…" watchdog. armed on the first SSE byte,
+  // cleared on done/error/abort/dismiss. Stable (refs + stable setState) so it
+  // never destabilises fetchSuggestion.
+  const armStillWriting = useCallback(() => {
+    if (stillWritingTimer.current) clearTimeout(stillWritingTimer.current);
+    setStillWriting(false);
+    stillWritingTimer.current = setTimeout(
+      () => setStillWriting(true),
+      STILL_WRITING_MS
+    );
+  }, []);
+  const clearStillWriting = useCallback(() => {
+    if (stillWritingTimer.current) {
+      clearTimeout(stillWritingTimer.current);
+      stillWritingTimer.current = null;
+    }
+    setStillWriting(false);
+  }, []);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (pauseTimer.current) clearTimeout(pauseTimer.current);
+      if (stillWritingTimer.current) clearTimeout(stillWritingTimer.current);
       if (abortRef.current) abortRef.current.abort();
     };
   }, []);
+
+  // D5 (§7): warmup ping on editor mount — fire-and-forget so the ghost route
+  // module is JIT-compiled before the first real typing pause. Returns before
+  // checkQuota/key-load/LLM, so it never bills and never writes; the result is
+  // deliberately ignored (a 429/500 here is harmless). Best-effort in multi-
+  // instance prod — the honest cold-start story is the measured Server-Timing,
+  // not a claim that warmup eliminates cold start.
+  useEffect(() => {
+    if (!enabled) return;
+    void fetch(`/api/books/${bookId}/ghost-text?warmup=1`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{}",
+      keepalive: true,
+    }).catch(() => {});
+  }, [enabled, bookId]);
 
   // Hard-clear all pending state when disabled: without this, a pending
   // timer can still fire a billable fetch after toggle-off, and the stale
@@ -146,9 +202,11 @@ export function AIGhostText({
   useEffect(() => {
     if (enabled) return;
     setSuggestion(null);
+    setStreamDone(false);
+    clearStillWriting();
     if (pauseTimer.current) clearTimeout(pauseTimer.current);
     abortRef.current?.abort();
-  }, [enabled]);
+  }, [enabled, clearStillWriting]);
 
   const fetchSuggestion = useCallback(
     async (context: string) => {
@@ -165,6 +223,9 @@ export function AIGhostText({
       const controller = new AbortController();
       abortRef.current = controller;
 
+      // D5/D-140: a fresh fetch disarms accept until this stream settles.
+      setStreamDone(false);
+      setTimingMs(null);
       setPending(true);
       try {
         const res = await fetch(`/api/books/${bookId}/ghost-text`, {
@@ -190,18 +251,67 @@ export function AIGhostText({
           return;
         }
 
-        const data = await res.json();
-        if (controller.signal.aborted) return;
-        // D-134 (F10): ANY successful (non-error) response means the wall is no
-        // longer answering us, so clear the persistent cap-wall banner + the
-        // suppression window — even when the 200 carries an empty suggestion.
-        // Otherwise a stale 429 copy could linger next to a fresh, different
-        // error/toast (two contradictory truth claims). A new 429 re-arms it
-        // with fresh copy.
-        setWallNotice(null);
-        wallSinceRef.current = null;
-        if (data.suggestion) {
-          setSuggestion(data.suggestion.slice(0, MAX_SUGGESTION_LENGTH));
+        // D5: a 200 is either the streamed SSE (the ghost-first gate) or, on a
+        // stream-unsupported provider route, the atomic JSON fallback. The
+        // content-type branch keeps the EXISTING json path byte-for-byte.
+        const contentType = res.headers?.get?.("content-type") ?? "";
+        if (contentType.includes("text/event-stream") && res.body) {
+          // D-134 (F10): any successful (non-error) response clears the wall.
+          setWallNotice(null);
+          wallSinceRef.current = null;
+          armStillWriting();
+          let buf = "";
+          for await (const frame of readQuickAssistFrames(
+            res,
+            controller.signal
+          )) {
+            if (controller.signal.aborted) return;
+            if (frame.type === "token") {
+              // First byte: swap the pending dots for the growing ghost.
+              setPending(false);
+              buf += frame.text ?? "";
+              setSuggestion(buf.slice(0, MAX_SUGGESTION_LENGTH));
+            } else if (frame.type === "done") {
+              clearStillWriting();
+              setWallNotice(null);
+              wallSinceRef.current = null;
+              // D5/D-140: the canonical full suggestion REPLACES accumulated
+              // deltas, and ONLY now is accept armed — D-130 join / D-132 tap
+              // operate on the final string.
+              const canonical = (frame.text ?? buf).slice(
+                0,
+                MAX_SUGGESTION_LENGTH
+              );
+              setSuggestion(canonical);
+              setTimingMs(
+                typeof frame.elapsedMs === "number" ? frame.elapsedMs : null
+              );
+              setStreamDone(true);
+            } else if (frame.type === "error") {
+              // Post-first-text provider drop — flows through the SAME
+              // quickAssistErrorNotice/surfaceError seam as a real 422/502.
+              clearStillWriting();
+              if (controller.signal.aborted) return;
+              surfaceError(quickAssistErrorNotice(frame));
+              setSuggestion(null);
+            }
+          }
+          clearStillWriting();
+        } else {
+          // Non-stream 200 (fallback route) — existing JSON path unchanged.
+          const data = await res.json();
+          if (controller.signal.aborted) return;
+          // D-134 (F10): ANY successful response clears the persistent cap-wall
+          // banner + suppression window — even an empty suggestion. Otherwise a
+          // stale 429 copy could linger next to a fresh, different error/toast.
+          setWallNotice(null);
+          wallSinceRef.current = null;
+          if (data.suggestion) {
+            setSuggestion(data.suggestion.slice(0, MAX_SUGGESTION_LENGTH));
+          }
+          if (typeof data.elapsedMs === "number") setTimingMs(data.elapsedMs);
+          // Atomic result — nothing to wait on, so accept is armed immediately.
+          setStreamDone(true);
         }
       } catch {
         // Abort is routine (typing resumed); anything else is a real network
@@ -216,10 +326,13 @@ export function AIGhostText({
       } finally {
         // Only the still-current request may clear the indicator — a stale
         // finally must not blank a newer request's pending state.
-        if (abortRef.current === controller) setPending(false);
+        if (abortRef.current === controller) {
+          setPending(false);
+          clearStillWriting();
+        }
       }
     },
-    [bookId, chapterNumber, surfaceError]
+    [bookId, chapterNumber, surfaceError, armStillWriting, clearStillWriting]
   );
 
   // D-138: the ONE place the caret geometry becomes an overlay placement. Both
@@ -244,6 +357,8 @@ export function AIGhostText({
       // Clear existing suggestion on any edit; kill the in-flight request
       // for pre-edit text so it can't resolve into a stale suggestion
       setSuggestion(null);
+      setStreamDone(false);
+      clearStillWriting();
       if (abortRef.current) abortRef.current.abort();
 
       // Reset pause timer
@@ -282,7 +397,7 @@ export function AIGhostText({
       if (pauseTimer.current) clearTimeout(pauseTimer.current);
       if (abortRef.current) abortRef.current.abort();
     };
-  }, [editor, enabled, fetchSuggestion, buildPlacement]);
+  }, [editor, enabled, fetchSuggestion, buildPlacement, clearStillWriting]);
 
   // Dismiss on selection-only changes (click elsewhere without editing) so
   // Tab can never insert at a position the ghost isn't rendered at. Extended to
@@ -294,13 +409,15 @@ export function AIGhostText({
     const dismiss = () => {
       setSuggestion(null);
       setPending(false);
+      setStreamDone(false);
+      clearStillWriting();
       abortRef.current?.abort();
     };
     editor.on("selectionUpdate", dismiss);
     return () => {
       editor.off("selectionUpdate", dismiss);
     };
-  }, [editor, suggestion, pending]);
+  }, [editor, suggestion, pending, clearStillWriting]);
 
   // Keep the fixed-position overlay anchored to the cursor: reposition on
   // scroll (capture catches the editor's inner scroll container) and resize,
@@ -323,6 +440,8 @@ export function AIGhostText({
         // detached; clear the pending dots for the same reason.
         setSuggestion(null);
         setPending(false);
+        setStreamDone(false);
+        clearStillWriting();
       }
     };
 
@@ -332,7 +451,7 @@ export function AIGhostText({
       window.removeEventListener("scroll", reposition, { capture: true });
       window.removeEventListener("resize", reposition);
     };
-  }, [suggestion, pending, editor, buildPlacement]);
+  }, [suggestion, pending, editor, buildPlacement, clearStillWriting]);
 
   // D-132: single accept path shared by the Tab key AND the overlay tap.
   // Insert at the cursor, joining with a space when both sides are word-like
@@ -343,7 +462,9 @@ export function AIGhostText({
   // Deliberately does NOT require editor.isFocused — the overlay tap on a phone
   // is unambiguous even when the editor holds no focus.
   const acceptSuggestion = useCallback(() => {
-    if (!editor || !suggestion) return;
+    // D5/D-140: accept is ARMED ONLY on the `done` frame. Mid-stream Tab/tap is
+    // inert, so a partial fragment can never be inserted.
+    if (!editor || !suggestion || !streamDone) return;
     const { from } = editor.state.selection;
     const charsBefore =
       from > 0
@@ -351,8 +472,9 @@ export function AIGhostText({
         : "";
     editor.commands.insertContent(joinGhostSuggestion(charsBefore, suggestion));
     setSuggestion(null);
+    setStreamDone(false);
     editor.commands.focus();
-  }, [editor, suggestion]);
+  }, [editor, suggestion, streamDone]);
 
   // D-132 (F3+F6): coarse-pointer tap-vs-drag discrimination. pointerdown
   // preventDefaults so the tap can't move the caret / blur the editor (which
@@ -383,6 +505,9 @@ export function AIGhostText({
     const gesture = pointerGestureRef.current;
     pointerGestureRef.current = null;
     if (!gesture || gesture.id !== e.pointerId || gesture.cancelled) return;
+    // D5/D-140: a tap before the stream settles is a no-op (acceptSuggestion
+    // also guards, this keeps the intent explicit at the gesture boundary).
+    if (!streamDone) return;
     acceptSuggestion();
   };
 
@@ -395,25 +520,63 @@ export function AIGhostText({
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Tab") {
         if (!editor.isFocused) return; // Tab belongs to another pane/input
+        // D5/D-140: Tab is inert until the stream settles (accept armed on done).
+        if (!streamDone) return;
         e.preventDefault();
         acceptSuggestion();
       } else if (e.key === "Escape") {
         setSuggestion(null);
+        setStreamDone(false);
+        clearStillWriting();
+        // D5/D-142 (CSM-1): a dismiss during an ACTIVE stream must abort the
+        // in-flight fetch, like every other dismiss path (handleUpdate,
+        // selectionUpdate, disabled cleanup). Without it the un-aborted stream
+        // keeps running: its `done` frame slips past the consumer's
+        // aborted-guard and RESURRECTS the ghost (setSuggestion) + ARMS accept
+        // (setStreamDone), and — since req.signal never aborts — the server
+        // still writes a usage_record and advances the free-tier meter for a
+        // suggestion the writer explicitly rejected.
+        abortRef.current?.abort();
       } else if (e.key.length === 1) {
-        // User started typing — dismiss
+        // User started typing — dismiss (same resurrect-bill abort as Escape;
+        // handleUpdate also aborts on the trailing editor "update", but the
+        // dismiss must be self-contained rather than rely on that ordering).
         setSuggestion(null);
+        setStreamDone(false);
+        clearStillWriting();
+        abortRef.current?.abort();
       }
     };
 
     document.addEventListener("keydown", handler, { capture: true });
     return () => document.removeEventListener("keydown", handler, { capture: true });
-  }, [suggestion, editor, enabled, acceptSuggestion]);
+  }, [suggestion, editor, enabled, acceptSuggestion, streamDone, clearStillWriting]);
 
   if (!enabled) return null;
 
   // D-132: pointer-aware accept hint — the flagship feature must not advertise
   // only a hardware key on a phone soft keyboard.
   const acceptHint = coarsePointer ? "Tap to accept" : "Tab ↹";
+
+  // D5 (§7): the measured-latency chip — only on a slow (cold-start) hit, so
+  // warm suggestions stay clean. The literal "measured latency surfaced in UI"
+  // the panel asked for by name.
+  const timingChip: ReactNode =
+    streamDone && timingMs !== null && timingMs > TIMING_CHIP_MIN_MS ? (
+      <span className="ml-1 align-middle font-sans text-[10px] not-italic tabular-nums text-muted-foreground/40">
+        ~{(timingMs / 1000).toFixed(1)}s
+      </span>
+    ) : null;
+
+  // D5/D-140: while tokens are still flowing the ghost shows WITHOUT the accept
+  // pill — a thin pulsing caret signals live text and that accept is not yet
+  // armed. The pill appears only on the `done` frame.
+  const streamingCaret: ReactNode = (
+    <span
+      aria-hidden="true"
+      className="ml-0.5 inline-block h-[1em] w-px animate-pulse bg-muted-foreground/40 align-middle"
+    />
+  );
 
   // D-134: the cap-wall banner is independent of the cursor overlay — the wall
   // never yields a suggestion, so it must render even with no position.
@@ -482,11 +645,18 @@ export function AIGhostText({
             style={{ top: position.top, left: position.left, maxWidth: position.maxWidth }}
           >
             {suggestion}
-            {/* F7: a real, readable pill — the old text-[10px]/20% hint was
+            {/* D5/D-140: the pill (accept armed) appears ONLY on the done frame;
+                a mid-stream ghost shows the pulsing caret instead.
+                F7: a real, readable pill — the old text-[10px]/20% hint was
                 invisible on a phone, so the touch affordance stayed undiscovered. */}
-            <span className="ml-2 inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 align-middle text-xs font-sans not-italic text-foreground/70">
-              {acceptHint}
-            </span>
+            {streamDone ? (
+              <span className="ml-2 inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 align-middle text-xs font-sans not-italic text-foreground/70">
+                {acceptHint}
+                {timingChip}
+              </span>
+            ) : (
+              streamingCaret
+            )}
           </span>
         );
       } else {
@@ -502,9 +672,16 @@ export function AIGhostText({
             style={{ top: position.top, left: position.left, maxWidth: position.maxWidth }}
           >
             {suggestion}
-            <span className="ml-2 text-[10px] text-muted-foreground/20 not-italic font-sans">
-              {acceptHint}
-            </span>
+            {/* D5/D-140: the subtle "Tab ↹" hint (accept armed) only on done;
+                mid-stream shows the pulsing caret. */}
+            {streamDone ? (
+              <span className="ml-2 text-[10px] text-muted-foreground/20 not-italic font-sans">
+                {acceptHint}
+                {timingChip}
+              </span>
+            ) : (
+              streamingCaret
+            )}
           </span>
         );
       }
@@ -524,10 +701,27 @@ export function AIGhostText({
     }
   }
 
-  if (!overlay && !wallBanner) return null;
+  // D5 (§7): the >8s "still writing…" affordance — TOP-anchored in the cursor
+  // overlay (not a bottom sonner toast, so it stays clear of the D-139 occlusion
+  // class). Lets the design make an honest D2/reliability claim: a slow stream
+  // is visibly still working, never a silent hang.
+  const stillWritingNotice: ReactNode =
+    stillWriting && !streamDone && position ? (
+      <span
+        role="status"
+        aria-live="polite"
+        className="pointer-events-none fixed z-50 rounded bg-background/90 px-1.5 py-0.5 font-sans text-[10px] not-italic text-muted-foreground shadow-sm"
+        style={{ top: Math.max(0, position.top - 22), left: position.left }}
+      >
+        Still writing…
+      </span>
+    ) : null;
+
+  if (!overlay && !wallBanner && !stillWritingNotice) return null;
   return (
     <>
       {overlay}
+      {stillWritingNotice}
       {wallBanner}
     </>
   );
