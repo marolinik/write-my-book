@@ -56,6 +56,20 @@ const STILL_WRITING_MS = 8000;
 // so warm suggestions stay visually clean.
 const TIMING_CHIP_MIN_MS = 2500;
 
+/**
+ * D-144: the last two document characters before the cursor — the input the
+ * D-130 join rule needs to decide a leading space. Shared by the accept path
+ * (what gets INSERTED) AND the overlay preview (what the writer READS) so the
+ * two can never disagree — the whole point of D-144. ("" at doc/paragraph start,
+ * where ProseMirror's textBetween across the node boundary yields nothing.)
+ */
+function ghostCharsBefore(editor: Editor): string {
+  const { from } = editor.state.selection;
+  return from > 0
+    ? editor.state.doc.textBetween(Math.max(0, from - 2), from)
+    : "";
+}
+
 export function AIGhostText({
   editor,
   bookId,
@@ -75,9 +89,15 @@ export function AIGhostText({
   // a partial fragment can never be inserted. The non-stream JSON fallback sets
   // this true immediately (nothing to wait on).
   const [streamDone, setStreamDone] = useState(false);
-  // D5 (§7): measured latency from the `done` frame's elapsedMs (or the JSON
-  // fallback's Server-Timing). Drives the subtle timing chip when > 2.5s.
+  // D5 (§7) / D-145: the timing chip shows CLIENT-FELT latency — measured from
+  // the moment the pause-timer fired the fetch to the moment accept armed (the
+  // `done` frame) — because the server's elapsedMs (~6.7s) under-reports the
+  // ~9–11s the writer actually waited (stream tail + render fall outside any
+  // server number). Drives the subtle timing chip when > 2.5s.
   const [timingMs, setTimingMs] = useState<number | null>(null);
+  // D-145: the server's own elapsedMs, kept available (chip tooltip) but NOT the
+  // displayed figure — the writer-felt one above is.
+  const [serverTimingMs, setServerTimingMs] = useState<number | null>(null);
   // D5 (§7): true once a stream has run >8s with no `done` frame.
   const [stillWriting, setStillWriting] = useState(false);
   // D-134: the cap wall is a PERSISTENT banner, not a cooled-down toast. The
@@ -88,6 +108,10 @@ export function AIGhostText({
   );
   const pauseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  // D-145: wall-clock start of the in-flight fetch (set when the pause-timer
+  // fires it). Felt latency = accept-armed time − this. A ref (not state) so it
+  // never re-renders or destabilises fetchSuggestion.
+  const fetchStartRef = useRef<number | null>(null);
   const lastTextRef = useRef<string>("");
   // D5 (§7): >8s "still writing…" watchdog timer for the active stream.
   const stillWritingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -226,6 +250,9 @@ export function AIGhostText({
       // D5/D-140: a fresh fetch disarms accept until this stream settles.
       setStreamDone(false);
       setTimingMs(null);
+      setServerTimingMs(null);
+      // D-145: anchor felt-latency measurement at the instant the fetch fires.
+      fetchStartRef.current = Date.now();
       setPending(true);
       try {
         const res = await fetch(`/api/books/${bookId}/ghost-text`, {
@@ -283,7 +310,14 @@ export function AIGhostText({
                 MAX_SUGGESTION_LENGTH
               );
               setSuggestion(canonical);
+              // D-145: display the FELT latency (fetch → accept-armed), not the
+              // server's elapsedMs. The server figure rides along in the tooltip.
               setTimingMs(
+                fetchStartRef.current !== null
+                  ? Date.now() - fetchStartRef.current
+                  : null
+              );
+              setServerTimingMs(
                 typeof frame.elapsedMs === "number" ? frame.elapsedMs : null
               );
               setStreamDone(true);
@@ -309,7 +343,14 @@ export function AIGhostText({
           if (data.suggestion) {
             setSuggestion(data.suggestion.slice(0, MAX_SUGGESTION_LENGTH));
           }
-          if (typeof data.elapsedMs === "number") setTimingMs(data.elapsedMs);
+          // D-145: felt latency here too (fetch → armed); server elapsedMs kept
+          // for the tooltip only.
+          setTimingMs(
+            fetchStartRef.current !== null
+              ? Date.now() - fetchStartRef.current
+              : null
+          );
+          if (typeof data.elapsedMs === "number") setServerTimingMs(data.elapsedMs);
           // Atomic result — nothing to wait on, so accept is armed immediately.
           setStreamDone(true);
         }
@@ -465,12 +506,11 @@ export function AIGhostText({
     // D5/D-140: accept is ARMED ONLY on the `done` frame. Mid-stream Tab/tap is
     // inert, so a partial fragment can never be inserted.
     if (!editor || !suggestion || !streamDone) return;
-    const { from } = editor.state.selection;
-    const charsBefore =
-      from > 0
-        ? editor.state.doc.textBetween(Math.max(0, from - 2), from)
-        : "";
-    editor.commands.insertContent(joinGhostSuggestion(charsBefore, suggestion));
+    // D-144: the inserted bytes go through the SAME join the overlay previews,
+    // so what lands is byte-identical to what the writer was reading.
+    editor.commands.insertContent(
+      joinGhostSuggestion(ghostCharsBefore(editor), suggestion)
+    );
     setSuggestion(null);
     setStreamDone(false);
     editor.commands.focus();
@@ -558,12 +598,21 @@ export function AIGhostText({
   // only a hardware key on a phone soft keyboard.
   const acceptHint = coarsePointer ? "Tap to accept" : "Tab ↹";
 
-  // D5 (§7): the measured-latency chip — only on a slow (cold-start) hit, so
-  // warm suggestions stay clean. The literal "measured latency surfaced in UI"
-  // the panel asked for by name.
+  // D5 (§7) / D-145: the measured-latency chip — only on a slow hit (> 2.5s,
+  // the D-146 slow-only gate, deliberately UNCHANGED), so warm suggestions stay
+  // clean. The DISPLAYED number is the client-felt latency (fetch → accept
+  // armed); the server's own elapsedMs rides in the tooltip so the honest server
+  // figure stays available without misrepresenting the wait the writer felt.
   const timingChip: ReactNode =
     streamDone && timingMs !== null && timingMs > TIMING_CHIP_MIN_MS ? (
-      <span className="ml-1 align-middle font-sans text-[10px] not-italic tabular-nums text-muted-foreground/40">
+      <span
+        title={
+          serverTimingMs !== null
+            ? `server ${(serverTimingMs / 1000).toFixed(1)}s`
+            : undefined
+        }
+        className="ml-1 align-middle font-sans text-[10px] not-italic tabular-nums text-muted-foreground/40"
+      >
         ~{(timingMs / 1000).toFixed(1)}s
       </span>
     ) : null;
@@ -577,6 +626,16 @@ export function AIGhostText({
       className="ml-0.5 inline-block h-[1em] w-px animate-pulse bg-muted-foreground/40 align-middle"
     />
   );
+
+  // D-144: what the overlay RENDERS must equal what accept INSERTS. D-130's
+  // join-space is applied on accept, so a raw-suggestion preview showed
+  // "andthe" while accept produced "and the". Derive the preview through the
+  // SAME joinGhostSuggestion (same charsBefore) so the ghost the writer reads is
+  // byte-identical to the text that lands on Tab/tap.
+  const previewSuggestion =
+    suggestion && editor
+      ? joinGhostSuggestion(ghostCharsBefore(editor), suggestion)
+      : suggestion;
 
   // D-134: the cap-wall banner is independent of the cursor overlay — the wall
   // never yields a suggestion, so it must render even with no position.
@@ -644,7 +703,7 @@ export function AIGhostText({
             // into a one-word column that buried this tap target.
             style={{ top: position.top, left: position.left, maxWidth: position.maxWidth }}
           >
-            {suggestion}
+            {previewSuggestion}
             {/* D5/D-140: the pill (accept armed) appears ONLY on the done frame;
                 a mid-stream ghost shows the pulsing caret instead.
                 F7: a real, readable pill — the old text-[10px]/20% hint was
@@ -671,7 +730,7 @@ export function AIGhostText({
             // D-138: clamped/flipped maxWidth (see the coarse-pointer overlay).
             style={{ top: position.top, left: position.left, maxWidth: position.maxWidth }}
           >
-            {suggestion}
+            {previewSuggestion}
             {/* D5/D-140: the subtle "Tab ↹" hint (accept armed) only on done;
                 mid-stream shows the pulsing caret. */}
             {streamDone ? (

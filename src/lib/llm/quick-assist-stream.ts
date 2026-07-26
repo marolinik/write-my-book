@@ -28,10 +28,28 @@ import {
 
 // ── Structural stream surface (satisfied by the SDK MessageStream + fakes) ──
 
-/** A single streamed event — loose enough that the SDK union is assignable. */
+/** Cumulative usage as it rides on message_start / message_delta events. */
+interface StreamUsageLike {
+  input_tokens?: number;
+  output_tokens?: number;
+}
+
+/**
+ * A single streamed event — loose enough that the SDK union is assignable.
+ * D-143: `message.usage` (message_start), plus top-level `usage` and
+ * `delta.stop_reason` (message_delta), are read so the SSE pump can settle the
+ * moment `message_stop` lands — instead of awaiting `finalMessage()`, which
+ * resolves only on the SDK 'end' event (the underlying HTTP body close). On the
+ * OpenRouter route that close was observed lagging ~4.4s behind the last
+ * visible token: the accept-arming dead-zone this defect is about.
+ */
 interface StreamEventLike {
   type: string;
-  delta?: { type?: string; text?: string } | undefined;
+  delta?:
+    | { type?: string; text?: string; stop_reason?: string | null }
+    | undefined;
+  message?: { usage?: StreamUsageLike } | undefined;
+  usage?: StreamUsageLike | undefined;
 }
 
 /** The subset of `finalMessage()` the settle decision + billing read. */
@@ -85,6 +103,90 @@ function isTextDelta(
   );
 }
 
+/**
+ * D-143 settle accumulator — folded from the streamed lifecycle events so the
+ * pump can compute settle + billing WITHOUT awaiting the SDK's finalMessage().
+ * finalMessage() resolves only on the SDK 'end' event, which fires after the
+ * underlying HTTP body closes — the ~4.4s post-last-token accept-arming
+ * dead-zone. Everything settle needs (full text, usage, stop_reason) is known
+ * by `message_stop`, so capturing it as it streams collapses that dead-zone.
+ */
+interface StreamSettleAccumulator {
+  /** firstText + every subsequent text delta (the full suggestion). */
+  text: string;
+  /** input_tokens from message_start (overridden by message_delta if present). */
+  inputTokens: number;
+  /** cumulative output_tokens from the final message_delta. */
+  outputTokens: number;
+  /** stop_reason from message_delta. */
+  stopReason: string | null;
+  /** Latched true at message_stop — the stream produced a complete message, so
+   *  settle is safe to derive from this accumulator instead of finalMessage(). */
+  completed: boolean;
+}
+
+/**
+ * Fold one NON-text lifecycle event into the settle accumulator, mirroring the
+ * SDK's own usage accumulation (MessageStream #accumulateMessage): input_tokens
+ * from message_start then overridden by message_delta if present; output_tokens
+ * + stop_reason from message_delta; completion latched at message_stop. Text
+ * deltas are accumulated by the callers (gate + rest), never here.
+ */
+function foldSettleEvent(
+  acc: StreamSettleAccumulator,
+  event: StreamEventLike
+): void {
+  if (event.type === "message_start") {
+    const usage = event.message?.usage;
+    if (usage) {
+      if (typeof usage.input_tokens === "number") acc.inputTokens = usage.input_tokens;
+      if (typeof usage.output_tokens === "number") acc.outputTokens = usage.output_tokens;
+    }
+    return;
+  }
+  if (event.type === "message_delta") {
+    if (event.delta && event.delta.stop_reason !== undefined) {
+      acc.stopReason = event.delta.stop_reason;
+    }
+    const usage = event.usage;
+    if (usage) {
+      if (typeof usage.output_tokens === "number") acc.outputTokens = usage.output_tokens;
+      if (typeof usage.input_tokens === "number") acc.inputTokens = usage.input_tokens;
+    }
+    return;
+  }
+  if (event.type === "message_stop") {
+    acc.completed = true;
+  }
+}
+
+/**
+ * The gated stream's authoritative settle. D-143: when the stream completed
+ * (message_stop observed) settle derives from the accumulator with NO await on
+ * finalMessage() — the fast path that arms accept promptly. When the stream
+ * ended WITHOUT message_stop (post-first-text provider drop / early close),
+ * defer to the SDK finalMessage(), preserving the historical
+ * reject → 502-error-frame, unbilled behaviour byte-for-byte.
+ */
+function makeSettle(
+  stream: QuickAssistMessageStream,
+  acc: StreamSettleAccumulator
+): () => Promise<FinalMessageLike> {
+  return async () => {
+    if (acc.completed) {
+      return {
+        content: [{ type: "text", text: acc.text }],
+        stop_reason: acc.stopReason,
+        usage: {
+          input_tokens: acc.inputTokens,
+          output_tokens: acc.outputTokens,
+        },
+      };
+    }
+    return stream.finalMessage();
+  };
+}
+
 /** Classify a no-text stream end via the shared settle decision. */
 function classifyNoText(final: FinalMessageLike): GateResult {
   const settle = settleQuickAssist(final.content, final.stop_reason);
@@ -110,6 +212,15 @@ export async function gateQuickAssistStream(
   signal: AbortSignal
 ): Promise<GateResult> {
   const iterator = stream[Symbol.asyncIterator]();
+  // D-143: fold lifecycle events (usage/stop_reason) as they pass so the SSE
+  // pump can settle at message_stop without awaiting finalMessage().
+  const acc: StreamSettleAccumulator = {
+    text: "",
+    inputTokens: 0,
+    outputTokens: 0,
+    stopReason: null,
+    completed: false,
+  };
   let buffer = "";
 
   for (;;) {
@@ -137,27 +248,37 @@ export async function gateQuickAssistStream(
     if (isTextDelta(step.value)) {
       buffer += step.value.delta.text;
       if (buffer.trim().length > 0) {
+        acc.text = buffer;
         return {
           ok: true,
           gated: {
             firstText: buffer,
-            rest: makeRest(iterator, signal),
-            final: () => stream.finalMessage(),
+            rest: makeRest(iterator, signal, acc),
+            final: makeSettle(stream, acc),
           },
         };
       }
+    } else {
+      // thinking_delta / redacted_thinking / non-delta events are dropped from
+      // the TEXT channel — but message_start still carries input_tokens (D-143).
+      foldSettleEvent(acc, step.value);
     }
-    // else: thinking_delta / redacted_thinking / non-delta events are dropped.
   }
 
   const final = await stream.finalMessage();
   return classifyNoText(final);
 }
 
-/** Continue the SAME iterator, yielding only subsequent text deltas. */
+/**
+ * Continue the SAME iterator, yielding only subsequent text deltas while folding
+ * the lifecycle events into `acc`. D-143: returns the instant `message_stop`
+ * lands so the pump never drains to the lagging SDK 'end' event (HTTP close) —
+ * the accept-arming dead-zone.
+ */
 async function* makeRest(
   iterator: AsyncIterator<StreamEventLike>,
-  signal: AbortSignal
+  signal: AbortSignal,
+  acc: StreamSettleAccumulator
 ): AsyncGenerator<string> {
   for (;;) {
     if (signal.aborted) return;
@@ -165,12 +286,20 @@ async function* makeRest(
     try {
       step = await iterator.next();
     } catch {
-      // Abort or post-first-text provider drop — stop yielding; the pump's
-      // abort/error handling and the bill-at-settle guard cover the outcome.
+      // Abort or post-first-text provider drop — stop yielding; `acc.completed`
+      // stays false so the settle defers to finalMessage() (→ 502, unbilled).
       return;
     }
     if (step.done) return;
-    if (isTextDelta(step.value)) yield step.value.delta.text;
+    if (isTextDelta(step.value)) {
+      acc.text += step.value.delta.text;
+      yield step.value.delta.text;
+    } else {
+      foldSettleEvent(acc, step.value);
+      // D-143: the message is complete — settle is fully known. Return now
+      // rather than block on the lagging 'end' event (the ~4.4s dead-zone).
+      if (acc.completed) return;
+    }
   }
 }
 
@@ -182,6 +311,9 @@ async function* makeRest(
  *   text, and ONLY when !signal.aborted (bill-at-settle, bill-once). The write
  *   merely RELOCATED from after create() to here, after await gated.final(),
  *   computed on final.usage, gated on settle.kind === "ok" && !signal.aborted.
+ *   D-143(a): the write now also runs AFTER the done frame is delivered —
+ *   delivery never waits on billing, and a billing failure yields a
+ *   delivered-but-unbilled suggestion (the honest direction), never a lie.
  *   - client abort mid-stream (tokens seen, before done): NEITHER a usage_record
  *     NOR a meter tick. Accept is arm-gated on `done`, so no fragment the writer
  *     could act on was ever delivered; advancing a free user's meter for a
@@ -249,29 +381,11 @@ async function pump(
 
     const settle = settleQuickAssist(final.content, final.stop_reason);
     if (settle.kind === "ok") {
-      // Bill-at-settle, bill-once.
-      const cost = estimateCost(
-        meta.model.id,
-        final.usage.input_tokens,
-        final.usage.output_tokens
-      );
-      await db.usageRecord.create({
-        data: {
-          userId: meta.userId,
-          bookId: meta.bookId,
-          agentType: "ghost-text",
-          model: meta.model.id,
-          tokensInput: final.usage.input_tokens,
-          tokensOutput: final.usage.output_tokens,
-          costEstimate: cost,
-        },
-      });
-      if (meta.isFree) {
-        await recordDailyUse(meta.userId, "ghost");
-      }
-      // Canonical done frame (spec §1): authoritative full suggestion +
-      // elapsedMs + usage. The client swaps its accumulated deltas for `text`
-      // before arming accept.
+      // D-143(a): DELIVER the canonical done frame (spec §1) — which ARMS
+      // accept on the client — BEFORE the billing DB round-trips. Accept-arming
+      // must not wait on Postgres; the writer sat in a dead-zone tapping an
+      // inert, complete-looking suggestion while two awaited writes ran. The
+      // client swaps its accumulated deltas for `text` before arming accept.
       writeFrame(controller, encoder, {
         type: "done",
         text: settle.text,
@@ -281,6 +395,36 @@ async function pump(
           output_tokens: final.usage.output_tokens,
         },
       });
+      // Bill-at-settle, bill-once. Gating is UNCHANGED: this branch is reached
+      // only when settle.kind === "ok" && !signal.aborted (guarded above). The
+      // writes merely RELOCATED to after delivery.
+      try {
+        const cost = estimateCost(
+          meta.model.id,
+          final.usage.input_tokens,
+          final.usage.output_tokens
+        );
+        await db.usageRecord.create({
+          data: {
+            userId: meta.userId,
+            bookId: meta.bookId,
+            agentType: "ghost-text",
+            model: meta.model.id,
+            tokensInput: final.usage.input_tokens,
+            tokensOutput: final.usage.output_tokens,
+            costEstimate: cost,
+          },
+        });
+        if (meta.isFree) {
+          await recordDailyUse(meta.userId, "ghost");
+        }
+      } catch {
+        // D-143(a): billing failed AFTER the suggestion was delivered. Emitting
+        // an error frame now would be a lie (the writer already holds a usable,
+        // armed suggestion); leaving it unbilled is the honest failure
+        // direction. Swallowed here so the post-first-text catch below (which
+        // would write a 502) can never fire once `done` has shipped.
+      }
     } else {
       // The gate guaranteed a first text delta, so this is the rare
       // post-first-text drop where finalMessage lost the text — unbilled.

@@ -304,3 +304,192 @@ describe("sseQuickAssistBody (D5) — bill-at-settle + canonical done", () => {
     expect(h.recordDailyUse).not.toHaveBeenCalled();
   });
 });
+
+// ── D-143: settle-tail dead-zone (finalMessage lag + billing-before-done) ────
+//
+// Root cause (verified against @anthropic-ai/sdk MessageStream): finalMessage()
+// awaits done() = the 'end' event, emitted only AFTER the underlying HTTP body
+// closes — which lagged ~4.4s behind the last visible token on the OpenRouter
+// route. The pump then ran two awaited DB writes BEFORE the done frame that
+// arms accept. Fix: settle from the streamed message_stop (usage/stop_reason
+// are known by message_delta) and write the done frame BEFORE billing.
+
+/** Lifecycle-faithful stub: emits message_start → deltas → message_delta →
+ *  message_stop (the real SDK event order), so the gate/rest can settle from the
+ *  stream. `finalMessage` defaults to a NEVER-resolving promise to prove the
+ *  fast path never awaits it. */
+function fakeLifecycleStream(opts: {
+  deltas: string[];
+  inputTokens: number;
+  outputTokens: number;
+  stopReason?: string;
+  finalMessage?: () => Promise<FakeFinal>;
+  dropBeforeStop?: boolean;
+}): QuickAssistMessageStream & { abort: ReturnType<typeof vi.fn> } {
+  const abort = vi.fn();
+  async function* gen() {
+    yield {
+      type: "message_start",
+      message: { usage: { input_tokens: opts.inputTokens, output_tokens: 0 } },
+    };
+    yield { type: "content_block_start", index: 0, content_block: { type: "text", text: "" } };
+    for (const text of opts.deltas) {
+      yield { type: "content_block_delta", index: 0, delta: { type: "text_delta", text } };
+    }
+    if (opts.dropBeforeStop) {
+      // Provider dropped after the first text delta — the SDK iterator throws
+      // and NO message_stop is ever seen (acc.completed stays false).
+      throw new Error("upstream reset");
+    }
+    yield { type: "content_block_stop", index: 0 };
+    yield {
+      type: "message_delta",
+      delta: { stop_reason: opts.stopReason ?? "end_turn", stop_sequence: null },
+      usage: { output_tokens: opts.outputTokens },
+    };
+    yield { type: "message_stop" };
+  }
+  return {
+    abort,
+    [Symbol.asyncIterator]: () => gen(),
+    finalMessage:
+      opts.finalMessage ?? ((() => new Promise<FakeFinal>(() => {})) as never),
+  } as never;
+}
+
+describe("D-143 — settle from message_stop, done before billing", () => {
+  it("(b) settles from the streamed message_stop WITHOUT awaiting finalMessage()", async () => {
+    const signal = new AbortController().signal;
+    // finalMessage() hangs forever: reaching a done frame proves the fast path
+    // never touched it (the pre-fix pump awaited it, and would deadlock here).
+    const stream = fakeLifecycleStream({
+      deltas: ["The ", "tide ", "turned."],
+      inputTokens: 55,
+      outputTokens: 9,
+      finalMessage: () => new Promise<FakeFinal>(() => {}),
+    });
+    const gate = await gateQuickAssistStream(stream, signal);
+    if (!gate.ok) throw new Error("expected ok");
+    const body = sseQuickAssistBody(gate.gated, signal, {
+      userId: "u1",
+      bookId: "b1",
+      model,
+      isFree: true,
+      startedAt: Date.now(),
+    });
+    const parsed = frames(await drain(body));
+    const done = parsed.find((f) => f.type === "done");
+    expect(done?.text).toBe("The tide turned.");
+    // Usage came from message_start (input) + message_delta (output), not from
+    // the (never-resolving) finalMessage().
+    expect((done?.usage as { input_tokens: number }).input_tokens).toBe(55);
+    expect((done?.usage as { output_tokens: number }).output_tokens).toBe(9);
+    expect(h.db.usageRecord.create).toHaveBeenCalledTimes(1);
+    const billed = h.db.usageRecord.create.mock.calls[0][0].data;
+    expect(billed.tokensInput).toBe(55);
+    expect(billed.tokensOutput).toBe(9);
+    expect(h.recordDailyUse).toHaveBeenCalledTimes(1);
+  });
+
+  it("(a) enqueues the done frame BEFORE the billing DB writes (accept never waits on Postgres)", async () => {
+    const signal = new AbortController().signal;
+    const billGate = deferred<void>();
+    // usage_record.create hangs until we release billGate. Pre-fix the pump
+    // awaited this BEFORE writing done, so the done frame would be unreachable.
+    h.db.usageRecord.create.mockReturnValue(
+      billGate.promise.then(() => ({}))
+    );
+    const stream = fakeLifecycleStream({
+      deltas: ["Kept."],
+      inputTokens: 10,
+      outputTokens: 3,
+      finalMessage: () => new Promise<FakeFinal>(() => {}),
+    });
+    const gate = await gateQuickAssistStream(stream, signal);
+    if (!gate.ok) throw new Error("expected ok");
+    const body = sseQuickAssistBody(gate.gated, signal, {
+      userId: "u1",
+      bookId: "b1",
+      model,
+      isFree: true,
+      startedAt: Date.now(),
+    });
+    const reader = body.getReader();
+    const decoder = new TextDecoder();
+    // Read frames until the done frame appears — WITHOUT releasing billGate.
+    let sawDone = false;
+    for (let i = 0; i < 4 && !sawDone; i++) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      if (decoder.decode(value as Uint8Array, { stream: true }).includes('"type":"done"')) {
+        sawDone = true;
+      }
+    }
+    expect(sawDone).toBe(true);
+    // Billing was invoked (create called) but is still pending, so the meter
+    // tick that runs AFTER it has not fired.
+    expect(h.db.usageRecord.create).toHaveBeenCalledTimes(1);
+    expect(h.recordDailyUse).not.toHaveBeenCalled();
+    // Release billing; the pump advances the meter and closes.
+    billGate.resolve();
+    for (;;) {
+      const { done } = await reader.read();
+      if (done) break;
+    }
+    expect(h.recordDailyUse).toHaveBeenCalledTimes(1);
+  });
+
+  it("(a) a billing failure AFTER delivery does NOT emit an error frame (delivered-unbilled)", async () => {
+    const signal = new AbortController().signal;
+    h.db.usageRecord.create.mockRejectedValueOnce(new Error("db down"));
+    const stream = fakeLifecycleStream({
+      deltas: ["Delivered."],
+      inputTokens: 12,
+      outputTokens: 4,
+      finalMessage: () => new Promise<FakeFinal>(() => {}),
+    });
+    const gate = await gateQuickAssistStream(stream, signal);
+    if (!gate.ok) throw new Error("expected ok");
+    const body = sseQuickAssistBody(gate.gated, signal, {
+      userId: "u1",
+      bookId: "b1",
+      model,
+      isFree: true,
+      startedAt: Date.now(),
+    });
+    const parsed = frames(await drain(body));
+    // The suggestion was delivered; a post-delivery DB failure must NOT turn
+    // into a 502 error frame.
+    expect(parsed.find((f) => f.type === "done")?.text).toBe("Delivered.");
+    expect(parsed.some((f) => f.type === "error")).toBe(false);
+    expect(h.recordDailyUse).not.toHaveBeenCalled();
+  });
+
+  it("post-first-text drop (no message_stop) defers to finalMessage → 502 error frame, unbilled", async () => {
+    const signal = new AbortController().signal;
+    const stream = fakeLifecycleStream({
+      deltas: ["Half a sen"],
+      inputTokens: 20,
+      outputTokens: 5,
+      dropBeforeStop: true,
+      // finalMessage rejects, exactly as the SDK does when the stream errored
+      // without producing a complete message.
+      finalMessage: () => Promise.reject(new Error("no final message")),
+    });
+    const gate = await gateQuickAssistStream(stream, signal);
+    if (!gate.ok) throw new Error("expected ok");
+    const body = sseQuickAssistBody(gate.gated, signal, {
+      userId: "u1",
+      bookId: "b1",
+      model,
+      isFree: true,
+      startedAt: Date.now(),
+    });
+    const parsed = frames(await drain(body));
+    const err = parsed.find((f) => f.type === "error");
+    expect(err?.status).toBe(502);
+    expect(parsed.some((f) => f.type === "done")).toBe(false);
+    expect(h.db.usageRecord.create).not.toHaveBeenCalled();
+    expect(h.recordDailyUse).not.toHaveBeenCalled();
+  });
+});
