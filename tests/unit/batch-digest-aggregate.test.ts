@@ -34,9 +34,9 @@ describe("aggregateBatchDigest", () => {
         { status: "completed", chapterNumber: 2, workflowId: "dev-edit", actualCostUsd: 2.1 },
       ],
       findings: [
-        { severity: "critical", category: "pacing", chapterNumber: 1 },
-        { severity: "suggestion", category: "dialogue", chapterNumber: 1 },
-        { severity: "suggestion", category: "prose", chapterNumber: 2 },
+        { severity: "critical", category: "pacing", chapterNumber: 1, status: "pending" },
+        { severity: "suggestion", category: "dialogue", chapterNumber: 1, status: "pending" },
+        { severity: "suggestion", category: "prose", chapterNumber: 2, status: "pending" },
       ],
       chapters: [
         { chapterNumber: 1, status: "drafted", betaGate: null },
@@ -54,11 +54,67 @@ describe("aggregateBatchDigest", () => {
       failed: 0,
     });
     expect(res.digest.findings.total).toBe(3);
+    expect(res.digest.findings.suppressed).toBe(0);
     expect(res.digest.findings.bySeverity).toEqual({ critical: 1, suggestion: 2 });
     expect(res.digest.findings.byChapter).toEqual({ "1": 2, "2": 1 });
     expect(res.digest.chapterRange).toEqual({ start: 1, end: 2 });
     expect(res.digest.workflowIds).toEqual(["dev-edit", "line-edit"]);
     expect(res.digest.generatedAt).toBe("2026-07-06T02:00:00.000Z");
+  });
+
+  // ── D-122 ───────────────────────────────────────────────────────────────
+  // `CreateFinding`'s validation gate PERSISTS rejected rows as rejection
+  // analytics (status:"rejected"), and every writer-facing surface filters
+  // them out — so a digest that counted them over-claimed ("7 findings" in the
+  // morning notification vs 5 actually visible in the Findings tab). The
+  // headline count must be what the writer will SEE; the discarded rows are
+  // reported separately, never silently folded in and never silently dropped.
+  it("D-122: excludes gate-rejected findings from total/bySeverity/byChapter and reports them as suppressed", () => {
+    const res = aggregateBatchDigest({
+      ...BASE,
+      sessions: [
+        { status: "completed", chapterNumber: 1, workflowId: "dev-edit", actualCostUsd: 2 },
+      ],
+      findings: [
+        { severity: "critical", category: "pacing", chapterNumber: 1, status: "pending" },
+        { severity: "suggestion", category: "dialogue", chapterNumber: 1, status: "pending" },
+        { severity: "important", category: "prose", chapterNumber: 2, status: "applied" },
+        { severity: "suggestion", category: "prose", chapterNumber: 2, status: "dismissed" },
+        { severity: "suggestion", category: "prose", chapterNumber: 2, status: "pending" },
+        // Auto-rejected by the CreateFinding validation gate — analytics rows
+        // the writer never sees.
+        { severity: "critical", category: "pacing", chapterNumber: 1, status: "rejected" },
+        { severity: "critical", category: "continuity", chapterNumber: 3, status: "rejected" },
+      ],
+    });
+
+    expect(res.digest.findings.total).toBe(5);
+    expect(res.digest.findings.suppressed).toBe(2);
+    // Rejected rows leak into NEITHER breakdown (no phantom chapter 3 either).
+    expect(res.digest.findings.bySeverity).toEqual({
+      critical: 1,
+      important: 1,
+      suggestion: 3,
+    });
+    expect(res.digest.findings.byChapter).toEqual({ "1": 2, "2": 3 });
+  });
+
+  it("D-122: an all-rejected run reports 0 visible findings and names the suppressed rows", () => {
+    const res = aggregateBatchDigest({
+      ...BASE,
+      sessions: [
+        { status: "completed", chapterNumber: 1, workflowId: "dev-edit", actualCostUsd: 2 },
+      ],
+      findings: [
+        { severity: "critical", category: "pacing", chapterNumber: 1, status: "rejected" },
+        { severity: "suggestion", category: "prose", chapterNumber: 1, status: "rejected" },
+      ],
+    });
+
+    expect(res.digest.findings.total).toBe(0);
+    expect(res.digest.findings.suppressed).toBe(2);
+    expect(res.digest.findings.bySeverity).toEqual({});
+    expect(res.digest.findings.byChapter).toEqual({});
   });
 
   it("ALWAYS marks statusAutoAdvanceSuppressed true (batch children never auto-advance)", () => {

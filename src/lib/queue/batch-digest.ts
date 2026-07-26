@@ -103,10 +103,19 @@ export async function processBatchDigestJob(
     });
     const childIds = sessions.map((s) => s.id);
 
+    // D-122: `status` is load-bearing here — the CreateFinding validation gate
+    // persists auto-rejected rows as rejection analytics, and counting them made
+    // the digest over-claim (7 reported vs 5 the writer can see).
+    // `aggregateBatchDigest` splits them out.
     const findings = childIds.length
       ? await db.editFinding.findMany({
           where: { sessionId: { in: childIds } },
-          select: { severity: true, category: true, chapterNumber: true },
+          select: {
+            severity: true,
+            category: true,
+            chapterNumber: true,
+            status: true,
+          },
         })
       : [];
 
@@ -147,6 +156,7 @@ export async function processBatchDigestJob(
       severity: f.severity,
       category: f.category,
       chapterNumber: f.chapterNumber,
+      status: f.status,
     }));
     const chapterInputs: BatchDigestChapterInput[] = chapters.map((c) => ({
       chapterNumber: c.chapterNumber,
@@ -190,9 +200,17 @@ export async function processBatchDigestJob(
     });
 
     // ── Morning report: one in-app notification (SMTP/push is Phase-2) ──
+    // D-122: the headline count is what the writer will SEE (gate-rejected rows
+    // excluded by aggregateBatchDigest). Discarded rows are still NAMED, so a
+    // shrunken count is explained instead of reading as a silent zero.
+    const suppressedFindings = digest.findings.suppressed;
+    const suppressedClause =
+      suppressedFindings > 0
+        ? ` (${suppressedFindings} discarded as invalid)`
+        : "";
     const findingSummary =
-      digest.findings.total > 0
-        ? ` · ${digest.findings.total} findings`
+      digest.findings.total > 0 || suppressedFindings > 0
+        ? ` · ${digest.findings.total} findings${suppressedClause}`
         : "";
     const skippedSummary =
       digest.passes.skipped > 0

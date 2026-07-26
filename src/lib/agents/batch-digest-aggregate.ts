@@ -30,7 +30,23 @@ export interface BatchDigestFindingInput {
   severity: string;
   category: string;
   chapterNumber: number;
+  /**
+   * `EditFinding.status` — pending | applied | dismissed | rejected. Required
+   * because the digest MUST tell writer-visible findings apart from
+   * validation-gate rejections (D-122); see {@link REJECTED_FINDING_STATUS}.
+   */
+  status: string;
 }
+
+/**
+ * `EditFinding.status` marking a row the writer will NEVER see: the
+ * `CreateFinding` validation gate persists rejected findings as rejection
+ * ANALYTICS (`tools.ts` → `executeCreateFinding`, `status:"rejected"` +
+ * `rejectedAt` + `rejectionReason`), and every writer-facing surface filters
+ * them out (`post-session.ts` uses `status: { not: "rejected" }`; the findings
+ * tab / badges query `status: "pending"`).
+ */
+const REJECTED_FINDING_STATUS = "rejected";
 
 /** One chapter row the digest reads (subset of Chapter) — for status surfacing. */
 export interface BatchDigestChapterInput {
@@ -84,7 +100,20 @@ export interface BatchDigest {
   halted: boolean;
   haltReason: BatchHaltReason;
   findings: {
+    /**
+     * Findings the writer will actually SEE in the app. D-122: excludes rows
+     * auto-rejected by the `CreateFinding` validation gate, which the digest
+     * used to count — reporting "7 findings" in the morning notification while
+     * the Findings tab showed 5.
+     */
     total: number;
+    /**
+     * Gate-rejected rows from this run, counted but NOT folded into `total`.
+     * Surfaced (rather than silently dropped) so a run whose findings were all
+     * discarded reads as "0 findings (N discarded as invalid)" instead of an
+     * unexplained zero.
+     */
+    suppressed: number;
     bySeverity: Record<string, number>;
     byChapter: Record<string, number>;
   };
@@ -143,9 +172,19 @@ export function aggregateBatchDigest(
   const failedCount = sessions.filter((s) => s.status === "failed").length;
 
   // ── Findings roll-up (severity + chapter breakdown) ────────────────
+  // D-122: count what the writer will actually SEE. Gate-rejected rows exist
+  // only as rejection analytics and are hidden by every findings surface, so
+  // counting them made the digest (and the morning notification built from it)
+  // over-claim on exactly the trust axis an unattended overnight run is judged
+  // on. They are reported separately as `suppressed` — excluded, not hidden.
+  const visibleFindings = findings.filter(
+    (f) => f.status !== REJECTED_FINDING_STATUS
+  );
+  const suppressedFindingCount = findings.length - visibleFindings.length;
+
   const bySeverity: Record<string, number> = {};
   const byChapter: Record<string, number> = {};
-  for (const f of findings) {
+  for (const f of visibleFindings) {
     bySeverity[f.severity] = (bySeverity[f.severity] ?? 0) + 1;
     const key = String(f.chapterNumber);
     byChapter[key] = (byChapter[key] ?? 0) + 1;
@@ -186,7 +225,8 @@ export function aggregateBatchDigest(
     halted,
     haltReason,
     findings: {
-      total: findings.length,
+      total: visibleFindings.length,
+      suppressed: suppressedFindingCount,
       bySeverity,
       byChapter,
     },

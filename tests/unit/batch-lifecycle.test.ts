@@ -564,6 +564,67 @@ describe("batch lifecycle — (c) digest aggregation", () => {
     expect(note.message).toContain("$10.50");
   });
 
+  it("D-122: digest + notification count only writer-visible findings (gate-rejected excluded)", async () => {
+    h.db.batchRun.findUnique.mockResolvedValue({
+      id: BATCH_ID,
+      bookId: BOOK_ID,
+      userId: USER_ID,
+      workflowIds: ["dev-edit"],
+      chapterStart: 1,
+      chapterEnd: 1,
+      budgetCapUsd: CAP,
+      status: "running",
+      halted: false,
+      spentUsd: 0,
+    });
+    h.db.agentSession.findMany.mockResolvedValue([
+      { id: "s1", status: "completed", chapterNumber: 1, workflowId: "dev-edit", actualCostUsd: 1 },
+    ]);
+    // 5 real findings the writer will see + 2 auto-rejected by the
+    // CreateFinding validation gate (persisted as rejection analytics only).
+    h.db.editFinding.findMany.mockResolvedValue([
+      { severity: "critical", category: "pacing", chapterNumber: 1, status: "pending" },
+      { severity: "important", category: "dialogue", chapterNumber: 1, status: "pending" },
+      { severity: "suggestion", category: "prose", chapterNumber: 1, status: "pending" },
+      { severity: "suggestion", category: "prose", chapterNumber: 1, status: "pending" },
+      { severity: "suggestion", category: "prose", chapterNumber: 1, status: "pending" },
+      { severity: "critical", category: "pacing", chapterNumber: 1, status: "rejected" },
+      { severity: "critical", category: "pacing", chapterNumber: 1, status: "rejected" },
+    ]);
+    h.db.chapter.findMany.mockResolvedValue([
+      { chapterNumber: 1, status: "drafted", betaGate: null },
+    ]);
+    h.redis.store.set(`batch:${BATCH_ID}:spent`, "1.00");
+
+    await processBatchDigestJob(makeDigestJob());
+
+    // The digest must read the status column so it can tell the two apart.
+    const findingSelect = h.db.editFinding.findMany.mock.calls[0][0].select as
+      | Record<string, boolean>
+      | undefined;
+    expect(findingSelect?.status).toBe(true);
+
+    const upd = h.db.batchRun.update.mock.calls[0][0];
+    const digest = upd.data.digest as {
+      findings: { total: number; suppressed: number; bySeverity: Record<string, number> };
+    };
+    // Pre-fix this read 7 — the exact over-claim all three judges filed.
+    expect(digest.findings.total).toBe(5);
+    expect(digest.findings.suppressed).toBe(2);
+    expect(digest.findings.bySeverity).toEqual({
+      critical: 1,
+      important: 1,
+      suggestion: 3,
+    });
+
+    // The morning notification says 5, and NAMES the discarded rows rather
+    // than silently dropping them.
+    const note = h.db.bookNotification.create.mock.calls[0][0].data;
+    expect(note.message).toContain("5 findings");
+    expect(note.message).not.toContain("7 findings");
+    expect(note.message).toContain("2 discarded");
+  });
+
   it("D-98: a sub-cent budget cap renders with precision, not '$0.00 cap'", async () => {
     h.db.batchRun.findUnique.mockResolvedValue({
       id: BATCH_ID,
