@@ -89,3 +89,13 @@ Harness: Playwright (repo `@playwright/test`, chromium headless, viewport 1280×
 - **OpenRouter outage mid-session:** run 1 stalled ~40 min at WriteDocument on repeated "OpenRouter is experiencing temporary issues — will retry"; recovered ~23:15 local; a fresh discuss probe (200, correctly parsed) confirmed recovery before run 2. This is why the fresh report came from run 2, not run 1.
 - **Playwright wait flakiness:** my `page.waitForFunction` on the discuss bubbles occasionally timed out during React-Query re-render even though the reply had persisted (verified via API GET); the clean thread/cap shots were taken after a full reload. Two early transitional/failed shots were discarded (not in the final set). The reply-bubble selector had to be corrected twice — placeholder is "Explain **your** intent…" (not "Explain intent…"), and reply bubbles are `<p class="… mr-6/ml-6">` inside a nested `div.space-y-2`.
 - Chat-widget FAB (bottom-right) overlaps the far corner of some full-page shots; it is app chrome, not the surface under test.
+
+---
+
+## Follow-up (2026-07-27)
+
+The raw `<<<REMEMBER …>>` control-token leak first captured here (shot 42a, NEW defect #1 above,
+registered **D-157**) was fixed in `d625d51` and re-shot on camera as the **43-series** —
+see [`UI-CAPTURE-2026-07-27-d157.md`](./UI-CAPTURE-2026-07-27-d157.md). `43c-retro-drift-clean.png`
+is the direct post-fix counterpart of `42a-discuss-thread.png`: same finding, same stored drifted
+bytes, raw syntax gone and the constraint chip recovered.

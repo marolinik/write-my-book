@@ -1,0 +1,58 @@
+{
+  "findingId": "73b2781c-81ee-420a-9916-a17f1dadad68",
+  "shotName": "43c-keep-as-is",
+  "dismissed": true,
+  "assistantBubbles": [
+    "Understood. I'll honor her retreat into taxonomy as intentional voice and withdraw the suggestion."
+  ],
+  "userBubbles": [
+    "I want to keep this as Imogen's private interior reflection — it's a deliberate quiet beat in her voice. Please stop flagging her interior abstraction as a show-tell lapse."
+  ],
+  "constraintChip": [
+    "On “Keep as-is”, I’ll remember: “Do not flag Imogen's interior abstraction or taxonomy at emotional peaks as a show-tell lapse.”"
+  ],
+  "rawSyntaxLeakedInBubbles": [],
+  "verdict": {
+    "zeroRawSyntax": true,
+    "chipRendered": true
+  },
+  "afterDismiss": {
+    "assistant": [],
+    "user": [],
+    "chip": [],
+    "cardText": "suggestion\nshow-tell\ntext changed\ndismissed\n\nImogen's moment of shoreline clarity is delivered through abstract classification rather than embodied sensation, breaking the chapter's sensory-metaphorical mode.\n\nChapter 1\n\nShow diff\nUndo"
+  },
+  "network": [
+    {
+      "method": "GET",
+      "url": "/api/books/4116055c-6183-4675-926a-e04f31126951/editorial/findings",
+      "status": 200,
+      "at": "2026-07-26T23:26:19.550Z"
+    },
+    {
+      "method": "GET",
+      "url": "/api/books/4116055c-6183-4675-926a-e04f31126951/editorial/findings/73b2781c-81ee-420a-9916-a17f1dadad68/discuss",
+      "status": 200,
+      "at": "2026-07-26T23:26:21.542Z"
+    },
+    {
+      "method": "GET",
+      "url": "/api/books/4116055c-6183-4675-926a-e04f31126951/editorial/findings?chapterNumber=1",
+      "status": 200,
+      "at": "2026-07-26T23:26:25.588Z"
+    },
+    {
+      "method": "PATCH",
+      "url": "/api/books/4116055c-6183-4675-926a-e04f31126951/editorial/findings/73b2781c-81ee-420a-9916-a17f1dadad68",
+      "status": 200,
+      "at": "2026-07-26T23:26:27.160Z"
+    },
+    {
+      "method": "GET",
+      "url": "/api/books/4116055c-6183-4675-926a-e04f31126951/editorial/findings?chapterNumber=1",
+      "status": 200,
+      "at": "2026-07-26T23:26:27.239Z"
+    }
+  ],
+  "capturedAt": "2026-07-26T23:26:30.531Z"
+}

@@ -1,0 +1,50 @@
+43b — WriterMemory persistence proof (D-157 live re-shoot, 2026-07-27)
+Persona user_qa_p1 (users.id d65a17d8-c0df-4e49-82fa-2291cad77886) · book 4116055c · dev postgres container wmb-pub-postgres-1:5432/writemybook
+
+### BEFORE the 'Keep as-is' click (2 rows) — captured 2026-07-27 ~01:20 local
+$ docker exec wmb-pub-postgres-1 psql -U postgres -d writemybook -c "select id, category, source, finding_id, active, created_at, left(content,70) from writer_memories where user_id=... order by created_at;"
+                  id                  |  category  |    source    |              finding_id              | active |       created_at       |                                content
+--------------------------------------+------------+--------------+--------------------------------------+--------+------------------------+------------------------------------------------------------------------
+ cef57b13-86b4-4c94-91f3-b9d3d9cdadac | preference | conversation | 25499afe-9758-482a-a65c-53436e7e3538 | t      | 2026-07-18 00:05:58.66 | Leave strong final images or fragments untouched when followed by brie
+ bc68fab0-d46b-436a-8f4c-2ff125d47a3b | preference | conversation | f1b35402-d5a8-42b6-a8be-02b9ac6a3504 | t      | 2026-07-20 11:45:05.39 | Preserve Imogen's retreat into arithmetic and taxonomy at emotional pe
+(2 rows)
+
+### AFTER the on-camera 'Keep as-is' click on finding 73b2781c (3 rows — NEW row d6ae40cc)
+
+                  id                  |  category  |    source    |              finding_id              | active |       created_at        |                                                                        content                                                                         
+--------------------------------------+------------+--------------+--------------------------------------+--------+-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------
+ cef57b13-86b4-4c94-91f3-b9d3d9cdadac | preference | conversation | 25499afe-9758-482a-a65c-53436e7e3538 | t      | 2026-07-18 00:05:58.66  | Leave strong final images or fragments untouched when followed by brief explanatory lines; treat the pattern as intentional across the manuscript.
+ bc68fab0-d46b-436a-8f4c-2ff125d47a3b | preference | conversation | f1b35402-d5a8-42b6-a8be-02b9ac6a3504 | t      | 2026-07-20 11:45:05.39  | Preserve Imogen's retreat into arithmetic and taxonomy at emotional peaks as intentional voice; do not flag interior abstraction as a show-tell lapse.
+ d6ae40cc-5749-4fe9-ad14-564323c6e3eb | preference | conversation | 73b2781c-81ee-420a-9916-a17f1dadad68 | t      | 2026-07-26 23:26:27.121 | Do not flag Imogen's interior abstraction or taxonomy at emotional peaks as a show-tell lapse.
+(3 rows)
+
+
+### Same row via authenticated API (x-e2e-test-secret + x-e2e-clerk-id: user_qa_p1)
+GET /api/memory?bookId=4116055c-6183-4675-926a-e04f31126951 -> 200 (284ms)   [full trace: api-traces/43_memory-after-keep-as-is.json]
+
+{
+  "id": "d6ae40cc-5749-4fe9-ad14-564323c6e3eb",
+  "userId": "d65a17d8-c0df-4e49-82fa-2291cad77886",
+  "bookId": "4116055c-6183-4675-926a-e04f31126951",
+  "findingId": "73b2781c-81ee-420a-9916-a17f1dadad68",
+  "category": "preference",
+  "content": "Do not flag Imogen's interior abstraction or taxonomy at emotional peaks as a show-tell lapse.",
+  "source": "conversation",
+  "active": true,
+  "createdAt": "2026-07-26T23:26:27.121Z",
+  "updatedAt": "2026-07-26T23:26:27.121Z"
+}
+
+### Exact raw assistant turn stored for 73b2781c (delimiter form the model actually emitted)
+
+Understood. I'll honor her retreat into taxonomy as intentional voice and withdraw the suggestion. 
+
+<<<REMEMBER category="preference">>>
+Do not flag Imogen's interior abstraction or taxonomy at emotional peaks as a show-tell lapse.
+<<<END>>>
+
+### Delimiter census across P1 stored REMEMBER turns (2026-07-27)
+  036a088d turn1  1b1b3f02  <<<REMEMBER category="preference">>    <- DRIFTED (2 closing brackets), captured live 2026-07-26
+  036a088d turn2  b15364f6  <<<REMEMBER category="preference">>    <- DRIFTED (2 closing brackets), captured live 2026-07-26
+  b92055ea turn1  815b708e  <<<REMEMBER category="preference">>>   <- well-formed
+  73b2781c turn1  13c0ba62  <<<REMEMBER category="preference">>>   <- well-formed (THIS re-shoot's fresh turn)
