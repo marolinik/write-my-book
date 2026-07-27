@@ -118,3 +118,92 @@ not QA fixes. Resolve by: (1) founder rules A1–A4, and (2) founder either prov
 the API key + :3002 for B, or accepts B/C as documented ceiling — then re-judge runs
 against the landed tree. Do NOT re-judge before #53/#54/#56 land and A-items are ruled
 or explicitly deferred.
+
+---
+
+# D. Founder calls accumulated in the 2026-07-27 re-judge campaign
+
+Sections A–C above are the 2026-07-19 vintage. This section is the register of
+founder/product calls that the v2/v3/v4 blind panels and the fix lanes reached but
+deliberately did **not** decide in code. Each entry names the grade floor it bounds,
+so the founder can see which decision buys which lift.
+
+## D1. Discuss reasoning-slot reroute — **the current P1/P6 floor term** (D-176)
+- **Proven on camera** (46-series, `evidence/p1-maya-rejudge/`): a discuss turn's
+  time-to-first-text is **19–36s**, measured by `Server-Timing`. Cadence after first
+  text is excellent (32ms median distinct-arrivals, faster than ghost-text's 141ms);
+  the settle tail is 279–984ms. The wait is **entirely pre-first-token**: the model
+  reasons before it speaks.
+- **What code already did** (`391a165`, `a163f11`): D-176 liveness chrome — elapsed
+  counter, 8s/40s phase bands, heartbeat dot, and a Cancel that aborts through both
+  the streamed and blocking paths with a pre-settle 499. The wall is now **honest and
+  escapable**. It is not shorter.
+- **Why code cannot shorten it:** discuss is served by a reasoning slot
+  (qwen3.6-thinking / opus class). The reasoning phase emits no text by construction,
+  and a server-side heartbeat before first text would break the honest-409-before-any-byte
+  contract that D5 Stage-1 was built on (`discuss-stream.ts`).
+- **The only term-shortener:** route discuss turns to a **non-reasoning fast slot**
+  (estimated ttft ~2s, i.e. a ~10–18× cut), accepting whatever craft-quality delta
+  that costs on editorial reasoning. Alternative: keep the reasoning slot and let the
+  counter+cancel be the answer, in which case **D5/D-176 is a permanent ~6.5–7.0 cap
+  on P1 and P6** — three of three judges pinned it in both v3 panels.
+- **Recommendation:** run a small A/B on real findings (reasoning vs fast slot, same
+  prompts, blind craft rating). If the craft delta is small, reroute; if large, make
+  the slot a per-turn writer choice ("quick take" vs "think it through") rather than
+  a global.
+
+## D2. D-180 batch cost-estimator drift — disclose, recalibrate, or drop
+- Estimator vs actual diverges by **38% on one probe and ~30% on another**, with no
+  disclosure anywhere in the UI. Writers plan spend against this number.
+- Options: (a) recalibrate against `usage_records` and keep a point estimate;
+  (b) show a range plus a "based on your last N runs" line; (c) remove the number and
+  show only the cap the writer set. (b) is the honest-cheap option and matches how the
+  rest of the money surface now reads after D-181.
+
+## D3. Billed-but-discarded 409 race — who eats the cost
+- A turn can be charged at the provider and then refused locally by the book cap
+  (409), or aborted mid-turn under the all-or-nothing `req.signal` semantics landed in
+  `eeb1fd8`. On camera (46-series abort shot) the writer's ledger was correctly left
+  **virgin — 0 usage rows, thread untouched** — while the provider still charged
+  **~$0.004**. The platform absorbs it silently today.
+- Options: (a) absorb + disclose in aggregate ("provider spend not billed to you");
+  (b) pre-reserve against the cap before the provider call, which makes the 409
+  pre-flight and eliminates the race; (c) write a credit-ledger row.
+- **Recommendation:** (b) for the cap race, (a) for the abort case. Note the semantic
+  change already shipped: a mid-turn disconnect now loses the turn, unbilled and
+  unpersisted — that is deliberate and should be named at the next re-judge.
+
+## D4. D-155 managed no-key tier — **named the biggest grade-lifter twice**
+- A cold free-tier writer has **zero working AI** without pasting their own key.
+  This bounds P5 D6 and P1 D1 and was independently identified as the #2 lever on
+  2026-07-06 and re-raised on 2026-07-26.
+- Nothing in QA can move it: it is a unit-economics and abuse-surface decision
+  (managed key, per-account budget, rate limit, fraud exposure).
+
+## D5. Data + surface decisions declined by fix lanes, with recommendations
+- **D-115 / D-190 orphan chapter content — migration.** `orphan-chapter-content.ts`
+  now withholds orphaned content on GET and reclaims it on PUT, so the phantom-409 and
+  the resurrection are both gone **without touching stored rows**. Pre-existing orphan
+  rows still sit in the table, withheld. A cleanup migration is a data-deletion call.
+  Recommendation: leave withheld (reversible), revisit if row count grows.
+- **D-187 batch history has no surface.** The batch LIST route has zero UI consumers,
+  so past runs and their spend are invisible. Product surface decision; the data and
+  the honest derivation (`live-batch-view.ts`) already exist, so this is cheap.
+- **D-192 chapter delete UI.** Lane C declined with a recommendation attached rather
+  than inventing a destructive affordance.
+- **D-184 WriterMemory near-duplicate curation.** The D-171 panel makes duplicates
+  hand-prunable, which was the near-free half. Automatic semantic dedupe needs a
+  similarity threshold and a merge-vs-supersede policy — a product call, because a
+  wrong fold silently rewrites a writer's stated constraint.
+- **Discuss has no free-tier meter or quota.** Quick-assist and ghost-text are metered
+  in `free_tier_usage`; discuss turns are not, because there is no column for them.
+  Adding one is a schema + pricing decision, not a bug fix.
+- **Russian two-form plural** ("2 глав") still reads wrong after `plural.ts` shipped
+  7 locales. Needs a native reader; scope call on how far i18n goes this campaign.
+
+## How section D gates the board
+Board at time of writing: P1 6.5 · P2 6.0 · P3 6.5 · P4 6.0 · P5 6.5 · P6 7.0 ·
+P7 7.0 · P8 6.5. **D1 is the single highest-value ruling** — it is the named floor term
+for the two highest personas and the reason P6's 7.0 did not go further. D4 bounds the
+cold-start dimensions for every persona. D2/D3 are trust-surface honesty items that the
+panels reward disproportionately. D5 is cheap-but-not-QA's-call.
