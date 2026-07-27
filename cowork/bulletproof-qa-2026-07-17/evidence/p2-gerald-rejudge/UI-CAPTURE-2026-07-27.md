@@ -466,3 +466,7 @@ Summary, next free id after this wave: **D-186**.
 * Dev server (:3001) and the BullMQ worker were left running. `.env` untouched and verified.
 * No product source file was modified by this wave. Everything written lives under
   `cowork/bulletproof-qa-2026-07-17/evidence/p2-gerald-rejudge/`.
+
+---
+## ERRATUM (2026-07-27, post-capture): defect-id renumbering
+The new defects registered by this wave as D-179..D-185 collided with ids claimed by the P6 v3 / P1 v3 panels during the same session. Canonical ids: **D-188** story-bible fake-success (was 179), **D-189** find/replace whole-word (was 180), **D-190** D-115 silent-adoption browser variant (was 181), **D-191** version-history backup badge (was 182), **D-192** no chapter-delete UI (was 183), **D-193** ghost POV break (was 184), **D-194** chapter_count drift (was 185). Register moved to `evidence/fix-reviews/D-188-D-194-p2-44series-observations.md`. Next free = D-195.

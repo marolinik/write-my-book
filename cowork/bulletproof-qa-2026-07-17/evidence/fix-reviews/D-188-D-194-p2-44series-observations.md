@@ -1,15 +1,17 @@
-# Register — D-179 … D-185 (P2 Gerald, 44-series UI capture wave)
+> **RENUMBERED 2026-07-27:** this register was written as D-179..D-185 by the P2 capture agent before the P6 v3 (D-179..D-182) and P1 v3 (D-183..D-185) panels claimed those ids, and P4 v4 claimed D-186/D-187. Canonical ids are now **D-188..D-194** (map: 179→188, 180→189, 181→190, 182→191, 183→192, 184→193, 185→194). The 44-series capture doc still uses the old ids in place; read them through this map. Next free = **D-195**.
+
+# Register — D-188 … D-194 (P2 Gerald, 44-series UI capture wave)
 
 **Source:** `evidence/p2-gerald-rejudge/UI-CAPTURE-2026-07-27.md` §7
 **Build:** `qa/bulletproof-2026-07-17` @ `108fec3` · **Captured:** 2026-07-27, `user_qa_p2`
 via e2e headers on `http://localhost:3001`, worker-proof `RUNTIME_WORKER_COUNT = 1` (PASS).
 **Nothing in this file is fixed.** This is an evidence wave; every entry below is OPEN.
-**Previous free id: D-179. Next free id after this file: D-186.**
+**Previous free id: D-188. Next free id after this file: D-195.**
 No existing defect id was renumbered or reused.
 
 ---
 
-## D-179 — S2 — `create-story-bible` reports success and persists nothing, silently blocking the whole editorial pipeline
+## D-188 — S2 — `create-story-bible` reports success and persists nothing, silently blocking the whole editorial pipeline
 
 **Persona:** P2 (found), affects every persona that imports a manuscript.
 **Dims:** D8 (blocks it entirely), D7 (failure states lie), D2 (paid work discarded).
@@ -69,7 +71,7 @@ rather than relying on the model to elect to call `WriteDocument`. Option (a) ge
 
 ---
 
-## D-180 — S2 — Find & Replace has no whole-word option; a book-wide character rename corrupts prose and reports the corruptions as successes
+## D-189 — S2 — Find & Replace has no whole-word option; a book-wide character rename corrupts prose and reports the corruptions as successes
 
 **Persona:** P2 (core job: renaming characters across a finished manuscript).
 **Dims:** D1, D3, D2 (silent prose corruption at scale), D11 (both incumbents ship the toggle).
@@ -119,7 +121,7 @@ inside longer words" warning in the preview would be the cheap partial mitigatio
 
 ---
 
-## D-181 — S3 — D-115's browser variant is *silent*: no phantom 409, the deleted prose is adopted on first save
+## D-190 — S3 — D-115's browser variant is *silent*: no phantom 409, the deleted prose is adopted on first save
 
 **Persona:** P2. **Dims:** D2, D7. **Rides the D-115 / D-22 fix lane — do not fix separately.**
 
@@ -151,7 +153,7 @@ the manuscript and its version history, and will be exported.
 
 ---
 
-## D-182 — S3 — Version History cannot identify the conflict backup the dialog promises
+## D-191 — S3 — Version History cannot identify the conflict backup the dialog promises
 
 **Persona:** P2. **Dims:** D10, D7, D2.
 
@@ -185,7 +187,7 @@ already stores it).
 
 ---
 
-## D-183 — S3 — Chapter delete has no UI affordance
+## D-192 — S3 — Chapter delete has no UI affordance
 
 **Persona:** P2 (and any writer who cuts a chapter). **Dims:** D1, D3.
 
@@ -203,7 +205,7 @@ and that limitation is disclosed in the capture doc rather than papered over.
 
 ---
 
-## D-184 — S4 — accepted ghost-text broke point of view (n=1)
+## D-193 — S4 — accepted ghost-text broke point of view (n=1)
 
 **Persona:** P2. **Dims:** D8, D10. **Explicitly a single sample.**
 
@@ -221,11 +223,11 @@ not. Served by `openrouter-deepseek/haiku` (see D-127/D-148 on substitution).
 
 **Status.** Recorded because P2's exit criteria include voice preservation, and flagged as
 n=1 so it cannot be read as a measured voice-drift rate. A real voice assessment needs the
-D8 lane, which is blocked by D-179.
+D8 lane, which is blocked by D-188.
 
 ---
 
-## D-185 — S3 — `books.chapter_count` is not incremented when a chapter is created
+## D-194 — S3 — `books.chapter_count` is not incremented when a chapter is created
 
 **Persona:** all. **Dims:** D2 (data integrity), D7.
 
@@ -256,7 +258,7 @@ blast radius is unverified — what is verified is that the stored value is wron
 ## Cross-references — registered OPEN, re-observed this wave, NOT renumbered
 
 * **D-115 / D-22** — deleted-chapter prose resurrection. Captured in the UI (`44q1`-`44q3`);
-  D-181 above is its browser-variant sibling and belongs to the same fix lane.
+  D-190 above is its browser-variant sibling and belongs to the same fix lane.
 * **D-127 / D-148** — quick-assist model substitution is undisclosed at the point of use.
   Re-observed: account default `openrouter-qwen36/sonnet`, both quick-assist calls served by
   `openrouter-deepseek/haiku`, no in-editor indication. The reroute itself (`d51514c`) is
