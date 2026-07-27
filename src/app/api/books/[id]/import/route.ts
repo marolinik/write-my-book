@@ -118,7 +118,7 @@ async function handleStructuredImport(
         ch.number
       );
       if (existing) {
-        await docService.update(existing.id, ch.content, ch.title, "manual_edit", "import");
+        await docService.update(existing.id, ch.content, ch.title, "import", "import");
       } else {
         await docService.create(
           DocumentType.CHAPTER_CONTENT,
@@ -137,7 +137,7 @@ async function handleStructuredImport(
         ch.number
       );
       if (existingDoc) {
-        await docService.update(existingDoc.id, ch.content, ch.title, "manual_edit", "import");
+        await docService.update(existingDoc.id, ch.content, ch.title, "import", "import");
       } else {
         await docService.create(
           DocumentType.CHAPTER_CONTENT,
@@ -284,7 +284,7 @@ async function handleLegacyImport(
         ch.number
       );
       if (existing) {
-        await docService.update(existing.id, ch.content, ch.title, "manual_edit", "import");
+        await docService.update(existing.id, ch.content, ch.title, "import", "import");
       } else {
         await docService.create(
           DocumentType.CHAPTER_CONTENT,

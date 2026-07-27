@@ -183,7 +183,10 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
           doc.id,
           data.markdown,
           undefined,
-          "manual_edit",
+          // D-199: this route serves every TRUSTED_VERSIONLESS_SOURCE too, so
+          // a hardcoded "manual_edit" badged agent/system/import saves as the
+          // writer's own typing. Let the service derive it from the source.
+          undefined,
           data.changeSource ?? "user",
           data.expectedVersion
         );
@@ -238,6 +241,9 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
         existingDoc.id,
         data.markdown,
         undefined,
+        // Stated, not derived (D-199): the SOURCE is a server-side label, but
+        // the content is the writer's own markdown — this is a manual edit
+        // that happens to land on a reclaimed row.
         "manual_edit",
         ORPHAN_RECLAIM_SOURCE
       );
