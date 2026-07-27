@@ -64,10 +64,14 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       },
     });
 
-    // Update book chapter count
+    // D-194: store the AUTHORITATIVE count, not a blind +1. A blind delta
+    // silently preserves any pre-existing drift (books created before the
+    // placeholder-Chapter-1 fix start at 0 with one real chapter), while a
+    // recount converges the denormalised column on every create.
+    const chapterCount = await db.chapter.count({ where: { bookId } });
     await db.book.update({
       where: { id: bookId },
-      data: { chapterCount: { increment: 1 } },
+      data: { chapterCount },
     });
 
     return NextResponse.json(chapter, { status: 201 });

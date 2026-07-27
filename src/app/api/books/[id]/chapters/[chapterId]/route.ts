@@ -116,9 +116,12 @@ export async function DELETE(_req: NextRequest, { params }: RouteParams) {
 
     await db.chapter.delete({ where: { id: chapterId } });
 
+    // D-194: authoritative recount (see the create route) — a blind decrement
+    // can drive an already-drifted counter negative and never self-corrects.
+    const chapterCount = await db.chapter.count({ where: { bookId } });
     await db.book.update({
       where: { id: bookId },
-      data: { chapterCount: { decrement: 1 } },
+      data: { chapterCount },
     });
 
     return NextResponse.json({ deleted: true });

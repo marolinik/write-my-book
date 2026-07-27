@@ -92,11 +92,6 @@ export async function POST(req: NextRequest) {
       ? generateSeriesS3Prefix(user.id, data.seriesId, book.bookNumber)
       : generateS3Prefix(user.id, book.id);
 
-    const updatedBook = await db.book.update({
-      where: { id: book.id },
-      data: { s3Prefix },
-    });
-
     // Create default settings
     await db.bookSettings.create({
       data: { bookId: book.id },
@@ -107,6 +102,15 @@ export async function POST(req: NextRequest) {
     // created on first save.
     const firstChapter = await db.chapter.create({
       data: { bookId: book.id, actNumber: 1, chapterNumber: 1, title: null },
+    });
+
+    // D-194: count that placeholder. `chapter_count` defaults to 0, so leaving
+    // it alone here started EVERY in-product book off-by-one (measured 1 vs 2,
+    // 7 vs 8 on real books) and every later +1/-1 delta rode the wrong base.
+    // Folded into the s3Prefix update so book creation still writes once.
+    const updatedBook = await db.book.update({
+      where: { id: book.id },
+      data: { s3Prefix, chapterCount: 1 },
     });
 
     return NextResponse.json(
