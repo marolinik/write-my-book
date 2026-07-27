@@ -95,3 +95,56 @@ observability gaps, not feature gaps.
 - 50a showed `~3-8 min` estimated against an actual 81s run, another instance of D-180
   estimator drift; and `statusComplete: false` on every probe while the tail reads
   "Create Story Bible completed", which is a probe-selector miss.
+
+---
+
+# Corrections to this adjudication (written after the capture lane's own writeups landed)
+
+The capture lane's `fix-reviews/D-201-D-202-50-series-capture.md` and
+`UI-CAPTURE-2026-07-27-50-series.md` (commit `aaca3c4`) supersede two claims above. Both
+corrections make the record less flattering, and both stand.
+
+## 1. D-188: the disclosure is honest, but what it saved is not a Story Bible
+
+I wrote "CLOSED, three independent witnesses" without reading the persisted content. The
+lane read it back over the API: **847 words, 8 headings, 8 question marks**, opening
+*"Welcome. I'm your Writing Coach, and I'll be building the story bible for
+P2-CAPTURE-D8-..."* and closing with five numbered questions to the writer.
+
+The recovery net saved the coach's **opening interview turn** — the request for input — as
+the finished deliverable. It passes because `looksLikeDeliverable` is purely structural
+(>=300 words, >=2 headings) and cannot distinguish a completed bible from a well-formatted
+question.
+
+Worse, `book-health.ts:206` gates on existence alone (`hasStoryBible: docTypes.has(...)`),
+so the interview turn flips the gate true, marks the step "Created", advances the wizard
+ladder, and lets architecture/editing/analysis proceed on questions instead of answers.
+
+**What survives:** D-188's specific defect — an agent claiming a document it never wrote —
+is genuinely closed. The product no longer lies about *whether* it saved something, and the
+DB rows corroborate the toast. **What does not survive:** my implication that the artifact is
+usable. That is now **D-201 (S3)**, unfixed.
+
+## 2. D-189 is better evidenced than I said
+
+I recorded unicode-aware `wholeWord` as "source-verified only". The lane has **API
+corroboration** for the same build: `Zürich` whole-word 176/176, `ürich` 0/176, `Marseille`
+170/170, `arseille` 0/170, `old` 1/277. That is the unicode boundary behaviour working on
+real data — a fragment inside a non-ASCII word correctly matches nothing.
+
+What remains unwitnessed is only the **UI count surface**, and the lane also disputes my
+"the term never reached the input" reading: `wholeWordApplies` (derived from `find`) did flip
+on the non-word query while `showPreview` (derived from `debouncedFind`) never did, so the
+300 ms debounce commit is the suspect, not the keystrokes. Registered as **D-202 (S4,
+mechanism unresolved, intermittent — a correct preview run was console-observed but not
+banked, and the honest-capture retry budget was already spent)**.
+
+## 3. The 49c reason I gave was half wrong
+
+In `p1-maya-rejudge/UI-CAPTURE-2026-07-27-49-series.md` I attributed the empty analytics tab
+to "0 findings, all-user-keys". The lane's appended correction shows `identityUsed:
+"user_dev_bypass"`, and `src/lib/auth.ts:62-69` honours `x-e2e-clerk-id` **only** for ids
+prefixed `user_qa_`. The identity was void, so the attempt was not informative at all. The
+INCONCLUSIVE verdict stands; the re-shot prescription changes.
+
+**Next free defect after this wave: D-203.**
