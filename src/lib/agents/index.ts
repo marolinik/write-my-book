@@ -29,6 +29,14 @@ export {
 export { AgentOrchestrator } from "./orchestrator";
 
 export { processPostSession } from "./post-session";
+export {
+  evaluateArtifactContract,
+  filterBlockedNextSteps,
+  looksLikeDeliverable,
+  claimsArtifactComplete,
+  TRANSCRIPT_RECOVERY_SOURCE,
+  type ArtifactContractOutcome,
+} from "./artifact-contract";
 export type { PostSessionContext, PostSessionResult } from "./post-session";
 
 export { validatePrerequisites } from "./prerequisites";

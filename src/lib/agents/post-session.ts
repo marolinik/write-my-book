@@ -13,6 +13,13 @@ import { getExtractionKeysForUser } from "./extraction-keys";
 import { onSessionCompleted, onDocumentChanged, onFindingsCreated } from "@/lib/vector/memory-manager";
 import { promoteFindings } from "./blackboard";
 import { synthesizeToSeries } from "@/lib/series/series-synthesizer";
+import { getWorkflow } from "./workflows";
+import { validatePrerequisites } from "./prerequisites";
+import {
+  evaluateArtifactContract,
+  filterBlockedNextSteps,
+  type ArtifactContractOutcome,
+} from "./artifact-contract";
 
 export interface PostSessionContext {
   sessionId: string;
@@ -30,6 +37,16 @@ export interface PostSessionContext {
    * held back so an overnight run never silently advances a chapter's stage.
    */
   batchId?: string;
+  /**
+   * D-188: the run's final assistant text. Used ONLY by the artifact contract,
+   * as the recovery source when a declared-artifact workflow streamed its
+   * document into the chat and never called WriteDocument. Absent on paths that
+   * do not carry it (BullMQ worker, specialist delegations) — recovery is then
+   * skipped and the contract only reports.
+   */
+  assistantText?: string;
+  /** D-188: document ids the run actually wrote (AgentResult.documentIds). */
+  documentIds?: string[];
 }
 
 export interface PostSessionResult {
@@ -38,6 +55,12 @@ export interface PostSessionResult {
   statusAdvanced: boolean;
   newStatus?: string;
   betaGateResult?: string; // "passed" | "failed" | "near_miss"
+  /**
+   * D-188: present only for workflows that declare a document artifact.
+   * `artifact.honest === false` means the caller must NOT report the session as
+   * a success — it produced no deliverable while claiming one.
+   */
+  artifact?: ArtifactContractOutcome;
 }
 
 const WORKFLOW_SUGGESTED_NEXT: Record<string, string[]> = {
@@ -246,6 +269,22 @@ export async function processPostSession(
       }
     }
 
+    // ─── D-188 Artifact Contract ─────────────────────────────
+    // For a workflow that DECLARES a document (create-story-bible et al):
+    // recover it from the run's own transcript if the model streamed it but
+    // never called WriteDocument, and report honestly when there is still no
+    // artifact. MUST run before suggestedNext so the routing below sees the
+    // recovered document.
+    const artifact = await evaluateArtifactContract({
+      workflowId: ctx.workflowId,
+      bookId: ctx.bookId,
+      userId: ctx.userId,
+      assistantText: ctx.assistantText,
+      documentIds: ctx.documentIds,
+      documentService: docService,
+    });
+    if (artifact) result.artifact = artifact;
+
     // ─── Outcome-Driven Routing ──────────────────────────────
     // MUST come after processBetaReadSession + advanceChapterStatus
     // so deriveSuggestedNext reads the updated chapter state.
@@ -253,6 +292,16 @@ export async function processPostSession(
       ctx.workflowId,
       ctx.bookId,
       ctx.chapterNumber
+    );
+
+    // D-188: never advertise a next step the product will reject. The captured
+    // run recommended `build-architecture` while the STORY_BIBLE it requires
+    // did not exist, so the writer's next click was a 422. A blocked suggestion
+    // becomes the workflow that unblocks it.
+    result.suggestedNext = await filterBlockedNextSteps(
+      result.suggestedNext,
+      (workflowId) =>
+        validatePrerequisites(workflowId, ctx.bookId, ctx.chapterNumber)
     );
 
     // Circuit breaker override: clear suggestions if triggered
@@ -706,14 +755,10 @@ async function maybeAutoSynthesize(
   workflowId: string,
   userId: string
 ): Promise<void> {
-  // Only trigger from book-level foundational doc workflows — NOT series-level
-  const artifactMap: Record<string, string> = {
-    "capture-style": "FINGERPRINT",
-    "refresh-style": "FINGERPRINT",
-    "create-story-bible": "STORY_BIBLE",
-    "build-architecture": "ARCHITECTURE",
-  };
-  const artifactType = artifactMap[workflowId];
+  // Only trigger from book-level foundational doc workflows — NOT series-level.
+  // D-188: the declaration now lives on the workflow itself (producesDocument),
+  // so this lookup cannot drift from the completion contract that enforces it.
+  const artifactType = getWorkflow(workflowId)?.producesDocument;
   if (!artifactType) return; // Not a foundational doc workflow
 
   const book = await db.book.findUnique({

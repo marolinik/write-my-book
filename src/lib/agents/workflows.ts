@@ -28,6 +28,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: false,
     conversational: true,
     suggestedNext: ["build-architecture", "create-story-bible"],
+    producesDocument: "FINGERPRINT",
     estimatedMinMinutes: 2,
     estimatedMaxMinutes: 5,
     minimumTier: "sonnet",
@@ -43,6 +44,9 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresSeriesContext: false,
     conversational: true,
     suggestedNext: ["build-architecture"],
+    // D-188: this workflow told writers "Story Bible Status: Complete" while
+    // persisting nothing. Declaring the artifact makes that impossible.
+    producesDocument: "STORY_BIBLE",
     estimatedMinMinutes: 3,
     estimatedMaxMinutes: 8,
     minimumTier: "sonnet",
@@ -61,6 +65,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     prerequisites: [
       { type: "document", value: "STORY_BIBLE", description: "Story Bible needed before designing architecture", satisfiedBy: "create-story-bible" },
     ],
+    producesDocument: "ARCHITECTURE",
     estimatedMinMinutes: 5,
     estimatedMaxMinutes: 15,
     minimumTier: "sonnet",
@@ -376,6 +381,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     prerequisites: [
       { type: "document", value: "FINGERPRINT", description: "Must have an existing fingerprint to refresh", satisfiedBy: "capture-style" },
     ],
+    producesDocument: "FINGERPRINT",
     estimatedMinMinutes: 2,
     estimatedMaxMinutes: 5,
     minimumTier: "sonnet",

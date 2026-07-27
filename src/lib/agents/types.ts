@@ -257,6 +257,14 @@ export interface WorkflowDefinition {
   conversational: boolean;
   suggestedNext: string[];
   prerequisites?: WorkflowPrerequisite[];
+  /**
+   * D-188: the document this workflow PROMISES to produce. Declaring it makes
+   * "success with no artifact" checkable (see artifact-contract.ts): the run
+   * either persists the document — recovering it from its own transcript when
+   * the model streamed it but never called WriteDocument — or is reported as a
+   * failure. Also the single source of truth for series auto-synthesis.
+   */
+  producesDocument?: import("@/generated/prisma/enums").DocumentType;
   /** Estimated minimum duration in minutes. */
   estimatedMinMinutes?: number;
   /** Estimated maximum duration in minutes. */

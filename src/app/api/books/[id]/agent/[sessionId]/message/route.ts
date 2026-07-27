@@ -23,6 +23,9 @@ import {
   addAssistantMessage,
 } from "@/lib/agents";
 import type { AgentStreamMessage, AgentResult } from "@/lib/agents";
+// Deep import on purpose: pure, db-free module (see artifact-contract.ts).
+import { evaluateArtifactContract } from "@/lib/agents/artifact-contract";
+import { DocumentService } from "@/lib/documents";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 type RouteParams = {
@@ -204,8 +207,6 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         pushMessage(sessionId, msg);
       },
       onComplete: async (result: AgentResult) => {
-        completeSession(sessionId, result);
-
         // D-04/D-38: a conversational turn's deliverable IS its assistant text.
         // An empty / whitespace-only reply — a reasoning model that burned its
         // whole max_tokens budget on thinking, or a hollow provider turn — must
@@ -216,6 +217,52 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         const replyText = (result.assistantText ?? "").trim();
         const emptyReply =
           result.success && !result.cancelled && replyText.length === 0;
+
+        // D-188: continuation turns never run post-session, and the story bible
+        // is usually written on a LATER turn — so the artifact contract is
+        // evaluated here too. Recovers a document the model streamed but never
+        // saved, and refuses to report success for a turn that claims a
+        // deliverable it does not have. Evaluated BEFORE completeSession so the
+        // client is never told "success" and then contradicted.
+        let artifactBroken = false;
+        if (
+          workflow.producesDocument &&
+          result.success &&
+          !result.cancelled &&
+          !emptyReply
+        ) {
+          try {
+            const artifact = await evaluateArtifactContract({
+              workflowId: session.workflowId,
+              bookId,
+              userId: user.id,
+              assistantText: replyText,
+              documentIds: result.documentIds,
+              documentService: new DocumentService(user.id, bookId),
+            });
+            if (artifact) {
+              artifactBroken = !artifact.honest;
+              if (artifact.message) {
+                pushMessage(sessionId, {
+                  type: artifactBroken ? "error" : "status",
+                  content: artifact.message,
+                  metadata: {
+                    expectedDocument: artifact.expectedType,
+                    documentRecovered: artifact.recovered,
+                    documentPersisted: artifact.artifactExists,
+                  },
+                });
+              }
+            }
+          } catch (e) {
+            console.error("[AgentMessage] Artifact contract failed:", e);
+          }
+        }
+
+        completeSession(
+          sessionId,
+          artifactBroken ? { ...result, success: false } : result
+        );
 
         // Persist the assistant's reply so a continued session survives a
         // server restart with full context (fire-safe — never throws).

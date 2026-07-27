@@ -1089,7 +1089,7 @@ const SPECIALIST_ROSTER = `YOUR TEAM:
 - World Researcher (Sonnet) — setting and genre research`;
 
 /** Per-workflow conductor instructions mapping. */
-const CONDUCTOR_WORKFLOW_INSTRUCTIONS: Record<string, string> = {
+export const CONDUCTOR_WORKFLOW_INSTRUCTIONS: Record<string, string> = {
   // Delegation workflows — Coach delegates then synthesizes
   "dev-edit": "Delegate to dev-editor for the target chapter. You MUST pass chapterNumber and workflowId='dev-edit' to DelegateToSpecialist. When the specialist completes, summarize the 18 structural checks. Highlight critical and major issues first, then moderate. End with what the chapter does well.",
   "line-edit": "Delegate to line-editor for the target chapter. You MUST pass chapterNumber and workflowId='line-edit' to DelegateToSpecialist. Summarize prose findings when complete, organized by severity. Focus on AI tells and voice breaks first.",
@@ -1125,7 +1125,7 @@ You MUST pass chapterNumber and workflowId='revise' to DelegateToSpecialist. Aft
   // Direct conversation workflows — Coach handles directly, NO delegation
   "coach": "Open-ended writing conversation. Do NOT delegate to any specialist — handle this yourself. Use your expertise as a writing mentor to guide the user.",
   "new-novel": "Guide the user through concept creation for a new novel. Handle this directly — ask about premise, characters, themes, genre. Help them build the foundation. When ready, suggest creating the story bible.",
-  "create-story-bible": "Build the story bible conversationally with the user. Handle this directly — walk through characters, world rules, themes, and history. Write the STORY_BIBLE document when you have enough information. TARGET SIZE: 2,000–4,000 words (max 5,000). Use tables for character lists (name, role, arc). Be a concise reference doc, not an encyclopedia.",
+  "create-story-bible": "Build the story bible conversationally with the user. Handle this directly — walk through characters, world rules, themes, and history. You MUST call WriteDocument with documentType='STORY_BIBLE' to save it — pasting the story bible into the chat does NOT save it, and every later step (build-architecture, dev-edit) is blocked until that document exists. Never tell the user the story bible is complete or ready unless you have called WriteDocument in this session. TARGET SIZE: 2,000–4,000 words (max 5,000). Use tables for character lists (name, role, arc). Be a concise reference doc, not an encyclopedia.",
   "discuss-chapter": "Discuss the chapter's direction with the user. Handle directly — explore themes, character arcs, key scenes, and emotional beats. When ready, suggest plan-chapter.",
   "discuss-edits": "Review findings with the user. Handle directly — read the existing findings and discuss which to apply, which to reject, and why. Help the user make editorial decisions.",
   "freewrite": "Let the user write freely. Handle directly — offer encouragement, light suggestions, and creative prompts. Do not impose structure.",

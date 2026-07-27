@@ -520,7 +520,11 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
             statusAdvanced: boolean;
             newStatus?: string;
             betaGateResult?: string;
+            artifact?: unknown;
           } = { findingsCreated: 0, statusAdvanced: false };
+          // D-188: set when a declared-artifact workflow finished with no
+          // artifact while claiming one. Such a run may not report success.
+          let artifactBroken = false;
           if (!result.cancelled && result.success) {
             try {
               const postResult = await processPostSession({
@@ -530,6 +534,9 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
                 workflowId: data.workflowId,
                 agentType: workflow.primaryAgent,
                 chapterNumber: data.chapterNumber,
+                // D-188: recovery source + what the run actually persisted.
+                assistantText: result.assistantText,
+                documentIds: result.documentIds,
               });
               suggestedNext = postResult.suggestedNext;
               resultMeta = {
@@ -537,7 +544,25 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
                 statusAdvanced: postResult.statusAdvanced,
                 newStatus: postResult.newStatus,
                 betaGateResult: postResult.betaGateResult,
+                artifact: postResult.artifact,
               };
+              const artifact = postResult.artifact;
+              if (artifact) {
+                artifactBroken = !artifact.honest;
+                // Tell the writer either way: that the product saved the
+                // document the agent forgot, or that nothing was saved at all.
+                if (artifact.message) {
+                  onMessage({
+                    type: artifactBroken ? "error" : "status",
+                    content: artifact.message,
+                    metadata: {
+                      expectedDocument: artifact.expectedType,
+                      documentRecovered: artifact.recovered,
+                      documentPersisted: artifact.artifactExists,
+                    },
+                  });
+                }
+              }
             } catch (e) {
               // Log without exposing sensitive data
               const errMsg = e instanceof Error ? e.message : "Unknown error";
@@ -548,9 +573,12 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
           // Attach result metadata to the AgentResult for SSE propagation.
           // Cancelled sessions complete as success:false so the in-memory
           // session stays "failed" (matching the cancel route's DB status).
+          // D-188: an empty-artifact run is a FAILED run, never a completion —
+          // "Story Bible Status: Complete" with no STORY_BIBLE row is the
+          // defect this flip exists to make impossible.
           const enrichedResult = {
             ...result,
-            success: result.cancelled ? false : result.success,
+            success: result.cancelled || artifactBroken ? false : result.success,
             resultMeta,
           };
           completeSession(dbSession.id, enrichedResult, suggestedNext);
@@ -578,8 +606,10 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
           await db.agentSession.update({
             where: { id: dbSession.id },
             data: {
-              // Never overwrite the cancel route's "failed" with "completed".
-              status: result.cancelled
+              // Never overwrite the cancel route's "failed" with "completed",
+              // and never record a completion for a run whose declared
+              // artifact does not exist (D-188).
+              status: result.cancelled || artifactBroken
                 ? "failed"
                 : result.success
                   ? "completed"
