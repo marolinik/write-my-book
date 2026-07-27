@@ -137,9 +137,16 @@ export async function processBatchDigestJob(
       (sum, s) => sum + Number(s.actualCostUsd ?? 0),
       0
     );
-    const effectiveSpent = ledger.ledgerAvailable
-      ? ledger.spentUsd
-      : Math.max(dbSpent, batch.spentUsd ?? 0);
+    // The reported figure is also FLOORED by whatever is already persisted
+    // (D-186a): a mid-run cancel now writes the spend it derived from the child
+    // rows, so `BatchRun.spentUsd` can legitimately be non-zero before the
+    // digest lands. A ledger that reads lower (partial increment, key TTL, a
+    // child billed to the DB but not the ledger) must never SHRINK a money
+    // figure the writer was already shown.
+    const effectiveSpent = Math.max(
+      ledger.ledgerAvailable ? ledger.spentUsd : dbSpent,
+      batch.spentUsd ?? 0
+    );
 
     // The batch is cancelled iff a cancel already set that terminal state; the
     // digest still runs (BATCH-SPEC §2.1) but must not relabel it done/halted.

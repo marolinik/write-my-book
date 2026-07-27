@@ -3,10 +3,10 @@
  *
  * The stored `BatchRun` columns lag reality until the fan-in digest runs: a
  * batch that is actively spending still reads `status:"queued"`, `spentUsd:0`,
- * `halted:false`, `startedAt:null`, because those columns are only reconciled
- * by `processBatchDigestJob`. Any surface that renders a MID-RUN batch must
- * therefore derive those four values from the child `AgentSession` rows (plus
- * the live Redis halt flag) at read time.
+ * `halted:false`, `startedAt:null`, `completedCount:0`, `failedCount:0`, because
+ * those columns are only reconciled by `processBatchDigestJob`. Any surface that
+ * renders a MID-RUN batch must therefore derive those values from the child
+ * `AgentSession` rows (plus the live Redis halt flag) at read time.
  *
  * D-96 fixed the single-batch poll route this way; D-120 found the LIST route
  * still served the raw row, so the same batch read "queued / $0.00" in the list
@@ -24,17 +24,15 @@
  */
 
 import { getAppConnection } from "@/lib/queue/connection";
+import { TERMINAL_BATCH_STATUSES } from "./batch-status";
 
 /**
- * Terminal `BatchRun` statuses. Once reached, the fan-in digest has written the
- * FINAL reconciled row and the live view must return it verbatim.
+ * Terminal `BatchRun` statuses — re-exported from the dependency-free
+ * `batch-status` module so server routes and the (client) batch dialog share
+ * ONE set (D-186c). Once reached, the reconciled row is final and the live view
+ * must return it verbatim.
  */
-export const TERMINAL_BATCH_STATUSES: ReadonlySet<string> = new Set([
-  "done",
-  "failed",
-  "halted",
-  "cancelled",
-]);
+export { TERMINAL_BATCH_STATUSES, isTerminalBatchStatus } from "./batch-status";
 
 /** One child `AgentSession` row the derivation reads. */
 export interface LiveBatchChildRow {
@@ -54,16 +52,25 @@ export interface StoredBatchRow<TStatus extends string = string> {
   spentUsd?: number | null;
   halted?: boolean | null;
   startedAt?: Date | null;
+  completedCount?: number | null;
+  failedCount?: number | null;
   digest?: unknown;
   completedAt?: Date | null;
 }
 
-/** The four values a live-facing surface must derive rather than read raw. */
+/** The values a live-facing surface must derive rather than read raw. */
 export interface LiveBatchFields<TStatus extends string = string> {
   status: TStatus | "queued" | "running";
   spentUsd: number;
   halted: boolean;
   startedAt: Date | null;
+  /**
+   * Child progress. Written by the digest ONLY (D-186b), so a mid-run row reads
+   * `0 / 0` however many children have actually finished — the same stale-column
+   * lie D-96/D-120 fixed for status+spend, one field pair further along.
+   */
+  completedCount: number;
+  failedCount: number;
 }
 
 const NO_HALTED_BATCHES: ReadonlySet<string> = new Set();
@@ -97,6 +104,8 @@ export function deriveLiveBatchFields<TStatus extends string>(
   const storedSpend = Number(batch.spentUsd ?? 0);
   const storedHalted = batch.halted === true;
   const storedStart = batch.startedAt ?? null;
+  const storedCompleted = Number(batch.completedCount ?? 0);
+  const storedFailed = Number(batch.failedCount ?? 0);
 
   // Rule 1: terminal truth wins — reconciled row verbatim, Redis not consulted.
   if (isBatchTerminal(batch)) {
@@ -105,6 +114,8 @@ export function deriveLiveBatchFields<TStatus extends string>(
       spentUsd: storedSpend,
       halted: storedHalted,
       startedAt: storedStart,
+      completedCount: storedCompleted,
+      failedCount: storedFailed,
     };
   }
 
@@ -132,11 +143,22 @@ export function deriveLiveBatchFields<TStatus extends string>(
   const earliestStart =
     startedTimes.length > 0 ? new Date(Math.min(...startedTimes)) : null;
 
+  // Live progress (D-186b): count the SAME child statuses `aggregateBatchDigest`
+  // counts, floored by the stored values so a reconciled count can never
+  // regress. 'skipped' children are progress but neither completed nor failed —
+  // they stay out of both, exactly as the digest has them.
+  const childCompleted = children.filter(
+    (child) => child.status === "completed"
+  ).length;
+  const childFailed = children.filter((child) => child.status === "failed").length;
+
   return {
     status: anyChildActive ? "running" : "queued",
     spentUsd: Math.max(childSpend, storedSpend),
     halted: storedHalted || liveHalted,
     startedAt: storedStart ?? earliestStart,
+    completedCount: Math.max(childCompleted, storedCompleted),
+    failedCount: Math.max(childFailed, storedFailed),
   };
 }
 

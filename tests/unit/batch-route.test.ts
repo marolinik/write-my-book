@@ -82,6 +82,10 @@ beforeEach(() => {
     modelCreative: null,
   });
   h.db.apiKey.findMany.mockResolvedValue([]);
+  // Default: no child rows. Every live-derivation path (list, poll, cancel)
+  // reads them, so a test that does not care about children still gets a valid
+  // empty array instead of `undefined`. Per-test `mockResolvedValueOnce` wins.
+  h.db.agentSession.findMany.mockResolvedValue([]);
   h.resolveBatchModels.mockReturnValue({
     ok: true,
     coachRegistryId: "anthropic/sonnet",
@@ -272,6 +276,8 @@ describe("GET /api/books/:id/batch — list", () => {
         halted: false,
         startedAt: null,
         completedAt: null,
+        completedCount: 0,
+        failedCount: 0,
       },
     ]);
     h.db.agentSession.findMany.mockResolvedValueOnce([]);
@@ -286,6 +292,8 @@ describe("GET /api/books/:id/batch — list", () => {
           halted: false,
           startedAt: null,
           completedAt: null,
+          completedCount: 0,
+          failedCount: 0,
         },
       ],
     });
@@ -396,6 +404,61 @@ describe("GET /api/books/:id/batch — list", () => {
     expect(body.batches[0].spentUsd).toBeCloseTo(8.25, 5);
     expect(h.db.agentSession.findMany).not.toHaveBeenCalled();
   });
+
+  // ── D-186b (LIST progress counts) ───────────────────────────────────────
+  // `completedCount` / `failedCount` are ALSO only written by the fan-in
+  // digest, so a mid-run list row reported "0 done" next to the (now honest)
+  // live status/spend — the same stale-column lie D-120 fixed, one field pair
+  // further along. They belong in the SAME derivation.
+  it("D-186: derives live completed/failed counts for a non-terminal row", async () => {
+    h.db.book.findFirst.mockResolvedValueOnce({ id: "b1" });
+    h.db.batchRun.findMany.mockResolvedValueOnce([
+      {
+        id: "batch1",
+        status: "queued",
+        spentUsd: 0,
+        halted: false,
+        startedAt: null,
+        completedAt: null,
+        completedCount: 0, // stored counts lag until the digest fans in
+        failedCount: 0,
+      },
+    ]);
+    h.db.agentSession.findMany.mockResolvedValueOnce([
+      { batchId: "batch1", status: "completed", actualCostUsd: 1, startedAt: new Date() },
+      { batchId: "batch1", status: "completed", actualCostUsd: 1, startedAt: new Date() },
+      { batchId: "batch1", status: "failed", actualCostUsd: null, startedAt: new Date() },
+      { batchId: "batch1", status: "skipped", actualCostUsd: null, startedAt: new Date() },
+      { batchId: "batch1", status: "running", actualCostUsd: null, startedAt: new Date() },
+    ]);
+
+    const res = await listBatches(new Request("http://t") as never, bookCtx as never);
+    const body = await res.json();
+    expect(body.batches[0].completedCount).toBe(2);
+    expect(body.batches[0].failedCount).toBe(1);
+  });
+
+  it("D-186: terminal rows keep their reconciled counts verbatim", async () => {
+    h.db.book.findFirst.mockResolvedValueOnce({ id: "b1" });
+    h.db.batchRun.findMany.mockResolvedValueOnce([
+      {
+        id: "done1",
+        status: "done",
+        spentUsd: 6,
+        halted: false,
+        startedAt: new Date("2026-07-21T02:00:00Z"),
+        completedAt: new Date("2026-07-21T03:00:00Z"),
+        completedCount: 3,
+        failedCount: 1,
+      },
+    ]);
+
+    const res = await listBatches(new Request("http://t") as never, bookCtx as never);
+    const body = await res.json();
+    expect(body.batches[0].completedCount).toBe(3);
+    expect(body.batches[0].failedCount).toBe(1);
+    expect(h.db.agentSession.findMany).not.toHaveBeenCalled();
+  });
 });
 
 describe("GET /api/books/:id/batch/:batchId — status", () => {
@@ -472,6 +535,31 @@ describe("GET /api/books/:id/batch/:batchId — status", () => {
     // Terminal truth wins → the live Redis halt flag is NOT consulted.
     expect(h.redis.get).not.toHaveBeenCalled();
   });
+
+  it("D-186: the polled batch row carries live completed/failed counts mid-run", async () => {
+    h.db.batchRun.findFirst.mockResolvedValueOnce({
+      id: "batch1",
+      status: "queued",
+      spentUsd: 0,
+      halted: false,
+      startedAt: null,
+      digest: null,
+      completedCount: 0, // stale until the fan-in digest
+      failedCount: 0,
+    });
+    h.db.agentSession.findMany.mockResolvedValueOnce([
+      { status: "completed", actualCostUsd: 1, startedAt: new Date() },
+      { status: "failed", actualCostUsd: null, startedAt: new Date() },
+      { status: "queued", actualCostUsd: null, startedAt: null },
+    ]);
+
+    const res = await batchStatus(new Request("http://t") as never, batchCtx as never);
+    const body = await res.json();
+    expect(body.batch.completedCount).toBe(1);
+    expect(body.batch.failedCount).toBe(1);
+    // The separate live `counts` block is unchanged.
+    expect(body.counts).toMatchObject({ completed: 1, failed: 1, queued: 1 });
+  });
 });
 
 describe("POST /api/books/:id/batch/:batchId/cancel", () => {
@@ -530,5 +618,161 @@ describe("POST /api/books/:id/batch/:batchId/cancel", () => {
     // Still trips the halt flag + marks cancelled — but leaves the parent alone.
     expect(h.db.batchRun.update).toHaveBeenCalledTimes(1);
     expect(h.jobRemove).not.toHaveBeenCalled();
+  });
+
+  // ── D-186a: the "$0.00 cancel" money lie ────────────────────────────────
+  // Cancel flipped `status` to a TERMINAL value without touching the money
+  // columns. Because terminal rows are served VERBATIM by the shared live view
+  // (D-96/D-120 rule 1), a batch that had really spent money read "$0.00 /
+  // 0 done" on BOTH routes from the cancel click until the fan-in digest
+  // reconciled it — minutes to hours later, since in-flight children finish on
+  // their own. The cancel is the LAST moment a live derivation is allowed, so
+  // it must persist what it derives.
+  it("D-186: cancelling mid-run persists the spend already incurred (no $0.00 cancel window)", async () => {
+    const started = new Date("2026-07-27T02:00:00Z");
+    h.db.batchRun.findFirst.mockResolvedValueOnce({
+      id: "batch1",
+      status: "running",
+      parentJobId: null,
+      spentUsd: 0,
+      halted: false,
+      startedAt: null,
+      completedAt: null,
+      completedCount: 0,
+      failedCount: 0,
+    });
+    h.db.agentSession.findMany.mockResolvedValueOnce([
+      { status: "completed", actualCostUsd: 0.0446, startedAt: started },
+      { status: "failed", actualCostUsd: 0.01, startedAt: new Date("2026-07-27T02:05:00Z") },
+      { status: "running", actualCostUsd: null, startedAt: new Date("2026-07-27T02:07:00Z") },
+      { status: "queued", actualCostUsd: null, startedAt: null },
+    ]);
+
+    const res = await cancelBatch(
+      new Request("http://t", { method: "POST" }) as never,
+      batchCtx as never
+    );
+    expect(res.status).toBe(200);
+    await expect(res.json()).resolves.toMatchObject({ ok: true, spentUsd: 0.0546 });
+
+    const data = h.db.batchRun.update.mock.calls[0][0].data;
+    expect(data).toMatchObject({ status: "cancelled", halted: true, haltReason: "cancelled" });
+    // Pre-fix: spentUsd absent from the update → stored $0.00 served verbatim.
+    expect(data.spentUsd).toBeCloseTo(0.0546, 6);
+    expect(data.completedCount).toBe(1);
+    expect(data.failedCount).toBe(1);
+    expect(data.startedAt).toEqual(started);
+    // Children are read for THIS batch only, after the halt flag is tripped, so
+    // the figure includes everything that had settled by then.
+    expect(h.db.agentSession.findMany.mock.calls[0][0].where).toEqual({
+      batchId: "batch1",
+    });
+    const setOrder = h.redis.set.mock.invocationCallOrder[0];
+    const readOrder = h.db.agentSession.findMany.mock.invocationCallOrder[0];
+    expect(setOrder).toBeLessThan(readOrder);
+  });
+
+  it("D-186: a cancel never regresses an already-reconciled spend (under-claim only)", async () => {
+    h.db.batchRun.findFirst.mockResolvedValueOnce({
+      id: "batch1",
+      status: "running",
+      parentJobId: null,
+      spentUsd: 2.5, // already reconciled higher than the child rows show
+      halted: false,
+      startedAt: new Date("2026-07-27T02:00:00Z"),
+      completedAt: null,
+      completedCount: 4,
+      failedCount: 0,
+    });
+    h.db.agentSession.findMany.mockResolvedValueOnce([
+      { status: "completed", actualCostUsd: 1, startedAt: new Date("2026-07-27T02:10:00Z") },
+    ]);
+
+    await cancelBatch(new Request("http://t", { method: "POST" }) as never, batchCtx as never);
+    const data = h.db.batchRun.update.mock.calls[0][0].data;
+    expect(data.spentUsd).toBeCloseTo(2.5, 6);
+    expect(data.completedCount).toBe(4); // stored counts never regress either
+    expect(data.startedAt).toEqual(new Date("2026-07-27T02:00:00Z"));
+  });
+
+  it("D-186: cancelling before any child ran invents no spend", async () => {
+    h.db.batchRun.findFirst.mockResolvedValueOnce({
+      id: "batch1",
+      status: "queued",
+      parentJobId: null,
+      spentUsd: 0,
+      halted: false,
+      startedAt: null,
+      completedAt: null,
+      completedCount: 0,
+      failedCount: 0,
+    });
+    h.db.agentSession.findMany.mockResolvedValueOnce([
+      { status: "queued", actualCostUsd: null, startedAt: null },
+      { status: "queued", actualCostUsd: null, startedAt: null },
+    ]);
+
+    await cancelBatch(new Request("http://t", { method: "POST" }) as never, batchCtx as never);
+    const data = h.db.batchRun.update.mock.calls[0][0].data;
+    expect(data.spentUsd).toBe(0);
+    expect(data.startedAt).toBeNull();
+    expect(data.completedCount).toBe(0);
+  });
+
+  it("D-186: a failed child read still cancels, degrading to the stored money state", async () => {
+    h.db.batchRun.findFirst.mockResolvedValueOnce({
+      id: "batch1",
+      status: "running",
+      parentJobId: null,
+      spentUsd: 1.75,
+      halted: false,
+      startedAt: null,
+      completedAt: null,
+      completedCount: 1,
+      failedCount: 0,
+    });
+    h.db.agentSession.findMany.mockRejectedValueOnce(new Error("db down"));
+
+    const res = await cancelBatch(
+      new Request("http://t", { method: "POST" }) as never,
+      batchCtx as never
+    );
+    // Stopping the spend + flipping the status are the load-bearing halves —
+    // the honesty write must never be able to block them.
+    expect(res.status).toBe(200);
+    expect(h.redis.set).toHaveBeenCalled();
+    const data = h.db.batchRun.update.mock.calls[0][0].data;
+    expect(data.status).toBe("cancelled");
+    expect(data.spentUsd).toBeCloseTo(1.75, 6); // stored value, never regressed
+    expect(data.completedCount).toBe(1);
+  });
+
+  // ── D-186c: one terminal set, no drift ──────────────────────────────────
+  // The cancel route kept its own TERMINAL_STATUSES (done|failed|cancelled)
+  // while the shared live view used TERMINAL_BATCH_STATUSES (which also holds
+  // 'halted'). A halted batch is written by the digest — already terminal — so
+  // cancel must treat it as the same no-op both sets agree on everywhere else.
+  it("D-186c: cancel of a 'halted' batch is an idempotent no-op (shared terminal set)", async () => {
+    h.db.batchRun.findFirst.mockResolvedValueOnce({
+      id: "batch1",
+      status: "halted",
+      parentJobId: "p1",
+      spentUsd: 9.99,
+      halted: true,
+      startedAt: null,
+      completedAt: new Date(),
+      completedCount: 2,
+      failedCount: 0,
+    });
+    const res = await cancelBatch(
+      new Request("http://t", { method: "POST" }) as never,
+      batchCtx as never
+    );
+    expect(res.status).toBe(200);
+    await expect(res.json()).resolves.toEqual({ ok: true, alreadyDone: true });
+    // No spend rewrite, no halt-flag churn, no parent-job surgery.
+    expect(h.db.batchRun.update).not.toHaveBeenCalled();
+    expect(h.redis.set).not.toHaveBeenCalled();
+    expect(h.getJob).not.toHaveBeenCalled();
   });
 });

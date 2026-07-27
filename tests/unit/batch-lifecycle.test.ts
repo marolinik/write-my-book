@@ -490,6 +490,46 @@ describe("batch lifecycle — (c) digest aggregation", () => {
     expect(upd.data.spentUsd).not.toBe(0);
   });
 
+  // D-186a rider: a mid-run CANCEL now persists the spend it derived from the
+  // child rows, so `BatchRun.spentUsd` can already be non-zero when the digest
+  // lands. The reconciled figure must never REGRESS below a number the writer
+  // was already shown (live-batch-view rule 2), even if the Redis ledger reads
+  // lower (partial increment, key TTL, a child billed to the DB but not the
+  // ledger).
+  it("D-186: the digest never reports LESS spend than was already persisted", async () => {
+    h.db.batchRun.findUnique.mockResolvedValue({
+      id: BATCH_ID,
+      bookId: BOOK_ID,
+      userId: USER_ID,
+      workflowIds: ["dev-edit"],
+      chapterStart: 1,
+      chapterEnd: 2,
+      budgetCapUsd: CAP,
+      status: "cancelled",
+      halted: true,
+      spentUsd: 3.25, // written by the cancel route from the child rows
+    });
+    h.db.agentSession.findMany.mockResolvedValue([
+      { id: "s1", status: "completed", chapterNumber: 1, workflowId: "dev-edit", actualCostUsd: 3.25 },
+      { id: "s2", status: "skipped", chapterNumber: 2, workflowId: "dev-edit", actualCostUsd: null },
+    ]);
+    h.db.editFinding.findMany.mockResolvedValue([]);
+    h.db.chapter.findMany.mockResolvedValue([
+      { chapterNumber: 1, status: "drafted", betaGate: null },
+      { chapterNumber: 2, status: "drafted", betaGate: null },
+    ]);
+    // Ledger under-counts (only the first partial increment landed).
+    h.redis.store.set(`batch:${BATCH_ID}:spent`, "1.00");
+
+    await processBatchDigestJob(makeDigestJob());
+
+    const upd = h.db.batchRun.update.mock.calls[0][0];
+    expect(upd.data.spentUsd).toBeCloseTo(3.25, 5);
+    expect(upd.data.status).toBe("cancelled"); // cancel is never relabelled
+    const note = h.db.bookNotification.create.mock.calls[0][0].data;
+    expect(note.message).toContain("$3.25");
+  });
+
   it("a clean run (no skips, under cap) writes status 'done' and a normal-priority notification", async () => {
     h.db.batchRun.findUnique.mockResolvedValue({
       id: BATCH_ID,
