@@ -79,3 +79,34 @@ await db.book.update({
 Existing books are already drifted, so the reconcile should also run wherever
 `chapterCount` self-heals today, not only on delete. Worth checking the bulk/import and
 reorder paths for the same asymmetry.
+
+---
+
+## FIXED and witnessed live — `6640963`
+
+Fix shape: `src/lib/books/book-counters.ts` exposes `reconcileBookCounters(bookId)`, which
+reads `_count._all` and `_sum.wordCount` in **one** aggregate and writes both columns in
+**one** update, so the two counters can never disagree about the chapter rows they describe.
+Wired into all six structural paths — chapter create/delete, document create/delete, and two
+import paths. The hot content-save path at `content/route.ts:321` deliberately keeps its
+exact per-save delta; drift can now only be introduced structurally, and every structural
+path reconciles.
+
+Suite after the fix: **1709/1709 across 209 files**, 0 failures (independently checked).
+D-194's `chapter-count-integrity` tests were extended onto the shared aggregate rather than
+bypassed, so D-194's contract — authoritative recount, never a blind delta — still holds.
+
+**Live convergence proof** against the running build, on the very book this defect was
+measured on (`df2269b0`, stored 37 vs real 14):
+
+| step | `books.word_count` \| `chapter_count` |
+|---|---|
+| before (drifted) | `37 \| 1` |
+| after POST one chapter | `14 \| 2` |
+| after DELETE that chapter | `14 \| 1` |
+| truth from `chapters` table | `1 row, 14 words` |
+
+The 23 stale words disappeared on the **first** structural touch. So already-drifted books
+self-heal as soon as they are touched and no backfill migration is needed — which is why
+none was written. Books never touched again keep their inflated total; that is the one
+knowingly-accepted residual.
