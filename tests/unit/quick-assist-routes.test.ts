@@ -211,7 +211,7 @@ describe("discuss builder is NOT touched by the quick-assist fix (D-100 scope gu
       content: [{ type: "text", text: "Keep the em dash." }],
       stop_reason: "end_turn",
     });
-    await runDiscussTurn({ system: "s", user: "u", userId: "u1" });
+    await runDiscussTurn({ system: "s", user: "u", userId: "u1", bookId: "b1" });
     expect(h.create).toHaveBeenCalled();
     expect(h.create.mock.calls[0][0].reasoning).toBeUndefined();
   });

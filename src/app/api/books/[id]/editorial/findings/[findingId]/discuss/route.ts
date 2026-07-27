@@ -99,8 +99,9 @@ export async function POST(req: Request, { params }: RouteParams) {
       agentType: finding.agentType,
     });
 
-    // Step 2: the network call runs OUTSIDE any transaction/lock.
-    const raw = await runDiscussTurn({ system, user: userPrompt, userId: user.id });
+    // Step 2: the network call runs OUTSIDE any transaction/lock. It bills the
+    // turn against this book at settle (D-172), so bookId travels with it.
+    const raw = await runDiscussTurn({ system, user: userPrompt, userId: user.id, bookId });
     const parsed = parseDiscussResponse(raw);
     // D-41b: the parser only yields a revisedSuggestion when it is non-empty (an
     // empty "suggestion:" line degrades to undefined), so an empty revision can

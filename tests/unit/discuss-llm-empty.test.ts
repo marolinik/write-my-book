@@ -15,23 +15,27 @@ const h = vi.hoisted(() => ({
   db: {
     apiKey: { findMany: vi.fn() },
     user: { findUnique: vi.fn() },
+    // D-172: a delivered turn now writes a usage record at settle.
+    usageRecord: { create: vi.fn() },
   },
 }));
 
 vi.mock("@/lib/db", () => ({ db: h.db }));
 vi.mock("@/lib/encryption", () => ({ decryptApiKey: (k: string) => `dec:${k}` }));
-vi.mock("@/lib/llm", () => ({
+// Real registry kept (the settle-time cost estimate resolves through it).
+vi.mock("@/lib/llm", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/llm")>()),
   createLLMClient: () => ({
     client: { messages: { create: h.create } },
-    model: { modelId: "qwen/qwen3-vl-235b" },
+    model: { id: "openrouter-qwen36/haiku", modelId: "qwen/qwen3-vl-235b" },
     effectiveModelId: "qwen/qwen3-vl-235b",
   }),
-  resolveCheapModelFor: () => ({ id: "openrouter/qwen-cheap" }),
+  resolveCheapModelFor: () => ({ id: "openrouter-qwen36/haiku" }),
 }));
 
 import { runDiscussTurn, DiscussLLMEmptyError } from "@/lib/editorial/discuss-llm";
 
-const args = { system: "s", user: "u", userId: "u1" };
+const args = { system: "s", user: "u", userId: "u1", bookId: "b1" };
 
 /** A response whose entire budget went to reasoning — no text block. */
 const reasoningOnly = {

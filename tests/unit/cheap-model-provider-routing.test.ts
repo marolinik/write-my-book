@@ -54,7 +54,7 @@ describe("runDiscussTurn honors the user's provider", () => {
 
   it("routes an OpenRouter-default user to an openrouter/* cheap model (not anthropic)", async () => {
     h.db.user.findUnique.mockResolvedValue({ defaultModel: "openrouter-qwen-max/opus" });
-    await runDiscussTurn({ system: "s", user: "u", userId: "u1" });
+    await runDiscussTurn({ system: "s", user: "u", userId: "u1", bookId: "b1" });
     // Exact id (not just /^openrouter/): resolveCheapModelFor("openrouter-qwen-max/opus")
     // returns "openrouter-qwen-max/haiku". The loose regex also matched the PRE-FIX
     // heuristic ("openrouter/haiku"), so it gave no regression protection — now that
@@ -64,13 +64,13 @@ describe("runDiscussTurn honors the user's provider", () => {
 
   it("preserves anthropic/haiku for an anthropic-default user", async () => {
     h.db.user.findUnique.mockResolvedValue({ defaultModel: "anthropic/sonnet" });
-    await runDiscussTurn({ system: "s", user: "u", userId: "u1" });
+    await runDiscussTurn({ system: "s", user: "u", userId: "u1", bookId: "b1" });
     expect(capturedModelId()).toBe("anthropic/haiku");
   });
 
   it("defaults to anthropic/haiku when the user has no stored defaultModel", async () => {
     h.db.user.findUnique.mockResolvedValue(null);
-    await runDiscussTurn({ system: "s", user: "u", userId: "u1" });
+    await runDiscussTurn({ system: "s", user: "u", userId: "u1", bookId: "b1" });
     expect(capturedModelId()).toBe("anthropic/haiku");
   });
 });
