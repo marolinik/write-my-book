@@ -70,7 +70,7 @@ export function DailyWordChart({ data }: DailyWordChartProps) {
                 width={50}
               />
               <Tooltip
-                cursor={{ fill: "hsl(var(--muted) / 0.3)" }}
+                cursor={{ fill: "color-mix(in oklab, var(--muted) 30%, transparent)" }}
                 content={({ active, payload }) => {
                   if (!active || !payload?.length) return null;
                   const item = payload[0].payload as { date: string; words: number };
@@ -86,7 +86,7 @@ export function DailyWordChart({ data }: DailyWordChartProps) {
               />
               <Bar
                 dataKey="words"
-                fill="hsl(var(--primary))"
+                fill="var(--primary)"
                 radius={[3, 3, 0, 0]}
                 maxBarSize={20}
               />

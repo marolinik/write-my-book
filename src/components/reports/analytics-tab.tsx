@@ -149,7 +149,7 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
         .map(([source, data]) => ({
           name: source === "user" ? "Your Keys" : source === "platform" ? "Platform Keys" : source,
           value: Number(((data as { costEstimate: number }).costEstimate).toFixed(4)),
-          fill: source === "user" ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))",
+          fill: source === "user" ? "var(--primary)" : "var(--muted-foreground)",
         }))
     : [];
   const totalCost = usageData?.total?.costEstimate ?? 0;
@@ -230,15 +230,15 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
                       />
                       <Tooltip
                         contentStyle={{
-                          backgroundColor: "hsl(var(--card))",
-                          border: "1px solid hsl(var(--border))",
+                          backgroundColor: "var(--card)",
+                          border: "1px solid var(--border)",
                           borderRadius: "0.5rem",
                         }}
                         formatter={(value?: number | string) => [`${Number(value ?? 0).toFixed(1)} / 10`, "Score"]}
                       />
                       <ReferenceLine
                         y={avgScore}
-                        stroke="hsl(var(--muted-foreground))"
+                        stroke="var(--muted-foreground)"
                         strokeDasharray="5 5"
                         label={{ value: `Avg ${avgScore.toFixed(1)}`, position: "insideTopRight", fontSize: 11 }}
                       />
@@ -287,8 +287,8 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
                       />
                       <Tooltip
                         contentStyle={{
-                          backgroundColor: "hsl(var(--card))",
-                          border: "1px solid hsl(var(--border))",
+                          backgroundColor: "var(--card)",
+                          border: "1px solid var(--border)",
                           borderRadius: "0.5rem",
                         }}
                         formatter={(value?: number | string) => [Number(value ?? 0), "Chapters"]}
@@ -296,7 +296,7 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
                       <Bar
                         dataKey="count"
                         name="Chapters"
-                        fill="hsl(var(--primary))"
+                        fill="var(--primary)"
                         radius={[4, 4, 0, 0]}
                       />
                     </BarChart>
@@ -330,22 +330,22 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
                         />
                         <Tooltip
                           contentStyle={{
-                            backgroundColor: "hsl(var(--card))",
-                            border: "1px solid hsl(var(--border))",
+                            backgroundColor: "var(--card)",
+                            border: "1px solid var(--border)",
                             borderRadius: "0.5rem",
                           }}
                           formatter={(value?: number | string) => [`${Number(value ?? 0).toFixed(1)} / 10`, "Score"]}
                         />
                         <ReferenceLine
                           y={avgScore}
-                          stroke="hsl(var(--muted-foreground))"
+                          stroke="var(--muted-foreground)"
                           strokeDasharray="5 5"
                           label={{ value: `Avg ${avgScore.toFixed(1)}`, position: "insideTopRight", fontSize: 11 }}
                         />
                         <Line
                           type="monotone"
                           dataKey="score"
-                          stroke="hsl(var(--primary))"
+                          stroke="var(--primary)"
                           strokeWidth={2}
                           dot={{ r: 4 }}
                           activeDot={{ r: 6 }}
@@ -405,8 +405,8 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
                     <YAxis domain={[0, 10]} className="text-xs fill-muted-foreground" />
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: "hsl(var(--card))",
-                        border: "1px solid hsl(var(--border))",
+                        backgroundColor: "var(--card)",
+                        border: "1px solid var(--border)",
                         borderRadius: "0.5rem",
                       }}
                     />
@@ -415,8 +415,8 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
                       type="monotone"
                       dataKey="tension"
                       name="Your Tension"
-                      stroke="hsl(var(--primary))"
-                      fill="hsl(var(--primary))"
+                      stroke="var(--primary)"
+                      fill="var(--primary)"
                       fillOpacity={0.1}
                       strokeWidth={2}
                     />
@@ -425,7 +425,7 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
                         type="monotone"
                         dataKey="genreAvg"
                         name="Genre Average"
-                        stroke="hsl(var(--muted-foreground))"
+                        stroke="var(--muted-foreground)"
                         strokeDasharray="5 5"
                         dot={false}
                       />
@@ -464,15 +464,15 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
                       />
                       <Tooltip
                         contentStyle={{
-                          backgroundColor: "hsl(var(--card))",
-                          border: "1px solid hsl(var(--border))",
+                          backgroundColor: "var(--card)",
+                          border: "1px solid var(--border)",
                           borderRadius: "0.5rem",
                         }}
                       />
                       <Bar
                         dataKey="lineCount"
                         name="Lines"
-                        fill="hsl(var(--primary))"
+                        fill="var(--primary)"
                         radius={[0, 4, 4, 0]}
                       />
                     </BarChart>
@@ -632,8 +632,8 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
                           </Pie>
                           <Tooltip
                             contentStyle={{
-                              backgroundColor: "hsl(var(--card))",
-                              border: "1px solid hsl(var(--border))",
+                              backgroundColor: "var(--card)",
+                              border: "1px solid var(--border)",
                               borderRadius: "0.5rem",
                             }}
                             formatter={(value?: number | string) => [`$${Number(value ?? 0).toFixed(2)}`, "Cost"]}
