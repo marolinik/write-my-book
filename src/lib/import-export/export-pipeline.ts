@@ -6,6 +6,8 @@ import { tmpdir } from "os";
 import { randomUUID } from "crypto";
 import JSZip from "jszip";
 import { DocumentType } from "@/generated/prisma/enums";
+// Pure, db-free helper — safe for this module's static import graph.
+import { isOrphanedChapterContent } from "@/lib/documents/orphan-chapter-content";
 import type { StorageAdapter } from "@/lib/storage/types";
 import type { ExportConfig, ExportOptions, ExportResult } from "./types";
 import { getDefaultExportConfig, parseExportConfigJson } from "./export-config";
@@ -362,7 +364,13 @@ export async function assembleChapterSections(args: {
   const chapters = await db.chapter.findMany({
     where: { bookId: args.bookId },
     orderBy: { chapterNumber: "asc" },
-    select: { chapterNumber: true, actNumber: true },
+    // createdAt + wordCount feed the D-190 orphan guard below.
+    select: {
+      chapterNumber: true,
+      actNumber: true,
+      createdAt: true,
+      wordCount: true,
+    },
   });
 
   // No chapter rows at all (legacy/pre-DB books): nothing to order by, so the
@@ -385,6 +393,21 @@ export async function assembleChapterSections(args: {
       chapter.chapterNumber
     );
     if (!doc) continue;
+
+    // D-190/D-115: a document left behind by a DELETED chapter that held this
+    // number is not this chapter's prose. Export resolves content exactly like
+    // the editor's GET, so it honours the same guard — otherwise deleted words
+    // ship inside the finished manuscript.
+    if (
+      isOrphanedChapterContent({
+        docCreatedAt: doc.createdAt,
+        chapterCreatedAt: chapter.createdAt,
+        chapterWordCount: chapter.wordCount,
+      })
+    ) {
+      continue;
+    }
+
     resolvedCount++;
 
     // readPinned pairs currentVersion with that exact version's snapshot —

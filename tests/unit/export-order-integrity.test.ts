@@ -133,4 +133,46 @@ describe("assembleChapterSections (D-03 export order integrity)", () => {
     // when their content is empty; chapters with no document do not.
     expect(chapterCount).toBe(2);
   });
+
+  // D-190: a deleted chapter's CHAPTER_CONTENT row survives the delete and is
+  // resolved by (book, type, chapter_number), so a brand-new chapter that
+  // inherits the freed number would EXPORT the deleted prose. Export resolves
+  // content exactly like the editor's GET, so it must honour the same guard.
+  it("never exports a deleted chapter's prose into a brand-new empty chapter", async () => {
+    const chapterCreated = new Date("2026-07-02T09:00:00Z");
+    h.db.chapter.findMany.mockResolvedValue([
+      {
+        chapterNumber: 1,
+        actNumber: 1,
+        wordCount: 8,
+        createdAt: new Date("2026-07-01T09:00:00Z"),
+      },
+      // Recreated after the original chapter 2 was deleted; never written to.
+      { chapterNumber: 2, actNumber: 1, wordCount: 0, createdAt: chapterCreated },
+    ]);
+    h.findByType.mockImplementation(async (_type: unknown, n: number) =>
+      n === 1
+        ? { ...docByNumber[1], createdAt: new Date("2026-07-01T09:30:00Z") }
+        : {
+            id: "doc-orphan",
+            storageKey: "manuscript/act-1/chapter-02.md",
+            createdAt: new Date("2026-07-01T11:00:00Z"),
+          }
+    );
+    h.readPinned.mockImplementation(async (id: string) =>
+      id === "doc-orphan"
+        ? { content: "Deleted words. GHOST_SECRET_9f3a" }
+        : { content: bodyByDocId[id] }
+    );
+
+    const { chapterContent, chapterCount } = await assembleChapterSections({
+      bookId: "b1",
+      userId: "u1",
+      storage,
+    });
+
+    expect(chapterContent).not.toContain("GHOST_SECRET_9f3a");
+    expect(chapterContent).toContain("Beta body: the storm broke over the harbour.");
+    expect(chapterCount).toBe(1);
+  });
 });

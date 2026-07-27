@@ -3,6 +3,10 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { updateChapterContentSchema } from "@/lib/validation";
 import { DocumentService, VersionConflictError } from "@/lib/documents";
+import {
+  isOrphanedChapterContent,
+  ORPHAN_RECLAIM_SOURCE,
+} from "@/lib/documents/orphan-chapter-content";
 import { DocumentType } from "@/generated/prisma/enums";
 import { countWords } from "@/lib/utils";
 import { onDocumentChanged } from "@/lib/vector/memory-manager";
@@ -84,6 +88,21 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
       DocumentType.CHAPTER_CONTENT,
       chapter.chapterNumber
     );
+
+    // D-190/D-115: a document left behind by a DELETED chapter that used to
+    // hold this number is not this chapter's prose. Serve the chapter as what
+    // it is — empty — and withhold the orphan's id and version so the editor
+    // cannot stamp a save against it or present its history as this chapter's.
+    if (
+      doc &&
+      isOrphanedChapterContent({
+        docCreatedAt: doc.createdAt,
+        chapterCreatedAt: chapter.createdAt,
+        chapterWordCount: chapter.wordCount,
+      })
+    ) {
+      return NextResponse.json({ markdown: "", wordCount: 0 });
+    }
 
     if (!doc) {
       return NextResponse.json({ markdown: "", wordCount: 0 });
@@ -198,7 +217,32 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
 
     let version: number;
 
-    if (existingDoc) {
+    // D-190/D-115: the row found here can be the leftover content of a DELETED
+    // chapter that used to hold this number (GET withheld it, so this client
+    // never saw it and carries no stamp). Treat the save as this chapter's
+    // genuine FIRST save: reclaim the row by overwriting it wholesale — no CAS
+    // stamp demanded (the phantom 409 that leaked `serverContent` in the
+    // registered repro is exactly this branch) and no merge, so the deleted
+    // prose cannot re-enter the manuscript. The reclaim is labelled in version
+    // history; the dead chapter's older versions are left intact for restore.
+    const reclaimingOrphan =
+      !!existingDoc &&
+      isOrphanedChapterContent({
+        docCreatedAt: existingDoc.createdAt,
+        chapterCreatedAt: chapter.createdAt,
+        chapterWordCount: chapter.wordCount,
+      });
+
+    if (existingDoc && reclaimingOrphan) {
+      const result = await svc.update(
+        existingDoc.id,
+        data.markdown,
+        undefined,
+        "manual_edit",
+        ORPHAN_RECLAIM_SOURCE
+      );
+      version = result.version.version;
+    } else if (existingDoc) {
       // D-47: overwriting an ALREADY-EXISTING document without an
       // optimistic-lock stamp is a silent last-write-wins (J-4). Require the
       // stamp for interactive writers; trusted non-interactive writers bypass
