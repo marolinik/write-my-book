@@ -32,11 +32,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const parsed = searchQuerySchema.safeParse({
       q: url.searchParams.get("q") ?? undefined,
       caseSensitive: url.searchParams.get("caseSensitive"),
+      wholeWord: url.searchParams.get("wholeWord"),
     });
     if (!parsed.success) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
-    const { q, caseSensitive } = parsed.data;
+    const { q, caseSensitive, wholeWord } = parsed.data;
 
     const book = await db.book.findFirst({
       where: { id: bookId, userId: user.id },
@@ -63,7 +64,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       if (!doc) continue;
 
       const content = (await svc.readPinned(doc.id))?.content ?? "";
-      const { count, snippets } = findInText(content, q, caseSensitive);
+      const { count, snippets } = findInText(content, q, caseSensitive, wholeWord);
       if (count === 0) continue;
 
       totalCount += count;

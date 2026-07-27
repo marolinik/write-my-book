@@ -241,6 +241,12 @@ export const searchQuerySchema = z.object({
     .string()
     .nullish()
     .transform((v) => v === "1" || v === "true"),
+  // D-189: whole-word matching. Same "1"/"true" convention as caseSensitive,
+  // so an absent flag stays substring matching (the pre-D-189 behaviour).
+  wholeWord: z
+    .string()
+    .nullish()
+    .transform((v) => v === "1" || v === "true"),
 });
 
 export const replaceRequestSchema = z.object({
@@ -249,6 +255,8 @@ export const replaceRequestSchema = z.object({
   // Absent = every chapter in the book; present = only these chapter ids.
   chapterIds: z.array(z.string()).optional(),
   caseSensitive: z.boolean().optional().default(false),
+  // D-189: absent = substring matching, preserving every existing caller.
+  wholeWord: z.boolean().optional().default(false),
 });
 
 export const exportConfigSchema = z.object({

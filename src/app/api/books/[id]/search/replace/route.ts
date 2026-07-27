@@ -36,7 +36,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     if (!parsed.success) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
-    const { find, replace, chapterIds, caseSensitive } = parsed.data;
+    const { find, replace, chapterIds, caseSensitive, wholeWord } = parsed.data;
 
     const book = await db.book.findFirst({
       where: { id: bookId, userId: user.id },
@@ -72,7 +72,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         content,
         find,
         replace,
-        caseSensitive
+        caseSensitive,
+        // D-189: whole-word matching, so a book-wide character rename can no
+        // longer rewrite `same`/`sample`/`samovar` and report it as success.
+        wholeWord
       );
       if (count === 0) continue;
 
