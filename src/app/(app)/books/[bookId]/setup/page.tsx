@@ -43,6 +43,7 @@ import { useAgentSessionStore } from "@/stores/agent-session-store";
 import { useBook, useUpdateBook } from "@/hooks/use-books";
 import { useBookState, getFirstIncompleteStep } from "@/hooks/use-book-state";
 import { useCreateChapter } from "@/hooks/use-chapters";
+import { useUpdateBookSettings } from "@/hooks/use-settings";
 import { useLanguage } from "@/components/providers/language-provider";
 import { ImportWizard } from "@/components/import-export/import-wizard";
 import { fetchJson } from "@/lib/api-client";
@@ -73,6 +74,10 @@ export default function SetupPage({
   const updateBook = useUpdateBook(bookId);
   const bookState = useBookState(bookId);
   const createChapter = useCreateChapter(bookId);
+  // D-174: the wizard's two settings PATCHes go through the shared mutation so
+  // the cache the chrome reads (["book-settings", bookId]) is invalidated on
+  // success — the wizard used to bypass it with a raw fetch.
+  const { mutateAsync: patchSettings } = useUpdateBookSettings(bookId);
 
   const STEPS = useMemo(
     () => [
@@ -131,16 +136,16 @@ export default function SetupPage({
   /** Skip import step — mark as skipped in book settings. */
   const handleSkipImport = useCallback(async () => {
     try {
-      await fetchJson(`/api/books/${bookId}/settings`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ setupImportSkipped: true }),
-      });
+      // Through the mutation hook, never a raw PATCH: it invalidates
+      // ["book-settings", bookId], the key every other surface derives setup
+      // state from. A hand-rolled fetch persisted the flag while leaving the
+      // step bar and the chrome stale until a reload (D-174).
+      await patchSettings({ setupImportSkipped: true });
     } catch {
       // Non-fatal — user can still proceed
     }
     next();
-  }, [bookId, next]);
+  }, [patchSettings, next]);
 
   /**
    * Mark setup complete and land the writer IN the editor (D-161).
@@ -155,11 +160,10 @@ export default function SetupPage({
     if (finishing) return;
     setFinishing(true);
     try {
-      await fetchJson(`/api/books/${bookId}/settings`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ setupComplete: true }),
-      });
+      // Mutation hook, not a raw PATCH — see handleSkipImport (D-174). This is
+      // what makes the sidebar drop "Style [Next Step]" and show "✓ 2/5" in the
+      // same SPA session the writer pressed the button in.
+      await patchSettings({ setupComplete: true });
     } catch (err) {
       // Never a silent no-op: say why setup could not be saved.
       toast.error(`Failed to complete setup: ${(err as Error).message}`);
@@ -192,7 +196,7 @@ export default function SetupPage({
       target ? `/books/${bookId}/chapters/${target.id}` : `/books/${bookId}`
     );
     setFinishing(false);
-  }, [bookId, router, book?.chapters, createChapter, finishing]);
+  }, [bookId, router, book?.chapters, createChapter, finishing, patchSettings]);
 
   /** Start a workflow, with confirmation if document already exists. */
   const handleStartWorkflow = useCallback(

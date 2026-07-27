@@ -25,6 +25,14 @@ export type BookSettingsData = {
   betaConsensus: number;
   betaConvergence: number;
   language: string;
+  /**
+   * Setup-wizard flags (D-35). Typed here so the wizard can persist them
+   * through this mutation instead of hand-rolling a PATCH — a raw fetch left
+   * `["book-settings", bookId]` stale, so finishing setup changed nothing in
+   * the chrome until a reload (D-174).
+   */
+  setupImportSkipped: boolean;
+  setupComplete: boolean;
 };
 
 /** Fetch settings for a book. */

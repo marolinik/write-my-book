@@ -57,6 +57,80 @@ export function formatUsageModelLabel(model: string): string {
 }
 
 /**
+ * A `groupBy`/reduce row as the usage API actually returns it for `byModel` —
+ * `sessionCount` is absent there (the route counts sessions only per agent), so
+ * it is optional here rather than forcing callers to invent a zero.
+ */
+export type UsageModelTotals = Omit<UsageModelGroup, "sessionCount"> & {
+  sessionCount?: number;
+};
+
+/** One "Usage by Model" line, after aliasing slots have been folded together. */
+export interface UsageModelDisplayRow {
+  /** Writer-facing label: display name + real API model id. */
+  label: string;
+  /**
+   * The registry ids folded into this row, sorted. More than one means several
+   * configured slots resolve to the same provider model — the panel discloses
+   * them so a folded row stays auditable.
+   */
+  modelIds: string[];
+  tokensInput: number;
+  tokensOutput: number;
+  costEstimate: number;
+  sessionCount: number;
+}
+
+/**
+ * Fold per-model usage rows into the rows the "Usage by Model" panel renders
+ * (D-175).
+ *
+ * The rollup keys on the stored registry id — the D-44 provider-attribution
+ * contract — but several slots can alias ONE provider model
+ * (`openrouter-qwen36/haiku` and `openrouter-qwen36/sonnet` are both
+ * `qwen/qwen3.6-27b`). Rendered through {@link formatUsageModelLabel} those
+ * produced two rows with an identical name and identical model id but different
+ * numbers, so "how much did this model cost me?" had two contradictory answers
+ * and no way to tell them apart.
+ *
+ * Rows are therefore keyed by the rendered label — the finest distinction the
+ * panel actually shows — summed, and tagged with the registry ids they came
+ * from. Unknown/legacy ids (e.g. "text-embedding-3-small") pass through as their
+ * own row, exactly as `formatUsageModelLabel` passes them through verbatim.
+ *
+ * Sorted by spend (biggest first), tie-broken by label so the order is
+ * deterministic. Pure and immutable — the input is never mutated.
+ */
+export function foldUsageModelsForDisplay(
+  groups: readonly UsageModelTotals[]
+): UsageModelDisplayRow[] {
+  const byLabel = new Map<string, UsageModelDisplayRow>();
+
+  for (const group of groups) {
+    const label = formatUsageModelLabel(group.model);
+    const prev = byLabel.get(label);
+    const modelIds = prev?.modelIds.includes(group.model)
+      ? prev.modelIds
+      : [...(prev?.modelIds ?? []), group.model];
+
+    byLabel.set(label, {
+      label,
+      modelIds,
+      tokensInput: (prev?.tokensInput ?? 0) + group.tokensInput,
+      tokensOutput: (prev?.tokensOutput ?? 0) + group.tokensOutput,
+      costEstimate: (prev?.costEstimate ?? 0) + group.costEstimate,
+      sessionCount: (prev?.sessionCount ?? 0) + (group.sessionCount ?? 0),
+    });
+  }
+
+  return [...byLabel.values()]
+    .map((row) => ({ ...row, modelIds: [...row.modelIds].sort() }))
+    .sort(
+      (a, b) => b.costEstimate - a.costEstimate || a.label.localeCompare(b.label)
+    );
+}
+
+/**
  * Fold per-model usage rows into per-provider totals, attributing each row to
  * its provider through {@link providerForUsageModel}. Rows with no known
  * provider are skipped. Pure and immutable — the input is never mutated.

@@ -14,7 +14,10 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
 import { formatTokens } from "@/lib/utils";
-import { formatUsageModelLabel } from "@/lib/llm/usage-aggregation";
+import {
+  foldUsageModelsForDisplay,
+  type UsageModelTotals,
+} from "@/lib/llm/usage-aggregation";
 import { billingStatusNotice } from "@/lib/billing/status-notice";
 import { useLocale } from "@/components/providers/language-provider";
 import {
@@ -701,30 +704,47 @@ export default function BillingPage() {
                 </p>
               ) : (
                 <div className="space-y-3">
-                  {Object.entries(usage.byModel).map(
-                    ([model, data]: [string, any]) => (
-                      <div
-                        key={model}
-                        className="flex items-center justify-between rounded-md border p-3"
+                  {/* D-119: render a name the writer recognizes + the real API
+                      model id, not the raw registry slot id they never picked
+                      (e.g. "openrouter-qwen36/haiku").
+                      D-175: several configured slots can alias ONE provider
+                      model, which used to render as two rows with the SAME name
+                      and model id and different numbers — unanswerable for
+                      anyone auditing spend. They are folded into one row and the
+                      slots behind the fold are named, so the total stays
+                      auditable. */}
+                  {foldUsageModelsForDisplay(
+                    Object.entries(
+                      usage.byModel as Record<
+                        string,
+                        Omit<UsageModelTotals, "model">
                       >
-                        {/* D-119: render a name the writer recognizes + the real
-                            API model id, not the raw registry slot id they never
-                            picked (e.g. "openrouter-qwen36/haiku"). */}
-                        <p className="font-medium">{formatUsageModelLabel(model)}</p>
-                        <div className="text-right">
-                          <p className="font-medium">
-                            ${data.costEstimate.toFixed(2)}
+                    ).map(([model, data]) => ({ model, ...data }))
+                  ).map((row) => (
+                    <div
+                      key={row.modelIds.join("|")}
+                      className="flex items-center justify-between gap-4 rounded-md border p-3"
+                    >
+                      <div className="min-w-0">
+                        <p className="font-medium">{row.label}</p>
+                        {row.modelIds.length > 1 && (
+                          <p className="text-xs text-muted-foreground">
+                            Combined across {row.modelIds.length} configured
+                            slots: {row.modelIds.join(", ")}
                           </p>
-                          <p className="text-sm text-muted-foreground">
-                            {formatTokens(
-                              data.tokensInput + data.tokensOutput
-                            )}{" "}
-                            total tokens
-                          </p>
-                        </div>
+                        )}
                       </div>
-                    )
-                  )}
+                      <div className="text-right">
+                        <p className="font-medium">
+                          ${row.costEstimate.toFixed(2)}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {formatTokens(row.tokensInput + row.tokensOutput)}{" "}
+                          total tokens
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </CardContent>
