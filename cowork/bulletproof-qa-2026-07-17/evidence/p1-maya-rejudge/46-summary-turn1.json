@@ -1,0 +1,216 @@
+{
+  "series": "46",
+  "persona": "P1 (Maya)",
+  "book": "4116055c-6183-4675-926a-e04f31126951",
+  "finding": "5c20c0e1-e763-43b6-b2f6-a6aaefbc7a9c",
+  "proves": "D5 — finding-discuss turns stream (ttft, cadence, no control-syntax leak, cap, billing)",
+  "trace": [
+    {
+      "step": "warm-discuss-get",
+      "status": 200,
+      "ms": 92
+    },
+    {
+      "step": "warm-editorial-page",
+      "status": 200,
+      "ms": 197
+    },
+    {
+      "step": "pre-state",
+      "userTurns": 0,
+      "canDiscuss": true,
+      "replies": 0
+    },
+    {
+      "step": "instrumentation",
+      "d": "object",
+      "dom": "object",
+      "fetchPatched": true
+    },
+    {
+      "step": "pageerror",
+      "message": "Clerk: Failed to load Clerk, failed to load script: https://clerk.example.test/npm/@clerk/clerk-js@5/dist/clerk.browser.js\n\n(code=\"failed_to_load_clerk_js\")\n\n"
+    }
+  ],
+  "turns": [
+    {
+      "turnNumber": 1,
+      "writerMessage": "I'm not attached to that line. Show me your tighter version of it so I can compare.",
+      "network": [
+        {
+          "at": 1785123153280,
+          "url": "/api/books/4116055c-6183-4675-926a-e04f31126951/editorial/findings/5c20c0e1-e763-43b6-b2f6-a6aaefbc7a9c/discuss",
+          "method": "POST",
+          "status": 200,
+          "contentType": "text/event-stream",
+          "serverTiming": "ttft;dur=25356"
+        },
+        {
+          "at": 1785123154775,
+          "url": "/api/books/4116055c-6183-4675-926a-e04f31126951/editorial/findings/5c20c0e1-e763-43b6-b2f6-a6aaefbc7a9c/discuss",
+          "method": "GET",
+          "status": 200,
+          "contentType": "application/json",
+          "serverTiming": null
+        }
+      ],
+      "streamHeaders": {
+        "status": 200,
+        "contentType": "text/event-stream",
+        "serverTiming": "ttft;dur=25356",
+        "tMs": 25425.5
+      },
+      "streamedIsSse": true,
+      "ttftMs": 25426,
+      "responseHeadersAtMs": 25426,
+      "firstTextInDomMs": 25467,
+      "textFrameCount": 16,
+      "interFrameGapsMs": [
+        23,
+        26,
+        33,
+        34,
+        133,
+        0,
+        0,
+        3,
+        21,
+        28,
+        33,
+        36,
+        27,
+        32,
+        32
+      ],
+      "medianGapMs": 28,
+      "streamSpanMs": 462,
+      "settleTailMs": 984,
+      "doneAtMs": 26872,
+      "bodyEndMs": 26892,
+      "teeReadError": null,
+      "domSettledMs": 26979,
+      "frameTypes": [
+        "text",
+        "text",
+        "text",
+        "text",
+        "text",
+        "text",
+        "text",
+        "text",
+        "text",
+        "text",
+        "text",
+        "text",
+        "text",
+        "text",
+        "text",
+        "text",
+        "done"
+      ],
+      "streamedText": "\n\nNoted. Per your memory preference, I’m dropping the show-tell flag and keeping her taxonomic frame intact. Here’s a leaner version that just tightens the syntax and cadence:\n\n",
+      "rawSseBody": "data: {\"type\":\"text\",\"text\":\"\\n\\nNot\"}\n\ndata: {\"type\":\"text\",\"text\":\"ed. Per\"}\n\ndata: {\"type\":\"text\",\"text\":\" your memory\"}\n\ndata: {\"type\":\"text\",\"text\":\" preference\"}\n\ndata: {\"type\":\"text\",\"text\":\", I’m\"}\n\ndata: {\"type\":\"text\",\"text\":\" dropping the show\"}\n\ndata: {\"type\":\"text\",\"text\":\"-tell flag\"}\n\ndata: {\"type\":\"text\",\"text\":\" and\"}\n\ndata: {\"type\":\"text\",\"text\":\" keeping her tax\"}\n\ndata: {\"type\":\"text\",\"text\":\"onomic frame intact\"}\n\ndata: {\"type\":\"text\",\"text\":\". Here’s\"}\n\ndata: {\"type\":\"text\",\"text\":\" a leaner\"}\n\ndata: {\"type\":\"text\",\"text\":\" version that just\"}\n\ndata: {\"type\":\"text\",\"text\":\" tightens the\"}\n\ndata: {\"type\":\"text\",\"text\":\" syntax and cad\"}\n\ndata: {\"type\":\"text\",\"text\":\"ence:\\n\\n\"}\n\ndata: {\"type\":\"done\",\"assistantMessage\":\"Noted. Per your memory preference, I’m dropping the show-tell flag and keeping her taxonomic frame intact. Here’s a leaner version that just tightens the syntax and cadence:\",\"revisedSuggestion\":\"She weighed the rush-toward-feeling against the architecture built to keep it at a survivable distance. Under the sea’s particular clarity, she sorted herself into the latter category—a habit of mind she’d likely always carried.\",\"revisedReasoning\":\"Trims repetitive clause-chaining and smooths the rhythm while preserving the intentional analytical pivot.\",\"raw\":\"\\n\\nNoted. Per your memory preference, I’m dropping the show-tell flag and keeping her taxonomic frame intact. Here’s a leaner version that just tightens the syntax and cadence:\\n\\n<<<REVISION>>>\\nsuggestion: She weighed the rush-toward-feeling against the architecture built to keep it at a survivable distance. Under the sea’s particular clarity, she sorted herself into the latter category—a habit of mind she’d likely always carried.\\nwhy: Trims repetitive clause-chaining and smooths the rhythm while preserving the intentional analytical pivot.\\n<<<END>>>\",\"userTurns\":1,\"capped\":false,\"elapsedMs\":26803}\n\n",
+      "domSampleCount": 16,
+      "domGrowth": [
+        {
+          "tMs": 8241,
+          "len": 23,
+          "head": "The editor is replying…"
+        },
+        {
+          "tMs": 33672,
+          "len": 6,
+          "head": "\n\nNot▍"
+        },
+        {
+          "tMs": 33678,
+          "len": 13,
+          "head": "\n\nNoted. Per▍"
+        },
+        {
+          "tMs": 33703,
+          "len": 25,
+          "head": "\n\nNoted. Per your memory▍"
+        },
+        {
+          "tMs": 33763,
+          "len": 36,
+          "head": "\n\nNoted. Per your memory preference▍"
+        },
+        {
+          "tMs": 33781,
+          "len": 41,
+          "head": "\n\nNoted. Per your memory preference, I’m▍"
+        },
+        {
+          "tMs": 33905,
+          "len": 89,
+          "head": "\n\nNoted. Per your memory preference, I’m dropp"
+        },
+        {
+          "tMs": 33927,
+          "len": 108,
+          "head": "\n\nNoted. Per your memory preference, I’m dropp"
+        },
+        {
+          "tMs": 33954,
+          "len": 116,
+          "head": "\n\nNoted. Per your memory preference, I’m dropp"
+        },
+        {
+          "tMs": 34013,
+          "len": 125,
+          "head": "\n\nNoted. Per your memory preference, I’m dropp"
+        },
+        {
+          "tMs": 34028,
+          "len": 143,
+          "head": "\n\nNoted. Per your memory preference, I’m dropp"
+        },
+        {
+          "tMs": 34059,
+          "len": 156,
+          "head": "\n\nNoted. Per your memory preference, I’m dropp"
+        },
+        {
+          "tMs": 34106,
+          "len": 171,
+          "head": "\n\nNoted. Per your memory preference, I’m dropp"
+        },
+        {
+          "tMs": 34137,
+          "len": 178,
+          "head": "\n\nNoted. Per your memory preference, I’m dropp"
+        },
+        {
+          "tMs": 35128,
+          "len": 23,
+          "head": "The editor is replying…"
+        },
+        {
+          "tMs": 35178,
+          "len": 0,
+          "head": ""
+        }
+      ],
+      "rawSyntaxViolations": [],
+      "settled": {
+        "chip": null,
+        "capNotice": false,
+        "revisionCard": true
+      },
+      "cardTextTail": "suggestion\nshow-tell\nauto-apply\npending\n\nImogen's shoreline self-recognition is delivered through abstract psychological classification rather than embodied sensation, stepping outside the chapter's dominant sensory mode.\n\nChapter 1\n\nShow diff\nJump to text\nApply\nDismiss\nHide\nSHOW-TELL\n\nI'm not attached to that line. Show me your tighter version of it so I can compare.\n\nNoted. Per your memory preference, I’m dropping the show-tell flag and keeping her taxonomic frame intact. Here’s a leaner version that just tightens the syntax and cadence:\n\nAI Rewrite Comparison\nshow-tell\n-16 words\n\nORIGINAL (50 WORDS)\n\nShe thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.\n\nAI REWRITE (34 WORDS)\n\nShe weighed the rush-toward-feeling against the architecture built to keep it at a survivable distance. Under the sea’s particular clarity, she sorted herself into the latter category—a habit of mind she’d likely always carried.\n\nHide diff\nEdit\nReject\nAccept Rewrite\nUse it\nKeep as-is",
+      "shots": {
+        "preFirstToken": true,
+        "midStream": true
+      }
+    }
+  ],
+  "threadAfter": {
+    "userTurns": 1,
+    "canDiscuss": true,
+    "replies": 2
+  },
+  "capProbe": null,
+  "capturedAt": "2026-07-27T03:32:40.683Z"
+}

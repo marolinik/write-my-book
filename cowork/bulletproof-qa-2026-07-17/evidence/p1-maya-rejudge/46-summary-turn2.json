@@ -1,0 +1,183 @@
+{
+  "series": "46",
+  "persona": "P1 (Maya)",
+  "book": "4116055c-6183-4675-926a-e04f31126951",
+  "finding": "5c20c0e1-e763-43b6-b2f6-a6aaefbc7a9c",
+  "proves": "D5 — finding-discuss turns stream (ttft, cadence, no control-syntax leak, cap, billing)",
+  "trace": [
+    {
+      "step": "warm-discuss-get",
+      "status": 200,
+      "ms": 296
+    },
+    {
+      "step": "warm-editorial-page",
+      "status": 200,
+      "ms": 1031
+    },
+    {
+      "step": "pre-state",
+      "userTurns": 1,
+      "canDiscuss": true,
+      "replies": 2
+    },
+    {
+      "step": "instrumentation",
+      "d": "object",
+      "dom": "object",
+      "fetchPatched": true
+    },
+    {
+      "step": "pageerror",
+      "message": "Clerk: Failed to load Clerk, failed to load script: https://clerk.example.test/npm/@clerk/clerk-js@5/dist/clerk.browser.js\n\n(code=\"failed_to_load_clerk_js\")\n\n"
+    }
+  ],
+  "turns": [
+    {
+      "turnNumber": 2,
+      "writerMessage": "Actually the flatness is deliberate: Imogen retreats into taxonomy whenever feeling gets close, so abstraction AT the emotional peak is the characterisation, not a lapse. Please stop flagging it.",
+      "network": [
+        {
+          "at": 1785123327082,
+          "url": "/api/books/4116055c-6183-4675-926a-e04f31126951/editorial/findings/5c20c0e1-e763-43b6-b2f6-a6aaefbc7a9c/discuss",
+          "method": "POST",
+          "status": 200,
+          "contentType": "text/event-stream",
+          "serverTiming": "ttft;dur=19343"
+        },
+        {
+          "at": 1785123328059,
+          "url": "/api/books/4116055c-6183-4675-926a-e04f31126951/editorial/findings/5c20c0e1-e763-43b6-b2f6-a6aaefbc7a9c/discuss",
+          "method": "GET",
+          "status": 200,
+          "contentType": "application/json",
+          "serverTiming": null
+        }
+      ],
+      "streamHeaders": {
+        "status": 200,
+        "contentType": "text/event-stream",
+        "serverTiming": "ttft;dur=19343",
+        "tMs": 19414.89999999851
+      },
+      "streamedIsSse": true,
+      "ttftMs": 19416,
+      "responseHeadersAtMs": 19415,
+      "firstTextInDomMs": 19469,
+      "textFrameCount": 17,
+      "interFrameGapsMs": [
+        110,
+        0,
+        8,
+        32,
+        0,
+        9,
+        0,
+        32,
+        12,
+        0,
+        134,
+        0,
+        11,
+        0,
+        82,
+        0
+      ],
+      "medianGapMs": 9,
+      "streamSpanMs": 431,
+      "settleTailMs": 488,
+      "doneAtMs": 20335,
+      "bodyEndMs": 20369,
+      "teeReadError": null,
+      "domSettledMs": 20448,
+      "frameTypes": [
+        "text",
+        "text",
+        "text",
+        "text",
+        "text",
+        "text",
+        "text",
+        "text",
+        "text",
+        "text",
+        "text",
+        "text",
+        "text",
+        "text",
+        "text",
+        "text",
+        "text",
+        "done"
+      ],
+      "streamedText": "Understood. The deliberate flatness is the point—the retreat into taxonomy is the characterization here. I’ll keep your original line exactly as written and withdraw the flag.\n\n",
+      "rawSseBody": "data: {\"type\":\"text\",\"text\":\"Understood\"}\n\ndata: {\"type\":\"text\",\"text\":\". The\"}\n\ndata: {\"type\":\"text\",\"text\":\" deliberate flat\"}\n\ndata: {\"type\":\"text\",\"text\":\"ness is\"}\n\ndata: {\"type\":\"text\",\"text\":\" the point\"}\n\ndata: {\"type\":\"text\",\"text\":\"—the retreat\"}\n\ndata: {\"type\":\"text\",\"text\":\" into taxonomy\"}\n\ndata: {\"type\":\"text\",\"text\":\" is the\"}\n\ndata: {\"type\":\"text\",\"text\":\" characterization here\"}\n\ndata: {\"type\":\"text\",\"text\":\". I\"}\n\ndata: {\"type\":\"text\",\"text\":\"’ll keep\"}\n\ndata: {\"type\":\"text\",\"text\":\" your original\"}\n\ndata: {\"type\":\"text\",\"text\":\" line exactly\"}\n\ndata: {\"type\":\"text\",\"text\":\" as written\"}\n\ndata: {\"type\":\"text\",\"text\":\" and withdraw\"}\n\ndata: {\"type\":\"text\",\"text\":\" the flag\"}\n\ndata: {\"type\":\"text\",\"text\":\".\\n\\n\"}\n\ndata: {\"type\":\"done\",\"assistantMessage\":\"Understood. The deliberate flatness is the point—the retreat into taxonomy is the characterization here. I’ll keep your original line exactly as written and withdraw the flag.\",\"suggestedConstraint\":{\"category\":\"preference\",\"content\":\"Preserve Imogen’s retreat into abstraction and taxonomy at emotional peaks as deliberate characterization; do not flag interior classification as a show-tell lapse.\"},\"raw\":\"Understood. The deliberate flatness is the point—the retreat into taxonomy is the characterization here. I’ll keep your original line exactly as written and withdraw the flag.\\n\\n<<<REMEMBER category=\\\"preference\\\">>>\\nPreserve Imogen’s retreat into abstraction and taxonomy at emotional peaks as deliberate characterization; do not flag interior classification as a show-tell lapse.\\n<<<END>>>\",\"userTurns\":2,\"capped\":false,\"elapsedMs\":20264}\n\n",
+      "domSampleCount": 9,
+      "domGrowth": [
+        {
+          "tMs": 8792,
+          "len": 23,
+          "head": "The editor is replying…"
+        },
+        {
+          "tMs": 28216,
+          "len": 11,
+          "head": "Understood▍"
+        },
+        {
+          "tMs": 28315,
+          "len": 39,
+          "head": "Understood. The deliberate flatness is▍"
+        },
+        {
+          "tMs": 28357,
+          "len": 82,
+          "head": "Understood. The deliberate flatness is the poi"
+        },
+        {
+          "tMs": 28397,
+          "len": 115,
+          "head": "Understood. The deliberate flatness is the poi"
+        },
+        {
+          "tMs": 28544,
+          "len": 166,
+          "head": "Understood. The deliberate flatness is the poi"
+        },
+        {
+          "tMs": 28622,
+          "len": 178,
+          "head": "Understood. The deliberate flatness is the poi"
+        },
+        {
+          "tMs": 29136,
+          "len": 23,
+          "head": "The editor is replying…"
+        },
+        {
+          "tMs": 29192,
+          "len": 0,
+          "head": ""
+        }
+      ],
+      "rawSyntaxViolations": [],
+      "settled": {
+        "chip": "I’ll remember: “Preserve Imogen’s retreat into abstraction and taxonomy at emotional peaks as deliberate characterization; do not flag interior classification as a show-tell lapse.”",
+        "capNotice": false,
+        "revisionCard": true
+      },
+      "cardTextTail": "r's dominant sensory mode.\n\nChapter 1\n\nShow diff\nJump to text\nApply\nDismiss\nHide\nSHOW-TELL\n\nI'm not attached to that line. Show me your tighter version of it so I can compare.\n\nNoted. Per your memory preference, I’m dropping the show-tell flag and keeping her taxonomic frame intact. Here’s a leaner version that just tightens the syntax and cadence:\n\nActually the flatness is deliberate: Imogen retreats into taxonomy whenever feeling gets close, so abstraction AT the emotional peak is the characterisation, not a lapse. Please stop flagging it.\n\nUnderstood. The deliberate flatness is the point—the retreat into taxonomy is the characterization here. I’ll keep your original line exactly as written and withdraw the flag.\n\nAI Rewrite Comparison\nshow-tell\n-16 words\n\nORIGINAL (50 WORDS)\n\nShe thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.\n\nAI REWRITE (34 WORDS)\n\nShe weighed the rush-toward-feeling against the architecture built to keep it at a survivable distance. Under the sea’s particular clarity, she sorted herself into the latter category—a habit of mind she’d likely always carried.\n\nHide diff\nEdit\nReject\nAccept Rewrite\n\nOn “Keep as-is”, I’ll remember: “Preserve Imogen’s retreat into abstraction and taxonomy at emotional peaks as deliberate characterization; do not flag interior classification as a show-tell lapse.”\n\nUse it\nKeep as-is",
+      "shots": {
+        "preFirstToken": true,
+        "midStream": true
+      }
+    }
+  ],
+  "threadAfter": {
+    "userTurns": 2,
+    "canDiscuss": true,
+    "replies": 4
+  },
+  "capProbe": null,
+  "capturedAt": "2026-07-27T03:35:34.054Z"
+}

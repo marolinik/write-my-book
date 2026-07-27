@@ -1,0 +1,40 @@
+{
+  "shot": "46e",
+  "proves": "one discuss usage row per delivered streamed turn, registry model id, real money on the panel",
+  "usageApi": {
+    "byAgentDiscuss": {
+      "tokensInput": 2055,
+      "tokensOutput": 4285,
+      "costEstimate": 0.010869674999999999,
+      "sessions": 3
+    },
+    "byModel": {
+      "openrouter-qwen36/haiku": {
+        "tokensInput": 2055,
+        "tokensOutput": 4285,
+        "costEstimate": 0.010869674999999999
+      },
+      "text-embedding-3-small": {
+        "tokensInput": 2087,
+        "tokensOutput": 0,
+        "costEstimate": 0.000041740000000000004
+      },
+      "openrouter-qwen36/sonnet": {
+        "tokensInput": 890910,
+        "tokensOutput": 97297,
+        "costEstimate": 0.48742214999999994
+      }
+    },
+    "totals": null
+  },
+  "panelDiscussLine": "Discuss\n\n3 sessions\n\n$0.01\n\n2.1K in / 4.3K out\n\nEmbedding\nEmbeddings\n\n9 sessions\n\n$0.00\n\n2.1K in / 0 out\n\nWriting Coach\n\n12 ses",
+  "verdict": {
+    "discussAgentRowExists": true,
+    "threeSessions": true,
+    "nonZeroSpend": true,
+    "registryModelIdPresent": true,
+    "panelShowsDiscuss": true
+  },
+  "panelText": "Command Palette\n\nSearch for a command to run...\n\nWriteMyBook\nWriting Platform\nNavigation\nDashboard\nBooks\nSeries\nSettings\nSettings\n/\nBilling\nToggle theme\nUsage & Billing\n\nChoose your plan and track your AI token usage\n\nMonthly\nAnnual\nLimited -- Founder's Price\nFounder\n$19/mo\n0 of 200 claimed\n200 left\nUnlimited books\nAll 14 agents & workflows\nSeries management\nAdvanced analytics\nStandard export\nLocked-in $19/mo forever\nUpgrade\n14-day free trial\nIndie Author\nCurrent\n$49/mo\n2 active books\nAll 14 agents & workflows\nStandard export\n\nNo credit card required\n\nManage Subscription\nMost Popular\nProfessional\n$99/mo\nUnlimited books\nAll 14 agents & workflows\nSeries management\nAdvanced analytics\nStandard export\nUpgrade\nPublisher\n$499/mo\nUnlimited books\nAll 14 agents & workflows\nSeries management\nAdvanced analytics\nPriority support\nMulti-user seats (Coming Soon)\nAPI access (Coming Soon)\nWhite-label export (Coming Soon)\nUpgrade\n\nEnterprise\n\nNeed custom seats, API access, or white-label export? Let's talk.\n\nContact Us\n\nBYOK -- Bring Your Own Key\n\nYour subscription covers the WriteMyBook platform. You bring your own AI API keys (Anthropic, OpenRouter, OpenAI, etc.) for LLM costs. This means you pay actual provider rates with zero markup.\n\nYour Key Savings\nBy using your own API keys, you maintain full control over costs\n\n$0.50\n\nTotal spent using your own keys (last 30 days) — no platform markup applied\n\n100% Your Keys\n\nCost estimates may be inaccurate\n\nOver the last 11 sessions, estimated costs differed from actual costs by 72%. This may be due to model pricing changes or unusual session patterns.\n\n30 model pricing discrepancies detected against provider rates.\n\nToken Usage (30 days)\nLLM Agent Costs\n\n$0.50\n\n15 agent sessions\n\nVector Embedding Costs\n\n$0.00\n\n2.1K tokens embedded\n\nTotal Sessions\n\n24\n\nInput Tokens\n\n895.1K\n\nOutput Tokens\n\n101.6K\n\nEst. Cost\n\n$0.50\n\nUsage by Agent\nLast 30 days\n\nDiscuss\n\n3 sessions\n\n$0.01\n\n2.1K in / 4.3K out\n\nEmbedding\nEmbeddings\n\n9 sessions\n\n$0.00\n\n2.1K in / 0 out\n\nWriting Coach\n\n12 sessions\n\n$0.49\n\n890.9K in / 97.3K out\n\nUsage by Model\n\nQwen 3.6 27B (OpenRouter) (qwen/qwen3.6-27b)\n\nCombined across 2 configured slots: openrouter-qwen36/haiku, openrouter-qwen36/sonnet\n\n$0.50\n\n994.5K total tokens\n\ntext-embedding-3-small\n\n$0.00\n\n2.1K total tokens\n\nUsage by Book\nLast 30 days\nThe Salt Letters QA P1 93181fd1\n\n24 sessions\n\n$0.50\n\n895.1K in / 101.6K out",
+  "capturedAt": "2026-07-27T03:45:24.079Z"
+}

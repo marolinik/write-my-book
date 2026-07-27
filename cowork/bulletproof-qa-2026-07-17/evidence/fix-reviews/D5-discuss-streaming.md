@@ -213,9 +213,29 @@ scripts). `eslint` clean on all touched files.
    smoothness depends on the provider's chunking; no client-side re-chunking or
    artificial typewriter was added (that would be a cosmetic lie about latency).
 
-## 6. What live re-capture must show (owed)
+## 6. What live re-capture must show (owed) — **ANSWERED 2026-07-27, 46-series**
 
-On the dev server as the persona, in the browser, one 3-turn discuss thread:
+**Status: all seven items captured.** Evidence:
+`evidence/p1-maya-rejudge/UI-CAPTURE-2026-07-27-d5-stream.md` (P1 Maya, book `4116055c`, findings
+`5c20c0e1` for the 3-turn thread and `e8418788` for the abort; PNGs + `46-turn{1,2,3}.json`,
+`46e-assertions.json`, `46f-assertions.json`). Headline numbers: all four POSTs answered
+**`200 text/event-stream`** with `Server-Timing: ttft;dur=` **25 356 / 19 343 / 36 129 / 54 734 ms**;
+prose then lands in 431–722 ms at **32 / 32 / 98 ms** median gaps between distinct chunk arrivals
+(vs ghost text's 141 ms); render lag byte→pixel **41–75 ms**; **settle tail 984 / 488 / 279 ms**, so
+wart 2's 4.4 s `finalMessage()` tail did not manifest; real `<<<REVISION>>>` and
+`<<<REMEMBER category="preference">>>` blocks were emitted and **zero** raw control syntax reached the
+DOM (25 ms tripwire, 0 hits on 3 turns); cap = UI notice **plus** a 57 ms `409 application/json`
+pre-stream probe; **3 delivered turns → exactly 3 `discuss` usage rows**, $0.010870, registry slot id;
+abort mid-stream ⇒ 0 replies, 0 usage rows, `userTurns: 0`, `canDiscuss: true`.
+
+Three new defects came out of the capture and are registered in that doc: **D-176** (S3 — the 19–36 s
+static "The editor is replying…" window is a structural consequence of the first-text gate on a
+reasoning model, and carries no elapsed/progress signal), **D-177** (S4 — the finished reply is
+re-covered by the waiting line for 50–189 ms at settle, contradicting §2.3's "no gap, no flash"), and
+**D-178** (S4 — the writer's message stays in the composer while also shown as a sent bubble, now
+legible for the whole turn).
+
+Original list, for the record — on the dev server as the persona, in the browser, one 3-turn discuss thread:
 
 1. **Time-to-first-word** on a discuss turn (network panel: `text/event-stream`,
    `Server-Timing: ttft`), versus the 61.6 s all-or-nothing wall in shot 42d.

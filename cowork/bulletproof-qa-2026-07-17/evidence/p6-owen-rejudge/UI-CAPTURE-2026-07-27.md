@@ -265,3 +265,118 @@ The v2 panel's evidence-integrity note is accepted and the row is corrected in t
 * Ch 4 prose was reverted to its exact pre-capture text after the ghost-text runs (240 words; book 3 857 words).
 * `VM1 Test` keeps this wave's 9-word first sentence and `setupComplete=true` — that is the funnel's own output, left as-is.
 * Costs incurred on Owen's real BYOK keys this wave: $1.821945 (Opus line-edit) + $0.010103 (discuss) + $0.000071 (ghost text) = **$1.832119**.
+
+---
+
+# 45g / 45h / 45i — D-173, D-174, D-175 in pixels (2026-07-27, later same day)
+
+**Build:** HEAD `eeb1fd8` (fixes under test: `921cb90` D-173/D-174/D-175) · Dev `:3001`, hot-reloaded
+(verified before any shot: the server-rendered overview already emits `discuss-chapter` and no
+`capture-style`) · identity via e2e headers (`x-e2e-test-secret` + `x-e2e-clerk-id: user_qa_p6`),
+`.env` untouched · desktop 1280×900 @2 DSR · capture protocol v8 (`nextjs-portal` hidden) ·
+ENV-01 route-warm before every timed leg · **no LLM call and no spend in this leg.**
+
+Book: `VM1 Test` `8632ba0c-f05b-4fd5-9581-3790a0f2c675` (the same book 45a/45b used).
+Scripts: `scripts/shot45g.ts`, `shot45h.ts`, `shot45i.ts`; each writes its own `45*-assertions.json`.
+
+| Shot | Supersedes | Proves | Verdict |
+|---|---|---|---|
+| `45g-p6-overview-no-solicitation.png` | `45a` | D-173: post-setup overview recommends the **chapter pipeline**, not the skipped Capture Style | **PASS 8/8** |
+| `45h1-done-step-chrome-before.png` → `45h2-editor-chrome-after-noreload.png` | `45b4` (defect frame) | D-174: the chrome flips **inside one SPA session, zero document reloads** | **PASS 9/9** |
+| `45i-usage-by-model-folded.png` | `45f1` (defect frame) | D-175: one folded Qwen row + the slot disclosure | **PASS 5/5** |
+
+## 45g — D-173 closed
+
+`GET /api/books/{id}/settings` at capture time: `setupComplete: true`, `setupImportSkipped: false`.
+Verbatim from the render (`45g-assertions.json`):
+
+```
+Recommended: Discuss Chapter
+Ch. 1 is ready to be discussed with the AI                        [ Start ]
+```
+
+The `Recommended: Capture Style — Capture your writing style fingerprint…` card that 45a caught is
+**gone**, and the fall-through the D-173 review hardened is what actually shows: the chapter-pipeline
+step. Chrome unchanged from 45a and still truthful: `Getting Started ✓ 2/5`, `Setup ✓`,
+**no** `Next Step` on Setup or Style, `Chapters [Next Step]`.
+
+Assertions, all true: `setupCompleteTrue`, `noCaptureStyleRecommendation`, `noStartSetupCta`,
+`recommendsChapterPipeline`, `gettingStartedTwoOfFive`, `noStyleNextStepBadge`,
+`noSetupNextStepBadge`, `chaptersCarriesNextStep`. ENV-01: warm 1 187 ms, captured frame 1 482 ms.
+
+Recurrence, no new number: the FAB still clips the chapters table **Action** column ("Edi…") — D-139 family, same as 45a.
+
+## 45h — D-174 closed, and "no reload" is measured rather than asserted
+
+Lever, exactly as documented: `PATCH /api/books/{id}/settings {"setupComplete": false}` → **200**.
+Then the wizard was walked in the browser (`Skip` · `Skip` · `Skip`) to the Done summary, and
+"Start Writing!" clicked once. **Nothing was reloaded after that click.**
+
+Two independent no-reload proofs, both in `45h-assertions.json`:
+
+* a `window.__noReloadSentinel` stamped immediately before the click is **still present** at capture
+  time (`1785122004306`) — a document reload would have wiped the JS context;
+* Playwright's page-level `load` counter: **1 before the click, 1 after the capture → 0 extra loads.**
+
+The flip, same session, same JS context:
+
+| Tell | 45h1 (Done step, before the click) | 45h2 (editor, after the click, no reload) |
+|---|---|---|
+| Setup nav item | no check | **green check** |
+| Style nav item | **`Next Step`** | no badge |
+| Chapters nav item | count `1` | **`Next Step`** |
+| Getting Started | `2/5` | `✓ 2/5` |
+
+Timings from the click (`45h-assertions.json`): `PATCH /settings` **+104 ms** → `GET /settings`
+(the invalidation refetch the wizard used to skip) **+147 ms** → URL is
+`/books/{id}/chapters/1ca23e35…` **+2 446 ms** → chrome captured **+8 448 ms**.
+So the visible flip is driven by a **147 ms** refetch: `useUpdateBookSettings` invalidates
+`["book-settings", bookId]` and `use-book-state` repaints long before the navigation even lands.
+`GET /settings` after the leg: `setupComplete: true`.
+
+**Bonus in the same JS context (sentinel still intact), `45h3-overview-spa-nav-no-reload.png`:**
+an SPA click on the sidebar `Overview` link shows the flipped chrome **and** the D-173 card together
+— `Recommended: Discuss Chapter`, `noCaptureStyleSolicitation: true`.
+
+**Stated against interest:** in `45h2` the editor pane still reads `Loading chapter…`, because the
+client's `GET …/chapters/{ch}/content` did not answer until **+9 436 ms** — the dev server had to
+JIT-compile that API route (only the *page* route was ENV-01 warmed). 45b measured a mounted,
+editable ProseMirror at **2 701 ms** with the route warm, and that number stands. The D-174 flip is
+independent of it (it lands at +147 ms) and is fully legible in the frame; but the frame is not a
+clean funnel-latency shot and must not be read as one.
+
+Harness note, disclosed: the sidebar group check next to `2/5` renders as a `CheckIcon` whose colour
+lives on the parent `<span>`, so the DOM probe's `svg[class*="text-green"]` test reports
+`gettingStartedGroupChecked: false` for the **group** badge even though it is plainly green in the
+pixels (`45g`/`45h2`). The **item** check on Setup does carry the class and is asserted true. Probe
+limitation, not a product finding.
+
+## 45i — D-175 closed
+
+`/api/usage` still returns **two aliasing registry ids** — `openrouter-qwen36/haiku` and
+`openrouter-qwen36/sonnet` — i.e. the raw data did not change, only the rendering. The panel now
+shows **one** row (`45i-usage-by-model-folded.png`):
+
+```
+Claude Opus 4.6 (Direct) (claude-opus-4-6)                                    $12.03   686.8K total tokens
+Qwen 3.6 27B (OpenRouter) (qwen/qwen3.6-27b)                                   $0.45   831.2K total tokens
+  Combined across 2 configured slots: openrouter-qwen36/haiku, openrouter-qwen36/sonnet
+text-embedding-3-small                                                          $0.00     4.9K total tokens
+DeepSeek V3.2 (OpenRouter) (deepseek/deepseek-v3.2)                             $0.00      264 total tokens
+```
+
+Money is summed, not recomputed: raw slot sum `$0.446340` → panel `$0.45` (the panel's own
+cents rounding). Rows are now ordered by spend descending, deterministically. The disclosure is a
+**rendered line**, not a `title` tooltip, so it survives touch (D-151 family).
+
+Assertions all true: `dataStillAliases`, `exactlyOneQwenRow`, `disclosureRendered`,
+`disclosureNamesSlots`, `moneyPreserved`.
+
+## Persona state changed by this leg
+
+* `VM1 Test`: `setupComplete` cycled `true → false → true` by the two documented PATCHes; ends at
+  **`true`**, i.e. where it started. `setupImportSkipped` stayed `false`. Chapter count unchanged (1,
+  id `1ca23e35…`), chapter text untouched.
+* **No LLM call, no BYOK spend, no worker job** in the 45g/45h/45i leg. Owen's running total from the
+  earlier 45-series legs is unchanged at **$1.832119**.
+* The pre-registered ch5 device probe on `The Keeper's Arithmetic` remains **untouched**.

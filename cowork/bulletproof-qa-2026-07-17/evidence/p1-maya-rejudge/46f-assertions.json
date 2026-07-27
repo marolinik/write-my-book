@@ -1,0 +1,119 @@
+{
+  "shot": "46f",
+  "proves": "abort mid-stream is all-or-nothing: nothing persisted, nothing billed, turn not consumed",
+  "finding": "e8418788-bd31-452b-ab93-0de3e77ea105",
+  "trace": [
+    {
+      "step": "warm-discuss-get",
+      "status": 200,
+      "ms": 109
+    },
+    {
+      "step": "pre-state",
+      "userTurns": 0,
+      "canDiscuss": true,
+      "replies": 0
+    }
+  ],
+  "abortedAfterFirstText": true,
+  "msFromSendToAbort": 55184,
+  "liveBubbleTextAtAbort": "The past-tense frame already carries the look-back▍",
+  "teeAtAbort": {
+    "frames": [
+      {
+        "tMs": 54986.10000000149,
+        "raw": "data: {\"type\":\"text\",\"text\":\"The past\"}\n\n"
+      },
+      {
+        "tMs": 55051.10000000149,
+        "raw": "data: {\"type\":\"text\",\"text\":\"-tense frame already\"}\n\n"
+      },
+      {
+        "tMs": 55147.199999999255,
+        "raw": "data: {\"type\":\"text\",\"text\":\" carries the look-back\"}\n\n"
+      },
+      {
+        "tMs": 55169.800000000745,
+        "raw": "data: {\"type\":\"text\",\"text\":\".\"}\n\n"
+      },
+      {
+        "tMs": 55239.39999999851,
+        "raw": "data: {\"type\":\"text\",\"text\":\" Dropping into present\"}\n\n"
+      },
+      {
+        "tMs": 55260.10000000149,
+        "raw": "data: {\"type\":\"text\",\"text\":\"-per\"}\n\n"
+      },
+      {
+        "tMs": 55272.300000000745,
+        "raw": "data: {\"type\":\"text\",\"text\":\"fect mid-sim\"}\n\n"
+      },
+      {
+        "tMs": 55338.699999999255,
+        "raw": "data: {\"type\":\"text\",\"text\":\"ile fractures that anchor\"}\n\n"
+      },
+      {
+        "tMs": 55439.199999999255,
+        "raw": "data: {\"type\":\"text\",\"text\":\", pulling focus away\"}\n\n"
+      },
+      {
+        "tMs": 55455.699999999255,
+        "raw": "data: {\"type\":\"text\",\"text\":\" from the burn\"}\n\n"
+      }
+    ],
+    "headers": {
+      "status": 200,
+      "contentType": "text/event-stream",
+      "serverTiming": "ttft;dur=54734",
+      "tMs": 54985.39999999851
+    },
+    "endMs": null,
+    "readError": null
+  },
+  "network": [
+    {
+      "at": 1785123580248,
+      "method": "GET",
+      "status": 200,
+      "contentType": "application/json",
+      "serverTiming": null
+    },
+    {
+      "at": 1785123637676,
+      "method": "POST",
+      "status": 200,
+      "contentType": "text/event-stream",
+      "serverTiming": "ttft;dur=54734"
+    },
+    {
+      "at": 1785123638607,
+      "method": "POST",
+      "failed": "net::ERR_ABORTED"
+    },
+    {
+      "at": 1785123668543,
+      "method": "GET",
+      "status": 200,
+      "contentType": "application/json",
+      "serverTiming": null
+    }
+  ],
+  "threadBefore": {
+    "userTurns": 0,
+    "canDiscuss": true,
+    "replies": 0
+  },
+  "threadAfter": {
+    "userTurns": 0,
+    "canDiscuss": true,
+    "replies": 0
+  },
+  "reopenedCardHasInput": false,
+  "verdict": {
+    "abortHappenedMidStream": true,
+    "noRepliesPersisted": true,
+    "turnNotConsumed": true,
+    "inputStillOffered": false
+  },
+  "capturedAt": "2026-07-27T03:41:11.770Z"
+}

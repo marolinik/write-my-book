@@ -1,0 +1,200 @@
+{
+  "shot": "45h",
+  "supersedes": "45b4 (defect frame)",
+  "proves": "D-174 — wizard completion reaches the chrome with no reload",
+  "walkClicks": [
+    "Skip",
+    "Skip",
+    "Skip"
+  ],
+  "ctaMs": {
+    "urlChanged": 2446,
+    "chromeCaptured": 8448
+  },
+  "documentLoads": {
+    "beforeCta": 1,
+    "afterCapture": 1,
+    "extraLoadsDuringFlip": 0
+  },
+  "before": {
+    "sidebarText": "WriteMyBook\nWriting Platform\nNavigation\nDashboard\nBooks\nSeries\nVM1 Test\nOverview\nGetting Started\n2/5\nSetup\nTransfer\nStyle\nNext Step\nWriting\n0/1\nChapters\n1\nLibrary\nWriting Dashboard\nRefining\n0/1\nEditorial\nReports\nPublish\nExport\nSettings",
+    "setupItemChecked": false,
+    "setupItemNextStep": false,
+    "styleItemNextStep": true,
+    "chaptersItemNextStep": false,
+    "gettingStartedGroupChecked": false,
+    "gettingStartedLabelText": "Getting Started\n2/5",
+    "sentinel": null,
+    "url": "/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675/setup"
+  },
+  "after": {
+    "sidebarText": "WriteMyBook\nWriting Platform\nNavigation\nDashboard\nBooks\nSeries\nVM1 Test\nOverview\nGetting Started\n2/5\nSetup\nTransfer\nStyle\nWriting\n0/1\nChapters\nNext Step\nLibrary\nWriting Dashboard\nRefining\n0/1\nEditorial\nReports\nPublish\nExport\nSettings",
+    "setupItemChecked": true,
+    "setupItemNextStep": false,
+    "styleItemNextStep": false,
+    "chaptersItemNextStep": true,
+    "gettingStartedGroupChecked": false,
+    "gettingStartedLabelText": "Getting Started\n2/5",
+    "sentinel": 1785122004306,
+    "url": "/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675/chapters/1ca23e35-3809-4782-8f77-c559127fdd25"
+  },
+  "overviewAfterSpaNav": {
+    "sidebarText": "WriteMyBook\nWriting Platform\nNavigation\nDashboard\nBooks\nSeries\nVM1 Test\nOverview\nGetting Started\n2/5\nSetup\nTransfer\nStyle\nWriting\n0/1\nChapters\nNext Step\nLibrary\nWriting Dashboard\nRefining\n0/1\nEditorial\nReports\nPublish\nExport\nSettings",
+    "setupItemChecked": true,
+    "setupItemNextStep": false,
+    "styleItemNextStep": false,
+    "chaptersItemNextStep": true,
+    "gettingStartedGroupChecked": false,
+    "gettingStartedLabelText": "Getting Started\n2/5",
+    "sentinel": 1785122004306,
+    "url": "/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675",
+    "noCaptureStyleSolicitation": true,
+    "recommendation": "Recommended: Discuss Chapter\n\nCh. 1 is ready to be discussed with the AI\n\nStart\nBook Progress\nDrafted\n0%\nEdited\n0%\nBeta Passed\n0%\nW"
+  },
+  "settingsApiAfter": {
+    "setupComplete": true
+  },
+  "verdict": {
+    "beforeUnchecked": true,
+    "beforeStyleSolicited": true,
+    "afterChecked": true,
+    "afterStyleNotSolicited": true,
+    "afterTwoOfFive": true,
+    "noDocumentReload": true,
+    "sentinelSurvived": true,
+    "landedInEditor": true,
+    "settingsPersisted": true
+  },
+  "trace": [
+    {
+      "step": "reset",
+      "status": 200,
+      "body": {
+        "id": "97488e5e-930d-4f77-8518-fb3dc47b35d6",
+        "bookId": "8632ba0c-f05b-4fd5-9581-3790a0f2c675",
+        "modelGhostwriter": "opus",
+        "modelEditor": "sonnet",
+        "modelBetaReader": "sonnet",
+        "modelAnalyst": "haiku",
+        "modelCoach": "sonnet",
+        "modelCreative": "opus",
+        "modelResearch": "sonnet",
+        "modelOverride": null,
+        "autoCommit": true,
+        "styleStrictness": "balanced",
+        "betaPanelSize": 10,
+        "betaConsensus": 80,
+        "betaConvergence": 70,
+        "language": "en",
+        "setupImportSkipped": false,
+        "setupComplete": false,
+        "journeyId": null,
+        "journeyStepsSnapshot": null
+      }
+    },
+    {
+      "step": "warm-setup",
+      "status": 200,
+      "ms": 197
+    },
+    {
+      "step": "warm-editor",
+      "status": 200,
+      "ms": 198
+    }
+  ],
+  "network": [
+    {
+      "url": "/api/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675/documents",
+      "method": "GET",
+      "status": 200,
+      "at": 1785121991944,
+      "tMs": -12362
+    },
+    {
+      "url": "/api/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675",
+      "method": "GET",
+      "status": 200,
+      "at": 1785121992626,
+      "tMs": -11680
+    },
+    {
+      "url": "/api/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675/editorial/summary",
+      "method": "GET",
+      "status": 200,
+      "at": 1785121992742,
+      "tMs": -11564
+    },
+    {
+      "url": "/api/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675/settings",
+      "method": "GET",
+      "status": 200,
+      "at": 1785121992742,
+      "tMs": -11564
+    },
+    {
+      "url": "/api/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675/style",
+      "method": "GET",
+      "status": 200,
+      "at": 1785121992742,
+      "tMs": -11564
+    },
+    {
+      "url": "/api/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675/settings",
+      "method": "PATCH",
+      "status": 200,
+      "at": 1785122004410,
+      "tMs": 104
+    },
+    {
+      "url": "/api/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675/settings",
+      "method": "GET",
+      "status": 200,
+      "at": 1785122004453,
+      "tMs": 147
+    },
+    {
+      "url": "/api/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675/chapters/1ca23e35-3809-4782-8f77-c559127fdd25/content",
+      "method": "GET",
+      "status": 200,
+      "at": 1785122013742,
+      "tMs": 9436
+    },
+    {
+      "url": "/api/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675/editorial/findings?chapterNumber=1",
+      "method": "GET",
+      "status": 200,
+      "at": 1785122013992,
+      "tMs": 9686
+    },
+    {
+      "url": "/api/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675/chapters",
+      "method": "GET",
+      "status": 200,
+      "at": 1785122014997,
+      "tMs": 10691
+    },
+    {
+      "url": "/api/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675/continuity/scan?chapterNumber=1",
+      "method": "POST",
+      "status": 200,
+      "at": 1785122016527,
+      "tMs": 12221
+    },
+    {
+      "url": "/api/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675/radar",
+      "method": "GET",
+      "status": 200,
+      "at": 1785122022421,
+      "tMs": 18115
+    },
+    {
+      "url": "/api/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675/daily-plan",
+      "method": "GET",
+      "status": 200,
+      "at": 1785122022572,
+      "tMs": 18266
+    }
+  ],
+  "capturedAt": "2026-07-27T03:13:42.719Z"
+}
