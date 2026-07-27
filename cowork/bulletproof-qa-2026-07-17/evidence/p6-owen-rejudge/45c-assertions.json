@@ -1,0 +1,1951 @@
+{
+  "shot": "45c",
+  "book": "6d69fd7c-f7a4-4e3d-bf49-1415d81f5326",
+  "chapter": "677f38b3-c188-47bd-8a34-1491dfce2c7e",
+  "chapterNumber": 4,
+  "preflightCostEstimate": {
+    "blocked": false,
+    "costEstimate": {
+      "min": 1.2,
+      "max": 3.675,
+      "formatted": "$1.20 - $3.67"
+    },
+    "embeddingEstimate": null,
+    "resolvedModel": {
+      "registryId": "anthropic/opus",
+      "displayName": "Claude Opus 4.6 (Direct)",
+      "tier": "opus",
+      "resolvedFrom": "book-role"
+    }
+  },
+  "warmMs": 1386,
+  "timings": {
+    "firstFrameMs": null,
+    "firstTextMs": null,
+    "completeMs": null,
+    "totalSampledMs": 480022
+  },
+  "cadence": {
+    "frameCount": 0,
+    "textFrameCount": 0,
+    "gapMsMin": null,
+    "gapMsMedian": null,
+    "gapMsMax": null,
+    "gaps": []
+  },
+  "events": [],
+  "perceivedTextSamples": [
+    {
+      "t": 254,
+      "len": 0
+    },
+    {
+      "t": 1266,
+      "len": 0
+    },
+    {
+      "t": 2286,
+      "len": 0
+    },
+    {
+      "t": 3315,
+      "len": 0
+    },
+    {
+      "t": 4338,
+      "len": 0
+    },
+    {
+      "t": 5389,
+      "len": 0
+    },
+    {
+      "t": 6398,
+      "len": 0
+    },
+    {
+      "t": 7414,
+      "len": 0
+    },
+    {
+      "t": 8441,
+      "len": 0
+    },
+    {
+      "t": 9471,
+      "len": 0
+    },
+    {
+      "t": 10486,
+      "len": 0
+    },
+    {
+      "t": 11505,
+      "len": 0
+    },
+    {
+      "t": 12514,
+      "len": 0
+    },
+    {
+      "t": 13534,
+      "len": 0
+    },
+    {
+      "t": 14562,
+      "len": 0
+    },
+    {
+      "t": 15595,
+      "len": 0
+    },
+    {
+      "t": 16601,
+      "len": 0
+    },
+    {
+      "t": 17621,
+      "len": 0
+    },
+    {
+      "t": 18638,
+      "len": 0
+    },
+    {
+      "t": 19643,
+      "len": 0
+    },
+    {
+      "t": 20660,
+      "len": 0
+    },
+    {
+      "t": 21693,
+      "len": 0
+    },
+    {
+      "t": 22715,
+      "len": 0
+    },
+    {
+      "t": 23735,
+      "len": 0
+    },
+    {
+      "t": 24747,
+      "len": 0
+    },
+    {
+      "t": 25767,
+      "len": 0
+    },
+    {
+      "t": 26785,
+      "len": 0
+    },
+    {
+      "t": 27803,
+      "len": 0
+    },
+    {
+      "t": 28807,
+      "len": 0
+    },
+    {
+      "t": 29810,
+      "len": 0
+    },
+    {
+      "t": 30826,
+      "len": 0
+    },
+    {
+      "t": 31838,
+      "len": 0
+    },
+    {
+      "t": 32853,
+      "len": 0
+    },
+    {
+      "t": 33856,
+      "len": 0
+    },
+    {
+      "t": 34865,
+      "len": 0
+    },
+    {
+      "t": 35883,
+      "len": 0
+    },
+    {
+      "t": 36891,
+      "len": 0
+    },
+    {
+      "t": 37910,
+      "len": 0
+    },
+    {
+      "t": 38930,
+      "len": 0
+    },
+    {
+      "t": 39938,
+      "len": 0
+    },
+    {
+      "t": 40955,
+      "len": 0
+    },
+    {
+      "t": 41974,
+      "len": 0
+    },
+    {
+      "t": 42985,
+      "len": 0
+    },
+    {
+      "t": 44010,
+      "len": 0
+    },
+    {
+      "t": 45038,
+      "len": 0
+    },
+    {
+      "t": 46053,
+      "len": 0
+    },
+    {
+      "t": 47070,
+      "len": 0
+    },
+    {
+      "t": 48106,
+      "len": 0
+    },
+    {
+      "t": 49127,
+      "len": 0
+    },
+    {
+      "t": 50152,
+      "len": 0
+    },
+    {
+      "t": 51170,
+      "len": 0
+    },
+    {
+      "t": 52183,
+      "len": 0
+    },
+    {
+      "t": 53206,
+      "len": 0
+    },
+    {
+      "t": 54214,
+      "len": 0
+    },
+    {
+      "t": 55226,
+      "len": 0
+    },
+    {
+      "t": 56234,
+      "len": 0
+    },
+    {
+      "t": 57255,
+      "len": 0
+    },
+    {
+      "t": 58270,
+      "len": 0
+    },
+    {
+      "t": 59295,
+      "len": 0
+    },
+    {
+      "t": 60303,
+      "len": 0
+    },
+    {
+      "t": 61321,
+      "len": 0
+    },
+    {
+      "t": 62329,
+      "len": 0
+    },
+    {
+      "t": 63344,
+      "len": 0
+    },
+    {
+      "t": 64362,
+      "len": 0
+    },
+    {
+      "t": 65378,
+      "len": 0
+    },
+    {
+      "t": 66393,
+      "len": 0
+    },
+    {
+      "t": 67401,
+      "len": 0
+    },
+    {
+      "t": 68408,
+      "len": 0
+    },
+    {
+      "t": 69429,
+      "len": 0
+    },
+    {
+      "t": 70449,
+      "len": 0
+    },
+    {
+      "t": 71464,
+      "len": 0
+    },
+    {
+      "t": 72488,
+      "len": 0
+    },
+    {
+      "t": 73500,
+      "len": 0
+    },
+    {
+      "t": 74506,
+      "len": 0
+    },
+    {
+      "t": 75535,
+      "len": 0
+    },
+    {
+      "t": 76550,
+      "len": 0
+    },
+    {
+      "t": 77563,
+      "len": 0
+    },
+    {
+      "t": 78590,
+      "len": 0
+    },
+    {
+      "t": 79596,
+      "len": 0
+    },
+    {
+      "t": 80599,
+      "len": 0
+    },
+    {
+      "t": 81611,
+      "len": 0
+    },
+    {
+      "t": 82624,
+      "len": 0
+    },
+    {
+      "t": 83641,
+      "len": 0
+    },
+    {
+      "t": 84643,
+      "len": 0
+    },
+    {
+      "t": 85659,
+      "len": 0
+    },
+    {
+      "t": 86675,
+      "len": 0
+    },
+    {
+      "t": 87689,
+      "len": 0
+    },
+    {
+      "t": 88698,
+      "len": 0
+    },
+    {
+      "t": 89715,
+      "len": 0
+    },
+    {
+      "t": 90720,
+      "len": 0
+    },
+    {
+      "t": 91730,
+      "len": 0
+    },
+    {
+      "t": 92748,
+      "len": 0
+    },
+    {
+      "t": 93768,
+      "len": 0
+    },
+    {
+      "t": 94785,
+      "len": 0
+    },
+    {
+      "t": 95788,
+      "len": 0
+    },
+    {
+      "t": 96806,
+      "len": 0
+    },
+    {
+      "t": 97811,
+      "len": 0
+    },
+    {
+      "t": 98828,
+      "len": 0
+    },
+    {
+      "t": 99843,
+      "len": 0
+    },
+    {
+      "t": 100848,
+      "len": 0
+    },
+    {
+      "t": 101861,
+      "len": 0
+    },
+    {
+      "t": 102864,
+      "len": 0
+    },
+    {
+      "t": 103867,
+      "len": 0
+    },
+    {
+      "t": 104883,
+      "len": 0
+    },
+    {
+      "t": 105898,
+      "len": 0
+    },
+    {
+      "t": 106918,
+      "len": 0
+    },
+    {
+      "t": 107926,
+      "len": 0
+    },
+    {
+      "t": 108936,
+      "len": 0
+    },
+    {
+      "t": 109966,
+      "len": 0
+    },
+    {
+      "t": 110983,
+      "len": 0
+    },
+    {
+      "t": 112005,
+      "len": 0
+    },
+    {
+      "t": 113023,
+      "len": 0
+    },
+    {
+      "t": 114028,
+      "len": 0
+    },
+    {
+      "t": 115042,
+      "len": 0
+    },
+    {
+      "t": 116059,
+      "len": 0
+    },
+    {
+      "t": 117069,
+      "len": 0
+    },
+    {
+      "t": 118080,
+      "len": 0
+    },
+    {
+      "t": 119097,
+      "len": 0
+    },
+    {
+      "t": 120111,
+      "len": 0
+    },
+    {
+      "t": 121127,
+      "len": 0
+    },
+    {
+      "t": 122130,
+      "len": 0
+    },
+    {
+      "t": 123145,
+      "len": 0
+    },
+    {
+      "t": 124153,
+      "len": 0
+    },
+    {
+      "t": 125157,
+      "len": 0
+    },
+    {
+      "t": 126180,
+      "len": 0
+    },
+    {
+      "t": 127197,
+      "len": 0
+    },
+    {
+      "t": 128210,
+      "len": 0
+    },
+    {
+      "t": 129222,
+      "len": 0
+    },
+    {
+      "t": 130238,
+      "len": 0
+    },
+    {
+      "t": 131256,
+      "len": 0
+    },
+    {
+      "t": 132267,
+      "len": 0
+    },
+    {
+      "t": 133280,
+      "len": 0
+    },
+    {
+      "t": 134295,
+      "len": 0
+    },
+    {
+      "t": 135303,
+      "len": 0
+    },
+    {
+      "t": 136312,
+      "len": 0
+    },
+    {
+      "t": 137335,
+      "len": 0
+    },
+    {
+      "t": 138371,
+      "len": 0
+    },
+    {
+      "t": 139388,
+      "len": 0
+    },
+    {
+      "t": 140410,
+      "len": 0
+    },
+    {
+      "t": 141436,
+      "len": 0
+    },
+    {
+      "t": 142454,
+      "len": 0
+    },
+    {
+      "t": 143483,
+      "len": 0
+    },
+    {
+      "t": 144497,
+      "len": 0
+    },
+    {
+      "t": 145515,
+      "len": 0
+    },
+    {
+      "t": 146539,
+      "len": 0
+    },
+    {
+      "t": 147545,
+      "len": 0
+    },
+    {
+      "t": 148555,
+      "len": 0
+    },
+    {
+      "t": 149563,
+      "len": 0
+    },
+    {
+      "t": 150568,
+      "len": 0
+    },
+    {
+      "t": 151585,
+      "len": 0
+    },
+    {
+      "t": 152589,
+      "len": 0
+    },
+    {
+      "t": 153601,
+      "len": 0
+    },
+    {
+      "t": 154604,
+      "len": 0
+    },
+    {
+      "t": 155616,
+      "len": 0
+    },
+    {
+      "t": 156629,
+      "len": 0
+    },
+    {
+      "t": 157642,
+      "len": 0
+    },
+    {
+      "t": 158645,
+      "len": 0
+    },
+    {
+      "t": 159652,
+      "len": 0
+    },
+    {
+      "t": 160658,
+      "len": 0
+    },
+    {
+      "t": 161675,
+      "len": 0
+    },
+    {
+      "t": 162694,
+      "len": 0
+    },
+    {
+      "t": 163719,
+      "len": 0
+    },
+    {
+      "t": 164737,
+      "len": 0
+    },
+    {
+      "t": 165750,
+      "len": 0
+    },
+    {
+      "t": 166759,
+      "len": 0
+    },
+    {
+      "t": 167768,
+      "len": 0
+    },
+    {
+      "t": 168776,
+      "len": 0
+    },
+    {
+      "t": 169780,
+      "len": 0
+    },
+    {
+      "t": 170790,
+      "len": 0
+    },
+    {
+      "t": 171804,
+      "len": 0
+    },
+    {
+      "t": 172809,
+      "len": 0
+    },
+    {
+      "t": 173826,
+      "len": 0
+    },
+    {
+      "t": 174844,
+      "len": 0
+    },
+    {
+      "t": 175859,
+      "len": 0
+    },
+    {
+      "t": 176873,
+      "len": 0
+    },
+    {
+      "t": 177890,
+      "len": 0
+    },
+    {
+      "t": 178895,
+      "len": 0
+    },
+    {
+      "t": 179915,
+      "len": 0
+    },
+    {
+      "t": 180936,
+      "len": 0
+    },
+    {
+      "t": 181955,
+      "len": 0
+    },
+    {
+      "t": 182980,
+      "len": 0
+    },
+    {
+      "t": 183998,
+      "len": 0
+    },
+    {
+      "t": 185015,
+      "len": 0
+    },
+    {
+      "t": 186042,
+      "len": 0
+    },
+    {
+      "t": 187068,
+      "len": 0
+    },
+    {
+      "t": 188095,
+      "len": 0
+    },
+    {
+      "t": 189117,
+      "len": 0
+    },
+    {
+      "t": 190140,
+      "len": 0
+    },
+    {
+      "t": 191157,
+      "len": 0
+    },
+    {
+      "t": 192168,
+      "len": 0
+    },
+    {
+      "t": 193183,
+      "len": 0
+    },
+    {
+      "t": 194207,
+      "len": 0
+    },
+    {
+      "t": 195211,
+      "len": 0
+    },
+    {
+      "t": 196228,
+      "len": 0
+    },
+    {
+      "t": 197235,
+      "len": 0
+    },
+    {
+      "t": 198251,
+      "len": 0
+    },
+    {
+      "t": 199257,
+      "len": 0
+    },
+    {
+      "t": 200259,
+      "len": 0
+    },
+    {
+      "t": 201272,
+      "len": 0
+    },
+    {
+      "t": 202286,
+      "len": 0
+    },
+    {
+      "t": 203290,
+      "len": 0
+    },
+    {
+      "t": 204297,
+      "len": 0
+    },
+    {
+      "t": 205314,
+      "len": 0
+    },
+    {
+      "t": 206324,
+      "len": 0
+    },
+    {
+      "t": 207334,
+      "len": 0
+    },
+    {
+      "t": 208367,
+      "len": 0
+    },
+    {
+      "t": 209403,
+      "len": 0
+    },
+    {
+      "t": 210428,
+      "len": 0
+    },
+    {
+      "t": 211444,
+      "len": 0
+    },
+    {
+      "t": 212474,
+      "len": 0
+    },
+    {
+      "t": 213496,
+      "len": 0
+    },
+    {
+      "t": 214509,
+      "len": 0
+    },
+    {
+      "t": 215532,
+      "len": 0
+    },
+    {
+      "t": 216546,
+      "len": 0
+    },
+    {
+      "t": 217562,
+      "len": 0
+    },
+    {
+      "t": 218571,
+      "len": 0
+    },
+    {
+      "t": 219595,
+      "len": 0
+    },
+    {
+      "t": 220611,
+      "len": 0
+    },
+    {
+      "t": 221631,
+      "len": 0
+    },
+    {
+      "t": 222651,
+      "len": 0
+    },
+    {
+      "t": 223674,
+      "len": 0
+    },
+    {
+      "t": 224690,
+      "len": 0
+    },
+    {
+      "t": 225695,
+      "len": 0
+    },
+    {
+      "t": 226699,
+      "len": 0
+    },
+    {
+      "t": 227704,
+      "len": 0
+    },
+    {
+      "t": 228709,
+      "len": 0
+    },
+    {
+      "t": 229715,
+      "len": 0
+    },
+    {
+      "t": 230732,
+      "len": 0
+    },
+    {
+      "t": 231739,
+      "len": 0
+    },
+    {
+      "t": 232749,
+      "len": 0
+    },
+    {
+      "t": 233761,
+      "len": 0
+    },
+    {
+      "t": 234782,
+      "len": 0
+    },
+    {
+      "t": 235799,
+      "len": 0
+    },
+    {
+      "t": 236817,
+      "len": 0
+    },
+    {
+      "t": 237821,
+      "len": 0
+    },
+    {
+      "t": 238832,
+      "len": 0
+    },
+    {
+      "t": 239838,
+      "len": 0
+    },
+    {
+      "t": 240862,
+      "len": 0
+    },
+    {
+      "t": 241879,
+      "len": 0
+    },
+    {
+      "t": 242886,
+      "len": 0
+    },
+    {
+      "t": 243900,
+      "len": 0
+    },
+    {
+      "t": 244919,
+      "len": 0
+    },
+    {
+      "t": 245943,
+      "len": 0
+    },
+    {
+      "t": 246961,
+      "len": 0
+    },
+    {
+      "t": 247976,
+      "len": 0
+    },
+    {
+      "t": 248997,
+      "len": 0
+    },
+    {
+      "t": 250011,
+      "len": 0
+    },
+    {
+      "t": 251018,
+      "len": 0
+    },
+    {
+      "t": 252039,
+      "len": 0
+    },
+    {
+      "t": 253048,
+      "len": 0
+    },
+    {
+      "t": 254081,
+      "len": 0
+    },
+    {
+      "t": 255091,
+      "len": 0
+    },
+    {
+      "t": 256114,
+      "len": 0
+    },
+    {
+      "t": 257118,
+      "len": 0
+    },
+    {
+      "t": 258125,
+      "len": 0
+    },
+    {
+      "t": 259127,
+      "len": 0
+    },
+    {
+      "t": 260144,
+      "len": 0
+    },
+    {
+      "t": 261160,
+      "len": 0
+    },
+    {
+      "t": 262162,
+      "len": 0
+    },
+    {
+      "t": 263171,
+      "len": 0
+    },
+    {
+      "t": 264188,
+      "len": 0
+    },
+    {
+      "t": 265200,
+      "len": 0
+    },
+    {
+      "t": 266221,
+      "len": 0
+    },
+    {
+      "t": 267235,
+      "len": 0
+    },
+    {
+      "t": 268263,
+      "len": 0
+    },
+    {
+      "t": 269275,
+      "len": 0
+    },
+    {
+      "t": 270290,
+      "len": 0
+    },
+    {
+      "t": 271302,
+      "len": 0
+    },
+    {
+      "t": 272311,
+      "len": 0
+    },
+    {
+      "t": 273325,
+      "len": 0
+    },
+    {
+      "t": 274331,
+      "len": 0
+    },
+    {
+      "t": 275338,
+      "len": 0
+    },
+    {
+      "t": 276342,
+      "len": 0
+    },
+    {
+      "t": 277352,
+      "len": 0
+    },
+    {
+      "t": 278361,
+      "len": 0
+    },
+    {
+      "t": 279371,
+      "len": 0
+    },
+    {
+      "t": 280389,
+      "len": 0
+    },
+    {
+      "t": 281406,
+      "len": 0
+    },
+    {
+      "t": 282409,
+      "len": 0
+    },
+    {
+      "t": 283430,
+      "len": 0
+    },
+    {
+      "t": 284442,
+      "len": 0
+    },
+    {
+      "t": 285452,
+      "len": 0
+    },
+    {
+      "t": 286472,
+      "len": 0
+    },
+    {
+      "t": 287485,
+      "len": 0
+    },
+    {
+      "t": 288501,
+      "len": 0
+    },
+    {
+      "t": 289505,
+      "len": 0
+    },
+    {
+      "t": 290509,
+      "len": 0
+    },
+    {
+      "t": 291511,
+      "len": 0
+    },
+    {
+      "t": 292524,
+      "len": 0
+    },
+    {
+      "t": 293529,
+      "len": 0
+    },
+    {
+      "t": 294536,
+      "len": 0
+    },
+    {
+      "t": 295550,
+      "len": 0
+    },
+    {
+      "t": 296553,
+      "len": 0
+    },
+    {
+      "t": 297557,
+      "len": 0
+    },
+    {
+      "t": 298569,
+      "len": 0
+    },
+    {
+      "t": 299581,
+      "len": 0
+    },
+    {
+      "t": 300588,
+      "len": 0
+    },
+    {
+      "t": 301603,
+      "len": 0
+    },
+    {
+      "t": 302619,
+      "len": 0
+    },
+    {
+      "t": 303630,
+      "len": 0
+    },
+    {
+      "t": 304646,
+      "len": 0
+    },
+    {
+      "t": 305658,
+      "len": 0
+    },
+    {
+      "t": 306675,
+      "len": 0
+    },
+    {
+      "t": 307687,
+      "len": 0
+    },
+    {
+      "t": 308693,
+      "len": 0
+    },
+    {
+      "t": 309702,
+      "len": 0
+    },
+    {
+      "t": 310714,
+      "len": 0
+    },
+    {
+      "t": 311725,
+      "len": 0
+    },
+    {
+      "t": 312743,
+      "len": 0
+    },
+    {
+      "t": 313754,
+      "len": 0
+    },
+    {
+      "t": 314764,
+      "len": 0
+    },
+    {
+      "t": 315771,
+      "len": 0
+    },
+    {
+      "t": 316776,
+      "len": 0
+    },
+    {
+      "t": 317784,
+      "len": 0
+    },
+    {
+      "t": 318792,
+      "len": 0
+    },
+    {
+      "t": 319797,
+      "len": 0
+    },
+    {
+      "t": 320801,
+      "len": 0
+    },
+    {
+      "t": 321817,
+      "len": 0
+    },
+    {
+      "t": 322833,
+      "len": 0
+    },
+    {
+      "t": 323838,
+      "len": 0
+    },
+    {
+      "t": 324843,
+      "len": 0
+    },
+    {
+      "t": 325851,
+      "len": 0
+    },
+    {
+      "t": 326854,
+      "len": 0
+    },
+    {
+      "t": 327859,
+      "len": 0
+    },
+    {
+      "t": 328872,
+      "len": 0
+    },
+    {
+      "t": 329880,
+      "len": 0
+    },
+    {
+      "t": 330892,
+      "len": 0
+    },
+    {
+      "t": 331904,
+      "len": 0
+    },
+    {
+      "t": 332916,
+      "len": 0
+    },
+    {
+      "t": 333930,
+      "len": 0
+    },
+    {
+      "t": 334942,
+      "len": 0
+    },
+    {
+      "t": 335959,
+      "len": 0
+    },
+    {
+      "t": 336969,
+      "len": 0
+    },
+    {
+      "t": 337973,
+      "len": 0
+    },
+    {
+      "t": 338985,
+      "len": 0
+    },
+    {
+      "t": 339996,
+      "len": 0
+    },
+    {
+      "t": 341015,
+      "len": 0
+    },
+    {
+      "t": 342026,
+      "len": 0
+    },
+    {
+      "t": 343040,
+      "len": 0
+    },
+    {
+      "t": 344053,
+      "len": 0
+    },
+    {
+      "t": 345070,
+      "len": 0
+    },
+    {
+      "t": 346079,
+      "len": 0
+    },
+    {
+      "t": 347092,
+      "len": 0
+    },
+    {
+      "t": 348097,
+      "len": 0
+    },
+    {
+      "t": 349112,
+      "len": 0
+    },
+    {
+      "t": 350128,
+      "len": 0
+    },
+    {
+      "t": 351145,
+      "len": 0
+    },
+    {
+      "t": 352149,
+      "len": 0
+    },
+    {
+      "t": 353155,
+      "len": 0
+    },
+    {
+      "t": 354158,
+      "len": 0
+    },
+    {
+      "t": 355169,
+      "len": 0
+    },
+    {
+      "t": 356172,
+      "len": 0
+    },
+    {
+      "t": 357188,
+      "len": 0
+    },
+    {
+      "t": 358202,
+      "len": 0
+    },
+    {
+      "t": 359208,
+      "len": 0
+    },
+    {
+      "t": 360224,
+      "len": 0
+    },
+    {
+      "t": 361238,
+      "len": 0
+    },
+    {
+      "t": 362241,
+      "len": 0
+    },
+    {
+      "t": 363255,
+      "len": 0
+    },
+    {
+      "t": 364274,
+      "len": 0
+    },
+    {
+      "t": 365295,
+      "len": 0
+    },
+    {
+      "t": 366307,
+      "len": 0
+    },
+    {
+      "t": 367324,
+      "len": 0
+    },
+    {
+      "t": 368337,
+      "len": 0
+    },
+    {
+      "t": 369341,
+      "len": 0
+    },
+    {
+      "t": 370357,
+      "len": 0
+    },
+    {
+      "t": 371366,
+      "len": 0
+    },
+    {
+      "t": 372381,
+      "len": 0
+    },
+    {
+      "t": 373388,
+      "len": 0
+    },
+    {
+      "t": 374393,
+      "len": 0
+    },
+    {
+      "t": 375408,
+      "len": 0
+    },
+    {
+      "t": 376410,
+      "len": 0
+    },
+    {
+      "t": 377420,
+      "len": 0
+    },
+    {
+      "t": 378431,
+      "len": 0
+    },
+    {
+      "t": 379436,
+      "len": 0
+    },
+    {
+      "t": 380449,
+      "len": 0
+    },
+    {
+      "t": 381460,
+      "len": 0
+    },
+    {
+      "t": 382471,
+      "len": 0
+    },
+    {
+      "t": 383476,
+      "len": 0
+    },
+    {
+      "t": 384480,
+      "len": 0
+    },
+    {
+      "t": 385483,
+      "len": 0
+    },
+    {
+      "t": 386499,
+      "len": 0
+    },
+    {
+      "t": 387506,
+      "len": 0
+    },
+    {
+      "t": 388517,
+      "len": 0
+    },
+    {
+      "t": 389535,
+      "len": 0
+    },
+    {
+      "t": 390560,
+      "len": 0
+    },
+    {
+      "t": 391581,
+      "len": 0
+    },
+    {
+      "t": 392593,
+      "len": 0
+    },
+    {
+      "t": 393606,
+      "len": 0
+    },
+    {
+      "t": 394620,
+      "len": 0
+    },
+    {
+      "t": 395633,
+      "len": 0
+    },
+    {
+      "t": 396650,
+      "len": 0
+    },
+    {
+      "t": 397654,
+      "len": 0
+    },
+    {
+      "t": 398663,
+      "len": 0
+    },
+    {
+      "t": 399676,
+      "len": 0
+    },
+    {
+      "t": 400680,
+      "len": 0
+    },
+    {
+      "t": 401695,
+      "len": 0
+    },
+    {
+      "t": 402721,
+      "len": 0
+    },
+    {
+      "t": 403747,
+      "len": 0
+    },
+    {
+      "t": 404762,
+      "len": 0
+    },
+    {
+      "t": 405795,
+      "len": 0
+    },
+    {
+      "t": 406824,
+      "len": 0
+    },
+    {
+      "t": 407849,
+      "len": 0
+    },
+    {
+      "t": 408861,
+      "len": 0
+    },
+    {
+      "t": 409872,
+      "len": 0
+    },
+    {
+      "t": 410887,
+      "len": 0
+    },
+    {
+      "t": 411904,
+      "len": 0
+    },
+    {
+      "t": 412921,
+      "len": 0
+    },
+    {
+      "t": 413933,
+      "len": 0
+    },
+    {
+      "t": 414953,
+      "len": 0
+    },
+    {
+      "t": 415972,
+      "len": 0
+    },
+    {
+      "t": 416993,
+      "len": 0
+    },
+    {
+      "t": 418010,
+      "len": 0
+    },
+    {
+      "t": 419020,
+      "len": 0
+    },
+    {
+      "t": 420042,
+      "len": 0
+    },
+    {
+      "t": 421060,
+      "len": 0
+    },
+    {
+      "t": 422072,
+      "len": 0
+    },
+    {
+      "t": 423080,
+      "len": 0
+    },
+    {
+      "t": 424099,
+      "len": 0
+    },
+    {
+      "t": 425103,
+      "len": 0
+    },
+    {
+      "t": 426121,
+      "len": 0
+    },
+    {
+      "t": 427138,
+      "len": 0
+    },
+    {
+      "t": 428169,
+      "len": 0
+    },
+    {
+      "t": 429182,
+      "len": 0
+    },
+    {
+      "t": 430191,
+      "len": 0
+    },
+    {
+      "t": 431198,
+      "len": 0
+    },
+    {
+      "t": 432215,
+      "len": 0
+    },
+    {
+      "t": 433222,
+      "len": 0
+    },
+    {
+      "t": 434224,
+      "len": 0
+    },
+    {
+      "t": 435237,
+      "len": 0
+    },
+    {
+      "t": 436252,
+      "len": 0
+    },
+    {
+      "t": 437257,
+      "len": 0
+    },
+    {
+      "t": 438271,
+      "len": 0
+    },
+    {
+      "t": 439298,
+      "len": 0
+    },
+    {
+      "t": 440307,
+      "len": 0
+    },
+    {
+      "t": 441317,
+      "len": 0
+    },
+    {
+      "t": 442345,
+      "len": 0
+    },
+    {
+      "t": 443378,
+      "len": 0
+    },
+    {
+      "t": 444417,
+      "len": 0
+    },
+    {
+      "t": 445433,
+      "len": 0
+    },
+    {
+      "t": 446457,
+      "len": 0
+    },
+    {
+      "t": 447482,
+      "len": 0
+    },
+    {
+      "t": 448491,
+      "len": 0
+    },
+    {
+      "t": 449520,
+      "len": 0
+    },
+    {
+      "t": 450538,
+      "len": 0
+    },
+    {
+      "t": 451559,
+      "len": 0
+    },
+    {
+      "t": 452564,
+      "len": 0
+    },
+    {
+      "t": 453577,
+      "len": 0
+    },
+    {
+      "t": 454589,
+      "len": 0
+    },
+    {
+      "t": 455595,
+      "len": 0
+    },
+    {
+      "t": 456601,
+      "len": 0
+    },
+    {
+      "t": 457604,
+      "len": 0
+    },
+    {
+      "t": 458633,
+      "len": 0
+    },
+    {
+      "t": 459650,
+      "len": 0
+    },
+    {
+      "t": 460680,
+      "len": 0
+    },
+    {
+      "t": 461712,
+      "len": 0
+    },
+    {
+      "t": 462749,
+      "len": 0
+    },
+    {
+      "t": 463761,
+      "len": 0
+    },
+    {
+      "t": 464775,
+      "len": 0
+    },
+    {
+      "t": 465796,
+      "len": 0
+    },
+    {
+      "t": 466817,
+      "len": 0
+    },
+    {
+      "t": 467835,
+      "len": 0
+    },
+    {
+      "t": 468847,
+      "len": 0
+    },
+    {
+      "t": 469863,
+      "len": 0
+    },
+    {
+      "t": 470879,
+      "len": 0
+    },
+    {
+      "t": 471892,
+      "len": 0
+    },
+    {
+      "t": 472904,
+      "len": 0
+    },
+    {
+      "t": 473907,
+      "len": 0
+    },
+    {
+      "t": 474915,
+      "len": 0
+    },
+    {
+      "t": 475917,
+      "len": 0
+    },
+    {
+      "t": 476944,
+      "len": 0
+    },
+    {
+      "t": 477952,
+      "len": 0
+    },
+    {
+      "t": 478968,
+      "len": 0
+    },
+    {
+      "t": 480022,
+      "len": 0
+    }
+  ],
+  "panelText": "Command Palette\n\nSearch for a command to run...\n\nWriteMyBook\nWriting Platform\nNavigation\nDashboard\nBooks\nSeries\nThe Keeper's Arithmetic\nOverview\nGetting Started\n5/5\nSetup\nTransfer\nStyle\nWriting\n5/5\nChapters\n5\nLibrary\nWriting Dashboard\nRefining\n5/5\nEditorial\n5\nReports\nPublish\nExport\nSettings\nBooks\n/\nThe Keeper's Arithmetic\n/\nChapters\n/\nCh.4: The Gull Road\nLine Edited\nToggle theme\nThe Keeper's Arithmetic\n/\nCh. 4: The Gull Road\nChapter 4: The Gull Road\n4/5\nChapter 4 of 5\nCh. 4 — The Gull Road\nRefined\n240 words\nPacing\nSyntax\n\nMorning. No letters.\n\nI took the gull road instead of the steps, the gull road is longer, the gull road does not care that it is longer. Neither did I.\n\nGrey water, grey light, grey wind off a grey sea, and the fifth grey is the one inside your chest, the one the others are only weather compared to.\n\nHalfway down there is a bench my father set into the rock. Not for rest. For watching. He said a keeper who sits with her back to the sea is a townswoman on holiday, he said it every time, he said it the last time, I sat with my back to the sea.\n\nSmall rebellions. The only size I ever managed.\n\nThe Morena's mast shows at low tide off Struga. A finger of her. Pointing at nothing, pointing at everything, depends on the tide, depends on the sister. I watched until the water took the finger back.\n\nKova says salvage rights lapse in a year and a day. A year and a day. Like a sentence in an old story, like a curse with paperwork.\n\nI came back up by the steps. Ninety-six. I counted them the way I always count them, which is to say I did not count them, my feet counted them, my feet have been right for thirty years.\n\nWind rising by evening. Pressure falling. Wrote it down. Drew no line.\n\nLet the night try the door.\n\n240 words\n1 min read\nTimer\nWriting Agent\nBackground\n\nI'll start by reading the chapter content, any existing findings, and relevant context to perform the line edit.\n\nReading chapter...\nReading blackboard insights...\nChecking existing documents...\nReading Chapter 4...\nReading blackboard insights...\nChecking existing documents...\n\nLet me read the existing line edit report for Chapter 4, plus check for any prior findings.\n\nReading document...\nSearching memory...\nReading Line Edit Report...\nSearching memory...\n\nNow let me conduct my own thorough, independent analysis. I have the full chapter text (10 paragraphs), the previous report (which found 0 issues), and all context. Let me work through the three phases meticulously.\n\nPhase 1: Sentence Craft (Checks 1–8)\n\nParagraph-by-paragraph examination:\n\nPara 1: \"Morning. No letters.\"\n\nTwo fragments. Logbook notation. Protected by fingerprint (\"Procedural notation: 'Morning. No letters.' This mimics logbook entries\").\n\nPara 2: \"I took the gull road instead of the steps, the gull road is longer, the gull road does not care that it is longer. Neither did I.\"\n\n\"gull road\" ×3 — anaphoric repetition. Protected by fingerprint (anaphora as structural device).\nComma splice between \"the steps\" and \"the gull road is longer\" — let me check. This is a run-on/comma splice that creates a rolling cadence. The fingerprint notes \"The punctuation collapse — no conjunction before the final clause\" as characteristic. Protected.\n\nPara 3: \"Grey water, grey light, grey wind off a grey sea, and the fifth grey is the one inside your chest, the one the others are only weather compared to.\"\n\n\"grey\" ×5 — the five-grey stack. Protected — this is literally a calibration sample (#5).\n\nPara 4: \"Halfway down there is a bench my father set into the rock. Not for rest. For watching. He said a keeper who sits with her back to the sea is a townswoman on holiday, he said it every time, he said it the last time, I sat with my back to the sea.\"\n\n\"he said\" ×3 — anaphoric. Protected.\nComma splice through final clauses — deliberate punctuation collapse. Protected.\n\nPara 5: \"Small rebellions. The only size I ever managed.\"\n\nTwo fragments. Clean. Epigrammatic.\n\nPara 6: \"The Morena's mast shows at low tide off Stru",
+  "network": [
+    {
+      "url": "/api/books/6d69fd7c-f7a4-4e3d-bf49-1415d81f5326/agent",
+      "method": "POST",
+      "status": 200,
+      "tMs": 4903
+    },
+    {
+      "url": "/api/books/6d69fd7c-f7a4-4e3d-bf49-1415d81f5326/agent/fa1bad0b-3cec-463b-b7d2-7edf72afc094/stream",
+      "method": "GET",
+      "status": 200,
+      "tMs": 12352
+    }
+  ],
+  "capturedAt": "2026-07-27T01:39:15.507Z"
+}

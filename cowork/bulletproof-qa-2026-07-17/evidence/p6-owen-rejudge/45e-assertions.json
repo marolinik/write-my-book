@@ -1,0 +1,220 @@
+{
+  "shot": "45e",
+  "book": "6d69fd7c-f7a4-4e3d-bf49-1415d81f5326",
+  "chapter": "677f38b3-c188-47bd-8a34-1491dfce2c7e",
+  "toggle": {
+    "ariaLabelBefore": "AI Ghost Text (off)",
+    "ariaLabelAfter": "AI Ghost Text (on)",
+    "tooltip": "AI Ghost Text (off)\nQuick suggestions may use a faster model than your default.\nAI Ghost Text (off)\nQuick suggestions may use a faster model than your default. | AI Ghost Text (off)\nQuick suggestions may use a faster model than your default."
+  },
+  "typedAt": 1447,
+  "stream": {
+    "requestAtMs": 2835,
+    "headersAtMs": 6275,
+    "status": 200,
+    "contentType": "text/event-stream",
+    "chunkCount": 10,
+    "firstChunkAtMs": 6279,
+    "firstTextChunkAtMs": 6279,
+    "lastChunkAtMs": 7285,
+    "endAtMs": 7293,
+    "gapMs": [
+      35,
+      40,
+      147,
+      141,
+      193,
+      189,
+      152,
+      91,
+      18
+    ],
+    "gapMsMedian": 141
+  },
+  "events": [
+    {
+      "t": 1785117627122,
+      "kind": "request",
+      "url": "/api/books/6d69fd7c-f7a4-4e3d-bf49-1415d81f5326/ghost-text",
+      "tMs": 2835
+    },
+    {
+      "t": 1785117630562,
+      "kind": "headers",
+      "status": 200,
+      "ctype": "text/event-stream",
+      "tMs": 6275
+    },
+    {
+      "t": 1785117630566,
+      "kind": "chunk",
+      "bytes": 37,
+      "text": "data: {\"type\":\"token\",\"text\":\"out\"}\n\n",
+      "tMs": 6279
+    },
+    {
+      "t": 1785117630601,
+      "kind": "chunk",
+      "bytes": 39,
+      "text": "data: {\"type\":\"token\",\"text\":\" when\"}\n\n",
+      "tMs": 6314
+    },
+    {
+      "t": 1785117630641,
+      "kind": "chunk",
+      "bytes": 41,
+      "text": "data: {\"type\":\"token\",\"text\":\" I came\"}\n\n",
+      "tMs": 6354
+    },
+    {
+      "t": 1785117630788,
+      "kind": "chunk",
+      "bytes": 61,
+      "text": "data: {\"type\":\"token\",\"text\":\" down, already turning with\"}\n\n",
+      "tMs": 6501
+    },
+    {
+      "t": 1785117630929,
+      "kind": "chunk",
+      "bytes": 56,
+      "text": "data: {\"type\":\"token\",\"text\":\" the new moon I couldn\"}\n\n",
+      "tMs": 6642
+    },
+    {
+      "t": 1785117631122,
+      "kind": "chunk",
+      "bytes": 49,
+      "text": "data: {\"type\":\"token\",\"text\":\"'t see yet, and\"}\n\n",
+      "tMs": 6835
+    },
+    {
+      "t": 1785117631311,
+      "kind": "chunk",
+      "bytes": 55,
+      "text": "data: {\"type\":\"token\",\"text\":\" the air in the house\"}\n\n",
+      "tMs": 7024
+    },
+    {
+      "t": 1785117631463,
+      "kind": "chunk",
+      "bytes": 60,
+      "text": "data: {\"type\":\"token\",\"text\":\" smelled of copper and old\"}\n\n",
+      "tMs": 7176
+    },
+    {
+      "t": 1785117631554,
+      "kind": "chunk",
+      "bytes": 39,
+      "text": "data: {\"type\":\"token\",\"text\":\" wax.\"}\n\n",
+      "tMs": 7267
+    },
+    {
+      "t": 1785117631572,
+      "kind": "chunk",
+      "bytes": 229,
+      "text": "data: {\"type\":\"done\",\"text\":\"out when I came down, already turning with the new moon I couldn't see yet, and the air in the house smelled of copper and old wax.\",\"elapsedMs\":4294,\"usage\":{\"input_tokens\":233,\"output_tokens\":31}}\n\n",
+      "tMs": 7285
+    },
+    {
+      "t": 1785117631580,
+      "kind": "end",
+      "tMs": 7293
+    }
+  ],
+  "overlaySamples": [
+    {
+      "t": 1450,
+      "ghostLen": 0
+    },
+    {
+      "t": 1707,
+      "ghostLen": 0
+    },
+    {
+      "t": 1967,
+      "ghostLen": 0
+    },
+    {
+      "t": 2230,
+      "ghostLen": 0
+    },
+    {
+      "t": 2491,
+      "ghostLen": 0
+    },
+    {
+      "t": 2757,
+      "ghostLen": 0
+    },
+    {
+      "t": 3023,
+      "ghostLen": 0
+    },
+    {
+      "t": 3289,
+      "ghostLen": 0
+    },
+    {
+      "t": 3555,
+      "ghostLen": 0
+    },
+    {
+      "t": 3822,
+      "ghostLen": 0
+    },
+    {
+      "t": 4087,
+      "ghostLen": 0
+    },
+    {
+      "t": 4350,
+      "ghostLen": 0
+    },
+    {
+      "t": 4604,
+      "ghostLen": 0
+    },
+    {
+      "t": 4871,
+      "ghostLen": 0
+    },
+    {
+      "t": 5134,
+      "ghostLen": 0
+    },
+    {
+      "t": 5397,
+      "ghostLen": 0
+    },
+    {
+      "t": 5661,
+      "ghostLen": 0
+    },
+    {
+      "t": 5926,
+      "ghostLen": 0
+    },
+    {
+      "t": 6191,
+      "ghostLen": 0
+    },
+    {
+      "t": 6453,
+      "ghostLen": 0
+    },
+    {
+      "t": 6951,
+      "ghostLen": 0
+    },
+    {
+      "t": 7219,
+      "ghostLen": 0
+    },
+    {
+      "t": 7484,
+      "ghostLen": 0
+    }
+  ],
+  "editorTail": " day. A year and a day. Like a sentence in an old story, like a curse with paperwork.\n\nI came back up by the steps. Ninety-six. I counted them the way I always count them, which is to say I did not count them, my feet counted them, my feet have been right for thirty years.\n\nWind rising by evening. Pressure falling. Wrote it down. Drew no line.\n\nLet the night try the door. The tide was The tide was",
+  "capturedAt": "2026-07-27T02:00:34.523Z"
+}
