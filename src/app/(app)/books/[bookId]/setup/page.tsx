@@ -387,7 +387,7 @@ export default function SetupPage({
                 <div className="flex items-center gap-2 rounded-md bg-green-50 dark:bg-green-950/30 p-3">
                   <CheckCircle2Icon className="size-4 text-green-600 dark:text-green-400 shrink-0" />
                   <span className="text-sm font-medium text-green-700 dark:text-green-300">
-                    {s.manuscriptImported} --{" "}
+                    {s.manuscriptImported} —{" "}
                     {countWithNoun(bookState.chapterCount, s.chapterOne, s.chapterMany)}
                   </span>
                 </div>

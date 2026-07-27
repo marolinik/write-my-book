@@ -22,6 +22,7 @@ import {
   isUiLanguageSupported,
 } from "@/lib/i18n/ui-strings";
 import { MemorySettings } from "@/components/memory/memory-settings";
+import { WriterMemoryPanel } from "@/components/memory/writer-memory-panel";
 import { ApiKeysSection } from "@/components/settings/api-keys-section";
 import { ModelSelectionSection } from "@/components/settings/model-selection-section";
 
@@ -92,6 +93,24 @@ export default function SettingsPage() {
 
       {/* Memory System */}
       <MemorySettings />
+
+      {/*
+        D-171: what the AI remembers ABOUT THE WRITER was one-way glass — the
+        discuss loop writes WriterMemory rows ("On Keep as-is, I'll remember…")
+        that then ride in every prompt, and there was no surface anywhere to read
+        them, correct a mis-summarised one, or revoke it. The panel, the CRUD
+        routes and the revoke path all already existed; the panel simply had zero
+        mounts.
+
+        Mounted here, account-wide, rather than on the book overview: with no
+        `bookId` the route returns EVERY active row (global + every book), which
+        is the only view in which "everything the AI is carrying about me" is
+        true — and it adds no new chrome to an already dense book dashboard, no
+        new route, and no new nav entry. It sits directly under the vector-memory
+        card so the two memory concepts (indexed manuscript vs. remembered
+        preferences) read as neighbours.
+      */}
+      <WriterMemoryPanel />
 
       <Separator className="my-6" />
 

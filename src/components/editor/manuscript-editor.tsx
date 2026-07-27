@@ -889,7 +889,7 @@ export function ManuscriptEditor({
       const positions = findTextPositions(editor.state.doc, searchText);
       if (positions.length === 0) {
         toast.info(
-          "Original text has changed -- could not locate passage."
+          "Original text has changed — could not locate passage."
         );
         return;
       }

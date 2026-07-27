@@ -49,7 +49,7 @@ const PLAN_CARDS = [
     icon: Crown,
     monthlyPrice: 19,
     annualPrice: null as number | null,
-    badge: "Limited -- Founder's Price",
+    badge: "Limited — Founder's Price",
     highlight: true,
     features: [
       "Unlimited books",
@@ -438,7 +438,7 @@ export default function BillingPage() {
         <CardContent className="flex items-start gap-3 py-4">
           <Info className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
           <div>
-            <p className="font-medium">BYOK -- Bring Your Own Key</p>
+            <p className="font-medium">BYOK — Bring Your Own Key</p>
             <p className="text-sm text-muted-foreground mt-1">
               Your subscription covers the WriteMyBook platform. You bring your
               own AI API keys (Anthropic, OpenRouter, OpenAI, etc.) for LLM
@@ -453,25 +453,30 @@ export default function BillingPage() {
 
       {/* ─── Usage Stats (preserved from previous version) ─── */}
 
-      {/* Your Key Savings */}
+      {/* D-181: this card reports SPEND, which its own body always said. The
+          old "Your Key Savings" headline sat directly above the figure and
+          labelled it savings — spend-as-savings on a money surface (D-152
+          labelling family). Headline and description now name what the number
+          is; the zero-markup claim stays, as a claim about the rate, not the
+          total. */}
       {!usageLoading && usage?.total && usage.total.costEstimate > 0 && (
         <Card className="mb-6 border-green-200 bg-green-50/50 dark:border-green-900 dark:bg-green-950/20">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <Key className="h-4 w-4" />
-              Your Key Savings
+              Your AI Spend — Your Keys
             </CardTitle>
             <CardDescription>
-              By using your own API keys, you maintain full control over costs
+              What you paid your AI providers directly, at their rates
             </CardDescription>
           </CardHeader>
           <CardContent>
+            <p className="text-sm text-muted-foreground">Total spent (last 30 days)</p>
             <p className="text-3xl font-bold text-green-700 dark:text-green-400">
               ${usage.total.costEstimate.toFixed(2)}
             </p>
             <p className="text-sm text-muted-foreground mt-1">
-              Total spent using your own keys (last 30 days) &mdash;
-              no platform markup applied
+              Paid with your own keys &mdash; no platform markup applied
             </p>
             {usage.byKeySource &&
               (() => {
