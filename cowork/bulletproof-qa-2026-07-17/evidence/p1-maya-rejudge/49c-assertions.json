@@ -1,0 +1,65 @@
+{
+  "shot": "49c",
+  "persona": "P1 (Maya) — TRANSFERRED: captured on the only book in the dev DB that mounts an analytics chart",
+  "identityUsed": "user_dev_bypass",
+  "book": "4a37715f-30ad-43d9-9960-3ba9c0d169a4",
+  "build": "ac20626 (D-195 fix)",
+  "proves": "the reports analytics Tooltip contentStyle now resolves to a real background + border instead of dropping both declarations as invalid CSS",
+  "preFix": {
+    "backgroundColor": "hsl(var(--card))",
+    "border": "1px solid hsl(var(--border))",
+    "effect": "both declarations invalid -> dropped -> tooltip was unbacked text over the chart"
+  },
+  "whyNotOnP1sBook": {
+    "hasBetaScores": false,
+    "analysisReportDocumentsInWholeDb": 0,
+    "costPieSuppressedBy": "allUserKeys -> renders the '100% Your Keys' badge instead of the PieChart",
+    "peekEvidence": "peek49c.ts: Analytics tab aria-selected=true, .recharts-wrapper count 0"
+  },
+  "betaTabPresent": false,
+  "chartMounted": false,
+  "tokens": {
+    "light": {
+      "card": "lab(100% 0 0)",
+      "border": "lab(90.952% -.0000596046 0)",
+      "htmlClass": "light"
+    },
+    "dark": {
+      "card": "lab(7.78201% -.0000149012 0)",
+      "border": "lab(100% 0 0 / .1)",
+      "htmlClass": "light dark"
+    }
+  },
+  "light": {
+    "raisedAt": null,
+    "style": null,
+    "bars": null
+  },
+  "dark": {
+    "raisedAt": null,
+    "style": null
+  },
+  "verdict": {
+    "chartMounted": false,
+    "tooltipRaisedLight": false,
+    "tooltipRaisedDark": false,
+    "lightBackground": null,
+    "darkBackground": null,
+    "lightBackgroundIsRealColour": false,
+    "darkBackgroundIsRealColour": false,
+    "backgroundDiffersAcrossThemes": false,
+    "lightBorder": null,
+    "darkBorder": null,
+    "lightBorderRendered": false,
+    "inlineStyleLight": null,
+    "tooltipTextLight": null,
+    "pageErrors": 1
+  },
+  "trace": [
+    {
+      "step": "pageerror",
+      "message": "Clerk: Failed to load Clerk, failed to load script: https://clerk.example.test/npm/@clerk/clerk-js@5/dist/clerk.browser.js\n\n(code=\"failed_to_load_clerk_js\")\n\n"
+    }
+  ],
+  "capturedAt": "2026-07-27T13:08:11.897Z"
+}
