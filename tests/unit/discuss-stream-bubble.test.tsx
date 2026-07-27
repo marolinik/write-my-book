@@ -26,6 +26,7 @@ const h = vi.hoisted(() => ({
   replies: [] as Array<{ role: "user" | "assistant"; content: string }>,
   streamingText: "",
   isSending: false,
+  cancel: vi.fn(),
 }));
 
 vi.mock("@/hooks/use-editorial", () => ({
@@ -43,6 +44,11 @@ vi.mock("@/hooks/use-finding-discussion", () => ({
     send: h.send,
     isSending: h.isSending,
     streamingText: h.streamingText,
+    // D-177: the live bubble now mounts from the turn flag that flips in the
+    // same commit as the settled append, not from react-query's isPending.
+    turnActive: h.isSending,
+    turnStartedAt: h.isSending ? Date.now() : null,
+    cancel: h.cancel,
   }),
 }));
 

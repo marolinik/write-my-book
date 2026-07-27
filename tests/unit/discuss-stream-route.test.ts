@@ -448,6 +448,32 @@ describe("D5 — discuss turns stream via the first-text-gate SSE", () => {
     expect(h.db.usageRecord.create).toHaveBeenCalledTimes(1);
   });
 
+  it("(l) D-176: a cancel taken during the BLOCKING fallback settles nothing", async () => {
+    // The thread's Cancel promises "nothing saved, no exchange used". On the
+    // streamed path the abort reaches the provider; on the fallback it cannot,
+    // so the route must still refuse to settle a turn the writer walked away
+    // from. The provider generation itself was billed — which is why the cancel
+    // copy makes no billing claim.
+    const ctl = new AbortController();
+    h.stream.mockImplementationOnce(() => {
+      throw new Error("stream unsupported on this route");
+    });
+    h.create.mockImplementationOnce(async () => {
+      ctl.abort(); // writer hit Cancel while the blocking turn was in flight
+      return {
+        content: [{ type: "text", text: DISCUSS_REPLY }],
+        stop_reason: "end_turn",
+        usage: { input_tokens: 1200, output_tokens: 180 },
+      };
+    });
+
+    const res = await POST(req({ writerMessage: "x" }, ctl.signal), ctx as never);
+
+    expect(res.status).toBe(499);
+    expect(h.db.findingReply.create).not.toHaveBeenCalled();
+    expect(h.db.editFinding.update).not.toHaveBeenCalled();
+  });
+
   it("(k) still arms an agreed revision onto the finding from the streamed path (D-41b)", async () => {
     h.stream.mockReturnValueOnce(
       fakeStream(deltasOf(REVISION_REPLY), finalOf(REVISION_REPLY), { lifecycle: true })

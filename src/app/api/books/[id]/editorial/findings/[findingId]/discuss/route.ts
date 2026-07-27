@@ -264,6 +264,15 @@ export async function POST(req: Request, { params }: RouteParams) {
 
     // Fallback (constraint #5): today's blocking turn, byte-identical 200 body.
     const raw = await runDiscussTurn({ system, user: userPrompt, userId: user.id, bookId });
+    // D-176: the thread now offers Cancel during the wait, and its copy promises
+    // that nothing is saved and no exchange is consumed. On the streamed path the
+    // abort travels into the provider call; on this blocking path it cannot (no
+    // signal threading yet — the remaining half of D-142), but the TURN can still
+    // be all-or-nothing: if the writer left or cancelled while the provider was
+    // working, settle nothing, persist nothing, arm nothing. The provider was
+    // paid for the generation either way, which is exactly why the cancel copy
+    // makes no billing claim.
+    if (req.signal.aborted) return new Response(null, { status: 499 });
     const { parsed, result } = await settleTurn(raw);
 
     if (result.capped) {

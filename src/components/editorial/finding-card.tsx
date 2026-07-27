@@ -132,6 +132,14 @@ export function FindingCard({
   const [showDetails, setShowDetails] = useState(false);
   const [applyError, setApplyError] = useState<string | null>(null);
   const [discussing, setDiscussing] = useState(false);
+  /**
+   * D-183: a discuss turn in flight is about to change the replies that Apply and
+   * Dismiss settle against — most sharply the in-flight REMEMBER, which a dismiss
+   * taken mid-stream would miss entirely (dismiss reads only PERSISTED replies).
+   * The thread reports its own in-flight state up here so the card's buttons and
+   * the thread's buttons are disabled from one source of truth.
+   */
+  const [turnInFlight, setTurnInFlight] = useState(false);
   const { selectedFindingId, setSelectedFinding } = useEditorialStore();
   const applyMutation = useApplyFinding(bookId);
   const dismissMutation = useDismissFinding(bookId);
@@ -142,7 +150,8 @@ export function FindingCard({
   const isMutating =
     applyMutation.isPending ||
     dismissMutation.isPending ||
-    undoMutation.isPending;
+    undoMutation.isPending ||
+    turnInFlight;
 
   const isAutoAppliable = !!(finding.originalText && finding.newText);
 
@@ -370,6 +379,7 @@ export function FindingCard({
               setDiscussing(false);
             }}
             onClose={() => setDiscussing(false)}
+            onTurnActiveChange={setTurnInFlight}
           />
         )}
 

@@ -18,6 +18,8 @@ export interface ConversationView {
   latestRevision?: string;
   latestReasoning?: string;
   latestConstraint?: { category: string; content: string };
+  /** D-185: which assistant turn the revision belongs under. */
+  latestRevisionIndex?: number;
   resolution: Resolution;
 }
 
@@ -40,10 +42,24 @@ export const STRIPPED_BLOCK_FALLBACK_TEXT =
  *  turn emitted only structured fields (so the prose parses to "") it degrades to
  *  an honest fallback line instead of a blank bubble. "" is treated as "no message"
  *  — a bare `?? content` would let the empty string through (D-104). */
+/**
+ * D-185: a turn that proposes a revision usually introduces it ("Here's a
+ * tighter version:"), and the revision itself is lifted out of the bubble into
+ * its own comparison card. The colon is then a lead-in to nothing. Close the
+ * sentence instead of leaving punctuation dangling mid-thread.
+ */
+export function closeDanglingLeadIn(message: string): string {
+  const trimmed = message.replace(/[\s]*[:–—-]+[\s]*$/, "").trimEnd();
+  if (!trimmed) return message;
+  return /[.!?…"'”’)\]]$/.test(trimmed) ? trimmed : `${trimmed}.`;
+}
+
 export function assistantBubbleText(content: string): string {
   const parsed = parseDiscussResponse(content); // pure + total: never throws
   const message = parsed.assistantMessage.trim();
-  if (message) return message;
+  // The revision is rendered in its own card directly under this bubble, so a
+  // prose lead-in that pointed at it must not dangle (D-185).
+  if (message) return parsed.revisedSuggestion ? closeDanglingLeadIn(message) : message;
   if (parsed.revisedSuggestion) return REVISION_FALLBACK_TEXT;
   if (parsed.suggestedConstraint) return CONSTRAINT_FALLBACK_TEXT;
   // D-157: the parser stripped control-shaped syntax it could not interpret;
@@ -57,6 +73,13 @@ export interface LatestStructuredFields {
   latestRevision?: string;
   latestReasoning?: string;
   latestConstraint?: { category: string; content: string };
+  /**
+   * D-185: index (into the replies passed in) of the assistant turn that emitted
+   * `latestRevision`, so the comparison card can be rendered under the turn that
+   * proposed it instead of re-anchoring at the bottom of the thread. Undefined
+   * when no turn carried a revision. Server-side callers ignore it.
+   */
+  latestRevisionIndex?: number;
 }
 
 /**
@@ -76,16 +99,18 @@ export function selectLatestStructuredFields(
   let latestRevision: string | undefined;
   let latestReasoning: string | undefined;
   let latestConstraint: { category: string; content: string } | undefined;
-  for (const r of replies) {
+  let latestRevisionIndex: number | undefined;
+  for (const [index, r] of replies.entries()) {
     if (r.role !== "assistant") continue;
     const parsed = parseDiscussResponse(r.content); // pure + total: never throws
     if (parsed.revisedSuggestion) {
       latestRevision = parsed.revisedSuggestion;
       latestReasoning = parsed.revisedReasoning;
+      latestRevisionIndex = index;
     }
     if (parsed.suggestedConstraint) latestConstraint = parsed.suggestedConstraint;
   }
-  return { latestRevision, latestReasoning, latestConstraint };
+  return { latestRevision, latestReasoning, latestConstraint, latestRevisionIndex };
 }
 
 /**
@@ -103,7 +128,7 @@ export function computeConversationView(input: ConversationViewInput): Conversat
   const { replies, findingStatus } = input;
   const userTurns = replies.filter((r) => r.role === "user").length;
 
-  const { latestRevision, latestReasoning, latestConstraint } =
+  const { latestRevision, latestReasoning, latestConstraint, latestRevisionIndex } =
     selectLatestStructuredFields(replies);
 
   let resolution: Resolution;
@@ -113,5 +138,13 @@ export function computeConversationView(input: ConversationViewInput): Conversat
   else resolution = "pending";
 
   const canDiscuss = resolution === "pending";
-  return { userTurns, canDiscuss, latestRevision, latestReasoning, latestConstraint, resolution };
+  return {
+    userTurns,
+    canDiscuss,
+    latestRevision,
+    latestReasoning,
+    latestConstraint,
+    latestRevisionIndex,
+    resolution,
+  };
 }
