@@ -21,6 +21,7 @@ import {
   WandIcon,
   CircleIcon,
   LockIcon,
+  CheckIcon,
 } from "lucide-react";
 
 import {
@@ -49,6 +50,12 @@ import { UpgradeModal } from "@/components/billing/upgrade-modal";
 import { JourneyChecklist, JourneySelectorDialog } from "@/components/journey";
 import { getJourney, getStepNavHref, getRecommendedJourney } from "@/lib/agents/journeys";
 import { getAgentStrings } from "@/lib/i18n/agent-strings";
+import {
+  SETUP_STEP_TOTAL,
+  countSetupStepsDone,
+  setupSurfaceStatus,
+  showNextStepBadge,
+} from "@/lib/onboarding/setup-surface";
 
 /** Status dot colors for chapters */
 const CH_STATUS_COLORS: Record<string, string> = {
@@ -148,7 +155,7 @@ export function AppSidebar() {
   }, [bookId, bookState]);
 
   // Derived counts and statuses
-  const { itemStatus, counts, pendingFindings, nextNavKey } = useMemo(() => {
+  const { itemStatus, counts, pendingFindings, nextNavKey, setupComplete } = useMemo(() => {
     const statuses: Record<string, ItemStatus> = {};
     const cts: Record<string, string> = {};
     let pending = 0;
@@ -161,10 +168,12 @@ export function AppSidebar() {
       const draftedPlus = (cs.drafted ?? 0) + (cs.dev_edited ?? 0) + (cs.line_edited ?? 0) + (cs.beta_read ?? 0) + (cs.final ?? 0);
       const editedPlus = (cs.dev_edited ?? 0) + (cs.line_edited ?? 0) + (cs.beta_read ?? 0) + (cs.final ?? 0);
 
-      // Setup: bible + architecture + fingerprint
-      const setupDone = [bs.hasStoryBible, bs.hasArchitecture].filter(Boolean).length;
-      statuses.setup = setupDone === 2 ? "done" : setupDone > 0 ? "partial" : "none";
-      cts.setup = `${setupDone}/2`;
+      // Setup (D-160): the SAME five-step accounting the wizard header and the
+      // overview banner use — this badge used to count only Story Bible +
+      // Architecture ("0/2"), disagreeing with both other surfaces and staying
+      // pixel-identical after the wizard finished.
+      statuses.setup = setupSurfaceStatus(bs.setupProgress, bs.setupProgress.reviewComplete);
+      cts.setup = `${countSetupStepsDone(bs.setupProgress)}/${SETUP_STEP_TOTAL}`;
 
       // Style
       statuses.style = bs.hasStyleProfile ? "done" : bs.hasFingerprint ? "partial" : "none";
@@ -204,7 +213,13 @@ export function AppSidebar() {
         : null;
     }
 
-    return { itemStatus: statuses, counts: cts, pendingFindings: pending, nextNavKey: navKey };
+    return {
+      itemStatus: statuses,
+      counts: cts,
+      pendingFindings: pending,
+      nextNavKey: navKey,
+      setupComplete: bookState.setupProgress.reviewComplete,
+    };
   }, [bookId, book, bookState]);
 
   const navItems = [
@@ -213,23 +228,34 @@ export function AppSidebar() {
     { title: t.nav.series, href: "/series", icon: LibraryIcon, locked: !hasProAccess },
   ];
 
-  /** Renders a NEXT badge if this nav key is the recommended next step */
+  /**
+   * Renders a NEXT badge if this nav key is the recommended next step. Setup
+   * -phase items go quiet once the writer finished the wizard (D-160) — they
+   * used to keep soliciting setup after `setupComplete` was already true.
+   */
   const nextBadge = (navKey: string) =>
-    nextNavKey === navKey ? (
+    showNextStepBadge(navKey, nextNavKey, setupComplete) ? (
       <Badge variant="default" className="ml-auto text-[10px] px-1.5 py-0">
         {t.nav.nextStep}
       </Badge>
     ) : null;
 
   /** Count badge (muted) for section headers */
-  const countBadge = (key: string) => {
+  const countBadge = (key: string, flowComplete = false) => {
     const v = counts[key];
     if (!v) return null;
     const s = itemStatus[key];
     // 700-grade in light mode — the 500 shades sit at ~2:1 against the
     // near-white sidebar (WCAG AA needs 4.5:1 for this 10px text).
     const color = s === "done" ? "text-green-700 dark:text-green-500" : s === "partial" ? "text-amber-700 dark:text-amber-500" : "text-muted-foreground";
-    return <span className={`ml-auto text-[10px] font-semibold ${color}`}>{v}</span>;
+    return (
+      <span className={`ml-auto flex items-center gap-0.5 text-[10px] font-semibold ${color}`}>
+        {/* The check says "you finished this flow"; the count keeps telling the
+            truth about how many steps actually ran (a skip-only walk stays 2/5). */}
+        {flowComplete && <CheckIcon className="size-3 shrink-0" aria-hidden="true" />}
+        {v}
+      </span>
+    );
   };
 
   return (
@@ -400,7 +426,7 @@ export function AppSidebar() {
             <SidebarGroup>
               <SidebarGroupLabel className="flex items-center">
                 <span>{t.nav.sectionSetup}</span>
-                {countBadge("setup")}
+                {countBadge("setup", setupComplete)}
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
@@ -414,7 +440,16 @@ export function AppSidebar() {
                       <Link href={`/books/${bookId}/setup`}>
                         <WandIcon />
                         <span>{t.nav.setup}</span>
-                        {nextBadge("setup")}
+                        {/* D-160: finishing the wizard now shows here — the item
+                            used to stay unmarked forever. */}
+                        {itemStatus.setup === "done" ? (
+                          <CheckIcon
+                            className="ml-auto size-3.5 shrink-0 text-green-700 dark:text-green-500"
+                            aria-hidden="true"
+                          />
+                        ) : (
+                          nextBadge("setup")
+                        )}
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -475,7 +510,7 @@ export function AppSidebar() {
                         className={`size-4 transition-transform duration-200 ${chaptersOpen ? "rotate-90" : ""}`}
                       />
                       <span>{t.nav.chapters}</span>
-                      {nextNavKey === "chapters" ? (
+                      {showNextStepBadge("chapters", nextNavKey, setupComplete) ? (
                         <Badge variant="default" className="ml-auto text-[10px] px-1.5 py-0">
                           {t.nav.nextStep}
                         </Badge>

@@ -179,7 +179,9 @@ export interface UIStrings {
     language: string; languageHint: string;
     descriptionOptional: string; descriptionPlaceholder: string;
     saveAndContinue: string;
-    importInfo: string; manuscriptImported: string; chaptersLoaded: string;
+    importInfo: string; manuscriptImported: string;
+    /** Countable chapter noun — singular/plural pair, picked via pluralNoun(). */
+    chapterOne: string; chapterMany: string;
     importMore: string; goToImport: string;
     styleInfo: string; fingerprintCaptured: string;
     captureStyle: string; reCaptureStyle: string;
@@ -534,7 +536,7 @@ const EN: UIStrings = {
     descriptionOptional: "Description (optional)", descriptionPlaceholder: "A brief summary of your book...",
     saveAndContinue: "Save & Continue",
     importInfo: "If you have an existing manuscript, you can import it now. This step is optional -- you can always import later.",
-    manuscriptImported: "Manuscript imported", chaptersLoaded: "chapters loaded",
+    manuscriptImported: "Manuscript imported", chapterOne: "chapter", chapterMany: "chapters",
     importMore: "Import More", goToImport: "Go to Import",
     styleInfo: "Analyze your writing samples to create a unique voice fingerprint. The agent will examine your prose and build a style profile that guides the ghostwriter.",
     fingerprintCaptured: "Style fingerprint already captured",
@@ -853,7 +855,7 @@ const SR: UIStrings = {
     descriptionOptional: "Opis (opciono)", descriptionPlaceholder: "Kratak rezime vaše knjige...",
     saveAndContinue: "Sačuvaj i nastavi",
     importInfo: "Ako imate postojeći rukopis, možete ga uvesti sada. Ovaj korak je opcioni -- uvek možete uvesti kasnije.",
-    manuscriptImported: "Rukopis uvezen", chaptersLoaded: "poglavlja učitano",
+    manuscriptImported: "Rukopis uvezen", chapterOne: "poglavlje", chapterMany: "poglavlja",
     importMore: "Uvezi još", goToImport: "Idi na uvoz",
     styleInfo: "Analizirajte vaše uzorke pisanja da kreirate jedinstven otisak glasa. Agent će ispitati vašu prozu i napraviti profil stila koji vodi pisca.",
     fingerprintCaptured: "Otisak stila je već uhvaćen",
@@ -1172,7 +1174,7 @@ const DE: UIStrings = {
     descriptionOptional: "Beschreibung (optional)", descriptionPlaceholder: "Eine kurze Zusammenfassung Ihres Buches...",
     saveAndContinue: "Speichern & Weiter",
     importInfo: "Wenn Sie ein vorhandenes Manuskript haben, können Sie es jetzt importieren. Dieser Schritt ist optional -- Sie können jederzeit später importieren.",
-    manuscriptImported: "Manuskript importiert", chaptersLoaded: "Kapitel geladen",
+    manuscriptImported: "Manuskript importiert", chapterOne: "Kapitel", chapterMany: "Kapitel",
     importMore: "Mehr importieren", goToImport: "Zum Import",
     styleInfo: "Analysieren Sie Ihre Schreibproben, um einen einzigartigen Stimm-Fingerabdruck zu erstellen. Der Agent untersucht Ihre Prosa und erstellt ein Stilprofil, das den Ghostwriter leitet.",
     fingerprintCaptured: "Stil-Fingerabdruck bereits erfasst",
@@ -1491,7 +1493,7 @@ const ES: UIStrings = {
     descriptionOptional: "Descripción (opcional)", descriptionPlaceholder: "Un breve resumen de su libro...",
     saveAndContinue: "Guardar y continuar",
     importInfo: "Si tiene un manuscrito existente, puede importarlo ahora. Este paso es opcional -- siempre puede importar más tarde.",
-    manuscriptImported: "Manuscrito importado", chaptersLoaded: "capítulos cargados",
+    manuscriptImported: "Manuscrito importado", chapterOne: "capítulo", chapterMany: "capítulos",
     importMore: "Importar más", goToImport: "Ir a Importar",
     styleInfo: "Analice sus muestras de escritura para crear una huella de voz única. El agente examinará su prosa y construirá un perfil de estilo que guía al escritor fantasma.",
     fingerprintCaptured: "Huella de estilo ya capturada",
@@ -1810,7 +1812,7 @@ const FR: UIStrings = {
     descriptionOptional: "Description (optionnel)", descriptionPlaceholder: "Un bref résumé de votre livre...",
     saveAndContinue: "Enregistrer et continuer",
     importInfo: "Si vous avez un manuscrit existant, vous pouvez l'importer maintenant. Cette étape est optionnelle -- vous pouvez toujours importer plus tard.",
-    manuscriptImported: "Manuscrit importé", chaptersLoaded: "chapitres chargés",
+    manuscriptImported: "Manuscrit importé", chapterOne: "chapitre", chapterMany: "chapitres",
     importMore: "Importer plus", goToImport: "Aller à l'import",
     styleInfo: "Analysez vos échantillons d'écriture pour créer une empreinte vocale unique. L'agent examinera votre prose et construira un profil de style qui guide le nègre littéraire.",
     fingerprintCaptured: "Empreinte de style déjà capturée",
@@ -2129,7 +2131,7 @@ const RU: UIStrings = {
     descriptionOptional: "Описание (необязательно)", descriptionPlaceholder: "Краткое описание вашей книги...",
     saveAndContinue: "Сохранить и продолжить",
     importInfo: "Если у вас есть существующая рукопись, вы можете импортировать её сейчас. Этот шаг необязателен -- вы всегда можете импортировать позже.",
-    manuscriptImported: "Рукопись импортирована", chaptersLoaded: "глав загружено",
+    manuscriptImported: "Рукопись импортирована", chapterOne: "глава", chapterMany: "глав",
     importMore: "Импортировать ещё", goToImport: "Перейти к импорту",
     styleInfo: "Проанализируйте ваши образцы письма, чтобы создать уникальный отпечаток голоса. Агент изучит вашу прозу и создаст профиль стиля, который направляет писателя.",
     fingerprintCaptured: "Отпечаток стиля уже зафиксирован",
@@ -2448,7 +2450,7 @@ const ZH: UIStrings = {
     descriptionOptional: "描述（可选）", descriptionPlaceholder: "您的书的简要摘要...",
     saveAndContinue: "保存并继续",
     importInfo: "如果您有现有稿件，可以现在导入。此步骤是可选的——您随时可以稍后导入。",
-    manuscriptImported: "稿件已导入", chaptersLoaded: "章节已加载",
+    manuscriptImported: "稿件已导入", chapterOne: "章", chapterMany: "章",
     importMore: "导入更多", goToImport: "前往导入",
     styleInfo: "分析您的写作样本，创建独特的声音指纹。代理将检查您的散文并构建指导代笔人的风格档案。",
     fingerprintCaptured: "风格指纹已捕捉",

@@ -41,10 +41,17 @@ import {
 import { useAgentUIStore } from "@/stores/agent-ui-store";
 import { useAgentSessionStore } from "@/stores/agent-session-store";
 import { useBook, useUpdateBook } from "@/hooks/use-books";
-import { useBookState, getFirstIncompleteStep, getCompletedStepCount } from "@/hooks/use-book-state";
+import { useBookState, getFirstIncompleteStep } from "@/hooks/use-book-state";
+import { useCreateChapter } from "@/hooks/use-chapters";
 import { useLanguage } from "@/components/providers/language-provider";
 import { ImportWizard } from "@/components/import-export/import-wizard";
 import { fetchJson } from "@/lib/api-client";
+import { countWithNoun } from "@/lib/i18n/plural";
+import {
+  SETUP_STEP_TOTAL,
+  countSetupStepsDone,
+  pickStartWritingChapter,
+} from "@/lib/onboarding/setup-surface";
 
 export default function SetupPage({
   params,
@@ -59,11 +66,13 @@ export default function SetupPage({
   const [currentStep, setCurrentStep] = useState(0);
   const [hasAutoResumed, setHasAutoResumed] = useState(false);
   const [confirmWorkflow, setConfirmWorkflow] = useState<string | null>(null);
+  const [finishing, setFinishing] = useState(false);
   const openWithWorkflow = useAgentUIStore((st) => st.openWithWorkflow);
   const sessions = useAgentSessionStore((st) => st.sessions);
   const { data: book } = useBook(bookId);
   const updateBook = useUpdateBook(bookId);
   const bookState = useBookState(bookId);
+  const createChapter = useCreateChapter(bookId);
 
   const STEPS = useMemo(
     () => [
@@ -133,20 +142,57 @@ export default function SetupPage({
     next();
   }, [bookId, next]);
 
-  /** Mark setup as complete and redirect to book overview. */
+  /**
+   * Mark setup complete and land the writer IN the editor (D-161).
+   *
+   * The CTA used to drop onto the book overview, costing a locate-row + Edit
+   * hop before the first word. Resolution mirrors the overview's own Edit
+   * action (open a chapter by id) with create-or-open semantics: open the
+   * lowest-numbered chapter, create Chapter 1 when the book has none, and fall
+   * back to the overview only when no chapter can be resolved at all.
+   */
   const handleFinishSetup = useCallback(async () => {
+    if (finishing) return;
+    setFinishing(true);
     try {
       await fetchJson(`/api/books/${bookId}/settings`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ setupComplete: true }),
       });
-      toast.success("Setup complete! Your book is ready.");
-      router.push(`/books/${bookId}`);
     } catch (err) {
-      toast.error("Failed to complete setup");
+      // Never a silent no-op: say why setup could not be saved.
+      toast.error(`Failed to complete setup: ${(err as Error).message}`);
+      setFinishing(false);
+      return;
     }
-  }, [bookId, router]);
+
+    let target: { id: string } | null = pickStartWritingChapter(book?.chapters ?? []);
+    if (!target) {
+      try {
+        // Cache said "no chapters" — confirm against the server before creating
+        // one, so a stale/unloaded book query can never mint a duplicate.
+        const fresh = await fetchJson<Array<{ id: string; chapterNumber: number }>>(
+          `/api/books/${bookId}/chapters`
+        );
+        target =
+          pickStartWritingChapter(fresh) ??
+          (await createChapter.mutateAsync({ chapterNumber: 1, actNumber: 1 }));
+      } catch (err) {
+        // Setup itself IS saved — say what happened instead of swallowing it,
+        // then land on the overview rather than stranding them on the wizard.
+        toast.error(
+          `Setup saved, but the first chapter could not be opened: ${(err as Error).message}`
+        );
+      }
+    }
+
+    toast.success("Setup complete! Your book is ready.");
+    router.push(
+      target ? `/books/${bookId}/chapters/${target.id}` : `/books/${bookId}`
+    );
+    setFinishing(false);
+  }, [bookId, router, book?.chapters, createChapter, finishing]);
 
   /** Start a workflow, with confirmation if document already exists. */
   const handleStartWorkflow = useCallback(
@@ -166,7 +212,10 @@ export default function SetupPage({
     [openWithWorkflow, confirmWorkflow, styleSample]
   );
 
-  const completedCount = getCompletedStepCount(bookState.setupProgress);
+  // D-160: the SAME five-step accounting the overview banner and the sidebar
+  // use. The "Done" card is a confirmation of these five, not a sixth unit of
+  // work — counting it produced the old "2/6" vs banner "2/5" disagreement.
+  const completedCount = countSetupStepsDone(bookState.setupProgress);
   const progress = bookState.setupProgress;
 
   /** Determine step completion status for the step bar. */
@@ -188,7 +237,7 @@ export default function SetupPage({
       <div className="flex items-center justify-between mb-2">
         <h1 className="font-display text-2xl font-bold">{s.title}</h1>
         <Badge variant="outline" className="text-xs">
-          {completedCount}/6 steps done
+          {completedCount}/{SETUP_STEP_TOTAL} steps done
         </Badge>
       </div>
       <p className="text-sm text-muted-foreground mb-4">{s.subtitle}</p>
@@ -334,7 +383,8 @@ export default function SetupPage({
                 <div className="flex items-center gap-2 rounded-md bg-green-50 dark:bg-green-950/30 p-3">
                   <CheckCircle2Icon className="size-4 text-green-600 dark:text-green-400 shrink-0" />
                   <span className="text-sm font-medium text-green-700 dark:text-green-300">
-                    {s.manuscriptImported} -- {bookState.chapterCount} {s.chaptersLoaded}
+                    {s.manuscriptImported} --{" "}
+                    {countWithNoun(bookState.chapterCount, s.chapterOne, s.chapterMany)}
                   </span>
                 </div>
               )}
@@ -409,9 +459,11 @@ export default function SetupPage({
               {/* If chapters exist, note that they'll be used */}
               {bookState.hasChapters && confirmWorkflow !== "capture-style" && (
                 <p className="text-xs text-muted-foreground rounded-md bg-muted/50 p-2">
+                  {/* D-163: the count picks its own noun form per sentence
+                      language — this read "(1 chapters)" before. */}
                   {book?.language === "sr"
-                    ? `Agent će analizirati vaš uvezeni rukopis (${bookState.chapterCount} poglavlja) za stil.`
-                    : `The agent will analyze your imported manuscript (${bookState.chapterCount} chapters) for style.`}
+                    ? `Agent će analizirati vaš uvezeni rukopis (${countWithNoun(bookState.chapterCount, "poglavlje", "poglavlja")}) za stil.`
+                    : `The agent will analyze your imported manuscript (${countWithNoun(bookState.chapterCount, "chapter", "chapters")}) for style.`}
                 </p>
               )}
 
@@ -585,13 +637,15 @@ export default function SetupPage({
               {/* Summary */}
               <div className="space-y-2 text-sm">
                 <SummaryRow label="Book name" value={bookState.bookName} done={progress.basicsComplete} />
-                <SummaryRow label="Chapters" value={bookState.hasChapters ? `${bookState.chapterCount} chapters` : "Skipped"} done={progress.importComplete} />
+                {/* D-163: the row label already says "Chapters" — repeating the
+                    noun in the value is what produced "Chapters: 1 chapters". */}
+                <SummaryRow label="Chapters" value={bookState.hasChapters ? String(bookState.chapterCount) : "Skipped"} done={progress.importComplete} />
                 <SummaryRow label="Style Fingerprint" value={bookState.hasFingerprint ? "Captured" : "Not captured"} done={progress.styleComplete} />
                 <SummaryRow label="Story Bible" value={bookState.hasStoryBible ? "Created" : "Not created"} done={progress.bibleComplete} />
                 <SummaryRow label="Architecture" value={bookState.hasArchitecture ? "Created" : "Not created"} done={progress.archComplete} />
               </div>
 
-              <Button onClick={handleFinishSetup} className="w-full">
+              <Button onClick={handleFinishSetup} className="w-full" disabled={finishing}>
                 <SparklesIcon className="mr-2 size-4" />
                 Start Writing!
               </Button>

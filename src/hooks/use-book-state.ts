@@ -12,6 +12,7 @@ import {
   type StepState,
   type SnapshotEntry,
 } from "@/lib/agents/journeys";
+import { nextSetupWorkflow } from "@/lib/onboarding/setup-surface";
 
 export interface SetupProgress {
   basicsComplete: boolean;    // book.name && book.genre
@@ -31,18 +32,6 @@ export function getFirstIncompleteStep(progress: SetupProgress): number {
   if (!progress.archComplete) return 4;
   if (!progress.reviewComplete) return 5;
   return 5; // All done — show review step
-}
-
-/** Count of completed setup steps out of 6. */
-export function getCompletedStepCount(progress: SetupProgress): number {
-  let count = 0;
-  if (progress.basicsComplete) count++;
-  if (progress.importComplete) count++;
-  if (progress.styleComplete) count++;
-  if (progress.bibleComplete) count++;
-  if (progress.archComplete) count++;
-  if (progress.reviewComplete) count++;
-  return count;
 }
 
 interface BookStateResult {
@@ -168,30 +157,42 @@ export function useBookState(bookId: string): BookStateResult {
     if (!hasStoryBible) setupWorkflows.push("create-story-bible");
     if (!hasArchitecture) setupWorkflows.push("build-architecture");
 
+    // D-160: once the writer pressed "Start Writing!" in the wizard, setup is
+    // theirs to consider finished — skipped artifacts stop being the blocking
+    // "next step" (they stay reachable via `setupWorkflows` and the Style page)
+    // and the recommendation falls through to the chapter pipeline.
+    const setupComplete = settingsData?.setupComplete ?? false;
+    const pendingSetupWorkflow = nextSetupWorkflow({
+      setupComplete,
+      hasFingerprint,
+      hasStoryBible,
+      hasArchitecture,
+    });
+
     // Priority-based recommendation
     let nextRecommendedWorkflow: string | null = null;
     const secondaryWorkflows: Array<{ id: string; reason: string }> = [];
 
     if (!hasChapters) {
       // Greenfield: no chapters yet — guide through setup
-      if (!hasFingerprint) {
+      if (pendingSetupWorkflow === "capture-style") {
         nextRecommendedWorkflow = "capture-style";
         if (!hasStoryBible)
           secondaryWorkflows.push({ id: "create-story-bible", reason: "Story Bible not yet created" });
         if (!hasArchitecture)
           secondaryWorkflows.push({ id: "build-architecture", reason: "Architecture not yet created" });
-      } else if (!hasStoryBible) {
+      } else if (pendingSetupWorkflow === "create-story-bible") {
         nextRecommendedWorkflow = "create-story-bible";
         if (!hasArchitecture)
           secondaryWorkflows.push({ id: "build-architecture", reason: "Architecture not yet created" });
-      } else if (!hasArchitecture) {
+      } else if (pendingSetupWorkflow === "build-architecture") {
         nextRecommendedWorkflow = "build-architecture";
       } else {
-        // All setup docs exist but no chapters — recommend starting to write
+        // Setup settled but no chapters — recommend starting to write
         nextRecommendedWorkflow = "discuss-chapter";
         secondaryWorkflows.push({ id: "write-chapter", reason: "Start writing directly" });
       }
-    } else if (!hasFingerprint) {
+    } else if (pendingSetupWorkflow === "capture-style") {
       nextRecommendedWorkflow = "capture-style";
       if (!hasStoryBible) {
         secondaryWorkflows.push({
@@ -205,7 +206,7 @@ export function useBookState(bookId: string): BookStateResult {
           reason: "Architecture not yet created",
         });
       }
-    } else if (!hasStoryBible) {
+    } else if (pendingSetupWorkflow === "create-story-bible") {
       nextRecommendedWorkflow = "create-story-bible";
       if (!hasArchitecture) {
         secondaryWorkflows.push({
@@ -213,10 +214,10 @@ export function useBookState(bookId: string): BookStateResult {
           reason: "Architecture not yet created",
         });
       }
-    } else if (!hasArchitecture) {
+    } else if (pendingSetupWorkflow === "build-architecture") {
       nextRecommendedWorkflow = "build-architecture";
     } else {
-      // All setup done — look at chapter pipeline
+      // Setup settled — look at chapter pipeline
       const chapters = book?.chapters ?? [];
 
       // Find first chapter that needs work
@@ -324,7 +325,7 @@ export function useBookState(bookId: string): BookStateResult {
       styleComplete: hasFingerprint,
       bibleComplete: hasStoryBible,
       archComplete: hasArchitecture,
-      reviewComplete: settingsData?.setupComplete ?? false,
+      reviewComplete: setupComplete,
     };
 
     return {

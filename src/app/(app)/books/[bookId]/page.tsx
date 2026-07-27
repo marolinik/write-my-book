@@ -19,6 +19,11 @@ import {
 import { getUIStrings, localeFor } from "@/lib/i18n/ui-strings";
 import { getAgentStrings } from "@/lib/i18n/agent-strings";
 import { getWorkflow } from "@/lib/agents/workflows";
+import {
+  SETUP_STEP_TOTAL,
+  countSetupStepsDone,
+  setupSurfaceStatus,
+} from "@/lib/onboarding/setup-surface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -78,7 +83,7 @@ export default async function BookDetailPage({
           orderBy: { updatedAt: "desc" },
         },
         series: { select: { id: true, title: true } },
-        settings: { select: { setupComplete: true } },
+        settings: { select: { setupComplete: true, setupImportSkipped: true } },
         _count: { select: { documents: true } },
       },
     }),
@@ -466,18 +471,24 @@ export default async function BookDetailPage({
 
       {/* Setup Incomplete Banner — hide if all foundational steps are done */}
       {(() => {
-        const hasBasics = !!(book.name && book.genre);
-        const hasChaptersLoaded = book.chapters.length > 0;
-        // If all real setup steps are complete, treat as fully done (even if wizard flag was never set)
-        const allRealStepsDone = hasBasics && hasChaptersLoaded && hasFingerprint && hasBible && hasArch;
-        if (book.settings?.setupComplete || allRealStepsDone) return null;
+        // D-160: one shared accounting with the wizard header and the sidebar
+        // "Getting Started" badge — a skipped import counts as resolved here
+        // too, so no two surfaces can report different numbers for one state.
+        const stepFlags = {
+          basicsComplete: !!(book.name && book.genre),
+          importComplete: book.chapters.length > 0 || (book.settings?.setupImportSkipped ?? false),
+          styleComplete: hasFingerprint,
+          bibleComplete: hasBible,
+          archComplete: hasArch,
+        };
+        if (
+          book.settings?.setupComplete ||
+          setupSurfaceStatus(stepFlags, false) === "done"
+        ) {
+          return null;
+        }
 
-        let stepsDone = 0;
-        if (hasBasics) stepsDone++;
-        if (hasChaptersLoaded) stepsDone++;
-        if (hasFingerprint) stepsDone++;
-        if (hasBible) stepsDone++;
-        if (hasArch) stepsDone++;
+        const stepsDone = countSetupStepsDone(stepFlags);
         return (
           <Card className="mb-8 border-dashed border-primary/50 bg-primary/5">
             <CardContent className="flex flex-wrap items-center justify-between gap-3 py-4">
@@ -485,7 +496,7 @@ export default async function BookDetailPage({
                 <SparklesIcon className="size-5 text-primary shrink-0" />
                 <div>
                   <p className="text-sm font-medium">
-                    {s.completeSetup} &mdash; {stepsDone}/5
+                    {s.completeSetup} &mdash; {stepsDone}/{SETUP_STEP_TOTAL}
                   </p>
                   <p className="text-xs text-muted-foreground">{s.setupDescription}</p>
                 </div>
