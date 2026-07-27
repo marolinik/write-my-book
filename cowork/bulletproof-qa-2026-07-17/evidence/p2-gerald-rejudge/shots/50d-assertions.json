@@ -1,0 +1,115 @@
+{
+  "shot": "50d",
+  "defect": "D-189",
+  "persona": "user_qa_p2",
+  "book": "90436e20-ffc7-42ca-a39f-dc7d48cdda10",
+  "chapter": "7fe52a21-9838-4493-b990-19899e702786",
+  "capturedAt": "2026-07-27T13:46:44.059Z",
+  "A_defaultOn": true,
+  "B": {
+    "on": null,
+    "off": null,
+    "onFewer": false
+  },
+  "C": {
+    "zurichWholeWordMatches": null,
+    "fragmentWholeWordOn": null,
+    "fragmentWholeWordOff": null,
+    "unicodeAware": false
+  },
+  "D": {
+    "toggleDisabled": true,
+    "reasonShown": true,
+    "reasonText": "Whole word needs a search term that starts and ends with a letter, digit or underscore — it is off for this one.",
+    "matches": null
+  },
+  "raw": {
+    "opened": {
+      "open": true,
+      "wholeWordChecked": true,
+      "wholeWordDisabled": false,
+      "reasonShown": false,
+      "reasonText": null,
+      "matches": null,
+      "chapters": null,
+      "scopeBook": "This chapter",
+      "previewHeader": "Type at least 2 characters to preview matches.",
+      "marks": []
+    },
+    "oldOn": {
+      "open": true,
+      "wholeWordChecked": true,
+      "wholeWordDisabled": false,
+      "reasonShown": false,
+      "reasonText": null,
+      "matches": null,
+      "chapters": null,
+      "scopeBook": "Whole book",
+      "previewHeader": "Type at least 2 characters to preview matches.",
+      "marks": []
+    },
+    "oldOff": {
+      "open": true,
+      "wholeWordChecked": false,
+      "wholeWordDisabled": false,
+      "reasonShown": false,
+      "reasonText": null,
+      "matches": null,
+      "chapters": null,
+      "scopeBook": "Whole book",
+      "previewHeader": "Type at least 2 characters to preview matches.",
+      "marks": []
+    },
+    "zurichOn": {
+      "open": true,
+      "wholeWordChecked": true,
+      "wholeWordDisabled": false,
+      "reasonShown": false,
+      "reasonText": null,
+      "matches": null,
+      "chapters": null,
+      "scopeBook": "Whole book",
+      "previewHeader": "Type at least 2 characters to preview matches.",
+      "marks": []
+    },
+    "fragOn": {
+      "open": true,
+      "wholeWordChecked": true,
+      "wholeWordDisabled": false,
+      "reasonShown": false,
+      "reasonText": null,
+      "matches": null,
+      "chapters": null,
+      "scopeBook": "Whole book",
+      "previewHeader": "Type at least 2 characters to preview matches.",
+      "marks": []
+    },
+    "fragOff": {
+      "open": true,
+      "wholeWordChecked": false,
+      "wholeWordDisabled": false,
+      "reasonShown": false,
+      "reasonText": null,
+      "matches": null,
+      "chapters": null,
+      "scopeBook": "Whole book",
+      "previewHeader": "Type at least 2 characters to preview matches.",
+      "marks": []
+    },
+    "dash": {
+      "open": true,
+      "wholeWordChecked": false,
+      "wholeWordDisabled": true,
+      "reasonShown": true,
+      "reasonText": "Whole word needs a search term that starts and ends with a letter, digit or underscore — it is off for this one.",
+      "matches": null,
+      "chapters": null,
+      "scopeBook": "Whole book",
+      "previewHeader": "Type at least 2 characters to preview matches.",
+      "marks": []
+    }
+  },
+  "pageErrors": [
+    "Clerk: Failed to load Clerk, failed to load script: https://clerk.example.test/npm/@clerk/clerk-js@5/dist/clerk.browser.js\n\n(code=\"failed_to_load_clerk_js\")\n\n"
+  ]
+}
