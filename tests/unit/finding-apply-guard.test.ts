@@ -14,7 +14,7 @@ const h = vi.hoisted(() => ({
     book: { findFirst: vi.fn() },
     editFinding: { findFirst: vi.fn(), update: vi.fn() },
     editAction: { create: vi.fn() },
-    findingReply: { findFirst: vi.fn() },
+    findingReply: { findMany: vi.fn() },
   },
   doc: { findByType: vi.fn(), read: vi.fn(), update: vi.fn() },
 }));
@@ -46,7 +46,8 @@ beforeEach(() => {
   h.db.book.findFirst.mockResolvedValue({ id: "b1", userId: "u1" });
   h.db.editAction.create.mockResolvedValue({});
   h.db.editFinding.update.mockResolvedValue({ id: "f1", status: "applied" });
-  h.db.findingReply.findFirst.mockResolvedValue(null);
+  // D-170: dismiss reads the whole assistant thread through the shared selector.
+  h.db.findingReply.findMany.mockResolvedValue([]);
 });
 
 function finding(overrides: Record<string, unknown> = {}) {
