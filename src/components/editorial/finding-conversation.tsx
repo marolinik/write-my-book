@@ -38,7 +38,16 @@ export function FindingConversation({ bookId, finding, onApply, onDismiss, onClo
   const opening = `I flagged: ${finding.description}${finding.rationale ? ` (${finding.rationale})` : ""}. What are you going for here?`;
 
   return (
-    <div className="flex flex-col gap-3 p-2">
+    // D-169: the thread is rendered INSIDE FindingCard's clickable <Card>, whose
+    // onClick selects the finding and calls onShowInText → router.push(chapter
+    // editor). Every button FindingCard owns stops propagation; nothing inside
+    // this thread did, so "Use it" / "Keep as-is" / the close X — and the
+    // revision card + message input below — each dismissed or applied AND yanked
+    // the writer out of Editorial Review mid-decision. The whole thread is an
+    // interactive sub-surface: no click inside it may reach the card. The named
+    // controls ALSO stop propagation individually (same pattern as
+    // finding-card.tsx) so the guard survives a refactor of this wrapper.
+    <div className="flex flex-col gap-3 p-2" onClick={(e) => e.stopPropagation()}>
       {/* Header — category label + in-thread close affordance */}
       {onClose && (
         <div className="flex items-center justify-between">
@@ -49,7 +58,10 @@ export function FindingConversation({ bookId, finding, onApply, onDismiss, onClo
             variant="ghost"
             size="sm"
             className="h-6 w-6 p-0"
-            onClick={onClose}
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
             aria-label="Close conversation"
           >
             <X className="h-3.5 w-3.5" />
@@ -98,11 +110,11 @@ export function FindingConversation({ bookId, finding, onApply, onDismiss, onClo
       <div className="flex flex-wrap items-center gap-2">
         {view.latestRevision !== undefined ? (
           <>
-            <Button size="sm" onClick={() => onApply(view.latestRevision)}>Use it</Button>
-            <Button variant="outline" size="sm" onClick={() => onDismiss()}>Keep as-is</Button>
+            <Button size="sm" onClick={(e) => { e.stopPropagation(); onApply(view.latestRevision); }}>Use it</Button>
+            <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); onDismiss(); }}>Keep as-is</Button>
           </>
         ) : (
-          <Button variant="outline" size="sm" onClick={() => onDismiss()}>Keep as-is</Button>
+          <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); onDismiss(); }}>Keep as-is</Button>
         )}
       </div>
 
