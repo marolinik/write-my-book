@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { updateDocumentSchema } from "@/lib/validation";
+import { reconcileBookCounters } from "@/lib/books/book-counters";
 import { DocumentService, VersionConflictError } from "@/lib/documents";
 import { onDocumentChanged } from "@/lib/vector/memory-manager";
 import { deleteDocumentChunks } from "@/lib/vector";
@@ -139,6 +140,9 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
         where: { bookId, chapterNumber: doc.chapterNumber },
         data: { wordCount },
       });
+      // D-200: the book's denormalised total must follow the chapter row this
+      // write just changed (see the create route for the same asymmetry).
+      await reconcileBookCounters(bookId);
     }
 
     // Fire-and-forget vector indexing

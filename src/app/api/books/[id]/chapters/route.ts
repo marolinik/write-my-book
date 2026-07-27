@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { createChapterSchema } from "@/lib/validation";
+import { reconcileBookCounters } from "@/lib/books/book-counters";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { zodErrorResponse } from "@/lib/api/zod-error";
 
@@ -67,12 +68,10 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     // D-194: store the AUTHORITATIVE count, not a blind +1. A blind delta
     // silently preserves any pre-existing drift (books created before the
     // placeholder-Chapter-1 fix start at 0 with one real chapter), while a
-    // recount converges the denormalised column on every create.
-    const chapterCount = await db.chapter.count({ where: { bookId } });
-    await db.book.update({
-      where: { id: bookId },
-      data: { chapterCount },
-    });
+    // recount converges the denormalised column on every create. D-200 folds
+    // the word total into the same recount, so a book carrying stale words
+    // from a deleted chapter converges here too.
+    await reconcileBookCounters(bookId);
 
     return NextResponse.json(chapter, { status: 201 });
   } catch (error) {
