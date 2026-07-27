@@ -10,14 +10,20 @@ const h = vi.hoisted(() => ({
     $queryRaw: vi.fn(),
   },
   runTurn: vi.fn(),
+  gateStream: vi.fn(),
 }));
 
 vi.mock("@/lib/auth", () => ({ requireUser: () => Promise.resolve(h.user) }));
 vi.mock("@/lib/db", () => ({ db: h.db }));
 vi.mock("@/lib/agents/writer-memory", () => ({ formatWriterMemoryForPrompt: () => Promise.resolve("") }));
+// This file pins the PERSISTENCE semantics of a turn, so it drives the
+// non-streaming fallback: `gateDiscussTurnStream` reports "unsupported" (the
+// provider-cannot-stream branch) and the route runs the blocking turn below.
+// The streamed contract has its own suite: tests/unit/discuss-stream-route.test.ts.
 vi.mock("@/lib/editorial/discuss-llm", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/editorial/discuss-llm")>()),
   runDiscussTurn: h.runTurn,
+  gateDiscussTurnStream: h.gateStream,
 }));
 
 import { POST } from "@/app/api/books/[id]/editorial/findings/[findingId]/discuss/route";
@@ -29,6 +35,7 @@ const ctx = { params: Promise.resolve({ id: "b1", findingId: "f1" }) };
 
 beforeEach(() => {
   vi.clearAllMocks();
+  h.gateStream.mockResolvedValue({ ok: false, reason: "unsupported" });
   h.db.book.findFirst.mockResolvedValue({ id: "b1" });
   h.db.editFinding.findFirst.mockResolvedValue({ id: "f1", bookId: "b1", category: "dialogue", severity: "important", description: "d", alternatives: null, agentType: "line-editor" });
   h.db.findingReply.count.mockResolvedValue(0); // rate-limit count

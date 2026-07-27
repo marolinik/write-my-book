@@ -2,6 +2,10 @@ import { db } from "@/lib/db";
 import { decryptApiKey } from "@/lib/encryption";
 import { estimateCost } from "@/lib/cost";
 import { createLLMClient, resolveCheapModelFor } from "@/lib/llm";
+import {
+  gateQuickAssistStream,
+  type QuickAssistMessageStream,
+} from "@/lib/llm/quick-assist-stream";
 
 /** Token budget for one discuss turn. Reasoning models (the mission's qwen via
  *  OpenRouter) emit thinking blocks that count against max_tokens BEFORE any
@@ -38,15 +42,23 @@ interface TurnUsage {
   reported: boolean;
 }
 
-export async function runDiscussTurn(args: {
+/** Identity + prompt for one discuss turn (streamed or blocking). */
+export interface DiscussTurnArgs {
   system: string;
   user: string;
   userId: string;
   /** Book the turn is charged against — the usage row is book-scoped (D-172). */
   bookId: string;
-}): Promise<string> {
+}
+
+/**
+ * BYOK key resolution + cheap-model choice for a discuss turn. Extracted so the
+ * streamed and blocking paths resolve the SAME client and the SAME registry
+ * model id (D-44) — there is no second place for provider routing to drift.
+ */
+async function resolveDiscussClient(userId: string) {
   const userKeys = await db.apiKey.findMany({
-    where: { userId: args.userId, validatedAt: { not: null } },
+    where: { userId, validatedAt: { not: null } },
     select: { provider: true, encryptedKey: true },
   });
   let anthropicApiKey: string | undefined;
@@ -60,16 +72,20 @@ export async function runDiscussTurn(args: {
   // inline-edit/route.ts:45-46. Hardcoding anthropic/haiku here 400/500'd every
   // Discuss turn for OpenRouter-only BYOK users (the mission's qwen config).
   const dbUser = await db.user.findUnique({
-    where: { id: args.userId },
+    where: { id: userId },
     select: { defaultModel: true },
   });
   const cheapModel = resolveCheapModelFor(dbUser?.defaultModel ?? "anthropic/sonnet");
 
-  const { client, model } = createLLMClient({
+  return createLLMClient({
     modelId: cheapModel.id,
     anthropicApiKey,
     openrouterApiKey,
   });
+}
+
+export async function runDiscussTurn(args: DiscussTurnArgs): Promise<string> {
+  const { client, model } = await resolveDiscussClient(args.userId);
 
   const requestTurn = async (maxTokens: number) => {
     const response = await client.messages.create({
@@ -185,4 +201,172 @@ async function recordDiscussUsage(
       err,
     });
   }
+}
+
+// ── D5: streamed discuss turn (first-text gate) ───────────────────────────────
+
+/**
+ * Whole-request watchdog for a STREAMED discuss turn. Deliberately far above the
+ * worst turn we have measured live (157.2 s at baseline, 61.6 s on camera) so it
+ * can only ever kill a genuinely hung upstream, never a slow-but-working reply.
+ * The blocking fallback keeps its historical no-timeout behaviour untouched.
+ */
+export const DISCUSS_STREAM_TIMEOUT_MS = 240_000;
+
+/** The settle surface we need from a streamed turn (SDK-compatible subset). */
+interface DiscussFinalLike {
+  content: readonly { type: string; text?: unknown }[];
+  stop_reason: string | null;
+  usage: { input_tokens: number; output_tokens: number };
+}
+
+/** A discuss turn that is streaming, already past the first-text gate. */
+export interface GatedDiscussTurn {
+  /** Text accumulated when the gate fired (never blank). */
+  firstText: string;
+  /** Subsequent TEXT deltas only — thinking is never forwarded. */
+  rest: AsyncGenerator<string>;
+  /** Authoritative settle: message_stop-derived when the stream completed (D-143). */
+  final: () => Promise<DiscussFinalLike>;
+  /**
+   * Bill-at-settle (D-172), bill-once: one usage row covering EVERY attempt this
+   * turn made — the doubled-budget retry is a real second charge.
+   */
+  bill: (usage: { input_tokens: number; output_tokens: number }) => Promise<void>;
+}
+
+export type DiscussStreamGate =
+  | { ok: true; gated: GatedDiscussTurn }
+  | {
+      ok: false;
+      /**
+       * `aborted` → client gone, no bill (D-142); `empty` → no usable text even
+       * after the retry, the honest 502 (D-04); `unsupported` → this provider
+       * route cannot stream, caller degrades to the blocking turn.
+       */
+      reason: "aborted" | "empty" | "unsupported";
+    };
+
+/** Zero prior spend, treated as fully reported so it never triggers the warn. */
+const NO_PRIOR_USAGE: TurnUsage = { inputTokens: 0, outputTokens: 0, reported: true };
+
+/** A streamed attempt's usage. All-zero means the provider sent none at all
+ *  (it rides on message_start / message_delta), which recordDiscussUsage warns
+ *  about exactly as it does for a `create()` response with no `usage` object. */
+function usageFromTokens(input: number, output: number): TurnUsage {
+  return { inputTokens: input, outputTokens: output, reported: input > 0 || output > 0 };
+}
+
+function usageOf(final: DiscussFinalLike | undefined): TurnUsage {
+  return usageFromTokens(final?.usage?.input_tokens ?? 0, final?.usage?.output_tokens ?? 0);
+}
+
+/** The final message of an attempt that produced no text — never throws. */
+async function finalOfFailedAttempt(
+  stream: QuickAssistMessageStream
+): Promise<DiscussFinalLike | undefined> {
+  try {
+    return await stream.finalMessage();
+  } catch {
+    // Provider dropped before a complete message: we know nothing about tokens.
+    return undefined;
+  }
+}
+
+function warnUnbilledTurn(args: DiscussTurnArgs, registryModelId: string, spent: TurnUsage): void {
+  // Same honesty boundary as the blocking path: a call that delivered nothing is
+  // not billed to the writer, so the wasted provider spend stays invisible
+  // in-app — logged rather than silent.
+  console.warn("[discuss] streamed turn produced no usable text — not billed", {
+    userId: args.userId,
+    bookId: args.bookId,
+    model: registryModelId,
+    tokensInput: spent.inputTokens,
+    tokensOutput: spent.outputTokens,
+  });
+}
+
+function wrapGatedTurn(
+  gated: { firstText: string; rest: AsyncGenerator<string>; final: () => Promise<DiscussFinalLike> },
+  priorUsage: TurnUsage,
+  registryModelId: string,
+  args: DiscussTurnArgs
+): GatedDiscussTurn {
+  let billed = false;
+  return {
+    firstText: gated.firstText,
+    rest: gated.rest,
+    final: gated.final,
+    bill: async (usage) => {
+      if (billed) return; // bill-once, whatever the caller does
+      billed = true;
+      const settled = usageFromTokens(usage.input_tokens ?? 0, usage.output_tokens ?? 0);
+      await recordDiscussUsage(args, registryModelId, sumUsage(priorUsage, settled));
+    },
+  };
+}
+
+/**
+ * D5 — stream one discuss turn behind the SAME first-text gate the quick-assist
+ * surfaces use: the provider stream is consumed SERVER-SIDE until a real text
+ * delta arrives, so the route can still answer the historical 502 (no usable
+ * text) as JSON before a single byte of body is flushed, and only commits to
+ * `200 text/event-stream` once it knows there is prose to deliver.
+ *
+ * Preserved verbatim from the blocking turn: the doubled-budget retry when a
+ * text-less attempt stopped on `max_tokens` (D-04), billing that sums every
+ * attempt (D-172), the registry model id (D-44), and "unusable ⇒ unbilled".
+ * Added: `signal` threading, so a writer who leaves stops the provider call and
+ * is not billed for a turn they will never see (D-142).
+ */
+export async function gateDiscussTurnStream(
+  args: DiscussTurnArgs & { signal: AbortSignal }
+): Promise<DiscussStreamGate> {
+  const { client, model } = await resolveDiscussClient(args.userId);
+  const messages = client.messages as { stream?: unknown };
+  if (typeof messages.stream !== "function") return { ok: false, reason: "unsupported" };
+
+  const attempt = async (maxTokens: number) => {
+    const stream = client.messages.stream(
+      {
+        model: model.modelId,
+        max_tokens: maxTokens,
+        system: args.system,
+        messages: [{ role: "user", content: args.user }],
+      },
+      { signal: args.signal, timeout: DISCUSS_STREAM_TIMEOUT_MS }
+    ) as unknown as QuickAssistMessageStream;
+    return { stream, gate: await gateQuickAssistStream(stream, args.signal) };
+  };
+
+  const first = await attempt(DISCUSS_MAX_TOKENS);
+  if (first.gate.ok) {
+    return { ok: true, gated: wrapGatedTurn(first.gate.gated, NO_PRIOR_USAGE, model.id, args) };
+  }
+  if (args.signal.aborted) {
+    first.stream.abort();
+    return { ok: false, reason: "aborted" };
+  }
+
+  // No usable text. Retry ONCE with double the room only when the budget was
+  // exhausted (reasoning blocks ate it before any text) — every other empty
+  // outcome is a hard model fault a bigger budget cannot fix.
+  const firstFinal = await finalOfFailedAttempt(first.stream);
+  const firstUsage = usageOf(firstFinal);
+  if (firstFinal?.stop_reason !== "max_tokens") {
+    warnUnbilledTurn(args, model.id, firstUsage);
+    return { ok: false, reason: "empty" };
+  }
+
+  const second = await attempt(DISCUSS_MAX_TOKENS * 2);
+  if (second.gate.ok) {
+    return { ok: true, gated: wrapGatedTurn(second.gate.gated, firstUsage, model.id, args) };
+  }
+  if (args.signal.aborted) {
+    second.stream.abort();
+    return { ok: false, reason: "aborted" };
+  }
+  const secondUsage = usageOf(await finalOfFailedAttempt(second.stream));
+  warnUnbilledTurn(args, model.id, sumUsage(firstUsage, secondUsage));
+  return { ok: false, reason: "empty" };
 }

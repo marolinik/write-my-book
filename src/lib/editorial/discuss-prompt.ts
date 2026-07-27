@@ -83,6 +83,30 @@ const CONTROL_OPEN_RE = /^<{2,4}\s*([A-Z][A-Z0-9_]*)\b(?:[^<>]*)>{1,4}$/;
 const CONTROL_END_RE = /^<{1,4}\s*END\s*>{1,4}$/;
 const CATEGORY_ATTR_RE = /category="?([^"\s>]*)"?/;
 
+/** What a single line of a reply is, as machine syntax: a block opener, a block
+ *  terminator, or ordinary prose. */
+export type ControlDelimiterKind = "open" | "end" | null;
+
+/**
+ * D5 streaming: the ONE recognizer shared by the settled post-parse sweep above
+ * and the streaming prose gate (src/lib/editorial/discuss-prose-gate.ts).
+ *
+ * Sharing it is the whole leak-proofing argument: the gate withholds exactly the
+ * lines this predicate calls control syntax, and the strict block regexes
+ * (REVISION/REMEMBER/END) are strict SUBSETS of these two — 2-4 opening brackets
+ * vs 2-4, 1-4 closing vs 2-4, attributes optional. So there is no line the
+ * settled parser would strip that the stream can emit, including the D-157
+ * two-closing-bracket drift.
+ */
+export function controlDelimiterKind(line: string): ControlDelimiterKind {
+  const trimmed = line.trim();
+  // END first: `<<<END>>>` also satisfies the generic opener shape (verb "END"),
+  // and the sweep treats it as a terminator, never an opener.
+  if (CONTROL_END_RE.test(trimmed)) return "end";
+  if (CONTROL_OPEN_RE.test(trimmed)) return "open";
+  return null;
+}
+
 /** Matches a delimiter only when it is the sole content of a line (optional surrounding whitespace). */
 function blockLineIndex(lines: readonly string[], re: RegExp, from = 0): number {
   for (let i = from; i < lines.length; i++) if (re.test(lines[i].trim())) return i;

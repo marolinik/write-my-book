@@ -26,8 +26,16 @@ interface FindingConversationProps {
   onClose?: () => void;
 }
 
+/**
+ * D5: the live (streaming) bubble and a settled assistant bubble MUST be the same
+ * shape, so committing the settled turn cannot shift the thread under the
+ * writer's thumb (the D-147 clamp family). One constant each, used by both.
+ */
+const ASSISTANT_BUBBLE_CLASS = "rounded-md p-2 text-sm whitespace-pre-wrap bg-muted/40 mr-6";
+const USER_BUBBLE_CLASS = "rounded-md p-2 text-sm whitespace-pre-wrap bg-primary/10 ml-6";
+
 export function FindingConversation({ bookId, finding, onApply, onDismiss, onClose }: FindingConversationProps) {
-  const { replies, canDiscuss, isLoading, send, isSending } = useFindingDiscussion(bookId, finding.id);
+  const { replies, canDiscuss, isLoading, send, isSending, streamingText } = useFindingDiscussion(bookId, finding.id);
 
   const view = useMemo(
     () => computeConversationView({ replies: replies.map((r) => ({ role: r.role, content: r.content })), findingStatus: finding.status }),
@@ -77,14 +85,40 @@ export function FindingConversation({ bookId, finding, onApply, onDismiss, onClo
         {replies.map((r, i) => (
           <p
             key={i}
-            className={
-              "rounded-md p-2 text-sm whitespace-pre-wrap " +
-              (r.role === "user" ? "bg-primary/10 ml-6" : "bg-muted/40 mr-6")
-            }
+            className={r.role === "user" ? USER_BUBBLE_CLASS : ASSISTANT_BUBBLE_CLASS}
           >
             {r.role === "assistant" ? assistantBubbleText(r.content) : r.content}
           </p>
         ))}
+
+        {/*
+          D5: the turn in flight. Before, the writer watched a disabled input for
+          61-157s with nothing on screen. Now prose lands as it arrives, and the
+          bubble is replaced by the settled, sanitized turn the moment `done`
+          commits it to the cache (same commit — no gap). What streams here is
+          already prose-gated SERVER-side, so a half-written control block can
+          never appear (discuss-prose-gate.ts); before the first delta we say so
+          in words rather than showing an empty bubble (the D-104 rule).
+        */}
+        {isSending && (
+          <p
+            data-testid="discuss-live-bubble"
+            className={ASSISTANT_BUBBLE_CLASS}
+            aria-live="polite"
+            aria-busy="true"
+          >
+            {streamingText.length > 0 ? (
+              <>
+                {streamingText}
+                <span className="ml-0.5 animate-pulse" aria-hidden="true">
+                  ▍
+                </span>
+              </>
+            ) : (
+              <span className="text-muted-foreground">The editor is replying…</span>
+            )}
+          </p>
+        )}
       </div>
 
       {/* In-place revision when the latest agent turn proposed one */}
