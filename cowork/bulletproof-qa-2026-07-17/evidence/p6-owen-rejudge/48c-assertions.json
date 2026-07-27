@@ -1,0 +1,68 @@
+{
+  "shot": "48c",
+  "persona": "P6 (Owen)",
+  "proves": "D-181 spend card headline/description name the number; D-182 em dashes in writer copy; D-180 estimator banner captured as-is (not fixed); usage-by-model fold legible",
+  "usageApi": {
+    "total": {
+      "tokensInput": 1395763,
+      "tokensOutput": 129341,
+      "costEstimate": 12.480573894999996,
+      "sessions": 43
+    },
+    "byKeySource": {
+      "user": {
+        "costEstimate": 12.480573894999996,
+        "sessions": 43
+      }
+    },
+    "byModel": {
+      "openrouter-qwen36/haiku": {
+        "tokensInput": 2161,
+        "tokensOutput": 9596,
+        "costEstimate": 0.023646285
+      },
+      "text-embedding-3-small": {
+        "tokensInput": 4889,
+        "tokensOutput": 0,
+        "costEstimate": 0.00009777999999999999
+      },
+      "openrouter-deepseek/haiku": {
+        "tokensInput": 233,
+        "tokensOutput": 31,
+        "costEstimate": 0.00007065
+      },
+      "anthropic/opus": {
+        "tokensInput": 657932,
+        "tokensOutput": 28819,
+        "costEstimate": 12.030404999999998
+      },
+      "openrouter-qwen36/sonnet": {
+        "tokensInput": 730548,
+        "tokensOutput": 90895,
+        "costEstimate": 0.42635418
+      }
+    }
+  },
+  "copy": null,
+  "verdict": {
+    "spendHeadlinePresent": false,
+    "headlineUsesEmDash": false,
+    "descriptionNamesTheNumber": false,
+    "oldSavingsHeadlineGone": false,
+    "amountCarriesItsOwnLabel": false,
+    "noMarkupClaimIsAboutRate": false,
+    "estimateBannerStillPresent": false,
+    "usageByModelFoldPresent": false
+  },
+  "trace": [
+    {
+      "step": "usage-api",
+      "ms": 284
+    },
+    {
+      "step": "pageerror",
+      "message": "Clerk: Failed to load Clerk, failed to load script: https://clerk.example.test/npm/@clerk/clerk-js@5/dist/clerk.browser.js\n\n(code=\"failed_to_load_clerk_js\")\n\n"
+    }
+  ],
+  "capturedAt": "2026-07-27T11:33:41.323Z"
+}

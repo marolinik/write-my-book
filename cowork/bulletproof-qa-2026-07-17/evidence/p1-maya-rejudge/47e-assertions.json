@@ -1,0 +1,232 @@
+{
+  "shot": "47e",
+  "persona": "P1 (Maya)",
+  "proves": "D-171 WriterMemoryPanel mounted on /settings with real rows + a revoke that lands (DELETE 200, row gone from panel and API); doubles as the D-184 hand-pruning demo",
+  "revokedId": "bc68fab0-d46b-436a-8f4c-2ff125d47a3b",
+  "revokedContent": "Preserve Imogen's retreat into arithmetic and taxonomy at emotional peaks as intentional voice; do not flag interior abstraction as a show-tell lapse.",
+  "apiBefore": [
+    {
+      "id": "d6ae40cc-5749-4fe9-ad14-564323c6e3eb",
+      "category": "preference",
+      "source": "conversation",
+      "bookId": "4116055c-6183-4675-926a-e04f31126951",
+      "content": "Do not flag Imogen's interior abstraction or taxonomy at emotional peaks as a show-tell lapse."
+    },
+    {
+      "id": "bc68fab0-d46b-436a-8f4c-2ff125d47a3b",
+      "category": "preference",
+      "source": "conversation",
+      "bookId": "4116055c-6183-4675-926a-e04f31126951",
+      "content": "Preserve Imogen's retreat into arithmetic and taxonomy at emotional peaks as intentional voice; do not flag interior abstraction as a show-tell lapse."
+    },
+    {
+      "id": "cef57b13-86b4-4c94-91f3-b9d3d9cdadac",
+      "category": "preference",
+      "source": "conversation",
+      "bookId": "4116055c-6183-4675-926a-e04f31126951",
+      "content": "Leave strong final images or fragments untouched when followed by brief explanatory lines; treat the pattern as intentional across the manuscript."
+    }
+  ],
+  "apiAfter": [
+    {
+      "id": "d6ae40cc-5749-4fe9-ad14-564323c6e3eb",
+      "content": "Do not flag Imogen's interior abstraction or taxonomy at emotional peaks as a show-tell lapse."
+    },
+    {
+      "id": "cef57b13-86b4-4c94-91f3-b9d3d9cdadac",
+      "content": "Leave strong final images or fragments untouched when followed by brief explanatory lines; treat the pattern as intentional across the manuscript."
+    }
+  ],
+  "panelBefore": {
+    "present": true,
+    "rowsWithForgetButton": 3,
+    "forgetButtonsVisible": true,
+    "editButtonCount": 3,
+    "text": "Writer Memory\n3 total\n3 AI-learned\n\nThese preferences are injected into every AI agent session. The AI remembers what you tell it here.\n\nFeedback Preference\nFEEDBACK PREFERENCE\nDo not flag Imogen's interior abstraction or taxonomy at emotional peaks as a show-tell lapse.\nconversation\nPreserve Imogen's retreat into arithmetic and taxonomy at emotional peaks as intentional voice; do not flag interior abstraction as a show-tell lapse.\nconversation\nLeave strong final images or fragments untouched when followed by brief explanatory lines; treat the pattern as intentional across the manuscript.\nconversation"
+  },
+  "panelAfter": {
+    "present": true,
+    "rowsWithForgetButton": 2,
+    "text": "Writer Memory\n2 total\n2 AI-learned\n\nThese preferences are injected into every AI agent session. The AI remembers what you tell it here.\n\nFeedback Preference\nFEEDBACK PREFERENCE\nDo not flag Imogen's interior abstraction or taxonomy at emotional peaks as a show-tell lapse.\nconversation\nLeave strong final images or fragments untouched when followed by brief explanatory lines; treat the pattern as intentional across the manuscript.\nconversation"
+  },
+  "panelAfterReload": {
+    "present": true,
+    "rowsWithForgetButton": 2,
+    "stillShowsRevoked": false,
+    "text": "Writer Memory\n2 total\n2 AI-learned\n\nThese preferences are injected into every AI agent session. The AI remembers what you tell it here.\n\nFeedback Preference\nFEEDBACK PREFERENCE\nDo not flag Imogen's interior abstraction or taxonomy at emotional peaks as a show-tell lapse.\nconversation\nLeave strong final images or fragments untouched when followed by brief explanatory lines; treat the pattern as intentional across the manuscript.\nconversation"
+  },
+  "settleTimeline": [
+    {
+      "atMs": 1221,
+      "panelHasRow": false,
+      "apiHasRow": false,
+      "toast": "Memory removed"
+    }
+  ],
+  "revokeButton": {
+    "found": true,
+    "visibleWithoutHover": true
+  },
+  "networkAll": [
+    {
+      "at": 1785150141594,
+      "phase": "request",
+      "method": "GET",
+      "url": "/api/memory/stats"
+    },
+    {
+      "at": 1785150141594,
+      "phase": "request",
+      "method": "GET",
+      "url": "/api/memory"
+    },
+    {
+      "at": 1785150141889,
+      "phase": "response",
+      "method": "GET",
+      "url": "/api/memory",
+      "status": 200
+    },
+    {
+      "at": 1785150141890,
+      "phase": "response",
+      "method": "GET",
+      "url": "/api/memory/stats",
+      "status": 200
+    },
+    {
+      "at": 1785150149595,
+      "phase": "request",
+      "method": "DELETE",
+      "url": "/api/memory/bc68fab0-d46b-436a-8f4c-2ff125d47a3b"
+    },
+    {
+      "at": 1785150149777,
+      "phase": "response",
+      "method": "DELETE",
+      "url": "/api/memory/bc68fab0-d46b-436a-8f4c-2ff125d47a3b",
+      "status": 200
+    },
+    {
+      "at": 1785150149777,
+      "phase": "request",
+      "method": "GET",
+      "url": "/api/memory"
+    },
+    {
+      "at": 1785150149830,
+      "phase": "response",
+      "method": "GET",
+      "url": "/api/memory",
+      "status": 200
+    },
+    {
+      "at": 1785150153507,
+      "phase": "request",
+      "method": "GET",
+      "url": "/api/memory/stats"
+    },
+    {
+      "at": 1785150153507,
+      "phase": "request",
+      "method": "GET",
+      "url": "/api/memory"
+    },
+    {
+      "at": 1785150153864,
+      "phase": "response",
+      "method": "GET",
+      "url": "/api/memory",
+      "status": 200
+    },
+    {
+      "at": 1785150153864,
+      "phase": "response",
+      "method": "GET",
+      "url": "/api/memory/stats",
+      "status": 200
+    }
+  ],
+  "network": [
+    {
+      "at": 1785150149595,
+      "phase": "request",
+      "method": "DELETE",
+      "url": "/api/memory/bc68fab0-d46b-436a-8f4c-2ff125d47a3b"
+    },
+    {
+      "at": 1785150149777,
+      "phase": "response",
+      "method": "DELETE",
+      "url": "/api/memory/bc68fab0-d46b-436a-8f4c-2ff125d47a3b",
+      "status": 200
+    },
+    {
+      "at": 1785150149777,
+      "phase": "request",
+      "method": "GET",
+      "url": "/api/memory"
+    },
+    {
+      "at": 1785150149830,
+      "phase": "response",
+      "method": "GET",
+      "url": "/api/memory",
+      "status": 200
+    },
+    {
+      "at": 1785150153507,
+      "phase": "request",
+      "method": "GET",
+      "url": "/api/memory/stats"
+    },
+    {
+      "at": 1785150153507,
+      "phase": "request",
+      "method": "GET",
+      "url": "/api/memory"
+    },
+    {
+      "at": 1785150153864,
+      "phase": "response",
+      "method": "GET",
+      "url": "/api/memory",
+      "status": 200
+    },
+    {
+      "at": 1785150153864,
+      "phase": "response",
+      "method": "GET",
+      "url": "/api/memory/stats",
+      "status": 200
+    }
+  ],
+  "verdict": {
+    "panelMountedOnSettings": true,
+    "rowsAreReal": true,
+    "revokeReachableWithoutHover": true,
+    "deleteReturned200": true,
+    "rowGoneFromApi": true,
+    "rowGoneFromPanel": true,
+    "panelRowCountDropped": true,
+    "rowGoneAfterReload": true,
+    "panelSelfUpdatedWithoutReload": true,
+    "msUntilPanelDroppedRow": 1221
+  },
+  "trace": [
+    {
+      "step": "warm-settings",
+      "status": 200,
+      "ms": 297
+    },
+    {
+      "step": "pageerror",
+      "message": "Clerk: Failed to load Clerk, failed to load script: https://clerk.example.test/npm/@clerk/clerk-js@5/dist/clerk.browser.js\n\n(code=\"failed_to_load_clerk_js\")\n\n"
+    },
+    {
+      "step": "pageerror",
+      "message": "Clerk: Failed to load Clerk, failed to load script: https://clerk.example.test/npm/@clerk/clerk-js@5/dist/clerk.browser.js\n\n(code=\"failed_to_load_clerk_js\")\n\n"
+    }
+  ],
+  "capturedAt": "2026-07-27T11:02:40.981Z"
+}
