@@ -19,3 +19,12 @@ Dims: D1 7.5 / D2 8.0 / D3 7.0 / D3b 7.0 (v2 floor CLEARED) / D5 6.5 FLOOR / D7 
 - NEW (renumber D-184): WriterMemory near-dup accumulation S3 — rows bc68fab0 (07-20) + d6ae40cc (07-26) semantically identical, both active, both in every prompt; 46-series offered a THIRD; every re-flag/re-dismiss appends; token cost grows monotonically; D-171 means nobody can merge/prune. Memory-side sibling of D-159.
 - Observations: generation-side bypass (D-13/D-159 family); sidebar badge 6 vs Findings tab 11 same frame (pending-vs-total? one confirming frame); duplicated "Findings 11" tab+heading cosmetic.
 - Next action: D-176 counter+heartbeat (or reasoning-slot reroute) + SAME SESSION settle-delayed dashboard re-shot (D-165/D-166) — attacks both 6.5 dims one wave; projected P1 7.0.
+
+## Judge C — Overall 6.5 (UP from 6.0), floor D5 @6.5 driver D-176, co-floor D9 @6.5 driver D-165
+Dims: D1 7.5 / D2 8.0 / D3 7.0 / D3b 7.0 / D5 6.5 FLOOR / D7 7.5 / D8 8.0 / D9 6.5 co-floor / D10 7.0 / D11 7.5.
+- "v2 floor honestly killed, not relocated": D-157 closed both branches + 3 siblings fixed same wave — NOT the same-severity-sibling re-pin pattern. What remains at 6.5 is S3-grade, not S2.
+- Strongest artifact: 46 turn-1 "Per your memory preference, I'm dropping the show-tell flag" — flagship loop closed end-to-end in pixels first time. D8 8.0.
+- D5: ttft truthful ±70ms, D-143 did NOT reappear; but 19-36s static wall every turn; "the reasoning-slot routing mistake was already solved once for quick assist".
+- NEW (renumber D-185, S4 pixel-proven): armed AI Rewrite Comparison card DETACHES from emitting turn, re-anchors at thread bottom; turn-1's lead-in colon dangles with nothing after it; card renders under turn-3 which wasn't a rewrite offer — provenance misattribution + rendering-failure look. latestRevision thread-carry design consequence, never registered.
+- Observations: seeded opening line ephemeral (vanishes once real turns exist); "Keep as-is" rendered normal-styled under live streaming bubble (clickability unproven — converges w/ judge B's race); badge 6 vs 11; D-159 class live-corroborated post-D-107 (Present-perfect/simile vs Present-tense/paragraph pending pair).
+- Next action: route discuss off reasoning slot (unfitForQuickAssist precedent) OR counter/heartbeat; + free settle-delay dashboard re-shot (D-165) same session. Projected 7.0, next tier bound by D-171 — "whose fix is nearly free" (panel+routes+revoke wiring exist, zero mounts).
