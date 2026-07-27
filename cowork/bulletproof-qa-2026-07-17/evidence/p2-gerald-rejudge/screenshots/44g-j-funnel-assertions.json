@@ -1,0 +1,329 @@
+{
+  "shot": "44g-44j",
+  "dim": "D4 onboarding / time-to-first-word (with the import leg)",
+  "capturedAt": "2026-07-27T04:52:59.940Z",
+  "identity": "user_qa_p2cold via x-e2e-clerk-id header — onboardingComplete=false, 0 books, no BYOK key, no subscription row (free tier). NO .env flip.",
+  "coldStatePreCheck": {
+    "booksApiStatus": 200,
+    "bookCount": 0,
+    "onboardingApi": "{\"onboardingComplete\":false,\"keyCount\":0}"
+  },
+  "bookId": "73247017-de05-4c22-9848-24802013604b",
+  "fixture": {
+    "path": "cowork/bulletproof-qa-2026-07-17/evidence/p2-gerald-rejudge/scripts-v2/gerald-day0-manuscript.md",
+    "bytes": 236650,
+    "declaredWords": "~42,188",
+    "declaredChapters": 8
+  },
+  "wallClockMsFromFirstPaintRequest": {
+    "onboarding_step1_visible": 420,
+    "onboarding_step2_visible": 2935,
+    "landed_on_books_new": 4713,
+    "book_created": 7528,
+    "import_wizard_open": 11965,
+    "import_preview_rendered": 15960,
+    "import_confirmed": 23966,
+    "editor_ready_on_imported_chapter": 27583,
+    "first_word_typed": 31084,
+    "first_words_saved": 31456
+  },
+  "timings": {
+    "import_preview_ms": 487,
+    "import_confirm_ms": 6102,
+    "typing_to_Saved_ms": 2663,
+    "total_cold_start_to_first_words_saved_ms": 31456
+  },
+  "assertions": {
+    "key_free_on_ramp_offered": true,
+    "skip_lands_on_name_your_book": true,
+    "chapters_after_import": 8,
+    "chapter_titles": [
+      "A Debt in Zürich",
+      "The Trieste Signal",
+      "The Łódź Ledger",
+      "The Kőszeg Drop",
+      "No Names in Marseille",
+      "Ash on the Wire",
+      "Novosibirsk, Cold",
+      "Dead Reckoning"
+    ],
+    "total_words_after_import": 42229,
+    "structure_landed_intact_8_chapters": true,
+    "onboarding_step1_copy_excerpt": "Welcome to Write My Book OK\n\nYour AI-powered book authoring platform\n\nNo credit card or API key required to start writing.\n\nBring Your Own Keys\n\nWMB uses your own AI provider API keys. You connect directly to providers like Anthropic, OpenAI, or OpenRouter.\n\nYour Writing Stays Yours\n\nYour manuscript is stored encrypted at rest and sent only to the AI provider you connect. We never use your content"
+  },
+  "importPreviewTextExcerpt": "Command Palette\n\nSearch for a command to run...\n\nWriteMyBook\nWriting Platform\nNavigation\nDashboard\nBooks\nSeries\nDead Reckoning (book 31)\nOverview\nGetting Started\n1/5\nSetup\nTransfer\nStyle\nNext Step\nWriting\n0/1\nChapters\n1\nLibrary\nWriting Dashboard\nRefining\n0/1\nEditorial\nReports\nPublish\nExport\nSettings\nBooks\n/\nDead Reckoning (book 31)\n/\nTransfer\nToggle theme\nImport\nExport\nUpload\n/\nPreview & Edit\n/\nDone\nPreview & Edit Chapters\n\nDrag to reorder, click titles to rename, select multiple to merge, or remove unwanted chapters.\n\n8 chapters detected\n42,237 words\nThis book has 1 existing chapter. Chapters with matching numbers will be available for replacement.\n1\nA Debt in Zürich\ndead-reckoning-31.md\n5,344 w\n2\nThe Trieste Signal\ndead-reckoning-31.md\n5,311 w\n3\nThe Łódź Ledger\ndead-reckoning-31.md\n5,313 w\n4\nThe Kőszeg Drop\ndead-reckoning-31.md\n5,239 w\n5\nNo Names in Marseille\ndead-reckoning-31.md\n5,235 w\n6\nAsh on the Wire\ndead-reckoning-31.md\n5,260 w\n7\nNovosibirsk, Cold\ndead-reckoning-31.md\n5,329 w\n8\nDead Reckoning\ndead-reckoning-31.md\n5,206 w\nStart Over\nImport 8 chapters",
+  "network": [
+    {
+      "url": "/api/settings/api-keys",
+      "method": "GET",
+      "status": 200,
+      "atMs": 664
+    },
+    {
+      "url": "/api/settings/onboarding",
+      "method": "POST",
+      "status": 200,
+      "atMs": 4474
+    },
+    {
+      "url": "/api/settings/language",
+      "method": "GET",
+      "status": 200,
+      "atMs": 4969
+    },
+    {
+      "url": "/api/series",
+      "method": "GET",
+      "status": 200,
+      "atMs": 5008
+    },
+    {
+      "url": "/api/billing/subscription",
+      "method": "GET",
+      "status": 200,
+      "atMs": 5133
+    },
+    {
+      "url": "/api/books",
+      "method": "POST",
+      "status": 201,
+      "atMs": 7055
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b",
+      "method": "GET",
+      "status": 200,
+      "atMs": 8427
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b/documents",
+      "method": "GET",
+      "status": 200,
+      "atMs": 8672
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b/editorial/summary",
+      "method": "GET",
+      "status": 200,
+      "atMs": 9265
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b/settings",
+      "method": "GET",
+      "status": 200,
+      "atMs": 9293
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b/style",
+      "method": "GET",
+      "status": 200,
+      "atMs": 9423
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b/editorial/findings?chapterNumber=1",
+      "method": "GET",
+      "status": 200,
+      "atMs": 11100
+    },
+    {
+      "url": "/api/billing/subscription",
+      "method": "GET",
+      "status": 200,
+      "atMs": 13518
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b/settings",
+      "method": "GET",
+      "status": 200,
+      "atMs": 13929
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b/documents",
+      "method": "GET",
+      "status": 200,
+      "atMs": 13929
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b/style",
+      "method": "GET",
+      "status": 200,
+      "atMs": 14187
+    },
+    {
+      "url": "/api/settings/language",
+      "method": "GET",
+      "status": 200,
+      "atMs": 14306
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b/editorial/summary",
+      "method": "GET",
+      "status": 200,
+      "atMs": 14947
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b",
+      "method": "GET",
+      "status": 200,
+      "atMs": 14976
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b/import/preview",
+      "method": "POST",
+      "status": 200,
+      "atMs": 15894
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b/import",
+      "method": "POST",
+      "status": 200,
+      "atMs": 21345
+    },
+    {
+      "url": "/api/settings/api-keys",
+      "method": "GET",
+      "status": 200,
+      "atMs": 23627
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b",
+      "method": "GET",
+      "status": 200,
+      "atMs": 24330
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b/documents",
+      "method": "GET",
+      "status": 200,
+      "atMs": 24330
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b/cost-estimate?workflowId=capture-style",
+      "method": "GET",
+      "status": 200,
+      "atMs": 24582
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b/agent",
+      "method": "POST",
+      "status": 429,
+      "atMs": 24765
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b",
+      "method": "GET",
+      "status": 200,
+      "atMs": 24777
+    },
+    {
+      "url": "/api/billing/subscription",
+      "method": "GET",
+      "status": 200,
+      "atMs": 27061
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b",
+      "method": "GET",
+      "status": 200,
+      "atMs": 27084
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b/documents",
+      "method": "GET",
+      "status": 200,
+      "atMs": 27091
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b/settings",
+      "method": "GET",
+      "status": 200,
+      "atMs": 27138
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b/style",
+      "method": "GET",
+      "status": 200,
+      "atMs": 27147
+    },
+    {
+      "url": "/api/settings/language",
+      "method": "GET",
+      "status": 200,
+      "atMs": 27147
+    },
+    {
+      "url": "/api/settings/api-keys",
+      "method": "GET",
+      "status": 200,
+      "atMs": 27272
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b/cost-estimate?workflowId=capture-style",
+      "method": "GET",
+      "status": 200,
+      "atMs": 27309
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b/editorial/summary",
+      "method": "GET",
+      "status": 200,
+      "atMs": 27317
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b/editorial/findings?chapterNumber=1",
+      "method": "GET",
+      "status": 200,
+      "atMs": 27330
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b/chapters/76e825f7-9551-4c5e-8fa0-6254f30e8be7/content",
+      "method": "GET",
+      "status": 200,
+      "atMs": 27365
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b/chapters",
+      "method": "GET",
+      "status": 200,
+      "atMs": 27647
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b/continuity/scan?chapterNumber=1",
+      "method": "POST",
+      "status": 200,
+      "atMs": 27662
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b/chapters/76e825f7-9551-4c5e-8fa0-6254f30e8be7/content",
+      "method": "PUT",
+      "status": 200,
+      "atMs": 31347
+    },
+    {
+      "url": "/api/books/73247017-de05-4c22-9848-24802013604b/chapters/76e825f7-9551-4c5e-8fa0-6254f30e8be7/content",
+      "method": "GET",
+      "status": 200,
+      "atMs": 31457
+    }
+  ],
+  "log": [
+    "[2026-07-27T04:52:27.485Z] cold identity pre-state: GET /api/books -> 200, 0 books",
+    "[2026-07-27T04:52:27.529Z] cold identity pre-state: onboarding -> {\"onboardingComplete\":false,\"keyCount\":0}",
+    "[2026-07-27T04:52:27.827Z] MARK onboarding_step1_visible @ +420ms",
+    "[2026-07-27T04:52:30.342Z] MARK onboarding_step2_visible @ +2935ms",
+    "[2026-07-27T04:52:31.782Z] \"Skip for now — start writing free\" visible on a key-less account = true",
+    "[2026-07-27T04:52:32.120Z] MARK landed_on_books_new @ +4713ms",
+    "[2026-07-27T04:52:34.935Z] MARK book_created @ +7528ms",
+    "[2026-07-27T04:52:34.935Z] book created: 73247017-de05-4c22-9848-24802013604b — landed on http://localhost:3001/books/73247017-de05-4c22-9848-24802013604b/chapters/76e825f7-9551-4c5e-8fa0-6254f30e8be7",
+    "[2026-07-27T04:52:39.372Z] MARK import_wizard_open @ +11965ms",
+    "[2026-07-27T04:52:43.367Z] MARK import_preview_rendered @ +15960ms",
+    "[2026-07-27T04:52:45.270Z] import preview rendered in 487ms (file 236650 bytes)",
+    "[2026-07-27T04:52:51.373Z] MARK import_confirmed @ +23966ms",
+    "[2026-07-27T04:52:51.738Z] import confirm took 6102ms",
+    "[2026-07-27T04:52:52.187Z] chapters after import: 8 — 1:A Debt in Zürich(5343w) | 2:The Trieste Signal(5310w) | 3:The Łódź Ledger(5312w) | 4:The Kőszeg Drop(5238w) | 5:No Names in Marseille(5234w) | 6:Ash on the Wire(5259w) | 7:Novosibirsk, Cold(5328w) | 8:Dead Reckoning(5205w)",
+    "[2026-07-27T04:52:54.990Z] MARK editor_ready_on_imported_chapter @ +27583ms",
+    "[2026-07-27T04:52:58.491Z] MARK first_word_typed @ +31084ms",
+    "[2026-07-27T04:52:58.863Z] MARK first_words_saved @ +31456ms",
+    "[2026-07-27T04:52:59.940Z] typed first words and reached \"Saved\" in 2663ms"
+  ]
+}

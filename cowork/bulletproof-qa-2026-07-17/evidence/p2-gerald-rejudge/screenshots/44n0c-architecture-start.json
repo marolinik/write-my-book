@@ -1,0 +1,15 @@
+{
+  "workflowId": "build-architecture",
+  "chapterNumber": 1,
+  "status": 422,
+  "body": {
+    "error": "Prerequisites not met",
+    "missing": [
+      {
+        "description": "Story Bible needed before designing architecture",
+        "satisfiedBy": "create-story-bible"
+      }
+    ]
+  },
+  "capturedAt": "2026-07-27T05:40:52.453Z"
+}

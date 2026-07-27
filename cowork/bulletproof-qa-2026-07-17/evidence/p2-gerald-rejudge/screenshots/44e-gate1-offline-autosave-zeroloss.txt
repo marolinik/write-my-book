@@ -1,0 +1,29 @@
+
+[1m[46m RUN [49m[22m [36mv3.2.6 [39m[90mD:/Projects/wmb-pub[39m
+
+[90mstderr[2m | tests/unit/offline-autosave-zeroloss.test.tsx[2m > [22m[2mGate 1 — offline autosave zero-word-loss scenario class[2m > [22m[2m[7b] an over-cap draft the mirror refuses is STILL covered by the IDB buffer
+[22m[39m[last-chance-mirror] localStorage operation failed (writeLastChanceDraft:oversize) — synchronous draft mirroring is degraded for this session. The IndexedDB draft buffer and autosave are unaffected. [1mnull[22m
+
+ [32m✓[39m tests/unit/offline-autosave-zeroloss.test.tsx[2m > [22mGate 1 — offline autosave zero-word-loss scenario class[2m > [22m[1] offline edit is durable in BOTH stores and replays intact on reconnect[32m 19[2mms[22m[39m
+ [32m✓[39m tests/unit/offline-autosave-zeroloss.test.tsx[2m > [22mGate 1 — offline autosave zero-word-loss scenario class[2m > [22m[2] a FAILED save never destroys the local copy; only a confirmed save clears it[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/offline-autosave-zeroloss.test.tsx[2m > [22mGate 1 — offline autosave zero-word-loss scenario class[2m > [22m[3] pagehide/visibilitychange flushes the un-throttled tail — zero loss on close[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/offline-autosave-zeroloss.test.tsx[2m > [22mGate 1 — offline autosave zero-word-loss scenario class[2m > [22m[4] reload after an offline edit restores the words byte-for-byte[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/offline-autosave-zeroloss.test.tsx[2m > [22mGate 1 — offline autosave zero-word-loss scenario class[2m > [22m[5] two chapters edited offline stay perfectly isolated[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/offline-autosave-zeroloss.test.tsx[2m > [22mGate 1 — offline autosave zero-word-loss scenario class[2m > [22m[6] replay is idempotent — restored content is never duplicated or re-lost[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/offline-autosave-zeroloss.test.tsx[2m > [22mGate 1 — offline autosave zero-word-loss scenario class[2m > [22m[7a] a large (under-cap) draft round-trips through the mirror intact[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/offline-autosave-zeroloss.test.tsx[2m > [22mGate 1 — offline autosave zero-word-loss scenario class[2m > [22m[7b] an over-cap draft the mirror refuses is STILL covered by the IDB buffer[32m 27[2mms[22m[39m
+ [32m✓[39m tests/unit/offline-autosave-zeroloss.test.tsx[2m > [22mGate 1 — offline autosave zero-word-loss scenario class[2m > [22m[8] a rapid burst under a dead transport loses nothing once the buffer settles[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/offline-autosave-zeroloss.test.tsx[2m > [22mD-24 strong-bar — hard-crash zero word loss[2m > [22mgraceful/notified teardown loses zero words (unmount flush)[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/offline-autosave-zeroloss.test.tsx[2m > [22mD-24 strong-bar — hard-crash zero word loss[2m > [22mhard kill with zero settle is never total loss — leading edge is durable[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/offline-autosave-zeroloss.test.tsx[2m > [22mD-24 strong-bar — hard-crash zero word loss[2m > [22mSTRONG BAR: hard kill inside the throttle window loses zero words[32m 7[2mms[22m[39m
+ [32m✓[39m tests/unit/offline-autosave-zeroloss.test.tsx[2m > [22mdecideRecovery — zero-loss decision table[2m > [22mno draft → none[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/offline-autosave-zeroloss.test.tsx[2m > [22mdecideRecovery — zero-loss decision table[2m > [22mdraft equals server → none (nothing to restore, nothing lost)[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/offline-autosave-zeroloss.test.tsx[2m > [22mdecideRecovery — zero-loss decision table[2m > [22msame base as server → restore the newer offline typing[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/offline-autosave-zeroloss.test.tsx[2m > [22mdecideRecovery — zero-loss decision table[2m > [22mserver has no document yet (version null) → restore (never lost)[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/offline-autosave-zeroloss.test.tsx[2m > [22mdecideRecovery — zero-loss decision table[2m > [22mserver MOVED under a stale base → conflict, NEVER a silent overwrite[32m 0[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m17 passed[39m[22m[90m (17)[39m
+[2m   Start at [22m 06:57:58
+[2m   Duration [22m 7.16s[2m (transform 133ms, setup 0ms, collect 648ms, tests 87ms, environment 5.03s, prepare 791ms)[22m
+

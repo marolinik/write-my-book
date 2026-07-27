@@ -1,0 +1,5 @@
+33|0.071891|217016|11777
+writing-coach|openrouter-qwen36/sonnet|3|148752|11600|0.070234
+embedding|text-embedding-3-small|27|67303|0|0.001346
+inline-edit|openrouter-deepseek/haiku|1|433|124|0.000158
+ghost-text|openrouter-deepseek/haiku|2|528|53|0.000153

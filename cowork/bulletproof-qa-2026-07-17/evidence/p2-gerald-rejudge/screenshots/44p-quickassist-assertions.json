@@ -1,0 +1,46 @@
+{
+  "shot": "44p1-44p3",
+  "dims": "D1 / D5 / D8 / D10 — Gerald's first AI touch, post-d51514c + 01192a3",
+  "capturedAt": "2026-07-27T05:08:16.782Z",
+  "identity": "user_qa_p2 (default_model openrouter-qwen36/sonnet, BYOK openrouter, validated)",
+  "fixture": {
+    "bookId": "d43b605d-112a-4d40-ae28-4f53774bad46",
+    "chapterId": "ab45e84d-c339-4208-a34b-3fc6163dc6d3",
+    "seededFrom": "canonical ch1 excerpt",
+    "excerptChars": 807
+  },
+  "priorArtOfRecord": "07-20 re-judge: first AI touch = honest 502 'The suggestion cut off before any text was produced' (35-ai-touch.txt)",
+  "assertions": {
+    "ghost_text_rendered": true,
+    "ghost_render_ms_after_pause": 2613,
+    "ghost_text_verbatim": " left",
+    "ghost_accept_changed_prose": false,
+    "inline_edit_completed": true
+  },
+  "editorTextBeforeAccept": "A Debt in Zürich\n\nAmara had learned, [[REPLACED]] hard way, that a café smile bought more time than a gun. It wasn’t trust that kept [[REPLACED]]m toge[[REPLACED]]r—it was [[REPLACED]] absence of any better option. He read [[REPLACED]] message twice, [[REPLACED]]n burned it, watching [[REPLACED]] protégé edges curl to ash. He weighed [[REPLACED]] risk [[REPLACED]] way he weighed everything now—in fractions, never wholes. “[[REPLACED]]y know,” he said. “[[REPLACED]]y’ve known since Antibes.” [[REPLACED]] ledger was written in a code that only Kessler and a dead man had ever shared. It wasn’t trust that kept [[REPLACED]]m toge[[REPLACED]]r—it was [[REPLACED]] absence of any better option. A single light burned in [[REPLACED]] third-floor window—Beckett’s signal that [[REPLACED]] drop was clean. Marek set the receipt on the table and",
+  "editorTextAfterAccept": "A Debt in Zürich\n\nAmara had learned, [[REPLACED]] hard way, that a café smile bought more time than a gun. It wasn’t trust that kept [[REPLACED]]m toge[[REPLACED]]r—it was [[REPLACED]] absence of any better option. He read [[REPLACED]] message twice, [[REPLACED]]n burned it, watching [[REPLACED]] protégé edges curl to ash. He weighed [[REPLACED]] risk [[REPLACED]] way he weighed everything now—in fractions, never wholes. “[[REPLACED]]y know,” he said. “[[REPLACED]]y’ve known since Antibes.” [[REPLACED]] ledger was written in a code that only Kessler and a dead man had ever shared. It wasn’t trust that kept [[REPLACED]]m toge[[REPLACED]]r—it was [[REPLACED]] absence of any better option. A single light burned in [[REPLACED]] third-floor window—Beckett’s signal that [[REPLACED]] drop was clean. Marek set the receipt on the table and",
+  "network": [
+    {
+      "url": "/api/books/d43b605d-112a-4d40-ae28-4f53774bad46/ghost-text?warmup=1",
+      "method": "POST",
+      "status": 200,
+      "at": "2026-07-27T05:08:03.623Z",
+      "ct": "application/json"
+    },
+    {
+      "url": "/api/books/d43b605d-112a-4d40-ae28-4f53774bad46/ghost-text",
+      "method": "POST",
+      "status": 200,
+      "at": "2026-07-27T05:08:10.023Z",
+      "ct": "text/event-stream"
+    }
+  ],
+  "log": [
+    "[2026-07-27T05:07:59.074Z] excerpt from canonical ch1: 807 chars",
+    "[2026-07-27T05:07:59.258Z] quick-assist fixture book=d43b605d-112a-4d40-ae28-4f53774bad46 chapter=ab45e84d-c339-4208-a34b-3fc6163dc6d3",
+    "[2026-07-27T05:08:03.285Z] ghost text default state = OFF (opt-in)",
+    "[2026-07-27T05:08:10.039Z] ghost text rendered 2613ms after the typing pause: \" left\"",
+    "[2026-07-27T05:08:12.370Z] accept via Tab changed the prose = false",
+    "[2026-07-27T05:08:15.029Z] inline edit returned in 1617ms"
+  ]
+}

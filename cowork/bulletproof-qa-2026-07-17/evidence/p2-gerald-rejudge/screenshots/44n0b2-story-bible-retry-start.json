@@ -1,0 +1,9 @@
+{
+  "workflowId": "create-story-bible",
+  "chapterNumber": 1,
+  "status": 200,
+  "body": {
+    "sessionId": "ab7553b1-e4db-4b8c-8854-ecfeefe47cdb"
+  },
+  "capturedAt": "2026-07-27T05:43:09.520Z"
+}

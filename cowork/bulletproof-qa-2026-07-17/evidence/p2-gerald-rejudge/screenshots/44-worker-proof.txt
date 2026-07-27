@@ -1,0 +1,21 @@
+=== WORKER-PROOF (P2 44-series UI capture wave) @ 2026-07-27T04:20:54.3489648Z ===
+
+Method: enumerate all processes whose command line references src/worker.ts
+(same method as evidence/p2-gerald-rejudge/worker-proof.txt, 07-20).
+
+Full launch chain referencing src/worker.ts:
+  PID=14548  PPID=40136  NAME=powershell.exe
+  PID=14996  PPID=23008  NAME=node.exe
+  PID=23008  PPID=36024  NAME=cmd.exe
+  PID=27168  PPID=38708  NAME=node.exe
+  PID=35408  PPID=36552  NAME=bash.exe
+  PID=36552  PPID=17844  NAME=bash.exe
+  PID=38708  PPID=38952  NAME=node.exe
+  PID=38952  PPID=14996  NAME=cmd.exe
+  PID=40136  PPID=35408  NAME=bash.exe
+
+Actual job-processing worker runtime (node + tsx loader + worker.ts):
+  PID=27168 PPID=38708  CMD="C:\Program Files\nodejs\node.exe" --require D:\Projects\wmb-pub\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/wmb-pub/node_modules/tsx/dist/loader.mjs src/worker.ts
+
+RUNTIME_WORKER_COUNT = 1
+VERDICT = EXACTLY ONE WORKER (PASS)
