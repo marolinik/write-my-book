@@ -69,3 +69,41 @@ Add `changeType?: string` to `create()` and derive a default from `changeSource`
 `changeSource` instead. `src/lib/validation.ts:215` already enums
 `["agent_write", "manual_edit", "revision"]`, so `import` and `transcript-recovery` would
 need a badge entry either way — `import` is already mapped, `transcript-recovery` is not.
+
+---
+
+## FIXED and verified live — `dced6f0`
+
+Fix shape: `src/lib/documents/change-type.ts` adds `changeTypeForSource()`, keeping the two
+vocabularies separate rather than conflating them — `change_source` says WHO initiated the
+write (open set, free to grow with new server-side jobs), `change_type` says WHAT KIND of
+change it was (small closed set, the column Version History actually renders). `create()`
+gains the parameter it never had; callers that state only a source get an honest default.
+
+The fail-safe direction is the important part: unknown sources fall through to `agent_write`,
+on the reasoning that the one label the product must never hand out by default is the claim
+that a human typed it.
+
+One deliberate exception, stated rather than derived: the orphan-reclaim branch in
+`chapters/[chapterId]/content/route.ts` passes `"manual_edit"` explicitly, because the
+`change_source` there is a server-side label (`ORPHAN_RECLAIM_SOURCE`) but the content really
+is the writer's own markdown landing on a reclaimed row.
+
+Suite after the fix: **1727/1727 across 211 files**, 0 failures (independently checked).
+
+**Live verification** against the running build — three documents created through
+`POST /api/books/:id/documents`, their version rows read straight from the database, then
+deleted:
+
+| `change_source` sent | `change_type` stored | badge rendered |
+|---|---|---|
+| `agent` | `agent_write` | "AI" |
+| `import` | `import` | "Import" |
+| `user` | `manual_edit` | "Manual" |
+
+Before the fix all three stored `manual_edit`. Book counters were unchanged by the probe
+churn (`14|1`), which incidentally re-exercises D-200's reconcile on the document routes.
+
+**Residual, knowingly left open:** historical rows keep their wrong badge. No backfill was
+written, so documents created before `dced6f0` — including the recovered Story Bible from the
+50a capture — still show "Manual" in Version History.
