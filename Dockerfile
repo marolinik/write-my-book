@@ -22,9 +22,13 @@ ENV NEXT_PUBLIC_CLERK_SIGN_UP_URL=$NEXT_PUBLIC_CLERK_SIGN_UP_URL
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 ENV NEXT_PUBLIC_SENTRY_DSN=$NEXT_PUBLIC_SENTRY_DSN
 
-ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
+ENV DATABASE_URL="postgresql://dummy:***@localhost:5432/dummy"
 RUN npx prisma generate
-RUN npm run build
+# Build with CI=true so the fail-closed runtime env validator treats the
+# dummy build-time values as the CI/build path (warnings, not errors). The
+# builder is a scratch stage: CI is NOT set in the runner, so real production
+# runtime validation still applies to the deployed process.
+RUN CI=true npm run build
 
 FROM base AS runner
 WORKDIR /app

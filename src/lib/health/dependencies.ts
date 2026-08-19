@@ -1,11 +1,9 @@
 import { HeadBucketCommand, S3Client } from "@aws-sdk/client-s3";
 import IORedis from "ioredis";
-import { db } from "@/lib/db";
 import { envHealth } from "@/lib/env";
 import { verifyNeo4jConnection } from "@/lib/graph/neo4j-client";
 import { verifyQdrantConnection } from "@/lib/vector/qdrant-client";
-import { assertWorkerLiveness } from "@/lib/health/worker-liveness";
-import { assertSchemaContract } from "@/lib/health/schema-contract";
+
 
 export type DependencyStatus = "ok" | "degraded" | "error" | "skipped";
 
@@ -83,7 +81,13 @@ function isConfigured(...keys: string[]) {
   return keys.every((key) => Boolean(process.env[key]?.trim()));
 }
 
+// db-reaching checks import their module LAZILY. `@/lib/db` runs the
+// fail-closed assertEnvReady("web") at module scope, and this route must be
+// able to LOAD (and report) a bad env as a structured 503 — not crash with a
+// bare 500 while evaluating the module graph. Real consumers (API routes,
+// worker) still import db eagerly and keep the fail-closed guarantee.
 async function checkDatabase() {
+  const { db } = await import("@/lib/db");
   await db.$queryRaw`SELECT 1`;
 }
 
@@ -155,12 +159,18 @@ export async function checkDependencies(): Promise<DependencyReadinessResult> {
     runCheck("postgres", true, checkDatabase),
     // A bare `SELECT 1` stays green against a STALE schema. This asserts the
     // release's required objects actually exist → readiness 503 on drift.
-    runCheck("schema", true, assertSchemaContract),
+    runCheck("schema", true, async () => {
+      const { assertSchemaContract } = await import("@/lib/health/schema-contract");
+      await assertSchemaContract();
+    }),
     runCheck("redis", true, checkRedis),
     runCheck("s3", true, checkS3),
     // Worker is a HARD deploy requirement: without a consumer, every background
     // AI workflow hangs silently. Required → readiness returns 503 on worker-down.
-    runCheck("worker", true, assertWorkerLiveness),
+    runCheck("worker", true, async () => {
+      const { assertWorkerLiveness } = await import("@/lib/health/worker-liveness");
+      await assertWorkerLiveness();
+    }),
     optionalCheck("qdrant", isConfigured("QDRANT_URL"), async () => {
       const ok = await verifyQdrantConnection();
       if (!ok) throw new Error("Qdrant connection failed");
