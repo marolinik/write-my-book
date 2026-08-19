@@ -30,5 +30,11 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    // One-shot QA campaign evidence harnesses / scripts (not product code).
+    // Self-contained Playwright probe scripts, excluded from the app typecheck
+    // program on purpose.
+    "cowork/**"
+  ]
 }

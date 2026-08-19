@@ -17,6 +17,8 @@ const eslintConfig = defineConfig([
     "dist-worker/**",
     "coverage/**",
     "uat-screenshots/**",
+    // One-shot QA campaign evidence harnesses / scripts (not product code).
+    "cowork/**",
     "tmp-*.js",
     "tmp-*.ts",
   ]),

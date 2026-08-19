@@ -60,7 +60,7 @@ async function main(): Promise<void> {
 
   // 1. .env update (UTF-8, no BOM).
   const envLines = readFileSync(ENV_PATH, "utf8").split(/\r?\n/);
-  let { lines: l1 } = setEnvVar(envLines, "OPENAI_API_KEY", openai);
+  const { lines: l1 } = setEnvVar(envLines, "OPENAI_API_KEY", openai);
   const { lines: l2 } = setEnvVar(l1, "ANTHROPIC_API_KEY", anthropic);
   writeFileSync(ENV_PATH, l2.join("\n"), "utf8");
   console.log(`[provision] .env OPENAI_API_KEY   -> ${maskApiKey(openai)}`);
