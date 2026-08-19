@@ -29,13 +29,28 @@ import { db } from "@/lib/db";
 import type { Prisma } from "@/generated/prisma/client";
 
 /**
+ * Format a USD cap for the morning notification. Two decimals for normal
+ * amounts, but a positive SUB-CENT cap (e.g. a $0.005 QA cap) must not collapse
+ * to "$0.00" — or misleadingly round to "$0.01" — via `toFixed(2)`. Show enough
+ * precision to name the real cap (D-98), trimming trailing zeros. The spend
+ * figure itself is left at `toFixed(2)` (BATCH-SPEC / D-98: keep as-is).
+ */
+function formatCapUsd(n: number): string {
+  if (!Number.isFinite(n) || n <= 0 || n >= 0.01) return n.toFixed(2);
+  return n.toFixed(4).replace(/0+$/, "").replace(/\.$/, "");
+}
+
+/**
  * Read the Redis ledger for a batch (spent / halted / failures). Best-effort:
  * a Redis hiccup yields zeros/false rather than crashing the digest — the
  * persisted DB rows are the primary source, the ledger only enriches it.
  */
-async function readBatchLedger(
-  batchId: string
-): Promise<{ spentUsd: number; halted: boolean; failureCount: number }> {
+async function readBatchLedger(batchId: string): Promise<{
+  spentUsd: number;
+  halted: boolean;
+  failureCount: number;
+  ledgerAvailable: boolean;
+}> {
   const redis = createRedisConnection();
   try {
     const [spentRaw, haltedRaw, failuresRaw] = await Promise.all([
@@ -47,10 +62,14 @@ async function readBatchLedger(
       spentUsd: spentRaw ? parseFloat(spentRaw) : 0,
       halted: haltedRaw === "1",
       failureCount: failuresRaw ? parseInt(failuresRaw, 10) : 0,
+      ledgerAvailable: true,
     };
   } catch (err) {
+    // A Redis hiccup must NOT be reported as "$0 spent" — that would overwrite
+    // the real BatchRun.spentUsd with zero and can mislabel a halted batch as
+    // done. Signal unavailability so the caller falls back to the DB-side sum.
     console.error("[BatchDigest] Redis ledger read failed (non-fatal):", err);
-    return { spentUsd: 0, halted: false, failureCount: 0 };
+    return { spentUsd: 0, halted: false, failureCount: 0, ledgerAvailable: false };
   } finally {
     redis.disconnect();
   }
@@ -84,10 +103,19 @@ export async function processBatchDigestJob(
     });
     const childIds = sessions.map((s) => s.id);
 
+    // D-122: `status` is load-bearing here — the CreateFinding validation gate
+    // persists auto-rejected rows as rejection analytics, and counting them made
+    // the digest over-claim (7 reported vs 5 the writer can see).
+    // `aggregateBatchDigest` splits them out.
     const findings = childIds.length
       ? await db.editFinding.findMany({
           where: { sessionId: { in: childIds } },
-          select: { severity: true, category: true, chapterNumber: true },
+          select: {
+            severity: true,
+            category: true,
+            chapterNumber: true,
+            status: true,
+          },
         })
       : [];
 
@@ -100,6 +128,25 @@ export async function processBatchDigestJob(
     });
 
     const ledger = await readBatchLedger(batchId);
+
+    // If the Redis ledger was unavailable, do NOT trust its $0 — fall back to
+    // the DB-side truth (sum of persisted per-session actualCostUsd, floored by
+    // the already-persisted BatchRun.spentUsd) so a Redis hiccup can't zero out
+    // the reported spend or mislabel the batch (Z11).
+    const dbSpent = sessions.reduce(
+      (sum, s) => sum + Number(s.actualCostUsd ?? 0),
+      0
+    );
+    // The reported figure is also FLOORED by whatever is already persisted
+    // (D-186a): a mid-run cancel now writes the spend it derived from the child
+    // rows, so `BatchRun.spentUsd` can legitimately be non-zero before the
+    // digest lands. A ledger that reads lower (partial increment, key TTL, a
+    // child billed to the DB but not the ledger) must never SHRINK a money
+    // figure the writer was already shown.
+    const effectiveSpent = Math.max(
+      ledger.ledgerAvailable ? ledger.spentUsd : dbSpent,
+      batch.spentUsd ?? 0
+    );
 
     // The batch is cancelled iff a cancel already set that terminal state; the
     // digest still runs (BATCH-SPEC §2.1) but must not relabel it done/halted.
@@ -116,6 +163,7 @@ export async function processBatchDigestJob(
       severity: f.severity,
       category: f.category,
       chapterNumber: f.chapterNumber,
+      status: f.status,
     }));
     const chapterInputs: BatchDigestChapterInput[] = chapters.map((c) => ({
       chapterNumber: c.chapterNumber,
@@ -130,11 +178,12 @@ export async function processBatchDigestJob(
       completedCount,
       failedCount,
     } = aggregateBatchDigest({
+      // effectiveSpent (Z11) — ledger value when available, DB-side sum otherwise.
       workflowIds: batch.workflowIds,
       chapterStart: batch.chapterStart,
       chapterEnd: batch.chapterEnd,
       budgetCapUsd: batch.budgetCapUsd,
-      spentUsd: ledger.spentUsd,
+      spentUsd: effectiveSpent,
       halted,
       cancelled,
       failureCount: ledger.failureCount,
@@ -149,7 +198,7 @@ export async function processBatchDigestJob(
         digest: digest as unknown as Prisma.InputJsonValue,
         status,
         haltReason: haltReason ?? null,
-        spentUsd: ledger.spentUsd,
+        spentUsd: effectiveSpent,
         halted,
         completedCount,
         failedCount,
@@ -158,25 +207,62 @@ export async function processBatchDigestJob(
     });
 
     // ── Morning report: one in-app notification (SMTP/push is Phase-2) ──
+    // D-122: the headline count is what the writer will SEE (gate-rejected rows
+    // excluded by aggregateBatchDigest). Discarded rows are still NAMED, so a
+    // shrunken count is explained instead of reading as a silent zero.
+    const suppressedFindings = digest.findings.suppressed;
+    const suppressedClause =
+      suppressedFindings > 0
+        ? ` (${suppressedFindings} discarded as invalid)`
+        : "";
     const findingSummary =
-      digest.findings.total > 0
-        ? ` · ${digest.findings.total} findings`
+      digest.findings.total > 0 || suppressedFindings > 0
+        ? ` · ${digest.findings.total} findings${suppressedClause}`
         : "";
     const skippedSummary =
       digest.passes.skipped > 0
         ? ` · ${digest.passes.skipped} skipped`
         : "";
+
+    // ── D-98: title + message reflect a non-'done' terminal outcome ──────
+    // Before this fix EVERY digest (halted / cancelled / failed included) was
+    // titled "Overnight batch complete" and the message never named the halt, so
+    // a budget-cap or provider-outage stop read as a clean finish. Derive an
+    // honest title + a short halt clause from the derived terminal status +
+    // haltReason. `status`/`haltReason` come from aggregateBatchDigest above.
+    let title: string;
+    let haltClause: string;
+    if (status === "halted") {
+      title =
+        haltReason === "budget_cap"
+          ? "Overnight batch halted — budget cap reached"
+          : "Overnight batch halted — repeated provider errors";
+      haltClause =
+        haltReason === "budget_cap"
+          ? " · halted at budget cap"
+          : " · halted after provider errors";
+    } else if (status === "cancelled") {
+      title = "Overnight batch cancelled";
+      haltClause = " · cancelled";
+    } else if (status === "failed") {
+      title = "Overnight batch failed — no passes completed";
+      haltClause = " · no passes completed";
+    } else {
+      title = "Overnight batch complete";
+      haltClause = "";
+    }
+
     await db.bookNotification.create({
       data: {
         bookId: batch.bookId,
         userId: batch.userId,
         type: "pipeline_complete",
         priority: halted ? "high" : "normal",
-        title: "Overnight batch complete",
+        title,
         message:
           `${digest.passes.completed}/${digest.passes.total} passes` +
-          `${skippedSummary}${findingSummary} · ` +
-          `$${ledger.spentUsd.toFixed(2)} / $${batch.budgetCapUsd.toFixed(2)} cap`,
+          `${skippedSummary}${findingSummary}${haltClause} · ` +
+          `$${effectiveSpent.toFixed(2)} / $${formatCapUsd(batch.budgetCapUsd)} cap`,
         actionUrl: `/books/${batch.bookId}`,
         actionLabel: "View digest",
       },

@@ -84,6 +84,15 @@ export interface OrchestratorOptions {
   /** Provider key for error translation and retry logic. */
   providerKey?: ProviderKey;
   /**
+   * D-83: true ONLY for interactive chat sessions (a real user is present and
+   * streaming). Threaded into ToolContext.interactive to gate AUTHORITATIVE
+   * graph writes (UpdateGraphEntity). Defaults to false — the SAFE value — so
+   * the BullMQ batch worker and any specialist it delegates to can never grant
+   * an autonomous agent authoritative graph-edit power. Set true only by the
+   * synchronous, user-facing chat routes.
+   */
+  interactive?: boolean;
+  /**
    * Custom approval resolver for background sessions.
    * When provided, approval gates use this instead of in-memory Promises.
    * The resolver should write pending state to Redis and poll for resolution.
@@ -126,6 +135,8 @@ export class AgentOrchestrator {
   private sharedCostTracker: import("./types").SharedCostTracker | null = null;
   private delegationContext: import("./types").DelegationContext | null = null;
   private providerKey: ProviderKey;
+  /** D-83: gates authoritative graph writes — see OrchestratorOptions.interactive. */
+  private interactive: boolean;
   private approvalResolver: ((approvalId: string, deadline: number) => Promise<ApprovalResponse>) | null;
 
   constructor(options: OrchestratorOptions) {
@@ -137,6 +148,8 @@ export class AgentOrchestrator {
     this.sharedCostTracker = options.sharedCostTracker ?? null;
     this.delegationContext = options.delegationContext ?? null;
     this.providerKey = options.providerKey ?? "anthropic";
+    // Safe default: non-interactive unless an interactive entry point opts in.
+    this.interactive = options.interactive ?? false;
     this.approvalResolver = options.approvalResolver ?? null;
   }
 
@@ -187,6 +200,11 @@ export class AgentOrchestrator {
         )
       : undefined;
 
+    // D-58: the sink executeWriteDocument records produced document ids into.
+    // Shared by reference with toolCtx.documentIds so the completion reports the
+    // real docs this run wrote (never [] despite writing the story bible).
+    const documentIds: string[] = [];
+
     const toolCtx: ToolContext = {
       bookId: options.context.bookId,
       userId: options.context.userId,
@@ -197,6 +215,10 @@ export class AgentOrchestrator {
       seriesDocumentService: seriesDocService,
       chapterNumber: options.context.chapterNumber,
       delegationContext: this.delegationContext ?? undefined,
+      // D-83: gates authoritative graph writes to user-present sessions.
+      interactive: this.interactive,
+      // D-58: produced-document sink (see documentIds above).
+      documentIds,
     };
 
     const messages: Anthropic.MessageParam[] = [
@@ -206,8 +228,6 @@ export class AgentOrchestrator {
       },
     ];
 
-    const documentIds: string[] = [];
-
     try {
       const result = await this.runToolLoop(
         modelId,
@@ -215,8 +235,7 @@ export class AgentOrchestrator {
         messages,
         tools as Anthropic.Tool[],
         toolCtx,
-        options,
-        documentIds
+        options
       );
 
       // User cancellation makes the loop break and return normally — report
@@ -225,7 +244,10 @@ export class AgentOrchestrator {
       const cancelled = this.abortController?.signal.aborted === true;
 
       const agentResult: AgentResult = {
-        success: true,
+        // A provider failure that ended the loop is a FAILED session, not a
+        // completion (D-36). Still resolved via onComplete — never onError —
+        // so token/cost accounting and the batch ledger stay honest.
+        success: !result.providerFailure,
         tokensInput: result.inputTokens,
         tokensOutput: result.outputTokens,
         documentIds,
@@ -296,6 +318,10 @@ export class AgentOrchestrator {
         )
       : undefined;
 
+    // D-58: produced-document sink, shared by reference with toolCtx.documentIds
+    // (see runAgent) so a continued session reports the docs it wrote.
+    const documentIds: string[] = [];
+
     const toolCtx: ToolContext = {
       bookId: options.context.bookId,
       userId: options.context.userId,
@@ -306,12 +332,14 @@ export class AgentOrchestrator {
       seriesDocumentService: seriesDocService2,
       chapterNumber: options.context.chapterNumber,
       delegationContext: this.delegationContext ?? undefined,
+      // D-83: gates authoritative graph writes to user-present sessions.
+      interactive: this.interactive,
+      // D-58: produced-document sink (see documentIds above).
+      documentIds,
     };
 
     // Add the new user message to existing conversation
     existingMessages.push({ role: "user", content: userMessage });
-
-    const documentIds: string[] = [];
 
     try {
       const result = await this.runToolLoop(
@@ -320,12 +348,12 @@ export class AgentOrchestrator {
         existingMessages,
         tools as Anthropic.Tool[],
         toolCtx,
-        options,
-        documentIds
+        options
       );
 
       await options.onComplete({
-        success: true,
+        // See runAgent: a provider-failure loop end resolves success:false.
+        success: !result.providerFailure,
         tokensInput: result.inputTokens,
         tokensOutput: result.outputTokens,
         documentIds,
@@ -368,14 +396,23 @@ export class AgentOrchestrator {
     messages: Anthropic.MessageParam[],
     tools: Anthropic.Tool[],
     toolCtx: ToolContext,
-    options: AgentSpawnOptions,
-    documentIds: string[]
+    options: AgentSpawnOptions
+    // D-58: produced-document ids are now collected via toolCtx.documentIds
+    // (executeWriteDocument pushes into it); no separate param needed.
   ): Promise<{
     inputTokens: number;
     outputTokens: number;
-    endReason: "natural" | "budget" | "timeout";
+    endReason: "natural" | "budget" | "timeout" | "error";
     wrapUpSummary?: string;
     assistantText?: string;
+    /**
+     * True when a provider failure ended the loop (retry exhaustion,
+     * non-retryable status, or an empty zero-work first response). The
+     * callers map this to success:false so the session is persisted as
+     * FAILED — a provider outage must never masquerade as a clean natural
+     * completion (D-36).
+     */
+    providerFailure: boolean;
   }> {
     let totalInputTokens = 0;
     let totalOutputTokens = 0;
@@ -393,7 +430,9 @@ export class AgentOrchestrator {
     let budgetNudgeSent = false;
     let timeNudgeSent = false;
     let finalTurnRequested = false;
-    let endReason: "natural" | "budget" | "timeout" = "natural";
+    let endReason: "natural" | "budget" | "timeout" | "error" = "natural";
+    /** Set when a provider failure ends the loop — see the return-type doc. */
+    let providerFailure = false;
     let wrapUpSummary: string | undefined;
     /** Last non-empty assistant text — persisted for cross-restart continuity. */
     let lastAssistantText: string | undefined;
@@ -507,11 +546,56 @@ export class AgentOrchestrator {
             content: translated.userMessage,
           });
         }
+        // D-36: record any partial spend the dying turn already streamed
+        // (the provider billed those tokens even though finalMessage never
+        // resolved) — mirrors the user-cancel abort path above.
+        totalInputTokens += turnInputTokens;
+        totalOutputTokens += turnOutputTokens;
+        if (this.sharedCostTracker) {
+          this.sharedCostTracker.totalInputTokens += turnInputTokens;
+          this.sharedCostTracker.totalOutputTokens += turnOutputTokens;
+          this.sharedCostTracker.totalCostUsd += estimateCost(
+            this.registryId,
+            turnInputTokens,
+            turnOutputTokens
+          );
+        }
+        // D-36: a provider failure ended the loop. Flag it so the callers
+        // resolve success:false — before this, the break below made a real
+        // outage indistinguishable from a natural completion (session marked
+        // "completed"/0 tokens/"natural", chapter state advanced, batch digest
+        // counted a clean child).
+        providerFailure = true;
+        endReason = "error";
         break;
       }
 
       totalInputTokens += finalMessage.usage.input_tokens;
       totalOutputTokens += finalMessage.usage.output_tokens;
+
+      // D-36: some gateways surface an outage as a WELL-FORMED response with
+      // zero output tokens and no content — a hollow 200. On the FIRST turn
+      // that means the session did zero model work; letting it fall through
+      // to the end_turn break below would resolve it as a clean natural
+      // completion (the exact C-2 signature: completed/0 tokens/$0/natural).
+      // Keyed on the empty-WORK signal (no text, no tool_use, 0 output
+      // tokens), never on token count alone — a legitimately-cheap session
+      // always produces some text or a tool call.
+      const producedWork = finalMessage.content.some(
+        (b) =>
+          (b.type === "text" && b.text.trim().length > 0) ||
+          b.type === "tool_use"
+      );
+      if (turn === 0 && !producedWork && finalMessage.usage.output_tokens === 0) {
+        const translated = translateProviderError(500, this.providerKey);
+        options.onMessage({
+          type: "error",
+          content: translated.userMessage,
+        });
+        providerFailure = true;
+        endReason = "error";
+        break;
+      }
 
       // Capture this turn's assistant text; the final natural-completion turn
       // is the last to set it, so lastAssistantText ends as the reply the user
@@ -918,6 +1002,7 @@ export class AgentOrchestrator {
       endReason,
       wrapUpSummary,
       assistantText: lastAssistantText,
+      providerFailure,
     };
   }
 

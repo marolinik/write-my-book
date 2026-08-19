@@ -1,0 +1,79 @@
+{
+ "misquote-probe": {
+  "strong_findings": 3,
+  "misquotes": 0,
+  "detail": [
+   {
+    "id": "4591a969",
+    "ch": 5,
+    "sev": "important",
+    "cat": "prose",
+    "originalText_verbatim": true,
+    "anchorQuote_verbatim": true,
+    "newText_empty": false,
+    "grounding": 1,
+    "alts_verbatim": true
+   },
+   {
+    "id": "7a68493d",
+    "ch": 5,
+    "sev": "critical",
+    "cat": "prose",
+    "originalText_verbatim": true,
+    "anchorQuote_verbatim": true,
+    "newText_empty": false,
+    "grounding": 1,
+    "alts_verbatim": true
+   },
+   {
+    "id": "0002c9e1",
+    "ch": 1,
+    "sev": "suggestion",
+    "cat": "redundancy",
+    "originalText_verbatim": true,
+    "anchorQuote_verbatim": true,
+    "newText_empty": false,
+    "grounding": 1,
+    "alts_verbatim": true
+   }
+  ]
+ },
+ "device-spans-ch1": {
+  "D1-andstack-ch1": true,
+  "D2-twothings-ch1": true,
+  "D4a-inference-ch1": true,
+  "D4b-inference-ch1": true,
+  "D5-collateral-ch1": true,
+  "D6-callback-ch1": true
+ },
+ "device-flagged": {
+  "D1-andstack-ch1": false,
+  "D2-twothings-ch1": false,
+  "D4a-inference-ch1": false,
+  "D4b-inference-ch1": false,
+  "D5-collateral-ch1": false,
+  "D6-callback-ch1": false
+ },
+ "line-edit-reports": [
+  [
+   1,
+   "2026-07-18T17:06:46.440Z"
+  ],
+  [
+   2,
+   "2026-07-18T17:19:00.055Z"
+  ],
+  [
+   3,
+   "2026-07-18T15:41:40.201Z"
+  ],
+  [
+   4,
+   "2026-07-18T17:21:32.927Z"
+  ],
+  [
+   5,
+   "2026-07-18T17:30:25.310Z"
+  ]
+ ]
+}

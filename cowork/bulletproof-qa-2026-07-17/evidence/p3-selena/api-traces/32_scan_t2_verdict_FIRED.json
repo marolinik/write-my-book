@@ -1,0 +1,39 @@
+{
+  "label": "32_scan_t2_verdict_FIRED",
+  "ts": "2026-07-18T10:57:50.363Z",
+  "method": "POST",
+  "path": "/api/books/fd60e1d4-37c5-4c11-92a1-586af638224a/continuity/scan?chapterNumber=6",
+  "note": "T2 FINAL VERDICT — dead_character_reappears FIRED (critical): Corvin dies ch3, participates ch6 (Defense of the Western Wall). Sequence that armed it: ch6 extraction flipped status to transformed (trace 30, flag suppressed by status gate); canon-neutral ch3 re-extraction (10:56:15Z) re-affirmed status=dead while deathChapter=3 (coalesce-preserved) and the ch6 PARTICIPATES_IN edge persisted -> book-wide check matched. First-ever fire of this check on real LLM extraction output.",
+  "status": 200,
+  "response": {
+    "flags": [
+      {
+        "id": "95fbf4dd-7bba-45d0-b6a7-6065413db6da",
+        "signature": "fed30551feb39d367d451c4be0631391458ca80d",
+        "type": "dead_character_reappears",
+        "severity": "critical",
+        "description": "Character \"Corvin Ashe\" dies in chapter 3 but participates in events in chapters 6.",
+        "entities": [
+          "Corvin Ashe"
+        ],
+        "chapterNumber": 6,
+        "jumpChapter": 3,
+        "anchor": "Corvin Ashe"
+      },
+      {
+        "id": "52af6dc9-7244-413d-b0d7-b93272032a1a",
+        "signature": "e687d7d120a07aa1af9cc1eed6c6426c24a27af2",
+        "type": "relationship_contradiction",
+        "severity": "major",
+        "description": "Characters \"Mira Thorne\" and \"Kestrel Vane\" are marked as both ALLIED_WITH and OPPOSES each other simultaneously.",
+        "entities": [
+          "Mira Thorne",
+          "Kestrel Vane"
+        ],
+        "chapterNumber": 0,
+        "jumpChapter": null,
+        "anchor": null
+      }
+    ]
+  }
+}

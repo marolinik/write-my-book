@@ -1,0 +1,35 @@
+{
+  "label": "96-export-list",
+  "request": {
+    "method": "GET",
+    "url": "http://localhost:3002/api/books/35ff1112-52af-4001-a0f4-ec83f4dad9b0/export",
+    "authMode": "persona",
+    "authHeaderNames": [
+      "x-e2e-test-secret(masked:test-se...cret)",
+      "x-e2e-clerk-id:user_qa_p5"
+    ],
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "ms": 236,
+    "json": {
+      "exports": [
+        {
+          "storageKey": "exports/Sam-Free-Tier-On-Ramp-QA-2026-07-20-2026-07-20T15-28-14.docx",
+          "filename": "Sam-Free-Tier-On-Ramp-QA-2026-07-20-2026-07-20T15-28-14.docx",
+          "format": "docx"
+        },
+        {
+          "storageKey": "exports/Sam-Free-Tier-On-Ramp-QA-2026-07-20-2026-07-20T09-13-51.docx",
+          "filename": "Sam-Free-Tier-On-Ramp-QA-2026-07-20-2026-07-20T09-13-51.docx",
+          "format": "docx"
+        }
+      ]
+    }
+  },
+  "error": null,
+  "aborted": false,
+  "capturedAt": "2026-07-20T15:28:15.807Z"
+}

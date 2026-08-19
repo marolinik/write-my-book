@@ -85,6 +85,45 @@ function isLater(a: PriorCharacter, b: PriorCharacter): boolean {
   return (a.lastMentioned ?? 0) > (b.lastMentioned ?? 0);
 }
 
+/**
+ * Viewing-relative deixis that goes STALE when a prior-book character description is
+ * surfaced while writing a LATER book (F13). Ordered longest-phrase-first so a
+ * compound ("one month prior to this chapter") is consumed before its parts.
+ */
+const CROSS_BOOK_DEIXIS: readonly RegExp[] = [
+  // "one month prior to this chapter", "three days before this book", "2 years ago"
+  /\b(?:a|an|one|two|three|four|five|six|seven|eight|nine|ten|\d+)\s+(?:day|week|month|year|chapter)s?\s+(?:prior to|before|ago|earlier)(?:\s+(?:this|the current|the previous)\s+(?:chapter|book))?/gi,
+  // "prior to / before / as of / in / during / by / since / after  this|the current  chapter|book"
+  /\b(?:prior to|before|as of|in|during|by|since|after)\s+(?:this|the current)\s+(?:chapter|book)\b/gi,
+  // bare "this chapter", "the current book", …
+  /\b(?:this|the current)\s+(?:chapter|book)\b/gi,
+  // "last chapter", "the previous chapter", "the next chapter"
+  /\b(?:the\s+)?(?:last|previous|next)\s+chapter\b/gi,
+  // viewing-relative adverbs
+  /\b(?:recently|currently|presently|right now|at present|as of now|for now|nowadays)\b/gi,
+];
+
+/**
+ * Strip viewing-relative deixis from a cross-book description and tidy the result.
+ * Total on any input; returns null when nothing substantive remains (F13). We cannot
+ * recover the true story-time delta from the graph, so the honest minimum is to
+ * remove the false relative anchor rather than assert a new (also-wrong) one.
+ */
+function neutralizeCrossBookDeixis(description: string | null): string | null {
+  if (description == null) return null;
+  let out = description;
+  for (const re of CROSS_BOOK_DEIXIS) out = out.replace(re, " ");
+  out = out
+    .replace(/\s+/g, " ")
+    .replace(/\s+([,.;:!?])/g, "$1")          // space before punctuation
+    .replace(/([,;:])(?:\s*[,;:])+/g, "$1")    // collapse repeated separators
+    .replace(/\(\s*\)/g, "")                    // empty parens left by a removal
+    .replace(/^[\s,;:.–—-]+/, "")     // leading punctuation/space
+    .replace(/[\s,;:–—-]+$/, "")      // trailing separators (keep a sentence period)
+    .trim();
+  return out.length > 0 ? out : null;
+}
+
 function matchCharacters(
   onStageNames: string[],
   prior: PriorCharacter[]
@@ -156,8 +195,20 @@ function toneDrift(
 
 export function buildAmbientContext(input: AmbientContextInput): AmbientContextView {
   const onStage = (input.onStageNames ?? []).filter((n) => normalize(n).length > 0);
-  const prior = (input.priorBookCharacters ?? []).filter((c) => c.bookNumber < input.currentBookNumber);
-  const characters = matchCharacters(onStage, prior);
+  // D-25/F4 latest-book-wins: the CURRENT book is itself a recency candidate, so a
+  // carried-over character surfaces their freshest series state (isLater picks it),
+  // not a frozen prior-book snapshot. `<=` keeps the current book in and still bars
+  // any future book. (The route also feeds the current book's own states in alongside
+  // the prior books' — this filter is the last-line guard.)
+  const series = (input.priorBookCharacters ?? []).filter((c) => c.bookNumber <= input.currentBookNumber);
+  // F13: neutralize viewing-relative deixis ONLY on records carried from an EARLIER
+  // book (where "this chapter" no longer means what it meant when authored). A record
+  // whose latest state IS the current book is left in-frame, untouched.
+  const characters = matchCharacters(onStage, series).map((v) =>
+    v.lastBook < input.currentBookNumber
+      ? { ...v, description: neutralizeCrossBookDeixis(v.description) }
+      : v
+  );
 
   // DEVIATION FROM PLAN (implementer note, see report): the plan built
   // onStageNorm from the raw onStageNames tokens only. That fails the

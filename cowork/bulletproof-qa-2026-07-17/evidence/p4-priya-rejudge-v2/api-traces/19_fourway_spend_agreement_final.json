@@ -1,0 +1,44 @@
+{
+  "batchId": "cmrt0ciip0003x40frsokcea2",
+  "terminal_status": "done",
+  "batchRun_spentUsd": 0.148133655,
+  "digest_spentUsd": 0.148133655,
+  "db_actualCostUsd_sum": 0.14813365499999998,
+  "notification_title": "Overnight batch complete",
+  "notification_message": "3/3 passes · 46 findings · $0.15 / $10.00 cap",
+  "notification_parsed_spend": 0.15,
+  "per_session": [
+    {
+      "id": "18b50474-ba33-415c-8b86-c07e85237398",
+      "status": "completed",
+      "chapterNumber": 1,
+      "actualCostUsd": 0.03306791999999999
+    },
+    {
+      "id": "588cdf05-dfad-4f23-ba11-f313c9816999",
+      "status": "completed",
+      "chapterNumber": 2,
+      "actualCostUsd": 0.06514055999999999
+    },
+    {
+      "id": "d5a73650-9173-43da-aebf-e4f787ab6414",
+      "status": "completed",
+      "chapterNumber": 3,
+      "actualCostUsd": 0.049925175
+    }
+  ],
+  "fourway_agreement": {
+    "all_present": true,
+    "nonzero": true,
+    "batchRun_eq_digest": true,
+    "db_eq_batchRun_exact": true,
+    "notif_eq_batchRun_2dp": true
+  },
+  "passes": {
+    "total": 3,
+    "failed": 0,
+    "skipped": 0,
+    "completed": 3
+  },
+  "findings_total": 46
+}

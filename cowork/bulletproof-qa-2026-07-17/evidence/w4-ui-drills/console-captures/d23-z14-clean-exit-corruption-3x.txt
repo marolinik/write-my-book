@@ -1,0 +1,82 @@
+  1) [chromium] › tests\e2e\w4-data-safety-drills.spec.ts:126:9 › Z14 — immersive-mode unload flush › clean Escape-exit persists instantly; crash after 0s burst (single keystroke, immediate crash) recovers via unload guard 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: locator('.ProseMirror')
+    Expected substring: [32m"clean-exit-1784342590950"[39m
+    Received string:    [31m"<p>950Z14 baseline 1784342582337-w0.</p>"[39m
+    Timeout: 10000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 10000ms[22m
+    [2m  - waiting for locator('.ProseMirror')[22m
+    [2m    13 × locator resolved to <div tabindex="0" role="textbox" translate="no" aria-multiline="true" contenteditable="true" aria-label="Editing chapter 1" class="tiptap ProseMirror max-w-[680px] w-full mx-auto px-4 sm:px-6 ProseMirror-focused">…</div>[22m
+    [2m       - unexpected value "<p>950Z14 baseline 1784342582337-w0.</p>"[22m
+
+
+      147 |       // syncImmersiveToEditor runs synchronously on exit — main editor should
+      148 |       // already show the words even before the next autosave tick.
+    > 149 |       await expect(page.locator(".ProseMirror")).toContainText(cleanMarker);
+          |                                                  ^
+      150 |       await expect(saveStatus(page)).toContainText("Saved", { timeout: 10_000 });
+      151 |       const afterClean = await getServerContent(request, contentUrl);
+      152 |       expect(afterClean.markdown).toContain(cleanMarker);
+        at D:\Projects\wmb-pub\tests\e2e\w4-data-safety-drills.spec.ts:149:50
+
+    Error Context: test-results\w4-data-safety-drills-Z14--677ee-h-recovers-via-unload-guard-chromium\error-context.md
+
+  2) [chromium] › tests\e2e\w4-data-safety-drills.spec.ts:126:9 › Z14 — immersive-mode unload flush › clean Escape-exit persists instantly; crash after 5s burst (sub max-wait, immediate crash) recovers via unload guard 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: locator('.ProseMirror')
+    Expected substring: [32m"clean-exit-1784342623998"[39m
+    Received string:    [31m"<p>23998Z14 baseline 1784342615561-w1.</p>"[39m
+    Timeout: 10000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 10000ms[22m
+    [2m  - waiting for locator('.ProseMirror')[22m
+    [2m    13 × locator resolved to <div tabindex="0" role="textbox" translate="no" aria-multiline="true" contenteditable="true" aria-label="Editing chapter 1" class="tiptap ProseMirror max-w-[680px] w-full mx-auto px-4 sm:px-6 ProseMirror-focused">…</div>[22m
+    [2m       - unexpected value "<p>23998Z14 baseline 1784342615561-w1.</p>"[22m
+
+
+      147 |       // syncImmersiveToEditor runs synchronously on exit — main editor should
+      148 |       // already show the words even before the next autosave tick.
+    > 149 |       await expect(page.locator(".ProseMirror")).toContainText(cleanMarker);
+          |                                                  ^
+      150 |       await expect(saveStatus(page)).toContainText("Saved", { timeout: 10_000 });
+      151 |       const afterClean = await getServerContent(request, contentUrl);
+      152 |       expect(afterClean.markdown).toContain(cleanMarker);
+        at D:\Projects\wmb-pub\tests\e2e\w4-data-safety-drills.spec.ts:149:50
+
+    Error Context: test-results\w4-data-safety-drills-Z14--4d004-h-recovers-via-unload-guard-chromium\error-context.md
+
+  3) [chromium] › tests\e2e\w4-data-safety-drills.spec.ts:126:9 › Z14 — immersive-mode unload flush › clean Escape-exit persists instantly; crash after 30s burst (multiple max-wait cycles, immediate crash) recovers via unload guard 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: locator('.ProseMirror')
+    Expected substring: [32m"[7mclean-exit[27m-1784342671494"[39m
+    Received string:    [31m"[7m<p>[27m-1784342671494[7mZ14 baseline 1784342664218-w2.</p>[27m"[39m
+    Timeout: 10000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 10000ms[22m
+    [2m  - waiting for locator('.ProseMirror')[22m
+    [2m    13 × locator resolved to <div tabindex="0" role="textbox" translate="no" aria-multiline="true" contenteditable="true" aria-label="Editing chapter 1" class="tiptap ProseMirror max-w-[680px] w-full mx-auto px-4 sm:px-6 ProseMirror-focused">…</div>[22m
+    [2m       - unexpected value "<p>-1784342671494Z14 baseline 1784342664218-w2.</p>"[22m
+
+
+      147 |       // syncImmersiveToEditor runs synchronously on exit — main editor should
+      148 |       // already show the words even before the next autosave tick.
+    > 149 |       await expect(page.locator(".ProseMirror")).toContainText(cleanMarker);
+          |                                                  ^
+      150 |       await expect(saveStatus(page)).toContainText("Saved", { timeout: 10_000 });
+      151 |       const afterClean = await getServerContent(request, contentUrl);
+      152 |       expect(afterClean.markdown).toContain(cleanMarker);
+        at D:\Projects\wmb-pub\tests\e2e\w4-data-safety-drills.spec.ts:149:50
+
+    Error Context: test-results\w4-data-safety-drills-Z14--8e160-h-recovers-via-unload-guard-chromium\error-context.md
+
+  4) [chromium] › tests\e2e\w4-data-safety-drills.spec.ts:199:7 › Network-kill / crash-restart (user_qa_p2 — env-unblocked variant) › hard crash mid-typing recovers the draft on next load 

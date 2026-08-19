@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { createChapterSchema } from "@/lib/validation";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { zodErrorResponse } from "@/lib/api/zod-error";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -42,7 +44,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id: bookId } = await params;
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = createChapterSchema.parse(body);
 
     const book = await db.book.findFirst({
@@ -62,19 +64,34 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       },
     });
 
-    // Update book chapter count
+    // D-194: store the AUTHORITATIVE count, not a blind +1. A blind delta
+    // silently preserves any pre-existing drift (books created before the
+    // placeholder-Chapter-1 fix start at 0 with one real chapter), while a
+    // recount converges the denormalised column on every create.
+    const chapterCount = await db.chapter.count({ where: { bookId } });
     await db.book.update({
       where: { id: bookId },
-      data: { chapterCount: { increment: 1 } },
+      data: { chapterCount },
     });
 
     return NextResponse.json(chapter, { status: 201 });
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if ((error as Error).name === "ZodError") {
-      return NextResponse.json({ error: "Invalid input", details: error }, { status: 400 });
+    const zodRes = zodErrorResponse(error);
+    if (zodRes) return zodRes;
+    // D-20: a duplicate chapterNumber (e.g. the auto-created placeholder
+    // Chapter 1) trips the @@unique([bookId, chapterNumber]) constraint, which
+    // Prisma raises as P2002. That is a client/conflict condition, not a server
+    // fault — return a clean 409, not a raw 500.
+    if ((error as { code?: string })?.code === "P2002") {
+      return NextResponse.json(
+        { error: "A chapter with that number already exists in this book" },
+        { status: 409 }
+      );
     }
     console.error("POST /api/books/:id/chapters error:", error);
     return NextResponse.json(

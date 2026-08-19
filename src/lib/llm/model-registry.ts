@@ -40,6 +40,18 @@ export interface ModelDefinition {
    * accepts our default request size; a missing value means "no known cap".
    */
   maxOutputTokens?: number;
+  /**
+   * Proven unusable for quick-assist (ghost-text + inline-edit): at those
+   * surfaces' tiny output budgets the model spends the ENTIRE budget on
+   * thinking / redacted_thinking blocks and returns no usable text, and its
+   * reasoning cannot be reliably disabled (D-100: `reasoning:{enabled:false}`
+   * proved ineffective on qwen/qwen3.6-27b — 6/6 thinking-only). Quick-assist
+   * MUST route around any model carrying this flag (see
+   * {@link resolveQuickAssistModelFor}); the honest MODEL_NO_QUICK_SUGGEST 422
+   * stays the backstop for UNFLAGGED models we haven't proven. Flag ONLY models
+   * observed to fail this way — never speculatively.
+   */
+  unfitForQuickAssist?: boolean;
 }
 
 /** Compute cost tier from output cost per 1M tokens */
@@ -219,6 +231,8 @@ export const MODEL_REGISTRY: ModelDefinition[] = [
     costTier: "$$",
     supportsTools: true,
     supportsStreaming: true,
+    // D-116/D-117: reasoning model — burns quick-assist budgets on thinking.
+    unfitForQuickAssist: true,
   },
   {
     id: "openrouter-qwen36/sonnet",
@@ -231,6 +245,8 @@ export const MODEL_REGISTRY: ModelDefinition[] = [
     costTier: "$$",
     supportsTools: true,
     supportsStreaming: true,
+    // D-116/D-117: reasoning model — burns quick-assist budgets on thinking.
+    unfitForQuickAssist: true,
   },
   {
     id: "openrouter-qwen36/haiku",
@@ -243,6 +259,8 @@ export const MODEL_REGISTRY: ModelDefinition[] = [
     costTier: "$$",
     supportsTools: true,
     supportsStreaming: true,
+    // D-116/D-117: reasoning model — burns quick-assist budgets on thinking.
+    unfitForQuickAssist: true,
   },
   // ── Qwen Max Thinking via OpenRouter ──────────────────────────
   {
@@ -573,6 +591,48 @@ export function resolveCheapModelFor(defaultModelId: string): ModelDefinition {
     MODEL_REGISTRY.find((m) => m.provider === provider && m.tier === "haiku") ??
     getModelDef("anthropic/haiku")!
   );
+}
+
+/**
+ * Resolve the model to use for the quick-assist surfaces (ghost-text +
+ * inline-edit), routing AROUND any model that is {@link
+ * ModelDefinition.unfitForQuickAssist}.
+ *
+ * The cheap-tier resolution ({@link resolveCheapModelFor}) is prefix-based, so a
+ * user whose default is a reasoning model whose OWN "/haiku" slot aliases the
+ * SAME reasoning model (the seeded `openrouter-qwen36/*` → qwen/qwen3.6-27b)
+ * never escapes reasoning — every quick-assist call burns its tiny budget on
+ * thinking and returns no text (D-116/D-117). When the cheap candidate is
+ * flagged unfit, we substitute the cheapest non-reasoning "haiku"-tier model
+ * from the SAME provider (so a single-key BYOK user keeps working) — for
+ * OpenRouter that is DeepSeek V3.2 (outputCost 0.4, capture-proven fast text).
+ *
+ * Pure and non-mutating. `registry` is injectable purely for unit-testing the
+ * no-alternative passthrough branch; production callers pass a single argument
+ * and get the full registry.
+ */
+export function resolveQuickAssistModelFor(
+  defaultModelId: string,
+  registry: readonly ModelDefinition[] = MODEL_REGISTRY,
+): ModelDefinition {
+  const candidate = resolveCheapModelFor(defaultModelId);
+  if (!candidate.unfitForQuickAssist) return candidate;
+
+  // Same-provider fallbacks keep single-key BYOK users working; cheapest wins,
+  // with a deterministic id tiebreak. If none exists the honest 422 net stays
+  // the backstop, so return the (flagged) candidate unchanged.
+  const alternatives = registry.filter(
+    (m) =>
+      m.provider === candidate.provider &&
+      m.tier === "haiku" &&
+      !m.unfitForQuickAssist,
+  );
+  if (alternatives.length === 0) return candidate;
+
+  return [...alternatives].sort(
+    (a, b) =>
+      a.outputCostPer1M - b.outputCostPer1M || a.id.localeCompare(b.id),
+  )[0];
 }
 
 /** Get all models for a given provider. */

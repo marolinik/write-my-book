@@ -1,0 +1,30 @@
+=== D-03 defect repro summary (full SHA-256 proof + root cause in defects.md) ===
+Setup: chapters 'No Names in Marseille' and 'The Koszeg Drop' were reordered (chapterNumber
+swapped via PATCH /api/books/:id/chapters/reorder) during the W4 concurrent-reorder test.
+
+POST /api/books/636a1f02-8520-4b66-8e78-08c8e0fee5f0/export  body={"format":"docx"}
+  -> status=200
+  Response body: {
+  "filename": "Dead-Reckoning-31-QA-P2-2026-07-17T22-44-24.docx",
+  "storageKey": "exports/Dead-Reckoning-31-QA-P2-2026-07-17T22-44-24.docx",
+  "wordCount": 40576,
+  "chapterCount": 8,
+  "estimatedPages": 116,
+  "warnings": [],
+  "format": "docx"
+}
+
+Direct GET of live chapter content (DB source of truth, NOT affected by the bug):
+  GET /api/books/636a1f02-8520-4b66-8e78-08c8e0fee5f0/chapters/f060b6ec-2dd6-4de5-8b24-7a21fa38a64f/content
+    title/chapter: No Names in Marseille (CH4 id, now chapterNumber 5)
+    -> version=2 content_sha256_16=226b39d978fbf72e
+    first 120 chars: '# No Names in Marseille\n\n\n\nAmara counted [[REPLACED]] exits before she counted [[REPLACED]] seconds. He weighed [[REPLAC'
+
+  GET /api/books/636a1f02-8520-4b66-8e78-08c8e0fee5f0/chapters/82129a3b-4222-42e9-abb2-1038cf63a87a/content
+    title/chapter: The Koszeg Drop (CH5 id, now chapterNumber 4)
+    -> version=2 content_sha256_16=c1f0a3a7f36badb7
+    first 120 chars: '# [[REPLACED]] Kőszeg Drop\n\n\n\nMarchetti had learned, [[REPLACED]] hard way, that a jalapeño smile bought more time than '
+
+See defects.md D-03 for the full byte-exact SHA cross-comparison proving the exported
+docx swaps these two chapters' body content under each other's (correct) heading, and the
+root-cause pinpoint in src/lib/import-export/export-pipeline.ts.

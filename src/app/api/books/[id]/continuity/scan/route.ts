@@ -2,12 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { updateFromChapter } from "@/lib/graph/graph-maintenance";
+import {
+  updateFromChapter,
+  getChapterExtractionFacts,
+  MAX_EMPTY_EXTRACTION_ATTEMPTS,
+  MAX_FAILED_EXTRACTION_ATTEMPTS,
+  FAILED_BACKOFF_MS,
+} from "@/lib/graph/graph-maintenance";
 import { getExtractionKeysForUser } from "@/lib/agents/extraction-keys";
 import { runConsistencyChecks, getChapterNodeUpdatedAt } from "@/lib/graph/graph-queries";
 import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
 import { toContinuityFlags, shouldExtract } from "@/lib/continuity/continuity-flags";
+import {
+  deriveExtractionStatus,
+  type ExtractionStatusView,
+} from "@/lib/continuity/extraction-status";
 import { planFlagSync, type ExistingFlag } from "@/lib/continuity/flag-sync";
 
 export const dynamic = "force-dynamic";
@@ -40,9 +50,15 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     if (!book) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
     // ── Throttled graph refresh (best-effort; failure never 500s). ──
+    // Track WHY extraction did or didn't run so the response can report an
+    // honest state (RC-4): extracting (fired now) / throttled (recently done) /
+    // else fall through to what the graph facts say.
+    const now = new Date();
+    let justTriggered = false;
+    let throttled = false;
     try {
       const lastExtracted = await withTimeout(getChapterNodeUpdatedAt(bookId, chapterNumber), GRAPH_TIMEOUT_MS);
-      if (shouldExtract(lastExtracted, new Date(), EXTRACT_MIN_INTERVAL_MS)) {
+      if (shouldExtract(lastExtracted, now, EXTRACT_MIN_INTERVAL_MS)) {
         const svc = new DocumentService(user.id, bookId);
         const doc = await svc.findByType(DocumentType.CHAPTER_CONTENT, chapterNumber);
         if (doc) {
@@ -60,28 +76,54 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
           // chapter — do NOT block the scan response on it. The checks below run
           // on the CURRENT graph; this refresh improves the NEXT scan. Mirrors the
           // post-session extraction pattern (updateChapterGraph is also detached).
+          // The billing cap now lives INSIDE updateFromChapter, so a permanently
+          // failing chapter stops re-billing after MAX_EMPTY_EXTRACTION_ATTEMPTS.
           void updateFromChapter(
             bookId,
             chapterNumber,
             content,
             dbUser?.defaultModel ?? undefined,
-            keys
+            keys,
+            user.id
           ).catch((e) =>
             console.error("[continuity-scan] background extraction failed:", e)
           );
+          justTriggered = true;
         }
+      } else {
+        throttled = true;
       }
     } catch (err) {
       console.error("[continuity-scan] extraction skipped:", err);
     }
 
+    // ── Honest extraction status (read-only; never billed, never 500s). ──
+    // Turns the previously-ambiguous empty flag list into an explicit
+    // pending / extracting / failed / checked signal (+ billing-cap + throttle).
+    let extraction: ExtractionStatusView | null = null;
+    try {
+      const facts = await withTimeout(getChapterExtractionFacts(bookId, chapterNumber), GRAPH_TIMEOUT_MS);
+      extraction = deriveExtractionStatus({
+        facts,
+        justTriggered,
+        throttled,
+        now,
+        minIntervalMs: EXTRACT_MIN_INTERVAL_MS,
+        maxAttempts: MAX_EMPTY_EXTRACTION_ATTEMPTS,
+        maxFailedAttempts: MAX_FAILED_EXTRACTION_ATTEMPTS,
+        failedBackoffMs: FAILED_BACKOFF_MS,
+      });
+    } catch (err) {
+      console.error("[continuity-scan] extraction status unavailable:", err);
+    }
+
     // ── Detect (pure Cypher, book-wide). On failure: empty, delete NOTHING. ──
     let issues;
     try {
-      issues = await withTimeout(runConsistencyChecks(bookId), GRAPH_TIMEOUT_MS);
+      issues = await withTimeout(runConsistencyChecks(bookId, user.id), GRAPH_TIMEOUT_MS);
     } catch (err) {
       console.error("[continuity-scan] check failed:", err);
-      return NextResponse.json({ flags: [], degraded: true });
+      return NextResponse.json({ flags: [], degraded: true, extraction });
     }
 
     // ── Load existing flags (active for the diff; intentional for the filter). ──
@@ -149,7 +191,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       });
     }
 
-    return NextResponse.json({ flags });
+    return NextResponse.json({ flags, extraction });
   } catch (error) {
     if ((error as Error).message === "Unauthorized") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     console.error("[continuity-scan]", error);

@@ -1,0 +1,38 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "http://localhost:3002/api/memory?bookId=4116055c-6183-4675-926a-e04f31126951",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p1"
+    },
+    "body": null
+  },
+  "status": 200,
+  "error": null,
+  "responseHeaders": {
+    "connection": "keep-alive",
+    "content-type": "application/json",
+    "date": "Mon, 20 Jul 2026 11:23:58 GMT",
+    "keep-alive": "timeout=5",
+    "transfer-encoding": "chunked",
+    "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+  },
+  "body": [
+    {
+      "id": "cef57b13-86b4-4c94-91f3-b9d3d9cdadac",
+      "userId": "d65a17d8-c0df-4e49-82fa-2291cad77886",
+      "bookId": "4116055c-6183-4675-926a-e04f31126951",
+      "findingId": "25499afe-9758-482a-a65c-53436e7e3538",
+      "category": "preference",
+      "content": "Leave strong final images or fragments untouched when followed by brief explanatory lines; treat the pattern as intentional across the manuscript.",
+      "source": "conversation",
+      "active": true,
+      "createdAt": "2026-07-18T00:05:58.660Z",
+      "updatedAt": "2026-07-18T00:05:58.660Z"
+    }
+  ],
+  "bodyIsRawText": false,
+  "elapsed_ms": 3198,
+  "capturedAt": "2026-07-20T11:23:58.190Z"
+}

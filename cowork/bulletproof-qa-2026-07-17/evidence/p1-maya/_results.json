@@ -1,0 +1,75 @@
+{
+  "persona": "P1 Maya (debut novelist, Indie plan, BYOK OpenRouter qwen/qwen3.6-27b)",
+  "bookId": "4116055c-6183-4675-926a-e04f31126951",
+  "date": "2026-07-17/18",
+  "steps": {
+    "step1_d8_loop": {
+      "verdict": "FAIL",
+      "detail": "ORIGINAL RUN (pre-fix): Discuss returned HTTP 200 with genuinely empty assistantMessage on all 3 real LLM turns (D-02, later renumbered D-04). No REMEMBER block ever emitted -> zero WriterMemory rows before and after dismiss. Turn-cap correctly 409s on turn 4 regardless. Dismiss PATCH succeeded cleanly. Dev-edit-2 run did not re-raise the dismissed finding but this could not be attributed to a functional WriterMemory mechanism (it was nonfunctional) -- unconfirmed whether dedup or stochasticity."
+    },
+    "step1_d8_loop_rerun_20260718": {
+      "verdict": "FAIL -- split verdict: persistence half FIXED-VERIFIED (D-04), honored half FAIL (D-13, S2, assigned by team-lead 2026-07-18, status OPEN/fix in progress)",
+      "detail": "Post-fix re-run of the full D8 loop via real mechanism (discuss-llm.ts fix: max_tokens 700->2500, retry-once, DiscussLLMEmptyError->502). 3/3 real discuss turns now produce non-empty, substantive replies with structured suggestedConstraint (turn1 25s, turn2 recovered from a 60s client-side HTTP timeout -- confirmed server-side via GET thread check, not a repeat of the original bug -- turn3 49.3s). Turn4 409s correctly (cap intact, no LLM call). Dismiss PATCH 200. WriterMemory: baseline [] -> 1 row after dismiss, content verbatim-matches turn3 suggestedConstraint (first time this campaign this mechanism verified working end-to-end via live LLM round-trips). Fresh dev-edit-3 run (session 11d0cf46, 437.1s, 798 SSE events, complete) on the SAME unchanged chapter content then produced new finding d0f79766 targeting the byte-identical originalText as the dismissed, memory-backed finding 25499afe -- same category/paragraph/substantive edit. Root-caused via code, not just observed: WriterMemory correctly injected (assembleAgentPrompt, prompt-assembler.ts:1445/1587-1604), <finding_history> correctly injected for dev-editor specifically (definitions.ts:201, the only profile with findingHistory:true), and dev-editor's own system prompt has an explicit 'do not re-flag DISMISSED findings unless critical severity' instruction (prompt-assembler.ts ~333-337) which the new finding (severity: suggestion, not critical) directly violates. Content-hash dedup (tools.ts:1250-1269) hashes the model's freshly-paraphrased description text, which differs between the two findings, so dedup structurally never fires for this pattern -- confirmed not a valid explanation. Hash-variation control judged unnecessary: the result is an unambiguous re-raise with a traced root cause, not the ambiguous case the control exists for. 502 error path from the fix was not live-triggered this run (nothing failed) -- verified only at unit-test level."
+    },
+    "step2_edge_cases": {
+      "invalid_byok_key": "PASS - clean 400, no leak",
+      "turn_cap_409": "PASS - fires exactly on 4th turn",
+      "d01_malformed_json_repro": "FAIL (D-01, cross-ref P8 Rita) - PATCH /api/books/:id with malformed JSON -> 500 instead of 400/422; control read confirms no partial write"
+    },
+    "step3_return_visit": {
+      "verdict": "PASS",
+      "detail": "psql backdate (INSERT ONLY, Maya's own document_versions row, book_id-fenced) of a 'yesterday' session (380 words, 2026-07-16T19:30Z) alongside today's real 704-word chapter. writing-stats correctly shows dailyCounts 380+324=704 (exact match to actual chapter word count), streak=2, bestStreak=2, weeklyAvg=101 (704/7 rounded). daily-plan correctly reflects real chapter status (dev_edited -> recommends line-edit, not a canned response)."
+    },
+    "step4_tier_probe": {
+      "verdict": "PASS",
+      "detail": "Indie-plan POST /api/series -> clean 403 with upgrade copy. Control GET on Maya's own book immediately after -> 200, fully unaffected (no collateral blast radius from the denied action)."
+    },
+    "step5_worker_proof": {
+      "verdict": "PASS",
+      "detail": "Single worker runtime confirmed (leaf PID 37060) before the D8 dev-edit measurement per GRADING-PROTOCOL SS8, and re-confirmed unchanged after an unplanned app-server restart mid-session."
+    }
+  },
+  "defects_new": [
+    {
+      "id": "D-04",
+      "title": "Discuss endpoint silently returns empty replies (200, not error) for reasoning-capable BYOK model",
+      "severity": "S2",
+      "confirmed": true,
+      "repro_count": 3,
+      "root_cause": "discuss-llm.ts max_tokens:700 likely exhausted by qwen3.6-27b's internal reasoning before any text-typed content block is emitted; .find(b=>b.type==='text') returns undefined -> '' returned as if successful",
+      "impact": "Entire discuss -> WriterMemory -> honored loop (D8) non-functional for this campaign's own Indie BYOK validation model/persona configuration",
+      "status": "FIXED-VERIFIED 2026-07-18: max_tokens 700->2500 + retry-once on empty/max_tokens finish reason + DiscussLLMEmptyError->502 (not persisted, turn not consumed). Re-run: 3/3 real discuss turns non-empty with suggestedConstraint; WriterMemory row appears after dismiss and matches verbatim. 502 path unit-tested, not live-triggered (no failures occurred in re-run). See journey-log.md Step 1 RE-RUN (2026-07-18)."
+    },
+    {
+      "id": "D-13",
+      "title": "Dev-editor re-flags a dismissed, memory-backed, non-critical finding on unchanged content -- violates its own system-prompt instruction",
+      "severity": "S2",
+      "confirmed": true,
+      "repro_count": 1,
+      "assigned_by": "team-lead, 2026-07-18",
+      "root_cause": "Not a plumbing gap -- WriterMemory correctly injected unconditionally (prompt-assembler.ts:1445/1587-1604 via orchestrator.ts:169), <finding_history> correctly injected for dev-editor specifically (definitions.ts:201, only profile with findingHistory:true), and dev-editor's system prompt has an explicit 'do not re-flag DISMISSED findings unless critical severity' instruction (prompt-assembler.ts ~333-337) -- the re-raised finding is severity 'suggestion' (not critical) so the exception doesn't apply, and the model violates the instruction anyway. Content-hash dedup (tools.ts:1250-1269) hashes the model's freshly-reworded description text, which differs between the dismissed and re-raised findings, so dedup structurally cannot catch this pattern.",
+      "impact": "D8's core promise ('tell the AI editor your intent once, it remembers going forward') does not hold end-to-end even with D-04 fixed -- writer sees the same critique resurface on a finding they already dismissed and backed with a stated constraint.",
+      "hash_variation_control": "not run -- judged unnecessary and confirmed unnecessary by team-lead: this is an unambiguous re-raise with a code-traced structural root cause, not the ambiguous case the control exists to disambiguate.",
+      "status": "OPEN, fix in progress 2026-07-18: deterministic suppression of re-raised findings matching a dismissed finding's originalText+category at persist time, with a critical-severity exception. Will re-verify with a third dev-edit run once it lands."
+    }
+  ],
+  "defects_cross_referenced": [
+    {
+      "id": "D-01",
+      "title": "Malformed JSON body -> 500 instead of 400/422 (architectural, multi-route)",
+      "source": "originally documented by P8 Rita",
+      "new_repro": "PATCH /api/books/:id, persona P1 (Indie, not Professional) -- confirms fault is persona- and route-independent (3rd route confirmed)"
+    }
+  ],
+  "defects_retracted": [
+    {
+      "claim": "em-dash mojibake in discuss turn 1/2 responses",
+      "reason": "Windows Git-Bash console re-encoding artifact on display only; raw JSON files confirmed correct UTF-8 via Read/Grep tools"
+    },
+    {
+      "claim": "U+FFFD corruption in finding.description field after dismiss",
+      "reason": "Same console-display artifact; raw evidence files (finding-dismiss.json, findings-after-dismiss.json) confirmed byte-correct en-dash/em-dash throughout, no corruption ever existed"
+    }
+  ],
+  "proposed_grades_note": "D8 (writer intent honored) hard floor requires >=9.0 per GRADING-PROTOCOL -- this persona's evidence supports a FAIL on D8 given the discuss mechanism is completely non-functional (0/3 real turns produced content), not a partial/borderline score. Other dimensions this persona touched (tier-gate integrity, input-validation robustness, dashboard/stats correctness, worker-singleton discipline) all PASS with real evidence. Final numeric grading is the orchestrator's call per campaign convention (see P8 Rita's defects.md preamble)."
+}

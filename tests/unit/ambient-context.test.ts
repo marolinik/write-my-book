@@ -158,3 +158,96 @@ describe("buildAmbientContext — tone drift", () => {
     expect(v.toneDrift!.metrics.find((m) => m.key === "avgSentencesPerParagraph")).toBeUndefined();
   });
 });
+
+describe("buildAmbientContext — current book as recency candidate (D-25/F4)", () => {
+  it("surfaces the CURRENT book's state over a frozen prior-book state (latest-book-wins)", () => {
+    const milanPrior: PriorCharacter = {
+      bookNumber: 1, name: "Milan", aliases: [], role: "supporting",
+      status: "alive", lastMentioned: 5, description: "captain of the guard",
+    };
+    // The book-2 record IS the current book (currentBookNumber 2). It must NOT be
+    // filtered out as "not prior" — it is the freshest series state and must win.
+    const milanCurrent: PriorCharacter = {
+      bookNumber: 2, name: "Milan", aliases: [], role: "supporting",
+      status: "dead", lastMentioned: 3, description: "captain of the guard",
+    };
+    const v = buildAmbientContext(base({
+      currentBookNumber: 2,
+      onStageNames: ["Milan"],
+      priorBookCharacters: [milanPrior, milanCurrent],
+    }));
+    expect(v.characters).toHaveLength(1);
+    expect(v.characters[0].lastBook).toBe(2);
+    expect(v.characters[0].lastChapter).toBe(3);
+    expect(v.characters[0].status).toBe("dead");
+  });
+
+  it("still surfaces a carried-over character that has no current-book record yet", () => {
+    const milanPrior: PriorCharacter = {
+      bookNumber: 1, name: "Milan", aliases: [], role: "supporting",
+      status: "alive", lastMentioned: 5, description: "captain of the guard",
+    };
+    const v = buildAmbientContext(base({
+      currentBookNumber: 2, onStageNames: ["Milan"], priorBookCharacters: [milanPrior],
+    }));
+    expect(v.characters).toHaveLength(1);
+    expect(v.characters[0].lastBook).toBe(1);
+  });
+
+  it("never treats a FUTURE book as a candidate (guards the <= boundary)", () => {
+    const future: PriorCharacter = {
+      bookNumber: 3, name: "Milan", aliases: [], role: "supporting",
+      status: "alive", lastMentioned: 9, description: "d",
+    };
+    const v = buildAmbientContext(base({
+      currentBookNumber: 2, onStageNames: ["Milan"], priorBookCharacters: [future],
+    }));
+    expect(v.characters).toEqual([]);
+  });
+});
+
+describe("buildAmbientContext — cross-book deictic descriptions (F13)", () => {
+  it("neutralizes viewing-relative deixis baked into a PRIOR-book description", () => {
+    const corvin: PriorCharacter = {
+      bookNumber: 1, name: "Corvin", aliases: [], role: "supporting",
+      status: "dead", lastMentioned: 5, description: "died one month prior to this chapter",
+    };
+    const v = buildAmbientContext(base({
+      currentBookNumber: 2, onStageNames: ["Corvin"], priorBookCharacters: [corvin],
+    }));
+    const d = (v.characters[0].description ?? "").toLowerCase();
+    expect(d).not.toContain("this chapter");
+    expect(d).not.toContain("prior to");
+    expect(v.characters[0].description).toContain("died"); // the substantive fact survives
+  });
+
+  it("strips several relative-time anchors and leaves clean prose", () => {
+    const vane: PriorCharacter = {
+      bookNumber: 1, name: "Vane", aliases: [], role: "supporting",
+      status: "alive", lastMentioned: 4, description: "As of this chapter, currently imprisoned in the Cinder Ward",
+    };
+    const v = buildAmbientContext(base({ currentBookNumber: 2, onStageNames: ["Vane"], priorBookCharacters: [vane] }));
+    const d = (v.characters[0].description ?? "").toLowerCase();
+    expect(d).not.toContain("this chapter");
+    expect(d).not.toContain("currently");
+    expect(d).toContain("imprisoned in the cinder ward");
+  });
+
+  it("leaves a CURRENT-book description untouched (deixis in-frame, not cross-book)", () => {
+    const milan: PriorCharacter = {
+      bookNumber: 2, name: "Milan", aliases: [], role: "supporting",
+      status: "alive", lastMentioned: 3, description: "wounded earlier this chapter",
+    };
+    const v = buildAmbientContext(base({ currentBookNumber: 2, onStageNames: ["Milan"], priorBookCharacters: [milan] }));
+    expect(v.characters[0].description).toBe("wounded earlier this chapter");
+  });
+
+  it("returns null when neutralizing leaves nothing substantive", () => {
+    const ghost: PriorCharacter = {
+      bookNumber: 1, name: "Ghost", aliases: [], role: "minor",
+      status: "alive", lastMentioned: 2, description: "as of this chapter",
+    };
+    const v = buildAmbientContext(base({ currentBookNumber: 2, onStageNames: ["Ghost"], priorBookCharacters: [ghost] }));
+    expect(v.characters[0].description).toBeNull();
+  });
+});

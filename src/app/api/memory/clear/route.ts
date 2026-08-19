@@ -3,11 +3,12 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { clearBookMemory } from "@/lib/vector";
 import { memoryClearSchema } from "@/lib/validation";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 export async function POST(request: NextRequest) {
   try {
     const user = await requireUser();
-    const body = await request.json();
+    const body = await parseJsonBody(request);
 
     const parsed = memoryClearSchema.safeParse(body);
     if (!parsed.success) {
@@ -39,6 +40,8 @@ export async function POST(request: NextRequest) {
       cleared: true,
     });
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     console.error("[memory/clear] Error:", error);
     return NextResponse.json(
       { error: "Failed to clear memory" },

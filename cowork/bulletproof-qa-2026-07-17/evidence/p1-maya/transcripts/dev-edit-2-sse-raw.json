@@ -1,0 +1,4001 @@
+{
+  "session_id": "9e4dfa42-daa3-4791-8ffb-ac3eec93d664",
+  "elapsed_s": 290.109,
+  "final_status": "complete",
+  "event_count": 1331,
+  "events": [
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Using tool: ReadInsights\",\"metadata\":{\"tool\":\"ReadInsights\",\"toolUseId\":\"call_49ae1c5da7784f74ba791710\"}}"
+    },
+    {
+      "data": "{\"type\":\"cost_update\",\"content\":\"$0.0071\",\"metadata\":{\"inputTokens\":24193,\"outputTokens\":92,\"costUsd\":0.007115804999999999,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Executing: ReadInsights\",\"metadata\":{\"tool\":\"ReadInsights\",\"toolInput\":{\"chapterNumber\":1},\"toolUseId\":\"call_49ae1c5da7784f74ba791710\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_result\",\"content\":\"No active insights on the blackboard.\",\"metadata\":{\"tool\":\"ReadInsights\",\"toolUseId\":\"call_49ae1c5da7784f74ba791710\"}}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Let\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" me\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" work\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" through\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Chapter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"1\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" systematically\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" across\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" all\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" phases\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"##\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" PH\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ASE\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"1\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" STRUCT\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"URE\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Check\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"1\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"6\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Opening\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" hook\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" strong\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" (\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"salt\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-st\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ained\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" envelopes\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"...\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\\").\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Scene\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" structure\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" functional\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"one\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" extended\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" moment\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" of\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" def\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"erral\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\").\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" P\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"acing\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" matches\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" genre\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" expectations\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" architecture\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"LOW\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" tension\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" for\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Ch\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"1\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\").\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Chapter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" arc\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" has\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" beginning\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"establish\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" letter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" pattern\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"),\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" middle\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"context\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" about\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Thomas\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" hiding\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" place\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" aunt\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"),\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" end\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"tw\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"elfth\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" letter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" arrives\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" she\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" def\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ers\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\").\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Near\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-zero\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" dialogue\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" consistent\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" with\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" style\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" fingerprint\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" T\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ension\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sources\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" are\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" present\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"d\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ram\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"atic\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" irony\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" internal\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" conflict\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" unanswered\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" questions\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\").\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"All\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" structural\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" checks\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" pass\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" No\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" findings\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" from\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Phase\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"1\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"##\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" PH\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ASE\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"2\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" C\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"RAFT\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Check\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"7\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" POV\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" —\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Close\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" third\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" maintained\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" throughout\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" No\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" head\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-h\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"opping\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" ✓\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Check\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"8\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Show\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" vs\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Tell\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" —\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Let\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" me\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" examine\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" paragraph\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"6\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" closely\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\">\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"She\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" thought\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" about\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" difference\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" between\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" people\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" who\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" rushed\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" toward\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" feeling\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" people\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" who\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" built\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" elaborate\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" structures\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" keep\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" it\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" at\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" surviv\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"able\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" distance\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" she\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" understood\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" with\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" particular\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" clarity\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sea\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" seemed\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" specialize\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" in\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" that\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" she\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" was\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" second\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" kind\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" that\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" she\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" had\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" likely\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" always\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" been\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Analysis\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" This\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sentence\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" categor\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"izes\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Im\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ogen\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" using\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" abstract\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" psycho\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-an\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"aly\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"tical\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" language\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" (\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"people\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" who\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" rushed\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" toward\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" feeling\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"people\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" who\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" built\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" elaborate\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" structures\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"she\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" was\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" second\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" kind\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\\").\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" chapter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" dominant\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" mode\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sensory\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-m\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"et\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"aph\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"orical\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" burns\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" t\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ides\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" ribs\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" heart\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"be\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ats\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" wet\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sand\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" lit\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" windows\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" This\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sentence\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" steps\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" out\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" of\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" that\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" mode\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" into\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" abstract\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" typ\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ology\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"—\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" second\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" kind\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" of\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" person\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" It\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" tells\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" us\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" her\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" psychology\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" as\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" category\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" rather\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" than\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" continuing\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" show\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" it\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" through\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" embodied\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" experience\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Jud\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"gment\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" This\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" show\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-t\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ell\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" opportunity\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" paragraph\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" builds\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" moment\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" of\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" clarity\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" on\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" shoreline\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" but\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" delivers\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" that\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" clarity\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" through\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" classification\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" rather\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" than\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sensation\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" **\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Finding\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" #\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"1\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Check\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"9\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Emotional\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" resonance\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" —\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Key\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" images\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" (\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"second\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" heartbeat\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"let\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" burn\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sit\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"door\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" she\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" was\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" not\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" yet\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" strong\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" enough\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" hold\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" open\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\\")\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" land\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" well\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Other\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" moments\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" are\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" solid\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Checks\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"1\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"0\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"1\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"2\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" St\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"akes\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" appropriately\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" established\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" for\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Ch\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"1\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Fo\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"resh\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"adow\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ing\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" seeds\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" are\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" well\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-pl\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"anted\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Theme\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" of\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" grief\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-as\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-t\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ide\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" strongly\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" reinforced\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"##\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" PH\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ASE\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"3\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" POL\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ISH\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Check\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"1\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"3\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Setting\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"/s\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ens\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ory\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" —\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Excellent\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sensory\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" specificity\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" throughout\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" ✓\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Check\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"1\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"4\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Trans\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"itions\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" —\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Clean\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" temporal\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" transition\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" (\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"On\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" evening\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" tw\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"elfth\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" letter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" came\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\\").\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" ✓\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Check\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"1\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"5\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Chapter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Ending\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" —\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Let\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" me\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" re\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-ex\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"amine\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" final\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" paragraph\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\">\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Tomorrow\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" she\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" would\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" read\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" it\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Tomorrow\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" or\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" day\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" after\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" There\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" was\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" no\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" arithmetic\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" that\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" made\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" grief\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" owe\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" you\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" schedule\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" but\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" she\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" kept\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" trying\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" invent\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" one\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" anyway\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" because\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" alternative\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" —\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" reading\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" it\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" now\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" standing\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" in\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" wind\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" with\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" whole\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" weight\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" of\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" it\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" at\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" once\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" —\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" was\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" door\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" she\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" was\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" not\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" yet\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" strong\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" enough\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" hold\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" open\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Analysis\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" chapter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" has\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" just\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" *\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"shown\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"*\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Im\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ogen\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" def\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"erring\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" by\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" putting\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" letter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" in\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" her\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" pocket\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" walking\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" home\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" action\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" performed\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" evasion\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" final\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" paragraph\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" then\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" explains\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" what\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" we\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'ve\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" witnessed\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" she\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" keeps\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" trying\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" invent\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" schedule\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" she\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" not\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" strong\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" enough\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" hold\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" door\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" open\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" This\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" redundant\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" explanation\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" after\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" vivid\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" action\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"long\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"then\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-p\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"unch\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" signature\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" rhythm\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" calls\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" for\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" complex\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sentences\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" followed\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" by\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" fragments\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" but\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" ending\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" here\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" fragment\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" →\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" complex\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" with\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" complex\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sentence\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" over\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-weight\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ed\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" at\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"3\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"7\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" words\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" For\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" chapter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" that\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" performs\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" avoidance\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" through\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" action\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" ending\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" should\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" trust\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" what\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" it\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" has\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" already\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" demonstrated\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" rather\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" than\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" narr\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ating\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" avoidance\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" thesis\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Additionally\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" particular\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" clarity\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sea\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" seemed\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" specialize\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" in\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"paragraph\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"6\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\")\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" repeats\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" earlier\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" established\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" metaphor\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sea\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" association\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" with\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" clarity\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" was\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" already\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" set\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" in\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" paragraph\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"2\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" shoreline\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" imagery\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"w\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ading\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" metaphor\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Rest\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ating\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" it\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" in\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" paragraph\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"6\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" as\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" named\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" property\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" (\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sea\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" seemed\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" specialize\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" in\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\\")\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" turns\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" vivid\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" environmental\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" element\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" into\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" a\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" thesis\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" point\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Jud\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"gment\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" ending\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" over\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-ex\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"pl\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ains\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" final\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sentence\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" door\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" metaphor\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" good\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" but\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" buried\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" in\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" explanatory\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" scaff\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"olding\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" **\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Finding\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" #\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"2\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Checks\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"1\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"6\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"1\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"8\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Promise\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" delivery\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" appropriate\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" for\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Ch\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"1\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Reader\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" engagement\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" present\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" but\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" could\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" be\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" affected\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" by\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" brev\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ity\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"writer\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" dismissed\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" length\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" finding\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\").\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Narrative\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" momentum\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" appropriate\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"##\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" PH\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ASE\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"4\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" CONT\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"INU\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ITY\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Check\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Story\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Bible\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Gap\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Detection\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" —\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Im\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ogen\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" age\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" (~\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"2\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"2\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\")\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" in\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Story\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Bible\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" but\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" never\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" mentioned\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" in\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" chapter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" This\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" minor\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" not\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" essential\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" reading\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" experience\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" No\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" finding\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" warranted\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"All\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" characters\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" locations\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" referenced\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" match\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Story\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Bible\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" ✓\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"---\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Now\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" creating\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" findings\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Using tool: CreateFinding\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolUseId\":\"call_3bcb535c7a6b4e379e03c187\"}}"
+    },
+    {
+      "data": "{\"type\":\"cost_update\",\"content\":\"$0.0305\",\"metadata\":{\"inputTokens\":48440,\"outputTokens\":6973,\"costUsd\":0.030540599999999998,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Executing: CreateFinding\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolInput\":{\"chapterNumber\":1,\"severity\":\"suggestion\",\"category\":\"show-tell\",\"description\":\"Imogen's moment of shoreline clarity is delivered through abstract classification rather than embodied sensation, breaking the chapter's sensory-metaphorical mode.\",\"rationale\":\"The chapter's emotional architecture is built on sensory-metaphorical ground: burns being touched, tides dragging hem, letters beating against ribs, windows counted in the dark. When Imogen has her defining self-recognition on the shoreline, the prose steps into abstract psycho-analytical language—classifying types of people, labeling herself \\\"the second kind.\\\" This categorization explains her interiority rather than letting the reader feel it. The power of this story's voice comes from emotional states rendered through physical reality. A moment of clarity should increase sensory precision, not retreat into abstraction.\",\"confidence\":0.7,\"paragraphNumber\":6,\"anchorQuote\":\"She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.\",\"alternatives\":[{\"label\":\"Option A — ground the realization in physical sensation\",\"originalText\":\"She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.\",\"newText\":\"She thought about her mother's handwriting, small and slanted and impatient, and the elaborate architecture of everything she'd learned to keep from happening again, and she understood something that the sea made easy to see, which was that this had never been a question of choice.\"},{\"label\":\"Option B — cut to body-as-revelation\",\"originalText\":\"She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.\",\"newText\":\"Her hands were cold from the damp sand. She folded them against herself, the way she'd always done, and understood something the sea made hard to think about anything else: that she had always been this way, and that it was not a failing so much as a fact, like the tide, like the stretch of grey ahead of her.\"},{\"label\":\"Option C — let the environment carry the realization\",\"originalText\":\"She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.\",\"newText\":\"She thought about the way you could see further out to sea than you could see into a room, and about everything she'd spent her life learning not to open all the way, and understood, simply, that she had always been a person who kept things at a survivable distance.\"}]},\"toolUseId\":\"call_3bcb535c7a6b4e379e03c187\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_result\",\"content\":\"Finding created (id: 73b2781c-81ee-420a-9916-a17f1dadad68, severity: suggestion, category: show-tell, grounding: 100%).\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolUseId\":\"call_3bcb535c7a6b4e379e03c187\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Using tool: CreateFinding\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolUseId\":\"call_a95f8a2e4dd043209eeca90c\"}}"
+    },
+    {
+      "data": "{\"type\":\"cost_update\",\"content\":\"$0.0403\",\"metadata\":{\"inputTokens\":74490,\"outputTokens\":7954,\"costUsd\":0.04031925,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Executing: CreateFinding\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolInput\":{\"chapterNumber\":1,\"severity\":\"suggestion\",\"category\":\"prose\",\"description\":\"The final paragraph over-explains the deferral we have just witnessed in action, then re-states the arithmetic metaphor as thesis rather than letting the demonstrated behavior carry the theme.\",\"rationale\":\"The chapter has just shown us Imogen's evasion physically: she puts the letter in her coat pocket, feels its weight against her ribs, walks in the dark counting lit windows. The avoidance is performed. The final sentence then explains what we've seen — \\\"There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway\\\" — restating the chapter's central organizing metaphor as narrative thesis. For a writer whose dismissed notethow noted that the chapter is short and sparse on purpose, these explanatory words are the kind of scaffolding that could be trusted to the reader. The short fragments \\\"Tomorrow she would read it. Tomorrow, or the day after.\\\" are the strongest ending — they're fragments that match the author's signature rhythm. The long sentence that follows them undercuts that rhythm by re-explaining what the fragments have already implied.\",\"confidence\":0.75,\"paragraphNumber\":7,\"anchorQuote\":\"Tomorrow she would read it. Tomorrow, or the day after. There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.\",\"alternatives\":[{\"label\":\"Option A — trust the fragments, cut the explanation\",\"originalText\":\"Tomorrow she would read it. Tomorrow, or the day after. There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.\",\"newText\":\"Tomorrow she would read it. Tomorrow, or the day after.\"},{\"label\":\"Option B — keep the door metaphor, tighten the scaffolding\",\"originalText\":\"Tomorrow she would read it. Tomorrow, or the day after. There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.\",\"newText\":\"Tomorrow she would read it. Tomorrow, or the day after. The alternative was a door she was not yet strong enough to hold open.\"},{\"label\":\"Option C — pivot to sensory closure instead of explanation\",\"originalText\":\"Tomorrow she would read it. Tomorrow, or the day after. There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.\",\"newText\":\"Tomorrow she would read it. Tomorrow, or the day after. For now, the letter sat against her ribs, and the windows kept themselves lit without her help.\"}]},\"toolUseId\":\"call_a95f8a2e4dd043209eeca90c\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_result\",\"content\":\"Finding created (id: 25499afe-9758-482a-a65c-53436e7e3538, severity: suggestion, category: prose, grounding: 100%).\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolUseId\":\"call_a95f8a2e4dd043209eeca90c\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Using tool: WriteDocument\",\"metadata\":{\"tool\":\"WriteDocument\",\"toolUseId\":\"call_c172707985134727895c6397\"}}"
+    },
+    {
+      "data": "{\"type\":\"cost_update\",\"content\":\"$0.0506\",\"metadata\":{\"inputTokens\":101380,\"outputTokens\":9038,\"costUsd\":0.050584500000000004,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+    },
+    {
+      "data": "{\"type\":\"tool_use\",\"content\":\"Executing: WriteDocument\",\"metadata\":{\"tool\":\"WriteDocument\",\"toolInput\":{\"content\":\"# DEV_EDIT_REPORT — The Salt Letters QA P1 93181fd1 — Chapter 1\\n\\n**Date:** 2025\\n**Chapter:** 1\\n**Word Count:** ~570 words\\n**Genre:** Literary Fiction\\n\\n---\\n\\n## FINDING COUNT BY SEVERITY\\n\\n- **Critical:** 0\\n- **Important:** 0\\n- **Suggestion:** 2\\n\\n---\\n\\n## TOP 3 MOST IMPORTANT ISSUES\\n\\n(Only 2 findings were created; both are suggestions.)\\n\\n**1. Abstract classification in shoreline self-recognition (paragraph 6) — SHOW-TELL**\\n\\nThe chapter's emotional architecture is built on sensory-metaphorical ground: burns, tides, ribs, heartbeats, wet sand, lit windows. When Imogen has her defining self-recognition on the shoreline, the prose steps into abstract psycho-analytical language—classifying \\\"people who rushed toward feeling\\\" vs. \\\"people who built elaborate structures,\\\" labeling herself \\\"the second kind.\\\" This categorization explains her interiority rather than letting the reader feel it through embodied sensation. The moment of clarity should increase sensory precision, not retreat into abstraction. Three rewrite alternatives provided that ground the realization in physical sensation, body-as-revelation, or environmental carry.\\n\\n**2. Over-explanation at chapter ending (paragraph 7) — PROSE**\\n\\nThe chapter has just *shown* Imogen's evasion physically: she puts the letter in her pocket, feels its weight against her ribs, walks in the dark counting lit windows. The avoidance is performed. The final sentence then restates the arithmetic metaphor as narrative thesis—naming what the fragments have already implied. The fragments \\\"Tomorrow she would read it. Tomorrow, or the day after.\\\" match the author's signature long-then-punch rhythm precisely and constitute the strongest ending. The long explanatory sentence that follows undercuts that rhythm. Three alternatives provided: (A) trust the fragments alone, (B) keep the door metaphor but tighten scaffolding, (C) pivot to sensory closure.\\n\\n---\\n\\n## STORY BIBLE GAPS\\n\\nNone found. All characters (Imogen, Thomas Rhys, Eluned, Imogen's mother, Imogen's father), locations (Pentref, the coastline, the salt house), and symbolic objects (biscuit tin, floorboard, letters) are accounted for in the Story Bible.\\n\\n---\\n\\n## OVERALL CHAPTER ASSESSMENT\\n\\nChapter 1 is a strong, distinctive opening that immediately establishes prose voice, thematic framework, and the novel's structural pattern of emotional deferral. The stylistic fingerprint calibration samples predict several signature features, and they appear exactly as documented: the fragment hammer (\\\"She would wade.\\\"), the long-then-punch sentence rhythm, heavy use of em dashes for parenthetical asides, reported speech treated as action without quotation marks, and the coastal/bodily/containment metaphor domains all appear as expected. The chapter introduces the correspondence with Thomas Rhys, the hiding place (floorboard/biscuit tin), the aunt's shadow-presence, and the arithmetic metaphor that will structure Imogen's arc—all within 570 words.\\n\\nThe two suggestions both address the same underlying tendency: the voice occasionally tells what it has already shown. The chapter is remarkably consistent in its sensory-metaphorical approach, but in its two most climactic moments (the shoreline self-recognition in paragraph 6 and the chapter's final pause in paragraph 7), it steps into explanation rather than trusting the reader. For a writer whose stated intent is a sparse, lean chapter where Imogen's evasiveness is performed rather than padded, tightening these explanatory passages would strengthen the chapter's confidence in its own method. These are minor adjustments—the chapter's voice is distinctive, its thematic seeds are well-planted, and it functions effectively as an opening that establishes both pattern and inciting incident (the twelfth letter).\\n\",\"documentType\":\"DEV_EDIT_REPORT\",\"chapterNumber\":1,\"title\":\"DEV_EDIT_REPORT — The Salt Letters QA P1 93181fd1 — Chapter 1\"},\"toolUseId\":\"call_c172707985134727895c6397\"}}"
+    },
+    {
+      "data": "{\"type\":\"tool_result\",\"content\":\"Created DEV_EDIT_REPORT (id: 81f4d171-98bc-4728-b4ad-cc5f64342ef8).\",\"metadata\":{\"tool\":\"WriteDocument\",\"toolUseId\":\"call_c172707985134727895c6397\"}}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" developmental\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" edit\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" of\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Chapter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"1\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" complete\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Summary\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Two\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" findings\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" were\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" created\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" both\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" at\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" suggestion\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" severity\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"1\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" **\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Show\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-t\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ell\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"paragraph\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"6\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\")**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" —\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Im\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ogen\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" defining\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" moment\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" of\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" self\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-rec\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ognition\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" on\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" shoreline\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" delivered\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" through\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" abstract\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" classification\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" (\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"people\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" who\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" rushed\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" toward\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" feeling\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" vs\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"people\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" who\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" built\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" elaborate\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" structures\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"...\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" second\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" kind\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\\")\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" rather\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" than\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" continuing\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" chapter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" dominant\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sensory\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-m\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"et\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"aph\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"orical\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" mode\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" chapter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" power\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" comes\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" from\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" emotional\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" states\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" rendered\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" through\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" physical\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" reality\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\";\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" this\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" moment\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" steps\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" into\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" psycho\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-an\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"aly\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"tical\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" abstraction\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Three\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" grounded\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" rewrite\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" alternatives\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" were\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" provided\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"2\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" **\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Pro\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"se\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"paragraph\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"7\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\")**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" —\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" final\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" paragraph\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" over\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-ex\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"pl\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ains\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" def\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"erral\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" chapter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" has\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" just\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" *\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"shown\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"*\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" through\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" action\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" fragments\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"Tomorrow\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" she\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" would\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" read\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" it\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Tomorrow\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" or\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" day\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" after\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\\\"\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" are\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" chapter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" strongest\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" ending\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" match\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" voice\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" signature\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" rhythm\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" long\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" explanatory\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sentence\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" that\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" follows\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" rest\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ates\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" arithmetic\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" metaphor\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" as\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" narrative\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" thesis\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" undercut\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ting\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" what\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" fragments\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" have\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" already\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" demonstrated\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Three\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" alternatives\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" provided\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"trust\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" fragments\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" keep\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" door\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" metaphor\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" but\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" tighten\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" pivot\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" sensory\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" closure\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\").\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"What\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" was\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" praised\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\":**\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" chapter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" voice\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" distinctive\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" highly\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" instrumental\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" stylist\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ic\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" fingerprint\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" prediction\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" matched\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" perfectly\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" —\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" fragment\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" h\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ammers\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" long\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"then\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-p\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"unch\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" rhythm\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" em\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-d\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ash\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" density\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" reported\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" speech\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" as\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" action\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" and\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" coastal\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"/body\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"/\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"contain\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ment\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" metaphor\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" domains\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" all\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" function\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" as\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" documented\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Structural\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" seeds\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" (\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"floor\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"board\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" bisc\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"uit\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" tin\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" thumb\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"'s\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" letter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"reading\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" pattern\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\",\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" w\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"ading\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" metaphor\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\")\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" are\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" well\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"-pl\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"anted\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" for\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" the\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" full\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" novel\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" arc\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" opening\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" line\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" alone\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" is\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" excellent\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" craft\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"The\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" DEV\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"_EDIT\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"_REPORT\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" has\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" been\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" filed\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" to\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" Chapter\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" \"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\"1\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" for\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" your\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\" reference\"}"
+    },
+    {
+      "data": "{\"type\":\"text\",\"content\":\".\"}"
+    },
+    {
+      "data": "{\"type\":\"cost_update\",\"content\":\"$0.0594\",\"metadata\":{\"inputTokens\":129227,\"outputTokens\":9398,\"costUsd\":0.05938489500000001,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+    },
+    {
+      "data": "{\"type\":\"complete\",\"content\":\"Session completed successfully\",\"metadata\":{\"findingsCreated\":2,\"statusAdvanced\":true,\"newStatus\":\"dev_edited\",\"suggestedNext\":[\"line-edit\",\"discuss-edits\"],\"tokensInput\":129227,\"tokensOutput\":9398,\"costUsd\":0.05938489500000001,\"endReason\":\"natural\"}}"
+    }
+  ]
+}

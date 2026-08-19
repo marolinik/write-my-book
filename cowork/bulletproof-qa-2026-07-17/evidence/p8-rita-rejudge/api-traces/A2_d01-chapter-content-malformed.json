@@ -1,0 +1,25 @@
+{
+  "id": "A2",
+  "label": "d01-chapter-content-malformed",
+  "actor": "p1",
+  "capturedAt": "2026-07-20T11:30:51.397Z",
+  "request": {
+    "method": "PUT",
+    "url": "http://127.0.0.1:3002/api/books/4116055c-6183-4675-926a-e04f31126951/chapters/ed84e638-0436-4cee-a458-669ce81cad50/content",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p1",
+      "Content-Type": "application/json"
+    },
+    "body": "not { json",
+    "bodyMode": "raw"
+  },
+  "response": {
+    "status": 400,
+    "contentType": "application/json",
+    "bodyLength": 40,
+    "bodyText": "{\"error\":\"Invalid JSON in request body\"}"
+  },
+  "expected": "400 (was 500 D-01)",
+  "note": null
+}

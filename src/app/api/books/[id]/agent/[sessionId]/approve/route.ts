@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { getSession } from "@/lib/agents";
 import { getAppConnection } from "@/lib/queue";
 import { z } from "zod";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { zodErrorResponse } from "@/lib/api/zod-error";
 
 type RouteParams = {
   params: Promise<{ id: string; sessionId: string }>;
@@ -20,7 +22,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id: bookId, sessionId } = await params;
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = approveSchema.parse(body);
 
     // ── Check DB for session and determine path ──────────────────────
@@ -121,15 +123,13 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ ok: true });
     }
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if ((error as Error).name === "ZodError") {
-      return NextResponse.json(
-        { error: "Invalid input", details: error },
-        { status: 400 }
-      );
-    }
+    const zodRes = zodErrorResponse(error);
+    if (zodRes) return zodRes;
     console.error(
       "POST /api/books/:id/agent/:sessionId/approve error:",
       error

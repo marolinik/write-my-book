@@ -1,0 +1,37 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "http://localhost:3002/api/health",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p1"
+    },
+    "body": null
+  },
+  "status": 200,
+  "error": null,
+  "responseHeaders": {
+    "connection": "keep-alive",
+    "content-type": "application/json",
+    "date": "Mon, 20 Jul 2026 11:21:14 GMT",
+    "keep-alive": "timeout=5",
+    "transfer-encoding": "chunked",
+    "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+  },
+  "body": {
+    "status": "ok",
+    "timestamp": "2026-07-20T11:21:14.016Z",
+    "env": {
+      "ok": true,
+      "target": "web",
+      "nodeEnv": "development",
+      "ci": false,
+      "checkedAt": "2026-07-20T11:21:14.016Z",
+      "errors": [],
+      "warnings": []
+    }
+  },
+  "bodyIsRawText": false,
+  "elapsed_ms": 151,
+  "capturedAt": "2026-07-20T11:21:14.030Z"
+}

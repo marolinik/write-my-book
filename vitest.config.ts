@@ -7,7 +7,9 @@ import { fileURLToPath } from "node:url";
 export default defineConfig({
   test: {
     environment: "node",
-    include: ["tests/unit/**/*.test.ts"],
+    // Component/hook tests that need a DOM opt in per-file via the
+    // `// @vitest-environment jsdom` pragma — the default stays node.
+    include: ["tests/unit/**/*.test.ts", "tests/unit/**/*.test.tsx"],
     coverage: {
       provider: "v8",
       reportsDirectory: "./coverage/unit",

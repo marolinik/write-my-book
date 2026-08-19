@@ -1,0 +1,11 @@
+{
+  "workflowId": "dev-edit",
+  "chapterNumber": 1,
+  "status": 422,
+  "body": {
+    "error": "Setup incomplete",
+    "setupIncomplete": true,
+    "redirectTo": "/books/90436e20-ffc7-42ca-a39f-dc7d48cdda10/setup"
+  },
+  "capturedAt": "2026-07-27T05:40:54.108Z"
+}

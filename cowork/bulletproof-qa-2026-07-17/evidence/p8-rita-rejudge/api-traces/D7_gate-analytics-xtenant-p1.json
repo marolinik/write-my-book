@@ -1,0 +1,24 @@
+{
+  "id": "D7",
+  "label": "gate-analytics-xtenant-p1",
+  "actor": "p1",
+  "capturedAt": "2026-07-20T11:31:08.257Z",
+  "request": {
+    "method": "GET",
+    "url": "http://127.0.0.1:3002/api/series/0e11c5c1-e9ee-4736-a214-40dc1576c1b3/analytics",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p1"
+    },
+    "body": null,
+    "bodyMode": "none"
+  },
+  "response": {
+    "status": 404,
+    "contentType": "application/json",
+    "bodyLength": 28,
+    "bodyText": "{\"error\":\"Series not found\"}"
+  },
+  "expected": "404 (ownership fence before plan gate)",
+  "note": null
+}

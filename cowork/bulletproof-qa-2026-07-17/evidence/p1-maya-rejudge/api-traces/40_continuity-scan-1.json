@@ -1,0 +1,37 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:3002/api/books/4116055c-6183-4675-926a-e04f31126951/continuity/scan?chapterNumber=1",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p1"
+    },
+    "body": null
+  },
+  "status": 200,
+  "error": null,
+  "responseHeaders": {
+    "connection": "keep-alive",
+    "content-type": "application/json",
+    "date": "Mon, 20 Jul 2026 11:43:51 GMT",
+    "keep-alive": "timeout=5",
+    "transfer-encoding": "chunked",
+    "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+  },
+  "body": {
+    "flags": [],
+    "extraction": {
+      "state": "extracting",
+      "kind": null,
+      "capped": false,
+      "attempts": 0,
+      "reason": null,
+      "lowYield": false,
+      "throttled": false,
+      "retryEligibleAt": null
+    }
+  },
+  "bodyIsRawText": false,
+  "elapsed_ms": 839,
+  "capturedAt": "2026-07-20T11:43:51.135Z"
+}

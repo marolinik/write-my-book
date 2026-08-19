@@ -1,0 +1,13 @@
+{
+  "label": "22_put_ch3_tweak",
+  "ts": "2026-07-18T10:25:46.116Z",
+  "method": "PUT",
+  "path": "/api/books/fd60e1d4-37c5-4c11-92a1-586af638224a/chapters/611fca1b-88fe-4dea-a2a0-fce1c0f51576/content",
+  "note": "T1: canon-neutral sentence appended to force content-hash change for re-extraction. Sentence: \"The night that followed was quiet, and no one slept easily.\"",
+  "status": 200,
+  "response": {
+    "wordCount": 482,
+    "version": 2,
+    "bookWordCount": 2182
+  }
+}

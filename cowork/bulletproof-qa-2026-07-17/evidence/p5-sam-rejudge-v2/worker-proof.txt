@@ -1,0 +1,58 @@
+# Worker Proof -- P5 Sam re-judge v2
+Captured: 2026-07-20 11:13:29 +02:00
+Host: LW11_MMARKOVIC
+
+## wmb-pub worker processes (src/worker.ts chain)
+PID 31644: "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npx-cli.js tsx src/worker.ts
+PID 28224: "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\tsx\dist\cli.mjs" src/worker.ts
+PID 61892: "C:\Program Files\nodejs\node.exe" --require D:\Projects\wmb-pub\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/wmb-pub/node_modules/tsx/dist/loader.mjs src/worker.ts
+
+## Leaf worker.ts executor count (actual BullMQ worker process): 1
+EXPECTED: exactly 1 worker process at capture time (worker just restarted per mission).
+Leaf PID(s): 61892
+
+Note: the worker:dev -> npx -> tsx -> loader chain is ONE logical worker (3 PIDs, 1 leaf executor).
+Full node.exe process table snapshot below for auditability:
+  [4308] "C:\Program Files\nodejs\node.exe"  --disable-warning=ExperimentalWarning C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\openclaw\openclaw.mjs node run --host 127.0.0.1 --port 18789
+  [34688] "C:\Program Files\nodejs\node.exe" --stack-size=8192 --disable-warning=ExperimentalWarning C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\openclaw\openclaw.mjs node run --host 127.0.0.1 --port 18789
+  [44776] "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npm-cli.js run dev -- -p 3002
+  [37804] "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\cross-env\dist\bin\cross-env.js" NODE_OPTIONS=--max-old-space-size=4096 next dev -p 3002
+  [48020] "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\next\dist\bin\next" "dev" "-p" "3002"
+  [2488] "C:\Program Files\nodejs\node.exe" D:\Projects\wmb-pub\node_modules\next\dist\server\lib\start-server.js
+  [18204] "node" D:\Projects\wmb-pub\.next\dev\build\postcss.js 56455
+  [27728] "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npx-cli.js --yes node@20.0.0 -
+  [49272] "C:\Users\MarkoMarkovic\AppData\Local\npm-cache\_npx\a3dea26673f30de8\node_modules\.bin\\..\node\bin\node"    -
+  [50660] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+  [59900] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+  [48272] "node"   "C:\Users\MarkoMarkovic\AppData\Roaming\npm\\node_modules\chrome-devtools-mcp\build\src\bin\chrome-devtools-mcp.js" "--browserUrl" "http://127.0.0.1:9223"
+  [46180] "C:\Program Files\nodejs\\node.exe"  "C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\npm\bin\npx-cli.js" "@playwright/mcp@latest"
+  [29948] "C:\Program Files\nodejs\\node.exe"  "C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\npm\bin\npx-cli.js" "-y" "@upstash/context7-mcp"
+  [41472] "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\chrome-devtools-mcp\build\src\telemetry\watchdog\main.js --parent-pid=48272 --app-version=0.21.0 --os-type=1
+  [29100] "node"   "C:\Users\MarkoMarkovic\AppData\Local\npm-cache\_npx\9833c18b2d85bc59\node_modules\.bin\\..\@playwright\mcp\cli.js" 
+  [44376] "node"   "C:\Users\MarkoMarkovic\AppData\Local\npm-cache\_npx\eea2bd7412d4593b\node_modules\.bin\\..\@upstash\context7-mcp\dist\index.js" 
+  [57668] "C:\Program Files\nodejs\\node.exe"  "C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\npm\bin\npx-cli.js" "-y" "@fkadev/prompts.chat-mcp"
+  [52452] "C:\Program Files\nodejs\\node.exe"  "C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\npm\bin\npx-cli.js" "-y" "@playwright/mcp@latest"
+  [52400] "node"   "C:\Users\MarkoMarkovic\AppData\Local\npm-cache\_npx\9833c18b2d85bc59\node_modules\.bin\\..\@playwright\mcp\cli.js" 
+  [41236] "node"   "C:\Users\MarkoMarkovic\AppData\Local\npm-cache\_npx\146fa5df94065b65\node_modules\.bin\\..\@fkadev\prompts.chat-mcp\build\index.js" 
+  [64896] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+  [65312] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+  [62580] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+  [43764] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+  [10312] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+  [64492] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+  [62784] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+  [34620] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+  [46616] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+  [56460] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+  [55616] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+  [57684] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+  [37868] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+  [3860] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+  [31644] "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npx-cli.js tsx src/worker.ts
+  [28224] "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\tsx\dist\cli.mjs" src/worker.ts
+  [61892] "C:\Program Files\nodejs\node.exe" --require D:\Projects\wmb-pub\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/wmb-pub/node_modules/tsx/dist/loader.mjs src/worker.ts
+  [44572] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+  [42180] "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+  [18208] "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npx-cli.js tsx --env-file=.env cowork\bulletproof-qa-2026-07-17\evidence\p4-priya-rejudge-v2\scripts\00_setup.ts
+  [51372] "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\tsx\dist\cli.mjs" --env-file=.env cowork\bulletproof-qa-2026-07-17\evidence\p4-priya-rejudge-v2\scripts\00_setup.ts
+  [24180] "C:\Program Files\nodejs\node.exe" --require D:\Projects\wmb-pub\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/wmb-pub/node_modules/tsx/dist/loader.mjs --env-file=.env cowork\bulletproof-qa-2026-07-17\evidence\p4-priya-rejudge-v2\scripts\00_setup.ts

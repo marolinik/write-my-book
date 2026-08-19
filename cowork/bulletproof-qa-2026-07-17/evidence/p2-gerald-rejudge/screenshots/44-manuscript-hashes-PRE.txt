@@ -1,0 +1,15 @@
+# Manuscript byte-integrity ledger — "Dead Reckoning 31 QA P2" (636a1f02-8520-4b66-8e78-08c8e0fee5f0)
+# captured 2026-07-27T04:21:55.262Z · base http://localhost:3001 · identity user_qa_p2 (e2e headers)
+# chapter rows: 8
+
+chNo | title | wordCount(row) | bytes | words(text) | sha256
+1 | A Debt in Zürich | 5067 | 35884 | 5068 | 0efe88d7a22748eaac02fd25dc4e9de24c2028cd730db4053d7a0c4614b08d23
+2 | The Trieste Signal | 5055 | 35276 | 5056 | b0fe079b2e6997b8f92465e4b62b6ed30ee16b809df49024422fe76fcffe6339
+3 | The Łódź Ledger | 5034 | 35169 | 5035 | 690e9fc8f978c450294331dde605c05f4f449ad63492499c0d847bed95167142
+4 | The Kőszeg Drop | 5040 | 35428 | 5041 | c1f0a3a7f36badb764a446b557114eed622037e68323f98b5d2e6fc6cb652f1f
+5 | No Names in Marseille | 5053 | 35616 | 5054 | 226b39d978fbf72e704ffec7823958c4fd403cc02c956bf0888f9993316cca36
+6 | Ash on the Wire | 5085 | 95881 | 5086 | c4428f732d791dc67523f867df49e6ceba6c91cbb6454c3490403a3ba1eac896
+7 | Novosibirsk, Cold | 5097 | 35915 | 5098 | 98a3c566c7ced1e8b82ffd68b980c249bab78129dbcaf5f2a26910278af93691
+8 | Dead Reckoning | 5070 | 35784 | 5071 | ac64e34fabcbcf99d734e655070c4881c37c2021c9fcfd6ab37ba61c9e640e6f
+
+TOTAL_BYTES = 344953

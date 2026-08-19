@@ -1,0 +1,45 @@
+{
+ "create-story-bible-start": {
+  "status": 200,
+  "elapsed": 2.125,
+  "body": {
+   "sessionId": "2ee079d4-4c97-490a-966d-e45ed01d84cf"
+  }
+ },
+ "create-story-bible-stream": {
+  "n_events": 310,
+  "elapsed": 143.764,
+  "final": {
+   "type": "complete",
+   "content": "Session finished",
+   "metadata": {
+    "success": true,
+    "tokensInput": 36498,
+    "tokensOutput": 5512,
+    "documentIds": [],
+    "sessionId": "2ee079d4-4c97-490a-966d-e45ed01d84cf",
+    "endReason": "natural",
+    "assistantText": "Your story bible is built. Here's what I captured from the four chapters:\n\n**Characters (5 voices)**\n- **Vera** — the keeper, narrator, defined by procedure and its failure\n- **Danilo** — dead brother, posthumous catalyst, racing her through timed letters\n- **Radmila** — information hub, maternal-sardonic, controls what Vera knows and when\n- **Kova** — boat mender, his name appears eleven times in the ledger, was waiting for her to find it\n- **The Soft-Handed Men** — mainland lender's agents, the anonymous enforcement threat\n\n**World (5 locations)**\n- The unnamed Adriatic island\n- The lighthouse tower and its 96 steps\n- The boathouse (where the ledger hides)\n- Radmila's shop (co-op meetings, information exchange)\n- Struga reef (the Morena's wreck at low tide)\n\n**Plot Threads (6 strands)**\n1. The four thousand — the center of gravity\n2. The letters — dead or pre-timed? Delivered by whom?\n3. The obligation — private lender, boat as collateral\n4. The ledger — 41 entries, Kova's name, escalating sums\n5. The soft-handed men — arrival signals ongoing threat\n6. Vera's procedure breaking — trims wick, draws lines, fails to do both\n\n**Key Objects** — the white-quartz stone (witness), the boathouse ledger (truth), kerosene (replaced by intelligence), the lamp wick (procedural rupture marker), soup vs. eggs (care as displacement language)\n\n**Themes** — procedure as survival, weight as moral register, the sea as creditor, light and glass, the line as closure (or its refusal), numbers as body-rhythm\n\n**Timeline** — January (insurance) → pre-storm (cash withdrawal) → Thursday (Ch. 1) → Saturday gale (Ch. 2) → Sunday (Ch. 3) → Monday morning (Ch. 4), ending on \"Let the night try the door.\"\n\n**Strategic Absences** — island unnamed, lender unnamed, mainland unreached, mother unmourned, cargo unspecified — all deliberate spaces.\n\nThe bible is ~3,200 words. It stays strictly within what's on the page — no invented plot beats, no speculative character backstories. What you do next: move into the **Architecture** workflow to design your chapter outline and map where these threads converge and resolve, or jump into **write-chapter** to start drafting Chapter 5 from Vera's Monday evening.",
+    "cancelled": false,
+    "resultMeta": {
+     "findingsCreated": 0,
+     "statusAdvanced": false
+    },
+    "suggestedNext": [
+     "build-architecture"
+    ]
+   }
+  }
+ },
+ "documents-after": {
+  "status": 200,
+  "types": [
+   "STORY_BIBLE",
+   "FINGERPRINT",
+   "CHAPTER_CONTENT",
+   "CHAPTER_CONTENT",
+   "CHAPTER_CONTENT",
+   "CHAPTER_CONTENT"
+  ]
+ }
+}

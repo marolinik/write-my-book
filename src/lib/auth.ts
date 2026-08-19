@@ -54,8 +54,18 @@ export async function getDbUser() {
   if (process.env.NODE_ENV !== "production" && E2E_TEST_SECRET) {
     const headersList = await headers();
     if (headersList.get("x-e2e-test-secret") === E2E_TEST_SECRET) {
+      // Optional persona selector for the bulletproof-QA campaign: a request may
+      // act as any pre-seeded QA persona user (clerkId `user_qa_*`) so per-persona
+      // isolation and cross-tenant checks are testable over real HTTP. Prefix-
+      // guarded so a leaked secret still cannot impersonate an arbitrary clerkId,
+      // and the whole branch is already NODE_ENV!=="production" + secret-gated.
+      const requestedClerkId = headersList.get("x-e2e-clerk-id");
+      const clerkId =
+        requestedClerkId && requestedClerkId.startsWith("user_qa_")
+          ? requestedClerkId
+          : E2E_TEST_CLERK_ID;
       return db.user.findUnique({
-        where: { clerkId: E2E_TEST_CLERK_ID },
+        where: { clerkId },
       });
     }
   }
@@ -73,14 +83,18 @@ export async function getDbUser() {
 
     // Auto-create the dev user if it doesn't exist
     const devName = process.env.DEV_AUTH_USER_NAME ?? "Dev Writer";
+    // D-153: email must derive from DEV_CLERK_ID — a hardcoded literal
+    // P2002-collided on the unique email for any second dev identity; and
+    // onboardingComplete must be overridable — hardcoded true made the cold
+    // onboarding funnel uncapturable in QA (absent DEV_ONBOARDING_COMPLETE = true).
     return db.user.upsert({
       where: { clerkId: process.env.DEV_CLERK_ID },
       update: {},
       create: {
         clerkId: process.env.DEV_CLERK_ID,
-        email: "dev@writemybook.local",
+        email: `${process.env.DEV_CLERK_ID}@writemybook.local`,
         displayName: devName,
-        onboardingComplete: true,
+        onboardingComplete: process.env.DEV_ONBOARDING_COMPLETE !== "false",
       },
     });
   }

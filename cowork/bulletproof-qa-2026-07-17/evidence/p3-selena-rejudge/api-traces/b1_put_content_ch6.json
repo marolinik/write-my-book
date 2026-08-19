@@ -1,0 +1,26 @@
+{
+  "capturedAt": "2026-07-20T02:18:15.557Z",
+  "request": {
+    "method": "PUT",
+    "url": "/api/books/a77359eb-6587-4bf0-b72d-65e0ae027e64/chapters/e68b6b66-951c-4273-97a2-cfcab36155fd/content",
+    "actingAs": "user_qa_p3",
+    "headers": {
+      "content-type": "application/json",
+      "x-e2e-test-secret": "***MASKED***",
+      "x-e2e-clerk-id": "user_qa_p3"
+    },
+    "body": {
+      "markdown": "Chapter Six — The Ash That Was Always Burning\n\nKira Venn at last learned the truth of the Ritual of Emberfall. She performed the Ritual of Emberfall in the deep vault beneath Highfort. And the Ritual of Emberfall caused the Great Fire of Highfort — the very blaze that had forged the realm long ago in the first days. The Ritual of Emberfall led to the Great Fire of Highfort. What Kira Venn did now in the vault had already burned the world at the very beginning of the realm.",
+      "changeSource": "user"
+    }
+  },
+  "response": {
+    "status": 200,
+    "latencyMs": 193,
+    "body": {
+      "wordCount": 90,
+      "version": 1,
+      "bookWordCount": 607
+    }
+  }
+}

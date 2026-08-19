@@ -1,0 +1,12 @@
+{
+ "status": 200,
+ "body": {
+  "defaultModel": "openrouter-qwen36/sonnet",
+  "modelGhostwriter": null,
+  "modelEditor": "anthropic/opus",
+  "modelBetaReader": null,
+  "modelAnalyst": null,
+  "modelCoach": "anthropic/opus",
+  "modelCreative": null
+ }
+}

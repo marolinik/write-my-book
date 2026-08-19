@@ -1,0 +1,140 @@
+﻿[repair-cross-book-edges] mode: DRY-RUN (pass --execute to apply)
+[repair-cross-book-edges] loaded chapter sets for 88 book(s) from Postgres
+[repair-cross-book-edges] scanned 342 same-book relationship edge(s), 0 cross-book-endpoint anomaly edge(s)
+
+WOULD DELETE book=fd60e1d4-37c5-4c11-92a1-586af638224a (Character) Mira Thorne -[KNOWS chapter=9 updatedAt=2026-07-18T09:04:06.554Z]-> (Location) Emberfall [edge id 257]
+  reason: chapter 9 does not exist in book fd60e1d4-37c5-4c11-92a1-586af638224a (chapters: 1,2,3,4,5,6,7,8)
+  reason: byte-identical (type, chapter, updatedAt) twin in book(s) 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90 — forensic confirmation of a cross-book write
+
+WOULD DELETE book=fd60e1d4-37c5-4c11-92a1-586af638224a (Character) Mira Thorne -[OPPOSES chapter=9 updatedAt=2026-07-18T09:04:06.482Z]-> (Character) Kestrel Vane [edge id 113]
+  reason: chapter 9 does not exist in book fd60e1d4-37c5-4c11-92a1-586af638224a (chapters: 1,2,3,4,5,6,7,8)
+  reason: byte-identical (type, chapter, updatedAt) twin in book(s) 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90 — forensic confirmation of a cross-book write
+
+KEEP (presumed source) book=2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90 (Character) Mira Thorne -[KNOWS chapter=9 updatedAt=2026-07-18T09:04:06.554Z]-> (Location) Emberfall [edge id 258]
+  note: presumed source of a contaminating write also seen out-of-range in book(s) fd60e1d4-37c5-4c11-92a1-586af638224a
+
+KEEP (presumed source) book=2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90 (Character) Mira Thorne -[OPPOSES chapter=9 updatedAt=2026-07-18T09:04:06.482Z]-> (Character) Kestrel Vane [edge id 256]
+  note: presumed source of a contaminating write also seen out-of-range in book(s) fd60e1d4-37c5-4c11-92a1-586af638224a
+
+AMBIGUOUS (manual review, NOT deleted) book=fd60e1d4-37c5-4c11-92a1-586af638224a (Character) Mira Thorne -[LOCATED_AT chapter=3 updatedAt=2026-07-18T10:40:21.585Z]-> (Location) Cindermoor Bridge [edge id 139]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=fd60e1d4-37c5-4c11-92a1-586af638224a (Character) Mira Thorne -[LOCATED_AT chapter=3 updatedAt=2026-07-18T10:40:21.573Z]-> (Location) Ashfall Gate [edge id 137]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=fd60e1d4-37c5-4c11-92a1-586af638224a (Character) Mira Thorne -[ALLIED_WITH chapter=6 updatedAt=2026-07-18T02:54:33.420Z]-> (Character) Kestrel Vane [edge id 236]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=fd60e1d4-37c5-4c11-92a1-586af638224a (Character) Mira Thorne -[APPEARS_IN chapter=2 updatedAt=2026-07-18T02:45:23.468Z]-> (Location) Ashfall Gate [edge id 223]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=fd60e1d4-37c5-4c11-92a1-586af638224a (Character) Mira Thorne -[KNOWS chapter=1 updatedAt=2026-07-18T02:42:18.181Z]-> (Character) Kestrel Vane [edge id 188]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=fd60e1d4-37c5-4c11-92a1-586af638224a (Character) Mira Thorne -[APPEARS_IN chapter=1 updatedAt=2026-07-18T02:42:17.776Z]-> (Location) Cindermoor Bridge [edge id 185]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=fd60e1d4-37c5-4c11-92a1-586af638224a (Character) Mira Thorne -[KNOWS chapter=3 updatedAt=2026-07-18T10:40:21.909Z]-> (Character) Zoë Rasmussen [edge id 144]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=fd60e1d4-37c5-4c11-92a1-586af638224a (Character) Mira Thorne -[KNOWS chapter=3 updatedAt=2026-07-18T10:56:15.152Z]-> (Character) Corvin Ashe [edge id 81]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=fd60e1d4-37c5-4c11-92a1-586af638224a (Character) Kestrel Vane -[OPPOSES chapter=3 updatedAt=2026-07-18T10:56:14.851Z]-> (Character) Corvin Ashe [edge id 85]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=fd60e1d4-37c5-4c11-92a1-586af638224a (Character) Kestrel Vane -[PART_OF chapter=3 updatedAt=2026-07-18T10:56:14.285Z]-> (Faction) Ashen Legion [edge id 80]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=fd60e1d4-37c5-4c11-92a1-586af638224a (Character) Zoë Rasmussen -[MENTIONED_IN chapter=6 updatedAt=2026-07-18T10:45:37.690Z]-> (Location) Ashfall Gate [edge id 318]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=fd60e1d4-37c5-4c11-92a1-586af638224a (Character) Zoë Rasmussen -[LOCATED_AT chapter=3 updatedAt=2026-07-18T10:40:21.621Z]-> (Location) Ashfall Gate [edge id 146]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=fd60e1d4-37c5-4c11-92a1-586af638224a (Character) Zoë Rasmussen -[KNOWS chapter=8 updatedAt=2026-07-18T08:59:47.064Z]-> (Character) Mira Thorne [edge id 215]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=fd60e1d4-37c5-4c11-92a1-586af638224a (Character) Zoë Rasmussen -[APPEARS_IN chapter=2 updatedAt=2026-07-18T02:45:23.652Z]-> (Location) Emberfall [edge id 174]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=fd60e1d4-37c5-4c11-92a1-586af638224a (Character) Zoë Rasmussen -[KNOWS chapter=3 updatedAt=2026-07-18T10:56:15.188Z]-> (Character) Corvin Ashe [edge id 82]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=fd60e1d4-37c5-4c11-92a1-586af638224a (Location) Ashfall Gate -[PART_OF chapter=3 updatedAt=2026-07-18T10:56:15.314Z]-> (Location) Emberfall [edge id 134]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=fd60e1d4-37c5-4c11-92a1-586af638224a (Location) Cinder Ward -[PART_OF chapter=3 updatedAt=2026-07-18T10:56:15.340Z]-> (Location) Emberfall [edge id 135]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=fd60e1d4-37c5-4c11-92a1-586af638224a (Faction) Ashen Legion -[PART_OF chapter=2 updatedAt=2026-07-18T02:45:23.083Z]-> (Character) Kestrel Vane [edge id 218]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90 (Character) Mira Thorne -[KNOWS chapter=3 updatedAt=2026-07-18T10:56:15.152Z]-> (Character) Corvin Ashe [edge id 290]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90 (Character) Mira Thorne -[LOCATED_AT chapter=3 updatedAt=2026-07-18T10:40:21.585Z]-> (Location) Cindermoor Bridge [edge id 140]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90 (Character) Mira Thorne -[LOCATED_AT chapter=3 updatedAt=2026-07-18T10:40:21.573Z]-> (Location) Ashfall Gate [edge id 138]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90 (Character) Mira Thorne -[ALLIED_WITH chapter=6 updatedAt=2026-07-18T02:54:33.420Z]-> (Character) Kestrel Vane [edge id 237]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90 (Character) Mira Thorne -[APPEARS_IN chapter=2 updatedAt=2026-07-18T02:45:23.468Z]-> (Location) Ashfall Gate [edge id 224]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90 (Character) Mira Thorne -[KNOWS chapter=1 updatedAt=2026-07-18T02:42:18.181Z]-> (Character) Kestrel Vane [edge id 189]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90 (Character) Mira Thorne -[KNOWS chapter=3 updatedAt=2026-07-18T10:40:21.909Z]-> (Character) Zoë Rasmussen [edge id 187]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90 (Character) Mira Thorne -[APPEARS_IN chapter=1 updatedAt=2026-07-18T02:42:17.776Z]-> (Location) Cindermoor Bridge [edge id 186]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90 (Character) Zoë Rasmussen -[MENTIONED_IN chapter=6 updatedAt=2026-07-18T10:45:37.690Z]-> (Location) Ashfall Gate [edge id 319]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90 (Character) Zoë Rasmussen -[LOCATED_AT chapter=3 updatedAt=2026-07-18T10:40:21.621Z]-> (Location) Ashfall Gate [edge id 147]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90 (Character) Zoë Rasmussen -[APPEARS_IN chapter=2 updatedAt=2026-07-18T02:45:23.652Z]-> (Location) Emberfall [edge id 225]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90 (Character) Zoë Rasmussen -[KNOWS chapter=8 updatedAt=2026-07-18T08:59:47.064Z]-> (Character) Mira Thorne [edge id 216]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90 (Character) Zoë Rasmussen -[KNOWS chapter=3 updatedAt=2026-07-18T10:56:15.188Z]-> (Character) Corvin Ashe [edge id 193]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90 (Character) Kestrel Vane -[OPPOSES chapter=3 updatedAt=2026-07-18T10:56:14.851Z]-> (Character) Corvin Ashe [edge id 90]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90 (Character) Kestrel Vane -[PART_OF chapter=3 updatedAt=2026-07-18T10:56:14.285Z]-> (Faction) Ashen Legion [edge id 217]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90 (Location) Ashfall Gate -[PART_OF chapter=3 updatedAt=2026-07-18T10:56:15.314Z]-> (Location) Emberfall [edge id 209]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90 (Location) Cinder Ward -[PART_OF chapter=3 updatedAt=2026-07-18T10:56:15.340Z]-> (Location) Emberfall [edge id 206]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90 (Faction) The Ashen Legion -[PARTICIPATES_IN chapter=8 updatedAt=2026-07-18T11:13:40.109Z]-> (Event) The siege [edge id 337]
+  reason: in-range timestamp twin spans multiple in-range books (2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90, fd60e1d4-37c5-4c11-92a1-586af638224a) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90 (Faction) Ashen Legion -[PART_OF chapter=2 updatedAt=2026-07-18T02:45:23.083Z]-> (Character) Kestrel Vane [edge id 219]
+  reason: in-range timestamp twin spans multiple in-range books (fd60e1d4-37c5-4c11-92a1-586af638224a, 2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90) — source vs in-range victim undecidable, manual review
+
+AMBIGUOUS (manual review, NOT deleted) book=fd60e1d4-37c5-4c11-92a1-586af638224a (Faction) The Ashen Legion -[PARTICIPATES_IN chapter=8 updatedAt=2026-07-18T11:13:40.109Z]-> (Event) The siege [edge id 338]
+  reason: in-range timestamp twin spans multiple in-range books (2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90, fd60e1d4-37c5-4c11-92a1-586af638224a) — source vs in-range victim undecidable, manual review
+
+ANOMALY (manual review, NOT deleted) book=137412c3-8b98-4b16-994d-4f02a2774f53 (Character) Milan -[PARTICIPATES_IN chapter=null updatedAt=null]-> (PlotThread) What does Milan know? [edge id 0]
+  reason: book 137412c3-8b98-4b16-994d-4f02a2774f53 has no chapters in Postgres (deleted book / orphaned graph)
+
+FLAG REVIEW (NOT deleted) 52af6dc9-7244-413d-b0d7-b93272032a1a book=fd60e1d4-37c5-4c11-92a1-586af638224a type=relationship_contradiction status=active entities=["Mira Thorne","Kestrel Vane"]
+  supporting edge(s) removed by this repair — re-scan the book, then resolve or keep manually
+
+[repair-cross-book-edges] DRY-RUN SUMMARY: 2 contaminated edge(s) would be deleted, 2 presumed-source edge(s) kept, 38 ambiguous, 1 anomaly edge(s), 1 continuity flag(s) need review (nothing was written; re-run with --execute to apply)
+[repair-cross-book-edges] exit 1: 40 item(s) need manual review

@@ -4,10 +4,20 @@ import { db } from "@/lib/db";
 import { decryptApiKey } from "@/lib/encryption";
 import { estimateCost } from "@/lib/cost";
 import { checkQuota } from "@/lib/billing/quota-checker";
-import { createLLMClient, resolveProviderRoute, resolveCheapModelFor } from "@/lib/llm";
+import { recordDailyUse } from "@/lib/billing/free-tier-meters";
+import { createLLMClient, resolveProviderRoute, resolveQuickAssistModelFor } from "@/lib/llm";
 import type { ProviderKey } from "@/lib/llm";
+import {
+  withQuickAssistReasoning,
+  extractQuickAssistText,
+  settleQuickAssist,
+  MODEL_NO_QUICK_SUGGEST_CODE,
+  modelNoQuickSuggestMessage,
+  QUICK_ASSIST_TIMEOUT_INLINE_MS,
+} from "@/lib/llm/quick-assist";
 import { inlineEditRequestSchema } from "@/lib/validation";
 import type { InlineEditSuggestion } from "@/lib/validation";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -16,7 +26,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id: bookId } = await params;
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = inlineEditRequestSchema.parse(body);
 
     // Verify book ownership
@@ -28,22 +38,31 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
-    // Check monthly usage quota
-    const quotaResult = await checkQuota(user.id, "use_agent_session");
+    // Check usage quota (free-tier daily inline-edit meter + word/session caps)
+    const quotaResult = await checkQuota(user.id, "inline_edit");
     if (!quotaResult.allowed) {
       return NextResponse.json(
-        { error: quotaResult.reason },
+        {
+          error: quotaResult.reason,
+          upgradeToTier: quotaResult.upgradeToTier,
+          remainingToday: quotaResult.remainingToday,
+        },
         { status: 429 }
       );
     }
 
-    // Resolve user's preferred provider to pick the haiku variant (BYOK — no platform key fallbacks)
+    // Resolve the quick-assist model for the user's provider (BYOK — no platform
+    // key fallbacks). resolveQuickAssistModelFor routes AROUND models flagged
+    // unfitForQuickAssist (D-116/D-117): the seeded openrouter-qwen36/* reasoning
+    // default can't be disabled and starves the budget, so we substitute the
+    // cheapest non-reasoning haiku from the same provider (DeepSeek V3.2 for
+    // OpenRouter). Unflagged providers resolve to their usual haiku variant.
     const dbUser = await db.user.findUnique({
       where: { id: user.id },
       select: { defaultModel: true },
     });
     const userDefault = dbUser?.defaultModel ?? "anthropic/sonnet";
-    const cheapModel = resolveCheapModelFor(userDefault);
+    const cheapModel = resolveQuickAssistModelFor(userDefault);
 
     // Load all user keys (no platform key fallbacks)
     const userKeys = await db.apiKey.findMany({
@@ -112,16 +131,32 @@ ${data.selectedText}
 
 Provide ${data.count} alternative rewrites as a JSON array.`;
 
-    const response = await client.messages.create({
+    // D-100: on the OpenRouter route (where the seeded free-tier default
+    // qwen/qwen3.6-27b lives), disable provider reasoning so the output budget
+    // isn't burned entirely on thinking blocks. `reasoning` is an OpenRouter
+    // parameter — never sent on the direct Anthropic route, which rejects the
+    // unknown field (Anthropic gates thinking via `thinking`).
+    const baseParams = {
       model: model.modelId,
       max_tokens: 4096,
       system: systemPrompt,
-      messages: [{ role: "user", content: userContent }],
-    });
+      messages: [{ role: "user" as const, content: userContent }],
+    };
+    // D-142: thread req.signal + a bounded timeout so a typing-resumed / closed
+    // client abort actually cancels the upstream generation and is caught below
+    // (499, unbilled) instead of completing server-side and writing a
+    // usage_record for a suggestion no one will ever see. Stage 1 keeps this
+    // route atomic JSON (Stage 2 streams it via the shared gate).
+    const startedAt = Date.now();
+    const response = await client.messages.create(
+      route.route === "openrouter"
+        ? withQuickAssistReasoning(baseParams)
+        : baseParams,
+      { signal: req.signal, timeout: QUICK_ASSIST_TIMEOUT_INLINE_MS }
+    );
 
-    // Parse the response
-    const textBlock = response.content.find((b) => b.type === "text");
-    const rawText = textBlock && "text" in textBlock ? textBlock.text : "[]";
+    // Parse the response (extractQuickAssistText skips leading thinking blocks).
+    const rawText = extractQuickAssistText(response.content) || "[]";
 
     let suggestions: InlineEditSuggestion[];
     try {
@@ -146,12 +181,47 @@ Provide ${data.count} alternative rewrites as a JSON array.`;
       suggestions = [];
     }
 
+    // D-04/D-38: a request that yields NO usable rewrites is not a billable
+    // result. The empty array is often a max_tokens-truncated JSON payload that
+    // failed to parse. Do NOT write a usage record for nothing and do NOT
+    // answer with a hollow 200 { suggestions: [] }; surface an honest,
+    // retryable signal (and the truncation) so the writer can retry.
+    const ms = Date.now() - startedAt;
+    const timing = { "Server-Timing": `llm;dur=${ms}` };
+
+    if (suggestions.length === 0) {
+      // D-100 (migrated to settleQuickAssist, D5): a reasoning model that
+      // returned ONLY thinking blocks can't produce quick rewrites at all —
+      // answer honestly and point at the model picker, instead of a misleading,
+      // infinitely-retryable cut-off. The truncation copy still keys off
+      // stop_reason so a text-but-unparseable-JSON reply reads as "cut off".
+      if (settleQuickAssist(response.content, response.stop_reason).kind === "reasoning-only") {
+        return NextResponse.json(
+          {
+            error: modelNoQuickSuggestMessage("inline-edit"),
+            code: MODEL_NO_QUICK_SUGGEST_CODE,
+          },
+          { status: 422, headers: timing }
+        );
+      }
+      const truncated = response.stop_reason === "max_tokens";
+      return NextResponse.json(
+        {
+          error: truncated
+            ? "The rewrite response was cut off before it could be parsed. Try selecting less text, then try again."
+            : "No usable rewrites were generated. Please try again.",
+          retryable: true,
+        },
+        { status: 502, headers: timing }
+      );
+    }
+
     const tokensUsed = {
       input: response.usage.input_tokens,
       output: response.usage.output_tokens,
     };
 
-    // Record usage with registry ID
+    // Record usage with registry ID (only for a genuine, non-empty result)
     const cost = estimateCost(model.id, tokensUsed.input, tokensUsed.output);
     await db.usageRecord.create({
       data: {
@@ -165,8 +235,26 @@ Provide ${data.count} alternative rewrites as a JSON array.`;
       },
     });
 
-    return NextResponse.json({ suggestions, tokensUsed });
+    // Advance the Free-tier daily meter ONLY after a genuine, billable result
+    // (increment-on-success; never on failure — D-36 lesson). No-op for paid.
+    if (quotaResult.isFree) {
+      await recordDailyUse(user.id, "inline");
+    }
+
+    return NextResponse.json(
+      { suggestions, tokensUsed, elapsedMs: ms },
+      { headers: timing }
+    );
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
+    // D-142: a typing-resumed / navigation abort must not fall through to a 500
+    // — it delivered nothing and, having threaded req.signal, was cancelled
+    // upstream. Answer 499 (client gone), unbilled, so an aborted inline-edit
+    // never writes a usage_record.
+    if (req.signal.aborted || (error as Error).name === "AbortError") {
+      return new Response(null, { status: 499 });
+    }
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

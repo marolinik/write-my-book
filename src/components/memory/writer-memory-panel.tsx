@@ -272,16 +272,29 @@ export function WriterMemoryPanel({ bookId }: WriterMemoryPanelProps) {
                                 {m.source}
                               </Badge>
                             )}
-                            <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                            {/*
+                              D-171: this is the revoke affordance the whole
+                              panel exists for, so it may not be hover-only —
+                              a touch writer has no hover (D-151 family). Always
+                              visible from `sm` down; the fade stays desktop
+                              polish. Icon-only buttons carry aria-labels so the
+                              control has a name in the a11y tree, not just a
+                              glyph.
+                            */}
+                            <div className="flex gap-0.5 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100 transition-opacity shrink-0">
                               <button
                                 onClick={() => { setEditingId(m.id); setEditContent(m.content); }}
                                 className="text-muted-foreground hover:text-foreground"
+                                aria-label={`Edit memory: ${m.content}`}
+                                title="Edit"
                               >
                                 <EditIcon className="size-3" />
                               </button>
                               <button
                                 onClick={() => deleteMutation.mutate(m.id)}
                                 className="text-muted-foreground hover:text-destructive"
+                                aria-label={`Forget memory: ${m.content}`}
+                                title="Forget this"
                               >
                                 <TrashIcon className="size-3" />
                               </button>

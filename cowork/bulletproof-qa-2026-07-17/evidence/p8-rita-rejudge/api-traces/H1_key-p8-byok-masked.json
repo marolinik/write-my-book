@@ -1,0 +1,24 @@
+{
+  "id": "H1",
+  "label": "key-p8-byok-masked",
+  "actor": "p8",
+  "capturedAt": "2026-07-20T11:31:31.834Z",
+  "request": {
+    "method": "GET",
+    "url": "http://127.0.0.1:3002/api/settings/api-keys",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p8"
+    },
+    "body": null,
+    "bodyMode": "none"
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json",
+    "bodyLength": 267,
+    "bodyText": "[{\"id\":\"73aa2320-3fe0-4aac-86c6-dc3c625e9ac0\",\"provider\":\"openrouter\",\"label\":\"qa\",\"isDefault\":true,\"validatedAt\":\"2026-07-20T00:52:25.216Z\",\"createdAt\":\"2026-07-17T15:14:49.457Z\",\"maskedKey\":\"sk-or-v...705e\",\"usage\":{\"totalTokens\":0,\"totalCost\":0,\"sessionCount\":0}}]"
+  },
+  "expected": "200 maskedKey only, NO encryptedKey/plaintext",
+  "note": null
+}

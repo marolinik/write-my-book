@@ -7,9 +7,14 @@ import { db } from "@/lib/db";
  * Returns the current user's onboarding status and validated key count.
  */
 export async function GET() {
+  let user;
   try {
-    const user = await requireUser();
+    user = await requireUser();
+  } catch {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
+  try {
     const keyCount = await db.apiKey.count({
       where: { userId: user.id, validatedAt: { not: null } },
     });
@@ -18,32 +23,31 @@ export async function GET() {
       onboardingComplete: user.onboardingComplete,
       keyCount,
     });
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  } catch (error) {
+    console.error("GET /api/settings/onboarding error:", error);
+    return NextResponse.json(
+      { error: "Failed to load onboarding status" },
+      { status: 500 }
+    );
   }
 }
 
 /**
  * POST /api/settings/onboarding
- * Marks onboarding as complete. Requires at least one validated API key.
+ * Marks onboarding as complete. No API key required — the card-free / key-free
+ * on-ramp lets a writer skip setup and start writing on the Free tier (they can
+ * connect a BYOK provider later in Settings → API Keys).
  * Sets the wmb_onboarded cookie for Edge middleware detection.
  */
 export async function POST() {
+  let user;
   try {
-    const user = await requireUser();
+    user = await requireUser();
+  } catch {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-    // Verify at least one validated key exists
-    const keyCount = await db.apiKey.count({
-      where: { userId: user.id, validatedAt: { not: null } },
-    });
-
-    if (keyCount === 0) {
-      return NextResponse.json(
-        { error: "Add at least one valid API key first" },
-        { status: 400 }
-      );
-    }
-
+  try {
     // Mark onboarding complete in DB
     await db.user.update({
       where: { id: user.id },
@@ -60,7 +64,11 @@ export async function POST() {
     });
 
     return response;
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  } catch (error) {
+    console.error("POST /api/settings/onboarding error:", error);
+    return NextResponse.json(
+      { error: "Failed to complete onboarding" },
+      { status: 500 }
+    );
   }
 }

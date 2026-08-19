@@ -1,0 +1,27 @@
+{
+  "id": "D2",
+  "label": "gate-free-second-book-p8-cap",
+  "actor": "p8",
+  "capturedAt": "2026-07-20T11:31:02.739Z",
+  "request": {
+    "method": "POST",
+    "url": "http://127.0.0.1:3002/api/books",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p8",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "name": "Rita RJ Free Book 2 1784547050860"
+    },
+    "bodyMode": "json"
+  },
+  "response": {
+    "status": 403,
+    "contentType": "application/json",
+    "bodyLength": 121,
+    "bodyText": "{\"error\":\"Free plan includes 1 book. Upgrade to Indie for 2 active books and unlimited AI runs.\",\"upgradeToTier\":\"indie\"}"
+  },
+  "expected": "403 (free cap = 1 book — NO bypass)",
+  "note": null
+}

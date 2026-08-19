@@ -1,0 +1,27 @@
+{
+  "id": "F5b",
+  "label": "d15-wiki-patch-bad-enum-real-row",
+  "actor": "p2",
+  "capturedAt": "2026-07-20T11:31:25.316Z",
+  "request": {
+    "method": "PATCH",
+    "url": "http://127.0.0.1:3002/api/books/1c829f25-3c52-4751-80b1-61cdc7fd8c73/wiki/6bf865d6-de07-4d9a-a276-1eaa19b25678",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p2",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "type": "not-a-real-entity-type"
+    },
+    "bodyMode": "json"
+  },
+  "response": {
+    "status": 400,
+    "contentType": "application/json",
+    "bodyLength": 178,
+    "bodyText": "{\"error\":\"Invalid input\",\"details\":{\"fieldErrors\":{\"type\":[\"Invalid option: expected one of \\\"character\\\"|\\\"location\\\"|\\\"item\\\"|\\\"event\\\"|\\\"lore\\\"|\\\"custom\\\"\"]},\"formErrors\":[]}}"
+  },
+  "expected": "400 against REAL owned row (was 500 empty)",
+  "note": null
+}

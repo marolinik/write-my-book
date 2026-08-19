@@ -14,6 +14,11 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
 import { formatTokens } from "@/lib/utils";
+import {
+  foldUsageModelsForDisplay,
+  type UsageModelTotals,
+} from "@/lib/llm/usage-aggregation";
+import { billingStatusNotice } from "@/lib/billing/status-notice";
 import { useLocale } from "@/components/providers/language-provider";
 import {
   Check,
@@ -44,7 +49,7 @@ const PLAN_CARDS = [
     icon: Crown,
     monthlyPrice: 19,
     annualPrice: null as number | null,
-    badge: "Limited -- Founder's Price",
+    badge: "Limited — Founder's Price",
     highlight: true,
     features: [
       "Unlimited books",
@@ -122,7 +127,17 @@ export default function BillingPage() {
   const trialEnd = subscription?.trialEnd
     ? new Date(subscription.trialEnd)
     : null;
+  // D-52: card-freeness is per-(plan, USER), not per-plan. checkout/route.ts
+  // only grants the card-free trial (payment_method_collection "if_required")
+  // when `!hasHadTrial`, where hasHadTrial = !!sub?.trialEnd (route.ts:69). A
+  // user who already consumed a trial is charged from day 1, so we must NOT
+  // advertise the trial badge or "No credit card required" to them.
+  const hasHadTrial = trialEnd !== null;
   const founderSoldOut = (founderCount?.available ?? 1) <= 0;
+
+  // D-07: honest banners for degraded-but-live subscription states the API
+  // already reports (past_due dunning, scheduled cancellation).
+  const statusNotice = billingStatusNotice(subscription, locale);
 
   const handleCheckout = (planKey: string) => {
     checkout.mutate({
@@ -185,6 +200,59 @@ export default function BillingPage() {
         </Card>
       )}
 
+      {/* Subscription status notice: past_due dunning / pending cancellation (D-07) */}
+      {statusNotice && (
+        <Card
+          className={
+            statusNotice.kind === "past_due"
+              ? "mb-6 border-red-300 bg-red-50 dark:border-red-800 dark:bg-red-950/30"
+              : "mb-6 border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30"
+          }
+        >
+          <CardContent className="flex items-start gap-3 py-4">
+            <AlertTriangle
+              className={
+                statusNotice.kind === "past_due"
+                  ? "h-5 w-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5"
+                  : "h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5"
+              }
+            />
+            <div>
+              <p
+                className={
+                  statusNotice.kind === "past_due"
+                    ? "font-medium text-red-800 dark:text-red-200"
+                    : "font-medium text-amber-800 dark:text-amber-200"
+                }
+              >
+                {statusNotice.title}
+              </p>
+              <p
+                className={
+                  statusNotice.kind === "past_due"
+                    ? "text-sm text-red-700 dark:text-red-300 mt-1"
+                    : "text-sm text-amber-700 dark:text-amber-300 mt-1"
+                }
+              >
+                {statusNotice.body}
+              </p>
+              {stripeConfigured && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-3 gap-2"
+                  onClick={() => manageBilling.mutate()}
+                  disabled={manageBilling.isPending}
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  Manage Subscription
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Annual Toggle */}
       <div className="flex items-center justify-center gap-3 mb-6">
         <span
@@ -229,8 +297,10 @@ export default function BillingPage() {
                     : ""
               }`}
             >
-              {/* Badge */}
-              {plan.badge && (
+              {/* Badge (D-52: suppress the "14-day free trial" claim for a
+                  user who already consumed a trial — they are charged day 1) */}
+              {plan.badge &&
+                !(plan.badge === "14-day free trial" && hasHadTrial) && (
                 <div className="absolute -top-3 left-4">
                   <Badge
                     variant={
@@ -303,6 +373,16 @@ export default function BillingPage() {
                   ))}
                 </ul>
 
+                {/* D-52: the advertised trial genuinely starts without a card
+                    (checkout: payment_method_collection "if_required"), but ONLY
+                    for a user who has not already used a trial — a returning
+                    trial-user is charged from day 1, so gate on !hasHadTrial. */}
+                {plan.badge === "14-day free trial" && !hasHadTrial && (
+                  <p className="-mt-2 mb-4 text-xs text-muted-foreground">
+                    No credit card required
+                  </p>
+                )}
+
                 {/* Actions */}
                 {isCurrent && stripeConfigured && (
                   <Button
@@ -358,7 +438,7 @@ export default function BillingPage() {
         <CardContent className="flex items-start gap-3 py-4">
           <Info className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
           <div>
-            <p className="font-medium">BYOK -- Bring Your Own Key</p>
+            <p className="font-medium">BYOK — Bring Your Own Key</p>
             <p className="text-sm text-muted-foreground mt-1">
               Your subscription covers the WriteMyBook platform. You bring your
               own AI API keys (Anthropic, OpenRouter, OpenAI, etc.) for LLM
@@ -373,25 +453,30 @@ export default function BillingPage() {
 
       {/* ─── Usage Stats (preserved from previous version) ─── */}
 
-      {/* Your Key Savings */}
+      {/* D-181: this card reports SPEND, which its own body always said. The
+          old "Your Key Savings" headline sat directly above the figure and
+          labelled it savings — spend-as-savings on a money surface (D-152
+          labelling family). Headline and description now name what the number
+          is; the zero-markup claim stays, as a claim about the rate, not the
+          total. */}
       {!usageLoading && usage?.total && usage.total.costEstimate > 0 && (
         <Card className="mb-6 border-green-200 bg-green-50/50 dark:border-green-900 dark:bg-green-950/20">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <Key className="h-4 w-4" />
-              Your Key Savings
+              Your AI Spend — Your Keys
             </CardTitle>
             <CardDescription>
-              By using your own API keys, you maintain full control over costs
+              What you paid your AI providers directly, at their rates
             </CardDescription>
           </CardHeader>
           <CardContent>
+            <p className="text-sm text-muted-foreground">Total spent (last 30 days)</p>
             <p className="text-3xl font-bold text-green-700 dark:text-green-400">
               ${usage.total.costEstimate.toFixed(2)}
             </p>
             <p className="text-sm text-muted-foreground mt-1">
-              Total spent using your own keys (last 30 days) &mdash;
-              no platform markup applied
+              Paid with your own keys &mdash; no platform markup applied
             </p>
             {usage.byKeySource &&
               (() => {
@@ -624,27 +709,47 @@ export default function BillingPage() {
                 </p>
               ) : (
                 <div className="space-y-3">
-                  {Object.entries(usage.byModel).map(
-                    ([model, data]: [string, any]) => (
-                      <div
-                        key={model}
-                        className="flex items-center justify-between rounded-md border p-3"
+                  {/* D-119: render a name the writer recognizes + the real API
+                      model id, not the raw registry slot id they never picked
+                      (e.g. "openrouter-qwen36/haiku").
+                      D-175: several configured slots can alias ONE provider
+                      model, which used to render as two rows with the SAME name
+                      and model id and different numbers — unanswerable for
+                      anyone auditing spend. They are folded into one row and the
+                      slots behind the fold are named, so the total stays
+                      auditable. */}
+                  {foldUsageModelsForDisplay(
+                    Object.entries(
+                      usage.byModel as Record<
+                        string,
+                        Omit<UsageModelTotals, "model">
                       >
-                        <p className="font-medium">{model}</p>
-                        <div className="text-right">
-                          <p className="font-medium">
-                            ${data.costEstimate.toFixed(2)}
+                    ).map(([model, data]) => ({ model, ...data }))
+                  ).map((row) => (
+                    <div
+                      key={row.modelIds.join("|")}
+                      className="flex items-center justify-between gap-4 rounded-md border p-3"
+                    >
+                      <div className="min-w-0">
+                        <p className="font-medium">{row.label}</p>
+                        {row.modelIds.length > 1 && (
+                          <p className="text-xs text-muted-foreground">
+                            Combined across {row.modelIds.length} configured
+                            slots: {row.modelIds.join(", ")}
                           </p>
-                          <p className="text-sm text-muted-foreground">
-                            {formatTokens(
-                              data.tokensInput + data.tokensOutput
-                            )}{" "}
-                            total tokens
-                          </p>
-                        </div>
+                        )}
                       </div>
-                    )
-                  )}
+                      <div className="text-right">
+                        <p className="font-medium">
+                          ${row.costEstimate.toFixed(2)}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {formatTokens(row.tokensInput + row.tokensOutput)}{" "}
+                          total tokens
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </CardContent>

@@ -1,0 +1,177 @@
+{
+ "new-findings-full": [
+  {
+   "id": "acaf7362-6194-43c0-9a89-e379edd91f5b",
+   "createdAt": "2026-07-20T11:32:37.566Z",
+   "severity": "important",
+   "category": "prose",
+   "status": "pending",
+   "paragraphNumber": 6,
+   "originalText": "There was a palpable silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.",
+   "anchorQuote": "There was a palpable silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.",
+   "newText": "There was a silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.",
+   "description": "Abstract vocabulary — \"palpable silence\" uses an abstract psychological adjective that violates the narrator's documented avoidance of such descriptors. The fingerprint signature is concrete, tactile, procedural language.",
+   "rationale": "\"Palpable\" is an adjective that lives in the realm of abstract emotional description — it names a feeling about silence rather than observing silence through concrete fact. The narrator's fingerprint explicitly states she \"almost entirely avoids abstract psychological vocabulary.\" She does not name feelings directly; she detects them through body behavior, environment, procedure. \"Palpable silence\" is an important finding because it signals a slight voice drift toward emotional telling rather than environmental showing. The scene gains strength if the silence is either stated simply or demonstrated through the absence of expected sounds, which would be more in keeping with the narrator's procedural observation style.",
+   "alternatives": [
+    {
+     "label": "Option A — remove modifier, keep concrete image",
+     "newText": "There was a silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.",
+     "originalText": "There was a palpable silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first."
+    },
+    {
+     "label": "Option B — compound silence with concrete detail",
+     "newText": "The shingle was silent. I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.",
+     "originalText": "There was a palpable silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first."
+    },
+    {
+     "label": "Option C — silence as physical absence",
+     "newText": "The shingle was quiet — no boats taking on, no voices from the mole. I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.",
+     "originalText": "There was a palpable silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first."
+    }
+   ]
+  },
+  {
+   "id": "b48e321f-e7b7-49aa-a160-c0b69e2b396b",
+   "createdAt": "2026-07-20T11:32:19.427Z",
+   "severity": "critical",
+   "category": "prose",
+   "status": "pending",
+   "paragraphNumber": 6,
+   "originalText": "There was a palpable silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first. Behind the island the sunset bled crimson and gold across the heavens. What held me was the smaller arithmetic: the rope and the ring and the salt that held them together, and the tin I found wedged under the stone I had found the first letter under, weeks ago, when this was still a story about grief.",
+   "anchorQuote": "Behind the island the sunset bled crimson and gold across the heavens.",
+   "newText": "There was a silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first. What held me was the smaller arithmetic: the rope and the ring and the salt that held them together, and the tin I found wedged under the stone I had found the first letter under, weeks ago, when this was still a story about grief.",
+   "description": "Ornamental sunset description — \"bled crimson and gold across the heavens\" is a stack of three clichéd decorative phrases that completely departs from the narrator's maritime procedural register.",
+   "rationale": "This sentence is the single most voice-breaking passage in the chapter. The narrator's entire voice is \"clipped, procedural, emotionally controlled\" — she communicates through maintenance tasks, log entries, and physical observation. She measures weather by barometer and wind direction (\"SW 4 knots\"), catalogs the Morena's mast as \"a finger,\" describes gales in intervals (\"the rain started at eight and by nine the visibility had gone to poor\"). \"Bled crimson and gold across the heavens\" uses three ornamental clichés stacked together — \"bled\" for sunset, \"crimson and gold\" for sunset colors, \"heavens\" for sky — none of which appear anywhere in her established register. The sentence adds nothing to plot, character, or voice. It sits between two procedurally precise beats and reads as though dropped in from a different manuscript. The reader experiences a voice break at the exact moment the chapter needs to tighten.",
+   "alternatives": [
+    {
+     "label": "Option A — remove entirely (strongest)",
+     "newText": "There was a silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first. What held me was the smaller arithmetic: the rope and the ring and the salt that held them together, and the tin I found wedged under the stone I had found the first letter under, weeks ago, when this was still a story about grief.",
+     "originalText": "There was a palpable silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first. Behind the island the sunset bled crimson and gold across the heavens. What held me was the smaller arithmetic: the rope and the ring and the salt that held them together, and the tin I found wedged under the stone I had found the first letter under, weeks ago, when this was still a story about grief."
+    },
+    {
+     "label": "Option B — replace with procedural temporal marker",
+     "newText": "There was a silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first. Light going. What held me was the smaller arithmetic: the rope and the ring and the salt that held them together, and the tin I found wedged under the stone I had found the first letter under, weeks ago, when this was still a story about grief.",
+     "originalText": "There was a palpable silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first. Behind the island the sunset bled crimson and gold across the heavens. What held me was the smaller arithmetic: the rope and the ring and the salt that held them together, and the tin I found wedged under the stone I had found the first letter under, weeks ago, when this was still a story about grief."
+    },
+    {
+     "label": "Option C — maritime procedural observation",
+     "newText": "There was a silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first. The light changed behind the island, because light is always moving. What held me was the smaller arithmetic: the rope and the ring and the salt that held them together, and the tin I found wedged under the stone I had found the first letter under, weeks ago, when this was still a story about grief.",
+     "originalText": "There was a palpable silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first. Behind the island the sunset bled crimson and gold across the heavens. What held me was the smaller arithmetic: the rope and the ring and the salt that held them together, and the tin I found wedged under the stone I had found the first letter under, weeks ago, when this was still a story about grief."
+    }
+   ]
+  },
+  {
+   "id": "42e70291-7151-40e1-8918-9ae30d85173d",
+   "createdAt": "2026-07-20T11:31:49.506Z",
+   "severity": "suggestion",
+   "category": "prose",
+   "status": "pending",
+   "paragraphNumber": 7,
+   "originalText": "Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean.",
+   "anchorQuote": "Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean.",
+   "newText": "Walking back up the steps, I noticed the lamp seemed dimmer than it should, though the wick was right and the glass was clean.",
+   "description": "Dangling modifier — \"Walking back up the steps\" attaches to \"the lamp\" instead of the narrator, creating an accidental image of the lamp walking.",
+   "rationale": "The sentence misattaches the participial phrase. The lamp did not walk — the narrator did. This is a mechanical grammatical error in prose that otherwise prizes precision. Unlike the protected dangling modifiers explicitly named in the writer's style preferences (which mimic cognitive slippage or fatigue), this one creates an unintended image rather than a deliberate cognitive effect. It reads as an accident, not an artful choice.",
+   "alternatives": [
+    {
+     "label": "Option A — attach modifier to narrator",
+     "newText": "Walking back up the steps, I noticed the lamp seemed dimmer than it should, though the wick was right and the glass was clean.",
+     "originalText": "Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean."
+    },
+    {
+     "label": "Option B — break into two sentences",
+     "newText": "I walked back up the steps. The lamp seemed dimmer than it should, though the wick was right and the glass was clean.",
+     "originalText": "Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean."
+    },
+    {
+     "label": "Option C — procedural log-frame",
+     "newText": "On the walk back, the lamp seemed dimmer than it should — wick right, glass clean.",
+     "originalText": "Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean."
+    }
+   ]
+  },
+  {
+   "id": "8f2bf7d9-6190-4225-a792-3fa0d4172000",
+   "createdAt": "2026-07-20T11:31:38.707Z",
+   "severity": "suggestion",
+   "category": "prose",
+   "status": "rejected",
+   "paragraphNumber": 7,
+   "originalText": null,
+   "anchorQuote": null,
+   "newText": null,
+   "description": "Dangling modifier — \"Walking back up the steps\" attaches to \"the lamp\" instead of the narrator, creating an accidental image of the lamp walking.",
+   "rationale": "The sentence misattaches the participial phrase. The lamp did not walk — the narrator did. This is a mechanical grammatical error in prose that otherwise prizes precision. Unlike the protected dangling modifiers explicitly named in the writer's style preferences (which mimic cognitive slippage or fatigue), this one creates an unintended image rather than a deliberate cognitive effect. It reads as an accident, not an artful choice.",
+   "alternatives": [
+    {
+     "label": "Option A — attach modifier to narrator",
+     "newText": "Walking back up the steps, I noticed the lamp seemed dimmer than it should, though the wick was right and the glass was clean.",
+     "originalText": "Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean."
+    },
+    {
+     "label": "Option B — break into two sentences",
+     "newText": "I walked back up the steps. The lamp seemed dimmer than it should, though the wick was right and the glass was clean.",
+     "originalText": "Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean."
+    },
+    {
+     "label": "Option C — procedural log-frame",
+     "newText": "On the walk back, the lamp seemed dimmer than it should — wick right, glass clean.",
+     "originalText": "Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean."
+    }
+   ]
+  }
+ ],
+ "report-docs-meta": [
+  {
+   "id": "7656d011-b67d-4bf6-99e7-68e614814016",
+   "type": "LINE_EDIT_REPORT",
+   "title": "Line Edit Report — Chapter 5",
+   "chapterNumber": 5,
+   "updatedAt": "2026-07-20T11:33:47.357Z",
+   "createdAt": "2026-07-18T15:52:09.824Z"
+  },
+  {
+   "id": "8eb42624-180f-4c0c-a014-6310ea0c6801",
+   "type": "LINE_EDIT_REPORT",
+   "title": "Line Edit Report — Chapter 4 — The Keeper's Arithmetic",
+   "chapterNumber": 4,
+   "updatedAt": "2026-07-18T17:21:32.927Z",
+   "createdAt": "2026-07-18T16:14:36.914Z"
+  },
+  {
+   "id": "f96f0519-367e-46c8-b21b-da2e407506d1",
+   "type": "LINE_EDIT_REPORT",
+   "title": "Line Edit Report — Chapter 2 — The Keeper's Arithmetic",
+   "chapterNumber": 2,
+   "updatedAt": "2026-07-18T17:19:00.055Z",
+   "createdAt": "2026-07-18T15:38:30.021Z"
+  },
+  {
+   "id": "1fa3b62d-03cd-4776-9588-92a7e8276450",
+   "type": "LINE_EDIT_REPORT",
+   "title": "Line Edit Report — Chapter 1 — The Keeper's Arithmetic",
+   "chapterNumber": 1,
+   "updatedAt": "2026-07-18T17:06:46.440Z",
+   "createdAt": "2026-07-18T15:32:10.872Z"
+  },
+  {
+   "id": "61864890-099b-4056-9816-bf3f5fa18445",
+   "type": "LINE_EDIT_REPORT",
+   "title": null,
+   "chapterNumber": 3,
+   "updatedAt": "2026-07-18T15:41:40.201Z",
+   "createdAt": "2026-07-18T15:41:40.201Z"
+  }
+ ],
+ "newest-report": {
+  "id": "7656d011-b67d-4bf6-99e7-68e614814016",
+  "chapterNumber": 5,
+  "updatedAt": "2026-07-20T11:33:47.357Z",
+  "length": 6147,
+  "content": "# Line Edit Report — Chapter 5 — The Keeper's Arithmetic\n\n## Summary\nFindings created: **3**\n\n| # | Severity | Category | Paragraph | Issue |\n|---|----------|----------|-----------|-------|\n| 1 | Critical | prose | 6 | Ornamental sunset description — complete departure from narrator's maritime procedural register |\n| 2 | Important | prose | 6 | Abstract vocabulary (\"palpable\") — violates the narrator's documented avoidance of abstract psychological descriptors |\n| 3 | Suggestion | prose | 7 | Dangling modifier — participial phrase misattaches to \"the lamp\" instead of narrator |\n\n---\n\n## Finding Analysis\n\n### Critical — Para 6: Ornamental Sunset Description\n**Anchor:** \"Behind the island the sunset bled crimson and gold across the heavens.\"\n\nThis is the single most voice-breaking passage in the chapter. The narrator's entire register is procedural-maritime-grounded: she measures weather by knots (\"SW 4 knots\"), catalogs boats by condition (\"the rest of her was sound\"), and describes gales through intervals (\"the rain started at eight and by nine the visibility had gone to poor\"). \n\n\"Bled crimson and gold across the heavens\" stacks three ornamental clichés — \"bled\" for sunset, \"crimson and gold\" for colors, \"heavens\" for sky — none of which appear in her established voice. The sentence adds nothing to plot, character, or voice. It sits between two procedurally precise beats and reads as though dropped from a different manuscript.\n\n**Recommendation:** Option A (remove entirely) is the strongest fix. If a temporal marker is needed, Option B (\"Light going\") maintains the narrator's factual register without ornament.\n\n---\n\n### Important — Para 6: Abstract Vocabulary\n**Anchor:** \"There was a palpable silence on the shingle...\"\n\n\"Palpable\" is an adjective that lives in the realm of abstract emotional description — it names a feeling about silence rather than observing silence through concrete fact. The narrator's fingerprint explicitly states she \"almost entirely avoids abstract psychological vocabulary.\"\n\n**Recommendation:** Option A (remove modifier, keep \"There was a silence\") is the cleanest fix. The silence is established by context — she is working through a decision on the shingle alone. If the silence needs amplification, Option C grounds it in physical absence (no boats, no voices).\n\n---\n\n### Suggestion — Para 7: Dangling Modifier\n**Anchor:** \"Walking back up the steps, the lamp seemed dimmer than it should...\"\n\nThe participial phrase \"Walking back up the steps\" attaches to \"the lamp\" instead of the narrator, creating an accidental image of the lamp walking. Unlike the protected dangling modifiers in the writer's style preferences (which mimic cognitive slippage or fatigue), this creates an unintended image rather than a deliberate cognitive effect.\n\n**Recommendation:** Option A (\"Walking back up the steps, I noticed the lamp seemed dimmer\") is the simplest fix, preserving the narrator's observational focus while correcting the attachment.\n\n---\n\n## What This Chapter Does Right\n\n**Opening precision** — Paragraph 1 is exemplary: procedural observation, emotional distance through log refusal (\"because the log does not take opinions\"), subject-first declarative sentences, maritime detail anchored in specific fact (\"rope had frayed where it crossed the iron ring\").\n\n**The bill simile** — \"A boat with no oars arrives the way a bill arrives\" (para 3) correctly deploys the author's signature \"the way\" universalizing device. It's original, unexpected, and extends the weight metaphor domain organically.\n\n**Thematic weight-arithmetic** — \"The smaller arithmetic: the rope and the ring and the salt\" (para 6) extends the weight metaphor through accumulated physical detail. This is the narrator's core cognitive method — converting moral gravity into physical inventory.\n\n**Compressed paradox** — \"Inside the tin: nothing. Which is not the same as empty\" (para 7) demonstrates the narrator's self-correcting recursion — a PROTECTED SIGNATURE DEVICE. The distinction between nothing (has been taken) and empty (was never filled) is precise emotional observation disguised as factual notation.\n\n**Chapter-closing symmetry** — Ending on refused line-drawing (\"Then I did not draw the line\") creates exact structural symmetry with Chapter 4 (\"Drew no line\") and the procedural rupture arc from Chapter 2 (wick not trimmed). This is the narrator's emotional grammar, and it's deployed correctly.\n\n**Voice calibration maintained** — Zero ellipses (correct). Em dashes at 2 (within fingerprint range). Zero semicolons (matching fingerprint). Fragment-stacked mood setting (\"No oars. None.\" para 3) is proper. Log entries function as rhythm markers. Voice metrics largely consistent with calibration samples.\n\n---\n\n## Prose Patterns to Watch For\n\n1. **Ornamental description intrusion** — The sunset sentence is the only breach of the calibrated maritime procedural register in this chapter. When editing subsequent chapters, watch for phrases that could appear in any genre but bear no fingerprints of this narrator's specific voice.\n\n2. **Abstract adjectives** — \"Palpable\" is a borderline case; watch for other moments where emotional states are described through adjective rather than concrete observation.\n\n3. **Dangling modifiers** — This is the only mechanical grammatical error in the chapter. The narrator's voice is precise; dangling modifiers break that precision unless deployed deliberately as cognitive slippage.\n\n---\n\n## Overall Assessment\n\nChapter 5 is strong. After removing the two ornamental/abstract violations in paragraph 6 (the critical and important findings), the chapter is prose-clean. The remaining suggestion-level finding (dangling modifier) is minor and easily fixed.\n\nThe chapter successfully advances the narrative engine — the skiff's arrival is a concrete plot event that destabilizes Kova's established pattern, the empty tin extends the mystery architecture, and the procedural rupture (refusing to draw the line) mirrors the emotional rupture. Voice is well-calibrated across 90% of the chapter; the two deviations in paragraph 6 are the only significant issues."
+ },
+ "report-hygiene-scan": {
+  "selfTalkHits": [],
+  "glitchTokenHits": []
+ }
+}

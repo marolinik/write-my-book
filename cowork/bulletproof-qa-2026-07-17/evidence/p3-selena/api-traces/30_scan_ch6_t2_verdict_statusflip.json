@@ -1,0 +1,26 @@
+{
+  "label": "30_scan_ch6_t2_verdict_statusflip",
+  "ts": "2026-07-18T10:49:51.975Z",
+  "method": "POST",
+  "path": "/api/books/fd60e1d4-37c5-4c11-92a1-586af638224a/continuity/scan?chapterNumber=6",
+  "note": "T2 first verdict: NO dead_character_reappears despite deathChapter=3 + PARTICIPATES_IN Defense of the Western Wall (chapter 6). Cause: ch6 extraction emitted Corvin status \"transformed\"; ON MATCH += updateProps overwrote status dead->transformed, un-arming the c.status=\"dead\" gate. Graph evidence in 29_neo4j_t2_verify.txt. Status-flip vulnerability recorded as finding; next step re-arms status via canon-neutral ch3 re-extraction.",
+  "status": 200,
+  "response": {
+    "flags": [
+      {
+        "id": "52af6dc9-7244-413d-b0d7-b93272032a1a",
+        "signature": "e687d7d120a07aa1af9cc1eed6c6426c24a27af2",
+        "type": "relationship_contradiction",
+        "severity": "major",
+        "description": "Characters \"Mira Thorne\" and \"Kestrel Vane\" are marked as both ALLIED_WITH and OPPOSES each other simultaneously.",
+        "entities": [
+          "Mira Thorne",
+          "Kestrel Vane"
+        ],
+        "chapterNumber": 0,
+        "jumpChapter": null,
+        "anchor": null
+      }
+    ]
+  }
+}

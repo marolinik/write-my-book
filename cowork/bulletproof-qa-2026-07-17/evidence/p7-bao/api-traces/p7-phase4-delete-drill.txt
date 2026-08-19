@@ -1,0 +1,24 @@
+P7 Bao — Phase 4 raw run output (delete drill, second throwaway book, NOT the 80K-word book)
+Script: p7_phase4_delete_drill.py
+
+[PASS] p7-50-create-throwaway-book POST /api/books -> 201 {"id":"e05c3087-815a-4ebf-ab84-9b3401d61554", "name":"P7 Throwaway Delete-Drill Book", ...}
+throwaway book_id: e05c3087-815a-4ebf-ab84-9b3401d61554
+
+[PASS] p7-51-add-content PUT /api/books/e05c3087-815a-4ebf-ab84-9b3401d61554/chapters/6bcf5757-f565-41f7-8c6c-e75ae46b1988/content -> 200
+[PASS] p7-52-add-wiki-entity POST /api/books/e05c3087-815a-4ebf-ab84-9b3401d61554/wiki -> 201 {"id":"61cdb1ce-087b-475f-aa43-112c7081cb48", "name":"Throwaway Ghost", ...}
+[PASS] p7-53-add-document POST /api/books/e05c3087-815a-4ebf-ab84-9b3401d61554/documents -> 201 {"id":"1a39aee7-4f12-4714-98b5-ae151ad0ece2", "title":"Throwaway Bible", ...}
+
+[PASS] p7-54-pre-delete-book-exists GET /api/books/e05c3087-815a-4ebf-ab84-9b3401d61554 -> 200
+[PASS] p7-55-pre-delete-content-exists GET .../chapters/6bcf5757-f565-41f7-8c6c-e75ae46b1988/content -> 200
+[PASS] p7-56-pre-delete-wiki-exists GET .../wiki -> 200 count=1
+
+[PASS] p7-57-delete-book DELETE /api/books/e05c3087-815a-4ebf-ab84-9b3401d61554 -> 200 {"deleted":true}
+
+[PASS] p7-58-post-delete-book-404 GET /api/books/e05c3087-815a-4ebf-ab84-9b3401d61554 -> 404 {"error":"Book not found"}
+[PASS] p7-59-post-delete-content-404 GET .../chapters/6bcf5757-f565-41f7-8c6c-e75ae46b1988/content -> 404 {"error":"Book not found"}
+[PASS] p7-60-post-delete-chapters-list-404 GET .../chapters -> 404 {"error":"Book not found"}
+[PASS] p7-61-post-delete-wiki-404 GET .../wiki -> 404 {"error":"Not found"}
+[PASS] p7-62-post-delete-documents-404 GET .../documents -> 404 {"error":"Book not found"}
+[PASS] p7-63-book-not-in-list GET /api/books -> 200 still_listed=False
+
+PASS: 14 / 14

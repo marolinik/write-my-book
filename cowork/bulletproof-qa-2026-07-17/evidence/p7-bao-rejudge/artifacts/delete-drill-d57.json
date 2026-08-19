@@ -1,0 +1,128 @@
+{
+  "bookId": "85c3d2c4-b193-45b7-b677-5d102af8e4d8",
+  "deleteStatus": 200,
+  "deleteBody": {
+    "deleted": true
+  },
+  "probeCount": 17,
+  "statusBreakdown": {
+    "404": 17
+  },
+  "distinct404ErrorMessages": [
+    "Book not found",
+    "Not found"
+  ],
+  "d57_allBookScoped404sSayBookNotFound": false,
+  "d57_inconsistentEntries": [
+    {
+      "label": "get-continuity",
+      "method": "GET",
+      "status": 404,
+      "errorMsg": "Not found"
+    }
+  ],
+  "results": [
+    {
+      "label": "get-book",
+      "method": "GET",
+      "status": 404,
+      "errorMsg": "Book not found"
+    },
+    {
+      "label": "delete-again",
+      "method": "DELETE",
+      "status": 404,
+      "errorMsg": "Book not found"
+    },
+    {
+      "label": "patch-book",
+      "method": "PATCH",
+      "status": 404,
+      "errorMsg": "Book not found"
+    },
+    {
+      "label": "get-chapters",
+      "method": "GET",
+      "status": 404,
+      "errorMsg": "Book not found"
+    },
+    {
+      "label": "get-chapter-content",
+      "method": "GET",
+      "status": 404,
+      "errorMsg": "Book not found"
+    },
+    {
+      "label": "put-chapter-content",
+      "method": "PUT",
+      "status": 404,
+      "errorMsg": "Book not found"
+    },
+    {
+      "label": "post-export",
+      "method": "POST",
+      "status": 404,
+      "errorMsg": "Book not found"
+    },
+    {
+      "label": "get-export-list",
+      "method": "GET",
+      "status": 404,
+      "errorMsg": "Book not found"
+    },
+    {
+      "label": "get-export-file",
+      "method": "GET",
+      "status": 404,
+      "errorMsg": "Book not found"
+    },
+    {
+      "label": "reorder",
+      "method": "PATCH",
+      "status": 404,
+      "errorMsg": "Book not found"
+    },
+    {
+      "label": "get-settings",
+      "method": "GET",
+      "status": 404,
+      "errorMsg": "Book not found"
+    },
+    {
+      "label": "get-analysis",
+      "method": "GET",
+      "status": 404,
+      "errorMsg": "Book not found"
+    },
+    {
+      "label": "get-wiki",
+      "method": "GET",
+      "status": 404,
+      "errorMsg": "Book not found"
+    },
+    {
+      "label": "get-findings",
+      "method": "GET",
+      "status": 404,
+      "errorMsg": "Book not found"
+    },
+    {
+      "label": "get-writing-stats",
+      "method": "GET",
+      "status": 404,
+      "errorMsg": "Book not found"
+    },
+    {
+      "label": "get-search",
+      "method": "GET",
+      "status": 404,
+      "errorMsg": "Book not found"
+    },
+    {
+      "label": "get-continuity",
+      "method": "GET",
+      "status": 404,
+      "errorMsg": "Not found"
+    }
+  ]
+}

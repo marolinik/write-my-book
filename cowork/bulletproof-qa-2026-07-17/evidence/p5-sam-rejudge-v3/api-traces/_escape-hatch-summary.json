@@ -1,0 +1,31 @@
+{
+  "capturedAt": "2026-07-20T15:26:49.185Z",
+  "originalModel": "openrouter-qwen36/sonnet",
+  "candidatesTried": [
+    "openrouter-deepseek/sonnet",
+    "openrouter/haiku",
+    "openrouter-kimi/sonnet"
+  ],
+  "attempts": [
+    {
+      "model": "openrouter-deepseek/sonnet",
+      "patchOk": true,
+      "ghostStatus": 200,
+      "ghostUsable": true,
+      "ghostSample": "just beginning to rage, and in that moment he felt the weight of his solitude settle upon him like the cold Atlantic mist.",
+      "ghostMs": 6948,
+      "inlineStatus": 200,
+      "inlineUsable": true,
+      "inlineSample": [
+        "[Tighter, more ominous] the storm advancing",
+        "[More atmospheric detail] the storm gathering on the horizon",
+        "[Concise, ominous phrasing] the storm's approach"
+      ],
+      "inlineMs": 2583
+    }
+  ],
+  "winner": "openrouter-deepseek/sonnet",
+  "escapeHatchWorks": true,
+  "restoredTo": "openrouter-qwen36/sonnet",
+  "restoredOk": true
+}

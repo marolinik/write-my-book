@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { createBookSchema } from "@/lib/validation";
 import { generateS3Prefix, generateSeriesS3Prefix } from "@/lib/utils";
 import { checkPlanAccess } from "@/lib/billing/plan-gating";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { zodErrorResponse } from "@/lib/api/zod-error";
 
 /** GET /api/books — list all books for the current user. */
 export async function GET() {
@@ -47,7 +49,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = createBookSchema.parse(body);
 
     // Check for duplicate name
@@ -90,11 +92,6 @@ export async function POST(req: NextRequest) {
       ? generateSeriesS3Prefix(user.id, data.seriesId, book.bookNumber)
       : generateS3Prefix(user.id, book.id);
 
-    const updatedBook = await db.book.update({
-      where: { id: book.id },
-      data: { s3Prefix },
-    });
-
     // Create default settings
     await db.bookSettings.create({
       data: { bookId: book.id },
@@ -107,17 +104,27 @@ export async function POST(req: NextRequest) {
       data: { bookId: book.id, actNumber: 1, chapterNumber: 1, title: null },
     });
 
+    // D-194: count that placeholder. `chapter_count` defaults to 0, so leaving
+    // it alone here started EVERY in-product book off-by-one (measured 1 vs 2,
+    // 7 vs 8 on real books) and every later +1/-1 delta rode the wrong base.
+    // Folded into the s3Prefix update so book creation still writes once.
+    const updatedBook = await db.book.update({
+      where: { id: book.id },
+      data: { s3Prefix, chapterCount: 1 },
+    });
+
     return NextResponse.json(
       { ...updatedBook, firstChapterId: firstChapter.id },
       { status: 201 }
     );
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if ((error as Error).name === "ZodError") {
-      return NextResponse.json({ error: "Invalid input", details: error }, { status: 400 });
-    }
+    const zodRes = zodErrorResponse(error);
+    if (zodRes) return zodRes;
     console.error("POST /api/books error:", error);
     return NextResponse.json(
       { error: "Failed to create book" },

@@ -1,0 +1,22 @@
+=== LIVE HTTP PATH — persisted ContinuityFlag rows (book1) ===
+captured: 2026-07-20T02:40:59.440Z
+book1=a77359eb-6587-4bf0-b72d-65e0ae027e64
+
+POST /continuity/scan?chapterNumber=6 → status=200, returned 2 flags
+extraction status envelope: {"state":"extracting","kind":null,"capped":false,"attempts":0,"reason":null,"lowYield":false,"throttled":false,"retryEligibleAt":null}
+
+GET /continuity active flags: 2
+   [critical] timeline_violation ch6: Event "Ritual of Emberfall" (chapter 6) is marked as leading to "The Great Fire of Highfort" (chapter 1), but it occurs later in the story.
+   [critical] dead_character_reappears ch4: Character "Dorn Kappel" dies in chapter 2 but participates in events in chapters 4.
+
+--- Postgres ContinuityFlag rows (2) [DURABLE PRODUCT DB] ---
+   [critical] dead_character_reappears status=active ch4
+      Character "Dorn Kappel" dies in chapter 2 but participates in events in chapters 4.
+      entities=["Dorn Kappel"]
+      signature=f937b2745b92c26dc40e3aec956a392f12d3f6dc
+   [critical] timeline_violation status=active ch6
+      Event "Ritual of Emberfall" (chapter 6) is marked as leading to "The Great Fire of Highfort" (chapter 1), but it occurs later in the story.
+      entities=["Ritual of Emberfall","The Great Fire of Highfort"]
+      signature=b7ea916ab4e114778c183cc765ddce006453cfe3
+
+Active flag types persisted: ["dead_character_reappears","timeline_violation"]

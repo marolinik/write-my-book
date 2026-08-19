@@ -64,15 +64,34 @@ export async function onDocumentChanged(
   if (!content || content.trim().length === 0) return;
 
   const docType = mapDocumentType(documentType);
-  const docId = metadata?.docId ?? `${bookId}:${documentType}`;
+  const chapterNumber = metadata?.chapterNumber ?? null;
+
+  // D-75: chapter CONTENT is chapter-scoped, not book-scoped. Previously every chapter
+  // fell back to the SAME default docId (`${bookId}:CHAPTER_CONTENT`), so the indexer's
+  // docId-scoped delete wiped the previous chapter on each save AND the debounce key
+  // collided (a chapter save cancelled a different chapter's pending index) — the store
+  // kept only the last-written chapter. Give each chapter a STABLE per-chapter default
+  // docId, and flag chapter content so the indexer replaces it chapter-scoped. Both
+  // caller-less paths (content route, agent post-session) pass chapterNumber, so this
+  // single derivation gives them an IDENTICAL docId for the same logical chapter. The
+  // flag is gated on the RAW CHAPTER_CONTENT type: CHAPTER_BRIEF / CHAPTER_PLAN map to
+  // the same "chapter" docType + chapterNumber but are distinct documents that must
+  // coexist with the prose, so they must NOT be treated as chapter content.
+  const isChapterContent = documentType === "CHAPTER_CONTENT";
+  const docId =
+    metadata?.docId ??
+    (isChapterContent && chapterNumber !== null
+      ? `${bookId}:${documentType}:${chapterNumber}`
+      : `${bookId}:${documentType}`);
 
   scheduleIndex(bookId, docType, docId, content, {
     userId: metadata?.userId,
     seriesId: metadata?.seriesId ?? null,
     chapterId: metadata?.chapterId ?? null,
-    chapterNumber: metadata?.chapterNumber ?? null,
+    chapterNumber,
     language: metadata?.language ?? null,
     version: metadata?.version ?? 1,
+    chapterContent: isChapterContent,
   });
 }
 

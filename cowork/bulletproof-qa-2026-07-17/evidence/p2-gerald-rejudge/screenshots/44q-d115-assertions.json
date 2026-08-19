@@ -1,0 +1,110 @@
+{
+  "shot": "44q1-44q3",
+  "defect": "D-115 (S3, registered OPEN, live instance of deferred D-22) — captured, NOT fixed in this wave",
+  "capturedAt": "2026-07-27T04:34:42.377Z",
+  "identity": "user_qa_p2 via x-e2e-clerk-id header (no .env flip)",
+  "fixture": {
+    "bookId": "b626fd3b-31f3-4b1f-8c0a-d59737896357",
+    "deletedChapterId": "be279463-9862-43ca-ab8a-fbec2630e9a6",
+    "newChapterId": "61399b20-dd8a-4d91-a91e-aacd9df369cc",
+    "name": "P2-CAPTURE-D115-1785126801417"
+  },
+  "sentinel": "GHOST_SECRET_9f3a",
+  "deletedProse": "The chapter Gerald deleted on purpose. GHOST_SECRET_9f3a. Every word here was supposed to be gone forever.",
+  "assertions": {
+    "delete_chapter_has_no_ui_affordance": true,
+    "delete_status": 200,
+    "get_deleted_chapter_content_status_after_delete": 404,
+    "new_chapter_form_default_number": "2",
+    "new_chapter_form_default_is_the_freed_number": true,
+    "brand_new_chapter_editor_shows_deleted_prose": true,
+    "editor_word_counter_text": "16 words",
+    "api_get_new_chapter_wordCount": 0,
+    "api_get_new_chapter_markdown_length": 106,
+    "api_get_new_chapter_markdown_contains_sentinel": true,
+    "wordCount_zero_but_body_non_empty_inconsistency": true,
+    "first_save_hit_phantom_409": false,
+    "phantom_dialog_quotes_deleted_text": null
+  },
+  "editorTextVerbatim": "The chapter Gerald deleted on purpose. GHOST_SECRET_9f3a. Every word here was supposed to be gone forever.",
+  "dialogTextVerbatim": "",
+  "network": [
+    {
+      "url": "/books/b626fd3b-31f3-4b1f-8c0a-d59737896357/chapters/new",
+      "method": "GET",
+      "status": 200,
+      "at": "2026-07-27T04:33:45.426Z"
+    },
+    {
+      "url": "/books/b626fd3b-31f3-4b1f-8c0a-d59737896357/chapters/new",
+      "method": "POST",
+      "status": 200,
+      "at": "2026-07-27T04:33:46.795Z"
+    },
+    {
+      "url": "/api/books/b626fd3b-31f3-4b1f-8c0a-d59737896357/chapters",
+      "method": "GET",
+      "status": 200,
+      "at": "2026-07-27T04:33:46.910Z"
+    },
+    {
+      "url": "/api/books/b626fd3b-31f3-4b1f-8c0a-d59737896357/chapters",
+      "method": "POST",
+      "status": 201,
+      "at": "2026-07-27T04:33:47.823Z"
+    },
+    {
+      "url": "/api/books/b626fd3b-31f3-4b1f-8c0a-d59737896357/chapters",
+      "method": "GET",
+      "status": 200,
+      "at": "2026-07-27T04:33:48.057Z"
+    },
+    {
+      "url": "/books/b626fd3b-31f3-4b1f-8c0a-d59737896357/chapters/61399b20-dd8a-4d91-a91e-aacd9df369cc?_rsc=1yv7p",
+      "method": "GET",
+      "status": 200,
+      "at": "2026-07-27T04:33:48.573Z"
+    },
+    {
+      "url": "/api/books/b626fd3b-31f3-4b1f-8c0a-d59737896357/chapters/61399b20-dd8a-4d91-a91e-aacd9df369cc/content",
+      "method": "GET",
+      "status": 200,
+      "at": "2026-07-27T04:33:49.732Z"
+    },
+    {
+      "url": "/api/books/b626fd3b-31f3-4b1f-8c0a-d59737896357/chapters/61399b20-dd8a-4d91-a91e-aacd9df369cc/content",
+      "method": "PUT",
+      "status": 200,
+      "at": "2026-07-27T04:33:56.774Z"
+    },
+    {
+      "url": "/api/books/b626fd3b-31f3-4b1f-8c0a-d59737896357/chapters/61399b20-dd8a-4d91-a91e-aacd9df369cc/content",
+      "method": "GET",
+      "status": 200,
+      "at": "2026-07-27T04:33:57.891Z"
+    },
+    {
+      "url": "/api/books/b626fd3b-31f3-4b1f-8c0a-d59737896357/chapters/61399b20-dd8a-4d91-a91e-aacd9df369cc/content",
+      "method": "PUT",
+      "status": 200,
+      "at": "2026-07-27T04:34:00.256Z"
+    },
+    {
+      "url": "/api/books/b626fd3b-31f3-4b1f-8c0a-d59737896357/chapters/61399b20-dd8a-4d91-a91e-aacd9df369cc/content",
+      "method": "GET",
+      "status": 200,
+      "at": "2026-07-27T04:34:00.738Z"
+    }
+  ],
+  "log": [
+    "[2026-07-27T04:33:21.737Z] fixture book=b626fd3b-31f3-4b1f-8c0a-d59737896357",
+    "[2026-07-27T04:33:22.127Z] chapter 2 (be279463-9862-43ca-ab8a-fbec2630e9a6) seeded -> PUT 200",
+    "[2026-07-27T04:33:31.646Z] DELETE chapter 2 -> 200 {\"deleted\":true}",
+    "[2026-07-27T04:33:31.737Z] GET deleted chapter content -> 404",
+    "[2026-07-27T04:33:47.343Z] New Chapter form default chapterNumber = 2",
+    "[2026-07-27T04:33:48.701Z] new chapter created: 61399b20-dd8a-4d91-a91e-aacd9df369cc (url http://localhost:3001/books/b626fd3b-31f3-4b1f-8c0a-d59737896357/chapters/61399b20-dd8a-4d91-a91e-aacd9df369cc)",
+    "[2026-07-27T04:33:52.605Z] brand-new chapter editor contains the DELETED prose sentinel = true; word counter reads \"16 words\"",
+    "[2026-07-27T04:33:53.345Z] GET new chapter content -> 200 wordCount=0 markdownLen=106 containsSentinel=true",
+    "[2026-07-27T04:34:42.377Z] no conflict chip appeared within 45s — first save did NOT 409 (disclose, do not retry)"
+  ]
+}

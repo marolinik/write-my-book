@@ -5,6 +5,9 @@ import {
   findingsQuerySchema,
   batchCreateFindingsSchema,
 } from "@/lib/validation";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { zodErrorResponse } from "@/lib/api/zod-error";
+import { isBlank } from "@/lib/editorial/finding-applicability";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -57,6 +60,11 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
     return NextResponse.json({
       findings: findings.map((finding) => ({
         ...finding,
+        // D-41a: a blank (empty/whitespace) newText is not a real replacement —
+        // applying it would delete the passage. Surface it as absent so the
+        // client never renders an "auto-apply" affordance or a blank diff for it;
+        // the finding still reads as advisory (description + Discuss).
+        newText: isBlank(finding.newText) ? null : finding.newText,
         alternatives: parseAlternatives(finding.alternatives),
       })),
       total,
@@ -65,12 +73,8 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if ((error as Error).name === "ZodError") {
-      return NextResponse.json(
-        { error: "Invalid input", details: error },
-        { status: 400 }
-      );
-    }
+    const zodRes = zodErrorResponse(error);
+    if (zodRes) return zodRes;
     console.error("GET /api/books/:id/editorial/findings error:", error);
     return NextResponse.json(
       { error: "Failed to list findings" },
@@ -92,7 +96,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = batchCreateFindingsSchema.parse(body);
 
     const result = await db.editFinding.createMany({
@@ -114,15 +118,13 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ created: result.count });
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if ((error as Error).name === "ZodError") {
-      return NextResponse.json(
-        { error: "Invalid input", details: error },
-        { status: 400 }
-      );
-    }
+    const zodRes = zodErrorResponse(error);
+    if (zodRes) return zodRes;
     console.error("POST /api/books/:id/editorial/findings error:", error);
     return NextResponse.json(
       { error: "Failed to create findings" },

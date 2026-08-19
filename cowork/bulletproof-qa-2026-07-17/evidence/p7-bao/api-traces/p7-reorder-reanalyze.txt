@@ -1,0 +1,43 @@
+[PASS] p7ro2-01-epub-real-chapter-count-20 20 real chapter files (>=1000 words); front matter excluded by word-count filter: ['EPUB/text/ch001.xhtml', 'EPUB/text/ch002.xhtml', 'EPUB/text/ch003.xhtml', 'EPUB/text/ch004.xhtml']
+[PASS] p7ro2-02-epub-file-01-pairs-Dead Reckoning, Fina file=EPUB/text/ch005.xhtml ratio=1.0000 local_words=4170 file_words=4170
+[PASS] p7ro2-02-epub-file-02-pairs-Nagüel Huapi Endgame file=EPUB/text/ch006.xhtml ratio=1.0000 local_words=4225 file_words=4225
+[PASS] p7ro2-02-epub-file-03-pairs-Raison d'Être file=EPUB/text/ch007.xhtml ratio=1.0000 local_words=4230 file_words=4230
+[PASS] p7ro2-02-epub-file-04-pairs-The Åström Line file=EPUB/text/ch008.xhtml ratio=1.0000 local_words=4196 file_words=4196
+[PASS] p7ro2-02-epub-file-05-pairs-A Fiancée's Silence file=EPUB/text/ch009.xhtml ratio=1.0000 local_words=4217 file_words=4217
+[PASS] p7ro2-02-epub-file-06-pairs-Québec Standoff file=EPUB/text/ch010.xhtml ratio=1.0000 local_words=4263 file_words=4263
+[PASS] p7ro2-02-epub-file-07-pairs-The Núñez Protocol file=EPUB/text/ch011.xhtml ratio=1.0000 local_words=4314 file_words=4314
+[PASS] p7ro2-02-epub-file-08-pairs-Antalya at Midnight file=EPUB/text/ch012.xhtml ratio=1.0000 local_words=4209 file_words=4209
+[PASS] p7ro2-02-epub-file-09-pairs-Zoë's Gambit file=EPUB/text/ch013.xhtml ratio=1.0000 local_words=4207 file_words=4207
+[PASS] p7ro2-02-epub-file-10-pairs-The Kraków Manifest file=EPUB/text/ch014.xhtml ratio=1.0000 local_words=4270 file_words=4270
+[PASS] p7ro2-02-epub-file-11-pairs-Coöperate or Die file=EPUB/text/ch015.xhtml ratio=1.0000 local_words=4262 file_words=4262
+[PASS] p7ro2-02-epub-file-12-pairs-Señorita of the Dock file=EPUB/text/ch016.xhtml ratio=1.0000 local_words=4194 file_words=4194
+[PASS] p7ro2-02-epub-file-13-pairs-The Château Signal file=EPUB/text/ch017.xhtml ratio=1.0000 local_words=4210 file_words=4210
+[PASS] p7ro2-02-epub-file-14-pairs-Reykjavík, Cold file=EPUB/text/ch018.xhtml ratio=1.0000 local_words=4273 file_words=4273
+[PASS] p7ro2-02-epub-file-15-pairs-Ash on the Wire file=EPUB/text/ch019.xhtml ratio=1.0000 local_words=4253 file_words=4253
+[PASS] p7ro2-02-epub-file-16-pairs-The Kőszeg Drop file=EPUB/text/ch020.xhtml ratio=1.0000 local_words=4221 file_words=4221
+[PASS] p7ro2-02-epub-file-17-pairs-No Names in São Paul file=EPUB/text/ch021.xhtml ratio=1.0000 local_words=4155 file_words=4155
+[PASS] p7ro2-02-epub-file-18-pairs-The Łódź Ledger file=EPUB/text/ch022.xhtml ratio=1.0000 local_words=4194 file_words=4194
+[PASS] p7ro2-02-epub-file-19-pairs-A Debt in Malmö file=EPUB/text/ch023.xhtml ratio=1.0000 local_words=4256 file_words=4256
+[PASS] p7ro2-02-epub-file-20-pairs-The Façade in Zürich file=EPUB/text/ch024.xhtml ratio=1.0000 local_words=4237 file_words=4237
+[PASS] p7ro2-03-epub-zero-content-loss-correct-order-pairing all 20 real-chapter files >=99.9% word match to expected reversed-order chapter, in position order (front-matter chNNN files correctly excluded)
+[PASS] p7ro2-04-pdf-body-pairing-Dead Reckoning, Final own=0.9963 (rank #1: yes), 2nd_best=0.9188 (The Château Signal)
+[PASS] p7ro2-04-pdf-body-pairing-Nagüel Huapi Endgame own=0.9967 (rank #1: yes), 2nd_best=0.9307 (The Kraków Manifest)
+[PASS] p7ro2-04-pdf-body-pairing-Raison d'Être own=0.9967 (rank #1: yes), 2nd_best=0.9132 (The Façade in Zürich)
+[PASS] p7ro2-04-pdf-body-pairing-The Åström Line own=0.9967 (rank #1: yes), 2nd_best=0.9211 (The Łódź Ledger)
+[PASS] p7ro2-04-pdf-body-pairing-A Fiancée's Silence own=0.9967 (rank #1: yes), 2nd_best=0.8941 (Reykjavík, Cold)
+[PASS] p7ro2-04-pdf-body-pairing-Québec Standoff own=0.9964 (rank #1: yes), 2nd_best=0.9371 (A Debt in Malmö)
+[PASS] p7ro2-04-pdf-body-pairing-The Núñez Protocol own=0.9968 (rank #1: yes), 2nd_best=0.9189 (Reykjavík, Cold)
+[PASS] p7ro2-04-pdf-body-pairing-Antalya at Midnight own=0.9967 (rank #1: yes), 2nd_best=0.9204 (The Núñez Protocol)
+[PASS] p7ro2-04-pdf-body-pairing-Zoë's Gambit own=0.9967 (rank #1: yes), 2nd_best=0.9122 (The Façade in Zürich)
+[PASS] p7ro2-04-pdf-body-pairing-The Kraków Manifest own=0.9965 (rank #1: yes), 2nd_best=0.9309 (Nagüel Huapi Endgame)
+[PASS] p7ro2-04-pdf-body-pairing-Coöperate or Die own=0.9967 (rank #1: yes), 2nd_best=0.9124 (The Núñez Protocol)
+[PASS] p7ro2-04-pdf-body-pairing-Señorita of the Docks own=0.9967 (rank #1: yes), 2nd_best=0.9180 (The Kraków Manifest)
+[PASS] p7ro2-04-pdf-body-pairing-The Château Signal own=0.9967 (rank #1: yes), 2nd_best=0.9184 (Dead Reckoning, Fina)
+[PASS] p7ro2-04-pdf-body-pairing-Reykjavík, Cold own=0.9964 (rank #1: yes), 2nd_best=0.9208 (The Núñez Protocol)
+[PASS] p7ro2-04-pdf-body-pairing-Ash on the Wire own=0.9967 (rank #1: yes), 2nd_best=0.9340 (The Façade in Zürich)
+[PASS] p7ro2-04-pdf-body-pairing-The Kőszeg Drop own=0.9967 (rank #1: yes), 2nd_best=0.9220 (Québec Standoff)
+[PASS] p7ro2-04-pdf-body-pairing-No Names in São Paulo own=0.9956 (rank #1: yes), 2nd_best=0.9143 (Dead Reckoning, Fina)
+[PASS] p7ro2-04-pdf-body-pairing-The Łódź Ledger own=0.9967 (rank #1: yes), 2nd_best=0.9216 (The Åström Line)
+[PASS] p7ro2-04-pdf-body-pairing-A Debt in Malmö own=0.9967 (rank #1: yes), 2nd_best=0.9376 (Québec Standoff)
+[PASS] p7ro2-04-pdf-body-pairing-The Façade in Zürich own=0.9968 (rank #1: yes), 2nd_best=0.9353 (Ash on the Wire)
+[PASS] p7ro2-05-pdf-zero-content-loss-unambiguous-pairing all 20: own-similarity is the unique argmax across all 20 candidates and >=0.99 (cross-chapter similarity is elevated, ~0.89-0.94, vs P2's ~0.25-0.29, because P7's prose generator reuses a shared template pool across chapters -- fixture property, not ambiguous pairing: own always wins outright)

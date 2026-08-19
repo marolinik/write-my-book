@@ -3,12 +3,17 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getModelDef } from "@/lib/llm";
 import { z } from "zod";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { zodErrorResponse } from "@/lib/api/zod-error";
 
 // ── Validation ─────────────────────────────────────────────────
 
 /** Registry ID or null (to clear an override). */
 const registryIdOrNull = z.string().min(1).max(50).nullable().optional();
 
+// D-39: .strict() so an unknown key 400s instead of a silent 200. Clients
+// (use-default-model, onboarding) send only defaultModel and/or the six role
+// override fields below.
 const updateDefaultModelSchema = z.object({
   defaultModel: z.string().min(1).max(50).optional(),
   modelGhostwriter: registryIdOrNull,
@@ -17,7 +22,7 @@ const updateDefaultModelSchema = z.object({
   modelAnalyst: registryIdOrNull,
   modelCoach: registryIdOrNull,
   modelCreative: registryIdOrNull,
-});
+}).strict();
 
 // ── Role override field names ──────────────────────────────────
 
@@ -33,8 +38,14 @@ const ROLE_FIELDS = [
 // ── GET ────────────────────────────────────────────────────────
 
 export async function GET() {
+  let user;
   try {
-    const user = await requireUser();
+    user = await requireUser();
+  } catch {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
     const dbUser = await db.user.findUnique({
       where: { id: user.id },
       select: {
@@ -57,8 +68,12 @@ export async function GET() {
       modelCoach: dbUser?.modelCoach ?? null,
       modelCreative: dbUser?.modelCreative ?? null,
     });
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  } catch (error) {
+    console.error("GET /api/settings/default-model error:", error);
+    return NextResponse.json(
+      { error: "Failed to load default model" },
+      { status: 500 }
+    );
   }
 }
 
@@ -67,13 +82,13 @@ export async function GET() {
 export async function PATCH(request: NextRequest) {
   try {
     const user = await requireUser();
-    const body = await request.json();
+    const body = await parseJsonBody(request);
     const parsed = updateDefaultModelSchema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: parsed.error.flatten().fieldErrors },
-        { status: 400 }
+      return (
+        zodErrorResponse(parsed.error) ??
+        NextResponse.json({ error: "Invalid input" }, { status: 400 })
       );
     }
 
@@ -143,7 +158,16 @@ export async function PATCH(request: NextRequest) {
       modelCoach: updated?.modelCoach ?? null,
       modelCreative: updated?.modelCreative ?? null,
     });
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
+    if ((error as Error).message === "Unauthorized") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    console.error("PATCH /api/settings/default-model error:", error);
+    return NextResponse.json(
+      { error: "Failed to update default model" },
+      { status: 500 }
+    );
   }
 }

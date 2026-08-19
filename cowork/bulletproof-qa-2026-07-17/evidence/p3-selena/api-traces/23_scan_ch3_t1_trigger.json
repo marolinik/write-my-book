@@ -1,0 +1,26 @@
+{
+  "label": "23_scan_ch3_t1_trigger",
+  "ts": "2026-07-18T10:27:47.205Z",
+  "method": "POST",
+  "path": "/api/books/fd60e1d4-37c5-4c11-92a1-586af638224a/continuity/scan?chapterNumber=3",
+  "note": "T1 extraction trigger. Flags computed on PRE-re-extraction graph. UNEXPECTED: relationship_contradiction now active in BOOK 1 — cross-book edge contamination, see 23b.",
+  "status": 200,
+  "response": {
+    "flags": [
+      {
+        "id": "52af6dc9-7244-413d-b0d7-b93272032a1a",
+        "signature": "e687d7d120a07aa1af9cc1eed6c6426c24a27af2",
+        "type": "relationship_contradiction",
+        "severity": "major",
+        "description": "Characters \"Mira Thorne\" and \"Kestrel Vane\" are marked as both ALLIED_WITH and OPPOSES each other simultaneously.",
+        "entities": [
+          "Mira Thorne",
+          "Kestrel Vane"
+        ],
+        "chapterNumber": 0,
+        "jumpChapter": null,
+        "anchor": null
+      }
+    ]
+  }
+}

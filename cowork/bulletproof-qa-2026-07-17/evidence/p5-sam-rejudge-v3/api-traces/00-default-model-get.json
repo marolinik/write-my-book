@@ -1,0 +1,30 @@
+{
+  "label": "00-default-model-get",
+  "request": {
+    "method": "GET",
+    "url": "http://localhost:3002/api/settings/default-model",
+    "authMode": "persona",
+    "authHeaderNames": [
+      "x-e2e-test-secret(masked:test-se...cret)",
+      "x-e2e-clerk-id:user_qa_p5"
+    ],
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "ms": 425,
+    "json": {
+      "defaultModel": "openrouter-qwen36/sonnet",
+      "modelGhostwriter": null,
+      "modelEditor": null,
+      "modelBetaReader": null,
+      "modelAnalyst": null,
+      "modelCoach": null,
+      "modelCreative": null
+    }
+  },
+  "error": null,
+  "aborted": false,
+  "capturedAt": "2026-07-20T15:20:54.480Z"
+}

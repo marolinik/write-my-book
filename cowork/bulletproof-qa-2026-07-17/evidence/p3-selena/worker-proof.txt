@@ -1,0 +1,24 @@
+P3 Selena — single-worker proof (GRADING-PROTOCOL.md §8 stale-worker rule)
+Captured: 2026-07-18, before first LLM/agent measurement in this evidence bundle.
+
+PowerShell process tree (Get-CimInstance Win32_Process -Filter "Name='node.exe'"),
+worker:dev chain only:
+
+ProcessId ParentProcessId CommandLine
+32224     37608           npm-cli.js run worker:dev
+36456     26496           npx-cli.js tsx src/worker.ts
+31012     12744           node_modules/tsx/dist/cli.mjs src/worker.ts
+37060     31012           node --require .../tsx/preflight.cjs --import .../tsx/loader.mjs src/worker.ts   <- leaf runtime PID
+
+Leaf PID 37060 matches the leaf PID captured earlier by P1 Maya's evidence bundle in
+this same campaign session — confirms the worker process has not restarted since
+that capture, i.e. exactly one worker has been running for the duration of this
+persona's LLM-run measurements (entity extraction jobs triggered via the continuity
+scan route are processed in-process by the Next.js dev server request handler, not
+via BullMQ/the worker queue — see note below — but the SAME single-worker
+constraint applies to this persona's own job usage: only one extraction/scan
+request was ever in flight at a time, verified by this executor's own sequencing
+discipline, one scan call polled to completion before the next was issued).
+
+Dev server (npm run dev / next dev) leaf PID 41240 — separate process, unaffected,
+not restarted during this evidence capture.

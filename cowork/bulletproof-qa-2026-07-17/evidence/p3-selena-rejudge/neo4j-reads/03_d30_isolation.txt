@@ -1,0 +1,85 @@
+=== D-30 CROSS-TENANT ISOLATION EVIDENCE ===
+captured: 2026-07-20T02:38:44.651Z
+
+P3 id=3f4836f4-083e-4011-9bb5-bec2a6714eb6  book1=a77359eb-6587-4bf0-b72d-65e0ae027e64
+P4 id=a31049dd-0fd9-44dd-a232-8606129d1853  victimBook=f48441dc-2b2f-41b2-9d43-d8c866901b58
+
+victim extraction envelope: {"updated":true,"entitiesFound":4}
+P3 book1 ch7 OPPOSES-write envelope: {"updated":true,"entitiesFound":7}
+
+--- VICTIM (P4) Kira<->Vael edges BEFORE P3 write ---
+[
+  {
+    "a": "Kira Venn",
+    "t": "ALLIED_WITH",
+    "b": "Vael Thorne",
+    "ch": 1,
+    "uid": "a31049dd-0fd9-44dd-a232-8606129d1853"
+  },
+  {
+    "a": "Kira Venn",
+    "t": "ALLIED_WITH",
+    "b": "Vael Thorne",
+    "ch": 1,
+    "uid": "a31049dd-0fd9-44dd-a232-8606129d1853"
+  }
+]
+
+--- VICTIM (P4) Kira<->Vael edges AFTER P3 write ---
+[
+  {
+    "a": "Kira Venn",
+    "t": "ALLIED_WITH",
+    "b": "Vael Thorne",
+    "ch": 1,
+    "uid": "a31049dd-0fd9-44dd-a232-8606129d1853"
+  },
+  {
+    "a": "Kira Venn",
+    "t": "ALLIED_WITH",
+    "b": "Vael Thorne",
+    "ch": 1,
+    "uid": "a31049dd-0fd9-44dd-a232-8606129d1853"
+  }
+]
+
+UNCHANGED? YES — no leak
+victim OPPOSES edge count: 0 (expect 0)
+
+--- P3 BOOK1 Kira<->Vael edges (owns its own OPPOSES/ALLIED) ---
+[
+  {
+    "a": "Kira Venn",
+    "t": "OPPOSES",
+    "b": "Dorn Kappel",
+    "ch": 4,
+    "uid": "3f4836f4-083e-4011-9bb5-bec2a6714eb6"
+  },
+  {
+    "a": "Kira Venn",
+    "t": "ALLIED_WITH",
+    "b": "Vael Thorne",
+    "ch": 5,
+    "uid": "3f4836f4-083e-4011-9bb5-bec2a6714eb6"
+  },
+  {
+    "a": "Kira Venn",
+    "t": "OPPOSES",
+    "b": "Vael Thorne",
+    "ch": 7,
+    "uid": "3f4836f4-083e-4011-9bb5-bec2a6714eb6"
+  },
+  {
+    "a": "Kira Venn",
+    "t": "OPPOSES",
+    "b": "Vael Thorne",
+    "ch": 7,
+    "uid": "3f4836f4-083e-4011-9bb5-bec2a6714eb6"
+  }
+]
+
+cross-book edges between book1 and victim (any direction): 0 (expect 0)
+
+runConsistencyChecks(victim, P4) → 0 issue(s); relationship_contradiction count = 0 (expect 0)
+
+VERDICT D-30: PASS — P3's write did NOT reach P4's book; no false contradiction; no cross-book edges.

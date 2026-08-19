@@ -1,0 +1,24 @@
+{
+  "id": "D8",
+  "label": "gate-analytics-owner-p3",
+  "actor": "p3",
+  "capturedAt": "2026-07-20T11:31:08.594Z",
+  "request": {
+    "method": "GET",
+    "url": "http://127.0.0.1:3002/api/series/0e11c5c1-e9ee-4736-a214-40dc1576c1b3/analytics",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p3"
+    },
+    "body": null,
+    "bodyMode": "none"
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json",
+    "bodyLength": 520,
+    "bodyText": "{\"books\":[{\"bookId\":\"a77359eb-6587-4bf0-b72d-65e0ae027e64\",\"bookNumber\":1,\"name\":\"Emberfall — Book I [RJ0720]\",\"status\":\"concept\",\"wordCount\":804,\"chapterCount\":8,\"documentCount\":8,\"chapterStatusCounts\":{\"undiscussed\":8}},{\"bookId\":\"af01d68f-6f04-4bfc-aab3-76ec700fc0c1\",\"bookNumber\":2,\"name\":\"Ashfall — Book II [RJ0720]\",\"status\":\"concept\",\"wordCount\":126,\"chapterCount\":2,\"documentCount\":2,\"chapterStatusCounts\":{\"undiscussed\":2}}],\"totals\":{\"totalBooks\":2,\"totalWordCount\":930,\"totalChapters\":10,\"totalDocuments\":10}}"
+  },
+  "expected": "200 (owner professional control)",
+  "note": null
+}

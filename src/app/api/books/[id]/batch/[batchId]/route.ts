@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import {
+  deriveLiveBatchFields,
+  isBatchTerminal,
+  readLiveHaltFlag,
+} from "@/lib/batch/live-batch-view";
 
 type RouteParams = { params: Promise<{ id: string; batchId: string }> };
 
@@ -8,9 +13,14 @@ type RouteParams = { params: Promise<{ id: string; batchId: string }> };
  * GET /api/books/:id/batch/:batchId — poll a batch's status + digest.
  *
  * Returns the `BatchRun` row plus LIVE child-status counts aggregated from the
- * linked `AgentSession` rows, so a caller polling before the fan-in digest job
- * has run still sees accurate progress (the digest later reconciles the stored
- * `completedCount`/`failedCount`).
+ * linked `AgentSession` rows. The stored `BatchRun` columns lag reality until
+ * the fan-in digest runs (status stays `queued`, `spentUsd` stays $0, `startedAt`
+ * null) — so D-96: an actively-spending overnight run polled as
+ * "queued, 0 running, $0 spent". The `batch` object's `status` / `spentUsd` /
+ * `halted` / `startedAt` VALUES are therefore derived from the child rows at
+ * read time (same top-level keys + same `batch` shape — only the values are made
+ * honest), WITHOUT ever contradicting a terminal batch: once the digest has
+ * written a terminal status, that reconciled row is returned verbatim.
  */
 export async function GET(_req: NextRequest, { params }: RouteParams) {
   try {
@@ -26,7 +36,7 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
 
     const sessions = await db.agentSession.findMany({
       where: { batchId },
-      select: { status: true },
+      select: { status: true, actualCostUsd: true, startedAt: true },
     });
 
     const counts = {
@@ -45,7 +55,22 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
       else if (s.status === "skipped") counts.skipped++;
     }
 
-    return NextResponse.json({ batch, counts });
+    // ── D-96: honest live-facing view derived from the child rows ──────
+    // Shared with the LIST route (D-120) via `@/lib/batch/live-batch-view` so
+    // the two surfaces can never disagree about the same batch. A terminal
+    // batch never consults Redis — its reconciled row wins verbatim.
+    const liveHalted = isBatchTerminal(batch)
+      ? false
+      : await readLiveHaltFlag(batchId);
+
+    // Same top-level keys + same `batch` shape — only the VALUES are made
+    // honest (immutable copy; the stored row is never mutated).
+    const liveBatch = {
+      ...batch,
+      ...deriveLiveBatchFields(batch, sessions, liveHalted),
+    };
+
+    return NextResponse.json({ batch: liveBatch, counts });
   } catch (error) {
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

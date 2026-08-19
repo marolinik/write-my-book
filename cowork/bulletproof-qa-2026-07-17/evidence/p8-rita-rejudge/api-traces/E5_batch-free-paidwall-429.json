@@ -1,0 +1,31 @@
+{
+  "id": "E5",
+  "label": "batch-free-paidwall-429",
+  "actor": "p8",
+  "capturedAt": "2026-07-20T11:31:14.247Z",
+  "request": {
+    "method": "POST",
+    "url": "http://127.0.0.1:3002/api/books/693c7a7b-e951-4d7d-b343-e2e65031c8db/batch",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p8",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "workflowIds": [
+        "dev-edit"
+      ],
+      "chapterStart": 1,
+      "chapterEnd": 1
+    },
+    "bodyMode": "json"
+  },
+  "response": {
+    "status": 429,
+    "contentType": "application/json",
+    "bodyLength": 84,
+    "bodyText": "{\"error\":\"Overnight batch runs are part of the Indie plan.\",\"upgradeToTier\":\"indie\"}"
+  },
+  "expected": "429 (run_batch paid wall on OWN free book — closes baseline coverage gap)",
+  "note": null
+}

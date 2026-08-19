@@ -1,0 +1,59 @@
+{
+  "capturedAt": "2026-07-20T02:40:51.811Z",
+  "request": {
+    "method": "POST",
+    "url": "/api/books/a77359eb-6587-4bf0-b72d-65e0ae027e64/continuity/scan?chapterNumber=6",
+    "actingAs": "user_qa_p3",
+    "headers": {
+      "content-type": "application/json",
+      "x-e2e-test-secret": "***MASKED***",
+      "x-e2e-clerk-id": "user_qa_p3"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "latencyMs": 6708,
+    "body": {
+      "flags": [
+        {
+          "id": "f52e4981-8460-4d76-8b57-ab6f1bc57934",
+          "signature": "b7ea916ab4e114778c183cc765ddce006453cfe3",
+          "type": "timeline_violation",
+          "severity": "critical",
+          "description": "Event \"Ritual of Emberfall\" (chapter 6) is marked as leading to \"The Great Fire of Highfort\" (chapter 1), but it occurs later in the story.",
+          "entities": [
+            "Ritual of Emberfall",
+            "The Great Fire of Highfort"
+          ],
+          "chapterNumber": 6,
+          "jumpChapter": 1,
+          "anchor": "Ritual of Emberfall"
+        },
+        {
+          "id": "4b823aa9-6cd9-4841-a993-f092024583be",
+          "signature": "f937b2745b92c26dc40e3aec956a392f12d3f6dc",
+          "type": "dead_character_reappears",
+          "severity": "critical",
+          "description": "Character \"Dorn Kappel\" dies in chapter 2 but participates in events in chapters 4.",
+          "entities": [
+            "Dorn Kappel"
+          ],
+          "chapterNumber": 4,
+          "jumpChapter": 2,
+          "anchor": "Dorn Kappel"
+        }
+      ],
+      "extraction": {
+        "state": "extracting",
+        "kind": null,
+        "capped": false,
+        "attempts": 0,
+        "reason": null,
+        "lowYield": false,
+        "throttled": false,
+        "retryEligibleAt": null
+      }
+    }
+  }
+}

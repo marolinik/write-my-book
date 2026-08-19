@@ -1,0 +1,100 @@
+{
+  "capturedAt": "2026-07-20T15:24:55.744Z",
+  "label": "after-d100-retest",
+  "clerkId": "user_qa_p5",
+  "checks": {
+    "samUser": {
+      "id": "d68c3b5e-e791-4858-b402-9f736fe2eddf",
+      "email": "p5.sam@qa.local",
+      "displayName": "P5 Sam (hobbyist)",
+      "defaultModel": "openrouter-qwen36/sonnet",
+      "modelEditor": null,
+      "modelGhostwriter": null
+    },
+    "samSubscription": null,
+    "samApiKeys": [
+      {
+        "provider": "openrouter",
+        "validated": true,
+        "encryptedKeyLen": 212
+      }
+    ],
+    "samBookCount": 1,
+    "samBooks": [
+      {
+        "id": "35ff1112-52af-4001-a0f4-ec83f4dad9b0",
+        "name": "Sam Free-Tier On-Ramp QA 2026-07-20",
+        "language": "en",
+        "archived": false,
+        "chapters": [
+          {
+            "id": "10334dac-e7d2-4a56-92fb-594e9567304f",
+            "n": 1,
+            "words": 32
+          }
+        ]
+      }
+    ],
+    "samFreeTierUsageRow": {
+      "id": "5073489d-435f-495f-8b23-66d67c3c8d34",
+      "user_id": "d68c3b5e-e791-4858-b402-9f736fe2eddf",
+      "day": "2026-07-20",
+      "ghost_text_calls": 0,
+      "inline_edit_calls": 4
+    },
+    "samUsageRecordCount": 5,
+    "samUsageRecordsRecent": [
+      {
+        "id": "e2c9ff77-5855-404a-a289-ebff20fb3ac8",
+        "agentType": "inline-edit",
+        "model": "openrouter-qwen36/haiku",
+        "tokensInput": 267,
+        "tokensOutput": 3464,
+        "costEstimate": 0.008389695,
+        "keySource": "user",
+        "recordedAt": "2026-07-20T13:23:25.209Z"
+      },
+      {
+        "id": "3f768a23-c467-488a-b762-9356e5a7631a",
+        "agentType": "inline-edit",
+        "model": "openrouter-qwen36/haiku",
+        "tokensInput": 262,
+        "tokensOutput": 1655,
+        "costEstimate": 0.00404667,
+        "keySource": "user",
+        "recordedAt": "2026-07-20T13:22:41.071Z"
+      },
+      {
+        "id": "f3c33a1b-fad3-4704-83c2-53a80e6a00f0",
+        "agentType": "inline-edit",
+        "model": "openrouter-qwen36/haiku",
+        "tokensInput": 269,
+        "tokensOutput": 2623,
+        "costEstimate": 0.006371865,
+        "keySource": "user",
+        "recordedAt": "2026-07-20T13:22:11.180Z"
+      },
+      {
+        "id": "182bd657-edd4-4b09-8ee1-9e80a35df559",
+        "agentType": "inline-edit",
+        "model": "openrouter-qwen36/haiku",
+        "tokensInput": 263,
+        "tokensOutput": 2565,
+        "costEstimate": 0.006230955,
+        "keySource": "user",
+        "recordedAt": "2026-07-20T13:21:36.258Z"
+      },
+      {
+        "id": "45c08a77-0730-4735-aa40-2ca767bd5ad6",
+        "agentType": "embedding",
+        "model": "text-embedding-3-small",
+        "tokensInput": 41,
+        "tokensOutput": 0,
+        "costEstimate": 8.2e-7,
+        "keySource": "user",
+        "recordedAt": "2026-07-20T01:09:20.208Z"
+      }
+    ]
+  },
+  "dbHostMasked": "localhost:5432/writemybook"
+}

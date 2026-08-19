@@ -25,14 +25,14 @@ const FEATURE_SECTIONS = [
     bullets: [
       "Each agent has deep expertise in their domain",
       "Orchestrated tool-use loops with approval gates",
-      "You stay in control -- every major change needs your approval",
+      "You stay in control — every major change needs your approval",
     ],
   },
   {
     icon: PenToolIcon,
     title: "Multi-Pass Editorial Pipeline",
     description:
-      "Professional editing workflow: developmental edit, line edit, beta reading, and revision -- the same process traditional publishers use, powered by AI that understands your book deeply.",
+      "Professional editing workflow: developmental edit, line edit, beta reading, and revision — the same process traditional publishers use, powered by AI that understands your book deeply.",
     bullets: [
       "Finding tracking with severity and categories",
       "Full edit history timeline and undo",
@@ -45,7 +45,7 @@ const FEATURE_SECTIONS = [
     description:
       "Import your existing DOCX manuscript with smart 6-pass chapter detection that works across languages. Export to EPUB, PDF, or DOCX with Pandoc-powered professional typography and genre-appropriate templates.",
     bullets: [
-      "Export is never gated -- even after cancellation",
+      "Export is never gated — even after cancellation",
       "Front matter, back matter, and genre-appropriate styling",
       "Supports multilingual manuscripts out of the box",
     ],
@@ -54,7 +54,7 @@ const FEATURE_SECTIONS = [
     icon: FingerprintIcon,
     title: "Style Fingerprint",
     description:
-      "AI captures YOUR unique voice and writes to match it. Sentence rhythm, vocabulary richness, dialogue patterns, narrative distance -- your style analyzed across 20+ dimensions so every agent writes like you, not generic AI.",
+      "AI captures YOUR unique voice and writes to match it. Sentence rhythm, vocabulary richness, dialogue patterns, narrative distance — your style analyzed across 20+ dimensions so every agent writes like you, not generic AI.",
     bullets: [
       "Your voice analyzed across 20+ stylistic dimensions",
       "Every agent writes to match YOUR style, not generic AI",
@@ -79,7 +79,7 @@ const STEPS = [
     step: "1",
     title: "Import or Start Fresh",
     description:
-      "Import your existing DOCX manuscript -- our 6-pass algorithm detects chapters automatically in any language. Or start from scratch with the Story Architect to plan your structure.",
+      "Import your existing DOCX manuscript — our 6-pass algorithm detects chapters automatically in any language. Or start from scratch with the Story Architect to plan your structure.",
   },
   {
     step: "2",
@@ -116,7 +116,7 @@ export default async function Home() {
     const { userId } = await auth();
     if (userId) redirect("/dashboard");
   } catch {
-    // Clerk misconfigured -- show landing page
+    // Clerk misconfigured — show landing page
   }
 
   return (

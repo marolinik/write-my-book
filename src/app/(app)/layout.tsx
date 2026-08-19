@@ -13,6 +13,7 @@ import { FloatingAgentOverlay } from "@/components/agent/floating-agent-overlay"
 import { LanguageProvider } from "@/components/providers/language-provider";
 import { CommandPalette } from "@/components/layout/command-palette";
 import { KeyboardShortcutsDialog } from "@/components/layout/keyboard-shortcuts-dialog";
+import { mainBottomPaddingClass } from "@/lib/layout/fab-clearance";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePageContext } from "@/hooks/use-page-context";
 import { useAgentUIStore, isFullWidthRoute } from "@/stores/agent-ui-store";
@@ -105,7 +106,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="flex flex-1 overflow-hidden relative">
             {isMobile ? (
               <>
-                <main className="flex-1 overflow-y-auto pb-14">{children}</main>
+                {/* D-139: bottom reserve so no row rests under the fixed bubble. */}
+                <main className={`flex-1 overflow-y-auto ${mainBottomPaddingClass({ pathname, isMobile: true })}`}>
+                  {children}
+                </main>
                 {showOverlay && (
                   <>
                     {/* Backdrop */}
@@ -127,8 +131,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </>
             ) : (
               <>
-                {/* Main content — shrinks when panel is docked */}
-                <main className="flex-1 overflow-y-auto min-w-0">{children}</main>
+                {/* Main content — shrinks when panel is docked. D-139: bottom
+                    reserve so no row rests under the fixed bubble. */}
+                <main
+                  className={`flex-1 overflow-y-auto min-w-0 ${mainBottomPaddingClass({ pathname, isMobile: false })}`}
+                >
+                  {children}
+                </main>
 
                 {/* Docked right panel — hidden on full-width routes */}
                 {showPanel && (

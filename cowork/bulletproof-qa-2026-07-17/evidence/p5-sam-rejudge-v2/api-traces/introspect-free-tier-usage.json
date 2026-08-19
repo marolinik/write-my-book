@@ -1,0 +1,74 @@
+{
+  "capturedAt": "2026-07-20T09:15:20.577Z",
+  "table": "free_tier_usage",
+  "expected": {
+    "columns": [
+      "id",
+      "user_id",
+      "day",
+      "ghost_text_calls",
+      "inline_edit_calls"
+    ],
+    "uniqueOn": [
+      "user_id",
+      "day"
+    ]
+  },
+  "actualColumns": [
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "user_id",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "day",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "ghost_text_calls",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "0"
+    },
+    {
+      "column_name": "inline_edit_calls",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "0"
+    }
+  ],
+  "actualIndexes": [
+    {
+      "indexname": "free_tier_usage_pkey",
+      "indexdef": "CREATE UNIQUE INDEX free_tier_usage_pkey ON public.free_tier_usage USING btree (id)"
+    },
+    {
+      "indexname": "free_tier_usage_user_id_day_key",
+      "indexdef": "CREATE UNIQUE INDEX free_tier_usage_user_id_day_key ON public.free_tier_usage USING btree (user_id, day)"
+    }
+  ],
+  "actualConstraints": [
+    {
+      "conname": "free_tier_usage_pkey",
+      "contype": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "conname": "free_tier_usage_user_id_fkey",
+      "contype": "f",
+      "def": "FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    }
+  ],
+  "missingColumns": [],
+  "extraColumns": [],
+  "hasCompositeUniqueUserIdDay": true
+}

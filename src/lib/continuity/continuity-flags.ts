@@ -21,14 +21,38 @@ export interface ContinuityFlagInput {
 }
 
 /**
+ * The chapters that carry the issue's IDENTITY (as opposed to its display
+ * evidence). D-79: for `dead_character_reappears`, graph-queries returns
+ * chapters = [deathChapter, ...postDeathChapters], and postDeathChapters GROWS
+ * by one every chapter the resurrected character keeps acting. Hashing that
+ * growing list churned the signature every chapter, so an [Intentional]
+ * dismissal (which stored the OLD signature) never matched again — a fresh,
+ * un-dismissable CRITICAL inline flag fired every chapter for a legitimate
+ * resurrection / fake-death arc. The identity of that contradiction is the death
+ * ANCHOR (which character died, in which chapter); the reappearances are
+ * evidence. So collapse to the earliest chapter (the death) for this type only.
+ * Every other flag type keeps its full chapter set — their lists are bounded
+ * (a single chapter, or an earlier/later pair), so they never churn, and
+ * narrowing them would wrongly merge genuinely-distinct contradictions.
+ */
+function signatureChapters(issue: ConsistencyIssue): number[] {
+  const chapters = issue.chapters ?? [];
+  if (issue.type === "dead_character_reappears" && chapters.length > 0) {
+    return [Math.min(...chapters)];
+  }
+  return [...chapters];
+}
+
+/**
  * Stable idempotency key derived from the STRUCTURED issue (type + sorted
- * entities + sorted chapters) — deliberately NOT the description text, whose
+ * entities + identity chapters) — deliberately NOT the description text, whose
  * token order is nondeterministic (Neo4j collect()/id() ordering). This keeps
  * the signature — and therefore dedup + [Intentional] suppression — stable.
+ * See signatureChapters() for the D-79 death-anchor narrowing.
  */
 export function continuityIssueSignature(issue: ConsistencyIssue): string {
   const ents = [...(issue.entities ?? [])].sort().join(",");
-  const chs = [...(issue.chapters ?? [])].sort((a, b) => a - b).join(",");
+  const chs = signatureChapters(issue).sort((a, b) => a - b).join(",");
   return createHash("sha1").update(`${issue.type}|${ents}|${chs}`).digest("hex");
 }
 

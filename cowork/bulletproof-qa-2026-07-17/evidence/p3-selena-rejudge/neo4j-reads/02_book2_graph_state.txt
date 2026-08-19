@@ -1,0 +1,36 @@
+=== GRAPH STATE — BOOK 2 (Ashfall) (bookId=af01d68f-6f04-4bfc-aab3-76ec700fc0c1) ===
+captured: 2026-07-20T02:37:01.457Z
+
+--- CHARACTERS (4) ---
+  Dorn Kappel | status=dead deathChapter=1 role=mentioned aliases=null first=1 last=1 userId=3f4836f4-083e-4011-9bb5-bec2a6714eb6
+  Kira Venn | status=alive deathChapter=null role=protagonist aliases=null first=1 last=2 userId=3f4836f4-083e-4011-9bb5-bec2a6714eb6
+  Sera Locke | status=alive deathChapter=null role=supporting aliases=null first=2 last=2 userId=3f4836f4-083e-4011-9bb5-bec2a6714eb6
+  Zoë Rasmussen | status=dead deathChapter=2 role=mentioned aliases=null first=2 last=2 userId=3f4836f4-083e-4011-9bb5-bec2a6714eb6
+
+--- EVENTS (9) [D-19: chapter/occursInChapter must be non-null] ---
+  "Death of Dorn Kappel" | chapter=1 occursInChapter=1 canon="Death of Dorn Kappel" type=death deathOf=Dorn Kappel
+  "Dorn Kappel's death" | chapter=1 occursInChapter=0 canon="Dorn Kappel's death" type= deathOf=
+  "The Broken Pact" | chapter=1 occursInChapter=0 canon="Broken Pact" type= deathOf=
+  "The Emberfall days" | chapter=1 occursInChapter=0 canon="Emberfall days" type= deathOf=
+  "Chaos Era Begins" | chapter=2 occursInChapter=2 canon="Chaos Era Begins" type= deathOf=
+  "Death of Zoë Rasmussen" | chapter=2 occursInChapter=2 canon="Death of Zoë Rasmussen" type=death deathOf=Zoë Rasmussen
+  "Kira Venn Summons the Council" | chapter=2 occursInChapter=2 canon="Kira Venn Summons the Council" type= deathOf=
+  "Sera Locke Swears Loyalty" | chapter=2 occursInChapter=2 canon="Sera Locke Swears Loyalty" type= deathOf=
+  "Zoë Rasmussen Leaves Charts to Archive" | chapter=2 occursInChapter=0 canon="Zoë Rasmussen Leaves Charts to Archive" type= deathOf=
+
+--- DEAD CHARACTERS + their PARTICIPATES_IN events (dead_character_reappears mechanics) ---
+  Dorn Kappel (deathChapter=1):
+  Zoë Rasmussen (deathChapter=2):
+      participates in "Zoë Rasmussen Leaves Charts to Archive" chapter=2 occursInChapter=0 effective=0
+
+--- DIES_IN death-anchor reification (sub-fix 7d) ---
+  Dorn Kappel -DIES_IN-> "Death of Dorn Kappel" (eventChapter=1 occurs=1 edge.chapter=1)
+  Zoë Rasmussen -DIES_IN-> "Death of Zoë Rasmussen" (eventChapter=2 occurs=2 edge.chapter=2)
+
+--- ALLIED_WITH / OPPOSES edges (relationship_contradiction mechanics; needs same pair+same chapter) ---
+  Kira Venn -[ALLIED_WITH ch=2]- Sera Locke
+
+--- LEADS_TO edges (timeline_violation mechanics; fires when later.occurs > earlier.occurs) ---
+  "Kira Venn Summons the Council"(ch=2/occ=2) -LEADS_TO-> "Chaos Era Begins"(ch=2/occ=2)
+
+=== runConsistencyChecks(bookId, P3) → 0 issue(s) [PRODUCT CODE] ===

@@ -1,0 +1,132 @@
+{
+  "shot": "44a-44c2",
+  "dim": "D10 delight (also D2 data-safety)",
+  "capturedAt": "2026-07-27T04:26:39.898Z",
+  "base": "http://localhost:3001",
+  "identity": "user_qa_p2 via x-e2e-clerk-id header (no .env flip)",
+  "fixture": {
+    "bookId": "10c694f2-2f80-4df3-b73b-29141d3d54ab",
+    "chapterId": "f4a5cf28-14cf-4bc7-8f81-20598c385007",
+    "name": "P2-CAPTURE-CONFLICT-1785126367592"
+  },
+  "baselineText": "The ledger in Zürich balanced — it always did. “Kőszeg,” Marek said, and the line went dead.",
+  "tabA_words": " Trieste answered on the third ring; Łódź never answered at all.",
+  "tabB_words": " The words Gerald typed on the other device — and does not intend to lose.",
+  "timings": {
+    "tabA_typing_to_Saved_ms": 3835,
+    "tabB_typing_to_conflictChip_ms": 4098,
+    "loadTheirs_resolve_ms": 1997
+  },
+  "assertions": {
+    "conflict_chip_visible": true,
+    "dialog_open_count_when_chip_appeared": 0,
+    "dialog_never_auto_opened": true,
+    "typing_continued_after_conflict": true,
+    "losers_words_still_live_pre_resolve": true,
+    "server_head_untouched_by_loser": true,
+    "server_head_holds_winner": true,
+    "dialog_promise_line_present": true,
+    "dialog_shows_both_sides": true,
+    "editor_after_load_theirs_is_theirs": true,
+    "conflict_backup_version_exists": true,
+    "conflict_backup_version_number": 4,
+    "conflict_backup_changeType_badge_shown_in_ui": "manual_edit",
+    "conflict_backup_content_contains_losers_words_API": true,
+    "conflict_backup_content_visible_in_UI_viewer": false
+  },
+  "versionLedger": [
+    {
+      "version": 5,
+      "changeType": "manual_edit",
+      "changeSource": "conflict-resolve",
+      "wordCount": 28
+    },
+    {
+      "version": 4,
+      "changeType": "manual_edit",
+      "changeSource": "conflict-backup",
+      "wordCount": 34
+    },
+    {
+      "version": 3,
+      "changeType": "manual_edit",
+      "changeSource": "user",
+      "wordCount": 28
+    },
+    {
+      "version": 2,
+      "changeType": "manual_edit",
+      "changeSource": "user",
+      "wordCount": 23
+    },
+    {
+      "version": 1,
+      "changeType": "manual_edit",
+      "changeSource": "user",
+      "wordCount": 17
+    }
+  ],
+  "dialogTextVerbatim": "Chapter changed outside this editor\n\nAnother writer (an agent run, import, or another tab) saved version v3 while you had unsaved edits here. Green lines are yours; red lines are theirs. Whichever you choose, the other version stays in version history.\n\n1-The ledger in Zürich balanced — it always did. “Kőszeg,” Marek said, and the line went dead. Trieste answered on the third ring; Łódź never answered at all.\n1+The ledger in Zürich balanced — it always did. “Kőszeg,” Marek said, and the line went dead. The words Gerald typed on the other device — and does not intend to lose. Still typing.\nCancel\nLoad theirs\nKeep mine\nClose",
+  "networkTabB": [
+    {
+      "url": "/api/books/10c694f2-2f80-4df3-b73b-29141d3d54ab/chapters/f4a5cf28-14cf-4bc7-8f81-20598c385007/content",
+      "method": "GET",
+      "status": 200,
+      "at": "2026-07-27T04:26:16.548Z"
+    },
+    {
+      "url": "/api/books/10c694f2-2f80-4df3-b73b-29141d3d54ab/chapters/f4a5cf28-14cf-4bc7-8f81-20598c385007/content",
+      "method": "PUT",
+      "status": 409,
+      "at": "2026-07-27T04:26:24.246Z"
+    },
+    {
+      "url": "/api/books/10c694f2-2f80-4df3-b73b-29141d3d54ab/chapters/f4a5cf28-14cf-4bc7-8f81-20598c385007/content",
+      "method": "PUT",
+      "status": 200,
+      "at": "2026-07-27T04:26:29.502Z"
+    },
+    {
+      "url": "/api/books/10c694f2-2f80-4df3-b73b-29141d3d54ab/chapters/f4a5cf28-14cf-4bc7-8f81-20598c385007/content",
+      "method": "GET",
+      "status": 200,
+      "at": "2026-07-27T04:26:29.994Z"
+    },
+    {
+      "url": "/api/books/10c694f2-2f80-4df3-b73b-29141d3d54ab/chapters/f4a5cf28-14cf-4bc7-8f81-20598c385007/content",
+      "method": "PUT",
+      "status": 200,
+      "at": "2026-07-27T04:26:30.843Z"
+    },
+    {
+      "url": "/api/books/10c694f2-2f80-4df3-b73b-29141d3d54ab/chapters/f4a5cf28-14cf-4bc7-8f81-20598c385007/content",
+      "method": "GET",
+      "status": 200,
+      "at": "2026-07-27T04:26:31.484Z"
+    },
+    {
+      "url": "/api/books/10c694f2-2f80-4df3-b73b-29141d3d54ab/documents/f4c7bb99-d34a-4a56-bd95-63dbdeaabf5b/versions",
+      "method": "GET",
+      "status": 200,
+      "at": "2026-07-27T04:26:37.343Z"
+    },
+    {
+      "url": "/api/books/10c694f2-2f80-4df3-b73b-29141d3d54ab/documents/f4c7bb99-d34a-4a56-bd95-63dbdeaabf5b/versions/5",
+      "method": "GET",
+      "status": 200,
+      "at": "2026-07-27T04:26:38.747Z"
+    }
+  ],
+  "log": [
+    "[2026-07-27T04:26:07.927Z] fixture book=10c694f2-2f80-4df3-b73b-29141d3d54ab chapter=f4a5cf28-14cf-4bc7-8f81-20598c385007",
+    "[2026-07-27T04:26:08.200Z] seed PUT -> 200 v1",
+    "[2026-07-27T04:26:17.816Z] both tabs open on the same chapter (two independent browser contexts, same persona)",
+    "[2026-07-27T04:26:21.772Z] tab A saved in 3835ms; server head v2 contains A's words: true",
+    "[2026-07-27T04:26:27.442Z] tab B: conflict chip visible after 4098ms; dialogs open at that moment = 0",
+    "[2026-07-27T04:26:28.948Z] dialog open; promise line present = true",
+    "[2026-07-27T04:26:30.983Z] \"Load theirs\" resolved in 1997ms; B's words removed from live editor",
+    "[2026-07-27T04:26:37.335Z] versions: v5/manual_edit/conflict-resolve, v4/manual_edit/conflict-backup, v3/manual_edit/user, v2/manual_edit/user, v1/manual_edit/user",
+    "[2026-07-27T04:26:37.339Z] view-version buttons in panel: 0 (targeting index 1)",
+    "[2026-07-27T04:26:39.599Z] backup version v4 viewed in UI; contains B's discarded words = false"
+  ]
+}

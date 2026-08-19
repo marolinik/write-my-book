@@ -157,7 +157,7 @@ export function ModelSelectionSection() {
 
         {/* Per-Role Overrides */}
         <div className="space-y-1">
-          <h4 className="text-sm font-medium">Per-Role Overrides</h4>
+          <h2 className="text-sm font-medium">Per-Role Overrides</h2>
           <p className="text-xs text-muted-foreground">
             Override the default model for specific agent roles. &quot;Use
             Default&quot; inherits the global default above.

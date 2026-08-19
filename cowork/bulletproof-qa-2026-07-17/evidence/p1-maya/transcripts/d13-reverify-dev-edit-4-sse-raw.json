@@ -1,0 +1,1748 @@
+{
+ "session_id": "4bd0654f-de53-41f9-a86e-17a1a3faa61f",
+ "elapsed_s": 147.712,
+ "final_status": "complete",
+ "event_count": 580,
+ "events": [
+  {
+   "data": "{\"type\":\"text\",\"content\":\"\\n\\nI\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"'ll analyze Chapter\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" 1 systematically\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" through all \"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"18 checks\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\", quoting passages\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" and\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" creating\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" findings where\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" warranted.\\n\\n\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"---\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"\\n\\n## PH\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"ASE 1\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\": STRUCTURE\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"### Check\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" 1:\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" Opening Hook\\n\\n\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"**Quote:**\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" \\\"The letters\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" arrived in salt\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"-stained envelopes\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\", always three\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" days after the\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" tide had turned\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\", as if\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" the sea itself\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" needs\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" time to decide\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" whether they were\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" worth delivering.\\\"\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"\\n\\n**Analysis\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\":** This\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" is\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" an\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" excellent opening line\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\". It immediately\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" establishes the\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" book\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"'s marine\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" metaphor system\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\", introduces\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" the letters\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" as recurring\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" objects, and\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" sets\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" a\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" melanch\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"olic\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\", contemplative\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" tone. The\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" personification of\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" the sea creates\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" intrigue\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\".\\n\\n**\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"Judge\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\":** No\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" issue. This\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" is strong\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"\\n\\n### Check\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" 2:\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" Scene Structure\\n\\n\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"**Quote:**\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" \\\"On\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" the evening the\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" twelfth letter\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" came, she\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" carried it down\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" to the shore\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" instead of to\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" the floorboard\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\". The tide\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" was going out\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\", dragging its\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" long grey hem\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" across the sand\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\", and she\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" sat where the\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" wet met the\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" dry and did\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" not open it\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\".\\\"\\n\\n**\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"Analysis:** The\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" chapter consists\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" of a single\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" scene: Im\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"ogen receiving\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" the twelfth\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" letter and carrying\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" it to the\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" shore without\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" reading\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" it. The\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" establishing\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" context\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" (paragraph\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"s 1\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"-5\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\") is\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" backstory\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"/\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"character\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" exposition that\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" frames\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" the scene\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\". The scene\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" itself has clear\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" goal\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" (Im\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"ogen needs\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" to process/\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"dec\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"ide what\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" to do with\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" the letter),\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" conflict (her\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" instinct\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" to defer\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" vs. the\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" comp\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"ulsion to bring\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" it to the\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" shore), and\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" outcome (she\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" puts\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" it in her\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" pocket and walks\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" home). The\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" architecture\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" flags\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" this as \\\"\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"LOW\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" (inciting\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" incident introduced but\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" deferred)\\\" which\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" is accurate\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\".\\n\\n**\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"Judge:** No\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" issue. Scene\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" structure works\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" for literary\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" fiction.\\n\\n\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"### Check \"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"3: P\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"acing\\n\\n**\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"Quote:** \\\"\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"Im\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"ogen answered\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" these questions with\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" more care than\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" she gave her\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" own diary.\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" She understood\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\", without being\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" told, that\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" Thomas was not\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" really asking about\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" gulls.\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" He was asking\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" whether the world\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" that had held\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" his happiness was\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" still standing.\\\"\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"\\n\\n**Analysis\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\":** The pacing\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" is deliberately slow\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" and method\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"ical, matching\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" the literary\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" fiction genre and\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" the book\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"'s metaphor\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" of \\\"\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"wading.\\\"\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" Sent\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"ences stack clauses\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" rather\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" than explode\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\". The\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" reader\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" sits\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" alongside Imogen\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" in her processing\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\". This is\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" consistent\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" with the architecture\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"'s \\\"\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"Del\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"iberate,\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" methodical base\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" tempo\\\" specification\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\".\\n\\n**\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"Judge:** No\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" issue. P\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"acing is appropriate\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"\\n\\n### Check\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" 4:\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" Chapter Arc\\n\\n\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"**Quote:**\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" \\\"Tomorrow she\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" would read it\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\". Tomorrow,\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" or the day\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" after. There\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" was no arithmetic\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" that made grief\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" owe you a\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" schedule, but\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" she kept trying\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" to invent one\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" anyway, because\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" the alternative —\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" reading it now\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\", standing in\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" the wind with\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" the whole weight\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" of it at\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" once — was\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" a door she\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" was not yet\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" strong enough to\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" hold open.\\\"\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"\\n\\n**Analysis\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\":** The chapter\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" has a micro\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"-arc:\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" beginning\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" (establishing\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" the pattern of\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" def\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"erral), middle\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" (the tw\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"elfth letter's\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" arrival breaks\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" pattern\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" slightly —\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" she takes\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" it to shore\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" instead of hiding\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" it,\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" and she has\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" a moment of\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" self-recognition\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"), and end\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" (the\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" pattern resumes\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" — she def\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"ers reading it\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"). The arc\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" is subtle\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" which fits\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" literary fiction.\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" The architecture\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" notes this functions\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" as \\\"both\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" establishment AND inc\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"iting incident.\\\"\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" The\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" writer\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" has\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" explicitly stated that\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" fragments\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" at\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" the end and\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" le\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"anness are intentional\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" features across the\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" book.\\n\\n\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"**Judge:**\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" No res\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"ub\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"mit\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"ting the structural\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" findings\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" already\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" dismissed by the\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" writer. The\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" arc works\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" for its\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" purpose.\\n\\n\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"### Check \"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"5: Dialogue\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" Purpose\\n\\n**\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"Quote:** \\\"\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"Her aunt called\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" this evasion.\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" Imogen called\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" it arithmetic.\\\"\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"\\n\\n**Analysis\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\":** The chapter\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" uses\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" near-zero direct\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" dialogue (approximately\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" 5\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"%\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" dialogue-to-n\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"arrative ratio\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"),\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" consistent\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" with the style\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" fingerprint. Every\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" speech\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" act is\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" rendered\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" through reported\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" action and advances\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" character\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" revelation\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" This\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" pair\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" of\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" sentences efficiently\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" differentiates the\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" two\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" women\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\":\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" El\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"uned's direct\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"ness versus\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" Imogen's\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" metaphor\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"ical refr\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"aming. The\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" style\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" fingerprint confirms this\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" is a\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" signature pattern.\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"\\n\\n**Judge\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\":** No issue\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\".\\n\\n\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"### Check \"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"6: T\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"ension/Stakes\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"\\n\\n**Quote\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\":** \\\"The\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" tin under the\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" floorboard held\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" eleven letters now\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\", each one\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" a small negotiation\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" between what she\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" knew and what\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" she was willing\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" to confirm.\\\"\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"\\n\\n**Analysis\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\":** Even\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" in this\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" quiet chapter,\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" micro-tensions\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" are present:\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" dramatic\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" irony (reader\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" knows Imogen\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" is dodging\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"), internal\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" conflict (she\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" wants truth but\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" fears it\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"), environmental pressure\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" (the sea\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\", the wind\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" the tide),\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" unanswered\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" questions\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" from\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" Thomas's letters\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\", and fo\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"reshadowing\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" (the floor\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"board, the\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" biscuit tin\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"). The architecture\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" specifies\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" at\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" least one micro\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"-tension per\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" chapter, and\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" this delivers\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" several\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\".\\n\\n**\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"Judge:** No\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" issue. Micro\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"-tensions\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" are well-d\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"istributed.\\n\\n\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"---\\n\\n##\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" PHASE \"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"2: C\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"RAFT\\n\\n###\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" Check 7\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\": POV Cons\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"istency\\n\\n**\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"Quote:** \\\"\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"She thought about\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" the difference between\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" people who rushed\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" toward feeling and\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" people who built\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" elaborate structures to\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" keep it at\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" a survivable\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" distance, and\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" she understood,\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" with the particular\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" clarity the sea\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" seemed to specialize\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" in, that\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" she was the\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" second kind,\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" and that she\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" had likely always\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" been.\\\"\\n\\n\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"**Analysis:**\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" The chapter\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" maintains close third\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" person\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" throughout,\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" locked to Im\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"ogen's consciousness\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\". No head\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"-hopping into\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" Thomas\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" or Eluned\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\". The\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" narrative occasionally\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" wid\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"ens slightly (\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"this\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" paragraph does\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" some\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" met\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"acognitive classification\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"),\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" but stays\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" within Imogen\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"'s perspective\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\". F\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"ingerprint confirms \\\"\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"psych\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"ological close third\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" person\\\"\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" as the intended\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" POV.\\n\\n\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"**Judge:**\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" No issue.\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"\\n\\n### Check\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" 8:\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" Show vs.\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" Tell\\n\\n**\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"Quote:** \\\"\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"She thought about\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" the difference between\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" people who rushed\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" toward feeling and\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" people who built\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" elaborate structures to\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" keep it at\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" a survivable\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" distance, and\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" she understood,\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" with the particular\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" clarity the sea\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" seemed to specialize\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" in, that\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" she was the\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" second kind,\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" and that she\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" had likely always\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" been.\\\"\\n\\n\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"**Analysis:**\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" This is the\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" one\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" moment in\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" the chapter that\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" steps outside the\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" book\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"'s dominant mode\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\". The entire\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" chapter delivers\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" emotional states through\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" physical reality:\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" a\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" burn sitting before\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" touching, the\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" letter against\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" ribs\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" like a heartbeat\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\", w\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"ading sideways\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" through shallows\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" Then\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" in\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" pen\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"ultimate paragraph\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\", Im\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"ogen's\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" self-recognition\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" arrives through\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" abstract psychological taxonomy\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" —\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" \\\"people who\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" rushed toward feeling\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"\\\" vs.\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" \\\"people who\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" built elaborate structures\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\".\\\" This is\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" clinical\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" language, not\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" sensory\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"-metaph\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"orical register\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" that\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" defines\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" the prose\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\". The chapter\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"'s power is\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" emotional\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" states rendered through\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" bodily\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" and\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" environmental reality\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"; this sentence\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" steps into psycho\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"-analytical\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" categor\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"ization.\\n\\n\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"This\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" was\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" flagged as [\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"pending] in\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" finding\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" history. The\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" writer did\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" not resolve\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" it. I\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"'m\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" confident\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" this\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" is a legitimate\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" show\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"-tell issue\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" worth\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" re\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"-ra\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"ising at\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" suggestion severity,\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" with\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" grounded\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" alternatives that\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" preserve the moment\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" but\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" translate\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" it back\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" into the book\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"'s physical\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" register\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\".\\n\\n**\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"Judge:** Create\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" finding for\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\" show-tell\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "data": "{\"type\":\"text\",\"content\":\"\\n\\n\"}"
+  },
+  {
+   "data": "{\"type\":\"tool_use\",\"content\":\"Using tool: CreateFinding\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolUseId\":\"call-955d8ca6-ca21-4ff5-9d2f-9c1d9d279d93\"}}"
+  },
+  {
+   "data": "{\"type\":\"cost_update\",\"content\":\"$0.0176\",\"metadata\":{\"inputTokens\":25820,\"outputTokens\":4265,\"costUsd\":0.0175947,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+  },
+  {
+   "data": "{\"type\":\"tool_use\",\"content\":\"Executing: CreateFinding\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolInput\":{\"severity\":\"suggestion\",\"anchorQuote\":\"She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.\",\"category\":\"show-tell\",\"confidence\":0.85,\"chapterNumber\":1,\"rationale\":\"The chapter's power derives from rendering emotional states through physical and environmental reality: the burn before touching, the letter against ribs, wading through shallows. This sentence steps into clinical taxonomy (\\\"people who rushed toward feeling\\\" / \\\"people who built elaborate structures\\\") that reads like textbook mental health language rather than the visceral, coastal register that defines the prose voice. For literary fiction where the prose itself is the feature, this register shift disrupts the immersive sensory mode the reader has been inhabiting. The realization is important to the arc — but its delivery method pulls the prose out of its own fingerprint.\",\"description\":\"Imogen's shoreline self-recognition is delivered through abstract psychological classification rather than embodied sensation, breaking the chapter's sensory-metaphorical mode.\"},\"toolUseId\":\"call-955d8ca6-ca21-4ff5-9d2f-9c1d9d279d93\"}}"
+  },
+  {
+   "data": "{\"type\":\"tool_result\",\"content\":\"Error executing CreateFinding: Cannot read properties of undefined (reading 'normalize')\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolUseId\":\"call-955d8ca6-ca21-4ff5-9d2f-9c1d9d279d93\"}}"
+  },
+  {
+   "data": "{\"type\":\"tool_use\",\"content\":\"Using tool: CreateFinding\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolUseId\":\"call-0a2a6b6e-85ec-4c4f-b6a0-95dbef588800\"}}"
+  },
+  {
+   "data": "{\"type\":\"cost_update\",\"content\":\"$0.0235\",\"metadata\":{\"inputTokens\":29709,\"outputTokens\":6260,\"costUsd\":0.023491065000000002,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+  },
+  {
+   "data": "{\"type\":\"tool_use\",\"content\":\"Executing: CreateFinding\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolInput\":{\"rationale\":\"The chapter's power derives from rendering emotional states through physical and environmental reality: the burn before touching, the letter against ribs, wading through shallows. This sentence steps into clinical taxonomy (\\\"people who rushed toward feeling\\\" / \\\"people who built elaborate structures\\\") that reads like textbook mental health language rather than the visceral, coastal register that defines the prose voice. For literary fiction where the prose itself is the feature, this register shift disrupts the immersive sensory mode the reader has been inhabiting. The realization is important to the arc — but its delivery method pulls the prose out of its own fingerprint.\",\"severity\":\"suggestion\",\"description\":\"Imogen's shoreline self-recognition is delivered through abstract psychological classification rather than embodied sensation, breaking the chapter's sensory-metaphorical mode.\",\"alternatives\":[{\"label\":\"Option A — ground the recognition in the shoreline's physical clarity\",\"newText\":\"The wind took the thinking out of her. The water pulled another tide out. She understood, with the particular clarity the sea seemed to specialize in, that she was not the kind of person who rushed. She had never been. There were always structures — walls built of arithmetic, of good manners, of letters she didn't open the day they came — and she had always been the one who built them.\",\"originalText\":\"She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.\"},{\"label\":\"Option B — fold into the wading metaphor already established in the chapter\",\"newText\":\"She thought about her mother's handwriting, which had been small and slanted and impatient. Thomas's careful, spaced-out script, each letter of every word given room to breathe as though he'd learned penmanship as a form of penance. She thought about who earned it and who was taught to keep it at a distance, and understood, with the particular clarity the sea seemed to specialize in, that she had been taught. She likely always would be.\",\"originalText\":\"She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.\"},{\"label\":\"Option C — break the long sentence into the long-then-punch signature rhythm\",\"newText\":\"She thought about people who rushed toward feeling. She thought about people who built elaborate structures to keep it at a survivable distance. She understood, with the particular clarity the sea seemed to specialize in, that she was the second kind. And that she had likely always been.\",\"originalText\":\"She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.\"}],\"paragraphNumber\":6,\"confidence\":0.85,\"category\":\"show-tell\",\"anchorQuote\":\"She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.\",\"chapterNumber\":1},\"toolUseId\":\"call-0a2a6b6e-85ec-4c4f-b6a0-95dbef588800\"}}"
+  },
+  {
+   "data": "{\"type\":\"tool_result\",\"content\":\"Finding created (id: f1b35402-d5a8-42b6-a8be-02b9ac6a3504, severity: suggestion, category: show-tell, grounding: 100%).\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolUseId\":\"call-0a2a6b6e-85ec-4c4f-b6a0-95dbef588800\"}}"
+  },
+  {
+   "data": "{\"type\":\"cost_update\",\"content\":\"$0.0278\",\"metadata\":{\"inputTokens\":32151,\"outputTokens\":7771,\"costUsd\":0.027813435,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+  },
+  {
+   "data": "{\"type\":\"complete\",\"content\":\"Session completed successfully\",\"metadata\":{\"findingsCreated\":1,\"statusAdvanced\":false,\"suggestedNext\":[\"line-edit\",\"discuss-edits\"],\"tokensInput\":32151,\"tokensOutput\":7771,\"costUsd\":0.027813435,\"endReason\":\"natural\"}}"
+  }
+ ]
+}

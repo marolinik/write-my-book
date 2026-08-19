@@ -1,0 +1,392 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "http://localhost:3002/api/books/4116055c-6183-4675-926a-e04f31126951/editorial/findings",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p1"
+    },
+    "body": null
+  },
+  "status": 200,
+  "error": null,
+  "responseHeaders": {
+    "connection": "keep-alive",
+    "content-type": "application/json",
+    "date": "Mon, 20 Jul 2026 11:41:22 GMT",
+    "keep-alive": "timeout=5",
+    "transfer-encoding": "chunked",
+    "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+  },
+  "body": {
+    "findings": [
+      {
+        "id": "036a088d-0b68-4c73-9ba0-39784f459f4c",
+        "bookId": "4116055c-6183-4675-926a-e04f31126951",
+        "chapterNumber": 1,
+        "sessionId": "56e9cfe3-feaa-4ba4-902f-81b6788d6bf7",
+        "agentType": "dev-editor",
+        "severity": "suggestion",
+        "category": "show-tell",
+        "description": "Imogen's defining moment of self-recognition on the shoreline is delivered through abstract psychological classification rather than embodied sensation, breaking the chapter's dominant sensory-metaphorical mode.",
+        "suggestion": "The chapter's power comes from emotional states rendered through physical reality—burns tested, letters as heartbeats, secrets as unfurnished rooms, grief as wading. This moment steps into psycho-analytical abstraction (\"people who rushed toward feeling,\" \"elaborate structures,\" \"survivable distance,\" \"the second kind\") that feels philosophically detached rather than embodied. It weakens the reader's immersion because it tells us about Imogen's psychology categorically rather than letting us feel her recognition through the body and environment the rest of the chapter trusts.",
+        "originalText": "She thought about her mother's handwriting, which had been small and slanted and impatient, nothing like Thomas's careful, spaced-out script, each letter of every word given room to breathe as though he'd learned penmanship as a form of penance. She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.",
+        "newText": "She thought about her mother's handwriting, which had been small and slanted and impatient, nothing like Thomas's careful, spaced-out script, each letter of every word given room to breathe as though he'd learned penmanship as a form of penance. She thought about the way her own mouth had stayed shut on the day of the funeral, how her chin had stayed tipped back, how her hands had stayed in her pockets the way a swimmer keeps them tucked when the current pulls. She understood, with the particular clarity the sea seemed to specialize in, that she had not changed, and that she had likely never intended to.",
+        "locationStart": null,
+        "locationEnd": null,
+        "status": "pending",
+        "dismissReason": null,
+        "appliedAt": null,
+        "createdAt": "2026-07-20T11:36:28.323Z",
+        "contentHash": "71feff7c807408794f46d3b9b796bb5cd3325fc83a14afadc02d249c89443d69",
+        "confidence": 0.85,
+        "rationale": "The chapter's power comes from emotional states rendered through physical reality—burns tested, letters as heartbeats, secrets as unfurnished rooms, grief as wading. This moment steps into psycho-analytical abstraction (\"people who rushed toward feeling,\" \"elaborate structures,\" \"survivable distance,\" \"the second kind\") that feels philosophically detached rather than embodied. It weakens the reader's immersion because it tells us about Imogen's psychology categorically rather than letting us feel her recognition through the body and environment the rest of the chapter trusts.",
+        "paragraphNumber": 6,
+        "anchorQuote": "She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.",
+        "alternatives": [
+          {
+            "label": "Option A — ground the recognition in bodily sensation",
+            "newText": "She thought about her mother's handwriting, which had been small and slanted and impatient, nothing like Thomas's careful, spaced-out script, each letter of every word given room to breathe as though he'd learned penmanship as a form of penance. She thought about the way her own mouth had stayed shut on the day of the funeral, how her chin had stayed tipped back, how her hands had stayed in her pockets the way a swimmer keeps them tucked when the current pulls. She understood, with the particular clarity the sea seemed to specialize in, that she had not changed, and that she had likely never intended to.",
+            "originalText": "She thought about her mother's handwriting, which had been small and slanted and impatient, nothing like Thomas's careful, spaced-out script, each letter of every word given room to breathe as though he'd learned penmanship as a form of penance. She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been."
+          },
+          {
+            "label": "Option B — keep the two-kinds structure but render it through the physical",
+            "newText": "She thought about the difference between people who entered the water and people who stood on the shore until the water dried, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.",
+            "originalText": "She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been."
+          },
+          {
+            "label": "Option C — tighten the existing abstraction slightly",
+            "newText": "She thought about the difference between people who let themselves go under and people who learned to hold still and let the current move around them, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.",
+            "originalText": "She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been."
+          }
+        ],
+        "groundingScore": 1,
+        "chapterVersion": 1,
+        "rejectedAt": null,
+        "rejectionReason": null
+      },
+      {
+        "id": "f1b35402-d5a8-42b6-a8be-02b9ac6a3504",
+        "bookId": "4116055c-6183-4675-926a-e04f31126951",
+        "chapterNumber": 1,
+        "sessionId": "4bd0654f-de53-41f9-a86e-17a1a3faa61f",
+        "agentType": "dev-editor",
+        "severity": "suggestion",
+        "category": "show-tell",
+        "description": "Imogen's shoreline self-recognition is delivered through abstract psychological classification rather than embodied sensation, breaking the chapter's sensory-metaphorical mode.",
+        "suggestion": "The chapter's power derives from rendering emotional states through physical and environmental reality: the burn before touching, the letter against ribs, wading through shallows. This sentence steps into clinical taxonomy (\"people who rushed toward feeling\" / \"people who built elaborate structures\") that reads like textbook mental health language rather than the visceral, coastal register that defines the prose voice. For literary fiction where the prose itself is the feature, this register shift disrupts the immersive sensory mode the reader has been inhabiting. The realization is important to the arc — but its delivery method pulls the prose out of its own fingerprint.",
+        "originalText": "She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.",
+        "newText": "The wind took the thinking out of her. The water pulled another tide out. She understood, with the particular clarity the sea seemed to specialize in, that she was not the kind of person who rushed. She had never been. There were always structures — walls built of arithmetic, of good manners, of letters she didn't open the day they came — and she had always been the one who built them.",
+        "locationStart": null,
+        "locationEnd": null,
+        "status": "pending",
+        "dismissReason": null,
+        "appliedAt": null,
+        "createdAt": "2026-07-18T11:36:48.665Z",
+        "contentHash": "fd6f30a6181d7ff7e616b31c89ad59e3ef613306ba5e0b94eb5148f72c983325",
+        "confidence": 0.85,
+        "rationale": "The chapter's power derives from rendering emotional states through physical and environmental reality: the burn before touching, the letter against ribs, wading through shallows. This sentence steps into clinical taxonomy (\"people who rushed toward feeling\" / \"people who built elaborate structures\") that reads like textbook mental health language rather than the visceral, coastal register that defines the prose voice. For literary fiction where the prose itself is the feature, this register shift disrupts the immersive sensory mode the reader has been inhabiting. The realization is important to the arc — but its delivery method pulls the prose out of its own fingerprint.",
+        "paragraphNumber": 6,
+        "anchorQuote": "She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.",
+        "alternatives": [
+          {
+            "label": "Option A — ground the recognition in the shoreline's physical clarity",
+            "newText": "The wind took the thinking out of her. The water pulled another tide out. She understood, with the particular clarity the sea seemed to specialize in, that she was not the kind of person who rushed. She had never been. There were always structures — walls built of arithmetic, of good manners, of letters she didn't open the day they came — and she had always been the one who built them.",
+            "originalText": "She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been."
+          },
+          {
+            "label": "Option B — fold into the wading metaphor already established in the chapter",
+            "newText": "She thought about her mother's handwriting, which had been small and slanted and impatient. Thomas's careful, spaced-out script, each letter of every word given room to breathe as though he'd learned penmanship as a form of penance. She thought about who earned it and who was taught to keep it at a distance, and understood, with the particular clarity the sea seemed to specialize in, that she had been taught. She likely always would be.",
+            "originalText": "She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been."
+          },
+          {
+            "label": "Option C — break the long sentence into the long-then-punch signature rhythm",
+            "newText": "She thought about people who rushed toward feeling. She thought about people who built elaborate structures to keep it at a survivable distance. She understood, with the particular clarity the sea seemed to specialize in, that she was the second kind. And that she had likely always been.",
+            "originalText": "She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been."
+          }
+        ],
+        "groundingScore": 1,
+        "chapterVersion": 1,
+        "rejectedAt": null,
+        "rejectionReason": null
+      },
+      {
+        "id": "d0f79766-74d2-42eb-b4e0-7e61347d4516",
+        "bookId": "4116055c-6183-4675-926a-e04f31126951",
+        "chapterNumber": 1,
+        "sessionId": "11d0cf46-e688-4627-9e8b-5c6a83550316",
+        "agentType": "dev-editor",
+        "severity": "suggestion",
+        "category": "prose",
+        "description": "The final explanatory sentence restates the arithmetic metaphor as narrative thesis after the chapter has already demonstrated Imogen's deferral through physical action.",
+        "suggestion": "The chapter has just shown Imogen's evasion performed: she puts the letter in her coat pocket, feels its weight against her ribs, walks in the dark counting lit windows. The fragments \"Tomorrow she would read it. Tomorrow, or the day after.\" land as the chapter's strongest ending, matching the author's signature rhythm. The long sentence following them then explains what the fragments already implied, restating the arithmetic metaphor as thesis. For a writer who confirmed the chapter should remain short and sparse, this is scaffolding that could be trusted to the reader.",
+        "originalText": "Tomorrow she would read it. Tomorrow, or the day after. There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.",
+        "newText": "Tomorrow she would read it. Tomorrow, or the day after.",
+        "locationStart": null,
+        "locationEnd": null,
+        "status": "dismissed",
+        "dismissReason": "Same as before - the chapter ends short and sparse on purpose. I already told the editor this; keeping the passage as written.",
+        "appliedAt": null,
+        "createdAt": "2026-07-18T00:14:27.701Z",
+        "contentHash": "10d1d6b0cb8a209f7e96288de38f926e18520bded99ded75d751ea422d5a1ed5",
+        "confidence": 0.78,
+        "rationale": "The chapter has just shown Imogen's evasion performed: she puts the letter in her coat pocket, feels its weight against her ribs, walks in the dark counting lit windows. The fragments \"Tomorrow she would read it. Tomorrow, or the day after.\" land as the chapter's strongest ending, matching the author's signature rhythm. The long sentence following them then explains what the fragments already implied, restating the arithmetic metaphor as thesis. For a writer who confirmed the chapter should remain short and sparse, this is scaffolding that could be trusted to the reader.",
+        "paragraphNumber": 8,
+        "anchorQuote": "There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.",
+        "alternatives": [
+          {
+            "label": "Option A — stop on the fragments to preserve the rhythmic signature",
+            "newText": "Tomorrow she would read it. Tomorrow, or the day after.",
+            "originalText": "Tomorrow she would read it. Tomorrow, or the day after. There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open."
+          },
+          {
+            "label": "Option B — keep the door metaphor but strip the arithmetic restatement",
+            "newText": "Tomorrow she would read it. Tomorrow, or the day after. The letter sat folded in her pocket, heavy as a stone, and the wind off the water made her think of counting — one more evening, one more morning — because opening it was a door she was not yet strong enough to hold open.",
+            "originalText": "Tomorrow she would read it. Tomorrow, or the day after. There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open."
+          }
+        ],
+        "groundingScore": 1,
+        "chapterVersion": 1,
+        "rejectedAt": "2026-07-18T11:33:37.081Z",
+        "rejectionReason": null
+      },
+      {
+        "id": "5c20c0e1-e763-43b6-b2f6-a6aaefbc7a9c",
+        "bookId": "4116055c-6183-4675-926a-e04f31126951",
+        "chapterNumber": 1,
+        "sessionId": "11d0cf46-e688-4627-9e8b-5c6a83550316",
+        "agentType": "dev-editor",
+        "severity": "suggestion",
+        "category": "show-tell",
+        "description": "Imogen's shoreline self-recognition is delivered through abstract psychological classification rather than embodied sensation, stepping outside the chapter's dominant sensory mode.",
+        "suggestion": "The chapter's power comes from emotional states rendered through physical reality - the burn unopened, the letter against ribs like a heartbeat, grief as wading. This passage shifts into clinical self-taxonomy without grounding the classification in specific physical details already present in the scene. The reader loses the embodied channel at the point of emotional peak.",
+        "originalText": "She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.",
+        "newText": "She thought about her mother's rush - the small slanted impatient script, the way she'd marched into waves without testing the bottom - and about herself, sitting where the wet met the dry, refusing to open a letter the way you refused to touch a wound. She understood, with the particular clarity the sea seemed to specialize in, that she had perhaps always been this way - testing distance before she let anything touch her.",
+        "locationStart": null,
+        "locationEnd": null,
+        "status": "pending",
+        "dismissReason": null,
+        "appliedAt": null,
+        "createdAt": "2026-07-18T00:13:56.375Z",
+        "contentHash": "986f86e263a7d85d65e28b5a23c33e08b2556aa4b4fc1e94782c668ab303c019",
+        "confidence": 0.82,
+        "rationale": "The chapter's power comes from emotional states rendered through physical reality - the burn unopened, the letter against ribs like a heartbeat, grief as wading. This passage shifts into clinical self-taxonomy without grounding the classification in specific physical details already present in the scene. The reader loses the embodied channel at the point of emotional peak.",
+        "paragraphNumber": 6,
+        "anchorQuote": "She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.",
+        "alternatives": [
+          {
+            "label": "Option A - anchor self-recognition in physical detail",
+            "newText": "She thought about her mother's rush - the small slanted impatient script, the way she'd marched into waves without testing the bottom - and about herself, sitting where the wet met the dry, refusing to open a letter the way you refused to touch a wound. She understood, with the particular clarity the sea seemed to specialize in, that she had perhaps always been this way - testing distance before she let anything touch her.",
+            "originalText": "She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been."
+          },
+          {
+            "label": "Option B - keep classification but ground in bodily action",
+            "newText": "She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance - between her mother's small slanted impatient hand and Thomas's careful spaced-out script, between drowning and wading - and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.",
+            "originalText": "She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been."
+          }
+        ],
+        "groundingScore": 1,
+        "chapterVersion": 1,
+        "rejectedAt": null,
+        "rejectionReason": null
+      },
+      {
+        "id": "25499afe-9758-482a-a65c-53436e7e3538",
+        "bookId": "4116055c-6183-4675-926a-e04f31126951",
+        "chapterNumber": 1,
+        "sessionId": "9e4dfa42-daa3-4791-8ffb-ac3eec93d664",
+        "agentType": "dev-editor",
+        "severity": "suggestion",
+        "category": "prose",
+        "description": "The final paragraph over-explains the deferral we have just witnessed in action, then re-states the arithmetic metaphor as thesis rather than letting the demonstrated behavior carry the theme.",
+        "suggestion": "The chapter has just shown us Imogen's evasion physically: she puts the letter in her coat pocket, feels its weight against her ribs, walks in the dark counting lit windows. The avoidance is performed. The final sentence then explains what we've seen — \"There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway\" — restating the chapter's central organizing metaphor as narrative thesis. For a writer whose dismissed notethow noted that the chapter is short and sparse on purpose, these explanatory words are the kind of scaffolding that could be trusted to the reader. The short fragments \"Tomorrow she would read it. Tomorrow, or the day after.\" are the strongest ending — they're fragments that match the author's signature rhythm. The long sentence that follows them undercuts that rhythm by re-explaining what the fragments have already implied.",
+        "originalText": "Tomorrow she would read it. Tomorrow, or the day after. There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.",
+        "newText": "Tomorrow she would read it. Tomorrow, or the day after.",
+        "locationStart": null,
+        "locationEnd": null,
+        "status": "dismissed",
+        "dismissReason": "Intentional -- fragments carry the ending; no explanatory scaffolding wanted, per discuss thread.",
+        "appliedAt": null,
+        "createdAt": "2026-07-17T22:39:25.095Z",
+        "contentHash": "8da6474c92c983dff3266c4f501151bcb0eb328165c1c38fdb3724fe49f6b82f",
+        "confidence": 0.75,
+        "rationale": "The chapter has just shown us Imogen's evasion physically: she puts the letter in her coat pocket, feels its weight against her ribs, walks in the dark counting lit windows. The avoidance is performed. The final sentence then explains what we've seen — \"There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway\" — restating the chapter's central organizing metaphor as narrative thesis. For a writer whose dismissed notethow noted that the chapter is short and sparse on purpose, these explanatory words are the kind of scaffolding that could be trusted to the reader. The short fragments \"Tomorrow she would read it. Tomorrow, or the day after.\" are the strongest ending — they're fragments that match the author's signature rhythm. The long sentence that follows them undercuts that rhythm by re-explaining what the fragments have already implied.",
+        "paragraphNumber": 8,
+        "anchorQuote": "Tomorrow she would read it. Tomorrow, or the day after. There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.",
+        "alternatives": [
+          {
+            "label": "Option A — trust the fragments, cut the explanation",
+            "originalText": "Tomorrow she would read it. Tomorrow, or the day after. There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.",
+            "newText": "Tomorrow she would read it. Tomorrow, or the day after."
+          },
+          {
+            "label": "Option B — keep the door metaphor, tighten the scaffolding",
+            "originalText": "Tomorrow she would read it. Tomorrow, or the day after. There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.",
+            "newText": "Tomorrow she would read it. Tomorrow, or the day after. The alternative was a door she was not yet strong enough to hold open."
+          },
+          {
+            "label": "Option C — pivot to sensory closure instead of explanation",
+            "originalText": "Tomorrow she would read it. Tomorrow, or the day after. There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.",
+            "newText": "Tomorrow she would read it. Tomorrow, or the day after. For now, the letter sat against her ribs, and the windows kept themselves lit without her help."
+          }
+        ],
+        "groundingScore": 1,
+        "chapterVersion": 1,
+        "rejectedAt": "2026-07-18T00:05:58.534Z",
+        "rejectionReason": null
+      },
+      {
+        "id": "73b2781c-81ee-420a-9916-a17f1dadad68",
+        "bookId": "4116055c-6183-4675-926a-e04f31126951",
+        "chapterNumber": 1,
+        "sessionId": "9e4dfa42-daa3-4791-8ffb-ac3eec93d664",
+        "agentType": "dev-editor",
+        "severity": "suggestion",
+        "category": "show-tell",
+        "description": "Imogen's moment of shoreline clarity is delivered through abstract classification rather than embodied sensation, breaking the chapter's sensory-metaphorical mode.",
+        "suggestion": "The chapter's emotional architecture is built on sensory-metaphorical ground: burns being touched, tides dragging hem, letters beating against ribs, windows counted in the dark. When Imogen has her defining self-recognition on the shoreline, the prose steps into abstract psycho-analytical language—classifying types of people, labeling herself \"the second kind.\" This categorization explains her interiority rather than letting the reader feel it. The power of this story's voice comes from emotional states rendered through physical reality. A moment of clarity should increase sensory precision, not retreat into abstraction.",
+        "originalText": "She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.",
+        "newText": "She thought about her mother's handwriting, small and slanted and impatient, and the elaborate architecture of everything she'd learned to keep from happening again, and she understood something that the sea made easy to see, which was that this had never been a question of choice.",
+        "locationStart": null,
+        "locationEnd": null,
+        "status": "pending",
+        "dismissReason": null,
+        "appliedAt": null,
+        "createdAt": "2026-07-17T22:38:55.759Z",
+        "contentHash": "1b90ee506935d504430111a26da8a7317b17b490176a9c0ce777a5d6e76d5311",
+        "confidence": 0.7,
+        "rationale": "The chapter's emotional architecture is built on sensory-metaphorical ground: burns being touched, tides dragging hem, letters beating against ribs, windows counted in the dark. When Imogen has her defining self-recognition on the shoreline, the prose steps into abstract psycho-analytical language—classifying types of people, labeling herself \"the second kind.\" This categorization explains her interiority rather than letting the reader feel it. The power of this story's voice comes from emotional states rendered through physical reality. A moment of clarity should increase sensory precision, not retreat into abstraction.",
+        "paragraphNumber": 6,
+        "anchorQuote": "She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.",
+        "alternatives": [
+          {
+            "label": "Option A — ground the realization in physical sensation",
+            "originalText": "She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.",
+            "newText": "She thought about her mother's handwriting, small and slanted and impatient, and the elaborate architecture of everything she'd learned to keep from happening again, and she understood something that the sea made easy to see, which was that this had never been a question of choice."
+          },
+          {
+            "label": "Option B — cut to body-as-revelation",
+            "originalText": "She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.",
+            "newText": "Her hands were cold from the damp sand. She folded them against herself, the way she'd always done, and understood something the sea made hard to think about anything else: that she had always been this way, and that it was not a failing so much as a fact, like the tide, like the stretch of grey ahead of her."
+          },
+          {
+            "label": "Option C — let the environment carry the realization",
+            "originalText": "She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.",
+            "newText": "She thought about the way you could see further out to sea than you could see into a room, and about everything she'd spent her life learning not to open all the way, and understood, simply, that she had always been a person who kept things at a survivable distance."
+          }
+        ],
+        "groundingScore": 1,
+        "chapterVersion": 1,
+        "rejectedAt": null,
+        "rejectionReason": null
+      },
+      {
+        "id": "511cc83b-81bb-4e77-871b-127e65123779",
+        "bookId": "4116055c-6183-4675-926a-e04f31126951",
+        "chapterNumber": 1,
+        "sessionId": "eeef608c-4cc7-4db7-ad53-eea5f8d60b57",
+        "agentType": "dev-editor",
+        "severity": "suggestion",
+        "category": "structure",
+        "description": "Chapter length at approximately 570 words falls significantly short of the 3,000–3,500 word target specified in architecture.",
+        "suggestion": "While the chapter accomplishes its structural goal — establishing the arithmetic pattern, introducing Thomas, and deferring the twelfth letter — at 570 words it provides minimal room for the sensory world, character texture, and emotional processing that literary fiction readers expect. The architecture specifies 3,000–3,500 words per chapter; at current length this chapter offers little invitation to linger in Imogen's daily rhythm of evasion or to fully feel the weight of Eluned's pressure before the inciting incident arrives in later chapters. A fuller chapter would deepen reader attachment before the long middle acts.",
+        "originalText": "",
+        "newText": "Consider adding 1,500–2,000 words of a morning/evening domestic exchange between Imogen and Eluned before the shoreline scene — one that demonstrates Eluned's 'bluntness sharpened by decades of being lied to gently' through reported action rather than mere description. This would give the opening chapter the interpersonal pressure the architecture promises while preserving the single-POV, near-zero-dialogue voice.",
+        "locationStart": null,
+        "locationEnd": null,
+        "status": "dismissed",
+        "dismissReason": "The chapter's shortness is intentional -- Imogen is evasive and withholding by design; I don't want domestic padding. Lean is a feature, not a gap: keep quiet chapters like this under 1500 words.",
+        "appliedAt": null,
+        "createdAt": "2026-07-17T16:02:08.600Z",
+        "contentHash": "f7db90e39aca3cc2bceac20a12ca9838975d91913f16b82378a96516239853c4",
+        "confidence": 0.85,
+        "rationale": "While the chapter accomplishes its structural goal — establishing the arithmetic pattern, introducing Thomas, and deferring the twelfth letter — at 570 words it provides minimal room for the sensory world, character texture, and emotional processing that literary fiction readers expect. The architecture specifies 3,000–3,500 words per chapter; at current length this chapter offers little invitation to linger in Imogen's daily rhythm of evasion or to fully feel the weight of Eluned's pressure before the inciting incident arrives in later chapters. A fuller chapter would deepen reader attachment before the long middle acts.",
+        "paragraphNumber": 8,
+        "anchorQuote": "Tomorrow she would read it. Tomorrow, or the day after. There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.",
+        "alternatives": [
+          {
+            "label": "Option A — Expand with a domestic scene involving Eluned",
+            "originalText": "",
+            "newText": "Consider adding 1,500–2,000 words of a morning/evening domestic exchange between Imogen and Eluned before the shoreline scene — one that demonstrates Eluned's 'bluntness sharpened by decades of being lied to gently' through reported action rather than mere description. This would give the opening chapter the interpersonal pressure the architecture promises while preserving the single-POV, near-zero-dialogue voice."
+          },
+          {
+            "label": "Option B — Deepen the shoreline scene with sensory processing",
+            "originalText": "",
+            "newText": "Consider expanding paragraph 5 (the shoreline scene) by 1,000–1,500 words: extend Imogen's time at the shore with more sensory observation of Pentref — the salt house, the gulls, the October water Thomas asks about — and deeper interior processing of why the twelfth letter feels different from the first eleven. This deepens the emotional world and the maritime metaphor domain without breaking the contemplative rhythm."
+          },
+          {
+            "label": "Option C — Add a second scene showing the arithmetic in action",
+            "originalText": "",
+            "newText": "Consider inserting a brief scene between paragraphs 1 and 5 that shows Imogen portioning out a previous Thomas letter — 'a paragraph before breakfast, a paragraph after' — demonstrating the arithmetic system in practice rather than only describing it. This would show the pattern rather than telling it, provide concrete evidence of her methodical avoidance, and add 800–1,200 words of lived-in texture."
+          }
+        ],
+        "groundingScore": 1,
+        "chapterVersion": 1,
+        "rejectedAt": "2026-07-17T22:32:48.959Z",
+        "rejectionReason": null
+      },
+      {
+        "id": "58d89462-4187-419b-913c-d6813c83034f",
+        "bookId": "4116055c-6183-4675-926a-e04f31126951",
+        "chapterNumber": 1,
+        "sessionId": null,
+        "agentType": "agent",
+        "severity": "suggestion",
+        "category": "prose",
+        "description": "Rita QA rate-limit target 1784302079",
+        "suggestion": "n/a",
+        "originalText": null,
+        "newText": null,
+        "locationStart": null,
+        "locationEnd": null,
+        "status": "pending",
+        "dismissReason": null,
+        "appliedAt": null,
+        "createdAt": "2026-07-17T15:27:59.849Z",
+        "contentHash": null,
+        "confidence": null,
+        "rationale": null,
+        "paragraphNumber": null,
+        "anchorQuote": null,
+        "alternatives": null,
+        "groundingScore": null,
+        "chapterVersion": null,
+        "rejectedAt": null,
+        "rejectionReason": null
+      },
+      {
+        "id": "2220ab58-b282-4591-a4c9-c73dc4282a8e",
+        "bookId": "4116055c-6183-4675-926a-e04f31126951",
+        "chapterNumber": 1,
+        "sessionId": null,
+        "agentType": "agent",
+        "severity": "suggestion",
+        "category": "prose",
+        "description": "Rita QA seeded finding for rate-limit test",
+        "suggestion": "n/a",
+        "originalText": null,
+        "newText": null,
+        "locationStart": null,
+        "locationEnd": null,
+        "status": "pending",
+        "dismissReason": null,
+        "appliedAt": null,
+        "createdAt": "2026-07-17T15:25:57.220Z",
+        "contentHash": null,
+        "confidence": null,
+        "rationale": null,
+        "paragraphNumber": null,
+        "anchorQuote": null,
+        "alternatives": null,
+        "groundingScore": null,
+        "chapterVersion": null,
+        "rejectedAt": null,
+        "rejectionReason": null
+      }
+    ],
+    "total": 9
+  },
+  "bodyIsRawText": false,
+  "elapsed_ms": 426,
+  "capturedAt": "2026-07-20T11:41:22.208Z"
+}

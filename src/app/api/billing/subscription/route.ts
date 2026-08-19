@@ -1,7 +1,14 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { stripe, PLANS, type PlanKey } from "@/lib/billing";
+import {
+  stripe,
+  PLANS,
+  type PlanKey,
+  FREE_TIER,
+  isFreeTier,
+  getFreeTierSnapshot,
+} from "@/lib/billing";
 
 /**
  * Map Stripe subscription status to our internal status.
@@ -37,9 +44,14 @@ function planFromPriceId(priceId: string): string | null {
 }
 
 export async function GET() {
+  let user;
   try {
-    const user = await requireUser();
+    user = await requireUser();
+  } catch {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
+  try {
     let sub = await db.subscription.findUnique({
       where: { userId: user.id },
     });
@@ -88,24 +100,34 @@ export async function GET() {
       }
     }
 
+    // Keep `plan` as the STORED value ("none" for Free) — the plan-gate
+    // hierarchy depends on "none" at index 0. Only DISPLAY fields change for
+    // Free, plus a real-numbers usage snapshot for walls/banners.
     const plan = (sub?.plan ?? "none") as PlanKey;
     const planDef = plan in PLANS ? PLANS[plan as keyof typeof PLANS] : null;
+    const free = isFreeTier(sub);
+    const freeTier = free ? await getFreeTierSnapshot(user.id) : null;
 
     return NextResponse.json({
       plan,
-      planName: planDef?.name ?? "No Plan",
+      planName: free ? FREE_TIER.name : planDef?.name ?? "No Plan",
       monthlyPrice: planDef?.monthlyPrice ?? 0,
       annualPrice: planDef?.annualPrice ?? null,
       features: planDef?.features ?? [],
-      maxBooks: planDef?.maxBooks ?? 0,
+      maxBooks: free ? FREE_TIER.maxBooks : planDef?.maxBooks ?? 0,
       status: sub?.status ?? "none",
       billingInterval: sub?.billingInterval ?? "monthly",
       trialEnd: sub?.trialEnd ?? null,
       cancelAtPeriodEnd: sub?.cancelAtPeriodEnd ?? false,
       stripeConfigured: !!process.env.STRIPE_SECRET_KEY,
       currentPeriodEnd: sub?.currentPeriodEnd,
+      freeTier,
     });
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  } catch (error) {
+    console.error("GET /api/billing/subscription error:", error);
+    return NextResponse.json(
+      { error: "Failed to load subscription" },
+      { status: 500 }
+    );
   }
 }

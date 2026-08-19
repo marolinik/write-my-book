@@ -1,0 +1,22 @@
+{
+  "label": "03_create_ch3",
+  "method": "POST",
+  "path": "/api/books/fd60e1d4-37c5-4c11-92a1-586af638224a/chapters",
+  "status": 201,
+  "response": {
+    "id": "611fca1b-88fe-4dea-a2a0-fce1c0f51576",
+    "bookId": "fd60e1d4-37c5-4c11-92a1-586af638224a",
+    "actNumber": 1,
+    "chapterNumber": 3,
+    "title": "The Eleventh Day",
+    "status": "undiscussed",
+    "wordCount": 0,
+    "targetWordCount": null,
+    "betaScore": null,
+    "betaGate": "pending",
+    "revisionCount": 0,
+    "importedAt": null,
+    "createdAt": "2026-07-18T01:46:36.495Z",
+    "updatedAt": "2026-07-18T01:46:36.495Z"
+  }
+}

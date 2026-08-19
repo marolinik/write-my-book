@@ -1,0 +1,42 @@
+{
+  "status": 200,
+  "body": [
+    {
+      "id": "3c382c94-b479-43fa-b4bf-01997e118c81",
+      "bookId": "4116055c-6183-4675-926a-e04f31126951",
+      "seriesId": null,
+      "type": "STORY_BIBLE",
+      "title": "Story Bible — The Salt Letters QA P1 93181fd1",
+      "storageKey": ".planning/STORY-BIBLE.md",
+      "currentVersion": 1,
+      "chapterNumber": null,
+      "createdAt": "2026-07-17T15:33:58.375Z",
+      "updatedAt": "2026-07-17T15:33:58.375Z"
+    },
+    {
+      "id": "75baa8f2-b390-459b-83c5-398794f5df3f",
+      "bookId": "4116055c-6183-4675-926a-e04f31126951",
+      "seriesId": null,
+      "type": "FINGERPRINT",
+      "title": "Fingerprint: Literary Voice Analysis",
+      "storageKey": ".planning/FINGERPRINT.md",
+      "currentVersion": 1,
+      "chapterNumber": null,
+      "createdAt": "2026-07-17T15:23:34.678Z",
+      "updatedAt": "2026-07-17T15:23:34.678Z"
+    },
+    {
+      "id": "b08086f9-4877-4d8a-9439-4e1d58686785",
+      "bookId": "4116055c-6183-4675-926a-e04f31126951",
+      "seriesId": null,
+      "type": "CHAPTER_CONTENT",
+      "title": "Chapter 1",
+      "storageKey": "manuscript/act-1/chapter-01.md",
+      "currentVersion": 1,
+      "chapterNumber": 1,
+      "createdAt": "2026-07-17T15:18:02.580Z",
+      "updatedAt": "2026-07-17T15:18:02.580Z"
+    }
+  ],
+  "elapsed_s": 0.114
+}

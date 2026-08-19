@@ -1,0 +1,31 @@
+Worker-proof — P1 Maya REJUDGE (fresh independent capture)
+Captured: 2026-07-20 (before any agent/dev-edit measurement in this bundle)
+Method: Get-CimInstance Win32_Process, walk full parent chain to prove single lineage.
+
+=== node.exe processes matching src/worker ===
+PID 61892 | PPID 28224 | node.exe | node --require tsx/dist/preflight.cjs --import tsx/dist/loader.mjs src/worker.ts   <-- LEAF WORKER RUNTIME
+PID 28224 | PPID 63044 | node.exe | node tsx/dist/cli.mjs src/worker.ts
+PID 63044 | PPID 31644 | cmd.exe  | cmd /d /s /c tsx src/worker.ts
+PID 31644 | PPID 30280 | node.exe | node npx-cli.js tsx src/worker.ts
+PID 30280 | PPID 32584 | powershell.exe | powershell -NoProfile ... cd D:\Projects\wmb-pub; npx tsx src/worker.ts
+
+Full resolved single lineage (top -> leaf):
+30280 (powershell: npx tsx src/worker.ts)
+  -> 31644 (node: npx-cli.js tsx src/worker.ts)
+    -> 63044 (cmd: tsx src/worker.ts)
+      -> 28224 (node: tsx/dist/cli.mjs src/worker.ts)
+        -> 61892 (node: preflight+loader src/worker.ts)   <-- LEAF WORKER RUNTIME
+
+Distinct leaf worker runtimes (node.exe with preflight.cjs + src/worker.ts): 1
+
+=== app server ===
+Port 3002 listener PID: 53220 = node next/dist/server/lib/start-server.js
+(Separate process from the worker; server + worker were freshly restarted on current committed code per task brief.)
+
+CONCLUSION: Exactly ONE worker runtime confirmed (leaf PID 61892). All matching
+node.exe hits form a single wrapper chain (powershell -> npx -> cmd -> tsx cli ->
+node loader), NOT multiple independent workers. This satisfies GRADING-PROTOCOL §8
+stale-worker rule for all agent-output / extraction measurements captured in this bundle.
+
+Server reachability at capture time: GET /api/health with QA headers -> HTTP 200 (see api-traces/00_health.json).
+</content>

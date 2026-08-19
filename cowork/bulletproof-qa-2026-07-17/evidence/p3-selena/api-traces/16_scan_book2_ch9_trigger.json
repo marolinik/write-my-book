@@ -1,0 +1,12 @@
+{
+  "label": "16_scan_book2_ch9_trigger",
+  "method": "POST",
+  "path": "/api/books/2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90/continuity/scan?chapterNumber=9",
+  "requestedAt": "2026-07-18T09:02:24.210+00:00",
+  "elapsedMs": 188,
+  "status": 200,
+  "note": "Mission A trigger scan: fires ch9 extraction (new content, no prior ch9 Chapter node -> extraction runs). This response reads the PRE-ch9-extraction graph; flag expected only on the NEXT scan after landing.",
+  "response": {
+    "flags": []
+  }
+}

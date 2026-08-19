@@ -1,0 +1,24 @@
+{
+  "id": "J1",
+  "label": "health",
+  "actor": "p8",
+  "capturedAt": "2026-07-20T11:31:34.156Z",
+  "request": {
+    "method": "GET",
+    "url": "http://127.0.0.1:3002/api/health",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p8"
+    },
+    "body": null,
+    "bodyMode": "none"
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json",
+    "bodyLength": 187,
+    "bodyText": "{\"status\":\"ok\",\"timestamp\":\"2026-07-20T11:31:34.149Z\",\"env\":{\"ok\":true,\"target\":\"web\",\"nodeEnv\":\"development\",\"ci\":false,\"checkedAt\":\"2026-07-20T11:31:34.149Z\",\"errors\":[],\"warnings\":[]}}"
+  },
+  "expected": "200 real env status",
+  "note": null
+}

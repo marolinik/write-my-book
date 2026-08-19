@@ -27,20 +27,25 @@ export interface ReplaceResponse {
   totalReplacements: number;
 }
 
-/** Live book-wide search preview. `q` must be >= 2 chars to fire. */
+/**
+ * Live book-wide search preview. `q` must be >= 2 chars to fire.
+ * `wholeWord` (D-189) is part of the query key so the preview count always
+ * matches the matching mode Replace all will use.
+ */
 export function useBookSearch(
   bookId: string,
   q: string,
   caseSensitive: boolean,
+  wholeWord: boolean,
   enabled: boolean
 ) {
   return useQuery({
-    queryKey: ["book-search", bookId, q, caseSensitive],
+    queryKey: ["book-search", bookId, q, caseSensitive, wholeWord],
     queryFn: () =>
       fetchJson<SearchResponse>(
         `/api/books/${bookId}/search?q=${encodeURIComponent(q)}&caseSensitive=${
           caseSensitive ? 1 : 0
-        }`
+        }&wholeWord=${wholeWord ? 1 : 0}`
       ),
     enabled: enabled && !!bookId && q.trim().length >= 2,
   });
@@ -55,6 +60,7 @@ export function useBookReplace(bookId: string) {
       replace: string;
       chapterIds?: string[];
       caseSensitive: boolean;
+      wholeWord: boolean;
     }) =>
       fetchJson<ReplaceResponse>(`/api/books/${bookId}/search/replace`, {
         method: "POST",

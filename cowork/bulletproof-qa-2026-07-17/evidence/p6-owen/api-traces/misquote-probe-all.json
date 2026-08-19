@@ -1,0 +1,38 @@
+[
+ {
+  "id": "bdb80574",
+  "ch": "5",
+  "sev": "critical",
+  "cat": "prose",
+  "status": "pending",
+  "originalText_verbatim": true,
+  "anchorQuote_verbatim": true
+ },
+ {
+  "id": "9b7fbf43",
+  "ch": "5",
+  "sev": "important",
+  "cat": "prose",
+  "status": "pending",
+  "originalText_verbatim": true,
+  "anchorQuote_verbatim": true
+ },
+ {
+  "id": "ce63cb76",
+  "ch": "5",
+  "sev": "suggestion",
+  "cat": "clarity",
+  "status": "pending",
+  "originalText_verbatim": true,
+  "anchorQuote_verbatim": true
+ },
+ {
+  "id": "594ea427",
+  "ch": "5",
+  "sev": "suggestion",
+  "cat": "clarity",
+  "status": "rejected",
+  "originalText_verbatim": null,
+  "anchorQuote_verbatim": true
+ }
+]

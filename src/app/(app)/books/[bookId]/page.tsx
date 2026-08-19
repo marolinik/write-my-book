@@ -19,6 +19,12 @@ import {
 import { getUIStrings, localeFor } from "@/lib/i18n/ui-strings";
 import { getAgentStrings } from "@/lib/i18n/agent-strings";
 import { getWorkflow } from "@/lib/agents/workflows";
+import {
+  SETUP_STEP_TOTAL,
+  countSetupStepsDone,
+  setupSurfaceStatus,
+} from "@/lib/onboarding/setup-surface";
+import { nextOverviewRecommendation } from "@/lib/onboarding/overview-recommendation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -78,7 +84,7 @@ export default async function BookDetailPage({
           orderBy: { updatedAt: "desc" },
         },
         series: { select: { id: true, title: true } },
-        settings: { select: { setupComplete: true } },
+        settings: { select: { setupComplete: true, setupImportSkipped: true } },
         _count: { select: { documents: true } },
       },
     }),
@@ -153,59 +159,30 @@ export default async function BookDetailPage({
       : null;
 
   // Next recommended workflow
-  let nextWorkflowId: string | null = null;
-  let nextWorkflowReason: string = "";
   const hasFingerprint = book.documents.some((d) => d.type === "FINGERPRINT");
   const hasBible = book.documents.some((d) => d.type === "STORY_BIBLE");
   const hasArch = book.documents.some((d) => d.type === "ARCHITECTURE");
 
-  if (!hasFingerprint) {
-    nextWorkflowId = "capture-style";
-    nextWorkflowReason = "Capture your writing style fingerprint to guide all AI agents";
-  } else if (!hasBible) {
-    nextWorkflowId = "create-story-bible";
-    nextWorkflowReason = "Create a Story Bible to define characters, world, and lore";
-  } else if (!hasArch) {
-    nextWorkflowId = "build-architecture";
-    nextWorkflowReason = "Build the narrative architecture and plot structure";
-  } else {
-    const undrafted = book.chapters.find(
-      (ch) => ch.status === "undiscussed" || ch.status === "discussed" || ch.status === "planned"
-    );
-    const needsDevEdit = book.chapters.find((ch) => ch.status === "drafted");
-    const needsLineEdit = book.chapters.find((ch) => ch.status === "dev_edited");
-    const needsBetaRead = book.chapters.find((ch) => ch.status === "line_edited");
+  // D-173: this ladder used to be inline here and gated on `!hasFingerprint`
+  // alone, so it kept soliciting "Recommended: Capture Style" after the writer
+  // had finished the wizard with Style skipped — a FOURTH accounting disagreeing
+  // with the sidebar and the ProactiveGuide, which D-160 had already routed
+  // through `nextSetupWorkflow()`. It now shares that module (and is testable):
+  // once setup is complete, skipped artifacts are offers reachable from the
+  // Style page / Setup wizard / ProactiveGuide batch offer, never the
+  // "Recommended" next step.
+  const recommendation = nextOverviewRecommendation({
+    setupComplete: book.settings?.setupComplete ?? false,
+    hasFingerprint,
+    hasStoryBible: hasBible,
+    hasArchitecture: hasArch,
+    chapters: book.chapters,
+    pendingFindings,
+  });
+  const nextWorkflowId = recommendation.workflowId;
+  const nextWorkflowReason = recommendation.reason;
 
-    if (needsDevEdit) {
-      nextWorkflowId = "dev-edit";
-      nextWorkflowReason = `Ch. ${needsDevEdit.chapterNumber} is drafted and ready for developmental editing`;
-    } else if (needsLineEdit) {
-      nextWorkflowId = "line-edit";
-      nextWorkflowReason = `Ch. ${needsLineEdit.chapterNumber} is dev-edited and ready for line editing`;
-    } else if (needsBetaRead) {
-      nextWorkflowId = "beta-read";
-      nextWorkflowReason = `Ch. ${needsBetaRead.chapterNumber} is line-edited and ready for beta reading`;
-    } else if (undrafted) {
-      if (undrafted.status === "planned") {
-        nextWorkflowId = "write-chapter";
-        nextWorkflowReason = `Ch. ${undrafted.chapterNumber} is planned and ready to be written`;
-      } else if (undrafted.status === "discussed") {
-        nextWorkflowId = "plan-chapter";
-        nextWorkflowReason = `Ch. ${undrafted.chapterNumber} has been discussed and needs a plan`;
-      } else {
-        nextWorkflowId = "discuss-chapter";
-        nextWorkflowReason = `Ch. ${undrafted.chapterNumber} is ready to be discussed with the AI`;
-      }
-    } else if (pendingFindings > 0) {
-      nextWorkflowId = "discuss-edits";
-      nextWorkflowReason = `${pendingFindings} editorial findings need review`;
-    } else {
-      nextWorkflowId = "publishing-check";
-      nextWorkflowReason = "All chapters complete — run a pre-publication check";
-    }
-  }
-
-  const nextWorkflow = nextWorkflowId ? getWorkflow(nextWorkflowId) : null;
+  const nextWorkflow = getWorkflow(nextWorkflowId);
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -263,7 +240,7 @@ export default async function BookDetailPage({
                 </p>
               </div>
             </div>
-            <StartWorkflowButton workflowId={nextWorkflowId!} />
+            <StartWorkflowButton workflowId={nextWorkflowId} />
           </CardContent>
         </Card>
       )}
@@ -466,18 +443,24 @@ export default async function BookDetailPage({
 
       {/* Setup Incomplete Banner — hide if all foundational steps are done */}
       {(() => {
-        const hasBasics = !!(book.name && book.genre);
-        const hasChaptersLoaded = book.chapters.length > 0;
-        // If all real setup steps are complete, treat as fully done (even if wizard flag was never set)
-        const allRealStepsDone = hasBasics && hasChaptersLoaded && hasFingerprint && hasBible && hasArch;
-        if (book.settings?.setupComplete || allRealStepsDone) return null;
+        // D-160: one shared accounting with the wizard header and the sidebar
+        // "Getting Started" badge — a skipped import counts as resolved here
+        // too, so no two surfaces can report different numbers for one state.
+        const stepFlags = {
+          basicsComplete: !!(book.name && book.genre),
+          importComplete: book.chapters.length > 0 || (book.settings?.setupImportSkipped ?? false),
+          styleComplete: hasFingerprint,
+          bibleComplete: hasBible,
+          archComplete: hasArch,
+        };
+        if (
+          book.settings?.setupComplete ||
+          setupSurfaceStatus(stepFlags, false) === "done"
+        ) {
+          return null;
+        }
 
-        let stepsDone = 0;
-        if (hasBasics) stepsDone++;
-        if (hasChaptersLoaded) stepsDone++;
-        if (hasFingerprint) stepsDone++;
-        if (hasBible) stepsDone++;
-        if (hasArch) stepsDone++;
+        const stepsDone = countSetupStepsDone(stepFlags);
         return (
           <Card className="mb-8 border-dashed border-primary/50 bg-primary/5">
             <CardContent className="flex flex-wrap items-center justify-between gap-3 py-4">
@@ -485,7 +468,7 @@ export default async function BookDetailPage({
                 <SparklesIcon className="size-5 text-primary shrink-0" />
                 <div>
                   <p className="text-sm font-medium">
-                    {s.completeSetup} &mdash; {stepsDone}/5
+                    {s.completeSetup} &mdash; {stepsDone}/{SETUP_STEP_TOTAL}
                   </p>
                   <p className="text-xs text-muted-foreground">{s.setupDescription}</p>
                 </div>

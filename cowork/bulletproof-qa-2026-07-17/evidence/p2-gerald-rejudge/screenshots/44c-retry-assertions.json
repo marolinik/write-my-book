@@ -1,0 +1,20 @@
+{
+  "shot": "44c/44c2 (retry leg)",
+  "capturedAt": "2026-07-27T04:28:00.216Z",
+  "bookId": "10c694f2-2f80-4df3-b73b-29141d3d54ab",
+  "chapterId": "f4a5cf28-14cf-4bc7-8f81-20598c385007",
+  "backupVersion": 4,
+  "versionRowsRendered": [
+    "v5",
+    "v4",
+    "v3",
+    "v2",
+    "v1"
+  ],
+  "viewer_dialog_contains_discarded_words": true,
+  "viewerDialogTextVerbatim": "Version 4\nThe ledger in Zürich balanced — it always did. “Kőszeg,” Marek said, and the line went dead. The words Gerald typed on the other device — and does not intend to lose. Still typing.\nClose",
+  "log": [
+    "[2026-07-27T04:27:56.834Z] version rows rendered: v5, v4, v3, v2, v1",
+    "[2026-07-27T04:28:00.216Z] viewer dialog contains the discarded words = true"
+  ]
+}

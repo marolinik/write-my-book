@@ -8,6 +8,8 @@ import { DocumentType } from "@/generated/prisma/enums";
 import { convertDocxToMarkdown } from "@/lib/import-export/docx-to-markdown";
 import { parseManuscriptChapters } from "@/lib/import-export/chapter-parser";
 import { indexBatch } from "@/lib/vector";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { zodErrorResponse } from "@/lib/api/zod-error";
 
 const ALLOWED_EXTENSIONS = [".md", ".txt", ".docx"];
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
@@ -46,12 +48,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if ((error as Error).name === "ZodError") {
-      return NextResponse.json(
-        { error: "Invalid input", details: error },
-        { status: 400 }
-      );
-    }
+    const zodRes = zodErrorResponse(error);
+    if (zodRes) return zodRes;
     console.error("POST /api/books/:id/import error:", error);
     return NextResponse.json(
       { error: "Import failed" },
@@ -66,7 +64,17 @@ async function handleStructuredImport(
   bookId: string,
   userId: string
 ) {
-  const body = await req.json();
+  // POST's try/catch cannot see this rejection (`return handleStructuredImport(...)`
+  // is not awaited inside the try) — guard the parse locally so a malformed
+  // body answers 400 instead of a raw 500 (D-01).
+  let body: unknown;
+  try {
+    body = await parseJsonBody(req);
+  } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
+    throw error;
+  }
   const data = importConfirmRequestSchema.parse(body);
 
   const docService = new DocumentService(userId, bookId);
@@ -161,7 +169,10 @@ async function handleStructuredImport(
       docType: "chapter" as const,
       docId: `import-ch-${ch.number}`,
       content: ch.content,
-      metadata: { userId, chapterNumber: ch.number },
+      // D-75: imported chapters ARE chapter content, so flag them — an imported
+      // chapter later edited via the content route/document API then converges onto
+      // one chunk set instead of duplicating.
+      metadata: { userId, chapterNumber: ch.number, chapterContent: true },
     }));
   if (chaptersToIndex.length > 0) {
     indexBatch(chaptersToIndex).catch(err =>
@@ -311,7 +322,8 @@ async function handleLegacyImport(
       docType: "chapter" as const,
       docId: `import-ch-${ch.number}`,
       content: ch.content,
-      metadata: { userId, chapterNumber: ch.number },
+      // D-75: imported chapters ARE chapter content (see structured-import path).
+      metadata: { userId, chapterNumber: ch.number, chapterContent: true },
     }));
     if (legacyChaptersToIndex.length > 0) {
       indexBatch(legacyChaptersToIndex).catch(err =>

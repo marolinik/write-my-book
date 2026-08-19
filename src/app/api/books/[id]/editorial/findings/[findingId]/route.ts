@@ -5,7 +5,10 @@ import { updateFindingSchema } from "@/lib/validation";
 import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
 import { inferPreferenceFromDismissals, upsertConversationConstraint } from "@/lib/agents/writer-memory";
-import { parseDiscussResponse } from "@/lib/editorial/discuss-prompt";
+import { selectLatestConstraint } from "@/lib/editorial/finding-conversation";
+import { isDestructiveReplacement } from "@/lib/editorial/finding-applicability";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { zodErrorResponse } from "@/lib/api/zod-error";
 
 type RouteParams = { params: Promise<{ id: string; findingId: string }> };
 
@@ -118,7 +121,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = updateFindingSchema.parse(body);
 
     const alternatives = parseFindingAlternatives(finding.alternatives);
@@ -127,6 +130,20 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
     const originalText = selectedAlternative?.originalText ?? finding.originalText;
     const newText = selectedAlternative?.newText ?? finding.newText;
     const finalNewText = data.overrideText ?? newText;
+
+    // D-41a: refuse a destructive apply. When a passage is named (originalText
+    // present) but the resolved replacement is blank (empty/whitespace), applying
+    // it would delete the writer's prose. Never do that silently — answer an
+    // honest 422 so the writer can dismiss it or Discuss it into a real revision.
+    if (data.action === "apply" && isDestructiveReplacement(originalText, finalNewText)) {
+      return NextResponse.json(
+        {
+          error:
+            "This finding has no replacement text, so applying it would delete the passage it points to. Dismiss it, or use Discuss to work out a concrete revision.",
+        },
+        { status: 422 }
+      );
+    }
 
     // Auto-apply: if applying a finding with originalText + newText, edit the chapter
     if (data.action === "apply" && originalText && finalNewText) {
@@ -199,15 +216,17 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json(updated);
     }
 
-    // Standard apply (advice-only) or dismiss
-    // rejectedAt drives <finding_history> status — without it, dismissed
-    // findings render as [pending] in agent prompts.
+    // Standard apply (advice-only) or dismiss.
+    // D-55: a writer DISMISSAL records dismiss-intent only (status "dismissed" +
+    // dismissReason) and must NOT stamp `rejectedAt` — that is the system REJECT
+    // timestamp, and conflating the two corrupts dismiss-vs-reject analytics.
+    // <finding_history> derives its [dismissed] label from `status` (see
+    // findingHistoryStatus), so dropping the timestamp does not regress prompts.
     const updateData: Record<string, unknown> =
       data.action === "apply"
         ? { status: "applied", appliedAt: new Date() }
         : {
             status: "dismissed",
-            rejectedAt: new Date(),
             dismissReason: data.reason ?? null,
           };
 
@@ -243,14 +262,25 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
         console.error("[Feedback] dismissal inference failed:", e);
       }
 
-      // Conversational learning: if the thread's latest assistant turn emitted a constraint, persist it (book-scoped).
+      // Conversational learning: if the thread carries a constraint, persist it
+      // (book-scoped).
+      //
+      // D-170: read EVERY assistant turn, oldest-first, and select through the
+      // same shared helper the chip uses. Re-parsing only the newest reply broke
+      // the promise the UI had already made: on a thread where the writer asked
+      // for a rewrite AFTER the editor offered to remember something (REMEMBER
+      // on turn 1, REVISION-only on turn 3) the chip said *On "Keep as-is", I'll
+      // remember: …* and dismiss silently persisted nothing.
       try {
-        const lastAssistant = await db.findingReply.findFirst({
+        const assistantReplies = await db.findingReply.findMany({
           where: { findingId, role: "assistant" },
-          orderBy: { createdAt: "desc" },
+          orderBy: { createdAt: "asc" },
+          select: { content: true },
         });
-        if (lastAssistant) {
-          const { suggestedConstraint } = parseDiscussResponse(lastAssistant.content);
+        if (assistantReplies.length > 0) {
+          const suggestedConstraint = selectLatestConstraint(
+            assistantReplies.map((r) => ({ role: "assistant" as const, content: r.content }))
+          );
           if (suggestedConstraint) {
             await upsertConversationConstraint({
               userId: user.id,
@@ -276,15 +306,13 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(updated);
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if ((error as Error).name === "ZodError") {
-      return NextResponse.json(
-        { error: "Invalid input", details: error },
-        { status: 400 }
-      );
-    }
+    const zodRes = zodErrorResponse(error);
+    if (zodRes) return zodRes;
     console.error(
       "PATCH /api/books/:id/editorial/findings/:findingId error:",
       error

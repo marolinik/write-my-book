@@ -11,6 +11,7 @@ import {
   runConsistencyChecks,
 } from "@/lib/graph/graph-queries";
 import { upsertEntities } from "@/lib/graph/graph-builder";
+import { RELATIONSHIP_TYPES } from "@/lib/graph/types";
 import type { GraphNodeLabel, ExtractionResult, RelationshipType } from "@/lib/graph/types";
 import { searchMemory, formatSearchResults } from "@/lib/vector/retriever";
 import { indexDocument } from "@/lib/vector/indexer";
@@ -25,6 +26,11 @@ import { getAgentDefinition } from "./definitions";
 import { assembleAgentPrompt } from "./prompt-assembler";
 import { processPostSession } from "./post-session";
 import { getSession } from "./session-manager";
+import {
+  stripModelSelfTalk,
+  stripFabricatedFingerprintQuotes,
+  stampReportMetadata,
+} from "./editorial-text-hygiene";
 
 export const APPROVAL_SENTINEL = "__APPROVAL_GATE__";
 
@@ -41,6 +47,18 @@ function computeFindingHash(
     description.toLowerCase().trim().slice(0, 200),
   ].join("|");
   return createHash("sha256").update(canonical).digest("hex");
+}
+
+/**
+ * Normalize a finding's originalText for dismissed-finding matching (D-13):
+ * NFC (same rationale as fuzzyMatch — Serbian diacritics) plus whitespace
+ * collapse and trim. Returns "" for null/undefined/blank input — callers MUST
+ * treat "" as non-matching (an empty span can never justify suppression).
+ */
+function normalizeOriginalTextForDismissMatch(
+  text: string | null | undefined
+): string {
+  return (text ?? "").normalize("NFC").replace(/\s+/g, " ").trim();
 }
 
 function fuzzyMatch(needle: string, haystack: string): number {
@@ -81,6 +99,17 @@ async function validateFinding(
   input: ValidationInput,
   chapterContent: string
 ): Promise<{ valid: boolean; reason?: string }> {
+  // D-34: models can omit anchorQuote (or send a non-string) despite the tool
+  // schema — fuzzyMatch would then throw a raw `needle.normalize` TypeError
+  // that leaks to the model. Reject with corrective guidance instead, on the
+  // same path as every other validation rejection.
+  const rawAnchorQuote: unknown = input.anchorQuote;
+  if (typeof rawAnchorQuote !== "string") {
+    return {
+      valid: false,
+      reason: `REJECTED: anchorQuote is required and must be a string — an exact verbatim quote from the chapter that demonstrates the issue. You provided: ${rawAnchorQuote === undefined ? "nothing (field omitted)" : JSON.stringify(rawAnchorQuote)}. Please re-read the chapter and call CreateFinding again with an exact quote.`,
+    };
+  }
   const similarity = fuzzyMatch(input.anchorQuote, chapterContent);
   if (similarity < 0.8) {
     return {
@@ -89,6 +118,24 @@ async function validateFinding(
     };
   }
   const paragraphs = chapterContent.split(/\n\n+/).filter(p => p.trim().length > 0);
+  // D-33: models can omit paragraphNumber (or send a non-numeric value)
+  // despite the tool schema. `undefined` sails through the range check below
+  // (both comparisons are false) and paragraphs[NaN] then crashes fuzzyMatch
+  // with a raw TypeError that leaks to the model. Reject with corrective
+  // guidance instead, on the same path as every other validation rejection.
+  const rawParagraphNumber: unknown = input.paragraphNumber;
+  if (typeof rawParagraphNumber !== "number" || !Number.isInteger(rawParagraphNumber)) {
+    const provided =
+      rawParagraphNumber === undefined
+        ? "nothing (field omitted)"
+        : typeof rawParagraphNumber === "number"
+          ? String(rawParagraphNumber)
+          : JSON.stringify(rawParagraphNumber);
+    return {
+      valid: false,
+      reason: `REJECTED: paragraphNumber is required and must be an integer between 1 and ${paragraphs.length} (1-indexed). You provided: ${provided}. Please re-count the paragraphs and call CreateFinding again with a valid paragraphNumber.`,
+    };
+  }
   if (input.paragraphNumber < 1 || input.paragraphNumber > paragraphs.length) {
     return {
       valid: false,
@@ -124,10 +171,27 @@ async function validateFinding(
       };
     }
   }
-  if (!input.alternatives || input.alternatives.length < 2) {
+  // D-34: a non-array `alternatives` (e.g. a string) would pass a truthiness +
+  // .length check and later crash computeGroundingScore (`alternatives.map is
+  // not a function`), so require a real array here.
+  if (!Array.isArray(input.alternatives) || input.alternatives.length < 2) {
     return {
       valid: false,
-      reason: `REJECTED: You must provide at least 2 rewrite alternatives. You provided ${input.alternatives?.length ?? 0}.`,
+      reason: `REJECTED: You must provide at least 2 rewrite alternatives. You provided ${Array.isArray(input.alternatives) ? input.alternatives.length : 0}.`,
+    };
+  }
+  // D-34: a present-but-malformed alternative missing originalText passes the
+  // length check above but crashes computeGroundingScore's fuzzyMatch with a
+  // raw TypeError AFTER validation. Require originalText as a string on every
+  // item. Empty string stays allowed — it never crashes fuzzyMatch and never
+  // suppresses (D-13 empty-span rule).
+  const malformedAltIndex = input.alternatives.findIndex(
+    (alt) => typeof alt?.originalText !== "string"
+  );
+  if (malformedAltIndex !== -1) {
+    return {
+      valid: false,
+      reason: `REJECTED: alternatives[${malformedAltIndex}] is missing originalText. Every alternative must be an object with label, originalText (the exact chapter text to replace, as a string), and newText. Please resend all alternatives with originalText copied verbatim from the chapter.`,
     };
   }
   return { valid: true };
@@ -191,6 +255,26 @@ export interface ToolContext {
   chapterNumber?: number;
   /** Delegation context — present only for the Writing Coach orchestrator. */
   delegationContext?: import("./types").DelegationContext;
+  /**
+   * D-58: sink for ids of documents this session produced. executeWriteDocument
+   * pushes each created OR updated document id here (de-duplicated). The
+   * orchestrator points this at the array it returns in AgentResult.documentIds,
+   * so the completion SSE reports the real docs a setup/onboarding run wrote
+   * instead of []. Optional — tool-level callers that don't track output docs
+   * simply leave it unset.
+   */
+  documentIds?: string[];
+  /**
+   * D-83: true ONLY when a real user is present (an interactive chat session
+   * streaming back to a browser). Gates AUTHORITATIVE graph writes:
+   * UpdateGraphEntity passes authoritative=true — bypassing the sticky-dead /
+   * preserve-first continuity guards — only when this is true. Absent/false is
+   * the SAFE non-interactive default: the BullMQ batch worker and any autonomous
+   * specialist it delegates to cannot flip a genuinely-dead character alive or
+   * erase a deathChapter unattended. Per-scan extraction re-captures legitimate
+   * state, and with no user watching there is no D-80 "1 updated" no-op to mislead.
+   */
+  interactive?: boolean;
 }
 
 // ─── Tool Definitions ──────────────────────────────────────────
@@ -507,7 +591,10 @@ const queryGraphDef: ToolDefinition = {
 const updateGraphEntityDef: ToolDefinition = {
   name: "UpdateGraphEntity",
   description:
-    "Create or update entities in the knowledge graph (characters, locations, events, objects, factions).",
+    "AUTHORITATIVE correction of the knowledge graph (characters, locations, events, objects, factions). " +
+    "This OVERRIDES the continuity protections (a dead character normally stays dead; roles/descriptions are preserve-first), " +
+    "so use it ONLY when the writer EXPLICITLY asks you to correct or fix the graph (e.g. 'she isn't actually dead', 'his role should be antagonist'). " +
+    "NEVER use it to record story events as they happen — extraction captures those automatically after every scan, and an unrequested authoritative edit can silently erase real continuity (e.g. a genuine death).",
   input_schema: {
     type: "object",
     properties: {
@@ -545,7 +632,15 @@ const updateGraphEntityDef: ToolDefinition = {
           properties: {
             from: { type: "string", description: "Source entity name" },
             to: { type: "string", description: "Target entity name" },
-            type: { type: "string", description: "Relationship type (e.g. KNOWS, ALLIED_WITH)" },
+            // Constrained to the known relationship-type set (mirrors the entity
+            // `type` enum above and the extraction tool's schema). This is only
+            // an LLM hint — the real guard is graph-builder.sanitizeRelationshipType,
+            // which sanitizes `type` before it is interpolated into Cypher (D-63).
+            type: {
+              type: "string",
+              enum: [...RELATIONSHIP_TYPES],
+              description: "Relationship type (e.g. KNOWS, ALLIED_WITH)",
+            },
             properties: { type: "object" },
           },
           required: ["from", "to", "type"],
@@ -964,6 +1059,18 @@ const CHAPTER_SCOPED_DOC_TYPES = new Set([
   "BETA_READ_REPORT",
 ]);
 
+// D-50: writer-facing editorial reports whose content is sanitized of model
+// self-talk before persistence. The writer's own prose (CHAPTER_CONTENT,
+// STORY_BIBLE, FINGERPRINT, …) is never touched.
+const EDITORIAL_REPORT_DOC_TYPES = new Set<string>([
+  "DEV_EDIT_REPORT",
+  "LINE_EDIT_REPORT",
+  "BETA_READ_REPORT",
+  "CONTINUITY_REPORT",
+  "ANALYSIS_REPORT",
+  "MARKET_REPORT",
+]);
+
 async function executeWriteDocument(
   ctx: ToolContext,
   input: {
@@ -978,6 +1085,29 @@ async function executeWriteDocument(
   // For chapter-scoped doc types, fall back to session-level chapterNumber
   const resolvedChapterNumber = input.chapterNumber ?? (CHAPTER_SCOPED_DOC_TYPES.has(type) ? ctx.chapterNumber : undefined);
 
+  // Writer-facing editorial reports are sanitized + authoritatively stamped
+  // before persisting — a report is guidance for the writer, not a scratchpad.
+  let content = input.content;
+  if (EDITORIAL_REPORT_DOC_TYPES.has(input.documentType)) {
+    // D-50: strip the model's self-talk / thinking artifacts.
+    content = stripModelSelfTalk(content);
+    // D-113: overwrite deterministic metadata (word count, date) the model may
+    // have invented with the real system values. The chapter word count is only
+    // meaningful for a chapter-scoped report, and is the same denormalized count
+    // the rest of the UI shows — so the report can never disagree with it.
+    const chapter =
+      resolvedChapterNumber !== undefined && ctx.bookId
+        ? await db.chapter.findFirst({
+            where: { bookId: ctx.bookId, chapterNumber: resolvedChapterNumber },
+            select: { wordCount: true },
+          })
+        : null;
+    content = stampReportMetadata(content, {
+      wordCount: chapter?.wordCount ?? undefined,
+      now: new Date(),
+    });
+  }
+
   // Acquire document lock to prevent parallel agents writing the same type
   const lockKey = `${type}:${resolvedChapterNumber ?? "null"}`;
   if (!acquireDocLock(ctx.bookId, lockKey, ctx.sessionId)) {
@@ -985,6 +1115,11 @@ async function executeWriteDocument(
   }
 
   try {
+    // Capture the produced document id inside the transaction; only record it
+    // on ctx.documentIds AFTER a committed write (D-58) so a rolled-back tx
+    // never reports a phantom document.
+    let writtenDocumentId: string | undefined;
+
     // Use transaction to prevent duplicate creation by parallel agents
     const result = await db.$transaction(async (tx) => {
       const where: Record<string, unknown> = { type };
@@ -997,24 +1132,37 @@ async function executeWriteDocument(
       if (existing) {
         const updated = await ctx.documentService.update(
           existing.id,
-          input.content,
+          content,
           input.title,
           "agent_write",
           "agent"
         );
+        writtenDocumentId = existing.id;
         return `Updated ${input.documentType} (version ${updated.version.version}).`;
       }
 
       const doc = await ctx.documentService.create(
         type,
-        input.content,
+        content,
         input.title,
         resolvedChapterNumber,
         undefined,
         "agent"
       );
+      writtenDocumentId = doc.id;
       return `Created ${input.documentType} (id: ${doc.id}).`;
     });
+
+    // D-58: report the document this run produced (created OR updated — both
+    // change the document and yield a new version). De-duplicated so a session
+    // that rewrites the same document lists it once.
+    if (
+      writtenDocumentId &&
+      ctx.documentIds &&
+      !ctx.documentIds.includes(writtenDocumentId)
+    ) {
+      ctx.documentIds.push(writtenDocumentId);
+    }
 
     return result;
   } finally {
@@ -1224,7 +1372,16 @@ async function executeCreateFinding(
   const resolvedParagraphNumber = validationInput.paragraphNumber;
 
   if (!validation.valid) {
-    // Record rejection for analytics
+    // Record rejection for analytics.
+    // D-33/D-34: this write must survive the malformed input it is reporting
+    // on — paragraphNumber may be missing or non-numeric (column is Int?) and
+    // anchorQuote may be missing or non-string (column is String?), so persist
+    // null for anything of the wrong type.
+    const analyticsParagraphNumber = Number.isInteger(input.paragraphNumber)
+      ? input.paragraphNumber
+      : null;
+    const analyticsAnchorQuote =
+      typeof input.anchorQuote === "string" ? input.anchorQuote : null;
     await db.editFinding.create({
       data: {
         bookId: ctx.bookId,
@@ -1236,8 +1393,8 @@ async function executeCreateFinding(
         description: input.description,
         rationale: input.rationale,
         confidence: input.confidence,
-        paragraphNumber: input.paragraphNumber,
-        anchorQuote: input.anchorQuote,
+        paragraphNumber: analyticsParagraphNumber,
+        anchorQuote: analyticsAnchorQuote,
         alternatives: JSON.stringify(input.alternatives),
         status: "rejected",
         rejectedAt: new Date(),
@@ -1268,11 +1425,111 @@ async function executeCreateFinding(
     return `Finding already exists (id: ${existing.id}). Skipped duplicate based on content hash.`;
   }
 
+  // D-13: deterministically enforce the prompt's FINDING HISTORY AWARENESS
+  // rule ("If an issue was [DISMISSED] ... do not re-flag UNLESS it's
+  // critical"). The content-hash dedup above hashes the freshly-generated
+  // DESCRIPTION, so a re-worded description re-flags the exact prose span the
+  // writer already chose to keep. Match instead on what the dismissal was
+  // about: the finding's originalText (alternatives[0], the persisted legacy
+  // field), whitespace-normalized. Empty originalText never suppresses.
+  if (input.severity !== "critical") {
+    const newOriginalText = normalizeOriginalTextForDismissMatch(
+      input.alternatives[0]?.originalText
+    );
+    if (newOriginalText) {
+      const dismissedPriors = await db.editFinding.findMany({
+        where: {
+          bookId: ctx.bookId,
+          chapterNumber,
+          category: input.category,
+          status: "dismissed",
+          originalText: { not: null },
+        },
+        select: { id: true, originalText: true },
+      });
+      const dismissedMatch = dismissedPriors.find(
+        (prior) =>
+          normalizeOriginalTextForDismissMatch(prior.originalText) ===
+          newOriginalText
+      );
+      if (dismissedMatch) {
+        console.warn(
+          `[CreateFinding] Suppressed re-flag of dismissed finding ${dismissedMatch.id} (chapter ${chapterNumber}, category: ${input.category}, severity: ${input.severity})`
+        );
+        return `Finding suppressed (not persisted): the writer already DISMISSED a ${input.category} finding on this exact text (id: ${dismissedMatch.id}). Per FINDING HISTORY AWARENESS, do not re-flag dismissed issues unless critical severity.`;
+      }
+    }
+  }
+
+  // D-107: "tell it once" also leaks through PENDING duplicates. The dismissed
+  // gate above only arms on DISMISSED lineage, and the content-hash dedup hashes
+  // the freshly-generated DESCRIPTION — so each dev-edit re-run re-flags the SAME
+  // still-untriaged span as a fresh pending finding (four near-identical pending
+  // show-tell notes piled up on one paragraph live). Suppress a new finding whose
+  // anchorQuote (same NFC + whitespace normalization) + category matches an
+  // existing PENDING finding on this book+chapter, regardless of severity — a
+  // pending duplicate the writer has not yet triaged adds no signal. A DIFFERENT
+  // category or a genuinely-new span is unaffected. Existing pending rows are NOT
+  // retro-dismissed here (a separate product call). Blank anchorQuote never
+  // suppresses. Reuses normalizeOriginalTextForDismissMatch as a generic text
+  // normalizer.
+  const newAnchorQuote = normalizeOriginalTextForDismissMatch(input.anchorQuote);
+  if (newAnchorQuote) {
+    const pendingPriors = await db.editFinding.findMany({
+      where: {
+        bookId: ctx.bookId,
+        chapterNumber,
+        category: input.category,
+        status: "pending",
+        anchorQuote: { not: null },
+      },
+      select: { id: true, anchorQuote: true },
+    });
+    const pendingMatch = pendingPriors.find(
+      (prior) =>
+        normalizeOriginalTextForDismissMatch(prior.anchorQuote) === newAnchorQuote
+    );
+    if (pendingMatch) {
+      console.warn(
+        `[CreateFinding] Suppressed duplicate of pending finding ${pendingMatch.id} (chapter ${chapterNumber}, category: ${input.category})`
+      );
+      return `Finding suppressed (not persisted): the writer already has a PENDING ${input.category} finding on this exact text (id: ${pendingMatch.id}). Per FINDING HISTORY AWARENESS, do not re-flag a critique that is still awaiting triage.`;
+    }
+  }
+
   // Compute grounding score
   const groundingScore = computeGroundingScore(
     input.anchorQuote,
     manuscriptContent.content,
     input.alternatives
+  );
+
+  // D-49 + D-50: sanitize the writer-facing free text before persisting. Strip
+  // the model's self-talk (D-50), then drop any fabricated verbatim quotation of
+  // the fingerprint the rationale invents (D-49) — validated against the actual
+  // style doc, loaded defensively so a missing/unreadable fingerprint is a
+  // no-op rather than a finding-creation failure.
+  let fingerprintContent: string | null = null;
+  try {
+    const fingerprintDoc = await ctx.documentService.findByType(
+      DocumentType.FINGERPRINT
+    );
+    if (fingerprintDoc) {
+      const fp = await ctx.documentService.read(fingerprintDoc.id);
+      fingerprintContent = fp?.content ?? null;
+    }
+  } catch {
+    fingerprintContent = null;
+  }
+  const sanitizedDescription = stripFabricatedFingerprintQuotes(
+    stripModelSelfTalk(input.description),
+    fingerprintContent,
+    manuscriptContent.content
+  );
+  const sanitizedRationale = stripFabricatedFingerprintQuotes(
+    stripModelSelfTalk(input.rationale),
+    fingerprintContent,
+    manuscriptContent.content
   );
 
   // Create the finding (use resolvedParagraphNumber which may have been auto-corrected)
@@ -1284,8 +1541,8 @@ async function executeCreateFinding(
       sessionId: ctx.sessionId,
       severity: input.severity,
       category: input.category,
-      description: input.description,
-      rationale: input.rationale,
+      description: sanitizedDescription,
+      rationale: sanitizedRationale,
       confidence: input.confidence,
       paragraphNumber: resolvedParagraphNumber,
       anchorQuote: input.anchorQuote,
@@ -1294,7 +1551,7 @@ async function executeCreateFinding(
       chapterVersion: manuscriptDoc.currentVersion,
       contentHash,
       // Legacy fields for backward compatibility
-      suggestion: input.rationale,
+      suggestion: sanitizedRationale,
       originalText: input.alternatives[0]?.originalText ?? null,
       newText: input.alternatives[0]?.newText ?? null,
     },
@@ -1402,7 +1659,12 @@ async function executeUpdateGraphEntity(
   }
 ): Promise<string> {
   try {
+    // D-30: bookId scopes every node/relationship write to the session's book.
+    // Previously omitted — agent-driven graph updates created nodes under
+    // bookId "" and relationship MERGEs matched endpoints by name across all
+    // books.
     const extractionResult: ExtractionResult = {
+      bookId: ctx.bookId,
       entities: input.entities.map((e) => ({
         name: e.name,
         label: e.type as GraphNodeLabel,
@@ -1420,7 +1682,20 @@ async function executeUpdateGraphEntity(
       contentHash: "",
     };
 
-    const stats = await upsertEntities(extractionResult);
+    // D-80: a DELIBERATE user correction (not a stochastic re-extraction) must
+    // be authoritative so sub-fix 7(b)'s sticky-dead and preserve-first-role/
+    // description guards do NOT silently swallow the edit (which would report
+    // "1 updated" while nothing changed).
+    // D-83: but authoritative ONLY when a real user is present (interactive
+    // session). In an unattended/batch run this tool is reachable by an
+    // autonomous specialist (batch coach -> DelegateToSpecialist) with no
+    // approval gate; an authoritative edit there could flip a genuinely-dead
+    // character alive and erase its deathChapter overnight. Non-interactive
+    // therefore falls back to authoritative=false — the continuity guards stay
+    // on, per-scan extraction re-captures real state, and no user is watching a
+    // no-op to be lied to. Safe default: interactive absent => false.
+    const authoritative = ctx.interactive === true;
+    const stats = await upsertEntities(extractionResult, authoritative);
     return `Graph updated: ${stats.nodesCreated} created, ${stats.nodesUpdated} updated, ${stats.relationshipsCreated} relationships.`;
   } catch (error) {
     return `Graph update failed: ${error instanceof Error ? error.message : String(error)}`;
@@ -1831,6 +2106,10 @@ async function executeDelegateToSpecialist(
       maxRuntimeMs: 20 * 60 * 1000, // 20 min for specialists
       maxSessionCostUsd: 5, // per-specialist budget
       sharedCostTracker: delegationCtx.sharedCostTracker,
+      // D-83: a delegated specialist inherits the conductor's interactivity.
+      // A specialist spawned by the interactive coach may make authoritative
+      // graph corrections; one spawned by the batch worker coach must not.
+      interactive: ctx.interactive === true,
     });
 
     // Register sub-orchestrator in parent session for approval forwarding

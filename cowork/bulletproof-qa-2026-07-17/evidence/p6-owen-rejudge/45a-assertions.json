@@ -1,0 +1,15 @@
+{
+  "shot": "45a",
+  "url": "http://localhost:3001/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675",
+  "sidebarText": "WriteMyBook\nWriting Platform\nNavigation\nDashboard\nBooks\nSeries\nVM1 Test\nOverview\nGetting Started\n2/5\nSetup\nTransfer\nStyle\nWriting\n0/1\nChapters\nNext Step\nLibrary\nWriting Dashboard\nRefining\n0/1\nEditorial\nReports\nPublish\nExport\nSettings",
+  "verdict": {
+    "gettingStartedTwoOfFive": true,
+    "noStyleNextStepBadge": true,
+    "noNextStepInPrepare": true,
+    "noStartSetupCta": true,
+    "noCaptureStyleRecommendation": false,
+    "recommendationText": ""
+  },
+  "bodyTextHead": "Command Palette\n\nSearch for a command to run...\n\nWriteMyBook\nWriting Platform\nNavigation\nDashboard\nBooks\nSeries\nVM1 Test\nOverview\nGetting Started\n2/5\nSetup\nTransfer\nStyle\nWriting\n0/1\nChapters\nNext Step\nLibrary\nWriting Dashboard\nRefining\n0/1\nEditorial\nReports\nPublish\nExport\nSettings\nBooks\n/\nVM1 Test\nToggle theme\nVM1 Test\nConcept\n\nliterary\n\nSettings\n\nRecommended: Capture Style\n\nCapture your writing style fingerprint to guide all AI agents\n\nStart\nBook Progress\nDrafted\n0%\nEdited\n0%\nBeta Passed\n0%\nWord Count\n0\n\nSet a target in book settings\n\nWords\n0\nChapters\n1\nDocuments\n0\nMemory\n\nNot indexed\n\nChapters\nList\nCanvas\nPipeline\nCorkboard\nAdd Chapter\n#\tTitle\tAct\tStatus\tWords\tTarget\tScore\tAction\n1\tUntitled\tAct 1\tFresh Start\t0\t—\t—\tEdit\nStory Radar\nAll clear\n\nNo pacing or staleness issues detected.\n\nToday's Plan\n~30 min • 0/1 done\n\nGood morning! Here's your plan for today.\n\n✍️\nContinue Ch.1\n~30m\n\nYou last worked on this chapter — keep the momentum going.\n\nWriting Activity\n0d streak\nJul\nAug\nSep\nOct\nNov\nDec\nJan\nFeb\nMar\nApr\nMay\nJun\nJul\nMon\nWed\nFri\nLess\nMore\n0 words total\n0 active days\n0 avg/day\nCh.1\n0\nRewards\n0/10\nMidnight Theme\nForest Theme\nSunrise Theme\nGalaxy Theme\nThunderstorm\nDeep Space\nGaramond\nLiterata\nNovelist\nIron Writer\nYour Writing Journey\n\nMember for 0 days — 0.0K words — keep going!\n\n0\n\nTOTAL WORDS\n\n1\n\nCHAPTERS\n\n1\n\nBOOKS\n\n0\n\nAI SESSIONS\n\n0d\n\nBEST STREAK\n\n0d\n\nDAYS WRITING",
+  "capturedAt": "2026-07-27T01:04:32.398Z"
+}

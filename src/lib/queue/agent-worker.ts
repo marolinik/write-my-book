@@ -218,9 +218,13 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
     // skipped child is NOT retried into spending (mirrors the non-retry
     // instinct of SessionCancelledError).
     if (batchId) {
-      const [spentRaw, haltedRaw, batchRow] = await Promise.all([
+      const [spentRaw, haltedRaw, countedRaw, batchRow] = await Promise.all([
         publisher.get(`batch:${batchId}:spent`),
         publisher.get(`batch:${batchId}:halted`),
+        // Z8 idempotency marker: set atomically with this child's ledger
+        // increment in onComplete (see below). Its presence means a PRIOR
+        // attempt of THIS child already rolled its spend into the batch ledger.
+        publisher.get(`batch:${batchId}:counted:${sessionId}`),
         // Durable fail-safe fallback (M3): if a prior child's ledger write threw
         // (e.g. Redis maxmemory+noeviction), the spent counter freezes at 0 and
         // the Redis `:halted` flag may be absent — a Redis-only guard would then
@@ -232,6 +236,25 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
           .findUnique({ where: { id: batchId }, select: { halted: true } })
           .catch(() => null),
       ]);
+
+      // ── Z8: Already-billed retry guard ──────────────────────────────
+      // A stalled/crashed child whose spend was ALREADY recorded on a prior
+      // attempt (the `counted:{sessionId}` marker is set atomically with that
+      // ledger increment) must NOT run again: re-running would re-charge the
+      // provider AND double-count spend. `sessionId` == BullMQ `jobId` is stable
+      // across attempts and stalled re-runs, so it is the attempt-independent
+      // idempotency key. Idempotently ensure a terminal status (the filter flips
+      // ONLY a still-non-terminal row, never clobbering the completed/failed
+      // status a prior onComplete already wrote) and return without building the
+      // orchestrator — the same never-re-spend contract as the skip path below.
+      if (countedRaw) {
+        await db.agentSession.updateMany({
+          where: { id: sessionId, status: { in: ["queued", "running"] } },
+          data: { status: "failed", completedAt: new Date() },
+        });
+        return;
+      }
+
       const spent = spentRaw ? parseFloat(spentRaw) : 0;
       const halted = haltedRaw === "1" || batchRow?.halted === true;
       if (
@@ -243,6 +266,20 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
         });
         return; // never runs the orchestrator, never spends
       }
+
+      // ── D-96: live "running" surface for batch children ─────────────
+      // A batch child is created 'queued' (batch-flow) and, before this line,
+      // only ever transitioned to a TERMINAL status — so the poll route's live
+      // counts showed `running: 0` for the ENTIRE run and the batch polled as
+      // "queued" while actively spending. Now that the pre-child budget/breaker
+      // guard has ADMITTED this child, flip it 'running' before any key fetch or
+      // LLM turn. The terminal onComplete/onError/catch paths overwrite this as
+      // today; cost/turn recording is untouched. Non-batch sessions are already
+      // created 'running' (schema default), so this is batch-only by design.
+      await db.agentSession.update({
+        where: { id: sessionId },
+        data: { status: "running" },
+      });
     }
 
     // ── Redis Message Publishing ────────────────────────────────────
@@ -581,7 +618,9 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
         }
 
         // Run post-session processing — skipped for user-cancelled sessions
-        // (the cancel route owns the terminal state; no completion processing).
+        // (the cancel route owns the terminal state; no completion processing)
+        // AND for failed sessions (D-36: a provider-failure run must not
+        // advance chapter workflow state — it did not complete its work).
         let suggestedNext: string[] = [];
         let resultMeta: {
           findingsCreated: number;
@@ -590,7 +629,7 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
           betaGateResult?: string;
         } = { findingsCreated: 0, statusAdvanced: false };
 
-        if (!result.cancelled) {
+        if (!result.cancelled && result.success) {
           try {
             const postResult = await processPostSession({
               sessionId,
@@ -625,44 +664,84 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
         const totalOutput = sharedCostTracker.totalOutputTokens;
         const cost = sharedCostTracker.totalCostUsd;
 
-        // ── Batch Aggregate Ledger + Breaker Reset ──────────────────
+        // ── Batch Aggregate Ledger + Breaker (idempotent per child) ──
         // BATCH children only: roll this child's finalized spend into the
         // cross-child ledger (`batch:{id}:spent`) using the SAME per-turn-priced
         // value as the per-session cap, so batch spend is consistent with
         // per-session spend. If the aggregate cap is crossed, set the halted
-        // flag so the pre-child guard skips every remaining child. A clean
-        // completion also clears the consecutive-failure breaker streak.
+        // flag so the pre-child guard skips every remaining child.
+        //
+        // Z8 idempotency: record this child's spend AT MOST ONCE across BullMQ
+        // attempts. A stalled/crashed child can re-run onComplete; without a
+        // guard the ledger + UsageRecord would double-count the writer's money.
+        // The `counted:{sessionId}` marker is claimed with SET NX (atomic), so
+        // exactly one attempt wins the right to record — a duplicate attempt
+        // sees the marker, skips the increment, the breaker adjustment, AND the
+        // UsageRecord create below. `sessionId` == `jobId` is the
+        // attempt-independent idempotency key. `firstFinalize` stays true for
+        // non-batch sessions (their record path is byte-identical to before).
         // Best-effort: never let ledger I/O break the completion path.
+        let firstFinalize = true;
         if (batchId) {
           try {
-            const spentStr = await publisher.incrbyfloat(
-              `batch:${batchId}:spent`,
-              cost
-            );
-            // Bound Redis growth for high-volume nightly users (M2): the ledger
-            // keys carry no natural TTL, so stamp the shared 24h TTL on each
-            // write (mirrors the session:* pattern). Safe because the ledger is
-            // only touched once a child actually runs and the digest fans in
-            // hours later — comfortably inside 24h.
-            await publisher.expire(`batch:${batchId}:spent`, REDIS_TTL_SECONDS);
-            const spentNum = parseFloat(spentStr);
-            if (
-              batchBudgetCapUsd != null &&
-              Number.isFinite(batchBudgetCapUsd) &&
-              Number.isFinite(spentNum) &&
-              spentNum >= batchBudgetCapUsd
-            ) {
-              await publisher.set(
-                `batch:${batchId}:halted`,
+            firstFinalize =
+              (await publisher.set(
+                `batch:${batchId}:counted:${sessionId}`,
                 "1",
                 "EX",
+                REDIS_TTL_SECONDS,
+                "NX"
+              )) === "OK";
+
+            if (firstFinalize) {
+              const spentStr = await publisher.incrbyfloat(
+                `batch:${batchId}:spent`,
+                cost
+              );
+              // Bound Redis growth for high-volume nightly users (M2): the
+              // ledger keys carry no natural TTL, so stamp the shared 24h TTL on
+              // each write (mirrors the session:* pattern). Safe because the
+              // ledger is only touched once a child actually runs and the digest
+              // fans in hours later — comfortably inside 24h.
+              await publisher.expire(
+                `batch:${batchId}:spent`,
                 REDIS_TTL_SECONDS
               );
-            }
-            // A cleanly-completed child clears the consecutive-failure streak
-            // (total failures are never reset — that counter is cumulative).
-            if (result.success && !result.cancelled) {
-              await publisher.del(`batch:${batchId}:consecutive`);
+              const spentNum = parseFloat(spentStr);
+              if (
+                batchBudgetCapUsd != null &&
+                Number.isFinite(batchBudgetCapUsd) &&
+                Number.isFinite(spentNum) &&
+                spentNum >= batchBudgetCapUsd
+              ) {
+                await publisher.set(
+                  `batch:${batchId}:halted`,
+                  "1",
+                  "EX",
+                  REDIS_TTL_SECONDS
+                );
+              }
+
+              // ── D-62: breaker counting on RESOLVED outcomes ──────────
+              // A provider outage ends the loop by RESOLVING success:false
+              // (endReason "error", D-36) — it never THROWS — so the thrown-
+              // error breaker path in the catch below never fires for it. Count
+              // resolved provider failures here too, else a batch keeps spending
+              // through a total provider outage (no child ever trips `halted`).
+              if (result.cancelled) {
+                // User cancel: leave the breaker untouched — neither a genuine
+                // success (don't reset the streak) nor a provider failure.
+              } else if (result.success) {
+                // A cleanly-completed child clears the consecutive-failure
+                // streak (total failures are never reset — that's cumulative).
+                await publisher.del(`batch:${batchId}:consecutive`);
+              } else {
+                // Provider-failure resolution: count it toward the breaker
+                // exactly like a thrown breaker error. N consecutive (or the
+                // total ceiling) trips `halted` → the pre-child guard skips the
+                // rest → the digest surfaces an honest 'halted' state.
+                await recordBatchFailure(publisher, batchId);
+              }
             }
           } catch (err) {
             // FAIL SAFE (M3): if the ledger write threw (e.g. Redis
@@ -716,19 +795,24 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
           },
         });
 
-        // Create usage record
-        await db.usageRecord.create({
-          data: {
-            userId,
-            bookId,
-            agentType: "writing-coach",
-            model: coachRegistryId,
-            tokensInput: totalInput,
-            tokensOutput: totalOutput,
-            costEstimate: cost,
-            keySource: "user",
-          },
-        });
+        // Create usage record. Z8: gated on `firstFinalize` so a stalled/retried
+        // batch child (whose spend was already recorded on a prior attempt) does
+        // NOT write a second UsageRecord and inflate the writer's usage. Always
+        // true for non-batch sessions — their billing path is unchanged.
+        if (firstFinalize) {
+          await db.usageRecord.create({
+            data: {
+              userId,
+              bookId,
+              agentType: "writing-coach",
+              model: coachRegistryId,
+              tokensInput: totalInput,
+              tokensOutput: totalOutput,
+              costEstimate: cost,
+              keySource: "user",
+            },
+          });
+        }
 
         // Persist a SessionBrief when the session ended early (budget/time)
         // so the next session — e.g. "Continue where it left off" — sees
@@ -763,6 +847,21 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
         // "completed" for replaying and polling clients.
         if (result.cancelled) return;
 
+        // Failed (D-36): the orchestrator loop already published the terminal
+        // SSE 'error' — same contract as cancel: publishing 'complete' or
+        // setting the status key to "completed" here would resurrect a
+        // provider-failed session as a clean run for replaying and polling
+        // clients (and the morning batch digest would count it clean).
+        if (!result.success) {
+          await publisher.set(
+            `session:${sessionId}:status`,
+            "failed",
+            "EX",
+            REDIS_TTL_SECONDS
+          );
+          return;
+        }
+
         // Publish completion message.
         // endReason/wrapUpSummary are TOP-LEVEL (not nested under resultMeta —
         // this publish flattens resultMeta and the client reads them top-level).
@@ -773,6 +872,11 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
             : "Session completed with errors",
           metadata: {
             ...resultMeta,
+            // D-58: report the documents this run actually produced. The inline
+            // SSE path spreads the whole result; this background path hand-picks
+            // metadata, so documentIds must be threaded through explicitly or a
+            // setup/onboarding completion lies with [] despite writing docs.
+            documentIds: result.documentIds ?? [],
             suggestedNext,
             tokensInput: totalInput,
             tokensOutput: totalOutput,

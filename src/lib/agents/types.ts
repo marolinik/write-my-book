@@ -186,8 +186,14 @@ export interface AgentResult {
   tokensOutput: number;
   documentIds: string[];
   sessionId: string;
-  /** Why the session ended. "budget"/"timeout" mean a graceful early end — NOT a failure. */
-  endReason?: "natural" | "budget" | "timeout";
+  /**
+   * Why the session ended. "budget"/"timeout" mean a graceful early end — NOT
+   * a failure. "error" means a provider failure ended the loop (retry
+   * exhaustion, non-retryable status, or an empty zero-work response) — the
+   * session resolves success:false so it is persisted as FAILED, never as a
+   * clean completion (D-36).
+   */
+  endReason?: "natural" | "budget" | "timeout" | "error";
   /** Final-turn summary of done/remaining work when the session ended early. */
   wrapUpSummary?: string;
   /**
@@ -251,6 +257,14 @@ export interface WorkflowDefinition {
   conversational: boolean;
   suggestedNext: string[];
   prerequisites?: WorkflowPrerequisite[];
+  /**
+   * D-188: the document this workflow PROMISES to produce. Declaring it makes
+   * "success with no artifact" checkable (see artifact-contract.ts): the run
+   * either persists the document — recovering it from its own transcript when
+   * the model streamed it but never called WriteDocument — or is reported as a
+   * failure. Also the single source of truth for series auto-synthesis.
+   */
+  producesDocument?: import("@/generated/prisma/enums").DocumentType;
   /** Estimated minimum duration in minutes. */
   estimatedMinMinutes?: number;
   /** Estimated maximum duration in minutes. */

@@ -1,0 +1,45 @@
+{
+ "dismiss": {
+  "id": "ce63cb76-f5ad-4b68-8e0b-57f9c432c241",
+  "bookId": "6d69fd7c-f7a4-4e3d-bf49-1415d81f5326",
+  "chapterNumber": 5,
+  "sessionId": "3361b5d1-96ea-451b-b0fa-63730d297702",
+  "agentType": "line-editor",
+  "severity": "suggestion",
+  "category": "clarity",
+  "description": "Dangling modifier: \"Walking back up the steps\" modifies \"the lamp\" instead of Vera, creating a grammatical error where the lamp is walking.",
+  "suggestion": "The verbal phrase \"Walking back up the steps\" should attach to Vera, the person walking, but the main-clause subject is \"the lamp.\" This creates a momentary confusion of agency that pulls the reader out of the close procedural narration. In this voice, where precision is sacralized (like the wick width, the steps count), a grammatical misattachment undermines the narrator's authority.",
+  "originalText": "Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean.",
+  "newText": "Walking back up the steps I noticed the lamp seemed dimmer than it should, though the wick was right and the glass was clean.",
+  "locationStart": null,
+  "locationEnd": null,
+  "status": "dismissed",
+  "dismissReason": null,
+  "appliedAt": null,
+  "createdAt": "2026-07-18T15:50:32.246Z",
+  "contentHash": "cb5da2cc36f63af4f6c8e29925396bd78009dfa28c784b628f9e32f6a6e7a512",
+  "confidence": 0.75,
+  "rationale": "The verbal phrase \"Walking back up the steps\" should attach to Vera, the person walking, but the main-clause subject is \"the lamp.\" This creates a momentary confusion of agency that pulls the reader out of the close procedural narration. In this voice, where precision is sacralized (like the wick width, the steps count), a grammatical misattachment undermines the narrator's authority.",
+  "paragraphNumber": 7,
+  "anchorQuote": "Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean.",
+  "alternatives": "[{\"label\":\"Option A — attach modifier to Vera\",\"newText\":\"Walking back up the steps I noticed the lamp seemed dimmer than it should, though the wick was right and the glass was clean.\",\"originalText\":\"Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean.\"},{\"label\":\"Option B — split into two actions\",\"newText\":\"Walking back up the steps. The lamp seemed dimmer than it should, though the wick was right and the glass was clean.\",\"originalText\":\"Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean.\"},{\"label\":\"Option C — reorder for clarity\",\"newText\":\"The lamp seemed dimmer on the walk back up the steps, though the wick was right and the glass was clean.\",\"originalText\":\"Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean.\"}]",
+  "groundingScore": 1,
+  "chapterVersion": 1,
+  "rejectedAt": "2026-07-18T15:57:17.381Z",
+  "rejectionReason": null
+ },
+ "memory_after": [
+  {
+   "id": "58cfd563-2193-4e8b-bf30-77bb9e6bdb32",
+   "userId": "e02cdae6-4c74-43e8-bd0e-e888debabf7c",
+   "bookId": "6d69fd7c-f7a4-4e3d-bf49-1415d81f5326",
+   "findingId": "ce63cb76-f5ad-4b68-8e0b-57f9c432c241",
+   "category": "style",
+   "content": "Preserve dangling modifiers that mimic cognitive slippage or fatigue.",
+   "source": "conversation",
+   "active": true,
+   "createdAt": "2026-07-18T15:57:17.412Z",
+   "updatedAt": "2026-07-18T15:57:17.412Z"
+  }
+ ]
+}

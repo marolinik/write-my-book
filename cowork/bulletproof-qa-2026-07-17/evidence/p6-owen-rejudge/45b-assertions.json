@@ -1,0 +1,169 @@
+{
+  "shot": "45b",
+  "book": "8632ba0c-f05b-4fd5-9581-3790a0f2c675",
+  "warmMs": {
+    "setup": 1359,
+    "editor": 1253
+  },
+  "wizard": {
+    "headerBadge": "2/5 steps done",
+    "walkClicks": [
+      "Continue",
+      "Skip",
+      "Skip",
+      "Skip"
+    ],
+    "doneSummary": "Book name\nVM1 Test\nChapters\n1\nStyle Fingerprint\nNot captured\nStory Bible\nNot created\nArchitecture\nNot created\nStart Writing!\nBack"
+  },
+  "funnelMs": {
+    "doneClickToUrlChange": 1203,
+    "doneClickToEditorVisible": 2701,
+    "doneClickToCaret": 2763,
+    "doneClickToFirstWordRendered": 3081,
+    "doneClickToFullSentenceRendered": 6003
+  },
+  "editorState": {
+    "url": "/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675/chapters/1ca23e35-3809-4782-8f77-c559127fdd25",
+    "prose": "The lamp room smelled of paraffin and cold brass.",
+    "saveStatus": "Saved 03:12 AM",
+    "bodyHead": "Command Palette\n\nSearch for a command to run...\n\nWriteMyBook\nWriting Platform\nNavigation\nDashboard\nBooks\nSeries\nVM1 Test\nOverview\nGetting Started\n2/5\nSetup\nTransfer\nStyle\nNext Step\nWriting\n0/1\nChapters\n1\nLibrary\nWriting Dashboard\nRefining\n0/1\nEditorial\nReports\nPublish\nExport\nSettings\nBooks\n/\nVM1 Test\n/\nChapters\n/\nCh.1\nUndiscussed\nToggle theme\nVM1 Test\n/\nCh. 1\nChapter 1\nCh. 1\nFresh Start\n9 words\nSaved\nPacing\nSyntax\n\nThe lamp room smelled of paraffin and cold brass.\n\n9 words\n1 min read\nTimer\nSaved 03:12 AM"
+  },
+  "chapterCount": {
+    "before": 1,
+    "after": 1,
+    "idsBefore": [
+      "1ca23e35-3809-4782-8f77-c559127fdd25"
+    ],
+    "idsAfter": [
+      "1ca23e35-3809-4782-8f77-c559127fdd25"
+    ]
+  },
+  "settings": {
+    "setupCompleteBefore": true,
+    "setupCompleteAfter": true
+  },
+  "verdict": {
+    "landedInEditor": true,
+    "firstWordsUnder60s": true,
+    "noDuplicateChapter": true,
+    "setupPersisted": true
+  },
+  "trace": [
+    {
+      "step": "reset-setupComplete",
+      "status": 200,
+      "setupComplete": false
+    },
+    {
+      "step": "warm-setup",
+      "status": 200,
+      "ms": 1359
+    },
+    {
+      "step": "warm-editor",
+      "status": 200,
+      "ms": 1253
+    },
+    {
+      "step": "import-step",
+      "banner": "Manuscript imported -- 1 chapter"
+    },
+    {
+      "step": "walk",
+      "clicks": [
+        "Continue",
+        "Skip",
+        "Skip",
+        "Skip"
+      ],
+      "importShotDone": true
+    }
+  ],
+  "network": [
+    {
+      "url": "/api/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675/documents",
+      "method": "GET",
+      "status": 200,
+      "tMs": -11424
+    },
+    {
+      "url": "/api/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675/settings",
+      "method": "GET",
+      "status": 200,
+      "tMs": -10742
+    },
+    {
+      "url": "/api/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675",
+      "method": "GET",
+      "status": 200,
+      "tMs": -10667
+    },
+    {
+      "url": "/api/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675/editorial/summary",
+      "method": "GET",
+      "status": 200,
+      "tMs": -10519
+    },
+    {
+      "url": "/api/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675/style",
+      "method": "GET",
+      "status": 200,
+      "tMs": -10518
+    },
+    {
+      "url": "/api/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675/settings",
+      "method": "PATCH",
+      "status": 200,
+      "tMs": 290
+    },
+    {
+      "url": "/api/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675/chapters/1ca23e35-3809-4782-8f77-c559127fdd25/content",
+      "method": "GET",
+      "status": 200,
+      "tMs": 2401
+    },
+    {
+      "url": "/api/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675/editorial/findings?chapterNumber=1",
+      "method": "GET",
+      "status": 200,
+      "tMs": 2573
+    },
+    {
+      "url": "/api/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675/chapters",
+      "method": "GET",
+      "status": 200,
+      "tMs": 2861
+    },
+    {
+      "url": "/api/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675/continuity/scan?chapterNumber=1",
+      "method": "POST",
+      "status": 200,
+      "tMs": 2861
+    },
+    {
+      "url": "/api/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675/chapters/1ca23e35-3809-4782-8f77-c559127fdd25/content",
+      "method": "PUT",
+      "status": 200,
+      "tMs": 5610
+    },
+    {
+      "url": "/api/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675/chapters/1ca23e35-3809-4782-8f77-c559127fdd25/content",
+      "method": "GET",
+      "status": 200,
+      "tMs": 5727
+    },
+    {
+      "url": "/api/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675/chapters/1ca23e35-3809-4782-8f77-c559127fdd25/content",
+      "method": "PUT",
+      "status": 200,
+      "tMs": 10277
+    },
+    {
+      "url": "/api/books/8632ba0c-f05b-4fd5-9581-3790a0f2c675/chapters/1ca23e35-3809-4782-8f77-c559127fdd25/content",
+      "method": "GET",
+      "status": 200,
+      "tMs": 10559
+    }
+  ],
+  "capturedAt": "2026-07-27T01:12:19.602Z"
+}

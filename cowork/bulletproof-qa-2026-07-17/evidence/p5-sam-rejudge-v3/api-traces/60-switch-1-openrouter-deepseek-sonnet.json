@@ -1,0 +1,31 @@
+{
+  "label": "60-switch-1-openrouter-deepseek-sonnet",
+  "request": {
+    "method": "PATCH",
+    "url": "http://localhost:3002/api/settings/default-model",
+    "authHeaderNames": [
+      "x-e2e-test-secret(masked:test-se...cret)",
+      "x-e2e-clerk-id:user_qa_p5"
+    ],
+    "body": {
+      "defaultModel": "openrouter-deepseek/sonnet"
+    }
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "ms": 174,
+    "json": {
+      "defaultModel": "openrouter-deepseek/sonnet",
+      "modelGhostwriter": null,
+      "modelEditor": null,
+      "modelBetaReader": null,
+      "modelAnalyst": null,
+      "modelCoach": null,
+      "modelCreative": null
+    }
+  },
+  "error": null,
+  "aborted": false,
+  "capturedAt": "2026-07-20T15:26:39.466Z"
+}

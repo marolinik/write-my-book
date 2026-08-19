@@ -1,0 +1,54 @@
+{
+  "capturedAt": "2026-07-20T15:19:15.466Z",
+  "label": "baseline",
+  "clerkId": "user_qa_p5",
+  "checks": {
+    "samUser": {
+      "id": "d68c3b5e-e791-4858-b402-9f736fe2eddf",
+      "email": "p5.sam@qa.local",
+      "displayName": "P5 Sam (hobbyist)",
+      "defaultModel": "openrouter-qwen36/sonnet",
+      "modelEditor": null,
+      "modelGhostwriter": null
+    },
+    "samSubscription": null,
+    "samApiKeys": [
+      {
+        "provider": "openrouter",
+        "validated": true,
+        "encryptedKeyLen": 212
+      }
+    ],
+    "samBookCount": 1,
+    "samBooks": [
+      {
+        "id": "35ff1112-52af-4001-a0f4-ec83f4dad9b0",
+        "name": "Sam Free-Tier On-Ramp QA 2026-07-20",
+        "language": "en",
+        "archived": false,
+        "chapters": [
+          {
+            "id": "10334dac-e7d2-4a56-92fb-594e9567304f",
+            "n": 1,
+            "words": 32
+          }
+        ]
+      }
+    ],
+    "samFreeTierUsageRow": null,
+    "samUsageRecordCount": 1,
+    "samUsageRecordsRecent": [
+      {
+        "id": "45c08a77-0730-4735-aa40-2ca767bd5ad6",
+        "agentType": "embedding",
+        "model": "text-embedding-3-small",
+        "tokensInput": 41,
+        "tokensOutput": 0,
+        "costEstimate": 8.2e-7,
+        "keySource": "user",
+        "recordedAt": "2026-07-20T01:09:20.208Z"
+      }
+    ]
+  },
+  "dbHostMasked": "localhost:5432/writemybook"
+}

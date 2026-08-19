@@ -1,0 +1,27 @@
+{
+  "id": "D6",
+  "label": "gate-series-pro-p3-allow",
+  "actor": "p3",
+  "capturedAt": "2026-07-20T11:31:03.181Z",
+  "request": {
+    "method": "POST",
+    "url": "http://127.0.0.1:3002/api/series",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p3",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "title": "Selena RJ Series 1784547050860"
+    },
+    "bodyMode": "json"
+  },
+  "response": {
+    "status": 201,
+    "contentType": "application/json",
+    "bodyLength": 300,
+    "bodyText": "{\"id\":\"c28cd930-2390-44eb-b90a-18730590c2db\",\"userId\":\"3f4836f4-083e-4011-9bb5-bec2a6714eb6\",\"title\":\"Selena RJ Series 1784547050860\",\"genre\":null,\"language\":\"en\",\"seriesType\":\"TRILOGY\",\"plannedBooks\":3,\"description\":null,\"createdAt\":\"2026-07-20T11:31:03.173Z\",\"updatedAt\":\"2026-07-20T11:31:03.173Z\"}"
+  },
+  "expected": "201 (professional positive control)",
+  "note": null
+}

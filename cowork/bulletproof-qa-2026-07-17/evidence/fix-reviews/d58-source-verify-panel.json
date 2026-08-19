@@ -1,0 +1,56 @@
+{
+  "deliverable": "D-58 — agent runs report the documents they actually wrote (documentIds), end-to-end from the ToolContext write sink through the orchestrator result to every consumer (inline SSE routes + background worker completion)",
+  "defect": "Pre-fix, documentIds was declared empty and threaded to onError/AgentResult without ever being populated by the write path. A setup/onboarding or delegation run that created/updated documents completed reporting `documentIds: []` — the surface lied. honesty-1's first pass plumbed the already-empty source into the routes; the arbiter RED-test proved the SOURCE itself was empty.",
+  "root_fix_author": "opus-d58-source (ToolContext.documentIds sink + orchestrator shared-by-reference array; populated post-tx-commit, de-duped)",
+  "route_worker_parity_author": "opus-honesty-1 (onError(error, partial?) conduit on message/route.ts + series/route.ts; worker completion metadata.documentIds)",
+  "verifier": "verify-d58-real (Fable adversarial, model=claude-fable-5), re-executing the REAL AgentOrchestrator + REAL executeWriteDocument (persistence-only mocks) and reproducing RED against pre-fix source",
+  "verdict": "APPROVE",
+  "blocking": false,
+
+  "claims": {
+    "1_source_populated_end_to_end": {
+      "result": "PASS (decisive)",
+      "evidence": "orchestrator-documentids.test.ts does NOT mock @/lib/agents/tools — only persistence ($transaction passthrough + DocumentService stub) and module-load seams. RED reproduced by verifier: `git checkout HEAD -- tools.ts orchestrator.ts` + unchanged test = 4/4 FAIL ('expected [] to include doc-created-1' etc.); restore (SHA256 byte-identical) = 4/4 PASS. A vacuous mock could not produce this flip — the real tool path is exercised."
+    },
+    "2_create_and_update_recorded": {
+      "result": "PASS",
+      "evidence": "Update branch writtenDocumentId=existing.id (tools.ts:1122, the id passed to documentService.update; real update returns {document,version} with no top-level id). Create branch writtenDocumentId=doc.id (tools.ts:1134, real create returns the Prisma doc). Test stubs match real return shapes."
+    },
+    "3_no_rollback_phantom": {
+      "result": "PASS (code ordering)",
+      "evidence": "writtenDocumentId assigned inside the tx callback; the ctx.documentIds push sits AFTER `await db.$transaction(...)` resolves (tools.ts:1141-1147). A rolled-back/rejected tx rejects the awaited promise so the push never runs. NON-BLOCKING: no test exercises a throwing tx; ordering read-verified."
+    },
+    "4_dedup": {
+      "result": "PASS",
+      "evidence": "`writtenDocumentId && ctx.documentIds && !ctx.documentIds.includes(writtenDocumentId)` guard. Second same-type write hits update branch = same existing.id = skipped. NON-BLOCKING: de-dup code-verified, not runtime-exercised."
+    },
+    "5_delegation_aggregation": {
+      "result": "PASS",
+      "evidence": "Specialist orchestrator is a real `new AgentOrchestrator` (tools.ts:2048); its runAgent builds its own documentIds sink shared into toolCtx and returns it; onComplete does `specialistDocumentIds.push(...result.documentIds)` (tools.ts:2117) surfacing as 'Documents updated: N'. Test 4 pins the feeding source === ['doc-specialist-3'] (one of the 4 RED)."
+    },
+    "6_no_regression": {
+      "result": "PASS",
+      "evidence": "Team-lead gate on staged subset: tsc --noEmit exit 0; vitest 5 files / 28 passed / 0 failed (orchestrator-documentids 4, agent-message-route 13, series-agent-error-documentids 1, agent-route-empty-billing 3, agent-worker-failed-session 7). Verifier's wider adjacent run 48/48. D-36 failed-session honesty intact (agent-worker.ts cancelled/!success returns precede completion publish)."
+    },
+    "7_worker_onerror_decline_justified": {
+      "result": "PASS (non-blocking)",
+      "evidence": "Only documentIds readers outside src/lib/agents are the worker complete publish (agent-worker.ts:865) and the 3 inline-route onError handlers consuming orchestrator `partial`. Worker onError publishes a bare error SSE with zero consumers reading documentIds — adding it would be a dead unread field. Decline is sound; partial-work reporting on background failure is a future feature, not this fix's gap."
+    }
+  },
+
+  "team_lead_gate": { "tsc_noEmit_exit": 0, "vitest_files": 5, "vitest_passed": 28, "vitest_failed": 0 },
+
+  "landed_pathspec": [
+    "src/lib/agents/tools.ts",
+    "src/lib/agents/orchestrator.ts",
+    "src/lib/queue/agent-worker.ts",
+    "src/app/api/books/[id]/agent/[sessionId]/message/route.ts",
+    "src/app/api/series/[id]/agent/route.ts",
+    "tests/unit/orchestrator-documentids.test.ts",
+    "tests/unit/agent-message-route.test.ts",
+    "tests/unit/series-agent-error-documentids.test.ts",
+    "tests/unit/agent-route-empty-billing.test.ts",
+    "tests/unit/agent-worker-failed-session.test.ts"
+  ],
+  "note": "Subset land on a shared dirty tree. The #53 lane files (onboarding/billing/i18n) and its provider-card-i18n.test.ts RED are NOT in this commit; the D-58 subset is green at committed HEAD. tsc is whole-tree and passed 0, so no lane introduces a type error."
+}

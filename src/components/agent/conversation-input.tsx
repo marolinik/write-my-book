@@ -37,17 +37,24 @@ export function ConversationInput({
     const trimmed = value.trim();
     if (!trimmed || disabled || sending) return;
     setSending(true);
+    // D-178: clear on submit, not on settle. The discuss hook appends the same
+    // text as a writer bubble immediately, so holding it here put the writer's
+    // message on screen TWICE for the whole turn — legible for 19-36 s once the
+    // wait became honest, and indistinguishable from "it never sent".
+    setValue("");
+    // Reset height after clearing
+    requestAnimationFrame(() => {
+      if (textareaRef.current) {
+        textareaRef.current.style.height = "auto";
+      }
+    });
     try {
       await onSend(trimmed);
-      setValue("");
-      // Reset height after clearing
-      requestAnimationFrame(() => {
-        if (textareaRef.current) {
-          textareaRef.current.style.height = "auto";
-        }
-      });
     } catch {
-      // Don't clear input on error — let user retry
+      // Failed or cancelled: put the text back so a retry keeps it. The caller
+      // is responsible for SAYING what happened (discuss-turn-notice.ts) — a
+      // restored box on its own would be a silent wall.
+      setValue(trimmed);
     } finally {
       setSending(false);
     }

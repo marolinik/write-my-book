@@ -1,0 +1,12 @@
+{
+  "label": "20b_scan_book2_ch6_post_intentional",
+  "method": "POST",
+  "path": "/api/books/2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90/continuity/scan?chapterNumber=6",
+  "requestedAt": "2026-07-18T09:07:58.886+00:00",
+  "elapsedMs": 532,
+  "status": 200,
+  "note": "Stickiness check 2: scan of a DIFFERENT chapter (ch6, unchanged) — checks are book-wide, so this would resurrect a non-sticky suppression. Flag must stay absent.",
+  "response": {
+    "flags": []
+  }
+}

@@ -1,0 +1,86 @@
+[PASS] p7ro-00-get-chapters-baseline count=20
+[PASS] p7ro-01-baseline-order-matches-generation-order confirms book truly starts un-reordered before this permutation
+total_local_words=84556
+PATCH reorder body=[{"chapterId": "82a838b8-8471-42c3-93bc-022fbc5b6474", "chapterNumber": 1}, {"chapterId": "da9f7947-16be-4b85-bf0a-1d7aeecb40dd", "chapterNumber": 2}, {"chapterId": "6eee14d1-2390-43cc-9d49-01d164476582", "chapterNumber": 3}, {"chapterId": "59c3a3c8-6852-432b-ba3b-5085c8b45768", "chapterNumber": 4},... -> status=200 resp={"reordered":20}
+[PASS] p7ro-02-patch-reorder-200 {"reordered":20}
+[PASS] p7ro-03-reordered-count-20 {'reordered': 20}
+[PASS] p7ro-04-db-order-matches-full-reversal got=['Dead Reckoning, Final', 'Nagüel Huapi Endgame', "Raison d'Être"]...['The Łódź Ledger', 'A Debt in Malmö', 'The Façade in Zürich']
+[PASS] p7ro-05-docx-export-200 {"filename":"The-Kszeg-Manuscript-P7-2026-07-18T00-16-46.docx","storageKey":"exports/The-Kszeg-Manuscript-P7-2026-07-18T00-16-46.docx","wordCount":81180,"chapterCount":20,"estimatedPages":232,"warning
+[PASS] p7ro-06-docx-download-200 36141 bytes
+[PASS] p7ro-07-docx-title-order-matches-reversal found 20/20 headings in exact reversed order
+[PASS] p7ro-08-docx-body-exact-Dead Reckoning, Final local=4170 docx=4170
+[PASS] p7ro-08-docx-body-exact-Nagüel Huapi Endgame local=4225 docx=4225
+[PASS] p7ro-08-docx-body-exact-Raison d'Être local=4230 docx=4230
+[PASS] p7ro-08-docx-body-exact-The Åström Line local=4196 docx=4196
+[PASS] p7ro-08-docx-body-exact-A Fiancée's Silence local=4217 docx=4217
+[PASS] p7ro-08-docx-body-exact-Québec Standoff local=4263 docx=4263
+[PASS] p7ro-08-docx-body-exact-The Núñez Protocol local=4314 docx=4314
+[PASS] p7ro-08-docx-body-exact-Antalya at Midnight local=4209 docx=4209
+[PASS] p7ro-08-docx-body-exact-Zoë's Gambit local=4207 docx=4207
+[PASS] p7ro-08-docx-body-exact-The Kraków Manifest local=4270 docx=4270
+[PASS] p7ro-08-docx-body-exact-Coöperate or Die local=4262 docx=4262
+[PASS] p7ro-08-docx-body-exact-Señorita of the Docks local=4194 docx=4194
+[PASS] p7ro-08-docx-body-exact-The Château Signal local=4210 docx=4210
+[PASS] p7ro-08-docx-body-exact-Reykjavík, Cold local=4273 docx=4273
+[PASS] p7ro-08-docx-body-exact-Ash on the Wire local=4253 docx=4253
+[PASS] p7ro-08-docx-body-exact-The Kőszeg Drop local=4221 docx=4221
+[PASS] p7ro-08-docx-body-exact-No Names in São Paulo local=4155 docx=4155
+[PASS] p7ro-08-docx-body-exact-The Łódź Ledger local=4194 docx=4194
+[PASS] p7ro-08-docx-body-exact-A Debt in Malmö local=4256 docx=4256
+[PASS] p7ro-08-docx-body-exact-The Façade in Zürich local=4237 docx=4237
+[PASS] p7ro-09-docx-zero-content-loss-all-20 word-level exact match, all 20 chapters
+[PASS] p7ro-10-pdf-export-200 {"filename":"The-Kszeg-Manuscript-P7-2026-07-18T00-16-49.pdf","storageKey":"exports/The-Kszeg-Manuscript-P7-2026-07-18T00-16-49.pdf","wordCount":81180,"chapterCount":20,"estimatedPages":232,"warnings"
+[PASS] p7ro-11-pdf-download-200 949530 bytes
+[PASS] p7ro-12-pdf-title-order-matches-reversal positions=[397, 24250, 48270]...[408158, 432342, 456420]
+[FAIL] p7ro-13-pdf-body-similarity-Dead Reckoning, Final own=0.9963 best_cross=0.9188
+[FAIL] p7ro-13-pdf-body-similarity-Nagüel Huapi Endgame own=0.9967 best_cross=0.9307
+[FAIL] p7ro-13-pdf-body-similarity-Raison d'Être own=0.9967 best_cross=0.9132
+[FAIL] p7ro-13-pdf-body-similarity-The Åström Line own=0.9967 best_cross=0.9211
+[FAIL] p7ro-13-pdf-body-similarity-A Fiancée's Silence own=0.9967 best_cross=0.8941
+[FAIL] p7ro-13-pdf-body-similarity-Québec Standoff own=0.9964 best_cross=0.9371
+[FAIL] p7ro-13-pdf-body-similarity-The Núñez Protocol own=0.9968 best_cross=0.9189
+[FAIL] p7ro-13-pdf-body-similarity-Antalya at Midnight own=0.9967 best_cross=0.9204
+[FAIL] p7ro-13-pdf-body-similarity-Zoë's Gambit own=0.9967 best_cross=0.9122
+[FAIL] p7ro-13-pdf-body-similarity-The Kraków Manifest own=0.9965 best_cross=0.9309
+[FAIL] p7ro-13-pdf-body-similarity-Coöperate or Die own=0.9967 best_cross=0.9124
+[FAIL] p7ro-13-pdf-body-similarity-Señorita of the Docks own=0.9967 best_cross=0.9180
+[FAIL] p7ro-13-pdf-body-similarity-The Château Signal own=0.9967 best_cross=0.9184
+[FAIL] p7ro-13-pdf-body-similarity-Reykjavík, Cold own=0.9964 best_cross=0.9208
+[FAIL] p7ro-13-pdf-body-similarity-Ash on the Wire own=0.9967 best_cross=0.9340
+[FAIL] p7ro-13-pdf-body-similarity-The Kőszeg Drop own=0.9967 best_cross=0.9220
+[FAIL] p7ro-13-pdf-body-similarity-No Names in São Paulo own=0.9956 best_cross=0.9143
+[FAIL] p7ro-13-pdf-body-similarity-The Łódź Ledger own=0.9967 best_cross=0.9216
+[FAIL] p7ro-13-pdf-body-similarity-A Debt in Malmö own=0.9967 best_cross=0.9376
+[FAIL] p7ro-13-pdf-body-similarity-The Façade in Zürich own=0.9968 best_cross=0.9353
+[FAIL] p7ro-14-pdf-zero-content-loss-unambiguous-pairing [('Dead Reckoning, Fina', 0.996, 0.919), ('Nagüel Huapi Endgame', 0.997, 0.931), ("Raison d'Être", 0.997, 0.913), ('The Åström Line', 0.997, 0.921), ("A Fiancée's Silence", 0.997, 0.894), ('Québec Standoff', 0.996, 0.937), ('The Núñez Protocol', 0.997, 0.919), ('Antalya at Midnight', 0.997, 0.92), ("Zoë's Gambit", 0.997, 0.912), ('The Kraków Manifest', 0.996, 0.931), ('Coöperate or Die', 0.997, 0.912), ('Señorita of the Dock', 0.997, 0.918), ('The Château Signal', 0.997, 0.918), ('Reykjavík, Cold', 0.996, 0.921), ('Ash on the Wire', 0.997, 0.934), ('The Kőszeg Drop', 0.997, 0.922), ('No Names in São Paul', 0.996, 0.914), ('The Łódź Ledger', 0.997, 0.922), ('A Debt in Malmö', 0.997, 0.938), ('The Façade in Zürich', 0.997, 0.935)]
+[PASS] p7ro-15-epub-export-200 {"filename":"The-Kszeg-Manuscript-P7-2026-07-18T00-16-56.epub","storageKey":"exports/The-Kszeg-Manuscript-P7-2026-07-18T00-16-56.epub","wordCount":81180,"chapterCount":20,"estimatedPages":232,"warning
+[PASS] p7ro-16-epub-download-200 64124 bytes
+[FAIL] p7ro-17-epub-content-file-count-20 24 files: ['EPUB/text/ch001.xhtml', 'EPUB/text/ch002.xhtml', 'EPUB/text/ch003.xhtml', 'EPUB/text/ch004.xhtml', 'EPUB/text/ch005.xhtml', 'EPUB/text/ch006.xhtml', 'EPUB/text/ch007.xhtml', 'EPUB/text/ch008.xhtml', 'EPUB/text/ch009.xhtml', 'EPUB/text/ch010.xhtml', 'EPUB/text/ch011.xhtml', 'EPUB/text/ch012.xhtml', 'EPUB/text/ch013.xhtml', 'EPUB/text/ch014.xhtml', 'EPUB/text/ch015.xhtml', 'EPUB/text/ch016.xhtml', 'EPUB/text/ch017.xhtml', 'EPUB/text/ch018.xhtml', 'EPUB/text/ch019.xhtml', 'EPUB/text/ch020.xhtml', 'EPUB/text/ch021.xhtml', 'EPUB/text/ch022.xhtml', 'EPUB/text/ch023.xhtml', 'EPUB/text/ch024.xhtml']
+[FAIL] p7ro-18-epub-file-01-pairs-Dead Reckoning, Fina file=EPUB/text/ch001.xhtml ratio=0.0019
+[FAIL] p7ro-18-epub-file-02-pairs-Nagüel Huapi Endgame file=EPUB/text/ch002.xhtml ratio=0.0000
+[FAIL] p7ro-18-epub-file-03-pairs-Raison d'Être file=EPUB/text/ch003.xhtml ratio=0.0019
+[FAIL] p7ro-18-epub-file-04-pairs-The Åström Line file=EPUB/text/ch004.xhtml ratio=0.0028
+[FAIL] p7ro-18-epub-file-05-pairs-A Fiancée's Silence file=EPUB/text/ch005.xhtml ratio=0.1830
+[FAIL] p7ro-18-epub-file-06-pairs-Québec Standoff file=EPUB/text/ch006.xhtml ratio=0.2536
+[FAIL] p7ro-18-epub-file-07-pairs-The Núñez Protocol file=EPUB/text/ch007.xhtml ratio=0.1851
+[FAIL] p7ro-18-epub-file-08-pairs-Antalya at Midnight file=EPUB/text/ch008.xhtml ratio=0.1579
+[FAIL] p7ro-18-epub-file-09-pairs-Zoë's Gambit file=EPUB/text/ch009.xhtml ratio=0.1495
+[FAIL] p7ro-18-epub-file-10-pairs-The Kraków Manifest file=EPUB/text/ch010.xhtml ratio=0.1612
+[FAIL] p7ro-18-epub-file-11-pairs-Coöperate or Die file=EPUB/text/ch011.xhtml ratio=0.1361
+[FAIL] p7ro-18-epub-file-12-pairs-Señorita of the Dock file=EPUB/text/ch012.xhtml ratio=0.2221
+[FAIL] p7ro-18-epub-file-13-pairs-The Château Signal file=EPUB/text/ch013.xhtml ratio=0.1256
+[FAIL] p7ro-18-epub-file-14-pairs-Reykjavík, Cold file=EPUB/text/ch014.xhtml ratio=0.0966
+[FAIL] p7ro-18-epub-file-15-pairs-Ash on the Wire file=EPUB/text/ch015.xhtml ratio=0.2042
+[FAIL] p7ro-18-epub-file-16-pairs-The Kőszeg Drop file=EPUB/text/ch016.xhtml ratio=0.1976
+[FAIL] p7ro-18-epub-file-17-pairs-No Names in São Paul file=EPUB/text/ch017.xhtml ratio=0.2862
+[FAIL] p7ro-18-epub-file-18-pairs-The Łódź Ledger file=EPUB/text/ch018.xhtml ratio=0.2597
+[FAIL] p7ro-18-epub-file-19-pairs-A Debt in Malmö file=EPUB/text/ch019.xhtml ratio=0.2710
+[FAIL] p7ro-18-epub-file-20-pairs-The Façade in Zürich file=EPUB/text/ch020.xhtml ratio=0.1522
+[FAIL] p7ro-18-epub-file-21-pairs-none file=EPUB/text/ch021.xhtml ratio=0.0000
+[FAIL] p7ro-18-epub-file-22-pairs-none file=EPUB/text/ch022.xhtml ratio=0.0000
+[FAIL] p7ro-18-epub-file-23-pairs-none file=EPUB/text/ch023.xhtml ratio=0.0000
+[FAIL] p7ro-18-epub-file-24-pairs-none file=EPUB/text/ch024.xhtml ratio=0.0000
+[FAIL] p7ro-19-epub-zero-content-loss-correct-order-pairing [('EPUB/text/ch001.xhtml', 'Dead Reckoning, Final', 0.0019), ('EPUB/text/ch002.xhtml', 'Nagüel Huapi Endgame', 0.0), ('EPUB/text/ch003.xhtml', "Raison d'Être", 0.0019), ('EPUB/text/ch004.xhtml', 'The Åström Line', 0.0028), ('EPUB/text/ch005.xhtml', "A Fiancée's Silence", 0.183), ('EPUB/text/ch006.xhtml', 'Québec Standoff', 0.2536), ('EPUB/text/ch007.xhtml', 'The Núñez Protocol', 0.1851), ('EPUB/text/ch008.xhtml', 'Antalya at Midnight', 0.1579), ('EPUB/text/ch009.xhtml', "Zoë's Gambit", 0.1495), ('EPUB/text/ch010.xhtml', 'The Kraków Manifest', 0.1612), ('EPUB/text/ch011.xhtml', 'Coöperate or Die', 0.1361), ('EPUB/text/ch012.xhtml', 'Señorita of the Docks', 0.2221), ('EPUB/text/ch013.xhtml', 'The Château Signal', 0.1256), ('EPUB/text/ch014.xhtml', 'Reykjavík, Cold', 0.0966), ('EPUB/text/ch015.xhtml', 'Ash on the Wire', 0.2042), ('EPUB/text/ch016.xhtml', 'The Kőszeg Drop', 0.1976), ('EPUB/text/ch017.xhtml', 'No Names in São Paulo', 0.2862), ('EPUB/text/ch018.xhtml', 'The Łódź Ledger', 0.2597), ('EPUB/text/ch019.xhtml', 'A Debt in Malmö', 0.271), ('EPUB/text/ch020.xhtml', 'The Façade in Zürich', 0.1522), ('EPUB/text/ch021.xhtml', None, 0.0), ('EPUB/text/ch022.xhtml', None, 0.0), ('EPUB/text/ch023.xhtml', None, 0.0), ('EPUB/text/ch024.xhtml', None, 0.0)]
+[PASS] p7ro-20-reexport-docx-200 {"filename":"The-Kszeg-Manuscript-P7-2026-07-18T00-17-00.docx","storageKey":"exports/The-Kszeg-Manuscript-P7-2026-07-18T00-17-00.docx","wordCount":81180,"chapterCount":20,"estimatedPages":232,"warning
+[PASS] p7ro-21-reexport-determinism-word-for-word docx body paragraphs identical across two exports of the same (reordered) state, post-reorder; docProps/core.xml timestamp bytes expected to differ per p7_diag_export_determinism.py precedent
+[PASS] p7ro-22-total-word-count-conserved total_local_words=84556 sum_over_reordered_titles=84556

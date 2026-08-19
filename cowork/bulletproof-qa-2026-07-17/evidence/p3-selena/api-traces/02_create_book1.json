@@ -1,0 +1,26 @@
+{
+  "label": "02_create_book1",
+  "method": "POST",
+  "path": "/api/series/8d5e94c0-c175-4f50-97f4-29f4e09b9b89/books",
+  "status": 201,
+  "response": {
+    "id": "fd60e1d4-37c5-4c11-92a1-586af638224a",
+    "userId": "3f4836f4-083e-4011-9bb5-bec2a6714eb6",
+    "seriesId": "8d5e94c0-c175-4f50-97f4-29f4e09b9b89",
+    "bookNumber": 1,
+    "name": "Emberfall QA P3",
+    "genre": "fantasy",
+    "language": "en",
+    "status": "concept",
+    "description": null,
+    "marketingKit": null,
+    "authorNotes": null,
+    "wordCount": 0,
+    "targetWordCount": null,
+    "chapterCount": 0,
+    "s3Prefix": null,
+    "createdAt": "2026-07-18T01:46:35.895Z",
+    "updatedAt": "2026-07-18T01:46:35.895Z",
+    "archivedAt": null
+  }
+}

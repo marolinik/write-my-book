@@ -1,0 +1,37 @@
+{
+  "capturedAt": "2026-07-20T02:18:15.101Z",
+  "request": {
+    "method": "POST",
+    "url": "/api/books/a77359eb-6587-4bf0-b72d-65e0ae027e64/chapters",
+    "actingAs": "user_qa_p3",
+    "headers": {
+      "content-type": "application/json",
+      "x-e2e-test-secret": "***MASKED***",
+      "x-e2e-clerk-id": "user_qa_p3"
+    },
+    "body": {
+      "actNumber": 1,
+      "chapterNumber": 5
+    }
+  },
+  "response": {
+    "status": 201,
+    "latencyMs": 94,
+    "body": {
+      "id": "72597e69-d3a3-445d-b25b-d0638c2c8f68",
+      "bookId": "a77359eb-6587-4bf0-b72d-65e0ae027e64",
+      "actNumber": 1,
+      "chapterNumber": 5,
+      "title": null,
+      "status": "undiscussed",
+      "wordCount": 0,
+      "targetWordCount": null,
+      "betaScore": null,
+      "betaGate": "pending",
+      "revisionCount": 0,
+      "importedAt": null,
+      "createdAt": "2026-07-20T02:18:15.065Z",
+      "updatedAt": "2026-07-20T02:18:15.065Z"
+    }
+  }
+}

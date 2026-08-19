@@ -186,6 +186,11 @@ export class DocumentService {
 
   /**
    * Find a document by type and optional chapter number.
+   *
+   * Ordered oldest-first (D-16): should legacy duplicate rows exist for one
+   * (bookId, type, chapterNumber), every reader and writer deterministically
+   * lands on the SAME row instead of an arbitrary one — without ordering, GET
+   * and PUT could resolve different rows and the CAS 409 could never fire.
    */
   async findByType(type: DocumentType, chapterNumber?: number) {
     const where: Record<string, unknown> = { type };
@@ -194,7 +199,7 @@ export class DocumentService {
     if (this.seriesId) where.seriesId = this.seriesId;
     if (chapterNumber !== undefined) where.chapterNumber = chapterNumber;
 
-    return db.document.findFirst({ where });
+    return db.document.findFirst({ where, orderBy: { createdAt: "asc" } });
   }
 
   /**

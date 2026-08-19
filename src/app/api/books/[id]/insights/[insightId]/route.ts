@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { resolveInsight, dismissInsight } from "@/lib/agents/blackboard";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 type RouteParams = { params: Promise<{ id: string; insightId: string }> };
 
@@ -28,7 +29,9 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const body = await req.json();
+    // Hand-validated legacy body (no Zod schema here) — keep the pre-D-01
+    // any-typed access; the field checks below are the validation.
+    const body = (await parseJsonBody(req)) as Record<string, any>;
     const { action } = body;
 
     if (action === "resolve") {
@@ -49,6 +52,8 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(updated);
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

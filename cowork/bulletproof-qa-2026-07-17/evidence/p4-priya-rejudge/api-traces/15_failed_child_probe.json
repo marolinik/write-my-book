@@ -1,0 +1,97 @@
+{
+  "failedSession": {
+    "id": "e4476f94-d194-48bb-be97-e84fffa9525f",
+    "bookId": "0b4a7b05-6b01-4098-8bdc-555065f1ae27",
+    "userId": "a31049dd-0fd9-44dd-a232-8606129d1853",
+    "agentType": "dev-editor",
+    "workflowId": "dev-edit",
+    "parentSessionId": null,
+    "sdkSessionId": null,
+    "chapterNumber": 3,
+    "status": "failed",
+    "jobId": "e4476f94-d194-48bb-be97-e84fffa9525f",
+    "batchId": "cmrsngsgh0001x40fsn0ii349",
+    "tokensInput": 0,
+    "tokensOutput": 0,
+    "estimatedCostUsd": 0.11475,
+    "actualCostUsd": 0,
+    "startedAt": "2026-07-20T03:13:20.667Z",
+    "completedAt": "2026-07-20T03:13:43.796Z"
+  },
+  "turnCount": 0,
+  "turns": [],
+  "recentUsageRecords": [
+    {
+      "id": "8dd5490a-ec1b-4cd8-a717-c3a5750cfcea",
+      "userId": "a31049dd-0fd9-44dd-a232-8606129d1853",
+      "bookId": "0b4a7b05-6b01-4098-8bdc-555065f1ae27",
+      "agentType": "embedding",
+      "model": "text-embedding-3-small",
+      "tokensInput": 98,
+      "tokensOutput": 0,
+      "costEstimate": 0.00000196,
+      "keySource": "user",
+      "recordedAt": "2026-07-20T03:18:18.000Z"
+    },
+    {
+      "id": "08b61d5d-cc56-4c50-9e5e-442c25db7bae",
+      "userId": "a31049dd-0fd9-44dd-a232-8606129d1853",
+      "bookId": "0b4a7b05-6b01-4098-8bdc-555065f1ae27",
+      "agentType": "embedding",
+      "model": "text-embedding-3-small",
+      "tokensInput": 102,
+      "tokensOutput": 0,
+      "costEstimate": 0.00000204,
+      "keySource": "user",
+      "recordedAt": "2026-07-20T03:18:17.996Z"
+    },
+    {
+      "id": "c124dda5-b457-4a9d-91aa-b663bd91efe1",
+      "userId": "a31049dd-0fd9-44dd-a232-8606129d1853",
+      "bookId": "0b4a7b05-6b01-4098-8bdc-555065f1ae27",
+      "agentType": "embedding",
+      "model": "text-embedding-3-small",
+      "tokensInput": 110,
+      "tokensOutput": 0,
+      "costEstimate": 0.0000022,
+      "keySource": "user",
+      "recordedAt": "2026-07-20T03:18:17.976Z"
+    },
+    {
+      "id": "8cd01809-c0be-4113-9897-dcfe9967177d",
+      "userId": "a31049dd-0fd9-44dd-a232-8606129d1853",
+      "bookId": "0b4a7b05-6b01-4098-8bdc-555065f1ae27",
+      "agentType": "embedding",
+      "model": "text-embedding-3-small",
+      "tokensInput": 104,
+      "tokensOutput": 0,
+      "costEstimate": 0.00000208,
+      "keySource": "user",
+      "recordedAt": "2026-07-20T03:18:17.974Z"
+    },
+    {
+      "id": "b45e436c-6542-469e-ab04-224829c134f2",
+      "userId": "a31049dd-0fd9-44dd-a232-8606129d1853",
+      "bookId": "0b4a7b05-6b01-4098-8bdc-555065f1ae27",
+      "agentType": "embedding",
+      "model": "text-embedding-3-small",
+      "tokensInput": 82,
+      "tokensOutput": 0,
+      "costEstimate": 0.00000164,
+      "keySource": "user",
+      "recordedAt": "2026-07-20T03:18:17.967Z"
+    },
+    {
+      "id": "9130993c-20ce-47a6-bf6e-bfb6487a6b47",
+      "userId": "a31049dd-0fd9-44dd-a232-8606129d1853",
+      "bookId": "0b4a7b05-6b01-4098-8bdc-555065f1ae27",
+      "agentType": "embedding",
+      "model": "text-embedding-3-small",
+      "tokensInput": 101,
+      "tokensOutput": 0,
+      "costEstimate": 0.00000202,
+      "keySource": "user",
+      "recordedAt": "2026-07-20T03:18:17.964Z"
+    }
+  ]
+}

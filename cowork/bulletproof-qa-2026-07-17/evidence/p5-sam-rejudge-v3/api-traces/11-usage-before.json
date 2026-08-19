@@ -1,0 +1,75 @@
+{
+  "label": "11-usage-before",
+  "request": {
+    "method": "GET",
+    "url": "http://localhost:3002/api/usage",
+    "authMode": "persona",
+    "authHeaderNames": [
+      "x-e2e-test-secret(masked:test-se...cret)",
+      "x-e2e-clerk-id:user_qa_p5"
+    ],
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "ms": 322,
+    "json": {
+      "total": {
+        "tokensInput": 41,
+        "tokensOutput": 0,
+        "costEstimate": 8.2e-7,
+        "sessions": 1
+      },
+      "byAgent": {
+        "embedding": {
+          "tokensInput": 41,
+          "tokensOutput": 0,
+          "costEstimate": 8.2e-7,
+          "sessions": 1
+        }
+      },
+      "byModel": {
+        "text-embedding-3-small": {
+          "tokensInput": 41,
+          "tokensOutput": 0,
+          "costEstimate": 8.2e-7
+        }
+      },
+      "byBook": [
+        {
+          "bookId": "35ff1112-52af-4001-a0f4-ec83f4dad9b0",
+          "bookName": "Sam Free-Tier On-Ramp QA 2026-07-20",
+          "tokensInput": 41,
+          "tokensOutput": 0,
+          "costEstimate": 8.2e-7,
+          "sessions": 1
+        }
+      ],
+      "byKeySource": {
+        "user": {
+          "costEstimate": 8.2e-7,
+          "sessions": 1
+        }
+      },
+      "llmCosts": {
+        "costEstimate": 0,
+        "sessions": 0
+      },
+      "embeddingCosts": {
+        "costEstimate": 8.2e-7,
+        "tokens": 41
+      },
+      "costDrift": {
+        "driftPercentage": null,
+        "sessionsAnalyzed": 0,
+        "warningThreshold": 20,
+        "hasWarning": false
+      },
+      "priceDiscrepancies": 30
+    }
+  },
+  "error": null,
+  "aborted": false,
+  "capturedAt": "2026-07-20T15:20:54.924Z"
+}

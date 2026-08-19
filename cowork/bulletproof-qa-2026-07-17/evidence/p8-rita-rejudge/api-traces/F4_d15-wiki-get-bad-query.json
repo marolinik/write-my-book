@@ -1,0 +1,24 @@
+{
+  "id": "F4",
+  "label": "d15-wiki-get-bad-query",
+  "actor": "p2",
+  "capturedAt": "2026-07-20T11:31:20.289Z",
+  "request": {
+    "method": "GET",
+    "url": "http://127.0.0.1:3002/api/books/1c829f25-3c52-4751-80b1-61cdc7fd8c73/wiki?type=not-a-real-type",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p2"
+    },
+    "body": null,
+    "bodyMode": "none"
+  },
+  "response": {
+    "status": 400,
+    "contentType": "application/json",
+    "bodyLength": 186,
+    "bodyText": "{\"error\":\"Invalid input\",\"details\":{\"fieldErrors\":{\"type\":[\"Invalid option: expected one of \\\"character\\\"|\\\"location\\\"|\\\"item\\\"|\\\"event\\\"|\\\"lore\\\"|\\\"custom\\\"|\\\"all\\\"\"]},\"formErrors\":[]}}"
+  },
+  "expected": "400 (was 500 empty)",
+  "note": null
+}

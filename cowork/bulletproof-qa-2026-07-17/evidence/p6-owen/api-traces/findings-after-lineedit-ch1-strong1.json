@@ -1,0 +1,185 @@
+{
+ "findings": [
+  {
+   "id": "bdb80574-ac88-4317-ba32-ed0536f293b5",
+   "bookId": "6d69fd7c-f7a4-4e3d-bf49-1415d81f5326",
+   "chapterNumber": 5,
+   "sessionId": "3361b5d1-96ea-451b-b0fa-63730d297702",
+   "agentType": "line-editor",
+   "severity": "critical",
+   "category": "prose",
+   "description": "\"Crimson and gold across the heavens\" is an ornamental cliché that violates the narrator's procedural maritime register. The sunset description means nothing in this voice, which measures time by light intervals and barometer, not by color palettes.",
+   "suggestion": "This sentence is the single most voice-breaking passage in the chapter. The style fingerprint defines this narrator's voice as \"clipped, procedural, emotionally controlled\" who \"communicates through maintenance tasks, log entries, and physical observation.\" She thinks in numbers, knots, intervals, barometer pressure—not in \"crimson and gold across the heavens.\" This is stock descriptive prose that could appear in any genre but has no place here. The narrator measures weather by barometer and wind direction; she catalogs the Morena's mast as \"a finger\" pointing at tide. When she describes the gale, it's \"the rain started at eight and by nine the visibility had gone to poor.\" This ornamental phrase is a complete departure from that calibrated voice. It also halts momentum: the sentence before establishes procedural tension (\"worked out which of those facts I would mention to him first\") and the sentence after resumes (\"What held me was the smaller arithmetic\"). The sunset sentence adds nothing to plot, character, or voice—it is pure decoration where decoration has been systematically excluded from this manuscript. Removing it (Option A) is the strongest fix; if a temporal marker is needed, the alternatives anchor to the narrator's factual register without ornament.",
+   "originalText": "Behind the island the sunset bled crimson and gold across the heavens.",
+   "newText": "",
+   "locationStart": null,
+   "locationEnd": null,
+   "status": "applied",
+   "dismissReason": null,
+   "appliedAt": "2026-07-18T16:02:42.684Z",
+   "createdAt": "2026-07-18T15:51:18.382Z",
+   "contentHash": "32889843e1799a72f405a94f7e78e60eef7474b7eb1e8fe679bae0a627aa1b16",
+   "confidence": 0.95,
+   "rationale": "This sentence is the single most voice-breaking passage in the chapter. The style fingerprint defines this narrator's voice as \"clipped, procedural, emotionally controlled\" who \"communicates through maintenance tasks, log entries, and physical observation.\" She thinks in numbers, knots, intervals, barometer pressure—not in \"crimson and gold across the heavens.\" This is stock descriptive prose that could appear in any genre but has no place here. The narrator measures weather by barometer and wind direction; she catalogs the Morena's mast as \"a finger\" pointing at tide. When she describes the gale, it's \"the rain started at eight and by nine the visibility had gone to poor.\" This ornamental phrase is a complete departure from that calibrated voice. It also halts momentum: the sentence before establishes procedural tension (\"worked out which of those facts I would mention to him first\") and the sentence after resumes (\"What held me was the smaller arithmetic\"). The sunset sentence adds nothing to plot, character, or voice—it is pure decoration where decoration has been systematically excluded from this manuscript. Removing it (Option A) is the strongest fix; if a temporal marker is needed, the alternatives anchor to the narrator's factual register without ornament.",
+   "paragraphNumber": 6,
+   "anchorQuote": "Behind the island the sunset bled crimson and gold across the heavens.",
+   "alternatives": [
+    {
+     "label": "Option A — cut the sentence entirely",
+     "newText": "",
+     "originalText": "Behind the island the sunset bled crimson and gold across the heavens."
+    },
+    {
+     "label": "Option B — anchor description to maritime procedure",
+     "newText": "Light failing behind the island.",
+     "originalText": "Behind the island the sunset bled crimson and gold across the heavens."
+    },
+    {
+     "label": "Option C — keep the light shift, strip ornament",
+     "newText": "The sun went down behind the island.",
+     "originalText": "Behind the island the sunset bled crimson and gold across the heavens."
+    }
+   ],
+   "groundingScore": 1,
+   "chapterVersion": 1,
+   "rejectedAt": null,
+   "rejectionReason": null
+  },
+  {
+   "id": "9b7fbf43-09a0-4b92-9882-5ee3dfd0a001",
+   "bookId": "6d69fd7c-f7a4-4e3d-bf49-1415d81f5326",
+   "chapterNumber": 5,
+   "sessionId": "3361b5d1-96ea-451b-b0fa-63730d297702",
+   "agentType": "line-editor",
+   "severity": "important",
+   "category": "prose",
+   "description": "\"Palpable silence\" is a tier-2 AI tell and an abstract psychological descriptor that violates the narrator's voice, which communicates through physical detail and procedural action, not abstraction.",
+   "suggestion": "The style fingerprint's absence pattern is explicit: the narrator \"avoids abstract psychological vocabulary\" and did not name feelings directly. \"Palpable\" is sensory abstraction applied to silence—it tells the reader how to feel about the silence rather than showing stillness through concrete behavior or environmental detail. This is one of the tier-2 suspect patterns (\"The weight of [abstract noun]\") applied to silence. The narrator thinks in numbers and physical fact; she observes islands not through \"palpable\" adjectives but through \"what she saw, counted, tied, trimmed.\" This phrase makes the prose sound generic and breaks the calibrated voice that has been maintained across chapters 1–4.",
+   "originalText": "There was a palpable silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.",
+   "newText": "The shingle was still while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.",
+   "locationStart": null,
+   "locationEnd": null,
+   "status": "pending",
+   "dismissReason": null,
+   "appliedAt": null,
+   "createdAt": "2026-07-18T15:51:05.255Z",
+   "contentHash": "ee416d79f23358725f7d14e1eb70a9ac00e1f1f40b93e4d7f85cf298c346d0d5",
+   "confidence": 0.9,
+   "rationale": "The style fingerprint's absence pattern is explicit: the narrator \"avoids abstract psychological vocabulary\" and did not name feelings directly. \"Palpable\" is sensory abstraction applied to silence—it tells the reader how to feel about the silence rather than showing stillness through concrete behavior or environmental detail. This is one of the tier-2 suspect patterns (\"The weight of [abstract noun]\") applied to silence. The narrator thinks in numbers and physical fact; she observes islands not through \"palpable\" adjectives but through \"what she saw, counted, tied, trimmed.\" This phrase makes the prose sound generic and breaks the calibrated voice that has been maintained across chapters 1–4.",
+   "paragraphNumber": 6,
+   "anchorQuote": "There was a palpable silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.",
+   "alternatives": [
+    {
+     "label": "Option A — replace with procedural-voice silence",
+     "newText": "The shingle was still while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.",
+     "originalText": "There was a palpable silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first."
+    },
+    {
+     "label": "Option B — cut existential construction, keep the stillness",
+     "newText": "Silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.",
+     "originalText": "There was a palpable silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first."
+    },
+    {
+     "label": "Option C — anchor stillness to physical detail",
+     "newText": "Nothing moved on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.",
+     "originalText": "There was a palpable silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first."
+    }
+   ],
+   "groundingScore": 1,
+   "chapterVersion": 1,
+   "rejectedAt": null,
+   "rejectionReason": null
+  },
+  {
+   "id": "ce63cb76-f5ad-4b68-8e0b-57f9c432c241",
+   "bookId": "6d69fd7c-f7a4-4e3d-bf49-1415d81f5326",
+   "chapterNumber": 5,
+   "sessionId": "3361b5d1-96ea-451b-b0fa-63730d297702",
+   "agentType": "line-editor",
+   "severity": "suggestion",
+   "category": "clarity",
+   "description": "Dangling modifier: \"Walking back up the steps\" modifies \"the lamp\" instead of Vera, creating a grammatical error where the lamp is walking.",
+   "suggestion": "The verbal phrase \"Walking back up the steps\" should attach to Vera, the person walking, but the main-clause subject is \"the lamp.\" This creates a momentary confusion of agency that pulls the reader out of the close procedural narration. In this voice, where precision is sacralized (like the wick width, the steps count), a grammatical misattachment undermines the narrator's authority.",
+   "originalText": "Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean.",
+   "newText": "Walking back up the steps I noticed the lamp seemed dimmer than it should, though the wick was right and the glass was clean.",
+   "locationStart": null,
+   "locationEnd": null,
+   "status": "dismissed",
+   "dismissReason": "Keep as-is. The dangler is deliberate cognitive slippage - perception attaches to the lamp because her attention is in her feet. Do not re-flag this span or this device.",
+   "appliedAt": null,
+   "createdAt": "2026-07-18T15:50:32.246Z",
+   "contentHash": "cb5da2cc36f63af4f6c8e29925396bd78009dfa28c784b628f9e32f6a6e7a512",
+   "confidence": 0.75,
+   "rationale": "The verbal phrase \"Walking back up the steps\" should attach to Vera, the person walking, but the main-clause subject is \"the lamp.\" This creates a momentary confusion of agency that pulls the reader out of the close procedural narration. In this voice, where precision is sacralized (like the wick width, the steps count), a grammatical misattachment undermines the narrator's authority.",
+   "paragraphNumber": 7,
+   "anchorQuote": "Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean.",
+   "alternatives": [
+    {
+     "label": "Option A — attach modifier to Vera",
+     "newText": "Walking back up the steps I noticed the lamp seemed dimmer than it should, though the wick was right and the glass was clean.",
+     "originalText": "Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean."
+    },
+    {
+     "label": "Option B — split into two actions",
+     "newText": "Walking back up the steps. The lamp seemed dimmer than it should, though the wick was right and the glass was clean.",
+     "originalText": "Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean."
+    },
+    {
+     "label": "Option C — reorder for clarity",
+     "newText": "The lamp seemed dimmer on the walk back up the steps, though the wick was right and the glass was clean.",
+     "originalText": "Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean."
+    }
+   ],
+   "groundingScore": 1,
+   "chapterVersion": 1,
+   "rejectedAt": "2026-07-18T16:02:42.543Z",
+   "rejectionReason": null
+  },
+  {
+   "id": "594ea427-6bab-4f59-b822-46f6c20273c0",
+   "bookId": "6d69fd7c-f7a4-4e3d-bf49-1415d81f5326",
+   "chapterNumber": 5,
+   "sessionId": "3361b5d1-96ea-451b-b0fa-63730d297702",
+   "agentType": "line-editor",
+   "severity": "suggestion",
+   "category": "clarity",
+   "description": "Dangling modifier: \"Walking back up the steps\" modifies \"the lamp\" instead of Vera, creating a grammatical error where the lamp is walking.",
+   "suggestion": null,
+   "originalText": null,
+   "newText": null,
+   "locationStart": null,
+   "locationEnd": null,
+   "status": "rejected",
+   "dismissReason": null,
+   "appliedAt": null,
+   "createdAt": "2026-07-18T15:50:20.328Z",
+   "contentHash": null,
+   "confidence": 0.75,
+   "rationale": "The verbal phrase \"Walking back up the steps\" should attach to Vera, the person walking, but the main-clause subject is \"the lamp.\" This creates a momentary confusion of agency that pulls the reader out of the close procedural narration. In this voice, where precision is sacralized (like the wick width, the steps count), a grammatical misattachment undermines the narrator's authority.",
+   "paragraphNumber": 9,
+   "anchorQuote": "Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean.",
+   "alternatives": [
+    {
+     "label": "Option A — attach modifier to Vera",
+     "newText": "Walking back up the steps I noticed the lamp seemed dimmer than it should, though the wick was right and the glass was clean.",
+     "originalText": "Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean."
+    },
+    {
+     "label": "Option B — split into two actions",
+     "newText": "Walking back up the steps. The lamp seemed dimmer than it should, though the wick was right and the glass was clean.",
+     "originalText": "Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean."
+    },
+    {
+     "label": "Option C — reorder for clarity",
+     "newText": "The lamp seemed dimmer on the walk back up the steps, though the wick was right and the glass was clean.",
+     "originalText": "Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean."
+    }
+   ],
+   "groundingScore": null,
+   "chapterVersion": null,
+   "rejectedAt": "2026-07-18T15:50:20.327Z",
+   "rejectionReason": "REJECTED: Paragraph 9 does not exist. The chapter has 8 paragraphs (1-indexed). Please re-count."
+  }
+ ],
+ "total": 4
+}

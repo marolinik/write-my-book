@@ -13,6 +13,13 @@ import { getExtractionKeysForUser } from "./extraction-keys";
 import { onSessionCompleted, onDocumentChanged, onFindingsCreated } from "@/lib/vector/memory-manager";
 import { promoteFindings } from "./blackboard";
 import { synthesizeToSeries } from "@/lib/series/series-synthesizer";
+import { getWorkflow } from "./workflows";
+import { validatePrerequisites } from "./prerequisites";
+import {
+  evaluateArtifactContract,
+  filterBlockedNextSteps,
+  type ArtifactContractOutcome,
+} from "./artifact-contract";
 
 export interface PostSessionContext {
   sessionId: string;
@@ -30,6 +37,16 @@ export interface PostSessionContext {
    * held back so an overnight run never silently advances a chapter's stage.
    */
   batchId?: string;
+  /**
+   * D-188: the run's final assistant text. Used ONLY by the artifact contract,
+   * as the recovery source when a declared-artifact workflow streamed its
+   * document into the chat and never called WriteDocument. Absent on paths that
+   * do not carry it (BullMQ worker, specialist delegations) — recovery is then
+   * skipped and the contract only reports.
+   */
+  assistantText?: string;
+  /** D-188: document ids the run actually wrote (AgentResult.documentIds). */
+  documentIds?: string[];
 }
 
 export interface PostSessionResult {
@@ -38,6 +55,12 @@ export interface PostSessionResult {
   statusAdvanced: boolean;
   newStatus?: string;
   betaGateResult?: string; // "passed" | "failed" | "near_miss"
+  /**
+   * D-188: present only for workflows that declare a document artifact.
+   * `artifact.honest === false` means the caller must NOT report the session as
+   * a success — it produced no deliverable while claiming one.
+   */
+  artifact?: ArtifactContractOutcome;
 }
 
 const WORKFLOW_SUGGESTED_NEXT: Record<string, string[]> = {
@@ -246,6 +269,22 @@ export async function processPostSession(
       }
     }
 
+    // ─── D-188 Artifact Contract ─────────────────────────────
+    // For a workflow that DECLARES a document (create-story-bible et al):
+    // recover it from the run's own transcript if the model streamed it but
+    // never called WriteDocument, and report honestly when there is still no
+    // artifact. MUST run before suggestedNext so the routing below sees the
+    // recovered document.
+    const artifact = await evaluateArtifactContract({
+      workflowId: ctx.workflowId,
+      bookId: ctx.bookId,
+      userId: ctx.userId,
+      assistantText: ctx.assistantText,
+      documentIds: ctx.documentIds,
+      documentService: docService,
+    });
+    if (artifact) result.artifact = artifact;
+
     // ─── Outcome-Driven Routing ──────────────────────────────
     // MUST come after processBetaReadSession + advanceChapterStatus
     // so deriveSuggestedNext reads the updated chapter state.
@@ -253,6 +292,16 @@ export async function processPostSession(
       ctx.workflowId,
       ctx.bookId,
       ctx.chapterNumber
+    );
+
+    // D-188: never advertise a next step the product will reject. The captured
+    // run recommended `build-architecture` while the STORY_BIBLE it requires
+    // did not exist, so the writer's next click was a 422. A blocked suggestion
+    // becomes the workflow that unblocks it.
+    result.suggestedNext = await filterBlockedNextSteps(
+      result.suggestedNext,
+      (workflowId) =>
+        validatePrerequisites(workflowId, ctx.bookId, ctx.chapterNumber)
     );
 
     // Circuit breaker override: clear suggestions if triggered
@@ -438,8 +487,12 @@ async function processBetaReadSession(
 /**
  * Advance chapter status only if it's at an earlier stage.
  * Uses transaction with read-validate-write to prevent race conditions.
+ *
+ * Exported for direct unit testing (D-48 idempotent re-advance): the
+ * regress-vs-refresh decision is the source of truth for the statusAdvanced
+ * signal the writer sees, so it is tested in isolation.
  */
-async function advanceChapterStatus(
+export async function advanceChapterStatus(
   bookId: string,
   chapterNumber: number,
   targetStatus: string
@@ -464,8 +517,19 @@ async function advanceChapterStatus(
     const currentIdx = statusOrder.indexOf(chapter.status);
     const targetIdx = statusOrder.indexOf(targetStatus);
 
-    // Only advance forward, never regress
-    if (targetIdx <= currentIdx) return false;
+    // Never regress: a genuine pass at an EARLIER stage than the chapter's
+    // current status must not pull it backward (e.g. a beta-read re-run must
+    // not drop a beta_passed chapter to beta_read).
+    if (targetIdx < currentIdx) return false;
+
+    // D-48 idempotent re-advance: targetIdx === currentIdx means a genuine
+    // successful run landed exactly on the chapter's current stage — a second
+    // real line-edit pass on an already-line_edited chapter. This previously
+    // returned false (target <= current), so the genuine pass reported
+    // statusAdvanced:false and could neither refresh the stage nor correct a
+    // chapter left stuck here by a pre-D-36 fake-success run (the sticky half
+    // of D-48). Re-writing the same status below refreshes @updatedAt and lets
+    // the run honestly report the pass; forward advances are unchanged.
 
     // Warn if skipping steps (but allow it)
     if (targetIdx > currentIdx + 1) {
@@ -691,14 +755,10 @@ async function maybeAutoSynthesize(
   workflowId: string,
   userId: string
 ): Promise<void> {
-  // Only trigger from book-level foundational doc workflows — NOT series-level
-  const artifactMap: Record<string, string> = {
-    "capture-style": "FINGERPRINT",
-    "refresh-style": "FINGERPRINT",
-    "create-story-bible": "STORY_BIBLE",
-    "build-architecture": "ARCHITECTURE",
-  };
-  const artifactType = artifactMap[workflowId];
+  // Only trigger from book-level foundational doc workflows — NOT series-level.
+  // D-188: the declaration now lives on the workflow itself (producesDocument),
+  // so this lookup cannot drift from the completion contract that enforces it.
+  const artifactType = getWorkflow(workflowId)?.producesDocument;
   if (!artifactType) return; // Not a foundational doc workflow
 
   const book = await db.book.findUnique({
@@ -740,8 +800,12 @@ async function maybeAutoSynthesize(
 /**
  * Update the knowledge graph with entities extracted from chapter content.
  * Fire-and-forget — errors are caught and logged by the caller.
+ *
+ * Exported for direct unit testing (fix 10 / RC-5): the series-scope stamping
+ * of agent-written prose into the vector store is the source of truth for
+ * cross-book (series) recall, so it is verified in isolation.
  */
-async function updateChapterGraph(
+export async function updateChapterGraph(
   userId: string,
   bookId: string,
   chapterNumber: number,
@@ -766,14 +830,52 @@ async function updateChapterGraph(
     select: { defaultModel: true },
   });
   const keys = await getExtractionKeysForUser(userId);
-  await updateFromChapter(
+  const outcome = await updateFromChapter(
     bookId,
     chapterNumber,
     content.content,
     dbUser?.defaultModel ?? undefined,
-    keys
+    keys,
+    userId
   );
 
-  // Also index into vector memory
-  await onDocumentChanged(bookId, "CHAPTER_CONTENT", content.content, { chapterNumber });
+  // Report the outcome HONESTLY (RC-4): a failed/empty extraction must never be
+  // logged (or later surfaced) as a graph update that succeeded. The billing cap
+  // lives inside updateFromChapter, so a permanently-failing chapter stops
+  // re-billing on its own — here we only make the state observable.
+  if (outcome.capped) {
+    console.warn(
+      `[PostSession] Graph extraction CAPPED for book=${bookId} chapter=${chapterNumber} ` +
+        `(${outcome.attempts} consecutive empty/failed attempts) — not re-billed; ` +
+        `edit the chapter to retry.`
+    );
+  } else if (outcome.suspiciousEmpty) {
+    console.warn(
+      `[PostSession] Graph extraction ${outcome.failed ? "FAILED" : "returned empty"} for ` +
+        `book=${bookId} chapter=${chapterNumber} (attempt ${outcome.attempts}) — graph NOT ` +
+        `updated; will retry on next scan.`
+    );
+  } else if (outcome.lowYield) {
+    console.warn(
+      `[PostSession] Graph extraction LOW YIELD for book=${bookId} chapter=${chapterNumber} — ` +
+        `stamped but implausibly sparse (possible truncated parse).`
+    );
+  }
+
+  // Also index into vector memory. Thread the book's seriesId (fix 10 / RC-5):
+  // series-filtered recall applies a seriesId `must` clause (retriever
+  // buildFilter), which matches chunks by EXACT seriesId — so a chunk indexed
+  // with seriesId:null is invisible to every cross-book (series) query. The
+  // human-save path already stamps book.seriesId (chapters/[chapterId]/content
+  // route); this agent-write path omitted it, silently halving series recall for
+  // agent-assisted prose. A standalone book legitimately indexes seriesId:null,
+  // exactly as it does on a manual save.
+  const book = await db.book.findUnique({
+    where: { id: bookId },
+    select: { seriesId: true },
+  });
+  await onDocumentChanged(bookId, "CHAPTER_CONTENT", content.content, {
+    chapterNumber,
+    seriesId: book?.seriesId ?? null,
+  });
 }

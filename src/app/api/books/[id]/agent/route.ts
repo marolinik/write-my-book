@@ -5,9 +5,10 @@ import { decryptApiKey } from "@/lib/encryption";
 import { estimateWorkflowCost } from "@/lib/llm/cost-estimator";
 import { validatePrices } from "@/lib/llm/price-validator";
 import { checkQuota } from "@/lib/billing/quota-checker";
+import { checkConcurrencyFence } from "@/lib/billing/free-tier-meters";
 import {
   resolveModelForRole,
-  resolveConductorModel,
+  resolveConductorModelForWorkflow,
   meetsMinimumTier,
   mapAgentTypeToRole,
   resolveProviderRoute,
@@ -40,6 +41,7 @@ import type {
 import { processPostSession } from "@/lib/agents";
 import { enqueueAgentJob } from "@/lib/queue";
 import type { AgentJobData } from "@/lib/queue";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -60,7 +62,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id: bookId } = await params;
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = startSessionSchema.parse(body);
 
     // Verify book ownership
@@ -139,7 +141,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     const quotaResult = await checkQuota(user.id, "use_agent_session");
     if (!quotaResult.allowed) {
       return NextResponse.json(
-        { error: quotaResult.reason },
+        { error: quotaResult.reason, upgradeToTier: quotaResult.upgradeToTier },
         { status: 429 }
       );
     }
@@ -194,12 +196,17 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       userDefault
     );
 
-    // Resolve the Coach conductor honestly via the same 4-level chain the
-    // specialists use (book-role → book-default → global-role → global-default).
-    // This honors the user's coach-role choice instead of forcing sonnet; the
-    // resolved model's provider decides which API key the routing below requires.
-    // Terminal fallback (anthropic/sonnet) is baked into resolveConductorModel.
-    const coachResolved = resolveConductorModel(bookModelSettings, {
+    // Resolve the conductor model via the same 4-level chain the specialists
+    // use (book-role → book-default → global-role → global-default). For a
+    // conversational chat this is the Coach role; for a non-conversational job
+    // (line-edit, dev-edit, …) it is the workflow's PRIMARY-agent role, so the
+    // per-role override the UI advertises (e.g. modelEditor for a line-edit)
+    // actually governs the model the run executes and bills on — instead of the
+    // job silently running on the coach/default model (D-43). Users with no
+    // per-role override are unaffected: both roles fall through to the shared
+    // book-default → global-default levels. Terminal fallback (anthropic/sonnet)
+    // is baked into the resolver.
+    const coachResolved = resolveConductorModelForWorkflow(workflow, bookModelSettings, {
       defaultModel: dbUser?.defaultModel ?? null,
       modelGhostwriter: dbUser?.modelGhostwriter ?? null,
       modelEditor: dbUser?.modelEditor ?? null,
@@ -350,6 +357,17 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     const estimatedMaxMin = workflow.estimatedMaxMinutes ?? 30;
     const serverCeilingMs = (estimatedMaxMin + 30) * 60 * 1000;
 
+    // Free-tier concurrency fence: at most one running agent session. Placed
+    // right before the session is created, after ownership + quota checks.
+    // No-op for paid users. Counts running AgentSession rows (unforgeable).
+    const concurrency = await checkConcurrencyFence(user.id);
+    if (!concurrency.allowed) {
+      return NextResponse.json(
+        { error: concurrency.reason, upgradeToTier: concurrency.upgradeToTier },
+        { status: 429 }
+      );
+    }
+
     // Create DB session record (needed for both inline and background paths)
     const dbSession = await db.agentSession.create({
       data: {
@@ -465,6 +483,11 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         sharedCostTracker,
         delegationContext,
         providerKey: validationProvider,
+        // D-83: inline SSE path — a real user is present and streaming, so
+        // authoritative graph corrections (UpdateGraphEntity) are permitted.
+        // The background/BullMQ branch above enqueues instead and runs
+        // unattended in the worker (non-interactive by default).
+        interactive: true,
       });
       session.orchestrator = orchestrator;
 
@@ -488,15 +511,21 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         onComplete: async (result: AgentResult) => {
           // Run post-session processing (parse reports, store findings, advance status).
           // Skipped for user-cancelled sessions — the cancel route owns the
-          // terminal state and already notified listeners via cancelSession.
+          // terminal state and already notified listeners via cancelSession —
+          // AND for failed sessions (D-36: a provider-failure run must not
+          // advance chapter workflow state).
           let suggestedNext: string[] = [];
           let resultMeta: {
             findingsCreated: number;
             statusAdvanced: boolean;
             newStatus?: string;
             betaGateResult?: string;
+            artifact?: unknown;
           } = { findingsCreated: 0, statusAdvanced: false };
-          if (!result.cancelled) {
+          // D-188: set when a declared-artifact workflow finished with no
+          // artifact while claiming one. Such a run may not report success.
+          let artifactBroken = false;
+          if (!result.cancelled && result.success) {
             try {
               const postResult = await processPostSession({
                 sessionId: dbSession.id,
@@ -505,6 +534,9 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
                 workflowId: data.workflowId,
                 agentType: workflow.primaryAgent,
                 chapterNumber: data.chapterNumber,
+                // D-188: recovery source + what the run actually persisted.
+                assistantText: result.assistantText,
+                documentIds: result.documentIds,
               });
               suggestedNext = postResult.suggestedNext;
               resultMeta = {
@@ -512,7 +544,25 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
                 statusAdvanced: postResult.statusAdvanced,
                 newStatus: postResult.newStatus,
                 betaGateResult: postResult.betaGateResult,
+                artifact: postResult.artifact,
               };
+              const artifact = postResult.artifact;
+              if (artifact) {
+                artifactBroken = !artifact.honest;
+                // Tell the writer either way: that the product saved the
+                // document the agent forgot, or that nothing was saved at all.
+                if (artifact.message) {
+                  onMessage({
+                    type: artifactBroken ? "error" : "status",
+                    content: artifact.message,
+                    metadata: {
+                      expectedDocument: artifact.expectedType,
+                      documentRecovered: artifact.recovered,
+                      documentPersisted: artifact.artifactExists,
+                    },
+                  });
+                }
+              }
             } catch (e) {
               // Log without exposing sensitive data
               const errMsg = e instanceof Error ? e.message : "Unknown error";
@@ -523,17 +573,28 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
           // Attach result metadata to the AgentResult for SSE propagation.
           // Cancelled sessions complete as success:false so the in-memory
           // session stays "failed" (matching the cancel route's DB status).
+          // D-188: an empty-artifact run is a FAILED run, never a completion —
+          // "Story Bible Status: Complete" with no STORY_BIBLE row is the
+          // defect this flip exists to make impossible.
           const enrichedResult = {
             ...result,
-            success: result.cancelled ? false : result.success,
+            success: result.cancelled || artifactBroken ? false : result.success,
             resultMeta,
           };
           completeSession(dbSession.id, enrichedResult, suggestedNext);
 
+          // D-04/D-38: for a conversational workflow the deliverable IS the
+          // assistant's text; an empty / whitespace-only reply (reasoning burned
+          // the whole max_tokens budget, or a hollow provider turn) must not be
+          // billed as a successful result. Gated on `workflow.conversational`
+          // so non-conversational runs whose deliverable is findings/documents
+          // (little or no coach text) still bill honestly.
+          const replyText = (result.assistantText ?? "").trim();
+
           // Persist the assistant's reply so a continued conversational session
           // survives a server restart with full context (fire-safe).
-          if (!result.cancelled && result.assistantText) {
-            await addAssistantMessage(dbSession.id, result.assistantText);
+          if (!result.cancelled && replyText) {
+            await addAssistantMessage(dbSession.id, replyText);
           }
 
           // Update DB records -- include shared cost tracker totals.
@@ -545,8 +606,10 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
           await db.agentSession.update({
             where: { id: dbSession.id },
             data: {
-              // Never overwrite the cancel route's "failed" with "completed".
-              status: result.cancelled
+              // Never overwrite the cancel route's "failed" with "completed",
+              // and never record a completion for a run whose declared
+              // artifact does not exist (D-188).
+              status: result.cancelled || artifactBroken
                 ? "failed"
                 : result.success
                   ? "completed"
@@ -557,6 +620,20 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
               actualCostUsd: cost,
             },
           });
+
+          if (
+            workflow.conversational &&
+            result.success &&
+            !result.cancelled &&
+            replyText.length === 0
+          ) {
+            onMessage({
+              type: "error",
+              content:
+                "The assistant returned an empty response — it may have run out of output space. Nothing was billed; please try again.",
+            });
+            return;
+          }
 
           // Create usage record with total tokens (Coach + all specialists)
           await db.usageRecord.create({
@@ -610,6 +687,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ sessionId: dbSession.id });
     }
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

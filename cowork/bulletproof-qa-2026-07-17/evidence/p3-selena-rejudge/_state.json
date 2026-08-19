@@ -1,0 +1,27 @@
+{
+  "seriesId": "0e11c5c1-e9ee-4736-a214-40dc1576c1b3",
+  "book1Id": "a77359eb-6587-4bf0-b72d-65e0ae027e64",
+  "book1FirstChapterId": "3cb77c45-b03f-4da2-ae1a-6b34e5350301",
+  "book2Id": "af01d68f-6f04-4bfc-aab3-76ec700fc0c1",
+  "book2FirstChapterId": "9c2a274b-978c-4c86-99ed-4900bbedb0df",
+  "book1Chapters": {
+    "1": "3cb77c45-b03f-4da2-ae1a-6b34e5350301",
+    "2": "23bc7795-fb24-46a5-9833-50df6ccd63f7",
+    "3": "9b80f52d-d8ff-42d6-9373-53167ec172e1",
+    "4": "f2ddb516-e747-4d9c-a787-edb42ffe30ae",
+    "5": "72597e69-d3a3-445d-b25b-d0638c2c8f68",
+    "6": "e68b6b66-951c-4273-97a2-cfcab36155fd",
+    "7": "be9b3d80-f3a5-4d22-b6ec-095ae81cc1f4",
+    "8": "7c971e5a-5236-4a10-82da-4b20d93301b7"
+  },
+  "book2Chapters": {
+    "1": "9c2a274b-978c-4c86-99ed-4900bbedb0df",
+    "2": "26770e73-bd25-435a-b32b-15e752555db6"
+  },
+  "victimBookId": "f48441dc-2b2f-41b2-9d43-d8c866901b58",
+  "victimCh1Id": "0211e6c2-a7f4-4c10-8e43-77a50692380f",
+  "aliasProbeBookId": "89bb1ad4-b4a0-4cf0-8969-f7728d489113",
+  "locProbeBookId": "6836d4ca-8b1e-46d4-bb0d-c35782750d76",
+  "failProbeBookId": "d590667b-3aeb-4707-a20a-7259fc4ac076",
+  "failProbeChId": "8c4116df-2b17-4394-ad48-1c2c83c04731"
+}

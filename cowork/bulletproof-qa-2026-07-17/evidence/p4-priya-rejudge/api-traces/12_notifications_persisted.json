@@ -1,0 +1,12 @@
+[
+  {
+    "id": "bc3f2296-2366-400f-b077-fd5a28d662c9",
+    "type": "pipeline_complete",
+    "title": "Overnight batch complete",
+    "message": "2/3 passes · 11 findings · $0.05 / $10.00 cap",
+    "priority": "normal",
+    "createdAt": "2026-07-20T03:18:15.758Z",
+    "read": false,
+    "dismissedAt": null
+  }
+]

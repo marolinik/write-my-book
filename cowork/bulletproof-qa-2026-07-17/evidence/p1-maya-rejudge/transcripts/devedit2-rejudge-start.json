@@ -1,0 +1,9 @@
+{
+  "status": 200,
+  "body": {
+    "sessionId": "5574be0f-83bb-4154-91bf-95f51a5fe417",
+    "queued": true,
+    "jobId": "5574be0f-83bb-4154-91bf-95f51a5fe417"
+  },
+  "capturedAt": "2026-07-20T11:46:08.103Z"
+}

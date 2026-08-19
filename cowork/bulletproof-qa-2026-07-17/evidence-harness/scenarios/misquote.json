@@ -1,0 +1,19 @@
+{
+  "suiteId": "misquote",
+  "protocolRef": "GRADING-PROTOCOL.md §Metric pre-registration, row 1 (finding-misquote-rate)",
+  "preRegistered": {
+    "metric": "finding-misquote-rate",
+    "n": 100,
+    "unit": "findings",
+    "spread": { "minChapters": 5 },
+    "threshold": "0/N verbatim-anchor mismatches",
+    "model": "openrouter-qwen36 (real model)",
+    "declaredAt": "on-commit"
+  },
+  "corpus": { "dir": "cowork/bulletproof-qa-2026-07-17/evidence-harness/corpora/misquote", "manifest": "corpus-manifest.csv" },
+  "checks": [
+    { "id": "anchor-byte-match", "method": "byteSubstring", "note": "every finding.anchorText must be a verbatim substring of the fresh chapter content artifact" },
+    { "id": "coverage-findings", "method": "countAtLeast", "note": "fail-closed UNDER-N if < 100 findings" },
+    { "id": "chapter-spread", "method": "countAtLeast", "note": "findings must span >= 5 distinct chapters" }
+  ]
+}

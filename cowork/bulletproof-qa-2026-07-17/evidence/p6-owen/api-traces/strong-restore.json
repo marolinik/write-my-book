@@ -1,0 +1,21 @@
+{
+ "ch2-diff": {
+  "len_cur": 8263,
+  "len_man": 8294,
+  "first_diff": 0,
+  "cur_ctx": "The gale came Saturday morning, three days after I had asked",
+  "man_ctx": "# Chapter 5: The Third Letter\n\nThe gale came Saturday mornin"
+ },
+ "restore-ch5": {
+  "status": 200,
+  "body": {
+   "wordCount": 395,
+   "version": 4,
+   "bookWordCount": 3857
+  }
+ },
+ "verify-ch5": {
+  "version": 4,
+  "planted_match": true
+ }
+}

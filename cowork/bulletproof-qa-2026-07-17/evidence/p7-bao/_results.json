@@ -1,0 +1,115 @@
+{
+  "persona": "P7 Bao (migrator/finisher)",
+  "scope": "Phase A non-LLM subset: Day-0 big-manuscript import, export-fidelity baseline, organize (rename/merge/split), portability sweep, delete drill, edge cases. Reorder-then-export, wiki/entity extraction, radar/health, and GDPR full-account delete all explicitly DEFERRED per mission scope.",
+  "book_id": "846dbf1d-36dd-4b3b-9a63-797719e3f492",
+  "book_name": "The Kőszeg Manuscript P7",
+  "total_words": 81095,
+  "total_checks": 128,
+  "passed": 125,
+  "failed": 3,
+  "failed_checks": [
+    {
+      "id": "p7fmt-11-pdf-page-count-vs-estimate-B3",
+      "verdict": "FAIL",
+      "note": "estimated=232 actual=165 pages, off_by=40.6% (15% sanity threshold). Reproduction of the campaign's pre-registered Z15/B3 defect at 80K-word scale.",
+      "phase": "phase2-export-fidelity-baseline"
+    },
+    {
+      "id": "p7fmt-12-pdf-metadata-title-present",
+      "verdict": "FAIL",
+      "note": "pypdf-read PDF metadata title is None, despite the docx export from the SAME source correctly setting dc:title='The Kőszeg Manuscript P7'. New finding, filed as D-05.",
+      "phase": "phase2-export-fidelity-baseline"
+    },
+    {
+      "id": "p7-34-probe-merge-collection-absent",
+      "verdict": "FAIL (informational, not a defect)",
+      "note": "POST /api/books/:id/chapters/merge returned 405, not 404. Root cause: Next.js dynamic routing captures 'merge' as :chapterId, hitting chapters/[chapterId]/route.ts which has GET/PATCH/DELETE but no POST handler -> 405 by framework default. Still proves merge is unimplemented; the two more direct probes (merge-on-chapter, split-on-chapter) both correctly 404. Not a defect -- corroborates the Glob-confirmed absence of merge/split routes with live-API evidence.",
+      "phase": "phase3-organize-portability"
+    }
+  ],
+  "defects": [
+    {
+      "id": "D-05",
+      "severity": "S3 (minor -- publisher-trust / metadata completeness)",
+      "status": "NOT FIXED (evidence-only, src/ untouched per phase scope)",
+      "title": "PDF export omits document metadata title (docx correctly sets it, pdf does not)",
+      "category": "export fidelity / publisher-trust artifact",
+      "repro_evidence": "p7fmt-12-pdf-metadata-title-present in p7_phase2_state.json: pypdf.PdfReader(pdf_bytes).metadata.title == None for a book whose docx export has dc:title='The Kőszeg Manuscript P7' via the same export pipeline, same source book."
+    },
+    {
+      "id": "Z15/B3 (reproduction, not new)",
+      "severity": "already tracked (COVERAGE-MATRIX.md pre-registers this under P7 ownership)",
+      "status": "REPRODUCED at 80K-word scale, still not fixed",
+      "title": "PDF export page-count estimate is significantly off vs actual rendered page count",
+      "category": "export fidelity",
+      "repro_evidence": "p7fmt-11-pdf-page-count-vs-estimate-B3: estimated=232, actual=165, 40.6% off. Historically documented as ~47% off; this is a smaller but still out-of-bounds gap at a different word count, confirming the estimator's error scales with content rather than being a fixed offset."
+    }
+  ],
+  "non_defect_diagnostics": [
+    {
+      "topic": "docx/pdf/epub export SHA is not stable across repeated or concurrent exports of unchanged content",
+      "conclusion": "NOT a defect. Root-caused via p7_diag_export_determinism.py: body text (word/document.xml paragraphs) is byte-identical across concurrent exports and across a baseline vs. 10-minutes-later re-export. The only bytes that differ are docProps/core.xml <dcterms:created>/<dcterms:modified>, which legitimately record each export run's own generation timestamp -- standard behavior for any docx-producing pipeline. SHA/byte-equality is the wrong oracle for 'export determinism'; content-equality is the correct one, and it holds. See p7_phase5_state.json ids p7-76, p7-78, p7-79-diag."
+    },
+    {
+      "topic": "Pandoc smart-quote typesetting (straight ' -> typographic '/') on export",
+      "conclusion": "NOT a defect -- correct publishable-file behavior. Required normalizing quote variants in the test oracle (title matching and word-level content diffing) to avoid false 'missing title'/'content loss' failures. Same normalization need documented in p2-gerald's D-03 corroboration; this session found it also affects body-prose word diffs, not just titles, and fixed it in the shared p7_common.py normalize_words()."
+    },
+    {
+      "topic": "'Act N' divider paragraph inserted at act boundaries during export",
+      "conclusion": "NOT a defect, and NOT specific to the reorder bug (D-03). Reproduced on a book that was NEVER reordered: chapter 10 (last of Act 1) showed a 2-word 'insert [act, 2]' diff opcode purely from the export inserting an act-divider heading. Any chapter-boundary-detection test script must treat 'Act \\d+' paragraphs as slice terminators, same as chapter headings. This generalizes what was previously (incorrectly) attributed only to reorder pathology in P2's D-03 evidence."
+    }
+  ],
+  "phase_breakdown": {
+    "phase1-day0-import-80k-words": {
+      "total": 67,
+      "passed": 67,
+      "note": "20 chapters, ~81,095 words, unicode/diacritics throughout every chapter. Structure/titles/word-counts verified via API; byte-exact round-trip (including diacritics) verified for all 20 chapters. D5 latency captured at 80K scale (see latency table below)."
+    },
+    "phase2-export-fidelity-baseline": {
+      "total": 21,
+      "passed": 19,
+      "note": "docx+pdf+epub export fidelity, book never reordered (pre-reorder baseline, D-03 does not manifest). 2 genuine FAILs: Z15/B3 reproduction + new D-05. All other checks required fixing 3 test-oracle artifacts before trusting the result: pandoc smart-quote typesetting (titles AND body word-diffs), F10 over-scoping to legitimate front-matter files, and the general Act-divider boundary-detection gap."
+    },
+    "phase3-organize-portability": {
+      "total": 15,
+      "passed": 14,
+      "note": "Rename verified live (chapter title PATCH, reflected in list, wordCount unaffected, then reverted). Merge/split absence confirmed both by static route enumeration (Glob of src/app/api/**/route.ts) AND live API probes (2 clean 404s, 1 informational 405 -- see failed_checks). Portability sweep: seeded one manually-authored item per non-chapter data class (story bible document, wiki entity, writer memory, editorial finding -- all plain CRUD, zero LLM/agent job enqueue) and verified each round-trips through its GET route. Chapters/content portability already proven in phase1+phase2."
+    },
+    "phase4-delete-drill": {
+      "total": 14,
+      "passed": 14,
+      "note": "SECOND throwaway book created (NOT the 80K-word book), content + wiki entity + document added, then deleted via DELETE /api/books/:id. Clean 404s afterward on book/content/chapters-list/wiki/documents. Book absent from GET /api/books list. No orphaned-data defects observed at the API-observable layer."
+    },
+    "phase5-edge-cases": {
+      "total": 11,
+      "passed": 11,
+      "note": "Oversized single paste: exactly-at-2M-char limit succeeds (200), 2,000,001 chars gets a clean 400 (not a 500 -- contrasts favorably with the known D-01 malformed-JSON-500 defect). Export-mid-autosave race: 5 concurrent PUTs to the same chapter, all 200, final content matches exactly one submitted version (last-write-wins, no interleaved/corrupted bytes). Concurrent exports + re-export determinism: see non_defect_diagnostics above -- content-level determinism holds, byte-level SHA does not (expected)."
+    }
+  },
+  "d5_latency_80k_scale_ms": {
+    "chapter_list_get": {"p50": 47, "p95": 47, "min": null, "max": null, "n": 10},
+    "book_dashboard_get": {"p50": 46, "p95": 62, "min": null, "max": null, "n": 10},
+    "content_get": {"p50": 47, "p95": 63, "min": null, "max": null, "n": 10},
+    "content_put_across_20_chapters": {"p50": 172, "p95": 188, "min": 140, "max": 203, "n": 20},
+    "note": "Full min/max for the GET series are in p7_phase1_state.json d5_latency block; all series comfortably sub-200ms at 80K-word scale, no cliff observed."
+  },
+  "portability_summary": {
+    "chapters_content": "PROVEN portable -- API round-trip (phase1) + bundled docx/pdf/epub export (phase2).",
+    "story_bible_documents": "PROVEN portable via GET /api/books/:id/documents (JSON only, no bundled export).",
+    "wiki_entities": "PROVEN portable via GET /api/books/:id/wiki (JSON only, no bundled export).",
+    "writer_memory": "PROVEN portable via GET /api/memory?bookId= (JSON only, no bundled export).",
+    "editorial_findings": "PROVEN portable via GET /api/books/:id/editorial/findings (JSON only, no bundled export).",
+    "honest_gap": "No single 'export everything' bundle exists. /api/books/:id/export packages CHAPTERS ONLY into docx/pdf/epub. A migrating/finishing writer (Bao) CAN get 100% of their data out, but only via N separate raw API calls per data class -- there is no one-click/one-file path a non-technical user could use to take their story bible, wiki, memory, and findings with them alongside the manuscript. Recommend filing as a W17-adjacent product gap (publisher-trust: 'can I really leave with everything') for founder-decision triage, not as a numbered defect -- every individual data class IS retrievable, just not bundled."
+  },
+  "cost_health": {
+    "llm_cost_estimate": 0,
+    "llm_sessions": 0,
+    "note": "Zero LLM spend for user_qa_p7 throughout this phase, as required -- no dev-edit/line-edit/CAS/extraction/wiki-extraction/radar/health ever invoked. All writes (documents/wiki/memory/findings) were direct, manually-authored plain-CRUD POSTs, not agent jobs."
+  },
+  "deferred_out_of_scope": [
+    "Any reorder-then-export sequence (blocked on D-03 fix, per team-lead instruction)",
+    "Wiki/entity extraction, radar, health -- deferred, would enqueue LLM jobs",
+    "GDPR full-account delete -- deferred",
+    "Editor UI rendering (verified via API only, not visually in-browser)"
+  ]
+}

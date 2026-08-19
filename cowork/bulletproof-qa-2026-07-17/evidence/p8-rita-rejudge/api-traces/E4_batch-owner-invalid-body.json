@@ -1,0 +1,27 @@
+{
+  "id": "E4",
+  "label": "batch-owner-invalid-body",
+  "actor": "p1",
+  "capturedAt": "2026-07-20T11:31:13.878Z",
+  "request": {
+    "method": "POST",
+    "url": "http://127.0.0.1:3002/api/books/4116055c-6183-4675-926a-e04f31126951/batch",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p1",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "workflowIds": []
+    },
+    "bodyMode": "json"
+  },
+  "response": {
+    "status": 400,
+    "contentType": "application/json",
+    "bodyLength": 25,
+    "bodyText": "{\"error\":\"Invalid input\"}"
+  },
+  "expected": "400 (owner gets validation — uniform oracle proof)",
+  "note": null
+}

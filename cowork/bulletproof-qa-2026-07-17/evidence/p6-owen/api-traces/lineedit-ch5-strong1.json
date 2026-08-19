@@ -1,0 +1,66 @@
+{
+ "content-before": {
+  "status": 200,
+  "wordCount": 395,
+  "version": 4,
+  "sha_len": 2011
+ },
+ "findings-before-count": 5,
+ "start": {
+  "status": 200,
+  "elapsed": 1.76,
+  "body": {
+   "sessionId": "e347c78f-7a3d-477b-af7b-b5500f89b35a",
+   "queued": true,
+   "jobId": "e347c78f-7a3d-477b-af7b-b5500f89b35a"
+  }
+ },
+ "stream": {
+  "n_events": 199,
+  "elapsed": 160.275,
+  "final": {
+   "type": "complete",
+   "content": "Session completed successfully",
+   "metadata": {
+    "findingsCreated": 2,
+    "statusAdvanced": false,
+    "suggestedNext": [
+     "beta-read"
+    ],
+    "tokensInput": 209796,
+    "tokensOutput": 5937,
+    "costUsd": 3.5922149999999995,
+    "endReason": "natural"
+   }
+  },
+  "sessionId": "e347c78f-7a3d-477b-af7b-b5500f89b35a"
+ },
+ "d33-d34-scan": {
+  "REJECTED_count": 0,
+  "raw_typeerror_count": 0,
+  "error_executing_count": 0,
+  "suppressed_count": 0
+ },
+ "misquote-probe": {
+  "new_findings": 2,
+  "misquotes": 0,
+  "detail": [
+   {
+    "id": "4591a969-3956-4905-a9da-c626e90cb67b",
+    "category": "prose",
+    "severity": "important",
+    "chapterNumber": 5,
+    "originalText_verbatim": true,
+    "anchorQuote_verbatim": true
+   },
+   {
+    "id": "7a68493d-64a4-4434-8e24-3072f7826bf0",
+    "category": "prose",
+    "severity": "critical",
+    "chapterNumber": 5,
+    "originalText_verbatim": true,
+    "anchorQuote_verbatim": true
+   }
+  ]
+ }
+}

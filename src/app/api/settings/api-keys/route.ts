@@ -4,15 +4,23 @@ import { db } from "@/lib/db";
 import { encryptApiKey, decryptApiKey, maskApiKey } from "@/lib/encryption";
 import { createApiKeySchema } from "@/lib/validation";
 import { validateApiKey } from "@/lib/llm/key-validator";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { zodErrorResponse } from "@/lib/api/zod-error";
+import { aggregateUsageByProvider } from "@/lib/llm/usage-aggregation";
 
 /**
  * GET /api/settings/api-keys
  * Returns all API keys for the authenticated user with per-provider usage stats.
  */
 export async function GET() {
+  let user;
   try {
-    const user = await requireUser();
+    user = await requireUser();
+  } catch {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
+  try {
     const keys = await db.apiKey.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: "desc" },
@@ -27,34 +35,30 @@ export async function GET() {
       },
     });
 
-    // Gather per-provider usage stats in parallel
-    const providers = [...new Set(keys.map((k) => k.provider))];
-    const usageByProvider = new Map<
-      string,
-      { totalTokens: number; totalCost: number; sessionCount: number }
-    >();
+    // Roll up usage per provider. UsageRecord.model holds the registry ID
+    // (e.g. "openrouter-qwen36/sonnet"), so we group by model and attribute
+    // each id to its provider via the registry — D-44: the previous
+    // `model.startsWith(`${provider}/`)` match missed every "openrouter-*"
+    // sub-variant and reported $0 against real spend.
+    const usageGroups = await db.usageRecord.groupBy({
+      by: ["model"],
+      where: { userId: user.id },
+      _sum: {
+        tokensInput: true,
+        tokensOutput: true,
+        costEstimate: true,
+      },
+      _count: { _all: true },
+    });
 
-    await Promise.all(
-      providers.map(async (provider) => {
-        const agg = await db.usageRecord.aggregate({
-          where: {
-            userId: user.id,
-            model: { startsWith: `${provider}/` },
-          },
-          _sum: {
-            tokensInput: true,
-            tokensOutput: true,
-            costEstimate: true,
-          },
-          _count: { id: true },
-        });
-
-        usageByProvider.set(provider, {
-          totalTokens: (agg._sum.tokensInput ?? 0) + (agg._sum.tokensOutput ?? 0),
-          totalCost: agg._sum.costEstimate ?? 0,
-          sessionCount: agg._count.id,
-        });
-      })
+    const usageByProvider = aggregateUsageByProvider(
+      usageGroups.map((g) => ({
+        model: g.model,
+        tokensInput: g._sum.tokensInput ?? 0,
+        tokensOutput: g._sum.tokensOutput ?? 0,
+        costEstimate: g._sum.costEstimate ?? 0,
+        sessionCount: g._count._all,
+      }))
     );
 
     // Decrypt + mask keys and attach usage stats
@@ -74,8 +78,12 @@ export async function GET() {
     }));
 
     return NextResponse.json(result);
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  } catch (error) {
+    console.error("GET /api/settings/api-keys error:", error);
+    return NextResponse.json(
+      { error: "Failed to load API keys" },
+      { status: 500 }
+    );
   }
 }
 
@@ -87,13 +95,13 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const user = await requireUser();
-    const body = await req.json();
+    const body = await parseJsonBody(req);
 
     const parsed = createApiKeySchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Invalid input", details: parsed.error.flatten() },
-        { status: 400 }
+      return (
+        zodErrorResponse(parsed.error) ??
+        NextResponse.json({ error: "Invalid input" }, { status: 400 })
       );
     }
 
@@ -114,10 +122,15 @@ export async function POST(req: NextRequest) {
     const encrypted = encryptApiKey(key);
     const now = new Date();
 
-    // Count existing keys to determine if this should be the default
-    const existingKeyCount = await db.apiKey.count({
+    // One query answers both facts we need: whether ANY key exists (→ first key
+    // becomes the default) and whether THIS provider's key already exists (→ the
+    // upsert is an update, not a create).
+    const existingKeys = await db.apiKey.findMany({
       where: { userId: user.id },
+      select: { provider: true },
     });
+    const isFirstKey = existingKeys.length === 0;
+    const keyAlreadyExists = existingKeys.some((k) => k.provider === provider);
 
     // Upsert: one key per provider per user
     const apiKey = await db.apiKey.upsert({
@@ -132,7 +145,7 @@ export async function POST(req: NextRequest) {
         provider,
         encryptedKey: encrypted,
         label: label || null,
-        isDefault: existingKeyCount === 0, // first key is default
+        isDefault: isFirstKey, // first key is default
         validatedAt: now,
       },
       update: {
@@ -142,6 +155,9 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // D-59: answer honestly — 201 Created only when a new row was inserted,
+    // 200 OK when an existing provider key was updated. Reporting 201 for a
+    // pre-existing key misrepresents an idempotent update as a creation.
     return NextResponse.json(
       {
         id: apiKey.id,
@@ -152,9 +168,18 @@ export async function POST(req: NextRequest) {
         maskedKey: maskApiKey(key),
         usage: null,
       },
-      { status: 201 }
+      { status: keyAlreadyExists ? 200 : 201 }
     );
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
+    if ((error as Error).message === "Unauthorized") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    console.error("POST /api/settings/api-keys error:", error);
+    return NextResponse.json(
+      { error: "Failed to save API key" },
+      { status: 500 }
+    );
   }
 }

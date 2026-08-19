@@ -1,0 +1,12 @@
+=== Malformed JSON body trace (Edge case 3, known defect D-01) ===
+PUT /api/books/636a1f02-8520-4b66-8e78-08c8e0fee5f0/chapters/57dd49fe-c216-4775-b2bb-b9f31687b1aa/content
+  Headers: Content-Type: application/json (as normal)
+  Raw body (deliberately malformed): {not valid json!!
+  -> status=500
+  Response body: {"error":"Failed to save content"}
+
+Verdict: RECORDED, NOT FIXED (per phase A scope: src/ is read-only, D-01 is a known pre-existing
+defect). Expected/ideal behavior: a clean 400 Bad Request (JSON parse failure is a client input
+error). Actual: 500 Internal Server Error, i.e. the JSON.parse() exception is not caught before it
+reaches the generic error handler. Low severity (no data loss - the malformed PUT never reaches
+the DB write), but is an input-validation gap at the API boundary.

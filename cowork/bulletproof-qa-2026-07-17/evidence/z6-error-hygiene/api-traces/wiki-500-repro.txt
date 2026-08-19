@@ -1,0 +1,55 @@
+D-15 repro trace (renumbered from D-13, which collided with P1 Maya's team-lead-assigned D-13) —
+POST/PATCH/GET /api/books/{id}/wiki[...] raw 500 on malformed input
+Persona: user_qa_p2. Book: f33d90ee-0966-4ebc-803d-26897368a8c7 ("Embed Test").
+====================================================================
+
+[WIKI-01] POST /api/books/f33d90ee-0966-4ebc-803d-26897368a8c7/wiki
+body: {}
+--> status 500
+--> body: "" (empty — no envelope, no {error} field, no diagnostic of any kind)
+
+[WIKI-02] POST /api/books/f33d90ee-0966-4ebc-803d-26897368a8c7/wiki
+body: {"type":"not-a-real-entity-type","name":"x"}
+--> status 500
+--> body: "" (empty)
+
+[XCUT-03] POST /api/books/f33d90ee-0966-4ebc-803d-26897368a8c7/wiki
+body: {"type":"character","name":null}
+--> status 500
+--> body: "" (empty)
+
+--------------------------------------------------------------------
+Follow-up: query-param path (GET) also unguarded
+--------------------------------------------------------------------
+
+[follow-up] GET /api/books/f33d90ee-0966-4ebc-803d-26897368a8c7/wiki?type=not-a-real-type
+--> status 500
+--> body: "" (empty)
+
+--------------------------------------------------------------------
+Follow-up: crash reproduces against a REAL owned row, not just the
+"book not found" pre-check path
+--------------------------------------------------------------------
+
+[WIKI-create-valid] POST /api/books/f33d90ee-0966-4ebc-803d-26897368a8c7/wiki
+body: {"type":"character","name":"Z6 Probe Throwaway"}
+--> status 201
+--> body: {"id":"4978faba-26a8-4750-bf7c-7326764c0a5a","bookId":"f33d90ee-0966-4ebc-803d-26897368a8c7","type":"character","name":"Z6 Probe Throwaway","aliases":[],"description":"","attributes":{},"mentions":[],"sourceType":"manual","createdAt":"2026-07-18T01:10:35.645Z","updatedAt":"2026-07-18T01:10:35.645Z"}
+
+[WIKI-PATCH-crash-check] PATCH /api/books/f33d90ee-0966-4ebc-803d-26897368a8c7/wiki/4978faba-26a8-4750-bf7c-7326764c0a5a
+body: {"type":"not-a-real-entity-type"}
+--> status 500
+--> body: "" (empty)
+
+[WIKI-cleanup-delete] DELETE /api/books/f33d90ee-0966-4ebc-803d-26897368a8c7/wiki/4978faba-26a8-4750-bf7c-7326764c0a5a
+--> status 200
+--> body: {"ok":true}
+(throwaway row cleaned up — DELETE path is unaffected, it does not call .parse() on user input)
+
+====================================================================
+Root cause: src/app/api/books/[id]/wiki/route.ts POST (wikiEntitySchema.parse,
+line 69) and GET (wikiQuerySchema.parse, line 23) have no surrounding try/catch;
+src/app/api/books/[id]/wiki/[entityId]/route.ts PATCH (wikiEntityUpdateSchema.parse,
+line 47) likewise. Only the raw JSON.parse step is guarded (D-01 pattern); the
+Zod validation step itself is not. Uncaught throw -> Next.js framework-level
+500 handler -> empty body, no application envelope.

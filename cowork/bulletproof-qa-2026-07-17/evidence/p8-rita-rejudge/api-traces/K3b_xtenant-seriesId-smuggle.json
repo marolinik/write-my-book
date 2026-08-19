@@ -1,0 +1,28 @@
+{
+  "id": "K3b",
+  "label": "xtenant-seriesId-smuggle",
+  "actor": "p3",
+  "capturedAt": "2026-07-20T11:31:44.689Z",
+  "request": {
+    "method": "POST",
+    "url": "http://127.0.0.1:3002/api/books",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p3",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "name": "RJ Smuggle 1784547050860",
+      "seriesId": "1c210198-e604-4d6f-8b7e-24547dd96f62"
+    },
+    "bodyMode": "json"
+  },
+  "response": {
+    "status": 404,
+    "contentType": "application/json",
+    "bodyLength": 28,
+    "bodyText": "{\"error\":\"Series not found\"}"
+  },
+  "expected": "404 Series not found (cannot attach book to another user's series)",
+  "note": null
+}

@@ -1,0 +1,111 @@
+{
+  "summary": "Focused Fable verify of the D-83 interactive-gate on authoritative graph edits (coverage/leak + gate/drift)",
+  "agentCount": 2,
+  "logs": [],
+  "result": [
+    {
+      "lens": "COVERAGE + LEAK — exhaustive enumeration of orchestrator construction sites, enqueue/worker entries, and authoritative upsertEntities callers",
+      "verdict": "APPROVE_WITH_NOTES",
+      "blocking": false,
+      "gate": "D-83 fast-follow: authoritative graph writes gated to interactive sessions",
+      "summary": "No LEAK and no GAP. All 6 AgentOrchestrator construction sites enumerated: the 3 user-facing routes (books inline-SSE branch route.ts:485, message route :177, series route :207) set interactive:true; the BullMQ worker (agent-worker.ts:485, servicing both background jobs and batch-flow children) passes nothing and gets the safe constructor default false (orchestrator.ts:152); DelegateToSpecialist inherits strictly via ctx.interactive === true (tools.ts:1981), so a batch coach's specialist stays false. The books route's background-enqueue branch builds AgentJobData, which has no interactive field at all — the queue channel is structurally incapable of carrying interactive:true to the worker. ToolContext is constructed only inside runAgent/continueConversation, both threading this.interactive. tools.ts:1567 is the sole authoritative caller of upsertEntities (graph-builder default false; graph-maintenance callers pass no flag; no graph CRUD routes exist). UpdateGraphEntity is not approval-gated, so no background user-approval half-state exists. New tests pin all three gate states and pass 4/4 against the working tree. Two non-blocking residual-window notes below.",
+      "findings": [
+        {
+          "severity": "note",
+          "claim": "Interactive really means user-INITIATED, not user-ATTENDED: an inline/series session keeps interactive:true after the user disconnects",
+          "detail": "Both the books inline-SSE branch and the series route fire-and-forget runAgent (books route.ts:650, series route.ts:303) with interactive:true; if the user closes the tab mid-session, the session runs to its serverCeilingMs with authoritative UpdateGraphEntity still enabled (series ceiling can be estimatedMaxMinutes+30, e.g. 60 min). This is materially different from the D-83 threat (overnight autonomous batch coach) — the session was user-initiated seconds earlier with a specific instruction, and only in-memory-Promise approvals require presence — but the stated invariant 'a real user is present and streaming' is not enforced beyond initiation. Acceptable residual per the D-83 threat model; flag if the invariant is ever cited as attendance-enforcing."
+        },
+        {
+          "severity": "note",
+          "claim": "Long-running user corrections silently fall to non-authoritative in the background branch — intended policy, worth documenting",
+          "detail": "A user-initiated long-running non-conversational workflow (>5 min, books route.ts:398-401) is enqueued and runs with interactive=false, so any UpdateGraphEntity it performs is non-authoritative. This is the intended D-83 policy (deliberate corrections flow through conversational/inline sessions, which are all interactive), and no user watches the background result live, so the D-80 'watched no-op lie' cannot bite; but a background session transcript could still report 'N updated' for a swallowed sticky-dead write. Non-blocking: the per-scan extraction re-capture plus the interactive correction path cover the genuine-correction case."
+        },
+        {
+          "severity": "note",
+          "claim": "Message-route orchestrator omits delegationContext, so continued conversational turns cannot spawn specialists (pre-existing)",
+          "detail": "src/app/api/books/[id]/agent/[sessionId]/message/route.ts:171-178 constructs the orchestrator without delegationContext; executeDelegateToSpecialist returns an error string in that context (tools.ts:1937-1940). Pre-existing behavior untouched by D-83 — noted only because it means the specialist-inheritance path (tools.ts:1981) is exercised solely from the initial runAgent turn of the inline coach and from the batch worker coach, both verified correct."
+        }
+      ]
+    },
+    {
+      "blocking": false,
+      "findings": [
+        {
+          "severity": "note",
+          "claim": "RED discipline is 2/3, not 3/3: the new 'interactive -> authoritative' test passes on pre-D-83 code (which hardcoded true)",
+          "detail": "Of the +3 tests in tests/unit/updategraphentity-authoritative.test.ts, the two non-interactive cases (interactive absent, interactive:false -> expect authoritative false) genuinely FAIL against the pre-fix hardcoded upsertEntities(extractionResult, true) and are not tautological (they assert on the real second argument captured by the graph-builder mock through the full executeTool dispatch). The third test pins D-80 preservation (interactive ctx -> authoritative true) and would also pass pre-fix. This is the correct test structure for a gate + preservation change; only the executor's 'RED-first +3' phrasing slightly overstates it."
+        },
+        {
+          "severity": "note",
+          "claim": "Batch honesty residual: a non-authoritative batch UpdateGraphEntity still reports 'N updated' to the autonomous agent even when the sticky-dead/preserve-first guards swallow the change",
+          "detail": "In unattended sessions the tool now correctly runs guarded (authoritative=false), but its result string (tools.ts:1568) reports upsertEntities stats, and the rewritten tool description does not tell a batch specialist its edit is non-authoritative. The specialist may believe a swallowed correction landed. No live user sees it (the D-83 rationale), but batch session transcripts persist. This is the pre-existing D-80 stats semantics now deliberately scoped to unattended sessions — an accepted trade-off, not a regression; a future polish could make the batch-mode result string say the edit was applied non-authoritatively."
+        },
+        {
+          "severity": "note",
+          "claim": "Handoff path discrepancy: worker is src/lib/queue/agent-worker.ts, not src/lib/agents/agent-worker.ts as stated",
+          "detail": "The actual BullMQ worker constructing the batch orchestrator is src/lib/queue/agent-worker.ts (new AgentOrchestrator at line 485, no interactive option, Redis approvalResolver — matching the stated interactive-vs-batch tell). Documentation-only imprecision in the executor handoff; the code itself is correct."
+        },
+        {
+          "severity": "note",
+          "claim": "Verified: no unattended path can reach authoritative=true, and no interactive correction is lost",
+          "detail": "interactive:true is set ONLY at three user-present entry points: books agent route inline-SSE branch (src/app/api/books/[id]/agent/route.ts:485 — the background branch returns queued at lines 433-437 BEFORE any orchestrator construction, and isLongRunning requires !workflow.conversational so conversational sessions never go to the worker), the authed message route (message/route.ts:177), and the series route (series/[id]/agent/route.ts:207, which has no enqueue/background path). Every hop defaults false: OrchestratorOptions.interactive ?? false (orchestrator.ts:152), ToolContext.interactive optional and consumed strictly via === true (tools.ts:1566, 1981), worker passes nothing. Both toolCtx builders (runAgent orchestrator.ts:214, continueConversation :328) feed the shared runToolLoop used by both executeTool sites (:735, :872); executeTool passes ctx unchanged; DelegateToSpecialist inherits ctx.interactive === true so nested specialists recurse correctly. UpdateGraphEntity is not approval-gated (only RequestApproval returns APPROVAL_SENTINEL), so no user-approved batch graph edit exists to be silently downgraded. Frozen subsystems untouched: no src/lib/graph/**, src/lib/continuity/**, src/lib/vector/** in the diff (nothing staged, no stashes); graph-builder.ts upsertEntities keeps authoritative: boolean = false; graph-maintenance.ts:295 and :452 still call upsertEntities(result) with no 2nd arg."
+        }
+      ],
+      "gate": "tsc --noEmit: 0 errors (exit 0). vitest run: 124/124 files passed, 938/938 tests passed, 0 failed (exit 0) — exact match to executor claim (+3 over 935 baseline, all in tests/unit/updategraphentity-authoritative.test.ts).",
+      "lens": "GATE + DRIFT + RED (D-83 interactive-gate on authoritative graph writes)",
+      "summary": "D-83 lands correctly: authoritative UpdateGraphEntity writes are now provably reachable only from the three user-present routes (inline-SSE book agent, message continuation, series agent), with a safe false default at every hop (OrchestratorOptions ?? false, strict ctx.interactive === true at both consumers, BullMQ worker passes nothing) and correct inheritance through DelegateToSpecialist including nested delegation. Independently reproduced gates: tsc 0, vitest 938/938 across 124 files. RED holds substantively (the two non-interactive tests fail on pre-fix hardcoded-true code and assert real mock call arguments); the D-80 interactive correction still lands (preserved by the updated D-80 test plus the new interactive test, with the behavioral monotonic suite untouched). No drift into frozen graph/continuity/vector subsystems; graph-maintenance callers remain default-false. Neither blocking condition of the rule is met: no interactive correction silently no-ops, and no unattended path can authoritatively write. Notes only: 1-of-3 new tests is a preservation pin rather than RED, the batch-mode result string still reports upsert stats to the autonomous agent (accepted pre-existing semantics), and the handoff misnamed the worker path (queue/ not agents/).",
+      "verdict": "APPROVE_WITH_NOTES"
+    }
+  ],
+  "workflowProgress": [
+    {
+      "type": "workflow_phase",
+      "index": 1,
+      "title": "Verify"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 1,
+      "label": "verify:coverage-leak",
+      "phaseIndex": 1,
+      "phaseTitle": "Verify",
+      "agentId": "abfcfff79d0967877",
+      "model": "claude-fable-5",
+      "state": "done",
+      "startedAt": 1784482717921,
+      "queuedAt": 1784482713499,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "COVERAGE + LEAK — exhaustive enumeration of orchestrator co…",
+      "promptPreview": "Repo D:\\\\Projects\\\\wmb-pub, branch qa/bulletproof-2026-07-17, HEAD aaa4f04. Environment: Windows PowerShell 5.1 (Bash broken). Change under review is UNCOMMITTED in the working tree.\n\nWHAT LANDED (D-83 fast-follow guard): the agent tool UpdateGraphEntity became an AUTHORITATIVE graph write in the prior fix (D-80) — it bypasses the sticky-dead/preserve-first continuity protections so deliberate cor…",
+      "lastProgressAt": 1784483049445,
+      "tokens": 83705,
+      "toolCalls": 27,
+      "durationMs": 331524,
+      "resultPreview": "{\"lens\":\"COVERAGE + LEAK — exhaustive enumeration of orchestrator construction sites, enqueue/worker entries, and authoritative upsertEntities callers\",\"verdict\":\"APPROVE_WITH_NOTES\",\"blocking\":false,\"gate\":\"D-83 fast-follow: authoritative graph writes gated to interactive sessions\",\"summary\":\"No LEAK and no GAP. All 6 AgentOrchestrator construction sites enumerated: the 3 user-facing routes (book…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 2,
+      "label": "verify:gate-drift",
+      "phaseIndex": 1,
+      "phaseTitle": "Verify",
+      "agentId": "ac31a5bcf320e3919",
+      "model": "claude-fable-5",
+      "state": "done",
+      "startedAt": 1784482716805,
+      "queuedAt": 1784482713499,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "tsc --noEmit: 0 errors (exit 0). vitest run: 124/124 files …",
+      "promptPreview": "Repo D:\\\\Projects\\\\wmb-pub, branch qa/bulletproof-2026-07-17, HEAD aaa4f04. Environment: Windows PowerShell 5.1 (Bash broken). Change under review is UNCOMMITTED in the working tree.\n\nWHAT LANDED (D-83 fast-follow guard): the agent tool UpdateGraphEntity became an AUTHORITATIVE graph write in the prior fix (D-80) — it bypasses the sticky-dead/preserve-first continuity protections so deliberate cor…",
+      "lastProgressAt": 1784483037448,
+      "tokens": 80872,
+      "toolCalls": 21,
+      "durationMs": 320643,
+      "resultPreview": "{\"blocking\":false,\"findings\":[{\"severity\":\"note\",\"claim\":\"RED discipline is 2/3, not 3/3: the new 'interactive -> authoritative' test passes on pre-D-83 code (which hardcoded true)\",\"detail\":\"Of the +3 tests in tests/unit/updategraphentity-authoritative.test.ts, the two non-interactive cases (interactive absent, interactive:false -> expect authoritative false) genuinely FAIL against the pre-fix ha…"
+    }
+  ],
+  "totalTokens": 164577,
+  "totalToolCalls": 48
+}

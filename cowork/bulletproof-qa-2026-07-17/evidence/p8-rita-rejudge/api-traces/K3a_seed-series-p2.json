@@ -1,0 +1,27 @@
+{
+  "id": "K3a",
+  "label": "seed-series-p2",
+  "actor": "p2",
+  "capturedAt": "2026-07-20T11:31:44.534Z",
+  "request": {
+    "method": "POST",
+    "url": "http://127.0.0.1:3002/api/series",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p2",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "title": "RJ P2 Series 1784547050860"
+    },
+    "bodyMode": "json"
+  },
+  "response": {
+    "status": 201,
+    "contentType": "application/json",
+    "bodyLength": 296,
+    "bodyText": "{\"id\":\"1c210198-e604-4d6f-8b7e-24547dd96f62\",\"userId\":\"e43ea68d-def6-4019-91fc-f85b8db2a4bf\",\"title\":\"RJ P2 Series 1784547050860\",\"genre\":null,\"language\":\"en\",\"seriesType\":\"TRILOGY\",\"plannedBooks\":3,\"description\":null,\"createdAt\":\"2026-07-20T11:31:44.500Z\",\"updatedAt\":\"2026-07-20T11:31:44.500Z\"}"
+  },
+  "expected": "201 (p2 professional seeds a series)",
+  "note": null
+}

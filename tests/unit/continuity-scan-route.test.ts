@@ -9,6 +9,7 @@ const h = vi.hoisted(() => ({
     continuityFlag: { findMany: vi.fn(), upsert: vi.fn(), deleteMany: vi.fn() },
   },
   updateFromChapter: vi.fn(),
+  getChapterExtractionFacts: vi.fn(),
   getExtractionKeysForUser: vi.fn(),
   runConsistencyChecks: vi.fn(),
   getChapterNodeUpdatedAt: vi.fn(),
@@ -18,7 +19,13 @@ const h = vi.hoisted(() => ({
 
 vi.mock("@/lib/auth", () => ({ requireUser: () => h.requireUser() }));
 vi.mock("@/lib/db", () => ({ db: h.db }));
-vi.mock("@/lib/graph/graph-maintenance", () => ({ updateFromChapter: h.updateFromChapter }));
+vi.mock("@/lib/graph/graph-maintenance", () => ({
+  updateFromChapter: h.updateFromChapter,
+  getChapterExtractionFacts: h.getChapterExtractionFacts,
+  MAX_EMPTY_EXTRACTION_ATTEMPTS: 5,
+  MAX_FAILED_EXTRACTION_ATTEMPTS: 5,
+  FAILED_BACKOFF_MS: 30 * 60 * 1000,
+}));
 vi.mock("@/lib/agents/extraction-keys", () => ({ getExtractionKeysForUser: h.getExtractionKeysForUser }));
 vi.mock("@/lib/graph/graph-queries", () => ({
   runConsistencyChecks: h.runConsistencyChecks,
@@ -53,6 +60,11 @@ beforeEach(() => {
   h.db.continuityFlag.upsert.mockResolvedValue({ id: "new1" });
   h.db.continuityFlag.deleteMany.mockResolvedValue({ count: 0 });
   h.updateFromChapter.mockResolvedValue({ updated: true, entitiesFound: 3 });
+  h.getChapterExtractionFacts.mockResolvedValue({
+    hasNode: true, contentHash: "abc", emptyExtractionCount: 0,
+    lastEmptyExtractionAt: null, failedExtractionCount: 0, lastFailedExtractionAt: null,
+    lastFailureReason: null, lowYield: false, updatedAt: new Date(),
+  });
   h.getExtractionKeysForUser.mockResolvedValue({});
   h.getChapterNodeUpdatedAt.mockResolvedValue(null);
   h.findByType.mockResolvedValue({ id: "doc1" });
@@ -81,8 +93,9 @@ describe("POST /continuity/scan", () => {
     const res = await POST(req("?chapterNumber=18") as never, ctx as never);
     const json = await res.json();
     expect(res.status).toBe(200);
-    // 4th arg threads the user's defaultModel so extraction honors their provider (C1/S9).
-    expect(h.updateFromChapter).toHaveBeenCalledWith("b1", 18, "Ana walked in.", "openrouter-qwen-max/opus", {});
+    // 4th arg threads the user's defaultModel so extraction honors their provider (C1/S9);
+    // 6th arg threads userId so every written node/edge is tenant-stamped (RC-6).
+    expect(h.updateFromChapter).toHaveBeenCalledWith("b1", 18, "Ana walked in.", "openrouter-qwen-max/opus", {}, "u1");
     const up = h.db.continuityFlag.upsert.mock.calls[0][0];
     expect(up.where.bookId_signature.bookId).toBe("b1");
     expect(up.create.type).toBe("dead_character_reappears");
@@ -90,13 +103,77 @@ describe("POST /continuity/scan", () => {
     expect(up.create.status).toBe("active");
     expect(json.flags).toHaveLength(1);
     expect(json.flags[0].id).toBe("new1");
+    // RC-4: the response now reports an honest extraction state. Here it just
+    // fired one, so the writer is told "extracting", not silently shown clean.
+    expect(json.extraction.state).toBe("extracting");
   });
 
   it("throttles extraction when the chapter was extracted recently", async () => {
     h.getChapterNodeUpdatedAt.mockResolvedValue(new Date(Date.now() - 10_000));
-    await POST(req("?chapterNumber=18") as never, ctx as never);
+    const res = await POST(req("?chapterNumber=18") as never, ctx as never);
+    const json = await res.json();
     expect(h.updateFromChapter).not.toHaveBeenCalled();
     expect(h.runConsistencyChecks).toHaveBeenCalled(); // check still runs
+    // Honest throttle indicator instead of a silent no-op.
+    expect(json.extraction.throttled).toBe(true);
+    expect(json.extraction.state).toBe("checked"); // facts have a contentHash
+    expect(typeof json.extraction.retryEligibleAt).toBe("number");
+  });
+
+  it("reports a FAILED extraction state (never a silent green) from the graph facts", async () => {
+    h.getChapterNodeUpdatedAt.mockResolvedValue(new Date(Date.now() - 10_000)); // throttled
+    h.getChapterExtractionFacts.mockResolvedValue({
+      hasNode: true, contentHash: null, emptyExtractionCount: 5,
+      lastEmptyExtractionAt: new Date(), failedExtractionCount: 0, lastFailedExtractionAt: null,
+      lastFailureReason: null, lowYield: false, updatedAt: new Date(),
+    });
+    h.runConsistencyChecks.mockResolvedValue([]); // no flags detected
+    const res = await POST(req("?chapterNumber=18") as never, ctx as never);
+    const json = await res.json();
+    expect(json.flags).toEqual([]);
+    // An empty flag list with a FAILED extraction must not read as "clean".
+    expect(json.extraction.state).toBe("failed");
+    expect(json.extraction.kind).toBe("empty"); // unparseable content → edit
+    expect(json.extraction.capped).toBe(true);
+  });
+
+  it("distinguishes a transient (provider) failure from an empty one, with a reason (D-73 E4)", async () => {
+    h.getChapterNodeUpdatedAt.mockResolvedValue(new Date(Date.now() - 10_000)); // throttled
+    h.getChapterExtractionFacts.mockResolvedValue({
+      hasNode: true, contentHash: null, emptyExtractionCount: 0,
+      lastEmptyExtractionAt: null, failedExtractionCount: 5,
+      lastFailedExtractionAt: new Date(), lastFailureReason: "provider 503",
+      lowYield: false, updatedAt: new Date(),
+    });
+    h.runConsistencyChecks.mockResolvedValue([]);
+    const res = await POST(req("?chapterNumber=18") as never, ctx as never);
+    const json = await res.json();
+    expect(json.extraction.state).toBe("failed");
+    expect(json.extraction.kind).toBe("failed"); // infra, not content → wait/retry
+    expect(json.extraction.reason).toBe("provider 503");
+    expect(json.extraction.capped).toBe(true);
+    expect(typeof json.extraction.retryEligibleAt).toBe("number"); // backoff self-heal time
+  });
+
+  it("reports PENDING when the chapter was never extracted", async () => {
+    h.getChapterNodeUpdatedAt.mockResolvedValue(new Date(Date.now() - 10_000)); // throttled, nothing to extract
+    h.getChapterExtractionFacts.mockResolvedValue({
+      hasNode: false, contentHash: null, emptyExtractionCount: 0,
+      lastEmptyExtractionAt: null, failedExtractionCount: 0, lastFailedExtractionAt: null,
+      lastFailureReason: null, lowYield: false, updatedAt: null,
+    });
+    h.runConsistencyChecks.mockResolvedValue([]);
+    const res = await POST(req("?chapterNumber=18") as never, ctx as never);
+    const json = await res.json();
+    expect(json.extraction.state).toBe("pending");
+  });
+
+  it("survives an unavailable extraction-status read (extraction:null, still 200)", async () => {
+    h.getChapterExtractionFacts.mockRejectedValue(new Error("neo4j down"));
+    const res = await POST(req("?chapterNumber=18") as never, ctx as never);
+    const json = await res.json();
+    expect(res.status).toBe(200);
+    expect(json.extraction).toBeNull();
   });
 
   it("still runs the check (200) when extraction throws", async () => {

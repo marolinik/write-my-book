@@ -1,0 +1,24 @@
+{
+  "id": "K1",
+  "label": "xtenant-series-get",
+  "actor": "p8",
+  "capturedAt": "2026-07-20T11:31:40.302Z",
+  "request": {
+    "method": "GET",
+    "url": "http://127.0.0.1:3002/api/series/0e11c5c1-e9ee-4736-a214-40dc1576c1b3",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p8"
+    },
+    "body": null,
+    "bodyMode": "none"
+  },
+  "response": {
+    "status": 404,
+    "contentType": "application/json",
+    "bodyLength": 28,
+    "bodyText": "{\"error\":\"Series not found\"}"
+  },
+  "expected": "404 (series ownership fence)",
+  "note": null
+}

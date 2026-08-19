@@ -1,0 +1,17 @@
+{
+  "turn": 2,
+  "request": {
+    "writerMessage": "That's fair. Suppose I keep the abstraction because it's her mind's move, but I'm willing to anchor it once so it doesn't read as the narrator's clinical language instead of hers. Can you give me a single grounding gesture - one physical beat right before the classification - that keeps the cold self-taxonomy intact but marks it clearly as Imogen doing the sorting, not me?"
+  },
+  "status": 200,
+  "error": null,
+  "body": {
+    "assistantMessage": "",
+    "revisedSuggestion": "She smoothed the wet sand with her palm until it lay perfectly flat, erasing every uneven trace, and thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance. She understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.",
+    "revisedReasoning": "The tactile impulse to flatten and erase mirrors her psychological ordering, marking the taxonomy as her defensive habit before her mind names it.",
+    "userTurns": 2,
+    "capped": false
+  },
+  "elapsed_ms": 46140,
+  "capturedAt": "2026-07-20T11:41:26.193Z"
+}

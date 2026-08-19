@@ -15,6 +15,11 @@ import {
 } from "lucide-react";
 import { useInlineEdit } from "@/hooks/use-inline-edit";
 import type { InlineEditSuggestion } from "@/lib/validation";
+import { useCoarsePointer } from "./use-coarse-pointer";
+import {
+  QUICK_ASSIST_DISCLOSURE,
+  QUICK_ASSIST_FALLBACK_MESSAGE,
+} from "./quick-assist-client-errors";
 
 // ── Preset AI action pills ─────────────────────────────────────
 
@@ -50,9 +55,15 @@ export function InlineEditPopup({
   const [suggestions, setSuggestions] = useState<InlineEditSuggestion[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [phase, setPhase] = useState<"instruction" | "loading" | "results">("instruction");
+  // D-129: server error copy (422 backstop, 429 cap, 5xx) must render, not
+  // vanish into a silent phase reset.
+  const [error, setError] = useState<string | null>(null);
   const popupRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const inlineEdit = useInlineEdit(bookId);
+  // D-132: the F2 badge advertises a hardware key that phones don't have — hide
+  // it on coarse-pointer devices (the overflow-menu path already covers touch).
+  const coarsePointer = useCoarsePointer();
 
   // Calculate popup position from editor selection
   useEffect(() => {
@@ -137,6 +148,7 @@ export function InlineEditPopup({
       }
 
       const finalInstruction = overrideInstruction ?? instruction.trim();
+      setError(null);
       setPhase("loading");
 
       try {
@@ -148,6 +160,9 @@ export function InlineEditPopup({
         });
 
         if (result.suggestions.length === 0) {
+          setError(
+            "No suggestions came back — try again, or rephrase the instruction."
+          );
           setPhase("instruction");
           return;
         }
@@ -155,7 +170,12 @@ export function InlineEditPopup({
         setSuggestions(result.suggestions);
         setActiveIndex(0);
         setPhase("results");
-      } catch {
+      } catch (err) {
+        setError(
+          err instanceof Error && err.message.trim().length > 0
+            ? err.message
+            : QUICK_ASSIST_FALLBACK_MESSAGE
+        );
         setPhase("instruction");
       }
     },
@@ -236,9 +256,11 @@ export function InlineEditPopup({
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="h-4 w-4 text-violet-500" />
             <span className="text-sm font-medium">AI Edit</span>
-            <Badge variant="secondary" className="text-xs ml-auto">
-              F2
-            </Badge>
+            {!coarsePointer && (
+              <Badge variant="secondary" className="text-xs ml-auto">
+                F2
+              </Badge>
+            )}
           </div>
 
           {/* Action pills */}
@@ -285,6 +307,18 @@ export function InlineEditPopup({
               </Button>
             </div>
           </form>
+
+          {error && (
+            <p
+              role="alert"
+              className="mt-2 text-xs text-red-600 dark:text-red-400"
+            >
+              {error}
+            </p>
+          )}
+          <p className="mt-2 text-[10px] text-muted-foreground">
+            {QUICK_ASSIST_DISCLOSURE}
+          </p>
         </div>
       )}
 

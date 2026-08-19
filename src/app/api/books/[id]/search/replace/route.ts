@@ -6,6 +6,7 @@ import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
 import { replaceInText } from "@/lib/search/find-replace";
 import { countWords } from "@/lib/utils";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 export const dynamic = "force-dynamic";
 
@@ -30,12 +31,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const user = await requireUser();
     const { id: bookId } = await params;
 
-    const body = await request.json();
+    const body = await parseJsonBody(request);
     const parsed = replaceRequestSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
-    const { find, replace, chapterIds, caseSensitive } = parsed.data;
+    const { find, replace, chapterIds, caseSensitive, wholeWord } = parsed.data;
 
     const book = await db.book.findFirst({
       where: { id: bookId, userId: user.id },
@@ -71,7 +72,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         content,
         find,
         replace,
-        caseSensitive
+        caseSensitive,
+        // D-189: whole-word matching, so a book-wide character rename can no
+        // longer rewrite `same`/`sample`/`samovar` and report it as success.
+        wholeWord
       );
       if (count === 0) continue;
 
@@ -109,6 +113,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ replaced, totalReplacements });
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

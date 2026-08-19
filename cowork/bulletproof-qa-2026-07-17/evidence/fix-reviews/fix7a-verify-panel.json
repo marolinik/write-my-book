@@ -1,0 +1,181 @@
+{
+  "summary": "Fable adversarial verify of fix 7 sub-fix (a) Event-name canonicalization before MERGE (false-merge, injection/drift, gate/RED)",
+  "agentCount": 3,
+  "logs": [],
+  "result": [
+    {
+      "lens": "false-merge + fold mechanism (canonical-resolution lookup, cross-tenant scoping, fold redirect correctness)",
+      "verdict": "APPROVE_WITH_NOTES",
+      "blocking": false,
+      "gate": "tsc --noEmit exit 0; targeted vitest 59/59 green (graph-event-name-canonicalization 23, graph-cross-book-isolation 5, graph-entity-property-monotonic 18, updategraphentity-authoritative 4, graph-rel-type-sanitization 9). Working tree not mutated.",
+      "summary": "The fold mechanism cannot produce a false merge of genuinely distinct Events: the lookup only matches via canonicalName equality (both sides derived from the same pure article/NFC/whitespace-only transform — no lowercase/stem/possessive path exists to cross distinct canonicals) or via literal name-candidates that are all article-variants of the incoming canonical, and article-only difference is the spec-accepted same-event class; a 'legitimately different Turn' cannot exist as a separate node because the raw {bookId,name} MERGE key already makes names unique per book. The lookup is scoped {bookId: $bookId} with the authoritative D-30-guarded bookId and the label hard-gated to literal \"Event\" (escaped), so cross-book/cross-tenant folds are unreachable, matching the pre-existing alias-rename lookup's scoping. Fold redirect is correct: mergeName replaces the raw name in the SINGLE MERGE (no second raw-name MERGE, so no orphan duplicate), the incoming spelling joins the D-27 NOT-IN alias union, exact-name matches short-circuit (no self-alias churn), and same-batch convergence to ONE node holds via session read-your-writes. Character/Object are never canonical-folded; sticky-dead, preserve-first, authoritative (D-80), RC-2 coalesce, RC-6, D-30, D-63 all verified intact; injection boundary unchanged (only escapeLabelForQuery interpolated, all values params). Executor gate claims independently re-verified (tsc 0, targeted suites 59/59). Findings are all FN-biased (missed edges/wrong derived stamp), never FP-biased — none is a false merge, cross-tenant fold, or injection regression, so none blocks.",
+      "findings": [
+        {
+          "severity": "medium",
+          "claim": "Fold redirects the Event NODE write but not same-batch RELATIONSHIP endpoints, so edges naming the folded-away spelling are now silently dropped",
+          "detail": "upsertRelationship (src/lib/graph/graph-builder.ts:531-532) MATCHes endpoints by literal {name: $fromName/$toName, bookId} with no canonical/alias resolution. Pass 1 folds Event \"The Wedding\" onto stored node \"Wedding\" (no node named \"The Wedding\" is created); pass 2's rel {from: \"The Wedding\"} then MATCHes nothing and returns false with no log (only exceptions log). Pre-fix, the variant spelling created its own forked node so the edge at least landed. Net: LEADS_TO edges expressed in the variant spelling — the very edges RC-3 wants timeline-constructible — are lost whenever the extractor mixes spellings between the entity list and the relationship list in one batch (the exact stochastic behavior that motivated this fix). FN-biased (missed timeline flags), no new FP, no false merge — non-blocking per the campaign rule, but it partially undermines the fix's goal at the edge level. Follow-up: resolve Event relationship endpoints through the same canonical/alias lookup (Event-only) before the endpoint MATCH."
+        },
+        {
+          "severity": "low",
+          "claim": "Legacy self-heal can stamp a WRONG canonicalName when the incoming name is a double-article variant; the code comment asserting correctness is false for that path",
+          "detail": "Incoming \"The The Wedding\" canonicalizes to \"The Wedding\"; the name-candidate list matches legacy node \"The Wedding\" (no stored canonicalName), and ON MATCH coalesce (graph-builder.ts:359-361) stamps canonicalName=\"The Wedding\" onto it — but that node's true canonical is \"Wedding\". The comment at line 355-357 (\"the incoming canonical always equals the matched node's canonical\") does not hold when the match came via the bare-canonical candidate and the canonical itself starts with an article. Contained: future variants still bridge via literal name-candidates, and any fold enabled by the wrong stamp stays inside the article-variant class (no distinct-event merge reachable). Wart, not a hazard."
+        },
+        {
+          "severity": "low",
+          "claim": "With pre-existing forks, an EXACT-name re-scan is redirected to the earliest fork, bypassing its own node and widening entity/edge split-brain",
+          "detail": "If legacy forks \"The Wedding\" (firstAppearance ch2) and \"Wedding\" (ch5) both exist, incoming exact \"Wedding\" matches the lookup's ORDER BY firstAppearance LIMIT 1 → existingName=\"The Wedding\" !== \"Wedding\" → folds; the exact-name node \"Wedding\" is bypassed (its lastMentioned/props freeze) while same-batch edges naming \"Wedding\" still attach to the bypassed node (per the medium finding). Both nodes are the same real event (they only coexist because they share the canonical), so this is NOT a distinct-entity false merge, and handoff residual #3 discloses convergence-to-earliest with no migration — but the interplay with literal-name relationship matching splits facts across the two forks going forward."
+        },
+        {
+          "severity": "note",
+          "claim": "Lookup-then-MERGE is not atomic across concurrent sessions; parallel extractions can still fork article variants",
+          "detail": "Two simultaneous withSession WRITE batches each see no canonical match and MERGE \"The Wedding\" and \"Wedding\" as separate nodes. Same non-atomic check-then-write class as the pre-existing alias-rename lookup; within-batch determinism (the fix's stated target) is unaffected. Once forked, the pair is never auto-merged (residual #3)."
+        },
+        {
+          "severity": "note",
+          "claim": "Attack probes that failed (verified safe): distinct-event collapse, candidate over-match, cross-tenant fold, orphan duplicate, self-alias churn, injection",
+          "detail": "(1) \"The Turn\" vs a legitimately different \"Turn\" cannot falsely merge — a second node named \"Turn\" cannot exist per book (raw MERGE key), and article-only difference is spec-accepted same-event (test a6''). (2) The bare-canonical candidate folding onto a node literally named \"Wedding\" is by construction the article-variant class, never an unrelated event; distinct canonicals (\"Red Vow\"/\"Blood Vow\") never cross. (3) Lookup scoped {bookId} + literal escaped \"Event\" label; bookId D-30-guarded non-empty — cross-book/tenant unreachable; userId stamp-only matches baseline. (4) Single MERGE with mergeName substituted (line 440) — no second raw-name MERGE, no orphan. (5) existingName===name guard + NOT-IN union → idempotent re-scans (a4). (6) Only escapeLabelForQuery interpolated; canonicalName/nameCandidates are params (a9). Character/Object never folded or stamped (a10/a10'/a11); sticky-dead/preserve-first/authoritative/RC-2/D-27/RC-6/D-30/D-63 all intact; gates independently re-run: tsc 0, targeted vitest 59/59."
+        }
+      ]
+    },
+    {
+      "lens": "INJECTION + DRIFT + REGRESSION (fix 7a — Event-name canonicalization before MERGE)",
+      "verdict": "REJECT",
+      "blocking": true,
+      "gate": "fix-7a",
+      "summary": "Injection boundary is clean (new lookup: label via escapeLabelForQuery, every value — $canonicalName/$nameCandidates/$name=mergeName — rides as a Cypher param; D-63 sanitizeRelationshipType and all existing interpolations byte-intact), drift check is clean (sticky-dead CASE, role/description preserve-first, authoritative/D-80 branches, RC-2 coalesces, D-27 union, RC-6 userId, D-30 guards all unmodified per diff), and the canonical fold is strictly `label === \"Event\"`-gated (non-Event path is reference-identical; no Character/deathChapter/D-79 anchor moves; cross-tenant fold impossible — the lookup binds $bookId exactly like the raw MERGE key). Gates corroborated: tsc exit 0, new test file 23/23. HOWEVER: one blocking finding. The change introduces a NEW identity-load-bearing property, `canonicalName`, but does NOT strip it from the LLM-controlled `properties` spread into allProps/$updateProps — unlike EVERY other stable key the file protects with an explicit delete (chapter/occursInChapter/deathChapter/aliases/userId/status/role/description). The code comment \"Kept out of the `+= $updateProps` map\" (graph-builder.ts:355) is false for an LLM-supplied `properties.canonicalName`: extraction properties pass through unfiltered (entity-extractor.ts:438-441) and the UpdateGraphEntity tool schema is an open object passed straight through (tools.ts:605-608, 1540). On ON MATCH, `SET n += $updateProps, ..., n.canonicalName = coalesce(n.canonicalName, $canonicalName)` lets the injected value overwrite the stored canonical key (Neo4j docs do not specify intra-clause SET ordering; under the commonly-observed sequential application the poison sticks permanently because the coalesce never repairs a non-null). A poisoned canonicalName then deterministically FALSE-MERGES a genuinely distinct Event on its next scan via the new lookup's `n.canonicalName = $canonicalName` branch — the defined blocking D8-FP category, and exactly the trust-boundary class (D-30 properties.bookId, RC-6 properties.userId) this same code block already defends against two lines above. One-line fix: `delete allProps.canonicalName;` beside the existing deletes at graph-builder.ts:234-242. Everything else is APPROVE-quality.",
+      "findings": [
+        {
+          "severity": "high",
+          "claim": "LLM-controlled properties.canonicalName is not stripped from allProps, enabling canonical-key poisoning that deterministically false-merges two distinct Events (blocking D8-FP class)",
+          "detail": "D:\\Projects\\wmb-pub\\src\\lib\\graph\\graph-builder.ts:223-245 deletes chapter/occursInChapter/deathChapter/aliases/userId from allProps (and :279-281 pulls status/role/description) precisely so `ON MATCH SET n += $updateProps` cannot destructively overwrite stable keys — but the NEW stable key `canonicalName` is missing from that list. The comment at :355 ('Kept out of the += $updateProps map') is only true for the app-derived value; an incoming `properties.canonicalName` survives the spread at :224 into $updateProps (:443). Reachability: extractor properties are passed through with NO key filtering (D:\\Projects\\wmb-pub\\src\\lib\\graph\\entity-extractor.ts:438-441; the record_narrative_graph tool schema's `properties` is an unconstrained object, :198-201), and the UpdateGraphEntity agent tool schema is likewise open and passed through verbatim (D:\\Projects\\wmb-pub\\src\\lib\\agents\\tools.ts:605-608, :1540) — both are LLM surfaces exposed to untrusted manuscript prose (same threat model as D-63), and agents now SEE canonicalName on QueryGraph results, making round-trip echo realistic even without an adversary. Chain: (1) Event 'The Wedding' upserted with properties {canonicalName: 'Funeral'} → ON MATCH `n += $updateProps` writes it; the trailing `n.canonicalName = coalesce(n.canonicalName, $canonicalName)` (:360) repairs it ONLY under snapshot semantics, which the Neo4j Cypher manual explicitly does not guarantee (SET page documents no intra-clause ordering); under sequential left-to-right application (the commonly observed behavior) coalesce reads the just-written non-null poison and keeps it FOREVER (coalesce never repairs non-null). (2) Next genuine scan of the distinct event 'Funeral'/'The Funeral' → new lookup (:192-199) matches the poisoned node via `n.canonicalName = $canonicalName`, existingName !== name (:205) → fold (:206-207): two DISTINCT events false-merged into one node, variants cross-aliased. Per the campaign rule this is the blocking category ('re-caps D8 at 8.5'), and it is the identical caller-injected-properties trust gap this block already fixes for bookId (D-30, :219-221) and userId (RC-6, :238-245). Fix is one line: `delete allProps.canonicalName;` next to :237. (Note the ON CREATE path is safe — :358 overwrites createProps.canonicalName for Events after the spread; only ON MATCH via $updateProps is exposed. A correctness invariant resting on UNSPECIFIED Cypher SET ordering is a defect even in the best case.)"
+        },
+        {
+          "severity": "medium",
+          "claim": "Relationships addressed by the folded (variant) spelling are silently dropped — upsertRelationship has no canonical/alias endpoint resolution, undermining the fix's own timeline_violation goal",
+          "detail": "D:\\Projects\\wmb-pub\\src\\lib\\graph\\graph-builder.ts:531-532 MATCHes relationship endpoints by RAW `{name: $fromName/$toName, bookId}` — untouched by this fix. In the exact repro sub-fix (a) targets (batch emits both 'The Wedding' and 'Wedding', or a later batch references the variant spelling), the entity now folds onto the surviving spelling, so a same-batch `X-[LEADS_TO]->('Wedding')` MATCHes NOTHING and returns false silently (zero-match produces no error, no log; :544). Pre-fix the edge at least landed on the forked node (carrying a chapter stamp the checks could read); post-fix the edge vanishes entirely. So LEADS_TO chains — the very thing the handoff says the fix exists to make constructible for timeline_violation — are still lost whenever extraction addresses the edge by the non-surviving spelling, now as silent edge loss instead of a fork. False NEGATIVE, not a false merge, so not blocking — but it is a real functional gap and a silent-data-loss behavior change vs pre-fix. Suggested follow-up (same sub-fix or a sibling): resolve Event relationship endpoints through the same canonical lookup (or at least via the aliases array) before MATCH."
+        },
+        {
+          "severity": "low",
+          "claim": "Candidate-set hole: a node literally named the incoming canonicalName folds even when its OWN canonical differs; canonicalizeEntityName idempotency claim is false for double-article names",
+          "detail": "D:\\Projects\\wmb-pub\\src\\lib\\graph\\graph-builder.ts:183-191: nameCandidates includes the bare `canonicalName` as a literal-name candidate. Incoming 'The The Purge' (canonical 'The Purge') therefore folds onto a node named 'The Purge' whose own canonical is 'Purge' — two names that do NOT share a canonical key — contradicting the handoff's invariant 'the fold can only ever merge two spellings that share the article-stripped key' (fix7a-handoff.md:84). Relatedly, canonicalizeEntityName (:737-744) strips ONE article, so canonicalize('The The Purge')='The Purge' but canonicalize(canonicalize(...))='Purge' — the doc-comment (:721) and handoff idempotency claim fail for double-article inputs; the test (tests/unit/graph-event-name-canonicalization.test.ts:232-238) only samples inputs where it holds ('The The' is protected by the empty-remainder guard, 'The The X' is not). Practically an article-stutter of one real event, so same-event folding is almost certainly correct in the wild — low, register alongside D-85 residuals rather than fix."
+        },
+        {
+          "severity": "note",
+          "claim": "Hot-path cost: one extra read query per Event entity per upsert; other labels pay zero",
+          "detail": "The pre-MERGE lookup (graph-builder.ts:192-199) runs on EVERY Event upsert — extraction post-session scans and chapter rebuilds (graph-maintenance.ts:295, :452) and UpdateGraphEntity — inside the same session, mirroring the existing alias-rename lookup's cost class. It anchors on `:Event {bookId: $bookId}` (index-eligible on bookId if one exists; the OR on canonicalName/name IN candidates is a per-book filter, bounded by per-book Event count, typically small). Character/Object/Location/PlotThread/Faction upserts issue no extra query and are byte-identical in behavior (mergeName===name, effectiveAliases===aliases by reference). Acceptable; no action needed."
+        },
+        {
+          "severity": "note",
+          "claim": "Verified clean: injection boundary, drift of just-landed invariants, Event-scope gating, cross-tenant impossibility; gates corroborated (tsc 0, new file 23/23)",
+          "detail": "(1) INJECTION: the new lookup interpolates ONLY escapeLabelForQuery(label) (graph-builder.ts:193); $bookId/$canonicalName/$nameCandidates are params (:198); mergeName (DB-sourced) rides as $name param into the unchanged MERGE (:466); the new ON MATCH item is a static string with $canonicalName param (:360); sanitizeRelationshipType (:636-650), escapeLabelForQuery (:595-598), and upsertRelationship's D-63 boundary (:527, :531-533) are byte-intact — every Cypher interpolation in the file still passes through escaper/sanitizer. Test (a9) exercises a `\"}) DETACH DELETE n //` payload as param-only. (2) DRIFT: per git diff, the only mutations are the canonical block insertion (:155-217), aliases→effectiveAliases (:336, :344, :448-449), name→mergeName (:440), the canonicalName stamp/param additions (:349-362, :451-453), and the new pure function (:712-744); Character sticky-dead CASE (:383), role (:416) / description (:426) preserve-first, authoritative branches + deathChapter retirement (:372-405), RC-2 coalesces (:303, :326, :334), D-27 union clause (:346), RC-6 userId (:238-245), D-30 guards (:53-58, :119, :506-511) are all outside the hunks = byte-intact. (3) EVENT-SCOPE: fold + stamp strictly gated `label === \"Event\"` (:179, :349, :451); Character/Object identity, deathChapter anchors, and the D-79 continuity-flag anchor are untouched (tests a10/a10'/a11 confirm no Character lookup is ever issued and no Character carries canonicalName). (4) CROSS-TENANT: the lookup binds $bookId exactly like the raw MERGE key and the alias-rename lookup — no cross-book/cross-tenant fold is expressible. (5) One documented behavior change to note for the register: with a PRE-EXISTING same-canonical fork ('Wedding' fa=2 + 'The Wedding' fa=5), an exact-spelling re-scan of the LATER fork now redirects its updates onto the EARLIEST node (ORDER BY n.firstAppearance, :196) — deliberate convergence-forward per handoff residual #3, but the handoff's 'an exact-spelling re-scan always matches [its own node]' claim does not hold in that case. Gates: `npx tsc --noEmit` exit 0; tests/unit/graph-event-name-canonicalization.test.ts 23/23 passed (full 961-test suite claim not independently re-run; change is confined to one file whose other consumers were diff-verified)."
+        }
+      ]
+    },
+    {
+      "lens": "GATE + RED (fix 7a — Event-name canonicalization before MERGE, RC-3 determinism)",
+      "verdict": "APPROVE_WITH_NOTES",
+      "blocking": false,
+      "gate": "tsc --noEmit exit 0 (ACTUAL). vitest run: 961 passed / 125 files passed / 0 failed (ACTUAL, matches claim; baseline math 938+23 / 124+1 consistent). New file alone: 23/23. Working tree contains only the claimed changes (graph-builder.ts +125/−5, new test file, handoff); nothing mutated by this review.",
+      "summary": "Gates pass at the exact claimed counts (tsc 0; 961/125/0 actual). Static RED analysis confirms 17 RED / 6 GREEN pre-implementation exactly as claimed: the 17 RED pin the real mechanism (the fake neo4j session discriminates on production query text and params — canonical-lookup branch fires only on the production lookup query, folds are observable only if production rewrites the MERGE $name param, alias-union/canonical-coalesce emulated only when the exact production clauses appear); the 6 GREEN are genuine anti-false-merge guards (a6/a6' fail under canonical-ignoring blanket merge; a10 pins Event-scoping via a call-log assertion; a4 blocks self-aliasing). No test is tautological. Adversarial sweep found NO false merge of distinct entities, NO cross-tenant fold (lookup binds authoritative $bookId, D-30 guarded), NO injection regression (only escapeLabelForQuery interpolated on a literal \"Event\" label; all new values are params, pinned by a9). All protected just-landed behaviors (sticky-dead, preserve-first, authoritative/D-80, RC-2 coalesce, D-27 union, RC-6, D-30, D-63) are byte-identical for non-Event labels and compose correctly on the fold path; full pre-existing graph suite green. One real non-blocking gap: relationship endpoints are matched by literal name, so edges referencing the folded-away spelling silently drop — a shortfall of the fix's own RC-3 benefit in the confirmed repro path, but an FN (no new false positive), and an extension of the pre-existing day-one alias-rename hole. Recommend a follow-up in the fix-7 series.",
+      "findings": [
+        {
+          "severity": "high",
+          "claim": "Fold orphans relationships that reference the folded-away spelling: upsertRelationship matches endpoints by literal {name, bookId} (src/lib/graph/graph-builder.ts:531-532) with no alias/canonical resolution, so in the confirmed repro (existing node 'Wedding'; batch consistently emits 'The Wedding' in BOTH entities and relationships) the entity folds correctly but every LEADS_TO/relationship endpoint 'The Wedding' fails MATCH and is silently dropped (returns false, no error).",
+          "detail": "Pre-fix those edges attached to the fork (degenerate chXX→chXX, also useless to timeline_violation), so this is not a regression to a working behavior — node dedup is a strict win and no NEW false positive is created (edge loss is an FN). But the RC-3 goal 'timeline_violation constructible' is only realized when the batch happens to use the stored spelling for relationship endpoints; otherwise the edge vanishes. This is the pre-existing day-one gap of the Character alias-rename fold (same literal-name endpoint MATCH), newly activated on exactly the path fix 7a targets, and the new test file has no relationship-endpoint test. NON-BLOCKING under the stated rule (not a false merge, not cross-tenant, not injection). Recommend follow-up in the fix-7 series: resolve Event relationship endpoints through the same canonical/alias resolution (or make the endpoint MATCH alias-aware)."
+        },
+        {
+          "severity": "low",
+          "claim": "Double-article inputs can fold across canonical keys via the bare-canonicalName candidate, contradicting the handoff invariant and the canonicalizer's documented idempotency.",
+          "detail": "nameCandidates includes canonicalName itself (graph-builder.ts:183-191). For incoming 'The The Ball' (canonical 'The Ball'), a node literally named 'The Ball' (whose OWN canonical is 'Ball') matches the candidate list and folds — two spellings that do NOT share a canonical key, so the handoff claim 'the fold can only ever merge two spellings that share the article-stripped/NFC/whitespace key' has this counterexample. Relatedly, canonicalizeEntityName is NOT idempotent for stacked articles with a remainder ('The The Ball' → 'The Ball' → 'Ball'); the doc comment and idempotency test claim/check only fixed-point cases ('The The' → 'The'). Practically benign: extractor emitting a stacked article is degenerate, and folding 'The The Ball' onto 'The Ball' is almost certainly correct rather than a D8 FP. Register alongside D-85 or document; no code change required for this gate."
+        },
+        {
+          "severity": "low",
+          "claim": "Legacy bridge covers article variants only: a pre-fix node whose stored name differs by NFC form or internal whitespace is not caught (no stored canonicalName, literal candidates mismatch) and still forks until a canonicalName-stamped path converges it.",
+          "detail": "E.g. legacy node name = decomposed 'Café Vigil' vs incoming precomposed → no canonicalName equality (legacy null) and no literal candidate match → fork persists (FN, not a false merge; identical to pre-fix behavior). Consistent with the handoff's 'article-variant candidates' scope but not explicitly listed as a residual there."
+        },
+        {
+          "severity": "note",
+          "claim": "Test-coverage nits (none affect the verdict): (a11) lacks the 'no canonical lookup issued' call-log assertion that (a10) has for Character, so an impl gated label !== 'Character' would pass a11 — source inspection confirms the actual gate is label === 'Event' (graph-builder.ts:179); (a5) does not assert the canonicalName self-heal backfill the handoff claims (mechanism verified present in code: coalesce clause + params ride on the fold, and the fake emulates it).",
+          "detail": "RED/GREEN classification verified statically: RED(17) = 8 pure-canonicalizer tests (export absent pre-fix → undefined import → TypeError on call) + a1, a1', a2, a3, a5, a6'', a7, a8, a9 (each requires production to issue the canonical lookup and rewrite $name/$aliases; the fake cannot fold otherwise). GREEN(6) = a4, a6, a6', a10, a10', a11 — all genuinely assert distinct-stay-separate / no-stamp and jointly forbid a blanket-merge or label-leaking implementation. Matches the executor's 17/6 claim exactly. Note a6'' sits in the 'distinct events' describe but is a fold (RED) test — correctly counted."
+        },
+        {
+          "severity": "note",
+          "claim": "Lookup-then-MERGE is not atomic across concurrent sessions: two parallel extractions of different article variants can still fork (no Neo4j uniqueness constraint on canonicalName).",
+          "detail": "Within one batch the writes are sequential in a single session and rely on read-your-writes — the same guarantee the pre-existing alias-rename lookup already depends on. Cross-session raciness is a pre-existing class (the raw {bookId,name} MERGE has no constraint either) and out of scope for 7a; convergence-going-forward still folds the stragglers on the next scan."
+        }
+      ]
+    }
+  ],
+  "workflowProgress": [
+    {
+      "type": "workflow_phase",
+      "index": 1,
+      "title": "Verify"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 1,
+      "label": "verify:false-merge-fold",
+      "phaseIndex": 1,
+      "phaseTitle": "Verify",
+      "agentId": "ac6566d35269e63b4",
+      "model": "claude-fable-5",
+      "state": "done",
+      "startedAt": 1784484288952,
+      "queuedAt": 1784484284928,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "false-merge + fold mechanism (canonical-resolution lookup, …",
+      "promptPreview": "Repo D:\\\\Projects\\\\wmb-pub, branch qa/bulletproof-2026-07-17, HEAD 2c33a8d. Environment: Windows PowerShell 5.1 (Bash broken). Change under review is UNCOMMITTED in the working tree.\n\nWHAT LANDED (fix 7 sub-fix (a) — Event-name canonicalization before MERGE, RC-3 determinism): stochastic extraction referring to one Event two ways (\"The Wedding\" vs \"Wedding\") forked it into two graph nodes because …",
+      "lastProgressAt": 1784484670954,
+      "tokens": 89887,
+      "toolCalls": 9,
+      "durationMs": 382001,
+      "resultPreview": "{\"lens\":\"false-merge + fold mechanism (canonical-resolution lookup, cross-tenant scoping, fold redirect correctness)\",\"verdict\":\"APPROVE_WITH_NOTES\",\"blocking\":false,\"gate\":\"tsc --noEmit exit 0; targeted vitest 59/59 green (graph-event-name-canonicalization 23, graph-cross-book-isolation 5, graph-entity-property-monotonic 18, updategraphentity-authoritative 4, graph-rel-type-sanitization 9). Worki…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 2,
+      "label": "verify:injection-drift-regression",
+      "phaseIndex": 1,
+      "phaseTitle": "Verify",
+      "agentId": "a06cebf72cf03b889",
+      "model": "claude-fable-5",
+      "state": "done",
+      "startedAt": 1784484289473,
+      "queuedAt": 1784484284928,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "INJECTION + DRIFT + REGRESSION (fix 7a — Event-name canonic…",
+      "promptPreview": "Repo D:\\\\Projects\\\\wmb-pub, branch qa/bulletproof-2026-07-17, HEAD 2c33a8d. Environment: Windows PowerShell 5.1 (Bash broken). Change under review is UNCOMMITTED in the working tree.\n\nWHAT LANDED (fix 7 sub-fix (a) — Event-name canonicalization before MERGE, RC-3 determinism): stochastic extraction referring to one Event two ways (\"The Wedding\" vs \"Wedding\") forked it into two graph nodes because …",
+      "lastProgressAt": 1784484886251,
+      "tokens": 111754,
+      "toolCalls": 17,
+      "durationMs": 596778,
+      "resultPreview": "{\"lens\":\"INJECTION + DRIFT + REGRESSION (fix 7a — Event-name canonicalization before MERGE)\",\"verdict\":\"REJECT\",\"blocking\":true,\"gate\":\"fix-7a\",\"summary\":\"Injection boundary is clean (new lookup: label via escapeLabelForQuery, every value — $canonicalName/$nameCandidates/$name=mergeName — rides as a Cypher param; D-63 sanitizeRelationshipType and all existing interpolations byte-intact), drift che…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 3,
+      "label": "verify:gate-red",
+      "phaseIndex": 1,
+      "phaseTitle": "Verify",
+      "agentId": "a090309f6acecc979",
+      "model": "claude-fable-5",
+      "state": "done",
+      "startedAt": 1784484288808,
+      "queuedAt": 1784484284928,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "GATE + RED (fix 7a — Event-name canonicalization before MER…",
+      "promptPreview": "Repo D:\\\\Projects\\\\wmb-pub, branch qa/bulletproof-2026-07-17, HEAD 2c33a8d. Environment: Windows PowerShell 5.1 (Bash broken). Change under review is UNCOMMITTED in the working tree.\n\nWHAT LANDED (fix 7 sub-fix (a) — Event-name canonicalization before MERGE, RC-3 determinism): stochastic extraction referring to one Event two ways (\"The Wedding\" vs \"Wedding\") forked it into two graph nodes because …",
+      "lastProgressAt": 1784484811782,
+      "tokens": 99768,
+      "toolCalls": 17,
+      "durationMs": 522974,
+      "resultPreview": "{\"lens\":\"GATE + RED (fix 7a — Event-name canonicalization before MERGE, RC-3 determinism)\",\"verdict\":\"APPROVE_WITH_NOTES\",\"blocking\":false,\"gate\":\"tsc --noEmit exit 0 (ACTUAL). vitest run: 961 passed / 125 files passed / 0 failed (ACTUAL, matches claim; baseline math 938+23 / 124+1 consistent). New file alone: 23/23. Working tree contains only the claimed changes (graph-builder.ts +125/−5, new tes…"
+    }
+  ],
+  "totalTokens": 301409,
+  "totalToolCalls": 43
+}

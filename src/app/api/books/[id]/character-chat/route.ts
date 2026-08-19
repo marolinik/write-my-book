@@ -5,6 +5,7 @@ import { decryptApiKey } from "@/lib/encryption";
 import { estimateCost } from "@/lib/cost";
 import { createLLMClient, resolveProviderRoute, resolveCheapModelFor } from "@/lib/llm";
 import type { ProviderKey } from "@/lib/llm";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -23,7 +24,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id: bookId } = await params;
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const { characterId, characterName, message, history = [] } = body as {
       characterId: string;
       characterName: string;
@@ -156,6 +157,8 @@ Rules:
 
     return NextResponse.json({ reply });
   } catch (error: unknown) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     const message = error instanceof Error ? error.message : "Unknown error";
     console.error("[Character Chat] Error:", message);
     return NextResponse.json(

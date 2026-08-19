@@ -1,0 +1,117 @@
+{
+  "runLabel": "run1",
+  "cap": 0.5,
+  "batchId": "cmrtoa1i50000280fkryvkm8e",
+  "enqueueLatencyMs": 1958,
+  "childCount": 3,
+  "pollCount": 184,
+  "acceptance": {
+    "a_running_gt0": true,
+    "b_midrun_spend_gt0": true,
+    "c_status_not_queued_when_working": true,
+    "d_startedAt_nonnull_midrun": true
+  },
+  "acceptanceMoments": {
+    "firstRunning": {
+      "poll": 1,
+      "ts": "2026-07-20T20:23:53.116Z",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "status": "running"
+    },
+    "firstNonQueuedStatus": {
+      "poll": 1,
+      "ts": "2026-07-20T20:23:53.116Z",
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 1,
+        "running": 2,
+        "completed": 0,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    "firstStartedAt": {
+      "poll": 1,
+      "ts": "2026-07-20T20:23:53.116Z",
+      "startedAt": "2026-07-20T20:23:51.596Z",
+      "status": "running"
+    },
+    "firstMidRunSpend": {
+      "poll": 170,
+      "ts": "2026-07-20T20:27:33.162Z",
+      "spentUsd": 0.02352354,
+      "status": "running",
+      "counts": {
+        "total": 3,
+        "queued": 0,
+        "running": 2,
+        "completed": 1,
+        "failed": 0,
+        "skipped": 0
+      }
+    }
+  },
+  "finalPoll": {
+    "batch": {
+      "id": "cmrtoa1i50000280fkryvkm8e",
+      "userId": "a31049dd-0fd9-44dd-a232-8606129d1853",
+      "bookId": "d633f5ae-8b61-4175-bf31-810a41b30b78",
+      "workflowIds": [
+        "line-edit"
+      ],
+      "chapterStart": 1,
+      "chapterEnd": 3,
+      "status": "running",
+      "budgetCapUsd": 0.5,
+      "spentUsd": 0.04463952,
+      "halted": false,
+      "haltReason": null,
+      "scheduledFor": null,
+      "parentJobId": "5a23b5f8-292e-4ecc-9cdb-d97a9f2fc733",
+      "digest": null,
+      "childCount": 3,
+      "completedCount": 0,
+      "failedCount": 0,
+      "createdAt": "2026-07-20T20:23:51.581Z",
+      "startedAt": "2026-07-20T20:23:51.596Z",
+      "completedAt": null
+    },
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    "_ts": "2026-07-20T20:27:51.663Z",
+    "_latencyMs": 102
+  },
+  "listRow": {
+    "id": "cmrtoa1i50000280fkryvkm8e",
+    "status": "queued",
+    "workflowIds": [
+      "line-edit"
+    ],
+    "chapterStart": 1,
+    "chapterEnd": 3,
+    "budgetCapUsd": 0.5,
+    "spentUsd": 0,
+    "halted": false,
+    "haltReason": null,
+    "scheduledFor": null,
+    "childCount": 3,
+    "completedCount": 0,
+    "failedCount": 0,
+    "createdAt": "2026-07-20T20:23:51.581Z",
+    "completedAt": null
+  }
+}

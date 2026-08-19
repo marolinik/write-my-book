@@ -17,6 +17,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { isWordLikeQuery } from "@/lib/search/find-replace";
 import { useBookSearch, useBookReplace, type SearchHit } from "@/hooks/use-find-replace";
 
 interface FindReplaceDialogProps {
@@ -46,6 +47,11 @@ export function FindReplaceDialog({
   const [replace, setReplace] = useState("");
   const [scope, setScope] = useState<Scope>("chapter");
   const [caseSensitive, setCaseSensitive] = useState(false);
+  // D-189: whole-word matching, ON by default. The job this dialog exists for
+  // is a book-wide character rename; substring matching turned `Sam` → `Max`
+  // into `Maxe`/`Maxple`/`Maxovar` across a finished manuscript and reported
+  // the corruptions as successes.
+  const [wholeWord, setWholeWord] = useState(true);
   const [debouncedFind, setDebouncedFind] = useState("");
 
   // Reset transient input when the dialog is dismissed.
@@ -63,7 +69,19 @@ export function FindReplaceDialog({
     return () => clearTimeout(t);
   }, [find]);
 
-  const search = useBookSearch(bookId, debouncedFind, caseSensitive, open);
+  // A term that does not start AND end with a word character can never satisfy
+  // the boundary rule, so whole word is not offered for it (an empty box keeps
+  // the toggle live — there is nothing to contradict yet).
+  const wholeWordApplies = find.trim().length === 0 || isWordLikeQuery(find);
+  const effectiveWholeWord = wholeWord && wholeWordApplies;
+
+  const search = useBookSearch(
+    bookId,
+    debouncedFind,
+    caseSensitive,
+    effectiveWholeWord,
+    open
+  );
   const replaceMutation = useBookReplace(bookId);
 
   // "This chapter" filters the book-wide result to the open chapter.
@@ -90,6 +108,7 @@ export function FindReplaceDialog({
         replace,
         chapterIds: scope === "chapter" ? [chapterId] : undefined,
         caseSensitive,
+        wholeWord: effectiveWholeWord,
       });
       if (res.totalReplacements === 0) {
         toast.info("No matches replaced.");
@@ -186,17 +205,38 @@ export function FindReplaceDialog({
               ))}
             </div>
 
-            <div className="flex items-center gap-2">
-              <Switch
-                id="fr-case"
-                checked={caseSensitive}
-                onCheckedChange={setCaseSensitive}
-              />
-              <Label htmlFor="fr-case" className="text-sm font-normal">
-                Case sensitive
-              </Label>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Switch
+                  id="fr-whole-word"
+                  checked={effectiveWholeWord}
+                  disabled={!wholeWordApplies}
+                  onCheckedChange={setWholeWord}
+                />
+                <Label htmlFor="fr-whole-word" className="text-sm font-normal">
+                  Whole word
+                </Label>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Switch
+                  id="fr-case"
+                  checked={caseSensitive}
+                  onCheckedChange={setCaseSensitive}
+                />
+                <Label htmlFor="fr-case" className="text-sm font-normal">
+                  Case sensitive
+                </Label>
+              </div>
             </div>
           </div>
+
+          {!wholeWordApplies && (
+            <p className="text-xs text-muted-foreground">
+              Whole word needs a search term that starts and ends with a letter,
+              digit or underscore — it is off for this one.
+            </p>
+          )}
 
           {/* Live preview */}
           <div className="rounded-md border">

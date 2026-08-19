@@ -1,0 +1,21 @@
+=== T1 VERIFY 2026-07-18T10:42:02Z (post attempt-2 landing) ===
+--- Corvin Ashe full properties ---
+properties(c)
+{firstAppearance: 1.0, aliases: ["Corvin"], role: "protagonist", description: "Captain who defended the Ashfall Gate, died on the eleventh day of the siege fighting at the center of the line", deathChapter: 3.0, bookId: "fd60e1d4-37c5-4c11-92a1-586af638224a", contentHash: "6d509d51f509b70c", createdAt: 2026-07-18T01:52:16.705Z, lastMentioned: 3.0, personality: "brave, leading by example, selfless (pulled fallen archer from breach)", physicalTraits: "none specified", name: "Corvin Ashe", id: "8d5c74cd-463a-416c-8198-36dd2d345963", age: "none specified", status: "dead", updatedAt: "2026-07-18T10:40:20.555Z"}
+--- events with chapter=3 (names, exact) ---
+e.name, e.chapter, e.firstAppearance
+"Eleventh Day of the Siege", 3.0, 3.0
+"Death of Corvin Ashe", 3.0, 3.0
+"Burial of Corvin Ashe", 3.0, 3.0
+"Third Assault on Ashfall Gate", 3.0, 3.0
+--- Corvin PARTICIPATES_IN edges (event, event.chapter) ---
+e.name, e.chapter
+"Eleventh Day of the Siege", 3.0
+"Death of Corvin Ashe", 3.0
+"Vane's feint at Salt Docks", NULL
+"Corvin's Arm Wounding", NULL
+"First Assault on Ashfall Gate", NULL
+"Preparation for Assault", NULL
+--- Rasmussen aliases after ch3 re-extraction (D-27 durability early check) ---
+c.name, c.aliases
+"Zoë Rasmussen", ["Zoe"]

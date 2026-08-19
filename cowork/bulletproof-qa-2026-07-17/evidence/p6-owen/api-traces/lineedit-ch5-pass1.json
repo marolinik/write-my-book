@@ -1,0 +1,41 @@
+{
+ "content-before": {
+  "status": 200,
+  "wordCount": 395,
+  "version": 1,
+  "sha_len": 2011
+ },
+ "findings-before-count": 0,
+ "start": {
+  "status": 200,
+  "elapsed": 1.761,
+  "body": {
+   "sessionId": "9cb75913-09fb-4f06-a6e1-03ac3d3a6bc5",
+   "queued": true,
+   "jobId": "9cb75913-09fb-4f06-a6e1-03ac3d3a6bc5"
+  }
+ },
+ "stream": {
+  "n_events": 14,
+  "elapsed": 207.106,
+  "final": {
+   "type": "error",
+   "content": "OpenRouter is experiencing temporary issues. The request will be retried automatically.",
+   "metadata": {
+    "action": "retry"
+   }
+  },
+  "sessionId": "9cb75913-09fb-4f06-a6e1-03ac3d3a6bc5"
+ },
+ "d33-d34-scan": {
+  "REJECTED_count": 0,
+  "raw_typeerror_count": 0,
+  "error_executing_count": 0,
+  "suppressed_count": 0
+ },
+ "misquote-probe": {
+  "new_findings": 0,
+  "misquotes": 0,
+  "detail": []
+ }
+}

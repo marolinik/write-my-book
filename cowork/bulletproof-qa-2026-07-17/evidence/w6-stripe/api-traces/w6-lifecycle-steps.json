@@ -1,0 +1,419 @@
+{
+  "steps": [
+    {
+      "phase": "snapshot",
+      "original": {
+        "id": "de7c4e7c-ac5c-4414-a154-93e26c0fdc39",
+        "user_id": "e43ea68d-def6-4019-91fc-f85b8db2a4bf",
+        "stripe_customer_id": null,
+        "stripe_subscription_id": null,
+        "plan": "professional",
+        "status": "active",
+        "billing_interval": "monthly",
+        "trial_end": null,
+        "cancel_at_period_end": false,
+        "current_period_start": "2026-07-17T11:51:41.979Z",
+        "current_period_end": "2026-08-16T11:51:41.979Z",
+        "created_at": "2026-07-17T11:51:41.979Z",
+        "updated_at": "2026-07-17T11:51:41.979Z"
+      }
+    },
+    {
+      "phase": "others-before",
+      "othersBefore": {
+        "user_qa_p1": {
+          "id": "ae90a233-34fd-4258-8ed5-859a2cdb6ca1",
+          "user_id": "d65a17d8-c0df-4e49-82fa-2291cad77886",
+          "stripe_customer_id": null,
+          "stripe_subscription_id": null,
+          "plan": "indie",
+          "status": "active",
+          "billing_interval": "monthly",
+          "trial_end": null,
+          "cancel_at_period_end": false,
+          "current_period_start": "2026-07-17T11:51:41.964Z",
+          "current_period_end": "2026-08-16T11:51:41.964Z",
+          "created_at": "2026-07-17T11:51:41.964Z",
+          "updated_at": "2026-07-17T11:51:41.964Z"
+        },
+        "user_qa_p3": {
+          "id": "abb7f6a1-145f-4ad5-8287-9985a42b6b1e",
+          "user_id": "3f4836f4-083e-4011-9bb5-bec2a6714eb6",
+          "stripe_customer_id": null,
+          "stripe_subscription_id": null,
+          "plan": "professional",
+          "status": "active",
+          "billing_interval": "monthly",
+          "trial_end": null,
+          "cancel_at_period_end": false,
+          "current_period_start": "2026-07-17T11:51:41.992Z",
+          "current_period_end": "2026-08-16T11:51:41.992Z",
+          "created_at": "2026-07-17T11:51:41.992Z",
+          "updated_at": "2026-07-17T11:51:41.992Z"
+        },
+        "user_qa_p4": {
+          "id": "7180ae4e-222b-4d41-b68c-aa9833edf097",
+          "user_id": "a31049dd-0fd9-44dd-a232-8606129d1853",
+          "stripe_customer_id": null,
+          "stripe_subscription_id": null,
+          "plan": "professional",
+          "status": "active",
+          "billing_interval": "monthly",
+          "trial_end": null,
+          "cancel_at_period_end": false,
+          "current_period_start": "2026-07-17T11:51:42.005Z",
+          "current_period_end": "2026-08-16T11:51:42.005Z",
+          "created_at": "2026-07-17T11:51:42.005Z",
+          "updated_at": "2026-07-17T11:51:42.005Z"
+        },
+        "user_qa_p5": null,
+        "user_qa_p6": {
+          "id": "ec18c7af-4919-4c4f-bc78-e8ab5250e16e",
+          "user_id": "e02cdae6-4c74-43e8-bd0e-e888debabf7c",
+          "stripe_customer_id": null,
+          "stripe_subscription_id": null,
+          "plan": "indie",
+          "status": "active",
+          "billing_interval": "monthly",
+          "trial_end": null,
+          "cancel_at_period_end": false,
+          "current_period_start": "2026-07-17T11:51:42.031Z",
+          "current_period_end": "2026-08-16T11:51:42.031Z",
+          "created_at": "2026-07-17T11:51:42.031Z",
+          "updated_at": "2026-07-17T11:51:42.031Z"
+        },
+        "user_qa_p7": {
+          "id": "08c4b9e5-0931-46ea-b495-522093006a13",
+          "user_id": "71ff88d7-7ee2-4571-ab12-d37a6da6ff61",
+          "stripe_customer_id": null,
+          "stripe_subscription_id": null,
+          "plan": "professional",
+          "status": "active",
+          "billing_interval": "monthly",
+          "trial_end": null,
+          "cancel_at_period_end": false,
+          "current_period_start": "2026-07-17T11:51:42.047Z",
+          "current_period_end": "2026-08-16T11:51:42.047Z",
+          "created_at": "2026-07-17T11:51:42.047Z",
+          "updated_at": "2026-07-17T11:51:42.047Z"
+        },
+        "user_qa_p8": null
+      }
+    },
+    {
+      "phase": "DUP-01",
+      "result": {
+        "status": 200,
+        "json": {
+          "url": "https://checkout.stripe.com/c/pay/cs_test_a1MGbuGniDpQwrrZ4xo8SSypRzBaiamgUJdsEl3ZuQNM0mq1X2h5rV971z#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdicGRmZGhqaWBTZHdsZGtxJz8nZmprcXdqaScpJ2R1bE5gfCc%2FJ3VuWnFgdnFaMDRWf01pZ0Y1aGhvbTFqQEhLTGtEYzAxVlVWUWFEXER%2FaE4zSGpKPVRmQEFRSGtuYVZjN0IzMm5OSjwxVjBmalNPd0NPaTZ%2FbHBEUklBNDxoY099QUFnPGg1NTZ0Q1FCa3A2JyknY3dqaFZgd3Ngdyc%2FcXdwYCknZ2RmbmJ3anBrYUZqaWp3Jz8nJmNjY2NjYycpJ2lkfGpwcVF8dWAnPyd2bGtiaWBabHFgaCcpJ2BrZGdpYFVpZGZgbWppYWB3dic%2FcXdwYHgl"
+        }
+      }
+    },
+    {
+      "phase": "SIG-01",
+      "result": {
+        "status": 400,
+        "json": {
+          "error": "Missing signature"
+        }
+      }
+    },
+    {
+      "phase": "SIG-02",
+      "result": {
+        "status": 400,
+        "json": {
+          "error": "Invalid signature"
+        }
+      }
+    },
+    {
+      "phase": "CHK-01",
+      "result": {
+        "status": 200,
+        "json": {
+          "received": true
+        }
+      },
+      "sub": {
+        "id": "de7c4e7c-ac5c-4414-a154-93e26c0fdc39",
+        "user_id": "e43ea68d-def6-4019-91fc-f85b8db2a4bf",
+        "stripe_customer_id": "cus_qa_p2_w6_test",
+        "stripe_subscription_id": "sub_qa_p2_w6_test",
+        "plan": "professional",
+        "status": "active",
+        "billing_interval": "monthly",
+        "trial_end": null,
+        "cancel_at_period_end": false,
+        "current_period_start": "2026-07-17T11:51:41.979Z",
+        "current_period_end": "2026-08-16T11:51:41.979Z",
+        "created_at": "2026-07-17T11:51:41.979Z",
+        "updated_at": "2026-07-17T22:39:11.511Z"
+      }
+    },
+    {
+      "phase": "REPLAY-01",
+      "result": {
+        "status": 200,
+        "json": {
+          "received": true,
+          "deduplicated": true
+        }
+      },
+      "before": {
+        "id": "de7c4e7c-ac5c-4414-a154-93e26c0fdc39",
+        "user_id": "e43ea68d-def6-4019-91fc-f85b8db2a4bf",
+        "stripe_customer_id": "cus_qa_p2_w6_test",
+        "stripe_subscription_id": "sub_qa_p2_w6_test",
+        "plan": "professional",
+        "status": "active",
+        "billing_interval": "monthly",
+        "trial_end": null,
+        "cancel_at_period_end": false,
+        "current_period_start": "2026-07-17T11:51:41.979Z",
+        "current_period_end": "2026-08-16T11:51:41.979Z",
+        "created_at": "2026-07-17T11:51:41.979Z",
+        "updated_at": "2026-07-17T22:39:11.511Z"
+      },
+      "after": {
+        "id": "de7c4e7c-ac5c-4414-a154-93e26c0fdc39",
+        "user_id": "e43ea68d-def6-4019-91fc-f85b8db2a4bf",
+        "stripe_customer_id": "cus_qa_p2_w6_test",
+        "stripe_subscription_id": "sub_qa_p2_w6_test",
+        "plan": "professional",
+        "status": "active",
+        "billing_interval": "monthly",
+        "trial_end": null,
+        "cancel_at_period_end": false,
+        "current_period_start": "2026-07-17T11:51:41.979Z",
+        "current_period_end": "2026-08-16T11:51:41.979Z",
+        "created_at": "2026-07-17T11:51:41.979Z",
+        "updated_at": "2026-07-17T22:39:11.511Z"
+      }
+    },
+    {
+      "phase": "DUN-01",
+      "result": {
+        "status": 200,
+        "json": {
+          "received": true
+        }
+      },
+      "sub": {
+        "id": "de7c4e7c-ac5c-4414-a154-93e26c0fdc39",
+        "user_id": "e43ea68d-def6-4019-91fc-f85b8db2a4bf",
+        "stripe_customer_id": "cus_qa_p2_w6_test",
+        "stripe_subscription_id": "sub_qa_p2_w6_test",
+        "plan": "professional",
+        "status": "past_due",
+        "billing_interval": "monthly",
+        "trial_end": null,
+        "cancel_at_period_end": false,
+        "current_period_start": "2026-07-17T11:51:41.979Z",
+        "current_period_end": "2026-08-16T11:51:41.979Z",
+        "created_at": "2026-07-17T11:51:41.979Z",
+        "updated_at": "2026-07-17T22:39:11.613Z"
+      }
+    },
+    {
+      "phase": "DUN-02",
+      "result": {
+        "status": 201,
+        "json": {
+          "id": "ec99fa55-391f-44a6-8e65-3111fedd16d6",
+          "userId": "e43ea68d-def6-4019-91fc-f85b8db2a4bf",
+          "title": "w6-entitlement-check-1784335151620",
+          "genre": null,
+          "language": "en",
+          "seriesType": "TRILOGY",
+          "plannedBooks": 3,
+          "description": null,
+          "createdAt": "2026-07-18T00:39:11.674Z",
+          "updatedAt": "2026-07-18T00:39:11.674Z"
+        }
+      }
+    },
+    {
+      "phase": "DUN-03",
+      "result": {
+        "status": 200,
+        "json": {
+          "received": true
+        }
+      },
+      "sub": {
+        "id": "de7c4e7c-ac5c-4414-a154-93e26c0fdc39",
+        "user_id": "e43ea68d-def6-4019-91fc-f85b8db2a4bf",
+        "stripe_customer_id": "cus_qa_p2_w6_test",
+        "stripe_subscription_id": "sub_qa_p2_w6_test",
+        "plan": "professional",
+        "status": "active",
+        "billing_interval": "monthly",
+        "trial_end": null,
+        "cancel_at_period_end": false,
+        "current_period_start": "2026-07-17T11:51:41.979Z",
+        "current_period_end": "2026-08-16T11:51:41.979Z",
+        "created_at": "2026-07-17T11:51:41.979Z",
+        "updated_at": "2026-07-17T22:39:11.718Z"
+      }
+    },
+    {
+      "phase": "CANCEL-01",
+      "result": {
+        "status": 200,
+        "json": {
+          "received": true
+        }
+      },
+      "sub": {
+        "id": "de7c4e7c-ac5c-4414-a154-93e26c0fdc39",
+        "user_id": "e43ea68d-def6-4019-91fc-f85b8db2a4bf",
+        "stripe_customer_id": "cus_qa_p2_w6_test",
+        "stripe_subscription_id": "sub_qa_p2_w6_test",
+        "plan": "professional",
+        "status": "active",
+        "billing_interval": "monthly",
+        "trial_end": null,
+        "cancel_at_period_end": true,
+        "current_period_start": "2026-07-17T22:39:11.000Z",
+        "current_period_end": "2026-08-16T22:39:11.000Z",
+        "created_at": "2026-07-17T11:51:41.979Z",
+        "updated_at": "2026-07-17T22:39:11.762Z"
+      }
+    },
+    {
+      "phase": "CANCEL-02",
+      "result": {
+        "status": 201,
+        "json": {
+          "id": "82293d82-5341-4c92-9e7c-03433cffc399",
+          "userId": "e43ea68d-def6-4019-91fc-f85b8db2a4bf",
+          "title": "w6-cancel-pending-check-1784335151772",
+          "genre": null,
+          "language": "en",
+          "seriesType": "TRILOGY",
+          "plannedBooks": 3,
+          "description": null,
+          "createdAt": "2026-07-18T00:39:11.812Z",
+          "updatedAt": "2026-07-18T00:39:11.812Z"
+        }
+      }
+    },
+    {
+      "phase": "CANCEL-03",
+      "result": {
+        "status": 200,
+        "json": {
+          "received": true
+        }
+      },
+      "sub": {
+        "id": "de7c4e7c-ac5c-4414-a154-93e26c0fdc39",
+        "user_id": "e43ea68d-def6-4019-91fc-f85b8db2a4bf",
+        "stripe_customer_id": "cus_qa_p2_w6_test",
+        "stripe_subscription_id": "sub_qa_p2_w6_test",
+        "plan": "professional",
+        "status": "canceled",
+        "billing_interval": "monthly",
+        "trial_end": null,
+        "cancel_at_period_end": true,
+        "current_period_start": "2026-07-17T22:39:11.000Z",
+        "current_period_end": "2026-08-16T22:39:11.000Z",
+        "created_at": "2026-07-17T11:51:41.979Z",
+        "updated_at": "2026-07-17T22:39:11.857Z"
+      }
+    },
+    {
+      "phase": "CANCEL-04",
+      "result": {
+        "status": 403,
+        "json": {
+          "error": "Your subscription is inactive. Subscribe to access this feature.",
+          "upgradeToTier": "indie"
+        }
+      }
+    },
+    {
+      "phase": "PORTAL-01",
+      "result": {
+        "status": 500,
+        "json": {
+          "error": "Failed to create portal session"
+        }
+      }
+    },
+    {
+      "phase": "PRORATE-00",
+      "sub": {
+        "id": "sub_1TuMHgC0mmjh4oEMUdDIGc8j",
+        "status": "active"
+      }
+    },
+    {
+      "phase": "PRORATE-01",
+      "newPrice": "price_1TuBneC0mmjh4oEMOHjZNO5n",
+      "prorationLines": []
+    },
+    {
+      "phase": "PRORATE-02",
+      "ingestCheck": {
+        "status": 200,
+        "json": {
+          "received": true
+        }
+      }
+    },
+    {
+      "phase": "PRORATE-03",
+      "newPrice": "price_1TuBndC0mmjh4oEMUSXqG5AK",
+      "newProrationLines": []
+    },
+    {
+      "phase": "PORTAL-02",
+      "result": {
+        "status": 200,
+        "json": {
+          "url": "https://billing.stripe.com/p/session/test_YWNjdF8xU3pIbGJDMG1tamg0b0VNLF9VdUFkenNqUVh1S0RPaFpoTHJIUHVrTE9ZOFlQMWVO0100FYbn8I2R"
+        }
+      },
+      "beforeCust": "cus_qa_p2_w6_test"
+    },
+    {
+      "phase": "RESTORE-01",
+      "original": {
+        "id": "de7c4e7c-ac5c-4414-a154-93e26c0fdc39",
+        "user_id": "e43ea68d-def6-4019-91fc-f85b8db2a4bf",
+        "stripe_customer_id": null,
+        "stripe_subscription_id": null,
+        "plan": "professional",
+        "status": "active",
+        "billing_interval": "monthly",
+        "trial_end": null,
+        "cancel_at_period_end": false,
+        "current_period_start": "2026-07-17T11:51:41.979Z",
+        "current_period_end": "2026-08-16T11:51:41.979Z",
+        "created_at": "2026-07-17T11:51:41.979Z",
+        "updated_at": "2026-07-17T11:51:41.979Z"
+      },
+      "restored": {
+        "id": "de7c4e7c-ac5c-4414-a154-93e26c0fdc39",
+        "user_id": "e43ea68d-def6-4019-91fc-f85b8db2a4bf",
+        "stripe_customer_id": null,
+        "stripe_subscription_id": null,
+        "plan": "professional",
+        "status": "active",
+        "billing_interval": "monthly",
+        "trial_end": null,
+        "cancel_at_period_end": false,
+        "current_period_start": "2026-07-17T22:39:21.813Z",
+        "current_period_end": "2026-08-16T22:39:21.813Z",
+        "created_at": "2026-07-17T11:51:41.979Z",
+        "updated_at": "2026-07-17T22:39:21.813Z"
+      }
+    },
+    {
+      "phase": "ISOLATION-01",
+      "othersUntouched": true
+    }
+  ]
+}

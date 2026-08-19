@@ -1,0 +1,124 @@
+{
+ "runStart": "2026-07-20T11:30:39.450Z",
+ "content-before": {
+  "len": 2011,
+  "matchesPlanted": true
+ },
+ "start": {
+  "status": 200,
+  "elapsed": 2.065,
+  "body": {
+   "sessionId": "15c82e80-5296-49cf-a498-e77a651ce9b2",
+   "queued": true,
+   "jobId": "15c82e80-5296-49cf-a498-e77a651ce9b2"
+  }
+ },
+ "stream": {
+  "nEvents": 1033,
+  "elapsed": 208.783,
+  "final": {
+   "type": "complete",
+   "content": "Session completed successfully",
+   "metadata": {
+    "findingsCreated": 3,
+    "statusAdvanced": true,
+    "newStatus": "line_edited",
+    "documentIds": [
+     "7656d011-b67d-4bf6-99e7-68e614814016"
+    ],
+    "suggestedNext": [
+     "beta-read"
+    ],
+    "tokensInput": 24424,
+    "tokensOutput": 8046,
+    "costUsd": 0.026271239999999994,
+    "endReason": "natural"
+   }
+  }
+ },
+ "findings-new-count": 4,
+ "findings-analysis": [
+  {
+   "id": "acaf7362",
+   "severity": "important",
+   "category": "prose",
+   "status": "pending",
+   "originalText": "There was a palpable silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.",
+   "anchorQuote": "There was a palpable silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.",
+   "newText": "There was a silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.",
+   "description": "Abstract vocabulary — \"palpable silence\" uses an abstract psychological adjective that violates the narrator's documented avoidance of such descriptors. The fingerprint signature is concrete, tactile, procedural language.",
+   "origVerbatim": true,
+   "anchorVerbatim": true,
+   "touchedPlants": [
+    "E4_palpable"
+   ],
+   "touchedDevices": []
+  },
+  {
+   "id": "b48e321f",
+   "severity": "critical",
+   "category": "prose",
+   "status": "pending",
+   "originalText": "There was a palpable silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first. Behind the island the sunset bled crimson and gold across the heavens. What held me was the smaller arithmetic: the rope and the ring and the salt that held them together, and the tin I found wedged under the stone I had found the first letter under, weeks ago, when this was still a story about grief.",
+   "anchorQuote": "Behind the island the sunset bled crimson and gold across the heavens.",
+   "newText": "There was a silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first. What held me was the smaller arithmetic: the rope and the ring and the salt that held them together, and the tin I found wedged under the stone I had found the first letter under, weeks ago, when this was still a story about grief.",
+   "description": "Ornamental sunset description — \"bled crimson and gold across the heavens\" is a stack of three clichéd decorative phrases that completely departs from the narrator's maritime procedural register.",
+   "origVerbatim": true,
+   "anchorVerbatim": true,
+   "touchedPlants": [
+    "E1_double_under",
+    "E4_palpable",
+    "E5_purple"
+   ],
+   "touchedDevices": [
+    "V1_andstack"
+   ]
+  },
+  {
+   "id": "42e70291",
+   "severity": "suggestion",
+   "category": "prose",
+   "status": "pending",
+   "originalText": "Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean.",
+   "anchorQuote": "Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean.",
+   "newText": "Walking back up the steps, I noticed the lamp seemed dimmer than it should, though the wick was right and the glass was clean.",
+   "description": "Dangling modifier — \"Walking back up the steps\" attaches to \"the lamp\" instead of the narrator, creating an accidental image of the lamp walking.",
+   "origVerbatim": true,
+   "anchorVerbatim": true,
+   "touchedPlants": [
+    "E6_dangler"
+   ],
+   "touchedDevices": []
+  },
+  {
+   "id": "8f2bf7d9",
+   "severity": "suggestion",
+   "category": "prose",
+   "status": "rejected",
+   "originalText": "",
+   "anchorQuote": "",
+   "newText": null,
+   "description": "Dangling modifier — \"Walking back up the steps\" attaches to \"the lamp\" instead of the narrator, creating an accidental image of the lamp walking.",
+   "origVerbatim": null,
+   "anchorVerbatim": null,
+   "touchedPlants": [],
+   "touchedDevices": []
+  }
+ ],
+ "metrics": {
+  "newFindings": 4,
+  "misquotes": 0,
+  "misquoteDetail": [],
+  "plantsCaught": [
+   "E4_palpable",
+   "E1_double_under",
+   "E5_purple",
+   "E6_dangler"
+  ],
+  "plantRecall": "4/6",
+  "devicesFlagged": [
+   "V1_andstack"
+  ],
+  "devicePrecision": "5/6 survive"
+ }
+}

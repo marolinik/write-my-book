@@ -1,0 +1,24 @@
+{
+  "status": 201,
+  "body": {
+    "id": "e90b3494-ead4-472f-a34d-502c4b5b775c",
+    "userId": "a31049dd-0fd9-44dd-a232-8606129d1853",
+    "seriesId": null,
+    "bookNumber": 1,
+    "name": "Crown of Embers",
+    "genre": "romantic fantasy",
+    "language": "en",
+    "status": "concept",
+    "description": null,
+    "marketingKit": null,
+    "authorNotes": null,
+    "wordCount": 0,
+    "targetWordCount": null,
+    "chapterCount": 0,
+    "s3Prefix": "a31049dd-0fd9-44dd-a232-8606129d1853/e90b3494-ead4-472f-a34d-502c4b5b775c",
+    "createdAt": "2026-07-18T01:47:22.994Z",
+    "updatedAt": "2026-07-18T01:47:23.004Z",
+    "archivedAt": null,
+    "firstChapterId": "f62e5120-6479-4e5e-b4ac-1e75af07b261"
+  }
+}

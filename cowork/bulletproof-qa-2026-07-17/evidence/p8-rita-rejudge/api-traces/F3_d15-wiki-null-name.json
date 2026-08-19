@@ -1,0 +1,28 @@
+{
+  "id": "F3",
+  "label": "d15-wiki-null-name",
+  "actor": "p2",
+  "capturedAt": "2026-07-20T11:31:20.020Z",
+  "request": {
+    "method": "POST",
+    "url": "http://127.0.0.1:3002/api/books/1c829f25-3c52-4751-80b1-61cdc7fd8c73/wiki",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p2",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "type": "character",
+      "name": null
+    },
+    "bodyMode": "json"
+  },
+  "response": {
+    "status": 400,
+    "contentType": "application/json",
+    "bodyLength": 126,
+    "bodyText": "{\"error\":\"Invalid input\",\"details\":{\"fieldErrors\":{\"name\":[\"Invalid input: expected string, received null\"]},\"formErrors\":[]}}"
+  },
+  "expected": "400 (was 500 empty)",
+  "note": null
+}

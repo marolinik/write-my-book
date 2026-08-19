@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { CalendarClockIcon, Loader2Icon, MoonIcon, ZapIcon } from "lucide-react";
 
+import { isTerminalBatchStatus } from "@/lib/batch/batch-status";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,6 +30,37 @@ const BATCH_PASSES: ReadonlyArray<{ id: string; label: string; perChapter: boole
 
 const DEFAULT_CAP_USD = 10;
 const MAX_CAP_USD = 25;
+/**
+ * Smallest cap the field offers, in cents (D-125). The API accepts any finite
+ * `0 < cap <= 25`; the field previously rendered `min={1} step={1}`, which made
+ * every sub-dollar cap look forbidden even though the batch guard, the digest
+ * and the notification copy all support one. A cent-scale cap is the ONLY way
+ * to observe the budget-halt path without hand-rolling an API call, so it must
+ * be typable here.
+ */
+const MIN_CAP_USD = 0.01;
+const CAP_STEP_USD = 0.01;
+
+/** One message for every rejected cap — the bounds are stated, not implied. */
+const CAP_RANGE_MESSAGE = `Enter a budget cap between $${MIN_CAP_USD.toFixed(2)} and $${MAX_CAP_USD.toFixed(2)}.`;
+
+/**
+ * Validate the typed cap against the SAME bounds the field advertises (D-125).
+ * Returns the parsed dollar amount or the reason it was refused — never a
+ * silent coercion (an empty field used to become `Number("") === 0`, which the
+ * old gate then rejected with a toast that named "$0" as if 0 were allowed).
+ */
+export function parseBatchCapUsd(
+  raw: string
+): { ok: true; value: number } | { ok: false; error: string } {
+  const trimmed = raw.trim();
+  if (trimmed === "") return { ok: false, error: CAP_RANGE_MESSAGE };
+  const value = Number(trimmed);
+  if (!Number.isFinite(value) || value < MIN_CAP_USD || value > MAX_CAP_USD) {
+    return { ok: false, error: CAP_RANGE_MESSAGE };
+  }
+  return { ok: true, value };
+}
 
 interface BatchStatusCounts {
   total: number;
@@ -54,8 +86,6 @@ interface BatchStatusResponse {
   counts: BatchStatusCounts;
 }
 
-const TERMINAL = new Set(["done", "failed", "cancelled"]);
-
 interface BatchEditorialDialogProps {
   bookId: string;
   chapterNumbers: number[];
@@ -75,7 +105,12 @@ export function BatchEditorialDialog({ bookId, chapterNumbers }: BatchEditorialD
   const [passes, setPasses] = useState<Set<string>>(new Set(["dev-edit"]));
   const [start, setStart] = useState(minChapter);
   const [end, setEnd] = useState(maxChapter);
-  const [cap, setCap] = useState(DEFAULT_CAP_USD);
+  // The cap is held as the RAW string the writer typed (D-125): a number state
+  // conflates "" with 0 and fights every intermediate decimal keystroke, which
+  // is half of why a sub-dollar cap was unreachable from the UI.
+  const [capInput, setCapInput] = useState(String(DEFAULT_CAP_USD));
+  const [capError, setCapError] = useState<string | null>(null);
+  const capInputRef = useRef<HTMLInputElement>(null);
   const [schedule, setSchedule] = useState<"now" | "tonight">("now");
   const [submitting, setSubmitting] = useState(false);
 
@@ -97,7 +132,10 @@ export function BatchEditorialDialog({ bookId, chapterNumbers }: BatchEditorialD
         if (!res.ok) return;
         const data: BatchStatusResponse = await res.json();
         setStatus(data);
-        if (TERMINAL.has(data.batch.status)) stopPolling();
+        // ONE shared terminal set (D-186c). The local copy this replaced omitted
+        // `halted`, so a budget-cap halt — reconciled and final — was polled
+        // every 3s forever and still offered "Cancel batch".
+        if (isTerminalBatchStatus(data.batch.status)) stopPolling();
       } catch {
         // Transient poll error — keep the last known status.
       }
@@ -135,10 +173,16 @@ export function BatchEditorialDialog({ bookId, chapterNumbers }: BatchEditorialD
       toast.error("Pick at least one editorial pass.");
       return;
     }
-    if (cap <= 0 || cap > MAX_CAP_USD) {
-      toast.error(`Budget cap must be between $0 and $${MAX_CAP_USD}.`);
+    // D-125: same bounds the field advertises, refused where the writer is
+    // looking (inline alert + aria-invalid + focus) instead of by a toast that
+    // named a range the code did not enforce.
+    const parsedCap = parseBatchCapUsd(capInput);
+    if (!parsedCap.ok) {
+      setCapError(parsedCap.error);
+      capInputRef.current?.focus();
       return;
     }
+    setCapError(null);
     setSubmitting(true);
     try {
       const res = await fetch(`/api/books/${bookId}/batch`, {
@@ -148,7 +192,7 @@ export function BatchEditorialDialog({ bookId, chapterNumbers }: BatchEditorialD
           workflowIds: Array.from(passes),
           chapterStart: start,
           chapterEnd: end,
-          budgetCapUsd: cap,
+          budgetCapUsd: parsedCap.value,
           scheduleMode: schedule,
           ...(schedule === "tonight" ? { scheduledFor: nextTwoAmIso() } : {}),
         }),
@@ -197,7 +241,11 @@ export function BatchEditorialDialog({ bookId, chapterNumbers }: BatchEditorialD
   const done = status ? status.counts.completed + status.counts.failed + status.counts.skipped : 0;
   const total = status?.batch.childCount ?? 0;
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-  const isTerminal = status ? TERMINAL.has(status.batch.status) : false;
+  const isTerminal = status ? isTerminalBatchStatus(status.batch.status) : false;
+  // Cap shown while the first poll is still in flight: the value that was
+  // actually submitted (the server row wins the moment it arrives).
+  const parsedCap = parseBatchCapUsd(capInput);
+  const submittedCapUsd = parsedCap.ok ? parsedCap.value : DEFAULT_CAP_USD;
 
   return (
     <Dialog
@@ -277,17 +325,36 @@ export function BatchEditorialDialog({ bookId, chapterNumbers }: BatchEditorialD
                 <Label htmlFor="batch-cap">Budget cap (USD)</Label>
                 <Input
                   id="batch-cap"
+                  ref={capInputRef}
                   type="number"
-                  min={1}
+                  inputMode="decimal"
+                  min={MIN_CAP_USD}
                   max={MAX_CAP_USD}
-                  step={1}
-                  value={cap}
-                  onChange={(e) => setCap(Number(e.target.value))}
+                  step={CAP_STEP_USD}
+                  value={capInput}
+                  onChange={(e) => {
+                    setCapInput(e.target.value);
+                    if (capError) setCapError(null);
+                  }}
+                  aria-invalid={capError ? true : undefined}
+                  aria-describedby={
+                    capError ? "batch-cap-error" : "batch-cap-hint"
+                  }
                   className="w-28"
                 />
-                <p className="text-muted-foreground text-xs">
-                  Estimated spend, not billed actuals. Max ${MAX_CAP_USD}. The batch
-                  halts remaining passes if the estimate reaches this cap.
+                {capError && (
+                  <p
+                    id="batch-cap-error"
+                    role="alert"
+                    className="text-destructive text-xs"
+                  >
+                    {capError}
+                  </p>
+                )}
+                <p id="batch-cap-hint" className="text-muted-foreground text-xs">
+                  Estimated spend, not billed actuals. ${MIN_CAP_USD.toFixed(2)}–$
+                  {MAX_CAP_USD}. The batch halts remaining passes if the estimate
+                  reaches this cap.
                 </p>
               </div>
 
@@ -342,7 +409,7 @@ export function BatchEditorialDialog({ bookId, chapterNumbers }: BatchEditorialD
                 </Badge>
                 <span className="text-muted-foreground text-sm">
                   ${(status?.batch.spentUsd ?? 0).toFixed(2)} / $
-                  {(status?.batch.budgetCapUsd ?? cap).toFixed(2)}
+                  {(status?.batch.budgetCapUsd ?? submittedCapUsd).toFixed(2)}
                 </span>
               </div>
 

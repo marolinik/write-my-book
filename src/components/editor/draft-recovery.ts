@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import type { EditorPaneState } from "@/stores/editor-store";
 import type { RecoveryDecision } from "@/hooks/use-draft-buffer";
 import { deleteDraft } from "@/lib/offline/draft-store";
+import { clearLastChanceDraft } from "@/lib/offline/last-chance-mirror";
 
 export interface ApplyRecoveryOptions {
   decision: RecoveryDecision;
@@ -110,10 +111,12 @@ export function applyRecoveryDecision({
       st.markClean();
     }
     st.setDraftSavedAt(null);
-    // clearDraft resets the buffer's write-skip hash and deletes this tab's
-    // row; the unconditional delete backstops a row still stamped with a
-    // pre-crash clientId (the user explicitly discarded THIS draft).
+    // clearDraft resets the buffer's write-skip hashes and deletes this tab's
+    // rows; the unconditional deletes backstop rows still stamped with a
+    // pre-crash clientId (the user explicitly discarded THIS draft) — the
+    // last-chance mirror included, or the next load would resurrect it.
     clearDraft(chapterId);
     void deleteDraft(chapterId);
+    clearLastChanceDraft(chapterId);
   }
 }

@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { stripe, PLANS, type PlanKey } from "@/lib/billing";
 import { checkoutSchema } from "@/lib/validation";
 import type Stripe from "stripe";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,7 +16,7 @@ export async function POST(req: NextRequest) {
     }
 
     const user = await requireUser();
-    const body = await req.json();
+    const body = await parseJsonBody(req);
 
     const parsed = checkoutSchema.safeParse(body);
     if (!parsed.success) {
@@ -56,6 +57,40 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Fetch once — used by the double-subscribe guard here and for the
+    // Stripe customer id below.
+    let sub = await db.subscription.findUnique({
+      where: { userId: user.id },
+    });
+
+    // One trial per customer: the unique-per-user Subscription row retains
+    // trialEnd from any prior trial, so a repeat checkout is paid-from-day-1.
+    // Computed from the ORIGINAL row before any mutation below.
+    const hasHadTrial = !!sub?.trialEnd;
+
+    // D-06 guard: a user with a live subscription must change plans via the
+    // billing portal (which prorates the existing subscription). Creating a
+    // fresh Checkout session here would spin up a second, parallel Stripe
+    // subscription and double-bill the writer. Mirrors plan-gating semantics:
+    // active/past_due are live; trialing counts only while the trial is live.
+    const hasLiveSubscription =
+      !!sub &&
+      (sub.status === "active" ||
+        sub.status === "past_due" ||
+        (sub.status === "trialing" &&
+          (!sub.trialEnd || sub.trialEnd.getTime() > Date.now())));
+
+    if (hasLiveSubscription) {
+      return NextResponse.json(
+        {
+          error:
+            "You already have an active subscription. To change plans, use Manage Subscription (the billing portal) — plan changes there are prorated automatically.",
+          code: "already_subscribed",
+        },
+        { status: 409 }
+      );
+    }
+
     // Founder slot availability check (atomic)
     if (plan === "founder") {
       const slotCheck = await db.$transaction(async (tx) => {
@@ -83,10 +118,6 @@ export async function POST(req: NextRequest) {
     }
 
     // Get or create Stripe customer
-    let sub = await db.subscription.findUnique({
-      where: { userId: user.id },
-    });
-
     let customerId = sub?.stripeCustomerId;
 
     if (!customerId) {
@@ -123,8 +154,15 @@ export async function POST(req: NextRequest) {
       metadata: { userId: user.id, plan, billingInterval },
     };
 
-    // Add trial for Indie and Professional only (trialDays > 0)
-    if (planDef.trialDays > 0) {
+    // Card-free trial for Indie and Professional (trialDays > 0), first trial
+    // only. `payment_method_collection: "if_required"` lets the writer start
+    // without a card; combined with the shipped `missing_payment_method:
+    // "cancel"` the sub auto-cancels on day 14 if no card is added → webhook
+    // maps it to `canceled` → plan-gating reinterprets that as Free (a
+    // downgrade, never a lockout). Repeat checkouts (hasHadTrial) are
+    // paid-from-day-1: no second trial block.
+    if (planDef.trialDays > 0 && !hasHadTrial) {
+      sessionConfig.payment_method_collection = "if_required";
       sessionConfig.subscription_data = {
         trial_period_days: planDef.trialDays,
         trial_settings: {
@@ -139,6 +177,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ url: session.url });
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     console.error("Checkout error:", error);
     return NextResponse.json(
       { error: "Failed to create checkout session" },

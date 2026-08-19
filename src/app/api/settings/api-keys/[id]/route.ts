@@ -14,8 +14,14 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  let user;
   try {
-    const user = await requireUser();
+    user = await requireUser();
+  } catch {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
     const { id } = await params;
 
     const key = await db.apiKey.findFirst({
@@ -51,8 +57,12 @@ export async function GET(
         { status: 200 } // 200 — the request succeeded, the key failed validation
       );
     }
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  } catch (error) {
+    console.error("GET /api/settings/api-keys/:id error:", error);
+    return NextResponse.json(
+      { error: "Failed to check API key" },
+      { status: 500 }
+    );
   }
 }
 
@@ -64,8 +74,14 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  let user;
   try {
-    const user = await requireUser();
+    user = await requireUser();
+  } catch {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
     const { id } = await params;
 
     // Verify key exists and belongs to user
@@ -129,7 +145,11 @@ export async function DELETE(
     }
 
     return NextResponse.json({ deleted: true });
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  } catch (error) {
+    console.error("DELETE /api/settings/api-keys/:id error:", error);
+    return NextResponse.json(
+      { error: "Failed to delete API key" },
+      { status: 500 }
+    );
   }
 }

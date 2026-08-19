@@ -1,0 +1,21 @@
+﻿# Worker Proof — P5 Sam re-judge
+Captured: 2026-07-20 05:03:32 +02:00
+Host: LW11_MMARKOVIC
+
+## wmb-pub worker processes (src/worker.ts chain)
+PID 62792: "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npm-cli.js run worker:dev
+PID 38652: "C:\Program Files\nodejs\\node.exe"  "C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\npm\bin\npx-cli.js" tsx src/worker.ts
+PID 38908: "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\tsx\dist\cli.mjs" src/worker.ts
+PID 58460: "C:\Program Files\nodejs\node.exe" --require D:\Projects\wmb-pub\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/wmb-pub/node_modules/tsx/dist/loader.mjs src/worker.ts
+
+## Leaf worker.ts executor count (actual BullMQ worker process): 1
+EXPECTED: exactly 1 worker process at capture time.
+
+Note: the worker:dev -> npx -> tsx -> loader chain is a single logical worker.
+Full node.exe process table snapshot below for auditability:
+  [37804] "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\cross-env\dist\bin\cross-env.js" NODE_OPTIONS=--max-old-space-size=4096 next dev -p 3002
+  [48020] "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\next\dist\bin\next" "dev" "-p" "3002"
+  [2488] "C:\Program Files\nodejs\node.exe" D:\Projects\wmb-pub\node_modules\next\dist\server\lib\start-server.js
+  [18204] "node" D:\Projects\wmb-pub\.next\dev\build\postcss.js 56455
+  [38908] "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\tsx\dist\cli.mjs" src/worker.ts
+  [58460] "C:\Program Files\nodejs\node.exe" --require D:\Projects\wmb-pub\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/wmb-pub/node_modules/tsx/dist/loader.mjs src/worker.ts

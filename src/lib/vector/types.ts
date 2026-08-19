@@ -29,11 +29,25 @@ export type DocType =
 export interface MemoryChunkPayload {
   schemaVersion: number; // Always 1
   bookId: string;
+  /**
+   * Owning tenant (RC-6). Stored so semantic search can filter by tenant, not
+   * bookId alone — one refactored caller passing an unverified bookId otherwise
+   * leaks another user's manuscript prose. Nullable for chunks indexed before
+   * userId was threaded through (backward compatible).
+   */
+  userId: string | null;
   seriesId: string | null;
   docType: string; // DocType union or custom string
   docId: string | null; // Document ID, session ID, or finding ID
   chapterId: string | null;
   chapterNumber: number | null;
+  /**
+   * True only on a chapter's CONTENT/prose chunks (D-75). Lets the chapter-scoped
+   * delete replace a chapter's prose by (bookId, chapterNumber) without touching a
+   * sibling brief/plan that maps to the same "chapter" docType. Absent (optional) on
+   * every other chunk and on pre-D-75 chunks — back-compatible.
+   */
+  chapterContent?: boolean;
   chunkIndex: number;
   text: string;
   characterNames: string[];
@@ -54,6 +68,7 @@ export interface SearchOptions {
 
 export interface SearchFilter {
   bookId?: string;
+  userId?: string;
   chapterNumber?: number;
   characterNames?: string[];
   docType?: string;

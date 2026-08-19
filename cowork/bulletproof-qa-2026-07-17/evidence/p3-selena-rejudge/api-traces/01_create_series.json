@@ -1,0 +1,35 @@
+{
+  "capturedAt": "2026-07-20T02:17:23.859Z",
+  "request": {
+    "method": "POST",
+    "url": "/api/series",
+    "actingAs": "user_qa_p3",
+    "headers": {
+      "content-type": "application/json",
+      "x-e2e-test-secret": "***MASKED***",
+      "x-e2e-clerk-id": "user_qa_p3"
+    },
+    "body": {
+      "title": "Selena Rejudge Saga [RJ0720]",
+      "genre": "fantasy",
+      "seriesType": "DUOLOGY",
+      "plannedBooks": 2
+    }
+  },
+  "response": {
+    "status": 201,
+    "latencyMs": 1137,
+    "body": {
+      "id": "0e11c5c1-e9ee-4736-a214-40dc1576c1b3",
+      "userId": "3f4836f4-083e-4011-9bb5-bec2a6714eb6",
+      "title": "Selena Rejudge Saga [RJ0720]",
+      "genre": "fantasy",
+      "language": "en",
+      "seriesType": "DUOLOGY",
+      "plannedBooks": 2,
+      "description": null,
+      "createdAt": "2026-07-20T02:17:23.831Z",
+      "updatedAt": "2026-07-20T02:17:23.831Z"
+    }
+  }
+}

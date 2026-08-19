@@ -1,0 +1,63 @@
+{
+ "30-line-edit-blocked": {
+  "status": 422,
+  "elapsed": 0.087,
+  "body": {
+   "error": "Setup incomplete",
+   "setupIncomplete": true,
+   "redirectTo": "/books/6d69fd7c-f7a4-4e3d-bf49-1415d81f5326/setup"
+  }
+ },
+ "31-wizard-finish-patch": {
+  "status": 200,
+  "elapsed": 1.267,
+  "body": {
+   "id": "aca9f6f9-cd9c-4245-aa36-02511dadffcb",
+   "bookId": "6d69fd7c-f7a4-4e3d-bf49-1415d81f5326",
+   "modelGhostwriter": "opus",
+   "modelEditor": "sonnet",
+   "modelBetaReader": "sonnet",
+   "modelAnalyst": "haiku",
+   "modelCoach": "sonnet",
+   "modelCreative": "opus",
+   "modelResearch": "sonnet",
+   "modelOverride": null,
+   "autoCommit": true,
+   "styleStrictness": "balanced",
+   "betaPanelSize": 10,
+   "betaConsensus": 80,
+   "betaConvergence": 70,
+   "language": "en",
+   "setupImportSkipped": false,
+   "setupComplete": false,
+   "journeyId": null,
+   "journeyStepsSnapshot": null
+  }
+ },
+ "32-settings-after": {
+  "status": 200,
+  "elapsed": 0.048,
+  "body": {
+   "id": "aca9f6f9-cd9c-4245-aa36-02511dadffcb",
+   "bookId": "6d69fd7c-f7a4-4e3d-bf49-1415d81f5326",
+   "modelGhostwriter": "opus",
+   "modelEditor": "sonnet",
+   "modelBetaReader": "sonnet",
+   "modelAnalyst": "haiku",
+   "modelCoach": "sonnet",
+   "modelCreative": "opus",
+   "modelResearch": "sonnet",
+   "modelOverride": null,
+   "autoCommit": true,
+   "styleStrictness": "balanced",
+   "betaPanelSize": 10,
+   "betaConsensus": 80,
+   "betaConvergence": 70,
+   "language": "en",
+   "setupImportSkipped": false,
+   "setupComplete": false,
+   "journeyId": null,
+   "journeyStepsSnapshot": null
+  }
+ }
+}

@@ -1,0 +1,47 @@
+{
+  "batchId": "cmrsngsgh0001x40fsn0ii349",
+  "batchRun_spentUsd": 0.04786332,
+  "digest_spentUsd": 0.04786332,
+  "db_actualCostUsd_sum": 0.04786332,
+  "notification_title": "Overnight batch complete",
+  "notification_message": "2/3 passes · 11 findings · $0.05 / $10.00 cap",
+  "notification_parsed_spend": 0.05,
+  "per_session": [
+    {
+      "id": "e4476f94-d194-48bb-be97-e84fffa9525f",
+      "status": "failed",
+      "chapterNumber": 3,
+      "actualCostUsd": 0
+    },
+    {
+      "id": "d4a471d5-9161-47f1-82d6-d49d300b9ed7",
+      "status": "completed",
+      "chapterNumber": 2,
+      "actualCostUsd": 0.004456709999999999
+    },
+    {
+      "id": "3acf82eb-cc43-448f-ac93-ecefb974cd4c",
+      "status": "completed",
+      "chapterNumber": 1,
+      "actualCostUsd": 0.04340661
+    }
+  ],
+  "agreement": {
+    "all_present": true,
+    "nonzero": true,
+    "batchRun_eq_digest": true,
+    "notif_eq_batchRun_2dp": true,
+    "db_eq_batchRun_2dp": true
+  },
+  "halted": false,
+  "haltReason": null,
+  "passes": {
+    "total": 3,
+    "failed": 1,
+    "skipped": 0,
+    "completed": 2
+  },
+  "findings_total": 11,
+  "wall_clock_s": 295,
+  "latency_note": "dev-server (localhost:3002); worker concurrency=2; timing NOT isolation-guaranteed"
+}

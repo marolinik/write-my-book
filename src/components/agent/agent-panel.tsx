@@ -202,7 +202,7 @@ export function AgentPanel({
 
         if (isBackground) {
           toast.info(`${wf.label} queued for background processing`, {
-            description: "You can navigate away -- progress will continue.",
+            description: "You can navigate away — progress will continue.",
           });
         }
       } catch {

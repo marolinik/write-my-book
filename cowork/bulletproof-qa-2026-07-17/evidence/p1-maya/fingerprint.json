@@ -1,0 +1,150 @@
+{
+  "status": 200,
+  "body": {
+    "profiles": [
+      {
+        "id": "f2a80f92-bf7f-4c8d-ae8b-9e0161e0e8f3",
+        "name": "Style — The Salt Letters QA P1 93181fd1",
+        "description": "Auto-generated from capture-style workflow",
+        "fingerprint": "# FINGERPRINT: Author Voice Analysis\n\n**Analysis Date:** 2024\n**Source Text:** Chapter One (~570 words, 33 sentences, 7 paragraphs)\n\n---\n\n## 1. SENTENCE STRUCTURE\n\n**Quantitative Metrics:**\n- **Mean sentence length:** ~17.3 words\n- **Median sentence length:** ~15 words\n- **Standard deviation:** ~12 words (high variance)\n- **Distribution shape:** Clustered bimodal — peaks around 8-10 words and 25-30 words, with occasional spikes to 60+ words\n\n**Sentence Opening Patterns:**\n- **Subject-first (45%):** \"Imogen kept them,\" \"She never read them,\" \"Her aunt called this,\" \"She told him yes\"\n- **Prepositional/Temporal (25%):** \"On the evening,\" \"The letters were from,\" \"There was a version,\" \"Tomorrow she would\"\n- **Demonstrative/Referent (15%):** \"The letters,\" \"The tin,\" \"The tide\"\n- **Participial/Complex (10%):** \"Dragging its long grey hem,\" \"Testing whether the pain\"\n- **Fragment (5%):** \"She would wade.\" \"Tomorrow, or the day after.\"\n\n**Signature Rhythm: The \"Long-Then-Punch\" Pattern**\n\nThis author's most distinctive sentence structure pattern is the strategic alternation between extended, complex sentences and blunt, short declarative ones. A single paragraph frequently contains this rhythm:\n\n> *There was a version of grief that could be managed if you portioned it out correctly — a paragraph before breakfast, a paragraph after, never the whole letter at once, because the whole letter at once was how her mother had gone under, and Imogen had promised herself, on the day of the funeral, in a voice she didn't recognize as her own, that she would not go under. She would wade.*\n\nHere, a 68-word sentence compresses into a 4-word hammer. This creates a rhythmic signature — the prose breathes in long exhalations, then strikes.\n\n**Fragment Usage:**\nFragments appear deliberately, never accidentally. The author uses fragments for emphasis, typically as stand-alone paragraphs or immediately following longer sentences to reset the reader's pulse:\n\n> *She would wade.*\n> *She would keep her chin tipped back and her mouth shut and she would wade through this.*\n\n> *Tomorrow she would read it. Tomorrow, or the day after.*\n\nThese fragments serve three purposes: (1) They create urgency where the surrounding narrative is contemplative; (2) They mimic the character's cognitive processing — her mind isolates key phrases the way she isolates grief; (3) They function as rhetorical anchors.\n\n**Complex-to-Simple Ratio:**\nComplex sentences (those with embedded clauses, dependent constructions, or em-dash digressions) comprise approximately 65% of the text. Simple sentences comprise 35%. Of the simple sentences, many are deliberately short and truncated, functioning as rhythmic punctuation rather than informational units.\n\n**Nested Clause Chains:**\nThe author frequently constructs sentences with multiple embedded ideas held together by ornamental syntax rather than hard connectors:\n\n> *The letters were from a man named Thomas Rhys, who had loved her mother before the war took the shape out of him, and who now wrote to Imogen as though she were the last surviving translator of a language he'd once been fluent in.*\n\nThis sentence uses two \"who\" clauses, a \"before\" temporal clause, and a \"as though\" comparative — all held together without semicollons or hard stops. The accumulation creates a sinking rhythm, as if the reader is being gently submerged in information, mirroring the character's own way of processing complex emotional terrain.\n\n---\n\n## 2. VOCABULARY PROFILE\n\n**Register: Literary-Intimate**\n\nThis author operates in a register I would classify as \"literary intimate\" — elevated enough for literary fiction, but warm and accessible enough to feel like a whispered confession rather than an academic lecture. The prose avoids both the cold precision of hard SF and the pulpy urgency of commercial thriller.\n\n**Distinctive Word Choices:**\n\nThe author selects words that are precise but not unusual — familiar vocabulary deployed in slightly unexpected contexts. Key examples:\n\n- **\"Salt-stained\"** (opening modifier) — specific enough to conjure sensory detail, familiar enough to feel lived-in\n- **\"Arithmetic\"** for grief management — a surprising but immediately understood metaphor\n- **\"Portioned it out correctly\"** — domestic language applied to emotional labor\n- **\"Survivable distance\"** — clinical modifier paired with vague noun, creating specificity through tension\n- **\"Earned penmanship as a form of penance\"** — literary parallelism that rewards careful reading\n\n**Vocabulary by Domain:**\n\n1. **Coastal/Maritime (35%):** tide, water, gulls, salt house, coastline, shallows, current, tideline, wet, dry, sea\n2. **Body/Sensation (20%):** burn, pain, mouth, chin, ribs, heartbeat, under\n3. **Domestic/Container (15%):** biscuit tin, floorboard, room, furnished, visitors, door, windows\n4. **Mathematical/Ordering (12%):** arithmetic, paragraph, portioned, once, negotiate, schedule, whole\n5. **Abstract Emotional (10%):** evasion, grief, happiness, feeling, clarity, survivable\n6. **Metacognitive (8%):** understanding, recognizing, deciding, knowing, reasoning, confirming\n\n**Register Shifts:**\n\nThe author maintains register consistency across contexts — there are no jarring shifts between historical and present-tense vocabulary or between character voice and narrative voice. What changes is density: descriptive passages cluster more maritime vocabulary; introspective passages cluster abstract emotional vocabulary. The register itself remains steady, like a single-threaded voice listening to itself from different angles.\n\n**Word Choice Tendency:**\n\nThis author prefers concrete nouns modified by adjectives over abstract nouns modified by adverbs. Instead of \"profoundly sad,\" we get \"salt-stained envelopes.\" Instead of \"intensely careful,\" we get \"careful, spaced-out script.\" The vocabulary is always grounded in physical reality first, then allowed to bear emotional meaning.\n\n---\n\n## 3. DIALOGUE PATTERNS\n\n**Dialogue-to-Narrative Ratio: 0.05 (approximately 5%)**\n\nThis chapter contains very little direct dialogue. The presence of dialogue is registered through indirect speech, reported thought, and narrative paraphrase:\n\n- *She told him yes.*\n- *She told him yes even on the days it wasn't strictly true.*\n- *Her aunt called this evasion.*\n- *Imogen called it arithmetic.*\n\n**Tag Preferences:**\n- **No tag (reported action):** 100% — \"She told him yes\" is treated as action, not speech\n- **Action beats:** None visible — the author treats speech as part of the action stream\n- **Explicit tags (said, asked, etc.):** Absent\n\n**Character Voice Differentiation:**\n\nWithout direct dialogue, the author differentiates character voices through descriptive filters:\n\n> *Thomas's careful, spaced-out script, each letter of every word given room to breathe as though he'd learned penmanship as a form of penance.*\n\n> *Her aunt had a way of asking directly, a bluntness sharpened by decades of being lied to gently.*\n\nThomas's voice is conveyed through the physicality of his handwriting (\"careful, spaced-out,\" contralsting with her mother's \"small and slanted and impatient\" script). The aunt's voice is described through adjectives of sharpness (\"bluntness sharpened\"), implying abrasion through geometry.\n\n**Formatting Conventions:**\n\nNo quotation marks or indentation for indirect speech. Reported thinking uses the same format as reported dialogue — both are simply absorbed into the narrative codevoice.\n\n**Narration of Silence:**\n\nCrucially, this author gives weight to absence of speech. Imogen's unwillingness to open letters immediately, her refusal to share correspondence with her aunt — these silences are treated as active choices, and the narrative voice attends to them with the same care it would give dialogue. The chapter is ultimately *about* things that are not said.\n\n---\n\n## 4. METAPHOR AND FIGURATIVE LANGUAGE\n\n**Figurative Density: Very High**\n\nThis author's prose is densely metaphorical — almost every paragraph contains at least one extended metaphor, and many contain two or three interlocking ones. The metaphors are not decorative; they are the primary engine of the prose's emotional specificity.\n\n**Primary Metaphor Domains:**\n\n**1. COASTAL/MARINE (dominant):**\n> *The tide was going out, dragging its long grey hem across the sand.*\n\n> *She would wade through this the way she'd been taught to wade through the shallows at Pentref, sideways to the current, never fighting it straight on.*\n\n> *The sea seemed to specialize in* clarity.\n\nThe sea is not background; it is the author's primary conceptual framework. Grief is a tide. Understanding arrives from the sea. Movement through difficulty is \"wading.\" The maritime metaphor bleeds into every emotional register.\n\n**2. CONTAINMENT/ARCHITECTURE:**\n> *It was not, she reasoned, a secret so much as a room she had not yet furnished enough to let visitors in.*\n\n> *…was a door she was not yet strong enough to hold open.*\n\nHeavily used as metaphors for secrecy, emotional readiness, and interior space. Rooms must be \"furnished.\" Doors must be \"held open.\" These are spatial metaphors for psychological thresholds.\n\n**3. MATHEMATICAL/MEASUREMENT:**\n> *Imogen called it arithmetic.*\n\n> *There was a version of grief that could be managed if you portioned it out correctly.*\n\n> *Each one a small negotiation between what she knew and what she was willing to confirm.*\n\nA distinctive secondary domain. The author repeatedly treats emotional processing as calculation — grief to be \"portioned,\" truth as \"negotiation.\" This gives the prose a strange tension: feelings are being managed with the tools of arithmetic, which is exactly what the character is trying to do.\n\n**4. BODILY SENSATION:**\n> *She let them sit, the way you let a burn sit before you touch it again, testing whether the pain has changed its mind.*\n\n> *…where it sat against her ribs like a second, smaller heartbeat.*\n\nHeavy use of tactile and proprioceptive metaphor. Pain is something that \"changes its mind.\" Letters have heartbeats. The author grounds emotional states in body awareness.\n\n**Metaphor Style:**\n\nMetaphors in this voice tend to be:\n- **Grounded in physical reality first** — the metaphor has a literal referent (actual tide, actual burns, actual doors) before it bears figurative meaning\n- **Extended but not overworked** — a metaphor may run for 2-3 sentences but typically changes before becoming predictable\n- **Often implied rather than explicit** — \"She would wade\" doesn't say \"wade through grief,\" trusting the reader to connect it to the preceding context\n- **Preferably drawn from the character's environment** — coastal imagery works because the character lives on the coast\n\n**Recurring Symbols:**\n\n- **The sea/tide:** emotional processing, truth, clarity, the unconscious\n- **Letters:** delayed communication with the past, unsent feelings, objects that must be endured before understood\n- **Windows/lights:** souls, responsibility, observation from distance\n- **Biscuit tin/floorboard:** buried memory, precarious storage, hidden rooms\n\n---\n\n## 5. NARRATIVE DISTANCE AND POV\n\n**POV Type: Close Third Person (Psychological Close)**\n\nThe narrative voice is positioned inside the character's mind, but not quite identical to first-person thought. There is a narratorial presence — a voice that *describes* the character's thoughts and feelings from a position of deep intimacy, with slight separation.\n\n**Interiority Handling:**\n\nThe author uses multiple techniques for rendering interiority:\n\n**1. Direct Thought (filtered):**\n> *She understood, without being told, that Thomas was not really asking about gulls. He was asking whether the world that had held his happiness was still standing.*\n\nThe thought is presented as Imogen's understanding, but filtered through the impersonal \"she understood\" rather than italicized first-person thought.\n\n**2. Free Indirect Discourse:**\n> *Her aunt called this evasion. Imogen called it arithmetic.*\n\nThe narration adopts the two characters' perspectives sequentially within the same sentence, almost as if both were present.\n\n**3. Psycho-narration:**\n> *She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance.*\n\nThe narrator reports on the character's thinking process without quoting the thinking itself.\n\n**4. Sensory Interiority:**\n> *She put it in her coat pocket instead, where it sat against her ribs like a second, smaller heartbeat.*\n\nA physical sensation described in terms of emotional resonance.\n\n**Narrative Distance Shifts:**\n\nThe distance fluctuates between paragraphs:\n- Paragraphs 1-4: Very close interiority, constant access to Imogen's reasoning\n- Paragraph 5: Slightly wider — the character becomes an object of reflection (\"she understood… that she was the second kind\")\n- Paragraphs 6-7: Return to close interiority, but with forward momentum\n\n**Sensory Detail Delivery:**\n\nSensory details are always filtered through emotional significance:\n- Not just \"salt\" but \"salt-stained envelopes\"\n- Not just \"wet sand\" but \"where the wet met the dry\"\n- Not just \"dark\" but \"in the dark, counting the lit windows\"\n\nThe author never includes sensory detail for its own sake; every image is pulled into the emotional frame.\n\n---\n\n## 6. PUNCTUATION AND FORMATTING\n\n**Em Dash Usage: Heavy (~12 in this 570-word chapter)**\n\nEm dashes are the author's primary punctuation tool for embedding digressions, parentheticals, and emotional aside. They serve three functions:\n\n**Function 1 — Explanatory Expansions:**\n> *…if you portioned it out correctly — a paragraph before breakfast, a paragraph after, never the whole letter at once…*\n\nThe em dash introduces a breakdown or expansion of the preceding claim.\n\n**Function 2 — Interjection/Commentary:**\n> *If her aunt asked her directly — and her aunt had a way of asking directly, a bluntness sharpened by decades of being lied to gently — Imogen would not deny it.*\n\nThe em dash frames a narrator's aside. The syntax requires the reader to hold the main clause in suspension while the aside supplies context.\n\n**Function 3 — Structural Variation:**\n> *…because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.*\n\nHere the em dash marks a parenthetical description in the middle of a complex sentence. The dash replaces what might otherwise be a comma for clarity.\n\n**Semicolon Usage: Absent**\n\nNotably, this author does not use semicolons at all in this sample. Where another writer might use a semicolon to link independent clauses, this author uses either a comma + conjunction, a full stop, or an em dash for the same purpose.\n\n**Ellipsis Usage: Absent**\n\nThree-dot suspensions do not appear. The author prefers the blunt period or the em dash for interrupted or suspended thought.\n\n**Period/Full Stop Emphasis:**\n\nThe period is wielded aggressively for emphasis, particularly after fragments:\n> *She would wade.*\n> *She told him yes.*\n> *Tomorrow she would read it.*\n\nThese staccato interruptions are hallmarks of the voice.\n\n**Paragraph Length Patterns:**\n\nParagraphs range from 4-5 sentences minimum, up to 6-7 sentences. The mean is approximately 5 sentences. Paragraphs are medium-length — never a single burstlet, never a wall of text.\n\n**Scene Break Style:**\n\nNo scene breaks in this chapter (single-scene chapter); however, the shift from one paragraph to the next functions as micro-breaks. The author relies on temporal markers (\"On the evening the twelfth letter came,\" \"Tomorrow she would\") rather than spatial or visual section breaks.\n\n---\n\n## 7. PACING AND RHYTHM\n\n**Base Tempo: Deliberate, Methodical**\n\nThe prose moves slowly and deliberately, as if the author is afraid of startling the reader — or as if the character is afraid of startling herself. Sentences tend to stack rather than stack. Clauses accumulate rather than explode.\n\n**Tension Escalation Technique:**\n\nTension is created through accumulation of withheld information rather than through sentence speed:\n\n> *She did not open the letter that night. She put it in her coat pocket instead, where it sat against her ribs like a second, smaller heartbeat, and she walked home along the tideline in the dark…*\n\nThe tension comes not from *racing* but from the reader's awareness of what is being avoided. The prose *performs* avoidance rather than rushing through it.\n\n**Rhythmic Variation:**\n\n- **Longest paragraph** (paragraph 2): Builds to 68 words, then collapses into \"She would wade.\"\n- **Shortest paragraph** (paragraph 6): 4 sentences of forward motion\n- **Fragments** mark the emotional beat-change in paragraphs\n\nThe author creates rhythm through sentence-length variation rather than through punctuation tricks.\n\n**Transition Techniques:**\n\nTransitions between moments are temporal:\n- *\"On the evening\"* — marks a new occasion\n- *\"Tomorrow\"* — projects forward\n\nThere are no \"meanwhile\" or \"back at the house\" cuts. The narrative stays locked to Imogen's consciousness, and transitions happen inside that frame.\n\n---\n\n## 8. SIGNATURE PATTERNS\n\n**What the Author DOES (Positive Tells):**\n\n**1. Triple-Noun Phrases:**\nThe author has a tendency to modify nouns with three adjectives in a row:\n- *\"small and slanted and impatient\"*\n- *\"careful, spaced-out script\"*\n- *\"bluntness sharpened by decades\"*\n\nThese triplets create a rhythm. The three-adjunctive clusters feel like the prose is hesitating, or trying the weather, touching a phrase before releasing.\n\n**2. \"The way\" Constructions:**\n> *…the way you let a burn sit…*\n> *…the way she'd been taught to wade…*\n> *…the way her mother used to…*\n\nThis construction appears 3 times in 570 words. It's explanatory and comparative, but feels *colloquial* embedded in literary prose. It's the author reaching for clarity mid-sentence.\n\n**3. Repetitive Imperative Sequences:**\n> *She would wade. She would keep her chin tipped back and her mouth shut and she would wade through this…*\n\n> *She told him yes. She told him yes even on the days it wasn't strictly true.*\n\nRepetition with escalation — the author repeats and *then* extends. This is a key rhythm signature.\n\n**4. \"As if\" / \"As Though\" Similes:**\n> *…as if the sea itself needed time to decide…*\n> *…as though she were the last surviving translator…*\n> *…as though he'd learned penmanship as a form of penance.*\n\n> *…where it sat against her ribs like a second, smaller heartbeat…*\n\nSimiles are deployed liberally — approximately one per paragraph. They serve as explanations of internal states using external comparisons.\n\n**5. Body-as-Container Metaphors:**\nLetters are \"against her ribs,\" emotions are \"under,\" grief \"goes under.\" The body is treated as a landscape that can be navigated and submerged.\n\n**What the Author Does NOT Do (Negative Tells):**\n\n**1. NO ITALICS FOR EMPHASIS:**\nThe entire chapter contains zero italicized words for emphasis. When the author wants to emphasize, they use fragments, repiition, or punctuation — not typographic stress.\n\n**2. NO EXCLAMATION MARKS:**\nThe chapter contains zero exclamation points. Emotional intensity is conveyed through sentence *content* and *rhythm*, not punctuation excitement.\n\n**3. NO DIRECT DIALOGUE QUOTATION MARKS:**\nSpeech is rendered through paraphrase and reported action, never through quoted dialogue. This gives the chapter a diary-like intimacy — everything is filtered through the character's narration.\n\n**4. NO SEMICOLONS:**\nA notable absence. Where literary prose often reaches for semicolons to link complex clauses, this author prefers em dashes or full stops.\n\n**5. NO FLASHBACK CUTS:**\nMemory is accessed through *thought*, not through scene reconstruction. The past is reported, not replayed: *\"the winter he taught her to lie convincingly\"* is a flash-in-the-head, not a flashback.\n\n**6. NO BROAD STATEMENTS ABOUT RELEVANCE PLACES:**\nThe setting is specific but not overly described. We get \"the village,\" \"the shore,\" but we don't get descriptions of Welsh landscape beyond what matters to the character. The world is filtered through character consciousness.\n\n**7. NO DRAMATIC SURPRISE ENDINGS:**\nThe chapter ends on awaiting, not revelation: *\"Tomorrow she would read it. Tomorrow, or the dafter.\"* The prose stays true to the character's methodical process — no therapy-crunch punchline, no dramatic reveal. The power is in the continuity of the already, the pattern of wading.\n\n**KEY IDENTIFICATION TELS:**\n\nIf you must identify this author's voice in a passage, look for:\n1. **Maritime metaphors applied to emotional states** (not just coastal setting)\n2. **Fragments following long sentences** (the rhythm signature)\n3. **\"As if\"/\"as though\" similes** throughout\n4. **Reported speech rather than direct dialogue**\n5. **Zero exclamation marks or italics for emphasis**\n6. **Em dashes for parenthetical asides** (heavy, not light)\n7. **Vocabulary clustering in domains of body, containment, mathematics, and coast**\n8. **Deliberate, hesitant pacing** — the prose never rushes\n9. **Interiority through free indirect discourse rather than italic thought**\n10. **Absence of interrogation marks and that most importantly of all — the author trusts the reader to find the meaning in the metaphor without forcing it.",
+        "metrics": {
+          "pov": "close third person",
+          "punctuation": {
+            "semicolonUsage": "absent",
+            "emDashFrequency": "heavy",
+            "ellipsisFrequency": "none"
+          },
+          "dialogueRatio": 0.05,
+          "sentenceLength": {
+            "mean": 17.3,
+            "median": 15,
+            "stdDev": 12.1,
+            "distribution": "bimodal"
+          },
+          "metaphorDomains": [
+            "coastal/maritime",
+            "bodily sensation/proprioception",
+            "containment/architecture",
+            "mathematical/measurement"
+          ],
+          "paragraphLength": {
+            "mean": 4.7,
+            "median": 5,
+            "singleSentenceRate": 0.14
+          },
+          "narrativeDistance": "close",
+          "vocabularyRichness": {
+            "register": "literary",
+            "hapaxRate": 0.38,
+            "typeTokenRatio": 0.81
+          }
+        },
+        "calibrationSamples": [
+          {
+            "why": "This demonstrates the author's signature rhythm of short punchy sentences followed by extended complex sentences. It shows reported speech rather than direct dialogue, the heavy use of em dashes for explanatory expansion, and how character voices are differentiated through narrative filter rather than quoted dialogue.",
+            "passage": "Her aunt called this evasion. Imogen called it arithmetic. There was a version of grief that could be managed if you portioned it out correctly — a paragraph before breakfast, a paragraph after, never the whole letter at once.",
+            "features": [
+              "reported speech rhythm",
+              "em dash for expansion/clarification",
+              "fragment-to-complex sentence sequence",
+              "contrasting character voices through narrative filter",
+              "short declarative followed by long explanation"
+            ]
+          },
+          {
+            "why": "This opening sentence showcases the author's primary metaphor domain (coastal/maritime imagery applied to psychological states), the 'as if' simile pattern, and the tendency to ground abstract emotions (what the letters represent) in concrete sensory detail (salt-stained envelopes, tide). The personification of the sea as 'deciding' establishes the intimate, literary register.",
+            "passage": "The letters arrived in salt-stained envelopes, always three days after the tide had turned, as if the sea itself needed time to decide whether they were worth delivering.",
+            "features": [
+              "marine metaphor applied to emotional processing",
+              "as if simile construction",
+              "personification of natural forces",
+              "subject-first sentence opening",
+              "concrete sensory detail paired with abstract meaning",
+              "opening clause with temporal phrase"
+            ]
+          },
+          {
+            "why": "This demonstrates the author's method of handling interiority through reported thought rather than italicized direct thought. The complex sentence structure with multiple 'and' connectors shows how the author builds philosophical reflection through syntax. The marine metaphor ('the sea seemed to specialize') appears even in introspection, showing domain consistency.",
+            "passage": "She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.",
+            "features": [
+              "psycho-narration",
+              "free indirect discourse",
+              "complex clause chains connected by 'and'",
+              "marine metaphor embedded in reflection",
+              "self-awareness filtered through narrative voice",
+              "long single-sentence paragraph construction"
+            ]
+          },
+          {
+            "why": "This showcases the author's most distinctive rhythmic signature: the fragment ('She would wade.') that resets the reader's pulse after complex surrounding prose. The repetitive escalation pattern and 'the way' construction are positive tells. The metaphor of wading (applied to grief/emotional labor) demonstrates how the author translates abstract emotional states into physical, navigational actions.",
+            "passage": "She would wade. She would keep her chin tipped back and her mouth shut and she would wade through this the way she'd been taught to wade through the shallows at Pentref, sideways to the current, never fighting it straight on.",
+            "features": [
+              "fragment signature (single sentence as paragraph)",
+              "repetitive imperative with escalation ('she would... she would... she would')",
+              "the way construction for simile",
+              "maritime metaphor for emotional processing ('wading')",
+              "imperative turned declarative"
+            ]
+          }
+        ],
+        "sourceBookId": "4116055c-6183-4675-926a-e04f31126951",
+        "sourceBookNumber": 1,
+        "createdAt": "2026-07-17T15:24:36.129Z",
+        "updatedAt": "2026-07-17T15:25:17.556Z"
+      }
+    ],
+    "lenses": [
+      {
+        "id": "39a30f0d-0212-4ab3-8cfe-05c9d6b44659",
+        "bookId": "4116055c-6183-4675-926a-e04f31126951",
+        "characterName": "P1-Lens-1784301764",
+        "sensoryPriority": "sight",
+        "metaphorDomain": "nature",
+        "interiorStyle": "lyrical",
+        "vocabularyRegister": "elevated",
+        "blindSpots": null
+      },
+      {
+        "id": "6c8c787a-3cfb-43c9-a86f-4ca154611ff8",
+        "bookId": "4116055c-6183-4675-926a-e04f31126951",
+        "characterName": "P1-Lens-1784301831",
+        "sensoryPriority": "sight",
+        "metaphorDomain": "nature",
+        "interiorStyle": "lyrical",
+        "vocabularyRegister": "elevated",
+        "blindSpots": null
+      },
+      {
+        "id": "6748125f-8263-4e9c-9a08-5d57b80846b8",
+        "bookId": "4116055c-6183-4675-926a-e04f31126951",
+        "characterName": "P1-Lens-1784301883",
+        "sensoryPriority": "sight",
+        "metaphorDomain": "nature",
+        "interiorStyle": "lyrical",
+        "vocabularyRegister": "elevated",
+        "blindSpots": null
+      },
+      {
+        "id": "a69abfbb-e2ce-49ce-971c-85351dc6938c",
+        "bookId": "4116055c-6183-4675-926a-e04f31126951",
+        "characterName": "P1-Lens-1784301920",
+        "sensoryPriority": "sight",
+        "metaphorDomain": "nature",
+        "interiorStyle": "lyrical",
+        "vocabularyRegister": "elevated",
+        "blindSpots": null
+      },
+      {
+        "id": "e5696d04-eb95-4311-90f3-2c74f918fdef",
+        "bookId": "4116055c-6183-4675-926a-e04f31126951",
+        "characterName": "P1-Lens-1784301955",
+        "sensoryPriority": "sight",
+        "metaphorDomain": "nature",
+        "interiorStyle": "lyrical",
+        "vocabularyRegister": "elevated",
+        "blindSpots": null
+      }
+    ]
+  },
+  "elapsed_s": 1.088
+}

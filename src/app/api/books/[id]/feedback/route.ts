@@ -3,6 +3,8 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { z } from "zod";
 import { inferPreferenceFromNegativeFeedback } from "@/lib/agents/writer-memory";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { zodErrorResponse } from "@/lib/api/zod-error";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +29,7 @@ export async function POST(
   try {
     const user = await requireUser();
     const { id: bookId } = await params;
-    const body = await request.json();
+    const body = await parseJsonBody(request);
     const data = feedbackSchema.parse(body);
 
     const book = await db.book.findFirst({
@@ -71,12 +73,10 @@ export async function POST(
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    if (err instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: "Invalid input", details: err.issues },
-        { status: 400 }
-      );
-    }
+    const invalidJson = invalidJsonBodyResponse(err);
+    if (invalidJson) return invalidJson;
+    const zodRes = zodErrorResponse(err);
+    if (zodRes) return zodRes;
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Failed to record feedback" },
       { status: 500 }

@@ -38,6 +38,13 @@ export async function searchMemory(
     docType?: DocType;
     chapterNumber?: number;
     seriesId?: string;
+    /**
+     * Owning tenant (RC-6 defense in depth). When supplied, results are also
+     * filtered to this userId so a caller that passes an unverified bookId
+     * cannot surface another tenant's prose. Null-safe on the payload side
+     * (legacy chunks with no userId still match).
+     */
+    userId?: string;
     limit?: number;
     scoreThreshold?: number;
   }
@@ -55,6 +62,7 @@ export async function searchMemory(
   // Build filter conditions
   const filter = buildFilter({
     bookId,
+    userId: options?.userId,
     docType: options?.docType,
     chapterNumber: options?.chapterNumber,
     seriesId: options?.seriesId,
@@ -113,19 +121,36 @@ export function formatSearchResults(results: SearchResult[]): string {
 
 // ─── Filter Builder ──────────────────────────────────────────
 
+/** One AND-clause of a Qdrant filter: a field match, a null check, or a nested OR. */
+type FilterCondition =
+  | { key: string; match: { value: string | number } }
+  | { is_null: { key: string } }
+  | { should: FilterCondition[] };
+
 /**
  * Build a Qdrant filter from our SearchFilter type.
  * Uses `must` conditions for AND-logic filtering.
  */
 function buildFilter(
   filter?: SearchFilter
-): { must: Array<{ key: string; match: { value: string | number } }> } | undefined {
+): { must: FilterCondition[] } | undefined {
   if (!filter) return undefined;
 
-  const must: Array<{ key: string; match: { value: string | number } }> = [];
+  const must: FilterCondition[] = [];
 
   if (filter.bookId) {
     must.push({ key: "bookId", match: { value: filter.bookId } });
+  }
+  if (filter.userId) {
+    // RC-6 tenant scope, null-safe: match this tenant OR legacy chunks indexed
+    // before userId existed (userId is null). Keeps defense-in-depth without
+    // making a user's pre-userId memory suddenly unsearchable.
+    must.push({
+      should: [
+        { key: "userId", match: { value: filter.userId } },
+        { is_null: { key: "userId" } },
+      ],
+    });
   }
   if (filter.docType) {
     must.push({ key: "docType", match: { value: filter.docType } });

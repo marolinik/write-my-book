@@ -12,13 +12,11 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import {
-  getModelsForProviders,
-  getModelTierValue,
   getProvider,
   type ProviderKey,
-  type ModelDefinition,
   type CostTier,
 } from "@/lib/llm";
+import { buildModelGroups } from "./model-picker-groups";
 
 // ── Cost tier badge colors ─────────────────────────────────────
 
@@ -69,42 +67,13 @@ export function ModelPicker({
   label,
   description,
 }: ModelPickerProps) {
-  // Group models by provider, sorted by tier (opus first)
-  const groupedModels = useMemo(() => {
-    const models = getModelsForProviders(availableProviders);
-
-    // Group by provider key
-    const groups = new Map<ProviderKey, ModelDefinition[]>();
-    for (const model of models) {
-      const key = model.provider as ProviderKey;
-      if (!groups.has(key)) groups.set(key, []);
-      groups.get(key)!.push(model);
-    }
-
-    // Sort each group by tier (opus=3 first, then sonnet=2, then haiku=1)
-    for (const [, modelList] of groups) {
-      modelList.sort(
-        (a, b) => getModelTierValue(b.tier) - getModelTierValue(a.tier)
-      );
-    }
-
-    // Deduplicate models with the same displayName within a provider group.
-    // Some models (MiniMax, Qwen, etc.) have multiple tier entries with identical displayName.
-    // Show each unique displayName only once (keep the first = highest tier).
-    for (const [key, modelList] of groups) {
-      const seen = new Set<string>();
-      const deduped: ModelDefinition[] = [];
-      for (const m of modelList) {
-        if (!seen.has(m.displayName)) {
-          seen.add(m.displayName);
-          deduped.push(m);
-        }
-      }
-      groups.set(key, deduped);
-    }
-
-    return groups;
-  }, [availableProviders]);
+  // Group models by provider, sorted by tier (opus first). The dedupe keeps
+  // the stored `value`'s entry within a same-displayName family — otherwise
+  // the trigger renders blank for a stored non-kept tier id (D-131).
+  const groupedModels = useMemo(
+    () => buildModelGroups(availableProviders, value),
+    [availableProviders, value]
+  );
 
   // The actual value for the Select component
   const selectValue = value ?? (showDefaultOption ? USE_DEFAULT_VALUE : "");
@@ -124,7 +93,9 @@ export function ModelPicker({
         <p className="text-xs text-muted-foreground">{description}</p>
       )}
       <Select value={selectValue} onValueChange={handleValueChange}>
-        <SelectTrigger className="w-full">
+        {/* Combobox triggers get no accessible name from their value text —
+            reuse the visible label as the aria-label (D-10, axe button-name). */}
+        <SelectTrigger className="w-full" aria-label={label ?? "Model"}>
           <SelectValue placeholder="Select a model..." />
         </SelectTrigger>
         <SelectContent>

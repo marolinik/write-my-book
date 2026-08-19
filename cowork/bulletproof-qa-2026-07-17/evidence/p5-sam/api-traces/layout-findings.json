@@ -1,0 +1,493 @@
+[
+  {
+    "screen": "books-list-empty",
+    "viewport": "390x844",
+    "theme": "light",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 5
+  },
+  {
+    "screen": "books-list-empty",
+    "viewport": "390x844",
+    "theme": "dark",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 5
+  },
+  {
+    "screen": "books-list-empty",
+    "viewport": "360x640",
+    "theme": "light",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 5
+  },
+  {
+    "screen": "books-list-empty",
+    "viewport": "360x640",
+    "theme": "dark",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 5
+  },
+  {
+    "screen": "books-list-empty",
+    "viewport": "320x568",
+    "theme": "light",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 5
+  },
+  {
+    "screen": "books-list-empty",
+    "viewport": "320x568",
+    "theme": "dark",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 5
+  },
+  {
+    "screen": "dashboard",
+    "viewport": "390x844",
+    "theme": "light",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 9
+  },
+  {
+    "screen": "dashboard",
+    "viewport": "390x844",
+    "theme": "dark",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 9
+  },
+  {
+    "screen": "dashboard",
+    "viewport": "360x640",
+    "theme": "light",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 9
+  },
+  {
+    "screen": "dashboard",
+    "viewport": "360x640",
+    "theme": "dark",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 9
+  },
+  {
+    "screen": "dashboard",
+    "viewport": "320x568",
+    "theme": "light",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 9
+  },
+  {
+    "screen": "dashboard",
+    "viewport": "320x568",
+    "theme": "dark",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 9
+  },
+  {
+    "screen": "settings",
+    "viewport": "390x844",
+    "theme": "light",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 21
+  },
+  {
+    "screen": "settings",
+    "viewport": "390x844",
+    "theme": "dark",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 21
+  },
+  {
+    "screen": "settings",
+    "viewport": "360x640",
+    "theme": "light",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 21
+  },
+  {
+    "screen": "settings",
+    "viewport": "360x640",
+    "theme": "dark",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 21
+  },
+  {
+    "screen": "settings",
+    "viewport": "320x568",
+    "theme": "light",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 21
+  },
+  {
+    "screen": "settings",
+    "viewport": "320x568",
+    "theme": "dark",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 21
+  },
+  {
+    "screen": "settings-billing",
+    "viewport": "390x844",
+    "theme": "light",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 10
+  },
+  {
+    "screen": "settings-billing",
+    "viewport": "390x844",
+    "theme": "dark",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 10
+  },
+  {
+    "screen": "settings-billing",
+    "viewport": "360x640",
+    "theme": "light",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 10
+  },
+  {
+    "screen": "settings-billing",
+    "viewport": "360x640",
+    "theme": "dark",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 10
+  },
+  {
+    "screen": "settings-billing",
+    "viewport": "320x568",
+    "theme": "light",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 10
+  },
+  {
+    "screen": "settings-billing",
+    "viewport": "320x568",
+    "theme": "dark",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 10
+  },
+  {
+    "screen": "books-new-form",
+    "viewport": "390x844",
+    "theme": "light",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 8
+  },
+  {
+    "screen": "books-new-form",
+    "viewport": "390x844",
+    "theme": "dark",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 8
+  },
+  {
+    "screen": "books-new-form",
+    "viewport": "360x640",
+    "theme": "light",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 8
+  },
+  {
+    "screen": "books-new-form",
+    "viewport": "360x640",
+    "theme": "dark",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 8
+  },
+  {
+    "screen": "books-new-form",
+    "viewport": "320x568",
+    "theme": "light",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:\n\n- A server/client branch `if (typeof window !== 'undefined')`.\n- Variable input such as `Date.now()` or `Math.random()` wh",
+      "A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:\n\n- A server/client branch `if (typeof window !== 'undefined')`.\n- Variable input such as `Date.now()` or `Math.random()` wh",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 8
+  },
+  {
+    "screen": "books-new-form",
+    "viewport": "320x568",
+    "theme": "dark",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 8
+  },
+  {
+    "screen": "editor-with-content_DEVBYPASS-NOT-SAM",
+    "viewport": "390x844",
+    "theme": "light",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "NAV_FAILED: page.goto: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3002/books/4a37715f-30ad-43d9-9960-3ba9c0d169a4/chapters/4acf958e-741a-4d29-a5d8-3b9a4fcaf8b8\", waiting until \"ne"
+    ],
+    "smallTapTargets": -1
+  },
+  {
+    "screen": "editor-with-content_DEVBYPASS-NOT-SAM",
+    "viewport": "390x844",
+    "theme": "dark",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "NAV_FAILED: page.goto: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3002/books/4a37715f-30ad-43d9-9960-3ba9c0d169a4/chapters/4acf958e-741a-4d29-a5d8-3b9a4fcaf8b8\", waiting until \"ne"
+    ],
+    "smallTapTargets": -1
+  },
+  {
+    "screen": "editor-with-content_DEVBYPASS-NOT-SAM",
+    "viewport": "360x640",
+    "theme": "light",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 23
+  },
+  {
+    "screen": "editor-with-content_DEVBYPASS-NOT-SAM",
+    "viewport": "360x640",
+    "theme": "dark",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 23
+  },
+  {
+    "screen": "editor-with-content_DEVBYPASS-NOT-SAM",
+    "viewport": "320x568",
+    "theme": "light",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 23
+  },
+  {
+    "screen": "editor-with-content_DEVBYPASS-NOT-SAM",
+    "viewport": "320x568",
+    "theme": "dark",
+    "horizontalScroll": false,
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "smallTapTargets": 23
+  }
+]

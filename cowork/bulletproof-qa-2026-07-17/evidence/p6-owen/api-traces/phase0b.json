@@ -1,0 +1,149 @@
+{
+ "10-ch1-title-repair": {
+  "status": 200,
+  "elapsed": 1.572,
+  "body": {
+   "id": "e279d436-37ec-407b-85fe-e0520f9e679a",
+   "bookId": "6d69fd7c-f7a4-4e3d-bf49-1415d81f5326",
+   "actNumber": 1,
+   "chapterNumber": 1,
+   "title": "Soup and Salvage",
+   "status": "undiscussed",
+   "wordCount": 0,
+   "targetWordCount": null,
+   "betaScore": null,
+   "betaGate": "pending",
+   "revisionCount": 0,
+   "importedAt": null,
+   "createdAt": "2026-07-18T14:53:52.905Z",
+   "updatedAt": "2026-07-18T14:58:41.859Z"
+  }
+ },
+ "11-probe-delete": {
+  "status": 200,
+  "elapsed": 0.075,
+  "body": {
+   "deleted": true
+  }
+ },
+ "12-ch2-create": {
+  "status": 201,
+  "elapsed": 0.075,
+  "body": {
+   "id": "50ed60e2-f136-4a33-825c-1956c1dd6ee3",
+   "bookId": "6d69fd7c-f7a4-4e3d-bf49-1415d81f5326",
+   "actNumber": 1,
+   "chapterNumber": 2,
+   "title": "The Third Letter",
+   "status": "undiscussed",
+   "wordCount": 0,
+   "targetWordCount": null,
+   "betaScore": null,
+   "betaGate": "pending",
+   "revisionCount": 0,
+   "importedAt": null,
+   "createdAt": "2026-07-18T14:58:42.005Z",
+   "updatedAt": "2026-07-18T14:58:42.005Z"
+  }
+ },
+ "12-ch3-create": {
+  "status": 201,
+  "elapsed": 0.047,
+  "body": {
+   "id": "97c93130-743e-4cfa-adcc-e64a1311f9ee",
+   "bookId": "6d69fd7c-f7a4-4e3d-bf49-1415d81f5326",
+   "actNumber": 1,
+   "chapterNumber": 3,
+   "title": "The Boathouse Ledger",
+   "status": "undiscussed",
+   "wordCount": 0,
+   "targetWordCount": null,
+   "betaScore": null,
+   "betaGate": "pending",
+   "revisionCount": 0,
+   "importedAt": null,
+   "createdAt": "2026-07-18T14:58:42.052Z",
+   "updatedAt": "2026-07-18T14:58:42.052Z"
+  }
+ },
+ "12-ch4-create": {
+  "status": 201,
+  "elapsed": 0.044,
+  "body": {
+   "id": "677f38b3-c188-47bd-8a34-1491dfce2c7e",
+   "bookId": "6d69fd7c-f7a4-4e3d-bf49-1415d81f5326",
+   "actNumber": 1,
+   "chapterNumber": 4,
+   "title": "The Gull Road",
+   "status": "undiscussed",
+   "wordCount": 0,
+   "targetWordCount": null,
+   "betaScore": null,
+   "betaGate": "pending",
+   "revisionCount": 0,
+   "importedAt": null,
+   "createdAt": "2026-07-18T14:58:42.098Z",
+   "updatedAt": "2026-07-18T14:58:42.098Z"
+  }
+ },
+ "13-ch1-content-put": {
+  "status": 200,
+  "elapsed": 1.781,
+  "body": {
+   "wordCount": 1118,
+   "version": 1,
+   "bookWordCount": 1118
+  }
+ },
+ "14-ch1-roundtrip": {
+  "status": 200,
+  "byte_identical": true,
+  "wordCount": 1118,
+  "documentId": "bde84316-4da1-48ca-a270-d877b707064c"
+ },
+ "13-ch2-content-put": {
+  "status": 200,
+  "elapsed": 0.102,
+  "body": {
+   "wordCount": 1603,
+   "version": 1,
+   "bookWordCount": 2721
+  }
+ },
+ "14-ch2-roundtrip": {
+  "status": 200,
+  "byte_identical": true,
+  "wordCount": 1603,
+  "documentId": "18d0fa54-ab2c-4c34-b02f-2bb5bf911d0e"
+ },
+ "13-ch3-content-put": {
+  "status": 200,
+  "elapsed": 0.104,
+  "body": {
+   "wordCount": 501,
+   "version": 1,
+   "bookWordCount": 3222
+  }
+ },
+ "14-ch3-roundtrip": {
+  "status": 200,
+  "byte_identical": true,
+  "wordCount": 501,
+  "documentId": "304fbc09-00bf-42ee-a2ec-aafd8f45cf1e"
+ },
+ "13-ch4-content-put": {
+  "status": 200,
+  "elapsed": 0.122,
+  "body": {
+   "wordCount": 240,
+   "version": 1,
+   "bookWordCount": 3462
+  }
+ },
+ "14-ch4-roundtrip": {
+  "status": 200,
+  "byte_identical": true,
+  "wordCount": 240,
+  "documentId": "808a37f8-e8b6-4c27-acfe-52f7b264b801"
+ }
+}

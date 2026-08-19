@@ -3,6 +3,8 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { createSeriesSchema } from "@/lib/validation";
 import { checkPlanAccess } from "@/lib/billing/plan-gating";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { zodErrorResponse } from "@/lib/api/zod-error";
 
 /** GET /api/series — list all series for the current user. */
 export async function GET() {
@@ -48,7 +50,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = createSeriesSchema.parse(body);
 
     const series = await db.series.create({
@@ -65,12 +67,13 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(series, { status: 201 });
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if ((error as Error).name === "ZodError") {
-      return NextResponse.json({ error: "Invalid input", details: error }, { status: 400 });
-    }
+    const zodRes = zodErrorResponse(error);
+    if (zodRes) return zodRes;
     console.error("POST /api/series error:", error);
     return NextResponse.json(
       { error: "Failed to create series" },

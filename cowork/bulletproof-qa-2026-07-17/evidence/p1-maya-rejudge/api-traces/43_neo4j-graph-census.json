@@ -1,0 +1,230 @@
+{
+  "bookId": "4116055c-6183-4675-926a-e04f31126951",
+  "capturedAt": "2026-07-20T11:48:45.561Z",
+  "nodesByLabel": [
+    {
+      "labels": [
+        "Character"
+      ],
+      "count": 5
+    },
+    {
+      "labels": [
+        "Event"
+      ],
+      "count": 4
+    },
+    {
+      "labels": [
+        "Location"
+      ],
+      "count": 4
+    },
+    {
+      "labels": [
+        "PlotThread"
+      ],
+      "count": 3
+    },
+    {
+      "labels": [
+        "Object"
+      ],
+      "count": 2
+    },
+    {
+      "labels": [
+        "Chapter"
+      ],
+      "count": 1
+    }
+  ],
+  "namedNodes": [
+    {
+      "label": "Chapter",
+      "name": "Chapter 1",
+      "chapter": null,
+      "deathChapter": null,
+      "role": null,
+      "aliases": null
+    },
+    {
+      "label": "Character",
+      "name": "Imogen",
+      "chapter": null,
+      "deathChapter": null,
+      "role": "protagonist",
+      "aliases": null
+    },
+    {
+      "label": "Character",
+      "name": "Imogen's Aunt",
+      "chapter": null,
+      "deathChapter": null,
+      "role": "supporting",
+      "aliases": null
+    },
+    {
+      "label": "Character",
+      "name": "Imogen's Father",
+      "chapter": null,
+      "deathChapter": null,
+      "role": "mentioned",
+      "aliases": null
+    },
+    {
+      "label": "Character",
+      "name": "Imogen's Mother",
+      "chapter": null,
+      "deathChapter": 1,
+      "role": "mentioned",
+      "aliases": null
+    },
+    {
+      "label": "Character",
+      "name": "Thomas Rhys",
+      "chapter": null,
+      "deathChapter": null,
+      "role": "supporting",
+      "aliases": null
+    },
+    {
+      "label": "Event",
+      "name": "Arrival of Twelfth Letter",
+      "chapter": 1,
+      "deathChapter": null,
+      "role": null,
+      "aliases": null
+    },
+    {
+      "label": "Event",
+      "name": "Death of Imogen's Mother",
+      "chapter": 1,
+      "deathChapter": null,
+      "role": null,
+      "aliases": null
+    },
+    {
+      "label": "Event",
+      "name": "Father Teaching Imogen to Lie",
+      "chapter": 1,
+      "deathChapter": null,
+      "role": null,
+      "aliases": null
+    },
+    {
+      "label": "Event",
+      "name": "Imogen's Mother's Funeral",
+      "chapter": 1,
+      "deathChapter": null,
+      "role": null,
+      "aliases": null
+    },
+    {
+      "label": "Location",
+      "name": "Old Salt House",
+      "chapter": null,
+      "deathChapter": null,
+      "role": null,
+      "aliases": null
+    },
+    {
+      "label": "Location",
+      "name": "Pentref",
+      "chapter": null,
+      "deathChapter": null,
+      "role": null,
+      "aliases": null
+    },
+    {
+      "label": "Location",
+      "name": "The Shore",
+      "chapter": null,
+      "deathChapter": null,
+      "role": null,
+      "aliases": null
+    },
+    {
+      "label": "Location",
+      "name": "Under the Floorboard",
+      "chapter": null,
+      "deathChapter": null,
+      "role": null,
+      "aliases": null
+    },
+    {
+      "label": "Object",
+      "name": "Biscuit Tin",
+      "chapter": null,
+      "deathChapter": null,
+      "role": null,
+      "aliases": null
+    },
+    {
+      "label": "Object",
+      "name": "Letters from Thomas Rhys",
+      "chapter": null,
+      "deathChapter": null,
+      "role": null,
+      "aliases": null
+    },
+    {
+      "label": "PlotThread",
+      "name": "Correspondence with Thomas Rhys",
+      "chapter": null,
+      "deathChapter": null,
+      "role": null,
+      "aliases": null
+    },
+    {
+      "label": "PlotThread",
+      "name": "Imogen's Grief Management",
+      "chapter": null,
+      "deathChapter": null,
+      "role": null,
+      "aliases": null
+    },
+    {
+      "label": "PlotThread",
+      "name": "Secret from Aunt",
+      "chapter": null,
+      "deathChapter": null,
+      "role": null,
+      "aliases": null
+    }
+  ],
+  "relationshipsByType": [
+    {
+      "type": "PARTICIPATES_IN",
+      "count": 7
+    },
+    {
+      "type": "LOCATED_AT",
+      "count": 4
+    },
+    {
+      "type": "KNOWS",
+      "count": 3
+    },
+    {
+      "type": "OWNS",
+      "count": 2
+    },
+    {
+      "type": "FORESHADOWS",
+      "count": 2
+    },
+    {
+      "type": "OCCURS_IN",
+      "count": 1
+    },
+    {
+      "type": "APPEARS_IN",
+      "count": 1
+    },
+    {
+      "type": "DIES_IN",
+      "count": 1
+    }
+  ]
+}

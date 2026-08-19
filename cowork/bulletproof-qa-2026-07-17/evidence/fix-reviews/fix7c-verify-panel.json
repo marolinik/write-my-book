@@ -1,0 +1,176 @@
+{
+  "summary": "Fable adversarial verify of fix 7 sub-fix (c) alias disambiguation + D-86 Event rel-endpoint resolution",
+  "agentCount": 3,
+  "logs": [],
+  "result": [
+    {
+      "lens": "SUB-FIX (c) FALSE-FOLD SAFETY (alias-merge disambiguation, graph-builder.ts)",
+      "verdict": "REJECT",
+      "blocking": true,
+      "gate": "Pre-declared rule: any reachable false character-fold = CRITICAL + blocking (D8 re-cap at 8.5). One was confirmed by executing the real working-tree helpers (read-only probe via npx tsx; tree untouched).",
+      "summary": "The fix is a strict narrowing of the old fold (no new fold is introduced; >=2-candidates, exact-name-among-matches, stop-listed titles, D-27 append-only union, bookId scoping, and param/escape injection boundaries all verified sound) — but the core false-fold class is still OPEN on the single-candidate path. CONFIRMED by dynamic probe of the real exported helpers: a shared SURNAME (\"Reynolds\" — two siblings), a shared FIRST NAME (\"Anna\" — the stop-list contains zero given names, contradicting the inline comment \"a bare title/first-name never anchors a fold\"), a shared epithet (\"the old man\", \"Sheriff\", \"the Stranger\"), or a non-English honorific (\"Señor\", \"Herr Doktor\") each count as a DISTINCTIVE link token and fold two genuinely distinct characters into one node at the moment the second one is first introduced (only one candidate exists then, so the >=2 guard cannot help). The extractor prompt (entity-extractor.ts:134) explicitly requests \"shortened names\" as aliases, so surname/first-name aliases are the pipeline's designed output — this is the primary path, not an edge case. Worse, the hasExactNameNode guard only sees exact-name nodes that themselves match the alias lookup, so a pre-existing \"Marcus Reynolds\" node with no stored aliases is invisible and his update still folds onto \"Elena Reynolds\". A folded character is lost irreversibly (properties never written, name absorbed as an alias, later edges naming him match nothing). The handoff registers only FN-side residuals (D-88) and claims the guards \"constrain\" this FP class — false at first introduction. Everything else in my lens verified clean; fix needs a structural guard on the shared-non-name-alias link path (e.g., decline when the sole link token is a single word that appears as a word-token inside BOTH full names — keeps c3 and c4 green) plus a true exact-name existence check (add OR n.name = $name to the lookup WHERE).",
+      "findings": [
+        {
+          "severity": "critical",
+          "claim": "CONFIRMED false character-fold: single candidate + shared distinctive-looking-but-shared alias (surname / first name / epithet / non-English honorific) folds two DISTINCT characters into one node",
+          "detail": "D:\\Projects\\wmb-pub\\src\\lib\\graph\\graph-builder.ts:157-185. Gate is !hasExactNameNode && candidates.length===1 && aliasLinkTokens(...).some(t => !isCommonAlias(t)); COMMON_ALIAS_STOPWORDS (line 834) contains only titles/ranks/familial/religious words — no surnames, no given names. Dynamic probe against the REAL exported helpers (npx tsx, read-only): seed Character 'Elena Reynolds' aliases ['Reynolds']; upsert 'Marcus Reynolds' aliases ['Reynolds'] -> fold FIRES onto 'Elena Reynolds' ({created:0,updated:1}); Marcus's node is never created, his status/role/description are dropped, his name becomes Elena's alias, and later relationship endpoints naming 'Marcus Reynolds' MATCH nothing. Same result for shared first name 'Anna' (isCommonAlias('Anna')=false), 'the old man', 'Sheriff', 'the Stranger', 'the Priestess', 'Señor', 'Herr Doktor' — all return isCommonAlias=false => DISTINCTIVE => fold. Reachable on the primary pipeline: the extraction prompt (D:\\Projects\\wmb-pub\\src\\lib\\graph\\entity-extractor.ts:134) instructs 'Include aliases for characters with nicknames, titles, or shortened names' — surname/first-name aliases are the DESIGNED output, and family members / namesakes routinely share them. The >=2-candidate guard cannot fire at the second character's FIRST introduction (exactly one candidate exists then). Not a regression (pre-fix code folded in all these cases plus more — fix is a strict narrowing), but the fix's stated goal (\"two DISTINCT characters that merely share a common title/first-name collapsed into one\") is only achieved for stop-listed titles; shared first names — the literal words of the root-cause description — still fold, and the handoff's residuals register only FN-side hazards, claiming (residual 3) the guards 'constrain' this FP class. Suggested shape: on the shared-NON-NAME-alias link path (aliasLinkTokens path c), decline when the sole link token is a single word appearing as a word-token inside BOTH the incoming name and the candidate name (the surname/first-name pattern: 'Reynolds' is a word of both 'Marcus Reynolds' and 'Elena Reynolds' -> family-name evidence, not identity evidence). Verified this keeps (c3) green ('Zoë' is not a word of 'Z. Rasmussen') and does not touch (c4)'s name-anchored path. Extending the stop-list is NOT sufficient — the shared-token space (names) is unbounded."
+        },
+        {
+          "severity": "high",
+          "claim": "hasExactNameNode guard is blind to an exact-name node whose stored aliases do not intersect the incoming aliases — an existing exact-name node can still be redirected",
+          "detail": "D:\\Projects\\wmb-pub\\src\\lib\\graph\\graph-builder.ts:140-142. hasExactNameNode is computed only over records returned by the alias lookup (WHERE n.name IN $aliases OR aliases overlap). Scenario: 'Marcus Reynolds' node already EXISTS (created earlier with no aliases); 'Elena Reynolds' exists with alias 'Reynolds'; a later scan emits 'Marcus Reynolds' aliases ['Reynolds']. The lookup matches only Elena (Marcus's name is not in ['Reynolds'] and he has no stored aliases) -> hasExactNameNode=false, candidates=[Elena], link 'Reynolds' distinctive -> Marcus's UPDATE folds onto Elena even though his exact-name node exists. Violates the code's own stated invariant ('never fold away from it') and lens guard (5): exact-name-binds-to-itself holds ONLY when the exact node happens to be an alias-lookup match (probe E confirmed that sub-case is safe). Minimal fix: add 'OR n.name = $name' to the lookup WHERE (with $name param) so the exact-name node always appears in records and trips hasExactNameNode; it is already excluded from candidates by the existingName !== name filter."
+        },
+        {
+          "severity": "medium",
+          "claim": "Test hole: no test covers the single-candidate + shared NON-stop-listed alias class — the exact surviving false-fold path is unexercised",
+          "detail": "D:\\Projects\\wmb-pub\\tests\\unit\\graph-alias-merge-disambiguation.test.ts. (c1)/(c5) prove only stop-listed 'Doctor'; (c2) proves only the >=2-candidate count guard; (c3)/(c4) prove the fold FIRES on distinctive links. No test asserts two distinct characters sharing a surname/first-name/epithet stay separate — which is why the critical finding shipped green. Whatever structural guard lands, add RED-first tests: shared surname ('Elena Reynolds'/'Marcus Reynolds' both aliased 'Reynolds'), shared first name (two 'Anna's), and the pre-existing-exact-name redirect scenario from the high finding."
+        },
+        {
+          "severity": "low",
+          "claim": "Inline comment and handoff overclaim the guard: 'a bare title/first-name never anchors a fold on its own' — first names are not blocked at all",
+          "detail": "D:\\Projects\\wmb-pub\\src\\lib\\graph\\graph-builder.ts:153-154 (and the block comment at 118-126 citing 'common title/first-name'). COMMON_ALIAS_STOPWORDS contains no given names; isCommonAlias('Anna')=false, so a bare first name DOES anchor a fold. The comment should be corrected alongside the fix so the next reader does not trust a guard that is not there."
+        },
+        {
+          "severity": "note",
+          "claim": "Executor claim 'exported helpers: ... COMMON_ALIAS_STOPWORDS' is inaccurate — it is a non-exported const (line 834)",
+          "detail": "isCommonAlias (866) and aliasLinkTokens (890) are exported as claimed; COMMON_ALIAS_STOPWORDS is module-private. No functional impact (tests do not import it), but the handoff/summary text should not be trusted verbatim on this point."
+        },
+        {
+          "severity": "note",
+          "claim": "Verified-safe under this lens: all four requested safety confirmations hold, and no regression of just-landed work was found on the (c) path",
+          "detail": "Dynamic probe + static trace confirmed: (a) >=2 candidates -> genuinely DO NOTHING (falls through to raw {bookId,name} MERGE, new node created/kept separate — no crash, no arbitrary pick; old LIMIT 1 guess is gone); (b) exact-name node AMONG lookup matches -> no fold, MERGE binds to itself (probe E); (c) stop-listed title as sole link -> declined even for a sole candidate (probe C, tests c1/c5); (d) D-27 fold-path union is pure append — SET n.aliases = coalesce(n.aliases,[]) + [a IN $foldAliases WHERE NOT a IN ...] cannot drop an existing diacritic/variant alias (c3); (e) isCommonAlias error DIRECTION: misclassifying a distinctive token as common only DECLINES a fold (safe FN); the unsafe direction (common token read as distinctive) is exactly the critical finding; (f) injection/tenant boundaries intact on both new queries (label via escapeLabelForQuery, all values as params, {bookId}-scoped, c7); (g) the new fold condition is a strict SUBSET of the pre-fix fold, so no previously-safe input newly folds. D-86 resolver (secondary skim): read-only, Event-label-literal, bookId-scoped, params-only, returns literal name on no-match — no false-positive path found; d86-3 proves no cross-fold of distinct events."
+        }
+      ]
+    },
+    {
+      "lens": "D-86 endpoint resolution + injection/drift",
+      "verdict": "APPROVE_WITH_NOTES",
+      "blocking": false,
+      "gate": "tsc exit 0 (verified); 9 targeted suites re-run green 112/112 (both new files + graph-event-name-canonicalization 26, graph-entity-property-monotonic 18, updategraphentity-authoritative 4, graph-cross-book-isolation 5, graph-rel-type-sanitization, continuity-graph-properties 26, graph-empty-extraction-poison)",
+      "summary": "D-86 is safe under this lens: resolveEventEndpointName (src/lib/graph/graph-builder.ts:636-666) is a pure MATCH that structurally mirrors sub-fix (a)'s pre-MERGE lookup (same WHERE canonicalName-equality-OR-article-variant candidates, same ORDER BY firstAppearance/name + LIMIT 1, {bookId: $bookId}-scoped, hardcoded literal Event label, zero interpolation, all values as params) — it cannot create a node, cannot match an event with a different canonical key except the article-leading non-transitivity already inherited byte-for-byte from (a), and cannot cross book/tenant (D-30 empty-bookId guard runs first at line 551-557). It runs ONLY for fromLabel/toLabel === \"Event\" (lines 586-593); the agent-tool path hardcodes both rel labels to \"Character\" (tools.ts:1544/1546) so only extractor-validated Event endpoints reach it, and the downstream MATCH requires the Event label anyway, so no edge can be re-pointed to a wrong Character. The relationship MATCH...MERGE Cypher string is byte-intact (zero-context diff: only the params object switched to shorthand fromName/toName with identical param names); sanitizeRelationshipType (D-63) and escapeLabelForQuery are unchanged and still applied. Drift check: exactly 9 hunks, all confined to the alias-rename block, the upsertRelationship insert/params, and two pure-insert sites; sub-fix (a) canonicalization + canonicalName strip, sub-fix (b) sticky-dead/preserve-first, D-80 authoritative, RC-2 coalesce, D-27 union, RC-6 userId, D-30 bookId are all outside every hunk and byte-intact, with all named guard suites re-run green. No false fold of distinct entities, no cross-tenant path, no injection gap found. Four non-blocking notes below.",
+      "findings": [
+        {
+          "severity": "low",
+          "claim": "Resolver calls sit OUTSIDE upsertRelationship's try/catch — a transient driver failure now aborts the remaining relationships of the batch instead of skipping one edge",
+          "detail": "src/lib/graph/graph-builder.ts:586-593 — the two `await resolveEventEndpointName(...)` calls run before the `try {` at line 595. Pre-fix, ANY relationship-path session.run failure was caught (return false, batch continues); post-fix a resolver-side driver/network error propagates out of upsertRelationship, aborting Pass 2 for the rest of the batch. No crash escapes the process — both callers wrap upsertEntities (tools.ts:1567-1571 returns 'Graph update failed', graph-maintenance.ts:318+ routes it to the D-73 hard-failure marker path, arguably more honest than a silent skip) — but it diverges from the handoff's 'no crash, current behavior' framing. Recommend hoisting the two awaits inside the try block in a follow-up. Endpoint values cannot themselves cause a query error (they ride as params and are extractor-validated non-empty strings; the agent-tool path never sends Event-labeled rels)."
+        },
+        {
+          "severity": "low",
+          "claim": "Test (d86-4)'s 'no canonical lookup for Character endpoint' assertion is structurally unable to catch the regression it targets",
+          "detail": "tests/unit/graph-event-rel-endpoint-resolution.test.ts (d86-4, ~lines 250-256) greps calls for a query containing both 'n.canonicalName = $canonicalName' and 'MATCH (n:Character' — but the resolver hardcodes 'MATCH (n:Event', so even a future regression that wrongly routes Character endpoints through resolveEventEndpointName would never emit that string and the assertion would still pass. The functional assertion (edge attaches under the literal character name) also passes vacuously here because no Event canonically matching 'The Prophet' is seeded. The shipped code is verified correct by direct inspection (strict `fromLabel === \"Event\"` / `toLabel === \"Event\"` ternaries). Suggested hardening: assert no canonical-lookup call carries 'The Prophet' in $nameCandidates."
+        },
+        {
+          "severity": "note",
+          "claim": "A relationship between two variants of the SAME event now materializes as a self-loop edge (pre-fix: silently dropped); no continuity gate can false-fire on it",
+          "detail": "E.g. LLM emits LEADS_TO from 'The Wedding' to 'Wedding': both endpoints resolve to the same surviving node, so MERGE (a)-[r:LEADS_TO]->(a) creates a self-loop. Verified timeline_violation (graph-queries.ts:410-411) requires strictly `coalesce(later.occursInChapter, later.chapter) > coalesce(earlier...)` — equal on a self-loop, never fires; no other consistency check reads LEADS_TO. A degenerate cosmetic edge from garbage LLM input, faithfully representing 'same event'; acceptable, but a cheap `WHERE a <> b` guard (or fromName===toName skip for Event pairs) would suppress it."
+        },
+        {
+          "severity": "note",
+          "claim": "Inherited (not new) canonicalization non-transitivity: an endpoint whose canonical key itself begins with an article can resolve onto a node with a DIFFERENT canonical key — differing only by one leading article",
+          "detail": "Endpoint 'The A Team Reunion' → canonical 'A Team Reunion' → nameCandidates include the bare canonical, matching a stored node named 'A Team Reunion' whose own canonicalName is 'Team Reunion' (one-article strip). The two names differ only by a leading 'The' — the spec-accepted 'same event', not a distinct-event false fold — and the candidate construction is byte-identical to sub-fix (a)'s entity lookup (graph-builder.ts:216-231 vs 641-650), so entity folds and edge resolution stay mutually consistent, which is exactly the D-86 contract. Folds under the existing D-85 canonicalization residual; no action needed in this change."
+        }
+      ]
+    },
+    {
+      "lens": "GATE + RED (independent gate re-run + adversarial static RED analysis of fix 7(c) alias-merge disambiguation and D-86 Event rel-endpoint resolution)",
+      "verdict": "APPROVE",
+      "blocking": false,
+      "gate": "tsc --noEmit exit 0; vitest run 976 passed / 127 files passed, 0 failed, exit 0 (matches claimed 976/127; delta arithmetic 964+12=976, 125+2=127 consistent with the 2 new files carrying exactly 12 tests)",
+      "summary": "Both gates independently verified green (tsc exit 0; vitest 976/127, 0 failed) with all 8 named non-regression guard suites present in the run. Static RED analysis against the actual pre-fix code (git show HEAD: LIMIT 1 + fold-on-any-single-record + $newName append-one) confirms the executor's exact 7-RED/5-GREEN split: c1/c2/c5/c6 + d86-1/d86-2/d86-5 genuinely fail pre-fix (c1/c5 pre-fix false-fold Marcus onto Elena/Doctor; c2 pre-fix folds onto arbitrary records[0]; c6 pins LIMIT 1 removal; d86-1/2 pre-fix silently drop the edge; d86-5 pre-fix has no resolver call at all), while c3/c4/c7 + d86-3/d86-4 pass pre-fix as genuine over-restriction guards (c4 proves a real rename still binds, d86-3 proves no cross-fold/invented node, d86-4 proves Event-only scoping). Mocks are store-driven (fold union appends for real; rel edge requires both endpoint nodes to exist) and discriminate on production query text; the dual-shape fold handler ($foldAliases/$newName) means pre-fix RED runs fail on assertions, not crashes — no tautological or hardcoded-mock test found. Adversarial false-fold analysis: the new fold fires only under !hasExactNameNode AND exactly-one-candidate AND a distinctive (non-stoplist) link token — a strict SUBSET of pre-fix folds, so no NEW false-fold of distinct characters is possible; D-86 resolves only same-canonical-key Events ({bookId}-scoped, literal Event label, values as params, never creates a node, unresolved keeps literal name → edge dropped exactly as before); the relationship MATCH...MERGE query text is byte-identical to HEAD (only param values change); D-27 fold union is append-only (no diacritic ever dropped, c3); no cross-tenant path (every new query {bookId}-scoped behind the D-30 refuse-empty guard); no injection regression (no new value interpolation — labels escaped or literal, relType still sanitized). Non-blocking findings only.",
+      "findings": [
+        {
+          "severity": "low",
+          "claim": "resolveEventEndpointName is called OUTSIDE upsertRelationship's try/catch — a transient Neo4j error during endpoint resolution now throws out of the function instead of returning false, aborting the remaining relationship batch",
+          "detail": "src/lib/graph/graph-builder.ts lines 586-593 (the two resolver awaits) precede the try { at line 595. Pre-fix, every session.run in upsertRelationship was inside the try, so any driver error degraded to 'edge not written, return false'. Post-fix a resolver failure propagates through the Pass-2 loop in upsertEntities. Error-path robustness only — cannot cause a false fold, and Pass 1 (upsertSingleEntity) already propagates lookup errors the same way, so the failure mode is consistent with the entity path. Suggested fast-follow: move the two resolver awaits inside the try block to preserve the one-bad-edge-never-aborts-the-batch property."
+        },
+        {
+          "severity": "note",
+          "claim": "Broadened fold union ([name, ...aliases] vs pre-fix name-only) transitively attaches the incoming entity's aliases to the surviving node, slightly widening that node's future fold-attraction surface",
+          "detail": "After a legitimate fold, the survivor now carries the folded entity's distinctive aliases (D-27-correct — the pre-fix alternative silently dropped them). A later distinct character sharing one of those distinctive aliases hits the same single-candidate + distinctive-link fold the direct case would — this is the same 'shared distinctive alias = same entity' class the design accepts (D-88 register), not a new FP class, and the count/stoplist/exact-name guards still apply downstream. No action needed; register alongside D-88."
+        },
+        {
+          "severity": "note",
+          "claim": "Single-candidate + shared DISTINCTIVE alias between genuinely distinct characters still folds — pre-existing designed semantics, not a new hazard",
+          "detail": "E.g. existing 'Elena Frost' aliases ['Ghost-9843'] + incoming distinct 'Marcus Bright' aliases ['Ghost-9843'] with only one candidate folds. The pre-fix code folded here too (the new fold set is a strict subset of pre-fix folds), so sub-fix (c) introduces no new exposure; with only one candidate and a distinctive shared handle the system's core alias-identity assumption applies. Covered by the handoff's D-88 preserve-over-guess register (which handles the >=2 case) — the 1-candidate distinctive case is the irreducible residual of alias-based identity."
+        },
+        {
+          "severity": "note",
+          "claim": "c6 and d86-5 are partially structural (assert production query text/params rather than end-state), and the alias-test mock's canonical-lookup branch is dead code with a vacuous condition",
+          "detail": "c6 asserts the lookup query lacks 'LIMIT 1' and returns existingAliases; d86-5 identifies the resolver by query shape + payload-in-params. Both are acceptable because each is paired with a behavioral RED driver pinning the same mechanism (c2 for arbitrary-pick, d86-1/2 for resolution) and d86-5's param-not-interpolated assertion is the actual injection pin. Separately, graph-alias-merge-disambiguation.test.ts lines 53-81 (canonical Event lookup branch) contain an always-true 'String(v.name).length >= 0' filter and no Event-key prefix filter — but that branch is never exercised in that file (Characters only, no relationships), so it cannot mask anything. Cosmetic only."
+        }
+      ]
+    }
+  ],
+  "workflowProgress": [
+    {
+      "type": "workflow_phase",
+      "index": 1,
+      "title": "Verify"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 1,
+      "label": "verify:c-fold-safety",
+      "phaseIndex": 1,
+      "phaseTitle": "Verify",
+      "agentId": "acf2dd4289df183f3",
+      "model": "claude-fable-5",
+      "state": "done",
+      "startedAt": 1784487661313,
+      "queuedAt": 1784487656193,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "SUB-FIX (c) FALSE-FOLD SAFETY (alias-merge disambiguation, …",
+      "promptPreview": "Repo D:\\\\Projects\\\\wmb-pub, branch qa/bulletproof-2026-07-17, HEAD 2f6c34c. Environment: Windows PowerShell 5.1 (Bash broken). Change under review is UNCOMMITTED in the working tree (src/lib/graph/graph-builder.ts + 2 new test files).\n\nWHAT LANDED (fix 7 sub-fix (c) alias-merge disambiguation + D-86 Event rel-endpoint resolution), all in src/lib/graph/graph-builder.ts:\n- Sub-fix (c): the entity id…",
+      "lastProgressAt": 1784488171232,
+      "tokens": 91813,
+      "toolCalls": 13,
+      "durationMs": 509919,
+      "resultPreview": "{\"lens\":\"SUB-FIX (c) FALSE-FOLD SAFETY (alias-merge disambiguation, graph-builder.ts)\",\"verdict\":\"REJECT\",\"blocking\":true,\"gate\":\"Pre-declared rule: any reachable false character-fold = CRITICAL + blocking (D8 re-cap at 8.5). One was confirmed by executing the real working-tree helpers (read-only probe via npx tsx; tree untouched).\",\"summary\":\"The fix is a strict narrowing of the old fold (no new …"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 2,
+      "label": "verify:d86-endpoint",
+      "phaseIndex": 1,
+      "phaseTitle": "Verify",
+      "agentId": "a32f57a8bd33d96bf",
+      "model": "claude-fable-5",
+      "state": "done",
+      "startedAt": 1784487661131,
+      "queuedAt": 1784487656193,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "D-86 endpoint resolution + injection/drift",
+      "promptPreview": "Repo D:\\\\Projects\\\\wmb-pub, branch qa/bulletproof-2026-07-17, HEAD 2f6c34c. Environment: Windows PowerShell 5.1 (Bash broken). Change under review is UNCOMMITTED in the working tree (src/lib/graph/graph-builder.ts + 2 new test files).\n\nWHAT LANDED (fix 7 sub-fix (c) alias-merge disambiguation + D-86 Event rel-endpoint resolution), all in src/lib/graph/graph-builder.ts:\n- Sub-fix (c): the entity id…",
+      "lastProgressAt": 1784488330345,
+      "tokens": 131142,
+      "toolCalls": 18,
+      "durationMs": 669214,
+      "resultPreview": "{\"lens\":\"D-86 endpoint resolution + injection/drift\",\"verdict\":\"APPROVE_WITH_NOTES\",\"blocking\":false,\"gate\":\"tsc exit 0 (verified); 9 targeted suites re-run green 112/112 (both new files + graph-event-name-canonicalization 26, graph-entity-property-monotonic 18, updategraphentity-authoritative 4, graph-cross-book-isolation 5, graph-rel-type-sanitization, continuity-graph-properties 26, graph-empty…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 3,
+      "label": "verify:gate-drift-red",
+      "phaseIndex": 1,
+      "phaseTitle": "Verify",
+      "agentId": "ad5935370376f3c9d",
+      "model": "claude-fable-5",
+      "state": "done",
+      "startedAt": 1784487660995,
+      "queuedAt": 1784487656193,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "GATE + RED (independent gate re-run + adversarial static RE…",
+      "promptPreview": "Repo D:\\\\Projects\\\\wmb-pub, branch qa/bulletproof-2026-07-17, HEAD 2f6c34c. Environment: Windows PowerShell 5.1 (Bash broken). Change under review is UNCOMMITTED in the working tree (src/lib/graph/graph-builder.ts + 2 new test files).\n\nWHAT LANDED (fix 7 sub-fix (c) alias-merge disambiguation + D-86 Event rel-endpoint resolution), all in src/lib/graph/graph-builder.ts:\n- Sub-fix (c): the entity id…",
+      "lastProgressAt": 1784488167429,
+      "tokens": 103309,
+      "toolCalls": 16,
+      "durationMs": 506434,
+      "resultPreview": "{\"lens\":\"GATE + RED (independent gate re-run + adversarial static RED analysis of fix 7(c) alias-merge disambiguation and D-86 Event rel-endpoint resolution)\",\"verdict\":\"APPROVE\",\"blocking\":false,\"gate\":\"tsc --noEmit exit 0; vitest run 976 passed / 127 files passed, 0 failed, exit 0 (matches claimed 976/127; delta arithmetic 964+12=976, 125+2=127 consistent with the 2 new files carrying exactly 12…"
+    }
+  ],
+  "totalTokens": 326264,
+  "totalToolCalls": 47
+}

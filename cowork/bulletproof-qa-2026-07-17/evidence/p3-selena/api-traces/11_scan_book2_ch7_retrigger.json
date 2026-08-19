@@ -1,0 +1,12 @@
+{
+  "label": "11_scan_book2_ch7_retrigger",
+  "method": "POST",
+  "path": "/api/books/2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90/continuity/scan?chapterNumber=7",
+  "requestedAt": "2026-07-18T08:06:48.226+00:00",
+  "elapsedMs": 531,
+  "status": 200,
+  "note": "Re-trigger after attempt #1 (trace 10, 07:56:45Z) produced no landing by 08:06Z (9 min) — series-context ch7 still notReady:true. Attempt #1 concluded silently failed (scan route console.errors extraction failures, invisible to API). Throttle analysis: failed extraction leaves no ch7 Chapter node in Neo4j, so getChapterNodeUpdatedAt=null and shouldExtract=true — retry not blocked.",
+  "response": {
+    "flags": []
+  }
+}

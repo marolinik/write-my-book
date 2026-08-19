@@ -7,6 +7,8 @@ import {
   getDailyWordCounts,
   getTodayWords,
 } from "@/lib/writing-stats";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { zodErrorResponse } from "@/lib/api/zod-error";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -74,12 +76,8 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if ((error as Error).name === "ZodError") {
-      return NextResponse.json(
-        { error: "Invalid input", details: error },
-        { status: 400 }
-      );
-    }
+    const zodRes = zodErrorResponse(error);
+    if (zodRes) return zodRes;
     console.error("GET /api/books/:id/writing-stats error:", error);
     return NextResponse.json(
       { error: "Failed to fetch writing stats" },
@@ -104,7 +102,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = writingGoalSchema.parse(body);
 
     // Upsert the goal (one per type per book)
@@ -122,15 +120,13 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(goal);
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if ((error as Error).name === "ZodError") {
-      return NextResponse.json(
-        { error: "Invalid input", details: error },
-        { status: 400 }
-      );
-    }
+    const zodError = zodErrorResponse(error);
+    if (zodError) return zodError;
     console.error("POST /api/books/:id/writing-stats error:", error);
     return NextResponse.json(
       { error: "Failed to save writing goal" },

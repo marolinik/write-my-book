@@ -1,0 +1,57 @@
+=== C2b: MinIO/S3 object storage backup/restore leg ===
+bucket=wmb-projects endpoint=http://localhost:9000
+
+=== STEP 1: enumerate bucket (read-only) ===
+list-objects-v2 elapsed: 2.499s, object count: 1712
+
+=== STEP 2: mirror/backup bucket to scratch location (aws s3 sync, read-only on source) ===
+sync exit=1 elapsed: 8.972s
+files backed up locally: 772
+download failed: s3://wmb-projects/e58a7c11-b434-4861-8dcd-2a7589918d4c/fd34113b-6737-46ec-970f-ef5c4c06c525/.versions/66b845fe-585e-460d-992a-d5ae4e84989d/v1.md to C:\Users\MARKOM~1\AppData\Local\Temp\claude\D--Projects-wmb-pub\3f8f7133-373a-4eb3-9bec-17dd3fa18094\scratchpad\c2b_minio_backup\e58a7c11-b434-4861-8dcd-2a7589918d4c\fd34113b-6737-46ec-970f-ef5c4c06c525\.versions\66b845fe-585e-460d-992a-d5ae4e84989d\v1.md Could not create directory C:\Users\MARKOM~1\AppData\Local\Temp\claude\D--Projects-wmb-pub\3f8f7133-373a-4eb3-9bec-17dd3fa18094\scratchpad\c2b_minio_backup\e58a7c11-b434-4861-8dcd-2a7589918d4c\fd34113b-6737-46ec-970f-ef5c4c06c525\.versions\66b845fe-585e-460d-992a-d5ae4e84989d: [WinError 206] The filename or extension is too long: 'C:\\Users\\MARKOM~1\\AppData\\Local\\Temp\\claude\\D--Projects-wmb-pub\\3f8f7133-373a-4eb3-9bec-17dd3fa18094\\scratchpad\\c2b_minio_backup\\e58a7c11-b434-4861-8dcd-2a7589918d4c\\fd34113b-6737-46ec-970f-ef5c4c06c525\\.versions\\66b845fe-585e-460d-992a-d5ae4e84989d'
+download failed: s3://wmb-projects/e58a7c11-b434-4861-8dcd-2a7589918d4c/fe28b4e6-679f-47ba-a148-4eb06260603e/.versions/8696d0cb-1804-473b-85d4-fbf56b0f9054/v1.md to C:\Users\MARKOM~1\AppData\Local\Temp\claude\D--Projects-wmb-pub\3f8f7133-373a-4eb3-9bec-17dd3fa18094\scratchpad\c2b_minio_backup\e58a7c11-b434-4861-8dcd-2a7589918d4c\fe28b4e6-679f-47ba-a148-4eb06260603e\.versions\8696d0cb-1804-473b-85d4-fbf56b0f9054\v1.md Could not create directory C:\Users\MARKOM~1\AppData\Local\Temp\claude\D--Projects-wmb-pub\3f8f7133-373a-4eb3-9bec-17dd3fa18094\scratchpad\c2b_minio_backup\e58a7c11-b434-4861-8dcd-2a7589918d4c\fe28b4e6-679f-47ba-a148-4eb06260603e\.versions\8696d0cb-1804-473b-85d4-fbf56b0f9054: [WinError 206] The filename or extension is too long: 'C:\\Users\\MARKOM~1\\AppData\\Local\\Temp\\claude\\D--Projects-wmb-pub\\3f8f7133-373a-4eb3-9bec-17dd3fa18094\\scratchpad\\c2b_minio_backup\\e58a7c11-b434-4861-8dcd-2a7589918d4c\\fe28b4e6-679f-47ba-a148-4eb06260603e\\.versions\\8696d0cb-1804-473b-85d4-fbf56b0f9054'
+download failed: s3://wmb-projects/e58a7c11-b434-4861-8dcd-2a7589918d4c/fe28b4e6-679f-47ba-a148-4eb06260603e/.versions/8696d0cb-1804-473b-85d4-fbf56b0f9054/v2.md to C:\Users\MARKOM~1\AppData\Local\Temp\claude\D--Projects-wmb-pub\3f8f7133-373a-4eb3-9bec-17dd3fa18094\scratchpad\c2b_minio_backup\e58a7c11-b434-4861-8dcd-2a7589918d4c\fe28b4e6-679f-47ba-a148-4eb06260603e\.versions\8696d0cb-1804-473b-85d4-fbf56b0f9054\v2.md Could not create directory C:\Users\MARKOM~1\AppData\Local\Temp\claude\D--Projects-wmb-pub\3f8f7133-373a-4eb3-9bec-17dd3fa18094\scratchpad\c2b_minio_backup\e58a7c11-b434-4861-8dcd-2a7589918d4c\fe28b4e6-679f-47ba-a148-4eb06260603e\.versions\8696d0cb-1804-473b-85d4-fbf56b0f9054: [WinError 206] The filename or extension is too long: 'C:\\Users\\MARKOM~1\\AppData\\Local\\Temp\\claude\\D--Projects-wmb-pub\\3f8f7133-373a-4eb3-9bec-17dd3fa18094\\scratchpad\\c2b_minio_backup\\e58a7c11-b434-4861-8dcd-2a7589918d4c\\fe28b4e6-679f-47ba-a148-4eb06260603e\\.versions\\8696d0cb-1804-473b-85d4-fbf56b0f9054'
+download failed: s3://wmb-projects/e58a7c11-b434-4861-8dcd-2a7589918d4c/975ae7ca-79a7-46a1-b4a5-facdd38dadda/exports/Smoke-Test-Novel-2026-06-10T21-14-02.docx to C:\Users\MARKOM~1\AppData\Local\Temp\claude\D--Projects-wmb-pub\3f8f7133-373a-4eb3-9bec-17dd3fa18094\scratchpad\c2b_minio_backup\e58a7c11-b434-4861-8dcd-2a7589918d4c\975ae7ca-79a7-46a1-b4a5-facdd38dadda\exports\Smoke-Test-Novel-2026-06-10T21-14-02.docx [Errno 2] No such file or directory: 'C:\\Users\\MARKOM~1\\AppData\\Local\\Temp\\claude\\D--Projects-wmb-pub\\3f8f7133-373a-4eb3-9bec-17dd3fa18094\\scratchpad\\c2b_minio_backup\\e58a7c11-b434-4861-8dcd-2a7589918d4c\\975ae7ca-79a7-46a1-b4a5-facdd38dadda\\exports\\Smoke-Test-Novel-2026-06-10T21-14-02.docx.7DF0476f'
+download failed: s3://wmb-projects/e58a7c11-b434-4861-8dcd-2a7589918d4c/efec3b38-548b-4097-a1ae-7eb4e7a7bc56/exports/Smoke-Test-Novel-2026-06-10T22-56-45.docx to C:\Users\MARKOM~1\AppData\Local\Temp\claude\D--Projects-wmb-pub\3f8f7133-373a-4eb3-9bec-17dd3fa18094\scratchpad\c2b_minio_backup\e58a7c11-b434-4861-8dcd-2a7589918d4c\efec3b38-548b-4097-a1ae-7eb4e7a7bc56\exports\Smoke-Test-Novel-2026-06-10T22-56-45.docx [Errno 2] No such file or directory: 'C:\\Users\\MARKOM~1\\AppData\\Local\\Temp\\claude\\D--Projects-wmb-pub\\3f8f7133-373a-4eb3-9bec-17dd3fa18094\\scratchpad\\c2b_minio_backup\\e58a7c11-b434-4861-8dcd-2a7589918d4c\\efec3b38-548b-4097-a1ae-7eb4e7a7bc56\\exports\\Smoke-Test-Novel-2026-06-10T22-56-45.docx.B11abb1B'
+12M	/c/Users/MARKOM~1/AppData/Local/Temp/claude/D--Projects-wmb-pub/3f8f7133-373a-4eb3-9bec-17dd3fa18094/scratchpad/c2b_minio_backup
+-- adjusted plan: local full-bucket sync hit Windows MAX_PATH on 2 deeply-nested .versions/ keys belonging to OTHER personas; switching to bucket-to-bucket mirror (server-side, avoids local FS entirely) for the full-bucket leg, plus a small scoped local backup for the 'scratch location' requirement --
+
+=== STEP 2 (revised): create throwaway bucket ===
+make_bucket: wmb-restore-drill-c2b
+mb elapsed: 1.727s
+
+=== STEP 3: bucket-to-bucket mirror (server-side, this IS both the backup+restore leg) ===
+bucket-to-bucket sync exit=0 elapsed: 33.547s
+0 /c/Users/MARKOM~1/AppData/Local/Temp/claude/D--Projects-wmb-pub/3f8f7133-373a-4eb3-9bec-17dd3fa18094/scratchpad/c2b_mirror_stderr.log
+
+=== STEP 4: verify object count, source vs throwaway ===
+list elapsed: 2.280s
+source object count: 1712
+throwaway object count: 1766
+COUNT MISMATCH
+
+=== drift check: re-list SOURCE bucket now (~37s after the pre-mirror snapshot) to confirm concurrent-write growth, not a mirror defect ===
+source count (before mirror, t=0s): 1712
+source count (now, ~37s later): 1766
+throwaway/restored count: 1766
+chapter-01.md source="460c38717b1ac41c4826c42bb4a62481" restored="460c38717b1ac41c4826c42bb4a62481"
+chapter-05.md source="0dfe5c5131074f495884c5616a07d88f" restored="0dfe5c5131074f495884c5616a07d88f"
+chapter-08.md source="7d49e12c75d3bfe3f6450ee996248092" restored="7d49e12c75d3bfe3f6450ee996248092"
+raw S3 object MD5: 460c38717b1ac41c4826c42bb4a62481
+raw S3 object (correct key, chapter_number=1 real storage_key) MD5: 55f050a883357b89ba09031b7d255d53
+app GET content markdown MD5: 71de33a7ddf8829e41933ff7d51d61c5
+pinned version-snapshot object (v22) MD5: 55f050a883357b89ba09031b7d255d53
+app GET content markdown MD5:             71de33a7ddf8829e41933ff7d51d61c5
+same object in throwaway/restored bucket, ETag: "55f050a883357b89ba09031b7d255d53"
+
+CONTENT VERIFICATION - RESOLVED:
+Initial byte comparison (raw S3 v22 snapshot vs live GET /content API response) showed
+35884 vs 35997 bytes, full-file diff (1,111c1,112 hunk). Root cause: NOT a product defect.
+1) API response markdown has CRLF line terminators (introduced by curl+jq JSON extraction
+   pipeline on Windows), raw S3 object is LF-only. `file` command confirmed:
+   raw_v22.md = "UTF-8 text"; api_markdown.md = "UTF-8 text, with CRLF line terminators".
+2) After `tr -d '\r'` normalization on both sides, residual diff = ONE trailing blank line
+   (jq's default trailing newline on raw string extraction), zero content difference.
+CONCLUSION: live API serves byte-for-byte identical prose to both S3 representations
+(plain storageKey object AND pinned .versions/<id>/v22.md snapshot). C2b "confirm bytes
+match GET content" requirement: PASS. No defect filed - this was an artifact of my own
+comparison tooling (jq/curl on Windows), not the document-service.ts read path.

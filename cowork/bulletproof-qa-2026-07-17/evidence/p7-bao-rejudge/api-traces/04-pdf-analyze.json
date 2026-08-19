@@ -1,0 +1,11 @@
+[
+  {
+    "label": "pdf-analyze",
+    "method": "LOCAL",
+    "url": "artifacts/export.pdf",
+    "status": 200,
+    "ok": true,
+    "note": "pages actual=100 est=108 gap=8.0%; title=The Kőszeg Manuscript — Bao Réjudge P7 (São Café Ærø)",
+    "ts": "2026-07-20T11:29:09.630Z"
+  }
+]

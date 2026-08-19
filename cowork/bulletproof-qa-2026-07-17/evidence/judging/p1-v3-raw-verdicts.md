@@ -1,0 +1,30 @@
+# P1 "Maya" re-judge v3 — raw blind verdicts (3-judge Fable panel, 2026-07-27)
+
+NOTE: judges were briefed "next free D-179" before the P6 v3 panel registered D-179..D-182. P1-panel proposals renumber from D-183 in the aggregate.
+
+## Judge B — Overall 6.5 (UP from 6.0), floor D5 @6.5 driver D-176, co-floor D9 @6.5 (D-171 + D-165 gap)
+Dims: D1 7.5 / D2 8.0 / D3 7.0 / D3b 7.0 (UP from 6.0 — v2 floor driver closed both directions) / D5 6.5 FLOOR / D7 7.5 / D8 7.5 / D9 6.5 co-floor / D10 7.5 / D11 7.0.
+- Verified: 42a->43c same finding same stored drifted bytes, raw blocks gone, chip recovered; 43b psql+API row d6ae40cc byte-identical; 46 turn-1 opens "Per your memory preference, I'm dropping the show-tell flag" — memory honored NEXT SESSION on camera (D8 rubric line proven). Independently confirmed D-171: zero import sites.
+- D5 floor: 3-way-measured streaming honest (ttft header ±70ms, 32ms cadence, 279-984ms settle) but every turn opens 19-36s static wall, no elapsed signal, no cancel; ghost ~2s warm vs discuss 10-18x.
+- NEW (renumber D-183): mid-stream "Keep as-is" stays ENABLED during pending/streaming turn (3 frames) — dismiss reads only persisted replies, would miss in-flight REMEMBER, settle into dismissed finding; D-143 race family, S3-if-real, needs one live probe.
+- Observations (no number): live WRONG memory — chip/row says "retreat into arithmetic" (mis-summarization) permanently active, zero surface to correct = D-171 live instance; seeded opening line verbatim-duplicates finding card above it (46f3) S4; harness: Clerk pageerror clerk.example.test on every e2e-shim page — disclose in protocol before a D2 console sweep misattributes.
+- Next action: D-176 elapsed counter + heartbeat + CANCEL (keepalive channel exists, doesn't touch first-text gate) — lifts D5+D3; register founder-call: route discuss off reasoning slot (unfitForQuickAssist precedent) = only lever shortening the term (~19-36s -> ~2s). Pair with D-171 mount = clears both 6.5 co-floors in one wave.
+
+## Judge A — Overall 6.5 (UP from 6.0), floor D5 @6.5 driver D-176, co-floor D9 @6.5 (unre-probed dashboard)
+Dims: D1 7.5 / D2 8.0 / D3 7.0 / D3b 7.0 (v2 floor CLEARED) / D5 6.5 FLOOR / D7 7.5 / D8 7.5 / D9 6.5 co-floor / D10 7.0 / D11 7.0.
+- Source verification line-precise: 1ce1c6b guards at finding-conversation.tsx:58,70,147-151; b484615 selector called route.ts:8/281; e75996e discuss-llm.ts:189; prose gate ^<-anchored hold rule. D-171 grep-confirmed zero imports.
+- Panel context: wave delivered exactly the v2 unanimous prescription + 3 unprescribed fixes + streaming; NO same-severity sibling re-pinned D3b this time (unlike P4-v2 flat pattern).
+- D2 8.0: retro data-repair win (stored drifted threads recover on re-parse); abort all-or-nothing live.
+- D8 dock: GENERATION-SIDE MEMORY BYPASS — fresh show-tell findings raised on the exact pattern two active memories forbid ("tell it once" fails at generation time).
+- NEW (renumber D-184): WriterMemory near-dup accumulation S3 — rows bc68fab0 (07-20) + d6ae40cc (07-26) semantically identical, both active, both in every prompt; 46-series offered a THIRD; every re-flag/re-dismiss appends; token cost grows monotonically; D-171 means nobody can merge/prune. Memory-side sibling of D-159.
+- Observations: generation-side bypass (D-13/D-159 family); sidebar badge 6 vs Findings tab 11 same frame (pending-vs-total? one confirming frame); duplicated "Findings 11" tab+heading cosmetic.
+- Next action: D-176 counter+heartbeat (or reasoning-slot reroute) + SAME SESSION settle-delayed dashboard re-shot (D-165/D-166) — attacks both 6.5 dims one wave; projected P1 7.0.
+
+## Judge C — Overall 6.5 (UP from 6.0), floor D5 @6.5 driver D-176, co-floor D9 @6.5 driver D-165
+Dims: D1 7.5 / D2 8.0 / D3 7.0 / D3b 7.0 / D5 6.5 FLOOR / D7 7.5 / D8 8.0 / D9 6.5 co-floor / D10 7.0 / D11 7.5.
+- "v2 floor honestly killed, not relocated": D-157 closed both branches + 3 siblings fixed same wave — NOT the same-severity-sibling re-pin pattern. What remains at 6.5 is S3-grade, not S2.
+- Strongest artifact: 46 turn-1 "Per your memory preference, I'm dropping the show-tell flag" — flagship loop closed end-to-end in pixels first time. D8 8.0.
+- D5: ttft truthful ±70ms, D-143 did NOT reappear; but 19-36s static wall every turn; "the reasoning-slot routing mistake was already solved once for quick assist".
+- NEW (renumber D-185, S4 pixel-proven): armed AI Rewrite Comparison card DETACHES from emitting turn, re-anchors at thread bottom; turn-1's lead-in colon dangles with nothing after it; card renders under turn-3 which wasn't a rewrite offer — provenance misattribution + rendering-failure look. latestRevision thread-carry design consequence, never registered.
+- Observations: seeded opening line ephemeral (vanishes once real turns exist); "Keep as-is" rendered normal-styled under live streaming bubble (clickability unproven — converges w/ judge B's race); badge 6 vs 11; D-159 class live-corroborated post-D-107 (Present-perfect/simile vs Present-tense/paragraph pending pair).
+- Next action: route discuss off reasoning slot (unfitForQuickAssist precedent) OR counter/heartbeat; + free settle-delay dashboard re-shot (D-165) same session. Projected 7.0, next tier bound by D-171 — "whose fix is nearly free" (panel+routes+revoke wiring exist, zero mounts).

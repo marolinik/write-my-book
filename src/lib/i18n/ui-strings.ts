@@ -34,12 +34,16 @@ export interface UIStrings {
     nextStep: string;
     library: string;
     transfer: string;
+    // Mobile bottom nav (D-11)
+    home: string;
+    agent: string;
   };
 
   // Header
   header: {
     toggleSidebar: string;
     toggleAgent: string;
+    openAgent: string;
     new: string;
   };
 
@@ -93,6 +97,21 @@ export interface UIStrings {
     languageDescription: string;
     byokTitle: string;
     byokDescription: string;
+    getKey: string;
+    validateAndSave: string;
+    replace: string;
+    remove: string;
+    labelPlaceholder: string;
+    usageSummary: string;
+    noUsageYet: string;
+    sessionsUnit: string;
+    providerBlurbs: {
+      anthropic: string;
+      openrouter: string;
+      openai: string;
+      gemini: string;
+      grok: string;
+    };
   };
 
   // Agent panel
@@ -133,6 +152,7 @@ export interface UIStrings {
     creating: string;
     create: string;
     bookCreated: string;
+    nameRequired: string;
   };
 
   // Common
@@ -159,7 +179,9 @@ export interface UIStrings {
     language: string; languageHint: string;
     descriptionOptional: string; descriptionPlaceholder: string;
     saveAndContinue: string;
-    importInfo: string; manuscriptImported: string; chaptersLoaded: string;
+    importInfo: string; manuscriptImported: string;
+    /** Countable chapter noun — singular/plural pair, picked via pluralNoun(). */
+    chapterOne: string; chapterMany: string;
     importMore: string; goToImport: string;
     styleInfo: string; fingerprintCaptured: string;
     captureStyle: string; reCaptureStyle: string;
@@ -385,10 +407,13 @@ const EN: UIStrings = {
     nextStep: "Next Step",
     library: "Library",
     transfer: "Transfer",
+    home: "Home",
+    agent: "Agent",
   },
   header: {
     toggleSidebar: "Toggle sidebar",
     toggleAgent: "Toggle agent panel",
+    openAgent: "Open Writing Agent",
     new: "New",
   },
   dashboard: {
@@ -437,11 +462,26 @@ const EN: UIStrings = {
     languagePreference: "Language Preference",
     languageDescription: "Default language for new books and UI",
     byokTitle: "BYOK (Bring Your Own Key):",
-    byokDescription: "WriteMyBook uses your API key directly. We never store or have access to your API credentials in plaintext \u2014 they are encrypted with AES-256-GCM at rest. You pay Anthropic directly for token usage.",
+    byokDescription: "WriteMyBook uses your API key directly. We never store or have access to your API credentials in plaintext \u2014 they are encrypted with AES-256-GCM at rest. You pay your AI provider directly for token usage.",
+    getKey: "Get key",
+    validateAndSave: "Validate & Save",
+    replace: "Replace",
+    remove: "Remove",
+    labelPlaceholder: "e.g. Personal, Work",
+    usageSummary: "Usage Summary",
+    noUsageYet: "No usage recorded yet.",
+    sessionsUnit: "sessions",
+    providerBlurbs: {
+      anthropic: "Claude models direct from Anthropic. Best latency and reliability.",
+      openrouter: "Access Claude and 200+ models through a single API key.",
+      openai: "GPT-4o, o3, and o4-mini models from OpenAI.",
+      gemini: "Gemini 2.5 Pro and Flash models from Google AI.",
+      grok: "Grok-4, Grok-3, and Grok-3 Mini from xAI.",
+    },
   },
   agentPanel: {
     apiKeyRequired: "API Key Required",
-    apiKeyDescription: "Add your Anthropic API key to start using the writing agent.",
+    apiKeyDescription: "Add your API key to start using the writing agent.",
     goToSettings: "Go to Settings",
   },
   workflowSelector: {
@@ -472,6 +512,7 @@ const EN: UIStrings = {
     creating: "Creating...",
     create: "Create Book",
     bookCreated: "Book created",
+    nameRequired: "Please enter a book name to continue.",
   },
   common: {
     loading: "Loading...",
@@ -494,8 +535,8 @@ const EN: UIStrings = {
     language: "Language", languageHint: "Agents will write and communicate in this language",
     descriptionOptional: "Description (optional)", descriptionPlaceholder: "A brief summary of your book...",
     saveAndContinue: "Save & Continue",
-    importInfo: "If you have an existing manuscript, you can import it now. This step is optional -- you can always import later.",
-    manuscriptImported: "Manuscript imported", chaptersLoaded: "chapters loaded",
+    importInfo: "If you have an existing manuscript, you can import it now. This step is optional — you can always import later.",
+    manuscriptImported: "Manuscript imported", chapterOne: "chapter", chapterMany: "chapters",
     importMore: "Import More", goToImport: "Go to Import",
     styleInfo: "Analyze your writing samples to create a unique voice fingerprint. The agent will examine your prose and build a style profile that guides the ghostwriter.",
     fingerprintCaptured: "Style fingerprint already captured",
@@ -503,7 +544,7 @@ const EN: UIStrings = {
     bibleInfo: "Build a story bible with your world, characters, rules, and lore. This keeps the ghostwriter consistent across chapters.",
     bibleCreated: "Story Bible already created",
     createBible: "Create Story Bible", reCreateBible: "Re-create Story Bible",
-    archInfo: "Design your story structure -- acts, chapters, plot arcs, and pacing. The agent will help you outline the full book.",
+    archInfo: "Design your story structure — acts, chapters, plot arcs, and pacing. The agent will help you outline the full book.",
     archCreated: "Architecture already built",
     buildArch: "Build Architecture", reBuildArch: "Re-build Architecture",
     setupComplete: "Setup Complete", bookReady: "Your book is ready. You can revisit any setup step later.",
@@ -685,10 +726,13 @@ const SR: UIStrings = {
     nextStep: "Sledeći korak",
     library: "Biblioteka",
     transfer: "Prenos",
+    home: "Početna",
+    agent: "Agent",
   },
   header: {
     toggleSidebar: "Prikaži/sakrij bočnu traku",
     toggleAgent: "Prikaži/sakrij panel agenta",
+    openAgent: "Otvori agenta za pisanje",
     new: "Novo",
   },
   dashboard: {
@@ -737,11 +781,26 @@ const SR: UIStrings = {
     languagePreference: "Jezičke preferencе",
     languageDescription: "Podrazumevani jezik za nove knjige i interfejs",
     byokTitle: "BYOK (Koristite sopstveni ključ):",
-    byokDescription: "WriteMyBook koristi vaš API ključ direktno. Nikada ne čuvamo niti imamo pristup vašim akreditivima u čistom tekstu \u2014 šifrovani su AES-256-GCM algoritmom. Plaćate Anthropic direktno za upotrebu tokena.",
+    byokDescription: "WriteMyBook koristi vaš API ključ direktno. Nikada ne čuvamo niti imamo pristup vašim akreditivima u čistom tekstu \u2014 šifrovani su AES-256-GCM algoritmom. Plaćate svom AI provajderu direktno za upotrebu tokena.",
+    getKey: "Preuzmi ključ",
+    validateAndSave: "Proveri i sačuvaj",
+    replace: "Zameni",
+    remove: "Ukloni",
+    labelPlaceholder: "npr. Lično, Posao",
+    usageSummary: "Pregled potrošnje",
+    noUsageYet: "Još nema zabeležene potrošnje.",
+    sessionsUnit: "sesija",
+    providerBlurbs: {
+      anthropic: "Claude modeli direktno od Anthropic-a. Najbolja brzina i pouzdanost.",
+      openrouter: "Pristup Claude-u i preko 200 modela putem jednog API ključa.",
+      openai: "GPT-4o, o3 i o4-mini modeli od OpenAI-ja.",
+      gemini: "Gemini 2.5 Pro i Flash modeli od Google AI-ja.",
+      grok: "Grok-4, Grok-3 i Grok-3 Mini od xAI-ja.",
+    },
   },
   agentPanel: {
     apiKeyRequired: "Potreban API ključ",
-    apiKeyDescription: "Dodajte vaš Anthropic API ključ da biste počeli koristiti agenta za pisanje.",
+    apiKeyDescription: "Dodajte vaš API ključ da biste počeli koristiti agenta za pisanje.",
     goToSettings: "Idi na podešavanja",
   },
   workflowSelector: {
@@ -772,6 +831,7 @@ const SR: UIStrings = {
     creating: "Kreiranje...",
     create: "Kreiraj knjigu",
     bookCreated: "Knjiga kreirana",
+    nameRequired: "Unesite naziv knjige da biste nastavili.",
   },
   common: {
     loading: "Učitavanje...",
@@ -794,8 +854,8 @@ const SR: UIStrings = {
     language: "Jezik", languageHint: "Agenti će pisati i komunicirati na ovom jeziku",
     descriptionOptional: "Opis (opciono)", descriptionPlaceholder: "Kratak rezime vaše knjige...",
     saveAndContinue: "Sačuvaj i nastavi",
-    importInfo: "Ako imate postojeći rukopis, možete ga uvesti sada. Ovaj korak je opcioni -- uvek možete uvesti kasnije.",
-    manuscriptImported: "Rukopis uvezen", chaptersLoaded: "poglavlja učitano",
+    importInfo: "Ako imate postojeÄi rukopis, moÅ¾ete ga uvesti sada. Ovaj korak je opcioni — uvek moÅ¾ete uvesti kasnije.",
+    manuscriptImported: "Rukopis uvezen", chapterOne: "poglavlje", chapterMany: "poglavlja",
     importMore: "Uvezi još", goToImport: "Idi na uvoz",
     styleInfo: "Analizirajte vaše uzorke pisanja da kreirate jedinstven otisak glasa. Agent će ispitati vašu prozu i napraviti profil stila koji vodi pisca.",
     fingerprintCaptured: "Otisak stila je već uhvaćen",
@@ -803,7 +863,7 @@ const SR: UIStrings = {
     bibleInfo: "Izgradite bibliju priče sa svetom, likovima, pravilima i legendama. Ovo održava pisca doslednim kroz poglavlja.",
     bibleCreated: "Biblija priče je već kreirana",
     createBible: "Kreiraj bibliju priče", reCreateBible: "Ponovo kreiraj bibliju priče",
-    archInfo: "Dizajnirajte strukturu priče -- činove, poglavlja, zaplete i tempo. Agent će vam pomoći da napravite nacrt cele knjige.",
+    archInfo: "Dizajnirajte strukturu priÄe — Äinove, poglavlja, zaplete i tempo. Agent Äe vam pomoÄi da napravite nacrt cele knjige.",
     archCreated: "Arhitektura je već izgrađena",
     buildArch: "Izgradi arhitekturu", reBuildArch: "Ponovo izgradi arhitekturu",
     setupComplete: "Podešavanje završeno", bookReady: "Vaša knjiga je spremna. Možete se vratiti na bilo koji korak kasnije.",
@@ -985,10 +1045,13 @@ const DE: UIStrings = {
     nextStep: "Nächster Schritt",
     library: "Bibliothek",
     transfer: "Übertragung",
+    home: "Start",
+    agent: "Agent",
   },
   header: {
     toggleSidebar: "Seitenleiste umschalten",
     toggleAgent: "Agentenpanel umschalten",
+    openAgent: "Schreibagent öffnen",
     new: "Neu",
   },
   dashboard: {
@@ -1037,11 +1100,26 @@ const DE: UIStrings = {
     languagePreference: "Spracheinstellung",
     languageDescription: "Standardsprache für neue Bücher und Benutzeroberfläche",
     byokTitle: "BYOK (Eigener Schlüssel):",
-    byokDescription: "WriteMyBook verwendet Ihren API-Schlüssel direkt. Wir speichern Ihre Zugangsdaten nie im Klartext \u2014 sie werden mit AES-256-GCM verschlüsselt. Sie zahlen Anthropic direkt für die Token-Nutzung.",
+    byokDescription: "WriteMyBook verwendet Ihren API-Schlüssel direkt. Wir speichern Ihre Zugangsdaten nie im Klartext \u2014 sie werden mit AES-256-GCM verschlüsselt. Sie zahlen Ihren KI-Anbieter direkt für die Token-Nutzung.",
+    getKey: "Schlüssel holen",
+    validateAndSave: "Prüfen & speichern",
+    replace: "Ersetzen",
+    remove: "Entfernen",
+    labelPlaceholder: "z. B. Privat, Arbeit",
+    usageSummary: "Nutzungsübersicht",
+    noUsageYet: "Noch keine Nutzung erfasst.",
+    sessionsUnit: "Sitzungen",
+    providerBlurbs: {
+      anthropic: "Claude-Modelle direkt von Anthropic. Beste Latenz und Zuverlässigkeit.",
+      openrouter: "Zugriff auf Claude und über 200 Modelle mit einem einzigen API-Schlüssel.",
+      openai: "GPT-4o-, o3- und o4-mini-Modelle von OpenAI.",
+      gemini: "Gemini 2.5 Pro- und Flash-Modelle von Google AI.",
+      grok: "Grok-4, Grok-3 und Grok-3 Mini von xAI.",
+    },
   },
   agentPanel: {
     apiKeyRequired: "API-Schlüssel erforderlich",
-    apiKeyDescription: "Fügen Sie Ihren Anthropic API-Schlüssel hinzu, um den Schreib-Agenten zu nutzen.",
+    apiKeyDescription: "Fügen Sie Ihren API-Schlüssel hinzu, um den Schreib-Agenten zu nutzen.",
     goToSettings: "Zu Einstellungen",
   },
   workflowSelector: {
@@ -1072,6 +1150,7 @@ const DE: UIStrings = {
     creating: "Wird erstellt...",
     create: "Buch erstellen",
     bookCreated: "Buch erstellt",
+    nameRequired: "Bitte gib einen Buchnamen ein, um fortzufahren.",
   },
   common: {
     loading: "Laden...",
@@ -1094,8 +1173,8 @@ const DE: UIStrings = {
     language: "Sprache", languageHint: "Agenten schreiben und kommunizieren in dieser Sprache",
     descriptionOptional: "Beschreibung (optional)", descriptionPlaceholder: "Eine kurze Zusammenfassung Ihres Buches...",
     saveAndContinue: "Speichern & Weiter",
-    importInfo: "Wenn Sie ein vorhandenes Manuskript haben, können Sie es jetzt importieren. Dieser Schritt ist optional -- Sie können jederzeit später importieren.",
-    manuscriptImported: "Manuskript importiert", chaptersLoaded: "Kapitel geladen",
+    importInfo: "Wenn Sie ein vorhandenes Manuskript haben, kÃ¶nnen Sie es jetzt importieren. Dieser Schritt ist optional — Sie kÃ¶nnen jederzeit spÃ¤ter importieren.",
+    manuscriptImported: "Manuskript importiert", chapterOne: "Kapitel", chapterMany: "Kapitel",
     importMore: "Mehr importieren", goToImport: "Zum Import",
     styleInfo: "Analysieren Sie Ihre Schreibproben, um einen einzigartigen Stimm-Fingerabdruck zu erstellen. Der Agent untersucht Ihre Prosa und erstellt ein Stilprofil, das den Ghostwriter leitet.",
     fingerprintCaptured: "Stil-Fingerabdruck bereits erfasst",
@@ -1103,7 +1182,7 @@ const DE: UIStrings = {
     bibleInfo: "Erstellen Sie eine Story-Bibel mit Ihrer Welt, Figuren, Regeln und Überlieferungen. Dies hält den Ghostwriter kapitelübergreifend konsistent.",
     bibleCreated: "Story-Bibel bereits erstellt",
     createBible: "Story-Bibel erstellen", reCreateBible: "Story-Bibel neu erstellen",
-    archInfo: "Entwerfen Sie Ihre Geschichtsstruktur -- Akte, Kapitel, Handlungsbögen und Tempo. Der Agent hilft Ihnen, das gesamte Buch zu skizzieren.",
+    archInfo: "Entwerfen Sie Ihre Geschichtsstruktur — Akte, Kapitel, HandlungsbÃ¶gen und Tempo. Der Agent hilft Ihnen, das gesamte Buch zu skizzieren.",
     archCreated: "Architektur bereits erstellt",
     buildArch: "Architektur erstellen", reBuildArch: "Architektur neu erstellen",
     setupComplete: "Einrichtung abgeschlossen", bookReady: "Ihr Buch ist bereit. Sie können jeden Einrichtungsschritt später erneut besuchen.",
@@ -1285,10 +1364,13 @@ const ES: UIStrings = {
     nextStep: "Siguiente paso",
     library: "Biblioteca",
     transfer: "Transferencia",
+    home: "Inicio",
+    agent: "Agente",
   },
   header: {
     toggleSidebar: "Alternar barra lateral",
     toggleAgent: "Alternar panel del agente",
+    openAgent: "Abrir agente de escritura",
     new: "Nuevo",
   },
   dashboard: {
@@ -1337,11 +1419,26 @@ const ES: UIStrings = {
     languagePreference: "Preferencia de idioma",
     languageDescription: "Idioma por defecto para nuevos libros e interfaz",
     byokTitle: "BYOK (Trae tu propia clave):",
-    byokDescription: "WriteMyBook usa tu clave API directamente. Nunca almacenamos tus credenciales en texto plano \u2014 están cifradas con AES-256-GCM. Pagas a Anthropic directamente por el uso de tokens.",
+    byokDescription: "WriteMyBook usa tu clave API directamente. Nunca almacenamos tus credenciales en texto plano \u2014 están cifradas con AES-256-GCM. Pagas a tu proveedor de IA directamente por el uso de tokens.",
+    getKey: "Obtener clave",
+    validateAndSave: "Validar y guardar",
+    replace: "Reemplazar",
+    remove: "Eliminar",
+    labelPlaceholder: "p. ej. Personal, Trabajo",
+    usageSummary: "Resumen de uso",
+    noUsageYet: "Aún no hay uso registrado.",
+    sessionsUnit: "sesiones",
+    providerBlurbs: {
+      anthropic: "Modelos Claude directamente de Anthropic. Mejor latencia y fiabilidad.",
+      openrouter: "Accede a Claude y más de 200 modelos con una sola clave API.",
+      openai: "Modelos GPT-4o, o3 y o4-mini de OpenAI.",
+      gemini: "Modelos Gemini 2.5 Pro y Flash de Google AI.",
+      grok: "Grok-4, Grok-3 y Grok-3 Mini de xAI.",
+    },
   },
   agentPanel: {
     apiKeyRequired: "Clave API requerida",
-    apiKeyDescription: "Añade tu clave API de Anthropic para empezar a usar el agente de escritura.",
+    apiKeyDescription: "Añade tu clave API para empezar a usar el agente de escritura.",
     goToSettings: "Ir a Ajustes",
   },
   workflowSelector: {
@@ -1372,6 +1469,7 @@ const ES: UIStrings = {
     creating: "Creando...",
     create: "Crear libro",
     bookCreated: "Libro creado",
+    nameRequired: "Introduce un nombre de libro para continuar.",
   },
   common: {
     loading: "Cargando...",
@@ -1394,8 +1492,8 @@ const ES: UIStrings = {
     language: "Idioma", languageHint: "Los agentes escribirán y se comunicarán en este idioma",
     descriptionOptional: "Descripción (opcional)", descriptionPlaceholder: "Un breve resumen de su libro...",
     saveAndContinue: "Guardar y continuar",
-    importInfo: "Si tiene un manuscrito existente, puede importarlo ahora. Este paso es opcional -- siempre puede importar más tarde.",
-    manuscriptImported: "Manuscrito importado", chaptersLoaded: "capítulos cargados",
+    importInfo: "Si tiene un manuscrito existente, puede importarlo ahora. Este paso es opcional — siempre puede importar mÃ¡s tarde.",
+    manuscriptImported: "Manuscrito importado", chapterOne: "capítulo", chapterMany: "capítulos",
     importMore: "Importar más", goToImport: "Ir a Importar",
     styleInfo: "Analice sus muestras de escritura para crear una huella de voz única. El agente examinará su prosa y construirá un perfil de estilo que guía al escritor fantasma.",
     fingerprintCaptured: "Huella de estilo ya capturada",
@@ -1403,7 +1501,7 @@ const ES: UIStrings = {
     bibleInfo: "Construya una biblia de la historia con su mundo, personajes, reglas y tradiciones. Esto mantiene al escritor fantasma consistente entre capítulos.",
     bibleCreated: "Biblia de la historia ya creada",
     createBible: "Crear biblia de la historia", reCreateBible: "Recrear biblia de la historia",
-    archInfo: "Diseñe la estructura de su historia -- actos, capítulos, arcos argumentales y ritmo. El agente le ayudará a esbozar todo el libro.",
+    archInfo: "DiseÃ±e la estructura de su historia — actos, capÃ­tulos, arcos argumentales y ritmo. El agente le ayudarÃ¡ a esbozar todo el libro.",
     archCreated: "Arquitectura ya construida",
     buildArch: "Construir arquitectura", reBuildArch: "Reconstruir arquitectura",
     setupComplete: "Configuración completa", bookReady: "Su libro está listo. Puede revisitar cualquier paso más tarde.",
@@ -1585,10 +1683,13 @@ const FR: UIStrings = {
     nextStep: "Prochaine étape",
     library: "Bibliothèque",
     transfer: "Transfert",
+    home: "Accueil",
+    agent: "Agent",
   },
   header: {
     toggleSidebar: "Afficher/masquer la barre latérale",
     toggleAgent: "Afficher/masquer le panneau agent",
+    openAgent: "Ouvrir l'agent d'écriture",
     new: "Nouveau",
   },
   dashboard: {
@@ -1637,11 +1738,26 @@ const FR: UIStrings = {
     languagePreference: "Préférence de langue",
     languageDescription: "Langue par défaut pour les nouveaux livres et l'interface",
     byokTitle: "BYOK (Apportez votre propre clé) :",
-    byokDescription: "WriteMyBook utilise votre clé API directement. Nous ne stockons jamais vos identifiants en clair \u2014 ils sont chiffrés avec AES-256-GCM. Vous payez Anthropic directement pour l'utilisation des tokens.",
+    byokDescription: "WriteMyBook utilise votre clé API directement. Nous ne stockons jamais vos identifiants en clair \u2014 ils sont chiffrés avec AES-256-GCM. Vous payez votre fournisseur d'IA directement pour l'utilisation des tokens.",
+    getKey: "Obtenir une clé",
+    validateAndSave: "Valider et enregistrer",
+    replace: "Remplacer",
+    remove: "Supprimer",
+    labelPlaceholder: "p. ex. Personnel, Travail",
+    usageSummary: "Résumé d'utilisation",
+    noUsageYet: "Aucune utilisation enregistrée pour le moment.",
+    sessionsUnit: "sessions",
+    providerBlurbs: {
+      anthropic: "Modèles Claude directement depuis Anthropic. Meilleure latence et fiabilité.",
+      openrouter: "Accédez à Claude et plus de 200 modèles avec une seule clé API.",
+      openai: "Modèles GPT-4o, o3 et o4-mini d'OpenAI.",
+      gemini: "Modèles Gemini 2.5 Pro et Flash de Google AI.",
+      grok: "Grok-4, Grok-3 et Grok-3 Mini de xAI.",
+    },
   },
   agentPanel: {
     apiKeyRequired: "Clé API requise",
-    apiKeyDescription: "Ajoutez votre clé API Anthropic pour commencer à utiliser l'agent d'écriture.",
+    apiKeyDescription: "Ajoutez votre clé API pour commencer à utiliser l'agent d'écriture.",
     goToSettings: "Aller aux paramètres",
   },
   workflowSelector: {
@@ -1672,6 +1788,7 @@ const FR: UIStrings = {
     creating: "Création...",
     create: "Créer un livre",
     bookCreated: "Livre créé",
+    nameRequired: "Saisissez un nom de livre pour continuer.",
   },
   common: {
     loading: "Chargement...",
@@ -1694,8 +1811,8 @@ const FR: UIStrings = {
     language: "Langue", languageHint: "Les agents écriront et communiqueront dans cette langue",
     descriptionOptional: "Description (optionnel)", descriptionPlaceholder: "Un bref résumé de votre livre...",
     saveAndContinue: "Enregistrer et continuer",
-    importInfo: "Si vous avez un manuscrit existant, vous pouvez l'importer maintenant. Cette étape est optionnelle -- vous pouvez toujours importer plus tard.",
-    manuscriptImported: "Manuscrit importé", chaptersLoaded: "chapitres chargés",
+    importInfo: "Si vous avez un manuscrit existant, vous pouvez l'importer maintenant. Cette Ã©tape est optionnelle — vous pouvez toujours importer plus tard.",
+    manuscriptImported: "Manuscrit importé", chapterOne: "chapitre", chapterMany: "chapitres",
     importMore: "Importer plus", goToImport: "Aller à l'import",
     styleInfo: "Analysez vos échantillons d'écriture pour créer une empreinte vocale unique. L'agent examinera votre prose et construira un profil de style qui guide le nègre littéraire.",
     fingerprintCaptured: "Empreinte de style déjà capturée",
@@ -1703,7 +1820,7 @@ const FR: UIStrings = {
     bibleInfo: "Construisez une bible de l'histoire avec votre monde, personnages, règles et traditions. Cela maintient le nègre littéraire cohérent entre les chapitres.",
     bibleCreated: "Bible de l'histoire déjà créée",
     createBible: "Créer la bible de l'histoire", reCreateBible: "Recréer la bible de l'histoire",
-    archInfo: "Concevez la structure de votre histoire -- actes, chapitres, arcs narratifs et rythme. L'agent vous aidera à esquisser tout le livre.",
+    archInfo: "Concevez la structure de votre histoire — actes, chapitres, arcs narratifs et rythme. L'agent vous aidera Ã  esquisser tout le livre.",
     archCreated: "Architecture déjà construite",
     buildArch: "Construire l'architecture", reBuildArch: "Reconstruire l'architecture",
     setupComplete: "Configuration terminée", bookReady: "Votre livre est prêt. Vous pouvez revisiter n'importe quelle étape plus tard.",
@@ -1885,10 +2002,13 @@ const RU: UIStrings = {
     nextStep: "Следующий шаг",
     library: "Библиотека",
     transfer: "Передача",
+    home: "Главная",
+    agent: "Агент",
   },
   header: {
     toggleSidebar: "Показать/скрыть боковую панель",
     toggleAgent: "Показать/скрыть панель агента",
+    openAgent: "Открыть агента для письма",
     new: "Новый",
   },
   dashboard: {
@@ -1937,11 +2057,26 @@ const RU: UIStrings = {
     languagePreference: "Языковые предпочтения",
     languageDescription: "Язык по умолчанию для новых книг и интерфейса",
     byokTitle: "BYOK (Собственный ключ):",
-    byokDescription: "WriteMyBook использует ваш API-ключ напрямую. Мы никогда не храним ваши учётные данные в открытом виде \u2014 они зашифрованы AES-256-GCM. Вы платите Anthropic напрямую за использование токенов.",
+    byokDescription: "WriteMyBook использует ваш API-ключ напрямую. Мы никогда не храним ваши учётные данные в открытом виде \u2014 они зашифрованы AES-256-GCM. Вы платите своему поставщику ИИ напрямую за использование токенов.",
+    getKey: "Получить ключ",
+    validateAndSave: "Проверить и сохранить",
+    replace: "Заменить",
+    remove: "Удалить",
+    labelPlaceholder: "напр. Личный, Рабочий",
+    usageSummary: "Сводка использования",
+    noUsageYet: "Использование ещё не зафиксировано.",
+    sessionsUnit: "сессий",
+    providerBlurbs: {
+      anthropic: "Модели Claude напрямую от Anthropic. Лучшая задержка и надёжность.",
+      openrouter: "Доступ к Claude и более 200 моделям через один API-ключ.",
+      openai: "Модели GPT-4o, o3 и o4-mini от OpenAI.",
+      gemini: "Модели Gemini 2.5 Pro и Flash от Google AI.",
+      grok: "Grok-4, Grok-3 и Grok-3 Mini от xAI.",
+    },
   },
   agentPanel: {
     apiKeyRequired: "Требуется API-ключ",
-    apiKeyDescription: "Добавьте API-ключ Anthropic, чтобы начать использовать агента-писателя.",
+    apiKeyDescription: "Добавьте API-ключ, чтобы начать использовать агента-писателя.",
     goToSettings: "Перейти в настройки",
   },
   workflowSelector: {
@@ -1972,6 +2107,7 @@ const RU: UIStrings = {
     creating: "Создание...",
     create: "Создать книгу",
     bookCreated: "Книга создана",
+    nameRequired: "Введите название книги, чтобы продолжить.",
   },
   common: {
     loading: "Загрузка...",
@@ -1994,8 +2130,8 @@ const RU: UIStrings = {
     language: "Язык", languageHint: "Агенты будут писать и общаться на этом языке",
     descriptionOptional: "Описание (необязательно)", descriptionPlaceholder: "Краткое описание вашей книги...",
     saveAndContinue: "Сохранить и продолжить",
-    importInfo: "Если у вас есть существующая рукопись, вы можете импортировать её сейчас. Этот шаг необязателен -- вы всегда можете импортировать позже.",
-    manuscriptImported: "Рукопись импортирована", chaptersLoaded: "глав загружено",
+    importInfo: "ÐÑÐ»Ð¸ Ñ Ð²Ð°Ñ ÐµÑÑÑ ÑÑÑÐµÑÑÐ²ÑÑÑÐ°Ñ ÑÑÐºÐ¾Ð¿Ð¸ÑÑ, Ð²Ñ Ð¼Ð¾Ð¶ÐµÑÐµ Ð¸Ð¼Ð¿Ð¾ÑÑÐ¸ÑÐ¾Ð²Ð°ÑÑ ÐµÑ ÑÐµÐ¹ÑÐ°Ñ. Ð­ÑÐ¾Ñ ÑÐ°Ð³ Ð½ÐµÐ¾Ð±ÑÐ·Ð°ÑÐµÐ»ÐµÐ½ — Ð²Ñ Ð²ÑÐµÐ³Ð´Ð° Ð¼Ð¾Ð¶ÐµÑÐµ Ð¸Ð¼Ð¿Ð¾ÑÑÐ¸ÑÐ¾Ð²Ð°ÑÑ Ð¿Ð¾Ð·Ð¶Ðµ.",
+    manuscriptImported: "Рукопись импортирована", chapterOne: "глава", chapterMany: "глав",
     importMore: "Импортировать ещё", goToImport: "Перейти к импорту",
     styleInfo: "Проанализируйте ваши образцы письма, чтобы создать уникальный отпечаток голоса. Агент изучит вашу прозу и создаст профиль стиля, который направляет писателя.",
     fingerprintCaptured: "Отпечаток стиля уже зафиксирован",
@@ -2003,7 +2139,7 @@ const RU: UIStrings = {
     bibleInfo: "Создайте библию истории с вашим миром, персонажами, правилами и легендами. Это поддерживает согласованность писателя между главами.",
     bibleCreated: "Библия истории уже создана",
     createBible: "Создать библию истории", reCreateBible: "Пересоздать библию истории",
-    archInfo: "Спроектируйте структуру истории -- акты, главы, сюжетные арки и темп. Агент поможет вам набросать всю книгу.",
+    archInfo: "Ð¡Ð¿ÑÐ¾ÐµÐºÑÐ¸ÑÑÐ¹ÑÐµ ÑÑÑÑÐºÑÑÑÑ Ð¸ÑÑÐ¾ÑÐ¸Ð¸ — Ð°ÐºÑÑ, Ð³Ð»Ð°Ð²Ñ, ÑÑÐ¶ÐµÑÐ½ÑÐµ Ð°ÑÐºÐ¸ Ð¸ ÑÐµÐ¼Ð¿. ÐÐ³ÐµÐ½Ñ Ð¿Ð¾Ð¼Ð¾Ð¶ÐµÑ Ð²Ð°Ð¼ Ð½Ð°Ð±ÑÐ¾ÑÐ°ÑÑ Ð²ÑÑ ÐºÐ½Ð¸Ð³Ñ.",
     archCreated: "Архитектура уже построена",
     buildArch: "Построить архитектуру", reBuildArch: "Перестроить архитектуру",
     setupComplete: "Настройка завершена", bookReady: "Ваша книга готова. Вы можете вернуться к любому шагу позже.",
@@ -2185,10 +2321,13 @@ const ZH: UIStrings = {
     nextStep: "下一步",
     library: "资料库",
     transfer: "导入导出",
+    home: "首页",
+    agent: "代理",
   },
   header: {
     toggleSidebar: "切换侧边栏",
     toggleAgent: "切换代理面板",
+    openAgent: "打开写作代理",
     new: "新建",
   },
   dashboard: {
@@ -2237,11 +2376,26 @@ const ZH: UIStrings = {
     languagePreference: "语言偏好",
     languageDescription: "新书和界面的默认语言",
     byokTitle: "BYOK（自带密钥）：",
-    byokDescription: "WriteMyBook直接使用您的API密钥。我们从不以明文存储您的凭据 \u2014 它们使用AES-256-GCM加密。您直接向Anthropic支付令牌使用费用。",
+    byokDescription: "WriteMyBook直接使用您的API密钥。我们从不以明文存储您的凭据 \u2014 它们使用AES-256-GCM加密。您直接向您的AI提供商支付令牌使用费用。",
+    getKey: "获取密钥",
+    validateAndSave: "验证并保存",
+    replace: "替换",
+    remove: "移除",
+    labelPlaceholder: "例如：个人、工作",
+    usageSummary: "使用摘要",
+    noUsageYet: "尚无使用记录。",
+    sessionsUnit: "个会话",
+    providerBlurbs: {
+      anthropic: "直接来自 Anthropic 的 Claude 模型。最佳延迟与可靠性。",
+      openrouter: "通过单个 API 密钥访问 Claude 及 200 多个模型。",
+      openai: "来自 OpenAI 的 GPT-4o、o3 和 o4-mini 模型。",
+      gemini: "来自 Google AI 的 Gemini 2.5 Pro 和 Flash 模型。",
+      grok: "来自 xAI 的 Grok-4、Grok-3 和 Grok-3 Mini。",
+    },
   },
   agentPanel: {
     apiKeyRequired: "需要API密钥",
-    apiKeyDescription: "添加您的Anthropic API密钥以开始使用写作代理。",
+    apiKeyDescription: "添加您的API密钥以开始使用写作代理。",
     goToSettings: "前往设置",
   },
   workflowSelector: {
@@ -2272,6 +2426,7 @@ const ZH: UIStrings = {
     creating: "创建中...",
     create: "创建书籍",
     bookCreated: "书籍已创建",
+    nameRequired: "请输入书名以继续。",
   },
   common: {
     loading: "加载中...",
@@ -2295,7 +2450,7 @@ const ZH: UIStrings = {
     descriptionOptional: "描述（可选）", descriptionPlaceholder: "您的书的简要摘要...",
     saveAndContinue: "保存并继续",
     importInfo: "如果您有现有稿件，可以现在导入。此步骤是可选的——您随时可以稍后导入。",
-    manuscriptImported: "稿件已导入", chaptersLoaded: "章节已加载",
+    manuscriptImported: "稿件已导入", chapterOne: "章", chapterMany: "章",
     importMore: "导入更多", goToImport: "前往导入",
     styleInfo: "分析您的写作样本，创建独特的声音指纹。代理将检查您的散文并构建指导代笔人的风格档案。",
     fingerprintCaptured: "风格指纹已捕捉",
@@ -2466,15 +2621,39 @@ const UI_STRINGS: Record<string, UIStrings> = {
   zh: ZH,
 };
 
+/** Own-property dictionary lookup — never resolve prototype-chain keys
+ * (e.g. "toString") to a "dictionary". */
+function ownDict(code: string): UIStrings | undefined {
+  return Object.prototype.hasOwnProperty.call(UI_STRINGS, code)
+    ? UI_STRINGS[code]
+    : undefined;
+}
+
 /**
  * Get translated UI strings for a language code.
  * Falls back to English for unsupported languages.
  */
 export function getUIStrings(language: string): UIStrings {
+  return ownDict(language) ?? ownDict(language.split("-")[0]) ?? EN;
+}
+
+/**
+ * Languages with a complete UI translation dictionary (D-12). Only these are
+ * offered and accepted as the app-interface language. Every other code in
+ * SUPPORTED_LANGUAGES remains a valid BOOK/prose language (agents write in
+ * it), but the UI chrome would silently fall back to English — so the
+ * settings picker and PATCH /api/settings/language must not pretend
+ * otherwise.
+ */
+export const UI_SUPPORTED_LANGUAGES = SUPPORTED_LANGUAGES.filter((lang) =>
+  Object.prototype.hasOwnProperty.call(UI_STRINGS, lang.code)
+);
+
+/** True when the code (or its base tag, e.g. "fr-CA" → "fr") has a UI dictionary. */
+export function isUiLanguageSupported(language: string): boolean {
   return (
-    UI_STRINGS[language] ??
-    UI_STRINGS[language.split("-")[0]] ??
-    EN
+    ownDict(language) !== undefined ||
+    ownDict(language.split("-")[0]) !== undefined
   );
 }
 

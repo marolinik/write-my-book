@@ -1,0 +1,26 @@
+{
+  "capturedAt": "2026-07-20T02:18:15.828Z",
+  "request": {
+    "method": "PUT",
+    "url": "/api/books/af01d68f-6f04-4bfc-aab3-76ec700fc0c1/chapters/26770e73-bd25-435a-b32b-15e752555db6/content",
+    "actingAs": "user_qa_p3",
+    "headers": {
+      "content-type": "application/json",
+      "x-e2e-test-secret": "***MASKED***",
+      "x-e2e-clerk-id": "user_qa_p3"
+    },
+    "body": {
+      "markdown": "Chapter Two — Embers of Memory\n\nKira Venn summoned her council in the great hall of Highfort. New names filled the benches now — Sera Locke, the young captain, chief among them. Sera Locke swore her loyalty to Kira Venn. The old cartographer Zoë Rasmussen had left her charts to the archive, and the realm charted its own course into the ashfall years.",
+      "changeSource": "user"
+    }
+  },
+  "response": {
+    "status": 200,
+    "latencyMs": 185,
+    "body": {
+      "wordCount": 63,
+      "version": 1,
+      "bookWordCount": 126
+    }
+  }
+}

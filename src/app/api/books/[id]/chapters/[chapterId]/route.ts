@@ -3,6 +3,8 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { updateChapterSchema } from "@/lib/validation";
 import { deleteChapterChunks } from "@/lib/vector";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { zodErrorResponse } from "@/lib/api/zod-error";
 
 type RouteParams = { params: Promise<{ id: string; chapterId: string }> };
 
@@ -46,7 +48,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id: bookId, chapterId } = await params;
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = updateChapterSchema.parse(body);
 
     const book = await db.book.findFirst({
@@ -72,12 +74,13 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(chapter);
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if ((error as Error).name === "ZodError") {
-      return NextResponse.json({ error: "Invalid input", details: error }, { status: 400 });
-    }
+    const zodRes = zodErrorResponse(error);
+    if (zodRes) return zodRes;
     console.error("PATCH /api/books/:id/chapters/:chapterId error:", error);
     return NextResponse.json(
       { error: "Failed to update chapter" },
@@ -113,9 +116,12 @@ export async function DELETE(_req: NextRequest, { params }: RouteParams) {
 
     await db.chapter.delete({ where: { id: chapterId } });
 
+    // D-194: authoritative recount (see the create route) — a blind decrement
+    // can drive an already-drifted counter negative and never self-corrects.
+    const chapterCount = await db.chapter.count({ where: { bookId } });
     await db.book.update({
       where: { id: bookId },
-      data: { chapterCount: { decrement: 1 } },
+      data: { chapterCount },
     });
 
     return NextResponse.json({ deleted: true });

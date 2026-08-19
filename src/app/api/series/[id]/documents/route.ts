@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { createDocumentSchema } from "@/lib/validation";
 import { DocumentService } from "@/lib/documents";
 import type { DocumentType } from "@/generated/prisma/enums";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { zodErrorResponse } from "@/lib/api/zod-error";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -45,7 +47,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id: seriesId } = await params;
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = createDocumentSchema.parse(body);
 
     const series = await db.series.findFirst({
@@ -71,15 +73,13 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(document, { status: 201 });
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if ((error as Error).name === "ZodError") {
-      return NextResponse.json(
-        { error: "Invalid input", details: error },
-        { status: 400 }
-      );
-    }
+    const zodRes = zodErrorResponse(error);
+    if (zodRes) return zodRes;
     console.error("POST /api/series/:id/documents error:", error);
     return NextResponse.json(
       { error: "Failed to create document" },

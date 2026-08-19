@@ -1,0 +1,48 @@
+{
+  "fix": "D-49 / D-50 editorial text hygiene (round-2 quote-safe rewrite)",
+  "verifier": "Fable adversarial panel, 3 perspective-diverse lenses, model=claude-fable-5",
+  "method": "each lens wrote its OWN trace script importing the real exported predicates and ran it via `npx tsx`; the author's test file was NOT consulted; no DB/network touched",
+  "aggregate": { "anyBlocking": false, "allApprove": true },
+  "team_lead_gate": { "tsc": "exit 0", "vitest": "1017 passed / 0 failed / 129 files, exit 0" },
+  "risk_asymmetry": "cosmetic S3 defect; every FALSE POSITIVE (rewriting the writer's own words) is an S1 trust violation. Under-strip safe, over-strip catastrophic. blocking=true reserved for a demonstrated over-strip of writer text OR a wiring path that sanitizes CHAPTER_CONTENT.",
+
+  "round1_reject": {
+    "verdict": "REJECT / BLOCKER (superseded — this is why round-2 exists)",
+    "blocker": "stripModelSelfTalk was quote-blind: it rewrote the writer's VERBATIM manuscript dialogue quoted inside reports/rationales. `\"She grabbed his sleeve — wait, she said, wait — don't.\"` -> `\"She grabbed his sleeve— don't.\"` — the anti-fabrication fix itself fabricated a misquote.",
+    "high": "stripFabricatedFingerprintQuotes used proximity-only attribution (any cue word within 64 chars), so it de-quoted genuine chapter quotes in the standard comparative rationale 'your voice says X, but <chapter line> does Y'.",
+    "mediums": "dual-use cues (wait for/until, hold on to, '— or is it X?', 'never mind X') deleted real advice or inverted mood; unbalanced '(wait...' ate across sentences/newlines; LEADING stripped the verb from 'Wait until...' advice.",
+    "fix_directions_applied_in_round2": [
+      "tokenize on DOUBLE_QUOTED_SPAN and sanitize ONLY unquoted regions (byte-identical stitching)",
+      "replace proximity attribution with a DIRECTIONAL ATTRIBUTION_FRAME (fingerprint noun + governing attributive verb ending at the quote)",
+      "add a manuscript-content exemption (a quote verbatim in the writer's manuscript is never de-quoted)",
+      "narrow cues to the retraction artifact shape only (wait,no | no,wait | actually,no | scratch that | never mind, | hmm,); bare wait/hold on/or is it dropped as cues",
+      "bound PAREN inner to a single clause [^).!?\\n]*; INLINE lead em/en-dash only (ASCII hyphen removed so can't-wait survives)",
+      "glyph-fold apostrophe/quote/dash + tolerate citation ellipsis in normalizeForQuoteMatch"
+    ]
+  },
+
+  "round2_locked_cases": {
+    "BLOCKER_dialogue_byte_identical": "PASS — stripModelSelfTalk of a report quoting `\"She grabbed his sleeve — wait, she said, wait — don't.\"` returns === input",
+    "comparative_rationale_HIGH_untouched": "PASS — fingerprint noun present but no governing attributive verb; quote kept",
+    "manuscript_exemption": "PASS — a quote verbatim in manuscriptContent under an attribution frame keeps its quotation marks",
+    "glyph_variance_genuine_quote": "PASS — curly/straight apostrophe + em/en dash folded, genuine fingerprint quote recognized in BOTH directions",
+    "craft_imperatives_survive": "PASS — 'Wait for…', 'hold on to…', '— or is it restraint?', 'never mind the comma splice', 'Wait until…' all byte-identical",
+    "true_positive_artifact_still_fires": "PASS — unquoted '(— wait, no, those are short)' dropped; genuinely fabricated attributed fingerprint quote de-quoted; leading 'Hmm,'/'Wait, no —' opener stripped + recapitalized",
+    "wiring_containment": "PASS — EDITORIAL_REPORT_DOC_TYPES gate (6 model report types; CHAPTER_CONTENT/STORY_BIBLE/FINGERPRINT excluded); exactly 2 call sites in src/ (executeWriteDocument + executeCreateFinding); executeWriteChapter persists input.markdown raw; anchorQuote/alternatives/originalText/newText stored raw; both functions pure/immutable (22/22 interleaved-call trace checks green)"
+  },
+
+  "residuals_non_blocking": [
+    "R1 (Lens B, the only pass:false case; disclosed non-blocking): if the model echoes writer prose UNQUOTED inside a sanitized report/rationale AND that prose contains an em-dash 'wait, no,'-class retraction in narration, the report's echo is altered. Requires that exact conjunction; manuscript/CHAPTER_CONTENT/anchorQuote/alternatives.originalText and ANY double- or single-quoted excerpt are untouched. Inherent to any unquoted-region strip; round-2 NARROWED (did not introduce) it. Future guard: skip spans preceded by 'reads:'/'Original:' markers.",
+    "Genuine-but-elided fingerprint citations (…gap…) are de-quoted (ellipsis folded, no gap matching) — cosmetic, model-authored citation loses quote marks only, content preserved.",
+    "Manuscript exemption haystack in executeCreateFinding is the CURRENT chapter only; a writer line quoted from a DIFFERENT chapter and mis-attributed to the fingerprint would be de-quoted (marks removed, words kept) — surface change to a model-authored sentence, no writer document altered.",
+    "stripFabricatedFingerprintQuotes is a no-op when fingerprintContent is null/empty (incl. the catch->null path) — intentional fail-safe under-strip; a fabricated quote leaks through rather than risking an over-strip.",
+    "Cosmetic whitespace nit: 'run long — wait, no, … — and' -> 'run long— and' (space before retained dash consumed). Model-authored text only.",
+    "Dedup contentHash computed from RAW input.description but persists sanitized description — hash still deterministic per submission, cosmetic mismatch, non-blocking."
+  ],
+
+  "lens_verdicts": [
+    { "lens": "A — quote-safety / over-strip", "verdict": "APPROVE", "blocking": false },
+    { "lens": "B — true-positive efficacy", "verdict": "APPROVE", "blocking": false },
+    { "lens": "C — wiring / containment integrity", "verdict": "APPROVE", "blocking": false }
+  ]
+}

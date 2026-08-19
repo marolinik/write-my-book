@@ -148,7 +148,7 @@ export function PricingSection({ plans }: PricingSectionProps) {
                 </ul>
               </CardContent>
 
-              <CardFooter>
+              <CardFooter className="flex-col items-stretch gap-2">
                 <Link
                   href={ctaHref}
                   className={`w-full rounded-md px-4 py-2.5 text-center text-sm font-medium transition-colors ${
@@ -159,6 +159,14 @@ export function PricingSection({ plans }: PricingSectionProps) {
                 >
                   {ctaText}
                 </Link>
+                {/* D-52: the trial genuinely starts without a card
+                    (checkout uses payment_method_collection "if_required"),
+                    so disclose it honestly wherever the trial is advertised. */}
+                {plan.trialDays > 0 && (
+                  <p className="text-center text-xs text-muted-foreground">
+                    No credit card required
+                  </p>
+                )}
               </CardFooter>
             </Card>
           );

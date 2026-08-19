@@ -1,0 +1,52 @@
+{
+ "user": {
+  "internalId": "e02cdae6-4c74-43e8-bd0e-e888debabf7c",
+  "clerkId": "user_qa_p6"
+ },
+ "writer-memories-all": [
+  {
+   "id": "a49972a2-1c7a-47b6-a2cb-f344156fc935",
+   "category": "preference",
+   "content": "Keep dangling modifiers when they deliberately reflect cognitive slippage or fatigue.",
+   "source": "conversation",
+   "active": true,
+   "finding_id": "42e70291-7151-40e1-8918-9ae30d85173d",
+   "created_at": "2026-07-20T09:47:11.281Z",
+   "updated_at": "2026-07-20T09:47:11.281Z"
+  },
+  {
+   "id": "58cfd563-2193-4e8b-bf30-77bb9e6bdb32",
+   "category": "style",
+   "content": "Preserve dangling modifiers that mimic cognitive slippage or fatigue.",
+   "source": "conversation",
+   "active": true,
+   "finding_id": "ce63cb76-f5ad-4b68-8e0b-57f9c432c241",
+   "created_at": "2026-07-18T13:57:17.412Z",
+   "updated_at": "2026-07-18T14:02:42.565Z"
+  }
+ ],
+ "writer-memory-for-dangler": [
+  {
+   "id": "a49972a2-1c7a-47b6-a2cb-f344156fc935",
+   "category": "preference",
+   "content": "Keep dangling modifiers when they deliberately reflect cognitive slippage or fatigue.",
+   "source": "conversation",
+   "active": true,
+   "finding_id": "42e70291-7151-40e1-8918-9ae30d85173d",
+   "created_at": "2026-07-20T09:47:11.281Z",
+   "updated_at": "2026-07-20T09:47:11.281Z"
+  }
+ ],
+ "dangler-replies": [
+  {
+   "role": "user",
+   "content_head": "This dangling modifier is deliberate — the narrator is exhausted climbing the steps and her attention is slipping. It mirrors her fatigue. Please preserve it.",
+   "created_at": "2026-07-20T09:44:07.409Z"
+  },
+  {
+   "role": "assistant",
+   "content_head": "Accepted. This aligns with your stated preference for modifiers that mirror cognitive slippage. I will leave the sentence as is.\n\n<<<REMEMBER category=\"preference\">>>\nKeep dangling modifiers when they deliberately reflect cognitive slippage or fatigue.\n<<<END>>>",
+   "created_at": "2026-07-20T09:44:07.415Z"
+  }
+ ]
+}

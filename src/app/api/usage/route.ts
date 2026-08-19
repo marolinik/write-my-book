@@ -4,9 +4,14 @@ import { db } from "@/lib/db";
 import { validatePrices } from "@/lib/llm/price-validator";
 
 export async function GET() {
+  let user;
   try {
-    const user = await requireUser();
+    user = await requireUser();
+  } catch {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
+  try {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -174,7 +179,11 @@ export async function GET() {
       },
       priceDiscrepancies,
     });
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  } catch (error) {
+    console.error("GET /api/usage error:", error);
+    return NextResponse.json(
+      { error: "Failed to load usage" },
+      { status: 500 }
+    );
   }
 }

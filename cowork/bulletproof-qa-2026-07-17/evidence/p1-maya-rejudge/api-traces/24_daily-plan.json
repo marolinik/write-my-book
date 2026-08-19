@@ -1,0 +1,56 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "http://localhost:3002/api/books/4116055c-6183-4675-926a-e04f31126951/daily-plan",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p1"
+    },
+    "body": null
+  },
+  "status": 200,
+  "error": null,
+  "responseHeaders": {
+    "connection": "keep-alive",
+    "content-type": "application/json",
+    "date": "Mon, 20 Jul 2026 11:39:10 GMT",
+    "keep-alive": "timeout=5",
+    "transfer-encoding": "chunked",
+    "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+  },
+  "body": {
+    "plan": [
+      {
+        "id": "continue",
+        "type": "write",
+        "title": "Continue Ch.1",
+        "detail": "You last worked on this chapter — keep the momentum going.",
+        "estimatedMinutes": 30,
+        "href": "/books/4116055c-6183-4675-926a-e04f31126951/chapters/ed84e638-0436-4cee-a458-669ce81cad50",
+        "priority": "high"
+      },
+      {
+        "id": "findings",
+        "type": "review",
+        "title": "Review 6 editorial findings",
+        "detail": "Your AI editors have suggestions ready for review.",
+        "estimatedMinutes": 9,
+        "href": "/books/4116055c-6183-4675-926a-e04f31126951/editorial",
+        "priority": "medium"
+      },
+      {
+        "id": "line-edit",
+        "type": "edit",
+        "title": "Line edit Ch.1",
+        "detail": "Polish the prose with a line-level edit.",
+        "estimatedMinutes": 15,
+        "href": "/books/4116055c-6183-4675-926a-e04f31126951/editorial",
+        "priority": "low"
+      }
+    ],
+    "greeting": "Good afternoon! Here are your priorities."
+  },
+  "bodyIsRawText": false,
+  "elapsed_ms": 1024,
+  "capturedAt": "2026-07-20T11:39:10.549Z"
+}

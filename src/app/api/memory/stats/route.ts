@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
+import { db } from "@/lib/db";
 import {
   getBookChunkCounts,
   getGlobalMemoryStats,
@@ -13,6 +14,16 @@ export async function GET(request: NextRequest) {
     const bookId = request.nextUrl.searchParams.get("bookId");
 
     if (bookId) {
+      // Ownership fence — without this any signed-in user could read another
+      // user's book chunk-count / lastIndexed by guessing the bookId (IDOR).
+      const owned = await db.book.findFirst({
+        where: { id: bookId, userId: user.id },
+        select: { id: true },
+      });
+      if (!owned) {
+        return NextResponse.json({ error: "Book not found" }, { status: 404 });
+      }
+
       // Per-book stats
       const [chunkStats, costs] = await Promise.all([
         getBookChunkCounts(bookId),

@@ -5,6 +5,8 @@ import { updateDocumentSchema } from "@/lib/validation";
 import { DocumentService, VersionConflictError } from "@/lib/documents";
 import { onDocumentChanged } from "@/lib/vector/memory-manager";
 import { deleteDocumentChunks } from "@/lib/vector";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { zodErrorResponse } from "@/lib/api/zod-error";
 
 type RouteParams = { params: Promise<{ id: string; docId: string }> };
 
@@ -71,7 +73,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id: bookId, docId } = await params;
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = updateDocumentSchema.parse(body);
 
     const book = await db.book.findFirst({
@@ -144,6 +146,10 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       onDocumentChanged(bookId, doc.type, data.content, {
         docId,
         userId: user.id,
+        // D-77: thread the book's seriesId so document-API edits stay reachable by
+        // series-filtered (cross-book) recall, matching the content/agent write paths;
+        // a null-stamped chunk is invisible to every series query.
+        seriesId: book.seriesId,
         chapterNumber: doc.chapterNumber ?? undefined,
       }).catch(() => {});
     }
@@ -153,15 +159,13 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
     // back-compat with existing consumers.
     return NextResponse.json({ ...result, version: result.version.version });
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if ((error as Error).name === "ZodError") {
-      return NextResponse.json(
-        { error: "Invalid input", details: error },
-        { status: 400 }
-      );
-    }
+    const zodRes = zodErrorResponse(error);
+    if (zodRes) return zodRes;
     console.error("PATCH /api/books/:id/documents/:docId error:", error);
     return NextResponse.json(
       { error: "Failed to update document" },

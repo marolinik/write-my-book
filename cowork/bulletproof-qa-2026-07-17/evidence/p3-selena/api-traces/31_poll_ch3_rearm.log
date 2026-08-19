@@ -1,0 +1,12 @@
+=== poll ch3 start 2026-07-18T10:51:46Z ===
+[2026-07-18T10:51:46Z poll 1] Chapter3.updatedAt=2026-07-18T10:40:22.174Z | events_with_chapter3=1
+[2026-07-18T10:51:46Z] LANDED
+=== re-poll (correct condition: Chapter3.updatedAt > 2026-07-18T10:51:00) start 2026-07-18T10:52:31Z ===
+[2026-07-18T10:52:31Z poll 1] Chapter3.updatedAt=2026-07-18T10:40:22.174Z | Corvin="transformed", 3.0, 6.0
+[2026-07-18T10:53:03Z poll 2] Chapter3.updatedAt=2026-07-18T10:40:22.174Z | Corvin="transformed", 3.0, 6.0
+[2026-07-18T10:53:35Z poll 3] Chapter3.updatedAt=2026-07-18T10:40:22.174Z | Corvin="transformed", 3.0, 6.0
+[2026-07-18T10:54:13Z poll 4] Chapter3.updatedAt=2026-07-18T10:40:22.174Z | Corvin="transformed", 3.0, 6.0
+[2026-07-18T10:54:54Z poll 5] Chapter3.updatedAt=2026-07-18T10:40:22.174Z | Corvin="transformed", 3.0, 6.0
+[2026-07-18T10:55:35Z poll 6] Chapter3.updatedAt=2026-07-18T10:40:22.174Z | Corvin="transformed", 3.0, 6.0
+[2026-07-18T10:56:16Z poll 7] Chapter3.updatedAt=2026-07-18T10:56:15.854Z | Corvin="dead", 3.0, 3.0
+[2026-07-18T10:56:16Z] LANDED (hash re-stamped)

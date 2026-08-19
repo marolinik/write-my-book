@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { updateSeriesSchema } from "@/lib/validation";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { zodErrorResponse } from "@/lib/api/zod-error";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -48,7 +50,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id } = await params;
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = updateSeriesSchema.parse(body);
 
     const existing = await db.series.findFirst({
@@ -66,12 +68,13 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(series);
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if ((error as Error).name === "ZodError") {
-      return NextResponse.json({ error: "Invalid input", details: error }, { status: 400 });
-    }
+    const zodRes = zodErrorResponse(error);
+    if (zodRes) return zodRes;
     console.error("PATCH /api/series/:id error:", error);
     return NextResponse.json(
       { error: "Failed to update series" },

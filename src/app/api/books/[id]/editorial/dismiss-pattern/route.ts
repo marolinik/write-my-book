@@ -5,6 +5,8 @@ import {
   dismissedPatternQuerySchema,
   createDismissedPatternSchema,
 } from "@/lib/validation";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { zodErrorResponse } from "@/lib/api/zod-error";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -40,12 +42,8 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if ((error as Error).name === "ZodError") {
-      return NextResponse.json(
-        { error: "Invalid input", details: error },
-        { status: 400 }
-      );
-    }
+    const zodRes = zodErrorResponse(error);
+    if (zodRes) return zodRes;
     console.error(
       "GET /api/books/:id/editorial/dismiss-pattern error:",
       error
@@ -70,7 +68,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = createDismissedPatternSchema.parse(body);
 
     const pattern = await db.dismissedPattern.upsert({
@@ -97,15 +95,13 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ pattern });
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if ((error as Error).name === "ZodError") {
-      return NextResponse.json(
-        { error: "Invalid input", details: error },
-        { status: 400 }
-      );
-    }
+    const zodRes = zodErrorResponse(error);
+    if (zodRes) return zodRes;
     console.error(
       "POST /api/books/:id/editorial/dismiss-pattern error:",
       error

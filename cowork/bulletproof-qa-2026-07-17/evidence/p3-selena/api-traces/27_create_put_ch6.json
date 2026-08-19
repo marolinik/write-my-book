@@ -1,0 +1,36 @@
+{
+  "label": "27_create_put_ch6",
+  "ts": "2026-07-18T10:44:08.528Z",
+  "create": {
+    "method": "POST",
+    "path": "/api/books/fd60e1d4-37c5-4c11-92a1-586af638224a/chapters",
+    "status": 201,
+    "response": {
+      "id": "cf83f09b-f9c4-46d8-8b53-6bc85a354245",
+      "bookId": "fd60e1d4-37c5-4c11-92a1-586af638224a",
+      "actNumber": 2,
+      "chapterNumber": 6,
+      "title": "The Man at the Wall",
+      "status": "undiscussed",
+      "wordCount": 0,
+      "targetWordCount": null,
+      "betaScore": null,
+      "betaGate": "pending",
+      "revisionCount": 0,
+      "importedAt": null,
+      "createdAt": "2026-07-18T10:43:11.851Z",
+      "updatedAt": "2026-07-18T10:43:11.851Z"
+    }
+  },
+  "put": {
+    "method": "PUT",
+    "path": ".../chapters/cf83f09b-f9c4-46d8-8b53-6bc85a354245/content",
+    "status": 200,
+    "response": {
+      "wordCount": 408,
+      "version": 1,
+      "bookWordCount": 2602
+    }
+  },
+  "note": "T2 seed: Corvin Ashe (dead ch3, deathChapter=3 stamped) ACTIVELY leads the Defense of the Western Wall in ch6 (fights, speaks, gives orders); prose keeps his dead status explicit. Also T5 seed: both Zoë and Zoe spellings used. Full prose = scratchpad ch6.md, saved to doc store v1."
+}

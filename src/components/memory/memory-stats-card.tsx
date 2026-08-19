@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { BrainIcon, RefreshCwIcon, Trash2Icon } from "lucide-react";
 import { useBookMemoryStats, useRebuildIndex, useClearMemory } from "@/hooks/use-memory";
+import { pluralNoun } from "@/lib/i18n/plural";
 
 function timeAgo(dateStr: string | null): string {
   if (!dateStr) return "Never";
@@ -73,7 +74,8 @@ export function MemoryStatsCard({ bookId }: { bookId: string }) {
             <div className="text-xl font-bold">
               {data.chunkCount}
               <span className="text-sm font-normal text-muted-foreground ml-1">
-                chunks
+                {/* D-179: never "1 chunks" — the D-163 pluralisation family. */}
+                {pluralNoun(data.chunkCount, "chunk", "chunks")}
               </span>
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">

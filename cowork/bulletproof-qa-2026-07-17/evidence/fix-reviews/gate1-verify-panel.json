@@ -1,0 +1,35 @@
+{
+  "deliverable": "Gate 1 (writer-trust: zero words lost) — offline-autosave harness. CASE A: offline durability EXISTS (draft-store IDB + last-chance-mirror sync localStorage + use-draft-buffer recovery); the campaign's 0/8 was UNTESTED, not broken. This makes it tested.",
+  "author": "opus-gate1-autosave",
+  "verifier": "Fable adversarial (model=claude-fable-5), re-executing the real harness + RED-reproducing by breaking the real mirror, and specifically auditing whether the it.fails strong-bar is honest or a gamed gate",
+  "verdict": "APPROVE",
+  "blocking": false,
+  "gate_state": "PARTIAL on the literal zero-loss bar. Total-loss regression floor HELD. Residual: bounded ≤150ms tail-loss on a hard kill inside the reviewed throttle window (e26a0e3) — founder decision A1 in FOUNDER-DECISIONS-OPEN.md.",
+
+  "claims": {
+    "1_coverage_real_not_vacuous": {
+      "result": "CONFIRMED",
+      "evidence": "Test imports the REAL @/lib/offline/last-chance-mirror (no vi.mock; writes hit jsdom localStorage). Only @/lib/offline/draft-store is mocked (jsdom has no IDB) with an in-memory Map that spreads ...actual and honors the onlyIfMine/ifUpdatedAtEquals guards. RED repro: made writeLastChanceDraft a silent no-op returning true -> 8/17 FAILED on read-back durability (e.g. test [1] 'expected undefined to be The harbor lay quiet...'), NOT on return values -> non-tautological. IDB-covered classes [4]/[6]/[7b] correctly stayed green. Restored SHA256 3014B060 match, GREEN."
+    },
+    "2_itfails_is_honest_not_gamed": {
+      "result": "CONFIRMED HONEST (critical check)",
+      "evidence": "Throttle verified in code: MIRROR_KEYSTROKE_THROTTLE_MS=150 (src/hooks/use-draft-buffer.ts:68); onUpdate mirrors the leading keystroke synchronously, coalesces in-window keystrokes into a setTimeout trailing write. A zero-settle hard kill (no timer, no unload) structurally loses only in-window trailing content — the direct consequence of REVIEWED commit e26a0e3 ('throttle keystroke mirror leading+trailing at 150ms; unload flush bypasses'). Stripping .fails -> suite RED with exactly 1 failure at test line 538 (Expected '...morning fog. kept then dropped' / Received '...morning fog. kept') — right assertion shape, fails for the documented reason. Regression floor is REAL: the non-.fails 'never total loss' test went RED ('expected null not to be null') under the broken mirror — it WOULD catch the old D-24 total-loss bug. Burst-10 test proves the trailing timer lands within one window, so .fails isn't masking a broken-timer bug. Fixing = reversing a reviewed perf decision, not fixing a bug.",
+      "path_corrections": "hook is src/hooks/use-draft-buffer.ts (not src/lib/offline/); recovery applier is src/components/editor/draft-recovery.ts; mirror/store are in src/lib/offline/."
+    },
+    "3_honest_env_split": {
+      "result": "CONFIRMED",
+      "evidence": "File header states mirror=real-code-vs-jsdom-localStorage, IDB=simulated in-memory Map, and real-Chrome/real-IDB/real-OS-kill is BLOCKED-ENV routed to tests/e2e/offline-autosave.spec.ts + tests/e2e/w4-data-safety-drills.spec.ts (both exist). No overclaim of live-browser execution."
+    }
+  },
+
+  "team_lead_gate": {
+    "gate1_suite": "17/17 passed",
+    "tsc_note": "Whole-tree tsc RED at land time is solely tests/unit/nav-i18n.test.ts — the concurrent #56 a11y/i18n lane's TDD-RED phase (references sessionsUnit/openAgent catalog keys not yet added). NOT in this commit; the committed subset (test + evidence over HEAD) is type-clean and CI-green."
+  },
+
+  "landed_pathspec": [
+    "tests/unit/offline-autosave-zeroloss.test.tsx",
+    "cowork/bulletproof-qa-2026-07-17/evidence/fix-reviews/gate1-offline-autosave.md",
+    "cowork/bulletproof-qa-2026-07-17/evidence/fix-reviews/gate1-verify-panel.json"
+  ]
+}

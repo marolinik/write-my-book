@@ -1,0 +1,64 @@
+{
+  "shot": "45i",
+  "supersedes": "45f1 (defect frame)",
+  "proves": "D-175 — one folded Qwen row with the slot disclosure",
+  "warmMs": 3019,
+  "rawByModelKeys": [
+    "text-embedding-3-small",
+    "openrouter-deepseek/haiku",
+    "openrouter-qwen36/haiku",
+    "anthropic/opus",
+    "openrouter-qwen36/sonnet"
+  ],
+  "qwenAliasingSlots": [
+    "openrouter-qwen36/haiku",
+    "openrouter-qwen36/sonnet"
+  ],
+  "rawQwenCostSum": 0.44634,
+  "renderedRows": [
+    "Claude Opus 4.6 (Direct) (claude-opus-4-6) | $12.03 | 686.8K total tokens",
+    "Qwen 3.6 27B (OpenRouter) (qwen/qwen3.6-27b) | Combined across 2 configured slots: openrouter-qwen36/haiku, openrouter-qwen36/sonnet | $0.45 | 831.2K total tokens",
+    "text-embedding-3-small | $0.00 | 4.9K total tokens",
+    "DeepSeek V3.2 (OpenRouter) (deepseek/deepseek-v3.2) | $0.00 | 264 total tokens"
+  ],
+  "qwenRowCount": 1,
+  "qwenDisclosureLine": [
+    "Combined across 2 configured slots: openrouter-qwen36/haiku, openrouter-qwen36/sonnet"
+  ],
+  "renderedQwenCostShown": 0.45,
+  "verdict": {
+    "dataStillAliases": true,
+    "exactlyOneQwenRow": true,
+    "disclosureRendered": true,
+    "disclosureNamesSlots": true,
+    "moneyPreserved": true
+  },
+  "usageApiByModel": {
+    "text-embedding-3-small": {
+      "tokensInput": 4889,
+      "tokensOutput": 0,
+      "costEstimate": 0.00009777999999999999
+    },
+    "openrouter-deepseek/haiku": {
+      "tokensInput": 233,
+      "tokensOutput": 31,
+      "costEstimate": 0.00007065
+    },
+    "openrouter-qwen36/haiku": {
+      "tokensInput": 1586,
+      "tokensOutput": 8139,
+      "costEstimate": 0.019985609999999997
+    },
+    "anthropic/opus": {
+      "tokensInput": 657932,
+      "tokensOutput": 28819,
+      "costEstimate": 12.030404999999998
+    },
+    "openrouter-qwen36/sonnet": {
+      "tokensInput": 730548,
+      "tokensOutput": 90895,
+      "costEstimate": 0.42635418
+    }
+  },
+  "capturedAt": "2026-07-27T03:16:32.411Z"
+}

@@ -1,6 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import {
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useCallback,
+  useRef,
+} from "react";
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import { XIcon, TargetIcon, ClockIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -34,8 +40,15 @@ const FOCUSABLE_SELECTOR =
   'button:not([disabled]), [contenteditable="true"], [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 interface ImmersiveFocusModeProps {
-  /** TipTap editor content as HTML */
+  /** TipTap editor content as HTML — the enter-time snapshot (mount seed). */
   content: string;
+  /**
+   * Parent-owned buffer holding the freshest immersive HTML (the parent
+   * updates it on every onContentChange). Mount seeds from this when present
+   * so an intermittent remount of the overlay re-applies the LIVE words, not
+   * the stale enter-time snapshot (D-23). Read only inside effects.
+   */
+  liveContentRef?: { readonly current: string };
   /** Called when user types — should update the editor content */
   onContentChange: (html: string) => void;
   /** Exit focus mode */
@@ -48,6 +61,26 @@ interface ImmersiveFocusModeProps {
   onFlush?: () => void;
   /** Initial theme */
   defaultTheme?: FocusTheme;
+}
+
+/**
+ * Place the caret at the end of a contentEditable element. Used after the
+ * mount-time content application so typing continues where the prose ends —
+ * never prepended at position 0 (the D-23 corruption signature).
+ */
+function moveCaretToEnd(el: HTMLElement): void {
+  try {
+    const selection = window.getSelection();
+    if (!selection) return;
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    range.collapse(false);
+    selection.removeAllRanges();
+    selection.addRange(range);
+  } catch {
+    // Selection API unavailable (some embedded/AT environments) — focus
+    // without caret placement is an acceptable degradation.
+  }
 }
 
 const THEME_STYLES: Record<FocusTheme, { bg: string; text: string; caret: string }> = {
@@ -70,6 +103,7 @@ const THEME_STYLES: Record<FocusTheme, { bg: string; text: string; caret: string
 
 export function ImmersiveFocusMode({
   content,
+  liveContentRef,
   onContentChange,
   onExit,
   onFlush,
@@ -83,9 +117,21 @@ export function ImmersiveFocusMode({
   const editorRef = useRef<HTMLDivElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
 
-  // Track initial word count
-  useEffect(() => {
-    initialWordCount.current = countWords(content);
+  // D-23 invariant: the contentEditable's HTML is applied imperatively
+  // EXACTLY ONCE per mount and never re-rendered from React state — React
+  // renders the element childless, so no later re-render (parent snapshot
+  // churn, theme switch, session-timer tick) can rewrite the live DOM and
+  // wipe typed words. The seed prefers the parent's live buffer over the
+  // enter-time snapshot so even a mid-session remount re-applies the
+  // freshest keystrokes. Sanitization stays on every application (S10).
+  useLayoutEffect(() => {
+    const el = editorRef.current;
+    if (!el) return;
+    // ?? not ||: an empty buffer is a legitimate state (writer deleted
+    // everything) — falling back to the enter snapshot would resurrect it.
+    const seed = liveContentRef?.current ?? content;
+    el.innerHTML = sanitizeImmersiveHtml(seed);
+    initialWordCount.current = countWords(el.innerText || "");
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Announce entry/exit to screen readers, MOVE FOCUS INTO the modal on
@@ -98,7 +144,12 @@ export function ImmersiveFocusMode({
       document.querySelector<HTMLElement>(".ProseMirror");
     announce(ENTER_ANNOUNCEMENT);
     requestAnimationFrame(() => {
-      editorRef.current?.focus();
+      const el = editorRef.current;
+      if (!el) return;
+      el.focus();
+      // Caret at the end of the prose — a bare focus() lands at position 0,
+      // which is exactly where D-23's surviving keystrokes were prepended.
+      moveCaretToEnd(el);
     });
     return () => {
       announce(EXIT_ANNOUNCEMENT);
@@ -189,15 +240,6 @@ export function ImmersiveFocusMode({
     onContentChange(el.innerHTML);
   }, [onContentChange]);
 
-  // Defense-in-depth: constrain the HTML injected into the contentEditable
-  // (S10). Memoized so the (once-per-session) content snapshot is sanitized
-  // just once and dangerouslySetInnerHTML is never re-run on unrelated
-  // re-renders (which would clobber the caret).
-  const sanitizedContent = useMemo(
-    () => sanitizeImmersiveHtml(content),
-    [content]
-  );
-
   // Loss-window guard (S10): while immersive, edits live only in the parent's
   // ref until its 30s periodic sync. Mirror use-draft-buffer's unload flush so
   // a tab close / hide first pushes the freshest innerHTML into the ref and
@@ -287,10 +329,12 @@ export function ImmersiveFocusMode({
 
       {/* Centered writing area — typewriter style */}
       <div className="flex-1 overflow-y-auto flex justify-center">
+        {/* Deliberately childless: content is applied once per mount via the
+            layout effect above, so React reconciliation can never rewrite the
+            live typing surface (D-23). */}
         <div
           ref={editorRef}
           contentEditable
-          suppressContentEditableWarning
           role="textbox"
           aria-multiline="true"
           aria-label="Distraction-free editor"
@@ -302,10 +346,8 @@ export function ImmersiveFocusMode({
             [&_em]:italic
             [&_strong]:font-bold
           `}
-          dangerouslySetInnerHTML={{ __html: sanitizedContent }}
           onInput={handleInput}
           spellCheck
-          autoFocus
         />
       </div>
 

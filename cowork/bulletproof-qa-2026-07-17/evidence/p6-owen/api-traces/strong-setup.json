@@ -1,0 +1,103 @@
+{
+ "books": {
+  "status": 200
+ },
+ "keys-before": {
+  "status": 200,
+  "body": [
+   {
+    "id": "9c65459b-fc05-474f-a033-db01bd7ce370",
+    "provider": "openrouter",
+    "label": "Owen OpenRouter",
+    "isDefault": true,
+    "validatedAt": "2026-07-18T14:53:52.605Z",
+    "createdAt": "2026-07-17T15:14:45.632Z",
+    "maskedKey": "sk-or-v...705e",
+    "usage": {
+     "totalTokens": 0,
+     "totalCost": 0,
+     "sessionCount": 0
+    }
+   }
+  ]
+ },
+ "store-key": {
+  "status": 201,
+  "elapsed": 1.899,
+  "body": {
+   "id": "eece953a-2b35-4e2f-9111-a744e05d16e6",
+   "provider": "anthropic",
+   "label": "owen-anthropic",
+   "isDefault": false,
+   "validatedAt": "2026-07-18T16:51:27.611Z",
+   "maskedKey": "sk-ant-...jgAA",
+   "usage": null
+  }
+ },
+ "override": {
+  "status": 200,
+  "body": {
+   "defaultModel": "openrouter-qwen36/sonnet",
+   "modelGhostwriter": null,
+   "modelEditor": "anthropic/opus",
+   "modelBetaReader": null,
+   "modelAnalyst": null,
+   "modelCoach": null,
+   "modelCreative": null
+  }
+ },
+ "chapters": {
+  "1": {
+   "status": 200,
+   "version": 1,
+   "hash": "983258a9976e7036",
+   "matches": [
+    "corpus-src-saltletters-ch3.md"
+   ],
+   "len": 5930
+  },
+  "2": {
+   "status": 200,
+   "version": 1,
+   "hash": "50a51aa038f6f62b",
+   "matches": [],
+   "len": 8263
+  },
+  "3": {
+   "status": 200,
+   "version": 1,
+   "hash": "07fdf68789dcdcd9",
+   "matches": [
+    "owen-ch3-boathouse-ledger.md"
+   ],
+   "len": 2598
+  },
+  "4": {
+   "status": 200,
+   "version": 1,
+   "hash": "5f6abd3acb19db51",
+   "matches": [
+    "owen-ch4-gull-road-adversarial.md"
+   ],
+   "len": 1222
+  },
+  "5": {
+   "status": 200,
+   "version": 3,
+   "hash": "2437b9ea3ca0ea06",
+   "matches": [
+    "owen-ch5-after-edits.md"
+   ],
+   "len": 1986
+  }
+ },
+ "manuscript-hashes": {
+  "corpus-src-saltletters-ch3.md": "983258a9976e7036",
+  "corpus-src-saltletters-ch5.md": "8901631921ea8fb2",
+  "device-registry.md": "782f4346e94ebbf1",
+  "owen-ch3-boathouse-ledger.md": "07fdf68789dcdcd9",
+  "owen-ch4-gull-road-adversarial.md": "5f6abd3acb19db51",
+  "owen-ch5-after-edits.md": "2437b9ea3ca0ea06",
+  "owen-ch5-what-the-water-keeps.md": "540ad75043e37708"
+ }
+}

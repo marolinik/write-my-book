@@ -1,0 +1,2982 @@
+{
+  "shot": "45d",
+  "book": "6d69fd7c-f7a4-4e3d-bf49-1415d81f5326",
+  "findingId": "0002c9e1-83ab-4105-aefb-55427f437cd0",
+  "writerMessage": "The clipboard/clipped echo is deliberate - Kova's hands and the ledger share a vocabulary. Keep it, but tell me if it reads as sloppy rather than patterned.",
+  "warmMs": 1394,
+  "timings": {
+    "submitToFirstBubbleMs": null,
+    "blockingPostMs": 384,
+    "spinnerVisibleThroughout": false
+  },
+  "perceivedSamples": [
+    {
+      "t": 43,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 559,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 1069,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 1579,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 2090,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 2597,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 3105,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 3616,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 4127,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 4645,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 5168,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 5683,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 6191,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 6705,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 7236,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 7767,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 8280,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 8804,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 9321,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 9847,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 10371,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 10887,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 11403,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 11923,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 12446,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 12979,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 13495,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 14008,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 14523,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 15055,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 15571,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 16086,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 16610,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 17124,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 17653,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 18177,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 18706,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 19236,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 19750,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 20268,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 20785,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 21290,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 21804,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 22321,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 22824,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 23338,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 23850,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 24354,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 24869,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 25381,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 25892,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 26401,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 26913,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 27426,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 27938,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 28452,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 28959,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 29473,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 29990,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 30507,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 31024,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 31539,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 32052,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 32566,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 33080,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 33594,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 34110,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 34614,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 35127,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 35638,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 36153,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 36660,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 37167,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 37677,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 38189,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 38706,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 39220,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 39734,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 40251,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 40765,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 41278,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 41795,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 42309,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 42824,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 43335,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 43848,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 44362,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 44877,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 45391,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 45899,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 46413,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 46922,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 47430,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 47945,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 48458,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 48973,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 49489,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 50006,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 50508,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 51024,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 51538,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 52053,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 52566,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 53077,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 53592,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 54103,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 54616,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 55129,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 55645,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 56152,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 56666,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 57178,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 57689,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 58197,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 58712,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 59226,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 59738,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 60250,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 60767,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 61286,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 61789,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 62303,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 62818,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 63334,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 63837,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 64350,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 64863,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 65375,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 65881,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 66393,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 66899,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 67406,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 67913,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 68422,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 68933,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 69440,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 69950,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 70461,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 70965,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 71469,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 71972,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 72486,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 73002,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 73505,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 74008,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 74512,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 75027,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 75537,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 76053,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 76561,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 77072,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 77584,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 78100,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 78616,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 79131,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 79635,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 80150,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 80664,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 81181,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 81698,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 82215,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 82732,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 83236,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 83753,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 84256,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 84758,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 85273,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 85781,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 86297,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 86802,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 87311,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 87823,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 88325,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 88856,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 89377,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 89893,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 90396,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 90913,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 91426,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 91942,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 92457,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 92962,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 93477,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 93981,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 94482,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 94987,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 95500,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 96009,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 96522,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 97031,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 97534,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 98051,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 98566,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 99069,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 99572,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 100073,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 100577,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 101085,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 101599,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 102102,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 102615,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 103117,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 103633,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 104150,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 104661,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 105164,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 105671,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 106186,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 106696,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 107205,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 107716,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 108231,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 108734,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 109257,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 109774,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 110290,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 110806,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 111312,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 111822,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 112337,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 112853,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 113367,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 113881,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 114395,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 114904,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 115421,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 115927,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 116436,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 116946,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 117454,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 117957,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 118460,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 118975,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 119477,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 119993,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 120497,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 121012,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 121516,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 122034,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 122549,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 123065,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 123580,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 124086,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 124590,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 125104,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 125615,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 126124,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 126632,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 127142,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 127649,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 128167,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 128669,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 129184,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 129694,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 130220,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 130731,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 131245,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 131758,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 132273,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 132783,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 133290,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 133801,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 134311,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 134817,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 135337,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 135851,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 136357,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 136865,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 137371,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 137883,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 138396,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 138909,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 139423,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 139939,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 140454,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 140957,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 141474,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 141979,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 142496,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 143013,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 143528,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 144041,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 144553,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 145066,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 145577,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 146086,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 146596,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 147106,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 147617,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 148133,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 148646,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 149160,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 149678,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 150193,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 150709,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 151226,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 151740,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 152244,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 152758,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 153273,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 153790,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 154307,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 154823,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 155341,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 155847,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 156361,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 156869,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 157380,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 157899,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 158411,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 158923,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 159436,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 159948,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 160451,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 160955,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 161471,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 161984,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 162502,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 163018,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 163534,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 164038,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 164541,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 165045,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 165557,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 166063,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 166576,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 167084,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 167590,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 168105,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 168608,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 169124,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 169631,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 170148,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 170664,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 171166,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 171669,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 172185,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 172703,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 173220,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 173732,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 174247,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 174750,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 175264,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 175775,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 176287,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 176796,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 177302,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 177815,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 178331,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 178846,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 179362,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 179865,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 180381,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 180891,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 181402,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 181923,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 182436,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 182958,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 183480,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 183996,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 184500,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 185005,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 185515,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 186025,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 186536,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 187044,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 187553,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 188057,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 188570,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 189084,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 189587,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 190100,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 190616,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 191131,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 191632,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 192144,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 192646,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 193161,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 193678,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 194191,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 194694,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 195209,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 195717,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 196228,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 196736,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 197247,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 197756,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 198269,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 198781,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 199290,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 199802,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 200315,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 200823,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 201334,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 201846,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 202355,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 202864,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 203376,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 203891,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 204395,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 204910,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 205425,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 205934,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 206443,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 206950,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 207469,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 207982,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 208499,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 209013,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 209520,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 210034,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 210546,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 211064,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 211578,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 212080,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 212594,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 213111,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 213626,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 214141,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 214656,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 215158,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 215667,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 216184,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 216690,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 217199,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 217707,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 218210,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 218725,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 219241,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 219758,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 220274,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 220776,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 221278,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 221795,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 222312,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 222826,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 223330,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 223846,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 224360,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 224863,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 225379,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 225882,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 226397,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 226905,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 227415,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 227927,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 228429,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 228943,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 229456,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 229972,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 230474,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 230976,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 231497,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 232014,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 232534,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 233052,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 233570,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 234075,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 234592,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 235107,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 235612,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 236118,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 236625,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 237135,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 237644,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 238160,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 238666,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 239176,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 239688,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 240192,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 240696,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 241212,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 241726,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 242243,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 242748,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 243250,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 243755,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 244259,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 244776,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 245279,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 245787,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 246294,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 246802,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 247316,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 247825,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 248340,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 248850,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 249365,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 249867,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 250373,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 250876,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 251381,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 251897,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 252400,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 252903,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 253407,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 253924,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 254442,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 254959,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 255476,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 255984,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 256495,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 257007,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 257515,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 258028,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 258531,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 259034,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 259547,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 260064,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 260579,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 261081,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 261607,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 262117,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 262629,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 263147,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 263661,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 264179,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 264701,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 265210,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 265727,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 266235,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 266759,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 267308,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 267823,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 268335,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 268848,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 269360,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 269885,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 270405,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 270921,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 271437,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 271949,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 272469,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 272979,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 273494,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 274012,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 274523,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 275035,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 275560,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 276083,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 276608,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 277121,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 277631,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 278144,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 278647,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 279162,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 279679,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 280185,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 280703,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 281205,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 281710,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 282211,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 282716,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 283219,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 283737,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 284240,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 284754,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 285269,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 285778,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 286290,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 286799,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 287308,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 287820,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 288325,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 288841,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 289346,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 289848,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 290362,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 290877,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 291392,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 291906,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 292423,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 292940,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 293450,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 293960,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 294482,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 295004,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 295514,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 296037,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 296564,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 297103,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 297630,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 298133,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 298639,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 299152,
+      "bubbles": 0,
+      "spinner": false
+    },
+    {
+      "t": 299657,
+      "bubbles": 0,
+      "spinner": false
+    }
+  ],
+  "thread": {
+    "assistant": [],
+    "user": [],
+    "cardText": "suggestion\nredundancy\nauto-apply\npending\n\nRoot-word echo: \"clipboard\" and \"clipped\" share the same root within a single sentence, creating a minor aural stumble in prose that otherwise prizes precision without repetition.\n\nChapter 1\n\nShow diff\nJump to text\nApply\nDismiss\nHide\nREDUNDANCY\n\nThe clipboard/clipped echo is deliberate - Kova's hands and the ledger share a vocabulary. Keep it, but tell me if it reads as sloppy rather than patterned.\n\nIt reads as patterned, not sloppy. The repetition anchors the gesture in the same bureaucratic register as the object, supporting your note on shared vocabulary. Keep it.\n\nOn “Keep as-is”, I’ll remember: “Preserve deliberate root-word echoes that link character action to thematic vocabulary.”\n\nKeep as-is"
+  },
+  "network": [
+    {
+      "phase": "request",
+      "status": null,
+      "tMs": -412
+    },
+    {
+      "phase": "response",
+      "status": 200,
+      "tMs": -28
+    },
+    {
+      "phase": "request",
+      "status": null,
+      "tMs": 38
+    },
+    {
+      "phase": "response",
+      "status": 200,
+      "tMs": 61645
+    },
+    {
+      "phase": "request",
+      "status": null,
+      "tMs": 61646
+    },
+    {
+      "phase": "response",
+      "status": 200,
+      "tMs": 61733
+    }
+  ],
+  "capturedAt": "2026-07-27T01:52:07.578Z"
+}

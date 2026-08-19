@@ -1,0 +1,8 @@
+TEST: val-01-isolated - p3 (uncapped) POST /api/books with malformed JSON body — isolates validation layer from plan-gate
+METHOD: POST
+PATH: /api/books
+ACTOR: p3
+EXPECTED: [400, 422]
+ACTUAL STATUS: 500
+---- RESPONSE BODY ----
+{"error":"Failed to create book"}

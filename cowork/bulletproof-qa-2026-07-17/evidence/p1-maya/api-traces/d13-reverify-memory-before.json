@@ -1,0 +1,18 @@
+{
+ "status": 200,
+ "body": [
+  {
+   "id": "cef57b13-86b4-4c94-91f3-b9d3d9cdadac",
+   "userId": "d65a17d8-c0df-4e49-82fa-2291cad77886",
+   "bookId": "4116055c-6183-4675-926a-e04f31126951",
+   "findingId": "25499afe-9758-482a-a65c-53436e7e3538",
+   "category": "preference",
+   "content": "Leave strong final images or fragments untouched when followed by brief explanatory lines; treat the pattern as intentional across the manuscript.",
+   "source": "conversation",
+   "active": true,
+   "createdAt": "2026-07-18T00:05:58.660Z",
+   "updatedAt": "2026-07-18T00:05:58.660Z"
+  }
+ ],
+ "elapsed_s": 0.248
+}

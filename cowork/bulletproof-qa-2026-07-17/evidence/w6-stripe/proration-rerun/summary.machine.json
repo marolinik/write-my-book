@@ -1,0 +1,411 @@
+{
+  "suite": "w6-proration-rerun (D-45)",
+  "verdict": "PASS",
+  "ranAtUtc": "2026-07-19T06:50:10.620Z",
+  "node": "v22.22.2",
+  "stripeMode": "test",
+  "counts": {
+    "pass": 16,
+    "fail": 0,
+    "skip": 0
+  },
+  "results": [
+    {
+      "id": "PREFLIGHT",
+      "ok": true,
+      "kind": "infra",
+      "detail": {
+        "note": "Stripe test-mode + price IDs + DB present",
+        "problems": []
+      }
+    },
+    {
+      "id": "upgrade-indie-monthly-to-pro-monthly/PRO-A-credit-line-present",
+      "ok": true,
+      "kind": "proration",
+      "detail": {
+        "label": "upgrade-indie-monthly-to-pro-monthly",
+        "note": "frac=0.5161 old=$49.00 new=$99.00 creditActual=$-25.29 chargeActual=$51.10",
+        "rawPreview": "bulletproof-qa-2026-07-17/evidence/w6-stripe/proration-rerun/raw/upgrade-indie-monthly-to-pro-monthly-preview-invoice.json",
+        "fracRemain": 0.5161290322580645,
+        "periodStart": 1784443785,
+        "periodEnd": 1787122185,
+        "prorationDate": 1785739785,
+        "oldPriceId": "price_1TuBnbC0mmjh4oEMIOW5Yq2x",
+        "newPriceId": "price_1TuBneC0mmjh4oEMOHjZNO5n",
+        "oldUnitAmount": 4900,
+        "newUnitAmount": 9900,
+        "prorationLines": [
+          {
+            "description": "Unused time on WMB Indie after 03 Aug 2026",
+            "amount": -2529,
+            "currency": "usd",
+            "proration": true
+          },
+          {
+            "description": "Remaining time on WMB Professional after 03 Aug 2026",
+            "amount": 5110,
+            "currency": "usd",
+            "proration": true
+          },
+          {
+            "description": "1 × WMB Professional (at $99.00 / month)",
+            "amount": 9900,
+            "currency": "usd",
+            "proration": false
+          }
+        ],
+        "creditSum": -2529,
+        "chargeSum": 5110,
+        "lineSum": 12481,
+        "invoiceTotal": 12481,
+        "invoiceAmountDue": 12481,
+        "expectedCredit": -2529,
+        "expectedNewProrationCharge": 5110,
+        "creditLineCount": 1
+      }
+    },
+    {
+      "id": "upgrade-indie-monthly-to-pro-monthly/PRO-B-charge-line-present",
+      "ok": true,
+      "kind": "proration",
+      "detail": {
+        "label": "upgrade-indie-monthly-to-pro-monthly",
+        "note": "frac=0.5161 old=$49.00 new=$99.00 creditActual=$-25.29 chargeActual=$51.10",
+        "rawPreview": "bulletproof-qa-2026-07-17/evidence/w6-stripe/proration-rerun/raw/upgrade-indie-monthly-to-pro-monthly-preview-invoice.json",
+        "fracRemain": 0.5161290322580645,
+        "periodStart": 1784443785,
+        "periodEnd": 1787122185,
+        "prorationDate": 1785739785,
+        "oldPriceId": "price_1TuBnbC0mmjh4oEMIOW5Yq2x",
+        "newPriceId": "price_1TuBneC0mmjh4oEMOHjZNO5n",
+        "oldUnitAmount": 4900,
+        "newUnitAmount": 9900,
+        "prorationLines": [
+          {
+            "description": "Unused time on WMB Indie after 03 Aug 2026",
+            "amount": -2529,
+            "currency": "usd",
+            "proration": true
+          },
+          {
+            "description": "Remaining time on WMB Professional after 03 Aug 2026",
+            "amount": 5110,
+            "currency": "usd",
+            "proration": true
+          },
+          {
+            "description": "1 × WMB Professional (at $99.00 / month)",
+            "amount": 9900,
+            "currency": "usd",
+            "proration": false
+          }
+        ],
+        "creditSum": -2529,
+        "chargeSum": 5110,
+        "lineSum": 12481,
+        "invoiceTotal": 12481,
+        "invoiceAmountDue": 12481,
+        "expectedCredit": -2529,
+        "expectedNewProrationCharge": 5110,
+        "chargeLineCount": 1
+      }
+    },
+    {
+      "id": "upgrade-indie-monthly-to-pro-monthly/PRO-C-credit-matches-fraction",
+      "ok": true,
+      "kind": "proration",
+      "detail": {
+        "label": "upgrade-indie-monthly-to-pro-monthly",
+        "note": "frac=0.5161 old=$49.00 new=$99.00 creditActual=$-25.29 chargeActual=$51.10",
+        "rawPreview": "bulletproof-qa-2026-07-17/evidence/w6-stripe/proration-rerun/raw/upgrade-indie-monthly-to-pro-monthly-preview-invoice.json",
+        "fracRemain": 0.5161290322580645,
+        "periodStart": 1784443785,
+        "periodEnd": 1787122185,
+        "prorationDate": 1785739785,
+        "oldPriceId": "price_1TuBnbC0mmjh4oEMIOW5Yq2x",
+        "newPriceId": "price_1TuBneC0mmjh4oEMOHjZNO5n",
+        "oldUnitAmount": 4900,
+        "newUnitAmount": 9900,
+        "prorationLines": [
+          {
+            "description": "Unused time on WMB Indie after 03 Aug 2026",
+            "amount": -2529,
+            "currency": "usd",
+            "proration": true
+          },
+          {
+            "description": "Remaining time on WMB Professional after 03 Aug 2026",
+            "amount": 5110,
+            "currency": "usd",
+            "proration": true
+          },
+          {
+            "description": "1 × WMB Professional (at $99.00 / month)",
+            "amount": 9900,
+            "currency": "usd",
+            "proration": false
+          }
+        ],
+        "creditSum": -2529,
+        "chargeSum": 5110,
+        "lineSum": 12481,
+        "invoiceTotal": 12481,
+        "invoiceAmountDue": 12481,
+        "expectedCredit": -2529,
+        "expectedNewProrationCharge": 5110,
+        "actualCredit": -2529,
+        "tolerance": 25
+      }
+    },
+    {
+      "id": "upgrade-indie-monthly-to-pro-monthly/PRO-D-charge-matches-fraction",
+      "ok": true,
+      "kind": "proration",
+      "detail": {
+        "note": "expectedCharge=$51.10 actual=$51.10",
+        "expectedCharge": 5110,
+        "actualCharge": 5110,
+        "tolerance": 51,
+        "rawPreview": "bulletproof-qa-2026-07-17/evidence/w6-stripe/proration-rerun/raw/upgrade-indie-monthly-to-pro-monthly-preview-invoice.json"
+      }
+    },
+    {
+      "id": "upgrade-indie-monthly-to-pro-monthly/PRO-E-lines-sum-to-total",
+      "ok": true,
+      "kind": "proration",
+      "detail": {
+        "note": "lineSum=$124.81 total=$124.81",
+        "lineSum": 12481,
+        "invoiceTotal": 12481
+      }
+    },
+    {
+      "id": "upgrade-indie-monthly-to-pro-monthly/PRO-F-update-committed",
+      "ok": true,
+      "kind": "proration",
+      "detail": {
+        "note": "sub now price=price_1TuBneC0mmjh4oEMOHjZNO5n interval=month",
+        "priceId": "price_1TuBneC0mmjh4oEMOHjZNO5n",
+        "interval": "month"
+      }
+    },
+    {
+      "id": "downgrade-pro-monthly-to-indie-annual/PRO-A-credit-line-present",
+      "ok": true,
+      "kind": "proration",
+      "detail": {
+        "label": "downgrade-pro-monthly-to-indie-annual",
+        "note": "frac=0.5161 old=$99.00 new=$490.00 creditActual=$-51.10 chargeActual=$469.86",
+        "rawPreview": "bulletproof-qa-2026-07-17/evidence/w6-stripe/proration-rerun/raw/downgrade-pro-monthly-to-indie-annual-preview-invoice.json",
+        "fracRemain": 0.5161290322580645,
+        "periodStart": 1784443797,
+        "periodEnd": 1787122197,
+        "prorationDate": 1785739797,
+        "oldPriceId": "price_1TuBneC0mmjh4oEMOHjZNO5n",
+        "newPriceId": "price_1TuBndC0mmjh4oEMUSXqG5AK",
+        "oldUnitAmount": 9900,
+        "newUnitAmount": 49000,
+        "prorationLines": [
+          {
+            "description": "Unused time on WMB Professional after 03 Aug 2026",
+            "amount": -5110,
+            "currency": "usd",
+            "proration": true
+          },
+          {
+            "description": "Remaining time on WMB Indie after 03 Aug 2026",
+            "amount": 46986,
+            "currency": "usd",
+            "proration": true
+          },
+          {
+            "description": "1 × WMB Indie (at $490.00 / year)",
+            "amount": 49000,
+            "currency": "usd",
+            "proration": false
+          }
+        ],
+        "creditSum": -5110,
+        "chargeSum": 46986,
+        "lineSum": 90876,
+        "invoiceTotal": 90876,
+        "invoiceAmountDue": 90876,
+        "expectedCredit": -5110,
+        "expectedNewProrationCharge": 25290,
+        "creditLineCount": 1
+      }
+    },
+    {
+      "id": "downgrade-pro-monthly-to-indie-annual/PRO-B-charge-line-present",
+      "ok": true,
+      "kind": "proration",
+      "detail": {
+        "label": "downgrade-pro-monthly-to-indie-annual",
+        "note": "frac=0.5161 old=$99.00 new=$490.00 creditActual=$-51.10 chargeActual=$469.86",
+        "rawPreview": "bulletproof-qa-2026-07-17/evidence/w6-stripe/proration-rerun/raw/downgrade-pro-monthly-to-indie-annual-preview-invoice.json",
+        "fracRemain": 0.5161290322580645,
+        "periodStart": 1784443797,
+        "periodEnd": 1787122197,
+        "prorationDate": 1785739797,
+        "oldPriceId": "price_1TuBneC0mmjh4oEMOHjZNO5n",
+        "newPriceId": "price_1TuBndC0mmjh4oEMUSXqG5AK",
+        "oldUnitAmount": 9900,
+        "newUnitAmount": 49000,
+        "prorationLines": [
+          {
+            "description": "Unused time on WMB Professional after 03 Aug 2026",
+            "amount": -5110,
+            "currency": "usd",
+            "proration": true
+          },
+          {
+            "description": "Remaining time on WMB Indie after 03 Aug 2026",
+            "amount": 46986,
+            "currency": "usd",
+            "proration": true
+          },
+          {
+            "description": "1 × WMB Indie (at $490.00 / year)",
+            "amount": 49000,
+            "currency": "usd",
+            "proration": false
+          }
+        ],
+        "creditSum": -5110,
+        "chargeSum": 46986,
+        "lineSum": 90876,
+        "invoiceTotal": 90876,
+        "invoiceAmountDue": 90876,
+        "expectedCredit": -5110,
+        "expectedNewProrationCharge": 25290,
+        "chargeLineCount": 1
+      }
+    },
+    {
+      "id": "downgrade-pro-monthly-to-indie-annual/PRO-C-credit-matches-fraction",
+      "ok": true,
+      "kind": "proration",
+      "detail": {
+        "label": "downgrade-pro-monthly-to-indie-annual",
+        "note": "frac=0.5161 old=$99.00 new=$490.00 creditActual=$-51.10 chargeActual=$469.86",
+        "rawPreview": "bulletproof-qa-2026-07-17/evidence/w6-stripe/proration-rerun/raw/downgrade-pro-monthly-to-indie-annual-preview-invoice.json",
+        "fracRemain": 0.5161290322580645,
+        "periodStart": 1784443797,
+        "periodEnd": 1787122197,
+        "prorationDate": 1785739797,
+        "oldPriceId": "price_1TuBneC0mmjh4oEMOHjZNO5n",
+        "newPriceId": "price_1TuBndC0mmjh4oEMUSXqG5AK",
+        "oldUnitAmount": 9900,
+        "newUnitAmount": 49000,
+        "prorationLines": [
+          {
+            "description": "Unused time on WMB Professional after 03 Aug 2026",
+            "amount": -5110,
+            "currency": "usd",
+            "proration": true
+          },
+          {
+            "description": "Remaining time on WMB Indie after 03 Aug 2026",
+            "amount": 46986,
+            "currency": "usd",
+            "proration": true
+          },
+          {
+            "description": "1 × WMB Indie (at $490.00 / year)",
+            "amount": 49000,
+            "currency": "usd",
+            "proration": false
+          }
+        ],
+        "creditSum": -5110,
+        "chargeSum": 46986,
+        "lineSum": 90876,
+        "invoiceTotal": 90876,
+        "invoiceAmountDue": 90876,
+        "expectedCredit": -5110,
+        "expectedNewProrationCharge": 25290,
+        "actualCredit": -5110,
+        "tolerance": 51
+      }
+    },
+    {
+      "id": "downgrade-pro-monthly-to-indie-annual/PRO-G-lines-sum-to-total",
+      "ok": true,
+      "kind": "proration",
+      "detail": {
+        "note": "lineSum=$908.76 total=$908.76 (annual charge is Stripe-computed on cycle reset, recorded not re-derived)",
+        "lineSum": 90876,
+        "invoiceTotal": 90876,
+        "prorationLines": [
+          {
+            "description": "Unused time on WMB Professional after 03 Aug 2026",
+            "amount": -5110,
+            "currency": "usd",
+            "proration": true
+          },
+          {
+            "description": "Remaining time on WMB Indie after 03 Aug 2026",
+            "amount": 46986,
+            "currency": "usd",
+            "proration": true
+          },
+          {
+            "description": "1 × WMB Indie (at $490.00 / year)",
+            "amount": 49000,
+            "currency": "usd",
+            "proration": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "APP-REFLECT-webhook-200",
+      "ok": true,
+      "kind": "app",
+      "detail": {
+        "note": "webhook -> 200 {\"received\":true}"
+      }
+    },
+    {
+      "id": "APP-REFLECT-row-reflects-new-plan",
+      "ok": true,
+      "kind": "app",
+      "detail": {
+        "note": "DB row after: plan=professional interval=monthly status=active",
+        "dbRowAfter": {
+          "plan": "professional",
+          "status": "active",
+          "billing_interval": "monthly",
+          "stripe_subscription_id": "sub_1TuoXnC0mmjh4oEMn21kUfIm"
+        }
+      }
+    },
+    {
+      "id": "APP-REFLECT-cleanup",
+      "ok": true,
+      "kind": "app",
+      "detail": {
+        "note": "harness user + subscription row deleted"
+      }
+    },
+    {
+      "id": "CLEANUP-stripe",
+      "ok": true,
+      "kind": "cleanup",
+      "detail": {
+        "note": "test clocks deleted (customers+subs cascade)"
+      }
+    },
+    {
+      "id": "ISOLATION-personas-untouched",
+      "ok": true,
+      "kind": "isolation",
+      "detail": {
+        "note": "6 persona subscription rows byte-identical",
+        "beforeCount": 6,
+        "afterCount": 6
+      }
+    }
+  ]
+}

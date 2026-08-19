@@ -1,0 +1,31 @@
+{
+ "path": "/api/books/6d69fd7c-f7a4-4e3d-bf49-1415d81f5326/agent/9cb75913-09fb-4f06-a6e1-03ac3d3a6bc5/stream",
+ "elapsed": 0.06,
+ "n_events": 2,
+ "final": {
+  "type": "complete",
+  "content": "Session completed successfully",
+  "metadata": {
+   "findingsCreated": 0,
+   "statusAdvanced": true,
+   "newStatus": "line_edited",
+   "suggestedNext": [
+    "beta-read"
+   ],
+   "tokensInput": 0,
+   "tokensOutput": 0,
+   "costUsd": 0,
+   "endReason": "natural"
+  }
+ },
+ "events": [
+  {
+   "t": 0.06,
+   "raw": "id: 0\ndata: {\"type\":\"error\",\"content\":\"OpenRouter is experiencing temporary issues. The request will be retried automatically.\",\"metadata\":{\"action\":\"retry\"}}"
+  },
+  {
+   "t": 0.06,
+   "raw": "id: 1\ndata: {\"type\":\"complete\",\"content\":\"Session completed successfully\",\"metadata\":{\"findingsCreated\":0,\"statusAdvanced\":true,\"newStatus\":\"line_edited\",\"suggestedNext\":[\"beta-read\"],\"tokensInput\":0,\"tokensOutput\":0,\"costUsd\":0,\"endReason\":\"natural\"}}"
+  }
+ ]
+}

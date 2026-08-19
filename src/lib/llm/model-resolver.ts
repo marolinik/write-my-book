@@ -246,6 +246,66 @@ export function resolveConductorModel(
   return resolveModelForRole("coach", bookSettings, globalRoleOverrides, globalDefault);
 }
 
+// ── Workflow-Aware Conductor Resolution ─────────────────────────
+
+/** Minimal workflow shape needed to pick the conductor's role. */
+export interface ConductorWorkflow {
+  conversational: boolean;
+  primaryAgent: AgentType;
+}
+
+/**
+ * Resolve the conductor model for a specific workflow.
+ *
+ * A CONVERSATIONAL workflow is a live chat with the Writing Coach, so its
+ * conductor resolves on the "coach" role (unchanged — {@link resolveConductorModel}).
+ *
+ * A NON-conversational workflow (line-edit, dev-edit, beta-read, write-chapter, …)
+ * is a background "job" whose deliverable is produced by the workflow's PRIMARY
+ * agent — the coach is a thin conductor over that one specialist, and the run is
+ * billed on the conductor model. Resolving the conductor on the primary agent's
+ * role makes the per-role override the UI advertises (e.g. modelEditor for a
+ * line-edit) actually govern the model the job runs and bills on, instead of
+ * silently running on the coach/default model regardless.
+ *
+ * Behavior is unchanged for a user with no per-role override: the primary
+ * agent's role and the coach role both fall through the shared book-default →
+ * global-default levels to the same model.
+ *
+ * @param workflow - The workflow being started (conversational flag + primary agent)
+ * @param bookSettings - Book-level model settings (null if none exist)
+ * @param user - The user's global default + per-role overrides
+ * @returns The resolved conductor model with its source level
+ */
+export function resolveConductorModelForWorkflow(
+  workflow: ConductorWorkflow,
+  bookSettings: BookModelSettings | null,
+  user: ConductorUserModelSettings
+): ResolvedModel {
+  const role = mapAgentTypeToRole(workflow.primaryAgent);
+
+  // Conversational chats, and any workflow whose primary agent is the coach
+  // itself, run on the coach chain exactly as before.
+  if (workflow.conversational || role === "coach") {
+    return resolveConductorModel(bookSettings, user);
+  }
+
+  const globalDefault = isValidOverride(user.defaultModel)
+    ? user.defaultModel
+    : "anthropic/sonnet";
+
+  const globalRoleOverrides: Record<AgentRole, string | null> = {
+    ghostwriter: user.modelGhostwriter,
+    editor: user.modelEditor,
+    "beta-reader": user.modelBetaReader,
+    analyst: user.modelAnalyst,
+    coach: user.modelCoach,
+    creative: user.modelCreative,
+  };
+
+  return resolveModelForRole(role, bookSettings, globalRoleOverrides, globalDefault);
+}
+
 // ── Minimum Tier Enforcement ────────────────────────────────────
 
 /**

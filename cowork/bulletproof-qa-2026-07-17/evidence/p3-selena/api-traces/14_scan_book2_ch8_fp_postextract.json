@@ -1,0 +1,12 @@
+{
+  "label": "14_scan_book2_ch8_fp_postextract",
+  "method": "POST",
+  "path": "/api/books/2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90/continuity/scan?chapterNumber=8",
+  "requestedAt": "2026-07-18T09:00:49.869+00:00",
+  "elapsedMs": 281,
+  "status": 200,
+  "note": "Mission B verdict scan: ch8 (benign, canon-consistent) extraction confirmed landed at 09:00:05Z via read-only series-context poll (probe_sc_ch8_landed.json; on-stage Mira Thorne, Zoe Rasmussen, Corvin Ashe). Book-wide checks now run against a graph that INCLUDES ch8 content. Zero flags expected = precision half of the moat.",
+  "response": {
+    "flags": []
+  }
+}

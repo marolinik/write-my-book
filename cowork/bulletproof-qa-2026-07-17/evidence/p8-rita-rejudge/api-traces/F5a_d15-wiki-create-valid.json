@@ -1,0 +1,28 @@
+{
+  "id": "F5a",
+  "label": "d15-wiki-create-valid",
+  "actor": "p2",
+  "capturedAt": "2026-07-20T11:31:20.397Z",
+  "request": {
+    "method": "POST",
+    "url": "http://127.0.0.1:3002/api/books/1c829f25-3c52-4751-80b1-61cdc7fd8c73/wiki",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p2",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "type": "character",
+      "name": "RJ Probe 1784547050860"
+    },
+    "bodyMode": "json"
+  },
+  "response": {
+    "status": 201,
+    "contentType": "application/json",
+    "bodyLength": 304,
+    "bodyText": "{\"id\":\"6bf865d6-de07-4d9a-a276-1eaa19b25678\",\"bookId\":\"1c829f25-3c52-4751-80b1-61cdc7fd8c73\",\"type\":\"character\",\"name\":\"RJ Probe 1784547050860\",\"aliases\":[],\"description\":\"\",\"attributes\":{},\"mentions\":[],\"sourceType\":\"manual\",\"createdAt\":\"2026-07-20T11:31:20.379Z\",\"updatedAt\":\"2026-07-20T11:31:20.379Z\"}"
+  },
+  "expected": "201 (valid create for PATCH repro)",
+  "note": null
+}

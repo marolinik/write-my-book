@@ -91,13 +91,24 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       orderBy: { bookNumber: "asc" },
     });
 
+    // D-25/F4 frozen-sidebar fix: a carried-over character must surface their LATEST
+    // series state, not a frozen prior-book snapshot. The CURRENT book is therefore a
+    // recency candidate alongside the prior books — buildAmbientContext's isLater()
+    // then lets the current book's own updates win. Threads stay prior-book-only
+    // (carryover the writer may have forgotten from earlier books); the tone baseline
+    // already spans the whole series via seriesBookIds below.
+    const recencyBooks: PriorBookRef[] = [
+      { id: book.id, bookNumber: book.bookNumber },
+      ...priorBooks,
+    ];
+
     // Per-source failure isolation + concurrency: each source runs in parallel and
     // reports ok=false on throw (never 500s the sidebar); graph calls are time-bounded
     // so a stalled Neo4j degrades in ~5s, not ~30s×3 sequential (review fix).
     const seriesBookIds = [book.id, ...priorBooks.map((b) => b.id)];
     const [onStage, prior, threads, baseline, current] = await Promise.all([
       safe(withTimeout(getOnStageNames(book.id, chapterNumber), GRAPH_TIMEOUT_MS), [] as string[]),
-      safe(withTimeout(getPriorCharacters(priorBooks), GRAPH_TIMEOUT_MS), [] as PriorCharacter[]),
+      safe(withTimeout(getPriorCharacters(recencyBooks), GRAPH_TIMEOUT_MS), [] as PriorCharacter[]),
       safe(withTimeout(getOpenThreads(priorBooks), GRAPH_TIMEOUT_MS), [] as PriorThread[]),
       safe(getStyleBaseline(user.id, seriesBookIds), {
         metrics: null as StyleMetrics | null,

@@ -1,0 +1,29 @@
+{
+  "method": "POST",
+  "path": "/api/books",
+  "status": 201,
+  "ok": true,
+  "latencyMs": 124,
+  "json": {
+    "id": "0b4a7b05-6b01-4098-8bdc-555065f1ae27",
+    "userId": "a31049dd-0fd9-44dd-a232-8606129d1853",
+    "seriesId": null,
+    "bookNumber": 1,
+    "name": "Priya Rejudge 2026-07-20T03-11-47-988Z",
+    "genre": "Fantasy",
+    "language": "en",
+    "status": "concept",
+    "description": null,
+    "marketingKit": null,
+    "authorNotes": null,
+    "wordCount": 0,
+    "targetWordCount": null,
+    "chapterCount": 0,
+    "s3Prefix": "a31049dd-0fd9-44dd-a232-8606129d1853/0b4a7b05-6b01-4098-8bdc-555065f1ae27",
+    "createdAt": "2026-07-20T03:11:48.087Z",
+    "updatedAt": "2026-07-20T03:11:48.095Z",
+    "archivedAt": null,
+    "firstChapterId": "fc983714-6885-4ceb-b08f-f87ce3d8cb61"
+  },
+  "text": null
+}

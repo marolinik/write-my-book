@@ -1,0 +1,9 @@
+{
+  "label": "05a_create_standalone_book",
+  "method": "POST",
+  "path": "/api/books",
+  "status": 409,
+  "response": {
+    "error": "A book with this name already exists"
+  }
+}

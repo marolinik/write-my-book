@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { createDocumentSchema } from "@/lib/validation";
 import { DocumentService } from "@/lib/documents";
 import type { DocumentType } from "@/generated/prisma/enums";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { zodErrorResponse } from "@/lib/api/zod-error";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -42,7 +44,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id: bookId } = await params;
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = createDocumentSchema.parse(body);
 
     const book = await db.book.findFirst({
@@ -79,13 +81,23 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(document, { status: 201 });
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if ((error as Error).name === "ZodError") {
+    const zodRes = zodErrorResponse(error);
+    if (zodRes) return zodRes;
+    // D-16: the new @@unique([bookId, type, chapterNumber]) makes a duplicate
+    // chapter-scoped document a P2002 on the single create() above — no race
+    // needed. Return 409 (not a hard 500): a create endpoint must NOT converge
+    // into a blind last-write-wins update, which would reintroduce the silent
+    // lost-update this constraint exists to prevent. Callers refetch the
+    // existing row and PUT with a version stamp instead.
+    if ((error as { code?: string })?.code === "P2002") {
       return NextResponse.json(
-        { error: "Invalid input", details: error },
-        { status: 400 }
+        { error: "A document of this type already exists for this chapter" },
+        { status: 409 }
       );
     }
     console.error("POST /api/books/:id/documents error:", error);

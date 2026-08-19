@@ -1,0 +1,20 @@
+﻿=== WORKER-PROOF (P2 re-judge capture) @ 2026-07-20T13:56:11.8127690Z ===
+
+Method: enumerate all processes whose command line references src/worker.ts
+(excluding the probe query itself). The BullMQ job-processing worker is the
+node.exe running the tsx ESM loader (--import .../loader.mjs). Launcher shells
+(powershell wrapper -> npx -> cmd -> tsx cli) are the single launch chain, not
+independent workers.
+
+Full launch chain referencing src/worker.ts:
+  PID=28224  PPID=63044  NAME=node.exe
+  PID=30280  PPID=32584  NAME=powershell.exe
+  PID=31644  PPID=30280  NAME=node.exe
+  PID=61892  PPID=28224  NAME=node.exe
+  PID=63044  PPID=31644  NAME=cmd.exe
+
+Actual job-processing worker runtime (node + tsx loader + worker.ts):
+  PID=61892 PPID=28224  CMD="C:\Program Files\nodejs\node.exe" --require D:\Projects\wmb-pub\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/wmb-pub/node_modules/tsx/dist/loader.mjs src/worker.ts
+
+RUNTIME_WORKER_COUNT = 1
+VERDICT = EXACTLY ONE WORKER (PASS)

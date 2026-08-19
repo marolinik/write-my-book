@@ -1,0 +1,51 @@
+{
+  "label": "02-create-book-freetier",
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:3002/api/books",
+    "authHeaderNames": [
+      "x-e2e-test-secret(masked:<redacted>)",
+      "x-e2e-clerk-id:user_qa_p5"
+    ],
+    "body": {
+      "name": "Sam Free-Tier On-Ramp QA 2026-07-20",
+      "genre": "fantasy"
+    }
+  },
+  "response": {
+    "status": 201,
+    "statusText": "Created",
+    "ms": 96,
+    "headers": {
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Mon, 20 Jul 2026 03:09:16 GMT",
+      "keep-alive": "timeout=5",
+      "transfer-encoding": "chunked",
+      "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+    },
+    "json": {
+      "id": "35ff1112-52af-4001-a0f4-ec83f4dad9b0",
+      "userId": "d68c3b5e-e791-4858-b402-9f736fe2eddf",
+      "seriesId": null,
+      "bookNumber": 1,
+      "name": "Sam Free-Tier On-Ramp QA 2026-07-20",
+      "genre": "fantasy",
+      "language": "en",
+      "status": "concept",
+      "description": null,
+      "marketingKit": null,
+      "authorNotes": null,
+      "wordCount": 0,
+      "targetWordCount": null,
+      "chapterCount": 0,
+      "s3Prefix": "d68c3b5e-e791-4858-b402-9f736fe2eddf/35ff1112-52af-4001-a0f4-ec83f4dad9b0",
+      "createdAt": "2026-07-20T03:09:16.582Z",
+      "updatedAt": "2026-07-20T03:09:16.609Z",
+      "archivedAt": null,
+      "firstChapterId": "10334dac-e7d2-4a56-92fb-594e9567304f"
+    }
+  },
+  "error": null,
+  "capturedAt": "2026-07-20T03:09:16.628Z"
+}

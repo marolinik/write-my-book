@@ -1,0 +1,2778 @@
+{
+ "path": "/api/books/6d69fd7c-f7a4-4e3d-bf49-1415d81f5326/agent/3361b5d1-96ea-451b-b0fa-63730d297702/stream",
+ "elapsed": 163.845,
+ "n_events": 689,
+ "final": {
+  "type": "complete",
+  "content": "Session completed successfully",
+  "metadata": {
+   "findingsCreated": 3,
+   "statusAdvanced": false,
+   "suggestedNext": [
+    "beta-read"
+   ],
+   "tokensInput": 50508,
+   "tokensOutput": 8507,
+   "costUsd": 0.034811579999999995,
+   "endReason": "natural"
+  }
+ },
+ "events": [
+  {
+   "t": 15.05,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 22.525,
+   "raw": "id: 0\ndata: {\"type\":\"text\",\"content\":\"\\n\\nI\"}"
+  },
+  {
+   "t": 22.525,
+   "raw": "id: 1\ndata: {\"type\":\"text\",\"content\":\"'ll begin\"}"
+  },
+  {
+   "t": 22.525,
+   "raw": "id: 2\ndata: {\"type\":\"text\",\"content\":\" my line edit\"}"
+  },
+  {
+   "t": 22.525,
+   "raw": "id: 3\ndata: {\"type\":\"text\",\"content\":\" of Chapter \"}"
+  },
+  {
+   "t": 22.773,
+   "raw": "id: 4\ndata: {\"type\":\"text\",\"content\":\"5. Let\"}"
+  },
+  {
+   "t": 22.773,
+   "raw": "id: 5\ndata: {\"type\":\"text\",\"content\":\" me first review\"}"
+  },
+  {
+   "t": 22.774,
+   "raw": "id: 6\ndata: {\"type\":\"text\",\"content\":\" the chapter\"}"
+  },
+  {
+   "t": 22.774,
+   "raw": "id: 7\ndata: {\"type\":\"text\",\"content\":\" content carefully\"}"
+  },
+  {
+   "t": 22.774,
+   "raw": "id: 8\ndata: {\"type\":\"text\",\"content\":\" against\"}"
+  },
+  {
+   "t": 22.774,
+   "raw": "id: 9\ndata: {\"type\":\"text\",\"content\":\" the style fingerprint\"}"
+  },
+  {
+   "t": 22.774,
+   "raw": "id: 10\ndata: {\"type\":\"text\",\"content\":\" and voice\"}"
+  },
+  {
+   "t": 22.945,
+   "raw": "id: 11\ndata: {\"type\":\"text\",\"content\":\" metrics, then\"}"
+  },
+  {
+   "t": 22.945,
+   "raw": "id: 12\ndata: {\"type\":\"text\",\"content\":\" work through each\"}"
+  },
+  {
+   "t": 22.945,
+   "raw": "id: 13\ndata: {\"type\":\"text\",\"content\":\" analysis\"}"
+  },
+  {
+   "t": 22.945,
+   "raw": "id: 14\ndata: {\"type\":\"text\",\"content\":\" phase.\\n\\n\"}"
+  },
+  {
+   "t": 22.945,
+   "raw": "id: 15\ndata: {\"type\":\"text\",\"content\":\"**\"}"
+  },
+  {
+   "t": 23.142,
+   "raw": "id: 16\ndata: {\"type\":\"text\",\"content\":\"Reading\"}"
+  },
+  {
+   "t": 23.142,
+   "raw": "id: 17\ndata: {\"type\":\"text\",\"content\":\" Chapter 5\"}"
+  },
+  {
+   "t": 23.143,
+   "raw": "id: 18\ndata: {\"type\":\"text\",\"content\":\" now...** I\"}"
+  },
+  {
+   "t": 23.143,
+   "raw": "id: 19\ndata: {\"type\":\"text\",\"content\":\"'ve got\"}"
+  },
+  {
+   "t": 23.143,
+   "raw": "id: 20\ndata: {\"type\":\"text\",\"content\":\" the full text\"}"
+  },
+  {
+   "t": 23.307,
+   "raw": "id: 21\ndata: {\"type\":\"text\",\"content\":\". Let me\"}"
+  },
+  {
+   "t": 23.307,
+   "raw": "id: 22\ndata: {\"type\":\"text\",\"content\":\" proceed with the\"}"
+  },
+  {
+   "t": 23.307,
+   "raw": "id: 23\ndata: {\"type\":\"text\",\"content\":\" three-phase analysis\"}"
+  },
+  {
+   "t": 23.308,
+   "raw": "id: 24\ndata: {\"type\":\"text\",\"content\":\".\\n\\n---\"}"
+  },
+  {
+   "t": 23.308,
+   "raw": "id: 25\ndata: {\"type\":\"text\",\"content\":\"\\n\\n## PH\"}"
+  },
+  {
+   "t": 23.491,
+   "raw": "id: 26\ndata: {\"type\":\"text\",\"content\":\"ASE 1\"}"
+  },
+  {
+   "t": 23.493,
+   "raw": "id: 27\ndata: {\"type\":\"text\",\"content\":\": SENTENCE\"}"
+  },
+  {
+   "t": 23.494,
+   "raw": "id: 28\ndata: {\"type\":\"text\",\"content\":\" CRAFT (\"}"
+  },
+  {
+   "t": 23.495,
+   "raw": "id: 29\ndata: {\"type\":\"text\",\"content\":\"Checks 1\"}"
+  },
+  {
+   "t": 23.495,
+   "raw": "id: 30\ndata: {\"type\":\"text\",\"content\":\"-8)\"}"
+  },
+  {
+   "t": 23.671,
+   "raw": "id: 31\ndata: {\"type\":\"text\",\"content\":\"\\n\\n**\"}"
+  },
+  {
+   "t": 23.671,
+   "raw": "id: 32\ndata: {\"type\":\"text\",\"content\":\"Check\"}"
+  },
+  {
+   "t": 23.672,
+   "raw": "id: 33\ndata: {\"type\":\"text\",\"content\":\" 1:\"}"
+  },
+  {
+   "t": 23.672,
+   "raw": "id: 34\ndata: {\"type\":\"text\",\"content\":\" Sentence variety**\"}"
+  },
+  {
+   "t": 23.672,
+   "raw": "id: 35\ndata: {\"type\":\"text\",\"content\":\" — The chapter\"}"
+  },
+  {
+   "t": 23.914,
+   "raw": "id: 36\ndata: {\"type\":\"text\",\"content\":\" shows good\"}"
+  },
+  {
+   "t": 23.914,
+   "raw": "id: 37\ndata: {\"type\":\"text\",\"content\":\" variation. Opening\"}"
+  },
+  {
+   "t": 23.914,
+   "raw": "id: 38\ndata: {\"type\":\"text\",\"content\":\" is\"}"
+  },
+  {
+   "t": 23.914,
+   "raw": "id: 39\ndata: {\"type\":\"text\",\"content\":\" a\"}"
+  },
+  {
+   "t": 23.915,
+   "raw": "id: 40\ndata: {\"type\":\"text\",\"content\":\" longer descriptive\"}"
+  },
+  {
+   "t": 23.915,
+   "raw": "id: 41\ndata: {\"type\":\"text\",\"content\":\" sentence,\"}"
+  },
+  {
+   "t": 23.915,
+   "raw": "id: 42\ndata: {\"type\":\"text\",\"content\":\" followed by clipped\"}"
+  },
+  {
+   "t": 24.122,
+   "raw": "id: 43\ndata: {\"type\":\"text\",\"content\":\" sentences\"}"
+  },
+  {
+   "t": 24.123,
+   "raw": "id: 44\ndata: {\"type\":\"text\",\"content\":\" (\\\"Then\"}"
+  },
+  {
+   "t": 24.123,
+   "raw": "id: 45\ndata: {\"type\":\"text\",\"content\":\" I drew the\"}"
+  },
+  {
+   "t": 24.124,
+   "raw": "id: 46\ndata: {\"type\":\"text\",\"content\":\" line.\\\"), then\"}"
+  },
+  {
+   "t": 24.124,
+   "raw": "id: 47\ndata: {\"type\":\"text\",\"content\":\" fragments (\\\"No\"}"
+  },
+  {
+   "t": 24.301,
+   "raw": "id: 48\ndata: {\"type\":\"text\",\"content\":\" oars.\"}"
+  },
+  {
+   "t": 24.301,
+   "raw": "id: 49\ndata: {\"type\":\"text\",\"content\":\" None.\\\").\"}"
+  },
+  {
+   "t": 24.301,
+   "raw": "id: 50\ndata: {\"type\":\"text\",\"content\":\" The long\"}"
+  },
+  {
+   "t": 24.301,
+   "raw": "id: 51\ndata: {\"type\":\"text\",\"content\":\"-then-short\"}"
+  },
+  {
+   "t": 24.301,
+   "raw": "id: 52\ndata: {\"type\":\"text\",\"content\":\" rhythm is well\"}"
+  },
+  {
+   "t": 24.479,
+   "raw": "id: 53\ndata: {\"type\":\"text\",\"content\":\" deployed throughout\"}"
+  },
+  {
+   "t": 24.479,
+   "raw": "id: 54\ndata: {\"type\":\"text\",\"content\":\". Rat\"}"
+  },
+  {
+   "t": 24.479,
+   "raw": "id: 55\ndata: {\"type\":\"text\",\"content\":\"ios look\"}"
+  },
+  {
+   "t": 24.479,
+   "raw": "id: 56\ndata: {\"type\":\"text\",\"content\":\" healthy.\\n\\n\"}"
+  },
+  {
+   "t": 24.479,
+   "raw": "id: 57\ndata: {\"type\":\"text\",\"content\":\"**Check \"}"
+  },
+  {
+   "t": 24.698,
+   "raw": "id: 58\ndata: {\"type\":\"text\",\"content\":\"2: Cr\"}"
+  },
+  {
+   "t": 24.698,
+   "raw": "id: 59\ndata: {\"type\":\"text\",\"content\":\"utch phrases**\"}"
+  },
+  {
+   "t": 24.698,
+   "raw": "id: 60\ndata: {\"type\":\"text\",\"content\":\" — No\"}"
+  },
+  {
+   "t": 24.698,
+   "raw": "id: 61\ndata: {\"type\":\"text\",\"content\":\" excessive\"}"
+  },
+  {
+   "t": 24.698,
+   "raw": "id: 62\ndata: {\"type\":\"text\",\"content\":\" repetition\"}"
+  },
+  {
+   "t": 24.698,
+   "raw": "id: 63\ndata: {\"type\":\"text\",\"content\":\" detected\"}"
+  },
+  {
+   "t": 24.866,
+   "raw": "id: 64\ndata: {\"type\":\"text\",\"content\":\". \\\"The\"}"
+  },
+  {
+   "t": 24.867,
+   "raw": "id: 65\ndata: {\"type\":\"text\",\"content\":\" way\\\"\"}"
+  },
+  {
+   "t": 24.867,
+   "raw": "id: 66\ndata: {\"type\":\"text\",\"content\":\" constructions appear\"}"
+  },
+  {
+   "t": 24.867,
+   "raw": "id: 67\ndata: {\"type\":\"text\",\"content\":\" twice but\"}"
+  },
+  {
+   "t": 24.867,
+   "raw": "id: 68\ndata: {\"type\":\"text\",\"content\":\" serve\"}"
+  },
+  {
+   "t": 25.074,
+   "raw": "id: 69\ndata: {\"type\":\"text\",\"content\":\" different structural\"}"
+  },
+  {
+   "t": 25.074,
+   "raw": "id: 70\ndata: {\"type\":\"text\",\"content\":\" purposes (boat\"}"
+  },
+  {
+   "t": 25.074,
+   "raw": "id: 71\ndata: {\"type\":\"text\",\"content\":\" arrival,\"}"
+  },
+  {
+   "t": 25.074,
+   "raw": "id: 72\ndata: {\"type\":\"text\",\"content\":\" bill arrival)\"}"
+  },
+  {
+   "t": 25.074,
+   "raw": "id: 73\ndata: {\"type\":\"text\",\"content\":\" and\"}"
+  },
+  {
+   "t": 25.074,
+   "raw": "id: 74\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 25.266,
+   "raw": "id: 75\ndata: {\"type\":\"text\",\"content\":\" fingerprint\"}"
+  },
+  {
+   "t": 25.266,
+   "raw": "id: 76\ndata: {\"type\":\"text\",\"content\":\" names\"}"
+  },
+  {
+   "t": 25.266,
+   "raw": "id: 77\ndata: {\"type\":\"text\",\"content\":\" \\\"the way\"}"
+  },
+  {
+   "t": 25.266,
+   "raw": "id: 78\ndata: {\"type\":\"text\",\"content\":\" you [verb\"}"
+  },
+  {
+   "t": 25.266,
+   "raw": "id: 79\ndata: {\"type\":\"text\",\"content\":\"]\\\" as\"}"
+  },
+  {
+   "t": 25.453,
+   "raw": "id: 80\ndata: {\"type\":\"text\",\"content\":\" a signature\"}"
+  },
+  {
+   "t": 25.453,
+   "raw": "id: 81\ndata: {\"type\":\"text\",\"content\":\" device. Protected\"}"
+  },
+  {
+   "t": 25.453,
+   "raw": "id: 82\ndata: {\"type\":\"text\",\"content\":\".\\n\\n**\"}"
+  },
+  {
+   "t": 25.453,
+   "raw": "id: 83\ndata: {\"type\":\"text\",\"content\":\"Check 3\"}"
+  },
+  {
+   "t": 25.453,
+   "raw": "id: 84\ndata: {\"type\":\"text\",\"content\":\": Filter\"}"
+  },
+  {
+   "t": 25.648,
+   "raw": "id: 85\ndata: {\"type\":\"text\",\"content\":\" words** —\"}"
+  },
+  {
+   "t": 25.648,
+   "raw": "id: 86\ndata: {\"type\":\"text\",\"content\":\" \\\"I\"}"
+  },
+  {
+   "t": 25.648,
+   "raw": "id: 87\ndata: {\"type\":\"text\",\"content\":\" saw that the\"}"
+  },
+  {
+   "t": 25.648,
+   "raw": "id: 88\ndata: {\"type\":\"text\",\"content\":\" rope had fr\"}"
+  },
+  {
+   "t": 25.648,
+   "raw": "id: 89\ndata: {\"type\":\"text\",\"content\":\"ayed\\\" —\"}"
+  },
+  {
+   "t": 25.648,
+   "raw": "id: 90\ndata: {\"type\":\"text\",\"content\":\" this is borderline\"}"
+  },
+  {
+   "t": 25.821,
+   "raw": "id: 91\ndata: {\"type\":\"text\",\"content\":\". However\"}"
+  },
+  {
+   "t": 25.821,
+   "raw": "id: 92\ndata: {\"type\":\"text\",\"content\":\", \\\"I\"}"
+  },
+  {
+   "t": 25.821,
+   "raw": "id: 93\ndata: {\"type\":\"text\",\"content\":\" saw\\\" here\"}"
+  },
+  {
+   "t": 25.821,
+   "raw": "id: 94\ndata: {\"type\":\"text\",\"content\":\" is a recorded\"}"
+  },
+  {
+   "t": 25.987,
+   "raw": "id: 95\ndata: {\"type\":\"text\",\"content\":\" action/\"}"
+  },
+  {
+   "t": 25.987,
+   "raw": "id: 96\ndata: {\"type\":\"text\",\"content\":\"observation anchored\"}"
+  },
+  {
+   "t": 25.988,
+   "raw": "id: 97\ndata: {\"type\":\"text\",\"content\":\" to\"}"
+  },
+  {
+   "t": 25.988,
+   "raw": "id: 98\ndata: {\"type\":\"text\",\"content\":\" physical detail\"}"
+  },
+  {
+   "t": 25.988,
+   "raw": "id: 99\ndata: {\"type\":\"text\",\"content\":\", which\"}"
+  },
+  {
+   "t": 26.153,
+   "raw": "id: 100\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 26.153,
+   "raw": "id: 101\ndata: {\"type\":\"text\",\"content\":\" fingerprint says\"}"
+  },
+  {
+   "t": 26.153,
+   "raw": "id: 102\ndata: {\"type\":\"text\",\"content\":\" is NOT\"}"
+  },
+  {
+   "t": 26.153,
+   "raw": "id: 103\ndata: {\"type\":\"text\",\"content\":\" a filter word\"}"
+  },
+  {
+   "t": 26.332,
+   "raw": "id: 104\ndata: {\"type\":\"text\",\"content\":\" when\"}"
+  },
+  {
+   "t": 26.332,
+   "raw": "id: 105\ndata: {\"type\":\"text\",\"content\":\" it\"}"
+  },
+  {
+   "t": 26.332,
+   "raw": "id: 106\ndata: {\"type\":\"text\",\"content\":\"'s \\\"\"}"
+  },
+  {
+   "t": 26.332,
+   "raw": "id: 107\ndata: {\"type\":\"text\",\"content\":\"a\"}"
+  },
+  {
+   "t": 26.332,
+   "raw": "id: 108\ndata: {\"type\":\"text\",\"content\":\" recorded action or\"}"
+  },
+  {
+   "t": 26.492,
+   "raw": "id: 109\ndata: {\"type\":\"text\",\"content\":\" ritual/log\"}"
+  },
+  {
+   "t": 26.492,
+   "raw": "id: 110\ndata: {\"type\":\"text\",\"content\":\" line.\\\" The\"}"
+  },
+  {
+   "t": 26.492,
+   "raw": "id: 111\ndata: {\"type\":\"text\",\"content\":\" narrator\"}"
+  },
+  {
+   "t": 26.492,
+   "raw": "id: 112\ndata: {\"type\":\"text\",\"content\":\" does\"}"
+  },
+  {
+   "t": 26.492,
+   "raw": "id: 113\ndata: {\"type\":\"text\",\"content\":\" see\"}"
+  },
+  {
+   "t": 26.685,
+   "raw": "id: 114\ndata: {\"type\":\"text\",\"content\":\" things —\"}"
+  },
+  {
+   "t": 26.685,
+   "raw": "id: 115\ndata: {\"type\":\"text\",\"content\":\" that's her\"}"
+  },
+  {
+   "t": 26.685,
+   "raw": "id: 116\ndata: {\"type\":\"text\",\"content\":\" job as\"}"
+  },
+  {
+   "t": 26.685,
+   "raw": "id: 117\ndata: {\"type\":\"text\",\"content\":\" keeper\"}"
+  },
+  {
+   "t": 26.685,
+   "raw": "id: 118\ndata: {\"type\":\"text\",\"content\":\". Not\"}"
+  },
+  {
+   "t": 26.685,
+   "raw": "id: 119\ndata: {\"type\":\"text\",\"content\":\" flag\"}"
+  },
+  {
+   "t": 26.916,
+   "raw": "id: 120\ndata: {\"type\":\"text\",\"content\":\"ging.\\n\\n\"}"
+  },
+  {
+   "t": 26.916,
+   "raw": "id: 121\ndata: {\"type\":\"text\",\"content\":\"**Check \"}"
+  },
+  {
+   "t": 26.916,
+   "raw": "id: 122\ndata: {\"type\":\"text\",\"content\":\"4: Weak\"}"
+  },
+  {
+   "t": 26.916,
+   "raw": "id: 123\ndata: {\"type\":\"text\",\"content\":\" verbs** —\"}"
+  },
+  {
+   "t": 26.916,
+   "raw": "id: 124\ndata: {\"type\":\"text\",\"content\":\" \\\"The\"}"
+  },
+  {
+   "t": 26.916,
+   "raw": "id: 125\ndata: {\"type\":\"text\",\"content\":\" rest of her\"}"
+  },
+  {
+   "t": 27.129,
+   "raw": "id: 126\ndata: {\"type\":\"text\",\"content\":\" was sound\\\"\"}"
+  },
+  {
+   "t": 27.129,
+   "raw": "id: 127\ndata: {\"type\":\"text\",\"content\":\" — uses\"}"
+  },
+  {
+   "t": 27.13,
+   "raw": "id: 128\ndata: {\"type\":\"text\",\"content\":\" \\\"was,\\\"\"}"
+  },
+  {
+   "t": 27.13,
+   "raw": "id: 129\ndata: {\"type\":\"text\",\"content\":\" but this is\"}"
+  },
+  {
+   "t": 27.13,
+   "raw": "id: 130\ndata: {\"type\":\"text\",\"content\":\" functional\"}"
+  },
+  {
+   "t": 27.13,
+   "raw": "id: 131\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 27.318,
+   "raw": "id: 132\ndata: {\"type\":\"text\",\"content\":\" Let\"}"
+  },
+  {
+   "t": 27.318,
+   "raw": "id: 133\ndata: {\"type\":\"text\",\"content\":\" me check for\"}"
+  },
+  {
+   "t": 27.318,
+   "raw": "id: 134\ndata: {\"type\":\"text\",\"content\":\" accumulated\"}"
+  },
+  {
+   "t": 27.318,
+   "raw": "id: 135\ndata: {\"type\":\"text\",\"content\":\" weak\"}"
+  },
+  {
+   "t": 27.318,
+   "raw": "id: 136\ndata: {\"type\":\"text\",\"content\":\"-\"}"
+  },
+  {
+   "t": 27.319,
+   "raw": "id: 137\ndata: {\"type\":\"text\",\"content\":\"verb chains\"}"
+  },
+  {
+   "t": 27.507,
+   "raw": "id: 138\ndata: {\"type\":\"text\",\"content\":\". \\\"There\"}"
+  },
+  {
+   "t": 27.507,
+   "raw": "id: 139\ndata: {\"type\":\"text\",\"content\":\" was a palp\"}"
+  },
+  {
+   "t": 27.507,
+   "raw": "id: 140\ndata: {\"type\":\"text\",\"content\":\"able silence\\\"\"}"
+  },
+  {
+   "t": 27.507,
+   "raw": "id: 141\ndata: {\"type\":\"text\",\"content\":\" — passive\"}"
+  },
+  {
+   "t": 27.507,
+   "raw": "id: 142\ndata: {\"type\":\"text\",\"content\":\" existential\"}"
+  },
+  {
+   "t": 27.676,
+   "raw": "id: 143\ndata: {\"type\":\"text\",\"content\":\" construction\"}"
+  },
+  {
+   "t": 27.863,
+   "raw": "id: 144\ndata: {\"type\":\"text\",\"content\":\". \\\"\"}"
+  },
+  {
+   "t": 27.863,
+   "raw": "id: 145\ndata: {\"type\":\"text\",\"content\":\"The\"}"
+  },
+  {
+   "t": 27.905,
+   "raw": "id: 146\ndata: {\"type\":\"text\",\"content\":\" knots at the\"}"
+  },
+  {
+   "t": 27.905,
+   "raw": "id: 147\ndata: {\"type\":\"text\",\"content\":\" bow were tied\"}"
+  },
+  {
+   "t": 27.906,
+   "raw": "id: 148\ndata: {\"type\":\"text\",\"content\":\" wet\\\" —\"}"
+  },
+  {
+   "t": 27.906,
+   "raw": "id: 149\ndata: {\"type\":\"text\",\"content\":\" passive but\"}"
+  },
+  {
+   "t": 27.906,
+   "raw": "id: 150\ndata: {\"type\":\"text\",\"content\":\" intentional\"}"
+  },
+  {
+   "t": 27.906,
+   "raw": "id: 151\ndata: {\"type\":\"text\",\"content\":\" (\"}"
+  },
+  {
+   "t": 27.906,
+   "raw": "id: 152\ndata: {\"type\":\"text\",\"content\":\"the\"}"
+  },
+  {
+   "t": 27.906,
+   "raw": "id: 153\ndata: {\"type\":\"text\",\"content\":\" knots were tied\"}"
+  },
+  {
+   "t": 28.05,
+   "raw": "id: 154\ndata: {\"type\":\"text\",\"content\":\" by an\"}"
+  },
+  {
+   "t": 28.05,
+   "raw": "id: 155\ndata: {\"type\":\"text\",\"content\":\" unknown actor\"}"
+  },
+  {
+   "t": 28.05,
+   "raw": "id: 156\ndata: {\"type\":\"text\",\"content\":\"). \\\"\"}"
+  },
+  {
+   "t": 28.05,
+   "raw": "id: 157\ndata: {\"type\":\"text\",\"content\":\"Behind\"}"
+  },
+  {
+   "t": 28.05,
+   "raw": "id: 158\ndata: {\"type\":\"text\",\"content\":\" the island the\"}"
+  },
+  {
+   "t": 28.236,
+   "raw": "id: 159\ndata: {\"type\":\"text\",\"content\":\" sunset bled\"}"
+  },
+  {
+   "t": 28.236,
+   "raw": "id: 160\ndata: {\"type\":\"text\",\"content\":\" crimson and gold\"}"
+  },
+  {
+   "t": 28.236,
+   "raw": "id: 161\ndata: {\"type\":\"text\",\"content\":\"\\\"\"}"
+  },
+  {
+   "t": 28.236,
+   "raw": "id: 162\ndata: {\"type\":\"text\",\"content\":\" — \\\"bled\"}"
+  },
+  {
+   "t": 28.236,
+   "raw": "id: 163\ndata: {\"type\":\"text\",\"content\":\"\\\" is a\"}"
+  },
+  {
+   "t": 28.518,
+   "raw": "id: 164\ndata: {\"type\":\"text\",\"content\":\" strong verb.\"}"
+  },
+  {
+   "t": 28.518,
+   "raw": "id: 165\ndata: {\"type\":\"text\",\"content\":\" Overall\"}"
+  },
+  {
+   "t": 28.518,
+   "raw": "id: 166\ndata: {\"type\":\"text\",\"content\":\":\"}"
+  },
+  {
+   "t": 28.518,
+   "raw": "id: 167\ndata: {\"type\":\"text\",\"content\":\" no\"}"
+  },
+  {
+   "t": 28.518,
+   "raw": "id: 168\ndata: {\"type\":\"text\",\"content\":\" significant\"}"
+  },
+  {
+   "t": 28.518,
+   "raw": "id: 169\ndata: {\"type\":\"text\",\"content\":\" weak-verb\"}"
+  },
+  {
+   "t": 28.518,
+   "raw": "id: 170\ndata: {\"type\":\"text\",\"content\":\" issue\"}"
+  },
+  {
+   "t": 28.519,
+   "raw": "id: 171\ndata: {\"type\":\"text\",\"content\":\".\\n\\n**\"}"
+  },
+  {
+   "t": 28.546,
+   "raw": "id: 172\ndata: {\"type\":\"text\",\"content\":\"Check 5\"}"
+  },
+  {
+   "t": 28.666,
+   "raw": "id: 173\ndata: {\"type\":\"text\",\"content\":\": Adverb\"}"
+  },
+  {
+   "t": 28.666,
+   "raw": "id: 174\ndata: {\"type\":\"text\",\"content\":\" overload** —\"}"
+  },
+  {
+   "t": 28.666,
+   "raw": "id: 175\ndata: {\"type\":\"text\",\"content\":\" No adverb\"}"
+  },
+  {
+   "t": 28.666,
+   "raw": "id: 176\ndata: {\"type\":\"text\",\"content\":\" issues\"}"
+  },
+  {
+   "t": 28.899,
+   "raw": "id: 177\ndata: {\"type\":\"text\",\"content\":\" detected. \\\"\"}"
+  },
+  {
+   "t": 28.899,
+   "raw": "id: 178\ndata: {\"type\":\"text\",\"content\":\"Pro\"}"
+  },
+  {
+   "t": 28.9,
+   "raw": "id: 179\ndata: {\"type\":\"text\",\"content\":\"perly\\\"\"}"
+  },
+  {
+   "t": 28.9,
+   "raw": "id: 180\ndata: {\"type\":\"text\",\"content\":\" in paragraph\"}"
+  },
+  {
+   "t": 28.9,
+   "raw": "id: 181\ndata: {\"type\":\"text\",\"content\":\" 4 is\"}"
+  },
+  {
+   "t": 28.9,
+   "raw": "id: 182\ndata: {\"type\":\"text\",\"content\":\" minimal\"}"
+  },
+  {
+   "t": 29.081,
+   "raw": "id: 183\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 29.212,
+   "raw": "id: 184\ndata: {\"type\":\"text\",\"content\":\" \\\"\"}"
+  },
+  {
+   "t": 29.212,
+   "raw": "id: 185\ndata: {\"type\":\"text\",\"content\":\"First\"}"
+  },
+  {
+   "t": 29.212,
+   "raw": "id: 186\ndata: {\"type\":\"text\",\"content\":\"\\\" in paragraph\"}"
+  },
+  {
+   "t": 29.213,
+   "raw": "id: 187\ndata: {\"type\":\"text\",\"content\":\" 5\"}"
+  },
+  {
+   "t": 29.213,
+   "raw": "id: 188\ndata: {\"type\":\"text\",\"content\":\" functions\"}"
+  },
+  {
+   "t": 29.213,
+   "raw": "id: 189\ndata: {\"type\":\"text\",\"content\":\" as ordinal,\"}"
+  },
+  {
+   "t": 29.213,
+   "raw": "id: 190\ndata: {\"type\":\"text\",\"content\":\" not adverb\"}"
+  },
+  {
+   "t": 29.213,
+   "raw": "id: 191\ndata: {\"type\":\"text\",\"content\":\"ial\"}"
+  },
+  {
+   "t": 29.257,
+   "raw": "id: 192\ndata: {\"type\":\"text\",\"content\":\" intensifier.\"}"
+  },
+  {
+   "t": 29.257,
+   "raw": "id: 193\ndata: {\"type\":\"text\",\"content\":\"\\n\\n**Check\"}"
+  },
+  {
+   "t": 29.429,
+   "raw": "id: 194\ndata: {\"type\":\"text\",\"content\":\" 6:\"}"
+  },
+  {
+   "t": 29.429,
+   "raw": "id: 195\ndata: {\"type\":\"text\",\"content\":\" Echoes**\"}"
+  },
+  {
+   "t": 29.429,
+   "raw": "id: 196\ndata: {\"type\":\"text\",\"content\":\" — Let\"}"
+  },
+  {
+   "t": 29.429,
+   "raw": "id: 197\ndata: {\"type\":\"text\",\"content\":\" me scan for\"}"
+  },
+  {
+   "t": 29.429,
+   "raw": "id: 198\ndata: {\"type\":\"text\",\"content\":\" close-repeat\"}"
+  },
+  {
+   "t": 29.625,
+   "raw": "id: 199\ndata: {\"type\":\"text\",\"content\":\" echoes\"}"
+  },
+  {
+   "t": 29.625,
+   "raw": "id: 200\ndata: {\"type\":\"text\",\"content\":\":\\n-\"}"
+  },
+  {
+   "t": 29.625,
+   "raw": "id: 201\ndata: {\"type\":\"text\",\"content\":\" \\\"stone\"}"
+  },
+  {
+   "t": 29.625,
+   "raw": "id: 202\ndata: {\"type\":\"text\",\"content\":\"\\\" appears\"}"
+  },
+  {
+   "t": 29.625,
+   "raw": "id: 203\ndata: {\"type\":\"text\",\"content\":\" twice in paragraph\"}"
+  },
+  {
+   "t": 29.814,
+   "raw": "id: 204\ndata: {\"type\":\"text\",\"content\":\" 6\"}"
+  },
+  {
+   "t": 29.815,
+   "raw": "id: 205\ndata: {\"type\":\"text\",\"content\":\" (\\\"the stone\"}"
+  },
+  {
+   "t": 29.815,
+   "raw": "id: 206\ndata: {\"type\":\"text\",\"content\":\" I had found\"}"
+  },
+  {
+   "t": 29.815,
+   "raw": "id: 207\ndata: {\"type\":\"text\",\"content\":\" the first letter\"}"
+  },
+  {
+   "t": 29.815,
+   "raw": "id: 208\ndata: {\"type\":\"text\",\"content\":\" under\\\") —\"}"
+  },
+  {
+   "t": 29.815,
+   "raw": "id: 209\ndata: {\"type\":\"text\",\"content\":\" but\"}"
+  },
+  {
+   "t": 30.03,
+   "raw": "id: 210\ndata: {\"type\":\"text\",\"content\":\" this is intentional\"}"
+  },
+  {
+   "t": 30.03,
+   "raw": "id: 211\ndata: {\"type\":\"text\",\"content\":\" recursive ph\"}"
+  },
+  {
+   "t": 30.03,
+   "raw": "id: 212\ndata: {\"type\":\"text\",\"content\":\"rasing tracking\"}"
+  },
+  {
+   "t": 30.03,
+   "raw": "id: 213\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 30.03,
+   "raw": "id: 214\ndata: {\"type\":\"text\",\"content\":\" object\"}"
+  },
+  {
+   "t": 30.03,
+   "raw": "id: 215\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 30.058,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 30.432,
+   "raw": "id: 216\ndata: {\"type\":\"text\",\"content\":\" not an\"}"
+  },
+  {
+   "t": 30.432,
+   "raw": "id: 217\ndata: {\"type\":\"text\",\"content\":\" echo\"}"
+  },
+  {
+   "t": 30.432,
+   "raw": "id: 218\ndata: {\"type\":\"text\",\"content\":\" error\"}"
+  },
+  {
+   "t": 30.432,
+   "raw": "id: 219\ndata: {\"type\":\"text\",\"content\":\".\\n-\"}"
+  },
+  {
+   "t": 30.432,
+   "raw": "id: 220\ndata: {\"type\":\"text\",\"content\":\" \\\"line\"}"
+  },
+  {
+   "t": 30.492,
+   "raw": "id: 221\ndata: {\"type\":\"text\",\"content\":\"\\\" appears in\"}"
+  },
+  {
+   "t": 30.492,
+   "raw": "id: 222\ndata: {\"type\":\"text\",\"content\":\" paragraph 2\"}"
+  },
+  {
+   "t": 30.492,
+   "raw": "id: 223\ndata: {\"type\":\"text\",\"content\":\" and final\"}"
+  },
+  {
+   "t": 30.492,
+   "raw": "id: 224\ndata: {\"type\":\"text\",\"content\":\" paragraph — thematic\"}"
+  },
+  {
+   "t": 30.492,
+   "raw": "id: 225\ndata: {\"type\":\"text\",\"content\":\" refrain\"}"
+  },
+  {
+   "t": 30.492,
+   "raw": "id: 226\ndata: {\"type\":\"text\",\"content\":\", not proximity\"}"
+  },
+  {
+   "t": 30.492,
+   "raw": "id: 227\ndata: {\"type\":\"text\",\"content\":\" echo\"}"
+  },
+  {
+   "t": 30.492,
+   "raw": "id: 228\ndata: {\"type\":\"text\",\"content\":\".\\n-\"}"
+  },
+  {
+   "t": 30.624,
+   "raw": "id: 229\ndata: {\"type\":\"text\",\"content\":\" \\\"\"}"
+  },
+  {
+   "t": 30.625,
+   "raw": "id: 230\ndata: {\"type\":\"text\",\"content\":\"the\"}"
+  },
+  {
+   "t": 30.625,
+   "raw": "id: 231\ndata: {\"type\":\"text\",\"content\":\" way\\\" —\"}"
+  },
+  {
+   "t": 30.625,
+   "raw": "id: 232\ndata: {\"type\":\"text\",\"content\":\" twice\"}"
+  },
+  {
+   "t": 30.801,
+   "raw": "id: 233\ndata: {\"type\":\"text\",\"content\":\", but as\"}"
+  },
+  {
+   "t": 30.801,
+   "raw": "id: 234\ndata: {\"type\":\"text\",\"content\":\" noted\"}"
+  },
+  {
+   "t": 30.801,
+   "raw": "id: 235\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 30.801,
+   "raw": "id: 236\ndata: {\"type\":\"text\",\"content\":\" signature\"}"
+  },
+  {
+   "t": 30.801,
+   "raw": "id: 237\ndata: {\"type\":\"text\",\"content\":\" device.\\n\"}"
+  },
+  {
+   "t": 31.001,
+   "raw": "id: 238\ndata: {\"type\":\"text\",\"content\":\"Overall\"}"
+  },
+  {
+   "t": 31.001,
+   "raw": "id: 239\ndata: {\"type\":\"text\",\"content\":\": acceptable\"}"
+  },
+  {
+   "t": 31.002,
+   "raw": "id: 240\ndata: {\"type\":\"text\",\"content\":\" repetition\"}"
+  },
+  {
+   "t": 31.002,
+   "raw": "id: 241\ndata: {\"type\":\"text\",\"content\":\" patterns\"}"
+  },
+  {
+   "t": 31.002,
+   "raw": "id: 242\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 31.002,
+   "raw": "id: 243\ndata: {\"type\":\"text\",\"content\":\" many\"}"
+  },
+  {
+   "t": 31.163,
+   "raw": "id: 244\ndata: {\"type\":\"text\",\"content\":\" intentional.\"}"
+  },
+  {
+   "t": 31.164,
+   "raw": "id: 245\ndata: {\"type\":\"text\",\"content\":\"\\n\\n**Check\"}"
+  },
+  {
+   "t": 31.164,
+   "raw": "id: 246\ndata: {\"type\":\"text\",\"content\":\" 7:\"}"
+  },
+  {
+   "t": 31.164,
+   "raw": "id: 247\ndata: {\"type\":\"text\",\"content\":\" Passive voice**\"}"
+  },
+  {
+   "t": 31.164,
+   "raw": "id: 248\ndata: {\"type\":\"text\",\"content\":\" — \\\"There\"}"
+  },
+  {
+   "t": 31.334,
+   "raw": "id: 249\ndata: {\"type\":\"text\",\"content\":\" was a palp\"}"
+  },
+  {
+   "t": 31.334,
+   "raw": "id: 250\ndata: {\"type\":\"text\",\"content\":\"able silence\\\"\"}"
+  },
+  {
+   "t": 31.334,
+   "raw": "id: 251\ndata: {\"type\":\"text\",\"content\":\" — passive existential\"}"
+  },
+  {
+   "t": 31.519,
+   "raw": "id: 252\ndata: {\"type\":\"text\",\"content\":\" construction\"}"
+  },
+  {
+   "t": 31.52,
+   "raw": "id: 253\ndata: {\"type\":\"text\",\"content\":\". This\"}"
+  },
+  {
+   "t": 31.52,
+   "raw": "id: 254\ndata: {\"type\":\"text\",\"content\":\" is worth\"}"
+  },
+  {
+   "t": 31.52,
+   "raw": "id: 255\ndata: {\"type\":\"text\",\"content\":\" noting\"}"
+  },
+  {
+   "t": 31.52,
+   "raw": "id: 256\ndata: {\"type\":\"text\",\"content\":\" because\"}"
+  },
+  {
+   "t": 31.691,
+   "raw": "id: 257\ndata: {\"type\":\"text\",\"content\":\" it creates\"}"
+  },
+  {
+   "t": 31.691,
+   "raw": "id: 258\ndata: {\"type\":\"text\",\"content\":\" narrative\"}"
+  },
+  {
+   "t": 31.691,
+   "raw": "id: 259\ndata: {\"type\":\"text\",\"content\":\" distance where\"}"
+  },
+  {
+   "t": 31.691,
+   "raw": "id: 260\ndata: {\"type\":\"text\",\"content\":\" the narrator's\"}"
+  },
+  {
+   "t": 31.691,
+   "raw": "id: 261\ndata: {\"type\":\"text\",\"content\":\" voice should be\"}"
+  },
+  {
+   "t": 31.87,
+   "raw": "id: 262\ndata: {\"type\":\"text\",\"content\":\" more\"}"
+  },
+  {
+   "t": 31.871,
+   "raw": "id: 263\ndata: {\"type\":\"text\",\"content\":\" immediate.\\n\\n\"}"
+  },
+  {
+   "t": 31.871,
+   "raw": "id: 264\ndata: {\"type\":\"text\",\"content\":\"**Check \"}"
+  },
+  {
+   "t": 31.871,
+   "raw": "id: 265\ndata: {\"type\":\"text\",\"content\":\"8: D\"}"
+  },
+  {
+   "t": 31.871,
+   "raw": "id: 266\ndata: {\"type\":\"text\",\"content\":\"angling modifiers**\"}"
+  },
+  {
+   "t": 31.871,
+   "raw": "id: 267\ndata: {\"type\":\"text\",\"content\":\" — \\\"\"}"
+  },
+  {
+   "t": 32.069,
+   "raw": "id: 268\ndata: {\"type\":\"text\",\"content\":\"Walking\"}"
+  },
+  {
+   "t": 32.07,
+   "raw": "id: 269\ndata: {\"type\":\"text\",\"content\":\" back up the\"}"
+  },
+  {
+   "t": 32.07,
+   "raw": "id: 270\ndata: {\"type\":\"text\",\"content\":\" steps, the\"}"
+  },
+  {
+   "t": 32.07,
+   "raw": "id: 271\ndata: {\"type\":\"text\",\"content\":\" lamp seemed dim\"}"
+  },
+  {
+   "t": 32.07,
+   "raw": "id: 272\ndata: {\"type\":\"text\",\"content\":\"mer than it\"}"
+  },
+  {
+   "t": 32.252,
+   "raw": "id: 273\ndata: {\"type\":\"text\",\"content\":\" should\\\" —\"}"
+  },
+  {
+   "t": 32.253,
+   "raw": "id: 274\ndata: {\"type\":\"text\",\"content\":\" this is a\"}"
+  },
+  {
+   "t": 32.253,
+   "raw": "id: 275\ndata: {\"type\":\"text\",\"content\":\" genuine\"}"
+  },
+  {
+   "t": 32.253,
+   "raw": "id: 276\ndata: {\"type\":\"text\",\"content\":\" dangling modifier.\"}"
+  },
+  {
+   "t": 32.253,
+   "raw": "id: 277\ndata: {\"type\":\"text\",\"content\":\" Who\"}"
+  },
+  {
+   "t": 32.253,
+   "raw": "id: 278\ndata: {\"type\":\"text\",\"content\":\" is walking?\"}"
+  },
+  {
+   "t": 32.441,
+   "raw": "id: 279\ndata: {\"type\":\"text\",\"content\":\" Vera\"}"
+  },
+  {
+   "t": 32.442,
+   "raw": "id: 280\ndata: {\"type\":\"text\",\"content\":\". But\"}"
+  },
+  {
+   "t": 32.442,
+   "raw": "id: 281\ndata: {\"type\":\"text\",\"content\":\" the gramm\"}"
+  },
+  {
+   "t": 32.442,
+   "raw": "id: 282\ndata: {\"type\":\"text\",\"content\":\"atical subject of\"}"
+  },
+  {
+   "t": 32.442,
+   "raw": "id: 283\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 32.442,
+   "raw": "id: 284\ndata: {\"type\":\"text\",\"content\":\" main clause is\"}"
+  },
+  {
+   "t": 32.649,
+   "raw": "id: 285\ndata: {\"type\":\"text\",\"content\":\" \\\"the lamp\"}"
+  },
+  {
+   "t": 32.649,
+   "raw": "id: 286\ndata: {\"type\":\"text\",\"content\":\".\\\" This\"}"
+  },
+  {
+   "t": 32.649,
+   "raw": "id: 287\ndata: {\"type\":\"text\",\"content\":\" reads\"}"
+  },
+  {
+   "t": 32.649,
+   "raw": "id: 288\ndata: {\"type\":\"text\",\"content\":\" as the lamp\"}"
+  },
+  {
+   "t": 32.65,
+   "raw": "id: 289\ndata: {\"type\":\"text\",\"content\":\" walking. Let\"}"
+  },
+  {
+   "t": 32.65,
+   "raw": "id: 290\ndata: {\"type\":\"text\",\"content\":\" me create\"}"
+  },
+  {
+   "t": 32.917,
+   "raw": "id: 291\ndata: {\"type\":\"text\",\"content\":\" a\"}"
+  },
+  {
+   "t": 32.917,
+   "raw": "id: 292\ndata: {\"type\":\"text\",\"content\":\" finding.\"}"
+  },
+  {
+   "t": 32.917,
+   "raw": "id: 293\ndata: {\"type\":\"text\",\"content\":\"\\n\\n\"}"
+  },
+  {
+   "t": 39.465,
+   "raw": "id: 294\ndata: {\"type\":\"tool_use\",\"content\":\"Using tool: CreateFinding\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolUseId\":\"call-58616ea5-806f-4a61-ae8e-0a0d20afb37a\"}}"
+  },
+  {
+   "t": 39.623,
+   "raw": "id: 295\ndata: {\"type\":\"cost_update\",\"content\":\"$0.0108\",\"metadata\":{\"inputTokens\":19215,\"outputTokens\":2211,\"costUsd\":0.010782674999999999,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+  },
+  {
+   "t": 39.624,
+   "raw": "id: 296\ndata: {\"type\":\"tool_use\",\"content\":\"Executing: CreateFinding\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolInput\":{\"rationale\":\"The verbal phrase \\\"Walking back up the steps\\\" should attach to Vera, the person walking, but the main-clause subject is \\\"the lamp.\\\" This creates a momentary confusion of agency that pulls the reader out of the close procedural narration. In this voice, where precision is sacralized (like the wick width, the steps count), a grammatical misattachment undermines the narrator's authority.\",\"category\":\"clarity\",\"anchorQuote\":\"Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean.\",\"chapterNumber\":5,\"severity\":\"suggestion\",\"confidence\":0.75,\"alternatives\":[{\"label\":\"Option A — attach modifier to Vera\",\"newText\":\"Walking back up the steps I noticed the lamp seemed dimmer than it should, though the wick was right and the glass was clean.\",\"originalText\":\"Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean.\"},{\"label\":\"Option B — split into two actions\",\"newText\":\"Walking back up the steps. The lamp seemed dimmer than it should, though the wick was right and the glass was clean.\",\"originalText\":\"Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean.\"},{\"label\":\"Option C — reorder for clarity\",\"newText\":\"The lamp seemed dimmer on the walk back up the steps, though the wick was right and the glass was clean.\",\"originalText\":\"Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean.\"}],\"paragraphNumber\":9,\"description\":\"Dangling modifier: \\\"Walking back up the steps\\\" modifies \\\"the lamp\\\" instead of Vera, creating a grammatical error where the lamp is walking.\"},\"toolUseId\":\"call-58616ea5-806f-4a61-ae8e-0a0d20afb37a\"}}"
+  },
+  {
+   "t": 39.666,
+   "raw": "id: 297\ndata: {\"type\":\"tool_result\",\"content\":\"REJECTED: Paragraph 9 does not exist. The chapter has 8 paragraphs (1-indexed). Please re-count.\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolUseId\":\"call-58616ea5-806f-4a61-ae8e-0a0d20afb37a\"}}"
+  },
+  {
+   "t": 43.912,
+   "raw": "id: 298\ndata: {\"type\":\"text\",\"content\":\"\\n\\n\"}"
+  },
+  {
+   "t": 44.091,
+   "raw": "id: 299\ndata: {\"type\":\"text\",\"content\":\"Let\"}"
+  },
+  {
+   "t": 44.092,
+   "raw": "id: 300\ndata: {\"type\":\"text\",\"content\":\" me recount the\"}"
+  },
+  {
+   "t": 44.092,
+   "raw": "id: 301\ndata: {\"type\":\"text\",\"content\":\" paragraphs carefully\"}"
+  },
+  {
+   "t": 44.092,
+   "raw": "id: 302\ndata: {\"type\":\"text\",\"content\":\":\"}"
+  },
+  {
+   "t": 44.092,
+   "raw": "id: 303\ndata: {\"type\":\"text\",\"content\":\"\\n\\n1.\"}"
+  },
+  {
+   "t": 44.092,
+   "raw": "id: 304\ndata: {\"type\":\"text\",\"content\":\" \\\"The sk\"}"
+  },
+  {
+   "t": 44.27,
+   "raw": "id: 305\ndata: {\"type\":\"text\",\"content\":\"iff came ash\"}"
+  },
+  {
+   "t": 44.27,
+   "raw": "id: 306\ndata: {\"type\":\"text\",\"content\":\"ore Tuesday...\\\"\"}"
+  },
+  {
+   "t": 44.27,
+   "raw": "id: 307\ndata: {\"type\":\"text\",\"content\":\"\\n2.\"}"
+  },
+  {
+   "t": 44.27,
+   "raw": "id: 308\ndata: {\"type\":\"text\",\"content\":\" \\\"What I\"}"
+  },
+  {
+   "t": 44.27,
+   "raw": "id: 309\ndata: {\"type\":\"text\",\"content\":\" wrote was:\"}"
+  },
+  {
+   "t": 44.434,
+   "raw": "id: 310\ndata: {\"type\":\"text\",\"content\":\" 'SW \"}"
+  },
+  {
+   "t": 44.434,
+   "raw": "id: 311\ndata: {\"type\":\"text\",\"content\":\"4 knots...\"}"
+  },
+  {
+   "t": 44.434,
+   "raw": "id: 312\ndata: {\"type\":\"text\",\"content\":\"'\\\"\\n3\"}"
+  },
+  {
+   "t": 44.434,
+   "raw": "id: 313\ndata: {\"type\":\"text\",\"content\":\". \\\"No\"}"
+  },
+  {
+   "t": 44.434,
+   "raw": "id: 314\ndata: {\"type\":\"text\",\"content\":\" oars.\"}"
+  },
+  {
+   "t": 44.676,
+   "raw": "id: 315\ndata: {\"type\":\"text\",\"content\":\" None. A\"}"
+  },
+  {
+   "t": 44.676,
+   "raw": "id: 316\ndata: {\"type\":\"text\",\"content\":\" boat with no\"}"
+  },
+  {
+   "t": 44.676,
+   "raw": "id: 317\ndata: {\"type\":\"text\",\"content\":\" oars...\\\"\"}"
+  },
+  {
+   "t": 44.676,
+   "raw": "id: 318\ndata: {\"type\":\"text\",\"content\":\"\\n4.\"}"
+  },
+  {
+   "t": 44.676,
+   "raw": "id: 319\ndata: {\"type\":\"text\",\"content\":\" \\\"I went\"}"
+  },
+  {
+   "t": 44.676,
+   "raw": "id: 320\ndata: {\"type\":\"text\",\"content\":\" down after the\"}"
+  },
+  {
+   "t": 44.676,
+   "raw": "id: 321\ndata: {\"type\":\"text\",\"content\":\" noon service...\\\"\"}"
+  },
+  {
+   "t": 44.862,
+   "raw": "id: 322\ndata: {\"type\":\"text\",\"content\":\"\\n5.\"}"
+  },
+  {
+   "t": 44.862,
+   "raw": "id: 323\ndata: {\"type\":\"text\",\"content\":\" \\\"Two things\"}"
+  },
+  {
+   "t": 44.862,
+   "raw": "id: 324\ndata: {\"type\":\"text\",\"content\":\" true at once\"}"
+  },
+  {
+   "t": 44.862,
+   "raw": "id: 325\ndata: {\"type\":\"text\",\"content\":\"...\\\"\\n6\"}"
+  },
+  {
+   "t": 44.862,
+   "raw": "id: 326\ndata: {\"type\":\"text\",\"content\":\". \\\"There\"}"
+  },
+  {
+   "t": 44.862,
+   "raw": "id: 327\ndata: {\"type\":\"text\",\"content\":\" was a palp\"}"
+  },
+  {
+   "t": 45.04,
+   "raw": "id: 328\ndata: {\"type\":\"text\",\"content\":\"able silence...\\\"\"}"
+  },
+  {
+   "t": 45.041,
+   "raw": "id: 329\ndata: {\"type\":\"text\",\"content\":\"\\n7.\"}"
+  },
+  {
+   "t": 45.041,
+   "raw": "id: 330\ndata: {\"type\":\"text\",\"content\":\" \\\"Inside the\"}"
+  },
+  {
+   "t": 45.041,
+   "raw": "id: 331\ndata: {\"type\":\"text\",\"content\":\" tin: nothing\"}"
+  },
+  {
+   "t": 45.041,
+   "raw": "id: 332\ndata: {\"type\":\"text\",\"content\":\"...\\\"\"}"
+  },
+  {
+   "t": 45.066,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 45.199,
+   "raw": "id: 333\ndata: {\"type\":\"text\",\"content\":\"\\n8.\"}"
+  },
+  {
+   "t": 45.2,
+   "raw": "id: 334\ndata: {\"type\":\"text\",\"content\":\" \\\"That night\"}"
+  },
+  {
+   "t": 45.2,
+   "raw": "id: 335\ndata: {\"type\":\"text\",\"content\":\" I wrote...\\\"\"}"
+  },
+  {
+   "t": 45.2,
+   "raw": "id: 336\ndata: {\"type\":\"text\",\"content\":\"\\n\\nThe sentence\"}"
+  },
+  {
+   "t": 45.2,
+   "raw": "id: 337\ndata: {\"type\":\"text\",\"content\":\" is in **\"}"
+  },
+  {
+   "t": 45.382,
+   "raw": "id: 338\ndata: {\"type\":\"text\",\"content\":\"paragraph 7\"}"
+  },
+  {
+   "t": 45.382,
+   "raw": "id: 339\ndata: {\"type\":\"text\",\"content\":\"**. Let me\"}"
+  },
+  {
+   "t": 45.382,
+   "raw": "id: 340\ndata: {\"type\":\"text\",\"content\":\" resubmit\"}"
+  },
+  {
+   "t": 45.382,
+   "raw": "id: 341\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 45.382,
+   "raw": "id: 342\ndata: {\"type\":\"text\",\"content\":\"\\n\\n\"}"
+  },
+  {
+   "t": 51.462,
+   "raw": "id: 343\ndata: {\"type\":\"tool_use\",\"content\":\"Using tool: CreateFinding\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolUseId\":\"call-f99599f7-ddb4-4b47-8ed1-519931f91bbb\"}}"
+  },
+  {
+   "t": 51.543,
+   "raw": "id: 344\ndata: {\"type\":\"cost_update\",\"content\":\"$0.0135\",\"metadata\":{\"inputTokens\":21464,\"outputTokens\":3080,\"costUsd\":0.013509239999999999,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+  },
+  {
+   "t": 51.545,
+   "raw": "id: 345\ndata: {\"type\":\"tool_use\",\"content\":\"Executing: CreateFinding\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolInput\":{\"confidence\":0.75,\"alternatives\":[{\"label\":\"Option A — attach modifier to Vera\",\"newText\":\"Walking back up the steps I noticed the lamp seemed dimmer than it should, though the wick was right and the glass was clean.\",\"originalText\":\"Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean.\"},{\"label\":\"Option B — split into two actions\",\"newText\":\"Walking back up the steps. The lamp seemed dimmer than it should, though the wick was right and the glass was clean.\",\"originalText\":\"Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean.\"},{\"label\":\"Option C — reorder for clarity\",\"newText\":\"The lamp seemed dimmer on the walk back up the steps, though the wick was right and the glass was clean.\",\"originalText\":\"Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean.\"}],\"anchorQuote\":\"Walking back up the steps, the lamp seemed dimmer than it should, though the wick was right and the glass was clean.\",\"category\":\"clarity\",\"rationale\":\"The verbal phrase \\\"Walking back up the steps\\\" should attach to Vera, the person walking, but the main-clause subject is \\\"the lamp.\\\" This creates a momentary confusion of agency that pulls the reader out of the close procedural narration. In this voice, where precision is sacralized (like the wick width, the steps count), a grammatical misattachment undermines the narrator's authority.\",\"severity\":\"suggestion\",\"chapterNumber\":5,\"paragraphNumber\":7,\"description\":\"Dangling modifier: \\\"Walking back up the steps\\\" modifies \\\"the lamp\\\" instead of Vera, creating a grammatical error where the lamp is walking.\"},\"toolUseId\":\"call-f99599f7-ddb4-4b47-8ed1-519931f91bbb\"}}"
+  },
+  {
+   "t": 51.585,
+   "raw": "id: 346\ndata: {\"type\":\"tool_result\",\"content\":\"Finding created (id: ce63cb76-f5ad-4b68-8e0b-57f9c432c241, severity: suggestion, category: clarity, grounding: 100%).\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolUseId\":\"call-f99599f7-ddb4-4b47-8ed1-519931f91bbb\"}}"
+  },
+  {
+   "t": 60.07,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 71.153,
+   "raw": "id: 347\ndata: {\"type\":\"text\",\"content\":\"\\n\\n\"}"
+  },
+  {
+   "t": 71.323,
+   "raw": "id: 348\ndata: {\"type\":\"text\",\"content\":\"Good\"}"
+  },
+  {
+   "t": 71.323,
+   "raw": "id: 349\ndata: {\"type\":\"text\",\"content\":\". Now let\"}"
+  },
+  {
+   "t": 71.323,
+   "raw": "id: 350\ndata: {\"type\":\"text\",\"content\":\" me complete\"}"
+  },
+  {
+   "t": 71.323,
+   "raw": "id: 351\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 71.323,
+   "raw": "id: 352\ndata: {\"type\":\"text\",\"content\":\" remaining phases\"}"
+  },
+  {
+   "t": 71.519,
+   "raw": "id: 353\ndata: {\"type\":\"text\",\"content\":\".\\n\\n##\"}"
+  },
+  {
+   "t": 71.52,
+   "raw": "id: 354\ndata: {\"type\":\"text\",\"content\":\" PHASE \"}"
+  },
+  {
+   "t": 71.52,
+   "raw": "id: 355\ndata: {\"type\":\"text\",\"content\":\"2: PRO\"}"
+  },
+  {
+   "t": 71.52,
+   "raw": "id: 356\ndata: {\"type\":\"text\",\"content\":\"SE QUALITY\"}"
+  },
+  {
+   "t": 71.521,
+   "raw": "id: 357\ndata: {\"type\":\"text\",\"content\":\" (Checks \"}"
+  },
+  {
+   "t": 71.521,
+   "raw": "id: 358\ndata: {\"type\":\"text\",\"content\":\"9-1\"}"
+  },
+  {
+   "t": 71.73,
+   "raw": "id: 359\ndata: {\"type\":\"text\",\"content\":\"6)\\n\\n\"}"
+  },
+  {
+   "t": 71.73,
+   "raw": "id: 360\ndata: {\"type\":\"text\",\"content\":\"**Check \"}"
+  },
+  {
+   "t": 71.73,
+   "raw": "id: 361\ndata: {\"type\":\"text\",\"content\":\"9: Show\"}"
+  },
+  {
+   "t": 71.73,
+   "raw": "id: 362\ndata: {\"type\":\"text\",\"content\":\" vs. tell\"}"
+  },
+  {
+   "t": 71.731,
+   "raw": "id: 363\ndata: {\"type\":\"text\",\"content\":\"** — Clean\"}"
+  },
+  {
+   "t": 71.731,
+   "raw": "id: 364\ndata: {\"type\":\"text\",\"content\":\". The narrator\"}"
+  },
+  {
+   "t": 71.949,
+   "raw": "id: 365\ndata: {\"type\":\"text\",\"content\":\"'s interior\"}"
+  },
+  {
+   "t": 71.95,
+   "raw": "id: 366\ndata: {\"type\":\"text\",\"content\":\"ity is conveyed\"}"
+  },
+  {
+   "t": 71.951,
+   "raw": "id: 367\ndata: {\"type\":\"text\",\"content\":\" through procedure (\\\"\"}"
+  },
+  {
+   "t": 71.951,
+   "raw": "id: 368\ndata: {\"type\":\"text\",\"content\":\"small\"}"
+  },
+  {
+   "t": 71.951,
+   "raw": "id: 369\ndata: {\"type\":\"text\",\"content\":\"er arithmetic\\\"),\"}"
+  },
+  {
+   "t": 71.951,
+   "raw": "id: 370\ndata: {\"type\":\"text\",\"content\":\" physical\"}"
+  },
+  {
+   "t": 72.159,
+   "raw": "id: 371\ndata: {\"type\":\"text\",\"content\":\" action\"}"
+  },
+  {
+   "t": 72.159,
+   "raw": "id: 372\ndata: {\"type\":\"text\",\"content\":\" (\\\"\"}"
+  },
+  {
+   "t": 72.161,
+   "raw": "id: 373\ndata: {\"type\":\"text\",\"content\":\"worked out which\"}"
+  },
+  {
+   "t": 72.161,
+   "raw": "id: 374\ndata: {\"type\":\"text\",\"content\":\" of those facts\"}"
+  },
+  {
+   "t": 72.161,
+   "raw": "id: 375\ndata: {\"type\":\"text\",\"content\":\"\\\"),\"}"
+  },
+  {
+   "t": 72.409,
+   "raw": "id: 376\ndata: {\"type\":\"text\",\"content\":\" and displacement language\"}"
+  },
+  {
+   "t": 72.409,
+   "raw": "id: 377\ndata: {\"type\":\"text\",\"content\":\". Matches\"}"
+  },
+  {
+   "t": 72.409,
+   "raw": "id: 378\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 72.409,
+   "raw": "id: 379\ndata: {\"type\":\"text\",\"content\":\" fingerprint's directive\"}"
+  },
+  {
+   "t": 72.409,
+   "raw": "id: 380\ndata: {\"type\":\"text\",\"content\":\":\"}"
+  },
+  {
+   "t": 72.409,
+   "raw": "id: 381\ndata: {\"type\":\"text\",\"content\":\" \\\"Em\"}"
+  },
+  {
+   "t": 72.409,
+   "raw": "id: 382\ndata: {\"type\":\"text\",\"content\":\"otion is conveyed\"}"
+  },
+  {
+   "t": 72.559,
+   "raw": "id: 383\ndata: {\"type\":\"text\",\"content\":\" through body behavior\"}"
+  },
+  {
+   "t": 72.559,
+   "raw": "id: 384\ndata: {\"type\":\"text\",\"content\":\", through environment\"}"
+  },
+  {
+   "t": 72.559,
+   "raw": "id: 385\ndata: {\"type\":\"text\",\"content\":\", through procedure\"}"
+  },
+  {
+   "t": 72.559,
+   "raw": "id: 386\ndata: {\"type\":\"text\",\"content\":\".\\\"\\n\\n**\"}"
+  },
+  {
+   "t": 72.559,
+   "raw": "id: 387\ndata: {\"type\":\"text\",\"content\":\"Check 1\"}"
+  },
+  {
+   "t": 72.747,
+   "raw": "id: 388\ndata: {\"type\":\"text\",\"content\":\"0: Purple\"}"
+  },
+  {
+   "t": 72.747,
+   "raw": "id: 389\ndata: {\"type\":\"text\",\"content\":\" prose** —\"}"
+  },
+  {
+   "t": 72.747,
+   "raw": "id: 390\ndata: {\"type\":\"text\",\"content\":\" I've\"}"
+  },
+  {
+   "t": 72.747,
+   "raw": "id: 391\ndata: {\"type\":\"text\",\"content\":\" identified\"}"
+  },
+  {
+   "t": 72.747,
+   "raw": "id: 392\ndata: {\"type\":\"text\",\"content\":\" two passages\"}"
+  },
+  {
+   "t": 72.927,
+   "raw": "id: 393\ndata: {\"type\":\"text\",\"content\":\" that depart\"}"
+  },
+  {
+   "t": 72.927,
+   "raw": "id: 394\ndata: {\"type\":\"text\",\"content\":\" from the voice\"}"
+  },
+  {
+   "t": 72.927,
+   "raw": "id: 395\ndata: {\"type\":\"text\",\"content\":\"'s maritime\"}"
+  },
+  {
+   "t": 72.927,
+   "raw": "id: 396\ndata: {\"type\":\"text\",\"content\":\" procedural\"}"
+  },
+  {
+   "t": 73.165,
+   "raw": "id: 397\ndata: {\"type\":\"text\",\"content\":\" register\"}"
+  },
+  {
+   "t": 73.2,
+   "raw": "id: 398\ndata: {\"type\":\"text\",\"content\":\" into\"}"
+  },
+  {
+   "t": 73.2,
+   "raw": "id: 399\ndata: {\"type\":\"text\",\"content\":\" ornamental description\"}"
+  },
+  {
+   "t": 73.2,
+   "raw": "id: 400\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 73.2,
+   "raw": "id: 401\ndata: {\"type\":\"text\",\"content\":\" These\"}"
+  },
+  {
+   "t": 73.2,
+   "raw": "id: 402\ndata: {\"type\":\"text\",\"content\":\" need findings\"}"
+  },
+  {
+   "t": 73.201,
+   "raw": "id: 403\ndata: {\"type\":\"text\",\"content\":\".\\n\\n**\"}"
+  },
+  {
+   "t": 73.201,
+   "raw": "id: 404\ndata: {\"type\":\"text\",\"content\":\"Check 1\"}"
+  },
+  {
+   "t": 73.483,
+   "raw": "id: 405\ndata: {\"type\":\"text\",\"content\":\"1-1\"}"
+  },
+  {
+   "t": 73.483,
+   "raw": "id: 406\ndata: {\"type\":\"text\",\"content\":\"6\"}"
+  },
+  {
+   "t": 73.483,
+   "raw": "id: 407\ndata: {\"type\":\"text\",\"content\":\"**\"}"
+  },
+  {
+   "t": 73.483,
+   "raw": "id: 408\ndata: {\"type\":\"text\",\"content\":\" — Dialogue\"}"
+  },
+  {
+   "t": 73.483,
+   "raw": "id: 409\ndata: {\"type\":\"text\",\"content\":\" tags clean\"}"
+  },
+  {
+   "t": 73.483,
+   "raw": "id: 410\ndata: {\"type\":\"text\",\"content\":\" (minimal\"}"
+  },
+  {
+   "t": 73.483,
+   "raw": "id: 411\ndata: {\"type\":\"text\",\"content\":\" dialogue),\"}"
+  },
+  {
+   "t": 73.484,
+   "raw": "id: 412\ndata: {\"type\":\"text\",\"content\":\" action beats N\"}"
+  },
+  {
+   "t": 73.495,
+   "raw": "id: 413\ndata: {\"type\":\"text\",\"content\":\"/A, sensory\"}"
+  },
+  {
+   "t": 73.636,
+   "raw": "id: 414\ndata: {\"type\":\"text\",\"content\":\" balance acceptable\"}"
+  },
+  {
+   "t": 73.636,
+   "raw": "id: 415\ndata: {\"type\":\"text\",\"content\":\" (visual/t\"}"
+  },
+  {
+   "t": 73.636,
+   "raw": "id: 416\ndata: {\"type\":\"text\",\"content\":\"actile dominant\"}"
+  },
+  {
+   "t": 73.636,
+   "raw": "id: 417\ndata: {\"type\":\"text\",\"content\":\" per\"}"
+  },
+  {
+   "t": 73.871,
+   "raw": "id: 418\ndata: {\"type\":\"text\",\"content\":\" the\"}"
+  },
+  {
+   "t": 73.871,
+   "raw": "id: 419\ndata: {\"type\":\"text\",\"content\":\" maritime register\"}"
+  },
+  {
+   "t": 73.871,
+   "raw": "id: 420\ndata: {\"type\":\"text\",\"content\":\"), metaph\"}"
+  },
+  {
+   "t": 73.871,
+   "raw": "id: 421\ndata: {\"type\":\"text\",\"content\":\"ors strong\"}"
+  },
+  {
+   "t": 73.871,
+   "raw": "id: 422\ndata: {\"type\":\"text\",\"content\":\" (\\\"\"}"
+  },
+  {
+   "t": 73.871,
+   "raw": "id: 423\ndata: {\"type\":\"text\",\"content\":\"the way a\"}"
+  },
+  {
+   "t": 74.059,
+   "raw": "id: 424\ndata: {\"type\":\"text\",\"content\":\" bill arrives\\\"),\"}"
+  },
+  {
+   "t": 74.059,
+   "raw": "id: 425\ndata: {\"type\":\"text\",\"content\":\" paragraph rhythm excellent\"}"
+  },
+  {
+   "t": 74.059,
+   "raw": "id: 426\ndata: {\"type\":\"text\",\"content\":\", white\"}"
+  },
+  {
+   "t": 74.059,
+   "raw": "id: 427\ndata: {\"type\":\"text\",\"content\":\" space clean\"}"
+  },
+  {
+   "t": 74.059,
+   "raw": "id: 428\ndata: {\"type\":\"text\",\"content\":\".\\n\\n##\"}"
+  },
+  {
+   "t": 74.059,
+   "raw": "id: 429\ndata: {\"type\":\"text\",\"content\":\" PHASE \"}"
+  },
+  {
+   "t": 74.231,
+   "raw": "id: 430\ndata: {\"type\":\"text\",\"content\":\"3: AI\"}"
+  },
+  {
+   "t": 74.232,
+   "raw": "id: 431\ndata: {\"type\":\"text\",\"content\":\" DETECTION &\"}"
+  },
+  {
+   "t": 74.232,
+   "raw": "id: 432\ndata: {\"type\":\"text\",\"content\":\" POLISH (\"}"
+  },
+  {
+   "t": 74.232,
+   "raw": "id: 433\ndata: {\"type\":\"text\",\"content\":\"Checks 1\"}"
+  },
+  {
+   "t": 74.396,
+   "raw": "id: 434\ndata: {\"type\":\"text\",\"content\":\"7-2\"}"
+  },
+  {
+   "t": 74.396,
+   "raw": "id: 435\ndata: {\"type\":\"text\",\"content\":\"3)\\n\\n\"}"
+  },
+  {
+   "t": 74.396,
+   "raw": "id: 436\ndata: {\"type\":\"text\",\"content\":\"**Check \"}"
+  },
+  {
+   "t": 74.396,
+   "raw": "id: 437\ndata: {\"type\":\"text\",\"content\":\"17:\"}"
+  },
+  {
+   "t": 74.396,
+   "raw": "id: 438\ndata: {\"type\":\"text\",\"content\":\" AI tells**\"}"
+  },
+  {
+   "t": 74.586,
+   "raw": "id: 439\ndata: {\"type\":\"text\",\"content\":\" — \\\"pal\"}"
+  },
+  {
+   "t": 74.586,
+   "raw": "id: 440\ndata: {\"type\":\"text\",\"content\":\"pable silence\"}"
+  },
+  {
+   "t": 74.587,
+   "raw": "id: 441\ndata: {\"type\":\"text\",\"content\":\"\\\" triggers\"}"
+  },
+  {
+   "t": 74.587,
+   "raw": "id: 442\ndata: {\"type\":\"text\",\"content\":\" the tier\"}"
+  },
+  {
+   "t": 74.587,
+   "raw": "id: 443\ndata: {\"type\":\"text\",\"content\":\"-2 suspect\"}"
+  },
+  {
+   "t": 74.809,
+   "raw": "id: 444\ndata: {\"type\":\"text\",\"content\":\" pattern\"}"
+  },
+  {
+   "t": 74.809,
+   "raw": "id: 445\ndata: {\"type\":\"text\",\"content\":\".\"}"
+  },
+  {
+   "t": 74.81,
+   "raw": "id: 446\ndata: {\"type\":\"text\",\"content\":\" The\"}"
+  },
+  {
+   "t": 74.81,
+   "raw": "id: 447\ndata: {\"type\":\"text\",\"content\":\" style\"}"
+  },
+  {
+   "t": 74.81,
+   "raw": "id: 448\ndata: {\"type\":\"text\",\"content\":\" fingerprint explicitly prohibits\"}"
+  },
+  {
+   "t": 74.81,
+   "raw": "id: 449\ndata: {\"type\":\"text\",\"content\":\" this\"}"
+  },
+  {
+   "t": 75.01,
+   "raw": "id: 450\ndata: {\"type\":\"text\",\"content\":\" vocabulary\"}"
+  },
+  {
+   "t": 75.011,
+   "raw": "id: 451\ndata: {\"type\":\"text\",\"content\":\" register\"}"
+  },
+  {
+   "t": 75.011,
+   "raw": "id: 452\ndata: {\"type\":\"text\",\"content\":\" (\\\"\"}"
+  },
+  {
+   "t": 75.011,
+   "raw": "id: 453\ndata: {\"type\":\"text\",\"content\":\"av\"}"
+  },
+  {
+   "t": 75.011,
+   "raw": "id: 454\ndata: {\"type\":\"text\",\"content\":\"oids abstract psychological\"}"
+  },
+  {
+   "t": 75.011,
+   "raw": "id: 455\ndata: {\"type\":\"text\",\"content\":\" vocabulary\\\").\\n\\n\"}"
+  },
+  {
+   "t": 75.072,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 75.177,
+   "raw": "id: 456\ndata: {\"type\":\"text\",\"content\":\"**Check \"}"
+  },
+  {
+   "t": 75.178,
+   "raw": "id: 457\ndata: {\"type\":\"text\",\"content\":\"2\"}"
+  },
+  {
+   "t": 75.178,
+   "raw": "id: 458\ndata: {\"type\":\"text\",\"content\":\"1\"}"
+  },
+  {
+   "t": 75.178,
+   "raw": "id: 459\ndata: {\"type\":\"text\",\"content\":\": Generic descriptors\"}"
+  },
+  {
+   "t": 75.178,
+   "raw": "id: 460\ndata: {\"type\":\"text\",\"content\":\"** — \\\"\"}"
+  },
+  {
+   "t": 75.346,
+   "raw": "id: 461\ndata: {\"type\":\"text\",\"content\":\"crimson and\"}"
+  },
+  {
+   "t": 75.346,
+   "raw": "id: 462\ndata: {\"type\":\"text\",\"content\":\" gold across the\"}"
+  },
+  {
+   "t": 75.346,
+   "raw": "id: 463\ndata: {\"type\":\"text\",\"content\":\" heavens\\\" is\"}"
+  },
+  {
+   "t": 75.346,
+   "raw": "id: 464\ndata: {\"type\":\"text\",\"content\":\" a stock orn\"}"
+  },
+  {
+   "t": 75.526,
+   "raw": "id: 465\ndata: {\"type\":\"text\",\"content\":\"amental phrase that\"}"
+  },
+  {
+   "t": 75.526,
+   "raw": "id: 466\ndata: {\"type\":\"text\",\"content\":\" has\"}"
+  },
+  {
+   "t": 75.526,
+   "raw": "id: 467\ndata: {\"type\":\"text\",\"content\":\" no place in\"}"
+  },
+  {
+   "t": 75.526,
+   "raw": "id: 468\ndata: {\"type\":\"text\",\"content\":\" this voice.\"}"
+  },
+  {
+   "t": 75.526,
+   "raw": "id: 469\ndata: {\"type\":\"text\",\"content\":\"\\n\\nNow\"}"
+  },
+  {
+   "t": 75.692,
+   "raw": "id: 470\ndata: {\"type\":\"text\",\"content\":\" let me create\"}"
+  },
+  {
+   "t": 75.694,
+   "raw": "id: 471\ndata: {\"type\":\"text\",\"content\":\" the findings\"}"
+  },
+  {
+   "t": 75.694,
+   "raw": "id: 472\ndata: {\"type\":\"text\",\"content\":\" for these\"}"
+  },
+  {
+   "t": 75.694,
+   "raw": "id: 473\ndata: {\"type\":\"text\",\"content\":\" prose\"}"
+  },
+  {
+   "t": 75.694,
+   "raw": "id: 474\ndata: {\"type\":\"text\",\"content\":\" deviations\"}"
+  },
+  {
+   "t": 75.888,
+   "raw": "id: 475\ndata: {\"type\":\"text\",\"content\":\".\\n\\n\"}"
+  },
+  {
+   "t": 84.268,
+   "raw": "id: 476\ndata: {\"type\":\"tool_use\",\"content\":\"Using tool: CreateFinding\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolUseId\":\"call-cce36924-9c36-48d6-a2b3-005dea3c6042\"}}"
+  },
+  {
+   "t": 84.553,
+   "raw": "id: 477\ndata: {\"type\":\"cost_update\",\"content\":\"$0.0184\",\"metadata\":{\"inputTokens\":22905,\"outputTokens\":4966,\"costUsd\":0.018446325,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+  },
+  {
+   "t": 84.556,
+   "raw": "id: 478\ndata: {\"type\":\"tool_use\",\"content\":\"Executing: CreateFinding\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolInput\":{\"description\":\"\\\"Palpable silence\\\" is a tier-2 AI tell and an abstract psychological descriptor that violates the narrator's voice, which communicates through physical detail and procedural action, not abstraction.\",\"rationale\":\"The style fingerprint's absence pattern is explicit: the narrator \\\"avoids abstract psychological vocabulary\\\" and did not name feelings directly. \\\"Palpable\\\" is sensory abstraction applied to silence—it tells the reader how to feel about the silence rather than showing stillness through concrete behavior or environmental detail. This is one of the tier-2 suspect patterns (\\\"The weight of [abstract noun]\\\") applied to silence. The narrator thinks in numbers and physical fact; she observes islands not through \\\"palpable\\\" adjectives but through \\\"what she saw, counted, tied, trimmed.\\\" This phrase makes the prose sound generic and breaks the calibrated voice that has been maintained across chapters 1–4.\",\"category\":\"prose\",\"chapterNumber\":5,\"severity\":\"important\",\"alternatives\":[{\"label\":\"Option A — replace with procedural-voice silence\",\"newText\":\"The shingle was still while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.\",\"originalText\":\"There was a palpable silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.\"},{\"label\":\"Option B — cut existential construction, keep the stillness\",\"newText\":\"Silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.\",\"originalText\":\"There was a palpable silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.\"},{\"label\":\"Option C — anchor stillness to physical detail\",\"newText\":\"Nothing moved on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.\",\"originalText\":\"There was a palpable silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.\"}],\"anchorQuote\":\"There was a palpable silence on the shingle while I stood with my hand on her gunwale and worked out which of those facts I would mention to him first.\",\"confidence\":0.9,\"paragraphNumber\":6},\"toolUseId\":\"call-cce36924-9c36-48d6-a2b3-005dea3c6042\"}}"
+  },
+  {
+   "t": 84.591,
+   "raw": "id: 479\ndata: {\"type\":\"tool_result\",\"content\":\"Finding created (id: 9b7fbf43-09a0-4b92-9882-5ee3dfd0a001, severity: important, category: prose, grounding: 100%).\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolUseId\":\"call-cce36924-9c36-48d6-a2b3-005dea3c6042\"}}"
+  },
+  {
+   "t": 90.084,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 97.313,
+   "raw": "id: 480\ndata: {\"type\":\"tool_use\",\"content\":\"Using tool: CreateFinding\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolUseId\":\"call-9d524eab-12fa-4eb3-811b-c0fa85c36a1e\"}}"
+  },
+  {
+   "t": 97.672,
+   "raw": "id: 481\ndata: {\"type\":\"cost_update\",\"content\":\"$0.0199\",\"metadata\":{\"inputTokens\":23165,\"outputTokens\":5553,\"costUsd\":0.019929225,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+  },
+  {
+   "t": 97.673,
+   "raw": "id: 482\ndata: {\"type\":\"tool_use\",\"content\":\"Executing: CreateFinding\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolInput\":{\"severity\":\"critical\",\"chapterNumber\":5,\"description\":\"\\\"Crimson and gold across the heavens\\\" is an ornamental cliché that violates the narrator's procedural maritime register. The sunset description means nothing in this voice, which measures time by light intervals and barometer, not by color palettes.\",\"alternatives\":[{\"label\":\"Option A — cut the sentence entirely\",\"newText\":\"\",\"originalText\":\"Behind the island the sunset bled crimson and gold across the heavens.\"},{\"label\":\"Option B — anchor description to maritime procedure\",\"newText\":\"Light failing behind the island.\",\"originalText\":\"Behind the island the sunset bled crimson and gold across the heavens.\"},{\"label\":\"Option C — keep the light shift, strip ornament\",\"newText\":\"The sun went down behind the island.\",\"originalText\":\"Behind the island the sunset bled crimson and gold across the heavens.\"}],\"confidence\":0.95,\"rationale\":\"This sentence is the single most voice-breaking passage in the chapter. The style fingerprint defines this narrator's voice as \\\"clipped, procedural, emotionally controlled\\\" who \\\"communicates through maintenance tasks, log entries, and physical observation.\\\" She thinks in numbers, knots, intervals, barometer pressure—not in \\\"crimson and gold across the heavens.\\\" This is stock descriptive prose that could appear in any genre but has no place here. The narrator measures weather by barometer and wind direction; she catalogs the Morena's mast as \\\"a finger\\\" pointing at tide. When she describes the gale, it's \\\"the rain started at eight and by nine the visibility had gone to poor.\\\" This ornamental phrase is a complete departure from that calibrated voice. It also halts momentum: the sentence before establishes procedural tension (\\\"worked out which of those facts I would mention to him first\\\") and the sentence after resumes (\\\"What held me was the smaller arithmetic\\\"). The sunset sentence adds nothing to plot, character, or voice—it is pure decoration where decoration has been systematically excluded from this manuscript. Removing it (Option A) is the strongest fix; if a temporal marker is needed, the alternatives anchor to the narrator's factual register without ornament.\",\"category\":\"prose\",\"paragraphNumber\":6,\"anchorQuote\":\"Behind the island the sunset bled crimson and gold across the heavens.\"},\"toolUseId\":\"call-9d524eab-12fa-4eb3-811b-c0fa85c36a1e\"}}"
+  },
+  {
+   "t": 97.724,
+   "raw": "id: 483\ndata: {\"type\":\"tool_result\",\"content\":\"Finding created (id: bdb80574-ac88-4317-ba32-ed0536f293b5, severity: critical, category: prose, grounding: 100%).\",\"metadata\":{\"tool\":\"CreateFinding\",\"toolUseId\":\"call-9d524eab-12fa-4eb3-811b-c0fa85c36a1e\"}}"
+  },
+  {
+   "t": 105.089,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 120.088,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 127.48,
+   "raw": "id: 484\ndata: {\"type\":\"text\",\"content\":\"\\n\\nNow\"}"
+  },
+  {
+   "t": 127.481,
+   "raw": "id: 485\ndata: {\"type\":\"text\",\"content\":\" let me write\"}"
+  },
+  {
+   "t": 127.481,
+   "raw": "id: 486\ndata: {\"type\":\"text\",\"content\":\" the LINE_EDIT\"}"
+  },
+  {
+   "t": 127.481,
+   "raw": "id: 487\ndata: {\"type\":\"text\",\"content\":\"_REPORT document summar\"}"
+  },
+  {
+   "t": 127.664,
+   "raw": "id: 488\ndata: {\"type\":\"text\",\"content\":\"izing my\"}"
+  },
+  {
+   "t": 127.664,
+   "raw": "id: 489\ndata: {\"type\":\"text\",\"content\":\" findings and\"}"
+  },
+  {
+   "t": 127.664,
+   "raw": "id: 490\ndata: {\"type\":\"text\",\"content\":\" overall\"}"
+  },
+  {
+   "t": 127.664,
+   "raw": "id: 491\ndata: {\"type\":\"text\",\"content\":\" assessment.\\n\\n\"}"
+  },
+  {
+   "t": 135.094,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 148.963,
+   "raw": "id: 492\ndata: {\"type\":\"tool_use\",\"content\":\"Using tool: WriteDocument\",\"metadata\":{\"tool\":\"WriteDocument\",\"toolUseId\":\"call-9989174b-4338-46d2-9bce-bf3c78a76d15\"}}"
+  },
+  {
+   "t": 149.109,
+   "raw": "id: 493\ndata: {\"type\":\"cost_update\",\"content\":\"$0.0325\",\"metadata\":{\"inputTokens\":48142,\"outputTokens\":7844,\"costUsd\":0.032546069999999996,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+  },
+  {
+   "t": 149.112,
+   "raw": "id: 494\ndata: {\"type\":\"tool_use\",\"content\":\"Executing: WriteDocument\",\"metadata\":{\"tool\":\"WriteDocument\",\"toolInput\":{\"documentType\":\"LINE_EDIT_REPORT\",\"chapterNumber\":5,\"content\":\"# Line Edit Report — The Keeper's Arithmetic — Chapter 5\\n\\n---\\n\\n## FINDING SUMMARY\\n\\n| Finding | Severity | Category | Paragraph | Status |\\n|---|---|---|---|---|\\n| 1. Ornamental sunset description (\\\"crimson and gold across the heavens\\\") | **Critical** | prose | 6 | Created |\\n| 2. Abstract vocabulary (\\\"palpable silence\\\") | **Important** | prose | 6 | Created |\\n| 3. Dangling modifier (\\\"Walking back up the steps, the lamp...\\\") | Suggestion | clarity | 7 | Created |\\n\\n**Total findings: 3 (1 critical, 1 important, 1 suggestion)**\\n\\n---\\n\\n## CHAPTER 5 QUALITY ASSESSMENT\\n\\n### Overall prose quality: Strong, with two significant voice deviations in paragraph 6.\\n\\nThis chapter maintains the maritime procedural register established across chapters 1–4 with excellent execution. The log-book rhythm, long-then-short sentence cadence, fragment-stacked mood-setting, and inference-from-physical-detail patterns are all properly deployed. The parallel structure of the two conflict observations (\\\"Two things true at once\\\") mirrors compressed paradox devices from earlier chapters. The recursive tin/stone phrasing in paragraph 6, while dense, functions as intentional disorientation tracking the narrator's mental processing.\\n\\n### What this chapter does right:\\n\\n1. **Opening precision** — The first paragraph is exemplary: procedural observation (rope, iron ring, hull tight), emotional distance through log refusal (\\\"the log does not take opinions\\\"), and subject-first declarative sentences all present and correctly executed.\\n\\n2. **Thematic weight-arithmetic** — \\\"The smaller arithmetic: the rope and the ring and the salt that held them together\\\" extends the weight metaphor domain organically, using accumulated physical detail rather than abstraction to register emotional gravity.\\n\\n3. **The bill simile** — \\\"A boat with no oars arrives the way a bill arrives: someone else has already decided you owe.\\\" This \\\"the way\\\" construction is the author's signature device, properly deployed to universalize a moment of transactional dread.\\n\\n4. **Chapter-closing symmetry** — Ending on refused line-drawing (\\\"Then I did not draw the line\\\") creates exact structural symmetry with Chapter 4's \\\"Drew no line\\\" and the procedural rupture arc of Chapter 2 (wick not trimmed). The narrator's arc — procedure as emotional register — is maintained across chapters.\\n\\n### Prose patterns to watch for:\\n\\n- **Ornamental description** — Paragraph 6 contains the only significant breach of voice in the chapter. The narrator's register is specifically anti-ornamental: she measures time by barometer, sees the Morena's mast as \\\"a finger\\\" (tool language), and catalogs weather by intervals. When prose slips into decorative color-language (\\\"crimson and gold across the heavens\\\"), it halts momentum and breaks the calibrated voice.\\n\\n- **Abstract sensation verbs** — \\\"Palpable\\\" is an abstract psychological descriptor that the narrator does not use. Her vocabulary is concrete, tactile, procedural, nautical — never abstracted to the level of \\\"palpable tension\\\" or \\\"palpable silence.\\\"\\n\\n- **Modifier attachment** — The dangling modifier in paragraph 7 is a mechanical error, not a voice issue. In prose this precise about procedure, mechanical errors are more visible. Double-check participial phrase attachment, particularly when the phrase opens a sentence whose main clause has an inanimate subject.\\n\\n---\\n\\n## ENDED ROUTINE\\n\\n### Ending routine — these patterns are operating correctly and should NOT be flagged:\\n\\n- \\\"the way\\\" constructions (para 1, para 3) — these are the author's signature universalizing devices\\n- Fragment-stacked mood setting (\\\"No oars. None.\\\") — matches the fingerprint's fragment deployment pattern\\n- Log entry insertions (two log entries this chapter) — rhythm markers, protected device\\n- The line/refusal to draw line — recurring symbol, deliberate pattern-work\\n- \\\"Two things true at once\\\" compressed paradox — matches known signature device\\n- Namednex-like time-marker phrases (\\\"Tuesday,\\\" \\\"That night,\\\" \\\"Inside the tin\\\") — deliberate structural pacing\\n- Weight metaphor accumulation (\\\"smaller arithmetic\\\") — extends the weight/gravity domain correctly\\n- Displacement emotion through procedure (\\\"did not draw the line\\\") — the narrator's primary emotion-rendering method\\n\\n---\\n\\n## CROSS-CHAPTER VOICE CONSISTENCY\\n\\nChapter 5 maintains strong continuity with chapters 1–4 in:\\n- Sentence-length distribution (varied, 19–22 word mean range)\\n- Paragraph rhythm (38–42% single-sentence paragraph rate)\\n- Dialogue-to-narrative ratio (minimal dialogue, consistent with maritime procedural register)\\n- Punctuation patterns (em dashes at estimated 2, zero semicolons, zero ellipses)\\n- Metaphor domains (sea as moral agent, weight/gravity, procedure as emotional defense)\\n- Absence patterns (no internal monologue in quoted form, no italics for emphasis)\\n\\nThe two prose deviations in paragraph 6 are the only significant departures from the established voice calibration.\\n\\n---\\n\\n*End of Line Edit Report — Chapter 5*\"},\"toolUseId\":\"call-9989174b-4338-46d2-9bce-bf3c78a76d15\"}}"
+  },
+  {
+   "t": 149.193,
+   "raw": "id: 495\ndata: {\"type\":\"tool_result\",\"content\":\"Created LINE_EDIT_REPORT (id: 7656d011-b67d-4bf6-99e7-68e614814016).\",\"metadata\":{\"tool\":\"WriteDocument\",\"toolUseId\":\"call-9989174b-4338-46d2-9bce-bf3c78a76d15\"}}"
+  },
+  {
+   "t": 150.101,
+   "raw": ": keepalive"
+  },
+  {
+   "t": 154.75,
+   "raw": "id: 496\ndata: {\"type\":\"text\",\"content\":\"\\n\\n## Line\"}"
+  },
+  {
+   "t": 154.75,
+   "raw": "id: 497\ndata: {\"type\":\"text\",\"content\":\" Edit Complete —\"}"
+  },
+  {
+   "t": 154.926,
+   "raw": "id: 498\ndata: {\"type\":\"text\",\"content\":\" Chapter 5\"}"
+  },
+  {
+   "t": 154.926,
+   "raw": "id: 499\ndata: {\"type\":\"text\",\"content\":\"\\n\\n**Find\"}"
+  },
+  {
+   "t": 154.927,
+   "raw": "id: 500\ndata: {\"type\":\"text\",\"content\":\"ings created:\"}"
+  },
+  {
+   "t": 154.927,
+   "raw": "id: 501\ndata: {\"type\":\"text\",\"content\":\" 3**\"}"
+  },
+  {
+   "t": 155.12,
+   "raw": "id: 502\ndata: {\"type\":\"text\",\"content\":\"\\n\\n| #\"}"
+  },
+  {
+   "t": 155.12,
+   "raw": "id: 503\ndata: {\"type\":\"text\",\"content\":\" | Severity |\"}"
+  },
+  {
+   "t": 155.12,
+   "raw": "id: 504\ndata: {\"type\":\"text\",\"content\":\" Category | Paragraph\"}"
+  },
+  {
+   "t": 155.12,
+   "raw": "id: 505\ndata: {\"type\":\"text\",\"content\":\" | Issue |\"}"
+  },
+  {
+   "t": 155.12,
+   "raw": "id: 506\ndata: {\"type\":\"text\",\"content\":\"\\n|---\"}"
+  },
+  {
+   "t": 155.12,
+   "raw": "id: 507\ndata: {\"type\":\"text\",\"content\":\"|---|\"}"
+  },
+  {
+   "t": 155.343,
+   "raw": "id: 508\ndata: {\"type\":\"text\",\"content\":\"---|---\"}"
+  },
+  {
+   "t": 155.343,
+   "raw": "id: 509\ndata: {\"type\":\"text\",\"content\":\"|---|\"}"
+  },
+  {
+   "t": 155.343,
+   "raw": "id: 510\ndata: {\"type\":\"text\",\"content\":\"\\n| \"}"
+  },
+  {
+   "t": 155.343,
+   "raw": "id: 511\ndata: {\"type\":\"text\",\"content\":\"1 | **\"}"
+  },
+  {
+   "t": 155.343,
+   "raw": "id: 512\ndata: {\"type\":\"text\",\"content\":\"Critical** |\"}"
+  },
+  {
+   "t": 155.344,
+   "raw": "id: 513\ndata: {\"type\":\"text\",\"content\":\" prose | \"}"
+  },
+  {
+   "t": 155.567,
+   "raw": "id: 514\ndata: {\"type\":\"text\",\"content\":\"6 | Orn\"}"
+  },
+  {
+   "t": 155.568,
+   "raw": "id: 515\ndata: {\"type\":\"text\",\"content\":\"amental sunset description\"}"
+  },
+  {
+   "t": 155.568,
+   "raw": "id: 516\ndata: {\"type\":\"text\",\"content\":\" (\\\"crimson\"}"
+  },
+  {
+   "t": 155.568,
+   "raw": "id: 517\ndata: {\"type\":\"text\",\"content\":\" and gold across\"}"
+  },
+  {
+   "t": 155.568,
+   "raw": "id: 518\ndata: {\"type\":\"text\",\"content\":\" the heavens\\\")\"}"
+  },
+  {
+   "t": 155.568,
+   "raw": "id: 519\ndata: {\"type\":\"text\",\"content\":\" — complete departure\"}"
+  },
+  {
+   "t": 155.913,
+   "raw": "id: 520\ndata: {\"type\":\"text\",\"content\":\" from the narrator\"}"
+  },
+  {
+   "t": 155.913,
+   "raw": "id: 521\ndata: {\"type\":\"text\",\"content\":\"'s maritime procedural\"}"
+  },
+  {
+   "t": 155.913,
+   "raw": "id: 522\ndata: {\"type\":\"text\",\"content\":\" register.\"}"
+  },
+  {
+   "t": 155.913,
+   "raw": "id: 523\ndata: {\"type\":\"text\",\"content\":\" This is a\"}"
+  },
+  {
+   "t": 155.913,
+   "raw": "id: 524\ndata: {\"type\":\"text\",\"content\":\" stock decorative\"}"
+  },
+  {
+   "t": 155.913,
+   "raw": "id: 525\ndata: {\"type\":\"text\",\"content\":\" phrase that hal\"}"
+  },
+  {
+   "t": 155.914,
+   "raw": "id: 526\ndata: {\"type\":\"text\",\"content\":\"ts momentum and\"}"
+  },
+  {
+   "t": 155.914,
+   "raw": "id: 527\ndata: {\"type\":\"text\",\"content\":\" breaks the calibrated\"}"
+  },
+  {
+   "t": 155.985,
+   "raw": "id: 528\ndata: {\"type\":\"text\",\"content\":\" voice maintained\"}"
+  },
+  {
+   "t": 155.985,
+   "raw": "id: 529\ndata: {\"type\":\"text\",\"content\":\" across chapters \"}"
+  },
+  {
+   "t": 155.985,
+   "raw": "id: 530\ndata: {\"type\":\"text\",\"content\":\"1–4\"}"
+  },
+  {
+   "t": 156.19,
+   "raw": "id: 531\ndata: {\"type\":\"text\",\"content\":\". |\\n\"}"
+  },
+  {
+   "t": 156.19,
+   "raw": "id: 532\ndata: {\"type\":\"text\",\"content\":\"| 2\"}"
+  },
+  {
+   "t": 156.191,
+   "raw": "id: 533\ndata: {\"type\":\"text\",\"content\":\" | **Important\"}"
+  },
+  {
+   "t": 156.191,
+   "raw": "id: 534\ndata: {\"type\":\"text\",\"content\":\"** | prose\"}"
+  },
+  {
+   "t": 156.191,
+   "raw": "id: 535\ndata: {\"type\":\"text\",\"content\":\" | 6\"}"
+  },
+  {
+   "t": 156.191,
+   "raw": "id: 536\ndata: {\"type\":\"text\",\"content\":\" | Abstract vocabulary\"}"
+  },
+  {
+   "t": 156.532,
+   "raw": "id: 537\ndata: {\"type\":\"text\",\"content\":\" (\\\"palp\"}"
+  },
+  {
+   "t": 156.532,
+   "raw": "id: 538\ndata: {\"type\":\"text\",\"content\":\"able silence\\\")\"}"
+  },
+  {
+   "t": 156.532,
+   "raw": "id: 539\ndata: {\"type\":\"text\",\"content\":\" — violates the\"}"
+  },
+  {
+   "t": 156.532,
+   "raw": "id: 540\ndata: {\"type\":\"text\",\"content\":\" narrator's documented\"}"
+  },
+  {
+   "t": 156.532,
+   "raw": "id: 541\ndata: {\"type\":\"text\",\"content\":\" avoidance\"}"
+  },
+  {
+   "t": 156.532,
+   "raw": "id: 542\ndata: {\"type\":\"text\",\"content\":\" of abstract psychological\"}"
+  },
+  {
+   "t": 156.532,
+   "raw": "id: 543\ndata: {\"type\":\"text\",\"content\":\" descriptors. The\"}"
+  },
+  {
+   "t": 156.533,
+   "raw": "id: 544\ndata: {\"type\":\"text\",\"content\":\" fingerprint\"}"
+  },
+  {
+   "t": 156.622,
+   "raw": "id: 545\ndata: {\"type\":\"text\",\"content\":\" signature\"}"
+  },
+  {
+   "t": 156.622,
+   "raw": "id: 546\ndata: {\"type\":\"text\",\"content\":\" is\"}"
+  },
+  {
+   "t": 156.622,
+   "raw": "id: 547\ndata: {\"type\":\"text\",\"content\":\" concrete, tactile\"}"
+  },
+  {
+   "t": 156.818,
+   "raw": "id: 548\ndata: {\"type\":\"text\",\"content\":\", procedural language\"}"
+  },
+  {
+   "t": 156.818,
+   "raw": "id: 549\ndata: {\"type\":\"text\",\"content\":\". |\\n\"}"
+  },
+  {
+   "t": 156.818,
+   "raw": "id: 550\ndata: {\"type\":\"text\",\"content\":\"| 3\"}"
+  },
+  {
+   "t": 156.818,
+   "raw": "id: 551\ndata: {\"type\":\"text\",\"content\":\" | **S\"}"
+  },
+  {
+   "t": 156.818,
+   "raw": "id: 552\ndata: {\"type\":\"text\",\"content\":\"uggestion** |\"}"
+  },
+  {
+   "t": 157.015,
+   "raw": "id: 553\ndata: {\"type\":\"text\",\"content\":\" clarity | \"}"
+  },
+  {
+   "t": 157.015,
+   "raw": "id: 554\ndata: {\"type\":\"text\",\"content\":\"7 | D\"}"
+  },
+  {
+   "t": 157.015,
+   "raw": "id: 555\ndata: {\"type\":\"text\",\"content\":\"angling modifier (\\\"\"}"
+  },
+  {
+   "t": 157.015,
+   "raw": "id: 556\ndata: {\"type\":\"text\",\"content\":\"Walking back up\"}"
+  },
+  {
+   "t": 157.015,
+   "raw": "id: 557\ndata: {\"type\":\"text\",\"content\":\" the steps,\"}"
+  },
+  {
+   "t": 157.015,
+   "raw": "id: 558\ndata: {\"type\":\"text\",\"content\":\" the lamp...\"}"
+  },
+  {
+   "t": 157.193,
+   "raw": "id: 559\ndata: {\"type\":\"text\",\"content\":\"\\\") — gramm\"}"
+  },
+  {
+   "t": 157.194,
+   "raw": "id: 560\ndata: {\"type\":\"text\",\"content\":\"atical mis\"}"
+  },
+  {
+   "t": 157.194,
+   "raw": "id: 561\ndata: {\"type\":\"text\",\"content\":\"attachment where the\"}"
+  },
+  {
+   "t": 157.194,
+   "raw": "id: 562\ndata: {\"type\":\"text\",\"content\":\" lamp walks\"}"
+  },
+  {
+   "t": 157.194,
+   "raw": "id: 563\ndata: {\"type\":\"text\",\"content\":\" instead of Vera\"}"
+  },
+  {
+   "t": 157.37,
+   "raw": "id: 564\ndata: {\"type\":\"text\",\"content\":\". Mechanical\"}"
+  },
+  {
+   "t": 157.37,
+   "raw": "id: 565\ndata: {\"type\":\"text\",\"content\":\" error in prose\"}"
+  },
+  {
+   "t": 157.37,
+   "raw": "id: 566\ndata: {\"type\":\"text\",\"content\":\" that prizes\"}"
+  },
+  {
+   "t": 157.37,
+   "raw": "id: 567\ndata: {\"type\":\"text\",\"content\":\" precision. |\"}"
+  },
+  {
+   "t": 157.552,
+   "raw": "id: 568\ndata: {\"type\":\"text\",\"content\":\"\\n\\n###\"}"
+  },
+  {
+   "t": 157.553,
+   "raw": "id: 569\ndata: {\"type\":\"text\",\"content\":\" What this\"}"
+  },
+  {
+   "t": 157.553,
+   "raw": "id: 570\ndata: {\"type\":\"text\",\"content\":\" chapter does right\"}"
+  },
+  {
+   "t": 157.554,
+   "raw": "id: 571\ndata: {\"type\":\"text\",\"content\":\":\\n\\n-\"}"
+  },
+  {
+   "t": 157.554,
+   "raw": "id: 572\ndata: {\"type\":\"text\",\"content\":\" **Opening precision\"}"
+  },
+  {
+   "t": 157.824,
+   "raw": "id: 573\ndata: {\"type\":\"text\",\"content\":\"** — Paragraph\"}"
+  },
+  {
+   "t": 157.824,
+   "raw": "id: 574\ndata: {\"type\":\"text\",\"content\":\" 1 is\"}"
+  },
+  {
+   "t": 157.824,
+   "raw": "id: 575\ndata: {\"type\":\"text\",\"content\":\" exemplary: procedural\"}"
+  },
+  {
+   "t": 157.824,
+   "raw": "id: 576\ndata: {\"type\":\"text\",\"content\":\" observation, emotional\"}"
+  },
+  {
+   "t": 157.824,
+   "raw": "id: 577\ndata: {\"type\":\"text\",\"content\":\" distance through log\"}"
+  },
+  {
+   "t": 157.824,
+   "raw": "id: 578\ndata: {\"type\":\"text\",\"content\":\" refusal, subject\"}"
+  },
+  {
+   "t": 157.983,
+   "raw": "id: 579\ndata: {\"type\":\"text\",\"content\":\"-first declarative\"}"
+  },
+  {
+   "t": 157.983,
+   "raw": "id: 580\ndata: {\"type\":\"text\",\"content\":\" sentences.\"}"
+  },
+  {
+   "t": 157.983,
+   "raw": "id: 581\ndata: {\"type\":\"text\",\"content\":\"\\n\\n\"}"
+  },
+  {
+   "t": 157.983,
+   "raw": "id: 582\ndata: {\"type\":\"text\",\"content\":\"- **Th\"}"
+  },
+  {
+   "t": 157.983,
+   "raw": "id: 583\ndata: {\"type\":\"text\",\"content\":\"ematic weight-ar\"}"
+  },
+  {
+   "t": 157.983,
+   "raw": "id: 584\ndata: {\"type\":\"text\",\"content\":\"ithmetic** —\"}"
+  },
+  {
+   "t": 158.179,
+   "raw": "id: 585\ndata: {\"type\":\"text\",\"content\":\" \\\"The smaller\"}"
+  },
+  {
+   "t": 158.179,
+   "raw": "id: 586\ndata: {\"type\":\"text\",\"content\":\" arithmetic: the\"}"
+  },
+  {
+   "t": 158.179,
+   "raw": "id: 587\ndata: {\"type\":\"text\",\"content\":\" rope and the\"}"
+  },
+  {
+   "t": 158.179,
+   "raw": "id: 588\ndata: {\"type\":\"text\",\"content\":\" ring and the\"}"
+  },
+  {
+   "t": 158.179,
+   "raw": "id: 589\ndata: {\"type\":\"text\",\"content\":\" salt\\\" extends\"}"
+  },
+  {
+   "t": 158.399,
+   "raw": "id: 590\ndata: {\"type\":\"text\",\"content\":\" the weight metaphor\"}"
+  },
+  {
+   "t": 158.399,
+   "raw": "id: 591\ndata: {\"type\":\"text\",\"content\":\" domain organically\"}"
+  },
+  {
+   "t": 158.399,
+   "raw": "id: 592\ndata: {\"type\":\"text\",\"content\":\" through accumulated physical\"}"
+  },
+  {
+   "t": 158.399,
+   "raw": "id: 593\ndata: {\"type\":\"text\",\"content\":\" detail.\\n\\n\"}"
+  },
+  {
+   "t": 158.399,
+   "raw": "id: 594\ndata: {\"type\":\"text\",\"content\":\"- **The\"}"
+  },
+  {
+   "t": 158.399,
+   "raw": "id: 595\ndata: {\"type\":\"text\",\"content\":\" bill simile**\"}"
+  },
+  {
+   "t": 158.579,
+   "raw": "id: 596\ndata: {\"type\":\"text\",\"content\":\" — \\\"A\"}"
+  },
+  {
+   "t": 158.58,
+   "raw": "id: 597\ndata: {\"type\":\"text\",\"content\":\" boat with no\"}"
+  },
+  {
+   "t": 158.58,
+   "raw": "id: 598\ndata: {\"type\":\"text\",\"content\":\" oars arrives\"}"
+  },
+  {
+   "t": 158.58,
+   "raw": "id: 599\ndata: {\"type\":\"text\",\"content\":\" the way a\"}"
+  },
+  {
+   "t": 158.58,
+   "raw": "id: 600\ndata: {\"type\":\"text\",\"content\":\" bill arrives\\\"\"}"
+  },
+  {
+   "t": 158.753,
+   "raw": "id: 601\ndata: {\"type\":\"text\",\"content\":\" correctly\"}"
+  },
+  {
+   "t": 158.753,
+   "raw": "id: 602\ndata: {\"type\":\"text\",\"content\":\" deploys the\"}"
+  },
+  {
+   "t": 158.753,
+   "raw": "id: 603\ndata: {\"type\":\"text\",\"content\":\" author's signature\"}"
+  },
+  {
+   "t": 158.753,
+   "raw": "id: 604\ndata: {\"type\":\"text\",\"content\":\" \\\"the way\"}"
+  },
+  {
+   "t": 158.946,
+   "raw": "id: 605\ndata: {\"type\":\"text\",\"content\":\"\\\" universal\"}"
+  },
+  {
+   "t": 158.946,
+   "raw": "id: 606\ndata: {\"type\":\"text\",\"content\":\"izing device.\"}"
+  },
+  {
+   "t": 158.946,
+   "raw": "id: 607\ndata: {\"type\":\"text\",\"content\":\"\\n\\n- **\"}"
+  },
+  {
+   "t": 158.946,
+   "raw": "id: 608\ndata: {\"type\":\"text\",\"content\":\"Chapter-closing\"}"
+  },
+  {
+   "t": 158.946,
+   "raw": "id: 609\ndata: {\"type\":\"text\",\"content\":\" symmetry** —\"}"
+  },
+  {
+   "t": 158.946,
+   "raw": "id: 610\ndata: {\"type\":\"text\",\"content\":\" Ending\"}"
+  },
+  {
+   "t": 159.126,
+   "raw": "id: 611\ndata: {\"type\":\"text\",\"content\":\" on refused line\"}"
+  },
+  {
+   "t": 159.127,
+   "raw": "id: 612\ndata: {\"type\":\"text\",\"content\":\"-drawing creates\"}"
+  },
+  {
+   "t": 159.127,
+   "raw": "id: 613\ndata: {\"type\":\"text\",\"content\":\" exact\"}"
+  },
+  {
+   "t": 159.127,
+   "raw": "id: 614\ndata: {\"type\":\"text\",\"content\":\" structural symmetry with\"}"
+  },
+  {
+   "t": 159.304,
+   "raw": "id: 615\ndata: {\"type\":\"text\",\"content\":\" Chapter 4\"}"
+  },
+  {
+   "t": 159.304,
+   "raw": "id: 616\ndata: {\"type\":\"text\",\"content\":\" (\\\"\"}"
+  },
+  {
+   "t": 159.304,
+   "raw": "id: 617\ndata: {\"type\":\"text\",\"content\":\"Drew no\"}"
+  },
+  {
+   "t": 159.304,
+   "raw": "id: 618\ndata: {\"type\":\"text\",\"content\":\" line\\\") and\"}"
+  },
+  {
+   "t": 159.304,
+   "raw": "id: 619\ndata: {\"type\":\"text\",\"content\":\" the procedural rupture\"}"
+  },
+  {
+   "t": 159.486,
+   "raw": "id: 620\ndata: {\"type\":\"text\",\"content\":\" arc from\"}"
+  },
+  {
+   "t": 159.486,
+   "raw": "id: 621\ndata: {\"type\":\"text\",\"content\":\" Chapter 2\"}"
+  },
+  {
+   "t": 159.487,
+   "raw": "id: 622\ndata: {\"type\":\"text\",\"content\":\" (wick not\"}"
+  },
+  {
+   "t": 159.487,
+   "raw": "id: 623\ndata: {\"type\":\"text\",\"content\":\" trimmed).\\n\\n\"}"
+  },
+  {
+   "t": 159.487,
+   "raw": "id: 624\ndata: {\"type\":\"text\",\"content\":\"- **Voice\"}"
+  },
+  {
+   "t": 159.692,
+   "raw": "id: 625\ndata: {\"type\":\"text\",\"content\":\" calibration maintained\"}"
+  },
+  {
+   "t": 159.692,
+   "raw": "id: 626\ndata: {\"type\":\"text\",\"content\":\"** — Zero\"}"
+  },
+  {
+   "t": 159.692,
+   "raw": "id: 627\ndata: {\"type\":\"text\",\"content\":\" ellipses\"}"
+  },
+  {
+   "t": 159.692,
+   "raw": "id: 628\ndata: {\"type\":\"text\",\"content\":\", em\"}"
+  },
+  {
+   "t": 159.692,
+   "raw": "id: 629\ndata: {\"type\":\"text\",\"content\":\" dashes at estimated\"}"
+  },
+  {
+   "t": 159.692,
+   "raw": "id: 630\ndata: {\"type\":\"text\",\"content\":\" 2,\"}"
+  },
+  {
+   "t": 159.987,
+   "raw": "id: 631\ndata: {\"type\":\"text\",\"content\":\" zero semicol\"}"
+  },
+  {
+   "t": 159.987,
+   "raw": "id: 632\ndata: {\"type\":\"text\",\"content\":\"ons, fragment\"}"
+  },
+  {
+   "t": 159.987,
+   "raw": "id: 633\ndata: {\"type\":\"text\",\"content\":\"-stacked mood\"}"
+  },
+  {
+   "t": 159.987,
+   "raw": "id: 634\ndata: {\"type\":\"text\",\"content\":\" setting\"}"
+  },
+  {
+   "t": 159.987,
+   "raw": "id: 635\ndata: {\"type\":\"text\",\"content\":\" proper\"}"
+  },
+  {
+   "t": 159.988,
+   "raw": "id: 636\ndata: {\"type\":\"text\",\"content\":\", log\"}"
+  },
+  {
+   "t": 159.988,
+   "raw": "id: 637\ndata: {\"type\":\"text\",\"content\":\" entries\"}"
+  },
+  {
+   "t": 159.988,
+   "raw": "id: 638\ndata: {\"type\":\"text\",\"content\":\" functioning\"}"
+  },
+  {
+   "t": 160.01,
+   "raw": "id: 639\ndata: {\"type\":\"text\",\"content\":\" as rhythm markers\"}"
+  },
+  {
+   "t": 160.164,
+   "raw": "id: 640\ndata: {\"type\":\"text\",\"content\":\", compressed\"}"
+  },
+  {
+   "t": 160.164,
+   "raw": "id: 641\ndata: {\"type\":\"text\",\"content\":\" paradox (\\\"\"}"
+  },
+  {
+   "t": 160.165,
+   "raw": "id: 642\ndata: {\"type\":\"text\",\"content\":\"Two things true\"}"
+  },
+  {
+   "t": 160.165,
+   "raw": "id: 643\ndata: {\"type\":\"text\",\"content\":\" at once\\\")\"}"
+  },
+  {
+   "t": 160.377,
+   "raw": "id: 644\ndata: {\"type\":\"text\",\"content\":\" deployed\"}"
+  },
+  {
+   "t": 160.377,
+   "raw": "id: 645\ndata: {\"type\":\"text\",\"content\":\" correctly.\\n\\n\"}"
+  },
+  {
+   "t": 160.378,
+   "raw": "id: 646\ndata: {\"type\":\"text\",\"content\":\"The two\"}"
+  },
+  {
+   "t": 160.378,
+   "raw": "id: 647\ndata: {\"type\":\"text\",\"content\":\" prose deviations in\"}"
+  },
+  {
+   "t": 160.378,
+   "raw": "id: 648\ndata: {\"type\":\"text\",\"content\":\" paragraph 6\"}"
+  },
+  {
+   "t": 160.378,
+   "raw": "id: 649\ndata: {\"type\":\"text\",\"content\":\" are significant\"}"
+  },
+  {
+   "t": 160.879,
+   "raw": "id: 650\ndata: {\"type\":\"text\",\"content\":\" enough\"}"
+  },
+  {
+   "t": 161.055,
+   "raw": "id: 651\ndata: {\"type\":\"text\",\"content\":\" to\"}"
+  },
+  {
+   "t": 161.055,
+   "raw": "id: 652\ndata: {\"type\":\"text\",\"content\":\" warrant the\"}"
+  },
+  {
+   "t": 161.055,
+   "raw": "id: 653\ndata: {\"type\":\"text\",\"content\":\" critical and\"}"
+  },
+  {
+   "t": 161.307,
+   "raw": "id: 654\ndata: {\"type\":\"text\",\"content\":\" important flags\"}"
+  },
+  {
+   "t": 161.726,
+   "raw": "id: 655\ndata: {\"type\":\"text\",\"content\":\",\"}"
+  },
+  {
+   "t": 162.74,
+   "raw": "id: 656\ndata: {\"type\":\"text\",\"content\":\" as\"}"
+  },
+  {
+   "t": 162.946,
+   "raw": "id: 657\ndata: {\"type\":\"text\",\"content\":\" they represent\"}"
+  },
+  {
+   "t": 162.946,
+   "raw": "id: 658\ndata: {\"type\":\"text\",\"content\":\" the only breach\"}"
+  },
+  {
+   "t": 162.946,
+   "raw": "id: 659\ndata: {\"type\":\"text\",\"content\":\" of the\"}"
+  },
+  {
+   "t": 162.946,
+   "raw": "id: 660\ndata: {\"type\":\"text\",\"content\":\" carefully\"}"
+  },
+  {
+   "t": 162.946,
+   "raw": "id: 661\ndata: {\"type\":\"text\",\"content\":\" calibrated maritime\"}"
+  },
+  {
+   "t": 163.301,
+   "raw": "id: 662\ndata: {\"type\":\"text\",\"content\":\" procedural register in\"}"
+  },
+  {
+   "t": 163.301,
+   "raw": "id: 663\ndata: {\"type\":\"text\",\"content\":\" this chapter.\"}"
+  },
+  {
+   "t": 163.301,
+   "raw": "id: 664\ndata: {\"type\":\"text\",\"content\":\" The chapter\"}"
+  },
+  {
+   "t": 163.301,
+   "raw": "id: 665\ndata: {\"type\":\"text\",\"content\":\" otherwise\"}"
+  },
+  {
+   "t": 163.302,
+   "raw": "id: 666\ndata: {\"type\":\"text\",\"content\":\" continues\"}"
+  },
+  {
+   "t": 163.302,
+   "raw": "id: 667\ndata: {\"type\":\"text\",\"content\":\" the excellent\"}"
+  },
+  {
+   "t": 163.302,
+   "raw": "id: 668\ndata: {\"type\":\"text\",\"content\":\" prose execution\"}"
+  },
+  {
+   "t": 163.302,
+   "raw": "id: 669\ndata: {\"type\":\"text\",\"content\":\" established in\"}"
+  },
+  {
+   "t": 163.361,
+   "raw": "id: 670\ndata: {\"type\":\"text\",\"content\":\" chapters 1\"}"
+  },
+  {
+   "t": 163.361,
+   "raw": "id: 671\ndata: {\"type\":\"text\",\"content\":\"–4.\"}"
+  },
+  {
+   "t": 163.55,
+   "raw": "id: 672\ndata: {\"type\":\"text\",\"content\":\"\\n\\nLINE\"}"
+  },
+  {
+   "t": 163.55,
+   "raw": "id: 673\ndata: {\"type\":\"text\",\"content\":\"_EDIT_REPORT written\"}"
+  },
+  {
+   "t": 163.55,
+   "raw": "id: 674\ndata: {\"type\":\"text\",\"content\":\" for\"}"
+  },
+  {
+   "t": 163.55,
+   "raw": "id: 675\ndata: {\"type\":\"text\",\"content\":\" writer\"}"
+  },
+  {
+   "t": 163.55,
+   "raw": "id: 676\ndata: {\"type\":\"text\",\"content\":\" reference.\"}"
+  },
+  {
+   "t": 163.769,
+   "raw": "id: 677\ndata: {\"type\":\"cost_update\",\"content\":\"$0.0348\",\"metadata\":{\"inputTokens\":50508,\"outputTokens\":8507,\"costUsd\":0.034811579999999995,\"model\":\"openrouter-qwen36/sonnet\",\"budgetUsd\":5}}"
+  },
+  {
+   "t": 163.845,
+   "raw": "id: 678\ndata: {\"type\":\"complete\",\"content\":\"Session completed successfully\",\"metadata\":{\"findingsCreated\":3,\"statusAdvanced\":false,\"suggestedNext\":[\"beta-read\"],\"tokensInput\":50508,\"tokensOutput\":8507,\"costUsd\":0.034811579999999995,\"endReason\":\"natural\"}}"
+  }
+ ]
+}

@@ -1,0 +1,14 @@
+{
+ "request": "No. The dangler is the point. She is the one moving; the lamp only seems dimmer because she is walking away from it, tired, in the dark. Hanging the modifier on the lamp instead of on her is exactly the slippage I want - her attention is in her feet, not in the grammar. My whole voice runs on perception attaching to the wrong object. If I regularize this the sentence starts narrating from outside her skull. Convince me otherwise or leave it.",
+ "status": 200,
+ "elapsed": 18.08,
+ "response": {
+  "assistantMessage": "The slippage effectively mirrors her fatigue and dissociated focus. Regularizing the sentence distances the reader from her immediate, fragmented perception. Keeping the structure loose sustains the internal velocity you want.",
+  "suggestedConstraint": {
+   "category": "style",
+   "content": "Preserve dangling modifiers that mimic cognitive slippage or fatigue."
+  },
+  "userTurns": 1,
+  "capped": false
+ }
+}

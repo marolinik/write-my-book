@@ -1,0 +1,33 @@
+{
+  "status": 200,
+  "body": {
+    "id": "25499afe-9758-482a-a65c-53436e7e3538",
+    "bookId": "4116055c-6183-4675-926a-e04f31126951",
+    "chapterNumber": 1,
+    "sessionId": "9e4dfa42-daa3-4791-8ffb-ac3eec93d664",
+    "agentType": "dev-editor",
+    "severity": "suggestion",
+    "category": "prose",
+    "description": "The final paragraph over-explains the deferral we have just witnessed in action, then re-states the arithmetic metaphor as thesis rather than letting the demonstrated behavior carry the theme.",
+    "suggestion": "The chapter has just shown us Imogen's evasion physically: she puts the letter in her coat pocket, feels its weight against her ribs, walks in the dark counting lit windows. The avoidance is performed. The final sentence then explains what we've seen — \"There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway\" — restating the chapter's central organizing metaphor as narrative thesis. For a writer whose dismissed notethow noted that the chapter is short and sparse on purpose, these explanatory words are the kind of scaffolding that could be trusted to the reader. The short fragments \"Tomorrow she would read it. Tomorrow, or the day after.\" are the strongest ending — they're fragments that match the author's signature rhythm. The long sentence that follows them undercuts that rhythm by re-explaining what the fragments have already implied.",
+    "originalText": "Tomorrow she would read it. Tomorrow, or the day after. There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.",
+    "newText": "Tomorrow she would read it. Tomorrow, or the day after.",
+    "locationStart": null,
+    "locationEnd": null,
+    "status": "dismissed",
+    "dismissReason": "Intentional -- fragments carry the ending; no explanatory scaffolding wanted, per discuss thread.",
+    "appliedAt": null,
+    "createdAt": "2026-07-17T22:39:25.095Z",
+    "contentHash": "8da6474c92c983dff3266c4f501151bcb0eb328165c1c38fdb3724fe49f6b82f",
+    "confidence": 0.75,
+    "rationale": "The chapter has just shown us Imogen's evasion physically: she puts the letter in her coat pocket, feels its weight against her ribs, walks in the dark counting lit windows. The avoidance is performed. The final sentence then explains what we've seen — \"There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway\" — restating the chapter's central organizing metaphor as narrative thesis. For a writer whose dismissed notethow noted that the chapter is short and sparse on purpose, these explanatory words are the kind of scaffolding that could be trusted to the reader. The short fragments \"Tomorrow she would read it. Tomorrow, or the day after.\" are the strongest ending — they're fragments that match the author's signature rhythm. The long sentence that follows them undercuts that rhythm by re-explaining what the fragments have already implied.",
+    "paragraphNumber": 8,
+    "anchorQuote": "Tomorrow she would read it. Tomorrow, or the day after. There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.",
+    "alternatives": "[{\"label\":\"Option A — trust the fragments, cut the explanation\",\"originalText\":\"Tomorrow she would read it. Tomorrow, or the day after. There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.\",\"newText\":\"Tomorrow she would read it. Tomorrow, or the day after.\"},{\"label\":\"Option B — keep the door metaphor, tighten the scaffolding\",\"originalText\":\"Tomorrow she would read it. Tomorrow, or the day after. There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.\",\"newText\":\"Tomorrow she would read it. Tomorrow, or the day after. The alternative was a door she was not yet strong enough to hold open.\"},{\"label\":\"Option C — pivot to sensory closure instead of explanation\",\"originalText\":\"Tomorrow she would read it. Tomorrow, or the day after. There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.\",\"newText\":\"Tomorrow she would read it. Tomorrow, or the day after. For now, the letter sat against her ribs, and the windows kept themselves lit without her help.\"}]",
+    "groundingScore": 1,
+    "chapterVersion": 1,
+    "rejectedAt": "2026-07-18T00:05:58.534Z",
+    "rejectionReason": null
+  },
+  "elapsed_s": 2.563
+}

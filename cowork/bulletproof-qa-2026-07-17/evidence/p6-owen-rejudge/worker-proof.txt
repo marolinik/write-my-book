@@ -1,0 +1,170 @@
+﻿# P6 Owen REJUDGE worker proof - captured 2026-07-20 13:23:48 +02:00 (before any agent run this session)
+
+Server + worker were freshly restarted on current committed code by team-lead (per task brief).
+
+## Worker chain (processes matching 'worker.ts' in cmdline):
+
+ProcessId       : 31644
+ParentProcessId : 30280
+CreationDate    : 07/20/2026 11:04:11
+Cmd             : "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npx-cli.js tsx src/worker.ts
+
+ProcessId       : 28224
+ParentProcessId : 63044
+CreationDate    : 07/20/2026 11:04:12
+Cmd             : "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\tsx\dist\cli.mjs" src/worker.ts
+
+ProcessId       : 61892
+ParentProcessId : 28224
+CreationDate    : 07/20/2026 11:04:12
+Cmd             : "C:\Program Files\nodejs\node.exe" --require D:\Projects\wmb-pub\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/wmb-pub/node_modules/tsx/dist/loader.mjs src/worker.ts
+
+## EXACTLY-ONE-WORKER PROOF
+Leaf worker runtime (node --import tsx loader running src/worker.ts) count: 
+Leaf PID(s): 61892
+Chain: npx tsx src/worker.ts -> tsx cli src/worker.ts -> node loader src/worker.ts = ONE logical worker.
+
+## Full node.exe audit (attribution of every other node process):
+
+PID 4308 [openclaw (tooling)] created 07/18/2026 00:01:13
+   "C:\Program Files\nodejs\node.exe"  --disable-warning=ExperimentalWarning C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\openclaw\openclaw.mjs node run ...
+PID 34688 [openclaw (tooling)] created 07/18/2026 00:01:15
+   "C:\Program Files\nodejs\node.exe" --stack-size=8192 --disable-warning=ExperimentalWarning C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\openclaw\open ...
+PID 27728 [OTHER-PROJECT/TOOLING] created 07/19/2026 17:18:24
+   "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npx-cli.js --yes node@20.0.0 -
+PID 49272 [OTHER-PROJECT/TOOLING] created 07/19/2026 17:18:28
+   "C:\Users\MarkoMarkovic\AppData\Local\npm-cache\_npx\a3dea26673f30de8\node_modules\.bin\\..\node\bin\node"    -
+PID 50660 [MCP server (tooling)] created 07/20/2026 00:09:09
+   "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+PID 59900 [MCP server (tooling)] created 07/20/2026 00:09:09
+   "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+PID 48272 [OTHER-PROJECT/TOOLING] created 07/20/2026 02:09:38
+   "node"   "C:\Users\MarkoMarkovic\AppData\Roaming\npm\\node_modules\chrome-devtools-mcp\build\src\bin\chrome-devtools-mcp.js" "--browserUrl" "http://127.0.0.1:92 ...
+PID 46180 [OTHER-PROJECT/TOOLING] created 07/20/2026 02:09:40
+   "C:\Program Files\nodejs\\node.exe"  "C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\npm\bin\npx-cli.js" "@playwright/mcp@latest"
+PID 29948 [OTHER-PROJECT/TOOLING] created 07/20/2026 02:09:40
+   "C:\Program Files\nodejs\\node.exe"  "C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\npm\bin\npx-cli.js" "-y" "@upstash/context7-mcp"
+PID 41472 [OTHER-PROJECT/TOOLING] created 07/20/2026 02:09:40
+   "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\chrome-devtools-mcp\build\src\telemetry\watchdog\main.js --parent-pid ...
+PID 29100 [OTHER-PROJECT/TOOLING] created 07/20/2026 02:09:48
+   "node"   "C:\Users\MarkoMarkovic\AppData\Local\npm-cache\_npx\9833c18b2d85bc59\node_modules\.bin\\..\@playwright\mcp\cli.js" 
+PID 44376 [OTHER-PROJECT/TOOLING] created 07/20/2026 02:09:51
+   "node"   "C:\Users\MarkoMarkovic\AppData\Local\npm-cache\_npx\eea2bd7412d4593b\node_modules\.bin\\..\@upstash\context7-mcp\dist\index.js" 
+PID 57668 [OTHER-PROJECT/TOOLING] created 07/20/2026 02:09:57
+   "C:\Program Files\nodejs\\node.exe"  "C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\npm\bin\npx-cli.js" "-y" "@fkadev/prompts.chat-mcp"
+PID 52452 [OTHER-PROJECT/TOOLING] created 07/20/2026 02:09:57
+   "C:\Program Files\nodejs\\node.exe"  "C:\Users\MarkoMarkovic\AppData\Roaming\npm\node_modules\npm\bin\npx-cli.js" "-y" "@playwright/mcp@latest"
+PID 52400 [OTHER-PROJECT/TOOLING] created 07/20/2026 02:10:10
+   "node"   "C:\Users\MarkoMarkovic\AppData\Local\npm-cache\_npx\9833c18b2d85bc59\node_modules\.bin\\..\@playwright\mcp\cli.js" 
+PID 41236 [OTHER-PROJECT/TOOLING] created 07/20/2026 02:10:11
+   "node"   "C:\Users\MarkoMarkovic\AppData\Local\npm-cache\_npx\146fa5df94065b65\node_modules\.bin\\..\@fkadev\prompts.chat-mcp\build\index.js" 
+PID 62580 [MCP server (tooling)] created 07/20/2026 06:40:43
+   "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+PID 43764 [MCP server (tooling)] created 07/20/2026 06:40:43
+   "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+PID 10312 [MCP server (tooling)] created 07/20/2026 08:24:48
+   "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+PID 64492 [MCP server (tooling)] created 07/20/2026 08:24:48
+   "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+PID 62784 [MCP server (tooling)] created 07/20/2026 09:30:43
+   "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+PID 34620 [MCP server (tooling)] created 07/20/2026 09:30:43
+   "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+PID 31644 [*** WMB-PUB WORKER ***] created 07/20/2026 11:04:11
+   "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npx-cli.js tsx src/worker.ts
+PID 28224 [*** WMB-PUB WORKER ***] created 07/20/2026 11:04:12
+   "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\tsx\dist\cli.mjs" src/worker.ts
+PID 61892 [*** WMB-PUB WORKER ***] created 07/20/2026 11:04:12
+   "C:\Program Files\nodejs\node.exe" --require D:\Projects\wmb-pub\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/wmb-pub/node_modules/tsx/dist/ ...
+PID 40236 [OTHER-PROJECT/TOOLING] created 07/20/2026 11:40:35
+   "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npm-cli.js run dev -- -p 3002
+PID 45304 [wmb-pub next dev :3002 (server)] created 07/20/2026 11:40:37
+   "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\cross-env\dist\bin\cross-env.js" NODE_OPTIONS=--max-old-space-size=4096 next dev -p 3002
+PID 64752 [wmb-pub next dev :3002 (server)] created 07/20/2026 11:40:38
+   "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\next\dist\bin\next" "dev" "-p" "3002"
+PID 53220 [wmb-pub next dev (server child)] created 07/20/2026 11:40:39
+   "C:\Program Files\nodejs\node.exe" D:\Projects\wmb-pub\node_modules\next\dist\server\lib\start-server.js
+PID 46492 [MCP server (tooling)] created 07/20/2026 12:49:16
+   "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+PID 22080 [MCP server (tooling)] created 07/20/2026 12:49:16
+   "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+PID 45828 [MCP server (tooling)] created 07/20/2026 12:49:38
+   "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+PID 39268 [MCP server (tooling)] created 07/20/2026 12:49:38
+   "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+PID 46848 [MCP server (tooling)] created 07/20/2026 12:49:52
+   "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+PID 25516 [MCP server (tooling)] created 07/20/2026 12:49:52
+   "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+PID 64600 [MCP server (tooling)] created 07/20/2026 13:06:55
+   "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+PID 6600 [MCP server (tooling)] created 07/20/2026 13:06:55
+   "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+PID 40380 [MCP server (tooling)] created 07/20/2026 13:12:24
+   "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs
+PID 25064 [MCP server (tooling)] created 07/20/2026 13:12:24
+   "C:\Program Files\nodejs\node.exe" ./mcp/server.mjs --stdio
+PID 56640 [OTHER-PROJECT/TOOLING] created 07/20/2026 13:20:32
+   "C:\Program Files\nodejs\node.exe" D:/Projects/waggle-os/node_modules/tsx/dist/cli.mjs scripts/beam-run-ledger-e8k.ts --instance-ids scripts/e8-probeK.txt --tag ...
+PID 62704 [OTHER-PROJECT/TOOLING] created 07/20/2026 13:20:32
+   "C:\Program Files\nodejs\node.exe" --require D:\Projects\waggle-os\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/waggle-os/node_modules/tsx/d ...
+PID 64716 [OTHER-PROJECT/TOOLING] created 07/20/2026 13:20:48
+   "C:\Program Files\nodejs\node.exe" D:/Projects/waggle-os/node_modules/tsx/dist/cli.mjs scripts/beam-run-ledger-e8k.ts --instance-ids scripts/e8-probeK.txt --tag ...
+PID 60600 [OTHER-PROJECT/TOOLING] created 07/20/2026 13:20:49
+   "C:\Program Files\nodejs\node.exe" --require D:\Projects\waggle-os\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/waggle-os/node_modules/tsx/d ...
+PID 10836 [OTHER-PROJECT/TOOLING] created 07/20/2026 13:22:06
+   "C:\Program Files\nodejs\node.exe" D:/Projects/waggle-os/node_modules/tsx/dist/cli.mjs scripts/beam-run-ledger-e8k.ts --instance-ids scripts/e8-probeK.txt --tag ...
+PID 31428 [OTHER-PROJECT/TOOLING] created 07/20/2026 13:22:06
+   "C:\Program Files\nodejs\node.exe" --require D:\Projects\waggle-os\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/waggle-os/node_modules/tsx/d ...
+PID 50748 [OTHER-PROJECT/TOOLING] created 07/20/2026 13:22:18
+   "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npx-cli.js vitest run packages/agent
+PID 4008 [OTHER-PROJECT/TOOLING] created 07/20/2026 13:22:21
+   "node"   "D:\Projects\waggle-os-readiness-main-20260716\node_modules\.bin\\..\vitest\vitest.mjs" run packages/agent
+PID 51456 [OTHER-PROJECT/TOOLING] created 07/20/2026 13:22:26
+   "C:\Program Files\nodejs\node.exe" D:/Projects/waggle-os/node_modules/tsx/dist/cli.mjs scripts/beam-run-ledger-e8k.ts --instance-ids scripts/e8-probeK.txt --tag ...
+PID 23948 [OTHER-PROJECT/TOOLING] created 07/20/2026 13:22:27
+   "C:\Program Files\nodejs\node.exe" --require D:\Projects\waggle-os\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/waggle-os/node_modules/tsx/d ...
+PID 28920 [OTHER-PROJECT/TOOLING] created 07/20/2026 13:22:42
+   "C:\Program Files\nodejs\node.exe" D:/Projects/waggle-os/node_modules/tsx/dist/cli.mjs scripts/beam-run-ledger-e8k.ts --instance-ids scripts/e8-probeK.txt --tag ...
+PID 9252 [OTHER-PROJECT/TOOLING] created 07/20/2026 13:22:43
+   "C:\Program Files\nodejs\node.exe" --require D:\Projects\waggle-os\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/waggle-os/node_modules/tsx/d ...
+PID 43080 [OTHER-PROJECT/TOOLING] created 07/20/2026 13:22:57
+   "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npx-cli.js vitest run packages/agent/tests/agent-loop-budget. ...
+PID 49988 [OTHER-PROJECT/TOOLING] created 07/20/2026 13:23:00
+   "C:\Program Files\nodejs\node.exe" D:/Projects/waggle-os/node_modules/tsx/dist/cli.mjs scripts/beam-run-ledger-e8k.ts --instance-ids scripts/e8-probeK.txt --tag ...
+PID 32088 [OTHER-PROJECT/TOOLING] created 07/20/2026 13:23:01
+   "C:\Program Files\nodejs\node.exe" --require D:\Projects\waggle-os\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/waggle-os/node_modules/tsx/d ...
+PID 42904 [OTHER-PROJECT/TOOLING] created 07/20/2026 13:23:08
+   "node"   "D:\Projects\waggle-os-readiness-main-20260716\node_modules\.bin\\..\vitest\vitest.mjs" run packages/agent/tests/agent-loop-budget.test.ts packages/age ...
+PID 30160 [OTHER-PROJECT/TOOLING] created 07/20/2026 13:23:15
+   "C:\Program Files\nodejs\node.exe" D:/Projects/waggle-os/node_modules/tsx/dist/cli.mjs scripts/beam-run-ledger-e8k.ts --instance-ids scripts/e8-probeK.txt --tag ...
+PID 44768 [OTHER-PROJECT/TOOLING] created 07/20/2026 13:23:15
+   "C:\Program Files\nodejs\node.exe" --require D:\Projects\waggle-os\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/waggle-os/node_modules/tsx/d ...
+PID 47780 [OTHER-PROJECT/TOOLING] created 07/20/2026 13:23:35
+   "C:\Program Files\nodejs\node.exe" D:/Projects/waggle-os/node_modules/tsx/dist/cli.mjs scripts/beam-run-ledger-e8k.ts --instance-ids scripts/e8-probeK.txt --tag ...
+PID 25392 [OTHER-PROJECT/TOOLING] created 07/20/2026 13:23:35
+   "C:\Program Files\nodejs\node.exe" --require D:\Projects\waggle-os\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/waggle-os/node_modules/tsx/d ...
+PID 9676 [OTHER-PROJECT/TOOLING] created 07/20/2026 13:23:47
+   "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npx-cli.js tsx --env-file=.env cowork\bulletproof-qa-2026-07- ...
+PID 1416 [OTHER-PROJECT/TOOLING] created 07/20/2026 13:23:48
+   "C:\Program Files\nodejs\node.exe" --conditions node --conditions development D:\Projects\waggle-os-readiness-main-20260716\node_modules\tinypool\dist\entry\pro ...
+PID 40024 [OTHER-PROJECT/TOOLING] created 07/20/2026 13:23:48
+   "C:\Program Files\nodejs\node.exe" --conditions node --conditions development D:\Projects\waggle-os-readiness-main-20260716\node_modules\tinypool\dist\entry\pro ...
+PID 59624 [OTHER-PROJECT/TOOLING] created 07/20/2026 13:23:49
+   "C:\Program Files\nodejs\node.exe" --conditions node --conditions development D:\Projects\waggle-os-readiness-main-20260716\node_modules\tinypool\dist\entry\pro ...
+PID 62540 [OTHER-PROJECT/TOOLING] created 07/20/2026 13:23:50
+   "C:\Program Files\nodejs\node.exe" --conditions node --conditions development D:\Projects\waggle-os-readiness-main-20260716\node_modules\tinypool\dist\entry\pro ...
+
+========================================================================
+ADDENDUM — POST-RUN capture 2026-07-20 13:57:58 +02:00 (after all P6-rejudge agent runs this session:
+  line-edit ch5 15c82e80, line-edit ch3 67ff18e7, plus 2 discuss turns)
+========================================================================
+ProcessId 31644  Parent 30280  created 07/20/2026 11:04:11
+   "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npx-cli.js tsx src/worker.ts
+ProcessId 28224  Parent 63044  created 07/20/2026 11:04:12
+   "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\tsx\dist\cli.mjs" src/worker.ts
+ProcessId 61892  Parent 28224  created 07/20/2026 11:04:12
+   "C:\Program Files\nodejs\node.exe" --require D:\Projects\wmb-pub\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/wmb-pub/node_modules/tsx/dist/loader.mjs src/worker.ts
+
+Leaf worker.ts runtime count: 1  PID(s): 61892
+Same single worker chain, same leaf PID 61892 as pre-run capture — no restarts during the journey.

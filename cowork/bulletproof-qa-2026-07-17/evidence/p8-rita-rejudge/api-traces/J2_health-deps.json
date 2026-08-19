@@ -1,0 +1,24 @@
+{
+  "id": "J2",
+  "label": "health-deps",
+  "actor": "p8",
+  "capturedAt": "2026-07-20T11:31:34.899Z",
+  "request": {
+    "method": "GET",
+    "url": "http://127.0.0.1:3002/api/health/dependencies",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p8"
+    },
+    "body": null,
+    "bodyMode": "none"
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json",
+    "bodyLength": 712,
+    "bodyText": "{\"ok\":true,\"status\":\"ready\",\"checkedAt\":\"2026-07-20T11:31:34.898Z\",\"dependencies\":[{\"name\":\"environment\",\"required\":true,\"status\":\"ok\",\"latencyMs\":0,\"message\":\"ok\"},{\"name\":\"postgres\",\"required\":true,\"status\":\"ok\",\"latencyMs\":98,\"message\":\"ok\"},{\"name\":\"schema\",\"required\":true,\"status\":\"ok\",\"latencyMs\":209,\"message\":\"ok\"},{\"name\":\"redis\",\"required\":true,\"status\":\"ok\",\"latencyMs\":93,\"message\":\"ok\"},{\"name\":\"s3\",\"required\":true,\"status\":\"ok\",\"latencyMs\":99,\"message\":\"ok\"},{\"name\":\"worker\",\"required\":true,\"status\":\"ok\",\"latencyMs\":62,\"message\":\"ok\"},{\"name\":\"qdrant\",\"required\":false,\"status\":\"ok\",\"latencyMs\":78,\"message\":\"ok\"},{\"name\":\"neo4j\",\"required\":false,\"status\":\"ok\",\"latencyMs\":112,\"message\":\"ok\"}]}"
+  },
+  "expected": "200/503 real per-dependency latencies",
+  "note": null
+}

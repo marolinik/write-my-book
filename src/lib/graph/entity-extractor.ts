@@ -9,6 +9,7 @@ import crypto from "crypto";
 import { jsonrepair } from "jsonrepair";
 import { createLLMClient, resolveCheapModelFor } from "@/lib/llm";
 import type { LLMClientOptions } from "@/lib/llm/client-factory";
+import { RELATIONSHIP_TYPES } from "./types";
 import type {
   ExtractionResult,
   ExtractedEntity,
@@ -16,6 +17,24 @@ import type {
   GraphNodeLabel,
   RelationshipType,
 } from "./types";
+
+/**
+ * The result of an extraction attempt, plus an HONEST failure discriminator.
+ *
+ * RC-4: previously `extractEntities` caught every LLM/parse error and returned
+ * an EMPTY `ExtractionResult` — byte-identical to a genuinely empty (clean)
+ * extraction. That erased the one bit that matters downstream: did the model
+ * actually run, or did the call fail? A failed call that looks "empty" is how a
+ * dead extraction became a silent green (and got its tokens billed as success).
+ *
+ * `failed: true` means the LLM call or its parse threw; the entities/relationships
+ * are empty because nothing was produced, NOT because the prose is entity-free.
+ * On success `failed` is left undefined so existing callers are unaffected.
+ */
+export interface ExtractionOutcome extends ExtractionResult {
+  failed?: boolean;
+  failureReason?: string;
+}
 
 /**
  * Create an extraction client using the caller's keys.
@@ -71,23 +90,10 @@ const VALID_LABELS: GraphNodeLabel[] = [
   "Scene",
 ];
 
-const VALID_RELATIONSHIP_TYPES: RelationshipType[] = [
-  "APPEARS_IN",
-  "LOCATED_AT",
-  "PARTICIPATES_IN",
-  "KNOWS",
-  "ALLIED_WITH",
-  "OPPOSES",
-  "OWNS",
-  "PART_OF",
-  "LEADS_TO",
-  "FORESHADOWS",
-  "RESOLVES",
-  "OCCURS_IN",
-  "BELONGS_TO",
-  "MENTIONED_IN",
-  "TRANSFORMS_INTO",
-];
+// Single source of truth lives in types.ts (RELATIONSHIP_TYPES) so the
+// extraction schema/filter, the agent tool schema, and the Cypher boundary
+// sanitizer (D-63) can never drift apart.
+const VALID_RELATIONSHIP_TYPES: RelationshipType[] = [...RELATIONSHIP_TYPES];
 
 /**
  * Shared guidance on WHAT to extract (labels, relationship types, rules). Used
@@ -97,7 +103,7 @@ const VALID_RELATIONSHIP_TYPES: RelationshipType[] = [
 const EXTRACTION_GUIDANCE = `Entity label types and their required properties:
 - Character: { "role": "protagonist|antagonist|supporting|minor|mentioned", "description": "brief description", "status": "alive|dead|unknown|transformed", "physicalTraits": "optional", "personality": "optional", "age": "optional" }
 - Location: { "locationType": "city|building|room|region|country|world|other", "description": "brief description", "parentLocation": "optional parent name" }
-- Event: { "significance": "major|minor|turning-point|climax", "description": "what happened", "timelinePosition": "relative or absolute time reference" }
+- Event: { "significance": "major|minor|turning-point|climax", "description": "what happened", "timelinePosition": "relative or absolute time reference", "occursInChapter": "integer story-time chapter when the event actually happens (see rule 8) — omit for ordinary present-time events" }
 - Object: { "objectType": "weapon|artifact|document|vehicle|clothing|tool|other", "description": "brief description", "status": "intact|destroyed|lost|transformed", "currentHolder": "character name or null" }
 - PlotThread: { "threadType": "main|subplot|mystery|romance|foreshadowing", "status": "introduced|developing|climaxed|resolved|abandoned", "description": "what the thread is about" }
 - Faction: { "factionType": "organization|family|government|religion|military|other", "description": "brief description", "alignment": "e.g. good, evil, neutral, chaotic" }
@@ -126,7 +132,8 @@ Rules:
 4. Capture ALL relationships between extracted entities
 5. Use consistent entity names (prefer full names)
 6. Include aliases for characters with nicknames, titles, or shortened names
-7. Do NOT invent entities not present in the text`;
+7. Do NOT invent entities not present in the text
+8. STORY-TIME for events: most events happen in the present of the chapter you are reading — for those, OMIT "occursInChapter". ONLY when an event is narrated OUT of chronological order — a flashback, a retelling of an earlier event, a dream, or a prophecy of a future event — set "occursInChapter" to the integer chapter the event actually happens in the story's timeline (an earlier chapter for a flashback/retelling, a later chapter for a prophecy). This lets continuity checks tell "the dead hero reappears alive" (a real error) from "chapter 8 retells the hero's death from chapter 3" (not an error)`;
 
 /**
  * Prompt for the primary (forced tool-use) path. The tool schema enforces the
@@ -230,8 +237,9 @@ export async function extractEntities(
   bookId: string,
   chapterNumber: number,
   keys?: Partial<LLMClientOptions>,
-  defaultModel?: string
-): Promise<ExtractionResult> {
+  defaultModel?: string,
+  userId?: string
+): Promise<ExtractionOutcome> {
   const contentHash = hashContent(text);
   const { client, modelId } = createExtractionClient(keys, defaultModel);
 
@@ -289,22 +297,35 @@ export async function extractEntities(
     );
 
     return {
+      bookId,
+      userId,
       entities: parsed.entities,
       relationships: parsed.relationships,
       chapterNumber,
       contentHash,
     };
   } catch (error) {
-    // On LLM failure, return empty result rather than crashing the pipeline
+    // On LLM/parse failure, return an empty result — but STAMP it as `failed`
+    // (RC-4). The pipeline must not crash, yet callers MUST be able to tell this
+    // apart from a genuinely empty extraction: a failed call must never be
+    // recorded as a clean success, billed as success, or reported as
+    // "continuity protected". graph-maintenance reads `failed` to skip the
+    // hash-stamp, avoid the destructive delete, and count the attempt toward the
+    // billing cap.
+    const failureReason = error instanceof Error ? error.message : String(error);
     console.error(
       `[entity-extractor] Failed to extract entities for book=${bookId} chapter=${chapterNumber}:`,
       error
     );
     return {
+      bookId,
+      userId,
       entities: [],
       relationships: [],
       chapterNumber,
       contentHash,
+      failed: true,
+      failureReason,
     };
   }
 }

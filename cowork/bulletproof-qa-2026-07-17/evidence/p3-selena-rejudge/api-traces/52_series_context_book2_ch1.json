@@ -1,0 +1,58 @@
+{
+  "capturedAt": "2026-07-20T02:41:05.364Z",
+  "request": {
+    "method": "GET",
+    "url": "/api/books/af01d68f-6f04-4bfc-aab3-76ec700fc0c1/series-context?chapterNumber=1",
+    "actingAs": "user_qa_p3",
+    "headers": {
+      "content-type": "application/json",
+      "x-e2e-test-secret": "***MASKED***",
+      "x-e2e-clerk-id": "user_qa_p3"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "latencyMs": 5922,
+    "body": {
+      "series": {
+        "id": "0e11c5c1-e9ee-4736-a214-40dc1576c1b3",
+        "title": "Selena Rejudge Saga [RJ0720]",
+        "seriesType": "DUOLOGY",
+        "currentBookNumber": 2
+      },
+      "chapterNumber": 1,
+      "characters": [
+        {
+          "name": "Kira Venn",
+          "matchedFrom": null,
+          "lastBook": 2,
+          "lastChapter": 2,
+          "role": "protagonist",
+          "status": "alive",
+          "description": "Ruler of the Ashfall Realm who rules alone from Highfort, older and burdened by the weight of the crown",
+          "aliases": []
+        },
+        {
+          "name": "Dorn Kappel",
+          "matchedFrom": null,
+          "lastBook": 2,
+          "lastChapter": 1,
+          "role": "mentioned",
+          "status": "dead",
+          "description": "Former warlord of the Ashen Legion, dead many years ago",
+          "aliases": []
+        }
+      ],
+      "threads": [],
+      "toneDrift": null,
+      "meta": {
+        "notReady": false,
+        "sourcesAvailable": {
+          "graph": true,
+          "style": true
+        }
+      }
+    }
+  }
+}

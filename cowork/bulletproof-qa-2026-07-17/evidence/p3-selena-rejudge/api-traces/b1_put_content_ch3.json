@@ -1,0 +1,26 @@
+{
+  "capturedAt": "2026-07-20T02:18:14.801Z",
+  "request": {
+    "method": "PUT",
+    "url": "/api/books/a77359eb-6587-4bf0-b72d-65e0ae027e64/chapters/9b80f52d-d8ff-42d6-9373-53167ec172e1/content",
+    "actingAs": "user_qa_p3",
+    "headers": {
+      "content-type": "application/json",
+      "x-e2e-test-secret": "***MASKED***",
+      "x-e2e-clerk-id": "user_qa_p3"
+    },
+    "body": {
+      "markdown": "Chapter Three — Charts of the Cinder Ward\n\nWeeks passed quietly in Highfort. Zoe Rasmussen returned from the Cinder Ward with new maps. Zoe — the cartographer the whole crew loved — spread her charts across the war table of Highfort. Kira Venn studied the roads with her for hours. The realm was calm, and the pyre-ash of the Bridge of Ash had long since cooled. Vael Thorne trained the young recruits in the yard below, patient and sure.",
+      "changeSource": "user"
+    }
+  },
+  "response": {
+    "status": 200,
+    "latencyMs": 206,
+    "body": {
+      "wordCount": 79,
+      "version": 1,
+      "bookWordCount": 324
+    }
+  }
+}

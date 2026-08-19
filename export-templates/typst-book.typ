@@ -73,6 +73,16 @@
   doc
 }
 
+// PDF document metadata (D-05) — the dc:title/dc:creator equivalents the docx
+// exporter gets from pandoc's docx writer automatically. Typst only embeds
+// metadata via `set document`, which must occur before any content, so it
+// lives at template top level rather than inside conf (whose `author` carries
+// a literal "Author" running-head fallback that must never leak into metadata).
+#set document(
+  title: "$title$",
+  $if(author)$author: "$author$",$endif$
+)
+
 // Apply the template
 #show: doc => conf(
   title: "$title$",

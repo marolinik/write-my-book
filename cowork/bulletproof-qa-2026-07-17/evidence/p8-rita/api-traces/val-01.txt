@@ -1,0 +1,9 @@
+TEST: val-01 - p1 POST /api/books with malformed JSON body
+METHOD: POST
+PATH: /api/books
+ACTOR: p1
+EXPECTED: [400, 422]
+ACTUAL STATUS: 403
+ELAPSED: 0.033823490142822266
+---- RESPONSE BODY ----
+{"error":"Your Indie Author plan allows 2 active books. Upgrade to create more.","upgradeToTier":"professional"}

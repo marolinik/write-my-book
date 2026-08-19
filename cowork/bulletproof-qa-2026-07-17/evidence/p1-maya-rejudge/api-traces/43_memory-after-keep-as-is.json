@@ -1,0 +1,62 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "http://localhost:3001/api/memory?bookId=4116055c-6183-4675-926a-e04f31126951",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p1"
+    },
+    "body": null
+  },
+  "status": 200,
+  "error": null,
+  "responseHeaders": {
+    "connection": "keep-alive",
+    "content-type": "application/json",
+    "date": "Sun, 26 Jul 2026 23:27:19 GMT",
+    "keep-alive": "timeout=5",
+    "transfer-encoding": "chunked",
+    "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+  },
+  "body": [
+    {
+      "id": "d6ae40cc-5749-4fe9-ad14-564323c6e3eb",
+      "userId": "d65a17d8-c0df-4e49-82fa-2291cad77886",
+      "bookId": "4116055c-6183-4675-926a-e04f31126951",
+      "findingId": "73b2781c-81ee-420a-9916-a17f1dadad68",
+      "category": "preference",
+      "content": "Do not flag Imogen's interior abstraction or taxonomy at emotional peaks as a show-tell lapse.",
+      "source": "conversation",
+      "active": true,
+      "createdAt": "2026-07-26T23:26:27.121Z",
+      "updatedAt": "2026-07-26T23:26:27.121Z"
+    },
+    {
+      "id": "bc68fab0-d46b-436a-8f4c-2ff125d47a3b",
+      "userId": "d65a17d8-c0df-4e49-82fa-2291cad77886",
+      "bookId": "4116055c-6183-4675-926a-e04f31126951",
+      "findingId": "f1b35402-d5a8-42b6-a8be-02b9ac6a3504",
+      "category": "preference",
+      "content": "Preserve Imogen's retreat into arithmetic and taxonomy at emotional peaks as intentional voice; do not flag interior abstraction as a show-tell lapse.",
+      "source": "conversation",
+      "active": true,
+      "createdAt": "2026-07-20T11:45:05.390Z",
+      "updatedAt": "2026-07-20T11:45:05.390Z"
+    },
+    {
+      "id": "cef57b13-86b4-4c94-91f3-b9d3d9cdadac",
+      "userId": "d65a17d8-c0df-4e49-82fa-2291cad77886",
+      "bookId": "4116055c-6183-4675-926a-e04f31126951",
+      "findingId": "25499afe-9758-482a-a65c-53436e7e3538",
+      "category": "preference",
+      "content": "Leave strong final images or fragments untouched when followed by brief explanatory lines; treat the pattern as intentional across the manuscript.",
+      "source": "conversation",
+      "active": true,
+      "createdAt": "2026-07-18T00:05:58.660Z",
+      "updatedAt": "2026-07-18T00:05:58.660Z"
+    }
+  ],
+  "bodyIsRawText": false,
+  "elapsed_ms": 284,
+  "capturedAt": "2026-07-26T23:27:19.506Z"
+}

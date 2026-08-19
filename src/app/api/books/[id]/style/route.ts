@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { legacyRouteErrorResponse } from "@/lib/api/legacy-route-errors";
 
 export async function GET(
   _req: NextRequest,
@@ -41,8 +43,13 @@ export async function GET(
     });
 
     return NextResponse.json({ profiles, lenses });
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  } catch (error) {
+    // D-14: don't mislabel every failure as 401 — class it honestly.
+    return legacyRouteErrorResponse(
+      error,
+      "GET /api/books/:id/style",
+      "Failed to fetch style profiles"
+    );
   }
 }
 
@@ -62,7 +69,9 @@ export async function POST(
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
-    const body = await req.json();
+    // Hand-validated legacy body (no Zod schema here) — keep the pre-D-01
+    // any-typed access; the field checks below are the validation.
+    const body = (await parseJsonBody(req)) as Record<string, any>;
     const { name, description, fingerprint } = body;
 
     if (!name || typeof name !== "string") {
@@ -81,7 +90,14 @@ export async function POST(
     });
 
     return NextResponse.json(profile, { status: 201 });
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
+    // D-14: don't mislabel every failure as 401 — class it honestly.
+    return legacyRouteErrorResponse(
+      error,
+      "POST /api/books/:id/style",
+      "Failed to create style profile"
+    );
   }
 }

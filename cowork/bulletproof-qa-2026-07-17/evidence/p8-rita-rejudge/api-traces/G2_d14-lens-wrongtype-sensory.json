@@ -1,0 +1,33 @@
+{
+  "id": "G2",
+  "label": "d14-lens-wrongtype-sensory",
+  "actor": "p2",
+  "capturedAt": "2026-07-20T11:31:31.276Z",
+  "request": {
+    "method": "POST",
+    "url": "http://127.0.0.1:3002/api/books/1c829f25-3c52-4751-80b1-61cdc7fd8c73/style/lenses",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p2",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "characterName": "RJ 1784547050860",
+      "sensoryPriority": {
+        "x": "y"
+      },
+      "metaphorDomain": "a",
+      "interiorStyle": "b",
+      "vocabularyRegister": "c"
+    },
+    "bodyMode": "json"
+  },
+  "response": {
+    "status": 400,
+    "contentType": "application/json",
+    "bodyLength": 25,
+    "bodyText": "{\"error\":\"Invalid input\"}"
+  },
+  "expected": "400 (was 401 misclass)",
+  "note": null
+}

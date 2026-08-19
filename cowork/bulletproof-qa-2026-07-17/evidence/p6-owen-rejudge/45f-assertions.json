@@ -1,0 +1,105 @@
+{
+  "shot": "45f",
+  "usageApi": {
+    "total": {
+      "tokensInput": 1394891,
+      "tokensOutput": 127884,
+      "costEstimate": 12.476907279999995,
+      "sessions": 41
+    },
+    "byAgent": {
+      "ghost-text": {
+        "tokensInput": 897,
+        "tokensOutput": 4070,
+        "costEstimate": 0.009953489999999999,
+        "sessions": 5
+      },
+      "embedding": {
+        "tokensInput": 4592,
+        "tokensOutput": 0,
+        "costEstimate": 0.00009183999999999999,
+        "sessions": 17
+      },
+      "discuss": {
+        "tokensInput": 922,
+        "tokensOutput": 4100,
+        "costEstimate": 0.01010277,
+        "sessions": 1
+      },
+      "writing-coach": {
+        "tokensInput": 1388480,
+        "tokensOutput": 119714,
+        "costEstimate": 12.456759179999997,
+        "sessions": 18
+      }
+    },
+    "byModel": {
+      "openrouter-deepseek/haiku": {
+        "tokensInput": 233,
+        "tokensOutput": 31,
+        "costEstimate": 0.00007065
+      },
+      "text-embedding-3-small": {
+        "tokensInput": 4592,
+        "tokensOutput": 0,
+        "costEstimate": 0.00009183999999999999
+      },
+      "openrouter-qwen36/haiku": {
+        "tokensInput": 1586,
+        "tokensOutput": 8139,
+        "costEstimate": 0.019985609999999997
+      },
+      "anthropic/opus": {
+        "tokensInput": 657932,
+        "tokensOutput": 28819,
+        "costEstimate": 12.030404999999998
+      },
+      "openrouter-qwen36/sonnet": {
+        "tokensInput": 730548,
+        "tokensOutput": 90895,
+        "costEstimate": 0.42635418
+      }
+    },
+    "byBook": [
+      {
+        "bookId": "6d69fd7c-f7a4-4e3d-bf49-1415d81f5326",
+        "bookName": "The Keeper's Arithmetic",
+        "tokensInput": 1394872,
+        "tokensOutput": 127884,
+        "costEstimate": 12.476906899999994,
+        "sessions": 39
+      },
+      {
+        "bookId": "8632ba0c-f05b-4fd5-9581-3790a0f2c675",
+        "bookName": "VM1 Test",
+        "tokensInput": 19,
+        "tokensOutput": 0,
+        "costEstimate": 3.7999999999999996e-7,
+        "sessions": 2
+      }
+    ],
+    "byKeySource": {
+      "user": {
+        "costEstimate": 12.476907279999995,
+        "sessions": 41
+      }
+    },
+    "llmCosts": {
+      "costEstimate": 12.476815439999998,
+      "sessions": 24
+    },
+    "embeddingCosts": {
+      "costEstimate": 0.00009183999999999999,
+      "tokens": 4592
+    },
+    "costDrift": {
+      "driftPercentage": 38,
+      "sessionsAnalyzed": 18,
+      "warningThreshold": 20,
+      "hasWarning": true
+    },
+    "priceDiscrepancies": 30
+  },
+  "panelText": "Command Palette\n\nSearch for a command to run...\n\nWriteMyBook\nWriting Platform\nNavigation\nDashboard\nBooks\nSeries\nSettings\nSettings\n/\nBilling\nToggle theme\nUsage & Billing\n\nChoose your plan and track your AI token usage\n\nMonthly\nAnnual\nLimited -- Founder's Price\nFounder\n$19/mo\n0 of 200 claimed\n200 left\nUnlimited books\nAll 14 agents & workflows\nSeries management\nAdvanced analytics\nStandard export\nLocked-in $19/mo forever\nUpgrade\n14-day free trial\nIndie Author\nCurrent\n$49/mo\n2 active books\nAll 14 agents & workflows\nStandard export\n\nNo credit card required\n\nManage Subscription\nMost Popular\nProfessional\n$99/mo\nUnlimited books\nAll 14 agents & workflows\nSeries management\nAdvanced analytics\nStandard export\nUpgrade\nPublisher\n$499/mo\nUnlimited books\nAll 14 agents & workflows\nSeries management\nAdvanced analytics\nPriority support\nMulti-user seats (Coming Soon)\nAPI access (Coming Soon)\nWhite-label export (Coming Soon)\nUpgrade\n\nEnterprise\n\nNeed custom seats, API access, or white-label export? Let's talk.\n\nContact Us\n\nBYOK -- Bring Your Own Key\n\nYour subscription covers the WriteMyBook platform. You bring your own AI API keys (Anthropic, OpenRouter, OpenAI, etc.) for LLM costs. This means you pay actual provider rates with zero markup.\n\nYour Key Savings\nBy using your own API keys, you maintain full control over costs\n\n$12.48\n\nTotal spent using your own keys (last 30 days) — no platform markup applied\n\n100% Your Keys\n\nCost estimates may be inaccurate\n\nOver the last 18 sessions, estimated costs differed from actual costs by 38%. This may be due to model pricing changes or unusual session patterns.\n\n30 model pricing discrepancies detected against provider rates.\n\nToken Usage (30 days)\nLLM Agent Costs\n\n$12.48\n\n24 agent sessions\n\nVector Embedding Costs\n\n$0.00\n\n4.6K tokens embedded\n\nTotal Sessions\n\n41\n\nInput Tokens\n\n1.4M\n\nOutput Tokens\n\n127.9K\n\nEst. Cost\n\n$12.48\n\nUsage by Agent\nLast 30 days\n\nGhost Text\n\n5 sessions\n\n$0.01\n\n897 in / 4.1K out\n\nEmbedding\nEmbeddings\n\n17 sessions\n\n$0.00\n\n4.6K in / 0 out\n\nDiscuss\n\n1 session\n\n$0.01\n\n922 in / 4.1K out\n\nWriting Coach\n\n18 sessions\n\n$12.46\n\n1.4M in / 119.7K out\n\nUsage by Model\n\nDeepSeek V3.2 (OpenRouter) (deepseek/deepseek-v3.2)\n\n$0.00\n\n264 total tokens\n\ntext-embedding-3-small\n\n$0.00\n\n4.6K total tokens\n\nQwen 3.6 27B (OpenRouter) (qwen/qwen3.6-27b)\n\n$0.02\n\n9.7K total tokens\n\nClaude Opus 4.6 (Direct) (claude-opus-4-6)\n\n$12.03\n\n686.8K total tokens\n\nQwen 3.6 27B (OpenRouter) (qwen/qwen3.6-27b)\n\n$0.43\n\n821.4K total tokens\n\nUsage by Book\nLast 30 days\nThe Keeper's Arithmetic\n\n39 sessions\n\n$12.48\n\n1.4M in / 127.9K out\n\nVM1 Test\n\n2 sessions\n\n$0.00\n\n19 in / 0 out",
+  "capturedAt": "2026-07-27T02:02:31.015Z"
+}

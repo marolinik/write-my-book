@@ -1,0 +1,24 @@
+{
+  "label": "05a_existing_standalone_chapters",
+  "method": "GET",
+  "path": "/api/books/34cd7b88-94a7-47e5-8374-f5d4799fa02a/chapters",
+  "status": 200,
+  "response": [
+    {
+      "id": "5ede415d-2535-4da8-ae6a-34bc0e55231c",
+      "bookId": "34cd7b88-94a7-47e5-8374-f5d4799fa02a",
+      "actNumber": 1,
+      "chapterNumber": 1,
+      "title": null,
+      "status": "undiscussed",
+      "wordCount": 0,
+      "targetWordCount": null,
+      "betaScore": null,
+      "betaGate": "pending",
+      "revisionCount": 0,
+      "importedAt": null,
+      "createdAt": "2026-07-18T01:51:33.452Z",
+      "updatedAt": "2026-07-18T01:51:33.452Z"
+    }
+  ]
+}

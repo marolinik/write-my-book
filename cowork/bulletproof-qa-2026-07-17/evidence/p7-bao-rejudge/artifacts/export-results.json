@@ -1,0 +1,59 @@
+{
+  "bookId": "85c3d2c4-b193-45b7-b677-5d102af8e4d8",
+  "results": {
+    "docx": {
+      "format": "docx",
+      "ok": true,
+      "apiResp": {
+        "filename": "The-Koszeg-Manuscript-Bao-Rejudge-P7-Sao-Cafe-r-2026-07-20T11-26-08.docx",
+        "storageKey": "exports/The-Koszeg-Manuscript-Bao-Rejudge-P7-Sao-Cafe-r-2026-07-20T11-26-08.docx",
+        "wordCount": 51436,
+        "chapterCount": 16,
+        "estimatedPages": 108,
+        "warnings": [],
+        "format": "docx"
+      },
+      "downloadStatus": 200,
+      "downloadBytes": 18901,
+      "contentDisposition": "attachment; filename=\"The-Koszeg-Manuscript-Bao-Rejudge-P7-Sao-Cafe-r-2026-07-20T11-26-08.docx\"",
+      "contentType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "localFile": "export.docx"
+    },
+    "pdf": {
+      "format": "pdf",
+      "ok": true,
+      "apiResp": {
+        "filename": "The-Koszeg-Manuscript-Bao-Rejudge-P7-Sao-Cafe-r-2026-07-20T11-26-16.pdf",
+        "storageKey": "exports/The-Koszeg-Manuscript-Bao-Rejudge-P7-Sao-Cafe-r-2026-07-20T11-26-16.pdf",
+        "wordCount": 51436,
+        "chapterCount": 16,
+        "estimatedPages": 108,
+        "warnings": [],
+        "format": "pdf"
+      },
+      "downloadStatus": 200,
+      "downloadBytes": 773741,
+      "contentDisposition": "attachment; filename=\"The-Koszeg-Manuscript-Bao-Rejudge-P7-Sao-Cafe-r-2026-07-20T11-26-16.pdf\"",
+      "contentType": "application/pdf",
+      "localFile": "export.pdf"
+    },
+    "epub": {
+      "format": "epub",
+      "ok": true,
+      "apiResp": {
+        "filename": "The-Koszeg-Manuscript-Bao-Rejudge-P7-Sao-Cafe-r-2026-07-20T11-26-22.epub",
+        "storageKey": "exports/The-Koszeg-Manuscript-Bao-Rejudge-P7-Sao-Cafe-r-2026-07-20T11-26-22.epub",
+        "wordCount": 51436,
+        "chapterCount": 16,
+        "estimatedPages": 108,
+        "warnings": [],
+        "format": "epub"
+      },
+      "downloadStatus": 200,
+      "downloadBytes": 44121,
+      "contentDisposition": "attachment; filename=\"The-Koszeg-Manuscript-Bao-Rejudge-P7-Sao-Cafe-r-2026-07-20T11-26-22.epub\"",
+      "contentType": "application/epub+zip",
+      "localFile": "export.epub"
+    }
+  }
+}

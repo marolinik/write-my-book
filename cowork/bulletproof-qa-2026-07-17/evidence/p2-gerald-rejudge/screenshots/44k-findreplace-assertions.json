@@ -1,0 +1,58 @@
+{
+  "shot": "44k1-44k3",
+  "dims": "D1 / D3 (core revision tool) — book-wide find & replace UI + whole-word hazard",
+  "capturedAt": "2026-07-27T05:27:54.343Z",
+  "identity": "user_qa_p2 via header",
+  "fixture": {
+    "bookId": "bf60f7a0-6f66-4058-aa6b-1c1a036065e2",
+    "ch1Id": "660ffa45-0f5a-4933-917a-60842bfac774",
+    "ch2Id": "88718de8-9604-49c6-9a5e-8873e4f54073"
+  },
+  "seeded": {
+    "ch1": "Sam Kessler had never trusted a courier who smiled. It was the same smile every time — the same tilt, the same apology in the shoulders. “Sam,” Ilse said, “you and I want the same thing.” He weighed the sample in his palm. Zürich had taught Sam that samples lie, and that the same lie, told twice, becomes a ledger entry.",
+    "ch2": "In Łódź, Sam counted the notes twice. The samovar hissed; the room smelled of the same wet ash it always did. “Assume nothing,” Sam wrote in the margin, and underlined it. Sam's handwriting was the same as it had been in Kőszeg — cramped, unhurried, and exactly the same slant."
+  },
+  "assertions": {
+    "dialog_opened_with_ctrl_shift_f": true,
+    "dialog_offers_whole_word_option": false,
+    "dialog_offers_case_sensitive_option": true,
+    "dialog_offers_scope_switch": true,
+    "result_toast": "",
+    "samovar_after_rename": "Maxovar",
+    "wanted_replacements_whole_word_Sam": 6,
+    "total_Max_occurrences_after": 17,
+    "collateral_word_corruptions": 11,
+    "corrupted_words_observed": [
+      "Maxe",
+      "Maxovar",
+      "Maxple",
+      "Maxples"
+    ],
+    "character_rename_was_clean": false,
+    "NOTE": "The first pass reported 0 collateral because its regex was lowercase-only (\"maxe\"); the replacement preserves the replacement string casing, so the corruption reads \"Maxe\"/\"Maxple\"/\"Maxovar\". Counts here are recomputed from the stored prose in this same file — no re-run."
+  },
+  "proseAfter": {
+    "ch1": "Max Kessler had never trusted a courier who smiled. It was the Maxe smile every time — the Maxe tilt, the Maxe apology in the shoulders. “Max,” Ilse said, “you and I want the Maxe thing.” He weighed the Maxple in his palm. Zürich had taught Max that Maxples lie, and that the Maxe lie, told twice, becomes a ledger entry.",
+    "ch2": "In Łódź, Max counted the notes twice. The Maxovar hissed; the room smelled of the Maxe wet ash it always did. “Assume nothing,” Max wrote in the margin, and underlined it. Max's handwriting was the Maxe as it had been in Kőszeg — cramped, unhurried, and exactly the Maxe slant."
+  },
+  "dialogTextVerbatim": "Find & Replace\n\nSearch this chapter or the whole book. Matching is plain text — no wildcards or regular expressions.\n\nFind\nReplace with\nThis chapter\nWhole book\nCase sensitive\n17 matches in 2 chapters\nCh. 1 (10)\n\n…Sam Kessler had never trusted a courier who…\n\n…rusted a courier who smiled. It was the same smile every time — the same tilt, the …\n\n… It was the same smile every time — the same tilt, the same apology in the shoulder…\n\nCh. 2 — The Trieste Signal (7)\n\n…In Łódź, Sam counted the notes twice. The samovar hi…\n\n… Łódź, Sam counted the notes twice. The samovar hissed; the room smelled of the sam…\n\n…samovar hissed; the room smelled of the same wet ash it always did. “Assume nothing…\n\nCancel\nReplace all\nClose",
+  "network": [
+    {
+      "url": "/api/books/bf60f7a0-6f66-4058-aa6b-1c1a036065e2/search?q=Sam&caseSensitive=0",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "url": "/api/books/bf60f7a0-6f66-4058-aa6b-1c1a036065e2/search/replace",
+      "method": "POST",
+      "status": 200
+    }
+  ],
+  "log": [
+    "[2026-07-27T05:27:27.732Z] find/replace fixture book=bf60f7a0-6f66-4058-aa6b-1c1a036065e2 ch1=660ffa45-0f5a-4933-917a-60842bfac774 ch2=88718de8-9604-49c6-9a5e-8873e4f54073",
+    "[2026-07-27T05:27:27.733Z] seeded: ch1 \"Sam\"×3 \"same\"×5; ch2 \"Sam\"×3 \"same\"×3",
+    "[2026-07-27T05:27:41.725Z] dialog offers a whole-word option = false",
+    "[2026-07-27T05:27:46.112Z] result toast: \"\"",
+    "[2026-07-27T05:27:54.342Z] ch1 collateral \"maxe\" occurrences = 0; ch2 = 0; samovar rendered as \"Maxovar\""
+  ]
+}

@@ -1,0 +1,71 @@
+{
+ "ch5-content-before": {
+  "status": 200,
+  "version": 4,
+  "wordCount": 395,
+  "len": 2011,
+  "matchesPlanted": true
+ },
+ "findings-before": {
+  "total": 7,
+  "byStatusChapter": [
+   {
+    "id": "4591a969",
+    "ch": 5,
+    "status": "pending",
+    "severity": "important",
+    "category": "prose",
+    "created": "2026-07-18T17:29:42.812Z"
+   },
+   {
+    "id": "7a68493d",
+    "ch": 5,
+    "status": "pending",
+    "severity": "critical",
+    "category": "prose",
+    "created": "2026-07-18T17:29:42.723Z"
+   },
+   {
+    "id": "0002c9e1",
+    "ch": 1,
+    "status": "pending",
+    "severity": "suggestion",
+    "category": "redundancy",
+    "created": "2026-07-18T17:06:16.338Z"
+   },
+   {
+    "id": "bdb80574",
+    "ch": 5,
+    "status": "applied",
+    "severity": "critical",
+    "category": "prose",
+    "created": "2026-07-18T15:51:18.382Z"
+   },
+   {
+    "id": "9b7fbf43",
+    "ch": 5,
+    "status": "pending",
+    "severity": "important",
+    "category": "prose",
+    "created": "2026-07-18T15:51:05.255Z"
+   },
+   {
+    "id": "ce63cb76",
+    "ch": 5,
+    "status": "dismissed",
+    "severity": "suggestion",
+    "category": "clarity",
+    "created": "2026-07-18T15:50:32.246Z"
+   },
+   {
+    "id": "594ea427",
+    "ch": 5,
+    "status": "rejected",
+    "severity": "suggestion",
+    "category": "clarity",
+    "created": "2026-07-18T15:50:20.328Z"
+   }
+  ]
+ },
+ "ch5-restore": "SKIPPED — already byte-identical to planted probe"
+}

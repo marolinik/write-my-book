@@ -1,0 +1,89 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "http://localhost:3002/api/books/4116055c-6183-4675-926a-e04f31126951",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p1"
+    },
+    "body": null
+  },
+  "status": 200,
+  "error": null,
+  "responseHeaders": {
+    "connection": "keep-alive",
+    "content-type": "application/json",
+    "date": "Mon, 20 Jul 2026 11:26:37 GMT",
+    "keep-alive": "timeout=5",
+    "transfer-encoding": "chunked",
+    "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+  },
+  "body": {
+    "id": "4116055c-6183-4675-926a-e04f31126951",
+    "userId": "d65a17d8-c0df-4e49-82fa-2291cad77886",
+    "seriesId": null,
+    "bookNumber": 1,
+    "name": "The Salt Letters QA P1 93181fd1",
+    "genre": "Literary Fiction",
+    "language": "en",
+    "status": "concept",
+    "description": null,
+    "marketingKit": null,
+    "authorNotes": null,
+    "wordCount": 704,
+    "targetWordCount": null,
+    "chapterCount": 0,
+    "s3Prefix": "d65a17d8-c0df-4e49-82fa-2291cad77886/4116055c-6183-4675-926a-e04f31126951",
+    "createdAt": "2026-07-17T15:17:04.872Z",
+    "updatedAt": "2026-07-18T11:37:17.743Z",
+    "archivedAt": null,
+    "series": null,
+    "settings": {
+      "id": "28a63416-b65e-4019-a3c5-f2e0db4a061a",
+      "bookId": "4116055c-6183-4675-926a-e04f31126951",
+      "modelGhostwriter": "opus",
+      "modelEditor": "sonnet",
+      "modelBetaReader": "sonnet",
+      "modelAnalyst": "haiku",
+      "modelCoach": "sonnet",
+      "modelCreative": "opus",
+      "modelResearch": "sonnet",
+      "modelOverride": null,
+      "autoCommit": true,
+      "styleStrictness": "balanced",
+      "betaPanelSize": 10,
+      "betaConsensus": 80,
+      "betaConvergence": 70,
+      "language": "en",
+      "setupImportSkipped": false,
+      "setupComplete": false,
+      "journeyId": null,
+      "journeyStepsSnapshot": null
+    },
+    "chapters": [
+      {
+        "id": "ed84e638-0436-4cee-a458-669ce81cad50",
+        "bookId": "4116055c-6183-4675-926a-e04f31126951",
+        "actNumber": 1,
+        "chapterNumber": 1,
+        "title": null,
+        "status": "dev_edited",
+        "wordCount": 704,
+        "targetWordCount": null,
+        "betaScore": null,
+        "betaGate": "pending",
+        "revisionCount": 0,
+        "importedAt": null,
+        "createdAt": "2026-07-17T15:17:04.889Z",
+        "updatedAt": "2026-07-17T22:39:58.294Z"
+      }
+    ],
+    "_count": {
+      "documents": 6,
+      "agentSessions": 7
+    }
+  },
+  "bodyIsRawText": false,
+  "elapsed_ms": 136,
+  "capturedAt": "2026-07-20T11:26:37.219Z"
+}

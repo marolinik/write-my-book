@@ -1,0 +1,32 @@
+{
+  "label": "32-noauth-create-book-401",
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:3002/api/books",
+    "authMode": "NO-AUTH",
+    "authHeaderNames": [],
+    "body": {
+      "name": "no-auth control book",
+      "genre": "fantasy"
+    }
+  },
+  "response": {
+    "status": 403,
+    "statusText": "Forbidden",
+    "ms": 37,
+    "headers": {
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Mon, 20 Jul 2026 09:13:52 GMT",
+      "keep-alive": "timeout=5",
+      "transfer-encoding": "chunked",
+      "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+    },
+    "json": {
+      "error": "Free plan includes 1 book. Upgrade to Indie for 2 active books and unlimited AI runs.",
+      "upgradeToTier": "indie"
+    }
+  },
+  "error": null,
+  "capturedAt": "2026-07-20T09:13:52.294Z"
+}

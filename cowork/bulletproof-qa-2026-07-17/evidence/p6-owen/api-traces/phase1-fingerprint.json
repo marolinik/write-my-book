@@ -1,0 +1,79 @@
+{
+ "20-capture-style-start": {
+  "status": 200,
+  "elapsed": 4.594,
+  "body": {
+   "sessionId": "a3f56799-5540-4654-bad7-e44f596ebf13"
+  }
+ },
+ "21-capture-style-stream": {
+  "n_events": 760,
+  "elapsed": 431.64,
+  "final": {
+   "type": "complete",
+   "content": "Session finished",
+   "metadata": {
+    "success": true,
+    "tokensInput": 32881,
+    "tokensOutput": 1887,
+    "documentIds": [],
+    "sessionId": "a3f56799-5540-4654-bad7-e44f596ebf13",
+    "endReason": "natural",
+    "assistantText": "Your FINGERPRINT is complete. Here's what was extracted from the page:\n\n## PROSE DNA\n\nYour voice operates through **long-then-short rhythm**—rolling, and-stacked sentences that compress into a short declarative landing. You deploy fragments strictly for mood-setting or procedural notation, never as broken thought. About 40% of your paragraphs are single-sentence, creating that staccato logbook pulse.\n\n**Mean sentence length:** ~21 words, but with high variance (σ ≈ 9)—you swing deliberately between accumulation and compression.\n\n## VOICE PRINT\n\n- **\"The way you [verb]\" constructions** run throughout—your primary philosophical mechanism. The narrator cannot speak directly about herself; she disperses observation into the collective worker.\n- **Number obsession**: ninety-six steps, four thousand, six-hour intervals, four-second dark / two-second light. You think in arithmetic where most think in feeling.\n- **Log entries as rhythm markers**: clipped telegraphic strings (\"NNE 9 knots. Vis good.\") embedded in prose, serving as stylistic punctuation.\n- **Anaphora and parallelism**: \"grey water, grey light, grey wind off a grey sea, and the fifth grey is the one inside your chest\"—the stacked parallel drumming before the emotional turn.\n\n## NARRATIVE DISTANCE\n\nClose first-person, but the narrator maintains **double distance**—intimate with the reader, clinically distant from herself. Interiority arrives through procedural counting, parallel processing (\"I heard two things at once in that sentence\"), and delayed close-reading. There is no quoted internal monologue, no typographic shouting, no italics for emphasis. Emotion is structural, not semantic.\n\n## EMOTIONAL CRAFT\n\n**Emotion is never named.** It travels through:\n- **Body-as-instrument**: \"my hands go cold,\" \"wet hair plastered to my skull\"\n- **Procedural breach**: \"I did not trim the wick\"—breaking protocol signals rupture\n- **Environmental mirroring**: the lamp burning too bright when the wick is untrimmed, the gale as grief\n- **Weight metaphors**: \"the things got heavier and the money got quieter\"—gravity as moral register\n\nThe word **\"procedure\"** functions almost as a character—the narrator's organizing principle, her defense mechanism, her way of converting terror into arithmetic.\n\n## WHAT TO PRESERVE (Non-Negotiables)\n\n1. The procedural anchor in every paragraph\n2. The body-over-abstraction emotional filter\n3. The long-then-short sentence rhythm\n4. The \"the way you\" universalizing construction\n5. Log entries as integrated stylistic punctuation\n6. Similes that compare to skilled physical action (\"the way a man does when he is working to look comfortable\")\n7. Short, complete scene-endings (never fragmenting a closing)\n\n## WHAT TO WATCH (Risk Points)\n\n- **No ellipses** — this is an active absence pattern. Trailing thought exists in prose structure, not punctuation.\n- **No italics for emphasis** — emphasis is structural (placement, repetition, sentence-final positioning), not typographic.\n- **No pure expository paragraphs** — every sentence must anchor to an object, bodily sensation, or procedural action.\n- **Semicolons are rare** — used only for closely related balanced clauses, not decorative.\n\n---\n\nThe fingerprint is now locked in and will guide all subsequent specialist work (ghostwriting, editing, continuity) to stay within your voice parameters. You have a remarkably disciplined prose architecture—the \"arithmetic\" of the title is literally the arithmetic of your sentences.\n\nWhat would you like to do next? Options include:\n- **Dev edit** a chapter for structural issues\n- **Line edit** for prose-level refinement\n- **Write a new chapter** (ghostwriter calibrated to this fingerprint)\n- **Beta read** a chapter for reader response\n- **Plan a chapter** with the scene planner\n- Something else entirely",
+    "cancelled": false,
+    "resultMeta": {
+     "findingsCreated": 0,
+     "statusAdvanced": false
+    },
+    "suggestedNext": [
+     "dev-edit"
+    ]
+   }
+  }
+ },
+ "22-documents-list": {
+  "status": 200,
+  "elapsed": 1.755,
+  "body": [
+   {
+    "id": "6302d754-73e7-4e81-9307-c5f5bce27174",
+    "type": "FINGERPRINT",
+    "title": "Style Fingerprint — Maritime Procedural Voice",
+    "chapterNumber": null,
+    "currentVersion": 1
+   },
+   {
+    "id": "808a37f8-e8b6-4c27-acfe-52f7b264b801",
+    "type": "CHAPTER_CONTENT",
+    "title": "The Gull Road",
+    "chapterNumber": 4,
+    "currentVersion": 1
+   },
+   {
+    "id": "304fbc09-00bf-42ee-a2ec-aafd8f45cf1e",
+    "type": "CHAPTER_CONTENT",
+    "title": "The Boathouse Ledger",
+    "chapterNumber": 3,
+    "currentVersion": 1
+   },
+   {
+    "id": "18d0fa54-ab2c-4c34-b02f-2bb5bf911d0e",
+    "type": "CHAPTER_CONTENT",
+    "title": "The Third Letter",
+    "chapterNumber": 2,
+    "currentVersion": 1
+   },
+   {
+    "id": "bde84316-4da1-48ca-a270-d877b707064c",
+    "type": "CHAPTER_CONTENT",
+    "title": "Soup and Salvage",
+    "chapterNumber": 1,
+    "currentVersion": 1
+   }
+  ]
+ },
+ "23-fingerprint-fetch": {
+  "status": 200,
+  "len": 24969
+ }
+}

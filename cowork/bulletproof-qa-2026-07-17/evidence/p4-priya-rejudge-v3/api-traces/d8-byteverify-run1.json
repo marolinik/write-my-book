@@ -1,0 +1,137 @@
+{
+  "runLabel": "run1",
+  "batchId": "cmrtoa1i50000280fkryvkm8e",
+  "totalFindings": 7,
+  "findingsWithOriginalText": 5,
+  "findingsWithAnchorQuote": 7,
+  "originalText_verbatim_rate": "2/5",
+  "anchorQuote_verbatim_rate": "3/7",
+  "misquoteCount": 4,
+  "misquotes": [
+    {
+      "id": "2456d058-dbf8-4f9d-89de-a16215102858",
+      "chapterNumber": 1,
+      "originalText": "The glass was fogged with brine and the far horizon looked like a smudged pencil line.",
+      "anchorQuote": "The glass was fogged with brine and the far horizon looked like a smudged pencil line.",
+      "originalText_verbatim": false,
+      "anchorQuote_verbatim": false
+    },
+    {
+      "id": "31ded3ac-a6e4-4319-8f07-2719ee542cfe",
+      "chapterNumber": 2,
+      "originalText": "It was from a man who claimed to be the grandson of the last keeper. He wrote that his grandfather had left something in the walls, a box, and that he was dying and wished to know it had been found.",
+      "anchorQuote": "It was from a man who claimed to be the grandson of the last keeper. He wrote that his grandfather had left something in the walls, a box, and that he was dying and wished to know it had been found.",
+      "originalText_verbatim": false,
+      "anchorQuote_verbatim": false
+    },
+    {
+      "id": "f942709d-437f-4b54-8870-fe28e57e5690",
+      "chapterNumber": 2,
+      "originalText": "That night she could not sleep. She lay listening to the building breathe, the old timbers shifting like a person turning over, and she thought about all the things people hid in walls so that some later stranger would have to decide what they were worth.",
+      "anchorQuote": "She lay listening to the building breathe, the old timbers shifting like a person turning over,",
+      "originalText_verbatim": false,
+      "anchorQuote_verbatim": false
+    },
+    {
+      "id": "981379fb-e451-4857-9358-cac22acf52e3",
+      "chapterNumber": 3,
+      "originalText": "When she was done she understood the debt at last. The light had never been for\nthe ships. It had been for one woman who had promised to come back and had not,\nand for one man who had refused to believe the sea would keep her.",
+      "anchorQuote": "When she was done she understood the debt at last. The light had never been for the ships. It had been for one woman who had promised to come back and had not, and for one man who had refused to believe the sea would keep her.",
+      "originalText_verbatim": true,
+      "anchorQuote_verbatim": false
+    }
+  ],
+  "findings": [
+    {
+      "id": "2456d058-dbf8-4f9d-89de-a16215102858",
+      "sessionId": "074bf8cc-2b93-4b7b-9f57-6f2c2a8a30b8",
+      "chapterNumber": 1,
+      "severity": "suggestion",
+      "category": "verb-strength",
+      "status": "pending",
+      "originalText": "The glass was fogged with brine and the far horizon looked like a smudged pencil line.",
+      "anchorQuote": "The glass was fogged with brine and the far horizon looked like a smudged pencil line.",
+      "originalText_verbatim": false,
+      "anchorQuote_verbatim": false,
+      "rationale": "The chapter's strength is in its active, personified prose — the salt air \"eaten\" the railings, each step \"complained,\" the sea \"pretend[s].\" Shifting into a st"
+    },
+    {
+      "id": "b8afbe67-1e0a-47c5-9873-ece82e5f0b60",
+      "sessionId": "074bf8cc-2b93-4b7b-9f57-6f2c2a8a30b8",
+      "chapterNumber": 1,
+      "severity": "suggestion",
+      "category": "clarity",
+      "status": "rejected",
+      "originalText": null,
+      "anchorQuote": "When she was a girl the light had felt like a promise.",
+      "originalText_verbatim": null,
+      "anchorQuote_verbatim": true,
+      "rationale": "An introductory dependent clause requires a comma to separate it from the main clause. Without it, the reader's eye flows too smoothly into the sentence, losing"
+    },
+    {
+      "id": "cb4fdcd8-470c-40be-8c42-970c9aaeb0ed",
+      "sessionId": "074bf8cc-2b93-4b7b-9f57-6f2c2a8a30b8",
+      "chapterNumber": 1,
+      "severity": "suggestion",
+      "category": "clarity",
+      "status": "pending",
+      "originalText": "When she was a girl the light had felt like a promise.",
+      "anchorQuote": "When she was a girl the light had felt like a promise.",
+      "originalText_verbatim": true,
+      "anchorQuote_verbatim": true,
+      "rationale": "An introductory dependent clause requires a comma to separate it from the main clause. Without it, the reader's eye flows too smoothly into the sentence, losing"
+    },
+    {
+      "id": "0411aa50-90ab-4bca-a92b-ee753eed3b31",
+      "sessionId": "6721b9a3-773b-42b2-8bec-fba0eb082903",
+      "chapterNumber": 2,
+      "severity": "suggestion",
+      "category": "prose",
+      "status": "rejected",
+      "originalText": null,
+      "anchorQuote": "It was from a man who claimed to be the grandson of the last keeper.",
+      "originalText_verbatim": null,
+      "anchorQuote_verbatim": true,
+      "rationale": "The chapter stakes are heightened by uncertainty—we don't fully trust this stranger or his request. Using \"claimed\" creates doubt but the rest of the narration "
+    },
+    {
+      "id": "31ded3ac-a6e4-4319-8f07-2719ee542cfe",
+      "sessionId": "6721b9a3-773b-42b2-8bec-fba0eb082903",
+      "chapterNumber": 2,
+      "severity": "suggestion",
+      "category": "prose",
+      "status": "pending",
+      "originalText": "It was from a man who claimed to be the grandson of the last keeper. He wrote that his grandfather had left something in the walls, a box, and that he was dying and wished to know it had been found.",
+      "anchorQuote": "It was from a man who claimed to be the grandson of the last keeper. He wrote that his grandfather had left something in the walls, a box, and that he was dying and wished to know it had been found.",
+      "originalText_verbatim": false,
+      "anchorQuote_verbatim": false,
+      "rationale": "The chapter stakes are heightened by uncertainty—we don't fully trust this stranger or his request. Using \"claimed\" creates doubt but the rest of the narration "
+    },
+    {
+      "id": "f942709d-437f-4b54-8870-fe28e57e5690",
+      "sessionId": "6721b9a3-773b-42b2-8bec-fba0eb082903",
+      "chapterNumber": 2,
+      "severity": "suggestion",
+      "category": "prose",
+      "status": "pending",
+      "originalText": "That night she could not sleep. She lay listening to the building breathe, the old timbers shifting like a person turning over, and she thought about all the things people hid in walls so that some later stranger would have to decide what they were worth.",
+      "anchorQuote": "She lay listening to the building breathe, the old timbers shifting like a person turning over,",
+      "originalText_verbatim": false,
+      "anchorQuote_verbatim": false,
+      "rationale": "The simile \"the old timbers shifting like a person turning over\" is evocative but generic. The narrative has already invested in Priya's grandmother (who counte"
+    },
+    {
+      "id": "981379fb-e451-4857-9358-cac22acf52e3",
+      "sessionId": "38391915-cf0c-47b3-a80f-384e950ba935",
+      "chapterNumber": 3,
+      "severity": "suggestion",
+      "category": "show-tell",
+      "status": "pending",
+      "originalText": "When she was done she understood the debt at last. The light had never been for\nthe ships. It had been for one woman who had promised to come back and had not,\nand for one man who had refused to believe the sea would keep her.",
+      "anchorQuote": "When she was done she understood the debt at last. The light had never been for the ships. It had been for one woman who had promised to come back and had not, and for one man who had refused to believe the sea would keep her.",
+      "originalText_verbatim": true,
+      "anchorQuote_verbatim": false,
+      "rationale": "Paragraph 2 does the emotional work beautifully—the letters spanning eleven years, the repeated sentence \"the light is still burning, in case you are looking,\" "
+    }
+  ]
+}

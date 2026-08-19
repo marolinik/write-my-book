@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { decryptApiKey } from "@/lib/encryption";
 import { estimateCost } from "@/lib/cost";
+import { checkQuota } from "@/lib/billing/quota-checker";
 import { startSeriesAgentSchema } from "@/lib/validation";
 import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
@@ -23,6 +24,7 @@ import {
   processPostSession,
 } from "@/lib/agents";
 import type { AgentStreamMessage, AgentResult } from "@/lib/agents";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -31,7 +33,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id: seriesId } = await params;
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = startSeriesAgentSchema.parse(body);
 
     // Verify series ownership
@@ -51,6 +53,17 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json(
         { error: "Book not found in this series" },
         { status: 404 }
+      );
+    }
+
+    // Plan/quota gate — mirror the book-agent route. Without this an inactive
+    // subscription could still start series agent sessions (a paid-feature
+    // tier-gate bypass), unlike its book-agent counterpart.
+    const quotaResult = await checkQuota(user.id, "use_agent_session");
+    if (!quotaResult.allowed) {
+      return NextResponse.json(
+        { error: quotaResult.reason, upgradeToTier: quotaResult.upgradeToTier },
+        { status: 429 }
       );
     }
 
@@ -189,6 +202,9 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       modelId: model.modelId,
       registryId: model.id,
       maxRuntimeMs: serverCeilingMs,
+      // D-83: user-facing series agent request — a real user is present, so
+      // authoritative graph corrections (UpdateGraphEntity) are permitted.
+      interactive: true,
     });
     session.orchestrator = orchestrator;
 
@@ -211,20 +227,24 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         pushMessage(dbSession.id, message);
       },
       onComplete: async (result: AgentResult) => {
+        // Post-session is skipped for failed sessions (D-36: a
+        // provider-failure run must not advance workflow state).
         let suggestedNext: string[] = [];
-        try {
-          const postResult = await processPostSession({
-            sessionId: dbSession.id,
-            bookId: data.bookId,
-            userId: user.id,
-            workflowId: data.workflowId,
-            agentType: workflow.primaryAgent,
-            chapterNumber: data.chapterNumber,
-          });
-          suggestedNext = postResult.suggestedNext;
-        } catch (e) {
-          const errMsg = e instanceof Error ? e.message : "Unknown error";
-          console.error("[PostSession] Error:", errMsg);
+        if (result.success && !result.cancelled) {
+          try {
+            const postResult = await processPostSession({
+              sessionId: dbSession.id,
+              bookId: data.bookId,
+              userId: user.id,
+              workflowId: data.workflowId,
+              agentType: workflow.primaryAgent,
+              chapterNumber: data.chapterNumber,
+            });
+            suggestedNext = postResult.suggestedNext;
+          } catch (e) {
+            const errMsg = e instanceof Error ? e.message : "Unknown error";
+            console.error("[PostSession] Error:", errMsg);
+          }
         }
 
         completeSession(dbSession.id, result);
@@ -256,7 +276,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
           },
         });
       },
-      onError: async (error: Error) => {
+      onError: async (error: Error, partial?: { documentIds: string[] }) => {
         pushMessage(dbSession.id, {
           type: "error",
           content: "An error occurred during the agent session",
@@ -265,7 +285,9 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
           success: false,
           tokensInput: 0,
           tokensOutput: 0,
-          documentIds: [],
+          // Report documents written before the error — don't mislead consumers
+          // with an empty list (D-58; mirrors the book-agent F7 onError fix).
+          documentIds: partial?.documentIds ?? [],
           sessionId: dbSession.id,
         });
 
@@ -284,6 +306,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ sessionId: dbSession.id });
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

@@ -1,0 +1,37 @@
+﻿P8 Rita rejudge — WORKER-PROOF (exactly-one-worker at capture)
+Captured: 2026-07-20T13:19:58.6572640+02:00
+Host: LW11_MMARKOVIC  cwd: D:\Projects\wmb-pub
+
+=== Processes whose command line runs src/worker.ts (the worker launch chain) ===
+PID=31644
+  CMD: "C:\Program Files\nodejs\node.exe" C:\Users\MarkoMarkovic\AppData\Roaming\npm/node_modules/npm/bin/npx-cli.js tsx src/worker.ts
+PID=28224
+  CMD: "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\tsx\dist\cli.mjs" src/worker.ts
+PID=61892
+  CMD: "C:\Program Files\nodejs\node.exe" --require D:\Projects\wmb-pub\node_modules\tsx\dist\preflight.cjs --import file:///D:/Projects/wmb-pub/node_modules/tsx/dist/loader.mjs src/worker.ts
+
+=== Next.js dev server process(es) on :3002 ===
+PID=45304
+  CMD: "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\cross-env\dist\bin\cross-env.js" NODE_OPTIONS=--max-old-space-size=4096 next dev -p 3002
+PID=64752
+  CMD: "node"   "D:\Projects\wmb-pub\node_modules\.bin\\..\next\dist\bin\next" "dev" "-p" "3002"
+PID=53220
+  CMD: "C:\Program Files\nodejs\node.exe" D:\Projects\wmb-pub\node_modules\next\dist\server\lib\start-server.js
+
+=== END-OF-RUN RE-CONFIRM (2026-07-20T13:33:58.6949412+02:00): parent/child chain proves ONE worker runtime ===
+PID=31644  PPID=30280
+PID=28224  PPID=63044
+PID=61892  PPID=28224
+
+Interpretation: exactly ONE BullMQ worker runtime is live.
+ - PID 61892 (node --import tsx/loader src/worker.ts) is THE process that actually executes
+   src/worker.ts and instantiates the BullMQ Worker. Its PPID=28224 proves it is the child
+   of the tsx CLI (28224).
+ - PID 31644 (npx-cli 'tsx src/worker.ts') and PID 28224 (tsx/dist/cli.mjs src/worker.ts) are
+   non-executing launcher shims for the single `tsx src/worker.ts` command; they do not import
+   the module as a runtime or consume the queue.
+ - Only ONE node process (61892) imports src/worker.ts as a runtime => exactly one queue consumer.
+ - /api/health/dependencies (J2) independently reports worker status:ok, latency 62ms.
+All P8-rejudge probes are synchronous HTTP gate/fence/validation checks; NO agent-output or
+extraction latency was measured, so no measurement depends on worker count — but exactly-one
+is proven regardless.

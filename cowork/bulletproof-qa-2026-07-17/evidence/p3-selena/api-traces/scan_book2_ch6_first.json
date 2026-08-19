@@ -1,0 +1,9 @@
+{
+  "label": "scan_book2_ch6_first",
+  "method": "POST",
+  "path": "/api/books/2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90/continuity/scan?chapterNumber=6",
+  "status": 200,
+  "response": {
+    "flags": []
+  }
+}

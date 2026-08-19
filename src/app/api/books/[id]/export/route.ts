@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { getBookStorage } from "@/lib/storage";
 import { exportRequestSchema } from "@/lib/validation";
 import { exportManuscript } from "@/lib/import-export/export-pipeline";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { zodErrorResponse } from "@/lib/api/zod-error";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -20,7 +22,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = exportRequestSchema.parse(body);
 
     const storage = getBookStorage(user.id, bookId);
@@ -39,6 +41,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     const result = await exportManuscript(
       {
         bookId,
+        userId: user.id,
         format: data.format,
         isDraft: data.isDraft,
         sceneBreakGlyph: data.sceneBreakGlyph,
@@ -52,15 +55,13 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(result);
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if ((error as Error).name === "ZodError") {
-      return NextResponse.json(
-        { error: "Invalid input", details: error },
-        { status: 400 }
-      );
-    }
+    const zodRes = zodErrorResponse(error);
+    if (zodRes) return zodRes;
     console.error("POST /api/books/:id/export error:", error);
     return NextResponse.json(
       { error: (error as Error).message || "Export failed" },

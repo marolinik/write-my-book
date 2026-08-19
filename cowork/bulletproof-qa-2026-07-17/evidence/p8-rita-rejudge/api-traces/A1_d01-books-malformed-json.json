@@ -1,0 +1,25 @@
+{
+  "id": "A1",
+  "label": "d01-books-malformed-json",
+  "actor": "p3",
+  "capturedAt": "2026-07-20T11:30:51.342Z",
+  "request": {
+    "method": "POST",
+    "url": "http://127.0.0.1:3002/api/books",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p3",
+      "Content-Type": "application/json"
+    },
+    "body": "{not valid json at all",
+    "bodyMode": "raw"
+  },
+  "response": {
+    "status": 400,
+    "contentType": "application/json",
+    "bodyLength": 40,
+    "bodyText": "{\"error\":\"Invalid JSON in request body\"}"
+  },
+  "expected": "400 (was 500 D-01)",
+  "note": null
+}

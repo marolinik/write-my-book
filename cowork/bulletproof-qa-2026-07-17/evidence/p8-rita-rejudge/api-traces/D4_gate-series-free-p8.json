@@ -1,0 +1,27 @@
+{
+  "id": "D4",
+  "label": "gate-series-free-p8",
+  "actor": "p8",
+  "capturedAt": "2026-07-20T11:31:03.006Z",
+  "request": {
+    "method": "POST",
+    "url": "http://127.0.0.1:3002/api/series",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p8",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "title": "Rita RJ Series 1784547050860"
+    },
+    "bodyMode": "json"
+  },
+  "response": {
+    "status": 403,
+    "contentType": "application/json",
+    "bodyLength": 102,
+    "bodyText": "{\"error\":\"Series management requires the Professional plan or higher.\",\"upgradeToTier\":\"professional\"}"
+  },
+  "expected": "403 (series = Pro wall)",
+  "note": null
+}

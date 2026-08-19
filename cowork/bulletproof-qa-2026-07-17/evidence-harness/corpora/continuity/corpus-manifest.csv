@@ -1,0 +1,9 @@
+file,class,expectedFlag
+seeded/ch-dead-character-01.md,dead-character,true
+seeded/ch-location-conflict-01.md,location,true
+seeded/ch-timeline-01.md,timeline,true
+seeded/ch-relationship-01.md,relationship,true
+clean/ch-control-01.md,none,false
+nonchron/ch-flashback-01.md,none,false
+nonchron/ch-frame-story-01.md,none,false
+nonchron/ch-in-media-res-01.md,none,false

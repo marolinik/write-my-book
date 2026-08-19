@@ -37,7 +37,22 @@ export interface LocationNode extends GraphNodeBase {
 
 export interface EventNode extends GraphNodeBase {
   _label: "Event";
+  /**
+   * NARRATING-time chapter: the chapter this Event was extracted from (where it
+   * is told). Deterministically stamped at upsert (never LLM-derived). Kept for
+   * display/timeline ordering and for legacy compatibility.
+   */
   chapter: number;
+  /**
+   * STORY-time chapter: when the Event actually happens in the story's internal
+   * chronology (RC-2 / D-32). For linear narration this equals `chapter`; for a
+   * flashback / retelling / dream / prophecy narrated in a later chapter it is
+   * the EARLIER story chapter the event belongs to. Consistency checks
+   * (dead_character_reappears, timeline_violation, location_conflict) compare
+   * story-time so non-chronological narration stops false-firing. Defaults to
+   * `chapter` when no story-time signal is available.
+   */
+  occursInChapter?: number;
   timelinePosition?: string; // relative or absolute time reference
   significance: "major" | "minor" | "turning-point" | "climax";
   description?: string;
@@ -117,6 +132,31 @@ export type RelationshipType =
   | "MENTIONED_IN"      // any → Chapter
   | "TRANSFORMS_INTO";  // Character/Object → Character/Object
 
+/**
+ * Runtime allowlist mirroring the RelationshipType union — the single source of
+ * truth for the extraction tool schema + filter (entity-extractor), the agent
+ * UpdateGraphEntity tool schema (agents/tools), and the Cypher boundary
+ * sanitizer (graph-builder.sanitizeRelationshipType, D-63). `as const satisfies`
+ * guarantees no entry can drift to a value that is not a valid RelationshipType.
+ */
+export const RELATIONSHIP_TYPES = [
+  "APPEARS_IN",
+  "LOCATED_AT",
+  "PARTICIPATES_IN",
+  "KNOWS",
+  "ALLIED_WITH",
+  "OPPOSES",
+  "OWNS",
+  "PART_OF",
+  "LEADS_TO",
+  "FORESHADOWS",
+  "RESOLVES",
+  "OCCURS_IN",
+  "BELONGS_TO",
+  "MENTIONED_IN",
+  "TRANSFORMS_INTO",
+] as const satisfies readonly RelationshipType[];
+
 export interface GraphRelationship {
   type: RelationshipType;
   fromId: string;
@@ -146,6 +186,21 @@ export interface ExtractedRelationship {
 }
 
 export interface ExtractionResult {
+  /**
+   * The book this extraction belongs to. REQUIRED and authoritative: every
+   * node and relationship write in graph-builder is scoped to this id (D-30 —
+   * a relationship upsert that matched endpoints by name alone wrote edges
+   * into every same-named pair across ALL books, including other tenants').
+   */
+  bookId: string;
+  /**
+   * The owning tenant (RC-6 defense in depth). Optional & backward-compatible:
+   * when present it is stamped onto every node/edge written for this extraction
+   * so graph reads can enforce tenant isolation beyond bookId alone. Legacy /
+   * background callers that omit it simply write no userId (reads stay
+   * bookId-scoped, exactly as before).
+   */
+  userId?: string;
   entities: ExtractedEntity[];
   relationships: ExtractedRelationship[];
   chapterNumber: number;

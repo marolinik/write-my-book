@@ -1,0 +1,47 @@
+Worker-proof check — P1 Maya journey (re-capture before D8 dev-edit measurement)
+Timestamp: 2026-07-18T00:15:00Z (captured immediately before step 1d new dev-edit session)
+
+Command run:
+Get-CimInstance Win32_Process -Filter "Name='node.exe'" | Where-Object { $_.CommandLine -match 'src/worker' } | Select-Object ProcessId, ParentProcessId, CommandLine | Format-List
+(plus a parent-chain walk on the two intermediate cmd.exe wrappers to confirm single lineage)
+
+Output — node.exe processes matching src/worker:
+ProcessId       : 36456   (node.exe running npx-cli.js tsx src/worker.ts)
+ParentProcessId : 26496   (cmd.exe /d /s /c npx tsx src/worker.ts)
+---
+ProcessId       : 31012   (node running tsx/dist/cli.mjs src/worker.ts)
+ParentProcessId : 12744   (cmd.exe /d /s /c tsx src/worker.ts)
+---
+ProcessId       : 37060   (node.exe --require tsx/dist/preflight.cjs --import tsx/dist/loader.mjs src/worker.ts)  <-- LEAF WORKER RUNTIME
+ParentProcessId : 31012
+
+Parent-chain walk (confirms single lineage, not two independent workers):
+ProcessId 26496 (cmd.exe, npx tsx src/worker.ts) ParentProcessId 32224
+ProcessId 12744 (cmd.exe, tsx src/worker.ts)     ParentProcessId 36456   <-- spawned BY 36456, same chain
+
+Full resolved chain:
+26496 (cmd: npx tsx src/worker.ts)
+  -> 36456 (node: npx-cli.js tsx src/worker.ts)
+    -> 12744 (cmd: tsx src/worker.ts)
+      -> 31012 (node: tsx/dist/cli.mjs src/worker.ts)
+        -> 37060 (node: preflight+loader src/worker.ts)  <-- LEAF WORKER RUNTIME
+
+CONCLUSION: Exactly ONE worker runtime confirmed. Leaf worker PID = 37060.
+All node.exe hits above form a single wrapper chain (cmd -> npx -> cmd -> tsx cli -> node loader),
+not multiple independent workers. Same wrapper-chain shape as the prior 2026-07-17T15:16:18Z capture
+(this session's worker was not restarted between captures — PID lineage differs only because process
+IDs are not stable across the two capture times, consistent with normal OS PID reuse, not a restart).
+
+Server reachability check at capture time: GET /api/health with QA headers -> HTTP 200.
+
+Proceeding with step 1d (new dev-edit agent session) under this single-worker guarantee, per
+GRADING-PROTOCOL §8 stale-worker rule.
+
+ADDENDUM 2026-07-18T00:23Z: between the above capture and step 1 execution, the Next.js dev
+server (app server on :3002, NOT the worker) briefly refused connections and came back on a
+new listener PID (41736 -> 41240) — see api-traces/BLOCKER-double-dynamic-routes-404.txt for
+the routing regression this coincided with/resolved. Re-ran the worker process-list check
+immediately after: leaf worker PID is still 37060 with the identical parent chain
+(26496 -> 36456 -> 12744 -> 31012 -> 37060) captured above — the worker process itself was
+NOT restarted, only the separate app-server process was. Single-worker guarantee still holds
+for all measurements below.

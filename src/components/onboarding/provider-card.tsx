@@ -21,6 +21,7 @@ import {
   useDeleteApiKey,
   type ApiKeyEntry,
 } from "@/hooks/use-api-keys";
+import { useLanguage } from "@/components/providers/language-provider";
 import type { ProviderDefinition } from "@/lib/llm/providers";
 
 // ─── Icon map ──────────────────────────────────────────────────
@@ -71,6 +72,7 @@ export function ProviderCard({
 }: ProviderCardProps) {
   const addKey = useAddApiKey();
   const deleteKey = useDeleteApiKey();
+  const { t } = useLanguage();
 
   const [state, setState] = useState<CardState>(
     existingKey?.validatedAt ? "connected" : "disconnected"
@@ -177,7 +179,7 @@ export function ProviderCard({
             )}
           </div>
           <p className="text-xs text-muted-foreground truncate">
-            {provider.description}
+            {t.settings.providerBlurbs[provider.key] ?? provider.description}
           </p>
         </div>
       </div>
@@ -193,7 +195,7 @@ export function ProviderCard({
       {effectiveState === "disconnected" && (
         <div className="flex items-center gap-2 mt-3">
           <Button variant="outline" size="sm" onClick={handleStartAdding}>
-            Add Key
+            {t.settings.addKey}
           </Button>
           <a
             href={provider.docsUrl}
@@ -201,7 +203,7 @@ export function ProviderCard({
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
-            Get key <ExternalLinkIcon className="size-3" />
+            {t.settings.getKey} <ExternalLinkIcon className="size-3" />
           </a>
         </div>
       )}
@@ -210,7 +212,7 @@ export function ProviderCard({
         <div className="space-y-3 mt-3">
           <div className="space-y-1.5">
             <Label htmlFor={`key-${provider.key}`} className="text-xs">
-              API Key
+              {t.settings.apiKey}
             </Label>
             <Input
               id={`key-${provider.key}`}
@@ -227,11 +229,11 @@ export function ProviderCard({
 
           <div className="space-y-1.5">
             <Label htmlFor={`label-${provider.key}`} className="text-xs">
-              Label (optional)
+              {t.settings.labelOptional}
             </Label>
             <Input
               id={`label-${provider.key}`}
-              placeholder="e.g. Personal, Work"
+              placeholder={t.settings.labelPlaceholder}
               value={labelInput}
               onChange={(e) => setLabelInput(e.target.value)}
               className="text-sm"
@@ -250,14 +252,14 @@ export function ProviderCard({
               onClick={handleValidateAndSave}
               disabled={!keyInput.trim()}
             >
-              Validate & Save
+              {t.settings.validateAndSave}
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={handleCancel}
             >
-              Cancel
+              {t.settings.cancel}
             </Button>
             {effectiveState === "error" && (
               <a
@@ -266,7 +268,7 @@ export function ProviderCard({
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors ml-auto"
               >
-                Get key <ExternalLinkIcon className="size-3" />
+                {t.settings.getKey} <ExternalLinkIcon className="size-3" />
               </a>
             )}
           </div>
@@ -276,7 +278,7 @@ export function ProviderCard({
       {effectiveState === "validating" && (
         <div className="flex items-center gap-2 mt-3 text-sm text-muted-foreground">
           <Loader2Icon className="size-4 animate-spin" />
-          Validating...
+          {t.settings.validating}
         </div>
       )}
 
@@ -292,7 +294,7 @@ export function ProviderCard({
               className="text-xs"
               onClick={handleStartAdding}
             >
-              Replace
+              {t.settings.replace}
             </Button>
             <Button
               variant="ghost"
@@ -302,7 +304,7 @@ export function ProviderCard({
               disabled={deleteKey.isPending}
             >
               <Trash2Icon className="size-3 mr-1" />
-              Remove
+              {t.settings.remove}
             </Button>
           </div>
         </div>

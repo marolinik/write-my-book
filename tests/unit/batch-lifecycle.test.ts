@@ -360,6 +360,22 @@ describe("batch lifecycle — (b) cap-skip guard", () => {
     );
     expect(skipped).toBe(false);
   });
+
+  it("D-96: flips an admitted under-cap child to 'running' before building the orchestrator", async () => {
+    h.redis.store.set(`batch:${BATCH_ID}:spent`, "2.00");
+    // No API keys → the orchestrator build throws downstream; we assert only
+    // that the queued→running flip fired for THIS child, so a mid-run poll no
+    // longer shows an actively-executing child as 'queued'. Terminal handling
+    // (onComplete/onError/catch) is unchanged.
+    await expect(processAgentJob(makeAgentJob(CHILD))).rejects.toBeTruthy();
+    const runningFlip = h.db.agentSession.update.mock.calls.find(
+      (c) => (c[0] as { data?: { status?: string } })?.data?.status === "running"
+    );
+    expect(runningFlip).toBeDefined();
+    expect((runningFlip![0] as { where: { id: string } }).where.id).toBe(
+      "child-ch1-dev"
+    );
+  });
 });
 
 // ── Phase (c): fan-in digest ─────────────────────────────────────────────────
@@ -437,6 +453,83 @@ describe("batch lifecycle — (c) digest aggregation", () => {
     expect(note.message).toContain("$10.50");
   });
 
+  it("Z11: a Redis ledger read failure falls back to the DB actualCostUsd sum, not $0", async () => {
+    h.db.batchRun.findUnique.mockResolvedValue({
+      id: BATCH_ID,
+      bookId: BOOK_ID,
+      userId: USER_ID,
+      workflowIds: ["dev-edit"],
+      chapterStart: 1,
+      chapterEnd: 2,
+      budgetCapUsd: CAP,
+      status: "running",
+      halted: false,
+      spentUsd: 0,
+    });
+    h.db.agentSession.findMany.mockResolvedValue([
+      { id: "s1", status: "completed", chapterNumber: 1, workflowId: "dev-edit", actualCostUsd: 0.05 },
+      { id: "s2", status: "completed", chapterNumber: 2, workflowId: "dev-edit", actualCostUsd: 0.04 },
+    ]);
+    h.db.editFinding.findMany.mockResolvedValue([]);
+    h.db.chapter.findMany.mockResolvedValue([
+      { chapterNumber: 1, status: "drafted", betaGate: null },
+      { chapterNumber: 2, status: "drafted", betaGate: null },
+    ]);
+    // Simulate a Redis hiccup on the ledger read (3 gets in Promise.all).
+    h.redis.get
+      .mockRejectedValueOnce(new Error("redis down"))
+      .mockRejectedValueOnce(new Error("redis down"))
+      .mockRejectedValueOnce(new Error("redis down"));
+
+    await processBatchDigestJob(makeDigestJob());
+
+    const upd = h.db.batchRun.update.mock.calls[0][0];
+    // Pre-fix wrote spentUsd: 0 (ledger's error default); the fix falls back to
+    // the persisted per-session sum 0.05 + 0.04 = 0.09.
+    expect(upd.data.spentUsd).toBeCloseTo(0.09, 5);
+    expect(upd.data.spentUsd).not.toBe(0);
+  });
+
+  // D-186a rider: a mid-run CANCEL now persists the spend it derived from the
+  // child rows, so `BatchRun.spentUsd` can already be non-zero when the digest
+  // lands. The reconciled figure must never REGRESS below a number the writer
+  // was already shown (live-batch-view rule 2), even if the Redis ledger reads
+  // lower (partial increment, key TTL, a child billed to the DB but not the
+  // ledger).
+  it("D-186: the digest never reports LESS spend than was already persisted", async () => {
+    h.db.batchRun.findUnique.mockResolvedValue({
+      id: BATCH_ID,
+      bookId: BOOK_ID,
+      userId: USER_ID,
+      workflowIds: ["dev-edit"],
+      chapterStart: 1,
+      chapterEnd: 2,
+      budgetCapUsd: CAP,
+      status: "cancelled",
+      halted: true,
+      spentUsd: 3.25, // written by the cancel route from the child rows
+    });
+    h.db.agentSession.findMany.mockResolvedValue([
+      { id: "s1", status: "completed", chapterNumber: 1, workflowId: "dev-edit", actualCostUsd: 3.25 },
+      { id: "s2", status: "skipped", chapterNumber: 2, workflowId: "dev-edit", actualCostUsd: null },
+    ]);
+    h.db.editFinding.findMany.mockResolvedValue([]);
+    h.db.chapter.findMany.mockResolvedValue([
+      { chapterNumber: 1, status: "drafted", betaGate: null },
+      { chapterNumber: 2, status: "drafted", betaGate: null },
+    ]);
+    // Ledger under-counts (only the first partial increment landed).
+    h.redis.store.set(`batch:${BATCH_ID}:spent`, "1.00");
+
+    await processBatchDigestJob(makeDigestJob());
+
+    const upd = h.db.batchRun.update.mock.calls[0][0];
+    expect(upd.data.spentUsd).toBeCloseTo(3.25, 5);
+    expect(upd.data.status).toBe("cancelled"); // cancel is never relabelled
+    const note = h.db.bookNotification.create.mock.calls[0][0].data;
+    expect(note.message).toContain("$3.25");
+  });
+
   it("a clean run (no skips, under cap) writes status 'done' and a normal-priority notification", async () => {
     h.db.batchRun.findUnique.mockResolvedValue({
       id: BATCH_ID,
@@ -471,5 +564,134 @@ describe("batch lifecycle — (c) digest aggregation", () => {
     });
     const note = h.db.bookNotification.create.mock.calls[0][0].data;
     expect(note.priority).toBe("normal");
+  });
+
+  it("D-98: a budget-cap halt is titled a halt (not 'complete') and names it in the message", async () => {
+    h.db.batchRun.findUnique.mockResolvedValue({
+      id: BATCH_ID,
+      bookId: BOOK_ID,
+      userId: USER_ID,
+      workflowIds: ["dev-edit"],
+      chapterStart: 1,
+      chapterEnd: 3,
+      budgetCapUsd: CAP,
+      status: "running",
+      halted: false,
+    });
+    h.db.agentSession.findMany.mockResolvedValue([
+      { id: "s1", status: "completed", chapterNumber: 1, workflowId: "dev-edit", actualCostUsd: 5 },
+      { id: "s2", status: "completed", chapterNumber: 2, workflowId: "dev-edit", actualCostUsd: 5.5 },
+      { id: "s3", status: "skipped", chapterNumber: 3, workflowId: "dev-edit", actualCostUsd: null },
+    ]);
+    h.db.editFinding.findMany.mockResolvedValue([]);
+    h.db.chapter.findMany.mockResolvedValue([
+      { chapterNumber: 1, status: "drafted", betaGate: null },
+      { chapterNumber: 2, status: "drafted", betaGate: null },
+      { chapterNumber: 3, status: "drafted", betaGate: null },
+    ]);
+    h.redis.store.set(`batch:${BATCH_ID}:spent`, "10.50");
+    h.redis.store.set(`batch:${BATCH_ID}:halted`, "1");
+
+    await processBatchDigestJob(makeDigestJob());
+
+    const note = h.db.bookNotification.create.mock.calls[0][0].data;
+    // Before the fix every terminal digest was titled "Overnight batch complete"
+    // and the message never named the halt — a budget-cap stop read as clean.
+    expect(note.title).not.toBe("Overnight batch complete");
+    expect(note.title.toLowerCase()).toContain("halt");
+    expect(note.message.toLowerCase()).toContain("halt");
+    // The spend figure itself must be unchanged (effectiveSpent, as-is).
+    expect(note.message).toContain("$10.50");
+  });
+
+  it("D-122: digest + notification count only writer-visible findings (gate-rejected excluded)", async () => {
+    h.db.batchRun.findUnique.mockResolvedValue({
+      id: BATCH_ID,
+      bookId: BOOK_ID,
+      userId: USER_ID,
+      workflowIds: ["dev-edit"],
+      chapterStart: 1,
+      chapterEnd: 1,
+      budgetCapUsd: CAP,
+      status: "running",
+      halted: false,
+      spentUsd: 0,
+    });
+    h.db.agentSession.findMany.mockResolvedValue([
+      { id: "s1", status: "completed", chapterNumber: 1, workflowId: "dev-edit", actualCostUsd: 1 },
+    ]);
+    // 5 real findings the writer will see + 2 auto-rejected by the
+    // CreateFinding validation gate (persisted as rejection analytics only).
+    h.db.editFinding.findMany.mockResolvedValue([
+      { severity: "critical", category: "pacing", chapterNumber: 1, status: "pending" },
+      { severity: "important", category: "dialogue", chapterNumber: 1, status: "pending" },
+      { severity: "suggestion", category: "prose", chapterNumber: 1, status: "pending" },
+      { severity: "suggestion", category: "prose", chapterNumber: 1, status: "pending" },
+      { severity: "suggestion", category: "prose", chapterNumber: 1, status: "pending" },
+      { severity: "critical", category: "pacing", chapterNumber: 1, status: "rejected" },
+      { severity: "critical", category: "pacing", chapterNumber: 1, status: "rejected" },
+    ]);
+    h.db.chapter.findMany.mockResolvedValue([
+      { chapterNumber: 1, status: "drafted", betaGate: null },
+    ]);
+    h.redis.store.set(`batch:${BATCH_ID}:spent`, "1.00");
+
+    await processBatchDigestJob(makeDigestJob());
+
+    // The digest must read the status column so it can tell the two apart.
+    const findingSelect = h.db.editFinding.findMany.mock.calls[0][0].select as
+      | Record<string, boolean>
+      | undefined;
+    expect(findingSelect?.status).toBe(true);
+
+    const upd = h.db.batchRun.update.mock.calls[0][0];
+    const digest = upd.data.digest as {
+      findings: { total: number; suppressed: number; bySeverity: Record<string, number> };
+    };
+    // Pre-fix this read 7 — the exact over-claim all three judges filed.
+    expect(digest.findings.total).toBe(5);
+    expect(digest.findings.suppressed).toBe(2);
+    expect(digest.findings.bySeverity).toEqual({
+      critical: 1,
+      important: 1,
+      suggestion: 3,
+    });
+
+    // The morning notification says 5, and NAMES the discarded rows rather
+    // than silently dropping them.
+    const note = h.db.bookNotification.create.mock.calls[0][0].data;
+    expect(note.message).toContain("5 findings");
+    expect(note.message).not.toContain("7 findings");
+    expect(note.message).toContain("2 discarded");
+  });
+
+  it("D-98: a sub-cent budget cap renders with precision, not '$0.00 cap'", async () => {
+    h.db.batchRun.findUnique.mockResolvedValue({
+      id: BATCH_ID,
+      bookId: BOOK_ID,
+      userId: USER_ID,
+      workflowIds: ["dev-edit"],
+      chapterStart: 1,
+      chapterEnd: 1,
+      budgetCapUsd: 0.005,
+      status: "running",
+      halted: false,
+      spentUsd: 0,
+    });
+    h.db.agentSession.findMany.mockResolvedValue([
+      { id: "s1", status: "completed", chapterNumber: 1, workflowId: "dev-edit", actualCostUsd: 0.002 },
+    ]);
+    h.db.editFinding.findMany.mockResolvedValue([]);
+    h.db.chapter.findMany.mockResolvedValue([
+      { chapterNumber: 1, status: "drafted", betaGate: null },
+    ]);
+    h.redis.store.set(`batch:${BATCH_ID}:spent`, "0.002");
+
+    await processBatchDigestJob(makeDigestJob());
+
+    const note = h.db.bookNotification.create.mock.calls[0][0].data;
+    // toFixed(2) collapsed a $0.005 cap to "$0.00 cap" — show the real cap.
+    expect(note.message).toContain("$0.005");
+    expect(note.message).not.toContain("/ $0.00 cap");
   });
 });

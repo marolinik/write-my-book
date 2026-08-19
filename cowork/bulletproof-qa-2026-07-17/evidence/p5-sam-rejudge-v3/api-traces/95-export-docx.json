@@ -1,0 +1,33 @@
+{
+  "label": "95-export-docx",
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:3002/api/books/35ff1112-52af-4001-a0f4-ec83f4dad9b0/export",
+    "authMode": "persona",
+    "authHeaderNames": [
+      "x-e2e-test-secret(masked:test-se...cret)",
+      "x-e2e-clerk-id:user_qa_p5"
+    ],
+    "body": {
+      "format": "docx",
+      "isDraft": false
+    }
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "ms": 1324,
+    "json": {
+      "filename": "Sam-Free-Tier-On-Ramp-QA-2026-07-20-2026-07-20T15-28-14.docx",
+      "storageKey": "exports/Sam-Free-Tier-On-Ramp-QA-2026-07-20-2026-07-20T15-28-14.docx",
+      "wordCount": 116,
+      "chapterCount": 1,
+      "estimatedPages": 6,
+      "warnings": [],
+      "format": "docx"
+    }
+  },
+  "error": null,
+  "aborted": false,
+  "capturedAt": "2026-07-20T15:28:15.569Z"
+}

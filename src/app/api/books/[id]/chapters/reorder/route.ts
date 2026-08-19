@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import type { Prisma } from "@/generated/prisma/client";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 /**
  * PATCH /api/books/:id/chapters/reorder
@@ -48,7 +49,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id: bookId } = await params;
-    const { order } = reorderSchema.parse(await req.json());
+    const { order } = reorderSchema.parse(await parseJsonBody(req));
 
     // Duplicate chapterIds or duplicate target numbers are structurally invalid.
     const uniqueIds = new Set(order.map((o) => o.chapterId));
@@ -124,6 +125,8 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ reordered: order.length });
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

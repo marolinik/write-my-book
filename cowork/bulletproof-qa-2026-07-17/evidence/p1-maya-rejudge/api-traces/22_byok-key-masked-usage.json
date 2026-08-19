@@ -1,0 +1,40 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "http://localhost:3002/api/settings/api-keys",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p1"
+    },
+    "body": null
+  },
+  "status": 200,
+  "error": null,
+  "responseHeaders": {
+    "connection": "keep-alive",
+    "content-type": "application/json",
+    "date": "Mon, 20 Jul 2026 11:37:26 GMT",
+    "keep-alive": "timeout=5",
+    "transfer-encoding": "chunked",
+    "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+  },
+  "body": [
+    {
+      "id": "93751186-c920-45e5-bb9b-2694e5b939fb",
+      "provider": "openrouter",
+      "label": "qa",
+      "isDefault": true,
+      "validatedAt": "2026-07-20T00:52:24.106Z",
+      "createdAt": "2026-07-17T15:14:39.468Z",
+      "maskedKey": "sk-or-v...705e",
+      "usage": {
+        "totalTokens": 700149,
+        "totalCost": 0.35415742499999997,
+        "sessionCount": 8
+      }
+    }
+  ],
+  "bodyIsRawText": false,
+  "elapsed_ms": 479,
+  "capturedAt": "2026-07-20T11:37:26.315Z"
+}

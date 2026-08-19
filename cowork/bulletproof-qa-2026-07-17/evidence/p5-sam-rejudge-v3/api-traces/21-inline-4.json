@@ -1,0 +1,46 @@
+{
+  "label": "21-inline-4",
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:3002/api/books/35ff1112-52af-4001-a0f4-ec83f4dad9b0/inline-edit",
+    "authMode": "persona",
+    "authHeaderNames": [
+      "x-e2e-test-secret(masked:test-se...cret)",
+      "x-e2e-clerk-id:user_qa_p5"
+    ],
+    "body": {
+      "selectedText": "the fog had swallowed the harbor lights",
+      "surroundingContext": "By the time the ferry reached the far shore, the fog had swallowed the harbor lights.",
+      "instruction": "vary the rhythm",
+      "count": 3
+    }
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "ms": 44259,
+    "json": {
+      "suggestions": [
+        {
+          "text": "fog thickened, snuffing the harbor lights.",
+          "label": "Staccato cadence"
+        },
+        {
+          "text": "the harbor lights had faded into fog.",
+          "label": "Legato pacing"
+        },
+        {
+          "text": "thick fog descended, erasing the harbor lights.",
+          "label": "Trochaic stress"
+        }
+      ],
+      "tokensUsed": {
+        "input": 267,
+        "output": 3464
+      }
+    }
+  },
+  "error": null,
+  "aborted": false,
+  "capturedAt": "2026-07-20T15:23:25.363Z"
+}

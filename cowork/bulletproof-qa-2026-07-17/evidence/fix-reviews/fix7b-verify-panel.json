@@ -1,0 +1,231 @@
+{
+  "summary": "Perspective-diverse Fable adversarial verify of fix 7 sub-fix (b) / D-32a (sticky-dead monotonic entity merge) before landing",
+  "agentCount": 4,
+  "logs": [],
+  "result": [
+    {
+      "lens": "cypher-semantics-mock-fidelity",
+      "verdict": "APPROVE_WITH_NOTES",
+      "blocking": false,
+      "gate": "tsc --noEmit exit 0; vitest tests/unit/graph-entity-property-monotonic.test.ts 11/11 passed (full-suite 920/122 not re-run under this lens)",
+      "summary": "The attack failed on all four assigned vectors. (1) The three ON MATCH CASE clauses are valid Cypher (generic CASE as SET expression, double-quoted literals, IS NULL predicates, $param refs) and behave as claimed under real MERGE semantics, including three-valued logic: NULL-status nodes fall to ELSE and adopt $incomingStatus, so a genuine first death lands, and deathChapter stamps in the same query via the untouched coalesce clause (deriveEntityGraphProps reads the original properties object, unaffected by the allProps deletes). (2) Because status/role/description are removed from updateProps before the maps are built, there is zero key overlap with `n += $updateProps`, making SET-item ordering ambiguity moot. (3) The fake session is genuinely discriminating, not a lying mock: it always blanket-applies updateProps and applies sticky/preserve logic ONLY when the production-built query text contains the exact clause, with node state derived from params — under unmodified code the fake blanket-overwrites and b1/b1'/b3/b4/b5/b7 fail (matching the 6/11 RED claim); a hybrid bug (clause present but field still in updateProps) is caught by b1/b5; clause-text drift breaks b2/b2''/b3'. (4) Incoming values ride as Cypher params ($incomingStatus etc.), added to mergeParams exactly when the clause is pushed — D-63 boundary intact (test b6). One real finding: the handoff's rationale claim that role/description are read by no continuity check is wrong — character_undocumented (graph-queries.ts:345) gates on role=\"mentioned\" AND description IS NULL, and role-freeze can sustain that advisory where a later role upgrade previously cleared it. Non-blocking: that check type is filtered out of writer-facing continuity flags (continuity-flags.ts:5-10,60), surfaces only via the agent consistency-checks tool, is severity-minor, and clears via still-permitted description backfill — so no writer-facing continuity false positive is manufactured and the D8 re-cap rule is not triggered.",
+      "findings": [
+        {
+          "severity": "medium",
+          "claim": "Handoff claim 'neither role nor description is read by a continuity gate' is false: character_undocumented (src/lib/graph/graph-queries.ts:345) gates on c.role = \"mentioned\" AND c.description IS NULL, and preserve-first role can sustain or newly surface that advisory where a pre-fix role upgrade would have cleared it",
+          "detail": "Sequence: ch1 scan emits role 'mentioned' (no description), ch2 scan emits role 'supporting' (no description). Pre-fix: role becomes 'supporting' and the check stops firing. Post-fix: role stays 'mentioned' (first-non-empty wins), lastMentioned > firstAppearance, description NULL, so the check keeps firing. NOT blocking because: (a) character_undocumented is excluded from writer-facing continuity flags — INLINE_TYPES/BOOK_LEVEL_TYPES in src/lib/continuity/continuity-flags.ts:5-10 drop it at :60, so it never persists as a ContinuityFlag or reaches the D8-scored surface; it flows only through the agent 'consistency-checks' JSON tool (src/lib/agents/tools.ts:1497); (b) severity 'minor', advisory wording; (c) description backfill is still allowed (preserve-first fills empty) and clears the flag; (d) the 'no description' half of the message remains true. Recommended follow-up (one line): treat the placeholder 'mentioned' as empty-equivalent in the role CASE — WHEN n.role IS NULL OR n.role = \"\" OR n.role = \"mentioned\" THEN $incomingRole — so documented-role upgrades land without reopening general churn. At minimum, correct the handoff's rationale text."
+        },
+        {
+          "severity": "note",
+          "claim": "A hallucinated 'dead' extraction is now permanent until manually suppressed — stickiness removes the accidental self-repair path, but does not create a new flag",
+          "detail": "Pre-fix, a bad ch-N 'dead' scan armed dead_character_reappears immediately (deathChapter coalesce was already first-write-wins via D-19) and a later 'alive' scan could luckily disarm it; post-fix the FP persists deterministically until the writer marks it [Intentional]. The flag's creation condition (bad extraction) is unchanged, so this is persistence-extension of a pre-existing stochastic FP, not a NEW false flag manufactured by stickiness — consistent with the wave's surface-over-silent-miss direction and documented as residual #1 in the handoff. Worth tracking as a metric during re-judging."
+        },
+        {
+          "severity": "note",
+          "claim": "Off-enum literal status 'dead' on a non-Character node freezes it (missed-flag risk only)",
+          "detail": "The sticky CASE applies to all labels. If the LLM ever emits status 'dead' for a PlotThread or Object, that node freezes there; e.g. a PlotThread stored 'dead' becomes permanently invisible to orphan_plot_thread (status IN [\"introduced\",\"developing\"]) even if later scans say 'developing'. False-negative exposure only, requires off-enum LLM output; no false flag possible. Normal Object statuses (intact/destroyed/lost/transformed) and PlotThread statuses always take the ELSE branch — update behaviour unchanged (pinned by b2'' for Characters)."
+        },
+        {
+          "severity": "note",
+          "claim": "Trim/store asymmetry: 'Dead' / 'dead ' pass isNonEmptyString and store raw, are not sticky, and never arm the gate — same pre-existing residual family as handoff residual #2, no regression",
+          "detail": "isDeadStatus (trim+lowercase) still stamps deathChapter for such values while the stored status literal mismatches both the sticky CASE and the gate's c.status = \"dead\". Identical exposure existed pre-fix under blanket overwrite; byte-identical deathChapter clause. Any normalization belongs to a future dispatch as the handoff states."
+        },
+        {
+          "severity": "note",
+          "claim": "Non-string status/role/description values are now silently dropped instead of written; behavior change is an improvement, not a defect",
+          "detail": "isNonEmptyString gates all three fields, so a non-string (number/object) or whitespace-only value no longer reaches the node (pre-fix it flowed through the blanket += on both CREATE and MATCH). No consumer reads non-string values for these properties; this also prevents an empty-string scan from blanking a stored status, which is intended."
+        },
+        {
+          "severity": "note",
+          "claim": "Mock fidelity verified as genuinely discriminating; inherent limit is syntax, not semantics",
+          "detail": "The fake session interprets the production-built query text + params (blanket updateProps spread always; sticky/preserve overrides only when the exact clause substring is present; values from params, never hardcoded). Unmodified code fails 6/11 (b1, b1', b3, b4, b5, b7); hybrid clause-plus-blanket bugs are caught by b1/b5's updateProps.status-undefined assertions; clause-text drift breaks b2/b2''/b3'. Its regex matches the real MERGE line exactly (escapeLabelForQuery('Character') emits no backticks). The one thing no fake can prove is Cypher syntax validity — I hand-verified all three clauses are valid Neo4j Cypher (double-quoted literals, CASE-in-SET, IS NULL in WHEN, param refs) and that param names align with mergeParams, so there is no runtime ParameterMissing or syntax exposure."
+        }
+      ]
+    },
+    {
+      "lens": "false-positive-injection",
+      "verdict": "REJECT",
+      "blocking": true,
+      "gate": "tsc 0; vitest 920 passed / 122 files (re-run independently, matches executor claim)",
+      "summary": "The sticky-dead CASE itself is sound (first death lands, RC-2 story-time already exempts flashback POV, Object/PlotThread untouched), but it manufactures a NEW deterministic false-positive loop for legitimate resurrection/undead arcs: status stays \"dead\" forever, dead_character_reappears fires with a chapter list that GROWS each chapter, the flag signature (continuity-flags.ts:29-33) hashes that growing list, and [Intentional] suppression matches by exact signature — so every new chapter mints a fresh un-suppressed CRITICAL inline flag. Pre-fix this arc silently disarmed (resurrection chapter's extraction overwrote dead), so the perpetual nag is newly reachable via this change. Per the campaign rule, a confirmed continuity FP re-caps D8 at 8.5 → blocking. Fix is small and lives in continuity-flags.ts/graph-queries.ts (stable suppression key), NOT a revert of graph-builder.ts. Secondary: the handoff's claim that role/description are \"never a flag WHERE\" is false (character_undocumented gates on both, graph-queries.ts:345).",
+      "findings": [
+        {
+          "severity": "high",
+          "claim": "[Intentional] suppression is defeated every chapter for resurrection arcs: sticky dead + growing-chapter-list signature = perpetual un-dismissible critical inline flag",
+          "detail": "Verified chain: (1) graph-builder.ts sticky CASE keeps status=\"dead\" permanently and deathChapter is first-write-wins; test b1' pins that even an 'alive' re-extraction cannot clear it. (2) dead_character_reappears (src/lib/graph/graph-queries.ts:438-459) returns chapters=[deathChapter, ...collect(DISTINCT post-death participation chapters)] — the list grows with every chapter the character participates in. (3) continuityIssueSignature (src/lib/continuity/continuity-flags.ts:29-33) = sha1(type|entities|chapters), so the signature CHANGES each chapter. (4) [Intentional] (src/app/api/books/[id]/continuity/intentional/route.ts:24-27) sets status on the existing row only; the scan route (src/app/api/books/[id]/continuity/scan/route.ts:134) filters by exact-signature match; planFlagSync creates any unseen signature as a fresh ACTIVE flag; dead_character_reappears is in INLINE_TYPES so it renders as a critical inline editor annotation (flag-annotations.ts). Concrete journey: character dies ch4, author legitimately resurrects in ch6 → flag {ch 4,6}, writer clicks [Intentional] → writes ch7 where the character participates → chapters [4,6,7] → new signature → NEW active critical flag inline. Repeats every chapter forever; there is no product path to silence it (status can never be un-deadened; intentional rows also accumulate unboundedly, one per dismissed signature). Pre-fix, the resurrection chapter's own extraction overwrote dead→alive and the flag never fired, so this recurrence is newly reachable via sub-fix (b). Remedy WITHOUT reverting the sticky-dead win: make the suppression key stable for this type — e.g., derive the signature for dead_character_reappears from type+entities+deathChapter only, or have the Cypher return only the EARLIEST post-death chapter (min instead of collect), or match intentionalSignatures by type+entities. Unit tests in graph-entity-property-monotonic.test.ts cannot see this — it lives entirely in the flags layer."
+        },
+        {
+          "severity": "medium",
+          "claim": "Handoff claim 'role/description never a flag WHERE' is false — character_undocumented gates on both; frozen role='mentioned' keeps the advisory armed where a role upgrade previously disarmed it",
+          "detail": "src/lib/graph/graph-queries.ts:344-347: character_undocumented fires WHERE c.role = \"mentioned\" AND c.description IS NULL AND c.lastMentioned > c.firstAppearance. With preserve-first-non-empty, a character whose FIRST extraction said role \"mentioned\" (the rubric's lowest rung, common for characters who later matter) is frozen there; later scans consistently emitting \"supporting\"/\"protagonist\" no longer disarm the check if description also stays absent — pre-fix the role upgrade cleared it. Exposure is limited: character_undocumented is NOT in INLINE_TYPES/BOOK_LEVEL_TYPES (continuity-flags.ts:5-10) so it never becomes an editor ContinuityFlag; it surfaces only via the agent graph tool consistency-checks (src/lib/agents/tools.ts:1497) as a minor advisory whose 'no description' half remains factually true. Counter-balance: the freeze also BLOCKS the opposite pre-existing FP (stochastic downgrade supporting→mentioned arming the check). Not blocking alone, but the handoff's design rationale rests on an incorrect grep claim and must be corrected; consider allowing role to upgrade AWAY from \"mentioned\" specifically (deterministic: it is the schema's explicit weakest value) while keeping all other role values frozen."
+        },
+        {
+          "severity": "note",
+          "claim": "Flashback/ghost-POV attack failed for retrospective scenes; present-time ghost arcs collapse into finding 1",
+          "detail": "RC-2 already compares story-time: coalesce(e.occursInChapter, e.chapter) > c.deathChapter (graph-queries.ts:442), so a dead character participating in a flashback narrated later does NOT flag — stickiness changes nothing there; this axis of the assigned attack failed. A ghost/vampire acting in present-time chapters after death is factually 'participates after deathChapter' and flags — that is exactly the resurrection case of finding 1, with the same suppression-escape recurrence. Object status (intact|destroyed|lost|transformed) and PlotThread status (introduced|...|abandoned) never equal \"dead\", so the sticky CASE always takes the ELSE branch for them; orphan_plot_thread's status IN [\"introduced\",\"developing\"] gate still sees resolutions land — no new FP there (b2'' pins the ELSE-branch behavior)."
+        },
+        {
+          "severity": "note",
+          "claim": "Frozen first description/role feeds stale character facts into ambient/series LLM context — drift, not a flag",
+          "detail": "getCharacterStates (graph-queries.ts:267-288) → src/lib/series/ambient-sources.ts:36-39 and ambient-context.ts:148-150 carry role/status/description into ambient writing context. A chapter-1 description ('a timid apprentice') now describes the character at chapter 30, and a resurrected character is presented as status 'dead' in ambient context. No check flags this (display/context only — verified), so it is context-quality drift, not FP injection; worth a line in the handoff residuals. The core D-32a mechanic (dead sticky so the gate cannot be disarmed by re-extraction churn) is correct and should be KEPT — the required fix is confined to signature/suppression stability in the flags layer per finding 1."
+        }
+      ]
+    },
+    {
+      "lens": "regression-blast-radius",
+      "verdict": "REJECT",
+      "blocking": true,
+      "gate": "tsc --noEmit exit 0; vitest run tests/unit = 920 passed / 122 files (matches executor claim; new file 11/11)",
+      "summary": "The Cypher mechanics are sound and every claimed invariant held under attack: the diff is pure additions (RC-2 chapter/occursInChapter/deathChapter coalesce incl. the FP-A guard, D-27 alias union, RC-6 userId strip/stamp, D-30 scoping, D-63 sanitizer all byte-intact); non-Character kinds are behaviorally identical on the ELSE branch (stored status != \"dead\" always adopts $incomingStatus, exactly what the old blanket += wrote); status/role/description are removed from updateProps so there is no same-SET interaction; params bind iff their clause exists; gates re-run green. The block is the blast radius the handoff missed: (1) sticky \"dead\" interacts with the flag-suppression design (continuityIssueSignature hashes type|entities|chapters, and dead_character_reappears chapters GROW with every post-death participation — graph-queries.ts:444 collect) so an [Intentional] dismissal stops matching on the very next written chapter — a fake-out-death/resurrection arc (common trope, and the handoff residual #1's own scenario) now yields a NEW critical flag per chapter forever, and a single hallucinated \"dead\" extraction is permanent where pre-fix it self-healed on the next scan; (2) UpdateGraphEntity — the only in-product graph repair path, advertised as \"update... properties (role, description, etc.)\" — funnels through upsertEntities, so it now silently no-ops on dead-status corrections and any role/description change while still reporting \"Graph updated: ... 1 updated\" (failure-states-lie). Per the wave rule (\"a NEW false flag introduced by stickiness is BLOCKING\"), this cannot land as-is. Smallest unblock, keeping the sticky mechanic: (a) stabilize dead_character_reappears suppression (hash type|entity|deathChapter only, or make intentional suppression entity+type-scoped), and (b) make UpdateGraphEntity either an authoritative write (bypass stickiness for explicit agent/user edits) or honest about which fields were preserved. Both are small, targeted companions; the D-32a core does not need redesign.",
+      "findings": [
+        {
+          "severity": "high",
+          "claim": "Sticky dead + growing flag signature = un-dismissable recurring critical false flags for fake-out-death/resurrection arcs; hallucinated 'dead' is now permanent",
+          "detail": "continuityIssueSignature (src/lib/continuity/continuity-flags.ts:29-33) hashes type|sorted entities|sorted chapters, and dead_character_reappears emits chapters=[deathChapter, ...collect(post-death participation chapters)] (src/lib/graph/graph-queries.ts:443-458), so the signature CHANGES every time the character participates in a new chapter. The scan route (src/app/api/books/[id]/continuity/scan/route.ts:134-137) filters intentional flags by exact signature — a dismissed flag re-fires as a NEW active critical flag on the next written chapter, forever. Pre-fix, the next scan's status:'alive' churn (the character IS alive in the text) disarmed the gate, so fake-out deaths and hallucinated 'dead' extractions self-healed; this diff removes exactly that self-heal. Handoff residual #1 claims resurrection 'surfaces a dismissible flag' — dismissal does not stick, and there is no other correction path (see next finding). Confirmed by code trace end-to-end; the only stochastic step (extraction emitting 'dead' for a presumed-death scene) is the same stochasticity the fix's own premise assumes. This is the wave-rule blocking class."
+        },
+        {
+          "severity": "high",
+          "claim": "UpdateGraphEntity agent tool silently no-ops on dead-status/role/description corrections while reporting success",
+          "detail": "executeUpdateGraphEntity (src/lib/agents/tools.ts:1508) funnels through upsertEntities, so the sticky/preserve-first clauses now apply to DELIBERATE agent-directed edits, not just stochastic re-extraction. The tool is advertised as 'Create or update entities... properties (role, description, etc.)' (tools.ts:566-593). Post-fix: a writer asking the agent to fix a wrong death ('Milan is not dead') or update a role/description gets 'Graph updated: 0 created, 1 updated' with nothing changed — the sticky CASE keeps 'dead', preserve-first keeps old role/description. Pre-fix this tool COULD make these corrections (blanket +=). Combined with the previous finding there is NO in-product way to clear a wrong 'dead'. Shared-consumer regression on the exact path this lens covers, and it reinforces the judged failure-states-lie crater."
+        },
+        {
+          "severity": "medium",
+          "claim": "Handoff verification claim is wrong: role IS in a consistency-check WHERE (character_undocumented)",
+          "detail": "fix7-handoff.md asserts role/description 'appear only in getCharacterStates... never a flag WHERE'. False: check 1 gates on c.role = \"mentioned\" AND c.description IS NULL (src/lib/graph/graph-queries.ts:344-346). Consequence of preserve-first role: a character first extracted as 'mentioned' whose role later upgrades but who never receives a description keeps this minor advisory permanently (pre-fix a later role upgrade self-cleared it). Mitigations that cap severity: character_undocumented is NOT in the live flag net (not in INLINE_TYPES/BOOK_LEVEL_TYPES, continuity-flags.ts:5-10 — surfaced only via the agent QueryGraph consistency-checks output), it is severity 'minor', and description backfill (NULL -> first non-empty) still clears it. Reported mainly because the executor's stated grep evidence for the role/description design choice is factually incorrect."
+        },
+        {
+          "severity": "medium",
+          "claim": "Tier 4.3 ambient series awareness relies on fresh role/description; both are now frozen at first non-empty forever",
+          "detail": "getPriorCharacters (src/lib/series/ambient-sources.ts:26-51) -> getBookCharacterStates surfaces prior-book character state 'while writing a later book', and ambient-series-panel.tsx:92 renders [c.role, c.status] plus description. With preserve-first, a prior book's character is forever described by their FIRST-appearance extraction (e.g. 'timid apprentice' though the book ended 'guild master'), and role promotions (minor -> protagonist) never surface. Pre-fix the panel showed the latest scan's values (churny but recent). Status is fine (latest-wins except dead). This is a genuine freshness-dependent consumer degraded by the diff — a quality regression on the 4.3 surface, not a false flag, hence non-blocking. An only-upgrade or latest-wins-with-cooldown rule for description, or refreshing on end-of-book scans, would restore it."
+        },
+        {
+          "severity": "low",
+          "claim": "Sticky-dead clause is label-blind; a stray status:'dead' on a PlotThread/Object locks forever",
+          "detail": "The sticky CASE (src/lib/graph/graph-builder.ts:271-276) is appended for ALL entity labels; 'Object/PlotThread never dead' is an assumption about free-form LLM output, not enforced anywhere. If extraction ever emits status:'dead' for a PlotThread (e.g. an abandoned/death-themed thread) it can never leave that state: it permanently exits the orphan_plot_thread gate (p.status IN ['introduced','developing'], graph-queries.ts:465) and can never become 'resolved' — a silent MISS (not a false flag), plus a locked display value in getPlotThreads. Pre-fix a later scan repaired it. One-line hardening: apply the sticky CASE only when label === 'Character' (plain n.status = $incomingStatus otherwise)."
+        },
+        {
+          "severity": "note",
+          "claim": "Minor determinism/edge residuals: rebuild-order dependence and untrimmed guards",
+          "detail": "(1) preserve-first-non-empty makes final role/description depend on chapter processing order during full rebuilds (graph-maintenance.ts upsert path) — deterministic only if rebuild iterates chapters ascending. (2) The Cypher empty-guard checks n.role = \"\" but not whitespace-only; a legacy pre-fix node with role ' ' locks forever (new writes cannot produce it — isNonEmptyString trims incoming). (3) Whitespace-padded ' dead ' still stamps deathChapter (isDeadStatus trims) while neither the gate nor the sticky CASE match it — pre-existing asymmetry, unchanged by this diff (handoff residual #2 covers casing only). None affect the ELSE-branch equivalence or the byte-intact invariants."
+        }
+      ]
+    },
+    {
+      "lens": "gate-integrity-red-reproof",
+      "verdict": "APPROVE_WITH_NOTES",
+      "blocking": false,
+      "summary": "All claims independently reproduced: tsc exit 0; full vitest 920 passed / 122 files, 0 failed. RED re-proof genuine: with graph-builder.ts reverted to HEAD, the new test file fails 6/11 for the RIGHT reasons (dead→transformed/alive status flips, role/description churn, status present in blanket updateProps, $incomingStatus absent from query); restored byte-identical (SHA256 95D3E020...94A8 verified before/after, git shows same Modified state) and 11/11 green. Cross-check of graph-queries.ts found one handoff inaccuracy: character_undocumented (line 345) DOES gate on c.role/c.description, contradicting the handoff's \"never a flag WHERE\" claim — behavioral delta analyzed, judged non-blocking (minor-severity advisory whose firing predicate, description IS NULL, remains genuinely true; description backfill still clears it). No new false continuity flag found; sticky-dead residuals are as disclosed and dismissible.",
+      "gate": "tsc --noEmit exit 0; vitest run: 122 files passed, 920 tests passed, 0 failed; RED (HEAD code): 6/11 failed in tests/unit/graph-entity-property-monotonic.test.ts, correct mechanisms; post-restore: 11/11 passed, byte-identical restore verified by SHA256",
+      "findings": [
+        {
+          "severity": "medium",
+          "claim": "Handoff claim 'role/description never in a flag WHERE' is false: character_undocumented gates on both (graph-queries.ts:345)",
+          "detail": "src/lib/graph/graph-queries.ts:344-346: `WHERE c.role = \"mentioned\" AND c.description IS NULL AND c.lastMentioned > c.firstAppearance` feeds a severity-\"minor\" ConsistencyIssue. Role stickiness changes its lifecycle: first scan role=\"mentioned\" + no description, later scan role=\"supporting\" (still no description) now keeps the flag firing where pre-fix the blanket overwrite cleared it. Judged NON-blocking: the predicate that fires it (description genuinely NULL) is true, description backfill (preserve-first fills NULL/empty) still clears it as soon as any scan supplies one, it is a documentation nudge not a continuity contradiction, and pre-fix role churn could equally CREATE this flag falsely via a downgrade (which the fix prevents). Action: fixer should correct the handoff sentence and add this as disclosed residual #4 in fix7-handoff.md."
+        },
+        {
+          "severity": "note",
+          "claim": "Sticky dead persists after an author revises away the death scene and re-scans",
+          "detail": "With status frozen at \"dead\" and deathChapter first-write-wins (pre-existing RC-2 coalesce, untouched), re-scanning a rewritten chapter cannot un-kill a character; dead_character_reappears can then flag prose whose current text has no death. This is disclosed residual #1 in the handoff (spec: dead must be sticky; surface > silent miss) and the flag is dismissible via the intentional-suppress path, so it is the intended trade, not a new defect."
+        },
+        {
+          "severity": "note",
+          "claim": "Proof is mock-Neo4j only; Cypher CASE clauses hand-verified, no live-graph run",
+          "detail": "The fake session emulates MERGE ON CREATE/ON MATCH keyed on exact clause text, so tests pin both query text and semantics (conservative — a semantic-preserving rewrite of the clause string would fail the test). I hand-verified the real Cypher: status/role/description are deleted from updateProps, so `n += $updateProps` cannot interact with the CASE items regardless of SET-item order; a NULL-status existing node takes the ELSE branch (null = \"dead\" is null, not true) so backfill works; PlotThread/Object statuses never equal \"dead\" so their update behavior is unchanged. Risk of a live-Neo4j surprise is negligible but nonzero; a future live smoke of one dead-sticky upsert would close it fully."
+        }
+      ]
+    }
+  ],
+  "workflowProgress": [
+    {
+      "type": "workflow_phase",
+      "index": 1,
+      "title": "Verify"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 1,
+      "label": "verify:cypher-semantics",
+      "phaseIndex": 1,
+      "phaseTitle": "Verify",
+      "agentId": "a5988f3aa3d3466b0",
+      "model": "claude-fable-5",
+      "state": "done",
+      "startedAt": 1784478579057,
+      "queuedAt": 1784478576441,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "cypher-semantics-mock-fidelity",
+      "promptPreview": "Repo D:\\\\Projects\\\\wmb-pub, branch qa/bulletproof-2026-07-17, HEAD c04925a. Environment: Windows PowerShell 5.1 (Bash broken). The change under review is UNCOMMITTED in the working tree.\n\nWHAT LANDED (fix 7 sub-fix (b) / defect D-32a — the D1=4.0 continuity driver):\nIn src/lib/graph/graph-builder.ts upsertSingleEntity, role/status/description were pulled OUT of the blanket `ON MATCH SET n += $upda…",
+      "lastProgressAt": 1784479192086,
+      "tokens": 99871,
+      "toolCalls": 18,
+      "durationMs": 613027,
+      "resultPreview": "{\"lens\":\"cypher-semantics-mock-fidelity\",\"verdict\":\"APPROVE_WITH_NOTES\",\"blocking\":false,\"gate\":\"tsc --noEmit exit 0; vitest tests/unit/graph-entity-property-monotonic.test.ts 11/11 passed (full-suite 920/122 not re-run under this lens)\",\"summary\":\"The attack failed on all four assigned vectors. (1) The three ON MATCH CASE clauses are valid Cypher (generic CASE as SET expression, double-quoted lit…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 2,
+      "label": "verify:fp-injection",
+      "phaseIndex": 1,
+      "phaseTitle": "Verify",
+      "agentId": "ae67212650fa666b4",
+      "model": "claude-fable-5",
+      "state": "done",
+      "startedAt": 1784478579393,
+      "queuedAt": 1784478576441,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "false-positive-injection",
+      "promptPreview": "Repo D:\\\\Projects\\\\wmb-pub, branch qa/bulletproof-2026-07-17, HEAD c04925a. Environment: Windows PowerShell 5.1 (Bash broken). The change under review is UNCOMMITTED in the working tree.\n\nWHAT LANDED (fix 7 sub-fix (b) / defect D-32a — the D1=4.0 continuity driver):\nIn src/lib/graph/graph-builder.ts upsertSingleEntity, role/status/description were pulled OUT of the blanket `ON MATCH SET n += $upda…",
+      "lastProgressAt": 1784479133723,
+      "tokens": 88157,
+      "toolCalls": 23,
+      "durationMs": 554329,
+      "resultPreview": "{\"lens\":\"false-positive-injection\",\"verdict\":\"REJECT\",\"blocking\":true,\"gate\":\"tsc 0; vitest 920 passed / 122 files (re-run independently, matches executor claim)\",\"summary\":\"The sticky-dead CASE itself is sound (first death lands, RC-2 story-time already exempts flashback POV, Object/PlotThread untouched), but it manufactures a NEW deterministic false-positive loop for legitimate resurrection/unde…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 3,
+      "label": "verify:regression-blast",
+      "phaseIndex": 1,
+      "phaseTitle": "Verify",
+      "agentId": "ab9346507f985bf4e",
+      "model": "claude-fable-5",
+      "state": "done",
+      "startedAt": 1784478579384,
+      "queuedAt": 1784478576441,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "regression-blast-radius",
+      "promptPreview": "Repo D:\\\\Projects\\\\wmb-pub, branch qa/bulletproof-2026-07-17, HEAD c04925a. Environment: Windows PowerShell 5.1 (Bash broken). The change under review is UNCOMMITTED in the working tree.\n\nWHAT LANDED (fix 7 sub-fix (b) / defect D-32a — the D1=4.0 continuity driver):\nIn src/lib/graph/graph-builder.ts upsertSingleEntity, role/status/description were pulled OUT of the blanket `ON MATCH SET n += $upda…",
+      "lastProgressAt": 1784479241002,
+      "tokens": 111842,
+      "toolCalls": 21,
+      "durationMs": 661618,
+      "resultPreview": "{\"lens\":\"regression-blast-radius\",\"verdict\":\"REJECT\",\"blocking\":true,\"gate\":\"tsc --noEmit exit 0; vitest run tests/unit = 920 passed / 122 files (matches executor claim; new file 11/11)\",\"summary\":\"The Cypher mechanics are sound and every claimed invariant held under attack: the diff is pure additions (RC-2 chapter/occursInChapter/deathChapter coalesce incl. the FP-A guard, D-27 alias union, RC-6 …"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 4,
+      "label": "verify:gate-integrity",
+      "phaseIndex": 1,
+      "phaseTitle": "Verify",
+      "agentId": "a4d8519776e0791a0",
+      "model": "claude-fable-5",
+      "state": "done",
+      "startedAt": 1784478580188,
+      "queuedAt": 1784478576441,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "gate-integrity-red-reproof",
+      "promptPreview": "Repo D:\\\\Projects\\\\wmb-pub, branch qa/bulletproof-2026-07-17, HEAD c04925a. Environment: Windows PowerShell 5.1 (Bash broken). The change under review is UNCOMMITTED in the working tree.\n\nWHAT LANDED (fix 7 sub-fix (b) / defect D-32a — the D1=4.0 continuity driver):\nIn src/lib/graph/graph-builder.ts upsertSingleEntity, role/status/description were pulled OUT of the blanket `ON MATCH SET n += $upda…",
+      "lastProgressAt": 1784479073854,
+      "tokens": 80640,
+      "toolCalls": 15,
+      "durationMs": 493665,
+      "resultPreview": "{\"lens\":\"gate-integrity-red-reproof\",\"verdict\":\"APPROVE_WITH_NOTES\",\"blocking\":false,\"summary\":\"All claims independently reproduced: tsc exit 0; full vitest 920 passed / 122 files, 0 failed. RED re-proof genuine: with graph-builder.ts reverted to HEAD, the new test file fails 6/11 for the RIGHT reasons (dead→transformed/alive status flips, role/description churn, status present in blanket updatePr…"
+    }
+  ],
+  "totalTokens": 380510,
+  "totalToolCalls": 77
+}

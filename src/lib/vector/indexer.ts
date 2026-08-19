@@ -36,6 +36,15 @@ export async function indexDocument(
     chapterNumber?: number | null;
     language?: string | null;
     version?: number;
+    /**
+     * True only for a chapter's CONTENT/prose (D-75). When set (and chapterNumber
+     * is present) the prior chunks are replaced CHAPTER-SCOPED — by (bookId,
+     * chapterNumber) — instead of docId-scoped, so a chapter written through any
+     * path (content route / agent / document API / import) converges onto one
+     * chunk set while distinct chapters coexist. Also stamped into the payload so
+     * the delete can exclude a chapter's brief/plan (same mapped "chapter" docType).
+     */
+    chapterContent?: boolean;
   } = {}
 ): Promise<{ chunksIndexed: number; skipped: boolean }> {
   if (!isEmbeddingAvailable()) {
@@ -69,8 +78,19 @@ export async function indexDocument(
     return { chunksIndexed: 0, skipped: true };
   }
 
-  // Delete old chunks for this document
-  await deleteChunksForDocument(bookId, docType, docId);
+  // Delete the prior chunks before re-inserting. Chapter CONTENT (D-75) is replaced
+  // CHAPTER-SCOPED — by (bookId, chapterNumber), not by docId — because a chapter may
+  // be written through several paths (content route, agent, document API, import),
+  // each with a different docId, and every one of them must converge onto ONE chunk
+  // set while DISTINCT chapters coexist. The chapter-scoped filter also ANDs
+  // `chapterContent: true`, so it can never touch a chapter's brief/plan (which share
+  // the mapped "chapter" docType and the same chapterNumber). Everything else
+  // (findings, sessions, research, briefs, plans) stays docId-scoped.
+  if (metadata.chapterContent && metadata.chapterNumber != null) {
+    await deleteChapterContentChunks(bookId, metadata.chapterNumber);
+  } else {
+    await deleteChunksForDocument(bookId, docType, docId);
+  }
 
   // Embed all chunks in batch
   const texts = chunks.map((c) => c.text);
@@ -82,6 +102,7 @@ export async function indexDocument(
     const payload: MemoryChunkPayload = {
       schemaVersion: 1,
       bookId,
+      userId: metadata.userId ?? null,
       seriesId: metadata.seriesId ?? null,
       docType,
       docId,
@@ -94,6 +115,9 @@ export async function indexDocument(
       timestamp: now,
       language: metadata.language ?? null,
       version: metadata.version ?? 1,
+      // Stamp only on chapter prose so the chapter-scoped delete can distinguish it
+      // from a sibling brief/plan; omitted (absent) on every other chunk (D-75).
+      ...(metadata.chapterContent ? { chapterContent: true } : {}),
     };
 
     return {
@@ -138,6 +162,7 @@ export function scheduleIndex(
     chapterNumber?: number | null;
     language?: string | null;
     version?: number;
+    chapterContent?: boolean;
   } = {},
   debounceMs = 2000
 ): void {
@@ -195,6 +220,7 @@ export async function indexBatch(
       chapterNumber?: number | null;
       language?: string | null;
       version?: number;
+      chapterContent?: boolean;
     };
   }>
 ): Promise<{
@@ -255,6 +281,35 @@ async function deleteChunksForDocument(
           { key: "bookId", match: { value: bookId } },
           { key: "docType", match: { value: docType } },
           { key: "docId", match: { value: docId } },
+        ],
+      },
+    });
+  } catch {
+    // Ignore errors if collection doesn't exist yet
+  }
+}
+
+/**
+ * Delete a chapter's CONTENT chunks, scoped by (bookId, chapterNumber) so the delete
+ * is docId-independent (a chapter can be written via import, agent, the content route,
+ * or the document API, each with a different docId), plus `chapterContent: true` so it
+ * only ever removes chapter prose — never a sibling brief/plan that maps to the same
+ * "chapter" docType with the same chapterNumber. The filter ALWAYS ANDs bookId with
+ * chapterNumber, so it can never reach another book's or another chapter's chunks
+ * (D-75). Mirrors cleanup.deleteChapterChunks; kept local to avoid an
+ * indexer↔cleanup import cycle.
+ */
+async function deleteChapterContentChunks(
+  bookId: string,
+  chapterNumber: number
+): Promise<void> {
+  try {
+    await qdrantClient.delete(WMB_MEMORY_COLLECTION, {
+      filter: {
+        must: [
+          { key: "bookId", match: { value: bookId } },
+          { key: "chapterNumber", match: { value: chapterNumber } },
+          { key: "chapterContent", match: { value: true } },
         ],
       },
     });

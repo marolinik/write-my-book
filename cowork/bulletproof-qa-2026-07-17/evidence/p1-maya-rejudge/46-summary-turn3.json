@@ -1,0 +1,156 @@
+{
+  "series": "46",
+  "persona": "P1 (Maya)",
+  "book": "4116055c-6183-4675-926a-e04f31126951",
+  "finding": "5c20c0e1-e763-43b6-b2f6-a6aaefbc7a9c",
+  "proves": "D5 — finding-discuss turns stream (ttft, cadence, no control-syntax leak, cap, billing)",
+  "trace": [
+    {
+      "step": "warm-discuss-get",
+      "status": 200,
+      "ms": 106
+    },
+    {
+      "step": "warm-editorial-page",
+      "status": 200,
+      "ms": 219
+    },
+    {
+      "step": "pre-state",
+      "userTurns": 2,
+      "canDiscuss": true,
+      "replies": 4
+    },
+    {
+      "step": "instrumentation",
+      "d": "object",
+      "dom": "object",
+      "fetchPatched": true
+    },
+    {
+      "step": "pageerror",
+      "message": "Clerk: Failed to load Clerk, failed to load script: https://clerk.example.test/npm/@clerk/clerk-js@5/dist/clerk.browser.js\n\n(code=\"failed_to_load_clerk_js\")\n\n"
+    }
+  ],
+  "turns": [
+    {
+      "turnNumber": 3,
+      "writerMessage": "Understood. Last thing: in one sentence, what would you watch for if I keep it as written?",
+      "network": [
+        {
+          "at": 1785123450343,
+          "url": "/api/books/4116055c-6183-4675-926a-e04f31126951/editorial/findings/5c20c0e1-e763-43b6-b2f6-a6aaefbc7a9c/discuss",
+          "method": "POST",
+          "status": 200,
+          "contentType": "text/event-stream",
+          "serverTiming": "ttft;dur=36129"
+        },
+        {
+          "at": 1785123451537,
+          "url": "/api/books/4116055c-6183-4675-926a-e04f31126951/editorial/findings/5c20c0e1-e763-43b6-b2f6-a6aaefbc7a9c/discuss",
+          "method": "GET",
+          "status": 200,
+          "contentType": "application/json",
+          "serverTiming": null
+        }
+      ],
+      "streamHeaders": {
+        "status": 200,
+        "contentType": "text/event-stream",
+        "serverTiming": "ttft;dur=36129",
+        "tMs": 36191
+      },
+      "streamedIsSse": true,
+      "ttftMs": 36192,
+      "responseHeadersAtMs": 36191,
+      "firstTextInDomMs": 36267,
+      "textFrameCount": 4,
+      "interFrameGapsMs": [
+        529,
+        98,
+        95
+      ],
+      "medianGapMs": 98,
+      "streamSpanMs": 722,
+      "settleTailMs": 279,
+      "doneAtMs": 37193,
+      "bodyEndMs": 37232,
+      "teeReadError": null,
+      "domSettledMs": 37447,
+      "frameTypes": [
+        "text",
+        "text",
+        "text",
+        "text",
+        "done"
+      ],
+      "streamedText": "\n\nWatch that the next line or two quickly re-anchor the scene in a concrete physical detail so the taxonomic pivot doesn’t stall the chapter’s sensory momentum.",
+      "rawSseBody": "data: {\"type\":\"text\",\"text\":\"\\n\\nWatch that the next line or two\"}\n\ndata: {\"type\":\"text\",\"text\":\" quickly re-anchor the scene in a concrete\"}\n\ndata: {\"type\":\"text\",\"text\":\" physical detail so the taxonomic pivot doesn\"}\n\ndata: {\"type\":\"text\",\"text\":\"’t stall the chapter’s sensory momentum.\"}\n\ndata: {\"type\":\"done\",\"assistantMessage\":\"Watch that the next line or two quickly re-anchor the scene in a concrete physical detail so the taxonomic pivot doesn’t stall the chapter’s sensory momentum.\",\"raw\":\"\\n\\nWatch that the next line or two quickly re-anchor the scene in a concrete physical detail so the taxonomic pivot doesn’t stall the chapter’s sensory momentum.\",\"userTurns\":3,\"capped\":false,\"elapsedMs\":37131}\n\n",
+      "domSampleCount": 7,
+      "domGrowth": [
+        {
+          "tMs": 8468,
+          "len": 23,
+          "head": "The editor is replying…"
+        },
+        {
+          "tMs": 44669,
+          "len": 34,
+          "head": "\n\nWatch that the next line or two▍"
+        },
+        {
+          "tMs": 45177,
+          "len": 76,
+          "head": "\n\nWatch that the next line or two quickly re-a"
+        },
+        {
+          "tMs": 45275,
+          "len": 121,
+          "head": "\n\nWatch that the next line or two quickly re-a"
+        },
+        {
+          "tMs": 45373,
+          "len": 161,
+          "head": "\n\nWatch that the next line or two quickly re-a"
+        },
+        {
+          "tMs": 45666,
+          "len": 23,
+          "head": "The editor is replying…"
+        },
+        {
+          "tMs": 45855,
+          "len": 0,
+          "head": ""
+        }
+      ],
+      "rawSyntaxViolations": [],
+      "settled": {
+        "chip": "I’ll remember: “Preserve Imogen’s retreat into abstraction and taxonomy at emotional peaks as deliberate characterization; do not flag interior classification as a show-tell lapse.”",
+        "capNotice": true,
+        "revisionCard": true
+      },
+      "cardTextTail": "t just tightens the syntax and cadence:\n\nActually the flatness is deliberate: Imogen retreats into taxonomy whenever feeling gets close, so abstraction AT the emotional peak is the characterisation, not a lapse. Please stop flagging it.\n\nUnderstood. The deliberate flatness is the point—the retreat into taxonomy is the characterization here. I’ll keep your original line exactly as written and withdraw the flag.\n\nUnderstood. Last thing: in one sentence, what would you watch for if I keep it as written?\n\nWatch that the next line or two quickly re-anchor the scene in a concrete physical detail so the taxonomic pivot doesn’t stall the chapter’s sensory momentum.\n\nAI Rewrite Comparison\nshow-tell\n-16 words\n\nORIGINAL (50 WORDS)\n\nShe thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.\n\nAI REWRITE (34 WORDS)\n\nShe weighed the rush-toward-feeling against the architecture built to keep it at a survivable distance. Under the sea’s particular clarity, she sorted herself into the latter category—a habit of mind she’d likely always carried.\n\nHide diff\nEdit\nReject\nAccept Rewrite\n\nOn “Keep as-is”, I’ll remember: “Preserve Imogen’s retreat into abstraction and taxonomy at emotional peaks as deliberate characterization; do not flag interior classification as a show-tell lapse.”\n\nUse it\nKeep as-is\n\n3-exchange cap reached — decide above, or undo to revise.",
+      "shots": {
+        "preFirstToken": true,
+        "midStream": true
+      }
+    }
+  ],
+  "threadAfter": {
+    "userTurns": 3,
+    "canDiscuss": false,
+    "replies": 6
+  },
+  "capProbe": {
+    "status": 409,
+    "ms": 57,
+    "contentType": "application/json",
+    "body": {
+      "capped": true,
+      "assistantMessage": "You've discussed this finding thoroughly (3 exchanges). Ready to make a decision?",
+      "userTurns": 3
+    }
+  },
+  "capturedAt": "2026-07-27T03:37:37.615Z"
+}

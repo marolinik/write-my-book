@@ -1,0 +1,26 @@
+{
+  "capturedAt": "2026-07-20T02:18:14.507Z",
+  "request": {
+    "method": "PUT",
+    "url": "/api/books/a77359eb-6587-4bf0-b72d-65e0ae027e64/chapters/23bc7795-fb24-46a5-9833-50df6ccd63f7/content",
+    "actingAs": "user_qa_p3",
+    "headers": {
+      "content-type": "application/json",
+      "x-e2e-test-secret": "***MASKED***",
+      "x-e2e-clerk-id": "user_qa_p3"
+    },
+    "body": {
+      "markdown": "Chapter Two — The Fall of Dorn Kappel\n\nIn the second dawn, Kira Venn met Dorn Kappel upon the Bridge of Ash. Their duel was short and brutal. Kira Venn drove her blade through the warlord's heart. Dorn Kappel died there upon the Bridge of Ash. Dorn Kappel was dead — his body burned upon the pyre at Saltmarket that same night. The iron warlord was gone; the Ashen Legion had lost its master forever. Kira Venn wept for the enemy she had slain. Dorn Kappel is dead, and the realm knew it.",
+      "changeSource": "user"
+    }
+  },
+  "response": {
+    "status": 200,
+    "latencyMs": 276,
+    "body": {
+      "wordCount": 93,
+      "version": 1,
+      "bookWordCount": 245
+    }
+  }
+}

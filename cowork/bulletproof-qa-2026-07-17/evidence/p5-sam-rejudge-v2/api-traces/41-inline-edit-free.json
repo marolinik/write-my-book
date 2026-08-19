@@ -1,0 +1,36 @@
+{
+  "label": "41-inline-edit-free",
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:3002/api/books/35ff1112-52af-4001-a0f4-ec83f4dad9b0/inline-edit",
+    "authMode": "persona",
+    "authHeaderNames": [
+      "x-e2e-test-secret(masked:<redacted>)",
+      "x-e2e-clerk-id:user_qa_p5"
+    ],
+    "body": {
+      "selectedText": "The words came easily now",
+      "surroundingContext": "Sam opened the notebook. The words came easily now, no card required.",
+      "instruction": "make it more vivid",
+      "count": 3
+    }
+  },
+  "response": {
+    "status": 500,
+    "statusText": "Internal Server Error",
+    "ms": 111,
+    "headers": {
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Mon, 20 Jul 2026 09:13:52 GMT",
+      "keep-alive": "timeout=5",
+      "transfer-encoding": "chunked",
+      "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+    },
+    "json": {
+      "error": "Failed to generate suggestions"
+    }
+  },
+  "error": null,
+  "capturedAt": "2026-07-20T09:13:52.624Z"
+}

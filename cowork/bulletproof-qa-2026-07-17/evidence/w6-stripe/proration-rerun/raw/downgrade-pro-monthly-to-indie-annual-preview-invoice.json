@@ -1,0 +1,245 @@
+{
+  "id": "upcoming_in_1TuoY8C0mmjh4oEMth57WdNM",
+  "object": "invoice",
+  "account_country": "NL",
+  "account_name": "Egzakta sandbox",
+  "account_tax_ids": null,
+  "amount_due": 90876,
+  "amount_overpaid": 0,
+  "amount_paid": 0,
+  "amount_remaining": 90876,
+  "amount_shipping": 0,
+  "application": null,
+  "attempt_count": 0,
+  "attempted": false,
+  "auto_advance": true,
+  "automatic_tax": {
+    "disabled_reason": null,
+    "enabled": false,
+    "liability": null,
+    "provider": null,
+    "status": null
+  },
+  "automatically_finalizes_at": null,
+  "billing_reason": "upcoming",
+  "collection_method": "charge_automatically",
+  "created": 1815979797,
+  "currency": "usd",
+  "custom_fields": null,
+  "customer": "cus_UudpSkkfXFOscH",
+  "customer_account": null,
+  "customer_address": null,
+  "customer_email": "qa-w6-d45-downgrade-pro-monthly-to-indie-annual@test.local",
+  "customer_name": null,
+  "customer_phone": null,
+  "customer_shipping": null,
+  "customer_tax_exempt": "none",
+  "customer_tax_ids": [],
+  "default_payment_method": null,
+  "default_source": null,
+  "default_tax_rates": [],
+  "description": null,
+  "discounts": [],
+  "due_date": null,
+  "effective_at": null,
+  "ending_balance": 0,
+  "footer": null,
+  "from_invoice": null,
+  "hosted_invoice_url": null,
+  "invoice_pdf": null,
+  "issuer": {
+    "type": "self"
+  },
+  "last_finalization_error": null,
+  "latest_revision": null,
+  "lines": {
+    "object": "list",
+    "data": [
+      {
+        "id": "il_tmp_1W38V7C0mmjh4oEMGg6Quor2",
+        "object": "line_item",
+        "amount": -5110,
+        "currency": "usd",
+        "description": "Unused time on WMB Professional after 03 Aug 2026",
+        "discount_amounts": [],
+        "discountable": false,
+        "discounts": [],
+        "invoice": "upcoming_in_1TuoY8C0mmjh4oEMth57WdNM",
+        "livemode": false,
+        "metadata": {},
+        "parent": {
+          "invoice_item_details": null,
+          "license_fee_subscription_details": null,
+          "subscription_item_details": {
+            "invoice_item": "ii_1TuoY8C0mmjh4oEMMzDqEbid",
+            "proration": true,
+            "proration_details": {
+              "credited_items": {
+                "invoice": "in_1TuoXzC0mmjh4oEMfCeiVw4o",
+                "invoice_line_items": [
+                  "il_1TuoXxC0mmjh4oEM3OCD34Ub"
+                ]
+              }
+            },
+            "subscription": "sub_1TuoXzC0mmjh4oEMu6HhDMiA",
+            "subscription_item": "si_UudpqSXaloLGWb"
+          },
+          "type": "subscription_item_details"
+        },
+        "period": {
+          "end": 1787122197,
+          "start": 1785739797
+        },
+        "pretax_credit_amounts": [],
+        "pricing": {
+          "price_details": {
+            "price": "price_1TuBneC0mmjh4oEMOHjZNO5n",
+            "product": "prod_UtznrnlaQCOsfo"
+          },
+          "type": "price_details",
+          "unit_amount_decimal": null
+        },
+        "quantity": 1,
+        "quantity_decimal": "1",
+        "subtotal": -5110,
+        "taxes": []
+      },
+      {
+        "id": "il_tmp_1W38V8C0mmjh4oEMfa1LVle0",
+        "object": "line_item",
+        "amount": 46986,
+        "currency": "usd",
+        "description": "Remaining time on WMB Indie after 03 Aug 2026",
+        "discount_amounts": [],
+        "discountable": false,
+        "discounts": [],
+        "invoice": "upcoming_in_1TuoY8C0mmjh4oEMth57WdNM",
+        "livemode": false,
+        "metadata": {},
+        "parent": {
+          "invoice_item_details": null,
+          "license_fee_subscription_details": null,
+          "subscription_item_details": {
+            "invoice_item": "ii_1TuoY8C0mmjh4oEMgg7dQmtg",
+            "proration": true,
+            "proration_details": {
+              "credited_items": null
+            },
+            "subscription": "sub_1TuoXzC0mmjh4oEMu6HhDMiA",
+            "subscription_item": "si_UudpqSXaloLGWb"
+          },
+          "type": "subscription_item_details"
+        },
+        "period": {
+          "end": 1815979797,
+          "start": 1785739797
+        },
+        "pretax_credit_amounts": [],
+        "pricing": {
+          "price_details": {
+            "price": "price_1TuBndC0mmjh4oEMUSXqG5AK",
+            "product": "prod_UtznkzK7HiLhrY"
+          },
+          "type": "price_details",
+          "unit_amount_decimal": null
+        },
+        "quantity": 1,
+        "quantity_decimal": "1",
+        "subtotal": 46986,
+        "taxes": []
+      },
+      {
+        "id": "il_tmp_1W38V9C0mmjh4oEMKiVA6dfy",
+        "object": "line_item",
+        "amount": 49000,
+        "currency": "usd",
+        "description": "1 × WMB Indie (at $490.00 / year)",
+        "discount_amounts": [],
+        "discountable": true,
+        "discounts": [],
+        "invoice": "upcoming_in_1TuoY8C0mmjh4oEMth57WdNM",
+        "livemode": false,
+        "metadata": {},
+        "parent": {
+          "invoice_item_details": null,
+          "license_fee_subscription_details": null,
+          "subscription_item_details": {
+            "invoice_item": null,
+            "proration": false,
+            "proration_details": {
+              "credited_items": null
+            },
+            "subscription": "sub_1TuoXzC0mmjh4oEMu6HhDMiA",
+            "subscription_item": "si_UudpqSXaloLGWb"
+          },
+          "type": "subscription_item_details"
+        },
+        "period": {
+          "end": 1847602197,
+          "start": 1815979797
+        },
+        "pretax_credit_amounts": [],
+        "pricing": {
+          "price_details": {
+            "price": "price_1TuBndC0mmjh4oEMUSXqG5AK",
+            "product": "prod_UtznkzK7HiLhrY"
+          },
+          "type": "price_details",
+          "unit_amount_decimal": "49000"
+        },
+        "quantity": 1,
+        "quantity_decimal": "1",
+        "subtotal": 49000,
+        "taxes": []
+      }
+    ],
+    "has_more": false,
+    "total_count": 3,
+    "url": "/v1/invoices/upcoming_in_1TuoY8C0mmjh4oEMth57WdNM/lines"
+  },
+  "livemode": false,
+  "metadata": {},
+  "next_payment_attempt": 1815983397,
+  "number": null,
+  "on_behalf_of": null,
+  "parent": {
+    "quote_details": null,
+    "subscription_details": {
+      "metadata": {},
+      "subscription": "sub_1TuoXzC0mmjh4oEMu6HhDMiA",
+      "subscription_proration_date": 1785739797
+    },
+    "type": "subscription_details"
+  },
+  "payment_settings": {
+    "default_mandate": null,
+    "payment_method_options": null,
+    "payment_method_types": null
+  },
+  "period_end": 1815979797,
+  "period_start": 1784443797,
+  "post_payment_credit_notes_amount": 0,
+  "pre_payment_credit_notes_amount": 0,
+  "receipt_number": null,
+  "rendering": null,
+  "shipping_cost": null,
+  "shipping_details": null,
+  "starting_balance": 0,
+  "statement_descriptor": null,
+  "status": "draft",
+  "status_transitions": {
+    "finalized_at": null,
+    "marked_uncollectible_at": null,
+    "paid_at": null,
+    "voided_at": null
+  },
+  "subtotal": 90876,
+  "subtotal_excluding_tax": 90876,
+  "test_clock": "clock_1TuoXyC0mmjh4oEMqDz1KxF6",
+  "total": 90876,
+  "total_discount_amounts": [],
+  "total_excluding_tax": 90876,
+  "total_pretax_credit_amounts": [],
+  "total_taxes": [],
+  "webhooks_delivered_at": null
+}

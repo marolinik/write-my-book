@@ -1,0 +1,23 @@
+{
+  "suiteId": "continuity-precision",
+  "protocolRef": "GRADING-PROTOCOL.md §Metric pre-registration, row 3 (continuity precision/recall)",
+  "preRegistered": {
+    "metric": "continuity-precision",
+    "n": 30,
+    "unit": "corpus chapters per class",
+    "threshold": "false-positives 0/>=30 on clean+nonchron; recall floor on seeded classes",
+    "model": "openrouter-qwen36 (real model)",
+    "declaredAt": "on-commit"
+  },
+  "corpus": {
+    "dir": "cowork/bulletproof-qa-2026-07-17/evidence-harness/corpora/continuity",
+    "groundTruth": "corpus-manifest.csv",
+    "subdirs": ["seeded", "clean", "nonchron"],
+    "note": "ground-truth CSV is human/team-lead reviewed before first use — a wrong ground truth corrupts FP/recall both ways (§3.2)"
+  },
+  "checks": [
+    { "id": "false-positive-zero", "method": "numericBound", "note": "flags on clean/+nonchron joined to CSV must be 0" },
+    { "id": "recall", "method": "numericBound", "note": "detected/planted on seeded/ must meet recall floor" },
+    { "id": "coverage-corpus", "method": "countAtLeast", "note": "fail-closed UNDER-N if corpus < 30 per class" }
+  ]
+}

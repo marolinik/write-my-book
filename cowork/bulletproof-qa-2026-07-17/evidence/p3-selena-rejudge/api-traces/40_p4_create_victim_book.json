@@ -1,0 +1,42 @@
+{
+  "capturedAt": "2026-07-20T02:37:34.261Z",
+  "request": {
+    "method": "POST",
+    "url": "/api/books",
+    "actingAs": "user_qa_p4",
+    "headers": {
+      "content-type": "application/json",
+      "x-e2e-test-secret": "***MASKED***",
+      "x-e2e-clerk-id": "user_qa_p4"
+    },
+    "body": {
+      "name": "P4 Victim Book [RJ0720]",
+      "genre": "fantasy"
+    }
+  },
+  "response": {
+    "status": 201,
+    "latencyMs": 151,
+    "body": {
+      "id": "f48441dc-2b2f-41b2-9d43-d8c866901b58",
+      "userId": "a31049dd-0fd9-44dd-a232-8606129d1853",
+      "seriesId": null,
+      "bookNumber": 1,
+      "name": "P4 Victim Book [RJ0720]",
+      "genre": "fantasy",
+      "language": "en",
+      "status": "concept",
+      "description": null,
+      "marketingKit": null,
+      "authorNotes": null,
+      "wordCount": 0,
+      "targetWordCount": null,
+      "chapterCount": 0,
+      "s3Prefix": "a31049dd-0fd9-44dd-a232-8606129d1853/f48441dc-2b2f-41b2-9d43-d8c866901b58",
+      "createdAt": "2026-07-20T02:37:34.212Z",
+      "updatedAt": "2026-07-20T02:37:34.223Z",
+      "archivedAt": null,
+      "firstChapterId": "0211e6c2-a7f4-4c10-8e43-77a50692380f"
+    }
+  }
+}

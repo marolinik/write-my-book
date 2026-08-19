@@ -20,6 +20,9 @@ export interface ImportResult {
 /** Options passed to the export pipeline. */
 export interface ExportOptions {
   bookId: string;
+  /** Owning user — chapter content is resolved via DocumentService in DB
+   *  chapterNumber order, exactly like live chapter reads (D-03). */
+  userId: string;
   format: "docx" | "pdf" | "epub";
   isDraft?: boolean;
   sceneBreakGlyph?: string;

@@ -1,0 +1,57 @@
+# 44i3 — import fidelity: source .md vs stored chapters
+# 2026-07-27T04:57:30.042Z · book 73247017-de05-4c22-9848-24802013604b · identity user_qa_p2cold
+# source: cowork/bulletproof-qa-2026-07-17/evidence/p2-gerald-rejudge/scripts-v2/gerald-day0-manuscript.md (236650 bytes, 8 heading blocks)
+
+  [removed the 33-char sentence that shot 44j typed into this chapter]
+ch1 "A Debt in Zürich"
+  src  body: 28794 chars  sha256 e0d747a3910c711e
+  kept body: 28794 chars  sha256 e0d747a3910c711e
+  BODY_BYTE_EXACT (after newline normalisation) = true
+  unicode tokens present in source but LOST in storage: none
+
+ch2 "The Trieste Signal"
+  src  body: 28678 chars  sha256 8bc8eeb432df04c4
+  kept body: 28678 chars  sha256 8bc8eeb432df04c4
+  BODY_BYTE_EXACT (after newline normalisation) = true
+  unicode tokens present in source but LOST in storage: none
+
+ch3 "The Łódź Ledger"
+  src  body: 28530 chars  sha256 7d39529fa621e54a
+  kept body: 28530 chars  sha256 7d39529fa621e54a
+  BODY_BYTE_EXACT (after newline normalisation) = true
+  unicode tokens present in source but LOST in storage: none
+
+ch4 "The Kőszeg Drop"
+  src  body: 28258 chars  sha256 0f5118bc3e5b0bc4
+  kept body: 28258 chars  sha256 0f5118bc3e5b0bc4
+  BODY_BYTE_EXACT (after newline normalisation) = true
+  unicode tokens present in source but LOST in storage: none
+
+ch5 "No Names in Marseille"
+  src  body: 28245 chars  sha256 af0bf328cb97b9c0
+  kept body: 28245 chars  sha256 af0bf328cb97b9c0
+  BODY_BYTE_EXACT (after newline normalisation) = true
+  unicode tokens present in source but LOST in storage: none
+
+ch6 "Ash on the Wire"
+  src  body: 28217 chars  sha256 c94298a5a228ee4c
+  kept body: 28217 chars  sha256 c94298a5a228ee4c
+  BODY_BYTE_EXACT (after newline normalisation) = true
+  unicode tokens present in source but LOST in storage: none
+
+ch7 "Novosibirsk, Cold"
+  src  body: 28880 chars  sha256 77da95cf22920427
+  kept body: 28880 chars  sha256 77da95cf22920427
+  BODY_BYTE_EXACT (after newline normalisation) = true
+  unicode tokens present in source but LOST in storage: none
+
+ch8 "Dead Reckoning"
+  src  body: 28308 chars  sha256 925cff1cf680c923
+  kept body: 28308 chars  sha256 925cff1cf680c923
+  BODY_BYTE_EXACT (after newline normalisation) = true
+  unicode tokens present in source but LOST in storage: none
+
+SOURCE_BODY_CHARS = 227910
+STORED_BODY_CHARS = 227910
+DELTA_CHARS = 0
+ALL_CHAPTER_BODIES_BYTE_EXACT = true

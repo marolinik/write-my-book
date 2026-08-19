@@ -1,0 +1,28 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:3002/api/books/4116055c-6183-4675-926a-e04f31126951/editorial/findings/f1b35402-d5a8-42b6-a8be-02b9ac6a3504/discuss",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p1",
+      "Content-Type": "application/json"
+    },
+    "body": "{writerMessage:I hear you, but that clinical line is deliberate. Imogen manages grief as \"arithmetic\" - she intellectualizes to keep feeling at a survivable distance. So the abstract self-classification IS her voice at that peak moment: the prose enacts her retreat into taxonomy exactly when the emotion is strongest. That is the point, not a lapse in register. Make the case: why should I break that characterization rather than trust the reader to feel the coldness as hers?}"
+  },
+  "status": 400,
+  "error": null,
+  "responseHeaders": {
+    "connection": "keep-alive",
+    "content-type": "application/json",
+    "date": "Mon, 20 Jul 2026 11:38:34 GMT",
+    "keep-alive": "timeout=5",
+    "transfer-encoding": "chunked",
+    "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+  },
+  "body": {
+    "error": "Invalid JSON in request body"
+  },
+  "bodyIsRawText": false,
+  "elapsed_ms": 350,
+  "capturedAt": "2026-07-20T11:38:34.344Z"
+}

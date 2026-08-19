@@ -1,0 +1,61 @@
+{
+  "shot": "44p2 (accept, retry) / 44p3 (inline edit, retry)",
+  "capturedAt": "2026-07-27T05:12:04.074Z",
+  "bookId": "d43b605d-112a-4d40-ae28-4f53774bad46",
+  "chapterId": "ab45e84d-c339-4208-a34b-3fc6163dc6d3",
+  "assertions": {
+    "ghost_accept_armed": true,
+    "ghost_accept_armed_ms_after_pause": 4764,
+    "ghost_overlay_text": "WriteMyBook\nWriting Platform\nNavigation\nDashboard\nBooks\nSeries\nP2-CAPTURE-QUICKASSIST-1785128878965\nOverview\nGetting Started\n2/5\nSetup\nTransfer\nStyle\nNext Step\nWriting\n0/1\nChapters\n1\nLibrary\nWriting Dashboard\nRefining\n0/1\nEditorial\nReports\nPublish\nExport\nSettings |  late, so I poured another drink and tried to remember what it felt like to believe in anything but the balance of a ledger.Tab ↹~3.3s",
+    "prose_changed_after_Tab": true,
+    "accepted_flag": true,
+    "inline_edit_selection_chars": 99,
+    "inline_edit_settled": true,
+    "inline_edit_ms": 5619,
+    "unicode_survived_in_editor": [
+      "Zürich",
+      "protégé",
+      "—",
+      "“",
+      "”"
+    ]
+  },
+  "proseBefore": "A Debt in Zürich\n\nAmara had learned, [[REPLACED]] hard way, that a café smile bought more time than a gun. It wasn’t trust that kept [[REPLACED]]m toge[[REPLACED]]r—it was [[REPLACED]] absence of any better option. He read [[REPLACED]] message twice, [[REPLACED]]n burned it, watching [[REPLACED]] protégé edges curl to ash. He weighed [[REPLACED]] risk [[REPLACED]] way he weighed everything now—in fractions, never wholes. “[[REPLACED]]y know,” he said. “[[REPLACED]]y’ve known since Antibes.” [[REPLACED]] ledger was written in a code that only Kessler and a dead man had ever shared. It wasn’t trust that kept [[REPLACED]]m toge[[REPLACED]]r—it was [[REPLACED]] absence of any better option. A single light burned in [[REPLACED]] third-floor window—Beckett’s signal that [[REPLACED]] drop was clean. Marek set the receipt on the table and",
+  "proseAfterAccept": "A Debt in Zürich\n\nAmara had learned, [[REPLACED]] hard way, that a café smile bought more time than a gun. It wasn’t trust that kept [[REPLACED]]m toge[[REPLACED]]r—it was [[REPLACED]] absence of any better option. He read [[REPLACED]] message twice, [[REPLACED]]n burned it, watching [[REPLACED]] protégé edges curl to ash. He weighed [[REPLACED]] risk [[REPLACED]] way he weighed everything now—in fractions, never wholes. “[[REPLACED]]y know,” he said. “[[REPLACED]]y’ve known since Antibes.” [[REPLACED]] ledger was written in a code that only Kessler and a dead man had ever shared. It wasn’t trust that kept [[REPLACED]]m toge[[REPLACED]]r—it was [[REPLACED]] absence of any better option. A single light burned in [[REPLACED]] third-floor window—Beckett’s signal that [[REPLACED]] drop was clean. Marek set the receipt on the table and The courier was late, so I poured another drink and tried to remember what it felt like to believe in anything but the balance of a ledger.",
+  "popupTextExcerpt": "Command Palette\n\nSearch for a command to run...\n\nWriteMyBook\nWriting Platform\nNavigation\nDashboard\nBooks\nSeries\nP2-CAPTURE-QUICKASSIST-1785128878965\nOverview\nGetting Started\n2/5\nSetup\nTransfer\nStyle\nNext Step\nWriting\n0/1\nChapters\n1\nLibrary\nWriting Dashboard\nRefining\n0/1\nEditorial\nReports\nPublish\nExport\nSettings\nBooks\n/\nP2-CAPTURE-QUICKASSIST-1785128878965\n/\nChapters\n/\nCh.1\nUndiscussed\nToggle theme\nP2-CAPTURE-QUICKASSIST-1785128878965\n/\nCh. 1\nChapter 1\nCh. 1\nFresh Start\n150 words\nSaved\nPacing\nSyntax\nA Debt in Zürich\n\nAmara had learned, [[REPLACED]] hard way, that a café smile bought more time than a gun. It wasn’t trust that kept [[REPLACED]]m toge[[REPLACED]]r—it was [[REPLACED]] absence of any better option. He read [[REPLACED]] message twice, [[REPLACED]]n burned it, watching [[REPLACED]] protégé edges curl to ash. He weighed [[REPLACED]] risk [[REPLACED]] way he weighed everything now—in fractions, never wholes. “[[REPLACED]]y know,” he said. “[[REPLACED]]y’ve known since Antibes.” [[REPLACED]] ledger was written in a code that only Kessler and a dead man had ever shared. It wasn’t trust that kept [[REPLACED]]m toge[[REPLACED]]r—it was [[REPLACED]] absence of any better option. A single light burned in [[REPLACED]] third-floor window—Beckett’s signal that [[REPLACED]] drop was clean. Marek set the receipt on the table and The courier was late, so I poured another drink and tried to remember what it felt like to believe in anything but the balance of a ledger.\n\nConcise phrasing\n1/3\nA Debt in Zürich Amara had learned the hard way that a café smile bought more time than\nReject\nAccept\nArrow keys to browse, Enter to accept, Esc to cancel\n150 words\n1 min read\nTimer\nSaved 07:11 AM",
+  "network": [
+    {
+      "url": "/api/books/d43b605d-112a-4d40-ae28-4f53774bad46/ghost-text?warmup=1",
+      "method": "POST",
+      "status": 200,
+      "at": "2026-07-27T05:11:45.827Z",
+      "ct": "application/json"
+    },
+    {
+      "url": "/api/books/d43b605d-112a-4d40-ae28-4f53774bad46/ghost-text",
+      "method": "POST",
+      "status": 200,
+      "at": "2026-07-27T05:11:51.529Z",
+      "ct": "text/event-stream"
+    },
+    {
+      "url": "/api/books/d43b605d-112a-4d40-ae28-4f53774bad46/ghost-text",
+      "method": "POST",
+      "status": 200,
+      "at": "2026-07-27T05:11:55.904Z",
+      "ct": "text/event-stream"
+    },
+    {
+      "url": "/api/books/d43b605d-112a-4d40-ae28-4f53774bad46/inline-edit",
+      "method": "POST",
+      "status": 200,
+      "at": "2026-07-27T05:12:02.225Z",
+      "ct": "application/json"
+    }
+  ],
+  "log": [
+    "[2026-07-27T05:11:52.585Z] ghost accept ARMED 4764ms after the pause; overlay text = \"WriteMyBook\\nWriting Platform\\nNavigation\\nDashboard\\nBooks\\nSeries\\nP2-CAPTURE-QUICKASSIST-1785128878965\\nOverview\\nGetting Started\\n2/5\\nSetup\\nTransfer\\nStyle\\nNext Step\\nWriting\\n0/1\\nChapters\\n1\\nLibrary\\nWriting D\"",
+    "[2026-07-27T05:11:55.595Z] prose changed after Tab = true",
+    "[2026-07-27T05:12:03.746Z] inline edit settled in 5619ms"
+  ]
+}

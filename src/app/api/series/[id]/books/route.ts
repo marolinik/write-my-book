@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { addBookToSeriesSchema } from "@/lib/validation";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { zodErrorResponse } from "@/lib/api/zod-error";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -10,7 +12,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id: seriesId } = await params;
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const data = addBookToSeriesSchema.parse(body);
 
     // Verify series ownership
@@ -72,19 +74,29 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(book, { status: 201 });
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if ((error as Error).name === "ZodError") {
-      return NextResponse.json(
-        { error: "Invalid input", details: error },
-        { status: 400 }
-      );
-    }
+    const zodRes = zodErrorResponse(error);
+    if (zodRes) return zodRes;
     console.error("POST /api/series/:id/books error:", error);
     return NextResponse.json(
       { error: "Failed to add book to series" },
       { status: 500 }
     );
   }
+}
+
+/**
+ * GET /api/series/:id/books — unsupported. Books in a series are read via
+ * GET /api/series/:id. D-112 (D-15 class): answer the standard { error }
+ * envelope with the 405 instead of the framework's bare-body method rejection.
+ */
+export function GET(): NextResponse {
+  return NextResponse.json(
+    { error: "Method not allowed" },
+    { status: 405, headers: { Allow: "POST" } }
+  );
 }

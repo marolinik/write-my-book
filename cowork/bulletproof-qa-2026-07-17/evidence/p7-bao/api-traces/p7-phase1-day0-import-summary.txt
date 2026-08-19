@@ -1,0 +1,28 @@
+P7 Bao — Phase 1 summary (reconstructed from p7_phase1_state.json; this session's raw stdout for
+this run predates this evidence write-up and was not preserved verbatim, so this is a faithful summary
+of the persisted state file, not a literal console transcript).
+
+Script: p7_phase1_import.py
+Book created: "The Kőszeg Manuscript P7", book_id=846dbf1d-36dd-4b3b-9a63-797719e3f492
+20 chapters created (act1 = chapters 1-10, act2 = chapters 11-20), all unicode/diacritic-dense titles
+(e.g. "The Façade in Zürich", "Zoë's Gambit", "Raison d'Être", "Nagüel Huapi Endgame").
+
+Content generation: ~4,000 words/chapter target, deterministic per-chapter seed (3000 + chapter_number),
+diacritic-forced vocabulary in every paragraph. Total: 81,095 words across 20 chapters.
+
+Per-chapter PUT (20 total): every PUT returned 200, api wordCount == locally computed wordCount for all 20.
+
+D5 latency series (10 samples each, at 80K-word scale):
+  chapter-list GET:    p50=47ms   p95=47ms
+  book-dashboard GET:  p50=46ms   p95=62ms
+  content GET:         p50=47ms   p95=63ms
+  content PUT (n=20):  p50=172ms  p95=188ms  min=140ms  max=203ms
+
+Structure verification: GET chapters list -> 20/20 chapters, titles match CHAPTER_TITLES exactly,
+per-chapter wordCount matches locally-computed wordCount for all 20.
+Book-level verification: GET book -> book.wordCount == sum(local chapter word counts) == 81,095.
+
+Byte-exact round-trip (including every diacritic): GET content for all 20 chapters, compared against
+the exact locally-generated markdown. 20/20 exact matches, zero mismatches.
+
+PASS: 67 / 67

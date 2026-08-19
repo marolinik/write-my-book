@@ -1,0 +1,15 @@
+{
+  "label": "19_intentional_suppress",
+  "method": "POST",
+  "path": "/api/books/2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90/continuity/intentional",
+  "requestedAt": "2026-07-18T09:07:48.140+00:00",
+  "elapsedMs": 9578,
+  "status": 200,
+  "request": {
+    "flagId": "de0cc075-e26e-4137-8942-619bab358bbd"
+  },
+  "note": "Mission A lifecycle: [Intentional] suppression of the relationship_contradiction flag. Route sets status=intentional; signature e687d7d1... should be filtered from all future scan responses and never deleted/resurrected.",
+  "response": {
+    "ok": true
+  }
+}

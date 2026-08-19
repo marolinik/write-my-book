@@ -1,5 +1,20 @@
 import { z } from "zod";
 import { PROVIDER_KEYS } from "@/lib/llm/providers";
+import { isSafeTemplatePath } from "@/lib/import-export/safe-path";
+
+/**
+ * A custom-template / cover-asset path (D-21). Constrained to a safe LOCAL path
+ * inside the bundled `export-templates/` directory: rejects URLs (SSRF), UNC
+ * paths, absolute paths, and `../` traversal so a writer-settable value can
+ * never make the server-side pandoc fetch a URL or read an arbitrary local file.
+ */
+const safeTemplatePathSchema = z
+  .string()
+  .max(500)
+  .refine(isSafeTemplatePath, {
+    message:
+      "Must be empty or a relative path inside the export-templates directory (no URLs, UNC, absolute paths, or ../).",
+  });
 
 export const createBookSchema = z.object({
   name: z.string().min(1).max(200),
@@ -118,7 +133,17 @@ export const updateSettingsSchema = z.object({
   language: z.string().min(2).max(10).optional(),
   journeyId: z.string().max(50).nullable().optional(),
   journeyStepsSnapshot: z.string().max(10000).nullable().optional(),
-});
+  // Setup wizard flags (D-35). The wizard PATCHes {setupImportSkipped: true}
+  // on Skip Import and {setupComplete: true} on Finish Setup; before these
+  // fields existed Zod silently stripped the keys and the route 200-no-oped,
+  // leaving SETUP-07 to 422-wall every non-setup workflow.
+  setupImportSkipped: z.boolean().optional(),
+  setupComplete: z.boolean().optional(),
+  // D-39: .strict() so an unknown/typo'd settings key 400s instead of being
+  // silently stripped with a 200 (the mechanism that hid D-35's dropped
+  // setupComplete). Every current client (use-settings, setup wizard,
+  // use-journey) sends only keys defined above.
+}).strict();
 
 export const pageContextSchema = z.object({
   currentRoute: z.string(),
@@ -216,6 +241,12 @@ export const searchQuerySchema = z.object({
     .string()
     .nullish()
     .transform((v) => v === "1" || v === "true"),
+  // D-189: whole-word matching. Same "1"/"true" convention as caseSensitive,
+  // so an absent flag stays substring matching (the pre-D-189 behaviour).
+  wholeWord: z
+    .string()
+    .nullish()
+    .transform((v) => v === "1" || v === "true"),
 });
 
 export const replaceRequestSchema = z.object({
@@ -224,6 +255,8 @@ export const replaceRequestSchema = z.object({
   // Absent = every chapter in the book; present = only these chapter ids.
   chapterIds: z.array(z.string()).optional(),
   caseSensitive: z.boolean().optional().default(false),
+  // D-189: absent = substring matching, preserving every existing caller.
+  wholeWord: z.boolean().optional().default(false),
 });
 
 export const exportConfigSchema = z.object({
@@ -256,7 +289,7 @@ export const exportConfigSchema = z.object({
     copyrightPage: z.boolean(),
     dedication: z.boolean(),
     tableOfContents: z.boolean(),
-    coverImagePath: z.string().max(500),
+    coverImagePath: safeTemplatePathSchema,
     dedicationPath: z.string().max(500),
   }),
   backMatter: z.object({
@@ -275,9 +308,9 @@ export const exportConfigSchema = z.object({
     sentenceCaseHeadings: z.boolean(),
   }),
   customTemplates: z.object({
-    docxReference: z.string().max(500),
-    epubCss: z.string().max(500),
-    typstTemplate: z.string().max(500),
+    docxReference: safeTemplatePathSchema,
+    epubCss: safeTemplatePathSchema,
+    typstTemplate: safeTemplatePathSchema,
   }),
   typography: z.object({
     autoHyphenation: z.boolean(),
@@ -444,15 +477,21 @@ export const exportRequestSchema = z.object({
   template: z.string().max(100).optional(),
 });
 
-export const exportConfigUpdateSchema = exportConfigSchema.partial();
+// D-39: .strict() rejects unknown top-level export-config keys (partial nested
+// sections are still permitted; the client sends complete sections). Prevents a
+// typo'd section name from being silently dropped on a 200.
+export const exportConfigUpdateSchema = exportConfigSchema.partial().strict();
 
 // ─── Settings Schemas ─────────────────────────────────────────
 
+// D-39: .strict() so a stray/read-only key (e.g. isDefault, validatedAt) 400s
+// rather than being silently ignored. Clients (useAddApiKey, onboarding) send
+// only { provider, key, label }.
 export const createApiKeySchema = z.object({
   provider: z.enum(PROVIDER_KEYS),
   key: z.string().min(1).max(5000),
   label: z.string().max(100).optional(),
-});
+}).strict();
 
 export const updateUserSettingsSchema = z.object({
   displayName: z.string().min(1).max(200).optional(),
@@ -460,9 +499,11 @@ export const updateUserSettingsSchema = z.object({
   defaultModel: z.string().max(50).optional(),
 });
 
+// D-39: .strict() so an unknown key 400s instead of a silent 200. Client sends
+// only { language }.
 export const updateLanguageSchema = z.object({
   language: z.string().min(2).max(10),
-});
+}).strict();
 
 export const usageQuerySchema = z.object({
   days: z.coerce.number().int().min(1).max(365).optional().default(30),
@@ -526,10 +567,12 @@ export type GhostTextRequest = z.infer<typeof ghostTextRequestSchema>;
 
 // ─── Writing Dashboard Schemas ──────────────────────────────────
 
+// D-39: .strict() so an unknown key 400s instead of a silent 200. Client sends
+// only { type, target }.
 export const writingGoalSchema = z.object({
   type: z.enum(["daily", "weekly", "total"]),
   target: z.number().int().positive(),
-});
+}).strict();
 
 export const writingStatsQuerySchema = z.object({
   days: z.coerce.number().int().min(1).max(365).default(30),

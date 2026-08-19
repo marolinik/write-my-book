@@ -1,0 +1,22 @@
+{
+  "label": "07_create_book2_ch3",
+  "method": "POST",
+  "path": "/api/books/2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90/chapters",
+  "status": 201,
+  "response": {
+    "id": "d24729ef-c607-4bf2-9923-1b04a90e4153",
+    "bookId": "2c9af2e0-dc6e-417c-948e-7ffe9f0a2d90",
+    "actNumber": 1,
+    "chapterNumber": 3,
+    "title": "The Wall at Dawn",
+    "status": "undiscussed",
+    "wordCount": 0,
+    "targetWordCount": null,
+    "betaScore": null,
+    "betaGate": "pending",
+    "revisionCount": 0,
+    "importedAt": null,
+    "createdAt": "2026-07-18T02:25:24.008Z",
+    "updatedAt": "2026-07-18T02:25:24.008Z"
+  }
+}

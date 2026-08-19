@@ -1,0 +1,30 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "http://localhost:3002/api/books/4116055c-6183-4675-926a-e04f31126951/chapters/ed84e638-0436-4cee-a458-669ce81cad50/content",
+    "headers": {
+      "x-e2e-test-secret": "<E2E_TEST_SECRET redacted>",
+      "x-e2e-clerk-id": "user_qa_p1"
+    },
+    "body": null
+  },
+  "status": 200,
+  "error": null,
+  "responseHeaders": {
+    "connection": "keep-alive",
+    "content-type": "application/json",
+    "date": "Mon, 20 Jul 2026 11:26:14 GMT",
+    "keep-alive": "timeout=5",
+    "transfer-encoding": "chunked",
+    "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+  },
+  "body": {
+    "markdown": "# Chapter One\n\nThe letters arrived in salt-stained envelopes, always three days after the tide had turned, as if the sea itself needed time to decide whether they were worth delivering. Imogen kept them in a biscuit tin under the floorboard her father had loosened the winter he taught her to lie convincingly. She never read them the day they came. She let them sit, the way you let a burn sit before you touch it again, testing whether the pain has changed its mind.\n\nHer aunt called this evasion. Imogen called it arithmetic. There was a version of grief that could be managed if you portioned it out correctly — a paragraph before breakfast, a paragraph after, never the whole letter at once, because the whole letter at once was how her mother had gone under, and Imogen had promised herself, on the day of the funeral, in a voice she didn't recognize as her own, that she would not go under. She would wade. She would keep her chin tipped back and her mouth shut and she would wade through this the way she'd been taught to wade through the shallows at Pentref, sideways to the current, never fighting it straight on.\n\nThe letters were from a man named Thomas Rhys, who had loved her mother before the war took the shape out of him, and who now wrote to Imogen as though she were the last surviving translator of a language he'd once been fluent in. He did not ask about her life. He asked about the coastline, the exact color of the water in October, whether the gulls still nested in the chimney of the old salt house. Imogen answered these questions with more care than she gave her own diary, because she understood, without being told, that Thomas was not really asking about gulls. He was asking whether the world that had held his happiness was still standing. She told him yes. She told him yes even on the days it wasn't strictly true.\n\nShe had not told her aunt about the correspondence. She had not told anyone. It was not, she reasoned, a secret so much as a room she had not yet furnished enough to let visitors in. The tin under the floorboard held eleven letters now, each one a small negotiation between what she knew and what she was willing to confirm. If her aunt asked her directly — and her aunt had a way of asking directly, a bluntness sharpened by decades of being lied to gently — Imogen would not deny it. She had simply arranged her life so that the question never quite arrived.\n\nOn the evening the twelfth letter came, she carried it down to the shore instead of to the floorboard. The tide was going out, dragging its long grey hem across the sand, and she sat where the wet met the dry and did not open it. She thought about her mother's handwriting, which had been small and slanted and impatient, nothing like Thomas's careful, spaced-out script, each letter of every word given room to breathe as though he'd learned penmanship as a form of penance. She thought about the difference between people who rushed toward feeling and people who built elaborate structures to keep it at a survivable distance, and she understood, with the particular clarity the sea seemed to specialize in, that she was the second kind, and that she had likely always been.\n\nShe did not open the letter that night. She put it in her coat pocket instead, where it sat against her ribs like a second, smaller heartbeat, and she walked home along the tideline in the dark, counting the lit windows of the village the way her mother used to, as if each one were a soul she was personally responsible for keeping lit.\n\nTomorrow she would read it. Tomorrow, or the day after. There was no arithmetic that made grief owe you a schedule, but she kept trying to invent one anyway, because the alternative — reading it now, standing in the wind with the whole weight of it at once — was a door she was not yet strong enough to hold open.\n",
+    "wordCount": 704,
+    "documentId": "b08086f9-4877-4d8a-9439-4e1d58686785",
+    "version": 1
+  },
+  "bodyIsRawText": false,
+  "elapsed_ms": 3222,
+  "capturedAt": "2026-07-20T11:26:14.709Z"
+}

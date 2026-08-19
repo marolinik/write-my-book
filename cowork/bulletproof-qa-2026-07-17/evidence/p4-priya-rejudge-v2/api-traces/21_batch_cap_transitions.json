@@ -1,0 +1,3181 @@
+[
+  {
+    "t_s": 0.44,
+    "wallClockUtc": "2026-07-20T09:27:56.817Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 2,
+      "running": 1,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 2.37,
+    "wallClockUtc": "2026-07-20T09:27:58.772Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 4.01,
+    "wallClockUtc": "2026-07-20T09:28:00.704Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 5.65,
+    "wallClockUtc": "2026-07-20T09:28:02.328Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 7.26,
+    "wallClockUtc": "2026-07-20T09:28:03.977Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 9.17,
+    "wallClockUtc": "2026-07-20T09:28:05.595Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 10.88,
+    "wallClockUtc": "2026-07-20T09:28:07.493Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 12.87,
+    "wallClockUtc": "2026-07-20T09:28:09.205Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 14.81,
+    "wallClockUtc": "2026-07-20T09:28:11.191Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 16.67,
+    "wallClockUtc": "2026-07-20T09:28:13.159Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 18.55,
+    "wallClockUtc": "2026-07-20T09:28:14.996Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 22.23,
+    "wallClockUtc": "2026-07-20T09:28:16.880Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 24.05,
+    "wallClockUtc": "2026-07-20T09:28:20.562Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 25.71,
+    "wallClockUtc": "2026-07-20T09:28:22.364Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 27.27,
+    "wallClockUtc": "2026-07-20T09:28:24.037Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 28.98,
+    "wallClockUtc": "2026-07-20T09:28:25.595Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 30.57,
+    "wallClockUtc": "2026-07-20T09:28:27.307Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 32.59,
+    "wallClockUtc": "2026-07-20T09:28:28.894Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 34.34,
+    "wallClockUtc": "2026-07-20T09:28:30.919Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 36.09,
+    "wallClockUtc": "2026-07-20T09:28:32.669Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 37.72,
+    "wallClockUtc": "2026-07-20T09:28:34.425Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 39.3,
+    "wallClockUtc": "2026-07-20T09:28:36.044Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 40.92,
+    "wallClockUtc": "2026-07-20T09:28:37.631Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 42.76,
+    "wallClockUtc": "2026-07-20T09:28:39.252Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 44.4,
+    "wallClockUtc": "2026-07-20T09:28:41.088Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 46.12,
+    "wallClockUtc": "2026-07-20T09:28:42.725Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 47.69,
+    "wallClockUtc": "2026-07-20T09:28:44.443Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 49.36,
+    "wallClockUtc": "2026-07-20T09:28:46.034Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 51.09,
+    "wallClockUtc": "2026-07-20T09:28:47.693Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 52.95,
+    "wallClockUtc": "2026-07-20T09:28:49.420Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 54.57,
+    "wallClockUtc": "2026-07-20T09:28:51.288Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 56.57,
+    "wallClockUtc": "2026-07-20T09:28:52.890Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 58.29,
+    "wallClockUtc": "2026-07-20T09:28:54.897Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 60.09,
+    "wallClockUtc": "2026-07-20T09:28:56.667Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 61.69,
+    "wallClockUtc": "2026-07-20T09:28:58.414Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 63.34,
+    "wallClockUtc": "2026-07-20T09:29:00.016Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 64.95,
+    "wallClockUtc": "2026-07-20T09:29:01.666Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 66.6,
+    "wallClockUtc": "2026-07-20T09:29:03.283Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 68.34,
+    "wallClockUtc": "2026-07-20T09:29:04.936Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 69.99,
+    "wallClockUtc": "2026-07-20T09:29:06.667Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 71.66,
+    "wallClockUtc": "2026-07-20T09:29:08.319Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 73.27,
+    "wallClockUtc": "2026-07-20T09:29:09.981Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 75.61,
+    "wallClockUtc": "2026-07-20T09:29:11.589Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 77.47,
+    "wallClockUtc": "2026-07-20T09:29:13.954Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 79.28,
+    "wallClockUtc": "2026-07-20T09:29:15.834Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 80.95,
+    "wallClockUtc": "2026-07-20T09:29:17.603Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 82.59,
+    "wallClockUtc": "2026-07-20T09:29:19.283Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 84.19,
+    "wallClockUtc": "2026-07-20T09:29:20.913Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 86.06,
+    "wallClockUtc": "2026-07-20T09:29:22.505Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 87.86,
+    "wallClockUtc": "2026-07-20T09:29:24.392Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 89.62,
+    "wallClockUtc": "2026-07-20T09:29:26.190Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 91.49,
+    "wallClockUtc": "2026-07-20T09:29:27.945Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 93.45,
+    "wallClockUtc": "2026-07-20T09:29:29.828Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 95.35,
+    "wallClockUtc": "2026-07-20T09:29:31.795Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 97.08,
+    "wallClockUtc": "2026-07-20T09:29:33.682Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 98.82,
+    "wallClockUtc": "2026-07-20T09:29:35.424Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 100.59,
+    "wallClockUtc": "2026-07-20T09:29:37.153Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 102.26,
+    "wallClockUtc": "2026-07-20T09:29:38.918Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 103.93,
+    "wallClockUtc": "2026-07-20T09:29:40.595Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 105.68,
+    "wallClockUtc": "2026-07-20T09:29:42.253Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 107.32,
+    "wallClockUtc": "2026-07-20T09:29:44.015Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 108.98,
+    "wallClockUtc": "2026-07-20T09:29:45.650Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 110.78,
+    "wallClockUtc": "2026-07-20T09:29:47.309Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 112.37,
+    "wallClockUtc": "2026-07-20T09:29:49.104Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 114.03,
+    "wallClockUtc": "2026-07-20T09:29:50.702Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 115.6,
+    "wallClockUtc": "2026-07-20T09:29:52.347Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 117.38,
+    "wallClockUtc": "2026-07-20T09:29:53.929Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 119.17,
+    "wallClockUtc": "2026-07-20T09:29:55.705Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 120.92,
+    "wallClockUtc": "2026-07-20T09:29:57.494Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 122.55,
+    "wallClockUtc": "2026-07-20T09:29:59.240Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 124.58,
+    "wallClockUtc": "2026-07-20T09:30:00.875Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 126.38,
+    "wallClockUtc": "2026-07-20T09:30:02.898Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 128.04,
+    "wallClockUtc": "2026-07-20T09:30:04.703Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 129.62,
+    "wallClockUtc": "2026-07-20T09:30:06.363Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 131.34,
+    "wallClockUtc": "2026-07-20T09:30:07.945Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 132.94,
+    "wallClockUtc": "2026-07-20T09:30:09.653Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 134.53,
+    "wallClockUtc": "2026-07-20T09:30:11.270Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 136.11,
+    "wallClockUtc": "2026-07-20T09:30:12.867Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 137.66,
+    "wallClockUtc": "2026-07-20T09:30:14.430Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 139.24,
+    "wallClockUtc": "2026-07-20T09:30:15.993Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 140.9,
+    "wallClockUtc": "2026-07-20T09:30:17.571Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 142.57,
+    "wallClockUtc": "2026-07-20T09:30:19.225Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 144.41,
+    "wallClockUtc": "2026-07-20T09:30:20.916Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 146.05,
+    "wallClockUtc": "2026-07-20T09:30:22.733Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 147.74,
+    "wallClockUtc": "2026-07-20T09:30:24.377Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 149.68,
+    "wallClockUtc": "2026-07-20T09:30:26.085Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 151.84,
+    "wallClockUtc": "2026-07-20T09:30:28.011Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 153.58,
+    "wallClockUtc": "2026-07-20T09:30:30.161Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 155.49,
+    "wallClockUtc": "2026-07-20T09:30:31.934Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 157.44,
+    "wallClockUtc": "2026-07-20T09:30:33.807Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 159.02,
+    "wallClockUtc": "2026-07-20T09:30:35.756Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 160.7,
+    "wallClockUtc": "2026-07-20T09:30:37.348Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 162.46,
+    "wallClockUtc": "2026-07-20T09:30:39.069Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 164.16,
+    "wallClockUtc": "2026-07-20T09:30:40.809Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 166.07,
+    "wallClockUtc": "2026-07-20T09:30:42.502Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 167.95,
+    "wallClockUtc": "2026-07-20T09:30:44.406Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 169.6,
+    "wallClockUtc": "2026-07-20T09:30:46.285Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 171.54,
+    "wallClockUtc": "2026-07-20T09:30:47.933Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 173.19,
+    "wallClockUtc": "2026-07-20T09:30:49.873Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 175.09,
+    "wallClockUtc": "2026-07-20T09:30:51.535Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 176.87,
+    "wallClockUtc": "2026-07-20T09:30:53.411Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 178.53,
+    "wallClockUtc": "2026-07-20T09:30:55.199Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 180.2,
+    "wallClockUtc": "2026-07-20T09:30:56.858Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 181.83,
+    "wallClockUtc": "2026-07-20T09:30:58.518Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 183.56,
+    "wallClockUtc": "2026-07-20T09:31:00.164Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 185.32,
+    "wallClockUtc": "2026-07-20T09:31:01.894Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 187,
+    "wallClockUtc": "2026-07-20T09:31:03.636Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 188.79,
+    "wallClockUtc": "2026-07-20T09:31:05.357Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 190.57,
+    "wallClockUtc": "2026-07-20T09:31:07.109Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 192.27,
+    "wallClockUtc": "2026-07-20T09:31:08.895Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 193.93,
+    "wallClockUtc": "2026-07-20T09:31:10.596Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 195.83,
+    "wallClockUtc": "2026-07-20T09:31:12.276Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 197.65,
+    "wallClockUtc": "2026-07-20T09:31:14.166Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 199.26,
+    "wallClockUtc": "2026-07-20T09:31:15.973Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 200.95,
+    "wallClockUtc": "2026-07-20T09:31:17.583Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 202.61,
+    "wallClockUtc": "2026-07-20T09:31:19.276Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 204.4,
+    "wallClockUtc": "2026-07-20T09:31:20.940Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 205.99,
+    "wallClockUtc": "2026-07-20T09:31:22.724Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 207.76,
+    "wallClockUtc": "2026-07-20T09:31:24.321Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 209.46,
+    "wallClockUtc": "2026-07-20T09:31:26.077Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 211.35,
+    "wallClockUtc": "2026-07-20T09:31:27.784Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 213.03,
+    "wallClockUtc": "2026-07-20T09:31:29.690Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 214.8,
+    "wallClockUtc": "2026-07-20T09:31:31.361Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 216.75,
+    "wallClockUtc": "2026-07-20T09:31:33.130Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 218.51,
+    "wallClockUtc": "2026-07-20T09:31:35.092Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 220.25,
+    "wallClockUtc": "2026-07-20T09:31:36.837Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 221.88,
+    "wallClockUtc": "2026-07-20T09:31:38.570Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 223.63,
+    "wallClockUtc": "2026-07-20T09:31:40.200Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 225.55,
+    "wallClockUtc": "2026-07-20T09:31:41.956Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 227.22,
+    "wallClockUtc": "2026-07-20T09:31:43.878Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 228.96,
+    "wallClockUtc": "2026-07-20T09:31:45.556Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 230.69,
+    "wallClockUtc": "2026-07-20T09:31:47.285Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 232.49,
+    "wallClockUtc": "2026-07-20T09:31:49.015Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 234.29,
+    "wallClockUtc": "2026-07-20T09:31:50.816Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 236.07,
+    "wallClockUtc": "2026-07-20T09:31:52.620Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 237.79,
+    "wallClockUtc": "2026-07-20T09:31:54.405Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 239.49,
+    "wallClockUtc": "2026-07-20T09:31:56.117Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 241.24,
+    "wallClockUtc": "2026-07-20T09:31:57.808Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 242.96,
+    "wallClockUtc": "2026-07-20T09:31:59.579Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 244.65,
+    "wallClockUtc": "2026-07-20T09:32:01.294Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 246.4,
+    "wallClockUtc": "2026-07-20T09:32:02.970Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 248.16,
+    "wallClockUtc": "2026-07-20T09:32:04.728Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 250.06,
+    "wallClockUtc": "2026-07-20T09:32:06.493Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 252.12,
+    "wallClockUtc": "2026-07-20T09:32:08.380Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 253.83,
+    "wallClockUtc": "2026-07-20T09:32:10.444Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 255.57,
+    "wallClockUtc": "2026-07-20T09:32:12.157Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 257.23,
+    "wallClockUtc": "2026-07-20T09:32:13.899Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 258.9,
+    "wallClockUtc": "2026-07-20T09:32:15.549Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 260.74,
+    "wallClockUtc": "2026-07-20T09:32:17.231Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 262.44,
+    "wallClockUtc": "2026-07-20T09:32:19.081Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 264.26,
+    "wallClockUtc": "2026-07-20T09:32:20.766Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 266.15,
+    "wallClockUtc": "2026-07-20T09:32:22.580Z",
+    "status": "running",
+    "halted": false,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 1,
+      "running": 2,
+      "completed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "spentUsd": 0,
+    "terminal": false
+  },
+  {
+    "t_s": 267.82,
+    "wallClockUtc": "2026-07-20T09:32:24.472Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 269.53,
+    "wallClockUtc": "2026-07-20T09:32:26.150Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 271.24,
+    "wallClockUtc": "2026-07-20T09:32:27.865Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 272.91,
+    "wallClockUtc": "2026-07-20T09:32:29.576Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 274.88,
+    "wallClockUtc": "2026-07-20T09:32:31.266Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 276.62,
+    "wallClockUtc": "2026-07-20T09:32:33.208Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 278.49,
+    "wallClockUtc": "2026-07-20T09:32:34.942Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 280.35,
+    "wallClockUtc": "2026-07-20T09:32:36.813Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 282.2,
+    "wallClockUtc": "2026-07-20T09:32:38.675Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 283.84,
+    "wallClockUtc": "2026-07-20T09:32:40.526Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 285.48,
+    "wallClockUtc": "2026-07-20T09:32:42.157Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 287.19,
+    "wallClockUtc": "2026-07-20T09:32:43.810Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 288.77,
+    "wallClockUtc": "2026-07-20T09:32:45.519Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 290.54,
+    "wallClockUtc": "2026-07-20T09:32:47.107Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 292.2,
+    "wallClockUtc": "2026-07-20T09:32:48.866Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 293.83,
+    "wallClockUtc": "2026-07-20T09:32:50.516Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 295.52,
+    "wallClockUtc": "2026-07-20T09:32:52.156Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 297.19,
+    "wallClockUtc": "2026-07-20T09:32:53.842Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 298.81,
+    "wallClockUtc": "2026-07-20T09:32:55.530Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 300.61,
+    "wallClockUtc": "2026-07-20T09:32:57.129Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 302.29,
+    "wallClockUtc": "2026-07-20T09:32:58.934Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 303.95,
+    "wallClockUtc": "2026-07-20T09:33:00.622Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 305.82,
+    "wallClockUtc": "2026-07-20T09:33:02.284Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 307.57,
+    "wallClockUtc": "2026-07-20T09:33:04.154Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 309.52,
+    "wallClockUtc": "2026-07-20T09:33:05.891Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 311.26,
+    "wallClockUtc": "2026-07-20T09:33:07.853Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 312.88,
+    "wallClockUtc": "2026-07-20T09:33:09.588Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 314.72,
+    "wallClockUtc": "2026-07-20T09:33:11.212Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 316.46,
+    "wallClockUtc": "2026-07-20T09:33:13.041Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 318.08,
+    "wallClockUtc": "2026-07-20T09:33:14.786Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 319.76,
+    "wallClockUtc": "2026-07-20T09:33:16.418Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 321.39,
+    "wallClockUtc": "2026-07-20T09:33:18.078Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 323.06,
+    "wallClockUtc": "2026-07-20T09:33:19.720Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 324.7,
+    "wallClockUtc": "2026-07-20T09:33:21.388Z",
+    "status": "running",
+    "halted": true,
+    "haltReason": null,
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 1,
+      "completed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.03392659499999999,
+    "terminal": false
+  },
+  {
+    "t_s": 326.31,
+    "wallClockUtc": "2026-07-20T09:33:23.022Z",
+    "status": "halted",
+    "halted": true,
+    "haltReason": "budget_cap",
+    "counts": {
+      "total": 3,
+      "queued": 0,
+      "running": 0,
+      "completed": 2,
+      "failed": 0,
+      "skipped": 1
+    },
+    "spentUsd": 0.06524627999999999,
+    "terminal": true
+  }
+]

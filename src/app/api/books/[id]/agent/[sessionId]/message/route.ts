@@ -23,6 +23,10 @@ import {
   addAssistantMessage,
 } from "@/lib/agents";
 import type { AgentStreamMessage, AgentResult } from "@/lib/agents";
+// Deep import on purpose: pure, db-free module (see artifact-contract.ts).
+import { evaluateArtifactContract } from "@/lib/agents/artifact-contract";
+import { DocumentService } from "@/lib/documents";
+import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 type RouteParams = {
   params: Promise<{ id: string; sessionId: string }>;
@@ -33,7 +37,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id: bookId, sessionId } = await params;
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const { message, pageContext } = sendMessageSchema.parse(body);
 
     let session = getSession(sessionId);
@@ -171,6 +175,9 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       client,
       modelId: model.modelId,
       registryId: model.id,
+      // D-83: user-initiated conversational turn — a real user is present, so
+      // authoritative graph corrections (UpdateGraphEntity) are permitted.
+      interactive: true,
     });
     session.orchestrator = orchestrator;
 
@@ -200,12 +207,67 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         pushMessage(sessionId, msg);
       },
       onComplete: async (result: AgentResult) => {
-        completeSession(sessionId, result);
+        // D-04/D-38: a conversational turn's deliverable IS its assistant text.
+        // An empty / whitespace-only reply — a reasoning model that burned its
+        // whole max_tokens budget on thinking, or a hollow provider turn — must
+        // NOT be billed as a successful result. The session stays "completed"
+        // (continuable) so a later genuine retry recovers with no stuck state;
+        // provider failures (success:false) already emitted their own error and
+        // still record partial spend below (D-36 money honesty).
+        const replyText = (result.assistantText ?? "").trim();
+        const emptyReply =
+          result.success && !result.cancelled && replyText.length === 0;
+
+        // D-188: continuation turns never run post-session, and the story bible
+        // is usually written on a LATER turn — so the artifact contract is
+        // evaluated here too. Recovers a document the model streamed but never
+        // saved, and refuses to report success for a turn that claims a
+        // deliverable it does not have. Evaluated BEFORE completeSession so the
+        // client is never told "success" and then contradicted.
+        let artifactBroken = false;
+        if (
+          workflow.producesDocument &&
+          result.success &&
+          !result.cancelled &&
+          !emptyReply
+        ) {
+          try {
+            const artifact = await evaluateArtifactContract({
+              workflowId: session.workflowId,
+              bookId,
+              userId: user.id,
+              assistantText: replyText,
+              documentIds: result.documentIds,
+              documentService: new DocumentService(user.id, bookId),
+            });
+            if (artifact) {
+              artifactBroken = !artifact.honest;
+              if (artifact.message) {
+                pushMessage(sessionId, {
+                  type: artifactBroken ? "error" : "status",
+                  content: artifact.message,
+                  metadata: {
+                    expectedDocument: artifact.expectedType,
+                    documentRecovered: artifact.recovered,
+                    documentPersisted: artifact.artifactExists,
+                  },
+                });
+              }
+            }
+          } catch (e) {
+            console.error("[AgentMessage] Artifact contract failed:", e);
+          }
+        }
+
+        completeSession(
+          sessionId,
+          artifactBroken ? { ...result, success: false } : result
+        );
 
         // Persist the assistant's reply so a continued session survives a
         // server restart with full context (fire-safe — never throws).
-        if (!result.cancelled && result.assistantText) {
-          await addAssistantMessage(sessionId, result.assistantText);
+        if (!result.cancelled && replyText) {
+          await addAssistantMessage(sessionId, replyText);
         }
 
         await db.agentSession.update({
@@ -215,6 +277,15 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
             tokensOutput: { increment: result.tokensOutput },
           },
         });
+
+        if (emptyReply) {
+          pushMessage(sessionId, {
+            type: "error",
+            content:
+              "The assistant returned an empty response — it may have run out of output space. Nothing was billed; please try again.",
+          });
+          return;
+        }
 
         const cost = estimateCost(
           model.id,
@@ -233,13 +304,15 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
           },
         });
       },
-      onError: async (error: Error) => {
+      onError: async (error: Error, partial?: { documentIds: string[] }) => {
         pushMessage(sessionId, { type: "error", content: error.message });
         completeSession(sessionId, {
           success: false,
           tokensInput: 0,
           tokensOutput: 0,
-          documentIds: [],
+          // Report documents written before the error — don't mislead consumers
+          // with an empty list (D-58; mirrors the book-agent F7 onError fix).
+          documentIds: partial?.documentIds ?? [],
           sessionId,
         });
       },
@@ -261,6 +334,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ ok: true });
   } catch (error) {
+    const invalidJson = invalidJsonBodyResponse(error);
+    if (invalidJson) return invalidJson;
     if ((error as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

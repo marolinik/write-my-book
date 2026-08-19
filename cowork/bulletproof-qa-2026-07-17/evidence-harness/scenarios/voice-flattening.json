@@ -1,0 +1,16 @@
+{
+  "suiteId": "voice-flattening",
+  "protocolRef": "GRADING-PROTOCOL.md §Metric pre-registration, row 2 (voice preservation)",
+  "preRegistered": {
+    "metric": "voice-flattening-blind-pairs",
+    "n": 30,
+    "unit": "blind hunk pairs",
+    "threshold": "judge blind A/B; harness guarantees pairs are real, blind, and sealed",
+    "model": "openrouter-qwen36 (+ stronger model when key present, both labeled)",
+    "declaredAt": "on-commit"
+  },
+  "corpus": { "dir": "cowork/bulletproof-qa-2026-07-17/evidence-harness/corpora/voice", "note": "line-edit-quality-validation corpus + 1 fresh corpus incl. registered signature devices" },
+  "checks": [
+    { "id": "coverage-pairs", "method": "countAtLeast", "note": "fail-closed UNDER-N if < 30 blind pairs; pairing key sealed, hash pinned in manifest" }
+  ]
+}
