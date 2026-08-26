@@ -26,6 +26,14 @@ import { getModelDef, resolveFromTier, type LLMProvider, type ModelDefinition } 
 const OPENROUTER_BASE_URL = "https://openrouter.ai/api";
 const LITELLM_BASE_URL = process.env.LITELLM_BASE_URL || "http://localhost:30400";
 
+/**
+ * Local LAN LLM proxy (Anthropic -> OpenAI translator). The Anthropic SDK
+ * appends `/v1/messages` to baseURL, so this must be the proxy ROOT (no path).
+ * In docker-compose the service is `local-llm-proxy`; for local (non-docker)
+ * runs point WMB_LOCAL_PROXY_URL at http://localhost:30400.
+ */
+const LOCAL_PROXY_BASE_URL = process.env.WMB_LOCAL_PROXY_URL || "http://local-llm-proxy:30400";
+
 export interface LLMClientOptions {
   /** Registry model ID (e.g. "anthropic/sonnet") or legacy tier ("sonnet"). */
   modelId: string;
@@ -265,6 +273,17 @@ export function resolveProviderRoute(
       return { route: "none", error: "No Grok or OpenRouter API key configured" };
     }
 
+    case "local": {
+      // The local LAN model is reached through the Anthropic->OpenAI proxy.
+      // The proxy ignores the upstream key (LAN-only) so any non-empty key
+      // works; the Anthropic SDK requires one, so we synthesize a sentinel.
+      return {
+        route: "direct",
+        apiKey: process.env.WMB_LOCAL_PROXY_KEY || "local",
+        baseURL: LOCAL_PROXY_BASE_URL,
+      };
+    }
+
     default: {
       return { route: "none", error: `Unknown provider: ${modelProvider}` };
     }
@@ -294,6 +313,27 @@ function needsLiteLLMProxy(_model: ModelDefinition, route: ProviderRouteResult):
  * 3. No usable key -> throws with clear error (never silently falls back)
  */
 export function createLLMClient(options: LLMClientOptions): LLMClient {
+  // ── Local-testing kill switch ──────────────────────────────────────────
+  // WMB_LLM_FORCE_LOCAL=1 routes EVERY model through the local LAN proxy
+  // (zero token cost). Used for full-stack local testing so the app runs
+  // end-to-end without burning paid provider tokens. The local model is a
+  // sonnet-tier generalist with tools + streaming, so all roles work.
+  if (process.env.WMB_LLM_FORCE_LOCAL === "1") {
+    const localModel = getModelDef("local/qwen38")!;
+    const localRoute = resolveProviderRoute("local", {}, localModel.modelId, localModel.id);
+    if (localRoute.route === "none") {
+      throw new Error(localRoute.error);
+    }
+    return {
+      client: new Anthropic({
+        apiKey: localRoute.apiKey,
+        baseURL: localRoute.baseURL,
+      }),
+      model: localModel,
+      effectiveModelId: localModel.modelId,
+    };
+  }
+
   // Resolve model: try exact match first, then legacy tier
   let model = getModelDef(options.modelId);
   if (!model) {

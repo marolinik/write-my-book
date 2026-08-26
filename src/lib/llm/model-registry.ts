@@ -3,7 +3,7 @@
  * Provides model definitions, cost data, and resolution helpers.
  */
 
-export type LLMProvider = "anthropic" | "openrouter" | "openai" | "gemini" | "grok";
+export type LLMProvider = "anthropic" | "openrouter" | "openai" | "gemini" | "grok" | "local";
 
 export type ModelTier = "opus" | "sonnet" | "haiku";
 
@@ -539,6 +539,39 @@ export const MODEL_REGISTRY: ModelDefinition[] = [
     supportsTools: true,
     supportsStreaming: true,
   },
+  // ── Local (LAN vLLM) via Anthropic->OpenAI proxy ──────────────
+  // Single self-hosted model on the LAN (vLLM, OpenAI-compatible). Reached
+  // through the local-llm-proxy which translates the Anthropic Messages API
+  // the app speaks into /v1/chat/completions. Free to run (no token cost),
+  // so it doubles as the zero-cost default for local testing.
+  {
+    id: "local/qwen38",
+    provider: "local",
+    modelId: "local/qwen38",
+    displayName: "Qwen3.8 27B (Local LAN)",
+    tier: "sonnet",
+    inputCostPer1M: 0,
+    outputCostPer1M: 0,
+    costTier: "$",
+    supportsTools: true,
+    supportsStreaming: true,
+  },
+  // Cheap-tier slot for the LAN model: without a "/haiku" sibling,
+  // resolveCheapModelFor("local/…") falls through to anthropic/haiku — a
+  // guaranteed key-missing failure for a local-only user (D-119 pattern).
+  // Same displayName so the picker collapses the pair into one item.
+  {
+    id: "local/qwen38-haiku",
+    provider: "local",
+    modelId: "local/qwen38",
+    displayName: "Qwen3.8 27B (Local LAN)",
+    tier: "haiku",
+    inputCostPer1M: 0,
+    outputCostPer1M: 0,
+    costTier: "$",
+    supportsTools: true,
+    supportsStreaming: true,
+  },
 ];
 
 /** Look up a model definition by its registry ID. */
@@ -648,6 +681,7 @@ export function getModelsGrouped(): Record<LLMProvider, ModelDefinition[]> {
     openai: getModelsByProvider("openai"),
     gemini: getModelsByProvider("gemini"),
     grok: getModelsByProvider("grok"),
+    local: getModelsByProvider("local"),
   };
 }
 
