@@ -23,6 +23,15 @@ curl https://yourdomain.com/api/health    # expect {"status":"ok","timestamp":".
 
 > **Warning:** `NEXT_PUBLIC_*` variables must be set at **build time**. They are baked into the JavaScript bundle and cannot be changed at runtime. If you change them, you must rebuild the image.
 
+> **Note (env file):** `.env.docker` is **not tracked in git** — it holds live credentials. Create it locally from `.env.example`. Never re-add a `.gitignore` exception for it.
+
+> **Note (free local model):** the LAN-vLLM stack (`local-llm-proxy` + `WMB_LLM_FORCE_LOCAL`) lives in an opt-in overlay and is NEVER part of production:
+> ```bash
+> # local zero-cost testing only:
+> docker compose -f docker-compose.yml -f docker-compose.local-llm.yml --env-file .env.docker.local up -d
+> ```
+> Production uses `-f docker-compose.yml -f docker-compose.prod.yml`, which contains no reference to the local proxy.
+
 ---
 
 ## Table of Contents

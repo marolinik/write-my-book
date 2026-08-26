@@ -1,0 +1,55 @@
+# docker-compose.local-llm.yml
+# OPT-IN overlay for full-stack LOCAL testing against the free LAN vLLM.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.local-llm.yml up -d
+#
+# Routes ALL app+worker LLM traffic through local-llm-proxy (Anthropic
+# Messages API -> OpenAI chat/completions translator running local-llm-proxy.py)
+# to the self-hosted model — zero provider token burn, all roles served by a
+# sonnet-tier generalist with tools + streaming.
+#
+# NEVER combine this overlay with docker-compose.prod.yml: production must use
+# real providers (paid keys), never the LAN endpoint.
+#
+# To use paid providers locally instead: omit this overlay and set the
+# provider keys in .env.docker as usual.
+
+services:
+  # ── Local LAN LLM proxy (Anthropic Messages API -> OpenAI chat/completions) ──
+  # Dependency-free (Python stdlib only) — see local-llm-proxy.py.
+  local-llm-proxy:
+    image: python:3.12-slim
+    restart: unless-stopped
+    command: python /app/local-llm-proxy.py
+    volumes:
+      - ./local-llm-proxy.py:/app/local-llm-proxy.py:ro
+    environment:
+      LOCAL_LLM_BASE_URL: ${LOCAL_LLM_BASE_URL:-http://10.33.0.153:8888/v1}
+      LOCAL_LLM_MODEL: ${LOCAL_LLM_MODEL:-qwen3.8-27b}
+      LOCAL_LLM_REASONING_EFFORT: ${LOCAL_LLM_REASONING_EFFORT:-medium}
+      LOCAL_LLM_PORT: "30400"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request;urllib.request.urlopen('http://localhost:30400/health')\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  app:
+    depends_on:
+      local-llm-proxy:
+        condition: service_healthy
+    environment:
+      WMB_LLM_FORCE_LOCAL: ${WMB_LLM_FORCE_LOCAL:-1}
+      WMB_LOCAL_PROXY_URL: http://local-llm-proxy:30400
+      LOCAL_LLM_BASE_URL: ${LOCAL_LLM_BASE_URL:-http://10.33.0.153:8888/v1}
+      LOCAL_LLM_MODEL: ${LOCAL_LLM_MODEL:-qwen3.8-27b}
+      LOCAL_LLM_REASONING_EFFORT: ${LOCAL_LLM_REASONING_EFFORT:-medium}
+
+  worker:
+    depends_on:
+      local-llm-proxy:
+        condition: service_healthy
+    environment:
+      WMB_LLM_FORCE_LOCAL: ${WMB_LLM_FORCE_LOCAL:-1}
+      WMB_LOCAL_PROXY_URL: http://local-llm-proxy:30400

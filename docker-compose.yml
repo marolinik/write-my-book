@@ -93,27 +93,9 @@ services:
       timeout: 5s
       retries: 5
 
-  # ── Local LAN LLM proxy (Anthropic Messages API -> OpenAI chat/completions) ──
-  # Translates the app's Anthropic SDK traffic to the self-hosted vLLM on the
-  # LAN, so the whole app can run on the free local model (WMB_LLM_FORCE_LOCAL).
-  # Dependency-free (Python stdlib only) — see local-llm-proxy.py.
-  local-llm-proxy:
-    image: python:3.12-slim
-    restart: unless-stopped
-    command: python /app/local-llm-proxy.py
-    volumes:
-      - ./local-llm-proxy.py:/app/local-llm-proxy.py:ro
-    environment:
-      LOCAL_LLM_BASE_URL: ${LOCAL_LLM_BASE_URL:-http://10.33.0.153:8888/v1}
-      LOCAL_LLM_MODEL: ${LOCAL_LLM_MODEL:-qwen3.8-27b}
-      LOCAL_LLM_REASONING_EFFORT: ${LOCAL_LLM_REASONING_EFFORT:-medium}
-      LOCAL_LLM_PORT: "30400"
-    healthcheck:
-      test: ["CMD-SHELL", "python -c \"import urllib.request;urllib.request.urlopen('http://localhost:30400/health')\""]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 5s
+  # NOTE: no local-llm-proxy service here on purpose. The LAN-vLLM stack is an
+  # OPT-IN overlay (docker-compose.local-llm.yml) so production deploys can
+  # never inherit WMB_LLM_FORCE_LOCAL=1 or a hard dependency on the proxy.
 
   app:
     build:
@@ -138,8 +120,6 @@ services:
         condition: service_healthy
       qdrant:
         condition: service_healthy
-      local-llm-proxy:
-        condition: service_healthy
     env_file:
       - .env.docker
     environment:
@@ -155,13 +135,6 @@ services:
       NEO4J_PASSWORD: wmb-neo4j-dev
       QDRANT_URL: http://qdrant:6333
       QDRANT_API_KEY: ${QDRANT_API_KEY:-wmb-qdrant-prod}
-      # Route ALL LLM traffic through the local LAN model (free, no token burn)
-      # for local testing. Set WMB_LLM_FORCE_LOCAL=0 to use paid providers.
-      WMB_LLM_FORCE_LOCAL: ${WMB_LLM_FORCE_LOCAL:-1}
-      WMB_LOCAL_PROXY_URL: http://local-llm-proxy:30400
-      LOCAL_LLM_BASE_URL: ${LOCAL_LLM_BASE_URL:-http://10.33.0.153:8888/v1}
-      LOCAL_LLM_MODEL: ${LOCAL_LLM_MODEL:-qwen3.8-27b}
-      LOCAL_LLM_REASONING_EFFORT: ${LOCAL_LLM_REASONING_EFFORT:-medium}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/api/health/dependencies"]
       interval: 30s
@@ -185,8 +158,6 @@ services:
         condition: service_healthy
       qdrant:
         condition: service_healthy
-      local-llm-proxy:
-        condition: service_healthy
     env_file:
       - .env.docker
     environment:
@@ -202,8 +173,6 @@ services:
       NEO4J_PASSWORD: wmb-neo4j-dev
       QDRANT_URL: http://qdrant:6333
       QDRANT_API_KEY: ${QDRANT_API_KEY:-wmb-qdrant-prod}
-      WMB_LLM_FORCE_LOCAL: ${WMB_LLM_FORCE_LOCAL:-1}
-      WMB_LOCAL_PROXY_URL: http://local-llm-proxy:30400
     deploy:
       resources:
         limits:
