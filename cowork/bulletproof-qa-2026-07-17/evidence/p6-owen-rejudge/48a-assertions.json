@@ -1,0 +1,1285 @@
+{
+  "shot": "48a",
+  "persona": "P6 (Owen)",
+  "book": "6d69fd7c-f7a4-4e3d-bf49-1415d81f5326",
+  "finding": "0002c9e1-83ab-4105-aefb-55427f437cd0",
+  "proves": "D-176 wait chrome on P6's own surface (no transferred evidence): counter, phase bands, heartbeat, Cancel, token stream, honest settle",
+  "writerMessage": "The echo is the point: the clipboard and the clipped voice are the same gesture twice, one object and one habit. Show me a version that keeps that pairing if you think it can be tighter.",
+  "network": [
+    {
+      "at": 1785151297521,
+      "method": "POST",
+      "status": 200,
+      "contentType": "text/event-stream",
+      "serverTiming": "ttft;dur=17823"
+    },
+    {
+      "at": 1785151298777,
+      "method": "GET",
+      "status": 200,
+      "contentType": "application/json",
+      "serverTiming": null
+    }
+  ],
+  "streamHeaders": {
+    "status": 200,
+    "contentType": "text/event-stream",
+    "serverTiming": "ttft;dur=17823",
+    "tMs": 17904.20000000298
+  },
+  "isSse": true,
+  "clocks": {
+    "ttftHeaderMs": 17823,
+    "ttftFirstTextFrameMs": 17905,
+    "firstProseInDomMs": 17979,
+    "counterAtFirstProse": "17s",
+    "counterSecondsAtFirstProse": 17,
+    "agreeWithin1s": true,
+    "settledAtMs": 18991,
+    "medianInterTokenGapMs": 12,
+    "streamSpanMs": 224
+  },
+  "counterSeries": [
+    "0s",
+    "1s",
+    "2s",
+    "3s",
+    "4s",
+    "5s",
+    "6s",
+    "7s",
+    "8s",
+    "9s",
+    "10s",
+    "11s",
+    "12s",
+    "13s",
+    "14s",
+    "15s",
+    "16s",
+    "17s"
+  ],
+  "waitMarks": [
+    {
+      "mark": 2,
+      "atMs": 2001,
+      "counter": "1s",
+      "label": "The editor is replying…",
+      "hint": "Thinking before the first word."
+    },
+    {
+      "mark": 10,
+      "atMs": 10032,
+      "counter": "10s",
+      "label": "The editor is still thinking…",
+      "hint": "This editor reasons before it writes — the first words usually land 20–40s in."
+    }
+  ],
+  "phaseFlip": {
+    "atMs": 8075,
+    "from": "The editor is replying…",
+    "to": "The editor is still thinking…",
+    "counter": "8s",
+    "hint": "This editor reasons before it writes — the first words usually land 20–40s in."
+  },
+  "hintsSeen": [
+    "Thinking before the first word.",
+    "This editor reasons before it writes — the first words usually land 20–40s in."
+  ],
+  "textFrameCount": 20,
+  "frameTypes": [
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "done"
+  ],
+  "streamedText": "The deliberate echo works. Tightening the surrounding syntax sharpens the rhythm without losing your pairing.\n\n",
+  "d177": {
+    "violations": [],
+    "clean": true
+  },
+  "rawSyntaxViolations": [],
+  "cardState": {
+    "cardText": "suggestion\nredundancy\nauto-apply\npending\n\nRoot-word echo: \"clipboard\" and \"clipped\" share the same root within a single sentence, creating a minor aural stumble in prose that otherwise prizes precision without repetition.\n\nChapter 1\n\nShow diff\nJump to text\nApply\nDismiss\nHide\nREDUNDANCY\n\nThe clipboard/clipped echo is deliberate - Kova's hands and the ledger share a vocabulary. Keep it, but tell me if it reads as sloppy rather than patterned.\n\nIt reads as patterned, not sloppy. The repetition anchors the gesture in the same bureaucratic register as the object, supporting your note on shared vocabulary. Keep it.\n\nThe echo is the point: the clipboard and the clipped voice are the same gesture twice, one object and one habit. Show me a version that keeps that pairing if you think it can be tighter.\n\nThe deliberate echo works. Tightening the surrounding syntax sharpens the rhythm without losing your pairing.\n\nAI Rewrite Comparison\nredundancy\n-3 words\n\nORIGINAL (14 WORDS)\n\nOne held a clipboard with a laminated card clipped to the top of it.\n\nAI REWRITE (11 WORDS)\n\nOne held a clipboard, a laminated card clipped to the top.\n\nHide diff\nEdit\nReject\nAccept Rewrite\n\nOn “Keep as-is”, I’ll remember: “Preserve deliberate root-word echoes that link character action to thematic vocabulary.”\n\nUse it\nKeep as-is",
+    "threadOrder": [
+      {
+        "kind": "writer",
+        "head": "The clipboard/clipped echo is deliberate - Kova's hands and ",
+        "len": 156
+      },
+      {
+        "kind": "assistant",
+        "head": "It reads as patterned, not sloppy. The repetition anchors th",
+        "len": 170
+      },
+      {
+        "kind": "writer",
+        "head": "The echo is the point: the clipboard and the clipped voice a",
+        "len": 186
+      },
+      {
+        "kind": "assistant",
+        "head": "The deliberate echo works. Tightening the surrounding syntax",
+        "len": 109
+      },
+      {
+        "kind": "revision-card"
+      }
+    ],
+    "revisionCardPresent": true,
+    "chip": "I’ll remember: “Preserve deliberate root-word echoes that link character action to thematic vocabulary.”",
+    "capNotice": false,
+    "danglingColon": []
+  },
+  "threadState": {
+    "userTurnsBefore": 1,
+    "userTurnsAfter": 2,
+    "repliesBefore": 2,
+    "repliesAfter": 4,
+    "canDiscussAfter": true
+  },
+  "domSamples": [
+    {
+      "tMs": 9742,
+      "wall": 1785151279631,
+      "live": true,
+      "waiting": true,
+      "liveHead": "The editor is replying… 0s",
+      "liveLen": 26,
+      "counter": "0s",
+      "hint": "Thinking before the first word.",
+      "controls": true,
+      "notice": null,
+      "settledCount": 1,
+      "lastSettledLen": 170,
+      "composer": {
+        "value": "",
+        "disabled": true
+      },
+      "useIt": {
+        "present": false,
+        "disabled": null,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": true,
+        "title": "Waiting for the editor's reply — cancel the turn to decide now"
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    },
+    {
+      "tMs": 10749,
+      "wall": 1785151280638,
+      "live": true,
+      "waiting": true,
+      "liveHead": "The editor is replying… 1s",
+      "liveLen": 26,
+      "counter": "1s",
+      "hint": "Thinking before the first word.",
+      "controls": true,
+      "notice": null,
+      "settledCount": 1,
+      "lastSettledLen": 170,
+      "composer": {
+        "value": "",
+        "disabled": true
+      },
+      "useIt": {
+        "present": false,
+        "disabled": null,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": true,
+        "title": "Waiting for the editor's reply — cancel the turn to decide now"
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    },
+    {
+      "tMs": 11745,
+      "wall": 1785151281633,
+      "live": true,
+      "waiting": true,
+      "liveHead": "The editor is replying… 2s",
+      "liveLen": 26,
+      "counter": "2s",
+      "hint": "Thinking before the first word.",
+      "controls": true,
+      "notice": null,
+      "settledCount": 1,
+      "lastSettledLen": 170,
+      "composer": {
+        "value": "",
+        "disabled": true
+      },
+      "useIt": {
+        "present": false,
+        "disabled": null,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": true,
+        "title": "Waiting for the editor's reply — cancel the turn to decide now"
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    },
+    {
+      "tMs": 12749,
+      "wall": 1785151282637,
+      "live": true,
+      "waiting": true,
+      "liveHead": "The editor is replying… 3s",
+      "liveLen": 26,
+      "counter": "3s",
+      "hint": "Thinking before the first word.",
+      "controls": true,
+      "notice": null,
+      "settledCount": 1,
+      "lastSettledLen": 170,
+      "composer": {
+        "value": "",
+        "disabled": true
+      },
+      "useIt": {
+        "present": false,
+        "disabled": null,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": true,
+        "title": "Waiting for the editor's reply — cancel the turn to decide now"
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    },
+    {
+      "tMs": 13749,
+      "wall": 1785151283637,
+      "live": true,
+      "waiting": true,
+      "liveHead": "The editor is replying… 4s",
+      "liveLen": 26,
+      "counter": "4s",
+      "hint": "Thinking before the first word.",
+      "controls": true,
+      "notice": null,
+      "settledCount": 1,
+      "lastSettledLen": 170,
+      "composer": {
+        "value": "",
+        "disabled": true
+      },
+      "useIt": {
+        "present": false,
+        "disabled": null,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": true,
+        "title": "Waiting for the editor's reply — cancel the turn to decide now"
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    },
+    {
+      "tMs": 14749,
+      "wall": 1785151284637,
+      "live": true,
+      "waiting": true,
+      "liveHead": "The editor is replying… 5s",
+      "liveLen": 26,
+      "counter": "5s",
+      "hint": "Thinking before the first word.",
+      "controls": true,
+      "notice": null,
+      "settledCount": 1,
+      "lastSettledLen": 170,
+      "composer": {
+        "value": "",
+        "disabled": true
+      },
+      "useIt": {
+        "present": false,
+        "disabled": null,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": true,
+        "title": "Waiting for the editor's reply — cancel the turn to decide now"
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    },
+    {
+      "tMs": 15744,
+      "wall": 1785151285633,
+      "live": true,
+      "waiting": true,
+      "liveHead": "The editor is replying… 6s",
+      "liveLen": 26,
+      "counter": "6s",
+      "hint": "Thinking before the first word.",
+      "controls": true,
+      "notice": null,
+      "settledCount": 1,
+      "lastSettledLen": 170,
+      "composer": {
+        "value": "",
+        "disabled": true
+      },
+      "useIt": {
+        "present": false,
+        "disabled": null,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": true,
+        "title": "Waiting for the editor's reply — cancel the turn to decide now"
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    },
+    {
+      "tMs": 16749,
+      "wall": 1785151286637,
+      "live": true,
+      "waiting": true,
+      "liveHead": "The editor is replying… 7s",
+      "liveLen": 26,
+      "counter": "7s",
+      "hint": "Thinking before the first word.",
+      "controls": true,
+      "notice": null,
+      "settledCount": 1,
+      "lastSettledLen": 170,
+      "composer": {
+        "value": "",
+        "disabled": true
+      },
+      "useIt": {
+        "present": false,
+        "disabled": null,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": true,
+        "title": "Waiting for the editor's reply — cancel the turn to decide now"
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    },
+    {
+      "tMs": 17748,
+      "wall": 1785151287636,
+      "live": true,
+      "waiting": true,
+      "liveHead": "The editor is still thinking… 8s",
+      "liveLen": 32,
+      "counter": "8s",
+      "hint": "This editor reasons before it writes — the first words usually land 20–40s in.",
+      "controls": true,
+      "notice": null,
+      "settledCount": 1,
+      "lastSettledLen": 170,
+      "composer": {
+        "value": "",
+        "disabled": true
+      },
+      "useIt": {
+        "present": false,
+        "disabled": null,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": true,
+        "title": "Waiting for the editor's reply — cancel the turn to decide now"
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    },
+    {
+      "tMs": 18749,
+      "wall": 1785151288637,
+      "live": true,
+      "waiting": true,
+      "liveHead": "The editor is still thinking… 9s",
+      "liveLen": 32,
+      "counter": "9s",
+      "hint": "This editor reasons before it writes — the first words usually land 20–40s in.",
+      "controls": true,
+      "notice": null,
+      "settledCount": 1,
+      "lastSettledLen": 170,
+      "composer": {
+        "value": "",
+        "disabled": true
+      },
+      "useIt": {
+        "present": false,
+        "disabled": null,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": true,
+        "title": "Waiting for the editor's reply — cancel the turn to decide now"
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    },
+    {
+      "tMs": 19743,
+      "wall": 1785151289631,
+      "live": true,
+      "waiting": true,
+      "liveHead": "The editor is still thinking… 10s",
+      "liveLen": 33,
+      "counter": "10s",
+      "hint": "This editor reasons before it writes — the first words usually land 20–40s in.",
+      "controls": true,
+      "notice": null,
+      "settledCount": 1,
+      "lastSettledLen": 170,
+      "composer": {
+        "value": "",
+        "disabled": true
+      },
+      "useIt": {
+        "present": false,
+        "disabled": null,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": true,
+        "title": "Waiting for the editor's reply — cancel the turn to decide now"
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    },
+    {
+      "tMs": 20750,
+      "wall": 1785151290638,
+      "live": true,
+      "waiting": true,
+      "liveHead": "The editor is still thinking… 11s",
+      "liveLen": 33,
+      "counter": "11s",
+      "hint": "This editor reasons before it writes — the first words usually land 20–40s in.",
+      "controls": true,
+      "notice": null,
+      "settledCount": 1,
+      "lastSettledLen": 170,
+      "composer": {
+        "value": "",
+        "disabled": true
+      },
+      "useIt": {
+        "present": false,
+        "disabled": null,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": true,
+        "title": "Waiting for the editor's reply — cancel the turn to decide now"
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    },
+    {
+      "tMs": 21749,
+      "wall": 1785151291637,
+      "live": true,
+      "waiting": true,
+      "liveHead": "The editor is still thinking… 12s",
+      "liveLen": 33,
+      "counter": "12s",
+      "hint": "This editor reasons before it writes — the first words usually land 20–40s in.",
+      "controls": true,
+      "notice": null,
+      "settledCount": 1,
+      "lastSettledLen": 170,
+      "composer": {
+        "value": "",
+        "disabled": true
+      },
+      "useIt": {
+        "present": false,
+        "disabled": null,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": true,
+        "title": "Waiting for the editor's reply — cancel the turn to decide now"
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    },
+    {
+      "tMs": 22750,
+      "wall": 1785151292638,
+      "live": true,
+      "waiting": true,
+      "liveHead": "The editor is still thinking… 13s",
+      "liveLen": 33,
+      "counter": "13s",
+      "hint": "This editor reasons before it writes — the first words usually land 20–40s in.",
+      "controls": true,
+      "notice": null,
+      "settledCount": 1,
+      "lastSettledLen": 170,
+      "composer": {
+        "value": "",
+        "disabled": true
+      },
+      "useIt": {
+        "present": false,
+        "disabled": null,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": true,
+        "title": "Waiting for the editor's reply — cancel the turn to decide now"
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    },
+    {
+      "tMs": 23749,
+      "wall": 1785151293637,
+      "live": true,
+      "waiting": true,
+      "liveHead": "The editor is still thinking… 14s",
+      "liveLen": 33,
+      "counter": "14s",
+      "hint": "This editor reasons before it writes — the first words usually land 20–40s in.",
+      "controls": true,
+      "notice": null,
+      "settledCount": 1,
+      "lastSettledLen": 170,
+      "composer": {
+        "value": "",
+        "disabled": true
+      },
+      "useIt": {
+        "present": false,
+        "disabled": null,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": true,
+        "title": "Waiting for the editor's reply — cancel the turn to decide now"
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    },
+    {
+      "tMs": 24747,
+      "wall": 1785151294636,
+      "live": true,
+      "waiting": true,
+      "liveHead": "The editor is still thinking… 15s",
+      "liveLen": 33,
+      "counter": "15s",
+      "hint": "This editor reasons before it writes — the first words usually land 20–40s in.",
+      "controls": true,
+      "notice": null,
+      "settledCount": 1,
+      "lastSettledLen": 170,
+      "composer": {
+        "value": "",
+        "disabled": true
+      },
+      "useIt": {
+        "present": false,
+        "disabled": null,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": true,
+        "title": "Waiting for the editor's reply — cancel the turn to decide now"
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    },
+    {
+      "tMs": 25743,
+      "wall": 1785151295632,
+      "live": true,
+      "waiting": true,
+      "liveHead": "The editor is still thinking… 16s",
+      "liveLen": 33,
+      "counter": "16s",
+      "hint": "This editor reasons before it writes — the first words usually land 20–40s in.",
+      "controls": true,
+      "notice": null,
+      "settledCount": 1,
+      "lastSettledLen": 170,
+      "composer": {
+        "value": "",
+        "disabled": true
+      },
+      "useIt": {
+        "present": false,
+        "disabled": null,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": true,
+        "title": "Waiting for the editor's reply — cancel the turn to decide now"
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    },
+    {
+      "tMs": 26744,
+      "wall": 1785151296632,
+      "live": true,
+      "waiting": true,
+      "liveHead": "The editor is still thinking… 17s",
+      "liveLen": 33,
+      "counter": "17s",
+      "hint": "This editor reasons before it writes — the first words usually land 20–40s in.",
+      "controls": true,
+      "notice": null,
+      "settledCount": 1,
+      "lastSettledLen": 170,
+      "composer": {
+        "value": "",
+        "disabled": true
+      },
+      "useIt": {
+        "present": false,
+        "disabled": null,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": true,
+        "title": "Waiting for the editor's reply — cancel the turn to decide now"
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    },
+    {
+      "tMs": 27659,
+      "wall": 1785151297547,
+      "live": true,
+      "waiting": false,
+      "liveHead": "The deliberate▍",
+      "liveLen": 15,
+      "counter": null,
+      "hint": null,
+      "controls": true,
+      "notice": null,
+      "settledCount": 1,
+      "lastSettledLen": 170,
+      "composer": {
+        "value": "",
+        "disabled": true
+      },
+      "useIt": {
+        "present": false,
+        "disabled": null,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": true,
+        "title": "Waiting for the editor's reply — cancel the turn to decide now"
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    },
+    {
+      "tMs": 27670,
+      "wall": 1785151297558,
+      "live": true,
+      "waiting": false,
+      "liveHead": "The deliberate echo works▍",
+      "liveLen": 26,
+      "counter": null,
+      "hint": null,
+      "controls": true,
+      "notice": null,
+      "settledCount": 1,
+      "lastSettledLen": 170,
+      "composer": {
+        "value": "",
+        "disabled": true
+      },
+      "useIt": {
+        "present": false,
+        "disabled": null,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": true,
+        "title": "Waiting for the editor's reply — cancel the turn to decide now"
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    },
+    {
+      "tMs": 27705,
+      "wall": 1785151297593,
+      "live": true,
+      "waiting": false,
+      "liveHead": "The deliberate echo works. Tight▍",
+      "liveLen": 33,
+      "counter": null,
+      "hint": null,
+      "controls": true,
+      "notice": null,
+      "settledCount": 1,
+      "lastSettledLen": 170,
+      "composer": {
+        "value": "",
+        "disabled": true
+      },
+      "useIt": {
+        "present": false,
+        "disabled": null,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": true,
+        "title": "Waiting for the editor's reply — cancel the turn to decide now"
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    },
+    {
+      "tMs": 27723,
+      "wall": 1785151297611,
+      "live": true,
+      "waiting": false,
+      "liveHead": "The deliberate echo works. Tightening the▍",
+      "liveLen": 42,
+      "counter": null,
+      "hint": null,
+      "controls": true,
+      "notice": null,
+      "settledCount": 1,
+      "lastSettledLen": 170,
+      "composer": {
+        "value": "",
+        "disabled": true
+      },
+      "useIt": {
+        "present": false,
+        "disabled": null,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": true,
+        "title": "Waiting for the editor's reply — cancel the turn to decide now"
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    },
+    {
+      "tMs": 27749,
+      "wall": 1785151297637,
+      "live": true,
+      "waiting": false,
+      "liveHead": "The deliberate echo works. Tightening the surrounding ",
+      "liveLen": 61,
+      "counter": null,
+      "hint": null,
+      "controls": true,
+      "notice": null,
+      "settledCount": 1,
+      "lastSettledLen": 170,
+      "composer": {
+        "value": "",
+        "disabled": true
+      },
+      "useIt": {
+        "present": false,
+        "disabled": null,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": true,
+        "title": "Waiting for the editor's reply — cancel the turn to decide now"
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    },
+    {
+      "tMs": 27775,
+      "wall": 1785151297663,
+      "live": true,
+      "waiting": false,
+      "liveHead": "The deliberate echo works. Tightening the surrounding ",
+      "liveLen": 70,
+      "counter": null,
+      "hint": null,
+      "controls": true,
+      "notice": null,
+      "settledCount": 1,
+      "lastSettledLen": 170,
+      "composer": {
+        "value": "",
+        "disabled": true
+      },
+      "useIt": {
+        "present": false,
+        "disabled": null,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": true,
+        "title": "Waiting for the editor's reply — cancel the turn to decide now"
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    },
+    {
+      "tMs": 27796,
+      "wall": 1785151297684,
+      "live": true,
+      "waiting": false,
+      "liveHead": "The deliberate echo works. Tightening the surrounding ",
+      "liveLen": 81,
+      "counter": null,
+      "hint": null,
+      "controls": true,
+      "notice": null,
+      "settledCount": 1,
+      "lastSettledLen": 170,
+      "composer": {
+        "value": "",
+        "disabled": true
+      },
+      "useIt": {
+        "present": false,
+        "disabled": null,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": true,
+        "title": "Waiting for the editor's reply — cancel the turn to decide now"
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    },
+    {
+      "tMs": 27820,
+      "wall": 1785151297708,
+      "live": true,
+      "waiting": false,
+      "liveHead": "The deliberate echo works. Tightening the surrounding ",
+      "liveLen": 96,
+      "counter": null,
+      "hint": null,
+      "controls": true,
+      "notice": null,
+      "settledCount": 1,
+      "lastSettledLen": 170,
+      "composer": {
+        "value": "",
+        "disabled": true
+      },
+      "useIt": {
+        "present": false,
+        "disabled": null,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": true,
+        "title": "Waiting for the editor's reply — cancel the turn to decide now"
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    },
+    {
+      "tMs": 27846,
+      "wall": 1785151297734,
+      "live": true,
+      "waiting": false,
+      "liveHead": "The deliberate echo works. Tightening the surrounding ",
+      "liveLen": 109,
+      "counter": null,
+      "hint": null,
+      "controls": true,
+      "notice": null,
+      "settledCount": 1,
+      "lastSettledLen": 170,
+      "composer": {
+        "value": "",
+        "disabled": true
+      },
+      "useIt": {
+        "present": false,
+        "disabled": null,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": true,
+        "title": "Waiting for the editor's reply — cancel the turn to decide now"
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    },
+    {
+      "tMs": 27870,
+      "wall": 1785151297758,
+      "live": true,
+      "waiting": false,
+      "liveHead": "The deliberate echo works. Tightening the surrounding ",
+      "liveLen": 112,
+      "counter": null,
+      "hint": null,
+      "controls": true,
+      "notice": null,
+      "settledCount": 1,
+      "lastSettledLen": 170,
+      "composer": {
+        "value": "",
+        "disabled": true
+      },
+      "useIt": {
+        "present": false,
+        "disabled": null,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": true,
+        "title": "Waiting for the editor's reply — cancel the turn to decide now"
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    },
+    {
+      "tMs": 28659,
+      "wall": 1785151298548,
+      "live": false,
+      "waiting": false,
+      "liveHead": null,
+      "liveLen": 0,
+      "counter": null,
+      "hint": null,
+      "controls": false,
+      "notice": null,
+      "settledCount": 2,
+      "lastSettledLen": 109,
+      "composer": {
+        "value": "",
+        "disabled": false
+      },
+      "useIt": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "keepAsIs": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "apply": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      },
+      "dismiss": {
+        "present": true,
+        "disabled": false,
+        "title": null
+      }
+    }
+  ],
+  "trace": [
+    {
+      "step": "warm-discuss-get",
+      "status": 200,
+      "ms": 541
+    },
+    {
+      "step": "warm-editorial-page",
+      "status": 200,
+      "ms": 664
+    },
+    {
+      "step": "pre-state",
+      "userTurns": 1,
+      "canDiscuss": true,
+      "replies": 2
+    },
+    {
+      "step": "pageerror",
+      "message": "Clerk: Failed to load Clerk, failed to load script: https://clerk.example.test/npm/@clerk/clerk-js@5/dist/clerk.browser.js\n\n(code=\"failed_to_load_clerk_js\")\n\n"
+    }
+  ],
+  "capturedAt": "2026-07-27T11:21:42.428Z"
+}

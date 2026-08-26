@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { updateChapterSchema } from "@/lib/validation";
+import { reconcileBookCounters } from "@/lib/books/book-counters";
 import { deleteChapterChunks } from "@/lib/vector";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { zodErrorResponse } from "@/lib/api/zod-error";
@@ -116,13 +117,11 @@ export async function DELETE(_req: NextRequest, { params }: RouteParams) {
 
     await db.chapter.delete({ where: { id: chapterId } });
 
-    // D-194: authoritative recount (see the create route) — a blind decrement
-    // can drive an already-drifted counter negative and never self-corrects.
-    const chapterCount = await db.chapter.count({ where: { bookId } });
-    await db.book.update({
-      where: { id: bookId },
-      data: { chapterCount },
-    });
+    // D-194/D-200: authoritative recount of BOTH denormalised counters — a
+    // blind decrement can drive an already-drifted counter negative and never
+    // self-corrects, and before D-200 the word total had no decrement at all,
+    // so a deleted chapter's words stayed in the book forever.
+    await reconcileBookCounters(bookId);
 
     return NextResponse.json({ deleted: true });
   } catch (error) {

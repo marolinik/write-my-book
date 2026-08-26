@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { createDocumentSchema } from "@/lib/validation";
+import { reconcileBookCounters } from "@/lib/books/book-counters";
 import { DocumentService } from "@/lib/documents";
 import type { DocumentType } from "@/generated/prisma/enums";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
@@ -77,6 +78,11 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         where: { bookId, chapterNumber: data.chapterNumber },
         data: { wordCount },
       });
+      // D-200: the chapter's words just moved, so the book's denormalised
+      // total has to move with them. This route rewrote the chapter row and
+      // left the book total behind, which is the same asymmetry that let a
+      // deleted chapter's words stick.
+      await reconcileBookCounters(bookId);
     }
 
     return NextResponse.json(document, { status: 201 });

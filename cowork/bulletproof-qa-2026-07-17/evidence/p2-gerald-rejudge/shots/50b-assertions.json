@@ -1,0 +1,158 @@
+{
+  "shot": "50b",
+  "defect": "D-190/D-115",
+  "persona": "user_qa_p2",
+  "book": "df2269b0-0d86-41f7-8a28-7d3a86cfa2d5",
+  "sentinel": "ORPHAN-SENTINEL-1785159663088",
+  "capturedAt": "2026-07-27T13:41:03.088Z",
+  "step1_writeDeadProse": {
+    "status": 200,
+    "body": {
+      "wordCount": 23,
+      "version": 1,
+      "bookWordCount": 23
+    }
+  },
+  "step2_deleteChapter": {
+    "status": 200,
+    "body": {
+      "deleted": true
+    }
+  },
+  "step3_createChapter": {
+    "status": 201,
+    "body": {
+      "id": "b57acf4c-2039-4043-beb7-1b3e6f4c14de",
+      "bookId": "df2269b0-0d86-41f7-8a28-7d3a86cfa2d5",
+      "actNumber": 1,
+      "chapterNumber": 1,
+      "title": "Reclaimed Chapter",
+      "status": "undiscussed",
+      "wordCount": 0,
+      "targetWordCount": null,
+      "betaScore": null,
+      "betaGate": "pending",
+      "revisionCount": 0,
+      "importedAt": null,
+      "createdAt": "2026-07-27T13:41:04.591Z",
+      "updatedAt": "2026-07-27T13:41:04.591Z"
+    }
+  },
+  "newChapterId": "b57acf4c-2039-4043-beb7-1b3e6f4c14de",
+  "step4_getContent": {
+    "status": 200,
+    "body": {
+      "markdown": "",
+      "wordCount": 0
+    }
+  },
+  "step4_withheld": true,
+  "step5_emptyEditor": {
+    "ms": 9537,
+    "editorPresent": true,
+    "editorText": "\n",
+    "editorChars": 0,
+    "sentinelInEditor": false,
+    "sentinelAnywhere": false,
+    "conflictVisible": false,
+    "statusLine": null,
+    "wordCountLine": "0 words"
+  },
+  "step6_afterTyping": {
+    "ms": 26194,
+    "editorPresent": true,
+    "editorText": "Fresh reclaimed line: this chapter was created after the deleted one and starts empty.",
+    "editorChars": 86,
+    "sentinelInEditor": false,
+    "sentinelAnywhere": false,
+    "conflictVisible": false,
+    "statusLine": "Saved",
+    "wordCountLine": "14 words"
+  },
+  "step6_contentCalls": {
+    "puts": [
+      {
+        "url": "/api/books/df2269b0-0d86-41f7-8a28-7d3a86cfa2d5/chapters/b57acf4c-2039-4043-beb7-1b3e6f4c14de/content",
+        "method": "PUT",
+        "status": 200,
+        "reqBody": "{\"markdown\":\"Fresh reclaimed line: this chapter was \"}",
+        "resBody": "{\"wordCount\":6,\"version\":2,\"bookWordCount\":29}",
+        "atMs": 396
+      },
+      {
+        "url": "/api/books/df2269b0-0d86-41f7-8a28-7d3a86cfa2d5/chapters/b57acf4c-2039-4043-beb7-1b3e6f4c14de/content",
+        "method": "PUT",
+        "status": 200,
+        "reqBody": "{\"markdown\":\"Fresh reclaimed line: this chapter was created after the deleted one and starts empty.\",\"expectedVersion\":2}",
+        "resBody": "{\"wordCount\":14,\"version\":3,\"bookWordCount\":37}",
+        "atMs": 328
+      }
+    ],
+    "gets": [
+      {
+        "url": "/api/books/df2269b0-0d86-41f7-8a28-7d3a86cfa2d5/chapters/b57acf4c-2039-4043-beb7-1b3e6f4c14de/content",
+        "method": "GET",
+        "status": 200,
+        "reqBody": null,
+        "resBody": "{\"markdown\":\"\",\"wordCount\":0}",
+        "atMs": 222
+      },
+      {
+        "url": "/api/books/df2269b0-0d86-41f7-8a28-7d3a86cfa2d5/chapters/b57acf4c-2039-4043-beb7-1b3e6f4c14de/content",
+        "method": "GET",
+        "status": 200,
+        "reqBody": null,
+        "resBody": "{\"markdown\":\"Fresh reclaimed line: this chapter was \",\"wordCount\":6,\"documentId\":\"a54828ad-5948-470e-bdc1-aeb8cfc406d9\",\"version\":2}",
+        "atMs": 85
+      },
+      {
+        "url": "/api/books/df2269b0-0d86-41f7-8a28-7d3a86cfa2d5/chapters/b57acf4c-2039-4043-beb7-1b3e6f4c14de/content",
+        "method": "GET",
+        "status": 200,
+        "reqBody": null,
+        "resBody": "{\"markdown\":\"Fresh reclaimed line: this chapter was created after the deleted one and starts empty.\",\"wordCount\":14,\"documentId\":\"a54828ad-5948-470e-bdc1-aeb8cfc406d9\",\"version\":3}",
+        "atMs": 86
+      }
+    ]
+  },
+  "step6_putStatuses": [
+    200,
+    200
+  ],
+  "step6_no409": true,
+  "step6_serverContentLeak": false,
+  "step7_afterReload": {
+    "ms": 9450,
+    "editorPresent": true,
+    "editorText": "Fresh reclaimed line: this chapter was created after the deleted one and starts empty.",
+    "editorChars": 86,
+    "sentinelInEditor": false,
+    "sentinelAnywhere": false,
+    "conflictVisible": false,
+    "statusLine": null,
+    "wordCountLine": "14 words"
+  },
+  "pageErrors": [
+    "Clerk: Failed to load Clerk, failed to load script: https://clerk.example.test/npm/@clerk/clerk-js@5/dist/clerk.browser.js\n\n(code=\"failed_to_load_clerk_js\")\n\n",
+    "Clerk: Failed to load Clerk, failed to load script: https://clerk.example.test/npm/@clerk/clerk-js@5/dist/clerk.browser.js\n\n(code=\"failed_to_load_clerk_js\")\n\n"
+  ],
+  "step7_getAfterSave": {
+    "status": 200,
+    "body": {
+      "markdown": "Fresh reclaimed line: this chapter was created after the deleted one and starts empty.",
+      "wordCount": 14,
+      "documentId": "a54828ad-5948-470e-bdc1-aeb8cfc406d9",
+      "version": 3
+    }
+  },
+  "step7_sentinelGone": true,
+  "step7_freshPresent": true,
+  "verdict": {
+    "withheldOnGet": true,
+    "blankInPixels": true,
+    "firstSaveNot409": true,
+    "noServerContentLeak": true,
+    "sentinelGoneAfterSave": true,
+    "freshProsePersisted": true
+  }
+}

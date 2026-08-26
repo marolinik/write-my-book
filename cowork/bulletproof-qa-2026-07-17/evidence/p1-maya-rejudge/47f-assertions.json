@@ -1,0 +1,185 @@
+{
+  "shot": "47f",
+  "persona": "P1 (Maya)",
+  "book": "4116055c-6183-4675-926a-e04f31126951",
+  "proves": "D-165 resolved by settle-delayed re-shot + geometry/fill interrogation; D-166 confirmed on one frame",
+  "api": {
+    "totalWords": 704,
+    "todayWords": 0,
+    "streak": 0,
+    "bestStreak": 2,
+    "weeklyAvg": 0,
+    "dayCount": 30,
+    "nonZeroDays": [
+      {
+        "date": "2026-07-16",
+        "words": 380
+      },
+      {
+        "date": "2026-07-17",
+        "words": 324
+      }
+    ],
+    "maxDayWords": 380,
+    "firstDate": "2026-06-28",
+    "lastDate": "2026-07-27"
+  },
+  "chartAt8s": {
+    "surfacePresent": true,
+    "barElementCount": 2,
+    "barsWithHeight": 2,
+    "maxBarHeightPx": 117,
+    "distinctFillAttrs": [
+      "hsl(var(--primary))"
+    ],
+    "distinctComputedFills": [
+      "rgb(0, 0, 0)"
+    ],
+    "yTicks": [],
+    "xTicks": [],
+    "sampleBars": [
+      {
+        "w": 20,
+        "h": 117,
+        "fillAttr": "hsl(var(--primary))",
+        "fillComputed": "rgb(0, 0, 0)",
+        "opacity": "1",
+        "d": "M568.23,150.9539A 3,3,0,0,1,571.23,147.9539L 585.23,147.9539A 3,3,0,0,"
+      },
+      {
+        "w": 20,
+        "h": 99.8,
+        "fillAttr": "hsl(var(--primary))",
+        "fillComputed": "rgb(0, 0, 0)",
+        "opacity": "1",
+        "d": "M596.53,168.2028A 3,3,0,0,1,599.53,165.2028L 613.53,165.2028A 3,3,0,0,"
+      }
+    ],
+    "tallestBars": [
+      {
+        "w": 20,
+        "h": 117,
+        "fillAttr": "hsl(var(--primary))",
+        "fillComputed": "rgb(0, 0, 0)",
+        "opacity": "1",
+        "d": "M568.23,150.9539A 3,3,0,0,1,571.23,147.9539L 585.23,147.9539A 3,3,0,0,"
+      },
+      {
+        "w": 20,
+        "h": 99.8,
+        "fillAttr": "hsl(var(--primary))",
+        "fillComputed": "rgb(0, 0, 0)",
+        "opacity": "1",
+        "d": "M596.53,168.2028A 3,3,0,0,1,599.53,165.2028L 613.53,165.2028A 3,3,0,0,"
+      }
+    ],
+    "tileText": [
+      "Today's Words\n0\nStreak\n0\n\ndays\n\nWeekly Average\n0\nTota"
+    ]
+  },
+  "chartAt13s": {
+    "surfacePresent": true,
+    "barElementCount": 2,
+    "barsWithHeight": 2,
+    "maxBarHeightPx": 235.8,
+    "distinctFillAttrs": [
+      "hsl(var(--primary))"
+    ],
+    "distinctComputedFills": [
+      "rgb(0, 0, 0)"
+    ],
+    "yTicks": [],
+    "xTicks": [],
+    "sampleBars": [
+      {
+        "w": 20,
+        "h": 235.8,
+        "fillAttr": "hsl(var(--primary))",
+        "fillComputed": "rgb(0, 0, 0)",
+        "opacity": "1",
+        "d": "M568.23,32.2005A 3,3,0,0,1,571.23,29.2005L 585.23,29.2005A 3,3,0,0,1,\n"
+      },
+      {
+        "w": 20,
+        "h": 201.1,
+        "fillAttr": "hsl(var(--primary))",
+        "fillComputed": "rgb(0, 0, 0)",
+        "opacity": "1",
+        "d": "M596.53,66.9499A 3,3,0,0,1,599.53,63.9499L 613.53,63.9499A 3,3,0,0,1,\n"
+      }
+    ],
+    "tallestBars": [
+      {
+        "w": 20,
+        "h": 235.8,
+        "fillAttr": "hsl(var(--primary))",
+        "fillComputed": "rgb(0, 0, 0)",
+        "opacity": "1",
+        "d": "M568.23,32.2005A 3,3,0,0,1,571.23,29.2005L 585.23,29.2005A 3,3,0,0,1,\n"
+      },
+      {
+        "w": 20,
+        "h": 201.1,
+        "fillAttr": "hsl(var(--primary))",
+        "fillComputed": "rgb(0, 0, 0)",
+        "opacity": "1",
+        "d": "M596.53,66.9499A 3,3,0,0,1,599.53,63.9499L 613.53,63.9499A 3,3,0,0,1,\n"
+      }
+    ],
+    "tileText": [
+      "Today's Words\n0\nStreak\n0\n\ndays\n\nWeekly Average\n0\nTota"
+    ]
+  },
+  "stableAcrossSettle": false,
+  "overview": {
+    "memberLine": "Member for 0 days — 0.7K words — keep going!",
+    "daysWritingTile": null,
+    "bestStreakTile": null,
+    "certificateDays": null,
+    "hasJourneyCard": true,
+    "hasCertificate": true
+  },
+  "d165": {
+    "apiHasData": true,
+    "yAxisTop": null,
+    "barElementsRendered": 2,
+    "barsWithVisibleHeight": 2,
+    "fillAttrs": [
+      "hsl(var(--primary))"
+    ],
+    "computedFills": [
+      "rgb(0, 0, 0)"
+    ]
+  },
+  "d166": {
+    "memberLine": "Member for 0 days — 0.7K words — keep going!",
+    "daysWritingTile": null,
+    "certificateDays": null
+  },
+  "trace": [
+    {
+      "step": "warm-stats",
+      "status": 200,
+      "ms": 9924
+    },
+    {
+      "step": "warm-dashboard-page",
+      "status": 200,
+      "ms": 3203
+    },
+    {
+      "step": "warm-overview-page",
+      "status": 200,
+      "ms": 5785
+    },
+    {
+      "step": "pageerror",
+      "message": "Clerk: Failed to load Clerk, failed to load script: https://clerk.example.test/npm/@clerk/clerk-js@5/dist/clerk.browser.js\n\n(code=\"failed_to_load_clerk_js\")\n\n"
+    },
+    {
+      "step": "pageerror",
+      "message": "Clerk: Failed to load Clerk, failed to load script: https://clerk.example.test/npm/@clerk/clerk-js@5/dist/clerk.browser.js\n\n(code=\"failed_to_load_clerk_js\")\n\n"
+    }
+  ],
+  "capturedAt": "2026-07-27T11:12:56.602Z"
+}

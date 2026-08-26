@@ -1,0 +1,151 @@
+{
+  "shot": "49a/49b",
+  "persona": "P1 (Maya)",
+  "book": "4116055c-6183-4675-926a-e04f31126951",
+  "build": "ac20626 (D-195 fix)",
+  "proves": "D-195 closed: dashboard bar fill now resolves the oklch --primary token per theme instead of falling back to black in both",
+  "preFixBaseline": {
+    "source": "47g-assertions.json",
+    "barsLightFill": "rgb(0, 0, 0)",
+    "barsDarkFill": "rgb(0, 0, 0)",
+    "fillIdenticalAcrossThemes": true
+  },
+  "sampling": {
+    "settledAtMs": 9108,
+    "sampledLightAtMs": 9772,
+    "sampledDarkAtMs": 14005,
+    "animationGrowth": [
+      {
+        "atMs": 1520,
+        "heights": []
+      },
+      {
+        "atMs": 3038,
+        "heights": []
+      },
+      {
+        "atMs": 4556,
+        "heights": [
+          235.8,
+          201.1
+        ]
+      },
+      {
+        "atMs": 6074,
+        "heights": [
+          235.8,
+          201.1
+        ]
+      },
+      {
+        "atMs": 7584,
+        "heights": [
+          235.8,
+          201.1
+        ]
+      },
+      {
+        "atMs": 9108,
+        "heights": [
+          235.8,
+          201.1
+        ]
+      }
+    ]
+  },
+  "light": {
+    "tokens": {
+      "primary": "lab(7.78201% -.0000149012 0)",
+      "muted": "lab(96.52% -.0000596046 0)",
+      "background": "lab(99.4305% -.00649691 .761819)",
+      "htmlClass": "light",
+      "bodyBg": "lab(99.4305 -0.00649691 0.761819)"
+    },
+    "bars": [
+      {
+        "h": 235.8,
+        "w": 20,
+        "fill": "lab(7.78201 -0.0000149012 0)"
+      },
+      {
+        "h": 201.1,
+        "w": 20,
+        "fill": "lab(7.78201 -0.0000149012 0)"
+      }
+    ],
+    "fillAttr": {
+      "attr": "var(--primary)",
+      "computed": "lab(7.78201 -0.0000149012 0)"
+    },
+    "cardBackground": "lab(100 0 0)",
+    "cursor": null,
+    "tooltipText": ""
+  },
+  "dark": {
+    "tokens": {
+      "primary": "lab(90.952% -.0000596046 0)",
+      "muted": "lab(15.204% 0 0)",
+      "background": "lab(2.75381% 0 0)",
+      "htmlClass": "light dark",
+      "bodyBg": "lab(2.75381 0 0)"
+    },
+    "bars": [
+      {
+        "h": 235.8,
+        "w": 20,
+        "fill": "lab(90.952 -0.0000596046 0)"
+      },
+      {
+        "h": 201.1,
+        "w": 20,
+        "fill": "lab(90.952 -0.0000596046 0)"
+      }
+    ],
+    "fillAttr": {
+      "attr": "var(--primary)",
+      "computed": "lab(90.952 -0.0000596046 0)"
+    },
+    "cardBackground": "lab(7.78201 -0.0000149012 0)",
+    "cursor": null
+  },
+  "axisText": [
+    "Jun 28",
+    "Jul 3",
+    "Jul 8",
+    "Jul 13",
+    "Jul 18",
+    "Jul 23",
+    "Jul 27",
+    "0",
+    "150",
+    "300",
+    "419"
+  ],
+  "verdict": {
+    "barsRendered": 2,
+    "allBarsHaveHeight": true,
+    "heightsStableAtEnd": true,
+    "fillsLight": [
+      "lab(7.78201 -0.0000149012 0)"
+    ],
+    "fillsDark": [
+      "lab(90.952 -0.0000596046 0)"
+    ],
+    "fillsDifferAcrossThemes": true,
+    "lightFillIsBlack": false,
+    "darkFillIsBlack": false,
+    "neitherFillIsBlack": true,
+    "fillAttrIsBareToken": true,
+    "primaryTokenFlipped": true,
+    "cursorFillValidLight": false,
+    "axisLabelsRendered": 11,
+    "pageErrors": 1
+  },
+  "trace": [
+    {
+      "step": "pageerror",
+      "message": "Clerk: Failed to load Clerk, failed to load script: https://clerk.example.test/npm/@clerk/clerk-js@5/dist/clerk.browser.js\n\n(code=\"failed_to_load_clerk_js\")\n\n"
+    }
+  ],
+  "capturedAt": "2026-07-27T12:59:34.984Z"
+}

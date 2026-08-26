@@ -4,6 +4,7 @@ import { getBookStorage, getSeriesStorage } from "@/lib/storage";
 import type { StorageAdapter } from "@/lib/storage/types";
 import type { DocumentType } from "@/generated/prisma/enums";
 import { getStoragePath, getVersionStoragePath } from "./storage-keys";
+import { changeTypeForSource } from "./change-type";
 import { VersionManager } from "./version-manager";
 
 export class DocumentService {
@@ -25,6 +26,12 @@ export class DocumentService {
 
   /**
    * Create a new document with initial content.
+   *
+   * D-199: `changeType` used to be hardcoded to "manual_edit" here, so every
+   * created document — agent-written, imported, transcript-recovered — was
+   * badged as the writer's own typing in Version History. Callers that know
+   * better pass it; the rest get it derived from `changeSource` (see
+   * change-type.ts for why the two columns are separate vocabularies).
    */
   async create(
     type: DocumentType,
@@ -32,7 +39,8 @@ export class DocumentService {
     title?: string,
     chapterNumber?: number,
     actNumber?: number,
-    changeSource: string = "user"
+    changeSource: string = "user",
+    changeType: string = changeTypeForSource(changeSource)
   ) {
     const storagePath = getStoragePath(type, chapterNumber, actNumber);
 
@@ -61,7 +69,7 @@ export class DocumentService {
         documentId: document.id,
         version: 1,
         storageKey: versionPath,
-        changeType: "manual_edit",
+        changeType,
         changeSource,
         wordCount: countWords(content),
       },
@@ -112,12 +120,20 @@ export class DocumentService {
    * When `expectedVersion` is provided, the write is optimistically locked:
    * a stale version throws `VersionConflictError` before any content is
    * written. Callers omitting it keep last-write-wins semantics.
+   *
+   * D-199: `changeType` defaulted to "manual_edit" whatever the source said,
+   * and `PATCH /documents/:id` takes an optional changeType next to a
+   * free-form changeSource — so a stated non-human source still logged as the
+   * writer's own typing. Omitting it now derives from the source instead. (It
+   * cannot be a parameter default: `changeType` is declared BEFORE
+   * `changeSource`, and reordering would silently reassign every positional
+   * caller's arguments.)
    */
   async update(
     documentId: string,
     content: string,
     title?: string,
-    changeType: string = "manual_edit",
+    changeType?: string,
     changeSource: string = "user",
     expectedVersion?: number
   ) {
@@ -134,7 +150,7 @@ export class DocumentService {
     const vm = new VersionManager(documentId, this.storage);
     const version = await vm.createVersion(
       content,
-      changeType,
+      changeType ?? changeTypeForSource(changeSource),
       changeSource,
       expectedVersion
     );

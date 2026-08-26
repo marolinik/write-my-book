@@ -1,0 +1,428 @@
+{
+  "shot": "48b",
+  "persona": "P6 (Owen)",
+  "book": "6d69fd7c-f7a4-4e3d-bf49-1415d81f5326",
+  "tag": "keeper",
+  "proves": "D-139 (3rd recurrence): whether the chapters table Action column is readable and clickable with the fixed companion FAB present, measured at both scroll extremes",
+  "viewport": "1280x900 (same as 45a/45g)",
+  "tableInView": {
+    "viewport": {
+      "w": 1280,
+      "h": 900
+    },
+    "scrollY": 909,
+    "scrollerTag": "MAIN.flex-1.overflow-y-auto.min-w-0",
+    "scrollerPaddingBottom": "80px",
+    "mainPaddingBottom": "80px",
+    "scrollHeight": 3307,
+    "clientHeight": 3307,
+    "fabPresent": true,
+    "fabRect": {
+      "x": 1212,
+      "y": 832,
+      "w": 48,
+      "h": 48,
+      "right": 1260,
+      "bottom": 880
+    },
+    "headers": [
+      "#",
+      "Title",
+      "Act",
+      "Status",
+      "Words",
+      "Target",
+      "Score",
+      "Action"
+    ],
+    "actionColumnIndex": 7,
+    "actionCells": [
+      {
+        "row": 1,
+        "text": "Edit",
+        "rect": {
+          "x": 1141,
+          "y": 366,
+          "w": 106,
+          "h": 41,
+          "right": 1247,
+          "bottom": 407
+        },
+        "linkRect": {
+          "x": 1193,
+          "y": 374,
+          "w": 38,
+          "h": 24,
+          "right": 1231,
+          "bottom": 398
+        },
+        "topElementAtCentre": "A.inline-flex.items-center",
+        "selfIsOnTop": true,
+        "overlapWithFab": {
+          "px": 0,
+          "w": 19,
+          "h": 0
+        }
+      },
+      {
+        "row": 2,
+        "text": "Edit",
+        "rect": {
+          "x": 1141,
+          "y": 407,
+          "w": 106,
+          "h": 41,
+          "right": 1247,
+          "bottom": 448
+        },
+        "linkRect": {
+          "x": 1193,
+          "y": 415,
+          "w": 38,
+          "h": 24,
+          "right": 1231,
+          "bottom": 439
+        },
+        "topElementAtCentre": "A.inline-flex.items-center",
+        "selfIsOnTop": true,
+        "overlapWithFab": {
+          "px": 0,
+          "w": 19,
+          "h": 0
+        }
+      },
+      {
+        "row": 3,
+        "text": "Edit",
+        "rect": {
+          "x": 1141,
+          "y": 448,
+          "w": 106,
+          "h": 41,
+          "right": 1247,
+          "bottom": 489
+        },
+        "linkRect": {
+          "x": 1193,
+          "y": 456,
+          "w": 38,
+          "h": 24,
+          "right": 1231,
+          "bottom": 480
+        },
+        "topElementAtCentre": "A.inline-flex.items-center",
+        "selfIsOnTop": true,
+        "overlapWithFab": {
+          "px": 0,
+          "w": 19,
+          "h": 0
+        }
+      },
+      {
+        "row": 4,
+        "text": "Edit",
+        "rect": {
+          "x": 1141,
+          "y": 489,
+          "w": 106,
+          "h": 41,
+          "right": 1247,
+          "bottom": 530
+        },
+        "linkRect": {
+          "x": 1193,
+          "y": 497,
+          "w": 38,
+          "h": 24,
+          "right": 1231,
+          "bottom": 521
+        },
+        "topElementAtCentre": "A.inline-flex.items-center",
+        "selfIsOnTop": true,
+        "overlapWithFab": {
+          "px": 0,
+          "w": 19,
+          "h": 0
+        }
+      },
+      {
+        "row": 5,
+        "text": "Edit",
+        "rect": {
+          "x": 1141,
+          "y": 530,
+          "w": 106,
+          "h": 41,
+          "right": 1247,
+          "bottom": 570
+        },
+        "linkRect": {
+          "x": 1193,
+          "y": 538,
+          "w": 38,
+          "h": 24,
+          "right": 1231,
+          "bottom": 562
+        },
+        "topElementAtCentre": "A.inline-flex.items-center",
+        "selfIsOnTop": true,
+        "overlapWithFab": {
+          "px": 0,
+          "w": 19,
+          "h": 0
+        }
+      }
+    ]
+  },
+  "scrolledToBottom": {
+    "viewport": {
+      "w": 1280,
+      "h": 900
+    },
+    "scrollY": 2455,
+    "scrollerTag": "MAIN.flex-1.overflow-y-auto.min-w-0",
+    "scrollerPaddingBottom": "80px",
+    "mainPaddingBottom": "80px",
+    "scrollHeight": 3307,
+    "clientHeight": 3307,
+    "fabPresent": true,
+    "fabRect": {
+      "x": 1212,
+      "y": 832,
+      "w": 48,
+      "h": 48,
+      "right": 1260,
+      "bottom": 880
+    },
+    "headers": [
+      "#",
+      "Title",
+      "Act",
+      "Status",
+      "Words",
+      "Target",
+      "Score",
+      "Action"
+    ],
+    "actionColumnIndex": 7,
+    "actionCells": [
+      {
+        "row": 1,
+        "text": "Edit",
+        "rect": {
+          "x": 1141,
+          "y": -1180,
+          "w": 106,
+          "h": 41,
+          "right": 1247,
+          "bottom": -1139
+        },
+        "linkRect": {
+          "x": 1193,
+          "y": -1172,
+          "w": 38,
+          "h": 24,
+          "right": 1231,
+          "bottom": -1148
+        },
+        "topElementAtCentre": null,
+        "selfIsOnTop": false,
+        "overlapWithFab": {
+          "px": 0,
+          "w": 19,
+          "h": 0
+        }
+      },
+      {
+        "row": 2,
+        "text": "Edit",
+        "rect": {
+          "x": 1141,
+          "y": -1139,
+          "w": 106,
+          "h": 41,
+          "right": 1247,
+          "bottom": -1098
+        },
+        "linkRect": {
+          "x": 1193,
+          "y": -1131,
+          "w": 38,
+          "h": 24,
+          "right": 1231,
+          "bottom": -1107
+        },
+        "topElementAtCentre": null,
+        "selfIsOnTop": false,
+        "overlapWithFab": {
+          "px": 0,
+          "w": 19,
+          "h": 0
+        }
+      },
+      {
+        "row": 3,
+        "text": "Edit",
+        "rect": {
+          "x": 1141,
+          "y": -1098,
+          "w": 106,
+          "h": 41,
+          "right": 1247,
+          "bottom": -1057
+        },
+        "linkRect": {
+          "x": 1193,
+          "y": -1090,
+          "w": 38,
+          "h": 24,
+          "right": 1231,
+          "bottom": -1066
+        },
+        "topElementAtCentre": null,
+        "selfIsOnTop": false,
+        "overlapWithFab": {
+          "px": 0,
+          "w": 19,
+          "h": 0
+        }
+      },
+      {
+        "row": 4,
+        "text": "Edit",
+        "rect": {
+          "x": 1141,
+          "y": -1057,
+          "w": 106,
+          "h": 41,
+          "right": 1247,
+          "bottom": -1016
+        },
+        "linkRect": {
+          "x": 1193,
+          "y": -1049,
+          "w": 38,
+          "h": 24,
+          "right": 1231,
+          "bottom": -1025
+        },
+        "topElementAtCentre": null,
+        "selfIsOnTop": false,
+        "overlapWithFab": {
+          "px": 0,
+          "w": 19,
+          "h": 0
+        }
+      },
+      {
+        "row": 5,
+        "text": "Edit",
+        "rect": {
+          "x": 1141,
+          "y": -1016,
+          "w": 106,
+          "h": 41,
+          "right": 1247,
+          "bottom": -976
+        },
+        "linkRect": {
+          "x": 1193,
+          "y": -1008,
+          "w": 38,
+          "h": 24,
+          "right": 1231,
+          "bottom": -984
+        },
+        "topElementAtCentre": null,
+        "selfIsOnTop": false,
+        "overlapWithFab": {
+          "px": 0,
+          "w": 19,
+          "h": 0
+        }
+      }
+    ]
+  },
+  "summary": {
+    "shellPaddingBottomInView": "80px",
+    "shellPaddingBottomAtBottom": "80px",
+    "fabRect": {
+      "x": 1212,
+      "y": 832,
+      "w": 48,
+      "h": 48,
+      "right": 1260,
+      "bottom": 880
+    },
+    "actionCellsInView": [
+      {
+        "text": "Edit",
+        "overlapPx": 0,
+        "clickable": true
+      },
+      {
+        "text": "Edit",
+        "overlapPx": 0,
+        "clickable": true
+      },
+      {
+        "text": "Edit",
+        "overlapPx": 0,
+        "clickable": true
+      },
+      {
+        "text": "Edit",
+        "overlapPx": 0,
+        "clickable": true
+      },
+      {
+        "text": "Edit",
+        "overlapPx": 0,
+        "clickable": true
+      }
+    ],
+    "actionCellsAtBottom": [
+      {
+        "text": "Edit",
+        "overlapPx": 0,
+        "clickable": false
+      },
+      {
+        "text": "Edit",
+        "overlapPx": 0,
+        "clickable": false
+      },
+      {
+        "text": "Edit",
+        "overlapPx": 0,
+        "clickable": false
+      },
+      {
+        "text": "Edit",
+        "overlapPx": 0,
+        "clickable": false
+      },
+      {
+        "text": "Edit",
+        "overlapPx": 0,
+        "clickable": false
+      }
+    ],
+    "anyOverlapInView": false,
+    "anyOverlapAtBottom": false,
+    "allActionTextsFullAtBottom": true,
+    "allClickableAtBottom": false
+  },
+  "trace": [
+    {
+      "step": "warm-overview",
+      "status": 200,
+      "ms": 3878
+    },
+    {
+      "step": "pageerror",
+      "message": "Clerk: Failed to load Clerk, failed to load script: https://clerk.example.test/npm/@clerk/clerk-js@5/dist/clerk.browser.js\n\n(code=\"failed_to_load_clerk_js\")\n\n"
+    }
+  ],
+  "capturedAt": "2026-07-27T11:30:08.339Z"
+}

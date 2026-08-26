@@ -1,0 +1,45 @@
+{
+  "shot": "50c",
+  "defect": "D-194",
+  "persona": "user_qa_p2",
+  "capturedAt": "2026-07-27T13:37:02.885Z",
+  "bookName": "QA-50C-1785159389897",
+  "bookId": "df2269b0-0d86-41f7-8a28-7d3a86cfa2d5",
+  "createPost": [
+    {
+      "url": "/api/books",
+      "status": 201,
+      "body": "{\"id\":\"df2269b0-0d86-41f7-8a28-7d3a86cfa2d5\",\"userId\":\"e43ea68d-def6-4019-91fc-f85b8db2a4bf\",\"seriesId\":null,\"bookNumber\":1,\"name\":\"QA-50C-1785159389897\",\"genre\":null,\"language\":\"en\",\"status\":\"concept\",\"description\":null,\"marketingKit\":null,\"authorNotes\":null,\"wordCount\":0,\"targetWordCount\":null,\"chapterCount\":1,\"s3Prefix\":\"e43ea68d-def6-4019-91fc-f85b8db2a4bf/df2269b0-0d86-41f7-8a28-7d3a86cfa2d5\",\"createdAt\":\"2026-07-27T13:36:45.824Z\",\"updatedAt\":\"2026-07-27T13:36:45.905Z\",\"archivedAt\":null,\"firstChapterId\":\"2bcfdb75-c85d-4007-850a-7bd09ae33ce7\"}"
+    }
+  ],
+  "afterCreateUrl": "http://localhost:3001/books/df2269b0-0d86-41f7-8a28-7d3a86cfa2d5/chapters/2bcfdb75-c85d-4007-850a-7bd09ae33ce7",
+  "tileBefore": {
+    "found": true,
+    "text": "Total Chapters\n25",
+    "value": 25,
+    "rect": {
+      "x": 857,
+      "y": 244,
+      "w": 268,
+      "h": 134
+    }
+  },
+  "tileAfter": {
+    "found": true,
+    "text": "Total Chapters\n26",
+    "value": 26,
+    "rect": {
+      "x": 857,
+      "y": 244,
+      "w": 268,
+      "h": 134
+    }
+  },
+  "delta": 1,
+  "deltaIsExactlyOne": true,
+  "pageErrors": [
+    "Clerk: Failed to load Clerk, failed to load script: https://clerk.example.test/npm/@clerk/clerk-js@5/dist/clerk.browser.js\n\n(code=\"failed_to_load_clerk_js\")\n\n",
+    "Clerk: Failed to load Clerk, failed to load script: https://clerk.example.test/npm/@clerk/clerk-js@5/dist/clerk.browser.js\n\n(code=\"failed_to_load_clerk_js\")\n\n",
+    "Clerk: Failed to load Clerk, failed to load script: https://clerk.example.test/npm/@clerk/clerk-js@5/dist/clerk.browser.js\n\n(code=\"failed_to_load_clerk_js\")\n\n"
+  ]
+}

@@ -1,0 +1,172 @@
+{
+  "shot": "48b",
+  "persona": "P6 (Owen)",
+  "book": "8632ba0c-f05b-4fd5-9581-3790a0f2c675",
+  "tag": "vm1",
+  "proves": "D-139 (3rd recurrence): whether the chapters table Action column is readable and clickable with the fixed companion FAB present, measured at both scroll extremes",
+  "viewport": "1280x900 (same as 45a/45g)",
+  "tableInView": {
+    "viewport": {
+      "w": 1280,
+      "h": 900
+    },
+    "scrollY": 0,
+    "scrollerTag": "MAIN.flex-1.overflow-y-auto.min-w-0",
+    "scrollerPaddingBottom": "80px",
+    "mainPaddingBottom": "80px",
+    "scrollHeight": 1915,
+    "clientHeight": 1915,
+    "fabPresent": true,
+    "fabRect": {
+      "x": 1212,
+      "y": 832,
+      "w": 48,
+      "h": 48,
+      "right": 1260,
+      "bottom": 880
+    },
+    "headers": [
+      "#",
+      "Title",
+      "Act",
+      "Status",
+      "Words",
+      "Target",
+      "Score",
+      "Action"
+    ],
+    "actionColumnIndex": 7,
+    "actionCells": [
+      {
+        "row": 1,
+        "text": "Edit",
+        "rect": {
+          "x": 1127,
+          "y": 852,
+          "w": 120,
+          "h": 41,
+          "right": 1247,
+          "bottom": 892
+        },
+        "linkRect": {
+          "x": 1193,
+          "y": 860,
+          "w": 38,
+          "h": 24,
+          "right": 1231,
+          "bottom": 884
+        },
+        "topElementAtCentre": "A.inline-flex.items-center",
+        "selfIsOnTop": true,
+        "overlapWithFab": {
+          "px": 380,
+          "w": 19,
+          "h": 20
+        }
+      }
+    ]
+  },
+  "scrolledToBottom": {
+    "viewport": {
+      "w": 1280,
+      "h": 900
+    },
+    "scrollY": 1063,
+    "scrollerTag": "MAIN.flex-1.overflow-y-auto.min-w-0",
+    "scrollerPaddingBottom": "80px",
+    "mainPaddingBottom": "80px",
+    "scrollHeight": 1915,
+    "clientHeight": 1915,
+    "fabPresent": true,
+    "fabRect": {
+      "x": 1212,
+      "y": 832,
+      "w": 48,
+      "h": 48,
+      "right": 1260,
+      "bottom": 880
+    },
+    "headers": [
+      "#",
+      "Title",
+      "Act",
+      "Status",
+      "Words",
+      "Target",
+      "Score",
+      "Action"
+    ],
+    "actionColumnIndex": 7,
+    "actionCells": [
+      {
+        "row": 1,
+        "text": "Edit",
+        "rect": {
+          "x": 1127,
+          "y": -211,
+          "w": 120,
+          "h": 41,
+          "right": 1247,
+          "bottom": -171
+        },
+        "linkRect": {
+          "x": 1193,
+          "y": -203,
+          "w": 38,
+          "h": 24,
+          "right": 1231,
+          "bottom": -179
+        },
+        "topElementAtCentre": null,
+        "selfIsOnTop": false,
+        "overlapWithFab": {
+          "px": 0,
+          "w": 19,
+          "h": 0
+        }
+      }
+    ]
+  },
+  "summary": {
+    "shellPaddingBottomInView": "80px",
+    "shellPaddingBottomAtBottom": "80px",
+    "fabRect": {
+      "x": 1212,
+      "y": 832,
+      "w": 48,
+      "h": 48,
+      "right": 1260,
+      "bottom": 880
+    },
+    "actionCellsInView": [
+      {
+        "text": "Edit",
+        "overlapPx": 380,
+        "clickable": true
+      }
+    ],
+    "actionCellsAtBottom": [
+      {
+        "text": "Edit",
+        "overlapPx": 0,
+        "clickable": false
+      }
+    ],
+    "anyOverlapInView": true,
+    "anyOverlapAtBottom": false,
+    "allActionTextsFullAtBottom": true,
+    "allClickableAtBottom": false
+  },
+  "trace": [
+    {
+      "step": "warm-overview",
+      "status": 200,
+      "ms": 901
+    },
+    {
+      "step": "pageerror",
+      "message": "Clerk: Failed to load Clerk, failed to load script: https://clerk.example.test/npm/@clerk/clerk-js@5/dist/clerk.browser.js\n\n(code=\"failed_to_load_clerk_js\")\n\n"
+    }
+  ],
+  "capturedAt": "2026-07-27T11:27:41.272Z"
+}

@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getBookStorage } from "@/lib/storage";
 import { importUploadSchema, importConfirmRequestSchema } from "@/lib/validation";
+import { reconcileBookCounters } from "@/lib/books/book-counters";
 import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
 import { convertDocxToMarkdown } from "@/lib/import-export/docx-to-markdown";
@@ -117,7 +118,7 @@ async function handleStructuredImport(
         ch.number
       );
       if (existing) {
-        await docService.update(existing.id, ch.content, ch.title, "manual_edit", "import");
+        await docService.update(existing.id, ch.content, ch.title, "import", "import");
       } else {
         await docService.create(
           DocumentType.CHAPTER_CONTENT,
@@ -136,7 +137,7 @@ async function handleStructuredImport(
         ch.number
       );
       if (existingDoc) {
-        await docService.update(existingDoc.id, ch.content, ch.title, "manual_edit", "import");
+        await docService.update(existingDoc.id, ch.content, ch.title, "import", "import");
       } else {
         await docService.create(
           DocumentType.CHAPTER_CONTENT,
@@ -181,25 +182,13 @@ async function handleStructuredImport(
   }
 
   // Recalculate book stats
-  const bookChapters = await db.chapter.findMany({
-    where: { bookId },
-    select: { wordCount: true },
-  });
-  const bookWordCount = bookChapters.reduce((sum, ch) => sum + ch.wordCount, 0);
-
-  await db.book.update({
-    where: { id: bookId },
-    data: {
-      chapterCount: bookChapters.length,
-      wordCount: bookWordCount,
-    },
-  });
+  const { chapterCount } = await reconcileBookCounters(bookId);
 
   return NextResponse.json({
     created: createdCount,
     replaced: replacedCount,
     totalWordCount,
-    chapterCount: bookChapters.length,
+    chapterCount,
   });
 }
 
@@ -295,7 +284,7 @@ async function handleLegacyImport(
         ch.number
       );
       if (existing) {
-        await docService.update(existing.id, ch.content, ch.title, "manual_edit", "import");
+        await docService.update(existing.id, ch.content, ch.title, "import", "import");
       } else {
         await docService.create(
           DocumentType.CHAPTER_CONTENT,
@@ -332,14 +321,12 @@ async function handleLegacyImport(
     }
   }
 
-  // Update book stats
-  await db.book.update({
-    where: { id: bookId },
-    data: {
-      chapterCount: allChapters.length,
-      wordCount: totalWordCount,
-    },
-  });
+  // D-200: recount from the chapter rows instead of storing this import's own
+  // tallies. `allChapters` only holds the LAST file's chapters and
+  // `totalWordCount` only the imported words, so a multi-file import — or an
+  // import into a book that already had chapters — stored counters that
+  // described neither the book nor the import.
+  await reconcileBookCounters(bookId);
 
   return NextResponse.json({
     chapters: allChapters,

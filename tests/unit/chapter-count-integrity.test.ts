@@ -16,6 +16,10 @@ import { NextRequest } from "next/server";
  *   - chapter create → the stored count is the AUTHORITATIVE row count, so a
  *     book whose base already drifted self-heals instead of drifting further
  *   - chapter delete → same authoritative recount (never a blind decrement)
+ *
+ * D-200 later extended that recount to `books.word_count`, which had the same
+ * disease: create and delete now reconcile BOTH counters from one aggregate
+ * over the chapter rows (see book-word-count-integrity.test.ts).
  */
 
 const h = vi.hoisted(() => ({
@@ -23,7 +27,12 @@ const h = vi.hoisted(() => ({
   db: {
     book: { findFirst: vi.fn(), findMany: vi.fn(), create: vi.fn(), update: vi.fn() },
     bookSettings: { create: vi.fn() },
-    chapter: { create: vi.fn(), findFirst: vi.fn(), delete: vi.fn(), count: vi.fn() },
+    chapter: {
+      create: vi.fn(),
+      findFirst: vi.fn(),
+      delete: vi.fn(),
+      aggregate: vi.fn(),
+    },
   },
   checkPlanAccess: vi.fn(),
   deleteChapterChunks: vi.fn(),
@@ -58,6 +67,17 @@ function lastBookUpdateData(): Record<string, unknown> {
   return call?.[0].data ?? {};
 }
 
+/**
+ * Chapter-table truth the recount reads back. Word totals are D-200's subject;
+ * here they only have to be present so the shared reconcile can run.
+ */
+function chaptersHold(chapterCount: number, wordCount = 0) {
+  h.db.chapter.aggregate.mockResolvedValue({
+    _count: { _all: chapterCount },
+    _sum: { wordCount },
+  });
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
   h.requireUser.mockResolvedValue({ id: "u1" });
@@ -67,7 +87,7 @@ beforeEach(() => {
   h.db.book.update.mockResolvedValue({ id: "b1" });
   h.db.bookSettings.create.mockResolvedValue({});
   h.db.chapter.create.mockResolvedValue({ id: "c1", chapterNumber: 1 });
-  h.db.chapter.count.mockResolvedValue(0);
+  chaptersHold(0);
   h.deleteChapterChunks.mockResolvedValue(undefined);
 });
 
@@ -93,7 +113,7 @@ describe("D-194: books.chapter_count tracks the real chapter list", () => {
     h.db.chapter.create.mockResolvedValue({ id: "c2", chapterNumber: 2 });
     // Truth after the insert: two chapters. A drifted book (stored 1, real 2)
     // must converge here rather than ride the wrong base forever.
-    h.db.chapter.count.mockResolvedValue(2);
+    chaptersHold(2, 900);
 
     const res = await CREATE_CHAPTER(
       jsonReq("http://t/api/books/b1/chapters", {
@@ -105,10 +125,10 @@ describe("D-194: books.chapter_count tracks the real chapter list", () => {
     );
     expect(res.status).toBe(201);
 
-    expect(h.db.chapter.count).toHaveBeenCalledWith({
-      where: { bookId: "b1" },
-    });
-    expect(lastBookUpdateData()).toEqual({ chapterCount: 2 });
+    expect(h.db.chapter.aggregate).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { bookId: "b1" } })
+    );
+    expect(lastBookUpdateData()).toMatchObject({ chapterCount: 2 });
   });
 
   it("chapter delete stores the authoritative row count (never a blind decrement)", async () => {
@@ -119,7 +139,7 @@ describe("D-194: books.chapter_count tracks the real chapter list", () => {
       bookId: "b1",
     });
     h.db.chapter.delete.mockResolvedValue({});
-    h.db.chapter.count.mockResolvedValue(1);
+    chaptersHold(1, 400);
 
     const res = await DELETE_CHAPTER(
       new NextRequest("http://t/api/books/b1/chapters/c2", { method: "DELETE" }),
@@ -127,9 +147,9 @@ describe("D-194: books.chapter_count tracks the real chapter list", () => {
     );
     expect(res.status).toBe(200);
 
-    expect(h.db.chapter.count).toHaveBeenCalledWith({
-      where: { bookId: "b1" },
-    });
-    expect(lastBookUpdateData()).toEqual({ chapterCount: 1 });
+    expect(h.db.chapter.aggregate).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { bookId: "b1" } })
+    );
+    expect(lastBookUpdateData()).toMatchObject({ chapterCount: 1 });
   });
 });

@@ -1,0 +1,69 @@
+{
+  "shot": "50a",
+  "defect": "D-188",
+  "persona": "user_qa_p2",
+  "book": "90436e20-ffc7-42ca-a39f-dc7d48cdda10",
+  "capturedAt": "2026-07-27T13:29:25.317Z",
+  "elapsedS": 81,
+  "terminal": true,
+  "branch": "RECOVERY",
+  "before": {
+    "ms": 10289,
+    "running": false,
+    "notSaved": false,
+    "recovered": false,
+    "recoveredPhrase": null,
+    "notSavedPhrase": null,
+    "statusComplete": false,
+    "destructive": [],
+    "tail": "Command Palette\n\nSearch for a command to run...\n\nWriteMyBook\nWriting Platform\nNavigation\nDashboard\nBooks\nSeries\nP2-CAPTURE-D8-1785129390\nOverview\nGetting Started\n3/5\nSetup\nNext Step\nTransfer\nStyle\nWriting\n8/8\nChapters\n8\nLibrary\nWriting Dashboard\nRefining\n0/8\nEditorial\nReports\nPublish\nExport\nSettings\nBooks\n/\nP2-CAPTURE-D8-1785129390\n/\nSetup\nToggle theme\nBook Setup\n3/5 steps done\n\nComplete these steps to set up your book for writing.\n\nPrefer to chat?\n\nTell the Writing Coach about your book and let it guide the setup for you.\n\nChat with Coach\nBasics\nImport\nStyle\nStory Bible\nArchitecture\nDone\nStory Bible\nBuild your world, characters, and rules\n\nBuild a story bible with your world, characters, rules, and lore. This keeps the ghostwriter consistent across chapters.\n\nCreate Story Bible\nBack\nSkip"
+  },
+  "finalProbe": {
+    "ms": 94480,
+    "running": true,
+    "notSaved": false,
+    "recovered": true,
+    "recoveredPhrase": "Saved your Story Bible as a document — the assistant wrote it into the chat but never saved it, so the product persisted it for you. You can find it in this book's documents.",
+    "notSavedPhrase": null,
+    "statusComplete": false,
+    "destructive": [],
+    "tail": "e — or is the point precisely that there is no single event, only the pattern itself?\n\nThe eight names — are they meant to be completely interchangeable, or do you envision subtle distinctions? (For instance, does \"She wrote the number on her wrist\" always refer to the same person, or is \"she\" also a variable?)\n\nThe chapter titles suggest a kind of progression (Debt → Signal → Ledger → Drop → No Names → Ash → Cold → Dead Reckoning). Is this an intentional arc of sorts, or do you want the bible to treat the chapters as purely parallel movements?\n\nAny world-building rules or historical setting you want recorded? The names span Germanic, Slavic, Scandinavian, Iberian, and Hungarian — is this a specific era you have in mind, or is it deliberately eraless?\n\nAre there additional elements you want in the bible that I haven't captured — perhaps notes on where you plan to take the piece next, or thematic statements you'd like to preserve?\n\nTake your time — this bible will be the reference document for everything that follows (architecture, editing, analysis), so I want it to be right.\n\nSaved your Story Bible as a document — the assistant wrote it into the chat but never saved it, so the product persisted it for you. You can find it in this book's documents.\nContinue Setup\nRecommended next:\nBuild Architecture\nStart new workflow\nCreate Story Bible completed\nView results in the agent panel"
+  },
+  "agentPosts": [
+    {
+      "url": "/api/books/90436e20-ffc7-42ca-a39f-dc7d48cdda10/agent",
+      "status": 200,
+      "body": "{\"sessionId\":\"e574113b-7b3f-4237-8f80-4f3b112e39af\"}",
+      "tookMs": 9136
+    }
+  ],
+  "samples": [
+    {
+      "ms": 30509,
+      "running": true,
+      "notSaved": false,
+      "recovered": false,
+      "recoveredPhrase": null,
+      "notSavedPhrase": null,
+      "statusComplete": false,
+      "destructive": [],
+      "tail": "Command Palette\n\nSearch for a command to run...\n\nWriteMyBook\nWriting Platform\nNavigation\nDashboard\nBooks\nSeries\nP2-CAPTURE-D8-1785129390\nOverview\nGetting Started\n3/5\nSetup\nNext Step\nTransfer\nStyle\nWriting\n8/8\nChapters\n8\nLibrary\nWriting Dashboard\nRefining\n0/8\nEditorial\nReports\nPublish\nExport\nSettings\nBooks\n/\nP2-CAPTURE-D8-1785129390\n/\nSetup\nToggle theme\nBook Setup\n3/5 steps done\n\nComplete these steps to set up your book for writing.\n\nPrefer to chat?\n\nTell the Writing Coach about your book and let it guide the setup for you.\n\nChat with Coach\nBasics\nImport\nStyle\nStory Bible\nArchitecture\nDone\nStory Bible\nBuild your world, characters, and rules\n\nBuild a story bible with your world, characters, rules, and lore. This keeps the ghostwriter consistent across chapters.\n\nAgent Running...\nBack\nSkip\nWriting Agent\nReading all chapters...\nStep 4: Reading all chapters...\n$0.00 / $5.00 (0%)\n~3-8 min\n\nAgent is thinking\n\nThe agent is reading your project and preparing...",
+      "atS": 20
+    },
+    {
+      "ms": 91080,
+      "running": true,
+      "notSaved": false,
+      "recovered": true,
+      "recoveredPhrase": "Saved your Story Bible as a document — the assistant wrote it into the chat but never saved it, so the product persisted it for you. You can find it in this book's documents.",
+      "notSavedPhrase": null,
+      "statusComplete": false,
+      "destructive": [],
+      "tail": "e — or is the point precisely that there is no single event, only the pattern itself?\n\nThe eight names — are they meant to be completely interchangeable, or do you envision subtle distinctions? (For instance, does \"She wrote the number on her wrist\" always refer to the same person, or is \"she\" also a variable?)\n\nThe chapter titles suggest a kind of progression (Debt → Signal → Ledger → Drop → No Names → Ash → Cold → Dead Reckoning). Is this an intentional arc of sorts, or do you want the bible to treat the chapters as purely parallel movements?\n\nAny world-building rules or historical setting you want recorded? The names span Germanic, Slavic, Scandinavian, Iberian, and Hungarian — is this a specific era you have in mind, or is it deliberately eraless?\n\nAre there additional elements you want in the bible that I haven't captured — perhaps notes on where you plan to take the piece next, or thematic statements you'd like to preserve?\n\nTake your time — this bible will be the reference document for everything that follows (architecture, editing, analysis), so I want it to be right.\n\nSaved your Story Bible as a document — the assistant wrote it into the chat but never saved it, so the product persisted it for you. You can find it in this book's documents.\nContinue Setup\nRecommended next:\nBuild Architecture\nStart new workflow\nCreate Story Bible completed\nView results in the agent panel",
+      "atS": 81
+    }
+  ],
+  "pageErrors": [
+    "Clerk: Failed to load Clerk, failed to load script: https://clerk.example.test/npm/@clerk/clerk-js@5/dist/clerk.browser.js\n\n(code=\"failed_to_load_clerk_js\")\n\n"
+  ]
+}
