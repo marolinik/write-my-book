@@ -59,7 +59,7 @@ This secret encrypts user API keys (AES-256-GCM). Losing this value makes all st
 
 | Variable | Example | Notes |
 |----------|---------|-------|
-| `VOYAGE_API_KEY` | `pa-...` | For Voyage AI embeddings (semantic memory) |
+| `OPENAI_API_KEY` | `sk-...` | For OpenAI embeddings (`text-embedding-3-small`, semantic memory). The codebase has no Voyage integration — older references to `VOYAGE_API_KEY` are stale |
 
 ### Graph Database (Neo4j)
 

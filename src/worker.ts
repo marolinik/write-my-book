@@ -11,6 +11,7 @@
  */
 
 import "dotenv/config";
+import { createServer } from "node:http";
 import * as Sentry from "@sentry/node";
 import { Worker } from "bullmq";
 import { createRedisConnection } from "@/lib/queue/connection";
@@ -101,6 +102,29 @@ worker.on("stalled", (jobId) => {
   console.warn(`[Worker] Job ${jobId} stalled — will be retried`);
 });
 
+// ── Liveness HTTP endpoint ───────────────────────────────────────────
+// Docker has no window into BullMQ's process state, so when
+// WORKER_HEALTH_PORT is set the worker serves a trivial HTTP probe: if this
+// process can still answer, its event loop is alive and compose keeps it.
+// Unset (local dev runs, unit tests) → no server, zero behavior change.
+const WORKER_HEALTH_PORT = parsePositiveInt(process.env.WORKER_HEALTH_PORT, 0);
+const healthServer = WORKER_HEALTH_PORT
+  ? createServer((_req, res) => {
+      res.writeHead(200, { "content-type": "application/json" });
+      res.end(
+        JSON.stringify({
+          status: "ok",
+          queues: [QUEUE_NAME, BATCH_DIGEST_QUEUE_NAME],
+        })
+      );
+    })
+  : null;
+if (healthServer) {
+  healthServer.listen(WORKER_HEALTH_PORT, "0.0.0.0", () => {
+    console.log(`[Worker] Health endpoint listening on :${WORKER_HEALTH_PORT}`);
+  });
+}
+
 // ── Process-level error capture ──────────────────────────────────────
 // Without these, a rejected promise or thrown-outside-a-handler error would
 // vanish (or crash) with no Sentry breadcrumb.
@@ -125,6 +149,9 @@ process.on("uncaughtException", (error) => {
 const shutdown = async (signal: string) => {
   console.log(`[Worker] ${signal} received, closing gracefully...`);
   await Promise.all([worker.close(), digestWorker.close()]);
+  if (healthServer) {
+    await new Promise<void>((resolve) => healthServer.close(() => resolve()));
+  }
   connection.disconnect();
   console.log("[Worker] Shutdown complete");
   process.exit(0);

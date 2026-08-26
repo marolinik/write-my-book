@@ -32,6 +32,8 @@ curl https://yourdomain.com/api/health    # expect {"status":"ok","timestamp":".
 > ```
 > Production uses `-f docker-compose.yml -f docker-compose.prod.yml`, which contains no reference to the local proxy.
 
+> **Note:** Compose starts TWO application processes: the web app (`app`) and the background job runner (`worker`, built from `Dockerfile.worker`). Both must be up — agent workflows execute in the worker, not the web process.
+
 ---
 
 ## Table of Contents
@@ -124,7 +126,7 @@ WMB needs to know when users sign up, update their profile, or delete their acco
 
 ## 3. Stripe Setup (Billing)
 
-Stripe handles subscription billing. This is **optional** -- if you skip it, all users will be on the Free plan (1 book, BYOK only). You can add Stripe later without any code changes.
+Stripe handles subscription billing. This is **required** -- `scripts/check-env` (`npm run env:check`, gated in CI) treats the Stripe keys and all seven plan price IDs as mandatory environment variables, so the stack will not pass validation without them.
 
 ### Get Your API Keys
 
@@ -633,6 +635,10 @@ After deployment and initialization, verify everything works by going through th
 ### File Storage
 
 - [ ] **Document upload:** Upload a document (manuscript import) through the UI. The file should be stored in MinIO and accessible from the app.
+
+### Background Worker
+
+- [ ] **Worker running:** `docker compose ps worker` shows `(healthy)` — the BullMQ worker serves its liveness probe on `WORKER_HEALTH_PORT`. Agent jobs queue (not run) if the worker is down.
 
 ### AI Agent Workflows
 

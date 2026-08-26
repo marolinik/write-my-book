@@ -173,6 +173,14 @@ services:
       NEO4J_PASSWORD: wmb-neo4j-dev
       QDRANT_URL: http://qdrant:6333
       QDRANT_API_KEY: ${QDRANT_API_KEY:-wmb-qdrant-prod}
+      # Liveness probe port for the worker's HTTP health endpoint (src/worker.ts)
+      WORKER_HEALTH_PORT: "30401"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:'+process.env.WORKER_HEALTH_PORT+'/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
     deploy:
       resources:
         limits:

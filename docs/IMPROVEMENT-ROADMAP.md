@@ -15,6 +15,8 @@
 
 **Verdict: ~65/100 production-ready. The bones of a 9/10 product delivering a 6.5/10 experience — mostly because already-built subsystems aren't wired together.** The fastest path to #1 isn't new features; it's connecting what exists, then closing 3 competitive gaps.
 
+> *(2026-07-04+: this score is superseded — `docs/mission/production-readiness-audit.md` is the canonical readiness assessment: 66/100, CONDITIONAL GO, gates C0–C3 tracked in `docs/mission/launch-runbook-c0-c3.md`.)*
+
 ---
 
 ## Tier 1 — Wire what's already built (days each, massive perceived-quality gain)

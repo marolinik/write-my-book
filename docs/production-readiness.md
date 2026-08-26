@@ -22,8 +22,8 @@ Choose and document the production target. Baseline topology is now documented i
 - PostgreSQL
 - Redis
 - S3-compatible object storage
-- Optional Qdrant
-- Optional Neo4j
+- Qdrant (required — `QDRANT_URL` is in the validator's required set)
+- Neo4j (required — `NEO4J_URI` is in the validator's required set)
 
 The web app and worker must use the same `DATABASE_URL`, object storage, and
 `API_KEY_ENCRYPTION_SECRET`.
