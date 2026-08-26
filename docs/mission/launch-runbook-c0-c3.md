@@ -142,10 +142,10 @@ CONDITIONAL becomes **GO**. Record the sign-off (who/when) below.
 
 | Gate | Owner | Date | Notes |
 |------|-------|------|-------|
-| C0 prod schema push | | | |
-| C2 backup restore drill | | | |
-| C3 Stripe + Clerk live | | | |
-| Post-deploy smoke + DRIFT green | | | |
+| C0 prod schema push | agent + operator | 2026-08-26 | **Staging: CLEARED.** All 4 objects verified present (`books.archived_at`, `continuity_flags`, `finding_replies.role`, `writer_memories.finding_id`); `npm run db:push:prod` attested "database is already in sync"; DRIFT probe `ready` / schema dep `ok`. Prod-posture guardrails proven refusing (localhost ban + approval + backup-timestamp). **Prod-host repeat still required** (real `DATABASE_URL`, fresh backup per §2). |
+| C2 backup restore drill | agent + operator | 2026-08-26 | **CLEARED.** Direct: `pg_dump` 2.5s (1.34 MB) → restore 3.8s → counts identical (13 users / 117 books / 231 chapters / 228 docs) + 4 gate objects. **Sidecar (real prod path):** `db-backup` produced `backup-20260826-144204.sql.gz` (317 KB) in MinIO → object pulled → gunzip+psql restore 6.4s → identical counts + objects. Rotation script ran without errors. |
+| C3 Stripe + Clerk live | agent + operator | 2026-08-26 | **Stripe (test mode): CLEARED.** Real cloud delivery via `stripe listen` (all 200s); hosted checkout completed with 4242 → `indie/active/monthly` row with real `cus_`/`sub_`; founder checkout → `founder_slots` row; annual interval; all 7 price IDs create valid sessions; `deleted`→`canceled`; `payment_failed`→`past_due`; `paid`→`active`; replay dedup (`deduplicated:true`, single event row); forged signature 400; portal URL 200. **Clerk: handler-level CLEARED.** Svix-signed `user.created/updated/deleted` → local `User` sync verified (real HMAC with configured secret); 401 on missing/forged headers; anonymous protected routes fail closed (404, Clerk v6 default); `/api/health(.*)` public; `DEV_AUTH_BYPASS` rejected by prod validation. **Environment-blocked here (sandbox filters Chromium loopback):** browser-driven Clerk signup UI and the Chromium half of `test:deployment-smoke` — `/signup` renders (HTTP 200, Clerk markers); repeat both on the deployed host. |
+| Post-deploy smoke + DRIFT green | agent + operator | 2026-08-26 | **HTTP smoke: CLEARED** — `smoke:deployment` PASS (`/api/health` 200, `/api/health/dependencies` 200/`ready`, schema dep ok). Playwright HTTP fixtures 2/2 PASS; Chromium fixtures environment-blocked (see C3 notes). |
 
 ### Rollback (if a step fails)
 Stop web+worker (or pull from LB) → redeploy previous commit → if schema changed and
