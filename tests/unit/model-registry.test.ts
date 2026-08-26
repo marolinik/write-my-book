@@ -93,9 +93,15 @@ describe("resolveQuickAssistModelFor (D-116/D-117)", () => {
     );
   });
 
-  it("flags ONLY the openrouter-qwen36/* slots as unfit for quick assist", () => {
+  it("flags ONLY observed-unfit and provenness-gated slots as unfit for quick assist", () => {
+    // openrouter-qwen36/*: OBSERVED failure — thinking-only at tiny budgets
+    // (D-116/D-117). openrouter-ox-alpha/*: PROVENNESS gate — at $0/$0 it
+    // would out-cheap DeepSeek V3.2 in the fallback pick and silently become
+    // every OpenRouter user's ghost-text model before any live capture proves
+    // it usable at quick-assist output sizes.
+    const flaggedPrefixes = ["openrouter-qwen36/", "openrouter-ox-alpha/"];
     for (const m of MODEL_REGISTRY) {
-      const shouldBeFlagged = m.id.startsWith("openrouter-qwen36/");
+      const shouldBeFlagged = flaggedPrefixes.some((p) => m.id.startsWith(p));
       expect(Boolean(m.unfitForQuickAssist), `${m.id}.unfitForQuickAssist`).toBe(
         shouldBeFlagged
       );

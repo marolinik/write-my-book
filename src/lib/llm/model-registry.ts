@@ -416,6 +416,52 @@ export const MODEL_REGISTRY: ModelDefinition[] = [
     supportsTools: true,
     supportsStreaming: true,
   },
+  // ── Ox Alpha (stealth) via OpenRouter ─────────────────────────
+  // Free stealth model (stealth/ox-alpha) — ~1M token context. Flagged
+  // unfitForQuickAssist as a PROVENNESS gate, not an observed failure: at
+  // $0/$0 it would out-cheap DeepSeek V3.2 in resolveQuickAssistModelFor and
+  // silently become every OpenRouter user's ghost-text model before anyone
+  // has captured it succeeding at quick-assist budgets. Revisit after a live
+  // capture proves fast usable text at tiny output sizes.
+  {
+    id: "openrouter-ox-alpha/opus",
+    provider: "openrouter",
+    modelId: "stealth/ox-alpha",
+    displayName: "Ox Alpha (OpenRouter)",
+    tier: "opus",
+    inputCostPer1M: 0,
+    outputCostPer1M: 0,
+    costTier: "$",
+    supportsTools: true,
+    supportsStreaming: true,
+    unfitForQuickAssist: true,
+  },
+  {
+    id: "openrouter-ox-alpha/sonnet",
+    provider: "openrouter",
+    modelId: "stealth/ox-alpha",
+    displayName: "Ox Alpha (OpenRouter)",
+    tier: "sonnet",
+    inputCostPer1M: 0,
+    outputCostPer1M: 0,
+    costTier: "$",
+    supportsTools: true,
+    supportsStreaming: true,
+    unfitForQuickAssist: true,
+  },
+  {
+    id: "openrouter-ox-alpha/haiku",
+    provider: "openrouter",
+    modelId: "stealth/ox-alpha",
+    displayName: "Ox Alpha (OpenRouter)",
+    tier: "haiku",
+    inputCostPer1M: 0,
+    outputCostPer1M: 0,
+    costTier: "$",
+    supportsTools: true,
+    supportsStreaming: true,
+    unfitForQuickAssist: true,
+  },
   // ── OpenAI ──────────────────────────────────────────────────
   {
     id: "openai/gpt-4o",
