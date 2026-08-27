@@ -25,14 +25,14 @@ const FEATURE_SECTIONS = [
     bullets: [
       "Each agent has deep expertise in their domain",
       "Orchestrated tool-use loops with approval gates",
-      "You stay in control — every major change needs your approval",
+      "You stay in control . Every major change needs your approval",
     ],
   },
   {
     icon: PenToolIcon,
     title: "Multi-Pass Editorial Pipeline",
     description:
-      "Professional editing workflow: developmental edit, line edit, beta reading, and revision — the same process traditional publishers use, powered by AI that understands your book deeply.",
+      "Professional editing workflow: developmental edit, line edit, beta reading, and revision , the same process traditional publishers use, powered by AI that understands your book deeply.",
     bullets: [
       "Finding tracking with severity and categories",
       "Full edit history timeline and undo",
@@ -45,7 +45,7 @@ const FEATURE_SECTIONS = [
     description:
       "Import your existing DOCX manuscript with smart 6-pass chapter detection that works across languages. Export to EPUB, PDF, or DOCX with Pandoc-powered professional typography and genre-appropriate templates.",
     bullets: [
-      "Export is never gated — even after cancellation",
+      "Export is never gated , even after cancellation",
       "Front matter, back matter, and genre-appropriate styling",
       "Supports multilingual manuscripts out of the box",
     ],
@@ -54,7 +54,7 @@ const FEATURE_SECTIONS = [
     icon: FingerprintIcon,
     title: "Style Fingerprint",
     description:
-      "AI captures YOUR unique voice and writes to match it. Sentence rhythm, vocabulary richness, dialogue patterns, narrative distance — your style analyzed across 20+ dimensions so every agent writes like you, not generic AI.",
+      "AI captures YOUR unique voice and writes to match it. Sentence rhythm, vocabulary richness, dialogue patterns, narrative distance . Your style analyzed across 20+ dimensions so every agent writes like you, not generic AI.",
     bullets: [
       "Your voice analyzed across 20+ stylistic dimensions",
       "Every agent writes to match YOUR style, not generic AI",
@@ -79,7 +79,7 @@ const STEPS = [
     step: "1",
     title: "Import or Start Fresh",
     description:
-      "Import your existing DOCX manuscript — our 6-pass algorithm detects chapters automatically in any language. Or start from scratch with the Story Architect to plan your structure.",
+      "Import your existing DOCX manuscript . Our 6-pass algorithm detects chapters automatically in any language. Or start from scratch with the Story Architect to plan your structure.",
   },
   {
     step: "2",
@@ -149,7 +149,7 @@ export default async function Home() {
               href="/signup"
               className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
             >
-              Get Started
+              Start Writing Free
             </Link>
           </div>
         </div>
@@ -199,8 +199,7 @@ export default async function Home() {
               </h1>
               <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground leading-relaxed">
                 14 AI agents handle everything from drafting to dev editing, line
-                editing, beta reading, and export. You bring your voice &mdash;
-                they bring the polish.
+                editing, beta reading, and export. You bring your voice; they bring the polish.
               </p>
               <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link
@@ -219,14 +218,52 @@ export default async function Home() {
               </div>
             </div>
 
-            {/* Product screenshot placeholder */}
-            <div className="mx-auto mt-16 max-w-5xl">
-              <div className="aspect-[16/9] rounded-xl border bg-gradient-to-br from-primary/5 via-muted to-primary/10 flex items-center justify-center overflow-hidden shadow-lg">
-                <div className="text-center px-8">
-                  <SparklesIcon className="mx-auto size-12 text-primary/40" />
-                  <p className="mt-4 text-sm text-muted-foreground">
-                    Product screenshot coming soon
-                  </p>
+            {/* Product preview — styled with the app's own type, not a fake screenshot */}
+            <div className="mx-auto mt-16 max-w-3xl">
+              <div className="rounded-xl border bg-card shadow-lg overflow-hidden">
+                <div className="flex items-center gap-1.5 border-b px-4 py-2.5">
+                  <span className="size-2.5 rounded-full bg-muted-foreground/20" />
+                  <span className="size-2.5 rounded-full bg-muted-foreground/20" />
+                  <span className="size-2.5 rounded-full bg-muted-foreground/20" />
+                  <span className="ml-3 text-xs text-muted-foreground">
+                    The Salt Letters: Chapter 1
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-[1fr_220px]">
+                  <div className="p-6 sm:p-8 font-serif text-sm leading-7 text-foreground/90 space-y-4">
+                    <p>
+                      The letter came on a Tuesday, and Imogen knew it was the
+                      last one before she even touched it.
+                    </p>
+                    <p>
+                      She was very still for a very long time, and the kettle
+                      went on boiling until Eluned reached past her and clicked
+                      it off.
+                    </p>
+                    <p className="text-muted-foreground italic">
+                      &ldquo;You&apos;re doing it again. The counting.&rdquo;
+                    </p>
+                  </div>
+                  <div className="border-t sm:border-t-0 sm:border-l bg-muted/40 p-4 space-y-3 text-xs">
+                    <div className="rounded-md border bg-background p-2.5">
+                      <p className="font-medium text-foreground">Style Fingerprint</p>
+                      <p className="mt-1 text-muted-foreground leading-relaxed">
+                        Bimodal rhythm, counting as emotional barometer
+                      </p>
+                    </div>
+                    <div className="rounded-md border bg-background p-2.5">
+                      <p className="font-medium text-foreground">Dev Edit</p>
+                      <p className="mt-1 text-muted-foreground leading-relaxed">
+                        5 findings, 1 critical
+                      </p>
+                    </div>
+                    <div className="rounded-md border bg-background p-2.5">
+                      <p className="font-medium text-foreground">Continuity</p>
+                      <p className="mt-1 text-muted-foreground leading-relaxed">
+                        3 flags cleared
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -282,10 +319,26 @@ export default async function Home() {
                       </ul>
                     </div>
 
-                    {/* Visual placeholder */}
+                    {/* Visual — a real UI fragment in the product's own shape language */}
                     <div className="flex-1 w-full max-w-xl">
-                      <div className="aspect-[4/3] rounded-xl border bg-gradient-to-br from-primary/5 via-card to-primary/10 flex items-center justify-center">
-                        <Icon className="size-16 text-primary/20" />
+                      <div className="rounded-xl border bg-card p-5 shadow-sm">
+                        <div className="flex items-center gap-2.5">
+                          <div className="flex size-8 items-center justify-center rounded-md bg-primary/10 text-primary">
+                            <Icon className="size-4" />
+                          </div>
+                          <div className="h-2.5 w-24 rounded-full bg-muted-foreground/15" />
+                        </div>
+                        <div className="mt-4 space-y-2.5">
+                          <div className="h-2 rounded-full bg-muted-foreground/10 w-full" />
+                          <div className="h-2 rounded-full bg-muted-foreground/10 w-[92%]" />
+                          <div className="h-2 rounded-full bg-muted-foreground/10 w-[85%]" />
+                          <div className="h-2 rounded-full bg-muted-foreground/10 w-[70%]" />
+                          <div className="h-2 rounded-full bg-primary/25 w-[55%]" />
+                        </div>
+                        <div className="mt-4 flex items-center gap-2">
+                          <div className="h-7 w-20 rounded-md bg-primary/90" />
+                          <div className="h-7 w-16 rounded-md border" />
+                        </div>
                       </div>
                     </div>
                   </div>

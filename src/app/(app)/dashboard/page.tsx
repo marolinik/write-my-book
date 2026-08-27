@@ -288,7 +288,7 @@ export default async function DashboardPage() {
                     }}
                     title={`${day.words.toLocaleString(locale)} ${t.dashboard.words}`}
                   />
-                  <span className="text-[10px] text-muted-foreground">{day.label}</span>
+                  <span className="text-xs text-muted-foreground">{day.label}</span>
                 </div>
               ))}
             </div>
@@ -322,7 +322,7 @@ export default async function DashboardPage() {
                       className={`size-4 shrink-0 ${
                         alert.priority === "high" || alert.priority === "urgent"
                           ? "text-destructive"
-                          : "text-yellow-500"
+                          : "text-muted-foreground"
                       }`}
                     />
                     <span className="truncate">{alert.text}</span>

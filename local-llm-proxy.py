@@ -15,7 +15,7 @@ threading).
 
 Env:
   LOCAL_LLM_BASE_URL   upstream OpenAI-compatible base (default http://10.33.0.153:8888)
-  LOCAL_LLM_MODEL      upstream model id (default qwen3.8-27b)
+  LOCAL_LLM_MODEL      upstream model id (default Qwen3.8-Flash-Next-NVFP4)
   LOCAL_LLM_PORT       proxy listen port (default 30400)
   LOCAL_LLM_API_KEY    optional upstream key (LAN-only needs none)
 """
@@ -27,7 +27,7 @@ import urllib.error
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 BASE_URL = os.environ.get("LOCAL_LLM_BASE_URL", "http://10.33.0.153:8888/v1").rstrip("/")
-MODEL = os.environ.get("LOCAL_LLM_MODEL", "qwen3.8-27b")
+MODEL = os.environ.get("LOCAL_LLM_MODEL", "Qwen3.8-Flash-Next-NVFP4")
 PORT = int(os.environ.get("LOCAL_LLM_PORT", "30400"))
 API_KEY = os.environ.get("LOCAL_LLM_API_KEY", "")
 TIMEOUT = float(os.environ.get("LOCAL_LLM_TIMEOUT", "300"))
