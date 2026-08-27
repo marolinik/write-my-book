@@ -140,7 +140,9 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
     const user = await requireUser();
     const { id: bookId, chapterId } = await params;
     const body = await parseJsonBody(req);
-    const data = updateChapterContentSchema.parse(body);
+    const parsed = updateChapterContentSchema.parse(body);
+    // DX alias: `content` normalizes to `markdown` (see validation.ts).
+    const data = { ...parsed, markdown: parsed.markdown ?? parsed.content! };
 
     const book = await db.book.findFirst({
       where: { id: bookId, userId: user.id },

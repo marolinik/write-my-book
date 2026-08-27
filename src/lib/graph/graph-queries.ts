@@ -459,30 +459,27 @@ export async function runConsistencyChecks(
       });
     }
 
-    // 5. Attribute drift (SIM-04/H5): a Character whose description was
-    //    re-scanned to a DIFFERENT value. graph-builder preserve-first never
-    //    overwrites the stored description; instead it appends each displaced
-    //    conflicting value to n.descriptionHistory — so a non-empty history is
-    //    exactly "the text described this character two different ways" (grey
-    //    eyes in ch.1, brown in ch.2). Flag it rather than silently keeping
-    //    whichever the first scan wrote.
+    // 5. Attribute drift (SIM-04/H5): flag only when displaced descriptions
+    //    carry concrete attribute tokens. CATCH: Neo4j `=~` is a FULL-string
+    //    regex — wrap the token group in `.*` (a bare pattern full-matches
+    //    nothing and silently filtered every flag to zero in the first pass).
+    //    complement (`sister` in the newer scan) from prose-only chapter restates.
+    const ATTR_TOKENS =
+      ".*(eyes?|eye|colour?|color|hair|scar|limp|accent|beard|glasses|freckles|birthmark|height|weight|complexion|bald).*";
     const attributeDriftResult = await session.run(
       `MATCH (c:Character {bookId: $bookId})
-       WHERE c.descriptionHistory IS NOT NULL AND size(c.descriptionHistory) > 0${userGuard("c")}
+       WHERE c.descriptionHistory IS NOT NULL AND size(c.descriptionHistory) > 0
+       AND ANY(d IN c.descriptionHistory + [coalesce(c.description, "")] WHERE toLower(d) =~ toLower($attrTokens))${userGuard("c")}
        RETURN c.name AS character, c.description AS current, c.descriptionHistory AS displaced,
               c.firstAppearance AS firstChapter, c.lastMentioned AS lastChapter`,
-      params
+      { ...params, attrTokens: ATTR_TOKENS }
     );
     for (const rec of attributeDriftResult.records) {
       const displaced = rec.get("displaced") as string[];
       issues.push({
         type: "attribute_conflict",
-        // MINOR, worded as drift-notice: preserve-first keeps the FIRST scanned
-        // description, so a longer/richer later scan lands in history too — most
-        // differences are complementary detail, not hard contradictions. The
-        // writer reconciles; the flag must inform without alarming.
-        severity: "minor",
-        description: `Character "${rec.get("character")}"'s description evolved across chapters — stored: "${String(rec.get("current")).slice(0, 120)}"; also seen: ${displaced.map((d) => `"${String(d).slice(0, 120)}"`).join(", ")}. Verify which is canonical (watch for real contradictions like eye colour).`,
+        severity: "major",
+        description: `Character "${rec.get("character")}" may have a contradicting attribute across chapters — stored: "${String(rec.get("current")).slice(0, 160)}"; conflicting mentions: ${displaced.map((d) => `"${String(d).slice(0, 160)}"`).join(", ")}. Verify which is canonical.`,
         entities: [rec.get("character") as string],
         chapters: [toNumber(rec.get("firstChapter")), toNumber(rec.get("lastChapter"))],
       });

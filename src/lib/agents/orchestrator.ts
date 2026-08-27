@@ -636,7 +636,10 @@ export class AgentOrchestrator {
           : runningCost;
       options.onMessage({
         type: "cost_update",
-        content: `$${budgetedCost.toFixed(4)}`,
+        // SIM-06 display honesty: the figure is an ESTIMATE (provider-rate
+        // mapping; free/local backends cost $0) — label it as such so the
+        // stream can't be read as real spend.
+        content: `est. $${budgetedCost.toFixed(4)}`,
         metadata: {
           // Keep tokens and cost consistent: the conductor's cost is
           // session-wide (shared tracker), so its token counts are too.

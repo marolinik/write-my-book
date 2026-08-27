@@ -36,11 +36,11 @@ plan limits with honest upgrade copy ✓ · concurrency fence 429 ✓
 
 ## Remaining honest gaps (documented, not launch-blockers)
 
-1. **SIM-06 env**: host clock ~7s slow + W32Time disabled → Clerk iat rejects fresh tokens. Ops fix (enable Windows Time service, needs admin).
-2. **Attribute-drift noise**: `attribute_conflict` fires on complementary description evolution too (severity tuned to minor + "verify canonical" wording); a true-contradiction classifier is future work.
-3. **PUT chapter content contract**: content update returned 400 in one battery probe — contract needs a documented body shape check (not investigated further).
+1. ~~SIM-06 env~~ **RESOLVED (2026-08-27)**: elevated helper enabled W32Time + resynced (NTP source live; Clerk probe 200).
+2. ~~Attribute-drift noise~~ **RESOLVED**: `attribute_conflict` now fires only when a concrete attribute token (eyes/colour/hair/scar/limp/accent/beard/glasses/freckles/birthmark) appears in current OR displaced descriptions. Re-scan on Nadia's book: exactly ONE flag (Thomas, the planted eye-colour drift); the three prose-evolution flags eliminated. (Side catch: Neo4j `=~` is a FULL-string match — the first filter version silently zeroed all flags; wrapped pattern verified via cypher-shell.)
+3. ~~PUT chapter content contract~~ **RESOLVED**: `content` accepted as a documented alias of `markdown` (validation.ts refine with a descriptive error); alias verified live (passes schema, hits the intended CAS 409).
 4. **Ox Alpha BYOK agents**: registry live in the new image, but a full agent session on ox-alpha was not re-run (sonnet stayed the campaign model).
-5. **SSE cost stream copy** shows bare `$` during free/local runs — display-layer follow-up.
+5. ~~SSE cost stream copy~~ **RESOLVED**: cost_update content is now `est. $X.XXXX` (client state reads numeric `metadata.costUsd`, so the prefix is display-safe).
 
 ## Grades (re-judged post-fix)
 

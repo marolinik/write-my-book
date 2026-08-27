@@ -224,13 +224,20 @@ export const restoreVersionSchema = z.object({
   version: z.number().int().min(1),
 });
 
-export const updateChapterContentSchema = z.object({
-  markdown: z.string().max(2_000_000),
-  changeSource: z.string().max(200).optional(),
-  // Optimistic-lock stamp: when present, the save is rejected with 409 if the
-  // document's currentVersion has moved. Omitted = last-write-wins (legacy).
-  expectedVersion: z.number().int().min(1).optional(),
-});
+export const updateChapterContentSchema = z
+  .object({
+    markdown: z.string().max(2_000_000).optional(),
+    // DX alias: `content` is accepted and normalized to `markdown` — a bare
+    // {content: ...} body previously failed with a field-name-only 400.
+    content: z.string().max(2_000_000).optional(),
+    changeSource: z.string().max(200).optional(),
+    // Optimistic-lock stamp: when present, the save is rejected with 409 if the
+    // document's currentVersion has moved. Omitted = last-write-wins (legacy).
+    expectedVersion: z.number().int().min(1).optional(),
+  })
+  .refine((o) => o.markdown !== undefined || o.content !== undefined, {
+    message: '"markdown" (or its alias "content") is required',
+  });
 
 // Find & Replace (S4). Plain-text, no regex; q bounded 2..200 chars.
 // caseSensitive arrives as a query string ("0"/"1") — treat only "1"/"true"
