@@ -1,0 +1,37 @@
+[
+ {
+  "name": "plan-chapter ch5",
+  "note": "Done 214s.",
+  "at": "2026-08-27T11:55:54.359Z"
+ },
+ {
+  "name": "write-chapter ch5",
+  "note": "Done 603s.",
+  "at": "2026-08-27T12:05:57.190Z"
+ },
+ {
+  "name": "H1 v2 — chapter row",
+  "note": "Chapter 5 row: PRESENT ✓ status=drafted words=4505. All: 1,2,5",
+  "at": "2026-08-27T12:06:08.209Z"
+ },
+ {
+  "name": "revise ch5",
+  "note": "Done 201s.",
+  "at": "2026-08-27T12:09:29.429Z"
+ },
+ {
+  "name": "H4 v2 — revisionCount",
+  "note": "revisionCount=1 ✓, words=4222.",
+  "at": "2026-08-27T12:09:40.340Z"
+ },
+ {
+  "name": "Export completeness v2",
+  "note": "docx chapterCount=3 wordCount=4792 ✗.",
+  "at": "2026-08-27T12:09:41.169Z"
+ },
+ {
+  "name": "H5 v2 — attribute drift flag",
+  "note": "flags=0, attribute_conflict=0 empty ✗. raw: {\"flags\":[],\"extraction\":null}",
+  "at": "2026-08-27T12:11:07.505Z"
+ }
+]

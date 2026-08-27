@@ -267,7 +267,13 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     if (coachRoute.route === "none") {
       const providerName = effectiveCoachModelDef.provider.charAt(0).toUpperCase() + effectiveCoachModelDef.provider.slice(1);
       return NextResponse.json(
-        { error: `No ${providerName} API key configured. Add one in Settings > API Keys.` },
+        {
+          error: `No ${providerName} API key configured. Add one in Settings > API Keys.`,
+          // SIM-03: the key-free on-ramp ends here — hand the client an explicit
+          // next step instead of a bare error the UI can't route on.
+          code: "NO_PROVIDER_KEY",
+          action: { label: "Open Settings → API Keys", href: "/settings/api-keys" },
+        },
         { status: 400 }
       );
     }

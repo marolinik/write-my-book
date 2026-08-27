@@ -459,7 +459,36 @@ export async function runConsistencyChecks(
       });
     }
 
-    // 5. Orphan plot threads: introduced 3+ chapters ago, still "developing" or "introduced"
+    // 5. Attribute drift (SIM-04/H5): a Character whose description was
+    //    re-scanned to a DIFFERENT value. graph-builder preserve-first never
+    //    overwrites the stored description; instead it appends each displaced
+    //    conflicting value to n.descriptionHistory — so a non-empty history is
+    //    exactly "the text described this character two different ways" (grey
+    //    eyes in ch.1, brown in ch.2). Flag it rather than silently keeping
+    //    whichever the first scan wrote.
+    const attributeDriftResult = await session.run(
+      `MATCH (c:Character {bookId: $bookId})
+       WHERE c.descriptionHistory IS NOT NULL AND size(c.descriptionHistory) > 0${userGuard("c")}
+       RETURN c.name AS character, c.description AS current, c.descriptionHistory AS displaced,
+              c.firstAppearance AS firstChapter, c.lastMentioned AS lastChapter`,
+      params
+    );
+    for (const rec of attributeDriftResult.records) {
+      const displaced = rec.get("displaced") as string[];
+      issues.push({
+        type: "attribute_conflict",
+        // MINOR, worded as drift-notice: preserve-first keeps the FIRST scanned
+        // description, so a longer/richer later scan lands in history too — most
+        // differences are complementary detail, not hard contradictions. The
+        // writer reconciles; the flag must inform without alarming.
+        severity: "minor",
+        description: `Character "${rec.get("character")}"'s description evolved across chapters — stored: "${String(rec.get("current")).slice(0, 120)}"; also seen: ${displaced.map((d) => `"${String(d).slice(0, 120)}"`).join(", ")}. Verify which is canonical (watch for real contradictions like eye colour).`,
+        entities: [rec.get("character") as string],
+        chapters: [toNumber(rec.get("firstChapter")), toNumber(rec.get("lastChapter"))],
+      });
+    }
+
+    // 6. Orphan plot threads: introduced 3+ chapters ago, still "developing" or "introduced"
     const orphanThreadResult = await session.run(
       `MATCH (p:PlotThread {bookId: $bookId})
        WHERE p.status IN ["introduced", "developing"]

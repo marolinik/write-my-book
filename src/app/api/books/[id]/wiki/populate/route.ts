@@ -217,8 +217,9 @@ export async function POST(
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     console.error("[wiki/populate] LLM extraction failed:", msg);
+    // Never leak upstream/provider internals (tracebacks, URLs) to the client.
     return NextResponse.json(
-      { error: `Entity extraction failed: ${msg}` },
+      { error: "Entity extraction failed. Please try again — if it persists, check your model provider key in Settings." },
       { status: 500 }
     );
   }

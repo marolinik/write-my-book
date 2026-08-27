@@ -1,0 +1,72 @@
+[
+ {
+  "name": "Setup complete (settings)",
+  "note": "200: {\"id\":\"da2a66cd-945d-45a6-b22b-4989d8f09a56\",\"bookId\":\"905eb63a-09b4-4cf6-8444-ff03ca7224eb\",\"modelGhostwriter\":\"opus\",\"modelEditor\":\"sonnet\",\"modelBetaReader\":\"sonnet\",\"modelAnalyst\":\"haiku\",\"modelCo",
+  "at": "2026-08-27T10:46:05.519Z"
+ },
+ {
+  "name": "Documents before bible retry",
+  "note": "types: CHAPTER_CONTENT,DEV_EDIT_REPORT,FINGERPRINT,CHAPTER_CONTENT,CHAPTER_CONTENT",
+  "at": "2026-08-27T10:46:05.553Z"
+ },
+ {
+  "name": "Story bible retry",
+  "note": "Done 29s.",
+  "at": "2026-08-27T10:46:34.220Z"
+ },
+ {
+  "name": "Documents after bible retry",
+  "note": "types: STORY_BIBLE,CHAPTER_CONTENT,DEV_EDIT_REPORT,FINGERPRINT,CHAPTER_CONTENT,CHAPTER_CONTENT. STORY_BIBLE PRESENT ✓",
+  "at": "2026-08-27T10:46:34.268Z"
+ },
+ {
+  "name": "Dev-edit ch1",
+  "note": "Done 136s.",
+  "at": "2026-08-27T10:48:50.747Z"
+ },
+ {
+  "name": "Findings after dev-edit",
+  "note": "3 findings. First: The chapter establishes the letterbox vividly but provides no spatial orientatio",
+  "at": "2026-08-27T10:49:01.707Z"
+ },
+ {
+  "name": "Apply finding",
+  "note": "\"The chapter establishes the letterbox vividly but provides n\" → 200; content changed: NO ✗. New status: applied.",
+  "at": "2026-08-27T10:49:01.794Z"
+ },
+ {
+  "name": "Undo finding",
+  "note": "200; content reverted to pre-apply: YES ✓.",
+  "at": "2026-08-27T10:49:01.852Z"
+ },
+ {
+  "name": "Discuss 3-turn cap",
+  "note": "turn4 → 409 CAP HELD ✓.",
+  "at": "2026-08-27T10:49:09.649Z"
+ },
+ {
+  "name": "Version restore",
+  "note": "only 0 version(s).",
+  "at": "2026-08-27T10:49:09.671Z"
+ },
+ {
+  "name": "Delete cascade",
+  "note": "create failed 400: {\"error\":\"Invalid input\",\"details\":{\"fieldErrors\":{\"actNumber\":[\"Invalid input: expected number, received undefined\"]},\"formErrors\":[]}}",
+  "at": "2026-08-27T10:49:09.693Z"
+ },
+ {
+  "name": "Archive cycle",
+  "note": "archive 200 ({\"archived\":true}), restore 200 ({\"archived\":false}).",
+  "at": "2026-08-27T10:49:09.731Z"
+ },
+ {
+  "name": "Cancel mid-flight",
+  "note": "start 200, cancel 8s → 200: {\"ok\":true}",
+  "at": "2026-08-27T10:49:18.909Z"
+ },
+ {
+  "name": "BATTERY PART 2 COMPLETE",
+  "note": "Editorial/undo/cap/restore/cascade/archive/cancel executed.",
+  "at": "2026-08-27T10:49:18.909Z"
+ }
+]

@@ -17,6 +17,9 @@ const eslintConfig = defineConfig([
     "dist-worker/**",
     "coverage/**",
     "uat-screenshots/**",
+    // Generated test artifacts (playwright runs write these).
+    "playwright-report*/**",
+    "test-results/**",
     // One-shot QA campaign evidence harnesses / scripts (not product code).
     "cowork/**",
     "tmp-*.js",

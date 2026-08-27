@@ -44,6 +44,17 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     }
 
     // ── Mode 2: Legacy multipart form upload ──
+    if (!contentType.includes("multipart/form-data")) {
+      // Battery: a bare/unknown body previously fell into req.formData() and
+      // answered a raw 500. Answer 400 with the two accepted shapes instead.
+      return NextResponse.json(
+        {
+          error:
+            "Unsupported import body — send multipart form data with manuscript files (.md/.txt/.docx), or a JSON body with a chapters array.",
+        },
+        { status: 400 }
+      );
+    }
     return handleLegacyImport(req, bookId, user.id);
   } catch (error) {
     if ((error as Error).message === "Unauthorized") {

@@ -33,6 +33,10 @@ RUN CI=true npm run build
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
+# Pandoc shells out for PDF via temp files; with no TMPDIR it resolved its temp
+# dir to the read-only /app cwd and PDF export silently degraded to markdown
+# (persona campaign H2). Point temp resolution at writable /tmp.
+ENV TMPDIR=/tmp TEMP=/tmp TMP=/tmp
 
 # Install Pandoc + Typst for manuscript export pipeline
 RUN apk add --no-cache pandoc curl

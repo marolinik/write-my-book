@@ -4,6 +4,7 @@
  */
 
 import { db } from "@/lib/db";
+import { countWords } from "@/lib/utils";
 import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
 import { parseAgentOutput, extractNumericScore } from "@/lib/parsers";
@@ -252,6 +253,23 @@ export async function processPostSession(
       }
     }
 
+    // ─── Chapter Row Guarantee (SIM-01) ─────────────────────────
+    // A workflow that produced chapter CONTENT (write-chapter, revise) must
+    // leave a Chapter ROW — otherwise the chapter list, book word counts, and
+    // exports silently skip the new text (persona campaign: a ghostwritten
+    // 4,200-word chapter was invisible to exports). Runs BEFORE status advance
+    // so advanceChapterStatus finds the row.
+    if (
+      ctx.chapterNumber &&
+      (ctx.workflowId === "write-chapter" || ctx.workflowId === "revise")
+    ) {
+      try {
+        await ensureChapterRow(ctx, docService);
+      } catch (e) {
+        console.error("[PostSession] ensureChapterRow failed (non-fatal):", e);
+      }
+    }
+
     // Advance chapter status if applicable (MUST run before deriveSuggestedNext).
     // SUPPRESSED for batch children — the digest surfaces findings and the
     // writer advances status manually after reading them (BATCH-SPEC §6.3).
@@ -492,6 +510,62 @@ async function processBetaReadSession(
  * regress-vs-refresh decision is the source of truth for the statusAdvanced
  * signal the writer sees, so it is tested in isolation.
  */
+/**
+ * SIM-01 guarantee: when a chapter-scoped workflow produced chapter CONTENT
+ * (write-chapter, revise), the corresponding Chapter row MUST exist. New rows
+ * are created drafted with the document's title/word count; existing rows get
+ * their word count re-synced, and a revise run counts a revision (H4 — the
+ * revisionCount ledger previously stayed frozen at 0).
+ */
+async function ensureChapterRow(
+  ctx: PostSessionContext,
+  docService: DocumentService
+): Promise<void> {
+  const chapterNumber = ctx.chapterNumber!;
+  const contentDoc = await db.document.findFirst({
+    where: {
+      bookId: ctx.bookId,
+      type: "CHAPTER_CONTENT",
+      chapterNumber,
+    },
+    orderBy: { updatedAt: "desc" },
+    select: { id: true, title: true },
+  });
+  if (!contentDoc) return;
+
+  const read = await docService.read(contentDoc.id);
+  const content = read?.content ?? "";
+  const wordCount = content ? countWords(content) : 0;
+
+  const existing = await db.chapter.findFirst({
+    where: { bookId: ctx.bookId, chapterNumber },
+  });
+  if (!existing) {
+    await db.chapter.create({
+      data: {
+        bookId: ctx.bookId,
+        chapterNumber,
+        actNumber: 1,
+        title: contentDoc.title ?? null,
+        wordCount,
+        status: "drafted",
+      },
+    });
+    return;
+  }
+
+  await db.chapter.update({
+    where: { id: existing.id },
+    data: {
+      wordCount,
+      ...(existing.title ? {} : { title: contentDoc.title ?? null }),
+      ...(ctx.workflowId === "revise"
+        ? { revisionCount: { increment: 1 } }
+        : {}),
+    },
+  });
+}
+
 export async function advanceChapterStatus(
   bookId: string,
   chapterNumber: number,

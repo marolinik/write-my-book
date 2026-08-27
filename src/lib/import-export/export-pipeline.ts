@@ -1,7 +1,7 @@
 import { exec, execFile } from "child_process";
 import { promisify } from "util";
 import { writeFile, readFile, unlink, mkdir } from "fs/promises";
-import { join } from "path";
+import { join, dirname } from "path";
 import { tmpdir } from "os";
 import { randomUUID } from "crypto";
 import JSZip from "jszip";
@@ -762,8 +762,12 @@ export async function exportManuscript(
 
   // 10. Execute Pandoc via execFile — argv array, NO shell (D-18). pandocArgs[0]
   //     is the executable; the rest are passed to the OS verbatim.
+  //     H2 (persona campaign): run with cwd = the export temp dir. Pandoc
+  //     resolves some intermediate temp files relative to CWD (the musl build
+  //     ignores TMPDIR), and the container's default cwd is the read-only /app —
+  //     PDF silently degraded to markdown. The export dir is always writable.
   try {
-    await execFileAsync(pandocArgs[0], pandocArgs.slice(1), { timeout: 120000 });
+    await execFileAsync(pandocArgs[0], pandocArgs.slice(1), { timeout: 120000, cwd: dirname(inputPath) });
 
     // Read output file and upload to S3
     let outputBuffer: Buffer = await readFile(outputPath);

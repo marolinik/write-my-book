@@ -87,12 +87,20 @@ export async function applyInheritance(
   seriesId: string,
   bookId: string,
   documentTypes?: DocumentType[]
-): Promise<{ applied: string[]; skipped: string[] }> {
+): Promise<{
+  applied: string[];
+  skipped: string[];
+  /** Why each skipped pair did not copy (H3 — a bare 200 with all-skipped read as success but silently did nothing). */
+  skippedReasons: Record<string, string>;
+  /** Human summary when nothing was applied. */
+  note?: string;
+}> {
   const seriesDocService = new DocumentService(userId, undefined, seriesId);
   const bookDocService = new DocumentService(userId, bookId);
 
   const applied: string[] = [];
   const skipped: string[] = [];
+  const skippedReasons: Record<string, string> = {};
 
   const pairs = documentTypes
     ? INHERITANCE_PAIRS.filter((p) => documentTypes.includes(p.series))
@@ -103,6 +111,7 @@ export async function applyInheritance(
     const bookDoc = await bookDocService.findByType(pair.book);
     if (bookDoc) {
       skipped.push(pair.label);
+      skippedReasons[pair.label] = "book already has its own version";
       continue;
     }
 
@@ -110,12 +119,14 @@ export async function applyInheritance(
     const seriesDoc = await seriesDocService.findByType(pair.series);
     if (!seriesDoc) {
       skipped.push(pair.label);
+      skippedReasons[pair.label] = "no series-level document exists to inherit (run the series setup first)";
       continue;
     }
 
     const seriesContent = await seriesDocService.read(seriesDoc.id);
     if (!seriesContent || !seriesContent.content) {
       skipped.push(pair.label);
+      skippedReasons[pair.label] = "series document content could not be read";
       continue;
     }
 
@@ -132,5 +143,11 @@ export async function applyInheritance(
     applied.push(pair.label);
   }
 
-  return { applied, skipped };
+  const note =
+    applied.length === 0 && skipped.length > 0
+      ? `Nothing was inherited. ${Object.entries(skippedReasons)
+          .map(([label, reason]) => `${label}: ${reason}`)
+          .join("; ")}.`
+      : undefined;
+  return { applied, skipped, skippedReasons, ...(note ? { note } : {}) };
 }

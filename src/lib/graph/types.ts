@@ -254,7 +254,7 @@ export interface PlotThreadSummary {
 }
 
 export interface ConsistencyIssue {
-  type: "character_undocumented" | "location_conflict" | "timeline_violation" | "dead_character_reappears" | "orphan_plot_thread" | "relationship_contradiction";
+  type: "character_undocumented" | "location_conflict" | "timeline_violation" | "dead_character_reappears" | "orphan_plot_thread" | "relationship_contradiction" | "attribute_conflict";
   severity: "critical" | "major" | "minor";
   description: string;
   entities: string[];

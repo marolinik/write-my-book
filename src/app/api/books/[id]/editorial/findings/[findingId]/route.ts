@@ -304,7 +304,17 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       }
     }
 
-    return NextResponse.json(updated);
+    // SIM-08: an advice-only apply (no originalText/newText — nothing to
+    // replace in the chapter) previously answered the bare updated row while
+    // the document stayed untouched, reading as a silent no-op. Say so plainly.
+    const adviceOnlyApply =
+      data.action === "apply" && !originalText && !finalNewText;
+
+    return NextResponse.json(
+      adviceOnlyApply
+        ? { ...updated, note: "Advice-only finding — accepted; no chapter text was changed." }
+        : updated
+    );
   } catch (error) {
     const invalidJson = invalidJsonBodyResponse(error);
     if (invalidJson) return invalidJson;

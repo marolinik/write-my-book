@@ -499,6 +499,15 @@ async function upsertSingleEntity(
     if (authoritative) {
       onMatchStableItems.push("n.description = $incomingDescription");
     } else {
+      // SIM-04/H5: preserve-first-non-empty NEVER overwrites — but a REJECTED
+      // conflicting description is continuity evidence (the writer changed
+      // "grey eyes" to "brown eyes" between chapters and the preserve rule
+      // silently kept the first). Capture the displaced value into
+      // descriptionHistory so runConsistencyChecks can flag the drift instead
+      // of losing it. A same-value re-scan appends nothing.
+      onMatchStableItems.push(
+        'n.descriptionHistory = CASE WHEN n.description IS NOT NULL AND n.description <> "" AND $incomingDescription <> "" AND n.description <> $incomingDescription AND NOT $incomingDescription IN coalesce(n.descriptionHistory, []) THEN coalesce(n.descriptionHistory, []) + [$incomingDescription] ELSE coalesce(n.descriptionHistory, []) END'
+      );
       onMatchStableItems.push(
         'n.description = CASE WHEN n.description IS NULL OR n.description = "" THEN $incomingDescription ELSE n.description END'
       );

@@ -7,7 +7,7 @@ const INLINE_TYPES = new Set<ConsistencyIssue["type"]>([
   "location_conflict",
   "timeline_violation",
 ]);
-const BOOK_LEVEL_TYPES = new Set<ConsistencyIssue["type"]>(["relationship_contradiction"]);
+const BOOK_LEVEL_TYPES = new Set<ConsistencyIssue["type"]>(["relationship_contradiction", "attribute_conflict"]);
 
 export interface ContinuityFlagInput {
   signature: string;
