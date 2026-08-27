@@ -1,0 +1,97 @@
+[
+ {
+  "name": "Provisioned",
+  "note": "Clerk user user_3ITbT2b9lxe2ofszpRxmgM5eEzu, synced (webhook 200), onboarding done, keys: openrouter 201, anthropic 201, default model ox-alpha 400.",
+  "at": "2026-08-27T00:45:24.298Z"
+ },
+ {
+  "name": "Create book",
+  "note": "\"The Cartographer's Widow\" (201).",
+  "at": "2026-08-27T00:45:24.379Z"
+ },
+ {
+  "name": "Import",
+  "note": "200.",
+  "at": "2026-08-27T00:45:24.532Z"
+ },
+ {
+  "name": "Cost estimate endpoint",
+  "note": "400: {\"error\":\"workflowId query parameter is required\"}",
+  "at": "2026-08-27T00:45:24.570Z"
+ },
+ {
+  "name": "Capture style",
+  "note": "Done 186s.",
+  "at": "2026-08-27T00:48:30.319Z"
+ },
+ {
+  "name": "Story bible",
+  "note": "Done 28s.",
+  "at": "2026-08-27T00:48:58.735Z"
+ },
+ {
+  "name": "Architecture",
+  "note": "Done 219s.",
+  "at": "2026-08-27T00:52:37.637Z"
+ },
+ {
+  "name": "Beta-read panel ch1",
+  "note": "Done 299s. Tail: rs) is responding enthusiastically.  If you choose to address any suggestions, prioritize naming the protegée early in Chapter  2 (if you're using alternating POV, her name would naturally appear in her first chapter).   The detailed report and all three findings have been saved to your project for reference. $0.4680 Session completed successfully ",
+  "at": "2026-08-27T00:57:37.122Z"
+ },
+ {
+  "name": "Chapter beta verdict",
+  "note": "betaScore=null, betaGate=passed, status=beta_passed.",
+  "at": "2026-08-27T00:57:48.103Z"
+ },
+ {
+  "name": "Line-edit ch1",
+  "note": "Done 94s.",
+  "at": "2026-08-27T00:59:22.132Z"
+ },
+ {
+  "name": "Dev-edit ch1",
+  "note": "Done 283s.",
+  "at": "2026-08-27T01:04:05.102Z"
+ },
+ {
+  "name": "Findings after both lenses",
+  "note": "0 findings. Severity mix: {}.",
+  "at": "2026-08-27T01:04:16.798Z"
+ },
+ {
+  "name": "Revise ch1",
+  "note": "Done 280s.",
+  "at": "2026-08-27T01:08:56.462Z"
+ },
+ {
+  "name": "Post-revise chapter state",
+  "note": "status=beta_passed, revisionCount=0, words=4008.",
+  "at": "2026-08-27T01:09:07.800Z"
+ },
+ {
+  "name": "Publishing check",
+  "note": "Done 150s. Tail: s exceptional—these are standard housekeeping items  for any manuscript in early draft stages.  Would you like help creating any of the missing front matter or back matter elements? I can guide you through drafting a compelling author bio or setting  up your copyright page. $0.6809 Session finished ",
+  "at": "2026-08-27T01:11:37.316Z"
+ },
+ {
+  "name": "Marketing kit",
+  "note": "200: {\"logline\":\"A widow selling her late husband's unfinished atlas must face his protegée, who demands she stop—igniting a war over who truly owns a dead artist's legacy.\",\"blurb\":\"For eleven months, Maren has been selling her late husband's atlas. Page",
+  "at": "2026-08-27T01:12:21.118Z"
+ },
+ {
+  "name": "Editorial summary",
+  "note": "200: {\"total\":14,\"pending\":13,\"applied\":0,\"dismissed\":0,\"bySeverity\":{\"critical\":3,\"important\":3,\"suggestion\":8},\"byStatus\":{\"pending\":13,\"rejected\":1},\"chaptersWithPending\":1}",
+  "at": "2026-08-27T01:12:32.105Z"
+ },
+ {
+  "name": "Editorial history",
+  "note": "200: {\"actions\":[{\"id\":\"87222ee7-9b46-424c-b47b-d658d100dc5c\",\"bookId\":\"6ce59f0a-5c2a-4de8-ba19-7d853587d214\",\"chapterNumber\":1,\"actionType\":\"session_complete\",\"sessionId\":\"94219e2e-9b03-41f2-b2bf-75fa2f69",
+  "at": "2026-08-27T01:12:32.140Z"
+ },
+ {
+  "name": "Usage (cost transparency)",
+  "note": "200: total={\"tokensInput\":990629,\"tokensOutput\":61610,\"costEstimate\":3.89406126,\"sessions\":13}",
+  "at": "2026-08-27T01:12:32.172Z"
+ }
+]

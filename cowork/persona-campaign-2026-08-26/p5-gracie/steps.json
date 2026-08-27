@@ -1,0 +1,77 @@
+[
+ {
+  "name": "Provisioned",
+  "note": "Clerk user user_3ITO4qCSvHhXF58M4fDeXKRJPNl, synced (webhook 200), onboarding done, keys: openrouter 201, anthropic 201, default model ox-alpha 400.",
+  "at": "2026-08-26T22:55:09.919Z"
+ },
+ {
+  "name": "Create book",
+  "note": "\"Semester of Salt\" (201).",
+  "at": "2026-08-26T22:55:09.962Z"
+ },
+ {
+  "name": "Import",
+  "note": "200.",
+  "at": "2026-08-26T22:55:10.039Z"
+ },
+ {
+  "name": "Ghost-text (quick assist)",
+  "note": "200: suggestion=\"data: {\\\"type\\\":\\\"token\\\",\\\"text\\\":\\\"The second\\\"}\\n\\ndata: {\\\"type\\\":\\\"token\\\",\\\"text\\\":\\\" wrong decision came when she didn't tell Marcus about it.\\\"}\\n\\ndata: {\\\"type\\\":\\\"done\\\",\\\"text\\\":\\\"The second wrong decision c | model used: ?. (Her default is Ox Alpha, flagged unfit — did it reroute to DeepSeek?)",
+  "at": "2026-08-26T22:55:11.037Z"
+ },
+ {
+  "name": "Inline-edit",
+  "note": "200: {\"suggestions\":[{\"text\":\"the ocean in her chest. Both screamed it: you don't belong here.\",\"label\":\"Direct and harsh\"},{\"text\":\"the ocean in her chest. Both made it clear: you were never meant to be here.\",\"label\":\"Emphasis through simplicity\"}],\"tok",
+  "at": "2026-08-26T22:55:12.223Z"
+ },
+ {
+  "name": "Search whole-word",
+  "note": "200: {\"hits\":[{\"chapterId\":\"f6ddeb2d-522f-4f9e-ba40-4638a6592ccb\",\"chapterNumber\":1,\"title\":\"Salt\",\"count\":13,\"snippets\":[{\"before\":\"# Chapter 1 — Salt\\n\\n\",\"match\":\"The\",\"after\":\" morning of the exam, Wre",
+  "at": "2026-08-26T22:55:12.252Z"
+ },
+ {
+  "name": "Search/replace (no-op safe)",
+  "note": "200: {\"replaced\":[{\"chapterId\":\"f6ddeb2d-522f-4f9e-ba40-4638a6592ccb\",\"count\":3,\"newVersion\":2}],\"totalReplacements\":3}",
+  "at": "2026-08-26T22:55:12.324Z"
+ },
+ {
+  "name": "Daily plan",
+  "note": "200: {\"plan\":[{\"id\":\"continue\",\"type\":\"write\",\"title\":\"Continue Ch.1: Salt\",\"detail\":\"You last worked on this chapter — keep the momentum going.\",\"estimatedMinutes\":30,\"href\":\"/books/66d650af-50ab-4db5-a48",
+  "at": "2026-08-26T22:55:12.348Z"
+ },
+ {
+  "name": "Writing stats",
+  "note": "200: {\"dailyCounts\":[{\"date\":\"2026-07-28\",\"words\":0},{\"date\":\"2026-07-29\",\"words\":0},{\"date\":\"2026-07-30\",\"words\":0},{\"date\":\"2026-07-31\",\"words\":0},{\"date",
+  "at": "2026-08-26T22:55:12.389Z"
+ },
+ {
+  "name": "Set daily goal 500",
+  "note": "200: {\"id\":\"cmtaoz6za000101pkkd9l8uqu\",\"bookId\":\"66d650af-50ab-4db5-a48d-74b10e63f2ad\",\"type\":\"daily\",\"target\":500,\"createdAt\":\"2026-08-26T22:55:12.406Z\",\"",
+  "at": "2026-08-26T22:55:12.412Z"
+ },
+ {
+  "name": "Mash probe: double-submit book",
+  "note": "Two rapid creates: 403 then 403. ?",
+  "at": "2026-08-26T22:55:12.464Z"
+ },
+ {
+  "name": "Probe: invalid chapter payload",
+  "note": "400: {\"error\":\"Invalid input\",\"details\":{\"fieldErrors\":{\"actNumber\":[\"Invalid input: expected number, received undefined\"],\"chapterNumber\":[\"Too small: expected number to be >=1\"],\"title\":[\"Invalid input: ",
+  "at": "2026-08-26T22:55:12.487Z"
+ },
+ {
+  "name": "Mash probe: double agent start",
+  "note": "200 then 429. Fence held.",
+  "at": "2026-08-26T22:55:13.922Z"
+ },
+ {
+  "name": "Suggestion feedback",
+  "note": "400: {\"error\":\"Invalid input\",\"details\":{\"fieldErrors\":{\"suggestionId\":[\"Invalid input: expected string, received undefined\"],\"suggestionType\":[\"Invalid in",
+  "at": "2026-08-26T22:55:13.959Z"
+ },
+ {
+  "name": "Memory stats",
+  "note": "200: {\"totalChunks\":64,\"totalSearches\":0,\"lastIndexed\":\"2026-08-26T19:58:55.360Z\",\"qdrantHealthy\":true,\"embeddingCost\":0.00000316,\"embeddingTokens\":158}",
+  "at": "2026-08-26T22:55:13.981Z"
+ }
+]

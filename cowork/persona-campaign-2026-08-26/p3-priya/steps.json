@@ -1,0 +1,17 @@
+[
+ {
+  "name": "Series inherit (fixed)",
+  "note": "Inherit b2: 200 — {\"applied\":[],\"skipped\":[\"Story Bible\",\"Architecture\",\"Fingerprint\"]}",
+  "at": "2026-08-26T22:50:49.582Z"
+ },
+ {
+  "name": "Series context on book 2 (fixed)",
+  "note": "200: {\"series\":{\"id\":\"ef42a386-6c9f-4a5b-8430-33641645c56f\",\"title\":\"Emberfall Dynasty\",\"seriesType\":\"TRILOGY\",\"currentBookNumber\":2},\"chapterNumber\":1,\"characters\":[],\"threads\":[],\"toneDrift\":null,\"meta\":{\"notReady\":true,\"so",
+  "at": "2026-08-26T22:50:49.899Z"
+ },
+ {
+  "name": "Series continuity check (fixed)",
+  "note": "Done 187s. Tail: mmended  next steps**: 1. Resolve protagonist name spelling (recommend \"Kaelen\" per Ch. 1) 2. Complete  Story Bible with the 5 documented elements 3. Establish series-level tracking documents before Act I ends  Great work! Your attention  to detail shows in the consistency. $0.6406 Session finished ",
+  "at": "2026-08-26T22:53:56.424Z"
+ }
+]

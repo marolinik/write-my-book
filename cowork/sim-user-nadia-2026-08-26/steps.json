@@ -1,0 +1,50 @@
+[
+ {
+  "phase": "surfaces",
+  "name": "Billing subscription state",
+  "note": "Billing subscription state: 200 — {\"plan\":\"none\",\"planName\":\"Free\",\"monthlyPrice\":0,\"annualPrice\":null,\"features\":[],\"maxBooks\":1,\"status\":\"none\",\"billingInterval\":\"monthly\",\"trialEnd\":null,\"cancelAtPeriodEnd\":false,\"stripeConfigured\":true,\"freeTier\":{\"s",
+  "at": "2026-08-26T20:04:14.894Z"
+ },
+ {
+  "phase": "surfaces",
+  "name": "Founder slots counter",
+  "note": "Founder slots counter: 200 — {\"claimed\":0,\"total\":200,\"available\":200}",
+  "at": "2026-08-26T20:04:14.912Z"
+ },
+ {
+  "phase": "surfaces",
+  "name": "Usage summary",
+  "note": "Usage summary: 200 — {\"total\":{\"tokensInput\":884818,\"tokensOutput\":52748,\"costEstimate\":3.4415645799999997,\"sessions\":13},\"byAgent\":{\"writing-coach\":{\"tokensInput\":883439,\"tokensOutput\":52748,\"costEstimate\":3.441537,\"sessions\":6},\"embedding\"",
+  "at": "2026-08-26T20:04:14.937Z"
+ },
+ {
+  "phase": "surfaces",
+  "name": "Writing stats",
+  "note": "Writing stats: 200 — {\"dailyCounts\":[{\"date\":\"2026-07-28\",\"words\":0},{\"date\":\"2026-07-29\",\"words\":0},{\"date\":\"2026-07-30\",\"words\":0},{\"date\":\"2026-07-31\",\"words\":0},{\"date\":\"2026-08-01\",\"words\":0},{\"date\":\"2026-08-02\",\"words\":0},{\"date\":\"202",
+  "at": "2026-08-26T20:04:15.004Z"
+ },
+ {
+  "phase": "surfaces",
+  "name": "Insights",
+  "note": "Insights: 200 — {\"insights\":[{\"id\":\"74291d9e-8d56-4160-ba96-51f3fb3fbec8\",\"bookId\":\"16725405-42cc-4bb2-a427-88f55f96d32c\",\"sourceSessionId\":\"a6f99135-4c90-45a2-a47d-4fc506fa8c57\",\"sourceAgentType\":\"dev-editor\",\"insightType\":\"WARNING\",\"s",
+  "at": "2026-08-26T20:04:15.035Z"
+ },
+ {
+  "phase": "surfaces",
+  "name": "Analysis",
+  "note": "Analysis: 200 — {\"empty\":true,\"message\":\"No analysis report found. Run the manuscript analyst agent to generate one.\"}",
+  "at": "2026-08-26T20:04:15.069Z"
+ },
+ {
+  "phase": "surfaces",
+  "name": "Series list",
+  "note": "Series list: 200 — []",
+  "at": "2026-08-26T20:04:15.105Z"
+ },
+ {
+  "phase": "surfaces",
+  "name": "Final DRIFT probe",
+  "note": "Probe 200: ready — all deps environment:ok, postgres:ok, schema:ok, redis:ok, s3:ok, worker:ok, qdrant:ok, neo4j:ok",
+  "at": "2026-08-26T20:04:15.154Z"
+ }
+]
