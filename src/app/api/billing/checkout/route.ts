@@ -144,13 +144,21 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Build the browser-reachable origin. req.nextUrl.origin can be
+    // "http://0.0.0.0:3000" in the containerized dev stack (container's own
+    // advertised hostname) — a non-navigable host for the user's browser
+    // (Priya test hit ERR_ADDRESS_INVALID). NEXT_PUBLIC_APP_URL is the
+    // canonical product-origin fallback (docs/env-vars.md).
+    const origin =
+      process.env.NEXT_PUBLIC_APP_URL?.trim() || req.nextUrl.origin;
+
     // Build checkout session config
     const sessionConfig: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${req.nextUrl.origin}/settings/billing?success=true`,
-      cancel_url: `${req.nextUrl.origin}/settings/billing?canceled=true`,
+      success_url: `${origin}/settings/billing?success=true`,
+      cancel_url: `${origin}/settings/billing?canceled=true`,
       metadata: { userId: user.id, plan, billingInterval },
     };
 
