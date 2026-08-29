@@ -91,7 +91,7 @@ export default async function SeriesDocumentsPage({
             Series-level
           </h2>
           {seriesDocs.map((doc) => (
-            <DocCard key={doc.id} doc={doc} bookName={null} />
+            <DocCard key={doc.id} doc={doc} bookName={null} seriesId={seriesId} />
           ))}
         </div>
       )}
@@ -102,7 +102,7 @@ export default async function SeriesDocumentsPage({
             Book-level
           </h2>
           {bookDocs.map((doc) => (
-            <DocCard key={doc.id} doc={doc} bookName={bookNameById.get(doc.bookId!) ?? null} />
+            <DocCard key={doc.id} doc={doc} bookName={bookNameById.get(doc.bookId!) ?? null} seriesId={seriesId} />
           ))}
         </div>
       )}
@@ -123,28 +123,30 @@ export default async function SeriesDocumentsPage({
   );
 }
 
-function DocCard({ doc, bookName }: { doc: DocRow; bookName: string | null }) {
+function DocCard({ doc, bookName, seriesId }: { doc: DocRow; bookName: string | null; seriesId: string }) {
   const label = TYPE_LABELS[doc.type] ?? doc.type;
   const subtitle = bookName ? `Book: ${bookName}` : "Series-wide";
   const ch = doc.chapterNumber ? ` · Ch.${doc.chapterNumber}` : "";
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <div className="flex items-center justify-between gap-4">
-          <div className="min-w-0">
-            <CardTitle className="text-base truncate">
-              {doc.title ?? label}
-            </CardTitle>
-            <CardDescription>
-              {label}
-              {ch} · {subtitle}
-            </CardDescription>
+    <Link href={`/series/${seriesId}/documents/${doc.id}`}>
+      <Card className="hover:bg-accent/50 transition-colors cursor-pointer">
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <CardTitle className="text-base truncate">
+                {doc.title ?? label}
+              </CardTitle>
+              <CardDescription>
+                {label}
+                {ch} · {subtitle}
+              </CardDescription>
+            </div>
+            <span className="text-xs text-muted-foreground shrink-0">
+              {new Date(doc.updatedAt).toLocaleDateString()}
+            </span>
           </div>
-          <span className="text-xs text-muted-foreground shrink-0">
-            {new Date(doc.updatedAt).toLocaleDateString()}
-          </span>
-        </div>
-      </CardHeader>
-    </Card>
+        </CardHeader>
+      </Card>
+    </Link>
   );
 }
