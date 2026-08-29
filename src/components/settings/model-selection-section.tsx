@@ -16,6 +16,7 @@ import {
   useUpdateGlobalRoleOverride,
 } from "@/hooks/use-default-model";
 import { useApiKeys } from "@/hooks/use-api-keys";
+import { useCustomProviders } from "@/hooks/use-custom-providers";
 import type { AgentRole } from "@/lib/llm";
 import type { ProviderKey } from "@/lib/llm/providers";
 
@@ -81,6 +82,7 @@ export function ModelSelectionSection() {
   const updateDefaultModel = useUpdateDefaultModel();
   const updateRoleOverride = useUpdateGlobalRoleOverride();
   const { data: apiKeys } = useApiKeys();
+  const { data: customProviders, defs: customModelDefs } = useCustomProviders();
 
   // Derive available providers from user's validated keys
   const availableProviders: ProviderKey[] = (apiKeys ?? [])
@@ -88,6 +90,13 @@ export function ModelSelectionSection() {
     .map((k) => k.provider as ProviderKey)
     // Deduplicate (user can only have 1 key per provider, but be safe)
     .filter((p, i, arr) => arr.indexOf(p) === i);
+  // Custom providers trigger the "local" provider slot (LLMProvider-
+  // consistent — local LAN boxes/proxies all resolve under "local").
+  if (customProviders && customProviders.length > 0) {
+    if (!availableProviders.includes("local" as ProviderKey)) {
+      availableProviders.push("local" as ProviderKey);
+    }
+  }
 
   // Debounce timers for role overrides
   const roleTimerRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
@@ -151,6 +160,7 @@ export function ModelSelectionSection() {
           value={defaultModelData?.defaultModel ?? "anthropic/sonnet"}
           onChange={handleDefaultModelChange}
           availableProviders={availableProviders}
+          customModels={customModelDefs}
         />
 
         <Separator />
@@ -173,6 +183,7 @@ export function ModelSelectionSection() {
               value={getRoleValue(info.role)}
               onChange={(registryId) => handleRoleChange(info.role, registryId)}
               availableProviders={availableProviders}
+              customModels={customModelDefs}
               showDefaultOption
             />
           ))}

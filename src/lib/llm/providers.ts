@@ -7,6 +7,8 @@ export type ProviderKey = "anthropic" | "openrouter" | "openai" | "gemini" | "gr
 
 export const PROVIDER_KEYS = ["anthropic", "openrouter", "openai", "gemini", "grok"] as const;
 
+export const CUSTOM_PROVIDER_KEY = "custom" as const;
+
 export interface ProviderDefinition {
   /** Unique key identifying this provider */
   key: ProviderKey;
@@ -85,6 +87,11 @@ export const PROVIDERS: ProviderDefinition[] = [
     iconName: "Zap",
   },
 ];
+/**
+ * Custom providers extend the picker without touching ProviderKey — they are
+ * stored in CustomProvider rows and surfaced via buildModelGroups(customModels).
+ */
+export interface CustomProviderDefinition {}
 
 /** Look up a provider definition by key. Throws if not found. */
 export function getProvider(key: ProviderKey): ProviderDefinition {

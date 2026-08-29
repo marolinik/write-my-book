@@ -45,6 +45,8 @@ export interface ModelPickerProps {
   onChange: (registryId: string | null) => void;
   /** Providers where the user has valid keys. Only shows models from these. */
   availableProviders: ProviderKey[];
+  /** Optional custom-provider defs (LAN boxes, private hubs) merged when "custom" is available. */
+  customModels?: ModelSelectorDefs;
   /** If true, shows "Use Default" option at the top (sets value to null). */
   showDefaultOption?: boolean;
   /** Optional label above the dropdown. */
@@ -52,6 +54,8 @@ export interface ModelPickerProps {
   /** Optional description below the label. */
   description?: string;
 }
+
+type ModelSelectorDefs = import("@/lib/llm/model-registry").ModelDefinition[];
 
 // ── Sentinel for "use default" ────────────────────────────────
 
@@ -63,6 +67,7 @@ export function ModelPicker({
   value,
   onChange,
   availableProviders,
+  customModels,
   showDefaultOption = false,
   label,
   description,
@@ -71,8 +76,8 @@ export function ModelPicker({
   // the stored `value`'s entry within a same-displayName family — otherwise
   // the trigger renders blank for a stored non-kept tier id (D-131).
   const groupedModels = useMemo(
-    () => buildModelGroups(availableProviders, value),
-    [availableProviders, value]
+    () => buildModelGroups(availableProviders, value, customModels),
+    [availableProviders, value, customModels]
   );
 
   // The actual value for the Select component

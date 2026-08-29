@@ -30,6 +30,7 @@ model User {
   onboardingComplete Boolean @default(false) @map("onboarding_complete")
 
   apiKeys       ApiKey[]
+  customProviders CustomProvider[]
   books         Book[]
   series        Series[]
   agentSessions AgentSession[]
@@ -111,6 +112,23 @@ model ApiKey {
 
   @@unique([userId, provider])
   @@map("api_keys")
+}
+
+// ─── CUSTOM PROVIDERS (user-added OpenAI-compatible endpoints) ──
+
+model CustomProvider {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  displayName String   @map("display_name")
+  baseURL     String   @map("base_url")
+  api         String   @default("openai-completions") // pi-ai wire protocol
+  apiKey      String?  @map("api_key") // encrypted when provided (public endpoints stay empty)
+  models      Json     @map("models") // discovered [{id, name?, contextWindow?}]
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("custom_providers")
 }
 
 // ─── SERIES (optional top-level grouping) ───────────────────────

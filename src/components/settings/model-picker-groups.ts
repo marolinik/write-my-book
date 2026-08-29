@@ -15,9 +15,14 @@ import {
 
 export function buildModelGroups(
   availableProviders: ProviderKey[],
-  selectedId?: string | null
+  selectedId?: string | null,
+  /** Custom-provider MCP vendors carrying their own defs (local proxy boxes, private hubs). */
+  customModels?: ModelDefinition[]
 ): Map<ProviderKey, ModelDefinition[]> {
-  const models = getModelsForProviders(availableProviders);
+  let models = getModelsForProviders(availableProviders);
+  if (customModels && customModels.length > 0) {
+    models = [...models, ...customModels];
+  }
   const groups = new Map<ProviderKey, ModelDefinition[]>();
 
   for (const model of models) {

@@ -11,6 +11,7 @@ import { PROVIDERS, type ProviderKey } from "@/lib/llm/providers";
 import { useApiKeys, type ApiKeyEntry } from "@/hooks/use-api-keys";
 import { ProviderCard } from "@/components/onboarding/provider-card";
 import { useLanguage } from "@/components/providers/language-provider";
+import { CustomProvidersSection } from "./custom-providers-section";
 
 // ── Helpers ─────────────────────────────────────────────────────
 
@@ -61,6 +62,7 @@ export function ApiKeysSection() {
                 compact
               />
             ))}
+            <CustomProvidersSection />
           </div>
         )}
 
