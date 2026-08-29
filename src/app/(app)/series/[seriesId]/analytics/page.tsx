@@ -14,15 +14,10 @@ import {
 
 export const dynamic = "force-dynamic";
 
-interface SeriesAnalyticsBook {
-  bookId: string;
-  bookNumber: number;
-  name: string;
-  status: string;
-  wordCount: number;
-  chapterCount: number;
-  documentCount: number;
-  chapterStatusCounts: Record<string, number>;
+const STATUS_ORDER = ["planned", "drafted", "dev_edited", "line_edited", "beta_read", "beta_passed", "complete"] as const;
+
+function statusLabel(s: string): string {
+  return s.replace(/_/g, " ");
 }
 
 export default async function SeriesAnalyticsPage({
@@ -38,17 +33,17 @@ export default async function SeriesAnalyticsPage({
   });
   if (!series) notFound();
 
-  const books = (await db.book.findMany({
+  const books = await db.book.findMany({
     where: { seriesId, userId: user.id },
-    select: { id: true, bookNumber: true, name: true, status: true, wordCount: true },
+    select: {
+      id: true, bookNumber: true, name: true, status: true, wordCount: true,
+      chapters: { select: { chapterNumber: true, status: true, wordCount: true } },
+    },
     orderBy: { bookNumber: "asc" },
-  })) as unknown as Array<{
-    id: string; bookNumber: number; name: string; status: string; wordCount: number;
-  }>;
+  });
 
   const totalWords = books.reduce((s, b) => s + (b.wordCount ?? 0), 0);
-  const totalChapters = books.reduce((s, b) => s + ((b as { chapterCount?: number }).chapterCount ?? 0), 0);
-  const doneCount = books.filter((b) => b.status === "complete").length;
+  const totalChapters = books.reduce((s, b) => s + b.chapters.length, 0);
 
   return (
     <div className="p-6 lg:p-8 max-w-4xl space-y-6">
@@ -74,7 +69,6 @@ export default async function SeriesAnalyticsPage({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{books.length}</div>
-            <p className="text-xs text-muted-foreground">{doneCount} complete</p>
           </CardContent>
         </Card>
         <Card>
@@ -103,32 +97,42 @@ export default async function SeriesAnalyticsPage({
         </Card>
       </div>
 
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">Books</CardTitle>
-          <CardDescription>Per-book progress</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          {books.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No books yet.</p>
-          ) : (
-            books.map((b) => (
-              <Link
-                key={b.id}
-                href={`/books/${b.id}`}
-                className="flex items-center justify-between rounded-md px-2 py-2 hover:bg-accent transition-colors"
-              >
-                <span className="text-sm font-medium">
-                  #{b.bookNumber} — {b.name}
-                </span>
+      {books.map((book) => {
+        const byStatus: Record<string, number> = {};
+        for (const ch of book.chapters) {
+          byStatus[ch.status] = (byStatus[ch.status] ?? 0) + 1;
+        }
+        const editedCount = book.chapters.filter((c) => c.status !== "planned" && c.status !== "drafted").length;
+        return (
+          <Card key={book.id}>
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base">
+                  #{book.bookNumber} — {book.name}
+                </CardTitle>
                 <span className="text-xs text-muted-foreground">
-                  {(b.wordCount ?? 0).toLocaleString()} words · {b.status}
+                  {(book.wordCount ?? 0).toLocaleString()} words
                 </span>
-              </Link>
-            ))
-          )}
-        </CardContent>
-      </Card>
+              </div>
+              <CardDescription>
+                {book.chapters.length} chapters · {editedCount} edited
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-1.5">
+                {Object.entries(byStatus).map(([status, count]) => (
+                  <span
+                    key={status}
+                    className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs"
+                  >
+                    {statusLabel(status)}: {count}
+                  </span>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
 }
