@@ -20,7 +20,7 @@ if (process.env.NODE_ENV === "production") {
     project: process.env.SENTRY_PROJECT,
     silent: !process.env.CI,
     widenClientFileUpload: true,
-    disableLogger: true,
+    disableLogger: false, // Changed from true - was hiding client errors
   });
 }
 

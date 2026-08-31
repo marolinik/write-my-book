@@ -15,6 +15,9 @@ import {
 import { PLANS } from "@/lib/billing/stripe-client";
 import { PricingSection } from "@/components/landing/pricing-section";
 import { FaqAccordion } from "@/components/landing/faq-accordion";
+import { ImprovedHero } from "@/components/landing/improved-hero";
+import { SocialProof } from "@/components/landing/social-proof";
+import { Testimonials } from "@/components/landing/testimonials";
 
 const FEATURE_SECTIONS = [
   {
@@ -188,87 +191,13 @@ export default async function Home() {
           }}
         />
 
-        {/* Hero Section (LAND-01) */}
-        <section className="py-20 lg:py-32">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="mx-auto max-w-4xl text-center">
-              <h1 className="font-display text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-                A Professional Publishing House
-                <br />
-                <span className="text-primary">In Your Browser</span>
-              </h1>
-              <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground leading-relaxed">
-                14 AI agents handle everything from drafting to dev editing, line
-                editing, beta reading, and export. You bring your voice; they bring the polish.
-              </p>
-              <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link
-                  href="/signup"
-                  className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-8 py-3.5 text-base font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-                >
-                  Start Writing Free
-                  <ArrowRightIcon className="size-4" />
-                </Link>
-                <a
-                  href="#how-it-works"
-                  className="inline-flex items-center justify-center rounded-md border border-input bg-background px-8 py-3.5 text-base font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
-                >
-                  See How It Works
-                </a>
-              </div>
-            </div>
+        {/* Hero Section - Improved */}
+        <ImprovedHero />
 
-            {/* Product preview — styled with the app's own type, not a fake screenshot */}
-            <div className="mx-auto mt-16 max-w-3xl">
-              <div className="rounded-xl border bg-card shadow-lg overflow-hidden">
-                <div className="flex items-center gap-1.5 border-b px-4 py-2.5">
-                  <span className="size-2.5 rounded-full bg-muted-foreground/20" />
-                  <span className="size-2.5 rounded-full bg-muted-foreground/20" />
-                  <span className="size-2.5 rounded-full bg-muted-foreground/20" />
-                  <span className="ml-3 text-xs text-muted-foreground">
-                    The Salt Letters: Chapter 1
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-[1fr_220px]">
-                  <div className="p-6 sm:p-8 font-serif text-sm leading-7 text-foreground/90 space-y-4">
-                    <p>
-                      The letter came on a Tuesday, and Imogen knew it was the
-                      last one before she even touched it.
-                    </p>
-                    <p>
-                      She was very still for a very long time, and the kettle
-                      went on boiling until Eluned reached past her and clicked
-                      it off.
-                    </p>
-                    <p className="text-muted-foreground italic">
-                      &ldquo;You&apos;re doing it again. The counting.&rdquo;
-                    </p>
-                  </div>
-                  <div className="border-t sm:border-t-0 sm:border-l bg-muted/40 p-4 space-y-3 text-xs">
-                    <div className="rounded-md border bg-background p-2.5">
-                      <p className="font-medium text-foreground">Style Fingerprint</p>
-                      <p className="mt-1 text-muted-foreground leading-relaxed">
-                        Bimodal rhythm, counting as emotional barometer
-                      </p>
-                    </div>
-                    <div className="rounded-md border bg-background p-2.5">
-                      <p className="font-medium text-foreground">Dev Edit</p>
-                      <p className="mt-1 text-muted-foreground leading-relaxed">
-                        5 findings, 1 critical
-                      </p>
-                    </div>
-                    <div className="rounded-md border bg-background p-2.5">
-                      <p className="font-medium text-foreground">Continuity</p>
-                      <p className="mt-1 text-muted-foreground leading-relaxed">
-                        3 flags cleared
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* Social Proof Section */}
+        <SocialProof />
+
+        {/* Feature Showcase (LAND-02) */}
 
         {/* Feature Showcase (LAND-02) */}
         <section id="features" className="border-t bg-muted/30 py-20 lg:py-28">
@@ -472,6 +401,9 @@ export default async function Home() {
             <FaqAccordion />
           </div>
         </section>
+
+        {/* Testimonials Section */}
+        <Testimonials />
 
         {/* Final CTA */}
         <section className="py-20 lg:py-28">

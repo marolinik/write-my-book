@@ -1,6 +1,7 @@
 import { Webhook } from "svix";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { logger } from "@/lib/logger";
 
 /** Clerk webhook handler with svix signature verification. */
 export async function POST(req: NextRequest) {
@@ -20,7 +21,7 @@ export async function POST(req: NextRequest) {
   // 3. Get the webhook secret
   const secret = process.env.CLERK_WEBHOOK_SECRET;
   if (!secret) {
-    console.error("CLERK_WEBHOOK_SECRET not set");
+    logger.error("CLERK_WEBHOOK_SECRET not set");
     return NextResponse.json(
       { error: "Webhook not configured" },
       { status: 500 }
@@ -39,7 +40,7 @@ export async function POST(req: NextRequest) {
       "svix-signature": svix_signature,
     }) as Record<string, unknown>;
   } catch (err) {
-    console.error("Webhook signature verification failed:", err);
+    logger.error("Webhook signature verification failed", err);
     return NextResponse.json(
       { error: "Invalid signature" },
       { status: 401 }
@@ -97,7 +98,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ received: true });
   } catch (error) {
-    console.error("Webhook error:", error);
+    logger.error(Webhook processing failed, error, { type, data });
     return NextResponse.json(
       { error: "Webhook processing failed" },
       { status: 500 }
