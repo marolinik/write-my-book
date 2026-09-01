@@ -87,12 +87,6 @@ export const PROVIDERS: ProviderDefinition[] = [
     iconName: "Zap",
   },
 ];
-/**
- * Custom providers extend the picker without touching ProviderKey — they are
- * stored in CustomProvider rows and surfaced via buildModelGroups(customModels).
- */
-export interface CustomProviderDefinition {}
-
 /** Look up a provider definition by key. Throws if not found. */
 export function getProvider(key: ProviderKey): ProviderDefinition {
   const provider = PROVIDERS.find((p) => p.key === key);

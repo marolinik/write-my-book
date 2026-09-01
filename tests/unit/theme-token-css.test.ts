@@ -33,7 +33,10 @@ function sourceFiles(): string[] {
     .filter((rel) => SCANNED_EXTENSIONS.some((ext) => rel.endsWith(ext)));
 }
 
-describe("D-195 — oklch tokens are not wrapped in hsl()", () => {
+// The sweep reads every file under src/ — on a cold FS cache with the full
+// parallel suite running (Windows), that exceeded the default 5s and timed
+// out as a flake. Give the I/O-bound tests headroom.
+describe("D-195 — oklch tokens are not wrapped in hsl()", { timeout: 60_000 }, () => {
   it("no file under src/ wraps a design token in hsl()", () => {
     const offenders = sourceFiles().flatMap((rel) => {
       const source = readFileSync(join(SRC, rel), "utf8");

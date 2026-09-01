@@ -52,6 +52,10 @@ vi.mock("@/hooks/use-api-keys", () => ({
   useAddApiKey: () => ({ mutateAsync: vi.fn(), isPending: false }),
   useDeleteApiKey: () => ({ mutateAsync: vi.fn(), isPending: false }),
 }));
+// caf8075 added custom-provider discovery to ModelSelectionSection (react-query).
+vi.mock("@/hooks/use-custom-providers", () => ({
+  useCustomProviders: () => ({ data: [], defs: [] }),
+}));
 
 import { ModelSelectionSection } from "@/components/settings/model-selection-section";
 import { ProviderCard } from "@/components/onboarding/provider-card";

@@ -37,6 +37,7 @@ async function main() {
       chapters: true,
       documents: true,
       editFindings: true,
+      _count: { select: { documents: true } },
       agentSessions: {
         select: {
           id: true,

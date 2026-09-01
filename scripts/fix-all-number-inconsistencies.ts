@@ -32,7 +32,7 @@ async function main() {
 
   let fixedBooks = 0;
   let fixedChapters = 0;
-  let fixedDocuments = 0;
+  const fixedDocuments = 0;
   let fixedFindings = 0;
 
   for (const book of books) {

@@ -59,8 +59,8 @@ export function ImprovedHero() {
               <ArrowRightIcon className="size-4" />
             </Link>
             <Link
-              href="#demo"
-              className="inline-flex items-center justify-center rounded-md border border-input bg-background px-8 py-3.5 text-base font-medium hover:bg-accent hover:text-accent-foreground transition-all"
+              href="/demo"
+              className="inline-flex items-center justify-center gap-2 rounded-md border border-input bg-background px-8 py-3.5 text-base font-medium hover:bg-accent hover:text-accent-foreground transition-all"
             >
               See Demo
             </Link>

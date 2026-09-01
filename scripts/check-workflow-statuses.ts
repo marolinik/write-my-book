@@ -187,10 +187,14 @@ async function main() {
       console.log(`\n  Book: ${book.name}`);
       
       for (const chapter of book.chapters) {
-        const chDocs = chapter.documents || [];
-        const hasDevEdit = chDocs.some(d => d.type === "DEV_EDIT_REPORT");
-        const hasLineEdit = chDocs.some(d => d.type === "LINE_EDIT_REPORT");
-        const hasBetaRead = chDocs.some(d => d.type === "BETA_READ_REPORT");
+        // Documents hang off the book (unique [bookId, type, chapterNumber]),
+        // so select this chapter's docs by number.
+        const chDocs = book.documents.filter(
+          (d) => d.chapterNumber === chapter.chapterNumber
+        );
+        const hasDevEdit = chDocs.some((d) => d.type === "DEV_EDIT_REPORT");
+        const hasLineEdit = chDocs.some((d) => d.type === "LINE_EDIT_REPORT");
+        const hasBetaRead = chDocs.some((d) => d.type === "BETA_READ_REPORT");
 
         const expectedStatus = hasBetaRead ? "beta_read/beta_passed" : hasLineEdit ? "line_edited" : hasDevEdit ? "dev_edited" : "drafted";
         

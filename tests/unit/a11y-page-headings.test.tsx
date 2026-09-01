@@ -35,6 +35,9 @@ vi.mock("@/hooks/use-default-model", () => ({
   useUpdateGlobalRoleOverride: () => ({ mutate: vi.fn() }),
 }));
 vi.mock("@/hooks/use-api-keys", () => ({ useApiKeys: () => ({ data: [] }) }));
+vi.mock("@/hooks/use-custom-providers", () => ({
+  useCustomProviders: () => ({ data: [], defs: [] }),
+}));
 // Stub the model picker so the heading assertion does not depend on Select internals.
 vi.mock("@/components/settings/model-picker", () => ({ ModelPicker: () => null }));
 

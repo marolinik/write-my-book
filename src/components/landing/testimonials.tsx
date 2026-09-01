@@ -3,6 +3,7 @@
  * Shows real examples of books published with AI assistance
  */
 
+import Link from "next/link";
 import { QuoteIcon } from "lucide-react";
 
 interface Testimonial {
@@ -86,13 +87,13 @@ export function Testimonials() {
         </div>
 
         <div className="mt-12 text-center">
-          <a
-            href="#demo"
+          <Link
+            href="/demo"
             className="inline-flex items-center gap-2 rounded-md border border-input bg-background px-6 py-2.5 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
           >
-            See More Success Stories
+            See the Demo
             <span>→</span>
-          </a>
+          </Link>
         </div>
       </div>
     </section>
