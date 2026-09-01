@@ -110,13 +110,30 @@ test.describe("Full Writing Workflow Smoke Test", () => {
   test("Step 4 — Create chapter 1", async ({ request }) => {
     expect(bookId).toBeTruthy();
 
+    // POST /api/books already seeded a titleless placeholder Ch1 (D-194), so
+    // the create here is an adopt-when-present flow: 201 on a book without the
+    // placeholder, 409 when it exists — both mean "chapter 1 is there".
     const res = await request.post(`/api/books/${bookId}/chapters`, {
       data: { chapterNumber: 1, actNumber: 1, title: "The Awakening" },
     });
-    expect(res.status()).toBe(201);
-    const data = await res.json();
-    expect(data.id).toBeTruthy();
-    chapterId = data.id;
+    expect([201, 409]).toContain(res.status());
+    if (res.status() === 201) {
+      const data = await res.json();
+      expect(data.id).toBeTruthy();
+      chapterId = data.id;
+    } else {
+      const list = (await (
+        await request.get(`/api/books/${bookId}/chapters`)
+      ).json()) as Array<{ id: string; chapterNumber: number }>;
+      const placeholder = list.find((c) => c.chapterNumber === 1);
+      expect(placeholder).toBeTruthy();
+      chapterId = placeholder!.id;
+      const rename = await request.patch(
+        `/api/books/${bookId}/chapters/${chapterId}`,
+        { data: { title: "The Awakening" } }
+      );
+      expect(rename.ok()).toBeTruthy();
+    }
   });
 
   // ─── Step 5: Plan chapter 1 ───────────────────────────────────

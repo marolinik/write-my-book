@@ -45,6 +45,11 @@ export async function createBookViaApi(
 
 /**
  * Create a chapter via the API. Returns `{ id, chapterNumber, title }`.
+ *
+ * Idempotent: `POST /api/books` auto-creates a titleless placeholder Chapter 1
+ * (src/app/api/books/route.ts, D-194), so a spec that creates "its" chapter 1
+ * on a fresh book hits the @@unique([bookId, chapterNumber]) guard and a 409.
+ * When that happens we adopt the placeholder (PATCH title) instead of failing.
  */
 export async function createChapterViaApi(
   request: APIRequestContext,
@@ -59,6 +64,29 @@ export async function createChapterViaApi(
     },
   });
   if (!res.ok()) {
+    if (res.status() === 409) {
+      const existing = await request.get(`/api/books/${bookId}/chapters`);
+      if (existing.ok()) {
+        const list = (await existing.json()) as Array<{
+          id: string;
+          chapterNumber: number;
+          title: string | null;
+        }>;
+        const match = list.find((c) => c.chapterNumber === data.chapterNumber);
+        if (match) {
+          const patched = await request.patch(
+            `/api/books/${bookId}/chapters/${match.id}`,
+            { data: { title: data.title } }
+          );
+          if (!patched.ok()) {
+            throw new Error(
+              `createChapterViaApi adopt-fallback PATCH failed: ${patched.status()} ${await patched.text()}`
+            );
+          }
+          return { id: match.id, chapterNumber: data.chapterNumber, title: data.title };
+        }
+      }
+    }
     throw new Error(
       `createChapterViaApi failed: ${res.status()} ${await res.text()}`
     );
@@ -102,7 +130,11 @@ export async function createFindingViaApi(
     description: data.description,
   };
   if (data.originalText) finding.originalText = data.originalText;
-  if (data.suggestedText) finding.suggestedText = data.suggestedText;
+  // The server's create schema is `newText` (src/lib/validation.ts:371) —
+  // `suggestedText` does not exist in src/ and was silently dropped, leaving
+  // findings with no replacement text: auto-apply then hit the D-41a
+  // destructive guard (422) and the card stayed "pending".
+  if (data.suggestedText) finding.newText = data.suggestedText;
   if (data.suggestion) finding.suggestion = data.suggestion;
   if (data.position) finding.position = data.position;
 

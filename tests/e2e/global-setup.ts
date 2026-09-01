@@ -44,15 +44,31 @@ export default async function globalSetup() {
     }
 
     // Upsert test user
-    await client.query(
+    const {
+      rows: [user],
+    } = await client.query(
       `INSERT INTO users (id, clerk_id, email, display_name, created_at, updated_at)
        VALUES (gen_random_uuid(), $1, $2, $3, NOW(), NOW())
        ON CONFLICT (clerk_id)
-       DO UPDATE SET email = $2, display_name = $3, updated_at = NOW()`,
+       DO UPDATE SET email = $2, display_name = $3, updated_at = NOW()
+       RETURNING id`,
       [E2E_CLERK_ID, "e2e@test.local", "E2E Tester"]
     );
 
-    console.log("[global-setup] Test user seeded:", E2E_CLERK_ID);
+    // Grant the E2E identity a paid plan. The suite is fullyParallel: every
+    // spec creates books via the API, and the single shared user would hit the
+    // Free-tier 1-book cap (403) for all but the first spec to finish.
+    // Free-tier behaviour itself is covered by dedicated specs that manage the
+    // subscription row explicitly.
+    await client.query(
+      `INSERT INTO subscriptions (id, user_id, plan, status, created_at, updated_at)
+       VALUES (gen_random_uuid(), $1, 'professional', 'active', NOW(), NOW())
+       ON CONFLICT (user_id)
+       DO UPDATE SET plan = 'professional', status = 'active', updated_at = NOW()`,
+      [user.id]
+    );
+
+    console.log("[global-setup] Test user seeded:", E2E_CLERK_ID, "(plan: professional/active)");
   } finally {
     client.release();
     await pool.end();

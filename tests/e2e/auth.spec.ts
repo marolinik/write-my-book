@@ -9,7 +9,10 @@ test.describe("Authentication", () => {
 
   test("signup page renders", async ({ page }) => {
     await page.goto("/signup");
-    await expect(page).toHaveURL(/signup|sign-up/);
+    // The suite sends the E2E bypass on every request, so /signup is treated as
+    // authenticated and Clerk redirects to the dashboard — same contract as the
+    // login test above.
+    await expect(page).toHaveURL(/signup|sign-up|dashboard/);
   });
 
   test("unauthenticated user sees landing page at root", async ({ page }) => {
