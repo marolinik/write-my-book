@@ -26,8 +26,9 @@ env:
   DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/writemybook?schema=public"
   API_KEY_ENCRYPTION_SECRET: "changeme-generate-with-openssl-rand-hex-32-xxxx"
   NEXT_PUBLIC_APP_URL: "http://localhost:3000"
-  DEV_AUTH_BYPASS: "false"
   E2E_TEST_SECRET: "ci-e2e-secret-not-for-production"
+  PLAYWRIGHT_BASE_URL: "http://localhost:3000"
+  DEV_AUTH_BYPASS: "false"
   # Syntactically-valid fakes (decode to clerk.example.test); the suite never
   # exercises Clerk UI — page identity comes from the x-e2e-test-secret header.
   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_test_Y2xlcmsuZXhhbXBsZS50ZXN0JA"
