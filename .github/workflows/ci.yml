@@ -40,6 +40,15 @@ env:
   S3_ACCESS_KEY_ID: "placeholder"
   S3_SECRET_ACCESS_KEY: "placeholder"
   S3_BUCKET: "placeholder"
+  # Validation-only dummies for the prod compose topology check: the prod
+  # overlay hard-requires these via ${VAR:?} (operators must supply real
+  # values at deploy time); `config` only interpolates, never connects.
+  POSTGRES_PASSWORD: "ci-validation-postgres"
+  REDIS_PASSWORD: "ci-validation-redis"
+  MINIO_ROOT_USER: "ci-validation-minio"
+  MINIO_ROOT_PASSWORD: "ci-validation-minio"
+  NEO4J_PASSWORD: "ci-validation-neo4j"
+  QDRANT_API_KEY: "ci-validation-qdrant"
   OPENAI_API_KEY: ""
   OPENROUTER_API_KEY: ""
   ANTHROPIC_API_KEY: ""
