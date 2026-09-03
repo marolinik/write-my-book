@@ -20,16 +20,13 @@ export default defineConfig({
     // page-fail/API-pass pattern this default prevents.
     baseURL: process.env.PLAYWRIGHT_BASE_URL || "http://127.0.0.1:3000",
     trace: "on-first-retry",
-    // Local e2e talks to the local dev server only; force direct
-    // connections, the system-free resolver path, and an unsandboxed
-    // browser so restricted CI containers / hardened Windows boxes (where
-    // Chromium's sandboxed network utility process cannot open sockets —
-    // misreported as ERR_NAME_NOT_RESOLVED for every URL, even IP literals)
-    // run identically instead of flaking on environment.
-    launchOptions: {
-      chromiumSandbox: false,
-      args: ["--no-proxy-server", "--disable-async-dns", "--disable-dev-shm-usage"],
-    },
+    // NOTE: launch flags that "harden" networking (--no-proxy-server,
+    // --disable-async-dns, chromiumSandbox:false) were tried here and are
+    // BANNED: they poison navigation on GitHub runners (ERR_NAME_NOT_
+    // RESOLVED on every page.goto, 43/127) while helping nothing. The
+    // 2026-08-31 flagless config is the witnessed-good baseline — keep the
+    // launcher plain. Workstation-side browser blocks are environmental
+    // (see docs/HARDENING-2026-09-02.md); this suite's canonical home is CI.
     extraHTTPHeaders: {
       "x-e2e-test-secret": process.env.E2E_TEST_SECRET || "test-secret",
     },
