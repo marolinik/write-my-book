@@ -34,12 +34,6 @@ env:
   PLAYWRIGHT_BASE_URL: "http://127.0.0.1:3000"
   NO_PROXY: "*"
   no_proxy: "*"
-  # GitHub runners: browsers cannot resolve 'localhost' (hosts file missing
-  # entry). Playwright's webServer.url defaults to the same env value for
-  # readiness checks; browsers need the IP literal.
-  PLAYWRIGHT_BASE_URL: "http://127.0.0.1:3000"
-  NO_PROXY: "*"
-  no_proxy: "*"
   # Syntactically-valid fakes (decode to clerk.example.test); the suite never
   # exercises Clerk UI — page identity comes from the x-e2e-test-secret header.
   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_test_Y2xlcmsuZXhhbXBsZS50ZXN0JA"
