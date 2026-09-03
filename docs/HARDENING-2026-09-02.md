@@ -157,3 +157,18 @@ suite therefore needs an environment with sane browser networking — which is
 exactly what `.github/workflows/e2e.yml` now provides on every push/PR:
 production compose services + real Chromium + the full suite, with the HTML
 report uploaded on failure.
+
+**CI red streak (same day, found while landing the e2e job):** the
+golden-path gate had been failing on EVERY push since ~Aug 29 — the
+"Validate Docker Compose production topology" step interpolates the prod
+overlay, which hard-requires six secrets via `${VAR:?}`; `ci.yml` never set
+them (local runs passed because docker compose silently loads `.env`).
+Everything after that step — lint, tsc, unit suite, build — consequently
+NEVER RAN IN CI for weeks. Fixed with validation-only dummies; the local
+reproduction of the exact step (empty env file) now exits 0. The unit/tsc/
+build claims in this document stand on their own local re-runs.
+
+Note: the `playwright.config.ts` resilience flags help restricted CI
+containers but could NOT override the machine-wide browser block on the
+development workstation — that one is environment-side and is why the CI
+job exists.
