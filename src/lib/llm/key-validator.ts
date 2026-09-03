@@ -14,6 +14,20 @@ export interface KeyValidationResult {
 const VALIDATION_TIMEOUT_MS = 10_000;
 
 /**
+ * WMB_LLM_FORCE_LOCAL=1 — the self-hosted local-testing overlay. client-factory
+ * routes EVERY inference call through the operator-configured local gateway
+ * (WMB_LOCAL_PROXY_URL) and the stored key is never used upstream. Validating
+ * the key against the REAL provider would then reject exactly the keys that
+ * work in this mode — the honest probe is the gateway itself. The candidate
+ * key is sent ONLY to the operator's own proxy URL (identical trust boundary
+ * to client-factory; nothing is leaked to third parties in this mode).
+ */
+function forceLocalGatewayUrl(): string {
+  const base = process.env.WMB_LOCAL_PROXY_URL || "http://local-llm-proxy:30400";
+  return `${base.replace(/\/+$/, "")}/v1/messages`;
+}
+
+/**
  * Validate an API key by making a lightweight request to the provider.
  * Returns { valid: true } on success (200 or 429), { valid: false, error } otherwise.
  */
@@ -21,6 +35,37 @@ export async function validateApiKey(
   provider: ProviderKey,
   key: string
 ): Promise<KeyValidationResult> {
+  if (process.env.WMB_LLM_FORCE_LOCAL === "1") {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), VALIDATION_TIMEOUT_MS);
+    try {
+      const res = await fetch(forceLocalGatewayUrl(), {
+        method: "POST",
+        signal: controller.signal,
+        headers: {
+          "x-api-key": key,
+          "anthropic-version": "2023-06-01",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          // The local proxy rewrites every model to its single served model
+          // (see local-llm-proxy.py); the registry id is a stable sentinel.
+          model: "local/qwen38",
+          max_tokens: 1,
+          messages: [{ role: "user", content: "hi" }],
+        }),
+      });
+      if (res.ok || res.status === 429) {
+        return { valid: true };
+      }
+      return { valid: false, error: `Local LLM gateway rejected the request (HTTP ${res.status})` };
+    } catch {
+      return { valid: false, error: "Local LLM gateway unreachable (WMB_LOCAL_PROXY_URL)" };
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
   const providerDef = getProvider(provider);
 
   try {

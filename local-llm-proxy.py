@@ -140,12 +140,26 @@ def anthropic_to_openai(body):
                 },
             })
 
+    # Caller reasoning opt-out: the quick-assist surfaces (ghost-text,
+    # inline-edit) cannot pay for thinking blocks out of their tiny token
+    # budgets (D-100) and send OpenRouter-style reasoning={"enabled":false}
+    # (or effort "none") — the local route delivers that directive through
+    # this translator, which maps it (or Anthropic's thinking.disabled) to
+    # the upstream "none" effort. Anything else keeps the operator default.
+    effort = REASONING_EFFORT
+    th = body.get("thinking")
+    if isinstance(th, dict) and th.get("type") == "disabled":
+        effort = "none"
+    rs = body.get("reasoning")
+    if isinstance(rs, dict) and (rs.get("enabled") is False or rs.get("effort") == "none"):
+        effort = "none"
+
     req = {
         "model": MODEL,
         "messages": messages,
         "max_tokens": body.get("max_tokens", 4096),
         "temperature": body.get("temperature", 1.0),
-        "reasoning_effort": REASONING_EFFORT,
+        "reasoning_effort": effort,
     }
     if tools:
         req["tools"] = tools

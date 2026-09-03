@@ -148,8 +148,11 @@ Provide ${data.count} alternative rewrites as a JSON array.`;
     // usage_record for a suggestion no one will ever see. Stage 1 keeps this
     // route atomic JSON (Stage 2 streams it via the shared gate).
     const startedAt = Date.now();
+    // D-100 + local overlay: the WMB translator (provider "local") honors the
+    // reasoning.effort="none" directive like OpenRouter does; the real direct
+    // Anthropic route must never receive it.
     const response = await client.messages.create(
-      route.route === "openrouter"
+      route.route === "openrouter" || model.provider === "local"
         ? withQuickAssistReasoning(baseParams)
         : baseParams,
       { signal: req.signal, timeout: QUICK_ASSIST_TIMEOUT_INLINE_MS }

@@ -50,7 +50,21 @@ test.describe("API Key Management", () => {
       },
     });
 
-    // Key validation should fail — provider rejects fake key
+    // Key validation should fail — provider rejects fake key.
+    // Under the local-LLM overlay (WMB_LLM_FORCE_LOCAL=1) validation is
+    // performed by the local gateway, which accepts any key by design (the
+    // key is never used upstream) — storing then SUCCEEDS, and the rest of
+    // this serial suite (last-key protection) keeps working on the stored key.
+    if (process.env.WMB_LLM_FORCE_LOCAL === "1") {
+      expect([200, 201]).toContain(res.status());
+      const data = await res.json();
+      expect(data.provider).toBe("anthropic");
+      // mask keeps prefix+…+tail — assert it is masked, never the full key
+      expect(data.maskedKey).toBeTruthy();
+      expect(data.maskedKey).not.toBe("sk-ant-test-definitely-not-a-real-key-1234567890");
+      return;
+    }
+
     // Could be 400 (validation failed) or 401 (auth issue)
     if (res.status() === 400) {
       const data = await res.json();

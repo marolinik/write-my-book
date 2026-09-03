@@ -134,6 +134,10 @@ Rules:
     // budget isn't burned entirely on thinking blocks. `reasoning` is an
     // OpenRouter parameter — never sent on the direct Anthropic route, which
     // rejects the unknown field (Anthropic gates thinking via `thinking`).
+    // The WMB local-LLM translator (provider "local") speaks the same
+    // directive and maps it to its upstream's "none" effort — the local
+    // generalist IS a reasoning model and would otherwise starve the budget.
+    const localTranslator = model.provider === "local";
     const baseParams = {
       model: model.modelId,
       max_tokens: 60,
@@ -141,7 +145,7 @@ Rules:
       messages: [{ role: "user" as const, content: data.context }],
     };
     const streamBody =
-      route.route === "openrouter"
+      route.route === "openrouter" || localTranslator
         ? withQuickAssistReasoning(baseParams)
         : baseParams;
 
