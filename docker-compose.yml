@@ -121,7 +121,10 @@ services:
       qdrant:
         condition: service_healthy
     env_file:
-      - .env.docker
+      # Present on dev/operator boxes; optional so CI topology validation
+      # and clean clones still work. In-network wiring below is authoritative.
+      - path: .env.docker
+        required: false
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/writemybook?schema=public
       REDIS_URL: redis://:${REDIS_PASSWORD:-wmb-redis-prod}@redis:6379
@@ -159,7 +162,10 @@ services:
       qdrant:
         condition: service_healthy
     env_file:
-      - .env.docker
+      # Present on dev/operator boxes; optional so CI topology validation
+      # and clean clones still work. In-network wiring below is authoritative.
+      - path: .env.docker
+        required: false
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/writemybook?schema=public
       REDIS_URL: redis://:${REDIS_PASSWORD:-wmb-redis-prod}@redis:6379

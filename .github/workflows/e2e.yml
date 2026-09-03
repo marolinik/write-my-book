@@ -87,13 +87,12 @@ jobs:
         run: npx prisma generate
 
       - name: Start services (production compose, minus app/worker)
-        # minio-init is deliberately NOT in --wait: compose exits 1 for
-        # one-shot services even when they succeed (exit 0). Bucket init
-        # runs standalone on the compose network instead.
+        # minio-init is not in --wait (compose exits 1 for one-shot services
+        # even on exit 0); it is run explicitly instead, which also verifies
+        # the bucket creation end to end via its exit code.
         run: |
           docker compose up -d --wait postgres redis minio neo4j qdrant
-          docker run --rm --network write-my-book_default minio/mc sh -c \
-            "mc alias set wmb http://minio:9000 wmb-minio wmb-minio-prod && mc mb --ignore-existing wmb/wmb-projects"
+          docker compose run --rm --no-deps minio-init
 
       - name: Push database schema
         run: npx prisma db push
