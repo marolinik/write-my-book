@@ -26,9 +26,20 @@ env:
   DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/writemybook?schema=public"
   API_KEY_ENCRYPTION_SECRET: "changeme-generate-with-openssl-rand-hex-32-xxxx"
   NEXT_PUBLIC_APP_URL: "http://localhost:3000"
-  E2E_TEST_SECRET: "ci-e2e-secret-not-for-production"
-  PLAYWRIGHT_BASE_URL: "http://localhost:3000"
   DEV_AUTH_BYPASS: "false"
+  E2E_TEST_SECRET: "ci-e2e-secret-not-for-production"
+  # GitHub runners lack a 'localhost' hosts entry; browser navigation to
+  # that hostname fails ERR_NAME_NOT_RESOLVED. Playwright webServer.url and
+  # baseURL both use this env, so browsers hit the IP literal.
+  PLAYWRIGHT_BASE_URL: "http://127.0.0.1:3000"
+  NO_PROXY: "*"
+  no_proxy: "*"
+  # GitHub runners: browsers cannot resolve 'localhost' (hosts file missing
+  # entry). Playwright's webServer.url defaults to the same env value for
+  # readiness checks; browsers need the IP literal.
+  PLAYWRIGHT_BASE_URL: "http://127.0.0.1:3000"
+  NO_PROXY: "*"
+  no_proxy: "*"
   # Syntactically-valid fakes (decode to clerk.example.test); the suite never
   # exercises Clerk UI — page identity comes from the x-e2e-test-secret header.
   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_test_Y2xlcmsuZXhhbXBsZS50ZXN0JA"
