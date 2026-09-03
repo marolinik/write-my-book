@@ -14,11 +14,11 @@ export function ImprovedHero() {
       
       <div className="container relative mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl text-center">
-          {/* Social proof badge */}
+          {/* Value badge — truthful product facts only */}
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border bg-background/50 px-4 py-1.5 text-sm backdrop-blur">
             <SparklesIcon className="size-4 text-primary" />
             <span className="text-muted-foreground">
-              <strong>2,500+</strong> writers trust WriteMyBook
+              <strong>14 specialist AI agents</strong> for your manuscript
             </span>
             <CheckIcon className="size-3.5 text-green-500" />
           </div>
@@ -94,7 +94,7 @@ export function ImprovedHero() {
                   until Eluned reached past her and switched it off.
                 </p>
                 <p className="text-muted-foreground italic">
-                  "You're doing it again," Eluned said. "Counting the seconds."
+                  “You’re doing it again,” Eluned said. “Counting the seconds.”
                 </p>
               </div>
               <div className="border-t sm:border-t-0 sm:border-l bg-muted/40 p-4 space-y-3 text-xs">

@@ -17,7 +17,7 @@ import { PricingSection } from "@/components/landing/pricing-section";
 import { FaqAccordion } from "@/components/landing/faq-accordion";
 import { ImprovedHero } from "@/components/landing/improved-hero";
 import { SocialProof } from "@/components/landing/social-proof";
-import { Testimonials } from "@/components/landing/testimonials";
+import { PlatformPromise } from "@/components/landing/platform-promise";
 
 const FEATURE_SECTIONS = [
   {
@@ -402,8 +402,8 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* Testimonials Section */}
-        <Testimonials />
+        {/* Platform Promise Section (replaces fabricated testimonials) */}
+        <PlatformPromise />
 
         {/* Final CTA */}
         <section className="py-20 lg:py-28">
