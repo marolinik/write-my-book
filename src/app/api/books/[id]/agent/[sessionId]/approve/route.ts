@@ -61,6 +61,18 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         );
       }
 
+      // M1 hardening: approval keys live at a GLOBAL Redis address. The URL
+      // session was already ownership-checked against the DB above — now the
+      // pending record must also NAME that session (stamped by the worker).
+      // A leaked approvalId (broadcast/replayed in session message lists)
+      // can therefore no longer resolve another tenant's gate.
+      if (parsed.sessionId !== sessionId) {
+        return NextResponse.json(
+          { error: "Approval not found or expired" },
+          { status: 404 }
+        );
+      }
+
       // Write resolved state — worker polls this key every 2 seconds
       await redis.set(
         approvalKey,
@@ -68,6 +80,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
           status: "resolved",
           decision: data.decision,
           message: data.message,
+          sessionId,
         }),
         "EX",
         600 // 10 min TTL

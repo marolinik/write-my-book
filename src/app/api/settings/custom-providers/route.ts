@@ -5,12 +5,26 @@ import { db } from "@/lib/db";
 import { encryptApiKey, decryptApiKey } from "@/lib/encryption";
 import { zodErrorResponse } from "@/lib/api/zod-error";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import {
+  UnsafeUrlError,
+  allowPrivateModelHosts,
+  readCappedText,
+  safeExternalFetch,
+} from "@/lib/ssrf-guard";
 
 /**
  * Custom providers — user-added OpenAI-compatible endpoints (LAN vLLM boxes,
  * corporate proxies, self-hubs). Saved per user; discovery against
  * `${baseURL}/models` runs on save so the Settings picker always lists
  * what the endpoint actually serves (never stale).
+ *
+ * SECURITY: the discovery fetch runs SERVER-SIDE against a user-supplied URL.
+ * Every hop is validated by the shared SSRF guard (src/lib/ssrf-guard.ts):
+ * cloud metadata/link-local are always blocked; private LAN ranges only pass
+ * when the operator opted in via WMB_ALLOW_PRIVATE_MODEL_HOSTS=1 (self-hosted
+ * LAN boxes are a supported use case; hosted multi-tenant must not set it).
+ * A validated provider URL is only ever used here — saved providers reach
+ * inference through the env-configured local proxy route, never re-fetched.
  */
 
 const WIRE_APIS = ["openai-completions"] as const;
@@ -32,23 +46,42 @@ interface DiscoveredModel {
 /** Fetch `${baseURL}/models` (OpenAI shape), bound 4MB, parse entries. */
 async function discoverModels(baseURL: string, apiKey?: string): Promise<DiscoveredModel[]> {
   const url = `${baseURL.replace(/\/+$/, "")}/models`;
+  const allowPrivate = allowPrivateModelHosts();
   let response;
   try {
-    response = await fetch(url, {
-      headers: {
-        accept: "application/json",
-        ...(apiKey ? { authorization: `Bearer ${apiKey}` } : {}),
+    response = await safeExternalFetch(
+      url,
+      {
+        headers: {
+          accept: "application/json",
+          ...(apiKey ? { authorization: `Bearer ${apiKey}` } : {}),
+        },
+        signal: AbortSignal.timeout(15000),
       },
-      signal: AbortSignal.timeout(15000),
-    });
+      { allowPrivate }
+    );
   } catch (error) {
-    throw new Error(`Could not reach ${url} — check the base URL and your network.`);
+    if (error instanceof UnsafeUrlError) {
+      // Refuse with a neutral message — never echo which internal probe
+      // "worked" (pre-fix the error oracle enabled port scanning).
+      throw new Error(
+        allowPrivate
+          ? "That base URL points at a blocked internal range."
+          : "That base URL is not a publicly reachable endpoint. Self-hosted LAN providers require WMB_ALLOW_PRIVATE_MODEL_HOSTS=1 on the server."
+      );
+    }
+    throw new Error("Could not reach the endpoint — check the base URL and your network.");
   }
   if (!response.ok) {
     throw new Error(`${url} answered ${response.status}${response.status === 401 || response.status === 403 ? " — check the API key." : ""}`);
   }
-  const text = await response.text().catch(() => "");
-  if (text.length > 4 * 1024 * 1024) throw new Error("Listing bigger than 4MB — endpoint unusable.");
+  let text: string;
+  try {
+    text = await readCappedText(response, 4 * 1024 * 1024);
+  } catch {
+    throw new Error("Listing bigger than 4MB — endpoint unusable.");
+  }
+  if (text.length === 0) throw new Error(`${url} did not answer with JSON.`);
   let body: unknown;
   try { body = JSON.parse(text); } catch { throw new Error(`${url} did not answer with JSON.`); }
   const data = (body as { data?: unknown }).data;

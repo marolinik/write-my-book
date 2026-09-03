@@ -34,7 +34,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 const h = vi.hoisted(() => ({
   db: {
-    document: { create: vi.fn(), findUnique: vi.fn() },
+    document: { create: vi.fn(), findFirst: vi.fn(), updateMany: vi.fn() },
     documentVersion: { create: vi.fn() },
   },
   storage: { write: vi.fn(), read: vi.fn(), delete: vi.fn() },
@@ -90,7 +90,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   h.db.document.create.mockResolvedValue({ id: "doc1" });
   h.db.documentVersion.create.mockResolvedValue({ id: "v1", version: 1 });
-  h.db.document.findUnique.mockResolvedValue({
+  h.db.document.findFirst.mockResolvedValue({
     id: "doc1",
     storageKey: "k",
     currentVersion: 1,

@@ -3,7 +3,13 @@ const normalized = baseUrl.replace(/\/$/, "");
 
 async function check(path: string) {
   const started = Date.now();
-  const res = await fetch(`${normalized}${path}`, { headers: { accept: "application/json" } });
+  const token = process.env.HEALTH_TOKEN?.trim();
+  const res = await fetch(`${normalized}${path}`, {
+    headers: {
+      accept: "application/json",
+      ...(token ? { "x-health-token": token } : {}),
+    },
+  });
   const text = await res.text();
   let body: unknown;
   try {

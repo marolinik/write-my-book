@@ -45,6 +45,10 @@ services:
       LOCAL_LLM_BASE_URL: ${LOCAL_LLM_BASE_URL:-http://10.33.0.153:8888/v1}
       LOCAL_LLM_MODEL: ${LOCAL_LLM_MODEL:-Qwen3.8-Flash-Next-NVFP4}
       LOCAL_LLM_REASONING_EFFORT: ${LOCAL_LLM_REASONING_EFFORT:-medium}
+      # This overlay's whole purpose is LAN endpoints, so custom-provider
+      # base URLs may resolve to private ranges here (cloud metadata stays
+      # blocked regardless). Hosted deployments must NEVER set this.
+      WMB_ALLOW_PRIVATE_MODEL_HOSTS: "1"
 
   worker:
     depends_on:
@@ -53,3 +57,4 @@ services:
     environment:
       WMB_LLM_FORCE_LOCAL: ${WMB_LLM_FORCE_LOCAL:-1}
       WMB_LOCAL_PROXY_URL: http://local-llm-proxy:30400
+      WMB_ALLOW_PRIVATE_MODEL_HOSTS: "1"

@@ -31,10 +31,15 @@ function nowMs() {
 }
 
 function sanitizeMessage(error: unknown): string {
-  if (error instanceof Error && error.message) {
-    return error.message.split("\n")[0].slice(0, 180);
+  if (!(error instanceof Error) || !error.message) return "Dependency check failed";
+  if (process.env.NODE_ENV === "production") {
+    // H3: raw driver errors echo internal host:port pairs ("connect
+    // ECONNREFUSED 10.0.x.y:6379"). Untrusted production callers see
+    // classification only; operators get first lines in the server logs
+    // and, with HEALTH_TOKEN, in the authorized response path.
+    return /timed out/i.test(error.message) ? "check timed out" : "check failed";
   }
-  return "Dependency check failed";
+  return error.message.split("\n")[0].slice(0, 180);
 }
 
 async function withTimeout<T>(promise: Promise<T>, timeoutMs = CHECK_TIMEOUT_MS): Promise<T> {
@@ -146,7 +151,33 @@ async function optionalCheck(
   return runCheck(name, false, check);
 }
 
+// H3 DoS hardening: each real check opens ~6 outbound probes (DB, schema
+// ×4 information_schema, Redis, S3, Qdrant, Neo4j). Uncached anonymous
+// hits would multiply that into a pool-exhaustion flood, so results are
+// cached briefly and concurrent callers collapse onto one in-flight run.
+const CACHE_MS = 15_000;
+let cached: { expiresAt: number; value: DependencyReadinessResult } | null = null;
+let inflight: Promise<DependencyReadinessResult> | null = null;
+
+/** Drop the readiness cache (tests / forced recheck after remediation). */
+export function resetDependencyCheckCache() {
+  cached = null;
+}
+
 export async function checkDependencies(): Promise<DependencyReadinessResult> {
+  if (cached && cached.expiresAt > Date.now()) return cached.value;
+  if (inflight) return inflight;
+  inflight = (async () => {
+    const result = await runDependencyChecks();
+    cached = { expiresAt: Date.now() + CACHE_MS, value: result };
+    return result;
+  })().finally(() => {
+    inflight = null;
+  });
+  return inflight;
+}
+
+async function runDependencyChecks(): Promise<DependencyReadinessResult> {
   const env = envHealth("web");
   const checks = await Promise.all([
     Promise.resolve({

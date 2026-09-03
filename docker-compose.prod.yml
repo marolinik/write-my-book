@@ -41,6 +41,14 @@ services:
     environment:
       NODE_ENV: production
       NEO4J_PASSWORD: ${NEO4J_PASSWORD:?NEO4J_PASSWORD must be set for production}
+      # Optional: full /api/health/dependencies detail for external probes
+      # (smoke CI). Anonymous callers always get only the verdict; container
+      # loopback healthchecks always get full detail. Leave unset to run
+      # tokenless (still sanitized for the public internet).
+      HEALTH_TOKEN: ${HEALTH_TOKEN:-}
+      # HARD REQUIREMENT: multi-tenant/hosted prod never serves user-defined
+      # private-IP model endpoints. Do not set this in production.
+      # (The opt-in lives in docker-compose.local-llm.yml for self-hosters.)
 
   worker:
     environment:

@@ -7,7 +7,7 @@ const h = vi.hoisted(() => ({
   constructEvent: vi.fn(),
   retrieve: vi.fn(),
   db: {
-    stripeWebhookEvent: { create: vi.fn() },
+    stripeWebhookEvent: { create: vi.fn(), deleteMany: vi.fn() },
     founderSlot: { create: vi.fn() },
     subscription: {
       upsert: vi.fn(),
@@ -50,6 +50,7 @@ beforeEach(() => {
   process.env.STRIPE_WEBHOOK_SECRET = "whsec_test";
   // New event by default (dedup insert succeeds).
   h.db.stripeWebhookEvent.create.mockResolvedValue({});
+  h.db.stripeWebhookEvent.deleteMany.mockResolvedValue({ count: 0 });
   h.db.founderSlot.create.mockResolvedValue({});
   h.db.subscription.upsert.mockResolvedValue({});
   h.db.subscription.update.mockResolvedValue({});
@@ -141,5 +142,45 @@ describe("POST /api/billing/webhook", () => {
     expect(h.db.stripeWebhookEvent.create).not.toHaveBeenCalled();
     expect(h.db.subscription.upsert).not.toHaveBeenCalled();
     expect(h.db.subscription.update).not.toHaveBeenCalled();
+  });
+
+  it("deduplicates a redelivered event (P2002 claim) without side effects", async () => {
+    h.db.stripeWebhookEvent.create.mockRejectedValueOnce({ code: "P2002" });
+    h.constructEvent.mockReturnValue({
+      id: "evt_dup",
+      type: "checkout.session.completed",
+      data: { object: { subscription: "sub_123", customer: "cus_123", metadata: { userId: "u1", plan: "indie" } } },
+    });
+
+    const res = await POST(req() as never);
+    expect(res.status).toBe(200);
+    await expect(res.json()).resolves.toEqual({ received: true, deduplicated: true });
+    expect(h.db.subscription.upsert).not.toHaveBeenCalled();
+  });
+
+  it("H4: releases the claim and returns 500 when handling throws, so Stripe retries", async () => {
+    h.constructEvent.mockReturnValue({
+      id: "evt_boom",
+      type: "checkout.session.completed",
+      data: {
+        object: {
+          subscription: "sub_boom",
+          customer: "cus_123",
+          metadata: { userId: "u1", plan: "indie", billingInterval: "monthly" },
+        },
+      },
+    });
+    h.db.subscription.upsert.mockRejectedValueOnce(new Error("transient db failure"));
+
+    const res = await POST(req() as never);
+    expect(res.status).toBe(500);
+    await expect(res.json()).resolves.toEqual({ error: "Webhook processing failed" });
+
+    // The consumed-claim row must be deleted, otherwise Stripe's retry of
+    // this event would be deduped against the dead delivery and the
+    // entitlement change lost forever.
+    expect(h.db.stripeWebhookEvent.deleteMany).toHaveBeenCalledWith({
+      where: { stripeEventId: "evt_boom" },
+    });
   });
 });

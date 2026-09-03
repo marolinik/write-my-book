@@ -145,7 +145,8 @@ async function validateWithModelsList(
 }
 
 /**
- * Validate Gemini key (uses key as query param, not header).
+ * Validate Gemini key via the x-goog-api-key header (L3 hardening: the old
+ * ?key=… query form leaks the secret into provider-side access logs).
  * Cost: $0 (read-only endpoint).
  */
 async function validateGemini(
@@ -153,8 +154,9 @@ async function validateGemini(
   key: string,
   signal: AbortSignal
 ): Promise<KeyValidationResult> {
-  const res = await fetch(`${endpoint}?key=${encodeURIComponent(key)}`, {
+  const res = await fetch(endpoint, {
     method: "GET",
+    headers: { "x-goog-api-key": key },
     signal,
   });
 

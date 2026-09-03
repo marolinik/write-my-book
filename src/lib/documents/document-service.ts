@@ -25,6 +25,21 @@ export class DocumentService {
   }
 
   /**
+   * Tenant fence for every id-addressed operation (H1 hardening). A raw
+   * document id must belong to the book/series this service is scoped to,
+   * AND that parent must be owned by this service's user. Routes already
+   * pre-check the parent where they construct this service — but three GET
+   * surfaces historically passed foreign doc ids straight through to
+   * `read()`. Enforcing here makes the service safe by construction for
+   * every current and future caller.
+   */
+  private scopedWhere(documentId: string) {
+    return this.bookId
+      ? { id: documentId, bookId: this.bookId, book: { userId: this.userId } }
+      : { id: documentId, seriesId: this.seriesId!, series: { userId: this.userId } };
+  }
+
+  /**
    * Create a new document with initial content.
    *
    * D-199: `changeType` used to be hardcoded to "manual_edit" here, so every
@@ -82,8 +97,8 @@ export class DocumentService {
    * Read a document and its current content.
    */
   async read(documentId: string) {
-    const document = await db.document.findUnique({
-      where: { id: documentId },
+    const document = await db.document.findFirst({
+      where: this.scopedWhere(documentId),
     });
 
     if (!document) return null;
@@ -100,8 +115,8 @@ export class DocumentService {
    * inside the transaction (version-manager.ts) and cannot.
    */
   async readPinned(documentId: string) {
-    const document = await db.document.findUnique({
-      where: { id: documentId },
+    const document = await db.document.findFirst({
+      where: this.scopedWhere(documentId),
     });
     if (!document) return null;
     const snap = await this.storage.read(
@@ -137,8 +152,8 @@ export class DocumentService {
     changeSource: string = "user",
     expectedVersion?: number
   ) {
-    const document = await db.document.findUnique({
-      where: { id: documentId },
+    const document = await db.document.findFirst({
+      where: this.scopedWhere(documentId),
     });
 
     if (!document) {
@@ -162,14 +177,14 @@ export class DocumentService {
 
     // Update title if provided
     if (title !== undefined) {
-      await db.document.update({
-        where: { id: documentId },
+      await db.document.updateMany({
+        where: this.scopedWhere(documentId),
         data: { title },
       });
     }
 
-    const updated = await db.document.findUnique({
-      where: { id: documentId },
+    const updated = await db.document.findFirst({
+      where: this.scopedWhere(documentId),
     });
 
     return { document: updated!, version };
@@ -179,8 +194,8 @@ export class DocumentService {
    * Delete a document and all its versions from DB and S3.
    */
   async delete(documentId: string) {
-    const document = await db.document.findUnique({
-      where: { id: documentId },
+    const document = await db.document.findFirst({
+      where: this.scopedWhere(documentId),
       include: { versions: true },
     });
 
@@ -197,7 +212,7 @@ export class DocumentService {
     await this.storage.delete(document.storageKey);
 
     // Delete DB records (versions cascade with document)
-    await db.document.delete({ where: { id: documentId } });
+    await db.document.deleteMany({ where: this.scopedWhere(documentId) });
   }
 
   /**
@@ -240,6 +255,11 @@ export class DocumentService {
    * Get version history for a document.
    */
   async getVersions(documentId: string) {
+    const scoped = await db.document.findFirst({
+      where: this.scopedWhere(documentId),
+      select: { id: true },
+    });
+    if (!scoped) return [];
     const vm = new VersionManager(documentId, this.storage);
     return vm.getVersions();
   }
@@ -248,8 +268,8 @@ export class DocumentService {
    * Restore a specific version of a document.
    */
   async restoreVersion(documentId: string, version: number) {
-    const document = await db.document.findUnique({
-      where: { id: documentId },
+    const document = await db.document.findFirst({
+      where: this.scopedWhere(documentId),
     });
 
     if (!document) {
@@ -265,8 +285,8 @@ export class DocumentService {
       await this.storage.write(document.storageKey, content);
     }
 
-    const updated = await db.document.findUnique({
-      where: { id: documentId },
+    const updated = await db.document.findFirst({
+      where: this.scopedWhere(documentId),
     });
 
     return { document: updated!, version: restoredVersion };
@@ -276,6 +296,11 @@ export class DocumentService {
    * Get the content of a specific version.
    */
   async getVersionContent(documentId: string, version: number) {
+    const scoped = await db.document.findFirst({
+      where: this.scopedWhere(documentId),
+      select: { id: true },
+    });
+    if (!scoped) return null;
     const vm = new VersionManager(documentId, this.storage);
     return vm.getVersionContent(version);
   }

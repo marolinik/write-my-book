@@ -16,6 +16,7 @@ import type { GraphNodeLabel, ExtractionResult, RelationshipType } from "@/lib/g
 import { searchMemory, formatSearchResults } from "@/lib/vector/retriever";
 import { indexDocument } from "@/lib/vector/indexer";
 import type { DocType } from "@/lib/vector/types";
+import { UnsafeUrlError, readCappedText, safeExternalFetch } from "@/lib/ssrf-guard";
 import {
   getRelevantInsights,
   createInsight,
@@ -1907,14 +1908,14 @@ async function executeFetchWebPage(
   const url = input.url?.trim();
   if (!url) return "Error: URL is required.";
 
+  // SECURITY: this URL comes from the LLM (user-steerable) and the BODY is
+  // returned into model context and streamed to the user — unguarded this is
+  // full-read SSRF against cloud metadata / Redis / internal admin UIs.
+  // Always strict policy: private ranges are NOT permitted for research
+  // fetches even on self-host opt-in (no legitimate research target lives
+  // there); redirects are re-validated per hop by the guard.
   try {
-    new URL(url);
-  } catch {
-    return "Error: Invalid URL format.";
-  }
-
-  try {
-    const res = await fetch(url, {
+    const res = await safeExternalFetch(url, {
       headers: {
         "User-Agent": "Mozilla/5.0 (compatible; WMBBot/1.0)",
         Accept: "text/html,application/xhtml+xml,text/plain",
@@ -1927,7 +1928,17 @@ async function executeFetchWebPage(
     }
 
     const contentType = res.headers.get("content-type") ?? "";
-    const text = await res.text();
+    const text = await readCappedText(res, 2_000_000);
+
+    // Only textual payloads may enter model context.
+    const textual =
+      contentType.includes("text/") ||
+      contentType.includes("application/json") ||
+      contentType.includes("xml") ||
+      contentType === "";
+    if (!textual) {
+      return `Unsupported content type: ${contentType.split(";")[0]} (only HTML/text pages can be fetched).`;
+    }
 
     // Plain text — return directly
     if (contentType.includes("text/plain")) {
@@ -1968,6 +1979,9 @@ async function executeFetchWebPage(
 
     return cleaned || "Page had no readable text content.";
   } catch (e) {
+    if (e instanceof UnsafeUrlError) {
+      return "Error: that URL points at a private/internal address and cannot be fetched.";
+    }
     if (e instanceof Error && e.name === "TimeoutError") {
       return "Fetch timed out after 15 seconds.";
     }

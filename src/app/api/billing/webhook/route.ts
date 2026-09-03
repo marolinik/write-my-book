@@ -4,19 +4,23 @@ import { stripe, PLANS } from "@/lib/billing";
 import type Stripe from "stripe";
 
 /**
- * Check whether a Stripe webhook event has already been processed.
- * Uses StripeWebhookEvent unique constraint on stripeEventId for dedup.
- * Returns true if already processed (duplicate), false if new.
+ * Claim an event for processing (H4 hardening). A successful insert means
+ * THIS delivery owns processing; the unique violation means a delivery that
+ * already finished consumed it. If processing throws, the caller RELEASES
+ * the claim (deletes the row) so Stripe's automatic retry can re-process.
+ * Pre-fix the row marked the event consumed BEFORE the handler ran, so any
+ * mid-handler failure (DB blip, provider timeout) + retry = permanently lost
+ * entitlement event (paid customer stuck on Free, or cancellation ignored).
  */
-async function isEventProcessed(eventId: string, eventType: string): Promise<boolean> {
+async function claimEvent(eventId: string, eventType: string): Promise<boolean> {
   try {
     await db.stripeWebhookEvent.create({
       data: { stripeEventId: eventId, eventType },
     });
-    return false; // New event, not yet processed
+    return false; // Claimed fresh by this delivery
   } catch (e: unknown) {
     const prismaError = e as { code?: string };
-    if (prismaError?.code === "P2002") return true; // Already processed (unique constraint violation)
+    if (prismaError?.code === "P2002") return true; // Already consumed (unique constraint violation)
     throw e;
   }
 }
@@ -88,12 +92,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
-  // Idempotency check: skip if this event was already processed
-  if (await isEventProcessed(event.id, event.type)) {
+  // Idempotency: claim the event; skip only if a completed delivery took it
+  if (await claimEvent(event.id, event.type)) {
     return NextResponse.json({ received: true, deduplicated: true });
   }
 
-  switch (event.type) {
+  try {
+    switch (event.type) {
     // ─── 1. Checkout completed ───────────────────────────────────
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
@@ -316,6 +321,21 @@ export async function POST(req: NextRequest) {
       }
       break;
     }
+    }
+  } catch (error) {
+    // H4: release the claim so Stripe's automatic retry re-processes this
+    // event instead of being deduped against a dead delivery.
+    console.error(
+      `[billing-webhook] ${event.type} (${event.id}) failed; claim released for retry:`,
+      error
+    );
+    await db.stripeWebhookEvent
+      .deleteMany({ where: { stripeEventId: event.id } })
+      .catch(() => {});
+    return NextResponse.json(
+      { error: "Webhook processing failed" },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json({ received: true });

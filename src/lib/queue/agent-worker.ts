@@ -152,6 +152,14 @@ interface ApprovalState {
   status: "pending" | "approved" | "rejected" | "modified";
   decision?: "approve" | "reject" | "modify";
   message?: string;
+  /**
+   * Owning agent session (M1 hardening). The approve route resolves this
+   * key at its GLOBAL address `approval:{id}`, so without a binding the
+   * gate was resolvable by whoever could guess/learn an approvalId from
+   * any session's replay list. Pending writes stamp it; the approve route
+   * requires it to equal the URL session.
+   */
+  sessionId?: string;
 }
 
 /**
@@ -511,7 +519,7 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
         const ttl = Math.max(Math.ceil((deadline - Date.now()) / 1000), 60);
         await publisher.set(
           `approval:${approvalId}`,
-          JSON.stringify({ status: "pending" }),
+          JSON.stringify({ status: "pending", sessionId } satisfies ApprovalState),
           "EX",
           ttl
         );
@@ -1046,10 +1054,11 @@ export async function waitForApproval(
   approvalId: string,
   request: { title?: string; description?: string }
 ): Promise<{ decision: "approve" | "reject" | "modify"; message?: string }> {
-  // Write pending approval state to Redis
+  // Write pending approval state to Redis (session-bound — see M1 note on
+  // ApprovalState; the approve route refuses foreign sessions)
   await publisher.set(
     `approval:${approvalId}`,
-    JSON.stringify({ status: "pending" } as ApprovalState),
+    JSON.stringify({ status: "pending", sessionId } as ApprovalState),
     "EX",
     Math.ceil(APPROVAL_TIMEOUT_MS / 1000)
   );
