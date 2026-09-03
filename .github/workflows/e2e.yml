@@ -1,0 +1,110 @@
+name: E2E (Playwright)
+
+# Browser-level suite against the real app: services from the production
+# compose file, app via `next dev` (what Playwright's webServer starts),
+# real Chromium — GitHub runners where browser networking is sane.
+# Local caveat: hardened/restricted workstations can block browser-process
+# networking machine-wide (ERR_NAME_NOT_RESOLVED for everything, Node fetch
+# unaffected — see docs/HARDENING-2026-09-02.md); this job is the canonical
+# witness for the page-level suite.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: e2e-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: "true"
+  NEXT_TELEMETRY_DISABLED: "1"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/writemybook?schema=public"
+  API_KEY_ENCRYPTION_SECRET: "changeme-generate-with-openssl-rand-hex-32-xxxx"
+  NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+  DEV_AUTH_BYPASS: "false"
+  E2E_TEST_SECRET: "ci-e2e-secret-not-for-production"
+  # Syntactically-valid fakes (decode to clerk.example.test); the suite never
+  # exercises Clerk UI — page identity comes from the x-e2e-test-secret header.
+  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_test_Y2xlcmsuZXhhbXBsZS50ZXN0JA"
+  CLERK_SECRET_KEY: "sk_test_placeholder"
+  CLERK_WEBHOOK_SECRET: "whsec_placeholder"
+  NEXT_PUBLIC_CLERK_SIGN_IN_URL: "/login"
+  NEXT_PUBLIC_CLERK_SIGN_UP_URL: "/signup"
+  STRIPE_SECRET_KEY: "placeholder"
+  STRIPE_WEBHOOK_SECRET: "placeholder"
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: "placeholder"
+  STRIPE_FOUNDER_MONTHLY_PRICE_ID: "price_ci_founder_monthly"
+  STRIPE_INDIE_MONTHLY_PRICE_ID: "price_ci_indie_monthly"
+  STRIPE_INDIE_ANNUAL_PRICE_ID: "price_ci_indie_annual"
+  STRIPE_PRO_MONTHLY_PRICE_ID: "price_ci_pro_monthly"
+  STRIPE_PRO_ANNUAL_PRICE_ID: "price_ci_pro_annual"
+  STRIPE_PUBLISHER_MONTHLY_PRICE_ID: "price_ci_publisher_monthly"
+  STRIPE_PUBLISHER_ANNUAL_PRICE_ID: "price_ci_publisher_annual"
+  # Infra below mirrors docker-compose.yml defaults exactly (same credentials
+  # the services start with).
+  REDIS_URL: "redis://:wmb-redis-prod@localhost:6379"
+  S3_ENDPOINT: "http://localhost:9000"
+  S3_ACCESS_KEY_ID: "wmb-minio"
+  S3_SECRET_ACCESS_KEY: "wmb-minio-prod"
+  S3_BUCKET: "wmb-projects"
+  S3_FORCE_PATH_STYLE: "true"
+  S3_REGION: "us-east-1"
+  QDRANT_URL: "http://localhost:6333"
+  QDRANT_API_KEY: "wmb-qdrant-prod"
+  NEO4J_URI: "bolt://localhost:7687"
+  NEO4J_USER: "neo4j"
+  NEO4J_PASSWORD: "wmb-neo4j-dev"
+  OPENAI_API_KEY: ""
+  OPENROUTER_API_KEY: ""
+  ANTHROPIC_API_KEY: ""
+  SERPER_API_KEY: ""
+
+jobs:
+  e2e:
+    name: chromium + mobile
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Start services (production compose, minus app/worker)
+        run: docker compose up -d --wait postgres redis minio minio-init neo4j qdrant
+
+      - name: Push database schema
+        run: npx prisma db push
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E suite
+        # CI=true already pins workers=1/retries=2 in playwright.config.ts.
+        # Firefox/WebKit projects are CI-only; kept out here deliberately to
+        # bound runtime — enable later if cross-engine coverage is wanted.
+        run: npx playwright test --project=chromium --project=mobile-chromium
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

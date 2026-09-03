@@ -150,6 +150,10 @@ Qwen round trip. Full unit suite re-greened: 215 files / **1748 tests**.
 mobile, offline/X1/Z-drills) CANNOT run inside the DSH harness shell — the
 browser's network process is blocked machine-wide there (diagnosis:
 about:/data: and Node fetch work, every http:// navigation fails regardless
-of host/container/flags). They must be run from a normal terminal:
-`npx playwright test` — unchanged specs, witnessed 122/2/2 on 2026-08-31,
-with D-203 since fixed.
+of host/container/flags — reproduced identically in the user's own terminal
+run, system Chrome, Edge, Playwright chromium and firefox; seccomp, sandbox,
+proxy and resolver theories were each tested and ruled out). The page-level
+suite therefore needs an environment with sane browser networking — which is
+exactly what `.github/workflows/e2e.yml` now provides on every push/PR:
+production compose services + real Chromium + the full suite, with the HTML
+report uploaded on failure.
