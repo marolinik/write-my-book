@@ -107,4 +107,49 @@ to `docs/LAUNCH-REVIEW-2026-08-31.md`; supersedes its open items where marked.
    boundary; all APIs independently `requireUser` — audit confirmed 90/90).
 6. E2e suite last witnessed 122/2/2 with D-203 (fixed here, needs a re-run
    against the rebuilt container) + 1 environmental flake
-   (`offline-autosave` under disk saturation).
+   (`offline-autosave` under disk pressure).
+
+---
+
+# Addendum 2026-09-03 — live local-model E2E (Qwen via local gateway)
+
+The e2e suite now runs REAL inference end-to-end for free: the whole app is
+pointed at the self-hosted gateway (`WMB_LLM_FORCE_LOCAL=1` →
+`local-llm-proxy` → LAN vLLM `Qwen3.8-Flash-Next-NVFP4`), the same model the
+dev agents use. What it took:
+
+- **Overlay-aware key validation** (`key-validator.ts`): under FORCE_LOCAL the
+  BYOK save-path validates against the OPERATOR's own gateway (key never
+  leaves the box), instead of rejecting the dummy keys that provably work in
+  this mode. 5 new unit tests pin "never probe a real provider in local mode".
+- **Reasoning-off directive to the translator**: ghost-text/inline-edit
+  (D-100 quick-assist) now send `reasoning:{enabled:false}` on the `local`
+  provider route too; `local-llm-proxy.py` maps it (or Anthropic
+  `thinking.disabled`) to upstream `reasoning_effort:"none"`. Without this the
+  60-token ghost-text budget died entirely in thinking blocks → honest but
+  useless 502. With it: real streaming continuations in ~1s.
+- **Overlay publishes the proxy on 127.0.0.1:30400** so a host-side dev
+  server (and Playwright) reach the gateway like the in-network containers.
+- **New e2e spec** `local-gateway-llm.spec.ts`: BYOK save via gateway
+  validation → ghost-text → asserts a non-empty REAL model suggestion. First
+  e2e coverage that exercises the LLM client path at all.
+- **Runner resilience** (`playwright.config.ts`): IP-literal default base URL,
+  direct connections, unsandboxed browser + `--disable-dev-shm-usage` —
+  hardened/harness machines where Chromium's sandboxed network service cannot
+  open sockets (misreported as `ERR_NAME_NOT_RESOLVED` even for IP literals,
+  proven here across Windows and fresh Linux containers) now behave the same
+  as normal ones.
+
+**Result (host dev :3001 + overlay, single worker):** request-level suite
+(api-health, api-keys, beta-score, documents, editorial, inline-edit,
+local-gateway-llm, model-selection, smoke-test 14-step full workflow,
+vector-memory) — **68 passed / 1 skipped / 0 failed**, including the real
+Qwen round trip. Full unit suite re-greened: 215 files / **1748 tests**.
+
+**Environment caveat:** browser-`page.goto` specs (a11y, dashboard, editor,
+mobile, offline/X1/Z-drills) CANNOT run inside the DSH harness shell — the
+browser's network process is blocked machine-wide there (diagnosis:
+about:/data: and Node fetch work, every http:// navigation fails regardless
+of host/container/flags). They must be run from a normal terminal:
+`npx playwright test` — unchanged specs, witnessed 122/2/2 on 2026-08-31,
+with D-203 since fixed.
