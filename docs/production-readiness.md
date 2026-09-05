@@ -2,6 +2,28 @@
 
 This document tracks the remaining steps before public paid production launch.
 
+## 2026-09-04 status — see docs/PRODUCTION-SIGNOFF-2026-09-04.md
+
+All five code-level launch blockers from the 2026-09-03 production review are
+**resolved and committed** (`59dd05f`): export resource isolation, accurate
+version-gated Undo, concurrent-write enforcement, billing checkout dedup +
+webhook reconciliation, and backup failure/alert/restore-proof. Verified:
+**218 test files / 1783 unit tests pass and `tsc --noEmit` is clean.**
+
+### Remaining before launch (all verification/operational, no code defects)
+1. Deploy `59dd05f` and witness the **browser E2E suite green in an environment
+   with working browser networking** (this dev box's browser is machine-blocked —
+   `ERR_NAME_NOT_RESOLVED` for every `http://` nav; see docs/HARDENING-2026-09-02.md).
+2. Set the `PLAYWRIGHT_BASE_URL` **repository variable** to the deployed HTTPS
+   URL and require a **green deploy-smoke** run (the workflow now runs correctly
+   and the smoke script honors the variable).
+3. Run the **full production journey** with real Clerk/Stripe/worker: signup →
+   import → write → AI review → apply → undo → export, including an
+   interruption-recovery and a proof restore (`scripts/verify-backup-restore.sh`).
+4. Perform the **off-host backup** operator steps (off-site `mc mirror`, MinIO
+   versioning/lifecycle, scoped non-root backup key) per
+   `docs/database-deploy-backup.md`.
+
 ## Already completed
 
 - `main` has GitHub Actions CI.
