@@ -32,8 +32,12 @@ env:
   # that hostname fails ERR_NAME_NOT_RESOLVED. Playwright webServer.url and
   # baseURL both use this env, so browsers hit the IP literal.
   PLAYWRIGHT_BASE_URL: "http://127.0.0.1:3000"
+  # NOTE: set EITHER NO_PROXY or no_proxy, never both. GitHub Actions treats
+  # workflow-level env keys case-insensitively, so "NO_PROXY"+"no_proxy" are
+  # the SAME key in a YAML mapping — a duplicate-key syntax error that fails
+  # the whole workflow with zero jobs at parse time (seen in runs 33777311830
+  # and 33778351762, which resolved to empty job lists). One casing suffices.
   NO_PROXY: "*"
-  no_proxy: "*"
   # Syntactically-valid fakes (decode to clerk.example.test); the suite never
   # exercises Clerk UI — page identity comes from the x-e2e-test-secret header.
   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_test_Y2xlcmsuZXhhbXBsZS50ZXN0JA"

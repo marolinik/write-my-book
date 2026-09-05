@@ -40,6 +40,10 @@ vi.mock("fs/promises", () => ({
   unlink: vi.fn().mockResolvedValue(undefined),
   mkdir: vi.fn().mockResolvedValue(undefined),
   rmdir: vi.fn().mockResolvedValue(undefined),
+  // D-3 sandbox support: cover-image bundling (copyFile) into the temp dir and
+  // recursive temp-dir cleanup (rm).
+  copyFile: vi.fn().mockResolvedValue(undefined),
+  rm: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("@/lib/db", () => ({ db: h.db }));

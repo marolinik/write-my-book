@@ -86,8 +86,13 @@ describe("PATCH finding — destructive-apply guard (D-41a)", () => {
   it("still applies when overrideText supplies a real replacement for a blank finding", async () => {
     h.db.editFinding.findFirst.mockResolvedValue(finding({ newText: "" }));
     h.doc.findByType.mockResolvedValue({ id: "doc-1" });
-    h.doc.read.mockResolvedValue({ content: "before the old line after" });
-    h.doc.update.mockResolvedValue({});
+    h.doc.read.mockResolvedValue({
+      document: { currentVersion: 3 },
+      content: "before the old line after",
+    });
+    // The apply route reads the document version for its CAS stamp and uses
+    // the saved version row for the finding's chapterVersion bookkeeping.
+    h.doc.update.mockResolvedValue({ version: { version: 4 } });
     const res = await PATCH(
       req({ action: "apply", overrideText: "a concrete revision" }) as never,
       ctx as never

@@ -57,11 +57,43 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Fetch once — used by the double-subscribe guard here and for the
-    // Stripe customer id below.
+    // Serialize session creation per user so two concurrent POST /checkout
+    // cannot mint two distinct Stripe Checkout sessions (→ two subscriptions,
+    // double billing). A Postgres advisory transaction lock on a hash of the
+    // user id makes the pending-session check + create + persist atomic.
+    await db.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`wmb-checkout:${user.id}`}))`;
+
+    // Fetch once — used by the double-subscribe guard here, the pending-session
+    // reuse, and the Stripe customer id below.
     let sub = await db.subscription.findUnique({
       where: { userId: user.id },
     });
+
+    // Dedup: if a Checkout session is already pending for this user (created
+    // but not yet completed by a webhook) AND it was for the same plan/interval,
+    // reuse its url instead of opening a second session. A change of mind
+    // between tabs (different plan) starts a fresh, correct session. We compare
+    // the pending session's own metadata (same values we stamped at creation)
+    // so no extra columns are needed.
+    if (sub?.pendingCheckoutSessionId) {
+      try {
+        const pending = await stripe.checkout.sessions.retrieve(
+          sub.pendingCheckoutSessionId
+        );
+        const sameIntent =
+          pending.metadata?.plan === plan &&
+          (pending.metadata?.billingInterval ?? "monthly") === billingInterval;
+        // `open` is the only live-still-open status we reuse; anything terminal
+        // (complete/expired/canceled) falls through to a fresh session and the
+        // stale id is cleared below.
+        if (sameIntent && pending.status === "open" && pending.url) {
+          return NextResponse.json({ url: pending.url });
+        }
+      } catch {
+        // Session no longer retrievable (deleted server-side): fall through and
+        // create a fresh one; the stale id is cleared below.
+      }
+    }
 
     // One trial per customer: the unique-per-user Subscription row retains
     // trialEnd from any prior trial, so a repeat checkout is paid-from-day-1.
@@ -182,6 +214,14 @@ export async function POST(req: NextRequest) {
     }
 
     const session = await stripe.checkout.sessions.create(sessionConfig);
+
+    // Record the pending session id (and clear any stale one) so the dedup
+    // guard above can reuse a still-open session instead of double-charging.
+    // The webhook clears it on completion (checkout.session.completed).
+    await db.subscription.update({
+      where: { id: sub!.id },
+      data: { pendingCheckoutSessionId: session.id },
+    });
 
     return NextResponse.json({ url: session.url });
   } catch (error) {

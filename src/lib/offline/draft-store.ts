@@ -152,7 +152,28 @@ export async function putDraft(draft: ChapterDraftInput): Promise<boolean> {
       updatedAt: Date.now(),
       clientId: getClientId(),
     };
-    await (await db).put(STORE_NAME, stamped);
+    const idb = await db;
+    // Cross-tab non-clobber guard (two-offline-tabs finding): the store is
+    // keyed by chapterId, so two tabs editing the same chapter offline would
+    // otherwise last-write-wins — whichever putDraft runs last silently destroys
+    // the other tab's offline words. `baseVersion` is the serialization-time
+    // documentVersion (the CAS stamp), so a tab that synced more recently has a
+    // strictly higher baseVersion. If an existing record belongs to a DIFFERENT
+    // tab AND is synced further ahead, this tab must NOT clobber it — refuse and
+    // let the caller keep the words in its in-editor retention until it catches
+    // up. We do not overwrite when existing is foreign and strictly newer.
+    const tx = idb.transaction(STORE_NAME, "readwrite");
+    const existing = await tx.store.get(draft.chapterId);
+    if (existing && existing.clientId !== getClientId()) {
+      const incomingBase = draft.baseVersion ?? -1;
+      const existingBase = existing.baseVersion ?? -1;
+      if (existingBase > incomingBase) {
+        await tx.done;
+        return false; // foreign, synced-further tab's draft preserved
+      }
+    }
+    await tx.store.put(stamped);
+    await tx.done;
     return true;
   } catch (error) {
     warnOnce("putDraft", error);

@@ -78,10 +78,40 @@ services:
       mc mb --ignore-existing wmb/wmb-projects/backups/weekly &&
       echo 'Backup sidecar started' &&
       while true; do
+        # Hard fail if DB creds are not actually set (prevents silent empty dumps).
+        if [ -z \"$${POSTGRES_PASSWORD}\" ] || [ -z \"$${POSTGRES_USER}\" ]; then
+          echo 'BACKUP FAILED: POSTGRES_PASSWORD/POSTGRES_USER is empty' >&2
+          touch /tmp/backup-FAILED
+          sleep 3600
+          continue
+        fi
         TIMESTAMP=$$(date +%Y%m%d-%H%M%S) &&
-        PGPASSWORD=$${POSTGRES_PASSWORD} pg_dump -h postgres -U $${POSTGRES_USER} writemybook | gzip > /tmp/backup-$$TIMESTAMP.sql.gz &&
+        # Dump to a temp file FIRST (no pipe): plain pg_dump exit code is
+        # captured directly so a failure is never masked by gzip. Plain SQL
+        # format is kept so restore stays `gunzip -c | psql`.
+        PGPASSWORD=$${POSTGRES_PASSWORD} pg_dump -h postgres -U $${POSTGRES_USER} writemybook > /tmp/backup-$$TIMESTAMP.sql.gz.raw
+        RC=$$?
+        if [ \"$$RC\" -ne 0 ]; then
+          echo \"BACKUP FAILED: pg_dump exit $$RC\" >&2
+          rm -f /tmp/backup-$$TIMESTAMP.sql.gz.raw
+          touch /tmp/backup-FAILED
+          sleep 3600
+          continue
+        fi
+        SIZE=$$(wc -c < /tmp/backup-$$TIMESTAMP.sql.gz.raw | tr -d ' ')
+        if [ -z \"$$SIZE\" ] || [ \"$$SIZE\" -lt 1000 ]; then
+          echo \"BACKUP FAILED: dump suspect ($${SIZE:-0} bytes)\" >&2
+          rm -f /tmp/backup-$$TIMESTAMP.sql.gz.raw
+          touch /tmp/backup-FAILED
+          sleep 3600
+          continue
+        fi
+        gzip -c /tmp/backup-$$TIMESTAMP.sql.gz.raw > /tmp/backup-$$TIMESTAMP.sql.gz &&
+        rm -f /tmp/backup-$$TIMESTAMP.sql.gz.raw &&
         mc cp /tmp/backup-$$TIMESTAMP.sql.gz wmb/wmb-projects/backups/hourly/ &&
         rm -f /tmp/backup-$$TIMESTAMP.sql.gz &&
+        # Success: clear the failure marker so a health gate stops alerting.
+        rm -f /tmp/backup-FAILED &&
         /bin/sh /backup-rotate.sh &&
         echo \"Backup completed: $$TIMESTAMP\" &&
         sleep 3600;
@@ -92,3 +122,54 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set for production}
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER must be set for production}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD must be set for production}
+
+  # db-backup-watchdog: stale-backup detector. No new infrastructure beyond the mc
+  # client already bundled in minio/mc. Each loop hour it checks that the newest
+  # hourly backup object is under STALE_AFTER (default 2h) old. On a missing or
+  # older backup it logs a searchable "BACKUP STALE" line, drops a durable marker
+  # into the shared backup-health volume, and exits nonzero so an external monitor
+  # (docker container state/restart or a passive healthcheck) can alert. The long
+  # leading sleep throttles restart churn to at most once per loop.
+  db-backup-watchdog:
+    image: minio/mc
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    volumes:
+      - backup-health:/var/backup-health:rw
+    entrypoint: /bin/sh
+    command: >
+      -c "
+      mc alias set wmb http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD} &&
+      echo 'Backup watchdog started' &&
+      while true; do
+        sleep $${WATCHDOG_INTERVAL} &&
+        BPATH=wmb/wmb-projects/backups/hourly/ &&
+        LATEST=$$(mc find $$BPATH --newer-than $${STALE_AFTER} 2>/dev/null) &&
+        TS=$$(date +%Y%m%d-%H%M%S) &&
+        if [ -n \"$$LATEST\" ]; then
+          NEWEST=$$(echo \"$$LATEST\" | head -1) &&
+          echo \"BACKUP OK at $$TS ($${STALE_AFTER} window): newest hourly backup present: $${NEWEST}\" &&
+          rm -f /var/backup-health/stale-marker &&
+          :;
+        else
+          echo \"BACKUP STALE at $$TS: no hourly backup newer than $${STALE_AFTER} under $$BPATH\" >&2 &&
+          echo $$TS STALE > /var/backup-health/stale-marker &&
+          exit 1;
+        fi
+      done
+      "
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER must be set for production}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD must be set for production}
+      STALE_AFTER: ${BACKUP_STALE_AFTER:-2h}
+      WATCHDOG_INTERVAL: ${BACKUP_WATCHDOG_INTERVAL:-3600}
+
+volumes:
+  # Shared marker dir: the watchdog writes /var/backup-health/stale-marker here on
+  # stale/missing backups so an operator or host cron can read it without entering
+  # the container. Mounted rw only in db-backup-watchdog.
+  backup-health:

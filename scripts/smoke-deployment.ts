@@ -1,4 +1,22 @@
-const baseUrl = process.argv[2] ?? process.env.SMOKE_BASE_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+// The compose/CI deploy-smoke workflow sets PLAYWRIGHT_BASE_URL (its shared
+// notion of the deployed target). Historically this script read ONLY
+// SMOKE_BASE_URL / NEXT_PUBLIC_APP_URL and fell back to localhost, so a wired
+// workflow with a configured target silently hit localhost:3000 on the runner
+// instead of the deployment. Honor PLAYWRIGHT_BASE_URL too, and never silently
+// fall back to localhost when a target was explicitly supplied.
+const cli = process.argv[2];
+const fromEnv =
+  process.env.PLAYWRIGHT_BASE_URL ??
+  process.env.SMOKE_BASE_URL ??
+  process.env.NEXT_PUBLIC_APP_URL;
+const baseUrl = cli ?? fromEnv;
+
+if (!baseUrl) {
+  console.error(
+    "smoke-deployment: no target. Pass a URL as argv[1], or set PLAYWRIGHT_BASE_URL / SMOKE_BASE_URL / NEXT_PUBLIC_APP_URL. Refusing to default to localhost."
+  );
+  process.exit(2);
+}
 const normalized = baseUrl.replace(/\/$/, "");
 
 async function check(path: string) {

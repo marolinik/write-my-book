@@ -1237,6 +1237,13 @@ async function executeWriteChapter(
   ctx: ToolContext,
   input: { chapterNumber: number; markdown: string }
 ): Promise<string> {
+  // Finding B audit: this is the agent's "write whole chapter" tool. It writes
+  // CHAPTER_CONTENT with changeSource "agent" and no expectedVersion — the same
+  // trusted, single-session writer the chapter-content PUT's
+  // TRUSTED_VERSIONLESS_SOURCES("agent") treats as safely last-write-wins. A
+  // single agent session is the only writer of a chapter it authors (it also
+  // guards concurrent agents via acquireDocLock in executeWriteDocument), so no
+  // interactive "stale tab" clobber exists here. Deliberately no CAS stamp.
   // Find the chapter record
   const chapter = await db.chapter.findFirst({
     where: { bookId: ctx.bookId, chapterNumber: input.chapterNumber },

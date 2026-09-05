@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { updateFindingSchema } from "@/lib/validation";
-import { DocumentService } from "@/lib/documents/document-service";
+import { DocumentService, VersionConflictError } from "@/lib/documents";
 import { DocumentType } from "@/generated/prisma/enums";
 import { inferPreferenceFromDismissals, upsertConversationConstraint } from "@/lib/agents/writer-memory";
 import { selectLatestConstraint } from "@/lib/editorial/finding-conversation";
@@ -98,6 +98,11 @@ function findOriginalText(
   return null;
 }
 
+/** Replace U+FFFD replacement characters with em dash (mirrors chapter-content GET/PUT). */
+function sanitizeUnicode(text: string): string {
+  return text.replace(/\uFFFD/g, "\u2014");
+}
+
 /** PATCH /api/books/:id/editorial/findings/:findingId — Apply or dismiss a finding. */
 export async function PATCH(req: NextRequest, { params }: RouteParams) {
   try {
@@ -181,25 +186,71 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
         );
       }
 
-      // Replace the matched text with newText
+      // Replace the matched text with newText, optimistically locked on the
+      // version that was just read. Finding A/B: apply must NOT clobber a
+      // concurrent writer — the chapter-content PUT already requires a CAS
+      // stamp for interactive saves, and an unsupervised finding apply is the
+      // same destructive overwrite. Passing the read's currentVersion means a
+      // stale apply rejects with VersionConflictError instead of silently
+      // last-writing-the-win over the author's newer edit.
       const updatedContent =
         result.content.substring(0, match.index) +
         finalNewText +
         result.content.substring(match.index + match.matchedText.length);
+      const expectedVersion = result.document.currentVersion;
 
-      // Save updated content as a new version
-      await docService.update(
-        doc.id,
-        updatedContent,
-        undefined,
-        "revision",
-        `finding:${findingId}`
-      );
+      // Save updated content as a new version. On a rejected CAS, nothing is
+      // written — answer the same honest version_conflict envelope the
+      // chapter-content route returns so the writer can resolve (never a
+      // silent clobber).
+      let savedVersion: number;
+      try {
+        const saved = await docService.update(
+          doc.id,
+          updatedContent,
+          undefined,
+          "revision",
+          `finding:${findingId}`,
+          expectedVersion
+        );
+        savedVersion = saved.version.version;
+      } catch (error) {
+        if (error instanceof VersionConflictError) {
+          // The server content moved past what this finding was applied to.
+          // Re-read so the client gets the CURRENT passage to reconcile against
+          // (same sanitization the chapter-content conflict path uses).
+          const current = await docService.readPinned(doc.id);
+          return NextResponse.json(
+            {
+              error: "version_conflict",
+              currentVersion:
+                current?.document.currentVersion ?? expectedVersion,
+              serverContent: sanitizeUnicode(current?.content ?? ""),
+            },
+            { status: 409 }
+          );
+        }
+        throw error;
+      }
 
-      // Update finding status
+      // Update finding status in the SAME row, recording the EXACT applied
+      // location (String indexes) + the document version this apply created,
+      // so a later undo can reverse that precise spot instead of re-searching
+      // the whole doc for the first lookalike of newText.
+      // NOTE: we deliberately do NOT also set contentHash here. contentHash
+      // participates in the @@unique([bookId, chapterNumber, contentHash])
+      // dedup index; two findings applied to byte-identical before-content on
+      // the same book+chapter would collide (P2002 500). locationStart/
+      // locationEnd/chapterVersion carry everything undo needs.
       const updated = await db.editFinding.update({
         where: { id: findingId },
-        data: { status: "applied", appliedAt: new Date() },
+        data: {
+          status: "applied",
+          appliedAt: new Date(),
+          locationStart: String(match.index),
+          locationEnd: String(match.index + match.matchedText.length),
+          chapterVersion: savedVersion,
+        },
       });
 
       // Log the edit action with both old and new text

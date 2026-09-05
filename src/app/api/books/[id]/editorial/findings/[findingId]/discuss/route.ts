@@ -151,6 +151,12 @@ export async function POST(req: Request, { params }: RouteParams) {
         // without the client hand-carrying it as overrideText. Empty revisions are
         // filtered above, so this never clobbers an existing suggestion.
         //
+        // Finding B audit: "arming" here only rewrites the editFinding row
+        // (newText / originalText / alternatives) — it NEVER calls
+        // docService.update, so it is not a chapter-content writer and needs no
+        // optimistic-lock stamp. The actual chapter mutation happens later on
+        // Apply (findingId/route.ts), which now passes expectedVersion.
+        //
         // D-105: a discuss revision is a sentence-scoped compromise. If originalText
         // spans MORE prose than the revision replaces, arming the revision onto
         // newText while leaving originalText wide makes a later Apply wipe the

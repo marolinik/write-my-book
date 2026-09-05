@@ -8,8 +8,11 @@ import { NextRequest } from "next/server";
 const h = vi.hoisted(() => ({
   requireUser: vi.fn(),
   sessionsCreate: vi.fn(),
+  sessionsRetrieve: vi.fn(),
   customersCreate: vi.fn(),
+  $executeRaw: vi.fn(),
   db: {
+    $executeRaw: vi.fn(),
     subscription: {
       findUnique: vi.fn(),
       create: vi.fn(),
@@ -23,7 +26,9 @@ vi.mock("@/lib/auth", () => ({ requireUser: () => h.requireUser() }));
 vi.mock("@/lib/db", () => ({ db: h.db }));
 vi.mock("@/lib/billing", () => ({
   stripe: {
-    checkout: { sessions: { create: h.sessionsCreate } },
+    checkout: {
+      sessions: { create: h.sessionsCreate, retrieve: h.sessionsRetrieve },
+    },
     customers: { create: h.customersCreate },
   },
   PLANS: {
@@ -59,10 +64,14 @@ beforeEach(() => {
   h.db.subscription.findUnique.mockResolvedValue(null);
   h.db.subscription.create.mockResolvedValue({ id: "s1" });
   h.db.subscription.update.mockResolvedValue({ id: "s1" });
+  h.db.$executeRaw.mockResolvedValue([]);
   h.customersCreate.mockResolvedValue({ id: "cus_new" });
   h.sessionsCreate.mockResolvedValue({
     url: "https://checkout.stripe.com/c/pay/cs_test_123",
+    id: "cs_test_123",
   });
+  // Default: no reusable pending session (retrieve rejects → fresh create).
+  h.sessionsRetrieve.mockRejectedValue(new Error("no such checkout session"));
 });
 
 describe("POST /api/billing/checkout — double-subscribe guard (D-06)", () => {
@@ -187,5 +196,106 @@ describe("POST /api/billing/checkout — card-free trial (A12 / D-52)", () => {
     const cfg = h.sessionsCreate.mock.calls[0][0];
     expect(cfg.subscription_data).toBeUndefined();
     expect(cfg.payment_method_collection).toBeUndefined();
+  });
+});
+
+describe("POST /api/billing/checkout — pending-session dedup (no duplicate subscriptions)", () => {
+  it("a still-open pending session for the same plan is REUSED (one session.create across two requests)", async () => {
+    // First request: creates the session and records its id.
+    h.db.subscription.findUnique.mockResolvedValue({
+      id: "s1",
+      userId: "u1",
+      status: "canceled",
+      plan: "indie",
+      stripeCustomerId: "cus_1",
+      trialEnd: null,
+    });
+    h.sessionsCreate.mockResolvedValue({
+      url: "https://checkout.stripe.com/c/pay/cs_new",
+      id: "cs_pending",
+    });
+
+    const first = await POST(req());
+    expect(first.status).toBe(200);
+    expect(h.sessionsCreate).toHaveBeenCalledTimes(1);
+    // The id is persisted for dedup.
+    expect(h.db.subscription.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ pendingCheckoutSessionId: "cs_pending" }),
+      })
+    );
+
+    // Second concurrent request: same user, same plan, pending session still OPEN.
+    h.db.subscription.findUnique.mockResolvedValue({
+      id: "s1",
+      userId: "u1",
+      status: "canceled",
+      plan: "indie",
+      stripeCustomerId: "cus_1",
+      trialEnd: null,
+      pendingCheckoutSessionId: "cs_pending",
+    });
+    h.sessionsRetrieve.mockResolvedValue({
+      id: "cs_pending",
+      status: "open",
+      url: "https://checkout.stripe.com/c/pay/cs_pending",
+      metadata: { plan: "indie", billingInterval: "monthly" },
+    });
+
+    const second = await POST(req());
+    expect(second.status).toBe(200);
+    const body = await second.json();
+    expect(body.url).toBe("https://checkout.stripe.com/c/pay/cs_pending");
+    // NO second session was created.
+    expect(h.sessionsCreate).toHaveBeenCalledTimes(1);
+  });
+
+  it("a pending session for a DIFFERENT plan does NOT block a fresh session", async () => {
+    h.db.subscription.findUnique.mockResolvedValue({
+      id: "s1",
+      userId: "u1",
+      status: "canceled",
+      plan: "indie",
+      stripeCustomerId: "cus_1",
+      trialEnd: null,
+      pendingCheckoutSessionId: "cs_pending",
+    });
+    h.sessionsRetrieve.mockResolvedValue({
+      id: "cs_pending",
+      status: "open",
+      url: "https://checkout.stripe.com/c/pay/cs_pending",
+      metadata: { plan: "indie", billingInterval: "monthly" },
+    });
+
+    // User now wants professional — must start a fresh session.
+    const res = await POST(req({ plan: "professional", billingInterval: "monthly" }));
+    expect(res.status).toBe(200);
+    expect(h.sessionsCreate).toHaveBeenCalledTimes(1);
+    const config = h.sessionsCreate.mock.calls[0][0];
+    expect(config.metadata.plan).toBe("professional");
+  });
+
+  it("completing a stale pending id (retrieve fails) falls through to a fresh session and clears it", async () => {
+    h.db.subscription.findUnique.mockResolvedValue({
+      id: "s1",
+      userId: "u1",
+      status: "canceled",
+      plan: "indie",
+      stripeCustomerId: "cus_1",
+      trialEnd: null,
+      pendingCheckoutSessionId: "cs_stale",
+    });
+    // retrieve rejects → treat as expired/deleted → create fresh.
+    h.sessionsRetrieve.mockRejectedValue(new Error("gone"));
+
+    const res = await POST(req());
+    expect(res.status).toBe(200);
+    expect(h.sessionsCreate).toHaveBeenCalledTimes(1);
+    // Fresh session id persisted over the stale one.
+    expect(h.db.subscription.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ pendingCheckoutSessionId: "cs_test_123" }),
+      })
+    );
   });
 });

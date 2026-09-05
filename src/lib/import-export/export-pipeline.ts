@@ -1,7 +1,7 @@
 import { exec, execFile } from "child_process";
 import { promisify } from "util";
-import { writeFile, readFile, unlink, mkdir } from "fs/promises";
-import { join, dirname } from "path";
+import { writeFile, readFile, copyFile, rm, mkdir } from "fs/promises";
+import { join, dirname, basename } from "path";
 import { tmpdir } from "os";
 import { randomUUID } from "crypto";
 import JSZip from "jszip";
@@ -278,10 +278,23 @@ export interface PandocArgsInput {
  * `--template=PATH`, `--css=PATH`, `--epub-cover-image=PATH`, `--pdf-engine=PATH`
  * each as a SINGLE argv token (verified against pandoc 3.9), so the `:`/spaces
  * inside a value never need a shell to be parsed.
+ *
+ * D-3, SECURITY: `--sandbox` (pandoc >= 3.1) restricts reader/writer IO to the
+ * files named on the command line plus the current working directory, disabling
+ * network access and arbitrary filesystem reads. We run with cwd = the export
+ * temp dir, so content-level references (embedded images) can only resolve inside
+ * that dir and can never reach server files. Per pandoc docs, files passed on
+ * the command line remain readable, so the absolute per-format asset paths
+ * (--lua-filter / --reference-doc / --template / --css / --epub-cover-image /
+ * --pdf-engine) still load. Note the pandoc manual states the sandbox does NOT cap
+ * IO performed by Lua filters or PDF-engine subprocesses; that residual gap is covered
+ * because the manuscript is pre-sanitized (sanitizeManuscriptForConverter) before
+ * conversion strips the resource-loading forms those layers could otherwise read.
  */
 export function buildPandocArgs(input: PandocArgsInput): string[] {
   const args: string[] = [
     input.pandocCmd,
+    "--sandbox",
     input.inputPath,
     "-o",
     input.outputPath,
@@ -317,6 +330,96 @@ export function buildPandocArgs(input: PandocArgsInput): string[] {
   }
 
   return args;
+}
+
+/** Image file extensions a bare relative same-dir reference may point to. These
+ *  files (if present) live inside the pandoc cwd (the export temp dir), so
+ *  `--sandbox` can serve them and no server file is ever exposed. */
+const SAFE_IMAGE_EXT_RE = /\.(?:png|jpe?g|gif|svg|webp|bmp|tiff?)$/i;
+
+/** A leading URL scheme OR Windows drive letter (`http:`, `https:`, `data:`,
+ *  `file:`, `ftp:`, `C:`, …). Any image/HTML reference beginning with one must
+ *  be rejected: the `http(s)`/`ftp` forms are the network/SSRF vector, `data:`
+ *  and `file:` are the embed vector, and a drive letter is an absolute path. */
+const SCHEME_OR_DRIVE_RE = /^[a-zA-Z][a-zA-Z0-9+.-]*:/;
+
+/**
+ * True when `target` (a markdown image destination or raw-HTML `src`/`href`)
+ * is a BARE relative same-dir filename with a safe image extension — the only
+ * form the sandboxed converter may legitimately read from its cwd. Rejects:
+ * empty, any URL scheme / drive letter, absolute and UNC paths, any `..`
+ * (which escapes the conversion cwd toward server files), and any path with
+ * directory components (subdirectory reads that leave the cwd).
+ */
+function isSafeImageTarget(target: string): boolean {
+  const t = target.trim();
+  if (!t) return false; // empty — nothing to read, but refuse it defensively
+  if (SCHEME_OR_DRIVE_RE.test(t)) return false; // http:, https:, data:, file:, C:…
+  if (t.startsWith("/") || t.startsWith("\\")) return false; // absolute / UNC
+  if (t.includes("..")) return false; // parent-traversal / cwd escape
+  if (t.includes("/") || t.includes("\\")) return false; // sub-directory escape
+  return SAFE_IMAGE_EXT_RE.test(t);
+}
+
+/**
+ * D-3, SECURITY: strip/neutralize every Pandoc resource primitive from an
+ * assembled manuscript BEFORE it is handed to the converter, so writer- or
+ * smuggled-content can never make pandoc read server files or hit the network.
+ * It is pure and synchronous, and preserves ordinary prose and links:
+ *
+ * 1. Unsafe inline markdown images `![alt](<target> "title")` whose target is
+ *    not a bare relative same-dir safe-image filename are removed wholesale.
+ *    Bare relative same-dir images (`![Cover](cover.png)`) are KEPT — they
+ *    resolve inside the conversion cwd and are exactly the form `--sandbox`
+ *    permits. `[text](http://…)` hyperlinks are NOT images and are untouched.
+ * 2. Raw-HTML `img` / `iframe` / `object` / `embed` tags (with content, where
+ *    applicable) are removed — pandoc passes raw HTML through to docx/epub/html
+ *    targets, so an `<img src="/etc/passwd">` must never survive.
+ * 3. Pandoc file-include directives (`\include{file}` / `\input{file}`) are
+ *    dropped, so they cannot pull the named file into the document. Other TeX
+ *    used by the assembler (`\newpage`, `\tableofcontents`) is left intact.
+ * 4. Doubled template/inclusion braces in content (`{{…}}`) are collapsed to
+ *    single braces so a smuggled include expression cannot be interpreted as a
+ *    resource load; single-brace prose is unaffected.
+ *
+ * The `--sandbox` flag is the primary control; this function is belt-and-
+ * suspenders that additionally neutralizes forms pandoc's own sandbox does not
+ * cap (Lua-filter IO and PDF-engine subprocess IO).
+ */
+export function sanitizeManuscriptForConverter(markdown: string): string {
+  // 1. Neutralize unsafe inline markdown image refs. The captured group is the
+  //    paren content: `target`, optionally followed by a title in quotes/
+  //    parens/angle brackets. A bare relative same-dir safe image is kept.
+  let out = markdown.replace(
+    /!\[([^\]]*)\]\(([^)]*)\)/g,
+    (whole, _alt: string, rest: string) => {
+      const target = rest
+        .trim()
+        .split(/\s+/, 1)[0]
+        .replace(/^<|>$/g, ""); // drop optional <…> URL fencing
+      return isSafeImageTarget(target) ? whole : "";
+    }
+  );
+
+  // 2. Strip raw-HTML embedding tags (defensive). Handle paired elements that
+  //    wrap content first (iframe/object/embed), then any remaining opening or
+  //    self-closing tags and standalone <img>.
+  out = out
+    .replace(
+      /<\s*(?:iframe|object|embed)\b[^>]*>[\s\S]*?<\/\s*(?:iframe|object|embed)\s*>/gi,
+      ""
+    )
+    .replace(/<\s*(?:img|iframe|object|embed)\b[^>]*\/?>/gi, "");
+
+  // 3. Drop pandoc LaTeX file-include directives; the referenced file never
+  //    reaches pandoc. Other assembler TeX (\newpage, \tableofcontents) stays.
+  out = out.replace(/\\(?:include|input)\{[^}]*\}/g, "");
+
+  // 4. Collapse doubled template/inclusion braces so a smuggled {{…}} cannot be
+  //    read as a resource expression (single-brace prose is unchanged).
+  out = out.replace(/\{\{/g, "{").replace(/\}\}/g, "}");
+
+  return out;
 }
 
 async function requireTool(name: string): Promise<void> {
@@ -648,7 +751,37 @@ export async function exportManuscript(
   const inputPath = join(tmpDir, "manuscript.md");
   const outputPath = join(tmpDir, outputFilename);
 
-  await writeFile(inputPath, combinedMd, "utf-8");
+  // D-3, SECURITY: prepare the manuscript for the sandboxed converter BEFORE it
+  // is written to disk.
+  //
+  // a) A configured cover page renders through a markdown `![Cover](<absPath>)`
+  //    reference in the front matter (both PDF and EPUB). Under `--sandbox`, a
+  //    content-level (non-CLI) absolute path cannot be read from the cwd, so
+  //    copy the validated cover image into the conversion dir and rewrite that
+  //    reference to a bare relative same-dir basename — the one form both
+  //    `--sandbox` and the sanitizer below permit. `--epub-cover-image` stays a
+  //    validated absolute CLI-arg path, which pandoc's sandbox keeps readable.
+  // b) sanitizeManuscriptForConverter strips every resource-loading primitive
+  //    (unsafe images, raw HTML, include directives, template braces) from the
+  //    combined manuscript before the converter ever sees it.
+  let preparedMd = combinedMd;
+  const coverPath = resolveSafeTemplatePath(config.frontMatter.coverImagePath);
+  if (coverPath && config.frontMatter.coverPage && format !== "docx") {
+    const coverFile = basename(coverPath);
+    try {
+      await copyFile(coverPath, join(tmpDir, coverFile));
+      preparedMd = preparedMd.replace(
+        `![Cover](${coverPath})`,
+        `![Cover](${coverFile})`
+      );
+    } catch {
+      // Copy failed — leave the absolute reference in place; --sandbox will
+      // refuse to read it (the cover simply omits), which is safe, not a leak.
+    }
+  }
+  const sanitizedMd = sanitizeManuscriptForConverter(preparedMd);
+
+  await writeFile(inputPath, sanitizedMd, "utf-8");
 
   // 9. Build Pandoc command
   const luaFilters = [
@@ -797,11 +930,13 @@ export async function exportManuscript(
     // Fallback to markdown on Pandoc error
     const fallbackName = outputFilename.replace(`.${format}`, ".md");
     const fallbackKey = `exports/${fallbackName}`;
-    await storage.write(fallbackKey, combinedMd);
+    // Fall back to the SANITIZED manuscript, so an attacker-triggered conversion
+    // failure never writes the raw (possibly resource-smuggling) content back.
+    await storage.write(fallbackKey, sanitizedMd);
     warnings.push(`Pandoc export failed (${err}). Saved as markdown.`);
 
     // Cleanup temp dir
-    await cleanupTemp(tmpDir, inputPath, outputPath);
+    await cleanupTemp(tmpDir);
 
     return {
       filename: fallbackName,
@@ -815,7 +950,7 @@ export async function exportManuscript(
   }
 
   // 11. Cleanup temp files
-  await cleanupTemp(tmpDir, inputPath, outputPath);
+  await cleanupTemp(tmpDir);
 
   return {
     filename: outputFilename,
@@ -828,17 +963,13 @@ export async function exportManuscript(
   };
 }
 
-async function cleanupTemp(
-  tmpDir: string,
-  inputPath: string,
-  outputPath: string
-) {
+async function cleanupTemp(tmpDir: string) {
+  // D-3: the temp dir may now also hold a bundled cover image copied alongside
+  // the input/output files, so remove the WHOLE dir recursively rather than a
+  // fixed file list (a partial rmdir would leak the cover, asset, or manuscript).
   try {
-    await unlink(inputPath).catch(() => {});
-    await unlink(outputPath).catch(() => {});
-    const { rmdir } = await import("fs/promises");
-    await rmdir(tmpDir).catch(() => {});
+    await rm(tmpDir, { recursive: true, force: true });
   } catch {
-    // Best-effort cleanup
+    // Best-effort cleanup — a leftover temp dir is a hygiene issue, not a leak.
   }
 }

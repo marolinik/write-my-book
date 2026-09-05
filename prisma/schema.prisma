@@ -50,6 +50,13 @@ model Subscription {
   userId               String    @unique @map("user_id")
   stripeCustomerId     String?   @map("stripe_customer_id")
   stripeSubscriptionId String?   @map("stripe_subscription_id")
+  // ID of a pending (in-flight) Stripe Checkout session for this user. Used for
+  // user+plan+interval dedup: while a checkout session has not yet completed,
+  // a repeat checkout for the SAME plan+interval reuses its url instead of
+  // creating a second (parallel) Stripe subscription. Cleared to null when the
+  // session reaches a terminal state (checkout.session.completed).
+  pendingCheckoutSessionId String? @map("pending_checkout_session_id")
+
   plan                 String    @default("none") // none, founder, indie, professional, publisher
   status               String    @default("none") // none, trialing, active, past_due, canceled
   billingInterval      String    @default("monthly") @map("billing_interval") // monthly, annual

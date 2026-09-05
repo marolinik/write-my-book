@@ -86,6 +86,13 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         "find_replace",
         "user"
       );
+      // Finding B audit: a book-wide find/replace is the writer's own explicit,
+      // immediate read-modify-write of each target chapter (readPinned → replace
+      // → save in one pass), so it is single-writer-safe by construction and
+      // deliberately omits expectedVersion. A truly concurrent interactive save
+      // of the SAME chapter inside this window could last-write-wins — accepted
+      // here as out of scope (the per-chapter read+write is effectively atomic
+      // for the same user; cross-user/agent races are guarded elsewhere).
 
       const newWordCount = countWords(result);
       const wordDelta = newWordCount - chapter.wordCount;

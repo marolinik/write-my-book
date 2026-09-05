@@ -135,6 +135,10 @@ export async function POST(req: NextRequest) {
             plan,
             status,
             billingInterval,
+            // This session reached its terminal success state — clear the
+            // pending-session marker so a future checkout starts fresh and
+            // the dedup guard never reuses a completed session.
+            pendingCheckoutSessionId: null,
             ...(trialEnd ? { trialEnd } : {}),
           },
           create: {
@@ -144,6 +148,7 @@ export async function POST(req: NextRequest) {
             plan,
             status,
             billingInterval,
+            pendingCheckoutSessionId: null,
             ...(trialEnd ? { trialEnd } : {}),
           },
         });
@@ -216,10 +221,36 @@ export async function POST(req: NextRequest) {
       const item = subscription.items?.data?.[0];
       const priceId = item?.price?.id;
       const plan = priceId ? planFromPriceId(priceId) : null;
-      const status = mapStripeStatus(subscription.status);
+      let status = mapStripeStatus(subscription.status);
       const billingInterval = extractBillingInterval(subscription);
       const periodStart = item?.current_period_start;
       const periodEnd = item?.current_period_end;
+
+      // Cancellation-resurrection guard: this event may be a stale/sibling
+      // delivery arriving AFTER the writer already canceled. If it claims a
+      // live status while our row currently says canceled, confirm against
+      // Stripe's CURRENT subscription state before flipping back to active —
+      // otherwise a delayed updated event could resurrect paid access for a
+      // canceled subscription. Downgrade events (reporting canceled) are
+      // authoritative and never need this check.
+      if (
+        existingSub?.status === "canceled" &&
+        (status === "active" || status === "trialing")
+      ) {
+        try {
+          const live = await stripe.subscriptions.retrieve(subscription.id);
+          const liveStatus = mapStripeStatus(live.status);
+          if (liveStatus !== status) {
+            // Stripe disagrees with this event — trust Stripe's live state.
+            status = liveStatus;
+          }
+        } catch {
+          // Stripe unreachable: do NOT resurrect a canceled subscriber from a
+          // possibly-stale event. Keep the row canceled by overriding to the
+          // canonical canceled status already on the row.
+          status = existingSub.status;
+        }
+      }
 
       const updateData = {
         stripeSubscriptionId: subscription.id,
@@ -290,11 +321,42 @@ export async function POST(req: NextRequest) {
       const sub = await db.subscription.findFirst({
         where: { stripeSubscriptionId: subscriptionId },
       });
-      if (sub && sub.status !== "active") {
-        await db.subscription.update({
-          where: { id: sub.id },
-          data: { status: "active" },
-        });
+      if (!sub) break;
+
+      // Reconcile against Stripe's CURRENT subscription state, never the
+      // event's happy-path alone. A DELAYED invoice.paid can arrive after the
+      // writer already canceled — flipping this row to "active" on that stale
+      // event would resurrect paid access for a canceled subscription. Only
+      // promote to active when Stripe itself still reports a live status.
+      try {
+        const stripeSub = await stripe.subscriptions.retrieve(subscriptionId);
+        const liveStatus = mapStripeStatus(stripeSub.status);
+        if (liveStatus === "active" || liveStatus === "trialing") {
+          if (sub.status !== "active") {
+            await db.subscription.update({
+              where: { id: sub.id },
+              data: { status: "active" },
+            });
+          }
+        } else {
+          // Stripe says it is no longer live (e.g. now canceled/unpaid) —
+          // apply that reconciled status instead of resurrecting. last-write-
+          // wins with the freshest server truth.
+          await db.subscription.update({
+            where: { id: sub.id },
+            data: {
+              status: liveStatus,
+              cancelAtPeriodEnd: stripeSub.cancel_at_period_end,
+            },
+          });
+        }
+      } catch (stripeErr) {
+        // Stripe unreachable: err on the side of NOT granting access from a
+        // stale event — keep the current row untouched rather than resurrect.
+        console.error(
+          `[billing-webhook] invoice.paid reconcile failed (staying put):`,
+          stripeErr
+        );
       }
       break;
     }

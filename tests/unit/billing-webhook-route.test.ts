@@ -55,7 +55,7 @@ beforeEach(() => {
   h.db.subscription.upsert.mockResolvedValue({});
   h.db.subscription.update.mockResolvedValue({});
   h.db.subscription.findFirst.mockResolvedValue(null);
-  h.retrieve.mockResolvedValue({ trial_end: null });
+  h.retrieve.mockResolvedValue({ trial_end: null, status: "active" });
 });
 
 describe("POST /api/billing/webhook", () => {
@@ -182,5 +182,120 @@ describe("POST /api/billing/webhook", () => {
     expect(h.db.stripeWebhookEvent.deleteMany).toHaveBeenCalledWith({
       where: { stripeEventId: "evt_boom" },
     });
+  });
+
+  it("invoice.paid rewrites a canceled sub to active ONLY when Stripe still reports it live", async () => {
+    h.db.subscription.findFirst.mockResolvedValueOnce({
+      id: "s1",
+      userId: "u1",
+      status: "canceled",
+      stripeSubscriptionId: "sub_123",
+    });
+    // Stripe now says the sub is canceled → invoice.paid must NOT resurrect it.
+    h.retrieve.mockResolvedValueOnce({ status: "canceled", cancel_at_period_end: true });
+    h.constructEvent.mockReturnValue({
+      id: "evt_paid_canceled",
+      type: "invoice.paid",
+      data: {
+        object: { parent: { subscription_details: { subscription: "sub_123" } } },
+      },
+    });
+
+    const res = await POST(req() as never);
+    expect(res.status).toBe(200);
+    const call = h.db.subscription.update.mock.calls[0][0];
+    // Reconciles to the AUTHORITATIVE canceled state, never active.
+    expect(call).toEqual(
+      expect.objectContaining({
+        where: { id: "s1" },
+        data: expect.objectContaining({ status: "canceled", cancelAtPeriodEnd: true }),
+      })
+    );
+    expect(call.data.status).not.toBe("active");
+  });
+
+  it("invoice.paid sets active when Stripe still reports an active sub", async () => {
+    h.db.subscription.findFirst.mockResolvedValueOnce({
+      id: "s1",
+      userId: "u1",
+      status: "past_due",
+      stripeSubscriptionId: "sub_123",
+    });
+    h.retrieve.mockResolvedValueOnce({ status: "active", cancel_at_period_end: false });
+    h.constructEvent.mockReturnValue({
+      id: "evt_paid_active",
+      type: "invoice.paid",
+      data: {
+        object: { parent: { subscription_details: { subscription: "sub_123" } } },
+      },
+    });
+
+    const res = await POST(req() as never);
+    expect(res.status).toBe(200);
+    const call = h.db.subscription.update.mock.calls[0][0];
+    expect(call.data.status).toBe("active");
+  });
+
+  it("customer.subscription.updated does NOT resurrect a canceled sub when Stripe disagrees", async () => {
+    // Existing row is canceled; the event CLAIMS active (stale/sibling).
+    h.db.subscription.findFirst.mockResolvedValueOnce({
+      id: "s1",
+      userId: "u1",
+      status: "canceled",
+      stripeSubscriptionId: "sub_123",
+    });
+    // Stripe's live state is canceled → the stale 'active' claim is overridden.
+    h.retrieve.mockResolvedValueOnce({ status: "canceled", cancel_at_period_end: true });
+    h.constructEvent.mockReturnValue({
+      id: "evt_upd_stale",
+      type: "customer.subscription.updated",
+      data: {
+        object: {
+          id: "sub_123",
+          customer: "cus_123",
+          status: "active",
+          cancel_at_period_end: false,
+          items: {
+            data: [{ price: { id: "price_indie_m", recurring: { interval: "month" } } }],
+          },
+        },
+      },
+    });
+
+    const res = await POST(req() as never);
+    expect(res.status).toBe(200);
+    const call = h.db.subscription.upsert.mock.calls[0][0];
+    expect(call.update.status).toBe("canceled"); // rejected the stale resurrection
+  });
+
+  it("customer.subscription.updated resurrects a canceled sub when Stripe confirms active", async () => {
+    h.db.subscription.findFirst.mockResolvedValueOnce({
+      id: "s1",
+      userId: "u1",
+      status: "canceled",
+      stripeSubscriptionId: "sub_123",
+    });
+    // Stripe confirms the sub is genuinely active again.
+    h.retrieve.mockResolvedValueOnce({ status: "active", cancel_at_period_end: false });
+    h.constructEvent.mockReturnValue({
+      id: "evt_upd_reactive",
+      type: "customer.subscription.updated",
+      data: {
+        object: {
+          id: "sub_123",
+          customer: "cus_123",
+          status: "active",
+          cancel_at_period_end: false,
+          items: {
+            data: [{ price: { id: "price_indie_m", recurring: { interval: "month" } } }],
+          },
+        },
+      },
+    });
+
+    const res = await POST(req() as never);
+    expect(res.status).toBe(200);
+    const call = h.db.subscription.upsert.mock.calls[0][0];
+    expect(call.update.status).toBe("active");
   });
 });
