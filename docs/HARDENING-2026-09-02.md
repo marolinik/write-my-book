@@ -172,3 +172,72 @@ Note: the `playwright.config.ts` resilience flags help restricted CI
 containers but could NOT override the machine-wide browser block on the
 development workstation — that one is environment-side and is why the CI
 job exists.
+
+---
+
+# Addendum 2026-09-05 — page-level E2E root cause is Clerk, not browser networking
+
+The "machine-wide browser block" hypothesis in the addendum above was the
+leading theory for months (and is still tersely named at the bottom of this
+file), but it is **wrong for the page-level suite**, and this finding fixes the
+actual cause. Recorded here so nobody re-opens the now-litigated browser-
+networking / proxy / VPN / WireGuard / Tailscale / Headroom angle again.
+
+## Actually proven (layered, reproduced locally)
+
+1. **The browser CAN reach loopback.** `nginx` on `[::1]:3050` (Docker-published)
+   and a bare Node HTTP server on `127.0.0.1:3999` both load in Playwright
+   Chromium (`200`). No system proxy (`ProxyEnable=0`, WinHTTP "Direct access"),
+   no `HTTP(S)_PROXY`/`NO_PROXY` env vars, and **no "Headroom" application
+   installed** — that proxy/router theory was checked registry-wide and ruled out.
+2. **The app IS reachable.** With Playwright request logging enabled, the app
+   answers the first navigation with `REQ / → RES 307` — the loopback/network
+   path to the app is fine.
+3. **Clerk then hijacks the navigation.** The `307` is Clerk's middleware, and
+   Clerk's own library (`clerkMiddleware`) issues a `dev-browser-missing`
+   handshake redirect to `https://clerk.example.test/v1/client/handshake`
+   **for a development (`pk_test_`) publishable key, BEFORE the app's user
+   `bypass` callback runs** (confirmed by reading the compiled edge middleware:
+   `authenticateRequest` → handshake-header check precedes the user callback).
+4. `clerk.example.test` is an **intentionally non-existent** frontend API domain
+   (the `.env` Clerk key decodes to it). It never resolves → the browser reports
+   **`net::ERR_NAME_NOT_RESOLVED` on every `page.goto`** = the 43/127 page
+   failures in CI and every local page probe.
+
+## The fix (not the browser, not the networking)
+
+None of `x-e2e-test-secret` header, `NODE_ENV=development`, or a runtime
+`DEV_AUTH_BYPASS=true` can stop it — the handshake fires inside Clerk's library
+before any of those are consulted, and the middleware handler is chosen at
+server/build time. What works:
+
+- Running the e2e app with **`DEV_AUTH_BYPASS=true`** (as an env on the
+  `next dev` webServer, which is what Playwright starts). At that env the
+  middleware handler is `devBypassMiddleware` — `clerkMiddleware` is not used at
+  all, so no handshake, no `clerk.example.test`, no resolver error. Identity
+  comes from `auth.ts`'s `DEV_AUTH_BYPASS` + `x-e2e-test-secret` path using
+  `DEV_CLERK_ID`/`E2E_TEST_CLERK_ID = user_test_e2e` (the global-setup-seeded
+  user).
+
+## Local proof
+
+`next dev` with `DEV_AUTH_BYPASS=true` + `DEV_CLERK_ID=user_test_e2e` against the
+compose infra: browser loads `/`, `/dashboard`, `/books`, `/login` all **200**
+(page.title present), and the full `smoke-test.spec.ts` 14-step workflow runs
+green (17/18 in the batch; the single dashboard flake did not repeat on its own
+run). Compare the pre-fix state where every `page.goto` failed
+`ERR_NAME_NOT_RESOLVED`.
+
+## Applied to CI
+
+`.github/workflows/e2e.yml` now sets `DEV_AUTH_BYPASS: "true"` and
+`DEV_CLERK_ID: "user_test_e2e"` in the workflow env (which the Playwright
+`webServer` `next dev` inherits). This is gated to the e2e job's env only —
+real production still forbids `DEV_AUTH_BYPASS` (`env.ts` flags it), and node
+`next dev` sets `NODE_ENV=development`. The page-level suite can now genuinely
+run against the dev server instead of dying at a fake Clerk domain.
+
+**Security note:** the e2e bypass never ships to real production because
+`DEV_AUTH_BYPASS` is still forbidden there and `E2E_TEST_SECRET` is a
+CI-only value; this change only routes the e2e job's own app through the
+intended dev-bypass, not a wider security relaxation.

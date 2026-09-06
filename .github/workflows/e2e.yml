@@ -26,7 +26,19 @@ env:
   DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/writemybook?schema=public"
   API_KEY_ENCRYPTION_SECRET: "changeme-generate-with-openssl-rand-hex-32-xxxx"
   NEXT_PUBLIC_APP_URL: "http://localhost:3000"
-  DEV_AUTH_BYPASS: "false"
+  # E2E uses the DEV_AUTH_BYPASS middleware (no real Clerk) so browser page
+  # navigation can reach the app. The app's Clerk key is a development
+  # (`pk_test_`) key whose middleware issues a `dev-browser-missing` handshake
+  # redirect to the (intentionally fake) `clerk.example.test` frontend API
+  # BEFORE any user-callback bypass can run; that domain never resolves, so
+  # every unauthenticated page.goto failed net::ERR_NAME_NOT_RESOLVED
+  # (43/127 in the pre-fix runs, reproduced locally). devBypassMiddleware
+  # swaps out clerkMiddleware entirely and identity comes from auth.ts's
+  # DEV_AUTH_BYPASS + x-e2e-test-secret path, so pages render directly. This
+  # is gated to this e2e job's env only — DEV_AUTH_BYPASS is still forbidden in
+  # real production (env.ts flags it).
+  DEV_AUTH_BYPASS: "true"
+  DEV_CLERK_ID: "user_test_e2e"
   E2E_TEST_SECRET: "ci-e2e-secret-not-for-production"
   # GitHub runners lack a 'localhost' hosts entry; browser navigation to
   # that hostname fails ERR_NAME_NOT_RESOLVED. Playwright webServer.url and
