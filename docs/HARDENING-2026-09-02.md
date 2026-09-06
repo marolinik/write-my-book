@@ -241,3 +241,13 @@ run against the dev server instead of dying at a fake Clerk domain.
 `DEV_AUTH_BYPASS` is still forbidden there and `E2E_TEST_SECRET` is a
 CI-only value; this change only routes the e2e job's own app through the
 intended dev-bypass, not a wider security relaxation.
+
+**Follow-up same day:** after the DEV_AUTH_BYPASS fix, the suite jumped from
+66→116 passed / 43→8 failed. The remaining 8 were `w4-data-safety-drills.spec.ts`
+(and `x1-two-tab-conflict.spec.ts`) returning `{"error":"Unauthorized"}`: those
+specs run as the preset QA persona `user_qa_p2` (NOT `user_test_e2e`, which is
+blocked for book creation), but the CI DB never provisioned that persona
+(`global-setup.ts` only seeds `user_test_e2e`). `auth.ts`'s `x-e2e-clerk-id:
+user_qa_*` lookup then found no user. Fixed by adding a `Seed QA persona users`
+step to `e2e.yml` that runs the idempotent `scripts/qa-seed-personas.ts`
+(user_qa_p1..p8) after `prisma db push`.

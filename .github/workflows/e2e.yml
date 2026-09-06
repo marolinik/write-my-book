@@ -119,6 +119,16 @@ jobs:
       - name: Push database schema
         run: npx prisma db push
 
+      - name: Seed QA persona users
+        # w4-data-safety-drills / x1-two-tab-conflict run as user_qa_p2 (a
+        # preset QA persona), not the global-setup user_test_e2e — user_test_e2e
+        # is intentionally BLOCKED for book creation. qa-seed-personas.ts is
+        # idempotent (wipe each persona's data, upsert the user + subscription)
+        # and requires only DATABASE_URL, which the workflow env provides.
+        # Without this the persona lookups in auth.ts resolve to no user and
+        # those specs fail with {"error":"Unauthorized"}.
+        run: npx tsx scripts/qa-seed-personas.ts
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
