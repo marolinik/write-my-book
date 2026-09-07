@@ -21,6 +21,7 @@ import {
   type StageStatus,
 } from "@/lib/book/development-stages";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -94,18 +95,20 @@ export default async function BookDevelopmentPage({
     )
   ).length;
 
-  const byStage = new Map(
-    deriveDevelopmentStages({
+  const report = deriveDevelopmentStages({
       hasConcept: !!concept,
       hasSynopsis: !!synopsis,
       hasArchitecture: !!architecture,
       researchDocCount,
       chapterCount,
       draftedCount: drafted,
-    }).map((s) => [s.key, s.status] as const)
+    });
+  const byStage = new Map(
+    report.stages.map((s) => [s.key, s.status] as const)
   );
   const stageStatus = (key: DevelopmentStageKey): StageStatus =>
     byStage.get(key) ?? "none";
+  const recommendedNext = report.nextStage;
 
   const firstDraftChapter = book.chapters[0];
   const chaptersHref = `/books/${bookId}/chapters`;
@@ -199,14 +202,27 @@ export default async function BookDevelopmentPage({
           const Icon = stage.icon;
           const isDone = stage.status === "done";
           const hasArtifact = !!stage.viewArtifactId;
+          const isRecommended = recommendedNext === stage.key;
           return (
             <li key={stage.key}>
               <Card
                 className={
-                  "flex h-full flex-col " +
-                  (isDone ? "border-green-500/40 bg-green-500/[0.03]" : "")
+                  "relative flex h-full flex-col " +
+                  (isRecommended
+                    ? "border-primary/60 ring-1 ring-primary/20"
+                    : isDone
+                      ? "border-green-500/40 bg-green-500/[0.03]"
+                      : "")
                 }
               >
+                {isRecommended && (
+                  <Badge
+                    variant="default"
+                    className="absolute -top-2 right-4 text-[10px] px-2 py-0.5"
+                  >
+                    {s.nextStep}
+                  </Badge>
+                )}
                 <CardHeader className="flex-row items-start justify-between gap-2 space-y-0">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">

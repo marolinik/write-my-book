@@ -198,7 +198,7 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     contextProfile: {
       fingerprint: "full",
       storyBible: "full",
-      synopsis: "none",
+      synopsis: "full",
       architecture: "full",
       chapterContent: true,
       adjacentChapters: "summaries-all",
@@ -330,7 +330,7 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     contextProfile: {
       fingerprint: "none",
       storyBible: "full",
-      synopsis: "none",
+      synopsis: "full",
       architecture: "full",
       chapterContent: true,
       adjacentChapters: "summaries-all",

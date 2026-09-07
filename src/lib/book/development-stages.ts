@@ -27,15 +27,33 @@ export interface DevelopmentStageState {
   status: StageStatus;
 }
 
+export interface DevelopmentStageReport {
+  /** The six pipeline stages in order, with their derived status. */
+  stages: Array<{ key: DevelopmentStageKey; status: StageStatus }>;
+  /** First stage in pipeline order that is not fully done, or null when every
+   *  stage is done. Used to surface the writer's recommended next step. */
+  nextStage: DevelopmentStageKey | null;
+}
+
+const ORDER: DevelopmentStageKey[] = [
+  "idea",
+  "synopsis",
+  "structure",
+  "research",
+  "plan",
+  "draft",
+];
+
 /**
  * Classify the six pre-draft pipeline stages from the book's document/chapter
  * state. `research` is done at 2+ research docs (partial if any); `plan` is done
  * once at least one chapter is drafted; `draft` is done when every chapter is
- * drafted. These mirror the hub page's rendering.
+ * drafted. These mirror the hub page's rendering. Returns the stages plus the
+ * recommended next (first not-done) stage.
  */
 export function deriveDevelopmentStages(
   input: DevelopmentStageInput
-): Array<{ key: DevelopmentStageKey; status: StageStatus }> {
+): DevelopmentStageReport {
   const planStatus: StageStatus =
     input.chapterCount > 0 && input.draftedCount > 0
       ? "done"
@@ -50,7 +68,7 @@ export function deriveDevelopmentStages(
         ? "partial"
         : "none";
 
-  return [
+  const stages: Array<{ key: DevelopmentStageKey; status: StageStatus }> = [
     { key: "idea", status: input.hasConcept ? "done" : ("none" as StageStatus) },
     { key: "synopsis", status: input.hasSynopsis ? "done" : ("none" as StageStatus) },
     {
@@ -69,4 +87,10 @@ export function deriveDevelopmentStages(
     { key: "plan", status: planStatus },
     { key: "draft", status: draftStatus },
   ];
+
+  const nextStage = ORDER.find(
+    (key) => stages.find((st) => st.key === key)!.status !== "done"
+  );
+
+  return { stages, nextStage: nextStage ?? null };
 }

@@ -1,12 +1,24 @@
 import { describe, it, expect } from "vitest";
-import { deriveDevelopmentStages } from "@/lib/book/development-stages";
+import {
+  deriveDevelopmentStages,
+  type DevelopmentStageKey,
+} from "@/lib/book/development-stages";
 import { getUIStrings } from "@/lib/i18n/ui-strings";
+import { getAgentDefinition } from "@/lib/agents/definitions";
 
 const UI_CODES = ["en", "sr", "de", "es", "fr", "ru", "zh"] as const;
 
+const byKey = (input: Parameters<typeof deriveDevelopmentStages>[0]) =>
+  Object.fromEntries(
+    deriveDevelopmentStages(input).stages.map((s) => [s.key, s.status])
+  ) as Record<DevelopmentStageKey, "done" | "partial" | "none">;
+
+const nextOf = (input: Parameters<typeof deriveDevelopmentStages>[0]) =>
+  deriveDevelopmentStages(input).nextStage;
+
 describe("Book Development hub — stage status derivation", () => {
-  it("brand-new book: only the Idea stage is actionable, the rest are not started", () => {
-    const stages = deriveDevelopmentStages({
+  it("brand-new book: every stage is not started and next is Idea", () => {
+    const m = byKey({
       hasConcept: false,
       hasSynopsis: false,
       hasArchitecture: false,
@@ -14,35 +26,45 @@ describe("Book Development hub — stage status derivation", () => {
       chapterCount: 0,
       draftedCount: 0,
     });
-    const byKey = Object.fromEntries(stages.map((s) => [s.key, s.status]));
-    expect(byKey.idea).toBe("none");
-    expect(byKey.synopsis).toBe("none");
-    expect(byKey.structure).toBe("none");
-    expect(byKey.research).toBe("none");
-    expect(byKey.plan).toBe("none");
-    expect(byKey.draft).toBe("none");
+    expect(m).toEqual({
+      idea: "none",
+      synopsis: "none",
+      structure: "none",
+      research: "none",
+      plan: "none",
+      draft: "none",
+    });
+    expect(nextOf({
+      hasConcept: false,
+      hasSynopsis: false,
+      hasArchitecture: false,
+      researchDocCount: 0,
+      chapterCount: 0,
+      draftedCount: 0,
+    })).toBe("idea");
   });
 
-  it("concept + synopsis + architecture present: first three marked done", () => {
-    const stages = deriveDevelopmentStages({
+  it("concept + synopsis + architecture present: first three done, next is research", () => {
+    const input = {
       hasConcept: true,
       hasSynopsis: true,
       hasArchitecture: true,
       researchDocCount: 0,
       chapterCount: 0,
       draftedCount: 0,
-    });
-    const byKey = Object.fromEntries(stages.map((s) => [s.key, s.status]));
-    expect(byKey.idea).toBe("done");
-    expect(byKey.synopsis).toBe("done");
-    expect(byKey.structure).toBe("done");
-    expect(byKey.research).toBe("none");
-    expect(byKey.plan).toBe("none");
-    expect(byKey.draft).toBe("none");
+    };
+    const m = byKey(input);
+    expect(m.idea).toBe("done");
+    expect(m.synopsis).toBe("done");
+    expect(m.structure).toBe("done");
+    expect(m.research).toBe("none");
+    expect(m.plan).toBe("none");
+    expect(m.draft).toBe("none");
+    expect(nextOf(input)).toBe("research");
   });
 
   it("one research doc is partial; two+ is done", () => {
-    const one = deriveDevelopmentStages({
+    const one = byKey({
       hasConcept: true,
       hasSynopsis: true,
       hasArchitecture: true,
@@ -50,11 +72,10 @@ describe("Book Development hub — stage status derivation", () => {
       chapterCount: 0,
       draftedCount: 0,
     });
-    expect(Object.fromEntries(one.map((s) => [s.key, s.status])).research).toBe(
-      "partial"
-    );
+    expect(one.research).toBe("partial");
+    expect(one.plan).toBe("none");
 
-    const two = deriveDevelopmentStages({
+    const two = byKey({
       hasConcept: true,
       hasSynopsis: true,
       hasArchitecture: true,
@@ -62,13 +83,11 @@ describe("Book Development hub — stage status derivation", () => {
       chapterCount: 0,
       draftedCount: 0,
     });
-    expect(Object.fromEntries(two.map((s) => [s.key, s.status])).research).toBe(
-      "done"
-    );
+    expect(two.research).toBe("done");
   });
 
   it("plan is partial with chapters but no drafted content, done once drafted", () => {
-    const planned = deriveDevelopmentStages({
+    const planned = byKey({
       hasConcept: true,
       hasSynopsis: true,
       hasArchitecture: true,
@@ -76,11 +95,10 @@ describe("Book Development hub — stage status derivation", () => {
       chapterCount: 3,
       draftedCount: 0,
     });
-    const plannedMap = Object.fromEntries(planned.map((s) => [s.key, s.status]));
-    expect(plannedMap.plan).toBe("partial");
-    expect(plannedMap.draft).toBe("none");
+    expect(planned.plan).toBe("partial");
+    expect(planned.draft).toBe("none");
 
-    const partiallyDrafted = deriveDevelopmentStages({
+    const partiallyDrafted = byKey({
       hasConcept: true,
       hasSynopsis: true,
       hasArchitecture: true,
@@ -88,13 +106,12 @@ describe("Book Development hub — stage status derivation", () => {
       chapterCount: 3,
       draftedCount: 1,
     });
-    const pd = Object.fromEntries(partiallyDrafted.map((s) => [s.key, s.status]));
-    expect(pd.plan).toBe("done");
-    expect(pd.draft).toBe("partial");
+    expect(partiallyDrafted.plan).toBe("done");
+    expect(partiallyDrafted.draft).toBe("partial");
   });
 
-  it("draft is done only when every chapter carries drafted content", () => {
-    const finished = deriveDevelopmentStages({
+  it("draft is done only when every chapter carries drafted content; then no next stage", () => {
+    const finished = byKey({
       hasConcept: true,
       hasSynopsis: true,
       hasArchitecture: true,
@@ -102,10 +119,44 @@ describe("Book Development hub — stage status derivation", () => {
       chapterCount: 4,
       draftedCount: 4,
     });
-    const map = Object.fromEntries(finished.map((s) => [s.key, s.status]));
-    expect(map.research).toBe("done");
-    expect(map.plan).toBe("done");
-    expect(map.draft).toBe("done");
+    expect(finished.research).toBe("done");
+    expect(finished.plan).toBe("done");
+    expect(finished.draft).toBe("done");
+    expect(
+      nextOf({
+        hasConcept: true,
+        hasSynopsis: true,
+        hasArchitecture: true,
+        researchDocCount: 2,
+        chapterCount: 4,
+        draftedCount: 4,
+      })
+    ).toBeNull();
+  });
+
+  it("next stage advances through the pipeline in order", () => {
+    // Nothing
+    expect(
+      nextOf({
+        hasConcept: false,
+        hasSynopsis: false,
+        hasArchitecture: false,
+        researchDocCount: 0,
+        chapterCount: 0,
+        draftedCount: 0,
+      })
+    ).toBe("idea");
+    // Concept done -> synopsis
+    expect(
+      nextOf({
+        hasConcept: true,
+        hasSynopsis: false,
+        hasArchitecture: false,
+        researchDocCount: 0,
+        chapterCount: 0,
+        draftedCount: 0,
+      })
+    ).toBe("synopsis");
   });
 });
 
@@ -140,5 +191,25 @@ describe("Book Development hub — i18n coverage in every UI locale", () => {
     expect(getUIStrings("sr").bookDevelopment.title).not.toBe(
       getUIStrings("en").bookDevelopment.title
     );
+  });
+});
+
+describe("Book Development hub — synopsis feedback to review agents", () => {
+  it("dev-editor carries the full synopsis into its prompt context", () => {
+    const def = getAgentDefinition("dev-editor");
+    expect(def).toBeDefined();
+    expect(def!.contextProfile.synopsis).toBe("full");
+  });
+
+  it("continuity-checker carries the full synopsis into its prompt context", () => {
+    const def = getAgentDefinition("continuity-checker");
+    expect(def).toBeDefined();
+    expect(def!.contextProfile.synopsis).toBe("full");
+  });
+
+  it("micro-level line-editor does not (prose-scope, not story-level)", () => {
+    const def = getAgentDefinition("line-editor");
+    expect(def).toBeDefined();
+    expect(def!.contextProfile.synopsis).toBe("none");
   });
 });
