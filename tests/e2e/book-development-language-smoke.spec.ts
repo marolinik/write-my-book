@@ -34,6 +34,12 @@ async function setLanguage(request: APIRequestContext, _bookId: string, language
 }
 
 test.describe("Book Development hub — language smoke (UDG-11)", () => {
+  // Each test gets a fresh page/context; force every browser request to run as
+  // the language persona so the hub authenticates as that user in its locale.
+  test.beforeEach(async ({ page }) => {
+    await page.context().setExtraHTTPHeaders(LANG_HEADERS);
+  });
+
   test("hub renders in Serbian for a user with preferredLanguage=sr", async ({
     page,
     request,
@@ -48,8 +54,6 @@ test.describe("Book Development hub — language smoke (UDG-11)", () => {
     expect(ok(bookRes.status()), `create book sr (${bookRes.status()})`).toBe(true);
     const book = (await bookRes.json()) as { id: string; name: string };
 
-    // Make the browser requests run as the language persona too.
-    await page.context().setExtraHTTPHeaders(LANG_HEADERS);
     await page.goto(`/books/${book.id}/dev`);
     await page.waitForLoadState("networkidle");
 
