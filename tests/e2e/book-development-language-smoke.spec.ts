@@ -15,6 +15,15 @@ const LANG_HEADERS = {
   "x-e2e-clerk-id": "user_qa_lang",
 };
 
+// Book names must be unique per invocation — the create API returns 409 on a
+// name collision, and Playwright retries would otherwise re-create a book with
+// the same name. Timestamp-suffix keeps names unique across retries/runs.
+const RUN = Date.now();
+
+function ok(status: number): boolean {
+  return status === 200 || status === 201;
+}
+
 async function setLanguage(request: APIRequestContext, _bookId: string, language: string): Promise<void> {
   // The language is global per user; PATCH only needs the language code.
   const res = await request.patch(`/api/settings/language`, {
@@ -33,10 +42,10 @@ test.describe("Book Development hub — language smoke (UDG-11)", () => {
     await setLanguage(request, "", "sr");
 
     const bookRes = await request.post(`/api/books`, {
-      data: { name: "Lang Smoke SR", genre: "Fantasy", language: "sr" },
+      data: { name: `Lang Smoke SR ${RUN}`, genre: "Fantasy", language: "sr" },
       headers: LANG_HEADERS,
     });
-    expect(bookRes.status()).toBe(200);
+    expect(ok(bookRes.status()), `create book sr (${bookRes.status()})`).toBe(true);
     const book = (await bookRes.json()) as { id: string; name: string };
 
     // Make the browser requests run as the language persona too.
@@ -76,13 +85,16 @@ test.describe("Book Development hub — language smoke (UDG-11)", () => {
       await setLanguage(request, "", loc.code);
       const bookRes = await request.post(`/api/books`, {
         data: {
-          name: `Lang Smoke ${loc.code}`,
+          name: `Lang Smoke ${loc.code} ${RUN}`,
           genre: "Fantasy",
           language: loc.code,
         },
         headers: LANG_HEADERS,
       });
-      expect(bookRes.status(), `create book ${loc.code}`).toBe(200);
+      expect(
+        ok(bookRes.status()),
+        `create book ${loc.code} (${bookRes.status()})`
+      ).toBe(true);
       const book = (await bookRes.json()) as { id: string };
 
       await page.goto(`/books/${book.id}/dev`);

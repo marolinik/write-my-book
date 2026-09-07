@@ -31,8 +31,9 @@ const PERSONAS: Array<{
   { clerkId: "user_qa_p7", email: "p7.bao@qa.local", name: "P7 Bao (migrator)", plan: "professional" },
   { clerkId: "user_qa_p8", email: "p8.rita@qa.local", name: "P8 Rita (trust/ops)", plan: null },
   // UDG-11 (Jelena): dedicated language-smoke persona — the hub must render in
-  // every locale without crashing on a missing i18n key.
-  { clerkId: "user_qa_lang", email: "qa.lang@qa.local", name: "Lang Smoke", plan: "indie" },
+  // every locale without crashing on a missing i18n key. Professional plan so
+  // the multi-locale smoke loop can create several books (indie caps at 2).
+  { clerkId: "user_qa_lang", email: "qa.lang@qa.local", name: "Lang Smoke", plan: "professional" },
 ];
 
 async function main(): Promise<void> {
