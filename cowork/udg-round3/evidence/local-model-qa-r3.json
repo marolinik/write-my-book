@@ -1,0 +1,38 @@
+{
+  "capturedAt": "2026-09-07T22:53:49.861Z",
+  "purpose": "UDG round-3 20-persona QA — LOCAL-model evidence. Every call below is routed through the local gateway (WMB_LLM_FORCE_LOCAL=1).",
+  "env": {
+    "WMB_LLM_FORCE_LOCAL": "1",
+    "WMB_LOCAL_PROXY_URL": "http://127.0.0.1:30400"
+  },
+  "checks": {
+    "clientRouting": {
+      "provider": "local",
+      "registryId": "local/qwen38",
+      "effectiveModelId": "local/qwen38",
+      "baseURL": "http://127.0.0.1:30400",
+      "localGatewayExpected": "http://127.0.0.1:30400",
+      "routedToLocalGateway": true
+    }
+  },
+  "calls": {
+    "seriesNextVolume": {
+      "modelId": "local/qwen38",
+      "stopReason": "end_turn",
+      "usage": {
+        "input_tokens": 133,
+        "output_tokens": 330
+      },
+      "plan": "\n\n4. The tide's rewinding is not symmetric—each older shore the lighthouse keeper walks onto carries one small, unrepeatable object he left behind in that past, and by volume 4 he has begun collecting them in the lantern room, stacking them like evidence. Advice: resist resolving the rewind mechanism; let the keeper's growing collection of retrieved objects do the worldbuilding work so the reader pieces together what he sacrificed without you explaining the rules."
+    },
+    "researchKeyValue": {
+      "modelId": "local/qwen38",
+      "stopReason": "max_tokens",
+      "usage": {
+        "input_tokens": 89,
+        "output_tokens": 300
+      },
+      "note": ""
+    }
+  }
+}
