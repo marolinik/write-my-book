@@ -126,6 +126,7 @@ export const updateSettingsSchema = z.object({
   modelResearch: modelIdField,
   modelOverride: modelIdOrNull,
   autoCommit: z.boolean().optional(),
+  synopsisForLineEdit: z.boolean().optional(),
   styleStrictness: z.enum(["strict", "balanced", "relaxed"]).optional(),
   betaPanelSize: z.number().int().min(3).max(10).optional(),
   betaConsensus: z.number().int().min(50).max(100).optional(),
@@ -324,6 +325,14 @@ export const exportConfigSchema = z.object({
     widowOrphanControl: z.enum(["strict", "relaxed", "off"]),
     justifiedText: z.boolean(),
   }),
+  // UDG-8 (Igor): remember the last quick-export selections per book. Persisted
+  // on export into the EXPORT_CONFIG document so refresh/cross-device restore.
+  quickExport: z
+    .object({
+      lastFormat: z.enum(["docx", "pdf", "epub"]),
+      lastIsDraft: z.boolean(),
+    })
+    .optional(),
 });
 
 // ─── Editorial Schemas ──────────────────────────────────────────

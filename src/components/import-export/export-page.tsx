@@ -11,7 +11,7 @@ import { FormatSelector } from "./format-selector";
 import { ExportConfigDialog } from "./export-config-dialog";
 import { ExportHistoryList } from "./export-history-list";
 import { useExportStore } from "@/stores/export-store";
-import { useExportManuscript, useDownloadExport, useExportHistory } from "@/hooks/use-export";
+import { useExportManuscript, useDownloadExport, useExportHistory, useExportConfig, useUpdateExportConfig } from "@/hooks/use-export";
 import { useLocale } from "@/components/providers/language-provider";
 import {
   Loader2Icon,
@@ -50,6 +50,18 @@ export function ExportPage({ bookId }: ExportPageProps) {
   const exportMutation = useExportManuscript(bookId);
   const downloadExport = useDownloadExport(bookId);
   const { data: historyData } = useExportHistory(bookId);
+  const { data: exportConfig } = useExportConfig(bookId);
+  const updateExportConfig = useUpdateExportConfig(bookId);
+
+  // UDG-8 (Igor): restore the last quick-export selections for this book once
+  // the persisted EXPORT_CONFIG loads (refresh / cross-device).
+  useEffect(() => {
+    if (exportConfig?.quickExport) {
+      const { lastFormat, lastIsDraft } = exportConfig.quickExport;
+      setSelectedFormat(lastFormat);
+      setIsDraft(lastIsDraft);
+    }
+  }, [exportConfig, setSelectedFormat, setIsDraft]);
 
   const [elapsed, setElapsed] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -79,6 +91,10 @@ export function ExportPage({ bookId }: ExportPageProps) {
         onSuccess: (result) => {
           setLastExportResult(result);
           setExportInProgress(false);
+          // UDG-8 (Igor): remember the last quick-export selection per book.
+          updateExportConfig.mutate({
+            quickExport: { lastFormat: selectedFormat, lastIsDraft: isDraft },
+          });
         },
         onError: () => {
           setExportInProgress(false);

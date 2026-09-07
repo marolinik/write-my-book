@@ -450,6 +450,9 @@ model BookSettings {
   modelResearch    String  @default("sonnet") @map("model_research")
   modelOverride    String? @map("model_override")
   autoCommit       Boolean @default(true) @map("auto_commit")
+  // UDG-4 (Elena): line-edit may load the story synopsis for plot-context-consistent
+  // prose notes. Default off (micro-prose scope); editors opt in per book.
+  synopsisForLineEdit Boolean @default(false) @map("synopsis_for_line_edit")
   styleStrictness    String  @default("balanced") @map("style_strictness") // strict, balanced, relaxed
   betaPanelSize      Int     @default(10) @map("beta_panel_size")
   betaConsensus      Int     @default(80) @map("beta_consensus")

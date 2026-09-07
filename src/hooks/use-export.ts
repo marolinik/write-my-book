@@ -83,6 +83,10 @@ interface ExportConfig {
     widowOrphanControl: "strict" | "relaxed" | "off";
     justifiedText: boolean;
   };
+  quickExport?: {
+    lastFormat: "docx" | "pdf" | "epub";
+    lastIsDraft: boolean;
+  };
 }
 
 // ─── Hooks ──────────────────────────────────────────────────────

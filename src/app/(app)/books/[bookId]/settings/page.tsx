@@ -304,6 +304,19 @@ export default function BookSettingsPage() {
               onCheckedChange={(v) => handleChange("autoCommit", v)}
             />
           </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <Label>{s.synopsisForLineEdit}</Label>
+              <p className="text-xs text-muted-foreground">
+                {s.synopsisForLineEditDesc}
+              </p>
+            </div>
+            <Switch
+              checked={settings.synopsisForLineEdit}
+              onCheckedChange={(v) => handleChange("synopsisForLineEdit", v)}
+            />
+          </div>
         </CardContent>
       </Card>
 

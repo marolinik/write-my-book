@@ -12,7 +12,7 @@ interface EditorialState {
   selectedFindingId: string | null;
   highlightedFindingId: string | null;
   filters: EditorialFilters;
-  activeTab: "findings" | "history" | "summary";
+  activeTab: "findings" | "history" | "summary" | "handoff";
   conversationFindingId: string | null;
 
   setSelectedChapter: (chapter: number | null) => void;
@@ -20,7 +20,7 @@ interface EditorialState {
   setHighlightedFinding: (id: string | null) => void;
   setFilter: (key: keyof EditorialFilters, value: string | null) => void;
   resetFilters: () => void;
-  setActiveTab: (tab: "findings" | "history" | "summary") => void;
+  setActiveTab: (tab: "findings" | "history" | "summary" | "handoff") => void;
   setConversationFinding: (id: string | null) => void;
   reset: () => void;
 }

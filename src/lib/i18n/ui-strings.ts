@@ -220,6 +220,8 @@ export interface UIStrings {
     concept: string; synopsisDoc: string; architecture: string; researchDoc: string; chapterPlan: string; manuscript: string;
     nextStep: string;
     researchHint: string;
+    // UDG-5 (Miloš): series continuity reachability from the hub.
+    continuity: string; continuityDesc: string; continuityLink: string;
   };
 
   // Book settings
@@ -236,6 +238,7 @@ export interface UIStrings {
     styleSection: string; styleDesc: string;
     styleStrictness: string; strict: string; balanced: string; relaxed: string;
     autoCommit: string; autoCommitDesc: string;
+    synopsisForLineEdit: string; synopsisForLineEditDesc: string;
     betaPanel: string; betaPanelDesc: string;
     panelSize: string; consensus: string; convergence: string;
     back: string;
@@ -594,6 +597,7 @@ const EN: UIStrings = {
     concept: "Concept", synopsisDoc: "Synopsis", architecture: "Architecture", researchDoc: "Research", chapterPlan: "Chapter plan", manuscript: "Manuscript",
     nextStep: "Next",
     researchHint: "Research needs a web-search provider key — add Perplexity/Serper/Firecrawl in Settings → API Keys.",
+    continuity: "Series continuity", continuityDesc: "This book is part of the series", continuityLink: "Open continuity report",
   },
   bookSettings: {
     title: "Book Settings", subtitle: "Configure AI models and writing preferences",
@@ -608,6 +612,7 @@ const EN: UIStrings = {
     styleSection: "Style", styleDesc: "Control how strictly AI follows your writing style",
     styleStrictness: "Style Strictness", strict: "Strict", balanced: "Balanced", relaxed: "Relaxed",
     autoCommit: "Auto-commit", autoCommitDesc: "Automatically save agent changes",
+    synopsisForLineEdit: "Load story synopsis in line-edit", synopsisForLineEditDesc: "Give the line editor the story synopsis so its prose notes stay consistent with plot context (default off).",
     betaPanel: "Beta Reader Panel", betaPanelDesc: "Configure virtual beta reader settings",
     panelSize: "Panel Size", consensus: "Consensus %", convergence: "Convergence %",
     back: "Back",
@@ -929,6 +934,7 @@ const SR: UIStrings = {
     concept: "Koncept", synopsisDoc: "Sinopsis", architecture: "Arhitektura", researchDoc: "Istraživanje", chapterPlan: "Plan poglavlja", manuscript: "Rukopis",
     nextStep: "Sledeće",
     researchHint: "Za istraživanje je potreban ključ web-pretrage — dodaj Perplexity/Serper/Firecrawl u Postavke → API ključevi.",
+    continuity: "Kontinuitet serije", continuityDesc: "Ova knjiga je deo serije", continuityLink: "Otvori izveštaj o kontinuitetu",
   },
   bookSettings: {
     title: "Podešavanja knjige", subtitle: "Konfigurišite AI modele i preference pisanja",
@@ -943,6 +949,7 @@ const SR: UIStrings = {
     styleSection: "Stil", styleDesc: "Kontrolišite koliko strogo AI prati vaš stil pisanja",
     styleStrictness: "Strogost stila", strict: "Strogo", balanced: "Uravnoteženo", relaxed: "Opušteno",
     autoCommit: "Automatsko čuvanje", autoCommitDesc: "Automatski sačuvaj izmene agenta",
+    synopsisForLineEdit: "Učitaj sinopsis pri line-edit", synopsisForLineEditDesc: "Daj line-editoru sinopsis priče da njegove primedbe ostanu u skladu sa zapletom (podrazumevano isključeno).",
     betaPanel: "Panel beta čitalaca", betaPanelDesc: "Konfigurišite podešavanja virtualnog beta čitanja",
     panelSize: "Veličina panela", consensus: "Konsenzus %", convergence: "Konvergencija %",
     back: "Nazad",
@@ -1264,6 +1271,7 @@ const DE: UIStrings = {
     concept: "Konzept", synopsisDoc: "Synopsis", architecture: "Architektur", researchDoc: "Recherche", chapterPlan: "Kapitelplan", manuscript: "Manuskript",
     nextStep: "Weiter",
     researchHint: "Für Recherche ist ein Web-Search-Provider-Schlüssel nötig — Perplexity/Serper/Firecrawl unter Einstellungen → API-Schlüssel hinzufügen.",
+    continuity: "Serienkontinuität", continuityDesc: "Dieses Buch ist Teil der Serie", continuityLink: "Kontinuitätsbericht öffnen",
   },
   bookSettings: {
     title: "Bucheinstellungen", subtitle: "KI-Modelle und Schreibeinstellungen konfigurieren",
@@ -1278,6 +1286,7 @@ const DE: UIStrings = {
     styleSection: "Stil", styleDesc: "Steuern Sie, wie streng die KI Ihrem Schreibstil folgt",
     styleStrictness: "Stilstrenge", strict: "Streng", balanced: "Ausgewogen", relaxed: "Locker",
     autoCommit: "Auto-Speichern", autoCommitDesc: "Änderungen des Agenten automatisch speichern",
+    synopsisForLineEdit: "Synopsis beim Line-Edit laden", synopsisForLineEditDesc: "Gib dem Line-Editor die Story-Synopsis, damit seine Prosa-Anmerkungen zum Plot passen (standardmäßig aus).",
     betaPanel: "Beta-Leser-Panel", betaPanelDesc: "Virtuelle Beta-Leser-Einstellungen konfigurieren",
     panelSize: "Panelgröße", consensus: "Konsens %", convergence: "Konvergenz %",
     back: "Zurück",
@@ -1599,6 +1608,7 @@ const ES: UIStrings = {
     concept: "Concepto", synopsisDoc: "Sinopsis", architecture: "Arquitectura", researchDoc: "Investigación", chapterPlan: "Plan de capítulo", manuscript: "Manuscrito",
     nextStep: "Siguiente",
     researchHint: "La investigación requiere una clave de proveedor de búsqueda web: añade Perplexity/Serper/Firecrawl en Ajustes → Claves de API.",
+    continuity: "Continuidad de la serie", continuityDesc: "Este libro forma parte de la serie", continuityLink: "Abrir informe de continuidad",
   },
   bookSettings: {
     title: "Ajustes del libro", subtitle: "Configure modelos de IA y preferencias de escritura",
@@ -1613,6 +1623,7 @@ const ES: UIStrings = {
     styleSection: "Estilo", styleDesc: "Controle cuán estrictamente la IA sigue su estilo de escritura",
     styleStrictness: "Rigor de estilo", strict: "Estricto", balanced: "Equilibrado", relaxed: "Relajado",
     autoCommit: "Auto-guardar", autoCommitDesc: "Guardar automáticamente los cambios del agente",
+    synopsisForLineEdit: "Cargar sinopsis en la corrección de línea", synopsisForLineEditDesc: "Da al editor de línea la sinopsis de la historia para que sus notas de prosa sigan el contexto (desactivado por defecto).",
     betaPanel: "Panel de lectores beta", betaPanelDesc: "Configure los ajustes de lectura beta virtual",
     panelSize: "Tamaño del panel", consensus: "Consenso %", convergence: "Convergencia %",
     back: "Atrás",
@@ -1934,6 +1945,7 @@ const FR: UIStrings = {
     concept: "Concept", synopsisDoc: "Synopsis", architecture: "Architecture", researchDoc: "Recherche", chapterPlan: "Plan de chapitre", manuscript: "Manuscrit",
     nextStep: "Suivant",
     researchHint: "La recherche nécessite une clé de recherche web — ajoutez Perplexity/Serper/Firecrawl dans Paramètres → Clés API.",
+    continuity: "Continuité de la série", continuityDesc: "Ce livre fait partie de la série", continuityLink: "Ouvrir le rapport de continuité",
   },
   bookSettings: {
     title: "Paramètres du livre", subtitle: "Configurez les modèles IA et les préférences d'écriture",
@@ -1948,6 +1960,7 @@ const FR: UIStrings = {
     styleSection: "Style", styleDesc: "Contrôlez à quel point l'IA suit strictement votre style d'écriture",
     styleStrictness: "Rigueur du style", strict: "Strict", balanced: "Équilibré", relaxed: "Détendu",
     autoCommit: "Auto-sauvegarde", autoCommitDesc: "Sauvegarder automatiquement les modifications de l'agent",
+    synopsisForLineEdit: "Charger le synopsis en révision de ligne", synopsisForLineEditDesc: "Donnez le synopsis de l'histoire au réviseur de ligne pour que ses notes de prose restent cohérentes (désactivé par défaut).",
     betaPanel: "Panel de lecteurs bêta", betaPanelDesc: "Configurez les paramètres de lecture bêta virtuelle",
     panelSize: "Taille du panel", consensus: "Consensus %", convergence: "Convergence %",
     back: "Retour",
@@ -2269,6 +2282,7 @@ const RU: UIStrings = {
     concept: "Концепция", synopsisDoc: "Синопсис", architecture: "Архитектура", researchDoc: "Исследование", chapterPlan: "План главы", manuscript: "Рукопись",
     nextStep: "Далее",
     researchHint: "Для поиска нужен ключ веб-поиска — добавьте Perplexity/Serper/Firecrawl в Настройки → Ключи API.",
+    continuity: "Преемственность серии", continuityDesc: "Эта книга является частью серии", continuityLink: "Открыть отчёт о преемственности",
   },
   bookSettings: {
     title: "Настройки книги", subtitle: "Настройте модели ИИ и параметры письма",
@@ -2283,6 +2297,7 @@ const RU: UIStrings = {
     styleSection: "Стиль", styleDesc: "Контролируйте, насколько строго ИИ следует вашему стилю письма",
     styleStrictness: "Строгость стиля", strict: "Строго", balanced: "Сбалансированно", relaxed: "Свободно",
     autoCommit: "Автосохранение", autoCommitDesc: "Автоматически сохранять изменения агента",
+    synopsisForLineEdit: "Загружать синопсис при линейном редактировании", synopsisForLineEditDesc: "Дайте линейному редактору синопсис истории, чтобы его замечания к прозе соответствовали сюжету (по умолчанию выключено).",
     betaPanel: "Панель бета-читателей", betaPanelDesc: "Настройте параметры виртуального бета-чтения",
     panelSize: "Размер панели", consensus: "Консенсус %", convergence: "Конвергенция %",
     back: "Назад",
@@ -2604,6 +2619,7 @@ const ZH: UIStrings = {
     concept: "概念", synopsisDoc: "故事梗概", architecture: "架构", researchDoc: "调研", chapterPlan: "章节计划", manuscript: "手稿",
     nextStep: "下一步",
     researchHint: "调研需要网络搜索服务密钥——请在设置→API 密钥中添加 Perplexity/Serper/Firecrawl。",
+    continuity: "系列连续性", continuityDesc: "本书属于该系列", continuityLink: "打开连续性报告",
   },
   bookSettings: {
     title: "书籍设置", subtitle: "配置AI模型和写作偏好",
@@ -2618,6 +2634,7 @@ const ZH: UIStrings = {
     styleSection: "风格", styleDesc: "控制AI遵循您写作风格的严格程度",
     styleStrictness: "风格严格度", strict: "严格", balanced: "平衡", relaxed: "宽松",
     autoCommit: "自动保存", autoCommitDesc: "自动保存代理的更改",
+    synopsisForLineEdit: "在逐行编辑中加载故事梗概", synopsisForLineEditDesc: "让逐行编辑器加载故事梗概，使其对稿件的批注与情节保持一致（默认关闭）。",
     betaPanel: "测试读者面板", betaPanelDesc: "配置虚拟测试读者设置",
     panelSize: "面板大小", consensus: "共识 %", convergence: "收敛 %",
     back: "返回",

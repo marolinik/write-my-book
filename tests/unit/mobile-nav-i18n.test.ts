@@ -16,6 +16,9 @@ describe("mobile bottom-nav labels are translated (D-11)", () => {
       expect(t.nav.agent).toBeTruthy();
       expect(t.nav.books).toBeTruthy();
       expect(t.nav.settings).toBeTruthy();
+      // UDG-6 (Tara): the mobile bottom nav gains a book-scoped Development hub
+      // tab — every locale must supply its label.
+      expect(t.nav.development).toBeTruthy();
     }
   );
 

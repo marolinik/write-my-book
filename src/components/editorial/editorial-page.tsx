@@ -12,7 +12,8 @@ import { FindingsFilters } from "./findings-filters";
 import { FindingsPanel } from "./findings-panel";
 import { EditorialSummary } from "./editorial-summary";
 import { EditHistoryTimeline } from "./edit-history-timeline";
-import { PenLineIcon, SparklesIcon, ShieldCheckIcon, BookOpenIcon } from "lucide-react";
+import { HandoffPanel } from "./handoff-panel";
+import { PenLineIcon, SparklesIcon, ShieldCheckIcon, BookOpenIcon, HandshakeIcon } from "lucide-react";
 import Link from "next/link";
 
 interface EditorialPageProps {
@@ -134,7 +135,7 @@ export function EditorialPage({ bookId, chapters }: EditorialPageProps) {
         <Tabs
           value={activeTab}
           onValueChange={(v) =>
-            setActiveTab(v as "findings" | "history" | "summary")
+            setActiveTab(v as "findings" | "history" | "summary" | "handoff")
           }
           className="flex flex-1 flex-col overflow-hidden"
         >
@@ -149,6 +150,10 @@ export function EditorialPage({ bookId, chapters }: EditorialPageProps) {
             </TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
             <TabsTrigger value="summary">Summary</TabsTrigger>
+            <TabsTrigger value="handoff" className="gap-1.5">
+              <HandshakeIcon className="size-3.5" />
+              Handoff
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="findings" className="flex-1 overflow-auto mt-0">
@@ -161,6 +166,10 @@ export function EditorialPage({ bookId, chapters }: EditorialPageProps) {
 
           <TabsContent value="summary" className="flex-1 overflow-auto mt-0">
             <EditorialSummary bookId={bookId} />
+          </TabsContent>
+
+          <TabsContent value="handoff" className="flex-1 overflow-hidden mt-0">
+            <HandoffPanel bookId={bookId} chapters={chapters} />
           </TabsContent>
         </Tabs>
       )}

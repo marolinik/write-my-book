@@ -30,6 +30,9 @@ const PERSONAS: Array<{
   { clerkId: "user_qa_p6", email: "p6.owen@qa.local", name: "P6 Owen (stylist)", plan: "indie" },
   { clerkId: "user_qa_p7", email: "p7.bao@qa.local", name: "P7 Bao (migrator)", plan: "professional" },
   { clerkId: "user_qa_p8", email: "p8.rita@qa.local", name: "P8 Rita (trust/ops)", plan: null },
+  // UDG-11 (Jelena): dedicated language-smoke persona — the hub must render in
+  // every locale without crashing on a missing i18n key.
+  { clerkId: "user_qa_lang", email: "qa.lang@qa.local", name: "Lang Smoke", plan: "indie" },
 ];
 
 async function main(): Promise<void> {

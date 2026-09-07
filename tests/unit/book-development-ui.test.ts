@@ -179,6 +179,9 @@ describe("Book Development hub — i18n coverage in every UI locale", () => {
       "viewArtifact",
       "startWriting",
       "researchHint",
+      "continuity",
+      "continuityDesc",
+      "continuityLink",
     ] as const) {
       expect(bd[key]).toBeTruthy();
     }

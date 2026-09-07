@@ -10,6 +10,7 @@ import {
   CheckIcon,
   CircleIcon,
   ArrowRightIcon,
+  LibraryIcon,
 } from "lucide-react";
 
 import { requireUser } from "@/lib/auth";
@@ -298,6 +299,28 @@ export default async function BookDevelopmentPage({
           );
         })}
       </ol>
+
+      {/* UDG-5 (Miloš): series continuity reachability from the hub. When the
+          book belongs to a series, surface the cross-book continuity report.
+          Lives at the book Reports → Continuity tab (renders CONTINUITY_REPORT). */}
+      {book.series ? (
+        <section className="space-y-3">
+          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+            <LibraryIcon className="size-4 text-muted-foreground" aria-hidden="true" />
+            <span>{s.continuity}</span>
+          </div>
+          <Card>
+            <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <CardDescription className="max-w-xl text-xs leading-relaxed">
+                {s.continuityDesc} <span className="font-medium">{book.series.title}</span>
+              </CardDescription>
+              <Button size="sm" variant="outline" className="shrink-0" asChild>
+                <Link href={`/books/${bookId}/reports`}>{s.continuityLink}</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </section>
+      ) : null}
     </div>
   );
 }

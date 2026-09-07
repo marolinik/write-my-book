@@ -1659,7 +1659,24 @@ export async function assembleAgentPrompt(
   }
 
   // ─── SECTION 6b: Synopsis (priority 78) ───────────────────────
-  if (profile.synopsis === "full") {
+  // UDG-4 (Elena): line-edit keeps micro-prose scope by default (static
+  // profile.synopsis === "none"), but editors can opt in per book via
+  // BookSettings.synopsisForLineEdit so the line editor loads the story
+  // synopsis for plot-context-consistent notes. All other agents use their
+  // static profile value. A settings load failure degrades to the static value.
+  let synopsisFull = profile.synopsis === "full";
+  if (definition.type === "line-editor" && context.bookId) {
+    try {
+      const settings = await db.bookSettings.findUnique({
+        where: { bookId: context.bookId },
+        select: { synopsisForLineEdit: true },
+      });
+      synopsisFull = settings?.synopsisForLineEdit ?? false;
+    } catch {
+      synopsisFull = profile.synopsis === "full";
+    }
+  }
+  if (synopsisFull) {
     const syn =
       context.synopsis ??
       (await loadDocument(documentService, DocumentType.SYNOPSIS));

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboardIcon,
   BookOpenIcon,
+  BookMarkedIcon,
   BotIcon,
   SettingsIcon,
 } from "lucide-react";
@@ -18,29 +19,61 @@ const TAB_DEFS = [
   { key: "settings", href: "/settings", icon: SettingsIcon, match: "/settings" },
 ] as const;
 
+type TabKey = (typeof TAB_DEFS)[number]["key"] | "dev";
+
 export function MobileBottomNav() {
   const pathname = usePathname();
   const { t } = useLanguage();
   const panelMode = useAgentUIStore((s) => s.panelMode);
   const setPanelMode = useAgentUIStore((s) => s.setPanelMode);
   const panelOpen = panelMode !== "hidden" && panelMode !== "bubble";
+  const bookIdMatch = pathname.match(/\/books\/([^/]+)/);
+  const bookId = bookIdMatch?.[1];
 
   // Labels come from the active UI dictionary (D-11 — they were hardcoded
   // English and never translated in any locale).
-  const labels: Record<(typeof TAB_DEFS)[number]["key"], string> = {
+  const labels: Record<TabKey, string> = {
     home: t.nav.home,
     books: t.nav.books,
     agent: t.nav.agent,
     settings: t.nav.settings,
+    dev: t.nav.development,
   };
+
+  // Dev hub tab list — Book Development hubs live under /books/[bookId]/dev, so
+  // the tab only appears (as a 5th tab) while inside a book, alongside the sidebar's
+  // book-scoped Development entry (UDG-6 Tara: mobile discoverability on phones/mobile nav; the
+  // sidebar Dev entry is /books/[bookId]/dev via BookMarkedIcon).
+  const activeTabs: TabKey[] = bookId
+    ? ["home", "dev", "agent", "settings"]
+    : ["home", "books", "agent", "settings"];
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-30 flex h-14 items-center justify-around border-t bg-background md:hidden">
-      {TAB_DEFS.map((tab) => {
+      {activeTabs.map((key) => {
+        if (key === "dev") {
+          const isActive = pathname.includes("/dev");
+          return (
+            <Link
+              key={key}
+              href={`/books/${bookId}/dev`}
+              className={`flex flex-col items-center gap-0.5 px-3 py-1 text-[10px] ${
+                isActive ? "text-primary" : "text-muted-foreground"
+              }`}
+            >
+              <BookMarkedIcon className="size-5" />
+              <span>{labels.dev}</span>
+            </Link>
+          );
+        }
+
+        const tab = TAB_DEFS.find((t) => t.key === key)!;
         const isAgent = tab.href === null;
         const isActive = isAgent
           ? panelOpen
-          : tab.match && pathname.startsWith(tab.match);
+          : key === "books"
+            ? pathname.startsWith(tab.match) && !pathname.includes("/dev")
+            : tab.match && pathname.startsWith(tab.match);
 
         if (isAgent) {
           return (

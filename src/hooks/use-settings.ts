@@ -20,6 +20,8 @@ export type BookSettingsData = {
   /** Book-level default model override (registry ID or null). */
   modelOverride: string | null;
   autoCommit: boolean;
+  /** UDG-4 (Elena): line-edit may load the story synopsis (default off). */
+  synopsisForLineEdit: boolean;
   styleStrictness: string;
   betaPanelSize: number;
   betaConsensus: number;

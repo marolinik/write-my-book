@@ -57,6 +57,11 @@ export function getDefaultExportConfig(bookName: string): ExportConfig {
       widowOrphanControl: "strict",
       justifiedText: true,
     },
+    // UDG-8 (Igor): last quick-export selections are remembered per book.
+    quickExport: {
+      lastFormat: "docx",
+      lastIsDraft: false,
+    },
   };
 }
 

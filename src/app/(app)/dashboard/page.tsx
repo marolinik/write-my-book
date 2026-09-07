@@ -19,6 +19,7 @@ import { getDailyWordCounts } from "@/lib/writing-stats";
 import { getUIStrings, localeFor } from "@/lib/i18n/ui-strings";
 import { getAgentStrings } from "@/lib/i18n/agent-strings";
 import { getWorkflow } from "@/lib/agents/workflows";
+import { nextOverviewRecommendation } from "@/lib/onboarding/overview-recommendation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { WritingWrappedCard } from "@/components/book/writing-wrapped-card";
@@ -111,6 +112,50 @@ export default async function DashboardPage() {
       select: { id: true, chapterNumber: true, title: true },
     });
     lastChapter = ch;
+  }
+
+  // UDG-10 (Natalija): activation nudge — the single highest-value next action
+  // for the most-recent book, computed server-side so the dashboard's plan
+  // always points at one concrete "what do I do now" step.
+  let nextAction: { workflowId: string; reason: string; href: string } | null = null;
+  if (lastBook) {
+    const rec = await Promise.all([
+      db.bookSettings.findUnique({
+        where: { bookId: lastBook.id },
+        select: { setupComplete: true },
+      }),
+      db.document.findMany({
+        where: { bookId: lastBook.id, chapterNumber: null },
+        select: { type: true },
+      }),
+      db.chapter.findMany({
+        where: { bookId: lastBook.id },
+        select: { chapterNumber: true, status: true },
+      }),
+      db.editFinding.count({
+        where: { bookId: lastBook.id, status: "pending" },
+      }),
+    ]);
+    const [settings, docs, chaptersRec, pendingFindingsForBook] = rec;
+    const types = new Set(docs.map((d) => d.type));
+    const recommendation = nextOverviewRecommendation({
+      setupComplete: settings?.setupComplete ?? false,
+      hasFingerprint: types.has("FINGERPRINT"),
+      hasStoryBible: types.has("STORY_BIBLE"),
+      hasArchitecture: types.has("ARCHITECTURE"),
+      chapters: chaptersRec.map((c) => ({
+        chapterNumber: c.chapterNumber,
+        status: c.status,
+      })),
+      pendingFindings: pendingFindingsForBook,
+    });
+    if (getWorkflow(recommendation.workflowId)) {
+      nextAction = {
+        workflowId: recommendation.workflowId,
+        reason: recommendation.reason,
+        href: `/books/${lastBook.id}`,
+      };
+    }
   }
 
   // Writing activity: real per-day word deltas for the last 7 days (UTC-bucketed)
@@ -257,6 +302,34 @@ export default async function DashboardPage() {
                   }
                 >
                   {t.dashboard.resumeChapter}
+                  <ArrowRightIcon className="ml-1 size-4" />
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* UDG-10 (Natalija): activation nudge — the one highest-value next action
+          on your most recent book, so the homeroom always answers "what do I do
+          now?" with a concrete step instead of a wall of stats. */}
+      {nextAction && (
+        <Card className="border-primary/40 bg-primary/[0.03]">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <PlayIcon className="size-4 text-primary" />
+              {t.journey.recommended}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="font-medium">{lastBook?.name}</p>
+                <p className="text-sm text-muted-foreground">{nextAction.reason}</p>
+              </div>
+              <Button asChild size="sm" className="shrink-0">
+                <Link href={nextAction.href}>
+                  {getWorkflowLabel(nextAction.workflowId, user.preferredLanguage ?? "en")}
                   <ArrowRightIcon className="ml-1 size-4" />
                 </Link>
               </Button>
