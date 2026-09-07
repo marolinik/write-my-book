@@ -63,4 +63,32 @@ A focused recheck after the three operator gates close — re-running the review
 
 ---
 
-*Prepared from code inspection, the full unit suite (1783 green), TypeScript verification, a live dev-DB schema migration, and targeted new tests (export sandbox/sanitize 16, finding apply/undo 8, billing checkout dedup 3 + webhook reconcile 4, offline draft guard 4).*
+## 5. Addition (2026-09-06) — Book Development package
+
+Alongside the launch-blocker fixes, a new **Book Development** package was added (commit
+`beef3e4`, PRD in `docs/prd/book-development-package-2026-09-06.md`) to complete the pre-draft
+pipeline (idea → synopsis → structure → planning → research → draft):
+
+- **`SYNOPSIS` document type** — new Prisma enum value, `.planning/SYNOPSIS.md` storage,
+  validated in `createDocumentSchema`, labeled for the agent stream.
+- **`write-synopsis` workflow** — produces the SYNOPSIS doc (logline → opening → inciting
+  incident → rising action → climax → resolution → themes, ~800–1800 words, spoiler-complete),
+  added to the `new-novel` journey and the coach decision map; scene-planner-driven.
+- **CONCEPT persistence** — `new-novel` and `onboard-new-book` now write a `CONCEPT` document
+  (they were conversational-only before).
+- **Journey + context wiring** — `hasSynopsis` drives the journey checkpoint; ghostwriter and
+  story-architect receive `<story_synopsis>` in prompt context.
+- **Research provider upgrade** — `WebSearch` now tries **Perplexity** (citation-annotated
+  answers) before Serper/DDG; `FetchWebPage` tries **Firecrawl** (clean markdown) before the
+  in-process SSRF-guarded scrape. All new keys optional (`PERPLEXITY_API_KEY/URL/MODEL`,
+  `FIRECRAWL_API_KEY/URL`).
+
+**Verification:** 11 new unit tests (`tests/unit/book-development.test.ts`, incl. mocked-fetch
+provider-selection tests). Full unit suite **1794 passed** (up from 1783); `tsc --noEmit` clean;
+`next build` compiles (local page-data step only fails on the pre-existing missing-real-Clerk-key
+gate; CI injects non-placeholder dummies). Schema change applied via `prisma db push` per the
+deploy contract.
+
+---
+
+*Prepared from code inspection, the full unit suite (1794 green), TypeScript verification, a live dev-DB schema migration, and the targeted new tests (book-development 11, plus the prior export/finding/billing/offline coverage).*
