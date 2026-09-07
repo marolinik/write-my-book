@@ -13,6 +13,16 @@
 > `ContinuityFlag` table + inline flags, 28 findings folded, pivoted off `EditFinding` mid-review).
 > **Next:** 4.6 power-user depth and/or Tier 3 moats (4.8 The Shelf shipped 2026-07-03).
 
+> **Progress — updated 2026-09-07.** **Book Development package shipped** (commit
+> `beef3e4`, PRD in `docs/prd/book-development-package-2026-09-06.md`): completed the
+> pre-draft pipeline (idea → synopsis → structure → planning → research → draft) by adding a
+> `SYNOPSIS` document type + `write-synopsis` workflow + journey checkpoint, persisting the
+> `CONCEPT` document from the onboarding flows, and upgrading `WebSearch`/`FetchWebPage` with
+> optional **Perplexity**/**Firecrawl** providers (graceful fallback to Serper/DDG + in-process
+> scrape). Verified: 1794 unit tests green (11 new), `tsc` clean, `next build` compiles, and
+> **CI + E2E both green** (E2E 123 pass / 0 fail / 1 flaky / 3 skip). Follow-up: a dedicated
+> "Book Development" hub UI and optionally feeding the synopsis into more review agents.
+
 **Verdict: ~65/100 production-ready. The bones of a 9/10 product delivering a 6.5/10 experience — mostly because already-built subsystems aren't wired together.** The fastest path to #1 isn't new features; it's connecting what exists, then closing 3 competitive gaps.
 
 > *(2026-07-04+: this score is superseded — `docs/mission/production-readiness-audit.md` is the canonical readiness assessment: 66/100, CONDITIONAL GO, gates C0–C3 tracked in `docs/mission/launch-runbook-c0-c3.md`.)*
