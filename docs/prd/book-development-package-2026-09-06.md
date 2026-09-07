@@ -39,8 +39,9 @@ draft** — exposed two gaps and one engine upgrade:
 
 ## 3. Non-goals
 
-- No new separate "Book Development" hub UI in v1 (the existing setup wizard + journey
-  progress surfaces already guide the path). A dedicated hub is a follow-up.
+- ~~No new separate "Book Development" hub UI in v1~~ → **delivered (2026-09-07, commit
+  `f37c00d`):** a dedicated hub at `/books/[bookId]/dev` renders Idea → Synopsis →
+  Structure → Research → Plan → Draft as state-aware cards.
 - No changes to the two-mandatory-processes deployment contract.
 - No removal of the existing Serper/DDG or in-process fetch paths (kept as fallbacks).
 
@@ -131,9 +132,12 @@ enum DocumentType { CONCEPT, SYNOPSIS, STORY_BIBLE, ... }
    path.
 6. `tsc --noEmit` clean; full unit suite passes; browser e2e still green in CI.
 
-## 7. Known follow-ups (tracked, not in v1)
+## 7. Known follow-ups (tracked)
 
-- A dedicated **Book Development hub** UI (Idea → Synopsis → Structure → Research → Draft
-  tabs) to surface the stages beyond the journey progress bar.
+- ~~Add a dedicated **Book Development hub** UI~~ → **delivered (2026-09-07)** at
+  `/books/[bookId]/dev` (see §3). Remaining ideas if useful:
+  - Make the hub tabs raise the individual stage workflows from one place (Idea ↔ Concept,
+    Synopsis, Structure, Research, Plan, Draft).
+  - Highlight the recommended next stage based on the journey recommendation.
 - Optionally feed SYNopsis to more agents (dev-editor, continuity-checker) if it helps
   chapter-level review.

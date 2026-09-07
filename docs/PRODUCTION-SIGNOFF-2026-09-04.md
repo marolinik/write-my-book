@@ -89,6 +89,15 @@ provider-selection tests). Full unit suite **1794 passed** (up from 1783); `tsc 
 gate; CI injects non-placeholder dummies). Schema change applied via `prisma db push` per the
 deploy contract.
 
+> **2026-09-07 (commit `f37c00d`):** added the **Book Development hub UI** —
+> `/books/[bookId]/dev` renders the pre-draft pipeline as six state-aware cards
+> (Idea → Synopsis → Structure → Research → Plan → Draft) with per-stage "Run workflow"
+> and view-artifact actions, plus a sidebar "Development" nav entry. Stage status derives
+> from persisted documents/chapters via a pure helper
+> (`src/lib/book/development-stages.ts`). i18n for all 7 UI locales. 20 new unit tests
+> (`book-development-ui.test.ts`); full suite **1814 passed**; `tsc` + eslint clean; new
+> e2e spec; **CI + E2E both green** (E2E 125 pass / 0 fail / 1 flaky / 3 skip).
+
 ---
 
 *Prepared from code inspection, the full unit suite (1794 green), TypeScript verification, a live dev-DB schema migration, and the targeted new tests (book-development 11, plus the prior export/finding/billing/offline coverage).*
