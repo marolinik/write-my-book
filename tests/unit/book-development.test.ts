@@ -12,6 +12,7 @@ import { getStoragePath } from "@/lib/documents/storage-keys";
 import { DocumentType } from "@/generated/prisma/enums";
 import { createDocumentSchema } from "@/lib/validation";
 import { getAgentDefinition } from "@/lib/agents/definitions";
+import type { ToolContext } from "@/lib/agents/tools";
 
 const baseStepInput: StepCompletionInput = {
   hasFingerprint: false,
@@ -116,8 +117,8 @@ describe("WebSearch provider selection (Perplexity primary, Serper fallback)", (
     documentService: {} as never,
   };
   let executeTool: (
-    name: string,
-    c: unknown,
+    toolName: string,
+    ctx: ToolContext,
     input: Record<string, unknown>
   ) => Promise<string>;
 
