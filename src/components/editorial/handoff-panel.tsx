@@ -8,6 +8,7 @@ import { useEditorialStore } from "@/stores/editorial-store";
 import { ChapterSelector } from "./chapter-selector";
 import { FindingCard } from "./finding-card";
 import { BookOpenIcon, MessageSquareQuoteIcon, CopyIcon, CheckIcon } from "lucide-react";
+import { useLanguage } from "@/components/providers/language-provider";
 
 interface ChapterInfo {
   id: string;
@@ -35,6 +36,7 @@ interface HandoffPanelProps {
  * "where the story stands and what still needs polish" in one read.
  */
 export function HandoffPanel({ bookId, chapters }: HandoffPanelProps) {
+  const { t } = useLanguage();
   const selectedChapter = useEditorialStore((s) => s.selectedChapter);
   // UDG-20 (personas 4/12/13/19): show pending by default, or all findings
   // (including resolved/applied) when the editor is writing a fuller brief.
@@ -85,7 +87,7 @@ export function HandoffPanel({ bookId, chapters }: HandoffPanelProps) {
       <div className="flex min-h-0 flex-col rounded-lg border bg-card">
         <div className="flex items-center gap-2 border-b px-4 py-3">
           <BookOpenIcon className="size-4 text-muted-foreground" />
-          <h2 className="text-sm font-semibold">Story Synopsis</h2>
+          <h2 className="text-sm font-semibold">{t.editorial.handoff.storySynopsis}</h2>
         </div>
         <div className="flex-1 overflow-auto p-4">
           {synopsis?.content ? (
@@ -94,8 +96,7 @@ export function HandoffPanel({ bookId, chapters }: HandoffPanelProps) {
             </p>
           ) : (
             <p className="text-xs text-muted-foreground">
-              No story synopsis yet — run the &quot;Write synopsis&quot; workflow
-              to generate one, then brief your client from here.
+              {t.editorial.handoff.noSynopsis}
             </p>
           )}
         </div>
@@ -105,29 +106,29 @@ export function HandoffPanel({ bookId, chapters }: HandoffPanelProps) {
       <div className="flex min-h-0 flex-col rounded-lg border bg-card">
         <div className="flex flex-wrap items-center gap-2 border-b px-4 py-3">
           <MessageSquareQuoteIcon className="size-4 text-muted-foreground" />
-          <h2 className="text-sm font-semibold">Chapter Findings</h2>
+          <h2 className="text-sm font-semibold">{t.editorial.handoff.chapterFindings}</h2>
           <div className="ml-auto flex items-center gap-2">
             <select
-              aria-label="Findings filter"
+              aria-label={t.editorial.handoff.filterLabel}
               value={status}
               onChange={(e) => setStatus(e.target.value as "pending" | "all")}
               className="rounded-md border bg-background px-2 py-1 text-xs"
             >
-              <option value="pending">Pending</option>
-              <option value="all">All</option>
+              <option value="pending">{t.editorial.handoff.statusPending}</option>
+              <option value="all">{t.editorial.handoff.statusAll}</option>
             </select>
             <button
               type="button"
               onClick={copySummary}
               className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs hover:bg-accent"
-              title="Copy a terse synopsis→findings brief"
+              title={t.editorial.handoff.copyTitle}
             >
               {copied ? (
                 <CheckIcon className="size-3" />
               ) : (
                 <CopyIcon className="size-3" />
               )}
-              {copied ? "Copied" : "Copy"}
+              {copied ? t.editorial.handoff.copied : t.editorial.handoff.copy}
             </button>
             <ChapterSelector chapters={chapters ?? []} />
           </div>
@@ -139,8 +140,8 @@ export function HandoffPanel({ bookId, chapters }: HandoffPanelProps) {
           {!findingsLoading && findings.length === 0 && (
             <p className="text-xs text-muted-foreground">
               {selectedChapter
-                ? `No ${status} findings for this chapter.`
-                : "Select a chapter to see its findings."}
+                ? t.editorial.handoff.noFindingsChapter.replace("{status}", status)
+                : t.editorial.handoff.noFindingsSelectChapter}
             </p>
           )}
           {findings.map((finding) => (

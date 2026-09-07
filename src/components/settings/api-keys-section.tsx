@@ -37,7 +37,8 @@ export function ApiKeysSection() {
   const { t } = useLanguage();
 
   return (
-    <Card>
+    // id="api-keys" lets /settings#api-keys land the writer directly here (UDG-16).
+    <Card id="api-keys">
       <CardHeader>
         <CardTitle>{t.settings.apiKeys}</CardTitle>
         <CardDescription>{t.settings.apiKeysDescription}</CardDescription>

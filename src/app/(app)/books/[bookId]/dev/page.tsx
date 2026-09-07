@@ -21,6 +21,7 @@ import {
   type DevelopmentStageKey,
   type StageStatus,
 } from "@/lib/book/development-stages";
+import { computeSeriesNextBook, isBookFinished } from "@/lib/series/next-book";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -81,7 +82,17 @@ export default async function BookDevelopmentPage({
         select: { id: true, type: true, title: true },
         orderBy: { updatedAt: "desc" },
       },
-      series: { select: { id: true, title: true } },
+      series: {
+        select: {
+          id: true,
+          title: true,
+          plannedBooks: true,
+          books: {
+            select: { id: true, bookNumber: true, status: true, wordCount: true },
+            orderBy: { bookNumber: "asc" },
+          },
+        },
+      },
     },
   });
   if (!book) notFound();
@@ -192,6 +203,14 @@ export default async function BookDevelopmentPage({
     draft: { title: s.draft, desc: s.draftDesc, artifact: s.manuscript },
   };
 
+  // UDG round-3 (Filip/Olivera): series continuation state — per-volume status
+  // and the next volume number to start.
+  const seriesBooks = book.series?.books ?? [];
+  const seriesTitle = book.series?.title ?? "";
+  const seriesNext = book.series
+    ? computeSeriesNextBook(book.series.books as never)
+    : null;
+
   return (
     <div className="container mx-auto max-w-6xl space-y-8 px-4 py-8">
       <header className="space-y-2">
@@ -289,9 +308,21 @@ export default async function BookDevelopmentPage({
                   {stage.key === "research" &&
                     stage.status === "none" &&
                     !hasResearchProvider && (
-                      <p className="mt-2 text-[11px] leading-relaxed text-amber-700 dark:text-amber-500">
-                        {s.researchHint}
-                      </p>
+                      <>
+                        <p className="mt-2 text-[11px] leading-relaxed text-amber-700 dark:text-amber-500">
+                          {s.researchHint}
+                        </p>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="mt-2 gap-1"
+                          asChild
+                        >
+                          {/* UDG-16 (Petar): deep-link straight to Settings → API Keys
+                              (#api-keys id added in api-keys-section.tsx). */}
+                          <Link href="/settings#api-keys">{t.settings.apiKeys}</Link>
+                        </Button>
+                      </>
                     )}
                 </CardContent>
               </Card>
@@ -300,23 +331,62 @@ export default async function BookDevelopmentPage({
         })}
       </ol>
 
-      {/* UDG-5 (Miloš): series continuity reachability from the hub. When the
-          book belongs to a series, surface the cross-book continuity report.
-          Lives at the book Reports → Continuity tab (renders CONTINUITY_REPORT). */}
+      {/* UDG-5 + round-3 (Miloš/Filip/Olivera): series continuity + continuation state.
+          When the book belongs to a series, show per-volume status, the next
+          volume to start, and a link to the cross-book continuity report. */}
       {book.series ? (
         <section className="space-y-3">
           <div className="flex items-center gap-2 text-sm font-medium text-foreground">
             <LibraryIcon className="size-4 text-muted-foreground" aria-hidden="true" />
-            <span>{s.continuity}</span>
+            <span>{s.nextBookTitle}</span>
           </div>
           <Card>
-            <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <CardDescription className="max-w-xl text-xs leading-relaxed">
-                {s.continuityDesc} <span className="font-medium">{book.series.title}</span>
-              </CardDescription>
-              <Button size="sm" variant="outline" className="shrink-0" asChild>
-                <Link href={`/books/${bookId}/reports`}>{s.continuityLink}</Link>
-              </Button>
+            <CardContent className="space-y-4">
+              {seriesBooks.length > 0 && (
+                <ul className="grid gap-2 sm:grid-cols-2">
+                  {seriesBooks.map((b) => {
+                    const done = isBookFinished(b.status);
+                    const isNext = seriesNext?.nextBookNumber === b.bookNumber;
+                    return (
+                      <li
+                        key={b.id}
+                        className={`flex items-center justify-between gap-2 rounded-md border px-3 py-2 text-xs ${
+                          isNext
+                            ? "border-primary/50 bg-primary/[0.04]"
+                            : done
+                              ? "border-green-500/30 bg-green-500/[0.03]"
+                              : ""
+                        }`}
+                      >
+                        <span className="font-medium">
+                          {b.bookNumber}. {seriesTitle}
+                        </span>
+                        <Badge
+                          variant={isNext ? "default" : done ? "secondary" : "outline"}
+                          className="text-[10px] capitalize"
+                        >
+                          {isNext
+                            ? s.nextStart
+                            : done
+                              ? s.done
+                              : s.inProgress}
+                        </Badge>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+              <p className="text-xs text-muted-foreground">
+                {s.nextBookDesc} —{" "}
+                {seriesNext?.nextBookNumber
+                  ? `${s.nextStart}: ${s.volumeStatus} ${seriesNext.nextBookNumber}`
+                  : ""}
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button size="sm" variant="outline" className="shrink-0" asChild>
+                  <Link href={`/books/${bookId}/reports`}>{s.continuityLink}</Link>
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </section>

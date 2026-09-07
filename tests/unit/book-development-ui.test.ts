@@ -182,6 +182,10 @@ describe("Book Development hub — i18n coverage in every UI locale", () => {
       "continuity",
       "continuityDesc",
       "continuityLink",
+      "nextBookTitle",
+      "nextBookDesc",
+      "nextStart",
+      "volumeStatus",
     ] as const) {
       expect(bd[key]).toBeTruthy();
     }

@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useEditorialStore } from "@/stores/editorial-store";
+import { useLanguage } from "@/components/providers/language-provider";
 
 const SEVERITY_OPTIONS = ["critical", "important", "suggestion"] as const;
 const CATEGORY_OPTIONS = [
@@ -42,6 +43,7 @@ const AGENT_TYPE_OPTIONS = [
 ] as const;
 
 export function FindingsFilters() {
+  const { t } = useLanguage();
   const { filters, setFilter, resetFilters } = useEditorialStore();
 
   return (
@@ -51,10 +53,10 @@ export function FindingsFilters() {
         onValueChange={(v) => setFilter("severity", v === "all" ? null : v)}
       >
         <SelectTrigger className="w-[130px] h-8 text-xs">
-          <SelectValue placeholder="Severity" />
+          <SelectValue placeholder={t.editorial.filters.severityPlaceholder} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All severities</SelectItem>
+          <SelectItem value="all">{t.editorial.filters.allSeverities}</SelectItem>
           {SEVERITY_OPTIONS.map((s) => (
             <SelectItem key={s} value={s}>
               {s}
@@ -68,10 +70,10 @@ export function FindingsFilters() {
         onValueChange={(v) => setFilter("category", v === "all" ? null : v)}
       >
         <SelectTrigger className="w-[130px] h-8 text-xs">
-          <SelectValue placeholder="Category" />
+          <SelectValue placeholder={t.editorial.filters.categoryPlaceholder} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All categories</SelectItem>
+          <SelectItem value="all">{t.editorial.filters.allCategories}</SelectItem>
           {CATEGORY_OPTIONS.map((c) => (
             <SelectItem key={c} value={c}>
               {c}
@@ -85,10 +87,10 @@ export function FindingsFilters() {
         onValueChange={(v) => setFilter("status", v === "all" ? null : v)}
       >
         <SelectTrigger className="w-[120px] h-8 text-xs">
-          <SelectValue placeholder="Status" />
+          <SelectValue placeholder={t.editorial.filters.statusPlaceholder} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All statuses</SelectItem>
+          <SelectItem value="all">{t.editorial.filters.allStatuses}</SelectItem>
           {STATUS_OPTIONS.map((s) => (
             <SelectItem key={s} value={s}>
               {s}
@@ -102,10 +104,10 @@ export function FindingsFilters() {
         onValueChange={(v) => setFilter("agentType", v === "all" ? null : v)}
       >
         <SelectTrigger className="w-[150px] h-8 text-xs">
-          <SelectValue placeholder="Agent type" />
+          <SelectValue placeholder={t.editorial.filters.agentTypePlaceholder} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All agents</SelectItem>
+          <SelectItem value="all">{t.editorial.filters.allAgents}</SelectItem>
           {AGENT_TYPE_OPTIONS.map((a) => (
             <SelectItem key={a} value={a}>
               {a}
@@ -120,7 +122,7 @@ export function FindingsFilters() {
         className="h-8 text-xs"
         onClick={resetFilters}
       >
-        Reset all
+        {t.editorial.filters.resetAll}
       </Button>
     </div>
   );

@@ -12,7 +12,7 @@ import { ExportConfigDialog } from "./export-config-dialog";
 import { ExportHistoryList } from "./export-history-list";
 import { useExportStore } from "@/stores/export-store";
 import { useExportManuscript, useDownloadExport, useExportHistory, useExportConfig, useUpdateExportConfig } from "@/hooks/use-export";
-import { useLocale } from "@/components/providers/language-provider";
+import { useLocale, useLanguage } from "@/components/providers/language-provider";
 import {
   Loader2Icon,
   SettingsIcon,
@@ -26,14 +26,16 @@ interface ExportPageProps {
   bookId: string;
 }
 
-const FORMAT_GUIDANCE: Record<string, string> = {
-  docx: "Best for agent/editor review, publisher submissions, and further editing in Word or Google Docs.",
-  pdf: "Print-ready output via Typst. Ideal for proof copies and final publication with professional typography.",
-  epub: "EPUB3 for Kindle, Apple Books, and other e-reader platforms. Reflowable text with embedded metadata.",
-};
-
 export function ExportPage({ bookId }: ExportPageProps) {
   const locale = useLocale();
+  const { t } = useLanguage();
+
+  const FORMAT_GUIDANCE: Record<string, string> = {
+    docx: t.export.formatGuidance.docx,
+    pdf: t.export.formatGuidance.pdf,
+    epub: t.export.formatGuidance.epub,
+  };
+
   const {
     selectedFormat,
     isDraft,
@@ -117,14 +119,14 @@ export function ExportPage({ bookId }: ExportPageProps) {
       {(lastExportResult || lastExport) && !exportInProgress && (
         <div className="flex items-center justify-between rounded-lg border bg-muted/30 px-4 py-3">
           <div className="text-sm">
-            <span className="font-medium">Last export: </span>
+            <span className="font-medium">{t.export.lastExport}</span>
             <span className="text-muted-foreground">
               {lastExportResult?.filename ?? lastExport?.filename}
             </span>
           </div>
           <Button variant="outline" size="sm" onClick={handleDownloadLast}>
             <DownloadIcon className="mr-1.5 size-3.5" />
-            Download
+            {t.export.download}
           </Button>
         </div>
       )}
@@ -132,21 +134,21 @@ export function ExportPage({ bookId }: ExportPageProps) {
       {/* Export Controls */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Export Manuscript</CardTitle>
+          <CardTitle>{t.export.title}</CardTitle>
           <Button
             variant="outline"
             size="sm"
             onClick={() => setConfigPanelOpen(true)}
           >
             <SettingsIcon className="mr-1 size-4" />
-            Configure
+            {t.export.configure}
           </Button>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Format selection */}
           <div>
             <Label className="mb-2 block text-sm font-medium">
-              Output Format
+              {t.export.outputFormat}
             </Label>
             <FormatSelector
               selected={selectedFormat}
@@ -163,9 +165,9 @@ export function ExportPage({ bookId }: ExportPageProps) {
           {/* Draft toggle */}
           <div className="flex items-center justify-between">
             <div>
-              <Label className="text-sm">Draft Mode</Label>
+              <Label className="text-sm">{t.export.draftMode}</Label>
               <p className="text-xs text-muted-foreground">
-                Adds watermark and skips recto-start
+                {t.export.draftModeHint}
               </p>
             </div>
             <Switch checked={isDraft} onCheckedChange={setIsDraft} />
@@ -181,10 +183,10 @@ export function ExportPage({ bookId }: ExportPageProps) {
             {exportInProgress ? (
               <>
                 <Loader2Icon className="mr-2 size-4 animate-spin" />
-                Exporting...
+                {t.export.exporting}
               </>
             ) : (
-              `Export as ${selectedFormat.toUpperCase()}`
+              t.export.exportAs.replace("{format}", selectedFormat.toUpperCase())
             )}
           </Button>
 
@@ -200,7 +202,7 @@ export function ExportPage({ bookId }: ExportPageProps) {
                 />
               </div>
               <p className="text-xs text-center text-muted-foreground">
-                Exporting... {elapsed}s
+                {t.export.exporting} {elapsed}s
               </p>
               <style>{`
                 @keyframes indeterminate {
@@ -218,7 +220,7 @@ export function ExportPage({ bookId }: ExportPageProps) {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <CheckCircleIcon className="size-4 text-green-600 dark:text-green-400" />
-                  <span className="text-sm font-medium">Export Complete</span>
+                  <span className="text-sm font-medium">{t.export.exportComplete}</span>
                 </div>
                 <Button
                   variant="outline"
@@ -226,7 +228,7 @@ export function ExportPage({ bookId }: ExportPageProps) {
                   onClick={() => downloadExport(lastExportResult.filename)}
                 >
                   <DownloadIcon className="mr-1 size-3" />
-                  Download
+                  {t.export.download}
                 </Button>
               </div>
               <div className="flex flex-wrap gap-2 text-xs">
@@ -234,13 +236,13 @@ export function ExportPage({ bookId }: ExportPageProps) {
                   {lastExportResult.filename}
                 </Badge>
                 <Badge variant="outline">
-                  {lastExportResult.wordCount.toLocaleString(locale)} words
+                  {lastExportResult.wordCount.toLocaleString(locale)} {t.export.words}
                 </Badge>
                 <Badge variant="outline">
-                  {lastExportResult.chapterCount} chapters
+                  {lastExportResult.chapterCount} {t.export.chapters}
                 </Badge>
                 <Badge variant="outline">
-                  ~{lastExportResult.estimatedPages} pages
+                  ~{lastExportResult.estimatedPages} {t.export.pages}
                 </Badge>
               </div>
               {lastExportResult.warnings.length > 0 && (

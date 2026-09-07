@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEditorialSummary } from "@/hooks/use-editorial";
+import { useLanguage } from "@/components/providers/language-provider";
 
 interface EditorialSummaryProps {
   bookId: string;
@@ -40,6 +41,7 @@ function SeverityBar({
 }
 
 export function EditorialSummary({ bookId }: EditorialSummaryProps) {
+  const { t } = useLanguage();
   const { data, isLoading } = useEditorialSummary(bookId);
 
   if (isLoading) {
@@ -69,7 +71,7 @@ export function EditorialSummary({ bookId }: EditorialSummaryProps) {
         <Card>
           <CardHeader className="p-3 pb-1">
             <CardTitle className="text-xs text-muted-foreground">
-              Total
+              {t.editorial.summary.total}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-3 pt-0">
@@ -79,7 +81,7 @@ export function EditorialSummary({ bookId }: EditorialSummaryProps) {
         <Card>
           <CardHeader className="p-3 pb-1">
             <CardTitle className="text-xs text-muted-foreground">
-              Pending
+              {t.editorial.summary.pending}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-3 pt-0">
@@ -89,7 +91,7 @@ export function EditorialSummary({ bookId }: EditorialSummaryProps) {
         <Card>
           <CardHeader className="p-3 pb-1">
             <CardTitle className="text-xs text-muted-foreground">
-              Applied
+              {t.editorial.summary.applied}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-3 pt-0">
@@ -101,7 +103,7 @@ export function EditorialSummary({ bookId }: EditorialSummaryProps) {
         <Card>
           <CardHeader className="p-3 pb-1">
             <CardTitle className="text-xs text-muted-foreground">
-              Dismissed
+              {t.editorial.summary.dismissed}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-3 pt-0">
@@ -114,7 +116,7 @@ export function EditorialSummary({ bookId }: EditorialSummaryProps) {
       <Card>
         <CardHeader className="p-3 pb-1">
           <CardTitle className="text-xs text-muted-foreground">
-            Severity breakdown
+            {t.editorial.summary.severityBreakdown}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 p-3 pt-0">
@@ -134,7 +136,7 @@ export function EditorialSummary({ bookId }: EditorialSummaryProps) {
       <Card>
         <CardHeader className="p-3 pb-1">
           <CardTitle className="text-xs text-muted-foreground">
-            Chapters with pending findings
+            {t.editorial.summary.chaptersWithPending}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-3 pt-0">

@@ -20,6 +20,7 @@ import { getUIStrings, localeFor } from "@/lib/i18n/ui-strings";
 import { getAgentStrings } from "@/lib/i18n/agent-strings";
 import { getWorkflow } from "@/lib/agents/workflows";
 import { nextOverviewRecommendation } from "@/lib/onboarding/overview-recommendation";
+import { computeSeriesNextBook } from "@/lib/series/next-book";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { WritingWrappedCard } from "@/components/book/writing-wrapped-card";
@@ -60,8 +61,11 @@ export default async function DashboardPage() {
       db.series.findMany({
         where: { userId: user.id },
         include: {
+          // UDG round-3: also load per-book number/status so we can surface
+          // "next book to start" for the most advanced series (Filip/Olivera).
           books: {
-            select: { id: true, wordCount: true },
+            select: { id: true, bookNumber: true, status: true, wordCount: true },
+            orderBy: { bookNumber: "asc" },
           },
           _count: { select: { books: true } },
         },
@@ -101,6 +105,33 @@ export default async function DashboardPage() {
   const seriesCount = seriesList.length;
   const t = getUIStrings(user.preferredLanguage ?? "en");
   const locale = localeFor(user.preferredLanguage ?? "en");
+
+  // UDG round-3 (Filip/Olivera): "next book to start" — pick the series with the
+  // highest finished volume count (most advanced), then its next unwritten
+  // volume number.
+  const seriesNextCard = (() => {
+    let best: {
+      seriesTitle: string;
+      seriesId: string;
+      nextBookNumber: number;
+      finishedCount: number;
+    } | null = null;
+    for (const s of seriesList) {
+      const next = computeSeriesNextBook(s.books as never);
+      if (next.nextBookNumber == null) continue;
+      // Prefer the most-advanced series (most finished volumes); ties keep the
+      // first (seriesList is already ordered by updatedAt desc).
+      if (!best || next.finishedCount > best.finishedCount) {
+        best = {
+          seriesTitle: s.title,
+          seriesId: s.id,
+          nextBookNumber: next.nextBookNumber,
+          finishedCount: next.finishedCount,
+        };
+      }
+    }
+    return best;
+  })();
 
   // Continue Where You Left Off: most recently updated book with its most recently updated chapter
   const lastBook = books[0] ?? null;
@@ -512,6 +543,36 @@ export default async function DashboardPage() {
 
       {/* Year in Writing Wrapped */}
       <WritingWrappedCard authorName={user.displayName ?? undefined} />
+
+      {/* UDG round-3 (Filip/Olivera): next book to start in the most advanced series. */}
+      {seriesNextCard && (
+        <Card className="border-primary/40 bg-primary/[0.03]">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">
+              {t.bookDevelopment.nextBookTitle}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="font-medium">
+                  {t.bookDevelopment.nextStart}: {t.bookDevelopment.volumeStatus}{" "}
+                  {seriesNextCard.nextBookNumber}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {seriesNextCard.seriesTitle}
+                </p>
+              </div>
+              <Button asChild size="sm" className="shrink-0">
+                <Link href={`/series/${seriesNextCard.seriesId}`}>
+                  {t.bookDevelopment.continuityLink}
+                  <ArrowRightIcon className="ml-1 size-4" />
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Series */}
       <div>
