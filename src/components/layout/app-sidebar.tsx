@@ -422,6 +422,25 @@ export function AppSidebar() {
 
             <SidebarSeparator />
 
+            {/* ─── Book Development hub (pre-draft pipeline) ─── */}
+            <SidebarGroup>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname.includes("/dev")}
+                    >
+                      <Link href={`/books/${bookId}/dev`}>
+                        <BookMarkedIcon />
+                        <span>{t.nav.development}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
             {/* ─── Phase 1: Prepare ─── */}
             <SidebarGroup>
               <SidebarGroupLabel className="flex items-center">

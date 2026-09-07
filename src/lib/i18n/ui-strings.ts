@@ -34,6 +34,7 @@ export interface UIStrings {
     nextStep: string;
     library: string;
     transfer: string;
+    development: string;
     // Mobile bottom nav (D-11)
     home: string;
     agent: string;
@@ -203,6 +204,21 @@ export interface UIStrings {
     colNum: string; colTitle: string; colAct: string; colStatus: string; colWords: string; colScore: string; colAction: string;
     untitled: string; act: string; edit: string;
     avgBetaScore: string;
+  };
+
+  // Book Development hub (pre-draft pipeline)
+  bookDevelopment: {
+    title: string; subtitle: string;
+    idea: string; ideaDesc: string;
+    synopsis: string; synopsisDesc: string;
+    structure: string; structureDesc: string;
+    research: string; researchDesc: string;
+    plan: string; planDesc: string;
+    draft: string; draftDesc: string;
+    done: string; inProgress: string; notStarted: string;
+    runWorkflow: string; viewArtifact: string; startWriting: string;
+    concept: string; synopsisDoc: string; architecture: string; researchDoc: string; chapterPlan: string; manuscript: string;
+    nextStep: string;
   };
 
   // Book settings
@@ -407,6 +423,7 @@ const EN: UIStrings = {
     nextStep: "Next Step",
     library: "Library",
     transfer: "Transfer",
+    development: "Development",
     home: "Home",
     agent: "Agent",
   },
@@ -561,6 +578,20 @@ const EN: UIStrings = {
     colNum: "#", colTitle: "Title", colAct: "Act", colStatus: "Status", colWords: "Words", colScore: "Score", colAction: "Action",
     untitled: "Untitled", act: "Act", edit: "Edit",
     avgBetaScore: "Avg Beta Score",
+  },
+  bookDevelopment: {
+    title: "Book Development",
+    subtitle: "Shape your idea into a fully planned, read-to-draft book — one stage at a time.",
+    idea: "Idea", ideaDesc: "Capture the core concept: logline, premise, protagonist, and stakes.",
+    synopsis: "Synopsis", synopsisDesc: "A complete 1–3 page summary of the story, from hook to resolution.",
+    structure: "Structure", structureDesc: "Acts, chapters, arcs, and pacing — your story architecture.",
+    research: "Research", researchDesc: "Worldbuilding and topic research grounded in real sources.",
+    plan: "Plan", planDesc: "Chapter-by-chapter beat sheets and scene breakdowns.",
+    draft: "Draft", draftDesc: "Write the manuscript, chapter by chapter, in your voice.",
+    done: "Done", inProgress: "In progress", notStarted: "Not started",
+    runWorkflow: "Run workflow", viewArtifact: "View", startWriting: "Start writing",
+    concept: "Concept", synopsisDoc: "Synopsis", architecture: "Architecture", researchDoc: "Research", chapterPlan: "Chapter plan", manuscript: "Manuscript",
+    nextStep: "Next",
   },
   bookSettings: {
     title: "Book Settings", subtitle: "Configure AI models and writing preferences",
@@ -726,6 +757,7 @@ const SR: UIStrings = {
     nextStep: "Sledeći korak",
     library: "Biblioteka",
     transfer: "Prenos",
+    development: "Razvoj",
     home: "Početna",
     agent: "Agent",
   },
@@ -880,6 +912,20 @@ const SR: UIStrings = {
     colNum: "#", colTitle: "Naslov", colAct: "Čin", colStatus: "Status", colWords: "Reči", colScore: "Ocena", colAction: "Radnja",
     untitled: "Bez naslova", act: "Čin", edit: "Uredi",
     avgBetaScore: "Prosečna beta ocena",
+  },
+  bookDevelopment: {
+    title: "Razvoj knjige",
+    subtitle: "Od ideje do planiranog rukopisa spremnog za pisanje — korak po korak.",
+    idea: "Ideja", ideaDesc: "Zabeleži osnovni koncept: logline, premisu, protagonista i ulog.",
+    synopsis: "Sinopsis", synopsisDesc: "Potpun sažetak priče od 1–3 stranice, od zapleta do raspleta.",
+    structure: "Struktura", structureDesc: "Aktovi, poglavlja, lukovi i ritam — arhitektura tvoje priče.",
+    research: "Istraživanje", researchDesc: "Razvoj sveta i istraživanje teme na stvarnim izvorima.",
+    plan: "Plan", planDesc: "Razrada scena i ritmike po poglavlju.",
+    draft: "Nacrt", draftDesc: "Napiši rukopis, poglavlje po poglavlje, svojim glasom.",
+    done: "Urađeno", inProgress: "U toku", notStarted: "Nije započeto",
+    runWorkflow: "Pokreni tok", viewArtifact: "Prikaži", startWriting: "Počni s pisanjem",
+    concept: "Koncept", synopsisDoc: "Sinopsis", architecture: "Arhitektura", researchDoc: "Istraživanje", chapterPlan: "Plan poglavlja", manuscript: "Rukopis",
+    nextStep: "Sledeće",
   },
   bookSettings: {
     title: "Podešavanja knjige", subtitle: "Konfigurišite AI modele i preference pisanja",
@@ -1045,6 +1091,7 @@ const DE: UIStrings = {
     nextStep: "Nächster Schritt",
     library: "Bibliothek",
     transfer: "Übertragung",
+    development: "Entwicklung",
     home: "Start",
     agent: "Agent",
   },
@@ -1199,6 +1246,20 @@ const DE: UIStrings = {
     colNum: "#", colTitle: "Titel", colAct: "Akt", colStatus: "Status", colWords: "Wörter", colScore: "Bewertung", colAction: "Aktion",
     untitled: "Ohne Titel", act: "Akt", edit: "Bearbeiten",
     avgBetaScore: "Durchschn. Beta-Bewertung",
+  },
+  bookDevelopment: {
+    title: "Buchentwicklung",
+    subtitle: "Forme deine Idee Stufe für Stufe zu einem völlig geplanten Buch.",
+    idea: "Idee", ideaDesc: "Halte das Kernkonzept fest: Logline, Prämisse, Protagonist, Einsätze.",
+    synopsis: "Synopsis", synopsisDesc: "Eine vollständige 1–3-Seiten-Zusammenfassung der Geschichte.",
+    structure: "Struktur", structureDesc: "Akte, Kapitel, Bögen und Tempo — deine Story-Architektur.",
+    research: "Recherche", researchDesc: "Weltbau und Themenrecherche mit echten Quellen.",
+    plan: "Plan", planDesc: "Beat-Sheets und Szenen-Planung Kapitel für Kapitel.",
+    draft: "Entwurf", draftDesc: "Schreibe das Manuskript Kapitel für Kapitel in deiner Stimme.",
+    done: "Erledigt", inProgress: "In Arbeit", notStarted: "Nicht begonnen",
+    runWorkflow: "Workflow starten", viewArtifact: "Ansehen", startWriting: "Schreiben starten",
+    concept: "Konzept", synopsisDoc: "Synopsis", architecture: "Architektur", researchDoc: "Recherche", chapterPlan: "Kapitelplan", manuscript: "Manuskript",
+    nextStep: "Weiter",
   },
   bookSettings: {
     title: "Bucheinstellungen", subtitle: "KI-Modelle und Schreibeinstellungen konfigurieren",
@@ -1364,6 +1425,7 @@ const ES: UIStrings = {
     nextStep: "Siguiente paso",
     library: "Biblioteca",
     transfer: "Transferencia",
+    development: "Desarrollo",
     home: "Inicio",
     agent: "Agente",
   },
@@ -1518,6 +1580,20 @@ const ES: UIStrings = {
     colNum: "#", colTitle: "Título", colAct: "Acto", colStatus: "Estado", colWords: "Palabras", colScore: "Puntuación", colAction: "Acción",
     untitled: "Sin título", act: "Acto", edit: "Editar",
     avgBetaScore: "Puntuación beta promedio",
+  },
+  bookDevelopment: {
+    title: "Desarrollo del Libro",
+    subtitle: "Convierte tu idea en un libro totalmente planificado, etapa por etapa.",
+    idea: "Idea", ideaDesc: "Captura el concepto: logline, premisa, protagonista y apuestas.",
+    synopsis: "Sinopsis", synopsisDesc: "Un resumen completo de 1 a 3 páginas, del enganche a la resolución.",
+    structure: "Estructura", structureDesc: "Actos, capítulos, arcos y ritmo: la arquitectura de tu historia.",
+    research: "Investigación", researchDesc: "Worldbuilding e investigación de temas con fuentes reales.",
+    plan: "Plan", planDesc: "Escenas y guías de ritmo capítulo por capítulo.",
+    draft: "Borrador", draftDesc: "Escribe el manuscrito capítulo a capítulo con tu voz.",
+    done: "Hecho", inProgress: "En curso", notStarted: "Sin empezar",
+    runWorkflow: "Ejecutar flujo", viewArtifact: "Ver", startWriting: "Empezar a escribir",
+    concept: "Concepto", synopsisDoc: "Sinopsis", architecture: "Arquitectura", researchDoc: "Investigación", chapterPlan: "Plan de capítulo", manuscript: "Manuscrito",
+    nextStep: "Siguiente",
   },
   bookSettings: {
     title: "Ajustes del libro", subtitle: "Configure modelos de IA y preferencias de escritura",
@@ -1683,6 +1759,7 @@ const FR: UIStrings = {
     nextStep: "Prochaine étape",
     library: "Bibliothèque",
     transfer: "Transfert",
+    development: "Développement",
     home: "Accueil",
     agent: "Agent",
   },
@@ -1837,6 +1914,20 @@ const FR: UIStrings = {
     colNum: "#", colTitle: "Titre", colAct: "Acte", colStatus: "Statut", colWords: "Mots", colScore: "Score", colAction: "Action",
     untitled: "Sans titre", act: "Acte", edit: "Modifier",
     avgBetaScore: "Score beta moyen",
+  },
+  bookDevelopment: {
+    title: "Développement du Livre",
+    subtitle: "Façonnez votre idée en un livre entièrement planifié, étape par étape.",
+    idea: "Idée", ideaDesc: "Capturez le concept : logline, prémisse, protagoniste et enjeux.",
+    synopsis: "Synopsis", synopsisDesc: "Un résumé complet de 1 à 3 pages, de l'accroche au dénouement.",
+    structure: "Structure", structureDesc: "Actes, chapitres, arcs et rythme — l'architecture de votre histoire.",
+    research: "Recherche", researchDesc: "Worldbuilding et recherche de sujets sur des sources réelles.",
+    plan: "Plan", planDesc: "Feuilles de rythme et découpage de scènes chapitre par chapitre.",
+    draft: "Brouillon", draftDesc: "Écrivez le manuscrit chapitre par chapitre, avec votre voix.",
+    done: "Fait", inProgress: "En cours", notStarted: "Pas commencé",
+    runWorkflow: "Lancer le flux", viewArtifact: "Voir", startWriting: "Commencer à écrire",
+    concept: "Concept", synopsisDoc: "Synopsis", architecture: "Architecture", researchDoc: "Recherche", chapterPlan: "Plan de chapitre", manuscript: "Manuscrit",
+    nextStep: "Suivant",
   },
   bookSettings: {
     title: "Paramètres du livre", subtitle: "Configurez les modèles IA et les préférences d'écriture",
@@ -2002,6 +2093,7 @@ const RU: UIStrings = {
     nextStep: "Следующий шаг",
     library: "Библиотека",
     transfer: "Передача",
+    development: "Разработка",
     home: "Главная",
     agent: "Агент",
   },
@@ -2156,6 +2248,20 @@ const RU: UIStrings = {
     colNum: "#", colTitle: "Название", colAct: "Акт", colStatus: "Статус", colWords: "Слова", colScore: "Оценка", colAction: "Действие",
     untitled: "Без названия", act: "Акт", edit: "Редактировать",
     avgBetaScore: "Средняя бета-оценка",
+  },
+  bookDevelopment: {
+    title: "Разработка книги",
+    subtitle: "Превратите идею в полностью спланированную книгу — шаг за шагом.",
+    idea: "Идея", ideaDesc: "Зафиксируйте концепцию: логлайн, премису, героя и ставки.",
+    synopsis: "Синопсис", synopsisDesc: "Полное резюме истории на 1–3 страницы, от крючка до развязки.",
+    structure: "Структура", structureDesc: "Акты, главы, дуги и темп — архитектура вашей истории.",
+    research: "Исследование", researchDesc: "Миростроение и исследование тем по реальным источникам.",
+    plan: "План", planDesc: "Поэпизодные планы и разбивка сцен по главам.",
+    draft: "Черновик", draftDesc: "Пишите рукопись глава за главой своим голосом.",
+    done: "Готово", inProgress: "В процессе", notStarted: "Не начато",
+    runWorkflow: "Запустить поток", viewArtifact: "Смотреть", startWriting: "Начать писать",
+    concept: "Концепция", synopsisDoc: "Синопсис", architecture: "Архитектура", researchDoc: "Исследование", chapterPlan: "План главы", manuscript: "Рукопись",
+    nextStep: "Далее",
   },
   bookSettings: {
     title: "Настройки книги", subtitle: "Настройте модели ИИ и параметры письма",
@@ -2321,6 +2427,7 @@ const ZH: UIStrings = {
     nextStep: "下一步",
     library: "资料库",
     transfer: "导入导出",
+    development: "书籍开发",
     home: "首页",
     agent: "代理",
   },
@@ -2475,6 +2582,20 @@ const ZH: UIStrings = {
     colNum: "#", colTitle: "标题", colAct: "幕", colStatus: "状态", colWords: "字数", colScore: "评分", colAction: "操作",
     untitled: "无标题", act: "幕", edit: "编辑",
     avgBetaScore: "平均测试评分",
+  },
+  bookDevelopment: {
+    title: "书籍开发",
+    subtitle: "逐步把你的想法变成一个完整规划的书稿。",
+    idea: "构思", ideaDesc: "记录核心理念：一句话简介、前提、主角与利害关系。",
+    synopsis: "故事梗概", synopsisDesc: "1–3 页的故事完整摘要，从钩子到结局。",
+    structure: "结构", structureDesc: "幕、章节、弧线和节奏——你的故事架构。",
+    research: "调研", researchDesc: "世界观构建与基于真实来源的主题调研。",
+    plan: "规划", planDesc: "逐章的节拍表和场景分解。",
+    draft: "初稿", draftDesc: "用你的声音逐章写出书稿。",
+    done: "已完成", inProgress: "进行中", notStarted: "未开始",
+    runWorkflow: "运行工作流", viewArtifact: "查看", startWriting: "开始写作",
+    concept: "概念", synopsisDoc: "故事梗概", architecture: "架构", researchDoc: "调研", chapterPlan: "章节计划", manuscript: "手稿",
+    nextStep: "下一步",
   },
   bookSettings: {
     title: "书籍设置", subtitle: "配置AI模型和写作偏好",
