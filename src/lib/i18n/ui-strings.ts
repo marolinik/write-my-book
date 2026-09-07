@@ -219,6 +219,7 @@ export interface UIStrings {
     runWorkflow: string; viewArtifact: string; startWriting: string;
     concept: string; synopsisDoc: string; architecture: string; researchDoc: string; chapterPlan: string; manuscript: string;
     nextStep: string;
+    researchHint: string;
   };
 
   // Book settings
@@ -592,6 +593,7 @@ const EN: UIStrings = {
     runWorkflow: "Run workflow", viewArtifact: "View", startWriting: "Start writing",
     concept: "Concept", synopsisDoc: "Synopsis", architecture: "Architecture", researchDoc: "Research", chapterPlan: "Chapter plan", manuscript: "Manuscript",
     nextStep: "Next",
+    researchHint: "Research needs a web-search provider key — add Perplexity/Serper/Firecrawl in Settings → API Keys.",
   },
   bookSettings: {
     title: "Book Settings", subtitle: "Configure AI models and writing preferences",
@@ -926,6 +928,7 @@ const SR: UIStrings = {
     runWorkflow: "Pokreni tok", viewArtifact: "Prikaži", startWriting: "Počni s pisanjem",
     concept: "Koncept", synopsisDoc: "Sinopsis", architecture: "Arhitektura", researchDoc: "Istraživanje", chapterPlan: "Plan poglavlja", manuscript: "Rukopis",
     nextStep: "Sledeće",
+    researchHint: "Za istraživanje je potreban ključ web-pretrage — dodaj Perplexity/Serper/Firecrawl u Postavke → API ključevi.",
   },
   bookSettings: {
     title: "Podešavanja knjige", subtitle: "Konfigurišite AI modele i preference pisanja",
@@ -1260,6 +1263,7 @@ const DE: UIStrings = {
     runWorkflow: "Workflow starten", viewArtifact: "Ansehen", startWriting: "Schreiben starten",
     concept: "Konzept", synopsisDoc: "Synopsis", architecture: "Architektur", researchDoc: "Recherche", chapterPlan: "Kapitelplan", manuscript: "Manuskript",
     nextStep: "Weiter",
+    researchHint: "Für Recherche ist ein Web-Search-Provider-Schlüssel nötig — Perplexity/Serper/Firecrawl unter Einstellungen → API-Schlüssel hinzufügen.",
   },
   bookSettings: {
     title: "Bucheinstellungen", subtitle: "KI-Modelle und Schreibeinstellungen konfigurieren",
@@ -1594,6 +1598,7 @@ const ES: UIStrings = {
     runWorkflow: "Ejecutar flujo", viewArtifact: "Ver", startWriting: "Empezar a escribir",
     concept: "Concepto", synopsisDoc: "Sinopsis", architecture: "Arquitectura", researchDoc: "Investigación", chapterPlan: "Plan de capítulo", manuscript: "Manuscrito",
     nextStep: "Siguiente",
+    researchHint: "La investigación requiere una clave de proveedor de búsqueda web: añade Perplexity/Serper/Firecrawl en Ajustes → Claves de API.",
   },
   bookSettings: {
     title: "Ajustes del libro", subtitle: "Configure modelos de IA y preferencias de escritura",
@@ -1928,6 +1933,7 @@ const FR: UIStrings = {
     runWorkflow: "Lancer le flux", viewArtifact: "Voir", startWriting: "Commencer à écrire",
     concept: "Concept", synopsisDoc: "Synopsis", architecture: "Architecture", researchDoc: "Recherche", chapterPlan: "Plan de chapitre", manuscript: "Manuscrit",
     nextStep: "Suivant",
+    researchHint: "La recherche nécessite une clé de recherche web — ajoutez Perplexity/Serper/Firecrawl dans Paramètres → Clés API.",
   },
   bookSettings: {
     title: "Paramètres du livre", subtitle: "Configurez les modèles IA et les préférences d'écriture",
@@ -2262,6 +2268,7 @@ const RU: UIStrings = {
     runWorkflow: "Запустить поток", viewArtifact: "Смотреть", startWriting: "Начать писать",
     concept: "Концепция", synopsisDoc: "Синопсис", architecture: "Архитектура", researchDoc: "Исследование", chapterPlan: "План главы", manuscript: "Рукопись",
     nextStep: "Далее",
+    researchHint: "Для поиска нужен ключ веб-поиска — добавьте Perplexity/Serper/Firecrawl в Настройки → Ключи API.",
   },
   bookSettings: {
     title: "Настройки книги", subtitle: "Настройте модели ИИ и параметры письма",
@@ -2596,6 +2603,7 @@ const ZH: UIStrings = {
     runWorkflow: "运行工作流", viewArtifact: "查看", startWriting: "开始写作",
     concept: "概念", synopsisDoc: "故事梗概", architecture: "架构", researchDoc: "调研", chapterPlan: "章节计划", manuscript: "手稿",
     nextStep: "下一步",
+    researchHint: "调研需要网络搜索服务密钥——请在设置→API 密钥中添加 Perplexity/Serper/Firecrawl。",
   },
   bookSettings: {
     title: "书籍设置", subtitle: "配置AI模型和写作偏好",

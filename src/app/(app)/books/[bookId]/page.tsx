@@ -162,6 +162,10 @@ export default async function BookDetailPage({
   const hasFingerprint = book.documents.some((d) => d.type === "FINGERPRINT");
   const hasBible = book.documents.some((d) => d.type === "STORY_BIBLE");
   const hasArch = book.documents.some((d) => d.type === "ARCHITECTURE");
+  // UDG-1 (Raul): a book with no CONCEPT is still at the idea stage — surface the
+  // Book Development hub so new writers are routed into the pre-draft pipeline
+  // rather than dropped straight into a blank editor.
+  const hasConcept = book.documents.some((d) => d.type === "CONCEPT");
 
   // D-173: this ladder used to be inline here and gated on `!hasFingerprint`
   // alone, so it kept soliciting "Recommended: Capture Style" after the writer
@@ -241,6 +245,33 @@ export default async function BookDetailPage({
               </div>
             </div>
             <StartWorkflowButton workflowId={nextWorkflowId} />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Book Development CTA — first-run discoverability (UDG-1) */}
+      {!hasConcept && (
+        <Card className="mb-8 border-indigo-400/40 bg-indigo-500/[0.06]">
+          <CardContent className="flex flex-wrap items-center justify-between gap-3 py-4">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="rounded-full bg-indigo-500/10 p-2 shrink-0">
+                <SparklesIcon className="size-5 text-indigo-500" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-medium">
+                  {t.bookDevelopment.title}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {t.bookDevelopment.subtitle}
+                </p>
+              </div>
+            </div>
+            <Button asChild variant="default" size="sm" className="shrink-0">
+              <Link href={`/books/${bookId}/dev`}>
+                <PlayIcon className="mr-1 size-4" />
+                {t.bookDevelopment.runWorkflow}
+              </Link>
+            </Button>
           </CardContent>
         </Card>
       )}

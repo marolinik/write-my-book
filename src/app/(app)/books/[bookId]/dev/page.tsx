@@ -63,6 +63,14 @@ export default async function BookDevelopmentPage({
   const t = getUIStrings(lang);
   const s = t.bookDevelopment;
 
+  // UDG-7/9 (Petar): world/topic research needs a web-search provider key
+  // (Perplexity/Serper/Firecrawl). Only check presence — never expose the value.
+  const hasResearchProvider = Boolean(
+    process.env.PERPLEXITY_API_KEY ||
+      process.env.SERPER_API_KEY ||
+      process.env.FIRECRAWL_API_KEY
+  );
+
   const book = await db.book.findFirst({
     where: { id: bookId, userId: user.id },
     include: {
@@ -277,6 +285,13 @@ export default async function BookDevelopmentPage({
                       {statusLabel[stage.status]}
                     </span>
                   </div>
+                  {stage.key === "research" &&
+                    stage.status === "none" &&
+                    !hasResearchProvider && (
+                      <p className="mt-2 text-[11px] leading-relaxed text-amber-700 dark:text-amber-500">
+                        {s.researchHint}
+                      </p>
+                    )}
                 </CardContent>
               </Card>
             </li>

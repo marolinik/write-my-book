@@ -178,6 +178,7 @@ describe("Book Development hub — i18n coverage in every UI locale", () => {
       "runWorkflow",
       "viewArtifact",
       "startWriting",
+      "researchHint",
     ] as const) {
       expect(bd[key]).toBeTruthy();
     }
