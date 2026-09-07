@@ -139,5 +139,8 @@ enum DocumentType { CONCEPT, SYNOPSIS, STORY_BIBLE, ... }
   - Make the hub tabs raise the individual stage workflows from one place (Idea ↔ Concept,
     Synopsis, Structure, Research, Plan, Draft).
   - Highlight the recommended next stage based on the journey recommendation.
-- Optionally feed SYNopsis to more agents (dev-editor, continuity-checker) if it helps
+- ~~Feed SYNopsis to more agents~~ → **delivered (2026-09-07, commit `558722e`):**
+  dev-editor and continuity-checker now load `<story_synopsis>` into their prompt
+  context (`contextProfile.synopsis = "full"`). Line-editor stays `"none"` (micro-prose
+  scope).
   chapter-level review.

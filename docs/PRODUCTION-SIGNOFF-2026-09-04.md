@@ -98,6 +98,13 @@ deploy contract.
 > (`book-development-ui.test.ts`); full suite **1814 passed**; `tsc` + eslint clean; new
 > e2e spec; **CI + E2E both green** (E2E 125 pass / 0 fail / 1 flaky / 3 skip).
 
+> **2026-09-07 (commit `558722e`)** finishing the two PRD follow-ups: the SYNOPSIS document
+> is now injected into **dev-editor** and **continuity-checker** prompts
+> (`contextProfile.synopsis = "full"`) so chapter review has story-level context; and the hub
+> highlights the **recommended next stage** with a "Next" badge (derived from the same
+> `deriveDevelopmentStages` report's new `nextStage`). Full suite **1818 passed** (24 in the
+> UI spec incl. the agent-context assertions); `tsc` + eslint clean.
+
 ---
 
 *Prepared from code inspection, the full unit suite (1794 green), TypeScript verification, a live dev-DB schema migration, and the targeted new tests (book-development 11, plus the prior export/finding/billing/offline coverage).*

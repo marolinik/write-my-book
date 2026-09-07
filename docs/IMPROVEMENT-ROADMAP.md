@@ -20,10 +20,11 @@
 > `CONCEPT` document from the onboarding flows, and upgrading `WebSearch`/`FetchWebPage` with
 > optional **Perplexity**/**Firecrawl** providers (graceful fallback to Serper/DDG + in-process
 > scrape). Followed by the **Book Development hub UI** (commit `f37c00d`): `/books/[bookId]/dev`
-> renders the six pre-draft pipeline stages as state-aware cards. Verified: full unit suite
-> 1814 green (20 new), `tsc` clean, eslint clean, `next build` compiles, and **CI + E2E both
-> green** (E2E 125 pass / 0 fail / 1 flaky / 3 skip). Follow-up: optional hub tab-launchers and
-> feeding the synopsis into more review agents.
+> renders the six pre-draft pipeline stages as state-aware cards. Then the two remaining PRD
+> follow-ups (commit `558722e`): the SYNOPSIS is now fed into dev-editor + continuity-checker
+> for story-level chapter context, and the hub highlights the recommended next stage with a
+> "Next" badge. Verified: full unit suite 1818 green, `tsc` + eslint clean, `next build`
+> compiles, and **CI + E2E both green**.
 
 **Verdict: ~65/100 production-ready. The bones of a 9/10 product delivering a 6.5/10 experience — mostly because already-built subsystems aren't wired together.** The fastest path to #1 isn't new features; it's connecting what exists, then closing 3 competitive gaps.
 
