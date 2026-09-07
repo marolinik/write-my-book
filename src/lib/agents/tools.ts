@@ -1810,6 +1810,66 @@ async function executeWebSearch(
   const query = input.query?.trim();
   if (!query) return "Error: search query is required.";
 
+  // Try Perplexity Search API first when configured — returns a synthesized
+  // answer with citations, ideal for research-friendly prose into model context.
+  const perplexityKey = process.env.PERPLEXITY_API_KEY;
+  if (perplexityKey) {
+    try {
+      const ppUrl =
+        process.env.PERPLEXITY_API_URL || "https://api.perplexity.ai/chat/completions";
+      const res = await fetch(ppUrl, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${perplexityKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: (process.env.PERPLEXITY_MODEL || "sonar"),
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a research assistant for a fiction author. Return a concise, well-sourced answer (bullet points preferred) with inline citation markers [1], [2], ... and a final CITATIONS list of numbered URLs. Be accurate; if unknown, say so.",
+            },
+            { role: "user", content: query },
+          ],
+          max_output_tokens: 1200,
+        }),
+        signal: AbortSignal.timeout(20000),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const content: string = data?.choices?.[0]?.message?.content;
+        if (content) {
+          const citations: string[] =
+            data?.citations && Array.isArray(data.citations)
+              ? data.citations
+              : [];
+          // Parse [n] markers out of the answer text.
+          const numbered: string[] = [];
+          const refMap: Record<string, string> = {};
+          let n = 1;
+          const withRefs = content.replace(/\[(\d+)\]/g, (m, idx) => {
+            const c = citations[Number(idx) - 1];
+            if (!c) return m;
+            if (refMap[c]) return `[${refMap[c]}]`;
+            refMap[c] = String(n);
+            numbered.push(`${n}. ${c}`);
+            n++;
+            return `[${refMap[c]}]`;
+          });
+          let out = withRefs;
+          if (numbered.length > 0) {
+            out += `\n\nCITATIONS:\n${numbered.join("\n")}`;
+          }
+          return out;
+        }
+      }
+    } catch (e) {
+      console.error("[WebSearch] Perplexity failed, falling back:", e);
+    }
+  }
+
   // Try Serper API first (Google results, best quality)
   const serperKey = process.env.SERPER_API_KEY;
   if (serperKey) {
@@ -1922,6 +1982,43 @@ async function executeFetchWebPage(
   // fetches even on self-host opt-in (no legitimate research target lives
   // there); redirects are re-validated per hop by the guard.
   try {
+    // Prefer Firecrawl when configured: it returns clean, LLM-ready markdown and
+    // handles JS-rendering / bot-challenges far better than a raw fetch+strip.
+    const firecrawlKey = process.env.FIRECRAWL_API_KEY;
+    if (firecrawlKey) {
+      try {
+        const fcRes = await fetch(
+          (process.env.FIRECRAWL_API_URL || "https://api.firecrawl.dev/v1/scrape"),
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${firecrawlKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              url,
+              formats: ["markdown"],
+              onlyMainContent: true,
+            }),
+            signal: AbortSignal.timeout(20000),
+          }
+        );
+        if (fcRes.ok) {
+          const data = await fcRes.json();
+          const md: string = data?.data?.markdown ?? data?.markdown;
+          if (md && md.trim().length > 0) {
+            if (md.length > 50_000) {
+              return md.slice(0, 50_000) + "\n[TRUNCATED]";
+            }
+            return md.trim();
+          }
+          return "Firecrawl returned no readable content for that page.";
+        }
+      } catch (e) {
+        console.error("[FetchWebPage] Firecrawl failed, falling back:", e);
+      }
+    }
+
     const res = await safeExternalFetch(url, {
       headers: {
         "User-Agent": "Mozilla/5.0 (compatible; WMBBot/1.0)",

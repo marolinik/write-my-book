@@ -18,6 +18,31 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     minimumTier: "sonnet",
   },
   {
+    id: "write-synopsis",
+    label: "Write Synopsis",
+    description: "Turn your concept into a 1-3 page synopsis covering the full story beat-by-beat.",
+    writerDescription:
+      "Turn your concept into a complete synopsis — the full story from hook to resolution.",
+    primaryAgent: "scene-planner",
+    category: "setup",
+    requiresChapter: false,
+    requiresSeriesContext: false,
+    conversational: false,
+    suggestedNext: ["build-architecture", "capture-style"],
+    producesDocument: "SYNOPSIS",
+    prerequisites: [
+      {
+        type: "document",
+        value: "CONCEPT",
+        description: "A core concept is needed before writing the synopsis",
+        satisfiedBy: "new-novel",
+      },
+    ],
+    estimatedMinMinutes: 3,
+    estimatedMaxMinutes: 8,
+    minimumTier: "sonnet",
+  },
+  {
     id: "capture-style",
     label: "Capture Style",
     description: "Analyze writing samples to create a FINGERPRINT document.",

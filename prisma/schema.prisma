@@ -250,6 +250,7 @@ model Chapter {
 enum DocumentType {
   // Book-level
   CONCEPT
+  SYNOPSIS
   STORY_BIBLE
   ARCHITECTURE
   FINGERPRINT

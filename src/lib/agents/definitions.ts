@@ -29,6 +29,7 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     contextProfile: {
       fingerprint: "full",
       storyBible: "full",
+      synopsis: "none",
       architecture: "full",
       chapterContent: false,
       adjacentChapters: "none",
@@ -64,6 +65,7 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     contextProfile: {
       fingerprint: "full",
       storyBible: "chapter-relevant",
+      synopsis: "full",
       architecture: "full",
       chapterContent: true,
       adjacentChapters: "one-each",
@@ -95,6 +97,7 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     contextProfile: {
       fingerprint: "none",
       storyBible: "none",
+      synopsis: "none",
       architecture: "none",
       chapterContent: false,
       adjacentChapters: "none",
@@ -130,6 +133,7 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     contextProfile: {
       fingerprint: "none",
       storyBible: "full",
+      synopsis: "full",
       architecture: "full",
       chapterContent: false,
       adjacentChapters: "none",
@@ -160,6 +164,7 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     contextProfile: {
       fingerprint: "none",
       storyBible: "chapter-relevant",
+      synopsis: "none",
       architecture: "full",
       chapterContent: false,
       adjacentChapters: "none",
@@ -193,6 +198,7 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     contextProfile: {
       fingerprint: "full",
       storyBible: "full",
+      synopsis: "none",
       architecture: "full",
       chapterContent: true,
       adjacentChapters: "summaries-all",
@@ -225,6 +231,7 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     contextProfile: {
       fingerprint: "full",
       storyBible: "chapter-relevant",
+      synopsis: "none",
       architecture: "none",
       chapterContent: true,
       adjacentChapters: "one-each",
@@ -256,6 +263,7 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     contextProfile: {
       fingerprint: "none",
       storyBible: "characters-only",
+      synopsis: "none",
       architecture: "full",
       chapterContent: true,
       adjacentChapters: "summaries-all",
@@ -285,6 +293,7 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     contextProfile: {
       fingerprint: "none",
       storyBible: "none",
+      synopsis: "none",
       architecture: "none",
       chapterContent: false,
       adjacentChapters: "none",
@@ -321,6 +330,7 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     contextProfile: {
       fingerprint: "none",
       storyBible: "full",
+      synopsis: "none",
       architecture: "full",
       chapterContent: true,
       adjacentChapters: "summaries-all",
@@ -344,6 +354,7 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     contextProfile: {
       fingerprint: "full",
       storyBible: "none",
+      synopsis: "none",
       architecture: "none",
       chapterContent: false,
       adjacentChapters: "none",
@@ -367,6 +378,7 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     contextProfile: {
       fingerprint: "none",
       storyBible: "full",
+      synopsis: "none",
       architecture: "full",
       chapterContent: false,
       adjacentChapters: "none",
@@ -390,6 +402,7 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     contextProfile: {
       fingerprint: "summary",
       storyBible: "full",
+      synopsis: "none",
       architecture: "full",
       chapterContent: false,
       adjacentChapters: "none",
@@ -413,6 +426,7 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     contextProfile: {
       fingerprint: "full",
       storyBible: "full",
+      synopsis: "none",
       architecture: "full",
       chapterContent: false,
       adjacentChapters: "none",

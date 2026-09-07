@@ -17,6 +17,8 @@ export function getStoragePath(
     // Book-level singleton docs
     case DocumentType.CONCEPT:
       return ".planning/CONCEPT.md";
+    case DocumentType.SYNOPSIS:
+      return ".planning/SYNOPSIS.md";
     case DocumentType.STORY_BIBLE:
       return ".planning/STORY-BIBLE.md";
     case DocumentType.ARCHITECTURE:

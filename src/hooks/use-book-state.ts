@@ -42,6 +42,7 @@ interface BookStateResult {
   chapterCount: number;
   hasStoryBible: boolean;
   hasArchitecture: boolean;
+  hasSynopsis: boolean;
   hasFingerprint: boolean;
   hasStyleProfile: boolean;
   hasAnalysisReport: boolean;
@@ -132,6 +133,7 @@ export function useBookState(bookId: string): BookStateResult {
     const hasChapters = (book?.chapters?.length ?? 0) > 0;
     const hasStoryBible = docTypes.has("STORY_BIBLE");
     const hasArchitecture = docTypes.has("ARCHITECTURE");
+    const hasSynopsis = docTypes.has("SYNOPSIS");
     const hasFingerprint = docTypes.has("FINGERPRINT");
     const hasAnalysisReport = docTypes.has("ANALYSIS_REPORT");
     const hasContinuityReport = docTypes.has("CONTINUITY_REPORT");
@@ -295,6 +297,7 @@ export function useBookState(bookId: string): BookStateResult {
       hasFingerprint,
       hasStoryBible,
       hasArchitecture,
+      hasSynopsis,
       hasAnalysisReport,
       hasMarketReport,
       hasContinuityReport,
@@ -335,6 +338,7 @@ export function useBookState(bookId: string): BookStateResult {
       chapterCount,
       hasStoryBible,
       hasArchitecture,
+      hasSynopsis,
       hasFingerprint,
       hasStyleProfile,
       hasAnalysisReport,

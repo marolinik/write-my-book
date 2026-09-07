@@ -14,6 +14,8 @@ interface ToolInput {
 
 const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
   en: {
+    CONCEPT: "Concept",
+    SYNOPSIS: "Synopsis",
     STORY_BIBLE: "Story Bible",
     ARCHITECTURE: "Architecture",
     FINGERPRINT: "Style Fingerprint",
@@ -37,6 +39,8 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
     KNOWLEDGE_LEDGER: "Knowledge Ledger",
   },
   sr: {
+    CONCEPT: "Concept",
+    SYNOPSIS: "Synopsis",
     STORY_BIBLE: "Biblija priče",
     ARCHITECTURE: "Arhitektura",
     FINGERPRINT: "Stilski otisak",
@@ -60,6 +64,8 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
     KNOWLEDGE_LEDGER: "Registar znanja",
   },
   de: {
+    CONCEPT: "Concept",
+    SYNOPSIS: "Synopsis",
     STORY_BIBLE: "Story-Bibel",
     ARCHITECTURE: "Architektur",
     FINGERPRINT: "Stil-Fingerabdruck",
@@ -83,6 +89,8 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
     KNOWLEDGE_LEDGER: "Wissensregister",
   },
   es: {
+    CONCEPT: "Concept",
+    SYNOPSIS: "Synopsis",
     STORY_BIBLE: "Biblia de la historia",
     ARCHITECTURE: "Arquitectura",
     FINGERPRINT: "Huella de estilo",
@@ -106,6 +114,8 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
     KNOWLEDGE_LEDGER: "Registro de conocimiento",
   },
   fr: {
+    CONCEPT: "Concept",
+    SYNOPSIS: "Synopsis",
     STORY_BIBLE: "Bible de l'histoire",
     ARCHITECTURE: "Architecture",
     FINGERPRINT: "Empreinte de style",
@@ -129,6 +139,8 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
     KNOWLEDGE_LEDGER: "Registre de connaissances",
   },
   ru: {
+    CONCEPT: "Concept",
+    SYNOPSIS: "Synopsis",
     STORY_BIBLE: "Библия истории",
     ARCHITECTURE: "Архитектура",
     FINGERPRINT: "Стилевой отпечаток",
@@ -152,6 +164,8 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
     KNOWLEDGE_LEDGER: "Реестр знаний",
   },
   zh: {
+    CONCEPT: "Concept",
+    SYNOPSIS: "Synopsis",
     STORY_BIBLE: "故事圣经",
     ARCHITECTURE: "架构",
     FINGERPRINT: "风格指纹",

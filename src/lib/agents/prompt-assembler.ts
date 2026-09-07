@@ -1006,6 +1006,31 @@ PROCESS:
 IMPORTANT: This is a conversational session. Wait for the writer's questions — do NOT monologue.
 If the writer asks you to save findings, use WriteDocument to create a TOPIC_RESEARCH document.
 Always cite sources with URLs. Prioritize authoritative sources (academic, journalistic, official).`,
+
+  "write-synopsis": `
+WORKFLOW: WRITE BOOK SYNOPSIS
+
+This is a WRITE-SYNOPSIS session, NOT a chapter beat-sheet session. Your job is to produce a complete 1-3 page SYNOPSIS document that summarizes the whole story from hook to resolution, so the Story Architect can turn it into a structural outline.
+
+PROCESS:
+1. Read the CONCEPT document (ReadDocument with documentType='CONCEPT') to ground the synopsis in the writer's actual idea. Also read STORY_BIBLE if one exists, and the ARCHITECTURE if present, to stay consistent.
+2. Write a SYNOPSIS document using WriteDocument with documentType='SYNOPSIS'.
+
+SYNOPSIS STRUCTURE (TARGET SIZE: 800-1,800 words):
+1. LOGLINE (~50 words) — one-sentence hook: protagonist + goal + central conflict + stakes.
+2. OPENING SITUATION (~150 words) — the world/status quo before the story begins; who the protagonist is and what they're missing.
+3. INCITING INCIDENT (~100 words) — the event that disrupts the status quo and commits the protagonist.
+4. RISING ACTION (~400 words) — walk through the major beats/chapters chronologically: subplots, escalating obstacles, key reveals, midpoint turn.
+5. CLIMAX (~150 words) — the peak confrontation; how it resolves the central conflict.
+6. RESOLUTION (~150 words) — aftermath, loose ends, and the protagonist's end state.
+7. THEMES (~100 words) — the core thematic question and what the story ultimately says.
+
+RULES:
+- Tell the WHOLE story in prose (no placeholders, no "and then..."). Write it as a single flowing narrative.
+- Keep it spoiler-complete — the synopsis must describe how the story ends (it is a design doc for the outline, not marketing copy).
+- Do NOT invent details the writer hasn't approved; extrapolate in-character and flag any guesses.
+- After writing, present a short summary of the synopsis in chat.
+- You MUST call WriteDocument with documentType='SYNOPSIS'. Pasting the synopsis into chat does NOT save it, and build-architecture may be gated on it.`,
 };
 
 // ─── Language Helpers ──────────────────────────────────────────
@@ -1096,6 +1121,7 @@ export const CONDUCTOR_WORKFLOW_INSTRUCTIONS: Record<string, string> = {
   "beta-read": "Delegate to beta-reader for the target chapter. You MUST pass chapterNumber and workflowId='beta-read' to DelegateToSpecialist. Present the panel's verdict — pass/fail, strongest elements, and key concerns. Quote specific persona reactions that are insightful.",
   "write-chapter": "Briefly discuss the plan with the user if they want, then delegate to ghostwriter. You MUST pass chapterNumber and workflowId='write-chapter' to DelegateToSpecialist. After the draft is complete, summarize what was written and suggest the next step (usually dev-edit).",
   "plan-chapter": "Delegate to scene-planner for the target chapter. You MUST pass chapterNumber and workflowId='plan-chapter' to DelegateToSpecialist. Present the beat sheet summary when complete.",
+  "write-synopsis": "Delegate to scene-planner with workflowId='write-synopsis' (book-level, NO chapterNumber). Ensure the CONCEPT document exists first; pass the concept so the specialist can write the complete SYNOPSIS document. Present a short summary of the synopsis when complete.",
   "capture-style": "Delegate to style-analyst. When the fingerprint is created, summarize the key voice characteristics found.",
   "refresh-style": "Delegate to style-analyst to refresh the fingerprint. Summarize what changed from the previous version.",
   "evolve-style": "Discuss the desired style evolution direction with the user first, then delegate to style-analyst with specific guidance.",
@@ -1124,7 +1150,7 @@ You MUST pass chapterNumber and workflowId='revise' to DelegateToSpecialist. Aft
 
   // Direct conversation workflows — Coach handles directly, NO delegation
   "coach": "Open-ended writing conversation. Do NOT delegate to any specialist — handle this yourself. Use your expertise as a writing mentor to guide the user.",
-  "new-novel": "Guide the user through concept creation for a new novel. Handle this directly — ask about premise, characters, themes, genre. Help them build the foundation. When ready, suggest creating the story bible.",
+  "new-novel": "Guide the user through concept creation for a new novel. Handle this directly — ask about premise, characters, themes, genre. Help them build the foundation. Once you've gathered enough (at minimum: genre, one-sentence premise, protagonist + want/stake, and a sense of the central conflict), you MUST call WriteDocument with documentType='CONCEPT' to save the concept (logline + premise + protagonist + central conflict + themes). Pasting the concept into chat does NOT save it. After writing CONCEPT, tell the user the concept is saved and suggest creating the synopsis (write-synopsis) next, then the story bible.",
   "create-story-bible": "Build the story bible conversationally with the user. Handle this directly — walk through characters, world rules, themes, and history. You MUST call WriteDocument with documentType='STORY_BIBLE' to save it — pasting the story bible into the chat does NOT save it, and every later step (build-architecture, dev-edit) is blocked until that document exists. Never tell the user the story bible is complete or ready unless you have called WriteDocument in this session. TARGET SIZE: 2,000–4,000 words (max 5,000). Use tables for character lists (name, role, arc). Be a concise reference doc, not an encyclopedia.",
   "discuss-chapter": "Discuss the chapter's direction with the user. Handle directly — explore themes, character arcs, key scenes, and emotional beats. When ready, suggest plan-chapter.",
   "discuss-edits": "Review findings with the user. Handle directly — read the existing findings and discuss which to apply, which to reject, and why. Help the user make editorial decisions.",
@@ -1146,13 +1172,15 @@ PHASE 1 — GATHER INFORMATION (handle directly, do NOT delegate yet):
 
 PHASE 2 — CREATE FOUNDATIONAL DOCUMENTS (delegate to specialists):
 Once you have all 3 data points AND a writing sample:
+0. First, use WriteDocument to create the CONCEPT document (documentType='CONCEPT') from the gathered info — logline (one-sentence hook: protagonist + goal + conflict + stakes), premise, protagonist + want/stake, themes. Pasting it into chat does NOT save it. (Give special focus to ~50-word logline + a premise paragraph; the synopsis agent will build on it.)
 1. Delegate to style-analyst with workflowId='capture-style' — pass the writing sample via the task description
 2. Delegate to writing-coach (yourself) with workflowId='create-story-bible' — BUT since you can't delegate to yourself, instead use WriteDocument to create the STORY_BIBLE document directly using the gathered information. TARGET SIZE: 2,000–4,000 words (max 5,000). Include: characters, world rules, themes, timeline. Use tables for character lists. Be concise — this is a reference doc, not a novel.
-3. Delegate to story-architect with workflowId='build-architecture' — pass the premise, genre, and story structure info
+3. Delegate to scene-planner with workflowId='write-synopsis' — pass the CONCEPT content so it can write the complete SYNOPSIS document
+4. Delegate to story-architect with workflowId='build-architecture' — pass the premise, genre, and story structure info
 
 PHASE 3 — SUMMARIZE AND GUIDE:
 After all documents are created:
-1. Summarize what was created: Style Fingerprint, Story Bible, Architecture
+1. Summarize what was created: Concept, Style Fingerprint, Story Bible, Synopsis, Architecture
 2. Suggest the writer review each document (link to /books/[bookId]/documents)
 3. Recommend next steps: "Your setup is almost done! Head to the setup wizard to review everything, then start planning your first chapter."`,
 
@@ -1626,6 +1654,20 @@ export async function assembleAgentPrompt(
         name: "architecture",
         priority: 70,
         content: `\n<story_architecture>\n${arch}\n</story_architecture>`,
+      });
+    }
+  }
+
+  // ─── SECTION 6b: Synopsis (priority 78) ───────────────────────
+  if (profile.synopsis === "full") {
+    const syn =
+      context.synopsis ??
+      (await loadDocument(documentService, DocumentType.SYNOPSIS));
+    if (syn) {
+      sections.push({
+        name: "synopsis",
+        priority: 78,
+        content: `\n<story_synopsis>\n${syn}\n</story_synopsis>`,
       });
     }
   }

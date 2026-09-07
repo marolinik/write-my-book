@@ -194,7 +194,7 @@ export const createStyleProfileSchema = z.object({
 
 export const createDocumentSchema = z.object({
   type: z.enum([
-    "CONCEPT", "STORY_BIBLE", "ARCHITECTURE", "FINGERPRINT",
+    "CONCEPT", "SYNOPSIS", "STORY_BIBLE", "ARCHITECTURE", "FINGERPRINT",
     "CHAPTER_BRIEF", "CHAPTER_PLAN", "CHAPTER_CONTENT",
     "DEV_EDIT_REPORT", "LINE_EDIT_REPORT", "BETA_READ_REPORT",
     "CONTINUITY_REPORT", "ANALYSIS_REPORT", "MARKET_REPORT",

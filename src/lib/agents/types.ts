@@ -57,6 +57,7 @@ export type ModelTier = "opus" | "sonnet" | "haiku";
 export interface AgentContextProfile {
   fingerprint: "full" | "summary" | "none";
   storyBible: "full" | "chapter-relevant" | "characters-only" | "none";
+  synopsis: "full" | "none";
   architecture: "full" | "chapter-only" | "act-level" | "none";
   chapterContent: boolean;                              // Auto-load target chapter content
   adjacentChapters: "none" | "summaries-all" | "one-each"; // Adjacent chapter loading
@@ -102,6 +103,7 @@ export interface AgentContext {
   chapterId?: string;
   fingerprint?: string;
   storyBible?: string;
+  synopsis?: string;
   architecture?: string;
   chapterPlan?: string;
   chapterBrief?: string;

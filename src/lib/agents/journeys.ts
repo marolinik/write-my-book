@@ -32,6 +32,7 @@ const JOURNEYS: JourneyDefinition[] = [
     category: "book",
     steps: [
       { workflowId: "new-novel" },
+      { workflowId: "write-synopsis" },
       { workflowId: "capture-style" },
       { workflowId: "create-story-bible" },
       { workflowId: "build-architecture" },
@@ -206,6 +207,7 @@ export interface StepCompletionInput {
   hasFingerprint: boolean;
   hasStoryBible: boolean;
   hasArchitecture: boolean;
+  hasSynopsis: boolean;
   hasAnalysisReport: boolean;
   hasMarketReport: boolean;
   hasContinuityReport: boolean;
@@ -259,6 +261,8 @@ export function isStepComplete(step: JourneyStep, input: StepCompletionInput): b
     case "create-story-bible":
     case "new-novel":
       return input.hasStoryBible;
+    case "write-synopsis":
+      return input.hasSynopsis;
     case "build-architecture":
       return input.hasArchitecture;
     case "analyze":
@@ -377,6 +381,7 @@ export function getDetailedJourneyProgress(
  */
 const STEP_NAV_MAP: Record<string, (bookId: string) => string> = {
   "new-novel": (id) => `/books/${id}/setup`,
+  "write-synopsis": (id) => `/books/${id}/documents`,
   "read-manuscript": (id) => `/books/${id}/import`,
   "capture-style": (id) => `/books/${id}/style`,
   "refresh-style": (id) => `/books/${id}/style`,
@@ -413,6 +418,7 @@ export function getStepNavHref(workflowId: string, bookId: string): string {
 
 const STEP_LABELS: Record<string, string> = {
   "new-novel": "Start New Novel",
+  "write-synopsis": "Write Synopsis",
   "read-manuscript": "Import Manuscript",
   "capture-style": "Capture Writing Style",
   "refresh-style": "Refresh Style Profile",
