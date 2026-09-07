@@ -1,13 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchJson } from "@/lib/api-client";
 import { useFindings } from "@/hooks/use-editorial";
 import { useEditorialStore } from "@/stores/editorial-store";
 import { ChapterSelector } from "./chapter-selector";
 import { FindingCard } from "./finding-card";
-import { BookOpenIcon, MessageSquareQuoteIcon } from "lucide-react";
+import { BookOpenIcon, MessageSquareQuoteIcon, CopyIcon, CheckIcon } from "lucide-react";
 
 interface ChapterInfo {
   id: string;
@@ -36,6 +36,10 @@ interface HandoffPanelProps {
  */
 export function HandoffPanel({ bookId, chapters }: HandoffPanelProps) {
   const selectedChapter = useEditorialStore((s) => s.selectedChapter);
+  // UDG-20 (personas 4/12/13/19): show pending by default, or all findings
+  // (including resolved/applied) when the editor is writing a fuller brief.
+  const [status, setStatus] = useState<"pending" | "all">("pending");
+  const [copied, setCopied] = useState(false);
 
   const { data: docsData } = useQuery({
     queryKey: ["handoff", "documents", bookId],
@@ -51,10 +55,29 @@ export function HandoffPanel({ bookId, chapters }: HandoffPanelProps) {
 
   const { data: findingsData, isLoading: findingsLoading } = useFindings(bookId, {
     chapterNumber: selectedChapter,
-    status: "pending",
+    ...(status === "pending" ? { status: "pending" } : {}),
   });
 
   const findings = findingsData?.findings ?? [];
+
+  const copySummary = async () => {
+    const synopsisText = synopsis?.content ?? "(no synopsis)";
+    const head = findings
+      .slice(0, 20)
+      .map(
+        (f, i) =>
+          `${i + 1}. [${f.severity}/${f.category}${selectedChapter ? ` ch.${selectedChapter}` : ""}] ${f.description}${f.suggestion ? ` — ${f.suggestion}` : ""}`
+      )
+      .join("\n");
+    const brief = `STORY SYNOPSIS\n${synopsisText}\n\nCHAPTER FINDINGS (${selectedChapter ?? "all"})\n${head || "(none)"}`;
+    try {
+      await navigator.clipboard.writeText(brief);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      // clipboard unavailable — ignore quietly
+    }
+  };
 
   return (
     <div className="grid h-full grid-cols-1 gap-4 overflow-auto p-4 lg:grid-cols-2">
@@ -80,10 +103,32 @@ export function HandoffPanel({ bookId, chapters }: HandoffPanelProps) {
 
       {/* Chapter findings panel */}
       <div className="flex min-h-0 flex-col rounded-lg border bg-card">
-        <div className="flex items-center gap-2 border-b px-4 py-3">
+        <div className="flex flex-wrap items-center gap-2 border-b px-4 py-3">
           <MessageSquareQuoteIcon className="size-4 text-muted-foreground" />
           <h2 className="text-sm font-semibold">Chapter Findings</h2>
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-2">
+            <select
+              aria-label="Findings filter"
+              value={status}
+              onChange={(e) => setStatus(e.target.value as "pending" | "all")}
+              className="rounded-md border bg-background px-2 py-1 text-xs"
+            >
+              <option value="pending">Pending</option>
+              <option value="all">All</option>
+            </select>
+            <button
+              type="button"
+              onClick={copySummary}
+              className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs hover:bg-accent"
+              title="Copy a terse synopsis→findings brief"
+            >
+              {copied ? (
+                <CheckIcon className="size-3" />
+              ) : (
+                <CopyIcon className="size-3" />
+              )}
+              {copied ? "Copied" : "Copy"}
+            </button>
             <ChapterSelector chapters={chapters ?? []} />
           </div>
         </div>
@@ -94,8 +139,8 @@ export function HandoffPanel({ bookId, chapters }: HandoffPanelProps) {
           {!findingsLoading && findings.length === 0 && (
             <p className="text-xs text-muted-foreground">
               {selectedChapter
-                ? "No pending findings for this chapter."
-                : "Select a chapter to see its pending findings."}
+                ? `No ${status} findings for this chapter.`
+                : "Select a chapter to see its findings."}
             </p>
           )}
           {findings.map((finding) => (
