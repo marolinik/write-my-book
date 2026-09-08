@@ -6,6 +6,8 @@ import { getDailyWordCounts, computeStreaks } from "@/lib/writing-stats";
 import { getUIStrings, localeFor } from "@/lib/i18n/ui-strings";
 import { bookProgressPercent } from "@/lib/book/progress";
 import { PrintButton } from "@/components/reports/print-button";
+import { ShareSnapshotButton } from "@/components/book/share-snapshot-button";
+import { getAnalysisReport } from "@/lib/reports/analysis-report";
 
 // UDG round-6 (Darko): a printable/shareable one-page snapshot of a book's
 // status and analytics. Server-rendered (owner-scoped, requireUser), reuses the
@@ -82,6 +84,10 @@ export default async function BookSnapshotPage({
 
   const progress = bookProgressPercent(book as never);
 
+  // UDG round-7 (Darko/Tamara): readability + pacing + dialogue numbers from the
+  // manuscript analyst (ANALYSIS_REPORT), rendered as a print table (no charts).
+  const analysis = await getAnalysisReport(user.id, bookId);
+
   const exportedOn = new Date().toLocaleDateString(locale, {
     year: "numeric", month: "long", day: "numeric",
   });
@@ -89,12 +95,15 @@ export default async function BookSnapshotPage({
   return (
     <div className="min-h-screen bg-background p-4 lg:p-8 print:p-0" data-snapshot>
       {/* Print/app chrome toggle: hide the toolbar in print via print:hidden */}
-      <div className="mb-6 flex max-w-3xl items-center justify-between print:hidden">
+      <div className="mb-6 flex max-w-3xl items-center justify-between gap-2 print:hidden">
         <div>
           <h1 className="font-display text-2xl font-bold">{s.title}</h1>
           <p className="text-sm text-muted-foreground">{s.subtitle}</p>
         </div>
-        <PrintButton />
+        <div className="flex items-center gap-1">
+          <ShareSnapshotButton bookId={bookId} kind="book" />
+          <PrintButton />
+        </div>
       </div>
 
       <main className="mx-auto max-w-3xl space-y-8">
@@ -164,6 +173,56 @@ export default async function BookSnapshotPage({
             </tbody>
           </table>
         </section>
+
+        {/* UDG round-7 (Darko/Tamara): analytics from the manuscript analyst. */}
+        {analysis.hasReport && (
+          <section className="rounded-lg border">
+            <div className="border-b px-4 py-2 text-sm font-semibold">{s.analytics}</div>
+            <div className="p-4">
+              <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm sm:grid-cols-3">
+                <Detail label={s.fleschKincaid} value={analysis.readability.fleschKincaid.toFixed(1)} />
+                <Detail label={s.gunningFog} value={analysis.readability.gunningFog.toFixed(1)} />
+                <Detail label={s.colemanLiau} value={analysis.readability.colemanLiau.toFixed(1)} />
+                <Detail label={s.betaAvg} value={avgBetaScore ?? "–"} />
+                {analysis.readability.genreBenchmark?.fk ? (
+                  <Detail
+                    label={s.genreRange}
+                    value={`${analysis.readability.genreBenchmark.fk.min}–${analysis.readability.genreBenchmark.fk.max}`}
+                  />
+                ) : null}
+              </dl>
+              {analysis.dialogue.length > 0 && (
+                <div className="mt-4">
+                  <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    {s.dialogueShare}
+                  </p>
+                  <table className="w-full text-sm">
+                    <tbody>
+                      {analysis.dialogue
+                        .slice(0, 8)
+                        .sort((a, b) => b.percentage - a.percentage)
+                        .map((d, i) => (
+                          <tr key={i} className="border-b last:border-0">
+                            <td className="py-1">{d.character}</td>
+                            <td className="py-1 text-right">{d.percentage}%</td>
+                            <td className="py-1 text-right text-muted-foreground">
+                              {s.dialogueLines} {d.lineCount}
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              {analysis.pacing.length > 0 && (
+                <p className="mt-3 text-xs text-muted-foreground">
+                  {s.pacingTension}: {analysis.pacing.length} {s.chapters} ·{" "}
+                  {analysis.pacing.reduce((s2, p) => s2 + (p.tension ?? 0), 0) / analysis.pacing.length}
+                </p>
+              )}
+            </div>
+          </section>
+        )}
       </main>
     </div>
   );

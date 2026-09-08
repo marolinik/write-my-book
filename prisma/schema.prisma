@@ -41,6 +41,7 @@ model User {
   writerMemories WriterMemory[]
   sessionBriefs  SessionBrief[]
   freeTierUsage  FreeTierUsage[]
+  sharedSnapshots SharedSnapshot[]
 
   @@map("users")
 }
@@ -220,6 +221,7 @@ model Book {
   suggestionFeedback SuggestionFeedback[]
   continuityFlags ContinuityFlag[]
   batchRuns       BatchRun[]
+  sharedSnapshots SharedSnapshot[]
 
   @@unique([seriesId, bookNumber])
   @@unique([userId, name])
@@ -835,4 +837,28 @@ model SessionBrief {
 
   @@index([bookId, createdAt])
   @@map("session_briefs")
+}
+
+// ─── SHARED SNAPSHOTS (UDG round-7, Luka 12) ────────────────────
+// A tokenized, read-only snapshot link that can be opened WITHOUT an account.
+// The creator is an authenticated owner; the token is a random, unguessable
+// capability. The public page resolves token -> bookId + kind and renders a
+// deliberately small, safe payload (book status and/or editorial findings) —
+// never any API key or credential (those live only on ApiKey/CustomProvider).
+
+model SharedSnapshot {
+  id           String    @id @default(uuid())
+  token        String    @unique
+  bookId       String    @map("book_id")
+  kind         String    @default("book") // "book" | "editorial"
+  createdById  String    @map("created_by_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  expiresAt    DateTime? @map("expires_at")
+  lastViewedAt DateTime? @map("last_viewed_at")
+
+  createdBy    User   @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  book         Book   @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@index([bookId])
+  @@map("shared_snapshots")
 }

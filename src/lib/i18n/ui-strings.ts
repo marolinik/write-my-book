@@ -257,6 +257,10 @@ export interface UIStrings {
     coverUpload: string; coverUploading: string; coverRemove: string; coverHint: string;
     coverSaved: string; coverRemoved: string; coverError: string; coverTypeError: string; coverTooLarge: string;
     coverDimensionsError: string;
+    // UDG round-8 (Igor): inline cover crop/position editor.
+    coverRecrop: string; coverCropTitle: string; coverCropHint: string; coverCropZoom: string;
+    coverCropPosition: string; coverCropPositionH: string; coverCropPositionV: string;
+    coverCropApply: string; coverCropCancel: string;
     betaPanel: string; betaPanelDesc: string;
     panelSize: string; consensus: string; convergence: string;
     back: string;
@@ -304,6 +308,11 @@ export interface UIStrings {
     editorialBrief: string; allFindings: string; findingsList: string;
     noFindings: string; chapter: string; suggestion: string;
     link: string; editorialLink: string;
+    // UDG round-7 (Luka 12): share-link button on snapshots (account-less).
+    shareLink: string; sharedLink: string; shareFailed: string;
+    // UDG round-7 (Darko/Tamara): analysis stats table in the printable snapshot.
+    analytics: string; fleschKincaid: string; gunningFog: string; colemanLiau: string;
+    genreRange: string; dialogueShare: string; dialogueLines: string; pacingTension: string;
   };
 
   chapterNew: {
@@ -709,6 +718,10 @@ const EN: UIStrings = {
     coverRemove: "Remove cover", coverHint: "JPEG, PNG or WebP, up to 8 MB.",
     coverSaved: "Cover saved", coverRemoved: "Cover removed", coverError: "Failed to update cover",
     coverTypeError: "Please choose a JPEG, PNG or WebP image", coverTooLarge: "Image is larger than 8 MB", coverDimensionsError: "Image is too small or has the wrong shape — use at least a book-cover aspect ratio",
+    // EN UDG round-8 (Igor): inline cover crop/position editor
+    coverRecrop: "Re-crop", coverCropTitle: "Crop cover", coverCropHint: "Frame the part of the image you want as the cover — zoom and position the view, then apply.",
+    coverCropZoom: "Zoom", coverCropPosition: "Position", coverCropPositionH: "Horizontal", coverCropPositionV: "Vertical",
+    coverCropApply: "Apply crop", coverCropCancel: "Cancel",
     betaPanel: "Beta Reader Panel", betaPanelDesc: "Configure virtual beta reader settings",
     panelSize: "Panel Size", consensus: "Consensus %", convergence: "Convergence %",
     back: "Back",
@@ -752,6 +765,12 @@ const EN: UIStrings = {
     findingsList: "Findings by chapter", noFindings: "No open findings.",
     chapter: "Chapter", suggestion: "Suggestion",
     link: "Print / Export snapshot", editorialLink: "Editorial brief",
+    // EN UDG round-7 (Luka 12): share-link on snapshots
+    shareLink: "Share link", sharedLink: "Copied share link to clipboard:", shareFailed: "Could not create share link",
+    // EN UDG round-7 (Darko/Tamara): analysis stats table
+    analytics: "Analytics", fleschKincaid: "Flesch-Kincaid", gunningFog: "Gunning Fog",
+    colemanLiau: "Coleman-Liau", genreRange: "Genre FK range", dialogueShare: "Dialogue share",
+    dialogueLines: "lines", pacingTension: "Avg pacing tension",
   },
   chapterNew: {
     title: "New Chapter", subtitle: "Add a new chapter to your book",
@@ -1171,6 +1190,9 @@ const SR: UIStrings = {
     lineEditorProfile: "Profil urednika linijskog izdanja", lineEditorProfileDesc: "Izaberite šablon linijske lekture: standardni balansira poliranje proze i kontekst zapleta; razvojni daje prednost strukturi i motivaciji likova; za objavu je usklađen za slanje; štedljiv drži prozu minimalnom i sažetom.",
     profileStandard: "Standardni", profileDevelopmental: "Razvojni", profileGoPub: "Za objavu", profileSpare: "Štedljiv i sažet",
     coverTitle: "Korica knjige", coverTitleDesc: "Otpremite koricu za ovu knjigu. Koristi se u PDF i EPUB izvozima.", coverPreview: "Pregled korice knjige", coverUpload: "Otpremi koricu", coverUploading: "Otpremanje…", coverRemove: "Ukloni koricu", coverHint: "JPEG, PNG ili WebP, do 8 MB.", coverSaved: "Korica sačuvana", coverRemoved: "Korica uklonjena", coverError: "Neuspešno ažuriranje korice", coverTypeError: "Izaberite JPEG, PNG ili WebP sliku", coverTooLarge: "Slika je veća od 8 MB", coverDimensionsError: "Slika je premala ili pogrešnog oblika — koristite najmanje omjer korice knjige",
+    coverRecrop: "Ponovo obreži", coverCropTitle: "Obreži koricu", coverCropHint: "Uokvirite deo slike koji želite kao koricu — zumirajte i pomerajte prikaz, pa primenite promene.",
+    coverCropZoom: "Zum", coverCropPosition: "Položaj", coverCropPositionH: "Horizontalno", coverCropPositionV: "Vertikalno",
+    coverCropApply: "Primeni obrezivanje", coverCropCancel: "Odustani",
     betaPanel: "Panel beta čitalaca", betaPanelDesc: "Konfigurišite podešavanja virtualnog beta čitanja",
     panelSize: "Veličina panela", consensus: "Konsenzus %", convergence: "Konvergencija %",
     back: "Nazad",
@@ -1212,6 +1234,10 @@ const SR: UIStrings = {
     findingsList: "Nalazi po poglavlju", noFindings: "Nema otvorenih nalaza.",
     chapter: "Poglavlje", suggestion: "Predlog",
     link: "Štampaj / Izvezi prikaz", editorialLink: "Uređivački izveštaj",
+    shareLink: "Podeli link", sharedLink: "Link kopiran u clipboard:", shareFailed: "Ne mogu da kreiram link za deljenje",
+    analytics: "Analitika", fleschKincaid: "Flesch–Kincaid", gunningFog: "Gunning Fog",
+    colemanLiau: "Coleman–Liau", genreRange: "Genre FK raspon", dialogueShare: "Udeo dijaloga",
+    dialogueLines: "redova", pacingTension: "Prosečna napetost",
   },
   chapterNew: {
     title: "Novo poglavlje", subtitle: "Dodajte novo poglavlje u knjigu",
@@ -1631,6 +1657,9 @@ const DE: UIStrings = {
     lineEditorProfile: "Line-Editor-Profil", lineEditorProfileDesc: "Wähle eine Line-Edit-Vorlage: Standard balanciert Prosa-Politur und Plot-Kontext; Entwicklungsorientiert priorisiert Struktur und Charaktermotivation; Veröffentlichung strafft für die Einreichung; Sparsam hält Prosa minimal und schlank.",
     profileStandard: "Standard", profileDevelopmental: "Entwicklung", profileGoPub: "Zur Veröffentlichung", profileSpare: "Sparsam & schlank",
     coverTitle: "Buchcover", coverTitleDesc: "Laden Sie ein Cover für dieses Buch hoch. Es wird in PDF- und EPUB-Exporten verwendet.", coverPreview: "Buchcover-Vorschau", coverUpload: "Cover hochladen", coverUploading: "Wird hochgeladen…", coverRemove: "Cover entfernen", coverHint: "JPEG, PNG oder WebP, bis 8 MB.", coverSaved: "Cover gespeichert", coverRemoved: "Cover entfernt", coverError: "Cover konnte nicht aktualisiert werden", coverTypeError: "Bitte wählen Sie ein JPEG-, PNG- oder WebP-Bild", coverTooLarge: "Bild ist größer als 8 MB", coverDimensionsError: "Bild ist zu klein oder hat die falsche Form — verwenden Sie mindestens ein Buchcover-Seitenverhältnis",
+    coverRecrop: "Neu zuschneiden", coverCropTitle: "Cover zuschneiden", coverCropHint: "Rahmen Sie den Teil des Bildes ein, der das Cover werden soll — Zoomen und positionieren Sie die Ansicht und übernehmen Sie dann die Änderungen.",
+    coverCropZoom: "Zoom", coverCropPosition: "Position", coverCropPositionH: "Horizontal", coverCropPositionV: "Vertikal",
+    coverCropApply: "Zuschnitt übernehmen", coverCropCancel: "Abbrechen",
     betaPanel: "Beta-Leser-Panel", betaPanelDesc: "Virtuelle Beta-Leser-Einstellungen konfigurieren",
     panelSize: "Panelgröße", consensus: "Konsens %", convergence: "Konvergenz %",
     back: "Zurück",
@@ -1672,6 +1701,10 @@ const DE: UIStrings = {
     findingsList: "Befunde je Kapitel", noFindings: "Keine offenen Befunde.",
     chapter: "Kapitel", suggestion: "Vorschlag",
     link: "Drucken / Snapshot exportieren", editorialLink: "Lektoratsbrief",
+    shareLink: "Link teilen", sharedLink: "Link in Zwischenablage kopiert:", shareFailed: "Share-Link konnte nicht erstellt werden",
+    analytics: "Analysen", fleschKincaid: "Flesch–Kincaid", gunningFog: "Gunning-Fog",
+    colemanLiau: "Coleman–Liau", genreRange: "Genre-FK-Bereich", dialogueShare: "Dialoganteil",
+    dialogueLines: "Zeilen", pacingTension: "Durchschn. Spannung",
   },
   chapterNew: {
     title: "Neues Kapitel", subtitle: "Fügen Sie Ihrem Buch ein neues Kapitel hinzu",
@@ -2091,6 +2124,9 @@ const ES: UIStrings = {
     lineEditorProfile: "Perfil del editor de línea", lineEditorProfileDesc: "Elige una plantilla de corrección de línea: estándar equilibra pulido de prosa y contexto de la trama; desarrollo prioriza estructura y motivación de personajes; para publicar ajusta para el envío; sobrio mantiene la prosa mínima y ajustada.",
     profileStandard: "Estándar", profileDevelopmental: "Desarrollo", profileGoPub: "Para publicar", profileSpare: "Sobrio y ajustado",
     coverTitle: "Portada del libro", coverTitleDesc: "Sube una portada para este libro. Se usa en las exportaciones PDF y EPUB.", coverPreview: "Vista previa de la portada", coverUpload: "Subir portada", coverUploading: "Subiendo…", coverRemove: "Quitar portada", coverHint: "JPEG, PNG o WebP, hasta 8 MB.", coverSaved: "Portada guardada", coverRemoved: "Portada eliminada", coverError: "No se pudo actualizar la portada", coverTypeError: "Elige una imagen JPEG, PNG o WebP", coverTooLarge: "La imagen supera los 8 MB", coverDimensionsError: "La imagen es demasiado pequeña o tiene una forma incorrecta: usa al menos una proporción de portada",
+    coverRecrop: "Recortar", coverCropTitle: "Recortar portada", coverCropHint: "Encuadra la parte de la imagen que quieres como portada: haz zoom y desplaza la vista y luego aplica los cambios.",
+    coverCropZoom: "Zoom", coverCropPosition: "Posición", coverCropPositionH: "Horizontal", coverCropPositionV: "Vertical",
+    coverCropApply: "Aplicar recorte", coverCropCancel: "Cancelar",
     betaPanel: "Panel de lectores beta", betaPanelDesc: "Configure los ajustes de lectura beta virtual",
     panelSize: "Tamaño del panel", consensus: "Consenso %", convergence: "Convergencia %",
     back: "Atrás",
@@ -2132,6 +2168,10 @@ const ES: UIStrings = {
     findingsList: "Hallazgos por capítulo", noFindings: "No hay hallazgos abiertos.",
     chapter: "Capítulo", suggestion: "Sugerencia",
     link: "Imprimir / Exportar vista", editorialLink: "Informe editorial",
+    shareLink: "Compartir enlace", sharedLink: "Enlace copiado al portapapeles:", shareFailed: "No se pudo crear el enlace",
+    analytics: "Analíticas", fleschKincaid: "Flesch–Kincaid", gunningFog: "Gunning Fog",
+    colemanLiau: "Coleman–Liau", genreRange: "Rango FK del género", dialogueShare: "Cuota de diálogo",
+    dialogueLines: "líneas", pacingTension: "Tensión media",
   },
   chapterNew: {
     title: "Nuevo capítulo", subtitle: "Añada un nuevo capítulo a su libro",
@@ -2551,6 +2591,9 @@ const FR: UIStrings = {
     lineEditorProfile: "Profil du réviseur de ligne", lineEditorProfileDesc: "Choisissez un modèle de révision de ligne : standard équilibre le polissage de la prose et le contexte de l'intrigue ; développement privilégie la structure et la motivation des personnages ; publication resserre pour l'envoi ; sobre garde une prose minimale et épurée.",
     profileStandard: "Standard", profileDevelopmental: "Développement", profileGoPub: "Prêt à publier", profileSpare: "Sobre & épuré",
     coverTitle: "Couverture du livre", coverTitleDesc: "Téléchargez une couverture pour ce livre. Elle est utilisée dans les exports PDF et EPUB.", coverPreview: "Aperçu de la couverture", coverUpload: "Téléverser la couverture", coverUploading: "Téléversement…", coverRemove: "Retirer la couverture", coverHint: "JPEG, PNG ou WebP, jusqu'à 8 Mo.", coverSaved: "Couverture enregistrée", coverRemoved: "Couverture supprimée", coverError: "Échec de la mise à jour de la couverture", coverTypeError: "Veuillez choisir une image JPEG, PNG ou WebP", coverTooLarge: "L'image dépasse 8 Mo", coverDimensionsError: "L'image est trop petite ou a la mauvaise forme — utilisez au moins un format de couverture",
+    coverRecrop: "Recadrer", coverCropTitle: "Recadrer la couverture", coverCropHint: "Cadrez la partie de l'image souhaitée comme couverture — zoomez et positionnez l'aperçu, puis appliquez.",
+    coverCropZoom: "Zoom", coverCropPosition: "Position", coverCropPositionH: "Horizontal", coverCropPositionV: "Vertical",
+    coverCropApply: "Appliquer le recadrage", coverCropCancel: "Annuler",
     betaPanel: "Panel de lecteurs bêta", betaPanelDesc: "Configurez les paramètres de lecture bêta virtuelle",
     panelSize: "Taille du panel", consensus: "Consensus %", convergence: "Convergence %",
     back: "Retour",
@@ -2592,6 +2635,10 @@ const FR: UIStrings = {
     findingsList: "Constatations par chapitre", noFindings: "Aucune constatation ouverte.",
     chapter: "Chapitre", suggestion: "Suggestion",
     link: "Imprimer / Exporter l'aperçu", editorialLink: "Bref éditorial",
+    shareLink: "Partager le lien", sharedLink: "Lien copié dans le presse-papiers :", shareFailed: "Échec de la création du lien",
+    analytics: "Statistiques", fleschKincaid: "Flesch–Kincaid", gunningFog: "Gunning Fog",
+    colemanLiau: "Coleman–Liau", genreRange: "Plage FK du genre", dialogueShare: "Part des dialogues",
+    dialogueLines: "lignes", pacingTension: "Tension moyenne",
   },
   chapterNew: {
     title: "Nouveau chapitre", subtitle: "Ajoutez un nouveau chapitre à votre livre",
@@ -3011,6 +3058,9 @@ const RU: UIStrings = {
     lineEditorProfile: "Профиль линейного редактора", lineEditorProfileDesc: "Выберите шаблон линейного редактирования: стандартный балансирует полировку прозы и контекст сюжета; развивающий приоритет отдает структуре и мотивации персонажей; для публикации — готовит к отправке; сдержанный держит прозу минимальной и лаконичной.",
     profileStandard: "Стандартный", profileDevelopmental: "Развивающий", profileGoPub: "К публикации", profileSpare: "Сдержанный",
     coverTitle: "Обложка книги", coverTitleDesc: "Загрузите обложку для этой книги. Она используется в экспорте PDF и EPUB.", coverPreview: "Предпросмотр обложки", coverUpload: "Загрузить обложку", coverUploading: "Загрузка…", coverRemove: "Удалить обложку", coverHint: "JPEG, PNG или WebP, до 8 МБ.", coverSaved: "Обложка сохранена", coverRemoved: "Обложка удалена", coverError: "Не удалось обновить обложку", coverTypeError: "Выберите изображение JPEG, PNG или WebP", coverTooLarge: "Изображение больше 8 МБ", coverDimensionsError: "Изображение слишком маленькое или неправильной формы — используйте хотя бы пропорции обложки",
+    coverRecrop: "Обрезать заново", coverCropTitle: "Обрезать обложку", coverCropHint: "Выберите часть изображения для обложки — увеличьте масштаб и переместите вид, затем примените.",
+    coverCropZoom: "Масштаб", coverCropPosition: "Положение", coverCropPositionH: "Горизонтально", coverCropPositionV: "Вертикально",
+    coverCropApply: "Применить обрезку", coverCropCancel: "Отмена",
     betaPanel: "Панель бета-читателей", betaPanelDesc: "Настройте параметры виртуального бета-чтения",
     panelSize: "Размер панели", consensus: "Консенсус %", convergence: "Конвергенция %",
     back: "Назад",
@@ -3052,6 +3102,10 @@ const RU: UIStrings = {
     findingsList: "Замечания по главам", noFindings: "Нет открытых замечаний.",
     chapter: "Глава", suggestion: "Предложение",
     link: "Печать / Экспорт снимка", editorialLink: "Редакционный обзор",
+    shareLink: "Поделиться ссылкой", sharedLink: "Ссылка скопирована в буфер обмена:", shareFailed: "Не удалось создать ссылку",
+    analytics: "Аналитика", fleschKincaid: "Флеш-Кинкейд", gunningFog: "Ганнинг-Фог",
+    colemanLiau: "Коулман-Лиау", genreRange: "Диапазон FK жанра", dialogueShare: "Доля диалогов",
+    dialogueLines: "строк", pacingTension: "Средний накал",
   },
   chapterNew: {
     title: "Новая глава", subtitle: "Добавьте новую главу в книгу",
@@ -3471,6 +3525,9 @@ const ZH: UIStrings = {
     lineEditorProfile: "逐行编辑器配置", lineEditorProfileDesc: "选择逐行编辑模板：标准在打磨文笔与情节语境之间取得平衡；发展型优先结构与人物动机；出版物收束以利提交；精简型保持文笔极简利落。",
     profileStandard: "标准", profileDevelopmental: "发展型", profileGoPub: "待出版", profileSpare: "精简利落",
     coverTitle: "书籍封面", coverTitleDesc: "为此书上传封面。将用于 PDF 和 EPUB 导出。", coverPreview: "书籍封面预览", coverUpload: "上传封面", coverUploading: "上传中…", coverRemove: "移除封面", coverHint: "JPEG、PNG 或 WebP，最大 8 MB。", coverSaved: "封面已保存", coverRemoved: "封面已移除", coverError: "更新封面失败", coverTypeError: "请选择 JPEG、PNG 或 WebP 图片", coverTooLarge: "图片超过 8 MB", coverDimensionsError: "图片过小或形状不正确——请使用至少符合书籍封面的比例",
+    coverRecrop: "重新裁剪", coverCropTitle: "裁剪封面", coverCropHint: "框选要作为封面的图像部分——缩放并移动视图，然后应用更改。",
+    coverCropZoom: "缩放", coverCropPosition: "位置", coverCropPositionH: "水平", coverCropPositionV: "垂直",
+    coverCropApply: "应用裁剪", coverCropCancel: "取消",
     betaPanel: "测试读者面板", betaPanelDesc: "配置虚拟测试读者设置",
     panelSize: "面板大小", consensus: "共识 %", convergence: "收敛 %",
     back: "返回",
@@ -3512,6 +3569,10 @@ const ZH: UIStrings = {
     findingsList: "按章节的发现", noFindings: "暂无待处理发现。",
     chapter: "章节", suggestion: "建议",
     link: "打印 / 导出快照", editorialLink: "编辑简报",
+    shareLink: "分享链接", sharedLink: "已复制分享链接到剪贴板：", shareFailed: "无法创建分享链接",
+    analytics: "统计", fleschKincaid: "Flesch-Kincaid 可读性", gunningFog: "Gunning Fog",
+    colemanLiau: "Coleman-Liau", genreRange: "类型 FK 范围", dialogueShare: "对话占比",
+    dialogueLines: "行", pacingTension: "平均张力",
   },
   chapterNew: {
     title: "新章节", subtitle: "为您的书添加新章节",

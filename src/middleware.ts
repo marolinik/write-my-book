@@ -12,6 +12,9 @@ const isPublicRoute = createRouteMatcher([
   "/api/billing/webhook",
   "/api/billing/founder-count",
   "/api/health(.*)",
+  // UDG round-7 (Luka 12): tokenized account-less read-only snapshots.
+  "/share(.*)",
+  "/api/share(.*)",
 ]);
 
 /**

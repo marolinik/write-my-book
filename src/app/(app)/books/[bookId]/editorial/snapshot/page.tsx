@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getUIStrings, localeFor } from "@/lib/i18n/ui-strings";
 import { PrintButton } from "@/components/reports/print-button";
+import { ShareSnapshotButton } from "@/components/book/share-snapshot-button";
 
 // UDG round-6 (Luka): a printable/shareable editorial / beta-read brief. The
 // exported editorial review presented as a clean, server-rendered snapshot a
@@ -77,12 +78,15 @@ export default async function EditorialSnapshotPage({
 
   return (
     <div className="min-h-screen bg-background p-4 lg:p-8 print:p-0" data-snapshot>
-      <div className="mb-6 flex max-w-3xl items-center justify-between print:hidden">
+      <div className="mb-6 flex max-w-3xl items-center justify-between gap-2 print:hidden">
         <div>
           <h1 className="font-display text-2xl font-bold">{s.editorialBrief}</h1>
           <p className="text-sm text-muted-foreground">{s.subtitle}</p>
         </div>
-        <PrintButton />
+        <div className="flex items-center gap-1">
+          <ShareSnapshotButton bookId={bookId} kind="editorial" />
+          <PrintButton />
+        </div>
       </div>
 
       <main className="mx-auto max-w-3xl space-y-8">
