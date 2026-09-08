@@ -1,0 +1,40 @@
+{
+  "capturedAt": "2026-09-08T19:02:46.324Z",
+  "purpose": "UDG round-7 20-persona QA — LOCAL-model + deterministic evidence.",
+  "env": {
+    "WMB_LLM_FORCE_LOCAL": "1",
+    "WMB_LOCAL_PROXY_URL": "http://127.0.0.1:30400"
+  },
+  "checks": {
+    "clientRouting": {
+      "provider": "local",
+      "effectiveModelId": "local/qwen38",
+      "baseURL": "http://127.0.0.1:30400",
+      "localGatewayExpected": "http://127.0.0.1:30400",
+      "routedToLocalGateway": true
+    },
+    "shareToken": {
+      "generatedLength": 48,
+      "looksValidHex": true,
+      "invalidRejected": true,
+      "uniqueness": true,
+      "constantTimeMatchesItself": true,
+      "constantTimeRejectsDiffLen": true
+    },
+    "rateLimiter": {
+      "allowedBeforeThrottle": 5,
+      "expectCapAtLimitExceeded": true
+    }
+  },
+  "calls": {
+    "editorialBriefFraming": {
+      "modelId": "local/qwen38",
+      "stopReason": "max_tokens",
+      "usage": {
+        "input_tokens": 37,
+        "output_tokens": 220
+      },
+      "text": ""
+    }
+  }
+}
