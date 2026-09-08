@@ -189,6 +189,9 @@ model Book {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
   archivedAt   DateTime? @map("archived_at")
+  // UDG round-4 (Milica/Viktor): a book the user pins so the dashboard's
+  // "Continue / Recommended" nudge follows it instead of always the most recent.
+  pinned       Boolean  @default(false)
 
   user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   series          Series?           @relation(fields: [seriesId], references: [id], onDelete: SetNull)
@@ -453,6 +456,10 @@ model BookSettings {
   // UDG-4 (Elena): line-edit may load the story synopsis for plot-context-consistent
   // prose notes. Default off (micro-prose scope); editors opt in per book.
   synopsisForLineEdit Boolean @default(false) @map("synopsis_for_line_edit")
+  // UDG round-4 (Elena): per-line-editor profile template, not just on/off.
+  // standard | developmental | go_pub | spare  — selects a prompt tweak set for
+  // the line editor (see prompt-assembler §6b).
+  lineEditorProfile  String  @default("standard") @map("line_editor_profile")
   styleStrictness    String  @default("balanced") @map("style_strictness") // strict, balanced, relaxed
   betaPanelSize      Int     @default(10) @map("beta_panel_size")
   betaConsensus      Int     @default(80) @map("beta_consensus")

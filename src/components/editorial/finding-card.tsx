@@ -11,6 +11,7 @@ import {
 } from "@/hooks/use-editorial";
 import type { FindingItem } from "@/hooks/use-editorial";
 import { useEditorialStore } from "@/stores/editorial-store";
+import { useLanguage } from "@/components/providers/language-provider";
 import { SuggestionFeedback } from "@/components/agent/suggestion-feedback";
 import { FindingConversation } from "@/components/editorial/finding-conversation";
 import { Check, X, Undo2, AlertTriangle, MoveRight } from "lucide-react";
@@ -129,6 +130,7 @@ export function FindingCard({
   isHighlighted = false,
   isStale = false,
 }: FindingCardProps) {
+  const { t } = useLanguage();
   const [showDetails, setShowDetails] = useState(false);
   const [applyError, setApplyError] = useState<string | null>(null);
   const [discussing, setDiscussing] = useState(false);
@@ -162,9 +164,7 @@ export function FindingCard({
       onError: (error: Error) => {
         // Show 409 conflict errors inline
         if (error.message.includes("not found in chapter")) {
-          setApplyError(
-            "Original text not found in chapter — it may have been edited since this finding was created."
-          );
+          setApplyError(t.editorial.findings.applyErrorTextNotFound);
         }
       },
     });
@@ -186,12 +186,12 @@ export function FindingCard({
           <Badge variant="secondary">{finding.category}</Badge>
           {isAutoAppliable && finding.status === "pending" && (
             <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 text-[10px]">
-              auto-apply
+              {t.editorial.findings.autoApply}
             </Badge>
           )}
           {isStale && (
             <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 text-[10px]">
-              text changed
+              {t.editorial.findings.textChanged}
             </Badge>
           )}
           <div className="ml-auto">{statusBadge(finding.status)}</div>
@@ -221,7 +221,7 @@ export function FindingCard({
                 setShowDetails((prev) => !prev);
               }}
             >
-              {showDetails ? "Hide diff" : "Show diff"}
+              {showDetails ? t.editorial.findings.hideDiff : t.editorial.findings.showDiff}
             </Button>
             {showDetails && (
               <div className="mt-2">
@@ -246,7 +246,7 @@ export function FindingCard({
                 setShowDetails((prev) => !prev);
               }}
             >
-              {showDetails ? "Hide suggestion" : "Show suggestion"}
+              {showDetails ? t.editorial.findings.hideSuggestion : t.editorial.findings.showSuggestion}
             </Button>
             {showDetails && (
               <p className="mt-1 rounded bg-muted p-2 text-xs">
@@ -280,7 +280,7 @@ export function FindingCard({
                   className="gap-1"
                 >
                   <MoveRight className="h-3.5 w-3.5" />
-                  Jump to text
+                  {t.editorial.findings.jumpToText}
                 </Button>
               )}
 
@@ -293,7 +293,7 @@ export function FindingCard({
                     className="gap-1"
                   >
                     <Check className="h-3.5 w-3.5" />
-                    Apply
+                    {t.editorial.findings.apply}
                   </Button>
                   <Button
                     variant="outline"
@@ -306,7 +306,7 @@ export function FindingCard({
                     className="gap-1"
                   >
                     <X className="h-3.5 w-3.5" />
-                    Dismiss
+                    {t.editorial.findings.dismiss}
                   </Button>
                 </>
               ) : (
@@ -319,7 +319,7 @@ export function FindingCard({
                       applyMutation.mutate(finding.id);
                     }}
                   >
-                    Apply
+                    {t.editorial.findings.apply}
                   </Button>
                   <Button
                     variant="outline"
@@ -330,7 +330,7 @@ export function FindingCard({
                       dismissMutation.mutate({ findingId: finding.id });
                     }}
                   >
-                    Dismiss
+                    {t.editorial.findings.dismiss}
                   </Button>
                 </>
               )}
@@ -343,7 +343,7 @@ export function FindingCard({
                   setDiscussing((v) => !v);
                 }}
               >
-                {discussing ? "Hide" : "Discuss"}
+                {discussing ? t.editorial.findings.hide : t.editorial.findings.discuss}
               </Button>
             </>
           )}
@@ -359,7 +359,7 @@ export function FindingCard({
               className="gap-1"
             >
               <Undo2 className="h-3.5 w-3.5" />
-              Undo
+              {t.editorial.findings.undo}
             </Button>
           )}
         </div>

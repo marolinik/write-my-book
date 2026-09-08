@@ -24,6 +24,7 @@ import { SeriesDocumentsPanel } from "@/components/series/series-documents-panel
 import { SeriesInheritancePanel } from "@/components/series/series-inheritance-panel";
 import { SeriesSynthesisPanel } from "@/components/series/series-synthesis-panel";
 import { SeriesProgressGrid } from "@/components/series/series-progress-grid";
+import { SeriesContinuityPanel } from "@/components/series/series-continuity-panel";
 
 type Tab = "overview" | "documents" | "inheritance" | "synthesis" | "analytics";
 
@@ -86,10 +87,6 @@ export default function SeriesDetailPage() {
   for (const doc of series.documents ?? []) {
     docsByType.set(doc.type, doc);
   }
-
-  // Check for continuity findings across all books in the series
-  // (displayed when continuity check has been run)
-  const hasContinuityDocs = docsByType.has("SERIES_BIBLE") || docsByType.has("SERIES_ARCHITECTURE");
 
   return (
     <div className="p-6 lg:p-8">
@@ -211,36 +208,13 @@ export default function SeriesDetailPage() {
             </div>
           </div>
 
-          {/* Cross-book continuity status */}
-          <div>
-            <h3 className="text-sm font-medium mb-3">Cross-Book Continuity</h3>
-            {hasContinuityDocs ? (
-              <Card>
-                <CardContent className="py-3">
-                  <p className="text-sm text-muted-foreground">
-                    Series documents exist. Run a cross-book continuity check to verify consistency across all books.
-                  </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="mt-2"
-                    onClick={() => openWithWorkflow("check-series-continuity")}
-                  >
-                    <SearchCheckIcon className="mr-1 size-4" />
-                    Run Cross-Book Continuity Check
-                  </Button>
-                </CardContent>
-              </Card>
-            ) : (
-              <Card className="border-dashed">
-                <CardContent className="py-3">
-                  <p className="text-sm text-muted-foreground">
-                    Cross-book continuity checking will be available once series documents have been generated.
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-          </div>
+          {/* Cross-book continuity (UDG round-4): consolidated per-volume state +
+              the SERIES_CONTINUITY document, plus the "next book to start". */}
+          <SeriesContinuityPanel
+            seriesId={seriesId}
+            books={books}
+            seriesTitle={series.title}
+          />
         </div>
       )}
 

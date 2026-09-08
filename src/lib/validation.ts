@@ -39,6 +39,8 @@ export const updateBookSchema = z.object({
       "complete",
     ])
     .optional(),
+  // UDG round-4 (Milica/Viktor): pin a book so the dashboard nudge follows it.
+  pinned: z.boolean().optional(),
 });
 
 export const createSeriesSchema = z.object({
@@ -127,6 +129,8 @@ export const updateSettingsSchema = z.object({
   modelOverride: modelIdOrNull,
   autoCommit: z.boolean().optional(),
   synopsisForLineEdit: z.boolean().optional(),
+  // UDG round-4 (Elena): per-line-editor profile template.
+  lineEditorProfile: z.enum(["standard", "developmental", "go_pub", "spare"]).optional(),
   styleStrictness: z.enum(["strict", "balanced", "relaxed"]).optional(),
   betaPanelSize: z.number().int().min(3).max(10).optional(),
   betaConsensus: z.number().int().min(50).max(100).optional(),

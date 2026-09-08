@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ResearchGate } from "@/components/book/research-gate";
 import { notFound } from "next/navigation";
 import {
   LightbulbIcon,
@@ -306,23 +307,13 @@ export default async function BookDevelopmentPage({
                     </span>
                   </div>
                   {stage.key === "research" &&
-                    stage.status === "none" &&
-                    !hasResearchProvider && (
-                      <>
-                        <p className="mt-2 text-[11px] leading-relaxed text-amber-700 dark:text-amber-500">
-                          {s.researchHint}
-                        </p>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="mt-2 gap-1"
-                          asChild
-                        >
-                          {/* UDG-16 (Petar): deep-link straight to Settings → API Keys
-                              (#api-keys id added in api-keys-section.tsx). */}
-                          <Link href="/settings#api-keys">{t.settings.apiKeys}</Link>
-                        </Button>
-                      </>
+                    stage.status === "none" && (
+                      <ResearchGate
+                        hasResearchProvider={hasResearchProvider}
+                        hint={s.researchHint}
+                        apiKeysLabel={t.settings.apiKeys}
+                        href="/settings#api-keys"
+                      />
                     )}
                 </CardContent>
               </Card>

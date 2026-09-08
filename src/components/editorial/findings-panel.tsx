@@ -10,6 +10,7 @@ import { useFindings } from "@/hooks/use-editorial";
 import type { FindingItem } from "@/hooks/use-editorial";
 import { useEditorialStore } from "@/stores/editorial-store";
 import { useEditorPaneStore } from "@/stores/editor-store";
+import { useLanguage } from "@/components/providers/language-provider";
 import { FindingCard } from "./finding-card";
 
 interface ChapterInfo {
@@ -25,6 +26,7 @@ interface FindingsPanelProps {
 }
 
 export function FindingsPanel({ bookId, chapters }: FindingsPanelProps) {
+  const { t } = useLanguage();
   const router = useRouter();
   const setScrollToText = useEditorPaneStore("primary", (s) => s.setScrollToText);
   const { filters, selectedChapter, resetFilters } = useEditorialStore();
@@ -61,7 +63,12 @@ export function FindingsPanel({ bookId, chapters }: FindingsPanelProps) {
       (ch) => ch.chapterNumber === finding.chapterNumber
     );
     if (!chapter) {
-      toast.error(`Chapter ${finding.chapterNumber} not found`);
+      toast.error(
+        t.editorial.findings.chapterNotFound.replace(
+          "{chapterNumber}",
+          String(finding.chapterNumber)
+        )
+      );
       return;
     }
 
@@ -84,18 +91,17 @@ export function FindingsPanel({ bookId, chapters }: FindingsPanelProps) {
         {hasActiveFilters ? (
           <>
             <p className="text-sm text-muted-foreground">
-              No findings match your filters
+              {t.editorial.findings.noMatch}
             </p>
             <Button variant="outline" size="sm" onClick={resetFilters}>
-              Reset filters
+              {t.editorial.findings.resetFilters}
             </Button>
           </>
         ) : (
           <>
-            <p className="text-sm font-medium">No editorial findings yet</p>
+            <p className="text-sm font-medium">{t.editorial.findings.empty}</p>
             <p className="text-xs text-muted-foreground max-w-xs">
-              Run a Dev Edit, Line Edit, or Beta Read workflow on your chapters
-              to generate editorial findings.
+              {t.editorial.findings.emptyDesc}
             </p>
           </>
         )}
@@ -106,7 +112,7 @@ export function FindingsPanel({ bookId, chapters }: FindingsPanelProps) {
   return (
     <div className="flex flex-col">
       <div className="flex items-center gap-2 px-4 py-2 border-b">
-        <span className="text-sm font-medium">Findings</span>
+        <span className="text-sm font-medium">{t.editorial.findings.title}</span>
         <Badge variant="secondary">{total}</Badge>
       </div>
       <ScrollArea className="flex-1">

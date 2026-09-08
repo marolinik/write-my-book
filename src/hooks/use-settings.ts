@@ -22,6 +22,8 @@ export type BookSettingsData = {
   autoCommit: boolean;
   /** UDG-4 (Elena): line-edit may load the story synopsis (default off). */
   synopsisForLineEdit: boolean;
+  /** UDG round-4 (Elena): per-line-editor profile template. */
+  lineEditorProfile: string;
   styleStrictness: string;
   betaPanelSize: number;
   betaConsensus: number;

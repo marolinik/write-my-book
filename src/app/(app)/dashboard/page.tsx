@@ -22,6 +22,9 @@ import { getWorkflow } from "@/lib/agents/workflows";
 import { nextOverviewRecommendation } from "@/lib/onboarding/overview-recommendation";
 import { computeSeriesNextBook } from "@/lib/series/next-book";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { bookProgressPercent } from "@/lib/book/progress";
+import { PinBookButton } from "@/components/book/pin-book-button";
 import { Button } from "@/components/ui/button";
 import { WritingWrappedCard } from "@/components/book/writing-wrapped-card";
 import {
@@ -49,7 +52,8 @@ export default async function DashboardPage() {
       db.book.findMany({
         where: { userId: user.id, archivedAt: null },
         include: { _count: { select: { chapters: true } } },
-        orderBy: { updatedAt: "desc" },
+        // Pinned book first so "Continue / Recommended" follows it (UDG round-4).
+        orderBy: [{ pinned: "desc" }, { updatedAt: "desc" }],
         take: 6,
       }),
       // Aggregate stats
@@ -516,9 +520,12 @@ export default async function DashboardPage() {
                   <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
                       <CardTitle className="text-base">{book.name}</CardTitle>
-                      <Badge variant="secondary" className="text-xs capitalize">
-                        {book.status}
-                      </Badge>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Badge variant="secondary" className="text-xs capitalize">
+                          {book.status}
+                        </Badge>
+                        <PinBookButton bookId={book.id} pinned={book.pinned} />
+                      </div>
                     </div>
                     {book.genre && (
                       <CardDescription>{book.genre}</CardDescription>
@@ -528,6 +535,15 @@ export default async function DashboardPage() {
                     <div className="flex gap-4 text-xs text-muted-foreground">
                       <span>{book.wordCount.toLocaleString(locale)} {t.dashboard.words}</span>
                       <span>{book._count.chapters} {t.dashboard.chapters}</span>
+                    </div>
+                    <div className="mt-2 flex items-center gap-2">
+                      <Progress
+                        value={bookProgressPercent(book)}
+                        className="h-1.5"
+                      />
+                      <span className="text-xs font-medium tabular-nums shrink-0">
+                        {bookProgressPercent(book)}%
+                      </span>
                     </div>
                     <p className="mt-2 text-xs text-muted-foreground/70">
                       {t.dashboard.updated}{" "}

@@ -55,7 +55,7 @@ describe("UDG-4: line-edit synopsis toggle (BookSettings.synopsisForLineEdit)", 
     );
     expect(db.bookSettings.findUnique).toHaveBeenCalledWith({
       where: { bookId: "book-le-off" },
-      select: { synopsisForLineEdit: true },
+      select: { synopsisForLineEdit: true, lineEditorProfile: true },
     });
     expect(prompt).not.toContain("<story_synopsis>");
   });
@@ -96,5 +96,51 @@ describe("UDG-4: line-edit synopsis toggle (BookSettings.synopsisForLineEdit)", 
     );
     expect(db.bookSettings.findUnique).not.toHaveBeenCalled(); // no line-editor branch
     expect(prompt).toContain("<story_synopsis>");
+  });
+
+  // ── UDG round-4 (Elena): per-line-editor profile templates ──
+  it("developmental profile loads the synopsis even when the toggle is off", async () => {
+    vi.mocked(db.bookSettings.findUnique).mockResolvedValue({
+      synopsisForLineEdit: false,
+      lineEditorProfile: "developmental",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
+    const prompt = await assembleAgentPrompt(
+      lineEditor,
+      baseContext("book-dev"),
+      makeDocService({ SYNOPSIS: true })
+    );
+    expect(prompt).toContain("<story_synopsis>");
+    expect(prompt).toContain("<line_editor_profile>");
+  });
+
+  it("go_pub profile injects the profile block without forcing the synopsis", async () => {
+    vi.mocked(db.bookSettings.findUnique).mockResolvedValue({
+      synopsisForLineEdit: false,
+      lineEditorProfile: "go_pub",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
+    const prompt = await assembleAgentPrompt(
+      lineEditor,
+      baseContext("book-gopub"),
+      makeDocService({ SYNOPSIS: true })
+    );
+    expect(prompt).not.toContain("<story_synopsis>");
+    expect(prompt).toContain("<line_editor_profile>");
+  });
+
+  it("standard profile adds neither synopsis (if toggle off) nor a profile block", async () => {
+    vi.mocked(db.bookSettings.findUnique).mockResolvedValue({
+      synopsisForLineEdit: false,
+      lineEditorProfile: "standard",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
+    const prompt = await assembleAgentPrompt(
+      lineEditor,
+      baseContext("book-std"),
+      makeDocService({ SYNOPSIS: true })
+    );
+    expect(prompt).not.toContain("<story_synopsis>");
+    expect(prompt).not.toContain("<line_editor_profile>");
   });
 });

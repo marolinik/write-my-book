@@ -57,6 +57,15 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
+    // Single-pin semantics: pinning one book clears any other pinned book for
+    // this user (Milica/Viktor — the dashboard nudge follows one chosen book).
+    if (data.pinned === true) {
+      await db.book.updateMany({
+        where: { userId: user.id, pinned: true, id: { not: id } },
+        data: { pinned: false },
+      });
+    }
+
     const book = await db.book.update({
       where: { id },
       data,

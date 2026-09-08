@@ -317,6 +317,27 @@ export default function BookSettingsPage() {
               onCheckedChange={(v) => handleChange("synopsisForLineEdit", v)}
             />
           </div>
+
+          <div className="space-y-2">
+            <Label>{s.lineEditorProfile}</Label>
+            <p className="text-xs text-muted-foreground">
+              {s.lineEditorProfileDesc}
+            </p>
+            <Select
+              value={settings.lineEditorProfile}
+              onValueChange={(v) => handleChange("lineEditorProfile", v)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="standard">{s.profileStandard}</SelectItem>
+                <SelectItem value="developmental">{s.profileDevelopmental}</SelectItem>
+                <SelectItem value="go_pub">{s.profileGoPub}</SelectItem>
+                <SelectItem value="spare">{s.profileSpare}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </CardContent>
       </Card>
 

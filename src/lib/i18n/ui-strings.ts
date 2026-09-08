@@ -241,6 +241,9 @@ export interface UIStrings {
     styleStrictness: string; strict: string; balanced: string; relaxed: string;
     autoCommit: string; autoCommitDesc: string;
     synopsisForLineEdit: string; synopsisForLineEditDesc: string;
+    // UDG round-4 (Elena): per-line-editor profile template.
+    lineEditorProfile: string; lineEditorProfileDesc: string;
+    profileStandard: string; profileDevelopmental: string; profileGoPub: string; profileSpare: string;
     betaPanel: string; betaPanelDesc: string;
     panelSize: string; consensus: string; convergence: string;
     back: string;
@@ -385,7 +388,7 @@ export interface UIStrings {
   // Export surface (UDG round-3, Jelena)
   export: {
     title: string; download: string; configure: string; outputFormat: string;
-    exportAs: string; exporting: string; exportComplete: string;
+    exportAs: string; exporting: string; exportComplete: string; history: string;
     formatGuidance: { docx: string; pdf: string; epub: string };
     draftMode: string; draftModeHint: string;
     words: string; chapters: string; pages: string; lastExport: string;
@@ -402,6 +405,15 @@ export interface UIStrings {
       filterLabel: string; statusPending: string; statusAll: string;
       copyTitle: string; copy: string; copied: string;
       noFindingsChapter: string; noFindingsSelectChapter: string;
+      loadingFindings: string;
+    };
+    findings: {
+      title: string; noMatch: string; resetFilters: string;
+      empty: string; emptyDesc: string; chapterNotFound: string;
+      apply: string; dismiss: string; undo: string; jumpToText: string;
+      showDiff: string; hideDiff: string; showSuggestion: string; hideSuggestion: string;
+      discuss: string; hide: string; autoApply: string; textChanged: string;
+      applyErrorTextNotFound: string;
     };
     summary: {
       total: string; pending: string; applied: string; dismissed: string;
@@ -649,6 +661,8 @@ const EN: UIStrings = {
     styleStrictness: "Style Strictness", strict: "Strict", balanced: "Balanced", relaxed: "Relaxed",
     autoCommit: "Auto-commit", autoCommitDesc: "Automatically save agent changes",
     synopsisForLineEdit: "Load story synopsis in line-edit", synopsisForLineEditDesc: "Give the line editor the story synopsis so its prose notes stay consistent with plot context (default off).",
+    lineEditorProfile: "Line editor profile", lineEditorProfileDesc: "Pick a line-edit template: standard balances prose polish and plot context; developmental prioritizes structure and character motivation; go_pub tightens for submission; spare keeps prose minimal and lean.",
+    profileStandard: "Standard", profileDevelopmental: "Developmental", profileGoPub: "Go to publish", profileSpare: "Spare & lean",
     betaPanel: "Beta Reader Panel", betaPanelDesc: "Configure virtual beta reader settings",
     panelSize: "Panel Size", consensus: "Consensus %", convergence: "Convergence %",
     back: "Back",
@@ -744,6 +758,7 @@ const EN: UIStrings = {
     exportAs: "Export as {format}",
     exporting: "Exporting...",
     exportComplete: "Export Complete",
+    history: "Export History",
     formatGuidance: {
       docx: "Best for agent/editor review, publisher submissions, and further editing in Word or Google Docs.",
       pdf: "Print-ready output via Typst. Ideal for proof copies and final publication with professional typography.",
@@ -787,6 +802,28 @@ const EN: UIStrings = {
       copied: "Copied",
       noFindingsChapter: "No {status} findings for this chapter.",
       noFindingsSelectChapter: "Select a chapter to see its findings.",
+      loadingFindings: "Loading findings…",
+    },
+    findings: {
+      title: "Findings",
+      noMatch: "No findings match your filters",
+      resetFilters: "Reset filters",
+      empty: "No editorial findings yet",
+      emptyDesc: "Run a Dev Edit, Line Edit, or Beta Read workflow on your chapters to generate editorial findings.",
+      chapterNotFound: "Chapter {chapterNumber} not found",
+      apply: "Apply",
+      dismiss: "Dismiss",
+      undo: "Undo",
+      jumpToText: "Jump to text",
+      showDiff: "Show diff",
+      hideDiff: "Hide diff",
+      showSuggestion: "Show suggestion",
+      hideSuggestion: "Hide suggestion",
+      discuss: "Discuss",
+      hide: "Hide",
+      autoApply: "auto-apply",
+      textChanged: "text changed",
+      applyErrorTextNotFound: "Original text not found in chapter — it may have been edited since this finding was created.",
     },
     summary: {
       total: "Total",
@@ -1059,6 +1096,8 @@ const SR: UIStrings = {
     styleStrictness: "Strogost stila", strict: "Strogo", balanced: "Uravnoteženo", relaxed: "Opušteno",
     autoCommit: "Automatsko čuvanje", autoCommitDesc: "Automatski sačuvaj izmene agenta",
     synopsisForLineEdit: "Učitaj sinopsis pri line-edit", synopsisForLineEditDesc: "Daj line-editoru sinopsis priče da njegove primedbe ostanu u skladu sa zapletom (podrazumevano isključeno).",
+    lineEditorProfile: "Profil urednika linijskog izdanja", lineEditorProfileDesc: "Izaberite šablon linijske lekture: standardni balansira poliranje proze i kontekst zapleta; razvojni daje prednost strukturi i motivaciji likova; za objavu je usklađen za slanje; štedljiv drži prozu minimalnom i sažetom.",
+    profileStandard: "Standardni", profileDevelopmental: "Razvojni", profileGoPub: "Za objavu", profileSpare: "Štedljiv i sažet",
     betaPanel: "Panel beta čitalaca", betaPanelDesc: "Konfigurišite podešavanja virtualnog beta čitanja",
     panelSize: "Veličina panela", consensus: "Konsenzus %", convergence: "Konvergencija %",
     back: "Nazad",
@@ -1154,6 +1193,7 @@ const SR: UIStrings = {
     exportAs: "Izvezi kao {format}",
     exporting: "Izvoz u toku...",
     exportComplete: "Izvoz završen",
+    history: "Istorija izvoza",
     formatGuidance: {
       docx: "Najbolje za pregled agenata/urednika, slanje izdavačima i dalje uređivanje u Wordu ili Google Docs-u.",
       pdf: "Izveštaj spreman za štampu preko Typst-a. Idealno za probne primerke i konačno objavljivanje sa profesionalnom tipografijom.",
@@ -1197,6 +1237,28 @@ const SR: UIStrings = {
       copied: "Kopirano",
       noFindingsChapter: "Nema {status} nalaza za ovo poglavlje.",
       noFindingsSelectChapter: "Izaberite poglavlje da vidite njegove nalaze.",
+      loadingFindings: "Učitavam nalaze…",
+    },
+    findings: {
+      title: "Nalazi",
+      noMatch: "Nema nalaza koji odgovaraju filterima",
+      resetFilters: "Resetuj filtere",
+      empty: "Još nema uredničkih nalaza",
+      emptyDesc: "Pokrenite Dev lekturu, Linijsku lekturu ili Beta čitanje na vašim poglavljima da biste generisali uredničke nalaze.",
+      chapterNotFound: "Poglavlje {chapterNumber} nije pronađeno",
+      apply: "Primeni",
+      dismiss: "Odbij",
+      undo: "Poništi",
+      jumpToText: "Skoči na tekst",
+      showDiff: "Prikaži razliku",
+      hideDiff: "Sakrij razliku",
+      showSuggestion: "Prikaži predlog",
+      hideSuggestion: "Sakrij predlog",
+      discuss: "Diskutuj",
+      hide: "Sakrij",
+      autoApply: "auto-primena",
+      textChanged: "tekst je promenjen",
+      applyErrorTextNotFound: "Originalni tekst nije pronađen u poglavlju — možda je izmenjen od kada je ovaj nalaz kreiran.",
     },
     summary: {
       total: "Ukupno",
@@ -1469,6 +1531,8 @@ const DE: UIStrings = {
     styleStrictness: "Stilstrenge", strict: "Streng", balanced: "Ausgewogen", relaxed: "Locker",
     autoCommit: "Auto-Speichern", autoCommitDesc: "Änderungen des Agenten automatisch speichern",
     synopsisForLineEdit: "Synopsis beim Line-Edit laden", synopsisForLineEditDesc: "Gib dem Line-Editor die Story-Synopsis, damit seine Prosa-Anmerkungen zum Plot passen (standardmäßig aus).",
+    lineEditorProfile: "Line-Editor-Profil", lineEditorProfileDesc: "Wähle eine Line-Edit-Vorlage: Standard balanciert Prosa-Politur und Plot-Kontext; Entwicklungsorientiert priorisiert Struktur und Charaktermotivation; Veröffentlichung strafft für die Einreichung; Sparsam hält Prosa minimal und schlank.",
+    profileStandard: "Standard", profileDevelopmental: "Entwicklung", profileGoPub: "Zur Veröffentlichung", profileSpare: "Sparsam & schlank",
     betaPanel: "Beta-Leser-Panel", betaPanelDesc: "Virtuelle Beta-Leser-Einstellungen konfigurieren",
     panelSize: "Panelgröße", consensus: "Konsens %", convergence: "Konvergenz %",
     back: "Zurück",
@@ -1564,6 +1628,7 @@ const DE: UIStrings = {
     exportAs: "Als {format} exportieren",
     exporting: "Export läuft...",
     exportComplete: "Export abgeschlossen",
+    history: "Exportverlauf",
     formatGuidance: {
       docx: "Am besten für die Prüfung durch Agent/Redakteur, Einreichungen bei Verlagen und weiteres Bearbeiten in Word oder Google Docs.",
       pdf: "Druckfertige Ausgabe über Typst. Ideal für Korrekturexemplare und die endgültige Veröffentlichung mit professioneller Typografie.",
@@ -1607,6 +1672,28 @@ const DE: UIStrings = {
       copied: "Kopiert",
       noFindingsChapter: "Keine {status} Befunde für dieses Kapitel.",
       noFindingsSelectChapter: "Wählen Sie ein Kapitel aus, um dessen Befunde zu sehen.",
+      loadingFindings: "Befunde werden geladen…",
+    },
+    findings: {
+      title: "Befund",
+      noMatch: "Keine Befunde stimmen mit Ihren Filtern überein",
+      resetFilters: "Filter zurücksetzen",
+      empty: "Noch keine redaktionellen Befunde",
+      emptyDesc: "Führen Sie ein Dev-Lektorat, Zeilenlektorat oder eine Beta-Lesung auf Ihren Kapiteln aus, um redaktionelle Befunde zu generieren.",
+      chapterNotFound: "Kapitel {chapterNumber} nicht gefunden",
+      apply: "Anwenden",
+      dismiss: "Verwerfen",
+      undo: "Rückgängig machen",
+      jumpToText: "Zum Text springen",
+      showDiff: "Diff anzeigen",
+      hideDiff: "Diff ausblenden",
+      showSuggestion: "Vorschlag anzeigen",
+      hideSuggestion: "Vorschlag ausblenden",
+      discuss: "Diskutieren",
+      hide: "Ausblenden",
+      autoApply: "Automatisch anwenden",
+      textChanged: "Text geändert",
+      applyErrorTextNotFound: "Originaltext im Kapitel nicht gefunden — er wurde möglicherweise bearbeitet, seit dieser Befund erstellt wurde.",
     },
     summary: {
       total: "Gesamt",
@@ -1879,6 +1966,8 @@ const ES: UIStrings = {
     styleStrictness: "Rigor de estilo", strict: "Estricto", balanced: "Equilibrado", relaxed: "Relajado",
     autoCommit: "Auto-guardar", autoCommitDesc: "Guardar automáticamente los cambios del agente",
     synopsisForLineEdit: "Cargar sinopsis en la corrección de línea", synopsisForLineEditDesc: "Da al editor de línea la sinopsis de la historia para que sus notas de prosa sigan el contexto (desactivado por defecto).",
+    lineEditorProfile: "Perfil del editor de línea", lineEditorProfileDesc: "Elige una plantilla de corrección de línea: estándar equilibra pulido de prosa y contexto de la trama; desarrollo prioriza estructura y motivación de personajes; para publicar ajusta para el envío; sobrio mantiene la prosa mínima y ajustada.",
+    profileStandard: "Estándar", profileDevelopmental: "Desarrollo", profileGoPub: "Para publicar", profileSpare: "Sobrio y ajustado",
     betaPanel: "Panel de lectores beta", betaPanelDesc: "Configure los ajustes de lectura beta virtual",
     panelSize: "Tamaño del panel", consensus: "Consenso %", convergence: "Convergencia %",
     back: "Atrás",
@@ -1974,6 +2063,7 @@ const ES: UIStrings = {
     exportAs: "Exportar como {format}",
     exporting: "Exportando...",
     exportComplete: "Exportación completada",
+    history: "Historial de exportaciones",
     formatGuidance: {
       docx: "La mejor opción para la revisión de agentes/editores, envíos a editoriales y edición posterior en Word o Google Docs.",
       pdf: "Salida lista para imprimir mediante Typst. Ideal para pruebas de imprenta y publicación final con tipografía profesional.",
@@ -2017,6 +2107,28 @@ const ES: UIStrings = {
       copied: "Copiado",
       noFindingsChapter: "No hay hallazgos {status} para este capítulo.",
       noFindingsSelectChapter: "Seleccione un capítulo para ver sus hallazgos.",
+      loadingFindings: "Cargando hallazgos…",
+    },
+    findings: {
+      title: "Hallazgos",
+      noMatch: "Ningún hallazgo coincide con sus filtros",
+      resetFilters: "Restablecer filtros",
+      empty: "Aún no hay hallazgos editoriales",
+      emptyDesc: "Ejecute un flujo de trabajo de dev edición, edición de línea o beta lectura en sus capítulos para generar hallazgos editoriales.",
+      chapterNotFound: "Capítulo {chapterNumber} no encontrado",
+      apply: "Aplicar",
+      dismiss: "Descartar",
+      undo: "Deshacer",
+      jumpToText: "Ir al texto",
+      showDiff: "Mostrar diff",
+      hideDiff: "Ocultar diff",
+      showSuggestion: "Mostrar sugerencia",
+      hideSuggestion: "Ocultar sugerencia",
+      discuss: "Discutir",
+      hide: "Ocultar",
+      autoApply: "autoaplicar",
+      textChanged: "texto modificado",
+      applyErrorTextNotFound: "No se encontró el texto original en el capítulo: es posible que se haya editado desde que se creó este hallazgo.",
     },
     summary: {
       total: "Total",
@@ -2289,6 +2401,8 @@ const FR: UIStrings = {
     styleStrictness: "Rigueur du style", strict: "Strict", balanced: "Équilibré", relaxed: "Détendu",
     autoCommit: "Auto-sauvegarde", autoCommitDesc: "Sauvegarder automatiquement les modifications de l'agent",
     synopsisForLineEdit: "Charger le synopsis en révision de ligne", synopsisForLineEditDesc: "Donnez le synopsis de l'histoire au réviseur de ligne pour que ses notes de prose restent cohérentes (désactivé par défaut).",
+    lineEditorProfile: "Profil du réviseur de ligne", lineEditorProfileDesc: "Choisissez un modèle de révision de ligne : standard équilibre le polissage de la prose et le contexte de l'intrigue ; développement privilégie la structure et la motivation des personnages ; publication resserre pour l'envoi ; sobre garde une prose minimale et épurée.",
+    profileStandard: "Standard", profileDevelopmental: "Développement", profileGoPub: "Prêt à publier", profileSpare: "Sobre & épuré",
     betaPanel: "Panel de lecteurs bêta", betaPanelDesc: "Configurez les paramètres de lecture bêta virtuelle",
     panelSize: "Taille du panel", consensus: "Consensus %", convergence: "Convergence %",
     back: "Retour",
@@ -2384,6 +2498,7 @@ const FR: UIStrings = {
     exportAs: "Exporter en {format}",
     exporting: "Exportation en cours...",
     exportComplete: "Exportation terminée",
+    history: "Historique des exportations",
     formatGuidance: {
       docx: "Idéal pour la révision par agent/éditeur, les envois aux maisons d'édition et une édition ultérieure dans Word ou Google Docs.",
       pdf: "Sortie prête à imprimer via Typst, parfaite pour les exemplaires de contrôle et la publication finale avec une typographie professionnelle.",
@@ -2427,6 +2542,28 @@ const FR: UIStrings = {
       copied: "Copié",
       noFindingsChapter: "Aucune constatation {status} pour ce chapitre.",
       noFindingsSelectChapter: "Sélectionnez un chapitre pour voir ses constatations.",
+      loadingFindings: "Chargement des constatations…",
+    },
+    findings: {
+      title: "Constatations",
+      noMatch: "Aucune constatation ne correspond à vos filtres",
+      resetFilters: "Réinitialiser les filtres",
+      empty: "Aucune constatation éditoriale pour l’instant",
+      emptyDesc: "Exécutez un flux de dev édition, d’édition de ligne ou de lecture bêta sur vos chapitres pour générer des constatations éditoriales.",
+      chapterNotFound: "Chapitre {chapterNumber} introuvable",
+      apply: "Appliquer",
+      dismiss: "Rejeter",
+      undo: "Annuler",
+      jumpToText: "Aller au texte",
+      showDiff: "Afficher la différence",
+      hideDiff: "Masquer la différence",
+      showSuggestion: "Afficher la suggestion",
+      hideSuggestion: "Masquer la suggestion",
+      discuss: "Discuter",
+      hide: "Masquer",
+      autoApply: "automatiquement",
+      textChanged: "texte modifié",
+      applyErrorTextNotFound: "Texte d’origine introuvable dans le chapitre — il a peut-être été modifié depuis la création de cette constatation.",
     },
     summary: {
       total: "Total",
@@ -2699,6 +2836,8 @@ const RU: UIStrings = {
     styleStrictness: "Строгость стиля", strict: "Строго", balanced: "Сбалансированно", relaxed: "Свободно",
     autoCommit: "Автосохранение", autoCommitDesc: "Автоматически сохранять изменения агента",
     synopsisForLineEdit: "Загружать синопсис при линейном редактировании", synopsisForLineEditDesc: "Дайте линейному редактору синопсис истории, чтобы его замечания к прозе соответствовали сюжету (по умолчанию выключено).",
+    lineEditorProfile: "Профиль линейного редактора", lineEditorProfileDesc: "Выберите шаблон линейного редактирования: стандартный балансирует полировку прозы и контекст сюжета; развивающий приоритет отдает структуре и мотивации персонажей; для публикации — готовит к отправке; сдержанный держит прозу минимальной и лаконичной.",
+    profileStandard: "Стандартный", profileDevelopmental: "Развивающий", profileGoPub: "К публикации", profileSpare: "Сдержанный",
     betaPanel: "Панель бета-читателей", betaPanelDesc: "Настройте параметры виртуального бета-чтения",
     panelSize: "Размер панели", consensus: "Консенсус %", convergence: "Конвергенция %",
     back: "Назад",
@@ -2794,6 +2933,7 @@ const RU: UIStrings = {
     exportAs: "Экспортировать как {format}",
     exporting: "Экспорт...",
     exportComplete: "Экспорт завершён",
+    history: "История экспорта",
     formatGuidance: {
       docx: "Лучше всего для проверки агентом/редактором, подачи издателям и дальнейшего редактирования в Word или Google Docs.",
       pdf: "Готовый к печати вывод через Typst. Идеально для корректурных экземпляров и финальной публикации с профессиональной типографикой.",
@@ -2837,6 +2977,28 @@ const RU: UIStrings = {
       copied: "Скопировано",
       noFindingsChapter: "Нет {status} находок для этой главы.",
       noFindingsSelectChapter: "Выберите главу, чтобы увидеть её находки.",
+      loadingFindings: "Загрузка находок…",
+    },
+    findings: {
+      title: "Находки",
+      noMatch: "Нет находок, соответствующих вашим фильтрам",
+      resetFilters: "Сбросить фильтры",
+      empty: "Пока нет редакторских находок",
+      emptyDesc: "Запустите dev редактуру, построчную редактуру или бета-чтение на своих главах, чтобы сгенерировать редакторские находки.",
+      chapterNotFound: "Глава {chapterNumber} не найдена",
+      apply: "Применить",
+      dismiss: "Отклонить",
+      undo: "Отменить",
+      jumpToText: "Перейти к тексту",
+      showDiff: "Показать различия",
+      hideDiff: "Скрыть различия",
+      showSuggestion: "Показать предложение",
+      hideSuggestion: "Скрыть предложение",
+      discuss: "Обсудить",
+      hide: "Скрыть",
+      autoApply: "автоприменение",
+      textChanged: "текст изменён",
+      applyErrorTextNotFound: "Исходный текст не найден в главе — возможно, он был изменён после создания этой находки.",
     },
     summary: {
       total: "Всего",
@@ -3109,6 +3271,8 @@ const ZH: UIStrings = {
     styleStrictness: "风格严格度", strict: "严格", balanced: "平衡", relaxed: "宽松",
     autoCommit: "自动保存", autoCommitDesc: "自动保存代理的更改",
     synopsisForLineEdit: "在逐行编辑中加载故事梗概", synopsisForLineEditDesc: "让逐行编辑器加载故事梗概，使其对稿件的批注与情节保持一致（默认关闭）。",
+    lineEditorProfile: "逐行编辑器配置", lineEditorProfileDesc: "选择逐行编辑模板：标准在打磨文笔与情节语境之间取得平衡；发展型优先结构与人物动机；出版物收束以利提交；精简型保持文笔极简利落。",
+    profileStandard: "标准", profileDevelopmental: "发展型", profileGoPub: "待出版", profileSpare: "精简利落",
     betaPanel: "测试读者面板", betaPanelDesc: "配置虚拟测试读者设置",
     panelSize: "面板大小", consensus: "共识 %", convergence: "收敛 %",
     back: "返回",
@@ -3204,6 +3368,7 @@ const ZH: UIStrings = {
     exportAs: "导出为 {format}",
     exporting: "正在导出…",
     exportComplete: "导出完成",
+    history: "导出历史",
     formatGuidance: {
       docx: "最适合代理人/编辑审阅、提交出版社以及在 Word 或 Google Docs 中进一步编辑。",
       pdf: "通过 Typst 输出为可直接打印的版本，适合校对稿和排版专业的最终出版。",
@@ -3247,6 +3412,28 @@ const ZH: UIStrings = {
       copied: "已复制",
       noFindingsChapter: "本章没有 {status} 发现。",
       noFindingsSelectChapter: "选择一个章节以查看其发现。",
+      loadingFindings: "正在加载发现…",
+    },
+    findings: {
+      title: "发现",
+      noMatch: "没有与您的筛选条件匹配的发现",
+      resetFilters: "重置筛选器",
+      empty: "暂无编辑发现",
+      emptyDesc: "在您的章节上运行开发编辑、行编辑或试读流程，以生成编辑发现。",
+      chapterNotFound: "未找到章节 {chapterNumber}",
+      apply: "应用",
+      dismiss: "忽略",
+      undo: "撤销",
+      jumpToText: "跳转到文本",
+      showDiff: "显示差异",
+      hideDiff: "隐藏差异",
+      showSuggestion: "显示建议",
+      hideSuggestion: "隐藏建议",
+      discuss: "讨论",
+      hide: "隐藏",
+      autoApply: "自动应用",
+      textChanged: "文本已更改",
+      applyErrorTextNotFound: "章节中未找到原始文本——该发现创建后文本可能已被编辑。",
     },
     summary: {
       total: "总计",

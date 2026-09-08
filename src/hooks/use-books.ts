@@ -115,6 +115,7 @@ export function useUpdateBook(bookId: string) {
       genre?: string | null;
       language?: string;
       status?: string;
+      pinned?: boolean;
     }) =>
       fetchJson(`/api/books/${bookId}`, {
         method: "PATCH",

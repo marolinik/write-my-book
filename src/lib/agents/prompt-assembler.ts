@@ -10,6 +10,19 @@ import { selectSkillsForAgent } from "./skills";
 import { findingHistoryStatus } from "./finding-history-status";
 import { db } from "@/lib/db";
 
+// UDG round-4 (Elena): per-line-editor profile templates. Values mirror
+// BookSettings.lineEditorProfile ("standard" | "developmental" | "go_pub" |
+// "spare"). These are short, stable instruction paragraphs the line editor
+// sees as <line_editor_profile>. "standard" needs no block (default behavior).
+const LINE_EDITOR_PROFILE_INSTRUCTIONS: Record<string, string> = {
+  developmental:
+    "Prioritize structural and character-level line notes: where a sentence undercuts pacing, strains motivation, or blurs a character's goal, flag it first, then polish phrasing. More weight on paragraph- and scene-level flow than on local word choice.",
+  go_pub:
+    "Work toward submission quality: flag any sentence that reads cliché, hedged, or rhythmically flat; tighten wordiness; enforce consistent Point of View and tense per paragraph; prefer crisp, confident prose over decorative flourishes.",
+  spare:
+    "Keep the prose spare: cut filter words, throat-clearing adverbs, and narrative aside. Favor the shortest clear sentence. Only suggest a change when it removes dead weight or sharpens the image — avoid overcrowding the page with notes.",
+};
+
 // ─── Base Agent Instructions ───────────────────────────────────
 // Brief inline instructions per agent type. Full prompt .md files
 // will be authored in Phase 5.
@@ -1665,15 +1678,23 @@ export async function assembleAgentPrompt(
   // synopsis for plot-context-consistent notes. All other agents use their
   // static profile value. A settings load failure degrades to the static value.
   let synopsisFull = profile.synopsis === "full";
+  let lineEditorProfile: string | null = null;
   if (definition.type === "line-editor" && context.bookId) {
     try {
       const settings = await db.bookSettings.findUnique({
         where: { bookId: context.bookId },
-        select: { synopsisForLineEdit: true },
+        select: { synopsisForLineEdit: true, lineEditorProfile: true },
       });
-      synopsisFull = settings?.synopsisForLineEdit ?? false;
+      // UDG round-4 (Elena): "developmental" implicitly wants plot context, so it
+      // loads the synopsis too even when the toggle is off. Other profiles follow
+      // the explicit toggle.
+      synopsisFull =
+        (settings?.synopsisForLineEdit ?? false) ||
+        settings?.lineEditorProfile === "developmental";
+      lineEditorProfile = settings?.lineEditorProfile ?? "standard";
     } catch {
       synopsisFull = profile.synopsis === "full";
+      lineEditorProfile = "standard";
     }
   }
   if (synopsisFull) {
@@ -1685,6 +1706,20 @@ export async function assembleAgentPrompt(
         name: "synopsis",
         priority: 78,
         content: `\n<story_synopsis>\n${syn}\n</story_synopsis>`,
+      });
+    }
+  }
+
+  // UDG round-4 (Elena): per-line-editor profile template. Adds a terse,
+  // profile-specific paragraph after the synopsis so the line editor's prose
+  // notes match the chosen intent without changing the scope of what it reviews.
+  if (definition.type === "line-editor" && lineEditorProfile != null && lineEditorProfile !== "standard") {
+    const profileInstruction = LINE_EDITOR_PROFILE_INSTRUCTIONS[lineEditorProfile];
+    if (profileInstruction) {
+      sections.push({
+        name: "line-editor-profile",
+        priority: 77,
+        content: `\n<line_editor_profile>\n${profileInstruction}\n</line_editor_profile>`,
       });
     }
   }

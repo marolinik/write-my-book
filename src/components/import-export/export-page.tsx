@@ -275,7 +275,7 @@ export function ExportPage({ bookId }: ExportPageProps) {
       {/* Export History */}
       <Card>
         <CardHeader>
-          <CardTitle>Export History</CardTitle>
+          <CardTitle>{t.export.history}</CardTitle>
         </CardHeader>
         <CardContent>
           <ExportHistoryList bookId={bookId} />

@@ -89,7 +89,7 @@ export function HandoffPanel({ bookId, chapters }: HandoffPanelProps) {
           <BookOpenIcon className="size-4 text-muted-foreground" />
           <h2 className="text-sm font-semibold">{t.editorial.handoff.storySynopsis}</h2>
         </div>
-        <div className="flex-1 overflow-auto p-4">
+        <div className="flex-1 overflow-auto p-4 max-h-[45vh] lg:max-h-none">
           {synopsis?.content ? (
             <p className="prose prose-sm max-w-none whitespace-pre-wrap text-sm leading-relaxed text-foreground dark:prose-invert">
               {synopsis.content}
@@ -133,9 +133,11 @@ export function HandoffPanel({ bookId, chapters }: HandoffPanelProps) {
             <ChapterSelector chapters={chapters ?? []} />
           </div>
         </div>
-        <div className="flex-1 space-y-3 overflow-auto p-4">
+        <div className="flex-1 space-y-3 overflow-auto p-4 max-h-[45vh] lg:max-h-none">
           {findingsLoading && (
-            <p className="text-xs text-muted-foreground">Loading findings…</p>
+            <p className="text-xs text-muted-foreground">
+              {t.editorial.handoff.loadingFindings}
+            </p>
           )}
           {!findingsLoading && findings.length === 0 && (
             <p className="text-xs text-muted-foreground">
