@@ -1,0 +1,29 @@
+{
+  "capturedAt": "2026-09-08T11:28:30.367Z",
+  "purpose": "UDG round-5 20-persona QA — LOCAL-model evidence.",
+  "env": {
+    "WMB_LLM_FORCE_LOCAL": "1",
+    "WMB_LOCAL_PROXY_URL": "http://127.0.0.1:30400"
+  },
+  "checks": {
+    "clientRouting": {
+      "provider": "local",
+      "registryId": "local/qwen38",
+      "effectiveModelId": "local/qwen38",
+      "baseURL": "http://127.0.0.1:30400",
+      "localGatewayExpected": "http://127.0.0.1:30400",
+      "routedToLocalGateway": true
+    }
+  },
+  "calls": {
+    "storyBeats": {
+      "modelId": "local/qwen38",
+      "stopReason": "max_tokens",
+      "usage": {
+        "input_tokens": 100,
+        "output_tokens": 300
+      },
+      "text": "\n\n**Hook:** On a salt-worn night, Maren watches a 1923 trawler glide backward out of the cove, its wake un-frothing—then"
+    }
+  }
+}
