@@ -1,0 +1,43 @@
+{
+  "capturedAt": "2026-09-08T22:16:40.982Z",
+  "purpose": "UDG round-9 20-persona QA — LOCAL-model + deterministic evidence for the series/omnibus export path.",
+  "env": {
+    "WMB_LLM_FORCE_LOCAL": "1",
+    "WMB_LOCAL_PROXY_URL": "http://127.0.0.1:30400"
+  },
+  "checks": {
+    "clientRouting": {
+      "provider": "local",
+      "effectiveModelId": "local/qwen38",
+      "baseURL": "http://127.0.0.1:30400",
+      "localGatewayExpected": "http://127.0.0.1:30400",
+      "routedToLocalGateway": true
+    },
+    "omnibusAssembly": {
+      "bookOrder": [
+        "1:The Keeper's Cove",
+        "2:Tides of Fall"
+      ],
+      "booksAssembled": 2,
+      "containsPerBookTitlePage": true,
+      "bodyWordPreview": 147
+    },
+    "seriesCoverBinding": {
+      "placeholder": "![Cover](series-cover-upload.jpg)",
+      "rewrittenBareTarget": "series-cover-upload.jpg",
+      "safeBareRelativeForSandbox": true,
+      "neverEmbedsS3Url": true
+    }
+  },
+  "calls": {
+    "seriesOutline": {
+      "modelId": "local/qwen38",
+      "stopReason": "max_tokens",
+      "usage": {
+        "input_tokens": 88,
+        "output_tokens": 320
+      },
+      "text": "\n\n**Book 1 – *The Tide's Backward Tongue***\nIsolated keeper Maren Soloway discovers that the cove's seawall, during the third storm tide each month, lets her step back into any day she has witnessed—and the first trip she takes back, to save her drowned apprentice, erases a year of her own memories.\n\n**Book 2 – *Salt Meridian***\nMaren becomes addicted to the rewinding, patching every small grief and mistake in the cove village, but each journey strands a \"ghost-day\" in the sea's wake that ages the coastline a decade, and the village begins to forget that it ever needed saving.\n\n"
+    }
+  }
+}
