@@ -1,0 +1,38 @@
+{
+  "capturedAt": "2026-09-08T10:36:38.441Z",
+  "purpose": "UDG round-4 20-persona QA — LOCAL-model evidence, local gateway only.",
+  "env": {
+    "WMB_LLM_FORCE_LOCAL": "1",
+    "WMB_LOCAL_PROXY_URL": "http://127.0.0.1:30400"
+  },
+  "checks": {
+    "clientRouting": {
+      "provider": "local",
+      "registryId": "local/qwen38",
+      "effectiveModelId": "local/qwen38",
+      "baseURL": "http://127.0.0.1:30400",
+      "localGatewayExpected": "http://127.0.0.1:30400",
+      "routedToLocalGateway": true
+    }
+  },
+  "calls": {
+    "seriesNextVolume": {
+      "modelId": "local/qwen38",
+      "stopReason": "max_tokens",
+      "usage": {
+        "input_tokens": 98,
+        "output_tokens": 350
+      },
+      "plan": ""
+    },
+    "lineEditorProfileGoPub": {
+      "modelId": "local/qwen38",
+      "stopReason": "max_tokens",
+      "usage": {
+        "input_tokens": 99,
+        "output_tokens": 320
+      },
+      "note": "\n\n1. Cut the hedged, clichéd tail. \"which somehow felt like a kind of fateful turning point in her life that she would always remember no matter what happened next\" tells the reader how to feel and drowns in qualifiers. Replace with one concrete sensory image (e.g., the click of a deadbolt, dust motes in a single beam) and trust the scene to carry the weight.\n\n2. \"Saw that it was very dark and quiet\" is flat telling with a weak intensifier. Drop \"very,\" show the darkness: *\"She stepped in. No"
+    }
+  }
+}
