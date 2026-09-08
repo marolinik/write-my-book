@@ -1,7 +1,10 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { getUIStrings } from "@/lib/i18n/ui-strings";
+import { Button } from "@/components/ui/button";
 import { EditorialPage } from "@/components/editorial/editorial-page";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +16,7 @@ export default async function EditorialReviewPage({
 }) {
   const user = await requireUser();
   const { bookId } = await params;
+  const t = getUIStrings(user.preferredLanguage ?? "en");
 
   const book = await db.book.findFirst({
     where: { id: bookId, userId: user.id },
@@ -32,9 +36,16 @@ export default async function EditorialReviewPage({
   if (!book) notFound();
 
   return (
-    <EditorialPage
-      bookId={bookId}
-      chapters={book.chapters}
-    />
+    <div>
+      {/* UDG round-6 (Luka): link to the printable/shareable editorial brief */}
+      <div className="flex items-center justify-end px-6 pt-6 print:hidden">
+        <Button asChild variant="ghost" size="sm">
+          <Link href={`/books/${bookId}/editorial/snapshot`}>
+            {t.snapshot.editorialLink}
+          </Link>
+        </Button>
+      </div>
+      <EditorialPage bookId={bookId} chapters={book.chapters} />
+    </div>
   );
 }

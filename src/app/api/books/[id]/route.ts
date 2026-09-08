@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { updateBookSchema } from "@/lib/validation";
 import { deleteBookChunks } from "@/lib/vector";
+import { getBookStorage } from "@/lib/storage";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 type RouteParams = { params: Promise<{ id: string }> };
@@ -104,6 +105,13 @@ export async function DELETE(_req: NextRequest, { params }: RouteParams) {
 
     // Clean up vector memory (fire-and-forget)
     deleteBookChunks(id).catch(() => {});
+
+    // UDG round-6 (Igor): remove the uploaded cover object too so deleting a book never leaves orphans in S3.
+    if (existing.coverUrl) {
+      getBookStorage(user.id, id)
+        .delete(existing.coverUrl)
+        .catch(() => {});
+    }
 
     await db.book.delete({ where: { id } });
 

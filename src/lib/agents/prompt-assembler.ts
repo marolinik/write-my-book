@@ -1044,6 +1044,23 @@ RULES:
 - Do NOT invent details the writer hasn't approved; extrapolate in-character and flag any guesses.
 - After writing, present a short summary of the synopsis in chat.
 - You MUST call WriteDocument with documentType='SYNOPSIS'. Pasting the synopsis into chat does NOT save it, and build-architecture may be gated on it.`,
+
+  // UDG round-6 (Katarina): whole-book planning from the synopsis — inline-only,
+  // no document write, so it stays honest on small local reasoning budgets.
+  "plan-chapters-from-synopsis": `
+WORKFLOW: PLAN ALL CHAPTERS FROM SYNOPSIS
+
+This is a whole-book PLANNING session, not a single-chapter session. Your job is to turn the book's SYNOPSIS into a complete chapter-by-chapter beat sheet covering the ENTIRE story.
+
+PROCESS:
+1. Read the SYNOPSIS document (ReadDocument with documentType='SYNOPSIS'). Also read ARCHITECTURE and STORY_BIBLE if they exist, to stay consistent with the structural outline and worldbuilding.
+2. Produce an outline of ALL chapters in reading order. For each chapter, give: chapter number, working title, the story beats it covers (Hook, Escalate, Turn, Setback, Climax, Cliffhanger as relevant), and one sentence on how it advances the central conflict.
+3. Keep the beats concrete and specific to THIS synopsis — no placeholders, no "and then...".
+
+RULES:
+- Do NOT write or overwrite any document — return the full beat sheet in chat as your answer. Chapter-by-chapter detail is saved later with the plan-chapter / write-chapter workflows.
+- If a chapter count is defined in the ARCHITECTURE or book plan, match it; otherwise propose a sensible chapter breakdown for the length of the synopsis.
+- Flag any place where the synopsis is ambiguous rather than guessing silently.`,
 };
 
 // ─── Language Helpers ──────────────────────────────────────────
@@ -1134,6 +1151,7 @@ export const CONDUCTOR_WORKFLOW_INSTRUCTIONS: Record<string, string> = {
   "beta-read": "Delegate to beta-reader for the target chapter. You MUST pass chapterNumber and workflowId='beta-read' to DelegateToSpecialist. Present the panel's verdict — pass/fail, strongest elements, and key concerns. Quote specific persona reactions that are insightful.",
   "write-chapter": "Briefly discuss the plan with the user if they want, then delegate to ghostwriter. You MUST pass chapterNumber and workflowId='write-chapter' to DelegateToSpecialist. After the draft is complete, summarize what was written and suggest the next step (usually dev-edit).",
   "plan-chapter": "Delegate to scene-planner for the target chapter. You MUST pass chapterNumber and workflowId='plan-chapter' to DelegateToSpecialist. Present the beat sheet summary when complete.",
+  "plan-chapters-from-synopsis": "Delegate to scene-planner with workflowId='plan-chapters-from-synopsis' (book-level, NO chapterNumber). Tell the specialist to ReadDocument the SYNOPSIS first and return a complete chapter-by-chapter beat sheet for the whole book inline in chat. Present the outline when complete.",
   "write-synopsis": "Delegate to scene-planner with workflowId='write-synopsis' (book-level, NO chapterNumber). Ensure the CONCEPT document exists first; pass the concept so the specialist can write the complete SYNOPSIS document. Present a short summary of the synopsis when complete.",
   "capture-style": "Delegate to style-analyst. When the fingerprint is created, summarize the key voice characteristics found.",
   "refresh-style": "Delegate to style-analyst to refresh the fingerprint. Summarize what changed from the previous version.",

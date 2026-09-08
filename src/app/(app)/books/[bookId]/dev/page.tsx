@@ -354,9 +354,9 @@ export default async function BookDevelopmentPage({
                     )}
                     {stage.key === "plan" && synopsis && (
                       <StartWorkflowButton
-                        workflowId="plan-chapter"
+                        workflowId="plan-chapters-from-synopsis"
                         label={s.generateBeats}
-                        initialMessage={`Generate the beat sheet for the current chapter from the book's synopsis. Read the SYNOPSIS document first, then break the relevant stretch into chapter-level beats.`}
+                        initialMessage={`Read the book's SYNOPSIS document, then produce a chapter-by-chapter beat sheet for the whole book inline in the chat.`}
                       />
                     )}
                     {hasArtifact && stage.viewArtifactId ? (

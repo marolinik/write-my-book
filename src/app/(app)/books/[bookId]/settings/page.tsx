@@ -202,6 +202,9 @@ export default function BookSettingsPage() {
             Override the global model selection for this book. &quot;Use
             Default&quot; inherits from your global settings.
           </CardDescription>
+          {/* UDG round-6 (Sofija): config-only reassurance — these presets never
+              touch manuscript/document content. */}
+          <p className="text-xs text-muted-foreground">{s.configOnlyNote}</p>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Book Default Model */}

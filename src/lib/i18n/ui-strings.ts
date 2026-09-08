@@ -256,9 +256,13 @@ export interface UIStrings {
     coverTitle: string; coverTitleDesc: string; coverPreview: string;
     coverUpload: string; coverUploading: string; coverRemove: string; coverHint: string;
     coverSaved: string; coverRemoved: string; coverError: string; coverTypeError: string; coverTooLarge: string;
+    coverDimensionsError: string;
     betaPanel: string; betaPanelDesc: string;
     panelSize: string; consensus: string; convergence: string;
     back: string;
+    // UDG round-6 (Sofija): reassurance that model/preference presets store only
+    // configuration, never the writer's manuscript/document content.
+    configOnlyNote: string;
   };
 
   // Book list
@@ -286,6 +290,20 @@ export interface UIStrings {
   seriesPage: {
     title: string; newSeries: string; noSeries: string; noSeriesDesc: string;
     createSeries: string; books: string; docs: string;
+  };
+
+  // UDG round-6 (Darko/Luka): printable/shareable read-only snapshots.
+  snapshot: {
+    title: string; subtitle: string; exportedOn: string; print: string;
+    bookProgress: string; words: string; chapters: string; chaptersDrafted: string;
+    betaAvg: string; editedPlus: string; status: string;
+    draftedV: string; passBeta: string; colon: string; wordsOfTarget: string;
+    currentStreak: string; bestStreak: string; activeDays: string;
+    pendingFindingsLabel: string; appliedFindingsLabel: string; healthScore: string; alerts: string;
+    chapterStatus: string; name: string; betaScore: string;
+    editorialBrief: string; allFindings: string; findingsList: string;
+    noFindings: string; chapter: string; suggestion: string;
+    link: string; editorialLink: string;
   };
 
   chapterNew: {
@@ -690,10 +708,12 @@ const EN: UIStrings = {
     coverPreview: "Book cover preview", coverUpload: "Upload cover", coverUploading: "Uploading…",
     coverRemove: "Remove cover", coverHint: "JPEG, PNG or WebP, up to 8 MB.",
     coverSaved: "Cover saved", coverRemoved: "Cover removed", coverError: "Failed to update cover",
-    coverTypeError: "Please choose a JPEG, PNG or WebP image", coverTooLarge: "Image is larger than 8 MB",
+    coverTypeError: "Please choose a JPEG, PNG or WebP image", coverTooLarge: "Image is larger than 8 MB", coverDimensionsError: "Image is too small or has the wrong shape — use at least a book-cover aspect ratio",
     betaPanel: "Beta Reader Panel", betaPanelDesc: "Configure virtual beta reader settings",
     panelSize: "Panel Size", consensus: "Consensus %", convergence: "Convergence %",
     back: "Back",
+    // EN UDG round-6 (Sofija): config-only reassurance
+    configOnlyNote: "These settings store only your model and preference choices. Your manuscript, chapters, and documents are never sent to or stored by these presets.",
   },
   bookList: {
     title: "Books", newBook: "New Book", noBooks: "No books yet",
@@ -716,6 +736,22 @@ const EN: UIStrings = {
     title: "Series", newSeries: "New Series", noSeries: "No series yet",
     noSeriesDesc: "Group related books together in a series",
     createSeries: "Create Series", books: "books", docs: "docs",
+  },
+  // EN UDG round-6 (Darko/Luka): read-only snapshots
+  snapshot: {
+    title: "Book Snapshot", subtitle: "A printable overview of this book's status and analytics.",
+    exportedOn: "Exported", print: "Print / Save as PDF",
+    bookProgress: "Book progress", words: "Words", chapters: "Chapters", chaptersDrafted: "drafted",
+    betaAvg: "Avg beta score", editedPlus: "edited",
+    status: "Status", draftedV: "Drafted", passBeta: "Passed beta", colon: ":",
+    wordsOfTarget: "Of word target", currentStreak: "Current streak", bestStreak: "Best streak",
+    activeDays: "Active days", pendingFindingsLabel: "Pending findings", appliedFindingsLabel: "Applied findings",
+    healthScore: "Health score", alerts: "Alerts", chapterStatus: "Chapter status",
+    name: "Chapter", betaScore: "Beta score",
+    editorialBrief: "Editorial brief", allFindings: "All findings",
+    findingsList: "Findings by chapter", noFindings: "No open findings.",
+    chapter: "Chapter", suggestion: "Suggestion",
+    link: "Print / Export snapshot", editorialLink: "Editorial brief",
   },
   chapterNew: {
     title: "New Chapter", subtitle: "Add a new chapter to your book",
@@ -1134,10 +1170,11 @@ const SR: UIStrings = {
     synopsisForLineEdit: "Učitaj sinopsis pri line-edit", synopsisForLineEditDesc: "Daj line-editoru sinopsis priče da njegove primedbe ostanu u skladu sa zapletom (podrazumevano isključeno).",
     lineEditorProfile: "Profil urednika linijskog izdanja", lineEditorProfileDesc: "Izaberite šablon linijske lekture: standardni balansira poliranje proze i kontekst zapleta; razvojni daje prednost strukturi i motivaciji likova; za objavu je usklađen za slanje; štedljiv drži prozu minimalnom i sažetom.",
     profileStandard: "Standardni", profileDevelopmental: "Razvojni", profileGoPub: "Za objavu", profileSpare: "Štedljiv i sažet",
-    coverTitle: "Korica knjige", coverTitleDesc: "Otpremite koricu za ovu knjigu. Koristi se u PDF i EPUB izvozima.", coverPreview: "Pregled korice knjige", coverUpload: "Otpremi koricu", coverUploading: "Otpremanje…", coverRemove: "Ukloni koricu", coverHint: "JPEG, PNG ili WebP, do 8 MB.", coverSaved: "Korica sačuvana", coverRemoved: "Korica uklonjena", coverError: "Neuspešno ažuriranje korice", coverTypeError: "Izaberite JPEG, PNG ili WebP sliku", coverTooLarge: "Slika je veća od 8 MB",
+    coverTitle: "Korica knjige", coverTitleDesc: "Otpremite koricu za ovu knjigu. Koristi se u PDF i EPUB izvozima.", coverPreview: "Pregled korice knjige", coverUpload: "Otpremi koricu", coverUploading: "Otpremanje…", coverRemove: "Ukloni koricu", coverHint: "JPEG, PNG ili WebP, do 8 MB.", coverSaved: "Korica sačuvana", coverRemoved: "Korica uklonjena", coverError: "Neuspešno ažuriranje korice", coverTypeError: "Izaberite JPEG, PNG ili WebP sliku", coverTooLarge: "Slika je veća od 8 MB", coverDimensionsError: "Slika je premala ili pogrešnog oblika — koristite najmanje omjer korice knjige",
     betaPanel: "Panel beta čitalaca", betaPanelDesc: "Konfigurišite podešavanja virtualnog beta čitanja",
     panelSize: "Veličina panela", consensus: "Konsenzus %", convergence: "Konvergencija %",
     back: "Nazad",
+    configOnlyNote: "Ove postavke čuvaju samo vaše izbore modela i preferencija. Vaš rukopis, poglavlja i dokumenti se nikada ne šalju niti čuvaju kroz ove presete.",
   },
   bookList: {
     title: "Knjige", newBook: "Nova knjiga", noBooks: "Još nema knjiga",
@@ -1160,6 +1197,21 @@ const SR: UIStrings = {
     title: "Serijali", newSeries: "Novi serijal", noSeries: "Još nema serijala",
     noSeriesDesc: "Grupišite povezane knjige u serijal",
     createSeries: "Kreiraj serijal", books: "knjiga", docs: "dokumenata",
+  },
+  snapshot: {
+    title: "Prikaz knjige", subtitle: "Štampiv pregled statusa i analitike ove knjige.",
+    exportedOn: "Izvezeno", print: "Štampaj / Sačuvaj kao PDF",
+    bookProgress: "Napredak knjige", words: "Reči", chapters: "Poglavlja", chaptersDrafted: "napisano",
+    betaAvg: "Prosečna beta ocena", editedPlus: "lektorisano",
+    status: "Status", draftedV: "Napisano", passBeta: "Prošlo beta", colon: ":",
+    wordsOfTarget: "Od cilja reči", currentStreak: "Trenutni niz", bestStreak: "Najbolji niz",
+    activeDays: "Aktivni dani", pendingFindingsLabel: "Nerešeni nalazi", appliedFindingsLabel: "Primenjeni nalazi",
+    healthScore: "Ocena stanja", alerts: "Upozorenja", chapterStatus: "Stanje poglavlja",
+    name: "Poglavlje", betaScore: "Beta ocena",
+    editorialBrief: "Uređivački izveštaj", allFindings: "Svi nalazi",
+    findingsList: "Nalazi po poglavlju", noFindings: "Nema otvorenih nalaza.",
+    chapter: "Poglavlje", suggestion: "Predlog",
+    link: "Štampaj / Izvezi prikaz", editorialLink: "Uređivački izveštaj",
   },
   chapterNew: {
     title: "Novo poglavlje", subtitle: "Dodajte novo poglavlje u knjigu",
@@ -1578,10 +1630,11 @@ const DE: UIStrings = {
     synopsisForLineEdit: "Synopsis beim Line-Edit laden", synopsisForLineEditDesc: "Gib dem Line-Editor die Story-Synopsis, damit seine Prosa-Anmerkungen zum Plot passen (standardmäßig aus).",
     lineEditorProfile: "Line-Editor-Profil", lineEditorProfileDesc: "Wähle eine Line-Edit-Vorlage: Standard balanciert Prosa-Politur und Plot-Kontext; Entwicklungsorientiert priorisiert Struktur und Charaktermotivation; Veröffentlichung strafft für die Einreichung; Sparsam hält Prosa minimal und schlank.",
     profileStandard: "Standard", profileDevelopmental: "Entwicklung", profileGoPub: "Zur Veröffentlichung", profileSpare: "Sparsam & schlank",
-    coverTitle: "Buchcover", coverTitleDesc: "Laden Sie ein Cover für dieses Buch hoch. Es wird in PDF- und EPUB-Exporten verwendet.", coverPreview: "Buchcover-Vorschau", coverUpload: "Cover hochladen", coverUploading: "Wird hochgeladen…", coverRemove: "Cover entfernen", coverHint: "JPEG, PNG oder WebP, bis 8 MB.", coverSaved: "Cover gespeichert", coverRemoved: "Cover entfernt", coverError: "Cover konnte nicht aktualisiert werden", coverTypeError: "Bitte wählen Sie ein JPEG-, PNG- oder WebP-Bild", coverTooLarge: "Bild ist größer als 8 MB",
+    coverTitle: "Buchcover", coverTitleDesc: "Laden Sie ein Cover für dieses Buch hoch. Es wird in PDF- und EPUB-Exporten verwendet.", coverPreview: "Buchcover-Vorschau", coverUpload: "Cover hochladen", coverUploading: "Wird hochgeladen…", coverRemove: "Cover entfernen", coverHint: "JPEG, PNG oder WebP, bis 8 MB.", coverSaved: "Cover gespeichert", coverRemoved: "Cover entfernt", coverError: "Cover konnte nicht aktualisiert werden", coverTypeError: "Bitte wählen Sie ein JPEG-, PNG- oder WebP-Bild", coverTooLarge: "Bild ist größer als 8 MB", coverDimensionsError: "Bild ist zu klein oder hat die falsche Form — verwenden Sie mindestens ein Buchcover-Seitenverhältnis",
     betaPanel: "Beta-Leser-Panel", betaPanelDesc: "Virtuelle Beta-Leser-Einstellungen konfigurieren",
     panelSize: "Panelgröße", consensus: "Konsens %", convergence: "Konvergenz %",
     back: "Zurück",
+    configOnlyNote: "Diese Einstellungen speichern nur Ihre Modell- und Präferenzauswahl. Ihr Manuskript, Ihre Kapitel und Dokumente werden nie an diese Voreinstellungen gesendet oder darin gespeichert.",
   },
   bookList: {
     title: "Bücher", newBook: "Neues Buch", noBooks: "Noch keine Bücher",
@@ -1604,6 +1657,21 @@ const DE: UIStrings = {
     title: "Serien", newSeries: "Neue Serie", noSeries: "Noch keine Serien",
     noSeriesDesc: "Gruppieren Sie verwandte Bücher in einer Serie",
     createSeries: "Serie erstellen", books: "Bücher", docs: "Dokumente",
+  },
+  snapshot: {
+    title: "Buch-Snapshot", subtitle: "Eine druckbare Übersicht zu Status und Analysen dieses Buches.",
+    exportedOn: "Exportiert", print: "Drucken / Als PDF speichern",
+    bookProgress: "Buchfortschritt", words: "Wörter", chapters: "Kapitel", chaptersDrafted: "geschrieben",
+    betaAvg: "Ø-Beta-Wert", editedPlus: "lektorisiert",
+    status: "Status", draftedV: "Geschrieben", passBeta: "Beta bestanden", colon: ":",
+    wordsOfTarget: "Vom Wortziel", currentStreak: "Aktuelle Serie", bestStreak: "Beste Serie",
+    activeDays: "Aktive Tage", pendingFindingsLabel: "Offene Befunde", appliedFindingsLabel: "Angewandte Befunde",
+    healthScore: "Zustandswert", alerts: "Alerts", chapterStatus: "Kapitelstatus",
+    name: "Kapitel", betaScore: "Beta-Wert",
+    editorialBrief: "Lektoratsbrief", allFindings: "Alle Befunde",
+    findingsList: "Befunde je Kapitel", noFindings: "Keine offenen Befunde.",
+    chapter: "Kapitel", suggestion: "Vorschlag",
+    link: "Drucken / Snapshot exportieren", editorialLink: "Lektoratsbrief",
   },
   chapterNew: {
     title: "Neues Kapitel", subtitle: "Fügen Sie Ihrem Buch ein neues Kapitel hinzu",
@@ -2022,10 +2090,11 @@ const ES: UIStrings = {
     synopsisForLineEdit: "Cargar sinopsis en la corrección de línea", synopsisForLineEditDesc: "Da al editor de línea la sinopsis de la historia para que sus notas de prosa sigan el contexto (desactivado por defecto).",
     lineEditorProfile: "Perfil del editor de línea", lineEditorProfileDesc: "Elige una plantilla de corrección de línea: estándar equilibra pulido de prosa y contexto de la trama; desarrollo prioriza estructura y motivación de personajes; para publicar ajusta para el envío; sobrio mantiene la prosa mínima y ajustada.",
     profileStandard: "Estándar", profileDevelopmental: "Desarrollo", profileGoPub: "Para publicar", profileSpare: "Sobrio y ajustado",
-    coverTitle: "Portada del libro", coverTitleDesc: "Sube una portada para este libro. Se usa en las exportaciones PDF y EPUB.", coverPreview: "Vista previa de la portada", coverUpload: "Subir portada", coverUploading: "Subiendo…", coverRemove: "Quitar portada", coverHint: "JPEG, PNG o WebP, hasta 8 MB.", coverSaved: "Portada guardada", coverRemoved: "Portada eliminada", coverError: "No se pudo actualizar la portada", coverTypeError: "Elige una imagen JPEG, PNG o WebP", coverTooLarge: "La imagen supera los 8 MB",
+    coverTitle: "Portada del libro", coverTitleDesc: "Sube una portada para este libro. Se usa en las exportaciones PDF y EPUB.", coverPreview: "Vista previa de la portada", coverUpload: "Subir portada", coverUploading: "Subiendo…", coverRemove: "Quitar portada", coverHint: "JPEG, PNG o WebP, hasta 8 MB.", coverSaved: "Portada guardada", coverRemoved: "Portada eliminada", coverError: "No se pudo actualizar la portada", coverTypeError: "Elige una imagen JPEG, PNG o WebP", coverTooLarge: "La imagen supera los 8 MB", coverDimensionsError: "La imagen es demasiado pequeña o tiene una forma incorrecta: usa al menos una proporción de portada",
     betaPanel: "Panel de lectores beta", betaPanelDesc: "Configure los ajustes de lectura beta virtual",
     panelSize: "Tamaño del panel", consensus: "Consenso %", convergence: "Convergencia %",
     back: "Atrás",
+    configOnlyNote: "Esta configuración guarda sólo tus elecciones de modelo y preferencias. Tu manuscrito, capítulos y documentos nunca se envían ni se guardan en estos ajustes.",
   },
   bookList: {
     title: "Libros", newBook: "Nuevo libro", noBooks: "Aún no hay libros",
@@ -2048,6 +2117,21 @@ const ES: UIStrings = {
     title: "Series", newSeries: "Nueva serie", noSeries: "Aún no hay series",
     noSeriesDesc: "Agrupe libros relacionados en una serie",
     createSeries: "Crear serie", books: "libros", docs: "documentos",
+  },
+  snapshot: {
+    title: "Vista del libro", subtitle: "Un resumen imprimible del estado y las analíticas de este libro.",
+    exportedOn: "Exportado", print: "Imprimir / Guardar como PDF",
+    bookProgress: "Progreso del libro", words: "Palabras", chapters: "Capítulos", chaptersDrafted: "borradores",
+    betaAvg: "Puntuación beta media", editedPlus: "editado",
+    status: "Estado", draftedV: "Borrador", passBeta: "Beta superado", colon: ":",
+    wordsOfTarget: "Del objetivo de palabras", currentStreak: "Racha actual", bestStreak: "Mejor racha",
+    activeDays: "Días activos", pendingFindingsLabel: "Hallazgos pendientes", appliedFindingsLabel: "Hallazgos aplicados",
+    healthScore: "Puntuación de salud", alerts: "Alertas", chapterStatus: "Estado del capítulo",
+    name: "Capítulo", betaScore: "Puntuación beta",
+    editorialBrief: "Informe editorial", allFindings: "Todos los hallazgos",
+    findingsList: "Hallazgos por capítulo", noFindings: "No hay hallazgos abiertos.",
+    chapter: "Capítulo", suggestion: "Sugerencia",
+    link: "Imprimir / Exportar vista", editorialLink: "Informe editorial",
   },
   chapterNew: {
     title: "Nuevo capítulo", subtitle: "Añada un nuevo capítulo a su libro",
@@ -2466,10 +2550,11 @@ const FR: UIStrings = {
     synopsisForLineEdit: "Charger le synopsis en révision de ligne", synopsisForLineEditDesc: "Donnez le synopsis de l'histoire au réviseur de ligne pour que ses notes de prose restent cohérentes (désactivé par défaut).",
     lineEditorProfile: "Profil du réviseur de ligne", lineEditorProfileDesc: "Choisissez un modèle de révision de ligne : standard équilibre le polissage de la prose et le contexte de l'intrigue ; développement privilégie la structure et la motivation des personnages ; publication resserre pour l'envoi ; sobre garde une prose minimale et épurée.",
     profileStandard: "Standard", profileDevelopmental: "Développement", profileGoPub: "Prêt à publier", profileSpare: "Sobre & épuré",
-    coverTitle: "Couverture du livre", coverTitleDesc: "Téléchargez une couverture pour ce livre. Elle est utilisée dans les exports PDF et EPUB.", coverPreview: "Aperçu de la couverture", coverUpload: "Téléverser la couverture", coverUploading: "Téléversement…", coverRemove: "Retirer la couverture", coverHint: "JPEG, PNG ou WebP, jusqu'à 8 Mo.", coverSaved: "Couverture enregistrée", coverRemoved: "Couverture supprimée", coverError: "Échec de la mise à jour de la couverture", coverTypeError: "Veuillez choisir une image JPEG, PNG ou WebP", coverTooLarge: "L'image dépasse 8 Mo",
+    coverTitle: "Couverture du livre", coverTitleDesc: "Téléchargez une couverture pour ce livre. Elle est utilisée dans les exports PDF et EPUB.", coverPreview: "Aperçu de la couverture", coverUpload: "Téléverser la couverture", coverUploading: "Téléversement…", coverRemove: "Retirer la couverture", coverHint: "JPEG, PNG ou WebP, jusqu'à 8 Mo.", coverSaved: "Couverture enregistrée", coverRemoved: "Couverture supprimée", coverError: "Échec de la mise à jour de la couverture", coverTypeError: "Veuillez choisir une image JPEG, PNG ou WebP", coverTooLarge: "L'image dépasse 8 Mo", coverDimensionsError: "L'image est trop petite ou a la mauvaise forme — utilisez au moins un format de couverture",
     betaPanel: "Panel de lecteurs bêta", betaPanelDesc: "Configurez les paramètres de lecture bêta virtuelle",
     panelSize: "Taille du panel", consensus: "Consensus %", convergence: "Convergence %",
     back: "Retour",
+    configOnlyNote: "Ces réglages n'enregistrent que vos choix de modèle et de préférences. Votre manuscrit, vos chapitres et vos documents ne sont jamais envoyés ni stockés dans ces profils.",
   },
   bookList: {
     title: "Livres", newBook: "Nouveau livre", noBooks: "Pas encore de livres",
@@ -2492,6 +2577,21 @@ const FR: UIStrings = {
     title: "Séries", newSeries: "Nouvelle série", noSeries: "Pas encore de séries",
     noSeriesDesc: "Regroupez les livres liés dans une série",
     createSeries: "Créer une série", books: "livres", docs: "documents",
+  },
+  snapshot: {
+    title: "Aperçu du livre", subtitle: "Un récapitulatif imprimable de l'état et des statistiques de ce livre.",
+    exportedOn: "Exporté", print: "Imprimer / Enregistrer en PDF",
+    bookProgress: "Progression du livre", words: "Mots", chapters: "Chapitres", chaptersDrafted: "rédigés",
+    betaAvg: "Score bêta moyen", editedPlus: "révisé",
+    status: "Statut", draftedV: "Rédigé", passBeta: "Bêta réussi", colon: ":",
+    wordsOfTarget: "De l'objectif de mots", currentStreak: "Série actuelle", bestStreak: "Meilleure série",
+    activeDays: "Jours actifs", pendingFindingsLabel: "Constatations en attente", appliedFindingsLabel: "Constatations appliquées",
+    healthScore: "Score de santé", alerts: "Alertes", chapterStatus: "État du chapitre",
+    name: "Chapitre", betaScore: "Score bêta",
+    editorialBrief: "Bref éditorial", allFindings: "Toutes les constatations",
+    findingsList: "Constatations par chapitre", noFindings: "Aucune constatation ouverte.",
+    chapter: "Chapitre", suggestion: "Suggestion",
+    link: "Imprimer / Exporter l'aperçu", editorialLink: "Bref éditorial",
   },
   chapterNew: {
     title: "Nouveau chapitre", subtitle: "Ajoutez un nouveau chapitre à votre livre",
@@ -2910,10 +3010,11 @@ const RU: UIStrings = {
     synopsisForLineEdit: "Загружать синопсис при линейном редактировании", synopsisForLineEditDesc: "Дайте линейному редактору синопсис истории, чтобы его замечания к прозе соответствовали сюжету (по умолчанию выключено).",
     lineEditorProfile: "Профиль линейного редактора", lineEditorProfileDesc: "Выберите шаблон линейного редактирования: стандартный балансирует полировку прозы и контекст сюжета; развивающий приоритет отдает структуре и мотивации персонажей; для публикации — готовит к отправке; сдержанный держит прозу минимальной и лаконичной.",
     profileStandard: "Стандартный", profileDevelopmental: "Развивающий", profileGoPub: "К публикации", profileSpare: "Сдержанный",
-    coverTitle: "Обложка книги", coverTitleDesc: "Загрузите обложку для этой книги. Она используется в экспорте PDF и EPUB.", coverPreview: "Предпросмотр обложки", coverUpload: "Загрузить обложку", coverUploading: "Загрузка…", coverRemove: "Удалить обложку", coverHint: "JPEG, PNG или WebP, до 8 МБ.", coverSaved: "Обложка сохранена", coverRemoved: "Обложка удалена", coverError: "Не удалось обновить обложку", coverTypeError: "Выберите изображение JPEG, PNG или WebP", coverTooLarge: "Изображение больше 8 МБ",
+    coverTitle: "Обложка книги", coverTitleDesc: "Загрузите обложку для этой книги. Она используется в экспорте PDF и EPUB.", coverPreview: "Предпросмотр обложки", coverUpload: "Загрузить обложку", coverUploading: "Загрузка…", coverRemove: "Удалить обложку", coverHint: "JPEG, PNG или WebP, до 8 МБ.", coverSaved: "Обложка сохранена", coverRemoved: "Обложка удалена", coverError: "Не удалось обновить обложку", coverTypeError: "Выберите изображение JPEG, PNG или WebP", coverTooLarge: "Изображение больше 8 МБ", coverDimensionsError: "Изображение слишком маленькое или неправильной формы — используйте хотя бы пропорции обложки",
     betaPanel: "Панель бета-читателей", betaPanelDesc: "Настройте параметры виртуального бета-чтения",
     panelSize: "Размер панели", consensus: "Консенсус %", convergence: "Конвергенция %",
     back: "Назад",
+    configOnlyNote: "Эти настройки хранят только ваш выбор модели и предпочтений. Ваши рукопись, главы и документы никогда не отправляются и не сохраняются в этих предустановках.",
   },
   bookList: {
     title: "Книги", newBook: "Новая книга", noBooks: "Книг пока нет",
@@ -2936,6 +3037,21 @@ const RU: UIStrings = {
     title: "Серии", newSeries: "Новая серия", noSeries: "Серий пока нет",
     noSeriesDesc: "Объедините связанные книги в серию",
     createSeries: "Создать серию", books: "книг", docs: "документов",
+  },
+  snapshot: {
+    title: "Снимок книги", subtitle: "Печатный обзор статуса и аналитики этой книги.",
+    exportedOn: "Экспортировано", print: "Печать / Сохранить как PDF",
+    bookProgress: "Прогресс книги", words: "Слова", chapters: "Главы", chaptersDrafted: "написано",
+    betaAvg: "Средний бета-балл", editedPlus: "отредактировано",
+    status: "Статус", draftedV: "Написано", passBeta: "Прошло бета", colon: ":",
+    wordsOfTarget: "От цели по словам", currentStreak: "Текущая серия", bestStreak: "Лучшая серия",
+    activeDays: "Активные дни", pendingFindingsLabel: "Ожидающие замечания", appliedFindingsLabel: "Применённые замечания",
+    healthScore: "Оценка состояния", alerts: "Предупреждения", chapterStatus: "Статус главы",
+    name: "Глава", betaScore: "Бета-балл",
+    editorialBrief: "Редакционный обзор", allFindings: "Все замечания",
+    findingsList: "Замечания по главам", noFindings: "Нет открытых замечаний.",
+    chapter: "Глава", suggestion: "Предложение",
+    link: "Печать / Экспорт снимка", editorialLink: "Редакционный обзор",
   },
   chapterNew: {
     title: "Новая глава", subtitle: "Добавьте новую главу в книгу",
@@ -3354,10 +3470,11 @@ const ZH: UIStrings = {
     synopsisForLineEdit: "在逐行编辑中加载故事梗概", synopsisForLineEditDesc: "让逐行编辑器加载故事梗概，使其对稿件的批注与情节保持一致（默认关闭）。",
     lineEditorProfile: "逐行编辑器配置", lineEditorProfileDesc: "选择逐行编辑模板：标准在打磨文笔与情节语境之间取得平衡；发展型优先结构与人物动机；出版物收束以利提交；精简型保持文笔极简利落。",
     profileStandard: "标准", profileDevelopmental: "发展型", profileGoPub: "待出版", profileSpare: "精简利落",
-    coverTitle: "书籍封面", coverTitleDesc: "为此书上传封面。将用于 PDF 和 EPUB 导出。", coverPreview: "书籍封面预览", coverUpload: "上传封面", coverUploading: "上传中…", coverRemove: "移除封面", coverHint: "JPEG、PNG 或 WebP，最大 8 MB。", coverSaved: "封面已保存", coverRemoved: "封面已移除", coverError: "更新封面失败", coverTypeError: "请选择 JPEG、PNG 或 WebP 图片", coverTooLarge: "图片超过 8 MB",
+    coverTitle: "书籍封面", coverTitleDesc: "为此书上传封面。将用于 PDF 和 EPUB 导出。", coverPreview: "书籍封面预览", coverUpload: "上传封面", coverUploading: "上传中…", coverRemove: "移除封面", coverHint: "JPEG、PNG 或 WebP，最大 8 MB。", coverSaved: "封面已保存", coverRemoved: "封面已移除", coverError: "更新封面失败", coverTypeError: "请选择 JPEG、PNG 或 WebP 图片", coverTooLarge: "图片超过 8 MB", coverDimensionsError: "图片过小或形状不正确——请使用至少符合书籍封面的比例",
     betaPanel: "测试读者面板", betaPanelDesc: "配置虚拟测试读者设置",
     panelSize: "面板大小", consensus: "共识 %", convergence: "收敛 %",
     back: "返回",
+    configOnlyNote: "这些设置仅保存您的模型和偏好选择。您的手稿、章节和文档绝不会通过这些预设发送或存储。",
   },
   bookList: {
     title: "书籍", newBook: "新书", noBooks: "还没有书籍",
@@ -3380,6 +3497,21 @@ const ZH: UIStrings = {
     title: "系列", newSeries: "新系列", noSeries: "还没有系列",
     noSeriesDesc: "将相关书籍分组到一个系列中",
     createSeries: "创建系列", books: "本书", docs: "文档",
+  },
+  snapshot: {
+    title: "书籍快照", subtitle: "本书状态与分析的可打印概览。",
+    exportedOn: "已导出", print: "打印 / 另存为 PDF",
+    bookProgress: "书籍进度", words: "字数", chapters: "章节", chaptersDrafted: "已写完",
+    betaAvg: "平均测试分数", editedPlus: "已编辑",
+    status: "状态", draftedV: "已写完", passBeta: "通过测试", colon: "：",
+    wordsOfTarget: "占字数目标", currentStreak: "当前连续", bestStreak: "最佳连续",
+    activeDays: "活跃天数", pendingFindingsLabel: "待处理发现", appliedFindingsLabel: "已应用发现",
+    healthScore: "健康评分", alerts: "提醒", chapterStatus: "章节状态",
+    name: "章节", betaScore: "测试分数",
+    editorialBrief: "编辑简报", allFindings: "全部发现",
+    findingsList: "按章节的发现", noFindings: "暂无待处理发现。",
+    chapter: "章节", suggestion: "建议",
+    link: "打印 / 导出快照", editorialLink: "编辑简报",
   },
   chapterNew: {
     title: "新章节", subtitle: "为您的书添加新章节",

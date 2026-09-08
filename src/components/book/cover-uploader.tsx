@@ -37,6 +37,16 @@ export function CoverUploader({
       toast.error(t.bookSettings.coverTooLarge);
       return;
     }
+    // UDG round-6 (Igor): pre-check dimensions client-side (cover must be a workable
+    // book front — reject a broken/too-wide-too-short image before uploading).
+    const dims = await readImageSize(file);
+    if (dims) {
+      const RATIO_MAX = 4;
+      if (dims.width < 100 || dims.height < 120 || dims.width > dims.height * RATIO_MAX) {
+        toast.error(t.bookSettings.coverDimensionsError);
+        return;
+      }
+    }
     setUploading(true);
     try {
       const dataUrl: string = await new Promise((resolve, reject) => {
@@ -133,4 +143,25 @@ export function CoverUploader({
       </div>
     </div>
   );
+}
+
+/** Read an image's pixel dimensions client-side (best-effort via createImageBitmap) to pre-check cover size sanity. */
+function readImageSize(file: File): Promise<{ width: number; height: number } | null> {
+  return new Promise((resolve) => {
+    if (typeof createImageBitmap !== "function") {
+      resolve(null);
+      return;
+    }
+    try {
+      createImageBitmap(file)
+        .then((bmp) => {
+          const r = { width: bmp.width, height: bmp.height };
+          bmp.close?.();
+          resolve(r);
+        })
+        .catch(() => resolve(null));
+    } catch {
+      resolve(null);
+    }
+  });
 }

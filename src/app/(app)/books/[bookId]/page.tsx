@@ -7,6 +7,7 @@ import {
   BotIcon,
   PlayIcon,
   TargetIcon,
+  PrinterIcon,
 } from "lucide-react";
 
 import { requireUser } from "@/lib/auth";
@@ -222,6 +223,13 @@ export default async function BookDetailPage({
             <Link href={`/books/${bookId}/settings`}>
               <SettingsIcon className="mr-1 size-4" />
               {s.settingsBtn}
+            </Link>
+          </Button>
+          {/* UDG round-6 (Darko): print/export snapshot */}
+          <Button asChild variant="ghost" size="sm">
+            <Link href={`/books/${bookId}/snapshot`}>
+              <PrinterIcon className="mr-1 size-4" />
+              {t.snapshot.link}
             </Link>
           </Button>
         </div>

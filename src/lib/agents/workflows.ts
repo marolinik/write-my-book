@@ -197,6 +197,30 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     minimumTier: "sonnet",
   },
   {
+    // UDG round-6 (Katarina): whole-book beats from the synopsis — returns a full
+    // chapter-by-chapter outline inline in chat. Intentionally does NOT declare a
+    // producesDocument so it stays honest on small local reasoning budgets (no
+    // artifact contract, no failed-run gate on empty/zero-work text). Per-chapter
+    // planning stays the persist-and-drill-down action (plan-chapter).
+    id: "plan-chapters-from-synopsis",
+    label: "Plan All Chapters",
+    description: "Turn the synopsis into a chapter-by-chapter beat sheet for the whole book.",
+    writerDescription:
+      "Break the synopsis into chapter-level beats for every chapter of the book.",
+    primaryAgent: "scene-planner",
+    category: "writing",
+    requiresChapter: false,
+    requiresSeriesContext: false,
+    conversational: false,
+    suggestedNext: ["plan-chapter", "write-chapter"],
+    prerequisites: [
+      { type: "document", value: "SYNOPSIS", description: "A synopsis is needed before planning the whole book", satisfiedBy: "write-synopsis" },
+    ],
+    estimatedMinMinutes: 3,
+    estimatedMaxMinutes: 10,
+    minimumTier: "sonnet",
+  },
+  {
     id: "write-chapter",
     label: "Write Chapter",
     description: "Draft a chapter using the plan, fingerprint, and story context.",
