@@ -23,6 +23,8 @@ export function getStoragePath(
       return ".planning/STORY-BIBLE.md";
     case DocumentType.ARCHITECTURE:
       return ".planning/ARCHITECTURE.md";
+    case DocumentType.BOOK_PLAN:
+      return ".planning/BOOK-PLAN.md";
     case DocumentType.FINGERPRINT:
       return ".planning/FINGERPRINT.md";
     case DocumentType.EXPORT_CONFIG:

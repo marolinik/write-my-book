@@ -722,9 +722,20 @@ export async function exportManuscript(
     .join("\n");
 
   // 7. Combine all sections
-  const combinedMd = [yamlMeta, frontMatter, chapterContent, backMatterResult.content]
-    .filter(Boolean)
-    .join("\n\n");
+  // UDG round-8 (Igor/Olivera): a user-uploaded back cover renders as a trailing
+  // back-cover page (EPUB/PDF only, like the front cover). It references the stable
+  // `back-cover-upload.<ext>` basename that the tempdir binding (below) writes, so
+  // --sandbox containment is preserved (never embed an S3 URL into the manuscript).
+  const backCoverPage =
+    options.backCoverUrl && format !== "docx"
+      ? `\n\n::: {.cover-page}\n![Back Cover](back-cover-upload.${
+          options.backCoverUrl.toLowerCase().match(/\.([a-z0-9]+)$/)?.[1] ?? "jpg"
+        })\n:::`
+      : "";
+  const combinedMd =
+    [yamlMeta, frontMatter, chapterContent, backMatterResult.content]
+      .filter(Boolean)
+      .join("\n\n") + backCoverPage;
 
   // Calculate stats
   const wordCount = combinedMd
@@ -802,6 +813,27 @@ export async function exportManuscript(
       }
     } catch {
       // S3 read/write failed — the cover reference simply resolves to nothing.
+    }
+  }
+
+  // UDG round-8 (Igor/Olivera): bind the uploaded back cover into the pandoc temp
+  // dir under the exact `back-cover-upload.<ext>` basename referenced above, with
+  // the same --sandbox containment (never embed an S3 URL into the manuscript).
+  if (options.backCoverUrl && format !== "docx") {
+    const ext =
+      options.backCoverUrl.toLowerCase().match(/\.([a-z0-9]+)$/)?.[1] ?? "jpg";
+    const backFile = `back-cover-upload.${ext}`;
+    try {
+      const bytes = await storage.readBuffer(options.backCoverUrl);
+      if (bytes) {
+        await writeFile(join(tmpDir, backFile), bytes);
+        preparedMd = preparedMd.replace(
+          `![Back Cover](back-cover-upload.${ext})`,
+          `![Back Cover](${backFile})`
+        );
+      }
+    } catch {
+      // S3 read/write failed — the back-cover reference simply resolves to nothing.
     }
   }
   const sanitizedMd = sanitizeManuscriptForConverter(preparedMd);

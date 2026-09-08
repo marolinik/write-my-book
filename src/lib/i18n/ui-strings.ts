@@ -267,6 +267,10 @@ export interface UIStrings {
     // UDG round-6 (Sofija): reassurance that model/preference presets store only
     // configuration, never the writer's manuscript/document content.
     configOnlyNote: string;
+    // UDG round-8 (Igor/Olivera): back cover upload + settings card.
+    backCoverTitle: string; backCoverTitleDesc: string; backCoverLabel: string;
+    backCoverUpload: string; backCoverRemove: string; backCoverHint: string;
+    backCoverSaved: string; backCoverRemoved: string;
   };
 
   // Book list
@@ -727,6 +731,11 @@ const EN: UIStrings = {
     back: "Back",
     // EN UDG round-6 (Sofija): config-only reassurance
     configOnlyNote: "These settings store only your model and preference choices. Your manuscript, chapters, and documents are never sent to or stored by these presets.",
+    // EN UDG round-8 (Igor/Olivera): back cover
+    backCoverTitle: "Back Cover", backCoverTitleDesc: "Upload a back-cover image, bound into PDF/EPUB exports as a trailing back-cover page.",
+    backCoverLabel: "Back cover preview", backCoverUpload: "Upload back cover",
+    backCoverRemove: "Remove back cover", backCoverHint: "Optional. Used as the closing page of printed exports.",
+    backCoverSaved: "Back cover saved", backCoverRemoved: "Back cover removed",
   },
   bookList: {
     title: "Books", newBook: "New Book", noBooks: "No books yet",
@@ -1197,6 +1206,10 @@ const SR: UIStrings = {
     panelSize: "Veličina panela", consensus: "Konsenzus %", convergence: "Konvergencija %",
     back: "Nazad",
     configOnlyNote: "Ove postavke čuvaju samo vaše izbore modela i preferencija. Vaš rukopis, poglavlja i dokumenti se nikada ne šalju niti čuvaju kroz ove presete.",
+    backCoverTitle: "Poleđina korice", backCoverTitleDesc: "Otpremite sliku za poleđinu korice, koja se u PDF/EPUB izvozima ubacuje kao završna strana izdanja.",
+    backCoverLabel: "Pregled poleđine", backCoverUpload: "Otpremi poleđinu korice",
+    backCoverRemove: "Ukloni poleđinu korice", backCoverHint: "Opciono. Koristi se kao završna strana štampanog izdanja.",
+    backCoverSaved: "Poleđina korice sačuvana", backCoverRemoved: "Poleđina korice uklonjena",
   },
   bookList: {
     title: "Knjige", newBook: "Nova knjiga", noBooks: "Još nema knjiga",
@@ -1664,6 +1677,10 @@ const DE: UIStrings = {
     panelSize: "Panelgröße", consensus: "Konsens %", convergence: "Konvergenz %",
     back: "Zurück",
     configOnlyNote: "Diese Einstellungen speichern nur Ihre Modell- und Präferenzauswahl. Ihr Manuskript, Ihre Kapitel und Dokumente werden nie an diese Voreinstellungen gesendet oder darin gespeichert.",
+    backCoverTitle: "Rückseite", backCoverTitleDesc: "Lade ein Bild für die Rückseite hoch; wird in PDF-/EPUB-Exporte als abschließende Seite des Drucks gebunden.",
+    backCoverLabel: "Vorschau Rückseite", backCoverUpload: "Rückseite hochladen",
+    backCoverRemove: "Rückseite entfernen", backCoverHint: "Optional. Wird als Abschlussseite eines Drucks verwendet.",
+    backCoverSaved: "Rückseite gespeichert", backCoverRemoved: "Rückseite entfernt",
   },
   bookList: {
     title: "Bücher", newBook: "Neues Buch", noBooks: "Noch keine Bücher",
@@ -2131,6 +2148,10 @@ const ES: UIStrings = {
     panelSize: "Tamaño del panel", consensus: "Consenso %", convergence: "Convergencia %",
     back: "Atrás",
     configOnlyNote: "Esta configuración guarda sólo tus elecciones de modelo y preferencias. Tu manuscrito, capítulos y documentos nunca se envían ni se guardan en estos ajustes.",
+    backCoverTitle: "Contraportada", backCoverTitleDesc: "Sube una imagen de contraportada, que se añade a las exportaciones PDF/EPUB como página de cierre.",
+    backCoverLabel: "Vista previa de contraportada", backCoverUpload: "Subir contraportada",
+    backCoverRemove: "Quitar contraportada", backCoverHint: "Opcional. Se usa como página de cierre de las exportaciones impresas.",
+    backCoverSaved: "Contraportada guardada", backCoverRemoved: "Contraportada eliminada",
   },
   bookList: {
     title: "Libros", newBook: "Nuevo libro", noBooks: "Aún no hay libros",
@@ -2598,6 +2619,10 @@ const FR: UIStrings = {
     panelSize: "Taille du panel", consensus: "Consensus %", convergence: "Convergence %",
     back: "Retour",
     configOnlyNote: "Ces réglages n'enregistrent que vos choix de modèle et de préférences. Votre manuscrit, vos chapitres et vos documents ne sont jamais envoyés ni stockés dans ces profils.",
+    backCoverTitle: "4e de couverture", backCoverTitleDesc: "Importer une image de 4e de couverture, ajoutée aux exports PDF/EPUB comme page de fermeture.",
+    backCoverLabel: "Aperçu 4e de couverture", backCoverUpload: "Importer la 4e de couverture",
+    backCoverRemove: "Supprimer la 4e de couverture", backCoverHint: "Facultatif. Utilisé comme page de clôture des exports imprimés.",
+    backCoverSaved: "4e de couverture enregistrée", backCoverRemoved: "4e de couverture supprimée",
   },
   bookList: {
     title: "Livres", newBook: "Nouveau livre", noBooks: "Pas encore de livres",
@@ -3065,6 +3090,10 @@ const RU: UIStrings = {
     panelSize: "Размер панели", consensus: "Консенсус %", convergence: "Конвергенция %",
     back: "Назад",
     configOnlyNote: "Эти настройки хранят только ваш выбор модели и предпочтений. Ваши рукопись, главы и документы никогда не отправляются и не сохраняются в этих предустановках.",
+    backCoverTitle: "Оборот обложки", backCoverTitleDesc: "Загрузите изображение оборота обложки; в экспорте PDF/EPUB добавляется как завершающая страница.",
+    backCoverLabel: "Просмотр оборота", backCoverUpload: "Загрузить оборот обложки",
+    backCoverRemove: "Удалить оборот обложки", backCoverHint: "Необязательно. Используется как завершающая страница печатного экспорта.",
+    backCoverSaved: "Оборот обложки сохранён", backCoverRemoved: "Оборот обложки удалён",
   },
   bookList: {
     title: "Книги", newBook: "Новая книга", noBooks: "Книг пока нет",
@@ -3532,6 +3561,10 @@ const ZH: UIStrings = {
     panelSize: "面板大小", consensus: "共识 %", convergence: "收敛 %",
     back: "返回",
     configOnlyNote: "这些设置仅保存您的模型和偏好选择。您的手稿、章节和文档绝不会通过这些预设发送或存储。",
+    backCoverTitle: "封底", backCoverTitleDesc: "上传封底图片，在 PDF/EPUB 导出中作为结尾页绑定。",
+    backCoverLabel: "封底预览", backCoverUpload: "上传封底",
+    backCoverRemove: "移除封底", backCoverHint: "可选。用作打印导出的结尾页。",
+    backCoverSaved: "封底已保存", backCoverRemoved: "封底已移除",
   },
   bookList: {
     title: "书籍", newBook: "新书", noBooks: "还没有书籍",

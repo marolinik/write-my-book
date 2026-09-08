@@ -39,6 +39,9 @@ export interface ExportOptions {
    *  to this book's storage scope. When set and no configured coverImagePath, read
    *  the bytes from S3 and bind them into PDF/EPUB front matter + EPUB metadata. */
   coverUrl?: string | null;
+  /** UDG round-8 (Igor/Olivera): uploaded BACK-cover object key (Book.backCoverUrl),
+   *  bound into PDF/EPUB as a trailing back-cover page (same S3 + tempdir rewrite). */
+  backCoverUrl?: string | null;
 }
 
 /** Result returned by the export pipeline. */

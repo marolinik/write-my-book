@@ -38,6 +38,7 @@ export const dynamic = "force-dynamic";
 const CONCEPT = "CONCEPT";
 const SYNOPSIS = "SYNOPSIS";
 const ARCHITECTURE = "ARCHITECTURE";
+const BOOK_PLAN = "BOOK_PLAN";
 const WORLD_RESEARCH = "WORLD_RESEARCH";
 const TOPIC_RESEARCH = "TOPIC_RESEARCH";
 
@@ -105,6 +106,8 @@ export default async function BookDevelopmentPage({
   const concept = docTypeOf(CONCEPT);
   const synopsis = docTypeOf(SYNOPSIS);
   const architecture = docTypeOf(ARCHITECTURE);
+  // UDG round-8 (Katarina): persisted whole-book outline (BOOK_PLAN) surfaces here.
+  const bookPlan = docTypeOf(BOOK_PLAN);
   const researchDocCount = book.documents.filter(
     (d) => d.type === WORLD_RESEARCH || d.type === TOPIC_RESEARCH
   ).length;
@@ -177,6 +180,7 @@ export default async function BookDevelopmentPage({
       icon: ListChecksIcon,
       status: stageStatus("plan"),
       runWorkflow: "discuss-chapter",
+      viewArtifactId: bookPlan?.id,
       jumpHref: chaptersHref,
       jumpLabel: s.chapterPlan,
     },

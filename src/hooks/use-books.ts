@@ -21,6 +21,8 @@ export type BookListItem = {
   s3Prefix: string | null;
   // UDG round-5 (Igor): uploaded book-cover object key under the book's S3 bucket.
   coverUrl: string | null;
+  // UDG round-8 (Igor/Olivera): uploaded back-cover object key.
+  backCoverUrl: string | null;
   createdAt: string;
   updatedAt: string;
   series: { id: string; title: string } | null;

@@ -39,6 +39,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { CoverUploader } from "@/components/book/cover-uploader";
+import { BackCoverUploader } from "@/components/book/back-cover-uploader";
 import { ModelPicker } from "@/components/settings/model-picker";
 import {
   resolveModelForRole,
@@ -191,6 +192,18 @@ export default function BookSettingsPage() {
         </CardHeader>
         <CardContent>
           <CoverUploader bookId={bookId} coverUrl={book?.coverUrl ?? null} />
+        </CardContent>
+      </Card>
+
+      {/* UDG round-8 (Igor/Olivera): back cover — bound into exports as a trailing
+          back-cover page (EPUB/PDF). Stored as Book.backCoverUrl in the book's S3 bucket. */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">{s.backCoverTitle}</CardTitle>
+          <CardDescription>{s.backCoverTitleDesc}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <BackCoverUploader bookId={bookId} backCoverUrl={book?.backCoverUrl ?? null} />
         </CardContent>
       </Card>
 

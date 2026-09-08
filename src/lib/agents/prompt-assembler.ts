@@ -1058,7 +1058,8 @@ PROCESS:
 3. Keep the beats concrete and specific to THIS synopsis — no placeholders, no "and then...".
 
 RULES:
-- Do NOT write or overwrite any document — return the full beat sheet in chat as your answer. Chapter-by-chapter detail is saved later with the plan-chapter / write-chapter workflows.
+- If you produced a complete chapter-by-chapter outline, ALSO persist it via WriteDocument(documentType='BOOK_PLAN', content=<your full markdown beat sheet>) so the outline is saved as a book-level document for the whole book. Overwriting the existing BOOK_PLAN on a re-run is fine.
+- If you could NOT produce a usable outline (e.g. the SYNOPSIS is missing or too short), just return what you safely can in chat and DO NOT write any document.
 - If a chapter count is defined in the ARCHITECTURE or book plan, match it; otherwise propose a sensible chapter breakdown for the length of the synopsis.
 - Flag any place where the synopsis is ambiguous rather than guessing silently.`,
 };

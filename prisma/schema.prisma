@@ -196,6 +196,9 @@ model Book {
   // UDG round-5 (Igor): user-uploaded book cover, stored in the book's S3 bucket
   // (key under getBookStorage(userId, id)), bound into export front matter.
   coverUrl     String?  @map("cover_url")
+  // UDG round-8 (Igor/Olivera): user-uploaded back cover, bound into export as a
+  // trailing back-cover page (same S3 + tempdir-rewrite containment as coverUrl).
+  backCoverUrl String?  @map("back_cover_url")
 
   user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   series          Series?           @relation(fields: [seriesId], references: [id], onDelete: SetNull)
@@ -261,6 +264,9 @@ enum DocumentType {
   SYNOPSIS
   STORY_BIBLE
   ARCHITECTURE
+  // UDG round-8 (Katarina): whole-book chapter-by-chapter plan persisted from the
+  // plan-chapters-from-synopsis workflow (book-level, chapterNumber null).
+  BOOK_PLAN
   FINGERPRINT
   CHAPTER_BRIEF
   CHAPTER_PLAN

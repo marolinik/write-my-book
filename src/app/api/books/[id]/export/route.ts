@@ -47,6 +47,10 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         sceneBreakGlyph: data.sceneBreakGlyph,
         template: data.template,
         chapterTitles,
+        // UDG round-8 (Igor/Olivera): thread the uploaded covers into the pipeline
+        // so the S3 cover binding (front + back) actually works in production exports.
+        coverUrl: book.coverUrl,
+        backCoverUrl: book.backCoverUrl,
       },
       storage,
       book.name,
