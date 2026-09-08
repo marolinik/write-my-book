@@ -1,0 +1,34 @@
+{
+  "capturedAt": "2026-09-08T21:29:07.267Z",
+  "purpose": "UDG round-8 20-persona QA — LOCAL-model + deterministic evidence.",
+  "env": {
+    "WMB_LLM_FORCE_LOCAL": "1",
+    "WMB_LOCAL_PROXY_URL": "http://127.0.0.1:30400"
+  },
+  "checks": {
+    "clientRouting": {
+      "provider": "local",
+      "effectiveModelId": "local/qwen38",
+      "baseURL": "http://127.0.0.1:30400",
+      "localGatewayExpected": "http://127.0.0.1:30400",
+      "routedToLocalGateway": true
+    },
+    "backCoverBinding": {
+      "ext": "jpg",
+      "placeholder": "![Back Cover](back-cover-upload.jpg)",
+      "rewrittenBareTarget": "![Back Cover](back-cover-upload.jpg)",
+      "manuscriptKeptBySanitizer": true
+    }
+  },
+  "calls": {
+    "planChaptersForBookPlan": {
+      "modelId": "local/qwen38",
+      "stopReason": "max_tokens",
+      "usage": {
+        "input_tokens": 109,
+        "output_tokens": 340
+      },
+      "text": "\n\n1. **\"The Keeper's Tide\"** — Elara, three years into solitary keeping at the Harrowgate light, notices the ocean pulling its own wave-crashes backward at dusk; she finds a barnacle-encrusted logbook from 1987 containing the last entry of her late fiancé, Maren, who drowned in these cove waters; the light itself begins pulsing in reverse rhythm, and Elara sees Maren's rowboat drifting *back* toward the rocks each night like a film rewinding.\n\n2. **\"The Rewind Season\"** — The cove's time-slip accelerates: Elara witnesses overlapping ghost-nights of 1987 stacking on top of her present, Maren alive and calling to her from the"
+    }
+  }
+}
