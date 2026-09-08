@@ -132,6 +132,14 @@ export default async function BookDevelopmentPage({
   const recommendedNext = report.nextStage;
 
   const firstDraftChapter = book.chapters[0];
+
+  // UDG round-5 (Bojan): the next unfinished chapter for the "keep going" block —
+  // first chapter not yet drafted (undiscussed/discussed/planned), else the first.
+  const nextChapter =
+    book.chapters.find((c) =>
+      ["undiscussed", "discussed", "planned"].includes(c.status)
+    ) ?? firstDraftChapter;
+  const nextChapterId = nextChapter?.id ?? "";
   const chaptersHref = `/books/${bookId}/chapters`;
 
   const stages: StageDef[] = [
@@ -224,6 +232,62 @@ export default async function BookDevelopmentPage({
         <p className="max-w-2xl text-muted-foreground">{s.subtitle}</p>
       </header>
 
+      {/* UDG round-5 (Ana): guided "start here" arrow for first-time novelists —
+          surface THE single next stage and its action above the six equal cards,
+          gated on the concept-first path (pipeline incomplete, no drafts yet). */}
+      {report.nextStage &&
+        drafted === 0 &&
+        (() => {
+          const recom = stages.find((s) => s.key === report.nextStage)!;
+          return (
+            <section className="rounded-xl border-2 border-primary/50 bg-primary/[0.04] p-4 sm:p-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-start gap-3">
+                  <ArrowRightIcon className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden="true" />
+                  <div>
+                    <p className="font-semibold text-foreground">
+                      {s.startHere}
+                      {recom?.viewArtifactId
+                        ? ""
+                        : ` — ${stageStrings[report.nextStage]?.title ?? ""}`}
+                    </p>
+                    <p className="text-sm text-muted-foreground">{s.startHereDesc}</p>
+                  </div>
+                </div>
+                {recom?.runWorkflow ? (
+                  <StartWorkflowButton
+                    workflowId={recom.runWorkflow}
+                    label={s.runWorkflow}
+                  />
+                ) : recom?.jumpHref ? (
+                  <ButtonLink href={recom.jumpHref} label={recom.jumpLabel ?? s.runWorkflow} />
+                ) : null}
+              </div>
+            </section>
+          );
+        })()}
+
+      {/* UDG round-5 (Bojan): quick "keep going" on the current chapter once
+          drafting has begun. The hub already fetches chapters; deep-link the next
+          unfinished chapter (else the first) straight into the editor. */}
+      {chapterCount > 0 && (
+        <section className="flex items-center justify-between gap-3 rounded-xl border bg-card p-4">
+          <div className="flex items-center gap-3">
+            {nextChapter ? (
+              <PenLineIcon className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+            ) : (
+              <ListChecksIcon className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+            )}
+            <div>
+              <p className="font-medium text-sm">
+                {s.keepGoing} · {s.currentChapter}
+              </p>
+            </div>
+          </div>
+          <ButtonLink href={nextChapterId ? `/books/${bookId}/chapters/${nextChapterId}` : chaptersHref} label={s.runWorkflow} />
+        </section>
+      )}
+
       {/* Pipeline visual */}
       <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {stages.map((stage, i) => {
@@ -286,6 +350,13 @@ export default async function BookDevelopmentPage({
                       <StartWorkflowButton
                         workflowId={stage.runWorkflow}
                         label={s.runWorkflow}
+                      />
+                    )}
+                    {stage.key === "plan" && synopsis && (
+                      <StartWorkflowButton
+                        workflowId="plan-chapter"
+                        label={s.generateBeats}
+                        initialMessage={`Generate the beat sheet for the current chapter from the book's synopsis. Read the SYNOPSIS document first, then break the relevant stretch into chapter-level beats.`}
                       />
                     )}
                     {hasArtifact && stage.viewArtifactId ? (

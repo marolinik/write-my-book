@@ -685,7 +685,7 @@ export async function exportManuscript(
           options.bookList ?? [],
           format
         )
-      : await assembleFrontMatter(config, storage, format);
+      : await assembleFrontMatter(config, storage, format, options.coverUrl);
 
   // 4. Assemble chapters in DB order (D-03) — storage paths are never renamed
   //    on reorder, so chapter identity must come from the DB, not a path sort.
@@ -766,7 +766,8 @@ export async function exportManuscript(
   //    combined manuscript before the converter ever sees it.
   let preparedMd = combinedMd;
   const coverPath = resolveSafeTemplatePath(config.frontMatter.coverImagePath);
-  if (coverPath && config.frontMatter.coverPage && format !== "docx") {
+  const coverPageOn = config.frontMatter.coverPage && format !== "docx";
+  if (coverPath && coverPageOn) {
     const coverFile = basename(coverPath);
     try {
       await copyFile(coverPath, join(tmpDir, coverFile));
@@ -777,6 +778,30 @@ export async function exportManuscript(
     } catch {
       // Copy failed — leave the absolute reference in place; --sandbox will
       // refuse to read it (the cover simply omits), which is safe, not a leak.
+    }
+  } else if (
+    coverPageOn &&
+    options.coverUrl &&
+    !coverPath
+  ) {
+    // UDG round-5 (Igor): the uploaded book cover lives in S3 as binary bytes.
+    // Pull them into the pandoc temp dir under the exact `cover-upload.<ext>`
+    // basename that assembleFrontMatter emitted, so the bare reference satisfies
+    // --sandbox containment (never embed an S3 URL into the manuscript).
+    const ext =
+      options.coverUrl.toLowerCase().match(/\.([a-z0-9]+)$/)?.[1] ?? "jpg";
+    const coverFile = `cover-upload.${ext}`;
+    try {
+      const bytes = await storage.readBuffer(options.coverUrl);
+      if (bytes) {
+        await writeFile(join(tmpDir, coverFile), bytes);
+        preparedMd = preparedMd.replace(
+          `![Cover](cover-upload.${ext})`,
+          `![Cover](${coverFile})`
+        );
+      }
+    } catch {
+      // S3 read/write failed — the cover reference simply resolves to nothing.
     }
   }
   const sanitizedMd = sanitizeManuscriptForConverter(preparedMd);
@@ -875,6 +900,12 @@ export async function exportManuscript(
           "Cover image ignored: not inside the allowed templates directory."
         );
       }
+    } else if (config.frontMatter.coverPage && options.coverUrl) {
+      // UDG round-5 (Igor): uploaded cover — use the temp-dir bytes as the EPUB
+      // metadata cover (absolute CLI arg keeps it sandbox-readable).
+      const ext =
+        options.coverUrl.toLowerCase().match(/\.([a-z0-9]+)$/)?.[1] ?? "jpg";
+      epubCoverImage = join(tmpDir, `cover-upload.${ext}`);
     }
   }
 

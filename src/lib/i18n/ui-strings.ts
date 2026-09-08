@@ -77,6 +77,9 @@ export interface UIStrings {
     startWriting: string;
     importManuscript: string;
     viewAll: string;
+    // UDG round-5 (Nikola): dismiss-for-now on the Recommended nudge.
+    nudgeDismissed: string;
+    undoDismiss: string;
   };
 
   // Settings
@@ -224,6 +227,11 @@ export interface UIStrings {
     continuity: string; continuityDesc: string; continuityLink: string;
     // UDG round-3 (Filip/Olivera): series "next book to start + per-volume state".
     nextBookTitle: string; nextBookDesc: string; nextStart: string; volumeStatus: string;
+    // UDG round-5 (Ana/Bojan/Katarina): guided "start here" banner, keep-going
+    // next-chapter block, and one-click story beats from the synopsis.
+    startHere: string; startHereDesc: string;
+    keepGoing: string; currentChapter: string;
+    generateBeats: string; generateBeatsHint: string;
   };
 
   // Book settings
@@ -244,6 +252,10 @@ export interface UIStrings {
     // UDG round-4 (Elena): per-line-editor profile template.
     lineEditorProfile: string; lineEditorProfileDesc: string;
     profileStandard: string; profileDevelopmental: string; profileGoPub: string; profileSpare: string;
+    // UDG round-5 (Igor): book-cover upload.
+    coverTitle: string; coverTitleDesc: string; coverPreview: string;
+    coverUpload: string; coverUploading: string; coverRemove: string; coverHint: string;
+    coverSaved: string; coverRemoved: string; coverError: string; coverTypeError: string; coverTooLarge: string;
     betaPanel: string; betaPanelDesc: string;
     panelSize: string; consensus: string; convergence: string;
     back: string;
@@ -512,6 +524,9 @@ const EN: UIStrings = {
     startWriting: "Start Writing",
     importManuscript: "Import Manuscript",
     viewAll: "View all",
+    // EN UDG round-5 (Nikola): dismiss nudge
+    nudgeDismissed: "Dismiss for today",
+    undoDismiss: "Undo",
   },
   settings: {
     title: "Settings",
@@ -646,6 +661,13 @@ const EN: UIStrings = {
     researchHint: "Research needs a web-search provider key — add Perplexity/Serper/Firecrawl in Settings → API Keys.",
     continuity: "Series continuity", continuityDesc: "This book is part of the series", continuityLink: "Open continuity report",
     nextBookTitle: "Series next up", nextBookDesc: "Volumes in this series and the next one to start", nextStart: "Next up", volumeStatus: "volume",
+    // EN UDG round-5 (Ana/Bojan/Katarina): guided next step + keep going + beats
+    startHere: "Start here",
+    startHereDesc: "This is the single most valuable next step for your book. Run it to keep moving.",
+    keepGoing: "Keep going",
+    currentChapter: "Pick up your current chapter",
+    generateBeats: "Generate beats from synopsis",
+    generateBeatsHint: "Turn your synopsis into a beat sheet for this chapter",
   },
   bookSettings: {
     title: "Book Settings", subtitle: "Configure AI models and writing preferences",
@@ -663,6 +685,12 @@ const EN: UIStrings = {
     synopsisForLineEdit: "Load story synopsis in line-edit", synopsisForLineEditDesc: "Give the line editor the story synopsis so its prose notes stay consistent with plot context (default off).",
     lineEditorProfile: "Line editor profile", lineEditorProfileDesc: "Pick a line-edit template: standard balances prose polish and plot context; developmental prioritizes structure and character motivation; go_pub tightens for submission; spare keeps prose minimal and lean.",
     profileStandard: "Standard", profileDevelopmental: "Developmental", profileGoPub: "Go to publish", profileSpare: "Spare & lean",
+    // EN UDG round-5 (Igor): book-cover upload
+    coverTitle: "Book Cover", coverTitleDesc: "Upload a cover for this book. It is used in PDF and EPUB exports.",
+    coverPreview: "Book cover preview", coverUpload: "Upload cover", coverUploading: "Uploading…",
+    coverRemove: "Remove cover", coverHint: "JPEG, PNG or WebP, up to 8 MB.",
+    coverSaved: "Cover saved", coverRemoved: "Cover removed", coverError: "Failed to update cover",
+    coverTypeError: "Please choose a JPEG, PNG or WebP image", coverTooLarge: "Image is larger than 8 MB",
     betaPanel: "Beta Reader Panel", betaPanelDesc: "Configure virtual beta reader settings",
     panelSize: "Panel Size", consensus: "Consensus %", convergence: "Convergence %",
     back: "Back",
@@ -947,6 +975,8 @@ const SR: UIStrings = {
     startWriting: "Počni pisanje",
     importManuscript: "Uvezi rukopis",
     viewAll: "Prikaži sve",
+    nudgeDismissed: "Odbaci za danas",
+    undoDismiss: "Poništi",
   },
   settings: {
     title: "Podešavanja",
@@ -1081,6 +1111,12 @@ const SR: UIStrings = {
     researchHint: "Za istraživanje je potreban ključ web-pretrage — dodaj Perplexity/Serper/Firecrawl u Postavke → API ključevi.",
     continuity: "Kontinuitet serije", continuityDesc: "Ova knjiga je deo serije", continuityLink: "Otvori izveštaj o kontinuitetu",
     nextBookTitle: "Sledeća u seriji", nextBookDesc: "Tomovi u ovoj seriji i sledeći koji treba pokrenuti", nextStart: "Sledeće za početak", volumeStatus: "tom",
+    startHere: "Počni ovde",
+    startHereDesc: "Ovo je najvredniji sledeći korak za vašu knjigu. Pokrenite ga da nastavite.",
+    keepGoing: "Nastavi",
+    currentChapter: "Nastavi sa trenutnim poglavljem",
+    generateBeats: "Generiši tačke radnje iz sinopsisa",
+    generateBeatsHint: "Pretvorite sinopsis u okvir tačaka radnje za ovo poglavlje",
   },
   bookSettings: {
     title: "Podešavanja knjige", subtitle: "Konfigurišite AI modele i preference pisanja",
@@ -1098,6 +1134,7 @@ const SR: UIStrings = {
     synopsisForLineEdit: "Učitaj sinopsis pri line-edit", synopsisForLineEditDesc: "Daj line-editoru sinopsis priče da njegove primedbe ostanu u skladu sa zapletom (podrazumevano isključeno).",
     lineEditorProfile: "Profil urednika linijskog izdanja", lineEditorProfileDesc: "Izaberite šablon linijske lekture: standardni balansira poliranje proze i kontekst zapleta; razvojni daje prednost strukturi i motivaciji likova; za objavu je usklađen za slanje; štedljiv drži prozu minimalnom i sažetom.",
     profileStandard: "Standardni", profileDevelopmental: "Razvojni", profileGoPub: "Za objavu", profileSpare: "Štedljiv i sažet",
+    coverTitle: "Korica knjige", coverTitleDesc: "Otpremite koricu za ovu knjigu. Koristi se u PDF i EPUB izvozima.", coverPreview: "Pregled korice knjige", coverUpload: "Otpremi koricu", coverUploading: "Otpremanje…", coverRemove: "Ukloni koricu", coverHint: "JPEG, PNG ili WebP, do 8 MB.", coverSaved: "Korica sačuvana", coverRemoved: "Korica uklonjena", coverError: "Neuspešno ažuriranje korice", coverTypeError: "Izaberite JPEG, PNG ili WebP sliku", coverTooLarge: "Slika je veća od 8 MB",
     betaPanel: "Panel beta čitalaca", betaPanelDesc: "Konfigurišite podešavanja virtualnog beta čitanja",
     panelSize: "Veličina panela", consensus: "Konsenzus %", convergence: "Konvergencija %",
     back: "Nazad",
@@ -1382,6 +1419,8 @@ const DE: UIStrings = {
     startWriting: "Schreiben starten",
     importManuscript: "Manuskript importieren",
     viewAll: "Alle anzeigen",
+    nudgeDismissed: "Für heute ausblenden",
+    undoDismiss: "Rückgängig",
   },
   settings: {
     title: "Einstellungen",
@@ -1516,6 +1555,12 @@ const DE: UIStrings = {
     researchHint: "Für Recherche ist ein Web-Search-Provider-Schlüssel nötig — Perplexity/Serper/Firecrawl unter Einstellungen → API-Schlüssel hinzufügen.",
     continuity: "Serienkontinuität", continuityDesc: "Dieses Buch ist Teil der Serie", continuityLink: "Kontinuitätsbericht öffnen",
     nextBookTitle: "Nächster Band", nextBookDesc: "Bände dieser Serie und der nächste zu beginnende", nextStart: "Als Nächstes", volumeStatus: "Band",
+    startHere: "Hier beginnen",
+    startHereDesc: "Dies ist der wertvollste nächste Schritt für Ihr Buch. Führen Sie ihn aus, um weiterzukommen.",
+    keepGoing: "Weitermachen",
+    currentChapter: "Setzen Sie Ihr aktuelles Kapitel fort",
+    generateBeats: "Handlungsbeats aus der Zusammenfassung generieren",
+    generateBeatsHint: "Verwandeln Sie Ihre Zusammenfassung in ein Beat-Raster für dieses Kapitel",
   },
   bookSettings: {
     title: "Bucheinstellungen", subtitle: "KI-Modelle und Schreibeinstellungen konfigurieren",
@@ -1533,6 +1578,7 @@ const DE: UIStrings = {
     synopsisForLineEdit: "Synopsis beim Line-Edit laden", synopsisForLineEditDesc: "Gib dem Line-Editor die Story-Synopsis, damit seine Prosa-Anmerkungen zum Plot passen (standardmäßig aus).",
     lineEditorProfile: "Line-Editor-Profil", lineEditorProfileDesc: "Wähle eine Line-Edit-Vorlage: Standard balanciert Prosa-Politur und Plot-Kontext; Entwicklungsorientiert priorisiert Struktur und Charaktermotivation; Veröffentlichung strafft für die Einreichung; Sparsam hält Prosa minimal und schlank.",
     profileStandard: "Standard", profileDevelopmental: "Entwicklung", profileGoPub: "Zur Veröffentlichung", profileSpare: "Sparsam & schlank",
+    coverTitle: "Buchcover", coverTitleDesc: "Laden Sie ein Cover für dieses Buch hoch. Es wird in PDF- und EPUB-Exporten verwendet.", coverPreview: "Buchcover-Vorschau", coverUpload: "Cover hochladen", coverUploading: "Wird hochgeladen…", coverRemove: "Cover entfernen", coverHint: "JPEG, PNG oder WebP, bis 8 MB.", coverSaved: "Cover gespeichert", coverRemoved: "Cover entfernt", coverError: "Cover konnte nicht aktualisiert werden", coverTypeError: "Bitte wählen Sie ein JPEG-, PNG- oder WebP-Bild", coverTooLarge: "Bild ist größer als 8 MB",
     betaPanel: "Beta-Leser-Panel", betaPanelDesc: "Virtuelle Beta-Leser-Einstellungen konfigurieren",
     panelSize: "Panelgröße", consensus: "Konsens %", convergence: "Konvergenz %",
     back: "Zurück",
@@ -1817,6 +1863,8 @@ const ES: UIStrings = {
     startWriting: "Empezar a escribir",
     importManuscript: "Importar manuscrito",
     viewAll: "Ver todo",
+    nudgeDismissed: "Ocultar por hoy",
+    undoDismiss: "Deshacer",
   },
   settings: {
     title: "Ajustes",
@@ -1951,6 +1999,12 @@ const ES: UIStrings = {
     researchHint: "La investigación requiere una clave de proveedor de búsqueda web: añade Perplexity/Serper/Firecrawl en Ajustes → Claves de API.",
     continuity: "Continuidad de la serie", continuityDesc: "Este libro forma parte de la serie", continuityLink: "Abrir informe de continuidad",
     nextBookTitle: "Próximo tomo", nextBookDesc: "Tomos de esta serie y el siguiente por empezar", nextStart: "Lo siguiente", volumeStatus: "tomo",
+    startHere: "Empieza aquí",
+    startHereDesc: "Este es el siguiente paso más valioso para tu libro. Ejecútalo para seguir avanzando.",
+    keepGoing: "Continuar",
+    currentChapter: "Continúa con tu capítulo actual",
+    generateBeats: "Generar latidos desde la sinopsis",
+    generateBeatsHint: "Convierte tu sinopsis en un esquema de latidos para este capítulo",
   },
   bookSettings: {
     title: "Ajustes del libro", subtitle: "Configure modelos de IA y preferencias de escritura",
@@ -1968,6 +2022,7 @@ const ES: UIStrings = {
     synopsisForLineEdit: "Cargar sinopsis en la corrección de línea", synopsisForLineEditDesc: "Da al editor de línea la sinopsis de la historia para que sus notas de prosa sigan el contexto (desactivado por defecto).",
     lineEditorProfile: "Perfil del editor de línea", lineEditorProfileDesc: "Elige una plantilla de corrección de línea: estándar equilibra pulido de prosa y contexto de la trama; desarrollo prioriza estructura y motivación de personajes; para publicar ajusta para el envío; sobrio mantiene la prosa mínima y ajustada.",
     profileStandard: "Estándar", profileDevelopmental: "Desarrollo", profileGoPub: "Para publicar", profileSpare: "Sobrio y ajustado",
+    coverTitle: "Portada del libro", coverTitleDesc: "Sube una portada para este libro. Se usa en las exportaciones PDF y EPUB.", coverPreview: "Vista previa de la portada", coverUpload: "Subir portada", coverUploading: "Subiendo…", coverRemove: "Quitar portada", coverHint: "JPEG, PNG o WebP, hasta 8 MB.", coverSaved: "Portada guardada", coverRemoved: "Portada eliminada", coverError: "No se pudo actualizar la portada", coverTypeError: "Elige una imagen JPEG, PNG o WebP", coverTooLarge: "La imagen supera los 8 MB",
     betaPanel: "Panel de lectores beta", betaPanelDesc: "Configure los ajustes de lectura beta virtual",
     panelSize: "Tamaño del panel", consensus: "Consenso %", convergence: "Convergencia %",
     back: "Atrás",
@@ -2252,6 +2307,8 @@ const FR: UIStrings = {
     startWriting: "Commencer à écrire",
     importManuscript: "Importer un manuscrit",
     viewAll: "Tout voir",
+    nudgeDismissed: "Masquer pour aujourd'hui",
+    undoDismiss: "Annuler",
   },
   settings: {
     title: "Paramètres",
@@ -2386,6 +2443,12 @@ const FR: UIStrings = {
     researchHint: "La recherche nécessite une clé de recherche web — ajoutez Perplexity/Serper/Firecrawl dans Paramètres → Clés API.",
     continuity: "Continuité de la série", continuityDesc: "Ce livre fait partie de la série", continuityLink: "Ouvrir le rapport de continuité",
     nextBookTitle: "Prochain tome", nextBookDesc: "Tomes de cette série et le suivant à commencer", nextStart: "À suivre", volumeStatus: "tome",
+    startHere: "Commencer ici",
+    startHereDesc: "C'est la prochaine étape la plus précieuse pour votre livre. Lancez-la pour continuer.",
+    keepGoing: "Continuer",
+    currentChapter: "Reprenez votre chapitre en cours",
+    generateBeats: "Générer les battements depuis le synopsis",
+    generateBeatsHint: "Transformez votre synopsis en trame de battements pour ce chapitre",
   },
   bookSettings: {
     title: "Paramètres du livre", subtitle: "Configurez les modèles IA et les préférences d'écriture",
@@ -2403,6 +2466,7 @@ const FR: UIStrings = {
     synopsisForLineEdit: "Charger le synopsis en révision de ligne", synopsisForLineEditDesc: "Donnez le synopsis de l'histoire au réviseur de ligne pour que ses notes de prose restent cohérentes (désactivé par défaut).",
     lineEditorProfile: "Profil du réviseur de ligne", lineEditorProfileDesc: "Choisissez un modèle de révision de ligne : standard équilibre le polissage de la prose et le contexte de l'intrigue ; développement privilégie la structure et la motivation des personnages ; publication resserre pour l'envoi ; sobre garde une prose minimale et épurée.",
     profileStandard: "Standard", profileDevelopmental: "Développement", profileGoPub: "Prêt à publier", profileSpare: "Sobre & épuré",
+    coverTitle: "Couverture du livre", coverTitleDesc: "Téléchargez une couverture pour ce livre. Elle est utilisée dans les exports PDF et EPUB.", coverPreview: "Aperçu de la couverture", coverUpload: "Téléverser la couverture", coverUploading: "Téléversement…", coverRemove: "Retirer la couverture", coverHint: "JPEG, PNG ou WebP, jusqu'à 8 Mo.", coverSaved: "Couverture enregistrée", coverRemoved: "Couverture supprimée", coverError: "Échec de la mise à jour de la couverture", coverTypeError: "Veuillez choisir une image JPEG, PNG ou WebP", coverTooLarge: "L'image dépasse 8 Mo",
     betaPanel: "Panel de lecteurs bêta", betaPanelDesc: "Configurez les paramètres de lecture bêta virtuelle",
     panelSize: "Taille du panel", consensus: "Consensus %", convergence: "Convergence %",
     back: "Retour",
@@ -2687,6 +2751,8 @@ const RU: UIStrings = {
     startWriting: "Начать писать",
     importManuscript: "Импортировать рукопись",
     viewAll: "Показать все",
+    nudgeDismissed: "Скрыть на сегодня",
+    undoDismiss: "Отменить",
   },
   settings: {
     title: "Настройки",
@@ -2821,6 +2887,12 @@ const RU: UIStrings = {
     researchHint: "Для поиска нужен ключ веб-поиска — добавьте Perplexity/Serper/Firecrawl в Настройки → Ключи API.",
     continuity: "Преемственность серии", continuityDesc: "Эта книга является частью серии", continuityLink: "Открыть отчёт о преемственности",
     nextBookTitle: "Следующий том", nextBookDesc: "Тома этой серии и следующий, который нужно начать", nextStart: "Следующий", volumeStatus: "том",
+    startHere: "Начните здесь",
+    startHereDesc: "Это самый ценный следующий шаг для вашей книги. Запустите его, чтобы продолжить.",
+    keepGoing: "Продолжить",
+    currentChapter: "Вернитесь к текущей главе",
+    generateBeats: "Создать биты из синопсиса",
+    generateBeatsHint: "Превратите ваш синопсис в каркас битов для этой главы",
   },
   bookSettings: {
     title: "Настройки книги", subtitle: "Настройте модели ИИ и параметры письма",
@@ -2838,6 +2910,7 @@ const RU: UIStrings = {
     synopsisForLineEdit: "Загружать синопсис при линейном редактировании", synopsisForLineEditDesc: "Дайте линейному редактору синопсис истории, чтобы его замечания к прозе соответствовали сюжету (по умолчанию выключено).",
     lineEditorProfile: "Профиль линейного редактора", lineEditorProfileDesc: "Выберите шаблон линейного редактирования: стандартный балансирует полировку прозы и контекст сюжета; развивающий приоритет отдает структуре и мотивации персонажей; для публикации — готовит к отправке; сдержанный держит прозу минимальной и лаконичной.",
     profileStandard: "Стандартный", profileDevelopmental: "Развивающий", profileGoPub: "К публикации", profileSpare: "Сдержанный",
+    coverTitle: "Обложка книги", coverTitleDesc: "Загрузите обложку для этой книги. Она используется в экспорте PDF и EPUB.", coverPreview: "Предпросмотр обложки", coverUpload: "Загрузить обложку", coverUploading: "Загрузка…", coverRemove: "Удалить обложку", coverHint: "JPEG, PNG или WebP, до 8 МБ.", coverSaved: "Обложка сохранена", coverRemoved: "Обложка удалена", coverError: "Не удалось обновить обложку", coverTypeError: "Выберите изображение JPEG, PNG или WebP", coverTooLarge: "Изображение больше 8 МБ",
     betaPanel: "Панель бета-читателей", betaPanelDesc: "Настройте параметры виртуального бета-чтения",
     panelSize: "Размер панели", consensus: "Консенсус %", convergence: "Конвергенция %",
     back: "Назад",
@@ -3122,6 +3195,8 @@ const ZH: UIStrings = {
     startWriting: "开始写作",
     importManuscript: "导入手稿",
     viewAll: "查看全部",
+    nudgeDismissed: "今日忽略",
+    undoDismiss: "撤销",
   },
   settings: {
     title: "设置",
@@ -3256,6 +3331,12 @@ const ZH: UIStrings = {
     researchHint: "调研需要网络搜索服务密钥——请在设置→API 密钥中添加 Perplexity/Serper/Firecrawl。",
     continuity: "系列连续性", continuityDesc: "本书属于该系列", continuityLink: "打开连续性报告",
     nextBookTitle: "系列的下一部", nextBookDesc: "该系列的各卷以及下一部待启动之作", nextStart: "接下来", volumeStatus: "卷",
+    startHere: "从这里开始",
+    startHereDesc: "这是您这本书最有价值的下一步。运行它以继续推进。",
+    keepGoing: "继续",
+    currentChapter: "继续当前章节",
+    generateBeats: "从梗概生成情节要点",
+    generateBeatsHint: "将您的梗概转换为本章的情节要点大纲",
   },
   bookSettings: {
     title: "书籍设置", subtitle: "配置AI模型和写作偏好",
@@ -3273,6 +3354,7 @@ const ZH: UIStrings = {
     synopsisForLineEdit: "在逐行编辑中加载故事梗概", synopsisForLineEditDesc: "让逐行编辑器加载故事梗概，使其对稿件的批注与情节保持一致（默认关闭）。",
     lineEditorProfile: "逐行编辑器配置", lineEditorProfileDesc: "选择逐行编辑模板：标准在打磨文笔与情节语境之间取得平衡；发展型优先结构与人物动机；出版物收束以利提交；精简型保持文笔极简利落。",
     profileStandard: "标准", profileDevelopmental: "发展型", profileGoPub: "待出版", profileSpare: "精简利落",
+    coverTitle: "书籍封面", coverTitleDesc: "为此书上传封面。将用于 PDF 和 EPUB 导出。", coverPreview: "书籍封面预览", coverUpload: "上传封面", coverUploading: "上传中…", coverRemove: "移除封面", coverHint: "JPEG、PNG 或 WebP，最大 8 MB。", coverSaved: "封面已保存", coverRemoved: "封面已移除", coverError: "更新封面失败", coverTypeError: "请选择 JPEG、PNG 或 WebP 图片", coverTooLarge: "图片超过 8 MB",
     betaPanel: "测试读者面板", betaPanelDesc: "配置虚拟测试读者设置",
     panelSize: "面板大小", consensus: "共识 %", convergence: "收敛 %",
     back: "返回",

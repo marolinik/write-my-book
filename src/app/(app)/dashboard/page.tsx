@@ -25,6 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { bookProgressPercent } from "@/lib/book/progress";
 import { PinBookButton } from "@/components/book/pin-book-button";
+import { NudgeDismiss } from "@/components/dashboard/nudge-dismiss";
 import { Button } from "@/components/ui/button";
 import { WritingWrappedCard } from "@/components/book/writing-wrapped-card";
 import {
@@ -348,29 +349,35 @@ export default async function DashboardPage() {
       {/* UDG-10 (Natalija): activation nudge — the one highest-value next action
           on your most recent book, so the homeroom always answers "what do I do
           now?" with a concrete step instead of a wall of stats. */}
-      {nextAction && (
-        <Card className="border-primary/40 bg-primary/[0.03]">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <PlayIcon className="size-4 text-primary" />
-              {t.journey.recommended}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="font-medium">{lastBook?.name}</p>
-                <p className="text-sm text-muted-foreground">{nextAction.reason}</p>
+      {nextAction && lastBook && (
+        <NudgeDismiss
+          dismissKey={`${lastBook.id}:${nextAction.workflowId}`}
+          dismissLabel={t.dashboard.nudgeDismissed}
+          undoLabel={t.dashboard.undoDismiss}
+        >
+          <Card className="border-primary/40 bg-primary/[0.03]">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <PlayIcon className="size-4 text-primary" />
+                {t.journey.recommended}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="font-medium">{lastBook?.name}</p>
+                  <p className="text-sm text-muted-foreground">{nextAction.reason}</p>
+                </div>
+                <Button asChild size="sm" className="shrink-0">
+                  <Link href={nextAction.href}>
+                    {getWorkflowLabel(nextAction.workflowId, user.preferredLanguage ?? "en")}
+                    <ArrowRightIcon className="ml-1 size-4" />
+                  </Link>
+                </Button>
               </div>
-              <Button asChild size="sm" className="shrink-0">
-                <Link href={nextAction.href}>
-                  {getWorkflowLabel(nextAction.workflowId, user.preferredLanguage ?? "en")}
-                  <ArrowRightIcon className="ml-1 size-4" />
-                </Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </NudgeDismiss>
       )}
 
       {/* Middle Row: Writing Activity + Pending Alerts */}

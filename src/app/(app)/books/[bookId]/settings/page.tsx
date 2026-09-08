@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { CoverUploader } from "@/components/book/cover-uploader";
 import { ModelPicker } from "@/components/settings/model-picker";
 import {
   resolveModelForRole,
@@ -179,6 +180,19 @@ export default function BookSettingsPage() {
           {s.back}
         </Button>
       </div>
+
+      {/* UDG round-5 (Igor): real book-cover upload — stored in the book's S3
+          bucket (Book.coverUrl), bound into export front matter by the pipeline.
+          This is a client component so it can post base64 + show a live preview. */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">{s.coverTitle}</CardTitle>
+          <CardDescription>{s.coverTitleDesc}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <CoverUploader bookId={bookId} coverUrl={book?.coverUrl ?? null} />
+        </CardContent>
+      </Card>
 
       {/* Model Overrides for this Book */}
       <Card>

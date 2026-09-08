@@ -1,7 +1,10 @@
 "use client";
 
 import { createContext, useContext, useMemo } from "react";
-import { useUserLanguage } from "@/hooks/use-language";
+import {
+  useUserLanguage,
+  useLanguageBroadcast,
+} from "@/hooks/use-language";
 import { getUIStrings, localeFor, type UIStrings } from "@/lib/i18n/ui-strings";
 
 interface LanguageContextValue {
@@ -19,6 +22,9 @@ const LanguageContext = createContext<LanguageContextValue>({
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const { data, isLoading } = useUserLanguage();
   const language = data?.language ?? "en";
+
+  // UDG round-5 (Hana): live locale refresh across open tabs via BroadcastChannel.
+  useLanguageBroadcast();
 
   const value = useMemo<LanguageContextValue>(
     () => ({

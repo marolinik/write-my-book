@@ -192,6 +192,9 @@ model Book {
   // UDG round-4 (Milica/Viktor): a book the user pins so the dashboard's
   // "Continue / Recommended" nudge follows it instead of always the most recent.
   pinned       Boolean  @default(false)
+  // UDG round-5 (Igor): user-uploaded book cover, stored in the book's S3 bucket
+  // (key under getBookStorage(userId, id)), bound into export front matter.
+  coverUrl     String?  @map("cover_url")
 
   user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   series          Series?           @relation(fields: [seriesId], references: [id], onDelete: SetNull)

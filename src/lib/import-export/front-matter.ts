@@ -6,7 +6,8 @@ import { resolveSafeTemplatePath } from "./safe-path";
 export async function assembleFrontMatter(
   config: ExportConfig,
   storage: StorageAdapter,
-  format: string
+  format: string,
+  coverUrl?: string | null
 ): Promise<string> {
   const parts: string[] = [];
   const { metadata, frontMatter } = config;
@@ -14,10 +15,19 @@ export async function assembleFrontMatter(
   // Cover page (EPUB/PDF only). D-21: the cover path is re-validated to an
   // absolute path inside the allowed templates directory (or null), so an
   // arbitrary URL/local path can never be embedded as an image reference.
+  // UDG round-5 (Igor): when no configured coverImagePath but the book has an
+  // uploaded cover (S3 bytes), reference the stable temp basename the pipeline
+  // will write (cover-upload.<ext>) and bind it into the front matter.
   const coverPath = resolveSafeTemplatePath(frontMatter.coverImagePath);
-  if (frontMatter.coverPage && coverPath && format !== "docx") {
-    parts.push(`::: {.cover-page}\n![Cover](${coverPath})\n:::`);
-    parts.push("\\newpage");
+  if (frontMatter.coverPage && format !== "docx") {
+    if (coverPath) {
+      parts.push(`::: {.cover-page}\n![Cover](${coverPath})\n:::`);
+      parts.push("\\newpage");
+    } else if (coverUrl) {
+      const ext = coverUrl.toLowerCase().match(/\.([a-z0-9]+)$/)?.[1] ?? "jpg";
+      parts.push(`::: {.cover-page}\n![Cover](cover-upload.${ext})\n:::`);
+      parts.push("\\newpage");
+    }
   }
 
   // Half-title page

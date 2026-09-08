@@ -43,6 +43,12 @@ export const updateBookSchema = z.object({
   pinned: z.boolean().optional(),
 });
 
+// UDG round-5 (Igor): book-cover upload payload — a data URL (base64) + inferred
+// content type. Size and mime-type guard live in the route before S3 write.
+export const coverUploadSchema = z.object({
+  dataUrl: z.string().min(20).max(20_000_000, "Image too large"),
+});
+
 export const createSeriesSchema = z.object({
   title: z.string().min(1).max(200),
   genre: z.string().max(50).optional(),

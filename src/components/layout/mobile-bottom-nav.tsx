@@ -62,7 +62,7 @@ export function MobileBottomNav() {
               }`}
             >
               <BookMarkedIcon className="size-5" />
-              <span>{labels.dev}</span>
+              <span className="hidden min-[400px]:inline">{labels.dev}</span>
             </Link>
           );
         }
@@ -85,7 +85,7 @@ export function MobileBottomNav() {
               }`}
             >
               <tab.icon className="size-5" />
-              <span>{labels[tab.key]}</span>
+              <span className="hidden min-[400px]:inline">{labels[tab.key]}</span>
             </button>
           );
         }
@@ -99,7 +99,7 @@ export function MobileBottomNav() {
             }`}
           >
             <tab.icon className="size-5" />
-            <span>{labels[tab.key]}</span>
+            <span className="hidden min-[400px]:inline">{labels[tab.key]}</span>
           </Link>
         );
       })}

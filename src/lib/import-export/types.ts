@@ -35,6 +35,10 @@ export interface ExportOptions {
   bookList?: { bookNumber: number; title: string }[];
   /** Real chapter titles from the DB, keyed by chapter number (F9/F10). */
   chapterTitles?: Map<number, string>;
+  /** UDG round-5 (Igor): uploaded book-cover object key (Book.coverUrl), relative
+   *  to this book's storage scope. When set and no configured coverImagePath, read
+   *  the bytes from S3 and bind them into PDF/EPUB front matter + EPUB metadata. */
+  coverUrl?: string | null;
 }
 
 /** Result returned by the export pipeline. */
