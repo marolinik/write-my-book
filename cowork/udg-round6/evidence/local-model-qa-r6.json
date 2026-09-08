@@ -1,0 +1,29 @@
+{
+  "capturedAt": "2026-09-08T12:13:45.816Z",
+  "purpose": "UDG round-6 20-persona QA — LOCAL-model evidence.",
+  "env": {
+    "WMB_LLM_FORCE_LOCAL": "1",
+    "WMB_LOCAL_PROXY_URL": "http://127.0.0.1:30400"
+  },
+  "checks": {
+    "clientRouting": {
+      "provider": "local",
+      "registryId": "local/qwen38",
+      "effectiveModelId": "local/qwen38",
+      "baseURL": "http://127.0.0.1:30400",
+      "localGatewayExpected": "http://127.0.0.1:30400",
+      "routedToLocalGateway": true
+    }
+  },
+  "calls": {
+    "planChaptersFromSynopsis": {
+      "modelId": "local/qwen38",
+      "stopReason": "max_tokens",
+      "usage": {
+        "input_tokens": 115,
+        "output_tokens": 320
+      },
+      "text": "\n\n1. \"The Tide Runs Backward\" — Hook: Keeper Maren notices the fog rolling *inland* from the cove for three nights, the lighthouse clock ticking counterclockwise; Escalate: A 19th-century clipper ship surfaces in the bay at dawn, crew frozen mid-abandonment; Climax: On the ship's rail she spots the face of Cael, the sailor who drowned six summers ago, still young, still reaching for her.\n2. \"Salt and Reruns\" — Hook"
+    }
+  }
+}
