@@ -9,6 +9,7 @@ import { DocumentType } from "@/generated/prisma/enums";
 // Pure, db-free helper — safe for this module's static import graph.
 import { isOrphanedChapterContent } from "@/lib/documents/orphan-chapter-content";
 import type { StorageAdapter } from "@/lib/storage/types";
+import { getBookStorage, getSeriesStorage } from "@/lib/storage";
 import type { ExportConfig, ExportOptions, ExportResult } from "./types";
 import { getDefaultExportConfig, parseExportConfigJson } from "./export-config";
 import { resolveSafeTemplatePath } from "./safe-path";
@@ -677,24 +678,35 @@ export async function exportManuscript(
   const langConfig = getExportFormatConfig(language);
 
   // 3. Assemble front matter
-  const frontMatter =
-    options.omnibus && options.seriesTitle
+  // UDG round-9 (Olivera/Igor): an omnibus export supplies an already-assembled
+  // series front matter + chapters (pre-looped over the series' books, each with
+  // its own book storage); the shared pandoc/tempdir machinery below is reused.
+  const frontMatter = options.omnibusFrontMatter ?? (
+    (options.omnibus && options.seriesTitle)
       ? await assembleSeriesFrontMatter(
           config,
           options.seriesTitle,
           options.bookList ?? [],
-          format
+          format,
+          options.seriesCoverImage
         )
-      : await assembleFrontMatter(config, storage, format, options.coverUrl);
+      : await assembleFrontMatter(config, storage, format, options.coverUrl)
+  );
 
   // 4. Assemble chapters in DB order (D-03) — storage paths are never renamed
   //    on reorder, so chapter identity must come from the DB, not a path sort.
-  const { chapterContent, chapterCount } = await assembleChapterSections({
-    bookId: options.bookId,
-    userId: options.userId,
-    storage,
-    chapterTitles,
-  });
+  const { chapterContent, chapterCount } =
+    options.omnibusChapters !== undefined
+      ? {
+          chapterContent: options.omnibusChapters,
+          chapterCount: options.bookList?.length ?? 0,
+        }
+      : await assembleChapterSections({
+          bookId: options.bookId,
+          userId: options.userId,
+          storage,
+          chapterTitles,
+        });
 
   // 5. Assemble back matter
   const backMatterResult = await assembleBackMatter(config, storage);
@@ -708,7 +720,8 @@ export async function exportManuscript(
       : langConfig.pageSize;
   const yamlMeta = [
     "---",
-    `title: "${config.metadata.title || bookName}"`,
+    // UDG round-9 (Olivera/Igor): omnibus exports default the doc title to the series title.
+    `title: "${options.seriesTitle ?? (config.metadata.title || bookName)}"`,
     config.metadata.author ? `author: "${config.metadata.author}"` : "",
     `lang: ${language}`,
     `scene-break-ornament: "${sceneBreakGlyph}"`,
@@ -836,6 +849,21 @@ export async function exportManuscript(
       // S3 read/write failed — the back-cover reference simply resolves to nothing.
     }
   }
+  // UDG round-9 (Olivera/Igor): bind the uploaded SERIES/omnibus cover into the
+  // pandoc temp dir under the exact `series-cover-upload.<ext>` basename that
+  // assembleSeriesFrontMatter emitted — same --sandbox containment (never an S3 URL).
+  if (options.seriesCoverImage?.bytes?.length && format !== "docx") {
+    const seriesFile = `series-cover-upload.${options.seriesCoverImage.ext}`;
+    try {
+      await writeFile(join(tmpDir, seriesFile), new Uint8Array(options.seriesCoverImage.bytes));
+      preparedMd = preparedMd.replace(
+        `![Cover](series-cover-upload.${options.seriesCoverImage.ext})`,
+        `![Cover](${seriesFile})`
+      );
+    } catch {
+      // Write failed — the series-cover reference simply resolves to nothing.
+    }
+  }
   const sanitizedMd = sanitizeManuscriptForConverter(preparedMd);
 
   await writeFile(inputPath, sanitizedMd, "utf-8");
@@ -938,6 +966,9 @@ export async function exportManuscript(
       const ext =
         options.coverUrl.toLowerCase().match(/\.([a-z0-9]+)$/)?.[1] ?? "jpg";
       epubCoverImage = join(tmpDir, `cover-upload.${ext}`);
+    } else if (config.frontMatter.coverPage && options.seriesCoverImage?.bytes?.length) {
+      // UDG round-9 (Olivera/Igor): omnibus — series cover as the EPUB metadata cover.
+      epubCoverImage = join(tmpDir, `series-cover-upload.${options.seriesCoverImage.ext}`);
     }
   }
 
@@ -1024,6 +1055,163 @@ export async function exportManuscript(
     warnings,
     format,
   };
+}
+
+/**
+ * UDG round-9 (Olivera/Igor): export every book in a series as a single omnibus
+ * volume. The existing `exportManuscript` is single-book (one storage adapter, one
+ * assembleChapterSections call), so this helper is the multi-book assembly path:
+ * it gathers the series' books in `bookNumber` order, concatenates each book's
+ * chapters (read via that book's OWN storage scope) with per-book title pages, and
+ * hands the pre-assembled content + a forced series-cover front matter into
+ * `exportManuscript`, which then reuses all the shared pandoc/tempdir/sanitize/upload
+ * machinery unchanged.
+ */
+export async function exportSeriesOmnibus(args: {
+  userId: string;
+  seriesId: string;
+  format: "docx" | "pdf" | "epub";
+  isDraft?: boolean;
+  sceneBreakGlyph?: string;
+  template?: string;
+}): Promise<ExportResult> {
+  const { db } = await import("@/lib/db");
+
+  const series = await db.series.findFirst({
+    where: { id: args.seriesId, userId: args.userId },
+    include: {
+      books: {
+        orderBy: { bookNumber: "asc" },
+        select: {
+          id: true,
+          bookNumber: true,
+          name: true,
+          language: true,
+          coverUrl: true,
+        },
+      },
+    },
+  });
+  if (!series) throw new Error("Series not found");
+  if (series.books.length === 0) {
+    throw new Error("This series has no books to export yet.");
+  }
+
+  // 1. Per-book chapter content (each book read from its own storage scope) +
+  //    per-book real chapter titles (DB), like the single-book export route.
+  const chapterParts: string[] = [];
+  const bookList: { bookNumber: number; title: string }[] = [];
+  const firstBook = series.books[0];
+  const seriesStorage = getSeriesStorage(args.userId, args.seriesId);
+  const overallConfig = await loadOmnibusConfig(seriesStorage, args.userId, firstBook.id);
+
+  for (const book of series.books) {
+    bookList.push({ bookNumber: book.bookNumber, title: book.name });
+    const bookStorage = getBookStorage(args.userId, book.id);
+    const chapterTitles = new Map<number, string>();
+    const chapters = await db.chapter.findMany({
+      where: { bookId: book.id },
+      select: { chapterNumber: true, title: true },
+    });
+    for (const ch of chapters) if (ch.title) chapterTitles.set(ch.chapterNumber, ch.title);
+
+    const perBook = await assembleChapterSections({
+      bookId: book.id,
+      userId: args.userId,
+      storage: bookStorage,
+      chapterTitles,
+    });
+    if (bookList.length > 1) {
+      // Between books: a page break + a per-book title marker.
+      chapterParts.push("\\newpage");
+      chapterParts.push(`::: {.book-part-title}\n# Book ${book.bookNumber} — ${book.name}\n:::`);
+      chapterParts.push("\\newpage");
+    }
+    if (perBook.chapterContent) chapterParts.push(perBook.chapterContent);
+  }
+
+  // 2. Series cover as bytes + ext (from the series storage scope) for the
+  //    always-reused tempdir binding path (--sandbox containment, never an S3 URL).
+  let seriesCoverImage: { bytes: Uint8Array; ext: string } | null = null;
+  if (series.books.length > 0) {
+    const coverKey = series.coverUrl;
+    if (coverKey) {
+      const bytes = await seriesStorage.readBuffer(coverKey);
+      if (bytes?.length) {
+        const ext = coverKey.toLowerCase().match(/\.([a-z0-9]+)$/)?.[1] ?? "jpg";
+        seriesCoverImage = { bytes: new Uint8Array(bytes), ext };
+      }
+    }
+  }
+
+  // 3. Build the series front matter — force coverPage when a series cover is
+  //    present (the author explicitly uploaded one), else honour the first book's front matter.
+  const seriesConfigForOmnibus = {
+    ...overallConfig,
+    frontMatter: {
+      ...overallConfig.frontMatter,
+      coverPage: seriesCoverImage ? true : overallConfig.frontMatter.coverPage,
+    },
+    metadata: { ...overallConfig.metadata, title: series.title },
+  };
+  const omnibusFrontMatter = await assembleSeriesFrontMatter(
+    seriesConfigForOmnibus,
+    series.title,
+    bookList,
+    args.format,
+    seriesCoverImage
+  );
+
+  // 4. Reuse the full single-book pipeline for pandoc + tempdir binding + sanitize +
+  //    upload; pass pre-assembled content + the series storage scope is the only storage adapter
+  return exportManuscript(
+    {
+      bookId: firstBook.id,
+      userId: args.userId,
+      format: args.format,
+      isDraft: args.isDraft,
+      sceneBreakGlyph: args.sceneBreakGlyph,
+      template: args.template,
+      omnibus: true,
+      seriesTitle: series.title,
+      bookList,
+      seriesCoverImage,
+      omnibusFrontMatter,
+      omnibusChapters: chapterParts.filter(Boolean).join("\n\n"),
+    },
+    seriesStorage,
+    series.title,
+    firstBook.language
+  );
+}
+
+/** Load the export config for an omnibus export: honour a series-level export config
+ *  if one exists, else fall back to the first book's config (or the defaults like any single book export would read from its own scope). */
+async function loadOmnibusConfig(
+  storage: StorageAdapter,
+  userId: string,
+  firstBookId: string
+): Promise<ExportConfig> {
+  const seriesCfgRaw = await storage.read(".planning/EXPORT-CONFIG.json");
+  if (seriesCfgRaw) {
+    try {
+      const cfg = parseExportConfigJson(seriesCfgRaw);
+      if (cfg) return cfg;
+    } catch {
+      // fall through to book/default config
+    }
+  }
+  const bookStorage = getBookStorage(userId, firstBookId);
+  const bookCfgRaw = await bookStorage.read(".planning/EXPORT-CONFIG.json");
+  if (bookCfgRaw) {
+    try {
+      const cfg = parseExportConfigJson(bookCfgRaw);
+      if (cfg) return cfg;
+    } catch {
+      // fall through to default
+    }
+  }
+  return getDefaultExportConfig("Series");
 }
 
 async function cleanupTemp(tmpDir: string) {

@@ -159,6 +159,9 @@ model Series {
   seriesType   SeriesType @default(TRILOGY) @map("series_type")
   plannedBooks Int        @default(3) @map("planned_books")
   description  String?
+  // UDG round-9 (Olivera/Igor): user-uploaded series cover, stored under
+  // getSeriesStorage(userId, seriesId), bound into omnibus exports.
+  coverUrl     String?  @map("cover_url")
   createdAt    DateTime   @default(now()) @map("created_at")
   updatedAt    DateTime   @updatedAt @map("updated_at")
 

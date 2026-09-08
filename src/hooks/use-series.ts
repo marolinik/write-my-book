@@ -18,6 +18,8 @@ export type SeriesListItem = {
   description: string | null;
   createdAt: string;
   updatedAt: string;
+  // UDG round-9 (Olivera/Igor): uploaded series cover object key.
+  coverUrl: string | null;
   books: Array<{
     id: string;
     bookNumber: number;
@@ -55,6 +57,45 @@ export function useSeriesDetail(seriesId: string) {
     queryKey: ["series", seriesId],
     queryFn: () => fetchJson<SeriesListItem>(`/api/series/${seriesId}`),
     enabled: !!seriesId,
+  });
+}
+
+// ─── UDG round-9 (Olivera/Igor): series omnibus export + cover ─────────────
+
+export type SeriesExportResult = {
+  filename: string;
+  storageKey: string;
+  wordCount: number;
+  chapterCount: number;
+  estimatedPages: number;
+  warnings: string[];
+  format: string;
+};
+
+async function runSeriesExport(
+  seriesId: string,
+  body: { format: string; isDraft?: boolean }
+): Promise<SeriesExportResult> {
+  const res = await fetch(`/api/series/${seriesId}/export`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const errBody = await res.json().catch(() => ({}));
+    throw new Error(errBody.error ?? `Export failed: ${res.status}`);
+  }
+  return (await res.json()) as SeriesExportResult;
+}
+
+/** Export all series books as a single omnibus volume. Returns ExportResult. */
+export function useSeriesExport(seriesId: string) {
+  const qc = useQueryClient();
+  return useMutation<SeriesExportResult, Error, { format: string; isDraft?: boolean }>({
+    mutationFn: (body) => runSeriesExport(seriesId, body),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["series", seriesId, "export"] });
+    },
   });
 }
 

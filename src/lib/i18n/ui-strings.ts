@@ -298,6 +298,11 @@ export interface UIStrings {
   seriesPage: {
     title: string; newSeries: string; noSeries: string; noSeriesDesc: string;
     createSeries: string; books: string; docs: string;
+    // UDG round-9 (Olivera/Igor): series cover + omnibus export + printable report.
+    omnibusTitle: string; omnibusDesc: string; coverLabel: string; coverUpload: string;
+    coverRemove: string; coverHint: string; coverSaved: string; coverRemoved: string;
+    exportOmnibus: string; exporting: string; exportDone: string; exportError: string;
+    noBooksForExport: string; printableReport: string;
   };
 
   // UDG round-6 (Darko/Luka): printable/shareable read-only snapshots.
@@ -758,6 +763,15 @@ const EN: UIStrings = {
     title: "Series", newSeries: "New Series", noSeries: "No series yet",
     noSeriesDesc: "Group related books together in a series",
     createSeries: "Create Series", books: "books", docs: "docs",
+    // EN UDG round-9 (Olivera/Igor): cover + omnibus + printable report
+    omnibusTitle: "Series Omnibus & Cover", omnibusDesc: "Upload a series cover and export every book as one volume.",
+    coverLabel: "Series cover preview", coverUpload: "Upload cover",
+    coverRemove: "Remove cover", coverHint: "Used as the cover page of the omnibus export.",
+    coverSaved: "Series cover saved", coverRemoved: "Series cover removed",
+    exportOmnibus: "Export omnibus", exporting: "Exporting…",
+    exportDone: "Series exported", exportError: "Export failed",
+    noBooksForExport: "Add at least one book to export the series.",
+    printableReport: "Printable report",
   },
   // EN UDG round-6 (Darko/Luka): read-only snapshots
   snapshot: {
@@ -1232,6 +1246,17 @@ const SR: UIStrings = {
     title: "Serijali", newSeries: "Novi serijal", noSeries: "Još nema serijala",
     noSeriesDesc: "Grupišite povezane knjige u serijal",
     createSeries: "Kreiraj serijal", books: "knjiga", docs: "dokumenata",
+    // UDG round-9: series cover + omnibus export + printable report
+    omnibusTitle: "Serijska omotnica i omnibus",
+    omnibusDesc: "Otpremite serijsku omotnicu i izvezite sve knjige kao jedno izdanje.",
+    coverLabel: "Pregled serijske omotnice",
+    coverUpload: "Otpremi omotnicu", coverRemove: "Ukloni omotnicu",
+    coverHint: "Koristi se kao naslovna strana omnibus izvoza.",
+    coverSaved: "Serijska omotnica sačuvana", coverRemoved: "Serijska omotnica uklonjena",
+    exportOmnibus: "Izvezi omnibus", exporting: "Izvozim…",
+    exportDone: "Serija izvezena", exportError: "Izvoz nije uspeo",
+    noBooksForExport: "Dodajte bar jednu knjigu da biste izvezli seriju.",
+    printableReport: "Izveštaj za štampu",
   },
   snapshot: {
     title: "Prikaz knjige", subtitle: "Štampiv pregled statusa i analitike ove knjige.",
@@ -1703,6 +1728,17 @@ const DE: UIStrings = {
     title: "Serien", newSeries: "Neue Serie", noSeries: "Noch keine Serien",
     noSeriesDesc: "Gruppieren Sie verwandte Bücher in einer Serie",
     createSeries: "Serie erstellen", books: "Bücher", docs: "Dokumente",
+    // UDG round-9: series cover + omnibus export + printable report
+    omnibusTitle: "Serien-Omnibus & Cover",
+    omnibusDesc: "Lade ein Serien-Cover hoch und exportiere alle Bücher als einen Band.",
+    coverLabel: "Vorschau Serien-Cover",
+    coverUpload: "Cover hochladen", coverRemove: "Cover entfernen",
+    coverHint: "Wird als Titelseite des Omnibus-Exports verwendet.",
+    coverSaved: "Serien-Cover gespeichert", coverRemoved: "Serien-Cover entfernt",
+    exportOmnibus: "Omnibus exportieren", exporting: "Export läuft…",
+    exportDone: "Serie exportiert", exportError: "Export fehlgeschlagen",
+    noBooksForExport: "Füge mindestens ein Buch hinzu, um die Serie zu exportieren.",
+    printableReport: "Druckbarer Bericht",
   },
   snapshot: {
     title: "Buch-Snapshot", subtitle: "Eine druckbare Übersicht zu Status und Analysen dieses Buches.",
@@ -2174,6 +2210,17 @@ const ES: UIStrings = {
     title: "Series", newSeries: "Nueva serie", noSeries: "Aún no hay series",
     noSeriesDesc: "Agrupe libros relacionados en una serie",
     createSeries: "Crear serie", books: "libros", docs: "documentos",
+    // UDG round-9: series cover + omnibus export + printable report
+    omnibusTitle: "Omnibus y portada de la serie",
+    omnibusDesc: "Sube la portada de la serie y exporta todos los libros como un solo volumen.",
+    coverLabel: "Vista previa de la portada de serie",
+    coverUpload: "Subir portada", coverRemove: "Quitar portada",
+    coverHint: "Se usa como portada del export omnibus.",
+    coverSaved: "Portada de serie guardada", coverRemoved: "Portada de serie eliminada",
+    exportOmnibus: "Exportar omnibus", exporting: "Exportando…",
+    exportDone: "Serie exportada", exportError: "Error al exportar",
+    noBooksForExport: "Añade al menos un libro para exportar la serie.",
+    printableReport: "Informe imprimible",
   },
   snapshot: {
     title: "Vista del libro", subtitle: "Un resumen imprimible del estado y las analíticas de este libro.",
@@ -2645,6 +2692,17 @@ const FR: UIStrings = {
     title: "Séries", newSeries: "Nouvelle série", noSeries: "Pas encore de séries",
     noSeriesDesc: "Regroupez les livres liés dans une série",
     createSeries: "Créer une série", books: "livres", docs: "documents",
+    // UDG round-9: series cover + omnibus export + printable report
+    omnibusTitle: "Omnibus et couverture de série",
+    omnibusDesc: "Importez une couverture de série et exportez tous les livres en un seul volume.",
+    coverLabel: "Aperçu de la couverture de série",
+    coverUpload: "Importer la couverture", coverRemove: "Supprimer la couverture",
+    coverHint: "Utilisée comme page de couverture de l'export omnibus.",
+    coverSaved: "Couverture de série enregistrée", coverRemoved: "Couverture de série supprimée",
+    exportOmnibus: "Exporter l'omnibus", exporting: "Export en cours…",
+    exportDone: "Série exportée", exportError: "Échec de l'export",
+    noBooksForExport: "Ajoutez au moins un livre pour exporter la série.",
+    printableReport: "Rapport imprimable",
   },
   snapshot: {
     title: "Aperçu du livre", subtitle: "Un récapitulatif imprimable de l'état et des statistiques de ce livre.",
@@ -3116,6 +3174,17 @@ const RU: UIStrings = {
     title: "Серии", newSeries: "Новая серия", noSeries: "Серий пока нет",
     noSeriesDesc: "Объедините связанные книги в серию",
     createSeries: "Создать серию", books: "книг", docs: "документов",
+    // UDG round-9: series cover + omnibus export + printable report
+    omnibusTitle: "Омнибус и обложка серии",
+    omnibusDesc: "Загрузите обложку серии и экспортируйте все книги одним томом.",
+    coverLabel: "Просмотр обложки серии",
+    coverUpload: "Загрузить обложку", coverRemove: "Удалить обложку",
+    coverHint: "Используется как обложка омнибусного экспорта.",
+    coverSaved: "Обложка серии сохранена", coverRemoved: "Обложка серии удалена",
+    exportOmnibus: "Экспортировать омнибус", exporting: "Экспорт…",
+    exportDone: "Серия экспортирована", exportError: "Сбой экспорта",
+    noBooksForExport: "Добавьте хотя бы одну книгу, чтобы экспортировать серию.",
+    printableReport: "Отчёт для печати",
   },
   snapshot: {
     title: "Снимок книги", subtitle: "Печатный обзор статуса и аналитики этой книги.",
@@ -3587,6 +3656,17 @@ const ZH: UIStrings = {
     title: "系列", newSeries: "新系列", noSeries: "还没有系列",
     noSeriesDesc: "将相关书籍分组到一个系列中",
     createSeries: "创建系列", books: "本书", docs: "文档",
+    // UDG round-9: series cover + omnibus export + printable report
+    omnibusTitle: "系列合集与封面",
+    omnibusDesc: "上传系列封面并将所有书籍导出为单卷。",
+    coverLabel: "系列封面预览",
+    coverUpload: "上传封面", coverRemove: "移除封面",
+    coverHint: "用作合集导出的封面页。",
+    coverSaved: "系列封面已保存", coverRemoved: "系列封面已移除",
+    exportOmnibus: "导出合集", exporting: "导出中…",
+    exportDone: "系列已导出", exportError: "导出失败",
+    noBooksForExport: "请至少添加一本书再导出系列。",
+    printableReport: "可打印报告",
   },
   snapshot: {
     title: "书籍快照", subtitle: "本书状态与分析的可打印概览。",

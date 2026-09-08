@@ -100,16 +100,27 @@ export async function assembleSeriesFrontMatter(
   config: ExportConfig,
   seriesTitle: string,
   bookList: { bookNumber: number; title: string }[],
-  format: string
+  format: string,
+  seriesCoverImage?: { bytes: Uint8Array; ext: string } | null
 ): Promise<string> {
   const parts: string[] = [];
   const { metadata, frontMatter } = config;
 
   // Cover page. D-21: same containment as the single-book path above.
+  // UDG round-9 (Olivera/Igor): the uploaded series cover is side-loaded with
+  // bytes + ext and emitted as the stable `series-cover-upload.<ext>` temp basename that
+  // the pipeline writes inside the pandoc cwd (--sandbox containment), never an S3 URL.
   const coverPath = resolveSafeTemplatePath(frontMatter.coverImagePath);
-  if (frontMatter.coverPage && coverPath && format !== "docx") {
-    parts.push(`::: {.cover-page}\n![Cover](${coverPath})\n:::`);
-    parts.push("\\newpage");
+  if (frontMatter.coverPage && format !== "docx") {
+    if (coverPath) {
+      parts.push(`::: {.cover-page}\n![Cover](${coverPath})\n:::`);
+      parts.push("\\newpage");
+    } else if (seriesCoverImage?.bytes?.length) {
+      parts.push(
+        `::: {.cover-page}\n![Cover](series-cover-upload.${seriesCoverImage.ext})\n:::`
+      );
+      parts.push("\\newpage");
+    }
   }
 
   // Series title page

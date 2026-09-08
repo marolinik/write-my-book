@@ -42,6 +42,20 @@ export interface ExportOptions {
   /** UDG round-8 (Igor/Olivera): uploaded BACK-cover object key (Book.backCoverUrl),
    *  bound into PDF/EPUB as a trailing back-cover page (same S3 + tempdir rewrite). */
   backCoverUrl?: string | null;
+  /** UDG round-9 (Olivera/Igor): uploaded SERIES/omnibus cover. When side-loaded
+   *  with bytes + ext (not a key), the pipeline writes them to `series-cover-upload.<ext>`
+   *  in the pandoc temp dir and rewrites the reference emitted by
+   *  assembleSeriesFrontMatter (same --sandbox containment, never an S3 URL). */
+  seriesCoverImage?: { bytes: Uint8Array; ext: string } | null;
+  /**
+   * UDG round-9 (Olivera/Igor): OMNIBUS inputs. Because the pipeline is otherwise
+   * single-book, an omnibus export pre-assembles its chapter content and front matter
+   * (loop over the series' books, each via assembleChapterSections + its own book
+   * storage) and hands them in here; exportManuscript then runs the shared pandoc /
+   * tempdir / sanitize / upload machinery unchanged.
+   */
+  omnibusFrontMatter?: string;
+  omnibusChapters?: string;
 }
 
 /** Result returned by the export pipeline. */

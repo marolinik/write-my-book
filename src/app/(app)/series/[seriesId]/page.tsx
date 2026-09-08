@@ -25,6 +25,7 @@ import { SeriesInheritancePanel } from "@/components/series/series-inheritance-p
 import { SeriesSynthesisPanel } from "@/components/series/series-synthesis-panel";
 import { SeriesProgressGrid } from "@/components/series/series-progress-grid";
 import { SeriesContinuityPanel } from "@/components/series/series-continuity-panel";
+import { SeriesOmnibusPanel } from "@/components/series/series-omnibus-panel";
 
 type Tab = "overview" | "documents" | "inheritance" | "synthesis" | "analytics";
 
@@ -175,6 +176,14 @@ export default function SeriesDetailPage() {
               </CardContent>
             </Card>
           </div>
+
+          {/* UDG round-9 (Olivera/Igor): series cover upload + whole-series omnibus
+              export + printable report. */}
+          <SeriesOmnibusPanel
+            seriesId={seriesId}
+            coverUrl={series.coverUrl ?? null}
+            seriesHasBooks={books.length > 0}
+          />
 
           {/* Book list */}
           <SeriesBookManager seriesId={seriesId} books={books} />
