@@ -71,3 +71,7 @@ shelf-live.jpg
 
 # stray root-level test screenshots
 /*.png
+
+# Local test run logs
+logz*
+
