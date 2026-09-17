@@ -17,6 +17,7 @@ import { getWorkflow } from "@/lib/agents/workflows";
 import { getToolLabel, parseToolInput } from "@/lib/agents/tool-labels";
 import { useLanguage } from "@/components/providers/language-provider";
 import { getAgentStrings } from "@/lib/i18n/agent-strings";
+import { sessionElapsedMs } from "@/lib/agents/session-duration";
 
 function ElapsedTime({ session }: { session: SessionState }) {
   const [now, setNow] = useState(Date.now());
@@ -27,12 +28,14 @@ function ElapsedTime({ session }: { session: SessionState }) {
     return () => clearInterval(interval);
   }, [session.status]);
 
-  const elapsedMs = session.status === "running"
-    ? now - session.startedAt
-    : Date.now() - session.startedAt; // approximation for completed
-  const elapsedMin = Math.floor(elapsedMs / 60000);
+  const elapsedMs = sessionElapsedMs(session, now);
+  const elapsedMin = elapsedMs === null ? null : Math.floor(elapsedMs / 60000);
 
   if (session.status === "completed") {
+    // No completedAt (a session persisted before that field existed) means the
+    // duration is unknown — showing "now - startedAt" made a finished run's
+    // time climb for as long as the card stayed on screen.
+    if (elapsedMin === null) return null;
     return (
       <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
         <ClockIcon className="size-2.5" />
@@ -44,19 +47,21 @@ function ElapsedTime({ session }: { session: SessionState }) {
   if (session.status === "running") {
     const maxMin = session.estimatedMaxMinutes;
     const effectiveMax = maxMin ? maxMin + (session.extensionsUsed * 15) : undefined;
-    const isPastEstimate = effectiveMax ? elapsedMin > effectiveMax : false;
+    const runningMin = elapsedMin ?? 0;
+    const isPastEstimate = effectiveMax ? runningMin > effectiveMax : false;
     return (
       <span className={cn(
         "text-[10px] tabular-nums flex items-center gap-0.5",
         isPastEstimate ? "text-orange-500 dark:text-orange-400" : "text-muted-foreground",
       )}>
         <ClockIcon className="size-2.5" />
-        {elapsedMin} min{effectiveMax ? ` / ~${effectiveMax} min` : ""}
+        {runningMin} min{effectiveMax ? ` / ~${effectiveMax} min` : ""}
       </span>
     );
   }
 
   if (session.status === "failed") {
+    if (elapsedMin === null) return null;
     return (
       <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
         <ClockIcon className="size-2.5" />

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { useAgentSessionStore, type SessionState, type SessionResultMeta } from "@/stores/agent-session-store";
 import type { AgentStreamMessage, AgentResult } from "@/lib/agents/types";
 
@@ -21,7 +22,80 @@ import type { AgentStreamMessage, AgentResult } from "@/lib/agents/types";
  */
 const MAX_QUEUE_WAIT_MS = 45_000;
 
+/** How often a session the store believes is running is re-checked. */
+const RECONCILE_INTERVAL_MS = 20_000;
+
+/**
+ * Reconcile sessions this browser remembers as running against the server.
+ *
+ * The store is persisted to localStorage and spans EVERY book, so a run whose
+ * terminal "complete" never arrived (server restart, closed tab, dropped
+ * stream, a hot reload that discarded the in-memory session) stays "running"
+ * forever — and every surface that asks "is an agent busy?" keeps spinning,
+ * including on books that run has nothing to do with.
+ *
+ * Re-checked on an interval, not just at mount: a session started after mount
+ * can miss its terminal event too, and nothing else would ever settle it.
+ */
+function useReconcileStaleSessions() {
+  useEffect(() => {
+    const reconcile = () => {
+      const store = useAgentSessionStore.getState();
+      const stale = Object.values(store.sessions).filter(
+        (s: SessionState) => s.status === "running",
+      );
+
+      for (const session of stale) {
+        // Each session carries its own book — reconciling only the book on
+        // screen left the others spinning forever.
+        fetch(`/api/books/${session.bookId}/agent/${session.sessionId}`)
+          .then((res) => (res.ok ? res.json() : null))
+          .then((data: { status?: string; completedAt?: string | null } | null) => {
+            if (!data?.status || data.status === "running") return;
+            const current =
+              useAgentSessionStore.getState().sessions[session.sessionId];
+            if (!current || current.status !== "running") return;
+            if (data.status === "completed") {
+              // No result payload to replay — the run is simply over, and the
+              // UI must stop claiming otherwise.
+              useAgentSessionStore.getState().setSessionComplete(
+                session.sessionId,
+                undefined,
+                [],
+                undefined,
+                // The server's own end timestamp, so the card reports how long
+                // the run actually took, not how long ago it started.
+                data.completedAt ? new Date(data.completedAt).getTime() : undefined,
+              );
+            } else {
+              useAgentSessionStore
+                .getState()
+                .setSessionError(
+                  session.sessionId,
+                  "This run ended while the app was closed. Start it again if you still need it.",
+                );
+            }
+          })
+          .catch(() => {
+            // Offline or the route is unreachable — leave the session alone;
+            // the stream path has its own error handling.
+          });
+      }
+    };
+
+    reconcile();
+    const interval = setInterval(reconcile, RECONCILE_INTERVAL_MS);
+    const onFocus = () => reconcile();
+    window.addEventListener("focus", onFocus);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", onFocus);
+    };
+  }, []);
+}
+
 export function useAgentStream(bookId: string | null) {
+  useReconcileStaleSessions();
   const [connectedSessions, setConnectedSessions] = useState<Set<string>>(
     new Set()
   );
@@ -36,6 +110,7 @@ export function useAgentStream(bookId: string | null) {
   const setSessionError = useAgentSessionStore((s) => s.setSessionError);
   const updateSessionCost = useAgentSessionStore((s) => s.updateSessionCost);
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   useEffect(() => {
     if (!bookId) return;
@@ -182,6 +257,11 @@ export function useAgentStream(bookId: string | null) {
             queryClient.invalidateQueries({ queryKey: ["wiki", bookId] });
             queryClient.invalidateQueries({ queryKey: ["insights", bookId] });
             queryClient.invalidateQueries({ queryKey: ["writing-stats", bookId] });
+            // Server components (the journey board at /books/:id/dev, the book
+            // page) hold their own copy of the documents and do not react to
+            // react-query. Without this the board still reads "not started"
+            // after a run wrote the document, and the writer starts it again.
+            router.refresh();
             return;
           }
 

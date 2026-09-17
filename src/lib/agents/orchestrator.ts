@@ -11,6 +11,8 @@ import { DocumentService } from "@/lib/documents/document-service";
 import { getModelDef, clampMaxTokens } from "@/lib/llm/model-registry";
 import { estimateCost } from "@/lib/cost";
 import { isOverBudget, isBudgetWarning, resolveEndReason } from "./budget";
+import { approvalCacheKey, isCacheableDecision, type ApprovalCache } from "./approval-cache";
+import { enforceBookScript } from "./serbian-script";
 import {
   withProviderRetry,
   ProviderError,
@@ -138,6 +140,8 @@ export class AgentOrchestrator {
   /** D-83: gates authoritative graph writes — see OrchestratorOptions.interactive. */
   private interactive: boolean;
   private approvalResolver: ((approvalId: string, deadline: number) => Promise<ApprovalResponse>) | null;
+  /** What the writer already approved this session — see ./approval-cache.ts. */
+  private grantedApprovals: ApprovalCache = new Map();
 
   constructor(options: OrchestratorOptions) {
     this.client = options.client;
@@ -214,6 +218,8 @@ export class AgentOrchestrator {
       seriesId: options.context.seriesId,
       seriesDocumentService: seriesDocService,
       chapterNumber: options.context.chapterNumber,
+      // Lets the write tools enforce the book's script before persisting.
+      language: options.context.language,
       delegationContext: this.delegationContext ?? undefined,
       // D-83: gates authoritative graph writes to user-present sessions.
       interactive: this.interactive,
@@ -331,6 +337,8 @@ export class AgentOrchestrator {
       seriesId: options.context.seriesId,
       seriesDocumentService: seriesDocService2,
       chapterNumber: options.context.chapterNumber,
+      // Lets the write tools enforce the book's script before persisting.
+      language: options.context.language,
       delegationContext: this.delegationContext ?? undefined,
       // D-83: gates authoritative graph writes to user-present sessions.
       interactive: this.interactive,
@@ -493,7 +501,17 @@ export class AgentOrchestrator {
               } else if (event.type === "content_block_delta") {
                 const delta = event.delta;
                 if ("text" in delta && delta.text) {
-                  options.onMessage({ type: "text", content: delta.text });
+                  // A Serbian book is Latin script. The prompt says so, but the
+                  // model decides — local models drift into Cyrillic mid-run,
+                  // so the boundary enforces it. Per-character mapping, safe to
+                  // apply to a streamed fragment.
+                  options.onMessage({
+                    type: "text",
+                    content: enforceBookScript(
+                      delta.text,
+                      options.context.language,
+                    ),
+                  });
                 }
               }
             }
@@ -892,6 +910,34 @@ export class AgentOrchestrator {
             };
             const approvalId = crypto.randomUUID();
 
+            // Already granted this session? Replay it instead of asking again.
+            // The model decides how often it calls RequestApproval, and some
+            // re-ask for the same document repeatedly; the writer should answer
+            // once. Only approvals are replayed (see ./approval-cache.ts).
+            const cacheKey = approvalCacheKey(approvalInput);
+            const alreadyGranted = cacheKey
+              ? this.grantedApprovals.get(cacheKey)
+              : undefined;
+            if (alreadyGranted) {
+              options.onMessage({
+                type: "tool_result",
+                content: `Writer: APPROVED (already approved this session)`,
+                metadata: {
+                  tool: "RequestApproval",
+                  toolUseId: toolUse.id,
+                  approvalDecision: alreadyGranted.decision,
+                },
+              });
+              toolResults.push({
+                type: "tool_result",
+                tool_use_id: toolUse.id,
+                content:
+                  `Writer response: APPROVED${alreadyGranted.message ? `: ${alreadyGranted.message}` : ""} ` +
+                  `(you already have approval for this — do not ask again, proceed)`,
+              });
+              continue;
+            }
+
             const approvalDeadline = Date.now() + APPROVAL_TIMEOUT_MS;
 
             options.onMessage({
@@ -934,6 +980,10 @@ export class AgentOrchestrator {
                     });
                   }
                 );
+
+            if (cacheKey && isCacheableDecision(approvalResponse.decision)) {
+              this.grantedApprovals.set(cacheKey, approvalResponse);
+            }
 
             const approvalText =
               approvalResponse.decision === "approve"

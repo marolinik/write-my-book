@@ -50,6 +50,7 @@ import {
 } from "@/lib/llm";
 import type { ProviderKey } from "@/lib/llm/providers";
 import { getDefaultModelId } from "@/lib/llm/defaults";
+import { BookDetailsSection } from "@/components/settings/book-details-section";
 
 // ── Role descriptions ─────────────────────────────────────────
 
@@ -185,6 +186,11 @@ export default function BookSettingsPage() {
           {s.back}
         </Button>
       </div>
+
+      {/* Title + language. Both were setup-wizard-only, so a typo in the title
+          was permanent and a book stuck on the wrong language kept producing
+          documents in it (the agents read Book.language). */}
+      <BookDetailsSection bookId={bookId} />
 
       {/* UDG round-5 (Igor): real book-cover upload — stored in the book's S3
           bucket (Book.coverUrl), bound into export front matter by the pipeline.

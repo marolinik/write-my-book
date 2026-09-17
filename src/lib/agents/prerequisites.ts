@@ -32,6 +32,9 @@ export async function validatePrerequisites(
   });
 
   const docTypeSet = new Set(docs.map((d) => d.type));
+  // An imported manuscript is chapter text, nothing else — this is what lets a
+  // book that arrived finished satisfy "manuscript" prerequisites.
+  const hasManuscript = docs.some((d) => d.type === "CHAPTER_CONTENT");
   const chapterDocs = chapterNumber
     ? docs.filter((d) => d.chapterNumber === chapterNumber)
     : [];
@@ -40,7 +43,18 @@ export async function validatePrerequisites(
   const missing: PrerequisiteResult["missing"] = [];
 
   for (const prereq of workflow.prerequisites) {
-    if (!checkPrerequisite(prereq, docTypeSet, chapterDocTypes, chapterNumber)) {
+    const satisfied =
+      checkPrerequisite(prereq, docTypeSet, chapterDocTypes, chapterNumber, hasManuscript) ||
+      (prereq.anyOf ?? []).some((alt) =>
+        checkPrerequisite(
+          { ...prereq, type: alt.type, value: alt.value },
+          docTypeSet,
+          chapterDocTypes,
+          chapterNumber,
+          hasManuscript,
+        ),
+      );
+    if (!satisfied) {
       missing.push({
         description: prereq.description,
         satisfiedBy: prereq.satisfiedBy,
@@ -55,11 +69,15 @@ function checkPrerequisite(
   prereq: WorkflowPrerequisite,
   bookDocTypes: Set<string>,
   chapterDocTypes: Set<string>,
-  chapterNumber?: number
+  chapterNumber?: number,
+  hasManuscript = false
 ): boolean {
   switch (prereq.type) {
     case "document":
       return bookDocTypes.has(prereq.value);
+
+    case "manuscript":
+      return hasManuscript;
 
     case "chapter_content":
       // Check that chapter content exists for the specified chapter

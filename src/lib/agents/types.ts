@@ -237,14 +237,28 @@ export interface AgentSpawnOptions {
 }
 
 export interface WorkflowPrerequisite {
-  /** Document type or condition that must exist. */
-  type: "document" | "chapter_content" | "chapter_status";
+  /**
+   * Document type or condition that must exist.
+   *
+   * "manuscript" is satisfied by the book already having chapter text. It
+   * exists for the imported-book path: a writer who brings a finished
+   * manuscript has no CONCEPT or SYNOPSIS document, but everything those
+   * documents would have described is already in the chapters, so the work can
+   * be derived backwards instead of being blocked.
+   */
+  type: "document" | "chapter_content" | "chapter_status" | "manuscript";
   /** For 'document': the DocumentType that must exist. For 'chapter_status': min status name. */
   value: string;
   /** Human-readable description of what's missing. */
   description: string;
   /** Workflow ID that can satisfy this prerequisite. */
   satisfiedBy?: string;
+  /**
+   * Alternative conditions, any ONE of which satisfies this prerequisite.
+   * Used where the same knowledge can come from different places — a synopsis
+   * can be written from a concept document OR read out of a finished draft.
+   */
+  anyOf?: Array<Pick<WorkflowPrerequisite, "type" | "value">>;
 }
 
 export interface WorkflowDefinition {

@@ -36,6 +36,13 @@ export interface SessionState {
   resultMeta?: SessionResultMeta;
   /** Timestamp (Date.now()) when the session was created */
   startedAt: number;
+  /**
+   * Timestamp when the session reached a terminal state. Without it the UI
+   * could only show "now - startedAt", so a finished run's duration kept
+   * growing on screen for as long as the card stayed open.
+   * Absent on sessions persisted before this field existed.
+   */
+  completedAt?: number;
   /** Estimated min duration from workflow definition */
   estimatedMinMinutes?: number;
   /** Estimated max duration from workflow definition */
@@ -159,9 +166,16 @@ interface AgentSessionState {
   addMessage: (sessionId: string, message: AgentStreamMessage) => void;
   setSessionComplete: (
     sessionId: string,
-    result: AgentResult,
+    // Optional: a session reconciled against the server after the terminal
+    // event was missed has no result payload to replay, only the fact that it
+    // is over. The store ignores this argument either way.
+    result: AgentResult | undefined,
     suggestedNext: string[],
-    resultMeta?: SessionResultMeta
+    resultMeta?: SessionResultMeta,
+    /** When the run actually ended; defaults to now. The reconciler passes the
+     *  server's own completedAt so a run that finished while the tab was closed
+     *  still reports its real duration. */
+    completedAt?: number
   ) => void;
   setSessionRunning: (sessionId: string) => void;
   setSessionError: (sessionId: string, error: string) => void;
@@ -282,7 +296,7 @@ export const useAgentSessionStore = create<AgentSessionState>((set, get) => ({
       };
     }),
 
-  setSessionComplete: (sessionId, _result, suggestedNext, resultMeta) =>
+  setSessionComplete: (sessionId, _result, suggestedNext, resultMeta, completedAt) =>
     set((state) => {
       const session = state.sessions[sessionId];
       if (!session) return state;
@@ -291,6 +305,7 @@ export const useAgentSessionStore = create<AgentSessionState>((set, get) => ({
         [sessionId]: {
           ...session,
           status: "completed" as const,
+          completedAt: completedAt ?? Date.now(),
           suggestedNext,
           resultMeta,
         },
@@ -330,6 +345,7 @@ export const useAgentSessionStore = create<AgentSessionState>((set, get) => ({
         [sessionId]: {
           ...session,
           status: "failed" as const,
+          completedAt: Date.now(),
           error,
         },
       };

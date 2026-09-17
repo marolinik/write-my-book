@@ -34,8 +34,13 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
       {
         type: "document",
         value: "CONCEPT",
-        description: "A core concept is needed before writing the synopsis",
+        description:
+          "A core concept — or an imported manuscript to read the story out of — is needed before writing the synopsis",
         satisfiedBy: "new-novel",
+        // A finished draft already contains the whole story, so the synopsis
+        // can be derived backwards from it. Without this, every writer who
+        // imported a manuscript hit a locked step with no way forward.
+        anyOf: [{ type: "manuscript", value: "CHAPTER_CONTENT" }],
       },
     ],
     estimatedMinMinutes: 3,
@@ -474,8 +479,12 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
       {
         type: "document",
         value: "STORY_BIBLE",
-        description: "Story Bible needed for targeted world research",
+        description:
+          "A Story Bible — or an imported manuscript to research against — is needed for targeted world research",
         satisfiedBy: "create-story-bible",
+        // Same reasoning as the synopsis: the manuscript itself tells the
+        // researcher what world, period and subject matter to work on.
+        anyOf: [{ type: "manuscript", value: "CHAPTER_CONTENT" }],
       },
     ],
     estimatedMinMinutes: 3,

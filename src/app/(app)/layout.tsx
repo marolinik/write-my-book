@@ -12,6 +12,7 @@ import { AIMiniPanel } from "@/components/agent/ai-mini-panel";
 import { FloatingAgentOverlay } from "@/components/agent/floating-agent-overlay";
 import { LanguageProvider } from "@/components/providers/language-provider";
 import { CommandPalette } from "@/components/layout/command-palette";
+import { ApprovalNotifier } from "@/components/agent/approval-notifier";
 import { KeyboardShortcutsDialog } from "@/components/layout/keyboard-shortcuts-dialog";
 import { mainBottomPaddingClass } from "@/lib/layout/fab-clearance";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -95,6 +96,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <LanguageProvider>
       <CommandPalette />
+      {/* Approval gates block the run for ten minutes; without this the writer
+          never saw one raised while the panel was collapsed. */}
+      <ApprovalNotifier />
       <KeyboardShortcutsDialog />
       <SidebarProvider>
         <AppSidebar />

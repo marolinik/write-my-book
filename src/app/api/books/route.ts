@@ -81,7 +81,11 @@ export async function POST(req: NextRequest) {
         userId: user.id,
         name: data.name,
         genre: data.genre ?? null,
-        language: data.language ?? "en",
+        // The writer's chosen language, not a hardcoded "en": book.language is
+        // what every agent prompt enforces (CRITICAL LANGUAGE REQUIREMENT), so
+        // defaulting to English made agents answer in English to a writer who
+        // had set the app to Serbian.
+        language: data.language ?? user.preferredLanguage ?? "en",
         seriesId: data.seriesId ?? null,
         bookNumber: data.bookNumber ?? 1,
       },

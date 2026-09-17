@@ -98,6 +98,9 @@ export async function getDbUser() {
         clerkId: process.env.DEV_CLERK_ID,
         email: `${process.env.DEV_CLERK_ID}@writemybook.local`,
         displayName: devName,
+        // Same reason as the Clerk create path: the deployment default must
+        // govern, not the Prisma column default.
+        defaultModel: getDefaultModelId(),
         onboardingComplete: process.env.DEV_ONBOARDING_COMPLETE !== "false",
       },
     });

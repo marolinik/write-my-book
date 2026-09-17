@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Loader2,
+  ListIcon,
   PlayIcon,
   UsersIcon,
   ClockIcon,
@@ -65,7 +66,16 @@ const DOMAIN_CONFIG: Record<
   world: {
     label: "World Rules",
     icon: GlobeIcon,
-    categories: ["world-building", "world-rules", "magic-system"],
+    categories: ["world-building", "world-rules", "worldbuilding", "magic-system"],
+  },
+  // Everything a domain above does not claim. Without this card, findings whose
+  // category the agents chose freely (continuity, structure, plot, pacing …)
+  // were counted into a bucket that was never rendered — the tracker showed
+  // "0 findings" while the findings list below it was full.
+  other: {
+    label: "Other",
+    icon: ListIcon,
+    categories: [],
   },
 };
 
@@ -81,8 +91,9 @@ function categorizeFinding(category: string): string {
   for (const [domain, config] of Object.entries(DOMAIN_CONFIG)) {
     if (config.categories.some((c) => lower.includes(c))) return domain;
   }
-  // Default: if it contains "continuity" or doesn't match, assign to general
-  if (lower.includes("continuity")) return "world";
+  // A bare "continuity" says nothing about WHICH domain the conflict is in, so
+  // it belongs in Other. It used to be filed under World Rules, which made that
+  // card look busy and the real domains look clean — the opposite of the truth.
   return "other";
 }
 

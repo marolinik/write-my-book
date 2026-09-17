@@ -241,6 +241,9 @@ def anthropic_to_openai(body, upstream_model=None):
         req["tools"] = tools
     if body.get("stream"):
         req["stream"] = True
+        # Without this the OpenAI-compatible server streams no usage at all, so
+        # every streamed turn was billed and budgeted as zero tokens.
+        req["stream_options"] = {"include_usage": True}
     return req
 
 
@@ -319,24 +322,27 @@ def _upstream_stream_iter(req):
     r = urllib.request.Request(BASE_URL + "/chat/completions", data=data,
                                 headers=_upstream_headers(), method="POST")
     with urllib.request.urlopen(r, timeout=TIMEOUT) as resp:
-        buf = ""
+        # Read and decode LINE BY LINE, never byte by byte: SSE lines are
+        # newline-delimited and 0x0A never appears inside a multi-byte UTF-8
+        # sequence, so a whole line is always a whole sequence. Decoding each
+        # byte on its own (the previous implementation) turned every non-ASCII
+        # character into one U+FFFD per byte -- Serbian "c-caron" became two
+        # replacement chars, an em dash three -- silently mangling every
+        # non-English language the fleet streamed back.
         while True:
-            chunk = resp.read(1)
-            if not chunk:
+            raw = resp.readline()
+            if not raw:
                 break
-            buf += chunk.decode("utf-8", errors="replace")
-            while "\n" in buf:
-                line, buf = buf.split("\n", 1)
-                line = line.strip()
-                if not line.startswith("data:"):
-                    continue
-                payload = line[len("data:"):].strip()
-                if payload == "[DONE]":
-                    return
-                try:
-                    yield json.loads(payload)
-                except Exception:
-                    continue
+            line = raw.decode("utf-8", errors="replace").strip()
+            if not line.startswith("data:"):
+                continue
+            payload = line[len("data:"):].strip()
+            if payload == "[DONE]":
+                return
+            try:
+                yield json.loads(payload)
+            except Exception:
+                continue
 
 
 # ── Request handler ─────────────────────────────────────────────────────────
@@ -433,6 +439,7 @@ class Handler(BaseHTTPRequestHandler):
         text_index = None
         tools = {}  # openai idx -> {"index": anthropic_idx, "id":.., "name":..}
         usage = {"input_tokens": 0, "output_tokens": 0}
+        final_finish = None
 
         def ensure_text():
             nonlocal next_index, text_open, text_index
@@ -500,22 +507,31 @@ class Handler(BaseHTTPRequestHandler):
                         })
 
                 if finish:
-                    close_text()
-                    for t in tools.values():
-                        self._sse("content_block_stop", {"type": "content_block_stop",
-                                                         "index": t["index"]})
-                    stop_reason = {
-                        "tool_calls": "tool_use",
-                        "length": "max_tokens",
-                        "stop": "end_turn",
-                    }.get(finish, "end_turn")
-                    self._sse("message_delta", {
-                        "type": "message_delta",
-                        "delta": {"stop_reason": stop_reason, "stop_sequence": None},
-                        "usage": {"output_tokens": usage["output_tokens"]},
-                    })
-                    self._sse("message_stop", {"type": "message_stop"})
-                    break
+                    # Record the reason but keep reading: the usage chunk
+                    # arrives AFTER the finish chunk (empty choices + usage), so
+                    # breaking here threw the token counts away.
+                    final_finish = finish
+            close_text()
+            for t in tools.values():
+                self._sse("content_block_stop", {"type": "content_block_stop",
+                                                 "index": t["index"]})
+            stop_reason = {
+                "tool_calls": "tool_use",
+                "length": "max_tokens",
+                "stop": "end_turn",
+            }.get(final_finish, "end_turn")
+            self._sse("message_delta", {
+                "type": "message_delta",
+                "delta": {"stop_reason": stop_reason, "stop_sequence": None},
+                # Both counts: message_start cannot know the input size up front
+                # (the upstream reports it only at the end), so the client would
+                # otherwise record input_tokens = 0 for every streamed turn.
+                "usage": {
+                    "input_tokens": usage["input_tokens"],
+                    "output_tokens": usage["output_tokens"],
+                },
+            })
+            self._sse("message_stop", {"type": "message_stop"})
         except Exception as e:
             log("STREAM ERROR", e)
             try:

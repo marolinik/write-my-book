@@ -32,6 +32,7 @@ import {
   stripFabricatedFingerprintQuotes,
   stampReportMetadata,
 } from "./editorial-text-hygiene";
+import { enforceBookScript } from "./serbian-script";
 
 export const APPROVAL_SENTINEL = "__APPROVAL_GATE__";
 
@@ -254,6 +255,12 @@ export interface ToolContext {
   seriesDocumentService?: DocumentService;
   /** Chapter number scoped to this session — used as fallback for tools. */
   chapterNumber?: number;
+  /**
+   * The book's language. Used to enforce the script a Serbian book is written
+   * in before anything is persisted: the model decides which script it types,
+   * and a document saved in the wrong one is the writer's problem forever.
+   */
+  language?: string;
   /** Delegation context — present only for the Writing Coach orchestrator. */
   delegationContext?: import("./types").DelegationContext;
   /**
@@ -491,7 +498,13 @@ const createFindingDef: ToolDefinition = {
 const requestApprovalDef: ToolDefinition = {
   name: "RequestApproval",
   description:
-    "Pause execution and ask the writer for approval before proceeding with a significant action.",
+    "Pause and ask the writer before an IRREVERSIBLE change to work they already " +
+    "have — overwriting existing chapter prose, or discarding content they wrote. " +
+    "NEVER use this to ask whether to start the workflow the writer just launched, " +
+    "whether to delegate to a specialist, or whether to write a document that does " +
+    "not exist yet: the writer already asked for that by starting the workflow, and " +
+    "asking again stalls the run for ten minutes and then times out. When in doubt, " +
+    "do the work and report what you did.",
   input_schema: {
     type: "object",
     properties: {
@@ -1088,7 +1101,9 @@ async function executeWriteDocument(
 
   // Writer-facing editorial reports are sanitized + authoritatively stamped
   // before persisting — a report is guidance for the writer, not a scratchpad.
-  let content = input.content;
+  // Script enforcement runs before every other transform so nothing downstream
+  // has to care which script the model happened to use.
+  let content = enforceBookScript(input.content, ctx.language);
   if (EDITORIAL_REPORT_DOC_TYPES.has(input.documentType)) {
     // D-50: strip the model's self-talk / thinking artifacts.
     content = stripModelSelfTalk(content);
@@ -1252,6 +1267,9 @@ async function executeWriteChapter(
     return `Chapter ${input.chapterNumber} not found in this book.`;
   }
 
+  // Prose goes into the manuscript itself — the script must be the book's.
+  const markdown = enforceBookScript(input.markdown, ctx.language);
+
   // Find or create the chapter content document
   const existing = await ctx.documentService.findByType(
     DocumentType.CHAPTER_CONTENT,
@@ -1261,7 +1279,7 @@ async function executeWriteChapter(
   if (existing) {
     await ctx.documentService.update(
       existing.id,
-      input.markdown,
+      markdown,
       undefined,
       "agent_write",
       "agent"
@@ -1269,7 +1287,7 @@ async function executeWriteChapter(
   } else {
     await ctx.documentService.create(
       DocumentType.CHAPTER_CONTENT,
-      input.markdown,
+      markdown,
       `Chapter ${input.chapterNumber}`,
       input.chapterNumber,
       chapter.actNumber,

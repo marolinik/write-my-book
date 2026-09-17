@@ -53,6 +53,7 @@ import {
   countSetupStepsDone,
   pickStartWritingChapter,
 } from "@/lib/onboarding/setup-surface";
+import { BOOK_LANGUAGES } from "@/lib/i18n/book-languages";
 
 export default function SetupPage({
   params,
@@ -100,9 +101,11 @@ export default function SetupPage({
     }
   }, [bookState.isLoading, bookState.setupProgress, hasAutoResumed]);
 
-  // Check if any agent session is currently running
+  // Only THIS book's sessions gate the wizard: the store spans every book, so
+  // a run left behind on another book used to keep every step here showing
+  // "Agent is working..." with nothing running for this one.
   const hasRunningSession = Object.values(sessions).some(
-    (sess) => sess.status === "running"
+    (sess) => sess.status === "running" && sess.bookId === bookId
   );
 
   const [name, setName] = useState("");
@@ -241,7 +244,7 @@ export default function SetupPage({
       <div className="flex items-center justify-between mb-2">
         <h1 className="font-display text-2xl font-bold">{s.title}</h1>
         <Badge variant="outline" className="text-xs">
-          {completedCount}/{SETUP_STEP_TOTAL} steps done
+          {completedCount}/{SETUP_STEP_TOTAL} {s.stepsDone}
         </Badge>
       </div>
       <p className="text-sm text-muted-foreground mb-4">{s.subtitle}</p>
@@ -253,10 +256,8 @@ export default function SetupPage({
             <MessageCircleIcon className="size-4 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium">Prefer to chat?</p>
-            <p className="text-xs text-muted-foreground">
-              Tell the Writing Coach about your book and let it guide the setup for you.
-            </p>
+            <p className="text-sm font-medium">{s.chatTitle}</p>
+            <p className="text-xs text-muted-foreground">{s.chatDesc}</p>
           </div>
           <Button
             variant="outline"
@@ -264,7 +265,7 @@ export default function SetupPage({
             className="shrink-0"
             onClick={() => openWithWorkflow("onboard-new-book")}
           >
-            Chat with Coach
+            {s.chatCta}
           </Button>
         </div>
       </div>
@@ -342,23 +343,11 @@ export default function SetupPage({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="en">English</SelectItem>
-                    <SelectItem value="sr">Serbian (Latin)</SelectItem>
-                    <SelectItem value="de">German (Deutsch)</SelectItem>
-                    <SelectItem value="es">Spanish (Espanol)</SelectItem>
-                    <SelectItem value="fr">French (Francais)</SelectItem>
-                    <SelectItem value="it">Italian (Italiano)</SelectItem>
-                    <SelectItem value="pt">Portuguese (Portugues)</SelectItem>
-                    <SelectItem value="ru">Russian</SelectItem>
-                    <SelectItem value="zh">Chinese</SelectItem>
-                    <SelectItem value="ja">Japanese</SelectItem>
-                    <SelectItem value="ko">Korean</SelectItem>
-                    <SelectItem value="nl">Dutch (Nederlands)</SelectItem>
-                    <SelectItem value="pl">Polish (Polski)</SelectItem>
-                    <SelectItem value="sv">Swedish (Svenska)</SelectItem>
-                    <SelectItem value="tr">Turkish (Turkce)</SelectItem>
-                    <SelectItem value="ar">Arabic</SelectItem>
-                    <SelectItem value="hi">Hindi</SelectItem>
+                    {BOOK_LANGUAGES.map((l) => (
+                      <SelectItem key={l.code} value={l.code}>
+                        {l.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

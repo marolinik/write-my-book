@@ -53,6 +53,7 @@ import { ProactiveGuide } from "./proactive-guide";
 import { SessionProgressList } from "./session-progress-list";
 import { MessageStream } from "./message-stream";
 import { ConversationInput } from "./conversation-input";
+import { useDefaultModel } from "@/hooks/use-default-model";
 
 interface AgentPanelProps {
   bookId: string;
@@ -105,8 +106,15 @@ export function AgentPanel({
   const isIdle = !hasAnySessions;
 
   const { data: apiKeys, isLoading: apiKeysLoading } = useApiKeys();
+  const { data: defaultModelData } = useDefaultModel();
+  // A BYOK key is not the only way to run an agent: on a fleet install the
+  // self-hosted gateway serves requests with no key at all (the server reports
+  // that as `localFleet`). Gating purely on stored keys locked every keyless
+  // fleet user out of the agent with "API key required".
   const hasApiKey =
-    apiKeysLoading || (Array.isArray(apiKeys) && apiKeys.length > 0);
+    apiKeysLoading ||
+    (Array.isArray(apiKeys) && apiKeys.length > 0) ||
+    defaultModelData?.localFleet === true;
 
   const router = useRouter();
   const { t: uiT } = useLanguage();

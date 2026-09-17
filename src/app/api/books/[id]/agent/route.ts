@@ -95,11 +95,17 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     // Keep reference to the original workflow's primary agent for context
     const agentDef = coachDef;
 
+    // A book-level workflow must not inherit the chapter the writer happens to
+    // be reading. The page context supplies one, and "check series continuity"
+    // launched from a chapter page then ran as a chapter-31 continuity pass —
+    // the specialist prompt is chapter-scoped whenever a chapter is present.
+    const chapterNumber = workflow.requiresChapter ? data.chapterNumber : undefined;
+
     // Validate workflow prerequisites
     const prereqResult = await validatePrerequisites(
       data.workflowId,
       bookId,
-      data.chapterNumber
+      chapterNumber
     );
     if (!prereqResult.satisfied) {
       return NextResponse.json(
@@ -380,7 +386,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         userId: user.id,
         agentType: "writing-coach",
         workflowId: data.workflowId,
-        chapterNumber: data.chapterNumber ?? null,
+        chapterNumber: chapterNumber ?? null,
         status: "running",
       },
     });
@@ -419,7 +425,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         userId: user.id,
         workflowId: data.workflowId,
         agentType: workflow.primaryAgent,
-        chapterNumber: data.chapterNumber,
+        chapterNumber: chapterNumber,
         coachRegistryId: effectiveCoachRegistryId,
         coachModelId: effectiveModelId,
         providerKey: validationProvider,
@@ -474,7 +480,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         parentOnMessage: onMessage,
         sharedCostTracker,
         language: book.language ?? "en",
-        chapterNumber: data.chapterNumber,
+        chapterNumber: chapterNumber,
         createSpecialistClient,
       };
 
@@ -503,7 +509,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
           bookId,
           bookName: book.name,
           userId: user.id,
-          chapterNumber: data.chapterNumber,
+          chapterNumber: chapterNumber,
           language: book.language,
           targetWorkflowId: data.workflowId,
           targetAgentType: workflow.primaryAgent,
@@ -538,7 +544,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
                 userId: user.id,
                 workflowId: data.workflowId,
                 agentType: workflow.primaryAgent,
-                chapterNumber: data.chapterNumber,
+                chapterNumber: chapterNumber,
                 // D-188: recovery source + what the run actually persisted.
                 assistantText: result.assistantText,
                 documentIds: result.documentIds,

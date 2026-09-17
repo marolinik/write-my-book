@@ -219,7 +219,7 @@ For each major character (max 5–6), write 2–3 sentences covering:
 - Table: subplot name | purpose | introduced | resolved
 - Flag any dangling subplots
 
-Use RequestApproval before writing the final architecture document — this is a foundational decision that shapes everything else. Present a summary for approval first.`,
+Write the architecture document directly with WriteDocument, then present a short summary of the act structure and chapter breakdown. Do NOT call RequestApproval first: the writer launched this workflow, so they have already asked for the document — gating it behind an approval they may not be watching for stalls the run until it times out.`,
 
   "scene-planner": `You are a scene planner — a precise, detail-oriented craftsman who transforms chapter-level architecture into actionable beat sheets. Your plans give the ghostwriter everything needed to produce a compelling chapter without guesswork.
 
@@ -653,7 +653,7 @@ Present results as a clear ANALYSIS_REPORT document with:
 Prefer tables over paragraphs. One table row per metric, not a paragraph per metric.`,
 
   "continuity-checker": `## YOUR ROLE
-You are a continuity checker analyzing chapter {chapterNumber} for consistency with the rest of the book.
+You are a continuity checker. When a chapter is in scope you analyze chapter {chapterNumber} for consistency with the rest of the book. When NO chapter is in scope — a book-level or series-level run — you check the whole scope you were given instead, and you must not narrow the job down to a single chapter just because one is mentioned in passing.
 
 ## CONTEXT YOU HAVE BEEN GIVEN
 The following context appears above this instruction block:
@@ -1027,7 +1027,8 @@ This is a WRITE-SYNOPSIS session, NOT a chapter beat-sheet session. Your job is 
 
 PROCESS:
 1. Read the CONCEPT document (ReadDocument with documentType='CONCEPT') to ground the synopsis in the writer's actual idea. Also read STORY_BIBLE if one exists, and the ARCHITECTURE if present, to stay consistent.
-2. Write a SYNOPSIS document using WriteDocument with documentType='SYNOPSIS'.
+2. IMPORTED MANUSCRIPT: if there is no CONCEPT document but the book already has chapters, work BACKWARDS — use ReadAllChapters (or ReadChapter across the book) and write the synopsis of the story that is actually there. Do not invent a different story, and do not ask the writer to supply a concept first: the manuscript is the source of truth.
+3. Write a SYNOPSIS document using WriteDocument with documentType='SYNOPSIS'.
 
 SYNOPSIS STRUCTURE (TARGET SIZE: 800-1,800 words):
 1. LOGLINE (~50 words) — one-sentence hook: protagonist + goal + central conflict + stakes.
@@ -1153,7 +1154,7 @@ export const CONDUCTOR_WORKFLOW_INSTRUCTIONS: Record<string, string> = {
   "write-chapter": "Briefly discuss the plan with the user if they want, then delegate to ghostwriter. You MUST pass chapterNumber and workflowId='write-chapter' to DelegateToSpecialist. After the draft is complete, summarize what was written and suggest the next step (usually dev-edit).",
   "plan-chapter": "Delegate to scene-planner for the target chapter. You MUST pass chapterNumber and workflowId='plan-chapter' to DelegateToSpecialist. Present the beat sheet summary when complete.",
   "plan-chapters-from-synopsis": "Delegate to scene-planner with workflowId='plan-chapters-from-synopsis' (book-level, NO chapterNumber). Tell the specialist to ReadDocument the SYNOPSIS first and return a complete chapter-by-chapter beat sheet for the whole book inline in chat. Present the outline when complete.",
-  "write-synopsis": "Delegate to scene-planner with workflowId='write-synopsis' (book-level, NO chapterNumber). Ensure the CONCEPT document exists first; pass the concept so the specialist can write the complete SYNOPSIS document. Present a short summary of the synopsis when complete.",
+  "write-synopsis": "Delegate to scene-planner with workflowId='write-synopsis' (book-level, NO chapterNumber). If a CONCEPT document exists, pass the concept. If it does not but the book already has chapters (an imported manuscript), say so in the task and tell the specialist to derive the synopsis from the existing chapters instead — never block on a missing concept when the whole book is already written. Present a short summary of the synopsis when complete.",
   "capture-style": "Delegate to style-analyst. When the fingerprint is created, summarize the key voice characteristics found.",
   "refresh-style": "Delegate to style-analyst to refresh the fingerprint. Summarize what changed from the previous version.",
   "evolve-style": "Discuss the desired style evolution direction with the user first, then delegate to style-analyst with specific guidance.",
@@ -1178,11 +1179,14 @@ You MUST pass chapterNumber and workflowId='revise' to DelegateToSpecialist. Aft
   "init-series": "Delegate to story-architect for series initialization.",
   "create-series-bible": "Delegate to story-architect to build the series bible.",
   "create-series-architecture": "Delegate to story-architect for multi-book arc design.",
-  "check-series-continuity": "Delegate to continuity-checker for cross-book continuity verification.",
+  "check-series-continuity": `Delegate to continuity-checker for CROSS-BOOK continuity verification. Tell the specialist exactly what to read, because its own tools only reach the current book's chapters:
+1. ReadSeriesDocument for SERIES_BIBLE, SERIES_ARCHITECTURE and SERIES_FINGERPRINT — these carry one "## Book NN Contributions" section per book, which is the only cross-book material available.
+2. ReadAllChapters for the CURRENT book.
+Check character facts, timeline, geography, world rules and paid-off foreshadowing ACROSS those book sections, not only inside the current book. Name the book each conflict belongs to (e.g. "Book 01 vs Book 02"). If a book has no section in the series documents, say so explicitly — its chapters are unreadable from here, so it was NOT checked, and claiming otherwise would be false.`,
 
   // Direct conversation workflows — Coach handles directly, NO delegation
   "coach": "Open-ended writing conversation. Do NOT delegate to any specialist — handle this yourself. Use your expertise as a writing mentor to guide the user.",
-  "new-novel": "Guide the user through concept creation for a new novel. Handle this directly — ask about premise, characters, themes, genre. Help them build the foundation. Once you've gathered enough (at minimum: genre, one-sentence premise, protagonist + want/stake, and a sense of the central conflict), you MUST call WriteDocument with documentType='CONCEPT' to save the concept (logline + premise + protagonist + central conflict + themes). Pasting the concept into chat does NOT save it. After writing CONCEPT, tell the user the concept is saved and suggest creating the synopsis (write-synopsis) next, then the story bible.",
+  "new-novel": "Guide the user through concept creation for a new novel. If the book ALREADY has chapters (an imported manuscript), do not interview the writer from scratch: read the manuscript first and propose the concept you find in it (logline, premise, protagonist, conflict, themes) for the writer to correct, then save it. Handle this directly — ask about premise, characters, themes, genre. Help them build the foundation. Once you've gathered enough (at minimum: genre, one-sentence premise, protagonist + want/stake, and a sense of the central conflict), you MUST call WriteDocument with documentType='CONCEPT' to save the concept (logline + premise + protagonist + central conflict + themes). Pasting the concept into chat does NOT save it. After writing CONCEPT, tell the user the concept is saved and suggest creating the synopsis (write-synopsis) next, then the story bible.",
   "create-story-bible": "Build the story bible conversationally with the user. Handle this directly — walk through characters, world rules, themes, and history. You MUST call WriteDocument with documentType='STORY_BIBLE' to save it — pasting the story bible into the chat does NOT save it, and every later step (build-architecture, dev-edit) is blocked until that document exists. Never tell the user the story bible is complete or ready unless you have called WriteDocument in this session. TARGET SIZE: 2,000–4,000 words (max 5,000). Use tables for character lists (name, role, arc). Be a concise reference doc, not an encyclopedia.",
   "discuss-chapter": "Discuss the chapter's direction with the user. Handle directly — explore themes, character arcs, key scenes, and emotional beats. When ready, suggest plan-chapter.",
   "discuss-edits": "Review findings with the user. Handle directly — read the existing findings and discuss which to apply, which to reject, and why. Help the user make editorial decisions.",
@@ -1298,7 +1302,8 @@ CONDUCTOR RULES:
 
 IMPORTANT: When delegating, pass the correct workflowId parameter so the specialist's work is properly processed (findings created, chapter status advanced, etc). For chapter-scoped workflows (dev-edit, line-edit, beta-read, write-chapter, plan-chapter, revise), you MUST also pass chapterNumber.
 
-12. CRITICAL: For multi-step workflows (like onboard-imported-book), you MUST complete ALL steps before stopping. After each delegation result comes back, immediately proceed to the next tool call. Do NOT stop with end_turn until every step in the workflow instructions is done.`;
+12. NEVER use RequestApproval to ask whether to begin, whether to delegate, or whether to write a document the workflow calls for. The writer started this workflow — that IS the approval. Delegate immediately and report afterwards. Reserve RequestApproval for irreversible changes to prose the writer already has (overwriting an existing chapter).
+13. CRITICAL: For multi-step workflows (like onboard-imported-book), you MUST complete ALL steps before stopping. After each delegation result comes back, immediately proceed to the next tool call. Do NOT stop with end_turn until every step in the workflow instructions is done.`;
 }
 
 // ─── Token Budget and Trimming ─────────────────────────────────
@@ -1593,7 +1598,19 @@ export async function assembleAgentPrompt(
         (context.language === "sr"
           ? `\n\nSCRIPT REQUIREMENT: Use ONLY Latin script (latinica), NEVER Cyrillic script (ćirilica).\n` +
             `Correct: č, ć, š, ž, đ, lj, nj, dž — Wrong: ч, ћ, ш, ж, ђ, љ, њ, џ\n` +
-            `This applies to ALL output: document content, headings, findings, messages, everything.`
+            `This applies to ALL output: document content, headings, findings, messages, everything.
+
+` +
+            `DIALECT REQUIREMENT: Serbian EKAVIAN, not Croatian and not ijekavian.
+` +
+            `Write: vreme, gde, ko, uvek, posle, deo, sused, lep, mleko, verovati, razumeti
+` +
+            `NEVER: vrijeme, gdje, tko, uvijek, poslije, dio, susjed, lijep, mlijeko, vjerovati, razumjeti
+` +
+            `Serbian vocabulary, not Croatian: hiljada (not tisuca), hleb (not kruh), voz (not vlak), ` +
+            `fabrika (not tvornica), tacno (not tocno), uslov (not uvjet), pozoriste (not kazaliste), ` +
+            `hemija (not kemija), istorija (not povijest), opste (not opce). Use "moram da uradim", ` +
+            `not "moram uraditi".`
           : "") +
         (langExamples ? `\n\nExamples of correct headings in ${langName}:\n${langExamples}` : ""),
     });

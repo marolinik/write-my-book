@@ -58,7 +58,8 @@ export async function POST(req: NextRequest) {
         userId: user.id,
         title: data.title,
         genre: data.genre ?? null,
-        language: data.language ?? "en",
+        // Same reason as books: default to the writer's language, not English.
+        language: data.language ?? user.preferredLanguage ?? "en",
         seriesType: data.seriesType ?? "TRILOGY",
         plannedBooks: data.plannedBooks ?? 3,
         description: data.description ?? null,

@@ -127,6 +127,9 @@ export function useUpdateBook(bookId: string) {
         body: JSON.stringify(data),
       }),
     onSuccess: () => {
+      // Prefix match: this also invalidates the ["books", bookId] detail query
+      // that backs the header and the settings form, so a rename shows up
+      // everywhere at once.
       qc.invalidateQueries({ queryKey: ["books"] });
     },
   });

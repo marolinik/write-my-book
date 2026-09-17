@@ -38,7 +38,27 @@ export default async function SeriesDocumentPage({
   });
   if (!series) notFound();
 
-  const svc = new DocumentService(user.id, undefined, seriesId);
+  // The list on /series/:id/documents shows BOTH series-level and book-level
+  // documents and links them all here, so this page must open either. Reading
+  // everything with a series-scoped service 404'd every book-level document the
+  // writer clicked. Resolve the row first, then read it in its own scope.
+  const row = await db.document.findFirst({
+    where: {
+      id: docId,
+      OR: [
+        { seriesId },
+        { book: { seriesId, userId: user.id } },
+      ],
+    },
+    select: { bookId: true, seriesId: true },
+  });
+  if (!row) notFound();
+
+  const svc = new DocumentService(
+    user.id,
+    row.bookId ?? undefined,
+    row.seriesId ?? undefined,
+  );
   const result = await svc.read(docId);
   if (!result) notFound();
   const doc = result.document;

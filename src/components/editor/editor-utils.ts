@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import type { Editor } from "@tiptap/react";
 import type { Node as PMNode } from "@tiptap/pm/model";
 import StarterKit from "@tiptap/starter-kit";
-import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
 import TextAlign from "@tiptap/extension-text-align";
 import Focus from "@tiptap/extension-focus";
 import { Markdown } from "tiptap-markdown";
+import { TableKit } from "@tiptap/extension-table";
 import { AnnotationExtension, findTextPositions } from "./annotation-extension";
 import type { AnnotationItem, AnnotationType } from "./annotation-extension";
 import type { FindingItem } from "@/hooks/use-editorial";
@@ -133,9 +133,14 @@ export function createEditorExtensions(options: {
 }) {
   return [
     StarterKit.configure({
-      heading: { levels: [1, 2, 3] },
+      // All six levels: agent-written documents (story bible, reports, voice
+      // fingerprint) nest to #### and #####, and a level the schema does not
+      // know is flattened to a paragraph AND saved back that way — the writer
+      // loses the structure permanently.
+      heading: { levels: [1, 2, 3, 4, 5, 6] },
     }),
-    Underline,
+    // Underline ships inside StarterKit v3; registering it again triggers
+    // a duplicate-extension warning and a second schema mark of the same name.
     Placeholder.configure({
       placeholder: options.placeholder ?? "Start writing...",
     }),
@@ -145,6 +150,12 @@ export function createEditorExtensions(options: {
     Focus.configure({
       className: "has-focus",
       mode: "shallowest",
+    }),
+    // Tables: the analyst/report prompts explicitly ask for them ("prefer
+    // tables over paragraphs"). Without this extension every markdown table
+    // collapsed into one run-on paragraph on load and was persisted flattened.
+    TableKit.configure({
+      table: { resizable: false },
     }),
     Markdown.configure({
       html: false,
