@@ -420,7 +420,7 @@ export function WorkflowSelector({
                           <TooltipTrigger asChild>{button}</TooltipTrigger>
                           <TooltipContent side="left" className="max-w-64">
                             <p className="font-medium text-xs mb-1">
-                              Prerequisites needed:
+                              {as.prereqTitle}
                             </p>
                             <ul className="text-xs list-disc pl-3">
                               {missing.map((m, i) => (

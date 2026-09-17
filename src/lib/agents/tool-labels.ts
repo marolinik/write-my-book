@@ -197,6 +197,13 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
   },
 };
 
+/** O4: the localized document-type labels, for any surface that must name an
+ *  artifact to the writer (prerequisite refusals, structure proposals). */
+export function getDocumentTypeLabels(lang?: string): Record<string, string> {
+  const l = lang && DOC_TYPE_LABELS[lang] ? lang : "en";
+  return DOC_TYPE_LABELS[l];
+}
+
 function docLabel(type?: string, lang?: string): string {
   if (!type) {
     const defaults: Record<string, string> = {

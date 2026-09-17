@@ -6,6 +6,10 @@ export interface PrerequisiteResult {
   satisfied: boolean;
   missing: Array<{
     description: string;
+    /** O4: the requirement itself, so the client can name it in the writer's
+     *  language instead of echoing an English sentence or nothing at all. */
+    type: string;
+    value: string;
     satisfiedBy?: string;
   }>;
 }
@@ -57,6 +61,8 @@ export async function validatePrerequisites(
     if (!satisfied) {
       missing.push({
         description: prereq.description,
+        type: prereq.type,
+        value: prereq.value,
         satisfiedBy: prereq.satisfiedBy,
       });
     }

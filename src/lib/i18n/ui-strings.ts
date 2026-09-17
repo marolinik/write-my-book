@@ -313,6 +313,7 @@ export interface UIStrings {
     kindReorder: string; kindRenumber: string; kindMerge: string; kindSplit: string;
     moveReorder: string; moveMerge: string; moveSplit: string;
     nothingChangesYet: string; applyError: string; undoError: string;
+    fromAnalysis: string;
   };
 
   stylePage: {
@@ -813,6 +814,7 @@ const EN: UIStrings = {
     moveMerge: "Merge chapters {list} into one",
     moveSplit: "Split chapter {n} at \u201c{anchor}\u201d",
     nothingChangesYet: "Your manuscript is untouched until you accept a move.",
+    fromAnalysis: "These metrics are worth a structural pass: let the editor propose what should move.",
     applyError: "The move could not be applied", undoError: "The move could not be undone",
   },
 
@@ -1332,6 +1334,7 @@ const SR: UIStrings = {
     moveMerge: "Spoji poglavlja {list} u jedno",
     moveSplit: "Razdvoji poglavlje {n} kod \u201e{anchor}\u201c",
     nothingChangesYet: "Rukopis ostaje netaknut dok ne prihvatite potez.",
+    fromAnalysis: "Ove metrike zaslužuju strukturni prolaz: neka urednik predloži šta treba da se pomeri.",
     applyError: "Potez nije mogao da se primeni", undoError: "Potez nije mogao da se poništi",
   },
 
@@ -1850,6 +1853,7 @@ const DE: UIStrings = {
     moveMerge: "Kapitel {list} zusammenlegen",
     moveSplit: "Kapitel {n} bei \u201e{anchor}\u201c teilen",
     nothingChangesYet: "Ihr Manuskript bleibt unberührt, bis Sie einen Schritt annehmen.",
+    fromAnalysis: "Diese Werte verdienen einen Strukturdurchgang: lassen Sie das Lektorat vorschlagen, was sich ändern soll.",
     applyError: "Der Schritt konnte nicht angewendet werden", undoError: "Der Schritt konnte nicht rückgängig gemacht werden",
   },
 
@@ -2368,6 +2372,7 @@ const ES: UIStrings = {
     moveMerge: "Fusionar los capítulos {list} en uno",
     moveSplit: "Dividir el capítulo {n} en \u201c{anchor}\u201d",
     nothingChangesYet: "Tu manuscrito queda intacto hasta que aceptes un movimiento.",
+    fromAnalysis: "Estas métricas merecen una pasada estructural: deja que el editor proponga qué mover.",
     applyError: "No se pudo aplicar el movimiento", undoError: "No se pudo deshacer el movimiento",
   },
 
@@ -2886,6 +2891,7 @@ const FR: UIStrings = {
     moveMerge: "Fusionner les chapitres {list}",
     moveSplit: "Scinder le chapitre {n} à \u00ab{anchor}\u00bb",
     nothingChangesYet: "Votre manuscrit reste intact tant que vous n'acceptez rien.",
+    fromAnalysis: "Ces mesures méritent un passage structurel : laissez l'éditeur proposer ce qui doit bouger.",
     applyError: "Le geste n'a pas pu être appliqué", undoError: "Le geste n'a pas pu être annulé",
   },
 
@@ -3404,6 +3410,7 @@ const RU: UIStrings = {
     moveMerge: "Объединить главы {list}",
     moveSplit: "Разделить главу {n} на \u00ab{anchor}\u00bb",
     nothingChangesYet: "Рукопись не меняется, пока вы не примете шаг.",
+    fromAnalysis: "Эти метрики стоят структурного прохода: пусть редактор предложит, что стоит перенести.",
     applyError: "Шаг не удалось применить", undoError: "Шаг не удалось отменить",
   },
 
@@ -3922,6 +3929,7 @@ const ZH: UIStrings = {
     moveMerge: "把第 {list} 章合并为一章",
     moveSplit: "在 \u201c{anchor}\u201d 处拆分第 {n} 章",
     nothingChangesYet: "在你接受调整之前，稿件不会被改动。",
+    fromAnalysis: "这些数据值得一次结构修订：让编辑提出该调整什么。",
     applyError: "调整未能应用", undoError: "调整未能撤销",
   },
 

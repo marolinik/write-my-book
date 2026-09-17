@@ -57,6 +57,11 @@ export interface AgentStrings {
   greenfieldExistingMs: string;
   greenfieldExistingMsDesc: string;
 
+  // O4 - a refused start has to say what is missing and what produces it.
+  prereqTitle: string;
+  prereqNeeds: string;
+  prereqAction: string;
+
   // Workflow labels (overrides for common workflows)
   workflows: Record<string, string>;
   // Workflow writer-facing descriptions
@@ -112,6 +117,9 @@ const EN: AgentStrings = {
   seriesDocsGenerating: "Series documents will be generated when 2+ books have foundational documents",
   crossBookContinuity: "Cross-Book Continuity Check",
   seriesStats: "Series Statistics",
+  prereqTitle: "This cannot start yet",
+  prereqNeeds: "Needed first: {artifact}",
+  prereqAction: "Run: {workflow}",
   workflows: {
     "read-manuscript": "Import Manuscript",
     "capture-style": "Capture Style",
@@ -193,6 +201,7 @@ const EN: AgentStrings = {
     "revise": "Revise",
     "discuss-edits": "Discuss Edits",
     "analyze": "Analyze Manuscript",
+    "restructure": "Structural Revision",
     "market-analysis": "Market Analysis",
     "publishing-check": "Publishing Check",
     "coach": "Writing Coach",
@@ -249,6 +258,9 @@ const SR: AgentStrings = {
   seriesDocsGenerating: "Dokumenti serijala se generišu kada 2+ knjige imaju osnovne dokumente",
   crossBookContinuity: "Provera kontinuiteta između knjiga",
   seriesStats: "Statistika serijala",
+  prereqTitle: "Ovo još ne može da počne",
+  prereqNeeds: "Prvo je potrebno: {artifact}",
+  prereqAction: "Pokreni: {workflow}",
   workflows: {
     "read-manuscript": "Uvezi rukopis",
     "capture-style": "Uhvati stil",
@@ -330,6 +342,7 @@ const SR: AgentStrings = {
     "revise": "Revidiraj",
     "discuss-edits": "Diskutuj izmene",
     "analyze": "Analiziraj rukopis",
+    "restructure": "Strukturna revizija",
     "market-analysis": "Analiza tržišta",
     "publishing-check": "Provera za izdavanje",
     "coach": "Mentor za pisanje",
@@ -386,6 +399,9 @@ const DE: AgentStrings = {
   seriesDocsGenerating: "Seriendokumente werden generiert, wenn 2+ Bücher Basisdokumente haben",
   crossBookContinuity: "Buchübergreifende Kontinuitätsprüfung",
   seriesStats: "Serienstatistiken",
+  prereqTitle: "Das kann noch nicht starten",
+  prereqNeeds: "Zuerst nötig: {artifact}",
+  prereqAction: "Starten: {workflow}",
   workflows: {
     "read-manuscript": "Manuskript importieren",
     "capture-style": "Stil erfassen",
@@ -440,6 +456,7 @@ const DE: AgentStrings = {
     "revise": "Überarbeiten",
     "discuss-edits": "Änderungen besprechen",
     "analyze": "Manuskript analysieren",
+    "restructure": "Strukturelle Überarbeitung",
     "market-analysis": "Marktanalyse",
     "publishing-check": "Veröffentlichungsprüfung",
     "coach": "Schreibcoach",
@@ -496,6 +513,9 @@ const ES: AgentStrings = {
   seriesDocsGenerating: "Los documentos de serie se generan cuando 2+ libros tienen documentos base",
   crossBookContinuity: "Verificación de continuidad entre libros",
   seriesStats: "Estadísticas de serie",
+  prereqTitle: "Esto aún no puede empezar",
+  prereqNeeds: "Primero hace falta: {artifact}",
+  prereqAction: "Ejecutar: {workflow}",
   workflows: {
     "read-manuscript": "Importar manuscrito",
     "capture-style": "Capturar estilo",
@@ -550,6 +570,7 @@ const ES: AgentStrings = {
     "revise": "Revisar",
     "discuss-edits": "Discutir ediciones",
     "analyze": "Analizar manuscrito",
+    "restructure": "Revisión estructural",
     "market-analysis": "Análisis de mercado",
     "publishing-check": "Verificación de publicación",
     "coach": "Coach de escritura",
@@ -606,6 +627,9 @@ const FR: AgentStrings = {
   seriesDocsGenerating: "Les documents de série seront générés lorsque 2+ livres auront des documents de base",
   crossBookContinuity: "Vérification de la continuité inter-livres",
   seriesStats: "Statistiques de série",
+  prereqTitle: "Cela ne peut pas encore commencer",
+  prereqNeeds: "Nécessaire d'abord : {artifact}",
+  prereqAction: "Lancer : {workflow}",
   workflows: {
     "read-manuscript": "Importer le manuscrit",
     "capture-style": "Capturer le style",
@@ -660,6 +684,7 @@ const FR: AgentStrings = {
     "revise": "Réviser",
     "discuss-edits": "Discuter des modifications",
     "analyze": "Analyser le manuscrit",
+    "restructure": "Révision structurelle",
     "market-analysis": "Analyse de marché",
     "publishing-check": "Vérification de publication",
     "coach": "Coach d'écriture",
@@ -716,6 +741,9 @@ const RU: AgentStrings = {
   seriesDocsGenerating: "Документы серии будут созданы, когда 2+ книги будут иметь базовые документы",
   crossBookContinuity: "Проверка межкнижной целостности",
   seriesStats: "Статистика серии",
+  prereqTitle: "Это пока нельзя запустить",
+  prereqNeeds: "Сначала нужно: {artifact}",
+  prereqAction: "Запустить: {workflow}",
   workflows: {
     "read-manuscript": "Импорт рукописи",
     "capture-style": "Захват стиля",
@@ -770,6 +798,7 @@ const RU: AgentStrings = {
     "revise": "Доработать",
     "discuss-edits": "Обсудить правки",
     "analyze": "Анализировать рукопись",
+    "restructure": "Структурная редактура",
     "market-analysis": "Анализ рынка",
     "publishing-check": "Проверка публикации",
     "coach": "Писательский коуч",
@@ -826,6 +855,9 @@ const ZH: AgentStrings = {
   seriesDocsGenerating: "当2本以上书籍拥有基础文档时，将生成系列文档",
   crossBookContinuity: "跨书连续性检查",
   seriesStats: "系列统计",
+  prereqTitle: "现在还不能开始",
+  prereqNeeds: "需要先有：{artifact}",
+  prereqAction: "运行：{workflow}",
   workflows: {
     "read-manuscript": "导入手稿",
     "capture-style": "捕获风格",
@@ -880,6 +912,7 @@ const ZH: AgentStrings = {
     "revise": "修订",
     "discuss-edits": "讨论修改",
     "analyze": "分析手稿",
+    "restructure": "结构修订",
     "market-analysis": "市场分析",
     "publishing-check": "出版检查",
     "coach": "写作教练",

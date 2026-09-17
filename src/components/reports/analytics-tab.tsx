@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, SparklesIcon } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -12,6 +12,9 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/components/providers/language-provider";
+import { useAgentUIStore } from "@/stores/agent-ui-store";
 import {
   BarChart,
   Bar,
@@ -80,6 +83,11 @@ interface ChapterBetaData {
 }
 
 export function AnalyticsTab({ bookId }: { bookId: string }) {
+  // O13 - the analysis report was a dead end: metrics arrived, nothing consumed
+  // them, and the journey stopped at a report. Pacing numbers exist to drive a
+  // structural decision, so the report now hands off to the restructure pass.
+  const { t } = useLanguage();
+  const openWithWorkflow = useAgentUIStore((st) => st.openWithWorkflow);
   const router = useRouter();
 
   const { data: analysisData, isLoading: isLoadingAnalysis } = useQuery({
@@ -185,7 +193,17 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
   const defaultTab = hasBetaScores ? "betaScores" : hasAnalysis ? "readability" : "cost";
 
   return (
-    <Tabs defaultValue={defaultTab}>
+    <div className="space-y-4">
+      {hasAnalysis && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-card p-4">
+          <p className="text-sm text-muted-foreground">{t.structure.fromAnalysis}</p>
+          <Button size="sm" onClick={() => openWithWorkflow("restructure")}>
+            <SparklesIcon className="mr-1.5 size-3.5" />
+            {t.structure.runPass}
+          </Button>
+        </div>
+      )}
+      <Tabs defaultValue={defaultTab}>
       <TabsList>
         {hasBetaScores && (
           <TabsTrigger value="betaScores">Beta Scores</TabsTrigger>
@@ -661,5 +679,6 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
         </TabsContent>
       )}
     </Tabs>
+    </div>
   );
 }
