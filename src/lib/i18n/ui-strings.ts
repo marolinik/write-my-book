@@ -291,6 +291,20 @@ export interface UIStrings {
   };
 
   // Style page
+  // O12 - structural revision pass
+  structure: {
+    tab: string; title: string; subtitle: string;
+    runPass: string; running: string; refresh: string;
+    empty: string; emptyDesc: string; loadError: string;
+    pending: string; accepted: string; rejected: string; applied: string;
+    failed: string; undone: string;
+    accept: string; reject: string; undo: string; rejectNote: string;
+    reason: string; evidence: string; confidence: string;
+    kindReorder: string; kindRenumber: string; kindMerge: string; kindSplit: string;
+    moveReorder: string; moveMerge: string; moveSplit: string;
+    nothingChangesYet: string; applyError: string; undoError: string;
+  };
+
   stylePage: {
     title: string; subtitle: string;
     refreshStyle: string; evolveStyle: string;
@@ -760,6 +774,26 @@ const EN: UIStrings = {
     title: "Reports", subtitle: "Analytics, continuity, market analysis, and editorial overview",
     analytics: "Analytics", continuity: "Continuity", market: "Market", edits: "Edits", documents: "Documents",
   },
+  structure: {
+    tab: "Structure", title: "Structural revision",
+    subtitle: "Proposed moves from the developmental editor. Nothing changes until you accept.",
+    runPass: "Propose structural changes", running: "Working...", refresh: "Refresh",
+    empty: "No proposals yet",
+    emptyDesc: "Run the structural revision pass and the editor will propose concrete moves: chapters to reorder, merge, split or renumber.",
+    loadError: "Could not load the proposals.",
+    pending: "Waiting for you", accepted: "Accepted", rejected: "Rejected",
+    applied: "Applied", failed: "Could not run", undone: "Undone",
+    accept: "Accept", reject: "Reject", undo: "Undo",
+    rejectNote: "Why not? (optional)",
+    reason: "Why", evidence: "Based on", confidence: "Confidence",
+    kindReorder: "Reorder", kindRenumber: "Renumber", kindMerge: "Merge", kindSplit: "Split",
+    moveReorder: "Move chapter {n} to position {p}",
+    moveMerge: "Merge chapters {list} into one",
+    moveSplit: "Split chapter {n} at \u201c{anchor}\u201d",
+    nothingChangesYet: "Your manuscript is untouched until you accept a move.",
+    applyError: "The move could not be applied", undoError: "The move could not be undone",
+  },
+
   stylePage: {
     title: "Writing Style", subtitle: "Your unique voice fingerprint and style analysis",
     refreshStyle: "Refresh Style", evolveStyle: "Evolve Style",
@@ -1247,6 +1281,26 @@ const SR: UIStrings = {
     title: "Izveštaji", subtitle: "Analitika, kontinuitet, analiza tržišta i pregled redakcije",
     analytics: "Analitika", continuity: "Kontinuitet", market: "Tržište", edits: "Izmene", documents: "Dokumenta",
   },
+  structure: {
+    tab: "Struktura", title: "Strukturna revizija",
+    subtitle: "Predlozi razvojnog urednika. Ništa se ne menja dok ne prihvatite.",
+    runPass: "Predloži strukturne izmene", running: "U toku...", refresh: "Osveži",
+    empty: "Još nema predloga",
+    emptyDesc: "Pokrenite strukturnu reviziju i urednik će predložiti konkretne poteze: koja poglavlja spojiti, razdvojiti, premestiti ili prenumerisati.",
+    loadError: "Predlozi ne mogu da se učitaju.",
+    pending: "Čeka vašu odluku", accepted: "Prihvaćeno", rejected: "Odbijeno",
+    applied: "Primenjeno", failed: "Nije moglo da se izvrši", undone: "Poništeno",
+    accept: "Prihvati", reject: "Odbij", undo: "Poništi",
+    rejectNote: "Zašto ne? (nije obavezno)",
+    reason: "Zašto", evidence: "Na osnovu", confidence: "Sigurnost",
+    kindReorder: "Premeštanje", kindRenumber: "Prenumerisanje", kindMerge: "Spajanje", kindSplit: "Razdvajanje",
+    moveReorder: "Premesti poglavlje {n} na poziciju {p}",
+    moveMerge: "Spoji poglavlja {list} u jedno",
+    moveSplit: "Razdvoji poglavlje {n} kod \u201e{anchor}\u201c",
+    nothingChangesYet: "Rukopis ostaje netaknut dok ne prihvatite potez.",
+    applyError: "Potez nije mogao da se primeni", undoError: "Potez nije mogao da se poništi",
+  },
+
   stylePage: {
     title: "Stil pisanja", subtitle: "Vaš jedinstveni otisak glasa i analiza stila",
     refreshStyle: "Osveži stil", evolveStyle: "Razvij stil",
@@ -1733,6 +1787,26 @@ const DE: UIStrings = {
     title: "Berichte", subtitle: "Analytik, Kontinuität, Marktanalyse und Lektoratsübersicht",
     analytics: "Analytik", continuity: "Kontinuität", market: "Markt", edits: "Lektorat", documents: "Dokumente",
   },
+  structure: {
+    tab: "Struktur", title: "Strukturelle Überarbeitung",
+    subtitle: "Vorschläge des Entwicklungslektorats. Nichts ändert sich, bis Sie zustimmen.",
+    runPass: "Strukturänderungen vorschlagen", running: "Läuft...", refresh: "Aktualisieren",
+    empty: "Noch keine Vorschläge",
+    emptyDesc: "Starten Sie die strukturelle Überarbeitung, und das Lektorat schlägt konkrete Schritte vor: Kapitel umstellen, zusammenlegen, teilen oder neu nummerieren.",
+    loadError: "Die Vorschläge konnten nicht geladen werden.",
+    pending: "Wartet auf Sie", accepted: "Angenommen", rejected: "Abgelehnt",
+    applied: "Angewendet", failed: "Nicht ausführbar", undone: "Rückgängig gemacht",
+    accept: "Annehmen", reject: "Ablehnen", undo: "Rückgängig",
+    rejectNote: "Warum nicht? (optional)",
+    reason: "Warum", evidence: "Grundlage", confidence: "Sicherheit",
+    kindReorder: "Umstellen", kindRenumber: "Neu nummerieren", kindMerge: "Zusammenlegen", kindSplit: "Teilen",
+    moveReorder: "Kapitel {n} auf Position {p} verschieben",
+    moveMerge: "Kapitel {list} zusammenlegen",
+    moveSplit: "Kapitel {n} bei \u201e{anchor}\u201c teilen",
+    nothingChangesYet: "Ihr Manuskript bleibt unberührt, bis Sie einen Schritt annehmen.",
+    applyError: "Der Schritt konnte nicht angewendet werden", undoError: "Der Schritt konnte nicht rückgängig gemacht werden",
+  },
+
   stylePage: {
     title: "Schreibstil", subtitle: "Ihr einzigartiger Stimm-Fingerabdruck und Stilanalyse",
     refreshStyle: "Stil aktualisieren", evolveStyle: "Stil weiterentwickeln",
@@ -2219,6 +2293,26 @@ const ES: UIStrings = {
     title: "Informes", subtitle: "Analítica, continuidad, análisis de mercado y resumen editorial",
     analytics: "Analítica", continuity: "Continuidad", market: "Mercado", edits: "Ediciones", documents: "Documentos",
   },
+  structure: {
+    tab: "Estructura", title: "Revisión estructural",
+    subtitle: "Propuestas del editor de desarrollo. Nada cambia hasta que aceptes.",
+    runPass: "Proponer cambios estructurales", running: "En curso...", refresh: "Actualizar",
+    empty: "Aún no hay propuestas",
+    emptyDesc: "Ejecuta la revisión estructural y el editor propondrá movimientos concretos: capítulos que reordenar, fusionar, dividir o renumerar.",
+    loadError: "No se pudieron cargar las propuestas.",
+    pending: "Espera tu decisión", accepted: "Aceptada", rejected: "Rechazada",
+    applied: "Aplicada", failed: "No se pudo ejecutar", undone: "Deshecha",
+    accept: "Aceptar", reject: "Rechazar", undo: "Deshacer",
+    rejectNote: "¿Por qué no? (opcional)",
+    reason: "Por qué", evidence: "Basado en", confidence: "Confianza",
+    kindReorder: "Reordenar", kindRenumber: "Renumerar", kindMerge: "Fusionar", kindSplit: "Dividir",
+    moveReorder: "Mover el capítulo {n} a la posición {p}",
+    moveMerge: "Fusionar los capítulos {list} en uno",
+    moveSplit: "Dividir el capítulo {n} en \u201c{anchor}\u201d",
+    nothingChangesYet: "Tu manuscrito queda intacto hasta que aceptes un movimiento.",
+    applyError: "No se pudo aplicar el movimiento", undoError: "No se pudo deshacer el movimiento",
+  },
+
   stylePage: {
     title: "Estilo de escritura", subtitle: "Su huella de voz única y análisis de estilo",
     refreshStyle: "Actualizar estilo", evolveStyle: "Evolucionar estilo",
@@ -2705,6 +2799,26 @@ const FR: UIStrings = {
     title: "Rapports", subtitle: "Analytique, continuité, analyse de marché et aperçu éditorial",
     analytics: "Analytique", continuity: "Continuité", market: "Marché", edits: "Éditions", documents: "Documents",
   },
+  structure: {
+    tab: "Structure", title: "Révision structurelle",
+    subtitle: "Propositions de l'éditeur de développement. Rien ne change tant que vous n'acceptez pas.",
+    runPass: "Proposer des changements de structure", running: "En cours...", refresh: "Actualiser",
+    empty: "Aucune proposition pour l'instant",
+    emptyDesc: "Lancez la révision structurelle et l'éditeur proposera des gestes concrets : chapitres à réordonner, fusionner, scinder ou renuméroter.",
+    loadError: "Impossible de charger les propositions.",
+    pending: "En attente de votre décision", accepted: "Acceptée", rejected: "Refusée",
+    applied: "Appliquée", failed: "Exécution impossible", undone: "Annulée",
+    accept: "Accepter", reject: "Refuser", undo: "Annuler",
+    rejectNote: "Pourquoi pas ? (facultatif)",
+    reason: "Pourquoi", evidence: "Sur la base de", confidence: "Confiance",
+    kindReorder: "Réordonner", kindRenumber: "Renuméroter", kindMerge: "Fusionner", kindSplit: "Scinder",
+    moveReorder: "Déplacer le chapitre {n} en position {p}",
+    moveMerge: "Fusionner les chapitres {list}",
+    moveSplit: "Scinder le chapitre {n} à \u00ab{anchor}\u00bb",
+    nothingChangesYet: "Votre manuscrit reste intact tant que vous n'acceptez rien.",
+    applyError: "Le geste n'a pas pu être appliqué", undoError: "Le geste n'a pas pu être annulé",
+  },
+
   stylePage: {
     title: "Style d'écriture", subtitle: "Votre empreinte vocale unique et analyse de style",
     refreshStyle: "Actualiser le style", evolveStyle: "Faire évoluer le style",
@@ -3191,6 +3305,26 @@ const RU: UIStrings = {
     title: "Отчёты", subtitle: "Аналитика, непрерывность, анализ рынка и обзор редактуры",
     analytics: "Аналитика", continuity: "Непрерывность", market: "Рынок", edits: "Редактура", documents: "Документы",
   },
+  structure: {
+    tab: "Структура", title: "Структурная редактура",
+    subtitle: "Предложения редактора. Ничего не меняется, пока вы не примете.",
+    runPass: "Предложить изменения структуры", running: "Выполняется...", refresh: "Обновить",
+    empty: "Предложений пока нет",
+    emptyDesc: "Запустите структурную редактуру, и редактор предложит конкретные шаги: какие главы переставить, объединить, разделить или перенумеровать.",
+    loadError: "Не удалось загрузить предложения.",
+    pending: "Ждёт вашего решения", accepted: "Принято", rejected: "Отклонено",
+    applied: "Применено", failed: "Не удалось выполнить", undone: "Отменено",
+    accept: "Принять", reject: "Отклонить", undo: "Отменить",
+    rejectNote: "Почему нет? (необязательно)",
+    reason: "Почему", evidence: "На основании", confidence: "Уверенность",
+    kindReorder: "Перестановка", kindRenumber: "Перенумерация", kindMerge: "Объединение", kindSplit: "Разделение",
+    moveReorder: "Переместить главу {n} на позицию {p}",
+    moveMerge: "Объединить главы {list}",
+    moveSplit: "Разделить главу {n} на \u00ab{anchor}\u00bb",
+    nothingChangesYet: "Рукопись не меняется, пока вы не примете шаг.",
+    applyError: "Шаг не удалось применить", undoError: "Шаг не удалось отменить",
+  },
+
   stylePage: {
     title: "Стиль письма", subtitle: "Ваш уникальный отпечаток голоса и анализ стиля",
     refreshStyle: "Обновить стиль", evolveStyle: "Развить стиль",
@@ -3677,6 +3811,26 @@ const ZH: UIStrings = {
     title: "报告", subtitle: "分析、连续性、市场分析和编辑概览",
     analytics: "分析", continuity: "连续性", market: "市场", edits: "编辑", documents: "文档",
   },
+  structure: {
+    tab: "结构", title: "结构修订",
+    subtitle: "来自结构编辑的建议。在你接受之前，什么都不会改变。",
+    runPass: "提出结构调整建议", running: "进行中...", refresh: "刷新",
+    empty: "暂无建议",
+    emptyDesc: "运行结构修订，编辑会提出具体调整：哪些章节该重排、合并、拆分或重新编号。",
+    loadError: "无法加载建议。",
+    pending: "等待你的决定", accepted: "已接受", rejected: "已拒绝",
+    applied: "已应用", failed: "无法执行", undone: "已撤销",
+    accept: "接受", reject: "拒绝", undo: "撤销",
+    rejectNote: "为什么不？（可选）",
+    reason: "原因", evidence: "依据", confidence: "把握",
+    kindReorder: "重排", kindRenumber: "重新编号", kindMerge: "合并", kindSplit: "拆分",
+    moveReorder: "将第 {n} 章移到第 {p} 位",
+    moveMerge: "把第 {list} 章合并为一章",
+    moveSplit: "在 \u201c{anchor}\u201d 处拆分第 {n} 章",
+    nothingChangesYet: "在你接受调整之前，稿件不会被改动。",
+    applyError: "调整未能应用", undoError: "调整未能撤销",
+  },
+
   stylePage: {
     title: "写作风格", subtitle: "您独特的声音指纹和风格分析",
     refreshStyle: "刷新风格", evolveStyle: "进化风格",

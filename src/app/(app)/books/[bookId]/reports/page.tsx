@@ -12,6 +12,7 @@ import {
   MarketTab,
   EditsOverviewTab,
   DocumentsTab,
+  StructureTab,
 } from "@/components/reports";
 import { SparklesIcon } from "lucide-react";
 
@@ -54,6 +55,7 @@ export default function ReportsPage({
         <TabsList className="flex-wrap">
           <TabsTrigger value="analytics">{s.analytics}</TabsTrigger>
           <TabsTrigger value="continuity">{s.continuity}</TabsTrigger>
+          <TabsTrigger value="structure">{t.structure.tab}</TabsTrigger>
           <TabsTrigger value="market">{s.market}</TabsTrigger>
           <TabsTrigger value="edits">{s.edits}</TabsTrigger>
           <TabsTrigger value="documents">{s.documents}</TabsTrigger>
@@ -64,6 +66,9 @@ export default function ReportsPage({
         </TabsContent>
         <TabsContent value="continuity" className="mt-6">
           <ContinuityTab bookId={bookId} />
+        </TabsContent>
+        <TabsContent value="structure" className="mt-6">
+          <StructureTab bookId={bookId} />
         </TabsContent>
         <TabsContent value="market" className="mt-6">
           <MarketTab bookId={bookId} />
