@@ -12,6 +12,11 @@ import {
   CircleIcon,
   ArrowRightIcon,
   LibraryIcon,
+  FileInputIcon,
+  FingerprintIcon,
+  BookMarkedIcon,
+  BarChart3Icon,
+  ScissorsIcon,
 } from "lucide-react";
 
 import { requireUser } from "@/lib/auth";
@@ -22,6 +27,11 @@ import {
   type DevelopmentStageKey,
   type StageStatus,
 } from "@/lib/book/development-stages";
+import {
+  deriveManuscriptStages,
+  isImportedManuscript,
+} from "@/lib/book/manuscript-stages";
+import { RefreshOnSessionComplete } from "@/components/book/refresh-on-session-complete";
 import { computeSeriesNextBook, isBookFinished } from "@/lib/series/next-book";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -39,11 +49,14 @@ const CONCEPT = "CONCEPT";
 const SYNOPSIS = "SYNOPSIS";
 const ARCHITECTURE = "ARCHITECTURE";
 const BOOK_PLAN = "BOOK_PLAN";
+const FINGERPRINT = "FINGERPRINT";
+const STORY_BIBLE = "STORY_BIBLE";
+const ANALYSIS_REPORT = "ANALYSIS_REPORT";
 const WORLD_RESEARCH = "WORLD_RESEARCH";
 const TOPIC_RESEARCH = "TOPIC_RESEARCH";
 
 interface StageDef {
-  key: DevelopmentStageKey;
+  key: DevelopmentStageKey | string;
   icon: React.ElementType;
   status: StageStatus;
   /** Workflow to launch for a "Run" stage, if any. */
@@ -78,7 +91,14 @@ export default async function BookDevelopmentPage({
   const book = await db.book.findFirst({
     where: { id: bookId, userId: user.id },
     include: {
-      chapters: { select: { id: true, chapterNumber: true, status: true } },
+      chapters: {
+        select: {
+          id: true,
+          chapterNumber: true,
+          status: true,
+          importedAt: true,
+        },
+      },
       documents: {
         where: { chapterNumber: null },
         select: { id: true, type: true, title: true },
@@ -133,6 +153,51 @@ export default async function BookDevelopmentPage({
   const stageStatus = (key: DevelopmentStageKey): StageStatus =>
     byStage.get(key) ?? "none";
   const recommendedNext = report.nextStage;
+
+  // O11 — a book that arrived finished follows a different path. Which board
+  // the writer sees is decided by the data (an import stamp, or chapters that
+  // never had a concept or synopsis), not by a toggle he has to find.
+  const imported = isImportedManuscript({
+    importedChapterCount: book.chapters.filter((c) => c.importedAt).length,
+    chapterCount,
+    hasConcept: !!concept,
+    hasSynopsis: !!synopsis,
+  });
+
+  const fingerprint = docTypeOf(FINGERPRINT);
+  const storyBible = docTypeOf(STORY_BIBLE);
+  const analysisReport = docTypeOf(ANALYSIS_REPORT);
+
+  const [readRuns, structureMovesTotal, structureMovesPending] = imported
+    ? await Promise.all([
+        db.agentSession.count({
+          where: { bookId, workflowId: "read-manuscript", status: "completed" },
+        }),
+        db.structureMove.count({ where: { bookId } }),
+        db.structureMove.count({ where: { bookId, status: "pending" } }),
+      ])
+    : [0, 0, 0];
+
+  const editedCount = book.chapters.filter((c) =>
+    ["dev_edited", "line_edited", "beta_read", "beta_passed", "final"].includes(
+      c.status
+    )
+  ).length;
+
+  const manuscriptReport = deriveManuscriptStages({
+    hasReadManuscriptRun: readRuns > 0,
+    hasFingerprint: !!fingerprint,
+    hasStoryBible: !!storyBible,
+    hasArchitecture: !!architecture,
+    hasAnalysisReport: !!analysisReport,
+    structureMovesTotal,
+    structureMovesPending,
+    chapterCount,
+    editedCount,
+  });
+  const manuscriptStatus = new Map(
+    manuscriptReport.stages.map((st) => [st.key, st.status] as const)
+  );
 
   const firstDraftChapter = book.chapters[0];
 
@@ -194,6 +259,80 @@ export default async function BookDevelopmentPage({
     },
   ];
 
+  const manuscriptStages: StageDef[] = [
+    {
+      key: "read",
+      icon: FileInputIcon,
+      status: manuscriptStatus.get("read") ?? "none",
+      runWorkflow: "read-manuscript",
+    },
+    {
+      key: "style",
+      icon: FingerprintIcon,
+      status: manuscriptStatus.get("style") ?? "none",
+      runWorkflow: "capture-style",
+      viewArtifactId: fingerprint?.id,
+    },
+    {
+      key: "bible",
+      icon: BookOpenIcon,
+      status: manuscriptStatus.get("bible") ?? "none",
+      runWorkflow: "create-story-bible",
+      viewArtifactId: storyBible?.id,
+    },
+    {
+      key: "architecture",
+      icon: NetworkIcon,
+      status: manuscriptStatus.get("architecture") ?? "none",
+      runWorkflow: "build-architecture",
+      viewArtifactId: architecture?.id,
+    },
+    {
+      key: "analyze",
+      icon: BarChart3Icon,
+      status: manuscriptStatus.get("analyze") ?? "none",
+      runWorkflow: "analyze",
+      viewArtifactId: analysisReport?.id,
+    },
+    {
+      key: "restructure",
+      icon: ScissorsIcon,
+      status: manuscriptStatus.get("restructure") ?? "none",
+      runWorkflow: "restructure",
+      jumpHref: `/books/${bookId}/reports`,
+      jumpLabel: t.structure.tab,
+    },
+    {
+      key: "edit",
+      icon: BookMarkedIcon,
+      status: manuscriptStatus.get("edit") ?? "none",
+      runWorkflow: "dev-edit",
+      jumpHref: chaptersHref,
+      jumpLabel: s.manuscript,
+    },
+  ];
+
+  const manuscriptStrings: Record<
+    string,
+    { title: string; desc: string; artifact: string }
+  > = {
+    read: { title: s.impRead, desc: s.impReadDesc, artifact: s.manuscript },
+    style: { title: s.impStyle, desc: s.impStyleDesc, artifact: s.concept },
+    bible: { title: s.impBible, desc: s.impBibleDesc, artifact: s.concept },
+    architecture: {
+      title: s.impArchitecture,
+      desc: s.impArchitectureDesc,
+      artifact: s.architecture,
+    },
+    analyze: { title: s.impAnalyze, desc: s.impAnalyzeDesc, artifact: s.manuscript },
+    restructure: {
+      title: s.impRestructure,
+      desc: s.impRestructureDesc,
+      artifact: s.manuscript,
+    },
+    edit: { title: s.impEdit, desc: s.impEditDesc, artifact: s.manuscript },
+  };
+
   const statusLabel: Record<StageStatus, string> = {
     done: s.done,
     partial: s.inProgress,
@@ -216,6 +355,14 @@ export default async function BookDevelopmentPage({
     draft: { title: s.draft, desc: s.draftDesc, artifact: s.manuscript },
   };
 
+  // From here the board renders one path. The importer never meets the
+  // greenfield cards, and the greenfield writer never meets the importer ones.
+  const boardStages = imported ? manuscriptStages : stages;
+  const boardStrings = imported ? manuscriptStrings : stageStrings;
+  const boardNext = imported ? manuscriptReport.nextStage : recommendedNext;
+  const boardTitle = imported ? s.importedTitle : s.title;
+  const boardSubtitle = imported ? s.importedSubtitle : s.subtitle;
+
   // UDG round-3 (Filip/Olivera): series continuation state — per-volume status
   // and the next volume number to start.
   const seriesBooks = book.series?.books ?? [];
@@ -230,19 +377,27 @@ export default async function BookDevelopmentPage({
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span className="truncate font-medium text-foreground">{book.name}</span>
           <ArrowRightIcon className="size-3.5 shrink-0" />
-          <span>{s.title}</span>
+          <span>{boardTitle}</span>
         </div>
-        <h1 className="font-display text-3xl font-bold tracking-tight">{s.title}</h1>
-        <p className="max-w-2xl text-muted-foreground">{s.subtitle}</p>
+        <h1 className="font-display text-3xl font-bold tracking-tight">{boardTitle}</h1>
+        <p className="max-w-2xl text-muted-foreground">{boardSubtitle}</p>
+        {imported && (
+          <p className="text-sm text-muted-foreground">{s.impPathNote}</p>
+        )}
       </header>
+
+      {/* O8 — a background workflow writes its document on the server; without
+          this the board keeps reading "not started" and the writer runs the same
+          job again. */}
+      <RefreshOnSessionComplete bookId={bookId} />
 
       {/* UDG round-5 (Ana): guided "start here" arrow for first-time novelists —
           surface THE single next stage and its action above the six equal cards,
           gated on the concept-first path (pipeline incomplete, no drafts yet). */}
-      {report.nextStage &&
-        drafted === 0 &&
+      {boardNext &&
+        (imported || drafted === 0) &&
         (() => {
-          const recom = stages.find((s) => s.key === report.nextStage)!;
+          const recom = boardStages.find((st) => st.key === boardNext)!;
           return (
             <section className="rounded-xl border-2 border-primary/50 bg-primary/[0.04] p-4 sm:p-5">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -253,7 +408,7 @@ export default async function BookDevelopmentPage({
                       {s.startHere}
                       {recom?.viewArtifactId
                         ? ""
-                        : ` — ${stageStrings[report.nextStage]?.title ?? ""}`}
+                        : ` - ${boardStrings[boardNext]?.title ?? ""}`}
                     </p>
                     <p className="text-sm text-muted-foreground">{s.startHereDesc}</p>
                   </div>
@@ -294,12 +449,12 @@ export default async function BookDevelopmentPage({
 
       {/* Pipeline visual */}
       <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {stages.map((stage, i) => {
-          const str = stageStrings[stage.key];
+        {boardStages.map((stage, i) => {
+          const str = boardStrings[stage.key];
           const Icon = stage.icon;
           const isDone = stage.status === "done";
           const hasArtifact = !!stage.viewArtifactId;
-          const isRecommended = recommendedNext === stage.key;
+          const isRecommended = boardNext === stage.key;
           return (
             <li key={stage.key}>
               <Card
