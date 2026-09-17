@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
-import type { Prisma } from "@/generated/prisma/client";
+import { buildRenumberOps } from "@/lib/chapters/renumber";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 /**
@@ -13,23 +13,13 @@ import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-bod
  * chapterNumber PATCHes (which race the @@unique([bookId, chapterNumber])
  * constraint and fail with P2002).
  *
- * The renumber is TWO-PHASE inside a single transaction to satisfy the unique
- * constraint: phase A parks every chapter at a collision-free temporary number
- * (10000 + array index), phase B assigns the finals. A one-shot "set final"
- * would collide whenever a target number is still held by another chapter mid-swap.
- *
- * Chapter-scoped documents (CHAPTER_CONTENT, briefs, plans, edit reports) are
- * resolved by (bookId, chapter_number) — see DocumentService.findByType — so
- * their `chapter_number` discriminator must follow the renumber or the prose
- * becomes unreachable. It is renumbered with the same two-phase offset. The
- * document `storageKey` (which embeds the padded number from creation time) is
- * deliberately NOT touched: it is the physical content pointer, so leaving it
- * put keeps every version's bytes exactly where they are — only the lookup
- * column moves.
+ * The two-phase transaction itself lives in @/lib/chapters/renumber, shared with
+ * the O12 structural-revision engine — accepting a proposed reorder and dragging
+ * a card on the corkboard must renumber chapters and their scoped documents by
+ * exactly the same rules.
  */
 
 const MAX_CHAPTERS = 999;
-const TEMP_OFFSET = 10000;
 
 const reorderSchema = z.object({
   order: z
@@ -80,48 +70,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       chapters.map((c) => [c.id, c.chapterNumber])
     );
 
-    // Build one transaction: phase A parks everything at a temp number, phase B
-    // writes finals — for chapters AND their scoped documents.
-    const ops: Prisma.PrismaPromise<unknown>[] = [];
-
-    // Phase A — chapters → temp.
-    order.forEach((o, i) => {
-      ops.push(
-        db.chapter.update({
-          where: { id: o.chapterId },
-          data: { chapterNumber: TEMP_OFFSET + i },
-        })
-      );
-    });
-    // Phase A — documents (old number → temp). storageKey untouched.
-    order.forEach((o, i) => {
-      ops.push(
-        db.document.updateMany({
-          where: { bookId, chapterNumber: oldNumberById.get(o.chapterId) },
-          data: { chapterNumber: TEMP_OFFSET + i },
-        })
-      );
-    });
-    // Phase B — chapters → final.
-    order.forEach((o, i) => {
-      ops.push(
-        db.chapter.update({
-          where: { id: o.chapterId },
-          data: { chapterNumber: o.chapterNumber },
-        })
-      );
-    });
-    // Phase B — documents (temp → final).
-    order.forEach((o, i) => {
-      ops.push(
-        db.document.updateMany({
-          where: { bookId, chapterNumber: TEMP_OFFSET + i },
-          data: { chapterNumber: o.chapterNumber },
-        })
-      );
-    });
-
-    await db.$transaction(ops);
+    await db.$transaction(buildRenumberOps(bookId, order, oldNumberById));
 
     return NextResponse.json({ reordered: order.length });
   } catch (error) {

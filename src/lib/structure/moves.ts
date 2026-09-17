@@ -76,7 +76,13 @@ export type MoveErrorCode =
   | "anchor_not_found"
   | "anchor_ambiguous"
   | "anchor_too_early"
-  | "unknown_kind";
+  | "unknown_kind"
+  // Apply-time (O12 phase 2) — the move was valid when proposed but cannot run now.
+  | "move_not_found"
+  | "not_pending"
+  | "not_applied"
+  | "content_missing"
+  | "apply_failed";
 
 export interface MoveError {
   code: MoveErrorCode;
