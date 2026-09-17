@@ -541,11 +541,175 @@ export const MODEL_REGISTRY: ModelDefinition[] = [
     supportsTools: true,
     supportsStreaming: true,
   },
+  // ── Local fleet (LAN gateway) via Anthropic->OpenAI proxy ─────
+  // Every model the LiteLLM fleet gateway on 10.33.0.153:4000 serves, reached
+  // through local-llm-proxy.py, which translates the Anthropic Messages API the
+  // app speaks into /v1/chat/completions and maps these registry ids onto the
+  // gateway's model names (see DEFAULT_MODEL_MAP there — the two lists MUST
+  // stay in sync). Self-hosted, so every cost is 0 and the cost tier is "$".
+  //
+  // Each family carries all three tier slots so role resolution and
+  // resolveCheapModelFor("local-<x>/…") stay inside the family instead of
+  // falling through to anthropic/haiku (D-119 pattern) — the slots are the same
+  // upstream model, which is why the displayNames are identical (the picker
+  // collapses same-name entries into one item).
+  //
+  // Gateway aliases `claude-local` and `qwen3.8-27b` are deliberately absent:
+  // both are aliases of models already listed here, and a duplicate picker
+  // entry serving the same weights is a worse choice, not an extra one.
+
+  // DeepSeek V4.1 Flash (H100) — platform default, see ./defaults.ts.
+  {
+    id: "local-deepseek/opus",
+    provider: "local",
+    modelId: "local-deepseek/opus",
+    displayName: "DeepSeek V4.1 Flash (Local Fleet)",
+    tier: "opus",
+    inputCostPer1M: 0,
+    outputCostPer1M: 0,
+    costTier: "$",
+    supportsTools: true,
+    supportsStreaming: true,
+  },
+  {
+    id: "local-deepseek/sonnet",
+    provider: "local",
+    modelId: "local-deepseek/sonnet",
+    displayName: "DeepSeek V4.1 Flash (Local Fleet)",
+    tier: "sonnet",
+    inputCostPer1M: 0,
+    outputCostPer1M: 0,
+    costTier: "$",
+    supportsTools: true,
+    supportsStreaming: true,
+  },
+  {
+    id: "local-deepseek/haiku",
+    provider: "local",
+    modelId: "local-deepseek/haiku",
+    displayName: "DeepSeek V4.1 Flash (Local Fleet)",
+    tier: "haiku",
+    inputCostPer1M: 0,
+    outputCostPer1M: 0,
+    costTier: "$",
+    supportsTools: true,
+    supportsStreaming: true,
+  },
+  // DeepSeek V4 Flash — previous generation, still served by the gateway.
+  {
+    id: "local-deepseek-v4/opus",
+    provider: "local",
+    modelId: "local-deepseek-v4/opus",
+    displayName: "DeepSeek V4 Flash (Local Fleet)",
+    tier: "opus",
+    inputCostPer1M: 0,
+    outputCostPer1M: 0,
+    costTier: "$",
+    supportsTools: true,
+    supportsStreaming: true,
+  },
+  {
+    id: "local-deepseek-v4/sonnet",
+    provider: "local",
+    modelId: "local-deepseek-v4/sonnet",
+    displayName: "DeepSeek V4 Flash (Local Fleet)",
+    tier: "sonnet",
+    inputCostPer1M: 0,
+    outputCostPer1M: 0,
+    costTier: "$",
+    supportsTools: true,
+    supportsStreaming: true,
+  },
+  {
+    id: "local-deepseek-v4/haiku",
+    provider: "local",
+    modelId: "local-deepseek-v4/haiku",
+    displayName: "DeepSeek V4 Flash (Local Fleet)",
+    tier: "haiku",
+    inputCostPer1M: 0,
+    outputCostPer1M: 0,
+    costTier: "$",
+    supportsTools: true,
+    supportsStreaming: true,
+  },
+  // Qwen3.8 Flash-Next on the Sparks — 1M context, best for parallel agents.
+  {
+    id: "local-qwenflash/opus",
+    provider: "local",
+    modelId: "local-qwenflash/opus",
+    displayName: "Qwen3.8 Flash-Next (Local Fleet)",
+    tier: "opus",
+    inputCostPer1M: 0,
+    outputCostPer1M: 0,
+    costTier: "$",
+    supportsTools: true,
+    supportsStreaming: true,
+  },
+  {
+    id: "local-qwenflash/sonnet",
+    provider: "local",
+    modelId: "local-qwenflash/sonnet",
+    displayName: "Qwen3.8 Flash-Next (Local Fleet)",
+    tier: "sonnet",
+    inputCostPer1M: 0,
+    outputCostPer1M: 0,
+    costTier: "$",
+    supportsTools: true,
+    supportsStreaming: true,
+  },
+  {
+    id: "local-qwenflash/haiku",
+    provider: "local",
+    modelId: "local-qwenflash/haiku",
+    displayName: "Qwen3.8 Flash-Next (Local Fleet)",
+    tier: "haiku",
+    inputCostPer1M: 0,
+    outputCostPer1M: 0,
+    costTier: "$",
+    supportsTools: true,
+    supportsStreaming: true,
+  },
+  // Qwen3.8 27B uncensored on Zika — fastest solo box, vision, no refusals.
+  {
+    id: "local-zika/opus",
+    provider: "local",
+    modelId: "local-zika/opus",
+    displayName: "Qwen3.8 27B Uncensored — Zika (Local Fleet)",
+    tier: "opus",
+    inputCostPer1M: 0,
+    outputCostPer1M: 0,
+    costTier: "$",
+    supportsTools: true,
+    supportsStreaming: true,
+  },
+  {
+    id: "local-zika/sonnet",
+    provider: "local",
+    modelId: "local-zika/sonnet",
+    displayName: "Qwen3.8 27B Uncensored — Zika (Local Fleet)",
+    tier: "sonnet",
+    inputCostPer1M: 0,
+    outputCostPer1M: 0,
+    costTier: "$",
+    supportsTools: true,
+    supportsStreaming: true,
+  },
+  {
+    id: "local-zika/haiku",
+    provider: "local",
+    modelId: "local-zika/haiku",
+    displayName: "Qwen3.8 27B Uncensored — Zika (Local Fleet)",
+    tier: "haiku",
+    inputCostPer1M: 0,
+    outputCostPer1M: 0,
+    costTier: "$",
+    supportsTools: true,
+    supportsStreaming: true,
+  },
   // ── Local (LAN vLLM) via Anthropic->OpenAI proxy ──────────────
-  // Single self-hosted model on the LAN (vLLM, OpenAI-compatible). Reached
-  // through the local-llm-proxy which translates the Anthropic Messages API
-  // the app speaks into /v1/chat/completions. Free to run (no token cost),
-  // so it doubles as the zero-cost default for local testing.
+  // LEGACY ids kept because user/book settings rows already store them; the
+  // proxy maps both onto qwen3.8-flash-next. New selections should use the
+  // local-* families above. Free to run (no token cost).
   {
     id: "local/qwen38",
     provider: "local",
@@ -621,6 +785,22 @@ export function resolveCheapModelFor(defaultModelId: string): ModelDefinition {
   if (byPrefix) return byPrefix; // anthropic, openrouter, openrouter-* variants
 
   const def = getModelDef(defaultModelId);
+
+  // Same-family sibling before any provider-wide search: the legacy local ids
+  // (`local/qwen38` + `local/qwen38-haiku`) share a display name but not a
+  // prefix pattern, so the provider-wide search below returns whichever local
+  // "haiku" sits first in the registry — silently moving legacy users to a
+  // different model than the one they chose.
+  if (def) {
+    const sibling = MODEL_REGISTRY.find(
+      (m) =>
+        m.provider === def.provider &&
+        m.tier === "haiku" &&
+        m.displayName === def.displayName,
+    );
+    if (sibling) return sibling;
+  }
+
   const provider = def?.provider ?? "anthropic";
   return (
     MODEL_REGISTRY.find((m) => m.provider === provider && m.tier === "haiku") ??

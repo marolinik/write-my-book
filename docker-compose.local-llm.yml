@@ -24,10 +24,15 @@ services:
     volumes:
       - ./local-llm-proxy.py:/app/local-llm-proxy.py:ro
     environment:
-      LOCAL_LLM_BASE_URL: ${LOCAL_LLM_BASE_URL:-http://10.33.0.153:8888/v1}
-      LOCAL_LLM_MODEL: ${LOCAL_LLM_MODEL:-Qwen3.8-Flash-Next-NVFP4}
+      LOCAL_LLM_BASE_URL: ${LOCAL_LLM_BASE_URL:-http://10.33.0.153:4000/v1}
+      LOCAL_LLM_MODEL: ${LOCAL_LLM_MODEL:-deepseek-v4.1-flash}
       LOCAL_LLM_REASONING_EFFORT: ${LOCAL_LLM_REASONING_EFFORT:-medium}
+      LOCAL_LLM_MODEL_MAP: ${LOCAL_LLM_MODEL_MAP:-}
+      LOCAL_LLM_PIN_MODEL: ${LOCAL_LLM_PIN_MODEL:-}
       LOCAL_LLM_PORT: "30400"
+      # In-container the proxy must accept the compose network; the published
+      # port below is loopback-only on the host.
+      LOCAL_LLM_BIND: "0.0.0.0"
     ports:
       # Loopback publish so a HOST-side dev server (next dev :3001, Playwright
       # e2e) reaches the gateway at http://localhost:30400 exactly like the
@@ -47,8 +52,10 @@ services:
     environment:
       WMB_LLM_FORCE_LOCAL: ${WMB_LLM_FORCE_LOCAL:-1}
       WMB_LOCAL_PROXY_URL: http://local-llm-proxy:30400
-      LOCAL_LLM_BASE_URL: ${LOCAL_LLM_BASE_URL:-http://10.33.0.153:8888/v1}
-      LOCAL_LLM_MODEL: ${LOCAL_LLM_MODEL:-Qwen3.8-Flash-Next-NVFP4}
+      WMB_DEFAULT_MODEL: ${WMB_DEFAULT_MODEL:-local-deepseek/sonnet}
+      WMB_LOCAL_FALLBACK: ${WMB_LOCAL_FALLBACK:-1}
+      LOCAL_LLM_BASE_URL: ${LOCAL_LLM_BASE_URL:-http://10.33.0.153:4000/v1}
+      LOCAL_LLM_MODEL: ${LOCAL_LLM_MODEL:-deepseek-v4.1-flash}
       LOCAL_LLM_REASONING_EFFORT: ${LOCAL_LLM_REASONING_EFFORT:-medium}
       # This overlay's whole purpose is LAN endpoints, so custom-provider
       # base URLs may resolve to private ranges here (cloud metadata stays
@@ -62,4 +69,6 @@ services:
     environment:
       WMB_LLM_FORCE_LOCAL: ${WMB_LLM_FORCE_LOCAL:-1}
       WMB_LOCAL_PROXY_URL: http://local-llm-proxy:30400
+      WMB_DEFAULT_MODEL: ${WMB_DEFAULT_MODEL:-local-deepseek/sonnet}
+      WMB_LOCAL_FALLBACK: ${WMB_LOCAL_FALLBACK:-1}
       WMB_ALLOW_PRIVATE_MODEL_HOSTS: "1"

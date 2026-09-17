@@ -8,6 +8,8 @@ import type { AgentRole } from "@/lib/llm";
 
 export interface DefaultModelData {
   defaultModel: string;
+  /** Server-reported: the self-hosted fleet is reachable on this install. */
+  localFleet?: boolean;
   modelGhostwriter: string | null;
   modelEditor: string | null;
   modelBetaReader: string | null;

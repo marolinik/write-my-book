@@ -39,6 +39,7 @@ export {
   type ProviderRouteResult,
   createLLMClient,
   resolveProviderRoute,
+  resolveRouteWithLocalFallback,
   toOpenRouterModelId,
 } from "./client-factory";
 
@@ -71,3 +72,10 @@ export {
   ProviderError,
   withProviderRetry,
 } from "./retry-handler";
+
+export {
+  FALLBACK_DEFAULT_MODEL_ID,
+  getDefaultModelId,
+  isLocalFallbackEnabled,
+  isLocalFleetConfigured,
+} from "./defaults";

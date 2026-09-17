@@ -16,7 +16,10 @@ model User {
   email             String   @unique
   displayName       String?  @map("display_name")
   preferredLanguage String   @default("en") @map("preferred_language")
-  defaultModel      String   @default("anthropic/sonnet") @map("default_model")
+  // Default model for new users: the self-hosted fleet gateway (zero cost, no
+  // provider key needed). Deployments on paid providers override per user in
+  // settings, or set WMB_DEFAULT_MODEL (see src/lib/llm/defaults.ts).
+  defaultModel      String   @default("local-deepseek/sonnet") @map("default_model")
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @updatedAt @map("updated_at")
 

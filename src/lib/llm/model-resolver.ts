@@ -13,6 +13,7 @@
 
 import type { ModelDefinition, ModelTier } from "./model-registry";
 import { getModelDef, getModelTierValue } from "./model-registry";
+import { getDefaultModelId } from "./defaults";
 import type { AgentType } from "@/lib/agents/types";
 
 // ── Agent Roles ─────────────────────────────────────────────────
@@ -188,11 +189,13 @@ export function resolveModelForRole(
     return { registryId: globalDefault, modelDef, resolvedFrom: "global-default" };
   }
 
-  // Ultimate fallback: anthropic/sonnet (should never reach here if data is valid)
-  const fallback = getModelDef("anthropic/sonnet")!;
+  // Ultimate fallback: the deployment default (should never reach here if data
+  // is valid). getDefaultModelId only ever returns a registry-known id, so the
+  // non-null assertion cannot fire on a configuration mistake.
+  const fallbackId = getDefaultModelId();
   return {
-    registryId: "anthropic/sonnet",
-    modelDef: fallback,
+    registryId: fallbackId,
+    modelDef: getModelDef(fallbackId)!,
     resolvedFrom: "global-default",
   };
 }
@@ -219,8 +222,9 @@ export interface ConductorUserModelSettings {
  * The conductor is a real role ("coach") and MUST honor the user's choice —
  * it walks the exact same 4-level chain the specialists use (book-role →
  * book-default → global-role → global-default). The terminal fallback is
- * anthropic/sonnet, produced by {@link resolveModelForRole} when the global
- * default is missing or unresolvable.
+ * the deployment default, produced by {@link resolveModelForRole} when the global
+ * default is missing or unresolvable, and is the deployment default
+ * ({@link getDefaultModelId}), not a hardcoded provider model.
  *
  * @param bookSettings - Book-level model settings (null if none exist)
  * @param user - The user's global default + per-role overrides
@@ -232,7 +236,7 @@ export function resolveConductorModel(
 ): ResolvedModel {
   const globalDefault = isValidOverride(user.defaultModel)
     ? user.defaultModel
-    : "anthropic/sonnet";
+    : getDefaultModelId();
 
   const globalRoleOverrides: Record<AgentRole, string | null> = {
     ghostwriter: user.modelGhostwriter,
@@ -292,7 +296,7 @@ export function resolveConductorModelForWorkflow(
 
   const globalDefault = isValidOverride(user.defaultModel)
     ? user.defaultModel
-    : "anthropic/sonnet";
+    : getDefaultModelId();
 
   const globalRoleOverrides: Record<AgentRole, string | null> = {
     ghostwriter: user.modelGhostwriter,

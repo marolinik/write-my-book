@@ -74,6 +74,12 @@ vi.mock("@/lib/llm", () => ({
   resolveModelForRole: (...a: unknown[]) => h.resolveModelForRole(...a),
   mapAgentTypeToRole: (...a: unknown[]) => h.mapAgentTypeToRole(...a),
   resolveProviderRoute: (...a: unknown[]) => h.resolveProviderRoute(...a),
+  // The routes call the fallback-aware helper; delegate to the same mock so the
+  // per-test route expectations below keep governing behaviour.
+  resolveRouteWithLocalFallback: (model: { provider?: string; modelId?: string; id?: string }) => ({
+    route: h.resolveProviderRoute(model?.provider, {}, model?.modelId, model?.id),
+    model,
+  }),
 }));
 vi.mock("@/lib/agents", () => ({
   AgentOrchestrator: class {

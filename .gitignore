@@ -75,3 +75,6 @@ shelf-live.jpg
 # Local test run logs
 logz*
 
+
+# Python bytecode from local-llm-proxy.py
+__pycache__/

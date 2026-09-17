@@ -5,6 +5,7 @@ import { getModelDef } from "@/lib/llm";
 import { z } from "zod";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { zodErrorResponse } from "@/lib/api/zod-error";
+import { getDefaultModelId, isLocalFleetConfigured } from "@/lib/llm/defaults";
 
 // ── Validation ─────────────────────────────────────────────────
 
@@ -60,7 +61,11 @@ export async function GET() {
     });
 
     return NextResponse.json({
-      defaultModel: dbUser?.defaultModel ?? "anthropic/sonnet",
+      // The browser cannot read WMB_* env vars, so the server states whether
+      // the self-hosted fleet is available; the picker needs it to offer the
+      // keyless "local" provider group.
+      localFleet: isLocalFleetConfigured(),
+      defaultModel: dbUser?.defaultModel ?? getDefaultModelId(),
       modelGhostwriter: dbUser?.modelGhostwriter ?? null,
       modelEditor: dbUser?.modelEditor ?? null,
       modelBetaReader: dbUser?.modelBetaReader ?? null,
@@ -150,7 +155,7 @@ export async function PATCH(request: NextRequest) {
     });
 
     return NextResponse.json({
-      defaultModel: updated?.defaultModel ?? "anthropic/sonnet",
+      defaultModel: updated?.defaultModel ?? getDefaultModelId(),
       modelGhostwriter: updated?.modelGhostwriter ?? null,
       modelEditor: updated?.modelEditor ?? null,
       modelBetaReader: updated?.modelBetaReader ?? null,

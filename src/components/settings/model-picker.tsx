@@ -63,6 +63,11 @@ const USE_DEFAULT_VALUE = "__use_default__";
 
 // ── Component ─────────────────────────────────────────────────
 
+/** Display names for provider slots that carry no user API key. */
+const NON_BYOK_PROVIDER_NAMES: Record<string, string> = {
+  local: "Local fleet (self-hosted)",
+};
+
 export function ModelPicker({
   value,
   onChange,
@@ -117,7 +122,10 @@ export function ModelPicker({
               try {
                 providerName = getProvider(providerKey).displayName;
               } catch {
-                providerName = providerKey;
+                // Non-BYOK provider slots have no PROVIDERS entry; name them
+                // rather than printing the raw key as a group header.
+                providerName =
+                  NON_BYOK_PROVIDER_NAMES[providerKey] ?? providerKey;
               }
 
               return (

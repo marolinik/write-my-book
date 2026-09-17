@@ -4,7 +4,7 @@
  * Anthropic and OpenRouter send a tiny message (~$0.0003).
  */
 
-import { type ProviderKey, getProvider } from "./providers";
+import { type ProviderKey, getProvider, PROVIDER_KEYS } from "./providers";
 
 export interface KeyValidationResult {
   valid: boolean;
@@ -64,6 +64,14 @@ export async function validateApiKey(
     } finally {
       clearTimeout(timeout);
     }
+  }
+
+  // Providers outside the BYOK set (currently "local" — the self-hosted fleet
+  // reached through the proxy) have no user key to check: the caller holds a
+  // sentinel, not a credential. getProvider() THROWS on them, which turned the
+  // agent-start route into a 500 for every user on a local default model.
+  if (!PROVIDER_KEYS.includes(provider as (typeof PROVIDER_KEYS)[number])) {
+    return { valid: true };
   }
 
   const providerDef = getProvider(provider);

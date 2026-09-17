@@ -3,9 +3,10 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { decryptApiKey } from "@/lib/encryption";
 import { estimateCost } from "@/lib/cost";
-import { createLLMClient, resolveProviderRoute, resolveCheapModelFor } from "@/lib/llm";
+import { createLLMClient, resolveRouteWithLocalFallback, resolveCheapModelFor } from "@/lib/llm";
 import type { ProviderKey } from "@/lib/llm";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { getDefaultModelId } from "@/lib/llm/defaults";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -68,7 +69,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       where: { id: user.id },
       select: { defaultModel: true },
     });
-    const userDefault = dbUser?.defaultModel ?? "anthropic/sonnet";
+    const userDefault = dbUser?.defaultModel ?? getDefaultModelId();
     const cheapModel = resolveCheapModelFor(userDefault);
 
     const userKeys = await db.apiKey.findMany({
@@ -80,7 +81,10 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       decryptedKeys[k.provider as ProviderKey] = decryptApiKey(k.encryptedKey);
     }
 
-    const route = resolveProviderRoute(cheapModel.provider as ProviderKey, {
+    // Fallback-aware: with WMB_LOCAL_FALLBACK on, a missing key is served by
+    // the local fleet instead of 400-ing here (createLLMClient below makes the
+    // same substitution).
+    const { route } = resolveRouteWithLocalFallback(cheapModel, {
       anthropicApiKey: decryptedKeys.anthropic,
       openrouterApiKey: decryptedKeys.openrouter,
       openaiApiKey: decryptedKeys.openai,

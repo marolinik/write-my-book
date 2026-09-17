@@ -17,6 +17,7 @@ import type {
   GraphNodeLabel,
   RelationshipType,
 } from "./types";
+import { getDefaultModelId, isLocalFallbackEnabled } from "@/lib/llm/defaults";
 
 /**
  * The result of an extraction attempt, plus an HONEST failure discriminator.
@@ -59,15 +60,26 @@ function createExtractionClient(
   const hasAnthropic = !!anthropicApiKey;
   const hasOpenRouter = !!openrouterApiKey;
 
-  if (!hasAnthropic && !hasOpenRouter) {
+  // A user on the self-hosted fleet has no provider key at all, and needs none:
+  // the cheap tier of a local default (or the local fallback) is keyless. Only
+  // refuse when there is genuinely nothing to route to.
+  const cheapForDefault = defaultModel
+    ? resolveCheapModelFor(defaultModel)
+    : resolveCheapModelFor(getDefaultModelId());
+  const keylessRoute =
+    cheapForDefault.provider === "local" || isLocalFallbackEnabled();
+
+  if (!hasAnthropic && !hasOpenRouter && !keylessRoute) {
     throw new Error("No API key available for entity extraction. Add a key in Settings > API Keys.");
   }
 
   const registryId = defaultModel
-    ? resolveCheapModelFor(defaultModel).id
+    ? cheapForDefault.id
     : hasOpenRouter
       ? "openrouter/haiku"
-      : "anthropic/haiku";
+      : hasAnthropic
+        ? "anthropic/haiku"
+        : cheapForDefault.id;
   const { client, model } = createLLMClient({
     modelId: registryId,
     anthropicApiKey,

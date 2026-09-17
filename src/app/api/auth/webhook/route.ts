@@ -2,6 +2,7 @@ import { Webhook } from "svix";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { logger } from "@/lib/logger";
+import { getDefaultModelId } from "@/lib/llm/defaults";
 
 /** Clerk webhook handler with svix signature verification. */
 export async function POST(req: NextRequest) {
@@ -62,6 +63,9 @@ export async function POST(req: NextRequest) {
           create: {
             clerkId: data.id as string,
             email: emailAddresses?.[0]?.email_address ?? "",
+            // Keep in step with lib/auth.ts: the deployment default governs new
+            // accounts, not the Prisma column default.
+            defaultModel: getDefaultModelId(),
             displayName:
               [data.first_name, data.last_name].filter(Boolean).join(" ") ||
               (data.username as string) ||

@@ -4,6 +4,7 @@ import {
   type BookModelSettings,
   type ConductorUserModelSettings,
 } from "@/lib/llm/model-resolver";
+import { getDefaultModelId } from "@/lib/llm/defaults";
 
 /** A user with no overrides and a given default. */
 function user(
@@ -60,14 +61,19 @@ describe("resolveConductorModel", () => {
     expect(resolved.resolvedFrom).toBe("global-default");
   });
 
-  it("terminal fallback is anthropic/sonnet when the default is missing/invalid", () => {
-    // null default and no overrides anywhere → provider/sonnet terminal fallback
+  it("terminal fallback is the deployment default when the default is missing/invalid", () => {
+    // The terminal fallback follows the deployment default (WMB_DEFAULT_MODEL /
+    // getDefaultModelId), not a hardcoded provider model — asserting the literal
+    // would re-pin the app to Anthropic the moment an operator changes it.
+    const deploymentDefault = getDefaultModelId();
+
+    // null default and no overrides anywhere → deployment-default terminal fallback
     const nullDefault = resolveConductorModel(null, user(null));
-    expect(nullDefault.registryId).toBe("anthropic/sonnet");
+    expect(nullDefault.registryId).toBe(deploymentDefault);
 
     // an unknown registry id as default also collapses to the terminal fallback
     const badDefault = resolveConductorModel(null, user("not-a-real/model"));
-    expect(badDefault.registryId).toBe("anthropic/sonnet");
+    expect(badDefault.registryId).toBe(deploymentDefault);
   });
 
   it("returns a fully-populated modelDef for the resolved id", () => {

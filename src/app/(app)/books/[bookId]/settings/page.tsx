@@ -49,6 +49,7 @@ import {
   getModelDef,
 } from "@/lib/llm";
 import type { ProviderKey } from "@/lib/llm/providers";
+import { getDefaultModelId } from "@/lib/llm/defaults";
 
 // ── Role descriptions ─────────────────────────────────────────
 
@@ -93,14 +94,17 @@ export default function BookSettingsPage() {
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
 
   // Derive available providers from user's validated keys
-  const availableProviders: ProviderKey[] = useMemo(
-    () =>
-      (apiKeys ?? [])
-        .filter((k) => k.validatedAt != null)
-        .map((k) => k.provider as ProviderKey)
-        .filter((p, i, arr) => arr.indexOf(p) === i),
-    [apiKeys]
-  );
+  const availableProviders: ProviderKey[] = useMemo(() => {
+    const fromKeys = (apiKeys ?? [])
+      .filter((k) => k.validatedAt != null)
+      .map((k) => k.provider as ProviderKey)
+      .filter((p, i, arr) => arr.indexOf(p) === i);
+    // Keyless self-hosted fleet — see model-selection-section.tsx.
+    if (defaultModelData?.localFleet === true) {
+      fromKeys.push("local" as ProviderKey);
+    }
+    return fromKeys;
+  }, [apiKeys, defaultModelData?.localFleet]);
 
   // Build resolution chain inputs for preview
   const bookModelSettings: BookModelSettings | null = useMemo(() => {
@@ -128,7 +132,7 @@ export default function BookSettingsPage() {
     [defaultModelData]
   );
 
-  const globalDefault = defaultModelData?.defaultModel ?? "anthropic/sonnet";
+  const globalDefault = defaultModelData?.defaultModel ?? getDefaultModelId();
 
   if (isLoading) {
     return (

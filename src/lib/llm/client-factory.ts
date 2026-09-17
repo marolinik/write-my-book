@@ -18,6 +18,7 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { getModelDef, resolveFromTier, type LLMProvider, type ModelDefinition } from "./model-registry";
+import { FALLBACK_DEFAULT_MODEL_ID, getDefaultModelId, isLocalFallbackEnabled } from "./defaults";
 
 // The Anthropic SDK appends `/v1/messages` to baseURL, so the base must be
 // `/api` (NOT `/api/v1`, which would 404 at `/api/v1/v1/messages`). Verified
@@ -312,26 +313,77 @@ function needsLiteLLMProxy(_model: ModelDefinition, route: ProviderRouteResult):
  * 2. OpenRouter key -> OpenRouter with model ID translation
  * 3. No usable key -> throws with clear error (never silently falls back)
  */
+/**
+ * Resolve the local fleet model that stands in for another model: the
+ * deployment default when that default is itself a local model, otherwise the
+ * built-in local default. Never returns undefined — both ids are registry
+ * constants, so a miss here is a programming error, not a runtime condition.
+ */
+function localStandInModel(): ModelDefinition {
+  const configured = getModelDef(getDefaultModelId());
+  if (configured?.provider === "local") return configured;
+  return getModelDef(FALLBACK_DEFAULT_MODEL_ID)!;
+}
+
+/**
+ * Resolve a provider route, substituting the local fleet when the model's
+ * provider has no usable key and WMB_LOCAL_FALLBACK is on.
+ *
+ * Call sites that pre-check routing themselves (and return their own 400)
+ * MUST use this instead of {@link resolveProviderRoute}: otherwise the fallback
+ * only worked for the handful of paths that go straight to createLLMClient, and
+ * the same setting meant two different things depending on the endpoint.
+ *
+ * The returned `model` is what will actually run — the local stand-in when the
+ * substitution fired — so callers price and label the run honestly.
+ */
+export function resolveRouteWithLocalFallback(
+  model: ModelDefinition,
+  availableKeys: AvailableKeys,
+): { route: ProviderRouteResult; model: ModelDefinition } {
+  const route = resolveProviderRoute(
+    model.provider,
+    availableKeys,
+    model.modelId,
+    model.id,
+  );
+  if (route.route !== "none" || !isLocalFallbackEnabled()) {
+    return { route, model };
+  }
+
+  const standIn = localStandInModel();
+  const localRoute = resolveProviderRoute("local", {}, standIn.modelId, standIn.id);
+  console.warn(
+    `[llm] no usable key for ${model.id} (provider ${model.provider}) — ` +
+      `serving ${standIn.id} from the local fleet instead`,
+  );
+  return { route: localRoute, model: standIn };
+}
+
+/** Build a client pointed at the local fleet proxy for the given model. */
+function localClient(model: ModelDefinition): LLMClient {
+  const localRoute = resolveProviderRoute("local", {}, model.modelId, model.id);
+  if (localRoute.route === "none") {
+    throw new Error(localRoute.error);
+  }
+  return {
+    client: new Anthropic({
+      apiKey: localRoute.apiKey,
+      baseURL: localRoute.baseURL,
+    }),
+    model,
+    effectiveModelId: model.modelId,
+  };
+}
+
 export function createLLMClient(options: LLMClientOptions): LLMClient {
   // ── Local-testing kill switch ──────────────────────────────────────────
   // WMB_LLM_FORCE_LOCAL=1 routes EVERY model through the local LAN proxy
   // (zero token cost). Used for full-stack local testing so the app runs
-  // end-to-end without burning paid provider tokens. The local model is a
-  // sonnet-tier generalist with tools + streaming, so all roles work.
+  // end-to-end without burning paid provider tokens. The local models are
+  // generalists with tools + streaming, so all roles work.
   if (process.env.WMB_LLM_FORCE_LOCAL === "1") {
-    const localModel = getModelDef("local/qwen38")!;
-    const localRoute = resolveProviderRoute("local", {}, localModel.modelId, localModel.id);
-    if (localRoute.route === "none") {
-      throw new Error(localRoute.error);
-    }
-    return {
-      client: new Anthropic({
-        apiKey: localRoute.apiKey,
-        baseURL: localRoute.baseURL,
-      }),
-      model: localModel,
-      effectiveModelId: localModel.modelId,
-    };
+    return localClient(localStandInModel());
   }
 
   // Resolve model: try exact match first, then legacy tier
@@ -356,6 +408,20 @@ export function createLLMClient(options: LLMClientOptions): LLMClient {
   );
 
   if (routeResult.route === "none") {
+    // ── Local fleet fallback ────────────────────────────────────────────
+    // With WMB_LOCAL_FALLBACK=1 a model whose provider has no usable key is
+    // served by the self-hosted fleet instead of failing the request. The
+    // returned `model` is the local stand-in, NOT the one asked for, so cost
+    // accounting and the UI report what actually ran (0 cost) rather than the
+    // price of a model that never executed.
+    if (isLocalFallbackEnabled()) {
+      const standIn = localStandInModel();
+      console.warn(
+        `[llm] no usable key for ${model.id} (provider ${model.provider}) — ` +
+          `serving ${standIn.id} from the local fleet instead`,
+      );
+      return localClient(standIn);
+    }
     throw new Error(routeResult.error);
   }
 

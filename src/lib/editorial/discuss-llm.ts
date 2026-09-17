@@ -6,6 +6,7 @@ import {
   gateQuickAssistStream,
   type QuickAssistMessageStream,
 } from "@/lib/llm/quick-assist-stream";
+import { getDefaultModelId } from "@/lib/llm/defaults";
 
 /** Token budget for one discuss turn. Reasoning models (the mission's qwen via
  *  OpenRouter) emit thinking blocks that count against max_tokens BEFORE any
@@ -75,7 +76,7 @@ async function resolveDiscussClient(userId: string) {
     where: { id: userId },
     select: { defaultModel: true },
   });
-  const cheapModel = resolveCheapModelFor(dbUser?.defaultModel ?? "anthropic/sonnet");
+  const cheapModel = resolveCheapModelFor(dbUser?.defaultModel ?? getDefaultModelId());
 
   return createLLMClient({
     modelId: cheapModel.id,

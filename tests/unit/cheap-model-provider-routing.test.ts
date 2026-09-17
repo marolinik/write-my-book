@@ -25,6 +25,8 @@ vi.mock("@/lib/llm", async (importActual) => {
 
 import { runDiscussTurn } from "@/lib/editorial/discuss-llm";
 import { extractEntities } from "@/lib/graph/entity-extractor";
+import { getDefaultModelId } from "@/lib/llm/defaults";
+import { resolveCheapModelFor } from "@/lib/llm/model-registry";
 
 /** modelId passed into createLLMClient by the most recent call. */
 function capturedModelId(): string {
@@ -68,10 +70,12 @@ describe("runDiscussTurn honors the user's provider", () => {
     expect(capturedModelId()).toBe("anthropic/haiku");
   });
 
-  it("defaults to anthropic/haiku when the user has no stored defaultModel", async () => {
+  it("falls back to the deployment default's cheap tier when the user has no stored defaultModel", async () => {
     h.db.user.findUnique.mockResolvedValue(null);
     await runDiscussTurn({ system: "s", user: "u", userId: "u1", bookId: "b1" });
-    expect(capturedModelId()).toBe("anthropic/haiku");
+    // Follows the deployment default (getDefaultModelId), so an operator who
+    // repoints the install does not silently keep paying Anthropic here.
+    expect(capturedModelId()).toBe(resolveCheapModelFor(getDefaultModelId()).id);
   });
 });
 

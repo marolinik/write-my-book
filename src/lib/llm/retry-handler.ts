@@ -4,7 +4,9 @@
  * and immediately throws on non-retryable errors (auth, billing, etc.).
  */
 
-import type { ProviderKey } from "./providers";
+// LLMProvider, not ProviderKey: the retry path also carries non-BYOK
+// providers (the self-hosted "local" fleet), which have no PROVIDERS entry.
+import type { LLMProvider } from "./model-registry";
 import { translateProviderError, type TranslatedError } from "./error-translator";
 
 export const RETRY_CONFIG = {
@@ -16,7 +18,7 @@ export const RETRY_CONFIG = {
 
 export interface RetryOptions {
   /** Which provider this request targets (for error translation). */
-  provider: ProviderKey;
+  provider: LLMProvider;
   /** Called before each retry with attempt number, wait duration, and translated error. */
   onRetry?: (attempt: number, waitMs: number, error: TranslatedError) => void;
 }
@@ -26,7 +28,7 @@ export class ProviderError extends Error {
   constructor(
     public readonly translated: TranslatedError,
     public readonly status: number,
-    public readonly provider: ProviderKey
+    public readonly provider: LLMProvider
   ) {
     super(translated.userMessage);
     this.name = "ProviderError";

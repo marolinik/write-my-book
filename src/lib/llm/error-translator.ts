@@ -3,7 +3,7 @@
  * Never exposes raw provider error text to users.
  */
 
-import type { ProviderKey } from "./providers";
+import type { LLMProvider } from "./model-registry";
 
 export interface TranslatedError {
   /** User-facing error message (never contains raw provider text) */
@@ -16,20 +16,27 @@ export interface TranslatedError {
   retryAfterMs?: number;
 }
 
-/** Provider display names for error messages */
-const PROVIDER_NAMES: Record<ProviderKey, string> = {
+/**
+ * Provider display names for error messages.
+ *
+ * Keyed by LLMProvider (not ProviderKey) so the self-hosted fleet has a name
+ * too: the local route is the DEFAULT on fleet installs, and a missing key here
+ * produced user-facing text reading "Your undefined API key ...".
+ */
+const PROVIDER_NAMES: Record<LLMProvider, string> = {
   anthropic: "Anthropic",
   openrouter: "OpenRouter",
   openai: "OpenAI",
   gemini: "Google Gemini",
   grok: "xAI Grok",
+  local: "the local fleet",
 };
 
 /** Backoff curve for rate limit retries (successive 429 errors) */
 const RATE_LIMIT_BACKOFF_MS = [10_000, 30_000, 60_000] as const;
 
 /** Track consecutive rate limits per provider for backoff escalation */
-const rateLimitCounters = new Map<ProviderKey, number>();
+const rateLimitCounters = new Map<LLMProvider, number>();
 
 /**
  * Translate a provider HTTP error status into a user-friendly message.
@@ -41,7 +48,7 @@ const rateLimitCounters = new Map<ProviderKey, number>();
  */
 export function translateProviderError(
   status: number,
-  provider: ProviderKey,
+  provider: LLMProvider,
   _rawMessage?: string
 ): TranslatedError {
   const name = PROVIDER_NAMES[provider];
@@ -119,6 +126,6 @@ export function translateProviderError(
 /**
  * Reset rate limit counter for a provider (call after a successful request).
  */
-export function resetRateLimitCounter(provider: ProviderKey): void {
+export function resetRateLimitCounter(provider: LLMProvider): void {
   rateLimitCounters.delete(provider);
 }

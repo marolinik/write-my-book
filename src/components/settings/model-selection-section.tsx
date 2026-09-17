@@ -19,6 +19,7 @@ import { useApiKeys } from "@/hooks/use-api-keys";
 import { useCustomProviders } from "@/hooks/use-custom-providers";
 import type { AgentRole } from "@/lib/llm";
 import type { ProviderKey } from "@/lib/llm/providers";
+import { getDefaultModelId } from "@/lib/llm/defaults";
 
 // ── Role descriptions ─────────────────────────────────────────
 
@@ -90,12 +91,15 @@ export function ModelSelectionSection() {
     .map((k) => k.provider as ProviderKey)
     // Deduplicate (user can only have 1 key per provider, but be safe)
     .filter((p, i, arr) => arr.indexOf(p) === i);
-  // Custom providers trigger the "local" provider slot (LLMProvider-
-  // consistent — local LAN boxes/proxies all resolve under "local").
-  if (customProviders && customProviders.length > 0) {
-    if (!availableProviders.includes("local" as ProviderKey)) {
-      availableProviders.push("local" as ProviderKey);
-    }
+  // The "local" slot covers both the self-hosted fleet (keyless, reported by
+  // the server) and user-added custom providers. Without the fleet half, the
+  // fleet models never appear and a user whose default IS one gets a blank
+  // trigger (D-131).
+  const hasLocal =
+    defaultModelData?.localFleet === true ||
+    (customProviders?.length ?? 0) > 0;
+  if (hasLocal && !availableProviders.includes("local" as ProviderKey)) {
+    availableProviders.push("local" as ProviderKey);
   }
 
   // Debounce timers for role overrides
@@ -157,7 +161,7 @@ export function ModelSelectionSection() {
         <ModelPicker
           label="Global Default Model"
           description="Used for all agent roles unless overridden below or in book settings."
-          value={defaultModelData?.defaultModel ?? "anthropic/sonnet"}
+          value={defaultModelData?.defaultModel ?? getDefaultModelId()}
           onChange={handleDefaultModelChange}
           availableProviders={availableProviders}
           customModels={customModelDefs}

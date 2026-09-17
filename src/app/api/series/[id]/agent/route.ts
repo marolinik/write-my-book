@@ -11,7 +11,7 @@ import {
   createLLMClient,
   resolveModelForRole,
   mapAgentTypeToRole,
-  resolveProviderRoute,
+  resolveRouteWithLocalFallback,
 } from "@/lib/llm";
 import type { ProviderKey } from "@/lib/llm";
 import {
@@ -25,6 +25,7 @@ import {
 } from "@/lib/agents";
 import type { AgentStreamMessage, AgentResult } from "@/lib/agents";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { getDefaultModelId } from "@/lib/llm/defaults";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -98,7 +99,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         modelCreative: true,
       },
     });
-    const userDefault = dbUser?.defaultModel ?? "anthropic/sonnet";
+    const userDefault = dbUser?.defaultModel ?? getDefaultModelId();
 
     const role = mapAgentTypeToRole(workflow.primaryAgent);
     const resolved = resolveModelForRole(
@@ -125,7 +126,9 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       decryptedKeys[k.provider as ProviderKey] = decryptApiKey(k.encryptedKey);
     }
 
-    const route = resolveProviderRoute(resolved.modelDef.provider, {
+    // Fallback-aware gate: WMB_LOCAL_FALLBACK lets a keyless model be served
+    // by the local fleet, exactly as createLLMClient does below.
+    const { route } = resolveRouteWithLocalFallback(resolved.modelDef, {
       anthropicApiKey: decryptedKeys.anthropic,
       openrouterApiKey: decryptedKeys.openrouter,
       openaiApiKey: decryptedKeys.openai,

@@ -53,6 +53,12 @@ vi.mock("@/lib/llm", async (importActual) => {
     ...actual,
     createLLMClient: h.createLLMClient,
     resolveProviderRoute: h.resolveProviderRoute,
+    // The routes call the fallback-aware helper; delegate to the same mock so the
+    // per-test route expectations below keep governing behaviour.
+    resolveRouteWithLocalFallback: (model: { provider?: string; modelId?: string; id?: string }) => ({
+      route: h.resolveProviderRoute(model?.provider, {}, model?.modelId, model?.id),
+      model,
+    }),
   };
 });
 

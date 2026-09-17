@@ -3,10 +3,12 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { decryptApiKey } from "@/lib/encryption";
 import { estimateCost } from "@/lib/cost";
-import { createLLMClient, resolveProviderRoute } from "@/lib/llm";
+import { createLLMClient, resolveRouteWithLocalFallback } from "@/lib/llm";
 import type { ProviderKey } from "@/lib/llm";
 import { DocumentService } from "@/lib/documents";
 import { localeFor } from "@/lib/i18n/ui-strings";
+import { getDefaultModelId } from "@/lib/llm/defaults";
+import { getModelDef, resolveFromTier } from "@/lib/llm/model-registry";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -75,8 +77,13 @@ export async function POST(_req: NextRequest, { params }: RouteParams) {
     where: { id: user.id },
     select: { defaultModel: true },
   });
-  const userDefault = dbUser?.defaultModel ?? "anthropic/sonnet";
-  const provider = userDefault.split("/")[0] || "anthropic";
+  const userDefault = dbUser?.defaultModel ?? getDefaultModelId();
+  // The registry id prefix is NOT the provider ("local-deepseek/sonnet" lives on
+  // provider "local", "openrouter-qwen36/*" on "openrouter"); splitting the
+  // string produced an unknown provider and a bogus "No API key configured".
+  // resolveFromTier mirrors what createLLMClient does with an unknown id, so the
+  // gate below and the client below cannot disagree about which model this is.
+  const modelDef = getModelDef(userDefault) ?? resolveFromTier(userDefault);
   const registryId = userDefault;
 
   const userKeys = await db.apiKey.findMany({
@@ -88,7 +95,7 @@ export async function POST(_req: NextRequest, { params }: RouteParams) {
     decryptedKeys[k.provider as ProviderKey] = decryptApiKey(k.encryptedKey);
   }
 
-  const route = resolveProviderRoute(provider as ProviderKey, {
+  const { route } = resolveRouteWithLocalFallback(modelDef, {
     anthropicApiKey: decryptedKeys.anthropic,
     openrouterApiKey: decryptedKeys.openrouter,
     openaiApiKey: decryptedKeys.openai,

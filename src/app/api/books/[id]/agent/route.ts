@@ -11,7 +11,7 @@ import {
   resolveConductorModelForWorkflow,
   meetsMinimumTier,
   mapAgentTypeToRole,
-  resolveProviderRoute,
+  resolveRouteWithLocalFallback,
   validateApiKey,
   type ProviderKey,
   type AgentRole,
@@ -42,6 +42,7 @@ import { processPostSession } from "@/lib/agents";
 import { enqueueAgentJob } from "@/lib/queue";
 import type { AgentJobData } from "@/lib/queue";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { getDefaultModelId } from "@/lib/llm/defaults";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -162,7 +163,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         modelCreative: true,
       },
     });
-    const userDefault = dbUser?.defaultModel ?? "anthropic/sonnet";
+    const userDefault = dbUser?.defaultModel ?? getDefaultModelId();
 
     // Build global role overrides from User model
     const globalRoleOverrides: Record<AgentRole, string | null> = {
@@ -215,8 +216,12 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       modelCoach: dbUser?.modelCoach ?? null,
       modelCreative: dbUser?.modelCreative ?? null,
     });
-    const effectiveCoachRegistryId = coachResolved.registryId;
-    const effectiveCoachModelDef = coachResolved.modelDef;
+    // What the 4-level chain chose. The EFFECTIVE model is decided below, after
+    // routing: with WMB_LOCAL_FALLBACK on, a model whose provider has no key is
+    // served by the local fleet, and everything downstream (pricing, usage rows,
+    // the model shown to the writer) must name the model that actually ran.
+    const coachChainRegistryId = coachResolved.registryId;
+    const coachChainModelDef = coachResolved.modelDef;
 
     // -- Minimum Tier Check --
     if (workflow.minimumTier && !meetsMinimumTier(specialistResolved.registryId, workflow.minimumTier)) {
@@ -257,12 +262,10 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     };
 
     // -- Route Resolution for Coach --
-    const coachRoute = resolveProviderRoute(
-      effectiveCoachModelDef.provider,
-      availableKeys,
-      effectiveCoachModelDef.modelId,
-      effectiveCoachRegistryId
-    );
+    const coachRouting = resolveRouteWithLocalFallback(coachChainModelDef, availableKeys);
+    const coachRoute = coachRouting.route;
+    const effectiveCoachModelDef = coachRouting.model;
+    const effectiveCoachRegistryId = effectiveCoachModelDef.id;
 
     if (coachRoute.route === "none") {
       const providerName = effectiveCoachModelDef.provider.charAt(0).toUpperCase() + effectiveCoachModelDef.provider.slice(1);
@@ -327,13 +330,9 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         userDefault
       );
 
-      // Resolve routing for this specialist
-      const specRoute = resolveProviderRoute(
-        resolved.modelDef.provider,
-        availableKeys,
-        resolved.modelDef.modelId,
-        resolved.registryId
-      );
+      // Resolve routing for this specialist (fallback-aware, same as the coach)
+      const specRouting = resolveRouteWithLocalFallback(resolved.modelDef, availableKeys);
+      const specRoute = specRouting.route;
 
       if (specRoute.route === "none") {
         // Fall back to the coach's provider to keep the session working
@@ -345,7 +344,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         };
       }
 
-      const specEffectiveModelId = specRoute.effectiveModelId || resolved.modelDef.modelId;
+      const specEffectiveModelId = specRoute.effectiveModelId || specRouting.model.modelId;
       const specClient = new Anthropic({
         apiKey: specRoute.apiKey,
         baseURL: specRoute.baseURL,
@@ -355,7 +354,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       return {
         client: specClient,
         modelId: specEffectiveModelId,
-        registryId: resolved.registryId,
+        registryId: specRouting.model.id,
       };
     };
 

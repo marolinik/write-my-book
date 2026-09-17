@@ -18,14 +18,15 @@
 import {
   resolveConductorModel,
   resolveModelForRole,
-  resolveProviderRoute,
+  resolveRouteWithLocalFallback,
   meetsMinimumTier,
   mapAgentTypeToRole,
-  type ProviderKey,
+  type LLMProvider,
   type AgentRole,
   type BookModelSettings,
 } from "@/lib/llm";
 import { getWorkflow } from "@/lib/agents/workflows";
+import { getDefaultModelId } from "@/lib/llm/defaults";
 
 /** User-level model preference columns (subset of the `User` row). */
 export interface UserModelDefaults {
@@ -74,7 +75,7 @@ export type ResolveBatchModelsResult =
       ok: true;
       coachRegistryId: string;
       coachModelId: string;
-      providerKey: ProviderKey;
+      providerKey: LLMProvider;
     }
   | { ok: false; code: 400 | 422; error: string };
 
@@ -105,7 +106,7 @@ export function resolveBatchModels(
   const { workflowIds, bookSettings, userDefaults, availableKeys } = params;
 
   const bookModelSettings = toBookModelSettings(bookSettings);
-  const userDefault = userDefaults.defaultModel ?? "anthropic/sonnet";
+  const userDefault = userDefaults.defaultModel ?? getDefaultModelId();
 
   const globalRoleOverrides: Record<AgentRole, string | null> = {
     ghostwriter: userDefaults.modelGhostwriter,
@@ -147,17 +148,19 @@ export function resolveBatchModels(
     modelCreative: userDefaults.modelCreative,
   });
 
-  const coachRoute = resolveProviderRoute(
-    coachResolved.modelDef.provider,
+  // Fallback-aware: WMB_LOCAL_FALLBACK substitutes the local fleet for a model
+  // whose provider has no key. `coachModelDef` is what will actually run.
+  const coachRouting = resolveRouteWithLocalFallback(
+    coachResolved.modelDef,
     availableKeys,
-    coachResolved.modelDef.modelId,
-    coachResolved.registryId
   );
+  const coachRoute = coachRouting.route;
+  const coachModelDef = coachRouting.model;
 
   if (coachRoute.route === "none") {
     const providerName =
-      coachResolved.modelDef.provider.charAt(0).toUpperCase() +
-      coachResolved.modelDef.provider.slice(1);
+      coachModelDef.provider.charAt(0).toUpperCase() +
+      coachModelDef.provider.slice(1);
     return {
       ok: false,
       code: 400,
@@ -166,18 +169,18 @@ export function resolveBatchModels(
   }
 
   // Which provider the worker translates errors against (matches route.ts).
-  const providerKey: ProviderKey =
+  const providerKey: LLMProvider =
     coachRoute.route === "litellm-proxy"
-      ? ((coachRoute.headers?.["x-target-provider"] as ProviderKey) ??
-        (coachResolved.modelDef.provider as ProviderKey))
+      ? ((coachRoute.headers?.["x-target-provider"] as LLMProvider) ??
+        coachModelDef.provider)
       : coachRoute.route === "openrouter"
         ? "openrouter"
-        : (coachResolved.modelDef.provider as ProviderKey);
+        : coachModelDef.provider;
 
   return {
     ok: true,
-    coachRegistryId: coachResolved.registryId,
-    coachModelId: coachRoute.effectiveModelId || coachResolved.modelDef.modelId,
+    coachRegistryId: coachModelDef.id,
+    coachModelId: coachRoute.effectiveModelId || coachModelDef.modelId,
     providerKey,
   };
 }

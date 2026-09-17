@@ -71,3 +71,10 @@ SMOKE_BASE_URL=https://your-domain.example npm run smoke:deployment
 ```
 
 The smoke check verifies `/api/health` and `/api/health/dependencies`.
+
+## Local fleet models (LAN gateway installs)
+
+`WMB_DEFAULT_MODEL`, `WMB_LOCAL_FALLBACK`, `WMB_LLM_FORCE_LOCAL`, `WMB_LOCAL_PROXY_URL`,
+`WMB_ALLOW_PRIVATE_MODEL_HOSTS` and the `LOCAL_LLM_*` proxy variables are documented
+in [local-fleet-models.md](./local-fleet-models.md). `WMB_LOCAL_FALLBACK` and
+`WMB_ALLOW_PRIVATE_MODEL_HOSTS` must stay unset in production.

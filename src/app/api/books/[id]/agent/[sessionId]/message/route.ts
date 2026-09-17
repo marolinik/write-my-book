@@ -8,7 +8,7 @@ import {
   createLLMClient,
   resolveModelForRole,
   mapAgentTypeToRole,
-  resolveProviderRoute,
+  resolveRouteWithLocalFallback,
 } from "@/lib/llm";
 import type { ProviderKey } from "@/lib/llm";
 import {
@@ -27,6 +27,7 @@ import type { AgentStreamMessage, AgentResult } from "@/lib/agents";
 import { evaluateArtifactContract } from "@/lib/agents/artifact-contract";
 import { DocumentService } from "@/lib/documents";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { getDefaultModelId } from "@/lib/llm/defaults";
 
 type RouteParams = {
   params: Promise<{ id: string; sessionId: string }>;
@@ -120,7 +121,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         modelCreative: true,
       },
     });
-    const userDefault = dbUser?.defaultModel ?? "anthropic/sonnet";
+    const userDefault = dbUser?.defaultModel ?? getDefaultModelId();
 
     const role = mapAgentTypeToRole(workflow.primaryAgent);
     const resolved = resolveModelForRole(
@@ -147,7 +148,9 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       decryptedKeys[k.provider as ProviderKey] = decryptApiKey(k.encryptedKey);
     }
 
-    const route = resolveProviderRoute(resolved.modelDef.provider, {
+    // Fallback-aware gate: WMB_LOCAL_FALLBACK lets a keyless model be served
+    // by the local fleet, exactly as createLLMClient does below.
+    const { route } = resolveRouteWithLocalFallback(resolved.modelDef, {
       anthropicApiKey: decryptedKeys.anthropic,
       openrouterApiKey: decryptedKeys.openrouter,
       openaiApiKey: decryptedKeys.openai,
@@ -175,6 +178,10 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       client,
       modelId: model.modelId,
       registryId: model.id,
+      // Without this the orchestrator defaults to "anthropic" and reports a
+      // local-fleet outage to the writer as "Anthropic is experiencing
+      // temporary issues" — a lie on any non-Anthropic default.
+      providerKey: model.provider,
       // D-83: user-initiated conversational turn — a real user is present, so
       // authoritative graph corrections (UpdateGraphEntity) are permitted.
       interactive: true,

@@ -45,12 +45,14 @@ import { estimateWorkflowCost } from "@/lib/llm/cost-estimator";
 import {
   resolveModelForRole,
   mapAgentTypeToRole,
-  resolveProviderRoute,
+  resolveRouteWithLocalFallback,
   getModelDef,
+  type LLMProvider,
   type ProviderKey,
   type AgentRole,
   type BookModelSettings,
 } from "@/lib/llm";
+import { getDefaultModelId } from "@/lib/llm/defaults";
 
 // ── Constants ─────────────────────────────────────────────────────────
 
@@ -344,23 +346,25 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
       );
     }
 
-    const coachRoute = resolveProviderRoute(
-      coachModelDef.provider,
-      availableKeys,
-      coachModelId,
-      coachRegistryId
-    );
+    // Fallback-aware: with WMB_LOCAL_FALLBACK on, a keyless model is served by
+    // the local fleet; `effectiveCoachModelDef` is the model that actually runs.
+    const coachRouting = resolveRouteWithLocalFallback(coachModelDef, availableKeys);
+    const coachRoute = coachRouting.route;
+    const effectiveCoachModelDef = coachRouting.model;
 
     if (coachRoute.route === "none") {
       await publishMessage({
         type: "error",
-        content: `No API key available for ${coachModelDef.provider}. Add one in Settings > API Keys.`,
+        content: `No API key available for ${effectiveCoachModelDef.provider}. Add one in Settings > API Keys.`,
       });
-      throw new Error(`No API key for provider: ${coachModelDef.provider}`);
+      throw new Error(`No API key for provider: ${effectiveCoachModelDef.provider}`);
     }
 
     const effectiveModelId =
-      coachRoute.effectiveModelId || coachModelDef.modelId;
+      coachRoute.effectiveModelId || effectiveCoachModelDef.modelId;
+    // The registry id that actually ran (differs from the job's when the local
+    // fleet stood in), so cost estimates and usage rows name the real model.
+    const effectiveCoachRegistryId = effectiveCoachModelDef.id;
 
     const coachClient = new Anthropic({
       apiKey: coachRoute.apiKey,
@@ -394,7 +398,7 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
       },
     });
 
-    const userDefault = dbUser?.defaultModel ?? "anthropic/sonnet";
+    const userDefault = dbUser?.defaultModel ?? getDefaultModelId();
     const globalRoleOverrides: Record<AgentRole, string | null> = {
       ghostwriter: dbUser?.modelGhostwriter ?? null,
       editor: dbUser?.modelEditor ?? null,
@@ -430,24 +434,20 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
         userDefault
       );
 
-      const specRoute = resolveProviderRoute(
-        resolved.modelDef.provider,
-        availableKeys,
-        resolved.modelDef.modelId,
-        resolved.registryId
-      );
+      const specRouting = resolveRouteWithLocalFallback(resolved.modelDef, availableKeys);
+      const specRoute = specRouting.route;
 
       if (specRoute.route === "none") {
         // Fall back to the coach's provider
         return {
           client: coachClient,
           modelId: effectiveModelId,
-          registryId: coachRegistryId,
+          registryId: effectiveCoachRegistryId,
         };
       }
 
       const specEffectiveModelId =
-        specRoute.effectiveModelId || resolved.modelDef.modelId;
+        specRoute.effectiveModelId || specRouting.model.modelId;
       const specClient = new Anthropic({
         apiKey: specRoute.apiKey,
         baseURL: specRoute.baseURL,
@@ -490,7 +490,7 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
 
     // ── Record Pre-Session Cost Estimate ─────────────────────────────
 
-    const preEstimate = estimateWorkflowCost(workflowId, coachRegistryId);
+    const preEstimate = estimateWorkflowCost(workflowId, effectiveCoachRegistryId);
     await db.agentSession.update({
       where: { id: sessionId },
       data: { estimatedCostUsd: preEstimate.max },
@@ -507,12 +507,12 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
     const orchestrator = new AgentOrchestrator({
       client: coachClient,
       modelId: effectiveModelId,
-      registryId: coachRegistryId,
+      registryId: effectiveCoachRegistryId,
       maxRuntimeMs: serverCeilingMs,
       maxSessionCostUsd: validatedCostLimit,
       sharedCostTracker,
       delegationContext,
-      providerKey: providerKey as ProviderKey,
+      providerKey: providerKey as LLMProvider,
       // Redis-based approval resolver for background sessions
       approvalResolver: async (approvalId, deadline) => {
         // Write pending state to Redis so the approve route can find it
@@ -813,7 +813,7 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
               userId,
               bookId,
               agentType: "writing-coach",
-              model: coachRegistryId,
+              model: effectiveCoachRegistryId,
               tokensInput: totalInput,
               tokensOutput: totalOutput,
               costEstimate: cost,

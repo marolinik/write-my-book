@@ -15,7 +15,7 @@ import {
   withProviderRetry,
   ProviderError,
   RETRY_CONFIG,
-  type ProviderKey,
+  type LLMProvider,
   translateProviderError,
 } from "@/lib/llm";
 import type {
@@ -82,7 +82,7 @@ export interface OrchestratorOptions {
   /** Delegation context for the DelegateToSpecialist tool. */
   delegationContext?: import("./types").DelegationContext;
   /** Provider key for error translation and retry logic. */
-  providerKey?: ProviderKey;
+  providerKey?: LLMProvider;
   /**
    * D-83: true ONLY for interactive chat sessions (a real user is present and
    * streaming). Threaded into ToolContext.interactive to gate AUTHORITATIVE
@@ -134,7 +134,7 @@ export class AgentOrchestrator {
   private deadlineAt: number | null = null;
   private sharedCostTracker: import("./types").SharedCostTracker | null = null;
   private delegationContext: import("./types").DelegationContext | null = null;
-  private providerKey: ProviderKey;
+  private providerKey: LLMProvider;
   /** D-83: gates authoritative graph writes — see OrchestratorOptions.interactive. */
   private interactive: boolean;
   private approvalResolver: ((approvalId: string, deadline: number) => Promise<ApprovalResponse>) | null;

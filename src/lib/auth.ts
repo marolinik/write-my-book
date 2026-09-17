@@ -1,6 +1,7 @@
 	import { auth, currentUser } from "@clerk/nextjs/server";
 import { headers } from "next/headers";
 import { db } from "./db";
+import { getDefaultModelId } from "@/lib/llm/defaults";
 
 const E2E_TEST_SECRET = process.env.E2E_TEST_SECRET;
 const E2E_TEST_CLERK_ID = "user_test_e2e";
@@ -32,6 +33,9 @@ export async function getDbUser() {
             data: {
               clerkId: userId,
               email: clerkUser.emailAddresses[0]?.emailAddress ?? "",
+              // Explicit, so WMB_DEFAULT_MODEL actually governs new accounts.
+              // Relying on the Prisma column default made the env knob inert.
+              defaultModel: getDefaultModelId(),
               displayName:
                 clerkUser.firstName && clerkUser.lastName
                   ? `${clerkUser.firstName} ${clerkUser.lastName}`

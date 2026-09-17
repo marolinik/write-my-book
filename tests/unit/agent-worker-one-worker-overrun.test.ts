@@ -112,6 +112,15 @@ vi.mock("@/lib/llm", () => ({
     baseURL: "https://example.invalid",
     effectiveModelId: "fake-model",
   }),
+  resolveRouteWithLocalFallback: (model: unknown) => ({
+    route: {
+    route: "direct",
+    apiKey: "sk-test",
+    baseURL: "https://example.invalid",
+    effectiveModelId: "fake-model",
+    },
+    model,
+  }),
   resolveModelForRole: () => ({
     modelDef: { provider: "openrouter", modelId: "fake-model" },
     registryId: "openrouter/fake",
