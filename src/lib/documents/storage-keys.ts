@@ -53,6 +53,8 @@ export function getStoragePath(
       return ".planning/CONTINUITY-REPORT.md";
     case DocumentType.ANALYSIS_REPORT:
       return ".planning/ANALYSIS-REPORT.md";
+    case DocumentType.STRUCTURE_PROPOSAL:
+      return ".planning/STRUCTURE-PROPOSAL.md";
     case DocumentType.MARKET_REPORT:
       return ".planning/MARKET-REPORT.md";
 

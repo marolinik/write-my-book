@@ -27,6 +27,7 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
     BETA_READ_REPORT: "Beta Read Report",
     CONTINUITY_REPORT: "Continuity Report",
     ANALYSIS_REPORT: "Analysis Report",
+    STRUCTURE_PROPOSAL: "Structure Proposal",
     MARKET_REPORT: "Market Report",
     EXPORT_CONFIG: "Export Config",
     FREEWRITE: "Freewrite",
@@ -52,6 +53,7 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
     BETA_READ_REPORT: "Izveštaj beta čitanja",
     CONTINUITY_REPORT: "Izveštaj kontinuiteta",
     ANALYSIS_REPORT: "Izveštaj analize",
+    STRUCTURE_PROPOSAL: "Predlog strukture",
     MARKET_REPORT: "Izveštaj tržišta",
     EXPORT_CONFIG: "Podešavanje izvoza",
     FREEWRITE: "Slobodno pisanje",
@@ -77,6 +79,7 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
     BETA_READ_REPORT: "Beta-Lesung",
     CONTINUITY_REPORT: "Kontinuitätsbericht",
     ANALYSIS_REPORT: "Analysebericht",
+    STRUCTURE_PROPOSAL: "Strukturvorschlag",
     MARKET_REPORT: "Marktbericht",
     EXPORT_CONFIG: "Export-Konfiguration",
     FREEWRITE: "Freies Schreiben",
@@ -102,6 +105,7 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
     BETA_READ_REPORT: "Lectura beta",
     CONTINUITY_REPORT: "Informe de continuidad",
     ANALYSIS_REPORT: "Informe de análisis",
+    STRUCTURE_PROPOSAL: "Propuesta de estructura",
     MARKET_REPORT: "Informe de mercado",
     EXPORT_CONFIG: "Configuración de exportación",
     FREEWRITE: "Escritura libre",
@@ -127,6 +131,7 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
     BETA_READ_REPORT: "Lecture bêta",
     CONTINUITY_REPORT: "Rapport de continuité",
     ANALYSIS_REPORT: "Rapport d'analyse",
+    STRUCTURE_PROPOSAL: "Proposition de structure",
     MARKET_REPORT: "Rapport de marché",
     EXPORT_CONFIG: "Configuration d'export",
     FREEWRITE: "Écriture libre",
@@ -152,6 +157,7 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
     BETA_READ_REPORT: "Бета-чтение",
     CONTINUITY_REPORT: "Отчёт о непрерывности",
     ANALYSIS_REPORT: "Аналитический отчёт",
+    STRUCTURE_PROPOSAL: "Предложение по структуре",
     MARKET_REPORT: "Рыночный отчёт",
     EXPORT_CONFIG: "Настройки экспорта",
     FREEWRITE: "Свободное письмо",
@@ -177,6 +183,7 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
     BETA_READ_REPORT: "Beta阅读报告",
     CONTINUITY_REPORT: "连续性报告",
     ANALYSIS_REPORT: "分析报告",
+    STRUCTURE_PROPOSAL: "结构调整建议",
     MARKET_REPORT: "市场报告",
     EXPORT_CONFIG: "导出配置",
     FREEWRITE: "自由写作",
@@ -309,6 +316,30 @@ const TOOL_LABELS: Record<string, ToolLabelFn> = {
       fr: "Vérification des documents existants...",
       ru: "Проверка существующих документов...",
       zh: "检查现有文档...",
+    };
+    return templates[lang] ?? templates.en;
+  },
+  ListChapters: (_input, lang) => {
+    const templates: Record<string, string> = {
+      en: "Reading the chapter list...",
+      sr: "Čitanje liste poglavlja...",
+      de: "Lese die Kapitelliste...",
+      es: "Leyendo la lista de capítulos...",
+      fr: "Lecture de la liste des chapitres...",
+      ru: "Чтение списка глав...",
+      zh: "正在读取章节列表...",
+    };
+    return templates[lang] ?? templates.en;
+  },
+  ProposeStructureMove: (_input, lang) => {
+    const templates: Record<string, string> = {
+      en: "Proposing a structural change...",
+      sr: "Predlaganje strukturne izmene...",
+      de: "Schlage eine Strukturänderung vor...",
+      es: "Proponiendo un cambio estructural...",
+      fr: "Proposition d'une modification structurelle...",
+      ru: "Предлагается структурное изменение...",
+      zh: "正在提议结构调整...",
     };
     return templates[lang] ?? templates.en;
   },

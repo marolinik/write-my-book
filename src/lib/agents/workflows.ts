@@ -395,10 +395,42 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresChapter: false,
     requiresSeriesContext: false,
     conversational: false,
-    suggestedNext: [],
+    // O13: the report used to be a dead end — metrics arrived and the journey
+    // stopped. Pacing numbers exist to drive a structural decision, so analysis
+    // now hands off to the restructure pass.
+    suggestedNext: ["restructure"],
     estimatedMinMinutes: 2,
     estimatedMaxMinutes: 5,
     minimumTier: "haiku",
+  },
+  // O12 — the developmental-editor pass. Sits between analysis and dev-edit:
+  // everything before it reads the book, everything after it edits inside the
+  // structure this step is allowed to change.
+  {
+    id: "restructure",
+    label: "Structural Revision",
+    description:
+      "Propose concrete structural moves — reorder, merge, split, renumber chapters.",
+    writerDescription:
+      "Let a developmental editor propose how to reorder, merge or split your chapters — you accept or reject each move.",
+    primaryAgent: "story-architect",
+    category: "analysis",
+    requiresChapter: false,
+    requiresSeriesContext: false,
+    conversational: true,
+    suggestedNext: ["dev-edit"],
+    prerequisites: [
+      {
+        type: "manuscript",
+        value: "any",
+        description: "The book needs chapters before its structure can be revised",
+        satisfiedBy: "write-chapter",
+      },
+    ],
+    producesDocument: "STRUCTURE_PROPOSAL",
+    estimatedMinMinutes: 5,
+    estimatedMaxMinutes: 15,
+    minimumTier: "sonnet",
   },
   {
     id: "market-analysis",

@@ -231,6 +231,7 @@ model Book {
   continuityFlags ContinuityFlag[]
   batchRuns       BatchRun[]
   sharedSnapshots SharedSnapshot[]
+  structureMoves  StructureMove[]
 
   @@unique([seriesId, bookNumber])
   @@unique([userId, name])
@@ -282,6 +283,10 @@ enum DocumentType {
   BETA_READ_REPORT
   CONTINUITY_REPORT
   ANALYSIS_REPORT
+  // O12 (live testing): the developmental-editor pass. A human-readable summary
+  // of the structural moves proposed by the `restructure` workflow; the moves
+  // themselves are rows in structure_moves so they can be accepted one by one.
+  STRUCTURE_PROPOSAL
   MARKET_REPORT
   EXPORT_CONFIG
   FREEWRITE
@@ -529,6 +534,36 @@ model EditFinding {
 
   @@unique([bookId, chapterNumber, contentHash])
   @@map("edit_findings")
+}
+
+// ─── STRUCTURAL REVISION PASS (O12) ─────────────────────────────
+//
+// One proposed structural move — "merge 17+18", "move 24 earlier", "31 is
+// numbered wrong", "split 31 where the night falls". Proposals are inert: only
+// an explicit accept mutates the manuscript, and `previousState` carries
+// everything needed to undo that mutation afterwards.
+model StructureMove {
+  id            String    @id @default(uuid())
+  bookId        String    @map("book_id")
+  sessionId     String?   @map("session_id") // agent session that proposed it
+  kind          String // reorder | renumber | merge | split
+  payload       String    @db.Text // JSON: the move's own parameters
+  reason        String    @db.Text // WHY, in the writer's language
+  evidence      String?   @db.Text // metrics / findings the proposal rests on
+  confidence    Float?
+  status        String    @default("pending") // pending | accepted | rejected | applied | failed | undone
+  previousState String?   @map("previous_state") @db.Text // JSON snapshot for undo
+  resultSummary String?   @map("result_summary") @db.Text
+  rejectionReason String? @map("rejection_reason") @db.Text
+  decidedAt     DateTime? @map("decided_at")
+  appliedAt     DateTime? @map("applied_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@index([bookId, status])
+  @@map("structure_moves")
 }
 
 // ─── LIVE CONTINUITY NET (Tier 4.4) ─────────────────────────────

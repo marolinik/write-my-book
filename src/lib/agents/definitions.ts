@@ -121,6 +121,11 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
       "ReadDocument",
       "WriteDocument",
       "ListDocuments",
+      // O12 — the restructure pass reasons over the chapter table and the prose
+      // of the chapters it wants to move, then files each move as a proposal.
+      "ListChapters",
+      "ReadChapter",
+      "ProposeStructureMove",
       "RequestApproval",
       "ReadSeriesDocument",
       "WriteSeriesDocument",

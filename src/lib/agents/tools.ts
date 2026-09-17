@@ -33,6 +33,7 @@ import {
   stampReportMetadata,
 } from "./editorial-text-hygiene";
 import { enforceBookScript } from "./serbian-script";
+import { planMove, type ChapterRef, type StructureMoveInput } from "@/lib/structure/moves";
 
 export const APPROVAL_SENTINEL = "__APPROVAL_GATE__";
 
@@ -413,6 +414,78 @@ const FINDING_CATEGORIES = [
   "crutch-phrase", "filter-word", "ai-tell", "sentence-variety",
   "verb-strength", "redundancy", "clarity", "genre-convention"
 ] as const;
+
+const listChaptersDef: ToolDefinition = {
+  name: "ListChapters",
+  description:
+    "List the book's chapters as a table — number, title, word count, act and status. " +
+    "No prose is returned, so this is the cheap way to reason about structure. " +
+    "Use it before proposing any structural move so every number you cite is real.",
+  input_schema: {
+    type: "object" as const,
+    properties: {},
+  },
+};
+
+const proposeStructureMoveDef: ToolDefinition = {
+  name: "ProposeStructureMove",
+  description:
+    "Propose ONE concrete structural change to the manuscript — reorder, renumber, merge or split. " +
+    "The proposal is inert: the writer accepts or rejects it, and only an accepted move touches the book. " +
+    "Propose only moves you can justify from the architecture, the pacing metrics or the continuity " +
+    "findings — say WHY in the writer's language, and name the evidence. " +
+    "Call ListChapters first: a move that cites a chapter that does not exist is rejected outright.",
+  input_schema: {
+    type: "object" as const,
+    strict: true,
+    properties: {
+      kind: {
+        type: "string",
+        description:
+          "reorder (move a chapter to another position) | renumber (fix a wrong number) | " +
+          "merge (fuse adjacent chapters into one) | split (cut one chapter in two)",
+        enum: ["reorder", "renumber", "merge", "split"],
+      },
+      chapterNumbers: {
+        type: "array",
+        description:
+          "Chapters the move acts on, by CURRENT number. reorder/renumber/split take exactly one; " +
+          "merge takes two or more that are adjacent in reading order.",
+        items: { type: "number" },
+        minItems: 1,
+      },
+      targetPosition: {
+        type: "number",
+        description: "reorder/renumber only — the 1-based position the chapter should end up at.",
+      },
+      anchorQuote: {
+        type: "string",
+        description:
+          "split only — the verbatim first sentence of the SECOND half. Copy it exactly from the " +
+          "chapter; a quote that is missing or appears twice cannot identify a cut point.",
+      },
+      title: {
+        type: "string",
+        description: "merge/split only — a title for the resulting chapter, in the book's language.",
+      },
+      reason: {
+        type: "string",
+        description:
+          "WHY this move helps the reader, in the writer's language. One specific argument, not a list.",
+      },
+      evidence: {
+        type: "string",
+        description:
+          "What the proposal rests on — the pacing metric, the continuity finding, the architecture beat.",
+      },
+      confidence: {
+        type: "number",
+        description: "0.0–1.0 — how sure you are this move is right.",
+      },
+    },
+    required: ["kind", "chapterNumbers", "reason"],
+  },
+};
 
 const createFindingDef: ToolDefinition = {
   name: "CreateFinding",
@@ -984,6 +1057,8 @@ const ALL_TOOL_DEFINITIONS: ToolDefinition[] = [
   readAllChaptersDef,
   writeChapterDef,
   listDocumentsDef,
+  listChaptersDef,
+  proposeStructureMoveDef,
   createFindingDef,
   requestApprovalDef,
   readSeriesDocumentDef,
@@ -1330,6 +1405,146 @@ async function executeListDocuments(
         `- ${d.type}${d.chapterNumber ? ` (ch ${d.chapterNumber})` : ""}: ${d.title ?? "(untitled)"} [v${d.currentVersion}]`
     )
     .join("\n");
+}
+
+async function executeListChapters(ctx: ToolContext): Promise<string> {
+  const chapters = await db.chapter.findMany({
+    where: { bookId: ctx.bookId },
+    select: {
+      chapterNumber: true,
+      title: true,
+      wordCount: true,
+      actNumber: true,
+      status: true,
+    },
+    orderBy: { chapterNumber: "asc" },
+  });
+
+  if (chapters.length === 0) return "This book has no chapters yet.";
+
+  const rows = chapters
+    .map(
+      (c) =>
+        `| ${c.chapterNumber} | ${c.title ?? "(untitled)"} | ${c.wordCount} | ${c.actNumber} | ${c.status} |`
+    )
+    .join("\n");
+  const total = chapters.reduce((sum, c) => sum + c.wordCount, 0);
+
+  return (
+    `${chapters.length} chapters, ${total} words total.\n\n` +
+    `| # | Title | Words | Act | Status |\n|---|---|---|---|---|\n${rows}`
+  );
+}
+
+/**
+ * O12 — record one proposed structural move. Validation runs against the real
+ * chapter list before anything is persisted: the model routinely cites chapters
+ * that do not exist, and a proposal the apply engine cannot execute is worse
+ * than no proposal, because the writer only finds out after accepting it.
+ */
+async function executeProposeStructureMove(
+  ctx: ToolContext,
+  input: {
+    kind: string;
+    chapterNumbers: number[];
+    targetPosition?: number;
+    anchorQuote?: string;
+    title?: string;
+    reason: string;
+    evidence?: string;
+    confidence?: number;
+  }
+): Promise<string> {
+  const reason = (input.reason ?? "").trim();
+  if (reason.length === 0) {
+    return "Proposal rejected — a structural move needs a reason the writer can judge.";
+  }
+
+  const numbers = (input.chapterNumbers ?? []).filter((n) => Number.isFinite(n));
+  if (numbers.length === 0) {
+    return "Proposal rejected — name the chapter(s) the move acts on in chapterNumbers.";
+  }
+
+  const move = toStructureMoveInput(input, numbers);
+  if (!move) {
+    return `Proposal rejected — unknown move kind "${input.kind}".`;
+  }
+
+  const chapters = await db.chapter.findMany({
+    where: { bookId: ctx.bookId },
+    select: {
+      id: true,
+      chapterNumber: true,
+      title: true,
+      wordCount: true,
+      actNumber: true,
+    },
+    orderBy: { chapterNumber: "asc" },
+  });
+
+  const planned = planMove(chapters as ChapterRef[], move);
+  if (!planned.ok) {
+    return `Proposal rejected — ${planned.error.message}`;
+  }
+
+  const created = await db.structureMove.create({
+    data: {
+      bookId: ctx.bookId,
+      sessionId: ctx.sessionId,
+      kind: move.kind,
+      payload: JSON.stringify(move),
+      reason: enforceBookScript(reason, ctx.language),
+      evidence: input.evidence
+        ? enforceBookScript(input.evidence, ctx.language)
+        : null,
+      confidence: typeof input.confidence === "number" ? input.confidence : null,
+      status: "pending",
+    },
+  });
+
+  return `Proposed ${describeMove(move)} (id ${created.id}). Waiting for the writer's decision.`;
+}
+
+function toStructureMoveInput(
+  input: {
+    kind: string;
+    targetPosition?: number;
+    anchorQuote?: string;
+    title?: string;
+  },
+  numbers: number[]
+): StructureMoveInput | null {
+  switch (input.kind) {
+    case "reorder":
+    case "renumber":
+      return {
+        kind: input.kind,
+        chapterNumber: numbers[0],
+        targetPosition: input.targetPosition ?? 0,
+      };
+    case "merge":
+      return { kind: "merge", chapterNumbers: numbers, title: input.title };
+    case "split":
+      return {
+        kind: "split",
+        chapterNumber: numbers[0],
+        anchorQuote: input.anchorQuote ?? "",
+        secondTitle: input.title,
+      };
+    default:
+      return null;
+  }
+}
+
+function describeMove(move: StructureMoveInput): string {
+  switch (move.kind) {
+    case "merge":
+      return `merge of chapters ${move.chapterNumbers.join(" + ")}`;
+    case "split":
+      return `split of chapter ${move.chapterNumber}`;
+    default:
+      return `${move.kind} of chapter ${move.chapterNumber} to position ${move.targetPosition}`;
+  }
 }
 
 async function executeCreateFinding(
@@ -2457,6 +2672,22 @@ async function executeToolInner(
       return executeListDocuments(
         ctx,
         input as { documentType?: string }
+      );
+    case "ListChapters":
+      return executeListChapters(ctx);
+    case "ProposeStructureMove":
+      return executeProposeStructureMove(
+        ctx,
+        input as unknown as {
+          kind: string;
+          chapterNumbers: number[];
+          targetPosition?: number;
+          anchorQuote?: string;
+          title?: string;
+          reason: string;
+          evidence?: string;
+          confidence?: number;
+        }
       );
     case "CreateFinding":
       return executeCreateFinding(

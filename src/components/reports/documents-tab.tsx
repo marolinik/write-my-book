@@ -26,6 +26,7 @@ const DOC_TYPE_LABELS: Record<string, string> = {
   BETA_READ_REPORT: "Beta Read Report",
   CONTINUITY_REPORT: "Continuity Report",
   ANALYSIS_REPORT: "Analysis Report",
+  STRUCTURE_PROPOSAL: "Structure Proposal",
   MARKET_REPORT: "Market Report",
   EXPORT_CONFIG: "Export Config",
   FREEWRITE: "Freewrite",
