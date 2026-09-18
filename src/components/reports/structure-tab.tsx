@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Loader2,
   ArrowRightLeftIcon,
@@ -24,6 +22,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useLanguage } from "@/components/providers/language-provider";
+import { useStructureMoves } from "./use-structure-moves";
+import type { StructureMove } from "@/lib/structure/types";
+import { LIVE_MOVE_STATUSES } from "@/lib/structure/types";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
 import { cn } from "@/lib/utils";
 
@@ -38,26 +39,6 @@ import { cn } from "@/lib/utils";
  * manuscript was touched.
  */
 
-interface StructureMove {
-  id: string;
-  kind: string;
-  status: string;
-  reason: string;
-  evidence: string | null;
-  confidence: number | null;
-  resultSummary: string | null;
-  rejectionReason: string | null;
-  createdAt: string;
-  appliedAt: string | null;
-  payload: {
-    kind?: string;
-    chapterNumber?: number;
-    targetPosition?: number;
-    chapterNumbers?: number[];
-    anchorQuote?: string;
-    title?: string;
-  } | null;
-}
 
 const KIND_ICONS: Record<string, React.ElementType> = {
   reorder: ArrowRightLeftIcon,
@@ -78,70 +59,17 @@ const STATUS_VARIANTS: Record<string, "default" | "secondary" | "destructive" | 
 export function StructureTab({ bookId }: { bookId: string }) {
   const { t } = useLanguage();
   const s = t.structure;
-  const queryClient = useQueryClient();
   const openWithWorkflow = useAgentUIStore((st) => st.openWithWorkflow);
-  const [error, setError] = useState<string | null>(null);
-  const [busyId, setBusyId] = useState<string | null>(null);
-
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["structure-moves", bookId],
-    queryFn: async () => {
-      const res = await fetch(`/api/books/${bookId}/structure/moves`);
-      if (!res.ok) throw new Error("load failed");
-      return res.json() as Promise<{ moves: StructureMove[] }>;
-    },
-  });
-
-  const decide = useMutation({
-    mutationFn: async (vars: { id: string; decision: "accept" | "reject" }) => {
-      setBusyId(vars.id);
-      const res = await fetch(
-        `/api/books/${bookId}/structure/moves/${vars.id}/decision`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ decision: vars.decision }),
-        }
-      );
-      const body = await res.json();
-      if (!res.ok) {
-        throw new Error(
-          describeMoveError(body?.code, body?.error ?? s.applyError, s)
-        );
-      }
-      return body;
-    },
-    onSuccess: () => {
-      setError(null);
-      queryClient.invalidateQueries({ queryKey: ["structure-moves", bookId] });
-      queryClient.invalidateQueries({ queryKey: ["chapters", bookId] });
-    },
-    onError: (e: Error) => setError(`${s.applyError}: ${e.message}`),
-    onSettled: () => setBusyId(null),
-  });
-
-  const undo = useMutation({
-    mutationFn: async (id: string) => {
-      setBusyId(id);
-      const res = await fetch(`/api/books/${bookId}/structure/moves/${id}/undo`, {
-        method: "POST",
-      });
-      const body = await res.json();
-      if (!res.ok) {
-        throw new Error(
-          describeMoveError(body?.code, body?.error ?? s.undoError, s)
-        );
-      }
-      return body;
-    },
-    onSuccess: () => {
-      setError(null);
-      queryClient.invalidateQueries({ queryKey: ["structure-moves", bookId] });
-      queryClient.invalidateQueries({ queryKey: ["chapters", bookId] });
-    },
-    onError: (e: Error) => setError(`${s.undoError}: ${e.message}`),
-    onSettled: () => setBusyId(null),
-  });
+  const {
+    moves,
+    isLoading,
+    isError,
+    error,
+    busyId,
+    isDeciding,
+    decide,
+    undo,
+  } = useStructureMoves(bookId);
 
   if (isLoading) {
     return (
@@ -163,16 +91,14 @@ export function StructureTab({ bookId }: { bookId: string }) {
     );
   }
 
-  const moves = data?.moves ?? [];
   const pending = moves.filter((m) => m.status === "pending");
 
   // A move the writer decided against, or undid, or that could not run, left no
   // mark on the book and offers no action. Keeping it in the main list buried
   // the live proposals and made a page full of dead cards look like the whole
   // feature (S3-7). It stays readable, in a fold, under its own heading.
-  const LIVE = ["pending", "accepted", "applied"];
-  const live = moves.filter((m) => LIVE.includes(m.status));
-  const history = moves.filter((m) => !LIVE.includes(m.status));
+  const live = moves.filter((m) => LIVE_MOVE_STATUSES.includes(m.status));
+  const history = moves.filter((m) => !LIVE_MOVE_STATUSES.includes(m.status));
 
   return (
     <div className="space-y-6">
@@ -222,7 +148,7 @@ export function StructureTab({ bookId }: { bookId: string }) {
                 key={move.id}
                 move={move}
                 strings={s}
-                busy={busyId === move.id}
+                busy={busyId === move.id || isDeciding}
                 onAccept={() => decide.mutate({ id: move.id, decision: "accept" })}
                 onReject={() => decide.mutate({ id: move.id, decision: "reject" })}
                 onUndo={() => undo.mutate(move.id)}
@@ -243,7 +169,7 @@ export function StructureTab({ bookId }: { bookId: string }) {
                 key={move.id}
                 move={move}
                 strings={s}
-                busy={busyId === move.id}
+                busy={busyId === move.id || isDeciding}
                 onAccept={() => decide.mutate({ id: move.id, decision: "accept" })}
                 onReject={() => decide.mutate({ id: move.id, decision: "reject" })}
                 onUndo={() => undo.mutate(move.id)}
@@ -358,31 +284,6 @@ function MoveCard({
       </CardContent>
     </Card>
   );
-}
-
-/**
- * The writer's reason a move could not run.
- *
- * The engine answers with a code and an English sentence; the code is the
- * contract, the sentence is a developer's note. Showing the sentence put
- * "This proposal is already failed." in the middle of a Serbian panel and told
- * the writer nothing about what to do (S3-8).
- */
-export function describeMoveError(
-  code: string | undefined,
-  fallback: string,
-  s: Record<string, string>
-): string {
-  const byCode: Record<string, string | undefined> = {
-    not_pending: s.errNotPending,
-    chapter_not_found: s.errChapterGone,
-    anchor_not_found: s.errAnchorMissing,
-    anchor_ambiguous: s.errAnchorAmbiguous,
-    anchor_too_early: s.errAnchorTooEarly,
-    not_adjacent: s.errNotAdjacent,
-    book_changed: s.errBookChanged,
-  };
-  return (code && byCode[code]) || fallback;
 }
 
 /** Render the move as one plain sentence in the writer's language. */

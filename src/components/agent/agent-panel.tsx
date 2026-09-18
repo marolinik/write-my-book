@@ -53,6 +53,7 @@ import { ProactiveGuide } from "./proactive-guide";
 import { SessionProgressList } from "./session-progress-list";
 import { MessageStream } from "./message-stream";
 import { ConversationInput } from "./conversation-input";
+import { InlineStructureProposals } from "./inline-structure-proposals";
 import { useDefaultModel } from "@/hooks/use-default-model";
 
 interface AgentPanelProps {
@@ -782,6 +783,12 @@ export function AgentPanel({
               )}
 
               {/* Post-session navigation CTAs */}
+              {/* A restructure run ends in a question for the writer, so the
+                  answer belongs here rather than on another page (S3-7). */}
+              {workflowId === "restructure" && (
+                <InlineStructureProposals bookId={bookId} />
+              )}
+
               {postSessionCTAs.length > 0 && (
                 <div className="flex flex-wrap gap-1">
                   {postSessionCTAs.map((cta) => (
