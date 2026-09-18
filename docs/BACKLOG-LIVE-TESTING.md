@@ -19,7 +19,7 @@ below.
 | O4 | Prerequisite failures invisible | DONE — the 422 now names the missing artifact in the writer's language and offers the run that produces it. |
 | O5 | Zika needs a warm-up | DONE — cold-start family gets a 20 minute client deadline, the rest of the fleet 10, hosted providers keep the SDK default. |
 | O6 | Worker log flood on Redis loss | DONE — exponential Redis backoff to a 30s ceiling plus a per-failure log throttle. |
-| O7 | D-203 hydration mismatch | CONFIRMED, not fixed. See below. |
+| O7 | D-203 hydration mismatch | One real cause found and FIXED (the dashboard nudge read localStorage during render). Residual: no mismatch in 6 serial audit runs, 1 in 4 under three concurrent dev requests. Production comparison still blocked by the env guard. |
 | O8 | Board did not refresh after a job | DONE — `RefreshOnSessionComplete` refreshes the server render when a session of this book reaches a terminal state. |
 | O9 | Cross-book continuity blind | DONE — `ListSeriesBooks` and `ReadSiblingChapter` give the checker a sibling book's real prose. |
 | O10 | Continuity tab always ran the series check | DONE — new `check-continuity` workflow for a standalone book, and the whole tab translated. |
@@ -189,6 +189,28 @@ HYDRATION_AUDIT=1 PLAYWRIGHT_BASE_URL=http://127.0.0.1:3100   npx playwright tes
 
 Nothing was patched on a guess: a speculative `suppressHydrationWarning` would
 hide the symptom and keep whatever renders differently.
+
+**One real cause found and fixed.** `NudgeDismiss` (the dashboard "hide this
+recommendation" wrapper) seeded its state from `localStorage` *inside the first
+render*. For a writer who had dismissed the nudge that day, the client's first
+tree differed from the server's, which renames every `useId` below it - and the
+theme-toggle dropdown is below it. It now renders the server's markup first and
+adopts the stored dismissal in an effect, guarded by
+`tests/unit/nudge-dismiss-hydration.test.tsx` (the server render must not depend
+on storage).
+
+**Measured after the fix** (dev server, warm):
+
+| How the audit ran | Runs | Runs with a mismatch |
+|---|---|---|
+| Serial (`--workers=1`) | 6 | 0 |
+| Three browsers at once (`--workers=3`) | 4 | 1 |
+
+So the writer-visible case is gone, and what remains appears only when several
+requests hit the dev server at once - which is consistent with the original
+"dev-only" suspicion (a streamed or aborted dev render producing a different
+tree), but it is not proof. The proof is the production run above, in an
+environment that has real Clerk keys.
 
 ---
 

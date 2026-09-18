@@ -4,7 +4,7 @@
 // The nudge card is server-rendered; this client wrapper lets the user hide it
 // for today and undo. Persisted per (bookId:workflowId) in localStorage so a
 // different book/recommendation still surfaces, and the nudge returns next day.
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -44,10 +44,19 @@ export function NudgeDismiss({
   dismissLabel: string;
   undoLabel: string;
 }) {
-  const [dismissed, setDismissed] = useState(
-    () => readDismissed()[dismissKey] === today()
-  );
+  // O7 / D-203: this used to seed itself from localStorage inside the first
+  // render, so a writer who had dismissed the nudge today got a DIFFERENT tree
+  // than the server sent. React 19 derives `useId` from tree position, so that
+  // shift renamed every id below it and the Radix dropdown further down the
+  // dashboard hydrated with an id the server had never rendered. The first
+  // render now matches the server, and the stored preference is adopted right
+  // after mount.
+  const [dismissed, setDismissed] = useState(false);
   const [dismissedForToday, setDismissedForToday] = useState(false);
+
+  useEffect(() => {
+    if (readDismissed()[dismissKey] === today()) setDismissed(true);
+  }, [dismissKey]);
 
   if (dismissed) {
     return (
