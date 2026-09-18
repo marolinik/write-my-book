@@ -39,6 +39,12 @@ import {
 } from "@/components/ui/select";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
 import { useLanguage, useLocale } from "@/components/providers/language-provider";
+import { getDocumentTypeLabels } from "@/lib/agents/tool-labels";
+import { getAgentStrings } from "@/lib/i18n/agent-strings";
+import {
+  groupDocuments,
+  type DocumentGroup,
+} from "@/lib/documents/library-groups";
 import { useBookState } from "@/hooks/use-book-state";
 import { getWorkflow } from "@/lib/agents/workflows";
 
@@ -57,27 +63,12 @@ interface DocItem {
 
 // ─── Document type config ───────────────────────────────────────
 
-const DOC_TYPE_LABELS: Record<string, string> = {
-  CONCEPT: "Concept",
-  STORY_BIBLE: "Story Bible",
-  ARCHITECTURE: "Architecture",
-  FINGERPRINT: "Style Fingerprint",
-  CHAPTER_BRIEF: "Brief",
-  CHAPTER_PLAN: "Plan",
-  CHAPTER_CONTENT: "Content",
-  DEV_EDIT_REPORT: "Dev Edit",
-  LINE_EDIT_REPORT: "Line Edit",
-  BETA_READ_REPORT: "Beta Read",
-  CONTINUITY_REPORT: "Continuity Report",
-  ANALYSIS_REPORT: "Analysis Report",
-  STRUCTURE_PROPOSAL: "Structure Proposal",
-  MARKET_REPORT: "Market Report",
-  EXPORT_CONFIG: "Export Config",
-  FREEWRITE: "Freewrite",
-};
-
 const DOC_TYPE_ICONS: Record<string, React.ElementType> = {
   CONCEPT: ScrollTextIcon,
+  SYNOPSIS: ScrollTextIcon,
+  BOOK_PLAN: FileTextIcon,
+  WORLD_RESEARCH: GlobeIcon,
+  TOPIC_RESEARCH: SearchIcon,
   STORY_BIBLE: BookOpenIcon,
   ARCHITECTURE: BuildingIcon,
   FINGERPRINT: FingerprintIcon,
@@ -95,60 +86,23 @@ const DOC_TYPE_ICONS: Record<string, React.ElementType> = {
   FREEWRITE: SparklesIcon,
 };
 
-// ─── Grouping definitions ───────────────────────────────────────
+// ─── Group presentation ────────────────────────────────────────
+//
+// WHICH groups exist, in WHAT order, and which types each one owns lives in
+// lib/documents/library-groups.ts — it is the same spine the Razvoj board
+// walks, and a test holds it against the Prisma enum. Only the icons and the
+// label lookup belong here.
 
-interface DocGroup {
-  key: string;
-  label: string;
-  icon: React.ElementType;
-  types: string[];
-  perChapter?: boolean;
-  emptyWorkflow?: string;
-  emptyLabel?: string;
-}
-
-const DOC_GROUPS: DocGroup[] = [
-  {
-    key: "setup",
-    label: "Setup",
-    icon: SparklesIcon,
-    types: ["CONCEPT", "FINGERPRINT", "STORY_BIBLE", "ARCHITECTURE"],
-    emptyWorkflow: "capture-style",
-    emptyLabel: "Run Setup Wizard",
-  },
-  {
-    key: "chapters",
-    label: "Chapters",
-    icon: FileTextIcon,
-    types: ["CHAPTER_BRIEF", "CHAPTER_PLAN", "CHAPTER_CONTENT"],
-    perChapter: true,
-    emptyWorkflow: "discuss-chapter",
-    emptyLabel: "Start Chapter Discussion",
-  },
-  {
-    key: "editorial",
-    label: "Editorial",
-    icon: PenLineIcon,
-    types: ["DEV_EDIT_REPORT", "LINE_EDIT_REPORT", "BETA_READ_REPORT"],
-    perChapter: true,
-    emptyWorkflow: "dev-edit",
-    emptyLabel: "Run Dev Edit",
-  },
-  {
-    key: "reports",
-    label: "Analysis & Reports",
-    icon: BarChart3Icon,
-    types: ["CONTINUITY_REPORT", "ANALYSIS_REPORT", "STRUCTURE_PROPOSAL", "MARKET_REPORT"],
-    emptyWorkflow: "analyze",
-    emptyLabel: "Run Analysis",
-  },
-  {
-    key: "other",
-    label: "Other",
-    icon: SettingsIcon,
-    types: ["EXPORT_CONFIG", "FREEWRITE"],
-  },
-];
+const GROUP_ICONS: Record<string, React.ElementType> = {
+  foundation: SparklesIcon,
+  structure: BuildingIcon,
+  research: SearchIcon,
+  chapters: FileTextIcon,
+  analysis: BarChart3Icon,
+  editorial: PenLineIcon,
+  publishing: GlobeIcon,
+  notes: PencilIcon,
+};
 
 // ─── Workflow icon map ──────────────────────────────────────────
 
@@ -189,7 +143,11 @@ function relativeTime(date: string, locale: string): string {
 
 export function DocumentsLibrary({ bookId }: { bookId: string }) {
   const openWithWorkflow = useAgentUIStore((s) => s.openWithWorkflow);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  // tool-labels.ts already carries every document type in all seven languages;
+  // the library used to keep a second, English-only copy that had never heard
+  // of SYNOPSIS (S3-2).
+  const typeLabels = getDocumentTypeLabels(language);
   const bookState = useBookState(bookId);
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -264,7 +222,7 @@ export function DocumentsLibrary({ bookId }: { bookId: string }) {
     if (typeFilter !== "all" && d.type !== typeFilter) return false;
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
-      const label = DOC_TYPE_LABELS[d.type] ?? d.type;
+      const label = typeLabels[d.type] ?? d.type;
       if (
         !(d.title ?? "").toLowerCase().includes(q) &&
         !label.toLowerCase().includes(q) &&
@@ -276,22 +234,14 @@ export function DocumentsLibrary({ bookId }: { bookId: string }) {
     return true;
   });
 
-  // Build grouped structure
-  const allDocTypes = new Set(DOC_GROUPS.flatMap((g) => g.types));
-  const grouped = DOC_GROUPS.map((group) => {
-    const groupDocs = filteredDocs.filter((d) => group.types.includes(d.type));
-    return { ...group, docs: groupDocs };
-  });
+  // Grouped in flow order; an unrecognised type lands in "notes" rather than
+  // disappearing (see lib/documents/library-groups.ts).
+  const grouped = groupDocuments(filteredDocs);
 
-  const unknownDocs = filteredDocs.filter((d) => !allDocTypes.has(d.type));
-  if (unknownDocs.length > 0) {
-    const otherGroup = grouped.find((g) => g.key === "other");
-    if (otherGroup) otherGroup.docs.push(...unknownDocs);
-  }
-
-  // Show groups that have documents, or setup (always), or groups with emptyWorkflow CTAs
+  // A group earns its card when it holds something, or when it can offer the
+  // workflow that fills it.
   const visibleGroups = grouped.filter(
-    (g) => g.docs.length > 0 || g.key === "setup" || g.emptyWorkflow
+    (g) => g.docs.length > 0 || g.emptyWorkflow
   );
 
   // Unique types for filter dropdown
@@ -333,7 +283,7 @@ export function DocumentsLibrary({ bookId }: { bookId: string }) {
             <SelectItem value="all">{t.appUI.allTypes}</SelectItem>
             {uniqueTypes.map((type) => (
               <SelectItem key={type} value={type}>
-                {DOC_TYPE_LABELS[type] ?? type}
+                {typeLabels[type] ?? type}
               </SelectItem>
             ))}
           </SelectContent>
@@ -396,6 +346,15 @@ export function DocumentsLibrary({ bookId }: { bookId: string }) {
             key={group.key}
             group={group}
             bookId={bookId}
+            label={t.docLibrary[group.key]}
+            emptyText={t.docLibrary.emptyGroup}
+            startText={t.docLibrary.startWorkflow}
+            workflowLabel={
+              group.emptyWorkflow
+                ? (getAgentStrings(language).workflows[group.emptyWorkflow] ??
+                  group.emptyWorkflow)
+                : ""
+            }
             onStartWorkflow={openWithWorkflow}
           />
         ))
@@ -409,13 +368,23 @@ export function DocumentsLibrary({ bookId }: { bookId: string }) {
 function DocumentGroupSection({
   group,
   bookId,
+  label,
+  emptyText,
+  startText,
+  workflowLabel,
   onStartWorkflow,
 }: {
-  group: DocGroup & { docs: DocItem[] };
+  group: DocumentGroup & { docs: DocItem[] };
   bookId: string;
+  label: string;
+  /** Carries a {group} placeholder. */
+  emptyText: string;
+  /** Carries a {workflow} placeholder. */
+  startText: string;
+  workflowLabel: string;
   onStartWorkflow: (wfId: string) => void;
 }) {
-  const Icon = group.icon;
+  const Icon = GROUP_ICONS[group.key] ?? FileTextIcon;
 
   if (group.docs.length === 0) {
     return (
@@ -423,13 +392,13 @@ function DocumentGroupSection({
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-base">
             <Icon className="size-4 text-muted-foreground" />
-            {group.label}
+            {label}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-center py-4">
             <p className="text-sm text-muted-foreground mb-3">
-              No {group.label.toLowerCase()} documents yet.
+              {emptyText.replace("{group}", label)}
             </p>
             {group.emptyWorkflow && (
               <Button
@@ -438,7 +407,7 @@ function DocumentGroupSection({
                 onClick={() => onStartWorkflow(group.emptyWorkflow!)}
               >
                 <SparklesIcon className="mr-1.5 size-3.5" />
-                {group.emptyLabel ?? `Run ${group.label} workflow`}
+                {startText.replace("{workflow}", workflowLabel)}
               </Button>
             )}
           </div>
@@ -481,7 +450,7 @@ function DocumentGroupSection({
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-base">
             <Icon className="size-4 text-muted-foreground" />
-            {group.label}
+            {label}
             <Badge variant="secondary" className="ml-auto text-xs font-normal">
               {sortedDocs.length}
             </Badge>
@@ -517,7 +486,7 @@ function DocumentGroupSection({
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-base">
           <Icon className="size-4 text-muted-foreground" />
-          {group.label}
+          {label}
           <Badge variant="secondary" className="ml-auto text-xs font-normal">
             {sortedDocs.length}
           </Badge>
@@ -546,8 +515,9 @@ function DocumentRow({
   hideChapter?: boolean;
 }) {
   const locale = useLocale();
+  const { language } = useLanguage();
   const Icon = DOC_TYPE_ICONS[doc.type] ?? FileTextIcon;
-  const label = DOC_TYPE_LABELS[doc.type] ?? doc.type;
+  const label = getDocumentTypeLabels(language)[doc.type] ?? doc.type;
 
   return (
     <Link

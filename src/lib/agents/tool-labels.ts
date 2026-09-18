@@ -16,6 +16,7 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
   en: {
     CONCEPT: "Concept",
     SYNOPSIS: "Synopsis",
+    BOOK_PLAN: "Book Plan",
     STORY_BIBLE: "Story Bible",
     ARCHITECTURE: "Architecture",
     FINGERPRINT: "Style Fingerprint",
@@ -42,6 +43,7 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
   sr: {
     CONCEPT: "Concept",
     SYNOPSIS: "Synopsis",
+    BOOK_PLAN: "Plan knjige",
     STORY_BIBLE: "Biblija priče",
     ARCHITECTURE: "Arhitektura",
     FINGERPRINT: "Stilski otisak",
@@ -68,6 +70,7 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
   de: {
     CONCEPT: "Concept",
     SYNOPSIS: "Synopsis",
+    BOOK_PLAN: "Buchplan",
     STORY_BIBLE: "Story-Bibel",
     ARCHITECTURE: "Architektur",
     FINGERPRINT: "Stil-Fingerabdruck",
@@ -94,6 +97,7 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
   es: {
     CONCEPT: "Concept",
     SYNOPSIS: "Synopsis",
+    BOOK_PLAN: "Plan del libro",
     STORY_BIBLE: "Biblia de la historia",
     ARCHITECTURE: "Arquitectura",
     FINGERPRINT: "Huella de estilo",
@@ -120,6 +124,7 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
   fr: {
     CONCEPT: "Concept",
     SYNOPSIS: "Synopsis",
+    BOOK_PLAN: "Plan du livre",
     STORY_BIBLE: "Bible de l'histoire",
     ARCHITECTURE: "Architecture",
     FINGERPRINT: "Empreinte de style",
@@ -146,6 +151,7 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
   ru: {
     CONCEPT: "Concept",
     SYNOPSIS: "Synopsis",
+    BOOK_PLAN: "План книги",
     STORY_BIBLE: "Библия истории",
     ARCHITECTURE: "Архитектура",
     FINGERPRINT: "Стилевой отпечаток",
@@ -172,6 +178,7 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
   zh: {
     CONCEPT: "Concept",
     SYNOPSIS: "Synopsis",
+    BOOK_PLAN: "图书规划",
     STORY_BIBLE: "故事圣经",
     ARCHITECTURE: "架构",
     FINGERPRINT: "风格指纹",

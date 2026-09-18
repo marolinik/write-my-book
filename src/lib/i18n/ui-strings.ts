@@ -630,6 +630,16 @@ export interface UIStrings {
   };
 
   // O1 - main-surface strings that used to be written inline in English.
+  // S3-2 - the document library's groups, ordered as the boards order the work.
+  docLibrary: {
+    foundation: string; structure: string; research: string; chapters: string;
+    analysis: string; editorial: string; publishing: string; notes: string;
+    /** Carries a {group} placeholder. */
+    emptyGroup: string;
+    /** Carries a {workflow} placeholder. */
+    startWorkflow: string;
+  };
+
   screens: {
     bookProgress: string; drafted: string; edited: string; betaPassed: string;
     wordCount: string; recentSessions: string; editorialFindings: string;
@@ -1493,6 +1503,13 @@ const EN: UIStrings = {
     reviewFeedback: "Review feedback",
     noAchievements: "No achievements yet. Start writing.",
     wrappedHint: "See the highlights of your writing year",
+  },
+
+  docLibrary: {
+    foundation: "Idea & voice", structure: "Structure", research: "Research", chapters: "Chapters",
+    analysis: "Analysis", editorial: "Editorial", publishing: "Publishing", notes: "Notes",
+    emptyGroup: "Nothing in {group} yet.",
+    startWorkflow: "Run {workflow}",
   },
 
   screens: {
@@ -2397,6 +2414,13 @@ const SR: UIStrings = {
     wrappedHint: "Pogledajte najvažnije iz svoje godine pisanja",
   },
 
+  docLibrary: {
+    foundation: "Zamisao i glas", structure: "Struktura", research: "Istraživanje", chapters: "Poglavlja",
+    analysis: "Analiza", editorial: "Redakcija", publishing: "Objavljivanje", notes: "Beleške",
+    emptyGroup: "Još ništa u odeljku {group}.",
+    startWorkflow: "Pokreni: {workflow}",
+  },
+
   screens: {
     bookProgress: "Napredak knjige", drafted: "Napisano", edited: "Uređeno", betaPassed: "Prošlo beta čitanje",
     wordCount: "Broj reči", recentSessions: "Nedavne sesije agenata", editorialFindings: "Urednički nalazi",
@@ -3296,6 +3320,13 @@ const DE: UIStrings = {
     reviewFeedback: "Feedback ansehen",
     noAchievements: "Noch keine Erfolge. Fangen Sie an zu schreiben.",
     wrappedHint: "Die Höhepunkte Ihres Schreibjahres ansehen",
+  },
+
+  docLibrary: {
+    foundation: "Idee & Stimme", structure: "Struktur", research: "Recherche", chapters: "Kapitel",
+    analysis: "Analyse", editorial: "Lektorat", publishing: "Veröffentlichung", notes: "Notizen",
+    emptyGroup: "Noch nichts unter {group}.",
+    startWorkflow: "{workflow} ausführen",
   },
 
   screens: {
@@ -4199,6 +4230,13 @@ const ES: UIStrings = {
     wrappedHint: "Mira lo más destacado de tu año de escritura",
   },
 
+  docLibrary: {
+    foundation: "Idea y voz", structure: "Estructura", research: "Investigación", chapters: "Capítulos",
+    analysis: "Análisis", editorial: "Edición", publishing: "Publicación", notes: "Notas",
+    emptyGroup: "Aún no hay nada en {group}.",
+    startWorkflow: "Ejecutar {workflow}",
+  },
+
   screens: {
     bookProgress: "Progreso del libro", drafted: "Escrito", edited: "Editado", betaPassed: "Beta superada",
     wordCount: "Número de palabras", recentSessions: "Sesiones recientes", editorialFindings: "Hallazgos editoriales",
@@ -5098,6 +5136,13 @@ const FR: UIStrings = {
     reviewFeedback: "Voir les retours",
     noAchievements: "Aucun succès pour l'instant. Commencez à écrire.",
     wrappedHint: "Voir les temps forts de votre année d'écriture",
+  },
+
+  docLibrary: {
+    foundation: "Idée & voix", structure: "Structure", research: "Recherche", chapters: "Chapitres",
+    analysis: "Analyse", editorial: "Révision", publishing: "Publication", notes: "Notes",
+    emptyGroup: "Rien encore dans {group}.",
+    startWorkflow: "Lancer {workflow}",
   },
 
   screens: {
@@ -6001,6 +6046,13 @@ const RU: UIStrings = {
     wrappedHint: "Посмотрите главное за свой год письма",
   },
 
+  docLibrary: {
+    foundation: "Замысел и голос", structure: "Структура", research: "Исследование", chapters: "Главы",
+    analysis: "Анализ", editorial: "Редактура", publishing: "Публикация", notes: "Заметки",
+    emptyGroup: "В разделе {group} пока пусто.",
+    startWorkflow: "Запустить: {workflow}",
+  },
+
   screens: {
     bookProgress: "Прогресс книги", drafted: "Написано", edited: "Отредактировано", betaPassed: "Бета пройдена",
     wordCount: "Число слов", recentSessions: "Недавние сессии", editorialFindings: "Редакторские замечания",
@@ -6900,6 +6952,13 @@ const ZH: UIStrings = {
     reviewFeedback: "查看反馈",
     noAchievements: "还没有成就，开始写作吧。",
     wrappedHint: "查看你这一年的写作亮点",
+  },
+
+  docLibrary: {
+    foundation: "构思与声音", structure: "结构", research: "资料", chapters: "章节",
+    analysis: "分析", editorial: "编辑", publishing: "出版", notes: "笔记",
+    emptyGroup: "{group} 中还没有内容。",
+    startWorkflow: "运行 {workflow}",
   },
 
   screens: {
