@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import { BotIcon } from "lucide-react";
@@ -24,6 +25,7 @@ interface AgentPanelWrapperProps {
  * For series routes, provides an "active book" selector for series workflows.
  */
 export function AgentPanelWrapper({ onClose }: AgentPanelWrapperProps) {
+  const { t } = useLanguage();
   const params = useParams();
   const bookId = params?.bookId as string | undefined;
   const seriesId = params?.seriesId as string | undefined;
@@ -51,7 +53,7 @@ export function AgentPanelWrapper({ onClose }: AgentPanelWrapperProps) {
       <div className="flex h-full w-full min-w-[280px] flex-col border-l bg-muted/30">
         <div className="flex h-12 items-center gap-2 border-b px-4">
           <BotIcon className="size-4 text-muted-foreground" />
-          <span className="text-sm font-medium truncate">Writing Agent</span>
+          <span className="text-sm font-medium truncate">{t.workspaceUI.writingAgent}</span>
         </div>
         <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
           <div className="rounded-full bg-muted p-4">
@@ -88,7 +90,7 @@ export function AgentPanelWrapper({ onClose }: AgentPanelWrapperProps) {
               onValueChange={setActiveSeriesBookId}
             >
               <SelectTrigger className="h-8 text-xs">
-                <SelectValue placeholder="Select book..." />
+                <SelectValue placeholder={t.workspaceUI.selectBook} />
               </SelectTrigger>
               <SelectContent>
                 {seriesBooks.map((b) => (

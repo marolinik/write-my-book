@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCustomProviders } from "@/hooks/use-custom-providers";
@@ -14,6 +15,7 @@ import { Trash2, Plus, RefreshCw } from "lucide-react";
  * own model list is always what you see here (never stale).
  */
 export function CustomProvidersSection() {
+  const { t } = useLanguage();
   const { data: providers } = useCustomProviders();
   const qc = useQueryClient();
   const [name, setName] = useState("");
@@ -64,7 +66,7 @@ export function CustomProvidersSection() {
     <div className="space-y-3 rounded-md border bg-muted/30 p-4">
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium">Custom providers (LAN / proxy / self-hosted)</p>
-        <Button size="icon" variant="ghost" onClick={refresh} disabled={busy} aria-label="Refresh list">
+        <Button size="icon" variant="ghost" onClick={refresh} disabled={busy} aria-label={t.workspaceUI.refreshList}>
           <RefreshCw className="h-4 w-4" />
         </Button>
       </div>
@@ -96,15 +98,15 @@ export function CustomProvidersSection() {
 
       <div className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
         <div className="space-y-1">
-          <Label htmlFor="cp-name" className="text-xs">Name</Label>
-          <Input id="cp-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="LAN box" />
+          <Label htmlFor="cp-name" className="text-xs">{t.workspaceUI.providerName}</Label>
+          <Input id="cp-name" value={name} onChange={(e) => setName(e.target.value)} placeholder={t.workspaceUI.providerNameExample} />
         </div>
         <div className="space-y-1">
-          <Label htmlFor="cp-url" className="text-xs">Base URL</Label>
+          <Label htmlFor="cp-url" className="text-xs">{t.workspaceUI.baseUrl}</Label>
           <Input id="cp-url" value={baseURL} onChange={(e) => setBaseURL(e.target.value)} placeholder="http://lan-box:8888/v1" />
         </div>
         <div className="space-y-1">
-          <Label htmlFor="cp-key" className="text-xs">Key (optional)</Label>
+          <Label htmlFor="cp-key" className="text-xs">{t.workspaceUI.keyOptional}</Label>
           <Input id="cp-key" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="sk-… if private" type="password" autoComplete="off" />
         </div>
       </div>

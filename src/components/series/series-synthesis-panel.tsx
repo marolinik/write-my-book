@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState } from "react";
 import { UploadIcon, CheckIcon, XIcon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -34,6 +35,7 @@ async function fetchJson<T>(url: string): Promise<T> {
 }
 
 export function SeriesSynthesisPanel({ seriesId }: SeriesSynthesisPanelProps) {
+  const { t } = useLanguage();
   const [artifactType, setArtifactType] = useState("STORY_BIBLE");
 
   const { data: contributions, isLoading } = useQuery({
@@ -57,7 +59,7 @@ export function SeriesSynthesisPanel({ seriesId }: SeriesSynthesisPanelProps) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-3">
-        <span className="text-sm font-medium">Artifact type:</span>
+        <span className="text-sm font-medium">{t.workspaceUI.artifactType}</span>
         <Select value={artifactType} onValueChange={setArtifactType}>
           <SelectTrigger className="w-48">
             <SelectValue />
@@ -78,7 +80,7 @@ export function SeriesSynthesisPanel({ seriesId }: SeriesSynthesisPanelProps) {
       </p>
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading contributions...</p>
+        <p className="text-sm text-muted-foreground">{t.workspaceUI.loadingContributions}</p>
       ) : !contributions || contributions.length === 0 ? (
         <p className="text-sm text-muted-foreground">
           No books in this series.
@@ -89,11 +91,11 @@ export function SeriesSynthesisPanel({ seriesId }: SeriesSynthesisPanelProps) {
             <thead>
               <tr className="border-b bg-muted/50">
                 <th className="px-4 py-2 text-left font-medium">#</th>
-                <th className="px-4 py-2 text-left font-medium">Book</th>
+                <th className="px-4 py-2 text-left font-medium">{t.workspaceUI.book}</th>
                 <th className="px-4 py-2 text-left font-medium">
                   Has Artifact
                 </th>
-                <th className="px-4 py-2 text-right font-medium">Action</th>
+                <th className="px-4 py-2 text-right font-medium">{t.workspaceUI.action}</th>
               </tr>
             </thead>
             <tbody>

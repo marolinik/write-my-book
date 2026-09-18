@@ -77,30 +77,30 @@ export default function NewSeriesPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="title">Series Title *</Label>
+              <Label htmlFor="title">{t.workspaceUI.seriesTitleRequired}</Label>
               <Input
                 id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="The Dark Tower"
+                placeholder={t.workspaceUI.seriesTitleExample}
                 required
                 maxLength={200}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="genre">Genre</Label>
+              <Label htmlFor="genre">{t.workspaceUI.genre}</Label>
               <Input
                 id="genre"
                 value={genre}
                 onChange={(e) => setGenre(e.target.value)}
-                placeholder="Fantasy, Sci-Fi, Romance..."
+                placeholder={t.workspaceUI.genreExample}
                 maxLength={50}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="seriesType">Series Type</Label>
+              <Label htmlFor="seriesType">{t.workspaceUI.seriesType}</Label>
               <Select value={seriesType} onValueChange={setSeriesType}>
                 <SelectTrigger id="seriesType">
                   <SelectValue />
@@ -116,7 +116,7 @@ export default function NewSeriesPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="plannedBooks">Planned Books</Label>
+              <Label htmlFor="plannedBooks">{t.workspaceUI.plannedBooks}</Label>
               <Input
                 id="plannedBooks"
                 type="number"
@@ -130,12 +130,12 @@ export default function NewSeriesPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">{t.workspaceUI.description}</Label>
               <Textarea
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Brief description of your series..."
+                placeholder={t.workspaceUI.descriptionExample}
                 maxLength={2000}
                 rows={3}
               />

@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState } from "react";
 import { DownloadIcon, CheckCircleIcon, AlertCircleIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,7 @@ export function SeriesInheritancePanel({
   seriesId,
   books,
 }: SeriesInheritancePanelProps) {
+  const { t } = useLanguage();
   const [selectedBookId, setSelectedBookId] = useState<string | null>(
     books[0]?.id ?? null
   );
@@ -54,7 +56,7 @@ export function SeriesInheritancePanel({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-3">
-        <span className="text-sm font-medium">Inherit into:</span>
+        <span className="text-sm font-medium">{t.workspaceUI.inheritInto}</span>
         <Select
           value={selectedBookId ?? ""}
           onValueChange={setSelectedBookId}
@@ -77,7 +79,7 @@ export function SeriesInheritancePanel({
           Select a book to check inheritance state.
         </p>
       ) : isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading...</p>
+        <p className="text-sm text-muted-foreground">{t.workspaceUI.loading}</p>
       ) : !states || states.length === 0 ? (
         <p className="text-sm text-muted-foreground">
           No inheritable documents found.
@@ -88,15 +90,15 @@ export function SeriesInheritancePanel({
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/50">
-                  <th className="px-4 py-2 text-left font-medium">Document</th>
-                  <th className="px-4 py-2 text-left font-medium">Status</th>
+                  <th className="px-4 py-2 text-left font-medium">{t.workspaceUI.document}</th>
+                  <th className="px-4 py-2 text-left font-medium">{t.workspaceUI.status}</th>
                   <th className="px-4 py-2 text-left font-medium">
                     Series Ver.
                   </th>
                   <th className="px-4 py-2 text-left font-medium">
                     Book Ver.
                   </th>
-                  <th className="px-4 py-2 text-right font-medium">Action</th>
+                  <th className="px-4 py-2 text-right font-medium">{t.workspaceUI.action}</th>
                 </tr>
               </thead>
               <tbody>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
@@ -37,6 +38,7 @@ interface SeriesBookManagerProps {
 }
 
 export function SeriesBookManager({ seriesId, books }: SeriesBookManagerProps) {
+  const { t } = useLanguage();
   const locale = useLocale();
   const [showAddForm, setShowAddForm] = useState(false);
   const [addMode, setAddMode] = useState<"existing" | "new">("existing");
@@ -100,7 +102,7 @@ export function SeriesBookManager({ seriesId, books }: SeriesBookManagerProps) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium">Books in Series</h3>
+        <h3 className="text-sm font-medium">{t.workspaceUI.booksInSeries}</h3>
         <Button
           variant="outline"
           size="sm"
@@ -185,7 +187,7 @@ export function SeriesBookManager({ seriesId, books }: SeriesBookManagerProps) {
           ) : (
             <div className="flex gap-2">
               <Input
-                placeholder="Book title..."
+                placeholder={t.workspaceUI.bookTitlePlaceholder}
                 value={newBookName}
                 onChange={(e) => setNewBookName(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleAddNew()}
@@ -262,7 +264,7 @@ export function SeriesBookManager({ seriesId, books }: SeriesBookManagerProps) {
                   size="icon"
                   className="size-6"
                   onClick={() => handleRemove(book.id)}
-                  title="Remove from series"
+                  title={t.workspaceUI.removeFromSeries}
                 >
                   <XIcon className="size-3" />
                 </Button>

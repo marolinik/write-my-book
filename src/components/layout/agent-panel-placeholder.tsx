@@ -1,13 +1,15 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { BotIcon } from "lucide-react";
 
 export function AgentPanelPlaceholder() {
+  const { t } = useLanguage();
   return (
     <div className="flex h-full w-80 flex-col border-l bg-muted/30">
       <div className="flex h-12 items-center gap-2 border-b px-4">
         <BotIcon className="size-4 text-muted-foreground" />
-        <span className="text-sm font-medium">Writing Agent</span>
+        <span className="text-sm font-medium">{t.workspaceUI.writingAgent}</span>
       </div>
       <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
         <div className="rounded-full bg-muted p-4">

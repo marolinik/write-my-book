@@ -74,6 +74,7 @@ export function AgentPanel({
   onClose,
   seriesId,
 }: AgentPanelProps) {
+  const { t } = useLanguage();
   const sessions = useAgentSessionStore((s) => s.sessions);
   const activeSessionId = useAgentSessionStore((s) => s.activeSessionId);
   const pendingWorkflowId = useAgentUIStore((s) => s.pendingWorkflowId);
@@ -464,7 +465,7 @@ export function AgentPanel({
               size="icon"
               className="size-7"
               onClick={() => setShowSessionHistory((v) => !v)}
-              title="Session history"
+              title={t.workspaceUI.sessionHistory}
             >
               <HistoryIcon className="size-4" />
             </Button>
@@ -475,7 +476,7 @@ export function AgentPanel({
               size="icon"
               className="size-7"
               onClick={handleCancel}
-              title="Stop agent"
+              title={t.workspaceUI.stopAgent}
             >
               <StopCircleIcon className="size-4 text-destructive" />
             </Button>
@@ -487,7 +488,7 @@ export function AgentPanel({
               size="icon"
               className="size-7"
               onClick={() => setPanelMode("panel")}
-              title="Dock to sidebar"
+              title={t.workspaceUI.dockToSidebar}
             >
               <PanelRightIcon className="size-4" />
             </Button>
@@ -498,7 +499,7 @@ export function AgentPanel({
               size="icon"
               className="size-7"
               onClick={() => setPanelMode("overlay")}
-              title="Float as overlay"
+              title={t.workspaceUI.floatAsOverlay}
             >
               <Maximize2Icon className="size-4" />
             </Button>
@@ -564,7 +565,7 @@ export function AgentPanel({
       {showSessionHistory ? (
         <div className="flex-1 overflow-auto p-4 space-y-2">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium">Session History</h3>
+            <h3 className="text-sm font-medium">{t.workspaceUI.sessionHistory}</h3>
             <Button
               variant="ghost"
               size="sm"
@@ -613,7 +614,7 @@ export function AgentPanel({
               </div>
             ))
           ) : (
-            <p className="text-xs text-muted-foreground">No past sessions</p>
+            <p className="text-xs text-muted-foreground">{t.workspaceUI.noPastSessions}</p>
           )}
         </div>
       ) : isIdle && !hasApiKey ? (
@@ -655,7 +656,7 @@ export function AgentPanel({
                 </p>
               </div>
               <Button variant="outline" size="sm" className="text-xs shrink-0" asChild>
-                <Link href={`/books/${bookId}/editorial`}>Review</Link>
+                <Link href={`/books/${bookId}/editorial`}>{t.workspaceUI.review}</Link>
               </Button>
             </div>
           )}

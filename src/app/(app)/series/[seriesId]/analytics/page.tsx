@@ -1,3 +1,4 @@
+import { useLanguage } from "@/components/providers/language-provider";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeftIcon } from "lucide-react";
@@ -25,6 +26,7 @@ export default async function SeriesAnalyticsPage({
 }: {
   params: Promise<{ seriesId: string }>;
 }) {
+  const { t } = useLanguage();
   const user = await requireUser();
   const { seriesId } = await params;
 
@@ -65,7 +67,7 @@ export default async function SeriesAnalyticsPage({
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Books</CardTitle>
+            <CardTitle className="text-sm font-medium">{t.workspaceUI.books}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{books.length}</div>
@@ -73,7 +75,7 @@ export default async function SeriesAnalyticsPage({
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total words</CardTitle>
+            <CardTitle className="text-sm font-medium">{t.workspaceUI.totalWords}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalWords.toLocaleString()}</div>
@@ -81,7 +83,7 @@ export default async function SeriesAnalyticsPage({
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Chapters</CardTitle>
+            <CardTitle className="text-sm font-medium">{t.workspaceUI.chapters}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalChapters}</div>
@@ -89,7 +91,7 @@ export default async function SeriesAnalyticsPage({
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Series type</CardTitle>
+            <CardTitle className="text-sm font-medium">{t.workspaceUI.seriesType}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{series.seriesType}</div>

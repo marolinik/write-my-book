@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -81,6 +82,7 @@ interface WriterMemoryPanelProps {
 }
 
 export function WriterMemoryPanel({ bookId }: WriterMemoryPanelProps) {
+  const { t } = useLanguage();
   const queryClient = useQueryClient();
   const [newCategory, setNewCategory] = useState("preference");
   const [newContent, setNewContent] = useState("");
@@ -311,8 +313,8 @@ export function WriterMemoryPanel({ bookId }: WriterMemoryPanelProps) {
             {totalMemories === 0 && !isLoading && (
               <div className="text-center py-6 text-xs text-muted-foreground">
                 <BrainIcon className="size-8 mx-auto mb-2 opacity-20" />
-                <p>No memories yet.</p>
-                <p>Add preferences that every AI agent should respect.</p>
+                <p>{t.workspaceUI.noMemories}</p>
+                <p>{t.workspaceUI.noMemoriesHint}</p>
               </div>
             )}
           </div>

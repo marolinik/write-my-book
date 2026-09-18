@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import {
   Card,
   CardContent,
@@ -36,6 +37,7 @@ function formatCost(cost: number): string {
 }
 
 export function MemorySettings() {
+  const { t } = useLanguage();
   const locale = useLocale();
   const { data, isLoading } = useMemoryStats();
 
@@ -45,7 +47,7 @@ export function MemorySettings() {
         <div className="flex items-center gap-2">
           <BrainIcon className="size-5 text-muted-foreground" />
           <div>
-            <CardTitle>Memory System</CardTitle>
+            <CardTitle>{t.workspaceUI.memorySystem}</CardTitle>
             <CardDescription>
               Vector memory powers AI agents with context from your books.
             </CardDescription>
@@ -66,7 +68,7 @@ export function MemorySettings() {
           <div className="space-y-4">
             {/* Connection Status */}
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Qdrant Connection</span>
+              <span className="text-sm text-muted-foreground">{t.workspaceUI.qdrantConnection}</span>
               {data.qdrantHealthy ? (
                 <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
                   Connected
@@ -81,19 +83,19 @@ export function MemorySettings() {
             {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-xs text-muted-foreground">Total Chunks</p>
+                <p className="text-xs text-muted-foreground">{t.workspaceUI.totalChunks}</p>
                 <p className="text-lg font-semibold">{data.totalChunks.toLocaleString(locale)}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Total Searches</p>
+                <p className="text-xs text-muted-foreground">{t.workspaceUI.totalSearches}</p>
                 <p className="text-lg font-semibold">{data.totalSearches.toLocaleString(locale)}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Last Indexed</p>
+                <p className="text-xs text-muted-foreground">{t.workspaceUI.lastIndexed}</p>
                 <p className="text-sm font-medium">{timeAgo(data.lastIndexed)}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Embedding Cost</p>
+                <p className="text-xs text-muted-foreground">{t.workspaceUI.embeddingCost}</p>
                 <p className="text-sm font-medium">
                   {formatCost(data.embeddingCost)}
                 </p>

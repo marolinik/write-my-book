@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import {
   Card,
   CardContent,
@@ -24,6 +25,7 @@ function timeAgo(dateStr: string | null): string {
 }
 
 export function MemoryStatsCard({ bookId }: { bookId: string }) {
+  const { t } = useLanguage();
   const { data, isLoading } = useBookMemoryStats(bookId);
   const rebuild = useRebuildIndex();
   const clear = useClearMemory();
@@ -83,7 +85,7 @@ export function MemoryStatsCard({ bookId }: { bookId: string }) {
             </p>
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">Not indexed</p>
+          <p className="text-sm text-muted-foreground">{t.workspaceUI.notIndexed}</p>
         )}
       </CardContent>
     </Card>

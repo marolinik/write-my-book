@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSeriesAnalytics } from "@/hooks/use-series";
@@ -20,11 +21,12 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export function SeriesProgressGrid({ seriesId }: SeriesProgressGridProps) {
+  const { t } = useLanguage();
   const locale = useLocale();
   const { data, isLoading } = useSeriesAnalytics(seriesId);
 
   if (isLoading) {
-    return <p className="text-sm text-muted-foreground">Loading analytics...</p>;
+    return <p className="text-sm text-muted-foreground">{t.workspaceUI.loadingAnalytics}</p>;
   }
 
   if (!data) {
@@ -42,7 +44,7 @@ export function SeriesProgressGrid({ seriesId }: SeriesProgressGridProps) {
         <Card>
           <CardContent className="py-3 text-center">
             <p className="text-2xl font-bold">{data.totals.totalBooks}</p>
-            <p className="text-xs text-muted-foreground">Books</p>
+            <p className="text-xs text-muted-foreground">{t.workspaceUI.books}</p>
           </CardContent>
         </Card>
         <Card>
@@ -50,26 +52,26 @@ export function SeriesProgressGrid({ seriesId }: SeriesProgressGridProps) {
             <p className="text-2xl font-bold">
               {data.totals.totalWordCount.toLocaleString(locale)}
             </p>
-            <p className="text-xs text-muted-foreground">Total Words</p>
+            <p className="text-xs text-muted-foreground">{t.workspaceUI.totalWords}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="py-3 text-center">
             <p className="text-2xl font-bold">{data.totals.totalChapters}</p>
-            <p className="text-xs text-muted-foreground">Chapters</p>
+            <p className="text-xs text-muted-foreground">{t.workspaceUI.chapters}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="py-3 text-center">
             <p className="text-2xl font-bold">{data.totals.totalDocuments}</p>
-            <p className="text-xs text-muted-foreground">Documents</p>
+            <p className="text-xs text-muted-foreground">{t.workspaceUI.documents}</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Per-book details */}
       <div className="flex flex-col gap-3">
-        <h3 className="text-sm font-medium">Per-Book Progress</h3>
+        <h3 className="text-sm font-medium">{t.workspaceUI.perBookProgress}</h3>
         {data.books.map((book) => (
           <Card key={book.bookId}>
             <CardHeader className="py-3 px-4">
