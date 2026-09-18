@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { ClockIcon, PlayIcon, PauseIcon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ interface SessionTimerProps {
 const PRESET_DURATIONS = [15, 25, 30, 45, 60, 90];
 
 export function SessionTimer({ onSessionStart, onSessionEnd, currentWordCount }: SessionTimerProps) {
+  const { t } = useLanguage();
   const [isActive, setIsActive] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [targetMinutes, setTargetMinutes] = useState(30);
@@ -94,7 +96,7 @@ export function SessionTimer({ onSessionStart, onSessionEnd, currentWordCount }:
           <button
             onClick={() => setShowPicker(false)}
             className="text-muted-foreground"
-            aria-label="Close timer"
+            aria-label={t.editorUI.closeTimer}
           >
             <XIcon className="size-3" />
           </button>
@@ -137,7 +139,7 @@ export function SessionTimer({ onSessionStart, onSessionEnd, currentWordCount }:
         <button
           onClick={resume}
           className="text-muted-foreground hover:text-foreground"
-          aria-label="Resume session timer"
+          aria-label={t.editorUI.resumeTimer}
         >
           <PlayIcon className="size-3" />
         </button>
@@ -145,7 +147,7 @@ export function SessionTimer({ onSessionStart, onSessionEnd, currentWordCount }:
         <button
           onClick={pause}
           className="text-muted-foreground hover:text-foreground"
-          aria-label="Pause session timer"
+          aria-label={t.editorUI.pauseTimer}
         >
           <PauseIcon className="size-3" />
         </button>
@@ -154,7 +156,7 @@ export function SessionTimer({ onSessionStart, onSessionEnd, currentWordCount }:
       <button
         onClick={stop}
         className="text-muted-foreground hover:text-foreground"
-        aria-label="Stop session timer"
+        aria-label={t.editorUI.stopTimer}
       >
         <XIcon className="size-3" />
       </button>

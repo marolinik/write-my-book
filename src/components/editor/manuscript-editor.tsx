@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -130,6 +131,7 @@ export function ManuscriptEditor({
   paneId = "primary",
   bookInSeries,
 }: ManuscriptEditorProps) {
+  const { t } = useLanguage();
   const isPrimary = paneId === "primary";
 
   // Per-pane store selectors
@@ -1120,8 +1122,8 @@ export function ManuscriptEditor({
             size="icon"
             className="size-6 shrink-0"
             onClick={() => guardedNavigate(`/books/${bookId}`)}
-            title="Back to book"
-            aria-label="Back to book"
+            title={t.editorUI.backToBook}
+            aria-label={t.editorUI.backToBook}
           >
             <ArrowLeftIcon className="size-3.5" />
           </Button>
@@ -1160,7 +1162,7 @@ export function ManuscriptEditor({
                   prevChapter &&
                   guardedNavigate(`/books/${bookId}/chapters/${prevChapter.id}`)
                 }
-                aria-label="Previous chapter"
+                aria-label={t.editorUI.previousChapter}
                 title={
                   prevChapter
                     ? `Ch. ${prevChapter.chapterNumber}${prevChapter.title ? `: ${prevChapter.title}` : ""}`
@@ -1188,7 +1190,7 @@ export function ManuscriptEditor({
                   nextChapter &&
                   guardedNavigate(`/books/${bookId}/chapters/${nextChapter.id}`)
                 }
-                aria-label="Next chapter"
+                aria-label={t.editorUI.nextChapter}
                 title={
                   nextChapter
                     ? `Ch. ${nextChapter.chapterNumber}${nextChapter.title ? `: ${nextChapter.title}` : ""}`

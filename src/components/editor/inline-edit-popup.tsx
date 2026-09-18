@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState, useEffect, useRef, useCallback } from "react";
 import type { Editor } from "@tiptap/react";
 import { Button } from "@/components/ui/button";
@@ -50,6 +51,7 @@ export function InlineEditPopup({
   onClose,
   initialInstruction,
 }: InlineEditPopupProps) {
+  const { t } = useLanguage();
   const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
   const [instruction, setInstruction] = useState(initialInstruction ?? "");
   const [suggestions, setSuggestions] = useState<InlineEditSuggestion[]>([]);
@@ -246,7 +248,7 @@ export function InlineEditPopup({
     <div
       ref={popupRef}
       role="dialog"
-      aria-label="AI rewrite"
+      aria-label={t.editorUI.aiRewrite}
       className="absolute z-50 w-[420px] rounded-lg border bg-popover text-popover-foreground shadow-lg"
       style={{ top: position.top, left: Math.max(0, position.left - 200) }}
     >
@@ -255,7 +257,7 @@ export function InlineEditPopup({
         <div className="p-3">
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="h-4 w-4 text-violet-500" />
-            <span className="text-sm font-medium">AI Edit</span>
+            <span className="text-sm font-medium">{t.editorUI.aiEdit}</span>
             {!coarsePointer && (
               <Badge variant="secondary" className="text-xs ml-auto">
                 F2
@@ -288,7 +290,7 @@ export function InlineEditPopup({
               ref={inputRef}
               value={instruction}
               onChange={(e) => setInstruction(e.target.value)}
-              placeholder="Or describe what you want..."
+              placeholder={t.editorUI.describeChange}
               className="text-sm h-8"
             />
             <div className="flex items-center gap-2 mt-2">
@@ -361,7 +363,7 @@ export function InlineEditPopup({
               className="h-7 w-7"
               onClick={handlePrev}
               disabled={suggestions.length <= 1}
-              aria-label="Previous suggestion"
+              aria-label={t.editorUI.previousSuggestion}
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -371,7 +373,7 @@ export function InlineEditPopup({
               className="h-7 w-7"
               onClick={handleNext}
               disabled={suggestions.length <= 1}
-              aria-label="Next suggestion"
+              aria-label={t.editorUI.nextSuggestion}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>

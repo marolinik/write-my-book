@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Search, Replace, Loader2 } from "lucide-react";
@@ -43,6 +44,7 @@ export function FindReplaceDialog({
   bookId,
   chapterId,
 }: FindReplaceDialogProps) {
+  const { t } = useLanguage();
   const [find, setFind] = useState("");
   const [replace, setReplace] = useState("");
   const [scope, setScope] = useState<Scope>("chapter");
@@ -135,7 +137,7 @@ export function FindReplaceDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle>Find &amp; Replace</DialogTitle>
+          <DialogTitle>{t.editorUI.findReplace}</DialogTitle>
           <DialogDescription>
             Search this chapter or the whole book. Matching is plain text — no
             wildcards or regular expressions.
@@ -144,7 +146,7 @@ export function FindReplaceDialog({
 
         <div className="space-y-4">
           <div className="grid gap-2">
-            <Label htmlFor="fr-find">Find</Label>
+            <Label htmlFor="fr-find">{t.editorUI.find}</Label>
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
@@ -152,7 +154,7 @@ export function FindReplaceDialog({
                 value={find}
                 autoFocus
                 onChange={(e) => setFind(e.target.value)}
-                placeholder="Text to find (min 2 characters)"
+                placeholder={t.editorUI.findPlaceholder}
                 className="pl-8"
                 maxLength={200}
               />
@@ -160,14 +162,14 @@ export function FindReplaceDialog({
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="fr-replace">Replace with</Label>
+            <Label htmlFor="fr-replace">{t.editorUI.replaceWith}</Label>
             <div className="relative">
               <Replace className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 id="fr-replace"
                 value={replace}
                 onChange={(e) => setReplace(e.target.value)}
-                placeholder="Replacement text (leave empty to delete)"
+                placeholder={t.editorUI.replacePlaceholder}
                 className="pl-8"
                 maxLength={200}
               />
@@ -178,7 +180,7 @@ export function FindReplaceDialog({
             {/* Scope — segmented control (no RadioGroup primitive in this repo) */}
             <div
               role="radiogroup"
-              aria-label="Search scope"
+              aria-label={t.editorUI.searchScope}
               className="inline-flex rounded-md border p-0.5"
             >
               {(
@@ -248,7 +250,7 @@ export function FindReplaceDialog({
                   <Loader2 className="h-3.5 w-3.5 animate-spin" /> Searching…
                 </span>
               ) : search.isError ? (
-                <span className="text-destructive">Search failed.</span>
+                <span className="text-destructive">{t.editorUI.searchFailed}</span>
               ) : visibleCount === 0 ? (
                 "No matches found."
               ) : (

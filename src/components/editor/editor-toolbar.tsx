@@ -1,4 +1,6 @@
 "use client";
+import { useLanguage } from "@/components/providers/language-provider";
+import type { UIStrings } from "@/lib/i18n/ui-strings";
 
 import { useRef, useState, useEffect } from "react";
 import type { Editor } from "@tiptap/react";
@@ -173,6 +175,9 @@ interface ToolbarGroup {
 
 interface ToolbarGroupContext {
   editor: Editor;
+  /** O1: the toolbar groups are module-level, so the dictionary travels with
+   *  the context rather than through a hook each render function cannot call. */
+  t: UIStrings["editorUI"];
   density: ToolbarDensity;
   focusMode: boolean;
   onToggleFocusMode: () => void;
@@ -209,21 +214,21 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
       <>
         <ToolbarButton
           icon={<Bold className="h-4 w-4" />}
-          label="Bold (Ctrl+B)"
+          label={`${ctx.t.bold} (Ctrl+B)`}
           isActive={ctx.editor.isActive("bold")}
           pressed={ctx.editor.isActive("bold")}
           onClick={() => ctx.editor.chain().focus().toggleBold().run()}
         />
         <ToolbarButton
           icon={<Italic className="h-4 w-4" />}
-          label="Italic (Ctrl+I)"
+          label={`${ctx.t.italic} (Ctrl+I)`}
           isActive={ctx.editor.isActive("italic")}
           pressed={ctx.editor.isActive("italic")}
           onClick={() => ctx.editor.chain().focus().toggleItalic().run()}
         />
         <ToolbarButton
           icon={<Underline className="h-4 w-4" />}
-          label="Underline (Ctrl+U)"
+          label={`${ctx.t.underline} (Ctrl+U)`}
           isActive={ctx.editor.isActive("underline")}
           pressed={ctx.editor.isActive("underline")}
           onClick={() => ctx.editor.chain().focus().toggleUnderline().run()}
@@ -240,7 +245,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
       <>
         <ToolbarButton
           icon={<Heading1 className="h-4 w-4" />}
-          label="Heading 1"
+          label={ctx.t.h1}
           isActive={ctx.editor.isActive("heading", { level: 1 })}
           pressed={ctx.editor.isActive("heading", { level: 1 })}
           onClick={() =>
@@ -249,7 +254,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
         />
         <ToolbarButton
           icon={<Heading2 className="h-4 w-4" />}
-          label="Heading 2"
+          label={ctx.t.h2}
           isActive={ctx.editor.isActive("heading", { level: 2 })}
           pressed={ctx.editor.isActive("heading", { level: 2 })}
           onClick={() =>
@@ -258,7 +263,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
         />
         <ToolbarButton
           icon={<Heading3 className="h-4 w-4" />}
-          label="Heading 3"
+          label={ctx.t.h3}
           isActive={ctx.editor.isActive("heading", { level: 3 })}
           pressed={ctx.editor.isActive("heading", { level: 3 })}
           onClick={() =>
@@ -296,28 +301,28 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
       <>
         <ToolbarButton
           icon={<List className="h-4 w-4" />}
-          label="Bullet List"
+          label={ctx.t.bulletList}
           isActive={ctx.editor.isActive("bulletList")}
           pressed={ctx.editor.isActive("bulletList")}
           onClick={() => ctx.editor.chain().focus().toggleBulletList().run()}
         />
         <ToolbarButton
           icon={<ListOrdered className="h-4 w-4" />}
-          label="Ordered List"
+          label={ctx.t.orderedList}
           isActive={ctx.editor.isActive("orderedList")}
           pressed={ctx.editor.isActive("orderedList")}
           onClick={() => ctx.editor.chain().focus().toggleOrderedList().run()}
         />
         <ToolbarButton
           icon={<Quote className="h-4 w-4" />}
-          label="Blockquote"
+          label={ctx.t.blockquote}
           isActive={ctx.editor.isActive("blockquote")}
           pressed={ctx.editor.isActive("blockquote")}
           onClick={() => ctx.editor.chain().focus().toggleBlockquote().run()}
         />
         <ToolbarButton
           icon={<Minus className="h-4 w-4" />}
-          label="Scene Break"
+          label={ctx.t.sceneBreak}
           onClick={() =>
             ctx.editor.chain().focus().setHorizontalRule().run()
           }
@@ -353,12 +358,12 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
       <>
         <ToolbarButton
           icon={<Undo className="h-4 w-4" />}
-          label="Undo (Ctrl+Z)"
+          label={`${ctx.t.undo} (Ctrl+Z)`}
           onClick={() => ctx.editor.chain().focus().undo().run()}
         />
         <ToolbarButton
           icon={<Redo className="h-4 w-4" />}
-          label="Redo (Ctrl+Shift+Z)"
+          label={`${ctx.t.redo} (Ctrl+Shift+Z)`}
           onClick={() => ctx.editor.chain().focus().redo().run()}
         />
       </>
@@ -384,7 +389,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
       <>
         <ToolbarButton
           icon={<Focus className="h-4 w-4" />}
-          label="Focus Mode"
+          label={ctx.t.focusMode}
           isActive={ctx.focusMode}
           pressed={ctx.focusMode}
           onClick={ctx.onToggleFocusMode}
@@ -397,14 +402,14 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
         {ctx.onFindReplace && (
           <ToolbarButton
             icon={<Replace className="h-4 w-4" />}
-            label="Find & Replace (Ctrl+Shift+F)"
+            label={`${ctx.t.findReplace} (Ctrl+Shift+F)`}
             onClick={ctx.onFindReplace}
           />
         )}
         {ctx.onInlineEdit && (
           <ToolbarButton
             icon={<Sparkles className="h-4 w-4" />}
-            label="AI Rewrite (F2)"
+            label={`${ctx.t.aiRewrite} (F2)`}
             onClick={ctx.onInlineEdit}
           />
         )}
@@ -425,7 +430,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
         {ctx.onToggleFloatingInput && (
           <ToolbarButton
             icon={<MessageCircle className="h-4 w-4" />}
-            label="Agent Quick Chat"
+            label={ctx.t.quickChat}
             isActive={ctx.showFloatingInput}
             pressed={!!ctx.showFloatingInput}
             onClick={ctx.onToggleFloatingInput}
@@ -529,7 +534,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
         {ctx.density !== "compact" && ctx.onToggleAnnotations && (
           <ToolbarButton
             icon={<Highlighter className="h-4 w-4" />}
-            label="Toggle Annotations"
+            label={ctx.t.toggleAnnotations}
             isActive={ctx.showAnnotations}
             pressed={!!ctx.showAnnotations}
             onClick={ctx.onToggleAnnotations}
@@ -570,7 +575,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
         {ctx.onToggleSeriesContext && (
           <ToolbarButton
             icon={<LibraryBig className="h-4 w-4" />}
-            label="Series Context"
+            label={ctx.t.seriesContext}
             isActive={ctx.showSeriesContext}
             pressed={!!ctx.showSeriesContext}
             onClick={ctx.onToggleSeriesContext}
@@ -579,7 +584,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
         {ctx.density !== "compact" && ctx.onToggleHistory && (
           <ToolbarButton
             icon={<History className="h-4 w-4" />}
-            label="Version History"
+            label={ctx.t.versionHistory}
             isActive={ctx.showHistory}
             pressed={!!ctx.showHistory}
             onClick={ctx.onToggleHistory}
@@ -640,6 +645,7 @@ export function EditorToolbar({
   onToggleGhostText,
   onFindReplace,
 }: EditorToolbarProps) {
+  const { t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const [density, setDensity] = useState<ToolbarDensity>("full");
 
@@ -667,6 +673,7 @@ export function EditorToolbar({
 
   const ctx: ToolbarGroupContext = {
     editor,
+    t: t.editorUI,
     density,
     focusMode,
     onToggleFocusMode,
@@ -733,7 +740,7 @@ export function EditorToolbar({
     <div
       ref={containerRef}
       role="toolbar"
-      aria-label="Editor toolbar"
+      aria-label={t.editorUI.editorToolbar}
       className="flex items-center gap-0.5 border-b px-2 py-1 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10"
     >
       {/* Primary groups: always inline (headings drop out at compact) */}
@@ -755,7 +762,7 @@ export function EditorToolbar({
                 size="icon"
                 className="h-8 w-8"
                 type="button"
-                aria-label="More tools"
+                aria-label={t.editorUI.moreTools}
               >
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
@@ -806,7 +813,7 @@ export function EditorToolbar({
         {isSaving ? (
           <Badge variant="secondary" className="gap-1 text-xs font-normal">
             <Loader2 className="h-3 w-3 animate-spin" />
-            {isCompact ? <span className="sr-only">Saving...</span> : "Saving..."}
+            {isCompact ? <span className="sr-only">{t.editorUI.saving}</span> : "Saving..."}
           </Badge>
         ) : isDirty ? (
           <Badge
@@ -814,7 +821,7 @@ export function EditorToolbar({
             className="gap-1 text-xs font-normal text-amber-600 dark:text-amber-400 border-amber-300 dark:border-amber-700"
           >
             <AlertCircle className="h-3 w-3" />
-            {isCompact ? <span className="sr-only">Unsaved</span> : "Unsaved"}
+            {isCompact ? <span className="sr-only">{t.editorUI.unsaved}</span> : "Unsaved"}
           </Badge>
         ) : lastSaved ? (
           <Badge
@@ -822,7 +829,7 @@ export function EditorToolbar({
             className="gap-1 text-xs font-normal text-green-600 dark:text-green-400 border-green-300 dark:border-green-700"
           >
             <Check className="h-3 w-3" />
-            {isCompact ? <span className="sr-only">Saved</span> : "Saved"}
+            {isCompact ? <span className="sr-only">{t.editorUI.saved}</span> : "Saved"}
           </Badge>
         ) : null}
       </div>

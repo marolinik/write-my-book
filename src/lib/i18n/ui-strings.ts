@@ -301,6 +301,26 @@ export interface UIStrings {
   };
 
   // Style page
+  // O1 (editor sweep) - the writing surface itself.
+  editorUI: {
+    bold: string; italic: string; underline: string;
+    h1: string; h2: string; h3: string;
+    bulletList: string; orderedList: string; blockquote: string; sceneBreak: string;
+    undo: string; redo: string; focusMode: string; findReplace: string;
+    aiRewrite: string; quickChat: string; toggleAnnotations: string;
+    findingsPanel: string; seriesContext: string; versionHistory: string;
+    editorToolbar: string; moreTools: string;
+    saving: string; unsaved: string; saved: string; syncPending: string;
+    annotationLegend: string; annotationSummary: string;
+    find: string; findPlaceholder: string; replaceWith: string;
+    replacePlaceholder: string; searchScope: string; searchFailed: string;
+    aiEdit: string; describeChange: string; previousSuggestion: string; nextSuggestion: string;
+    backToBook: string; previousChapter: string; nextChapter: string;
+    closeTimer: string; resumeTimer: string; pauseTimer: string; stopTimer: string;
+    noVersionsYet: string; loadingVersions: string; viewVersion: string;
+    compareLatest: string; restoreVersion: string; loading: string;
+  };
+
   // O1 - main-surface strings that used to be written inline in English.
   screens: {
     bookProgress: string; drafted: string; edited: string; betaPassed: string;
@@ -829,6 +849,29 @@ const EN: UIStrings = {
     title: "Reports", subtitle: "Analytics, continuity, market analysis, and editorial overview",
     analytics: "Analytics", continuity: "Continuity", market: "Market", edits: "Edits", documents: "Documents",
   },
+  editorUI: {
+    bold: "Bold", italic: "Italic", underline: "Underline",
+    h1: "Heading 1", h2: "Heading 2", h3: "Heading 3",
+    bulletList: "Bullet list", orderedList: "Numbered list", blockquote: "Quote", sceneBreak: "Scene break",
+    undo: "Undo", redo: "Redo", focusMode: "Focus mode", findReplace: "Find and replace",
+    aiRewrite: "AI rewrite", quickChat: "Quick chat", toggleAnnotations: "Toggle annotations",
+    findingsPanel: "Findings panel", seriesContext: "Series context", versionHistory: "Version history",
+    editorToolbar: "Editor toolbar", moreTools: "More tools",
+    saving: "Saving...", unsaved: "Unsaved", saved: "Saved", syncPending: "Sync pending",
+    annotationLegend: "Annotation legend", annotationSummary: "Annotation summary",
+    find: "Find", findPlaceholder: "Text to find (min 2 characters)", replaceWith: "Replace with",
+    replacePlaceholder: "Replacement text (leave empty to delete)", searchScope: "Search scope",
+    searchFailed: "Search failed.",
+    aiEdit: "AI edit", describeChange: "Or describe what you want...",
+    previousSuggestion: "Previous suggestion", nextSuggestion: "Next suggestion",
+    backToBook: "Back to book", previousChapter: "Previous chapter", nextChapter: "Next chapter",
+    closeTimer: "Close timer", resumeTimer: "Resume session timer",
+    pauseTimer: "Pause session timer", stopTimer: "Stop session timer",
+    noVersionsYet: "Save content to see version history", loadingVersions: "Loading versions...",
+    viewVersion: "View version", compareLatest: "Compare with latest",
+    restoreVersion: "Restore this version", loading: "Loading...",
+  },
+
   screens: {
     bookProgress: "Book progress", drafted: "Drafted", edited: "Edited", betaPassed: "Beta passed",
     wordCount: "Word count", recentSessions: "Recent agent sessions", editorialFindings: "Editorial findings",
@@ -1393,6 +1436,29 @@ const SR: UIStrings = {
     title: "Izveštaji", subtitle: "Analitika, kontinuitet, analiza tržišta i pregled redakcije",
     analytics: "Analitika", continuity: "Kontinuitet", market: "Tržište", edits: "Izmene", documents: "Dokumenta",
   },
+  editorUI: {
+    bold: "Podebljano", italic: "Kurziv", underline: "Podvučeno",
+    h1: "Naslov 1", h2: "Naslov 2", h3: "Naslov 3",
+    bulletList: "Lista sa tačkama", orderedList: "Numerisana lista", blockquote: "Citat", sceneBreak: "Prelom scene",
+    undo: "Poništi", redo: "Ponovi", focusMode: "Režim fokusa", findReplace: "Pronađi i zameni",
+    aiRewrite: "AI prepisivanje", quickChat: "Brzi razgovor", toggleAnnotations: "Prikaži beleške",
+    findingsPanel: "Panel nalaza", seriesContext: "Kontekst serijala", versionHistory: "Istorija verzija",
+    editorToolbar: "Alatke uređivača", moreTools: "Više alatki",
+    saving: "Čuvanje...", unsaved: "Nesačuvano", saved: "Sačuvano", syncPending: "Čeka sinhronizaciju",
+    annotationLegend: "Legenda beleški", annotationSummary: "Pregled beleški",
+    find: "Pronađi", findPlaceholder: "Tekst koji tražite (najmanje 2 znaka)", replaceWith: "Zameni sa",
+    replacePlaceholder: "Tekst zamene (prazno briše)", searchScope: "Opseg pretrage",
+    searchFailed: "Pretraga nije uspela.",
+    aiEdit: "AI izmena", describeChange: "Ili opišite šta želite...",
+    previousSuggestion: "Prethodni predlog", nextSuggestion: "Sledeći predlog",
+    backToBook: "Nazad na knjigu", previousChapter: "Prethodno poglavlje", nextChapter: "Sledeće poglavlje",
+    closeTimer: "Zatvori tajmer", resumeTimer: "Nastavi tajmer sesije",
+    pauseTimer: "Pauziraj tajmer sesije", stopTimer: "Zaustavi tajmer sesije",
+    noVersionsYet: "Sačuvajte tekst da biste videli istoriju verzija", loadingVersions: "Učitavanje verzija...",
+    viewVersion: "Pogledaj verziju", compareLatest: "Uporedi sa poslednjom",
+    restoreVersion: "Vrati ovu verziju", loading: "Učitavanje...",
+  },
+
   screens: {
     bookProgress: "Napredak knjige", drafted: "Napisano", edited: "Uređeno", betaPassed: "Prošlo beta čitanje",
     wordCount: "Broj reči", recentSessions: "Nedavne sesije agenata", editorialFindings: "Urednički nalazi",
@@ -1956,6 +2022,29 @@ const DE: UIStrings = {
     title: "Berichte", subtitle: "Analytik, Kontinuität, Marktanalyse und Lektoratsübersicht",
     analytics: "Analytik", continuity: "Kontinuität", market: "Markt", edits: "Lektorat", documents: "Dokumente",
   },
+  editorUI: {
+    bold: "Fett", italic: "Kursiv", underline: "Unterstrichen",
+    h1: "Überschrift 1", h2: "Überschrift 2", h3: "Überschrift 3",
+    bulletList: "Aufzählung", orderedList: "Nummerierte Liste", blockquote: "Zitat", sceneBreak: "Szenenwechsel",
+    undo: "Rückgängig", redo: "Wiederholen", focusMode: "Fokusmodus", findReplace: "Suchen und ersetzen",
+    aiRewrite: "KI-Umschrift", quickChat: "Schnellchat", toggleAnnotations: "Anmerkungen anzeigen",
+    findingsPanel: "Befunde", seriesContext: "Serienkontext", versionHistory: "Versionsverlauf",
+    editorToolbar: "Editor-Werkzeugleiste", moreTools: "Weitere Werkzeuge",
+    saving: "Speichern...", unsaved: "Nicht gespeichert", saved: "Gespeichert", syncPending: "Sync ausstehend",
+    annotationLegend: "Legende der Anmerkungen", annotationSummary: "Übersicht der Anmerkungen",
+    find: "Suchen", findPlaceholder: "Suchtext (mind. 2 Zeichen)", replaceWith: "Ersetzen durch",
+    replacePlaceholder: "Ersatztext (leer löscht)", searchScope: "Suchbereich",
+    searchFailed: "Suche fehlgeschlagen.",
+    aiEdit: "KI-Bearbeitung", describeChange: "Oder beschreiben Sie, was Sie wollen...",
+    previousSuggestion: "Vorheriger Vorschlag", nextSuggestion: "Nächster Vorschlag",
+    backToBook: "Zurück zum Buch", previousChapter: "Vorheriges Kapitel", nextChapter: "Nächstes Kapitel",
+    closeTimer: "Timer schließen", resumeTimer: "Timer fortsetzen",
+    pauseTimer: "Timer pausieren", stopTimer: "Timer stoppen",
+    noVersionsYet: "Speichern Sie den Text, um den Versionsverlauf zu sehen", loadingVersions: "Versionen werden geladen...",
+    viewVersion: "Version ansehen", compareLatest: "Mit der neuesten vergleichen",
+    restoreVersion: "Diese Version wiederherstellen", loading: "Lädt...",
+  },
+
   screens: {
     bookProgress: "Fortschritt", drafted: "Entworfen", edited: "Lektoriert", betaPassed: "Beta bestanden",
     wordCount: "Wortzahl", recentSessions: "Letzte Agentenläufe", editorialFindings: "Lektoratsbefunde",
@@ -2519,6 +2608,29 @@ const ES: UIStrings = {
     title: "Informes", subtitle: "Analítica, continuidad, análisis de mercado y resumen editorial",
     analytics: "Analítica", continuity: "Continuidad", market: "Mercado", edits: "Ediciones", documents: "Documentos",
   },
+  editorUI: {
+    bold: "Negrita", italic: "Cursiva", underline: "Subrayado",
+    h1: "Título 1", h2: "Título 2", h3: "Título 3",
+    bulletList: "Lista con viñetas", orderedList: "Lista numerada", blockquote: "Cita", sceneBreak: "Salto de escena",
+    undo: "Deshacer", redo: "Rehacer", focusMode: "Modo concentración", findReplace: "Buscar y reemplazar",
+    aiRewrite: "Reescritura con IA", quickChat: "Chat rápido", toggleAnnotations: "Mostrar anotaciones",
+    findingsPanel: "Panel de hallazgos", seriesContext: "Contexto de la serie", versionHistory: "Historial de versiones",
+    editorToolbar: "Barra del editor", moreTools: "Más herramientas",
+    saving: "Guardando...", unsaved: "Sin guardar", saved: "Guardado", syncPending: "Sincronización pendiente",
+    annotationLegend: "Leyenda de anotaciones", annotationSummary: "Resumen de anotaciones",
+    find: "Buscar", findPlaceholder: "Texto a buscar (mín. 2 caracteres)", replaceWith: "Reemplazar con",
+    replacePlaceholder: "Texto de reemplazo (vacío para borrar)", searchScope: "Ámbito de búsqueda",
+    searchFailed: "La búsqueda ha fallado.",
+    aiEdit: "Edición con IA", describeChange: "O describe lo que quieres...",
+    previousSuggestion: "Sugerencia anterior", nextSuggestion: "Sugerencia siguiente",
+    backToBook: "Volver al libro", previousChapter: "Capítulo anterior", nextChapter: "Capítulo siguiente",
+    closeTimer: "Cerrar temporizador", resumeTimer: "Reanudar el temporizador",
+    pauseTimer: "Pausar el temporizador", stopTimer: "Detener el temporizador",
+    noVersionsYet: "Guarda el texto para ver el historial de versiones", loadingVersions: "Cargando versiones...",
+    viewVersion: "Ver versión", compareLatest: "Comparar con la última",
+    restoreVersion: "Restaurar esta versión", loading: "Cargando...",
+  },
+
   screens: {
     bookProgress: "Progreso del libro", drafted: "Escrito", edited: "Editado", betaPassed: "Beta superada",
     wordCount: "Número de palabras", recentSessions: "Sesiones recientes", editorialFindings: "Hallazgos editoriales",
@@ -3082,6 +3194,29 @@ const FR: UIStrings = {
     title: "Rapports", subtitle: "Analytique, continuité, analyse de marché et aperçu éditorial",
     analytics: "Analytique", continuity: "Continuité", market: "Marché", edits: "Éditions", documents: "Documents",
   },
+  editorUI: {
+    bold: "Gras", italic: "Italique", underline: "Souligné",
+    h1: "Titre 1", h2: "Titre 2", h3: "Titre 3",
+    bulletList: "Liste à puces", orderedList: "Liste numérotée", blockquote: "Citation", sceneBreak: "Rupture de scène",
+    undo: "Annuler", redo: "Rétablir", focusMode: "Mode concentration", findReplace: "Rechercher et remplacer",
+    aiRewrite: "Réécriture IA", quickChat: "Discussion rapide", toggleAnnotations: "Afficher les annotations",
+    findingsPanel: "Panneau des constats", seriesContext: "Contexte de la série", versionHistory: "Historique des versions",
+    editorToolbar: "Barre d'outils", moreTools: "Plus d'outils",
+    saving: "Enregistrement...", unsaved: "Non enregistré", saved: "Enregistré", syncPending: "Synchronisation en attente",
+    annotationLegend: "Légende des annotations", annotationSummary: "Résumé des annotations",
+    find: "Rechercher", findPlaceholder: "Texte à rechercher (min. 2 caractères)", replaceWith: "Remplacer par",
+    replacePlaceholder: "Texte de remplacement (vide pour supprimer)", searchScope: "Étendue de la recherche",
+    searchFailed: "La recherche a échoué.",
+    aiEdit: "Édition IA", describeChange: "Ou décrivez ce que vous voulez...",
+    previousSuggestion: "Suggestion précédente", nextSuggestion: "Suggestion suivante",
+    backToBook: "Retour au livre", previousChapter: "Chapitre précédent", nextChapter: "Chapitre suivant",
+    closeTimer: "Fermer le minuteur", resumeTimer: "Reprendre le minuteur",
+    pauseTimer: "Mettre en pause le minuteur", stopTimer: "Arrêter le minuteur",
+    noVersionsYet: "Enregistrez le texte pour voir l'historique", loadingVersions: "Chargement des versions...",
+    viewVersion: "Voir la version", compareLatest: "Comparer à la dernière",
+    restoreVersion: "Restaurer cette version", loading: "Chargement...",
+  },
+
   screens: {
     bookProgress: "Progression du livre", drafted: "Rédigé", edited: "Révisé", betaPassed: "Bêta validée",
     wordCount: "Nombre de mots", recentSessions: "Sessions récentes", editorialFindings: "Constats éditoriaux",
@@ -3645,6 +3780,29 @@ const RU: UIStrings = {
     title: "Отчёты", subtitle: "Аналитика, непрерывность, анализ рынка и обзор редактуры",
     analytics: "Аналитика", continuity: "Непрерывность", market: "Рынок", edits: "Редактура", documents: "Документы",
   },
+  editorUI: {
+    bold: "Жирный", italic: "Курсив", underline: "Подчёркнутый",
+    h1: "Заголовок 1", h2: "Заголовок 2", h3: "Заголовок 3",
+    bulletList: "Маркированный список", orderedList: "Нумерованный список", blockquote: "Цитата", sceneBreak: "Разрыв сцены",
+    undo: "Отменить", redo: "Повторить", focusMode: "Режим фокуса", findReplace: "Найти и заменить",
+    aiRewrite: "Переписать с ИИ", quickChat: "Быстрый чат", toggleAnnotations: "Показать пометки",
+    findingsPanel: "Панель замечаний", seriesContext: "Контекст серии", versionHistory: "История версий",
+    editorToolbar: "Панель редактора", moreTools: "Ещё инструменты",
+    saving: "Сохранение...", unsaved: "Не сохранено", saved: "Сохранено", syncPending: "Ожидает синхронизации",
+    annotationLegend: "Легенда пометок", annotationSummary: "Сводка пометок",
+    find: "Найти", findPlaceholder: "Текст для поиска (мин. 2 символа)", replaceWith: "Заменить на",
+    replacePlaceholder: "Текст замены (пустое удаляет)", searchScope: "Область поиска",
+    searchFailed: "Поиск не удался.",
+    aiEdit: "Правка ИИ", describeChange: "Или опишите, что нужно...",
+    previousSuggestion: "Предыдущее предложение", nextSuggestion: "Следующее предложение",
+    backToBook: "Назад к книге", previousChapter: "Предыдущая глава", nextChapter: "Следующая глава",
+    closeTimer: "Закрыть таймер", resumeTimer: "Продолжить таймер",
+    pauseTimer: "Пауза таймера", stopTimer: "Остановить таймер",
+    noVersionsYet: "Сохраните текст, чтобы увидеть историю версий", loadingVersions: "Загрузка версий...",
+    viewVersion: "Посмотреть версию", compareLatest: "Сравнить с последней",
+    restoreVersion: "Восстановить эту версию", loading: "Загрузка...",
+  },
+
   screens: {
     bookProgress: "Прогресс книги", drafted: "Написано", edited: "Отредактировано", betaPassed: "Бета пройдена",
     wordCount: "Число слов", recentSessions: "Недавние сессии", editorialFindings: "Редакторские замечания",
@@ -4208,6 +4366,29 @@ const ZH: UIStrings = {
     title: "报告", subtitle: "分析、连续性、市场分析和编辑概览",
     analytics: "分析", continuity: "连续性", market: "市场", edits: "编辑", documents: "文档",
   },
+  editorUI: {
+    bold: "加粗", italic: "斜体", underline: "下划线",
+    h1: "标题 1", h2: "标题 2", h3: "标题 3",
+    bulletList: "项目符号列表", orderedList: "编号列表", blockquote: "引用", sceneBreak: "场景分隔",
+    undo: "撤销", redo: "重做", focusMode: "专注模式", findReplace: "查找与替换",
+    aiRewrite: "AI 重写", quickChat: "快速对话", toggleAnnotations: "切换批注",
+    findingsPanel: "发现面板", seriesContext: "系列上下文", versionHistory: "版本历史",
+    editorToolbar: "编辑器工具栏", moreTools: "更多工具",
+    saving: "保存中...", unsaved: "未保存", saved: "已保存", syncPending: "等待同步",
+    annotationLegend: "批注图例", annotationSummary: "批注概览",
+    find: "查找", findPlaceholder: "要查找的文字（至少 2 个字符）", replaceWith: "替换为",
+    replacePlaceholder: "替换文字（留空则删除）", searchScope: "搜索范围",
+    searchFailed: "搜索失败。",
+    aiEdit: "AI 编辑", describeChange: "或描述你想要的改动...",
+    previousSuggestion: "上一条建议", nextSuggestion: "下一条建议",
+    backToBook: "返回书籍", previousChapter: "上一章", nextChapter: "下一章",
+    closeTimer: "关闭计时器", resumeTimer: "继续计时",
+    pauseTimer: "暂停计时", stopTimer: "停止计时",
+    noVersionsYet: "保存内容后可查看版本历史", loadingVersions: "正在加载版本...",
+    viewVersion: "查看版本", compareLatest: "与最新版本对比",
+    restoreVersion: "恢复此版本", loading: "加载中...",
+  },
+
   screens: {
     bookProgress: "书稿进度", drafted: "已起草", edited: "已编辑", betaPassed: "通过 Beta",
     wordCount: "字数", recentSessions: "最近的代理会话", editorialFindings: "编辑发现",

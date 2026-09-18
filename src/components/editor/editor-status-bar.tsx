@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useEffect, useRef, useState } from "react";
 import {
   Check,
@@ -78,6 +79,7 @@ const LEGEND_ITEMS = [
 /* ── Annotation Legend (popover) ─────────────────────────────── */
 
 function AnnotationLegend() {
+  const { t } = useLanguage();
   const [hasAnimated, setHasAnimated] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -100,7 +102,7 @@ function AnnotationLegend() {
         <button
           ref={buttonRef}
           type="button"
-          aria-label="Annotation legend"
+          aria-label={t.editorUI.annotationLegend}
           className={`inline-flex items-center justify-center rounded p-0.5 hover:bg-muted transition-colors ${
             hasAnimated ? "animate-pulse" : ""
           }`}
@@ -114,7 +116,7 @@ function AnnotationLegend() {
         sideOffset={6}
         className="w-56 p-3"
       >
-        <p className="text-xs font-medium mb-2">Annotation Legend</p>
+        <p className="text-xs font-medium mb-2">{t.editorUI.annotationLegend}</p>
         <ul className="space-y-1.5">
           {LEGEND_ITEMS.map((item) => (
             <li key={item.label} className="flex items-center gap-2 text-xs">
@@ -147,6 +149,7 @@ export function EditorStatusBar({
   draftSavedAt = null,
   lastSaveErrorKind = null,
 }: EditorStatusBarProps) {
+  const { t } = useLanguage();
   const locale = useLocale();
   const readingTime = Math.max(1, Math.ceil(wordCount / 250));
 
@@ -177,7 +180,7 @@ export function EditorStatusBar({
         {annotationCounts && (
           <div
             role="group"
-            aria-label="Annotation summary"
+            aria-label={t.editorUI.annotationSummary}
             className="hidden sm:flex items-center gap-4"
           >
             {(annotationCounts.insert ?? 0) > 0 && (
@@ -279,7 +282,7 @@ export function EditorStatusBar({
           {isSaving ? (
             <>
               <Loader2 className="h-3 w-3 animate-spin" />
-              <span>Saving...</span>
+              <span>{t.editorUI.saving}</span>
             </>
           ) : !isOnline && isDirty && draftSavedAt != null ? (
             <>
@@ -298,12 +301,12 @@ export function EditorStatusBar({
           ) : isOnline && isDirty && lastSaveErrorKind === "network" ? (
             <>
               <RefreshCw className="h-3 w-3" />
-              <span>Sync pending</span>
+              <span>{t.editorUI.syncPending}</span>
             </>
           ) : isDirty ? (
             <>
               <AlertCircle className="h-3 w-3" />
-              <span>Unsaved</span>
+              <span>{t.editorUI.unsaved}</span>
             </>
           ) : lastSaved ? (
             <>

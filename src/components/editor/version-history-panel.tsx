@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState } from "react";
 import { History, RotateCcw, Eye, GitCompareArrows } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -37,6 +38,7 @@ export function VersionHistoryPanel({
   bookId,
   documentId,
 }: VersionHistoryPanelProps) {
+  const { t } = useLanguage();
   const locale = useLocale();
   const [viewVersion, setViewVersion] = useState<number | null>(null);
   const [compareVersion, setCompareVersion] = useState<number | null>(null);
@@ -75,7 +77,7 @@ export function VersionHistoryPanel({
     return (
       <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-4">
         <History className="h-8 w-8 mb-2 opacity-50" />
-        <p className="text-sm">Save content to see version history</p>
+        <p className="text-sm">{t.editorUI.noVersionsYet}</p>
       </div>
     );
   }
@@ -83,7 +85,7 @@ export function VersionHistoryPanel({
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full text-muted-foreground">
-        <p className="text-sm">Loading versions...</p>
+        <p className="text-sm">{t.editorUI.loadingVersions}</p>
       </div>
     );
   }
@@ -96,7 +98,7 @@ export function VersionHistoryPanel({
       <div className="flex flex-col h-full">
         <div className="flex items-center gap-2 px-3 py-2 border-b">
           <History className="h-4 w-4" />
-          <span className="text-sm font-medium">Version History</span>
+          <span className="text-sm font-medium">{t.editorUI.versionHistory}</span>
           <Badge variant="secondary" className="ml-auto text-xs">
             {versionList.length}
           </Badge>
@@ -147,7 +149,7 @@ export function VersionHistoryPanel({
                         variant="ghost"
                         size="icon"
                         className="h-6 w-6"
-                        title="View version"
+                        title={t.editorUI.viewVersion}
                         onClick={() => {
                           setCompareVersion(null);
                           setViewVersion(v.version);
@@ -161,7 +163,7 @@ export function VersionHistoryPanel({
                           variant="ghost"
                           size="icon"
                           className="h-6 w-6"
-                          title="Compare with latest"
+                          title={t.editorUI.compareLatest}
                           onClick={() => {
                             setViewVersion(null);
                             setCompareVersion(v.version);
@@ -176,7 +178,7 @@ export function VersionHistoryPanel({
                           variant="ghost"
                           size="icon"
                           className="h-6 w-6"
-                          title="Restore this version"
+                          title={t.editorUI.restoreVersion}
                           onClick={() => setRestoreTarget(v.version)}
                           disabled={restoreMutation.isPending}
                         >
@@ -210,12 +212,12 @@ export function VersionHistoryPanel({
                   oldContent={compareOldData.content}
                 />
               ) : (
-                <p className="text-sm text-muted-foreground p-4">Loading...</p>
+                <p className="text-sm text-muted-foreground p-4">{t.editorUI.loading}</p>
               )
             ) : versionData ? (
               <DiffView content={versionData.content} />
             ) : (
-              <p className="text-sm text-muted-foreground p-4">Loading...</p>
+              <p className="text-sm text-muted-foreground p-4">{t.editorUI.loading}</p>
             )}
           </ScrollArea>
         </DialogContent>
