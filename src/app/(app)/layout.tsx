@@ -17,7 +17,7 @@ import { KeyboardShortcutsDialog } from "@/components/layout/keyboard-shortcuts-
 import { mainBottomPaddingClass } from "@/lib/layout/fab-clearance";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePageContext } from "@/hooks/use-page-context";
-import { useAgentUIStore, isFullWidthRoute } from "@/stores/agent-ui-store";
+import { useAgentUIStore } from "@/stores/agent-ui-store";
 import { hydrateAgentStore } from "@/stores/agent-store";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -60,7 +60,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   const showOverlay = panelMode === "overlay";
   // Issue 1: Prevent docked panel on full-width routes
-  const showPanel = panelMode === "panel" && !isFullWidthRoute(pathname);
+  // A wide route (editor, editorial review) DEFAULTS to a floating panel so it
+  // keeps its width — see getRoutePreference. But a writer who asks to dock
+  // gets a dock: on Lektura the overlay lay over the findings he was reading,
+  // which is worse than the 400px it was protecting (S3-13).
+  const showPanel = panelMode === "panel";
 
   const handleToggleAgent = () => {
     if (isMobile) {
@@ -76,12 +80,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     if (panelMode === "overlay" || panelMode === "panel") {
       setPanelMode("bubble");
     } else {
-      // On full-width routes, always open as overlay
-      if (isFullWidthRoute(pathname)) {
-        setPanelMode("overlay");
-        return;
-      }
-      // Restore last expanded mode (overlay or panel)
+      // Restore the last expanded mode. A wide route still DEFAULTS to the
+      // overlay — that is what an absent preference resolves to — but it no
+      // longer overrides a writer who has chosen to dock (S3-13).
       let lastMode: "overlay" | "panel" = "overlay";
       try {
         const stored = localStorage.getItem("wmb-agent-expanded-mode");
@@ -153,7 +154,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 {/* Desktop floating modes */}
                 {panelMode === "bubble" && <AICompanionBubble />}
                 {panelMode === "mini" && <AIMiniPanel />}
-                {(showOverlay || (panelMode === "panel" && isFullWidthRoute(pathname))) && (
+                {showOverlay && (
                   <FloatingAgentOverlay onClose={() => setPanelMode("mini")}>
                     <AgentPanelWrapper onClose={() => setPanelMode("mini")} />
                   </FloatingAgentOverlay>

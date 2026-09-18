@@ -467,7 +467,7 @@ export function AgentPanel({
 
         {activeSession?.isBackground && (
           <Badge variant="outline" className="ml-1 text-[10px] px-1.5 py-0">
-            Background
+            {t.bookUI.runsInBackground}
           </Badge>
         )}
 
@@ -853,6 +853,7 @@ export function AgentPanel({
             <ConversationInput
               onSend={handleSend}
               disabled={sendMutation.isPending}
+              placeholder={t.bookUI.typeMessage}
             />
           )}
         </div>

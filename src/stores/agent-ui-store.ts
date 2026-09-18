@@ -142,11 +142,10 @@ export const useAgentUIStore = create<AgentUIState>((set, get) => ({
 
   adjustForRoute: (pathname: string) => {
     const { panelMode } = get();
-    // If user is on a full-width route and panel is docked, switch to overlay
-    if (isFullWidthRoute(pathname) && panelMode === "panel") {
-      set({ panelMode: "overlay" });
-      return;
-    }
+    // A wide route no longer un-docks a panel the writer docked. It still
+    // DEFAULTS to the overlay — that is what an absent stored preference
+    // resolves to — but on Lektura the forced overlay lay over the findings he
+    // was reading, which is worse than the width it was protecting (S3-13).
     // If user navigates AWAY from full-width route, restore route preference
     if (!isFullWidthRoute(pathname) && panelMode !== "hidden") {
       const pref = getRoutePreference(pathname);

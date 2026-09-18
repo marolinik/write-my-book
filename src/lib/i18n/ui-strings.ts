@@ -470,6 +470,8 @@ export interface UIStrings {
     editsReviewed: string;
     generateKit: string;
     // S3-12: the editor's selection menu — the writer's most-used surface.
+    typeMessage: string;
+    runsInBackground: string;
     ctxExpand: string; ctxTighten: string; ctxPov: string;
     ctxSensory: string; ctxTension: string; ctxShow: string;
     ctxDescribe: string; ctxAskCoach: string; ctxAskCoachAbout: string;
@@ -1385,6 +1387,8 @@ const EN: UIStrings = {
     aiSessions: "AI sessions",
     editsReviewed: "edits reviewed",
     generateKit: "Generate your marketing kit",
+    typeMessage: "Type a message...",
+    runsInBackground: "Background",
     ctxExpand: "Expand this passage",
     ctxTighten: "Tighten this",
     ctxPov: "Change POV",
@@ -2333,6 +2337,8 @@ const SR: UIStrings = {
     aiSessions: "AI sesije",
     editsReviewed: "pregledanih izmena",
     generateKit: "Napravi marketinški komplet",
+    typeMessage: "Napišite poruku...",
+    runsInBackground: "U pozadini",
     ctxExpand: "Razvij ovaj odlomak",
     ctxTighten: "Sažmi ovo",
     ctxPov: "Promeni tačku gledišta",
@@ -3280,6 +3286,8 @@ const DE: UIStrings = {
     aiSessions: "KI-Sitzungen",
     editsReviewed: "geprüfte Änderungen",
     generateKit: "Marketing-Kit erzeugen",
+    typeMessage: "Nachricht schreiben...",
+    runsInBackground: "Im Hintergrund",
     ctxExpand: "Diese Passage ausbauen",
     ctxTighten: "Das straffen",
     ctxPov: "Perspektive wechseln",
@@ -4227,6 +4235,8 @@ const ES: UIStrings = {
     aiSessions: "Sesiones de IA",
     editsReviewed: "ediciones revisadas",
     generateKit: "Genera tu kit de marketing",
+    typeMessage: "Escribe un mensaje...",
+    runsInBackground: "En segundo plano",
     ctxExpand: "Ampliar este pasaje",
     ctxTighten: "Condensar esto",
     ctxPov: "Cambiar el punto de vista",
@@ -5174,6 +5184,8 @@ const FR: UIStrings = {
     aiSessions: "Sessions IA",
     editsReviewed: "modifications examinées",
     generateKit: "Générer votre kit marketing",
+    typeMessage: "Écrivez un message...",
+    runsInBackground: "En arrière-plan",
     ctxExpand: "Développer ce passage",
     ctxTighten: "Resserrer ceci",
     ctxPov: "Changer de point de vue",
@@ -6121,6 +6133,8 @@ const RU: UIStrings = {
     aiSessions: "Сессии ИИ",
     editsReviewed: "просмотренных правок",
     generateKit: "Создать маркетинговый набор",
+    typeMessage: "Напишите сообщение...",
+    runsInBackground: "Фоново",
     ctxExpand: "Расширить этот фрагмент",
     ctxTighten: "Сжать это",
     ctxPov: "Сменить точку зрения",
@@ -7068,6 +7082,8 @@ const ZH: UIStrings = {
     aiSessions: "AI 会话",
     editsReviewed: "已审阅的修改",
     generateKit: "生成营销素材包",
+    typeMessage: "输入消息…",
+    runsInBackground: "后台",
     ctxExpand: "扩写这段",
     ctxTighten: "精简这段",
     ctxPov: "更改视角",
