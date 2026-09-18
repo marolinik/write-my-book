@@ -487,6 +487,32 @@ const proposeStructureMoveDef: ToolDefinition = {
   },
 };
 
+const listSeriesBooksDef: ToolDefinition = {
+  name: "ListSeriesBooks",
+  description:
+    "List the other books in this book's series - number, title, language and chapter count. " +
+    "Use it before reading across books, so every book you name is one that exists.",
+  input_schema: { type: "object" as const, properties: {} },
+};
+
+const readSiblingChapterDef: ToolDefinition = {
+  name: "ReadSiblingChapter",
+  description:
+    "Read one chapter of ANOTHER book in the same series, by book number and chapter number. " +
+    "This is the only way to check a fact against a sibling book's actual prose: the series " +
+    "documents are summaries and a book that never contributed to them is invisible there. " +
+    "Read the specific chapters you need - never sweep a whole book.",
+  input_schema: {
+    type: "object" as const,
+    strict: true,
+    properties: {
+      bookNumber: { type: "number", description: "The sibling book's number in the series" },
+      chapterNumber: { type: "number", description: "Chapter number inside that book" },
+    },
+    required: ["bookNumber", "chapterNumber"],
+  },
+};
+
 const createFindingDef: ToolDefinition = {
   name: "CreateFinding",
   description:
@@ -1059,6 +1085,8 @@ const ALL_TOOL_DEFINITIONS: ToolDefinition[] = [
   listDocumentsDef,
   listChaptersDef,
   proposeStructureMoveDef,
+  listSeriesBooksDef,
+  readSiblingChapterDef,
   createFindingDef,
   requestApprovalDef,
   readSeriesDocumentDef,
@@ -1545,6 +1573,87 @@ function describeMove(move: StructureMoveInput): string {
     default:
       return `${move.kind} of chapter ${move.chapterNumber} to position ${move.targetPosition}`;
   }
+}
+
+/**
+ * O9 — cross-book continuity used to be guesswork: the checker could reach only
+ * the current book, so everything about a sibling came from concatenated series
+ * documents, and a book that never contributed was indistinguishable from a book
+ * with nothing wrong. Both tools below are fenced to the caller's own series.
+ */
+async function executeListSeriesBooks(ctx: ToolContext): Promise<string> {
+  if (!ctx.seriesId) {
+    return "This book is not part of a series, so there are no sibling books to read.";
+  }
+
+  const books = await db.book.findMany({
+    where: { seriesId: ctx.seriesId, userId: ctx.userId },
+    orderBy: { bookNumber: "asc" },
+    select: {
+      id: true,
+      name: true,
+      bookNumber: true,
+      language: true,
+      _count: { select: { chapters: true } },
+    },
+  });
+
+  if (books.length === 0) return "No books found in this series.";
+
+  return books
+    .map(
+      (b) =>
+        `- Book ${b.bookNumber}: ${b.name} (${b._count.chapters} chapters, ${b.language})` +
+        (b.id === ctx.bookId ? " [the current book]" : "")
+    )
+    .join("\n");
+}
+
+async function executeReadSiblingChapter(
+  ctx: ToolContext,
+  input: { bookNumber: number; chapterNumber: number }
+): Promise<string> {
+  if (!ctx.seriesId) {
+    return "This book is not part of a series, so there is no sibling book to read.";
+  }
+
+  const sibling = await db.book.findFirst({
+    where: {
+      seriesId: ctx.seriesId,
+      userId: ctx.userId,
+      bookNumber: input.bookNumber,
+    },
+    select: { id: true, name: true, bookNumber: true },
+  });
+  if (!sibling) {
+    return `There is no book ${input.bookNumber} in this series.`;
+  }
+
+  const chapter = await db.chapter.findFirst({
+    where: { bookId: sibling.id, chapterNumber: input.chapterNumber },
+    select: { id: true, chapterNumber: true, title: true, actNumber: true },
+  });
+  if (!chapter) {
+    return `Book ${input.bookNumber} has no chapter ${input.chapterNumber}.`;
+  }
+
+  const siblingDocs = new DocumentService(ctx.userId, sibling.id);
+  const doc = await siblingDocs.findByType(
+    DocumentType.CHAPTER_CONTENT,
+    input.chapterNumber
+  );
+  if (!doc) {
+    return `Chapter ${input.chapterNumber} of "${sibling.name}" exists but has no text yet.`;
+  }
+
+  const read = await siblingDocs.read(doc.id);
+  const content = read?.content?.trim() ?? "";
+  if (content.length === 0) {
+    return `Chapter ${input.chapterNumber} of "${sibling.name}" exists but has no text yet.`;
+  }
+
+  const title = chapter.title ? ` - ${chapter.title}` : "";
+  return `# ${sibling.name} (Book ${sibling.bookNumber}), chapter ${chapter.chapterNumber}${title}\n\n${content}`;
 }
 
 async function executeCreateFinding(
@@ -2675,6 +2784,13 @@ async function executeToolInner(
       );
     case "ListChapters":
       return executeListChapters(ctx);
+    case "ListSeriesBooks":
+      return executeListSeriesBooks(ctx);
+    case "ReadSiblingChapter":
+      return executeReadSiblingChapter(
+        ctx,
+        input as unknown as { bookNumber: number; chapterNumber: number }
+      );
     case "ProposeStructureMove":
       return executeProposeStructureMove(
         ctx,

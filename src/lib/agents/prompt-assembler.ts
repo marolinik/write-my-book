@@ -1210,10 +1210,12 @@ You MUST pass chapterNumber and workflowId='revise' to DelegateToSpecialist. Aft
   "create-series-bible": "Delegate to story-architect to build the series bible.",
   "create-series-architecture": "Delegate to story-architect for multi-book arc design.",
   "check-continuity": `Delegate to continuity-checker for THIS BOOK only (workflowId='check-continuity', book-level, NO chapterNumber). Tell the specialist to ReadAllChapters and check characters, timeline, geography, world rules and paid-off foreshadowing INSIDE this book. It must not claim anything about other books: this is not the series check. File each conflict with CreateFinding and write the CONTINUITY_REPORT document. Present the conflicts by severity when it completes.`,
-  "check-series-continuity": `Delegate to continuity-checker for CROSS-BOOK continuity verification. Tell the specialist exactly what to read, because its own tools only reach the current book's chapters:
-1. ReadSeriesDocument for SERIES_BIBLE, SERIES_ARCHITECTURE and SERIES_FINGERPRINT — these carry one "## Book NN Contributions" section per book, which is the only cross-book material available.
+  "check-series-continuity": `Delegate to continuity-checker for CROSS-BOOK continuity verification with workflowId='check-series-continuity'. Tell the specialist exactly how to read across books, because the series documents alone are not enough:
+1. ListSeriesBooks first - the real books, their numbers and their chapter counts.
 2. ReadAllChapters for the CURRENT book.
-Check character facts, timeline, geography, world rules and paid-off foreshadowing ACROSS those book sections, not only inside the current book. Name the book each conflict belongs to (e.g. "Book 01 vs Book 02"). If a book has no section in the series documents, say so explicitly — its chapters are unreadable from here, so it was NOT checked, and claiming otherwise would be false.`,
+3. ReadSiblingChapter for the specific chapters of other books that a fact depends on. This reads a sibling book's actual prose; use it whenever a claim about another book matters, and read targeted chapters rather than sweeping whole books.
+4. ReadSeriesDocument for SERIES_BIBLE, SERIES_ARCHITECTURE and SERIES_FINGERPRINT as supporting summaries, never as the only evidence.
+Check character facts, timeline, geography, world rules and paid-off foreshadowing ACROSS books. Name the book each conflict belongs to (e.g. "Book 01 vs Book 02"). If a book could not be read at all, say so explicitly - it was NOT checked, and claiming otherwise would be false.`,
 
   // Direct conversation workflows — Coach handles directly, NO delegation
   "coach": "Open-ended writing conversation. Do NOT delegate to any specialist — handle this yourself. Use your expertise as a writing mentor to guide the user.",

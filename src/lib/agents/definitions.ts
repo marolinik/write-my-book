@@ -322,10 +322,17 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
       "ReadDocument",
       "WriteDocument",
       "ReadChapter",
+      "ReadAllChapters",
+      "ListChapters",
       "ListDocuments",
       "CreateFinding",
       "ReadSeriesDocument",
       "WriteSeriesDocument",
+      // O9: cross-book checking used to run off concatenated series documents,
+      // where a book that never contributed was simply invisible. These reach
+      // a sibling book's actual prose.
+      "ListSeriesBooks",
+      "ReadSiblingChapter",
       "QueryGraph",
       "SearchMemory",
       "PostInsight",
