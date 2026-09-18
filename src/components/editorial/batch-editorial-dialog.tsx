@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/components/providers/language-provider";
+import { getAgentStrings } from "@/lib/i18n/agent-strings";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { CalendarClockIcon, Loader2Icon, MoonIcon, ZapIcon } from "lucide-react";
@@ -22,11 +23,11 @@ import {
 } from "@/components/ui/dialog";
 
 /** The four v1 batch-eligible (non-prose-mutating) editorial passes. */
-const BATCH_PASSES: ReadonlyArray<{ id: string; label: string; perChapter: boolean }> = [
-  { id: "dev-edit", label: "Dev Edit", perChapter: true },
-  { id: "line-edit", label: "Line Edit", perChapter: true },
-  { id: "beta-read", label: "Beta Read", perChapter: true },
-  { id: "analyze", label: "Analyze", perChapter: false },
+const BATCH_PASSES: ReadonlyArray<{ id: string; perChapter: boolean }> = [
+  { id: "dev-edit", perChapter: true },
+  { id: "line-edit", perChapter: true },
+  { id: "beta-read", perChapter: true },
+  { id: "analyze", perChapter: false },
 ];
 
 const DEFAULT_CAP_USD = 10;
@@ -117,7 +118,9 @@ export function BatchEditorialDialog({
   initialPasses,
   hideTrigger,
 }: BatchEditorialDialogProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  // The same names the rest of the app uses for these passes.
+  const workflowNames = getAgentStrings(language).workflows;
   const minChapter = chapterNumbers.length ? chapterNumbers[0] : 1;
   const maxChapter = chapterNumbers.length ? chapterNumbers[chapterNumbers.length - 1] : 1;
 
@@ -226,17 +229,17 @@ export function BatchEditorialDialog({
       });
       const body = await res.json();
       if (!res.ok) {
-        toast.error(body.error ?? "Failed to queue batch.");
+        toast.error(body.error ?? t.bookUI.batchFailed);
         return;
       }
       toast.success(
         schedule === "tonight"
-          ? `Batch scheduled — ${body.childCount} passes will run tonight.`
-          : `Batch queued — ${body.childCount} passes running.`
+          ? t.bookUI.batchScheduled.replace("{n}", String(body.childCount))
+          : t.bookUI.batchQueued.replace("{n}", String(body.childCount))
       );
       setBatchId(body.batchId);
     } catch {
-      toast.error("Failed to queue batch. Please try again.");
+      toast.error(t.bookUI.batchFailed);
     } finally {
       setSubmitting(false);
     }
@@ -296,8 +299,7 @@ export function BatchEditorialDialog({
             <DialogHeader>
               <DialogTitle>{t.batchEditorial.title}</DialogTitle>
               <DialogDescription>
-                Queue non-mutating editorial passes over a range of chapters. Your
-                prose is never rewritten. Runs ~2 passes at a time.
+                {t.bookUI.batchWhat}
               </DialogDescription>
             </DialogHeader>
 
@@ -314,7 +316,7 @@ export function BatchEditorialDialog({
                       variant={passes.has(p.id) ? "default" : "outline"}
                       onClick={() => togglePass(p.id)}
                     >
-                      {p.label}
+                      {workflowNames[p.id] ?? p.id}
                     </Button>
                   ))}
                 </div>
@@ -333,7 +335,7 @@ export function BatchEditorialDialog({
                     className="w-20"
                     aria-label={t.batchEditorial.firstChapter}
                   />
-                  <span className="text-muted-foreground text-sm">to</span>
+                  <span className="text-muted-foreground text-sm">{t.bookUI.batchTo}</span>
                   <Input
                     type="number"
                     min={minChapter}
@@ -344,7 +346,9 @@ export function BatchEditorialDialog({
                     aria-label={t.batchEditorial.lastChapter}
                   />
                   <span className="text-muted-foreground text-xs">
-                    (available {minChapter}–{maxChapter})
+                    ({t.bookUI.batchRange
+                      .replace("{a}", String(minChapter))
+                      .replace("{b}", String(maxChapter))})
                   </span>
                 </div>
               </div>
@@ -381,9 +385,8 @@ export function BatchEditorialDialog({
                   </p>
                 )}
                 <p id="batch-cap-hint" className="text-muted-foreground text-xs">
-                  Estimated spend, not billed actuals. ${MIN_CAP_USD.toFixed(2)}–$
-                  {MAX_CAP_USD}. The batch halts remaining passes if the estimate
-                  reaches this cap.
+                  {t.bookUI.batchCapNote} ${MIN_CAP_USD.toFixed(2)}–$
+                  {MAX_CAP_USD}.
                 </p>
               </div>
 
@@ -398,7 +401,7 @@ export function BatchEditorialDialog({
                     onClick={() => setSchedule("now")}
                   >
                     <ZapIcon className="mr-1.5 size-3.5" />
-                    Now
+                    {t.bookUI.batchNow}
                   </Button>
                   <Button
                     type="button"
@@ -407,7 +410,7 @@ export function BatchEditorialDialog({
                     onClick={() => setSchedule("tonight")}
                   >
                     <MoonIcon className="mr-1.5 size-3.5" />
-                    Tonight 2am
+                    {t.bookUI.batchTonight}
                   </Button>
                 </div>
               </div>
@@ -416,7 +419,7 @@ export function BatchEditorialDialog({
             <DialogFooter>
               <Button onClick={submit} disabled={submitting || passes.size === 0}>
                 {submitting && <Loader2Icon className="mr-1.5 size-3.5 animate-spin" />}
-                Queue batch
+                {t.bookUI.batchQueue}
               </Button>
             </DialogFooter>
           </>
@@ -427,7 +430,7 @@ export function BatchEditorialDialog({
               <DialogDescription>
                 {status?.batch.scheduledFor && !isTerminal
                   ? "Scheduled — will run at the chosen time."
-                  : "Passes run ~2 at a time; check back for the morning digest."}
+                  : t.bookUI.batchStatusNote}
               </DialogDescription>
             </DialogHeader>
 
@@ -460,11 +463,11 @@ export function BatchEditorialDialog({
             <DialogFooter className="gap-2">
               {!isTerminal && (
                 <Button variant="outline" size="sm" onClick={cancel}>
-                  Cancel batch
+                  {t.bookUI.batchCancel}
                 </Button>
               )}
               <Button size="sm" variant="ghost" onClick={reset}>
-                New batch
+                {t.bookUI.batchNew}
               </Button>
             </DialogFooter>
           </>
