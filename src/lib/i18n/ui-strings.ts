@@ -301,6 +301,13 @@ export interface UIStrings {
   };
 
   // Style page
+  // O3 - documents damaged before the encoding and language fixes.
+  documentDamage: {
+    title: string; body: string; regenerate: string; unrecoverable: string;
+    reasonReplacement: string; reasonDoubleEncoded: string;
+    reasonWrongLanguage: string; reasonEmpty: string;
+  };
+
   // O10 - the continuity tab: one book or a whole series, and no hardcoded English.
   continuityTab: {
     title: string; subtitle: string;
@@ -808,6 +815,17 @@ const EN: UIStrings = {
     title: "Reports", subtitle: "Analytics, continuity, market analysis, and editorial overview",
     analytics: "Analytics", continuity: "Continuity", market: "Market", edits: "Edits", documents: "Documents",
   },
+  documentDamage: {
+    title: "{n} documents need regenerating",
+    body: "These were written before the text-encoding and language fixes. Damaged characters cannot be repaired, only rewritten.",
+    regenerate: "Regenerate",
+    unrecoverable: "Text is unrecoverable",
+    reasonReplacement: "damaged characters",
+    reasonDoubleEncoded: "double-encoded text",
+    reasonWrongLanguage: "wrong language",
+    reasonEmpty: "empty document",
+  },
+
   continuityTab: {
     title: "Continuity", subtitle: "Track consistency across your manuscript",
     run: "Check this book", runSeries: "Check the whole series",
@@ -1342,6 +1360,17 @@ const SR: UIStrings = {
     title: "Izveštaji", subtitle: "Analitika, kontinuitet, analiza tržišta i pregled redakcije",
     analytics: "Analitika", continuity: "Kontinuitet", market: "Tržište", edits: "Izmene", documents: "Dokumenta",
   },
+  documentDamage: {
+    title: "{n} dokumenata treba ponovo napraviti",
+    body: "Nastali su pre ispravki kodiranja teksta i jezika. Oštećeni znakovi ne mogu da se poprave, samo da se ponovo napišu.",
+    regenerate: "Napravi ponovo",
+    unrecoverable: "Tekst se ne može vratiti",
+    reasonReplacement: "oštećeni znakovi",
+    reasonDoubleEncoded: "dvostruko kodiran tekst",
+    reasonWrongLanguage: "pogrešan jezik",
+    reasonEmpty: "prazan dokument",
+  },
+
   continuityTab: {
     title: "Kontinuitet", subtitle: "Pratite doslednost kroz ceo rukopis",
     run: "Proveri ovu knjigu", runSeries: "Proveri ceo serijal",
@@ -1875,6 +1904,17 @@ const DE: UIStrings = {
     title: "Berichte", subtitle: "Analytik, Kontinuität, Marktanalyse und Lektoratsübersicht",
     analytics: "Analytik", continuity: "Kontinuität", market: "Markt", edits: "Lektorat", documents: "Dokumente",
   },
+  documentDamage: {
+    title: "{n} Dokumente müssen neu erzeugt werden",
+    body: "Sie entstanden vor den Korrekturen an Textkodierung und Sprache. Beschädigte Zeichen lassen sich nicht reparieren, nur neu schreiben.",
+    regenerate: "Neu erzeugen",
+    unrecoverable: "Text nicht wiederherstellbar",
+    reasonReplacement: "beschädigte Zeichen",
+    reasonDoubleEncoded: "doppelt kodierter Text",
+    reasonWrongLanguage: "falsche Sprache",
+    reasonEmpty: "leeres Dokument",
+  },
+
   continuityTab: {
     title: "Kontinuität", subtitle: "Konsistenz im ganzen Manuskript verfolgen",
     run: "Dieses Buch prüfen", runSeries: "Ganze Serie prüfen",
@@ -2408,6 +2448,17 @@ const ES: UIStrings = {
     title: "Informes", subtitle: "Analítica, continuidad, análisis de mercado y resumen editorial",
     analytics: "Analítica", continuity: "Continuidad", market: "Mercado", edits: "Ediciones", documents: "Documentos",
   },
+  documentDamage: {
+    title: "{n} documentos deben regenerarse",
+    body: "Se escribieron antes de las correcciones de codificación e idioma. Los caracteres dañados no se pueden reparar, solo reescribir.",
+    regenerate: "Regenerar",
+    unrecoverable: "El texto no se puede recuperar",
+    reasonReplacement: "caracteres dañados",
+    reasonDoubleEncoded: "texto con doble codificación",
+    reasonWrongLanguage: "idioma equivocado",
+    reasonEmpty: "documento vacío",
+  },
+
   continuityTab: {
     title: "Continuidad", subtitle: "Sigue la coherencia de todo el manuscrito",
     run: "Revisar este libro", runSeries: "Revisar toda la serie",
@@ -2941,6 +2992,17 @@ const FR: UIStrings = {
     title: "Rapports", subtitle: "Analytique, continuité, analyse de marché et aperçu éditorial",
     analytics: "Analytique", continuity: "Continuité", market: "Marché", edits: "Éditions", documents: "Documents",
   },
+  documentDamage: {
+    title: "{n} documents à regénérer",
+    body: "Ils ont été écrits avant les corrections d'encodage et de langue. Les caractères abîmés ne se réparent pas, ils se réécrivent.",
+    regenerate: "Régénérer",
+    unrecoverable: "Texte irrécupérable",
+    reasonReplacement: "caractères abîmés",
+    reasonDoubleEncoded: "texte doublement encodé",
+    reasonWrongLanguage: "mauvaise langue",
+    reasonEmpty: "document vide",
+  },
+
   continuityTab: {
     title: "Continuité", subtitle: "Suivez la cohérence dans tout le manuscrit",
     run: "Vérifier ce livre", runSeries: "Vérifier toute la série",
@@ -3474,6 +3536,17 @@ const RU: UIStrings = {
     title: "Отчёты", subtitle: "Аналитика, непрерывность, анализ рынка и обзор редактуры",
     analytics: "Аналитика", continuity: "Непрерывность", market: "Рынок", edits: "Редактура", documents: "Документы",
   },
+  documentDamage: {
+    title: "{n} документов нужно создать заново",
+    body: "Они написаны до исправлений кодировки и языка. Повреждённые символы нельзя восстановить, только переписать.",
+    regenerate: "Создать заново",
+    unrecoverable: "Текст не восстановить",
+    reasonReplacement: "повреждённые символы",
+    reasonDoubleEncoded: "двойная кодировка",
+    reasonWrongLanguage: "не тот язык",
+    reasonEmpty: "пустой документ",
+  },
+
   continuityTab: {
     title: "Непрерывность", subtitle: "Следите за согласованностью во всёй рукописи",
     run: "Проверить эту книгу", runSeries: "Проверить всю серию",
@@ -4007,6 +4080,17 @@ const ZH: UIStrings = {
     title: "报告", subtitle: "分析、连续性、市场分析和编辑概览",
     analytics: "分析", continuity: "连续性", market: "市场", edits: "编辑", documents: "文档",
   },
+  documentDamage: {
+    title: "{n} 份文档需要重新生成",
+    body: "它们写于编码与语言修复之前。损坏的字符无法修复，只能重写。",
+    regenerate: "重新生成",
+    unrecoverable: "文本无法恢复",
+    reasonReplacement: "损坏的字符",
+    reasonDoubleEncoded: "双重编码文本",
+    reasonWrongLanguage: "语言错误",
+    reasonEmpty: "空文档",
+  },
+
   continuityTab: {
     title: "连贯性", subtitle: "跟踪整部稿件的一致性",
     run: "检查本书", runSeries: "检查整个系列",

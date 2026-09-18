@@ -29,6 +29,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DamagedDocumentsNotice } from "@/components/book/damaged-documents-notice";
 import {
   Select,
   SelectContent,
@@ -298,6 +299,10 @@ export function DocumentsLibrary({ bookId }: { bookId: string }) {
 
   return (
     <div className="space-y-6">
+      {/* O3: documents written before the encoding and language fixes carry
+          damage the app used to say nothing about. */}
+      <DamagedDocumentsNotice bookId={bookId} />
+
       <div>
         <h2 className="text-2xl font-display font-bold tracking-tight">
           {t.nav.documents}
