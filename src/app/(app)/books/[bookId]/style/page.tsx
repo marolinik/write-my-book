@@ -104,12 +104,14 @@ export default function StylePage({
         <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
           <ClockIcon className="size-3.5" />
           <span>
-            Style captured{" "}
-            {new Date(latestProfile.updatedAt).toLocaleDateString(locale, {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
+            {t.reportTabs.styleCaptured.replace(
+              "{date}",
+              new Date(latestProfile.updatedAt).toLocaleDateString(locale, {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })
+            )}
           </span>
         </div>
       )}

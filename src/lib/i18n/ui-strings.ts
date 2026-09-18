@@ -717,6 +717,10 @@ export interface UIStrings {
     continuityBy: string;
     reportLost: string;
     nextStep: string;
+    /** Style page. styleCaptured carries {date}. */
+    styleCaptured: string;
+    styleProfileName: string;
+    styleProfileAuto: string;
   };
 
   stylePage: {
@@ -1632,6 +1636,9 @@ const EN: UIStrings = {
     continuityBy: "Written by the continuity checker",
     reportLost: "This report's text is missing from storage. Run the pass again to rebuild it.",
     nextStep: "What now",
+    styleCaptured: "Style captured {date}",
+    styleProfileName: "Style",
+    styleProfileAuto: "Taken automatically from your own prose",
   },
 
   stylePage: {
@@ -2565,6 +2572,9 @@ const SR: UIStrings = {
     continuityBy: "Napisao proveravаč kontinuiteta",
     reportLost: "Tekst ovog izveštaja nedostaje u skladištu. Pokrenite prolaz ponovo da se napravi.",
     nextStep: "Šta sad",
+    styleCaptured: "Stil snimljen {date}",
+    styleProfileName: "Stil",
+    styleProfileAuto: "Uzet automatski iz vaše sopstvene proze",
   },
 
   stylePage: {
@@ -3497,6 +3507,9 @@ const DE: UIStrings = {
     continuityBy: "Von der Kontinuitätsprüfung verfasst",
     reportLost: "Der Text dieses Berichts fehlt im Speicher. Lauf erneut starten.",
     nextStep: "Was nun",
+    styleCaptured: "Stil erfasst am {date}",
+    styleProfileName: "Stil",
+    styleProfileAuto: "Automatisch aus Ihrer eigenen Prosa gewonnen",
   },
 
   stylePage: {
@@ -4429,6 +4442,9 @@ const ES: UIStrings = {
     continuityBy: "Escrito por el verificador de continuidad",
     reportLost: "Falta el texto de este informe. Ejecuta el paso de nuevo.",
     nextStep: "Y ahora",
+    styleCaptured: "Estilo capturado el {date}",
+    styleProfileName: "Estilo",
+    styleProfileAuto: "Tomado automáticamente de tu propia prosa",
   },
 
   stylePage: {
@@ -5361,6 +5377,9 @@ const FR: UIStrings = {
     continuityBy: "Rédigé par le vérificateur de continuité",
     reportLost: "Le texte de ce rapport manque. Relancez la passe.",
     nextStep: "Et maintenant",
+    styleCaptured: "Style capturé le {date}",
+    styleProfileName: "Style",
+    styleProfileAuto: "Extrait automatiquement de votre propre prose",
   },
 
   stylePage: {
@@ -6293,6 +6312,9 @@ const RU: UIStrings = {
     continuityBy: "Написал проверяющий непрерывность",
     reportLost: "Текст отчёта отсутствует в хранилище. Запустите проход заново.",
     nextStep: "Что дальше",
+    styleCaptured: "Стиль зафиксирован {date}",
+    styleProfileName: "Стиль",
+    styleProfileAuto: "Взят автоматически из вашей собственной прозы",
   },
 
   stylePage: {
@@ -7225,6 +7247,9 @@ const ZH: UIStrings = {
     continuityBy: "由连续性检查员撰写",
     reportLost: "该报告的正文在存储中缺失。请重新运行此流程。",
     nextStep: "接下来",
+    styleCaptured: "风格采集于 {date}",
+    styleProfileName: "风格",
+    styleProfileAuto: "自动取自您自己的文稿",
   },
 
   stylePage: {
@@ -7513,7 +7538,9 @@ export function isUiLanguageSupported(language: string): boolean {
  */
 const LOCALE_TAGS: Record<string, string> = {
   en: "en-US",
-  sr: "sr-RS",
+  // Latin, not the `sr-RS` default: this product writes Serbian in Latin
+  // script everywhere else, and Intl was formatting dates in Cyrillic (S3-11).
+  sr: "sr-Latn-RS",
   de: "de-DE",
   es: "es-ES",
   fr: "fr-FR",

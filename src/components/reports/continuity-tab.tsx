@@ -26,6 +26,7 @@ import { cn } from "@/lib/utils";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
 import { useLanguage } from "@/components/providers/language-provider";
 import { useReportDocument } from "./use-report-document";
+import { domainBadgeCounts } from "./continuity-counts";
 import { useBook } from "@/hooks/use-books";
 
 type DomainLabelKey =
@@ -253,23 +254,30 @@ export function ContinuityTab({ bookId }: { bookId: string }) {
                     <span className="text-sm font-medium">{c[config.labelKey]}</span>
                   </div>
                   {hasFindings ? (
-                    <div className="flex items-center gap-1">
-                      {stats.critical > 0 && (
-                        <Badge variant="destructive" className="text-[10px] px-1.5 py-0">
-                          {stats.critical}
-                        </Badge>
-                      )}
-                      {stats.major > 0 && (
-                        <Badge variant="destructive" className="text-[10px] px-1.5 py-0 opacity-80">
-                          {stats.major}
-                        </Badge>
-                      )}
-                      {(stats.minor > 0 || stats.suggestion > 0) && (
-                        <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-                          {stats.minor + stats.suggestion}
-                        </Badge>
-                      )}
-                    </div>
+                    // Derived, not counted: the badges must add up to the total
+                    // the header quotes, whatever a finding calls its severity.
+                    (() => {
+                      const badges = domainBadgeCounts(stats);
+                      return (
+                        <div className="flex items-center gap-1">
+                          {badges.critical > 0 && (
+                            <Badge variant="destructive" className="text-[10px] px-1.5 py-0">
+                              {badges.critical}
+                            </Badge>
+                          )}
+                          {badges.major > 0 && (
+                            <Badge variant="destructive" className="text-[10px] px-1.5 py-0 opacity-80">
+                              {badges.major}
+                            </Badge>
+                          )}
+                          {badges.rest > 0 && (
+                            <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                              {badges.rest}
+                            </Badge>
+                          )}
+                        </div>
+                      );
+                    })()
                   ) : (
                     <Badge variant="outline" className="text-[10px]">
                       —

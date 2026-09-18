@@ -5,7 +5,8 @@ import { localeFor } from "@/lib/i18n/ui-strings";
 describe("localeFor", () => {
   it("maps every supported UI language code to its BCP-47 locale tag", () => {
     expect(localeFor("en")).toBe("en-US");
-    expect(localeFor("sr")).toBe("sr-RS");
+    // Latin, not the sr-RS default — see serbian-is-latin.test.ts (S3-11).
+    expect(localeFor("sr")).toBe("sr-Latn-RS");
     expect(localeFor("de")).toBe("de-DE");
     expect(localeFor("es")).toBe("es-ES");
     expect(localeFor("fr")).toBe("fr-FR");
