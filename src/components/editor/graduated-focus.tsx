@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState } from "react";
 import { FocusIcon, EyeOffIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,7 @@ const FOCUS_LEVELS = [
 ];
 
 export function GraduatedFocus({ currentLevel: externalLevel, onChange: externalOnChange, onEnterImmersive }: GraduatedFocusProps) {
+  const { t } = useLanguage();
   const [internalLevel, setInternalLevel] = useState<FocusLevel>(0);
   const currentLevel = externalLevel ?? internalLevel;
   const onChange = externalOnChange ?? setInternalLevel;
@@ -47,8 +49,8 @@ export function GraduatedFocus({ currentLevel: externalLevel, onChange: external
           variant={currentLevel > 0 ? "secondary" : "ghost"}
           size="icon"
           className="size-7"
-          title="Focus mode"
-          aria-label="Focus mode options"
+          title={t.editorUI.focusMode}
+          aria-label={t.editorUI.focusModeOptions}
         >
           {currentLevel > 0 ? (
             <EyeOffIcon className="size-3.5" />
@@ -58,7 +60,7 @@ export function GraduatedFocus({ currentLevel: externalLevel, onChange: external
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-52 p-2 space-y-1" side="bottom">
-        <p className="text-xs font-medium px-2 py-1">Focus Level</p>
+        <p className="text-xs font-medium px-2 py-1">{t.editorUI.focusLevel}</p>
         {FOCUS_LEVELS.map((fl) => (
           <button
             key={fl.level}
@@ -86,8 +88,8 @@ export function GraduatedFocus({ currentLevel: externalLevel, onChange: external
             >
               <span className="text-sm" aria-hidden="true">🌙</span>
               <div>
-                <p className="text-xs font-medium">Immersive</p>
-                <p className="text-[9px] text-muted-foreground">Full-screen zen mode</p>
+                <p className="text-xs font-medium">{t.editorUI.immersive}</p>
+                <p className="text-[9px] text-muted-foreground">{t.editorUI.immersiveHint}</p>
               </div>
             </button>
           </>

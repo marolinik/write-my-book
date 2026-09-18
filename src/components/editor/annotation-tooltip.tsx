@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -114,6 +115,7 @@ export function AnnotationTooltip({
   onIntentional,
   jumpChapter,
 }: AnnotationTooltipProps) {
+  const { t } = useLanguage();
   const tipRef = useRef<HTMLDivElement>(null);
   const acceptButtonRef = useRef<HTMLButtonElement>(null);
   const editableRef = useRef<HTMLElement | null>(null);
@@ -177,7 +179,7 @@ export function AnnotationTooltip({
     <div
       ref={tipRef}
       role="dialog"
-      aria-label="Review suggestion"
+      aria-label={t.editorUI.reviewSuggestion}
       className="absolute z-50 w-[320px] rounded-lg border bg-popover text-popover-foreground shadow-lg"
       style={{ top, left }}
     >

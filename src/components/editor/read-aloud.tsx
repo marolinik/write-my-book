@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState, useCallback, useRef, useEffect } from "react";
 import {
   Volume2Icon,
@@ -57,6 +58,7 @@ export function ReadAloud({
   onComplete,
   className,
 }: ReadAloudProps) {
+  const { t } = useLanguage();
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [currentSentence, setCurrentSentence] = useState(0);
@@ -178,8 +180,8 @@ export function ReadAloud({
           size="icon"
           className="size-7"
           onClick={handlePause}
-          title="Pause"
-          aria-label="Pause"
+          title={t.editorUI.pause}
+          aria-label={t.editorUI.pause}
         >
           <PauseIcon className="size-3.5" />
         </Button>
@@ -189,8 +191,8 @@ export function ReadAloud({
           size="icon"
           className="size-7"
           onClick={handlePlay}
-          title="Read aloud"
-          aria-label="Read aloud"
+          title={t.editorUI.readAloud}
+          aria-label={t.editorUI.readAloud}
         >
           {isPaused ? (
             <PlayIcon className="size-3.5" />
@@ -208,8 +210,8 @@ export function ReadAloud({
             size="icon"
             className="size-7"
             onClick={handleStop}
-            title="Stop"
-            aria-label="Stop"
+            title={t.editorUI.stop}
+            aria-label={t.editorUI.stop}
           >
             <SquareIcon className="size-3" />
           </Button>
@@ -218,8 +220,8 @@ export function ReadAloud({
             size="icon"
             className="size-7"
             onClick={handleSkip}
-            title="Next sentence"
-            aria-label="Next sentence"
+            title={t.editorUI.nextSentence}
+            aria-label={t.editorUI.nextSentence}
           >
             <SkipForwardIcon className="size-3.5" />
           </Button>
@@ -236,17 +238,17 @@ export function ReadAloud({
             variant="ghost"
             size="icon"
             className="size-7"
-            aria-label="Read aloud settings"
+            aria-label={t.editorUI.readAloudSettings}
           >
             <Settings2Icon className="size-3" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-56 space-y-3" side="bottom" align="end">
           <div className="space-y-1">
-            <Label className="text-xs">Voice</Label>
+            <Label className="text-xs">{t.editorUI.voice}</Label>
             <Select value={selectedVoice} onValueChange={setSelectedVoice}>
               <SelectTrigger className="h-7 text-xs">
-                <SelectValue placeholder="Select voice" />
+                <SelectValue placeholder={t.editorUI.selectVoice} />
               </SelectTrigger>
               <SelectContent>
                 {usableVoices.map((v) => (
@@ -267,7 +269,7 @@ export function ReadAloud({
               value={rate}
               onChange={(e) => setRate(parseFloat(e.target.value))}
               className="w-full h-1 accent-primary"
-              aria-label="Reading speed"
+              aria-label={t.editorUI.readingSpeed}
             />
           </div>
         </PopoverContent>

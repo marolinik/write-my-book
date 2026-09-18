@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useMemo, useState } from "react";
 import {
   Tooltip,
@@ -50,6 +51,7 @@ export function PacingHeatmap({
   maxHeight = 60,
   onSentenceClick,
 }: PacingHeatmapProps) {
+  const { t } = useLanguage();
   const [expanded, setExpanded] = useState(false);
 
   const sentences = useMemo((): SentenceStats[] => {
@@ -107,7 +109,7 @@ export function PacingHeatmap({
           <span className="text-red-500">{longPct}% long</span>
           <button
             onClick={() => setExpanded(false)}
-            aria-label="Close pacing heatmap"
+            aria-label={t.editorUI.closePacing}
           >
             <XIcon className="size-3" />
           </button>

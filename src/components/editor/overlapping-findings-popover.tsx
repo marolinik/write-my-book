@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useEffect, useRef } from "react";
 import { Badge } from "@/components/ui/badge";
 import type { FindingItem } from "@/hooks/use-editorial";
@@ -42,6 +43,7 @@ export function OverlappingFindingsPopover({
   onSelect,
   onClose,
 }: OverlappingFindingsPopoverProps) {
+  const { t } = useLanguage();
   const popoverRef = useRef<HTMLDivElement>(null);
   const firstRowRef = useRef<HTMLButtonElement>(null);
   const editableRef = useRef<HTMLElement | null>(null);
@@ -108,7 +110,7 @@ export function OverlappingFindingsPopover({
     <div
       ref={popoverRef}
       role="dialog"
-      aria-label="Overlapping findings"
+      aria-label={t.editorUI.overlappingFindings}
       className="absolute z-50 w-[280px] rounded-lg border bg-popover text-popover-foreground shadow-lg"
       style={{ top, left }}
     >

@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Volume2Icon,
@@ -112,6 +113,7 @@ interface AmbientSoundscapeProps {
 }
 
 export function AmbientSoundscape({ className }: AmbientSoundscapeProps = {}) {
+  const { t } = useLanguage();
   const [active, setActive] = useState<SoundscapeType>("off");
   const [volume, setVolume] = useState(0.5);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -242,8 +244,8 @@ export function AmbientSoundscape({ className }: AmbientSoundscapeProps = {}) {
           variant={active !== "off" ? "secondary" : "ghost"}
           size="icon"
           className={cn("size-7", className)}
-          title="Ambient sounds"
-          aria-label="Ambient sounds"
+          title={t.editorUI.ambientSounds}
+          aria-label={t.editorUI.ambientSounds}
           aria-pressed={active !== "off"}
         >
           {active !== "off" ? (
@@ -254,7 +256,7 @@ export function AmbientSoundscape({ className }: AmbientSoundscapeProps = {}) {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-56 p-3 space-y-3" side="bottom" align="end">
-        <div className="text-xs font-medium">Ambient Sounds</div>
+        <div className="text-xs font-medium">{t.editorUI.ambientSounds}</div>
 
         {/* Soundscape buttons */}
         <div className="grid grid-cols-3 gap-1.5">
@@ -285,7 +287,7 @@ export function AmbientSoundscape({ className }: AmbientSoundscapeProps = {}) {
         {active !== "off" && (
           <div className="space-y-1">
             <div className="flex justify-between text-[10px] text-muted-foreground">
-              <span>Volume</span>
+              <span>{t.editorUI.volume}</span>
               <span>{Math.round(volume * 100)}%</span>
             </div>
             <input
@@ -296,7 +298,7 @@ export function AmbientSoundscape({ className }: AmbientSoundscapeProps = {}) {
               value={volume}
               onChange={(e) => setVolume(parseFloat(e.target.value))}
               className="w-full h-1 accent-primary"
-              aria-label="Soundscape volume"
+              aria-label={t.editorUI.soundscapeVolume}
             />
           </div>
         )}

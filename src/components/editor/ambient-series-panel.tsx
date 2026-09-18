@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import {
   LibraryIcon,
   RefreshCwIcon,
@@ -27,6 +28,7 @@ interface AmbientSeriesPanelProps {
 }
 
 export function AmbientSeriesPanel({ bookId, chapterNumber, onClose }: AmbientSeriesPanelProps) {
+  const { t } = useLanguage();
   const { data, isLoading, isError, refetch, isFetching } = useAmbientContext(
     bookId,
     chapterNumber,
@@ -49,11 +51,11 @@ export function AmbientSeriesPanel({ bookId, chapterNumber, onClose }: AmbientSe
           Series context
         </div>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="size-6" onClick={() => refetch()} disabled={isFetching} aria-label="Refresh series context">
+          <Button variant="ghost" size="icon" className="size-6" onClick={() => refetch()} disabled={isFetching} aria-label={t.editorUI.refreshSeriesContext}>
             {isFetching ? <Loader2Icon className="size-3 animate-spin" /> : <RefreshCwIcon className="size-3" />}
           </Button>
           {onClose && (
-            <Button variant="ghost" size="icon" className="size-6" onClick={onClose} aria-label="Close series context">
+            <Button variant="ghost" size="icon" className="size-6" onClick={onClose} aria-label={t.editorUI.closeSeriesContext}>
               <XIcon className="size-3" />
             </Button>
           )}
@@ -67,11 +69,11 @@ export function AmbientSeriesPanel({ bookId, chapterNumber, onClose }: AmbientSe
               <Loader2Icon className="size-3 animate-spin" /> Loading series context...
             </div>
           ) : isError ? (
-            <p className="text-xs text-muted-foreground py-6 text-center">Couldn&apos;t load series context.</p>
+            <p className="text-xs text-muted-foreground py-6 text-center">{t.editorUI.seriesContextError}</p>
           ) : graphOffline ? (
-            <p className="text-xs text-muted-foreground py-6 text-center">Series graph unavailable right now.</p>
+            <p className="text-xs text-muted-foreground py-6 text-center">{t.editorUI.seriesGraphUnavailable}</p>
           ) : notReady ? (
-            <p className="text-xs text-muted-foreground py-6 text-center">Keep writing — series context appears once this chapter&apos;s cast is detected.</p>
+            <p className="text-xs text-muted-foreground py-6 text-center">{t.editorUI.seriesContextHint}</p>
           ) : (
             <>
               {/* Characters */}
@@ -96,7 +98,7 @@ export function AmbientSeriesPanel({ bookId, chapterNumber, onClose }: AmbientSe
                     </div>
                   ))
                 ) : (
-                  <p className="text-[11px] text-muted-foreground">No prior-book characters on stage here.</p>
+                  <p className="text-[11px] text-muted-foreground">{t.editorUI.noPriorCharacters}</p>
                 )}
               </section>
 
@@ -113,7 +115,7 @@ export function AmbientSeriesPanel({ bookId, chapterNumber, onClose }: AmbientSe
                     </div>
                   ))
                 ) : (
-                  <p className="text-[11px] text-muted-foreground">No open threads touch this chapter.</p>
+                  <p className="text-[11px] text-muted-foreground">{t.editorUI.noOpenThreads}</p>
                 )}
               </section>
 
@@ -128,7 +130,7 @@ export function AmbientSeriesPanel({ bookId, chapterNumber, onClose }: AmbientSe
                       {TONE_LABELS[m.key] ?? m.key}: {m.deltaPct > 0 ? "▲" : "▼"}{Math.abs(m.deltaPct)}% vs series
                     </p>
                   ))}
-                  <p className="text-[10px] text-muted-foreground/70 italic">advisory — not a finding</p>
+                  <p className="text-[10px] text-muted-foreground/70 italic">{t.editorUI.advisoryNote}</p>
                 </section>
               )}
             </>

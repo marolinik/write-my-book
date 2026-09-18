@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import {
   useState,
   useEffect,
@@ -109,6 +110,7 @@ export function ImmersiveFocusMode({
   onFlush,
   defaultTheme = "dark",
 }: ImmersiveFocusModeProps) {
+  const { t } = useLanguage();
   const [theme, setTheme] = useState<FocusTheme>(defaultTheme);
   const [sessionWords, setSessionWords] = useState(0);
   const [startTime] = useState(Date.now());
@@ -273,7 +275,7 @@ export function ImmersiveFocusMode({
       ref={rootRef}
       role="dialog"
       aria-modal="true"
-      aria-label="Immersive focus mode"
+      aria-label={t.editorUI.immersiveFocusMode}
       aria-describedby="immersive-mode-instructions"
       onKeyDown={handleTrapKeyDown}
       className={`fixed inset-0 z-[100] ${styles.bg} ${styles.text} flex flex-col`}
@@ -337,7 +339,7 @@ export function ImmersiveFocusMode({
           contentEditable
           role="textbox"
           aria-multiline="true"
-          aria-label="Distraction-free editor"
+          aria-label={t.editorUI.distractionFree}
           className={`w-full ${EDITOR_MEASURE_CLASS} px-5 sm:px-8 pt-[35dvh] pb-[55dvh] outline-none
             font-serif text-lg leading-relaxed ${styles.caret}
             [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mb-4

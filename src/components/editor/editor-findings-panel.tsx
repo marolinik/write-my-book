@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useEffect, useMemo, useRef } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,7 @@ export function EditorFindingsPanel({
   onJumpToFinding,
   freshnessMap,
 }: EditorFindingsPanelProps) {
+  const { t } = useLanguage();
   const paneStore = getOrCreatePaneStore(paneId);
   const setScrollToText = (text: string | null) => paneStore.getState().setScrollToText(text);
 
@@ -126,7 +128,7 @@ export function EditorFindingsPanel({
       {/* Header */}
       <div className="flex items-center gap-2 px-3 py-2 border-b shrink-0">
         <PenTool className="h-3.5 w-3.5 text-muted-foreground" />
-        <span className="text-sm font-medium flex-1">Findings</span>
+        <span className="text-sm font-medium flex-1">{t.editorUI.findings}</span>
         {pendingCount > 0 && (
           <Badge variant="destructive" className="text-xs" aria-hidden="true">
             {pendingCount}
@@ -137,7 +139,7 @@ export function EditorFindingsPanel({
           size="icon"
           className="h-7 w-7 shrink-0"
           onClick={onClose}
-          aria-label="Close findings panel"
+          aria-label={t.editorUI.closeFindings}
         >
           <X className="h-4 w-4" />
         </Button>
@@ -146,7 +148,7 @@ export function EditorFindingsPanel({
       {/* Filter chips — compact version of editorial page filters */}
       <div
         role="group"
-        aria-label="Filter findings"
+        aria-label={t.editorUI.filterFindings}
         className="flex flex-wrap gap-1 px-2 py-1.5 border-b shrink-0"
       >
         {/* Severity chips */}

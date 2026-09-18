@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -85,6 +86,7 @@ interface ProseSyntaxHighlightProps {
 }
 
 export function ProseSyntaxHighlight({ text }: ProseSyntaxHighlightProps) {
+  const { t } = useLanguage();
   const [active, setActive] = useState(false);
 
   const analysis = useMemo(() => {
@@ -138,7 +140,7 @@ export function ProseSyntaxHighlight({ text }: ProseSyntaxHighlightProps) {
           </span>
           <button
             onClick={() => setActive(false)}
-            aria-label="Close prose highlights"
+            aria-label={t.editorUI.closeProseHighlights}
           >
             <XIcon className="size-3 text-muted-foreground" />
           </button>

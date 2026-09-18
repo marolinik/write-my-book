@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Editor } from "@tiptap/react";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ export function FloatingAgentInput({
   onClose,
   autoFocus = true,
 }: FloatingAgentInputProps) {
+  const { t } = useLanguage();
   const [message, setMessage] = useState("");
   const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -119,7 +121,7 @@ export function FloatingAgentInput({
     <div
       ref={containerRef}
       role="dialog"
-      aria-label="Agent quick chat"
+      aria-label={t.editorUI.agentQuickChat}
       className="absolute z-20 rounded-lg border bg-background shadow-lg p-1.5"
       style={{ top: position.top, left: position.left, width: 320 }}
     >
@@ -134,8 +136,8 @@ export function FloatingAgentInput({
               handleSend();
             }
           }}
-          placeholder="Ask about this text..."
-          aria-label="Ask the agent about the selected text"
+          placeholder={t.editorUI.askAboutText}
+          aria-label={t.editorUI.askAgentHint}
           className="flex-1 resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground/60 min-h-[28px] max-h-[80px] py-1 px-1.5"
           rows={1}
         />

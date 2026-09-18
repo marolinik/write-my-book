@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import type { ReactNode, RefObject } from "react";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 
@@ -46,6 +47,7 @@ export function FindingsSheet({
   paneRootRef,
   children,
 }: FindingsSheetProps) {
+  const { t } = useLanguage();
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
@@ -64,7 +66,7 @@ export function FindingsSheet({
         }}
       >
         {/* Radix requires a title for aria-labelledby; the panel renders its own visible header */}
-        <SheetTitle className="sr-only">Findings</SheetTitle>
+        <SheetTitle className="sr-only">{t.editorUI.findings}</SheetTitle>
         <div className="flex-1 min-h-0">{children}</div>
       </SheetContent>
     </Sheet>

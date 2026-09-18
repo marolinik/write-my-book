@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState, useCallback, useRef } from "react";
 import { SparklesIcon, Loader2Icon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ export function DescribeYourChange({
   onDismiss,
   position,
 }: DescribeYourChangeProps) {
+  const { t } = useLanguage();
   const [instruction, setInstruction] = useState("");
   const [result, setResult] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -96,7 +98,7 @@ export function DescribeYourChange({
           value={instruction}
           onChange={(e) => setInstruction(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
-          placeholder="e.g., make this more tense"
+          placeholder={t.editorUI.describeChangeExample}
           className="h-8 text-xs"
           autoFocus
           disabled={isLoading}

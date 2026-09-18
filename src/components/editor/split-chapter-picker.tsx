@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import {
   Select,
   SelectContent,
@@ -21,13 +22,14 @@ export function SplitChapterPicker({
   value,
   onChange,
 }: SplitChapterPickerProps) {
+  const { t } = useLanguage();
   const available = chapters.filter((ch) => ch.id !== excludeChapterId);
 
   return (
     <div className="border-b px-3 py-1.5 bg-muted/20">
       <Select value={value ?? ""} onValueChange={onChange}>
         <SelectTrigger className="h-7 text-xs">
-          <SelectValue placeholder="Select chapter..." />
+          <SelectValue placeholder={t.editorUI.selectChapter} />
         </SelectTrigger>
         <SelectContent>
           {available.map((ch) => (

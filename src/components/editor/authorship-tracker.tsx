@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useMemo } from "react";
 import { UserIcon, BotIcon, PieChartIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -34,6 +35,7 @@ interface AuthorshipTrackerProps {
 }
 
 export function AuthorshipTracker({ stats, compact }: AuthorshipTrackerProps) {
+  const { t } = useLanguage();
   const locale = useLocale();
   const { humanPct, aiPct, editedPct } = useMemo(() => {
     const total = stats.totalWords || 1;
@@ -94,9 +96,9 @@ export function AuthorshipTracker({ stats, compact }: AuthorshipTrackerProps) {
         <div className="h-full bg-amber-400 transition-all" style={{ width: `${editedPct}%` }} title="AI-edited" />
       </div>
       <div className="flex gap-3 text-[9px] text-muted-foreground">
-        <span className="flex items-center gap-1"><span className="size-1.5 rounded-full bg-blue-500" />Human</span>
+        <span className="flex items-center gap-1"><span className="size-1.5 rounded-full bg-blue-500" />{t.editorUI.human}</span>
         <span className="flex items-center gap-1"><span className="size-1.5 rounded-full bg-purple-400" />AI</span>
-        <span className="flex items-center gap-1"><span className="size-1.5 rounded-full bg-amber-400" />AI-edited</span>
+        <span className="flex items-center gap-1"><span className="size-1.5 rounded-full bg-amber-400" />{t.editorUI.aiEdited}</span>
       </div>
     </div>
   );

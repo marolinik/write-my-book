@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -90,6 +91,7 @@ export function AIGhostText({
   enabled,
   immersive = false,
 }: AIGhostTextProps) {
+  const { t } = useLanguage();
   const [suggestion, setSuggestion] = useState<string | null>(null);
   // D-138: the overlay carries a clamped/flipped maxWidth, not just a point —
   // at the right edge of a phone the raw caret position wraps the suggestion
@@ -705,7 +707,7 @@ export function AIGhostText({
       </button>
       <button
         type="button"
-        aria-label="Dismiss"
+        aria-label={t.editorUI.dismiss}
         onClick={() => setWallNotice(null)}
         className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:text-foreground"
       >
@@ -727,7 +729,7 @@ export function AIGhostText({
         overlay = (
           <span
             role="button"
-            aria-label="Accept suggestion"
+            aria-label={t.editorUI.acceptSuggestion}
             tabIndex={-1}
             onPointerDown={handleOverlayPointerDown}
             onPointerMove={handleOverlayPointerMove}
@@ -785,7 +787,7 @@ export function AIGhostText({
       overlay = (
         <span
           role="status"
-          aria-label="Generating suggestion"
+          aria-label={t.editorUI.generatingSuggestion}
           className="pointer-events-none fixed z-50 animate-pulse font-serif text-lg text-muted-foreground/40 select-none"
           style={{ top: position.top, left: position.left }}
         >
