@@ -515,6 +515,9 @@ export interface UIStrings {
     noPastSessions: string;
     review: string;
     writingAgent: string;
+    /** Running-session stats bar. Both carry {n}. */
+    stepN: string;
+    turnN: string;
     selectBook: string;
     refreshList: string;
     providerName: string;
@@ -1403,6 +1406,8 @@ const EN: UIStrings = {
     noPastSessions: "No past sessions",
     review: "Review",
     writingAgent: "Writing agent",
+    stepN: "Step {n}",
+    turnN: "Turn {n}/50",
     selectBook: "Select a book...",
     refreshList: "Refresh the list",
     providerName: "Name",
@@ -2323,6 +2328,8 @@ const SR: UIStrings = {
     noPastSessions: "Nema ranijih sesija",
     review: "Pregled",
     writingAgent: "Agent za pisanje",
+    stepN: "Korak {n}",
+    turnN: "Potez {n}/50",
     selectBook: "Izaberite knjigu...",
     refreshList: "Osveži listu",
     providerName: "Naziv",
@@ -3242,6 +3249,8 @@ const DE: UIStrings = {
     noPastSessions: "Keine früheren Sitzungen",
     review: "Ansehen",
     writingAgent: "Schreibagent",
+    stepN: "Schritt {n}",
+    turnN: "Zug {n}/50",
     selectBook: "Buch wählen...",
     refreshList: "Liste aktualisieren",
     providerName: "Name",
@@ -4161,6 +4170,8 @@ const ES: UIStrings = {
     noPastSessions: "No hay sesiones anteriores",
     review: "Revisar",
     writingAgent: "Agente de escritura",
+    stepN: "Paso {n}",
+    turnN: "Turno {n}/50",
     selectBook: "Elegir libro...",
     refreshList: "Actualizar la lista",
     providerName: "Nombre",
@@ -5080,6 +5091,8 @@ const FR: UIStrings = {
     noPastSessions: "Aucune session passée",
     review: "Consulter",
     writingAgent: "Agent d'écriture",
+    stepN: "Étape {n}",
+    turnN: "Tour {n}/50",
     selectBook: "Choisir un livre...",
     refreshList: "Actualiser la liste",
     providerName: "Nom",
@@ -5999,6 +6012,8 @@ const RU: UIStrings = {
     noPastSessions: "Прошлых сессий нет",
     review: "Посмотреть",
     writingAgent: "Пишущий агент",
+    stepN: "Шаг {n}",
+    turnN: "Ход {n}/50",
     selectBook: "Выберите книгу...",
     refreshList: "Обновить список",
     providerName: "Название",
@@ -6918,6 +6933,8 @@ const ZH: UIStrings = {
     noPastSessions: "没有历史会话",
     review: "查看",
     writingAgent: "写作代理",
+    stepN: "第 {n} 步",
+    turnN: "第 {n}/50 轮",
     selectBook: "选择书籍...",
     refreshList: "刷新列表",
     providerName: "名称",

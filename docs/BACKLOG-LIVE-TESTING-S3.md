@@ -16,6 +16,7 @@ Status legend: **DONE** (fixed + verified), **OPEN**, **PARTIAL**.
 | S3-6 | Undo threw on a unique constraint; two paths destroyed prose | **DONE** |
 | S3-7 | Board showed "done" when nothing was adopted; panel was all dead cards | **DONE** |
 | S3-8 | A proposal travelled by chapter number, so accepting one broke the others | **DONE** |
+| S3-9 | Agent panel header overflowed on a long step label | **DONE** |
 
 ---
 
@@ -283,3 +284,31 @@ contract; the prose belongs in the dictionary. Seven failure reasons are now
 translated in all seven languages, and each says what to do rather than what
 went wrong — "Poglavlje za koje je potez napisan više ne postoji. Pokrenite
 prolaz ponovo."
+
+## S3-9 — the agent panel header broke on a long step label (DONE)
+
+The running-step badge ("Delegiranje: Analitičar rukopisa") rode over the panel
+title and ran off the right edge, and "Agent za pisanje" wrapped onto two lines.
+
+Two causes, both in the header row:
+
+- `Badge` carries `shrink-0 whitespace-nowrap` by default, so it never gave way;
+  it pushed the row wider than the panel instead. It now gets `min-w-0 shrink`.
+- `truncate` had been applied to the badge itself, which does nothing: ellipsis
+  needs a block-level box, and a badge is `inline-flex`. The label now sits in
+  its own `<span className="truncate">`.
+
+The title was the visible casualty — it was the only thing in the row allowed to
+shrink, so it absorbed the overflow and wrapped. It is `shrink-0` now, and the
+action buttons are too.
+
+Same trip: the stats bar under the header said "Step 6:" and "Turn 12/50" in
+English. Both are in the dictionary now, in all seven languages.
+
+**Test note.** The proposal-dedup tests from S3-5 were moved out of
+`no-duplicates.test.ts` into `structure-propose-tool.test.ts`. They had built a
+second, thinner harness for the same tool: a dynamic `import()` inside the test
+and a `ctx` missing `agentType` and `documentService`. Under full-suite load
+that occasionally sent `executeTool` into its retry path and the assertion saw
+no write — a flaky test guarding a real defect, which is worse than no test. The
+storage-key half stays where it is; it needs its own storage mock.

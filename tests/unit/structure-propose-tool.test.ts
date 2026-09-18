@@ -159,3 +159,47 @@ describe("ProposeStructureMove", () => {
     expect(def.input_schema.required).toContain("reason");
   });
 });
+
+describe("ProposeStructureMove — the same move is never filed twice", () => {
+  /**
+   * S3-5: running `restructure` twice filed every move again, and accepting
+   * both applied it twice — the second time against whatever had shifted into
+   * the numbers the first one vacated. That swallowed a chapter the editor had
+   * explicitly declined to touch, on the owner's real manuscript.
+   */
+  beforeEach(() => {
+    h.db.chapter.findMany.mockResolvedValue(chapters);
+    h.db.structureMove.create.mockResolvedValue({ id: "m-new" });
+  });
+
+  const merge = {
+    kind: "merge",
+    chapterNumbers: [2, 3],
+    reason: "Oba su ispod pola medijane i pokrivaju jednu scenu.",
+  };
+
+  it("files a move the book has not seen", async () => {
+    h.db.structureMove.findFirst.mockResolvedValue(null);
+
+    const out = await executeTool("ProposeStructureMove", ctx as never, merge);
+    expect(h.db.structureMove.create).toHaveBeenCalledTimes(1);
+    expect(out).toContain("m-new");
+  });
+
+  it("refuses an identical move that is still waiting for a decision", async () => {
+    h.db.structureMove.findFirst.mockResolvedValue({ id: "m-old", status: "pending" });
+
+    const out = await executeTool("ProposeStructureMove", ctx as never, merge);
+    expect(h.db.structureMove.create).not.toHaveBeenCalled();
+    expect(out).toMatch(/already/i);
+    expect(out).toContain("m-old");
+  });
+
+  it("refuses an identical move the writer has already applied", async () => {
+    h.db.structureMove.findFirst.mockResolvedValue({ id: "m-old", status: "applied" });
+
+    const out = await executeTool("ProposeStructureMove", ctx as never, merge);
+    expect(h.db.structureMove.create).not.toHaveBeenCalled();
+    expect(out).toMatch(/already/i);
+  });
+});

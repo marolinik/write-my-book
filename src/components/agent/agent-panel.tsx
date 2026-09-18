@@ -440,14 +440,27 @@ export function AgentPanel({
   return (
     <div className="flex h-full w-full min-w-[280px] flex-col border-l bg-muted/30 min-h-0 overflow-hidden">
       {/* Header */}
-      <div className="flex h-12 items-center gap-2 border-b px-4">
-        <BotIcon className="size-4 text-muted-foreground" />
-        <span className="text-sm font-medium">{strings.writingAgent}</span>
+      <div className="flex h-12 min-w-0 items-center gap-2 border-b px-4">
+        <BotIcon className="size-4 shrink-0 text-muted-foreground" />
+        <span className="shrink-0 whitespace-nowrap text-sm font-medium">
+          {strings.writingAgent}
+        </span>
 
         {isRunning && (
-          <Badge variant="secondary" className="ml-1 gap-1 text-xs max-w-[180px] truncate">
-            <Loader2Icon className="size-3 animate-spin shrink-0" />
-            {currentStepLabel ?? agentDef?.name ?? strings.running}
+          // Badge is shrink-0 whitespace-nowrap by default, so a long step
+          // label ("Delegiranje: Analitičar rukopisa") pushed the row wider
+          // than the panel and rode over the title. It has to be allowed to
+          // shrink, and the TEXT has to truncate — `truncate` on the badge
+          // itself does nothing, because ellipsis needs a block-level box.
+          <Badge
+            variant="secondary"
+            className="ml-1 min-w-0 shrink gap-1 text-xs"
+            title={currentStepLabel ?? undefined}
+          >
+            <Loader2Icon className="size-3 shrink-0 animate-spin" />
+            <span className="truncate">
+              {currentStepLabel ?? agentDef?.name ?? strings.running}
+            </span>
           </Badge>
         )}
 
@@ -457,7 +470,7 @@ export function AgentPanel({
           </Badge>
         )}
 
-        <div className="ml-auto flex items-center gap-1">
+        <div className="ml-auto flex shrink-0 items-center gap-1">
           {/* Session history toggle */}
           {!isRunning && (
             <Button
@@ -517,16 +530,19 @@ export function AgentPanel({
 
       {/* Running session stats bar */}
       {isRunning && (
-        <div className="flex items-center gap-3 border-b px-4 py-1.5 text-[11px] text-muted-foreground bg-muted/20">
+        <div className="flex min-w-0 items-center gap-3 border-b px-4 py-1.5 text-[11px] text-muted-foreground bg-muted/20">
           {currentStepLabel ? (
-            <span className="flex items-center gap-1 truncate max-w-[200px]" title={currentStepLabel}>
-              <HashIcon className="size-3" />
-              Step {turnCount}: {currentStepLabel}
+            <span className="flex min-w-0 items-center gap-1" title={currentStepLabel}>
+              <HashIcon className="size-3 shrink-0" />
+              <span className="truncate">
+                {t.workspaceUI.stepN.replace("{n}", String(turnCount))}:{" "}
+                {currentStepLabel}
+              </span>
             </span>
           ) : (
             <span className="flex items-center gap-1">
-              <HashIcon className="size-3" />
-              Turn {turnCount}/50
+              <HashIcon className="size-3 shrink-0" />
+              {t.workspaceUI.turnN.replace("{n}", String(turnCount))}
             </span>
           )}
           {sessionTokens.total > 0 && (
