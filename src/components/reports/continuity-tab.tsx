@@ -25,6 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
 import { useLanguage } from "@/components/providers/language-provider";
+import { useReportDocument } from "./use-report-document";
 import { useBook } from "@/hooks/use-books";
 
 type DomainLabelKey =
@@ -144,9 +145,13 @@ export function ContinuityTab({ bookId }: { bookId: string }) {
   const docs = Array.isArray(documents)
     ? documents
     : (documents?.documents ?? []);
-  const continuityReport = docs.find(
-    (d: Record<string, unknown>) => d.type === "CONTINUITY_REPORT"
-  );
+  // Same defect as the market tab: the list carries metadata, the prose needs
+  // its own request (S3-10).
+  const {
+    document: continuityReport,
+    content: reportContent,
+    isEmpty: reportLost,
+  } = useReportDocument(bookId, "CONTINUITY_REPORT");
   const findingsList: Finding[] =
     findings?.findings ?? (Array.isArray(findings) ? findings : []);
 
@@ -285,9 +290,7 @@ export function ContinuityTab({ bookId }: { bookId: string }) {
           </CardHeader>
           <CardContent>
             <div className="prose prose-sm max-w-none dark:prose-invert whitespace-pre-wrap">
-              {continuityReport.rawContent ??
-                continuityReport.content ??
-                "No content available."}
+              {reportLost ? t.reportTabs.reportLost : reportContent}
             </div>
           </CardContent>
         </Card>

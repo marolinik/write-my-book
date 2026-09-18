@@ -86,3 +86,33 @@ describe("a new document never takes a key another document holds", () => {
     expect(h.storage.write.mock.calls[0][0]).toBe("manuscript/act-1/chapter-25-3.md");
   });
 });
+
+describe("a chapter-scoped report does not use the book-level key", () => {
+  /**
+   * S3-10: CONTINUITY_REPORT is written per chapter, but getStoragePath ignored
+   * the chapter and handed every one of them `.planning/CONTINUITY-REPORT.md`.
+   * Two reports meant one file; deleting the chapter that owned the second took
+   * the first one's prose with it, and the tab rendered an empty report for a
+   * pass that had run.
+   */
+  it("puts the chapter in the key when the report belongs to one", async () => {
+    const { getStoragePath } = await import("@/lib/documents/storage-keys");
+    const { DocumentType } = await import("@/generated/prisma/enums");
+
+    const ch1 = getStoragePath(DocumentType.CONTINUITY_REPORT, 1);
+    const ch31 = getStoragePath(DocumentType.CONTINUITY_REPORT, 31);
+
+    expect(ch1).not.toBe(ch31);
+    expect(ch1).toContain("01");
+    expect(ch31).toContain("31");
+  });
+
+  it("keeps the book-level key for a book-level continuity report", async () => {
+    const { getStoragePath } = await import("@/lib/documents/storage-keys");
+    const { DocumentType } = await import("@/generated/prisma/enums");
+
+    expect(getStoragePath(DocumentType.CONTINUITY_REPORT)).toBe(
+      ".planning/CONTINUITY-REPORT.md"
+    );
+  });
+});

@@ -706,6 +706,19 @@ export interface UIStrings {
     errBookChanged: string;
   };
 
+  // S3-10: the reports tabs. Each one states what the pass measured and, once
+  // it has run, what the writer can do with the answer.
+  reportTabs: {
+    marketSubtitle: string;
+    marketRun: string;
+    marketBy: string;
+    marketEmpty: string;
+    continuitySubtitle: string;
+    continuityBy: string;
+    reportLost: string;
+    nextStep: string;
+  };
+
   stylePage: {
     title: string; subtitle: string;
     refreshStyle: string; evolveStyle: string;
@@ -1608,6 +1621,17 @@ const EN: UIStrings = {
     errNotAdjacent: "Those chapters are no longer next to each other.",
     errBookChanged: "The book changed since this was proposed. Run the pass again.",
     applyError: "The move could not be applied", undoError: "The move could not be undone",
+  },
+
+  reportTabs: {
+    marketSubtitle: "Genre positioning and cultural profile across five markets",
+    marketRun: "Run market analysis",
+    marketBy: "Written by the market analyst",
+    marketEmpty: "No market report yet. Run the analysis to get one.",
+    continuitySubtitle: "Contradictions in names, dates, places and relationships",
+    continuityBy: "Written by the continuity checker",
+    reportLost: "This report's text is missing from storage. Run the pass again to rebuild it.",
+    nextStep: "What now",
   },
 
   stylePage: {
@@ -2532,6 +2556,17 @@ const SR: UIStrings = {
     applyError: "Potez nije mogao da se primeni", undoError: "Potez nije mogao da se poništi",
   },
 
+  reportTabs: {
+    marketSubtitle: "Pozicioniranje žanra i kulturni profil na pet tržišta",
+    marketRun: "Pokreni analizu tržišta",
+    marketBy: "Napisao analitičar tržišta",
+    marketEmpty: "Još nema tržišnog izveštaja. Pokrenite analizu da ga dobijete.",
+    continuitySubtitle: "Protivrečnosti u imenima, datumima, mestima i odnosima",
+    continuityBy: "Napisao proveravаč kontinuiteta",
+    reportLost: "Tekst ovog izveštaja nedostaje u skladištu. Pokrenite prolaz ponovo da se napravi.",
+    nextStep: "Šta sad",
+  },
+
   stylePage: {
     title: "Stil pisanja", subtitle: "Vaš jedinstveni otisak glasa i analiza stila",
     refreshStyle: "Osveži stil", evolveStyle: "Razvij stil",
@@ -3451,6 +3486,17 @@ const DE: UIStrings = {
     errNotAdjacent: "Diese Kapitel stehen nicht mehr nebeneinander.",
     errBookChanged: "Das Buch hat sich seit dem Vorschlag geändert. Lauf erneut starten.",
     applyError: "Der Schritt konnte nicht angewendet werden", undoError: "Der Schritt konnte nicht rückgängig gemacht werden",
+  },
+
+  reportTabs: {
+    marketSubtitle: "Genre-Positionierung und Kulturprofil in fünf Märkten",
+    marketRun: "Marktanalyse starten",
+    marketBy: "Vom Marktanalysten verfasst",
+    marketEmpty: "Noch kein Marktbericht. Starten Sie die Analyse.",
+    continuitySubtitle: "Widersprüche bei Namen, Daten, Orten und Beziehungen",
+    continuityBy: "Von der Kontinuitätsprüfung verfasst",
+    reportLost: "Der Text dieses Berichts fehlt im Speicher. Lauf erneut starten.",
+    nextStep: "Was nun",
   },
 
   stylePage: {
@@ -4374,6 +4420,17 @@ const ES: UIStrings = {
     applyError: "No se pudo aplicar el movimiento", undoError: "No se pudo deshacer el movimiento",
   },
 
+  reportTabs: {
+    marketSubtitle: "Posicionamiento de género y perfil cultural en cinco mercados",
+    marketRun: "Ejecutar análisis de mercado",
+    marketBy: "Escrito por el analista de mercado",
+    marketEmpty: "Aún no hay informe de mercado. Ejecuta el análisis.",
+    continuitySubtitle: "Contradicciones en nombres, fechas, lugares y relaciones",
+    continuityBy: "Escrito por el verificador de continuidad",
+    reportLost: "Falta el texto de este informe. Ejecuta el paso de nuevo.",
+    nextStep: "Y ahora",
+  },
+
   stylePage: {
     title: "Estilo de escritura", subtitle: "Su huella de voz única y análisis de estilo",
     refreshStyle: "Actualizar estilo", evolveStyle: "Evolucionar estilo",
@@ -5293,6 +5350,17 @@ const FR: UIStrings = {
     errNotAdjacent: "Ces chapitres ne se suivent plus.",
     errBookChanged: "Le livre a changé depuis cette proposition. Relancez la passe.",
     applyError: "Le geste n'a pas pu être appliqué", undoError: "Le geste n'a pas pu être annulé",
+  },
+
+  reportTabs: {
+    marketSubtitle: "Positionnement du genre et profil culturel sur cinq marchés",
+    marketRun: "Lancer l'analyse de marché",
+    marketBy: "Rédigé par l'analyste de marché",
+    marketEmpty: "Pas encore de rapport de marché. Lancez l'analyse.",
+    continuitySubtitle: "Contradictions de noms, de dates, de lieux et de relations",
+    continuityBy: "Rédigé par le vérificateur de continuité",
+    reportLost: "Le texte de ce rapport manque. Relancez la passe.",
+    nextStep: "Et maintenant",
   },
 
   stylePage: {
@@ -6216,6 +6284,17 @@ const RU: UIStrings = {
     applyError: "Шаг не удалось применить", undoError: "Шаг не удалось отменить",
   },
 
+  reportTabs: {
+    marketSubtitle: "Позиционирование жанра и культурный профиль на пяти рынках",
+    marketRun: "Запустить анализ рынка",
+    marketBy: "Написал аналитик рынка",
+    marketEmpty: "Отчёта по рынку ещё нет. Запустите анализ.",
+    continuitySubtitle: "Противоречия в именах, датах, местах и отношениях",
+    continuityBy: "Написал проверяющий непрерывность",
+    reportLost: "Текст отчёта отсутствует в хранилище. Запустите проход заново.",
+    nextStep: "Что дальше",
+  },
+
   stylePage: {
     title: "Стиль письма", subtitle: "Ваш уникальный отпечаток голоса и анализ стиля",
     refreshStyle: "Обновить стиль", evolveStyle: "Развить стиль",
@@ -7135,6 +7214,17 @@ const ZH: UIStrings = {
     errNotAdjacent: "这些章节已不再相邻。",
     errBookChanged: "自提议以来本书已更改。请重新运行此流程。",
     applyError: "调整未能应用", undoError: "调整未能撤销",
+  },
+
+  reportTabs: {
+    marketSubtitle: "五个市场的类型定位与文化画像",
+    marketRun: "运行市场分析",
+    marketBy: "由市场分析师撰写",
+    marketEmpty: "尚无市场报告。请运行分析。",
+    continuitySubtitle: "姓名、日期、地点与关系上的矛盾",
+    continuityBy: "由连续性检查员撰写",
+    reportLost: "该报告的正文在存储中缺失。请重新运行此流程。",
+    nextStep: "接下来",
   },
 
   stylePage: {

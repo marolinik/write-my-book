@@ -50,7 +50,12 @@ export function getStoragePath(
 
     // Book-level reports
     case DocumentType.CONTINUITY_REPORT:
-      return ".planning/CONTINUITY-REPORT.md";
+      // Written per chapter as well as per book. Without the chapter in the
+      // key every per-chapter report shared one file, so deleting the chapter
+      // that owned one took another's prose with it (S3-10).
+      return chapterNumber
+        ? `.planning/chapters/chapter-${chPad}-CONTINUITY.md`
+        : ".planning/CONTINUITY-REPORT.md";
     case DocumentType.ANALYSIS_REPORT:
       return ".planning/ANALYSIS-REPORT.md";
     case DocumentType.STRUCTURE_PROPOSAL:
