@@ -88,6 +88,8 @@ interface AgentUIState {
   panelMode: PanelMode;
   pendingWorkflowId: string | null;
   pendingWorkflowMessage: string | null;
+  /** Chapter the pending workflow was launched for, if the caller named one. */
+  pendingWorkflowChapter: number | null;
   pendingMessage: { bookId: string; message: string } | null;
   unreadCount: number;
   pageContext: PageContext | null;
@@ -97,7 +99,12 @@ interface AgentUIState {
   setPanelMode: (mode: PanelMode) => void;
   /** Adjust panel mode when route changes (Issue 1: Context-Awareness) */
   adjustForRoute: (pathname: string) => void;
-  openWithWorkflow: (workflowId: string, initialMessage?: string) => void;
+  /** `chapterNumber` pins the run to one chapter; without it the agent picks. */
+  openWithWorkflow: (
+    workflowId: string,
+    initialMessage?: string,
+    chapterNumber?: number
+  ) => void;
   openWithMessage: (bookId: string, message: string) => void;
   clearPendingWorkflow: () => void;
   clearPendingMessage: () => void;
@@ -116,6 +123,7 @@ export const useAgentUIStore = create<AgentUIState>((set, get) => ({
   panelMode: "bubble" as PanelMode,
   pendingWorkflowId: null,
   pendingWorkflowMessage: null,
+  pendingWorkflowChapter: null,
   pendingMessage: null,
   unreadCount: 0,
   pageContext: null,
@@ -159,7 +167,7 @@ export const useAgentUIStore = create<AgentUIState>((set, get) => ({
     }
   },
 
-  openWithWorkflow: (workflowId, initialMessage) => {
+  openWithWorkflow: (workflowId, initialMessage, chapterNumber) => {
     try {
       localStorage.setItem("wmb-agent-panel", "overlay");
     } catch {
@@ -168,6 +176,7 @@ export const useAgentUIStore = create<AgentUIState>((set, get) => ({
     set({
       pendingWorkflowId: workflowId,
       pendingWorkflowMessage: initialMessage ?? null,
+      pendingWorkflowChapter: chapterNumber ?? null,
       panelMode: "overlay" as PanelMode,
     });
   },
@@ -184,7 +193,12 @@ export const useAgentUIStore = create<AgentUIState>((set, get) => ({
     });
   },
 
-  clearPendingWorkflow: () => set({ pendingWorkflowId: null, pendingWorkflowMessage: null }),
+  clearPendingWorkflow: () =>
+    set({
+      pendingWorkflowId: null,
+      pendingWorkflowMessage: null,
+      pendingWorkflowChapter: null,
+    }),
 
   clearPendingMessage: () => set({ pendingMessage: null }),
 

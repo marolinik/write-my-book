@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { useEditorialStore } from "@/stores/editorial-store";
 import { useEditorialSummary } from "@/hooks/use-editorial";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
+import { useState } from "react";
 import { ChapterSelector } from "./chapter-selector";
 import { BatchEditorialDialog } from "./batch-editorial-dialog";
 import { FindingsFilters } from "./findings-filters";
@@ -42,6 +43,19 @@ export function EditorialPage({ bookId, chapters }: EditorialPageProps) {
   };
   const { data: summary } = useEditorialSummary(bookId);
   const openWithWorkflow = useAgentUIStore((s) => s.openWithWorkflow);
+  const selectedChapter = useEditorialStore((s) => s.selectedChapter);
+
+  // "All chapters" is a whole-book job, and the whole-book job is the batch
+  // run. Pressing a single-pass button with "all" selected used to run ONE
+  // chapter and stop, which is not what the selector said (S3-14).
+  const [batchPasses, setBatchPasses] = useState<string[] | null>(null);
+  const runPass = (workflowId: string) => {
+    if (selectedChapter === null) {
+      setBatchPasses([workflowId]);
+      return;
+    }
+    openWithWorkflow(workflowId, undefined, selectedChapter);
+  };
 
   const pendingCount = summary?.pending ?? 0;
   const totalFindings = summary?.total ?? 0;
@@ -57,15 +71,17 @@ export function EditorialPage({ bookId, chapters }: EditorialPageProps) {
       {/* Header */}
       <div className="space-y-3 border-b px-4 sm:px-6 py-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
-          <div className="flex items-center gap-3 min-w-0">
-            <h1 className="text-lg font-semibold shrink-0">{t.editorial.title}</h1>
-            <ChapterSelector chapters={chapters} />
+          <div className="flex min-w-0 items-center gap-3">
+            <h1 className="shrink-0 text-lg font-semibold">{t.editorial.title}</h1>
+            <div className="min-w-0 flex-1">
+              <ChapterSelector chapters={chapters} />
+            </div>
           </div>
           <div className="flex flex-wrap gap-2 lg:ml-auto">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => openWithWorkflow("dev-edit")}
+              onClick={() => runPass("dev-edit")}
             >
               <PenLineIcon className="mr-1.5 size-3.5" />
               {t.editorial.runDevEdit}
@@ -73,7 +89,7 @@ export function EditorialPage({ bookId, chapters }: EditorialPageProps) {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => openWithWorkflow("line-edit")}
+              onClick={() => runPass("line-edit")}
             >
               <SparklesIcon className="mr-1.5 size-3.5" />
               {t.editorial.runLineEdit}
@@ -81,7 +97,7 @@ export function EditorialPage({ bookId, chapters }: EditorialPageProps) {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => openWithWorkflow("beta-read")}
+              onClick={() => runPass("beta-read")}
             >
               <ShieldCheckIcon className="mr-1.5 size-3.5" />
               {t.editorial.runBetaRead}
@@ -90,6 +106,17 @@ export function EditorialPage({ bookId, chapters }: EditorialPageProps) {
               <BatchEditorialDialog
                 bookId={bookId}
                 chapterNumbers={chapters.map((c) => c.chapterNumber)}
+              />
+            )}
+            {/* Opened by a single-pass button while "all chapters" is selected. */}
+            {chapters.length > 0 && batchPasses && (
+              <BatchEditorialDialog
+                bookId={bookId}
+                chapterNumbers={chapters.map((c) => c.chapterNumber)}
+                open
+                onOpenChange={(v) => !v && setBatchPasses(null)}
+                initialPasses={batchPasses}
+                hideTrigger
               />
             )}
           </div>

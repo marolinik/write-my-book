@@ -80,6 +80,7 @@ export function AgentPanel({
   const activeSessionId = useAgentSessionStore((s) => s.activeSessionId);
   const pendingWorkflowId = useAgentUIStore((s) => s.pendingWorkflowId);
   const pendingWorkflowMessage = useAgentUIStore((s) => s.pendingWorkflowMessage);
+  const pendingWorkflowChapter = useAgentUIStore((s) => s.pendingWorkflowChapter);
   const pendingMessage = useAgentUIStore((s) => s.pendingMessage);
   const clearPendingMessage = useAgentUIStore((s) => s.clearPendingMessage);
   const startSessionStore = useAgentSessionStore((s) => s.startSession);
@@ -363,7 +364,13 @@ export function AgentPanel({
 
   useEffect(() => {
     if (pendingWorkflowId && noRunning && hasApiKey) {
-      handleWorkflowSelectRef.current(pendingWorkflowId, undefined, pendingWorkflowMessage ?? undefined);
+      // The caller may pin the run to a chapter — the editorial header does,
+      // from its chapter selector (S3-14).
+      handleWorkflowSelectRef.current(
+        pendingWorkflowId,
+        pendingWorkflowChapter ?? undefined,
+        pendingWorkflowMessage ?? undefined
+      );
       clearPendingWorkflow();
     } else if (pendingWorkflowId && noRunning && !hasApiKey) {
       toast.error("API key required", {

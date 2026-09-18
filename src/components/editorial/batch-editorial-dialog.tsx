@@ -90,6 +90,17 @@ interface BatchStatusResponse {
 interface BatchEditorialDialogProps {
   bookId: string;
   chapterNumbers: number[];
+  /**
+   * Opened from outside — the editorial header does this when the writer has
+   * "all chapters" selected and presses a single-pass button. Running one
+   * chapter and calling it done was the old behaviour (S3-14).
+   */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  /** Pre-tick the pass the writer actually asked for. */
+  initialPasses?: string[];
+  /** Hide the dialog's own trigger when the caller supplies the button. */
+  hideTrigger?: boolean;
 }
 
 /**
@@ -98,13 +109,27 @@ interface BatchEditorialDialogProps {
  * v1 worker concurrency is 2, so passes serialize ~2-at-a-time — the copy says
  * so honestly, and the cap is an ESTIMATE, not billed actuals.
  */
-export function BatchEditorialDialog({ bookId, chapterNumbers }: BatchEditorialDialogProps) {
+export function BatchEditorialDialog({
+  bookId,
+  chapterNumbers,
+  open: controlledOpen,
+  onOpenChange,
+  initialPasses,
+  hideTrigger,
+}: BatchEditorialDialogProps) {
   const { t } = useLanguage();
   const minChapter = chapterNumbers.length ? chapterNumbers[0] : 1;
   const maxChapter = chapterNumbers.length ? chapterNumbers[chapterNumbers.length - 1] : 1;
 
-  const [open, setOpen] = useState(false);
-  const [passes, setPasses] = useState<Set<string>>(new Set(["dev-edit"]));
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const open = controlledOpen ?? uncontrolledOpen;
+  const setOpen = (next: boolean) => {
+    setUncontrolledOpen(next);
+    onOpenChange?.(next);
+  };
+  const [passes, setPasses] = useState<Set<string>>(
+    new Set(initialPasses ?? ["dev-edit"])
+  );
   const [start, setStart] = useState(minChapter);
   const [end, setEnd] = useState(maxChapter);
   // The cap is held as the RAW string the writer typed (D-125): a number state
@@ -257,12 +282,14 @@ export function BatchEditorialDialog({ bookId, chapterNumbers }: BatchEditorialD
         if (!v) reset();
       }}
     >
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <CalendarClockIcon className="mr-1.5 size-3.5" />
-          Batch editorial
-        </Button>
-      </DialogTrigger>
+      {!hideTrigger && (
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm">
+            <CalendarClockIcon className="mr-1.5 size-3.5" />
+            {t.bookUI.batchEditorial}
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-md">
         {!batchId ? (
           <>

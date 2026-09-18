@@ -470,6 +470,8 @@ export interface UIStrings {
     editsReviewed: string;
     generateKit: string;
     // S3-12: the editor's selection menu — the writer's most-used surface.
+    batchEditorial: string;
+    allChaptersHint: string;
     typeMessage: string;
     runsInBackground: string;
     ctxExpand: string; ctxTighten: string; ctxPov: string;
@@ -1387,6 +1389,8 @@ const EN: UIStrings = {
     aiSessions: "AI sessions",
     editsReviewed: "edits reviewed",
     generateKit: "Generate your marketing kit",
+    batchEditorial: "Batch editorial",
+    allChaptersHint: "All chapters selected — this opens the batch run.",
     typeMessage: "Type a message...",
     runsInBackground: "Background",
     ctxExpand: "Expand this passage",
@@ -2337,6 +2341,8 @@ const SR: UIStrings = {
     aiSessions: "AI sesije",
     editsReviewed: "pregledanih izmena",
     generateKit: "Napravi marketinški komplet",
+    batchEditorial: "Grupna redakcija",
+    allChaptersHint: "Izabrana su sva poglavlja — ovo otvara grupni prolaz.",
     typeMessage: "Napišite poruku...",
     runsInBackground: "U pozadini",
     ctxExpand: "Razvij ovaj odlomak",
@@ -3286,6 +3292,8 @@ const DE: UIStrings = {
     aiSessions: "KI-Sitzungen",
     editsReviewed: "geprüfte Änderungen",
     generateKit: "Marketing-Kit erzeugen",
+    batchEditorial: "Stapel-Lektorat",
+    allChaptersHint: "Alle Kapitel gewählt — das öffnet den Stapellauf.",
     typeMessage: "Nachricht schreiben...",
     runsInBackground: "Im Hintergrund",
     ctxExpand: "Diese Passage ausbauen",
@@ -4235,6 +4243,8 @@ const ES: UIStrings = {
     aiSessions: "Sesiones de IA",
     editsReviewed: "ediciones revisadas",
     generateKit: "Genera tu kit de marketing",
+    batchEditorial: "Edición por lotes",
+    allChaptersHint: "Todos los capítulos seleccionados: esto abre la ejecución por lotes.",
     typeMessage: "Escribe un mensaje...",
     runsInBackground: "En segundo plano",
     ctxExpand: "Ampliar este pasaje",
@@ -5184,6 +5194,8 @@ const FR: UIStrings = {
     aiSessions: "Sessions IA",
     editsReviewed: "modifications examinées",
     generateKit: "Générer votre kit marketing",
+    batchEditorial: "Révision par lots",
+    allChaptersHint: "Tous les chapitres sélectionnés — ceci ouvre l'exécution par lots.",
     typeMessage: "Écrivez un message...",
     runsInBackground: "En arrière-plan",
     ctxExpand: "Développer ce passage",
@@ -6133,6 +6145,8 @@ const RU: UIStrings = {
     aiSessions: "Сессии ИИ",
     editsReviewed: "просмотренных правок",
     generateKit: "Создать маркетинговый набор",
+    batchEditorial: "Пакетная редактура",
+    allChaptersHint: "Выбраны все главы — откроется пакетный запуск.",
     typeMessage: "Напишите сообщение...",
     runsInBackground: "Фоново",
     ctxExpand: "Расширить этот фрагмент",
@@ -7082,6 +7096,8 @@ const ZH: UIStrings = {
     aiSessions: "AI 会话",
     editsReviewed: "已审阅的修改",
     generateKit: "生成营销素材包",
+    batchEditorial: "批量编辑",
+    allChaptersHint: "已选择全部章节 — 将打开批量运行。",
     typeMessage: "输入消息…",
     runsInBackground: "后台",
     ctxExpand: "扩写这段",
