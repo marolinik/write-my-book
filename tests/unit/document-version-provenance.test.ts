@@ -34,7 +34,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 const h = vi.hoisted(() => ({
   db: {
-    document: { create: vi.fn(), findFirst: vi.fn(), updateMany: vi.fn() },
+    document: { create: vi.fn(), findFirst: vi.fn(), updateMany: vi.fn(), count: vi.fn() },
     documentVersion: { create: vi.fn() },
   },
   storage: { write: vi.fn(), read: vi.fn(), delete: vi.fn() },
@@ -89,6 +89,8 @@ function versionedChangeType(): string | undefined {
 beforeEach(() => {
   vi.clearAllMocks();
   h.db.document.create.mockResolvedValue({ id: "doc1" });
+  // No other document holds the canonical key (see no-duplicates.test.ts).
+  h.db.document.count.mockResolvedValue(0);
   h.db.documentVersion.create.mockResolvedValue({ id: "v1", version: 1 });
   h.db.document.findFirst.mockResolvedValue({
     id: "doc1",

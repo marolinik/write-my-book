@@ -1,6 +1,7 @@
 "use client";
 
 import { use } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -16,12 +17,32 @@ import {
 } from "@/components/reports";
 import { SparklesIcon } from "lucide-react";
 
+/**
+ * The tabs are addressable so a link can land on one. Without this, "Review
+ * proposals" on the Razvoj board dropped the writer on Analytics and left him
+ * hunting for the structure panel (S3-4).
+ */
+const TABS = [
+  "analytics",
+  "continuity",
+  "structure",
+  "market",
+  "edits",
+  "documents",
+] as const;
+
 export default function ReportsPage({
   params,
 }: {
   params: Promise<{ bookId: string }>;
 }) {
   const { bookId } = use(params);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const requested = searchParams.get("tab");
+  const activeTab = TABS.includes(requested as (typeof TABS)[number])
+    ? (requested as string)
+    : "analytics";
   const { t } = useLanguage();
   const s = t.reports;
   const openWithWorkflow = useAgentUIStore((st) => st.openWithWorkflow);
@@ -51,7 +72,13 @@ export default function ReportsPage({
 
       <Separator className="my-6" />
 
-      <Tabs defaultValue="analytics">
+      <Tabs
+        value={activeTab}
+        onValueChange={(tab) => {
+          // replace, not push: flipping tabs should not fill the back button.
+          router.replace(`/books/${bookId}/reports?tab=${tab}`, { scroll: false });
+        }}
+      >
         <TabsList className="flex-wrap">
           <TabsTrigger value="analytics">{s.analytics}</TabsTrigger>
           <TabsTrigger value="continuity">{s.continuity}</TabsTrigger>

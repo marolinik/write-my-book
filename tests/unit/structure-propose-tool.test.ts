@@ -15,7 +15,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 const h = vi.hoisted(() => ({
   db: {
     chapter: { findMany: vi.fn() },
-    structureMove: { create: vi.fn(), findMany: vi.fn() },
+    structureMove: { create: vi.fn(), findMany: vi.fn(), findFirst: vi.fn() },
   },
 }));
 
@@ -41,6 +41,8 @@ const chapters = [
 
 beforeEach(() => {
   vi.clearAllMocks();
+  // The book has not seen this move before (see no-duplicates.test.ts).
+  h.db.structureMove.findFirst.mockResolvedValue(null);
   h.db.chapter.findMany.mockResolvedValue(chapters);
   h.db.structureMove.create.mockImplementation(async ({ data }: { data: Record<string, unknown> }) => ({
     id: "m1",

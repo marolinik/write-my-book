@@ -684,6 +684,12 @@ export interface UIStrings {
     moveReorder: string; moveMerge: string; moveSplit: string;
     nothingChangesYet: string; applyError: string; undoError: string;
     fromAnalysis: string;
+    // S3-4: the board used to say "in progress" while the agent had long
+    // finished and the proposals were waiting on the writer.
+    /** Carries a {n} placeholder for the rendered count. */
+    awaitingDecision: string;
+    decidePending: string;
+    proposalOne: string; proposalMany: string;
   };
 
   stylePage: {
@@ -1574,6 +1580,9 @@ const EN: UIStrings = {
     moveSplit: "Split chapter {n} at \u201c{anchor}\u201d",
     nothingChangesYet: "Your manuscript is untouched until you accept a move.",
     fromAnalysis: "These metrics are worth a structural pass: let the editor propose what should move.",
+    awaitingDecision: "{n} awaiting your decision",
+    decidePending: "Review proposals",
+    proposalOne: "proposal", proposalMany: "proposals",
     applyError: "The move could not be applied", undoError: "The move could not be undone",
   },
 
@@ -2483,6 +2492,9 @@ const SR: UIStrings = {
     moveSplit: "Razdvoji poglavlje {n} kod \u201e{anchor}\u201c",
     nothingChangesYet: "Rukopis ostaje netaknut dok ne prihvatite potez.",
     fromAnalysis: "Ove metrike zaslužuju strukturni prolaz: neka urednik predloži šta treba da se pomeri.",
+    awaitingDecision: "{n} čeka vašu odluku",
+    decidePending: "Odluči o predlozima",
+    proposalOne: "predlog", proposalMany: "predloga",
     applyError: "Potez nije mogao da se primeni", undoError: "Potez nije mogao da se poništi",
   },
 
@@ -3391,6 +3403,9 @@ const DE: UIStrings = {
     moveSplit: "Kapitel {n} bei \u201e{anchor}\u201c teilen",
     nothingChangesYet: "Ihr Manuskript bleibt unberührt, bis Sie einen Schritt annehmen.",
     fromAnalysis: "Diese Werte verdienen einen Strukturdurchgang: lassen Sie das Lektorat vorschlagen, was sich ändern soll.",
+    awaitingDecision: "{n} wartet auf Ihre Entscheidung",
+    decidePending: "Vorschläge prüfen",
+    proposalOne: "Vorschlag", proposalMany: "Vorschläge",
     applyError: "Der Schritt konnte nicht angewendet werden", undoError: "Der Schritt konnte nicht rückgängig gemacht werden",
   },
 
@@ -4299,6 +4314,9 @@ const ES: UIStrings = {
     moveSplit: "Dividir el capítulo {n} en \u201c{anchor}\u201d",
     nothingChangesYet: "Tu manuscrito queda intacto hasta que aceptes un movimiento.",
     fromAnalysis: "Estas métricas merecen una pasada estructural: deja que el editor proponga qué mover.",
+    awaitingDecision: "{n} esperando tu decisión",
+    decidePending: "Revisar propuestas",
+    proposalOne: "propuesta", proposalMany: "propuestas",
     applyError: "No se pudo aplicar el movimiento", undoError: "No se pudo deshacer el movimiento",
   },
 
@@ -5207,6 +5225,9 @@ const FR: UIStrings = {
     moveSplit: "Scinder le chapitre {n} à \u00ab{anchor}\u00bb",
     nothingChangesYet: "Votre manuscrit reste intact tant que vous n'acceptez rien.",
     fromAnalysis: "Ces mesures méritent un passage structurel : laissez l'éditeur proposer ce qui doit bouger.",
+    awaitingDecision: "{n} en attente de votre décision",
+    decidePending: "Examiner les propositions",
+    proposalOne: "proposition", proposalMany: "propositions",
     applyError: "Le geste n'a pas pu être appliqué", undoError: "Le geste n'a pas pu être annulé",
   },
 
@@ -6115,6 +6136,9 @@ const RU: UIStrings = {
     moveSplit: "Разделить главу {n} на \u00ab{anchor}\u00bb",
     nothingChangesYet: "Рукопись не меняется, пока вы не примете шаг.",
     fromAnalysis: "Эти метрики стоят структурного прохода: пусть редактор предложит, что стоит перенести.",
+    awaitingDecision: "{n} ждёт вашего решения",
+    decidePending: "Рассмотреть предложения",
+    proposalOne: "предложение", proposalMany: "предложений",
     applyError: "Шаг не удалось применить", undoError: "Шаг не удалось отменить",
   },
 
@@ -7023,6 +7047,9 @@ const ZH: UIStrings = {
     moveSplit: "在 \u201c{anchor}\u201d 处拆分第 {n} 章",
     nothingChangesYet: "在你接受调整之前，稿件不会被改动。",
     fromAnalysis: "这些数据值得一次结构修订：让编辑提出该调整什么。",
+    awaitingDecision: "{n} 等待您决定",
+    decidePending: "查看提议",
+    proposalOne: "项提议", proposalMany: "项提议",
     applyError: "调整未能应用", undoError: "调整未能撤销",
   },
 

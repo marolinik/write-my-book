@@ -57,7 +57,9 @@ export class DocumentService {
     changeSource: string = "user",
     changeType: string = changeTypeForSource(changeSource)
   ) {
-    const storagePath = getStoragePath(type, chapterNumber, actNumber);
+    const storagePath = await this.freeStoragePath(
+      getStoragePath(type, chapterNumber, actNumber)
+    );
 
     // Write content to S3
     await this.storage.write(storagePath, content);
@@ -91,6 +93,39 @@ export class DocumentService {
     });
 
     return document;
+  }
+
+  /**
+   * Hands back a key no other document in this book or series holds.
+   *
+   * A chapter-scoped key is derived from the chapter number it was created
+   * with, and it is deliberately never rewritten afterwards — it is the
+   * physical pointer to the bytes. But chapter numbers ARE recycled: splitting
+   * chapter 24 creates a new chapter 25 while the old chapter 25, now 26, still
+   * points at `chapter-25.md`. Writing the newcomer there destroyed the other
+   * chapter's prose on the owner's real manuscript. Keys are opaque, so the
+   * safe answer is simply to pick one that is free.
+   */
+  private async freeStoragePath(path: string): Promise<string> {
+    const scope = this.bookId
+      ? { bookId: this.bookId }
+      : { seriesId: this.seriesId };
+
+    const isTaken = async (candidate: string) =>
+      (await db.document.count({ where: { ...scope, storageKey: candidate } })) > 0;
+
+    if (!(await isTaken(path))) return path;
+
+    const dot = path.lastIndexOf(".");
+    const stem = dot === -1 ? path : path.slice(0, dot);
+    const extension = dot === -1 ? "" : path.slice(dot);
+
+    for (let n = 2; n <= 1000; n += 1) {
+      const candidate = `${stem}-${n}${extension}`;
+      if (!(await isTaken(candidate))) return candidate;
+    }
+
+    throw new Error(`No free storage key for ${path}`);
   }
 
   /**

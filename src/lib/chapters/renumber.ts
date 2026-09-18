@@ -32,12 +32,34 @@ export interface OrderingEntry {
  * Build the ordered transaction ops for a renumber. `oldNumberById` must carry
  * the CURRENT number of every chapter in `order` — the document renumber keys
  * off it.
+ *
+ * `allChapters` is every chapter the book currently holds. A caller replaying a
+ * stored ordering — undo does exactly this — can hand over an `order` that does
+ * not mention them all, because the book gained a chapter after the snapshot
+ * was taken. Those chapters still have to be parked, or a final number walks
+ * into one of them and the transaction dies on the unique index (S3-6). They
+ * keep their prose and their relative order, and land after the named ones.
  */
 export function buildRenumberOps(
   bookId: string,
   order: readonly OrderingEntry[],
-  oldNumberById: ReadonlyMap<string, number>
+  oldNumberById: ReadonlyMap<string, number>,
+  allChapters?: ReadonlyArray<{ id: string; chapterNumber: number }>
 ): Prisma.PrismaPromise<unknown>[] {
+  const named = new Set(order.map((o) => o.chapterId));
+  const unnamed = (allChapters ?? [])
+    .filter((c) => !named.has(c.id))
+    .sort((a, b) => a.chapterNumber - b.chapterNumber);
+
+  const lastNamed = order.reduce((max, o) => Math.max(max, o.chapterNumber), 0);
+  const appended: OrderingEntry[] = unnamed.map((c, i) => ({
+    chapterId: c.id,
+    chapterNumber: lastNamed + 1 + i,
+  }));
+
+  // One list from here down: parking and assignment must see the same chapters.
+  order = [...order, ...appended];
+
   const ops: Prisma.PrismaPromise<unknown>[] = [];
 
   // Phase A — chapters → temp.
@@ -91,11 +113,13 @@ export async function renumberChapters(
 ): Promise<void> {
   if (order.length === 0) return;
 
+  // The WHOLE book, not just the named chapters: anything left unparked is a
+  // collision waiting to happen (see buildRenumberOps).
   const chapters = await db.chapter.findMany({
-    where: { bookId, id: { in: order.map((o) => o.chapterId) } },
+    where: { bookId },
     select: { id: true, chapterNumber: true },
   });
   const oldNumberById = new Map(chapters.map((c) => [c.id, c.chapterNumber]));
 
-  await db.$transaction(buildRenumberOps(bookId, order, oldNumberById));
+  await db.$transaction(buildRenumberOps(bookId, order, oldNumberById, chapters));
 }

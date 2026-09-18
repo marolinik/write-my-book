@@ -11,6 +11,9 @@ Status legend: **DONE** (fixed + verified), **OPEN**, **PARTIAL**.
 | S3-1 | `/books` died on a client hook | **DONE** — D-206, commit `4371e35` |
 | S3-2 | Library groups do not follow the flow; "Other" is a dumping ground | **DONE** |
 | S3-3 | The library surface is still hardcoded English | PARTIAL — group labels, empty states and type names done; page chrome left |
+| S3-4 | Board said "in progress" while waiting on the writer; no way to reach the panel | **DONE** |
+| S3-5 | Re-running `restructure` stacks duplicate proposals | **DONE** |
+| S3-6 | Undo threw on a unique constraint; two paths destroyed prose | **DONE** |
 
 ---
 
@@ -143,3 +146,83 @@ Found while rehearsing the structural revision pass; see
 | D-205 | Accept-then-undo drifts `book.wordCount` though the prose is byte-identical | LOW |
 | — | Shelf card subtitle still English ("56.874 words · drafted 31/31 · last touched today") | LOW |
 | — | "3 knjiga" should be "3 knjige" — Serbian needs a third plural form the dictionaries do not carry | LOW |
+
+---
+
+## S3-4 — the board said "in progress" while it was waiting on the writer (DONE)
+
+> "pise u toku, ima dokument a nema akcije tj kako da ih uradim"
+
+`deriveManuscriptStages` marks `restructure` **partial** while proposals are
+undecided, which is correct — the point of the pass is the decision, not the
+report. The board rendered that as the generic "U toku", so the writer read it
+as *the agent is still thinking* and went looking for actions that were not
+there. Both restructure sessions had in fact completed minutes earlier.
+
+Fixed three ways:
+
+- The card now says how many proposals are waiting, in the writer's language
+  and with the right plural (`countWithNoun`): "10 predloga čeka vašu odluku".
+- The link to the structure panel becomes the **primary** button, labelled
+  "Odluči o predlozima"; re-running the pass moves to second place. A stage
+  waiting on the writer leads with his decision.
+- The reports tabs are addressable (`?tab=structure`). They were not, so the
+  link landed on Analytics and the writer could not find the panel at all —
+  reported separately, same trip.
+
+## S3-5 — duplicates, and the manuscript damage they caused (DONE)
+
+> "ovo je takodje zbog duplih, to mora da se spreci, ako vec ima ne treba
+> ponovo da se pojavi, to mora sistemski da se resi"
+
+Running `restructure` twice filed every move twice. `merge [9, 10]` was then
+accepted twice: the first ran on 9+10, the second on the survivor plus whatever
+had shifted into 10 — which was **Košare**, the chapter the same editor had
+explicitly declined to touch in its own proposal document.
+
+`ProposeStructureMove` now refuses a move this book already carries as pending,
+accepted or applied, and says which one. The agent has no way to file the same
+structural change twice.
+
+## S3-6 — undo could not run, and two ways prose was destroyed (DONE)
+
+Pressing Poništi threw:
+
+```
+Unique constraint failed on the fields: (`book_id`, `chapter_number`)
+```
+
+Three separate defects, all in the same family — **a number is reused while
+something still points at the old one**:
+
+1. **Undo re-created absorbed chapters at their original numbers.** The merge
+   had closed the gap, so those numbers were taken. It threw after the
+   survivor's prose was already restored, leaving the book a chapter short with
+   the move still marked applied. Absorbed chapters now come back parked far
+   above the book and reach their real numbers through the renumber pass.
+2. **`renumberChapters` only parked the chapters the caller named.** Undo
+   replays an ordering captured when the move was applied; if the book has
+   gained a chapter since, that chapter is unparked and a target number walks
+   straight into it. It now parks the whole book and appends the unnamed
+   chapters after the named ones.
+3. **A new document took a key an existing document still held.** Storage keys
+   are derived from the chapter number at creation and deliberately never move,
+   but chapter numbers are recycled. Splitting chapter 24 created a chapter 25
+   whose key `chapter-25.md` belonged to the old chapter 25 (now 26) — and the
+   write went straight over that chapter's prose. `DocumentService.create` now
+   refuses a key another document in the book holds.
+
+The first parking fix initially used `max + 1`, which reproduced defect 3 on the
+restore path; parking now sits above `TEMP_OFFSET * 2`, where no real key can
+ever be.
+
+### Recovery
+
+The owner's *Legat - Zakletva* was restored to **31 chapters in the original
+order, 56.890 words, every chapter readable, no shared keys, no numbering
+gaps**. Two chapters had to come back from cold storage: "Ono što je nosio" from
+the move's `previousState` snapshot (11.641 chars) and "Pandorina kutija" from
+its own version-1 object (12.750 chars), which survived because version keys are
+derived from the document id rather than the chapter number.
+
+The 16-word difference against the imported 56.874 is D-205, not lost prose.

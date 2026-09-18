@@ -22,6 +22,7 @@ import {
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getUIStrings, localeFor } from "@/lib/i18n/ui-strings";
+import { countWithNoun } from "@/lib/i18n/plural";
 import {
   deriveDevelopmentStages,
   type DevelopmentStageKey,
@@ -67,6 +68,15 @@ interface StageDef {
   jumpHref?: string;
   /** Label for the jump action; defaults to the generic "Next" label. */
   jumpLabel?: string;
+  /**
+   * Replaces the generic status word. A stage can be "partial" for reasons the
+   * writer reads very differently: the restructure pass is partial because it
+   * is waiting on HIM, and "in progress" made it look like the agent was still
+   * thinking (S3-4).
+   */
+  statusNote?: string;
+  /** Lead with the jump, not the run button — the work is done, the decision is not. */
+  jumpFirst?: boolean;
 }
 
 export default async function BookDevelopmentPage({
@@ -299,8 +309,23 @@ export default async function BookDevelopmentPage({
       icon: ScissorsIcon,
       status: manuscriptStatus.get("restructure") ?? "none",
       runWorkflow: "restructure",
-      jumpHref: `/books/${bookId}/reports`,
-      jumpLabel: t.structure.tab,
+      jumpHref: `/books/${bookId}/reports?tab=structure`,
+      // Proposals on the table are the whole point of the pass, so they become
+      // the headline and the first button.
+      jumpLabel:
+        structureMovesPending > 0 ? t.structure.decidePending : t.structure.tab,
+      jumpFirst: structureMovesPending > 0,
+      statusNote:
+        structureMovesPending > 0
+          ? t.structure.awaitingDecision.replace(
+              "{n}",
+              countWithNoun(
+                structureMovesPending,
+                t.structure.proposalOne,
+                t.structure.proposalMany
+              )
+            )
+          : undefined,
     },
     {
       key: "edit",
@@ -505,6 +530,15 @@ export default async function BookDevelopmentPage({
                 </CardHeader>
                 <CardContent className="mt-auto pt-2">
                   <div className="flex flex-wrap items-center gap-2">
+                    {/* When the stage is waiting on the writer, his decision
+                        leads and re-running the pass comes second. */}
+                    {stage.jumpFirst && stage.jumpHref ? (
+                      <ButtonLink
+                        href={stage.jumpHref}
+                        label={stage.jumpLabel ?? s.nextStep}
+                        primary
+                      />
+                    ) : null}
                     {stage.runWorkflow && (
                       <StartWorkflowButton
                         workflowId={stage.runWorkflow}
@@ -524,7 +558,7 @@ export default async function BookDevelopmentPage({
                         label={`${s.viewArtifact} ${str.artifact}`}
                       />
                     ) : null}
-                    {stage.jumpHref ? (
+                    {!stage.jumpFirst && stage.jumpHref ? (
                       <ButtonLink
                         href={stage.jumpHref}
                         label={stage.key === "draft" ? s.startWriting : (stage.jumpLabel ?? s.nextStep)}
@@ -533,7 +567,7 @@ export default async function BookDevelopmentPage({
                   </div>
                   <div className="mt-3 flex items-center gap-2 text-xs">
                     <span className={`font-medium ${statusColor[stage.status]}`}>
-                      {statusLabel[stage.status]}
+                      {stage.statusNote ?? statusLabel[stage.status]}
                     </span>
                   </div>
                   {stage.key === "research" &&
@@ -616,9 +650,22 @@ export default async function BookDevelopmentPage({
   );
 }
 
-function ButtonLink({ href, label }: { href: string; label: string }) {
+function ButtonLink({
+  href,
+  label,
+  primary,
+}: {
+  href: string;
+  label: string;
+  primary?: boolean;
+}) {
   return (
-    <Button size="sm" variant="outline" className="shrink-0" asChild>
+    <Button
+      size="sm"
+      variant={primary ? "default" : "outline"}
+      className="shrink-0"
+      asChild
+    >
       <Link href={href}>{label}</Link>
     </Button>
   );

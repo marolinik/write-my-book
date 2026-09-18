@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 import { countWords } from "@/lib/utils";
 import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
-import { renumberChapters } from "@/lib/chapters/renumber";
+import { renumberChapters, TEMP_OFFSET } from "@/lib/chapters/renumber";
 import { reconcileBookCounters } from "@/lib/books/book-counters";
 import {
   planMove,
@@ -372,26 +372,57 @@ export async function undoStructureMove(
         data: { wordCount: survivor.wordCount, title: survivor.title },
       });
 
+      // The absorbed chapters cannot go straight back to their old numbers:
+      // the merge closed the gap, so every chapter below moved up and those
+      // numbers are taken. Creating there threw a unique-constraint error with
+      // the survivor already restored, which left the book a chapter short and
+      // the move still marked applied (S3-6). Park them above the last live
+      // chapter — where nothing can collide — and let the renumber pass below
+      // walk them home.
+      // Park FAR above the book, not at max + 1. A chapter-scoped document's
+      // storageKey is derived from the chapter number it was created with and
+      // is then never rewritten, so parking at max + 1 hands the restored
+      // chapter a key like `chapter-31.md` that a real chapter may already own
+      // — and the next write to that key silently overwrites the other
+      // chapter's prose. Numbers up here can never collide with a real key.
+      const RESTORE_PARK = TEMP_OFFSET * 2;
+      const live = await loadChapters(ctx.bookId);
+      let park = Math.max(RESTORE_PARK, ...live.map((c) => c.chapterNumber) ) + 1;
+
+      // A re-created row is a new row, so the stored ordering still names the
+      // dead id. Remember the substitution or the renumber will skip it.
+      const restoredIds = new Map<string, string>();
+
       for (const absorbed of previous.chapters.slice(1)) {
-        await db.chapter.create({
+        const parked = park;
+        park += 1;
+
+        const restored = await db.chapter.create({
           data: {
             bookId: ctx.bookId,
-            chapterNumber: absorbed.chapterNumber,
+            chapterNumber: parked,
             actNumber: absorbed.actNumber,
             title: absorbed.title,
             status: absorbed.status,
             wordCount: absorbed.wordCount,
           },
         });
+        restoredIds.set(absorbed.chapterId, restored.id);
+
         await docs.create(
           DocumentType.CHAPTER_CONTENT,
           absorbed.content,
           absorbed.title ?? `Chapter ${absorbed.chapterNumber}`,
-          absorbed.chapterNumber,
+          parked,
           absorbed.actNumber,
           CHANGE_SOURCE
         );
       }
+
+      previous.ordering = previous.ordering.map((entry) => {
+        const restoredId = restoredIds.get(entry.chapterId);
+        return restoredId ? { ...entry, chapterId: restoredId } : entry;
+      });
     }
 
     await renumberChapters(ctx.bookId, await existingOnly(ctx.bookId, previous.ordering));

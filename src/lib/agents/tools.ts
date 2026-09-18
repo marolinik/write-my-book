@@ -1515,12 +1515,36 @@ async function executeProposeStructureMove(
     return `Proposal rejected — ${planned.error.message}`;
   }
 
+  const payload = JSON.stringify(move);
+
+  // The same pass run twice files the same move twice, and accepting both
+  // applies it twice — the second time against whatever shifted into the
+  // numbers the first one vacated. That is how a chapter the editor had
+  // explicitly declined to touch got swallowed (S3-5). A move already on the
+  // table, or already carried out, is not news.
+  const existing = await db.structureMove.findFirst({
+    where: {
+      bookId: ctx.bookId,
+      kind: move.kind,
+      payload,
+      status: { in: ["pending", "accepted", "applied"] },
+    },
+    select: { id: true, status: true },
+  });
+  if (existing) {
+    return (
+      `Proposal skipped — this book already has that exact move (id ${existing.id}, ` +
+      `status ${existing.status}). Propose something else, or leave the writer's ` +
+      `decision on the existing one alone.`
+    );
+  }
+
   const created = await db.structureMove.create({
     data: {
       bookId: ctx.bookId,
       sessionId: ctx.sessionId,
       kind: move.kind,
-      payload: JSON.stringify(move),
+      payload,
       reason: enforceBookScript(reason, ctx.language),
       evidence: input.evidence
         ? enforceBookScript(input.evidence, ctx.language)

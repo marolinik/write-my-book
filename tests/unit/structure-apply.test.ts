@@ -37,6 +37,8 @@ const h = vi.hoisted(() => ({
 vi.mock("@/lib/db", () => ({ db: h.db }));
 vi.mock("@/lib/chapters/renumber", () => ({
   renumberChapters: (...args: unknown[]) => h.renumberChapters(...args),
+  // Mirror the real module: undo derives its parking range from this.
+  TEMP_OFFSET: 10000,
 }));
 vi.mock("@/lib/books/book-counters", () => ({
   reconcileBookCounters: (...args: unknown[]) => h.reconcileBookCounters(...args),
@@ -244,6 +246,102 @@ describe("applyStructureMove — split", () => {
   });
 });
 
+describe("undoStructureMove — restoring into occupied numbers", () => {
+  /**
+   * The live failure (S3-6). Merging 9+10 moved every chapter below up by one,
+   * so chapter 10 was taken by the time the writer pressed Undo. The engine
+   * re-created the absorbed chapter at its ORIGINAL number and Postgres threw
+   * `Unique constraint failed on the fields: (book_id, chapter_number)` — with
+   * the survivor's prose already restored, which left the book a chapter short
+   * and the move still marked applied.
+   *
+   * Absorbed chapters must come back above the last live chapter, where nothing
+   * can collide, and reach their real numbers through the same renumber pass
+   * the rest of the engine uses.
+   */
+  const afterMerge = [
+    { id: "c1", chapterNumber: 1, title: "Zakletva", wordCount: 2100, actNumber: 1 },
+    { id: "c2", chapterNumber: 2, title: "Pismo+Put", wordCount: 2700, actNumber: 1 },
+    { id: "c4", chapterNumber: 3, title: "Kuća", wordCount: 2400, actNumber: 2 },
+  ];
+
+  function mergedMove() {
+    return move("merge", { kind: "merge", chapterNumbers: [2, 3] }, {
+      status: "applied",
+      previousState: JSON.stringify({
+        ordering: [
+          { chapterId: "c1", chapterNumber: 1 },
+          { chapterId: "c2", chapterNumber: 2 },
+          { chapterId: "c3", chapterNumber: 3 },
+          { chapterId: "c4", chapterNumber: 4 },
+        ],
+        survivorChapterId: "c2",
+        survivorContent: "Tekst doc-2.",
+        chapters: [
+          { chapterId: "c2", chapterNumber: 2, title: "Pismo", actNumber: 1, status: "drafted", wordCount: 1800, content: "Tekst doc-2." },
+          { chapterId: "c3", chapterNumber: 3, title: "Put", actNumber: 1, status: "drafted", wordCount: 900, content: CH3 },
+        ],
+      }),
+    });
+  }
+
+  beforeEach(() => {
+    h.db.structureMove.findFirst.mockResolvedValue(mergedMove());
+
+    // The restored row has to become visible to the queries that run after it,
+    // or existingOnly() drops it from the ordering and the assertion passes for
+    // the wrong reason.
+    const created: Array<{ id: string; chapterNumber: number }> = [];
+    h.db.chapter.findMany.mockImplementation(async () => [...afterMerge, ...created]);
+    h.db.chapter.create.mockImplementation(
+      async ({ data }: { data: { chapterNumber: number } }) => {
+        const row = { id: "restored-c3", chapterNumber: data.chapterNumber };
+        created.push(row);
+        return row;
+      }
+    );
+  });
+
+  it("parks the restored chapter past the last live number instead of colliding", async () => {
+    const res = await undoStructureMove("m1", opts);
+    expect(res.ok).toBe(true);
+
+    const taken = afterMerge.map((c) => c.chapterNumber);
+    const created = h.db.chapter.create.mock.calls[0][0].data;
+    expect(taken).not.toContain(created.chapterNumber);
+    expect(created.chapterNumber).toBeGreaterThan(Math.max(...taken));
+  });
+
+  it("files the restored chapter's document at the same parked number", async () => {
+    await undoStructureMove("m1", opts);
+
+    const created = h.db.chapter.create.mock.calls[0][0].data;
+    const [, , , docChapterNumber] = h.docs.create.mock.calls[0];
+    expect(docChapterNumber).toBe(created.chapterNumber);
+  });
+
+  it("renumbers the restored chapter back into its original slot", async () => {
+    await undoStructureMove("m1", opts);
+
+    // The re-created row has a new id, so the stored ordering — which still
+    // names the dead one — has to be rewritten before it is any use.
+    const [, ordering] = h.renumberChapters.mock.calls[0];
+    expect(ordering).toContainEqual({ chapterId: "restored-c3", chapterNumber: 3 });
+    expect(ordering.map((o: { chapterId: string }) => o.chapterId)).not.toContain("c3");
+  });
+
+  it("leaves the move applied when the restore cannot finish", async () => {
+    h.db.chapter.create.mockRejectedValue(new Error("Unique constraint failed"));
+
+    const res = await undoStructureMove("m1", opts);
+    expect(res.ok).toBe(false);
+    const statuses = h.db.structureMove.update.mock.calls.map(
+      (call) => (call[0] as { data: { status?: string } }).data.status
+    );
+    expect(statuses).not.toContain("undone");
+  });
+});
+
 describe("undoStructureMove", () => {
   it("puts a reorder back the way it was", async () => {
     h.db.structureMove.findFirst.mockResolvedValue(
@@ -295,7 +393,7 @@ describe("undoStructureMove", () => {
     expect(res.ok).toBe(true);
 
     const recreated = h.db.chapter.create.mock.calls[0][0].data;
-    expect(recreated).toMatchObject({ bookId: "b1", chapterNumber: 3, title: "Put", actNumber: 1 });
+    expect(recreated).toMatchObject({ bookId: "b1", title: "Put", actNumber: 1 });
     const [, restoredContent] = h.docs.create.mock.calls[0];
     expect(restoredContent).toBe(CH3);
     // The survivor goes back to its pre-merge text.
