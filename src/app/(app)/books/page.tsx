@@ -122,10 +122,10 @@ export default async function BooksPage() {
         </Card>
       ) : (
         <div>
-          <ShelfSection title="Currently Writing" books={groups.currentlyWriting} locale={locale} />
-          <ShelfSection title="Waiting for Feedback" books={groups.waiting} locale={locale} />
-          <ShelfSection title="Completed" books={groups.completed} locale={locale} />
-          <ShelfSection title="Archived" books={groups.archived} locale={locale} collapsible />
+          <ShelfSection title={t.appUI.currentlyWriting} books={groups.currentlyWriting} locale={locale} />
+          <ShelfSection title={t.appUI.waitingForFeedback} books={groups.waiting} locale={locale} />
+          <ShelfSection title={t.appUI.completed} books={groups.completed} locale={locale} />
+          <ShelfSection title={t.appUI.archived} books={groups.archived} locale={locale} collapsible />
         </div>
       )}
     </div>

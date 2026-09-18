@@ -125,7 +125,7 @@ export function ManuscriptReadiness({ bookId, onProceed }: ManuscriptReadinessPr
         {/* Score bar */}
         <div className="space-y-1">
           <div className="flex justify-between text-xs">
-            <span className="text-muted-foreground">Quality score</span>
+            <span className="text-muted-foreground">{t.appUI.qualityScore}</span>
             <span className="font-medium">{score}%</span>
           </div>
           <Progress

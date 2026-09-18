@@ -51,7 +51,7 @@ export function MemoryStatsCard({ bookId }: { bookId: string }) {
               className="size-7"
               onClick={() => rebuild.mutate(bookId)}
               disabled={rebuild.isPending}
-              title="Rebuild index"
+              title={t.workspaceUI.rebuildIndex}
             >
               <RefreshCwIcon className={`size-3.5 ${rebuild.isPending ? "animate-spin" : ""}`} />
             </Button>
@@ -61,7 +61,7 @@ export function MemoryStatsCard({ bookId }: { bookId: string }) {
               className="size-7"
               onClick={handleClear}
               disabled={clear.isPending}
-              title="Clear memory"
+              title={t.workspaceUI.clearMemory}
             >
               <Trash2Icon className="size-3.5 text-destructive" />
             </Button>

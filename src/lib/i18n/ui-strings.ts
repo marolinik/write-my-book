@@ -623,6 +623,9 @@ export interface UIStrings {
     marketReport: string;
     documents: string;
     documentsHint: string;
+    toggleTheme: string; keyboardShortcuts: string; analysisProgress: string;
+    noEditHistory: string; qualityScore: string; open: string;
+    noAchievements: string; wrappedHint: string;
   };
 
   // O1 - main-surface strings that used to be written inline in English.
@@ -1479,6 +1482,14 @@ const EN: UIStrings = {
     marketReport: "Market report",
     documents: "Documents",
     documentsHint: "Every document belonging to this book",
+    toggleTheme: "Toggle the theme",
+    keyboardShortcuts: "Keyboard shortcuts",
+    analysisProgress: "Analysis progress",
+    noEditHistory: "No edit history yet",
+    qualityScore: "Quality score",
+    open: "Open",
+    noAchievements: "No achievements yet. Start writing.",
+    wrappedHint: "See the highlights of your writing year",
   },
 
   screens: {
@@ -2371,6 +2382,14 @@ const SR: UIStrings = {
     marketReport: "Izveštaj tržišta",
     documents: "Dokumenti",
     documentsHint: "Svi dokumenti koji pripadaju ovoj knjizi",
+    toggleTheme: "Promeni temu",
+    keyboardShortcuts: "Prečice na tastaturi",
+    analysisProgress: "Napredak analize",
+    noEditHistory: "Još nema istorije izmena",
+    qualityScore: "Ocena kvaliteta",
+    open: "Otvori",
+    noAchievements: "Još nema dostignuća. Počnite da pišete.",
+    wrappedHint: "Pogledajte najvažnije iz svoje godine pisanja",
   },
 
   screens: {
@@ -3262,6 +3281,14 @@ const DE: UIStrings = {
     marketReport: "Marktbericht",
     documents: "Dokumente",
     documentsHint: "Alle Dokumente dieses Buchs",
+    toggleTheme: "Design wechseln",
+    keyboardShortcuts: "Tastaturkürzel",
+    analysisProgress: "Analysefortschritt",
+    noEditHistory: "Noch kein Änderungsverlauf",
+    qualityScore: "Qualitätswert",
+    open: "Öffnen",
+    noAchievements: "Noch keine Erfolge. Fangen Sie an zu schreiben.",
+    wrappedHint: "Die Höhepunkte Ihres Schreibjahres ansehen",
   },
 
   screens: {
@@ -4153,6 +4180,14 @@ const ES: UIStrings = {
     marketReport: "Informe de mercado",
     documents: "Documentos",
     documentsHint: "Todos los documentos de este libro",
+    toggleTheme: "Cambiar el tema",
+    keyboardShortcuts: "Atajos de teclado",
+    analysisProgress: "Progreso del análisis",
+    noEditHistory: "Aún no hay historial de ediciones",
+    qualityScore: "Puntuación de calidad",
+    open: "Abrir",
+    noAchievements: "Aún no hay logros. Empieza a escribir.",
+    wrappedHint: "Mira lo más destacado de tu año de escritura",
   },
 
   screens: {
@@ -5044,6 +5079,14 @@ const FR: UIStrings = {
     marketReport: "Rapport de marché",
     documents: "Documents",
     documentsHint: "Tous les documents de ce livre",
+    toggleTheme: "Changer de thème",
+    keyboardShortcuts: "Raccourcis clavier",
+    analysisProgress: "Progression de l'analyse",
+    noEditHistory: "Pas encore d'historique de modifications",
+    qualityScore: "Score de qualité",
+    open: "Ouvrir",
+    noAchievements: "Aucun succès pour l'instant. Commencez à écrire.",
+    wrappedHint: "Voir les temps forts de votre année d'écriture",
   },
 
   screens: {
@@ -5935,6 +5978,14 @@ const RU: UIStrings = {
     marketReport: "Рыночный отчёт",
     documents: "Документы",
     documentsHint: "Все документы этой книги",
+    toggleTheme: "Сменить тему",
+    keyboardShortcuts: "Горячие клавиши",
+    analysisProgress: "Ход анализа",
+    noEditHistory: "Истории правок пока нет",
+    qualityScore: "Оценка качества",
+    open: "Открыть",
+    noAchievements: "Достижений пока нет. Начните писать.",
+    wrappedHint: "Посмотрите главное за свой год письма",
   },
 
   screens: {
@@ -6826,6 +6877,14 @@ const ZH: UIStrings = {
     marketReport: "市场报告",
     documents: "文档",
     documentsHint: "本书的所有文档",
+    toggleTheme: "切换主题",
+    keyboardShortcuts: "键盘快捷键",
+    analysisProgress: "分析进度",
+    noEditHistory: "还没有编辑历史",
+    qualityScore: "质量评分",
+    open: "打开",
+    noAchievements: "还没有成就，开始写作吧。",
+    wrappedHint: "查看你这一年的写作亮点",
   },
 
   screens: {

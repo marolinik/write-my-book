@@ -173,7 +173,7 @@ export default function NewBookPage() {
                   <Label htmlFor="series">{t.newBook.seriesOptional}</Label>
                   <Select value={seriesId} onValueChange={(v) => setSeriesId(v)}>
                     <SelectTrigger id="series">
-                      <SelectValue placeholder="No series" />
+                      <SelectValue placeholder={t.appUI.noSeries} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="none">{t.newBook.noSeries}</SelectItem>

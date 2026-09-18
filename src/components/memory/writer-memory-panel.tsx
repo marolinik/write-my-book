@@ -207,7 +207,7 @@ export function WriterMemoryPanel({ bookId }: WriterMemoryPanelProps) {
             value={newContent}
             onChange={(e) => setNewContent(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-            placeholder="e.g., Don't flag my sentence fragments"
+            placeholder={t.workspaceUI.memoryExample}
             className="h-8 text-xs flex-1"
           />
           <Button
@@ -288,7 +288,7 @@ export function WriterMemoryPanel({ bookId }: WriterMemoryPanelProps) {
                                 onClick={() => { setEditingId(m.id); setEditContent(m.content); }}
                                 className="text-muted-foreground hover:text-foreground"
                                 aria-label={`Edit memory: ${m.content}`}
-                                title="Edit"
+                                title={t.workspaceUI.edit}
                               >
                                 <EditIcon className="size-3" />
                               </button>
@@ -296,7 +296,7 @@ export function WriterMemoryPanel({ bookId }: WriterMemoryPanelProps) {
                                 onClick={() => deleteMutation.mutate(m.id)}
                                 className="text-muted-foreground hover:text-destructive"
                                 aria-label={`Forget memory: ${m.content}`}
-                                title="Forget this"
+                                title={t.workspaceUI.forgetThis}
                               >
                                 <TrashIcon className="size-3" />
                               </button>

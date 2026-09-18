@@ -327,7 +327,7 @@ export function DocumentsLibrary({ bookId }: { bookId: string }) {
         <Select value={typeFilter} onValueChange={setTypeFilter}>
           <SelectTrigger className="w-[180px] h-9">
             <FilterIcon className="size-3.5 mr-1.5 text-muted-foreground" />
-            <SelectValue placeholder="All types" />
+            <SelectValue placeholder={t.appUI.allTypes} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{t.appUI.allTypes}</SelectItem>

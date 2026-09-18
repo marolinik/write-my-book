@@ -1,3 +1,4 @@
+import { useLanguage } from "@/components/providers/language-provider";
 import Link from "next/link";
 import { ArrowRightIcon, MessageSquareIcon } from "lucide-react";
 
@@ -9,6 +10,7 @@ import { buildSubtitle } from "@/lib/shelf/card-subtitle";
 import { ArchiveMenu } from "./archive-menu";
 
 function PrimaryCta({ book }: { book: ShelfBookView }) {
+  const { t } = useLanguage();
   if (book.shelf === "currentlyWriting" && book.lastChapterId) {
     return (
       <Button asChild size="sm" variant="secondary" className="mt-3">
@@ -31,7 +33,7 @@ function PrimaryCta({ book }: { book: ShelfBookView }) {
   }
   return (
     <Button asChild size="sm" variant="secondary" className="mt-3">
-      <Link href={`/books/${book.id}`}>Open</Link>
+      <Link href={`/books/${book.id}`}>{t.appUI.open}</Link>
     </Button>
   );
 }

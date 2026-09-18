@@ -107,7 +107,7 @@ export function CustomProvidersSection() {
         </div>
         <div className="space-y-1">
           <Label htmlFor="cp-key" className="text-xs">{t.workspaceUI.keyOptional}</Label>
-          <Input id="cp-key" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="sk-… if private" type="password" autoComplete="off" />
+          <Input id="cp-key" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder={t.workspaceUI.keyPlaceholder} type="password" autoComplete="off" />
         </div>
       </div>
       <Button size="sm" onClick={add} disabled={busy || !name.trim() || !baseURL.trim()}>

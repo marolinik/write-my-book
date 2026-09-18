@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchJson } from "@/lib/api-client";
@@ -26,6 +27,7 @@ interface WrappedData {
 }
 
 export function WritingWrappedCard({ authorName }: { authorName?: string }) {
+  const { t } = useLanguage();
   const [showWrapped, setShowWrapped] = useState(false);
 
   const { data } = useQuery<WrappedData>({
@@ -54,7 +56,7 @@ export function WritingWrappedCard({ authorName }: { authorName?: string }) {
           <SparklesIcon className="size-5 text-primary" />
           <div>
             <p className="text-sm font-medium">{new Date().getFullYear()} Year in Writing</p>
-            <p className="text-xs text-muted-foreground">See your writing journey highlights</p>
+            <p className="text-xs text-muted-foreground">{t.appUI.wrappedHint}</p>
           </div>
         </div>
         <ChevronRightIcon className="size-4 text-muted-foreground" />

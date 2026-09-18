@@ -326,7 +326,7 @@ export function FindingConversation({
         <ConversationInput
           onSend={handleSend}
           disabled={turnActive}
-          placeholder="Explain your intent or why you disagree…"
+          placeholder={t.appUI.explainIntent}
         />
       ) : (
         <p className="text-xs text-muted-foreground">

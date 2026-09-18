@@ -1,4 +1,4 @@
-import { useLanguage } from "@/components/providers/language-provider";
+import { getUIStrings } from "@/lib/i18n/ui-strings";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeftIcon } from "lucide-react";
@@ -26,8 +26,8 @@ export default async function SeriesAnalyticsPage({
 }: {
   params: Promise<{ seriesId: string }>;
 }) {
-  const { t } = useLanguage();
   const user = await requireUser();
+  const t = getUIStrings(user.preferredLanguage ?? "en");
   const { seriesId } = await params;
 
   const series = await db.series.findFirst({

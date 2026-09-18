@@ -1,3 +1,4 @@
+import { getUIStrings } from "@/lib/i18n/ui-strings";
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { OnboardingWizard } from "@/components/onboarding/onboarding-wizard";
@@ -9,6 +10,7 @@ import { OnboardingWizard } from "@/components/onboarding/onboarding-wizard";
  */
 export default async function OnboardingPage() {
   const user = await requireUser();
+  const t = getUIStrings(user.preferredLanguage ?? "en");
 
   if (user.onboardingComplete) {
     // Complete users NEVER server-redirect here — the middleware gate can
@@ -17,7 +19,7 @@ export default async function OnboardingPage() {
     // static "already done" view with a plain Link instead.
     return (
       <div className="mx-auto max-w-md p-6 text-center space-y-4">
-        <h1 className="font-display text-2xl font-semibold">Onboarding complete</h1>
+        <h1 className="font-display text-2xl font-semibold">{t.appUI.onboardingComplete}</h1>
         <p className="text-muted-foreground">
           Your account is set up. Open your workspace below.
         </p>

@@ -91,9 +91,9 @@ export function AuthorshipTracker({ stats, compact }: AuthorshipTrackerProps) {
         <span className="font-medium">{humanPct}% yours</span>
       </div>
       <div className="h-2 rounded-full bg-muted overflow-hidden flex">
-        <div className="h-full bg-blue-500 transition-all" style={{ width: `${humanPct}%` }} title="Human" />
+        <div className="h-full bg-blue-500 transition-all" style={{ width: `${humanPct}%` }} title={t.editorUI.human} />
         <div className="h-full bg-purple-400 transition-all" style={{ width: `${aiPct}%` }} title="AI" />
-        <div className="h-full bg-amber-400 transition-all" style={{ width: `${editedPct}%` }} title="AI-edited" />
+        <div className="h-full bg-amber-400 transition-all" style={{ width: `${editedPct}%` }} title={t.editorUI.aiEdited} />
       </div>
       <div className="flex gap-3 text-[9px] text-muted-foreground">
         <span className="flex items-center gap-1"><span className="size-1.5 rounded-full bg-blue-500" />{t.editorUI.human}</span>

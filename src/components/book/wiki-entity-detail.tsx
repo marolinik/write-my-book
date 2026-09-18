@@ -261,13 +261,13 @@ export function WikiEntityDetail({
                   <Input
                     value={attr.key}
                     onChange={(e) => updateAttribute(i, "key", e.target.value)}
-                    placeholder="Key"
+                    placeholder={t.bookUI.key}
                     className="w-1/3"
                   />
                   <Input
                     value={attr.value}
                     onChange={(e) => updateAttribute(i, "value", e.target.value)}
-                    placeholder="Value"
+                    placeholder={t.bookUI.value}
                     className="flex-1"
                   />
                   <Button

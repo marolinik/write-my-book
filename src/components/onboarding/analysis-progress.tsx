@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useMemo } from "react";
 import { CheckCircle2Icon, Loader2Icon, CircleIcon } from "lucide-react";
 import type { AgentStreamMessage } from "@/lib/agents/types";
@@ -20,6 +21,7 @@ interface AnalysisProgressProps {
  * Maps delegation_start/delegation_complete SSE events to step status.
  */
 export function AnalysisProgress({ messages }: AnalysisProgressProps) {
+  const { t } = useLanguage();
   const steps = useMemo(() => {
     const stepDefs: Array<{ id: string; label: string; agentTypes: string[] }> = [
       { id: "read", label: "Reading manuscript...", agentTypes: ["manuscript-reader"] },
@@ -72,7 +74,7 @@ export function AnalysisProgress({ messages }: AnalysisProgressProps) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between text-sm">
-        <span className="font-medium">Analysis Progress</span>
+        <span className="font-medium">{t.appUI.analysisProgress}</span>
         <span className="text-xs text-muted-foreground">
           {completedCount}/{steps.length} complete
         </span>

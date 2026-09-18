@@ -161,8 +161,8 @@ export function ModelSelectionSection() {
       <CardContent className="space-y-6">
         {/* Global Default */}
         <ModelPicker
-          label="Global Default Model"
-          description="Used for all agent roles unless overridden below or in book settings."
+          label={t.appUI.globalDefaultModel}
+          description={t.appUI.globalDefaultModelHint}
           value={defaultModelData?.defaultModel ?? getDefaultModelId()}
           onChange={handleDefaultModelChange}
           availableProviders={availableProviders}

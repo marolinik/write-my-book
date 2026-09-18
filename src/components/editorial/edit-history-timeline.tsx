@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -53,6 +54,7 @@ function formatTimestamp(ts: string, locale: string) {
 }
 
 export function EditHistoryTimeline({ bookId }: EditHistoryTimelineProps) {
+  const { t } = useLanguage();
   const locale = useLocale();
   const selectedChapter = useEditorialStore((s) => s.selectedChapter);
   const { data, isLoading } = useEditHistory(
@@ -75,7 +77,7 @@ export function EditHistoryTimeline({ bookId }: EditHistoryTimelineProps) {
   if (actions.length === 0) {
     return (
       <div className="flex items-center justify-center p-8">
-        <p className="text-sm text-muted-foreground">No edit history yet</p>
+        <p className="text-sm text-muted-foreground">{t.appUI.noEditHistory}</p>
       </div>
     );
   }

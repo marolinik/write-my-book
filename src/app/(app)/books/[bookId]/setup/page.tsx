@@ -629,13 +629,13 @@ export default function SetupPage({
             <div className="space-y-4">
               {/* Summary */}
               <div className="space-y-2 text-sm">
-                <SummaryRow label="Book name" value={bookState.bookName} done={progress.basicsComplete} />
+                <SummaryRow label={t.appUI.bookName} value={bookState.bookName} done={progress.basicsComplete} />
                 {/* D-163: the row label already says "Chapters" — repeating the
                     noun in the value is what produced "Chapters: 1 chapters". */}
-                <SummaryRow label="Chapters" value={bookState.hasChapters ? String(bookState.chapterCount) : "Skipped"} done={progress.importComplete} />
-                <SummaryRow label="Style Fingerprint" value={bookState.hasFingerprint ? "Captured" : "Not captured"} done={progress.styleComplete} />
-                <SummaryRow label="Story Bible" value={bookState.hasStoryBible ? "Created" : "Not created"} done={progress.bibleComplete} />
-                <SummaryRow label="Architecture" value={bookState.hasArchitecture ? "Created" : "Not created"} done={progress.archComplete} />
+                <SummaryRow label={t.workspaceUI.chapters} value={bookState.hasChapters ? String(bookState.chapterCount) : "Skipped"} done={progress.importComplete} />
+                <SummaryRow label={t.appUI.styleFingerprint} value={bookState.hasFingerprint ? "Captured" : "Not captured"} done={progress.styleComplete} />
+                <SummaryRow label={t.appUI.storyBible} value={bookState.hasStoryBible ? "Created" : "Not created"} done={progress.bibleComplete} />
+                <SummaryRow label={t.appUI.architecture} value={bookState.hasArchitecture ? "Created" : "Not created"} done={progress.archComplete} />
               </div>
 
               <Button onClick={handleFinishSetup} className="w-full" disabled={finishing}>

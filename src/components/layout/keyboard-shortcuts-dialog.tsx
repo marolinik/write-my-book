@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useEffect, useState } from "react";
 import {
   Dialog,
@@ -30,6 +31,7 @@ function groupByContext() {
 const grouped = groupByContext();
 
 export function KeyboardShortcutsDialog() {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
 
   // Ctrl+/ or Cmd+/ handler
@@ -57,7 +59,7 @@ export function KeyboardShortcutsDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Keyboard Shortcuts</DialogTitle>
+          <DialogTitle>{t.appUI.keyboardShortcuts}</DialogTitle>
           <DialogDescription>
             Available keyboard shortcuts organized by context.
           </DialogDescription>

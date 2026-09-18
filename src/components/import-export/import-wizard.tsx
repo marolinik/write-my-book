@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,7 @@ const FORMAT_INFO = [
 ];
 
 export function ImportWizard({ bookId, onComplete, autoAnalyze = true }: ImportWizardProps) {
+  const { t } = useLanguage();
   const [phase, setPhase] = useState<WizardPhase>("upload");
   const [chapters, setChapters] = useState<PreviewChapter[]>([]);
   const [existingChapters, setExistingChapters] = useState<
@@ -102,15 +104,15 @@ export function ImportWizard({ bookId, onComplete, autoAnalyze = true }: ImportW
     <div className="space-y-4">
       {/* Phase indicator */}
       <div className="flex items-center gap-2 text-sm">
-        <PhaseIndicator label="Upload" active={phase === "upload"} done={phase !== "upload"} />
+        <PhaseIndicator label={t.appUI.upload} active={phase === "upload"} done={phase !== "upload"} />
         <span className="text-muted-foreground">/</span>
         <PhaseIndicator
-          label="Preview & Edit"
+          label={t.appUI.previewEdit}
           active={phase === "preview"}
           done={phase === "confirm-success"}
         />
         <span className="text-muted-foreground">/</span>
-        <PhaseIndicator label="Done" active={phase === "confirm-success"} done={false} />
+        <PhaseIndicator label={t.appUI.done} active={phase === "confirm-success"} done={false} />
       </div>
 
       {/* Phase 1: Upload */}
@@ -166,7 +168,7 @@ export function ImportWizard({ bookId, onComplete, autoAnalyze = true }: ImportW
       {phase === "preview" && (
         <Card>
           <CardHeader>
-            <CardTitle>Preview & Edit Chapters</CardTitle>
+            <CardTitle>{t.appUI.previewEditChapters}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">

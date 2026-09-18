@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useMemo } from "react";
 import {
   TrophyIcon,
@@ -159,6 +160,7 @@ interface WritingAchievementsProps {
 }
 
 export function WritingAchievements({ stats, compact }: WritingAchievementsProps) {
+  const { t } = useLanguage();
   const achievements = useMemo(() => getAchievements(stats), [stats]);
   const earned = achievements.filter((a) => a.earned);
   const total = achievements.length;
@@ -182,7 +184,7 @@ export function WritingAchievements({ stats, compact }: WritingAchievementsProps
           </Tooltip>
         ))}
         {earned.length === 0 && (
-          <span className="text-xs text-muted-foreground">No achievements yet — start writing!</span>
+          <span className="text-xs text-muted-foreground">{t.appUI.noAchievements}</span>
         )}
       </div>
     );

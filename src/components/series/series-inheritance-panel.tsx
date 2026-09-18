@@ -62,7 +62,7 @@ export function SeriesInheritancePanel({
           onValueChange={setSelectedBookId}
         >
           <SelectTrigger className="w-64">
-            <SelectValue placeholder="Select a book..." />
+            <SelectValue placeholder={t.workspaceUI.selectBookEllipsis} />
           </SelectTrigger>
           <SelectContent>
             {books.map((book) => (
