@@ -24,6 +24,17 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
+import { useLanguage } from "@/components/providers/language-provider";
+import { useBook } from "@/hooks/use-books";
+
+type DomainLabelKey =
+  | "domCharacters"
+  | "domTimeline"
+  | "domGeography"
+  | "domObjects"
+  | "domRelationships"
+  | "domWorld"
+  | "domOther";
 
 interface Finding {
   id: string;
@@ -36,35 +47,35 @@ interface Finding {
 
 const DOMAIN_CONFIG: Record<
   string,
-  { label: string; icon: React.ElementType; categories: string[] }
+  { labelKey: DomainLabelKey; icon: React.ElementType; categories: string[] }
 > = {
   characters: {
-    label: "Characters",
+    labelKey: "domCharacters",
     icon: UsersIcon,
     categories: ["character", "characters", "character-consistency"],
   },
   timeline: {
-    label: "Timeline",
+    labelKey: "domTimeline",
     icon: ClockIcon,
     categories: ["timeline", "chronology", "time-consistency"],
   },
   geography: {
-    label: "Geography",
+    labelKey: "domGeography",
     icon: MapPinIcon,
     categories: ["geography", "location", "setting"],
   },
   objects: {
-    label: "Objects & Props",
+    labelKey: "domObjects",
     icon: BoxIcon,
     categories: ["objects", "props", "items"],
   },
   relationships: {
-    label: "Relationships",
+    labelKey: "domRelationships",
     icon: HeartIcon,
     categories: ["relationships", "relationship"],
   },
   world: {
-    label: "World Rules",
+    labelKey: "domWorld",
     icon: GlobeIcon,
     categories: ["world-building", "world-rules", "worldbuilding", "magic-system"],
   },
@@ -73,7 +84,7 @@ const DOMAIN_CONFIG: Record<
   // were counted into a bucket that was never rendered — the tracker showed
   // "0 findings" while the findings list below it was full.
   other: {
-    label: "Other",
+    labelKey: "domOther",
     icon: ListIcon,
     categories: [],
   },
@@ -99,6 +110,13 @@ function categorizeFinding(category: string): string {
 
 export function ContinuityTab({ bookId }: { bookId: string }) {
   const openWithWorkflow = useAgentUIStore((s) => s.openWithWorkflow);
+  // O10: a standalone book was told to run the SERIES continuity check — a
+  // cross-book pass over books it does not have. The scope follows the book.
+  const { t } = useLanguage();
+  const c = t.continuityTab;
+  const { data: book } = useBook(bookId);
+  const inSeries = Boolean(book?.seriesId);
+  const checkWorkflow = inSeries ? "check-series-continuity" : "check-continuity";
   const [selectedDomain, setSelectedDomain] = useState<string | null>(null);
 
   const { data: documents, isLoading: docsLoading } = useQuery({
@@ -179,27 +197,29 @@ export function ContinuityTab({ bookId }: { bookId: string }) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold">Continuity</h3>
-          <p className="text-sm text-muted-foreground">
-            Track consistency across your manuscript
-          </p>
+          <h3 className="text-lg font-semibold">{c.title}</h3>
+          <p className="text-sm text-muted-foreground">{c.subtitle}</p>
         </div>
-        <Button
-          size="sm"
-          onClick={() => openWithWorkflow("check-series-continuity")}
-        >
+        <Button size="sm" onClick={() => openWithWorkflow(checkWorkflow)}>
           <PlayIcon className="mr-2 h-4 w-4" />
-          Run Continuity Check
+          {inSeries ? c.runSeries : c.run}
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Continuity Tracker</CardTitle>
+          <CardTitle>{c.tracker}</CardTitle>
           <CardDescription>
             {findingsList.length > 0
-              ? `${findingsList.length} finding${findingsList.length !== 1 ? "s" : ""} across ${Object.values(domainStats).filter((s) => s.total > 0).length} domains`
-              : "No findings yet — run a continuity check to populate"}
+              ? c.findingsSummary
+                  .replace("{n}", String(findingsList.length))
+                  .replace(
+                    "{d}",
+                    String(
+                      Object.values(domainStats).filter((st) => st.total > 0).length
+                    )
+                  )
+              : c.trackerEmpty}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -225,7 +245,7 @@ export function ContinuityTab({ bookId }: { bookId: string }) {
                 >
                   <div className="flex items-center gap-2">
                     <Icon className="size-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">{config.label}</span>
+                    <span className="text-sm font-medium">{c[config.labelKey]}</span>
                   </div>
                   {hasFindings ? (
                     <div className="flex items-center gap-1">
@@ -260,10 +280,8 @@ export function ContinuityTab({ bookId }: { bookId: string }) {
       {continuityReport ? (
         <Card>
           <CardHeader>
-            <CardTitle>Continuity Report</CardTitle>
-            <CardDescription>
-              Generated by the continuity check agent
-            </CardDescription>
+            <CardTitle>{c.report}</CardTitle>
+            <CardDescription>{c.reportDesc}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="prose prose-sm max-w-none dark:prose-invert whitespace-pre-wrap">
@@ -276,10 +294,7 @@ export function ContinuityTab({ bookId }: { bookId: string }) {
       ) : (
         <Card>
           <CardContent className="py-8 text-center">
-            <p className="text-sm text-muted-foreground">
-              No continuity report yet. Click &quot;Run Continuity Check&quot;
-              to generate one.
-            </p>
+            <p className="text-sm text-muted-foreground">{c.reportEmpty}</p>
           </CardContent>
         </Card>
       )}
@@ -289,12 +304,16 @@ export function ContinuityTab({ bookId }: { bookId: string }) {
           <CardHeader>
             <CardTitle>
               {selectedDomain
-                ? `${DOMAIN_CONFIG[selectedDomain]?.label ?? "Other"} Findings`
-                : "Continuity Findings"}
+                ? c.domainFindings.replace(
+                    "{domain}",
+                    c[DOMAIN_CONFIG[selectedDomain]?.labelKey ?? "domOther"]
+                  )
+                : c.findings}
             </CardTitle>
             <CardDescription>
-              {filteredFindings.length} finding
-              {filteredFindings.length !== 1 ? "s" : ""}
+              {c.findingsSummary
+                .replace("{n}", String(filteredFindings.length))
+                .replace("{d}", String(selectedDomain ? 1 : Object.values(domainStats).filter((st) => st.total > 0).length))}
               {selectedDomain && (
                 <Button
                   variant="link"
@@ -302,7 +321,7 @@ export function ContinuityTab({ bookId }: { bookId: string }) {
                   className="ml-2 h-auto p-0 text-xs"
                   onClick={() => setSelectedDomain(null)}
                 >
-                  Show all
+                  {c.showAll}
                 </Button>
               )}
             </CardDescription>
@@ -325,7 +344,7 @@ export function ContinuityTab({ bookId }: { bookId: string }) {
                     )}
                     {finding.chapterNumber && (
                       <span className="text-xs text-muted-foreground">
-                        Ch. {finding.chapterNumber}
+                        {c.chapterShort} {finding.chapterNumber}
                       </span>
                     )}
                   </div>

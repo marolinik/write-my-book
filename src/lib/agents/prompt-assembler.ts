@@ -1209,6 +1209,7 @@ You MUST pass chapterNumber and workflowId='revise' to DelegateToSpecialist. Aft
   "init-series": "Delegate to story-architect for series initialization.",
   "create-series-bible": "Delegate to story-architect to build the series bible.",
   "create-series-architecture": "Delegate to story-architect for multi-book arc design.",
+  "check-continuity": `Delegate to continuity-checker for THIS BOOK only (workflowId='check-continuity', book-level, NO chapterNumber). Tell the specialist to ReadAllChapters and check characters, timeline, geography, world rules and paid-off foreshadowing INSIDE this book. It must not claim anything about other books: this is not the series check. File each conflict with CreateFinding and write the CONTINUITY_REPORT document. Present the conflicts by severity when it completes.`,
   "check-series-continuity": `Delegate to continuity-checker for CROSS-BOOK continuity verification. Tell the specialist exactly what to read, because its own tools only reach the current book's chapters:
 1. ReadSeriesDocument for SERIES_BIBLE, SERIES_ARCHITECTURE and SERIES_FINGERPRINT — these carry one "## Book NN Contributions" section per book, which is the only cross-book material available.
 2. ReadAllChapters for the CURRENT book.

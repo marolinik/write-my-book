@@ -301,6 +301,17 @@ export interface UIStrings {
   };
 
   // Style page
+  // O10 - the continuity tab: one book or a whole series, and no hardcoded English.
+  continuityTab: {
+    title: string; subtitle: string;
+    run: string; runSeries: string;
+    tracker: string; trackerEmpty: string; findingsSummary: string;
+    report: string; reportDesc: string; reportEmpty: string;
+    findings: string; domainFindings: string; showAll: string; chapterShort: string;
+    domCharacters: string; domTimeline: string; domGeography: string;
+    domObjects: string; domRelationships: string; domWorld: string; domOther: string;
+  };
+
   // O12 - structural revision pass
   structure: {
     tab: string; title: string; subtitle: string;
@@ -797,6 +808,20 @@ const EN: UIStrings = {
     title: "Reports", subtitle: "Analytics, continuity, market analysis, and editorial overview",
     analytics: "Analytics", continuity: "Continuity", market: "Market", edits: "Edits", documents: "Documents",
   },
+  continuityTab: {
+    title: "Continuity", subtitle: "Track consistency across your manuscript",
+    run: "Check this book", runSeries: "Check the whole series",
+    tracker: "Continuity tracker", trackerEmpty: "Nothing found yet - run a check to populate this",
+    findingsSummary: "{n} findings across {d} domains",
+    report: "Continuity report", reportDesc: "Written by the continuity checker",
+    reportEmpty: "No continuity report yet.",
+    findings: "Continuity findings", domainFindings: "{domain} findings",
+    showAll: "Show all", chapterShort: "Ch.",
+    domCharacters: "Characters", domTimeline: "Timeline", domGeography: "Geography",
+    domObjects: "Objects and props", domRelationships: "Relationships",
+    domWorld: "World rules", domOther: "Other",
+  },
+
   structure: {
     tab: "Structure", title: "Structural revision",
     subtitle: "Proposed moves from the developmental editor. Nothing changes until you accept.",
@@ -1317,6 +1342,20 @@ const SR: UIStrings = {
     title: "Izveštaji", subtitle: "Analitika, kontinuitet, analiza tržišta i pregled redakcije",
     analytics: "Analitika", continuity: "Kontinuitet", market: "Tržište", edits: "Izmene", documents: "Dokumenta",
   },
+  continuityTab: {
+    title: "Kontinuitet", subtitle: "Pratite doslednost kroz ceo rukopis",
+    run: "Proveri ovu knjigu", runSeries: "Proveri ceo serijal",
+    tracker: "Praćenje kontinuiteta", trackerEmpty: "Još ništa nije nađeno - pokrenite proveru",
+    findingsSummary: "{n} nalaza u {d} oblasti",
+    report: "Izveštaj o kontinuitetu", reportDesc: "Napisao proverivač kontinuiteta",
+    reportEmpty: "Još nema izveštaja o kontinuitetu.",
+    findings: "Nalazi kontinuiteta", domainFindings: "Nalazi: {domain}",
+    showAll: "Prikaži sve", chapterShort: "Pogl.",
+    domCharacters: "Likovi", domTimeline: "Hronologija", domGeography: "Geografija",
+    domObjects: "Predmeti i rekviziti", domRelationships: "Odnosi",
+    domWorld: "Pravila sveta", domOther: "Ostalo",
+  },
+
   structure: {
     tab: "Struktura", title: "Strukturna revizija",
     subtitle: "Predlozi razvojnog urednika. Ništa se ne menja dok ne prihvatite.",
@@ -1836,6 +1875,20 @@ const DE: UIStrings = {
     title: "Berichte", subtitle: "Analytik, Kontinuität, Marktanalyse und Lektoratsübersicht",
     analytics: "Analytik", continuity: "Kontinuität", market: "Markt", edits: "Lektorat", documents: "Dokumente",
   },
+  continuityTab: {
+    title: "Kontinuität", subtitle: "Konsistenz im ganzen Manuskript verfolgen",
+    run: "Dieses Buch prüfen", runSeries: "Ganze Serie prüfen",
+    tracker: "Kontinuitäts-Tracker", trackerEmpty: "Noch nichts gefunden - starten Sie eine Prüfung",
+    findingsSummary: "{n} Befunde in {d} Bereichen",
+    report: "Kontinuitätsbericht", reportDesc: "Vom Kontinuitätsprüfer verfasst",
+    reportEmpty: "Noch kein Kontinuitätsbericht.",
+    findings: "Kontinuitätsbefunde", domainFindings: "Befunde: {domain}",
+    showAll: "Alle anzeigen", chapterShort: "Kap.",
+    domCharacters: "Figuren", domTimeline: "Zeitlinie", domGeography: "Geografie",
+    domObjects: "Gegenstände", domRelationships: "Beziehungen",
+    domWorld: "Weltregeln", domOther: "Sonstiges",
+  },
+
   structure: {
     tab: "Struktur", title: "Strukturelle Überarbeitung",
     subtitle: "Vorschläge des Entwicklungslektorats. Nichts ändert sich, bis Sie zustimmen.",
@@ -2355,6 +2408,20 @@ const ES: UIStrings = {
     title: "Informes", subtitle: "Analítica, continuidad, análisis de mercado y resumen editorial",
     analytics: "Analítica", continuity: "Continuidad", market: "Mercado", edits: "Ediciones", documents: "Documentos",
   },
+  continuityTab: {
+    title: "Continuidad", subtitle: "Sigue la coherencia de todo el manuscrito",
+    run: "Revisar este libro", runSeries: "Revisar toda la serie",
+    tracker: "Seguimiento de continuidad", trackerEmpty: "Aún no hay nada - ejecuta una revisión",
+    findingsSummary: "{n} hallazgos en {d} áreas",
+    report: "Informe de continuidad", reportDesc: "Escrito por el verificador de continuidad",
+    reportEmpty: "Aún no hay informe de continuidad.",
+    findings: "Hallazgos de continuidad", domainFindings: "Hallazgos: {domain}",
+    showAll: "Mostrar todo", chapterShort: "Cap.",
+    domCharacters: "Personajes", domTimeline: "Cronología", domGeography: "Geografía",
+    domObjects: "Objetos y atrezo", domRelationships: "Relaciones",
+    domWorld: "Reglas del mundo", domOther: "Otros",
+  },
+
   structure: {
     tab: "Estructura", title: "Revisión estructural",
     subtitle: "Propuestas del editor de desarrollo. Nada cambia hasta que aceptes.",
@@ -2874,6 +2941,20 @@ const FR: UIStrings = {
     title: "Rapports", subtitle: "Analytique, continuité, analyse de marché et aperçu éditorial",
     analytics: "Analytique", continuity: "Continuité", market: "Marché", edits: "Éditions", documents: "Documents",
   },
+  continuityTab: {
+    title: "Continuité", subtitle: "Suivez la cohérence dans tout le manuscrit",
+    run: "Vérifier ce livre", runSeries: "Vérifier toute la série",
+    tracker: "Suivi de continuité", trackerEmpty: "Rien pour l'instant - lancez une vérification",
+    findingsSummary: "{n} constats dans {d} domaines",
+    report: "Rapport de continuité", reportDesc: "Rédigé par le vérificateur de continuité",
+    reportEmpty: "Pas encore de rapport de continuité.",
+    findings: "Constats de continuité", domainFindings: "Constats : {domain}",
+    showAll: "Tout afficher", chapterShort: "Chap.",
+    domCharacters: "Personnages", domTimeline: "Chronologie", domGeography: "Géographie",
+    domObjects: "Objets et accessoires", domRelationships: "Relations",
+    domWorld: "Règles du monde", domOther: "Autres",
+  },
+
   structure: {
     tab: "Structure", title: "Révision structurelle",
     subtitle: "Propositions de l'éditeur de développement. Rien ne change tant que vous n'acceptez pas.",
@@ -3393,6 +3474,20 @@ const RU: UIStrings = {
     title: "Отчёты", subtitle: "Аналитика, непрерывность, анализ рынка и обзор редактуры",
     analytics: "Аналитика", continuity: "Непрерывность", market: "Рынок", edits: "Редактура", documents: "Документы",
   },
+  continuityTab: {
+    title: "Непрерывность", subtitle: "Следите за согласованностью во всёй рукописи",
+    run: "Проверить эту книгу", runSeries: "Проверить всю серию",
+    tracker: "Трекер непрерывности", trackerEmpty: "Пока ничего не найдено - запустите проверку",
+    findingsSummary: "{n} замечаний в {d} областях",
+    report: "Отчёт о непрерывности", reportDesc: "Составлен проверяющим непрерывность",
+    reportEmpty: "Отчёта о непрерывности пока нет.",
+    findings: "Замечания по непрерывности", domainFindings: "Замечания: {domain}",
+    showAll: "Показать все", chapterShort: "Гл.",
+    domCharacters: "Персонажи", domTimeline: "Хронология", domGeography: "География",
+    domObjects: "Предметы", domRelationships: "Отношения",
+    domWorld: "Правила мира", domOther: "Прочее",
+  },
+
   structure: {
     tab: "Структура", title: "Структурная редактура",
     subtitle: "Предложения редактора. Ничего не меняется, пока вы не примете.",
@@ -3912,6 +4007,20 @@ const ZH: UIStrings = {
     title: "报告", subtitle: "分析、连续性、市场分析和编辑概览",
     analytics: "分析", continuity: "连续性", market: "市场", edits: "编辑", documents: "文档",
   },
+  continuityTab: {
+    title: "连贯性", subtitle: "跟踪整部稿件的一致性",
+    run: "检查本书", runSeries: "检查整个系列",
+    tracker: "连贯性追踪", trackerEmpty: "暂无结果 - 先运行一次检查",
+    findingsSummary: "{d} 个领域共 {n} 项发现",
+    report: "连贯性报告", reportDesc: "由连贯性检查员撰写",
+    reportEmpty: "还没有连贯性报告。",
+    findings: "连贯性发现", domainFindings: "{domain} 发现",
+    showAll: "显示全部", chapterShort: "第",
+    domCharacters: "人物", domTimeline: "时间线", domGeography: "地理",
+    domObjects: "物品与道具", domRelationships: "关系",
+    domWorld: "世界规则", domOther: "其他",
+  },
+
   structure: {
     tab: "结构", title: "结构修订",
     subtitle: "来自结构编辑的建议。在你接受之前，什么都不会改变。",

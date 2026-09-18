@@ -593,6 +593,35 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     estimatedMaxMinutes: 10,
     minimumTier: "sonnet",
   },
+  // O10 - a standalone book had no continuity workflow at all, so the tab could
+  // only offer the SERIES check: a book outside any series was told to verify
+  // cross-book continuity it does not have.
+  {
+    id: "check-continuity",
+    label: "Check Continuity",
+    description:
+      "Verify continuity inside this book: characters, timeline, geography, world rules and foreshadowing.",
+    writerDescription:
+      "Check this book for continuity errors: characters, timeline, places, world rules.",
+    primaryAgent: "continuity-checker",
+    category: "analysis",
+    requiresChapter: false,
+    requiresSeriesContext: false,
+    conversational: false,
+    suggestedNext: ["dev-edit"],
+    prerequisites: [
+      {
+        type: "manuscript",
+        value: "any",
+        description: "The book needs chapters before its continuity can be checked",
+        satisfiedBy: "write-chapter",
+      },
+    ],
+    producesDocument: "CONTINUITY_REPORT",
+    estimatedMinMinutes: 3,
+    estimatedMaxMinutes: 8,
+    minimumTier: "sonnet",
+  },
   {
     id: "check-series-continuity",
     label: "Check Series Continuity",
