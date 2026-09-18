@@ -439,3 +439,68 @@ describe("undoStructureMove", () => {
     expect(h.renumberChapters).not.toHaveBeenCalled();
   });
 });
+
+describe("undo restores the recorded word count, not a fresh tally", () => {
+  /**
+   * D-205: accepting a split and undoing it left the prose byte-identical but
+   * moved book.wordCount — 56,874 to 56,890 on the owner's manuscript. The
+   * merge path restores the number from its snapshot; the split path recounted
+   * with countWords(), which strips markdown the import path had counted. Every
+   * rehearsal of a move nudged the book's word count a little further wrong.
+   */
+  const CONTENT = "# Povratak\n\nPrva scena.\n\n- lista\n\nKad je pao mrak, sve je utihnulo.";
+
+  beforeEach(() => {
+    h.db.structureMove.findFirst.mockResolvedValue(
+      move("split", { kind: "split", chapterNumber: 2, anchorQuote: "Kad je pao mrak" }, {
+        status: "applied",
+        previousState: JSON.stringify({
+          ordering: [
+            { chapterId: "c1", chapterNumber: 1 },
+            { chapterId: "c2", chapterNumber: 2 },
+          ],
+          sourceChapterId: "c2",
+          sourceContent: CONTENT,
+          sourceWordCount: 1234,
+          createdChapterId: "new1",
+          createdChapterNumber: 3,
+        }),
+      })
+    );
+  });
+
+  it("writes back the number the chapter had before the split", async () => {
+    const res = await undoStructureMove("m1", opts);
+    expect(res.ok).toBe(true);
+
+    const restore = h.db.chapter.update.mock.calls
+      .map((call) => call[0] as { data: { wordCount?: number } })
+      .find((call) => call.data.wordCount !== undefined);
+
+    expect(restore?.data.wordCount).toBe(1234);
+  });
+
+  it("falls back to a count for a snapshot taken before this was recorded", async () => {
+    h.db.structureMove.findFirst.mockResolvedValue(
+      move("split", { kind: "split", chapterNumber: 2, anchorQuote: "Kad je pao mrak" }, {
+        status: "applied",
+        previousState: JSON.stringify({
+          ordering: [{ chapterId: "c2", chapterNumber: 2 }],
+          sourceChapterId: "c2",
+          sourceContent: CONTENT,
+          createdChapterId: "new1",
+          createdChapterNumber: 3,
+        }),
+      })
+    );
+
+    const res = await undoStructureMove("m1", opts);
+    expect(res.ok).toBe(true);
+
+    const restore = h.db.chapter.update.mock.calls
+      .map((call) => call[0] as { data: { wordCount?: number } })
+      .find((call) => call.data.wordCount !== undefined);
+
+    expect(restore?.data.wordCount).toBeGreaterThan(0);
+  });
+});

@@ -61,6 +61,12 @@ interface PreviousState {
   chapters?: ChapterSnapshot[];
   sourceChapterId?: string;
   sourceContent?: string;
+  /**
+   * The chapter's word count before the split. Restoring the prose is not
+   * enough: countWords() strips markdown the import path counted, so recounting
+   * on undo moved book.wordCount even though not a word had changed (D-205).
+   */
+  sourceWordCount?: number;
   createdChapterId?: string;
   createdChapterNumber?: number;
 }
@@ -268,6 +274,7 @@ export async function applyStructureMove(
             ordering: before,
             sourceChapterId: source.id,
             sourceContent: content,
+            sourceWordCount: source.wordCount,
             createdChapterId: created.id,
             createdChapterNumber: newNumber,
           },
@@ -459,7 +466,11 @@ async function restoreContent(
   }
   await db.chapter.update({
     where: { id: source.id },
-    data: { wordCount: countWords(content) },
+    data: {
+      // The snapshot's number wins. A recount is only for proposals filed
+      // before it was recorded.
+      wordCount: previous.sourceWordCount ?? countWords(content),
+    },
   });
 }
 
