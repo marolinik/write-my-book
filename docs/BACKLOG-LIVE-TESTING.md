@@ -1,9 +1,31 @@
-# Live-testing backlog — 2026-09-17
+# Live-testing backlog — 2026-09-17 (closed out 2026-09-18)
 
 Running list from the writer's live session against the local fleet. Nothing is
 dropped from here until it is either fixed or explicitly declined.
 
 Status legend: **DONE** (fixed + verified), **OPEN** (not started), **PARTIAL**.
+
+## Status as of 2026-09-18
+
+All thirteen open items (O1–O13) were worked. Twelve are DONE; O7 is CONFIRMED
+and guarded but its root cause is still open, for the honest reason recorded
+below.
+
+| # | What it was | Outcome |
+|---|---|---|
+| O1 | 131 hardcoded English strings | DONE for the app. 535 scanner hits down to 59; what remains is public marketing copy, shadcn primitives and scanner false positives. `scripts/scan-hardcoded-ui-strings.ts` measures it; `tests/unit/main-surfaces-i18n.test.ts` keeps the daily screens from regressing. |
+| O2 | Series documents were concatenations | DONE — `src/lib/series/compose-series-document.ts` demotes headings, inserts in book order, names books that contributed nothing, marks a foreign-language section. |
+| O3 | Old documents keep their damage | DONE — damage scan, an API, a notice with per-document Regenerate, and a CLI script. Found 15 damaged of 62 on the live dev database. |
+| O4 | Prerequisite failures invisible | DONE — the 422 now names the missing artifact in the writer's language and offers the run that produces it. |
+| O5 | Zika needs a warm-up | DONE — cold-start family gets a 20 minute client deadline, the rest of the fleet 10, hosted providers keep the SDK default. |
+| O6 | Worker log flood on Redis loss | DONE — exponential Redis backoff to a 30s ceiling plus a per-failure log throttle. |
+| O7 | D-203 hydration mismatch | CONFIRMED, not fixed. See below. |
+| O8 | Board did not refresh after a job | DONE — `RefreshOnSessionComplete` refreshes the server render when a session of this book reaches a terminal state. |
+| O9 | Cross-book continuity blind | DONE — `ListSeriesBooks` and `ReadSiblingChapter` give the checker a sibling book's real prose. |
+| O10 | Continuity tab always ran the series check | DONE — new `check-continuity` workflow for a standalone book, and the whole tab translated. |
+| O11 | Razvoj board showed the greenfield map | DONE — the importer path is derived from the data and rendered by the same cards. |
+| O12 | No structural revision pass | DONE — propose, accept, apply, undo, and a writer panel. |
+| O13 | `analyze` was a dead end | DONE — the report hands off to the restructure pass, in the workflow graph and in the Analytics tab. |
 
 ---
 
@@ -136,10 +158,37 @@ Either warm it on gateway start or give that family a longer client timeout.
 While Docker was down the worker wrote ~80k `ECONNREFUSED` lines with no
 backoff.
 
-### O7 — D-203 hydration mismatch (LOW)
-Radix `useId` differs between server and client render (`_R_33e…` vs `_R_or…`),
-reported in the console on every page load. Pre-existing. Suspected dev-only
-(Turbopack overlay); needs a production-build comparison to confirm.
+### O7 — D-203 hydration mismatch (LOW) — CONFIRMED, root cause open
+Reproduced and localised on 2026-09-18, and now guarded by
+`tests/e2e/hydration-console.spec.ts` (opt-in: `HYDRATION_AUDIT=1`).
+
+What is now known:
+
+- It is real in development and **intermittent**: three of four runs of the
+  audit are clean, one fails. The first run after a cold compile failed on all
+  three pages tested.
+- The mismatching node is a Radix `DropdownMenuTrigger` on `/dashboard`; the
+  server rendered `id="radix-_R_66iitmlb_"` and the client `id="radix-_R_1hkitmlb_"`.
+  React's message is the attribute-mismatch one, not a text mismatch.
+- React 19 derives `useId` from the position in the tree, so a differing id
+  means the tree above that node differed between server and client render.
+  That is the thing to find; it is NOT the dropdown's own fault.
+
+What could NOT be answered here, and why: the original question was whether this
+is dev-only. A production build refuses to start on this machine, by design —
+`next build` fails with "Invalid production environment: placeholder value is not
+allowed in production runtime" for the three Clerk variables, plus
+"DEV_AUTH_BYPASS must be disabled in production". The local `.env` carries
+neutralised Clerk keys and the dev bypass the writer needs. Answering the
+question requires an environment with real keys:
+
+```bash
+npm run build && npx next start -p 3100
+HYDRATION_AUDIT=1 PLAYWRIGHT_BASE_URL=http://127.0.0.1:3100   npx playwright test hydration-console
+```
+
+Nothing was patched on a guess: a speculative `suppressHydrationWarning` would
+hide the symptom and keep whatever renders differently.
 
 ---
 
