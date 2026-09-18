@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState, useCallback, useEffect } from "react";
 import { Trash2Icon, SaveIcon, PlusIcon, XIcon } from "lucide-react";
 
@@ -69,6 +70,7 @@ export function WikiEntityDetail({
   isSaving,
   strings,
 }: WikiEntityDetailProps) {
+  const { t } = useLanguage();
   const [name, setName] = useState("");
   const [type, setType] = useState<string>("character");
   const [aliasInput, setAliasInput] = useState("");
@@ -166,18 +168,18 @@ export function WikiEntityDetail({
         <div className="space-y-5 mt-6">
           {/* Name */}
           <div className="space-y-2">
-            <Label htmlFor="entity-name">Name</Label>
+            <Label htmlFor="entity-name">{t.bookUI.name}</Label>
             <Input
               id="entity-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Entity name"
+              placeholder={t.bookUI.entityNamePlaceholder}
             />
           </div>
 
           {/* Type */}
           <div className="space-y-2">
-            <Label>Type</Label>
+            <Label>{t.bookUI.type}</Label>
             <Select value={type} onValueChange={setType}>
               <SelectTrigger>
                 <SelectValue />
@@ -212,7 +214,7 @@ export function WikiEntityDetail({
               <Input
                 value={aliasInput}
                 onChange={(e) => setAliasInput(e.target.value)}
-                placeholder="Add alias..."
+                placeholder={t.bookUI.addAlias}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
@@ -232,7 +234,7 @@ export function WikiEntityDetail({
             <Textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe this entity..."
+              placeholder={t.bookUI.describeEntity}
               rows={4}
             />
           </div>

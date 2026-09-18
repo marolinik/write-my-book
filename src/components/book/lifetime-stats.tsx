@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import {
   PenLineIcon,
   BookOpenIcon,
@@ -44,6 +45,7 @@ export function LifetimeStats({
   totalDaysWriting = 0,
   memberSince = "",
 }: LifetimeStatsProps) {
+  const { t } = useLanguage();
   const locale = useLocale();
   const daysSinceMember = memberSince
     ? Math.floor((Date.now() - new Date(memberSince).getTime()) / (1000 * 60 * 60 * 24))
@@ -62,12 +64,12 @@ export function LifetimeStats({
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <StatBox icon={PenLineIcon} value={totalWords.toLocaleString(locale)} label="Total Words" color="text-blue-500" />
-          <StatBox icon={BookOpenIcon} value={totalChapters.toString()} label="Chapters" color="text-green-500" />
-          <StatBox icon={BookOpenIcon} value={totalBooks.toString()} label="Books" color="text-indigo-500" />
-          <StatBox icon={BrainIcon} value={totalSessions.toString()} label="AI Sessions" color="text-purple-500" />
-          <StatBox icon={FlameIcon} value={`${longestStreak}d`} label="Best Streak" color="text-orange-500" />
-          <StatBox icon={ClockIcon} value={`${totalDaysWriting}d`} label="Days Writing" color="text-cyan-500" />
+          <StatBox icon={PenLineIcon} value={totalWords.toLocaleString(locale)} label={t.bookUI.totalWords} color="text-blue-500" />
+          <StatBox icon={BookOpenIcon} value={totalChapters.toString()} label={t.bookUI.chapters} color="text-green-500" />
+          <StatBox icon={BookOpenIcon} value={totalBooks.toString()} label={t.bookUI.books} color="text-indigo-500" />
+          <StatBox icon={BrainIcon} value={totalSessions.toString()} label={t.bookUI.aiSessions} color="text-purple-500" />
+          <StatBox icon={FlameIcon} value={`${longestStreak}d`} label={t.bookUI.bestStreak} color="text-orange-500" />
+          <StatBox icon={ClockIcon} value={`${totalDaysWriting}d`} label={t.bookUI.daysWriting} color="text-cyan-500" />
         </div>
       </CardContent>
     </Card>

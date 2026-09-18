@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState } from "react";
 import {
   MegaphoneIcon,
@@ -69,6 +70,7 @@ function CopyButton({ text }: { text: string }) {
 }
 
 export function MarketingKit({ bookId, bookTitle }: MarketingKitProps) {
+  const { t } = useLanguage();
   const locale = useLocale();
   const { data, isLoading } = useQuery<MarketingKitData | null>({
     queryKey: ["marketing-kit", bookId],
@@ -104,7 +106,7 @@ export function MarketingKit({ bookId, bookTitle }: MarketingKitProps) {
         <CardContent className="text-center py-6 space-y-3">
           <MegaphoneIcon className="size-10 mx-auto text-muted-foreground/20" />
           <div>
-            <p className="text-sm font-medium">Generate your marketing kit</p>
+            <p className="text-sm font-medium">{t.bookUI.generateKit}</p>
             <p className="text-xs text-muted-foreground">
               AI will create a blurb, store description, social posts, and more from your manuscript.
             </p>
@@ -151,22 +153,22 @@ export function MarketingKit({ bookId, bookTitle }: MarketingKitProps) {
       <CardContent>
         <Tabs defaultValue="blurb">
           <TabsList className="mb-3">
-            <TabsTrigger value="blurb" className="text-xs">Blurb</TabsTrigger>
-            <TabsTrigger value="store" className="text-xs">Store</TabsTrigger>
-            <TabsTrigger value="social" className="text-xs">Social</TabsTrigger>
-            <TabsTrigger value="email" className="text-xs">Email</TabsTrigger>
-            <TabsTrigger value="comps" className="text-xs">Comps</TabsTrigger>
+            <TabsTrigger value="blurb" className="text-xs">{t.bookUI.blurb}</TabsTrigger>
+            <TabsTrigger value="store" className="text-xs">{t.bookUI.store}</TabsTrigger>
+            <TabsTrigger value="social" className="text-xs">{t.bookUI.social}</TabsTrigger>
+            <TabsTrigger value="email" className="text-xs">{t.bookUI.email}</TabsTrigger>
+            <TabsTrigger value="comps" className="text-xs">{t.bookUI.comps}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="blurb" className="space-y-2">
             <div className="flex items-start justify-between">
-              <p className="text-xs font-medium">Logline</p>
+              <p className="text-xs font-medium">{t.bookUI.logline}</p>
               <CopyButton text={data.logline} />
             </div>
             <p className="text-sm italic border-l-2 border-primary pl-3">{data.logline}</p>
 
             <div className="flex items-start justify-between mt-4">
-              <p className="text-xs font-medium">Back Cover Blurb</p>
+              <p className="text-xs font-medium">{t.bookUI.backCoverBlurb}</p>
               <CopyButton text={data.blurb} />
             </div>
             <div className="text-sm leading-relaxed whitespace-pre-line bg-muted/30 rounded-md p-3">
@@ -200,7 +202,7 @@ export function MarketingKit({ bookId, bookTitle }: MarketingKitProps) {
 
           <TabsContent value="email" className="space-y-2">
             <div className="flex items-start justify-between">
-              <p className="text-xs font-medium">Launch Announcement Email</p>
+              <p className="text-xs font-medium">{t.bookUI.launchEmail}</p>
               <CopyButton text={data.emailAnnouncement} />
             </div>
             <div className="text-sm leading-relaxed bg-muted/30 rounded-md p-3 whitespace-pre-line">
@@ -209,7 +211,7 @@ export function MarketingKit({ bookId, bookTitle }: MarketingKitProps) {
           </TabsContent>
 
           <TabsContent value="comps" className="space-y-2">
-            <p className="text-xs font-medium">Comparison Titles</p>
+            <p className="text-xs font-medium">{t.bookUI.comparisonTitles}</p>
             <div className="space-y-1.5">
               {data.compTitles.map((comp, i) => (
                 <div key={i} className="flex items-center gap-2 rounded-md border p-2">

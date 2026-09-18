@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useRef, useCallback } from "react";
 import {
   ShareIcon,
@@ -45,6 +46,7 @@ export function ShareableProgressCard({
   milestone,
   milestoneText,
 }: ShareableProgressCardProps) {
+  const { t } = useLanguage();
   const locale = useLocale();
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -102,15 +104,15 @@ export function ShareableProgressCard({
         <div className="grid grid-cols-2 gap-3">
           <div className="text-center rounded-lg bg-background/50 p-3">
             <p className="text-2xl font-bold tabular-nums">{totalWords.toLocaleString(locale)}</p>
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Words Written</p>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t.bookUI.wordsWritten}</p>
           </div>
           <div className="text-center rounded-lg bg-background/50 p-3">
             <p className="text-2xl font-bold tabular-nums">{chaptersComplete}/{totalChapters}</p>
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Chapters</p>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t.bookUI.chapters}</p>
           </div>
           <div className="text-center rounded-lg bg-background/50 p-3">
             <p className="text-2xl font-bold tabular-nums">{daysWriting}</p>
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Days Writing</p>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t.bookUI.daysWriting}</p>
           </div>
           <div className="text-center rounded-lg bg-background/50 p-3">
             <p className="text-2xl font-bold tabular-nums">{currentStreak}</p>
@@ -121,7 +123,7 @@ export function ShareableProgressCard({
         {/* Progress bar */}
         <div className="space-y-1">
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>Progress</span>
+            <span>{t.bookUI.progress}</span>
             <span>{pct}%</span>
           </div>
           <div className="h-2 rounded-full bg-muted overflow-hidden">

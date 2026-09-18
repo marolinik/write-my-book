@@ -454,6 +454,50 @@ export interface UIStrings {
     recentFindingsHint: string;
   };
 
+  // O1 - book extras: the year recap, marketing kit, wiki, certificate, stats.
+  bookUI: {
+    yourYear: string;
+    inWriting: string;
+    youWrote: string;
+    wordsThisYear: string;
+    longestStreak: string;
+    daysInARow: string;
+    youAreA: string;
+    peakMonthWas: string;
+    writerPersonality: string;
+    aiSessions: string;
+    editsReviewed: string;
+    generateKit: string;
+    blurb: string;
+    store: string;
+    social: string;
+    email: string;
+    comps: string;
+    logline: string;
+    backCoverBlurb: string;
+    launchEmail: string;
+    comparisonTitles: string;
+    name: string;
+    entityNamePlaceholder: string;
+    type: string;
+    addAlias: string;
+    describeEntity: string;
+    key: string;
+    value: string;
+    certifiesThat: string;
+    completedFirstDraft: string;
+    words: string;
+    chapters: string;
+    days: string;
+    totalWords: string;
+    books: string;
+    bestStreak: string;
+    daysWriting: string;
+    wordsWritten: string;
+    dayStreak: string;
+    progress: string;
+  };
+
   // O1 - main-surface strings that used to be written inline in English.
   screens: {
     bookProgress: string; drafted: string; edited: string; betaPassed: string;
@@ -1140,6 +1184,49 @@ const EN: UIStrings = {
     criticalMajor: "Critical and major",
     recentFindings: "Recent findings",
     recentFindingsHint: "The latest editorial findings across all chapters",
+  },
+
+  bookUI: {
+    yourYear: "Your",
+    inWriting: "in writing",
+    youWrote: "You wrote",
+    wordsThisYear: "words this year",
+    longestStreak: "Your longest streak",
+    daysInARow: "days in a row",
+    youAreA: "You are a",
+    peakMonthWas: "Your peak month was",
+    writerPersonality: "Your writer personality",
+    aiSessions: "AI sessions",
+    editsReviewed: "edits reviewed",
+    generateKit: "Generate your marketing kit",
+    blurb: "Blurb",
+    store: "Store",
+    social: "Social",
+    email: "Email",
+    comps: "Comps",
+    logline: "Logline",
+    backCoverBlurb: "Back cover blurb",
+    launchEmail: "Launch announcement email",
+    comparisonTitles: "Comparison titles",
+    name: "Name",
+    entityNamePlaceholder: "Entity name",
+    type: "Type",
+    addAlias: "Add alias...",
+    describeEntity: "Describe this entity...",
+    key: "Key",
+    value: "Value",
+    certifiesThat: "This certifies that",
+    completedFirstDraft: "has completed the first draft of",
+    words: "Words",
+    chapters: "Chapters",
+    days: "Days",
+    totalWords: "Total words",
+    books: "Books",
+    bestStreak: "Best streak",
+    daysWriting: "Days writing",
+    wordsWritten: "Words written",
+    dayStreak: "Day streak",
+    progress: "Progress",
   },
 
   screens: {
@@ -1866,6 +1953,49 @@ const SR: UIStrings = {
     recentFindingsHint: "Najnoviji urednički nalazi kroz sva poglavlja",
   },
 
+  bookUI: {
+    yourYear: "Vaša",
+    inWriting: "godina pisanja",
+    youWrote: "Napisali ste",
+    wordsThisYear: "reči ove godine",
+    longestStreak: "Vaš najduži niz",
+    daysInARow: "dana zaredom",
+    youAreA: "Vi ste",
+    peakMonthWas: "Najplodniji mesec bio je",
+    writerPersonality: "Vaš spisateljski profil",
+    aiSessions: "AI sesije",
+    editsReviewed: "pregledanih izmena",
+    generateKit: "Napravi marketinški komplet",
+    blurb: "Opis",
+    store: "Prodavnica",
+    social: "Društvene mreže",
+    email: "Imejl",
+    comps: "Slična dela",
+    logline: "Logline",
+    backCoverBlurb: "Tekst sa zadnje korice",
+    launchEmail: "Imejl za najavu izlaska",
+    comparisonTitles: "Uporedni naslovi",
+    name: "Ime",
+    entityNamePlaceholder: "Naziv entiteta",
+    type: "Tip",
+    addAlias: "Dodaj alijas...",
+    describeEntity: "Opišite ovaj entitet...",
+    key: "Ključ",
+    value: "Vrednost",
+    certifiesThat: "Ovim se potvrđuje da je",
+    completedFirstDraft: "završio prvu verziju dela",
+    words: "Reči",
+    chapters: "Poglavlja",
+    days: "Dana",
+    totalWords: "Ukupno reči",
+    books: "Knjige",
+    bestStreak: "Najbolji niz",
+    daysWriting: "Dana pisanja",
+    wordsWritten: "Napisano reči",
+    dayStreak: "Niz dana",
+    progress: "Napredak",
+  },
+
   screens: {
     bookProgress: "Napredak knjige", drafted: "Napisano", edited: "Uređeno", betaPassed: "Prošlo beta čitanje",
     wordCount: "Broj reči", recentSessions: "Nedavne sesije agenata", editorialFindings: "Urednički nalazi",
@@ -2587,6 +2717,49 @@ const DE: UIStrings = {
     criticalMajor: "Kritisch und schwerwiegend",
     recentFindings: "Neueste Befunde",
     recentFindingsHint: "Die jüngsten Lektoratsbefunde über alle Kapitel",
+  },
+
+  bookUI: {
+    yourYear: "Ihr",
+    inWriting: "Schreibjahr",
+    youWrote: "Sie haben",
+    wordsThisYear: "Wörter in diesem Jahr geschrieben",
+    longestStreak: "Ihre längste Serie",
+    daysInARow: "Tage in Folge",
+    youAreA: "Sie sind",
+    peakMonthWas: "Ihr stärkster Monat war",
+    writerPersonality: "Ihr Autorenprofil",
+    aiSessions: "KI-Sitzungen",
+    editsReviewed: "geprüfte Änderungen",
+    generateKit: "Marketing-Kit erzeugen",
+    blurb: "Klappentext",
+    store: "Shop",
+    social: "Social Media",
+    email: "E-Mail",
+    comps: "Vergleichstitel",
+    logline: "Logline",
+    backCoverBlurb: "Rückseitentext",
+    launchEmail: "E-Mail zur Veröffentlichung",
+    comparisonTitles: "Vergleichbare Titel",
+    name: "Name",
+    entityNamePlaceholder: "Name der Entität",
+    type: "Typ",
+    addAlias: "Alias hinzufügen...",
+    describeEntity: "Diese Entität beschreiben...",
+    key: "Schlüssel",
+    value: "Wert",
+    certifiesThat: "Hiermit wird bestätigt, dass",
+    completedFirstDraft: "die erste Fassung fertiggestellt hat von",
+    words: "Wörter",
+    chapters: "Kapitel",
+    days: "Tage",
+    totalWords: "Wörter gesamt",
+    books: "Bücher",
+    bestStreak: "Beste Serie",
+    daysWriting: "Schreibtage",
+    wordsWritten: "Geschriebene Wörter",
+    dayStreak: "Tagesserie",
+    progress: "Fortschritt",
   },
 
   screens: {
@@ -3312,6 +3485,49 @@ const ES: UIStrings = {
     recentFindingsHint: "Los últimos hallazgos editoriales de todos los capítulos",
   },
 
+  bookUI: {
+    yourYear: "Tu",
+    inWriting: "año de escritura",
+    youWrote: "Escribiste",
+    wordsThisYear: "palabras este año",
+    longestStreak: "Tu racha más larga",
+    daysInARow: "días seguidos",
+    youAreA: "Eres",
+    peakMonthWas: "Tu mejor mes fue",
+    writerPersonality: "Tu perfil de escritor",
+    aiSessions: "Sesiones de IA",
+    editsReviewed: "ediciones revisadas",
+    generateKit: "Genera tu kit de marketing",
+    blurb: "Sinopsis",
+    store: "Tienda",
+    social: "Redes",
+    email: "Correo",
+    comps: "Títulos similares",
+    logline: "Logline",
+    backCoverBlurb: "Texto de contraportada",
+    launchEmail: "Correo de lanzamiento",
+    comparisonTitles: "Títulos comparables",
+    name: "Nombre",
+    entityNamePlaceholder: "Nombre de la entidad",
+    type: "Tipo",
+    addAlias: "Añadir alias...",
+    describeEntity: "Describe esta entidad...",
+    key: "Clave",
+    value: "Valor",
+    certifiesThat: "Se certifica que",
+    completedFirstDraft: "ha terminado el primer borrador de",
+    words: "Palabras",
+    chapters: "Capítulos",
+    days: "Días",
+    totalWords: "Palabras totales",
+    books: "Libros",
+    bestStreak: "Mejor racha",
+    daysWriting: "Días escribiendo",
+    wordsWritten: "Palabras escritas",
+    dayStreak: "Racha de días",
+    progress: "Progreso",
+  },
+
   screens: {
     bookProgress: "Progreso del libro", drafted: "Escrito", edited: "Editado", betaPassed: "Beta superada",
     wordCount: "Número de palabras", recentSessions: "Sesiones recientes", editorialFindings: "Hallazgos editoriales",
@@ -4033,6 +4249,49 @@ const FR: UIStrings = {
     criticalMajor: "Critiques et majeurs",
     recentFindings: "Constats récents",
     recentFindingsHint: "Les derniers constats éditoriaux, tous chapitres confondus",
+  },
+
+  bookUI: {
+    yourYear: "Votre",
+    inWriting: "année d'écriture",
+    youWrote: "Vous avez écrit",
+    wordsThisYear: "mots cette année",
+    longestStreak: "Votre plus longue série",
+    daysInARow: "jours d'affilée",
+    youAreA: "Vous êtes",
+    peakMonthWas: "Votre meilleur mois a été",
+    writerPersonality: "Votre profil d'auteur",
+    aiSessions: "Sessions IA",
+    editsReviewed: "modifications examinées",
+    generateKit: "Générer votre kit marketing",
+    blurb: "Résumé",
+    store: "Boutique",
+    social: "Réseaux",
+    email: "E-mail",
+    comps: "Titres comparables",
+    logline: "Logline",
+    backCoverBlurb: "Texte de quatrième de couverture",
+    launchEmail: "E-mail d'annonce de sortie",
+    comparisonTitles: "Titres de comparaison",
+    name: "Nom",
+    entityNamePlaceholder: "Nom de l'entité",
+    type: "Type",
+    addAlias: "Ajouter un alias...",
+    describeEntity: "Décrivez cette entité...",
+    key: "Clé",
+    value: "Valeur",
+    certifiesThat: "Il est certifié que",
+    completedFirstDraft: "a terminé la première version de",
+    words: "Mots",
+    chapters: "Chapitres",
+    days: "Jours",
+    totalWords: "Mots au total",
+    books: "Livres",
+    bestStreak: "Meilleure série",
+    daysWriting: "Jours d'écriture",
+    wordsWritten: "Mots écrits",
+    dayStreak: "Série de jours",
+    progress: "Progression",
   },
 
   screens: {
@@ -4758,6 +5017,49 @@ const RU: UIStrings = {
     recentFindingsHint: "Последние редакторские замечания по всем главам",
   },
 
+  bookUI: {
+    yourYear: "Ваш",
+    inWriting: "год письма",
+    youWrote: "Вы написали",
+    wordsThisYear: "слов за этот год",
+    longestStreak: "Ваша самая длинная серия",
+    daysInARow: "дней подряд",
+    youAreA: "Вы",
+    peakMonthWas: "Самый плодотворный месяц",
+    writerPersonality: "Ваш авторский профиль",
+    aiSessions: "Сессии ИИ",
+    editsReviewed: "просмотренных правок",
+    generateKit: "Создать маркетинговый набор",
+    blurb: "Аннотация",
+    store: "Магазин",
+    social: "Соцсети",
+    email: "Письмо",
+    comps: "Похожие книги",
+    logline: "Логлайн",
+    backCoverBlurb: "Текст на обложке",
+    launchEmail: "Письмо к выходу книги",
+    comparisonTitles: "Сопоставимые книги",
+    name: "Имя",
+    entityNamePlaceholder: "Название сущности",
+    type: "Тип",
+    addAlias: "Добавить псевдоним...",
+    describeEntity: "Опишите эту сущность...",
+    key: "Ключ",
+    value: "Значение",
+    certifiesThat: "Настоящим подтверждается, что",
+    completedFirstDraft: "завершил первую редакцию произведения",
+    words: "Слова",
+    chapters: "Главы",
+    days: "Дни",
+    totalWords: "Всего слов",
+    books: "Книги",
+    bestStreak: "Лучшая серия",
+    daysWriting: "Дней письма",
+    wordsWritten: "Написано слов",
+    dayStreak: "Серия дней",
+    progress: "Прогресс",
+  },
+
   screens: {
     bookProgress: "Прогресс книги", drafted: "Написано", edited: "Отредактировано", betaPassed: "Бета пройдена",
     wordCount: "Число слов", recentSessions: "Недавние сессии", editorialFindings: "Редакторские замечания",
@@ -5479,6 +5781,49 @@ const ZH: UIStrings = {
     criticalMajor: "严重与重大",
     recentFindings: "最近的发现",
     recentFindingsHint: "所有章节中最新的编辑发现",
+  },
+
+  bookUI: {
+    yourYear: "你的",
+    inWriting: "写作之年",
+    youWrote: "你写下了",
+    wordsThisYear: "字（今年）",
+    longestStreak: "最长连续记录",
+    daysInARow: "天连续",
+    youAreA: "你是",
+    peakMonthWas: "产出最高的月份是",
+    writerPersonality: "你的写作画像",
+    aiSessions: "AI 会话",
+    editsReviewed: "已审阅的修改",
+    generateKit: "生成营销素材包",
+    blurb: "简介",
+    store: "商店",
+    social: "社交",
+    email: "邮件",
+    comps: "同类作品",
+    logline: "一句话梗概",
+    backCoverBlurb: "封底文案",
+    launchEmail: "上市通知邮件",
+    comparisonTitles: "对标书目",
+    name: "名称",
+    entityNamePlaceholder: "实体名称",
+    type: "类型",
+    addAlias: "添加别名...",
+    describeEntity: "描述这个实体...",
+    key: "键",
+    value: "值",
+    certifiesThat: "兹证明",
+    completedFirstDraft: "已完成初稿：",
+    words: "字数",
+    chapters: "章节",
+    days: "天数",
+    totalWords: "总字数",
+    books: "书籍",
+    bestStreak: "最佳连续",
+    daysWriting: "写作天数",
+    wordsWritten: "已写字数",
+    dayStreak: "连续天数",
+    progress: "进度",
   },
 
   screens: {

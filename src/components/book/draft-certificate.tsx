@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useRef } from "react";
 import {
   AwardIcon,
@@ -33,6 +34,7 @@ export function DraftCertificate({
   completionDate,
   daysToComplete,
 }: DraftCertificateProps) {
+  const { t } = useLanguage();
   const locale = useLocale();
   const certRef = useRef<HTMLDivElement>(null);
 
@@ -65,24 +67,24 @@ export function DraftCertificate({
         </div>
 
         <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">This certifies that</p>
+          <p className="text-sm text-muted-foreground">{t.bookUI.certifiesThat}</p>
           <p className="text-2xl font-serif font-bold">{authorName}</p>
-          <p className="text-sm text-muted-foreground">has completed the first draft of</p>
+          <p className="text-sm text-muted-foreground">{t.bookUI.completedFirstDraft}</p>
           <p className="text-xl font-serif font-semibold italic">&ldquo;{bookTitle}&rdquo;</p>
         </div>
 
         <div className="grid grid-cols-3 gap-4">
           <div>
             <p className="text-2xl font-bold tabular-nums">{wordCount.toLocaleString(locale)}</p>
-            <p className="text-[9px] uppercase tracking-wider text-muted-foreground">Words</p>
+            <p className="text-[9px] uppercase tracking-wider text-muted-foreground">{t.bookUI.words}</p>
           </div>
           <div>
             <p className="text-2xl font-bold tabular-nums">{chapterCount}</p>
-            <p className="text-[9px] uppercase tracking-wider text-muted-foreground">Chapters</p>
+            <p className="text-[9px] uppercase tracking-wider text-muted-foreground">{t.bookUI.chapters}</p>
           </div>
           <div>
             <p className="text-2xl font-bold tabular-nums">{daysToComplete}</p>
-            <p className="text-[9px] uppercase tracking-wider text-muted-foreground">Days</p>
+            <p className="text-[9px] uppercase tracking-wider text-muted-foreground">{t.bookUI.days}</p>
           </div>
         </div>
 

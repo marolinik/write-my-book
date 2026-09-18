@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState, useMemo } from "react";
 import {
   SparklesIcon,
@@ -67,6 +68,7 @@ interface YearInWritingWrappedProps {
 }
 
 export function YearInWritingWrapped({ data, authorName }: YearInWritingWrappedProps) {
+  const { t } = useLanguage();
   const [cardIndex, setCardIndex] = useState(0);
   const locale = useLocale();
 
@@ -82,9 +84,9 @@ export function YearInWritingWrapped({ data, authorName }: YearInWritingWrappedP
           <div className="flex flex-col items-center justify-center h-full gap-6 text-center">
             <SparklesIcon className="size-12 text-primary animate-pulse" />
             <div>
-              <p className="text-lg text-muted-foreground">Your</p>
+              <p className="text-lg text-muted-foreground">{t.bookUI.yourYear}</p>
               <p className="text-5xl font-bold">{data.year}</p>
-              <p className="text-lg text-muted-foreground">in Writing</p>
+              <p className="text-lg text-muted-foreground">{t.bookUI.inWriting}</p>
             </div>
             {authorName && <p className="text-sm text-muted-foreground">{authorName}</p>}
           </div>
@@ -95,9 +97,9 @@ export function YearInWritingWrapped({ data, authorName }: YearInWritingWrappedP
         bg: "from-blue-500/20 via-background to-blue-500/10",
         content: (
           <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
-            <p className="text-sm text-muted-foreground">You wrote</p>
+            <p className="text-sm text-muted-foreground">{t.bookUI.youWrote}</p>
             <p className="text-6xl font-bold tabular-nums">{data.totalWords.toLocaleString(locale)}</p>
-            <p className="text-lg text-muted-foreground">words this year</p>
+            <p className="text-lg text-muted-foreground">{t.bookUI.wordsThisYear}</p>
             <p className="text-xs text-muted-foreground mt-4">
               That&apos;s {Math.round(data.totalWords / 250)} pages &mdash;
               {data.totalWords >= 80000 ? " a full novel!" :
@@ -118,9 +120,9 @@ export function YearInWritingWrapped({ data, authorName }: YearInWritingWrappedP
           <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
             <FlameIcon className="size-16 text-orange-500" />
             <div>
-              <p className="text-sm text-muted-foreground">Your longest streak</p>
+              <p className="text-sm text-muted-foreground">{t.bookUI.longestStreak}</p>
               <p className="text-5xl font-bold">{data.longestStreak}</p>
-              <p className="text-lg text-muted-foreground">days in a row</p>
+              <p className="text-lg text-muted-foreground">{t.bookUI.daysInARow}</p>
             </div>
             <p className="text-xs text-muted-foreground">
               You showed up {data.totalDaysWriting} out of 365 days
@@ -140,7 +142,7 @@ export function YearInWritingWrapped({ data, authorName }: YearInWritingWrappedP
           <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
             <p className="text-4xl">{timeOfDay.emoji}</p>
             <div>
-              <p className="text-sm text-muted-foreground">You&apos;re a</p>
+              <p className="text-sm text-muted-foreground">{t.bookUI.youAreA}</p>
               <p className="text-3xl font-bold">{timeOfDay.label}</p>
               <p className="text-sm text-muted-foreground mt-2">
                 Most of your writing happens around {favoriteHour > 12 ? favoriteHour - 12 : favoriteHour}
@@ -158,7 +160,7 @@ export function YearInWritingWrapped({ data, authorName }: YearInWritingWrappedP
         bg: "from-green-500/20 via-background to-green-500/10",
         content: (
           <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
-            <p className="text-sm text-muted-foreground">Your peak month was</p>
+            <p className="text-sm text-muted-foreground">{t.bookUI.peakMonthWas}</p>
             <p className="text-4xl font-bold">{peakMonthName}</p>
             <p className="text-sm text-muted-foreground">
               {data.wordsPerMonth[data.peakMonth]?.toLocaleString(locale)} words
@@ -188,25 +190,25 @@ export function YearInWritingWrapped({ data, authorName }: YearInWritingWrappedP
         <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
           <TrophyIcon className="size-12 text-amber-500" />
           <div>
-            <p className="text-sm text-muted-foreground">Your writer personality</p>
+            <p className="text-sm text-muted-foreground">{t.bookUI.writerPersonality}</p>
             <p className="text-3xl font-bold">{data.writerPersonality}</p>
           </div>
           <div className="grid grid-cols-2 gap-3 mt-4 text-xs">
             <div className="rounded-lg bg-background/50 p-2">
               <p className="font-bold text-lg">{data.booksWorkedOn}</p>
-              <p className="text-muted-foreground">books</p>
+              <p className="text-muted-foreground">{t.bookUI.books}</p>
             </div>
             <div className="rounded-lg bg-background/50 p-2">
               <p className="font-bold text-lg">{data.totalSessions}</p>
-              <p className="text-muted-foreground">AI sessions</p>
+              <p className="text-muted-foreground">{t.bookUI.aiSessions}</p>
             </div>
             <div className="rounded-lg bg-background/50 p-2">
               <p className="font-bold text-lg">{data.findingsReviewed}</p>
-              <p className="text-muted-foreground">edits reviewed</p>
+              <p className="text-muted-foreground">{t.bookUI.editsReviewed}</p>
             </div>
             <div className="rounded-lg bg-background/50 p-2">
               <p className="font-bold text-lg">{data.totalChapters}</p>
-              <p className="text-muted-foreground">chapters</p>
+              <p className="text-muted-foreground">{t.bookUI.chapters}</p>
             </div>
           </div>
           <p className="text-[9px] text-muted-foreground/50 mt-4">WriteMyBook &bull; writemybook.com</p>
