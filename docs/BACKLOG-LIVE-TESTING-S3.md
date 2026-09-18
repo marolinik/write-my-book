@@ -15,6 +15,7 @@ Status legend: **DONE** (fixed + verified), **OPEN**, **PARTIAL**.
 | S3-5 | Re-running `restructure` stacks duplicate proposals | **DONE** |
 | S3-6 | Undo threw on a unique constraint; two paths destroyed prose | **DONE** |
 | S3-7 | Board showed "done" when nothing was adopted; panel was all dead cards | **DONE** |
+| S3-8 | A proposal travelled by chapter number, so accepting one broke the others | **DONE** |
 
 ---
 
@@ -253,3 +254,32 @@ state, so there was nothing to do and no way to start over. Decided, undone and
 failed moves now collapse into a fold — "Raniji predlozi (10)" — and with
 nothing live the panel shows its empty state and the "Predloži strukturne
 izmene" button again.
+
+## S3-8 — a proposal pointed at the wrong chapter, and said so in English (DONE)
+
+> "nije prihvatio zadnju izmenu od 3 koje su stajale"
+> `Potez nije mogao da se primeni: This proposal is already failed.`
+
+Three proposals stood on the panel. The writer accepted two merges — `[11,12]`
+and `[29,30]` — and each renumbered everything below it. The third was a split
+of chapter 28 at a verbatim quote. Chapter 28 had been **"Dnevnik"** when the
+editor read it; after the merges, 28 was **"Klisura"**, so the engine reported
+the quote was not in that chapter. The move was not wrong. Its address was.
+
+Re-planning at accept time is the right rule, but it only means something if
+the move still names the same CHAPTER. A number is a rendering of the reading
+order, not an identity — the same mistake, in a fourth place, as S3-6.
+
+`ProposeStructureMove` now stamps chapter ids into the payload, and `planMove`
+resolves those ids to current numbers before doing anything else. Accepting one
+move can no longer poison another. Proposals filed before this still travel by
+number and keep working; a move whose chapter is gone fails with
+`chapter_not_found` instead of acting on whatever inherited the number.
+
+The second half of the report: `This proposal is already failed.` in the middle
+of a Serbian panel. The engine answers with a code AND an English sentence, the
+route already forwarded both, and the panel threw the sentence. Codes are the
+contract; the prose belongs in the dictionary. Seven failure reasons are now
+translated in all seven languages, and each says what to do rather than what
+went wrong — "Poglavlje za koje je potez napisan više ne postoji. Pokrenite
+prolaz ponovo."

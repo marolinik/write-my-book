@@ -24,7 +24,12 @@ export interface ChapterRef {
 
 export interface ReorderMove {
   kind: "reorder" | "renumber";
-  /** The chapter being moved, by its CURRENT number. */
+  /**
+   * The chapter being moved. The id is the identity; the number is what it
+   * happened to carry when the move was proposed and may have shifted since
+   * (S3-8). Older proposals carry the number alone.
+   */
+  chapterId?: string;
   chapterNumber: number;
   /** 1-based position it should end up at. */
   targetPosition: number;
@@ -32,6 +37,8 @@ export interface ReorderMove {
 
 export interface MergeMove {
   kind: "merge";
+  /** The chapters being merged, by identity. Preferred over the numbers. */
+  chapterIds?: string[];
   /** Two or more chapters, adjacent in reading order. Order-insensitive. */
   chapterNumbers: number[];
   /** Optional title for the merged chapter. */
@@ -40,6 +47,8 @@ export interface MergeMove {
 
 export interface SplitMove {
   kind: "split";
+  /** The chapter being split, by identity. Preferred over the number. */
+  chapterId?: string;
   chapterNumber: number;
   /** Verbatim quote where the second chapter should begin. */
   anchorQuote: string;
@@ -64,6 +73,8 @@ export interface MovePlan {
   survivorChapterId?: string;
   /** Number the newly created chapter takes (split only). */
   newChapterNumber?: number;
+  /** The chapter the move acted on (reorder/split). */
+  sourceChapterId?: string;
 }
 
 export type MoveErrorCode =
@@ -116,10 +127,57 @@ function renumberFrom(list: readonly ChapterRef[]): OrderingEntry[] {
  * Resolve a proposed move against the current chapter list. Returns the plan the
  * apply engine executes, or the reason the move is impossible.
  */
-export function planMove(
+/**
+ * Rewrites a move's chapter numbers from the ids it carries.
+ *
+ * A proposal is written against the book as it stood, then sits on the panel
+ * while the writer accepts other moves — each of which renumbers everything
+ * below it. Re-planning at accept time is only honest if the move still points
+ * at the same CHAPTER, so the id wins wherever there is one (S3-8).
+ */
+function resolveByIdentity(
   chapters: readonly ChapterRef[],
   move: StructureMoveInput
+): StructureMoveInput | MoveError {
+  const byId = new Map(chapters.map((c) => [c.id, c]));
+
+  if (move.kind === "merge" && move.chapterIds?.length) {
+    const numbers: number[] = [];
+    for (const id of move.chapterIds) {
+      const chapter = byId.get(id);
+      if (!chapter) {
+        return {
+          code: "chapter_not_found",
+          message: "A chapter this move was written for no longer exists.",
+        };
+      }
+      numbers.push(chapter.chapterNumber);
+    }
+    return { ...move, chapterNumbers: numbers };
+  }
+
+  if (move.kind !== "merge" && move.chapterId) {
+    const chapter = byId.get(move.chapterId);
+    if (!chapter) {
+      return {
+        code: "chapter_not_found",
+        message: "The chapter this move was written for no longer exists.",
+      };
+    }
+    return { ...move, chapterNumber: chapter.chapterNumber };
+  }
+
+  return move;
+}
+
+export function planMove(
+  chapters: readonly ChapterRef[],
+  input: StructureMoveInput
 ): PlanResult {
+  const resolved = resolveByIdentity(chapters, input);
+  if ("code" in resolved) return { ok: false, error: resolved };
+  const move = resolved;
+
   switch (move.kind) {
     case "reorder":
     case "renumber":
@@ -235,7 +293,15 @@ export function planSplit(
       }))
     : [];
 
-  return { ok: true, plan: { ordering, removedChapterIds: [], newChapterNumber } };
+  return {
+    ok: true,
+    plan: {
+      ordering,
+      removedChapterIds: [],
+      newChapterNumber,
+      sourceChapterId: source.id,
+    },
+  };
 }
 
 /** Strip a single leading ATX heading line from a chapter body. */

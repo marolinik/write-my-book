@@ -1493,11 +1493,6 @@ async function executeProposeStructureMove(
     return "Proposal rejected — name the chapter(s) the move acts on in chapterNumbers.";
   }
 
-  const move = toStructureMoveInput(input, numbers);
-  if (!move) {
-    return `Proposal rejected — unknown move kind "${input.kind}".`;
-  }
-
   const chapters = await db.chapter.findMany({
     where: { bookId: ctx.bookId },
     select: {
@@ -1509,6 +1504,18 @@ async function executeProposeStructureMove(
     },
     orderBy: { chapterNumber: "asc" },
   });
+
+  // Stamp the chapters' identities into the proposal. Numbers shift under it
+  // while it waits on the panel — every accepted move renumbers what follows —
+  // so a move that travels by number ends up pointing at a different chapter
+  // than the one the editor read (S3-8).
+  const idByNumber = new Map(chapters.map((c) => [c.chapterNumber, c.id]));
+  const ids = numbers.map((n) => idByNumber.get(n)).filter((id): id is string => !!id);
+
+  const move = toStructureMoveInput(input, numbers, ids);
+  if (!move) {
+    return `Proposal rejected — unknown move kind "${input.kind}".`;
+  }
 
   const planned = planMove(chapters as ChapterRef[], move);
   if (!planned.ok) {
@@ -1564,21 +1571,32 @@ function toStructureMoveInput(
     anchorQuote?: string;
     title?: string;
   },
-  numbers: number[]
+  numbers: number[],
+  /** Chapter ids matching `numbers`, when they could all be resolved. */
+  ids: string[] = []
 ): StructureMoveInput | null {
+  const matched = ids.length === numbers.length;
+
   switch (input.kind) {
     case "reorder":
     case "renumber":
       return {
         kind: input.kind,
+        chapterId: matched ? ids[0] : undefined,
         chapterNumber: numbers[0],
         targetPosition: input.targetPosition ?? 0,
       };
     case "merge":
-      return { kind: "merge", chapterNumbers: numbers, title: input.title };
+      return {
+        kind: "merge",
+        chapterIds: matched ? ids : undefined,
+        chapterNumbers: numbers,
+        title: input.title,
+      };
     case "split":
       return {
         kind: "split",
+        chapterId: matched ? ids[0] : undefined,
         chapterNumber: numbers[0],
         anchorQuote: input.anchorQuote ?? "",
         secondTitle: input.title,

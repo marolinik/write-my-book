@@ -692,6 +692,15 @@ export interface UIStrings {
     proposalOne: string; proposalMany: string;
     /** Fold holding decided, undone and failed moves. Carries {n}. */
     history: string;
+    // S3-8: the engine's reasons reached the panel as raw English. Codes are
+    // the contract between engine and UI; the prose belongs here.
+    errNotPending: string;
+    errChapterGone: string;
+    errAnchorMissing: string;
+    errAnchorAmbiguous: string;
+    errAnchorTooEarly: string;
+    errNotAdjacent: string;
+    errBookChanged: string;
   };
 
   stylePage: {
@@ -1586,6 +1595,13 @@ const EN: UIStrings = {
     decidePending: "Review proposals",
     proposalOne: "proposal", proposalMany: "proposals",
     history: "Earlier proposals ({n})",
+    errNotPending: "This proposal has already been decided.",
+    errChapterGone: "A chapter this move was written for no longer exists. Run the pass again.",
+    errAnchorMissing: "The quote is no longer in that chapter — it was edited since the proposal.",
+    errAnchorAmbiguous: "The quote appears more than once, so the cut point is ambiguous.",
+    errAnchorTooEarly: "The cut point is in the opening paragraph; the first half would be empty.",
+    errNotAdjacent: "Those chapters are no longer next to each other.",
+    errBookChanged: "The book changed since this was proposed. Run the pass again.",
     applyError: "The move could not be applied", undoError: "The move could not be undone",
   },
 
@@ -2499,6 +2515,13 @@ const SR: UIStrings = {
     decidePending: "Odluči o predlozima",
     proposalOne: "predlog", proposalMany: "predloga",
     history: "Raniji predlozi ({n})",
+    errNotPending: "O ovom predlogu je već odlučeno.",
+    errChapterGone: "Poglavlje za koje je potez napisan više ne postoji. Pokrenite prolaz ponovo.",
+    errAnchorMissing: "Citat više nije u tom poglavlju — izmenjeno je posle predloga.",
+    errAnchorAmbiguous: "Citat se pojavljuje više puta, pa mesto reza nije jednoznačno.",
+    errAnchorTooEarly: "Mesto reza je u prvom pasusu; prva polovina bi ostala prazna.",
+    errNotAdjacent: "Ta poglavlja više nisu jedno do drugog.",
+    errBookChanged: "Knjiga se promenila posle ovog predloga. Pokrenite prolaz ponovo.",
     applyError: "Potez nije mogao da se primeni", undoError: "Potez nije mogao da se poništi",
   },
 
@@ -3411,6 +3434,13 @@ const DE: UIStrings = {
     decidePending: "Vorschläge prüfen",
     proposalOne: "Vorschlag", proposalMany: "Vorschläge",
     history: "Frühere Vorschläge ({n})",
+    errNotPending: "Über diesen Vorschlag wurde bereits entschieden.",
+    errChapterGone: "Ein Kapitel dieses Vorschlags existiert nicht mehr. Lauf erneut starten.",
+    errAnchorMissing: "Das Zitat steht nicht mehr in diesem Kapitel — es wurde seither bearbeitet.",
+    errAnchorAmbiguous: "Das Zitat kommt mehrfach vor, die Schnittstelle ist nicht eindeutig.",
+    errAnchorTooEarly: "Der Schnitt liegt im ersten Absatz; die erste Hälfte wäre leer.",
+    errNotAdjacent: "Diese Kapitel stehen nicht mehr nebeneinander.",
+    errBookChanged: "Das Buch hat sich seit dem Vorschlag geändert. Lauf erneut starten.",
     applyError: "Der Schritt konnte nicht angewendet werden", undoError: "Der Schritt konnte nicht rückgängig gemacht werden",
   },
 
@@ -4323,6 +4353,13 @@ const ES: UIStrings = {
     decidePending: "Revisar propuestas",
     proposalOne: "propuesta", proposalMany: "propuestas",
     history: "Propuestas anteriores ({n})",
+    errNotPending: "Esta propuesta ya fue decidida.",
+    errChapterGone: "Un capítulo de este movimiento ya no existe. Ejecuta el paso de nuevo.",
+    errAnchorMissing: "La cita ya no está en ese capítulo — se editó después de la propuesta.",
+    errAnchorAmbiguous: "La cita aparece más de una vez, el punto de corte es ambiguo.",
+    errAnchorTooEarly: "El corte está en el primer párrafo; la primera mitad quedaría vacía.",
+    errNotAdjacent: "Esos capítulos ya no son contiguos.",
+    errBookChanged: "El libro cambió desde la propuesta. Ejecuta el paso de nuevo.",
     applyError: "No se pudo aplicar el movimiento", undoError: "No se pudo deshacer el movimiento",
   },
 
@@ -5235,6 +5272,13 @@ const FR: UIStrings = {
     decidePending: "Examiner les propositions",
     proposalOne: "proposition", proposalMany: "propositions",
     history: "Propositions précédentes ({n})",
+    errNotPending: "Cette proposition a déjà été tranchée.",
+    errChapterGone: "Un chapitre visé par ce mouvement n'existe plus. Relancez la passe.",
+    errAnchorMissing: "La citation n'est plus dans ce chapitre — il a été modifié depuis.",
+    errAnchorAmbiguous: "La citation apparaît plusieurs fois : le point de coupe est ambigu.",
+    errAnchorTooEarly: "La coupe tombe dans le premier paragraphe ; la première moitié serait vide.",
+    errNotAdjacent: "Ces chapitres ne se suivent plus.",
+    errBookChanged: "Le livre a changé depuis cette proposition. Relancez la passe.",
     applyError: "Le geste n'a pas pu être appliqué", undoError: "Le geste n'a pas pu être annulé",
   },
 
@@ -6147,6 +6191,13 @@ const RU: UIStrings = {
     decidePending: "Рассмотреть предложения",
     proposalOne: "предложение", proposalMany: "предложений",
     history: "Прежние предложения ({n})",
+    errNotPending: "По этому предложению уже принято решение.",
+    errChapterGone: "Главы, для которой написан ход, больше нет. Запустите проход заново.",
+    errAnchorMissing: "Цитаты больше нет в этой главе — её изменили после предложения.",
+    errAnchorAmbiguous: "Цитата встречается несколько раз, точка разреза неоднозначна.",
+    errAnchorTooEarly: "Разрез приходится на первый абзац; первая половина осталась бы пустой.",
+    errNotAdjacent: "Эти главы больше не соседние.",
+    errBookChanged: "Книга изменилась после предложения. Запустите проход заново.",
     applyError: "Шаг не удалось применить", undoError: "Шаг не удалось отменить",
   },
 
@@ -7059,6 +7110,13 @@ const ZH: UIStrings = {
     decidePending: "查看提议",
     proposalOne: "项提议", proposalMany: "项提议",
     history: "早前的提议（{n}）",
+    errNotPending: "该提议已有决定。",
+    errChapterGone: "该动作所针对的章节已不存在。请重新运行此流程。",
+    errAnchorMissing: "引文已不在该章节中——提议之后它被修改过。",
+    errAnchorAmbiguous: "引文出现多次，切分点不明确。",
+    errAnchorTooEarly: "切分点位于首段；前半部分将为空。",
+    errNotAdjacent: "这些章节已不再相邻。",
+    errBookChanged: "自提议以来本书已更改。请重新运行此流程。",
     applyError: "调整未能应用", undoError: "调整未能撤销",
   },
 
