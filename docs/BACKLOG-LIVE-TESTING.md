@@ -24,7 +24,7 @@ below.
 | O9 | Cross-book continuity blind | DONE — `ListSeriesBooks` and `ReadSiblingChapter` give the checker a sibling book's real prose. |
 | O10 | Continuity tab always ran the series check | DONE — new `check-continuity` workflow for a standalone book, and the whole tab translated. |
 | O11 | Razvoj board showed the greenfield map | DONE — the importer path is derived from the data and rendered by the same cards. |
-| O12 | No structural revision pass | DONE — propose, accept, apply, undo, and a writer panel. |
+| O12 | No structural revision pass | DONE — propose, accept, apply, undo, and a writer panel. Live-verified against the local fleet on a book copy, 2026-09-18 (see "O12 live rehearsal"). |
 | O13 | `analyze` was a dead end | DONE — the report hands off to the restructure pass, in the workflow graph and in the Analytics tab. |
 
 ---
@@ -211,6 +211,76 @@ requests hit the dev server at once - which is consistent with the original
 "dev-only" suspicion (a streamed or aborted dev render producing a different
 tree), but it is not proof. The proof is the production run above, in an
 environment that has real Clerk keys.
+
+---
+
+## O12 live rehearsal — 2026-09-18
+
+The P1 gate from the 09-18 S2 handoff ("O12 has never run against a real
+model") is closed. The whole pass — propose, accept, apply, undo — ran against
+the local fleet on a copy of the writer's own book, never on the trilogy.
+
+**The copy.** `scripts/dev-clone-book.ts` clones a book's rows *and* its MinIO
+objects, because `Document.storageKey` is relative to the book's S3 prefix: copy
+the rows alone and every document in the clone points into an empty prefix. The
+clone is created detached from its series so no series-level number moves, and
+`--delete` refuses any book that still has a `seriesId`, which is the cheapest
+proof available that it is a clone. Rehearsal book:
+**Legat - Zakletva (proba restrukture)** — 31 chapters, 38 documents, 8
+findings, carrying the ARCHITECTURE, ANALYSIS_REPORT and CONTINUITY_REPORT that
+`restructure` reads as evidence.
+
+**What the model did.** story-architect filed two moves and wrote the
+STRUCTURE_PROPOSAL (7,069 chars, in Serbian):
+
+| Move | Confidence | Evidence it cited |
+|---|---|---|
+| Split chapter 31 at a verbatim anchor | 0.90 | 3,728 words, longest file against a ~1,835 median; architecture lists it as two chapters; continuity finding 3 |
+| Renumber chapter 10 to position 11 | 0.85 | In-manuscript headings run one behind the file numbering; continuity finding 3 |
+
+It also recorded what it *declined* — "Košare" (593 words, the shortest chapter)
+is a deliberate beat, not a defect. Two moves rather than the three-to-seven the
+prompt asks for, but each one is anchored in a named metric or finding, which is
+the rule that matters.
+
+**What the engine did.** Both moves applied and both undid, checked in the
+database rather than in the UI's own claim:
+
+- Split: ch31 3,728 → 1,940 words, new ch32 "Povratak (istrgnute strane)" 1,804
+  words, CHAPTER_CONTENT documents 31 → 32. Undo returned 31 chapters, and the
+  restored prose is **byte-identical** to the source book's chapter 31 (23,290
+  chars).
+- Renumber: "Košare" 11 → 10 and "Utorkom, uz zapisničara" 10 → 11 through the
+  two-phase transaction, 31 rows intact, no unique-constraint collision. Undo
+  put both back.
+
+### D-204 — the structure panel's result line is untranslated (LOW)
+
+An applied move renders `Split chapter 31 into 31 and 32.` and `Moved chapter 10 to
+position 11.` inside an otherwise fully Serbian panel. `resultSummary` is
+written in English by the apply engine and rendered raw, so it cannot be
+translated at the component. The summary needs to become a key plus parameters,
+not a sentence.
+
+### D-205 — undo restores prose exactly but not the word count (LOW)
+
+An accept-then-undo cycle that changes nothing visible still moved
+`book.wordCount` 56,874 → 56,890 permanently. The prose came back byte-identical;
+the count did not, because undo recomputes it with `countWords()` instead of
+restoring the number held in the move's `previousState` snapshot. `countWords`
+strips `-` and `|` as markdown, so it disagrees with whatever the import path
+recorded. Every rehearsal of a move leaves the book's word count slightly wrong.
+
+### Observations, not defects
+
+- The agent panel header still read "31 poglavlja" while the book had 32,
+  immediately after the split. Seen once; likely the panel not refetching after
+  a structural mutation, adjacent to O8.
+- The renumber proposal's *reasoning* argues the entire manuscript is offset by
+  one, but a `renumber` move can only express moving one chapter, so the payload
+  became a swap with its neighbour. The engine did exactly what the payload
+  said. If the real defect is a whole-book offset, the move vocabulary has no
+  way to say so.
 
 ---
 
