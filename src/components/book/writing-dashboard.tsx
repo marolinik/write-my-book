@@ -13,7 +13,6 @@ import {
   TrendingUpIcon,
   BookOpenIcon,
 } from "lucide-react";
-import { WritingSprints } from "@/components/book/writing-sprints";
 import { DraftCertificate } from "@/components/book/draft-certificate";
 import { StoryHealthDashboard } from "@/components/book/story-health-dashboard";
 
@@ -195,7 +194,6 @@ export function WritingDashboard({ bookId }: WritingDashboardProps) {
 
       {/* Writing Sprint */}
       <div className="mt-6">
-        <WritingSprints bookId={bookId} currentWordCount={data.totalWords} />
       </div>
 
       {/* Marketing Kit */}

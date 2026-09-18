@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
+import { useLanguage } from "@/components/providers/language-provider";
 import type { Editor } from "@tiptap/react";
 import {
   Expand,
@@ -35,6 +36,7 @@ export function EditorContextMenu({
   onInlineEdit,
 }: EditorContextMenuProps) {
   const openWithMessage = useAgentUIStore((s) => s.openWithMessage);
+  const { t } = useLanguage();
 
   const getSelectedText = useCallback((): string => {
     if (!editor) return "";
@@ -70,7 +72,7 @@ export function EditorContextMenu({
               }
             >
               <Expand className="size-4" />
-              Expand this passage
+              {t.bookUI.ctxExpand}
             </ContextMenuItem>
             <ContextMenuItem
               onClick={() =>
@@ -80,7 +82,7 @@ export function EditorContextMenu({
               }
             >
               <Shrink className="size-4" />
-              Tighten this
+              {t.bookUI.ctxTighten}
             </ContextMenuItem>
             <ContextMenuItem
               onClick={() =>
@@ -90,7 +92,7 @@ export function EditorContextMenu({
               }
             >
               <RefreshCw className="size-4" />
-              Change POV
+              {t.bookUI.ctxPov}
             </ContextMenuItem>
             <ContextMenuItem
               onClick={() =>
@@ -100,7 +102,7 @@ export function EditorContextMenu({
               }
             >
               <Sun className="size-4" />
-              Add sensory details
+              {t.bookUI.ctxSensory}
             </ContextMenuItem>
             <ContextMenuItem
               onClick={() =>
@@ -110,7 +112,7 @@ export function EditorContextMenu({
               }
             >
               <ZapIcon className="size-4" />
-              Increase tension
+              {t.bookUI.ctxTension}
             </ContextMenuItem>
             <ContextMenuItem
               onClick={() =>
@@ -120,21 +122,21 @@ export function EditorContextMenu({
               }
             >
               <PenLineIcon className="size-4" />
-              Show, don&apos;t tell
+              {t.bookUI.ctxShow}
             </ContextMenuItem>
             <ContextMenuSeparator />
             <ContextMenuItem
               onClick={() => onInlineEdit("")}
             >
               <SparklesIcon className="size-4" />
-              Describe your change...
+              {t.bookUI.ctxDescribe}
             </ContextMenuItem>
             <ContextMenuSeparator />
           </>
         )}
         <ContextMenuItem onClick={handleAskCoach}>
           <MessageCircle className="size-4" />
-          Ask Writing Coach{hasSelection ? " about this" : ""}
+          {hasSelection ? t.bookUI.ctxAskCoachAbout : t.bookUI.ctxAskCoach}
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
