@@ -8,6 +8,9 @@ import {
   DownloadIcon,
   UploadIcon,
   BarChart3Icon,
+  SearchIcon,
+  NetworkIcon,
+  GlobeIcon,
   SearchCheckIcon,
   LibraryIcon,
   PenLineIcon,
@@ -28,15 +31,33 @@ import { SeriesSynthesisPanel } from "@/components/series/series-synthesis-panel
 import { SeriesProgressGrid } from "@/components/series/series-progress-grid";
 import { SeriesContinuityPanel } from "@/components/series/series-continuity-panel";
 import { SeriesOmnibusPanel } from "@/components/series/series-omnibus-panel";
+import { SeriesStructurePanel } from "@/components/series/series-structure-panel";
+import { SeriesMarketPanel } from "@/components/series/series-market-panel";
 
-type Tab = "overview" | "documents" | "inheritance" | "synthesis" | "analytics";
+type Tab =
+  | "overview"
+  | "documents"
+  | "continuity"
+  | "structure"
+  | "market"
+  | "inheritance"
+  | "synthesis"
+  | "analytics";
 
-const TABS: Array<{ id: Tab; label: string; icon: React.ElementType }> = [
-  { id: "overview", label: "Overview", icon: BookOpenIcon },
-  { id: "documents", label: "Documents", icon: FileTextIcon },
-  { id: "inheritance", label: "Inheritance", icon: DownloadIcon },
-  { id: "synthesis", label: "Synthesis", icon: UploadIcon },
-  { id: "analytics", label: "Analytics", icon: BarChart3Icon },
+/**
+ * Tab labels come from the dictionary — they were hardcoded English, and the
+ * series had no Continuity, Structure or Market of its own even though the
+ * book does (S3-17).
+ */
+const TAB_ORDER: Array<{ id: Tab; labelKey: string; icon: React.ElementType }> = [
+  { id: "overview", labelKey: "seriesTabOverview", icon: BookOpenIcon },
+  { id: "documents", labelKey: "seriesTabDocuments", icon: FileTextIcon },
+  { id: "continuity", labelKey: "seriesTabContinuity", icon: SearchIcon },
+  { id: "structure", labelKey: "seriesTabStructure", icon: NetworkIcon },
+  { id: "market", labelKey: "seriesTabMarket", icon: GlobeIcon },
+  { id: "inheritance", labelKey: "seriesTabInheritance", icon: DownloadIcon },
+  { id: "synthesis", labelKey: "seriesTabSynthesis", icon: UploadIcon },
+  { id: "analytics", labelKey: "seriesTabAnalytics", icon: BarChart3Icon },
 ];
 
 /** Expected series document types and their labels. */
@@ -127,7 +148,7 @@ export default function SeriesDetailPage() {
 
       {/* Tabs */}
       <div className="flex gap-1 border-b mb-6">
-        {TABS.map((tab) => {
+        {TAB_ORDER.map((tab) => {
           const Icon = tab.icon;
           return (
             <Button
@@ -142,7 +163,7 @@ export default function SeriesDetailPage() {
               }`}
             >
               <Icon className="mr-1.5 size-4" />
-              {tab.label}
+              {t.bookUI[tab.labelKey as keyof typeof t.bookUI]}
             </Button>
           );
         })}
@@ -248,6 +269,18 @@ export default function SeriesDetailPage() {
           />
         </div>
       )}
+
+      {activeTab === "continuity" && (
+        <SeriesContinuityPanel
+          seriesId={seriesId}
+          books={books}
+          seriesTitle={series.title}
+        />
+      )}
+
+      {activeTab === "structure" && <SeriesStructurePanel books={books} />}
+
+      {activeTab === "market" && <SeriesMarketPanel books={books} />}
 
       {activeTab === "documents" && (
         <SeriesDocumentsPanel documents={series.documents ?? []} />
