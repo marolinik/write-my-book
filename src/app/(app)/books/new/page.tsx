@@ -123,7 +123,7 @@ export default function NewBookPage() {
                   // Clear the block as soon as the writer starts fixing it.
                   if (nameError) setNameError(false);
                 }}
-                placeholder="My Novel"
+                placeholder={t.appUI.myNovel}
                 required
                 maxLength={200}
                 aria-invalid={nameError || undefined}

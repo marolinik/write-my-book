@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -20,6 +21,7 @@ interface ChapterSelectorProps {
 }
 
 export function ChapterSelector({ chapters }: ChapterSelectorProps) {
+  const { t } = useLanguage();
   const { selectedChapter, setSelectedChapter } = useEditorialStore();
 
   return (
@@ -30,10 +32,10 @@ export function ChapterSelector({ chapters }: ChapterSelectorProps) {
       }
     >
       <SelectTrigger className="w-[220px] h-8 text-xs">
-        <SelectValue placeholder="All chapters" />
+        <SelectValue placeholder={t.appUI.allChapters} />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="all">All chapters</SelectItem>
+        <SelectItem value="all">{t.appUI.allChapters}</SelectItem>
         {chapters.map((ch) => (
           <SelectItem key={ch.id} value={String(ch.chapterNumber)}>
             <span className="flex items-center gap-2">

@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import {
@@ -59,6 +60,7 @@ const ACTION_ITEMS = [
 ];
 
 export function CommandPalette() {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const params = useParams();
@@ -128,9 +130,9 @@ export function CommandPalette() {
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
-      <CommandInput placeholder="Search commands, chapters, workflows..." />
+      <CommandInput placeholder={t.appUI.searchCommands} />
       <CommandList>
-        <CommandEmpty>No results found.</CommandEmpty>
+        <CommandEmpty>{t.appUI.noResults}</CommandEmpty>
 
         {/* Navigation */}
         <CommandGroup heading="Pages">

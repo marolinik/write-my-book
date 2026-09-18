@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
@@ -707,6 +708,7 @@ function ApprovalCard({
     message?: string
   ) => void;
 }) {
+  const { t } = useLanguage();
   const [decision, setDecision] = useState<
     "approve" | "reject" | "modify" | null
   >(null);
@@ -780,7 +782,7 @@ function ApprovalCard({
             <Textarea
               value={modifyText}
               onChange={(e) => setModifyText(e.target.value)}
-              placeholder="Describe what to change..."
+              placeholder={t.appUI.describeChange}
               className="text-sm"
               rows={2}
             />

@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
   ZapIcon,
@@ -55,6 +56,7 @@ function savePersonalBest(result: SprintResult) {
 }
 
 export function WritingSprints({ bookId, currentWordCount = 0 }: WritingSprintsProps) {
+  const { t } = useLanguage();
   const [phase, setPhase] = useState<"idle" | "running" | "paused" | "done">("idle");
   const [duration, setDuration] = useState(15);
   const [elapsed, setElapsed] = useState(0);
@@ -199,7 +201,7 @@ export function WritingSprints({ bookId, currentWordCount = 0 }: WritingSprintsP
             <div className="grid grid-cols-2 gap-3 text-center">
               <div className="rounded-md border p-2">
                 <div className="text-lg font-bold tabular-nums">{wordsWritten}</div>
-                <div className="text-[10px] text-muted-foreground">words written</div>
+                <div className="text-[10px] text-muted-foreground">{t.appUI.wordsWritten}</div>
               </div>
               <div className="rounded-md border p-2">
                 <div className="text-lg font-bold tabular-nums flex items-center justify-center gap-1">
@@ -235,7 +237,7 @@ export function WritingSprints({ bookId, currentWordCount = 0 }: WritingSprintsP
           <div className="space-y-3 text-center">
             <div className="text-4xl">🎉</div>
             <div>
-              <p className="text-sm font-medium">Sprint Complete!</p>
+              <p className="text-sm font-medium">{t.appUI.sprintComplete}</p>
               <p className="text-xs text-muted-foreground">
                 {wordsWritten} words in {formatTime(elapsed)} ({wpm} wpm)
               </p>

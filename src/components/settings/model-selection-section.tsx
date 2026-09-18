@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useCallback, useRef, useEffect } from "react";
 import {
   Card,
@@ -79,6 +80,7 @@ const ROLE_FIELD_MAP: Record<AgentRole, string> = {
 // ── Component ─────────────────────────────────────────────────
 
 export function ModelSelectionSection() {
+  const { t } = useLanguage();
   const { data: defaultModelData } = useDefaultModel();
   const updateDefaultModel = useUpdateDefaultModel();
   const updateRoleOverride = useUpdateGlobalRoleOverride();
@@ -150,7 +152,7 @@ export function ModelSelectionSection() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Model Selection</CardTitle>
+        <CardTitle>{t.appUI.modelSelection}</CardTitle>
         <CardDescription>
           Choose which AI models to use. Per-book overrides can be set in each
           book&apos;s settings.
@@ -171,7 +173,7 @@ export function ModelSelectionSection() {
 
         {/* Per-Role Overrides */}
         <div className="space-y-1">
-          <h2 className="text-sm font-medium">Per-Role Overrides</h2>
+          <h2 className="text-sm font-medium">{t.appUI.perRoleOverrides}</h2>
           <p className="text-xs text-muted-foreground">
             Override the default model for specific agent roles. &quot;Use
             Default&quot; inherits the global default above.

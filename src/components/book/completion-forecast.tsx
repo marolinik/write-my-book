@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useMemo } from "react";
 import {
   CalendarIcon,
@@ -31,6 +32,7 @@ export function CompletionForecast({
   recentDaily,
   startDate,
 }: CompletionForecastProps) {
+  const { t } = useLanguage();
   const locale = useLocale();
   const forecast = useMemo(() => {
     if (targetWords <= 0 || currentWords >= targetWords) return null;
@@ -83,7 +85,7 @@ export function CompletionForecast({
         {forecast.date ? (
           <>
             <div className="text-center py-2">
-              <p className="text-xs text-muted-foreground">At your current pace</p>
+              <p className="text-xs text-muted-foreground">{t.appUI.atCurrentPace}</p>
               <p className="text-lg font-bold">{forecast.date}</p>
               <p className="text-xs text-muted-foreground">
                 ~{forecast.daysLeft} days from now

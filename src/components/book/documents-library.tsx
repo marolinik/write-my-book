@@ -318,7 +318,7 @@ export function DocumentsLibrary({ bookId }: { bookId: string }) {
         <div className="relative flex-1 min-w-[200px]">
           <SearchIcon className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
           <Input
-            placeholder="Search documents..."
+            placeholder={t.appUI.searchDocuments}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9 h-9"
@@ -330,7 +330,7 @@ export function DocumentsLibrary({ bookId }: { bookId: string }) {
             <SelectValue placeholder="All types" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All types</SelectItem>
+            <SelectItem value="all">{t.appUI.allTypes}</SelectItem>
             {uniqueTypes.map((type) => (
               <SelectItem key={type} value={type}>
                 {DOC_TYPE_LABELS[type] ?? type}

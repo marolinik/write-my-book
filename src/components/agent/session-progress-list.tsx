@@ -74,6 +74,7 @@ function ElapsedTime({ session }: { session: SessionState }) {
 }
 
 export function SessionProgressList() {
+  const { t } = useLanguage();
   const { language } = useLanguage();
   const agentStrings = getAgentStrings(language);
   const sessions = useAgentSessionStore((s) => s.sessions);
@@ -192,7 +193,7 @@ export function SessionProgressList() {
                     removeSession(session.sessionId);
                   }}
                   className="shrink-0 size-5 flex items-center justify-center rounded hover:bg-muted-foreground/10 opacity-0 group-hover:opacity-100 transition-opacity"
-                  title="Dismiss session"
+                  title={t.appUI.dismissSession}
                 >
                   <XIcon className="size-3 text-muted-foreground" />
                 </button>

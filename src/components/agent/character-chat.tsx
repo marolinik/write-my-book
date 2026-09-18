@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState, useCallback, useRef, useEffect } from "react";
 import {
   UserIcon,
@@ -58,6 +59,7 @@ interface CharacterChatResponse {
 }
 
 export function CharacterChat({ bookId, characters, onClose }: CharacterChatProps) {
+  const { t } = useLanguage();
   const [selectedCharacter, setSelectedCharacter] = useState<string>(
     characters[0]?.id ?? ""
   );
@@ -144,7 +146,7 @@ export function CharacterChat({ bookId, characters, onClose }: CharacterChatProp
         <div className="flex gap-2 mt-2">
           <Select value={selectedCharacter} onValueChange={setSelectedCharacter}>
             <SelectTrigger className="h-8 text-xs flex-1">
-              <SelectValue placeholder="Choose a character..." />
+              <SelectValue placeholder={t.appUI.chooseCharacter} />
             </SelectTrigger>
             <SelectContent>
               {characters.map((c) => (

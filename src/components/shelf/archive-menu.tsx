@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { MoreVerticalIcon } from "lucide-react";
@@ -27,6 +28,7 @@ interface ArchiveMenuProps {
 }
 
 export function ArchiveMenu({ bookId, archived }: ArchiveMenuProps) {
+  const { t } = useLanguage();
   const router = useRouter();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -58,7 +60,7 @@ export function ArchiveMenu({ bookId, archived }: ArchiveMenuProps) {
             variant="ghost"
             size="icon"
             className="size-7 text-muted-foreground"
-            aria-label="Book actions"
+            aria-label={t.appUI.bookActions}
           >
             <MoreVerticalIcon className="size-4" />
           </Button>
@@ -79,7 +81,7 @@ export function ArchiveMenu({ bookId, archived }: ArchiveMenuProps) {
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Archive this book?</DialogTitle>
+            <DialogTitle>{t.appUI.archiveThisBook}</DialogTitle>
             <DialogDescription>
               It moves to your Archived shelf and leaves your active shelves. You can restore it
               any time — nothing is deleted.

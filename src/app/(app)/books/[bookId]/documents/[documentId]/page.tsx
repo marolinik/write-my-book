@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { use, useState, useEffect, useCallback, useRef, useMemo } from "react";
 import Link from "next/link";
 import { useEditor, EditorContent } from "@tiptap/react";
@@ -92,6 +93,7 @@ export default function DocumentEditorPage({
 }: {
   params: Promise<{ bookId: string; documentId: string }>;
 }) {
+  const { t } = useLanguage();
   const { bookId, documentId } = use(params);
   const locale = useLocale();
 
@@ -527,7 +529,7 @@ export default function DocumentEditorPage({
               size="icon"
               className="size-7"
               onClick={() => setShowMetadata((v) => !v)}
-              title="Document metadata"
+              title={t.appUI.documentMetadata}
             >
               <PanelRightIcon className="size-4" />
             </Button>
@@ -652,7 +654,7 @@ export default function DocumentEditorPage({
       {/* Metadata panel */}
       {showMetadata && docData && (
         <div className="w-56 border-l flex flex-col bg-muted/20 p-3 space-y-4 text-xs">
-          <h3 className="font-medium text-sm">Document Info</h3>
+          <h3 className="font-medium text-sm">{t.appUI.documentInfo}</h3>
 
           <div className="space-y-2">
             <div className="flex items-center gap-1.5 text-muted-foreground">

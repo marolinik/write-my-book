@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { getUIStrings } from "@/lib/i18n/ui-strings";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 
@@ -144,7 +145,9 @@ describe("D-169 — in-thread controls must not navigate out of Editorial Review
       { role: "assistant", content: "Noted." },
     ]);
 
-    fireEvent.click(screen.getByRole("button", { name: "Close conversation" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: getUIStrings("en").appUI.closeConversation })
+    );
 
     expect(onShowInText).not.toHaveBeenCalled();
     // Thread really closed — the in-thread control is gone.

@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState, useCallback } from "react";
 import { ThumbsUpIcon, ThumbsDownIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ export function SuggestionFeedback({
   compact,
   onFeedback,
 }: SuggestionFeedbackProps) {
+  const { t } = useLanguage();
   const [feedback, setFeedback] = useState<"up" | "down" | null>(null);
 
   const submitFeedback = useCallback(
@@ -70,7 +72,7 @@ export function SuggestionFeedback({
               ? "text-green-500"
               : "text-muted-foreground/40 hover:text-green-500"
           }`}
-          title="Helpful suggestion"
+          title={t.appUI.helpfulSuggestion}
         >
           <ThumbsUpIcon className="size-3" />
         </button>
@@ -81,7 +83,7 @@ export function SuggestionFeedback({
               ? "text-red-500"
               : "text-muted-foreground/40 hover:text-red-500"
           }`}
-          title="Not helpful"
+          title={t.appUI.notHelpful}
         >
           <ThumbsDownIcon className="size-3" />
         </button>
@@ -91,7 +93,7 @@ export function SuggestionFeedback({
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-[10px] text-muted-foreground">Was this helpful?</span>
+      <span className="text-[10px] text-muted-foreground">{t.appUI.wasThisHelpful}</span>
       <Button
         variant={feedback === "up" ? "default" : "ghost"}
         size="sm"

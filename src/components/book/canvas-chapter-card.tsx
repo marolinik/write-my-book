@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVerticalIcon } from "lucide-react";
@@ -31,6 +32,7 @@ interface CanvasChapterCardProps {
 }
 
 export function CanvasChapterCard({ chapter, onClick }: CanvasChapterCardProps) {
+  const { t } = useLanguage();
   const locale = useLocale();
   const {
     attributes,
@@ -80,7 +82,7 @@ export function CanvasChapterCard({ chapter, onClick }: CanvasChapterCardProps) 
       {/* Title */}
       <p className="text-xs font-medium leading-tight truncate mb-1.5">
         {chapter.title || (
-          <span className="text-muted-foreground italic">Untitled</span>
+          <span className="text-muted-foreground italic">{t.appUI.untitled}</span>
         )}
       </p>
 

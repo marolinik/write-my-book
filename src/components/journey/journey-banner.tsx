@@ -58,6 +58,7 @@ interface JourneyBannerProps {
 }
 
 export function JourneyBanner({ bookId, onChooseJourney }: JourneyBannerProps) {
+  const { t } = useLanguage();
   const bookState = useBookState(bookId);
   const { language } = useLanguage();
   const agentStrings = getAgentStrings(language);
@@ -137,7 +138,7 @@ export function JourneyBanner({ bookId, onChooseJourney }: JourneyBannerProps) {
           <button
             onClick={handleDismiss}
             className="text-muted-foreground hover:text-foreground transition-colors"
-            aria-label="Dismiss"
+            aria-label={t.appUI.dismiss}
           >
             <X className="size-4" />
           </button>

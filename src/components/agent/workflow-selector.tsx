@@ -320,8 +320,8 @@ export function WorkflowSelector({
     <Tabs defaultValue={defaultTab} className="flex flex-1 flex-col min-h-0">
       <div className="px-4 pt-3">
         <TabsList className="w-full">
-          <TabsTrigger value="journeys">Journeys</TabsTrigger>
-          <TabsTrigger value="workflows">All Workflows</TabsTrigger>
+          <TabsTrigger value="journeys">{t.appUI.journeys}</TabsTrigger>
+          <TabsTrigger value="workflows">{t.appUI.allWorkflows}</TabsTrigger>
         </TabsList>
       </div>
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState, useCallback } from "react";
 import {
   DndContext,
@@ -201,6 +202,7 @@ function SortableChapterRow({
   onRename: (tempId: string, title: string) => void;
   onRemove: (tempId: string) => void;
 }) {
+  const { t } = useLanguage();
   const locale = useLocale();
   const {
     attributes,
@@ -235,7 +237,7 @@ function SortableChapterRow({
         {...attributes}
         {...listeners}
         className="cursor-grab touch-none text-muted-foreground hover:text-foreground"
-        aria-label="Drag to reorder"
+        aria-label={t.appUI.dragToReorder}
       >
         <GripVerticalIcon className="size-4" />
       </button>
@@ -262,7 +264,7 @@ function SortableChapterRow({
         <button
           className="text-sm text-left flex-1 truncate hover:underline"
           onClick={() => setIsEditing(true)}
-          title="Click to rename"
+          title={t.appUI.clickToRename}
         >
           {chapter.title}
         </button>

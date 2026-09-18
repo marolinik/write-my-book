@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useLocale } from "@/components/providers/language-provider";
@@ -29,6 +30,7 @@ interface PipelineCardProps {
 }
 
 export function PipelineCard({ chapter, onClick }: PipelineCardProps) {
+  const { t } = useLanguage();
   const locale = useLocale();
   const {
     attributes,
@@ -63,7 +65,7 @@ export function PipelineCard({ chapter, onClick }: PipelineCardProps) {
         </span>
         <p className="text-xs font-medium truncate">
           {chapter.title || (
-            <span className="text-muted-foreground italic">Untitled</span>
+            <span className="text-muted-foreground italic">{t.appUI.untitled}</span>
           )}
         </p>
       </div>

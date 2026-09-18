@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useMemo } from "react";
 import {
   Select,
@@ -77,6 +78,7 @@ export function ModelPicker({
   label,
   description,
 }: ModelPickerProps) {
+  const { t } = useLanguage();
   // Group models by provider, sorted by tier (opus first). The dedupe keeps
   // the stored `value`'s entry within a same-displayName family — otherwise
   // the trigger renders blank for a stored non-kept tier id (D-131).
@@ -106,12 +108,12 @@ export function ModelPicker({
         {/* Combobox triggers get no accessible name from their value text —
             reuse the visible label as the aria-label (D-10, axe button-name). */}
         <SelectTrigger className="w-full" aria-label={label ?? "Model"}>
-          <SelectValue placeholder="Select a model..." />
+          <SelectValue placeholder={t.appUI.selectModel} />
         </SelectTrigger>
         <SelectContent>
           {showDefaultOption && (
             <SelectItem value={USE_DEFAULT_VALUE}>
-              <span className="text-muted-foreground">Use Default</span>
+              <span className="text-muted-foreground">{t.appUI.useDefault}</span>
             </SelectItem>
           )}
 

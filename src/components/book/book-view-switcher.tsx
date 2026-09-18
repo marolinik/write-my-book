@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
@@ -74,6 +75,7 @@ export function BookViewSwitcher({
   language = "en",
   labels,
 }: BookViewSwitcherProps) {
+  const { t } = useLanguage();
   const locale = localeFor(language);
   const storageKey = `wmb-book-view-${bookId}`;
 
@@ -144,7 +146,7 @@ export function BookViewSwitcher({
                 <th className="px-4 py-2 text-left font-medium">{labels.colAct}</th>
                 <th className="px-4 py-2 text-left font-medium">{labels.colStatus}</th>
                 <th className="px-4 py-2 text-right font-medium">{labels.colWords}</th>
-                <th className="px-4 py-2 text-right font-medium">Target</th>
+                <th className="px-4 py-2 text-right font-medium">{t.appUI.target}</th>
                 <th className="px-4 py-2 text-center font-medium">{labels.colScore}</th>
                 <th className="px-4 py-2 text-right font-medium">{labels.colAction}</th>
               </tr>

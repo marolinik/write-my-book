@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -57,6 +58,7 @@ export function FindingConversation({
   onClose,
   onTurnActiveChange,
 }: FindingConversationProps) {
+  const { t } = useLanguage();
   const {
     replies,
     canDiscuss,
@@ -161,7 +163,7 @@ export function FindingConversation({
               e.stopPropagation();
               onClose();
             }}
-            aria-label="Close conversation"
+            aria-label={t.appUI.closeConversation}
           >
             <X className="h-3.5 w-3.5" />
           </Button>

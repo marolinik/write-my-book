@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -38,6 +39,7 @@ const PROVIDER_MODEL_SUMMARY: Record<ProviderKey, string> = {
 // ─── Component ─────────────────────────────────────────────────
 
 export function OnboardingWizard() {
+  const { t } = useLanguage();
   const router = useRouter();
   const { data: keys, refetch: refetchKeys } = useApiKeys();
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -165,7 +167,7 @@ export function OnboardingWizard() {
                 <KeyRoundIcon className="size-5 text-primary" />
               </div>
               <div>
-                <p className="text-sm font-medium">Bring Your Own Keys</p>
+                <p className="text-sm font-medium">{t.appUI.bringYourOwnKeys}</p>
                 <p className="text-xs text-muted-foreground">
                   WMB uses your own AI provider API keys. You connect directly
                   to providers like Anthropic, OpenAI, or OpenRouter.
@@ -178,7 +180,7 @@ export function OnboardingWizard() {
                 <ShieldCheckIcon className="size-5 text-primary" />
               </div>
               <div>
-                <p className="text-sm font-medium">Your Writing Stays Yours</p>
+                <p className="text-sm font-medium">{t.appUI.yourWritingStaysYours}</p>
                 <p className="text-xs text-muted-foreground">
                   Your manuscript is stored encrypted at rest and sent only to
                   the AI provider you connect. We never use your content to
@@ -193,7 +195,7 @@ export function OnboardingWizard() {
                 <WalletIcon className="size-5 text-primary" />
               </div>
               <div>
-                <p className="text-sm font-medium">Full Cost Control</p>
+                <p className="text-sm font-medium">{t.appUI.fullCostControl}</p>
                 <p className="text-xs text-muted-foreground">
                   You pay providers directly at their rates. No markup, no
                   surprise bills. Use budget models for drafts, premium for

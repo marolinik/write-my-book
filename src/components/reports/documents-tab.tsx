@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, FileTextIcon } from "lucide-react";
 import Link from "next/link";
@@ -33,6 +34,7 @@ const DOC_TYPE_LABELS: Record<string, string> = {
 };
 
 export function DocumentsTab({ bookId }: { bookId: string }) {
+  const { t } = useLanguage();
   const locale = useLocale();
   const { data: documents, isLoading } = useQuery({
     queryKey: ["book-documents", bookId],
@@ -56,8 +58,8 @@ export function DocumentsTab({ bookId }: { bookId: string }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Documents</CardTitle>
-        <CardDescription>All documents associated with this book</CardDescription>
+        <CardTitle>{t.appUI.documents}</CardTitle>
+        <CardDescription>{t.appUI.documentsHint}</CardDescription>
       </CardHeader>
       <CardContent>
         {docs.length === 0 ? (

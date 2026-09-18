@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useEffect, useRef } from "react";
 import {
   BotIcon,
@@ -21,6 +22,7 @@ import { getWorkflow } from "@/lib/agents/workflows";
  * - "Expand" button → full panel
  */
 export function AIMiniPanel() {
+  const { t } = useLanguage();
   const panelMode = useAgentUIStore((s) => s.panelMode);
   const setPanelMode = useAgentUIStore((s) => s.setPanelMode);
   const sessions = useAgentSessionStore((s) => s.sessions);
@@ -115,7 +117,7 @@ export function AIMiniPanel() {
         onMouseDown={handleHeaderMouseDown}
       >
         <BotIcon className="size-4 text-muted-foreground shrink-0" />
-        <span className="text-sm font-medium truncate">Writing Agent</span>
+        <span className="text-sm font-medium truncate">{t.workspaceUI.writingAgent}</span>
 
         {runningSessions.length > 0 && (
           <Badge variant="secondary" className="ml-1 gap-1 text-[10px]">
@@ -130,7 +132,7 @@ export function AIMiniPanel() {
             size="icon"
             className="size-6"
             onClick={() => setPanelMode("overlay")}
-            title="Expand to full panel"
+            title={t.appUI.expandToFullPanel}
           >
             <MaximizeIcon className="size-3.5" />
           </Button>
@@ -139,7 +141,7 @@ export function AIMiniPanel() {
             size="icon"
             className="size-6"
             onClick={() => setPanelMode("bubble")}
-            title="Minimize"
+            title={t.appUI.minimize}
           >
             <XIcon className="size-3.5" />
           </Button>

@@ -93,6 +93,8 @@ describe("D-54 page-heading a11y", () => {
 
   it("settings 'Per-Role Overrides' subheading is an h2, not a skipped h4", () => {
     render(<ModelSelectionSection />);
-    expect(screen.getByText("Per-Role Overrides").tagName).toBe("H2");
+    expect(
+      screen.getByText(getUIStrings("en").appUI.perRoleOverrides).tagName
+    ).toBe("H2");
   });
 });

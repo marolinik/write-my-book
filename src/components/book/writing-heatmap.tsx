@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useMemo, useState } from "react";
 import {
   Tooltip,
@@ -60,6 +61,7 @@ export function WritingHeatmap({
   totalWords,
   locale,
 }: WritingHeatmapProps) {
+  const { t } = useLanguage();
   const [hoveredDay, setHoveredDay] = useState<DayData | null>(null);
 
   // Build 365-day grid (52 weeks × 7 days)
@@ -201,11 +203,11 @@ export function WritingHeatmap({
         {/* Legend + Stats */}
         <div className="flex items-center justify-between mt-3 pt-3 border-t">
           <div className="flex items-center gap-1 text-[9px] text-muted-foreground">
-            <span>Less</span>
+            <span>{t.appUI.less}</span>
             {[0, 100, 500, 1000, 2000].map((words) => (
               <div key={words} className={`size-[9px] rounded-[1px] ${getIntensity(words)}`} />
             ))}
-            <span>More</span>
+            <span>{t.appUI.more}</span>
           </div>
           <div className="flex gap-3 text-[10px] text-muted-foreground">
             <span>{totalWords.toLocaleString(locale)} words total</span>

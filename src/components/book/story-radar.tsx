@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import {
   RadarIcon,
   AlertTriangleIcon,
@@ -35,6 +36,7 @@ const SEVERITY_STYLES = {
 };
 
 export function StoryRadar({ bookId }: StoryRadarProps) {
+  const { t } = useLanguage();
   const { data, isLoading, isError, refetch, isFetching } = useQuery<{ alerts: RadarAlert[] }>({
     queryKey: ["story-radar", bookId],
     queryFn: () => fetchJson(`/api/books/${bookId}/radar`),
@@ -62,7 +64,7 @@ export function StoryRadar({ bookId }: StoryRadarProps) {
               <Badge className="text-[10px] bg-amber-500/10 text-amber-600 border-amber-300">{warningCount} warnings</Badge>
             )}
             {data && issues.length === 0 && (
-              <Badge variant="secondary" className="text-[10px] text-green-600">All clear</Badge>
+              <Badge variant="secondary" className="text-[10px] text-green-600">{t.appUI.allClear}</Badge>
             )}
             <Button
               variant="ghost" size="icon" className="size-6"
@@ -83,7 +85,7 @@ export function StoryRadar({ bookId }: StoryRadarProps) {
         ) : isError ? (
           <div className="flex flex-col items-center gap-2 py-4 text-center">
             <AlertTriangleIcon className="size-8 text-amber-500/40" />
-            <p className="text-xs text-muted-foreground">Couldn&apos;t run the radar checks.</p>
+            <p className="text-xs text-muted-foreground">{t.appUI.radarFailed}</p>
             <Button
               variant="outline" size="sm" className="h-7 text-xs"
               onClick={() => refetch()}
@@ -95,7 +97,7 @@ export function StoryRadar({ bookId }: StoryRadarProps) {
         ) : data && issues.length === 0 ? (
           <div className="flex flex-col items-center gap-2 py-4 text-center">
             <CheckCircle2Icon className="size-8 text-green-500/30" />
-            <p className="text-xs text-muted-foreground">No pacing or staleness issues detected.</p>
+            <p className="text-xs text-muted-foreground">{t.appUI.noPacingIssues}</p>
           </div>
         ) : (
           <ScrollArea className="max-h-64">

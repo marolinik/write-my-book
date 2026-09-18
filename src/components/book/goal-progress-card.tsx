@@ -90,7 +90,7 @@ export function GoalProgressCard({
                 if (e.key === "Enter") handleSubmit();
                 if (e.key === "Escape") setEditing(false);
               }}
-              placeholder="Word count target"
+              placeholder={t.appUI.wordCountTarget}
               className="h-8 text-sm"
               autoFocus
             />
