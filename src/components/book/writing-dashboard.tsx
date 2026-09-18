@@ -13,7 +13,6 @@ import {
   TrendingUpIcon,
   BookOpenIcon,
 } from "lucide-react";
-import { MarketingKit } from "@/components/book/marketing-kit";
 import { WritingSprints } from "@/components/book/writing-sprints";
 import { DraftCertificate } from "@/components/book/draft-certificate";
 import { StoryHealthDashboard } from "@/components/book/story-health-dashboard";
@@ -201,7 +200,6 @@ export function WritingDashboard({ bookId }: WritingDashboardProps) {
 
       {/* Marketing Kit */}
       <div className="mt-8">
-        <MarketingKit bookId={bookId} bookTitle="" />
       </div>
     </div>
   );

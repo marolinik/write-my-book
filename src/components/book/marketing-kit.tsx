@@ -100,7 +100,7 @@ export function MarketingKit({ bookId, bookTitle }: MarketingKitProps) {
         <CardHeader>
           <CardTitle className="text-sm flex items-center gap-2">
             <MegaphoneIcon className="size-4" />
-            Marketing Kit
+            {t.bookUI.marketingKitTitle}
           </CardTitle>
         </CardHeader>
         <CardContent className="text-center py-6 space-y-3">
@@ -108,7 +108,7 @@ export function MarketingKit({ bookId, bookTitle }: MarketingKitProps) {
           <div>
             <p className="text-sm font-medium">{t.bookUI.generateKit}</p>
             <p className="text-xs text-muted-foreground">
-              AI will create a blurb, store description, social posts, and more from your manuscript.
+              {t.bookUI.marketingKitWhat}
             </p>
           </div>
           <Button
@@ -120,7 +120,7 @@ export function MarketingKit({ bookId, bookTitle }: MarketingKitProps) {
             ) : (
               <SparklesIcon className="size-4 mr-1.5" />
             )}
-            Generate Marketing Kit
+            {t.bookUI.generateKit}
           </Button>
         </CardContent>
       </Card>
@@ -143,7 +143,7 @@ export function MarketingKit({ bookId, bookTitle }: MarketingKitProps) {
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm flex items-center gap-2">
             <MegaphoneIcon className="size-4" />
-            Marketing Kit — {bookTitle}
+            {t.bookUI.marketingKitTitle} — {bookTitle}
           </CardTitle>
           <Badge variant="outline" className="text-[10px]">
             Generated {new Date(data.generatedAt).toLocaleDateString(locale)}

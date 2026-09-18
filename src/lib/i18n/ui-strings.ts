@@ -30,6 +30,7 @@ export interface UIStrings {
     sectionEditing: string;
     sectionAnalysis: string;
     sectionPublish: string;
+    marketing: string;
     sectionTools: string;
     nextStep: string;
     library: string;
@@ -468,6 +469,8 @@ export interface UIStrings {
     aiSessions: string;
     editsReviewed: string;
     generateKit: string;
+    marketingKitTitle: string;
+    marketingKitWhat: string;
     blurb: string;
     store: string;
     social: string;
@@ -954,6 +957,7 @@ const EN: UIStrings = {
     sectionEditing: "Refining",
     sectionAnalysis: "Insights",
     sectionPublish: "Publish",
+    marketing: "Marketing",
     sectionTools: "Tools",
     nextStep: "Next Step",
     library: "Library",
@@ -1377,6 +1381,8 @@ const EN: UIStrings = {
     aiSessions: "AI sessions",
     editsReviewed: "edits reviewed",
     generateKit: "Generate your marketing kit",
+    marketingKitTitle: "Marketing kit",
+    marketingKitWhat: "The agent writes a blurb, a store description and social posts from your manuscript.",
     blurb: "Blurb",
     store: "Store",
     social: "Social",
@@ -1900,6 +1906,7 @@ const SR: UIStrings = {
     sectionEditing: "Usavršavanje",
     sectionAnalysis: "Uvidi",
     sectionPublish: "Objavi",
+    marketing: "Marketing",
     sectionTools: "Alatke",
     nextStep: "Sledeći korak",
     library: "Biblioteka",
@@ -2313,6 +2320,8 @@ const SR: UIStrings = {
     aiSessions: "AI sesije",
     editsReviewed: "pregledanih izmena",
     generateKit: "Napravi marketinški komplet",
+    marketingKitTitle: "Marketinški komplet",
+    marketingKitWhat: "Agent iz vašeg rukopisa piše blurb, opis za prodavnicu i objave za društvene mreže.",
     blurb: "Opis",
     store: "Prodavnica",
     social: "Društvene mreže",
@@ -2835,6 +2844,7 @@ const DE: UIStrings = {
     sectionEditing: "Feinarbeit",
     sectionAnalysis: "Einblicke",
     sectionPublish: "Veröffentlichen",
+    marketing: "Marketing",
     sectionTools: "Werkzeuge",
     nextStep: "Nächster Schritt",
     library: "Bibliothek",
@@ -3248,6 +3258,8 @@ const DE: UIStrings = {
     aiSessions: "KI-Sitzungen",
     editsReviewed: "geprüfte Änderungen",
     generateKit: "Marketing-Kit erzeugen",
+    marketingKitTitle: "Marketing-Kit",
+    marketingKitWhat: "Der Agent schreibt aus Ihrem Manuskript Klappentext, Shop-Beschreibung und Social-Posts.",
     blurb: "Klappentext",
     store: "Shop",
     social: "Social Media",
@@ -3770,6 +3782,7 @@ const ES: UIStrings = {
     sectionEditing: "Refinamiento",
     sectionAnalysis: "Perspectivas",
     sectionPublish: "Publicar",
+    marketing: "Marketing",
     sectionTools: "Herramientas",
     nextStep: "Siguiente paso",
     library: "Biblioteca",
@@ -4183,6 +4196,8 @@ const ES: UIStrings = {
     aiSessions: "Sesiones de IA",
     editsReviewed: "ediciones revisadas",
     generateKit: "Genera tu kit de marketing",
+    marketingKitTitle: "Kit de marketing",
+    marketingKitWhat: "El agente escribe una sinopsis, la descripción de tienda y publicaciones sociales a partir de tu manuscrito.",
     blurb: "Sinopsis",
     store: "Tienda",
     social: "Redes",
@@ -4705,6 +4720,7 @@ const FR: UIStrings = {
     sectionEditing: "Peaufinage",
     sectionAnalysis: "Aperçus",
     sectionPublish: "Publier",
+    marketing: "Marketing",
     sectionTools: "Outils",
     nextStep: "Prochaine étape",
     library: "Bibliothèque",
@@ -5118,6 +5134,8 @@ const FR: UIStrings = {
     aiSessions: "Sessions IA",
     editsReviewed: "modifications examinées",
     generateKit: "Générer votre kit marketing",
+    marketingKitTitle: "Kit marketing",
+    marketingKitWhat: "L'agent rédige une accroche, une description de boutique et des publications sociales à partir de votre manuscrit.",
     blurb: "Résumé",
     store: "Boutique",
     social: "Réseaux",
@@ -5640,6 +5658,7 @@ const RU: UIStrings = {
     sectionEditing: "Шлифовка",
     sectionAnalysis: "Аналитика",
     sectionPublish: "Публикация",
+    marketing: "Маркетинг",
     sectionTools: "Инструменты",
     nextStep: "Следующий шаг",
     library: "Библиотека",
@@ -6053,6 +6072,8 @@ const RU: UIStrings = {
     aiSessions: "Сессии ИИ",
     editsReviewed: "просмотренных правок",
     generateKit: "Создать маркетинговый набор",
+    marketingKitTitle: "Маркетинг-набор",
+    marketingKitWhat: "Агент пишет аннотацию, описание для магазина и посты по вашей рукописи.",
     blurb: "Аннотация",
     store: "Магазин",
     social: "Соцсети",
@@ -6575,6 +6596,7 @@ const ZH: UIStrings = {
     sectionEditing: "打磨",
     sectionAnalysis: "洞察",
     sectionPublish: "出版",
+    marketing: "营销",
     sectionTools: "工具",
     nextStep: "下一步",
     library: "资料库",
@@ -6988,6 +7010,8 @@ const ZH: UIStrings = {
     aiSessions: "AI 会话",
     editsReviewed: "已审阅的修改",
     generateKit: "生成营销素材包",
+    marketingKitTitle: "营销套件",
+    marketingKitWhat: "代理会根据您的文稿撰写内容简介、店铺描述和社交帖文。",
     blurb: "简介",
     store: "商店",
     social: "社交",

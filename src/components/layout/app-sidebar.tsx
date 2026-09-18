@@ -15,6 +15,7 @@ import {
   PenToolIcon,
   BarChart3Icon,
   DownloadIcon,
+  MegaphoneIcon,
   ArrowLeftRightIcon,
   SettingsIcon,
   PaletteIcon,
@@ -684,6 +685,18 @@ export function AppSidebar() {
                         <DownloadIcon />
                         <span>{t.nav.export}</span>
                         {nextBadge("export")}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  {/* Last, because it is the last thing a writer does (S3-12). */}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname.includes("/marketing")}
+                    >
+                      <Link href={`/books/${bookId}/marketing`}>
+                        <MegaphoneIcon />
+                        <span>{t.nav.marketing}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
