@@ -150,7 +150,7 @@ export default function SeriesDetailPage() {
           <div className="grid gap-4 sm:grid-cols-3">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Books</CardTitle>
+                <CardTitle className="text-sm font-medium">{t.screens.totalBooks}</CardTitle>
                 <LibraryIcon className="size-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -159,7 +159,7 @@ export default function SeriesDetailPage() {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Chapters</CardTitle>
+                <CardTitle className="text-sm font-medium">{t.screens.totalChapters}</CardTitle>
                 <HashIcon className="size-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -168,7 +168,7 @@ export default function SeriesDetailPage() {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Words</CardTitle>
+                <CardTitle className="text-sm font-medium">{t.screens.totalWords}</CardTitle>
                 <PenLineIcon className="size-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -190,7 +190,7 @@ export default function SeriesDetailPage() {
 
           {/* Series documents */}
           <div>
-            <h3 className="text-sm font-medium mb-3">Series Documents</h3>
+            <h3 className="text-sm font-medium mb-3">{t.screens.seriesDocuments}</h3>
             <div className="grid gap-3 sm:grid-cols-3">
               {SERIES_DOC_TYPES.map(({ type, label }) => {
                 const doc = docsByType.get(type);

@@ -9,7 +9,17 @@ import { render, screen, cleanup } from "@testing-library/react";
  * body copy were already honest, only the headline lied.
  */
 
-vi.mock("@/components/providers/language-provider", () => ({ useLocale: () => "en-US" }));
+vi.mock("@/components/providers/language-provider", async (importOriginal) => {
+  // O1: the page now reads its labels from the dictionary, so the real strings
+  // come through while the locale stays pinned for deterministic formatting.
+  const actual = await importOriginal<typeof import("@/components/providers/language-provider")>();
+  const { getUIStrings } = await import("@/lib/i18n/ui-strings");
+  return {
+    ...actual,
+    useLocale: () => "en-US",
+    useLanguage: () => ({ language: "en", t: getUIStrings("en"), isLoading: false }),
+  };
+});
 vi.mock("@/lib/billing/status-notice", () => ({ billingStatusNotice: () => null }));
 
 vi.mock("@/hooks/use-billing", () => ({

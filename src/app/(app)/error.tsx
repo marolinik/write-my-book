@@ -3,6 +3,7 @@
 import * as Sentry from "@sentry/nextjs";
 import { useEffect } from "react";
 import Link from "next/link";
+import { useLanguage } from "@/components/providers/language-provider";
 
 export default function AppError({
   error,
@@ -11,6 +12,8 @@ export default function AppError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const { t } = useLanguage();
+
   useEffect(() => {
     Sentry.captureException(error);
   }, [error]);
@@ -18,7 +21,7 @@ export default function AppError({
   return (
     <div className="flex flex-1 items-center justify-center p-8">
       <div className="text-center space-y-4">
-        <h1 className="text-3xl font-bold">Something went wrong</h1>
+        <h1 className="text-3xl font-bold">{t.screens.somethingWentWrong}</h1>
         <p className="text-muted-foreground max-w-md mx-auto">
           An error occurred while loading this page.
         </p>

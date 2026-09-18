@@ -19,7 +19,7 @@ import {
   type UsageModelTotals,
 } from "@/lib/llm/usage-aggregation";
 import { billingStatusNotice } from "@/lib/billing/status-notice";
-import { useLocale } from "@/components/providers/language-provider";
+import { useLanguage, useLocale } from "@/components/providers/language-provider";
 import {
   Check,
   ExternalLink,
@@ -113,6 +113,7 @@ const PLAN_CARDS = [
 
 export default function BillingPage() {
   const locale = useLocale();
+  const { t } = useLanguage();
   const { data: subscription } = useSubscription();
   const { data: usage, isLoading: usageLoading } = useUsage();
   const { data: founderCount } = useFounderCount();
@@ -327,7 +328,7 @@ export default function BillingPage() {
                     <plan.icon className="h-4 w-4" />
                     {plan.name}
                   </span>
-                  {isCurrent && <Badge variant="default">Current</Badge>}
+                  {isCurrent && <Badge variant="default">{t.screens.current}</Badge>}
                 </CardTitle>
                 <CardDescription>
                   <span className="text-2xl font-bold text-foreground">
@@ -421,14 +422,14 @@ export default function BillingPage() {
       <Card className="mb-8">
         <CardContent className="flex items-center justify-between py-4">
           <div>
-            <p className="font-medium">Enterprise</p>
+            <p className="font-medium">{t.screens.enterprise}</p>
             <p className="text-sm text-muted-foreground">
               Need custom seats, API access, or white-label export? Let&apos;s
               talk.
             </p>
           </div>
           <Button variant="outline" asChild>
-            <a href="mailto:enterprise@writemybook.com">Contact Us</a>
+            <a href="mailto:enterprise@writemybook.com">{t.screens.contactUs}</a>
           </Button>
         </CardContent>
       </Card>
@@ -438,7 +439,7 @@ export default function BillingPage() {
         <CardContent className="flex items-start gap-3 py-4">
           <Info className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
           <div>
-            <p className="font-medium">BYOK — Bring Your Own Key</p>
+            <p className="font-medium">{t.screens.byok}</p>
             <p className="text-sm text-muted-foreground mt-1">
               Your subscription covers the WriteMyBook platform. You bring your
               own AI API keys (Anthropic, OpenRouter, OpenAI, etc.) for LLM
@@ -471,7 +472,7 @@ export default function BillingPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">Total spent (last 30 days)</p>
+            <p className="text-sm text-muted-foreground">{t.screens.totalSpent30}</p>
             <p className="text-3xl font-bold text-green-700 dark:text-green-400">
               ${usage.total.costEstimate.toFixed(2)}
             </p>
@@ -540,7 +541,7 @@ export default function BillingPage() {
       <Separator className="my-6" />
 
       {/* Usage Stats */}
-      <h2 className="text-xl font-semibold mb-4">Token Usage (30 days)</h2>
+      <h2 className="text-xl font-semibold mb-4">{t.screens.tokenUsage30}</h2>
 
       {usageLoading ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -598,7 +599,7 @@ export default function BillingPage() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader className="pb-2">
-                <CardDescription>Total Sessions</CardDescription>
+                <CardDescription>{t.screens.totalSessions}</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold">
@@ -608,7 +609,7 @@ export default function BillingPage() {
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardDescription>Input Tokens</CardDescription>
+                <CardDescription>{t.screens.inputTokens}</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold">
@@ -618,7 +619,7 @@ export default function BillingPage() {
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardDescription>Output Tokens</CardDescription>
+                <CardDescription>{t.screens.outputTokens}</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold">
@@ -628,7 +629,7 @@ export default function BillingPage() {
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardDescription>Est. Cost</CardDescription>
+                <CardDescription>{t.screens.estCost}</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold">
@@ -641,8 +642,8 @@ export default function BillingPage() {
           {/* By Agent */}
           <Card className="mt-6">
             <CardHeader>
-              <CardTitle>Usage by Agent</CardTitle>
-              <CardDescription>Last 30 days</CardDescription>
+              <CardTitle>{t.screens.usageByAgent}</CardTitle>
+              <CardDescription>{t.screens.last30Days}</CardDescription>
             </CardHeader>
             <CardContent>
               {!usage?.byAgent ||
@@ -699,7 +700,7 @@ export default function BillingPage() {
           {/* By Model */}
           <Card className="mt-6">
             <CardHeader>
-              <CardTitle>Usage by Model</CardTitle>
+              <CardTitle>{t.screens.usageByModel}</CardTitle>
             </CardHeader>
             <CardContent>
               {!usage?.byModel ||
@@ -758,8 +759,8 @@ export default function BillingPage() {
           {/* By Book */}
           <Card className="mt-6">
             <CardHeader>
-              <CardTitle>Usage by Book</CardTitle>
-              <CardDescription>Last 30 days</CardDescription>
+              <CardTitle>{t.screens.usageByBook}</CardTitle>
+              <CardDescription>{t.screens.last30Days}</CardDescription>
             </CardHeader>
             <CardContent>
               {!usage?.byBook || usage.byBook.length === 0 ? (

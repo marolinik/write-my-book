@@ -301,6 +301,20 @@ export interface UIStrings {
   };
 
   // Style page
+  // O1 - main-surface strings that used to be written inline in English.
+  screens: {
+    bookProgress: string; drafted: string; edited: string; betaPassed: string;
+    wordCount: string; recentSessions: string; editorialFindings: string;
+    modelOverrides: string; bookDefaultModel: string; bookDefaultModelDesc: string;
+    perRoleOverrides: string; resolutionPreview: string; deleteBook: string;
+    totalBooks: string; totalChapters: string; totalWords: string; seriesDocuments: string;
+    somethingWentWrong: string; pageNotFound: string; generateReports: string;
+    current: string; enterprise: string; contactUs: string; byok: string;
+    totalSpent30: string; tokenUsage30: string; totalSessions: string;
+    inputTokens: string; outputTokens: string; estCost: string;
+    usageByAgent: string; usageByModel: string; usageByBook: string; last30Days: string;
+  };
+
   // O3 - documents damaged before the encoding and language fixes.
   documentDamage: {
     title: string; body: string; regenerate: string; unrecoverable: string;
@@ -815,6 +829,25 @@ const EN: UIStrings = {
     title: "Reports", subtitle: "Analytics, continuity, market analysis, and editorial overview",
     analytics: "Analytics", continuity: "Continuity", market: "Market", edits: "Edits", documents: "Documents",
   },
+  screens: {
+    bookProgress: "Book progress", drafted: "Drafted", edited: "Edited", betaPassed: "Beta passed",
+    wordCount: "Word count", recentSessions: "Recent agent sessions", editorialFindings: "Editorial findings",
+    modelOverrides: "Model overrides", bookDefaultModel: "Book default model",
+    bookDefaultModelDesc: "Override the global default for all agent roles in this book.",
+    perRoleOverrides: "Per-role overrides", resolutionPreview: "Resolution preview",
+    deleteBook: "Delete this book",
+    totalBooks: "Total books", totalChapters: "Total chapters", totalWords: "Total words",
+    seriesDocuments: "Series documents",
+    somethingWentWrong: "Something went wrong", pageNotFound: "Page not found",
+    generateReports: "Generate reports",
+    current: "Current", enterprise: "Enterprise", contactUs: "Contact us",
+    byok: "BYOK — Bring Your Own Key",
+    totalSpent30: "Total spent (last 30 days)", tokenUsage30: "Token usage (30 days)",
+    totalSessions: "Total sessions", inputTokens: "Input tokens", outputTokens: "Output tokens",
+    estCost: "Est. cost", usageByAgent: "Usage by agent", usageByModel: "Usage by model",
+    usageByBook: "Usage by book", last30Days: "Last 30 days",
+  },
+
   documentDamage: {
     title: "{n} documents need regenerating",
     body: "These were written before the text-encoding and language fixes. Damaged characters cannot be repaired, only rewritten.",
@@ -1360,6 +1393,25 @@ const SR: UIStrings = {
     title: "Izveštaji", subtitle: "Analitika, kontinuitet, analiza tržišta i pregled redakcije",
     analytics: "Analitika", continuity: "Kontinuitet", market: "Tržište", edits: "Izmene", documents: "Dokumenta",
   },
+  screens: {
+    bookProgress: "Napredak knjige", drafted: "Napisano", edited: "Uređeno", betaPassed: "Prošlo beta čitanje",
+    wordCount: "Broj reči", recentSessions: "Nedavne sesije agenata", editorialFindings: "Urednički nalazi",
+    modelOverrides: "Izmene modela", bookDefaultModel: "Podrazumevani model knjige",
+    bookDefaultModelDesc: "Zameni globalni podrazumevani model za sve uloge agenata u ovoj knjizi.",
+    perRoleOverrides: "Izmene po ulozi", resolutionPreview: "Pregled razrešenja",
+    deleteBook: "Obriši ovu knjigu",
+    totalBooks: "Ukupno knjiga", totalChapters: "Ukupno poglavlja", totalWords: "Ukupno reči",
+    seriesDocuments: "Dokumenti serijala",
+    somethingWentWrong: "Nešto je pošlo naopako", pageNotFound: "Stranica nije pronađena",
+    generateReports: "Napravi izveštaje",
+    current: "Trenutni", enterprise: "Enterprise", contactUs: "Kontaktirajte nas",
+    byok: "BYOK — sopstveni ključ",
+    totalSpent30: "Ukupno potrošeno (30 dana)", tokenUsage30: "Potrošnja tokena (30 dana)",
+    totalSessions: "Ukupno sesija", inputTokens: "Ulazni tokeni", outputTokens: "Izlazni tokeni",
+    estCost: "Procenjeni trošak", usageByAgent: "Potrošnja po agentu", usageByModel: "Potrošnja po modelu",
+    usageByBook: "Potrošnja po knjizi", last30Days: "Poslednjih 30 dana",
+  },
+
   documentDamage: {
     title: "{n} dokumenata treba ponovo napraviti",
     body: "Nastali su pre ispravki kodiranja teksta i jezika. Oštećeni znakovi ne mogu da se poprave, samo da se ponovo napišu.",
@@ -1904,6 +1956,25 @@ const DE: UIStrings = {
     title: "Berichte", subtitle: "Analytik, Kontinuität, Marktanalyse und Lektoratsübersicht",
     analytics: "Analytik", continuity: "Kontinuität", market: "Markt", edits: "Lektorat", documents: "Dokumente",
   },
+  screens: {
+    bookProgress: "Fortschritt", drafted: "Entworfen", edited: "Lektoriert", betaPassed: "Beta bestanden",
+    wordCount: "Wortzahl", recentSessions: "Letzte Agentenläufe", editorialFindings: "Lektoratsbefunde",
+    modelOverrides: "Modell-Überschreibungen", bookDefaultModel: "Standardmodell des Buchs",
+    bookDefaultModelDesc: "Überschreibt den globalen Standard für alle Agentenrollen in diesem Buch.",
+    perRoleOverrides: "Pro Rolle", resolutionPreview: "Auflösungsvorschau",
+    deleteBook: "Dieses Buch löschen",
+    totalBooks: "Bücher gesamt", totalChapters: "Kapitel gesamt", totalWords: "Wörter gesamt",
+    seriesDocuments: "Seriendokumente",
+    somethingWentWrong: "Etwas ist schiefgelaufen", pageNotFound: "Seite nicht gefunden",
+    generateReports: "Berichte erzeugen",
+    current: "Aktuell", enterprise: "Enterprise", contactUs: "Kontakt",
+    byok: "BYOK — eigener Schlüssel",
+    totalSpent30: "Gesamtausgaben (30 Tage)", tokenUsage30: "Token-Verbrauch (30 Tage)",
+    totalSessions: "Läufe gesamt", inputTokens: "Eingabe-Token", outputTokens: "Ausgabe-Token",
+    estCost: "Geschätzte Kosten", usageByAgent: "Verbrauch nach Agent", usageByModel: "Verbrauch nach Modell",
+    usageByBook: "Verbrauch nach Buch", last30Days: "Letzte 30 Tage",
+  },
+
   documentDamage: {
     title: "{n} Dokumente müssen neu erzeugt werden",
     body: "Sie entstanden vor den Korrekturen an Textkodierung und Sprache. Beschädigte Zeichen lassen sich nicht reparieren, nur neu schreiben.",
@@ -2448,6 +2519,25 @@ const ES: UIStrings = {
     title: "Informes", subtitle: "Analítica, continuidad, análisis de mercado y resumen editorial",
     analytics: "Analítica", continuity: "Continuidad", market: "Mercado", edits: "Ediciones", documents: "Documentos",
   },
+  screens: {
+    bookProgress: "Progreso del libro", drafted: "Escrito", edited: "Editado", betaPassed: "Beta superada",
+    wordCount: "Número de palabras", recentSessions: "Sesiones recientes", editorialFindings: "Hallazgos editoriales",
+    modelOverrides: "Modelos personalizados", bookDefaultModel: "Modelo por defecto del libro",
+    bookDefaultModelDesc: "Sustituye el valor global para todos los roles de agente de este libro.",
+    perRoleOverrides: "Por rol", resolutionPreview: "Vista previa de resolución",
+    deleteBook: "Eliminar este libro",
+    totalBooks: "Libros en total", totalChapters: "Capítulos en total", totalWords: "Palabras en total",
+    seriesDocuments: "Documentos de la serie",
+    somethingWentWrong: "Algo ha salido mal", pageNotFound: "Página no encontrada",
+    generateReports: "Generar informes",
+    current: "Actual", enterprise: "Enterprise", contactUs: "Contáctanos",
+    byok: "BYOK — tu propia clave",
+    totalSpent30: "Gasto total (30 días)", tokenUsage30: "Uso de tokens (30 días)",
+    totalSessions: "Sesiones totales", inputTokens: "Tokens de entrada", outputTokens: "Tokens de salida",
+    estCost: "Coste estimado", usageByAgent: "Uso por agente", usageByModel: "Uso por modelo",
+    usageByBook: "Uso por libro", last30Days: "Últimos 30 días",
+  },
+
   documentDamage: {
     title: "{n} documentos deben regenerarse",
     body: "Se escribieron antes de las correcciones de codificación e idioma. Los caracteres dañados no se pueden reparar, solo reescribir.",
@@ -2992,6 +3082,25 @@ const FR: UIStrings = {
     title: "Rapports", subtitle: "Analytique, continuité, analyse de marché et aperçu éditorial",
     analytics: "Analytique", continuity: "Continuité", market: "Marché", edits: "Éditions", documents: "Documents",
   },
+  screens: {
+    bookProgress: "Progression du livre", drafted: "Rédigé", edited: "Révisé", betaPassed: "Bêta validée",
+    wordCount: "Nombre de mots", recentSessions: "Sessions récentes", editorialFindings: "Constats éditoriaux",
+    modelOverrides: "Modifications de modèle", bookDefaultModel: "Modèle par défaut du livre",
+    bookDefaultModelDesc: "Remplace la valeur globale pour tous les rôles d'agent de ce livre.",
+    perRoleOverrides: "Par rôle", resolutionPreview: "Aperçu de la résolution",
+    deleteBook: "Supprimer ce livre",
+    totalBooks: "Livres au total", totalChapters: "Chapitres au total", totalWords: "Mots au total",
+    seriesDocuments: "Documents de la série",
+    somethingWentWrong: "Une erreur est survenue", pageNotFound: "Page introuvable",
+    generateReports: "Générer les rapports",
+    current: "Actuel", enterprise: "Enterprise", contactUs: "Nous contacter",
+    byok: "BYOK — votre propre clé",
+    totalSpent30: "Dépenses (30 jours)", tokenUsage30: "Consommation de tokens (30 jours)",
+    totalSessions: "Sessions au total", inputTokens: "Tokens d'entrée", outputTokens: "Tokens de sortie",
+    estCost: "Coût estimé", usageByAgent: "Consommation par agent", usageByModel: "Consommation par modèle",
+    usageByBook: "Consommation par livre", last30Days: "30 derniers jours",
+  },
+
   documentDamage: {
     title: "{n} documents à regénérer",
     body: "Ils ont été écrits avant les corrections d'encodage et de langue. Les caractères abîmés ne se réparent pas, ils se réécrivent.",
@@ -3536,6 +3645,25 @@ const RU: UIStrings = {
     title: "Отчёты", subtitle: "Аналитика, непрерывность, анализ рынка и обзор редактуры",
     analytics: "Аналитика", continuity: "Непрерывность", market: "Рынок", edits: "Редактура", documents: "Документы",
   },
+  screens: {
+    bookProgress: "Прогресс книги", drafted: "Написано", edited: "Отредактировано", betaPassed: "Бета пройдена",
+    wordCount: "Число слов", recentSessions: "Недавние сессии", editorialFindings: "Редакторские замечания",
+    modelOverrides: "Переопределение моделей", bookDefaultModel: "Модель книги по умолчанию",
+    bookDefaultModelDesc: "Заменяет глобальную настройку для всех ролей агентов в этой книге.",
+    perRoleOverrides: "По ролям", resolutionPreview: "Предпросмотр разрешения",
+    deleteBook: "Удалить книгу",
+    totalBooks: "Всего книг", totalChapters: "Всего глав", totalWords: "Всего слов",
+    seriesDocuments: "Документы серии",
+    somethingWentWrong: "Что-то пошло не так", pageNotFound: "Страница не найдена",
+    generateReports: "Создать отчёты",
+    current: "Текущий", enterprise: "Enterprise", contactUs: "Связаться с нами",
+    byok: "BYOK — свой ключ",
+    totalSpent30: "Расходы (30 дней)", tokenUsage30: "Расход токенов (30 дней)",
+    totalSessions: "Всего сессий", inputTokens: "Входные токены", outputTokens: "Выходные токены",
+    estCost: "Оценка стоимости", usageByAgent: "Расход по агентам", usageByModel: "Расход по моделям",
+    usageByBook: "Расход по книгам", last30Days: "Последние 30 дней",
+  },
+
   documentDamage: {
     title: "{n} документов нужно создать заново",
     body: "Они написаны до исправлений кодировки и языка. Повреждённые символы нельзя восстановить, только переписать.",
@@ -4080,6 +4208,25 @@ const ZH: UIStrings = {
     title: "报告", subtitle: "分析、连续性、市场分析和编辑概览",
     analytics: "分析", continuity: "连续性", market: "市场", edits: "编辑", documents: "文档",
   },
+  screens: {
+    bookProgress: "书稿进度", drafted: "已起草", edited: "已编辑", betaPassed: "通过 Beta",
+    wordCount: "字数", recentSessions: "最近的代理会话", editorialFindings: "编辑发现",
+    modelOverrides: "模型覆盖", bookDefaultModel: "本书默认模型",
+    bookDefaultModelDesc: "为本书的所有代理角色覆盖全局默认值。",
+    perRoleOverrides: "按角色覆盖", resolutionPreview: "解析预览",
+    deleteBook: "删除本书",
+    totalBooks: "书籍总数", totalChapters: "章节总数", totalWords: "总字数",
+    seriesDocuments: "系列文档",
+    somethingWentWrong: "出了点问题", pageNotFound: "页面未找到",
+    generateReports: "生成报告",
+    current: "当前", enterprise: "Enterprise", contactUs: "联系我们",
+    byok: "BYOK — 自备密钥",
+    totalSpent30: "总支出（30 天）", tokenUsage30: "Token 用量（30 天）",
+    totalSessions: "会话总数", inputTokens: "输入 Token", outputTokens: "输出 Token",
+    estCost: "估算成本", usageByAgent: "按代理统计", usageByModel: "按模型统计",
+    usageByBook: "按书籍统计", last30Days: "最近 30 天",
+  },
+
   documentDamage: {
     title: "{n} 份文档需要重新生成",
     body: "它们写于编码与语言修复之前。损坏的字符无法修复，只能重写。",

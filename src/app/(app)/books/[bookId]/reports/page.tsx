@@ -44,7 +44,7 @@ export default function ReportsPage({
             onClick={() => openWithWorkflow("analyze")}
           >
             <SparklesIcon className="mr-1.5 size-3.5" />
-            Generate Reports
+            {t.screens.generateReports}
           </Button>
         </div>
       </div>

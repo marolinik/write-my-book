@@ -220,7 +220,7 @@ export default function BookSettingsPage() {
       {/* Model Overrides for this Book */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Model Overrides</CardTitle>
+          <CardTitle className="text-base">{t.screens.modelOverrides}</CardTitle>
           <CardDescription>
             Override the global model selection for this book. &quot;Use
             Default&quot; inherits from your global settings.
@@ -232,8 +232,8 @@ export default function BookSettingsPage() {
         <CardContent className="space-y-6">
           {/* Book Default Model */}
           <ModelPicker
-            label="Book Default Model"
-            description="Override the global default for all agent roles in this book."
+            label={t.screens.bookDefaultModel}
+            description={t.screens.bookDefaultModelDesc}
             value={getBookDefaultValue()}
             onChange={(registryId) => handleChange("modelOverride", registryId)}
             availableProviders={availableProviders}
@@ -244,7 +244,7 @@ export default function BookSettingsPage() {
 
           {/* Per-Role Overrides */}
           <div className="space-y-1">
-            <h4 className="text-sm font-medium">Per-Role Overrides</h4>
+            <h4 className="text-sm font-medium">{t.screens.perRoleOverrides}</h4>
             <p className="text-xs text-muted-foreground">
               Fine-tune which model each agent role uses for this book.
             </p>
@@ -272,7 +272,7 @@ export default function BookSettingsPage() {
           <div className="space-y-2">
             <div className="flex items-center gap-1.5">
               <InfoIcon className="size-3.5 text-muted-foreground" />
-              <h4 className="text-sm font-medium">Resolution Preview</h4>
+              <h4 className="text-sm font-medium">{t.screens.resolutionPreview}</h4>
             </div>
             <p className="text-xs text-muted-foreground mb-3">
               Shows which model will actually be used for each agent role in this book.
@@ -444,7 +444,7 @@ export default function BookSettingsPage() {
         <CardContent>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium">Delete this book</p>
+              <p className="text-sm font-medium">{t.screens.deleteBook}</p>
               <p className="text-xs text-muted-foreground">
                 Permanently delete this book and all its chapters, documents, agent sessions, and editorial findings.
               </p>

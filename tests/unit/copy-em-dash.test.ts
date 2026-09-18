@@ -52,7 +52,14 @@ describe("D-182 — em dashes in writer-facing copy", () => {
     const billing = readFileSync(join(process.cwd(), "src/app/(app)/settings/billing/page.tsx"), "utf8");
     const setup = readFileSync(join(process.cwd(), "src/app/(app)/books/[bookId]/setup/page.tsx"), "utf8");
     expect(billing).toContain("Limited — Founder's Price");
-    expect(billing).toContain("BYOK — Bring Your Own Key");
+    // O1 moved this line into the dictionary; the em dash has to survive the
+    // move, in every locale that spells the phrase out.
+    const dictionary = readFileSync(join(process.cwd(), "src/lib/i18n/ui-strings.ts"), "utf8");
+    const byokLines = dictionary
+      .split(/\r?\n/)
+      .filter((line) => line.trim().startsWith("byok:"));
+    expect(byokLines.length).toBe(7);
+    for (const line of byokLines) expect(line).toContain("BYOK —");
     // The wizard banner joins the string with a dash before the chapter count.
     expect(setup).toMatch(/\{s\.manuscriptImported\}\s*—/);
   });

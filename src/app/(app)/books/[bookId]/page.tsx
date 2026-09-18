@@ -290,12 +290,12 @@ export default async function BookDetailPage({
           {/* Book Progress Meter */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Book Progress</CardTitle>
+              <CardTitle className="text-sm font-medium">{t.screens.bookProgress}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="space-y-1.5">
                 <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Drafted</span>
+                  <span className="text-muted-foreground">{t.screens.drafted}</span>
                   <span className="font-medium">{pctDrafted}%</span>
                 </div>
                 <div className="h-2 rounded-full bg-muted overflow-hidden">
@@ -304,7 +304,7 @@ export default async function BookDetailPage({
               </div>
               <div className="space-y-1.5">
                 <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Edited</span>
+                  <span className="text-muted-foreground">{t.screens.edited}</span>
                   <span className="font-medium">{pctEdited}%</span>
                 </div>
                 <div className="h-2 rounded-full bg-muted overflow-hidden">
@@ -313,7 +313,7 @@ export default async function BookDetailPage({
               </div>
               <div className="space-y-1.5">
                 <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Beta Passed</span>
+                  <span className="text-muted-foreground">{t.screens.betaPassed}</span>
                   <span className="font-medium">{pctPassed}%</span>
                 </div>
                 <div className="h-2 rounded-full bg-muted overflow-hidden">
@@ -327,7 +327,7 @@ export default async function BookDetailPage({
           <Card>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-medium">Word Count</CardTitle>
+                <CardTitle className="text-sm font-medium">{t.screens.wordCount}</CardTitle>
                 {targetWords > 0 && (
                   <TargetIcon className="size-4 text-muted-foreground" />
                 )}
@@ -420,7 +420,7 @@ export default async function BookDetailPage({
           {recentSessions.length > 0 && (
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">Recent Agent Sessions</CardTitle>
+                <CardTitle className="text-sm font-medium">{t.screens.recentSessions}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
                 {recentSessions.map((session) => (
@@ -458,7 +458,7 @@ export default async function BookDetailPage({
           {pendingFindings > 0 && (
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">Editorial Findings</CardTitle>
+                <CardTitle className="text-sm font-medium">{t.screens.editorialFindings}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-between">
