@@ -625,6 +625,7 @@ export interface UIStrings {
     documentsHint: string;
     toggleTheme: string; keyboardShortcuts: string; analysisProgress: string;
     noEditHistory: string; qualityScore: string; open: string;
+    continueToChapter: string; reviewFeedback: string;
     noAchievements: string; wrappedHint: string;
   };
 
@@ -1488,6 +1489,8 @@ const EN: UIStrings = {
     noEditHistory: "No edit history yet",
     qualityScore: "Quality score",
     open: "Open",
+    continueToChapter: "Continue → Ch {n}",
+    reviewFeedback: "Review feedback",
     noAchievements: "No achievements yet. Start writing.",
     wrappedHint: "See the highlights of your writing year",
   },
@@ -2388,6 +2391,8 @@ const SR: UIStrings = {
     noEditHistory: "Još nema istorije izmena",
     qualityScore: "Ocena kvaliteta",
     open: "Otvori",
+    continueToChapter: "Nastavi → pogl. {n}",
+    reviewFeedback: "Pregledaj povratne informacije",
     noAchievements: "Još nema dostignuća. Počnite da pišete.",
     wrappedHint: "Pogledajte najvažnije iz svoje godine pisanja",
   },
@@ -3287,6 +3292,8 @@ const DE: UIStrings = {
     noEditHistory: "Noch kein Änderungsverlauf",
     qualityScore: "Qualitätswert",
     open: "Öffnen",
+    continueToChapter: "Weiter → Kap. {n}",
+    reviewFeedback: "Feedback ansehen",
     noAchievements: "Noch keine Erfolge. Fangen Sie an zu schreiben.",
     wrappedHint: "Die Höhepunkte Ihres Schreibjahres ansehen",
   },
@@ -4186,6 +4193,8 @@ const ES: UIStrings = {
     noEditHistory: "Aún no hay historial de ediciones",
     qualityScore: "Puntuación de calidad",
     open: "Abrir",
+    continueToChapter: "Continuar → cap. {n}",
+    reviewFeedback: "Ver comentarios",
     noAchievements: "Aún no hay logros. Empieza a escribir.",
     wrappedHint: "Mira lo más destacado de tu año de escritura",
   },
@@ -5085,6 +5094,8 @@ const FR: UIStrings = {
     noEditHistory: "Pas encore d'historique de modifications",
     qualityScore: "Score de qualité",
     open: "Ouvrir",
+    continueToChapter: "Continuer → ch. {n}",
+    reviewFeedback: "Voir les retours",
     noAchievements: "Aucun succès pour l'instant. Commencez à écrire.",
     wrappedHint: "Voir les temps forts de votre année d'écriture",
   },
@@ -5984,6 +5995,8 @@ const RU: UIStrings = {
     noEditHistory: "Истории правок пока нет",
     qualityScore: "Оценка качества",
     open: "Открыть",
+    continueToChapter: "Продолжить → гл. {n}",
+    reviewFeedback: "Посмотреть отзывы",
     noAchievements: "Достижений пока нет. Начните писать.",
     wrappedHint: "Посмотрите главное за свой год письма",
   },
@@ -6883,6 +6896,8 @@ const ZH: UIStrings = {
     noEditHistory: "还没有编辑历史",
     qualityScore: "质量评分",
     open: "打开",
+    continueToChapter: "继续 → 第 {n} 章",
+    reviewFeedback: "查看反馈",
     noAchievements: "还没有成就，开始写作吧。",
     wrappedHint: "查看你这一年的写作亮点",
   },

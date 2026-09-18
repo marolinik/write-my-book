@@ -18,6 +18,13 @@ export default async function BooksPage() {
   const t = getUIStrings(user.preferredLanguage ?? "en");
   const locale = localeFor(user.preferredLanguage ?? "en");
   const s = t.bookList;
+  // The shelf cards are server rendered, so their strings travel as props
+  // rather than through the client language provider (D-206).
+  const cardStrings = {
+    open: t.appUI.open,
+    continueToChapter: t.appUI.continueToChapter,
+    reviewFeedback: t.appUI.reviewFeedback,
+  };
 
   // Q1 (essential): books + signals. Includes archived rows; grouper splits by archivedAt.
   const rows = await db.book.findMany({
@@ -122,10 +129,10 @@ export default async function BooksPage() {
         </Card>
       ) : (
         <div>
-          <ShelfSection title={t.appUI.currentlyWriting} books={groups.currentlyWriting} locale={locale} />
-          <ShelfSection title={t.appUI.waitingForFeedback} books={groups.waiting} locale={locale} />
-          <ShelfSection title={t.appUI.completed} books={groups.completed} locale={locale} />
-          <ShelfSection title={t.appUI.archived} books={groups.archived} locale={locale} collapsible />
+          <ShelfSection title={t.appUI.currentlyWriting} books={groups.currentlyWriting} locale={locale} strings={cardStrings} />
+          <ShelfSection title={t.appUI.waitingForFeedback} books={groups.waiting} locale={locale} strings={cardStrings} />
+          <ShelfSection title={t.appUI.completed} books={groups.completed} locale={locale} strings={cardStrings} />
+          <ShelfSection title={t.appUI.archived} books={groups.archived} locale={locale} strings={cardStrings} collapsible />
         </div>
       )}
     </div>
