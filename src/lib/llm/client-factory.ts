@@ -17,6 +17,7 @@
  */
 
 import Anthropic from "@anthropic-ai/sdk";
+import { clientTimeoutMsFor } from "./client-timeouts";
 import { getModelDef, resolveFromTier, type LLMProvider, type ModelDefinition } from "./model-registry";
 import { FALLBACK_DEFAULT_MODEL_ID, getDefaultModelId, isLocalFallbackEnabled } from "./defaults";
 
@@ -366,10 +367,15 @@ function localClient(model: ModelDefinition): LLMClient {
   if (localRoute.route === "none") {
     throw new Error(localRoute.error);
   }
+  // O5: the fleet gateway answers /v1/models while a model's weights are not
+  // resident, so the first request after an idle period can take minutes to
+  // produce its first token. The deadline follows the model, not the SDK default.
+  const timeout = clientTimeoutMsFor(model.id);
   return {
     client: new Anthropic({
       apiKey: localRoute.apiKey,
       baseURL: localRoute.baseURL,
+      ...(timeout ? { timeout } : {}),
     }),
     model,
     effectiveModelId: model.modelId,
@@ -429,9 +435,11 @@ export function createLLMClient(options: LLMClientOptions): LLMClient {
   const effectiveModelId = routeResult.effectiveModelId || model.modelId;
 
   // Create the Anthropic SDK client with appropriate configuration
+  const modelTimeout = clientTimeoutMsFor(model.id);
   const clientOptions: ConstructorParameters<typeof Anthropic>[0] = {
     apiKey: routeResult.apiKey,
     baseURL: routeResult.baseURL,
+    ...(modelTimeout ? { timeout: modelTimeout } : {}),
   };
 
   // Add custom headers for LiteLLM proxy (x-provider-key, x-target-provider)

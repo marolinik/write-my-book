@@ -15,6 +15,7 @@ import { createServer } from "node:http";
 import * as Sentry from "@sentry/node";
 import { Worker } from "bullmq";
 import { createRedisConnection } from "@/lib/queue/connection";
+import { createErrorLogThrottle } from "@/lib/queue/error-log-throttle";
 import { processAgentJob } from "@/lib/queue/agent-worker";
 import { QUEUE_NAME } from "@/lib/queue/agent-queue";
 import { processBatchDigestJob } from "@/lib/queue/batch-digest";
@@ -34,6 +35,24 @@ Sentry.init({
 assertEnvReady("worker");
 
 const connection = createRedisConnection();
+
+// O6: while Docker was down this worker wrote ~80k identical ECONNREFUSED
+// lines and would have sent the same flood to Sentry. One line per minute per
+// distinct failure, with the swallowed count attached, keeps an outage legible
+// without hiding a NEW error behind an old one.
+const CONNECTION_LOG_WINDOW_MS = 60_000;
+const errorLog = createErrorLogThrottle(CONNECTION_LOG_WINDOW_MS);
+
+function reportWorkerError(label: string, error: Error) {
+  const message = error.message ?? String(error);
+  const suppressed = errorLog.suppressedCount(message);
+  if (!errorLog.shouldLog(message, Date.now())) return;
+  Sentry.captureException(error);
+  console.error(
+    `${label} ${message}` +
+      (suppressed > 0 ? ` (${suppressed} identical since the last line)` : "")
+  );
+}
 
 // Agent-session concurrency. Defaults to 2 (v1 keeps the overnight batch to
 // ~2-at-a-time per BATCH-SPEC §1.4/§9.4) but is env-configurable for operators
@@ -62,8 +81,7 @@ const digestWorker = new Worker(BATCH_DIGEST_QUEUE_NAME, processBatchDigestJob, 
 });
 
 digestWorker.on("error", (error) => {
-  Sentry.captureException(error);
-  console.error("[DigestWorker] Error:", error);
+  reportWorkerError("[DigestWorker] Error:", error as Error);
 });
 
 digestWorker.on("failed", (job, error) => {
@@ -94,8 +112,7 @@ worker.on("failed", (job, error) => {
 });
 
 worker.on("error", (error) => {
-  Sentry.captureException(error);
-  console.error("[Worker] Error:", error);
+  reportWorkerError("[Worker] Error:", error as Error);
 });
 
 worker.on("stalled", (jobId) => {

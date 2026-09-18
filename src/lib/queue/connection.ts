@@ -10,6 +10,7 @@
 
 import IORedis from "ioredis";
 import type { RedisOptions } from "ioredis";
+import { redisRetryDelayMs } from "@/lib/llm/client-timeouts";
 
 const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
 
@@ -21,6 +22,11 @@ const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
 const bullmqOptions: Partial<RedisOptions> = {
   maxRetriesPerRequest: null,
   enableReadyCheck: false,
+  // O6: ioredis defaults to ~50ms * attempt capped at 2s, which is how the
+  // worker wrote ~80k ECONNREFUSED lines while Docker was down. Exponential
+  // backoff with a 30s ceiling keeps a long outage quiet without making
+  // recovery slow.
+  retryStrategy: (attempt: number) => redisRetryDelayMs(attempt),
 };
 
 /**
