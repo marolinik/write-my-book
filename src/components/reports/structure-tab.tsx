@@ -158,6 +158,14 @@ export function StructureTab({ bookId }: { bookId: string }) {
   const moves = data?.moves ?? [];
   const pending = moves.filter((m) => m.status === "pending");
 
+  // A move the writer decided against, or undid, or that could not run, left no
+  // mark on the book and offers no action. Keeping it in the main list buried
+  // the live proposals and made a page full of dead cards look like the whole
+  // feature (S3-7). It stays readable, in a fold, under its own heading.
+  const LIVE = ["pending", "accepted", "applied"];
+  const live = moves.filter((m) => LIVE.includes(m.status));
+  const history = moves.filter((m) => !LIVE.includes(m.status));
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -180,7 +188,7 @@ export function StructureTab({ bookId }: { bookId: string }) {
         </div>
       )}
 
-      {moves.length === 0 ? (
+      {live.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
             <NetworkIcon className="size-8 text-muted-foreground" />
@@ -201,7 +209,7 @@ export function StructureTab({ bookId }: { bookId: string }) {
             <p className="text-sm text-muted-foreground">{s.nothingChangesYet}</p>
           )}
           <div className="space-y-3">
-            {moves.map((move) => (
+            {live.map((move) => (
               <MoveCard
                 key={move.id}
                 move={move}
@@ -214,6 +222,27 @@ export function StructureTab({ bookId }: { bookId: string }) {
             ))}
           </div>
         </>
+      )}
+
+      {history.length > 0 && (
+        <details className="rounded-md border px-4 py-3">
+          <summary className="cursor-pointer select-none text-sm font-medium text-muted-foreground">
+            {s.history.replace("{n}", String(history.length))}
+          </summary>
+          <div className="mt-3 space-y-3">
+            {history.map((move) => (
+              <MoveCard
+                key={move.id}
+                move={move}
+                strings={s}
+                busy={busyId === move.id}
+                onAccept={() => decide.mutate({ id: move.id, decision: "accept" })}
+                onReject={() => decide.mutate({ id: move.id, decision: "reject" })}
+                onUndo={() => undo.mutate(move.id)}
+              />
+            ))}
+          </div>
+        </details>
       )}
     </div>
   );

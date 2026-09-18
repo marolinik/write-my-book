@@ -14,6 +14,7 @@ Status legend: **DONE** (fixed + verified), **OPEN**, **PARTIAL**.
 | S3-4 | Board said "in progress" while waiting on the writer; no way to reach the panel | **DONE** |
 | S3-5 | Re-running `restructure` stacks duplicate proposals | **DONE** |
 | S3-6 | Undo threw on a unique constraint; two paths destroyed prose | **DONE** |
+| S3-7 | Board showed "done" when nothing was adopted; panel was all dead cards | **DONE** |
 
 ---
 
@@ -226,3 +227,29 @@ its own version-1 object (12.750 chars), which survived because version keys are
 derived from the document id rather than the chapter number.
 
 The 16-word difference against the imported 56.874 is D-205, not lost prose.
+
+## S3-7 — a green tick on work that never happened (DONE)
+
+> "kaze da je uradjeno a nije, niti ima da vidim predloge i prihvatim...
+> ostale su stare... bez akcije"
+
+After the recovery every proposal sat at `undone` or `failed`, and the board
+showed the restructure stage as **Urađeno**. `deriveManuscriptStages` read
+"nothing pending" as "work finished":
+
+```ts
+input.structureMovesPending > 0 ? "partial" : "done"
+```
+
+An empty decision queue is not an outcome. A book whose every proposal was
+rejected, undone or failed to run has a manuscript nobody changed. The stage now
+needs a move that was actually applied and still stands; otherwise it reads as
+not started and `nextStage` points back at the pass, so the board recommends
+running it again. `structureMovesApplied` is counted alongside the others in
+`dev/page.tsx`.
+
+The panel had the matching problem: ten dead cards with no buttons, and no empty
+state, so there was nothing to do and no way to start over. Decided, undone and
+failed moves now collapse into a fold — "Raniji predlozi (10)" — and with
+nothing live the panel shows its empty state and the "Predloži strukturne
+izmene" button again.

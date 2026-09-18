@@ -690,6 +690,8 @@ export interface UIStrings {
     awaitingDecision: string;
     decidePending: string;
     proposalOne: string; proposalMany: string;
+    /** Fold holding decided, undone and failed moves. Carries {n}. */
+    history: string;
   };
 
   stylePage: {
@@ -1583,6 +1585,7 @@ const EN: UIStrings = {
     awaitingDecision: "{n} awaiting your decision",
     decidePending: "Review proposals",
     proposalOne: "proposal", proposalMany: "proposals",
+    history: "Earlier proposals ({n})",
     applyError: "The move could not be applied", undoError: "The move could not be undone",
   },
 
@@ -2495,6 +2498,7 @@ const SR: UIStrings = {
     awaitingDecision: "{n} čeka vašu odluku",
     decidePending: "Odluči o predlozima",
     proposalOne: "predlog", proposalMany: "predloga",
+    history: "Raniji predlozi ({n})",
     applyError: "Potez nije mogao da se primeni", undoError: "Potez nije mogao da se poništi",
   },
 
@@ -3406,6 +3410,7 @@ const DE: UIStrings = {
     awaitingDecision: "{n} wartet auf Ihre Entscheidung",
     decidePending: "Vorschläge prüfen",
     proposalOne: "Vorschlag", proposalMany: "Vorschläge",
+    history: "Frühere Vorschläge ({n})",
     applyError: "Der Schritt konnte nicht angewendet werden", undoError: "Der Schritt konnte nicht rückgängig gemacht werden",
   },
 
@@ -4317,6 +4322,7 @@ const ES: UIStrings = {
     awaitingDecision: "{n} esperando tu decisión",
     decidePending: "Revisar propuestas",
     proposalOne: "propuesta", proposalMany: "propuestas",
+    history: "Propuestas anteriores ({n})",
     applyError: "No se pudo aplicar el movimiento", undoError: "No se pudo deshacer el movimiento",
   },
 
@@ -5228,6 +5234,7 @@ const FR: UIStrings = {
     awaitingDecision: "{n} en attente de votre décision",
     decidePending: "Examiner les propositions",
     proposalOne: "proposition", proposalMany: "propositions",
+    history: "Propositions précédentes ({n})",
     applyError: "Le geste n'a pas pu être appliqué", undoError: "Le geste n'a pas pu être annulé",
   },
 
@@ -6139,6 +6146,7 @@ const RU: UIStrings = {
     awaitingDecision: "{n} ждёт вашего решения",
     decidePending: "Рассмотреть предложения",
     proposalOne: "предложение", proposalMany: "предложений",
+    history: "Прежние предложения ({n})",
     applyError: "Шаг не удалось применить", undoError: "Шаг не удалось отменить",
   },
 
@@ -7050,6 +7058,7 @@ const ZH: UIStrings = {
     awaitingDecision: "{n} 等待您决定",
     decidePending: "查看提议",
     proposalOne: "项提议", proposalMany: "项提议",
+    history: "早前的提议（{n}）",
     applyError: "调整未能应用", undoError: "调整未能撤销",
   },
 

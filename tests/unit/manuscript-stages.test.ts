@@ -22,6 +22,7 @@ const base: ManuscriptStageInput = {
   hasAnalysisReport: false,
   structureMovesTotal: 0,
   structureMovesPending: 0,
+  structureMovesApplied: 0,
   chapterCount: 40,
   editedCount: 0,
 };
@@ -108,6 +109,7 @@ describe("deriveManuscriptStages", () => {
       hasAnalysisReport: true,
       structureMovesTotal: 5,
       structureMovesPending: 0,
+      structureMovesApplied: 5,
     });
     const byKey = Object.fromEntries(stages.map((s) => [s.key, s.status]));
     expect(byKey.restructure).toBe("done");
@@ -123,6 +125,7 @@ describe("deriveManuscriptStages", () => {
       hasAnalysisReport: true,
       structureMovesTotal: 2,
       structureMovesPending: 0,
+      structureMovesApplied: 2,
       editedCount: 12,
     });
     expect(Object.fromEntries(partial.stages.map((s) => [s.key, s.status])).edit).toBe("partial");
@@ -137,6 +140,7 @@ describe("deriveManuscriptStages", () => {
       hasAnalysisReport: true,
       structureMovesTotal: 2,
       structureMovesPending: 0,
+      structureMovesApplied: 2,
       editedCount: 40,
     });
     expect(Object.fromEntries(complete.stages.map((s) => [s.key, s.status])).edit).toBe("done");
@@ -146,5 +150,68 @@ describe("deriveManuscriptStages", () => {
   it("never reports edit as done for a book with no chapters", () => {
     const { stages } = deriveManuscriptStages({ ...base, chapterCount: 0, editedCount: 0 });
     expect(Object.fromEntries(stages.map((s) => [s.key, s.status])).edit).toBe("none");
+  });
+});
+
+describe("restructure is only done when something was adopted", () => {
+  /**
+   * S3-7: the board called the pass "Urađeno" while every proposal had been
+   * rejected, undone or had failed to run. Absence of pending work is not the
+   * same as work carried out — the writer reached a green tick with a
+   * manuscript nobody had changed, and no way back to the panel.
+   */
+  const base = {
+    hasReadManuscriptRun: true,
+    hasFingerprint: true,
+    hasStoryBible: true,
+    hasArchitecture: true,
+    hasAnalysisReport: true,
+    chapterCount: 31,
+    editedCount: 0,
+  };
+
+  function statusOfRestructure(input: Partial<typeof base> & Record<string, unknown>) {
+    const report = deriveManuscriptStages({ ...base, ...input } as never);
+    return report.stages.find((s) => s.key === "restructure")?.status;
+  }
+
+  it("is done when a move was applied and nothing waits", () => {
+    expect(
+      statusOfRestructure({
+        structureMovesTotal: 3,
+        structureMovesPending: 0,
+        structureMovesApplied: 2,
+      })
+    ).toBe("done");
+  });
+
+  it("is in progress while a proposal waits for the writer", () => {
+    expect(
+      statusOfRestructure({
+        structureMovesTotal: 3,
+        structureMovesPending: 1,
+        structureMovesApplied: 1,
+      })
+    ).toBe("partial");
+  });
+
+  it("is not done when every proposal was rejected, undone or failed", () => {
+    expect(
+      statusOfRestructure({
+        structureMovesTotal: 10,
+        structureMovesPending: 0,
+        structureMovesApplied: 0,
+      })
+    ).toBe("none");
+  });
+
+  it("sends the writer back to the pass when nothing was adopted", () => {
+    const report = deriveManuscriptStages({
+      ...base,
+      structureMovesTotal: 10,
+      structureMovesPending: 0,
+      structureMovesApplied: 0,
+    } as never);
+    expect(report.nextStage).toBe("restructure");
   });
 });

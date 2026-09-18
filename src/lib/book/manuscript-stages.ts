@@ -43,6 +43,8 @@ export interface ManuscriptStageInput {
   /** Structural proposals ever filed for this book, and how many still await a decision. */
   structureMovesTotal: number;
   structureMovesPending: number;
+  /** How many were actually carried out and still stand (not undone). */
+  structureMovesApplied: number;
   chapterCount: number;
   /** Chapters past dev-edit. */
   editedCount: number;
@@ -89,12 +91,19 @@ export function deriveManuscriptStages(
 ): ManuscriptStageReport {
   // A proposal the writer has not decided is work in progress, not work done:
   // the point of the pass is the decision, not the report.
+  //
+  // And an empty decision queue is not an outcome. A book whose every proposal
+  // was rejected, undone or failed to run has a manuscript nobody changed, so
+  // the pass reads as not started and the board recommends it again — calling
+  // that "done" put a green tick on work that never happened (S3-7).
   const restructure: StageStatus =
     input.structureMovesTotal === 0
       ? "none"
       : input.structureMovesPending > 0
         ? "partial"
-        : "done";
+        : input.structureMovesApplied > 0
+          ? "done"
+          : "none";
 
   const edit: StageStatus =
     input.chapterCount === 0 || input.editedCount === 0

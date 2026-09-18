@@ -178,15 +178,18 @@ export default async function BookDevelopmentPage({
   const storyBible = docTypeOf(STORY_BIBLE);
   const analysisReport = docTypeOf(ANALYSIS_REPORT);
 
-  const [readRuns, structureMovesTotal, structureMovesPending] = imported
-    ? await Promise.all([
-        db.agentSession.count({
-          where: { bookId, workflowId: "read-manuscript", status: "completed" },
-        }),
-        db.structureMove.count({ where: { bookId } }),
-        db.structureMove.count({ where: { bookId, status: "pending" } }),
-      ])
-    : [0, 0, 0];
+  const [readRuns, structureMovesTotal, structureMovesPending, structureMovesApplied] =
+    imported
+      ? await Promise.all([
+          db.agentSession.count({
+            where: { bookId, workflowId: "read-manuscript", status: "completed" },
+          }),
+          db.structureMove.count({ where: { bookId } }),
+          db.structureMove.count({ where: { bookId, status: "pending" } }),
+          // Applied and still standing. An undone move left no mark on the book.
+          db.structureMove.count({ where: { bookId, status: "applied" } }),
+        ])
+      : [0, 0, 0, 0];
 
   const editedCount = book.chapters.filter((c) =>
     ["dev_edited", "line_edited", "beta_read", "beta_passed", "final"].includes(
@@ -202,6 +205,7 @@ export default async function BookDevelopmentPage({
     hasAnalysisReport: !!analysisReport,
     structureMovesTotal,
     structureMovesPending,
+    structureMovesApplied,
     chapterCount,
     editedCount,
   });
