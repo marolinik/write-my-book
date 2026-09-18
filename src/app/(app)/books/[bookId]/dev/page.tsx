@@ -120,7 +120,13 @@ export default async function BookDevelopmentPage({
           title: true,
           plannedBooks: true,
           books: {
-            select: { id: true, bookNumber: true, status: true, wordCount: true },
+            select: {
+              id: true,
+              name: true,
+              bookNumber: true,
+              status: true,
+              wordCount: true,
+            },
             orderBy: { bookNumber: "asc" },
           },
         },
@@ -395,7 +401,6 @@ export default async function BookDevelopmentPage({
   // UDG round-3 (Filip/Olivera): series continuation state — per-volume status
   // and the next volume number to start.
   const seriesBooks = book.series?.books ?? [];
-  const seriesTitle = book.series?.title ?? "";
   const seriesNext = book.series
     ? computeSeriesNextBook(book.series.books as never)
     : null;
@@ -617,8 +622,11 @@ export default async function BookDevelopmentPage({
                               : ""
                         }`}
                       >
-                        <span className="font-medium">
-                          {b.bookNumber}. {seriesTitle}
+                        {/* The volume's OWN title. This printed the series
+                            title, so every row read "1. Legat, 2. Legat,
+                            3. Legat" and named no book at all (S3-15). */}
+                        <span className="min-w-0 truncate font-medium" title={b.name}>
+                          {b.bookNumber}. {b.name}
                         </span>
                         <Badge
                           variant={isNext ? "default" : done ? "secondary" : "outline"}

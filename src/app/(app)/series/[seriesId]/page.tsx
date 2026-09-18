@@ -16,6 +16,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
+import { getDocumentTypeLabels } from "@/lib/agents/tool-labels";
 import { useSeriesDetail } from "@/hooks/use-series";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
 import { useLanguage, useLocale } from "@/components/providers/language-provider";
@@ -38,10 +40,12 @@ const TABS: Array<{ id: Tab; label: string; icon: React.ElementType }> = [
 ];
 
 /** Expected series document types and their labels. */
+// Labels come from tool-labels.ts, which already carries every document type
+// in all seven languages — these were hardcoded English (S3-15).
 const SERIES_DOC_TYPES = [
-  { type: "SERIES_BIBLE", label: "Series Bible" },
-  { type: "SERIES_ARCHITECTURE", label: "Series Architecture" },
-  { type: "SERIES_FINGERPRINT", label: "Series Fingerprint" },
+  { type: "SERIES_BIBLE" },
+  { type: "SERIES_ARCHITECTURE" },
+  { type: "SERIES_FINGERPRINT" },
 ];
 
 export default function SeriesDetailPage() {
@@ -51,8 +55,9 @@ export default function SeriesDetailPage() {
 
   const { data: series, isLoading } = useSeriesDetail(seriesId);
   const openWithWorkflow = useAgentUIStore((s) => s.openWithWorkflow);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const locale = useLocale();
+  const typeLabels = getDocumentTypeLabels(language);
 
   if (isLoading) {
     return (
@@ -192,25 +197,42 @@ export default function SeriesDetailPage() {
           <div>
             <h3 className="text-sm font-medium mb-3">{t.screens.seriesDocuments}</h3>
             <div className="grid gap-3 sm:grid-cols-3">
-              {SERIES_DOC_TYPES.map(({ type, label }) => {
+              {SERIES_DOC_TYPES.map(({ type }) => {
                 const doc = docsByType.get(type);
-                return (
-                  <Card key={type} className={doc ? "" : "border-dashed"}>
-                    <CardContent className="py-3">
-                      <div className="flex items-center gap-2 mb-1">
-                        <FileTextIcon className="size-4 text-muted-foreground" />
-                        <span className="text-sm font-medium">{label}</span>
-                      </div>
-                      {doc ? (
-                        <p className="text-xs text-muted-foreground">
-                          v{doc.currentVersion} — updated {new Date(doc.updatedAt).toLocaleDateString(locale)}
-                        </p>
-                      ) : (
-                        <p className="text-xs text-muted-foreground">
-                          Will be generated when 2+ books have foundational documents
-                        </p>
-                      )}
-                    </CardContent>
+                const label = typeLabels[type] ?? type;
+
+                const body = (
+                  <CardContent className="py-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <FileTextIcon className="size-4 shrink-0 text-muted-foreground" />
+                      <span className="text-sm font-medium">{label}</span>
+                    </div>
+                    {doc ? (
+                      <p className="text-xs text-muted-foreground">
+                        v{doc.currentVersion} — {new Date(doc.updatedAt).toLocaleDateString(locale)}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">
+                        {t.bookUI.seriesDocPending}
+                      </p>
+                    )}
+                  </CardContent>
+                );
+
+                // A document that exists is a document you can open (S3-15).
+                return doc ? (
+                  <Link
+                    key={type}
+                    href={`/series/${seriesId}/documents/${doc.id}`}
+                    className="block"
+                  >
+                    <Card className="transition-colors hover:border-primary/50">
+                      {body}
+                    </Card>
+                  </Link>
+                ) : (
+                  <Card key={type} className="border-dashed">
+                    {body}
                   </Card>
                 );
               })}
