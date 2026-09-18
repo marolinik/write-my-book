@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { CalendarClockIcon, Loader2Icon, MoonIcon, ZapIcon } from "lucide-react";
@@ -98,6 +99,7 @@ interface BatchEditorialDialogProps {
  * so honestly, and the cap is an ESTIMATE, not billed actuals.
  */
 export function BatchEditorialDialog({ bookId, chapterNumbers }: BatchEditorialDialogProps) {
+  const { t } = useLanguage();
   const minChapter = chapterNumbers.length ? chapterNumbers[0] : 1;
   const maxChapter = chapterNumbers.length ? chapterNumbers[chapterNumbers.length - 1] : 1;
 
@@ -265,7 +267,7 @@ export function BatchEditorialDialog({ bookId, chapterNumbers }: BatchEditorialD
         {!batchId ? (
           <>
             <DialogHeader>
-              <DialogTitle>Batch editorial</DialogTitle>
+              <DialogTitle>{t.batchEditorial.title}</DialogTitle>
               <DialogDescription>
                 Queue non-mutating editorial passes over a range of chapters. Your
                 prose is never rewritten. Runs ~2 passes at a time.
@@ -275,7 +277,7 @@ export function BatchEditorialDialog({ bookId, chapterNumbers }: BatchEditorialD
             <div className="space-y-4">
               {/* Passes */}
               <div className="space-y-2">
-                <Label>Passes</Label>
+                <Label>{t.batchEditorial.passes}</Label>
                 <div className="flex flex-wrap gap-2">
                   {BATCH_PASSES.map((p) => (
                     <Button
@@ -293,7 +295,7 @@ export function BatchEditorialDialog({ bookId, chapterNumbers }: BatchEditorialD
 
               {/* Chapter range */}
               <div className="space-y-2">
-                <Label>Chapters</Label>
+                <Label>{t.batchEditorial.chapters}</Label>
                 <div className="flex items-center gap-2">
                   <Input
                     type="number"
@@ -302,7 +304,7 @@ export function BatchEditorialDialog({ bookId, chapterNumbers }: BatchEditorialD
                     value={start}
                     onChange={(e) => setStart(Number(e.target.value))}
                     className="w-20"
-                    aria-label="First chapter"
+                    aria-label={t.batchEditorial.firstChapter}
                   />
                   <span className="text-muted-foreground text-sm">to</span>
                   <Input
@@ -312,7 +314,7 @@ export function BatchEditorialDialog({ bookId, chapterNumbers }: BatchEditorialD
                     value={end}
                     onChange={(e) => setEnd(Number(e.target.value))}
                     className="w-20"
-                    aria-label="Last chapter"
+                    aria-label={t.batchEditorial.lastChapter}
                   />
                   <span className="text-muted-foreground text-xs">
                     (available {minChapter}–{maxChapter})
@@ -322,7 +324,7 @@ export function BatchEditorialDialog({ bookId, chapterNumbers }: BatchEditorialD
 
               {/* Budget cap */}
               <div className="space-y-2">
-                <Label htmlFor="batch-cap">Budget cap (USD)</Label>
+                <Label htmlFor="batch-cap">{t.batchEditorial.budgetCap}</Label>
                 <Input
                   id="batch-cap"
                   ref={capInputRef}
@@ -360,7 +362,7 @@ export function BatchEditorialDialog({ bookId, chapterNumbers }: BatchEditorialD
 
               {/* Schedule */}
               <div className="space-y-2">
-                <Label>Run</Label>
+                <Label>{t.batchEditorial.run}</Label>
                 <div className="flex gap-2">
                   <Button
                     type="button"
@@ -394,7 +396,7 @@ export function BatchEditorialDialog({ bookId, chapterNumbers }: BatchEditorialD
         ) : (
           <>
             <DialogHeader>
-              <DialogTitle>Batch status</DialogTitle>
+              <DialogTitle>{t.batchEditorial.status}</DialogTitle>
               <DialogDescription>
                 {status?.batch.scheduledFor && !isTerminal
                   ? "Scheduled — will run at the chosen time."

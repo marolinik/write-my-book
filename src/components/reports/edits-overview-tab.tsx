@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import {
@@ -12,6 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 
 export function EditsOverviewTab({ bookId }: { bookId: string }) {
+  const { t } = useLanguage();
   const { data: findings, isLoading } = useQuery({
     queryKey: ["editorial-findings-overview", bookId],
     queryFn: async () => {
@@ -42,7 +44,7 @@ export function EditsOverviewTab({ bookId }: { bookId: string }) {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Total Findings</CardDescription>
+            <CardDescription>{t.reportsUI.totalFindings}</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold">{total}</p>
@@ -50,7 +52,7 @@ export function EditsOverviewTab({ bookId }: { bookId: string }) {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Pending</CardDescription>
+            <CardDescription>{t.reportsUI.pending}</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold">{pending}</p>
@@ -58,7 +60,7 @@ export function EditsOverviewTab({ bookId }: { bookId: string }) {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Applied</CardDescription>
+            <CardDescription>{t.reportsUI.applied}</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold text-green-600 dark:text-green-400">{applied}</p>
@@ -66,7 +68,7 @@ export function EditsOverviewTab({ bookId }: { bookId: string }) {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Dismissed</CardDescription>
+            <CardDescription>{t.reportsUI.dismissed}</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold text-muted-foreground">{dismissed}</p>
@@ -74,7 +76,7 @@ export function EditsOverviewTab({ bookId }: { bookId: string }) {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Critical + Major</CardDescription>
+            <CardDescription>{t.reportsUI.criticalMajor}</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold text-destructive">{critical + major}</p>
@@ -84,8 +86,8 @@ export function EditsOverviewTab({ bookId }: { bookId: string }) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Recent Findings</CardTitle>
-          <CardDescription>Latest editorial findings across all chapters</CardDescription>
+          <CardTitle>{t.reportsUI.recentFindings}</CardTitle>
+          <CardDescription>{t.reportsUI.recentFindingsHint}</CardDescription>
         </CardHeader>
         <CardContent>
           {items.length === 0 ? (

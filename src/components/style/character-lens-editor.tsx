@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState } from "react";
 import {
   Card,
@@ -42,6 +43,7 @@ export function CharacterLensEditor({
   bookId: string;
   lenses: CharacterLens[];
 }) {
+  const { t } = useLanguage();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
@@ -88,7 +90,7 @@ export function CharacterLensEditor({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold">Character Lenses</h3>
+          <h3 className="text-lg font-semibold">{t.styleUI.characterLenses}</h3>
           <p className="text-sm text-muted-foreground">
             Two-Layer Voice Model for POV character differentiation
           </p>
@@ -108,59 +110,59 @@ export function CharacterLensEditor({
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="characterName">Character Name</Label>
+              <Label htmlFor="characterName">{t.styleUI.characterName}</Label>
               <Input
                 id="characterName"
                 value={form.characterName}
                 onChange={(e) => setForm({ ...form, characterName: e.target.value })}
-                placeholder="e.g., Elena"
+                placeholder={t.styleUI.characterNameExample}
               />
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <Label htmlFor="sensoryPriority">Sensory Priority</Label>
+                <Label htmlFor="sensoryPriority">{t.styleUI.sensoryPriority}</Label>
                 <Input
                   id="sensoryPriority"
                   value={form.sensoryPriority}
                   onChange={(e) => setForm({ ...form, sensoryPriority: e.target.value })}
-                  placeholder="e.g., visual, tactile"
+                  placeholder={t.styleUI.sensoryPriorityExample}
                 />
               </div>
               <div>
-                <Label htmlFor="metaphorDomain">Metaphor Domain</Label>
+                <Label htmlFor="metaphorDomain">{t.styleUI.metaphorDomain}</Label>
                 <Input
                   id="metaphorDomain"
                   value={form.metaphorDomain}
                   onChange={(e) => setForm({ ...form, metaphorDomain: e.target.value })}
-                  placeholder="e.g., mechanical, natural"
+                  placeholder={t.styleUI.metaphorDomainExample}
                 />
               </div>
               <div>
-                <Label htmlFor="interiorStyle">Interior Style</Label>
+                <Label htmlFor="interiorStyle">{t.styleUI.interiorStyle}</Label>
                 <Input
                   id="interiorStyle"
                   value={form.interiorStyle}
                   onChange={(e) => setForm({ ...form, interiorStyle: e.target.value })}
-                  placeholder="e.g., analytical, stream-of-consciousness"
+                  placeholder={t.styleUI.interiorStyleExample}
                 />
               </div>
               <div>
-                <Label htmlFor="vocabularyRegister">Vocabulary Register</Label>
+                <Label htmlFor="vocabularyRegister">{t.styleUI.vocabularyRegister}</Label>
                 <Input
                   id="vocabularyRegister"
                   value={form.vocabularyRegister}
                   onChange={(e) => setForm({ ...form, vocabularyRegister: e.target.value })}
-                  placeholder="e.g., formal, colloquial"
+                  placeholder={t.styleUI.vocabularyRegisterExample}
                 />
               </div>
             </div>
             <div>
-              <Label htmlFor="blindSpots">Blind Spots (optional)</Label>
+              <Label htmlFor="blindSpots">{t.styleUI.blindSpots}</Label>
               <Textarea
                 id="blindSpots"
                 value={form.blindSpots}
                 onChange={(e) => setForm({ ...form, blindSpots: e.target.value })}
-                placeholder="Things this POV character wouldn't notice or care about"
+                placeholder={t.styleUI.blindSpotsHint}
                 rows={2}
               />
             </div>

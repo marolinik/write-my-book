@@ -206,18 +206,18 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
       <Tabs defaultValue={defaultTab}>
       <TabsList>
         {hasBetaScores && (
-          <TabsTrigger value="betaScores">Beta Scores</TabsTrigger>
+          <TabsTrigger value="betaScores">{t.reportsUI.betaScores}</TabsTrigger>
         )}
         {hasAnalysis && (
           <>
-            <TabsTrigger value="readability">Readability</TabsTrigger>
-            <TabsTrigger value="pacing">Pacing</TabsTrigger>
-            <TabsTrigger value="dialogue">Dialogue</TabsTrigger>
-            <TabsTrigger value="overuse">Overuse</TabsTrigger>
+            <TabsTrigger value="readability">{t.reportsUI.readability}</TabsTrigger>
+            <TabsTrigger value="pacing">{t.reportsUI.pacing}</TabsTrigger>
+            <TabsTrigger value="dialogue">{t.reportsUI.dialogue}</TabsTrigger>
+            <TabsTrigger value="overuse">{t.reportsUI.overuse}</TabsTrigger>
           </>
         )}
         {hasCostData && (
-          <TabsTrigger value="cost">Cost</TabsTrigger>
+          <TabsTrigger value="cost">{t.reportsUI.cost}</TabsTrigger>
         )}
       </TabsList>
 
@@ -227,7 +227,7 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
             {/* Per-Chapter Bar Chart */}
             <Card>
               <CardHeader>
-                <CardTitle>Per-Chapter Beta Scores</CardTitle>
+                <CardTitle>{t.reportsUI.perChapterBeta}</CardTitle>
                 <CardDescription>
                   Click a bar to navigate to that chapter. Dashed line shows the average ({avgScore.toFixed(1)}).
                 </CardDescription>
@@ -285,7 +285,7 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
             {/* Score Distribution Histogram */}
             <Card>
               <CardHeader>
-                <CardTitle>Score Distribution</CardTitle>
+                <CardTitle>{t.reportsUI.scoreDistribution}</CardTitle>
                 <CardDescription>
                   Number of chapters in each 1-point score range
                 </CardDescription>
@@ -327,7 +327,7 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
             {betaData.length >= 2 && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Beta Score Progression</CardTitle>
+                  <CardTitle>{t.reportsUI.betaProgression}</CardTitle>
                   <CardDescription>
                     Score trend across chapters (left to right). Dashed line shows the average ({avgScore.toFixed(1)}).
                   </CardDescription>
@@ -383,20 +383,20 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
       <TabsContent value="readability">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <ReadabilityCard
-            title="Flesch-Kincaid"
+            title={t.reportsUI.fleschKincaid}
             value={readability.fleschKincaid}
             benchmark={readability.genreBenchmark?.fk}
-            description="Grade level required to understand the text"
+            description={t.reportsUI.fleschKincaidHint}
           />
           <ReadabilityCard
-            title="Gunning Fog"
+            title={t.reportsUI.gunningFog}
             value={readability.gunningFog}
-            description="Years of formal education needed"
+            description={t.reportsUI.gunningFogHint}
           />
           <ReadabilityCard
-            title="Coleman-Liau"
+            title={t.reportsUI.colemanLiau}
             value={readability.colemanLiau}
-            description="Based on characters and sentences"
+            description={t.reportsUI.colemanLiauHint}
           />
         </div>
       </TabsContent>
@@ -404,7 +404,7 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
       <TabsContent value="pacing">
         <Card>
           <CardHeader>
-            <CardTitle>Tension Curve</CardTitle>
+            <CardTitle>{t.reportsUI.tensionCurve}</CardTitle>
             <CardDescription>
               Chapter-by-chapter tension with genre overlay
             </CardDescription>
@@ -459,8 +459,8 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
       <TabsContent value="dialogue">
         <Card>
           <CardHeader>
-            <CardTitle>Dialogue Distribution</CardTitle>
-            <CardDescription>Per-character dialogue breakdown</CardDescription>
+            <CardTitle>{t.reportsUI.dialogueDistribution}</CardTitle>
+            <CardDescription>{t.reportsUI.dialogueDistributionHint}</CardDescription>
           </CardHeader>
           <CardContent>
             {dialogue.length === 0 ? (
@@ -527,7 +527,7 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
       <TabsContent value="overuse">
         <Card>
           <CardHeader>
-            <CardTitle>Overuse Detection</CardTitle>
+            <CardTitle>{t.reportsUI.overuseDetection}</CardTitle>
             <CardDescription>
               Words and phrases appearing 2x+ above expected frequency
             </CardDescription>
@@ -592,7 +592,7 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
             {/* Total Cost Summary */}
             <Card>
               <CardHeader>
-                <CardTitle>Total Cost (Last 30 Days)</CardTitle>
+                <CardTitle>{t.reportsUI.totalCost30}</CardTitle>
                 <CardDescription>
                   Estimated cost across all agent sessions
                 </CardDescription>
@@ -610,7 +610,7 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
             {/* Cost Breakdown */}
             <Card>
               <CardHeader>
-                <CardTitle>Cost Breakdown by Key Source</CardTitle>
+                <CardTitle>{t.reportsUI.costByKeySource}</CardTitle>
                 <CardDescription>
                   How your costs are split between your own API keys and platform keys
                 </CardDescription>

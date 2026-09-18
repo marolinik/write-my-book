@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState } from "react";
 import {
   Card,
@@ -79,15 +80,16 @@ function FrequencyBadge({ value }: { value: string }) {
 }
 
 function MetricsDisplay({ metrics }: { metrics: StructuredFingerprint }) {
+  const { t } = useLanguage();
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {/* Sentence Length */}
-      <MetricCard title="Sentence Length">
-        <MetricValue label="Mean" value={`${metrics.sentenceLength.mean.toFixed(1)} words`} />
-        <MetricValue label="Median" value={`${metrics.sentenceLength.median.toFixed(1)} words`} />
-        <MetricValue label="Std Dev" value={metrics.sentenceLength.stdDev.toFixed(1)} />
+      <MetricCard title={t.styleUI.sentenceLength}>
+        <MetricValue label={t.styleUI.mean} value={`${metrics.sentenceLength.mean.toFixed(1)} words`} />
+        <MetricValue label={t.styleUI.median} value={`${metrics.sentenceLength.median.toFixed(1)} words`} />
+        <MetricValue label={t.styleUI.stdDev} value={metrics.sentenceLength.stdDev.toFixed(1)} />
         <div className="mt-1 flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">Distribution</span>
+          <span className="text-xs text-muted-foreground">{t.styleUI.distribution}</span>
           <Badge variant="outline" className="text-xs">
             {metrics.sentenceLength.distribution}
           </Badge>
@@ -95,17 +97,17 @@ function MetricsDisplay({ metrics }: { metrics: StructuredFingerprint }) {
       </MetricCard>
 
       {/* Vocabulary */}
-      <MetricCard title="Vocabulary Richness">
+      <MetricCard title={t.styleUI.vocabularyRichness}>
         <MetricValue
-          label="Type-Token Ratio"
+          label={t.styleUI.typeTokenRatio}
           value={metrics.vocabularyRichness.typeTokenRatio.toFixed(3)}
         />
         <MetricValue
-          label="Hapax Rate"
+          label={t.styleUI.hapaxRate}
           value={`${(metrics.vocabularyRichness.hapaxRate * 100).toFixed(1)}%`}
         />
         <div className="mt-1 flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">Register</span>
+          <span className="text-xs text-muted-foreground">{t.styleUI.register}</span>
           <Badge variant="outline" className="text-xs">
             {metrics.vocabularyRichness.register}
           </Badge>
@@ -113,12 +115,12 @@ function MetricsDisplay({ metrics }: { metrics: StructuredFingerprint }) {
       </MetricCard>
 
       {/* Dialogue Ratio */}
-      <MetricCard title="Dialogue Ratio">
+      <MetricCard title={t.styleUI.dialogueRatio}>
         <div className="flex flex-col items-center py-2">
           <span className="text-3xl font-bold tabular-nums">
             {(metrics.dialogueRatio * 100).toFixed(0)}%
           </span>
-          <span className="text-xs text-muted-foreground mt-1">of text is dialogue</span>
+          <span className="text-xs text-muted-foreground mt-1">{t.styleUI.ofTextIsDialogue}</span>
           <div className="mt-2 h-2 w-full rounded-full bg-muted">
             <div
               className="h-2 rounded-full bg-primary transition-all"
@@ -129,43 +131,43 @@ function MetricsDisplay({ metrics }: { metrics: StructuredFingerprint }) {
       </MetricCard>
 
       {/* Paragraph Length */}
-      <MetricCard title="Paragraph Length">
-        <MetricValue label="Mean" value={`${metrics.paragraphLength.mean.toFixed(1)} sentences`} />
-        <MetricValue label="Median" value={`${metrics.paragraphLength.median.toFixed(1)} sentences`} />
+      <MetricCard title={t.styleUI.paragraphLength}>
+        <MetricValue label={t.styleUI.mean} value={`${metrics.paragraphLength.mean.toFixed(1)} sentences`} />
+        <MetricValue label={t.styleUI.median} value={`${metrics.paragraphLength.median.toFixed(1)} sentences`} />
         <MetricValue
-          label="Single-Sentence"
+          label={t.styleUI.singleSentence}
           value={`${(metrics.paragraphLength.singleSentenceRate * 100).toFixed(0)}%`}
         />
       </MetricCard>
 
       {/* Punctuation */}
-      <MetricCard title="Punctuation Patterns">
+      <MetricCard title={t.styleUI.punctuationPatterns}>
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Em Dash</span>
+            <span className="text-xs text-muted-foreground">{t.styleUI.emDash}</span>
             <FrequencyBadge value={metrics.punctuation.emDashFrequency} />
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Semicolon</span>
+            <span className="text-xs text-muted-foreground">{t.styleUI.semicolon}</span>
             <FrequencyBadge value={metrics.punctuation.semicolonUsage} />
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Ellipsis</span>
+            <span className="text-xs text-muted-foreground">{t.styleUI.ellipsis}</span>
             <FrequencyBadge value={metrics.punctuation.ellipsisFrequency} />
           </div>
         </div>
       </MetricCard>
 
       {/* Narrative Distance */}
-      <MetricCard title="Narrative Distance">
+      <MetricCard title={t.styleUI.narrativeDistance}>
         <div className="flex flex-col items-center py-2">
           <Badge className="text-sm px-3 py-1">{metrics.narrativeDistance}</Badge>
-          <span className="text-xs text-muted-foreground mt-2">closeness to character</span>
+          <span className="text-xs text-muted-foreground mt-2">{t.styleUI.closenessToCharacter}</span>
         </div>
       </MetricCard>
 
       {/* POV */}
-      <MetricCard title="Point of View">
+      <MetricCard title={t.styleUI.pointOfView}>
         <div className="flex flex-col items-center py-2">
           <span className="text-sm font-medium text-center">{metrics.pov}</span>
         </div>
@@ -173,7 +175,7 @@ function MetricsDisplay({ metrics }: { metrics: StructuredFingerprint }) {
 
       {/* Metaphor Domains */}
       {metrics.metaphorDomains && metrics.metaphorDomains.length > 0 && (
-        <MetricCard title="Metaphor Domains">
+        <MetricCard title={t.styleUI.metaphorDomains}>
           <div className="flex flex-wrap gap-1.5 py-1">
             {metrics.metaphorDomains.map((domain) => (
               <Badge key={domain} variant="secondary" className="text-xs">
@@ -194,9 +196,10 @@ function CalibrationSamplesDisplay({
 }: {
   samples: CalibrationSample[];
 }) {
+  const { t } = useLanguage();
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Calibration Samples</h3>
+      <h3 className="text-lg font-semibold">{t.styleUI.calibrationSamples}</h3>
       <p className="text-sm text-muted-foreground">
         These passages best demonstrate the distinctive qualities of the writing voice.
       </p>

@@ -334,6 +334,126 @@ export interface UIStrings {
     closeProseHighlights: string; describeChangeExample: string; selectChapter: string;
   };
 
+  // O1 - the export configuration dialog.
+  exportConfig: {
+    title: string;
+    tabMetadata: string;
+    tabFront: string;
+    tabBack: string;
+    tabStyle: string;
+    bookTitle: string;
+    subtitle: string;
+    author: string;
+    seriesName: string;
+    publisher: string;
+    copyrightYear: string;
+    sceneBreakGlyph: string;
+    trimSize: string;
+    coverPage: string;
+    halfTitlePage: string;
+    titlePage: string;
+    copyrightPage: string;
+    dedication: string;
+    tableOfContents: string;
+    coverImagePath: string;
+    dedicationPath: string;
+    aboutAuthor: string;
+    aboutAuthorPath: string;
+    alsoBy: string;
+    alsoByPath: string;
+    acknowledgments: string;
+    acknowledgmentsPath: string;
+    oxfordComma: string;
+    spellOutNumbers: string;
+    closedEmDashes: string;
+    thinSpaceEllipsis: string;
+    autoHyphenation: string;
+    justifiedText: string;
+  };
+
+  // O1 - the batch editorial dialog.
+  batchEditorial: {
+    title: string;
+    passes: string;
+    chapters: string;
+    firstChapter: string;
+    lastChapter: string;
+    budgetCap: string;
+    run: string;
+    status: string;
+  };
+
+  // O1 - the style profile and character lenses.
+  styleUI: {
+    sentenceLength: string;
+    mean: string;
+    median: string;
+    stdDev: string;
+    distribution: string;
+    vocabularyRichness: string;
+    typeTokenRatio: string;
+    hapaxRate: string;
+    register: string;
+    dialogueRatio: string;
+    ofTextIsDialogue: string;
+    paragraphLength: string;
+    singleSentence: string;
+    punctuationPatterns: string;
+    emDash: string;
+    semicolon: string;
+    ellipsis: string;
+    narrativeDistance: string;
+    closenessToCharacter: string;
+    pointOfView: string;
+    metaphorDomains: string;
+    calibrationSamples: string;
+    characterLenses: string;
+    characterName: string;
+    characterNameExample: string;
+    sensoryPriority: string;
+    sensoryPriorityExample: string;
+    metaphorDomain: string;
+    metaphorDomainExample: string;
+    interiorStyle: string;
+    interiorStyleExample: string;
+    vocabularyRegister: string;
+    vocabularyRegisterExample: string;
+    blindSpots: string;
+    blindSpotsHint: string;
+  };
+
+  // O1 - the analytics and edits report tabs.
+  reportsUI: {
+    betaScores: string;
+    readability: string;
+    pacing: string;
+    dialogue: string;
+    overuse: string;
+    cost: string;
+    perChapterBeta: string;
+    scoreDistribution: string;
+    betaProgression: string;
+    fleschKincaid: string;
+    fleschKincaidHint: string;
+    gunningFog: string;
+    gunningFogHint: string;
+    colemanLiau: string;
+    colemanLiauHint: string;
+    tensionCurve: string;
+    dialogueDistribution: string;
+    dialogueDistributionHint: string;
+    overuseDetection: string;
+    totalCost30: string;
+    costByKeySource: string;
+    totalFindings: string;
+    pending: string;
+    applied: string;
+    dismissed: string;
+    criticalMajor: string;
+    recentFindings: string;
+    recentFindingsHint: string;
+  };
+
   // O1 - main-surface strings that used to be written inline in English.
   screens: {
     bookProgress: string; drafted: string; edited: string; betaPassed: string;
@@ -904,6 +1024,122 @@ const EN: UIStrings = {
     closePacing: "Close pacing heatmap", closeProseHighlights: "Close prose highlights",
     describeChangeExample: "e.g. make this more tense", selectChapter: "Select chapter...",
     restoreVersion: "Restore this version", loading: "Loading...",
+  },
+
+  exportConfig: {
+    title: "Export configuration",
+    tabMetadata: "Metadata",
+    tabFront: "Front matter",
+    tabBack: "Back matter",
+    tabStyle: "Style",
+    bookTitle: "Title",
+    subtitle: "Subtitle",
+    author: "Author",
+    seriesName: "Series name",
+    publisher: "Publisher",
+    copyrightYear: "Copyright year",
+    sceneBreakGlyph: "Scene break glyph",
+    trimSize: "Trim size",
+    coverPage: "Cover page",
+    halfTitlePage: "Half-title page",
+    titlePage: "Title page",
+    copyrightPage: "Copyright page",
+    dedication: "Dedication",
+    tableOfContents: "Table of contents",
+    coverImagePath: "Cover image path",
+    dedicationPath: "Dedication path",
+    aboutAuthor: "About the author",
+    aboutAuthorPath: "About-the-author path",
+    alsoBy: "Also by",
+    alsoByPath: "Also-by path",
+    acknowledgments: "Acknowledgments",
+    acknowledgmentsPath: "Acknowledgments path",
+    oxfordComma: "Oxford comma",
+    spellOutNumbers: "Spell out numbers under ten",
+    closedEmDashes: "Closed em dashes",
+    thinSpaceEllipsis: "Thin-space ellipsis",
+    autoHyphenation: "Automatic hyphenation",
+    justifiedText: "Justified text",
+  },
+
+  batchEditorial: {
+    title: "Batch editorial",
+    passes: "Passes",
+    chapters: "Chapters",
+    firstChapter: "First chapter",
+    lastChapter: "Last chapter",
+    budgetCap: "Budget cap (USD)",
+    run: "Run",
+    status: "Batch status",
+  },
+
+  styleUI: {
+    sentenceLength: "Sentence length",
+    mean: "Mean",
+    median: "Median",
+    stdDev: "Std. dev.",
+    distribution: "Distribution",
+    vocabularyRichness: "Vocabulary richness",
+    typeTokenRatio: "Type-token ratio",
+    hapaxRate: "Hapax rate",
+    register: "Register",
+    dialogueRatio: "Dialogue ratio",
+    ofTextIsDialogue: "of the text is dialogue",
+    paragraphLength: "Paragraph length",
+    singleSentence: "Single-sentence",
+    punctuationPatterns: "Punctuation patterns",
+    emDash: "Em dash",
+    semicolon: "Semicolon",
+    ellipsis: "Ellipsis",
+    narrativeDistance: "Narrative distance",
+    closenessToCharacter: "closeness to the character",
+    pointOfView: "Point of view",
+    metaphorDomains: "Metaphor domains",
+    calibrationSamples: "Calibration samples",
+    characterLenses: "Character lenses",
+    characterName: "Character name",
+    characterNameExample: "e.g. Elena",
+    sensoryPriority: "Sensory priority",
+    sensoryPriorityExample: "e.g. visual, tactile",
+    metaphorDomain: "Metaphor domain",
+    metaphorDomainExample: "e.g. mechanical, natural",
+    interiorStyle: "Interior style",
+    interiorStyleExample: "e.g. analytical, stream of consciousness",
+    vocabularyRegister: "Vocabulary register",
+    vocabularyRegisterExample: "e.g. formal, colloquial",
+    blindSpots: "Blind spots (optional)",
+    blindSpotsHint: "Things this POV character would not notice or care about",
+  },
+
+  reportsUI: {
+    betaScores: "Beta scores",
+    readability: "Readability",
+    pacing: "Pacing",
+    dialogue: "Dialogue",
+    overuse: "Overuse",
+    cost: "Cost",
+    perChapterBeta: "Beta scores per chapter",
+    scoreDistribution: "Score distribution",
+    betaProgression: "Beta score progression",
+    fleschKincaid: "Flesch-Kincaid",
+    fleschKincaidHint: "Grade level required to understand the text",
+    gunningFog: "Gunning Fog",
+    gunningFogHint: "Years of formal education needed",
+    colemanLiau: "Coleman-Liau",
+    colemanLiauHint: "Based on characters and sentences",
+    tensionCurve: "Tension curve",
+    dialogueDistribution: "Dialogue distribution",
+    dialogueDistributionHint: "Dialogue per character",
+    overuseDetection: "Overuse detection",
+    totalCost30: "Total cost (last 30 days)",
+    costByKeySource: "Cost by key source",
+    totalFindings: "Total findings",
+    pending: "Pending",
+    applied: "Applied",
+    dismissed: "Dismissed",
+    criticalMajor: "Critical and major",
+    recentFindings: "Recent findings",
+    recentFindingsHint: "The latest editorial findings across all chapters",
   },
 
   screens: {
@@ -1514,6 +1750,122 @@ const SR: UIStrings = {
     restoreVersion: "Vrati ovu verziju", loading: "Učitavanje...",
   },
 
+  exportConfig: {
+    title: "Podešavanje izvoza",
+    tabMetadata: "Metapodaci",
+    tabFront: "Predtekst",
+    tabBack: "Pogovor",
+    tabStyle: "Stil",
+    bookTitle: "Naslov",
+    subtitle: "Podnaslov",
+    author: "Autor",
+    seriesName: "Naziv serijala",
+    publisher: "Izdavač",
+    copyrightYear: "Godina izdanja",
+    sceneBreakGlyph: "Znak preloma scene",
+    trimSize: "Format knjige",
+    coverPage: "Korica",
+    halfTitlePage: "Prednaslovna strana",
+    titlePage: "Naslovna strana",
+    copyrightPage: "Impresum",
+    dedication: "Posveta",
+    tableOfContents: "Sadržaj",
+    coverImagePath: "Putanja slike korica",
+    dedicationPath: "Putanja posvete",
+    aboutAuthor: "O autoru",
+    aboutAuthorPath: "Putanja teksta o autoru",
+    alsoBy: "Od istog autora",
+    alsoByPath: "Putanja liste dela",
+    acknowledgments: "Zahvalnice",
+    acknowledgmentsPath: "Putanja zahvalnica",
+    oxfordComma: "Oksfordski zarez",
+    spellOutNumbers: "Brojeve do deset pisati rečima",
+    closedEmDashes: "Crta bez razmaka",
+    thinSpaceEllipsis: "Tri tačke sa tankim razmakom",
+    autoHyphenation: "Automatsko prelamanje reči",
+    justifiedText: "Obostrano poravnanje",
+  },
+
+  batchEditorial: {
+    title: "Grupna redakcija",
+    passes: "Prolazi",
+    chapters: "Poglavlja",
+    firstChapter: "Prvo poglavlje",
+    lastChapter: "Poslednje poglavlje",
+    budgetCap: "Ograničenje budžeta (USD)",
+    run: "Pokreni",
+    status: "Status grupe",
+  },
+
+  styleUI: {
+    sentenceLength: "Dužina rečenice",
+    mean: "Prosek",
+    median: "Medijana",
+    stdDev: "Std. devijacija",
+    distribution: "Raspodela",
+    vocabularyRichness: "Bogatstvo rečnika",
+    typeTokenRatio: "Odnos tipova i reči",
+    hapaxRate: "Udeo jedinstvenih reči",
+    register: "Registar",
+    dialogueRatio: "Udeo dijaloga",
+    ofTextIsDialogue: "teksta je dijalog",
+    paragraphLength: "Dužina pasusa",
+    singleSentence: "Jedna rečenica",
+    punctuationPatterns: "Obrasci interpunkcije",
+    emDash: "Crta",
+    semicolon: "Tačka-zarez",
+    ellipsis: "Tri tačke",
+    narrativeDistance: "Narativna distanca",
+    closenessToCharacter: "blizina liku",
+    pointOfView: "Tačka gledišta",
+    metaphorDomains: "Domeni metafora",
+    calibrationSamples: "Uzorci za kalibraciju",
+    characterLenses: "Sočiva likova",
+    characterName: "Ime lika",
+    characterNameExample: "npr. Elena",
+    sensoryPriority: "Čulni prioritet",
+    sensoryPriorityExample: "npr. vizuelno, taktilno",
+    metaphorDomain: "Domen metafore",
+    metaphorDomainExample: "npr. mehaničko, prirodno",
+    interiorStyle: "Unutrašnji stil",
+    interiorStyleExample: "npr. analitičan, tok svesti",
+    vocabularyRegister: "Registar rečnika",
+    vocabularyRegisterExample: "npr. formalan, razgovoran",
+    blindSpots: "Slepe tačke (opciono)",
+    blindSpotsHint: "Ono što ovaj lik ne bi primetio niti bi mu bilo važno",
+  },
+
+  reportsUI: {
+    betaScores: "Beta ocene",
+    readability: "Čitljivost",
+    pacing: "Ritam",
+    dialogue: "Dijalog",
+    overuse: "Prekomerna upotreba",
+    cost: "Trošak",
+    perChapterBeta: "Beta ocene po poglavlju",
+    scoreDistribution: "Raspodela ocena",
+    betaProgression: "Kretanje beta ocena",
+    fleschKincaid: "Flesch-Kincaid",
+    fleschKincaidHint: "Nivo obrazovanja potreban za razumevanje teksta",
+    gunningFog: "Gunning Fog",
+    gunningFogHint: "Godine formalnog obrazovanja",
+    colemanLiau: "Coleman-Liau",
+    colemanLiauHint: "Računa se na osnovu znakova i rečenica",
+    tensionCurve: "Kriva napetosti",
+    dialogueDistribution: "Raspodela dijaloga",
+    dialogueDistributionHint: "Dijalog po liku",
+    overuseDetection: "Otkrivanje ponavljanja",
+    totalCost30: "Ukupan trošak (30 dana)",
+    costByKeySource: "Trošak po izvoru ključa",
+    totalFindings: "Ukupno nalaza",
+    pending: "Na čekanju",
+    applied: "Primenjeno",
+    dismissed: "Odbačeno",
+    criticalMajor: "Kritični i veliki",
+    recentFindings: "Nedavni nalazi",
+    recentFindingsHint: "Najnoviji urednički nalazi kroz sva poglavlja",
+  },
+
   screens: {
     bookProgress: "Napredak knjige", drafted: "Napisano", edited: "Uređeno", betaPassed: "Prošlo beta čitanje",
     wordCount: "Broj reči", recentSessions: "Nedavne sesije agenata", editorialFindings: "Urednički nalazi",
@@ -2119,6 +2471,122 @@ const DE: UIStrings = {
     closePacing: "Tempo-Heatmap schließen", closeProseHighlights: "Prosa-Hervorhebungen schließen",
     describeChangeExample: "z. B. mach das spannungsvoller", selectChapter: "Kapitel wählen...",
     restoreVersion: "Diese Version wiederherstellen", loading: "Lädt...",
+  },
+
+  exportConfig: {
+    title: "Export-Konfiguration",
+    tabMetadata: "Metadaten",
+    tabFront: "Vorspann",
+    tabBack: "Nachspann",
+    tabStyle: "Stil",
+    bookTitle: "Titel",
+    subtitle: "Untertitel",
+    author: "Autor",
+    seriesName: "Serienname",
+    publisher: "Verlag",
+    copyrightYear: "Copyright-Jahr",
+    sceneBreakGlyph: "Szenentrenner",
+    trimSize: "Buchformat",
+    coverPage: "Umschlagseite",
+    halfTitlePage: "Schmutztitel",
+    titlePage: "Titelseite",
+    copyrightPage: "Impressum",
+    dedication: "Widmung",
+    tableOfContents: "Inhaltsverzeichnis",
+    coverImagePath: "Pfad zum Coverbild",
+    dedicationPath: "Pfad zur Widmung",
+    aboutAuthor: "Über den Autor",
+    aboutAuthorPath: "Pfad zur Autorenseite",
+    alsoBy: "Weitere Werke",
+    alsoByPath: "Pfad zu weiteren Werken",
+    acknowledgments: "Danksagung",
+    acknowledgmentsPath: "Pfad zur Danksagung",
+    oxfordComma: "Oxford-Komma",
+    spellOutNumbers: "Zahlen unter zehn ausschreiben",
+    closedEmDashes: "Geschlossene Geviertstriche",
+    thinSpaceEllipsis: "Auslassungspunkte mit schmalem Leerzeichen",
+    autoHyphenation: "Automatische Silbentrennung",
+    justifiedText: "Blocksatz",
+  },
+
+  batchEditorial: {
+    title: "Stapel-Lektorat",
+    passes: "Durchgänge",
+    chapters: "Kapitel",
+    firstChapter: "Erstes Kapitel",
+    lastChapter: "Letztes Kapitel",
+    budgetCap: "Budgetgrenze (USD)",
+    run: "Starten",
+    status: "Stapelstatus",
+  },
+
+  styleUI: {
+    sentenceLength: "Satzlänge",
+    mean: "Mittelwert",
+    median: "Median",
+    stdDev: "Std.-Abw.",
+    distribution: "Verteilung",
+    vocabularyRichness: "Wortschatzvielfalt",
+    typeTokenRatio: "Type-Token-Verhältnis",
+    hapaxRate: "Hapax-Quote",
+    register: "Register",
+    dialogueRatio: "Dialoganteil",
+    ofTextIsDialogue: "des Textes ist Dialog",
+    paragraphLength: "Absatzlänge",
+    singleSentence: "Einsatz-Absätze",
+    punctuationPatterns: "Interpunktionsmuster",
+    emDash: "Geviertstrich",
+    semicolon: "Semikolon",
+    ellipsis: "Auslassungspunkte",
+    narrativeDistance: "Erzähldistanz",
+    closenessToCharacter: "Nähe zur Figur",
+    pointOfView: "Erzählperspektive",
+    metaphorDomains: "Metaphernfelder",
+    calibrationSamples: "Kalibrierungsproben",
+    characterLenses: "Figurenlinsen",
+    characterName: "Figurenname",
+    characterNameExample: "z. B. Elena",
+    sensoryPriority: "Sinnespriorität",
+    sensoryPriorityExample: "z. B. visuell, taktil",
+    metaphorDomain: "Metaphernfeld",
+    metaphorDomainExample: "z. B. mechanisch, natürlich",
+    interiorStyle: "Innerer Stil",
+    interiorStyleExample: "z. B. analytisch, Bewusstseinsstrom",
+    vocabularyRegister: "Wortschatzregister",
+    vocabularyRegisterExample: "z. B. formell, umgangssprachlich",
+    blindSpots: "Blinde Flecken (optional)",
+    blindSpotsHint: "Was diese Perspektivfigur nicht bemerken oder nicht beachten würde",
+  },
+
+  reportsUI: {
+    betaScores: "Beta-Bewertungen",
+    readability: "Lesbarkeit",
+    pacing: "Tempo",
+    dialogue: "Dialog",
+    overuse: "Übermäßige Wiederholung",
+    cost: "Kosten",
+    perChapterBeta: "Beta-Bewertungen je Kapitel",
+    scoreDistribution: "Verteilung der Bewertungen",
+    betaProgression: "Verlauf der Beta-Bewertungen",
+    fleschKincaid: "Flesch-Kincaid",
+    fleschKincaidHint: "Erforderliches Bildungsniveau zum Verständnis",
+    gunningFog: "Gunning Fog",
+    gunningFogHint: "Benötigte Schuljahre",
+    colemanLiau: "Coleman-Liau",
+    colemanLiauHint: "Basiert auf Zeichen und Sätzen",
+    tensionCurve: "Spannungskurve",
+    dialogueDistribution: "Dialogverteilung",
+    dialogueDistributionHint: "Dialog je Figur",
+    overuseDetection: "Wiederholungserkennung",
+    totalCost30: "Gesamtkosten (30 Tage)",
+    costByKeySource: "Kosten nach Schlüsselquelle",
+    totalFindings: "Befunde gesamt",
+    pending: "Offen",
+    applied: "Übernommen",
+    dismissed: "Verworfen",
+    criticalMajor: "Kritisch und schwerwiegend",
+    recentFindings: "Neueste Befunde",
+    recentFindingsHint: "Die jüngsten Lektoratsbefunde über alle Kapitel",
   },
 
   screens: {
@@ -2728,6 +3196,122 @@ const ES: UIStrings = {
     restoreVersion: "Restaurar esta versión", loading: "Cargando...",
   },
 
+  exportConfig: {
+    title: "Configuración de exportación",
+    tabMetadata: "Metadatos",
+    tabFront: "Preliminares",
+    tabBack: "Finales",
+    tabStyle: "Estilo",
+    bookTitle: "Título",
+    subtitle: "Subtítulo",
+    author: "Autor",
+    seriesName: "Nombre de la serie",
+    publisher: "Editorial",
+    copyrightYear: "Año de copyright",
+    sceneBreakGlyph: "Signo de salto de escena",
+    trimSize: "Formato",
+    coverPage: "Portada",
+    halfTitlePage: "Anteportada",
+    titlePage: "Página de título",
+    copyrightPage: "Página de créditos",
+    dedication: "Dedicatoria",
+    tableOfContents: "Índice",
+    coverImagePath: "Ruta de la imagen de portada",
+    dedicationPath: "Ruta de la dedicatoria",
+    aboutAuthor: "Sobre el autor",
+    aboutAuthorPath: "Ruta de la biografía",
+    alsoBy: "Del mismo autor",
+    alsoByPath: "Ruta de otras obras",
+    acknowledgments: "Agradecimientos",
+    acknowledgmentsPath: "Ruta de los agradecimientos",
+    oxfordComma: "Coma de Oxford",
+    spellOutNumbers: "Escribir con letras los números menores de diez",
+    closedEmDashes: "Rayas sin espacio",
+    thinSpaceEllipsis: "Puntos suspensivos con espacio fino",
+    autoHyphenation: "Partición automática de palabras",
+    justifiedText: "Texto justificado",
+  },
+
+  batchEditorial: {
+    title: "Edición por lotes",
+    passes: "Pasadas",
+    chapters: "Capítulos",
+    firstChapter: "Primer capítulo",
+    lastChapter: "Último capítulo",
+    budgetCap: "Límite de gasto (USD)",
+    run: "Ejecutar",
+    status: "Estado del lote",
+  },
+
+  styleUI: {
+    sentenceLength: "Longitud de frase",
+    mean: "Media",
+    median: "Mediana",
+    stdDev: "Desv. típica",
+    distribution: "Distribución",
+    vocabularyRichness: "Riqueza léxica",
+    typeTokenRatio: "Relación tipo-token",
+    hapaxRate: "Tasa de hápax",
+    register: "Registro",
+    dialogueRatio: "Proporción de diálogo",
+    ofTextIsDialogue: "del texto es diálogo",
+    paragraphLength: "Longitud de párrafo",
+    singleSentence: "De una sola frase",
+    punctuationPatterns: "Patrones de puntuación",
+    emDash: "Raya",
+    semicolon: "Punto y coma",
+    ellipsis: "Puntos suspensivos",
+    narrativeDistance: "Distancia narrativa",
+    closenessToCharacter: "cercanía al personaje",
+    pointOfView: "Punto de vista",
+    metaphorDomains: "Dominios metafóricos",
+    calibrationSamples: "Muestras de calibración",
+    characterLenses: "Lentes de personaje",
+    characterName: "Nombre del personaje",
+    characterNameExample: "p. ej. Elena",
+    sensoryPriority: "Prioridad sensorial",
+    sensoryPriorityExample: "p. ej. visual, táctil",
+    metaphorDomain: "Dominio metafórico",
+    metaphorDomainExample: "p. ej. mecánico, natural",
+    interiorStyle: "Estilo interior",
+    interiorStyleExample: "p. ej. analítico, flujo de conciencia",
+    vocabularyRegister: "Registro léxico",
+    vocabularyRegisterExample: "p. ej. formal, coloquial",
+    blindSpots: "Puntos ciegos (opcional)",
+    blindSpotsHint: "Lo que este personaje no notaría o no le importaría",
+  },
+
+  reportsUI: {
+    betaScores: "Puntuaciones beta",
+    readability: "Legibilidad",
+    pacing: "Ritmo",
+    dialogue: "Diálogo",
+    overuse: "Repetición excesiva",
+    cost: "Coste",
+    perChapterBeta: "Puntuaciones beta por capítulo",
+    scoreDistribution: "Distribución de puntuaciones",
+    betaProgression: "Evolución de las puntuaciones beta",
+    fleschKincaid: "Flesch-Kincaid",
+    fleschKincaidHint: "Nivel educativo necesario para entender el texto",
+    gunningFog: "Gunning Fog",
+    gunningFogHint: "Años de educación formal necesarios",
+    colemanLiau: "Coleman-Liau",
+    colemanLiauHint: "Se basa en caracteres y frases",
+    tensionCurve: "Curva de tensión",
+    dialogueDistribution: "Distribución del diálogo",
+    dialogueDistributionHint: "Diálogo por personaje",
+    overuseDetection: "Detección de repeticiones",
+    totalCost30: "Coste total (30 días)",
+    costByKeySource: "Coste por origen de clave",
+    totalFindings: "Hallazgos totales",
+    pending: "Pendientes",
+    applied: "Aplicados",
+    dismissed: "Descartados",
+    criticalMajor: "Críticos y graves",
+    recentFindings: "Hallazgos recientes",
+    recentFindingsHint: "Los últimos hallazgos editoriales de todos los capítulos",
+  },
+
   screens: {
     bookProgress: "Progreso del libro", drafted: "Escrito", edited: "Editado", betaPassed: "Beta superada",
     wordCount: "Número de palabras", recentSessions: "Sesiones recientes", editorialFindings: "Hallazgos editoriales",
@@ -3333,6 +3917,122 @@ const FR: UIStrings = {
     closePacing: "Fermer la carte de rythme", closeProseHighlights: "Fermer les surlignages",
     describeChangeExample: "p. ex. rends cela plus tendu", selectChapter: "Choisir un chapitre...",
     restoreVersion: "Restaurer cette version", loading: "Chargement...",
+  },
+
+  exportConfig: {
+    title: "Configuration de l'export",
+    tabMetadata: "Métadonnées",
+    tabFront: "Pages liminaires",
+    tabBack: "Pages finales",
+    tabStyle: "Style",
+    bookTitle: "Titre",
+    subtitle: "Sous-titre",
+    author: "Auteur",
+    seriesName: "Nom de la série",
+    publisher: "Éditeur",
+    copyrightYear: "Année de copyright",
+    sceneBreakGlyph: "Signe de rupture de scène",
+    trimSize: "Format",
+    coverPage: "Couverture",
+    halfTitlePage: "Faux-titre",
+    titlePage: "Page de titre",
+    copyrightPage: "Page de copyright",
+    dedication: "Dédicace",
+    tableOfContents: "Table des matières",
+    coverImagePath: "Chemin de l'image de couverture",
+    dedicationPath: "Chemin de la dédicace",
+    aboutAuthor: "À propos de l'auteur",
+    aboutAuthorPath: "Chemin de la biographie",
+    alsoBy: "Du même auteur",
+    alsoByPath: "Chemin des autres titres",
+    acknowledgments: "Remerciements",
+    acknowledgmentsPath: "Chemin des remerciements",
+    oxfordComma: "Virgule d'Oxford",
+    spellOutNumbers: "Écrire en toutes lettres les nombres sous dix",
+    closedEmDashes: "Cadratins sans espace",
+    thinSpaceEllipsis: "Points de suspension avec espace fine",
+    autoHyphenation: "Césure automatique",
+    justifiedText: "Texte justifié",
+  },
+
+  batchEditorial: {
+    title: "Révision par lots",
+    passes: "Passages",
+    chapters: "Chapitres",
+    firstChapter: "Premier chapitre",
+    lastChapter: "Dernier chapitre",
+    budgetCap: "Plafond de budget (USD)",
+    run: "Lancer",
+    status: "État du lot",
+  },
+
+  styleUI: {
+    sentenceLength: "Longueur de phrase",
+    mean: "Moyenne",
+    median: "Médiane",
+    stdDev: "Écart-type",
+    distribution: "Distribution",
+    vocabularyRichness: "Richesse lexicale",
+    typeTokenRatio: "Rapport type-token",
+    hapaxRate: "Taux d'hapax",
+    register: "Registre",
+    dialogueRatio: "Part de dialogue",
+    ofTextIsDialogue: "du texte est du dialogue",
+    paragraphLength: "Longueur de paragraphe",
+    singleSentence: "Une seule phrase",
+    punctuationPatterns: "Motifs de ponctuation",
+    emDash: "Cadratin",
+    semicolon: "Point-virgule",
+    ellipsis: "Points de suspension",
+    narrativeDistance: "Distance narrative",
+    closenessToCharacter: "proximité avec le personnage",
+    pointOfView: "Point de vue",
+    metaphorDomains: "Champs métaphoriques",
+    calibrationSamples: "Échantillons de calibrage",
+    characterLenses: "Lentilles de personnage",
+    characterName: "Nom du personnage",
+    characterNameExample: "p. ex. Elena",
+    sensoryPriority: "Priorité sensorielle",
+    sensoryPriorityExample: "p. ex. visuel, tactile",
+    metaphorDomain: "Champ métaphorique",
+    metaphorDomainExample: "p. ex. mécanique, naturel",
+    interiorStyle: "Style intérieur",
+    interiorStyleExample: "p. ex. analytique, flux de conscience",
+    vocabularyRegister: "Registre lexical",
+    vocabularyRegisterExample: "p. ex. soutenu, familier",
+    blindSpots: "Angles morts (facultatif)",
+    blindSpotsHint: "Ce que ce personnage ne remarquerait pas ou dont il se moquerait",
+  },
+
+  reportsUI: {
+    betaScores: "Notes bêta",
+    readability: "Lisibilité",
+    pacing: "Rythme",
+    dialogue: "Dialogue",
+    overuse: "Répétitions",
+    cost: "Coût",
+    perChapterBeta: "Notes bêta par chapitre",
+    scoreDistribution: "Répartition des notes",
+    betaProgression: "Évolution des notes bêta",
+    fleschKincaid: "Flesch-Kincaid",
+    fleschKincaidHint: "Niveau scolaire nécessaire pour comprendre le texte",
+    gunningFog: "Gunning Fog",
+    gunningFogHint: "Années d'études nécessaires",
+    colemanLiau: "Coleman-Liau",
+    colemanLiauHint: "Calculé sur les caractères et les phrases",
+    tensionCurve: "Courbe de tension",
+    dialogueDistribution: "Répartition du dialogue",
+    dialogueDistributionHint: "Dialogue par personnage",
+    overuseDetection: "Détection des répétitions",
+    totalCost30: "Coût total (30 jours)",
+    costByKeySource: "Coût par source de clé",
+    totalFindings: "Constats au total",
+    pending: "En attente",
+    applied: "Appliqués",
+    dismissed: "Écartés",
+    criticalMajor: "Critiques et majeurs",
+    recentFindings: "Constats récents",
+    recentFindingsHint: "Les derniers constats éditoriaux, tous chapitres confondus",
   },
 
   screens: {
@@ -3942,6 +4642,122 @@ const RU: UIStrings = {
     restoreVersion: "Восстановить эту версию", loading: "Загрузка...",
   },
 
+  exportConfig: {
+    title: "Настройки экспорта",
+    tabMetadata: "Метаданные",
+    tabFront: "Начальные страницы",
+    tabBack: "Концевые страницы",
+    tabStyle: "Стиль",
+    bookTitle: "Заголовок",
+    subtitle: "Подзаголовок",
+    author: "Автор",
+    seriesName: "Название серии",
+    publisher: "Издатель",
+    copyrightYear: "Год издания",
+    sceneBreakGlyph: "Знак разрыва сцены",
+    trimSize: "Формат",
+    coverPage: "Обложка",
+    halfTitlePage: "Авантитул",
+    titlePage: "Титульный лист",
+    copyrightPage: "Страница выходных данных",
+    dedication: "Посвящение",
+    tableOfContents: "Оглавление",
+    coverImagePath: "Путь к изображению обложки",
+    dedicationPath: "Путь к посвящению",
+    aboutAuthor: "Об авторе",
+    aboutAuthorPath: "Путь к тексту об авторе",
+    alsoBy: "Другие книги автора",
+    alsoByPath: "Путь к списку книг",
+    acknowledgments: "Благодарности",
+    acknowledgmentsPath: "Путь к благодарностям",
+    oxfordComma: "Оксфордская запятая",
+    spellOutNumbers: "Числа до десяти писать словами",
+    closedEmDashes: "Тире без пробелов",
+    thinSpaceEllipsis: "Многоточие с тонким пробелом",
+    autoHyphenation: "Автоматические переносы",
+    justifiedText: "Выключка по ширине",
+  },
+
+  batchEditorial: {
+    title: "Пакетная редактура",
+    passes: "Проходы",
+    chapters: "Главы",
+    firstChapter: "Первая глава",
+    lastChapter: "Последняя глава",
+    budgetCap: "Лимит бюджета (USD)",
+    run: "Запустить",
+    status: "Статус пакета",
+  },
+
+  styleUI: {
+    sentenceLength: "Длина предложения",
+    mean: "Среднее",
+    median: "Медиана",
+    stdDev: "Стд. отклонение",
+    distribution: "Распределение",
+    vocabularyRichness: "Богатство словаря",
+    typeTokenRatio: "Отношение типов к словам",
+    hapaxRate: "Доля уникальных слов",
+    register: "Регистр",
+    dialogueRatio: "Доля диалога",
+    ofTextIsDialogue: "текста — диалог",
+    paragraphLength: "Длина абзаца",
+    singleSentence: "Из одного предложения",
+    punctuationPatterns: "Пунктуационные образцы",
+    emDash: "Тире",
+    semicolon: "Точка с запятой",
+    ellipsis: "Многоточие",
+    narrativeDistance: "Нарративная дистанция",
+    closenessToCharacter: "близость к персонажу",
+    pointOfView: "Точка зрения",
+    metaphorDomains: "Области метафор",
+    calibrationSamples: "Калибровочные образцы",
+    characterLenses: "Линзы персонажей",
+    characterName: "Имя персонажа",
+    characterNameExample: "напр. Елена",
+    sensoryPriority: "Сенсорный приоритет",
+    sensoryPriorityExample: "напр. зрительный, тактильный",
+    metaphorDomain: "Область метафор",
+    metaphorDomainExample: "напр. механическая, природная",
+    interiorStyle: "Внутренний стиль",
+    interiorStyleExample: "напр. аналитический, поток сознания",
+    vocabularyRegister: "Регистр лексики",
+    vocabularyRegisterExample: "напр. формальный, разговорный",
+    blindSpots: "Слепые зоны (необязательно)",
+    blindSpotsHint: "То, чего этот персонаж не заметил бы или не счёл бы важным",
+  },
+
+  reportsUI: {
+    betaScores: "Бета-оценки",
+    readability: "Читаемость",
+    pacing: "Темп",
+    dialogue: "Диалог",
+    overuse: "Повторы",
+    cost: "Стоимость",
+    perChapterBeta: "Бета-оценки по главам",
+    scoreDistribution: "Распределение оценок",
+    betaProgression: "Динамика бета-оценок",
+    fleschKincaid: "Флеш-Кинкейд",
+    fleschKincaidHint: "Уровень образования, нужный для понимания текста",
+    gunningFog: "Gunning Fog",
+    gunningFogHint: "Сколько лет обучения требуется",
+    colemanLiau: "Coleman-Liau",
+    colemanLiauHint: "Считается по символам и предложениям",
+    tensionCurve: "Кривая напряжения",
+    dialogueDistribution: "Распределение диалога",
+    dialogueDistributionHint: "Диалог по персонажам",
+    overuseDetection: "Поиск повторов",
+    totalCost30: "Общая стоимость (30 дней)",
+    costByKeySource: "Стоимость по источнику ключа",
+    totalFindings: "Всего замечаний",
+    pending: "Ожидают",
+    applied: "Применены",
+    dismissed: "Отклонены",
+    criticalMajor: "Критические и серьёзные",
+    recentFindings: "Недавние замечания",
+    recentFindingsHint: "Последние редакторские замечания по всем главам",
+  },
+
   screens: {
     bookProgress: "Прогресс книги", drafted: "Написано", edited: "Отредактировано", betaPassed: "Бета пройдена",
     wordCount: "Число слов", recentSessions: "Недавние сессии", editorialFindings: "Редакторские замечания",
@@ -4547,6 +5363,122 @@ const ZH: UIStrings = {
     closePacing: "关闭节奏热力图", closeProseHighlights: "关闭文字高亮",
     describeChangeExample: "例如：让这段更紧张", selectChapter: "选择章节...",
     restoreVersion: "恢复此版本", loading: "加载中...",
+  },
+
+  exportConfig: {
+    title: "导出配置",
+    tabMetadata: "元数据",
+    tabFront: "前置页",
+    tabBack: "后置页",
+    tabStyle: "样式",
+    bookTitle: "书名",
+    subtitle: "副标题",
+    author: "作者",
+    seriesName: "系列名称",
+    publisher: "出版方",
+    copyrightYear: "版权年份",
+    sceneBreakGlyph: "场景分隔符",
+    trimSize: "开本",
+    coverPage: "封面页",
+    halfTitlePage: "内封页",
+    titlePage: "书名页",
+    copyrightPage: "版权页",
+    dedication: "献词",
+    tableOfContents: "目录",
+    coverImagePath: "封面图片路径",
+    dedicationPath: "献词路径",
+    aboutAuthor: "作者简介",
+    aboutAuthorPath: "作者简介路径",
+    alsoBy: "同一作者作品",
+    alsoByPath: "作品列表路径",
+    acknowledgments: "致谢",
+    acknowledgmentsPath: "致谢路径",
+    oxfordComma: "牛津逗号",
+    spellOutNumbers: "十以下数字用文字书写",
+    closedEmDashes: "破折号不留空格",
+    thinSpaceEllipsis: "省略号使用窄空格",
+    autoHyphenation: "自动断词",
+    justifiedText: "两端对齐",
+  },
+
+  batchEditorial: {
+    title: "批量编辑",
+    passes: "轮次",
+    chapters: "章节",
+    firstChapter: "起始章节",
+    lastChapter: "结束章节",
+    budgetCap: "预算上限（美元）",
+    run: "运行",
+    status: "批次状态",
+  },
+
+  styleUI: {
+    sentenceLength: "句子长度",
+    mean: "均值",
+    median: "中位数",
+    stdDev: "标准差",
+    distribution: "分布",
+    vocabularyRichness: "词汇丰富度",
+    typeTokenRatio: "类符形符比",
+    hapaxRate: "独用词比例",
+    register: "语域",
+    dialogueRatio: "对话比例",
+    ofTextIsDialogue: "的文本是对话",
+    paragraphLength: "段落长度",
+    singleSentence: "单句段落",
+    punctuationPatterns: "标点模式",
+    emDash: "破折号",
+    semicolon: "分号",
+    ellipsis: "省略号",
+    narrativeDistance: "叙事距离",
+    closenessToCharacter: "与人物的贴近度",
+    pointOfView: "视角",
+    metaphorDomains: "隐喻领域",
+    calibrationSamples: "校准样本",
+    characterLenses: "人物视角设定",
+    characterName: "人物姓名",
+    characterNameExample: "例如：埃琳娜",
+    sensoryPriority: "感官优先",
+    sensoryPriorityExample: "例如：视觉、触觉",
+    metaphorDomain: "隐喻领域",
+    metaphorDomainExample: "例如：机械、自然",
+    interiorStyle: "内心风格",
+    interiorStyleExample: "例如：分析式、意识流",
+    vocabularyRegister: "词汇语域",
+    vocabularyRegisterExample: "例如：正式、口语",
+    blindSpots: "盲点（可选）",
+    blindSpotsHint: "这个视角人物不会注意或不在意的事物",
+  },
+
+  reportsUI: {
+    betaScores: "Beta 评分",
+    readability: "可读性",
+    pacing: "节奏",
+    dialogue: "对话",
+    overuse: "过度重复",
+    cost: "成本",
+    perChapterBeta: "各章 Beta 评分",
+    scoreDistribution: "评分分布",
+    betaProgression: "Beta 评分走势",
+    fleschKincaid: "Flesch-Kincaid",
+    fleschKincaidHint: "理解该文本所需的学历水平",
+    gunningFog: "Gunning Fog",
+    gunningFogHint: "所需的正规教育年限",
+    colemanLiau: "Coleman-Liau",
+    colemanLiauHint: "基于字符与句子计算",
+    tensionCurve: "张力曲线",
+    dialogueDistribution: "对话分布",
+    dialogueDistributionHint: "按人物统计对话",
+    overuseDetection: "重复检测",
+    totalCost30: "总成本（30 天）",
+    costByKeySource: "按密钥来源统计成本",
+    totalFindings: "发现总数",
+    pending: "待处理",
+    applied: "已应用",
+    dismissed: "已忽略",
+    criticalMajor: "严重与重大",
+    recentFindings: "最近的发现",
+    recentFindingsHint: "所有章节中最新的编辑发现",
   },
 
   screens: {

@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -27,6 +28,7 @@ export function ExportConfigDialog({
   open,
   onOpenChange,
 }: ExportConfigDialogProps) {
+  const { t } = useLanguage();
   const { data: config, isLoading } = useExportConfig(bookId);
   const updateConfig = useUpdateExportConfig(bookId);
   const [local, setLocal] = useState<ExportConfig | null>(null);
@@ -58,60 +60,60 @@ export function ExportConfigDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[80vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Export Configuration</DialogTitle>
+          <DialogTitle>{t.exportConfig.title}</DialogTitle>
         </DialogHeader>
 
         <Tabs defaultValue="metadata" className="mt-2">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="metadata">Metadata</TabsTrigger>
-            <TabsTrigger value="front">Front Matter</TabsTrigger>
-            <TabsTrigger value="back">Back Matter</TabsTrigger>
-            <TabsTrigger value="style">Style</TabsTrigger>
+            <TabsTrigger value="metadata">{t.exportConfig.tabMetadata}</TabsTrigger>
+            <TabsTrigger value="front">{t.exportConfig.tabFront}</TabsTrigger>
+            <TabsTrigger value="back">{t.exportConfig.tabBack}</TabsTrigger>
+            <TabsTrigger value="style">{t.exportConfig.tabStyle}</TabsTrigger>
           </TabsList>
 
           {/* Metadata */}
           <TabsContent value="metadata" className="space-y-3 pt-2">
-            <Field label="Title" value={local.metadata.title} onChange={(v) => setLocal({ ...local, metadata: { ...local.metadata, title: v } })} />
-            <Field label="Subtitle" value={local.metadata.subtitle} onChange={(v) => setLocal({ ...local, metadata: { ...local.metadata, subtitle: v } })} />
-            <Field label="Author" value={local.metadata.author} onChange={(v) => setLocal({ ...local, metadata: { ...local.metadata, author: v } })} />
-            <Field label="Series Name" value={local.metadata.seriesName} onChange={(v) => setLocal({ ...local, metadata: { ...local.metadata, seriesName: v } })} />
+            <Field label={t.exportConfig.bookTitle} value={local.metadata.title} onChange={(v) => setLocal({ ...local, metadata: { ...local.metadata, title: v } })} />
+            <Field label={t.exportConfig.subtitle} value={local.metadata.subtitle} onChange={(v) => setLocal({ ...local, metadata: { ...local.metadata, subtitle: v } })} />
+            <Field label={t.exportConfig.author} value={local.metadata.author} onChange={(v) => setLocal({ ...local, metadata: { ...local.metadata, author: v } })} />
+            <Field label={t.exportConfig.seriesName} value={local.metadata.seriesName} onChange={(v) => setLocal({ ...local, metadata: { ...local.metadata, seriesName: v } })} />
             <Field label="ISBN" value={local.metadata.isbn} onChange={(v) => setLocal({ ...local, metadata: { ...local.metadata, isbn: v } })} />
-            <Field label="Publisher" value={local.metadata.publisher} onChange={(v) => setLocal({ ...local, metadata: { ...local.metadata, publisher: v } })} />
-            <Field label="Copyright Year" value={local.metadata.copyrightYear} onChange={(v) => setLocal({ ...local, metadata: { ...local.metadata, copyrightYear: v } })} />
-            <Field label="Scene Break Glyph" value={local.sceneBreakGlyph} onChange={(v) => setLocal({ ...local, sceneBreakGlyph: v })} />
-            <Field label="Trim Size" value={local.format.trimSize} onChange={(v) => setLocal({ ...local, format: { ...local.format, trimSize: v } })} />
+            <Field label={t.exportConfig.publisher} value={local.metadata.publisher} onChange={(v) => setLocal({ ...local, metadata: { ...local.metadata, publisher: v } })} />
+            <Field label={t.exportConfig.copyrightYear} value={local.metadata.copyrightYear} onChange={(v) => setLocal({ ...local, metadata: { ...local.metadata, copyrightYear: v } })} />
+            <Field label={t.exportConfig.sceneBreakGlyph} value={local.sceneBreakGlyph} onChange={(v) => setLocal({ ...local, sceneBreakGlyph: v })} />
+            <Field label={t.exportConfig.trimSize} value={local.format.trimSize} onChange={(v) => setLocal({ ...local, format: { ...local.format, trimSize: v } })} />
           </TabsContent>
 
           {/* Front Matter */}
           <TabsContent value="front" className="space-y-3 pt-2">
-            <Toggle label="Cover Page" checked={local.frontMatter.coverPage} onChange={(v) => setLocal({ ...local, frontMatter: { ...local.frontMatter, coverPage: v } })} />
-            <Toggle label="Half-Title Page" checked={local.frontMatter.halfTitle} onChange={(v) => setLocal({ ...local, frontMatter: { ...local.frontMatter, halfTitle: v } })} />
-            <Toggle label="Title Page" checked={local.frontMatter.titlePage} onChange={(v) => setLocal({ ...local, frontMatter: { ...local.frontMatter, titlePage: v } })} />
-            <Toggle label="Copyright Page" checked={local.frontMatter.copyrightPage} onChange={(v) => setLocal({ ...local, frontMatter: { ...local.frontMatter, copyrightPage: v } })} />
-            <Toggle label="Dedication" checked={local.frontMatter.dedication} onChange={(v) => setLocal({ ...local, frontMatter: { ...local.frontMatter, dedication: v } })} />
-            <Toggle label="Table of Contents" checked={local.frontMatter.tableOfContents} onChange={(v) => setLocal({ ...local, frontMatter: { ...local.frontMatter, tableOfContents: v } })} />
-            <Field label="Cover Image Path" value={local.frontMatter.coverImagePath} onChange={(v) => setLocal({ ...local, frontMatter: { ...local.frontMatter, coverImagePath: v } })} />
-            <Field label="Dedication Path" value={local.frontMatter.dedicationPath} onChange={(v) => setLocal({ ...local, frontMatter: { ...local.frontMatter, dedicationPath: v } })} />
+            <Toggle label={t.exportConfig.coverPage} checked={local.frontMatter.coverPage} onChange={(v) => setLocal({ ...local, frontMatter: { ...local.frontMatter, coverPage: v } })} />
+            <Toggle label={t.exportConfig.halfTitlePage} checked={local.frontMatter.halfTitle} onChange={(v) => setLocal({ ...local, frontMatter: { ...local.frontMatter, halfTitle: v } })} />
+            <Toggle label={t.exportConfig.titlePage} checked={local.frontMatter.titlePage} onChange={(v) => setLocal({ ...local, frontMatter: { ...local.frontMatter, titlePage: v } })} />
+            <Toggle label={t.exportConfig.copyrightPage} checked={local.frontMatter.copyrightPage} onChange={(v) => setLocal({ ...local, frontMatter: { ...local.frontMatter, copyrightPage: v } })} />
+            <Toggle label={t.exportConfig.dedication} checked={local.frontMatter.dedication} onChange={(v) => setLocal({ ...local, frontMatter: { ...local.frontMatter, dedication: v } })} />
+            <Toggle label={t.exportConfig.tableOfContents} checked={local.frontMatter.tableOfContents} onChange={(v) => setLocal({ ...local, frontMatter: { ...local.frontMatter, tableOfContents: v } })} />
+            <Field label={t.exportConfig.coverImagePath} value={local.frontMatter.coverImagePath} onChange={(v) => setLocal({ ...local, frontMatter: { ...local.frontMatter, coverImagePath: v } })} />
+            <Field label={t.exportConfig.dedicationPath} value={local.frontMatter.dedicationPath} onChange={(v) => setLocal({ ...local, frontMatter: { ...local.frontMatter, dedicationPath: v } })} />
           </TabsContent>
 
           {/* Back Matter */}
           <TabsContent value="back" className="space-y-3 pt-2">
-            <Toggle label="About the Author" checked={local.backMatter.aboutAuthor} onChange={(v) => setLocal({ ...local, backMatter: { ...local.backMatter, aboutAuthor: v } })} />
-            <Field label="About Author Path" value={local.backMatter.aboutAuthorPath} onChange={(v) => setLocal({ ...local, backMatter: { ...local.backMatter, aboutAuthorPath: v } })} />
-            <Toggle label="Also By" checked={local.backMatter.alsoBy} onChange={(v) => setLocal({ ...local, backMatter: { ...local.backMatter, alsoBy: v } })} />
-            <Field label="Also By Path" value={local.backMatter.alsoByPath} onChange={(v) => setLocal({ ...local, backMatter: { ...local.backMatter, alsoByPath: v } })} />
-            <Toggle label="Acknowledgments" checked={local.backMatter.acknowledgments} onChange={(v) => setLocal({ ...local, backMatter: { ...local.backMatter, acknowledgments: v } })} />
-            <Field label="Acknowledgments Path" value={local.backMatter.acknowledgmentsPath} onChange={(v) => setLocal({ ...local, backMatter: { ...local.backMatter, acknowledgmentsPath: v } })} />
+            <Toggle label={t.exportConfig.aboutAuthor} checked={local.backMatter.aboutAuthor} onChange={(v) => setLocal({ ...local, backMatter: { ...local.backMatter, aboutAuthor: v } })} />
+            <Field label={t.exportConfig.aboutAuthorPath} value={local.backMatter.aboutAuthorPath} onChange={(v) => setLocal({ ...local, backMatter: { ...local.backMatter, aboutAuthorPath: v } })} />
+            <Toggle label={t.exportConfig.alsoBy} checked={local.backMatter.alsoBy} onChange={(v) => setLocal({ ...local, backMatter: { ...local.backMatter, alsoBy: v } })} />
+            <Field label={t.exportConfig.alsoByPath} value={local.backMatter.alsoByPath} onChange={(v) => setLocal({ ...local, backMatter: { ...local.backMatter, alsoByPath: v } })} />
+            <Toggle label={t.exportConfig.acknowledgments} checked={local.backMatter.acknowledgments} onChange={(v) => setLocal({ ...local, backMatter: { ...local.backMatter, acknowledgments: v } })} />
+            <Field label={t.exportConfig.acknowledgmentsPath} value={local.backMatter.acknowledgmentsPath} onChange={(v) => setLocal({ ...local, backMatter: { ...local.backMatter, acknowledgmentsPath: v } })} />
           </TabsContent>
 
           {/* Style */}
           <TabsContent value="style" className="space-y-3 pt-2">
-            <Toggle label="Oxford Comma" checked={local.styleGuide.oxfordComma} onChange={(v) => setLocal({ ...local, styleGuide: { ...local.styleGuide, oxfordComma: v } })} />
-            <Toggle label="Spell Out Numbers Under Ten" checked={local.styleGuide.spellOutNumbers} onChange={(v) => setLocal({ ...local, styleGuide: { ...local.styleGuide, spellOutNumbers: v } })} />
-            <Toggle label="Closed Em-Dashes" checked={local.styleGuide.closedEmDashes} onChange={(v) => setLocal({ ...local, styleGuide: { ...local.styleGuide, closedEmDashes: v } })} />
-            <Toggle label="Thin-Space Ellipsis" checked={local.styleGuide.thinSpaceEllipsis} onChange={(v) => setLocal({ ...local, styleGuide: { ...local.styleGuide, thinSpaceEllipsis: v } })} />
-            <Toggle label="Auto-Hyphenation" checked={local.typography.autoHyphenation} onChange={(v) => setLocal({ ...local, typography: { ...local.typography, autoHyphenation: v } })} />
-            <Toggle label="Justified Text" checked={local.typography.justifiedText} onChange={(v) => setLocal({ ...local, typography: { ...local.typography, justifiedText: v } })} />
+            <Toggle label={t.exportConfig.oxfordComma} checked={local.styleGuide.oxfordComma} onChange={(v) => setLocal({ ...local, styleGuide: { ...local.styleGuide, oxfordComma: v } })} />
+            <Toggle label={t.exportConfig.spellOutNumbers} checked={local.styleGuide.spellOutNumbers} onChange={(v) => setLocal({ ...local, styleGuide: { ...local.styleGuide, spellOutNumbers: v } })} />
+            <Toggle label={t.exportConfig.closedEmDashes} checked={local.styleGuide.closedEmDashes} onChange={(v) => setLocal({ ...local, styleGuide: { ...local.styleGuide, closedEmDashes: v } })} />
+            <Toggle label={t.exportConfig.thinSpaceEllipsis} checked={local.styleGuide.thinSpaceEllipsis} onChange={(v) => setLocal({ ...local, styleGuide: { ...local.styleGuide, thinSpaceEllipsis: v } })} />
+            <Toggle label={t.exportConfig.autoHyphenation} checked={local.typography.autoHyphenation} onChange={(v) => setLocal({ ...local, typography: { ...local.typography, autoHyphenation: v } })} />
+            <Toggle label={t.exportConfig.justifiedText} checked={local.typography.justifiedText} onChange={(v) => setLocal({ ...local, typography: { ...local.typography, justifiedText: v } })} />
           </TabsContent>
         </Tabs>
 
