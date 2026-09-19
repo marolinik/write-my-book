@@ -10,7 +10,7 @@ Status legend: **DONE** (fixed + verified), **OPEN**, **PARTIAL**.
 |---|---|---|
 | S3-1 | `/books` died on a client hook | **DONE** — D-206, commit `4371e35` |
 | S3-2 | Library groups do not follow the flow; "Other" is a dumping ground | **DONE** |
-| S3-3 | The library surface is still hardcoded English | PARTIAL — group labels, empty states and type names done; page chrome left |
+| S3-3 | The library surface is still hardcoded English | **DONE** — `8696f88` |
 | S3-4 | Board said "in progress" while waiting on the writer; no way to reach the panel | **DONE** |
 | S3-5 | Re-running `restructure` stacks duplicate proposals | **DONE** |
 | S3-6 | Undo threw on a unique constraint; two paths destroyed prose | **DONE** |
@@ -31,6 +31,10 @@ Status legend: **DONE** (fixed + verified), **OPEN**, **PARTIAL**.
 | S3-21 | Style page: English chrome, colliding labels, overflowing chips | **DONE** — `fd9b51a` |
 | S3-22 | Continuity domain cards could never fill | **DONE** — `156e333` |
 | S3-23 | Editorial vocabulary printed as raw database slugs | **DONE** — `53c76fb` |
+| S3-24 | Serbian counted in two forms: "3 knjiga" | **DONE** — `8696f88` |
+| S3-25 | Shelf card subtitle assembled in English | **DONE** — `8696f88` |
+| D-204 | Applied move printed the engine's English record | **DONE** — `8696f88` |
+| D-205 | Undo recomputed the word count instead of restoring it | **DONE** — `e25317f` |
 
 ---
 
