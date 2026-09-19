@@ -31,10 +31,18 @@ function baseInput(overrides: Partial<PandocArgsInput> = {}): PandocArgsInput {
   };
 }
 
-describe("buildPandocArgs includes --sandbox for every format (D-3)", () => {
+describe("buildPandocArgs sandboxes every conversion it can (D-3)", () => {
   it("docx conversion is sandboxed", () => {
     const args = buildPandocArgs(baseInput({ format: "docx" }));
     expect(args).toContain("--sandbox");
+  });
+
+  it("docx stays sandboxed with a reference doc — pandoc reads that one fine", () => {
+    const args = buildPandocArgs(
+      baseInput({ format: "docx", referenceDoc: "/app/export-templates/reference-literary.docx" })
+    );
+    expect(args).toContain("--sandbox");
+    expect(args).toContain("--reference-doc=/app/export-templates/reference-literary.docx");
   });
 
   it("pdf conversion is sandboxed", () => {
@@ -49,13 +57,54 @@ describe("buildPandocArgs includes --sandbox for every format (D-3)", () => {
     expect(args).toContain("--to=pdf");
   });
 
-  it("epub conversion is sandboxed", () => {
+  it("a plain epub conversion is sandboxed", () => {
     const args = buildPandocArgs(
       baseInput({ format: "epub", outputPath: "/tmp/wmb/out.epub" })
     );
     expect(args).toContain("--sandbox");
     expect(args).toContain("-t");
     expect(args).toContain("epub3");
+  });
+
+  /**
+   * The one documented exception. Pandoc 3.9's EPUB writer resolves --css and
+   * --epub-cover-image through the resource path, which --sandbox empties: it
+   * answers "File ...css not found in resource path" and writes no file, so
+   * every styled or covered EPUB failed and the pipeline handed the writer a
+   * .md instead. Reproduced on the command line. The exception is exactly as
+   * wide as that bug: epub, and only when one of those two assets is present.
+   */
+  it("an epub with a stylesheet drops the sandbox — and nothing else does", () => {
+    const styled = buildPandocArgs(
+      baseInput({ format: "epub", outputPath: "/tmp/wmb/out.epub", epubCss: "/app/export-templates/epub-genre.css" })
+    );
+    expect(styled).not.toContain("--sandbox");
+    expect(styled).toContain("--css=/app/export-templates/epub-genre.css");
+  });
+
+  it("an epub with a cover image drops the sandbox for the same reason", () => {
+    const covered = buildPandocArgs(
+      baseInput({ format: "epub", outputPath: "/tmp/wmb/out.epub", epubCoverImage: "/tmp/wmb/cover-upload.jpg" })
+    );
+    expect(covered).not.toContain("--sandbox");
+    expect(covered).toContain("--epub-cover-image=/tmp/wmb/cover-upload.jpg");
+  });
+
+  it("the exception never leaks into docx or pdf, which carry assets fine", () => {
+    const docx = buildPandocArgs(
+      baseInput({ format: "docx", epubCss: "/app/export-templates/epub-genre.css" })
+    );
+    expect(docx).toContain("--sandbox");
+    const pdf = buildPandocArgs(
+      baseInput({
+        format: "pdf",
+        outputPath: "/tmp/wmb/out.pdf",
+        typstEngine: "/usr/bin/typst",
+        typstTemplate: "/app/export-templates/typst-book.typ",
+        epubCoverImage: "/tmp/wmb/cover-upload.jpg",
+      })
+    );
+    expect(pdf).toContain("--sandbox");
   });
 
   it("--sandbox is a discrete argv element and pandoc stays argv[0]", () => {

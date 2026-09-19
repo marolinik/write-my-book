@@ -286,16 +286,38 @@ export interface PandocArgsInput {
  * temp dir, so content-level references (embedded images) can only resolve inside
  * that dir and can never reach server files. Per pandoc docs, files passed on
  * the command line remain readable, so the absolute per-format asset paths
- * (--lua-filter / --reference-doc / --template / --css / --epub-cover-image /
- * --pdf-engine) still load. Note the pandoc manual states the sandbox does NOT cap
+ * (--lua-filter / --reference-doc / --template / --pdf-engine) still load —
+ * with the measured exception of the EPUB writer's --css and
+ * --epub-cover-image, documented on the function below.
+ * Note the pandoc manual states the sandbox does NOT cap
  * IO performed by Lua filters or PDF-engine subprocesses; that residual gap is covered
  * because the manuscript is pre-sanitized (sanitizeManuscriptForConverter) before
  * conversion strips the resource-loading forms those layers could otherwise read.
  */
 export function buildPandocArgs(input: PandocArgsInput): string[] {
+  // D-3 / EPUB: pandoc 3.9's EPUB writer resolves --css and --epub-cover-image
+  // through the resource path, which --sandbox empties — it answers
+  // "File ...css not found in resource path" and writes nothing. So every
+  // styled or covered EPUB failed and the pipeline saved a .md instead, which
+  // is what the writer downloaded. Reproduced on the command line;
+  // --resource-path and a relative path do not help, and the docx
+  // --reference-doc and the typst template are unaffected, so the sandbox comes
+  // off ONLY for an EPUB that carries one of those two assets.
+  //
+  // What still holds that export in: both asset paths are constrained by
+  // resolveSafeTemplatePath to the bundled templates directory, or are bytes
+  // this pipeline itself wrote into the temp dir; the cwd is still that temp
+  // dir; and the manuscript has already been through
+  // sanitizeManuscriptForConverter, which is the layer that neutralises the
+  // content-level resource primitives (unsafe images, raw-HTML embeds, include
+  // directives) — the same layer that covers the Lua-filter and PDF-engine gaps
+  // the sandbox never capped.
+  const epubNeedsAssets =
+    input.format === "epub" && Boolean(input.epubCss || input.epubCoverImage);
+
   const args: string[] = [
     input.pandocCmd,
-    "--sandbox",
+    ...(epubNeedsAssets ? [] : ["--sandbox"]),
     input.inputPath,
     "-o",
     input.outputPath,
