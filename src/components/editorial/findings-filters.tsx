@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import { useEditorialStore } from "@/stores/editorial-store";
 import { useLanguage } from "@/components/providers/language-provider";
+import { findingCategoryLabel } from "@/lib/i18n/finding-labels";
 
 const SEVERITY_OPTIONS = ["critical", "important", "suggestion"] as const;
 const CATEGORY_OPTIONS = [
@@ -43,7 +44,7 @@ const AGENT_TYPE_OPTIONS = [
 ] as const;
 
 export function FindingsFilters() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { filters, setFilter, resetFilters } = useEditorialStore();
 
   return (
@@ -76,7 +77,7 @@ export function FindingsFilters() {
           <SelectItem value="all">{t.editorial.filters.allCategories}</SelectItem>
           {CATEGORY_OPTIONS.map((c) => (
             <SelectItem key={c} value={c}>
-              {c}
+              {findingCategoryLabel(c, language)}
             </SelectItem>
           ))}
         </SelectContent>

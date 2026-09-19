@@ -12,6 +12,11 @@ import {
 import type { FindingItem } from "@/hooks/use-editorial";
 import { useEditorialStore } from "@/stores/editorial-store";
 import { useLanguage } from "@/components/providers/language-provider";
+import {
+  findingCategoryLabel,
+  findingSeverityLabel,
+  findingStatusLabel,
+} from "@/lib/i18n/finding-labels";
 import { SuggestionFeedback } from "@/components/agent/suggestion-feedback";
 import { FindingConversation } from "@/components/editorial/finding-conversation";
 import { Check, X, Undo2, AlertTriangle, MoveRight } from "lucide-react";
@@ -57,43 +62,46 @@ function severityBgClass(severity: string, active: boolean): string {
   }
 }
 
-function severityBadge(severity: string) {
+// The slug picks the colour; the dictionary picks the word (S3-23).
+function severityBadge(severity: string, language: string) {
+  const label = findingSeverityLabel(severity, language);
   switch (severity) {
     case "critical":
-      return <Badge variant="destructive">critical</Badge>;
+      return <Badge variant="destructive">{label}</Badge>;
     case "major":
       return (
         <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400">
-          major
+          {label}
         </Badge>
       );
     case "moderate":
       return (
         <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
-          moderate
+          {label}
         </Badge>
       );
     case "minor":
-      return <Badge variant="outline">minor</Badge>;
+      return <Badge variant="outline">{label}</Badge>;
     default:
-      return <Badge variant="secondary">{severity}</Badge>;
+      return <Badge variant="secondary">{label}</Badge>;
   }
 }
 
-function statusBadge(status: string) {
+function statusBadge(status: string, language: string) {
+  const label = findingStatusLabel(status, language);
   switch (status) {
     case "pending":
-      return <Badge variant="outline">pending</Badge>;
+      return <Badge variant="outline">{label}</Badge>;
     case "applied":
       return (
         <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-          applied
+          {label}
         </Badge>
       );
     case "dismissed":
-      return <Badge variant="secondary">dismissed</Badge>;
+      return <Badge variant="secondary">{label}</Badge>;
     default:
-      return <Badge variant="secondary">{status}</Badge>;
+      return <Badge variant="secondary">{label}</Badge>;
   }
 }
 
@@ -130,7 +138,7 @@ export function FindingCard({
   isHighlighted = false,
   isStale = false,
 }: FindingCardProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [showDetails, setShowDetails] = useState(false);
   const [applyError, setApplyError] = useState<string | null>(null);
   const [discussing, setDiscussing] = useState(false);
@@ -182,8 +190,10 @@ export function FindingCard({
       <CardContent className="p-4 space-y-2">
         {/* Top row: severity + category + stale badge + status */}
         <div className="flex items-center gap-2 flex-wrap">
-          {severityBadge(finding.severity)}
-          <Badge variant="secondary">{finding.category}</Badge>
+          {severityBadge(finding.severity, language)}
+          <Badge variant="secondary">
+            {findingCategoryLabel(finding.category, language)}
+          </Badge>
           {isAutoAppliable && finding.status === "pending" && (
             <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 text-[10px]">
               {t.editorial.findings.autoApply}
@@ -194,7 +204,7 @@ export function FindingCard({
               {t.editorial.findings.textChanged}
             </Badge>
           )}
-          <div className="ml-auto">{statusBadge(finding.status)}</div>
+          <div className="ml-auto">{statusBadge(finding.status, language)}</div>
         </div>
 
         {/* Description — full text, no truncation */}
