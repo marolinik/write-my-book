@@ -17,6 +17,19 @@ Status legend: **DONE** (fixed + verified), **OPEN**, **PARTIAL**.
 | S3-7 | Board showed "done" when nothing was adopted; panel was all dead cards | **DONE** |
 | S3-8 | A proposal travelled by chapter number, so accepting one broke the others | **DONE** |
 | S3-9 | Agent panel header overflowed on a long step label | **DONE** |
+| S3-10 | Reports tabs showed "No content available" over reports that existed | **DONE** — `4453e5b` |
+| S3-11 | Continuity counts contradicted the header; Cyrillic dates; horizontal scroll | **DONE** — `eb15fd6` |
+| S3-12 | Marketing kit sat in the writing panel; sprint timer wired to nothing | **DONE** — `a8995cc`, `87735d3` |
+| S3-13 | Agent panel could not be docked on Lektura or in the editor | **DONE** — `c235027` |
+| S3-14 | "All chapters" ran one chapter; chapter selector overlapped the buttons | **DONE** — `c64e4b9` |
+| S3-15 | Series documents were not clickable; volumes printed the series title | **DONE** — `10fa007` |
+| S3-16 | Batch editorial dialog was English end to end | **DONE** — `95d4148` |
+| S3-17 | Series had no Continuity, Structure or Market of its own | **DONE** — `7af634d` |
+| S3-18 | Reports are dead ends — a finished pass proposes nothing | OPEN |
+| S3-19 | Only structural moves are decidable inline; other reports are not | OPEN |
+| S3-20 | Series documents are concatenations, not synthesis (O2 reopened) | OPEN |
+| S3-21 | Style page: English chrome, colliding labels, overflowing chips | OPEN |
+| S3-22 | "Likovi / gornji deo" — screen not yet identified | BLOCKED — needs the owner to name it |
 
 ---
 
