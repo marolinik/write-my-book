@@ -238,6 +238,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresChapter: true,
     requiresSeriesContext: false,
     conversational: false,
+    producesChapter: true,
     suggestedNext: ["dev-edit"],
     prerequisites: [
       { type: "document", value: "FINGERPRINT", description: "Style fingerprint needed to write in your voice", satisfiedBy: "capture-style" },
@@ -345,6 +346,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresChapter: true,
     requiresSeriesContext: false,
     conversational: false,
+    producesChapter: true,
     suggestedNext: ["dev-edit", "line-edit"],
     prerequisites: [
       { type: "document", value: "FINGERPRINT", description: "Style fingerprint needed for revision", satisfiedBy: "capture-style" },

@@ -286,6 +286,14 @@ export interface WorkflowDefinition {
    * failure. Also the single source of truth for series auto-synthesis.
    */
   producesDocument?: import("@/generated/prisma/enums").DocumentType;
+  /**
+   * A-13: this workflow's deliverable is the chapter's own prose, not a
+   * reference document. Same contract as producesDocument, scoped to the
+   * chapter in play: the run either saved the chapter with WriteChapter or it
+   * is reported honestly. Kept separate from producesDocument because
+   * CHAPTER_CONTENT must never reach series auto-synthesis.
+   */
+  producesChapter?: boolean;
   /** Estimated minimum duration in minutes. */
   estimatedMinMinutes?: number;
   /** Estimated maximum duration in minutes. */

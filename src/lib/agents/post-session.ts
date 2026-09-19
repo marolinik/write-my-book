@@ -260,6 +260,26 @@ export async function processPostSession(
       }
     }
 
+    // ─── D-188 / A-13 Artifact Contract ──────────────────────
+    // For a workflow that DECLARES a deliverable — a document
+    // (create-story-bible et al) or the chapter's own prose (write-chapter,
+    // revise): recover it from the run's own transcript if the model streamed
+    // it but never saved it, and report honestly when there is still nothing.
+    // MUST run BEFORE the chapter-row guarantee, so a recovered chapter gets
+    // its Chapter row and word count in the same pass, and before
+    // suggestedNext so the routing below sees the recovered artifact.
+    const artifact = await evaluateArtifactContract({
+      workflowId: ctx.workflowId,
+      bookId: ctx.bookId,
+      userId: ctx.userId,
+      chapterNumber: ctx.chapterNumber,
+      assistantText: ctx.assistantText,
+      documentIds: ctx.documentIds,
+      documentService: docService,
+      language: ctx.language,
+    });
+    if (artifact) result.artifact = artifact;
+
     // ─── Chapter Row Guarantee (SIM-01) ─────────────────────────
     // A workflow that produced chapter CONTENT (write-chapter, revise) must
     // leave a Chapter ROW — otherwise the chapter list, book word counts, and
@@ -293,23 +313,6 @@ export async function processPostSession(
         }
       }
     }
-
-    // ─── D-188 Artifact Contract ─────────────────────────────
-    // For a workflow that DECLARES a document (create-story-bible et al):
-    // recover it from the run's own transcript if the model streamed it but
-    // never called WriteDocument, and report honestly when there is still no
-    // artifact. MUST run before suggestedNext so the routing below sees the
-    // recovered document.
-    const artifact = await evaluateArtifactContract({
-      workflowId: ctx.workflowId,
-      bookId: ctx.bookId,
-      userId: ctx.userId,
-      assistantText: ctx.assistantText,
-      documentIds: ctx.documentIds,
-      documentService: docService,
-      language: ctx.language,
-    });
-    if (artifact) result.artifact = artifact;
 
     // ─── Outcome-Driven Routing ──────────────────────────────
     // MUST come after processBetaReadSession + advanceChapterStatus

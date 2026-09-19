@@ -62,6 +62,12 @@ export interface ArtifactContractInput {
   assistantText?: string;
   /** Document ids the run actually wrote (AgentResult.documentIds). */
   documentIds?: string[];
+  /**
+   * A-13: the chapter in play. Required for a workflow whose deliverable IS
+   * the chapter (write-chapter, revise) — the contract then asks about
+   * CHAPTER_CONTENT at this number rather than a book-level document.
+   */
+  chapterNumber?: number;
   documentService: ArtifactDocumentStore;
   /**
    * C-6/H-9: the book's language. Recovery is the one write path that bypasses
@@ -121,8 +127,28 @@ export function looksLikeDeliverable(text: string | undefined): boolean {
   return headings >= MIN_DELIVERABLE_HEADINGS;
 }
 
+/**
+ * Whether the run's text IS a chapter rather than talk about one.
+ *
+ * The document heuristic is the wrong shape here: a chapter is prose, and
+ * requiring markdown headings would reject every real draft. Prose is long,
+ * paragraphed and almost unheaded — and a report about a chapter is not.
+ */
+export function looksLikeChapterProse(text: string | undefined): boolean {
+  if (!text) return false;
+  if (wordCount(text) < MIN_DELIVERABLE_WORDS) return false;
+  if (text.includes("```")) return false;
+  const headings = text.match(/^#{1,6}\s+\S/gm)?.length ?? 0;
+  if (headings > 1) return false;
+  const paragraphs = text
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter((p) => p.length > 0);
+  return paragraphs.length >= 3;
+}
+
 const ARTIFACT_NOUN =
-  /\b(story bible|series bible|architecture|fingerprint|outline|beat sheet|document)\b/i;
+  /\b(story bible|series bible|architecture|fingerprint|outline|beat sheet|document|chapter|draft|revision)\b/i;
 const DONE_MARKER =
   /\b(complete|completed|is saved|saved|created|written|finished|ready|in place|persisted)\b/i;
 /**
@@ -148,6 +174,92 @@ export function claimsArtifactComplete(text: string | undefined): boolean {
 }
 
 /**
+ * A-13 — the same contract for a workflow whose deliverable is the prose.
+ *
+ * `write-chapter` mandated WriteChapter only inside REVISION MODE and declared
+ * no artifact at all, so a ghostwritten chapter could be streamed into the
+ * panel, praised by the model, and lost the moment the writer closed it — a
+ * clean `success: true` over an empty chapter.
+ *
+ * The question this answers is narrower than the document one: did THIS run
+ * write the chapter's content document? A chapter that merely exists proves
+ * nothing, because `revise` starts from prose that is already there.
+ */
+async function evaluateChapterContract(
+  input: ArtifactContractInput
+): Promise<ArtifactContractOutcome | null> {
+  const expectedType: DocumentType = "CHAPTER_CONTENT" as DocumentType;
+  const chapterNumber = input.chapterNumber;
+  const text = enforceBookScript(input.assistantText ?? "", input.language);
+  const claimedComplete = claimsArtifactComplete(text);
+
+  // Paths that do not carry the run's document ids (the BullMQ worker, a
+  // delegation) cannot tell a saved chapter from a lost one; they report
+  // nothing rather than guess.
+  if (chapterNumber === undefined || input.documentIds === undefined) return null;
+
+  const existing = await input.documentService.findByType(expectedType, chapterNumber);
+  let artifactExists = existing !== null && input.documentIds.includes(existing.id);
+  let recovered = false;
+  let recoveryAttempted = false;
+  let documentId: string | undefined;
+
+  // Recovery writes prose ONLY into a chapter that has none. Overwriting a
+  // chapter the writer already has is exactly the failure this codebase has
+  // paid for twice; an existing chapter is left untouched and the run is
+  // simply reported honestly.
+  if (!artifactExists && existing === null && looksLikeChapterProse(text)) {
+    recoveryAttempted = true;
+    try {
+      const created = await input.documentService.create(
+        expectedType,
+        text,
+        `Chapter ${chapterNumber}`,
+        chapterNumber,
+        undefined,
+        TRANSCRIPT_RECOVERY_SOURCE
+      );
+      documentId = created.id;
+      artifactExists = true;
+      recovered = true;
+    } catch (e) {
+      console.error(
+        `[ArtifactContract] Recovery of chapter ${chapterNumber} failed for book ${input.bookId}:`,
+        e instanceof Error ? e.message : e
+      );
+    }
+  }
+
+  // A run that produced a chapter it could not persist is dishonest even when
+  // recovery was never attempted: `revise` streaming a full revised chapter
+  // over prose that already exists is the exact case where the writer loses
+  // the work and is told it went well.
+  const producedProse = looksLikeChapterProse(text);
+  const honest = artifactExists || (!claimedComplete && !producedProse);
+
+  const strings = getAgentStrings(input.language ?? "en");
+  const label =
+    getDocumentTypeLabels(input.language)[expectedType] ?? artifactLabel(expectedType);
+  let message: string | undefined;
+  if (recovered) {
+    message = strings.artifactRecovered.replace("{label}", label);
+  } else if (!honest) {
+    message = strings.artifactMissing.replace("{label}", label);
+  }
+
+  return {
+    workflowId: input.workflowId,
+    expectedType,
+    artifactExists,
+    recovered,
+    claimedComplete,
+    honest,
+    documentId,
+    message,
+  };
+}
+
+/**
  * Evaluate (and where possible repair) the artifact contract of one run.
  * Returns null for workflows that declare no document deliverable.
  */
@@ -155,6 +267,9 @@ export async function evaluateArtifactContract(
   input: ArtifactContractInput
 ): Promise<ArtifactContractOutcome | null> {
   const workflow = getWorkflow(input.workflowId);
+  if (workflow?.producesChapter) {
+    return evaluateChapterContract(input);
+  }
   const expectedType = workflow?.producesDocument;
   if (!expectedType) return null;
 

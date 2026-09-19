@@ -233,7 +233,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         // client is never told "success" and then contradicted.
         let artifactBroken = false;
         if (
-          workflow.producesDocument &&
+          (workflow.producesDocument || workflow.producesChapter) &&
           result.success &&
           !result.cancelled &&
           !emptyReply
@@ -243,6 +243,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
               workflowId: session.workflowId,
               bookId,
               userId: user.id,
+              // A-13: a chapter workflow's deliverable is scoped to one chapter.
+              chapterNumber: dbSessionRecord?.chapterNumber ?? undefined,
               assistantText: replyText,
               documentIds: result.documentIds,
               documentService: new DocumentService(user.id, bookId),

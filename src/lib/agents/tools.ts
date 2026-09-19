@@ -1385,6 +1385,11 @@ async function executeWriteChapter(
     input.chapterNumber
   );
 
+  // A-13: report the chapter document this run wrote, exactly as
+  // executeWriteDocument does (D-58). Without it a saved chapter was invisible
+  // to AgentResult.documentIds, so nothing downstream could tell a run that
+  // persisted its draft from one that streamed the prose and lost it.
+  let writtenChapterDocumentId: string;
   if (existing) {
     await ctx.documentService.update(
       existing.id,
@@ -1393,8 +1398,9 @@ async function executeWriteChapter(
       "agent_write",
       "agent"
     );
+    writtenChapterDocumentId = existing.id;
   } else {
-    await ctx.documentService.create(
+    const created = await ctx.documentService.create(
       DocumentType.CHAPTER_CONTENT,
       markdown,
       `Chapter ${input.chapterNumber}`,
@@ -1402,6 +1408,10 @@ async function executeWriteChapter(
       chapter.actNumber,
       "agent"
     );
+    writtenChapterDocumentId = created.id;
+  }
+  if (ctx.documentIds && !ctx.documentIds.includes(writtenChapterDocumentId)) {
+    ctx.documentIds.push(writtenChapterDocumentId);
   }
 
   // Update word count on the chapter record
