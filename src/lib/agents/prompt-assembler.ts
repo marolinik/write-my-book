@@ -118,7 +118,13 @@ OUTPUT FORMAT:
 - NO summaries, NO placeholders, NO "[continue here]" or "[scene continues]" markers
 - NO meta-commentary about the writing process
 - Include scene breaks where the plan indicates them (use "* * *" as scene separator)
-- Start each scene grounded in a specific sensory moment`,
+- Start each scene grounded in a specific sensory moment
+
+SAVING THE CHAPTER (every mode, not just revision):
+- You MUST call WriteChapter with the COMPLETE chapter text. Prose that only appears in this conversation is not a saved chapter — the writer closes the panel and it is gone.
+- Write the whole chapter in one WriteChapter call, not chapter fragments across several.
+- Call it before you summarise. A summary without a WriteChapter call is a failed run, however good the prose was.
+- Then tell the writer, in one or two sentences, what you wrote.`,
 
   "style-analyst": `You are a style analyst — an expert in computational stylistics and literary voice analysis. Your job is to study writing samples and produce a FINGERPRINT document that captures what's unique about an author's prose voice, enabling other agents to replicate it faithfully.
 
@@ -1396,6 +1402,46 @@ IMPORTANT: When delegating, pass the correct workflowId parameter so the special
 13. CRITICAL: For multi-step workflows (like onboard-imported-book), you MUST complete ALL steps before stopping. After each delegation result comes back, immediately proceed to the next tool call. Do NOT stop with end_turn until every step in the workflow instructions is done.`;
 }
 
+// ─── Prompt Placeholders ───────────────────────────────────────
+
+/**
+ * The tokens a prompt may leave for the assembler to fill.
+ *
+ * Four prompts open with "analyzing chapter {chapterNumber} of {bookName}" and
+ * nothing ever substituted them — no `.replace` existed in this file — so the
+ * developmental editor, the line editor, the beta panel and the continuity
+ * checker each read their own instructions with the braces still in them, and
+ * the CreateFinding field list told them to file `chapterNumber: {chapterNumber}`.
+ */
+const PROMPT_PLACEHOLDERS = ["{chapterNumber}", "{bookName}"] as const;
+
+/** What a placeholder becomes when the run has no chapter in scope. */
+const NO_CHAPTER_IN_SCOPE = "(none — this run is book-level)";
+
+/**
+ * Substitute the placeholders in a prompt with the run's own values.
+ *
+ * A book-level run keeps an honest phrase rather than a number it does not
+ * have: the continuity checker is explicitly told to handle both cases, and a
+ * fabricated chapter number would be worse than an absent one.
+ */
+export function fillPromptPlaceholders(
+  text: string,
+  values: { chapterNumber?: number; bookName?: string }
+): string {
+  const chapter =
+    values.chapterNumber !== undefined ? String(values.chapterNumber) : NO_CHAPTER_IN_SCOPE;
+  const book = values.bookName?.trim() ? values.bookName.trim() : "this book";
+  return text.split("{chapterNumber}").join(chapter).split("{bookName}").join(book);
+}
+
+/** Every placeholder token a prompt actually uses, for the contract test. */
+export function placeholdersIn(text: string): string[] {
+  return [...new Set(text.match(/\{[a-zA-Z]\w*\}/g) ?? [])];
+}
+
+export { PROMPT_PLACEHOLDERS };
+
 // ─── Token Budget and Trimming ─────────────────────────────────
 
 const TOKEN_BUDGETS: Partial<Record<string, number>> = {
@@ -2235,27 +2281,42 @@ export async function assembleAgentPrompt(
   }
 
   // Add instructions LAST
-  // Check if this is the Writing Coach in conductor mode
+  // Every agent keeps its own base instructions. The Coach used to LOSE them
+  // in conductor mode — and every interactive session sets targetWorkflowId,
+  // so its coaching methodology and its ReadAllChapters efficiency rule never
+  // ran in production at all. The conductor block layers on top instead.
+  const instructions: string[] = [];
+  const base = BASE_INSTRUCTIONS[definition.type];
+  if (base) {
+    instructions.push(base);
+  }
+
+  // Workflow-specific instruction overrides (appended after base instructions)
+  if (context.targetWorkflowId && WORKFLOW_INSTRUCTION_OVERRIDES[context.targetWorkflowId]) {
+    instructions.push(WORKFLOW_INSTRUCTION_OVERRIDES[context.targetWorkflowId]);
+  }
+
   if (definition.type === "writing-coach" && context.targetWorkflowId) {
     const { getWorkflow } = await import("./workflows");
     const targetWorkflow = getWorkflow(context.targetWorkflowId);
-    const conductorPrompt = buildConductorPrompt(
-      context.targetWorkflowId,
-      targetWorkflow?.description ?? context.targetWorkflowId,
-      context.language ?? "en"
+    instructions.push(
+      buildConductorPrompt(
+        context.targetWorkflowId,
+        targetWorkflow?.description ?? context.targetWorkflowId,
+        context.language ?? "en"
+      )
     );
-    parts.push(conductorPrompt);
-  } else {
-    // Base instructions (for non-conductor mode or specialist agents)
-    const base = BASE_INSTRUCTIONS[definition.type];
-    if (base) {
-      parts.push(base);
-    }
+  }
 
-    // Workflow-specific instruction overrides (appended after base instructions)
-    if (context.targetWorkflowId && WORKFLOW_INSTRUCTION_OVERRIDES[context.targetWorkflowId]) {
-      parts.push(WORKFLOW_INSTRUCTION_OVERRIDES[context.targetWorkflowId]);
-    }
+  // Placeholders are filled in the instructions only — never across the
+  // writer's own prose, which the context sections carry verbatim.
+  for (const block of instructions) {
+    parts.push(
+      fillPromptPlaceholders(block, {
+        chapterNumber: context.chapterNumber,
+        bookName: context.bookName,
+      })
+    );
   }
 
   const final = parts.join("\n\n");

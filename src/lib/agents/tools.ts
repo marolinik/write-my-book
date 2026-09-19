@@ -2678,12 +2678,21 @@ async function executeDelegateToSpecialist(
 
     const docService = new DocumentService(ctx.userId, ctx.bookId);
 
+    // V-3: the specialist used to be spawned with bookName undefined, so it
+    // never received the book-identity section — it wrote document titles for
+    // a book whose name it did not know, and the {bookName} its own prompt
+    // names had nothing to resolve to.
+    const delegatedBook = await db.book.findUnique({
+      where: { id: ctx.bookId },
+      select: { name: true },
+    });
+
     const spawnOptions = {
       agentType: specialistType,
       model: specialistDef.defaultModel,
       context: {
         bookId: ctx.bookId,
-        bookName: undefined as string | undefined,
+        bookName: delegatedBook?.name ?? undefined,
         userId: ctx.userId,
         chapterNumber: resolvedChapterNumber,
         language: delegationCtx.language,
