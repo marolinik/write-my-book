@@ -32,7 +32,14 @@ const CRAFT_EXTRAS: Record<string, readonly string[]> = {
 };
 
 /** Agents that get the full 7-section genre guide (~3.1-3.6k chars) */
-const FULL_GENRE_AGENTS = new Set(["dev-editor", "beta-reader", "story-architect"]);
+// market-reader judges genre fit across five markets — the genre guide is
+// the one thing its job cannot be done without, and it used to get none.
+const FULL_GENRE_AGENTS = new Set([
+  "dev-editor",
+  "beta-reader",
+  "story-architect",
+  "market-reader",
+]);
 
 /** Prose-focused agents get only the proseStyle + pitfalls slice (~1.1k chars) */
 const PROSE_GENRE_AGENTS = new Set(["ghostwriter", "line-editor"]);
@@ -49,7 +56,7 @@ ${guide.commonPitfalls}
 
 /**
  * Select craft skills + genre guidance for an agent.
- * Returns "" for agents with no mapped skills (e.g. style-analyst).
+ * Every agent type has a mapping; "" means a genuinely unknown agent type.
  */
 export function selectSkillsForAgent(
   agentType: string,

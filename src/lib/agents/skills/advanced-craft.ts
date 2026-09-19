@@ -452,6 +452,16 @@ export function getSkillsForAgent(agentType: string): string[] {
       REVISION_STRATEGY,
       PACING_TENSION,
     ],
+    // These two were in no map at all, so selectSkillsForAgent returned "" and
+    // both ran on their base prompt alone.
+    "style-analyst": [
+      CHARACTER_VOICE_SHEET,
+      DIALOGUE_MASTERY,
+    ],
+    "manuscript-analyst": [
+      PACING_TENSION,
+      SELF_EDITING_CHECKLIST,
+    ],
   };
   return mapping[agentType] ?? [];
 }

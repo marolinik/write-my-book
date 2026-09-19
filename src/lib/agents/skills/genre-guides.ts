@@ -184,7 +184,10 @@ export const GENRE_GUIDES: GenreGuide[] = [
   },
   {
     genre: "literary",
-    aliases: ["literary", "literary fiction", "literary novel", "general fiction", "upmarket fiction", "književnost"],
+    // "fiction", "novel" and "drama" land here rather than nowhere: an
+    // unclassified novel is closer to general literary fiction than to any
+    // genre's conventions, and they used to resolve to romance.
+    aliases: ["literary", "literary fiction", "literary novel", "general fiction", "upmarket fiction", "fiction", "novel", "drama", "književnost", "roman", "proza"],
     conventions: `- Character and theme drive the story more than plot
 - The prose itself is a feature — every sentence should be crafted
 - Ambiguity and moral complexity are valued over clear resolution
@@ -282,15 +285,223 @@ Whatever structure: there must still be emotional stakes and momentum.`,
 - Avoid present-day colloquialisms in far-future settings
 - Match prose register to subgenre: cyberpunk is gritty; space opera is sweeping`,
   },
+  {
+    genre: "horror",
+    aliases: ["horror", "supernatural horror", "psychological horror", "gothic", "gothic horror", "ghost story", "horor", "užas"],
+    conventions: `- Dread is built, not announced — the reader must feel it before the characters name it
+- The threat has rules, and the story is fair about them even when the characters are not told
+- Isolation (physical, social or psychological) cuts off the ordinary escape routes
+- The ordinary is made wrong before the monstrous appears
+- Violence lands hardest when it is specific and brief, not catalogued
+- An ending may deny full relief, but it must not deny meaning`,
+    pacing: `- Act 1 (25%): Normal life with one wrong detail. The reader sees it before the protagonist does.
+- Act 2a (25%): Escalating incidents; rational explanations are offered and slowly fail.
+- Midpoint: The threat is confirmed — the story stops being deniable.
+- Act 2b (25%): The rules of the threat are learned, usually at a cost.
+- 75-85%: The worst loss. The protagonist's plan fails.
+- Act 3 (15%): Confrontation on the threat's terms. Survival is never free.
+- Alternate pressure and release — unbroken dread goes numb`,
+    characterArcs: `- The protagonist's private flaw is the lever the threat uses
+- Skeptics and believers both need to be intelligent; stupidity kills tension
+- Supporting characters must be loved before they are lost, or the loss is free
+- The survivor is changed — horror that leaves everyone intact reads as a ride, not a story
+- The monster wants something specific; appetite without motive is scenery`,
+    readerExpectations: `- Mounting dread, not just shocks
+- A threat with internal logic the reader can reason about
+- Bodily, sensory writing — cold, smell, texture, sound in the dark
+- Real stakes: someone the reader cares for can die and does
+- A confrontation, even if it is lost
+- Aftermath that acknowledges the cost`,
+    commonPitfalls: `- Jump scares on the page (they need timing the page cannot control)
+- Explaining the monster until it stops being frightening
+- Characters who fail to act in ways a real person would
+- Gore substituted for tension
+- A dream/hallucination reveal that cancels the reader's investment
+- Ending on a "twist" that contradicts the rules the story established`,
+    structureNotes: `Slow-burn dread structure:
+1. Ordinary world with one wrong note
+2. First incident — deniable
+3. Second incident — witnessed
+4. Investigation: the rules emerge
+5. Escalation: a real loss
+6. False sanctuary
+7. The rules are broken or understood too late
+8. Confrontation and cost
+9. Aftermath — what the survivor carries`,
+    proseStyle: `- Concrete sensory detail over abstraction: "the smell of wet coins", not "an eerie atmosphere"
+- Short sentences at the moment of shock; longer ones while dread accumulates
+- Withhold the full description of the threat; give parts, wrongly proportioned
+- Silence, temperature and smell do more work than adjectives like "terrifying"
+- Never tell the reader to be afraid`,
+  },
+  {
+    genre: "historical fiction",
+    aliases: ["historical fiction", "historical", "historical novel", "period fiction", "istorijski roman", "istorijska fikcija", "historical romance", "historical thriller"],
+    conventions: `- The period is a constraint on the plot, not a costume on it
+- Research is invisible: it shows in what characters take for granted
+- Real historical figures are handled with care — invented action, plausible character
+- Anachronism of thought is worse than anachronism of object: 21st-century attitudes in period mouths break the spell
+- Language suggests the period without transcribing it
+- An author's note distinguishing record from invention is expected`,
+    pacing: `- Act 1 (25%): The world and its rules first — what is possible for this person, in this place, in this year.
+- Act 2a (25%): The historical pressure arrives and narrows the protagonist's options.
+- Midpoint: A public event and a private one collide.
+- Act 2b (25%): Consequences the period makes irreversible (law, war, class, church, distance).
+- Act 3 (25%): Resolution the period allows — not the one a modern reader would arrange.
+- Let travel, letters and seasons take the time they really took`,
+    characterArcs: `- The protagonist's wants are period-plausible even when their sympathies feel modern
+- Constraints of class, gender, faith and law are the antagonist as often as any person
+- Secondary characters carry the parts of the period the protagonist cannot see
+- Growth is measured against what the era permitted, not against present-day freedom
+- Avoid the lone enlightened hero who somehow holds every modern value`,
+    readerExpectations: `- Immersion: food, work, money, weather, smell, the cost of things
+- Accuracy in the details a reader can check
+- Stakes that matter inside the period's own value system
+- A story, not a lecture — research delivered through action
+- Clarity about which events are real`,
+    commonPitfalls: `- Research dumps disguised as dialogue ("As you know, Your Grace…")
+- Modern idiom, modern medicine, modern psychology in period mouths
+- Costume drama: the era as wallpaper behind a contemporary plot
+- Flattening a period into a single attitude
+- Using a real person to do something the record contradicts
+- Dialect rendered phonetically until it is unreadable`,
+    structureNotes: `- Anchor the private story to a datable public event, then let the two escalate together
+- Dual timeline (past/present) is common; the present thread must earn its space, not just frame the past
+- Chapter headers with place and date carry orientation cheaply
+- Close with the period's own consequences, and an author's note for the record`,
+    proseStyle: `- Period-flavoured, not period-imitating: current syntax, period vocabulary and reference
+- Cut words the era did not have; keep sentences readable
+- Concrete work detail — how a thing was actually done — builds authority fast
+- Interiority in the era's own terms (duty, honour, sin, standing), not therapy language
+- Let silence and formality do the work modern characters would do with speech`,
+  },
+  {
+    genre: "young adult",
+    aliases: ["young adult", "ya", "ya fiction", "teen fiction", "coming of age", "coming-of-age", "omladinski roman", "new adult"],
+    conventions: `- A protagonist aged roughly 14–18, and the story belongs to them
+- First person or close third; immediacy over retrospection
+- The emotional problem is central even when the plot is external
+- Adults are present but cannot solve it — the teenager must
+- Firsts matter: first love, first betrayal, first real choice
+- Hope is not required to be happy, but despair without agency is not the genre`,
+    pacing: `- Act 1 (20%): Voice and world established fast — YA readers leave early or not at all.
+- Act 2a (30%): The new situation, new allies, growing confidence.
+- Midpoint: The protagonist chooses to be involved instead of being carried.
+- Act 2b (30%): Costs land — friendship, family, identity, safety.
+- Act 3 (20%): The protagonist acts on their own judgement, and the outcome is theirs.
+- Chapters run short; scenes end on a turn`,
+    characterArcs: `- Identity is the spine: who am I when nobody assigns it to me?
+- Peer relationships carry the weight family carries in adult fiction
+- The romance, if present, tests the protagonist's sense of self — it does not replace it
+- Parents/guardians are real people with their own limits, not obstacles or furniture
+- The ending grants agency, not a solved life`,
+    readerExpectations: `- A voice that sounds like a person, not an adult performing youth
+- Emotional honesty about shame, want, and unfairness
+- Respect — no moralising, no lesson stapled to the end
+- Pace: something changes every chapter
+- Consequences that are real even when the book is kind`,
+    commonPitfalls: `- Slang that will date the book within a year
+- An adult narrator's hindsight leaking into the teenager's voice
+- Issues handled as topics instead of as this character's specific life
+- Adults absent for no reason the story explains
+- A love interest with no life of their own
+- Tidy resolution that cancels the cost`,
+    structureNotes: `- Coming-of-age spine: assigned identity → disruption → experiment → failure → chosen identity
+- The climax is a decision, not a rescue
+- Keep the timeframe tight (weeks or a school year) unless the premise needs otherwise
+- Epilogues are welcome when they show changed daily life, not a life plan`,
+    proseStyle: `- Present-tense immediacy is common; either tense must feel in-the-moment
+- Short paragraphs, concrete sensory detail, strong line-level voice
+- Humour and pain sit in the same paragraph
+- Metaphor drawn from the character's actual world, not a writer's library
+- Avoid explaining the feeling after showing it`,
+  },
+  {
+    genre: "memoir",
+    aliases: ["memoir", "autobiography", "personal essay", "creative nonfiction", "narrative nonfiction", "memoari", "autobiografija"],
+    conventions: `- One thread, not a whole life: the book is about something, and the life is the evidence
+- The narrator is both the person who lived it and the person telling it — both voices are needed
+- Truth claim: events are as remembered, and uncertainty is acknowledged rather than smoothed
+- Other people are rendered fairly; private lives are handled with care
+- Scene carries the story; reflection earns its place between scenes
+- The reader is owed a reason this story is being told now`,
+    pacing: `- Opening: the moment that made the book necessary, or the question it will answer
+- Early: establish the world and the person you were, quickly
+- Middle: scenes chosen for the thread, not for chronology — jump years without apology
+- Turning point: the understanding that the younger self did not have
+- Late: consequence and cost, not triumph
+- Close: what remains unresolved, honestly`,
+    characterArcs: `- The narrating self must understand more than the remembered self, and show the gap
+- Family members need interiority, not caricature — even the ones who caused harm
+- Self-justification is visible to readers; so is self-flagellation
+- Growth is a change in seeing, not necessarily in circumstance
+- The people who were kind deserve as much specificity as the people who were not`,
+    readerExpectations: `- Scenes with dialogue and sensory detail, not summary
+- Candour, including about the narrator's own failures
+- A shape: the book goes somewhere the first chapter promised
+- Reflection that illuminates rather than moralises
+- Restraint about other people's private business`,
+    commonPitfalls: `- Chronology mistaken for structure ("and then, and then")
+- Score-settling, which readers detect immediately
+- Withholding the narrator's own part in events
+- Universalising ("we all know that…") instead of staying specific
+- Therapy-language abstraction in place of scene
+- Inventing dialogue at length while claiming strict accuracy — acknowledge reconstruction`,
+    structureNotes: `- Choose a container: a year, a job, an illness, a journey, a relationship, an obsession
+- Braided structure (past thread + present thread + a third strand of research or craft) is common and strong
+- Each chapter is a scene plus the meaning wrested from it
+- Front matter note on method (memory, journals, interviews) buys the reader's trust`,
+    proseStyle: `- Concrete, particular detail; the specific is what makes a private life public property
+- Two registers: the immediacy of the scene and the considered voice of the teller
+- Understatement outperforms intensity when the material is painful
+- Present tense for immersion, past tense for perspective — pick deliberately
+- No summarising sentence that tells the reader what to feel`,
+  },
 ];
 
-/** Look up genre guide by genre string (fuzzy matching on aliases) */
+/**
+ * Look up the guide for a genre string.
+ *
+ * The old match was bidirectional substring — `alias.includes(query)` as well
+ * as `query.includes(alias)` — so the genre "fiction" matched the romance
+ * alias "romantic fiction" and every book filed as plain fiction was edited
+ * to romance conventions. Matching is now:
+ *
+ *   1. exact on the guide's genre or one of its aliases;
+ *   2. otherwise the LONGEST alias that appears as a whole phrase inside the
+ *      query, so "historical romance novel" resolves to historical fiction
+ *      rather than to romance.
+ *
+ * No match returns null, and null is an honest answer: a wrong genre guide
+ * silently rewrites a book's conventions.
+ */
 export function getGenreGuide(genre: string | null | undefined): GenreGuide | null {
   if (!genre) return null;
-  const normalized = genre.toLowerCase().trim();
-  return GENRE_GUIDES.find(g =>
-    g.genre === normalized || g.aliases.some(a => normalized.includes(a) || a.includes(normalized))
-  ) ?? null;
+  const normalized = genre.toLowerCase().trim().replace(/[_/]+/g, " ").replace(/\s+/g, " ");
+  if (normalized.length === 0) return null;
+
+  for (const guide of GENRE_GUIDES) {
+    if (guide.genre === normalized || guide.aliases.includes(normalized)) return guide;
+  }
+
+  const words = normalized.split(" ");
+  const containsPhrase = (alias: string): boolean => {
+    const aliasWords = alias.split(" ");
+    for (let i = 0; i + aliasWords.length <= words.length; i++) {
+      if (aliasWords.every((w, j) => words[i + j] === w)) return true;
+    }
+    return false;
+  };
+
+  let best: { guide: GenreGuide; length: number } | null = null;
+  for (const guide of GENRE_GUIDES) {
+    for (const alias of guide.aliases) {
+      if (!containsPhrase(alias)) continue;
+      const length = alias.split(" ").length * 100 + alias.length;
+      if (!best || length > best.length) best = { guide, length };
+    }
+  }
+  return best?.guide ?? null;
 }
 
 /** Format genre guide for injection into agent prompt */
