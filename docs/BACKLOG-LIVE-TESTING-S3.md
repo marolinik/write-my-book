@@ -25,10 +25,10 @@ Status legend: **DONE** (fixed + verified), **OPEN**, **PARTIAL**.
 | S3-15 | Series documents were not clickable; volumes printed the series title | **DONE** — `10fa007` |
 | S3-16 | Batch editorial dialog was English end to end | **DONE** — `95d4148` |
 | S3-17 | Series had no Continuity, Structure or Market of its own | **DONE** — `7af634d` |
-| S3-18 | Reports are dead ends — a finished pass proposes nothing | PARTIAL — continuity done (`9616347`); analytics, market and structure tabs left |
-| S3-19 | Only structural moves are decidable inline; other reports are not | OPEN |
-| S3-20 | Series documents are concatenations, not synthesis (O2 reopened) | OPEN |
-| S3-21 | Style page: English chrome, colliding labels, overflowing chips | OPEN |
+| S3-18 | Reports are dead ends — a finished pass proposes nothing | **DONE** — `9616347`, `fecdfb2` |
+| S3-19 | Only structural moves are decidable inline; other reports are not | **DONE** — `15bc186` |
+| S3-20 | Series documents are concatenations, not synthesis (O2 reopened) | **DONE** — `50bb0b1`; composer was already fixed, the owner's documents predate it and are now flagged for regeneration |
+| S3-21 | Style page: English chrome, colliding labels, overflowing chips | **DONE** — `fd9b51a` |
 | S3-22 | Continuity domain cards could never fill | **DONE** — `156e333` |
 | S3-23 | Editorial vocabulary printed as raw database slugs | **DONE** — `53c76fb` |
 
