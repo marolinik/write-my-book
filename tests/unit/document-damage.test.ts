@@ -85,3 +85,48 @@ describe("regenerationWorkflowFor", () => {
     expect(regenerationWorkflowFor("FREEWRITE")).toBeNull();
   });
 });
+
+describe("a series document built by the old composer", () => {
+  /**
+   * S3-20: the owner's series fingerprint, architecture and bible each held
+   * three `# ` headings — one for the series and one per book, because the old
+   * composer spliced each book's document in verbatim under a "## Book NN
+   * Contributions" heading and never demoted its title. O2 fixed the composer;
+   * nothing told him the documents on his shelf predated the fix, so he read
+   * the old output and concluded the feature was still broken.
+   *
+   * A second top-level heading is the signature, and it is one he can confirm
+   * by looking — the bar every rule in this scan has to clear.
+   */
+  it("is flagged when it carries more than one top-level heading", () => {
+    const stitched = [
+      "# Series FINGERPRINT",
+      "## Book 02 Contributions",
+      "# OTISAK GLASA",
+      "## 1. STRUKTURA REČENICE",
+      "## Book 03 Contributions",
+      "# OTISAK GLASA (FINGERPRINT)",
+    ].join("\n\n");
+
+    const report = scanDocumentContent(stitched, "sr");
+    expect(report.damaged).toBe(true);
+    expect(report.reasons).toContain("stitched");
+  });
+
+  it("leaves a properly composed document alone", () => {
+    const composed = [
+      "# Series FINGERPRINT",
+      "## Book 02 — Legat - Zavet",
+      "### 1. STRUKTURA REČENICE",
+      "## Book 03 — Legat - Zaveštanje",
+      "### 1. STRUKTURA REČENICE",
+    ].join("\n\n");
+
+    expect(scanDocumentContent(composed, "sr").reasons).not.toContain("stitched");
+  });
+
+  it("leaves an ordinary chapter alone", () => {
+    const chapter = "# Poglavlje 1\n\nPrva rečenica.\n\nDruga rečenica.";
+    expect(scanDocumentContent(chapter, "sr").reasons).not.toContain("stitched");
+  });
+});

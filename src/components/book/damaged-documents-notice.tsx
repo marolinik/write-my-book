@@ -27,11 +27,12 @@ interface DamagedDocument {
   regenerateWorkflow: string;
 }
 
-const REASON_KEYS: Record<string, "reasonReplacement" | "reasonDoubleEncoded" | "reasonWrongLanguage" | "reasonEmpty"> = {
+const REASON_KEYS: Record<string, "reasonReplacement" | "reasonDoubleEncoded" | "reasonWrongLanguage" | "reasonEmpty" | "reasonStitched"> = {
   replacement_chars: "reasonReplacement",
   double_encoded: "reasonDoubleEncoded",
   wrong_language: "reasonWrongLanguage",
   empty: "reasonEmpty",
+  stitched: "reasonStitched",
 };
 
 export function DamagedDocumentsNotice({ bookId }: { bookId: string }) {

@@ -15,11 +15,26 @@
  * confirm by looking.
  */
 
+/**
+ * Top-level (`# `) headings. A document has exactly one; more than one means
+ * something was pasted in whole rather than composed.
+ */
+function countTopLevelHeadings(content: string): number {
+  return (content.match(/^# .+$/gm) ?? []).length;
+}
+
 export type DamageReason =
   | "replacement_chars"
   | "double_encoded"
   | "wrong_language"
-  | "empty";
+  | "empty"
+  /**
+   * Built by the old series composer: each book's document spliced in verbatim,
+   * keeping its own `# TITLE`, so the file holds several top-level headings and
+   * reads as three documents in a trench coat (S3-20). O2 fixed the composer;
+   * documents written before that fix are still on the shelf.
+   */
+  | "stitched";
 
 export interface DamageReport {
   damaged: boolean;
@@ -98,6 +113,7 @@ export function scanDocumentContent(
   if (replacementChars > 0) reasons.push("replacement_chars");
   if (mojibake > 0) reasons.push("double_encoded");
   if (looksWrongLanguage(content, expectedLanguage)) reasons.push("wrong_language");
+  if (countTopLevelHeadings(content) > 1) reasons.push("stitched");
 
   return {
     damaged: reasons.length > 0,

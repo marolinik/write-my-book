@@ -686,7 +686,7 @@ export interface UIStrings {
   documentDamage: {
     title: string; body: string; regenerate: string; unrecoverable: string;
     reasonReplacement: string; reasonDoubleEncoded: string;
-    reasonWrongLanguage: string; reasonEmpty: string;
+    reasonWrongLanguage: string; reasonEmpty: string; reasonStitched: string;
   };
 
   // O10 - the continuity tab: one book or a whole series, and no hardcoded English.
@@ -1653,6 +1653,7 @@ const EN: UIStrings = {
     reasonReplacement: "damaged characters",
     reasonDoubleEncoded: "double-encoded text",
     reasonWrongLanguage: "wrong language",
+    reasonStitched: "several documents pasted together",
     reasonEmpty: "empty document",
   },
 
@@ -2641,6 +2642,7 @@ const SR: UIStrings = {
     reasonReplacement: "oštećeni znakovi",
     reasonDoubleEncoded: "dvostruko kodiran tekst",
     reasonWrongLanguage: "pogrešan jezik",
+    reasonStitched: "više dokumenata zalepljenih u jedan",
     reasonEmpty: "prazan dokument",
   },
 
@@ -3628,6 +3630,7 @@ const DE: UIStrings = {
     reasonReplacement: "beschädigte Zeichen",
     reasonDoubleEncoded: "doppelt kodierter Text",
     reasonWrongLanguage: "falsche Sprache",
+    reasonStitched: "mehrere Dokumente aneinandergeklebt",
     reasonEmpty: "leeres Dokument",
   },
 
@@ -4615,6 +4618,7 @@ const ES: UIStrings = {
     reasonReplacement: "caracteres dañados",
     reasonDoubleEncoded: "texto con doble codificación",
     reasonWrongLanguage: "idioma equivocado",
+    reasonStitched: "varios documentos pegados en uno",
     reasonEmpty: "documento vacío",
   },
 
@@ -5602,6 +5606,7 @@ const FR: UIStrings = {
     reasonReplacement: "caractères abîmés",
     reasonDoubleEncoded: "texte doublement encodé",
     reasonWrongLanguage: "mauvaise langue",
+    reasonStitched: "plusieurs documents collés bout à bout",
     reasonEmpty: "document vide",
   },
 
@@ -6589,6 +6594,7 @@ const RU: UIStrings = {
     reasonReplacement: "повреждённые символы",
     reasonDoubleEncoded: "двойная кодировка",
     reasonWrongLanguage: "не тот язык",
+    reasonStitched: "несколько документов склеены в один",
     reasonEmpty: "пустой документ",
   },
 
@@ -7576,6 +7582,7 @@ const ZH: UIStrings = {
     reasonReplacement: "损坏的字符",
     reasonDoubleEncoded: "双重编码文本",
     reasonWrongLanguage: "语言错误",
+    reasonStitched: "多份文档被拼接在一起",
     reasonEmpty: "空文档",
   },
 
