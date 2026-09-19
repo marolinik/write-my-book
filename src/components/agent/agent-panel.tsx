@@ -54,6 +54,7 @@ import { SessionProgressList } from "./session-progress-list";
 import { MessageStream } from "./message-stream";
 import { ConversationInput } from "./conversation-input";
 import { InlineStructureProposals } from "./inline-structure-proposals";
+import { InlineFindings } from "./inline-findings";
 import { useDefaultModel } from "@/hooks/use-default-model";
 
 interface AgentPanelProps {
@@ -794,6 +795,17 @@ export function AgentPanel({
                   answer belongs here rather than on another page (S3-7). */}
               {workflowId === "restructure" && (
                 <InlineStructureProposals bookId={bookId} />
+              )}
+
+              {/* The passes that end in findings end in a question too, so the
+                  answer belongs here as well (S3-19). */}
+              {["dev-edit", "line-edit", "beta-read", "check-continuity", "continuity-check"].includes(
+                workflowId ?? ""
+              ) && (
+                <InlineFindings
+                  bookId={bookId}
+                  chapterNumber={activeSession?.chapterNumber ?? null}
+                />
               )}
 
               {postSessionCTAs.length > 0 && (
