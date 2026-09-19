@@ -20,46 +20,18 @@ vi.mock("@/stores/agent-ui-store", () => ({
     sel({ openWithWorkflow: h.openWithWorkflow }),
 }));
 
-vi.mock("@/components/providers/language-provider", () => ({
-  useLanguage: () => ({
-    t: {
-      structure: {
-        tab: "Struktura",
-        title: "Strukturna revizija",
-        subtitle: "Predlozi razvojnog urednika.",
-        runPass: "Predloži strukturne izmene",
-        running: "U toku...",
-        refresh: "Osveži",
-        empty: "Još nema predloga",
-        emptyDesc: "Pokrenite strukturnu reviziju.",
-        loadError: "Predlozi ne mogu da se učitaju.",
-        pending: "Čeka vašu odluku",
-        accepted: "Prihvaćeno",
-        rejected: "Odbijeno",
-        applied: "Primenjeno",
-        failed: "Nije moglo da se izvrši",
-        undone: "Poništeno",
-        accept: "Prihvati",
-        reject: "Odbij",
-        undo: "Poništi",
-        rejectNote: "Zašto ne?",
-        reason: "Zašto",
-        evidence: "Na osnovu",
-        confidence: "Sigurnost",
-        kindReorder: "Premeštanje",
-        kindRenumber: "Prenumerisanje",
-        kindMerge: "Spajanje",
-        kindSplit: "Razdvajanje",
-        moveReorder: "Premesti poglavlje {n} na poziciju {p}",
-        moveMerge: "Spoji poglavlja {list} u jedno",
-        moveSplit: "Razdvoji poglavlje {n} kod {anchor}",
-        nothingChangesYet: "Rukopis ostaje netaknut dok ne prihvatite potez.",
-        applyError: "Potez nije mogao da se primeni",
-        undoError: "Potez nije mogao da se poništi",
-      },
-    },
-  }),
-}));
+// The REAL dictionary, not a hand-rolled subset. A partial `t` meant the panel
+// crashed on `t.reportTabs.nextStep` the moment the component read a section
+// the mock had never heard of — a test failing for a reason that had nothing to
+// do with what it was testing (S3-18).
+vi.mock("@/components/providers/language-provider", async () => {
+  const { getUIStrings } = await import("@/lib/i18n/ui-strings");
+  const strings = getUIStrings("sr");
+  return {
+    useLanguage: () => ({ t: strings, language: "sr" }),
+    useLocale: () => "sr-Latn-RS",
+  };
+});
 
 import { StructureTab } from "@/components/reports/structure-tab";
 
@@ -159,7 +131,7 @@ describe("StructureTab", () => {
     expect(calls[1].body).toEqual({ decision: "reject" });
   });
 
-  it("shows the engine's own reason when an apply cannot run", async () => {
+  it("shows the engine's reason in the writer's language when an apply cannot run", async () => {
     mockFetch((url) => {
       if (url.endsWith("/decision")) {
         return { __status: 409, error: "The quote is not in this chapter.", code: "anchor_not_found" };
@@ -170,7 +142,11 @@ describe("StructureTab", () => {
 
     fireEvent.click(await screen.findByText("Prihvati"));
     const alert = await screen.findByRole("alert");
-    expect(alert.textContent).toContain("The quote is not in this chapter.");
+    // The engine answers with a code AND an English sentence. The code is the
+    // contract: the panel looks the reason up rather than printing the
+    // developer's note at the writer (S3-8).
+    expect(alert.textContent).toContain("Citat");
+    expect(alert.textContent).not.toContain("The quote is not in this chapter.");
   });
 
   it("an applied move offers undo and no accept button", async () => {
