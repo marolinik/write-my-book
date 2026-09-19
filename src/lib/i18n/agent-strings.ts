@@ -61,6 +61,7 @@ export interface AgentStrings {
   prereqTitle: string;
   prereqNeeds: string;
   prereqAction: string;
+  prereqChapter: string;
 
   // Workflow labels (overrides for common workflows)
   workflows: Record<string, string>;
@@ -120,6 +121,7 @@ const EN: AgentStrings = {
   prereqTitle: "This cannot start yet",
   prereqNeeds: "Needed first: {artifact}",
   prereqAction: "Run: {workflow}",
+  prereqChapter: "Choose a chapter first — this pass works on one chapter.",
   workflows: {
     "read-manuscript": "Import Manuscript",
     "capture-style": "Capture Style",
@@ -261,6 +263,7 @@ const SR: AgentStrings = {
   prereqTitle: "Ovo još ne može da počne",
   prereqNeeds: "Prvo je potrebno: {artifact}",
   prereqAction: "Pokreni: {workflow}",
+  prereqChapter: "Prvo izaberi poglavlje — ovaj prolaz radi na jednom poglavlju.",
   workflows: {
     "read-manuscript": "Uvezi rukopis",
     "capture-style": "Uhvati stil",
@@ -402,6 +405,7 @@ const DE: AgentStrings = {
   prereqTitle: "Das kann noch nicht starten",
   prereqNeeds: "Zuerst nötig: {artifact}",
   prereqAction: "Starten: {workflow}",
+  prereqChapter: "Wähle zuerst ein Kapitel — dieser Durchgang arbeitet an einem Kapitel.",
   workflows: {
     "read-manuscript": "Manuskript importieren",
     "capture-style": "Stil erfassen",
@@ -516,6 +520,7 @@ const ES: AgentStrings = {
   prereqTitle: "Esto aún no puede empezar",
   prereqNeeds: "Primero hace falta: {artifact}",
   prereqAction: "Ejecutar: {workflow}",
+  prereqChapter: "Elige primero un capítulo: esta pasada trabaja sobre un solo capítulo.",
   workflows: {
     "read-manuscript": "Importar manuscrito",
     "capture-style": "Capturar estilo",
@@ -630,6 +635,7 @@ const FR: AgentStrings = {
   prereqTitle: "Cela ne peut pas encore commencer",
   prereqNeeds: "Nécessaire d'abord : {artifact}",
   prereqAction: "Lancer : {workflow}",
+  prereqChapter: "Choisissez d'abord un chapitre — cette passe travaille sur un seul chapitre.",
   workflows: {
     "read-manuscript": "Importer le manuscrit",
     "capture-style": "Capturer le style",
@@ -744,6 +750,7 @@ const RU: AgentStrings = {
   prereqTitle: "Это пока нельзя запустить",
   prereqNeeds: "Сначала нужно: {artifact}",
   prereqAction: "Запустить: {workflow}",
+  prereqChapter: "Сначала выберите главу — этот проход работает по одной главе.",
   workflows: {
     "read-manuscript": "Импорт рукописи",
     "capture-style": "Захват стиля",
@@ -858,6 +865,7 @@ const ZH: AgentStrings = {
   prereqTitle: "现在还不能开始",
   prereqNeeds: "需要先有：{artifact}",
   prereqAction: "运行：{workflow}",
+  prereqChapter: "请先选择章节——本次处理只针对一章。",
   workflows: {
     "read-manuscript": "导入手稿",
     "capture-style": "捕获风格",

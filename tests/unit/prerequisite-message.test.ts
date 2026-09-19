@@ -17,6 +17,7 @@ const strings = {
   action: "Pokreni: {workflow}",
   docTypes: { STORY_BIBLE: "Biblija priče", FINGERPRINT: "Stilski otisak" } as Record<string, string>,
   workflows: { "create-story-bible": "Biblija priče", "capture-style": "Hvatanje stila" } as Record<string, string>,
+  chapter: "Prvo izaberi poglavlje — ovaj prolaz radi na jednom poglavlju.",
 };
 
 describe("formatMissingPrerequisites", () => {
@@ -81,5 +82,30 @@ describe("formatMissingPrerequisites", () => {
       strings
     );
     expect(out.text).toBe("Ovo još ne može da počne: Potrebno je: Biblija priče");
+  });
+});
+
+/**
+ * C3 — a chapter-scoped workflow started with no chapter. No document produces
+ * a chapter scope; the writer does, by picking one, so the refusal says that
+ * instead of naming an artifact.
+ */
+describe("a missing chapter scope", () => {
+  it("says to pick a chapter, in the writer's language", () => {
+    const out = formatMissingPrerequisites(
+      [{ description: "Choose a chapter before starting this workflow.", type: "chapter_scope", value: "revise" }],
+      strings
+    );
+    expect(out.lines).toEqual([strings.chapter]);
+    expect(out.action).toBeUndefined();
+  });
+
+  it("falls back to the server's sentence when the string is absent", () => {
+    const { chapter: _omitted, ...withoutChapter } = strings;
+    const out = formatMissingPrerequisites(
+      [{ description: "Choose a chapter before starting this workflow.", type: "chapter_scope", value: "revise" }],
+      withoutChapter
+    );
+    expect(out.lines).toEqual(["Choose a chapter before starting this workflow."]);
   });
 });

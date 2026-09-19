@@ -263,7 +263,7 @@ export async function autoResolveAfterDocumentUpdate(
 // ─── Finding Promotion ───────────────────────────────────────────
 
 /**
- * Promote critical/major findings to blackboard insights.
+ * Promote critical/important findings to blackboard insights.
  * After an edit session, this scans for severe findings and creates
  * corresponding insights with a 7-day TTL so other agents can see them.
  * Returns count of insights created.

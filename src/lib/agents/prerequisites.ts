@@ -25,7 +25,27 @@ export async function validatePrerequisites(
   chapterNumber?: number
 ): Promise<PrerequisiteResult> {
   const workflow = getWorkflow(workflowId);
-  if (!workflow?.prerequisites || workflow.prerequisites.length === 0) {
+  if (!workflow) return { satisfied: true, missing: [] };
+
+  // C3: a chapter-scoped workflow started without a chapter is unrunnable, not
+  // unchecked. The chapter_content gate below used to answer "satisfied" when
+  // chapterNumber was undefined, so a one-click chip could start a full-chapter
+  // ghostwriter rewrite with no chapter at all and no content gate — the shape
+  // that destroyed prose twice on this project.
+  if (workflow.requiresChapter && !chapterNumber) {
+    return {
+      satisfied: false,
+      missing: [
+        {
+          description: "Choose a chapter before starting this workflow.",
+          type: "chapter_scope",
+          value: workflowId,
+        },
+      ],
+    };
+  }
+
+  if (!workflow.prerequisites || workflow.prerequisites.length === 0) {
     return { satisfied: true, missing: [] };
   }
 
@@ -86,8 +106,10 @@ function checkPrerequisite(
       return hasManuscript;
 
     case "chapter_content":
-      // Check that chapter content exists for the specified chapter
-      if (!chapterNumber) return true; // No chapter specified — skip
+      // Check that chapter content exists for the specified chapter. A missing
+      // chapterNumber is caught above for chapter-scoped workflows; anything
+      // else asking for chapter content book-wide has nothing to check.
+      if (!chapterNumber) return true;
       return chapterDocTypes.has("CHAPTER_CONTENT");
 
     case "chapter_status":

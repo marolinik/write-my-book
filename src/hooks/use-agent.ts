@@ -69,6 +69,7 @@ export function useStartSession(bookId: string) {
               title: a.prereqTitle,
               needs: a.prereqNeeds,
               action: a.prereqAction,
+              chapter: a.prereqChapter,
               docTypes: getDocumentTypeLabels(language),
               workflows: { ...a.stepLabels, ...a.workflows },
             }

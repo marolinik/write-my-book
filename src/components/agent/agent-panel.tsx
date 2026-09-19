@@ -83,6 +83,7 @@ export function AgentPanel({
   const pendingWorkflowMessage = useAgentUIStore((s) => s.pendingWorkflowMessage);
   const pendingWorkflowChapter = useAgentUIStore((s) => s.pendingWorkflowChapter);
   const pendingMessage = useAgentUIStore((s) => s.pendingMessage);
+  const pageContext = useAgentUIStore((s) => s.pageContext);
   const clearPendingMessage = useAgentUIStore((s) => s.clearPendingMessage);
   const startSessionStore = useAgentSessionStore((s) => s.startSession);
   const clearPendingWorkflow = useAgentUIStore((s) => s.clearPendingWorkflow);
@@ -147,6 +148,11 @@ export function AgentPanel({
   const hasChapterContent = (bookState.chapterCount ?? 0) > 0;
 
   const [showAllWorkflows, setShowAllWorkflows] = useState(false);
+  // C3: the workflow a one-click start could not scope — the selector opens on
+  // its chapter picker instead of the run starting book-wide.
+  const [chapterPickerWorkflowId, setChapterPickerWorkflowId] = useState<
+    string | null
+  >(null);
   const [showSessionHistory, setShowSessionHistory] = useState(false);
   const [selectedJourneyId, setSelectedJourneyId] = useState<string | null>(null);
 
@@ -183,6 +189,26 @@ export function AgentPanel({
       const wf = getWorkflow(wfId);
       if (!wf) return;
 
+      // C3: a chapter-scoped workflow must never start book-wide. The chips,
+      // the guide's CTA and the journey banner all called this with no chapter,
+      // and `revise` is a full-chapter ghostwriter rewrite. Take the scope from
+      // the session or the page when it is unambiguous; otherwise send the
+      // writer to the chapter picker rather than guessing.
+      let scope = chapterNumber;
+      if (wf.requiresChapter && scope === undefined) {
+        const known = [
+          activeSession?.chapterNumber,
+          pageContext?.currentChapterNumber,
+        ].find((n) => typeof n === "number" && chapters.some((c) => c.chapterNumber === n));
+        const resolved = known ?? (chapters.length === 1 ? chapters[0].chapterNumber : undefined);
+        if (resolved === undefined) {
+          setChapterPickerWorkflowId(wfId);
+          setShowAllWorkflows(true);
+          return;
+        }
+        scope = resolved;
+      }
+
       isStartingRef.current = true;
       try {
         let resultSessionId: string;
@@ -192,7 +218,7 @@ export function AgentPanel({
           const result = await startSeriesMutation.mutateAsync({
             workflowId: wfId,
             bookId,
-            chapterNumber,
+            chapterNumber: scope,
             message: initialMessage,
           });
           resultSessionId = result.sessionId;
@@ -200,7 +226,7 @@ export function AgentPanel({
         } else {
           const result = await startMutation.mutateAsync({
             workflowId: wfId,
-            chapterNumber,
+            chapterNumber: scope,
             message: initialMessage,
           });
           resultSessionId = result.sessionId;
@@ -210,7 +236,7 @@ export function AgentPanel({
         startSessionStore(resultSessionId, wfId, wf.primaryAgent, bookId, seriesId, {
           estimatedMinMinutes: wf.estimatedMinMinutes,
           estimatedMaxMinutes: wf.estimatedMaxMinutes,
-        }, isBackground, chapterNumber);
+        }, isBackground, scope);
 
         if (isBackground) {
           toast.info(`${wf.label} queued for background processing`, {
@@ -223,7 +249,16 @@ export function AgentPanel({
         isStartingRef.current = false;
       }
     },
-    [bookId, seriesId, startMutation, startSeriesMutation, startSessionStore]
+    [
+      bookId,
+      seriesId,
+      chapters,
+      activeSession?.chapterNumber,
+      pageContext?.currentChapterNumber,
+      startMutation,
+      startSeriesMutation,
+      startSessionStore,
+    ]
   );
 
   const handleBatchStart = useCallback(
@@ -668,6 +703,8 @@ export function AgentPanel({
           hasChapterContent={hasChapterContent}
           completedWorkflows={completedWorkflowsSet}
           defaultTab={selectedJourneyId ? "journeys" : "workflows"}
+          initialChapterWorkflowId={chapterPickerWorkflowId ?? undefined}
+          onChapterWorkflowResolved={() => setChapterPickerWorkflowId(null)}
         />
       ) : isIdle ? (
         <>

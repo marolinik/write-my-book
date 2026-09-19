@@ -25,6 +25,8 @@ export interface PrerequisiteStrings {
   needs: string;
   /** Template with {workflow}. */
   action: string;
+  /** C3: shown when the workflow is chapter-scoped and no chapter was chosen. */
+  chapter?: string;
   /** Localized document-type labels. */
   docTypes: Record<string, string>;
   /** Localized workflow labels. */
@@ -51,6 +53,9 @@ export function formatMissingPrerequisites(
   });
 
   const lines = unique.map((m) => {
+    // C3: a missing chapter is not a missing artifact — no document produces it,
+    // the writer does, by picking one.
+    if (m.type === "chapter_scope" && strings.chapter) return strings.chapter;
     const label = m.value ? strings.docTypes[m.value] : undefined;
     // No localized label for this requirement means the server's own sentence is
     // the most honest thing available — better English than a blank refusal.

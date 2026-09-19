@@ -379,7 +379,7 @@ export async function processPostSession(
     }
 
     // ─── Blackboard: Promote Critical Findings to Insights ──
-    // After edit sessions, promote critical/major findings to the blackboard.
+    // After edit sessions, promote critical/important findings to the blackboard.
     if (ctx.workflowId === "dev-edit" || ctx.workflowId === "line-edit") {
       promoteFindings(
         ctx.bookId,

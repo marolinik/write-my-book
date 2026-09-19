@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeftIcon,
   BookOpenIcon,
@@ -132,6 +132,14 @@ interface WorkflowSelectorProps {
   completedWorkflows?: Set<string>;
   /** Initial tab: "journeys" or "workflows". */
   defaultTab?: "journeys" | "workflows";
+  /**
+   * C3: a chapter-scoped workflow a one-click start could not scope. The
+   * selector opens straight on its chapter picker instead of the caller
+   * starting the run book-wide.
+   */
+  initialChapterWorkflowId?: string;
+  /** Called once that workflow has been picked or abandoned. */
+  onChapterWorkflowResolved?: () => void;
 }
 
 export function WorkflowSelector({
@@ -144,6 +152,8 @@ export function WorkflowSelector({
   hasChapterContent,
   completedWorkflows,
   defaultTab = "journeys",
+  initialChapterWorkflowId,
+  onChapterWorkflowResolved,
 }: WorkflowSelectorProps) {
   const { t, language } = useLanguage();
   const as = getAgentStrings(language);
@@ -157,6 +167,22 @@ export function WorkflowSelector({
 
   const workflows = getAllWorkflows();
   const journeys = getAllJourneys();
+
+  // C3: open on the chapter picker when the caller could not scope the run.
+  useEffect(() => {
+    if (!initialChapterWorkflowId) return;
+    const wf = workflows.find((w) => w.id === initialChapterWorkflowId);
+    if (!wf) return;
+    setSelectedWorkflow(wf);
+    const contextChapter = pageContext?.currentChapterNumber;
+    setChapterNumber(
+      contextChapter && chapters.some((c) => c.chapterNumber === contextChapter)
+        ? contextChapter
+        : chapters[0]?.chapterNumber
+    );
+    // Only when the caller hands over a new workflow to scope.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialChapterWorkflowId]);
 
   // Fetch cost estimates for all workflows
   const workflowIds = useMemo(() => workflows.map((w) => w.id), [workflows]);
@@ -229,6 +255,7 @@ export function WorkflowSelector({
     if (selectedWorkflow) {
       onSelect(selectedWorkflow.id, chapterNumber);
       setSelectedWorkflow(null);
+      onChapterWorkflowResolved?.();
     }
   };
 
@@ -282,7 +309,10 @@ export function WorkflowSelector({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setSelectedWorkflow(null)}
+            onClick={() => {
+              setSelectedWorkflow(null);
+              onChapterWorkflowResolved?.();
+            }}
           >
             {t.workflowSelector.back}
           </Button>

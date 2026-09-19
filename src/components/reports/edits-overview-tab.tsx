@@ -37,7 +37,8 @@ export function EditsOverviewTab({ bookId }: { bookId: string }) {
   const applied = items.filter((f: any) => f.status === "applied").length;
   const dismissed = items.filter((f: any) => f.status === "dismissed").length;
   const critical = items.filter((f: any) => f.severity === "critical").length;
-  // V-4: the persisted severity is "important"; "major" never reaches the DB.
+  // V-4: the persisted middle severity is "important" — the old slug could
+  // never reach the database, so this card counted 4 findings out of 255.
   const important = items.filter((f: any) => f.severity === "important").length;
 
   return (
