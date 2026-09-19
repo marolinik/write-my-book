@@ -547,6 +547,11 @@ const createFindingDef: ToolDefinition = {
         type: "string",
         description: "WHY this matters to the reader/story — not just what it is",
       },
+      suggestion: {
+        type: "string",
+        description:
+          "What the writer should DO about it, in one sentence — an action, not a restatement of the rationale",
+      },
       confidence: {
         type: "number",
         description: "Your confidence this is a genuine issue (0.0 to 1.0)",
@@ -590,7 +595,8 @@ const createFindingDef: ToolDefinition = {
     },
     required: [
       "chapterNumber", "severity", "category", "description",
-      "rationale", "confidence", "paragraphNumber", "anchorQuote", "alternatives"
+      "rationale", "suggestion", "confidence", "paragraphNumber", "anchorQuote",
+      "alternatives"
     ],
   },
 };
@@ -1707,6 +1713,7 @@ async function executeCreateFinding(
     category: string;
     description: string;
     rationale: string;
+    suggestion: string;
     confidence: number;
     paragraphNumber: number;
     anchorQuote: string;
@@ -1924,6 +1931,15 @@ async function executeCreateFinding(
     fingerprintContent,
     manuscriptContent.content
   );
+  // V-3: four prompts have always asked for this sentence and the strict schema
+  // had nowhere to put it, so the API dropped it and the row stored the
+  // rationale twice — 199 of 255 findings on the owner's book show "what to do"
+  // as a verbatim copy of "why this is a problem".
+  const sanitizedSuggestion = stripFabricatedFingerprintQuotes(
+    stripModelSelfTalk(input.suggestion ?? ""),
+    fingerprintContent,
+    manuscriptContent.content
+  ).trim();
 
   // Create the finding (use resolvedParagraphNumber which may have been auto-corrected)
   const finding = await db.editFinding.create({
@@ -1943,8 +1959,8 @@ async function executeCreateFinding(
       groundingScore,
       chapterVersion: manuscriptDoc.currentVersion,
       contentHash,
+      suggestion: sanitizedSuggestion || sanitizedRationale,
       // Legacy fields for backward compatibility
-      suggestion: sanitizedRationale,
       originalText: input.alternatives[0]?.originalText ?? null,
       newText: input.alternatives[0]?.newText ?? null,
     },
@@ -2867,6 +2883,7 @@ async function executeToolInner(
           category: string;
           description: string;
           rationale: string;
+          suggestion: string;
           confidence: number;
           paragraphNumber: number;
           anchorQuote: string;
