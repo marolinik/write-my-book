@@ -27,6 +27,7 @@ import { useAgentUIStore } from "@/stores/agent-ui-store";
 import { useLanguage } from "@/components/providers/language-provider";
 import { useReportDocument } from "./use-report-document";
 import { domainBadgeCounts } from "./continuity-counts";
+import { categorizeContinuity } from "./continuity-domains";
 import { useBook } from "@/hooks/use-books";
 
 type DomainLabelKey =
@@ -99,16 +100,6 @@ const SEVERITY_COLORS: Record<string, string> = {
   suggestion: "outline",
 };
 
-function categorizeFinding(category: string): string {
-  const lower = category.toLowerCase();
-  for (const [domain, config] of Object.entries(DOMAIN_CONFIG)) {
-    if (config.categories.some((c) => lower.includes(c))) return domain;
-  }
-  // A bare "continuity" says nothing about WHICH domain the conflict is in, so
-  // it belongs in Other. It used to be filed under World Rules, which made that
-  // card look busy and the real domains look clean — the opposite of the truth.
-  return "other";
-}
 
 export function ContinuityTab({ bookId }: { bookId: string }) {
   const openWithWorkflow = useAgentUIStore((s) => s.openWithWorkflow);
@@ -121,7 +112,7 @@ export function ContinuityTab({ bookId }: { bookId: string }) {
   const checkWorkflow = inSeries ? "check-series-continuity" : "check-continuity";
   const [selectedDomain, setSelectedDomain] = useState<string | null>(null);
 
-  const { data: documents, isLoading: docsLoading } = useQuery({
+  const { isLoading: docsLoading } = useQuery({
     queryKey: ["book-documents", bookId],
     queryFn: async () => {
       const res = await fetch(`/api/books/${bookId}/documents`);
@@ -141,11 +132,19 @@ export function ContinuityTab({ bookId }: { bookId: string }) {
     },
   });
 
+  // The live continuity net. Its rows name their domain in `type`, which is
+  // the signal the six domain cards were missing (S3-22).
+  const { data: flagData } = useQuery({
+    queryKey: ["continuity-flags", bookId],
+    queryFn: async () => {
+      const res = await fetch(`/api/books/${bookId}/continuity`);
+      if (!res.ok) throw new Error("Failed to load continuity flags");
+      return res.json();
+    },
+  });
+
   const isLoading = docsLoading || findingsLoading;
 
-  const docs = Array.isArray(documents)
-    ? documents
-    : (documents?.documents ?? []);
   // Same defect as the market tab: the list carries metadata, the prose needs
   // its own request (S3-10).
   const {
@@ -153,8 +152,30 @@ export function ContinuityTab({ bookId }: { bookId: string }) {
     content: reportContent,
     isEmpty: reportLost,
   } = useReportDocument(bookId, "CONTINUITY_REPORT");
+  const flagList: Finding[] = (
+    (flagData?.flags ?? (Array.isArray(flagData) ? flagData : [])) as Array<{
+      id: string;
+      type: string;
+      severity: string;
+      description: string;
+      chapterNumber?: number;
+    }>
+  ).map((flag) => ({
+    id: flag.id,
+    // `type` goes where the tally reads the domain from.
+    category: flag.type,
+    severity: flag.severity,
+    description: flag.description,
+    chapterNumber: flag.chapterNumber ?? 0,
+  })) as Finding[];
+
   const findingsList: Finding[] =
     findings?.findings ?? (Array.isArray(findings) ? findings : []);
+  const allFindings: Finding[] = useMemo(
+    () => [...findingsList, ...flagList],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [findings, flagData]
+  );
 
   // Compute domain counts from actual findings
   const domainStats = useMemo(() => {
@@ -168,8 +189,8 @@ export function ContinuityTab({ bookId }: { bookId: string }) {
     }
     stats["other"] = { total: 0, critical: 0, major: 0, minor: 0, suggestion: 0 };
 
-    for (const f of findingsList) {
-      const domain = categorizeFinding(f.category);
+    for (const f of allFindings) {
+      const domain = categorizeContinuity(f.category);
       if (!stats[domain]) {
         stats[domain] = { total: 0, critical: 0, major: 0, minor: 0, suggestion: 0 };
       }
@@ -181,15 +202,15 @@ export function ContinuityTab({ bookId }: { bookId: string }) {
     }
 
     return stats;
-  }, [findingsList]);
+  }, [allFindings]);
 
   // Filter findings by selected domain
   const filteredFindings = useMemo(() => {
-    if (!selectedDomain) return findingsList;
-    return findingsList.filter(
-      (f) => categorizeFinding(f.category) === selectedDomain
+    if (!selectedDomain) return allFindings;
+    return allFindings.filter(
+      (f) => categorizeContinuity(f.category) === selectedDomain
     );
-  }, [findingsList, selectedDomain]);
+  }, [allFindings, selectedDomain]);
 
   if (isLoading) {
     return (
@@ -216,9 +237,9 @@ export function ContinuityTab({ bookId }: { bookId: string }) {
         <CardHeader>
           <CardTitle>{c.tracker}</CardTitle>
           <CardDescription>
-            {findingsList.length > 0
+            {allFindings.length > 0
               ? c.findingsSummary
-                  .replace("{n}", String(findingsList.length))
+                  .replace("{n}", String(allFindings.length))
                   .replace(
                     "{d}",
                     String(

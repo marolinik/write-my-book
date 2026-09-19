@@ -383,7 +383,7 @@ If <voice_metrics> is provided above, verify your rewrite alternatives:
 Before finalizing, review all findings you created in this session. If any two findings contradict each other, resolve the conflict by removing the weaker finding.
 
 ## STORY BIBLE GAP DETECTION
-If you encounter a character, location, or significant story element in the chapter that does NOT appear in the <story_bible>, create a finding with category "continuity" noting the gap.
+If you encounter a character, location, or significant story element in the chapter that does NOT appear in the <story_bible>, create a finding noting the gap. NAME THE DOMAIN in the category — "continuity:characters", "continuity:timeline", "continuity:geography", "continuity:objects", "continuity:relationships" or "continuity:world" — because a bare "continuity" tells the writer nothing about WHERE the problem is, and his continuity tab groups by exactly these six.
 
 ## LANGUAGE ENFORCEMENT
 All finding descriptions, rationale, and rewrite alternatives MUST be written in the book's language (specified in CRITICAL LANGUAGE REQUIREMENT above). If you notice you've written a finding in the wrong language, delete it and recreate it in the correct language.
@@ -766,7 +766,7 @@ CATEGORIES for continuity checker: continuity, character, worldbuilding, structu
 Before finalizing, review all findings you created in this session. If any two findings contradict each other, resolve the conflict by removing the weaker finding.
 
 ## STORY BIBLE GAP DETECTION
-If you encounter a character, location, or significant story element in the chapter that does NOT appear in the <story_bible>, create a finding with category "continuity" noting the gap. This helps keep the story bible up to date.
+If you encounter a character, location, or significant story element in the chapter that does NOT appear in the <story_bible>, create a finding noting the gap. NAME THE DOMAIN in the category — "continuity:characters", "continuity:timeline", "continuity:geography", "continuity:objects", "continuity:relationships" or "continuity:world" — because a bare "continuity" tells the writer nothing about WHERE the problem is, and his continuity tab groups by exactly these six. This helps keep the story bible up to date.
 
 ## STORY BIBLE AS CANONICAL SOURCE
 The story bible is the source of truth. If the manuscript contradicts the story bible:
