@@ -41,7 +41,7 @@ import { useAgentUIStore } from "@/stores/agent-ui-store";
 import { useLanguage, useLocale } from "@/components/providers/language-provider";
 import { getDocumentTypeLabels } from "@/lib/agents/tool-labels";
 import { countWithNoun } from "@/lib/i18n/plural";
-import { getAgentStrings } from "@/lib/i18n/agent-strings";
+import { getAgentStrings, workflowLabel } from "@/lib/i18n/agent-strings";
 import {
   groupDocuments,
   type DocumentGroup,
@@ -359,7 +359,7 @@ export function DocumentsLibrary({ bookId }: { bookId: string }) {
             startText={t.docLibrary.startWorkflow}
             workflowLabel={
               group.emptyWorkflow
-                ? (getAgentStrings(language).workflows[group.emptyWorkflow] ??
+                ? (workflowLabel(getAgentStrings(language), group.emptyWorkflow) ??
                   group.emptyWorkflow)
                 : ""
             }

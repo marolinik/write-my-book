@@ -18,7 +18,7 @@ import {
   getTodayWords,
 } from "@/lib/writing-stats";
 import { getUIStrings, localeFor } from "@/lib/i18n/ui-strings";
-import { getAgentStrings } from "@/lib/i18n/agent-strings";
+import { getAgentStrings, workflowLabel } from "@/lib/i18n/agent-strings";
 import { getWorkflow } from "@/lib/agents/workflows";
 import {
   SETUP_STEP_TOTAL,
@@ -52,7 +52,7 @@ export const dynamic = "force-dynamic";
 function getWorkflowLabel(workflowId: string | null, lang: string): string {
   if (!workflowId) return "Agent session";
   const strings = getAgentStrings(lang);
-  return strings.workflows[workflowId] ?? getWorkflow(workflowId)?.label ?? workflowId;
+  return workflowLabel(strings, workflowId) ?? getWorkflow(workflowId)?.label ?? workflowId;
 }
 
 function timeAgo(date: Date | string): string {

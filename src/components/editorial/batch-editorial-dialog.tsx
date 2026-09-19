@@ -1,7 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/components/providers/language-provider";
-import { getAgentStrings } from "@/lib/i18n/agent-strings";
+import { getAgentStrings, workflowLabel } from "@/lib/i18n/agent-strings";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { CalendarClockIcon, Loader2Icon, MoonIcon, ZapIcon } from "lucide-react";
@@ -120,7 +120,7 @@ export function BatchEditorialDialog({
 }: BatchEditorialDialogProps) {
   const { t, language } = useLanguage();
   // The same names the rest of the app uses for these passes.
-  const workflowNames = getAgentStrings(language).workflows;
+  const agentStrings = getAgentStrings(language);
   const minChapter = chapterNumbers.length ? chapterNumbers[0] : 1;
   const maxChapter = chapterNumbers.length ? chapterNumbers[chapterNumbers.length - 1] : 1;
 
@@ -316,7 +316,7 @@ export function BatchEditorialDialog({
                       variant={passes.has(p.id) ? "default" : "outline"}
                       onClick={() => togglePass(p.id)}
                     >
-                      {workflowNames[p.id] ?? p.id}
+                      {workflowLabel(agentStrings, p.id) ?? p.id}
                     </Button>
                   ))}
                 </div>

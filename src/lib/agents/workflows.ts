@@ -660,3 +660,54 @@ export function getWorkflowsByCategory(
 export function getAllWorkflows(): WorkflowDefinition[] {
   return WORKFLOW_DEFINITIONS;
 }
+
+/**
+ * Every workflow id, as literal types.
+ *
+ * H-4: `agent-strings.ts` typed its label and description maps as
+ * `Record<string, string>`, so a missing translation was invisible to
+ * TypeScript — sr was short 10 labels and 16 descriptions, de/es/fr/ru/zh 22
+ * and 31, and the UI quietly fell back to the registry's ENGLISH label, which
+ * makes the gap invisible to any test that only asserts "it renders something".
+ * Typing those maps against this tuple turns the next gap into a build error.
+ *
+ * A test asserts this list matches WORKFLOW_DEFINITIONS, so adding a workflow
+ * without translating it fails there rather than silently shipping English.
+ */
+export const WORKFLOW_IDS = [
+  "new-novel",
+  "write-synopsis",
+  "capture-style",
+  "create-story-bible",
+  "build-architecture",
+  "coach",
+  "onboard-new-book",
+  "onboard-imported-book",
+  "read-manuscript",
+  "discuss-chapter",
+  "plan-chapter",
+  "plan-chapters-from-synopsis",
+  "write-chapter",
+  "freewrite",
+  "free-drive",
+  "dev-edit",
+  "line-edit",
+  "beta-read",
+  "revise",
+  "discuss-edits",
+  "publishing-check",
+  "analyze",
+  "restructure",
+  "market-analysis",
+  "refresh-style",
+  "evolve-style",
+  "research-world",
+  "research-topic",
+  "init-series",
+  "create-series-bible",
+  "create-series-architecture",
+  "check-continuity",
+  "check-series-continuity",
+] as const;
+
+export type WorkflowId = (typeof WORKFLOW_IDS)[number];

@@ -40,7 +40,7 @@ import { getAllJourneys, getJourney } from "@/lib/agents/journeys";
 import type { JourneyDefinition } from "@/lib/agents/journeys";
 import type { WorkflowDefinition } from "@/lib/agents/types";
 import { useLanguage } from "@/components/providers/language-provider";
-import { getAgentStrings } from "@/lib/i18n/agent-strings";
+import { getAgentStrings, workflowLabel, workflowDescription } from "@/lib/i18n/agent-strings";
 import { useAgentSessionStore } from "@/stores/agent-session-store";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
 import { useWorkflowCostEstimates, type WorkflowCostData } from "@/hooks/use-workflow-costs";
@@ -270,14 +270,14 @@ export function WorkflowSelector({
     } else {
       addToQueue(workflow.id);
     }
-    toast.success(`Added "${as.workflows[workflow.id] ?? workflow.label}" to queue`);
+    toast.success(`Added "${workflowLabel(as, workflow.id) ?? workflow.label}" to queue`);
   };
 
   // Chapter selection sub-view
   if (selectedWorkflow) {
     return (
       <div className="flex flex-col gap-3 p-4">
-        <div className="text-sm font-medium">{as.workflows[selectedWorkflow.id] ?? selectedWorkflow.label}</div>
+        <div className="text-sm font-medium">{workflowLabel(as, selectedWorkflow.id) ?? selectedWorkflow.label}</div>
         <p className="text-xs text-muted-foreground">
           {t.workflowSelector.selectChapter}
         </p>
@@ -410,7 +410,7 @@ export function WorkflowSelector({
                         >
                           <div className="flex flex-col gap-0.5 min-w-0">
                             <span className="font-medium flex items-center gap-1.5 flex-wrap">
-                              {as.workflows[w.id] ?? w.label}
+                              {workflowLabel(as, w.id) ?? w.label}
                               {isLocked && (
                                 <LockIcon className="size-3 text-muted-foreground" />
                               )}
@@ -418,7 +418,7 @@ export function WorkflowSelector({
                               {cost && <CostBadge cost={cost} />}
                             </span>
                             <span className="text-xs text-muted-foreground">
-                              {as.workflowDescriptions[w.id] ?? w.writerDescription}
+                              {workflowDescription(as, w.id) ?? w.writerDescription}
                             </span>
                           </div>
                           <ChevronRightIcon className="size-4 shrink-0 text-muted-foreground" />
@@ -616,7 +616,7 @@ function JourneyDetailView({
                   <div className={`flex-1 pb-4 min-w-0 ${isFuture && !isCurrent ? "opacity-50" : ""}`}>
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <span className={`text-sm ${isCurrent ? "font-semibold" : "font-medium"}`}>
-                        {as.workflows[step.workflowId] ?? wf?.label ?? step.workflowId}
+                        {workflowLabel(as, step.workflowId) ?? wf?.label ?? step.workflowId}
                       </span>
                       {step.optional && (
                         <Badge variant="outline" className="text-[9px]">
@@ -634,7 +634,7 @@ function JourneyDetailView({
                             <RepeatIcon className="size-3 text-muted-foreground" />
                           </TooltipTrigger>
                           <TooltipContent side="right" className="text-xs">
-                            Can loop back to {as.workflows[step.loopTo] ?? getWorkflow(step.loopTo)?.label ?? step.loopTo}
+                            Can loop back to {workflowLabel(as, step.loopTo) ?? getWorkflow(step.loopTo)?.label ?? step.loopTo}
                           </TooltipContent>
                         </Tooltip>
                       )}

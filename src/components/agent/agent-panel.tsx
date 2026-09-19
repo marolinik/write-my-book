@@ -42,7 +42,7 @@ import {
 } from "@/hooks/use-agent";
 import { getWorkflow } from "@/lib/agents/workflows";
 import { getAgentDefinition } from "@/lib/agents/definitions";
-import { getAgentStrings } from "@/lib/i18n/agent-strings";
+import { getAgentStrings, workflowLabel } from "@/lib/i18n/agent-strings";
 import { getStatusLabel } from "@/lib/i18n/ui-strings";
 import { useLanguage, useLocale } from "@/components/providers/language-provider";
 import { cn } from "@/lib/utils";
@@ -875,7 +875,7 @@ export function AgentPanel({
                     {suggestedNext.map((wfId) => {
                       const wf = getWorkflow(wfId);
                       if (!wf) return null;
-                      const localizedLabel = strings.workflows[wfId] ?? wf.label;
+                      const localizedLabel = workflowLabel(strings, wfId) ?? wf.label;
                       return (
                         <Button
                           key={wfId}

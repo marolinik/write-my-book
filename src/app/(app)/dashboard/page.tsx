@@ -17,7 +17,7 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getDailyWordCounts } from "@/lib/writing-stats";
 import { getUIStrings, localeFor } from "@/lib/i18n/ui-strings";
-import { getAgentStrings } from "@/lib/i18n/agent-strings";
+import { getAgentStrings, workflowLabel } from "@/lib/i18n/agent-strings";
 import { getWorkflow } from "@/lib/agents/workflows";
 import { nextOverviewRecommendation } from "@/lib/onboarding/overview-recommendation";
 import { computeSeriesNextBook } from "@/lib/series/next-book";
@@ -41,7 +41,7 @@ export const dynamic = "force-dynamic";
 function getWorkflowLabel(workflowId: string | null, lang: string): string {
   if (!workflowId) return "Agent session";
   const strings = getAgentStrings(lang);
-  return strings.workflows[workflowId] ?? getWorkflow(workflowId)?.label ?? workflowId;
+  return workflowLabel(strings, workflowId) ?? getWorkflow(workflowId)?.label ?? workflowId;
 }
 
 export default async function DashboardPage() {

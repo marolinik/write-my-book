@@ -46,7 +46,12 @@ function findMojibake(text: string): string[] {
 }
 
 describe("source files carry no double-encoded text", () => {
-  it("finds none under src/", () => {
+  // This test walks every file under src/ and decodes each one. Under full-suite
+  // load that runs past the 5s default while collection is still churning
+  // through 265 files, and it has flaked on exactly that for two sessions; it
+  // passes in isolation every time. The work is filesystem-bound, so the honest
+  // fix is a timeout that matches the work.
+  it("finds none under src/", { timeout: 30_000 }, () => {
     const offenders: string[] = [];
     for (const file of sourceFiles("src")) {
       const hits = findMojibake(readFileSync(file, "utf-8"));

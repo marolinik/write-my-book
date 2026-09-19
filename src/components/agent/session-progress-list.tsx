@@ -16,7 +16,7 @@ import { useAgentSessionStore, type SessionState } from "@/stores/agent-session-
 import { getWorkflow } from "@/lib/agents/workflows";
 import { getToolLabel, parseToolInput } from "@/lib/agents/tool-labels";
 import { useLanguage } from "@/components/providers/language-provider";
-import { getAgentStrings } from "@/lib/i18n/agent-strings";
+import { getAgentStrings, workflowLabel } from "@/lib/i18n/agent-strings";
 import { sessionElapsedMs } from "@/lib/agents/session-duration";
 
 function ElapsedTime({ session }: { session: SessionState }) {
@@ -150,7 +150,7 @@ export function SessionProgressList() {
                 )}
                 <div className="min-w-0 flex-1">
                   <span className="font-medium block truncate">
-                    {agentStrings.workflows[session.workflowId] ?? wf?.label ?? session.workflowId}
+                    {workflowLabel(agentStrings, session.workflowId) ?? wf?.label ?? session.workflowId}
                   </span>
                   {session.status === "running" && (() => {
                     const toolMsgs = session.messages.filter(m => m.type === "tool_use");

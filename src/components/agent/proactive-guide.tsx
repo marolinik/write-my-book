@@ -27,7 +27,7 @@ import { getWorkflow } from "@/lib/agents/workflows";
 import { getJourney } from "@/lib/agents/journeys";
 import { useAgentSessionStore } from "@/stores/agent-session-store";
 import { useBook } from "@/hooks/use-books";
-import { getAgentStrings } from "@/lib/i18n/agent-strings";
+import { getAgentStrings, workflowLabel, workflowDescription } from "@/lib/i18n/agent-strings";
 
 const WORKFLOW_ICONS: Record<string, React.ElementType> = {
   "read-manuscript": ImportIcon,
@@ -383,7 +383,7 @@ export function ProactiveGuide({
           <PrimaryIcon className="size-5 shrink-0" />
           <div className="flex flex-col items-start text-left">
             <span className="font-medium flex items-center gap-1.5">
-              {t.workflows[primaryWorkflow.id] ?? primaryWorkflow.label}
+              {workflowLabel(t, primaryWorkflow.id) ?? primaryWorkflow.label}
               {primaryWorkflow.estimatedMinMinutes && primaryWorkflow.estimatedMaxMinutes && (
                 <span className="inline-flex items-center gap-1 text-[10px] font-normal opacity-70">
                   <ClockIcon className="size-3" />
@@ -392,7 +392,7 @@ export function ProactiveGuide({
               )}
             </span>
             <span className="text-xs font-normal opacity-80">
-              {t.workflowDescriptions[primaryWorkflow.id] ?? primaryWorkflow.writerDescription}
+              {workflowDescription(t, primaryWorkflow.id) ?? primaryWorkflow.writerDescription}
             </span>
             {betaScoreForCta !== null && (
               <span className="text-xs font-normal opacity-70">
@@ -429,7 +429,7 @@ export function ProactiveGuide({
                 <Icon className="size-4 shrink-0" />
                 <div className="flex flex-col items-start text-left">
                   <span className="text-xs font-medium">
-                    {t.workflows[id] ?? wf.label}
+                    {workflowLabel(t, id) ?? wf.label}
                   </span>
                   <span className="text-[10px] text-muted-foreground">
                     {reason}
