@@ -131,7 +131,7 @@ Analiza → Redakcija, the synopsis filed under Struktura, and no "Other".
 
 ---
 
-## S3-3 — the library surface is hardcoded English (PARTIAL)
+## S3-3 — the library surface is hardcoded English (DONE)
 
 Visible in the same screenshot, in an otherwise Serbian app: the group headings
 ("Analysis & Reports", "Other"), every entry in `DOC_TYPE_LABELS` ("Continuity
@@ -145,11 +145,10 @@ empty-state sentence, the CTA — which reuses the already-translated workflow
 names from `getAgentStrings().workflows` rather than adding a string per group
 — and the document type names.
 
-**Still English on that page:** the header ("Documents", "39 documents —
-organized by workflow stage."), the quick-action buttons ("New Document", "Dev
-Edit", "Discuss Edits"), the per-chapter headings ("Chapter 1"), the relative
-timestamps ("16h ago"), and the search/empty copy. Also `SYNOPSIS` reads
-"Synopsis" in the Serbian dictionary — untranslated, not missing.
+**Finished in `8696f88`:** the document count (which also taught the app to
+count in Serbian — see S3-24), "organised by workflow stage", the new-document
+button, both empty states, the per-chapter headings, the relative timestamps
+and the three library tabs. Verified live: the page has no English left on it.
 
 Part of the O1 remainder, but it sits on a daily surface rather than on
 marketing copy, so it belongs here rather than in the tail.
