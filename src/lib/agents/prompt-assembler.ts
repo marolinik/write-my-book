@@ -1492,6 +1492,13 @@ const TOKEN_BUDGETS: Partial<Record<string, number>> = {
 const DEFAULT_TOKEN_BUDGET = 100000;
 
 /**
+ * The floor left for context once the instructions are paid for. An agent
+ * whose own prompt is somehow larger than its budget still gets its documents;
+ * the alternative is a run with instructions and nothing to apply them to.
+ */
+const MIN_CONTEXT_BUDGET = 20000;
+
+/**
  * Agents whose craft-skill selection uses the book's genre. For these we
  * load book meta even when their context profile doesn't request it, so
  * `context.bookGenre` is available to selectSkillsForAgent.
@@ -2298,26 +2305,7 @@ export async function assembleAgentPrompt(
     });
   }
 
-  // ─── Apply Smart Trimming ──────────────────────────────────────
-  const { sections: keptSections, trimmed, notice } = smartTrim(sections, agentBudget);
-
-  // ─── Build Final Prompt (Documents First, Instructions Last) ──
-  const parts: string[] = [];
-
-  // Sort kept sections by priority DESC for final assembly (highest priority first in output)
-  const sortedSections = keptSections.sort((a, b) => b.priority - a.priority);
-
-  // Add all context document sections FIRST
-  for (const section of sortedSections) {
-    parts.push(section.content);
-  }
-
-  // Add trimming notice if any sections were trimmed
-  if (notice) {
-    parts.push(notice);
-  }
-
-  // Add instructions LAST
+  // ─── Instructions (built BEFORE trimming, so they can be paid for) ──
   // Every agent keeps its own base instructions. The Coach used to LOSE them
   // in conductor mode — and every interactive session sets targetWorkflowId,
   // so its coaching methodology and its ReadAllChapters efficiency rule never
@@ -2347,13 +2335,57 @@ export async function assembleAgentPrompt(
 
   // Placeholders are filled in the instructions only — never across the
   // writer's own prose, which the context sections carry verbatim.
-  for (const block of instructions) {
+  const filledInstructions = instructions.map((block) =>
+    fillPromptPlaceholders(block, {
+      chapterNumber: context.chapterNumber,
+      bookName: context.bookName,
+    })
+  );
+
+  // ─── Apply Smart Trimming ──────────────────────────────────────
+  // A-43: the instructions are part of the prompt, so they come out of the
+  // budget. They used to be appended AFTER trimming and never counted, which
+  // made every budget short by the size of the agent's own prompt — 2-4k
+  // tokens — and left the overrun invisible in the assembly log.
+  const instructionTokens = filledInstructions.reduce(
+    (total, block) => total + estimateTokens(block),
+    0
+  );
+  const contextBudget = Math.max(agentBudget - instructionTokens, MIN_CONTEXT_BUDGET);
+  const { sections: keptSections, trimmed, notice } = smartTrim(sections, contextBudget);
+
+  // ─── Build Final Prompt (Documents First, Instructions Last) ──
+  const parts: string[] = [];
+
+  // Sort kept sections by priority DESC for final assembly (highest priority first in output)
+  const sortedSections = keptSections.sort((a, b) => b.priority - a.priority);
+
+  // A-31: say which context blocks are actually present. Four prompts carry a
+  // hand-written "CONTEXT YOU HAVE BEEN GIVEN" list and seven injected
+  // sections appeared in none of them — an agent cannot use a block it does
+  // not know arrived, and cannot say a block it needed was trimmed away.
+  if (sortedSections.length > 0) {
     parts.push(
-      fillPromptPlaceholders(block, {
-        chapterNumber: context.chapterNumber,
-        bookName: context.bookName,
-      })
+      `\n<context_inventory>\nThe context blocks below, in order: ` +
+        `${sortedSections.map((s) => s.name).join(", ")}.\n` +
+        `Anything not in this list was not given to you for this run — do not ` +
+        `assume its contents.\n</context_inventory>`
     );
+  }
+
+  // Add all context document sections FIRST
+  for (const section of sortedSections) {
+    parts.push(section.content);
+  }
+
+  // Add trimming notice if any sections were trimmed
+  if (notice) {
+    parts.push(notice);
+  }
+
+  // Add instructions LAST
+  for (const block of filledInstructions) {
+    parts.push(block);
   }
 
   const final = parts.join("\n\n");
@@ -2361,7 +2393,11 @@ export async function assembleAgentPrompt(
   // ─── Token Budget Logging ──────────────────────────────────────
   const finalTokens = estimateTokens(final);
   console.log(`[Prompt Assembly] Agent: ${definition.type}`);
-  console.log(`  Budget: ${agentBudget} tokens | Actual: ${finalTokens} tokens`);
+  console.log(
+    `  Budget: ${agentBudget} tokens ` +
+      `(instructions ${instructionTokens}, context ${contextBudget}) ` +
+      `| Actual: ${finalTokens} tokens`
+  );
   if (trimmed.length > 0) {
     console.log(`  Trimmed sections: ${trimmed.join(", ")}`);
   }

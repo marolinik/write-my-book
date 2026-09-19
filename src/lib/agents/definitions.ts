@@ -64,7 +64,7 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     ],
     contextProfile: {
       fingerprint: "full",
-      storyBible: "chapter-relevant",
+      storyBible: "full",
       synopsis: "full",
       architecture: "full",
       chapterContent: true,
@@ -176,7 +176,7 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     ],
     contextProfile: {
       fingerprint: "none",
-      storyBible: "chapter-relevant",
+      storyBible: "full",
       synopsis: "none",
       architecture: "full",
       chapterContent: false,
@@ -241,7 +241,7 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     ],
     contextProfile: {
       fingerprint: "full",
-      storyBible: "chapter-relevant",
+      storyBible: "full",
       synopsis: "none",
       architecture: "none",
       chapterContent: true,
@@ -272,7 +272,7 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     ],
     contextProfile: {
       fingerprint: "none",
-      storyBible: "characters-only",
+      storyBible: "full",
       synopsis: "none",
       architecture: "full",
       chapterContent: true,
@@ -419,7 +419,7 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     defaultModel: "sonnet",
     tools: ["ReadDocument", "WriteDocument", "ListDocuments", "SearchMemory", "ReadInsights", "WebSearch", "FetchWebPage"],
     contextProfile: {
-      fingerprint: "summary",
+      fingerprint: "full",
       storyBible: "full",
       synopsis: "none",
       architecture: "full",

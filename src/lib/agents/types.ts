@@ -54,11 +54,19 @@ export type AgentType =
 
 export type ModelTier = "opus" | "sonnet" | "haiku";
 
+/**
+ * A-29 / A-30: five of these values were fiction. The loader tests
+ * `!== "none"` and injects the whole document, so "chapter-relevant",
+ * "characters-only", "chapter-only", "act-level" and fingerprint "summary"
+ * all meant "full" — a config that claims to narrow context and silently does
+ * not is worse than no config, because the budget is planned around it. The
+ * union now says what the loader does; the trimmer handles size.
+ */
 export interface AgentContextProfile {
-  fingerprint: "full" | "summary" | "none";
-  storyBible: "full" | "chapter-relevant" | "characters-only" | "none";
+  fingerprint: "full" | "none";
+  storyBible: "full" | "none";
   synopsis: "full" | "none";
-  architecture: "full" | "chapter-only" | "act-level" | "none";
+  architecture: "full" | "none";
   chapterContent: boolean;                              // Auto-load target chapter content
   adjacentChapters: "none" | "summaries-all" | "one-each"; // Adjacent chapter loading
   chapterPlan: boolean;
