@@ -10,31 +10,17 @@ import {
 } from "@/components/ui/select";
 import { useEditorialStore } from "@/stores/editorial-store";
 import { useLanguage } from "@/components/providers/language-provider";
-import { findingCategoryLabel } from "@/lib/i18n/finding-labels";
+import {
+  findingCategoryLabel,
+  FILTERABLE_FINDING_CATEGORIES,
+  FINDING_SEVERITIES,
+} from "@/lib/i18n/finding-labels";
 
-const SEVERITY_OPTIONS = ["critical", "important", "suggestion"] as const;
-const CATEGORY_OPTIONS = [
-  "pacing",
-  "dialogue",
-  "character",
-  "plot",
-  "voice",
-  "prose",
-  "clarity",
-  "redundancy",
-  "show-tell",
-  "continuity",
-  "emotion",
-  "tension",
-  "stakes",
-  "worldbuilding",
-  "crutch-phrase",
-  "ai-tell",
-  "sentence-variety",
-  "filter-word",
-  "verb-strength",
-  "general",
-] as const;
+const SEVERITY_OPTIONS = FINDING_SEVERITIES;
+// The categories come from the one vocabulary the tool schema is built from,
+// so the filter can no longer offer a category no agent can emit (it offered
+// four) or miss one they can (it missed three).
+const CATEGORY_OPTIONS = FILTERABLE_FINDING_CATEGORIES;
 const STATUS_OPTIONS = ["pending", "applied", "dismissed"] as const;
 const AGENT_TYPE_OPTIONS = [
   "dev-editor",

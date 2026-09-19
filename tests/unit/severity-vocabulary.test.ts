@@ -21,12 +21,13 @@ import { FINDING_SEVERITIES } from "@/lib/i18n/finding-labels";
 const src = (...p: string[]) => readFileSync(join(__dirname, "..", "..", "src", ...p), "utf-8");
 
 describe("the severity vocabulary", () => {
-  it("matches the CreateFinding enum in the tool schema", () => {
+  it("is the CreateFinding enum in the tool schema", () => {
+    // The schema used to re-type the three values; it now spreads this list,
+    // so the two cannot drift apart at all.
     const tools = src("lib", "agents", "tools.ts");
-    const declared = tools.match(/enum: \[("critical"[^\]]*)\]/);
-    expect(declared, "CreateFinding severity enum not found").not.toBeNull();
-    const values = [...declared![1].matchAll(/"([a-z]+)"/g)].map((m) => m[1]);
-    expect(values).toEqual([...FINDING_SEVERITIES]);
+    expect(tools).toContain("enum: [...FINDING_SEVERITIES]");
+    expect(tools).not.toMatch(/enum: \["critical"/);
+    expect([...FINDING_SEVERITIES]).toEqual(["critical", "important", "suggestion"]);
   });
 
   it("has a writer-facing label for every severity in every language", () => {

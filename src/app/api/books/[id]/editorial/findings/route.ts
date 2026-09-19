@@ -43,7 +43,15 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
     if (query.chapterNumber !== undefined)
       where.chapterNumber = query.chapterNumber;
     if (query.severity) where.severity = query.severity;
-    if (query.category) where.category = query.category;
+    // "continuity" means the whole domain — the checker files
+    // continuity:characters, continuity:timeline and four more, and the
+    // continuity tab asks for ?category=continuity. An exact match would
+    // return only the unqualified ones.
+    if (query.category === "continuity") {
+      where.category = { startsWith: "continuity" };
+    } else if (query.category) {
+      where.category = query.category;
+    }
     if (query.status) where.status = query.status;
     if (query.agentType) where.agentType = query.agentType;
 

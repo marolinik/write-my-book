@@ -291,17 +291,27 @@ export async function promoteFindings(
   const sevenDaysFromNow = new Date();
   sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
 
-  // Map finding categories to blackboard domains
+  // Map finding categories to blackboard domains.
+  // Three keys here ("world-building", "timeline", "anti-ai") and two more
+  // ("style", a domain not a category) were never categories CreateFinding can
+  // emit, so those rows never fired. These are the real vocabulary.
   const categoryToDomain: Record<string, string> = {
     character: "character",
     continuity: "continuity",
-    "world-building": "world-rules",
-    timeline: "timeline",
+    "continuity:characters": "character",
+    "continuity:timeline": "timeline",
+    "continuity:geography": "world-rules",
+    "continuity:objects": "continuity",
+    "continuity:relationships": "character",
+    "continuity:world": "world-rules",
+    worldbuilding: "world-rules",
+    setting: "world-rules",
     pacing: "pacing",
-    style: "style",
     structure: "structure",
     dialogue: "style",
-    "anti-ai": "style",
+    prose: "style",
+    "ai-tell": "style",
+    "crutch-phrase": "style",
     foreshadowing: "foreshadowing",
   };
 

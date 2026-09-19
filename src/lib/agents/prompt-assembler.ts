@@ -1066,8 +1066,9 @@ THE 13 PRODUCTION CHECKS:
 
 FINDING FORMAT:
 Use CreateFinding for each issue with:
-- severity: "critical" (will be visible to readers and looks unprofessional), "major" (significant formatting inconsistency), "minor" (small detail), "suggestion" (optional improvement)
-- category: the check number and name (e.g., "11-dialogue-formatting")
+- severity: "critical" (a reader will see it and it looks unprofessional), "important" (a real formatting inconsistency), "suggestion" (a small detail or optional improvement). These three are the only severities the tool accepts.
+- category: one of the tool's categories — typically "structure" (numbering, headings, front and back matter), "prose" (typography, spacing), "dialogue" (dialogue punctuation) or "clarity". Do NOT invent a category such as "11-dialogue-formatting"; name the check in the description instead.
+- chapterNumber: the real chapter the issue is in, taken from ListChapters. Omit it only for a manuscript-wide issue that belongs to no single chapter.
 - Exact location in the manuscript
 - Specific fix instruction`,
 };
@@ -1227,7 +1228,7 @@ const SPECIALIST_ROSTER = `YOUR TEAM:
 /** Per-workflow conductor instructions mapping. */
 export const CONDUCTOR_WORKFLOW_INSTRUCTIONS: Record<string, string> = {
   // Delegation workflows — Coach delegates then synthesizes
-  "dev-edit": "Delegate to dev-editor for the target chapter. You MUST pass chapterNumber and workflowId='dev-edit' to DelegateToSpecialist. When the specialist completes, summarize the 18 structural checks. Highlight critical and major issues first, then moderate. End with what the chapter does well.",
+  "dev-edit": "Delegate to dev-editor for the target chapter. You MUST pass chapterNumber and workflowId='dev-edit' to DelegateToSpecialist. When the specialist completes, summarize the 18 structural checks. Highlight critical issues first, then important ones, then suggestions. End with what the chapter does well.",
   "line-edit": "Delegate to line-editor for the target chapter. You MUST pass chapterNumber and workflowId='line-edit' to DelegateToSpecialist. Summarize prose findings when complete, organized by severity. Focus on AI tells and voice breaks first.",
   "beta-read": "Delegate to beta-reader for the target chapter. You MUST pass chapterNumber and workflowId='beta-read' to DelegateToSpecialist. Present the panel's verdict — pass/fail, strongest elements, and key concerns. Quote specific persona reactions that are insightful.",
   "write-chapter": "Briefly discuss the plan with the user if they want, then delegate to ghostwriter. You MUST pass chapterNumber and workflowId='write-chapter' to DelegateToSpecialist. After the draft is complete, summarize what was written and suggest the next step (usually dev-edit).",
@@ -1248,7 +1249,7 @@ export const CONDUCTOR_WORKFLOW_INSTRUCTIONS: Record<string, string> = {
 Three to seven strong moves, not twenty weak ones.
 When it completes, present the proposed moves to the writer as a numbered list — what moves, where, and why — and tell them nothing has changed yet: each move waits for their accept or reject on the book's structure panel.`,
   "market-analysis": "Delegate to market-reader. Present the cross-market analysis and positioning recommendations.",
-  "publishing-check": "Delegate to publishing-editor. Summarize the 13 production checks — highlight any critical or major issues.",
+  "publishing-check": "Delegate to publishing-editor. Summarize the 13 production checks — highlight any critical or important issues.",
   "revise": `First, read the chapter's editorial findings to understand what needs fixing. Then delegate to ghostwriter with these EXPLICIT instructions in the task parameter:
 
 "REVISION MODE: You are revising an existing chapter, NOT writing from scratch.
@@ -1380,7 +1381,7 @@ CONDUCTOR RULES:
 1. Greet the user briefly and explain what you'll do for this workflow
 2. For delegation workflows: use DelegateToSpecialist to hand off specialist work
 3. After delegation completes, synthesize the results in your own words — don't just repeat the raw output
-4. Present findings constructively: critical issues first, then major, then moderate. Always acknowledge strengths.
+4. Present findings constructively: critical issues first, then important, then suggestions — the three severities a finding can carry. Always acknowledge strengths.
 5. Suggest what comes next in the writing journey
 6. You are warm, knowledgeable, and encouraging — like a trusted editor and writing partner
 7. NEVER say "I'm just a coach" or apologize for delegating — you ARE the conductor, delegation is your expertise

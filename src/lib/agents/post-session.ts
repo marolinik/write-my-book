@@ -13,6 +13,7 @@ import { updateFromChapter } from "@/lib/graph/graph-maintenance";
 import { getExtractionKeysForUser } from "./extraction-keys";
 import { onSessionCompleted, onDocumentChanged, onFindingsCreated } from "@/lib/vector/memory-manager";
 import { promoteFindings } from "./blackboard";
+import { CONTINUITY_CATEGORIES } from "@/lib/i18n/finding-labels";
 import { synthesizeToSeries } from "@/lib/series/series-synthesizer";
 import { getWorkflow } from "./workflows";
 import { validatePrerequisites } from "./prerequisites";
@@ -735,11 +736,14 @@ async function createCascadeWarnings(
 ): Promise<number> {
   if (!ctx.chapterNumber) return 0;
 
+  // "world-building" and "timeline" are not categories any agent can emit —
+  // the real ones are "worldbuilding" and the qualified continuity domains.
   const entityCategories = [
     "character",
+    "worldbuilding",
+    "setting",
     "continuity",
-    "world-building",
-    "timeline",
+    ...CONTINUITY_CATEGORIES,
   ];
 
   // Fetch this session's entity-related findings (critical/important only)

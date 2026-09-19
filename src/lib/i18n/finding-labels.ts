@@ -38,6 +38,15 @@ const CATEGORY_LABELS: Record<string, Record<string, string>> = {
     "theme": "Theme",
     "genre-convention": "Genre convention",
     "tense": "Tense",
+    "pov": "Point of view",
+    "setting": "Setting",
+    "foreshadowing": "Foreshadowing",
+    "continuity:characters": "Continuity — characters",
+    "continuity:timeline": "Continuity — timeline",
+    "continuity:geography": "Continuity — geography",
+    "continuity:objects": "Continuity — objects",
+    "continuity:relationships": "Continuity — relationships",
+    "continuity:world": "Continuity — world rules",
   },
   sr: {
     "pacing": "Tempo",
@@ -64,6 +73,15 @@ const CATEGORY_LABELS: Record<string, Record<string, string>> = {
     "theme": "Tema",
     "genre-convention": "Žanrovska konvencija",
     "tense": "Glagolsko vreme",
+    "pov": "Tačka gledišta",
+    "setting": "Mesto radnje",
+    "foreshadowing": "Nagoveštaj",
+    "continuity:characters": "Kontinuitet — likovi",
+    "continuity:timeline": "Kontinuitet — hronologija",
+    "continuity:geography": "Kontinuitet — geografija",
+    "continuity:objects": "Kontinuitet — predmeti",
+    "continuity:relationships": "Kontinuitet — odnosi",
+    "continuity:world": "Kontinuitet — pravila sveta",
   },
   de: {
     "pacing": "Tempo",
@@ -90,6 +108,15 @@ const CATEGORY_LABELS: Record<string, Record<string, string>> = {
     "theme": "Thema",
     "genre-convention": "Genrekonvention",
     "tense": "Zeitform",
+    "pov": "Erzählperspektive",
+    "setting": "Schauplatz",
+    "foreshadowing": "Vorausdeutung",
+    "continuity:characters": "Kontinuität — Figuren",
+    "continuity:timeline": "Kontinuität — Zeitlinie",
+    "continuity:geography": "Kontinuität — Schauplätze",
+    "continuity:objects": "Kontinuität — Gegenstände",
+    "continuity:relationships": "Kontinuität — Beziehungen",
+    "continuity:world": "Kontinuität — Weltregeln",
   },
   es: {
     "pacing": "Ritmo",
@@ -116,6 +143,15 @@ const CATEGORY_LABELS: Record<string, Record<string, string>> = {
     "theme": "Tema",
     "genre-convention": "Convención de género",
     "tense": "Tiempo verbal",
+    "pov": "Punto de vista",
+    "setting": "Escenario",
+    "foreshadowing": "Presagio",
+    "continuity:characters": "Continuidad — personajes",
+    "continuity:timeline": "Continuidad — cronología",
+    "continuity:geography": "Continuidad — geografía",
+    "continuity:objects": "Continuidad — objetos",
+    "continuity:relationships": "Continuidad — relaciones",
+    "continuity:world": "Continuidad — reglas del mundo",
   },
   fr: {
     "pacing": "Rythme",
@@ -142,6 +178,15 @@ const CATEGORY_LABELS: Record<string, Record<string, string>> = {
     "theme": "Thème",
     "genre-convention": "Convention de genre",
     "tense": "Temps verbal",
+    "pov": "Point de vue",
+    "setting": "Décor",
+    "foreshadowing": "Préfiguration",
+    "continuity:characters": "Continuité — personnages",
+    "continuity:timeline": "Continuité — chronologie",
+    "continuity:geography": "Continuité — géographie",
+    "continuity:objects": "Continuité — objets",
+    "continuity:relationships": "Continuité — relations",
+    "continuity:world": "Continuité — règles du monde",
   },
   ru: {
     "pacing": "Темп",
@@ -168,6 +213,15 @@ const CATEGORY_LABELS: Record<string, Record<string, string>> = {
     "theme": "Тема",
     "genre-convention": "Жанровая условность",
     "tense": "Время глагола",
+    "pov": "Точка зрения",
+    "setting": "Место действия",
+    "foreshadowing": "Предвестие",
+    "continuity:characters": "Непрерывность — персонажи",
+    "continuity:timeline": "Непрерывность — хронология",
+    "continuity:geography": "Непрерывность — география",
+    "continuity:objects": "Непрерывность — предметы",
+    "continuity:relationships": "Непрерывность — отношения",
+    "continuity:world": "Непрерывность — правила мира",
   },
   zh: {
     "pacing": "节奏",
@@ -194,6 +248,15 @@ const CATEGORY_LABELS: Record<string, Record<string, string>> = {
     "theme": "主题",
     "genre-convention": "类型惯例",
     "tense": "时态",
+    "pov": "叙事视角",
+    "setting": "场景",
+    "foreshadowing": "伏笔",
+    "continuity:characters": "连续性 — 人物",
+    "continuity:timeline": "连续性 — 时间线",
+    "continuity:geography": "连续性 — 地理",
+    "continuity:objects": "连续性 — 物品",
+    "continuity:relationships": "连续性 — 关系",
+    "continuity:world": "连续性 — 世界规则",
   },
 };
 
@@ -328,8 +391,39 @@ export function findingStatusLabel(status: string, language?: string): string {
   return pick(STATUS_LABELS, status, language);
 }
 
-/** Every category the filter offers, in the order it offers them. */
+/**
+ * The whole editorial category vocabulary, in the order the writer sees it.
+ *
+ * This is the single source: `CreateFinding`'s tool schema is built from it, so
+ * a category with no label here cannot be created, and a category the filter
+ * offers can always be created. Before this, three lists disagreed — the tool
+ * accepted `pov`, `setting` and `foreshadowing`, which had no label in any
+ * language and rendered as raw slugs, while the filter offered `plot`, `voice`,
+ * `general` and `tense`, which no agent could emit.
+ */
 export const FINDING_CATEGORIES = Object.keys(CATEGORY_LABELS.en);
+
+/**
+ * The six continuity domains, written as qualified categories.
+ *
+ * The continuity tab groups by domain and a bare "continuity" tells it nothing,
+ * so the checker's prompt has always asked for `continuity:<domain>` — and the
+ * strict tool schema rejected every one of those calls at the API boundary.
+ * They are part of the vocabulary now.
+ */
+export const CONTINUITY_CATEGORIES = FINDING_CATEGORIES.filter((c) =>
+  c.startsWith("continuity:")
+);
+
+/** True for a bare "continuity" finding and for every qualified domain of one. */
+export function isContinuityCategory(category: string): boolean {
+  return category === "continuity" || category.startsWith("continuity:");
+}
+
+/** The categories the filter offers: the qualified continuity domains fold into one row. */
+export const FILTERABLE_FINDING_CATEGORIES = FINDING_CATEGORIES.filter(
+  (c) => !c.startsWith("continuity:")
+);
 
 /**
  * V-4: the only severities CreateFinding can persist. Four consumers filtered on

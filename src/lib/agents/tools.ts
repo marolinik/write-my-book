@@ -33,6 +33,7 @@ import {
   stampReportMetadata,
 } from "./editorial-text-hygiene";
 import { getUIStrings } from "@/lib/i18n/ui-strings";
+import { FINDING_CATEGORIES, FINDING_SEVERITIES } from "@/lib/i18n/finding-labels";
 import { enforceBookScript } from "./serbian-script";
 import { planMove, type ChapterRef, type StructureMoveInput } from "@/lib/structure/moves";
 
@@ -408,13 +409,11 @@ const listDocumentsDef: ToolDefinition = {
   },
 };
 
-const FINDING_CATEGORIES = [
-  "pacing", "character", "dialogue", "continuity", "prose",
-  "structure", "tension", "pov", "show-tell", "setting",
-  "theme", "foreshadowing", "stakes", "emotion", "worldbuilding",
-  "crutch-phrase", "filter-word", "ai-tell", "sentence-variety",
-  "verb-strength", "redundancy", "clarity", "genre-convention"
-] as const;
+// The vocabulary is defined once, beside the labels the writer reads. This
+// list used to be a second copy: it accepted pov, setting and foreshadowing —
+// which had no label in any language and so rendered as raw slugs — while the
+// filter offered plot, voice, general and tense, which the tool could never
+// emit. Same shape as the "major" severity bug (V-4), one level down.
 
 const listChaptersDef: ToolDefinition = {
   name: "ListChapters",
@@ -532,7 +531,7 @@ const createFindingDef: ToolDefinition = {
       severity: {
         type: "string",
         description: "Severity: critical (breaks the story), important (weakens the chapter), suggestion (could improve)",
-        enum: ["critical", "important", "suggestion"],
+        enum: [...FINDING_SEVERITIES],
       },
       category: {
         type: "string",
