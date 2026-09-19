@@ -479,8 +479,11 @@ async function processBetaReadSession(
   });
   if (!chapter) return;
 
-  // Fix: Use average persona score (0-10 scale), NOT gate.consensus (0-100 percentage)
-  const avgScore = extractNumericScore(personas);
+  // The score the report states, in the order it can be trusted: the machine-
+  // readable BETA_SCORE block the prompt requires, then the mean the panel
+  // wrote itself, then the mean of the personas the parser could see. Never
+  // gate.consensus, which is a 0-100 percentage.
+  const avgScore = parsed.data.overallScore ?? extractNumericScore(personas);
 
   await db.chapter.update({
     where: { id: chapter.id },

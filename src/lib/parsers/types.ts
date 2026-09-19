@@ -58,6 +58,12 @@ export interface GateResult {
 
 export interface BetaReaderData {
   gate: GateResult;
+  /**
+   * The chapter's beta score, 0-10. Taken from the report's own score block
+   * when it carries one, then from a stated mean, then from the personas. Null
+   * only when the report scores nothing at all.
+   */
+  overallScore: number | null;
   personas: BetaPersona[];
   emotions: EmotionCell[];
   engagement: EngagementDataPoint[];

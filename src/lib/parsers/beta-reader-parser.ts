@@ -13,6 +13,17 @@ import type {
 } from "./types";
 
 /**
+ * A score the way a model writes it. Serbian output writes "8,2", and every
+ * score regex in this file used to accept a dot only — which is one of the
+ * reasons betaScore was null on 28 of 28 chapters of a Serbian book.
+ */
+function toScore(raw: string | undefined): number | null {
+  if (!raw) return null;
+  const n = parseFloat(raw.trim().replace(",", "."));
+  return Number.isFinite(n) ? n : null;
+}
+
+/**
  * Extract a numeric 0-10 score from beta-read persona scores.
  * Returns the average of all persona scores, or null if no personas found.
  */
@@ -28,8 +39,33 @@ export function parseBetaReaderReport(content: string): BetaReaderData {
   const emotions = parseEmotionTable(content);
   const engagement = parseEngagementTable(content);
   const roundTable = parseRoundTable(content);
+  const overallScore = parseOverallScore(content, personas);
 
-  return { gate, personas, emotions, engagement, roundTable };
+  return { gate, overallScore, personas, emotions, engagement, roundTable };
+}
+
+/**
+ * The chapter's score, in the order the report can be trusted to carry it:
+ *
+ * 1. The BETA_SCORE block the prompt now requires — a contract, not prose.
+ * 2. The mean the panel states itself ("Prosečno ukupno uživanje: 8,2 / 10").
+ * 3. The mean of whatever persona scores were parsed.
+ */
+function parseOverallScore(
+  content: string,
+  personas: BetaPersona[]
+): number | null {
+  const block = content.match(/BETA_SCORE[:\s]+\*{0,2}\s*(\d+(?:[.,]\d+)?)/i);
+  const fromBlock = toScore(block?.[1]);
+  if (fromBlock !== null) return fromBlock;
+
+  const stated = content.match(
+    /(?:Prose[čc]n[ao][^\n:]*|Average[^\n:]*|Mean[^\n:]*|Overall[^\n:]*)[:\s]+\*{0,2}\s*(\d+(?:[.,]\d+)?)\s*\/\s*10/i
+  );
+  const fromStated = toScore(stated?.[1]);
+  if (fromStated !== null) return fromStated;
+
+  return extractNumericScore(personas);
 }
 
 function parseGateResult(content: string): GateResult {
@@ -40,6 +76,8 @@ function parseGateResult(content: string): GateResult {
   //   Parser canonical: PASSED / NEAR_MISS / FAILED
   const gateValuePattern = "(PASSED|PASS|FAILED|FAIL|NEAR[\\s_]*MISS|NEEDS[\\s_]*REVISION|MAJOR[\\s_]*REVISION)";
   const gatePatterns = [
+    // The machine-readable block the prompt requires — checked before the prose.
+    new RegExp(`BETA_GATE[:\\s]+\\*{0,2}\\s*${gateValuePattern}`, "i"),
     // English headings: "GATE RESULT:" or "GATE ASSESSMENT:"
     new RegExp(`GATE\\s+(?:RESULT|ASSESSMENT)[:\\s]+\\*{0,2}\\s*${gateValuePattern}`, "i"),
     // Serbian heading: "Gate ocena:"
@@ -177,6 +215,47 @@ function parsePersonas(content: string): BetaPersona[] {
           });
         }
       }
+    }
+  }
+
+
+  // Fallback 3: the shape the models actually emit — a persona table whose last
+  // scored column is overall enjoyment. The real Serbian report scores its five
+  // personas this way and nothing else in this parser could see it, which is why
+  // betaScore was null on every chapter of a finished book.
+  if (personas.length === 0) {
+    const rows = content.split("\n");
+    let overallColumn = -1;
+    let nameColumn = 0;
+    for (const line of rows) {
+      if (!line.includes("|")) {
+        // A blank or prose line ends the table we were reading.
+        if (line.trim() === "" && personas.length > 0) break;
+        continue;
+      }
+      const cells = line.split("|").map((c) => c.trim());
+      if (cells.length > 1 && cells[0] === "") cells.shift();
+      if (cells.length > 1 && cells[cells.length - 1] === "") cells.pop();
+      if (cells.length < 2) continue;
+
+      // Header: find the overall-enjoyment column by name, else take the last.
+      const header = cells.findIndex((c) =>
+        /(ukupno u[žz]ivanje|overall enjoyment|overall)/i.test(c)
+      );
+      if (header > 0) {
+        overallColumn = header;
+        nameColumn = 0;
+        personas.length = 0;
+        continue;
+      }
+      if (overallColumn === -1) continue;
+      if (cells.every((c) => /^[-: ]*$/.test(c))) continue; // separator row
+
+      const score = toScore(cells[overallColumn]?.replace(/[^\d.,]/g, ""));
+      if (score === null || score <= 0) continue;
+      const name = cells[nameColumn].replace(/\*+/g, "").trim();
+      if (!name) continue;
+      personas.push({ name, archetype: "Reader", score, vote: score >= 7, excerpt: "" });
     }
   }
 

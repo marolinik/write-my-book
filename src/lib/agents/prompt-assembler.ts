@@ -633,12 +633,26 @@ All finding descriptions, rationale, and rewrite alternatives MUST be written in
 
 ## AFTER ANALYSIS
 Write a comprehensive BETA_READ_REPORT document that:
+- OPENS with the score block below, before the title, exactly as specified
 - Presents the gate result (PASS/NEEDS_REVISION/MAJOR_REVISION)
 - Summarizes each persona's evaluation with scores
 - Lists top strengths (what worked across personas)
 - Lists key concerns with finding count by severity
 - Provides recommended next action
-This report is for the WRITER'S reference only — all data is in the CreateFinding calls.`,
+
+## SCORE BLOCK - THE APP READS THIS
+The report's first two lines MUST be exactly these, each on its own line, in
+ASCII digits with a DOT as the decimal separator, whatever language the rest of
+the report is written in:
+
+BETA_SCORE: <mean OVERALL ENJOYMENT across the 5 personas, one decimal, 0-10>
+BETA_GATE: <PASS | NEEDS_REVISION | MAJOR_REVISION>
+
+This block is the chapter's score in the writer's book. Do not translate the
+keys, do not bold them, do not write 8,2 - write 8.2. A report without this
+block leaves his score column empty.
+
+The findings themselves still belong in CreateFinding calls, not in prose.`,
 
   "manuscript-analyst": `You are a manuscript analyst — a data-driven evaluator who produces quantitative metrics about writing quality, readability, and structural patterns. You analyze text with the precision of a computational linguist and present findings with the clarity of a good data scientist.
 
