@@ -2649,6 +2649,12 @@ async function executeDelegateToSpecialist(
         chapterNumber: resolvedChapterNumber,
         language: delegationCtx.language,
         seriesId: ctx.seriesId,
+        // V-1: the task the coach wrote IS the specialist's instruction. Without it
+        // revise rewrote blind and capture-style had no route to any prose.
+        userMessage: input.task,
+        // V-2: WORKFLOW_INSTRUCTION_OVERRIDES are gated on targetWorkflowId, so
+        // without it a delegated specialist ran a different prompt than in batch.
+        targetWorkflowId: input.workflowId,
       },
       workflowId: input.workflowId ?? specialistType,
       sessionId: `${delegationCtx.parentSessionId}-delegate-${delegationId}`,
