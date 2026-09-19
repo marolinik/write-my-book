@@ -16,6 +16,7 @@ import { resolveSafeTemplatePath } from "./safe-path";
 import { getExportFormatConfig } from "./language-config";
 import { assembleFrontMatter, assembleSeriesFrontMatter } from "./front-matter";
 import { assembleBackMatter } from "./back-matter";
+import { actHeading, chapterHeading, getExportStrings } from "./export-strings";
 
 const execAsync = promisify(exec);
 // D-18: pandoc/typst are invoked via execFile (argv array, NO shell) so that
@@ -38,10 +39,13 @@ const execFileAsync = promisify(execFile);
 export function applyChapterHeading(
   content: string,
   chapterNumber: number,
-  title?: string
+  title?: string,
+  language?: string | null
 ): string {
+  // H-6: an untitled chapter was headed "Chapter 7" in the body AND in the
+  // table of contents, whatever language the book was written in.
   const headingText =
-    title && title.trim() ? title.trim() : `Chapter ${chapterNumber}`;
+    title && title.trim() ? title.trim() : chapterHeading(chapterNumber, language);
   const heading = `# ${headingText}`;
 
   const trimmed = content.replace(/^\s+/, "");
@@ -485,6 +489,8 @@ export async function assembleChapterSections(args: {
   userId: string;
   storage: StorageAdapter;
   chapterTitles?: Map<number, string>;
+  /** The BOOK's language — what its headings and boilerplate are written in. */
+  language?: string | null;
 }): Promise<AssembledChapters> {
   const { db } = await import("@/lib/db");
   const chapters = await db.chapter.findMany({
@@ -549,7 +555,7 @@ export async function assembleChapterSections(args: {
       currentAct = chapter.actNumber;
       if (!isFirstPart) {
         chapterParts.push(
-          `\n\\newpage\n\n::: {.act-divider}\n## Act ${chapter.actNumber}\n:::\n`
+          `\n\\newpage\n\n::: {.act-divider}\n## ${actHeading(chapter.actNumber, args.language)}\n:::\n`
         );
       }
     }
@@ -560,7 +566,8 @@ export async function assembleChapterSections(args: {
     cleaned = applyChapterHeading(
       cleaned,
       chapter.chapterNumber,
-      args.chapterTitles?.get(chapter.chapterNumber)
+      args.chapterTitles?.get(chapter.chapterNumber),
+      args.language
     );
 
     if (chapterParts.length > 0) {
@@ -590,7 +597,8 @@ export async function assembleChapterSections(args: {
  */
 async function assembleChaptersFromStorage(
   storage: StorageAdapter,
-  chapterTitles?: Map<number, string>
+  chapterTitles?: Map<number, string>,
+  language?: string | null
 ): Promise<AssembledChapters> {
   const manuscriptFiles = await storage.list("manuscript/**/*.md");
   const sorted = manuscriptFiles
@@ -637,7 +645,8 @@ async function assembleChaptersFromStorage(
     cleaned = applyChapterHeading(
       cleaned,
       chapterNumber,
-      chapterTitles?.get(chapterNumber)
+      chapterTitles?.get(chapterNumber),
+      language
     );
 
     if (i > 0) {
@@ -710,9 +719,10 @@ export async function exportManuscript(
           options.seriesTitle,
           options.bookList ?? [],
           format,
-          options.seriesCoverImage
+          options.seriesCoverImage,
+          language
         )
-      : await assembleFrontMatter(config, storage, format, options.coverUrl)
+      : await assembleFrontMatter(config, storage, format, options.coverUrl, language)
   );
 
   // 4. Assemble chapters in DB order (D-03) — storage paths are never renamed
@@ -731,7 +741,7 @@ export async function exportManuscript(
         });
 
   // 5. Assemble back matter
-  const backMatterResult = await assembleBackMatter(config, storage);
+  const backMatterResult = await assembleBackMatter(config, storage, language);
   warnings.push(...backMatterResult.warnings);
 
   // 6. Generate YAML metadata block
@@ -1124,6 +1134,9 @@ export async function exportSeriesOmnibus(args: {
   const chapterParts: string[] = [];
   const bookList: { bookNumber: number; title: string }[] = [];
   const firstBook = series.books[0];
+  // The omnibus is one artifact in one language: the first book's, the same
+  // source the composer already uses for the series documents.
+  const seriesLanguage = firstBook.language ?? "en";
   const seriesStorage = getSeriesStorage(args.userId, args.seriesId);
   const overallConfig = await loadOmnibusConfig(seriesStorage, args.userId, firstBook.id);
 
@@ -1146,7 +1159,7 @@ export async function exportSeriesOmnibus(args: {
     if (bookList.length > 1) {
       // Between books: a page break + a per-book title marker.
       chapterParts.push("\\newpage");
-      chapterParts.push(`::: {.book-part-title}\n# Book ${book.bookNumber} — ${book.name}\n:::`);
+      chapterParts.push(`::: {.book-part-title}\n# ${getExportStrings(seriesLanguage).bookNumber.replace("{n}", String(book.bookNumber))} — ${book.name}\n:::`);
       chapterParts.push("\\newpage");
     }
     if (perBook.chapterContent) chapterParts.push(perBook.chapterContent);
@@ -1181,7 +1194,8 @@ export async function exportSeriesOmnibus(args: {
     series.title,
     bookList,
     args.format,
-    seriesCoverImage
+    seriesCoverImage,
+    seriesLanguage
   );
 
   // 4. Reuse the full single-book pipeline for pandoc + tempdir binding + sanitize +

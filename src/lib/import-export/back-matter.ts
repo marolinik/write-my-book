@@ -1,5 +1,6 @@
 import type { StorageAdapter } from "@/lib/storage/types";
 import type { ExportConfig } from "./types";
+import { getExportStrings } from "./export-strings";
 
 interface BackMatterResult {
   content: string;
@@ -9,11 +10,14 @@ interface BackMatterResult {
 /** Assemble back matter sections (About Author, Also By, Acknowledgments). */
 export async function assembleBackMatter(
   config: ExportConfig,
-  storage: StorageAdapter
+  storage: StorageAdapter,
+  /** The BOOK's language — these headings are printed in the finished book. */
+  language?: string | null
 ): Promise<BackMatterResult> {
   const parts: string[] = [];
   const warnings: string[] = [];
   const { backMatter } = config;
+  const strings = getExportStrings(language);
 
   // About the Author
   if (backMatter.aboutAuthor) {
@@ -21,7 +25,7 @@ export async function assembleBackMatter(
       const content = await storage.read(backMatter.aboutAuthorPath);
       if (content) {
         parts.push("\\newpage");
-        parts.push(`::: {.about-author}\n\n## About the Author\n\n${content.trim()}\n\n:::`);
+        parts.push(`::: {.about-author}\n\n## ${strings.aboutTheAuthor}\n\n${content.trim()}\n\n:::`);
       } else {
         warnings.push(
           `About the Author is enabled but file not found: ${backMatter.aboutAuthorPath}`
@@ -39,7 +43,7 @@ export async function assembleBackMatter(
       if (content) {
         parts.push("\\newpage");
         parts.push(
-          `::: {.also-by}\n\n## Also By ${config.metadata.author || "the Author"}\n\n${content.trim()}\n\n:::`
+          `::: {.also-by}\n\n## ${strings.alsoBy} ${config.metadata.author || ""}\n\n${content.trim()}\n\n:::`
         );
       } else {
         warnings.push(
@@ -58,7 +62,7 @@ export async function assembleBackMatter(
       if (content) {
         parts.push("\\newpage");
         parts.push(
-          `::: {.acknowledgments}\n\n## Acknowledgments\n\n${content.trim()}\n\n:::`
+          `::: {.acknowledgments}\n\n## ${strings.acknowledgments}\n\n${content.trim()}\n\n:::`
         );
       } else {
         warnings.push(

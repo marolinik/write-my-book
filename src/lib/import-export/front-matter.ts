@@ -1,16 +1,24 @@
 import type { StorageAdapter } from "@/lib/storage/types";
 import type { ExportConfig } from "./types";
 import { resolveSafeTemplatePath } from "./safe-path";
+import { getExportStrings } from "./export-strings";
 
 /** Assemble front matter for a single-book export. */
 export async function assembleFrontMatter(
   config: ExportConfig,
   storage: StorageAdapter,
   format: string,
-  coverUrl?: string | null
+  coverUrl?: string | null,
+  /**
+   * The BOOK's language. H-7: the copyright page belongs to the book, and it
+   * came out in English on every export — a Serbian novel closing with "All
+   * rights reserved." and an English reproduction notice.
+   */
+  language?: string | null
 ): Promise<string> {
   const parts: string[] = [];
   const { metadata, frontMatter } = config;
+  const strings = getExportStrings(language);
 
   // Cover page (EPUB/PDF only). D-21: the cover path is re-validated to an
   // absolute path inside the allowed templates directory (or null), so an
@@ -62,15 +70,15 @@ export async function assembleFrontMatter(
       "",
       `Copyright \u00A9 ${year} ${author}`,
       "",
-      "All rights reserved.",
+      strings.allRightsReserved,
       "",
-      "No part of this publication may be reproduced, distributed, or transmitted in any form or by any means without the prior written permission of the author, except in the case of brief quotations embodied in critical reviews.",
+      strings.reproductionNotice,
     ];
     if (metadata.isbn) {
-      copyrightLines.push("", `ISBN: ${metadata.isbn}`);
+      copyrightLines.push("", `${strings.isbn}: ${metadata.isbn}`);
     }
     if (metadata.publisher) {
-      copyrightLines.push("", `Published by ${metadata.publisher}`);
+      copyrightLines.push("", `${strings.publishedBy} ${metadata.publisher}`);
     }
     copyrightLines.push("", ":::");
     parts.push(copyrightLines.join("\n"));
@@ -101,10 +109,12 @@ export async function assembleSeriesFrontMatter(
   seriesTitle: string,
   bookList: { bookNumber: number; title: string }[],
   format: string,
-  seriesCoverImage?: { bytes: Uint8Array; ext: string } | null
+  seriesCoverImage?: { bytes: Uint8Array; ext: string } | null,
+  language?: string | null
 ): Promise<string> {
   const parts: string[] = [];
   const { metadata, frontMatter } = config;
+  const strings = getExportStrings(language);
 
   // Cover page. D-21: same containment as the single-book path above.
   // UDG round-9 (Olivera/Igor): the uploaded series cover is side-loaded with
@@ -124,14 +134,22 @@ export async function assembleSeriesFrontMatter(
   }
 
   // Series title page
-  const titleParts = [`::: {.title-page}`, "", `# ${seriesTitle}`, "", "## Complete Series"];
+  const titleParts = [
+    `::: {.title-page}`,
+    "",
+    `# ${seriesTitle}`,
+    "",
+    `## ${strings.completeSeries}`,
+  ];
   if (metadata.author) {
     titleParts.push("", `### ${metadata.author}`);
   }
   if (bookList.length > 0) {
     titleParts.push("", "---", "");
     for (const book of bookList) {
-      titleParts.push(`Book ${book.bookNumber}: *${book.title}*  `);
+      titleParts.push(
+        `${strings.bookNumber.replace("{n}", String(book.bookNumber))}: *${book.title}*  `
+      );
     }
   }
   if (metadata.publisher) {
@@ -151,7 +169,7 @@ export async function assembleSeriesFrontMatter(
         "",
         `Copyright \u00A9 ${year} ${author}`,
         "",
-        "All rights reserved.",
+        strings.allRightsReserved,
         "",
         ":::",
       ].join("\n")
