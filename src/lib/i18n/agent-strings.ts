@@ -276,7 +276,7 @@ const SR: AgentStrings = {
     "discuss-edits": "Diskutuj izmene",
     "publishing-check": "Provera za izdavanje",
     "market-analysis": "Analiza tržišta",
-    "refresh-style": "Osvježi stil",
+    "refresh-style": "Osveži stil",
     "evolve-style": "Razvij stil",
     "check-series-continuity": "Provera kontinuiteta između knjiga",
     coach: "Mentor za pisanje",

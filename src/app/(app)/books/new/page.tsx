@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -27,13 +27,22 @@ import {
 
 export default function NewBookPage() {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, language: writerLanguage, isLoading: languageLoading } = useLanguage();
   const createBook = useCreateBook();
   const { data: seriesList } = useSeries();
 
   const [name, setName] = useState("");
   const [genre, setGenre] = useState("");
-  const [language, setLanguage] = useState("en");
+  // V-8: the book's prose language defaults to the writer's own. It used to be
+  // hardcoded "en", and because the form always sends an explicit language the
+  // API's preferredLanguage fallback never fired — a Serbian writer who did not
+  // notice this picker got an English book, and Book.language is what every
+  // agent prompt enforces. The writer's own choice always wins.
+  const [language, setLanguage] = useState(writerLanguage);
+  const [languagePicked, setLanguagePicked] = useState(false);
+  useEffect(() => {
+    if (!languagePicked && !languageLoading) setLanguage(writerLanguage);
+  }, [writerLanguage, languageLoading, languagePicked]);
   const [seriesId, setSeriesId] = useState<string>("none");
   const [bookNumber, setBookNumber] = useState(1);
   // D-154: the name is required, but the guard was a bare `return` — a silent
@@ -153,7 +162,13 @@ export default function NewBookPage() {
 
             <div className="space-y-2">
               <Label htmlFor="language">{t.newBook.language}</Label>
-              <Select value={language} onValueChange={setLanguage}>
+              <Select
+                value={language}
+                onValueChange={(value) => {
+                  setLanguagePicked(true);
+                  setLanguage(value);
+                }}
+              >
                 <SelectTrigger id="language">
                   <SelectValue />
                 </SelectTrigger>
