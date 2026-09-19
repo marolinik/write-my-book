@@ -163,46 +163,6 @@ export interface MarketData {
   markets: MarketReport[];
 }
 
-// --- publishing-editor types ---
-
-export interface PubEditorFinding {
-  checkId: string;
-  checkName: string;
-  severity: "Warning" | "Info";
-  category: string;
-  chapter: string;
-  location: string;
-  issue: string;
-  recommendation: string;
-  disposition: string;
-  dismissReason?: string;
-}
-
-export interface PubEditorStats {
-  totalWordCount: number;
-  chapterCount: number;
-  avgChapterLength: number;
-  estimatedPages: number;
-  estimatedReadingTime: string;
-}
-
-export interface PubEditorAutoFix {
-  category: string;
-  changes: number;
-  details: string;
-}
-
-export interface PubEditorData {
-  checksRun: number;
-  totalFindings: number;
-  warningCount: number;
-  infoCount: number;
-  autoFixCount: number;
-  findings: PubEditorFinding[];
-  stats: PubEditorStats;
-  autoFixes: PubEditorAutoFix[];
-}
-
 // --- series-continuity types ---
 
 export interface SeriesContinuityFinding {
@@ -227,6 +187,5 @@ export type ParsedOutput =
   | { type: "analysis"; data: AnalysisData; parseSuccess: true }
   | { type: "continuity"; data: ContinuityData; parseSuccess: true }
   | { type: "market"; data: MarketData; parseSuccess: true }
-  | { type: "publishing-editor"; data: PubEditorData; parseSuccess: true }
   | { type: "series-continuity"; data: SeriesContinuityData; parseSuccess: true }
   | { type: string; data: null; parseSuccess: false; rawContent: string };

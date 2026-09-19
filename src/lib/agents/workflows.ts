@@ -163,6 +163,11 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresChapter: false,
     requiresSeriesContext: false,
     conversational: false,
+    // A-38: the 5-pass analysis IS a document, and the brownfield journey
+    // reads its existence to decide whether the manuscript has been read. It
+    // declared nothing, so a run that streamed the analysis into the chat and
+    // never saved it reported success and left the journey stuck.
+    producesDocument: "ANALYSIS_REPORT",
     suggestedNext: ["capture-style", "create-story-bible"],
     estimatedMinMinutes: 2,
     estimatedMaxMinutes: 5,
@@ -404,6 +409,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     // stopped. Pacing numbers exist to drive a structural decision, so analysis
     // now hands off to the restructure pass.
     suggestedNext: ["restructure"],
+    producesDocument: "ANALYSIS_REPORT",
     estimatedMinMinutes: 2,
     estimatedMaxMinutes: 5,
     minimumTier: "haiku",
@@ -449,6 +455,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresChapter: false,
     requiresSeriesContext: false,
     conversational: false,
+    producesDocument: "MARKET_REPORT",
     suggestedNext: [],
     estimatedMinMinutes: 2,
     estimatedMaxMinutes: 5,
@@ -511,6 +518,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresChapter: false,
     requiresSeriesContext: false,
     conversational: false,
+    producesDocument: "WORLD_RESEARCH",
     suggestedNext: ["create-story-bible", "build-architecture"],
     prerequisites: [
       {

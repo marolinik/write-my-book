@@ -1101,9 +1101,13 @@ FINDING FORMAT:
 Use CreateFinding for each issue with:
 - severity: "critical" (a reader will see it and it looks unprofessional), "important" (a real formatting inconsistency), "suggestion" (a small detail or optional improvement). These three are the only severities the tool accepts.
 - category: one of the tool's categories — typically "structure" (numbering, headings, front and back matter), "prose" (typography, spacing), "dialogue" (dialogue punctuation) or "clarity". Do NOT invent a category such as "11-dialogue-formatting"; name the check in the description instead.
-- chapterNumber: the real chapter the issue is in, taken from ListChapters. Omit it only for a manuscript-wide issue that belongs to no single chapter.
+- chapterNumber: the real chapter the issue is in, taken from ListChapters, and an anchorQuote copied verbatim from THAT chapter. This run has no chapter scope of its own, so a finding without a chapter number is rejected outright.
 - Exact location in the manuscript
-- Specific fix instruction`,
+- Specific fix instruction
+
+A manuscript-wide problem is still filed against a chapter: file it where it first shows up, and quote that chapter. "Chapter 7 uses ### for a scene break where every other chapter uses * * *" is a finding; "scene breaks are inconsistent" is not, because there is nothing to quote and nothing to fix.
+
+A problem that belongs to NO chapter — a missing copyright page, absent front matter, a table of contents that does not exist — cannot be a finding: there is no text to anchor it to. Report those in your closing summary instead, as a short list of what is missing, and say plainly that they are book-level.`,
 };
 
 // ─── Workflow-Specific Instruction Overrides ─────────────────────

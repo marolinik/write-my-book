@@ -9,7 +9,6 @@ import { parseBetaReaderReport } from "./beta-reader-parser";
 import { parseAnalysisReport } from "./analysis-parser";
 import { parseContinuityReport } from "./continuity-parser";
 import { parseMarketReports } from "./market-reader-parser";
-import { parsePublishingEditorReport } from "./publishing-editor";
 import { parseSeriesContinuityReport } from "./series-continuity";
 import type { ParsedOutput } from "./types";
 
@@ -63,11 +62,6 @@ export function parseAgentOutput(
         return { type: "market", data, parseSuccess: true };
       }
 
-      case "export": {
-        const pubData = parsePublishingEditorReport(content);
-        return { type: "publishing-editor", data: pubData, parseSuccess: true };
-      }
-
       case "check-series-continuity": {
         const scData = parseSeriesContinuityReport(content);
         return { type: "series-continuity", data: scData, parseSuccess: true };
@@ -91,7 +85,6 @@ export { parseBetaReaderReport, extractNumericScore } from "./beta-reader-parser
 export { parseAnalysisReport } from "./analysis-parser";
 export { parseContinuityReport } from "./continuity-parser";
 export { parseMarketReports } from "./market-reader-parser";
-export { parsePublishingEditorReport } from "./publishing-editor";
 export { parseSeriesContinuityReport } from "./series-continuity";
 
 // Re-export all types from centralized types file
@@ -116,10 +109,6 @@ export type {
   AdaptationSuggestion,
   MarketReport,
   MarketData,
-  PubEditorFinding,
-  PubEditorStats,
-  PubEditorAutoFix,
-  PubEditorData,
   SeriesContinuityFinding,
   SeriesContinuityData,
   ParsedOutput,
