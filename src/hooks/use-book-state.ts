@@ -138,7 +138,9 @@ export function useBookState(bookId: string): BookStateResult {
     const hasAnalysisReport = docTypes.has("ANALYSIS_REPORT");
     const hasContinuityReport = docTypes.has("CONTINUITY_REPORT");
     const hasMarketReport = docTypes.has("MARKET_REPORT");
-    const hasImportedManuscript = docTypes.has("MANUSCRIPT_ANALYSIS");
+    // V-5: the brownfield signal is chapters that arrived through import.
+    // The old check read a DocumentType that does not exist, so it was never true.
+    const hasImportedManuscript = (book?.chapters ?? []).some((ch) => ch.importedAt != null);
 
     const profiles = styleData?.profiles ?? [];
     const hasStyleProfile = profiles.length > 0;
@@ -285,7 +287,7 @@ export function useBookState(bookId: string): BookStateResult {
     if (hasAnalysisReport) completedWorkflows.add("analyze");
     if (hasContinuityReport) completedWorkflows.add("check-series-continuity");
     if (hasMarketReport) completedWorkflows.add("market-analysis");
-    if (hasImportedManuscript) completedWorkflows.add("read-manuscript");
+    if (hasAnalysisReport) completedWorkflows.add("read-manuscript");
 
     const journeyProgress = activeJourneyId
       ? getJourneyProgress(activeJourneyId, completedWorkflows)

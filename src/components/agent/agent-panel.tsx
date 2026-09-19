@@ -141,7 +141,7 @@ export function AgentPanel({
     if (bookState.hasAnalysisReport) set.add("analyze");
     if (bookState.hasContinuityReport) set.add("check-series-continuity");
     if (bookState.hasMarketReport) set.add("market-analysis");
-    if (bookState.hasImportedManuscript) set.add("read-manuscript");
+    if (bookState.hasAnalysisReport) set.add("read-manuscript");
     return set;
   }, [bookState]);
   const hasChapterContent = (bookState.chapterCount ?? 0) > 0;

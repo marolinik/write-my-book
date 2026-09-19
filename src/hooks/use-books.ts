@@ -42,6 +42,8 @@ export type BookDetail = BookListItem & {
     betaScore: number | null;
     betaGate: string;
     revisionCount: number;
+    /** Set when the chapter came in through import — the brownfield signal. */
+    importedAt: string | null;
     createdAt: string;
     updatedAt: string;
   }>;

@@ -271,7 +271,9 @@ export function isStepComplete(step: JourneyStep, input: StepCompletionInput): b
     case "market-analysis":
       return input.hasMarketReport;
     case "read-manuscript":
-      return input.hasImportedManuscript;
+      // V-5: read-manuscript persists an ANALYSIS_REPORT; that document is the
+      // evidence it ran. An imported manuscript alone does not complete the step.
+      return input.hasAnalysisReport;
     // Optional/freeform steps — never block progress
     case "coach":
     case "free-drive":
