@@ -958,6 +958,8 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
         bookName,
         userId,
         chapterNumber,
+        // V-6: same series context as the interactive path.
+        seriesId: book?.seriesId ?? undefined,
         language,
         targetWorkflowId: workflowId,
         targetAgentType: workflow?.primaryAgent,

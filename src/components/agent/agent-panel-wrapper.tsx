@@ -128,7 +128,14 @@ export function AgentPanelWrapper({ onClose }: AgentPanelWrapperProps) {
     title: ch.title,
   }));
 
+  // V-6: a book that belongs to a series must say so, or the series workflows
+  // are unreachable and the series tools answer "not part of a series".
   return (
-    <AgentPanel bookId={bookId!} chapters={chapters} onClose={onClose} />
+    <AgentPanel
+      bookId={bookId!}
+      chapters={chapters}
+      onClose={onClose}
+      seriesId={book?.seriesId ?? undefined}
+    />
   );
 }
