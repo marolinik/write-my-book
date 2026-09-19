@@ -118,7 +118,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     }
 
     // -- Setup Completeness Guard (SETUP-07) --
-    if (workflow.category !== "setup") {
+    if (workflow.category !== "setup" && !workflow.allowedBeforeSetup) {
       const wizardComplete = book.settings?.setupComplete ?? false;
       if (!wizardComplete) {
         const docTypes = await db.document.findMany({
@@ -510,6 +510,9 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
           bookName: book.name,
           userId: user.id,
           chapterNumber: chapterNumber,
+          // V-6: the series the book belongs to, so the cross-book tools can
+          // reach its siblings instead of answering "not part of a series".
+          seriesId: book.seriesId ?? undefined,
           language: book.language,
           targetWorkflowId: data.workflowId,
           targetAgentType: workflow.primaryAgent,

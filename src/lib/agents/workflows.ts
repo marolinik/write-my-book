@@ -157,6 +157,9 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
       "Analyze an existing manuscript through 5 passes — structure, characters, themes, style, and gaps.",
     primaryAgent: "manuscript-reader",
     category: "analysis",
+    // C4: step 1 of the Existing-Manuscript journey — it cannot wait for the
+    // setup documents that steps 2-4 of that same journey produce.
+    allowedBeforeSetup: true,
     requiresChapter: false,
     requiresSeriesContext: false,
     conversational: false,

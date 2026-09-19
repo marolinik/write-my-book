@@ -287,4 +287,10 @@ export interface WorkflowDefinition {
   estimatedMaxMinutes?: number;
   /** Minimum model tier required for this workflow. Blocks underpowered models. */
   minimumTier?: ModelTier;
+  /**
+   * C4: this workflow may run on a book whose setup is not finished yet. The
+   * Existing-Manuscript journey starts with `read-manuscript`, and the setup
+   * documents the guard demands are produced by steps 2-4 of that same journey.
+   */
+  allowedBeforeSetup?: boolean;
 }
