@@ -45,7 +45,7 @@ export function useLanguageBroadcast() {
   }, [qc]);
 }
 
-export function useUserLanguage() {
+export function useUserLanguage(initialLanguage?: string) {
   return useQuery<{ language: string }>({
     queryKey: ["user-language"],
     queryFn: async () => {
@@ -54,6 +54,9 @@ export function useUserLanguage() {
       return res.json();
     },
     staleTime: Infinity,
+    // Seeded by the server layout, so the first paint is already in the
+    // writer's language instead of flashing English and swapping.
+    ...(initialLanguage ? { initialData: { language: initialLanguage } } : {}),
   });
 }
 

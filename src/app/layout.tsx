@@ -13,6 +13,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { ClerkThemeProvider } from "@/components/providers/clerk-theme-provider";
 import { ToastRouteGuard } from "@/components/providers/toast-route-guard";
+import { getServerLocaleTag } from "@/lib/i18n/server-language";
 import "./globals.css";
 
 const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
@@ -102,11 +103,15 @@ export const viewport: Viewport = {
   interactiveWidget: "resizes-content",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // The writer's own language, resolved on the server. <html lang> used to be
+  // hardcoded "en" for every page, so the browser spellchecked Serbian prose as
+  // English and a screen reader read it with an English voice.
+  const localeTag = await getServerLocaleTag();
   const inner = (
     <QueryProvider>
       <TooltipProvider>
@@ -121,7 +126,7 @@ export default function RootLayout({
   );
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={localeTag} suppressHydrationWarning>
       <body
         className={`${fontSans.variable} ${fontDisplay.variable} ${fontMono.variable} ${fontSerif.variable} font-sans antialiased`}
       >

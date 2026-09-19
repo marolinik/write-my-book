@@ -19,9 +19,20 @@ const LanguageContext = createContext<LanguageContextValue>({
   isLoading: false,
 });
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const { data, isLoading } = useUserLanguage();
-  const language = data?.language ?? "en";
+export function LanguageProvider({
+  children,
+  /**
+   * The writer's language, resolved on the server. Without it the first paint
+   * is English on every page load and swaps once the client query lands, which
+   * is a visible flash on every navigation.
+   */
+  initialLanguage,
+}: {
+  children: React.ReactNode;
+  initialLanguage?: string;
+}) {
+  const { data, isLoading } = useUserLanguage(initialLanguage);
+  const language = data?.language ?? initialLanguage ?? "en";
 
   // UDG round-5 (Hana): live locale refresh across open tabs via BroadcastChannel.
   useLanguageBroadcast();

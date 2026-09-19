@@ -29,6 +29,10 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
+      // `server-only` throws on import outside a React Server Component, which
+      // is exactly its job in the app and exactly wrong in a unit test. The
+      // marker still guards the real build; here it is a no-op.
+      "server-only": fileURLToPath(new URL("./tests/stubs/server-only.ts", import.meta.url)),
     },
   },
 });

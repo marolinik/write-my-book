@@ -16,7 +16,9 @@ import { mainBottomPaddingClass } from "@/lib/layout/fab-clearance";
  * bottom-nav reserve.
  */
 
-const LAYOUT_SOURCE = readFileSync(join(process.cwd(), "src/app/(app)/layout.tsx"), "utf8");
+// The shell moved out of layout.tsx when the layout became a server component
+// that resolves the writer's language before the first paint.
+const LAYOUT_SOURCE = readFileSync(join(process.cwd(), "src/app/(app)/app-shell.tsx"), "utf8");
 
 describe("D-139 — content clears the floating bubble", () => {
   it("reserves room under desktop content pages", () => {
