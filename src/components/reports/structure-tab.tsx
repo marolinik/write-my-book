@@ -270,7 +270,12 @@ function MoveCard({
           <p className="text-sm text-destructive">{move.resultSummary}</p>
         )}
         {move.status === "applied" && move.resultSummary && (
-          <p className="text-sm text-muted-foreground">{move.resultSummary}</p>
+          // The engine records its result in English. Rather than print the
+          // developer's sentence at the writer, the same fact is rebuilt from
+          // the move itself (D-204).
+          <p className="text-sm text-muted-foreground">
+            {describeMoveResult(move, s)}
+          </p>
         )}
 
         <div className="flex flex-wrap gap-2">
@@ -304,6 +309,25 @@ function MoveCard({
       </CardContent>
     </Card>
   );
+}
+
+/** What the move did, in the writer's language, built from the move (D-204). */
+export function describeMoveResult(
+  move: Pick<StructureMove, "kind" | "payload" | "resultSummary">,
+  s: { doneReorder: string; doneMerge: string; doneSplit: string }
+): string {
+  const p = move.payload ?? {};
+  if (move.kind === "merge") {
+    return s.doneMerge.replace("{list}", (p.chapterNumbers ?? []).join(" + "));
+  }
+  if (move.kind === "split") {
+    return s.doneSplit.replace("{n}", String(p.chapterNumber ?? "?"));
+  }
+  if (move.kind === "reorder" || move.kind === "renumber") {
+    return s.doneReorder.replace("{n}", String(p.chapterNumber ?? "?"));
+  }
+  // An unknown kind keeps the engine's own record rather than inventing one.
+  return move.resultSummary ?? "";
 }
 
 /** Render the move as one plain sentence in the writer's language. */

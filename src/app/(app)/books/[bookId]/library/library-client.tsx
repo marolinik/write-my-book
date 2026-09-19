@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useLanguage } from "@/components/providers/language-provider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileTextIcon, BookMarkedIcon, UsersIcon } from "lucide-react";
 import { WikiPage } from "@/components/book/wiki-page";
@@ -16,6 +17,7 @@ interface LibraryPageClientProps {
 
 export function LibraryPageClient({ bookId, language, initialTab }: LibraryPageClientProps) {
   const [tab, setTab] = useState<string>(initialTab);
+  const { t } = useLanguage();
 
   // Fetch all wiki entities to extract characters for the chat tab
   const { data: entities = [] } = useWikiEntities(bookId, "character");
@@ -33,15 +35,15 @@ export function LibraryPageClient({ bookId, language, initialTab }: LibraryPageC
         <TabsList className="mb-6">
           <TabsTrigger value="documents" className="gap-1.5">
             <FileTextIcon className="size-3.5" />
-            Documents
+            {t.nav.documents}
           </TabsTrigger>
           <TabsTrigger value="wiki" className="gap-1.5">
             <BookMarkedIcon className="size-3.5" />
-            World Bible
+            {t.docLibrary.worldBible}
           </TabsTrigger>
           <TabsTrigger value="characters" className="gap-1.5">
             <UsersIcon className="size-3.5" />
-            Chat with Characters
+            {t.docLibrary.chatCharacters}
           </TabsTrigger>
         </TabsList>
         <TabsContent value="documents" className="mt-0">

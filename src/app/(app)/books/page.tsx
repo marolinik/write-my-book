@@ -4,6 +4,7 @@ import { BookOpenIcon, PlusIcon } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getUIStrings, localeFor } from "@/lib/i18n/ui-strings";
+import { countWithNoun } from "@/lib/i18n/plural";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { buildRollups } from "@/lib/shelf/chapter-rollup";
@@ -21,6 +22,9 @@ export default async function BooksPage() {
   // The shelf cards are server rendered, so their strings travel as props
   // rather than through the client language provider (D-206).
   const cardStrings = {
+    subtitle: s,
+    // Drives note pluralisation in the subtitle (S3-24).
+    language: user.preferredLanguage ?? "en",
     open: t.appUI.open,
     continueToChapter: t.appUI.continueToChapter,
     reviewFeedback: t.appUI.reviewFeedback,
@@ -102,7 +106,11 @@ export default async function BooksPage() {
         <div>
           <h1 className="font-display text-2xl font-bold">{s.title}</h1>
           <p className="text-sm text-muted-foreground">
-            {total} {total === 1 ? s.book : s.books}
+            {/* Serbian counts in three: 1 knjiga, 3 knjige, 5 knjiga (S3-24). */}
+            {countWithNoun(total, s.book, s.books, {
+              few: s.bookFew,
+              language: user.preferredLanguage ?? "en",
+            })}
           </p>
         </div>
         <Button asChild>

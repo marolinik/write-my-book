@@ -40,6 +40,7 @@ import {
 import { useAgentUIStore } from "@/stores/agent-ui-store";
 import { useLanguage, useLocale } from "@/components/providers/language-provider";
 import { getDocumentTypeLabels } from "@/lib/agents/tool-labels";
+import { countWithNoun } from "@/lib/i18n/plural";
 import { getAgentStrings } from "@/lib/i18n/agent-strings";
 import {
   groupDocuments,
@@ -127,15 +128,19 @@ const WORKFLOW_ICONS: Record<string, React.ElementType> = {
   "market-analysis": GlobeIcon,
 };
 
-function relativeTime(date: string, locale: string): string {
+function relativeTime(
+  date: string,
+  locale: string,
+  s: { justNow: string; minutesAgo: string; hoursAgo: string; daysAgo: string }
+): string {
   const diff = Date.now() - new Date(date).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
+  if (mins < 1) return s.justNow;
+  if (mins < 60) return s.minutesAgo.replace("{n}", String(mins));
   const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
+  if (hours < 24) return s.hoursAgo.replace("{n}", String(hours));
   const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d ago`;
+  if (days < 7) return s.daysAgo.replace("{n}", String(days));
   return new Date(date).toLocaleDateString(locale);
 }
 
@@ -258,8 +263,11 @@ export function DocumentsLibrary({ bookId }: { bookId: string }) {
           {t.nav.documents}
         </h2>
         <p className="text-muted-foreground mt-1">
-          {docs.length} document{docs.length !== 1 ? "s" : ""} — organized by
-          workflow stage.
+          {countWithNoun(docs.length, t.docLibrary.docOne, t.docLibrary.docMany, {
+            few: t.docLibrary.docFew,
+            language,
+          })}{" — "}
+          {t.docLibrary.organisedBy}
         </p>
       </div>
 
@@ -291,7 +299,7 @@ export function DocumentsLibrary({ bookId }: { bookId: string }) {
         <Button variant="outline" size="sm" className="h-9" asChild>
           <Link href={`/books/${bookId}/documents/new`}>
             <PlusIcon className="size-3.5 mr-1.5" />
-            New Document
+            {t.docLibrary.newDocument}
           </Link>
         </Button>
       </div>
@@ -326,7 +334,7 @@ export function DocumentsLibrary({ bookId }: { bookId: string }) {
           <CardContent className="py-12 text-center">
             <SearchIcon className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
             <p className="text-sm text-muted-foreground">
-              No documents matching &quot;{searchQuery}&quot;
+              {t.docLibrary.noMatch.replace("{q}", searchQuery)}
             </p>
           </CardContent>
         </Card>
@@ -335,8 +343,7 @@ export function DocumentsLibrary({ bookId }: { bookId: string }) {
           <CardContent className="py-12 text-center">
             <FileTextIcon className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
             <p className="text-sm text-muted-foreground">
-              No documents yet. Use the quick actions above or run agent
-              workflows to create documents.
+              {t.docLibrary.noneYet}
             </p>
           </CardContent>
         </Card>
@@ -347,6 +354,7 @@ export function DocumentsLibrary({ bookId }: { bookId: string }) {
             group={group}
             bookId={bookId}
             label={t.docLibrary[group.key]}
+            chapterHeading={t.docLibrary.chapterN}
             emptyText={t.docLibrary.emptyGroup}
             startText={t.docLibrary.startWorkflow}
             workflowLabel={
@@ -369,6 +377,7 @@ function DocumentGroupSection({
   group,
   bookId,
   label,
+  chapterHeading,
   emptyText,
   startText,
   workflowLabel,
@@ -377,6 +386,8 @@ function DocumentGroupSection({
   group: DocumentGroup & { docs: DocItem[] };
   bookId: string;
   label: string;
+  /** Carries an {n} placeholder for the chapter number. */
+  chapterHeading: string;
   /** Carries a {group} placeholder. */
   emptyText: string;
   /** Carries a {workflow} placeholder. */
@@ -467,7 +478,7 @@ function DocumentGroupSection({
           {sortedChapterNums.map((chNum) => (
             <div key={chNum}>
               <p className="text-xs font-medium text-muted-foreground mb-1 px-1">
-                Chapter {chNum}
+                {chapterHeading.replace("{n}", String(chNum))}
               </p>
               <div className="space-y-1">
                 {chapters.get(chNum)!.map((doc) => (
@@ -515,7 +526,7 @@ function DocumentRow({
   hideChapter?: boolean;
 }) {
   const locale = useLocale();
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
   const Icon = DOC_TYPE_ICONS[doc.type] ?? FileTextIcon;
   const label = getDocumentTypeLabels(language)[doc.type] ?? doc.type;
 
@@ -547,7 +558,7 @@ function DocumentRow({
           v{doc.currentVersion}
         </Badge>
         <span className="text-xs text-muted-foreground">
-          {relativeTime(doc.updatedAt, locale)}
+          {relativeTime(doc.updatedAt, locale, t.docLibrary)}
         </span>
       </div>
     </Link>

@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ShelfBookView } from "@/lib/shelf/types";
-import { buildSubtitle } from "@/lib/shelf/card-subtitle";
+import { buildSubtitle, type SubtitleStrings } from "@/lib/shelf/card-subtitle";
 import { ArchiveMenu } from "./archive-menu";
 
 /**
@@ -15,6 +15,10 @@ import { ArchiveMenu } from "./archive-menu";
  * the dictionary with `getUIStrings`, so it has them to give.
  */
 export interface ShelfCardStrings {
+  /** The subtitle's own words — resolved on the server with everything else. */
+  subtitle: SubtitleStrings;
+  /** UI language, for the plural forms inside the subtitle. */
+  language: string;
   open: string;
   /** Carries an `{n}` placeholder for the chapter number. */
   continueToChapter: string;
@@ -86,7 +90,9 @@ export function ShelfBookCard({ book, locale, strings }: ShelfBookCardProps) {
         </div>
       </CardHeader>
       <CardContent>
-        <p className="text-xs text-muted-foreground">{buildSubtitle(book, locale)}</p>
+        <p className="text-xs text-muted-foreground">
+          {buildSubtitle(book, locale, strings.subtitle, strings.language)}
+        </p>
         <PrimaryCta book={book} strings={strings} />
       </CardContent>
     </Card>
