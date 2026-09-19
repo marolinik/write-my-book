@@ -321,7 +321,7 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
   {
     id: "beta-read",
     label: "Beta Read",
-    description: "Simulate 10 reader personas evaluating the chapter.",
+    description: "Simulate 5 reader personas evaluating the chapter.",
     writerDescription: "Get feedback from a simulated panel of diverse readers.",
     primaryAgent: "beta-reader",
     category: "editing",

@@ -53,44 +53,6 @@ Even "quiet" scenes need tension. Sources:
 
 // ─── AI-Tell Detection Knowledge ────────────────────────────────
 
-export const AI_TELL_DETECTION = `
-## AI Tell Detection — Forbidden Phrases & Patterns
-
-### Tier 1: Immediate Flags (Strong AI Tells)
-"delve into", "tapestry of", "testament to", "a dance of",
-"sending shivers", "palpable tension", "in the realm of",
-"it's worth noting", "couldn't help but", "a sense of wonder",
-"navigating the complexities", "rich tapestry", "profound impact",
-"beacon of hope", "unbeknownst to", "interplay between",
-"multifaceted approach", "underscored by", "a symphony of",
-"cascading effects", "myriad of", "plethora of"
-
-### Tier 2: Suspect Patterns (May Be AI)
-- Paragraphs starting with "As [character name]..."
-- "The weight of [abstract noun]" (weight of responsibility, weight of silence)
-- "[Character] couldn't help but [feel/notice/wonder]"
-- "A mixture of [emotion] and [emotion] washed over"
-- "Eyes widened" / "Heart pounded in chest" / "Breath caught"
-- "It was clear that..." / "It was evident that..."
-- Three-item lists with escalating intensity ("X, Y, and even Z")
-- "Despite the [noun], [pronoun] felt [emotion]" pattern
-
-### Tier 3: Structural AI Patterns
-- Every paragraph is exactly 3-4 sentences
-- Topic sentence → explanation → example → transition (essay structure in fiction)
-- Emotional responses always follow the same order: physical sensation → thought → action
-- Dialogue responses that perfectly address every point the other character made
-- Descriptions that cover all 5 senses in systematic order
-- Characters who are unfailingly articulate about their emotions
-
-### Voice Preservation Rules
-When rewriting to fix AI tells:
-1. Preserve the author's sentence length distribution
-2. Use vocabulary from the author's register (don't upgrade or downgrade)
-3. Keep the author's punctuation patterns (em dashes, semicolons, etc.)
-4. Match the author's metaphor domains
-5. Maintain paragraph rhythm
-`;
 
 // ─── Publishing Standards ───────────────────────────────────────
 
@@ -167,14 +129,3 @@ export const SENSITIVITY_GUIDELINES = `
 Flag potential sensitivity issues in findings with the most fitting allowed category (usually "character" or "theme") and severity "suggestion", noting the sensitivity concern in the description.
 Do NOT rewrite — only note the concern and why it matters. The author makes the final call.
 `;
-
-// ─── Compile all skills for injection ───────────────────────────
-
-export function getAllCraftSkills(): string {
-  return [
-    NARRATIVE_TECHNIQUES,
-    AI_TELL_DETECTION,
-    PUBLISHING_STANDARDS,
-    SENSITIVITY_GUIDELINES,
-  ].join("\n\n");
-}

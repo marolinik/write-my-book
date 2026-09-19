@@ -9,6 +9,7 @@ import { formatBriefsForPrompt } from "./session-brief";
 import { formatWriterMemoryForPrompt } from "./writer-memory";
 import { selectSkillsForAgent } from "./skills";
 import { findingHistoryStatus } from "./finding-history-status";
+import { getDocumentTypeLabels } from "./tool-labels";
 import { db } from "@/lib/db";
 
 // UDG round-4 (Elena): per-line-editor profile templates. Values mirror
@@ -27,6 +28,38 @@ const LINE_EDITOR_PROFILE_INSTRUCTIONS: Record<string, string> = {
 // ─── Base Agent Instructions ───────────────────────────────────
 // Brief inline instructions per agent type. Full prompt .md files
 // will be authored in Phase 5.
+
+/**
+ * The categories each editorial agent files findings under.
+ *
+ * Three prompts listed their categories TWICE — once in the CreateFinding
+ * field list, once under a "CATEGORIES for …" heading — and the dev editor's
+ * two copies disagreed: the second silently dropped `continuity` and `prose`.
+ * One list per agent, interpolated into the prompt, so the copies cannot drift
+ * again; a test checks each one against the tool's own vocabulary.
+ */
+const AGENT_CATEGORIES: Record<string, readonly string[]> = {
+  "dev-editor": [
+    "pacing", "character", "dialogue", "continuity", "prose", "structure",
+    "tension", "pov", "show-tell", "setting", "theme", "foreshadowing",
+    "stakes", "emotion", "worldbuilding",
+  ],
+  "line-editor": [
+    "crutch-phrase", "filter-word", "ai-tell", "sentence-variety",
+    "verb-strength", "redundancy", "clarity", "prose", "show-tell",
+    "dialogue", "emotion", "genre-convention",
+  ],
+  "beta-reader": [
+    "pacing", "character", "dialogue", "emotion", "tension", "stakes",
+    "genre-convention", "clarity", "structure", "worldbuilding",
+  ],
+};
+
+/** The one place a prompt names its categories. */
+const categoryList = (agentType: string): string =>
+  (AGENT_CATEGORIES[agentType] ?? []).join(", ");
+
+export { AGENT_CATEGORIES };
 
 // Exported for unit testing of static prompt content (e.g. asserting the
 // line-editor's PROTECTED SIGNATURE DEVICES precedence gate is present and
@@ -75,7 +108,7 @@ VOICE MATCHING (from FINGERPRINT):
 - Match punctuation habits: em dash frequency, semicolon usage, ellipsis patterns, exclamation point restraint
 
 FORBIDDEN PHRASES — These are AI tells. NEVER use them:
-"delve", "tapestry", "testament to", "couldn't help but", "a sense of", "the weight of", "palpable", "in the realm of", "it's worth noting", "a dance of", "sending shivers", "eyes widened", "heart pounded in chest", "let out a breath", "a mixture of", "cascading", "unbeknownst", "interplay", "multifaceted", "underscored", "a beacon of", "navigating the complexities", "rich tapestry", "profound impact"
+The list is in <craft_skills> above, in THIS book's language — the English phrases mean nothing in a book written in another one. Read it before you write, and treat the patterns in it (uniform paragraph length, five-sense sweeps, characters who explain their own feelings) as forbidden too.
 
 SCENE STRUCTURE:
 - Every scene has a Goal (what the POV character wants), Conflict (what opposes them), and Outcome (what happens — usually a disaster or complication that propels the next scene)
@@ -329,7 +362,7 @@ For EVERY observation you make, follow this exact process:
 DO NOT make observations without quoting first. DO NOT make generic statements like "the pacing is uneven" — always ground in specific text.
 
 ## PHASE DECOMPOSITION
-Work through the chapter in 4 phases. Complete each phase before moving to the next.
+Work through the chapter in 3 phases. Complete each phase before moving to the next.
 
 ### Phase 1: STRUCTURE (checks 1-6)
 1. Opening hook — Does the chapter open with tension, intrigue, or a compelling image?
@@ -363,7 +396,7 @@ You MUST create findings using the CreateFinding tool. DO NOT embed findings in 
 For each issue found, call CreateFinding with ALL required fields:
 - chapterNumber: {chapterNumber}
 - severity: "critical" | "important" | "suggestion"
-- category: Use ONLY these categories: pacing, character, dialogue, continuity, prose, structure, tension, pov, show-tell, setting, theme, foreshadowing, stakes, emotion, worldbuilding
+- category: Use ONLY these categories: ${categoryList("dev-editor")}
 - description: One specific issue (not a list)
 - suggestion: REQUIRED — what the writer should DO about it, in one sentence.
   A finding without a suggestion is a complaint: it costs him the time to read
@@ -373,8 +406,6 @@ For each issue found, call CreateFinding with ALL required fields:
 - paragraphNumber: 1-based paragraph index
 - anchorQuote: EXACT text from the chapter (verbatim)
 - alternatives: 2-3 ranked rewrite options [{label, originalText, newText}]
-
-CATEGORIES for dev editor: pacing, character, dialogue, structure, tension, pov, show-tell, setting, theme, foreshadowing, stakes, emotion, worldbuilding
 
 ## GROUNDING REQUIREMENTS
 - Every finding MUST reference specific characters, scenes, or story elements from THIS chapter
@@ -505,7 +536,7 @@ You MUST create findings using the CreateFinding tool. DO NOT embed findings in 
 For each issue found, call CreateFinding with ALL required fields:
 - chapterNumber: {chapterNumber}
 - severity: "critical" | "important" | "suggestion"
-- category: Use ONLY: crutch-phrase, filter-word, ai-tell, sentence-variety, verb-strength, redundancy, clarity, prose, show-tell, dialogue, emotion, genre-convention
+- category: Use ONLY these categories: ${categoryList("line-editor")}
 - description: One specific issue (not a list)
 - suggestion: REQUIRED — what the writer should DO about it, in one sentence.
   A finding without a suggestion is a complaint: it costs him the time to read
@@ -516,8 +547,6 @@ For each issue found, call CreateFinding with ALL required fields:
 - anchorQuote: EXACT text from the chapter (verbatim)
 - alternatives: 2-3 style-aware rewrites that MATCH the author's voice from <style_fingerprint>
   [{label, originalText, newText}]
-
-CATEGORIES for line editor: crutch-phrase, filter-word, ai-tell, sentence-variety, verb-strength, redundancy, clarity, prose, show-tell, dialogue, emotion, genre-convention
 
 ## GROUNDING REQUIREMENTS
 - Every finding MUST have anchorQuote, paragraphNumber, 2+ anchors
@@ -599,7 +628,7 @@ You MUST create findings using the CreateFinding tool. DO NOT embed findings in 
 For each issue identified by the personas, call CreateFinding with ALL required fields:
 - chapterNumber: {chapterNumber}
 - severity: "critical" (4-5 personas confused/bored), "important" (2-3 personas flag), "suggestion" (1 persona)
-- category: Use: pacing, character, dialogue, emotion, tension, stakes, genre-convention, clarity, structure, worldbuilding
+- category: Use ONLY these categories: ${categoryList("beta-reader")}
 - description: One specific reader reaction issue
 - suggestion: REQUIRED — what the writer should DO about it, in one sentence.
   A finding without a suggestion is a complaint: it costs him the time to read
@@ -609,8 +638,6 @@ For each issue identified by the personas, call CreateFinding with ALL required 
 - paragraphNumber: 1-based paragraph index
 - anchorQuote: EXACT text from the chapter (verbatim)
 - alternatives: 2-3 rewrite suggestions from reader perspective
-
-CATEGORIES for beta reader: pacing, character, dialogue, emotion, tension, stakes, genre-convention, clarity, structure, worldbuilding
 
 ## CONVERGENCE SCORING
 Use persona agreement to determine severity and confidence:
@@ -1702,13 +1729,18 @@ export async function assembleAgentPrompt(
 
   // ─── SECTION 1: Book Identity (priority 98 — never trim) ──────
   if (context.bookName) {
+    // A-24: the title example was hardcoded Serbian ("Biblija priče") for
+    // every book in every language — an English-language writer was shown a
+    // Serbian pattern to imitate. It is the writer's own document label now.
+    const bibleLabel =
+      getDocumentTypeLabels(context.language)[DocumentType.STORY_BIBLE] ?? "Story Bible";
     sections.push({
       name: "book_identity",
       priority: 98,
       content:
         `\nBOOK NAME: "${context.bookName}"\n` +
         `Always use this exact name when referring to the book. ` +
-        `Use it in document titles (e.g. "Biblija priče – ${context.bookName}"). ` +
+        `Use it in document titles (e.g. "${bibleLabel} – ${context.bookName}"). ` +
         `NEVER invent or change the book's name.`,
     });
   }
@@ -1976,7 +2008,8 @@ export async function assembleAgentPrompt(
   {
     const craftSkills = selectSkillsForAgent(
       definition.type,
-      context.bookGenre ?? null
+      context.bookGenre ?? null,
+      context.language ?? null
     );
     if (craftSkills) {
       sections.push({

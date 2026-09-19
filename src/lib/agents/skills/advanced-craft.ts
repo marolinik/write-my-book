@@ -381,22 +381,6 @@ These changes help you see the text as a reader, not as the writer.
 - Unique words used (type-token ratio — higher = richer vocabulary)
 `;
 
-/** Get all advanced craft skills as a single block */
-export function getAdvancedCraftSkills(): string {
-  return [
-    DIALOGUE_MASTERY,
-    ACTION_CHOREOGRAPHY,
-    WORLDBUILDING_DEPTH,
-    CHARACTER_VOICE_SHEET,
-    PACING_TENSION,
-    QUERY_SYNOPSIS_BLURB,
-    BETA_FEEDBACK_INTERPRETATION,
-    REVISION_STRATEGY,
-    SERIES_BIBLE_MANAGEMENT,
-    SELF_EDITING_CHECKLIST,
-  ].join("\n");
-}
-
 /** Get specific skills relevant to an agent type */
 export function getSkillsForAgent(agentType: string): string[] {
   const mapping: Record<string, string[]> = {

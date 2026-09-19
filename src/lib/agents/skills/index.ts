@@ -9,10 +9,10 @@
 
 import {
   NARRATIVE_TECHNIQUES,
-  AI_TELL_DETECTION,
   PUBLISHING_STANDARDS,
   SENSITIVITY_GUIDELINES,
 } from "./writing-craft";
+import { getAiTellGuidance } from "../ai-tells";
 import { getSkillsForAgent } from "./advanced-craft";
 import {
   getGenreGuide,
@@ -23,8 +23,6 @@ import {
 /** writing-craft extras layered on top of the advanced-craft per-agent mapping */
 const CRAFT_EXTRAS: Record<string, readonly string[]> = {
   "writing-coach": [NARRATIVE_TECHNIQUES],
-  // NOT ghostwriter — its BASE_INSTRUCTIONS already embed the AI-tell list
-  "line-editor": [AI_TELL_DETECTION],
   "beta-reader": [SENSITIVITY_GUIDELINES],
   "world-researcher": [SENSITIVITY_GUIDELINES],
   "market-reader": [PUBLISHING_STANDARDS],
@@ -58,14 +56,25 @@ ${guide.commonPitfalls}
  * Select craft skills + genre guidance for an agent.
  * Every agent type has a mapping; "" means a genuinely unknown agent type.
  */
+/** The agents that hunt or avoid AI tells, and so need them in their own language. */
+const AI_TELL_AGENTS = new Set(["line-editor", "ghostwriter"]);
+
 export function selectSkillsForAgent(
   agentType: string,
-  genre?: string | null
+  genre?: string | null,
+  language?: string | null
 ): string {
   const parts: string[] = [
     ...getSkillsForAgent(agentType),
     ...(CRAFT_EXTRAS[agentType] ?? []),
   ];
+
+  // A-23: the tells belong to the book's language. The English list was
+  // injected regardless, so on a Serbian book the line editor's AI-tell check
+  // could not fire once.
+  if (AI_TELL_AGENTS.has(agentType)) {
+    parts.push(getAiTellGuidance(language ?? undefined));
+  }
 
   const guide = getGenreGuide(genre);
   if (guide) {

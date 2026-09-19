@@ -257,7 +257,7 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     name: "Beta Reader Panel",
     type: "beta-reader",
     description:
-      "Simulates 10 distinct reader personas who each evaluate the chapter independently.",
+      "Simulates 5 distinct reader personas who each evaluate the chapter independently.",
     writerDescription:
       "Simulates a panel of diverse readers giving you honest feedback on your chapter.",
     defaultModel: "sonnet",
