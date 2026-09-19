@@ -35,7 +35,9 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
       adjacentChapters: "none",
       chapterPlan: true,
       chapterBrief: true,
-      findingHistory: false,
+      // discuss-edits and revise both open by reading the chapter's findings,
+      // and no tool anywhere can read one. The only route is this injection.
+      findingHistory: true,
       bookMeta: false,
       seriesContext: "summary",
     },
@@ -71,7 +73,9 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
       adjacentChapters: "one-each",
       chapterPlan: true,
       chapterBrief: true,
-      findingHistory: false,
+      // REVISION MODE revises against editorial findings; passing them through
+      // the delegation task alone lost them whenever the task was summarised.
+      findingHistory: true,
       bookMeta: true,
       seriesContext: "summary",
     },
@@ -88,7 +92,11 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     tools: [
       "ReadDocument",
       "WriteDocument",
+      // A fingerprint is derived from prose. Without an enumeration tool the
+      // analyst knew no chapter numbers, and ReadChapter alone was a guess.
+      "ListChapters",
       "ReadChapter",
+      "ReadAllChapters",
       "ListDocuments",
       "SearchMemory",
       "RememberInsight",
@@ -162,6 +170,11 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
       "ReadDocument",
       "WriteDocument",
       "ListDocuments",
+      // write-synopsis on an imported manuscript works backwards from the prose
+      // that is already there; both tools are named in that prompt.
+      "ListChapters",
+      "ReadChapter",
+      "ReadAllChapters",
       "QueryGraph",
       "SearchMemory",
       "ReadInsights",
@@ -291,7 +304,12 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     tools: [
       "ReadDocument",
       "WriteDocument",
+      // Total word count, chapter-length comparison and a book-wide pacing
+      // curve are all book-level questions; ReadChapter alone could not
+      // answer one of them without knowing what the chapters are.
+      "ListChapters",
       "ReadChapter",
+      "ReadAllChapters",
       "ListDocuments",
       "SearchMemory",
     ],
@@ -362,7 +380,9 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
       "Analyze an existing manuscript through 5 passes to understand its structure, characters, themes, style, and gaps.",
     defaultModel: "sonnet",
     allowedModels: ["opus", "sonnet"],
-    tools: ["ReadDocument", "ReadChapter", "WriteDocument", "ListDocuments", "SearchMemory", "PostInsight", "ReadInsights"],
+    // The 5-pass analysis is whole-manuscript by definition — it opens with a
+    // chapter table — so it needs the enumeration and bulk-read tools.
+    tools: ["ReadDocument", "ListChapters", "ReadChapter", "ReadAllChapters", "WriteDocument", "ListDocuments", "SearchMemory", "PostInsight", "ReadInsights"],
     contextProfile: {
       fingerprint: "full",
       storyBible: "none",
@@ -434,7 +454,9 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
       "Run 13 pre-export production checks on your manuscript before publishing.",
     defaultModel: "haiku",
     allowedModels: ["sonnet", "haiku"],
-    tools: ["ReadDocument", "ReadChapter", "ListDocuments", "CreateFinding", "PostInsight", "ReadInsights"],
+    // Several of the 13 checks (chapter numbering, heading consistency, front
+    // and back matter) are manuscript-wide; the editor used to see one chapter.
+    tools: ["ReadDocument", "ListChapters", "ReadChapter", "ReadAllChapters", "ListDocuments", "CreateFinding", "PostInsight", "ReadInsights"],
     contextProfile: {
       fingerprint: "full",
       storyBible: "full",
