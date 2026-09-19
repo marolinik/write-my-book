@@ -732,14 +732,14 @@ async function createCascadeWarnings(
     "timeline",
   ];
 
-  // Fetch this session's entity-related findings (critical/major only)
+  // Fetch this session's entity-related findings (critical/important only)
   const entityFindings = await db.editFinding.findMany({
     where: {
       bookId: ctx.bookId,
       chapterNumber: ctx.chapterNumber,
       sessionId: ctx.sessionId,
       category: { in: entityCategories },
-      severity: { in: ["critical", "major"] },
+      severity: { in: ["critical", "important"] },
     },
   });
 

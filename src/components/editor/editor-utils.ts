@@ -82,6 +82,9 @@ export function mapSeverityToClass(severity: string): AnnotationType {
     case "critical":
     case "major":
       return "severity-high"; // red
+    // V-4: "important" is the persisted middle severity — it used to fall
+    // through to the blue default and read as the mildest finding there is.
+    case "important":
     case "moderate":
       return "severity-medium"; // orange
     case "minor":

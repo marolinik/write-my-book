@@ -39,6 +39,8 @@ function severityBorderClass(severity: string, active: boolean): string {
     case "critical":
     case "major":
       return "border-l-red-500";
+    // V-4: "important" is what CreateFinding actually writes.
+    case "important":
     case "moderate":
       return "border-l-orange-500";
     case "minor":
@@ -54,6 +56,7 @@ function severityBgClass(severity: string, active: boolean): string {
     case "critical":
     case "major":
       return "bg-red-50 dark:bg-red-950/20";
+    case "important":
     case "moderate":
       return "bg-orange-50 dark:bg-orange-950/20";
     case "minor":
@@ -68,6 +71,7 @@ function severityBadge(severity: string, language: string) {
   switch (severity) {
     case "critical":
       return <Badge variant="destructive">{label}</Badge>;
+    case "important":
     case "major":
       return (
         <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/components/providers/language-provider";
+import { FINDING_SEVERITIES, findingSeverityLabel } from "@/lib/i18n/finding-labels";
 import { useEffect, useMemo, useRef } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -34,7 +35,7 @@ export function EditorFindingsPanel({
   onJumpToFinding,
   freshnessMap,
 }: EditorFindingsPanelProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const paneStore = getOrCreatePaneStore(paneId);
   const setScrollToText = (text: string | null) => paneStore.getState().setScrollToText(text);
 
@@ -152,7 +153,7 @@ export function EditorFindingsPanel({
         className="flex flex-wrap gap-1 px-2 py-1.5 border-b shrink-0"
       >
         {/* Severity chips */}
-        {(["critical", "major", "moderate", "minor"] as const).map((sev) => (
+        {FINDING_SEVERITIES.map((sev) => (
           <button
             key={`sev-${sev}`}
             aria-pressed={filters.severity === sev}
@@ -163,7 +164,7 @@ export function EditorFindingsPanel({
             }`}
             onClick={() => setFilter("severity", filters.severity === sev ? null : sev)}
           >
-            {sev}
+            {findingSeverityLabel(sev, language)}
           </button>
         ))}
 

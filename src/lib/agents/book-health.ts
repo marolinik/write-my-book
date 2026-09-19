@@ -108,9 +108,9 @@ export async function computeBookHealth(
       if (f.severity === "critical") {
         penalty += 15;
         issues.push(`Critical finding pending`);
-      } else if (f.severity === "major") {
+      } else if (f.severity === "important") {
         penalty += 10;
-        issues.push(`Major finding pending`);
+        issues.push(`Important finding pending`);
       }
     }
 

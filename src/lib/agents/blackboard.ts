@@ -277,7 +277,7 @@ export async function promoteFindings(
   const where: Record<string, unknown> = {
     bookId,
     sessionId,
-    severity: { in: ["critical", "major"] },
+    severity: { in: ["critical", "important"] },
     status: "pending",
   };
   if (chapterNumber !== undefined) {

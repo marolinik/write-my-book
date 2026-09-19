@@ -37,7 +37,8 @@ export function EditsOverviewTab({ bookId }: { bookId: string }) {
   const applied = items.filter((f: any) => f.status === "applied").length;
   const dismissed = items.filter((f: any) => f.status === "dismissed").length;
   const critical = items.filter((f: any) => f.severity === "critical").length;
-  const major = items.filter((f: any) => f.severity === "major").length;
+  // V-4: the persisted severity is "important"; "major" never reaches the DB.
+  const important = items.filter((f: any) => f.severity === "important").length;
 
   return (
     <div className="space-y-6">
@@ -79,7 +80,7 @@ export function EditsOverviewTab({ bookId }: { bookId: string }) {
             <CardDescription>{t.reportsUI.criticalMajor}</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-destructive">{critical + major}</p>
+            <p className="text-3xl font-bold text-destructive">{critical + important}</p>
           </CardContent>
         </Card>
       </div>
@@ -107,7 +108,7 @@ export function EditsOverviewTab({ bookId }: { bookId: string }) {
                         variant={
                           f.severity === "critical"
                             ? "destructive"
-                            : f.severity === "major"
+                            : f.severity === "important"
                               ? "secondary"
                               : "outline"
                         }

@@ -330,3 +330,13 @@ export function findingStatusLabel(status: string, language?: string): string {
 
 /** Every category the filter offers, in the order it offers them. */
 export const FINDING_CATEGORIES = Object.keys(CATEGORY_LABELS.en);
+
+/**
+ * V-4: the only severities CreateFinding can persist. Four consumers filtered on
+ * "major" — a value the strict tool schema rejects — so cascade warnings,
+ * blackboard promotion, book health and the Reports tab saw 4 of 255 findings.
+ * Import this rather than re-typing the list.
+ */
+export const FINDING_SEVERITIES = ["critical", "important", "suggestion"] as const;
+
+export type FindingSeverity = (typeof FINDING_SEVERITIES)[number];

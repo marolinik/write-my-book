@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEditorialSummary } from "@/hooks/use-editorial";
 import { useLanguage } from "@/components/providers/language-provider";
+import { FINDING_SEVERITIES, findingSeverityLabel } from "@/lib/i18n/finding-labels";
 
 interface EditorialSummaryProps {
   bookId: string;
@@ -41,7 +42,7 @@ function SeverityBar({
 }
 
 export function EditorialSummary({ bookId }: EditorialSummaryProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { data, isLoading } = useEditorialSummary(bookId);
 
   if (isLoading) {
@@ -59,6 +60,9 @@ export function EditorialSummary({ bookId }: EditorialSummaryProps) {
 
   const severityColors: Record<string, string> = {
     critical: "bg-red-500 dark:bg-red-600",
+    important: "bg-orange-500 dark:bg-orange-600",
+    suggestion: "bg-yellow-500 dark:bg-yellow-600",
+    // Legacy slugs, kept so rows written before the vocabulary settled still colour.
     major: "bg-orange-500 dark:bg-orange-600",
     moderate: "bg-yellow-500 dark:bg-yellow-600",
     minor: "bg-gray-500 dark:bg-gray-400",
@@ -120,10 +124,10 @@ export function EditorialSummary({ bookId }: EditorialSummaryProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 p-3 pt-0">
-          {["critical", "major", "moderate", "minor"].map((sev) => (
+          {FINDING_SEVERITIES.map((sev) => (
             <SeverityBar
               key={sev}
-              label={sev}
+              label={findingSeverityLabel(sev, language)}
               count={data.bySeverity[sev] ?? 0}
               total={data.total}
               color={severityColors[sev] ?? "bg-gray-500 dark:bg-gray-400"}
