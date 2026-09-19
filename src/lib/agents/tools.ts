@@ -32,6 +32,7 @@ import {
   stripFabricatedFingerprintQuotes,
   stampReportMetadata,
 } from "./editorial-text-hygiene";
+import { getUIStrings } from "@/lib/i18n/ui-strings";
 import { enforceBookScript } from "./serbian-script";
 import { planMove, type ChapterRef, type StructureMoveInput } from "@/lib/structure/moves";
 
@@ -2534,6 +2535,7 @@ async function executeSetVoiceMetrics(
   } else {
     // Create a new StyleProfile with metrics — the fingerprint text
     // will be filled by bridgeFingerprintToStyleProfile after the FINGERPRINT doc is written
+    const uiStrings = getUIStrings(ctx.language ?? "en");
     const book = await db.book.findUnique({
       where: { id: ctx.bookId },
       select: { name: true, bookNumber: true },
@@ -2544,8 +2546,11 @@ async function executeSetVoiceMetrics(
         userId: ctx.userId,
         sourceBookId: ctx.bookId,
         sourceBookNumber: book?.bookNumber ?? 1,
-        name: `Style — ${book?.name ?? "Book"}`,
-        description: "Auto-generated from capture-style workflow",
+        // Written in the writer's language: he reads these on the style page,
+        // and "Auto-generated from capture-style workflow" told him nothing he
+        // could use anyway (S3-21).
+        name: `${uiStrings.reportTabs.styleProfileName} — ${book?.name ?? ""}`.trim(),
+        description: uiStrings.reportTabs.styleProfileAuto,
         fingerprint: "", // Will be populated by bridgeFingerprintToStyleProfile
         metrics: metricsJson,
         calibrationSamples: samplesJson,

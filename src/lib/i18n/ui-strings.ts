@@ -745,6 +745,7 @@ export interface UIStrings {
     nextStep: string;
     /** Style page. styleCaptured carries {date}. */
     styleCaptured: string;
+    unitWords: string; unitSentences: string;
     styleProfileName: string;
     styleProfileAuto: string;
   };
@@ -1709,6 +1710,8 @@ const EN: UIStrings = {
     reportLost: "This report's text is missing from storage. Run the pass again to rebuild it.",
     nextStep: "What now",
     styleCaptured: "Style captured {date}",
+    unitWords: "words",
+    unitSentences: "sentences",
     styleProfileName: "Style",
     styleProfileAuto: "Taken automatically from your own prose",
   },
@@ -2691,6 +2694,8 @@ const SR: UIStrings = {
     reportLost: "Tekst ovog izveštaja nedostaje u skladištu. Pokrenite prolaz ponovo da se napravi.",
     nextStep: "Šta sad",
     styleCaptured: "Stil snimljen {date}",
+    unitWords: "reči",
+    unitSentences: "rečenica",
     styleProfileName: "Stil",
     styleProfileAuto: "Uzet automatski iz vaše sopstvene proze",
   },
@@ -3672,6 +3677,8 @@ const DE: UIStrings = {
     reportLost: "Der Text dieses Berichts fehlt im Speicher. Lauf erneut starten.",
     nextStep: "Was nun",
     styleCaptured: "Stil erfasst am {date}",
+    unitWords: "Wörter",
+    unitSentences: "Sätze",
     styleProfileName: "Stil",
     styleProfileAuto: "Automatisch aus Ihrer eigenen Prosa gewonnen",
   },
@@ -4653,6 +4660,8 @@ const ES: UIStrings = {
     reportLost: "Falta el texto de este informe. Ejecuta el paso de nuevo.",
     nextStep: "Y ahora",
     styleCaptured: "Estilo capturado el {date}",
+    unitWords: "palabras",
+    unitSentences: "frases",
     styleProfileName: "Estilo",
     styleProfileAuto: "Tomado automáticamente de tu propia prosa",
   },
@@ -5634,6 +5643,8 @@ const FR: UIStrings = {
     reportLost: "Le texte de ce rapport manque. Relancez la passe.",
     nextStep: "Et maintenant",
     styleCaptured: "Style capturé le {date}",
+    unitWords: "mots",
+    unitSentences: "phrases",
     styleProfileName: "Style",
     styleProfileAuto: "Extrait automatiquement de votre propre prose",
   },
@@ -6615,6 +6626,8 @@ const RU: UIStrings = {
     reportLost: "Текст отчёта отсутствует в хранилище. Запустите проход заново.",
     nextStep: "Что дальше",
     styleCaptured: "Стиль зафиксирован {date}",
+    unitWords: "слов",
+    unitSentences: "предложений",
     styleProfileName: "Стиль",
     styleProfileAuto: "Взят автоматически из вашей собственной прозы",
   },
@@ -7596,6 +7609,8 @@ const ZH: UIStrings = {
     reportLost: "该报告的正文在存储中缺失。请重新运行此流程。",
     nextStep: "接下来",
     styleCaptured: "风格采集于 {date}",
+    unitWords: "词",
+    unitSentences: "句",
     styleProfileName: "风格",
     styleProfileAuto: "自动取自您自己的文稿",
   },

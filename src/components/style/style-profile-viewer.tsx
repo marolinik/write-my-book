@@ -53,9 +53,13 @@ function MetricValue({
   value: string | number;
 }) {
   return (
-    <div className="flex items-baseline justify-between py-0.5">
-      <span className="text-xs text-muted-foreground">{label}</span>
-      <span className="font-mono text-sm font-medium">{value}</span>
+    <div className="flex items-baseline justify-between gap-3 py-0.5">
+      <span className="min-w-0 truncate text-xs text-muted-foreground" title={label}>
+        {label}
+      </span>
+      <span className="shrink-0 whitespace-nowrap font-mono text-sm font-medium">
+        {value}
+      </span>
     </div>
   );
 }
@@ -85,8 +89,8 @@ function MetricsDisplay({ metrics }: { metrics: StructuredFingerprint }) {
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {/* Sentence Length */}
       <MetricCard title={t.styleUI.sentenceLength}>
-        <MetricValue label={t.styleUI.mean} value={`${metrics.sentenceLength.mean.toFixed(1)} words`} />
-        <MetricValue label={t.styleUI.median} value={`${metrics.sentenceLength.median.toFixed(1)} words`} />
+        <MetricValue label={t.styleUI.mean} value={`${metrics.sentenceLength.mean.toFixed(1)} ${t.reportTabs.unitWords}`} />
+        <MetricValue label={t.styleUI.median} value={`${metrics.sentenceLength.median.toFixed(1)} ${t.reportTabs.unitWords}`} />
         <MetricValue label={t.styleUI.stdDev} value={metrics.sentenceLength.stdDev.toFixed(1)} />
         <div className="mt-1 flex items-center justify-between">
           <span className="text-xs text-muted-foreground">{t.styleUI.distribution}</span>
@@ -132,8 +136,8 @@ function MetricsDisplay({ metrics }: { metrics: StructuredFingerprint }) {
 
       {/* Paragraph Length */}
       <MetricCard title={t.styleUI.paragraphLength}>
-        <MetricValue label={t.styleUI.mean} value={`${metrics.paragraphLength.mean.toFixed(1)} sentences`} />
-        <MetricValue label={t.styleUI.median} value={`${metrics.paragraphLength.median.toFixed(1)} sentences`} />
+        <MetricValue label={t.styleUI.mean} value={`${metrics.paragraphLength.mean.toFixed(1)} ${t.reportTabs.unitSentences}`} />
+        <MetricValue label={t.styleUI.median} value={`${metrics.paragraphLength.median.toFixed(1)} ${t.reportTabs.unitSentences}`} />
         <MetricValue
           label={t.styleUI.singleSentence}
           value={`${(metrics.paragraphLength.singleSentenceRate * 100).toFixed(0)}%`}
@@ -178,8 +182,13 @@ function MetricsDisplay({ metrics }: { metrics: StructuredFingerprint }) {
         <MetricCard title={t.styleUI.metaphorDomains}>
           <div className="flex flex-wrap gap-1.5 py-1">
             {metrics.metaphorDomains.map((domain) => (
-              <Badge key={domain} variant="secondary" className="text-xs">
-                {domain}
+              <Badge
+                key={domain}
+                variant="secondary"
+                className="min-w-0 max-w-full shrink text-xs"
+                title={domain}
+              >
+                <span className="truncate">{domain}</span>
               </Badge>
             ))}
           </div>
