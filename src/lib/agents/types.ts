@@ -73,8 +73,13 @@ export interface AgentDefinition {
   type: AgentType;
   description: string;
   writerDescription: string;
+  /**
+   * The tier this agent was designed for. Advisory only: the writer picks
+   * the model through the 4-level resolution chain, and the gate that is
+   * actually enforced is WorkflowDefinition.minimumTier. `allowedModels` used
+   * to sit beside this, declared on all 14 agents and read nowhere.
+   */
   defaultModel: ModelTier;
-  allowedModels: ModelTier[];
   tools: string[];
   contextProfile: AgentContextProfile;
 }

@@ -188,7 +188,7 @@ describe("formatUsageModelLabel (D-119)", () => {
       "Qwen 3.6 27B (OpenRouter) (qwen/qwen3.6-27b)"
     );
     expect(formatUsageModelLabel("anthropic/haiku")).toBe(
-      "Claude Haiku 4.5 (Direct) (claude-haiku-4-5-20251001)"
+      "Claude Haiku 4.5 (Direct) (claude-haiku-4-5)"
     );
   });
 
@@ -327,7 +327,7 @@ describe("foldUsageModelsForDisplay (D-175)", () => {
     expect(rows[0].modelIds).toEqual(["anthropic/opus"]);
     // Equal cost → deterministic label order, never render-order roulette.
     expect(rows.slice(1).map((r) => r.label)).toEqual([
-      "Claude Haiku 4.5 (Direct) (claude-haiku-4-5-20251001)",
+      "Claude Haiku 4.5 (Direct) (claude-haiku-4-5)",
       "Qwen 3.6 27B (OpenRouter) (qwen/qwen3.6-27b)",
     ]);
   });

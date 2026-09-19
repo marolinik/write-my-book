@@ -17,7 +17,6 @@ export type {
 export {
   getAgentDefinition,
   getAllAgentDefinitions,
-  getModelId,
 } from "./definitions";
 
 export {

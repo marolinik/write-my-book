@@ -1,4 +1,4 @@
-import type { AgentDefinition, AgentType, ModelTier } from "./types";
+import type { AgentDefinition, AgentType } from "./types";
 
 const AGENT_DEFINITIONS: AgentDefinition[] = [
   {
@@ -9,7 +9,6 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     writerDescription:
       "Your personal writing coach. Guides you through the entire writing process and coordinates specialist agents.",
     defaultModel: "opus",
-    allowedModels: ["opus"],
     tools: [
       "ReadDocument",
       "WriteDocument",
@@ -50,7 +49,6 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     writerDescription:
       "Writes chapter drafts in your voice. Needs a style fingerprint and chapter plan to work from.",
     defaultModel: "opus",
-    allowedModels: ["opus", "sonnet"],
     tools: [
       "ReadDocument",
       "WriteDocument",
@@ -88,7 +86,6 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     writerDescription:
       "Analyzes your writing to capture your unique voice and style patterns.",
     defaultModel: "opus",
-    allowedModels: ["opus", "sonnet"],
     tools: [
       "ReadDocument",
       "WriteDocument",
@@ -124,7 +121,6 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     writerDescription:
       "Designs your story structure — acts, chapters, character arcs, and pacing.",
     defaultModel: "opus",
-    allowedModels: ["opus", "sonnet"],
     tools: [
       "ReadDocument",
       "WriteDocument",
@@ -165,7 +161,6 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     writerDescription:
       "Plans scenes and beats for a chapter, creating a detailed writing roadmap.",
     defaultModel: "sonnet",
-    allowedModels: ["opus", "sonnet"],
     tools: [
       "ReadDocument",
       "WriteDocument",
@@ -201,7 +196,6 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     writerDescription:
       "Deep structural edit — checks pacing, character arcs, tension, dialogue, and more.",
     defaultModel: "sonnet",
-    allowedModels: ["opus", "sonnet"],
     tools: [
       "ReadDocument",
       "WriteDocument",
@@ -235,7 +229,6 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     writerDescription:
       "Line-by-line prose polish — catches crutch phrases, weak verbs, and AI-sounding language.",
     defaultModel: "sonnet",
-    allowedModels: ["opus", "sonnet"],
     tools: [
       "ReadDocument",
       "WriteDocument",
@@ -268,7 +261,6 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     writerDescription:
       "Simulates a panel of diverse readers giving you honest feedback on your chapter.",
     defaultModel: "sonnet",
-    allowedModels: ["opus", "sonnet"],
     tools: [
       "ReadDocument",
       "WriteDocument",
@@ -300,7 +292,6 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     writerDescription:
       "Generates statistics and readability metrics for your manuscript.",
     defaultModel: "haiku",
-    allowedModels: ["sonnet", "haiku"],
     tools: [
       "ReadDocument",
       "WriteDocument",
@@ -335,7 +326,6 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     writerDescription:
       "Catches continuity errors — character details, timeline, geography, and world consistency.",
     defaultModel: "sonnet",
-    allowedModels: ["opus", "sonnet"],
     tools: [
       "ReadDocument",
       "WriteDocument",
@@ -379,7 +369,6 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     writerDescription:
       "Analyze an existing manuscript through 5 passes to understand its structure, characters, themes, style, and gaps.",
     defaultModel: "sonnet",
-    allowedModels: ["opus", "sonnet"],
     // The 5-pass analysis is whole-manuscript by definition — it opens with a
     // chapter table — so it needs the enumeration and bulk-read tools.
     tools: ["ReadDocument", "ListChapters", "ReadChapter", "ReadAllChapters", "WriteDocument", "ListDocuments", "SearchMemory", "PostInsight", "ReadInsights"],
@@ -405,7 +394,6 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     writerDescription:
       "Research your setting, genre, and historical context for authentic world-building.",
     defaultModel: "sonnet",
-    allowedModels: ["opus", "sonnet"],
     tools: ["ReadDocument", "WriteDocument", "ListDocuments", "QueryGraph", "UpdateGraphEntity", "SearchMemory", "ReadInsights", "WebSearch", "FetchWebPage"],
     contextProfile: {
       fingerprint: "none",
@@ -429,7 +417,6 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     writerDescription:
       "Analyze your book's market positioning across 5 cultural markets.",
     defaultModel: "sonnet",
-    allowedModels: ["opus", "sonnet"],
     tools: ["ReadDocument", "WriteDocument", "ListDocuments", "SearchMemory", "ReadInsights", "WebSearch", "FetchWebPage"],
     contextProfile: {
       fingerprint: "summary",
@@ -453,7 +440,6 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     writerDescription:
       "Run 13 pre-export production checks on your manuscript before publishing.",
     defaultModel: "haiku",
-    allowedModels: ["sonnet", "haiku"],
     // Several of the 13 checks (chapter numbering, heading consistency, front
     // and back matter) are manuscript-wide; the editor used to see one chapter.
     tools: ["ReadDocument", "ListChapters", "ReadChapter", "ReadAllChapters", "ListDocuments", "CreateFinding", "PostInsight", "ReadInsights"],
@@ -483,16 +469,4 @@ export function getAgentDefinition(
 /** Get all agent definitions. */
 export function getAllAgentDefinitions(): AgentDefinition[] {
   return AGENT_DEFINITIONS;
-}
-
-/** Map a model tier to the full Anthropic model ID. */
-export function getModelId(tier: ModelTier): string {
-  switch (tier) {
-    case "opus":
-      return "claude-opus-4-6";
-    case "sonnet":
-      return "claude-sonnet-4-5-20250929";
-    case "haiku":
-      return "claude-haiku-4-5-20251001";
-  }
 }

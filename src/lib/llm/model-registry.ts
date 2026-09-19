@@ -14,7 +14,7 @@ export interface ModelDefinition {
   id: string;
   /** Provider that serves the model */
   provider: LLMProvider;
-  /** Full model ID sent to the API, e.g. "claude-sonnet-4-5-20250929" */
+  /** Full model ID sent to the API, e.g. "claude-sonnet-5" */
   modelId: string;
   /** Human-readable name for UI display */
   displayName: string;
@@ -72,11 +72,11 @@ export const MODEL_REGISTRY: ModelDefinition[] = [
   {
     id: "anthropic/opus",
     provider: "anthropic",
-    modelId: "claude-opus-4-6",
-    displayName: "Claude Opus 4.6 (Direct)",
+    modelId: "claude-opus-5",
+    displayName: "Claude Opus 5 (Direct)",
     tier: "opus",
-    inputCostPer1M: 15,
-    outputCostPer1M: 75,
+    inputCostPer1M: 5,
+    outputCostPer1M: 25,
     costTier: "$$$",
     supportsTools: true,
     supportsStreaming: true,
@@ -84,11 +84,11 @@ export const MODEL_REGISTRY: ModelDefinition[] = [
   {
     id: "anthropic/sonnet",
     provider: "anthropic",
-    modelId: "claude-sonnet-4-5-20250929",
-    displayName: "Claude Sonnet 4.5 (Direct)",
+    modelId: "claude-sonnet-5",
+    displayName: "Claude Sonnet 5 (Direct)",
     tier: "sonnet",
-    inputCostPer1M: 3,
-    outputCostPer1M: 15,
+    inputCostPer1M: 2,
+    outputCostPer1M: 10,
     costTier: "$$",
     supportsTools: true,
     supportsStreaming: true,
@@ -96,12 +96,12 @@ export const MODEL_REGISTRY: ModelDefinition[] = [
   {
     id: "anthropic/haiku",
     provider: "anthropic",
-    modelId: "claude-haiku-4-5-20251001",
+    modelId: "claude-haiku-4-5",
     displayName: "Claude Haiku 4.5 (Direct)",
     tier: "haiku",
-    inputCostPer1M: 0.25,
-    outputCostPer1M: 1.25,
-    costTier: "$",
+    inputCostPer1M: 1,
+    outputCostPer1M: 5,
+    costTier: "$$",
     supportsTools: true,
     supportsStreaming: true,
   },
@@ -109,11 +109,11 @@ export const MODEL_REGISTRY: ModelDefinition[] = [
   {
     id: "openrouter/opus",
     provider: "openrouter",
-    modelId: "anthropic/claude-opus-4-6",
-    displayName: "Claude Opus 4.6 (OpenRouter)",
+    modelId: "anthropic/claude-opus-5",
+    displayName: "Claude Opus 5 (OpenRouter)",
     tier: "opus",
-    inputCostPer1M: 15,
-    outputCostPer1M: 75,
+    inputCostPer1M: 5,
+    outputCostPer1M: 25,
     costTier: "$$$",
     supportsTools: true,
     supportsStreaming: true,
@@ -121,11 +121,11 @@ export const MODEL_REGISTRY: ModelDefinition[] = [
   {
     id: "openrouter/sonnet",
     provider: "openrouter",
-    modelId: "anthropic/claude-sonnet-4-5-20250929",
-    displayName: "Claude Sonnet 4.5 (OpenRouter)",
+    modelId: "anthropic/claude-sonnet-5",
+    displayName: "Claude Sonnet 5 (OpenRouter)",
     tier: "sonnet",
-    inputCostPer1M: 3,
-    outputCostPer1M: 15,
+    inputCostPer1M: 2,
+    outputCostPer1M: 10,
     costTier: "$$",
     supportsTools: true,
     supportsStreaming: true,
@@ -133,12 +133,12 @@ export const MODEL_REGISTRY: ModelDefinition[] = [
   {
     id: "openrouter/haiku",
     provider: "openrouter",
-    modelId: "anthropic/claude-haiku-4-5-20251001",
+    modelId: "anthropic/claude-haiku-4-5",
     displayName: "Claude Haiku 4.5 (OpenRouter)",
     tier: "haiku",
-    inputCostPer1M: 0.25,
-    outputCostPer1M: 1.25,
-    costTier: "$",
+    inputCostPer1M: 1,
+    outputCostPer1M: 5,
+    costTier: "$$",
     supportsTools: true,
     supportsStreaming: true,
   },

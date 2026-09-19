@@ -105,7 +105,7 @@ async function validateByStrategy(
       return validateWithTinyMessage(endpoint, key, "x-api-key", undefined, signal);
 
     case "openrouter":
-      return validateWithTinyMessage(endpoint, key, "x-api-key", "anthropic/claude-haiku-4-5-20251001", signal);
+      return validateWithTinyMessage(endpoint, key, "x-api-key", "anthropic/claude-haiku-4-5", signal);
 
     case "openai":
       return validateWithModelsList(endpoint, key, "bearer", signal);
@@ -143,7 +143,7 @@ async function validateWithTinyMessage(
       "content-type": "application/json",
     },
     body: JSON.stringify({
-      model: modelOverride ?? "claude-haiku-4-5-20251001",
+      model: modelOverride ?? "claude-haiku-4-5",
       max_tokens: 1,
       messages: [{ role: "user", content: "hi" }],
     }),
