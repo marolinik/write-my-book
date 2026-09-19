@@ -352,6 +352,9 @@ For each issue found, call CreateFinding with ALL required fields:
 - severity: "critical" | "important" | "suggestion"
 - category: Use ONLY these categories: pacing, character, dialogue, continuity, prose, structure, tension, pov, show-tell, setting, theme, foreshadowing, stakes, emotion, worldbuilding
 - description: One specific issue (not a list)
+- suggestion: REQUIRED — what the writer should DO about it, in one sentence.
+  A finding without a suggestion is a complaint: it costs him the time to read
+  it and gives him nothing to act on.
 - rationale: WHY this matters to the reader/story
 - confidence: 0.0-1.0
 - paragraphNumber: 1-based paragraph index
@@ -491,6 +494,9 @@ For each issue found, call CreateFinding with ALL required fields:
 - severity: "critical" | "important" | "suggestion"
 - category: Use ONLY: crutch-phrase, filter-word, ai-tell, sentence-variety, verb-strength, redundancy, clarity, prose, show-tell, dialogue, emotion, genre-convention
 - description: One specific issue (not a list)
+- suggestion: REQUIRED — what the writer should DO about it, in one sentence.
+  A finding without a suggestion is a complaint: it costs him the time to read
+  it and gives him nothing to act on.
 - rationale: WHY this matters and how it affects the reader
 - confidence: 0.0-1.0
 - paragraphNumber: 1-based paragraph index
@@ -582,6 +588,9 @@ For each issue identified by the personas, call CreateFinding with ALL required 
 - severity: "critical" (4-5 personas confused/bored), "important" (2-3 personas flag), "suggestion" (1 persona)
 - category: Use: pacing, character, dialogue, emotion, tension, stakes, genre-convention, clarity, structure, worldbuilding
 - description: One specific reader reaction issue
+- suggestion: REQUIRED — what the writer should DO about it, in one sentence.
+  A finding without a suggestion is a complaint: it costs him the time to read
+  it and gives him nothing to act on.
 - rationale: "Personas X and Y both noted that..." — cite which personas reacted
 - confidence: Higher when multiple personas agree
 - paragraphNumber: 1-based paragraph index
@@ -737,8 +746,15 @@ You MUST create findings using the CreateFinding tool. DO NOT embed findings in 
 For each inconsistency found, call CreateFinding with ALL required fields:
 - chapterNumber: {chapterNumber}
 - severity: "critical" | "important" | "suggestion"
-- category: Use ONLY these categories: continuity, character, worldbuilding, structure
+- category: NAME THE DOMAIN — "continuity:characters", "continuity:timeline",
+  "continuity:geography", "continuity:objects", "continuity:relationships" or
+  "continuity:world". A bare "continuity" tells the writer nothing about WHERE
+  the problem is, and his continuity tab groups by exactly these six.
 - description: One specific inconsistency (not a list)
+- suggestion: REQUIRED — what the writer should DO about it, in one sentence.
+  A finding without a suggestion is a complaint: it costs him the time to read
+  it and gives him nothing to act on. If the fix is genuinely the writer's
+  judgement call, say which way you would go and why.
 - rationale: WHY this inconsistency matters and what it breaks
 - confidence: 0.0-1.0
 - paragraphNumber: 1-based paragraph index
@@ -747,7 +763,7 @@ For each inconsistency found, call CreateFinding with ALL required fields:
   [{chapterNumber: X, paragraphNumber: Y, quote: "exact conflicting text"}]
 - alternatives: 2-3 options for resolution [{label, originalText, newText}]
 
-CATEGORIES for continuity checker: continuity, character, worldbuilding, structure
+CATEGORIES for continuity checker: always the qualified "continuity:<domain>" form above.
 
 ## GROUNDING REQUIREMENTS
 - Continuity findings MUST cite BOTH conflicting passages with direct quotes

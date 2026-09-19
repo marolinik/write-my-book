@@ -28,6 +28,9 @@ import { useLanguage } from "@/components/providers/language-provider";
 import { useReportDocument } from "./use-report-document";
 import { domainBadgeCounts } from "./continuity-counts";
 import { categorizeContinuity } from "./continuity-domains";
+import { FindingCard } from "@/components/editorial/finding-card";
+import { findingSeverityLabel } from "@/lib/i18n/finding-labels";
+import type { FindingItem } from "@/hooks/use-editorial";
 import { useBook } from "@/hooks/use-books";
 
 type DomainLabelKey =
@@ -46,6 +49,16 @@ interface Finding {
   description: string;
   title?: string;
   chapterNumber?: number;
+  /**
+   * An edit finding can be applied, dismissed or discussed — it is the same row
+   * Lektura works on. A flag is the live continuity net and has its own
+   * lifecycle, so it renders as a statement rather than a decision (S3-18).
+   */
+  source?: "finding" | "flag";
+  suggestion?: string | null;
+  originalText?: string | null;
+  newText?: string | null;
+  status?: string;
 }
 
 const DOMAIN_CONFIG: Record<
@@ -105,7 +118,7 @@ export function ContinuityTab({ bookId }: { bookId: string }) {
   const openWithWorkflow = useAgentUIStore((s) => s.openWithWorkflow);
   // O10: a standalone book was told to run the SERIES continuity check — a
   // cross-book pass over books it does not have. The scope follows the book.
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const c = t.continuityTab;
   const { data: book } = useBook(bookId);
   const inSeries = Boolean(book?.seriesId);
@@ -167,12 +180,16 @@ export function ContinuityTab({ bookId }: { bookId: string }) {
     severity: flag.severity,
     description: flag.description,
     chapterNumber: flag.chapterNumber ?? 0,
+    source: "flag" as const,
   })) as Finding[];
 
   const findingsList: Finding[] =
     findings?.findings ?? (Array.isArray(findings) ? findings : []);
   const allFindings: Finding[] = useMemo(
-    () => [...findingsList, ...flagList],
+    () => [
+      ...findingsList.map((f) => ({ ...f, source: "finding" as const })),
+      ...flagList,
+    ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [findings, flagData]
   );
@@ -360,37 +377,46 @@ export function ContinuityTab({ bookId }: { bookId: string }) {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {filteredFindings.map((finding) => (
-                <div
-                  key={finding.id}
-                  className="flex items-center justify-between rounded-md border p-3"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium truncate">
-                      {finding.title || finding.description}
-                    </p>
-                    {finding.title && finding.description && (
-                      <p className="text-xs text-muted-foreground truncate">
-                        {finding.description}
-                      </p>
-                    )}
-                    {finding.chapterNumber && (
-                      <span className="text-xs text-muted-foreground">
-                        {c.chapterShort} {finding.chapterNumber}
-                      </span>
-                    )}
-                  </div>
-                  <Badge
-                    variant={
-                      (SEVERITY_COLORS[finding.severity] as "destructive" | "secondary" | "outline") ??
-                      "outline"
-                    }
-                    className="ml-2 shrink-0"
+              {filteredFindings.map((finding) =>
+                // A continuity finding IS an editorial finding — same table,
+                // same statuses. It was rendered here as a dead line of text
+                // while 19 of the owner's 27 carried a suggestion and 17 a
+                // ready patch, all of it invisible (S3-18).
+                finding.source === "finding" ? (
+                  <FindingCard
+                    key={finding.id}
+                    finding={finding as unknown as FindingItem}
+                    bookId={bookId}
+                  />
+                ) : (
+                  <div
+                    key={finding.id}
+                    className="flex items-start justify-between gap-2 rounded-md border p-3"
                   >
-                    {finding.severity ?? "info"}
-                  </Badge>
-                </div>
-              ))}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium">
+                        {finding.title || finding.description}
+                      </p>
+                      {finding.chapterNumber ? (
+                        <span className="text-xs text-muted-foreground">
+                          {c.chapterShort} {finding.chapterNumber}
+                        </span>
+                      ) : null}
+                    </div>
+                    <Badge
+                      variant={
+                        (SEVERITY_COLORS[finding.severity] as
+                          | "destructive"
+                          | "secondary"
+                          | "outline") ?? "outline"
+                      }
+                      className="ml-2 shrink-0"
+                    >
+                      {findingSeverityLabel(finding.severity, language)}
+                    </Badge>
+                  </div>
+                )
+              )}
             </div>
           </CardContent>
         </Card>
