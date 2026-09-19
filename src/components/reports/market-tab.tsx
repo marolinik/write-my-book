@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import Link from "next/link";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
 import { useReportDocument } from "./use-report-document";
 
@@ -59,6 +60,25 @@ export function MarketTab({ bookId }: { bookId: string }) {
             <div className="prose prose-sm max-w-none dark:prose-invert whitespace-pre-wrap">
               {isEmpty ? t.reportTabs.reportLost : content}
             </div>
+
+            {/* A finished report that proposes nothing is a dead end (S3-18).
+                Positioning is what the blurb and the store copy are written
+                from, so that is where this one leads. */}
+            {!isEmpty && (
+              <div className="mt-6 flex flex-wrap items-center gap-3 border-t pt-4">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium">{t.reportTabs.nextStep}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {t.reportTabs.marketNext}
+                  </p>
+                </div>
+                <Button size="sm" className="ml-auto shrink-0" asChild>
+                  <Link href={`/books/${bookId}/marketing`}>
+                    {t.reportTabs.marketNextDo}
+                  </Link>
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       ) : (

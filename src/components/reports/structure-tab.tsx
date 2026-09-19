@@ -158,6 +158,26 @@ export function StructureTab({ bookId }: { bookId: string }) {
         </>
       )}
 
+      {/* Moves that were adopted change what the chapters need, so the pass
+          hands off to the developmental edit rather than ending here (S3-18). */}
+      {moves.some((m) => m.status === "applied") && pending.length === 0 && (
+        <div className="flex flex-wrap items-center gap-3 rounded-md border p-4">
+          <div className="min-w-0">
+            <p className="text-sm font-medium">{t.reportTabs.nextStep}</p>
+            <p className="text-sm text-muted-foreground">
+              {t.reportTabs.structureNext}
+            </p>
+          </div>
+          <Button
+            size="sm"
+            className="ml-auto shrink-0"
+            onClick={() => openWithWorkflow("dev-edit")}
+          >
+            {t.reportTabs.structureNextDo}
+          </Button>
+        </div>
+      )}
+
       {history.length > 0 && (
         <details className="rounded-md border px-4 py-3">
           <summary className="cursor-pointer select-none text-sm font-medium text-muted-foreground">
