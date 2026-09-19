@@ -39,3 +39,19 @@ export const BOOK_LANGUAGES: ReadonlyArray<BookLanguageOption> = [
 export function bookLanguageLabel(code: string): string {
   return BOOK_LANGUAGES.find((l) => l.code === code)?.label ?? code;
 }
+
+/**
+ * The codes above, as a tuple zod can build an enum from. L-7: the API took
+ * `z.string().min(2).max(10)` for a book's language, so
+ * `POST /api/books {"language":"xx"}` answered 201 and every agent prompt then
+ * ordered the manuscript written in "xx".
+ */
+export const BOOK_LANGUAGE_CODES = BOOK_LANGUAGES.map((l) => l.code) as unknown as [
+  string,
+  ...string[],
+];
+
+/** True when the code is one a book may actually be written in. */
+export function isBookLanguage(code: string): boolean {
+  return BOOK_LANGUAGES.some((l) => l.code === code);
+}

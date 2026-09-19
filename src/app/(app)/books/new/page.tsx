@@ -7,7 +7,11 @@ import { toast } from "sonner";
 import { useCreateBook } from "@/hooks/use-books";
 import { useSeries } from "@/hooks/use-series";
 import { useLanguage } from "@/components/providers/language-provider";
-import { SUPPORTED_LANGUAGES } from "@/lib/i18n/ui-strings";
+// L-1/L-3: the book pickers all read BOOK_LANGUAGES. This page used to read
+// the UI list, which offered hr (unselectable everywhere else, so the field
+// then rendered empty) and hid nl, pl, sv and tr, which are valid book
+// languages the prompts understand.
+import { BOOK_LANGUAGES } from "@/lib/i18n/book-languages";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -173,9 +177,9 @@ export default function NewBookPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {SUPPORTED_LANGUAGES.map((lang) => (
+                  {BOOK_LANGUAGES.map((lang) => (
                     <SelectItem key={lang.code} value={lang.code}>
-                      {lang.name}
+                      {lang.label}
                     </SelectItem>
                   ))}
                 </SelectContent>

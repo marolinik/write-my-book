@@ -1,4 +1,5 @@
 import type { AgentDefinition, AgentContext } from "./types";
+import { LANGUAGE_NAMES } from "./language-names";
 import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
 import { getChapterEntities } from "@/lib/graph/graph-queries";
@@ -1120,25 +1121,11 @@ RULES:
 
 // ─── Language Helpers ──────────────────────────────────────────
 
-/** Map ISO language codes to full names for better LLM comprehension */
-const LANGUAGE_NAMES: Record<string, string> = {
-  en: "English",
-  sr: "Serbian Latin (srpski, latinica)",
-  de: "German (Deutsch)",
-  es: "Spanish (español)",
-  fr: "French (français)",
-  ru: "Russian (русский)",
-  zh: "Chinese (中文)",
-  it: "Italian (italiano)",
-  pt: "Portuguese (português)",
-  ja: "Japanese (日本語)",
-  ko: "Korean (한국어)",
-  nl: "Dutch (Nederlands)",
-  pl: "Polish (polski)",
-  cs: "Czech (čeština)",
-  hr: "Croatian (hrvatski)",
-  bs: "Bosnian (bosanski)",
-};
+/**
+ * The language-name table now lives in `language-names.ts` so the quick-assist
+ * routes can share it — they name the book's language in their own prompts.
+ */
+export { LANGUAGE_NAMES };
 
 /** Concrete heading examples per language so the LLM sees exactly what's expected */
 const LANGUAGE_HEADING_EXAMPLES: Record<string, string> = {
@@ -1670,9 +1657,13 @@ export async function assembleAgentPrompt(
 ` +
             `NEVER: vrijeme, gdje, tko, uvijek, poslije, dio, susjed, lijep, mlijeko, vjerovati, razumjeti
 ` +
-            `Serbian vocabulary, not Croatian: hiljada (not tisuca), hleb (not kruh), voz (not vlak), ` +
-            `fabrika (not tvornica), tacno (not tocno), uslov (not uvjet), pozoriste (not kazaliste), ` +
-            `hemija (not kemija), istorija (not povijest), opste (not opce). Use "moram da uradim", ` +
+            // M-8: these are the words the model is told to copy, so they are spelled
+            // the way Serbian spells them. The list used to strip the diacritics off
+            // its own "correct" column - tacno, pozoriste, opste - two lines after
+            // insisting on č, ć, š, ž, đ.
+            `Serbian vocabulary, not Croatian: hiljada (not tisuća), hleb (not kruh), voz (not vlak), ` +
+            `fabrika (not tvornica), tačno (not točno), uslov (not uvjet), pozorište (not kazalište), ` +
+            `hemija (not kemija), istorija (not povijest), opšte (not opće). Use "moram da uradim", ` +
             `not "moram uraditi".`
           : "") +
         (langExamples ? `\n\nExamples of correct headings in ${langName}:\n${langExamples}` : ""),

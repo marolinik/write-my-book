@@ -551,6 +551,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
                 // D-188: recovery source + what the run actually persisted.
                 assistantText: result.assistantText,
                 documentIds: result.documentIds,
+                language: book.language,
               });
               suggestedNext = postResult.suggestedNext;
               resultMeta = {

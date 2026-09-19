@@ -246,6 +246,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
               assistantText: replyText,
               documentIds: result.documentIds,
               documentService: new DocumentService(user.id, bookId),
+              language: book?.language,
             });
             if (artifact) {
               artifactBroken = !artifact.honest;

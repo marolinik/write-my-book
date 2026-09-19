@@ -1897,11 +1897,26 @@ async function executeCreateFinding(
     }
   }
 
+  // C-4: a finding is writer-facing prose AND, through `newText`, text spliced
+  // straight into the chapter on Apply. Nothing enforced the book's script on
+  // it: 9 of 255 findings on the Latin-script Serbian book carry mid-word
+  // Cyrillic homoglyphs (beата, детаља), and a contaminated anchorQuote stops
+  // matching the Latin prose it is supposed to anchor to — which is also why
+  // the enforcement happens BEFORE grounding is scored against the manuscript.
+  const lang = ctx.language;
+  const enforcedAnchor = enforceBookScript(input.anchorQuote, lang);
+  const enforcedAlternatives = input.alternatives.map((alt) => ({
+    ...alt,
+    label: enforceBookScript(alt.label, lang),
+    originalText: enforceBookScript(alt.originalText, lang),
+    newText: enforceBookScript(alt.newText, lang),
+  }));
+
   // Compute grounding score
   const groundingScore = computeGroundingScore(
-    input.anchorQuote,
+    enforcedAnchor,
     manuscriptContent.content,
-    input.alternatives
+    enforcedAlternatives
   );
 
   // D-49 + D-50: sanitize the writer-facing free text before persisting. Strip
@@ -1950,19 +1965,19 @@ async function executeCreateFinding(
       sessionId: ctx.sessionId,
       severity: input.severity,
       category: input.category,
-      description: sanitizedDescription,
-      rationale: sanitizedRationale,
+      description: enforceBookScript(sanitizedDescription, lang),
+      rationale: enforceBookScript(sanitizedRationale, lang),
       confidence: input.confidence,
       paragraphNumber: resolvedParagraphNumber,
-      anchorQuote: input.anchorQuote,
-      alternatives: JSON.stringify(input.alternatives),
+      anchorQuote: enforcedAnchor,
+      alternatives: JSON.stringify(enforcedAlternatives),
       groundingScore,
       chapterVersion: manuscriptDoc.currentVersion,
       contentHash,
-      suggestion: sanitizedSuggestion || sanitizedRationale,
+      suggestion: enforceBookScript(sanitizedSuggestion || sanitizedRationale, lang),
       // Legacy fields for backward compatibility
-      originalText: input.alternatives[0]?.originalText ?? null,
-      newText: input.alternatives[0]?.newText ?? null,
+      originalText: enforcedAlternatives[0]?.originalText ?? null,
+      newText: enforcedAlternatives[0]?.newText ?? null,
     },
   });
 
@@ -1996,11 +2011,17 @@ async function executeWriteSeriesDocument(
   const type = input.documentType as DocumentType;
   const existing = await ctx.seriesDocumentService.findByType(type);
 
+  // C-7: the series bible, architecture and continuity report are the trilogy's
+  // shared spine and every book's prompt reads them back. WriteDocument has
+  // enforced the book's script since the start; this path never did.
+  const content = enforceBookScript(input.content, ctx.language);
+  const title = input.title ? enforceBookScript(input.title, ctx.language) : input.title;
+
   if (existing) {
     const result = await ctx.seriesDocumentService.update(
       existing.id,
-      input.content,
-      input.title,
+      content,
+      title,
       "agent_write",
       "agent"
     );
@@ -2009,8 +2030,8 @@ async function executeWriteSeriesDocument(
 
   const doc = await ctx.seriesDocumentService.create(
     type,
-    input.content,
-    input.title,
+    content,
+    title,
     undefined,
     undefined,
     "agent"
@@ -2138,11 +2159,13 @@ async function executeRememberInsight(
   input: { content: string; category: string }
 ): Promise<string> {
   try {
+    // Indexed and read back into later prompts, so it follows the book's
+    // script like every other persisted model text.
     await indexDocument(
       ctx.bookId,
       "conversation",
       `${ctx.sessionId}:insight:${Date.now()}`,
-      `[${input.category}] ${input.content}`,
+      `[${input.category}] ${enforceBookScript(input.content, ctx.language)}`,
       { userId: undefined }
     );
     return `Insight stored in episodic memory (category: ${input.category}).`;
@@ -2168,8 +2191,9 @@ async function executePostInsight(
     sourceAgentType: ctx.agentType,
     insightType: input.insightType as "WARNING" | "SUGGESTION" | "FLAG" | "CONSTRAINT",
     domain: input.domain,
-    summary: input.summary,
-    detail: input.detail,
+    // Blackboard insights are replayed to other agents and shown to the writer.
+    summary: enforceBookScript(input.summary, ctx.language),
+    detail: enforceBookScript(input.detail, ctx.language),
     targetAgents: input.targetAgents,
     chapterScope: input.chapterScope,
   });
@@ -2725,6 +2749,7 @@ async function executeDelegateToSpecialist(
           workflowId: input.workflowId,
           agentType: specialistType,
           chapterNumber: resolvedChapterNumber,
+          language: delegationCtx.language,
         });
       } catch (e) {
         console.error(`[Delegation] Post-session error for ${specialistType}:`, e);

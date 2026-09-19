@@ -63,6 +63,11 @@ export interface AgentStrings {
   prereqAction: string;
   prereqChapter: string;
 
+  // C-6/H-9 - the artifact contract speaks to the writer when a run's
+  // document was recovered from its transcript, or was never saved at all.
+  artifactRecovered: string;
+  artifactMissing: string;
+
   // Workflow labels (overrides for common workflows)
   workflows: Record<string, string>;
   // Workflow writer-facing descriptions
@@ -122,6 +127,8 @@ const EN: AgentStrings = {
   prereqNeeds: "Needed first: {artifact}",
   prereqAction: "Run: {workflow}",
   prereqChapter: "Choose a chapter first — this pass works on one chapter.",
+  artifactRecovered: "Saved your {label} as a document — the assistant wrote it into the chat but never saved it, so the product persisted it for you. You can find it in this book's documents.",
+  artifactMissing: "The {label} was NOT saved — no such document exists for this book, so any step that needs it will refuse to run. Nothing was persisted by this session; please try again.",
   workflows: {
     "read-manuscript": "Import Manuscript",
     "capture-style": "Capture Style",
@@ -264,6 +271,8 @@ const SR: AgentStrings = {
   prereqNeeds: "Prvo je potrebno: {artifact}",
   prereqAction: "Pokreni: {workflow}",
   prereqChapter: "Prvo izaberi poglavlje — ovaj prolaz radi na jednom poglavlju.",
+  artifactRecovered: "Sačuvali smo {label} kao dokument — asistent ga je napisao u ćaskanju, ali ga nikada nije sačuvao. Naći ćeš ga među dokumentima ove knjige.",
+  artifactMissing: "{label} NIJE sačuvan — takav dokument ne postoji za ovu knjigu, pa će svaki korak koji ga traži odbiti da se pokrene. Ova sesija nije ništa sačuvala; pokušaj ponovo.",
   workflows: {
     "read-manuscript": "Uvezi rukopis",
     "capture-style": "Uhvati stil",
@@ -406,6 +415,8 @@ const DE: AgentStrings = {
   prereqNeeds: "Zuerst nötig: {artifact}",
   prereqAction: "Starten: {workflow}",
   prereqChapter: "Wähle zuerst ein Kapitel — dieser Durchgang arbeitet an einem Kapitel.",
+  artifactRecovered: "{label} wurde als Dokument gespeichert — der Assistent hat es in den Chat geschrieben, aber nie gespeichert. Du findest es bei den Dokumenten dieses Buches.",
+  artifactMissing: "{label} wurde NICHT gespeichert — es existiert kein solches Dokument für dieses Buch, also verweigert jeder Schritt, der es braucht, den Start. Diese Sitzung hat nichts gespeichert; bitte erneut versuchen.",
   workflows: {
     "read-manuscript": "Manuskript importieren",
     "capture-style": "Stil erfassen",
@@ -521,6 +532,8 @@ const ES: AgentStrings = {
   prereqNeeds: "Primero hace falta: {artifact}",
   prereqAction: "Ejecutar: {workflow}",
   prereqChapter: "Elige primero un capítulo: esta pasada trabaja sobre un solo capítulo.",
+  artifactRecovered: "Hemos guardado {label} como documento: el asistente lo escribió en el chat pero nunca lo guardó. Lo encontrarás en los documentos de este libro.",
+  artifactMissing: "{label} NO se guardó: no existe ese documento para este libro, así que cualquier paso que lo necesite se negará a empezar. Esta sesión no guardó nada; inténtalo de nuevo.",
   workflows: {
     "read-manuscript": "Importar manuscrito",
     "capture-style": "Capturar estilo",
@@ -636,6 +649,8 @@ const FR: AgentStrings = {
   prereqNeeds: "Nécessaire d'abord : {artifact}",
   prereqAction: "Lancer : {workflow}",
   prereqChapter: "Choisissez d'abord un chapitre — cette passe travaille sur un seul chapitre.",
+  artifactRecovered: "{label} a été enregistré comme document — l'assistant l'a écrit dans le chat sans jamais l'enregistrer. Vous le trouverez dans les documents de ce livre.",
+  artifactMissing: "{label} n'a PAS été enregistré — aucun document de ce type n'existe pour ce livre, donc toute étape qui en a besoin refusera de démarrer. Cette session n'a rien enregistré ; veuillez réessayer.",
   workflows: {
     "read-manuscript": "Importer le manuscrit",
     "capture-style": "Capturer le style",
@@ -751,6 +766,8 @@ const RU: AgentStrings = {
   prereqNeeds: "Сначала нужно: {artifact}",
   prereqAction: "Запустить: {workflow}",
   prereqChapter: "Сначала выберите главу — этот проход работает по одной главе.",
+  artifactRecovered: "{label} сохранён как документ — ассистент написал его в чате, но так и не сохранил. Вы найдёте его в документах этой книги.",
+  artifactMissing: "{label} НЕ сохранён — такого документа у книги нет, поэтому любой шаг, которому он нужен, откажется запускаться. Эта сессия ничего не сохранила; попробуйте ещё раз.",
   workflows: {
     "read-manuscript": "Импорт рукописи",
     "capture-style": "Захват стиля",
@@ -866,6 +883,8 @@ const ZH: AgentStrings = {
   prereqNeeds: "需要先有：{artifact}",
   prereqAction: "运行：{workflow}",
   prereqChapter: "请先选择章节——本次处理只针对一章。",
+  artifactRecovered: "已将{label}保存为文档——助手把它写在了对话里却没有保存，我们替你存了下来。可在本书的文档中找到。",
+  artifactMissing: "{label}未被保存——本书没有该文档，任何需要它的步骤都会拒绝运行。本次会话未保存任何内容，请重试。",
   workflows: {
     "read-manuscript": "导入手稿",
     "capture-style": "捕获风格",

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
+import { buildLanguageDirective } from "@/lib/agents/language-directive";
+import { enforceBookScript } from "@/lib/agents/serbian-script";
 import { db } from "@/lib/db";
 import { decryptApiKey } from "@/lib/encryption";
 import { estimateCost } from "@/lib/cost";
@@ -119,11 +121,10 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     });
 
     // Build the prompt
+    // C-3: ghost text is inserted mid-sentence into the chapter, and it carried
+    // the same bare-code instruction AI Rewrite did — no script, no dialect.
     const lang = book.language || "en";
-    const langInstruction =
-      lang !== "en"
-        ? `\nIMPORTANT: Continue in the same language as the original text (${lang}). Do NOT translate.`
-        : "";
+    const langInstruction = buildLanguageDirective(lang);
 
     const systemPrompt = `Continue this fiction prose in the author's voice; at most one sentence.
 
@@ -221,7 +222,7 @@ Rules:
         await recordDailyUse(user.id, "ghost");
       }
       return NextResponse.json(
-        { suggestion: settle.text, elapsedMs: ms },
+        { suggestion: enforceBookScript(settle.text, lang), elapsedMs: ms },
         { headers: timing }
       );
     };
@@ -285,6 +286,7 @@ Rules:
         model,
         isFree: quotaResult.isFree ?? false,
         startedAt,
+        language: lang,
       }),
       {
         status: 200,

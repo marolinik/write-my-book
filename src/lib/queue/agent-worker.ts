@@ -650,6 +650,7 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
               // (owner decision #7, BATCH-SPEC §6.3): a batch child records
               // findings but must NOT advance dev_edited/line_edited/beta_read.
               batchId,
+              language,
             });
             suggestedNext = postResult.suggestedNext;
             resultMeta = {

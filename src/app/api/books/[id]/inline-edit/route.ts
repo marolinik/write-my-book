@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
+import { buildLanguageDirective } from "@/lib/agents/language-directive";
+import { enforceBookScript } from "@/lib/agents/serbian-script";
 import { db } from "@/lib/db";
 import { decryptApiKey } from "@/lib/encryption";
 import { estimateCost } from "@/lib/cost";
@@ -102,11 +104,13 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     });
 
     // Build the prompt
+    // C-2: this route puts model prose straight into the chapter, and its
+    // language instruction was the bare code — "the same language as the
+    // original text (sr)" — with no script rule and no dialect rule. A local
+    // model given that writes Cyrillic, and the writer accepts it into the
+    // manuscript with one click.
     const lang = book.language || "en";
-    const langInstruction =
-      lang !== "en"
-        ? `\nIMPORTANT: Write all suggestions in the same language as the original text (${lang}). Do NOT translate.`
-        : "";
+    const langInstruction = buildLanguageDirective(lang);
 
     const userInstruction = data.instruction
       ? `\nThe writer's instruction: "${data.instruction}"`
@@ -248,8 +252,16 @@ Provide ${data.count} alternative rewrites as a JSON array.`;
       await recordDailyUse(user.id, "inline");
     }
 
+    // The prompt asks; the boundary guarantees. A Serbian book is Latin script
+    // whatever the model decided to do with the instruction.
+    const enforced = suggestions.map((s) => ({
+      ...s,
+      text: enforceBookScript(s.text, lang),
+      label: enforceBookScript(s.label, lang),
+    }));
+
     return NextResponse.json(
-      { suggestions, tokensUsed, elapsedMs: ms },
+      { suggestions: enforced, tokensUsed, elapsedMs: ms },
       { headers: timing }
     );
   } catch (error) {

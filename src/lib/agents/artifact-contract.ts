@@ -26,6 +26,9 @@
 
 import type { DocumentType } from "@/generated/prisma/enums";
 import { getWorkflow } from "./workflows";
+import { getDocumentTypeLabels } from "./tool-labels";
+import { getAgentStrings } from "@/lib/i18n/agent-strings";
+import { enforceBookScript } from "./serbian-script";
 
 /** Minimum words before the run's text can be treated as a document. */
 export const MIN_DELIVERABLE_WORDS = 300;
@@ -60,6 +63,13 @@ export interface ArtifactContractInput {
   /** Document ids the run actually wrote (AgentResult.documentIds). */
   documentIds?: string[];
   documentService: ArtifactDocumentStore;
+  /**
+   * C-6/H-9: the book's language. Recovery is the one write path that bypasses
+   * executeWriteDocument entirely, so it enforced no script; and it titled the
+   * recovered document "Story Bible" and told the writer about it in English
+   * while the localized tables sat one import away.
+   */
+  language?: string;
 }
 
 export interface ArtifactContractOutcome {
@@ -148,8 +158,8 @@ export async function evaluateArtifactContract(
   const expectedType = workflow?.producesDocument;
   if (!expectedType) return null;
 
-  const label = artifactLabel(expectedType);
-  const text = input.assistantText ?? "";
+  const label = getDocumentTypeLabels(input.language)[expectedType] ?? artifactLabel(expectedType);
+  const text = enforceBookScript(input.assistantText ?? "", input.language);
   const claimedComplete = claimsArtifactComplete(text);
 
   const existing = await input.documentService.findByType(expectedType);
@@ -189,17 +199,12 @@ export async function evaluateArtifactContract(
   // conversational turn (no claim, nothing document-shaped) stays honest.
   const honest = artifactExists || (!claimedComplete && !recoveryAttempted);
 
+  const strings = getAgentStrings(input.language ?? "en");
   let message: string | undefined;
   if (recovered) {
-    message =
-      `Saved your ${label} as a document — the assistant wrote it into the chat ` +
-      `but never saved it, so the product persisted it for you. You can find it ` +
-      `in this book's documents.`;
+    message = strings.artifactRecovered.replace("{label}", label);
   } else if (!honest) {
-    message =
-      `The ${label} was NOT saved — no ${expectedType} document exists for this ` +
-      `book, so any step that needs it will refuse to run. Nothing was persisted ` +
-      `by this session; please try again.`;
+    message = strings.artifactMissing.replace("{label}", label);
   }
 
   return {

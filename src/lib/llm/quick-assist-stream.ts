@@ -19,6 +19,7 @@ import { db } from "@/lib/db";
 import { estimateCost } from "@/lib/cost";
 import { recordDailyUse } from "@/lib/billing/free-tier-meters";
 import { settleQuickAssist } from "@/lib/llm/quick-assist";
+import { enforceBookScript } from "@/lib/agents/serbian-script";
 import type { ModelDefinition } from "@/lib/llm";
 import {
   writeFrame,
@@ -90,6 +91,13 @@ export interface QuickAssistStreamMeta {
   model: ModelDefinition;
   isFree: boolean;
   startedAt: number;
+  /**
+   * C-3: the book's language, so every frame goes through enforceBookScript on
+   * the way out. Ghost text is inserted mid-sentence into the manuscript, and
+   * the prompt's script rule is a request — this is the guarantee. The mapping
+   * is per character, so applying it to a streamed fragment is safe.
+   */
+  language?: string;
 }
 
 /** True for a forwardable text delta; false for thinking / non-delta events. */
@@ -356,12 +364,18 @@ async function pump(
   }, QUICK_ASSIST_KEEPALIVE_MS);
 
   try {
-    writeFrame(controller, encoder, { type: "token", text: gated.firstText });
+    writeFrame(controller, encoder, {
+      type: "token",
+      text: enforceBookScript(gated.firstText, meta.language),
+    });
 
     for await (const delta of gated.rest) {
       if (signal.aborted) break;
       if (delta.length > 0) {
-        writeFrame(controller, encoder, { type: "token", text: delta });
+        writeFrame(controller, encoder, {
+          type: "token",
+          text: enforceBookScript(delta, meta.language),
+        });
       }
     }
 
@@ -388,7 +402,9 @@ async function pump(
       // client swaps its accumulated deltas for `text` before arming accept.
       writeFrame(controller, encoder, {
         type: "done",
-        text: settle.text,
+        // The client swaps its accumulated deltas for this text, so it carries
+        // the same enforcement the deltas did.
+        text: enforceBookScript(settle.text, meta.language),
         elapsedMs: Date.now() - meta.startedAt,
         usage: {
           input_tokens: final.usage.input_tokens,

@@ -48,6 +48,12 @@ export interface PostSessionContext {
   assistantText?: string;
   /** D-188: document ids the run actually wrote (AgentResult.documentIds). */
   documentIds?: string[];
+  /**
+   * C-6/H-9: the book's language, so a recovered document is script-enforced,
+   * titled from the localized table, and reported to the writer in his own
+   * language instead of English.
+   */
+  language?: string;
 }
 
 export interface PostSessionResult {
@@ -300,6 +306,7 @@ export async function processPostSession(
       assistantText: ctx.assistantText,
       documentIds: ctx.documentIds,
       documentService: docService,
+      language: ctx.language,
     });
     if (artifact) result.artifact = artifact;
 

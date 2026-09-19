@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth";
+import { enforceBookScript } from "@/lib/agents/serbian-script";
 import { db } from "@/lib/db";
 import { buildDiscussPrompt, parseDiscussResponse, type ThreadTurn } from "@/lib/editorial/discuss-prompt";
 import { formatWriterMemoryForPrompt } from "@/lib/agents/writer-memory";
@@ -39,11 +40,16 @@ type RouteParams = { params: Promise<{ id: string; findingId: string }> };
 const bodySchema = z.object({ writerMessage: z.string().min(1).max(2000) });
 
 async function loadOwnedFinding(userId: string, bookId: string, findingId: string) {
-  const book = await db.book.findFirst({ where: { id: bookId, userId }, select: { id: true } });
+  // C-5: the language comes along, because this loop writes prose into the
+  // chapter and had no language instruction of any kind.
+  const book = await db.book.findFirst({
+    where: { id: bookId, userId },
+    select: { id: true, language: true },
+  });
   if (!book) return { error: NextResponse.json({ error: "Book not found" }, { status: 404 }) };
   const finding = await db.editFinding.findFirst({ where: { id: findingId, bookId } });
   if (!finding) return { error: NextResponse.json({ error: "Finding not found" }, { status: 404 }) };
-  return { finding };
+  return { finding, language: book.language };
 }
 
 export async function GET(_req: Request, { params }: RouteParams) {
@@ -121,6 +127,7 @@ export async function POST(req: Request, { params }: RouteParams) {
       writerMessage,
       writerMemoryBlock,
       agentType: finding.agentType,
+      language: owned.language,
     });
 
     // Steps 2+3 as ONE settle unit, shared verbatim by the streamed and the
@@ -134,7 +141,12 @@ export async function POST(req: Request, { params }: RouteParams) {
       // D-41b: the parser only yields a revisedSuggestion when it is non-empty (an
       // empty "suggestion:" line degrades to undefined), so an empty revision can
       // never reach — and clobber — the finding's stored suggestion below.
-      const revisedSuggestion = parsed.revisedSuggestion?.trim();
+      // The prompt asks for the book's language; the boundary guarantees the
+      // script, because this string is spliced into the manuscript on Apply.
+      const revisedSuggestion = enforceBookScript(
+        parsed.revisedSuggestion?.trim() ?? "",
+        owned.language,
+      ) || undefined;
 
       const result = await db.$transaction(async (tx) => {
         await tx.$queryRaw`SELECT id FROM edit_findings WHERE id = ${findingId} FOR UPDATE`;

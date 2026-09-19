@@ -618,11 +618,20 @@ export class AgentOrchestrator {
       // Capture this turn's assistant text; the final natural-completion turn
       // is the last to set it, so lastAssistantText ends as the reply the user
       // sees. Persisted (route onComplete) so a restart keeps conversation context.
-      const turnText = finalMessage.content
-        .filter((b): b is Anthropic.TextBlock => b.type === "text")
-        .map((b) => b.text)
-        .join("\n")
-        .trim();
+      //
+      // C-1: script-enforced like the stream above, and for a sharper reason.
+      // This is the text that gets persisted and replayed to the model as its
+      // own previous turn, so Cyrillic that drifted in came back as precedent —
+      // the enforcement at the stream boundary was arguing with a history that
+      // contradicted it.
+      const turnText = enforceBookScript(
+        finalMessage.content
+          .filter((b): b is Anthropic.TextBlock => b.type === "text")
+          .map((b) => b.text)
+          .join("\n")
+          .trim(),
+        options.context.language,
+      );
       if (turnText) lastAssistantText = turnText;
 
       // Update shared cost tracker (used for Coach + specialist budget sharing).
@@ -680,11 +689,14 @@ export class AgentOrchestrator {
       // Accumulate wrap-up text from the final (post-limit) turn so the
       // client can show what was completed and what remains.
       if (finalTurnRequested) {
-        const finalText = finalMessage.content
-          .filter((b): b is Anthropic.TextBlock => b.type === "text")
-          .map((b) => b.text)
-          .join("\n")
-          .trim();
+        const finalText = enforceBookScript(
+          finalMessage.content
+            .filter((b): b is Anthropic.TextBlock => b.type === "text")
+            .map((b) => b.text)
+            .join("\n")
+            .trim(),
+          options.context.language,
+        );
         if (finalText) {
           wrapUpSummary = wrapUpSummary ? `${wrapUpSummary}\n${finalText}` : finalText;
         }
@@ -940,14 +952,22 @@ export class AgentOrchestrator {
 
             const approvalDeadline = Date.now() + APPROVAL_TIMEOUT_MS;
 
+            // The title and description are model-written prose the writer
+            // reads, so they follow the book's script like everything else.
             options.onMessage({
               type: "approval_request",
-              content: approvalInput.description ?? "Approval requested",
+              content: enforceBookScript(
+                approvalInput.description ?? "Approval requested",
+                options.context.language,
+              ),
               metadata: {
                 tool: "RequestApproval",
                 toolUseId: toolUse.id,
                 approvalId,
-                approvalTitle: approvalInput.title,
+                approvalTitle: enforceBookScript(
+                  approvalInput.title ?? "",
+                  options.context.language,
+                ),
                 approvalDeadline,
               },
             });

@@ -1,3 +1,5 @@
+import { buildLanguageDirective } from "@/lib/agents/language-directive";
+
 export const MEMORY_CATEGORIES = ["style", "name", "preference", "constraint", "correction"] as const;
 export type MemoryCategory = (typeof MEMORY_CATEGORIES)[number];
 
@@ -21,6 +23,13 @@ export interface DiscussPromptInput {
   writerMessage: string;
   writerMemoryBlock: string; // output of formatWriterMemoryForPrompt (may be "")
   agentType?: string;
+  /**
+   * C-5: the book's language. This loop had no language instruction at all —
+   * not even the bare code the other quick-assist routes carried — and the
+   * revision it proposes is written onto the finding's newText, which Apply
+   * later splices into the chapter.
+   */
+  language?: string;
 }
 
 export interface ParsedDiscussTurn {
@@ -36,7 +45,7 @@ export interface ParsedDiscussTurn {
 }
 
 export function buildDiscussPrompt(input: DiscussPromptInput): { system: string; user: string } {
-  const { finding, priorTurns, writerMessage, writerMemoryBlock, agentType } = input;
+  const { finding, priorTurns, writerMessage, writerMemoryBlock, agentType, language } = input;
   const current = finding.alternatives?.[0]?.newText ?? "";
   const system =
     `You are the ${agentType ?? "editor"} collaborating with the writer on ONE finding you flagged:\n` +
@@ -49,6 +58,7 @@ export function buildDiscussPrompt(input: DiscussPromptInput): { system: string;
     `If (and only if) the writer defends an intentional choice you accept, append:\n` +
     `<<<REMEMBER category="preference">>>\n<one concise preference, imperative voice>\n<<<END>>>\n` +
     `Use a category from: ${MEMORY_CATEGORIES.join(", ")}. Do NOT specify a book or scope.\n` +
+    buildLanguageDirective(language) +
     writerMemoryBlock;
 
   const anchor = finding.anchorQuote ? `\nAnchor text: ${finding.anchorQuote}` : "";

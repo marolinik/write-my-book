@@ -1,6 +1,16 @@
 import { z } from "zod";
 import { PROVIDER_KEYS } from "@/lib/llm/providers";
 import { isSafeTemplatePath } from "@/lib/import-export/safe-path";
+import { BOOK_LANGUAGE_CODES } from "@/lib/i18n/book-languages";
+
+/**
+ * The language a book (or series) is written in. L-7: this used to be
+ * `z.string().min(2).max(10)`, so `POST /api/books {"language":"xx"}` answered
+ * 201 — and Book.language is what every agent prompt enforces, which means the
+ * whole manuscript would have been ordered written in "xx". The picker and the
+ * boundary now agree, because both read BOOK_LANGUAGES.
+ */
+const bookLanguageSchema = z.enum(BOOK_LANGUAGE_CODES);
 
 /**
  * A custom-template / cover-asset path (D-21). Constrained to a safe LOCAL path
@@ -19,7 +29,7 @@ const safeTemplatePathSchema = z
 export const createBookSchema = z.object({
   name: z.string().min(1).max(200),
   genre: z.string().max(50).nullable().optional(),
-  language: z.string().min(2).max(10).optional().default("en"),
+  language: bookLanguageSchema.optional().default("en"),
   seriesId: z.string().uuid().optional(),
   bookNumber: z.number().int().min(1).max(99).optional(),
 });
@@ -27,7 +37,7 @@ export const createBookSchema = z.object({
 export const updateBookSchema = z.object({
   name: z.string().min(1).max(200).optional(),
   genre: z.string().max(50).nullable().optional(),
-  language: z.string().min(2).max(10).optional(),
+  language: bookLanguageSchema.optional(),
   status: z
     .enum([
       "concept",
@@ -52,7 +62,7 @@ export const coverUploadSchema = z.object({
 export const createSeriesSchema = z.object({
   title: z.string().min(1).max(200),
   genre: z.string().max(50).optional(),
-  language: z.string().min(2).max(10).optional().default("en"),
+  language: bookLanguageSchema.optional().default("en"),
   seriesType: z
     .enum(["DUOLOGY", "TRILOGY", "TETRALOGY", "PENTALOGY", "SAGA", "OPEN"])
     .optional()
@@ -141,7 +151,7 @@ export const updateSettingsSchema = z.object({
   betaPanelSize: z.number().int().min(3).max(10).optional(),
   betaConsensus: z.number().int().min(50).max(100).optional(),
   betaConvergence: z.number().int().min(50).max(100).optional(),
-  language: z.string().min(2).max(10).optional(),
+  language: bookLanguageSchema.optional(),
   journeyId: z.string().max(50).nullable().optional(),
   journeyStepsSnapshot: z.string().max(10000).nullable().optional(),
   // Setup wizard flags (D-35). The wizard PATCHes {setupImportSkipped: true}
@@ -420,7 +430,7 @@ export const addBookToSeriesSchema = z.object({
   bookId: z.string().optional(),
   name: z.string().min(1).max(200).optional(),
   genre: z.string().max(50).optional(),
-  language: z.string().min(2).max(10).optional(),
+  language: bookLanguageSchema.optional(),
 }).refine(
   (data) => data.bookId || data.name,
   { message: "Either bookId or name is required" }

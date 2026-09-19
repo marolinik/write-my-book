@@ -242,6 +242,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
               workflowId: data.workflowId,
               agentType: workflow.primaryAgent,
               chapterNumber: data.chapterNumber,
+              language: book?.language ?? undefined,
             });
             suggestedNext = postResult.suggestedNext;
           } catch (e) {

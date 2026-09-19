@@ -48,8 +48,12 @@ describe("CreateFinding's suggestion", () => {
       TOOLS.indexOf("async function executeCreateFinding"),
       TOOLS.indexOf("async function executeReadSeriesDocument")
     );
-    expect(executor).not.toMatch(/suggestion: sanitizedRationale/);
-    expect(executor).toMatch(/suggestion: sanitizedSuggestion/);
+    expect(executor).not.toMatch(/suggestion: sanitizedRationale,/);
+    // Persisted as the model's own sentence, script-enforced like the rest of
+    // the finding, and only falling back to the rationale when it is empty.
+    expect(executor).toMatch(
+      /suggestion: enforceBookScript\(sanitizedSuggestion \|\| sanitizedRationale, lang\)/
+    );
   });
 
   it("is sanitized the same way the description and rationale are", () => {
