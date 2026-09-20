@@ -58,7 +58,7 @@ export default function NewSeriesPage() {
         plannedBooks,
         description: description.trim() || undefined,
       });
-      toast.success("Series created");
+      toast.success(t.toasts.seriesCreated);
       router.push(`/series/${series.id}`);
     } catch (err) {
       toast.error((err as Error).message);

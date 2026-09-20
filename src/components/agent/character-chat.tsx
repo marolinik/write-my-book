@@ -117,7 +117,7 @@ export function CharacterChat({ bookId, characters, onClose }: CharacterChatProp
         { role: "character", content: response.reply },
       ]);
     } catch (err) {
-      toast.error("Failed to get response");
+      toast.error(t.toasts.responseFailed);
       // Remove the user message on error
       setMessages((prev) => prev.slice(0, -1));
       setInput(text); // Restore input

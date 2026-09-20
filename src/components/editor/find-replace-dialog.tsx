@@ -113,7 +113,7 @@ export function FindReplaceDialog({
         wholeWord: effectiveWholeWord,
       });
       if (res.totalReplacements === 0) {
-        toast.info("No matches replaced.");
+        toast.info(t.toasts.noMatchesReplaced);
         return;
       }
       const chapterWord = res.replaced.length === 1 ? "chapter" : "chapters";
@@ -124,7 +124,7 @@ export function FindReplaceDialog({
       );
       onOpenChange(false);
     } catch (error) {
-      toast.error("Replace failed", {
+      toast.error(t.toasts.replaceFailed, {
         description:
           error instanceof Error ? error.message : "Please try again.",
       });

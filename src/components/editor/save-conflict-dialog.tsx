@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import type { Editor } from "@tiptap/react";
 import { EditorState } from "@tiptap/pm/state";
 import { toast } from "sonner";
+import { useLanguage } from "@/components/providers/language-provider";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import {
@@ -58,6 +59,7 @@ export function SaveConflictDialog({
   editor,
   documentId,
 }: SaveConflictDialogProps) {
+  const { t } = useLanguage();
   const saveConflict = useEditorPaneStore(paneId, (s) => s.saveConflict);
   // Both hooks are called unconditionally (rules of hooks); only the one
   // matching the target is ever invoked. In chapter mode documentId is absent
@@ -134,7 +136,7 @@ export function SaveConflictDialog({
       paneStore.getState().setSaveConflict(null);
       clearConflictDraft();
       onOpenChange(false);
-      toast.success("Your version saved", {
+      toast.success(t.toasts.yourVersionSaved, {
         description: "The other version is preserved in version history.",
       });
     } catch (error) {
@@ -159,7 +161,7 @@ export function SaveConflictDialog({
           description: "The diff has been updated — please review once more.",
         });
       } else {
-        toast.error("Failed to save your version", {
+        toast.error(t.toasts.yourVersionSaveFailed, {
           description:
             error instanceof Error ? error.message : "Please try again.",
         });
@@ -215,7 +217,7 @@ export function SaveConflictDialog({
       onOpenChange(false);
     } catch (error) {
       // Words stay safe: editor content and conflict state are untouched.
-      toast.error("Could not back up your edits — nothing was changed", {
+      toast.error(t.toasts.backupFailed, {
         description:
           error instanceof Error ? error.message : "Please try again.",
       });

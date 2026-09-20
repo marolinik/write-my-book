@@ -74,9 +74,9 @@ export function ShareableProgressCard({
 
     try {
       await navigator.clipboard.writeText(text);
-      toast.success("Progress copied to clipboard — paste it on social media!");
+      toast.success(t.toasts.progressCopied);
     } catch {
-      toast.error("Failed to copy");
+      toast.error(t.toasts.copyFailed);
     }
   }, [label, bookTitle, totalWords, chaptersComplete, totalChapters, daysWriting, locale]);
 

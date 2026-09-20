@@ -416,7 +416,7 @@ export function ManuscriptEditor({
   // NEVER auto-opened — typing must not be interrupted. (Declared before the
   // content-load effect — draft recovery surfaces conflicts during load.)
   const showConflictToast = useCallback(() => {
-    toast.warning("Chapter changed outside this editor", {
+    toast.warning(t.toasts.chapterChangedOutside, {
       description:
         "Another writer (agent, import, or tab) saved a newer version. Your words are kept in this editor — review to resume saving.",
       action: {
@@ -501,11 +501,15 @@ export function ManuscriptEditor({
               onConflictToast: showConflictToast,
               bufferNow,
               clearDraft,
+              strings: {
+                recovered: t.toasts.draftRecovered,
+                discard: t.toasts.discardRecovery,
+              },
             })
         );
       }
     }
-  }, [chapterData, editor, isPrimary, paneStore, checkRecovery, bufferNow, clearDraft, showConflictToast]);
+  }, [chapterData, editor, isPrimary, paneStore, checkRecovery, bufferNow, clearDraft, showConflictToast, t]);
 
   // Navigating away silently clears a pending conflict (setChapter resets it)
   // and would strand words typed after the conflict (autosave is suspended) —
@@ -658,7 +662,7 @@ export function ManuscriptEditor({
         .getState()
         .setLastSaveErrorKind(isNetworkError(error) ? "network" : "http");
       if (saveFailuresRef.current === 3 && isOnlineRef.current) {
-        toast.error("Autosave is failing — check your connection.");
+        toast.error(t.toasts.autosaveFailing);
       }
       paneStore.getState().setSaving(false);
     }
@@ -779,7 +783,7 @@ export function ManuscriptEditor({
         e.preventDefault();
         const { from, to } = editor.state.selection;
         if (from === to) {
-          toast.info("Select some text first, then press F2.");
+          toast.info(t.toasts.selectTextFirst);
           return;
         }
         setInlineEditInstruction(undefined);
@@ -865,7 +869,7 @@ export function ManuscriptEditor({
         }
       });
     } else {
-      toast.info("Could not find the referenced text in the current chapter. It may have been edited.");
+      toast.info(t.toasts.anchorNotFound);
     }
 
     paneStore.getState().setScrollToText(null);
@@ -884,15 +888,13 @@ export function ManuscriptEditor({
       if (!editor) return;
       const searchText = finding.originalText;
       if (!searchText) {
-        toast.info("This finding has no anchored text to navigate to.");
+        toast.info(t.toasts.findingNotAnchored);
         return;
       }
 
       const positions = findTextPositions(editor.state.doc, searchText);
       if (positions.length === 0) {
-        toast.info(
-          "Original text has changed — could not locate passage."
-        );
+        toast.info(t.toasts.passageMoved);
         return;
       }
 
@@ -1244,7 +1246,7 @@ export function ManuscriptEditor({
           if (!editor) return;
           const { from, to } = editor.state.selection;
           if (from === to) {
-            toast.info("Select some text first, then press F2 or click AI Rewrite.");
+            toast.info(t.toasts.selectTextForRewrite);
             return;
           }
           setInlineEditInstruction(undefined);

@@ -19,6 +19,7 @@ import {
 } from "@dnd-kit/sortable";
 import { toast } from "sonner";
 import { useReorderChapters } from "@/hooks/use-chapters";
+import { useLanguage } from "@/components/providers/language-provider";
 import {
   CanvasChapterCard,
   type CanvasChapter,
@@ -30,6 +31,7 @@ interface BookCanvasProps {
 }
 
 export function BookCanvas({ bookId, initialChapters }: BookCanvasProps) {
+  const { t } = useLanguage();
   const router = useRouter();
   const [chapters, setChapters] = useState(initialChapters);
   const reorderChapters = useReorderChapters(bookId);
@@ -69,7 +71,7 @@ export function BookCanvas({ bookId, initialChapters }: BookCanvasProps) {
           }))
         )
         .catch(() => {
-          toast.error("Failed to reorder chapters");
+          toast.error(t.toasts.chapterReorderFailed);
           setChapters(initialChapters);
         });
     },

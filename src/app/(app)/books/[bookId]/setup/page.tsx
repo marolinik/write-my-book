@@ -194,7 +194,7 @@ export default function SetupPage({
       }
     }
 
-    toast.success("Setup complete! Your book is ready.");
+    toast.success(t.toasts.setupComplete);
     router.push(
       target ? `/books/${bookId}/chapters/${target.id}` : `/books/${bookId}`
     );

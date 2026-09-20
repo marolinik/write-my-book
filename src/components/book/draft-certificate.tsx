@@ -43,7 +43,7 @@ export function DraftCertificate({
     try {
       if (navigator.share) { await navigator.share({ text }); return; }
       await navigator.clipboard.writeText(text);
-      toast.success("Certificate text copied to clipboard!");
+      toast.success(t.toasts.certificateCopied);
     } catch {}
   };
 

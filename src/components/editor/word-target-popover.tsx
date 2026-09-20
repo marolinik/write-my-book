@@ -55,7 +55,7 @@ export function WordTargetPopover({
       {
         onSuccess: () => setOpen(false),
         onError: (error) =>
-          toast.error("Failed to save word target", {
+          toast.error(t.toasts.wordTargetFailed, {
             description: (error as Error).message,
           }),
       }

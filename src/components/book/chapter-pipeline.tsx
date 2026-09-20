@@ -20,6 +20,7 @@ import {
 import { toast } from "sonner";
 import { useUpdateAnyChapter } from "@/hooks/use-chapters";
 import { getStatusLabel } from "@/lib/i18n/ui-strings";
+import { useLanguage } from "@/components/providers/language-provider";
 import { PipelineColumn } from "./pipeline-column";
 import type { PipelineChapter } from "./pipeline-card";
 
@@ -41,6 +42,7 @@ interface ChapterPipelineProps {
 }
 
 export function ChapterPipeline({ bookId, initialChapters, language = "en" }: ChapterPipelineProps) {
+  const { t } = useLanguage();
   const router = useRouter();
   const [chapters, setChapters] = useState(initialChapters);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -121,7 +123,7 @@ export function ChapterPipeline({ bookId, initialChapters, language = "en" }: Ch
             data: { status: chapter.status },
           })
           .catch(() => {
-            toast.error("Failed to update chapter status");
+            toast.error(t.toasts.chapterStatusFailed);
             setChapters(initialChapters);
           });
       }

@@ -365,7 +365,7 @@ export default function DocumentEditorPage({
             serverContent: body.serverContent,
             serverVersion,
           });
-          toast.warning("Document changed outside this editor", {
+          toast.warning(t.toasts.documentChangedOutside, {
             description: "Your edits are safe — review the changes to merge.",
             action: {
               label: "Review",

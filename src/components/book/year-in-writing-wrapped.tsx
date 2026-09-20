@@ -224,7 +224,7 @@ export function YearInWritingWrapped({ data, authorName }: YearInWritingWrappedP
     try {
       if (navigator.share) { await navigator.share({ text }); return; }
       await navigator.clipboard.writeText(text);
-      toast.success("Copied to clipboard!");
+      toast.success(t.toasts.copiedToClipboard);
     } catch { /* ignore */ }
   };
 

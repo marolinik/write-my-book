@@ -112,10 +112,10 @@ export function OnboardingWizard() {
 
         if (skip) {
           // Land the writer on "name your book", not a dashboard of zeros.
-          toast.success("You're all set — let's start your first book.");
+          toast.success(t.toasts.onboardingReadyToWrite);
           router.push("/books/new?onboarding=1");
         } else {
-          toast.success("Setup complete! Welcome to Write My Book OK.");
+          toast.success(t.toasts.onboardingComplete);
           router.push("/dashboard");
         }
       } catch (err) {

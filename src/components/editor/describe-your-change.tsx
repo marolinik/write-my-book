@@ -60,7 +60,7 @@ export function DescribeYourChange({
       const rewritten = response.rewrittenText ?? response.suggestions?.[0]?.newText ?? null;
       setResult(rewritten);
     } catch {
-      toast.error("Failed to generate rewrite");
+      toast.error(t.toasts.rewriteFailed);
     } finally {
       setIsLoading(false);
     }

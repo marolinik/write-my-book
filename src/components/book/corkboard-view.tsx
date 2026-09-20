@@ -11,7 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { fetchJson } from "@/lib/api-client";
-import { useLocale } from "@/components/providers/language-provider";
+import { useLanguage, useLocale } from "@/components/providers/language-provider";
 
 /**
  * Gap 2: Drag-and-Drop Corkboard View
@@ -59,6 +59,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export function CorkboardView({ bookId, chapters: initialChapters, onReorder }: CorkboardViewProps) {
+  const { t } = useLanguage();
   const locale = useLocale();
   const [chapters, setChapters] = useState(initialChapters);
   const [draggedId, setDraggedId] = useState<string | null>(null);
@@ -114,10 +115,10 @@ export function CorkboardView({ bookId, chapters: initialChapters, onReorder }: 
           })),
         }),
       });
-      toast.success("Chapters reordered");
+      toast.success(t.toasts.chaptersReordered);
       onReorder?.(renumbered.map((c) => c.id));
     } catch (err) {
-      toast.error("Failed to reorder chapters");
+      toast.error(t.toasts.chapterReorderFailed);
       setChapters(initialChapters); // Rollback
     }
   }, [draggedId, chapters, bookId, initialChapters, onReorder]);

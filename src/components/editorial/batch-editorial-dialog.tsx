@@ -200,7 +200,7 @@ export function BatchEditorialDialog({
 
   async function submit() {
     if (passes.size === 0) {
-      toast.error("Pick at least one editorial pass.");
+      toast.error(t.toasts.pickOnePass);
       return;
     }
     // D-125: same bounds the field advertises, refused where the writer is
@@ -252,13 +252,13 @@ export function BatchEditorialDialog({
         method: "POST",
       });
       if (!res.ok) {
-        toast.error("Failed to cancel batch.");
+        toast.error(t.toasts.batchCancelFailed);
         return;
       }
-      toast.success("Batch cancelled — remaining passes will be skipped.");
+      toast.success(t.toasts.batchCancelled);
       poll(batchId);
     } catch {
-      toast.error("Failed to cancel batch.");
+      toast.error(t.toasts.batchCancelFailed);
     }
   }
 

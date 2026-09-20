@@ -960,6 +960,54 @@ export interface UIStrings {
       agentTypePlaceholder: string; allAgents: string; resetAll: string;
     };
   };
+
+  // H-10 - every toast the writer is shown. These were English literals at
+  // 43 call sites; a toast is the product's only voice for that worked and
+  // that failed, so an English one silently un-localises the whole app.
+  toasts: {
+    documentChangedOutside: string;
+    chapterChangedOutside: string;
+    bookDeleted: string;
+    bookDeleteFailed: string;
+    setupComplete: string;
+    seriesCreated: string;
+    apiKeyRequired: string;
+    startingNextWorkflow: string;
+    responseFailed: string;
+    chapterReorderFailed: string;
+    chaptersReordered: string;
+    chapterStatusFailed: string;
+    certificateCopied: string;
+    copyFailed: string;
+    copiedToClipboard: string;
+    marketingKitGenerated: string;
+    marketingKitFailed: string;
+    progressCopied: string;
+    rewriteFailed: string;
+    draftRecovered: string;
+    discardRecovery: string;
+    noMatchesReplaced: string;
+    replaceFailed: string;
+    autosaveFailing: string;
+    selectTextFirst: string;
+    selectTextForRewrite: string;
+    anchorNotFound: string;
+    findingNotAnchored: string;
+    passageMoved: string;
+    yourVersionSaved: string;
+    yourVersionSaveFailed: string;
+    backupFailed: string;
+    wordTargetFailed: string;
+    pickOnePass: string;
+    batchCancelFailed: string;
+    batchCancelled: string;
+    memoryAdded: string;
+    memoryAddFailed: string;
+    memoryRemoved: string;
+    memoryUpdated: string;
+    onboardingReadyToWrite: string;
+    onboardingComplete: string;
+  };
 }
 
 export const SUPPORTED_LANGUAGES = [
@@ -2009,6 +2057,51 @@ const EN: UIStrings = {
     nextStep: "Next Step",
     startButton: "Start",
   },
+
+  toasts: {
+    documentChangedOutside: "Document changed outside this editor",
+    chapterChangedOutside: "Chapter changed outside this editor",
+    bookDeleted: "Book deleted",
+    bookDeleteFailed: "Failed to delete book",
+    setupComplete: "Setup complete! Your book is ready.",
+    seriesCreated: "Series created",
+    apiKeyRequired: "API key required",
+    startingNextWorkflow: "Starting next workflow from queue...",
+    responseFailed: "Failed to get response",
+    chapterReorderFailed: "Failed to reorder chapters",
+    chaptersReordered: "Chapters reordered",
+    chapterStatusFailed: "Failed to update chapter status",
+    certificateCopied: "Certificate text copied to clipboard!",
+    copyFailed: "Failed to copy",
+    copiedToClipboard: "Copied to clipboard!",
+    marketingKitGenerated: "Marketing kit generated!",
+    marketingKitFailed: "Failed to generate marketing kit",
+    progressCopied: "Progress copied to clipboard — paste it on social media!",
+    rewriteFailed: "Failed to generate rewrite",
+    draftRecovered: "Recovered unsaved changes from your last session",
+    discardRecovery: "Discard",
+    noMatchesReplaced: "No matches replaced.",
+    replaceFailed: "Replace failed",
+    autosaveFailing: "Autosave is failing — check your connection.",
+    selectTextFirst: "Select some text first, then press F2.",
+    selectTextForRewrite: "Select some text first, then press F2 or click AI Rewrite.",
+    anchorNotFound: "Could not find the referenced text in the current chapter. It may have been edited.",
+    findingNotAnchored: "This finding has no anchored text to navigate to.",
+    passageMoved: "Original text has changed - could not locate passage.",
+    yourVersionSaved: "Your version saved",
+    yourVersionSaveFailed: "Failed to save your version",
+    backupFailed: "Could not back up your edits — nothing was changed",
+    wordTargetFailed: "Failed to save word target",
+    pickOnePass: "Pick at least one editorial pass.",
+    batchCancelFailed: "Failed to cancel batch.",
+    batchCancelled: "Batch cancelled — remaining passes will be skipped.",
+    memoryAdded: "Memory added",
+    memoryAddFailed: "Failed to add memory",
+    memoryRemoved: "Memory removed",
+    memoryUpdated: "Memory updated",
+    onboardingReadyToWrite: "You are all set — let us start your first book.",
+    onboardingComplete: "Setup complete! Welcome to Write My Book OK.",
+  },
 };
 
 const SR: UIStrings = {
@@ -3029,6 +3122,51 @@ const SR: UIStrings = {
     noBannerYetDesc: "Izaberite putovanje da vidite kontrolnu listu napretka.",
     nextStep: "Sledeći korak",
     startButton: "Započni",
+  },
+
+  toasts: {
+    documentChangedOutside: "Dokument je promenjen izvan ovog uređivača",
+    chapterChangedOutside: "Poglavlje je promenjeno izvan ovog uređivača",
+    bookDeleted: "Knjiga je obrisana",
+    bookDeleteFailed: "Brisanje knjige nije uspelo",
+    setupComplete: "Podešavanje je završeno! Vaša knjiga je spremna.",
+    seriesCreated: "Serijal je napravljen",
+    apiKeyRequired: "Potreban je API ključ",
+    startingNextWorkflow: "Pokrećem sledeći tok rada iz reda čekanja...",
+    responseFailed: "Dobijanje odgovora nije uspelo",
+    chapterReorderFailed: "Promena redosleda poglavlja nije uspela",
+    chaptersReordered: "Redosled poglavlja je promenjen",
+    chapterStatusFailed: "Ažuriranje statusa poglavlja nije uspelo",
+    certificateCopied: "Tekst sertifikata je kopiran u clipboard!",
+    copyFailed: "Kopiranje nije uspelo",
+    copiedToClipboard: "Kopirano u clipboard!",
+    marketingKitGenerated: "Marketinški komplet je napravljen!",
+    marketingKitFailed: "Pravljenje marketinškog kompleta nije uspelo",
+    progressCopied: "Napredak je kopiran u clipboard — nalepite ga na društvenim mrežama!",
+    rewriteFailed: "Generisanje prepisanog teksta nije uspelo",
+    draftRecovered: "Vraćene su nesačuvane izmene iz vaše prethodne sesije",
+    discardRecovery: "Odbaci",
+    noMatchesReplaced: "Nijedno podudaranje nije zamenjeno.",
+    replaceFailed: "Zamena nije uspela",
+    autosaveFailing: "Automatsko čuvanje ne radi — proverite vezu.",
+    selectTextFirst: "Prvo označite deo teksta, pa pritisnite F2.",
+    selectTextForRewrite: "Prvo označite deo teksta, pa pritisnite F2 ili kliknite na AI prepisivanje.",
+    anchorNotFound: "Referencirani tekst nije pronađen u ovom poglavlju. Možda je u međuvremenu izmenjen.",
+    findingNotAnchored: "Ovaj nalaz nema usidren tekst do kog bi se moglo otići.",
+    passageMoved: "Izvorni tekst je promenjen - odlomak nije pronađen.",
+    yourVersionSaved: "Vaša verzija je sačuvana",
+    yourVersionSaveFailed: "Čuvanje vaše verzije nije uspelo",
+    backupFailed: "Rezervna kopija vaših izmena nije napravljena — ništa nije promenjeno",
+    wordTargetFailed: "Čuvanje ciljanog broja reči nije uspelo",
+    pickOnePass: "Izaberite bar jedan urednički prolaz.",
+    batchCancelFailed: "Otkazivanje grupne obrade nije uspelo.",
+    batchCancelled: "Grupna obrada je otkazana — preostali prolazi biće preskočeni.",
+    memoryAdded: "Dodato u pamćenje",
+    memoryAddFailed: "Dodavanje u pamćenje nije uspelo",
+    memoryRemoved: "Obrisano iz pamćenja",
+    memoryUpdated: "Pamćenje je izmenjeno",
+    onboardingReadyToWrite: "Sve je spremno — krenimo sa vašom prvom knjigom.",
+    onboardingComplete: "Podešavanje je završeno! Dobro došli u Write My Book OK.",
   },
 };
 
@@ -4051,6 +4189,51 @@ const DE: UIStrings = {
     nextStep: "Nächster Schritt",
     startButton: "Starten",
   },
+
+  toasts: {
+    documentChangedOutside: "Dokument wurde außerhalb dieses Editors geändert",
+    chapterChangedOutside: "Kapitel wurde außerhalb dieses Editors geändert",
+    bookDeleted: "Buch gelöscht",
+    bookDeleteFailed: "Buch konnte nicht gelöscht werden",
+    setupComplete: "Einrichtung abgeschlossen! Ihr Buch ist bereit.",
+    seriesCreated: "Reihe erstellt",
+    apiKeyRequired: "API-Schlüssel erforderlich",
+    startingNextWorkflow: "Nächster Workflow aus der Warteschlange wird gestartet ...",
+    responseFailed: "Antwort konnte nicht abgerufen werden",
+    chapterReorderFailed: "Kapitel konnten nicht neu sortiert werden",
+    chaptersReordered: "Kapitelreihenfolge geändert",
+    chapterStatusFailed: "Kapitelstatus konnte nicht aktualisiert werden",
+    certificateCopied: "Urkundentext in die Zwischenablage kopiert!",
+    copyFailed: "Kopieren fehlgeschlagen",
+    copiedToClipboard: "In die Zwischenablage kopiert!",
+    marketingKitGenerated: "Marketing-Kit erstellt!",
+    marketingKitFailed: "Marketing-Kit konnte nicht erstellt werden",
+    progressCopied: "Fortschritt in die Zwischenablage kopiert — fügen Sie ihn in den sozialen Medien ein!",
+    rewriteFailed: "Neufassung konnte nicht erzeugt werden",
+    draftRecovered: "Nicht gespeicherte Änderungen aus Ihrer letzten Sitzung wurden wiederhergestellt",
+    discardRecovery: "Verwerfen",
+    noMatchesReplaced: "Keine Treffer ersetzt.",
+    replaceFailed: "Ersetzen fehlgeschlagen",
+    autosaveFailing: "Automatisches Speichern schlägt fehl — prüfen Sie Ihre Verbindung.",
+    selectTextFirst: "Markieren Sie zuerst Text und drücken Sie dann F2.",
+    selectTextForRewrite: "Markieren Sie zuerst Text und drücken Sie dann F2 oder klicken Sie auf KI-Neufassung.",
+    anchorNotFound: "Der referenzierte Text wurde im aktuellen Kapitel nicht gefunden. Er wurde möglicherweise bearbeitet.",
+    findingNotAnchored: "Dieser Befund hat keinen verankerten Text, zu dem gesprungen werden kann.",
+    passageMoved: "Der ursprüngliche Text wurde geändert - die Passage wurde nicht gefunden.",
+    yourVersionSaved: "Ihre Version wurde gespeichert",
+    yourVersionSaveFailed: "Ihre Version konnte nicht gespeichert werden",
+    backupFailed: "Ihre Änderungen konnten nicht gesichert werden — es wurde nichts geändert",
+    wordTargetFailed: "Wortziel konnte nicht gespeichert werden",
+    pickOnePass: "Wählen Sie mindestens einen Lektoratsdurchgang.",
+    batchCancelFailed: "Stapel konnte nicht abgebrochen werden.",
+    batchCancelled: "Stapel abgebrochen — verbleibende Durchgänge werden übersprungen.",
+    memoryAdded: "Zum Gedächtnis hinzugefügt",
+    memoryAddFailed: "Eintrag konnte nicht zum Gedächtnis hinzugefügt werden",
+    memoryRemoved: "Aus dem Gedächtnis entfernt",
+    memoryUpdated: "Gedächtnis aktualisiert",
+    onboardingReadyToWrite: "Alles bereit — beginnen wir mit Ihrem ersten Buch.",
+    onboardingComplete: "Einrichtung abgeschlossen! Willkommen bei Write My Book OK.",
+  },
 };
 
 const ES: UIStrings = {
@@ -5071,6 +5254,51 @@ const ES: UIStrings = {
     noBannerYetDesc: "Elige un recorrido para ver tu lista de progreso.",
     nextStep: "Siguiente paso",
     startButton: "Comenzar",
+  },
+
+  toasts: {
+    documentChangedOutside: "El documento cambió fuera de este editor",
+    chapterChangedOutside: "El capítulo cambió fuera de este editor",
+    bookDeleted: "Libro eliminado",
+    bookDeleteFailed: "No se pudo eliminar el libro",
+    setupComplete: "¡Configuración completa! Tu libro está listo.",
+    seriesCreated: "Serie creada",
+    apiKeyRequired: "Se requiere una clave de API",
+    startingNextWorkflow: "Iniciando el siguiente flujo de trabajo de la cola...",
+    responseFailed: "No se pudo obtener la respuesta",
+    chapterReorderFailed: "No se pudieron reordenar los capítulos",
+    chaptersReordered: "Capítulos reordenados",
+    chapterStatusFailed: "No se pudo actualizar el estado del capítulo",
+    certificateCopied: "¡Texto del certificado copiado al portapapeles!",
+    copyFailed: "No se pudo copiar",
+    copiedToClipboard: "¡Copiado al portapapeles!",
+    marketingKitGenerated: "¡Kit de marketing generado!",
+    marketingKitFailed: "No se pudo generar el kit de marketing",
+    progressCopied: "Progreso copiado al portapapeles: ¡pégalo en tus redes sociales!",
+    rewriteFailed: "No se pudo generar la reescritura",
+    draftRecovered: "Se recuperaron los cambios sin guardar de tu sesión anterior",
+    discardRecovery: "Descartar",
+    noMatchesReplaced: "No se reemplazó ninguna coincidencia.",
+    replaceFailed: "Error al reemplazar",
+    autosaveFailing: "El guardado automático está fallando: revisa tu conexión.",
+    selectTextFirst: "Selecciona texto primero y luego pulsa F2.",
+    selectTextForRewrite: "Selecciona texto primero y luego pulsa F2 o haz clic en Reescritura con IA.",
+    anchorNotFound: "No se encontró el texto referenciado en el capítulo actual. Puede que se haya editado.",
+    findingNotAnchored: "Este hallazgo no tiene texto anclado al que navegar.",
+    passageMoved: "El texto original cambió: no se pudo localizar el pasaje.",
+    yourVersionSaved: "Tu versión se guardó",
+    yourVersionSaveFailed: "No se pudo guardar tu versión",
+    backupFailed: "No se pudieron respaldar tus ediciones: no se cambió nada",
+    wordTargetFailed: "No se pudo guardar el objetivo de palabras",
+    pickOnePass: "Elige al menos una pasada editorial.",
+    batchCancelFailed: "No se pudo cancelar el lote.",
+    batchCancelled: "Lote cancelado: se omitirán las pasadas restantes.",
+    memoryAdded: "Añadido a la memoria",
+    memoryAddFailed: "No se pudo añadir a la memoria",
+    memoryRemoved: "Eliminado de la memoria",
+    memoryUpdated: "Memoria actualizada",
+    onboardingReadyToWrite: "Todo listo: empecemos con tu primer libro.",
+    onboardingComplete: "¡Configuración completa! Te damos la bienvenida a Write My Book OK.",
   },
 };
 
@@ -6093,6 +6321,51 @@ const FR: UIStrings = {
     nextStep: "Prochaine étape",
     startButton: "Commencer",
   },
+
+  toasts: {
+    documentChangedOutside: "Le document a été modifié en dehors de cet éditeur",
+    chapterChangedOutside: "Le chapitre a été modifié en dehors de cet éditeur",
+    bookDeleted: "Livre supprimé",
+    bookDeleteFailed: "Échec de la suppression du livre",
+    setupComplete: "Configuration terminée ! Votre livre est prêt.",
+    seriesCreated: "Série créée",
+    apiKeyRequired: "Clé d’API requise",
+    startingNextWorkflow: "Démarrage du prochain flux de travail de la file d’attente...",
+    responseFailed: "Impossible d’obtenir une réponse",
+    chapterReorderFailed: "Impossible de réordonner les chapitres",
+    chaptersReordered: "Chapitres réordonnés",
+    chapterStatusFailed: "Impossible de mettre à jour le statut du chapitre",
+    certificateCopied: "Texte du certificat copié dans le presse-papiers !",
+    copyFailed: "Échec de la copie",
+    copiedToClipboard: "Copié dans le presse-papiers !",
+    marketingKitGenerated: "Kit marketing généré !",
+    marketingKitFailed: "Impossible de générer le kit marketing",
+    progressCopied: "Progression copiée dans le presse-papiers — collez-la sur les réseaux sociaux !",
+    rewriteFailed: "Impossible de générer la réécriture",
+    draftRecovered: "Modifications non enregistrées de votre dernière session récupérées",
+    discardRecovery: "Abandonner",
+    noMatchesReplaced: "Aucune occurrence remplacée.",
+    replaceFailed: "Échec du remplacement",
+    autosaveFailing: "L’enregistrement automatique échoue — vérifiez votre connexion.",
+    selectTextFirst: "Sélectionnez d’abord du texte, puis appuyez sur F2.",
+    selectTextForRewrite: "Sélectionnez d’abord du texte, puis appuyez sur F2 ou cliquez sur Réécriture IA.",
+    anchorNotFound: "Le texte référencé est introuvable dans le chapitre actuel. Il a peut-être été modifié.",
+    findingNotAnchored: "Ce constat n’a aucun texte ancré vers lequel naviguer.",
+    passageMoved: "Le texte d’origine a changé - le passage est introuvable.",
+    yourVersionSaved: "Votre version a été enregistrée",
+    yourVersionSaveFailed: "Impossible d’enregistrer votre version",
+    backupFailed: "Impossible de sauvegarder vos modifications — rien n’a été changé",
+    wordTargetFailed: "Impossible d’enregistrer l’objectif de mots",
+    pickOnePass: "Choisissez au moins une passe éditoriale.",
+    batchCancelFailed: "Impossible d’annuler le lot.",
+    batchCancelled: "Lot annulé — les passes restantes seront ignorées.",
+    memoryAdded: "Ajouté à la mémoire",
+    memoryAddFailed: "Impossible d’ajouter à la mémoire",
+    memoryRemoved: "Retiré de la mémoire",
+    memoryUpdated: "Mémoire mise à jour",
+    onboardingReadyToWrite: "Tout est prêt — commençons votre premier livre.",
+    onboardingComplete: "Configuration terminée ! Bienvenue dans Write My Book OK.",
+  },
 };
 
 const RU: UIStrings = {
@@ -7114,6 +7387,51 @@ const RU: UIStrings = {
     nextStep: "Следующий шаг",
     startButton: "Начать",
   },
+
+  toasts: {
+    documentChangedOutside: "Документ изменён вне этого редактора",
+    chapterChangedOutside: "Глава изменена вне этого редактора",
+    bookDeleted: "Книга удалена",
+    bookDeleteFailed: "Не удалось удалить книгу",
+    setupComplete: "Настройка завершена! Ваша книга готова.",
+    seriesCreated: "Серия создана",
+    apiKeyRequired: "Требуется API-ключ",
+    startingNextWorkflow: "Запускаю следующий рабочий процесс из очереди...",
+    responseFailed: "Не удалось получить ответ",
+    chapterReorderFailed: "Не удалось изменить порядок глав",
+    chaptersReordered: "Порядок глав изменён",
+    chapterStatusFailed: "Не удалось обновить статус главы",
+    certificateCopied: "Текст сертификата скопирован в буфер обмена!",
+    copyFailed: "Не удалось скопировать",
+    copiedToClipboard: "Скопировано в буфер обмена!",
+    marketingKitGenerated: "Маркетинговый комплект создан!",
+    marketingKitFailed: "Не удалось создать маркетинговый комплект",
+    progressCopied: "Прогресс скопирован в буфер обмена — вставьте его в соцсетях!",
+    rewriteFailed: "Не удалось сгенерировать переписанный текст",
+    draftRecovered: "Восстановлены несохранённые изменения из прошлой сессии",
+    discardRecovery: "Отклонить",
+    noMatchesReplaced: "Ни одно совпадение не заменено.",
+    replaceFailed: "Замена не удалась",
+    autosaveFailing: "Автосохранение не работает — проверьте подключение.",
+    selectTextFirst: "Сначала выделите текст, затем нажмите F2.",
+    selectTextForRewrite: "Сначала выделите текст, затем нажмите F2 или «Переписать с ИИ».",
+    anchorNotFound: "Указанный текст не найден в текущей главе. Возможно, он был изменён.",
+    findingNotAnchored: "У этого замечания нет привязанного текста для перехода.",
+    passageMoved: "Исходный текст изменён - фрагмент не найден.",
+    yourVersionSaved: "Ваша версия сохранена",
+    yourVersionSaveFailed: "Не удалось сохранить вашу версию",
+    backupFailed: "Не удалось создать резервную копию правок — ничего не изменено",
+    wordTargetFailed: "Не удалось сохранить цель по словам",
+    pickOnePass: "Выберите хотя бы один редакторский проход.",
+    batchCancelFailed: "Не удалось отменить пакет.",
+    batchCancelled: "Пакет отменён — оставшиеся проходы будут пропущены.",
+    memoryAdded: "Добавлено в память",
+    memoryAddFailed: "Не удалось добавить в память",
+    memoryRemoved: "Удалено из памяти",
+    memoryUpdated: "Память обновлена",
+    onboardingReadyToWrite: "Всё готово — начнём вашу первую книгу.",
+    onboardingComplete: "Настройка завершена! Добро пожаловать в Write My Book OK.",
+  },
 };
 
 const ZH: UIStrings = {
@@ -8134,6 +8452,51 @@ const ZH: UIStrings = {
     noBannerYetDesc: "选择一个旅程以查看您的进度清单。",
     nextStep: "下一步",
     startButton: "开始",
+  },
+
+  toasts: {
+    documentChangedOutside: "文档已在此编辑器之外被修改",
+    chapterChangedOutside: "章节已在此编辑器之外被修改",
+    bookDeleted: "已删除图书",
+    bookDeleteFailed: "删除图书失败",
+    setupComplete: "设置完成！你的书已准备就绪。",
+    seriesCreated: "系列已创建",
+    apiKeyRequired: "需要 API 密钥",
+    startingNextWorkflow: "正在启动队列中的下一个工作流……",
+    responseFailed: "获取回复失败",
+    chapterReorderFailed: "调整章节顺序失败",
+    chaptersReordered: "章节顺序已调整",
+    chapterStatusFailed: "更新章节状态失败",
+    certificateCopied: "证书文本已复制到剪贴板！",
+    copyFailed: "复制失败",
+    copiedToClipboard: "已复制到剪贴板！",
+    marketingKitGenerated: "营销工具包已生成！",
+    marketingKitFailed: "生成营销工具包失败",
+    progressCopied: "进度已复制到剪贴板——去社交媒体上粘贴吧！",
+    rewriteFailed: "生成改写失败",
+    draftRecovered: "已恢复上次会话中未保存的修改",
+    discardRecovery: "放弃",
+    noMatchesReplaced: "没有替换任何匹配项。",
+    replaceFailed: "替换失败",
+    autosaveFailing: "自动保存失败——请检查网络连接。",
+    selectTextFirst: "请先选中一段文字，然后按 F2。",
+    selectTextForRewrite: "请先选中一段文字，然后按 F2 或点击 AI 改写。",
+    anchorNotFound: "在当前章节中找不到引用的文字，它可能已被编辑。",
+    findingNotAnchored: "该发现没有可跳转的锚定文字。",
+    passageMoved: "原文已变更——找不到该段落。",
+    yourVersionSaved: "已保存你的版本",
+    yourVersionSaveFailed: "保存你的版本失败",
+    backupFailed: "无法备份你的修改——未做任何更改",
+    wordTargetFailed: "保存字数目标失败",
+    pickOnePass: "请至少选择一个编辑环节。",
+    batchCancelFailed: "取消批处理失败。",
+    batchCancelled: "批处理已取消——其余环节将被跳过。",
+    memoryAdded: "已加入记忆",
+    memoryAddFailed: "加入记忆失败",
+    memoryRemoved: "已从记忆中移除",
+    memoryUpdated: "记忆已更新",
+    onboardingReadyToWrite: "一切就绪——开始你的第一本书吧。",
+    onboardingComplete: "设置完成！欢迎使用 Write My Book OK。",
   },
 };
 

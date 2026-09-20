@@ -502,10 +502,10 @@ export default function BookSettingsPage() {
               onClick={async () => {
                 try {
                   await deleteMutation.mutateAsync();
-                  toast.success("Book deleted");
+                  toast.success(t.toasts.bookDeleted);
                   router.push("/dashboard");
                 } catch {
-                  toast.error("Failed to delete book");
+                  toast.error(t.toasts.bookDeleteFailed);
                 }
               }}
             >

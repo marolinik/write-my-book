@@ -39,6 +39,12 @@ export interface ApplyRecoveryOptions {
   bufferNow: () => Promise<void>;
   /** The draft-buffer hook's clearDraft (resets the write-skip hash). */
   clearDraft: (chapterId: string) => void;
+  /**
+   * The recovery toast in the writer's language. This module is not a
+   * component, so it cannot read the language context itself — the editor
+   * hands it the two strings it needs.
+   */
+  strings: { recovered: string; discard: string };
 }
 
 export function applyRecoveryDecision({
@@ -51,6 +57,7 @@ export function applyRecoveryDecision({
   onConflictToast,
   bufferNow,
   clearDraft,
+  strings,
 }: ApplyRecoveryOptions): void {
   if (decision.kind === "none") return;
 
@@ -80,9 +87,9 @@ export function applyRecoveryDecision({
     });
     onConflictToast();
   } else {
-    toast.info("Recovered unsaved changes from your last session", {
+    toast.info(strings.recovered, {
       action: {
-        label: "Discard",
+        label: strings.discard,
         onClick: () => discardRecovery(),
       },
     });

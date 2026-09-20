@@ -50,6 +50,7 @@ interface MarketingKitProps {
 }
 
 function CopyButton({ text }: { text: string }) {
+  const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -58,7 +59,7 @@ function CopyButton({ text }: { text: string }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error("Failed to copy");
+      toast.error(t.toasts.copyFailed);
     }
   };
 
@@ -87,10 +88,10 @@ export function MarketingKit({ bookId, bookTitle }: MarketingKitProps) {
     mutationFn: () =>
       fetchJson(`/api/books/${bookId}/marketing-kit`, { method: "POST" }),
     onSuccess: () => {
-      toast.success("Marketing kit generated!");
+      toast.success(t.toasts.marketingKitGenerated);
     },
     onError: () => {
-      toast.error("Failed to generate marketing kit");
+      toast.error(t.toasts.marketingKitFailed);
     },
   });
 

@@ -116,9 +116,9 @@ export function WriterMemoryPanel({ bookId }: WriterMemoryPanelProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["writer-memories"] });
       setNewContent("");
-      toast.success("Memory added");
+      toast.success(t.toasts.memoryAdded);
     },
-    onError: () => toast.error("Failed to add memory"),
+    onError: () => toast.error(t.toasts.memoryAddFailed),
   });
 
   // Delete memory
@@ -128,7 +128,7 @@ export function WriterMemoryPanel({ bookId }: WriterMemoryPanelProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["writer-memories"] });
-      toast.success("Memory removed");
+      toast.success(t.toasts.memoryRemoved);
     },
   });
 
@@ -144,7 +144,7 @@ export function WriterMemoryPanel({ bookId }: WriterMemoryPanelProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["writer-memories"] });
       setEditingId(null);
-      toast.success("Memory updated");
+      toast.success(t.toasts.memoryUpdated);
     },
   });
 

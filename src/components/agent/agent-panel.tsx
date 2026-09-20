@@ -409,7 +409,7 @@ export function AgentPanel({
       );
       clearPendingWorkflow();
     } else if (pendingWorkflowId && noRunning && !hasApiKey) {
-      toast.error("API key required", {
+      toast.error(t.toasts.apiKeyRequired, {
         description: "Add your API key in Settings to use AI agents.",
       });
     }
@@ -465,7 +465,7 @@ export function AgentPanel({
         queueTimerRef.current = setTimeout(() => {
           const next = useAgentSessionStore.getState().popQueue();
           if (next) {
-            toast.info("Starting next workflow from queue...");
+            toast.info(t.toasts.startingNextWorkflow);
             handleWorkflowSelectRef.current(next.workflowId, next.chapterNumber);
           }
           queueTimerRef.current = null;
