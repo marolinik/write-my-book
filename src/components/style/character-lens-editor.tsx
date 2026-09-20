@@ -91,14 +91,10 @@ export function CharacterLensEditor({
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold">{t.styleUI.characterLenses}</h3>
-          <p className="text-sm text-muted-foreground">
-            Two-Layer Voice Model for POV character differentiation
-          </p>
+          <p className="text-sm text-muted-foreground">{t.styleUI.twoLayerVoiceModel}</p>
         </div>
         <Button onClick={startCreate} size="sm" variant="outline">
-          <PlusIcon className="mr-1 h-4 w-4" />
-          Add Lens
-        </Button>
+          <PlusIcon className="mr-1 h-4 w-4" />{t.styleUI.addLens}</Button>
       </div>
 
       {showForm && (
@@ -175,9 +171,7 @@ export function CharacterLensEditor({
                 {editingId ? "Update" : "Create"}
               </Button>
               <Button onClick={cancel} variant="ghost" size="sm">
-                <X className="mr-1 h-4 w-4" />
-                Cancel
-              </Button>
+                <X className="mr-1 h-4 w-4" />{t.common.cancel}</Button>
             </div>
           </CardContent>
         </Card>
@@ -186,9 +180,7 @@ export function CharacterLensEditor({
       {lenses.length === 0 && !showForm ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">
-              No character lenses defined yet. Add one to differentiate POV voices.
-            </p>
+            <p className="text-muted-foreground">{t.styleUI.noLenses}</p>
           </CardContent>
         </Card>
       ) : (

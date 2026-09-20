@@ -60,9 +60,7 @@ export function DraftCertificate({
         </div>
 
         <div className="space-y-1">
-          <p className="text-xs uppercase tracking-[0.3em] text-amber-700 dark:text-amber-400">
-            Certificate of Completion
-          </p>
+          <p className="text-xs uppercase tracking-[0.3em] text-amber-700 dark:text-amber-400">{t.bookUI.certificateOfCompletion}</p>
           <div className="h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent" />
         </div>
 
@@ -102,9 +100,7 @@ export function DraftCertificate({
       {/* Actions */}
       <div className="flex justify-center gap-2">
         <Button variant="outline" size="sm" onClick={handleShare}>
-          <ShareIcon className="size-3 mr-1.5" />
-          Share
-        </Button>
+          <ShareIcon className="size-3 mr-1.5" />{t.bookUI.share}</Button>
       </div>
     </div>
   );

@@ -16,6 +16,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/components/providers/language-provider";
 import { useBookState } from "@/hooks/use-book-state";
 
 /**
@@ -37,6 +38,7 @@ interface StoryHealthDashboardProps {
 }
 
 export function StoryHealthDashboard({ bookId }: StoryHealthDashboardProps) {
+  const { t } = useLanguage();
   const bs = useBookState(bookId);
 
   const metrics = useMemo((): HealthMetric[] => {
@@ -115,9 +117,7 @@ export function StoryHealthDashboard({ bookId }: StoryHealthDashboardProps) {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm flex items-center gap-2">
-            <HeartPulseIcon className="size-4" />
-            Story Health
-          </CardTitle>
+            <HeartPulseIcon className="size-4" />{t.bookUI.storyHealth}</CardTitle>
           <Badge className={`${statusBg} ${statusColor} border-0 text-xs`}>
             {overallScore}% healthy
           </Badge>

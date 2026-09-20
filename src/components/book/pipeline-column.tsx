@@ -6,6 +6,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/components/providers/language-provider";
 import { PipelineCard, type PipelineChapter } from "./pipeline-card";
 
 const COLUMN_BG: Record<string, string> = {
@@ -32,6 +33,7 @@ export function PipelineColumn({
   chapters,
   onCardClick,
 }: PipelineColumnProps) {
+  const { t } = useLanguage();
   const { setNodeRef, isOver } = useDroppable({ id: stage });
 
   const bgClass = COLUMN_BG[stage] ?? "bg-muted/30";
@@ -60,9 +62,7 @@ export function PipelineColumn({
           strategy={verticalListSortingStrategy}
         >
           {chapters.length === 0 ? (
-            <div className="flex items-center justify-center h-16 rounded border border-dashed text-[10px] text-muted-foreground">
-              Drop here
-            </div>
+            <div className="flex items-center justify-center h-16 rounded border border-dashed text-[10px] text-muted-foreground">{t.bookUI.dropHere}</div>
           ) : (
             chapters.map((ch) => (
               <PipelineCard

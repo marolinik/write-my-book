@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useLanguage } from "@/components/providers/language-provider";
 import { useQuery } from "@tanstack/react-query";
 import { fetchJson } from "@/lib/api-client";
 
@@ -45,6 +46,7 @@ const TYPE_ICONS = {
 };
 
 export function DailyWritingPlan({ bookId }: DailyWritingPlanProps) {
+  const { t } = useLanguage();
   const [completedItems, setCompletedItems] = useState<Set<string>>(new Set());
 
   const { data, isLoading } = useQuery<{ plan: PlanItem[]; greeting: string }>({
@@ -87,13 +89,9 @@ export function DailyWritingPlan({ bookId }: DailyWritingPlanProps) {
       <CardContent>
         {isLoading ? (
           <div className="flex items-center gap-2 py-4 justify-center text-xs text-muted-foreground">
-            <Loader2Icon className="size-3 animate-spin" />
-            Building your plan...
-          </div>
+            <Loader2Icon className="size-3 animate-spin" />{t.bookUI.buildingPlan}</div>
         ) : items.length === 0 ? (
-          <p className="text-xs text-muted-foreground text-center py-4">
-            No tasks for today — enjoy your break! 🎉
-          </p>
+          <p className="text-xs text-muted-foreground text-center py-4">{t.bookUI.noTasksToday}</p>
         ) : (
           <div className="space-y-2">
             {items.map((item) => {

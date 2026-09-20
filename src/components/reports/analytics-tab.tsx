@@ -286,9 +286,7 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
             <Card>
               <CardHeader>
                 <CardTitle>{t.reportsUI.scoreDistribution}</CardTitle>
-                <CardDescription>
-                  Number of chapters in each 1-point score range
-                </CardDescription>
+                <CardDescription>{t.reportsUI.scoreRangeHint}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="h-[300px]">
@@ -405,15 +403,11 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
         <Card>
           <CardHeader>
             <CardTitle>{t.reportsUI.tensionCurve}</CardTitle>
-            <CardDescription>
-              Chapter-by-chapter tension with genre overlay
-            </CardDescription>
+            <CardDescription>{t.reportsUI.tensionOverlayHint}</CardDescription>
           </CardHeader>
           <CardContent>
             {pacing.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">
-                No pacing data available.
-              </p>
+              <p className="text-sm text-muted-foreground text-center py-8">{t.reportsUI.noPacingData}</p>
             ) : (
               <div className="h-[400px]">
                 <ResponsiveContainer width="100%" height="100%">
@@ -464,9 +458,7 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
           </CardHeader>
           <CardContent>
             {dialogue.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">
-                No dialogue data available.
-              </p>
+              <p className="text-sm text-muted-foreground text-center py-8">{t.reportsUI.noDialogueData}</p>
             ) : (
               <>
                 <div className="h-[400px]">
@@ -528,15 +520,11 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
         <Card>
           <CardHeader>
             <CardTitle>{t.reportsUI.overuseDetection}</CardTitle>
-            <CardDescription>
-              Words and phrases appearing 2x+ above expected frequency
-            </CardDescription>
+            <CardDescription>{t.reportsUI.overuseHint}</CardDescription>
           </CardHeader>
           <CardContent>
             {overuse.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">
-                No overuse patterns detected.
-              </p>
+              <p className="text-sm text-muted-foreground text-center py-8">{t.reportsUI.noOveruse}</p>
             ) : (
               <div className="space-y-3">
                 {overuse.map(
@@ -593,9 +581,7 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
             <Card>
               <CardHeader>
                 <CardTitle>{t.reportsUI.totalCost30}</CardTitle>
-                <CardDescription>
-                  Estimated cost across all agent sessions
-                </CardDescription>
+                <CardDescription>{t.reportsUI.costHint}</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-4xl font-bold">${totalCost.toFixed(2)}</p>
@@ -611,19 +597,13 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
             <Card>
               <CardHeader>
                 <CardTitle>{t.reportsUI.costByKeySource}</CardTitle>
-                <CardDescription>
-                  How your costs are split between your own API keys and platform keys
-                </CardDescription>
+                <CardDescription>{t.reportsUI.keySplitHint}</CardDescription>
               </CardHeader>
               <CardContent>
                 {allUserKeys ? (
                   <div className="flex flex-col items-center py-8 text-center">
-                    <Badge variant="default" className="mb-3 bg-green-600 hover:bg-green-700">
-                      100% Your Keys
-                    </Badge>
-                    <p className="text-lg font-medium">
-                      All usage is on your own API keys
-                    </p>
+                    <Badge variant="default" className="mb-3 bg-green-600 hover:bg-green-700">{t.reportsUI.allYourKeys}</Badge>
+                    <p className="text-lg font-medium">{t.reportsUI.allYourKeysHint}</p>
                     <p className="text-sm text-muted-foreground mt-1">
                       You&apos;re paying provider rates directly with no platform markup.
                     </p>

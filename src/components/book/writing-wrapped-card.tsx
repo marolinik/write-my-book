@@ -41,9 +41,7 @@ export function WritingWrappedCard({ authorName }: { authorName?: string }) {
       <div className="mb-8">
         <YearInWritingWrapped data={data} authorName={authorName} />
         <div className="flex justify-center mt-4">
-          <Button variant="outline" size="sm" onClick={() => setShowWrapped(false)}>
-            Close
-          </Button>
+          <Button variant="outline" size="sm" onClick={() => setShowWrapped(false)}>{t.common.close}</Button>
         </div>
       </div>
     );

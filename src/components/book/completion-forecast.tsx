@@ -77,9 +77,7 @@ export function CompletionForecast({
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-sm flex items-center gap-2">
-          <CalendarIcon className="size-4" />
-          Completion Forecast
-        </CardTitle>
+          <CalendarIcon className="size-4" />{t.bookUI.completionForecast}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
         {forecast.date ? (
@@ -103,9 +101,7 @@ export function CompletionForecast({
             </div>
           </>
         ) : (
-          <p className="text-xs text-muted-foreground text-center py-2">
-            Write a few more days to generate a forecast
-          </p>
+          <p className="text-xs text-muted-foreground text-center py-2">{t.bookUI.forecastNeedsData}</p>
         )}
       </CardContent>
     </Card>

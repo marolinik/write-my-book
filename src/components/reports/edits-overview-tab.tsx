@@ -93,9 +93,7 @@ export function EditsOverviewTab({ bookId }: { bookId: string }) {
         </CardHeader>
         <CardContent>
           {items.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">
-              No editorial findings yet. Run an editor agent to generate findings.
-            </p>
+            <p className="text-sm text-muted-foreground text-center py-8">{t.reportsUI.noFindingsYet}</p>
           ) : (
             <div className="space-y-2">
               {items.slice(0, 20).map((f: any) => (

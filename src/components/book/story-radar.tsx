@@ -53,9 +53,7 @@ export function StoryRadar({ bookId }: StoryRadarProps) {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm flex items-center gap-2">
-            <RadarIcon className="size-4" />
-            Story Radar
-          </CardTitle>
+            <RadarIcon className="size-4" />{t.bookUI.storyRadar}</CardTitle>
           <div className="flex items-center gap-2">
             {criticalCount > 0 && (
               <Badge variant="destructive" className="text-[10px]">{criticalCount} critical</Badge>
@@ -90,9 +88,7 @@ export function StoryRadar({ bookId }: StoryRadarProps) {
               variant="outline" size="sm" className="h-7 text-xs"
               onClick={() => refetch()}
               disabled={isFetching}
-            >
-              Retry
-            </Button>
+            >{t.bookUI.retry}</Button>
           </div>
         ) : data && issues.length === 0 ? (
           <div className="flex flex-col items-center gap-2 py-4 text-center">

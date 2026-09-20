@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/components/providers/language-provider";
 import {
   Tooltip,
   TooltipContent,
@@ -58,6 +59,7 @@ interface MilestoneRewardsProps {
 }
 
 export function MilestoneRewards({ totalWords, currentStreak, chaptersComplete }: MilestoneRewardsProps) {
+  const { t } = useLanguage();
   const [justUnlocked, setJustUnlocked] = useState<string | null>(null);
 
   const rewards = ALL_REWARDS.map((r) => {
@@ -94,9 +96,7 @@ export function MilestoneRewards({ totalWords, currentStreak, chaptersComplete }
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm flex items-center gap-2">
-            <GiftIcon className="size-4 text-primary" />
-            Rewards
-          </CardTitle>
+            <GiftIcon className="size-4 text-primary" />{t.bookUI.rewards}</CardTitle>
           <Badge variant="secondary" className="text-[10px]">
             {unlockedCount}/{rewards.length}
           </Badge>

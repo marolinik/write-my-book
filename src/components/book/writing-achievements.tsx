@@ -194,9 +194,7 @@ export function WritingAchievements({ stats, compact }: WritingAchievementsProps
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-medium flex items-center gap-2">
-          <TrophyIcon className="size-4 text-amber-500" />
-          Achievements
-        </h3>
+          <TrophyIcon className="size-4 text-amber-500" />{t.bookUI.achievements}</h3>
         <span className="text-xs text-muted-foreground">
           {earned.length}/{total}
         </span>

@@ -124,9 +124,7 @@ export function WritingHeatmap({
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm flex items-center gap-2">
-            <CalendarIcon className="size-4" />
-            Writing Activity
-          </CardTitle>
+            <CalendarIcon className="size-4" />{t.bookUI.writingActivity}</CardTitle>
           <div className="flex gap-2">
             <Badge variant="secondary" className="text-[10px] gap-1">
               <FlameIcon className="size-3" />

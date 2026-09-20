@@ -116,7 +116,7 @@ export function ShareableProgressCard({
           </div>
           <div className="text-center rounded-lg bg-background/50 p-3">
             <p className="text-2xl font-bold tabular-nums">{currentStreak}</p>
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Day Streak 🔥</p>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t.bookUI.dayStreak}</p>
           </div>
         </div>
 
@@ -135,17 +135,13 @@ export function ShareableProgressCard({
         </div>
 
         {/* Watermark */}
-        <p className="text-[9px] text-muted-foreground/50 text-center">
-          Created with WriteMyBook • writemybook.com
-        </p>
+        <p className="text-[9px] text-muted-foreground/50 text-center">{t.bookUI.createdWith}</p>
       </div>
 
       {/* Share buttons */}
       <div className="flex gap-2 justify-center">
         <Button variant="outline" size="sm" onClick={handleShare}>
-          <ShareIcon className="size-3 mr-1" />
-          Share Progress
-        </Button>
+          <ShareIcon className="size-3 mr-1" />{t.bookUI.shareProgress}</Button>
       </div>
     </div>
   );

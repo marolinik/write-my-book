@@ -55,9 +55,7 @@ export function LifetimeStats({
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-sm flex items-center gap-2">
-          <TrophyIcon className="size-4 text-amber-500" />
-          Your Writing Journey
-        </CardTitle>
+          <TrophyIcon className="size-4 text-amber-500" />{t.bookUI.writingJourney}</CardTitle>
         <p className="text-xs text-muted-foreground">
           Member for {daysSinceMember} days &mdash; {novelEquivalent(totalWords)}
         </p>

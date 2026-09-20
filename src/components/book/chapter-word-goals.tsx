@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { TargetIcon, CheckCircle2Icon } from "lucide-react";
-import { useLocale } from "@/components/providers/language-provider";
+import { useLanguage, useLocale } from "@/components/providers/language-provider";
 import { Progress } from "@/components/ui/progress";
 import {
   Tooltip,
@@ -38,6 +38,7 @@ export function ChapterWordGoals({
   bookTarget,
   bookCurrentWords,
 }: ChapterWordGoalsProps) {
+  const { t } = useLanguage();
   const locale = useLocale();
   const { totalTarget, totalCurrent, rollupPct } = useMemo(() => {
     const tt = chapters.reduce((s, c) => s + (c.targetWords ?? 0), 0);
@@ -58,9 +59,7 @@ export function ChapterWordGoals({
         <div className="space-y-1">
           <div className="flex justify-between text-xs">
             <span className="text-muted-foreground flex items-center gap-1">
-              <TargetIcon className="size-3" />
-              Book Target
-            </span>
+              <TargetIcon className="size-3" />{t.bookUI.bookTarget}</span>
             <span className="font-medium tabular-nums">
               {totalCurrent.toLocaleString(locale)} / {totalTarget.toLocaleString(locale)} ({rollupPct}%)
             </span>

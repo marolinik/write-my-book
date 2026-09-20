@@ -404,6 +404,13 @@ export interface UIStrings {
 
   // O1 - the style profile and character lenses.
   styleUI: {
+    twoLayerVoiceModel: string;
+    addLens: string;
+    noLenses: string;
+    passagesHint: string;
+    fullProseFingerprint: string;
+    noStyleProfiles: string;
+    noStructuredMetrics: string;
     sentenceLength: string;
     mean: string;
     median: string;
@@ -443,6 +450,18 @@ export interface UIStrings {
 
   // O1 - the analytics and edits report tabs.
   reportsUI: {
+    scoreRangeHint: string;
+    tensionOverlayHint: string;
+    noPacingData: string;
+    noDialogueData: string;
+    overuseHint: string;
+    noOveruse: string;
+    costHint: string;
+    keySplitHint: string;
+    allYourKeys: string;
+    allYourKeysHint: string;
+    noDocumentsYet: string;
+    noFindingsYet: string;
     betaScores: string;
     readability: string;
     pacing: string;
@@ -475,6 +494,28 @@ export interface UIStrings {
 
   // O1 - book extras: the year recap, marketing kit, wiki, certificate, stats.
   bookUI: {
+    bookTarget: string;
+    completionForecast: string;
+    forecastNeedsData: string;
+    buildingPlan: string;
+    noTasksToday: string;
+    certificateOfCompletion: string;
+    share: string;
+    complete: string;
+    writingJourney: string;
+    storeDescriptionHtml: string;
+    rewards: string;
+    dropHere: string;
+    headsUp: string;
+    createdWith: string;
+    shareProgress: string;
+    storyHealth: string;
+    storyRadar: string;
+    retry: string;
+    noAttributesYet: string;
+    achievements: string;
+    writingActivity: string;
+    shareYourWrapped: string;
     archive: string;
     archiveHint: string;
     yourYear: string;
@@ -1583,6 +1624,13 @@ const EN: UIStrings = {
   },
 
   styleUI: {
+    twoLayerVoiceModel: "Two-Layer Voice Model for POV character differentiation",
+    addLens: "Add Lens",
+    noLenses: "No character lenses defined yet. Add one to differentiate POV voices.",
+    passagesHint: "These passages best demonstrate the distinctive qualities of the writing voice.",
+    fullProseFingerprint: "Full Prose Fingerprint",
+    noStyleProfiles: "No style profiles yet. Create one to capture your writing fingerprint.",
+    noStructuredMetrics: "No structured metrics yet. Run the Style Capture workflow again to extract quantitative voice data.",
     sentenceLength: "Sentence length",
     mean: "Mean",
     median: "Median",
@@ -1621,6 +1669,18 @@ const EN: UIStrings = {
   },
 
   reportsUI: {
+    scoreRangeHint: "Number of chapters in each 1-point score range",
+    tensionOverlayHint: "Chapter-by-chapter tension with genre overlay",
+    noPacingData: "No pacing data available.",
+    noDialogueData: "No dialogue data available.",
+    overuseHint: "Words and phrases appearing 2x+ above expected frequency",
+    noOveruse: "No overuse patterns detected.",
+    costHint: "Estimated cost across all agent sessions",
+    keySplitHint: "How your costs are split between your own API keys and platform keys",
+    allYourKeys: "100% Your Keys",
+    allYourKeysHint: "All usage is on your own API keys",
+    noDocumentsYet: "No documents yet. Documents are created when you run agent workflows.",
+    noFindingsYet: "No editorial findings yet. Run an editor agent to generate findings.",
     betaScores: "Beta scores",
     readability: "Readability",
     pacing: "Pacing",
@@ -1652,6 +1712,28 @@ const EN: UIStrings = {
   },
 
   bookUI: {
+    bookTarget: "Book Target",
+    completionForecast: "Completion Forecast",
+    forecastNeedsData: "Write a few more days to generate a forecast",
+    buildingPlan: "Building your plan...",
+    noTasksToday: "No tasks for today — enjoy your break! 🎉",
+    certificateOfCompletion: "Certificate of Completion",
+    share: "Share",
+    complete: "Complete",
+    writingJourney: "Your Writing Journey",
+    storeDescriptionHtml: "Amazon/Store Description (HTML)",
+    rewards: "Rewards",
+    dropHere: "Drop here",
+    headsUp: "Heads Up",
+    createdWith: "Created with WriteMyBook • writemybook.com",
+    shareProgress: "Share Progress",
+    storyHealth: "Story Health",
+    storyRadar: "Story Radar",
+    retry: "Retry",
+    noAttributesYet: "No attributes yet. Add key-value pairs for custom metadata.",
+    achievements: "Achievements",
+    writingActivity: "Writing Activity",
+    shareYourWrapped: "Share Your Wrapped",
     archive: "Archive",
     archiveHint: "It moves to your Archived shelf and leaves your active shelves. You can restore it any time — nothing is deleted.",
     yourYear: "Your",
@@ -2807,6 +2889,13 @@ const SR: UIStrings = {
   },
 
   styleUI: {
+    twoLayerVoiceModel: "Dvoslojni model glasa za razlikovanje pripovedačkih tačaka gledišta",
+    addLens: "Dodaj sočivo",
+    noLenses: "Još nema definisanih sočiva likova. Dodajte jedno da biste razlikovali glasove tačaka gledišta.",
+    passagesHint: "Ovi odlomci najbolje pokazuju prepoznatljive osobine pripovedačkog glasa.",
+    fullProseFingerprint: "Potpun otisak proze",
+    noStyleProfiles: "Još nema stilskih profila. Napravite jedan da biste uhvatili svoj spisateljski otisak.",
+    noStructuredMetrics: "Još nema strukturiranih pokazatelja. Pokrenite ponovo tok Snimanje stila da biste izvukli merljive podatke o glasu.",
     sentenceLength: "Dužina rečenice",
     mean: "Prosek",
     median: "Medijana",
@@ -2845,6 +2934,18 @@ const SR: UIStrings = {
   },
 
   reportsUI: {
+    scoreRangeHint: "Broj poglavlja u svakom rasponu ocene od jednog poena",
+    tensionOverlayHint: "Napetost po poglavljima sa žanrovskim slojem",
+    noPacingData: "Nema podataka o ritmu.",
+    noDialogueData: "Nema podataka o dijalogu.",
+    overuseHint: "Reči i izrazi koji se javljaju dvostruko češće od očekivanog",
+    noOveruse: "Nije uočena nijedna prekomerna upotreba.",
+    costHint: "Procenjeni trošak svih sesija agenata",
+    keySplitHint: "Kako se vaši troškovi dele između vaših i platformskih API ključeva",
+    allYourKeys: "100% vaši ključevi",
+    allYourKeysHint: "Sve se troši na vaše API ključeve",
+    noDocumentsYet: "Još nema dokumenata. Dokumenti nastaju kada pokrenete tokove rada agenata.",
+    noFindingsYet: "Još nema uredničkih nalaza. Pokrenite agenta urednika da biste ih dobili.",
     betaScores: "Beta ocene",
     readability: "Čitljivost",
     pacing: "Ritam",
@@ -2876,6 +2977,28 @@ const SR: UIStrings = {
   },
 
   bookUI: {
+    bookTarget: "Cilj knjige",
+    completionForecast: "Prognoza završetka",
+    forecastNeedsData: "Pišite još koji dan da bismo napravili prognozu",
+    buildingPlan: "Pravim vaš plan...",
+    noTasksToday: "Danas nema zadataka — uživajte u pauzi! 🎉",
+    certificateOfCompletion: "Sertifikat o završetku",
+    share: "Podeli",
+    complete: "Završeno",
+    writingJourney: "Vaš spisateljski put",
+    storeDescriptionHtml: "Opis za Amazon/prodavnicu (HTML)",
+    rewards: "Nagrade",
+    dropHere: "Ispustite ovde",
+    headsUp: "Pažnja",
+    createdWith: "Napravljeno u WriteMyBook • writemybook.com",
+    shareProgress: "Podeli napredak",
+    storyHealth: "Zdravlje priče",
+    storyRadar: "Radar priče",
+    retry: "Pokušaj ponovo",
+    noAttributesYet: "Još nema atributa. Dodajte parove ključ-vrednost za sopstvene podatke.",
+    achievements: "Dostignuća",
+    writingActivity: "Aktivnost pisanja",
+    shareYourWrapped: "Podeli svoj pregled godine",
     archive: "Arhiviraj",
     archiveHint: "Prelazi na vašu policu Arhivirano i napušta aktivne police. Možete je vratiti kad god želite — ništa se ne briše.",
     yourYear: "Vaša",
@@ -2940,7 +3063,7 @@ const SR: UIStrings = {
     social: "Društvene mreže",
     email: "Imejl",
     comps: "Slična dela",
-    logline: "Logline",
+    logline: "Osnovna priča",
     backCoverBlurb: "Tekst sa zadnje korice",
     launchEmail: "Imejl za najavu izlaska",
     comparisonTitles: "Uporedni naslovi",
@@ -4030,6 +4153,13 @@ const DE: UIStrings = {
   },
 
   styleUI: {
+    twoLayerVoiceModel: "Zweischichtiges Stimmmodell zur Unterscheidung der Perspektivfiguren",
+    addLens: "Linse hinzufügen",
+    noLenses: "Noch keine Figurenlinsen. Legen Sie eine an, um Perspektivstimmen zu unterscheiden.",
+    passagesHint: "Diese Passagen zeigen die Eigenheiten der Erzählstimme am deutlichsten.",
+    fullProseFingerprint: "Vollständiger Prosa-Fingerabdruck",
+    noStyleProfiles: "Noch keine Stilprofile. Legen Sie eines an, um Ihren Schreib-Fingerabdruck festzuhalten.",
+    noStructuredMetrics: "Noch keine strukturierten Kennzahlen. Führen Sie den Stilaufnahme-Workflow erneut aus, um messbare Stimmdaten zu gewinnen.",
     sentenceLength: "Satzlänge",
     mean: "Mittelwert",
     median: "Median",
@@ -4068,6 +4198,18 @@ const DE: UIStrings = {
   },
 
   reportsUI: {
+    scoreRangeHint: "Anzahl der Kapitel je 1-Punkt-Bewertungsbereich",
+    tensionOverlayHint: "Spannung Kapitel für Kapitel, mit Genre-Vergleichskurve",
+    noPacingData: "Keine Rhythmusdaten vorhanden.",
+    noDialogueData: "Keine Dialogdaten vorhanden.",
+    overuseHint: "Wörter und Wendungen, die doppelt so häufig vorkommen wie erwartet",
+    noOveruse: "Keine Übergebrauchsmuster erkannt.",
+    costHint: "Geschätzte Kosten über alle Agentensitzungen",
+    keySplitHint: "Wie sich Ihre Kosten auf eigene und Plattform-API-Schlüssel verteilen",
+    allYourKeys: "100 % eigene Schlüssel",
+    allYourKeysHint: "Die gesamte Nutzung läuft über Ihre eigenen API-Schlüssel",
+    noDocumentsYet: "Noch keine Dokumente. Dokumente entstehen, wenn Sie Agenten-Workflows ausführen.",
+    noFindingsYet: "Noch keine Lektoratsbefunde. Starten Sie einen Lektoratsagenten, um welche zu erzeugen.",
     betaScores: "Beta-Bewertungen",
     readability: "Lesbarkeit",
     pacing: "Tempo",
@@ -4099,6 +4241,28 @@ const DE: UIStrings = {
   },
 
   bookUI: {
+    bookTarget: "Buchziel",
+    completionForecast: "Fertigstellungsprognose",
+    forecastNeedsData: "Schreiben Sie noch ein paar Tage, dann gibt es eine Prognose",
+    buildingPlan: "Ihr Plan wird erstellt ...",
+    noTasksToday: "Heute keine Aufgaben — genießen Sie die Pause! 🎉",
+    certificateOfCompletion: "Abschlussurkunde",
+    share: "Teilen",
+    complete: "Fertig",
+    writingJourney: "Ihr Schreibweg",
+    storeDescriptionHtml: "Amazon-/Shop-Beschreibung (HTML)",
+    rewards: "Belohnungen",
+    dropHere: "Hier ablegen",
+    headsUp: "Achtung",
+    createdWith: "Erstellt mit WriteMyBook • writemybook.com",
+    shareProgress: "Fortschritt teilen",
+    storyHealth: "Zustand der Geschichte",
+    storyRadar: "Story-Radar",
+    retry: "Erneut versuchen",
+    noAttributesYet: "Noch keine Attribute. Fügen Sie Schlüssel-Wert-Paare für eigene Metadaten hinzu.",
+    achievements: "Erfolge",
+    writingActivity: "Schreibaktivität",
+    shareYourWrapped: "Ihren Jahresrückblick teilen",
     archive: "Archivieren",
     archiveHint: "Es wandert in Ihr Archivregal und verlässt Ihre aktiven Regale. Sie können es jederzeit zurückholen — nichts wird gelöscht.",
     yourYear: "Ihr",
@@ -4163,7 +4327,7 @@ const DE: UIStrings = {
     social: "Social Media",
     email: "E-Mail",
     comps: "Vergleichstitel",
-    logline: "Logline",
+    logline: "Kurzbeschreibung",
     backCoverBlurb: "Rückseitentext",
     launchEmail: "E-Mail zur Veröffentlichung",
     comparisonTitles: "Vergleichbare Titel",
@@ -5253,6 +5417,13 @@ const ES: UIStrings = {
   },
 
   styleUI: {
+    twoLayerVoiceModel: "Modelo de voz en dos capas para diferenciar personajes narradores",
+    addLens: "Añadir lente",
+    noLenses: "Aún no hay lentes de personaje. Añade una para diferenciar las voces narrativas.",
+    passagesHint: "Estos pasajes son los que mejor muestran los rasgos distintivos de la voz.",
+    fullProseFingerprint: "Huella completa de la prosa",
+    noStyleProfiles: "Aún no hay perfiles de estilo. Crea uno para capturar tu huella de escritura.",
+    noStructuredMetrics: "Aún no hay métricas estructuradas. Vuelve a ejecutar el flujo de captura de estilo para extraer datos cuantitativos de la voz.",
     sentenceLength: "Longitud de frase",
     mean: "Media",
     median: "Mediana",
@@ -5291,6 +5462,18 @@ const ES: UIStrings = {
   },
 
   reportsUI: {
+    scoreRangeHint: "Número de capítulos en cada franja de un punto",
+    tensionOverlayHint: "Tensión capítulo a capítulo con la curva del género",
+    noPacingData: "No hay datos de ritmo.",
+    noDialogueData: "No hay datos de diálogo.",
+    overuseHint: "Palabras y frases que aparecen el doble de lo esperado",
+    noOveruse: "No se detectaron patrones de uso excesivo.",
+    costHint: "Coste estimado de todas las sesiones del agente",
+    keySplitHint: "Cómo se reparte tu coste entre tus claves de API y las de la plataforma",
+    allYourKeys: "100 % tus claves",
+    allYourKeysHint: "Todo el uso corre a cargo de tus propias claves de API",
+    noDocumentsYet: "Aún no hay documentos. Se crean cuando ejecutas flujos de trabajo del agente.",
+    noFindingsYet: "Aún no hay hallazgos editoriales. Ejecuta un agente editor para generarlos.",
     betaScores: "Puntuaciones beta",
     readability: "Legibilidad",
     pacing: "Ritmo",
@@ -5322,6 +5505,28 @@ const ES: UIStrings = {
   },
 
   bookUI: {
+    bookTarget: "Objetivo del libro",
+    completionForecast: "Previsión de finalización",
+    forecastNeedsData: "Escribe unos días más para generar una previsión",
+    buildingPlan: "Creando tu plan...",
+    noTasksToday: "Hoy no hay tareas: ¡disfruta del descanso! 🎉",
+    certificateOfCompletion: "Certificado de finalización",
+    share: "Compartir",
+    complete: "Completo",
+    writingJourney: "Tu trayectoria como autor",
+    storeDescriptionHtml: "Descripción para Amazon/tienda (HTML)",
+    rewards: "Recompensas",
+    dropHere: "Suelta aquí",
+    headsUp: "Atención",
+    createdWith: "Creado con WriteMyBook • writemybook.com",
+    shareProgress: "Compartir el progreso",
+    storyHealth: "Salud de la historia",
+    storyRadar: "Radar de la historia",
+    retry: "Reintentar",
+    noAttributesYet: "Aún no hay atributos. Añade pares clave-valor para tus propios metadatos.",
+    achievements: "Logros",
+    writingActivity: "Actividad de escritura",
+    shareYourWrapped: "Comparte tu resumen del año",
     archive: "Archivar",
     archiveHint: "Pasa a tu estantería de archivados y sale de las activas. Puedes restaurarlo cuando quieras: no se borra nada.",
     yourYear: "Tu",
@@ -5386,7 +5591,7 @@ const ES: UIStrings = {
     social: "Redes",
     email: "Correo",
     comps: "Títulos similares",
-    logline: "Logline",
+    logline: "Premisa",
     backCoverBlurb: "Texto de contraportada",
     launchEmail: "Correo de lanzamiento",
     comparisonTitles: "Títulos comparables",
@@ -6476,6 +6681,13 @@ const FR: UIStrings = {
   },
 
   styleUI: {
+    twoLayerVoiceModel: "Modèle de voix à deux couches pour distinguer les personnages narrateurs",
+    addLens: "Ajouter une lentille",
+    noLenses: "Aucune lentille de personnage pour l’instant. Ajoutez-en une pour distinguer les voix narratives.",
+    passagesHint: "Ces passages illustrent le mieux les traits distinctifs de la voix.",
+    fullProseFingerprint: "Empreinte complète de la prose",
+    noStyleProfiles: "Aucun profil de style pour l’instant. Créez-en un pour capturer votre empreinte d’écriture.",
+    noStructuredMetrics: "Aucune métrique structurée pour l’instant. Relancez le flux de capture de style pour en extraire des données chiffrées.",
     sentenceLength: "Longueur de phrase",
     mean: "Moyenne",
     median: "Médiane",
@@ -6514,6 +6726,18 @@ const FR: UIStrings = {
   },
 
   reportsUI: {
+    scoreRangeHint: "Nombre de chapitres par tranche d’un point",
+    tensionOverlayHint: "Tension chapitre par chapitre, avec la courbe du genre",
+    noPacingData: "Aucune donnée de rythme.",
+    noDialogueData: "Aucune donnée de dialogue.",
+    overuseHint: "Mots et expressions deux fois plus fréquents que prévu",
+    noOveruse: "Aucun excès détecté.",
+    costHint: "Coût estimé de toutes les sessions de l’agent",
+    keySplitHint: "Répartition de vos coûts entre vos clés d’API et celles de la plateforme",
+    allYourKeys: "100 % vos clés",
+    allYourKeysHint: "Tout l’usage passe par vos propres clés d’API",
+    noDocumentsYet: "Aucun document pour l’instant. Ils apparaissent quand vous lancez des flux de l’agent.",
+    noFindingsYet: "Aucun constat éditorial pour l’instant. Lancez un agent éditeur pour en produire.",
     betaScores: "Notes bêta",
     readability: "Lisibilité",
     pacing: "Rythme",
@@ -6545,6 +6769,28 @@ const FR: UIStrings = {
   },
 
   bookUI: {
+    bookTarget: "Objectif du livre",
+    completionForecast: "Prévision d’achèvement",
+    forecastNeedsData: "Écrivez encore quelques jours pour obtenir une prévision",
+    buildingPlan: "Création de votre plan...",
+    noTasksToday: "Aucune tâche aujourd’hui — profitez de la pause ! 🎉",
+    certificateOfCompletion: "Certificat d’achèvement",
+    share: "Partager",
+    complete: "Terminé",
+    writingJourney: "Votre parcours d’écriture",
+    storeDescriptionHtml: "Description Amazon/boutique (HTML)",
+    rewards: "Récompenses",
+    dropHere: "Déposez ici",
+    headsUp: "Attention",
+    createdWith: "Créé avec WriteMyBook • writemybook.com",
+    shareProgress: "Partager la progression",
+    storyHealth: "Santé du récit",
+    storyRadar: "Radar du récit",
+    retry: "Réessayer",
+    noAttributesYet: "Aucun attribut pour l’instant. Ajoutez des paires clé-valeur pour vos métadonnées.",
+    achievements: "Réussites",
+    writingActivity: "Activité d’écriture",
+    shareYourWrapped: "Partager votre rétrospective",
     archive: "Archiver",
     archiveHint: "Il rejoint votre étagère Archivés et quitte vos étagères actives. Vous pouvez le restaurer à tout moment — rien n’est supprimé.",
     yourYear: "Votre",
@@ -6609,7 +6855,7 @@ const FR: UIStrings = {
     social: "Réseaux",
     email: "E-mail",
     comps: "Titres comparables",
-    logline: "Logline",
+    logline: "Accroche",
     backCoverBlurb: "Texte de quatrième de couverture",
     launchEmail: "E-mail d'annonce de sortie",
     comparisonTitles: "Titres de comparaison",
@@ -7699,6 +7945,13 @@ const RU: UIStrings = {
   },
 
   styleUI: {
+    twoLayerVoiceModel: "Двухслойная модель голоса для различения персонажей-рассказчиков",
+    addLens: "Добавить линзу",
+    noLenses: "Линз персонажей пока нет. Добавьте одну, чтобы различать голоса рассказчиков.",
+    passagesHint: "Эти отрывки лучше всего показывают отличительные черты авторского голоса.",
+    fullProseFingerprint: "Полный отпечаток прозы",
+    noStyleProfiles: "Стилевых профилей пока нет. Создайте один, чтобы зафиксировать свой почерк.",
+    noStructuredMetrics: "Структурированных показателей пока нет. Запустите рабочий процесс «Снимок стиля» ещё раз, чтобы получить числовые данные о голосе.",
     sentenceLength: "Длина предложения",
     mean: "Среднее",
     median: "Медиана",
@@ -7737,6 +7990,18 @@ const RU: UIStrings = {
   },
 
   reportsUI: {
+    scoreRangeHint: "Число глав в каждом однобалльном диапазоне",
+    tensionOverlayHint: "Напряжение по главам с жанровой кривой",
+    noPacingData: "Данных о ритме нет.",
+    noDialogueData: "Данных о диалогах нет.",
+    overuseHint: "Слова и обороты, встречающиеся вдвое чаще ожидаемого",
+    noOveruse: "Повторов сверх меры не обнаружено.",
+    costHint: "Оценка расходов по всем сессиям агента",
+    keySplitHint: "Как расходы делятся между вашими и платформенными API-ключами",
+    allYourKeys: "100% ваши ключи",
+    allYourKeysHint: "Всё идёт через ваши собственные API-ключи",
+    noDocumentsYet: "Документов пока нет. Они появляются, когда вы запускаете рабочие процессы агента.",
+    noFindingsYet: "Редакторских замечаний пока нет. Запустите агента-редактора, чтобы их получить.",
     betaScores: "Бета-оценки",
     readability: "Читаемость",
     pacing: "Темп",
@@ -7768,6 +8033,28 @@ const RU: UIStrings = {
   },
 
   bookUI: {
+    bookTarget: "Цель книги",
+    completionForecast: "Прогноз завершения",
+    forecastNeedsData: "Попишите ещё несколько дней, и появится прогноз",
+    buildingPlan: "Составляю ваш план...",
+    noTasksToday: "На сегодня задач нет — отдыхайте! 🎉",
+    certificateOfCompletion: "Свидетельство о завершении",
+    share: "Поделиться",
+    complete: "Готово",
+    writingJourney: "Ваш писательский путь",
+    storeDescriptionHtml: "Описание для Amazon/магазина (HTML)",
+    rewards: "Награды",
+    dropHere: "Отпустите здесь",
+    headsUp: "Внимание",
+    createdWith: "Сделано в WriteMyBook • writemybook.com",
+    shareProgress: "Поделиться прогрессом",
+    storyHealth: "Здоровье истории",
+    storyRadar: "Радар истории",
+    retry: "Повторить",
+    noAttributesYet: "Атрибутов пока нет. Добавьте пары «ключ — значение» для своих данных.",
+    achievements: "Достижения",
+    writingActivity: "Активность письма",
+    shareYourWrapped: "Поделиться итогами года",
     archive: "В архив",
     archiveHint: "Книга переедет на полку «Архив» и покинет активные полки. Вернуть её можно в любой момент — ничего не удаляется.",
     yourYear: "Ваш",
@@ -8922,6 +9209,13 @@ const ZH: UIStrings = {
   },
 
   styleUI: {
+    twoLayerVoiceModel: "用于区分视角人物的双层声音模型",
+    addLens: "添加透镜",
+    noLenses: "尚未定义人物透镜。添加一个即可区分各视角的声音。",
+    passagesHint: "这些段落最能体现该写作声音的独特之处。",
+    fullProseFingerprint: "完整文风指纹",
+    noStyleProfiles: "尚无文风档案。创建一个来记录你的写作指纹。",
+    noStructuredMetrics: "尚无结构化指标。请再次运行文风采集工作流，以提取可量化的声音数据。",
     sentenceLength: "句子长度",
     mean: "均值",
     median: "中位数",
@@ -8960,6 +9254,18 @@ const ZH: UIStrings = {
   },
 
   reportsUI: {
+    scoreRangeHint: "每个 1 分区间内的章节数",
+    tensionOverlayHint: "逐章张力曲线，并叠加同类型作品参照",
+    noPacingData: "暂无节奏数据。",
+    noDialogueData: "暂无对话数据。",
+    overuseHint: "出现频率高出预期两倍以上的词与短语",
+    noOveruse: "未发现过度使用的用词。",
+    costHint: "所有助手会话的预计费用",
+    keySplitHint: "你的花费在自有 API 密钥与平台密钥之间的分布",
+    allYourKeys: "100% 自有密钥",
+    allYourKeysHint: "全部用量都走你自己的 API 密钥",
+    noDocumentsYet: "暂无文档。运行助手工作流后会生成文档。",
+    noFindingsYet: "暂无编辑发现。运行编辑助手即可生成。",
     betaScores: "Beta 评分",
     readability: "可读性",
     pacing: "节奏",
@@ -8991,6 +9297,28 @@ const ZH: UIStrings = {
   },
 
   bookUI: {
+    bookTarget: "全书目标",
+    completionForecast: "完成预测",
+    forecastNeedsData: "再写几天就能生成预测",
+    buildingPlan: "正在生成你的计划……",
+    noTasksToday: "今天没有任务——好好休息！🎉",
+    certificateOfCompletion: "完成证书",
+    share: "分享",
+    complete: "已完成",
+    writingJourney: "你的写作历程",
+    storeDescriptionHtml: "Amazon/商店描述（HTML）",
+    rewards: "奖励",
+    dropHere: "拖到这里",
+    headsUp: "提醒",
+    createdWith: "由 WriteMyBook 制作 • writemybook.com",
+    shareProgress: "分享进度",
+    storyHealth: "故事健康度",
+    storyRadar: "故事雷达",
+    retry: "重试",
+    noAttributesYet: "暂无属性。添加键值对以记录自定义信息。",
+    achievements: "成就",
+    writingActivity: "写作活跃度",
+    shareYourWrapped: "分享你的年度总结",
     archive: "归档",
     archiveHint: "它会移到你的「已归档」书架并离开活动书架。你随时可以恢复——不会删除任何内容。",
     yourYear: "你的",

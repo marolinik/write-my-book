@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/components/providers/language-provider";
 import { Button } from "@/components/ui/button";
 
 /**
@@ -59,6 +60,7 @@ export function ProactiveNotifications({
   todayWords,
   lastWritingDate,
 }: ProactiveNotificationsProps) {
+  const { t } = useLanguage();
   const notifications = useMemo((): Notification[] => {
     const notifs: Notification[] = [];
     const now = Date.now();
@@ -115,9 +117,7 @@ export function ProactiveNotifications({
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-sm flex items-center gap-2">
-          <BellIcon className="size-4" />
-          Heads Up
-          <Badge variant="secondary" className="text-[10px] ml-auto">
+          <BellIcon className="size-4" />{t.bookUI.headsUp}<Badge variant="secondary" className="text-[10px] ml-auto">
             {notifications.length}
           </Badge>
         </CardTitle>

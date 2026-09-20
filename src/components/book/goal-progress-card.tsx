@@ -69,9 +69,7 @@ export function GoalProgressCard({
               <span>{percentage}%</span>
               {isComplete ? (
                 <span className="flex items-center gap-1 text-green-500 font-medium">
-                  <CheckIcon className="size-3" />
-                  Complete
-                </span>
+                  <CheckIcon className="size-3" />{t.bookUI.complete}</span>
               ) : (
                 <span>{(target - current).toLocaleString(locale)} remaining</span>
               )}

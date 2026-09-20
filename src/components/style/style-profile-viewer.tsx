@@ -209,9 +209,7 @@ function CalibrationSamplesDisplay({
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold">{t.styleUI.calibrationSamples}</h3>
-      <p className="text-sm text-muted-foreground">
-        These passages best demonstrate the distinctive qualities of the writing voice.
-      </p>
+      <p className="text-sm text-muted-foreground">{t.styleUI.passagesHint}</p>
       <div className="grid gap-4 md:grid-cols-2">
         {samples.map((sample, idx) => (
           <Card key={idx}>
@@ -238,6 +236,7 @@ function CalibrationSamplesDisplay({
 // ─── Fingerprint Text (Collapsible) ──────────────────────────
 
 function FingerprintText({ text }: { text: string }) {
+  const { t } = useLanguage();
   const [expanded, setExpanded] = useState(false);
 
   if (!text) return null;
@@ -248,9 +247,7 @@ function FingerprintText({ text }: { text: string }) {
         onClick={() => setExpanded(!expanded)}
         className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
       >
-        <span className="text-xs">{expanded ? "v" : ">"}</span>
-        Full Prose Fingerprint
-      </button>
+        <span className="text-xs">{expanded ? "v" : ">"}</span>{t.styleUI.fullProseFingerprint}</button>
       {expanded && (
         <div className="prose prose-sm max-w-none dark:prose-invert whitespace-pre-wrap rounded-md border bg-muted/50 p-4 font-serif text-sm leading-relaxed">
           {text}
@@ -267,14 +264,13 @@ export function StyleProfileViewer({
 }: {
   profiles: StyleProfile[];
 }) {
+  const { t } = useLanguage();
   const locale = useLocale();
   if (profiles.length === 0) {
     return (
       <Card>
         <CardContent className="py-12 text-center">
-          <p className="text-muted-foreground">
-            No style profiles yet. Create one to capture your writing fingerprint.
-          </p>
+          <p className="text-muted-foreground">{t.styleUI.noStyleProfiles}</p>
         </CardContent>
       </Card>
     );
@@ -305,10 +301,7 @@ export function StyleProfileViewer({
           ) : (
             <Card className="border-dashed">
               <CardContent className="py-6 text-center">
-                <p className="text-sm text-muted-foreground">
-                  No structured metrics yet. Run the Style Capture workflow again to
-                  extract quantitative voice data.
-                </p>
+                <p className="text-sm text-muted-foreground">{t.styleUI.noStructuredMetrics}</p>
               </CardContent>
             </Card>
           )}

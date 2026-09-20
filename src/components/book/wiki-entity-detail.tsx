@@ -282,9 +282,7 @@ export function WikiEntityDetail({
                 </div>
               ))}
               {attributes.length === 0 && (
-                <p className="text-xs text-muted-foreground">
-                  No attributes yet. Add key-value pairs for custom metadata.
-                </p>
+                <p className="text-xs text-muted-foreground">{t.bookUI.noAttributesYet}</p>
               )}
             </div>
           </div>

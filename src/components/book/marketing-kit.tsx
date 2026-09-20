@@ -179,7 +179,7 @@ export function MarketingKit({ bookId, bookTitle }: MarketingKitProps) {
 
           <TabsContent value="store" className="space-y-2">
             <div className="flex items-start justify-between">
-              <p className="text-xs font-medium">Amazon/Store Description (HTML)</p>
+              <p className="text-xs font-medium">{t.bookUI.storeDescriptionHtml}</p>
               <CopyButton text={data.storeDescription} />
             </div>
             <div className="text-sm leading-relaxed bg-muted/30 rounded-md p-3 prose prose-sm max-w-none"

@@ -27,6 +27,9 @@ const CLEAN_AREAS = [
   join("components", "import-export"),
   join("components", "shelf"),
   join("components", "journey"),
+  join("components", "book"),
+  join("components", "reports"),
+  join("components", "style"),
 ];
 
 /**
@@ -84,12 +87,20 @@ describe("the dictionaries behind the localized areas", () => {
    * not listed here that matches English is an untranslated copy-paste.
    */
   const COGNATES: Record<string, string[]> = {
-    // German
-    de: ["stepOptional", "syntax", "focusNormal", "upgrade"],
-    // Spanish
-    es: ["focusNormal", "error"],
-    // French
-    fr: ["insightSuggestion", "focusNormal"],
+    // The readability indices are named after their authors — proper nouns
+    // in every language.
+    sr: ["fleschKincaid", "gunningFog", "colemanLiau"],
+    de: [
+      "stepOptional", "syntax", "focusNormal", "upgrade", "name", "median",
+      "register", "fleschKincaid", "gunningFog", "colemanLiau",
+    ],
+    es: ["focusNormal", "error", "fleschKincaid", "gunningFog", "colemanLiau"],
+    fr: [
+      "insightSuggestion", "focusNormal", "seriesTabDocuments", "seriesTabStructure",
+      "type", "dialogue", "distribution", "fleschKincaid", "gunningFog", "colemanLiau",
+    ],
+    ru: ["gunningFog", "colemanLiau"],
+    zh: ["fleschKincaid", "gunningFog", "colemanLiau"],
   };
 
   it("exist in every language", () => {
@@ -109,6 +120,9 @@ describe("the dictionaries behind the localized areas", () => {
       "common",
       "seriesUI",
       "importExportUI",
+      "bookUI",
+      "reportsUI",
+      "styleUI",
     ] as const;
     const untranslated: string[] = [];
 

@@ -274,9 +274,7 @@ export function YearInWritingWrapped({ data, authorName }: YearInWritingWrappedP
 
       {/* Share */}
       <Button variant="outline" size="sm" onClick={handleShare}>
-        <ShareIcon className="size-3 mr-1.5" />
-        Share Your Wrapped
-      </Button>
+        <ShareIcon className="size-3 mr-1.5" />{t.bookUI.shareYourWrapped}</Button>
     </div>
   );
 }
