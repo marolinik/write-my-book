@@ -15,6 +15,11 @@
  * Composition is pure and lives here so each rule is testable without a series.
  */
 
+import {
+  getUIStrings,
+  UI_SUPPORTED_LANGUAGES,
+} from "@/lib/i18n/ui-strings";
+
 export interface BookSection {
   bookNumber: number;
   bookName: string;
@@ -40,6 +45,31 @@ const MAX_HEADING = 6;
 function pad(n: number): string {
   return String(n).padStart(2, "0");
 }
+
+/** The word a series document uses for "book", in the series' own language. */
+function bookWord(language?: string): string {
+  return getUIStrings(language ?? "en").workspaceUI.book;
+}
+
+/**
+ * H-2: the book heading is also the parse anchor, and every series document
+ * written before it was translated carries the English word. A reader that
+ * only knew the current language would not find those sections and would
+ * append a second one for a book that already had one. So it accepts the
+ * noun in every supported language, plus the literal English it used to
+ * write — and no document needs migrating.
+ */
+const BOOK_WORDS = Array.from(
+  new Set(["Book", ...UI_SUPPORTED_LANGUAGES.map((l) => bookWord(l.code))])
+);
+
+function escapeForRegex(word: string): string {
+  return word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+const BOOK_HEADING = new RegExp(
+  "^##\\s+(?:" + BOOK_WORDS.map(escapeForRegex).join("|") + ")\\s+(\\d+)"
+);
 
 /**
  * Push every ATX heading down by `levels`, capped at h6. Fenced code blocks are
@@ -71,17 +101,24 @@ export function buildBookSection(
   const differs =
     section.language && seriesLanguage && section.language !== seriesLanguage;
   const languageNote = differs ? ` _(${section.language})_` : "";
-  const header = `## Book ${pad(section.bookNumber)} — ${section.bookName}${languageNote}`;
+  const header = `## ${bookWord(seriesLanguage)} ${pad(section.bookNumber)} — ${section.bookName}${languageNote}`;
   return `${header}\n\n${demoteHeadings(section.content.trim(), 2)}`;
 }
 
 /** The note that makes an absent book visible instead of a silent gap. */
-function missingNote(missing: readonly MissingBook[]): string {
+function missingNote(
+  missing: readonly MissingBook[],
+  seriesLanguage?: string
+): string {
   if (missing.length === 0) return "";
+  const word = bookWord(seriesLanguage);
   const list = missing
-    .map((m) => `Book ${pad(m.bookNumber)} — ${m.bookName}`)
+    .map((m) => `${word} ${pad(m.bookNumber)} — ${m.bookName}`)
     .join(", ");
-  return `> No contribution yet from: ${list}. What follows covers the other books only.\n`;
+  const sentence = getUIStrings(
+    seriesLanguage ?? "en"
+  ).seriesUI.noContributionYet.replace("{books}", list);
+  return `> ${sentence}\n`;
 }
 
 export function composeSeriesDocument(input: ComposeInput): string {
@@ -89,7 +126,7 @@ export function composeSeriesDocument(input: ComposeInput): string {
   const body = ordered
     .map((s) => buildBookSection(s, input.seriesLanguage))
     .join("\n\n");
-  const note = missingNote(input.missingBooks);
+  const note = missingNote(input.missingBooks, input.seriesLanguage);
 
   return [`# ${input.title}`, note, body].filter(Boolean).join("\n\n").trimEnd();
 }
@@ -109,7 +146,7 @@ export function upsertBookSection(
 
   const headerIndexes: Array<{ index: number; bookNumber: number }> = [];
   lines.forEach((line, i) => {
-    const m = /^## Book (\d+)/.exec(line);
+    const m = BOOK_HEADING.exec(line);
     if (m) headerIndexes.push({ index: i, bookNumber: Number(m[1]) });
   });
 

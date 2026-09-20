@@ -1284,6 +1284,7 @@ export const EN: UIStrings = {
     noBooksInSeriesShort: "No books in this series.",
     hasArtifact: "Has Artifact",
     synthesize: "Synthesize",
+    noContributionYet: "No contribution yet from: {books}. What follows covers the other books only.",
   },
 
   importExportUI: {

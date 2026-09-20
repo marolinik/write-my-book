@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { getDocumentTypeLabels } from "@/lib/agents/tool-labels";
 import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
 import {
@@ -88,7 +89,6 @@ export async function synthesizeToSeries(
     content: bookContent.content,
     language: book?.language ?? undefined,
   };
-  const seriesTitle = `Series ${artifactType.replace(/_/g, " ").toLowerCase()}`;
 
   // The series language is the first book's — the yardstick a mixed-language
   // section is measured against, not a rule imposed on it.
@@ -100,6 +100,13 @@ export async function synthesizeToSeries(
         })
       )?.language ?? undefined
     : book?.language ?? undefined;
+
+  // H-2: the title used to be the word "Series" with the artifact type spelled
+  // out after it, which read "Series series bible" in English and stayed
+  // English in every other language. The document-type table has the real name
+  // in all seven.
+  const seriesTitle =
+    getDocumentTypeLabels(seriesLanguage)[mapping.series] ?? mapping.series;
 
   const seriesDoc = await seriesDocService.findByType(mapping.series);
 

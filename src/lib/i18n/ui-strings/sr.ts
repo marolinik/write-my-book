@@ -1273,6 +1273,7 @@ export const SR: UIStrings = {
     noBooksInSeriesShort: "U ovom serijalu nema knjiga.",
     hasArtifact: "Ima artefakt",
     synthesize: "Objedini",
+    noContributionYet: "Još nema doprinosa od: {books}. Ono što sledi pokriva samo ostale knjige.",
   },
 
   importExportUI: {

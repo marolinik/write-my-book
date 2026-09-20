@@ -1273,6 +1273,7 @@ export const ZH: UIStrings = {
     noBooksInSeriesShort: "该系列中没有图书。",
     hasArtifact: "已有产物",
     synthesize: "汇总",
+    noContributionYet: "以下图书尚无内容：{books}。后面只涵盖其余图书。",
   },
 
   importExportUI: {

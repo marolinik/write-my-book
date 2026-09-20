@@ -1219,6 +1219,7 @@ export interface UIStrings {
     noBooksInSeriesShort: string;
     hasArtifact: string;
     synthesize: string;
+    noContributionYet: string;
   };
 
   // H-10 - the import wizard, the export history and the readiness check.

@@ -80,9 +80,10 @@ describe("upsertBookSection", () => {
       missingBooks: [],
     });
     const out = upsertBookSection(withTwoThree, b1, "sr");
-    expect(out.indexOf("Book 01")).toBeGreaterThan(-1);
-    expect(out.indexOf("Book 01")).toBeLessThan(out.indexOf("Book 02"));
-    expect(out.indexOf("Book 02")).toBeLessThan(out.indexOf("Book 03"));
+    // H-2: a Serbian series heads its sections with the Serbian noun.
+    expect(out.indexOf("Knjiga 01")).toBeGreaterThan(-1);
+    expect(out.indexOf("Knjiga 01")).toBeLessThan(out.indexOf("Knjiga 02"));
+    expect(out.indexOf("Knjiga 02")).toBeLessThan(out.indexOf("Knjiga 03"));
   });
 
   it("replaces a book's own section instead of adding a second one", () => {
@@ -93,7 +94,7 @@ describe("upsertBookSection", () => {
       missingBooks: [],
     });
     const out = upsertBookSection(doc, { ...b2, content: "Novi tekst." }, "sr");
-    expect(out.match(/## Book 02/g)?.length).toBe(1);
+    expect(out.match(/## Knjiga 02/g)?.length).toBe(1);
     expect(out).toContain("Novi tekst.");
     expect(out).not.toContain("Dva.");
   });
@@ -120,7 +121,7 @@ describe("composeSeriesDocument", () => {
       seriesLanguage: "sr",
       missingBooks: [],
     });
-    expect(out.indexOf("Book 01")).toBeLessThan(out.indexOf("Book 03"));
+    expect(out.indexOf("Knjiga 01")).toBeLessThan(out.indexOf("Knjiga 03"));
   });
 
   it("names the books that have contributed nothing, so a gap is never silent", () => {
@@ -131,9 +132,9 @@ describe("composeSeriesDocument", () => {
       missingBooks: [{ bookNumber: 1, bookName: "Zakletva" }],
     });
     expect(out).toContain("Zakletva");
-    expect(out).toContain("Book 01");
+    expect(out).toContain("Knjiga 01");
     // The gap note comes before the contributed sections.
-    expect(out.indexOf("Zakletva")).toBeLessThan(out.indexOf("## Book 02"));
+    expect(out.indexOf("Zakletva")).toBeLessThan(out.indexOf("## Knjiga 02"));
   });
 
   it("never nests an h1 under a section heading", () => {

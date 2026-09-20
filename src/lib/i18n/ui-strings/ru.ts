@@ -1273,6 +1273,7 @@ export const RU: UIStrings = {
     noBooksInSeriesShort: "В этой серии нет книг.",
     hasArtifact: "Есть артефакт",
     synthesize: "Свести",
+    noContributionYet: "Пока нет вклада от: {books}. Дальше — только остальные книги.",
   },
 
   importExportUI: {

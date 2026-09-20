@@ -1273,6 +1273,7 @@ export const ES: UIStrings = {
     noBooksInSeriesShort: "No hay libros en esta serie.",
     hasArtifact: "Tiene artefacto",
     synthesize: "Sintetizar",
+    noContributionYet: "Aún no hay aportación de: {books}. Lo que sigue cubre solo los demás libros.",
   },
 
   importExportUI: {
