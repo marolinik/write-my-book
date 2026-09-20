@@ -295,18 +295,14 @@ export function FindingConversation({
               disabled={settleDisabled}
               title={settleDisabled ? settleDisabledTitle : undefined}
               onClick={(e) => { e.stopPropagation(); onApply(view.latestRevision); }}
-            >
-              Use it
-            </Button>
+            >{t.editorialUI.useIt}</Button>
             <Button
               variant="outline"
               size="sm"
               disabled={settleDisabled}
               title={settleDisabled ? settleDisabledTitle : undefined}
               onClick={(e) => { e.stopPropagation(); onDismiss(); }}
-            >
-              Keep as-is
-            </Button>
+            >{t.editorialUI.keepAsIs}</Button>
           </>
         ) : (
           <Button
@@ -315,9 +311,7 @@ export function FindingConversation({
             disabled={settleDisabled}
             title={settleDisabled ? settleDisabledTitle : undefined}
             onClick={(e) => { e.stopPropagation(); onDismiss(); }}
-          >
-            Keep as-is
-          </Button>
+          >{t.editorialUI.keepAsIs}</Button>
         )}
       </div>
 
@@ -329,9 +323,7 @@ export function FindingConversation({
           placeholder={t.appUI.explainIntent}
         />
       ) : (
-        <p className="text-xs text-muted-foreground">
-          3-exchange cap reached — decide above, or undo to revise.
-        </p>
+        <p className="text-xs text-muted-foreground">{t.editorialUI.capReached}</p>
       )}
     </div>
   );

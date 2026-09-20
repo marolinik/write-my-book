@@ -153,40 +153,30 @@ export function AIMiniPanel() {
         {/* Last message preview */}
         {lastMessage ? (
           <div className="space-y-1.5">
-            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
-              Last response
-            </p>
+            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{t.agentUI.lastResponse}</p>
             <div className="rounded-md bg-muted/50 p-2.5 text-xs leading-relaxed line-clamp-6">
               {lastMessage}
             </div>
             {isRunning && (
               <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                <Loader2Icon className="size-3 animate-spin" />
-                Working...
-              </div>
+                <Loader2Icon className="size-3 animate-spin" />{t.agentUI.working}</div>
             )}
           </div>
         ) : hasAnySessions ? (
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Loader2Icon className="size-3 animate-spin" />
-            Agent is working...
-          </div>
+            <Loader2Icon className="size-3 animate-spin" />{t.agentUI.agentWorking}</div>
         ) : (
           <div className="text-center py-4 space-y-2">
             <div className="rounded-full bg-muted p-3 mx-auto w-fit">
               <SparklesIcon className="size-5 text-muted-foreground" />
             </div>
-            <p className="text-xs text-muted-foreground">
-              Your AI writing companion. Click a quick action or expand for the full experience.
-            </p>
+            <p className="text-xs text-muted-foreground">{t.agentUI.companionBlurb}</p>
           </div>
         )}
 
         {/* Quick actions */}
         <div className="space-y-1.5">
-          <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
-            Quick actions
-          </p>
+          <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{t.agentUI.quickActions}</p>
           <div className="flex flex-wrap gap-1.5">
             {quickActions.map((action) => (
               <Button
@@ -204,18 +194,14 @@ export function AIMiniPanel() {
               size="sm"
               className="text-xs h-7"
               onClick={() => setPanelMode("overlay")}
-            >
-              All workflows...
-            </Button>
+            >{t.agentUI.allWorkflows}</Button>
           </div>
         </div>
 
         {/* Session summary when sessions exist */}
         {hasAnySessions && !isRunning && activeSession?.status === "completed" && (
           <div className="space-y-1.5">
-            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
-              Completed
-            </p>
+            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{t.agentUI.completed}</p>
             <div className="rounded-md border p-2 text-xs">
               <span className="font-medium">
                 {getWorkflow(activeSession.workflowId)?.label ?? activeSession.workflowId}
@@ -250,9 +236,7 @@ export function AIMiniPanel() {
           size="sm"
           className="w-full text-xs"
           onClick={() => setPanelMode("overlay")}
-        >
-          Open full panel
-        </Button>
+        >{t.agentUI.openFullPanel}</Button>
       </div>
     </div>
   );

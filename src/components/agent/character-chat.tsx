@@ -132,9 +132,7 @@ export function CharacterChat({ bookId, characters, onClose }: CharacterChatProp
       <CardHeader className="pb-2 shrink-0">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm flex items-center gap-2">
-            <SparklesIcon className="size-4 text-primary" />
-            Character Chat
-          </CardTitle>
+            <SparklesIcon className="size-4 text-primary" />{t.agentUI.characterChat}</CardTitle>
           {onClose && (
             <Button variant="ghost" size="icon" className="size-6" onClick={onClose}>
               <XIcon className="size-3" />
@@ -165,9 +163,7 @@ export function CharacterChat({ bookId, characters, onClose }: CharacterChatProp
             className="h-8 text-xs shrink-0"
             onClick={() => setMessages([])}
           >
-            <RefreshCwIcon className="size-3 mr-1" />
-            Reset
-          </Button>
+            <RefreshCwIcon className="size-3 mr-1" />{t.agentUI.reset}</Button>
         </div>
 
         {selectedChar?.description && (

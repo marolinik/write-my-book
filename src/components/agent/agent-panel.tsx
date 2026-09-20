@@ -631,9 +631,7 @@ export function AgentPanel({
               size="sm"
               className="text-xs"
               onClick={() => setShowSessionHistory(false)}
-            >
-              Back
-            </Button>
+            >{t.workflowSelector.back}</Button>
           </div>
           {Array.isArray(pastSessions) && pastSessions.length > 0 ? (
             pastSessions.map((s: {
@@ -782,9 +780,7 @@ export function AgentPanel({
                         // resumes as a book-scoped one.
                         handleWorkflowSelect(workflowId, activeSession?.chapterNumber)
                       }
-                    >
-                      Continue where it left off
-                      <ArrowRightIcon className="size-3" />
+                    >{t.agentUI.continueWhereLeftOff}<ArrowRightIcon className="size-3" />
                     </Button>
                   )}
                 </div>

@@ -358,9 +358,7 @@ export function WorkflowSelector({
       <TabsContent value="journeys" className="flex-1 min-h-0">
         <ScrollArea className="h-full">
           <div className="flex flex-col gap-2 p-4">
-            <p className="text-xs text-muted-foreground">
-              Choose a guided journey through your book project:
-            </p>
+            <p className="text-xs text-muted-foreground">{t.agentUI.chooseJourney}</p>
             {journeys.map((journey) => (
               <JourneyCard
                 key={journey.id}
@@ -436,9 +434,7 @@ export function WorkflowSelector({
                                 <ListPlusIcon className="size-4" />
                               </button>
                             </TooltipTrigger>
-                            <TooltipContent side="left" className="text-xs">
-                              Add to queue
-                            </TooltipContent>
+                            <TooltipContent side="left" className="text-xs">{t.agentUI.addToQueue}</TooltipContent>
                           </Tooltip>
                         )}
                       </div>
@@ -556,7 +552,7 @@ function JourneyDetailView({
   onBack: () => void;
   disabled?: boolean;
 }) {
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
   const as = getAgentStrings(language);
   const Icon = JOURNEY_ICONS[journey.icon] ?? BookOpenIcon;
 
@@ -619,14 +615,10 @@ function JourneyDetailView({
                         {workflowLabel(as, step.workflowId) ?? wf?.label ?? step.workflowId}
                       </span>
                       {step.optional && (
-                        <Badge variant="outline" className="text-[9px]">
-                          optional
-                        </Badge>
+                        <Badge variant="outline" className="text-[9px]">{t.agentUI.stepOptional}</Badge>
                       )}
                       {step.perChapter && (
-                        <Badge variant="secondary" className="text-[9px]">
-                          per chapter
-                        </Badge>
+                        <Badge variant="secondary" className="text-[9px]">{t.agentUI.perChapter}</Badge>
                       )}
                       {step.loopTo && (
                         <Tooltip>
@@ -662,9 +654,7 @@ function JourneyDetailView({
                         className="mt-2 h-7 text-xs"
                         onClick={() => onSelectStep(step.workflowId)}
                         disabled={disabled}
-                      >
-                        Start this step
-                      </Button>
+                      >{t.agentUI.startThisStep}</Button>
                     )}
                   </div>
                 </div>

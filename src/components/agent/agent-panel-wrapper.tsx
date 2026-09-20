@@ -59,12 +59,8 @@ export function AgentPanelWrapper({ onClose }: AgentPanelWrapperProps) {
           <div className="rounded-full bg-muted p-4">
             <BotIcon className="size-8 text-muted-foreground" />
           </div>
-          <p className="text-sm font-medium text-muted-foreground">
-            Open a book or series to use the agent
-          </p>
-          <p className="text-xs text-muted-foreground/70">
-            Navigate to a book or series to access writing workflows.
-          </p>
+          <p className="text-sm font-medium text-muted-foreground">{t.agentUI.noContextTitle}</p>
+          <p className="text-xs text-muted-foreground/70">{t.agentUI.noContextHint}</p>
         </div>
       </div>
     );
@@ -82,9 +78,7 @@ export function AgentPanelWrapper({ onClose }: AgentPanelWrapperProps) {
         {/* Book selector for series */}
         {seriesBooks.length > 0 && (
           <div className="border-b px-4 py-2">
-            <label className="text-xs text-muted-foreground mb-1 block">
-              Active book:
-            </label>
+            <label className="text-xs text-muted-foreground mb-1 block">{t.agentUI.activeBook}</label>
             <Select
               value={resolvedBookId ?? ""}
               onValueChange={setActiveSeriesBookId}
@@ -113,9 +107,7 @@ export function AgentPanelWrapper({ onClose }: AgentPanelWrapperProps) {
         ) : (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
             <BotIcon className="size-8 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">
-              Add a book to this series to use the agent.
-            </p>
+            <p className="text-sm text-muted-foreground">{t.agentUI.seriesNeedsBook}</p>
           </div>
         )}
       </div>

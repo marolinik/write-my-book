@@ -8,6 +8,7 @@ import {
   ListIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/components/providers/language-provider";
 import { useAgentSessionStore } from "@/stores/agent-session-store";
 import { getWorkflow } from "@/lib/agents/workflows";
 
@@ -17,6 +18,7 @@ interface WorkflowQueueProps {
 }
 
 export function WorkflowQueue({ onStartQueue, disabled }: WorkflowQueueProps) {
+  const { t } = useLanguage();
   const queue = useAgentSessionStore((s) => s.workflowQueue);
   const removeFromQueue = useAgentSessionStore((s) => s.removeFromQueue);
   const reorderQueue = useAgentSessionStore((s) => s.reorderQueue);
@@ -29,7 +31,7 @@ export function WorkflowQueue({ onStartQueue, disabled }: WorkflowQueueProps) {
       <div className="flex items-center justify-between mb-1.5">
         <div className="flex items-center gap-1.5 text-xs font-medium">
           <ListIcon className="size-3.5" />
-          Queue ({queue.length})
+          {t.agentUI.queueCount.replace("{count}", String(queue.length))}
         </div>
         <div className="flex items-center gap-1">
           <Button
@@ -37,9 +39,7 @@ export function WorkflowQueue({ onStartQueue, disabled }: WorkflowQueueProps) {
             size="sm"
             className="h-6 text-[10px] px-1.5"
             onClick={clearQueue}
-          >
-            Clear
-          </Button>
+          >{t.agentUI.clearQueue}</Button>
           <Button
             variant="default"
             size="sm"
@@ -47,9 +47,7 @@ export function WorkflowQueue({ onStartQueue, disabled }: WorkflowQueueProps) {
             onClick={onStartQueue}
             disabled={disabled}
           >
-            <PlayIcon className="size-3" />
-            Start All
-          </Button>
+            <PlayIcon className="size-3" />{t.agentUI.startAll}</Button>
         </div>
       </div>
       <div className="space-y-1">

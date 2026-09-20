@@ -89,6 +89,7 @@ export function MessageStream({
   sessionError,
   sessionStatus,
 }: MessageStreamProps) {
+  const { t } = useLanguage();
   const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const userScrolledAway = useRef(false);
@@ -406,9 +407,7 @@ export function MessageStream({
           {/* Inline timeout message */}
           {isTimeout && (
             <div className="flex items-center gap-2 rounded-md border border-orange-500/30 bg-orange-50/10 dark:bg-orange-950/20 px-3 py-2 text-xs text-orange-600 dark:text-orange-400">
-              <AlertTriangleIcon className="size-3.5 shrink-0" />
-              Session timed out. Partial results saved.
-            </div>
+              <AlertTriangleIcon className="size-3.5 shrink-0" />{t.agentUI.sessionTimedOut}</div>
           )}
           {isRunning && hasVisibleContent && (
             <ThinkingIndicator
@@ -466,6 +465,7 @@ function TimeoutWarning({
   onExtend?: () => void;
   isRunning: boolean;
 }) {
+  const { t } = useLanguage();
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
@@ -502,9 +502,7 @@ function TimeoutWarning({
         {elapsedMin} min elapsed — ~{remainingMin} min remaining
       </span>
       {extensionsUsed < 2 && onExtend && (
-        <Button size="sm" variant="outline" className="h-6 text-xs shrink-0" onClick={onExtend}>
-          Extend +15 min
-        </Button>
+        <Button size="sm" variant="outline" className="h-6 text-xs shrink-0" onClick={onExtend}>{t.agentUI.extendFifteen}</Button>
       )}
     </div>
   );
@@ -520,6 +518,7 @@ function BudgetWarningBanner({
   text: string;
   metadata?: Record<string, unknown>;
 }) {
+  const { t } = useLanguage();
   const costUsd = metadata?.costUsd as number | undefined;
   const budgetUsd = metadata?.budgetUsd as number | undefined;
 
@@ -543,6 +542,7 @@ function BudgetWarningBanner({
 // This component just avoids unnecessary re-renders from parent changes.
 
 const MarkdownBlock = memo(function MarkdownBlock({ text }: { text: string }) {
+  const { t } = useLanguage();
   const setScrollToText = useEditorPaneStore("primary", (s) => s.setScrollToText);
 
   // Extract "original text" from diff-like patterns:
@@ -572,9 +572,7 @@ const MarkdownBlock = memo(function MarkdownBlock({ text }: { text: string }) {
               onClick={() => setScrollToText(original)}
               className="inline-flex items-center gap-1 text-[11px] text-primary hover:text-primary/80 transition-colors"
             >
-              <EyeIcon className="size-3" />
-              Show in text
-            </button>
+              <EyeIcon className="size-3" />{t.agentUI.showInText}</button>
           ))}
         </div>
       )}
@@ -665,6 +663,7 @@ function ToolStatus({
 // ─── Error card with optional Settings link ─────────────────
 
 function ErrorCard({ text, metadata }: { text: string; metadata?: Record<string, unknown> }) {
+  const { t } = useLanguage();
   const isKeyError = metadata?.action === "check-key";
   const isSwitchable = metadata?.switchable === true;
 
@@ -678,15 +677,11 @@ function ErrorCard({ text, metadata }: { text: string; metadata?: Record<string,
         <div className="flex gap-2 ml-6">
           <Button variant="outline" size="sm" className="text-xs gap-1" asChild>
             <Link href="/settings">
-              <SettingsIcon className="size-3" />
-              Go to Settings
-            </Link>
+              <SettingsIcon className="size-3" />{t.agentPanel.goToSettings}</Link>
           </Button>
           {isSwitchable && (
             <Button variant="outline" size="sm" className="text-xs gap-1" asChild>
-              <Link href="/settings">
-                Switch Provider
-              </Link>
+              <Link href="/settings">{t.agentUI.switchProvider}</Link>
             </Button>
           )}
         </div>
@@ -792,9 +787,7 @@ function ApprovalCard({
               size="sm"
               variant="default"
               onClick={() => handleDecision("approve")}
-            >
-              Approve
-            </Button>
+            >{t.agentUI.approve}</Button>
             <Button
               size="sm"
               variant="outline"
@@ -805,39 +798,27 @@ function ApprovalCard({
                   setShowModify(true);
                 }
               }}
-            >
-              Modify
-            </Button>
+            >{t.agentUI.modify}</Button>
             <Button
               size="sm"
               variant="destructive"
               onClick={() => handleDecision("reject")}
-            >
-              Reject
-            </Button>
+            >{t.agentUI.reject}</Button>
           </div>
         </div>
       )}
 
       {timedOut && !decision && (
-        <Badge variant="outline" className="w-fit text-red-600 dark:text-red-400 border-red-200 dark:border-red-800">
-          Timed Out
-        </Badge>
+        <Badge variant="outline" className="w-fit text-red-600 dark:text-red-400 border-red-200 dark:border-red-800">{t.agentUI.timedOut}</Badge>
       )}
       {decision === "approve" && (
-        <Badge variant="outline" className="w-fit text-green-600 dark:text-green-400 border-green-200 dark:border-green-800">
-          Approved
-        </Badge>
+        <Badge variant="outline" className="w-fit text-green-600 dark:text-green-400 border-green-200 dark:border-green-800">{t.agentUI.approved}</Badge>
       )}
       {decision === "reject" && (
-        <Badge variant="outline" className="w-fit text-red-600 dark:text-red-400 border-red-200 dark:border-red-800">
-          Rejected
-        </Badge>
+        <Badge variant="outline" className="w-fit text-red-600 dark:text-red-400 border-red-200 dark:border-red-800">{t.agentUI.rejected}</Badge>
       )}
       {decision === "modify" && (
-        <Badge variant="outline" className="w-fit text-yellow-600 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800">
-          Modified
-        </Badge>
+        <Badge variant="outline" className="w-fit text-yellow-600 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800">{t.agentUI.modified}</Badge>
       )}
     </div>
   );

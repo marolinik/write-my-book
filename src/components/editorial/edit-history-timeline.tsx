@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/components/providers/language-provider";
+import type { UIStrings } from "@/lib/i18n/ui-strings";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -12,31 +13,23 @@ interface EditHistoryTimelineProps {
   bookId: string;
 }
 
-function actionBadge(actionType: string) {
+function actionBadge(actionType: string, t: UIStrings) {
   switch (actionType) {
     case "apply":
       return (
-        <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-          apply
-        </Badge>
+        <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">{t.editorialUI.actionApply}</Badge>
       );
     case "dismiss":
       return (
-        <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
-          dismiss
-        </Badge>
+        <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">{t.editorialUI.actionDismiss}</Badge>
       );
     case "undo":
       return (
-        <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-          undo
-        </Badge>
+        <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">{t.editorialUI.actionUndo}</Badge>
       );
     case "session_complete":
       return (
-        <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
-          session complete
-        </Badge>
+        <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">{t.editorialUI.actionSessionComplete}</Badge>
       );
     default:
       return <Badge variant="secondary">{actionType}</Badge>;
@@ -98,7 +91,7 @@ export function EditHistoryTimeline({ bookId }: EditHistoryTimelineProps) {
                 <span className="text-xs text-muted-foreground">
                   {formatTimestamp(action.timestamp, locale)}
                 </span>
-                {actionBadge(action.actionType)}
+                {actionBadge(action.actionType, t)}
               </div>
               <p className="text-sm">{action.description}</p>
             </div>

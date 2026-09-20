@@ -28,6 +28,7 @@ import { getJourney } from "@/lib/agents/journeys";
 import { useAgentSessionStore } from "@/stores/agent-session-store";
 import { useBook } from "@/hooks/use-books";
 import { getAgentStrings, workflowLabel, workflowDescription } from "@/lib/i18n/agent-strings";
+import { useLanguage } from "@/components/providers/language-provider";
 
 const WORKFLOW_ICONS: Record<string, React.ElementType> = {
   "read-manuscript": ImportIcon,
@@ -198,6 +199,9 @@ export function ProactiveGuide({
 }: ProactiveGuideProps) {
   const state = useBookState(bookId);
   const t = getAgentStrings(state.language);
+  // `t` above is the agent-strings table, keyed by the BOOK's language; the
+  // panel's own chrome follows the writer's UI language instead.
+  const { t: ui } = useLanguage();
 
   // Pre-flight cost estimate for the primary recommended workflow
   const { data: costData } = useQuery({
@@ -367,9 +371,7 @@ export function ProactiveGuide({
       {lastTimedOut && (
         <div className="flex items-center gap-2 rounded-md border border-orange-500/30 bg-orange-50/50 dark:bg-orange-950/20 px-3 py-2">
           <AlertTriangleIcon className="size-3.5 text-orange-600 dark:text-orange-400 shrink-0" />
-          <span className="text-xs text-orange-700 dark:text-orange-300">
-            Previous session timed out — run again to continue
-          </span>
+          <span className="text-xs text-orange-700 dark:text-orange-300">{ui.agentUI.previousTimedOut}</span>
         </div>
       )}
 

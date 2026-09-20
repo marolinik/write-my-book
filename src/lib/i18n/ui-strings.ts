@@ -1008,6 +1008,68 @@ export interface UIStrings {
     onboardingReadyToWrite: string;
     onboardingComplete: string;
   };
+
+  // H-10 - the agent panel's own chrome. Every string here was an English
+  // literal in the surface the writer spends the most time watching.
+  agentUI: {
+    noContextTitle: string;
+    noContextHint: string;
+    activeBook: string;
+    seriesNeedsBook: string;
+    continueWhereLeftOff: string;
+    lastResponse: string;
+    working: string;
+    agentWorking: string;
+    companionBlurb: string;
+    quickActions: string;
+    allWorkflows: string;
+    completed: string;
+    openFullPanel: string;
+    insightWarning: string;
+    insightSuggestion: string;
+    insightFlag: string;
+    insightConstraint: string;
+    insightFrom: string;
+    loadingInsights: string;
+    insightsLoadFailed: string;
+    noInsights: string;
+    blackboard: string;
+    insightsActive: string;
+    characterChat: string;
+    reset: string;
+    sessionTimedOut: string;
+    extendFifteen: string;
+    showInText: string;
+    switchProvider: string;
+    approve: string;
+    modify: string;
+    reject: string;
+    timedOut: string;
+    approved: string;
+    rejected: string;
+    modified: string;
+    previousTimedOut: string;
+    clearQueue: string;
+    startAll: string;
+    queueCount: string;
+    chooseJourney: string;
+    addToQueue: string;
+    stepOptional: string;
+    perChapter: string;
+    startThisStep: string;
+    chapterAbbrev: string;
+  };
+
+  // H-10 - editorial badges and the finding conversation's decision row.
+  editorialUI: {
+    actionApply: string;
+    actionDismiss: string;
+    actionUndo: string;
+    actionSessionComplete: string;
+    useIt: string;
+    keepAsIs: string;
+    capReached: string;
+  };
 }
 
 export const SUPPORTED_LANGUAGES = [
@@ -2102,6 +2164,65 @@ const EN: UIStrings = {
     onboardingReadyToWrite: "You are all set — let us start your first book.",
     onboardingComplete: "Setup complete! Welcome to Write My Book OK.",
   },
+
+  agentUI: {
+    noContextTitle: "Open a book or series to use the agent",
+    noContextHint: "Navigate to a book or series to access writing workflows.",
+    activeBook: "Active book:",
+    seriesNeedsBook: "Add a book to this series to use the agent.",
+    continueWhereLeftOff: "Continue where it left off",
+    lastResponse: "Last response",
+    working: "Working...",
+    agentWorking: "Agent is working...",
+    companionBlurb: "Your AI writing companion. Click a quick action or expand for the full experience.",
+    quickActions: "Quick actions",
+    allWorkflows: "All workflows...",
+    completed: "Completed",
+    openFullPanel: "Open full panel",
+    insightWarning: "warning",
+    insightSuggestion: "suggestion",
+    insightFlag: "flag",
+    insightConstraint: "constraint",
+    insightFrom: "from",
+    loadingInsights: "Loading insights...",
+    insightsLoadFailed: "Failed to load insights:",
+    noInsights: "No active insights on the blackboard. Insights appear here when agents flag important cross-cutting concerns for other agents to consider.",
+    blackboard: "Blackboard",
+    insightsActive: "{count} active",
+    characterChat: "Character Chat",
+    reset: "Reset",
+    sessionTimedOut: "Session timed out. Partial results saved.",
+    extendFifteen: "Extend +15 min",
+    showInText: "Show in text",
+    switchProvider: "Switch Provider",
+    approve: "Approve",
+    modify: "Modify",
+    reject: "Reject",
+    timedOut: "Timed Out",
+    approved: "Approved",
+    rejected: "Rejected",
+    modified: "Modified",
+    previousTimedOut: "Previous session timed out — run again to continue",
+    clearQueue: "Clear",
+    startAll: "Start All",
+    queueCount: "Queue ({count})",
+    chooseJourney: "Choose a guided journey through your book project:",
+    addToQueue: "Add to queue",
+    stepOptional: "optional",
+    perChapter: "per chapter",
+    startThisStep: "Start this step",
+    chapterAbbrev: "Ch.",
+  },
+
+  editorialUI: {
+    actionApply: "apply",
+    actionDismiss: "dismiss",
+    actionUndo: "undo",
+    actionSessionComplete: "session complete",
+    useIt: "Use it",
+    keepAsIs: "Keep as-is",
+    capReached: "3-exchange cap reached — decide above, or undo to revise.",
+  },
 };
 
 const SR: UIStrings = {
@@ -3167,6 +3288,65 @@ const SR: UIStrings = {
     memoryUpdated: "Pamćenje je izmenjeno",
     onboardingReadyToWrite: "Sve je spremno — krenimo sa vašom prvom knjigom.",
     onboardingComplete: "Podešavanje je završeno! Dobro došli u Write My Book OK.",
+  },
+
+  agentUI: {
+    noContextTitle: "Otvorite knjigu ili serijal da biste koristili agenta",
+    noContextHint: "Idite na knjigu ili serijal da biste pristupili tokovima pisanja.",
+    activeBook: "Aktivna knjiga:",
+    seriesNeedsBook: "Dodajte knjigu u ovaj serijal da biste koristili agenta.",
+    continueWhereLeftOff: "Nastavi odakle je stao",
+    lastResponse: "Poslednji odgovor",
+    working: "Radim...",
+    agentWorking: "Agent radi...",
+    companionBlurb: "Vaš AI saputnik u pisanju. Kliknite na brzu radnju ili proširite za pun doživljaj.",
+    quickActions: "Brze radnje",
+    allWorkflows: "Svi tokovi rada...",
+    completed: "Završeno",
+    openFullPanel: "Otvori ceo panel",
+    insightWarning: "upozorenje",
+    insightSuggestion: "predlog",
+    insightFlag: "oznaka",
+    insightConstraint: "ograničenje",
+    insightFrom: "od",
+    loadingInsights: "Učitavam uvide...",
+    insightsLoadFailed: "Učitavanje uvida nije uspelo:",
+    noInsights: "Nema aktivnih uvida na tabli. Uvidi se pojavljuju ovde kada agenti istaknu važna pitanja koja se tiču više oblasti, da bi ih drugi agenti uzeli u obzir.",
+    blackboard: "Tabla",
+    insightsActive: "{count} aktivnih",
+    characterChat: "Razgovor s likom",
+    reset: "Poništi",
+    sessionTimedOut: "Sesija je istekla. Delimični rezultati su sačuvani.",
+    extendFifteen: "Produži +15 min",
+    showInText: "Prikaži u tekstu",
+    switchProvider: "Promeni provajdera",
+    approve: "Prihvati",
+    modify: "Izmeni",
+    reject: "Odbij",
+    timedOut: "Isteklo",
+    approved: "Prihvaćeno",
+    rejected: "Odbijeno",
+    modified: "Izmenjeno",
+    previousTimedOut: "Prethodna sesija je istekla — pokrenite ponovo da nastavite",
+    clearQueue: "Očisti",
+    startAll: "Pokreni sve",
+    queueCount: "Red čekanja ({count})",
+    chooseJourney: "Izaberite vođeni put kroz vaš projekat knjige:",
+    addToQueue: "Dodaj u red čekanja",
+    stepOptional: "opciono",
+    perChapter: "po poglavlju",
+    startThisStep: "Pokreni ovaj korak",
+    chapterAbbrev: "Pogl.",
+  },
+
+  editorialUI: {
+    actionApply: "primena",
+    actionDismiss: "odbacivanje",
+    actionUndo: "poništavanje",
+    actionSessionComplete: "sesija završena",
+    useIt: "Iskoristi",
+    keepAsIs: "Zadrži kako jeste",
+    capReached: "Dostignut je limit od 3 razmene — odlučite gore ili poništite da biste preradili.",
   },
 };
 
@@ -4234,6 +4414,65 @@ const DE: UIStrings = {
     onboardingReadyToWrite: "Alles bereit — beginnen wir mit Ihrem ersten Buch.",
     onboardingComplete: "Einrichtung abgeschlossen! Willkommen bei Write My Book OK.",
   },
+
+  agentUI: {
+    noContextTitle: "Öffnen Sie ein Buch oder eine Reihe, um den Agenten zu nutzen",
+    noContextHint: "Wechseln Sie zu einem Buch oder einer Reihe, um Schreib-Workflows zu öffnen.",
+    activeBook: "Aktives Buch:",
+    seriesNeedsBook: "Fügen Sie dieser Reihe ein Buch hinzu, um den Agenten zu nutzen.",
+    continueWhereLeftOff: "Dort weitermachen, wo es aufgehört hat",
+    lastResponse: "Letzte Antwort",
+    working: "Arbeitet ...",
+    agentWorking: "Der Agent arbeitet ...",
+    companionBlurb: "Ihr KI-Schreibbegleiter. Klicken Sie auf eine Schnellaktion oder öffnen Sie die volle Ansicht.",
+    quickActions: "Schnellaktionen",
+    allWorkflows: "Alle Workflows ...",
+    completed: "Abgeschlossen",
+    openFullPanel: "Vollen Bereich öffnen",
+    insightWarning: "Warnung",
+    insightSuggestion: "Vorschlag",
+    insightFlag: "Markierung",
+    insightConstraint: "Vorgabe",
+    insightFrom: "von",
+    loadingInsights: "Erkenntnisse werden geladen ...",
+    insightsLoadFailed: "Erkenntnisse konnten nicht geladen werden:",
+    noInsights: "Keine aktiven Erkenntnisse auf der Tafel. Sie erscheinen hier, sobald Agenten übergreifende Punkte markieren, die andere Agenten berücksichtigen sollen.",
+    blackboard: "Tafel",
+    insightsActive: "{count} aktiv",
+    characterChat: "Figurengespräch",
+    reset: "Zurücksetzen",
+    sessionTimedOut: "Sitzung abgelaufen. Teilergebnisse wurden gespeichert.",
+    extendFifteen: "Um 15 Min. verlängern",
+    showInText: "Im Text zeigen",
+    switchProvider: "Anbieter wechseln",
+    approve: "Annehmen",
+    modify: "Ändern",
+    reject: "Ablehnen",
+    timedOut: "Abgelaufen",
+    approved: "Angenommen",
+    rejected: "Abgelehnt",
+    modified: "Geändert",
+    previousTimedOut: "Vorherige Sitzung ist abgelaufen — erneut starten, um fortzufahren",
+    clearQueue: "Leeren",
+    startAll: "Alle starten",
+    queueCount: "Warteschlange ({count})",
+    chooseJourney: "Wählen Sie einen geführten Weg durch Ihr Buchprojekt:",
+    addToQueue: "Zur Warteschlange hinzufügen",
+    stepOptional: "optional",
+    perChapter: "pro Kapitel",
+    startThisStep: "Diesen Schritt starten",
+    chapterAbbrev: "Kap.",
+  },
+
+  editorialUI: {
+    actionApply: "übernommen",
+    actionDismiss: "verworfen",
+    actionUndo: "rückgängig",
+    actionSessionComplete: "Sitzung abgeschlossen",
+    useIt: "Übernehmen",
+    keepAsIs: "So lassen",
+    capReached: "Grenze von 3 Wortwechseln erreicht — entscheiden Sie oben oder machen Sie rückgängig, um zu überarbeiten.",
+  },
 };
 
 const ES: UIStrings = {
@@ -5299,6 +5538,65 @@ const ES: UIStrings = {
     memoryUpdated: "Memoria actualizada",
     onboardingReadyToWrite: "Todo listo: empecemos con tu primer libro.",
     onboardingComplete: "¡Configuración completa! Te damos la bienvenida a Write My Book OK.",
+  },
+
+  agentUI: {
+    noContextTitle: "Abre un libro o una serie para usar el agente",
+    noContextHint: "Ve a un libro o una serie para acceder a los flujos de escritura.",
+    activeBook: "Libro activo:",
+    seriesNeedsBook: "Añade un libro a esta serie para usar el agente.",
+    continueWhereLeftOff: "Continuar donde lo dejó",
+    lastResponse: "Última respuesta",
+    working: "Trabajando...",
+    agentWorking: "El agente está trabajando...",
+    companionBlurb: "Tu compañero de escritura con IA. Pulsa una acción rápida o amplía para la experiencia completa.",
+    quickActions: "Acciones rápidas",
+    allWorkflows: "Todos los flujos de trabajo...",
+    completed: "Completado",
+    openFullPanel: "Abrir el panel completo",
+    insightWarning: "advertencia",
+    insightSuggestion: "sugerencia",
+    insightFlag: "señal",
+    insightConstraint: "restricción",
+    insightFrom: "de",
+    loadingInsights: "Cargando ideas...",
+    insightsLoadFailed: "No se pudieron cargar las ideas:",
+    noInsights: "No hay ideas activas en el tablero. Aparecen aquí cuando los agentes señalan asuntos transversales para que otros agentes los tengan en cuenta.",
+    blackboard: "Tablero",
+    insightsActive: "{count} activas",
+    characterChat: "Chat con el personaje",
+    reset: "Restablecer",
+    sessionTimedOut: "La sesión expiró. Se guardaron los resultados parciales.",
+    extendFifteen: "Ampliar +15 min",
+    showInText: "Mostrar en el texto",
+    switchProvider: "Cambiar de proveedor",
+    approve: "Aprobar",
+    modify: "Modificar",
+    reject: "Rechazar",
+    timedOut: "Expirada",
+    approved: "Aprobada",
+    rejected: "Rechazada",
+    modified: "Modificada",
+    previousTimedOut: "La sesión anterior expiró: vuelve a ejecutarla para continuar",
+    clearQueue: "Vaciar",
+    startAll: "Iniciar todo",
+    queueCount: "Cola ({count})",
+    chooseJourney: "Elige un recorrido guiado por tu proyecto de libro:",
+    addToQueue: "Añadir a la cola",
+    stepOptional: "opcional",
+    perChapter: "por capítulo",
+    startThisStep: "Iniciar este paso",
+    chapterAbbrev: "Cap.",
+  },
+
+  editorialUI: {
+    actionApply: "aplicado",
+    actionDismiss: "descartado",
+    actionUndo: "deshecho",
+    actionSessionComplete: "sesión completada",
+    useIt: "Usarlo",
+    keepAsIs: "Dejarlo como está",
+    capReached: "Límite de 3 intercambios alcanzado: decide arriba o deshaz para revisar.",
   },
 };
 
@@ -6366,6 +6664,65 @@ const FR: UIStrings = {
     onboardingReadyToWrite: "Tout est prêt — commençons votre premier livre.",
     onboardingComplete: "Configuration terminée ! Bienvenue dans Write My Book OK.",
   },
+
+  agentUI: {
+    noContextTitle: "Ouvrez un livre ou une série pour utiliser l’agent",
+    noContextHint: "Rendez-vous sur un livre ou une série pour accéder aux flux d’écriture.",
+    activeBook: "Livre actif :",
+    seriesNeedsBook: "Ajoutez un livre à cette série pour utiliser l’agent.",
+    continueWhereLeftOff: "Reprendre là où il s’est arrêté",
+    lastResponse: "Dernière réponse",
+    working: "Travail en cours...",
+    agentWorking: "L’agent travaille...",
+    companionBlurb: "Votre compagnon d’écriture IA. Cliquez sur une action rapide ou ouvrez la vue complète.",
+    quickActions: "Actions rapides",
+    allWorkflows: "Tous les flux de travail...",
+    completed: "Terminé",
+    openFullPanel: "Ouvrir le panneau complet",
+    insightWarning: "avertissement",
+    insightSuggestion: "suggestion",
+    insightFlag: "signalement",
+    insightConstraint: "contrainte",
+    insightFrom: "de",
+    loadingInsights: "Chargement des observations...",
+    insightsLoadFailed: "Impossible de charger les observations :",
+    noInsights: "Aucune observation active sur le tableau. Elles apparaissent ici lorsque les agents signalent des points transversaux à prendre en compte par les autres agents.",
+    blackboard: "Tableau",
+    insightsActive: "{count} actives",
+    characterChat: "Discussion avec le personnage",
+    reset: "Réinitialiser",
+    sessionTimedOut: "La session a expiré. Les résultats partiels ont été enregistrés.",
+    extendFifteen: "Prolonger de 15 min",
+    showInText: "Afficher dans le texte",
+    switchProvider: "Changer de fournisseur",
+    approve: "Approuver",
+    modify: "Modifier",
+    reject: "Rejeter",
+    timedOut: "Expirée",
+    approved: "Approuvée",
+    rejected: "Rejetée",
+    modified: "Modifiée",
+    previousTimedOut: "La session précédente a expiré — relancez-la pour continuer",
+    clearQueue: "Vider",
+    startAll: "Tout démarrer",
+    queueCount: "File d’attente ({count})",
+    chooseJourney: "Choisissez un parcours guidé dans votre projet de livre :",
+    addToQueue: "Ajouter à la file d’attente",
+    stepOptional: "facultatif",
+    perChapter: "par chapitre",
+    startThisStep: "Démarrer cette étape",
+    chapterAbbrev: "Chap.",
+  },
+
+  editorialUI: {
+    actionApply: "appliqué",
+    actionDismiss: "écarté",
+    actionUndo: "annulé",
+    actionSessionComplete: "session terminée",
+    useIt: "L’utiliser",
+    keepAsIs: "Garder tel quel",
+    capReached: "Limite de 3 échanges atteinte — décidez ci-dessus ou annulez pour réviser.",
+  },
 };
 
 const RU: UIStrings = {
@@ -7432,6 +7789,65 @@ const RU: UIStrings = {
     onboardingReadyToWrite: "Всё готово — начнём вашу первую книгу.",
     onboardingComplete: "Настройка завершена! Добро пожаловать в Write My Book OK.",
   },
+
+  agentUI: {
+    noContextTitle: "Откройте книгу или серию, чтобы использовать агента",
+    noContextHint: "Перейдите к книге или серии, чтобы открыть рабочие процессы письма.",
+    activeBook: "Активная книга:",
+    seriesNeedsBook: "Добавьте книгу в эту серию, чтобы использовать агента.",
+    continueWhereLeftOff: "Продолжить с того места, где остановился",
+    lastResponse: "Последний ответ",
+    working: "Работаю...",
+    agentWorking: "Агент работает...",
+    companionBlurb: "Ваш ИИ-помощник в письме. Нажмите быстрое действие или разверните полный режим.",
+    quickActions: "Быстрые действия",
+    allWorkflows: "Все рабочие процессы...",
+    completed: "Завершено",
+    openFullPanel: "Открыть полную панель",
+    insightWarning: "предупреждение",
+    insightSuggestion: "предложение",
+    insightFlag: "метка",
+    insightConstraint: "ограничение",
+    insightFrom: "от",
+    loadingInsights: "Загружаю наблюдения...",
+    insightsLoadFailed: "Не удалось загрузить наблюдения:",
+    noInsights: "На доске нет активных наблюдений. Они появляются здесь, когда агенты отмечают сквозные вопросы, которые должны учесть другие агенты.",
+    blackboard: "Доска",
+    insightsActive: "активных: {count}",
+    characterChat: "Разговор с персонажем",
+    reset: "Сбросить",
+    sessionTimedOut: "Сессия истекла. Частичные результаты сохранены.",
+    extendFifteen: "Продлить на 15 мин",
+    showInText: "Показать в тексте",
+    switchProvider: "Сменить провайдера",
+    approve: "Принять",
+    modify: "Изменить",
+    reject: "Отклонить",
+    timedOut: "Истекла",
+    approved: "Принято",
+    rejected: "Отклонено",
+    modified: "Изменено",
+    previousTimedOut: "Предыдущая сессия истекла — запустите снова, чтобы продолжить",
+    clearQueue: "Очистить",
+    startAll: "Запустить все",
+    queueCount: "Очередь ({count})",
+    chooseJourney: "Выберите проводника по вашему книжному проекту:",
+    addToQueue: "Добавить в очередь",
+    stepOptional: "необязательно",
+    perChapter: "на главу",
+    startThisStep: "Начать этот шаг",
+    chapterAbbrev: "Гл.",
+  },
+
+  editorialUI: {
+    actionApply: "применено",
+    actionDismiss: "отклонено",
+    actionUndo: "отменено",
+    actionSessionComplete: "сессия завершена",
+    useIt: "Использовать",
+    keepAsIs: "Оставить как есть",
+    capReached: "Достигнут предел в 3 обмена — решите выше или отмените, чтобы переработать.",
+  },
 };
 
 const ZH: UIStrings = {
@@ -8497,6 +8913,65 @@ const ZH: UIStrings = {
     memoryUpdated: "记忆已更新",
     onboardingReadyToWrite: "一切就绪——开始你的第一本书吧。",
     onboardingComplete: "设置完成！欢迎使用 Write My Book OK。",
+  },
+
+  agentUI: {
+    noContextTitle: "打开一本书或一个系列后即可使用助手",
+    noContextHint: "请前往某本书或某个系列，以使用写作工作流。",
+    activeBook: "当前图书：",
+    seriesNeedsBook: "请先向该系列添加一本书，然后再使用助手。",
+    continueWhereLeftOff: "从上次中断处继续",
+    lastResponse: "最近回复",
+    working: "正在处理……",
+    agentWorking: "助手正在处理……",
+    companionBlurb: "你的 AI 写作伙伴。点击快捷操作，或展开体验完整功能。",
+    quickActions: "快捷操作",
+    allWorkflows: "全部工作流……",
+    completed: "已完成",
+    openFullPanel: "打开完整面板",
+    insightWarning: "警告",
+    insightSuggestion: "建议",
+    insightFlag: "标记",
+    insightConstraint: "约束",
+    insightFrom: "来自",
+    loadingInsights: "正在加载洞察……",
+    insightsLoadFailed: "加载洞察失败：",
+    noInsights: "黑板上暂无活动洞察。当助手标记出需要其他助手考虑的跨领域问题时，它们会显示在这里。",
+    blackboard: "黑板",
+    insightsActive: "{count} 条活动",
+    characterChat: "角色对话",
+    reset: "重置",
+    sessionTimedOut: "会话已超时。已保存部分结果。",
+    extendFifteen: "延长 15 分钟",
+    showInText: "在正文中显示",
+    switchProvider: "切换服务商",
+    approve: "批准",
+    modify: "修改",
+    reject: "拒绝",
+    timedOut: "已超时",
+    approved: "已批准",
+    rejected: "已拒绝",
+    modified: "已修改",
+    previousTimedOut: "上一次会话已超时——请重新运行以继续",
+    clearQueue: "清空",
+    startAll: "全部开始",
+    queueCount: "队列（{count}）",
+    chooseJourney: "选择一条贯穿你图书项目的引导路径：",
+    addToQueue: "加入队列",
+    stepOptional: "可选",
+    perChapter: "每章",
+    startThisStep: "开始此步骤",
+    chapterAbbrev: "章节",
+  },
+
+  editorialUI: {
+    actionApply: "采纳",
+    actionDismiss: "忽略",
+    actionUndo: "撤销",
+    actionSessionComplete: "会话完成",
+    useIt: "采用",
+    keepAsIs: "保持原样",
+    capReached: "已达到 3 轮对话上限——请在上方决定，或撤销后重新修改。",
   },
 };
 
