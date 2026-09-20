@@ -13,6 +13,7 @@ import { estimateCost } from "@/lib/cost";
 import { isOverBudget, isBudgetWarning, resolveEndReason } from "./budget";
 import { approvalCacheKey, isCacheableDecision, type ApprovalCache } from "./approval-cache";
 import { enforceBookScript } from "./serbian-script";
+import { getAgentStrings } from "@/lib/i18n/agent-strings";
 import {
   withProviderRetry,
   ProviderError,
@@ -521,9 +522,17 @@ export class AgentOrchestrator {
           {
             provider: this.providerKey,
             onRetry: (attempt, waitMs, error) => {
+              // H-8: a status line is rendered verbatim by the client, so it
+              // is the writer's language. The provider's own message keeps
+              // its wording — it names a key, an account or a rate limit.
+              const strings = getAgentStrings(options.context.language ?? "en");
+              const retry = strings.statusRetrying
+                .replace("{seconds}", String(waitMs / 1000))
+                .replace("{attempt}", String(attempt))
+                .replace("{max}", String(RETRY_CONFIG.maxRetries));
               options.onMessage({
                 type: "status",
-                content: `${error.userMessage} Retrying in ${waitMs / 1000}s... (attempt ${attempt}/${RETRY_CONFIG.maxRetries})`,
+                content: `${error.userMessage} ${retry}`,
               });
             },
           }
@@ -803,11 +812,14 @@ export class AgentOrchestrator {
           // below) — arm the final wrap-up turn and deliver the nudge on it.
           finalTurnRequested = true;
           endReason = resolveEndReason(overBudget, overTime);
+          const wrapUpStrings = getAgentStrings(options.context.language ?? "en");
           options.onMessage({
             type: "status",
             content: overBudget
-              ? `Budget reached ($${budgetedCost.toFixed(2)}/$${this.maxSessionCostUsd.toFixed(2)}) — wrapping up.`
-              : "Time limit reached — wrapping up.",
+              ? wrapUpStrings.statusBudgetReached
+                  .replace("{spent}", `$${budgetedCost.toFixed(2)}`)
+                  .replace("{cap}", `$${this.maxSessionCostUsd.toFixed(2)}`)
+              : wrapUpStrings.statusTimeLimit,
             metadata: { budgetStop: true, endReason },
           });
           // The crossing turn's tool calls still execute once (lets the agent

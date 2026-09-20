@@ -60,7 +60,7 @@ function useBreadcrumbs(): Breadcrumb[] {
     reports: t.nav.reports,
     style: t.nav.style,
     setup: t.nav.setup,
-    billing: "Billing",
+    billing: t.nav.billing,
   };
 
   let href = "";
@@ -71,12 +71,12 @@ function useBreadcrumbs(): Breadcrumb[] {
     if (segmentMap[seg]) {
       crumbs.push({ label: segmentMap[seg], href });
     } else if (bookId && seg === bookId) {
-      crumbs.push({ label: book?.name ?? "Book", href });
+      crumbs.push({ label: book?.name ?? t.workspaceUI.book, href });
     } else if (chapterId && seg === chapterId) {
       const chapter = book?.chapters?.find((ch) => ch.id === chapterId);
       const label = chapter
         ? `Ch.${chapter.chapterNumber}${chapter.title ? `: ${chapter.title}` : ""}`
-        : "Chapter";
+        : t.snapshot.chapter;
       const badge = chapter?.status?.replace(/_/g, " ");
       crumbs.push({ label, href, badge });
     }

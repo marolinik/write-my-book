@@ -73,6 +73,15 @@ export interface AgentStrings {
   // hardcoded English and injected into every run, whatever the book's
   // language — English framing around Serbian content is exactly the drift
   // the script and language work spent the last session removing.
+  /**
+   * H-8: the agent stream's own status lines. The client renders a `status`
+   * message verbatim, so these were English sentences inside an otherwise
+   * Serbian conversation.
+   */
+  statusRetrying: string;
+  statusBudgetReached: string;
+  statusTimeLimit: string;
+
   /** A-44: heading above the passages a continuity finding conflicts with. */
   conflictingPassages: string;
   memoryHeader: string;
@@ -143,6 +152,9 @@ const EN: AgentStrings = {
   prereqAction: "Run: {workflow}",
   prereqChapter: "Choose a chapter first — this pass works on one chapter.",
   artifactRecovered: "Saved your {label} as a document — the assistant wrote it into the chat but never saved it, so the product persisted it for you. You can find it in this book's documents.",
+  statusRetrying: "Retrying in {seconds}s — attempt {attempt} of {max}.",
+  statusBudgetReached: "Budget reached ({spent} of {cap}) — wrapping up.",
+  statusTimeLimit: "Time limit reached — wrapping up.",
   conflictingPassages: "Conflicting passages",
   memoryHeader: "IMPORTANT: The writer has told you the following. Respect these across all interactions.",
   sessionContinuityHeader: "Recent session summaries — use these to maintain continuity:",
@@ -318,6 +330,9 @@ const SR: AgentStrings = {
   prereqAction: "Pokreni: {workflow}",
   prereqChapter: "Prvo izaberi poglavlje — ovaj prolaz radi na jednom poglavlju.",
   artifactRecovered: "Sačuvali smo {label} kao dokument — asistent ga je napisao u ćaskanju, ali ga nikada nije sačuvao. Naći ćeš ga među dokumentima ove knjige.",
+  statusRetrying: "Novi pokušaj za {seconds}s — pokušaj {attempt} od {max}.",
+  statusBudgetReached: "Dostignut budžet ({spent} od {cap}) — privodimo kraju.",
+  statusTimeLimit: "Dostignuto vremensko ograničenje — privodimo kraju.",
   conflictingPassages: "Pasusi koji su u sukobu",
   memoryHeader: "VAŽNO: Pisac ti je rekao sledeće. Poštuj ovo u svakoj interakciji.",
   sessionContinuityHeader: "Sažeci nedavnih sesija — koristi ih da održiš kontinuitet:",
@@ -493,6 +508,9 @@ const DE: AgentStrings = {
   prereqAction: "Starten: {workflow}",
   prereqChapter: "Wähle zuerst ein Kapitel — dieser Durchgang arbeitet an einem Kapitel.",
   artifactRecovered: "{label} wurde als Dokument gespeichert — der Assistent hat es in den Chat geschrieben, aber nie gespeichert. Du findest es bei den Dokumenten dieses Buches.",
+  statusRetrying: "Neuer Versuch in {seconds}s — Versuch {attempt} von {max}.",
+  statusBudgetReached: "Budget erreicht ({spent} von {cap}) — wir schließen ab.",
+  statusTimeLimit: "Zeitlimit erreicht — wir schließen ab.",
   conflictingPassages: "Widersprüchliche Textstellen",
   memoryHeader: "WICHTIG: Der Autor hat dir Folgendes mitgeteilt. Beachte es in jeder Interaktion.",
   sessionContinuityHeader: "Zusammenfassungen der letzten Sitzungen — nutze sie für die Kontinuität:",
@@ -668,6 +686,9 @@ const ES: AgentStrings = {
   prereqAction: "Ejecutar: {workflow}",
   prereqChapter: "Elige primero un capítulo: esta pasada trabaja sobre un solo capítulo.",
   artifactRecovered: "Hemos guardado {label} como documento: el asistente lo escribió en el chat pero nunca lo guardó. Lo encontrarás en los documentos de este libro.",
+  statusRetrying: "Reintentando en {seconds}s — intento {attempt} de {max}.",
+  statusBudgetReached: "Presupuesto alcanzado ({spent} de {cap}) — cerrando.",
+  statusTimeLimit: "Límite de tiempo alcanzado — cerrando.",
   conflictingPassages: "Pasajes en conflicto",
   memoryHeader: "IMPORTANTE: El escritor te ha dicho lo siguiente. Respétalo en todas las interacciones.",
   sessionContinuityHeader: "Resúmenes de sesiones recientes — úsalos para mantener la continuidad:",
@@ -843,6 +864,9 @@ const FR: AgentStrings = {
   prereqAction: "Lancer : {workflow}",
   prereqChapter: "Choisissez d'abord un chapitre — cette passe travaille sur un seul chapitre.",
   artifactRecovered: "{label} a été enregistré comme document — l'assistant l'a écrit dans le chat sans jamais l'enregistrer. Vous le trouverez dans les documents de ce livre.",
+  statusRetrying: "Nouvelle tentative dans {seconds}s — tentative {attempt} sur {max}.",
+  statusBudgetReached: "Budget atteint ({spent} sur {cap}) — on conclut.",
+  statusTimeLimit: "Limite de temps atteinte — on conclut.",
   conflictingPassages: "Passages en contradiction",
   memoryHeader: "IMPORTANT : l'auteur vous a indiqué ce qui suit. Respectez-le à chaque interaction.",
   sessionContinuityHeader: "Résumés des sessions récentes — utilisez-les pour maintenir la continuité :",
@@ -1018,6 +1042,9 @@ const RU: AgentStrings = {
   prereqAction: "Запустить: {workflow}",
   prereqChapter: "Сначала выберите главу — этот проход работает по одной главе.",
   artifactRecovered: "{label} сохранён как документ — ассистент написал его в чате, но так и не сохранил. Вы найдёте его в документах этой книги.",
+  statusRetrying: "Повтор через {seconds} с — попытка {attempt} из {max}.",
+  statusBudgetReached: "Бюджет исчерпан ({spent} из {cap}) — завершаем.",
+  statusTimeLimit: "Достигнут лимит времени — завершаем.",
   conflictingPassages: "Противоречащие фрагменты",
   memoryHeader: "ВАЖНО: писатель сообщил вам следующее. Учитывайте это во всех взаимодействиях.",
   sessionContinuityHeader: "Сводки недавних сессий — используйте их для преемственности:",
@@ -1193,6 +1220,9 @@ const ZH: AgentStrings = {
   prereqAction: "运行：{workflow}",
   prereqChapter: "请先选择章节——本次处理只针对一章。",
   artifactRecovered: "已将{label}保存为文档——助手把它写在了对话里却没有保存，我们替你存了下来。可在本书的文档中找到。",
+  statusRetrying: "{seconds} 秒后重试——第 {attempt} 次，共 {max} 次。",
+  statusBudgetReached: "已达预算（{spent}／{cap}）——正在收尾。",
+  statusTimeLimit: "已达时间上限——正在收尾。",
   conflictingPassages: "冲突段落",
   memoryHeader: "重要：作者已告知以下内容。在所有交互中都要遵守。",
   sessionContinuityHeader: "近期会话摘要——用它们保持连续性：",

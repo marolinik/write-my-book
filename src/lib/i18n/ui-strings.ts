@@ -9,6 +9,8 @@ export interface UIStrings {
     dashboard: string;
     books: string;
     series: string;
+    /** H-3 / Lo-2: the billing page, named in English in the palette and the header. */
+    billing: string;
     navigation: string;
     overview: string;
     documents: string;
@@ -849,6 +851,9 @@ export interface UIStrings {
     recent: string;
     noResults: string;
     actions: string;
+    // H-3: the palette's own group heading for the book you are in. The other
+    // headings existed here all along and the component printed English.
+    currentBook: string;
   };
 
   // Wiki
@@ -979,6 +984,7 @@ const EN: UIStrings = {
     dashboard: "Dashboard",
     books: "Books",
     series: "Series",
+    billing: "Billing",
     navigation: "Navigation",
     overview: "Overview",
     documents: "Documents",
@@ -1849,6 +1855,7 @@ const EN: UIStrings = {
     recent: "Recent",
     noResults: "No results found",
     actions: "Actions",
+    currentBook: "Current book",
   },
   wiki: {
     title: "World Wiki",
@@ -2009,6 +2016,7 @@ const SR: UIStrings = {
     dashboard: "Kontrolna tabla",
     books: "Knjige",
     series: "Serijali",
+    billing: "Naplata",
     navigation: "Navigacija",
     overview: "Pregled",
     documents: "Dokumenta",
@@ -2868,6 +2876,7 @@ const SR: UIStrings = {
     recent: "Nedavno",
     noResults: "Nema rezultata",
     actions: "Radnje",
+    currentBook: "Trenutna knjiga",
   },
   wiki: {
     title: "Wiki sveta",
@@ -3028,6 +3037,7 @@ const DE: UIStrings = {
     dashboard: "Dashboard",
     books: "Bücher",
     series: "Serien",
+    billing: "Abrechnung",
     navigation: "Navigation",
     overview: "Übersicht",
     documents: "Dokumente",
@@ -3887,6 +3897,7 @@ const DE: UIStrings = {
     recent: "Zuletzt",
     noResults: "Keine Ergebnisse",
     actions: "Aktionen",
+    currentBook: "Aktuelles Buch",
   },
   wiki: {
     title: "Welt-Wiki",
@@ -4047,6 +4058,7 @@ const ES: UIStrings = {
     dashboard: "Panel",
     books: "Libros",
     series: "Series",
+    billing: "Facturación",
     navigation: "Navegación",
     overview: "Vista general",
     documents: "Documentos",
@@ -4906,6 +4918,7 @@ const ES: UIStrings = {
     recent: "Reciente",
     noResults: "Sin resultados",
     actions: "Acciones",
+    currentBook: "Libro actual",
   },
   wiki: {
     title: "Wiki del mundo",
@@ -5066,6 +5079,7 @@ const FR: UIStrings = {
     dashboard: "Tableau de bord",
     books: "Livres",
     series: "Séries",
+    billing: "Facturation",
     navigation: "Navigation",
     overview: "Aperçu",
     documents: "Documents",
@@ -5925,6 +5939,7 @@ const FR: UIStrings = {
     recent: "Récent",
     noResults: "Aucun résultat",
     actions: "Actions",
+    currentBook: "Livre actuel",
   },
   wiki: {
     title: "Wiki du monde",
@@ -6085,6 +6100,7 @@ const RU: UIStrings = {
     dashboard: "Панель",
     books: "Книги",
     series: "Серии",
+    billing: "Оплата",
     navigation: "Навигация",
     overview: "Обзор",
     documents: "Документы",
@@ -6944,6 +6960,7 @@ const RU: UIStrings = {
     recent: "Недавнее",
     noResults: "Ничего не найдено",
     actions: "Действия",
+    currentBook: "Текущая книга",
   },
   wiki: {
     title: "Вики мира",
@@ -7104,6 +7121,7 @@ const ZH: UIStrings = {
     dashboard: "控制面板",
     books: "书籍",
     series: "系列",
+    billing: "账单",
     navigation: "导航",
     overview: "概览",
     documents: "文档",
@@ -7963,6 +7981,7 @@ const ZH: UIStrings = {
     recent: "最近",
     noResults: "未找到结果",
     actions: "操作",
+    currentBook: "当前书籍",
   },
   wiki: {
     title: "世界百科",
