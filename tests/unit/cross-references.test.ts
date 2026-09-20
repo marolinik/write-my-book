@@ -168,8 +168,8 @@ describe("the scaffolding inside the context blocks", () => {
 
   it("is passed the language by the assembler", () => {
     const assembler = read("lib", "agents", "prompt-assembler.ts");
-    expect(assembler).toMatch(/formatWriterMemoryForPrompt\([^)]*context\.language/s);
-    expect(assembler).toMatch(/formatBriefsForPrompt\([^)]*context\.language/s);
+    expect(assembler).toMatch(/formatWriterMemoryForPrompt\([^)]*context\.language/);
+    expect(assembler).toMatch(/formatBriefsForPrompt\([^)]*context\.language/);
   });
 });
 
