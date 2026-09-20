@@ -98,21 +98,27 @@ describe("the dictionaries behind the localized areas", () => {
   /**
    * Words that are genuinely the same in a language as in English. Anything
    * not listed here that matches English is an untranslated copy-paste.
+   *
+   * `enterprise` is the fourth entry in a plan list whose other three names —
+   * Founder, Professional, Publisher — come from `billing/stripe-client.ts`
+   * and are product names, not words. Translating only the fourth would make
+   * the list read as a mistake (M-9, decided rather than changed).
    */
   const COGNATES: Record<string, string[]> = {
     // The readability indices are named after their authors — proper nouns
     // in every language.
-    sr: ["fleschKincaid", "gunningFog", "colemanLiau"],
+    sr: ["fleschKincaid", "gunningFog", "colemanLiau", "enterprise"],
     de: [
       "stepOptional", "syntax", "focusNormal", "upgrade", "name", "median",
       "register", "fleschKincaid", "gunningFog", "colemanLiau",
       "contextEditor", "themeSystem", "ghostwriter", "coach", "analyst",
       "profileStandard", "coverCropZoom", "coverCropPosition", "coverCropPositionH",
+      "enterprise", "workflows",
     ],
     es: [
       "focusNormal", "error", "fleschKincaid", "gunningFog", "colemanLiau",
       "contextEditor", "coach", "editor", "coverCropZoom", "coverCropPositionH",
-      "coverCropPositionV",
+      "coverCropPositionV", "enterprise",
     ],
     fr: [
       "insightSuggestion", "focusNormal", "seriesTabDocuments", "seriesTabStructure",
@@ -120,9 +126,10 @@ describe("the dictionaries behind the localized areas", () => {
       "architecture", "documents", "sessionsUnit", "coach", "styleSection",
       "strict", "profileStandard", "coverCropZoom", "coverCropPosition",
       "coverCropPositionH", "coverCropPositionV", "consensus", "convergence",
+      "enterprise", "pages", "actions",
     ],
-    ru: ["gunningFog", "colemanLiau"],
-    zh: ["fleschKincaid", "gunningFog", "colemanLiau"],
+    ru: ["gunningFog", "colemanLiau", "enterprise"],
+    zh: ["fleschKincaid", "gunningFog", "colemanLiau", "enterprise"],
   };
 
   it("exist in every language", () => {
@@ -153,6 +160,9 @@ describe("the dictionaries behind the localized areas", () => {
       "pagesUI",
       "billingUI",
       "bookSettings",
+      "screens",
+      "commandPalette",
+      "editorial",
     ] as const;
     const untranslated: string[] = [];
 

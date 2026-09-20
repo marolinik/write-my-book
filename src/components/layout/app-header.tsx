@@ -7,6 +7,7 @@ import { BotIcon, SidebarIcon } from "lucide-react";
 
 import { useSidebar } from "@/components/ui/sidebar";
 import { useLanguage } from "@/components/providers/language-provider";
+import { getStatusLabel } from "@/lib/i18n/ui-strings";
 import { useBook } from "@/hooks/use-books";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -36,7 +37,7 @@ interface Breadcrumb {
 function useBreadcrumbs(): Breadcrumb[] {
   const pathname = usePathname();
   const params = useParams();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const bookId = params?.bookId as string | undefined;
   const chapterId = params?.chapterId as string | undefined;
   const { data: book } = useBook(bookId ?? "");
@@ -75,9 +76,13 @@ function useBreadcrumbs(): Breadcrumb[] {
     } else if (chapterId && seg === chapterId) {
       const chapter = book?.chapters?.find((ch) => ch.id === chapterId);
       const label = chapter
-        ? `Ch.${chapter.chapterNumber}${chapter.title ? `: ${chapter.title}` : ""}`
+        ? `${t.agentUI.chapterAbbrev}${chapter.chapterNumber}${chapter.title ? `: ${chapter.title}` : ""}`
         : t.snapshot.chapter;
-      const badge = chapter?.status?.replace(/_/g, " ");
+      // Lo-2: the badge printed the raw enum ("beta_read") in English; the
+      // status table has a writer-facing label for every one of them.
+      const badge = chapter?.status
+        ? getStatusLabel(chapter.status, language)
+        : undefined;
       crumbs.push({ label, href, badge });
     }
   }

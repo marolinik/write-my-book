@@ -1010,7 +1010,7 @@ export const SR: UIStrings = {
     tabFindings: "Nalazi",
     tabHistory: "Istorija",
     tabSummary: "Sažetak",
-    tabHandoff: "Handoff",
+    tabHandoff: "Primopredaja",
     handoff: {
       storySynopsis: "Sinopsis priče",
       noSynopsis: "Još nema sinopsisa priče — pokrenite tok rada „Napiši sinopsis\" da ga generišete, pa pripremite izveštaj za klijenta odavde.",

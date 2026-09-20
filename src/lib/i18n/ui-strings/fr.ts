@@ -940,7 +940,7 @@ export const FR: UIStrings = {
   commandPalette: {
     placeholder: "Rechercher commandes, chapitres, workflows...",
     chapters: "Chapitres",
-    workflows: "Workflows",
+    workflows: "Flux de travail",
     pages: "Pages",
     recent: "Récent",
     noResults: "Aucun résultat",
