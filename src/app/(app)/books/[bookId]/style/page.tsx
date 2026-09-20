@@ -61,9 +61,7 @@ export default function StylePage({
             href={`/books/${bookId}/setup`}
             className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
-            <ArrowLeftIcon className="size-3" />
-            Back to Setup
-          </Link>
+            <ArrowLeftIcon className="size-3" />{t.pagesUI.backToSetup}</Link>
         </div>
       )}
       <div className="flex items-start justify-between">

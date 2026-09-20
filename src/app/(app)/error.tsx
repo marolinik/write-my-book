@@ -22,22 +22,16 @@ export default function AppError({
     <div className="flex flex-1 items-center justify-center p-8">
       <div className="text-center space-y-4">
         <h1 className="text-3xl font-bold">{t.screens.somethingWentWrong}</h1>
-        <p className="text-muted-foreground max-w-md mx-auto">
-          An error occurred while loading this page.
-        </p>
+        <p className="text-muted-foreground max-w-md mx-auto">{t.pagesUI.errorOccurred}</p>
         <div className="flex gap-3 justify-center">
           <button
             onClick={() => reset()}
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-          >
-            Try again
-          </button>
+          >{t.common.tryAgain}</button>
           <Link
             href="/dashboard"
             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-          >
-            Go to dashboard
-          </Link>
+          >{t.pagesUI.goToDashboard}</Link>
         </div>
       </div>
     </div>

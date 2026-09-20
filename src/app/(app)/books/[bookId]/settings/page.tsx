@@ -245,9 +245,7 @@ export default function BookSettingsPage() {
           {/* Per-Role Overrides */}
           <div className="space-y-1">
             <h4 className="text-sm font-medium">{t.screens.perRoleOverrides}</h4>
-            <p className="text-xs text-muted-foreground">
-              Fine-tune which model each agent role uses for this book.
-            </p>
+            <p className="text-xs text-muted-foreground">{t.bookSettings.modelPerRoleHint}</p>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -274,9 +272,7 @@ export default function BookSettingsPage() {
               <InfoIcon className="size-3.5 text-muted-foreground" />
               <h4 className="text-sm font-medium">{t.screens.resolutionPreview}</h4>
             </div>
-            <p className="text-xs text-muted-foreground mb-3">
-              Shows which model will actually be used for each agent role in this book.
-            </p>
+            <p className="text-xs text-muted-foreground mb-3">{t.bookSettings.effectiveModelHint}</p>
             <div className="rounded-md border bg-muted/30 p-3 space-y-1.5">
               {AGENT_ROLES.map((role) => {
                 const resolved = resolveModelForRole(
@@ -434,29 +430,21 @@ export default function BookSettingsPage() {
       <Card className="border-destructive/50">
         <CardHeader>
           <CardTitle className="text-base text-destructive flex items-center gap-2">
-            <AlertTriangleIcon className="size-4" />
-            Danger Zone
-          </CardTitle>
-          <CardDescription>
-            Irreversible actions. Please be certain.
-          </CardDescription>
+            <AlertTriangleIcon className="size-4" />{t.bookSettings.dangerZone}</CardTitle>
+          <CardDescription>{t.bookSettings.dangerZoneHint}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium">{t.screens.deleteBook}</p>
-              <p className="text-xs text-muted-foreground">
-                Permanently delete this book and all its chapters, documents, agent sessions, and editorial findings.
-              </p>
+              <p className="text-xs text-muted-foreground">{t.bookSettings.deleteBookHint}</p>
             </div>
             <Button
               variant="destructive"
               size="sm"
               onClick={() => setDeleteDialogOpen(true)}
             >
-              <Trash2Icon className="mr-1 size-4" />
-              Delete Book
-            </Button>
+              <Trash2Icon className="mr-1 size-4" />{t.bookSettings.deleteBook}</Button>
           </div>
         </CardContent>
       </Card>
@@ -466,17 +454,11 @@ export default function BookSettingsPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="text-destructive flex items-center gap-2">
-              <AlertTriangleIcon className="size-5" />
-              Delete Book
-            </DialogTitle>
-            <DialogDescription>
-              This will permanently delete <strong>{book?.name ?? "this book"}</strong> and all related data including chapters, documents, agent sessions, and editorial findings. This action cannot be undone.
-            </DialogDescription>
+              <AlertTriangleIcon className="size-5" />{t.bookSettings.deleteBook}</DialogTitle>
+            <DialogDescription>{t.bookSettings.deleteConfirmIntro}<strong>{book?.name ?? "this book"}</strong>{t.bookSettings.deleteConfirmRest}</DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
-            <Label>
-              Type <strong>{book?.name ?? "DELETE"}</strong> to confirm:
-            </Label>
+            <Label>{t.bookSettings.typeLabel}<strong>{book?.name ?? "DELETE"}</strong>{t.bookSettings.toConfirm}</Label>
             <Input
               value={deleteConfirmText}
               onChange={(e) => setDeleteConfirmText(e.target.value)}
@@ -490,9 +472,7 @@ export default function BookSettingsPage() {
                 setDeleteDialogOpen(false);
                 setDeleteConfirmText("");
               }}
-            >
-              Cancel
-            </Button>
+            >{t.common.cancel}</Button>
             <Button
               variant="destructive"
               disabled={
@@ -511,9 +491,7 @@ export default function BookSettingsPage() {
             >
               {deleteMutation.isPending ? (
                 <>
-                  <Loader2Icon className="mr-1 size-4 animate-spin" />
-                  Deleting...
-                </>
+                  <Loader2Icon className="mr-1 size-4 animate-spin" />{t.bookSettings.deleting}</>
               ) : (
                 "Delete permanently"
               )}

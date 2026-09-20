@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FileTextIcon, ArrowLeftIcon } from "lucide-react";
 import { requireUser } from "@/lib/auth";
+import { getUIStrings, localeFor } from "@/lib/i18n/ui-strings";
 import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import {
@@ -46,6 +47,8 @@ export default async function SeriesDocumentsPage({
   params: Promise<{ seriesId: string }>;
 }) {
   const user = await requireUser();
+  const t = getUIStrings(user.preferredLanguage ?? "en");
+  const locale = localeFor(user.preferredLanguage ?? "en");
   const { seriesId } = await params;
 
   const series = await db.series.findFirst({
@@ -73,13 +76,9 @@ export default async function SeriesDocumentsPage({
       <div>
         <Button asChild variant="ghost" size="sm" className="mb-4 -ml-2">
           <Link href={`/series/${seriesId}`}>
-            <ArrowLeftIcon className="mr-1 size-4" />
-            Back to series
-          </Link>
+            <ArrowLeftIcon className="mr-1 size-4" />{t.pagesUI.backToSeries}</Link>
         </Button>
-        <h1 className="font-display text-3xl font-semibold tracking-tight">
-          Documents
-        </h1>
+        <h1 className="font-display text-3xl font-semibold tracking-tight">{t.nav.documents}</h1>
         <p className="text-muted-foreground">
           Everything created in &ldquo;{series.title}&rdquo;.
         </p>
@@ -87,22 +86,18 @@ export default async function SeriesDocumentsPage({
 
       {seriesDocs.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-            Series-level
-          </h2>
+          <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">{t.pagesUI.seriesLevel}</h2>
           {seriesDocs.map((doc) => (
-            <DocCard key={doc.id} doc={doc} bookName={null} seriesId={seriesId} />
+            <DocCard locale={locale} key={doc.id} doc={doc} bookName={null} seriesId={seriesId} />
           ))}
         </div>
       )}
 
       {bookDocs.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-            Book-level
-          </h2>
+          <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">{t.pagesUI.bookLevel}</h2>
           {bookDocs.map((doc) => (
-            <DocCard key={doc.id} doc={doc} bookName={bookNameById.get(doc.bookId!) ?? null} seriesId={seriesId} />
+            <DocCard locale={locale} key={doc.id} doc={doc} bookName={bookNameById.get(doc.bookId!) ?? null} seriesId={seriesId} />
           ))}
         </div>
       )}
@@ -111,11 +106,7 @@ export default async function SeriesDocumentsPage({
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
             <FileTextIcon className="size-10 text-muted-foreground/40 mb-4" />
-            <p className="text-sm text-muted-foreground">
-              No documents yet. Run an agent (style capture, story bible,
-              architecture) on any book in this series and the result appears
-              here.
-            </p>
+            <p className="text-sm text-muted-foreground">{t.pagesUI.noSeriesDocs}</p>
           </CardContent>
         </Card>
       )}
@@ -123,7 +114,13 @@ export default async function SeriesDocumentsPage({
   );
 }
 
-function DocCard({ doc, bookName, seriesId }: { doc: DocRow; bookName: string | null; seriesId: string }) {
+function DocCard({ doc, bookName, seriesId, locale }: {
+  doc: DocRow;
+  bookName: string | null;
+  seriesId: string;
+  /** M-5: the card formats a date, so the writer's locale travels with it. */
+  locale: string;
+}) {
   const label = TYPE_LABELS[doc.type] ?? doc.type;
   const subtitle = bookName ? `Book: ${bookName}` : "Series-wide";
   const ch = doc.chapterNumber ? ` · Ch.${doc.chapterNumber}` : "";
@@ -142,7 +139,7 @@ function DocCard({ doc, bookName, seriesId }: { doc: DocRow; bookName: string | 
               </CardDescription>
             </div>
             <span className="text-xs text-muted-foreground shrink-0">
-              {new Date(doc.updatedAt).toLocaleDateString()}
+              {new Date(doc.updatedAt).toLocaleDateString(locale)}
             </span>
           </div>
         </CardHeader>

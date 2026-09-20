@@ -265,6 +265,17 @@ export interface UIStrings {
 
   // Book settings
   bookSettings: {
+    modelPerRoleHint: string;
+    effectiveModelHint: string;
+    dangerZone: string;
+    dangerZoneHint: string;
+    deleteBookHint: string;
+    deleteBook: string;
+    deleteConfirmIntro: string;
+    deleteConfirmRest: string;
+    typeLabel: string;
+    toConfirm: string;
+    deleting: string;
     title: string; subtitle: string;
     aiModels: string; aiModelsDesc: string;
     ghostwriter: string; ghostwriterDesc: string;
@@ -1275,6 +1286,51 @@ export interface UIStrings {
     contextEditor: string;
     contextAgent: string;
     dialogHint: string;
+  };
+
+  // H-10 - route-level chrome: the error and not-found pages, the series
+  // document views, and the buttons that move between them.
+  pagesUI: {
+    errorOccurred: string;
+    goToDashboard: string;
+    guidedSetupInstead: string;
+    setTargetInSettings: string;
+    findingsNeedReview: string;
+    review: string;
+    loadingDocument: string;
+    library: string;
+    startWriting: string;
+    backToSetup: string;
+    crossBookContinuity: string;
+    backToSeries: string;
+    seriesLevel: string;
+    bookLevel: string;
+    noSeriesDocs: string;
+    allDocuments: string;
+  };
+
+  // H-10 - the usage and billing page, including the sentence that explains
+  // the writer pays providers directly.
+  billingUI: {
+    usageAndBilling: string;
+    choosePlan: string;
+    stripeNotConfigured: string;
+    manageSubscription: string;
+    monthly: string;
+    annual: string;
+    saveSeventeen: string;
+    noCreditCard: string;
+    soldOut: string;
+    subscriptionExplainer: string;
+    yourSpend: string;
+    yourSpendHint: string;
+    estimatesInaccurate: string;
+    llmAgentCosts: string;
+    embeddingCosts: string;
+    noUsageData: string;
+    embeddings: string;
+    noDataYet: string;
+    noPerBookUsage: string;
   };
 }
 

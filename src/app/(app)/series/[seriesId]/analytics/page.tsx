@@ -1,4 +1,4 @@
-import { getUIStrings } from "@/lib/i18n/ui-strings";
+import { getUIStrings, localeFor } from "@/lib/i18n/ui-strings";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeftIcon } from "lucide-react";
@@ -28,6 +28,7 @@ export default async function SeriesAnalyticsPage({
 }) {
   const user = await requireUser();
   const t = getUIStrings(user.preferredLanguage ?? "en");
+  const locale = localeFor(user.preferredLanguage ?? "en");
   const { seriesId } = await params;
 
   const series = await db.series.findFirst({
@@ -52,13 +53,9 @@ export default async function SeriesAnalyticsPage({
       <div>
         <Button asChild variant="ghost" size="sm" className="mb-4 -ml-2">
           <Link href={`/series/${seriesId}`}>
-            <ArrowLeftIcon className="mr-1 size-4" />
-            Back to series
-          </Link>
+            <ArrowLeftIcon className="mr-1 size-4" />{t.pagesUI.backToSeries}</Link>
         </Button>
-        <h1 className="font-display text-3xl font-semibold tracking-tight">
-          Analytics
-        </h1>
+        <h1 className="font-display text-3xl font-semibold tracking-tight">{t.nav.analytics}</h1>
         <p className="text-muted-foreground">
           Progress across &ldquo;{series.title}&rdquo;.
         </p>
@@ -78,7 +75,7 @@ export default async function SeriesAnalyticsPage({
             <CardTitle className="text-sm font-medium">{t.workspaceUI.totalWords}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalWords.toLocaleString()}</div>
+            <div className="text-2xl font-bold">{totalWords.toLocaleString(locale)}</div>
           </CardContent>
         </Card>
         <Card>
@@ -113,7 +110,7 @@ export default async function SeriesAnalyticsPage({
                   #{book.bookNumber} — {book.name}
                 </CardTitle>
                 <span className="text-xs text-muted-foreground">
-                  {(book.wordCount ?? 0).toLocaleString()} words
+                  {(book.wordCount ?? 0).toLocaleString(locale)} {t.dashboard.words}
                 </span>
               </div>
               <CardDescription>

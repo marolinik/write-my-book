@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeftIcon } from "lucide-react";
 import { requireUser } from "@/lib/auth";
+import { getUIStrings, localeFor } from "@/lib/i18n/ui-strings";
 import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { DocumentService } from "@/lib/documents";
@@ -31,6 +32,8 @@ export default async function SeriesDocumentPage({
   params: Promise<{ seriesId: string; docId: string }>;
 }) {
   const user = await requireUser();
+  const t = getUIStrings(user.preferredLanguage ?? "en");
+  const locale = localeFor(user.preferredLanguage ?? "en");
   const { seriesId, docId } = await params;
 
   const series = await db.series.findFirst({
@@ -71,9 +74,7 @@ export default async function SeriesDocumentPage({
       <div>
         <Button asChild variant="ghost" size="sm" className="mb-4 -ml-2">
           <Link href={`/series/${seriesId}/documents`}>
-            <ArrowLeftIcon className="mr-1 size-4" />
-            All documents
-          </Link>
+            <ArrowLeftIcon className="mr-1 size-4" />{t.pagesUI.allDocuments}</Link>
         </Button>
         <h1 className="font-display text-3xl font-semibold tracking-tight">
           {doc.title ?? label}
@@ -82,7 +83,7 @@ export default async function SeriesDocumentPage({
           {label}
           {doc.chapterNumber ? ` · Chapter ${doc.chapterNumber}` : ""}
           {" · "}
-          {new Date(doc.updatedAt).toLocaleDateString()}
+          {new Date(doc.updatedAt).toLocaleDateString(locale)}
         </p>
       </div>
 

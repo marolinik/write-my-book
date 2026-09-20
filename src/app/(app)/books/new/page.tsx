@@ -240,9 +240,7 @@ export default function NewBookPage() {
                 disabled={createBook.isPending}
                 onClick={() => void createAndGo("setup")}
                 className="text-muted-foreground"
-              >
-                Guided setup instead
-              </Button>
+              >{t.pagesUI.guidedSetupInstead}</Button>
             </div>
           </form>
         </CardContent>

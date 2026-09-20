@@ -129,9 +129,7 @@ export default function SeriesDetailPage() {
             size="sm"
             onClick={() => openWithWorkflow("check-series-continuity")}
           >
-            <SearchCheckIcon className="mr-1 size-4" />
-            Cross-Book Continuity Check
-          </Button>
+            <SearchCheckIcon className="mr-1 size-4" />{t.pagesUI.crossBookContinuity}</Button>
         </div>
         {series.genre && (
           <p className="text-sm text-muted-foreground mt-1">{series.genre}</p>

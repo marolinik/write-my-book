@@ -35,6 +35,7 @@ const CLEAN_AREAS = [
   join("components", "billing"),
   join("components", "onboarding"),
   join("components", "layout"),
+  join("app", "(app)"),
 ];
 
 /**
@@ -45,7 +46,7 @@ const CLEAN_AREAS = [
 const SPAN = />([^<>{}]+)</g;
 
 /** Fragments that mean the match is code between two JSX islands, not prose. */
-const CODE_MARKERS = [";", "=>", "const ", "return ", "&&", "||", '"', "=== ", "//", "*/", "): "];
+const CODE_MARKERS = [";", "=>", "const ", "return ", "&&", "||", '"', "=== ", "//", "*/", "): ", " ? "];
 
 /** `) : isIdle ? (` and friends — a ternary straddling two JSX branches. */
 const TERNARY = /^\)?\s*:|\?\s*\($/;
@@ -59,7 +60,12 @@ function walk(dir: string): string[] {
 }
 
 function englishTextNodes(file: string): string[] {
-  const source = readFileSync(file, "utf-8");
+  // A JSX comment holds prose about the code, not copy for the reader.
+  const source = readFileSync(file, "utf-8").replace(
+    /\{?\/\*[\s\S]*?\*\/\}?/g,
+    // Blank it out but keep the newlines, so reported line numbers stay true.
+    (comment) => comment.replace(/[^\n]/g, " ")
+  );
   const found: string[] = [];
   for (const match of source.matchAll(SPAN)) {
     const text = match[1].split(/\s+/).filter(Boolean).join(" ");
@@ -100,13 +106,20 @@ describe("the dictionaries behind the localized areas", () => {
     de: [
       "stepOptional", "syntax", "focusNormal", "upgrade", "name", "median",
       "register", "fleschKincaid", "gunningFog", "colemanLiau",
-      "contextEditor", "themeSystem",
+      "contextEditor", "themeSystem", "ghostwriter", "coach", "analyst",
+      "profileStandard", "coverCropZoom", "coverCropPosition", "coverCropPositionH",
     ],
-    es: ["focusNormal", "error", "fleschKincaid", "gunningFog", "colemanLiau", "contextEditor"],
+    es: [
+      "focusNormal", "error", "fleschKincaid", "gunningFog", "colemanLiau",
+      "contextEditor", "coach", "editor", "coverCropZoom", "coverCropPositionH",
+      "coverCropPositionV",
+    ],
     fr: [
       "insightSuggestion", "focusNormal", "seriesTabDocuments", "seriesTabStructure",
       "type", "dialogue", "distribution", "fleschKincaid", "gunningFog", "colemanLiau",
-      "architecture", "documents", "sessionsUnit",
+      "architecture", "documents", "sessionsUnit", "coach", "styleSection",
+      "strict", "profileStandard", "coverCropZoom", "coverCropPosition",
+      "coverCropPositionH", "coverCropPositionV", "consensus", "convergence",
     ],
     ru: ["gunningFog", "colemanLiau"],
     zh: ["fleschKincaid", "gunningFog", "colemanLiau"],
@@ -137,6 +150,9 @@ describe("the dictionaries behind the localized areas", () => {
       "shortcuts",
       "appUI",
       "settings",
+      "pagesUI",
+      "billingUI",
+      "bookSettings",
     ] as const;
     const untranslated: string[] = [];
 

@@ -161,12 +161,8 @@ export default function BillingPage() {
 
   return (
     <div className="p-6 lg:p-8 max-w-6xl">
-      <h1 className="font-display text-3xl font-semibold tracking-tight">
-        Usage & Billing
-      </h1>
-      <p className="text-muted-foreground">
-        Choose your plan and track your AI token usage
-      </p>
+      <h1 className="font-display text-3xl font-semibold tracking-tight">{t.billingUI.usageAndBilling}</h1>
+      <p className="text-muted-foreground">{t.billingUI.choosePlan}</p>
 
       <Separator className="my-6" />
 
@@ -174,10 +170,7 @@ export default function BillingPage() {
       {!stripeConfigured && (
         <Card className="mb-6 border-yellow-300 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950/30">
           <CardContent className="py-4">
-            <p className="text-sm text-yellow-800 dark:text-yellow-200">
-              Stripe is not configured. Set STRIPE_SECRET_KEY in your
-              environment to enable billing.
-            </p>
+            <p className="text-sm text-yellow-800 dark:text-yellow-200">{t.billingUI.stripeNotConfigured}</p>
           </CardContent>
         </Card>
       )}
@@ -245,9 +238,7 @@ export default function BillingPage() {
                   onClick={() => manageBilling.mutate()}
                   disabled={manageBilling.isPending}
                 >
-                  <ExternalLink className="h-3.5 w-3.5" />
-                  Manage Subscription
-                </Button>
+                  <ExternalLink className="h-3.5 w-3.5" />{t.billingUI.manageSubscription}</Button>
               )}
             </div>
           </CardContent>
@@ -258,25 +249,19 @@ export default function BillingPage() {
       <div className="flex items-center justify-center gap-3 mb-6">
         <span
           className={`text-sm font-medium ${!annualBilling ? "text-foreground" : "text-muted-foreground"}`}
-        >
-          Monthly
-        </span>
+        >{t.billingUI.monthly}</span>
         <Switch
           checked={annualBilling}
           onCheckedChange={setAnnualBilling}
         />
         <span
           className={`text-sm font-medium ${annualBilling ? "text-foreground" : "text-muted-foreground"}`}
-        >
-          Annual
-        </span>
+        >{t.billingUI.annual}</span>
         {annualBilling && (
           <Badge
             variant="secondary"
             className="bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300"
-          >
-            Save ~17%
-          </Badge>
+          >{t.billingUI.saveSeventeen}</Badge>
         )}
       </div>
 
@@ -379,9 +364,7 @@ export default function BillingPage() {
                     for a user who has not already used a trial — a returning
                     trial-user is charged from day 1, so gate on !hasHadTrial. */}
                 {plan.badge === "14-day free trial" && !hasHadTrial && (
-                  <p className="-mt-2 mb-4 text-xs text-muted-foreground">
-                    No credit card required
-                  </p>
+                  <p className="-mt-2 mb-4 text-xs text-muted-foreground">{t.billingUI.noCreditCard}</p>
                 )}
 
                 {/* Actions */}
@@ -393,9 +376,7 @@ export default function BillingPage() {
                     onClick={() => manageBilling.mutate()}
                     disabled={manageBilling.isPending}
                   >
-                    <ExternalLink className="h-3.5 w-3.5" />
-                    Manage Subscription
-                  </Button>
+                    <ExternalLink className="h-3.5 w-3.5" />{t.billingUI.manageSubscription}</Button>
                 )}
                 {!isCurrent && stripeConfigured && !disabled && (
                   <Button
@@ -408,9 +389,7 @@ export default function BillingPage() {
                   </Button>
                 )}
                 {disabled && (
-                  <Button className="w-full" size="sm" disabled>
-                    Sold Out
-                  </Button>
+                  <Button className="w-full" size="sm" disabled>{t.billingUI.soldOut}</Button>
                 )}
               </CardContent>
             </Card>
@@ -440,12 +419,7 @@ export default function BillingPage() {
           <Info className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
           <div>
             <p className="font-medium">{t.screens.byok}</p>
-            <p className="text-sm text-muted-foreground mt-1">
-              Your subscription covers the WriteMyBook platform. You bring your
-              own AI API keys (Anthropic, OpenRouter, OpenAI, etc.) for LLM
-              costs. This means you pay actual provider rates with zero
-              markup.
-            </p>
+            <p className="text-sm text-muted-foreground mt-1">{t.billingUI.subscriptionExplainer}</p>
           </div>
         </CardContent>
       </Card>
@@ -464,12 +438,8 @@ export default function BillingPage() {
         <Card className="mb-6 border-green-200 bg-green-50/50 dark:border-green-900 dark:bg-green-950/20">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
-              <Key className="h-4 w-4" />
-              Your AI Spend — Your Keys
-            </CardTitle>
-            <CardDescription>
-              What you paid your AI providers directly, at their rates
-            </CardDescription>
+              <Key className="h-4 w-4" />{t.billingUI.yourSpend}</CardTitle>
+            <CardDescription>{t.billingUI.yourSpendHint}</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">{t.screens.totalSpent30}</p>
@@ -497,9 +467,7 @@ export default function BillingPage() {
                     <Badge
                       variant="secondary"
                       className="mt-2 bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300"
-                    >
-                      100% Your Keys
-                    </Badge>
+                    >{t.reportsUI.allYourKeys}</Badge>
                   );
                 }
                 return (
@@ -518,9 +486,7 @@ export default function BillingPage() {
           <CardContent className="flex items-start gap-3 py-4">
             <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
             <div>
-              <p className="font-medium text-amber-800 dark:text-amber-200">
-                Cost estimates may be inaccurate
-              </p>
+              <p className="font-medium text-amber-800 dark:text-amber-200">{t.billingUI.estimatesInaccurate}</p>
               <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
                 Over the last {usage.costDrift.sessionsAnalyzed} sessions,
                 estimated costs differed from actual costs by{" "}
@@ -563,9 +529,7 @@ export default function BillingPage() {
             <Card className="border-l-4 border-l-blue-500">
               <CardHeader className="pb-2">
                 <CardDescription className="flex items-center gap-2">
-                  <BrainCircuit className="h-4 w-4 text-blue-500" />
-                  LLM Agent Costs
-                </CardDescription>
+                  <BrainCircuit className="h-4 w-4 text-blue-500" />{t.billingUI.llmAgentCosts}</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold">
@@ -580,9 +544,7 @@ export default function BillingPage() {
             <Card className="border-l-4 border-l-emerald-500">
               <CardHeader className="pb-2">
                 <CardDescription className="flex items-center gap-2">
-                  <Layers className="h-4 w-4 text-emerald-500" />
-                  Vector Embedding Costs
-                </CardDescription>
+                  <Layers className="h-4 w-4 text-emerald-500" />{t.billingUI.embeddingCosts}</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold">
@@ -648,9 +610,7 @@ export default function BillingPage() {
             <CardContent>
               {!usage?.byAgent ||
               Object.keys(usage.byAgent).length === 0 ? (
-                <p className="py-8 text-center text-sm text-muted-foreground">
-                  No usage data yet. Start an agent to see usage here.
-                </p>
+                <p className="py-8 text-center text-sm text-muted-foreground">{t.billingUI.noUsageData}</p>
               ) : (
                 <div className="space-y-3">
                   {Object.entries(usage.byAgent).map(
@@ -670,9 +630,7 @@ export default function BillingPage() {
                               <Badge
                                 variant="secondary"
                                 className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 text-xs"
-                              >
-                                Embeddings
-                              </Badge>
+                              >{t.billingUI.embeddings}</Badge>
                             )}
                           </p>
                           <p className="text-sm text-muted-foreground">
@@ -705,9 +663,7 @@ export default function BillingPage() {
             <CardContent>
               {!usage?.byModel ||
               Object.keys(usage.byModel).length === 0 ? (
-                <p className="py-4 text-center text-sm text-muted-foreground">
-                  No data yet.
-                </p>
+                <p className="py-4 text-center text-sm text-muted-foreground">{t.billingUI.noDataYet}</p>
               ) : (
                 <div className="space-y-3">
                   {/* D-119: render a name the writer recognizes + the real API
@@ -764,9 +720,7 @@ export default function BillingPage() {
             </CardHeader>
             <CardContent>
               {!usage?.byBook || usage.byBook.length === 0 ? (
-                <p className="py-8 text-center text-sm text-muted-foreground">
-                  No per-book usage data yet.
-                </p>
+                <p className="py-8 text-center text-sm text-muted-foreground">{t.billingUI.noPerBookUsage}</p>
               ) : (
                 <div className="space-y-3">
                   {usage.byBook.map(

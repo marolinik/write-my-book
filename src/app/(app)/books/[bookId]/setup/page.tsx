@@ -639,9 +639,7 @@ export default function SetupPage({
               </div>
 
               <Button onClick={handleFinishSetup} className="w-full" disabled={finishing}>
-                <SparklesIcon className="mr-2 size-4" />
-                Start Writing!
-              </Button>
+                <SparklesIcon className="mr-2 size-4" />{t.pagesUI.startWriting}</Button>
 
               <div className="flex justify-start pt-4 border-t">
                 <Button variant="ghost" size="sm" onClick={prev}>

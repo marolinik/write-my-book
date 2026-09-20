@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
+import { localeFor } from "@/lib/i18n/ui-strings";
 import { db } from "@/lib/db";
 
 type RouteParams = { params: Promise<{ id: string }> };
@@ -12,6 +13,8 @@ type RouteParams = { params: Promise<{ id: string }> };
 export async function GET(_req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
+    // M-5: a printable report formatted its numbers in the SERVER locale.
+    const locale = localeFor(user.preferredLanguage ?? "en");
     const { id: seriesId } = await params;
 
     const series = await db.series.findFirst({
@@ -49,13 +52,13 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
         <td>${statusLabel(b.status || "planned")}</td>
         <td class="num">${b._count.chapters}</td>
         <td class="num">${b._count.documents}</td>
-        <td class="num">${b.wordCount.toLocaleString()}</td>
+        <td class="num">${b.wordCount.toLocaleString(locale)}</td>
       </tr>`
       )
       .join("\n");
 
     const html = `<!DOCTYPE html>
-<html lang="en">
+<html lang="${user.preferredLanguage ?? "en"}">
 <head>
 <meta charset="utf-8" />
 <title>Series Report — ${escapeHtml(series.title)}</title>
@@ -88,7 +91,7 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
     <span>Books: ${books.length}</span>
     <span>Chapters: ${totalChapters}</span>
     <span>Documents: ${totalDocs}</span>
-    <span>Words: ${totalWords.toLocaleString()}</span>
+    <span>Words: ${totalWords.toLocaleString(locale)}</span>
   </div>
 </body>
 </html>`;

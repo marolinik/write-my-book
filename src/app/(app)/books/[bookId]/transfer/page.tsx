@@ -7,12 +7,14 @@ import Link from "next/link";
 import { ImportWizard } from "@/components/import-export/import-wizard";
 import { ExportPage } from "@/components/import-export/export-page";
 import { useSearchParams } from "next/navigation";
+import { useLanguage } from "@/components/providers/language-provider";
 
 export default function TransferPage({
   params,
 }: {
   params: Promise<{ bookId: string }>;
 }) {
+  const { t } = useLanguage();
   const { bookId } = use(params);
   const searchParams = useSearchParams();
   const fromSetup = searchParams.get("from") === "setup";
@@ -27,21 +29,15 @@ export default function TransferPage({
             href={`/books/${bookId}/setup`}
             className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
-            <ArrowLeftIcon className="size-3" />
-            Back to Setup
-          </Link>
+            <ArrowLeftIcon className="size-3" />{t.pagesUI.backToSetup}</Link>
         </div>
       )}
       <Tabs value={tab} onValueChange={(v) => setTab(v as "import" | "export")}>
         <TabsList className="mb-6">
           <TabsTrigger value="import" className="gap-1.5">
-            <UploadIcon className="size-3.5" />
-            Import
-          </TabsTrigger>
+            <UploadIcon className="size-3.5" />{t.nav.import}</TabsTrigger>
           <TabsTrigger value="export" className="gap-1.5">
-            <DownloadIcon className="size-3.5" />
-            Export
-          </TabsTrigger>
+            <DownloadIcon className="size-3.5" />{t.nav.export}</TabsTrigger>
         </TabsList>
         <TabsContent value="import" className="mt-0">
           <ImportWizard bookId={bookId} />

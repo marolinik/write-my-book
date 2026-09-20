@@ -451,9 +451,7 @@ export default function DocumentEditorPage({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full text-muted-foreground">
-        Loading document...
-      </div>
+      <div className="flex items-center justify-center h-full text-muted-foreground">{t.pagesUI.loadingDocument}</div>
     );
   }
 
@@ -462,9 +460,7 @@ export default function DocumentEditorPage({
       <div className="flex flex-col flex-1 min-w-0">
         {/* Breadcrumb Navigation */}
         <div className="px-4 py-2 border-b flex items-center gap-1.5 text-sm text-muted-foreground bg-muted/30">
-          <Link href={`/books/${bookId}/library`} className="hover:text-foreground transition-colors">
-            Library
-          </Link>
+          <Link href={`/books/${bookId}/library`} className="hover:text-foreground transition-colors">{t.pagesUI.library}</Link>
           <ChevronRight className="size-3.5" />
           <span className="text-foreground font-medium truncate">{docTitle}</span>
           <ChevronRight className="size-3.5" />

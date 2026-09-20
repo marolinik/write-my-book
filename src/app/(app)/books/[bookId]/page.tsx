@@ -353,9 +353,7 @@ export default async function BookDetailPage({
                   </div>
                 </div>
               ) : (
-                <p className="text-xs text-muted-foreground mt-1">
-                  Set a target in book settings
-                </p>
+                <p className="text-xs text-muted-foreground mt-1">{t.pagesUI.setTargetInSettings}</p>
               )}
             </CardContent>
           </Card>
@@ -464,14 +462,10 @@ export default async function BookDetailPage({
                 <div className="flex items-center justify-between">
                   <div>
                     <span className="text-2xl font-bold">{pendingFindings}</span>
-                    <span className="text-sm text-muted-foreground ml-2">
-                      findings need review
-                    </span>
+                    <span className="text-sm text-muted-foreground ml-2">{t.pagesUI.findingsNeedReview}</span>
                   </div>
                   <Button asChild size="sm" variant="outline">
-                    <Link href={`/books/${bookId}/editorial`}>
-                      Review
-                    </Link>
+                    <Link href={`/books/${bookId}/editorial`}>{t.pagesUI.review}</Link>
                   </Button>
                 </div>
               </CardContent>
