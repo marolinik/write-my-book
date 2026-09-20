@@ -232,7 +232,10 @@ export interface ApprovalResponse {
 
 export interface AgentSpawnOptions {
   agentType: AgentType;
-  model: ModelTier;
+  // A-27: there was a `model: ModelTier` here and nothing ever read it —
+  // runAgent uses the model id the orchestrator was constructed with, which
+  // is what the writer's 4-level resolution chose. A field that looks like a
+  // model override and is not one is worse than no field.
   context: AgentContext;
   workflowId: string;
   sessionId: string;
@@ -259,8 +262,11 @@ export interface WorkflowPrerequisite {
    * documents would have described is already in the chapters, so the work can
    * be derived backwards instead of being blocked.
    */
-  type: "document" | "chapter_content" | "chapter_status" | "manuscript";
-  /** For 'document': the DocumentType that must exist. For 'chapter_status': min status name. */
+  // A-47: "chapter_status" was a fourth member whose check was a permanent
+  // `return true` with a "for now" comment, and no workflow ever declared it.
+  // A gate that always passes is not a gate.
+  type: "document" | "chapter_content" | "manuscript";
+  /** For 'document': the DocumentType that must exist. */
   value: string;
   /** Human-readable description of what's missing. */
   description: string;

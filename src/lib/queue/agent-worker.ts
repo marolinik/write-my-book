@@ -953,7 +953,6 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
 
     const spawnOptions = {
       agentType: (agentType as AgentType) || ("writing-coach" as const),
-      model: coachModelDef.tier,
       context: {
         bookId,
         bookName,

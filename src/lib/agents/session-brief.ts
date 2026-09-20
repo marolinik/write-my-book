@@ -12,6 +12,7 @@
  */
 
 import { db } from "@/lib/db";
+import { getAgentStrings } from "@/lib/i18n/agent-strings";
 
 export interface SessionBriefData {
   summary: string;
@@ -156,7 +157,8 @@ export async function getRecentBriefs(
  */
 export async function formatBriefsForPrompt(
   bookId: string,
-  chapterNumber?: number
+  chapterNumber?: number,
+  language?: string
 ): Promise<string> {
   const briefs = await getRecentBriefs(bookId, {
     limit: 3,
@@ -165,8 +167,12 @@ export async function formatBriefsForPrompt(
 
   if (briefs.length === 0) return "";
 
+  // A-42: model-facing scaffolding, injected on every run, in English around
+  // whatever language the book is written in.
+  const strings = getAgentStrings(language ?? "en");
+
   let xml = "\n<session_continuity>\n";
-  xml += "Recent session summaries — use these to maintain continuity:\n\n";
+  xml += `${strings.sessionContinuityHeader}\n\n`;
 
   for (const brief of briefs) {
     const chLabel = brief.chapterNumber ? ` (Ch.${brief.chapterNumber})` : "";
@@ -175,10 +181,10 @@ export async function formatBriefsForPrompt(
     xml += `${brief.summary}\n`;
 
     if (brief.decisions.length > 0) {
-      xml += "Decisions: " + brief.decisions.join("; ") + "\n";
+      xml += `${strings.decisionsLabel}: ` + brief.decisions.join("; ") + "\n";
     }
     if (brief.openQuestions.length > 0) {
-      xml += "Open questions: " + brief.openQuestions.join("; ") + "\n";
+      xml += `${strings.openQuestionsLabel}: ` + brief.openQuestions.join("; ") + "\n";
     }
     xml += "\n";
   }

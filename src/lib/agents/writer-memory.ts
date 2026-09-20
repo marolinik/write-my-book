@@ -14,6 +14,7 @@
  */
 
 import { db } from "@/lib/db";
+import { getAgentStrings } from "@/lib/i18n/agent-strings";
 
 export interface WriterMemoryEntry {
   id: string;
@@ -100,7 +101,8 @@ export async function updateWriterMemory(
  */
 export async function formatWriterMemoryForPrompt(
   userId: string,
-  bookId?: string
+  bookId?: string,
+  language?: string
 ): Promise<string> {
   const memories = await getWriterMemories(userId, bookId);
   if (memories.length === 0) return "";
@@ -112,11 +114,17 @@ export async function formatWriterMemoryForPrompt(
     grouped[cat].push(m.content);
   }
 
+  // A-42: this framing reaches the model on every run. It was English around
+  // Serbian content, which is the drift the language work exists to stop.
+  const strings = getAgentStrings(language ?? "en");
+
   let xml = "\n<writer_memory>\n";
-  xml += "IMPORTANT: The writer has told you the following. Respect these across all interactions.\n\n";
+  xml += `${strings.memoryHeader}\n\n`;
 
   for (const [category, items] of Object.entries(grouped)) {
-    xml += `## ${category.charAt(0).toUpperCase() + category.slice(1)} Preferences\n`;
+    // The category stays a slug: it is a data value, like a finding category,
+    // and translating it here would not match what the writer set.
+    xml += `## ${category}\n`;
     for (const item of items) {
       xml += `- ${item}\n`;
     }

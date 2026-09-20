@@ -504,7 +504,6 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
       const spawnOptions = {
         agentType: "writing-coach" as const,
-        model: effectiveCoachModelDef.tier,
         context: {
           bookId,
           bookName: book.name,

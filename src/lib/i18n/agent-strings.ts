@@ -68,6 +68,17 @@ export interface AgentStrings {
   // C-6/H-9 - the artifact contract speaks to the writer when a run's
   // document was recovered from its transcript, or was never saved at all.
   artifactRecovered: string;
+
+  // A-42: scaffolding inside the context blocks the model reads. It was
+  // hardcoded English and injected into every run, whatever the book's
+  // language — English framing around Serbian content is exactly the drift
+  // the script and language work spent the last session removing.
+  /** A-44: heading above the passages a continuity finding conflicts with. */
+  conflictingPassages: string;
+  memoryHeader: string;
+  sessionContinuityHeader: string;
+  decisionsLabel: string;
+  openQuestionsLabel: string;
   artifactMissing: string;
 
   // H-4: keyed by WorkflowId, not by string — every workflow must carry a
@@ -132,6 +143,11 @@ const EN: AgentStrings = {
   prereqAction: "Run: {workflow}",
   prereqChapter: "Choose a chapter first — this pass works on one chapter.",
   artifactRecovered: "Saved your {label} as a document — the assistant wrote it into the chat but never saved it, so the product persisted it for you. You can find it in this book's documents.",
+  conflictingPassages: "Conflicting passages",
+  memoryHeader: "IMPORTANT: The writer has told you the following. Respect these across all interactions.",
+  sessionContinuityHeader: "Recent session summaries — use these to maintain continuity:",
+  decisionsLabel: "Decisions",
+  openQuestionsLabel: "Open questions",
   artifactMissing: "The {label} was NOT saved — no such document exists for this book, so any step that needs it will refuse to run. Nothing was persisted by this session; please try again.",
   workflows: {
     "new-novel": "New Novel Setup",
@@ -302,6 +318,11 @@ const SR: AgentStrings = {
   prereqAction: "Pokreni: {workflow}",
   prereqChapter: "Prvo izaberi poglavlje — ovaj prolaz radi na jednom poglavlju.",
   artifactRecovered: "Sačuvali smo {label} kao dokument — asistent ga je napisao u ćaskanju, ali ga nikada nije sačuvao. Naći ćeš ga među dokumentima ove knjige.",
+  conflictingPassages: "Pasusi koji su u sukobu",
+  memoryHeader: "VAŽNO: Pisac ti je rekao sledeće. Poštuj ovo u svakoj interakciji.",
+  sessionContinuityHeader: "Sažeci nedavnih sesija — koristi ih da održiš kontinuitet:",
+  decisionsLabel: "Odluke",
+  openQuestionsLabel: "Otvorena pitanja",
   artifactMissing: "{label} NIJE sačuvan — takav dokument ne postoji za ovu knjigu, pa će svaki korak koji ga traži odbiti da se pokrene. Ova sesija nije ništa sačuvala; pokušaj ponovo.",
   workflows: {
     "new-novel": "Novi roman",
@@ -472,6 +493,11 @@ const DE: AgentStrings = {
   prereqAction: "Starten: {workflow}",
   prereqChapter: "Wähle zuerst ein Kapitel — dieser Durchgang arbeitet an einem Kapitel.",
   artifactRecovered: "{label} wurde als Dokument gespeichert — der Assistent hat es in den Chat geschrieben, aber nie gespeichert. Du findest es bei den Dokumenten dieses Buches.",
+  conflictingPassages: "Widersprüchliche Textstellen",
+  memoryHeader: "WICHTIG: Der Autor hat dir Folgendes mitgeteilt. Beachte es in jeder Interaktion.",
+  sessionContinuityHeader: "Zusammenfassungen der letzten Sitzungen — nutze sie für die Kontinuität:",
+  decisionsLabel: "Entscheidungen",
+  openQuestionsLabel: "Offene Fragen",
   artifactMissing: "{label} wurde NICHT gespeichert — es existiert kein solches Dokument für dieses Buch, also verweigert jeder Schritt, der es braucht, den Start. Diese Sitzung hat nichts gespeichert; bitte erneut versuchen.",
   workflows: {
     "new-novel": "Neuer Roman",
@@ -642,6 +668,11 @@ const ES: AgentStrings = {
   prereqAction: "Ejecutar: {workflow}",
   prereqChapter: "Elige primero un capítulo: esta pasada trabaja sobre un solo capítulo.",
   artifactRecovered: "Hemos guardado {label} como documento: el asistente lo escribió en el chat pero nunca lo guardó. Lo encontrarás en los documentos de este libro.",
+  conflictingPassages: "Pasajes en conflicto",
+  memoryHeader: "IMPORTANTE: El escritor te ha dicho lo siguiente. Respétalo en todas las interacciones.",
+  sessionContinuityHeader: "Resúmenes de sesiones recientes — úsalos para mantener la continuidad:",
+  decisionsLabel: "Decisiones",
+  openQuestionsLabel: "Preguntas abiertas",
   artifactMissing: "{label} NO se guardó: no existe ese documento para este libro, así que cualquier paso que lo necesite se negará a empezar. Esta sesión no guardó nada; inténtalo de nuevo.",
   workflows: {
     "new-novel": "Nueva novela",
@@ -812,6 +843,11 @@ const FR: AgentStrings = {
   prereqAction: "Lancer : {workflow}",
   prereqChapter: "Choisissez d'abord un chapitre — cette passe travaille sur un seul chapitre.",
   artifactRecovered: "{label} a été enregistré comme document — l'assistant l'a écrit dans le chat sans jamais l'enregistrer. Vous le trouverez dans les documents de ce livre.",
+  conflictingPassages: "Passages en contradiction",
+  memoryHeader: "IMPORTANT : l'auteur vous a indiqué ce qui suit. Respectez-le à chaque interaction.",
+  sessionContinuityHeader: "Résumés des sessions récentes — utilisez-les pour maintenir la continuité :",
+  decisionsLabel: "Décisions",
+  openQuestionsLabel: "Questions ouvertes",
   artifactMissing: "{label} n'a PAS été enregistré — aucun document de ce type n'existe pour ce livre, donc toute étape qui en a besoin refusera de démarrer. Cette session n'a rien enregistré ; veuillez réessayer.",
   workflows: {
     "new-novel": "Nouveau roman",
@@ -982,6 +1018,11 @@ const RU: AgentStrings = {
   prereqAction: "Запустить: {workflow}",
   prereqChapter: "Сначала выберите главу — этот проход работает по одной главе.",
   artifactRecovered: "{label} сохранён как документ — ассистент написал его в чате, но так и не сохранил. Вы найдёте его в документах этой книги.",
+  conflictingPassages: "Противоречащие фрагменты",
+  memoryHeader: "ВАЖНО: писатель сообщил вам следующее. Учитывайте это во всех взаимодействиях.",
+  sessionContinuityHeader: "Сводки недавних сессий — используйте их для преемственности:",
+  decisionsLabel: "Решения",
+  openQuestionsLabel: "Открытые вопросы",
   artifactMissing: "{label} НЕ сохранён — такого документа у книги нет, поэтому любой шаг, которому он нужен, откажется запускаться. Эта сессия ничего не сохранила; попробуйте ещё раз.",
   workflows: {
     "new-novel": "Новый роман",
@@ -1152,6 +1193,11 @@ const ZH: AgentStrings = {
   prereqAction: "运行：{workflow}",
   prereqChapter: "请先选择章节——本次处理只针对一章。",
   artifactRecovered: "已将{label}保存为文档——助手把它写在了对话里却没有保存，我们替你存了下来。可在本书的文档中找到。",
+  conflictingPassages: "冲突段落",
+  memoryHeader: "重要：作者已告知以下内容。在所有交互中都要遵守。",
+  sessionContinuityHeader: "近期会话摘要——用它们保持连续性：",
+  decisionsLabel: "决定",
+  openQuestionsLabel: "未决问题",
   artifactMissing: "{label}未被保存——本书没有该文档，任何需要它的步骤都会拒绝运行。本次会话未保存任何内容，请重试。",
   workflows: {
     "new-novel": "新长篇设置",

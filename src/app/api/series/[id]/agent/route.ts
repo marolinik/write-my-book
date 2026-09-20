@@ -213,7 +213,6 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     const spawnOptions = {
       agentType: workflow.primaryAgent,
-      model: model.tier,
       context: {
         bookId: data.bookId,
         bookName: book.name,

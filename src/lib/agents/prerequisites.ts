@@ -112,11 +112,6 @@ function checkPrerequisite(
       if (!chapterNumber) return true;
       return chapterDocTypes.has("CHAPTER_CONTENT");
 
-    case "chapter_status":
-      // This would require a separate query; for now, return true
-      // (chapter status checks are handled by the proactive guide)
-      return true;
-
     default:
       return true;
   }

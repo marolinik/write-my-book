@@ -33,9 +33,16 @@ import {
   stampReportMetadata,
 } from "./editorial-text-hygiene";
 import { getUIStrings } from "@/lib/i18n/ui-strings";
+import { getAgentStrings } from "@/lib/i18n/agent-strings";
 import { FINDING_CATEGORIES, FINDING_SEVERITIES } from "@/lib/i18n/finding-labels";
 import { enforceBookScript } from "./serbian-script";
 import { planMove, type ChapterRef, type StructureMoveInput } from "@/lib/structure/moves";
+import {
+  verifyCrossReferences,
+  formatCrossReferences,
+  makeChapterReader,
+  type CrossReferenceInput,
+} from "./cross-references";
 
 export const APPROVAL_SENTINEL = "__APPROVAL_GATE__";
 
@@ -580,13 +587,19 @@ const createFindingDef: ToolDefinition = {
       },
       crossReferences: {
         type: "array",
-        description: "For continuity findings: other passages that conflict with this one",
+        description:
+          "For continuity findings: the passages that CONFLICT with this one. Each is verified against the text it cites — in this book, or in a sibling book when bookNumber is given — and a citation that cannot be found there is dropped.",
         items: {
           type: "object",
           properties: {
             chapterNumber: { type: "number" },
             paragraphNumber: { type: "number" },
             quote: { type: "string" },
+            bookNumber: {
+              type: "number",
+              description:
+                "Only for a conflict with ANOTHER book in the series: that book's number. Omit for this book.",
+            },
           },
           required: ["chapterNumber", "paragraphNumber", "quote"],
         },
@@ -1727,7 +1740,7 @@ async function executeCreateFinding(
     paragraphNumber: number;
     anchorQuote: string;
     alternatives: Array<{ label: string; originalText: string; newText: string }>;
-    crossReferences?: Array<{ chapterNumber: number; paragraphNumber: number; quote: string }>;
+    crossReferences?: CrossReferenceInput[];
   }
 ): Promise<string> {
   // Resolve chapter number
@@ -1955,6 +1968,31 @@ async function executeCreateFinding(
     fingerprintContent,
     manuscriptContent.content
   );
+
+  // A-44: the passages this finding conflicts with. The prompt has always
+  // required them and the tool dropped them — they are not a column, so they
+  // are verified against the text they cite (this book, or a sibling book when
+  // bookNumber is given) and folded into the rationale, which is persisted and
+  // shown. A citation that cannot be found is dropped: an invented conflicting
+  // passage sends the writer hunting for something that is not there.
+  const crossRefs = await verifyCrossReferences(
+    input.crossReferences,
+    {
+      bookId: ctx.bookId,
+      userId: ctx.userId,
+      seriesId: ctx.seriesId,
+      readChapter: makeChapterReader({
+        bookId: ctx.bookId,
+        userId: ctx.userId,
+        seriesId: ctx.seriesId,
+      }),
+    },
+    fuzzyMatch
+  );
+  const crossRefBlock = formatCrossReferences(crossRefs.verified);
+  const rationaleWithRefs = crossRefBlock
+    ? `${sanitizedRationale}\n\n${getAgentStrings(lang ?? "en").conflictingPassages}:\n${crossRefBlock}`
+    : sanitizedRationale;
   // V-3: four prompts have always asked for this sentence and the strict schema
   // had nowhere to put it, so the API dropped it and the row stored the
   // rationale twice — 199 of 255 findings on the owner's book show "what to do"
@@ -1975,7 +2013,7 @@ async function executeCreateFinding(
       severity: input.severity,
       category: input.category,
       description: enforceBookScript(sanitizedDescription, lang),
-      rationale: enforceBookScript(sanitizedRationale, lang),
+      rationale: enforceBookScript(rationaleWithRefs, lang),
       confidence: input.confidence,
       paragraphNumber: resolvedParagraphNumber,
       anchorQuote: enforcedAnchor,
@@ -1990,7 +2028,19 @@ async function executeCreateFinding(
     },
   });
 
-  return `Finding created (id: ${finding.id}, severity: ${input.severity}, category: ${input.category}, grounding: ${(groundingScore * 100).toFixed(0)}%).`;
+  // A-44: a dropped citation is reported back, so the checker can re-cite it
+  // correctly instead of assuming the writer received evidence that was never
+  // persisted.
+  const droppedRefs =
+    crossRefs.rejected.length > 0
+      ? ` ${crossRefs.rejected.length} cross-reference(s) were NOT recorded: ` +
+        crossRefs.rejected
+          .map((r) => `ch. ${r.reference?.chapterNumber} — ${r.reason}`)
+          .join("; ") +
+        ". Re-cite them with exact quotes if they matter."
+      : "";
+
+  return `Finding created (id: ${finding.id}, severity: ${input.severity}, category: ${input.category}, grounding: ${(groundingScore * 100).toFixed(0)}%).${droppedRefs}`;
 }
 
 async function executeReadSeriesDocument(
@@ -2699,7 +2749,6 @@ async function executeDelegateToSpecialist(
 
     const spawnOptions = {
       agentType: specialistType,
-      model: specialistDef.defaultModel,
       context: {
         bookId: ctx.bookId,
         bookName: delegatedBook?.name ?? undefined,

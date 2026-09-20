@@ -151,7 +151,6 @@ function buildOptions(overrides?: Partial<AgentSpawnOptions>) {
   const captured: AgentStreamMessage[] = [];
   const options: AgentSpawnOptions = {
     agentType: "story-architect",
-    model: "sonnet",
     context: { bookId: "b1", userId: "u1", language: "en" },
     workflowId: "setup-bible",
     sessionId: `s_${id}`,

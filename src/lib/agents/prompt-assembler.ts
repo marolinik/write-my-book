@@ -10,6 +10,7 @@ import { formatWriterMemoryForPrompt } from "./writer-memory";
 import { selectSkillsForAgent } from "./skills";
 import { findingHistoryStatus } from "./finding-history-status";
 import { getDocumentTypeLabels } from "./tool-labels";
+import { CONTINUITY_CATEGORIES } from "@/lib/i18n/finding-labels";
 import { db } from "@/lib/db";
 
 // UDG round-4 (Elena): per-line-editor profile templates. Values mirror
@@ -779,7 +780,7 @@ DO NOT flag inconsistencies without quoting BOTH the current passage and the con
 ## PHASE DECOMPOSITION
 Work through the chapter in 4 phases. Complete each phase before moving to the next.
 
-### Phase 1: CHARACTER CONTINUITY
+### Phase 1: CHARACTER CONTINUITY — files continuity:characters, or continuity:relationships when the conflict is between two people
 - Character names/descriptions match across chapters
 - Character knowledge matches what they should know at this point
 - Character relationships are consistent with previous development
@@ -787,7 +788,7 @@ Work through the chapter in 4 phases. Complete each phase before moving to the n
 - Physical descriptions (eye color, hair, scars, build) remain stable
 - Abilities and skills match established competencies
 
-### Phase 2: WORLD CONTINUITY
+### Phase 2: WORLD CONTINUITY — files continuity:world for a rule, continuity:geography for a place or a distance
 - Location descriptions match previous mentions
 - Rules of the world (magic systems, technology, physics) are consistent
 - Time/date/season references are coherent
@@ -795,7 +796,7 @@ Work through the chapter in 4 phases. Complete each phase before moving to the n
 - Weather and environmental details align
 - Social customs, laws, and hierarchies remain stable
 
-### Phase 3: PLOT CONTINUITY
+### Phase 3: PLOT CONTINUITY — files continuity:timeline for anything about order or dates, and the plain foreshadowing category for a setup that is never paid off
 - Events reference correctly to what happened before
 - Cause-and-effect chains are unbroken
 - Promises made earlier are tracked (Chekhov's guns)
@@ -803,7 +804,7 @@ Work through the chapter in 4 phases. Complete each phase before moving to the n
 - Character motivations align with prior actions
 - Information revealed matches what was previously established
 
-### Phase 4: OBJECT/DETAIL CONTINUITY
+### Phase 4: OBJECT/DETAIL CONTINUITY — files continuity:objects
 - Physical objects maintain consistent descriptions
 - Characters' possessions/clothing/injuries persist correctly
 - Food, weather, time of day are tracked
@@ -817,10 +818,10 @@ You MUST create findings using the CreateFinding tool. DO NOT embed findings in 
 For each inconsistency found, call CreateFinding with ALL required fields:
 - chapterNumber: {chapterNumber}
 - severity: "critical" | "important" | "suggestion"
-- category: NAME THE DOMAIN — "continuity:characters", "continuity:timeline",
-  "continuity:geography", "continuity:objects", "continuity:relationships" or
-  "continuity:world". A bare "continuity" tells the writer nothing about WHERE
-  the problem is, and his continuity tab groups by exactly these six.
+- category: NAME THE DOMAIN — one of ${CONTINUITY_CATEGORIES.map((c) => `"${c}"`).join(", ")}.
+  A bare "continuity" tells the writer nothing about WHERE the problem is, and
+  his continuity tab groups by exactly these six. A setup that is never paid
+  off is the plain "foreshadowing" category, not a continuity domain.
 - description: One specific inconsistency (not a list)
 - suggestion: REQUIRED — what the writer should DO about it, in one sentence.
   A finding without a suggestion is a complaint: it costs him the time to read
@@ -838,7 +839,7 @@ CATEGORIES for continuity checker: always the qualified "continuity:<domain>" fo
 
 ## GROUNDING REQUIREMENTS
 - Continuity findings MUST cite BOTH conflicting passages with direct quotes
-- Include the crossReferences array with the other passage's location (chapterNumber, paragraphNumber, quote)
+- Include the crossReferences array with the other passage's location (chapterNumber, paragraphNumber, quote), and bookNumber when the conflicting passage is in ANOTHER book of the series. Every citation is verified against that text; one that cannot be found there is dropped and you are told so.
 - Every finding needs the anchorQuote from THIS chapter PLUS at least one crossReference
 - Verify characters/locations exist in the story bible before flagging inconsistencies
 - DO NOT flag stylistic variations as continuity errors — only factual contradictions
@@ -1849,7 +1850,8 @@ export async function assembleAgentPrompt(
   try {
     const writerMemory = await formatWriterMemoryForPrompt(
       context.userId,
-      context.bookId
+      context.bookId,
+      context.language
     );
     if (writerMemory) {
       sections.push({
@@ -2255,7 +2257,8 @@ export async function assembleAgentPrompt(
   try {
     const briefsXml = await formatBriefsForPrompt(
       context.bookId,
-      context.chapterNumber
+      context.chapterNumber,
+      context.language
     );
     if (briefsXml) {
       sections.push({

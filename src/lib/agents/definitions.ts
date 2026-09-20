@@ -322,7 +322,7 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
     name: "Continuity Checker",
     type: "continuity-checker",
     description:
-      "Tracks 6 domains: character details, timeline, geography, objects, world rules, and foreshadowing.",
+      "Tracks the 6 continuity domains the writer's report groups by: characters, relationships, timeline, geography, objects and world rules.",
     writerDescription:
       "Catches continuity errors — character details, timeline, geography, and world consistency.",
     defaultModel: "sonnet",

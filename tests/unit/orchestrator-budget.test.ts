@@ -113,7 +113,6 @@ function buildOptions(overrides?: Partial<AgentSpawnOptions>) {
   const onError = vi.fn();
   const options: AgentSpawnOptions = {
     agentType: "ghostwriter",
-    model: "sonnet",
     context: { bookId: "b1", userId: "u1", language: "en" },
     workflowId: "write-chapter",
     sessionId: "s1",
