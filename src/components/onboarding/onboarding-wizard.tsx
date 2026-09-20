@@ -150,15 +150,9 @@ export function OnboardingWizard() {
       {step === 1 && (
         <div className="text-center space-y-6">
           <div className="space-y-2">
-            <h1 className="text-2xl font-bold tracking-tight">
-              Welcome to Write My Book OK
-            </h1>
-            <p className="text-muted-foreground">
-              Your AI-powered book authoring platform
-            </p>
-            <p className="text-sm text-muted-foreground">
-              No credit card or API key required to start writing.
-            </p>
+            <h1 className="text-2xl font-bold tracking-tight">{t.onboardingUI.welcome}</h1>
+            <p className="text-muted-foreground">{t.onboardingUI.tagline}</p>
+            <p className="text-sm text-muted-foreground">{t.onboardingUI.noCardNeeded}</p>
           </div>
 
           <div className="grid gap-4 text-left max-w-md mx-auto">
@@ -168,10 +162,7 @@ export function OnboardingWizard() {
               </div>
               <div>
                 <p className="text-sm font-medium">{t.appUI.bringYourOwnKeys}</p>
-                <p className="text-xs text-muted-foreground">
-                  WMB uses your own AI provider API keys. You connect directly
-                  to providers like Anthropic, OpenAI, or OpenRouter.
-                </p>
+                <p className="text-xs text-muted-foreground">{t.onboardingUI.byokExplainer}</p>
               </div>
             </div>
 
@@ -196,18 +187,12 @@ export function OnboardingWizard() {
               </div>
               <div>
                 <p className="text-sm font-medium">{t.appUI.fullCostControl}</p>
-                <p className="text-xs text-muted-foreground">
-                  You pay providers directly at their rates. No markup, no
-                  surprise bills. Use budget models for drafts, premium for
-                  final edits.
-                </p>
+                <p className="text-xs text-muted-foreground">{t.onboardingUI.pricingExplainer}</p>
               </div>
             </div>
           </div>
 
-          <Button size="lg" onClick={() => setStep(2)}>
-            Get Started
-            <ArrowRightIcon className="size-4 ml-2" />
+          <Button size="lg" onClick={() => setStep(2)}>{t.onboardingUI.getStarted}<ArrowRightIcon className="size-4 ml-2" />
           </Button>
         </div>
       )}
@@ -216,12 +201,8 @@ export function OnboardingWizard() {
       {step === 2 && (
         <div className="space-y-6">
           <div className="text-center space-y-1">
-            <h1 className="text-2xl font-bold tracking-tight">
-              Add Your API Keys
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Add at least one key. You can always add more later in Settings.
-            </p>
+            <h1 className="text-2xl font-bold tracking-tight">{t.onboardingUI.addYourKeys}</h1>
+            <p className="text-sm text-muted-foreground">{t.onboardingUI.addKeysHint}</p>
           </div>
 
           <div className="space-y-3">
@@ -237,9 +218,7 @@ export function OnboardingWizard() {
           </div>
 
           <div className="flex items-center justify-between">
-            <Button variant="ghost" size="sm" onClick={() => setStep(1)}>
-              Back
-            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setStep(1)}>{t.workflowSelector.back}</Button>
             <div className="flex items-center gap-3">
               <span className="text-xs text-muted-foreground">
                 {connectedCount} of {PROVIDERS.length} providers connected
@@ -252,9 +231,7 @@ export function OnboardingWizard() {
                 >
                   {isFinishing ? (
                     <>
-                      <Loader2Icon className="size-4 mr-2 animate-spin" />
-                      Starting...
-                    </>
+                      <Loader2Icon className="size-4 mr-2 animate-spin" />{t.onboardingUI.starting}</>
                   ) : (
                     "Skip for now — start writing free"
                   )}
@@ -263,9 +240,7 @@ export function OnboardingWizard() {
               <Button
                 onClick={() => setStep(3)}
                 disabled={connectedCount === 0}
-              >
-                Continue
-                <ArrowRightIcon className="size-4 ml-2" />
+              >{t.onboardingUI.continueLabel}<ArrowRightIcon className="size-4 ml-2" />
               </Button>
             </div>
           </div>
@@ -276,13 +251,8 @@ export function OnboardingWizard() {
       {step === 3 && (
         <div className="space-y-6">
           <div className="text-center space-y-1">
-            <h1 className="text-2xl font-bold tracking-tight">
-              Choose Your Default Provider
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              This provider will be used by default for all workflows. You can
-              always change it.
-            </p>
+            <h1 className="text-2xl font-bold tracking-tight">{t.onboardingUI.chooseDefaultProvider}</h1>
+            <p className="text-sm text-muted-foreground">{t.onboardingUI.defaultProviderHint}</p>
           </div>
 
           <div className="space-y-2">
@@ -331,18 +301,14 @@ export function OnboardingWizard() {
           </div>
 
           <div className="flex items-center justify-between">
-            <Button variant="ghost" size="sm" onClick={() => setStep(2)}>
-              Back
-            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setStep(2)}>{t.workflowSelector.back}</Button>
             <Button
               onClick={() => handleFinishSetup()}
               disabled={!effectiveSelectedProvider || isFinishing}
             >
               {isFinishing ? (
                 <>
-                  <Loader2Icon className="size-4 mr-2 animate-spin" />
-                  Finishing...
-                </>
+                  <Loader2Icon className="size-4 mr-2 animate-spin" />{t.onboardingUI.finishing}</>
               ) : (
                 "Finish Setup"
               )}

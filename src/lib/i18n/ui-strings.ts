@@ -87,6 +87,10 @@ export interface UIStrings {
 
   // Settings
   settings: {
+    customProviders: string;
+    noCustomProvider: string;
+    addProvider: string;
+    noProvidersConnected: string;
     title: string;
     subtitle: string;
     apiKeys: string;
@@ -648,6 +652,14 @@ export interface UIStrings {
 
   // O1 - the remaining app surfaces.
   appUI: {
+    tierProfessional: string;
+    tierPublisher: string;
+    tierFounder: string;
+    themeLight: string;
+    themeDark: string;
+    themeSystem: string;
+    upgradeRequired: string;
+    viewPlans: string;
     bookName: string;
     styleFingerprint: string;
     storyBible: string;
@@ -1215,6 +1227,55 @@ export interface UIStrings {
     manuscriptReadiness: string;
     runPublishingCheck: string;
   };
+
+  // H-10 - the writer-memory panel and the vector-store status.
+  memoryUI: {
+    vectorMemoryHint: string;
+    connected: string;
+    unreachable: string;
+    qdrantUnreachable: string;
+    statsUnavailable: string;
+    memory: string;
+    writerMemory: string;
+    writerMemoryHint: string;
+  };
+
+  // H-10 - the first five minutes a writer spends in the product.
+  onboardingUI: {
+    welcome: string;
+    tagline: string;
+    noCardNeeded: string;
+    byokExplainer: string;
+    pricingExplainer: string;
+    getStarted: string;
+    addYourKeys: string;
+    addKeysHint: string;
+    starting: string;
+    continueLabel: string;
+    chooseDefaultProvider: string;
+    defaultProviderHint: string;
+    finishing: string;
+    docsCreated: string;
+  };
+
+  // Lo-1 - the keyboard-shortcut help. The table in lib/keyboard-shortcuts.ts
+  // held English descriptions; it now holds lookups into this section.
+  shortcuts: {
+    openCommandPalette: string;
+    showShortcuts: string;
+    toggleSidebar: string;
+    aiRewriteSelect: string;
+    nextFinding: string;
+    previousFinding: string;
+    closePopup: string;
+    exitImmersive: string;
+    sendMessage: string;
+    newLine: string;
+    contextGlobal: string;
+    contextEditor: string;
+    contextAgent: string;
+    dialogHint: string;
+  };
 }
 
 export const SUPPORTED_LANGUAGES = [
@@ -1308,6 +1369,10 @@ const EN: UIStrings = {
     undoDismiss: "Undo",
   },
   settings: {
+    customProviders: "Custom providers (LAN / proxy / self-hosted)",
+    noCustomProvider: "No custom provider saved yet. Add a LAN box, a corporate proxy, or a self-hosted hub — the endpoint's own `/models` discovery decides what's available.",
+    addProvider: "Add provider",
+    noProvidersConnected: "No providers connected. Add an API key first.",
     title: "Settings",
     subtitle: "Manage your API keys and preferences",
     apiKeys: "API Keys",
@@ -1883,6 +1948,14 @@ const EN: UIStrings = {
   },
 
   appUI: {
+    tierProfessional: "The Professional plan unlocks unlimited books, series management, and advanced analytics.",
+    tierPublisher: "The Publisher plan includes everything in Professional plus priority support and upcoming multi-user seats.",
+    tierFounder: "The Founder plan locks in $19/mo forever with unlimited books and all Pro features.",
+    themeLight: "Light",
+    themeDark: "Dark",
+    themeSystem: "System",
+    upgradeRequired: "Upgrade Required",
+    viewPlans: "View Plans",
     bookName: "Book name",
     styleFingerprint: "Style fingerprint",
     storyBible: "Story bible",
@@ -2507,6 +2580,51 @@ const EN: UIStrings = {
     manuscriptReadiness: "Manuscript Readiness",
     runPublishingCheck: "Run Publishing Check",
   },
+
+  memoryUI: {
+    vectorMemoryHint: "Vector memory powers AI agents with context from your books.",
+    connected: "Connected",
+    unreachable: "Unreachable",
+    qdrantUnreachable: "Qdrant is unreachable. Vector memory features (semantic search, context retrieval) are unavailable. Check that Qdrant is running and QDRANT_URL is correct.",
+    statsUnavailable: "Unable to load memory stats.",
+    memory: "Memory",
+    writerMemory: "Writer Memory",
+    writerMemoryHint: "These preferences are injected into every AI agent session. The AI remembers what you tell it here.",
+  },
+
+  onboardingUI: {
+    welcome: "Welcome to Write My Book OK",
+    tagline: "Your AI-powered book authoring platform",
+    noCardNeeded: "No credit card or API key required to start writing.",
+    byokExplainer: "WMB uses your own AI provider API keys. You connect directly to providers like Anthropic, OpenAI, or OpenRouter.",
+    pricingExplainer: "You pay providers directly at their rates. No markup, no surprise bills. Use budget models for drafts, premium for final edits.",
+    getStarted: "Get Started",
+    addYourKeys: "Add Your API Keys",
+    addKeysHint: "Add at least one key. You can always add more later in Settings.",
+    starting: "Starting...",
+    continueLabel: "Continue",
+    chooseDefaultProvider: "Choose Your Default Provider",
+    defaultProviderHint: "This provider will be used by default for all workflows. You can always change it.",
+    finishing: "Finishing...",
+    docsCreated: "All foundational documents created. Review them in the setup wizard.",
+  },
+
+  shortcuts: {
+    openCommandPalette: "Open command palette",
+    showShortcuts: "Show keyboard shortcuts",
+    toggleSidebar: "Toggle sidebar",
+    aiRewriteSelect: "AI Rewrite (select text first)",
+    nextFinding: "Next finding (opens review)",
+    previousFinding: "Previous finding",
+    closePopup: "Close popup or tooltip",
+    exitImmersive: "Exit immersive mode",
+    sendMessage: "Send message",
+    newLine: "New line in message",
+    contextGlobal: "Global",
+    contextEditor: "Editor",
+    contextAgent: "Agent Panel",
+    dialogHint: "Available keyboard shortcuts organized by context.",
+  },
 };
 
 const SR: UIStrings = {
@@ -2582,6 +2700,10 @@ const SR: UIStrings = {
     undoDismiss: "Poništi",
   },
   settings: {
+    customProviders: "Sopstveni provajderi (LAN / proksi / sopstveni server)",
+    noCustomProvider: "Još nema sačuvanog sopstvenog provajdera. Dodajte mašinu u lokalnoj mreži, korporativni proksi ili sopstveni server — otkrivanje preko `/models` na samom endpointu određuje šta je dostupno.",
+    addProvider: "Dodaj provajdera",
+    noProvidersConnected: "Nema povezanih provajdera. Prvo dodajte API ključ.",
     title: "Podešavanja",
     subtitle: "Upravljajte API ključevima i preferencama",
     apiKeys: "API ključevi",
@@ -3148,6 +3270,14 @@ const SR: UIStrings = {
   },
 
   appUI: {
+    tierProfessional: "Plan Professional otključava neograničen broj knjiga, upravljanje serijalima i naprednu analitiku.",
+    tierPublisher: "Plan Publisher obuhvata sve iz plana Professional, uz prioritetnu podršku i buduće naloge za više korisnika.",
+    tierFounder: "Plan Founder zauvek zaključava cenu od 19 $ mesečno, uz neograničen broj knjiga i sve Pro mogućnosti.",
+    themeLight: "Svetla",
+    themeDark: "Tamna",
+    themeSystem: "Sistemska",
+    upgradeRequired: "Potrebna je nadogradnja",
+    viewPlans: "Pogledaj planove",
     bookName: "Naziv knjige",
     styleFingerprint: "Stilski otisak",
     storyBible: "Biblija priče",
@@ -3771,6 +3901,51 @@ const SR: UIStrings = {
     manuscriptReadiness: "Spremnost rukopisa",
     runPublishingCheck: "Pokreni proveru za objavljivanje",
   },
+
+  memoryUI: {
+    vectorMemoryHint: "Vektorsko pamćenje daje AI agentima kontekst iz vaših knjiga.",
+    connected: "Povezano",
+    unreachable: "Nedostupno",
+    qdrantUnreachable: "Qdrant je nedostupan. Mogućnosti vektorskog pamćenja (semantička pretraga, dohvatanje konteksta) ne rade. Proverite da li Qdrant radi i da li je QDRANT_URL tačan.",
+    statsUnavailable: "Ne mogu da učitam podatke o pamćenju.",
+    memory: "Pamćenje",
+    writerMemory: "Pamćenje pisca",
+    writerMemoryHint: "Ove postavke se ubacuju u svaku sesiju AI agenta. AI pamti ono što mu ovde kažete.",
+  },
+
+  onboardingUI: {
+    welcome: "Dobro došli u Write My Book OK",
+    tagline: "Vaša platforma za pisanje knjiga uz pomoć veštačke inteligencije",
+    noCardNeeded: "Za početak pisanja nisu potrebni ni kartica ni API ključ.",
+    byokExplainer: "WMB koristi vaše sopstvene API ključeve AI provajdera. Povezujete se direktno sa provajderima kao što su Anthropic, OpenAI ili OpenRouter.",
+    pricingExplainer: "Provajderima plaćate direktno, po njihovim cenama. Bez marže i bez iznenađenja na računu. Koristite jeftinije modele za nacrte, a vrhunske za završne izmene.",
+    getStarted: "Počnimo",
+    addYourKeys: "Dodajte svoje API ključeve",
+    addKeysHint: "Dodajte bar jedan ključ. Ostale uvek možete dodati kasnije u Postavkama.",
+    starting: "Pokrećem...",
+    continueLabel: "Nastavi",
+    chooseDefaultProvider: "Izaberite podrazumevanog provajdera",
+    defaultProviderHint: "Ovaj provajder će se podrazumevano koristiti za sve tokove rada. Uvek ga možete promeniti.",
+    finishing: "Završavam...",
+    docsCreated: "Svi osnovni dokumenti su napravljeni. Pregledajte ih u čarobnjaku za podešavanje.",
+  },
+
+  shortcuts: {
+    openCommandPalette: "Otvori komandnu paletu",
+    showShortcuts: "Prikaži prečice na tastaturi",
+    toggleSidebar: "Prikaži ili sakrij bočnu traku",
+    aiRewriteSelect: "AI prepisivanje (prvo označite tekst)",
+    nextFinding: "Sledeći nalaz (otvara pregled)",
+    previousFinding: "Prethodni nalaz",
+    closePopup: "Zatvori iskačući prozor ili opis",
+    exitImmersive: "Izađi iz uronjenog režima",
+    sendMessage: "Pošalji poruku",
+    newLine: "Novi red u poruci",
+    contextGlobal: "Opšte",
+    contextEditor: "Uređivač",
+    contextAgent: "Panel agenta",
+    dialogHint: "Prečice na tastaturi, po kontekstu.",
+  },
 };
 
 const DE: UIStrings = {
@@ -3846,6 +4021,10 @@ const DE: UIStrings = {
     undoDismiss: "Rückgängig",
   },
   settings: {
+    customProviders: "Eigene Anbieter (LAN / Proxy / selbst gehostet)",
+    noCustomProvider: "Noch kein eigener Anbieter gespeichert. Fügen Sie einen Rechner im LAN, einen Firmen-Proxy oder einen selbst gehosteten Hub hinzu — was verfügbar ist, entscheidet die `/models`-Abfrage des Endpunkts.",
+    addProvider: "Anbieter hinzufügen",
+    noProvidersConnected: "Keine Anbieter verbunden. Fügen Sie zuerst einen API-Schlüssel hinzu.",
     title: "Einstellungen",
     subtitle: "Verwalten Sie Ihre API-Schlüssel und Einstellungen",
     apiKeys: "API-Schlüssel",
@@ -4412,6 +4591,14 @@ const DE: UIStrings = {
   },
 
   appUI: {
+    tierProfessional: "Der Professional-Tarif schaltet unbegrenzt viele Bücher, Reihenverwaltung und erweiterte Auswertungen frei.",
+    tierPublisher: "Der Publisher-Tarif enthält alles aus Professional sowie bevorzugten Support und künftige Plätze für mehrere Nutzer.",
+    tierFounder: "Der Founder-Tarif sichert dauerhaft 19 $ pro Monat, mit unbegrenzt vielen Büchern und allen Pro-Funktionen.",
+    themeLight: "Hell",
+    themeDark: "Dunkel",
+    themeSystem: "System",
+    upgradeRequired: "Upgrade erforderlich",
+    viewPlans: "Tarife ansehen",
     bookName: "Buchname",
     styleFingerprint: "Stil-Fingerabdruck",
     storyBible: "Story-Bibel",
@@ -5035,6 +5222,51 @@ const DE: UIStrings = {
     manuscriptReadiness: "Manuskript-Bereitschaft",
     runPublishingCheck: "Veröffentlichungsprüfung starten",
   },
+
+  memoryUI: {
+    vectorMemoryHint: "Vektorgedächtnis versorgt die KI-Agenten mit Kontext aus Ihren Büchern.",
+    connected: "Verbunden",
+    unreachable: "Nicht erreichbar",
+    qdrantUnreachable: "Qdrant ist nicht erreichbar. Funktionen des Vektorgedächtnisses (semantische Suche, Kontextabruf) stehen nicht zur Verfügung. Prüfen Sie, ob Qdrant läuft und QDRANT_URL stimmt.",
+    statsUnavailable: "Gedächtnisdaten konnten nicht geladen werden.",
+    memory: "Gedächtnis",
+    writerMemory: "Autorengedächtnis",
+    writerMemoryHint: "Diese Vorgaben fließen in jede KI-Agentensitzung ein. Die KI merkt sich, was Sie hier angeben.",
+  },
+
+  onboardingUI: {
+    welcome: "Willkommen bei Write My Book OK",
+    tagline: "Ihre KI-gestützte Plattform zum Schreiben von Büchern",
+    noCardNeeded: "Zum Schreiben brauchen Sie weder Kreditkarte noch API-Schlüssel.",
+    byokExplainer: "WMB nutzt Ihre eigenen API-Schlüssel. Sie verbinden sich direkt mit Anbietern wie Anthropic, OpenAI oder OpenRouter.",
+    pricingExplainer: "Sie zahlen den Anbietern direkt deren Preise. Kein Aufschlag, keine Überraschungen auf der Rechnung. Günstige Modelle für Entwürfe, teure für den Feinschliff.",
+    getStarted: "Los geht’s",
+    addYourKeys: "Fügen Sie Ihre API-Schlüssel hinzu",
+    addKeysHint: "Fügen Sie mindestens einen Schlüssel hinzu. Weitere können Sie später in den Einstellungen ergänzen.",
+    starting: "Startet ...",
+    continueLabel: "Weiter",
+    chooseDefaultProvider: "Wählen Sie Ihren Standardanbieter",
+    defaultProviderHint: "Dieser Anbieter wird standardmäßig für alle Workflows verwendet. Sie können das jederzeit ändern.",
+    finishing: "Wird abgeschlossen ...",
+    docsCreated: "Alle Grundlagendokumente wurden erstellt. Sehen Sie sie im Einrichtungsassistenten durch.",
+  },
+
+  shortcuts: {
+    openCommandPalette: "Befehlspalette öffnen",
+    showShortcuts: "Tastenkürzel anzeigen",
+    toggleSidebar: "Seitenleiste ein- oder ausblenden",
+    aiRewriteSelect: "KI-Neufassung (zuerst Text markieren)",
+    nextFinding: "Nächster Befund (öffnet die Prüfung)",
+    previousFinding: "Vorheriger Befund",
+    closePopup: "Popup oder Tooltip schließen",
+    exitImmersive: "Vollbildmodus verlassen",
+    sendMessage: "Nachricht senden",
+    newLine: "Neue Zeile in der Nachricht",
+    contextGlobal: "Allgemein",
+    contextEditor: "Editor",
+    contextAgent: "Agentenbereich",
+    dialogHint: "Verfügbare Tastenkürzel, nach Kontext geordnet.",
+  },
 };
 
 const ES: UIStrings = {
@@ -5110,6 +5342,10 @@ const ES: UIStrings = {
     undoDismiss: "Deshacer",
   },
   settings: {
+    customProviders: "Proveedores propios (LAN / proxy / autoalojados)",
+    noCustomProvider: "Aún no has guardado ningún proveedor propio. Añade un equipo en la LAN, un proxy corporativo o un servidor propio: lo que hay disponible lo decide el descubrimiento `/models` del propio endpoint.",
+    addProvider: "Añadir proveedor",
+    noProvidersConnected: "No hay proveedores conectados. Añade primero una clave de API.",
     title: "Ajustes",
     subtitle: "Gestiona tus claves API y preferencias",
     apiKeys: "Claves API",
@@ -5676,6 +5912,14 @@ const ES: UIStrings = {
   },
 
   appUI: {
+    tierProfessional: "El plan Professional desbloquea libros ilimitados, gestión de series y analítica avanzada.",
+    tierPublisher: "El plan Publisher incluye todo lo de Professional más soporte prioritario y las futuras plazas para varios usuarios.",
+    tierFounder: "El plan Founder fija 19 $ al mes para siempre, con libros ilimitados y todas las funciones Pro.",
+    themeLight: "Claro",
+    themeDark: "Oscuro",
+    themeSystem: "Del sistema",
+    upgradeRequired: "Se requiere mejorar el plan",
+    viewPlans: "Ver planes",
     bookName: "Nombre del libro",
     styleFingerprint: "Huella de estilo",
     storyBible: "Biblia de la historia",
@@ -6299,6 +6543,51 @@ const ES: UIStrings = {
     manuscriptReadiness: "Preparación del manuscrito",
     runPublishingCheck: "Ejecutar la comprobación de publicación",
   },
+
+  memoryUI: {
+    vectorMemoryHint: "La memoria vectorial da a los agentes de IA contexto de tus libros.",
+    connected: "Conectado",
+    unreachable: "Inaccesible",
+    qdrantUnreachable: "Qdrant está inaccesible. Las funciones de memoria vectorial (búsqueda semántica, recuperación de contexto) no están disponibles. Comprueba que Qdrant esté en marcha y que QDRANT_URL sea correcta.",
+    statsUnavailable: "No se pudieron cargar los datos de memoria.",
+    memory: "Memoria",
+    writerMemory: "Memoria del autor",
+    writerMemoryHint: "Estas preferencias se inyectan en cada sesión del agente de IA. La IA recuerda lo que le digas aquí.",
+  },
+
+  onboardingUI: {
+    welcome: "Te damos la bienvenida a Write My Book OK",
+    tagline: "Tu plataforma de escritura de libros con IA",
+    noCardNeeded: "No hace falta tarjeta ni clave de API para empezar a escribir.",
+    byokExplainer: "WMB usa tus propias claves de API. Te conectas directamente a proveedores como Anthropic, OpenAI u OpenRouter.",
+    pricingExplainer: "Pagas a los proveedores directamente a sus tarifas. Sin recargo ni facturas sorpresa. Usa modelos económicos para los borradores y los premium para la edición final.",
+    getStarted: "Empezar",
+    addYourKeys: "Añade tus claves de API",
+    addKeysHint: "Añade al menos una clave. Siempre puedes añadir más luego en Ajustes.",
+    starting: "Iniciando...",
+    continueLabel: "Continuar",
+    chooseDefaultProvider: "Elige tu proveedor predeterminado",
+    defaultProviderHint: "Este proveedor se usará por defecto en todos los flujos de trabajo. Puedes cambiarlo cuando quieras.",
+    finishing: "Finalizando...",
+    docsCreated: "Se han creado todos los documentos base. Revísalos en el asistente de configuración.",
+  },
+
+  shortcuts: {
+    openCommandPalette: "Abrir la paleta de comandos",
+    showShortcuts: "Mostrar los atajos de teclado",
+    toggleSidebar: "Mostrar u ocultar la barra lateral",
+    aiRewriteSelect: "Reescritura con IA (selecciona texto primero)",
+    nextFinding: "Siguiente hallazgo (abre la revisión)",
+    previousFinding: "Hallazgo anterior",
+    closePopup: "Cerrar la ventana emergente o la ayuda",
+    exitImmersive: "Salir del modo inmersivo",
+    sendMessage: "Enviar el mensaje",
+    newLine: "Nueva línea en el mensaje",
+    contextGlobal: "General",
+    contextEditor: "Editor",
+    contextAgent: "Panel del agente",
+    dialogHint: "Atajos de teclado disponibles, organizados por contexto.",
+  },
 };
 
 const FR: UIStrings = {
@@ -6374,6 +6663,10 @@ const FR: UIStrings = {
     undoDismiss: "Annuler",
   },
   settings: {
+    customProviders: "Fournisseurs personnalisés (LAN / proxy / auto-hébergés)",
+    noCustomProvider: "Aucun fournisseur personnalisé enregistré. Ajoutez une machine du réseau local, un proxy d’entreprise ou un hub auto-hébergé — c’est la découverte `/models` du point de terminaison qui décide de ce qui est disponible.",
+    addProvider: "Ajouter un fournisseur",
+    noProvidersConnected: "Aucun fournisseur connecté. Ajoutez d’abord une clé d’API.",
     title: "Paramètres",
     subtitle: "Gérez vos clés API et préférences",
     apiKeys: "Clés API",
@@ -6940,6 +7233,14 @@ const FR: UIStrings = {
   },
 
   appUI: {
+    tierProfessional: "L’offre Professional débloque un nombre illimité de livres, la gestion des séries et les analyses avancées.",
+    tierPublisher: "L’offre Publisher comprend tout Professional, plus le support prioritaire et les futurs sièges multi-utilisateurs.",
+    tierFounder: "L’offre Founder fige 19 $ par mois à vie, avec des livres illimités et toutes les fonctions Pro.",
+    themeLight: "Clair",
+    themeDark: "Sombre",
+    themeSystem: "Système",
+    upgradeRequired: "Passage à une offre supérieure requis",
+    viewPlans: "Voir les offres",
     bookName: "Nom du livre",
     styleFingerprint: "Empreinte de style",
     storyBible: "Bible de l'histoire",
@@ -7563,6 +7864,51 @@ const FR: UIStrings = {
     manuscriptReadiness: "État de préparation du manuscrit",
     runPublishingCheck: "Lancer la vérification de publication",
   },
+
+  memoryUI: {
+    vectorMemoryHint: "La mémoire vectorielle fournit aux agents IA le contexte de vos livres.",
+    connected: "Connecté",
+    unreachable: "Injoignable",
+    qdrantUnreachable: "Qdrant est injoignable. Les fonctions de mémoire vectorielle (recherche sémantique, récupération de contexte) sont indisponibles. Vérifiez que Qdrant tourne et que QDRANT_URL est correcte.",
+    statsUnavailable: "Impossible de charger les données de mémoire.",
+    memory: "Mémoire",
+    writerMemory: "Mémoire de l’auteur",
+    writerMemoryHint: "Ces préférences sont injectées dans chaque session de l’agent IA. L’IA retient ce que vous lui dites ici.",
+  },
+
+  onboardingUI: {
+    welcome: "Bienvenue dans Write My Book OK",
+    tagline: "Votre plateforme d’écriture de livres assistée par IA",
+    noCardNeeded: "Ni carte bancaire ni clé d’API pour commencer à écrire.",
+    byokExplainer: "WMB utilise vos propres clés d’API. Vous vous connectez directement à des fournisseurs comme Anthropic, OpenAI ou OpenRouter.",
+    pricingExplainer: "Vous payez les fournisseurs directement, à leurs tarifs. Pas de marge, pas de facture surprise. Modèles économiques pour les brouillons, haut de gamme pour la relecture finale.",
+    getStarted: "Commencer",
+    addYourKeys: "Ajoutez vos clés d’API",
+    addKeysHint: "Ajoutez au moins une clé. Vous pourrez en ajouter d’autres plus tard dans les réglages.",
+    starting: "Démarrage...",
+    continueLabel: "Continuer",
+    chooseDefaultProvider: "Choisissez votre fournisseur par défaut",
+    defaultProviderHint: "Ce fournisseur servira par défaut à tous les flux de travail. Vous pourrez en changer à tout moment.",
+    finishing: "Finalisation...",
+    docsCreated: "Tous les documents fondateurs sont créés. Passez-les en revue dans l’assistant de configuration.",
+  },
+
+  shortcuts: {
+    openCommandPalette: "Ouvrir la palette de commandes",
+    showShortcuts: "Afficher les raccourcis clavier",
+    toggleSidebar: "Afficher ou masquer la barre latérale",
+    aiRewriteSelect: "Réécriture IA (sélectionnez d’abord du texte)",
+    nextFinding: "Constat suivant (ouvre la revue)",
+    previousFinding: "Constat précédent",
+    closePopup: "Fermer la fenêtre ou l’infobulle",
+    exitImmersive: "Quitter le mode immersif",
+    sendMessage: "Envoyer le message",
+    newLine: "Nouvelle ligne dans le message",
+    contextGlobal: "Général",
+    contextEditor: "Éditeur",
+    contextAgent: "Panneau de l’agent",
+    dialogHint: "Raccourcis clavier disponibles, classés par contexte.",
+  },
 };
 
 const RU: UIStrings = {
@@ -7638,6 +7984,10 @@ const RU: UIStrings = {
     undoDismiss: "Отменить",
   },
   settings: {
+    customProviders: "Свои провайдеры (LAN / прокси / собственный сервер)",
+    noCustomProvider: "Своих провайдеров пока нет. Добавьте машину в локальной сети, корпоративный прокси или собственный хаб — что доступно, решает опрос `/models` самого адреса.",
+    addProvider: "Добавить провайдера",
+    noProvidersConnected: "Провайдеры не подключены. Сначала добавьте API-ключ.",
     title: "Настройки",
     subtitle: "Управление API-ключами и предпочтениями",
     apiKeys: "API-ключи",
@@ -8204,6 +8554,14 @@ const RU: UIStrings = {
   },
 
   appUI: {
+    tierProfessional: "Тариф Professional открывает неограниченное число книг, управление сериями и расширенную аналитику.",
+    tierPublisher: "Тариф Publisher включает всё из Professional, а также приоритетную поддержку и будущие места для нескольких пользователей.",
+    tierFounder: "Тариф Founder навсегда фиксирует 19 $ в месяц, с неограниченным числом книг и всеми возможностями Pro.",
+    themeLight: "Светлая",
+    themeDark: "Тёмная",
+    themeSystem: "Системная",
+    upgradeRequired: "Нужен план выше",
+    viewPlans: "Посмотреть тарифы",
     bookName: "Название книги",
     styleFingerprint: "Стилевой отпечаток",
     storyBible: "Библия истории",
@@ -8827,6 +9185,51 @@ const RU: UIStrings = {
     manuscriptReadiness: "Готовность рукописи",
     runPublishingCheck: "Запустить проверку к публикации",
   },
+
+  memoryUI: {
+    vectorMemoryHint: "Векторная память даёт ИИ-агентам контекст из ваших книг.",
+    connected: "Подключено",
+    unreachable: "Недоступно",
+    qdrantUnreachable: "Qdrant недоступен. Возможности векторной памяти (семантический поиск, подбор контекста) не работают. Проверьте, запущен ли Qdrant и верен ли QDRANT_URL.",
+    statsUnavailable: "Не удалось загрузить данные памяти.",
+    memory: "Память",
+    writerMemory: "Память автора",
+    writerMemoryHint: "Эти установки попадают в каждую сессию ИИ-агента. ИИ помнит то, что вы здесь укажете.",
+  },
+
+  onboardingUI: {
+    welcome: "Добро пожаловать в Write My Book OK",
+    tagline: "Ваша платформа для написания книг с помощью ИИ",
+    noCardNeeded: "Чтобы начать писать, не нужны ни карта, ни API-ключ.",
+    byokExplainer: "WMB использует ваши собственные API-ключи. Вы подключаетесь напрямую к провайдерам — Anthropic, OpenAI или OpenRouter.",
+    pricingExplainer: "Вы платите провайдерам напрямую по их тарифам. Без наценки и неожиданных счетов. Дешёвые модели — для черновиков, премиальные — для финальной правки.",
+    getStarted: "Начать",
+    addYourKeys: "Добавьте свои API-ключи",
+    addKeysHint: "Добавьте хотя бы один ключ. Остальные можно добавить позже в настройках.",
+    starting: "Запускаю...",
+    continueLabel: "Продолжить",
+    chooseDefaultProvider: "Выберите провайдера по умолчанию",
+    defaultProviderHint: "Этот провайдер будет использоваться по умолчанию во всех рабочих процессах. Его всегда можно сменить.",
+    finishing: "Завершаю...",
+    docsCreated: "Все базовые документы созданы. Просмотрите их в мастере настройки.",
+  },
+
+  shortcuts: {
+    openCommandPalette: "Открыть палитру команд",
+    showShortcuts: "Показать сочетания клавиш",
+    toggleSidebar: "Показать или скрыть боковую панель",
+    aiRewriteSelect: "Переписать с ИИ (сначала выделите текст)",
+    nextFinding: "Следующее замечание (откроет разбор)",
+    previousFinding: "Предыдущее замечание",
+    closePopup: "Закрыть всплывающее окно или подсказку",
+    exitImmersive: "Выйти из режима погружения",
+    sendMessage: "Отправить сообщение",
+    newLine: "Новая строка в сообщении",
+    contextGlobal: "Общие",
+    contextEditor: "Редактор",
+    contextAgent: "Панель агента",
+    dialogHint: "Доступные сочетания клавиш, сгруппированные по контексту.",
+  },
 };
 
 const ZH: UIStrings = {
@@ -8902,6 +9305,10 @@ const ZH: UIStrings = {
     undoDismiss: "撤销",
   },
   settings: {
+    customProviders: "自定义服务商（局域网 / 代理 / 自建）",
+    noCustomProvider: "尚未保存自定义服务商。可添加局域网机器、企业代理或自建服务——具体可用内容由该端点自身的 `/models` 发现结果决定。",
+    addProvider: "添加服务商",
+    noProvidersConnected: "尚未连接服务商。请先添加 API 密钥。",
     title: "设置",
     subtitle: "管理您的API密钥和偏好设置",
     apiKeys: "API密钥",
@@ -9468,6 +9875,14 @@ const ZH: UIStrings = {
   },
 
   appUI: {
+    tierProfessional: "Professional 套餐解锁无限图书、系列管理和进阶分析。",
+    tierPublisher: "Publisher 套餐包含 Professional 的全部内容，另加优先支持与后续的多用户席位。",
+    tierFounder: "Founder 套餐永久锁定每月 19 美元，含无限图书与全部 Pro 功能。",
+    themeLight: "浅色",
+    themeDark: "深色",
+    themeSystem: "跟随系统",
+    upgradeRequired: "需要升级",
+    viewPlans: "查看套餐",
     bookName: "书名",
     styleFingerprint: "风格指纹",
     storyBible: "故事圣经",
@@ -10090,6 +10505,51 @@ const ZH: UIStrings = {
     importAnother: "再导入一个文件",
     manuscriptReadiness: "稿件就绪度",
     runPublishingCheck: "运行出版检查",
+  },
+
+  memoryUI: {
+    vectorMemoryHint: "向量记忆为 AI 助手提供来自你书稿的上下文。",
+    connected: "已连接",
+    unreachable: "无法访问",
+    qdrantUnreachable: "无法访问 Qdrant。向量记忆功能（语义搜索、上下文检索）不可用。请确认 Qdrant 正在运行且 QDRANT_URL 正确。",
+    statsUnavailable: "无法加载记忆统计。",
+    memory: "记忆",
+    writerMemory: "作者记忆",
+    writerMemoryHint: "这些偏好会注入每一次 AI 助手会话。AI 会记住你在这里告诉它的内容。",
+  },
+
+  onboardingUI: {
+    welcome: "欢迎使用 Write My Book OK",
+    tagline: "你的 AI 书稿创作平台",
+    noCardNeeded: "开始写作无需信用卡或 API 密钥。",
+    byokExplainer: "WMB 使用你自己的 AI 服务商 API 密钥，直接连接 Anthropic、OpenAI 或 OpenRouter 等服务商。",
+    pricingExplainer: "你按服务商的价格直接付费。没有加价，也没有意外账单。草稿用便宜的模型，终稿用高级模型。",
+    getStarted: "开始使用",
+    addYourKeys: "添加你的 API 密钥",
+    addKeysHint: "至少添加一个密钥。之后随时可以在设置中添加更多。",
+    starting: "正在启动……",
+    continueLabel: "继续",
+    chooseDefaultProvider: "选择默认服务商",
+    defaultProviderHint: "所有工作流将默认使用该服务商。你随时可以更改。",
+    finishing: "正在完成……",
+    docsCreated: "所有基础文档已创建。请在设置向导中查看。",
+  },
+
+  shortcuts: {
+    openCommandPalette: "打开命令面板",
+    showShortcuts: "显示键盘快捷键",
+    toggleSidebar: "显示或隐藏侧边栏",
+    aiRewriteSelect: "AI 改写（请先选中文字）",
+    nextFinding: "下一条发现（打开审阅）",
+    previousFinding: "上一条发现",
+    closePopup: "关闭弹窗或提示",
+    exitImmersive: "退出沉浸模式",
+    sendMessage: "发送消息",
+    newLine: "在消息中换行",
+    contextGlobal: "全局",
+    contextEditor: "编辑器",
+    contextAgent: "助手面板",
+    dialogHint: "按使用场景分组的可用键盘快捷键。",
   },
 };
 

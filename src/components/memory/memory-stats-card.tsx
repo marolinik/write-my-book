@@ -41,9 +41,7 @@ export function MemoryStatsCard({ bookId }: { bookId: string }) {
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
-            <BrainIcon className="size-3.5" />
-            Memory
-          </CardTitle>
+            <BrainIcon className="size-3.5" />{t.memoryUI.memory}</CardTitle>
           <div className="flex gap-1">
             <Button
               variant="ghost"

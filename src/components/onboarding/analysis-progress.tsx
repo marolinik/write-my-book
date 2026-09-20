@@ -100,9 +100,7 @@ export function AnalysisProgress({ messages }: AnalysisProgressProps) {
       </div>
 
       {allDone && (
-        <div className="rounded-md bg-green-50 dark:bg-green-950/30 p-3 text-sm text-green-700 dark:text-green-300">
-          All foundational documents created. Review them in the setup wizard.
-        </div>
+        <div className="rounded-md bg-green-50 dark:bg-green-950/30 p-3 text-sm text-green-700 dark:text-green-300">{t.onboardingUI.docsCreated}</div>
       )}
     </div>
   );

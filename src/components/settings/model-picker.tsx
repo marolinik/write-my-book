@@ -147,9 +147,7 @@ export function ModelPicker({
           )}
 
           {groupedModels.size === 0 && (
-            <div className="px-2 py-3 text-center text-sm text-muted-foreground">
-              No providers connected. Add an API key first.
-            </div>
+            <div className="px-2 py-3 text-center text-sm text-muted-foreground">{t.settings.noProvidersConnected}</div>
           )}
         </SelectContent>
       </Select>

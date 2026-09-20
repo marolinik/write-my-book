@@ -30,6 +30,11 @@ const CLEAN_AREAS = [
   join("components", "book"),
   join("components", "reports"),
   join("components", "style"),
+  join("components", "memory"),
+  join("components", "settings"),
+  join("components", "billing"),
+  join("components", "onboarding"),
+  join("components", "layout"),
 ];
 
 /**
@@ -65,6 +70,8 @@ function englishTextNodes(file: string): string[] {
     // An all-caps token is a format or an acronym (EPUB, DOCX, PDF) — the
     // same string in every language, so it is not a translation gap.
     if (!/[a-z]/.test(text)) continue;
+    // The product's own name is the product's own name in every language.
+    if (text === "WriteMyBook") continue;
     if (!text.includes(" ") && text.length < 4) continue;
     const line = source.slice(0, match.index).split("\n").length;
     found.push(`${file.slice(SRC.length + 1)}:${line} — ${text.slice(0, 80)}`);
@@ -93,11 +100,13 @@ describe("the dictionaries behind the localized areas", () => {
     de: [
       "stepOptional", "syntax", "focusNormal", "upgrade", "name", "median",
       "register", "fleschKincaid", "gunningFog", "colemanLiau",
+      "contextEditor", "themeSystem",
     ],
-    es: ["focusNormal", "error", "fleschKincaid", "gunningFog", "colemanLiau"],
+    es: ["focusNormal", "error", "fleschKincaid", "gunningFog", "colemanLiau", "contextEditor"],
     fr: [
       "insightSuggestion", "focusNormal", "seriesTabDocuments", "seriesTabStructure",
       "type", "dialogue", "distribution", "fleschKincaid", "gunningFog", "colemanLiau",
+      "architecture", "documents", "sessionsUnit",
     ],
     ru: ["gunningFog", "colemanLiau"],
     zh: ["fleschKincaid", "gunningFog", "colemanLiau"],
@@ -123,6 +132,11 @@ describe("the dictionaries behind the localized areas", () => {
       "bookUI",
       "reportsUI",
       "styleUI",
+      "memoryUI",
+      "onboardingUI",
+      "shortcuts",
+      "appUI",
+      "settings",
     ] as const;
     const untranslated: string[] = [];
 

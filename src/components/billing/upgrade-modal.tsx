@@ -10,26 +10,25 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/components/providers/language-provider";
+import type { UIStrings } from "@/lib/i18n/ui-strings";
 import { useUpgradeModal } from "@/hooks/use-billing";
 import { ArrowUpCircle } from "lucide-react";
 
-const TIER_DESCRIPTIONS: Record<string, string> = {
-  indie:
-    "The Indie Author plan gives you 2 active books, unlimited AI sessions and words, overnight batch runs, and no daily limits. Your writing, autosave, and export are always free.",
-  professional:
-    "The Professional plan unlocks unlimited books, series management, and advanced analytics.",
-  publisher:
-    "The Publisher plan includes everything in Professional plus priority support and upcoming multi-user seats.",
-  founder:
-    "The Founder plan locks in $19/mo forever with unlimited books and all Pro features.",
-};
+/** The plan blurbs follow the writer's language like the rest of the modal. */
+const TIER_DESCRIPTIONS = (t: UIStrings): Record<string, string> => ({
+  professional: t.appUI.tierProfessional,
+  publisher: t.appUI.tierPublisher,
+  founder: t.appUI.tierFounder,
+});
 
 export function UpgradeModal() {
+  const { t } = useLanguage();
   const router = useRouter();
   const { open, reason, upgradeToTier, hide } = useUpgradeModal();
 
   const tierDescription = upgradeToTier
-    ? TIER_DESCRIPTIONS[upgradeToTier] ?? ""
+    ? TIER_DESCRIPTIONS(t)[upgradeToTier] ?? ""
     : "";
 
   return (
@@ -37,9 +36,7 @@ export function UpgradeModal() {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <ArrowUpCircle className="h-5 w-5 text-primary" />
-            Upgrade Required
-          </DialogTitle>
+            <ArrowUpCircle className="h-5 w-5 text-primary" />{t.appUI.upgradeRequired}</DialogTitle>
           <DialogDescription className="space-y-2">
             <span className="block">{reason}</span>
             {tierDescription && (
@@ -50,17 +47,13 @@ export function UpgradeModal() {
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="flex-col gap-2 sm:flex-row">
-          <Button variant="outline" onClick={hide}>
-            Cancel
-          </Button>
+          <Button variant="outline" onClick={hide}>{t.common.cancel}</Button>
           <Button
             onClick={() => {
               hide();
               router.push("/settings/billing");
             }}
-          >
-            View Plans
-          </Button>
+          >{t.appUI.viewPlans}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -169,9 +169,7 @@ export function WriterMemoryPanel({ bookId }: WriterMemoryPanelProps) {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm flex items-center gap-2">
-            <BrainIcon className="size-4" />
-            Writer Memory
-          </CardTitle>
+            <BrainIcon className="size-4" />{t.memoryUI.writerMemory}</CardTitle>
           <div className="flex gap-1.5">
             <Badge variant="secondary" className="text-[10px]">
               {totalMemories} total
@@ -183,10 +181,7 @@ export function WriterMemoryPanel({ bookId }: WriterMemoryPanelProps) {
             )}
           </div>
         </div>
-        <p className="text-xs text-muted-foreground mt-1">
-          These preferences are injected into every AI agent session.
-          The AI remembers what you tell it here.
-        </p>
+        <p className="text-xs text-muted-foreground mt-1">{t.memoryUI.writerMemoryHint}</p>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Add new memory */}

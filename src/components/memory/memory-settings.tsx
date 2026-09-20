@@ -48,9 +48,7 @@ export function MemorySettings() {
           <BrainIcon className="size-5 text-muted-foreground" />
           <div>
             <CardTitle>{t.workspaceUI.memorySystem}</CardTitle>
-            <CardDescription>
-              Vector memory powers AI agents with context from your books.
-            </CardDescription>
+            <CardDescription>{t.memoryUI.vectorMemoryHint}</CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -70,13 +68,9 @@ export function MemorySettings() {
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">{t.workspaceUI.qdrantConnection}</span>
               {data.qdrantHealthy ? (
-                <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                  Connected
-                </Badge>
+                <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">{t.memoryUI.connected}</Badge>
               ) : (
-                <Badge variant="destructive">
-                  Unreachable
-                </Badge>
+                <Badge variant="destructive">{t.memoryUI.unreachable}</Badge>
               )}
             </div>
 
@@ -114,16 +108,12 @@ export function MemorySettings() {
             {/* Warning if unhealthy */}
             {!data.qdrantHealthy && (
               <div className="rounded-md border border-yellow-300 bg-yellow-50 px-3 py-2 dark:border-yellow-700 dark:bg-yellow-950/30">
-                <p className="text-xs text-yellow-700 dark:text-yellow-400">
-                  Qdrant is unreachable. Vector memory features (semantic search, context retrieval) are unavailable. Check that Qdrant is running and QDRANT_URL is correct.
-                </p>
+                <p className="text-xs text-yellow-700 dark:text-yellow-400">{t.memoryUI.qdrantUnreachable}</p>
               </div>
             )}
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">
-            Unable to load memory stats.
-          </p>
+          <p className="text-sm text-muted-foreground">{t.memoryUI.statsUnavailable}</p>
         )}
       </CardContent>
     </Card>

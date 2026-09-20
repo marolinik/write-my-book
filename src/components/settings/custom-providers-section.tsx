@@ -65,7 +65,7 @@ export function CustomProvidersSection() {
   return (
     <div className="space-y-3 rounded-md border bg-muted/30 p-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-medium">Custom providers (LAN / proxy / self-hosted)</p>
+        <p className="text-sm font-medium">{t.settings.customProviders}</p>
         <Button size="icon" variant="ghost" onClick={refresh} disabled={busy} aria-label={t.workspaceUI.refreshList}>
           <RefreshCw className="h-4 w-4" />
         </Button>
@@ -90,10 +90,7 @@ export function CustomProvidersSection() {
         </div>
       ))}
       {(!providers || providers.length === 0) && (
-        <p className="rounded-md border border-dashed p-3 text-xs text-muted-foreground">
-          No custom provider saved yet. Add a LAN box, a corporate proxy, or a self-hosted hub —
-          the endpoint's own `/models` discovery decides what's available.
-        </p>
+        <p className="rounded-md border border-dashed p-3 text-xs text-muted-foreground">{t.settings.noCustomProvider}</p>
       )}
 
       <div className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
@@ -111,8 +108,7 @@ export function CustomProvidersSection() {
         </div>
       </div>
       <Button size="sm" onClick={add} disabled={busy || !name.trim() || !baseURL.trim()}>
-        <Plus className="h-4 w-4" /> Add provider
-      </Button>
+        <Plus className="h-4 w-4" />{t.settings.addProvider}</Button>
       {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   );

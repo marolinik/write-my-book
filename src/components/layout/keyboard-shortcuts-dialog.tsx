@@ -60,9 +60,7 @@ export function KeyboardShortcutsDialog() {
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>{t.appUI.keyboardShortcuts}</DialogTitle>
-          <DialogDescription>
-            Available keyboard shortcuts organized by context.
-          </DialogDescription>
+          <DialogDescription>{t.shortcuts.dialogHint}</DialogDescription>
         </DialogHeader>
         <div className="space-y-4 max-h-[60vh] overflow-y-auto">
           {(Object.entries(grouped) as [ShortcutContext, typeof KEYBOARD_SHORTCUTS][]).map(
@@ -70,7 +68,7 @@ export function KeyboardShortcutsDialog() {
               shortcuts.length > 0 && (
                 <div key={ctx}>
                   <h3 className="text-sm font-medium text-foreground mb-2">
-                    {CONTEXT_LABELS[ctx]}
+                    {CONTEXT_LABELS[ctx](t)}
                   </h3>
                   <div className="space-y-1">
                     {shortcuts.map((s, i) => (
@@ -79,7 +77,7 @@ export function KeyboardShortcutsDialog() {
                         className="flex items-center justify-between py-1"
                       >
                         <span className="text-sm text-muted-foreground">
-                          {s.description}
+                          {s.description(t)}
                         </span>
                         <kbd className="ml-4 shrink-0 px-1.5 py-0.5 rounded border bg-muted text-xs font-mono text-muted-foreground">
                           {s.keys}
