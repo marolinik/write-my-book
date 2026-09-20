@@ -13,8 +13,13 @@ import { join } from "node:path";
  * a prompt delimiter (`--- CHAPTER 1 ---`) is not writer-facing.
  */
 
+/** One module per language since the dictionary was split. */
+const DICTIONARY_FILES = [
+  "en", "sr", "de", "es", "fr", "ru", "zh",
+].map((code) => `src/lib/i18n/ui-strings/${code}.ts`);
+
 const COPY_FILES = [
-  "src/lib/i18n/ui-strings.ts",
+  ...DICTIONARY_FILES,
   "src/app/(app)/settings/billing/page.tsx",
   "src/app/(app)/books/[bookId]/setup/page.tsx",
   "src/app/page.tsx",
@@ -54,7 +59,9 @@ describe("D-182 — em dashes in writer-facing copy", () => {
     expect(billing).toContain("Limited — Founder's Price");
     // O1 moved this line into the dictionary; the em dash has to survive the
     // move, in every locale that spells the phrase out.
-    const dictionary = readFileSync(join(process.cwd(), "src/lib/i18n/ui-strings.ts"), "utf8");
+    const dictionary = DICTIONARY_FILES.map((file) =>
+      readFileSync(join(process.cwd(), file), "utf8")
+    ).join("\n");
     const byokLines = dictionary
       .split(/\r?\n/)
       .filter((line) => line.trim().startsWith("byok:"));

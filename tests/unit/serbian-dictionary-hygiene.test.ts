@@ -16,18 +16,22 @@ import { join } from "node:path";
 const src = (...p: string[]) => readFileSync(join(__dirname, "..", "..", "src", ...p), "utf-8");
 const CYRILLIC = /[Ѐ-ӿ]/;
 
-/** The SR dictionary literal, up to the next language literal. */
+/**
+ * The SR dictionary literal, up to the next language literal. `ui-strings`
+ * is one module per language now, so its Serbian file IS the block; the
+ * agent-strings table still holds every language in one file.
+ */
 function serbianBlock(body: string): string {
-  const at = body.search(/^const SR/m);
-  expect(at, "no SR dictionary found").toBeGreaterThan(-1);
+  const at = body.search(/^export const SR|^const SR/m);
+  if (at === -1) return body;
   const rest = body.slice(at);
-  const end = rest.slice(1).search(/^const [A-Z]{2}/m);
+  const end = rest.slice(1).search(/^(export )?const [A-Z]{2}/m);
   return end === -1 ? rest : rest.slice(0, end + 1);
 }
 
 describe("the Serbian UI dictionary is Latin", () => {
   it("carries no Cyrillic character at all", () => {
-    const block = serbianBlock(src("lib", "i18n", "ui-strings.ts"));
+    const block = serbianBlock(src("lib", "i18n", "ui-strings", "sr.ts"));
     const offenders = block
       .split("\n")
       .filter((l) => CYRILLIC.test(l))
