@@ -702,9 +702,7 @@ export function AIGhostText({
         type="button"
         onClick={() => router.push("/settings/billing")}
         className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"
-      >
-        Upgrade
-      </button>
+      >{t.common.upgrade}</button>
       <button
         type="button"
         aria-label={t.editorUI.dismiss}
@@ -808,9 +806,7 @@ export function AIGhostText({
         aria-live="polite"
         className="pointer-events-none fixed z-50 rounded bg-background/90 px-1.5 py-0.5 font-sans text-[10px] not-italic text-muted-foreground shadow-sm"
         style={{ top: Math.max(0, position.top - 22), left: position.left }}
-      >
-        Still writing…
-      </span>
+      >{t.editorChrome.stillWriting}</span>
     ) : null;
 
   if (!overlay && !wallBanner && !stillWritingNotice) return null;

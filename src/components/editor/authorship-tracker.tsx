@@ -85,9 +85,7 @@ export function AuthorshipTracker({ stats, compact }: AuthorshipTrackerProps) {
     <div className="space-y-1.5">
       <div className="flex items-center justify-between text-xs">
         <span className="text-muted-foreground flex items-center gap-1">
-          <PieChartIcon className="size-3" />
-          Authorship
-        </span>
+          <PieChartIcon className="size-3" />{t.editorChrome.authorship}</span>
         <span className="font-medium">{humanPct}% yours</span>
       </div>
       <div className="h-2 rounded-full bg-muted overflow-hidden flex">

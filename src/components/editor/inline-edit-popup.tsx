@@ -295,18 +295,14 @@ export function InlineEditPopup({
             />
             <div className="flex items-center gap-2 mt-2">
               <Button type="submit" size="sm" className="h-7 text-xs gap-1">
-                <Sparkles className="h-3 w-3" />
-                Generate
-              </Button>
+                <Sparkles className="h-3 w-3" />{t.editorChrome.generate}</Button>
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
                 className="h-7 text-xs"
                 onClick={onClose}
-              >
-                Cancel
-              </Button>
+              >{t.common.cancel}</Button>
             </div>
           </form>
 
@@ -330,9 +326,7 @@ export function InlineEditPopup({
           role="status"
           className="p-4 flex items-center gap-2 text-sm text-muted-foreground"
         >
-          <Loader2 className="h-4 w-4 animate-spin" />
-          Generating suggestions...
-        </div>
+          <Loader2 className="h-4 w-4 animate-spin" />{t.editorUI.generatingSuggestion}</div>
       )}
 
       {/* Results phase */}
@@ -385,23 +379,17 @@ export function InlineEditPopup({
                 className="h-7 text-xs gap-1"
                 onClick={onClose}
               >
-                <X className="h-3 w-3" />
-                Reject
-              </Button>
+                <X className="h-3 w-3" />{t.common.reject}</Button>
               <Button
                 size="sm"
                 className="h-7 text-xs gap-1"
                 onClick={handleAccept}
               >
-                <Check className="h-3 w-3" />
-                Accept
-              </Button>
+                <Check className="h-3 w-3" />{t.common.accept}</Button>
             </div>
           </div>
 
-          <div className="text-[10px] text-muted-foreground mt-1">
-            Arrow keys to browse, Enter to accept, Esc to cancel
-          </div>
+          <div className="text-[10px] text-muted-foreground mt-1">{t.editorChrome.inlineEditHint}</div>
         </div>
       )}
     </div>

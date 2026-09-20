@@ -1091,9 +1091,7 @@ export function ManuscriptEditor({
       <div
         role="status"
         className="flex items-center justify-center h-full text-muted-foreground"
-      >
-        Loading chapter...
-      </div>
+      >{t.editorChrome.loadingChapter}</div>
     );
   }
 

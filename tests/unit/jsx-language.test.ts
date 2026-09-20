@@ -22,6 +22,7 @@ const LANGUAGES = ["en", "sr", "de", "es", "fr", "ru", "zh"];
 const CLEAN_AREAS = [
   join("components", "agent"),
   join("components", "editorial"),
+  join("components", "editor"),
 ];
 
 /**
@@ -32,7 +33,7 @@ const CLEAN_AREAS = [
 const SPAN = />([^<>{}]+)</g;
 
 /** Fragments that mean the match is code between two JSX islands, not prose. */
-const CODE_MARKERS = [";", "=>", "const ", "return ", "&&", "||", '"', "=== ", "//"];
+const CODE_MARKERS = [";", "=>", "const ", "return ", "&&", "||", '"', "=== ", "//", "*/"];
 
 /** `) : isIdle ? (` and friends — a ternary straddling two JSX branches. */
 const TERNARY = /^\)?\s*:|\?\s*\($/;
@@ -70,26 +71,31 @@ describe("the localized areas of the app", () => {
   });
 });
 
-describe("the agent and editorial dictionaries", () => {
+describe("the dictionaries behind the localized areas", () => {
   /**
    * Words that are genuinely the same in a language as in English. Anything
    * not listed here that matches English is an untranslated copy-paste.
    */
   const COGNATES: Record<string, string[]> = {
-    de: ["stepOptional"], // "optional" is the German word too
-    fr: ["insightSuggestion"], // "suggestion" is the French word too
+    // German
+    de: ["stepOptional", "syntax", "focusNormal", "upgrade"],
+    // Spanish
+    es: ["focusNormal", "error"],
+    // French
+    fr: ["insightSuggestion", "focusNormal"],
   };
 
   it("exist in every language", () => {
     for (const language of LANGUAGES) {
       expect(getUIStrings(language).agentUI, language).toBeTruthy();
       expect(getUIStrings(language).editorialUI, language).toBeTruthy();
+      expect(getUIStrings(language).editorChrome, language).toBeTruthy();
     }
   });
 
   it("are translated everywhere except for listed cognates", () => {
     const en = getUIStrings("en");
-    const groups = ["agentUI", "editorialUI"] as const;
+    const groups = ["agentUI", "editorialUI", "editorChrome", "common"] as const;
     const untranslated: string[] = [];
 
     for (const language of LANGUAGES.filter((l) => l !== "en")) {

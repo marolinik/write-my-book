@@ -164,6 +164,14 @@ export interface UIStrings {
 
   // Common
   common: {
+    cancel: string;
+    accept: string;
+    reject: string;
+    restore: string;
+    send: string;
+    tryAgain: string;
+    regenerate: string;
+    upgrade: string;
     loading: string;
     error: string;
     save: string;
@@ -1070,6 +1078,55 @@ export interface UIStrings {
     keepAsIs: string;
     capReached: string;
   };
+
+  // H-10 - the editor's own chrome: status bar, find-and-replace, pacing and
+  // syntax panels, the conflict dialog's two choices.
+  editorChrome: {
+    stillWriting: string;
+    rewriteComparison: string;
+    loadingSeriesContext: string;
+    intentional: string;
+    authorship: string;
+    checking: string;
+    resetFilters: string;
+    conflictReview: string;
+    offlineSavedLocally: string;
+    offlineNotSaved: string;
+    searchHelp: string;
+    wholeWord: string;
+    caseSensitive: string;
+    wholeWordDisabled: string;
+    searching: string;
+    exitFocus: string;
+    generate: string;
+    inlineEditHint: string;
+    loadingChapter: string;
+    pacing: string;
+    sentencePacing: string;
+    pacingShort: string;
+    pacingMedium: string;
+    pacingLong: string;
+    pacingVeryLong: string;
+    syntax: string;
+    proseSyntaxAnalysis: string;
+    verbs: string;
+    adjectives: string;
+    adverbs: string;
+    loadTheirs: string;
+    keepMine: string;
+    timer: string;
+    describeYourChange: string;
+    multipleFindingsHere: string;
+    selectChapterToView: string;
+    distractionFreeHint: string;
+    immersiveMode: string;
+    continuityHere: string;
+    continuityElsewhere: string;
+    continuityFlags: string;
+    focusNormal: string;
+    focusFocused: string;
+    focusParagraph: string;
+  };
 }
 
 export const SUPPORTED_LANGUAGES = [
@@ -1232,6 +1289,14 @@ const EN: UIStrings = {
     nameRequired: "Please enter a book name to continue.",
   },
   common: {
+    cancel: "Cancel",
+    accept: "Accept",
+    reject: "Reject",
+    restore: "Restore",
+    send: "Send",
+    tryAgain: "Try again",
+    regenerate: "Regenerate",
+    upgrade: "Upgrade",
     loading: "Loading...",
     error: "Error",
     save: "Save",
@@ -2223,6 +2288,53 @@ const EN: UIStrings = {
     keepAsIs: "Keep as-is",
     capReached: "3-exchange cap reached — decide above, or undo to revise.",
   },
+
+  editorChrome: {
+    stillWriting: "Still writing…",
+    rewriteComparison: "AI Rewrite Comparison",
+    loadingSeriesContext: "Loading series context...",
+    intentional: "Intentional",
+    authorship: "Authorship",
+    checking: "checking…",
+    resetFilters: "reset",
+    conflictReview: "Conflict — click to review",
+    offlineSavedLocally: "Offline — saved on this device",
+    offlineNotSaved: "Offline — changes not saved",
+    searchHelp: "Search this chapter or the whole book. Matching is plain text — no wildcards or regular expressions.",
+    wholeWord: "Whole word",
+    caseSensitive: "Case sensitive",
+    wholeWordDisabled: "Whole word needs a search term that starts and ends with a letter, digit or underscore — it is off for this one.",
+    searching: "Searching…",
+    exitFocus: "Exit Focus",
+    generate: "Generate",
+    inlineEditHint: "Arrow keys to browse, Enter to accept, Esc to cancel",
+    loadingChapter: "Loading chapter...",
+    pacing: "Pacing",
+    sentencePacing: "Sentence Pacing",
+    pacingShort: "Short (≤8)",
+    pacingMedium: "Medium (9-18)",
+    pacingLong: "Long (19-30)",
+    pacingVeryLong: "Very Long (30+)",
+    syntax: "Syntax",
+    proseSyntaxAnalysis: "Prose Syntax Analysis",
+    verbs: "Verbs",
+    adjectives: "Adjectives",
+    adverbs: "Adverbs",
+    loadTheirs: "Load theirs",
+    keepMine: "Keep mine",
+    timer: "Timer",
+    describeYourChange: "Describe your change",
+    multipleFindingsHere: "Multiple findings at this position",
+    selectChapterToView: "Select a chapter to view",
+    distractionFreeHint: "Distraction-free writing. Press Escape to exit.",
+    immersiveMode: "Immersive Mode",
+    continuityHere: "{count} here",
+    continuityElsewhere: "{count} elsewhere",
+    continuityFlags: "{count} continuity",
+    focusNormal: "Normal",
+    focusFocused: "Focused",
+    focusParagraph: "Paragraph",
+  },
 };
 
 const SR: UIStrings = {
@@ -2367,6 +2479,14 @@ const SR: UIStrings = {
     nameRequired: "Unesite naziv knjige da biste nastavili.",
   },
   common: {
+    cancel: "Otkaži",
+    accept: "Prihvati",
+    reject: "Odbij",
+    restore: "Vrati",
+    send: "Pošalji",
+    tryAgain: "Pokušaj ponovo",
+    regenerate: "Generiši ponovo",
+    upgrade: "Nadogradi",
     loading: "Učitavanje...",
     error: "Greška",
     save: "Sačuvaj",
@@ -3348,6 +3468,53 @@ const SR: UIStrings = {
     keepAsIs: "Zadrži kako jeste",
     capReached: "Dostignut je limit od 3 razmene — odlučite gore ili poništite da biste preradili.",
   },
+
+  editorChrome: {
+    stillWriting: "Još pišem…",
+    rewriteComparison: "Poređenje AI prepisa",
+    loadingSeriesContext: "Učitavam kontekst serijala...",
+    intentional: "Namerno",
+    authorship: "Autorstvo",
+    checking: "proveravam…",
+    resetFilters: "poništi",
+    conflictReview: "Sukob — kliknite da pregledate",
+    offlineSavedLocally: "Van mreže — sačuvano na ovom uređaju",
+    offlineNotSaved: "Van mreže — izmene nisu sačuvane",
+    searchHelp: "Pretražite ovo poglavlje ili celu knjigu. Traži se običan tekst — bez džokera i regularnih izraza.",
+    wholeWord: "Cela reč",
+    caseSensitive: "Razlikuj velika i mala slova",
+    wholeWordDisabled: "Za celu reč pojam mora da počinje i završava se slovom, cifrom ili donjom crtom — ovde je isključeno.",
+    searching: "Tražim…",
+    exitFocus: "Izađi iz fokusa",
+    generate: "Generiši",
+    inlineEditHint: "Strelice za kretanje, Enter za prihvatanje, Esc za otkazivanje",
+    loadingChapter: "Učitavam poglavlje...",
+    pacing: "Ritam",
+    sentencePacing: "Ritam rečenica",
+    pacingShort: "Kratke (≤8)",
+    pacingMedium: "Srednje (9-18)",
+    pacingLong: "Duge (19-30)",
+    pacingVeryLong: "Vrlo duge (30+)",
+    syntax: "Sintaksa",
+    proseSyntaxAnalysis: "Analiza sintakse proze",
+    verbs: "Glagoli",
+    adjectives: "Pridevi",
+    adverbs: "Prilozi",
+    loadTheirs: "Učitaj njihovu",
+    keepMine: "Zadrži moju",
+    timer: "Štoperica",
+    describeYourChange: "Opišite svoju izmenu",
+    multipleFindingsHere: "Više nalaza na ovom mestu",
+    selectChapterToView: "Izaberite poglavlje za prikaz",
+    distractionFreeHint: "Pisanje bez ometanja. Pritisnite Escape za izlaz.",
+    immersiveMode: "Uronjeni režim",
+    continuityHere: "{count} ovde",
+    continuityElsewhere: "{count} drugde",
+    continuityFlags: "{count} u kontinuitetu",
+    focusNormal: "Normalno",
+    focusFocused: "Fokusirano",
+    focusParagraph: "Pasus",
+  },
 };
 
 const DE: UIStrings = {
@@ -3492,6 +3659,14 @@ const DE: UIStrings = {
     nameRequired: "Bitte gib einen Buchnamen ein, um fortzufahren.",
   },
   common: {
+    cancel: "Abbrechen",
+    accept: "Annehmen",
+    reject: "Ablehnen",
+    restore: "Wiederherstellen",
+    send: "Senden",
+    tryAgain: "Erneut versuchen",
+    regenerate: "Neu erzeugen",
+    upgrade: "Upgrade",
     loading: "Laden...",
     error: "Fehler",
     save: "Speichern",
@@ -4473,6 +4648,53 @@ const DE: UIStrings = {
     keepAsIs: "So lassen",
     capReached: "Grenze von 3 Wortwechseln erreicht — entscheiden Sie oben oder machen Sie rückgängig, um zu überarbeiten.",
   },
+
+  editorChrome: {
+    stillWriting: "Schreibt noch …",
+    rewriteComparison: "KI-Neufassung im Vergleich",
+    loadingSeriesContext: "Reihenkontext wird geladen ...",
+    intentional: "Absichtlich",
+    authorship: "Urheberschaft",
+    checking: "prüft …",
+    resetFilters: "zurücksetzen",
+    conflictReview: "Konflikt — zum Prüfen klicken",
+    offlineSavedLocally: "Offline — auf diesem Gerät gespeichert",
+    offlineNotSaved: "Offline — Änderungen nicht gespeichert",
+    searchHelp: "Durchsuchen Sie dieses Kapitel oder das ganze Buch. Gesucht wird reiner Text — keine Platzhalter, keine regulären Ausdrücke.",
+    wholeWord: "Ganzes Wort",
+    caseSensitive: "Groß-/Kleinschreibung beachten",
+    wholeWordDisabled: "Für ganze Wörter muss der Suchbegriff mit einem Buchstaben, einer Ziffer oder einem Unterstrich beginnen und enden — hier ist die Option aus.",
+    searching: "Suche läuft …",
+    exitFocus: "Fokus verlassen",
+    generate: "Erzeugen",
+    inlineEditHint: "Pfeiltasten zum Blättern, Enter zum Übernehmen, Esc zum Abbrechen",
+    loadingChapter: "Kapitel wird geladen ...",
+    pacing: "Rhythmus",
+    sentencePacing: "Satzrhythmus",
+    pacingShort: "Kurz (≤8)",
+    pacingMedium: "Mittel (9-18)",
+    pacingLong: "Lang (19-30)",
+    pacingVeryLong: "Sehr lang (30+)",
+    syntax: "Syntax",
+    proseSyntaxAnalysis: "Analyse der Prosasyntax",
+    verbs: "Verben",
+    adjectives: "Adjektive",
+    adverbs: "Adverbien",
+    loadTheirs: "Deren Fassung laden",
+    keepMine: "Meine behalten",
+    timer: "Stoppuhr",
+    describeYourChange: "Beschreiben Sie Ihre Änderung",
+    multipleFindingsHere: "Mehrere Befunde an dieser Stelle",
+    selectChapterToView: "Wählen Sie ein Kapitel zur Ansicht",
+    distractionFreeHint: "Ablenkungsfreies Schreiben. Zum Verlassen Escape drücken.",
+    immersiveMode: "Vollbildmodus",
+    continuityHere: "{count} hier",
+    continuityElsewhere: "{count} anderswo",
+    continuityFlags: "{count} zur Kontinuität",
+    focusNormal: "Normal",
+    focusFocused: "Fokussiert",
+    focusParagraph: "Absatz",
+  },
 };
 
 const ES: UIStrings = {
@@ -4617,6 +4839,14 @@ const ES: UIStrings = {
     nameRequired: "Introduce un nombre de libro para continuar.",
   },
   common: {
+    cancel: "Cancelar",
+    accept: "Aceptar",
+    reject: "Rechazar",
+    restore: "Restaurar",
+    send: "Enviar",
+    tryAgain: "Inténtalo de nuevo",
+    regenerate: "Regenerar",
+    upgrade: "Mejorar el plan",
     loading: "Cargando...",
     error: "Error",
     save: "Guardar",
@@ -5598,6 +5828,53 @@ const ES: UIStrings = {
     keepAsIs: "Dejarlo como está",
     capReached: "Límite de 3 intercambios alcanzado: decide arriba o deshaz para revisar.",
   },
+
+  editorChrome: {
+    stillWriting: "Sigue escribiendo…",
+    rewriteComparison: "Comparación de la reescritura con IA",
+    loadingSeriesContext: "Cargando el contexto de la serie...",
+    intentional: "Intencionado",
+    authorship: "Autoría",
+    checking: "comprobando…",
+    resetFilters: "restablecer",
+    conflictReview: "Conflicto: haz clic para revisar",
+    offlineSavedLocally: "Sin conexión: guardado en este dispositivo",
+    offlineNotSaved: "Sin conexión: los cambios no se guardaron",
+    searchHelp: "Busca en este capítulo o en todo el libro. La coincidencia es de texto plano: sin comodines ni expresiones regulares.",
+    wholeWord: "Palabra completa",
+    caseSensitive: "Distinguir mayúsculas",
+    wholeWordDisabled: "La palabra completa necesita un término que empiece y termine con letra, dígito o guion bajo: aquí está desactivada.",
+    searching: "Buscando…",
+    exitFocus: "Salir del enfoque",
+    generate: "Generar",
+    inlineEditHint: "Flechas para navegar, Enter para aceptar, Esc para cancelar",
+    loadingChapter: "Cargando el capítulo...",
+    pacing: "Ritmo",
+    sentencePacing: "Ritmo de las frases",
+    pacingShort: "Cortas (≤8)",
+    pacingMedium: "Medias (9-18)",
+    pacingLong: "Largas (19-30)",
+    pacingVeryLong: "Muy largas (30+)",
+    syntax: "Sintaxis",
+    proseSyntaxAnalysis: "Análisis sintáctico de la prosa",
+    verbs: "Verbos",
+    adjectives: "Adjetivos",
+    adverbs: "Adverbios",
+    loadTheirs: "Cargar la suya",
+    keepMine: "Conservar la mía",
+    timer: "Cronómetro",
+    describeYourChange: "Describe tu cambio",
+    multipleFindingsHere: "Varios hallazgos en esta posición",
+    selectChapterToView: "Elige un capítulo para verlo",
+    distractionFreeHint: "Escritura sin distracciones. Pulsa Escape para salir.",
+    immersiveMode: "Modo inmersivo",
+    continuityHere: "{count} aquí",
+    continuityElsewhere: "{count} en otros capítulos",
+    continuityFlags: "{count} de continuidad",
+    focusNormal: "Normal",
+    focusFocused: "Enfocado",
+    focusParagraph: "Párrafo",
+  },
 };
 
 const FR: UIStrings = {
@@ -5742,6 +6019,14 @@ const FR: UIStrings = {
     nameRequired: "Saisissez un nom de livre pour continuer.",
   },
   common: {
+    cancel: "Annuler",
+    accept: "Accepter",
+    reject: "Rejeter",
+    restore: "Restaurer",
+    send: "Envoyer",
+    tryAgain: "Réessayer",
+    regenerate: "Régénérer",
+    upgrade: "Passer à l’offre supérieure",
     loading: "Chargement...",
     error: "Erreur",
     save: "Enregistrer",
@@ -6723,6 +7008,53 @@ const FR: UIStrings = {
     keepAsIs: "Garder tel quel",
     capReached: "Limite de 3 échanges atteinte — décidez ci-dessus ou annulez pour réviser.",
   },
+
+  editorChrome: {
+    stillWriting: "Écrit encore…",
+    rewriteComparison: "Comparaison de la réécriture IA",
+    loadingSeriesContext: "Chargement du contexte de la série...",
+    intentional: "Intentionnel",
+    authorship: "Paternité du texte",
+    checking: "vérification…",
+    resetFilters: "réinitialiser",
+    conflictReview: "Conflit — cliquez pour examiner",
+    offlineSavedLocally: "Hors ligne — enregistré sur cet appareil",
+    offlineNotSaved: "Hors ligne — modifications non enregistrées",
+    searchHelp: "Cherchez dans ce chapitre ou dans tout le livre. La correspondance est en texte brut — ni jokers ni expressions régulières.",
+    wholeWord: "Mot entier",
+    caseSensitive: "Respecter la casse",
+    wholeWordDisabled: "Le mot entier exige un terme commençant et finissant par une lettre, un chiffre ou un tiret bas — l’option est désactivée ici.",
+    searching: "Recherche…",
+    exitFocus: "Quitter le mode focus",
+    generate: "Générer",
+    inlineEditHint: "Flèches pour parcourir, Entrée pour accepter, Échap pour annuler",
+    loadingChapter: "Chargement du chapitre...",
+    pacing: "Rythme",
+    sentencePacing: "Rythme des phrases",
+    pacingShort: "Courtes (≤8)",
+    pacingMedium: "Moyennes (9-18)",
+    pacingLong: "Longues (19-30)",
+    pacingVeryLong: "Très longues (30+)",
+    syntax: "Syntaxe",
+    proseSyntaxAnalysis: "Analyse syntaxique de la prose",
+    verbs: "Verbes",
+    adjectives: "Adjectifs",
+    adverbs: "Adverbes",
+    loadTheirs: "Charger la leur",
+    keepMine: "Garder la mienne",
+    timer: "Chronomètre",
+    describeYourChange: "Décrivez votre modification",
+    multipleFindingsHere: "Plusieurs constats à cet endroit",
+    selectChapterToView: "Choisissez un chapitre à afficher",
+    distractionFreeHint: "Écriture sans distraction. Appuyez sur Échap pour quitter.",
+    immersiveMode: "Mode immersif",
+    continuityHere: "{count} ici",
+    continuityElsewhere: "{count} ailleurs",
+    continuityFlags: "{count} de continuité",
+    focusNormal: "Normal",
+    focusFocused: "Concentré",
+    focusParagraph: "Paragraphe",
+  },
 };
 
 const RU: UIStrings = {
@@ -6867,6 +7199,14 @@ const RU: UIStrings = {
     nameRequired: "Введите название книги, чтобы продолжить.",
   },
   common: {
+    cancel: "Отмена",
+    accept: "Принять",
+    reject: "Отклонить",
+    restore: "Восстановить",
+    send: "Отправить",
+    tryAgain: "Попробовать снова",
+    regenerate: "Сгенерировать заново",
+    upgrade: "Улучшить тариф",
     loading: "Загрузка...",
     error: "Ошибка",
     save: "Сохранить",
@@ -7848,6 +8188,53 @@ const RU: UIStrings = {
     keepAsIs: "Оставить как есть",
     capReached: "Достигнут предел в 3 обмена — решите выше или отмените, чтобы переработать.",
   },
+
+  editorChrome: {
+    stillWriting: "Ещё пишет…",
+    rewriteComparison: "Сравнение с переписанным ИИ",
+    loadingSeriesContext: "Загружаю контекст серии...",
+    intentional: "Намеренно",
+    authorship: "Авторство",
+    checking: "проверяю…",
+    resetFilters: "сбросить",
+    conflictReview: "Конфликт — нажмите, чтобы разобрать",
+    offlineSavedLocally: "Офлайн — сохранено на этом устройстве",
+    offlineNotSaved: "Офлайн — изменения не сохранены",
+    searchHelp: "Ищите в этой главе или во всей книге. Совпадение по обычному тексту — без подстановок и регулярных выражений.",
+    wholeWord: "Слово целиком",
+    caseSensitive: "Учитывать регистр",
+    wholeWordDisabled: "Для слова целиком запрос должен начинаться и заканчиваться буквой, цифрой или подчёркиванием — здесь опция выключена.",
+    searching: "Ищу…",
+    exitFocus: "Выйти из фокуса",
+    generate: "Сгенерировать",
+    inlineEditHint: "Стрелки — листать, Enter — принять, Esc — отменить",
+    loadingChapter: "Загружаю главу...",
+    pacing: "Ритм",
+    sentencePacing: "Ритм предложений",
+    pacingShort: "Короткие (≤8)",
+    pacingMedium: "Средние (9-18)",
+    pacingLong: "Длинные (19-30)",
+    pacingVeryLong: "Очень длинные (30+)",
+    syntax: "Синтаксис",
+    proseSyntaxAnalysis: "Синтаксический разбор прозы",
+    verbs: "Глаголы",
+    adjectives: "Прилагательные",
+    adverbs: "Наречия",
+    loadTheirs: "Загрузить их версию",
+    keepMine: "Оставить мою",
+    timer: "Секундомер",
+    describeYourChange: "Опишите свою правку",
+    multipleFindingsHere: "Несколько замечаний в этом месте",
+    selectChapterToView: "Выберите главу для просмотра",
+    distractionFreeHint: "Письмо без отвлечений. Нажмите Escape, чтобы выйти.",
+    immersiveMode: "Режим погружения",
+    continuityHere: "{count} здесь",
+    continuityElsewhere: "{count} в других главах",
+    continuityFlags: "{count} по непрерывности",
+    focusNormal: "Обычный",
+    focusFocused: "Сфокусированный",
+    focusParagraph: "Абзац",
+  },
 };
 
 const ZH: UIStrings = {
@@ -7992,6 +8379,14 @@ const ZH: UIStrings = {
     nameRequired: "请输入书名以继续。",
   },
   common: {
+    cancel: "取消",
+    accept: "接受",
+    reject: "拒绝",
+    restore: "恢复",
+    send: "发送",
+    tryAgain: "重试",
+    regenerate: "重新生成",
+    upgrade: "升级",
     loading: "加载中...",
     error: "错误",
     save: "保存",
@@ -8972,6 +9367,53 @@ const ZH: UIStrings = {
     useIt: "采用",
     keepAsIs: "保持原样",
     capReached: "已达到 3 轮对话上限——请在上方决定，或撤销后重新修改。",
+  },
+
+  editorChrome: {
+    stillWriting: "仍在书写……",
+    rewriteComparison: "AI 改写对比",
+    loadingSeriesContext: "正在加载系列上下文……",
+    intentional: "有意为之",
+    authorship: "署名归属",
+    checking: "检查中……",
+    resetFilters: "重置",
+    conflictReview: "存在冲突——点击查看",
+    offlineSavedLocally: "离线——已保存在本设备",
+    offlineNotSaved: "离线——修改未保存",
+    searchHelp: "在本章或全书中搜索。按纯文本匹配——不支持通配符或正则表达式。",
+    wholeWord: "全词匹配",
+    caseSensitive: "区分大小写",
+    wholeWordDisabled: "全词匹配要求搜索词以字母、数字或下划线开头和结尾——此处已关闭。",
+    searching: "搜索中……",
+    exitFocus: "退出专注",
+    generate: "生成",
+    inlineEditHint: "方向键浏览，回车接受，Esc 取消",
+    loadingChapter: "正在加载章节……",
+    pacing: "节奏",
+    sentencePacing: "句子节奏",
+    pacingShort: "短句（≤8）",
+    pacingMedium: "中句（9-18）",
+    pacingLong: "长句（19-30）",
+    pacingVeryLong: "超长句（30+）",
+    syntax: "句法",
+    proseSyntaxAnalysis: "散文句法分析",
+    verbs: "动词",
+    adjectives: "形容词",
+    adverbs: "副词",
+    loadTheirs: "载入对方版本",
+    keepMine: "保留我的版本",
+    timer: "计时器",
+    describeYourChange: "描述你的修改",
+    multipleFindingsHere: "此处有多条发现",
+    selectChapterToView: "选择要查看的章节",
+    distractionFreeHint: "无干扰写作。按 Escape 退出。",
+    immersiveMode: "沉浸模式",
+    continuityHere: "此处 {count} 条",
+    continuityElsewhere: "别处 {count} 条",
+    continuityFlags: "{count} 条连贯性问题",
+    focusNormal: "普通",
+    focusFocused: "专注",
+    focusParagraph: "段落",
   },
 };
 

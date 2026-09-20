@@ -268,9 +268,7 @@ export function EditorStatusBar({
             onClick={onReviewConflict}
             className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium bg-amber-100 text-amber-800 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50 transition-colors"
           >
-            <AlertTriangle className="h-3 w-3" />
-            Conflict — click to review
-          </button>
+            <AlertTriangle className="h-3 w-3" />{t.editorChrome.conflictReview}</button>
         )}
 
         <div
@@ -287,16 +285,12 @@ export function EditorStatusBar({
           ) : !isOnline && isDirty && draftSavedAt != null ? (
             <>
               <CloudOff className="h-3 w-3 text-amber-600 dark:text-amber-400" />
-              <span className="text-amber-600 dark:text-amber-400">
-                Offline — saved on this device
-              </span>
+              <span className="text-amber-600 dark:text-amber-400">{t.editorChrome.offlineSavedLocally}</span>
             </>
           ) : !isOnline && isDirty ? (
             <>
               <CloudOff className="h-3 w-3 text-red-600 dark:text-red-400" />
-              <span className="text-red-600 dark:text-red-400">
-                Offline — changes not saved
-              </span>
+              <span className="text-red-600 dark:text-red-400">{t.editorChrome.offlineNotSaved}</span>
             </>
           ) : isOnline && isDirty && lastSaveErrorKind === "network" ? (
             <>

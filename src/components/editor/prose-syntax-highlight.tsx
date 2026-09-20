@@ -118,9 +118,7 @@ export function ProseSyntaxHighlight({ text }: ProseSyntaxHighlightProps) {
         className="h-7 text-xs gap-1"
         onClick={() => setActive(true)}
       >
-        <HighlighterIcon className="size-3" />
-        Syntax
-      </Button>
+        <HighlighterIcon className="size-3" />{t.editorChrome.syntax}</Button>
     );
   }
 
@@ -128,9 +126,7 @@ export function ProseSyntaxHighlight({ text }: ProseSyntaxHighlightProps) {
     <div className="border rounded-md p-3 space-y-2 bg-background">
       <div className="flex items-center justify-between">
         <h4 className="text-xs font-medium flex items-center gap-1">
-          <HighlighterIcon className="size-3" />
-          Prose Syntax Analysis
-        </h4>
+          <HighlighterIcon className="size-3" />{t.editorChrome.proseSyntaxAnalysis}</h4>
         <div className="flex items-center gap-2">
           <span className="text-[10px] text-red-500">
             Adverbs: {analysis?.adverbPct}%
@@ -150,14 +146,11 @@ export function ProseSyntaxHighlight({ text }: ProseSyntaxHighlightProps) {
       {/* Color legend */}
       <div className="flex gap-3 text-[9px]">
         <span className="flex items-center gap-1">
-          <span className="size-2 rounded-full bg-blue-500" /> Verbs
-        </span>
+          <span className="size-2 rounded-full bg-blue-500" />{t.editorChrome.verbs}</span>
         <span className="flex items-center gap-1">
-          <span className="size-2 rounded-full bg-purple-500" /> Adjectives
-        </span>
+          <span className="size-2 rounded-full bg-purple-500" />{t.editorChrome.adjectives}</span>
         <span className="flex items-center gap-1">
-          <span className="size-2 rounded-full bg-red-500" /> Adverbs
-        </span>
+          <span className="size-2 rounded-full bg-red-500" />{t.editorChrome.adverbs}</span>
       </div>
 
       {/* Highlighted text preview (first 500 words) */}

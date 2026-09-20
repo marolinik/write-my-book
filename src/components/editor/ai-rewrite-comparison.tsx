@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useLanguage } from "@/components/providers/language-provider";
 
 /**
  * Gap 5: AI Rewrite Split-View Comparison
@@ -74,6 +75,7 @@ export function AIRewriteComparison({
   isRegenerating,
   allowEdit,
 }: AIRewriteComparisonProps) {
+  const { t } = useLanguage();
   const [showDiff, setShowDiff] = useState(true);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(rewrite);
@@ -93,9 +95,7 @@ export function AIRewriteComparison({
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm flex items-center gap-2">
-            <ArrowLeftRightIcon className="size-4" />
-            AI Rewrite Comparison
-          </CardTitle>
+            <ArrowLeftRightIcon className="size-4" />{t.editorChrome.rewriteComparison}</CardTitle>
           <div className="flex items-center gap-2">
             {rewriteLabel && (
               <Badge variant="secondary" className="text-[10px]">
@@ -181,22 +181,16 @@ export function AIRewriteComparison({
                 onClick={onRegenerate}
                 disabled={isRegenerating}
               >
-                <RefreshCwIcon className={`size-3 mr-1 ${isRegenerating ? "animate-spin" : ""}`} />
-                Regenerate
-              </Button>
+                <RefreshCwIcon className={`size-3 mr-1 ${isRegenerating ? "animate-spin" : ""}`} />{t.common.regenerate}</Button>
             )}
           </div>
 
           <div className="flex gap-2">
             {allowEdit && !editing && (
-              <Button variant="ghost" size="sm" onClick={() => { setDraft(rewrite); setEditing(true); }}>
-                Edit
-              </Button>
+              <Button variant="ghost" size="sm" onClick={() => { setDraft(rewrite); setEditing(true); }}>{t.common.edit}</Button>
             )}
             <Button variant="outline" size="sm" onClick={onReject}>
-              <XIcon className="size-3 mr-1" />
-              Reject
-            </Button>
+              <XIcon className="size-3 mr-1" />{t.common.reject}</Button>
             <Button size="sm" onClick={() => onAccept(editing ? draft : rewrite, editing)}>
               <CheckIcon className="size-3 mr-1" />
               {editing ? "Use edited" : "Accept Rewrite"}

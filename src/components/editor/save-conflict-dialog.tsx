@@ -249,19 +249,13 @@ export function SaveConflictDialog({
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isResolving}
-          >
-            Cancel
-          </Button>
+          >{t.common.cancel}</Button>
           <Button
             variant="outline"
             onClick={handleLoadTheirs}
             disabled={isResolving || !editor}
-          >
-            Load theirs
-          </Button>
-          <Button onClick={handleKeepMine} disabled={isResolving || !editor}>
-            Keep mine
-          </Button>
+          >{t.editorChrome.loadTheirs}</Button>
+          <Button onClick={handleKeepMine} disabled={isResolving || !editor}>{t.editorChrome.keepMine}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

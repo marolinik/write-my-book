@@ -47,9 +47,7 @@ export function AmbientSeriesPanel({ bookId, chapterNumber, onClose }: AmbientSe
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between border-b px-3 py-2">
         <div className="flex items-center gap-2 text-sm font-medium">
-          <LibraryIcon className="size-4" />
-          Series context
-        </div>
+          <LibraryIcon className="size-4" />{t.editorUI.seriesContext}</div>
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="icon" className="size-6" onClick={() => refetch()} disabled={isFetching} aria-label={t.editorUI.refreshSeriesContext}>
             {isFetching ? <Loader2Icon className="size-3 animate-spin" /> : <RefreshCwIcon className="size-3" />}
@@ -66,8 +64,7 @@ export function AmbientSeriesPanel({ bookId, chapterNumber, onClose }: AmbientSe
         <div className="p-3 space-y-4">
           {isLoading ? (
             <div className="flex items-center gap-2 text-xs text-muted-foreground py-6 justify-center">
-              <Loader2Icon className="size-3 animate-spin" /> Loading series context...
-            </div>
+              <Loader2Icon className="size-3 animate-spin" />{t.editorChrome.loadingSeriesContext}</div>
           ) : isError ? (
             <p className="text-xs text-muted-foreground py-6 text-center">{t.editorUI.seriesContextError}</p>
           ) : graphOffline ? (

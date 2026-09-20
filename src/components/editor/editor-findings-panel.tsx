@@ -189,9 +189,7 @@ export function EditorFindingsPanel({
           <button
             className="px-2 py-0.5 rounded-full text-[10px] border border-destructive/50 text-destructive hover:bg-destructive/10 transition-colors"
             onClick={resetFilters}
-          >
-            reset
-          </button>
+          >{t.editorChrome.resetFilters}</button>
         )}
       </div>
 

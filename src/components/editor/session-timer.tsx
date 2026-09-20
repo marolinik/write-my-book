@@ -111,9 +111,7 @@ export function SessionTimer({ onSessionStart, onSessionEnd, currentWordCount }:
         className="h-6 text-[10px] gap-1"
         onClick={() => setShowPicker(true)}
       >
-        <ClockIcon className="size-3" />
-        Timer
-      </Button>
+        <ClockIcon className="size-3" />{t.editorChrome.timer}</Button>
     );
   }
 

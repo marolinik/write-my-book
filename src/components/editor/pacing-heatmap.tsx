@@ -90,9 +90,7 @@ export function PacingHeatmap({
         className="h-7 text-xs gap-1"
         onClick={() => setExpanded(true)}
       >
-        <BarChart3Icon className="size-3" />
-        Pacing
-      </Button>
+        <BarChart3Icon className="size-3" />{t.editorChrome.pacing}</Button>
     );
   }
 
@@ -100,9 +98,7 @@ export function PacingHeatmap({
     <div className="border rounded-md p-3 space-y-2 bg-background">
       <div className="flex items-center justify-between">
         <h4 className="text-xs font-medium flex items-center gap-1">
-          <BarChart3Icon className="size-3" />
-          Sentence Pacing
-        </h4>
+          <BarChart3Icon className="size-3" />{t.editorChrome.sentencePacing}</h4>
         <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
           <span>Avg: {avgWords} words</span>
           <span className="text-green-500">{shortPct}% short</span>
@@ -144,17 +140,13 @@ export function PacingHeatmap({
       {/* Legend */}
       <div className="flex gap-3 text-[9px] text-muted-foreground">
         <span className="flex items-center gap-1">
-          <span className="size-2 rounded-full bg-green-400" /> Short (≤8)
-        </span>
+          <span className="size-2 rounded-full bg-green-400" />{t.editorChrome.pacingShort}</span>
         <span className="flex items-center gap-1">
-          <span className="size-2 rounded-full bg-blue-400" /> Medium (9-18)
-        </span>
+          <span className="size-2 rounded-full bg-blue-400" />{t.editorChrome.pacingMedium}</span>
         <span className="flex items-center gap-1">
-          <span className="size-2 rounded-full bg-amber-400" /> Long (19-30)
-        </span>
+          <span className="size-2 rounded-full bg-amber-400" />{t.editorChrome.pacingLong}</span>
         <span className="flex items-center gap-1">
-          <span className="size-2 rounded-full bg-red-400" /> Very Long (30+)
-        </span>
+          <span className="size-2 rounded-full bg-red-400" />{t.editorChrome.pacingVeryLong}</span>
       </div>
     </div>
   );

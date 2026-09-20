@@ -146,9 +146,7 @@ export function FloatingAgentInput({
           className="shrink-0 gap-1 h-7 px-2.5 text-xs"
           onClick={handleSend}
           disabled={!message.trim()}
-        >
-          Send
-        </Button>
+        >{t.common.send}</Button>
       </div>
       <p className="px-1.5 pt-0.5 text-[10px] text-muted-foreground/70 select-none">
         {KEYBOARD_HINT}

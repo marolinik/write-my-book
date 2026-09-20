@@ -282,9 +282,7 @@ export function ImmersiveFocusMode({
     >
       {/* Instructions live INSIDE the aria-modal dialog — the global live
           region outside it is unreliable while the modal holds AT focus */}
-      <span id="immersive-mode-instructions" className="sr-only">
-        Distraction-free writing. Press Escape to exit.
-      </span>
+      <span id="immersive-mode-instructions" className="sr-only">{t.editorChrome.distractionFreeHint}</span>
       {/* Minimal top bar — fades in on hover or keyboard focus */}
       <div className="absolute top-0 inset-x-0 flex items-center justify-between px-6 py-3 opacity-0 hover:opacity-100 focus-within:opacity-100 transition-opacity duration-500 z-10">
         <div className="flex items-center gap-4 text-xs opacity-70">
@@ -323,9 +321,7 @@ export function ImmersiveFocusMode({
             onClick={onExit}
             className="text-xs opacity-70 hover:opacity-100"
           >
-            <XIcon className="size-3 mr-1" />
-            Exit Focus
-          </Button>
+            <XIcon className="size-3 mr-1" />{t.editorChrome.exitFocus}</Button>
         </div>
       </div>
 

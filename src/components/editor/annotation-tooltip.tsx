@@ -235,8 +235,7 @@ export function AnnotationTooltip({
               )}
               {onIntentional && (
                 <Button variant="secondary" size="sm" className="h-7 text-xs gap-1" onClick={onIntentional}>
-                  <Check className="h-3 w-3" /> Intentional
-                </Button>
+                  <Check className="h-3 w-3" />{t.editorChrome.intentional}</Button>
               )}
             </>
           ) : (
@@ -247,18 +246,14 @@ export function AnnotationTooltip({
                 className="h-7 text-xs gap-1"
                 onClick={onAccept}
               >
-                <Check className="h-3 w-3" />
-                Accept
-              </Button>
+                <Check className="h-3 w-3" />{t.common.accept}</Button>
               <Button
                 variant="outline"
                 size="sm"
                 className="h-7 text-xs gap-1"
                 onClick={onReject}
               >
-                <X className="h-3 w-3" />
-                Reject
-              </Button>
+                <X className="h-3 w-3" />{t.common.reject}</Button>
             </>
           )}
         </div>

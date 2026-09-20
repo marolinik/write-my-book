@@ -78,9 +78,7 @@ export function DescribeYourChange({
       {/* Header */}
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium flex items-center gap-1">
-          <SparklesIcon className="size-3 text-primary" />
-          Describe your change
-        </span>
+          <SparklesIcon className="size-3 text-primary" />{t.editorChrome.describeYourChange}</span>
         <button onClick={onDismiss} className="text-muted-foreground hover:text-foreground">
           <XIcon className="size-3" />
         </button>
@@ -120,17 +118,13 @@ export function DescribeYourChange({
             {result}
           </div>
           <div className="flex gap-1.5">
-            <Button size="sm" className="h-7 text-xs flex-1" onClick={() => onAccept(result)}>
-              Accept
-            </Button>
+            <Button size="sm" className="h-7 text-xs flex-1" onClick={() => onAccept(result)}>{t.common.accept}</Button>
             <Button
               variant="outline"
               size="sm"
               className="h-7 text-xs"
               onClick={() => { setResult(null); inputRef.current?.focus(); }}
-            >
-              Try again
-            </Button>
+            >{t.common.tryAgain}</Button>
           </div>
         </div>
       )}

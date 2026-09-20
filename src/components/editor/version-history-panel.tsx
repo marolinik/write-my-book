@@ -243,9 +243,7 @@ export function VersionHistoryPanel({
             <Button
               variant="outline"
               onClick={() => setRestoreTarget(null)}
-            >
-              Cancel
-            </Button>
+            >{t.common.cancel}</Button>
             <Button
               onClick={() => {
                 if (restoreTarget !== null) {
@@ -254,9 +252,7 @@ export function VersionHistoryPanel({
                 }
               }}
               disabled={restoreMutation.isPending}
-            >
-              Restore
-            </Button>
+            >{t.common.restore}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

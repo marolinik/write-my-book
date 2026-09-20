@@ -11,6 +11,7 @@ import { destroyPaneStore } from "@/stores/editor-store";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SplitChapterPicker } from "./split-chapter-picker";
 import { ManuscriptEditor } from "./manuscript-editor";
+import { useLanguage } from "@/components/providers/language-provider";
 
 interface SplitEditorProps {
   bookId: string;
@@ -37,6 +38,7 @@ export function SplitEditor({
   allChapters,
   children,
 }: SplitEditorProps) {
+  const { t } = useLanguage();
   const splitMode = useActiveEditorStore((s) => s.splitMode);
   const setSplitMode = useActiveEditorStore((s) => s.setSplitMode);
   const secondaryChapterId = useActiveEditorStore((s) => s.secondaryChapterId);
@@ -100,9 +102,7 @@ export function SplitEditor({
               paneId="secondary"
             />
           ) : (
-            <div className="flex-1 flex items-center justify-center text-sm text-muted-foreground">
-              Select a chapter to view
-            </div>
+            <div className="flex-1 flex items-center justify-center text-sm text-muted-foreground">{t.editorChrome.selectChapterToView}</div>
           )}
         </div>
       </ResizablePanel>

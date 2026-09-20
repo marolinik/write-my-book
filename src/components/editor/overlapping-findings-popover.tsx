@@ -115,9 +115,7 @@ export function OverlappingFindingsPopover({
       style={{ top, left }}
     >
       <div className="p-2 space-y-0.5">
-        <p className="text-xs font-medium text-muted-foreground px-2 py-1">
-          Multiple findings at this position
-        </p>
+        <p className="text-xs font-medium text-muted-foreground px-2 py-1">{t.editorChrome.multipleFindingsHere}</p>
         {findings.map((finding, index) => (
           <button
             key={finding.id}

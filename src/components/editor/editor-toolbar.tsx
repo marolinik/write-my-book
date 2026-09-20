@@ -159,10 +159,13 @@ const HEADING_LEVELS = [1, 2, 3] as const;
 
 // Graduated focus levels exposed in the overflow dropdown (level 3 is hidden —
 // it ships paragraph-equivalent this phase, see graduated-focus.tsx)
-const FOCUS_LEVEL_MENU_ITEMS: Array<{ level: FocusLevel; label: string }> = [
-  { level: 0, label: "Normal" },
-  { level: 1, label: "Focused" },
-  { level: 2, label: "Paragraph" },
+const FOCUS_LEVEL_MENU_ITEMS: Array<{
+  level: FocusLevel;
+  label: (chrome: UIStrings["editorChrome"]) => string;
+}> = [
+  { level: 0, label: (chrome) => chrome.focusNormal },
+  { level: 1, label: (chrome) => chrome.focusFocused },
+  { level: 2, label: (chrome) => chrome.focusParagraph },
 ];
 
 interface ToolbarGroup {
@@ -178,6 +181,8 @@ interface ToolbarGroupContext {
   /** O1: the toolbar groups are module-level, so the dictionary travels with
    *  the context rather than through a hook each render function cannot call. */
   t: UIStrings["editorUI"];
+  /** The same arrangement for strings that are not toolbar-button labels. */
+  chrome: UIStrings["editorChrome"];
   density: ToolbarDensity;
   focusMode: boolean;
   onToggleFocusMode: () => void;
@@ -332,21 +337,13 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
     renderDropdownItems: (ctx) => (
       <>
         <DropdownMenuItem onClick={() => ctx.editor.chain().focus().toggleBulletList().run()}>
-          <List className="mr-2 h-4 w-4" />
-          Bullet List (Ctrl+Shift+8)
-        </DropdownMenuItem>
+          <List className="mr-2 h-4 w-4" />{ctx.t.bulletList} (Ctrl+Shift+8)</DropdownMenuItem>
         <DropdownMenuItem onClick={() => ctx.editor.chain().focus().toggleOrderedList().run()}>
-          <ListOrdered className="mr-2 h-4 w-4" />
-          Ordered List (Ctrl+Shift+7)
-        </DropdownMenuItem>
+          <ListOrdered className="mr-2 h-4 w-4" />{ctx.t.orderedList} (Ctrl+Shift+7)</DropdownMenuItem>
         <DropdownMenuItem onClick={() => ctx.editor.chain().focus().toggleBlockquote().run()}>
-          <Quote className="mr-2 h-4 w-4" />
-          Blockquote (Ctrl+Shift+B)
-        </DropdownMenuItem>
+          <Quote className="mr-2 h-4 w-4" />{ctx.t.blockquote} (Ctrl+Shift+B)</DropdownMenuItem>
         <DropdownMenuItem onClick={() => ctx.editor.chain().focus().setHorizontalRule().run()}>
-          <Minus className="mr-2 h-4 w-4" />
-          Scene Break
-        </DropdownMenuItem>
+          <Minus className="mr-2 h-4 w-4" />{ctx.t.sceneBreak}</DropdownMenuItem>
       </>
     ),
   },
@@ -371,13 +368,9 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
     renderDropdownItems: (ctx) => (
       <>
         <DropdownMenuItem onClick={() => ctx.editor.chain().focus().undo().run()}>
-          <Undo className="mr-2 h-4 w-4" />
-          Undo (Ctrl+Z)
-        </DropdownMenuItem>
+          <Undo className="mr-2 h-4 w-4" />{ctx.t.undo} (Ctrl+Z)</DropdownMenuItem>
         <DropdownMenuItem onClick={() => ctx.editor.chain().focus().redo().run()}>
-          <Redo className="mr-2 h-4 w-4" />
-          Redo (Ctrl+Shift+Z)
-        </DropdownMenuItem>
+          <Redo className="mr-2 h-4 w-4" />{ctx.t.redo} (Ctrl+Shift+Z)</DropdownMenuItem>
       </>
     ),
   },
@@ -456,9 +449,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
     renderDropdownItems: (ctx) => (
       <>
         <DropdownMenuItem onClick={ctx.onToggleFocusMode}>
-          <Focus className="mr-2 h-4 w-4" />
-          Focus Mode
-        </DropdownMenuItem>
+          <Focus className="mr-2 h-4 w-4" />{ctx.t.focusMode}</DropdownMenuItem>
         {/* Graduated focus levels survive overflow as checkable menu items */}
         {ctx.onFocusLevelChange &&
           FOCUS_LEVEL_MENU_ITEMS.map(({ level, label }) => (
@@ -467,26 +458,22 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
               checked={ctx.focusLevel === level}
               onClick={() => ctx.onFocusLevelChange?.(level)}
             >
-              Focus: {label}
+              {ctx.t.focusLevel}: {label(ctx.chrome)}
             </DropdownMenuCheckboxItem>
           ))}
         {ctx.onEnterImmersive && (
           <DropdownMenuItem onClick={ctx.onEnterImmersive}>
-            <Maximize2 className="mr-2 h-4 w-4" />
-            Immersive Mode
-          </DropdownMenuItem>
+            <Maximize2 className="mr-2 h-4 w-4" />{ctx.chrome.immersiveMode}</DropdownMenuItem>
         )}
         {ctx.onFindReplace && (
           <DropdownMenuItem onClick={ctx.onFindReplace}>
             <Replace className="mr-2 h-4 w-4" />
-            Find &amp; Replace (Ctrl+Shift+F)
+            {ctx.t.findReplace} (Ctrl+Shift+F)
           </DropdownMenuItem>
         )}
         {ctx.onInlineEdit && (
           <DropdownMenuItem onClick={ctx.onInlineEdit}>
-            <Sparkles className="mr-2 h-4 w-4" />
-            AI Rewrite (F2)
-          </DropdownMenuItem>
+            <Sparkles className="mr-2 h-4 w-4" />{ctx.t.aiRewrite} (F2)</DropdownMenuItem>
         )}
         {ctx.onToggleGhostText && (
           <DropdownMenuItem onClick={ctx.onToggleGhostText}>
@@ -504,9 +491,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
         )}
         {ctx.onToggleFloatingInput && (
           <DropdownMenuItem onClick={ctx.onToggleFloatingInput}>
-            <MessageCircle className="mr-2 h-4 w-4" />
-            Agent Quick Chat
-          </DropdownMenuItem>
+            <MessageCircle className="mr-2 h-4 w-4" />{ctx.t.agentQuickChat}</DropdownMenuItem>
         )}
         {ctx.onToggleSplit && (
           <DropdownMenuItem onClick={ctx.onToggleSplit}>
@@ -569,7 +554,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
                 )}
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="bottom">Findings Panel</TooltipContent>
+            <TooltipContent side="bottom">{ctx.t.findingsPanel}</TooltipContent>
           </Tooltip>
         )}
         {ctx.onToggleSeriesContext && (
@@ -600,15 +585,11 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
         <>
           {ctx.onToggleAnnotations && (
             <DropdownMenuItem onClick={ctx.onToggleAnnotations}>
-              <Highlighter className="mr-2 h-4 w-4" />
-              Toggle Annotations
-            </DropdownMenuItem>
+              <Highlighter className="mr-2 h-4 w-4" />{ctx.t.toggleAnnotations}</DropdownMenuItem>
           )}
           {ctx.onToggleHistory && (
             <DropdownMenuItem onClick={ctx.onToggleHistory}>
-              <History className="mr-2 h-4 w-4" />
-              Version History
-            </DropdownMenuItem>
+              <History className="mr-2 h-4 w-4" />{ctx.t.versionHistory}</DropdownMenuItem>
           )}
         </>
       );
@@ -674,6 +655,7 @@ export function EditorToolbar({
   const ctx: ToolbarGroupContext = {
     editor,
     t: t.editorUI,
+    chrome: t.editorChrome,
     density,
     focusMode,
     onToggleFocusMode,
@@ -740,7 +722,7 @@ export function EditorToolbar({
     <div
       ref={containerRef}
       role="toolbar"
-      aria-label={t.editorUI.editorToolbar}
+      aria-label={ctx.t.editorToolbar}
       className="flex items-center gap-0.5 border-b px-2 py-1 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10"
     >
       {/* Primary groups: always inline (headings drop out at compact) */}
@@ -762,7 +744,7 @@ export function EditorToolbar({
                 size="icon"
                 className="h-8 w-8"
                 type="button"
-                aria-label={t.editorUI.moreTools}
+                aria-label={ctx.t.moreTools}
               >
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
@@ -813,7 +795,7 @@ export function EditorToolbar({
         {isSaving ? (
           <Badge variant="secondary" className="gap-1 text-xs font-normal">
             <Loader2 className="h-3 w-3 animate-spin" />
-            {isCompact ? <span className="sr-only">{t.editorUI.saving}</span> : "Saving..."}
+            {isCompact ? <span className="sr-only">{ctx.t.saving}</span> : "Saving..."}
           </Badge>
         ) : isDirty ? (
           <Badge
@@ -821,7 +803,7 @@ export function EditorToolbar({
             className="gap-1 text-xs font-normal text-amber-600 dark:text-amber-400 border-amber-300 dark:border-amber-700"
           >
             <AlertCircle className="h-3 w-3" />
-            {isCompact ? <span className="sr-only">{t.editorUI.unsaved}</span> : "Unsaved"}
+            {isCompact ? <span className="sr-only">{ctx.t.unsaved}</span> : "Unsaved"}
           </Badge>
         ) : lastSaved ? (
           <Badge
@@ -829,7 +811,7 @@ export function EditorToolbar({
             className="gap-1 text-xs font-normal text-green-600 dark:text-green-400 border-green-300 dark:border-green-700"
           >
             <Check className="h-3 w-3" />
-            {isCompact ? <span className="sr-only">{t.editorUI.saved}</span> : "Saved"}
+            {isCompact ? <span className="sr-only">{ctx.t.saved}</span> : "Saved"}
           </Badge>
         ) : null}
       </div>

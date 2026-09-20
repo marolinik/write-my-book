@@ -138,10 +138,7 @@ export function FindReplaceDialog({
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>{t.editorUI.findReplace}</DialogTitle>
-          <DialogDescription>
-            Search this chapter or the whole book. Matching is plain text — no
-            wildcards or regular expressions.
-          </DialogDescription>
+          <DialogDescription>{t.editorChrome.searchHelp}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -215,9 +212,7 @@ export function FindReplaceDialog({
                   disabled={!wholeWordApplies}
                   onCheckedChange={setWholeWord}
                 />
-                <Label htmlFor="fr-whole-word" className="text-sm font-normal">
-                  Whole word
-                </Label>
+                <Label htmlFor="fr-whole-word" className="text-sm font-normal">{t.editorChrome.wholeWord}</Label>
               </div>
 
               <div className="flex items-center gap-2">
@@ -226,18 +221,13 @@ export function FindReplaceDialog({
                   checked={caseSensitive}
                   onCheckedChange={setCaseSensitive}
                 />
-                <Label htmlFor="fr-case" className="text-sm font-normal">
-                  Case sensitive
-                </Label>
+                <Label htmlFor="fr-case" className="text-sm font-normal">{t.editorChrome.caseSensitive}</Label>
               </div>
             </div>
           </div>
 
           {!wholeWordApplies && (
-            <p className="text-xs text-muted-foreground">
-              Whole word needs a search term that starts and ends with a letter,
-              digit or underscore — it is off for this one.
-            </p>
+            <p className="text-xs text-muted-foreground">{t.editorChrome.wholeWordDisabled}</p>
           )}
 
           {/* Live preview */}
@@ -247,8 +237,7 @@ export function FindReplaceDialog({
                 "Type at least 2 characters to preview matches."
               ) : search.isLoading ? (
                 <span className="inline-flex items-center gap-2">
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> Searching…
-                </span>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />{t.editorChrome.searching}</span>
               ) : search.isError ? (
                 <span className="text-destructive">{t.editorUI.searchFailed}</span>
               ) : visibleCount === 0 ? (
@@ -300,9 +289,7 @@ export function FindReplaceDialog({
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={replaceMutation.isPending}
-          >
-            Cancel
-          </Button>
+          >{t.common.cancel}</Button>
           <Button onClick={handleReplaceAll} disabled={!canReplace}>
             {replaceMutation.isPending && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
