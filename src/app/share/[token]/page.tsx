@@ -30,10 +30,6 @@ export default async function SharePage({ params }: RouteParams) {
   const snap = await db.sharedSnapshot.findUnique({ where: { token } });
   if (!snap || (snap.expiresAt && snap.expiresAt < new Date())) notFound();
 
-  // Account-less: default to English chrome (share links are meant to be opened by anyone).
-  const t = getUIStrings("en");
-  const s = t.snapshot;
-
   let data: Awaited<ReturnType<typeof loadShareBook>>;
   try {
     data =
@@ -49,7 +45,15 @@ export default async function SharePage({ params }: RouteParams) {
     .update({ where: { token }, data: { lastViewedAt: new Date() } })
     .catch(() => undefined);
 
-  const exportedOn = new Date().toLocaleDateString(localeFor("en"), {
+  // M-6: the page is account-less, but it is not language-less — it is about
+  // one book, and the people a writer shares it with read that book's
+  // language. English chrome and US number formatting on a Serbian novel was
+  // a choice nobody made.
+  const t = getUIStrings(data.bookLanguage);
+  const s = t.snapshot;
+  const locale = localeFor(data.bookLanguage);
+
+  const exportedOn = new Date().toLocaleDateString(locale, {
     year: "numeric", month: "long", day: "numeric",
   });
 
@@ -65,7 +69,7 @@ export default async function SharePage({ params }: RouteParams) {
           </header>
 
           <section className="grid gap-4 sm:grid-cols-2">
-            <Stat label={s.words} value={data.wordCount.toLocaleString("en")} />
+            <Stat label={s.words} value={data.wordCount.toLocaleString(locale)} />
             <Stat label={s.chapters} value={`${data.pctDrafted}% · ${data.chapters.length}`} detail={s.chaptersDrafted} />
             <Stat label={s.betaAvg} value={data.avgBetaScore ?? "–"} />
             <Stat

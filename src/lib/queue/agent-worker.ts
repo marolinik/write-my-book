@@ -23,6 +23,7 @@ import { createRedisConnection } from "./connection";
 import { AgentOrchestrator } from "@/lib/agents/orchestrator";
 import { processPostSession } from "@/lib/agents/post-session";
 import { createSessionBrief } from "@/lib/agents/session-brief";
+import { getAgentStrings } from "@/lib/i18n/agent-strings";
 import {
   getWorkflow,
   getAgentDefinition,
@@ -832,6 +833,7 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
             validatedCostLimit != null
               ? ` ($${validatedCostLimit.toFixed(2)})`
               : "";
+          const briefStrings = getAgentStrings(language ?? "en");
           await createSessionBrief(
             sessionId,
             bookId,
@@ -842,11 +844,14 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
             {
               summary:
                 result.wrapUpSummary ??
+                // Lo-3: a brief is injected into the next session's prompt, so
+                // this sentence is written in the book's language.
                 (endReason === "budget"
-                  ? `Session ended at the budget limit${budgetLabel}. Work may be incomplete.`
-                  : "Session ended at the time limit. Work may be incomplete."),
+                  ? briefStrings.briefBudgetEnd.replace("{budget}", budgetLabel)
+                  : briefStrings.briefTimeEnd),
               nextSteps: suggestedNext,
-            }
+            },
+            language
           );
         }
 

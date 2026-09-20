@@ -78,6 +78,16 @@ export interface AgentStrings {
    * message verbatim, so these were English sentences inside an otherwise
    * Serbian conversation.
    */
+  /**
+   * Lo-3: the session brief's own sentences. A brief is injected into the NEXT
+   * session's prompt, so an English fallback summary seeded English into a
+   * Serbian book's context on every budget or timeout stop.
+   */
+  briefFallback: string;
+  briefFallbackChapter: string;
+  briefBudgetEnd: string;
+  briefTimeEnd: string;
+
   statusRetrying: string;
   statusBudgetReached: string;
   statusTimeLimit: string;
@@ -152,6 +162,10 @@ const EN: AgentStrings = {
   prereqAction: "Run: {workflow}",
   prereqChapter: "Choose a chapter first — this pass works on one chapter.",
   artifactRecovered: "Saved your {label} as a document — the assistant wrote it into the chat but never saved it, so the product persisted it for you. You can find it in this book's documents.",
+  briefFallback: "{workflow} — completed.",
+  briefFallbackChapter: "{workflow} — completed for chapter {chapter}.",
+  briefBudgetEnd: "The session ended at the budget limit{budget}. The work may be incomplete.",
+  briefTimeEnd: "The session ended at the time limit. The work may be incomplete.",
   statusRetrying: "Retrying in {seconds}s — attempt {attempt} of {max}.",
   statusBudgetReached: "Budget reached ({spent} of {cap}) — wrapping up.",
   statusTimeLimit: "Time limit reached — wrapping up.",
@@ -330,6 +344,10 @@ const SR: AgentStrings = {
   prereqAction: "Pokreni: {workflow}",
   prereqChapter: "Prvo izaberi poglavlje — ovaj prolaz radi na jednom poglavlju.",
   artifactRecovered: "Sačuvali smo {label} kao dokument — asistent ga je napisao u ćaskanju, ali ga nikada nije sačuvao. Naći ćeš ga među dokumentima ove knjige.",
+  briefFallback: "{workflow} — završeno.",
+  briefFallbackChapter: "{workflow} — završeno za poglavlje {chapter}.",
+  briefBudgetEnd: "Sesija je prekinuta na granici budžeta{budget}. Posao je možda nedovršen.",
+  briefTimeEnd: "Sesija je prekinuta na vremenskoj granici. Posao je možda nedovršen.",
   statusRetrying: "Novi pokušaj za {seconds}s — pokušaj {attempt} od {max}.",
   statusBudgetReached: "Dostignut budžet ({spent} od {cap}) — privodimo kraju.",
   statusTimeLimit: "Dostignuto vremensko ograničenje — privodimo kraju.",
@@ -508,6 +526,10 @@ const DE: AgentStrings = {
   prereqAction: "Starten: {workflow}",
   prereqChapter: "Wähle zuerst ein Kapitel — dieser Durchgang arbeitet an einem Kapitel.",
   artifactRecovered: "{label} wurde als Dokument gespeichert — der Assistent hat es in den Chat geschrieben, aber nie gespeichert. Du findest es bei den Dokumenten dieses Buches.",
+  briefFallback: "{workflow} — abgeschlossen.",
+  briefFallbackChapter: "{workflow} — abgeschlossen für Kapitel {chapter}.",
+  briefBudgetEnd: "Die Sitzung endete an der Budgetgrenze{budget}. Die Arbeit ist möglicherweise unvollständig.",
+  briefTimeEnd: "Die Sitzung endete am Zeitlimit. Die Arbeit ist möglicherweise unvollständig.",
   statusRetrying: "Neuer Versuch in {seconds}s — Versuch {attempt} von {max}.",
   statusBudgetReached: "Budget erreicht ({spent} von {cap}) — wir schließen ab.",
   statusTimeLimit: "Zeitlimit erreicht — wir schließen ab.",
@@ -686,6 +708,10 @@ const ES: AgentStrings = {
   prereqAction: "Ejecutar: {workflow}",
   prereqChapter: "Elige primero un capítulo: esta pasada trabaja sobre un solo capítulo.",
   artifactRecovered: "Hemos guardado {label} como documento: el asistente lo escribió en el chat pero nunca lo guardó. Lo encontrarás en los documentos de este libro.",
+  briefFallback: "{workflow} — completado.",
+  briefFallbackChapter: "{workflow} — completado para el capítulo {chapter}.",
+  briefBudgetEnd: "La sesión terminó en el límite de presupuesto{budget}. El trabajo puede estar incompleto.",
+  briefTimeEnd: "La sesión terminó en el límite de tiempo. El trabajo puede estar incompleto.",
   statusRetrying: "Reintentando en {seconds}s — intento {attempt} de {max}.",
   statusBudgetReached: "Presupuesto alcanzado ({spent} de {cap}) — cerrando.",
   statusTimeLimit: "Límite de tiempo alcanzado — cerrando.",
@@ -864,6 +890,10 @@ const FR: AgentStrings = {
   prereqAction: "Lancer : {workflow}",
   prereqChapter: "Choisissez d'abord un chapitre — cette passe travaille sur un seul chapitre.",
   artifactRecovered: "{label} a été enregistré comme document — l'assistant l'a écrit dans le chat sans jamais l'enregistrer. Vous le trouverez dans les documents de ce livre.",
+  briefFallback: "{workflow} — terminé.",
+  briefFallbackChapter: "{workflow} — terminé pour le chapitre {chapter}.",
+  briefBudgetEnd: "La session s'est arrêtée à la limite de budget{budget}. Le travail est peut-être incomplet.",
+  briefTimeEnd: "La session s'est arrêtée à la limite de temps. Le travail est peut-être incomplet.",
   statusRetrying: "Nouvelle tentative dans {seconds}s — tentative {attempt} sur {max}.",
   statusBudgetReached: "Budget atteint ({spent} sur {cap}) — on conclut.",
   statusTimeLimit: "Limite de temps atteinte — on conclut.",
@@ -1042,6 +1072,10 @@ const RU: AgentStrings = {
   prereqAction: "Запустить: {workflow}",
   prereqChapter: "Сначала выберите главу — этот проход работает по одной главе.",
   artifactRecovered: "{label} сохранён как документ — ассистент написал его в чате, но так и не сохранил. Вы найдёте его в документах этой книги.",
+  briefFallback: "{workflow} — завершено.",
+  briefFallbackChapter: "{workflow} — завершено для главы {chapter}.",
+  briefBudgetEnd: "Сессия остановлена на пределе бюджета{budget}. Работа может быть незавершённой.",
+  briefTimeEnd: "Сессия остановлена по времени. Работа может быть незавершённой.",
   statusRetrying: "Повтор через {seconds} с — попытка {attempt} из {max}.",
   statusBudgetReached: "Бюджет исчерпан ({spent} из {cap}) — завершаем.",
   statusTimeLimit: "Достигнут лимит времени — завершаем.",
@@ -1220,6 +1254,10 @@ const ZH: AgentStrings = {
   prereqAction: "运行：{workflow}",
   prereqChapter: "请先选择章节——本次处理只针对一章。",
   artifactRecovered: "已将{label}保存为文档——助手把它写在了对话里却没有保存，我们替你存了下来。可在本书的文档中找到。",
+  briefFallback: "{workflow} — 已完成。",
+  briefFallbackChapter: "{workflow} — 第 {chapter} 章已完成。",
+  briefBudgetEnd: "会话因达到预算上限{budget}而结束，工作可能尚未完成。",
+  briefTimeEnd: "会话因达到时间上限而结束，工作可能尚未完成。",
   statusRetrying: "{seconds} 秒后重试——第 {attempt} 次，共 {max} 次。",
   statusBudgetReached: "已达预算（{spent}／{cap}）——正在收尾。",
   statusTimeLimit: "已达时间上限——正在收尾。",

@@ -12,7 +12,20 @@
  */
 
 import { db } from "@/lib/db";
-import { getAgentStrings } from "@/lib/i18n/agent-strings";
+import { getAgentStrings, workflowLabel } from "@/lib/i18n/agent-strings";
+
+/**
+ * A persisted turn's `content` is `JSON.stringify(text)` (session-manager).
+ * Anything that shows it to a human or a model has to decode it first.
+ */
+function decodeTurnContent(raw: string): string {
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    return typeof parsed === "string" ? parsed : raw;
+  } catch {
+    return raw;
+  }
+}
 
 export interface SessionBriefData {
   summary: string;
@@ -42,7 +55,8 @@ export async function createSessionBrief(
   workflowId: string,
   agentType: string,
   chapterNumber?: number,
-  briefData?: Partial<SessionBriefData>
+  briefData?: Partial<SessionBriefData>,
+  language?: string
 ): Promise<void> {
   // Load conversation turns for analysis
   let summary = briefData?.summary ?? "";
@@ -64,9 +78,12 @@ export async function createSessionBrief(
       if (turns.length > 0) {
         const lastAssistant = turns.find(t => t.role === "assistant");
         if (lastAssistant) {
-          // Take first 500 chars of the last assistant message as summary
-          summary = lastAssistant.content.slice(0, 500);
-          if (lastAssistant.content.length > 500) summary += "...";
+          // Lo-3: the column holds JSON.stringify(text), so slicing it raw
+          // opened every summary with a quote character and carried escaped
+          // newline sequences into the next session's prompt.
+          const text = decodeTurnContent(lastAssistant.content);
+          summary = text.slice(0, 500);
+          if (text.length > 500) summary += "...";
         }
       }
     } catch {
@@ -74,9 +91,16 @@ export async function createSessionBrief(
     }
 
     if (!summary) {
-      summary = `${agentType.replace(/-/g, " ")} completed ${workflowId.replace(/-/g, " ")}${
-        chapterNumber ? ` for chapter ${chapterNumber}` : ""
-      }.`;
+      // Lo-3: this sentence is injected into the NEXT session's prompt, so it
+      // is written in the book's language like every other context block.
+      const strings = getAgentStrings(language ?? "en");
+      const label = workflowLabel(strings, workflowId) ?? workflowId.replace(/-/g, " ");
+      summary =
+        chapterNumber !== undefined
+          ? strings.briefFallbackChapter
+              .replace("{workflow}", label)
+              .replace("{chapter}", String(chapterNumber))
+          : strings.briefFallback.replace("{workflow}", label);
     }
   }
 

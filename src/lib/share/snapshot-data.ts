@@ -12,6 +12,12 @@ import { getDailyWordCounts, computeStreaks } from "@/lib/writing-stats";
 export interface ShareBookData {
   kind: "book" | "editorial";
   bookName: string;
+  /**
+   * M-6: the language the book is written in. The public share page rendered
+   * `getUIStrings("en")` and `toLocaleString("en")` for everyone, so a Serbian
+   * writer's snapshot went out with English chrome and US number formatting.
+   */
+  bookLanguage: string;
   bookGenre: string | null;
   bookStatusNote: string;
   series: string | null;
@@ -75,6 +81,7 @@ export async function loadShareBook(bookId: string, createdById: string): Promis
   return {
     kind: "book",
     bookName: book.name,
+    bookLanguage: book.language,
     bookGenre: book.genre,
     bookStatusNote: `${currentStreak > 0 ? `streak ${currentStreak} | ` : ""}best ${bestStreak} | drafted ${pctDrafted}% | beta ${pctPassed}%`,
     series: book.series?.title ?? null,

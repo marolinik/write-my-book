@@ -2634,11 +2634,21 @@ async function executeSetVoiceMetrics(
   } else {
     // Create a new StyleProfile with metrics — the fingerprint text
     // will be filled by bridgeFingerprintToStyleProfile after the FINGERPRINT doc is written
-    const uiStrings = getUIStrings(ctx.language ?? "en");
-    const book = await db.book.findUnique({
-      where: { id: ctx.bookId },
-      select: { name: true, bookNumber: true },
-    });
+    // M-3: this name and description are INTERFACE copy — the writer reads
+    // them on the style page — so they follow his preferred language, not the
+    // book's. A Polish book belonging to a Serbian writer was naming its style
+    // profile in Polish, indexing the UI dictionary with a book language.
+    const [book, owner] = await Promise.all([
+      db.book.findUnique({
+        where: { id: ctx.bookId },
+        select: { name: true, bookNumber: true },
+      }),
+      db.user.findUnique({
+        where: { id: ctx.userId },
+        select: { preferredLanguage: true },
+      }),
+    ]);
+    const uiStrings = getUIStrings(owner?.preferredLanguage ?? ctx.language ?? "en");
 
     await db.styleProfile.create({
       data: {
