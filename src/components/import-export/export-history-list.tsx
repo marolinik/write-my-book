@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useExportHistory, useDownloadExport } from "@/hooks/use-export";
 import type { ExportHistoryItem } from "@/hooks/use-export";
 import { DownloadIcon, FileTextIcon, FileIcon, BookOpenIcon } from "lucide-react";
+import { useLanguage } from "@/components/providers/language-provider";
 
 interface ExportHistoryListProps {
   bookId: string;
@@ -34,6 +35,7 @@ function parseTimestamp(filename: string): string {
 }
 
 export function ExportHistoryList({ bookId }: ExportHistoryListProps) {
+  const { t } = useLanguage();
   const { data, isLoading } = useExportHistory(bookId);
   const download = useDownloadExport(bookId);
 
@@ -50,9 +52,7 @@ export function ExportHistoryList({ bookId }: ExportHistoryListProps) {
 
   if (exports.length === 0) {
     return (
-      <p className="py-4 text-center text-sm text-muted-foreground">
-        No exports yet. Create your first export above.
-      </p>
+      <p className="py-4 text-center text-sm text-muted-foreground">{t.importExportUI.noExportsYet}</p>
     );
   }
 

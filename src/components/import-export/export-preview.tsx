@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/components/providers/language-provider";
 
 /**
  * Gap 9: Export Format Preview (Vellum-style)
@@ -53,6 +54,7 @@ export function ExportPreview({
   sampleContent,
   format,
 }: ExportPreviewProps) {
+  const { t } = useLanguage();
   const [device, setDevice] = useState<PreviewDevice>(
     format === "pdf" ? "print" : "kindle"
   );
@@ -71,9 +73,7 @@ export function ExportPreview({
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm flex items-center gap-2">
-            <TabletSmartphoneIcon className="size-4" />
-            Preview
-          </CardTitle>
+            <TabletSmartphoneIcon className="size-4" />{t.importExportUI.preview}</CardTitle>
           <Badge variant="outline" className="text-[10px]">
             {format.toUpperCase()}
           </Badge>
@@ -155,9 +155,7 @@ export function ExportPreview({
                 {/* Table of Contents */}
                 {page === "toc" && (
                   <div className="space-y-1">
-                    <h2 className="font-bold mb-4" style={{ fontSize: "14px" }}>
-                      Contents
-                    </h2>
+                    <h2 className="font-bold mb-4" style={{ fontSize: "14px" }}>{t.importExportUI.contents}</h2>
                     {chapters.map((ch) => (
                       <div
                         key={ch.number}

@@ -475,6 +475,8 @@ export interface UIStrings {
 
   // O1 - book extras: the year recap, marketing kit, wiki, certificate, stats.
   bookUI: {
+    archive: string;
+    archiveHint: string;
     yourYear: string;
     inWriting: string;
     youWrote: string;
@@ -1127,6 +1129,51 @@ export interface UIStrings {
     focusFocused: string;
     focusParagraph: string;
   };
+
+  // H-10 - the series surfaces: the book manager, the inheritance panel
+  // and the synthesis panel. The series path is the least language-aware
+  // part of the product and the one the owner's trilogy runs through.
+  seriesUI: {
+    addBook: string;
+    existingBook: string;
+    newBook: string;
+    noBooksAvailable: string;
+    addToSeries: string;
+    create: string;
+    noBooksInSeries: string;
+    noSeriesDocuments: string;
+    selectBookForInheritance: string;
+    noInheritableDocuments: string;
+    seriesVersion: string;
+    bookVersion: string;
+    available: string;
+    missing: string;
+    inherit: string;
+    applyAllAvailable: string;
+    noAnalyticsData: string;
+    synthesizeHint: string;
+    noBooksInSeriesShort: string;
+    hasArtifact: string;
+    synthesize: string;
+  };
+
+  // H-10 - the import wizard, the export history and the readiness check.
+  importExportUI: {
+    noExportsYet: string;
+    preview: string;
+    contents: string;
+    dropFiles: string;
+    uploadManuscript: string;
+    parsingFiles: string;
+    supportedFormats: string;
+    reorderHint: string;
+    startOver: string;
+    importing: string;
+    importComplete: string;
+    importAnother: string;
+    manuscriptReadiness: string;
+    runPublishingCheck: string;
+  };
 }
 
 export const SUPPORTED_LANGUAGES = [
@@ -1605,6 +1652,8 @@ const EN: UIStrings = {
   },
 
   bookUI: {
+    archive: "Archive",
+    archiveHint: "It moves to your Archived shelf and leaves your active shelves. You can restore it any time — nothing is deleted.",
     yourYear: "Your",
     inWriting: "in writing",
     youWrote: "You wrote",
@@ -2335,6 +2384,47 @@ const EN: UIStrings = {
     focusFocused: "Focused",
     focusParagraph: "Paragraph",
   },
+
+  seriesUI: {
+    addBook: "Add Book",
+    existingBook: "Existing Book",
+    newBook: "New Book",
+    noBooksAvailable: "No books available. All your books are already in a series, or you haven't created any yet.",
+    addToSeries: "Add to Series",
+    create: "Create",
+    noBooksInSeries: "No books in this series yet.",
+    noSeriesDocuments: "No series documents yet. Use the agent panel to create series-level documents like a Series Bible or Series Architecture.",
+    selectBookForInheritance: "Select a book to check inheritance state.",
+    noInheritableDocuments: "No inheritable documents found.",
+    seriesVersion: "Series Ver.",
+    bookVersion: "Book Ver.",
+    available: "Available",
+    missing: "Missing",
+    inherit: "Inherit",
+    applyAllAvailable: "Apply All Available",
+    noAnalyticsData: "No analytics data available.",
+    synthesizeHint: "Synthesize book-level artifacts up into the series document. Each book's contribution is added as a section in the series document.",
+    noBooksInSeriesShort: "No books in this series.",
+    hasArtifact: "Has Artifact",
+    synthesize: "Synthesize",
+  },
+
+  importExportUI: {
+    noExportsYet: "No exports yet. Create your first export above.",
+    preview: "Preview",
+    contents: "Contents",
+    dropFiles: "Drop your manuscript files here, or click to browse",
+    uploadManuscript: "Upload Manuscript",
+    parsingFiles: "Parsing files and detecting chapters...",
+    supportedFormats: "Supported formats",
+    reorderHint: "Drag to reorder, click titles to rename, select multiple to merge, or remove unwanted chapters.",
+    startOver: "Start Over",
+    importing: "Importing...",
+    importComplete: "Import Complete",
+    importAnother: "Import Another File",
+    manuscriptReadiness: "Manuscript Readiness",
+    runPublishingCheck: "Run Publishing Check",
+  },
 };
 
 const SR: UIStrings = {
@@ -2786,6 +2876,8 @@ const SR: UIStrings = {
   },
 
   bookUI: {
+    archive: "Arhiviraj",
+    archiveHint: "Prelazi na vašu policu Arhivirano i napušta aktivne police. Možete je vratiti kad god želite — ništa se ne briše.",
     yourYear: "Vaša",
     inWriting: "godina pisanja",
     youWrote: "Napisali ste",
@@ -3515,6 +3607,47 @@ const SR: UIStrings = {
     focusFocused: "Fokusirano",
     focusParagraph: "Pasus",
   },
+
+  seriesUI: {
+    addBook: "Dodaj knjigu",
+    existingBook: "Postojeća knjiga",
+    newBook: "Nova knjiga",
+    noBooksAvailable: "Nema dostupnih knjiga. Sve vaše knjige su već u nekom serijalu ili ih još niste napravili.",
+    addToSeries: "Dodaj u serijal",
+    create: "Napravi",
+    noBooksInSeries: "U ovom serijalu još nema knjiga.",
+    noSeriesDocuments: "Još nema dokumenata serijala. Koristite panel agenta da napravite dokumente na nivou serijala, kao što su Biblija serijala ili Arhitektura serijala.",
+    selectBookForInheritance: "Izaberite knjigu da biste proverili stanje nasleđivanja.",
+    noInheritableDocuments: "Nema dokumenata koji se mogu naslediti.",
+    seriesVersion: "Verzija serijala",
+    bookVersion: "Verzija knjige",
+    available: "Dostupno",
+    missing: "Nedostaje",
+    inherit: "Nasledi",
+    applyAllAvailable: "Primeni sve dostupno",
+    noAnalyticsData: "Nema podataka za analitiku.",
+    synthesizeHint: "Objedinite artefakte sa nivoa knjige u dokument serijala. Doprinos svake knjige dodaje se kao odeljak u dokumentu serijala.",
+    noBooksInSeriesShort: "U ovom serijalu nema knjiga.",
+    hasArtifact: "Ima artefakt",
+    synthesize: "Objedini",
+  },
+
+  importExportUI: {
+    noExportsYet: "Još nema izvoza. Napravite prvi izvoz iznad.",
+    preview: "Pregled",
+    contents: "Sadržaj",
+    dropFiles: "Prevucite datoteke rukopisa ovde ili kliknite da izaberete",
+    uploadManuscript: "Otpremi rukopis",
+    parsingFiles: "Obrađujem datoteke i prepoznajem poglavlja...",
+    supportedFormats: "Podržani formati",
+    reorderHint: "Prevucite da promenite redosled, kliknite na naslov da ga preimenujete, izaberite više njih da ih spojite ili uklonite nepotrebna poglavlja.",
+    startOver: "Počni iznova",
+    importing: "Uvozim...",
+    importComplete: "Uvoz je završen",
+    importAnother: "Uvezi još jednu datoteku",
+    manuscriptReadiness: "Spremnost rukopisa",
+    runPublishingCheck: "Pokreni proveru za objavljivanje",
+  },
 };
 
 const DE: UIStrings = {
@@ -3966,6 +4099,8 @@ const DE: UIStrings = {
   },
 
   bookUI: {
+    archive: "Archivieren",
+    archiveHint: "Es wandert in Ihr Archivregal und verlässt Ihre aktiven Regale. Sie können es jederzeit zurückholen — nichts wird gelöscht.",
     yourYear: "Ihr",
     inWriting: "Schreibjahr",
     youWrote: "Sie haben",
@@ -4695,6 +4830,47 @@ const DE: UIStrings = {
     focusFocused: "Fokussiert",
     focusParagraph: "Absatz",
   },
+
+  seriesUI: {
+    addBook: "Buch hinzufügen",
+    existingBook: "Vorhandenes Buch",
+    newBook: "Neues Buch",
+    noBooksAvailable: "Keine Bücher verfügbar. Alle Ihre Bücher gehören bereits zu einer Reihe, oder Sie haben noch keines angelegt.",
+    addToSeries: "Zur Reihe hinzufügen",
+    create: "Anlegen",
+    noBooksInSeries: "Noch keine Bücher in dieser Reihe.",
+    noSeriesDocuments: "Noch keine Reihendokumente. Legen Sie über den Agentenbereich Dokumente auf Reihenebene an, etwa eine Reihenbibel oder eine Reihenarchitektur.",
+    selectBookForInheritance: "Wählen Sie ein Buch, um den Vererbungsstand zu prüfen.",
+    noInheritableDocuments: "Keine vererbbaren Dokumente gefunden.",
+    seriesVersion: "Reihenversion",
+    bookVersion: "Buchversion",
+    available: "Verfügbar",
+    missing: "Fehlt",
+    inherit: "Erben",
+    applyAllAvailable: "Alle verfügbaren übernehmen",
+    noAnalyticsData: "Keine Auswertungsdaten vorhanden.",
+    synthesizeHint: "Fassen Sie Artefakte der Buchebene im Reihendokument zusammen. Der Beitrag jedes Buchs wird als Abschnitt im Reihendokument ergänzt.",
+    noBooksInSeriesShort: "Keine Bücher in dieser Reihe.",
+    hasArtifact: "Artefakt vorhanden",
+    synthesize: "Zusammenfassen",
+  },
+
+  importExportUI: {
+    noExportsYet: "Noch keine Exporte. Erstellen Sie oben Ihren ersten Export.",
+    preview: "Vorschau",
+    contents: "Inhalt",
+    dropFiles: "Ziehen Sie Ihre Manuskriptdateien hierher oder klicken Sie zum Auswählen",
+    uploadManuscript: "Manuskript hochladen",
+    parsingFiles: "Dateien werden gelesen, Kapitel werden erkannt ...",
+    supportedFormats: "Unterstützte Formate",
+    reorderHint: "Zum Umsortieren ziehen, Titel anklicken zum Umbenennen, mehrere auswählen zum Zusammenführen oder unerwünschte Kapitel entfernen.",
+    startOver: "Von vorn beginnen",
+    importing: "Import läuft ...",
+    importComplete: "Import abgeschlossen",
+    importAnother: "Weitere Datei importieren",
+    manuscriptReadiness: "Manuskript-Bereitschaft",
+    runPublishingCheck: "Veröffentlichungsprüfung starten",
+  },
 };
 
 const ES: UIStrings = {
@@ -5146,6 +5322,8 @@ const ES: UIStrings = {
   },
 
   bookUI: {
+    archive: "Archivar",
+    archiveHint: "Pasa a tu estantería de archivados y sale de las activas. Puedes restaurarlo cuando quieras: no se borra nada.",
     yourYear: "Tu",
     inWriting: "año de escritura",
     youWrote: "Escribiste",
@@ -5875,6 +6053,47 @@ const ES: UIStrings = {
     focusFocused: "Enfocado",
     focusParagraph: "Párrafo",
   },
+
+  seriesUI: {
+    addBook: "Añadir libro",
+    existingBook: "Libro existente",
+    newBook: "Libro nuevo",
+    noBooksAvailable: "No hay libros disponibles. Todos tus libros ya están en una serie, o aún no has creado ninguno.",
+    addToSeries: "Añadir a la serie",
+    create: "Crear",
+    noBooksInSeries: "Aún no hay libros en esta serie.",
+    noSeriesDocuments: "Aún no hay documentos de serie. Usa el panel del agente para crear documentos de nivel de serie, como una biblia de la serie o su arquitectura.",
+    selectBookForInheritance: "Elige un libro para comprobar el estado de herencia.",
+    noInheritableDocuments: "No se encontraron documentos heredables.",
+    seriesVersion: "Versión de la serie",
+    bookVersion: "Versión del libro",
+    available: "Disponible",
+    missing: "Falta",
+    inherit: "Heredar",
+    applyAllAvailable: "Aplicar todo lo disponible",
+    noAnalyticsData: "No hay datos de analítica.",
+    synthesizeHint: "Sintetiza los artefactos del libro en el documento de la serie. La aportación de cada libro se añade como una sección del documento de la serie.",
+    noBooksInSeriesShort: "No hay libros en esta serie.",
+    hasArtifact: "Tiene artefacto",
+    synthesize: "Sintetizar",
+  },
+
+  importExportUI: {
+    noExportsYet: "Aún no hay exportaciones. Crea la primera arriba.",
+    preview: "Vista previa",
+    contents: "Contenido",
+    dropFiles: "Arrastra aquí los archivos de tu manuscrito o haz clic para elegirlos",
+    uploadManuscript: "Subir manuscrito",
+    parsingFiles: "Analizando los archivos y detectando capítulos...",
+    supportedFormats: "Formatos admitidos",
+    reorderHint: "Arrastra para reordenar, haz clic en los títulos para renombrarlos, selecciona varios para combinarlos o elimina los capítulos que no quieras.",
+    startOver: "Empezar de nuevo",
+    importing: "Importando...",
+    importComplete: "Importación completa",
+    importAnother: "Importar otro archivo",
+    manuscriptReadiness: "Preparación del manuscrito",
+    runPublishingCheck: "Ejecutar la comprobación de publicación",
+  },
 };
 
 const FR: UIStrings = {
@@ -6326,6 +6545,8 @@ const FR: UIStrings = {
   },
 
   bookUI: {
+    archive: "Archiver",
+    archiveHint: "Il rejoint votre étagère Archivés et quitte vos étagères actives. Vous pouvez le restaurer à tout moment — rien n’est supprimé.",
     yourYear: "Votre",
     inWriting: "année d'écriture",
     youWrote: "Vous avez écrit",
@@ -7055,6 +7276,47 @@ const FR: UIStrings = {
     focusFocused: "Concentré",
     focusParagraph: "Paragraphe",
   },
+
+  seriesUI: {
+    addBook: "Ajouter un livre",
+    existingBook: "Livre existant",
+    newBook: "Nouveau livre",
+    noBooksAvailable: "Aucun livre disponible. Tous vos livres appartiennent déjà à une série, ou vous n’en avez pas encore créé.",
+    addToSeries: "Ajouter à la série",
+    create: "Créer",
+    noBooksInSeries: "Aucun livre dans cette série pour l’instant.",
+    noSeriesDocuments: "Aucun document de série pour l’instant. Utilisez le panneau de l’agent pour créer des documents au niveau de la série, comme une bible ou une architecture de série.",
+    selectBookForInheritance: "Choisissez un livre pour vérifier l’état d’héritage.",
+    noInheritableDocuments: "Aucun document héritable trouvé.",
+    seriesVersion: "Version de la série",
+    bookVersion: "Version du livre",
+    available: "Disponible",
+    missing: "Manquant",
+    inherit: "Hériter",
+    applyAllAvailable: "Appliquer tout ce qui est disponible",
+    noAnalyticsData: "Aucune donnée d’analyse disponible.",
+    synthesizeHint: "Faites remonter les artefacts du livre dans le document de série. La contribution de chaque livre y est ajoutée comme une section.",
+    noBooksInSeriesShort: "Aucun livre dans cette série.",
+    hasArtifact: "Artefact présent",
+    synthesize: "Synthétiser",
+  },
+
+  importExportUI: {
+    noExportsYet: "Aucun export pour l’instant. Créez le premier ci-dessus.",
+    preview: "Aperçu",
+    contents: "Sommaire",
+    dropFiles: "Déposez ici les fichiers de votre manuscrit, ou cliquez pour les choisir",
+    uploadManuscript: "Téléverser le manuscrit",
+    parsingFiles: "Lecture des fichiers et détection des chapitres...",
+    supportedFormats: "Formats pris en charge",
+    reorderHint: "Glissez pour réordonner, cliquez sur un titre pour le renommer, sélectionnez-en plusieurs pour les fusionner ou supprimez les chapitres inutiles.",
+    startOver: "Tout recommencer",
+    importing: "Import en cours...",
+    importComplete: "Import terminé",
+    importAnother: "Importer un autre fichier",
+    manuscriptReadiness: "État de préparation du manuscrit",
+    runPublishingCheck: "Lancer la vérification de publication",
+  },
 };
 
 const RU: UIStrings = {
@@ -7506,6 +7768,8 @@ const RU: UIStrings = {
   },
 
   bookUI: {
+    archive: "В архив",
+    archiveHint: "Книга переедет на полку «Архив» и покинет активные полки. Вернуть её можно в любой момент — ничего не удаляется.",
     yourYear: "Ваш",
     inWriting: "год письма",
     youWrote: "Вы написали",
@@ -8235,6 +8499,47 @@ const RU: UIStrings = {
     focusFocused: "Сфокусированный",
     focusParagraph: "Абзац",
   },
+
+  seriesUI: {
+    addBook: "Добавить книгу",
+    existingBook: "Существующая книга",
+    newBook: "Новая книга",
+    noBooksAvailable: "Нет доступных книг. Все ваши книги уже в серии, либо вы ещё не создали ни одной.",
+    addToSeries: "Добавить в серию",
+    create: "Создать",
+    noBooksInSeries: "В этой серии пока нет книг.",
+    noSeriesDocuments: "Документов серии пока нет. Создайте документы уровня серии через панель агента — например, библию серии или её архитектуру.",
+    selectBookForInheritance: "Выберите книгу, чтобы проверить состояние наследования.",
+    noInheritableDocuments: "Наследуемых документов не найдено.",
+    seriesVersion: "Версия серии",
+    bookVersion: "Версия книги",
+    available: "Доступно",
+    missing: "Отсутствует",
+    inherit: "Унаследовать",
+    applyAllAvailable: "Применить всё доступное",
+    noAnalyticsData: "Данных для аналитики нет.",
+    synthesizeHint: "Сведите артефакты уровня книги в документ серии. Вклад каждой книги добавляется в него отдельным разделом.",
+    noBooksInSeriesShort: "В этой серии нет книг.",
+    hasArtifact: "Есть артефакт",
+    synthesize: "Свести",
+  },
+
+  importExportUI: {
+    noExportsYet: "Экспортов пока нет. Создайте первый выше.",
+    preview: "Предпросмотр",
+    contents: "Содержание",
+    dropFiles: "Перетащите сюда файлы рукописи или нажмите, чтобы выбрать",
+    uploadManuscript: "Загрузить рукопись",
+    parsingFiles: "Читаю файлы и определяю главы...",
+    supportedFormats: "Поддерживаемые форматы",
+    reorderHint: "Перетаскивайте, чтобы менять порядок, нажимайте на заголовок, чтобы переименовать, выбирайте несколько для объединения или удаляйте лишние главы.",
+    startOver: "Начать заново",
+    importing: "Импортирую...",
+    importComplete: "Импорт завершён",
+    importAnother: "Импортировать другой файл",
+    manuscriptReadiness: "Готовность рукописи",
+    runPublishingCheck: "Запустить проверку к публикации",
+  },
 };
 
 const ZH: UIStrings = {
@@ -8686,6 +8991,8 @@ const ZH: UIStrings = {
   },
 
   bookUI: {
+    archive: "归档",
+    archiveHint: "它会移到你的「已归档」书架并离开活动书架。你随时可以恢复——不会删除任何内容。",
     yourYear: "你的",
     inWriting: "写作之年",
     youWrote: "你写下了",
@@ -9414,6 +9721,47 @@ const ZH: UIStrings = {
     focusNormal: "普通",
     focusFocused: "专注",
     focusParagraph: "段落",
+  },
+
+  seriesUI: {
+    addBook: "添加图书",
+    existingBook: "已有图书",
+    newBook: "新建图书",
+    noBooksAvailable: "没有可用图书。你的书都已归入某个系列，或者你还没有创建任何图书。",
+    addToSeries: "加入系列",
+    create: "创建",
+    noBooksInSeries: "该系列中还没有图书。",
+    noSeriesDocuments: "暂无系列文档。请在助手面板中创建系列级文档，例如系列圣经或系列架构。",
+    selectBookForInheritance: "选择一本书以查看继承状态。",
+    noInheritableDocuments: "未找到可继承的文档。",
+    seriesVersion: "系列版本",
+    bookVersion: "图书版本",
+    available: "可用",
+    missing: "缺失",
+    inherit: "继承",
+    applyAllAvailable: "应用全部可用项",
+    noAnalyticsData: "暂无分析数据。",
+    synthesizeHint: "将图书级产物汇总到系列文档中。每本书的贡献都会作为一个章节加入系列文档。",
+    noBooksInSeriesShort: "该系列中没有图书。",
+    hasArtifact: "已有产物",
+    synthesize: "汇总",
+  },
+
+  importExportUI: {
+    noExportsYet: "还没有导出。请在上方创建第一个导出。",
+    preview: "预览",
+    contents: "目录",
+    dropFiles: "把稿件文件拖到这里，或点击选择",
+    uploadManuscript: "上传稿件",
+    parsingFiles: "正在解析文件并识别章节……",
+    supportedFormats: "支持的格式",
+    reorderHint: "拖动可调整顺序，点击标题可重命名，多选可合并，也可以移除不需要的章节。",
+    startOver: "重新开始",
+    importing: "正在导入……",
+    importComplete: "导入完成",
+    importAnother: "再导入一个文件",
+    manuscriptReadiness: "稿件就绪度",
+    runPublishingCheck: "运行出版检查",
   },
 };
 

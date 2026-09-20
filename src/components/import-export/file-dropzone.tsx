@@ -3,6 +3,7 @@
 import { useCallback, useState, useRef } from "react";
 import { UploadIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/components/providers/language-provider";
 
 interface FileDropzoneProps {
   onFilesSelected: (files: File[]) => void;
@@ -17,6 +18,7 @@ export function FileDropzone({
   maxSizeMB = 20,
   disabled = false,
 }: FileDropzoneProps) {
+  const { t } = useLanguage();
   const [isDragOver, setIsDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -68,9 +70,7 @@ export function FileDropzone({
       onClick={() => inputRef.current?.click()}
     >
       <UploadIcon className="mb-3 size-8 text-muted-foreground" />
-      <p className="text-sm font-medium">
-        Drop your manuscript files here, or click to browse
-      </p>
+      <p className="text-sm font-medium">{t.importExportUI.dropFiles}</p>
       <p className="mt-1 text-xs text-muted-foreground">
         Supports .md, .txt, .docx (max {maxSizeMB}MB)
       </p>

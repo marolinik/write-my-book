@@ -108,9 +108,7 @@ export function JourneyBanner({ bookId, onChooseJourney }: JourneyBannerProps) {
           {bannerText ? (
             <p className="text-sm text-foreground">{bannerText}</p>
           ) : (
-            <p className="text-sm text-muted-foreground">
-              Choose a writing journey to guide your progress.
-            </p>
+            <p className="text-sm text-muted-foreground">{t.journey.chooseJourneyDesc}</p>
           )}
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -121,9 +119,7 @@ export function JourneyBanner({ bookId, onChooseJourney }: JourneyBannerProps) {
               className="h-7 text-xs"
               onClick={() => openWithWorkflow(nextWorkflowId)}
             >
-              <Play className="mr-1 size-3" />
-              Start
-            </Button>
+              <Play className="mr-1 size-3" />{t.journey.startButton}</Button>
           )}
           {onChooseJourney && (
             <Button
@@ -131,9 +127,7 @@ export function JourneyBanner({ bookId, onChooseJourney }: JourneyBannerProps) {
               variant="outline"
               className="h-7 text-xs"
               onClick={onChooseJourney}
-            >
-              Choose journey
-            </Button>
+            >{t.journey.chooseJourney}</Button>
           )}
           <button
             onClick={handleDismiss}

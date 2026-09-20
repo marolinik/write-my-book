@@ -117,9 +117,7 @@ export function ManuscriptReadiness({ bookId, onProceed }: ManuscriptReadinessPr
     <Card className="border-2 border-dashed">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-sm">
-          <ShieldCheckIcon className="size-4" />
-          Manuscript Readiness
-        </CardTitle>
+          <ShieldCheckIcon className="size-4" />{t.importExportUI.manuscriptReadiness}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Score bar */}
@@ -173,9 +171,7 @@ export function ManuscriptReadiness({ bookId, onProceed }: ManuscriptReadinessPr
               variant="outline"
               size="sm"
               onClick={() => openWithWorkflow("publishing-check")}
-            >
-              Run Publishing Check
-            </Button>
+            >{t.importExportUI.runPublishingCheck}</Button>
           )}
           <Button
             size="sm"

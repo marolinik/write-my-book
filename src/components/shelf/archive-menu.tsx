@@ -67,13 +67,9 @@ export function ArchiveMenu({ bookId, archived }: ArchiveMenuProps) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           {archived ? (
-            <DropdownMenuItem disabled={busy} onSelect={() => setArchived(false)}>
-              Restore
-            </DropdownMenuItem>
+            <DropdownMenuItem disabled={busy} onSelect={() => setArchived(false)}>{t.common.restore}</DropdownMenuItem>
           ) : (
-            <DropdownMenuItem disabled={busy} onSelect={() => setConfirmOpen(true)}>
-              Archive
-            </DropdownMenuItem>
+            <DropdownMenuItem disabled={busy} onSelect={() => setConfirmOpen(true)}>{t.bookUI.archive}</DropdownMenuItem>
           )}
         </DropdownMenuContent>
       </DropdownMenu>
@@ -82,18 +78,11 @@ export function ArchiveMenu({ bookId, archived }: ArchiveMenuProps) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t.appUI.archiveThisBook}</DialogTitle>
-            <DialogDescription>
-              It moves to your Archived shelf and leaves your active shelves. You can restore it
-              any time — nothing is deleted.
-            </DialogDescription>
+            <DialogDescription>{t.bookUI.archiveHint}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" disabled={busy} onClick={() => setConfirmOpen(false)}>
-              Cancel
-            </Button>
-            <Button disabled={busy} onClick={() => setArchived(true)}>
-              Archive
-            </Button>
+            <Button variant="outline" disabled={busy} onClick={() => setConfirmOpen(false)}>{t.common.cancel}</Button>
+            <Button disabled={busy} onClick={() => setArchived(true)}>{t.bookUI.archive}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

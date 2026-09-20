@@ -31,9 +31,7 @@ export function SeriesProgressGrid({ seriesId }: SeriesProgressGridProps) {
 
   if (!data) {
     return (
-      <p className="text-sm text-muted-foreground">
-        No analytics data available.
-      </p>
+      <p className="text-sm text-muted-foreground">{t.seriesUI.noAnalyticsData}</p>
     );
   }
 

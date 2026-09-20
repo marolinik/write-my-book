@@ -2,6 +2,7 @@
 
 import { FileTextIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/components/providers/language-provider";
 
 interface SeriesDocument {
   id: string;
@@ -16,12 +17,10 @@ interface SeriesDocumentsPanelProps {
 }
 
 export function SeriesDocumentsPanel({ documents }: SeriesDocumentsPanelProps) {
+  const { t } = useLanguage();
   if (documents.length === 0) {
     return (
-      <div className="py-8 text-center text-sm text-muted-foreground">
-        No series documents yet. Use the agent panel to create series-level
-        documents like a Series Bible or Series Architecture.
-      </div>
+      <div className="py-8 text-center text-sm text-muted-foreground">{t.seriesUI.noSeriesDocuments}</div>
     );
   }
 

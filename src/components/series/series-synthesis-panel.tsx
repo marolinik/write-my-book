@@ -74,17 +74,12 @@ export function SeriesSynthesisPanel({ seriesId }: SeriesSynthesisPanelProps) {
         </Select>
       </div>
 
-      <p className="text-xs text-muted-foreground">
-        Synthesize book-level artifacts up into the series document. Each
-        book's contribution is added as a section in the series document.
-      </p>
+      <p className="text-xs text-muted-foreground">{t.seriesUI.synthesizeHint}</p>
 
       {isLoading ? (
         <p className="text-sm text-muted-foreground">{t.workspaceUI.loadingContributions}</p>
       ) : !contributions || contributions.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          No books in this series.
-        </p>
+        <p className="text-sm text-muted-foreground">{t.seriesUI.noBooksInSeriesShort}</p>
       ) : (
         <div className="rounded-md border">
           <table className="w-full text-sm">
@@ -92,9 +87,7 @@ export function SeriesSynthesisPanel({ seriesId }: SeriesSynthesisPanelProps) {
               <tr className="border-b bg-muted/50">
                 <th className="px-4 py-2 text-left font-medium">#</th>
                 <th className="px-4 py-2 text-left font-medium">{t.workspaceUI.book}</th>
-                <th className="px-4 py-2 text-left font-medium">
-                  Has Artifact
-                </th>
+                <th className="px-4 py-2 text-left font-medium">{t.seriesUI.hasArtifact}</th>
                 <th className="px-4 py-2 text-right font-medium">{t.workspaceUI.action}</th>
               </tr>
             </thead>
@@ -129,9 +122,7 @@ export function SeriesSynthesisPanel({ seriesId }: SeriesSynthesisPanelProps) {
                         }
                         disabled={synthesizeMutation.isPending}
                       >
-                        <UploadIcon className="mr-1 size-3" />
-                        Synthesize
-                      </Button>
+                        <UploadIcon className="mr-1 size-3" />{t.seriesUI.synthesize}</Button>
                     )}
                   </td>
                 </tr>

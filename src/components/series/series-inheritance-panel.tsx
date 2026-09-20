@@ -75,15 +75,11 @@ export function SeriesInheritancePanel({
       </div>
 
       {!selectedBookId ? (
-        <p className="text-sm text-muted-foreground">
-          Select a book to check inheritance state.
-        </p>
+        <p className="text-sm text-muted-foreground">{t.seriesUI.selectBookForInheritance}</p>
       ) : isLoading ? (
         <p className="text-sm text-muted-foreground">{t.workspaceUI.loading}</p>
       ) : !states || states.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          No inheritable documents found.
-        </p>
+        <p className="text-sm text-muted-foreground">{t.seriesUI.noInheritableDocuments}</p>
       ) : (
         <>
           <div className="rounded-md border">
@@ -92,12 +88,8 @@ export function SeriesInheritancePanel({
                 <tr className="border-b bg-muted/50">
                   <th className="px-4 py-2 text-left font-medium">{t.workspaceUI.document}</th>
                   <th className="px-4 py-2 text-left font-medium">{t.workspaceUI.status}</th>
-                  <th className="px-4 py-2 text-left font-medium">
-                    Series Ver.
-                  </th>
-                  <th className="px-4 py-2 text-left font-medium">
-                    Book Ver.
-                  </th>
+                  <th className="px-4 py-2 text-left font-medium">{t.seriesUI.seriesVersion}</th>
+                  <th className="px-4 py-2 text-left font-medium">{t.seriesUI.bookVersion}</th>
                   <th className="px-4 py-2 text-right font-medium">{t.workspaceUI.action}</th>
                 </tr>
               </thead>
@@ -119,13 +111,9 @@ export function SeriesInheritancePanel({
                           variant="secondary"
                           className="gap-1 text-xs"
                         >
-                          <AlertCircleIcon className="size-3" />
-                          Available
-                        </Badge>
+                          <AlertCircleIcon className="size-3" />{t.seriesUI.available}</Badge>
                       ) : (
-                        <Badge variant="outline" className="text-xs">
-                          Missing
-                        </Badge>
+                        <Badge variant="outline" className="text-xs">{t.seriesUI.missing}</Badge>
                       )}
                     </td>
                     <td className="px-4 py-2 text-muted-foreground">
@@ -143,9 +131,7 @@ export function SeriesInheritancePanel({
                           onClick={() => handleApplyOne(state.seriesDocType)}
                           disabled={applyMutation.isPending}
                         >
-                          <DownloadIcon className="mr-1 size-3" />
-                          Inherit
-                        </Button>
+                          <DownloadIcon className="mr-1 size-3" />{t.seriesUI.inherit}</Button>
                       )}
                     </td>
                   </tr>
@@ -161,9 +147,7 @@ export function SeriesInheritancePanel({
               onClick={handleApplyAll}
               disabled={applyMutation.isPending}
             >
-              <DownloadIcon className="mr-1 size-4" />
-              Apply All Available
-            </Button>
+              <DownloadIcon className="mr-1 size-4" />{t.seriesUI.applyAllAvailable}</Button>
           )}
         </>
       )}

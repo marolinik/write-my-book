@@ -118,9 +118,7 @@ export function ExportConfigDialog({
         </Tabs>
 
         <div className="flex justify-end gap-2 pt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>{t.common.cancel}</Button>
           <Button onClick={save} disabled={updateConfig.isPending}>
             {updateConfig.isPending ? (
               <Loader2Icon className="mr-2 size-4 animate-spin" />

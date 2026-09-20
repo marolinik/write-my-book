@@ -108,9 +108,7 @@ export function SeriesBookManager({ seriesId, books }: SeriesBookManagerProps) {
           size="sm"
           onClick={() => setShowAddForm(!showAddForm)}
         >
-          <PlusIcon className="mr-1 size-3" />
-          Add Book
-        </Button>
+          <PlusIcon className="mr-1 size-3" />{t.seriesUI.addBook}</Button>
       </div>
 
       {showAddForm && (
@@ -123,27 +121,20 @@ export function SeriesBookManager({ seriesId, books }: SeriesBookManagerProps) {
               onClick={() => setAddMode("existing")}
               className="text-xs"
             >
-              <BookOpenIcon className="mr-1 size-3" />
-              Existing Book
-            </Button>
+              <BookOpenIcon className="mr-1 size-3" />{t.seriesUI.existingBook}</Button>
             <Button
               variant={addMode === "new" ? "default" : "outline"}
               size="sm"
               onClick={() => setAddMode("new")}
               className="text-xs"
             >
-              <PenLineIcon className="mr-1 size-3" />
-              New Book
-            </Button>
+              <PenLineIcon className="mr-1 size-3" />{t.seriesUI.newBook}</Button>
           </div>
 
           {addMode === "existing" ? (
             <div className="flex flex-col gap-2">
               {!availableBooks || availableBooks.length === 0 ? (
-                <p className="text-xs text-muted-foreground py-2">
-                  No books available. All your books are already in a series, or you
-                  haven't created any yet.
-                </p>
+                <p className="text-xs text-muted-foreground py-2">{t.seriesUI.noBooksAvailable}</p>
               ) : (
                 <div className="flex flex-col gap-1 max-h-48 overflow-y-auto">
                   {availableBooks.map((book) => (
@@ -169,9 +160,7 @@ export function SeriesBookManager({ seriesId, books }: SeriesBookManagerProps) {
                   size="sm"
                   onClick={handleAddExisting}
                   disabled={!selectedBookId || addMutation.isPending}
-                >
-                  Add to Series
-                </Button>
+                >{t.seriesUI.addToSeries}</Button>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -179,9 +168,7 @@ export function SeriesBookManager({ seriesId, books }: SeriesBookManagerProps) {
                     setShowAddForm(false);
                     setSelectedBookId(null);
                   }}
-                >
-                  Cancel
-                </Button>
+                >{t.common.cancel}</Button>
               </div>
             </div>
           ) : (
@@ -197,25 +184,19 @@ export function SeriesBookManager({ seriesId, books }: SeriesBookManagerProps) {
                 size="sm"
                 onClick={handleAddNew}
                 disabled={!newBookName.trim() || addMutation.isPending}
-              >
-                Create
-              </Button>
+              >{t.seriesUI.create}</Button>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowAddForm(false)}
-              >
-                Cancel
-              </Button>
+              >{t.common.cancel}</Button>
             </div>
           )}
         </div>
       )}
 
       {books.length === 0 ? (
-        <p className="text-sm text-muted-foreground py-4 text-center">
-          No books in this series yet.
-        </p>
+        <p className="text-sm text-muted-foreground py-4 text-center">{t.seriesUI.noBooksInSeries}</p>
       ) : (
         <div className="flex flex-col gap-2">
           {books.map((book) => (

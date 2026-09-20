@@ -120,9 +120,7 @@ export function ImportWizard({ bookId, onComplete, autoAnalyze = true }: ImportW
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <UploadIcon className="size-4" />
-              Upload Manuscript
-            </CardTitle>
+              <UploadIcon className="size-4" />{t.importExportUI.uploadManuscript}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <FileDropzone
@@ -132,9 +130,7 @@ export function ImportWizard({ bookId, onComplete, autoAnalyze = true }: ImportW
 
             {previewMutation.isPending && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Loader2Icon className="size-4 animate-spin" />
-                Parsing files and detecting chapters...
-              </div>
+                <Loader2Icon className="size-4 animate-spin" />{t.importExportUI.parsingFiles}</div>
             )}
 
             {previewMutation.isError && (
@@ -146,9 +142,7 @@ export function ImportWizard({ bookId, onComplete, autoAnalyze = true }: ImportW
 
             <div className="rounded-md border bg-muted/30 p-3 space-y-2">
               <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-                <InfoIcon className="size-3" />
-                Supported formats
-              </div>
+                <InfoIcon className="size-3" />{t.importExportUI.supportedFormats}</div>
               <div className="grid gap-1.5">
                 {FORMAT_INFO.map((fmt) => (
                   <div key={fmt.ext} className="flex items-center gap-2 text-xs">
@@ -171,9 +165,7 @@ export function ImportWizard({ bookId, onComplete, autoAnalyze = true }: ImportW
             <CardTitle>{t.appUI.previewEditChapters}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Drag to reorder, click titles to rename, select multiple to merge, or remove unwanted chapters.
-            </p>
+            <p className="text-sm text-muted-foreground">{t.importExportUI.reorderHint}</p>
 
             <ChapterPreviewList
               chapters={chapters}
@@ -196,18 +188,14 @@ export function ImportWizard({ bookId, onComplete, autoAnalyze = true }: ImportW
             )}
 
             <div className="flex items-center justify-between pt-2 border-t">
-              <Button variant="outline" size="sm" onClick={handleReset}>
-                Start Over
-              </Button>
+              <Button variant="outline" size="sm" onClick={handleReset}>{t.importExportUI.startOver}</Button>
               <Button
                 onClick={handleConfirm}
                 disabled={confirmMutation.isPending || chapters.length === 0}
               >
                 {confirmMutation.isPending ? (
                   <>
-                    <Loader2Icon className="mr-2 size-4 animate-spin" />
-                    Importing...
-                  </>
+                    <Loader2Icon className="mr-2 size-4 animate-spin" />{t.importExportUI.importing}</>
                 ) : (
                   <>
                     Import {chapters.length} chapter{chapters.length !== 1 ? "s" : ""}
@@ -232,18 +220,14 @@ export function ImportWizard({ bookId, onComplete, autoAnalyze = true }: ImportW
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <CheckCircleIcon className="size-4 text-green-600 dark:text-green-400" />
-              Import Complete
-            </CardTitle>
+              <CheckCircleIcon className="size-4 text-green-600 dark:text-green-400" />{t.importExportUI.importComplete}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
               {chapters.length} chapter{chapters.length !== 1 ? "s" : ""} imported successfully.
               {autoAnalyze && " Analysis is starting automatically in the agent panel."}
             </p>
-            <Button variant="outline" onClick={handleReset}>
-              Import Another File
-            </Button>
+            <Button variant="outline" onClick={handleReset}>{t.importExportUI.importAnother}</Button>
           </CardContent>
         </Card>
       )}

@@ -23,6 +23,10 @@ const CLEAN_AREAS = [
   join("components", "agent"),
   join("components", "editorial"),
   join("components", "editor"),
+  join("components", "series"),
+  join("components", "import-export"),
+  join("components", "shelf"),
+  join("components", "journey"),
 ];
 
 /**
@@ -33,7 +37,7 @@ const CLEAN_AREAS = [
 const SPAN = />([^<>{}]+)</g;
 
 /** Fragments that mean the match is code between two JSX islands, not prose. */
-const CODE_MARKERS = [";", "=>", "const ", "return ", "&&", "||", '"', "=== ", "//", "*/"];
+const CODE_MARKERS = [";", "=>", "const ", "return ", "&&", "||", '"', "=== ", "//", "*/", "): "];
 
 /** `) : isIdle ? (` and friends — a ternary straddling two JSX branches. */
 const TERNARY = /^\)?\s*:|\?\s*\($/;
@@ -55,6 +59,9 @@ function englishTextNodes(file: string): string[] {
     if (source[Math.max(0, match.index - 1)] === "=") continue; // arrow function
     if (CODE_MARKERS.some((marker) => text.includes(marker))) continue;
     if (TERNARY.test(text)) continue;
+    // An all-caps token is a format or an acronym (EPUB, DOCX, PDF) — the
+    // same string in every language, so it is not a translation gap.
+    if (!/[a-z]/.test(text)) continue;
     if (!text.includes(" ") && text.length < 4) continue;
     const line = source.slice(0, match.index).split("\n").length;
     found.push(`${file.slice(SRC.length + 1)}:${line} — ${text.slice(0, 80)}`);
@@ -95,7 +102,14 @@ describe("the dictionaries behind the localized areas", () => {
 
   it("are translated everywhere except for listed cognates", () => {
     const en = getUIStrings("en");
-    const groups = ["agentUI", "editorialUI", "editorChrome", "common"] as const;
+    const groups = [
+      "agentUI",
+      "editorialUI",
+      "editorChrome",
+      "common",
+      "seriesUI",
+      "importExportUI",
+    ] as const;
     const untranslated: string[] = [];
 
     for (const language of LANGUAGES.filter((l) => l !== "en")) {
