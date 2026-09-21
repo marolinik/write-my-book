@@ -1247,6 +1247,16 @@ export interface UIStrings {
     useIt: string;
     keepAsIs: string;
     capReached: string;
+    batchScheduledNote: string;
+    passesFailed: string;
+    haltedWithReason: string;
+    statusQueued: string;
+    statusRunning: string;
+    statusNeedsApproval: string;
+    statusHalted: string;
+    statusDone: string;
+    statusFailed: string;
+    statusCancelled: string;
   };
 
   // H-10 - the editor's own chrome: status bar, find-and-replace, pacing and
@@ -1415,6 +1425,10 @@ export interface UIStrings {
     importAnother: string;
     manuscriptReadiness: string;
     runPublishingCheck: string;
+    previewPageTitle: string;
+    previewPageChapter: string;
+    exportManuscript: string;
+    exportAnyway: string;
   };
 
   // H-10 - the writer-memory panel and the vector-store status.

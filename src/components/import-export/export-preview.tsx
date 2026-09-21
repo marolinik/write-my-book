@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/components/providers/language-provider";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 
 /**
  * Gap 9: Export Format Preview (Vellum-style)
@@ -21,6 +22,18 @@ import { useLanguage } from "@/components/providers/language-provider";
  */
 
 type PreviewDevice = "print" | "kindle" | "ipad" | "phone";
+type PreviewPage = "title" | "toc" | "chapter";
+
+/**
+ * The three pages the preview can show. The switcher printed the page's own
+ * key — "title", "chapter" — which is a value in the code, not a word in the
+ * reader's language.
+ */
+const PAGE_LABELS: Record<PreviewPage, (t: UIStrings) => string> = {
+  title: (t) => t.importExportUI.previewPageTitle,
+  toc: (t) => t.importExportUI.contents,
+  chapter: (t) => t.importExportUI.previewPageChapter,
+};
 
 interface ExportPreviewProps {
   bookTitle: string;
@@ -58,7 +71,7 @@ export function ExportPreview({
   const [device, setDevice] = useState<PreviewDevice>(
     format === "pdf" ? "print" : "kindle"
   );
-  const [page, setPage] = useState<"title" | "toc" | "chapter">("title");
+  const [page, setPage] = useState<PreviewPage>("title");
 
   const size = DEVICE_SIZES[device];
 
@@ -101,7 +114,7 @@ export function ExportPreview({
 
         {/* Page selector */}
         <div className="flex gap-1">
-          {(["title", "toc", "chapter"] as const).map((p) => (
+          {(Object.keys(PAGE_LABELS) as PreviewPage[]).map((p) => (
             <Button
               key={p}
               variant={page === p ? "default" : "outline"}
@@ -109,7 +122,7 @@ export function ExportPreview({
               className="h-6 text-[10px] capitalize"
               onClick={() => setPage(p)}
             >
-              {p === "toc" ? "Contents" : p}
+              {PAGE_LABELS[p](t)}
             </Button>
           ))}
         </div>
@@ -162,7 +175,7 @@ export function ExportPreview({
                         className="flex items-baseline justify-between border-b border-dotted border-gray-200 py-1"
                       >
                         <span className="text-xs">
-                          {ch.title || `Chapter ${ch.number}`}
+                          {ch.title || t.editorialUI.chapterRef.replace("{n}", String(ch.number))}
                         </span>
                         <span className="text-[9px] text-gray-400 ml-2">
                           {ch.number * 12 + 3}
@@ -179,7 +192,7 @@ export function ExportPreview({
                       className="font-bold text-center mb-6"
                       style={{ fontSize: "15px" }}
                     >
-                      {chapters[0]?.title || "Chapter 1"}
+                      {chapters[0]?.title || t.editorialUI.chapterRef.replace("{n}", "1")}
                     </h2>
                     {paragraphs.slice(0, 8).map((p, i) => (
                       <p

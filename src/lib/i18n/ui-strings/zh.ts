@@ -1306,6 +1306,16 @@ export const ZH: UIStrings = {
     useIt: "采用",
     keepAsIs: "保持原样",
     capReached: "已达到 3 轮对话上限——请在上方决定，或撤销后重新修改。",
+    batchScheduledNote: "已排期 — 将在所选时间运行。",
+    passesFailed: "{count} 个失败",
+    haltedWithReason: "已停止（{reason}）",
+    statusQueued: "排队中",
+    statusRunning: "运行中",
+    statusNeedsApproval: "待批准",
+    statusHalted: "已停止",
+    statusDone: "已完成",
+    statusFailed: "失败",
+    statusCancelled: "已取消",
   },
 
   editorChrome: {
@@ -1468,6 +1478,10 @@ export const ZH: UIStrings = {
     importAnother: "再导入一个文件",
     manuscriptReadiness: "稿件就绪度",
     runPublishingCheck: "运行出版检查",
+    previewPageTitle: "标题页",
+    previewPageChapter: "章节",
+    exportManuscript: "导出稿件",
+    exportAnyway: "仍然导出",
   },
 
   memoryUI: {

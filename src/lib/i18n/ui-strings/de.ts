@@ -1306,6 +1306,16 @@ export const DE: UIStrings = {
     useIt: "Übernehmen",
     keepAsIs: "So lassen",
     capReached: "Grenze von 3 Wortwechseln erreicht — entscheiden Sie oben oder machen Sie rückgängig, um zu überarbeiten.",
+    batchScheduledNote: "Geplant — läuft zur gewählten Zeit.",
+    passesFailed: "{count} fehlgeschlagen",
+    haltedWithReason: "angehalten ({reason})",
+    statusQueued: "in Warteschlange",
+    statusRunning: "läuft",
+    statusNeedsApproval: "Freigabe nötig",
+    statusHalted: "angehalten",
+    statusDone: "fertig",
+    statusFailed: "fehlgeschlagen",
+    statusCancelled: "abgebrochen",
   },
 
   editorChrome: {
@@ -1468,6 +1478,10 @@ export const DE: UIStrings = {
     importAnother: "Weitere Datei importieren",
     manuscriptReadiness: "Manuskript-Bereitschaft",
     runPublishingCheck: "Veröffentlichungsprüfung starten",
+    previewPageTitle: "Titelseite",
+    previewPageChapter: "Kapitel",
+    exportManuscript: "Manuskript exportieren",
+    exportAnyway: "Trotzdem exportieren",
   },
 
   memoryUI: {

@@ -1317,6 +1317,16 @@ export const EN: UIStrings = {
     useIt: "Use it",
     keepAsIs: "Keep as-is",
     capReached: "3-exchange cap reached — decide above, or undo to revise.",
+    batchScheduledNote: "Scheduled — will run at the chosen time.",
+    passesFailed: "{count} failed",
+    haltedWithReason: "halted ({reason})",
+    statusQueued: "queued",
+    statusRunning: "running",
+    statusNeedsApproval: "needs approval",
+    statusHalted: "halted",
+    statusDone: "done",
+    statusFailed: "failed",
+    statusCancelled: "cancelled",
   },
 
   editorChrome: {
@@ -1479,6 +1489,10 @@ export const EN: UIStrings = {
     importAnother: "Import Another File",
     manuscriptReadiness: "Manuscript Readiness",
     runPublishingCheck: "Run Publishing Check",
+    previewPageTitle: "Title",
+    previewPageChapter: "Chapter",
+    exportManuscript: "Export Manuscript",
+    exportAnyway: "Export Anyway",
   },
 
   memoryUI: {

@@ -178,7 +178,7 @@ export function ManuscriptReadiness({ bookId, onProceed }: ManuscriptReadinessPr
             variant={isReady ? "default" : "secondary"}
             onClick={onProceed}
           >
-            {isReady ? "Export Manuscript" : "Export Anyway"}
+            {isReady ? t.importExportUI.exportManuscript : t.importExportUI.exportAnyway}
           </Button>
         </div>
       </CardContent>

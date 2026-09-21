@@ -1306,6 +1306,16 @@ export const SR: UIStrings = {
     useIt: "Iskoristi",
     keepAsIs: "Zadrži kako jeste",
     capReached: "Dostignut je limit od 3 razmene — odlučite gore ili poništite da biste preradili.",
+    batchScheduledNote: "Zakazano — pokrenuće se u izabrano vreme.",
+    passesFailed: "{count} neuspelih",
+    haltedWithReason: "zaustavljeno ({reason})",
+    statusQueued: "na čekanju",
+    statusRunning: "u toku",
+    statusNeedsApproval: "čeka odobrenje",
+    statusHalted: "zaustavljeno",
+    statusDone: "završeno",
+    statusFailed: "neuspelo",
+    statusCancelled: "otkazano",
   },
 
   editorChrome: {
@@ -1468,6 +1478,10 @@ export const SR: UIStrings = {
     importAnother: "Uvezi još jednu datoteku",
     manuscriptReadiness: "Spremnost rukopisa",
     runPublishingCheck: "Pokreni proveru za objavljivanje",
+    previewPageTitle: "Naslovna",
+    previewPageChapter: "Poglavlje",
+    exportManuscript: "Izvezi rukopis",
+    exportAnyway: "Izvezi svejedno",
   },
 
   memoryUI: {

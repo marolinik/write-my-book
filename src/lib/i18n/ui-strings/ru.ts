@@ -1306,6 +1306,16 @@ export const RU: UIStrings = {
     useIt: "Использовать",
     keepAsIs: "Оставить как есть",
     capReached: "Достигнут предел в 3 обмена — решите выше или отмените, чтобы переработать.",
+    batchScheduledNote: "Запланировано — запустится в выбранное время.",
+    passesFailed: "{count} с ошибкой",
+    haltedWithReason: "остановлено ({reason})",
+    statusQueued: "в очереди",
+    statusRunning: "выполняется",
+    statusNeedsApproval: "нужно одобрение",
+    statusHalted: "остановлено",
+    statusDone: "готово",
+    statusFailed: "с ошибкой",
+    statusCancelled: "отменено",
   },
 
   editorChrome: {
@@ -1468,6 +1478,10 @@ export const RU: UIStrings = {
     importAnother: "Импортировать другой файл",
     manuscriptReadiness: "Готовность рукописи",
     runPublishingCheck: "Запустить проверку к публикации",
+    previewPageTitle: "Титул",
+    previewPageChapter: "Глава",
+    exportManuscript: "Экспортировать рукопись",
+    exportAnyway: "Всё равно экспортировать",
   },
 
   memoryUI: {

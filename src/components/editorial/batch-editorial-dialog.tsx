@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { CalendarClockIcon, Loader2Icon, MoonIcon, ZapIcon } from "lucide-react";
 
 import { isTerminalBatchStatus } from "@/lib/batch/batch-status";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +22,25 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+
+/**
+ * The batch's own status, in the writer's language. The API returns the
+ * `BatchStatus` enum member, which is a stored value in English; the badge
+ * printed it raw, so a Serbian writer read "queued" and then "running".
+ */
+function batchStatusLabel(status: string | undefined, t: UIStrings): string {
+  const s = t.editorialUI;
+  const labels: Record<string, string> = {
+    queued: s.statusQueued,
+    running: s.statusRunning,
+    needs_approval: s.statusNeedsApproval,
+    halted: s.statusHalted,
+    done: s.statusDone,
+    failed: s.statusFailed,
+    cancelled: s.statusCancelled,
+  };
+  return labels[status ?? "queued"] ?? s.statusQueued;
+}
 
 /** The four v1 batch-eligible (non-prose-mutating) editorial passes. */
 const BATCH_PASSES: ReadonlyArray<{ id: string; perChapter: boolean }> = [
@@ -429,7 +449,7 @@ export function BatchEditorialDialog({
               <DialogTitle>{t.batchEditorial.status}</DialogTitle>
               <DialogDescription>
                 {status?.batch.scheduledFor && !isTerminal
-                  ? "Scheduled — will run at the chosen time."
+                  ? t.editorialUI.batchScheduledNote
                   : t.bookUI.batchStatusNote}
               </DialogDescription>
             </DialogHeader>
@@ -437,7 +457,7 @@ export function BatchEditorialDialog({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Badge variant={isTerminal ? "secondary" : "outline"}>
-                  {status?.batch.status ?? "queued"}
+                  {batchStatusLabel(status?.batch.status, t)}
                 </Badge>
                 <span className="text-muted-foreground text-sm">
                   ${(status?.batch.spentUsd ?? 0).toFixed(2)} / $
@@ -454,10 +474,10 @@ export function BatchEditorialDialog({
                   ? ` · ${t.editorialUI.passesSkipped.replace("{count}", String(status.counts.skipped))}`
                   : ""}
                 {status && status.counts.failed > 0
-                  ? ` · ${status.counts.failed} failed`
+                  ? ` · ${t.editorialUI.passesFailed.replace("{count}", String(status.counts.failed))}`
                   : ""}
                 {status?.batch.halted && status.batch.haltReason
-                  ? ` · halted (${status.batch.haltReason})`
+                  ? ` · ${t.editorialUI.haltedWithReason.replace("{reason}", status.batch.haltReason)}`
                   : ""}
               </p>
             </div>
