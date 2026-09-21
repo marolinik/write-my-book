@@ -210,6 +210,10 @@ export interface UIStrings {
     /** Countable chapter noun — singular/plural pair, picked via pluralNoun(). */
     chapterOne: string; chapterMany: string;
     chapterFew: string;
+    styleSampleLabel: string;
+    styleSampleHint: string;
+    styleSamplePlaceholder: string;
+    analyzeImportedForStyle: string;
     importMore: string; goToImport: string;
     styleInfo: string; fingerprintCaptured: string;
     captureStyle: string; reCaptureStyle: string;
@@ -283,6 +287,8 @@ export interface UIStrings {
     deleteConfirmIntro: string;
     deleteConfirmRest: string;
     typeLabel: string;
+    thisBook: string;
+    deletePermanently: string;
     toConfirm: string;
     deleting: string;
     title: string; subtitle: string;
@@ -926,6 +932,9 @@ export interface UIStrings {
   seriesPage: {
     title: string; newSeries: string; noSeries: string; noSeriesDesc: string;
     createSeries: string; books: string; docs: string;
+    seriesOne: string;
+    seriesFew: string;
+    seriesMany: string;
     // UDG round-9 (Olivera/Igor): series cover + omnibus export + printable report.
     omnibusTitle: string; omnibusDesc: string; coverLabel: string; coverUpload: string;
     coverRemove: string; coverHint: string; coverSaved: string; coverRemoved: string;

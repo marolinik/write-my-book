@@ -47,7 +47,7 @@ import { useUpdateBookSettings } from "@/hooks/use-settings";
 import { useLanguage } from "@/components/providers/language-provider";
 import { ImportWizard } from "@/components/import-export/import-wizard";
 import { fetchJson } from "@/lib/api-client";
-import { countWithNoun } from "@/lib/i18n/plural";
+import { countWithNoun, pluralNoun } from "@/lib/i18n/plural";
 import {
   SETUP_STEP_TOTAL,
   countSetupStepsDone,
@@ -62,7 +62,9 @@ export default function SetupPage({
 }) {
   const { bookId } = use(params);
   const router = useRouter();
-  const { t } = useLanguage();
+  // `language` below is the book's own language; the counts in this page
+  // belong to the sentence around them, which is the UI dictionary.
+  const { t, language: uiLanguage } = useLanguage();
   const s = t.setup;
 
   const [currentStep, setCurrentStep] = useState(0);
@@ -377,7 +379,10 @@ export default function SetupPage({
                   <CheckCircle2Icon className="size-4 text-green-600 dark:text-green-400 shrink-0" />
                   <span className="text-sm font-medium text-green-700 dark:text-green-300">
                     {s.manuscriptImported} —{" "}
-                    {countWithNoun(bookState.chapterCount, s.chapterOne, s.chapterMany)}
+                    {countWithNoun(bookState.chapterCount, s.chapterOne, s.chapterMany, {
+                      few: s.chapterFew,
+                      language: uiLanguage,
+                    })}
                   </span>
                 </div>
               )}
@@ -419,23 +424,17 @@ export default function SetupPage({
               {!bookState.hasChapters && confirmWorkflow !== "capture-style" && (
                 <div className="space-y-2">
                   <Label htmlFor="style-sample" className="text-sm font-medium">
-                    {book?.language === "sr"
-                      ? "Uzorak vašeg pisanja"
-                      : "Your writing sample"}
+                    {s.styleSampleLabel}
                   </Label>
                   <p className="text-xs text-muted-foreground">
-                    {book?.language === "sr"
-                      ? "Nalepite ili otkucajte odlomak iz svog rada (500+ reči je idealno). Ako ste uvezli rukopis, ovaj korak možete preskočiti."
-                      : "Paste or type a passage from your work (500+ words is ideal). If you imported a manuscript, you can skip this."}
+                    {s.styleSampleHint}
                   </p>
                   <Textarea
                     id="style-sample"
                     value={styleSample}
                     onChange={(e) => setStyleSample(e.target.value)}
                     placeholder={
-                      book?.language === "sr"
-                        ? "Nalepite odlomak iz svog romana, priče ili drugog rada..."
-                        : "Paste a passage from your novel, story, or other writing..."
+                      s.styleSamplePlaceholder
                     }
                     rows={8}
                     className="resize-y min-h-[120px] max-h-[400px] text-sm"
@@ -443,7 +442,12 @@ export default function SetupPage({
                   {styleSample.trim().length > 0 && (
                     <p className="text-xs text-muted-foreground">
                       {styleSample.trim().split(/\s+/).length}{" "}
-                      {book?.language === "sr" ? "reči" : "words"}
+                      {pluralNoun(
+                        styleSample.trim().split(/\s+/).length,
+                        t.editorChrome.wordOne,
+                        t.editorChrome.wordMany,
+                        { few: t.editorChrome.wordFew, language: uiLanguage }
+                      )}
                     </p>
                   )}
                 </div>
@@ -454,9 +458,13 @@ export default function SetupPage({
                 <p className="text-xs text-muted-foreground rounded-md bg-muted/50 p-2">
                   {/* D-163: the count picks its own noun form per sentence
                       language — this read "(1 chapters)" before. */}
-                  {book?.language === "sr"
-                    ? `Agent će analizirati vaš uvezeni rukopis (${countWithNoun(bookState.chapterCount, "poglavlje", "poglavlja")}) za stil.`
-                    : `The agent will analyze your imported manuscript (${countWithNoun(bookState.chapterCount, "chapter", "chapters")}) for style.`}
+                  {s.analyzeImportedForStyle.replace(
+                    "{chapters}",
+                    countWithNoun(bookState.chapterCount, s.chapterOne, s.chapterMany, {
+                      few: s.chapterFew,
+                      language: uiLanguage,
+                    })
+                  )}
                 </p>
               )}
 

@@ -81,7 +81,9 @@ export default async function SeriesDocumentPage({
         </h1>
         <p className="text-muted-foreground text-sm mt-1">
           {label}
-          {doc.chapterNumber ? ` · Chapter ${doc.chapterNumber}` : ""}
+          {doc.chapterNumber
+            ? ` · ${t.editorialUI.chapterRef.replace("{n}", String(doc.chapterNumber))}`
+            : ""}
           {" · "}
           {new Date(doc.updatedAt).toLocaleDateString(locale)}
         </p>

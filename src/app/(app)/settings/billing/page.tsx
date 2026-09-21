@@ -400,7 +400,7 @@ export default function BillingPage() {
                     onClick={() => handleCheckout(plan.key)}
                     disabled={checkout.isPending}
                   >
-                    {checkout.isPending ? "Loading..." : "Upgrade"}
+                    {checkout.isPending ? t.common.loading : t.common.upgrade}
                   </Button>
                 )}
                 {disabled && (

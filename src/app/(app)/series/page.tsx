@@ -4,6 +4,7 @@ import { LibraryIcon, PlusIcon } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getUIStrings } from "@/lib/i18n/ui-strings";
+import { countWithNoun } from "@/lib/i18n/plural";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,7 +19,8 @@ export const dynamic = "force-dynamic";
 
 export default async function SeriesListPage() {
   const user = await requireUser();
-  const t = getUIStrings(user.preferredLanguage ?? "en");
+  const language = user.preferredLanguage ?? "en";
+  const t = getUIStrings(language);
   const s = t.seriesPage;
 
   const series = await db.series.findMany({
@@ -35,7 +37,10 @@ export default async function SeriesListPage() {
         <div>
           <h1 className="font-display text-2xl font-bold">{s.title}</h1>
           <p className="text-sm text-muted-foreground">
-            {series.length} {series.length === 1 ? "series" : "series"}
+            {countWithNoun(series.length, s.seriesOne, s.seriesMany, {
+              few: s.seriesFew,
+              language,
+            })}
           </p>
         </div>
         <Button asChild>

@@ -165,7 +165,7 @@ export default async function BookSnapshotPage({
               {book.chapters.map((ch) => (
                 <tr key={ch.id} className="border-b last:border-0">
                   <td className="px-4 py-2">{ch.chapterNumber}</td>
-                  <td className="px-4 py-2">{ch.title ?? `Ch. ${ch.chapterNumber}`}</td>
+                  <td className="px-4 py-2">{ch.title ?? `${t.agentUI.chapterAbbrev} ${ch.chapterNumber}`}</td>
                   <td className="px-4 py-2">{ch.status}</td>
                   <td className="px-4 py-2">{ch.betaScore != null ? ch.betaScore.toFixed(1) : "–"}</td>
                 </tr>

@@ -232,7 +232,7 @@ export default function NewBookPage() {
                 {t.newBook.cancel}
               </Button>
               <Button type="submit" disabled={createBook.isPending}>
-                {createBook.isPending ? t.newBook.creating : "Start writing"}
+                {createBook.isPending ? t.newBook.creating : t.dashboard.startWriting}
               </Button>
               <Button
                 type="button"

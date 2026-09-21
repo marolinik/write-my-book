@@ -454,7 +454,7 @@ export default function BookSettingsPage() {
           <DialogHeader>
             <DialogTitle className="text-destructive flex items-center gap-2">
               <AlertTriangleIcon className="size-5" />{t.bookSettings.deleteBook}</DialogTitle>
-            <DialogDescription>{t.bookSettings.deleteConfirmIntro}<strong>{book?.name ?? "this book"}</strong>{t.bookSettings.deleteConfirmRest}</DialogDescription>
+            <DialogDescription>{t.bookSettings.deleteConfirmIntro}<strong>{book?.name ?? t.bookSettings.thisBook}</strong>{t.bookSettings.deleteConfirmRest}</DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
             <Label>{t.bookSettings.typeLabel}<strong>{book?.name ?? "DELETE"}</strong>{t.bookSettings.toConfirm}</Label>
@@ -492,7 +492,7 @@ export default function BookSettingsPage() {
                 <>
                   <Loader2Icon className="mr-1 size-4 animate-spin" />{t.bookSettings.deleting}</>
               ) : (
-                "Delete permanently"
+                t.bookSettings.deletePermanently
               )}
             </Button>
           </DialogFooter>

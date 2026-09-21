@@ -199,6 +199,7 @@ function englishJsxText(file: string): string[] {
 
 /** Directories whose JSX *expressions* hold no English copy. Grows per phase. */
 const EXPRESSION_CLEAN_AREAS: string[] = [
+  join("app", "(app)"),
   join("components", "agent"),
   join("components", "book"),
   join("components", "editor"),
@@ -377,6 +378,8 @@ describe("the dictionaries behind the localized areas", () => {
       // "Version" and "Agent" are spelled the same in German, and "{matches}
       // in {chapters}" needs no other preposition.
       "docVersion", "docAgent", "versionN", "matchesInChapters",
+      // "Import" and "Genre" are German words too.
+      "importStep", "genre",
       "stepOptional", "syntax", "focusNormal", "upgrade", "name", "median",
       "register", "fleschKincaid", "gunningFog", "colemanLiau",
       "contextEditor", "themeSystem", "ghostwriter", "coach", "analyst",
@@ -387,6 +390,9 @@ describe("the dictionaries behind the localized areas", () => {
       "focusThemeSepia",
       // Spanish took "token" as a loanword, and "no" is the word itself.
       "minutesAbbrev", "tokensAbbrev", "tokensInOut", "feedbackNo", "no",
+      // Spanish "serie" pluralises to "series", the English word exactly —
+      // both the page title and the two plural forms of the noun.
+      "title", "seriesFew", "seriesMany",
       "focusNormal", "error", "fleschKincaid", "gunningFog", "colemanLiau",
       "contextEditor", "coach", "editor", "coverCropZoom", "coverCropPositionH",
       "coverCropPositionV", "enterprise",
@@ -394,7 +400,9 @@ describe("the dictionaries behind the localized areas", () => {
     fr: [
       // "session", "documents" and "Version" are the French words, spelled
       // the same.
-      "versionN", "minutesAbbrev", "sessionOne", "sessionFew", "sessionMany", "documentsCount",
+      "versionN", "minutesAbbrev",
+      // "Style" and "Genre" are the French words.
+      "styleStep", "genre", "sessionOne", "sessionFew", "sessionMany", "documentsCount",
       "insightSuggestion", "focusNormal", "seriesTabDocuments", "seriesTabStructure",
       "type", "dialogue", "distribution", "fleschKincaid", "gunningFog", "colemanLiau",
       "architecture", "documents", "sessionsUnit", "coach", "styleSection",
@@ -437,6 +445,8 @@ describe("the dictionaries behind the localized areas", () => {
       "screens",
       "commandPalette",
       "editorial",
+      "setup",
+      "seriesPage",
     ] as const;
     const untranslated: string[] = [];
 
