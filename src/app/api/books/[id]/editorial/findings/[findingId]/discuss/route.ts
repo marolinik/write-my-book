@@ -14,6 +14,7 @@ import {
 import { sseDiscussBody } from "@/lib/editorial/discuss-stream";
 import { QUICK_ASSIST_SSE_HEADERS } from "@/lib/api/sse-quick-assist";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { markGenerationDiscarded } from "@/lib/billing/billed-usage";
 
 export const dynamic = "force-dynamic";
 
@@ -136,6 +137,20 @@ export async function POST(req: Request, { params }: RouteParams) {
     // concurrent turn between step 1 and now, persists both replies together, and
     // writes any concrete revision back onto the finding. It runs AFTER the
     // network call, never while a lock is held.
+    // D3: the usage row is written the moment the provider returns usable
+    // text, so by the time a settle loses the cap race, or the writer has
+    // walked away, the charge already exists. Hold its id and flip it to
+    // unbilled when the generation is thrown away: the provider was paid
+    // either way, and a charge the product cannot explain is worse than one
+    // it discloses.
+    let usageRecordId: string | null = null;
+    const onUsageRecorded = (id: string) => {
+      usageRecordId = id;
+    };
+    const discardGeneration = async () => {
+      if (usageRecordId) await markGenerationDiscarded(usageRecordId);
+    };
+
     const settleTurn = async (raw: string) => {
       const parsed = parseDiscussResponse(raw);
       // D-41b: the parser only yields a revisedSuggestion when it is non-empty (an
@@ -223,6 +238,7 @@ export async function POST(req: Request, { params }: RouteParams) {
         userId: user.id,
         bookId,
         signal: req.signal,
+        onUsageRecorded,
       });
     } catch (streamErr) {
       if (req.signal.aborted || (streamErr as Error)?.name === "AbortError") {
@@ -243,6 +259,7 @@ export async function POST(req: Request, { params }: RouteParams) {
           onSettle: async (raw) => {
             const { parsed, result } = await settleTurn(raw);
             if (result.capped) {
+              await discardGeneration();
               return {
                 type: "error",
                 status: 409,
@@ -281,7 +298,7 @@ export async function POST(req: Request, { params }: RouteParams) {
     }
 
     // Fallback (constraint #5): today's blocking turn, byte-identical 200 body.
-    const raw = await runDiscussTurn({ system, user: userPrompt, userId: user.id, bookId });
+    const raw = await runDiscussTurn({ system, user: userPrompt, userId: user.id, bookId, onUsageRecorded });
     // D-176: the thread now offers Cancel during the wait, and its copy promises
     // that nothing is saved and no exchange is consumed. On the streamed path the
     // abort travels into the provider call; on this blocking path it cannot (no
@@ -290,10 +307,14 @@ export async function POST(req: Request, { params }: RouteParams) {
     // working, settle nothing, persist nothing, arm nothing. The provider was
     // paid for the generation either way, which is exactly why the cancel copy
     // makes no billing claim.
-    if (req.signal.aborted) return new Response(null, { status: 499 });
+    if (req.signal.aborted) {
+      await discardGeneration();
+      return new Response(null, { status: 499 });
+    }
     const { parsed, result } = await settleTurn(raw);
 
     if (result.capped) {
+      await discardGeneration();
       return NextResponse.json(
         { capped: true, assistantMessage: CAP_MESSAGE, userTurns: result.userTurns },
         { status: 409 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { BILLED_ONLY } from "@/lib/billing/billed-usage";
 
 export async function GET(
   _req: NextRequest,
@@ -33,6 +34,7 @@ export async function GET(
         userId: user.id,
         bookId,
         recordedAt: { gte: thirtyDaysAgo },
+        ...BILLED_ONLY,
       },
       orderBy: { recordedAt: "desc" },
     });

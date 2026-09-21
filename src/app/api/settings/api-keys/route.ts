@@ -7,6 +7,7 @@ import { validateApiKey } from "@/lib/llm/key-validator";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { zodErrorResponse } from "@/lib/api/zod-error";
 import { aggregateUsageByProvider } from "@/lib/llm/usage-aggregation";
+import { BILLED_ONLY } from "@/lib/billing/billed-usage";
 
 /**
  * GET /api/settings/api-keys
@@ -42,7 +43,7 @@ export async function GET() {
     // sub-variant and reported $0 against real spend.
     const usageGroups = await db.usageRecord.groupBy({
       by: ["model"],
-      where: { userId: user.id },
+      where: { userId: user.id, ...BILLED_ONLY },
       _sum: {
         tokensInput: true,
         tokensOutput: true,

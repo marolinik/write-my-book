@@ -461,6 +461,11 @@ model UsageRecord {
   tokensOutput Int      @map("tokens_output")
   costEstimate Float    @map("cost_estimate")
   keySource    String   @default("user") @map("key_source") // user, platform
+  // D3: false when the provider produced this generation and the product
+  // threw it away (a settle that raced the cap, a cancelled wait). The
+  // writer was charged by their provider and received nothing, so the row
+  // exists to be disclosed, never to be counted as spend.
+  billed       Boolean  @default(true)
   recordedAt   DateTime @default(now()) @map("recorded_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)

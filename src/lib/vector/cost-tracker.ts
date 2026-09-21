@@ -6,6 +6,7 @@
  */
 
 import { db } from "@/lib/db";
+import { BILLED_ONLY } from "@/lib/billing/billed-usage";
 
 export const COST_PER_TOKEN = 0.00000002; // $0.02 / 1,000,000 tokens
 const EMBEDDING_MODEL = "text-embedding-3-small";
@@ -57,7 +58,8 @@ export async function getEmbeddingCosts(
   }
 
   const result = await db.usageRecord.aggregate({
-    where,
+    // D3: a discarded generation is disclosed, never totalled as spend.
+    where: { ...where, ...BILLED_ONLY },
     _sum: {
       costEstimate: true,
       tokensInput: true,

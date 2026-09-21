@@ -50,6 +50,15 @@ export interface DiscussTurnArgs {
   userId: string;
   /** Book the turn is charged against — the usage row is book-scoped (D-172). */
   bookId: string;
+  /**
+   * D3: told the id of the usage row this turn wrote, as soon as it is
+   * written. The row is created the moment the provider returns usable
+   * text, which is BEFORE the caller can know whether the settle raced the
+   * cap or the writer walked away. When it did, the caller flips that row
+   * to unbilled: the provider was still paid, so the charge is disclosed
+   * rather than counted as the writer's spend.
+   */
+  onUsageRecorded?: (usageRecordId: string) => void;
 }
 
 /**
@@ -167,7 +176,7 @@ function sumUsage(a: TurnUsage, b: TurnUsage): TurnUsage {
  * worse for the writer than an under-counted spend panel.
  */
 async function recordDiscussUsage(
-  args: { userId: string; bookId: string },
+  args: { userId: string; bookId: string; onUsageRecorded?: (id: string) => void },
   registryModelId: string,
   usage: TurnUsage
 ): Promise<void> {
@@ -183,7 +192,7 @@ async function recordDiscussUsage(
     });
   }
   try {
-    await db.usageRecord.create({
+    const row = await db.usageRecord.create({
       data: {
         userId: args.userId,
         bookId: args.bookId,
@@ -193,7 +202,9 @@ async function recordDiscussUsage(
         tokensOutput: usage.outputTokens,
         costEstimate: estimateCost(registryModelId, usage.inputTokens, usage.outputTokens),
       },
+      select: { id: true },
     });
+    args.onUsageRecorded?.(row.id);
   } catch (err) {
     console.error("[discuss] usage record write failed — turn delivered unbilled", {
       userId: args.userId,

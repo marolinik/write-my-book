@@ -583,6 +583,7 @@ export const EN: UIStrings = {
     criticalMajor: "Critical and important",
     recentFindings: "Recent findings",
     recentFindingsHint: "The latest editorial findings across all chapters",
+    discardedGenerations: "Your provider also charged for {n} generations this product threw away, about {cost}. They are not counted above: a cap was reached or the wait was cancelled after the model had already produced the text.",
   },
 
   bookUI: {

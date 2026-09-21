@@ -573,6 +573,7 @@ export const ZH: UIStrings = {
     criticalMajor: "严重与重要",
     recentFindings: "最近的发现",
     recentFindingsHint: "所有章节中最新的编辑发现",
+    discardedGenerations: "你的服务商还为本产品丢弃的 {n} 次生成收了费，约 {cost}。上面没有计入：要么达到了上限，要么在模型已经出文后取消了等待。",
   },
 
   bookUI: {

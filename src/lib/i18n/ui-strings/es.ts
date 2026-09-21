@@ -573,6 +573,7 @@ export const ES: UIStrings = {
     criticalMajor: "Críticos e importantes",
     recentFindings: "Hallazgos recientes",
     recentFindingsHint: "Los últimos hallazgos editoriales de todos los capítulos",
+    discardedGenerations: "Tu proveedor también cobró {n} generaciones que este producto descartó, unos {cost}. No se cuentan arriba: se alcanzó un límite o se canceló la espera después de que el modelo ya había producido el texto.",
   },
 
   bookUI: {

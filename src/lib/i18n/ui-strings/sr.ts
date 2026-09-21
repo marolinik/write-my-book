@@ -573,6 +573,7 @@ export const SR: UIStrings = {
     criticalMajor: "Kritični i važni",
     recentFindings: "Nedavni nalazi",
     recentFindingsHint: "Najnoviji urednički nalazi kroz sva poglavlja",
+    discardedGenerations: "Tvoj provajder je naplatio i {n} generisanja koja je ovaj proizvod odbacio, oko {cost}. Nisu uračunata gore: dostignut je limit ili je čekanje otkazano pošto je model već napisao tekst.",
   },
 
   bookUI: {

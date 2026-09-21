@@ -16,6 +16,7 @@ const CALIBRATION_SAMPLE = 12;
 
 import { getWorkflow } from "@/lib/agents/workflows";
 import { globalOverridesOf, userModelSettingsOf, bookModelSettingsOf } from "@/lib/llm/model-resolver";
+import { BILLED_ONLY } from "@/lib/billing/billed-usage";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -111,7 +112,12 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
     // the book's own spread replaces the table and the product says how many
     // runs it is speaking from.
     const pastRuns = await db.usageRecord.findMany({
-      where: { bookId, agentType: workflow.primaryAgent, costEstimate: { gt: 0 } },
+      where: {
+        bookId,
+        agentType: workflow.primaryAgent,
+        costEstimate: { gt: 0 },
+        ...BILLED_ONLY,
+      },
       orderBy: { recordedAt: "desc" },
       take: CALIBRATION_SAMPLE,
       select: { costEstimate: true },

@@ -592,6 +592,7 @@ export interface UIStrings {
     criticalMajor: string;
     recentFindings: string;
     recentFindingsHint: string;
+    discardedGenerations: string;
   };
 
   // O1 - book extras: the year recap, marketing kit, wiki, certificate, stats.

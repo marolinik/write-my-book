@@ -573,6 +573,7 @@ export const DE: UIStrings = {
     criticalMajor: "Kritisch und wichtig",
     recentFindings: "Neueste Befunde",
     recentFindingsHint: "Die jüngsten Lektoratsbefunde über alle Kapitel",
+    discardedGenerations: "Dein Anbieter hat außerdem {n} Generierungen berechnet, die dieses Produkt verworfen hat, etwa {cost}. Sie zählen oben nicht mit: ein Limit war erreicht oder das Warten wurde abgebrochen, nachdem das Modell den Text bereits erzeugt hatte.",
   },
 
   bookUI: {

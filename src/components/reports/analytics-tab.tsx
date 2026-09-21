@@ -625,6 +625,21 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
                     )}
                   </p>
                 )}
+                {/*
+                 * D3: the provider charged for generations this product threw
+                 * away — a settle that lost the cap race, a wait the writer
+                 * cancelled after the model had already written. They are not
+                 * in the figure above, because we did not bill them. They ARE
+                 * on the writer's provider bill, and a charge the product
+                 * cannot explain is worse than one it discloses.
+                 */}
+                {usageData?.discarded?.count > 0 && (
+                  <p className="mt-3 max-w-[60ch] text-xs text-muted-foreground">
+                    {t.reportsUI.discardedGenerations
+                      .replace("{n}", String(usageData.discarded.count))
+                      .replace("{cost}", `$${usageData.discarded.costUsd.toFixed(2)}`)}
+                  </p>
+                )}
               </CardContent>
             </Card>
 

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { validatePrices } from "@/lib/llm/price-validator";
+import { BILLED_ONLY, discardedTotals } from "@/lib/billing/billed-usage";
 
 export async function GET() {
   let user;
@@ -19,6 +20,7 @@ export async function GET() {
       where: {
         userId: user.id,
         recordedAt: { gte: thirtyDaysAgo },
+        ...BILLED_ONLY,
       },
       orderBy: { recordedAt: "desc" },
     });
@@ -163,8 +165,15 @@ export async function GET() {
       // Non-fatal
     }
 
+    // D3: what the provider charged for generations the product threw away
+    // (a settle that lost the cap race, a cancelled wait). Never part of
+    // `total` — the writer was not billed for it by us — but their provider
+    // bill contains it, so it is disclosed rather than left unexplained.
+    const discarded = await discardedTotals(user.id);
+
     return NextResponse.json({
       total,
+      discarded,
       byAgent,
       byModel,
       byBook,
