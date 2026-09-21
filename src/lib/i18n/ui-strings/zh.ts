@@ -462,6 +462,10 @@ export const ZH: UIStrings = {
     historySpend: "{cap} 中的 {spent}",
     historySpendNoCap: "已花费 {spent}",
     historyHaltedBecause: "已停止：{reason}",
+    haltCancelled: "你停止了它",
+    haltBudgetCap: "它达到了预算上限",
+    haltLedgerWriteFailed: "花费账目无法写入，于是它停下，而不是不计数地继续跑",
+    haltUnknown: "原因本产品无法说明",
   },
 
   styleUI: {

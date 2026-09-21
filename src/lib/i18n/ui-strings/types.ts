@@ -479,6 +479,10 @@ export interface UIStrings {
     historySpend: string;
     historySpendNoCap: string;
     historyHaltedBecause: string;
+    haltCancelled: string;
+    haltBudgetCap: string;
+    haltLedgerWriteFailed: string;
+    haltUnknown: string;
   };
 
   // O1 - the style profile and character lenses.

@@ -472,6 +472,10 @@ export const EN: UIStrings = {
     historySpend: "{spent} of {cap}",
     historySpendNoCap: "{spent} spent",
     historyHaltedBecause: "Stopped: {reason}",
+    haltCancelled: "you stopped it",
+    haltBudgetCap: "it reached the budget cap",
+    haltLedgerWriteFailed: "the spend ledger could not be written, so it stopped rather than run uncounted",
+    haltUnknown: "for a reason this product cannot name",
   },
 
   styleUI: {

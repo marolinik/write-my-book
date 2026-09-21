@@ -332,7 +332,13 @@ export function ProactiveGuide({
           <MapIcon className="size-4 text-primary shrink-0" />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-medium">{activeJourney.label}</span>
+              {/* The English `label` lives in journeys.ts because that is where
+                  the journey is defined. Named from it here, the agent panel read
+                  "Existing Manuscript" while the sidebar, on the same screen, read
+                  "Postojeći rukopis". */}
+              <span className="text-xs font-medium">
+                {t.journeyLabels[activeJourney.id] ?? activeJourney.label}
+              </span>
               <span className="text-[10px] text-muted-foreground">
                 {state.journeyProgress.completed}/{state.journeyProgress.total}
               </span>

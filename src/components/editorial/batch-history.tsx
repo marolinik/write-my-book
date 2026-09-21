@@ -5,6 +5,7 @@ import { useLanguage, useLocale } from "@/components/providers/language-provider
 import { relativeTime } from "@/lib/i18n/relative-time";
 import { useBatchHistory, type BatchHistoryRow } from "@/hooks/use-batch-history";
 import { getAgentStrings } from "@/lib/i18n/agent-strings";
+import { haltReasonLabel } from "@/lib/agents/halt-reason";
 import { Loader2 } from "lucide-react";
 
 /**
@@ -116,9 +117,11 @@ export function BatchHistory({ bookId }: { bookId: string }) {
                     </span>
                   </div>
                   {passes && <p className="truncate text-xs text-muted-foreground">{passes}</p>}
-                  {row.halted && row.haltReason && (
+                  {row.halted && haltReasonLabel(row.haltReason, t) && (
                     <p className="text-xs text-destructive">
-                      {fill(t.batchEditorial.historyHaltedBecause, { reason: row.haltReason })}
+                      {fill(t.batchEditorial.historyHaltedBecause, {
+                        reason: haltReasonLabel(row.haltReason, t)!,
+                      })}
                     </p>
                   )}
                 </div>

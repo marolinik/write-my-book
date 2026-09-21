@@ -462,6 +462,10 @@ export const SR: UIStrings = {
     historySpend: "{spent} od {cap}",
     historySpendNoCap: "{spent} potrošeno",
     historyHaltedBecause: "Zaustavljeno: {reason}",
+    haltCancelled: "ti si ga zaustavio",
+    haltBudgetCap: "dostigao je granicu budžeta",
+    haltLedgerWriteFailed: "knjiga potrošnje nije mogla da se upiše, pa je stao umesto da radi nebrojan",
+    haltUnknown: "iz razloga koji ovaj proizvod ne ume da imenuje",
   },
 
   styleUI: {

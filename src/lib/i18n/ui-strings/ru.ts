@@ -462,6 +462,10 @@ export const RU: UIStrings = {
     historySpend: "{spent} из {cap}",
     historySpendNoCap: "потрачено {spent}",
     historyHaltedBecause: "Остановлен: {reason}",
+    haltCancelled: "вы его остановили",
+    haltBudgetCap: "он достиг предела бюджета",
+    haltLedgerWriteFailed: "журнал расходов не удалось записать, поэтому он остановился, а не работал неучтённым",
+    haltUnknown: "по причине, которую продукт не может назвать",
   },
 
   styleUI: {
