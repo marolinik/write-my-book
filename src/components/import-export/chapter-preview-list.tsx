@@ -121,7 +121,7 @@ export function ChapterPreviewList({
     const merged: PreviewChapter = {
       tempId: `merged-${Date.now()}`,
       number: firstSelected.number,
-      title: `${firstSelected.title} (merged)`,
+      title: `${firstSelected.title} ${t.importExportUI.mergedSuffix}`,
       content: mergedContent,
       wordCount: mergedWordCount,
       sourceFile: firstSelected.sourceFile,

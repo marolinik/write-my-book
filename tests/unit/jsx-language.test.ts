@@ -331,11 +331,13 @@ function englishJsxExpressions(file: string): string[] {
 /** Directories whose *definitions* hold no English copy. Grows per phase. */
 const DEFINITION_CLEAN_AREAS: string[] = [
   join("components", "editorial"),
-  join("components", "memory"),
+  join("components", "import-export"),
   join("components", "layout"),
+  join("components", "memory"),
   join("components", "onboarding"),
   join("components", "reports"),
   join("components", "series"),
+  join("components", "settings"),
 ];
 
 /**
@@ -346,7 +348,7 @@ const DEFINITION_CLEAN_AREAS: string[] = [
  * variable.
  */
 const COPY_PROPERTIES = new Set([
-  "label", "description", "title", "hint", "placeholder", "message", "text",
+  "label", "description", "desc", "title", "hint", "placeholder", "message", "text",
   "caption", "tooltip", "heading", "subtitle", "summary", "note", "name",
   "detail", "body", "help", "helpText", "errorMessage", "empty", "emptyText",
 ]);
@@ -379,10 +381,19 @@ function looksLikeStyle(value: string): boolean {
   );
 }
 
+/**
+ * Devices and file formats that are named, not translated. A Kindle is a
+ * Kindle in Serbian, and Markdown keeps its inventor's name everywhere; the
+ * two surfaces that print them return the string directly rather than a key
+ * whose value would be identical in all seven languages.
+ */
+const PRODUCT_NAMES = /^(?:Kindle|iPad|iPhone|Markdown|Typst)$/;
+
 /** Is this string a sentence for a reader, or a value for the code? */
 function isProse(raw: string): boolean {
   const value = raw.replace(/\s+/g, " ").trim();
   if (looksLikeStyle(value)) return false;
+  if (PRODUCT_NAMES.test(value)) return false;
   const words = value.replace(HTML_ENTITY, " ").replace(BRAND, " ");
   if (!/[a-z]/.test(words)) return false; // ISBN, EPUB, PDF
   if (!/[A-Za-z]{3}/.test(words)) return false;
@@ -424,13 +435,21 @@ function englishDefinitions(file: string): string[] {
     `${file.slice(SRC.length + 1)}:${parsed.getLineAndCharacterOfPosition(node.getStart()).line + 1}`;
 
   const visit = (node: ts.Node): void => {
-    // `{ label: "Midnight Theme" }`
-    if (ts.isPropertyAssignment(node) && isStringLike(node.initializer)) {
+    // `{ label: "Midnight Theme" }`, and `detail: ok ? "…" : "…"` with it —
+    // a property that means copy carries copy however the value is chosen.
+    if (ts.isPropertyAssignment(node)) {
       const name =
         ts.isIdentifier(node.name) || ts.isStringLiteral(node.name) ? node.name.text : "";
-      const value = literalText(node.initializer);
-      if (COPY_PROPERTIES.has(name) && isProse(value)) {
-        found.push(`${where(node)} ${name}: ${value.slice(0, 60)}`);
+      if (COPY_PROPERTIES.has(name)) {
+        const readValues = (value: ts.Node): void => {
+          if (isStringLike(value)) {
+            const text = literalText(value);
+            if (isProse(text)) found.push(`${where(value)} ${name}: ${text.slice(0, 60)}`);
+            return;
+          }
+          ts.forEachChild(value, readValues);
+        };
+        readValues(node.initializer);
       }
     }
 

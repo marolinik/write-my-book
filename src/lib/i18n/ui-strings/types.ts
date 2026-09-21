@@ -97,6 +97,13 @@ export interface UIStrings {
     subtitle: string;
     apiKeys: string;
     apiKeysDescription: string;
+    localFleet: string;
+    roleGhostwriterDesc: string;
+    roleEditorDesc: string;
+    roleBetaReaderDesc: string;
+    roleAnalystDesc: string;
+    roleCoachDesc: string;
+    roleCreativeDesc: string;
     addKey: string;
     provider: string;
     labelOptional: string;
@@ -505,6 +512,8 @@ export interface UIStrings {
     keySplitHint: string;
     allYourKeys: string;
     allYourKeysHint: string;
+    yourKeys: string;
+    platformKeys: string;
     noDocumentsYet: string;
     noFindingsYet: string;
     noAnalysisReport: string;
@@ -1475,6 +1484,33 @@ export interface UIStrings {
     previewPageChapter: string;
     exportManuscript: string;
     exportAnyway: string;
+    devicePrint: string;
+    devicePhone: string;
+    formatPlainText: string;
+    mergedSuffix: string;
+    readyChaptersDrafted: string;
+    readyChaptersEdited: string;
+    readyBetaReading: string;
+    readyPendingFindings: string;
+    readyFingerprint: string;
+    readyStoryBible: string;
+    readyDraftedDetail: string;
+    readyEditedAll: string;
+    readyEditedSome: string;
+    readyBetaAll: string;
+    readyBetaSome: string;
+    readyFindingsNone: string;
+    readyFindingsSome: string;
+    readyFingerprintYes: string;
+    readyFingerprintNo: string;
+    readyBibleYes: string;
+    readyBibleNo: string;
+    formatDocxDesc: string;
+    formatPdfDesc: string;
+    formatEpubDesc: string;
+    importDocxDesc: string;
+    importMarkdownDesc: string;
+    importTxtDesc: string;
   };
 
   // H-10 - the writer-memory panel and the vector-store status.

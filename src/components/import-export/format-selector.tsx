@@ -1,6 +1,8 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { useLanguage } from "@/components/providers/language-provider";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 import { FileTextIcon, FileIcon, BookOpenIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -14,30 +16,32 @@ interface FormatSelectorProps {
 const formats: {
   id: ExportFormat;
   label: string;
-  desc: string;
+  desc: (t: UIStrings) => string;
   icon: typeof FileTextIcon;
 }[] = [
   {
     id: "docx",
     label: "DOCX",
-    desc: "Microsoft Word format, ideal for editing and submissions",
+    desc: (t: UIStrings) => t.importExportUI.formatDocxDesc,
     icon: FileTextIcon,
   },
   {
     id: "pdf",
     label: "PDF",
-    desc: "Print-ready via Typst engine with professional typography",
+    desc: (t: UIStrings) => t.importExportUI.formatPdfDesc,
     icon: FileIcon,
   },
   {
     id: "epub",
     label: "EPUB",
-    desc: "EPUB3 for e-readers and digital distribution",
+    desc: (t: UIStrings) => t.importExportUI.formatEpubDesc,
     icon: BookOpenIcon,
   },
 ];
 
 export function FormatSelector({ selected, onSelect }: FormatSelectorProps) {
+  const { t } = useLanguage();
+
   return (
     <div className="grid gap-3 sm:grid-cols-3">
       {formats.map((fmt) => (
@@ -55,7 +59,7 @@ export function FormatSelector({ selected, onSelect }: FormatSelectorProps) {
             <fmt.icon className="mb-2 size-6" />
             <span className="font-medium">{fmt.label}</span>
             <span className="mt-1 text-xs text-muted-foreground">
-              {fmt.desc}
+              {fmt.desc(t)}
             </span>
           </CardContent>
         </Card>

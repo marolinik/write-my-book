@@ -46,11 +46,18 @@ interface ExportPreviewProps {
   format: "pdf" | "epub" | "docx";
 }
 
-const DEVICE_SIZES: Record<PreviewDevice, { width: number; height: number; label: string }> = {
-  print: { width: 360, height: 540, label: "Print (6×9)" },
-  kindle: { width: 280, height: 400, label: "Kindle" },
-  ipad: { width: 380, height: 520, label: "iPad" },
-  phone: { width: 220, height: 400, label: "Phone" },
+/**
+ * "Kindle" and "iPad" are devices, printed the same in every language; the
+ * other two are words, and take a lookup.
+ */
+const DEVICE_SIZES: Record<
+  PreviewDevice,
+  { width: number; height: number; label: (t: UIStrings) => string }
+> = {
+  print: { width: 360, height: 540, label: (t) => t.importExportUI.devicePrint },
+  kindle: { width: 280, height: 400, label: () => "Kindle" },
+  ipad: { width: 380, height: 520, label: () => "iPad" },
+  phone: { width: 220, height: 400, label: (t) => t.importExportUI.devicePhone },
 };
 
 const DEVICE_ICONS: Record<PreviewDevice, React.ElementType> = {
@@ -106,7 +113,7 @@ export function ExportPreview({
                 onClick={() => setDevice(d)}
               >
                 <Icon className="size-3" />
-                {DEVICE_SIZES[d].label}
+                {DEVICE_SIZES[d].label(t)}
               </Button>
             );
           })}

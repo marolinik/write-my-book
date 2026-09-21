@@ -2,6 +2,7 @@
 
 import { countWithNoun } from "@/lib/i18n/plural";
 import { useLanguage } from "@/components/providers/language-provider";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 import { useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,10 +33,19 @@ interface ImportWizardProps {
 
 type WizardPhase = "upload" | "preview" | "confirm-success";
 
-const FORMAT_INFO = [
-  { ext: ".docx", label: "DOCX", desc: "Best chapter detection. Preserves formatting." },
-  { ext: ".md", label: "Markdown", desc: "Native format. Chapter headings detected automatically." },
-  { ext: ".txt", label: "Plain Text", desc: "Chapters split by blank-line separators or headings." },
+/** The format's own name stays; what it does is a sentence. */
+const FORMAT_INFO: ReadonlyArray<{
+  ext: string;
+  label: (t: UIStrings) => string;
+  desc: (t: UIStrings) => string;
+}> = [
+  { ext: ".docx", label: () => "DOCX", desc: (t) => t.importExportUI.importDocxDesc },
+  { ext: ".md", label: () => "Markdown", desc: (t) => t.importExportUI.importMarkdownDesc },
+  {
+    ext: ".txt",
+    label: (t) => t.importExportUI.formatPlainText,
+    desc: (t) => t.importExportUI.importTxtDesc,
+  },
 ];
 
 export function ImportWizard({ bookId, onComplete, autoAnalyze = true }: ImportWizardProps) {
@@ -150,7 +160,7 @@ export function ImportWizard({ bookId, onComplete, autoAnalyze = true }: ImportW
                     <Badge variant="secondary" className="font-mono text-[10px] px-1.5">
                       {fmt.ext}
                     </Badge>
-                    <span className="text-muted-foreground">{fmt.desc}</span>
+                    <span className="text-muted-foreground">{fmt.desc(t)}</span>
                   </div>
                 ))}
               </div>

@@ -19,6 +19,7 @@ import {
 import { useApiKeys } from "@/hooks/use-api-keys";
 import { useCustomProviders } from "@/hooks/use-custom-providers";
 import type { AgentRole } from "@/lib/llm";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 import type { ProviderKey } from "@/lib/llm/providers";
 import { getDefaultModelId } from "@/lib/llm/defaults";
 
@@ -26,44 +27,45 @@ import { getDefaultModelId } from "@/lib/llm/defaults";
 
 interface RoleInfo {
   role: AgentRole;
-  label: string;
-  description: string;
+  /** A lookup, because this table is built before any language is known. */
+  label: (t: UIStrings) => string;
+  description: (t: UIStrings) => string;
 }
 
+/**
+ * The role names already ship in `bookSettings`, where the per-book overrides
+ * use them; only what each role does is new here.
+ */
 const ROLE_INFOS: RoleInfo[] = [
   {
     role: "ghostwriter",
-    label: "Ghostwriter",
-    description: "Writes chapters, plans outlines, builds story architecture.",
+    label: (t) => t.bookSettings.ghostwriter,
+    description: (t) => t.settings.roleGhostwriterDesc,
   },
   {
     role: "editor",
-    label: "Editor",
-    description:
-      "Dev editing, line editing, revision suggestions.",
+    label: (t) => t.bookSettings.editor,
+    description: (t) => t.settings.roleEditorDesc,
   },
   {
     role: "beta-reader",
-    label: "Beta Reader",
-    description: "Simulated reader panel providing reader feedback.",
+    label: (t) => t.bookSettings.betaReader,
+    description: (t) => t.settings.roleBetaReaderDesc,
   },
   {
     role: "analyst",
-    label: "Analyst",
-    description:
-      "Style analysis, manuscript reading, continuity checking, market analysis.",
+    label: (t) => t.bookSettings.analyst,
+    description: (t) => t.settings.roleAnalystDesc,
   },
   {
     role: "coach",
-    label: "Coach",
-    description:
-      "Writing coach orchestrating multi-step workflows.",
+    label: (t) => t.bookSettings.coach,
+    description: (t) => t.settings.roleCoachDesc,
   },
   {
     role: "creative",
-    label: "Creative",
-    description:
-      "Story architecture, scene planning, creative brainstorming.",
+    label: (t) => t.bookSettings.creative,
+    description: (t) => t.settings.roleCreativeDesc,
   },
 ];
 
@@ -182,8 +184,8 @@ export function ModelSelectionSection() {
           {ROLE_INFOS.map((info) => (
             <ModelPicker
               key={info.role}
-              label={info.label}
-              description={info.description}
+              label={info.label(t)}
+              description={info.description(t)}
               value={getRoleValue(info.role)}
               onChange={(registryId) => handleRoleChange(info.role, registryId)}
               availableProviders={availableProviders}

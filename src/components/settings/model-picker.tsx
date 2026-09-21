@@ -18,6 +18,7 @@ import {
   type CostTier,
 } from "@/lib/llm";
 import { buildModelGroups } from "./model-picker-groups";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 
 // ── Cost tier badge colors ─────────────────────────────────────
 
@@ -65,8 +66,8 @@ const USE_DEFAULT_VALUE = "__use_default__";
 // ── Component ─────────────────────────────────────────────────
 
 /** Display names for provider slots that carry no user API key. */
-const NON_BYOK_PROVIDER_NAMES: Record<string, string> = {
-  local: "Local fleet (self-hosted)",
+const NON_BYOK_PROVIDER_NAMES: Record<string, (t: UIStrings) => string> = {
+  local: (t) => t.settings.localFleet,
 };
 
 export function ModelPicker({
@@ -127,7 +128,7 @@ export function ModelPicker({
                 // Non-BYOK provider slots have no PROVIDERS entry; name them
                 // rather than printing the raw key as a group header.
                 providerName =
-                  NON_BYOK_PROVIDER_NAMES[providerKey] ?? providerKey;
+                  NON_BYOK_PROVIDER_NAMES[providerKey]?.(t) ?? providerKey;
               }
 
               return (

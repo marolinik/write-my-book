@@ -49,49 +49,49 @@ export function ManuscriptReadiness({ bookId, onProceed }: ManuscriptReadinessPr
     const betaPassedCount = cs.beta_passed ?? 0;
     const pendingFindings = bs.pendingFindingsCount ?? 0;
 
+    const s = t.importExportUI;
+    const counted = (template: string, done: number) =>
+      template.replace("{done}", String(done)).replace("{total}", String(total));
+
     return [
       {
-        label: "Chapters drafted",
+        label: s.readyChaptersDrafted,
         status: draftedPlus >= total ? "pass" : draftedPlus > 0 ? "warn" : "fail",
-        detail: `${draftedPlus}/${total} chapters drafted`,
+        detail: counted(s.readyDraftedDetail, draftedPlus),
       },
       {
-        label: "Chapters edited",
+        label: s.readyChaptersEdited,
         status: editedPlus >= total ? "pass" : editedPlus > 0 ? "warn" : "fail",
         detail: editedPlus >= total
-          ? "All chapters have been edited"
-          : `${total - editedPlus} chapters need editorial review`,
+          ? s.readyEditedAll
+          : s.readyEditedSome.replace("{count}", String(total - editedPlus)),
       },
       {
-        label: "Beta reading",
+        label: s.readyBetaReading,
         status: betaPassedCount >= total ? "pass" : betaPassedCount > 0 ? "warn" : "fail",
         detail: betaPassedCount >= total
-          ? "All chapters passed beta reading"
-          : `${betaPassedCount}/${total} chapters beta-passed`,
+          ? s.readyBetaAll
+          : counted(s.readyBetaSome, betaPassedCount),
       },
       {
-        label: "Pending findings",
+        label: s.readyPendingFindings,
         status: pendingFindings === 0 ? "pass" : pendingFindings < 10 ? "warn" : "fail",
         detail: pendingFindings === 0
-          ? "No unreviewed findings"
-          : `${pendingFindings} findings need review`,
+          ? s.readyFindingsNone
+          : s.readyFindingsSome.replace("{count}", String(pendingFindings)),
       },
       {
-        label: "Style fingerprint",
+        label: s.readyFingerprint,
         status: bs.hasFingerprint ? "pass" : "warn",
-        detail: bs.hasFingerprint
-          ? "Style fingerprint captured"
-          : "No style fingerprint — AI voice may be inconsistent",
+        detail: bs.hasFingerprint ? s.readyFingerprintYes : s.readyFingerprintNo,
       },
       {
-        label: "Story bible",
+        label: s.readyStoryBible,
         status: bs.hasStoryBible ? "pass" : "warn",
-        detail: bs.hasStoryBible
-          ? "Story bible created"
-          : "No story bible — consider creating one before export",
+        detail: bs.hasStoryBible ? s.readyBibleYes : s.readyBibleNo,
       },
     ];
-  }, [bookState]);
+  }, [bookState, t]);
 
   const passCount = checks.filter((c) => c.status === "pass").length;
   const warnCount = checks.filter((c) => c.status === "warn").length;

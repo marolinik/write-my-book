@@ -159,13 +159,22 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
     ? Object.entries(usageData.byKeySource)
         .filter(([, data]) => (data as { costEstimate: number }).costEstimate > 0)
         .map(([source, data]) => ({
-          name: source === "user" ? "Your Keys" : source === "platform" ? "Platform Keys" : source,
+          // `source` is the stored value the code tests; `name` is what the
+          // legend prints. They were the same string, so localizing the label
+          // would have silently broken the all-your-keys check below.
+          source,
+          name:
+            source === "user"
+              ? t.reportsUI.yourKeys
+              : source === "platform"
+                ? t.reportsUI.platformKeys
+                : source,
           value: Number(((data as { costEstimate: number }).costEstimate).toFixed(4)),
           fill: source === "user" ? "var(--primary)" : "var(--muted-foreground)",
         }))
     : [];
   const totalCost = usageData?.total?.costEstimate ?? 0;
-  const allUserKeys = costData.length === 1 && costData[0]?.name === "Your Keys";
+  const allUserKeys = costData.length === 1 && costData[0]?.source === "user";
   const hasCostData = totalCost > 0;
 
   const isLoading = isLoadingAnalysis || isLoadingChapters;
