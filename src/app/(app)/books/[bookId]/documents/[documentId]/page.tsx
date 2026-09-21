@@ -1,6 +1,9 @@
 "use client";
 
 import { useLanguage } from "@/components/providers/language-provider";
+// O4: the document-type names ship per language; three pages had each
+// kept their own English copy of the same table.
+import { getDocumentTypeLabels } from "@/lib/agents/tool-labels";
 import { use, useState, useEffect, useCallback, useRef, useMemo } from "react";
 import Link from "next/link";
 import { useEditor, EditorContent } from "@tiptap/react";
@@ -52,23 +55,6 @@ import {
   HashIcon,
 } from "lucide-react";
 
-const DOC_TYPE_LABELS: Record<string, string> = {
-  CONCEPT: "Concept",
-  STORY_BIBLE: "Story Bible",
-  ARCHITECTURE: "Architecture",
-  FINGERPRINT: "Fingerprint",
-  CHAPTER_BRIEF: "Chapter Brief",
-  CHAPTER_PLAN: "Chapter Plan",
-  CHAPTER_CONTENT: "Chapter Content",
-  DEV_EDIT_REPORT: "Dev Edit Report",
-  LINE_EDIT_REPORT: "Line Edit Report",
-  BETA_READ_REPORT: "Beta Read Report",
-  CONTINUITY_REPORT: "Continuity Report",
-  ANALYSIS_REPORT: "Analysis Report",
-  MARKET_REPORT: "Market Report",
-  EXPORT_CONFIG: "Export Config",
-  FREEWRITE: "Freewrite",
-};
 
 const CHAPTER_DOC_TYPES = new Set([
   "CHAPTER_BRIEF",
@@ -93,7 +79,8 @@ export default function DocumentEditorPage({
 }: {
   params: Promise<{ bookId: string; documentId: string }>;
 }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const docTypeLabels = getDocumentTypeLabels(language);
   const { bookId, documentId } = use(params);
   const locale = useLocale();
 
@@ -247,13 +234,13 @@ export default function DocumentEditorPage({
   // so AT users hear what they are editing. Falls back to a generic label
   // until docData arrives; the setOptions effect refreshes it.
   const editorAriaLabel = docData
-    ? `Editing document: ${docData.title || DOC_TYPE_LABELS[docData.type] || docData.type}`
+    ? `Editing document: ${docData.title || docTypeLabels[docData.type] || docData.type}`
     : "Document editor";
 
   const editor = useEditor({
     immediatelyRender: false,
     extensions: createEditorExtensions({
-      placeholder: "Start writing...",
+      placeholder: t.pagesUI.docPlaceholder,
       onAnnotationClick: handleAnnotationClick,
     }),
     editorProps: {
@@ -366,9 +353,9 @@ export default function DocumentEditorPage({
             serverVersion,
           });
           toast.warning(t.toasts.documentChangedOutside, {
-            description: "Your edits are safe — review the changes to merge.",
+            description: t.pagesUI.conflictSafeHint,
             action: {
-              label: "Review",
+              label: t.workspaceUI.review,
               onClick: () => setShowSaveConflict(true),
             },
           });
@@ -446,7 +433,7 @@ export default function DocumentEditorPage({
   }, [editor]);
 
   const wordCount = content ? countWords(content) : 0;
-  const docTypeLabel = docData ? DOC_TYPE_LABELS[docData.type] || docData.type : "";
+  const docTypeLabel = docData ? docTypeLabels[docData.type] || docData.type : "";
   const docTitle = docData?.title || docTypeLabel;
 
   if (isLoading) {

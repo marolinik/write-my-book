@@ -11,6 +11,7 @@ import { useDebouncedSettings } from "@/hooks/use-debounced-settings";
 import { useDefaultModel } from "@/hooks/use-default-model";
 import { useApiKeys } from "@/hooks/use-api-keys";
 import { useLanguage } from "@/components/providers/language-provider";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -56,27 +57,28 @@ import { BookDetailsSection } from "@/components/settings/book-details-section";
 
 interface RoleInfo {
   role: AgentRole;
-  label: string;
-  description: string;
+  label: (t: UIStrings) => string;
+  description: (t: UIStrings) => string;
   bookField: string;
 }
 
+/** The role's name and its one-line job, both from `bookSettings`. */
 const ROLE_INFOS: RoleInfo[] = [
-  { role: "ghostwriter", label: "Ghostwriter", description: "Writes chapters and plans", bookField: "modelGhostwriter" },
-  { role: "editor", label: "Editor", description: "Dev/line editing and revision", bookField: "modelEditor" },
-  { role: "beta-reader", label: "Beta Reader", description: "Simulated reader feedback", bookField: "modelBetaReader" },
-  { role: "analyst", label: "Analyst", description: "Style, continuity, market analysis", bookField: "modelAnalyst" },
-  { role: "coach", label: "Coach", description: "Multi-step workflow orchestration", bookField: "modelCoach" },
-  { role: "creative", label: "Creative", description: "Story architecture and scene planning", bookField: "modelCreative" },
+  { role: "ghostwriter", label: (t) => t.bookSettings.ghostwriter, description: (t) => t.bookSettings.ghostwriterDesc, bookField: "modelGhostwriter" },
+  { role: "editor", label: (t) => t.bookSettings.editor, description: (t) => t.bookSettings.editorDesc, bookField: "modelEditor" },
+  { role: "beta-reader", label: (t) => t.bookSettings.betaReader, description: (t) => t.bookSettings.betaReaderDesc, bookField: "modelBetaReader" },
+  { role: "analyst", label: (t) => t.bookSettings.analyst, description: (t) => t.bookSettings.analystDesc, bookField: "modelAnalyst" },
+  { role: "coach", label: (t) => t.bookSettings.coach, description: (t) => t.bookSettings.coachDesc, bookField: "modelCoach" },
+  { role: "creative", label: (t) => t.bookSettings.creative, description: (t) => t.bookSettings.creativeDesc, bookField: "modelCreative" },
 ];
 
 // ── Resolution source labels ──────────────────────────────────
 
-const SOURCE_LABELS: Record<string, string> = {
-  "book-role": "book role override",
-  "book-default": "book default",
-  "global-role": "global role override",
-  "global-default": "global default",
+const SOURCE_LABELS: Record<string, (t: UIStrings) => string> = {
+  "book-role": (t) => t.bookSettings.sourceBookRole,
+  "book-default": (t) => t.bookSettings.sourceBookDefault,
+  "global-role": (t) => t.bookSettings.sourceGlobalRole,
+  "global-default": (t) => t.bookSettings.sourceGlobalDefault,
 };
 
 export default function BookSettingsPage() {
@@ -251,8 +253,8 @@ export default function BookSettingsPage() {
             {ROLE_INFOS.map((info) => (
               <ModelPicker
                 key={info.role}
-                label={info.label}
-                description={info.description}
+                label={info.label(t)}
+                description={info.description(t)}
                 value={getBookRoleValue(info.bookField)}
                 onChange={(registryId) =>
                   handleChange(info.bookField, registryId ?? "default")
@@ -283,7 +285,7 @@ export default function BookSettingsPage() {
                 const displayName =
                   getModelDef(resolved.registryId)?.displayName ??
                   resolved.registryId;
-                const source = SOURCE_LABELS[resolved.resolvedFrom] ?? resolved.resolvedFrom;
+                const source = SOURCE_LABELS[resolved.resolvedFrom]?.(t) ?? resolved.resolvedFrom;
 
                 return (
                   <div

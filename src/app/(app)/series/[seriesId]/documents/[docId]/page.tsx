@@ -3,28 +3,13 @@ import { notFound } from "next/navigation";
 import { ArrowLeftIcon } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { getUIStrings, localeFor } from "@/lib/i18n/ui-strings";
+import { getDocumentTypeLabels } from "@/lib/agents/tool-labels";
 import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { DocumentService } from "@/lib/documents";
 
 export const dynamic = "force-dynamic";
 
-const TYPE_LABELS: Record<string, string> = {
-  STORY_BIBLE: "Story Bible",
-  ARCHITECTURE: "Architecture",
-  FINGERPRINT: "Style Fingerprint",
-  SERIES_BIBLE: "Series Bible",
-  SERIES_ARCHITECTURE: "Series Architecture",
-  SERIES_FINGERPRINT: "Series Fingerprint",
-  CHAPTER_CONTENT: "Chapter Content",
-  CHAPTER_PLAN: "Chapter Plan",
-  DEV_EDIT_REPORT: "Dev Edit Report",
-  LINE_EDIT_REPORT: "Line Edit Report",
-  BETA_READ_REPORT: "Beta Read Report",
-  MARKET_ANALYSIS: "Market Analysis",
-  WORLD_RESEARCH: "World Research",
-  TOPIC_RESEARCH: "Topic Research",
-};
 
 export default async function SeriesDocumentPage({
   params,
@@ -67,7 +52,7 @@ export default async function SeriesDocumentPage({
   const doc = result.document;
   const content = result.content;
 
-  const label = TYPE_LABELS[doc.type] ?? doc.type;
+  const label = getDocumentTypeLabels(user.preferredLanguage ?? "en")[doc.type] ?? doc.type;
 
   return (
     <div className="p-6 lg:p-8 max-w-3xl space-y-6">

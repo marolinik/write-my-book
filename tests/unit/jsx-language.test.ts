@@ -330,6 +330,7 @@ function englishJsxExpressions(file: string): string[] {
 
 /** Directories whose *definitions* hold no English copy. Grows per phase. */
 const DEFINITION_CLEAN_AREAS: string[] = [
+  join("app", "(app)"),
   join("components", "agent"),
   join("components", "editorial"),
   join("components", "import-export"),
@@ -390,11 +391,19 @@ function looksLikeStyle(value: string): boolean {
  */
 const PRODUCT_NAMES = /^(?:Kindle|iPad|iPhone|Markdown|Typst)$/;
 
+/**
+ * The four subscription tiers. They are named in `billing/stripe-client.ts`,
+ * which is where a customer's invoice takes them from, and M-9 decided
+ * against translating a plan list whose names are products rather than words
+ * — a half-translated list reads as a mistake.
+ */
+const PLAN_NAMES = /^(?:Founder|Indie Author|Professional|Publisher|Enterprise)$/;
+
 /** Is this string a sentence for a reader, or a value for the code? */
 function isProse(raw: string): boolean {
   const value = raw.replace(/\s+/g, " ").trim();
   if (looksLikeStyle(value)) return false;
-  if (PRODUCT_NAMES.test(value)) return false;
+  if (PRODUCT_NAMES.test(value) || PLAN_NAMES.test(value)) return false;
   const words = value.replace(HTML_ENTITY, " ").replace(BRAND, " ");
   if (!/[a-z]/.test(words)) return false; // ISBN, EPUB, PDF
   if (!/[A-Za-z]{3}/.test(words)) return false;

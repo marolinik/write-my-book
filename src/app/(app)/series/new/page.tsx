@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { useCreateSeries } from "@/hooks/use-series";
 import { useLanguage } from "@/components/providers/language-provider";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,13 +26,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const SERIES_TYPES = [
-  { value: "DUOLOGY", label: "Duology (2 books)" },
-  { value: "TRILOGY", label: "Trilogy (3 books)" },
-  { value: "TETRALOGY", label: "Tetralogy (4 books)" },
-  { value: "PENTALOGY", label: "Pentalogy (5 books)" },
-  { value: "SAGA", label: "Saga (6+ books)" },
-  { value: "OPEN", label: "Open-ended" },
+/** The shape of a series, named for how many books it holds. */
+const SERIES_TYPES: ReadonlyArray<{ value: string; label: (t: UIStrings) => string }> = [
+  { value: "DUOLOGY", label: (t) => t.pagesUI.seriesDuology },
+  { value: "TRILOGY", label: (t) => t.pagesUI.seriesTrilogy },
+  { value: "TETRALOGY", label: (t) => t.pagesUI.seriesTetralogy },
+  { value: "PENTALOGY", label: (t) => t.pagesUI.seriesPentalogy },
+  { value: "SAGA", label: (t) => t.pagesUI.seriesSaga },
+  { value: "OPEN", label: (t) => t.pagesUI.seriesOpenEnded },
 ];
 
 export default function NewSeriesPage() {
@@ -106,9 +108,9 @@ export default function NewSeriesPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {SERIES_TYPES.map((t) => (
-                    <SelectItem key={t.value} value={t.value}>
-                      {t.label}
+                  {SERIES_TYPES.map((shape) => (
+                    <SelectItem key={shape.value} value={shape.value}>
+                      {shape.label(t)}
                     </SelectItem>
                   ))}
                 </SelectContent>

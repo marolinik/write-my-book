@@ -324,6 +324,10 @@ export interface UIStrings {
     coverCropPosition: string; coverCropPositionH: string; coverCropPositionV: string;
     coverCropApply: string; coverCropCancel: string;
     betaPanel: string; betaPanelDesc: string;
+    sourceBookRole: string;
+    sourceBookDefault: string;
+    sourceGlobalRole: string;
+    sourceGlobalDefault: string;
     panelSize: string; consensus: string; convergence: string;
     back: string;
     // UDG round-6 (Sofija): reassurance that model/preference presets store only
@@ -1636,6 +1640,23 @@ export interface UIStrings {
     crossBookContinuity: string;
     backToSeries: string;
     seriesLevel: string;
+    bookNamed: string;
+    seriesWide: string;
+    metaNotFound: string;
+    metaSnapshot: string;
+    metaEditorialBrief: string;
+    setupFailed: string;
+    setupSavedNoChapter: string;
+    alertFindingsNeedReview: string;
+    alertBetaFailed: string;
+    seriesDuology: string;
+    seriesTrilogy: string;
+    seriesTetralogy: string;
+    seriesPentalogy: string;
+    seriesSaga: string;
+    seriesOpenEnded: string;
+    docPlaceholder: string;
+    conflictSafeHint: string;
     bookLevel: string;
     noSeriesDocs: string;
     allDocuments: string;

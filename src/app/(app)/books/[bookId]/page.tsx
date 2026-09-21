@@ -51,7 +51,7 @@ export const dynamic = "force-dynamic";
 
 
 function getWorkflowLabel(workflowId: string | null, lang: string): string {
-  if (!workflowId) return "Agent session";
+  if (!workflowId) return getUIStrings(lang).agentUI.agentSession;
   const strings = getAgentStrings(lang);
   return workflowLabel(strings, workflowId) ?? getWorkflow(workflowId)?.label ?? workflowId;
 }

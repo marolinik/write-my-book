@@ -39,7 +39,7 @@ import {
 export const dynamic = "force-dynamic";
 
 function getWorkflowLabel(workflowId: string | null, lang: string): string {
-  if (!workflowId) return "Agent session";
+  if (!workflowId) return getUIStrings(lang).agentUI.agentSession;
   const strings = getAgentStrings(lang);
   return workflowLabel(strings, workflowId) ?? getWorkflow(workflowId)?.label ?? workflowId;
 }
@@ -209,14 +209,19 @@ export default async function DashboardPage() {
   const alertItems: { text: string; href: string; priority: string }[] = [];
   if (pendingFindings > 0) {
     alertItems.push({
-      text: `${pendingFindings} findings need review`,
+      text: t.pagesUI.alertFindingsNeedReview.replace("{count}", String(pendingFindings)),
       href: `/books/${lastBook?.id}/editorial`,
       priority: "normal",
     });
   }
   for (const ch of failedBetaChapters) {
     alertItems.push({
-      text: `Beta read failed on Ch.${ch.chapterNumber}${ch.title ? ` "${ch.title}"` : ""} — ${ch.book.name}`,
+      text: t.pagesUI.alertBetaFailed
+        .replace(
+          "{chapter}",
+          `${t.agentUI.chapterAbbrev}${ch.chapterNumber}${ch.title ? ` “${ch.title}”` : ""}`
+        )
+        .replace("{book}", ch.book.name),
       href: `/books/${ch.book.id}/editorial`,
       priority: "high",
     });

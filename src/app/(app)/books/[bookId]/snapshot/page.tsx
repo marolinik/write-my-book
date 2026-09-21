@@ -28,8 +28,9 @@ export async function generateMetadata({
     where: { id: bookId, userId: user.id },
     select: { name: true },
   });
-  if (!book) return { title: "Not found" };
-  return { title: `${book.name} — Snapshot` };
+  const s = getUIStrings(user.preferredLanguage ?? "en").pagesUI;
+  if (!book) return { title: s.metaNotFound };
+  return { title: s.metaSnapshot.replace("{book}", book.name) };
 }
 
 export default async function BookSnapshotPage({

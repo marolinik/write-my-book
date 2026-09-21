@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { FileTextIcon, ArrowLeftIcon } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { getUIStrings, localeFor } from "@/lib/i18n/ui-strings";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
+import { getDocumentTypeLabels } from "@/lib/agents/tool-labels";
 import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,22 +26,6 @@ interface DocRow {
   bookId: string | null;
 }
 
-const TYPE_LABELS: Record<string, string> = {
-  STORY_BIBLE: "Story Bible",
-  ARCHITECTURE: "Architecture",
-  FINGERPRINT: "Style Fingerprint",
-  CHAPTER_CONTENT: "Chapter content",
-  CHAPTER_PLAN: "Chapter plan",
-  DEV_EDIT_REPORT: "Dev edit report",
-  LINE_EDIT_REPORT: "Line edit report",
-  BETA_READ_REPORT: "Beta read report",
-  MARKET_ANALYSIS: "Market analysis",
-  WORLD_RESEARCH: "World research",
-  TOPIC_RESEARCH: "Topic research",
-  SERIES_BIBLE: "Series bible",
-  SERIES_ARCHITECTURE: "Series architecture",
-  SERIES_FINGERPRINT: "Series fingerprint",
-};
 
 export default async function SeriesDocumentsPage({
   params,
@@ -49,6 +35,7 @@ export default async function SeriesDocumentsPage({
   const user = await requireUser();
   const t = getUIStrings(user.preferredLanguage ?? "en");
   const locale = localeFor(user.preferredLanguage ?? "en");
+  const typeLabels = getDocumentTypeLabels(user.preferredLanguage ?? "en");
   const { seriesId } = await params;
 
   const series = await db.series.findFirst({
@@ -88,7 +75,7 @@ export default async function SeriesDocumentsPage({
         <div className="space-y-3">
           <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">{t.pagesUI.seriesLevel}</h2>
           {seriesDocs.map((doc) => (
-            <DocCard locale={locale} key={doc.id} doc={doc} bookName={null} seriesId={seriesId} />
+            <DocCard locale={locale} t={t} typeLabels={typeLabels} key={doc.id} doc={doc} bookName={null} seriesId={seriesId} />
           ))}
         </div>
       )}
@@ -97,7 +84,7 @@ export default async function SeriesDocumentsPage({
         <div className="space-y-3">
           <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">{t.pagesUI.bookLevel}</h2>
           {bookDocs.map((doc) => (
-            <DocCard locale={locale} key={doc.id} doc={doc} bookName={bookNameById.get(doc.bookId!) ?? null} seriesId={seriesId} />
+            <DocCard locale={locale} t={t} typeLabels={typeLabels} key={doc.id} doc={doc} bookName={bookNameById.get(doc.bookId!) ?? null} seriesId={seriesId} />
           ))}
         </div>
       )}
@@ -114,15 +101,19 @@ export default async function SeriesDocumentsPage({
   );
 }
 
-function DocCard({ doc, bookName, seriesId, locale }: {
+function DocCard({ doc, bookName, seriesId, locale, t, typeLabels }: {
   doc: DocRow;
   bookName: string | null;
   seriesId: string;
   /** M-5: the card formats a date, so the writer's locale travels with it. */
   locale: string;
+  t: UIStrings;
+  typeLabels: Record<string, string>;
 }) {
-  const label = TYPE_LABELS[doc.type] ?? doc.type;
-  const subtitle = bookName ? `Book: ${bookName}` : "Series-wide";
+  const label = typeLabels[doc.type] ?? doc.type;
+  const subtitle = bookName
+    ? t.pagesUI.bookNamed.replace("{book}", bookName)
+    : t.pagesUI.seriesWide;
   const ch = doc.chapterNumber ? ` · Ch.${doc.chapterNumber}` : "";
   return (
     <Link href={`/series/${seriesId}/documents/${doc.id}`}>

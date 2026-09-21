@@ -171,7 +171,7 @@ export default function SetupPage({
       await patchSettings({ setupComplete: true });
     } catch (err) {
       // Never a silent no-op: say why setup could not be saved.
-      toast.error(`Failed to complete setup: ${(err as Error).message}`);
+      toast.error(t.pagesUI.setupFailed.replace("{error}", (err as Error).message));
       setFinishing(false);
       return;
     }
@@ -191,7 +191,7 @@ export default function SetupPage({
         // Setup itself IS saved — say what happened instead of swallowing it,
         // then land on the overview rather than stranding them on the wizard.
         toast.error(
-          `Setup saved, but the first chapter could not be opened: ${(err as Error).message}`
+          t.pagesUI.setupSavedNoChapter.replace("{error}", (err as Error).message)
         );
       }
     }
