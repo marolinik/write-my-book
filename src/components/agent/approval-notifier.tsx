@@ -14,6 +14,7 @@
  */
 
 import { useEffect, useRef } from "react";
+import { useLanguage } from "@/components/providers/language-provider";
 import { toast } from "sonner";
 import { useAgentSessionStore } from "@/stores/agent-session-store";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
@@ -22,6 +23,7 @@ import { useAgentUIStore } from "@/stores/agent-ui-store";
 const VISIBLE_MODES = new Set(["panel", "overlay", "mini"]);
 
 export function ApprovalNotifier() {
+  const { t } = useLanguage();
   const sessions = useAgentSessionStore((s) => s.sessions);
   const panelMode = useAgentUIStore((s) => s.panelMode);
   const setPanelMode = useAgentUIStore((s) => s.setPanelMode);
@@ -52,7 +54,7 @@ export function ApprovalNotifier() {
           // would reproduce the very problem this exists to fix.
           duration: 120_000,
           action: {
-            label: "Open",
+            label: t.appUI.open,
             onClick: () => setPanelMode("panel"),
           },
         });

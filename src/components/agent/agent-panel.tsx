@@ -43,6 +43,7 @@ import {
 import { getWorkflow } from "@/lib/agents/workflows";
 import { getAgentDefinition } from "@/lib/agents/definitions";
 import { getAgentStrings, workflowLabel } from "@/lib/i18n/agent-strings";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 import { getStatusLabel } from "@/lib/i18n/ui-strings";
 import { countWithNoun } from "@/lib/i18n/plural";
 import { useLanguage, useLocale } from "@/components/providers/language-provider";
@@ -65,8 +66,8 @@ interface AgentPanelProps {
   seriesId?: string;
 }
 
-function getWorkflowLabel(workflowId: string | null): string {
-  if (!workflowId) return "Agent session";
+function getWorkflowLabel(workflowId: string | null, t: UIStrings): string {
+  if (!workflowId) return t.agentUI.agentSession;
   const wf = getWorkflow(workflowId);
   return wf?.label ?? workflowId;
 }
@@ -240,9 +241,10 @@ export function AgentPanel({
         }, isBackground, scope);
 
         if (isBackground) {
-          toast.info(`${wf.label} queued for background processing`, {
-            description: "You can navigate away — progress will continue.",
-          });
+          toast.info(
+            t.agentUI.queuedForBackground.replace("{workflow}", wf.label),
+            { description: t.agentUI.navigateAwayHint }
+          );
         }
       } catch {
         // Error handled by mutation state
@@ -336,7 +338,7 @@ export function AgentPanel({
     if (!isComplete || !workflowId) return [];
     const ctas: Array<{ label: string; href: string }> = [];
     if (["dev-edit", "line-edit", "beta-read"].includes(workflowId)) {
-      ctas.push({ label: "Review Findings", href: `/books/${bookId}/editorial` });
+      ctas.push({ label: t.agentUI.ctaReviewFindings, href: `/books/${bookId}/editorial` });
     }
     if (workflowId === "write-chapter" || workflowId === "revise") {
       // Find next chapter to work on
@@ -345,17 +347,20 @@ export function AgentPanel({
         return wf?.requiresChapter;
       });
       if (nextCh) {
-        ctas.push({ label: `Open Chapter ${nextCh.chapterNumber}`, href: `/books/${bookId}/chapters/${nextCh.chapterNumber}` });
+        ctas.push({
+          label: t.agentUI.ctaOpenChapter.replace("{n}", String(nextCh.chapterNumber)),
+          href: `/books/${bookId}/chapters/${nextCh.chapterNumber}`,
+        });
       }
     }
     if (["capture-style", "create-story-bible", "build-architecture"].includes(workflowId)) {
-      ctas.push({ label: "Continue Setup", href: `/books/${bookId}/setup` });
+      ctas.push({ label: t.agentUI.ctaContinueSetup, href: `/books/${bookId}/setup` });
     }
     if (workflowId === "read-manuscript") {
-      ctas.push({ label: "View Documents", href: `/books/${bookId}/documents` });
+      ctas.push({ label: t.agentUI.ctaViewDocuments, href: `/books/${bookId}/documents` });
     }
     if (["market-analysis", "publishing-check", "analyze"].includes(workflowId)) {
-      ctas.push({ label: "View Reports", href: `/books/${bookId}/reports` });
+      ctas.push({ label: t.agentUI.ctaViewReports, href: `/books/${bookId}/reports` });
     }
     return ctas;
   }, [isComplete, workflowId, bookId, chapters]);
@@ -411,7 +416,7 @@ export function AgentPanel({
       clearPendingWorkflow();
     } else if (pendingWorkflowId && noRunning && !hasApiKey) {
       toast.error(t.toasts.apiKeyRequired, {
-        description: "Add your API key in Settings to use AI agents.",
+        description: t.agentUI.apiKeyHint,
       });
     }
   }, [pendingWorkflowId, noRunning, hasApiKey, clearPendingWorkflow]);
@@ -432,12 +437,13 @@ export function AgentPanel({
     for (const [sid, session] of Object.entries(sessions)) {
       const prev = prevStatusRef.current[sid];
       if (prev === "running" && session.status === "completed") {
-        const label = getWorkflowLabel(session.workflowId);
+        const label = getWorkflowLabel(session.workflowId, t);
+        const completed = t.agentUI.workflowCompleted.replace("{workflow}", label);
         if (session.isBackground) {
-          toast.success(`${label} completed`, {
-            description: "Background job finished successfully",
+          toast.success(completed, {
+            description: t.agentUI.backgroundDone,
             action: {
-              label: "View Results",
+              label: t.agentUI.viewResults,
               onClick: () => {
                 useAgentSessionStore.getState().setActiveSession(sid);
                 useAgentUIStore.getState().setPanelMode("overlay");
@@ -445,8 +451,8 @@ export function AgentPanel({
             },
           });
         } else {
-          toast.success(`${label} completed`, {
-            description: "View results in the agent panel",
+          toast.success(completed, {
+            description: t.agentUI.viewInPanel,
           });
         }
         justCompleted = true;
@@ -650,7 +656,7 @@ export function AgentPanel({
                 <div className="flex items-center gap-2">
                   <BotIcon className="size-3.5 text-muted-foreground" />
                   <span className="font-medium text-xs">
-                    {getWorkflowLabel(s.workflowId)}
+                    {getWorkflowLabel(s.workflowId, t)}
                   </span>
                 </div>
                 <div className="flex gap-3 text-[11px] text-muted-foreground">

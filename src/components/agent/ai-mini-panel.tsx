@@ -101,8 +101,8 @@ export function AIMiniPanel() {
   if (panelMode !== "mini") return null;
 
   const quickActions = [
-    { id: "freewrite", label: "Freewrite" },
-    { id: "coach", label: "Ask Coach" },
+    { id: "freewrite", label: t.agentUI.quickFreewrite },
+    { id: "coach", label: t.agentUI.quickAskCoach },
   ];
 
   return (

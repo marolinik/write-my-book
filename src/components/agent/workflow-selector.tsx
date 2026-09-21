@@ -274,7 +274,12 @@ export function WorkflowSelector({
     } else {
       addToQueue(workflow.id);
     }
-    toast.success(`Added "${workflowLabel(as, workflow.id) ?? workflow.label}" to queue`);
+    toast.success(
+      t.agentUI.addedToQueue.replace(
+        "{workflow}",
+        workflowLabel(as, workflow.id) ?? workflow.label
+      )
+    );
   };
 
   // Chapter selection sub-view

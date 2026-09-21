@@ -330,6 +330,7 @@ function englishJsxExpressions(file: string): string[] {
 
 /** Directories whose *definitions* hold no English copy. Grows per phase. */
 const DEFINITION_CLEAN_AREAS: string[] = [
+  join("components", "agent"),
   join("components", "editorial"),
   join("components", "import-export"),
   join("components", "layout"),
