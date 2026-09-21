@@ -80,6 +80,8 @@ export const ZH: UIStrings = {
   },
   settings: {
     customProviders: "自定义服务商（局域网 / 代理 / 自建）",
+    modelSelectionHint: "选择要使用的 AI 模型。每本书都可以在自己的设置中覆盖此选项。",
+    perRoleOverridesHint: "为特定的智能体角色覆盖默认模型。“使用默认”将沿用上方的全局选择。",
     noCustomProvider: "尚未保存自定义服务商。可添加局域网机器、企业代理或自建服务——具体可用内容由该端点自身的 `/models` 发现结果决定。",
     addProvider: "添加服务商",
     noProvidersConnected: "尚未连接服务商。请先添加 API 密钥。",
@@ -402,6 +404,11 @@ export const ZH: UIStrings = {
 
   styleUI: {
     twoLayerVoiceModel: "用于区分视角人物的双层声音模型",
+    lensSensory: "感官",
+    lensMetaphor: "隐喻",
+    lensInterior: "内心",
+    lensRegister: "语域",
+    lensBlindSpots: "盲点",
     addLens: "添加透镜",
     noLenses: "尚未定义人物透镜。添加一个即可区分各视角的声音。",
     passagesHint: "这些段落最能体现该写作声音的独特之处。",
@@ -661,6 +668,7 @@ export const ZH: UIStrings = {
 
   appUI: {
     tierProfessional: "Professional 套餐解锁无限图书、系列管理和进阶分析。",
+    showAllChapters: "显示全部 {count} 章",
     tierPublisher: "Publisher 套餐包含 Professional 的全部内容，另加优先支持与后续的多用户席位。",
     tierFounder: "Founder 套餐永久锁定每月 19 美元，含无限图书与全部 Pro 功能。",
     themeLight: "浅色",
@@ -1200,6 +1208,11 @@ export const ZH: UIStrings = {
 
   editorialUI: {
     actionApply: "采纳",
+    passesDone: "已完成 {done}/{total} 轮",
+    passesSkipped: "已跳过 {count}",
+    chapterRef: "第 {n} 章",
+    locationTo: "至",
+    keepAsIsMemory: "选择“保持原样”时，我会记住：“{content}”",
     actionDismiss: "忽略",
     actionUndo: "撤销",
     actionSessionComplete: "会话完成",
@@ -1305,6 +1318,10 @@ export const ZH: UIStrings = {
 
   memoryUI: {
     vectorMemoryHint: "向量记忆为 AI 助手提供来自你书稿的上下文。",
+    totalEmbeddingUsage: "嵌入用量合计：{tokens}",
+    indexedAgo: "索引于 {when}",
+    countTotal: "共 {count} 条",
+    countAiLearned: "{count} 条由 AI 学得",
     connected: "已连接",
     unreachable: "无法访问",
     qdrantUnreachable: "无法访问 Qdrant。向量记忆功能（语义搜索、上下文检索）不可用。请确认 Qdrant 正在运行且 QDRANT_URL 正确。",
@@ -1316,6 +1333,9 @@ export const ZH: UIStrings = {
 
   onboardingUI: {
     welcome: "欢迎使用 Write My Book OK",
+    stepsComplete: "已完成 {done}/{total}",
+    privacyBlurb: "您的手稿静态加密存储，且仅发送给您自己连接的 AI 提供方。我们绝不会用您的内容训练 AI 模型，您的 API 密钥也经过加密 — 我们从不会看到明文。",
+    providersConnected: "已连接 {connected}/{total} 个提供方",
     tagline: "你的 AI 书稿创作平台",
     noCardNeeded: "开始写作无需信用卡或 API 密钥。",
     byokExplainer: "WMB 使用你自己的 AI 服务商 API 密钥，直接连接 Anthropic、OpenAI 或 OpenRouter 等服务商。",
@@ -1369,6 +1389,8 @@ export const ZH: UIStrings = {
 
   billingUI: {
     usageAndBilling: "用量与账单",
+    requiresPlan: "需要 {plan} 方案",
+    featureRequiresPlan: "{feature} 需要 {plan} 或更高方案。",
     choosePlan: "选择套餐并跟踪你的 AI 令牌用量",
     stripeNotConfigured: "尚未配置 Stripe。请在环境中设置 STRIPE_SECRET_KEY 以启用计费。",
     manageSubscription: "管理订阅",

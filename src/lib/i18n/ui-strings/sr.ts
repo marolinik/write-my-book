@@ -80,6 +80,8 @@ export const SR: UIStrings = {
   },
   settings: {
     customProviders: "Sopstveni provajderi (LAN / proksi / sopstveni server)",
+    modelSelectionHint: "Izaberite koje AI modele koristite. Podešavanje po knjizi menja se u podešavanjima svake knjige.",
+    perRoleOverridesHint: "Zamenite podrazumevani model za pojedine uloge agenata. „Koristi podrazumevano“ nasleđuje globalni izbor iznad.",
     noCustomProvider: "Još nema sačuvanog sopstvenog provajdera. Dodajte mašinu u lokalnoj mreži, korporativni proksi ili sopstveni server — otkrivanje preko `/models` na samom endpointu određuje šta je dostupno.",
     addProvider: "Dodaj provajdera",
     noProvidersConnected: "Nema povezanih provajdera. Prvo dodajte API ključ.",
@@ -402,6 +404,11 @@ export const SR: UIStrings = {
 
   styleUI: {
     twoLayerVoiceModel: "Dvoslojni model glasa za razlikovanje pripovedačkih tačaka gledišta",
+    lensSensory: "Čula",
+    lensMetaphor: "Metafora",
+    lensInterior: "Unutrašnjost",
+    lensRegister: "Registar",
+    lensBlindSpots: "Slepe mrlje",
     addLens: "Dodaj sočivo",
     noLenses: "Još nema definisanih sočiva likova. Dodajte jedno da biste razlikovali glasove tačaka gledišta.",
     passagesHint: "Ovi odlomci najbolje pokazuju prepoznatljive osobine pripovedačkog glasa.",
@@ -661,6 +668,7 @@ export const SR: UIStrings = {
 
   appUI: {
     tierProfessional: "Plan Professional otključava neograničen broj knjiga, upravljanje serijalima i naprednu analitiku.",
+    showAllChapters: "Prikaži svih {count} poglavlja",
     tierPublisher: "Plan Publisher obuhvata sve iz plana Professional, uz prioritetnu podršku i buduće naloge za više korisnika.",
     tierFounder: "Plan Founder zauvek zaključava cenu od 19 $ mesečno, uz neograničen broj knjiga i sve Pro mogućnosti.",
     themeLight: "Svetla",
@@ -1200,6 +1208,11 @@ export const SR: UIStrings = {
 
   editorialUI: {
     actionApply: "primena",
+    passesDone: "{done}/{total} prolaza završeno",
+    passesSkipped: "{count} preskočeno",
+    chapterRef: "Poglavlje {n}",
+    locationTo: "do",
+    keepAsIsMemory: "Uz „Zadrži kako jeste“, zapamtiću: „{content}“",
     actionDismiss: "odbacivanje",
     actionUndo: "poništavanje",
     actionSessionComplete: "sesija završena",
@@ -1305,6 +1318,10 @@ export const SR: UIStrings = {
 
   memoryUI: {
     vectorMemoryHint: "Vektorsko pamćenje daje AI agentima kontekst iz vaših knjiga.",
+    totalEmbeddingUsage: "Ukupna potrošnja na ugnježdavanje: {tokens}",
+    indexedAgo: "Indeksirano {when}",
+    countTotal: "ukupno {count}",
+    countAiLearned: "{count} naučeno od AI",
     connected: "Povezano",
     unreachable: "Nedostupno",
     qdrantUnreachable: "Qdrant je nedostupan. Mogućnosti vektorskog pamćenja (semantička pretraga, dohvatanje konteksta) ne rade. Proverite da li Qdrant radi i da li je QDRANT_URL tačan.",
@@ -1316,6 +1333,9 @@ export const SR: UIStrings = {
 
   onboardingUI: {
     welcome: "Dobro došli u Write My Book OK",
+    stepsComplete: "{done}/{total} završeno",
+    privacyBlurb: "Vaš rukopis se čuva šifrovan i šalje se samo AI provajderu koga sami povežete. Vaš sadržaj nikada ne koristimo za obuku AI modela, a vaši API ključevi su šifrovani — nikada ih ne vidimo u čitljivom obliku.",
+    providersConnected: "povezano {connected} od {total} provajdera",
     tagline: "Vaša platforma za pisanje knjiga uz pomoć veštačke inteligencije",
     noCardNeeded: "Za početak pisanja nisu potrebni ni kartica ni API ključ.",
     byokExplainer: "WMB koristi vaše sopstvene API ključeve AI provajdera. Povezujete se direktno sa provajderima kao što su Anthropic, OpenAI ili OpenRouter.",
@@ -1369,6 +1389,8 @@ export const SR: UIStrings = {
 
   billingUI: {
     usageAndBilling: "Potrošnja i naplata",
+    requiresPlan: "Zahteva plan {plan}",
+    featureRequiresPlan: "{feature} zahteva plan {plan} ili viši.",
     choosePlan: "Izaberite plan i pratite potrošnju AI tokena",
     stripeNotConfigured: "Stripe nije podešen. Postavite STRIPE_SECRET_KEY u okruženju da biste omogućili naplatu.",
     manageSubscription: "Upravljaj pretplatom",

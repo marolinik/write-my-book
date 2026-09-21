@@ -217,9 +217,11 @@ export function FindingCard({
         {/* Chapter reference */}
         {finding.chapterNumber && (
           <p className="text-xs text-muted-foreground">
-            Chapter {finding.chapterNumber}
+            {t.editorialUI.chapterRef.replace("{n}", String(finding.chapterNumber))}
             {finding.locationStart ? ` — ${finding.locationStart}` : ""}
-            {finding.locationEnd ? ` to ${finding.locationEnd}` : ""}
+            {finding.locationEnd
+              ? ` ${t.editorialUI.locationTo} ${finding.locationEnd}`
+              : ""}
           </p>
         )}
 

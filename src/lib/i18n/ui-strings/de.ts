@@ -80,6 +80,8 @@ export const DE: UIStrings = {
   },
   settings: {
     customProviders: "Eigene Anbieter (LAN / Proxy / selbst gehostet)",
+    modelSelectionHint: "Wählen Sie, welche KI-Modelle verwendet werden. Pro Buch lässt sich das in den Bucheinstellungen überschreiben.",
+    perRoleOverridesHint: "Überschreiben Sie das Standardmodell für einzelne Agentenrollen. „Standard verwenden“ übernimmt die globale Auswahl oben.",
     noCustomProvider: "Noch kein eigener Anbieter gespeichert. Fügen Sie einen Rechner im LAN, einen Firmen-Proxy oder einen selbst gehosteten Hub hinzu — was verfügbar ist, entscheidet die `/models`-Abfrage des Endpunkts.",
     addProvider: "Anbieter hinzufügen",
     noProvidersConnected: "Keine Anbieter verbunden. Fügen Sie zuerst einen API-Schlüssel hinzu.",
@@ -402,6 +404,11 @@ export const DE: UIStrings = {
 
   styleUI: {
     twoLayerVoiceModel: "Zweischichtiges Stimmmodell zur Unterscheidung der Perspektivfiguren",
+    lensSensory: "Sinne",
+    lensMetaphor: "Metapher",
+    lensInterior: "Innenleben",
+    lensRegister: "Register",
+    lensBlindSpots: "Blinde Flecken",
     addLens: "Linse hinzufügen",
     noLenses: "Noch keine Figurenlinsen. Legen Sie eine an, um Perspektivstimmen zu unterscheiden.",
     passagesHint: "Diese Passagen zeigen die Eigenheiten der Erzählstimme am deutlichsten.",
@@ -661,6 +668,7 @@ export const DE: UIStrings = {
 
   appUI: {
     tierProfessional: "Der Professional-Tarif schaltet unbegrenzt viele Bücher, Reihenverwaltung und erweiterte Auswertungen frei.",
+    showAllChapters: "Alle {count} Kapitel anzeigen",
     tierPublisher: "Der Publisher-Tarif enthält alles aus Professional sowie bevorzugten Support und künftige Plätze für mehrere Nutzer.",
     tierFounder: "Der Founder-Tarif sichert dauerhaft 19 $ pro Monat, mit unbegrenzt vielen Büchern und allen Pro-Funktionen.",
     themeLight: "Hell",
@@ -1200,6 +1208,11 @@ export const DE: UIStrings = {
 
   editorialUI: {
     actionApply: "übernommen",
+    passesDone: "{done}/{total} Durchgänge erledigt",
+    passesSkipped: "{count} übersprungen",
+    chapterRef: "Kapitel {n}",
+    locationTo: "bis",
+    keepAsIsMemory: "Bei „Unverändert lassen“ merke ich mir: „{content}“",
     actionDismiss: "verworfen",
     actionUndo: "rückgängig",
     actionSessionComplete: "Sitzung abgeschlossen",
@@ -1305,6 +1318,10 @@ export const DE: UIStrings = {
 
   memoryUI: {
     vectorMemoryHint: "Vektorgedächtnis versorgt die KI-Agenten mit Kontext aus Ihren Büchern.",
+    totalEmbeddingUsage: "Gesamter Embedding-Verbrauch: {tokens}",
+    indexedAgo: "Indexiert {when}",
+    countTotal: "{count} gesamt",
+    countAiLearned: "{count} von der KI gelernt",
     connected: "Verbunden",
     unreachable: "Nicht erreichbar",
     qdrantUnreachable: "Qdrant ist nicht erreichbar. Funktionen des Vektorgedächtnisses (semantische Suche, Kontextabruf) stehen nicht zur Verfügung. Prüfen Sie, ob Qdrant läuft und QDRANT_URL stimmt.",
@@ -1316,6 +1333,9 @@ export const DE: UIStrings = {
 
   onboardingUI: {
     welcome: "Willkommen bei Write My Book OK",
+    stepsComplete: "{done}/{total} fertig",
+    privacyBlurb: "Ihr Manuskript wird verschlüsselt gespeichert und nur an den KI-Anbieter gesendet, den Sie selbst verbinden. Wir nutzen Ihre Inhalte niemals zum Training von KI-Modellen, und Ihre API-Schlüssel sind verschlüsselt — wir sehen sie nie im Klartext.",
+    providersConnected: "{connected} von {total} Anbietern verbunden",
     tagline: "Ihre KI-gestützte Plattform zum Schreiben von Büchern",
     noCardNeeded: "Zum Schreiben brauchen Sie weder Kreditkarte noch API-Schlüssel.",
     byokExplainer: "WMB nutzt Ihre eigenen API-Schlüssel. Sie verbinden sich direkt mit Anbietern wie Anthropic, OpenAI oder OpenRouter.",
@@ -1369,6 +1389,8 @@ export const DE: UIStrings = {
 
   billingUI: {
     usageAndBilling: "Nutzung & Abrechnung",
+    requiresPlan: "Erfordert {plan}",
+    featureRequiresPlan: "{feature} erfordert mindestens den Tarif {plan}.",
     choosePlan: "Wählen Sie Ihren Tarif und behalten Sie Ihren KI-Tokenverbrauch im Blick",
     stripeNotConfigured: "Stripe ist nicht eingerichtet. Setzen Sie STRIPE_SECRET_KEY in Ihrer Umgebung, um die Abrechnung zu aktivieren.",
     manageSubscription: "Abo verwalten",

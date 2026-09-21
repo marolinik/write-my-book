@@ -154,8 +154,7 @@ export function ModelSelectionSection() {
       <CardHeader>
         <CardTitle>{t.appUI.modelSelection}</CardTitle>
         <CardDescription>
-          Choose which AI models to use. Per-book overrides can be set in each
-          book&apos;s settings.
+          {t.settings.modelSelectionHint}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -175,8 +174,7 @@ export function ModelSelectionSection() {
         <div className="space-y-1">
           <h2 className="text-sm font-medium">{t.appUI.perRoleOverrides}</h2>
           <p className="text-xs text-muted-foreground">
-            Override the default model for specific agent roles. &quot;Use
-            Default&quot; inherits the global default above.
+            {t.settings.perRoleOverridesHint}
           </p>
         </div>
 

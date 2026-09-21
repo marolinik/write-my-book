@@ -556,7 +556,7 @@ export function AppSidebar() {
                                   className={`size-2 fill-current ${CH_STATUS_COLORS[ch.status] ?? "text-muted-foreground/40"}`}
                                 />
                                 <span>
-                                  Ch. {ch.chapterNumber}
+                                  {t.agentUI.chapterAbbrev} {ch.chapterNumber}
                                   {ch.title ? `: ${ch.title}` : ""}
                                 </span>
                               </Link>
@@ -567,7 +567,10 @@ export function AppSidebar() {
                           <SidebarMenuSubItem>
                             <SidebarMenuSubButton onClick={() => setShowAllChapters(true)}>
                               <span className="text-xs text-muted-foreground">
-                                Show all {book.chapters?.length} chapters
+                                {t.appUI.showAllChapters.replace(
+                                  "{count}",
+                                  String(book.chapters?.length)
+                                )}
                               </span>
                             </SidebarMenuSubButton>
                           </SidebarMenuSubItem>

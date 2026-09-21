@@ -88,6 +88,8 @@ export interface UIStrings {
   // Settings
   settings: {
     customProviders: string;
+    modelSelectionHint: string;
+    perRoleOverridesHint: string;
     noCustomProvider: string;
     addProvider: string;
     noProvidersConnected: string;
@@ -420,6 +422,11 @@ export interface UIStrings {
   // O1 - the style profile and character lenses.
   styleUI: {
     twoLayerVoiceModel: string;
+    lensSensory: string;
+    lensMetaphor: string;
+    lensInterior: string;
+    lensRegister: string;
+    lensBlindSpots: string;
     addLens: string;
     noLenses: string;
     passagesHint: string;
@@ -664,6 +671,7 @@ export interface UIStrings {
   // O1 - the remaining app surfaces.
   appUI: {
     tierProfessional: string;
+    showAllChapters: string;
     tierPublisher: string;
     tierFounder: string;
     themeLight: string;
@@ -1141,6 +1149,11 @@ export interface UIStrings {
   // H-10 - editorial badges and the finding conversation's decision row.
   editorialUI: {
     actionApply: string;
+    passesDone: string;
+    passesSkipped: string;
+    chapterRef: string;
+    locationTo: string;
+    keepAsIsMemory: string;
     actionDismiss: string;
     actionUndo: string;
     actionSessionComplete: string;
@@ -1253,6 +1266,10 @@ export interface UIStrings {
   // H-10 - the writer-memory panel and the vector-store status.
   memoryUI: {
     vectorMemoryHint: string;
+    totalEmbeddingUsage: string;
+    indexedAgo: string;
+    countTotal: string;
+    countAiLearned: string;
     connected: string;
     unreachable: string;
     qdrantUnreachable: string;
@@ -1265,6 +1282,9 @@ export interface UIStrings {
   // H-10 - the first five minutes a writer spends in the product.
   onboardingUI: {
     welcome: string;
+    stepsComplete: string;
+    privacyBlurb: string;
+    providersConnected: string;
     tagline: string;
     noCardNeeded: string;
     byokExplainer: string;
@@ -1324,6 +1344,8 @@ export interface UIStrings {
   // the writer pays providers directly.
   billingUI: {
     usageAndBilling: string;
+    requiresPlan: string;
+    featureRequiresPlan: string;
     choosePlan: string;
     stripeNotConfigured: string;
     manageSubscription: string;

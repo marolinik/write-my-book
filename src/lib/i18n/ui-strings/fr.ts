@@ -80,6 +80,8 @@ export const FR: UIStrings = {
   },
   settings: {
     customProviders: "Fournisseurs personnalisés (LAN / proxy / auto-hébergés)",
+    modelSelectionHint: "Choisissez les modèles d'IA à utiliser. Chaque livre peut les remplacer dans ses propres paramètres.",
+    perRoleOverridesHint: "Remplacez le modèle par défaut pour certains rôles d'agent. « Utiliser la valeur par défaut » reprend le choix global ci-dessus.",
     noCustomProvider: "Aucun fournisseur personnalisé enregistré. Ajoutez une machine du réseau local, un proxy d’entreprise ou un hub auto-hébergé — c’est la découverte `/models` du point de terminaison qui décide de ce qui est disponible.",
     addProvider: "Ajouter un fournisseur",
     noProvidersConnected: "Aucun fournisseur connecté. Ajoutez d’abord une clé d’API.",
@@ -402,6 +404,11 @@ export const FR: UIStrings = {
 
   styleUI: {
     twoLayerVoiceModel: "Modèle de voix à deux couches pour distinguer les personnages narrateurs",
+    lensSensory: "Sens",
+    lensMetaphor: "Métaphore",
+    lensInterior: "Intériorité",
+    lensRegister: "Registre",
+    lensBlindSpots: "Angles morts",
     addLens: "Ajouter une lentille",
     noLenses: "Aucune lentille de personnage pour l’instant. Ajoutez-en une pour distinguer les voix narratives.",
     passagesHint: "Ces passages illustrent le mieux les traits distinctifs de la voix.",
@@ -661,6 +668,7 @@ export const FR: UIStrings = {
 
   appUI: {
     tierProfessional: "L’offre Professional débloque un nombre illimité de livres, la gestion des séries et les analyses avancées.",
+    showAllChapters: "Afficher les {count} chapitres",
     tierPublisher: "L’offre Publisher comprend tout Professional, plus le support prioritaire et les futurs sièges multi-utilisateurs.",
     tierFounder: "L’offre Founder fige 19 $ par mois à vie, avec des livres illimités et toutes les fonctions Pro.",
     themeLight: "Clair",
@@ -1200,6 +1208,11 @@ export const FR: UIStrings = {
 
   editorialUI: {
     actionApply: "appliqué",
+    passesDone: "{done}/{total} passes terminées",
+    passesSkipped: "{count} ignorées",
+    chapterRef: "Chapitre {n}",
+    locationTo: "à",
+    keepAsIsMemory: "Avec « Laisser tel quel », je retiendrai : « {content} »",
     actionDismiss: "écarté",
     actionUndo: "annulé",
     actionSessionComplete: "session terminée",
@@ -1305,6 +1318,10 @@ export const FR: UIStrings = {
 
   memoryUI: {
     vectorMemoryHint: "La mémoire vectorielle fournit aux agents IA le contexte de vos livres.",
+    totalEmbeddingUsage: "Consommation totale d'embeddings : {tokens}",
+    indexedAgo: "Indexé {when}",
+    countTotal: "{count} au total",
+    countAiLearned: "{count} apprises par l'IA",
     connected: "Connecté",
     unreachable: "Injoignable",
     qdrantUnreachable: "Qdrant est injoignable. Les fonctions de mémoire vectorielle (recherche sémantique, récupération de contexte) sont indisponibles. Vérifiez que Qdrant tourne et que QDRANT_URL est correcte.",
@@ -1316,6 +1333,9 @@ export const FR: UIStrings = {
 
   onboardingUI: {
     welcome: "Bienvenue dans Write My Book OK",
+    stepsComplete: "{done}/{total} terminés",
+    privacyBlurb: "Votre manuscrit est stocké chiffré au repos et envoyé uniquement au fournisseur d'IA que vous connectez. Nous n'utilisons jamais votre contenu pour entraîner des modèles d'IA, et vos clés d'API sont chiffrées — nous ne les voyons jamais en clair.",
+    providersConnected: "{connected} fournisseurs sur {total} connectés",
     tagline: "Votre plateforme d’écriture de livres assistée par IA",
     noCardNeeded: "Ni carte bancaire ni clé d’API pour commencer à écrire.",
     byokExplainer: "WMB utilise vos propres clés d’API. Vous vous connectez directement à des fournisseurs comme Anthropic, OpenAI ou OpenRouter.",
@@ -1369,6 +1389,8 @@ export const FR: UIStrings = {
 
   billingUI: {
     usageAndBilling: "Utilisation et facturation",
+    requiresPlan: "Nécessite {plan}",
+    featureRequiresPlan: "{feature} nécessite le forfait {plan} ou supérieur.",
     choosePlan: "Choisissez votre offre et suivez votre consommation de jetons IA",
     stripeNotConfigured: "Stripe n’est pas configuré. Définissez STRIPE_SECRET_KEY dans votre environnement pour activer la facturation.",
     manageSubscription: "Gérer l’abonnement",

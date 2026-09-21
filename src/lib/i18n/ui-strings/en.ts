@@ -81,6 +81,8 @@ export const EN: UIStrings = {
   },
   settings: {
     customProviders: "Custom providers (LAN / proxy / self-hosted)",
+    modelSelectionHint: "Choose which AI models to use. Per-book overrides can be set in each book's settings.",
+    perRoleOverridesHint: "Override the default model for specific agent roles. “Use Default” inherits the global default above.",
     noCustomProvider: "No custom provider saved yet. Add a LAN box, a corporate proxy, or a self-hosted hub — the endpoint's own `/models` discovery decides what's available.",
     addProvider: "Add provider",
     noProvidersConnected: "No providers connected. Add an API key first.",
@@ -412,6 +414,11 @@ export const EN: UIStrings = {
 
   styleUI: {
     twoLayerVoiceModel: "Two-Layer Voice Model for POV character differentiation",
+    lensSensory: "Sensory",
+    lensMetaphor: "Metaphor",
+    lensInterior: "Interior",
+    lensRegister: "Register",
+    lensBlindSpots: "Blind spots",
     addLens: "Add Lens",
     noLenses: "No character lenses defined yet. Add one to differentiate POV voices.",
     passagesHint: "These passages best demonstrate the distinctive qualities of the writing voice.",
@@ -671,6 +678,7 @@ export const EN: UIStrings = {
 
   appUI: {
     tierProfessional: "The Professional plan unlocks unlimited books, series management, and advanced analytics.",
+    showAllChapters: "Show all {count} chapters",
     tierPublisher: "The Publisher plan includes everything in Professional plus priority support and upcoming multi-user seats.",
     tierFounder: "The Founder plan locks in $19/mo forever with unlimited books and all Pro features.",
     themeLight: "Light",
@@ -1211,6 +1219,11 @@ export const EN: UIStrings = {
 
   editorialUI: {
     actionApply: "apply",
+    passesDone: "{done}/{total} passes done",
+    passesSkipped: "{count} skipped",
+    chapterRef: "Chapter {n}",
+    locationTo: "to",
+    keepAsIsMemory: "On “Keep as-is”, I’ll remember: “{content}”",
     actionDismiss: "dismiss",
     actionUndo: "undo",
     actionSessionComplete: "session complete",
@@ -1316,6 +1329,10 @@ export const EN: UIStrings = {
 
   memoryUI: {
     vectorMemoryHint: "Vector memory powers AI agents with context from your books.",
+    totalEmbeddingUsage: "Total embedding usage: {tokens}",
+    indexedAgo: "Indexed {when}",
+    countTotal: "{count} total",
+    countAiLearned: "{count} AI-learned",
     connected: "Connected",
     unreachable: "Unreachable",
     qdrantUnreachable: "Qdrant is unreachable. Vector memory features (semantic search, context retrieval) are unavailable. Check that Qdrant is running and QDRANT_URL is correct.",
@@ -1327,6 +1344,9 @@ export const EN: UIStrings = {
 
   onboardingUI: {
     welcome: "Welcome to Write My Book OK",
+    stepsComplete: "{done}/{total} complete",
+    privacyBlurb: "Your manuscript is stored encrypted at rest and sent only to the AI provider you connect. We never use your content to train AI models, and your API keys are encrypted — we never see them in plaintext.",
+    providersConnected: "{connected} of {total} providers connected",
     tagline: "Your AI-powered book authoring platform",
     noCardNeeded: "No credit card or API key required to start writing.",
     byokExplainer: "WMB uses your own AI provider API keys. You connect directly to providers like Anthropic, OpenAI, or OpenRouter.",
@@ -1380,6 +1400,8 @@ export const EN: UIStrings = {
 
   billingUI: {
     usageAndBilling: "Usage & Billing",
+    requiresPlan: "Requires {plan}",
+    featureRequiresPlan: "{feature} requires the {plan} plan or higher.",
     choosePlan: "Choose your plan and track your AI token usage",
     stripeNotConfigured: "Stripe is not configured. Set STRIPE_SECRET_KEY in your environment to enable billing.",
     manageSubscription: "Manage Subscription",

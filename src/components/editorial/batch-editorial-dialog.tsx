@@ -447,9 +447,11 @@ export function BatchEditorialDialog({
 
               <Progress value={pct} />
               <p className="text-muted-foreground text-xs">
-                {done}/{total} passes done
+                {t.editorialUI.passesDone
+                  .replace("{done}", String(done))
+                  .replace("{total}", String(total))}
                 {status && status.counts.skipped > 0
-                  ? ` · ${status.counts.skipped} skipped`
+                  ? ` · ${t.editorialUI.passesSkipped.replace("{count}", String(status.counts.skipped))}`
                   : ""}
                 {status && status.counts.failed > 0
                   ? ` · ${status.counts.failed} failed`

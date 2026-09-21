@@ -173,10 +173,7 @@ export function OnboardingWizard() {
               <div>
                 <p className="text-sm font-medium">{t.appUI.yourWritingStaysYours}</p>
                 <p className="text-xs text-muted-foreground">
-                  Your manuscript is stored encrypted at rest and sent only to
-                  the AI provider you connect. We never use your content to
-                  train AI models, and your API keys are encrypted &mdash; we
-                  never see them in plaintext.
+                  {t.onboardingUI.privacyBlurb}
                 </p>
               </div>
             </div>
@@ -221,7 +218,9 @@ export function OnboardingWizard() {
             <Button variant="ghost" size="sm" onClick={() => setStep(1)}>{t.workflowSelector.back}</Button>
             <div className="flex items-center gap-3">
               <span className="text-xs text-muted-foreground">
-                {connectedCount} of {PROVIDERS.length} providers connected
+                {t.onboardingUI.providersConnected
+                  .replace("{connected}", String(connectedCount))
+                  .replace("{total}", String(PROVIDERS.length))}
               </span>
               {connectedCount === 0 && (
                 <Button

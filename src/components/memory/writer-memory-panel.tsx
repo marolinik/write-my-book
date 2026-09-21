@@ -172,11 +172,11 @@ export function WriterMemoryPanel({ bookId }: WriterMemoryPanelProps) {
             <BrainIcon className="size-4" />{t.memoryUI.writerMemory}</CardTitle>
           <div className="flex gap-1.5">
             <Badge variant="secondary" className="text-[10px]">
-              {totalMemories} total
+              {t.memoryUI.countTotal.replace("{count}", String(totalMemories))}
             </Badge>
             {aiMemories > 0 && (
               <Badge variant="outline" className="text-[10px] text-cyan-500">
-                {aiMemories} AI-learned
+                {t.memoryUI.countAiLearned.replace("{count}", String(aiMemories))}
               </Badge>
             )}
           </div>

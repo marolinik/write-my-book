@@ -76,7 +76,9 @@ export function AnalysisProgress({ messages }: AnalysisProgressProps) {
       <div className="flex items-center justify-between text-sm">
         <span className="font-medium">{t.appUI.analysisProgress}</span>
         <span className="text-xs text-muted-foreground">
-          {completedCount}/{steps.length} complete
+          {t.onboardingUI.stepsComplete
+            .replace("{done}", String(completedCount))
+            .replace("{total}", String(steps.length))}
         </span>
       </div>
 

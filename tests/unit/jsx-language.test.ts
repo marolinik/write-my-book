@@ -13,6 +13,7 @@
 import { describe, it, expect } from "vitest";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
+import ts from "typescript";
 import { getUIStrings } from "@/lib/i18n/ui-strings";
 
 const SRC = join(__dirname, "..", "..", "src");
@@ -163,6 +164,71 @@ function englishAttributes(file: string): string[] {
   return found;
 }
 
+/**
+ * The same sweep, done by the TypeScript parser instead of a regular
+ * expression — and it sees what the regex structurally cannot.
+ *
+ * `SPAN` above matches `>…<` with *no braces in between*, so any run of text
+ * that sits beside an expression is invisible to it: `{words} words`,
+ * `{n} min remaining`, `{done} of {total} sessions complete`. The span those
+ * live in contains braces, so the regex skips the whole thing. 276 runs had
+ * survived the text-node sweep that way — units, counters and whole sentences
+ * broken by a `{value}`.
+ *
+ * `JsxText` is exactly the text a reader sees and nothing else, so this scan
+ * has no code false positives and needs none of the `CODE_MARKERS` guesswork.
+ * `PARSED_CLEAN_AREAS` grows per phase the way `CLEAN_AREAS` did; when it
+ * covers everything the list above does, the regex scan is deleted.
+ */
+const PARSED_CLEAN_AREAS: string[] = [
+  join("components", "billing"),
+  join("components", "editorial"),
+  join("components", "layout"),
+  join("components", "memory"),
+  join("components", "onboarding"),
+  join("components", "settings"),
+  join("components", "style"),
+];
+
+/** `&middot;`, `&mdash;`, `&nbsp;` — a glyph spelled out, not a word. */
+const HTML_ENTITY = /&(?:#\d+|[a-zA-Z]+);/g;
+
+function englishJsxText(file: string): string[] {
+  const source = readFileSync(file, "utf-8");
+  const parsed = ts.createSourceFile(
+    file,
+    source,
+    ts.ScriptTarget.Latest,
+    /* setParentNodes */ true,
+    ts.ScriptKind.TSX
+  );
+  const found: string[] = [];
+
+  const visit = (node: ts.Node): void => {
+    if (ts.isJsxText(node)) {
+      const text = node.text.replace(/\s+/g, " ").trim();
+      const words = text.replace(HTML_ENTITY, " ");
+      // The product's own name is the product's own name in every language.
+      if (words.trim() !== "WriteMyBook" && /[a-z]/.test(words) && /[A-Za-z]{2}/.test(words)) {
+        const { line } = parsed.getLineAndCharacterOfPosition(node.getStart());
+        found.push(`${file.slice(SRC.length + 1)}:${line + 1} — ${text.slice(0, 70)}`);
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(parsed);
+  return found;
+}
+
+describe("the parsed areas of the app", () => {
+  it("hold no English text beside an expression either", () => {
+    const offenders = PARSED_CLEAN_AREAS.flatMap((area) =>
+      walk(join(SRC, area)).flatMap(englishJsxText)
+    );
+    expect(offenders).toEqual([]);
+  });
+});
+
 describe("the attributes a human reads in the localized areas", () => {
   it("hold no hardcoded English value", () => {
     const offenders = CLEAN_AREAS.flatMap((area) =>
@@ -187,7 +253,7 @@ describe("the dictionaries behind the localized areas", () => {
     // in every language.
     sr: ["fleschKincaid", "gunningFog", "colemanLiau", "enterprise"],
     de: [
-      "focusThemeSepia",
+      "focusThemeSepia", "lensRegister",
       "stepOptional", "syntax", "focusNormal", "upgrade", "name", "median",
       "register", "fleschKincaid", "gunningFog", "colemanLiau",
       "contextEditor", "themeSystem", "ghostwriter", "coach", "analyst",

@@ -79,7 +79,7 @@ export function MemoryStatsCard({ bookId }: { bookId: string }) {
               </span>
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Indexed {timeAgo(data.lastIndexed)}
+              {t.memoryUI.indexedAgo.replace("{when}", timeAgo(data.lastIndexed))}
             </p>
           </div>
         ) : (

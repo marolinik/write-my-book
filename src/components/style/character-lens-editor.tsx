@@ -192,14 +192,22 @@ export function CharacterLensEditor({
                   <div>
                     <p className="font-semibold">{lens.characterName}</p>
                     <div className="mt-2 flex flex-wrap gap-2">
-                      <Badge variant="outline">Sensory: {lens.sensoryPriority}</Badge>
-                      <Badge variant="outline">Metaphor: {lens.metaphorDomain}</Badge>
-                      <Badge variant="outline">Interior: {lens.interiorStyle}</Badge>
-                      <Badge variant="outline">Register: {lens.vocabularyRegister}</Badge>
+                      <Badge variant="outline">
+                        {t.styleUI.lensSensory}: {lens.sensoryPriority}
+                      </Badge>
+                      <Badge variant="outline">
+                        {t.styleUI.lensMetaphor}: {lens.metaphorDomain}
+                      </Badge>
+                      <Badge variant="outline">
+                        {t.styleUI.lensInterior}: {lens.interiorStyle}
+                      </Badge>
+                      <Badge variant="outline">
+                        {t.styleUI.lensRegister}: {lens.vocabularyRegister}
+                      </Badge>
                     </div>
                     {lens.blindSpots && (
                       <p className="mt-2 text-sm text-muted-foreground">
-                        Blind spots: {lens.blindSpots}
+                        {t.styleUI.lensBlindSpots}: {lens.blindSpots}
                       </p>
                     )}
                   </div>

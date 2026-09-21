@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { useSubscription, useUpgradeModal } from "@/hooks/use-billing";
 import { Lock } from "lucide-react";
+import { useLanguage } from "@/components/providers/language-provider";
 
 /** Plan tier hierarchy for comparison. Higher index = higher tier. */
 const PLAN_HIERARCHY: string[] = ["none", "indie", "professional", "publisher", "founder"];
@@ -55,6 +56,7 @@ export function PlanGate({
   children: ReactNode;
   fallback?: ReactNode;
 }) {
+  const { t } = useLanguage();
   const { data: subscription, isLoading } = useSubscription();
   const { show } = useUpgradeModal();
   const currentPlan = subscription?.plan ?? "none";
@@ -76,7 +78,12 @@ export function PlanGate({
         <button
           onClick={() =>
             show(
-              `${feature.charAt(0).toUpperCase() + feature.slice(1)} requires the ${requiredPlan.charAt(0).toUpperCase() + requiredPlan.slice(1)} plan or higher.`,
+              t.billingUI.featureRequiresPlan
+                .replace("{feature}", feature.charAt(0).toUpperCase() + feature.slice(1))
+                .replace(
+                  "{plan}",
+                  requiredPlan.charAt(0).toUpperCase() + requiredPlan.slice(1)
+                ),
               requiredPlan
             )
           }
@@ -84,7 +91,10 @@ export function PlanGate({
         >
           <Lock className="h-6 w-6" />
           <span className="text-sm font-medium">
-            Requires {requiredPlan.charAt(0).toUpperCase() + requiredPlan.slice(1)}
+            {t.billingUI.requiresPlan.replace(
+              "{plan}",
+              requiredPlan.charAt(0).toUpperCase() + requiredPlan.slice(1)
+            )}
           </span>
         </button>
       </div>

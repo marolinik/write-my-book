@@ -80,6 +80,8 @@ export const ES: UIStrings = {
   },
   settings: {
     customProviders: "Proveedores propios (LAN / proxy / autoalojados)",
+    modelSelectionHint: "Elige qué modelos de IA usar. Cada libro puede anularlo en sus propios ajustes.",
+    perRoleOverridesHint: "Anula el modelo predeterminado para roles de agente concretos. «Usar predeterminado» hereda la opción global de arriba.",
     noCustomProvider: "Aún no has guardado ningún proveedor propio. Añade un equipo en la LAN, un proxy corporativo o un servidor propio: lo que hay disponible lo decide el descubrimiento `/models` del propio endpoint.",
     addProvider: "Añadir proveedor",
     noProvidersConnected: "No hay proveedores conectados. Añade primero una clave de API.",
@@ -402,6 +404,11 @@ export const ES: UIStrings = {
 
   styleUI: {
     twoLayerVoiceModel: "Modelo de voz en dos capas para diferenciar personajes narradores",
+    lensSensory: "Sentidos",
+    lensMetaphor: "Metáfora",
+    lensInterior: "Interioridad",
+    lensRegister: "Registro",
+    lensBlindSpots: "Puntos ciegos",
     addLens: "Añadir lente",
     noLenses: "Aún no hay lentes de personaje. Añade una para diferenciar las voces narrativas.",
     passagesHint: "Estos pasajes son los que mejor muestran los rasgos distintivos de la voz.",
@@ -661,6 +668,7 @@ export const ES: UIStrings = {
 
   appUI: {
     tierProfessional: "El plan Professional desbloquea libros ilimitados, gestión de series y analítica avanzada.",
+    showAllChapters: "Mostrar los {count} capítulos",
     tierPublisher: "El plan Publisher incluye todo lo de Professional más soporte prioritario y las futuras plazas para varios usuarios.",
     tierFounder: "El plan Founder fija 19 $ al mes para siempre, con libros ilimitados y todas las funciones Pro.",
     themeLight: "Claro",
@@ -1200,6 +1208,11 @@ export const ES: UIStrings = {
 
   editorialUI: {
     actionApply: "aplicado",
+    passesDone: "{done}/{total} pasadas completadas",
+    passesSkipped: "{count} omitidas",
+    chapterRef: "Capítulo {n}",
+    locationTo: "a",
+    keepAsIsMemory: "Con «Dejar como está», recordaré: «{content}»",
     actionDismiss: "descartado",
     actionUndo: "deshecho",
     actionSessionComplete: "sesión completada",
@@ -1305,6 +1318,10 @@ export const ES: UIStrings = {
 
   memoryUI: {
     vectorMemoryHint: "La memoria vectorial da a los agentes de IA contexto de tus libros.",
+    totalEmbeddingUsage: "Uso total de incrustaciones: {tokens}",
+    indexedAgo: "Indexado {when}",
+    countTotal: "{count} en total",
+    countAiLearned: "{count} aprendidas por la IA",
     connected: "Conectado",
     unreachable: "Inaccesible",
     qdrantUnreachable: "Qdrant está inaccesible. Las funciones de memoria vectorial (búsqueda semántica, recuperación de contexto) no están disponibles. Comprueba que Qdrant esté en marcha y que QDRANT_URL sea correcta.",
@@ -1316,6 +1333,9 @@ export const ES: UIStrings = {
 
   onboardingUI: {
     welcome: "Te damos la bienvenida a Write My Book OK",
+    stepsComplete: "{done}/{total} completados",
+    privacyBlurb: "Tu manuscrito se guarda cifrado en reposo y solo se envía al proveedor de IA que tú conectes. Nunca usamos tu contenido para entrenar modelos de IA, y tus claves de API están cifradas — nunca las vemos en texto plano.",
+    providersConnected: "{connected} de {total} proveedores conectados",
     tagline: "Tu plataforma de escritura de libros con IA",
     noCardNeeded: "No hace falta tarjeta ni clave de API para empezar a escribir.",
     byokExplainer: "WMB usa tus propias claves de API. Te conectas directamente a proveedores como Anthropic, OpenAI u OpenRouter.",
@@ -1369,6 +1389,8 @@ export const ES: UIStrings = {
 
   billingUI: {
     usageAndBilling: "Uso y facturación",
+    requiresPlan: "Requiere {plan}",
+    featureRequiresPlan: "{feature} requiere el plan {plan} o superior.",
     choosePlan: "Elige tu plan y sigue tu consumo de tokens de IA",
     stripeNotConfigured: "Stripe no está configurado. Define STRIPE_SECRET_KEY en tu entorno para habilitar la facturación.",
     manageSubscription: "Gestionar la suscripción",

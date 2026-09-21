@@ -280,7 +280,10 @@ export function FindingConversation({
       {/* What the agent will remember if the writer keeps their text (Task 5 persists this on dismiss) */}
       {view.latestConstraint && (
         <p className="rounded-md border border-dashed border-muted-foreground/30 px-2 py-1 text-xs italic text-muted-foreground">
-          On “Keep as-is”, I’ll remember: “{view.latestConstraint.content}”
+          {t.editorialUI.keepAsIsMemory.replace(
+            "{content}",
+            view.latestConstraint.content
+          )}
         </p>
       )}
 

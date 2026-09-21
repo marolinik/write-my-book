@@ -80,6 +80,8 @@ export const RU: UIStrings = {
   },
   settings: {
     customProviders: "Свои провайдеры (LAN / прокси / собственный сервер)",
+    modelSelectionHint: "Выберите, какие модели ИИ использовать. Для каждой книги это можно переопределить в её настройках.",
+    perRoleOverridesHint: "Переопределите модель по умолчанию для отдельных ролей агентов. «Использовать по умолчанию» наследует глобальный выбор выше.",
     noCustomProvider: "Своих провайдеров пока нет. Добавьте машину в локальной сети, корпоративный прокси или собственный хаб — что доступно, решает опрос `/models` самого адреса.",
     addProvider: "Добавить провайдера",
     noProvidersConnected: "Провайдеры не подключены. Сначала добавьте API-ключ.",
@@ -402,6 +404,11 @@ export const RU: UIStrings = {
 
   styleUI: {
     twoLayerVoiceModel: "Двухслойная модель голоса для различения персонажей-рассказчиков",
+    lensSensory: "Чувства",
+    lensMetaphor: "Метафора",
+    lensInterior: "Внутренний мир",
+    lensRegister: "Регистр",
+    lensBlindSpots: "Слепые зоны",
     addLens: "Добавить линзу",
     noLenses: "Линз персонажей пока нет. Добавьте одну, чтобы различать голоса рассказчиков.",
     passagesHint: "Эти отрывки лучше всего показывают отличительные черты авторского голоса.",
@@ -661,6 +668,7 @@ export const RU: UIStrings = {
 
   appUI: {
     tierProfessional: "Тариф Professional открывает неограниченное число книг, управление сериями и расширенную аналитику.",
+    showAllChapters: "Показать все главы ({count})",
     tierPublisher: "Тариф Publisher включает всё из Professional, а также приоритетную поддержку и будущие места для нескольких пользователей.",
     tierFounder: "Тариф Founder навсегда фиксирует 19 $ в месяц, с неограниченным числом книг и всеми возможностями Pro.",
     themeLight: "Светлая",
@@ -1200,6 +1208,11 @@ export const RU: UIStrings = {
 
   editorialUI: {
     actionApply: "применено",
+    passesDone: "Проходов завершено: {done}/{total}",
+    passesSkipped: "пропущено: {count}",
+    chapterRef: "Глава {n}",
+    locationTo: "до",
+    keepAsIsMemory: "При «Оставить как есть» я запомню: «{content}»",
     actionDismiss: "отклонено",
     actionUndo: "отменено",
     actionSessionComplete: "сессия завершена",
@@ -1305,6 +1318,10 @@ export const RU: UIStrings = {
 
   memoryUI: {
     vectorMemoryHint: "Векторная память даёт ИИ-агентам контекст из ваших книг.",
+    totalEmbeddingUsage: "Всего израсходовано на эмбеддинги: {tokens}",
+    indexedAgo: "Проиндексировано {when}",
+    countTotal: "всего {count}",
+    countAiLearned: "{count} усвоено ИИ",
     connected: "Подключено",
     unreachable: "Недоступно",
     qdrantUnreachable: "Qdrant недоступен. Возможности векторной памяти (семантический поиск, подбор контекста) не работают. Проверьте, запущен ли Qdrant и верен ли QDRANT_URL.",
@@ -1316,6 +1333,9 @@ export const RU: UIStrings = {
 
   onboardingUI: {
     welcome: "Добро пожаловать в Write My Book OK",
+    stepsComplete: "готово {done}/{total}",
+    privacyBlurb: "Ваша рукопись хранится в зашифрованном виде и отправляется только тому поставщику ИИ, которого вы подключите. Мы никогда не используем ваш текст для обучения моделей, а ваши ключи API зашифрованы — мы никогда не видим их в открытом виде.",
+    providersConnected: "подключено {connected} из {total} поставщиков",
     tagline: "Ваша платформа для написания книг с помощью ИИ",
     noCardNeeded: "Чтобы начать писать, не нужны ни карта, ни API-ключ.",
     byokExplainer: "WMB использует ваши собственные API-ключи. Вы подключаетесь напрямую к провайдерам — Anthropic, OpenAI или OpenRouter.",
@@ -1369,6 +1389,8 @@ export const RU: UIStrings = {
 
   billingUI: {
     usageAndBilling: "Расход и оплата",
+    requiresPlan: "Требуется план {plan}",
+    featureRequiresPlan: "Функция «{feature}» требует плана {plan} или выше.",
     choosePlan: "Выберите тариф и следите за расходом ИИ-токенов",
     stripeNotConfigured: "Stripe не настроен. Задайте STRIPE_SECRET_KEY в окружении, чтобы включить оплату.",
     manageSubscription: "Управлять подпиской",

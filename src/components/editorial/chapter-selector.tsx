@@ -39,7 +39,7 @@ export function ChapterSelector({ chapters }: ChapterSelectorProps) {
         {chapters.map((ch) => (
           <SelectItem key={ch.id} value={String(ch.chapterNumber)}>
             <span className="flex items-center gap-2">
-              Ch. {ch.chapterNumber}: {ch.title ?? "Untitled"}
+              {t.agentUI.chapterAbbrev} {ch.chapterNumber}: {ch.title ?? t.appUI.untitled}
               <Badge variant="outline" className="text-[10px] px-1 py-0">
                 {ch.status}
               </Badge>

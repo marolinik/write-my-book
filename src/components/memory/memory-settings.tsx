@@ -100,7 +100,10 @@ export function MemorySettings() {
             {data.embeddingTokens > 0 && (
               <div className="rounded-md border px-3 py-2">
                 <p className="text-xs text-muted-foreground">
-                  Total embedding usage: {formatTokens(data.embeddingTokens)}
+                  {t.memoryUI.totalEmbeddingUsage.replace(
+                    "{tokens}",
+                    formatTokens(data.embeddingTokens)
+                  )}
                 </p>
               </div>
             )}
