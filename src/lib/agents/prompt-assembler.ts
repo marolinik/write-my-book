@@ -10,6 +10,7 @@ import { formatWriterMemoryForPrompt } from "./writer-memory";
 import { selectSkillsForAgent } from "./skills";
 import { findingHistoryStatus } from "./finding-history-status";
 import { getDocumentTypeLabels } from "./tool-labels";
+import { buildToolRoster } from "./tool-roster";
 import { CONTINUITY_CATEGORIES } from "@/lib/i18n/finding-labels";
 import { db } from "@/lib/db";
 
@@ -2334,6 +2335,17 @@ export async function assembleAgentPrompt(
         context.language ?? "en"
       )
     );
+  }
+
+  // A-32: the mirror of the tool-grant contract. Thirteen granted tools were
+  // named in no prompt at all - the graph, the writer's memory and the
+  // blackboard were handed out widely and mentioned nowhere, so their write
+  // halves had no occasion to be called. The roster is generated from
+  // `definition.tools` and stays quiet about whatever the prompt above
+  // already explains in its own words.
+  const roster = buildToolRoster(definition.type, instructions.join("\n"));
+  if (roster) {
+    instructions.push(roster);
   }
 
   // Placeholders are filled in the instructions only — never across the

@@ -28,6 +28,7 @@ import {
 } from "@/lib/agents/prompt-assembler";
 import { getAllAgentDefinitions, getAgentDefinition } from "@/lib/agents/definitions";
 import { getAllWorkflows } from "@/lib/agents/workflows";
+import { TOOL_GUIDANCE, buildToolRoster } from "@/lib/agents/tool-roster";
 
 /** Tool names the registry knows, read from its source so a typo cannot pass. */
 const TOOL_NAMES: string[] = (() => {
@@ -139,5 +140,86 @@ describe("the agents that work from editorial findings", () => {
   // route — and both used to have it switched off.
   it.each(["writing-coach", "ghostwriter"] as const)("%s is given the finding history", (type) => {
     expect(getAgentDefinition(type)?.contextProfile.findingHistory).toBe(true);
+  });
+});
+
+/**
+ * A-32 — and the mirror: a tool an agent holds is a tool it is told about.
+ *
+ * The contract above runs one way only. It catches a prompt that orders a tool
+ * the agent does not hold, and says nothing at all about a tool the agent
+ * holds and the prompt never mentions. Thirteen tools sat on that blind side:
+ * the graph, the writer's memory and the blackboard were all granted widely
+ * and named nowhere.
+ *
+ * That is not a documentation gap. The read half of each of those three
+ * systems is injected into the prompt as context, so an agent sees what the
+ * blackboard already holds; the write half is a tool, and a tool no
+ * instruction ever names is a tool the model has no occasion to call. The
+ * systems can only ever grow from `promoteFindings`, which runs after an edit
+ * session and posts findings — never from an agent noticing something worth
+ * keeping.
+ *
+ * The roster closes it by construction rather than by editing fourteen
+ * prompts: every granted tool gets one line saying when to reach for it, and
+ * the lines are generated from `definition.tools`, so a tool granted tomorrow
+ * cannot be silent. It stays quiet about the tools the prompt already
+ * explains in its own words — the continuity checker's hand-written tool
+ * section is better than a generated line and is left to speak for itself.
+ */
+describe("the mirror — a tool an agent holds is a tool it is told about", () => {
+  /** The instruction text an agent of this type can actually be sent. */
+  function instructionsFor(type: string): string {
+    const own = getAllWorkflows().filter((w) => w.primaryAgent === type);
+    let text = BASE_INSTRUCTIONS[type] ?? "";
+    for (const w of own) {
+      text += "\n" + (WORKFLOW_INSTRUCTION_OVERRIDES[w.id] ?? "");
+      if (type === "writing-coach") text += "\n" + (CONDUCTOR_WORKFLOW_INSTRUCTIONS[w.id] ?? "");
+    }
+    return text;
+  }
+
+  it("gives every tool in the registry a line of usage guidance", () => {
+    const missing = TOOL_NAMES.filter((name) => !TOOL_GUIDANCE[name]);
+    expect(missing).toEqual([]);
+  });
+
+  it("has no guidance for a tool that does not exist", () => {
+    const ghosts = Object.keys(TOOL_GUIDANCE).filter((name) => !TOOL_NAMES.includes(name));
+    expect(ghosts).toEqual([]);
+  });
+
+  it("names every granted tool in the prompt the agent receives", () => {
+    const silent: string[] = [];
+    for (const def of getAllAgentDefinitions()) {
+      const own = instructionsFor(def.type);
+      const text = own + "\n" + buildToolRoster(def.type, own);
+      const named = toolsNamedIn(text);
+      for (const tool of def.tools) {
+        if (!named.includes(tool)) silent.push(`${def.type} holds ${tool} and is never told`);
+      }
+    }
+    expect(silent).toEqual([]);
+  });
+
+  it("stays silent about a tool the prompt already explains itself", () => {
+    // The continuity checker writes its own TOOLS YOU HAVE BEEN GIVEN section,
+    // one careful sentence per series tool. A generated line underneath it
+    // would say the same thing worse, twice.
+    const roster = buildToolRoster("continuity-checker", instructionsFor("continuity-checker"));
+    expect(roster).not.toContain("ReadSiblingChapter");
+    expect(roster).toContain("PostInsight");
+  });
+
+  it("is appended to the instructions, not merely exported", () => {
+    const assembler = readFileSync(
+      join(__dirname, "..", "..", "src", "lib", "agents", "prompt-assembler.ts"),
+      "utf-8"
+    );
+    expect(assembler).toContain("buildToolRoster(definition.type,");
+    const instructionsBuilt = assembler.indexOf("const instructions: string[] = [];");
+    const rosterPushed = assembler.indexOf("buildToolRoster(definition.type,");
+    expect(instructionsBuilt).toBeGreaterThan(0);
+    expect(rosterPushed).toBeGreaterThan(instructionsBuilt);
   });
 });
