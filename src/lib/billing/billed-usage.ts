@@ -29,6 +29,17 @@ import { db } from "@/lib/db";
  */
 export const BILLED_ONLY = { billed: true } as const;
 
+/**
+ * The deliberate opposite: every row, discarded ones included.
+ *
+ * It is an empty filter, so it changes nothing at runtime. It exists so a
+ * query that MEANS to see discarded rows says so, and the guard can tell that
+ * apart from a query that simply forgot. The managed tier is the case that
+ * needs it: a generation the product threw away was free for the writer and
+ * real money for the owner, so the owner's cap has to count it.
+ */
+export const ALL_USAGE_INCLUDING_DISCARDED = {} as const;
+
 /** Whether a usage row counts towards what the writer was charged. */
 export function isBilledUsage(row: { billed: boolean }): boolean {
   return row.billed;

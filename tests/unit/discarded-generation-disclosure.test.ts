@@ -68,7 +68,14 @@ describe("every place that reads usage", () => {
       const text = readFileSync(file, "utf-8");
       for (const match of text.matchAll(READ_CALLS)) {
         const body = text.slice(match.index, match.index + CALL_WINDOW);
-        if (!body.includes("BILLED_ONLY") && !/\bbilled:/.test(body)) {
+        // A query may also state the opposite on purpose — the owner's cap has
+        // to see rows the writer was never charged for. What it may not do is
+        // say nothing at all.
+        const declared =
+          body.includes("BILLED_ONLY") ||
+          body.includes("ALL_USAGE_INCLUDING_DISCARDED") ||
+          /\bbilled:/.test(body);
+        if (!declared) {
           offenders.push(
             `${file.slice(ROOT.length + 1).replace(/\\/g, "/")}: ${match[1]}`
           );

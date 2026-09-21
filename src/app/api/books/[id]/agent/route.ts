@@ -6,6 +6,7 @@ import { decryptApiKey } from "@/lib/encryption";
 import { estimateWorkflowCost } from "@/lib/llm/cost-estimator";
 import { validatePrices } from "@/lib/llm/price-validator";
 import { checkQuota } from "@/lib/billing/quota-checker";
+import { managedKeyFor } from "@/lib/billing/managed-tier";
 import { checkConcurrencyFence } from "@/lib/billing/free-tier-meters";
 import {
   resolveModelForRole,
@@ -45,6 +46,17 @@ import type { AgentJobData } from "@/lib/queue";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { getDefaultModelId } from "@/lib/llm/defaults";
 import { USER_MODEL_SELECT, globalOverridesOf, userModelSettingsOf, bookModelSettingsOf } from "@/lib/llm/model-resolver";
+
+/**
+ * The managed key, but only for the provider it actually belongs to. A
+ * platform Anthropic key must never be handed to the OpenRouter slot.
+ */
+function keyIfProvider(
+  config: { provider: string; apiKey: string } | null,
+  provider: string
+): string | undefined {
+  return config && config.provider === provider ? config.apiKey : undefined;
+}
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -231,13 +243,27 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       }
     }
 
+    // D4: a cold Free writer has no key at all, and until now that meant no
+    // working AI whatsoever — the single largest lever on the free-tier
+    // ceiling, named by two separate reviews. When the owner has turned the
+    // managed tier on, and only then, the product lends its own key to a
+    // Free writer who has none, under a daily and a monthly cap. This does
+    // not weaken the client-factory invariant: the fallback is explicit,
+    // metered, and every row it produces carries keySource "platform", which
+    // the spend panel already separates from the writer's own spend.
+    const hasOwnKey = Object.keys(decryptedKeys).length > 0;
+    const managed = hasOwnKey
+      ? null
+      : await managedKeyFor(user.id, quotaResult.isFree === true);
+    const managedConfig = managed?.config ?? null;
+
     // Build available keys for provider routing
     const availableKeys = {
-      anthropicApiKey: decryptedKeys.anthropic,
-      openrouterApiKey: decryptedKeys.openrouter,
-      openaiApiKey: decryptedKeys.openai,
-      geminiApiKey: decryptedKeys.gemini,
-      grokApiKey: decryptedKeys.grok,
+      anthropicApiKey: decryptedKeys.anthropic ?? keyIfProvider(managedConfig, "anthropic"),
+      openrouterApiKey: decryptedKeys.openrouter ?? keyIfProvider(managedConfig, "openrouter"),
+      openaiApiKey: decryptedKeys.openai ?? keyIfProvider(managedConfig, "openai"),
+      geminiApiKey: decryptedKeys.gemini ?? keyIfProvider(managedConfig, "gemini"),
+      grokApiKey: decryptedKeys.grok ?? keyIfProvider(managedConfig, "grok"),
     };
 
     // -- Route Resolution for Coach --
@@ -632,7 +658,10 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
               tokensInput: totalInput,
               tokensOutput: totalOutput,
               costEstimate: cost,
-              keySource: "user",
+              // D4: the cap can only hold if the row says whose key paid.
+              // A managed run that recorded itself as the writer's spend
+              // would make the platform cap a no-op and the disclosure a lie.
+              keySource: managedConfig ? "platform" : "user",
             },
           });
         },
