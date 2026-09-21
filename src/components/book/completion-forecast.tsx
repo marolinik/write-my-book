@@ -86,17 +86,20 @@ export function CompletionForecast({
               <p className="text-xs text-muted-foreground">{t.appUI.atCurrentPace}</p>
               <p className="text-lg font-bold">{forecast.date}</p>
               <p className="text-xs text-muted-foreground">
-                ~{forecast.daysLeft} days from now
+                {t.bookUI.daysFromNow.replace("{days}", String(forecast.daysLeft))}
               </p>
             </div>
             <div className="flex justify-center gap-3 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
                 <TrendingUpIcon className="size-3" />
-                {forecast.pace} words/day avg
+                {t.bookUI.wordsPerDayAvg.replace("{count}", String(forecast.pace))}
               </span>
               <span className="flex items-center gap-1">
                 <TargetIcon className="size-3" />
-                {(targetWords - currentWords).toLocaleString(locale)} remaining
+                {t.bookUI.wordsRemaining.replace(
+                  "{count}",
+                  (targetWords - currentWords).toLocaleString(locale)
+                )}
               </span>
             </div>
           </>

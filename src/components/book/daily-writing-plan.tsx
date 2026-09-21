@@ -74,11 +74,14 @@ export function DailyWritingPlan({ bookId }: DailyWritingPlanProps) {
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm flex items-center gap-2">
             <CalendarIcon className="size-4" />
-            Today&apos;s Plan
+            {t.bookUI.todaysPlan}
           </CardTitle>
           {items.length > 0 && (
             <span className="text-[10px] text-muted-foreground">
-              ~{totalMinutes} min &bull; {completedCount}/{items.length} done
+              {t.bookUI.planSummary
+                .replace("{minutes}", String(totalMinutes))
+                .replace("{done}", String(completedCount))
+                .replace("{total}", String(items.length))}
             </span>
           )}
         </div>

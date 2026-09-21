@@ -72,7 +72,8 @@ export function CanvasChapterCard({ chapter, onClick }: CanvasChapterCardProps) 
       {/* Header: chapter number + act badge */}
       <div className="flex items-center gap-1.5 mb-1">
         <span className="text-xs font-mono text-muted-foreground">
-          Ch.{chapter.chapterNumber}
+          {t.agentUI.chapterAbbrev}
+          {chapter.chapterNumber}
         </span>
         <span className="text-[10px] rounded bg-muted px-1 py-0.5 text-muted-foreground">
           A{chapter.actNumber}
@@ -88,7 +89,10 @@ export function CanvasChapterCard({ chapter, onClick }: CanvasChapterCardProps) 
 
       {/* Word count */}
       <p className="text-[10px] text-muted-foreground">
-        {chapter.wordCount.toLocaleString(locale)} words
+        {t.bookUI.wordsCount.replace(
+          "{count}",
+          chapter.wordCount.toLocaleString(locale)
+        )}
       </p>
     </div>
   );

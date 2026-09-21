@@ -61,7 +61,8 @@ export function PipelineCard({ chapter, onClick }: PipelineCardProps) {
     >
       <div className="flex items-baseline gap-1.5">
         <span className="text-xs font-mono text-muted-foreground shrink-0">
-          Ch.{chapter.chapterNumber}
+          {t.agentUI.chapterAbbrev}
+          {chapter.chapterNumber}
         </span>
         <p className="text-xs font-medium truncate">
           {chapter.title || (
@@ -70,7 +71,10 @@ export function PipelineCard({ chapter, onClick }: PipelineCardProps) {
         </p>
       </div>
       <p className="text-[10px] text-muted-foreground mt-0.5">
-        {chapter.wordCount.toLocaleString(locale)} words
+        {t.bookUI.wordsCount.replace(
+          "{count}",
+          chapter.wordCount.toLocaleString(locale)
+        )}
       </p>
     </div>
   );

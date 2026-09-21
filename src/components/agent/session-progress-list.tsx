@@ -20,6 +20,7 @@ import { getAgentStrings, workflowLabel } from "@/lib/i18n/agent-strings";
 import { sessionElapsedMs } from "@/lib/agents/session-duration";
 
 function ElapsedTime({ session }: { session: SessionState }) {
+  const { t } = useLanguage();
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
@@ -39,7 +40,7 @@ function ElapsedTime({ session }: { session: SessionState }) {
     return (
       <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
         <ClockIcon className="size-2.5" />
-        Completed in {elapsedMin} min
+        {t.agentUI.completedInMinutes.replace("{count}", String(elapsedMin))}
       </span>
     );
   }
@@ -55,7 +56,10 @@ function ElapsedTime({ session }: { session: SessionState }) {
         isPastEstimate ? "text-orange-500 dark:text-orange-400" : "text-muted-foreground",
       )}>
         <ClockIcon className="size-2.5" />
-        {runningMin} min{effectiveMax ? ` / ~${effectiveMax} min` : ""}
+        {runningMin} {t.agentUI.minutesAbbrev}
+        {effectiveMax
+          ? t.agentUI.ofMaxMinutes.replace("{max}", String(effectiveMax))
+          : ""}
       </span>
     );
   }
@@ -65,7 +69,7 @@ function ElapsedTime({ session }: { session: SessionState }) {
     return (
       <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
         <ClockIcon className="size-2.5" />
-        {elapsedMin} min
+        {elapsedMin} {t.agentUI.minutesAbbrev}
       </span>
     );
   }
@@ -96,12 +100,14 @@ export function SessionProgressList() {
     <div className="border-b px-3 py-2 space-y-1.5 shrink-0">
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>
-          {completedCount} of {sessionList.length} sessions complete
+          {t.agentUI.sessionsComplete
+            .replace("{done}", String(completedCount))
+            .replace("{total}", String(sessionList.length))}
         </span>
         {runningCount > 0 && (
           <span className="flex items-center gap-1">
             <Loader2Icon className="size-3 animate-spin" />
-            {runningCount} running
+            {t.agentUI.runningCount.replace("{count}", String(runningCount))}
           </span>
         )}
       </div>
@@ -161,7 +167,9 @@ export function SessionProgressList() {
                     const stepLabel = getToolLabel(tool, parseToolInput(lastTool), language);
                     return (
                       <span className="text-[10px] text-muted-foreground truncate block">
-                        Step {toolMsgs.length}: {stepLabel}
+                        {t.agentUI.stepProgress
+                          .replace("{n}", String(toolMsgs.length))
+                          .replace("{label}", stepLabel)}
                       </span>
                     );
                   })()}

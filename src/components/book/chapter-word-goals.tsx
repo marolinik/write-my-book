@@ -80,7 +80,8 @@ export function ChapterWordGoals({
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-2 group cursor-default">
                   <span className="text-[10px] text-muted-foreground w-8 shrink-0 tabular-nums">
-                    Ch.{ch.chapterNumber}
+                    {t.agentUI.chapterAbbrev}
+                    {ch.chapterNumber}
                   </span>
                   <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
                     <div
@@ -101,11 +102,20 @@ export function ChapterWordGoals({
               </TooltipTrigger>
               <TooltipContent side="right" className="text-xs">
                 <p className="font-medium">
-                  Ch.{ch.chapterNumber}{ch.title ? `: ${ch.title}` : ""}
+                  {t.agentUI.chapterAbbrev}
+                  {ch.chapterNumber}
+                  {ch.title ? `: ${ch.title}` : ""}
                 </p>
                 <p className="text-muted-foreground">
-                  {(ch.currentWords ?? ch.wordCount ?? 0).toLocaleString(locale)} words
-                  {target > 0 ? ` of ${target.toLocaleString(locale)} target (${pct}%)` : " (no target set)"}
+                  {t.bookUI.wordsCount.replace(
+                    "{count}",
+                    (ch.currentWords ?? ch.wordCount ?? 0).toLocaleString(locale)
+                  )}
+                  {target > 0
+                    ? t.bookUI.wordsOfTarget
+                        .replace("{target}", target.toLocaleString(locale))
+                        .replace("{pct}", String(pct))
+                    : t.bookUI.noTargetSet}
                 </p>
               </TooltipContent>
             </Tooltip>

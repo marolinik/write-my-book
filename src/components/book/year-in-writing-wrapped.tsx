@@ -101,11 +101,17 @@ export function YearInWritingWrapped({ data, authorName }: YearInWritingWrappedP
             <p className="text-6xl font-bold tabular-nums">{data.totalWords.toLocaleString(locale)}</p>
             <p className="text-lg text-muted-foreground">{t.bookUI.wordsThisYear}</p>
             <p className="text-xs text-muted-foreground mt-4">
-              That&apos;s {Math.round(data.totalWords / 250)} pages &mdash;
-              {data.totalWords >= 80000 ? " a full novel!" :
-               data.totalWords >= 50000 ? " almost a novel!" :
-               data.totalWords >= 20000 ? " a strong novella!" :
-               " and every word counts!"}
+              {t.bookUI.thatsPages.replace(
+                "{pages}",
+                String(Math.round(data.totalWords / 250))
+              )}
+              {data.totalWords >= 80000
+                ? t.bookUI.novelFull
+                : data.totalWords >= 50000
+                  ? t.bookUI.novelAlmost
+                  : data.totalWords >= 20000
+                    ? t.bookUI.novellaStrong
+                    : t.bookUI.everyWordCounts}
             </p>
           </div>
         ),
@@ -125,7 +131,10 @@ export function YearInWritingWrapped({ data, authorName }: YearInWritingWrappedP
               <p className="text-lg text-muted-foreground">{t.bookUI.daysInARow}</p>
             </div>
             <p className="text-xs text-muted-foreground">
-              You showed up {data.totalDaysWriting} out of 365 days
+              {t.bookUI.showedUpDays.replace(
+                "{days}",
+                String(data.totalDaysWriting)
+              )}
             </p>
           </div>
         ),
@@ -145,8 +154,12 @@ export function YearInWritingWrapped({ data, authorName }: YearInWritingWrappedP
               <p className="text-sm text-muted-foreground">{t.bookUI.youAreA}</p>
               <p className="text-3xl font-bold">{timeOfDay.label}</p>
               <p className="text-sm text-muted-foreground mt-2">
-                Most of your writing happens around {favoriteHour > 12 ? favoriteHour - 12 : favoriteHour}
-                {favoriteHour >= 12 ? "pm" : "am"}
+                {t.bookUI.writingHappensAround.replace(
+                  "{time}",
+                  `${favoriteHour > 12 ? favoriteHour - 12 : favoriteHour}${
+                    favoriteHour >= 12 ? "pm" : "am"
+                  }`
+                )}
               </p>
             </div>
           </div>
@@ -163,7 +176,10 @@ export function YearInWritingWrapped({ data, authorName }: YearInWritingWrappedP
             <p className="text-sm text-muted-foreground">{t.bookUI.peakMonthWas}</p>
             <p className="text-4xl font-bold">{peakMonthName}</p>
             <p className="text-sm text-muted-foreground">
-              {data.wordsPerMonth[data.peakMonth]?.toLocaleString(locale)} words
+              {t.bookUI.wordsCount.replace(
+                "{count}",
+                data.wordsPerMonth[data.peakMonth]?.toLocaleString(locale) ?? "0"
+              )}
             </p>
             <div className="flex items-end gap-1 h-16 mt-4">
               {data.wordsPerMonth.map((w, i) => (

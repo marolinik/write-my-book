@@ -71,7 +71,12 @@ export function GoalProgressCard({
                 <span className="flex items-center gap-1 text-green-500 font-medium">
                   <CheckIcon className="size-3" />{t.bookUI.complete}</span>
               ) : (
-                <span>{(target - current).toLocaleString(locale)} remaining</span>
+                <span>
+                  {t.bookUI.wordsRemaining.replace(
+                    "{count}",
+                    (target - current).toLocaleString(locale)
+                  )}
+                </span>
               )}
             </div>
           </>

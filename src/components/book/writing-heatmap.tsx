@@ -128,12 +128,12 @@ export function WritingHeatmap({
           <div className="flex gap-2">
             <Badge variant="secondary" className="text-[10px] gap-1">
               <FlameIcon className="size-3" />
-              {currentStreak}d streak
+              {t.bookUI.streakDays.replace("{count}", String(currentStreak))}
             </Badge>
             {bestStreak > currentStreak && (
               <Badge variant="outline" className="text-[10px] gap-1">
                 <TrendingUpIcon className="size-3" />
-                Best: {bestStreak}d
+                {t.bookUI.bestStreakBadge.replace("{count}", String(bestStreak))}
               </Badge>
             )}
           </div>
@@ -182,7 +182,12 @@ export function WritingHeatmap({
                       />
                     </TooltipTrigger>
                     <TooltipContent side="top" className="text-xs">
-                      <p className="font-medium">{day.words.toLocaleString(locale)} words</p>
+                      <p className="font-medium">
+                        {t.bookUI.wordsCount.replace(
+                          "{count}",
+                          day.words.toLocaleString(locale)
+                        )}
+                      </p>
                       <p className="text-muted-foreground">
                         {new Date(day.date).toLocaleDateString(locale, {
                           weekday: "short",
@@ -208,9 +213,21 @@ export function WritingHeatmap({
             <span>{t.appUI.more}</span>
           </div>
           <div className="flex gap-3 text-[10px] text-muted-foreground">
-            <span>{totalWords.toLocaleString(locale)} words total</span>
-            <span>{activeDays} active days</span>
-            <span>{avgWords.toLocaleString(locale)} avg/day</span>
+            <span>
+              {t.bookUI.wordsTotal.replace(
+                "{count}",
+                totalWords.toLocaleString(locale)
+              )}
+            </span>
+            <span>
+              {t.bookUI.activeDaysCount.replace("{count}", String(activeDays))}
+            </span>
+            <span>
+              {t.bookUI.avgPerDay.replace(
+                "{count}",
+                avgWords.toLocaleString(locale)
+              )}
+            </span>
           </div>
         </div>
       </CardContent>

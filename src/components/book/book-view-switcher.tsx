@@ -217,7 +217,10 @@ export function BookViewSwitcher({
                           </TooltipTrigger>
                           <TooltipContent>
                             {/* TODO: Enrich tooltip with last scored date and iteration count — requires AgentSession query (deferred) */}
-                            Beta score: {ch.betaScore.toFixed(1)} / 10
+                            {t.bookUI.betaScoreTooltip.replace(
+                              "{score}",
+                              ch.betaScore.toFixed(1)
+                            )}
                           </TooltipContent>
                         </Tooltip>
                       ) : (

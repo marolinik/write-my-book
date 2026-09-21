@@ -53,7 +53,12 @@ export function WritingWrappedCard({ authorName }: { authorName?: string }) {
         <div className="flex items-center gap-3">
           <SparklesIcon className="size-5 text-primary" />
           <div>
-            <p className="text-sm font-medium">{new Date().getFullYear()} Year in Writing</p>
+            <p className="text-sm font-medium">
+              {t.bookUI.yearInWriting.replace(
+                "{year}",
+                String(new Date().getFullYear())
+              )}
+            </p>
             <p className="text-xs text-muted-foreground">{t.appUI.wrappedHint}</p>
           </div>
         </div>

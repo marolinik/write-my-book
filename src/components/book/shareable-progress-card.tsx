@@ -96,7 +96,9 @@ export function ShareableProgressCard({
         <div className="text-center">
           <p className="text-lg font-serif font-semibold italic">"{bookTitle}"</p>
           {authorName && (
-            <p className="text-sm text-muted-foreground">by {authorName}</p>
+            <p className="text-sm text-muted-foreground">
+              {t.bookUI.byAuthor.replace("{author}", authorName)}
+            </p>
           )}
         </div>
 

@@ -163,10 +163,11 @@ export function ChapterPipeline({ bookId, initialChapters, language = "en" }: Ch
           <div className="rounded-md border border-l-4 border-l-primary bg-card px-2.5 py-2 shadow-lg">
             <div className="flex items-baseline gap-1.5">
               <span className="text-xs font-mono text-muted-foreground">
-                Ch.{activeChapter.chapterNumber}
+                {t.agentUI.chapterAbbrev}
+                {activeChapter.chapterNumber}
               </span>
               <p className="text-xs font-medium truncate">
-                {activeChapter.title || "Untitled"}
+                {activeChapter.title || t.appUI.untitled}
               </p>
             </div>
           </div>

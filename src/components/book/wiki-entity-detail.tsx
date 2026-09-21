@@ -252,7 +252,7 @@ export function WikiEntityDetail({
                 onClick={addAttribute}
               >
                 <PlusIcon className="size-4 mr-1" />
-                Add
+                {t.common.add}
               </Button>
             </div>
             <div className="space-y-2">

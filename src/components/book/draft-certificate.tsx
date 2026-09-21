@@ -89,9 +89,14 @@ export function DraftCertificate({
         <div className="space-y-1">
           <div className="h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent" />
           <p className="text-xs text-muted-foreground">
-            Completed on {new Date(completionDate).toLocaleDateString(locale, {
-              year: "numeric", month: "long", day: "numeric",
-            })}
+            {t.bookUI.completedOn.replace(
+              "{date}",
+              new Date(completionDate).toLocaleDateString(locale, {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })
+            )}
           </p>
           <p className="text-[9px] text-muted-foreground/50">WriteMyBook &bull; writemybook.com</p>
         </div>

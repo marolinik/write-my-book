@@ -33,12 +33,8 @@ const CLEAN_AREAS = [
   join("components", "style"),
   join("components", "memory"),
   join("components", "settings"),
-  join("components", "agent"),
   join("components", "billing"),
-  join("components", "import-export"),
   join("components", "onboarding"),
-  join("components", "reports"),
-  join("components", "series"),
   join("components", "layout"),
   join("app", "(app)"),
 ];
@@ -185,17 +181,29 @@ function englishAttributes(file: string): string[] {
  * covers everything the list above does, the regex scan is deleted.
  */
 const PARSED_CLEAN_AREAS: string[] = [
+  join("components", "agent"),
   join("components", "billing"),
+  join("components", "book"),
   join("components", "editorial"),
+  join("components", "import-export"),
   join("components", "layout"),
   join("components", "memory"),
   join("components", "onboarding"),
+  join("components", "reports"),
+  join("components", "series"),
   join("components", "settings"),
   join("components", "style"),
 ];
 
 /** `&middot;`, `&mdash;`, `&nbsp;` — a glyph spelled out, not a word. */
 const HTML_ENTITY = /&(?:#\d+|[a-zA-Z]+);/g;
+
+/**
+ * The product's own name and its own domain. They appear together in the
+ * footer of the draft certificate and the year-in-writing card, which are
+ * images a writer shares — the line is a signature, not a sentence.
+ */
+const BRAND = /\bWriteMyBook\b|\b[\w-]+\.(?:com|net|org|io|app)\b/g;
 
 function englishJsxText(file: string): string[] {
   const source = readFileSync(file, "utf-8");
@@ -211,9 +219,8 @@ function englishJsxText(file: string): string[] {
   const visit = (node: ts.Node): void => {
     if (ts.isJsxText(node)) {
       const text = node.text.replace(/\s+/g, " ").trim();
-      const words = text.replace(HTML_ENTITY, " ");
-      // The product's own name is the product's own name in every language.
-      if (words.trim() !== "WriteMyBook" && /[a-z]/.test(words) && /[A-Za-z]{2}/.test(words)) {
+      const words = text.replace(HTML_ENTITY, " ").replace(BRAND, " ");
+      if (/[a-z]/.test(words) && /[A-Za-z]{2}/.test(words)) {
         const { line } = parsed.getLineAndCharacterOfPosition(node.getStart());
         found.push(`${file.slice(SRC.length + 1)}:${line + 1} — ${text.slice(0, 70)}`);
       }

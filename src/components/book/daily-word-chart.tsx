@@ -78,7 +78,10 @@ export function DailyWordChart({ data }: DailyWordChartProps) {
                     <div className="rounded-lg border bg-popover px-3 py-2 text-sm shadow-md">
                       <p className="font-medium">{formatTooltipDate(item.date, locale)}</p>
                       <p className="text-muted-foreground">
-                        {item.words.toLocaleString(locale)} words
+                        {t.bookUI.wordsCount.replace(
+                          "{count}",
+                          item.words.toLocaleString(locale)
+                        )}
                       </p>
                     </div>
                   );

@@ -156,7 +156,7 @@ export function CorkboardView({ bookId, chapters: initialChapters, onReorder }: 
                 <div className="flex items-center gap-1.5">
                   <GripVerticalIcon className="size-3.5 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors" />
                   <span className="text-xs font-medium">
-                    Ch. {ch.chapterNumber}
+                    {t.agentUI.chapterAbbrev} {ch.chapterNumber}
                   </span>
                 </div>
                 <div
@@ -170,12 +170,21 @@ export function CorkboardView({ bookId, chapters: initialChapters, onReorder }: 
                 href={`/books/${bookId}/chapters/${ch.id}`}
                 className="block text-sm font-medium line-clamp-2 hover:text-primary transition-colors min-h-[2.5rem]"
               >
-                {ch.title || `Chapter ${ch.chapterNumber}`}
+                {ch.title ||
+                  t.editorialUI.chapterRef.replace(
+                    "{n}",
+                    String(ch.chapterNumber)
+                  )}
               </Link>
 
               {/* Footer: word count + status */}
               <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-                <span>{ch.wordCount.toLocaleString(locale)} words</span>
+                <span>
+                  {t.bookUI.wordsCount.replace(
+                    "{count}",
+                    ch.wordCount.toLocaleString(locale)
+                  )}
+                </span>
                 <Badge variant="outline" className="text-[8px] px-1 py-0 capitalize">
                   {STATUS_LABELS[ch.status] ?? ch.status}
                 </Badge>

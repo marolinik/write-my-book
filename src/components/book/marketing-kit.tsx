@@ -147,7 +147,10 @@ export function MarketingKit({ bookId, bookTitle }: MarketingKitProps) {
             {t.bookUI.marketingKitTitle} — {bookTitle}
           </CardTitle>
           <Badge variant="outline" className="text-[10px]">
-            Generated {new Date(data.generatedAt).toLocaleDateString(locale)}
+            {t.bookUI.generatedOn.replace(
+              "{date}",
+              new Date(data.generatedAt).toLocaleDateString(locale)
+            )}
           </Badge>
         </div>
       </CardHeader>
@@ -191,7 +194,9 @@ export function MarketingKit({ bookId, bookTitle }: MarketingKitProps) {
             {data.socialPosts.map((post, i) => (
               <div key={i} className="space-y-1">
                 <div className="flex items-start justify-between">
-                  <Badge variant="outline" className="text-[10px]">Post {i + 1}</Badge>
+                  <Badge variant="outline" className="text-[10px]">
+                    {t.bookUI.postNumber.replace("{n}", String(i + 1))}
+                  </Badge>
                   <CopyButton text={post} />
                 </div>
                 <div className="text-sm bg-muted/30 rounded-md p-3 whitespace-pre-line">

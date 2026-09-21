@@ -56,10 +56,14 @@ export function StoryRadar({ bookId }: StoryRadarProps) {
             <RadarIcon className="size-4" />{t.bookUI.storyRadar}</CardTitle>
           <div className="flex items-center gap-2">
             {criticalCount > 0 && (
-              <Badge variant="destructive" className="text-[10px]">{criticalCount} critical</Badge>
+              <Badge variant="destructive" className="text-[10px]">
+                {t.bookUI.criticalCount.replace("{count}", String(criticalCount))}
+              </Badge>
             )}
             {warningCount > 0 && (
-              <Badge className="text-[10px] bg-amber-500/10 text-amber-600 border-amber-300">{warningCount} warnings</Badge>
+              <Badge className="text-[10px] bg-amber-500/10 text-amber-600 border-amber-300">
+                {t.bookUI.warningsCount.replace("{count}", String(warningCount))}
+              </Badge>
             )}
             {data && issues.length === 0 && (
               <Badge variant="secondary" className="text-[10px] text-green-600">{t.appUI.allClear}</Badge>
@@ -78,7 +82,7 @@ export function StoryRadar({ bookId }: StoryRadarProps) {
         {isLoading ? (
           <div className="flex items-center gap-2 text-xs text-muted-foreground py-4 justify-center">
             <Loader2Icon className="size-3 animate-spin" />
-            Checking pacing &amp; staleness...
+            {t.bookUI.checkingPacing}
           </div>
         ) : isError ? (
           <div className="flex flex-col items-center gap-2 py-4 text-center">

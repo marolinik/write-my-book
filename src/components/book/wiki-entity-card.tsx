@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import {
   UserIcon,
   MapPinIcon,
@@ -28,6 +29,7 @@ interface WikiEntityCardProps {
 }
 
 export function WikiEntityCard({ entity, onClick, typeLabels }: WikiEntityCardProps) {
+  const { t } = useLanguage();
   const config = TYPE_CONFIG[entity.type] ?? TYPE_CONFIG.custom;
   const Icon = config.icon;
   const displayLabel = typeLabels?.[entity.type] ?? config.label;
@@ -51,7 +53,10 @@ export function WikiEntityCard({ entity, onClick, typeLabels }: WikiEntityCardPr
             </div>
             {entity.aliases.length > 0 && (
               <p className="text-xs text-muted-foreground mt-0.5 truncate">
-                aka {entity.aliases.join(", ")}
+                {t.bookUI.alsoKnownAs.replace(
+                  "{aliases}",
+                  entity.aliases.join(", ")
+                )}
               </p>
             )}
             {entity.description && (

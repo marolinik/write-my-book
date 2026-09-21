@@ -119,7 +119,7 @@ export function StoryHealthDashboard({ bookId }: StoryHealthDashboardProps) {
           <CardTitle className="text-sm flex items-center gap-2">
             <HeartPulseIcon className="size-4" />{t.bookUI.storyHealth}</CardTitle>
           <Badge className={`${statusBg} ${statusColor} border-0 text-xs`}>
-            {overallScore}% healthy
+            {t.bookUI.percentHealthy.replace("{percent}", String(overallScore))}
           </Badge>
         </div>
       </CardHeader>
