@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/components/providers/language-provider";
+import { countWithNoun } from "@/lib/i18n/plural";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Search, Replace, Loader2 } from "lucide-react";
@@ -44,7 +45,7 @@ export function FindReplaceDialog({
   bookId,
   chapterId,
 }: FindReplaceDialogProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [find, setFind] = useState("");
   const [replace, setReplace] = useState("");
   const [scope, setScope] = useState<Scope>("chapter");
@@ -234,20 +235,30 @@ export function FindReplaceDialog({
           <div className="rounded-md border">
             <div className="border-b px-3 py-2 text-sm text-muted-foreground">
               {!showPreview ? (
-                "Type at least 2 characters to preview matches."
+                t.editorChrome.previewHint
               ) : search.isLoading ? (
                 <span className="inline-flex items-center gap-2">
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />{t.editorChrome.searching}</span>
               ) : search.isError ? (
                 <span className="text-destructive">{t.editorUI.searchFailed}</span>
               ) : visibleCount === 0 ? (
-                "No matches found."
+                t.editorChrome.noMatches
               ) : (
-                `${visibleCount} ${
-                  visibleCount === 1 ? "match" : "matches"
-                } in ${visibleHits.length} ${
-                  visibleHits.length === 1 ? "chapter" : "chapters"
-                }`
+                t.editorChrome.matchesInChapters
+                  .replace(
+                    "{matches}",
+                    countWithNoun(visibleCount, t.editorChrome.matchOne, t.editorChrome.matchMany, {
+                      few: t.editorChrome.matchFew,
+                      language,
+                    })
+                  )
+                  .replace(
+                    "{chapters}",
+                    countWithNoun(visibleHits.length, t.setup.chapterOne, t.setup.chapterMany, {
+                      few: t.setup.chapterFew,
+                      language,
+                    })
+                  )
               )}
             </div>
             {showPreview && visibleHits.length > 0 && (

@@ -7,6 +7,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { VersionHistoryPanel } from "./version-history-panel";
+import { useLanguage } from "@/components/providers/language-provider";
 
 interface VersionHistorySheetProps {
   open: boolean;
@@ -23,12 +24,16 @@ export function VersionHistorySheet({
   documentId,
   documentTitle,
 }: VersionHistorySheetProps) {
+  const { t } = useLanguage();
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-72 p-0">
         <SheetHeader className="px-3 pt-4 pb-0">
           <SheetTitle className="text-sm">
-            {documentTitle ? `History: ${documentTitle}` : "Version History"}
+            {documentTitle
+              ? t.editorChrome.historyOf.replace("{title}", documentTitle)
+              : t.editorUI.versionHistory}
           </SheetTitle>
         </SheetHeader>
         <div className="flex-1 overflow-hidden h-[calc(100%-3rem)]">

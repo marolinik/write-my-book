@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/components/providers/language-provider";
+import { findingSeverityLabel } from "@/lib/i18n/finding-labels";
 import { useEffect, useRef } from "react";
 import { Badge } from "@/components/ui/badge";
 import type { FindingItem } from "@/hooks/use-editorial";
@@ -43,7 +44,7 @@ export function OverlappingFindingsPopover({
   onSelect,
   onClose,
 }: OverlappingFindingsPopoverProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const popoverRef = useRef<HTMLDivElement>(null);
   const firstRowRef = useRef<HTMLButtonElement>(null);
   const editableRef = useRef<HTMLElement | null>(null);
@@ -131,7 +132,12 @@ export function OverlappingFindingsPopover({
                 SEVERITY_DOT_COLORS.minor
               }`}
             />
-            <span className="sr-only">{`${finding.severity} severity`}</span>
+            <span className="sr-only">
+              {t.editorChrome.severityAnnounce.replace(
+                "{severity}",
+                findingSeverityLabel(finding.severity, language)
+              )}
+            </span>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5">
                 <Badge variant="secondary" className="text-[10px] px-1.5 py-0">

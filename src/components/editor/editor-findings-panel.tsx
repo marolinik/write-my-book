@@ -221,13 +221,13 @@ export function EditorFindingsPanel({
         <div className="flex flex-col items-center justify-center gap-2 p-6 text-center flex-1">
           <p className="text-sm text-muted-foreground">
             {hasActiveFilters
-              ? "No findings match the current filters"
-              : "No findings for this chapter"}
+              ? t.editorChrome.noFindingsMatch
+              : t.editorChrome.noFindingsChapter}
           </p>
           <p className="text-xs text-muted-foreground">
             {hasActiveFilters
-              ? "Try adjusting or resetting the filters"
-              : "Run an editorial workflow to generate findings"}
+              ? t.editorChrome.adjustFilters
+              : t.editorChrome.runWorkflowForFindings}
           </p>
         </div>
       ) : (

@@ -178,7 +178,7 @@ export function AIRewriteComparison({
               className="h-7 text-[10px]"
               onClick={() => setShowDiff(!showDiff)}
             >
-              {showDiff ? "Hide diff" : "Show diff"}
+              {showDiff ? t.editorChrome.hideDiff : t.editorChrome.showDiff}
             </Button>
             {onRegenerate && (
               <Button
@@ -200,7 +200,7 @@ export function AIRewriteComparison({
               <XIcon className="size-3 mr-1" />{t.common.reject}</Button>
             <Button size="sm" onClick={() => onAccept(editing ? draft : rewrite, editing)}>
               <CheckIcon className="size-3 mr-1" />
-              {editing ? "Use edited" : "Accept Rewrite"}
+              {editing ? t.editorChrome.useEdited : t.editorChrome.acceptRewrite}
             </Button>
           </div>
         </div>

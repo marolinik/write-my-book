@@ -201,6 +201,7 @@ function englishJsxText(file: string): string[] {
 const EXPRESSION_CLEAN_AREAS: string[] = [
   join("components", "agent"),
   join("components", "book"),
+  join("components", "editor"),
   join("components", "editorial"),
   join("components", "import-export"),
   join("components", "journey"),
@@ -373,8 +374,9 @@ describe("the dictionaries behind the localized areas", () => {
     sr: ["docAgent", "minutesAbbrev", "fleschKincaid", "gunningFog", "colemanLiau", "enterprise"],
     de: [
       "focusThemeSepia", "lensRegister",
-      // "Version" and "Agent" are spelled the same in German.
-      "docVersion", "docAgent",
+      // "Version" and "Agent" are spelled the same in German, and "{matches}
+      // in {chapters}" needs no other preposition.
+      "docVersion", "docAgent", "versionN", "matchesInChapters",
       "stepOptional", "syntax", "focusNormal", "upgrade", "name", "median",
       "register", "fleschKincaid", "gunningFog", "colemanLiau",
       "contextEditor", "themeSystem", "ghostwriter", "coach", "analyst",
@@ -390,8 +392,9 @@ describe("the dictionaries behind the localized areas", () => {
       "coverCropPositionV", "enterprise",
     ],
     fr: [
-      // "session" and "documents" are the French words, spelled the same.
-      "minutesAbbrev", "sessionOne", "sessionFew", "sessionMany", "documentsCount",
+      // "session", "documents" and "Version" are the French words, spelled
+      // the same.
+      "versionN", "minutesAbbrev", "sessionOne", "sessionFew", "sessionMany", "documentsCount",
       "insightSuggestion", "focusNormal", "seriesTabDocuments", "seriesTabStructure",
       "type", "dialogue", "distribution", "fleschKincaid", "gunningFog", "colemanLiau",
       "architecture", "documents", "sessionsUnit", "coach", "styleSection",

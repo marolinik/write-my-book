@@ -200,8 +200,10 @@ export function VersionHistoryPanel({
           <DialogHeader>
             <DialogTitle>
               {isCompareMode
-                ? `Compare v${compareVersion} → v${latestVersion}`
-                : `Version ${viewVersion}`}
+                ? t.editorChrome.compareVersions
+                    .replace("{from}", String(compareVersion))
+                    .replace("{to}", String(latestVersion))
+                : t.editorChrome.versionN.replace("{n}", String(viewVersion))}
             </DialogTitle>
           </DialogHeader>
           <ScrollArea className="flex-1 mt-2">

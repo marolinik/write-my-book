@@ -5,6 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { WordTargetPopover } from "@/components/editor/word-target-popover";
 import { useChapters } from "@/hooks/use-chapters";
 import { useLanguage } from "@/components/providers/language-provider";
+import { pluralNoun } from "@/lib/i18n/plural";
 import { getStatusLabel, localeFor } from "@/lib/i18n/ui-strings";
 
 const STATUS_COLORS: Record<string, string> = {
@@ -88,7 +89,11 @@ export function ChapterContextHeader({
             {liveTarget
               ? ` / ${liveTarget.toLocaleString(localeFor(language))}`
               : ""}
-            {" words"}
+            {" "}
+            {pluralNoun(wordCount, t.editorChrome.wordOne, t.editorChrome.wordMany, {
+              few: t.editorChrome.wordFew,
+              language,
+            })}
           </span>
         )}
         {progress !== null && (

@@ -439,7 +439,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
                 <Columns2 className="h-4 w-4" />
               )
             }
-            label={ctx.splitMode ? "Chapter Only" : "Split View"}
+            label={ctx.splitMode ? ctx.t.chapterOnly : ctx.t.splitView}
             isActive={ctx.splitMode}
             pressed={!!ctx.splitMode}
             onClick={ctx.onToggleSplit}
@@ -481,7 +481,9 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
             <Wand2 className="mr-2 h-4 w-4" />
             <span className="flex flex-col">
               <span>
-                {ctx.ghostTextEnabled ? "Disable AI Ghost Text" : "Enable AI Ghost Text"}
+                {ctx.ghostTextEnabled
+                  ? ctx.t.disableGhostText
+                  : ctx.t.enableGhostText}
               </span>
               {/* D-127: point-of-use disclosure for the quick-assist model substitution */}
               <span className="text-[10px] text-muted-foreground">
@@ -501,7 +503,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
             ) : (
               <Columns2 className="mr-2 h-4 w-4" />
             )}
-            {ctx.splitMode ? "Chapter Only" : "Split View"}
+            {ctx.splitMode ? ctx.t.chapterOnly : ctx.t.splitView}
           </DropdownMenuItem>
         )}
       </>
@@ -796,7 +798,7 @@ export function EditorToolbar({
         {isSaving ? (
           <Badge variant="secondary" className="gap-1 text-xs font-normal">
             <Loader2 className="h-3 w-3 animate-spin" />
-            {isCompact ? <span className="sr-only">{ctx.t.saving}</span> : "Saving..."}
+            {isCompact ? <span className="sr-only">{ctx.t.saving}</span> : ctx.t.saving}
           </Badge>
         ) : isDirty ? (
           <Badge
@@ -804,7 +806,7 @@ export function EditorToolbar({
             className="gap-1 text-xs font-normal text-amber-600 dark:text-amber-400 border-amber-300 dark:border-amber-700"
           >
             <AlertCircle className="h-3 w-3" />
-            {isCompact ? <span className="sr-only">{ctx.t.unsaved}</span> : "Unsaved"}
+            {isCompact ? <span className="sr-only">{ctx.t.unsaved}</span> : ctx.t.unsaved}
           </Badge>
         ) : lastSaved ? (
           <Badge
@@ -812,7 +814,7 @@ export function EditorToolbar({
             className="gap-1 text-xs font-normal text-green-600 dark:text-green-400 border-green-300 dark:border-green-700"
           >
             <Check className="h-3 w-3" />
-            {isCompact ? <span className="sr-only">{ctx.t.saved}</span> : "Saved"}
+            {isCompact ? <span className="sr-only">{ctx.t.saved}</span> : ctx.t.saved}
           </Badge>
         ) : null}
       </div>

@@ -88,7 +88,10 @@ export function AmbientSeriesPanel({ bookId, chapterNumber, onClose }: AmbientSe
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">{c.name}</span>
                         <Badge variant="outline" className="text-[9px]">
-                          B{c.lastBook}{c.lastChapter != null ? `·Ch${c.lastChapter}` : ""}
+                          B{c.lastBook}
+                          {c.lastChapter != null
+                            ? ` · ${t.agentUI.chapterAbbrev}${c.lastChapter}`
+                            : ""}
                         </Badge>
                       </div>
                       <p className="text-[11px] text-muted-foreground">

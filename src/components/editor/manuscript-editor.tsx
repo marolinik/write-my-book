@@ -1135,7 +1135,7 @@ export function ManuscriptEditor({
             }}
             className="hover:text-foreground transition-colors truncate"
           >
-            {bookName ?? "Book"}
+            {bookName ?? t.appUI.untitled}
           </Link>
           <span>/</span>
           <span className="text-foreground font-medium truncate">
