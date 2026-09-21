@@ -38,7 +38,12 @@ function emptyTurnResponse() {
 }
 
 type RouteParams = { params: Promise<{ id: string; findingId: string }> };
-const bodySchema = z.object({ writerMessage: z.string().min(1).max(2000) });
+// D1: the writer picks how long they are willing to wait. Absent means the
+// considered turn, so nobody who says nothing has their answer changed.
+const bodySchema = z.object({
+  writerMessage: z.string().min(1).max(2000),
+  mode: z.enum(["quick", "considered"]).optional(),
+});
 
 async function loadOwnedFinding(userId: string, bookId: string, findingId: string) {
   // C-5: the language comes along, because this loop writes prose into the
@@ -84,7 +89,7 @@ export async function POST(req: Request, { params }: RouteParams) {
   try {
     const user = await requireUser();
     const { id: bookId, findingId } = await params;
-    const { writerMessage } = bodySchema.parse(await parseJsonBody(req));
+    const { writerMessage, mode } = bodySchema.parse(await parseJsonBody(req));
 
     const owned = await loadOwnedFinding(user.id, bookId, findingId);
     if (owned.error) return owned.error;
@@ -239,6 +244,7 @@ export async function POST(req: Request, { params }: RouteParams) {
         bookId,
         signal: req.signal,
         onUsageRecorded,
+        mode,
       });
     } catch (streamErr) {
       if (req.signal.aborted || (streamErr as Error)?.name === "AbortError") {
@@ -298,7 +304,7 @@ export async function POST(req: Request, { params }: RouteParams) {
     }
 
     // Fallback (constraint #5): today's blocking turn, byte-identical 200 body.
-    const raw = await runDiscussTurn({ system, user: userPrompt, userId: user.id, bookId, onUsageRecorded });
+    const raw = await runDiscussTurn({ system, user: userPrompt, userId: user.id, bookId, onUsageRecorded, mode });
     // D-176: the thread now offers Cancel during the wait, and its copy promises
     // that nothing is saved and no exchange is consumed. On the streamed path the
     // abort travels into the provider call; on this blocking path it cannot (no

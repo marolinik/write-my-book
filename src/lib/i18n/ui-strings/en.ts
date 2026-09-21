@@ -1509,6 +1509,9 @@ export const EN: UIStrings = {
     statusDone: "done",
     statusFailed: "failed",
     statusCancelled: "cancelled",
+    quickTake: "Quick take",
+    consideredTake: "Think it through",
+    takeHint: "A quick take skips the model's thinking phase. It answers in seconds and is shallower.",
   },
 
   editorChrome: {

@@ -7,6 +7,7 @@ import {
   type DiscussTurnResult,
 } from "@/lib/editorial/discuss-stream-client";
 import { DISCUSS_TURN_CANCELLED } from "@/lib/editorial/discuss-turn-notice";
+import type { DiscussMode } from "@/lib/editorial/discuss-mode";
 
 export interface DiscussionReply {
   role: "user" | "assistant";
@@ -63,7 +64,13 @@ export function useFindingDiscussion(bookId: string, findingId: string) {
   });
 
   const mutation = useMutation({
-    mutationFn: async (writerMessage: string): Promise<DiscussTurnResult> => {
+    mutationFn: async (
+      input: string | { writerMessage: string; mode?: DiscussMode }
+    ): Promise<DiscussTurnResult> => {
+      // D1: a bare string is still a considered turn, so every existing
+      // caller keeps the behaviour it had.
+      const { writerMessage, mode } =
+        typeof input === "string" ? { writerMessage: input, mode: undefined } : input;
       const controller = new AbortController();
       abortRef.current = controller;
       cancelledRef.current = false;
@@ -71,7 +78,7 @@ export function useFindingDiscussion(bookId: string, findingId: string) {
         const res = await fetch(`/api/books/${bookId}/editorial/findings/${findingId}/discuss`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ writerMessage }),
+          body: JSON.stringify({ writerMessage, mode }),
           signal: controller.signal,
         });
         if (res.status === 429) throw new Error("rate_limited");
@@ -104,7 +111,8 @@ export function useFindingDiscussion(bookId: string, findingId: string) {
       }
     },
     // Optimistic append of the writer's message.
-    onMutate: async (writerMessage) => {
+    onMutate: async (input) => {
+      const writerMessage = typeof input === "string" ? input : input.writerMessage;
       await qc.cancelQueries({ queryKey: key });
       setStreamingText("");
       setTurnActive(true);

@@ -1498,6 +1498,9 @@ export const FR: UIStrings = {
     statusDone: "terminé",
     statusFailed: "en échec",
     statusCancelled: "annulé",
+    quickTake: "Réponse rapide",
+    consideredTake: "Qu'il y réfléchisse",
+    takeHint: "Une réponse rapide saute la phase de réflexion du modèle. Elle arrive en quelques secondes et reste plus superficielle.",
   },
 
   editorChrome: {

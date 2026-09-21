@@ -1498,6 +1498,9 @@ export const SR: UIStrings = {
     statusDone: "završeno",
     statusFailed: "neuspelo",
     statusCancelled: "otkazano",
+    quickTake: "Brz odgovor",
+    consideredTake: "Neka promisli",
+    takeHint: "Brz odgovor preskače fazu razmišljanja modela. Stiže za nekoliko sekundi i plići je.",
   },
 
   editorChrome: {

@@ -1439,6 +1439,9 @@ export interface UIStrings {
     statusDone: string;
     statusFailed: string;
     statusCancelled: string;
+    quickTake: string;
+    consideredTake: string;
+    takeHint: string;
   };
 
   // H-10 - the editor's own chrome: status bar, find-and-replace, pacing and

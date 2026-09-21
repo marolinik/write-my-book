@@ -1498,6 +1498,9 @@ export const ZH: UIStrings = {
     statusDone: "已完成",
     statusFailed: "失败",
     statusCancelled: "已取消",
+    quickTake: "快速回答",
+    consideredTake: "让它细想",
+    takeHint: "快速回答会跳过模型的思考阶段：几秒就到，但更浅。",
   },
 
   editorChrome: {

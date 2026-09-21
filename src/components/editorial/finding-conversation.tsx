@@ -16,6 +16,7 @@ import {
   formatWaitElapsed,
 } from "@/lib/editorial/discuss-wait-phase";
 import { discussTurnNotice, type DiscussTurnNotice } from "@/lib/editorial/discuss-turn-notice";
+import { DEFAULT_DISCUSS_MODE, type DiscussMode } from "@/lib/editorial/discuss-mode";
 
 interface FindingLite {
   id: string;
@@ -104,18 +105,23 @@ export function FindingConversation({
     };
   }, [turnActive, onTurnActiveChange]);
 
+  // D1: the writer chooses how long they are willing to wait. The default
+  // is the turn discuss has always run, so nobody's answer changes unless
+  // they ask for it.
+  const [mode, setMode] = useState<DiscussMode>(DEFAULT_DISCUSS_MODE);
+
   const handleSend = useCallback(
     async (message: string) => {
       setNotice(null);
       try {
-        await send(message);
+        await send({ writerMessage: message, mode });
       } catch (err) {
         setNotice(discussTurnNotice(err));
         // Rethrow so the composer restores the writer's text for a retry.
         throw err;
       }
     },
-    [send]
+    [send, mode]
   );
 
   /** D-183: nothing may settle the finding while a turn is still in flight. */
@@ -320,11 +326,42 @@ export function FindingConversation({
 
       {/* Input or cap notice */}
       {canDiscuss ? (
-        <ConversationInput
-          onSend={handleSend}
-          disabled={turnActive}
-          placeholder={t.appUI.explainIntent}
-        />
+        <div className="space-y-2">
+          <div
+            role="radiogroup"
+            aria-label={t.editorialUI.takeHint}
+            className="inline-flex rounded-md border p-0.5"
+          >
+            {([
+              { value: "quick" as const, label: t.editorialUI.quickTake },
+              { value: "considered" as const, label: t.editorialUI.consideredTake },
+            ]).map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                role="radio"
+                aria-checked={mode === option.value}
+                disabled={turnActive}
+                onClick={() => setMode(option.value)}
+                className={`rounded-sm px-2 py-1 text-xs transition-colors ${
+                  mode === option.value
+                    ? "bg-secondary text-secondary-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+          <p className="max-w-[60ch] text-[11px] text-muted-foreground">
+            {t.editorialUI.takeHint}
+          </p>
+          <ConversationInput
+            onSend={handleSend}
+            disabled={turnActive}
+            placeholder={t.appUI.explainIntent}
+          />
+        </div>
       ) : (
         <p className="text-xs text-muted-foreground">{t.editorialUI.capReached}</p>
       )}

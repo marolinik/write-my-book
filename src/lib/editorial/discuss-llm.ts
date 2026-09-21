@@ -7,6 +7,11 @@ import {
   type QuickAssistMessageStream,
 } from "@/lib/llm/quick-assist-stream";
 import { getDefaultModelId } from "@/lib/llm/defaults";
+import {
+  discussModelFor,
+  DEFAULT_DISCUSS_MODE,
+  type DiscussMode,
+} from "./discuss-mode";
 
 /** Token budget for one discuss turn. Reasoning models (the mission's qwen via
  *  OpenRouter) emit thinking blocks that count against max_tokens BEFORE any
@@ -59,6 +64,13 @@ export interface DiscussTurnArgs {
    * rather than counted as the writer's spend.
    */
   onUsageRecorded?: (usageRecordId: string) => void;
+  /**
+   * D1: `quick` routes this turn around the reasoning slot the way
+   * quick-assist does, trading depth for the 19-48 second wall. Absent
+   * means the considered turn, which is exactly what discuss has always
+   * done — the default does not move under anyone.
+   */
+  mode?: DiscussMode;
 }
 
 /**
@@ -66,7 +78,7 @@ export interface DiscussTurnArgs {
  * streamed and blocking paths resolve the SAME client and the SAME registry
  * model id (D-44) — there is no second place for provider routing to drift.
  */
-async function resolveDiscussClient(userId: string) {
+async function resolveDiscussClient(userId: string, mode: DiscussMode = DEFAULT_DISCUSS_MODE) {
   const userKeys = await db.apiKey.findMany({
     where: { userId, validatedAt: { not: null } },
     select: { provider: true, encryptedKey: true },
@@ -85,7 +97,7 @@ async function resolveDiscussClient(userId: string) {
     where: { id: userId },
     select: { defaultModel: true },
   });
-  const cheapModel = resolveCheapModelFor(dbUser?.defaultModel ?? getDefaultModelId());
+  const cheapModel = discussModelFor(dbUser?.defaultModel ?? getDefaultModelId(), mode);
 
   return createLLMClient({
     modelId: cheapModel.id,
@@ -95,7 +107,7 @@ async function resolveDiscussClient(userId: string) {
 }
 
 export async function runDiscussTurn(args: DiscussTurnArgs): Promise<string> {
-  const { client, model } = await resolveDiscussClient(args.userId);
+  const { client, model } = await resolveDiscussClient(args.userId, args.mode);
 
   const requestTurn = async (maxTokens: number) => {
     const response = await client.messages.create({
@@ -334,7 +346,7 @@ function wrapGatedTurn(
 export async function gateDiscussTurnStream(
   args: DiscussTurnArgs & { signal: AbortSignal }
 ): Promise<DiscussStreamGate> {
-  const { client, model } = await resolveDiscussClient(args.userId);
+  const { client, model } = await resolveDiscussClient(args.userId, args.mode);
   const messages = client.messages as { stream?: unknown };
   if (typeof messages.stream !== "function") return { ok: false, reason: "unsupported" };
 

@@ -1498,6 +1498,9 @@ export const RU: UIStrings = {
     statusDone: "готово",
     statusFailed: "с ошибкой",
     statusCancelled: "отменено",
+    quickTake: "Быстрый ответ",
+    consideredTake: "Пусть подумает",
+    takeHint: "Быстрый ответ пропускает фазу размышления модели. Он приходит за секунды и получается поверхностнее.",
   },
 
   editorChrome: {
