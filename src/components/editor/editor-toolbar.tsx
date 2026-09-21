@@ -290,7 +290,8 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
               ctx.editor.chain().focus().toggleHeading({ level }).run()
             }
           >
-            Heading {level} (Ctrl+Alt+{level})
+            {ctx.t.headingLevel.replace("{level}", String(level))} (Ctrl+Alt+
+            {level})
           </DropdownMenuCheckboxItem>
         ))}
       </>

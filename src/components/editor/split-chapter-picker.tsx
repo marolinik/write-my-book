@@ -34,7 +34,8 @@ export function SplitChapterPicker({
         <SelectContent>
           {available.map((ch) => (
             <SelectItem key={ch.id} value={ch.id}>
-              Ch.{ch.chapterNumber}
+              {t.agentUI.chapterAbbrev}
+              {ch.chapterNumber}
               {ch.title ? `: ${ch.title}` : ""}
             </SelectItem>
           ))}

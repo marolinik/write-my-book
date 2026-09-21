@@ -113,9 +113,18 @@ export function PacingHeatmap({
         <h4 className="text-xs font-medium flex items-center gap-1">
           <BarChart3Icon className="size-3" />{t.editorChrome.sentencePacing}</h4>
         <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
-          <span>Avg: {avgWords} words</span>
-          <span className="text-green-500">{shortPct}% short</span>
-          <span className="text-red-500">{longPct}% long</span>
+          <span>
+            {t.editorChrome.avgWordsPerSentence.replace(
+              "{count}",
+              String(avgWords)
+            )}
+          </span>
+          <span className="text-green-500">
+            {t.editorChrome.pctShort.replace("{pct}", String(shortPct))}
+          </span>
+          <span className="text-red-500">
+            {t.editorChrome.pctLong.replace("{pct}", String(longPct))}
+          </span>
           <button
             onClick={() => setExpanded(false)}
             aria-label={t.editorUI.closePacing}
@@ -142,7 +151,9 @@ export function PacingHeatmap({
                 />
               </TooltipTrigger>
               <TooltipContent side="top" className="max-w-64 text-xs">
-                <p className="font-medium">{s.words} words</p>
+                <p className="font-medium">
+                  {t.editorChrome.wordsCount.replace("{count}", String(s.words))}
+                </p>
                 <p className="text-muted-foreground line-clamp-2 mt-0.5">
                   {s.text.slice(0, 100)}...
                 </p>

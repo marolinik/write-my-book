@@ -129,10 +129,16 @@ export function ProseSyntaxHighlight({ text }: ProseSyntaxHighlightProps) {
           <HighlighterIcon className="size-3" />{t.editorChrome.proseSyntaxAnalysis}</h4>
         <div className="flex items-center gap-2">
           <span className="text-[10px] text-red-500">
-            Adverbs: {analysis?.adverbPct}%
+            {t.editorChrome.adverbsPct.replace(
+              "{pct}",
+              String(analysis?.adverbPct)
+            )}
           </span>
           <span className="text-[10px] text-purple-500">
-            Adjectives: {analysis?.adjPct}%
+            {t.editorChrome.adjectivesPct.replace(
+              "{pct}",
+              String(analysis?.adjPct)
+            )}
           </span>
           <button
             onClick={() => setActive(false)}
@@ -162,7 +168,12 @@ export function ProseSyntaxHighlight({ text }: ProseSyntaxHighlightProps) {
             </span>
           ))}
           {analysis.categorized.length > 500 && (
-            <span className="text-muted-foreground">... ({analysis.categorized.length - 500} more words)</span>
+            <span className="text-muted-foreground">
+              {t.editorChrome.moreWords.replace(
+                "{count}",
+                String(analysis.categorized.length - 500)
+              )}
+            </span>
           )}
         </div>
       )}

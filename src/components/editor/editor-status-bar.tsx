@@ -1,5 +1,6 @@
 "use client";
 
+import { countWithNoun, pluralNoun } from "@/lib/i18n/plural";
 import { useLanguage } from "@/components/providers/language-provider";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -149,7 +150,7 @@ export function EditorStatusBar({
   draftSavedAt = null,
   lastSaveErrorKind = null,
 }: EditorStatusBarProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const locale = useLocale();
   const readingTime = Math.max(1, Math.ceil(wordCount / 250));
 
@@ -157,10 +158,14 @@ export function EditorStatusBar({
     <div className="flex items-center justify-between border-t px-4 py-1.5 text-xs text-muted-foreground bg-background/95">
       <div className="flex items-center gap-4 min-w-0">
         <span className="shrink-0">
-          {wordCount.toLocaleString(locale)} word{wordCount !== 1 ? "s" : ""}
+          {wordCount.toLocaleString(locale)}{" "}
+          {pluralNoun(wordCount, t.editorChrome.wordOne, t.editorChrome.wordMany, {
+            few: t.editorChrome.wordFew,
+            language,
+          })}
         </span>
         <span className="hidden min-[400px]:inline shrink-0">
-          {readingTime} min read
+          {t.editorChrome.minRead.replace("{count}", String(readingTime))}
         </span>
 
         {/* Timer + authorship: hidden on phones — the word count and the
@@ -186,69 +191,117 @@ export function EditorStatusBar({
             {(annotationCounts.insert ?? 0) > 0 && (
               <span className="text-green-600 dark:text-green-400">
                 <span aria-hidden="true">
-                  +{annotationCounts.insert} insert
-                  {annotationCounts.insert !== 1 ? "s" : ""}
+                  +
+                  {countWithNoun(
+                    annotationCounts.insert,
+                    t.editorChrome.insertOne,
+                    t.editorChrome.insertMany,
+                    { few: t.editorChrome.insertFew, language }
+                  )}
                 </span>
                 <span className="sr-only">
-                  {annotationCounts.insert} insertion
-                  {annotationCounts.insert !== 1 ? "s" : ""}
+                  {countWithNoun(
+                    annotationCounts.insert,
+                    t.editorChrome.insertOne,
+                    t.editorChrome.insertMany,
+                    { few: t.editorChrome.insertFew, language }
+                  )}
                 </span>
               </span>
             )}
             {(annotationCounts.delete ?? 0) > 0 && (
               <span className="text-red-600 dark:text-red-400">
                 <span aria-hidden="true">
-                  -{annotationCounts.delete} delete
-                  {annotationCounts.delete !== 1 ? "s" : ""}
+                  -
+                  {countWithNoun(
+                    annotationCounts.delete,
+                    t.editorChrome.deleteOne,
+                    t.editorChrome.deleteMany,
+                    { few: t.editorChrome.deleteFew, language }
+                  )}
                 </span>
                 <span className="sr-only">
-                  {annotationCounts.delete} deletion
-                  {annotationCounts.delete !== 1 ? "s" : ""}
+                  {countWithNoun(
+                    annotationCounts.delete,
+                    t.editorChrome.deleteOne,
+                    t.editorChrome.deleteMany,
+                    { few: t.editorChrome.deleteFew, language }
+                  )}
                 </span>
               </span>
             )}
             {(annotationCounts.comment ?? 0) > 0 && (
               <span className="text-amber-600 dark:text-amber-400">
-                <span aria-hidden="true">
-                  {annotationCounts.comment} comment
-                  {annotationCounts.comment !== 1 ? "s" : ""}
-                </span>
-                <span className="sr-only">
-                  {annotationCounts.comment} comment
-                  {annotationCounts.comment !== 1 ? "s" : ""}
+                <span>
+                  {countWithNoun(
+                    annotationCounts.comment,
+                    t.editorChrome.commentOne,
+                    t.editorChrome.commentMany,
+                    { few: t.editorChrome.commentFew, language }
+                  )}
                 </span>
               </span>
             )}
             {(annotationCounts["severity-high"] ?? 0) > 0 && (
               <span className="text-red-600 dark:text-red-400">
                 <span aria-hidden="true">
-                  {annotationCounts["severity-high"]} high
+                  {t.editorChrome.severityHighShort.replace(
+                    "{count}",
+                    String(annotationCounts["severity-high"])
+                  )}
                 </span>
                 <span className="sr-only">
-                  {annotationCounts["severity-high"]} high severity finding
-                  {annotationCounts["severity-high"] !== 1 ? "s" : ""}
+                  {t.editorChrome.severityHighFindings.replace(
+                    "{countNoun}",
+                    countWithNoun(
+                      annotationCounts["severity-high"] ?? 0,
+                      t.agentUI.findingOne,
+                      t.agentUI.findingMany,
+                      { few: t.agentUI.findingFew, language }
+                    )
+                  )}
                 </span>
               </span>
             )}
             {(annotationCounts["severity-medium"] ?? 0) > 0 && (
               <span className="text-orange-600 dark:text-orange-400">
                 <span aria-hidden="true">
-                  {annotationCounts["severity-medium"]} med
+                  {t.editorChrome.severityMediumShort.replace(
+                    "{count}",
+                    String(annotationCounts["severity-medium"])
+                  )}
                 </span>
                 <span className="sr-only">
-                  {annotationCounts["severity-medium"]} medium severity finding
-                  {annotationCounts["severity-medium"] !== 1 ? "s" : ""}
+                  {t.editorChrome.severityMediumFindings.replace(
+                    "{countNoun}",
+                    countWithNoun(
+                      annotationCounts["severity-medium"] ?? 0,
+                      t.agentUI.findingOne,
+                      t.agentUI.findingMany,
+                      { few: t.agentUI.findingFew, language }
+                    )
+                  )}
                 </span>
               </span>
             )}
             {(annotationCounts["severity-low"] ?? 0) > 0 && (
               <span className="text-blue-600 dark:text-blue-400">
                 <span aria-hidden="true">
-                  {annotationCounts["severity-low"]} low
+                  {t.editorChrome.severityLowShort.replace(
+                    "{count}",
+                    String(annotationCounts["severity-low"])
+                  )}
                 </span>
                 <span className="sr-only">
-                  {annotationCounts["severity-low"]} low severity finding
-                  {annotationCounts["severity-low"] !== 1 ? "s" : ""}
+                  {t.editorChrome.severityLowFindings.replace(
+                    "{countNoun}",
+                    countWithNoun(
+                      annotationCounts["severity-low"] ?? 0,
+                      t.agentUI.findingOne,
+                      t.agentUI.findingMany,
+                      { few: t.agentUI.findingFew, language }
+                    )
+                  )}
                 </span>
               </span>
             )}
@@ -306,11 +359,13 @@ export function EditorStatusBar({
             <>
               <Check className="h-3 w-3 text-green-600 dark:text-green-400" />
               <span>
-                Saved{" "}
-                {lastSaved.toLocaleTimeString(locale, {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+                {t.editorChrome.savedAt.replace(
+                  "{time}",
+                  lastSaved.toLocaleTimeString(locale, {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                )}
               </span>
             </>
           ) : null}

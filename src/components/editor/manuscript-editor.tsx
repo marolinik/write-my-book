@@ -1139,7 +1139,7 @@ export function ManuscriptEditor({
           </Link>
           <span>/</span>
           <span className="text-foreground font-medium truncate">
-            Ch. {chapterNumber}
+            {t.agentUI.chapterAbbrev} {chapterNumber}
             {chapterTitle ? `: ${chapterTitle}` : ""}
           </span>
         </div>
@@ -1147,7 +1147,7 @@ export function ManuscriptEditor({
         {/* Chapter title + prev/next */}
         <div className="flex items-center gap-2">
           <h1 className="text-lg font-display font-semibold flex-1 min-w-0 truncate">
-            Chapter {chapterNumber}
+            {t.editorialUI.chapterRef.replace("{n}", String(chapterNumber))}
             {chapterTitle ? `: ${chapterTitle}` : ""}
           </h1>
 
@@ -1178,7 +1178,9 @@ export function ManuscriptEditor({
                   {currentIdx + 1}/{allChapters.length}
                 </span>
                 <span className="sr-only">
-                  Chapter {currentIdx + 1} of {allChapters.length}
+                  {t.editorChrome.chapterOfTotal
+                    .replace("{n}", String(currentIdx + 1))
+                    .replace("{total}", String(allChapters.length))}
                 </span>
               </span>
               <Button

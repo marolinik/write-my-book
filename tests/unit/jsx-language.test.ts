@@ -1,10 +1,15 @@
 /**
- * H-10 (JSX text nodes) — the chrome around the writer spoke English.
+ * H-10 — the chrome around the writer spoke English.
  *
- * The audit counted ~120 hardcoded JSX text nodes; a scan that also follows
- * nodes across line breaks finds ~330 in the signed-in app. They are being
- * cleared area by area, and `CLEAN_AREAS` is the part of the tree that is
- * done: a new English literal in any of those directories fails this test.
+ * Two scans over the signed-in app, both inventories rather than lists of
+ * assertions: a new English string in a finished directory fails them, so it
+ * cannot be added quietly.
+ *
+ *  - `englishJsxText` reads every run of literal text a reader sees, found by
+ *    the TypeScript parser. The audit counted ~120; the parser found ~600.
+ *  - `englishAttributes` reads the values a reader or a screen reader gets
+ *    from inside a tag — `placeholder`, `title`, `aria-label` and friends,
+ *    which no text scan can see.
  *
  * Public marketing and legal pages are deliberately out of scope — they are
  * one English document each, not product chrome.
@@ -19,8 +24,8 @@ import { getUIStrings } from "@/lib/i18n/ui-strings";
 const SRC = join(__dirname, "..", "..", "src");
 const LANGUAGES = ["en", "sr", "de", "es", "fr", "ru", "zh"];
 
-/** Directories whose JSX text nodes are fully localized. Grows per phase. */
-const CLEAN_AREAS = [
+/** Directories whose human-readable attributes are fully localized. */
+const ATTRIBUTE_CLEAN_AREAS = [
   join("components", "agent"),
   join("components", "editorial"),
   join("components", "editor"),
@@ -39,19 +44,6 @@ const CLEAN_AREAS = [
   join("app", "(app)"),
 ];
 
-/**
- * A JSX text node: everything between a tag's `>` and the next `<`, with no
- * braces in between (a braced expression is already a lookup, not a literal).
- */
-/** A negated class already spans newlines, so this needs no `s` flag (tsc target). */
-const SPAN = />([^<>{}]+)</g;
-
-/** Fragments that mean the match is code between two JSX islands, not prose. */
-const CODE_MARKERS = [";", "=>", "const ", "return ", "&&", "||", '"', "=== ", "//", "*/", "): ", " ? "];
-
-/** `) : isIdle ? (` and friends — a ternary straddling two JSX branches. */
-const TERNARY = /^\)?\s*:|\?\s*\($/;
-
 function walk(dir: string): string[] {
   return readdirSync(dir).flatMap((entry) => {
     const full = join(dir, entry);
@@ -68,36 +60,6 @@ function readWithoutComments(file: string): string {
     (comment) => comment.replace(/[^\n]/g, " ")
   );
 }
-
-function englishTextNodes(file: string): string[] {
-  const source = readWithoutComments(file);
-  const found: string[] = [];
-  for (const match of source.matchAll(SPAN)) {
-    const text = match[1].split(/\s+/).filter(Boolean).join(" ");
-    if (!/[A-Za-z]{2}/.test(text)) continue;
-    if (source[Math.max(0, match.index - 1)] === "=") continue; // arrow function
-    if (CODE_MARKERS.some((marker) => text.includes(marker))) continue;
-    if (TERNARY.test(text)) continue;
-    // An all-caps token is a format or an acronym (EPUB, DOCX, PDF) — the
-    // same string in every language, so it is not a translation gap.
-    if (!/[a-z]/.test(text)) continue;
-    // The product's own name is the product's own name in every language.
-    if (text === "WriteMyBook") continue;
-    if (!text.includes(" ") && text.length < 4) continue;
-    const line = source.slice(0, match.index).split("\n").length;
-    found.push(`${file.slice(SRC.length + 1)}:${line} — ${text.slice(0, 80)}`);
-  }
-  return found;
-}
-
-describe("the localized areas of the app", () => {
-  it("hold no hardcoded English text node", () => {
-    const offenders = CLEAN_AREAS.flatMap((area) =>
-      walk(join(SRC, area)).flatMap(englishTextNodes)
-    );
-    expect(offenders).toEqual([]);
-  });
-});
 
 /**
  * Attributes whose value a human reads or hears: the grey text inside an
@@ -165,26 +127,25 @@ function englishAttributes(file: string): string[] {
 }
 
 /**
- * The same sweep, done by the TypeScript parser instead of a regular
- * expression — and it sees what the regex structurally cannot.
+ * Every run of literal text inside JSX, found by the parser.
  *
- * `SPAN` above matches `>…<` with *no braces in between*, so any run of text
- * that sits beside an expression is invisible to it: `{words} words`,
- * `{n} min remaining`, `{done} of {total} sessions complete`. The span those
- * live in contains braces, so the regex skips the whole thing. 276 runs had
- * survived the text-node sweep that way — units, counters and whole sentences
- * broken by a `{value}`.
+ * This replaced a regular expression that matched `>…<` with no braces in
+ * between. Any run of text sitting *beside* an expression was structurally
+ * invisible to it — `{words} words`, `{n} min remaining`, `{done} of {total}
+ * sessions complete` — because the span it lived in contained braces. 276 of
+ * them had survived that scan: units, counters and whole sentences broken by
+ * a `{value}`.
  *
- * `JsxText` is exactly the text a reader sees and nothing else, so this scan
- * has no code false positives and needs none of the `CODE_MARKERS` guesswork.
- * `PARSED_CLEAN_AREAS` grows per phase the way `CLEAN_AREAS` did; when it
- * covers everything the list above does, the regex scan is deleted.
+ * `JsxText` is exactly the text a reader sees and nothing else, so this needs
+ * none of the old scan's guesses about which matches were really code.
  */
+/** Directories whose JSX text is fully localized. Grows per phase. */
 const PARSED_CLEAN_AREAS: string[] = [
   join("app", "(app)"),
   join("components", "agent"),
   join("components", "billing"),
   join("components", "book"),
+  join("components", "editor"),
   join("components", "editorial"),
   join("components", "import-export"),
   join("components", "layout"),
@@ -220,7 +181,11 @@ function englishJsxText(file: string): string[] {
   const visit = (node: ts.Node): void => {
     if (ts.isJsxText(node)) {
       const text = node.text.replace(/\s+/g, " ").trim();
-      const words = text.replace(HTML_ENTITY, " ").replace(BRAND, " ");
+      const words = text
+        .replace(HTML_ENTITY, " ")
+        .replace(BRAND, " ")
+        // A key combination is printed raw in every language; see KEY_COMBO.
+        .replace(KEY_COMBO, " ");
       if (/[a-z]/.test(words) && /[A-Za-z]{2}/.test(words)) {
         const { line } = parsed.getLineAndCharacterOfPosition(node.getStart());
         found.push(`${file.slice(SRC.length + 1)}:${line + 1} — ${text.slice(0, 70)}`);
@@ -243,7 +208,7 @@ describe("the parsed areas of the app", () => {
 
 describe("the attributes a human reads in the localized areas", () => {
   it("hold no hardcoded English value", () => {
-    const offenders = CLEAN_AREAS.flatMap((area) =>
+    const offenders = ATTRIBUTE_CLEAN_AREAS.flatMap((area) =>
       walk(join(SRC, area)).flatMap(englishAttributes)
     );
     expect(offenders).toEqual([]);

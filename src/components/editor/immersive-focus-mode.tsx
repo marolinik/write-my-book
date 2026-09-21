@@ -304,9 +304,16 @@ export function ImmersiveFocusMode({
           </span>
           <span className="flex items-center gap-1">
             <TargetIcon className="size-3" />
-            +{sessionWords} words
+            {t.editorChrome.sessionWordsGained.replace(
+              "{count}",
+              String(sessionWords)
+            )}
           </span>
-          {wpm > 0 && <span>{wpm} wpm</span>}
+          {wpm > 0 && (
+            <span>
+              {t.editorChrome.wordsPerMinuteShort.replace("{count}", String(wpm))}
+            </span>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
@@ -373,11 +380,18 @@ export function ImmersiveFocusMode({
         <div className="flex items-center gap-3 text-[10px] opacity-30 select-none">
           <span>{formatTime(elapsed)}</span>
           <span>•</span>
-          <span>+{sessionWords} words this session</span>
+          <span>
+            {t.editorChrome.wordsThisSession.replace(
+              "{count}",
+              String(sessionWords)
+            )}
+          </span>
           {wpm > 0 && (
             <>
               <span>•</span>
-              <span>{wpm} words/min</span>
+              <span>
+                {t.editorChrome.wordsPerMinute.replace("{count}", String(wpm))}
+              </span>
             </>
           )}
         </div>

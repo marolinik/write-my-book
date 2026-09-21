@@ -256,7 +256,7 @@ export function FindReplaceDialog({
                   {visibleHits.map((hit) => (
                     <li key={hit.chapterId} className="px-3 py-2">
                       <div className="mb-1 text-sm font-medium">
-                        Ch. {hit.chapterNumber}
+                        {t.agentUI.chapterAbbrev} {hit.chapterNumber}
                         {hit.title ? ` — ${hit.title}` : ""}{" "}
                         <span className="text-muted-foreground">
                           ({hit.count})
@@ -294,7 +294,7 @@ export function FindReplaceDialog({
             {replaceMutation.isPending && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             )}
-            Replace all
+            {t.editorChrome.replaceAll}
           </Button>
         </DialogFooter>
       </DialogContent>

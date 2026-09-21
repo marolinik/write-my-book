@@ -220,7 +220,7 @@ export function AnnotationTooltip({
 
         {onDiscuss && (
           <Button variant="ghost" size="sm" className="h-7 text-xs justify-start px-1" onClick={onDiscuss}>
-            Let&apos;s talk about this
+            {t.editorChrome.letsTalkAboutThis}
           </Button>
         )}
 
@@ -230,7 +230,11 @@ export function AnnotationTooltip({
             <>
               {onGoToChapter && jumpChapter != null && (
                 <Button variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={onGoToChapter}>
-                  <MapPin className="h-3 w-3" /> Go to Ch {jumpChapter}
+                  <MapPin className="h-3 w-3" />{" "}
+                  {t.editorChrome.goToChapter.replace(
+                    "{n}",
+                    String(jumpChapter)
+                  )}
                 </Button>
               )}
               {onIntentional && (

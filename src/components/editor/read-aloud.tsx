@@ -260,7 +260,9 @@ export function ReadAloud({
             </Select>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">Speed: {rate}x</Label>
+            <Label className="text-xs">
+              {t.editorChrome.speedRate.replace("{rate}", String(rate))}
+            </Label>
             <input
               type="range"
               min="0.5"

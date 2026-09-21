@@ -232,11 +232,17 @@ export function VersionHistoryPanel({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Restore Version {restoreTarget}?</DialogTitle>
+            <DialogTitle>
+              {t.editorChrome.restoreVersionTitle.replace(
+                "{n}",
+                String(restoreTarget)
+              )}
+            </DialogTitle>
             <DialogDescription>
-              This will create a new version with the content from version{" "}
-              {restoreTarget}. Your current content will be preserved in the
-              version history.
+              {t.editorChrome.restoreVersionHint.replace(
+                "{n}",
+                String(restoreTarget)
+              )}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

@@ -103,7 +103,8 @@ export function AIRewriteComparison({
               </Badge>
             )}
             <Badge variant="outline" className="text-[10px]">
-              {wordDelta >= 0 ? "+" : ""}{wordDelta} words
+              {wordDelta >= 0 ? "+" : ""}
+              {t.editorChrome.wordsCount.replace("{count}", String(wordDelta))}
             </Badge>
           </div>
         </div>
@@ -114,7 +115,10 @@ export function AIRewriteComparison({
           {/* Original */}
           <div className="space-y-1.5">
             <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
-              Original ({origWordCount} words)
+              {t.editorChrome.originalWithWords.replace(
+                "{count}",
+                String(origWordCount)
+              )}
             </p>
             <ScrollArea className="h-48 rounded-md border p-3 bg-red-500/5">
               <p className="text-sm leading-relaxed font-serif">
@@ -135,7 +139,10 @@ export function AIRewriteComparison({
           {/* Rewrite */}
           <div className="space-y-1.5">
             <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
-              AI Rewrite ({rewWordCount} words)
+              {t.editorChrome.aiRewriteWithWords.replace(
+                "{count}",
+                String(rewWordCount)
+              )}
             </p>
             {editing ? (
               <textarea

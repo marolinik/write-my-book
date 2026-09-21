@@ -58,22 +58,34 @@ export function AuthorshipTracker({ stats, compact }: AuthorshipTrackerProps) {
         <TooltipTrigger asChild>
           <Badge variant="outline" className="text-[10px] gap-1 cursor-default">
             <UserIcon className="size-2.5" />
-            {humanPct}% yours
+            {t.editorChrome.pctYours.replace("{pct}", String(humanPct))}
           </Badge>
         </TooltipTrigger>
         <TooltipContent side="bottom" className="text-xs space-y-1">
           <div className="flex items-center gap-1.5">
             <UserIcon className="size-3 text-blue-500" />
-            <span>Human-written: {stats.humanWords.toLocaleString(locale)} words ({humanPct}%)</span>
+            <span>
+              {t.editorChrome.humanWritten
+                .replace("{count}", stats.humanWords.toLocaleString(locale))
+                .replace("{pct}", String(humanPct))}
+            </span>
           </div>
           <div className="flex items-center gap-1.5">
             <BotIcon className="size-3 text-purple-500" />
-            <span>AI-generated: {stats.aiWords.toLocaleString(locale)} words ({aiPct}%)</span>
+            <span>
+              {t.editorChrome.aiGenerated
+                .replace("{count}", stats.aiWords.toLocaleString(locale))
+                .replace("{pct}", String(aiPct))}
+            </span>
           </div>
           {stats.aiEditedWords > 0 && (
             <div className="flex items-center gap-1.5">
               <PieChartIcon className="size-3 text-amber-500" />
-              <span>AI-edited: {stats.aiEditedWords.toLocaleString(locale)} words ({editedPct}%)</span>
+              <span>
+                {t.editorChrome.aiEdited
+                  .replace("{count}", stats.aiEditedWords.toLocaleString(locale))
+                  .replace("{pct}", String(editedPct))}
+              </span>
             </div>
           )}
         </TooltipContent>
@@ -86,7 +98,9 @@ export function AuthorshipTracker({ stats, compact }: AuthorshipTrackerProps) {
       <div className="flex items-center justify-between text-xs">
         <span className="text-muted-foreground flex items-center gap-1">
           <PieChartIcon className="size-3" />{t.editorChrome.authorship}</span>
-        <span className="font-medium">{humanPct}% yours</span>
+        <span className="font-medium">
+          {t.editorChrome.pctYours.replace("{pct}", String(humanPct))}
+        </span>
       </div>
       <div className="h-2 rounded-full bg-muted overflow-hidden flex">
         <div className="h-full bg-blue-500 transition-all" style={{ width: `${humanPct}%` }} title={t.editorUI.human} />

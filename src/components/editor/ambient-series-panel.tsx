@@ -76,7 +76,11 @@ export function AmbientSeriesPanel({ bookId, chapterNumber, onClose }: AmbientSe
               {/* Characters */}
               <section className="space-y-2">
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                  <UsersIcon className="size-3" /> Characters ({data?.characters.length ?? 0})
+                  <UsersIcon className="size-3" />{" "}
+                  {t.editorChrome.charactersCount.replace(
+                    "{count}",
+                    String(data?.characters.length ?? 0)
+                  )}
                 </div>
                 {data && data.characters.length > 0 ? (
                   data.characters.map((c) => (
@@ -91,7 +95,14 @@ export function AmbientSeriesPanel({ bookId, chapterNumber, onClose }: AmbientSe
                         {[c.role, c.status].filter(Boolean).join(" · ")}
                       </p>
                       {c.description && <p className="text-[11px] mt-1 italic">{c.description}</p>}
-                      {c.matchedFrom && <p className="text-[10px] text-muted-foreground mt-1">matched &ldquo;{c.matchedFrom}&rdquo;</p>}
+                      {c.matchedFrom && (
+                        <p className="text-[10px] text-muted-foreground mt-1">
+                          {t.editorChrome.matchedFrom.replace(
+                            "{value}",
+                            c.matchedFrom
+                          )}
+                        </p>
+                      )}
                     </div>
                   ))
                 ) : (
@@ -102,7 +113,11 @@ export function AmbientSeriesPanel({ bookId, chapterNumber, onClose }: AmbientSe
               {/* Open threads */}
               <section className="space-y-2">
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                  <GitBranchIcon className="size-3" /> Open threads ({data?.threads.length ?? 0})
+                  <GitBranchIcon className="size-3" />{" "}
+                  {t.editorChrome.openThreadsCount.replace(
+                    "{count}",
+                    String(data?.threads.length ?? 0)
+                  )}
                 </div>
                 {data && data.threads.length > 0 ? (
                   data.threads.map((t) => (
@@ -120,11 +135,19 @@ export function AmbientSeriesPanel({ bookId, chapterNumber, onClose }: AmbientSe
               {data?.toneDrift && data.toneDrift.metrics.some((m) => m.material) && (
                 <section className="space-y-2">
                   <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                    <ActivityIcon className="size-3" /> Tone vs Book {data.toneDrift.baselineBook}
+                    <ActivityIcon className="size-3" />{" "}
+                    {t.editorChrome.toneVsBook.replace(
+                      "{n}",
+                      String(data.toneDrift.baselineBook)
+                    )}
                   </div>
                   {data.toneDrift.metrics.filter((m) => m.material).map((m) => (
                     <p key={m.key} className="text-[11px] text-muted-foreground">
-                      {TONE_LABELS[m.key] ?? m.key}: {m.deltaPct > 0 ? "▲" : "▼"}{Math.abs(m.deltaPct)}% vs series
+                      {TONE_LABELS[m.key] ?? m.key}: {m.deltaPct > 0 ? "▲" : "▼"}
+                      {t.editorChrome.pctVsSeries.replace(
+                        "{pct}",
+                        String(Math.abs(m.deltaPct))
+                      )}
                     </p>
                   ))}
                   <p className="text-[10px] text-muted-foreground/70 italic">{t.editorUI.advisoryNote}</p>

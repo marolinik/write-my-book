@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { WordTargetPopover } from "@/components/editor/word-target-popover";
 import { useChapters } from "@/hooks/use-chapters";
+import { useLanguage } from "@/components/providers/language-provider";
 import { getStatusLabel, localeFor } from "@/lib/i18n/ui-strings";
 
 const STATUS_COLORS: Record<string, string> = {
@@ -38,6 +39,7 @@ export function ChapterContextHeader({
   targetWordCount,
   language = "en",
 }: ChapterContextHeaderProps) {
+  const { t } = useLanguage();
   const label = getStatusLabel(status, language);
   const colorClass = STATUS_COLORS[status] ?? STATUS_COLORS.undiscussed;
 
@@ -59,7 +61,7 @@ export function ChapterContextHeader({
       {/* Left: Chapter name + status */}
       <div className="flex items-center gap-2 min-w-0 flex-1">
         <span className="font-medium truncate">
-          Ch. {chapterNumber}
+          {t.agentUI.chapterAbbrev} {chapterNumber}
           {chapterTitle ? ` \u2014 ${chapterTitle}` : ""}
         </span>
         <Badge

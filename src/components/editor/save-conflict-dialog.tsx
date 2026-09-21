@@ -230,12 +230,14 @@ export function SaveConflictDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle>{noun} changed outside this editor</DialogTitle>
+          <DialogTitle>
+            {t.editorChrome.changedOutsideEditor.replace("{noun}", noun)}
+          </DialogTitle>
           <DialogDescription>
-            Another writer (an agent run, import, or another tab) saved version{" "}
-            v{saveConflict.serverVersion} while you had unsaved edits here.
-            Green lines are yours; red lines are theirs. Whichever you choose,
-            the other version stays in version history.
+            {t.editorChrome.saveConflictHint.replace(
+              "{version}",
+              String(saveConflict.serverVersion)
+            )}
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="flex-1 mt-2 border rounded-md">
