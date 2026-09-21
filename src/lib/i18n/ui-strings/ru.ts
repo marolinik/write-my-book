@@ -1149,6 +1149,8 @@ export const RU: UIStrings = {
 
   agentUI: {
     noContextTitle: "Откройте книгу или серию, чтобы использовать агента",
+    talkToCharacter: "Поговорите с {name}…",
+    yourCharacter: "вашим персонажем",
     noContextHint: "Перейдите к книге или серии, чтобы открыть рабочие процессы письма.",
     activeBook: "Активная книга:",
     seriesNeedsBook: "Добавьте книгу в эту серию, чтобы использовать агента.",
@@ -1232,6 +1234,12 @@ export const RU: UIStrings = {
     pacingMedium: "Средние (9-18)",
     pacingLong: "Длинные (19-30)",
     pacingVeryLong: "Очень длинные (30+)",
+    findingAria: "Замечание — {category}: {severity}",
+    focusThemeAria: "Тема: {theme}",
+    focusThemeDark: "Тёмная",
+    focusThemeSepia: "Сепия",
+    focusThemePaper: "Бумага",
+    pacingSectionAria: "Фрагмент {n}: темп — {category}",
     syntax: "Синтаксис",
     proseSyntaxAnalysis: "Синтаксический разбор прозы",
     verbs: "Глаголы",

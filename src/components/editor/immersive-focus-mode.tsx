@@ -111,6 +111,18 @@ export function ImmersiveFocusMode({
   defaultTheme = "dark",
 }: ImmersiveFocusModeProps) {
   const { t } = useLanguage();
+
+  /**
+   * The three focus themes are named in the dictionary; the slug stays the
+   * contract. Before this, the swatch loop bound its item to `t` and shadowed
+   * the dictionary, so the tooltip and the screen reader both read the slug.
+   */
+  const themeLabel = (focusTheme: FocusTheme) =>
+    focusTheme === "dark"
+      ? t.editorChrome.focusThemeDark
+      : focusTheme === "sepia"
+        ? t.editorChrome.focusThemeSepia
+        : t.editorChrome.focusThemePaper;
   const [theme, setTheme] = useState<FocusTheme>(defaultTheme);
   const [sessionWords, setSessionWords] = useState(0);
   const [startTime] = useState(Date.now());
@@ -299,19 +311,26 @@ export function ImmersiveFocusMode({
 
         <div className="flex items-center gap-2">
           {/* Theme switcher */}
-          {(["dark", "sepia", "paper"] as FocusTheme[]).map((t) => (
+          {(["dark", "sepia", "paper"] as FocusTheme[]).map((swatch) => (
             <button
-              key={t}
+              key={swatch}
               type="button"
-              onClick={() => setTheme(t)}
+              onClick={() => setTheme(swatch)}
               className={`size-5 rounded-full border-2 transition-transform ${
-                t === theme ? "scale-125 border-current" : "border-transparent opacity-50"
+                swatch === theme ? "scale-125 border-current" : "border-transparent opacity-50"
               } ${
-                t === "dark" ? "bg-zinc-800" : t === "sepia" ? "bg-amber-200" : "bg-stone-200"
+                swatch === "dark"
+                  ? "bg-zinc-800"
+                  : swatch === "sepia"
+                    ? "bg-amber-200"
+                    : "bg-stone-200"
               }`}
-              title={t}
-              aria-label={`${t} theme`}
-              aria-pressed={theme === t}
+              title={themeLabel(swatch)}
+              aria-label={t.editorChrome.focusThemeAria.replace(
+                "{theme}",
+                themeLabel(swatch)
+              )}
+              aria-pressed={theme === swatch}
             />
           ))}
 

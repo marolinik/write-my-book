@@ -229,7 +229,10 @@ export function CharacterChat({ bookId, characters, onClose }: CharacterChatProp
               sendMessage();
             }
           }}
-          placeholder={`Talk to ${selectedChar?.name ?? "your character"}...`}
+          placeholder={t.agentUI.talkToCharacter.replace(
+            "{name}",
+            selectedChar?.name ?? t.agentUI.yourCharacter
+          )}
           disabled={isLoading || !selectedChar}
           rows={1}
           className="min-h-[36px] max-h-[120px] resize-none text-sm"

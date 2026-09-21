@@ -52,6 +52,19 @@ export function PacingHeatmap({
   onSentenceClick,
 }: PacingHeatmapProps) {
   const { t } = useLanguage();
+
+  /**
+   * The screen reader gets the same four bands the legend prints, so the
+   * announcement and the visible key cannot drift apart.
+   */
+  const bandLabel = (category: string) =>
+    category === "short"
+      ? t.editorChrome.pacingShort
+      : category === "medium"
+        ? t.editorChrome.pacingMedium
+        : category === "long"
+          ? t.editorChrome.pacingLong
+          : t.editorChrome.pacingVeryLong;
   const [expanded, setExpanded] = useState(false);
 
   const sentences = useMemo((): SentenceStats[] => {
@@ -123,7 +136,9 @@ export function PacingHeatmap({
                   className={`flex-1 min-w-[2px] max-w-[6px] rounded-t-sm transition-opacity hover:opacity-80 ${CATEGORY_COLORS[s.category]}`}
                   style={{ height }}
                   onClick={() => onSentenceClick?.(i)}
-                  aria-label={`Section ${i + 1}: ${s.category} pacing`}
+                  aria-label={t.editorChrome.pacingSectionAria
+                    .replace("{n}", String(i + 1))
+                    .replace("{category}", bandLabel(s.category))}
                 />
               </TooltipTrigger>
               <TooltipContent side="top" className="max-w-64 text-xs">

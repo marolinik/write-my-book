@@ -1149,6 +1149,8 @@ export const DE: UIStrings = {
 
   agentUI: {
     noContextTitle: "Öffnen Sie ein Buch oder eine Reihe, um den Agenten zu nutzen",
+    talkToCharacter: "Sprich mit {name}…",
+    yourCharacter: "deiner Figur",
     noContextHint: "Wechseln Sie zu einem Buch oder einer Reihe, um Schreib-Workflows zu öffnen.",
     activeBook: "Aktives Buch:",
     seriesNeedsBook: "Fügen Sie dieser Reihe ein Buch hinzu, um den Agenten zu nutzen.",
@@ -1232,6 +1234,12 @@ export const DE: UIStrings = {
     pacingMedium: "Mittel (9-18)",
     pacingLong: "Lang (19-30)",
     pacingVeryLong: "Sehr lang (30+)",
+    findingAria: "Befund — {category}: {severity}",
+    focusThemeAria: "Design: {theme}",
+    focusThemeDark: "Dunkel",
+    focusThemeSepia: "Sepia",
+    focusThemePaper: "Papier",
+    pacingSectionAria: "Abschnitt {n}: Tempo — {category}",
     syntax: "Syntax",
     proseSyntaxAnalysis: "Analyse der Prosasyntax",
     verbs: "Verben",

@@ -1149,6 +1149,8 @@ export const SR: UIStrings = {
 
   agentUI: {
     noContextTitle: "Otvorite knjigu ili serijal da biste koristili agenta",
+    talkToCharacter: "Razgovaraj sa {name}…",
+    yourCharacter: "svojim likom",
     noContextHint: "Idite na knjigu ili serijal da biste pristupili tokovima pisanja.",
     activeBook: "Aktivna knjiga:",
     seriesNeedsBook: "Dodajte knjigu u ovaj serijal da biste koristili agenta.",
@@ -1232,6 +1234,12 @@ export const SR: UIStrings = {
     pacingMedium: "Srednje (9-18)",
     pacingLong: "Duge (19-30)",
     pacingVeryLong: "Vrlo duge (30+)",
+    findingAria: "Nalaz — {category}: {severity}",
+    focusThemeAria: "Tema: {theme}",
+    focusThemeDark: "Tamna",
+    focusThemeSepia: "Sepija",
+    focusThemePaper: "Papir",
+    pacingSectionAria: "Odeljak {n}: ritam — {category}",
     syntax: "Sintaksa",
     proseSyntaxAnalysis: "Analiza sintakse proze",
     verbs: "Glagoli",

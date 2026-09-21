@@ -282,7 +282,7 @@ export function WriterMemoryPanel({ bookId }: WriterMemoryPanelProps) {
                               <button
                                 onClick={() => { setEditingId(m.id); setEditContent(m.content); }}
                                 className="text-muted-foreground hover:text-foreground"
-                                aria-label={`Edit memory: ${m.content}`}
+                                aria-label={`${t.workspaceUI.edit}: ${m.content}`}
                                 title={t.workspaceUI.edit}
                               >
                                 <EditIcon className="size-3" />
@@ -290,7 +290,7 @@ export function WriterMemoryPanel({ bookId }: WriterMemoryPanelProps) {
                               <button
                                 onClick={() => deleteMutation.mutate(m.id)}
                                 className="text-muted-foreground hover:text-destructive"
-                                aria-label={`Forget memory: ${m.content}`}
+                                aria-label={`${t.workspaceUI.forgetThis}: ${m.content}`}
                                 title={t.workspaceUI.forgetThis}
                               >
                                 <TrashIcon className="size-3" />

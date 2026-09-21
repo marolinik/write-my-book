@@ -4,6 +4,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Editor } from "@tiptap/react";
 import { findTextPositions } from "./annotation-extension";
 import type { FindingItem } from "@/hooks/use-editorial";
+import { useLanguage } from "@/components/providers/language-provider";
+import {
+  findingCategoryLabel,
+  findingSeverityLabel,
+} from "@/lib/i18n/finding-labels";
 import {
   Tooltip,
   TooltipContent,
@@ -26,13 +31,6 @@ const SEVERITY_COLORS: Record<string, string> = {
   minor: "bg-blue-400",
 };
 
-const SEVERITY_LABELS: Record<string, string> = {
-  critical: "High",
-  major: "High",
-  moderate: "Medium",
-  minor: "Low",
-};
-
 /**
  * The button is a 24px touch target (WCAG 2.5.8) wrapping the 12px visual
  * dot. Offsetting `top` by half the size difference keeps the dot exactly
@@ -53,6 +51,7 @@ export function GutterMarkers({
   visible,
   onMarkerClick,
 }: GutterMarkersProps) {
+  const { language, t } = useLanguage();
   const [markers, setMarkers] = useState<GutterMarkerData[]>([]);
   const rafRef = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -136,7 +135,8 @@ export function GutterMarkers({
         className="absolute right-0 top-0 w-6 h-full pointer-events-none z-[5]"
       >
         {markers.map((marker) => {
-          const severityLabel = SEVERITY_LABELS[marker.severity] ?? "Low";
+          const severityLabel = findingSeverityLabel(marker.severity, language);
+          const categoryLabel = findingCategoryLabel(marker.category, language);
           return (
             <Tooltip key={marker.findingId}>
               <TooltipTrigger asChild>
@@ -157,7 +157,9 @@ export function GutterMarkers({
                         : e.currentTarget.getBoundingClientRect();
                     onMarkerClick(marker.findingId, rect);
                   }}
-                  aria-label={`${marker.category} finding: ${severityLabel}`}
+                  aria-label={t.editorChrome.findingAria
+                    .replace("{category}", categoryLabel)
+                    .replace("{severity}", severityLabel)}
                 >
                   <span
                     aria-hidden="true"
@@ -167,7 +169,7 @@ export function GutterMarkers({
               </TooltipTrigger>
               <TooltipContent side="left" className="max-w-[250px]">
                 <p className="font-medium">
-                  {marker.category} &middot; {severityLabel}
+                  {categoryLabel} &middot; {severityLabel}
                 </p>
                 {marker.textPreview && (
                   <p className="text-[11px] opacity-80 mt-0.5">

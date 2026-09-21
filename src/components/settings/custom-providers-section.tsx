@@ -83,7 +83,7 @@ export function CustomProvidersSection() {
                 </p>
               )}
             </div>
-            <Button size="icon" variant="ghost" onClick={() => remove(p.id)} disabled={busy} aria-label={`Delete ${p.displayName}`}>
+            <Button size="icon" variant="ghost" onClick={() => remove(p.id)} disabled={busy} aria-label={`${t.common.delete} ${p.displayName}`}>
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>

@@ -1089,6 +1089,8 @@ export interface UIStrings {
   // literal in the surface the writer spends the most time watching.
   agentUI: {
     noContextTitle: string;
+    talkToCharacter: string;
+    yourCharacter: string;
     noContextHint: string;
     activeBook: string;
     seriesNeedsBook: string;
@@ -1175,6 +1177,12 @@ export interface UIStrings {
     pacingMedium: string;
     pacingLong: string;
     pacingVeryLong: string;
+    findingAria: string;
+    focusThemeAria: string;
+    focusThemeDark: string;
+    focusThemeSepia: string;
+    focusThemePaper: string;
+    pacingSectionAria: string;
     syntax: string;
     proseSyntaxAnalysis: string;
     verbs: string;

@@ -1149,6 +1149,8 @@ export const ZH: UIStrings = {
 
   agentUI: {
     noContextTitle: "打开一本书或一个系列后即可使用助手",
+    talkToCharacter: "与 {name} 对话…",
+    yourCharacter: "你的角色",
     noContextHint: "请前往某本书或某个系列，以使用写作工作流。",
     activeBook: "当前图书：",
     seriesNeedsBook: "请先向该系列添加一本书，然后再使用助手。",
@@ -1232,6 +1234,12 @@ export const ZH: UIStrings = {
     pacingMedium: "中句（9-18）",
     pacingLong: "长句（19-30）",
     pacingVeryLong: "超长句（30+）",
+    findingAria: "发现 — {category}：{severity}",
+    focusThemeAria: "主题：{theme}",
+    focusThemeDark: "深色",
+    focusThemeSepia: "褐色",
+    focusThemePaper: "纸张",
+    pacingSectionAria: "第 {n} 段：节奏 — {category}",
     syntax: "句法",
     proseSyntaxAnalysis: "散文句法分析",
     verbs: "动词",

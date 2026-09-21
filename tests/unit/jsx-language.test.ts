@@ -59,13 +59,17 @@ function walk(dir: string): string[] {
   });
 }
 
-function englishTextNodes(file: string): string[] {
-  // A JSX comment holds prose about the code, not copy for the reader.
-  const source = readFileSync(file, "utf-8").replace(
+/** A JSX comment holds prose about the code, not copy for the reader. */
+function readWithoutComments(file: string): string {
+  return readFileSync(file, "utf-8").replace(
     /\{?\/\*[\s\S]*?\*\/\}?/g,
     // Blank it out but keep the newlines, so reported line numbers stay true.
     (comment) => comment.replace(/[^\n]/g, " ")
   );
+}
+
+function englishTextNodes(file: string): string[] {
+  const source = readWithoutComments(file);
   const found: string[] = [];
   for (const match of source.matchAll(SPAN)) {
     const text = match[1].split(/\s+/).filter(Boolean).join(" ");
@@ -94,6 +98,80 @@ describe("the localized areas of the app", () => {
   });
 });
 
+/**
+ * Attributes whose value a human reads or hears: the grey text inside an
+ * empty input, the native tooltip, the image description, the name a screen
+ * reader announces for an icon-only button, and the `label` prop the design
+ * system's own controls take.
+ *
+ * The text-node scan above cannot see any of them — they live *inside* the
+ * tag, between the attribute's `=` and the value's closing quote, never
+ * between two tags. A Serbian writer met English here long after the visible
+ * copy had been translated.
+ */
+const HUMAN_ATTRIBUTES = [
+  "aria-label",
+  "aria-description",
+  "placeholder",
+  "title",
+  "alt",
+  "label",
+] as const;
+
+/**
+ * `attr="text"`, `attr={"text"}`, `attr={'text'}` and ``attr={`text`}``.
+ * The leading guard stops `label` from matching the tail of `aria-label`.
+ */
+const ATTRIBUTE = new RegExp(
+  `(?:^|[^A-Za-z-])(${HUMAN_ATTRIBUTES.join("|")})=` +
+    "(?:\"([^\"{}]*)\"|\{\"([^\"]*)\"\}|\{'([^']*)'\}|\{`([^`]*)`\})",
+  "g"
+);
+
+/**
+ * What is left of an attribute value once the parts that are not prose are
+ * removed: `${…}` is already a lookup, and a key combination is printed
+ * identically in every language — `<kbd>{s.keys}</kbd>` in the shortcuts
+ * dialog renders the same raw string, so translating it on one surface only
+ * would make the two disagree.
+ */
+const KEY_COMBO = /\(?\b(?:Ctrl|Cmd|Alt|Shift|Esc|Enter|Tab|Del|F\d{1,2})\b(?:\s*\+\s*\S+)*\)?/g;
+
+function bareProse(value: string): string {
+  return value.replace(/\$\{[^}]*\}/g, " ").replace(KEY_COMBO, " ");
+}
+
+function englishAttributes(file: string): string[] {
+  const source = readWithoutComments(file);
+  const found: string[] = [];
+  for (const match of source.matchAll(ATTRIBUTE)) {
+    const attribute = match[1];
+    const value = match[2] ?? match[3] ?? match[4] ?? match[5] ?? "";
+    // A URL or a host:port is an example of a setting, not a sentence.
+    if (value.includes("://")) continue;
+    const prose = bareProse(value);
+    // An all-caps token is an acronym or a format name (ISBN, EPUB, PDF) —
+    // the same string in every language.
+    if (!/[a-z]/.test(prose)) continue;
+    if (!/[A-Za-z]{3}/.test(prose)) continue;
+    if (prose.trim() === "WriteMyBook") continue;
+    const line = source.slice(0, match.index).split("\n").length;
+    found.push(
+      `${file.slice(SRC.length + 1)}:${line} ${attribute}="${value.slice(0, 70)}"`
+    );
+  }
+  return found;
+}
+
+describe("the attributes a human reads in the localized areas", () => {
+  it("hold no hardcoded English value", () => {
+    const offenders = CLEAN_AREAS.flatMap((area) =>
+      walk(join(SRC, area)).flatMap(englishAttributes)
+    );
+    expect(offenders).toEqual([]);
+  });
+});
+
 describe("the dictionaries behind the localized areas", () => {
   /**
    * Words that are genuinely the same in a language as in English. Anything
@@ -109,6 +187,7 @@ describe("the dictionaries behind the localized areas", () => {
     // in every language.
     sr: ["fleschKincaid", "gunningFog", "colemanLiau", "enterprise"],
     de: [
+      "focusThemeSepia",
       "stepOptional", "syntax", "focusNormal", "upgrade", "name", "median",
       "register", "fleschKincaid", "gunningFog", "colemanLiau",
       "contextEditor", "themeSystem", "ghostwriter", "coach", "analyst",
@@ -116,6 +195,7 @@ describe("the dictionaries behind the localized areas", () => {
       "enterprise", "workflows",
     ],
     es: [
+      "focusThemeSepia",
       "focusNormal", "error", "fleschKincaid", "gunningFog", "colemanLiau",
       "contextEditor", "coach", "editor", "coverCropZoom", "coverCropPositionH",
       "coverCropPositionV", "enterprise",
