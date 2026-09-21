@@ -122,7 +122,7 @@ export function AIMiniPanel() {
         {runningSessions.length > 0 && (
           <Badge variant="secondary" className="ml-1 gap-1 text-[10px]">
             <Loader2Icon className="size-2.5 animate-spin" />
-            {runningSessions.length} running
+            {t.agentUI.runningCount.replace("{count}", String(runningSessions.length))}
           </Badge>
         )}
 

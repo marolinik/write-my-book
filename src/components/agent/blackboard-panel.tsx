@@ -223,7 +223,10 @@ export function BlackboardPanel({ bookId }: { bookId: string }) {
   if (error) {
     return (
       <div className="p-4 text-sm text-red-500">
-        Failed to load insights: {(error as Error).message}
+        {t.agentUI.failedToLoadInsights.replace(
+          "{error}",
+          (error as Error).message
+        )}
       </div>
     );
   }
@@ -252,7 +255,9 @@ export function BlackboardPanel({ bookId }: { bookId: string }) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold">{t.agentUI.blackboard}</h3>
-        <Badge variant="secondary">{count} active</Badge>
+        <Badge variant="secondary">
+          {t.agentUI.activeCount.replace("{count}", String(count))}
+        </Badge>
       </div>
 
       {/* Domain groups */}

@@ -44,6 +44,7 @@ import { getWorkflow } from "@/lib/agents/workflows";
 import { getAgentDefinition } from "@/lib/agents/definitions";
 import { getAgentStrings, workflowLabel } from "@/lib/i18n/agent-strings";
 import { getStatusLabel } from "@/lib/i18n/ui-strings";
+import { countWithNoun } from "@/lib/i18n/plural";
 import { useLanguage, useLocale } from "@/components/providers/language-provider";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -76,7 +77,7 @@ export function AgentPanel({
   onClose,
   seriesId,
 }: AgentPanelProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const sessions = useAgentSessionStore((s) => s.sessions);
   const activeSessionId = useAgentSessionStore((s) => s.activeSessionId);
   const pendingWorkflowId = useAgentUIStore((s) => s.pendingWorkflowId);
@@ -592,7 +593,7 @@ export function AgentPanel({
           {sessionTokens.total > 0 && (
             <span className="flex items-center gap-1">
               <CoinsIcon className="size-3" />
-              {(sessionTokens.total / 1000).toFixed(0)}k tok
+              {(sessionTokens.total / 1000).toFixed(0)}k {t.agentUI.tokensAbbrev}
             </span>
           )}
           {currentCost > 0 && (
@@ -606,7 +607,7 @@ export function AgentPanel({
           {workflow?.estimatedMaxMinutes && (
             <span className="flex items-center gap-1">
               <ClockIcon className="size-3" />
-              ~{workflow.estimatedMinMinutes ?? workflow.estimatedMaxMinutes}-{workflow.estimatedMaxMinutes} min
+              ~{workflow.estimatedMinMinutes ?? workflow.estimatedMaxMinutes}-{workflow.estimatedMaxMinutes} {t.agentUI.minutesAbbrev}
             </span>
           )}
         </div>
@@ -654,7 +655,7 @@ export function AgentPanel({
                 </div>
                 <div className="flex gap-3 text-[11px] text-muted-foreground">
                   <span>
-                    {((s.tokensInput + s.tokensOutput) / 1000).toFixed(0)}k tok
+                    {((s.tokensInput + s.tokensOutput) / 1000).toFixed(0)}k {t.agentUI.tokensAbbrev}
                   </span>
                   {s.completedAt && s.startedAt && (
                     <span>
@@ -662,7 +663,8 @@ export function AgentPanel({
                         (new Date(s.completedAt).getTime() -
                           new Date(s.startedAt).getTime()) /
                           60000
-                      )}min
+                      )}
+                      {t.agentUI.minutesAbbrev}
                     </span>
                   )}
                   {s.completedAt && (
@@ -712,7 +714,15 @@ export function AgentPanel({
               <AlertCircleIcon className="size-4 text-amber-600 dark:text-amber-400 shrink-0" />
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-medium">
-                  {bookState.pendingFindingsCount} findings need review
+                  {t.agentUI.findingsNeedReview.replace(
+                    "{countNoun}",
+                    countWithNoun(
+                      bookState.pendingFindingsCount,
+                      t.agentUI.findingOne,
+                      t.agentUI.findingMany,
+                      { few: t.agentUI.findingFew, language }
+                    )
+                  )}
                 </p>
               </div>
               <Button variant="outline" size="sm" className="text-xs shrink-0" asChild>

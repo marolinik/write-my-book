@@ -101,7 +101,7 @@ export function SuggestionFeedback({
         onClick={() => submitFeedback(true)}
       >
         <ThumbsUpIcon className="size-3" />
-        Yes
+        {t.agentUI.feedbackYes}
       </Button>
       <Button
         variant={feedback === "down" ? "destructive" : "ghost"}
@@ -110,11 +110,11 @@ export function SuggestionFeedback({
         onClick={() => submitFeedback(false)}
       >
         <ThumbsDownIcon className="size-3" />
-        No
+        {t.agentUI.feedbackNo}
       </Button>
       {feedback && (
         <span className="text-[10px] text-muted-foreground">
-          {feedback === "up" ? "Thanks! We\'ll suggest more like this." : "Noted — we\'ll adjust."}
+          {feedback === "up" ? t.agentUI.feedbackThanks : t.agentUI.feedbackNoted}
         </span>
       )}
     </div>

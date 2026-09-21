@@ -209,7 +209,10 @@ export function CharacterChat({ bookId, characters, onClose }: CharacterChatProp
                   <Loader2Icon className="size-3 animate-spin text-primary" />
                 </div>
                 <div className="bg-muted/50 rounded-lg px-3 py-2 text-sm italic text-muted-foreground">
-                  *{selectedChar?.name} is thinking...*
+                  {t.agentUI.characterThinking.replace(
+                    "{name}",
+                    selectedChar?.name ?? t.agentUI.yourCharacter
+                  )}
                 </div>
               </div>
             )}
@@ -250,7 +253,7 @@ export function CharacterChat({ bookId, characters, onClose }: CharacterChatProp
       {/* Tips */}
       <div className="px-3 pb-2">
         <p className="text-[9px] text-muted-foreground text-center">
-          Try: "How do you feel about [event]?" • "What would you do if...?" • "Tell me about your past"
+          {t.agentUI.characterChatTips}
         </p>
       </div>
     </Card>

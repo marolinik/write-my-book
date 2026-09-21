@@ -33,6 +33,7 @@ const CLEAN_AREAS = [
   join("components", "style"),
   join("components", "memory"),
   join("components", "settings"),
+  join("components", "agent"),
   join("components", "billing"),
   join("components", "onboarding"),
   join("components", "layout"),
@@ -243,6 +244,9 @@ describe("the dictionaries behind the localized areas", () => {
    * Words that are genuinely the same in a language as in English. Anything
    * not listed here that matches English is an untranslated copy-paste.
    *
+   * "min" is the SI-style abbreviation for a minute and is written the same
+   * in Serbian, Spanish and French; only Russian and Chinese differ.
+   *
    * `enterprise` is the fourth entry in a plan list whose other three names —
    * Founder, Professional, Publisher — come from `billing/stripe-client.ts`
    * and are product names, not words. Translating only the fourth would make
@@ -251,7 +255,7 @@ describe("the dictionaries behind the localized areas", () => {
   const COGNATES: Record<string, string[]> = {
     // The readability indices are named after their authors — proper nouns
     // in every language.
-    sr: ["fleschKincaid", "gunningFog", "colemanLiau", "enterprise"],
+    sr: ["minutesAbbrev", "fleschKincaid", "gunningFog", "colemanLiau", "enterprise"],
     de: [
       "focusThemeSepia", "lensRegister",
       "stepOptional", "syntax", "focusNormal", "upgrade", "name", "median",
@@ -262,11 +266,14 @@ describe("the dictionaries behind the localized areas", () => {
     ],
     es: [
       "focusThemeSepia",
+      // Spanish took "token" as a loanword, and "no" is the word itself.
+      "minutesAbbrev", "tokensAbbrev", "tokensInOut", "feedbackNo",
       "focusNormal", "error", "fleschKincaid", "gunningFog", "colemanLiau",
       "contextEditor", "coach", "editor", "coverCropZoom", "coverCropPositionH",
       "coverCropPositionV", "enterprise",
     ],
     fr: [
+      "minutesAbbrev",
       "insightSuggestion", "focusNormal", "seriesTabDocuments", "seriesTabStructure",
       "type", "dialogue", "distribution", "fleschKincaid", "gunningFog", "colemanLiau",
       "architecture", "documents", "sessionsUnit", "coach", "styleSection",

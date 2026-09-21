@@ -39,6 +39,7 @@ import { getAllWorkflows, getWorkflow } from "@/lib/agents/workflows";
 import { getAllJourneys, getJourney } from "@/lib/agents/journeys";
 import type { JourneyDefinition } from "@/lib/agents/journeys";
 import type { WorkflowDefinition } from "@/lib/agents/types";
+import { countWithNoun } from "@/lib/i18n/plural";
 import { useLanguage } from "@/components/providers/language-provider";
 import { getAgentStrings, workflowLabel, workflowDescription } from "@/lib/i18n/agent-strings";
 import { useAgentSessionStore } from "@/stores/agent-session-store";
@@ -68,11 +69,12 @@ const CATEGORY_ICONS = {
 } as const;
 
 function DurationBadge({ workflow }: { workflow: WorkflowDefinition }) {
+  const { t } = useLanguage();
   if (!workflow.estimatedMinMinutes || !workflow.estimatedMaxMinutes) return null;
   return (
     <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground font-normal">
       <ClockIcon className="size-3" />
-      {workflow.estimatedMinMinutes}-{workflow.estimatedMaxMinutes} min
+      {workflow.estimatedMinMinutes}-{workflow.estimatedMaxMinutes} {t.agentUI.minutesAbbrev}
     </span>
   );
 }
@@ -298,7 +300,7 @@ export function WorkflowSelector({
                       : "hover:bg-muted"
                   }`}
                 >
-                  Ch {ch.chapterNumber}
+                  {t.agentUI.chapterAbbrev} {ch.chapterNumber}
                   {ch.title ? `: ${ch.title}` : ""}
                 </button>
               ))}
@@ -483,7 +485,7 @@ function JourneyCard({
   onClick: () => void;
   disabled?: boolean;
 }) {
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
   const as = getAgentStrings(language);
   const Icon = JOURNEY_ICONS[journey.icon] ?? BookOpenIcon;
   const totalSteps = journey.steps.filter((s) => !s.optional).length;
@@ -508,7 +510,10 @@ function JourneyCard({
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">{as.journeyLabels[journey.id] ?? journey.label}</span>
           <Badge variant="outline" className="text-[10px] shrink-0">
-            {totalSteps} steps
+            {countWithNoun(totalSteps, t.agentUI.stepOne, t.agentUI.stepMany, {
+              few: t.agentUI.stepFew,
+              language,
+            })}
           </Badge>
         </div>
         <p className="text-xs text-muted-foreground line-clamp-2">
@@ -626,7 +631,12 @@ function JourneyDetailView({
                             <RepeatIcon className="size-3 text-muted-foreground" />
                           </TooltipTrigger>
                           <TooltipContent side="right" className="text-xs">
-                            Can loop back to {workflowLabel(as, step.loopTo) ?? getWorkflow(step.loopTo)?.label ?? step.loopTo}
+                            {t.agentUI.canLoopBackTo.replace(
+                              "{workflow}",
+                              workflowLabel(as, step.loopTo) ??
+                                getWorkflow(step.loopTo)?.label ??
+                                step.loopTo
+                            )}
                           </TooltipContent>
                         </Tooltip>
                       )}

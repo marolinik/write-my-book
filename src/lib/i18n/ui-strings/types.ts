@@ -1144,6 +1144,37 @@ export interface UIStrings {
     perChapter: string;
     startThisStep: string;
     chapterAbbrev: string;
+    minutesAbbrev: string;
+    tokensAbbrev: string;
+    findingOne: string;
+    findingFew: string;
+    findingMany: string;
+    stepOne: string;
+    stepFew: string;
+    stepMany: string;
+    findingsNeedReview: string;
+    findingsCreatedCount: string;
+    runningCount: string;
+    activeCount: string;
+    failedToLoadInsights: string;
+    characterThinking: string;
+    characterChatTips: string;
+    elapsedRemaining: string;
+    tokensInOut: string;
+    inputTokensCount: string;
+    outputTokensCount: string;
+    currentScoreHint: string;
+    estimatedCost: string;
+    inclEmbeddings: string;
+    completedInMinutes: string;
+    ofMaxMinutes: string;
+    sessionsComplete: string;
+    stepProgress: string;
+    feedbackYes: string;
+    feedbackNo: string;
+    feedbackThanks: string;
+    feedbackNoted: string;
+    canLoopBackTo: string;
   };
 
   // H-10 - editorial badges and the finding conversation's decision row.

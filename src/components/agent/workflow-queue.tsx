@@ -62,7 +62,8 @@ export function WorkflowQueue({ onStartQueue, disabled }: WorkflowQueueProps) {
                 {wf?.label ?? item.workflowId}
                 {item.chapterNumber != null && (
                   <span className="text-muted-foreground ml-1">
-                    Ch.{item.chapterNumber}
+                    {t.agentUI.chapterAbbrev}
+                    {item.chapterNumber}
                   </span>
                 )}
               </span>

@@ -1,5 +1,6 @@
 "use client";
 
+import { countWithNoun } from "@/lib/i18n/plural";
 import { useLanguage } from "@/components/providers/language-provider";
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -499,7 +500,9 @@ function TimeoutWarning({
         "flex-1 tabular-nums",
         isPastEstimate ? "text-orange-700 dark:text-orange-300" : "text-yellow-700 dark:text-yellow-300",
       )}>
-        {elapsedMin} min elapsed — ~{remainingMin} min remaining
+        {t.agentUI.elapsedRemaining
+          .replace("{elapsed}", String(elapsedMin))
+          .replace("{remaining}", String(remainingMin))}
       </span>
       {extensionsUsed < 2 && onExtend && (
         <Button size="sm" variant="outline" className="h-6 text-xs shrink-0" onClick={onExtend}>{t.agentUI.extendFifteen}</Button>
@@ -835,6 +838,7 @@ function DelegationCard({
   block: DelegationBlockDesc;
   language?: string;
 }) {
+  const { t, language: uiLanguage } = useLanguage();
   const locale = localeFor(language ?? "en");
   const [expanded, setExpanded] = useState(false);
 
@@ -862,7 +866,9 @@ function DelegationCard({
         <span className="text-sm font-medium flex-1">{block.agentName}</span>
         {block.done && (
           <span className="text-xs text-muted-foreground tabular-nums">
-            {block.inputTokens.toLocaleString(locale)} / {block.outputTokens.toLocaleString(locale)} tokens
+            {t.agentUI.tokensInOut
+              .replace("{input}", block.inputTokens.toLocaleString(locale))
+              .replace("{output}", block.outputTokens.toLocaleString(locale))}
           </span>
         )}
         {!block.done && toolCalls.length > 0 && (
@@ -895,7 +901,15 @@ function DelegationCard({
           })}
           {block.done && block.findingsCreated > 0 && (
             <div className="text-xs text-muted-foreground mt-1">
-              {block.findingsCreated} {block.findingsCreated === 1 ? "finding" : "findings"} created
+              {t.agentUI.findingsCreatedCount.replace(
+                "{countNoun}",
+                countWithNoun(
+                  block.findingsCreated,
+                  t.agentUI.findingOne,
+                  t.agentUI.findingMany,
+                  { few: t.agentUI.findingFew, language: uiLanguage }
+                )
+              )}
             </div>
           )}
         </div>
@@ -913,6 +927,8 @@ function CompletionCard({
   result: AgentResult | undefined;
   language?: string;
 }) {
+  // Before any early return: a hook must not sit behind a condition.
+  const { t } = useLanguage();
   if (!result) return null;
 
   const locale = localeFor(language ?? "en");
@@ -940,8 +956,18 @@ function CompletionCard({
         </span>
       </div>
       <div className="flex gap-3 text-xs text-muted-foreground">
-        <span>{result.tokensInput.toLocaleString(locale)} input tokens</span>
-        <span>{result.tokensOutput.toLocaleString(locale)} output tokens</span>
+        <span>
+          {t.agentUI.inputTokensCount.replace(
+            "{count}",
+            result.tokensInput.toLocaleString(locale)
+          )}
+        </span>
+        <span>
+          {t.agentUI.outputTokensCount.replace(
+            "{count}",
+            result.tokensOutput.toLocaleString(locale)
+          )}
+        </span>
         <span>~${cost.toFixed(4)}</span>
       </div>
     </div>

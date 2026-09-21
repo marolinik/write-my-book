@@ -389,7 +389,7 @@ export function ProactiveGuide({
               {primaryWorkflow.estimatedMinMinutes && primaryWorkflow.estimatedMaxMinutes && (
                 <span className="inline-flex items-center gap-1 text-[10px] font-normal opacity-70">
                   <ClockIcon className="size-3" />
-                  {primaryWorkflow.estimatedMinMinutes}-{primaryWorkflow.estimatedMaxMinutes} min
+                  {primaryWorkflow.estimatedMinMinutes}-{primaryWorkflow.estimatedMaxMinutes} {ui.agentUI.minutesAbbrev}
                 </span>
               )}
             </span>
@@ -398,13 +398,23 @@ export function ProactiveGuide({
             </span>
             {betaScoreForCta !== null && (
               <span className="text-xs font-normal opacity-70">
-                Current score: {betaScoreForCta.toFixed(1)} — run beta-read to re-evaluate
+                {ui.agentUI.currentScoreHint.replace(
+                  "{score}",
+                  betaScoreForCta.toFixed(1)
+                )}
               </span>
             )}
             {costData?.costEstimate && (
               <span className="text-[10px] font-normal opacity-60">
-                Est. {costData.costEstimate.formatted}
-                {costData.embeddingEstimate && ` (incl. ${costData.embeddingEstimate.formatted} embeddings)`}
+                {ui.agentUI.estimatedCost.replace(
+                  "{amount}",
+                  costData.costEstimate.formatted
+                )}
+                {costData.embeddingEstimate &&
+                  ui.agentUI.inclEmbeddings.replace(
+                    "{amount}",
+                    costData.embeddingEstimate.formatted
+                  )}
               </span>
             )}
           </div>
