@@ -197,10 +197,144 @@ function englishJsxText(file: string): string[] {
   return found;
 }
 
+/** Directories whose JSX *expressions* hold no English copy. Grows per phase. */
+const EXPRESSION_CLEAN_AREAS: string[] = [
+  join("components", "journey"),
+  join("components", "memory"),
+  join("components", "onboarding"),
+  join("components", "reports"),
+  join("components", "style"),
+];
+
+/** The pluralisation helpers: their noun forms are copy wherever they sit. */
+const COPY_HELPERS = new Set(["pluralNoun", "countWithNoun"]);
+
+/**
+ * Does this literal reach the reader unchanged, as a child of a tag?
+ *
+ * The walk upward passes only through the nodes that choose between values
+ * without transforming them — a ternary's two branches, the right side of
+ * `&&` or `??`, a pair of brackets — and stops at anything else. So
+ * `{editingId ? "Update" : "Create"}` is copy, while `move.status ===
+ * "applied"` is a comparison against a stored slug and `formatDate(d, "PP")`
+ * is a format string. Neither of those is ever printed.
+ */
+function rendered(node: ts.Node): boolean {
+  let child: ts.Node = node;
+  let parent = node.parent;
+  while (parent) {
+    if (ts.isJsxExpression(parent)) {
+      const host = parent.parent;
+      return !!host && (ts.isJsxElement(host) || ts.isJsxFragment(host));
+    }
+    if (ts.isParenthesizedExpression(parent)) {
+      // Transparent.
+    } else if (ts.isConditionalExpression(parent)) {
+      if (parent.whenTrue !== child && parent.whenFalse !== child) return false;
+    } else if (ts.isBinaryExpression(parent)) {
+      const kind = parent.operatorToken.kind;
+      const chooses =
+        kind === ts.SyntaxKind.AmpersandAmpersandToken ||
+        kind === ts.SyntaxKind.BarBarToken ||
+        kind === ts.SyntaxKind.QuestionQuestionToken;
+      if (!chooses || parent.right !== child) return false;
+    } else {
+      return false;
+    }
+    child = parent;
+    parent = parent.parent;
+  }
+  return false;
+}
+
+/** `pluralNoun(n, "chunk", "chunks")` — English grammar passed as arguments. */
+function copyHelperArgument(node: ts.Node): boolean {
+  const call = node.parent;
+  if (!call || !ts.isCallExpression(call)) return false;
+  if (!call.arguments.includes(node as ts.Expression)) return false;
+  const callee = call.expression;
+  const name = ts.isIdentifier(callee)
+    ? callee.text
+    : ts.isPropertyAccessExpression(callee)
+      ? callee.name.text
+      : "";
+  return COPY_HELPERS.has(name);
+}
+
+/** A `<style>` tag's child is a stylesheet, not a sentence. */
+function insideStyleTag(node: ts.Node): boolean {
+  for (let n: ts.Node | undefined = node.parent; n; n = n.parent) {
+    if (ts.isJsxElement(n)) {
+      const tag = n.openingElement.tagName;
+      if (ts.isIdentifier(tag) && tag.text === "style") return true;
+    }
+  }
+  return false;
+}
+
+function literalText(node: ts.Node): string {
+  if (ts.isTemplateExpression(node)) {
+    return [node.head.text, ...node.templateSpans.map((span) => span.literal.text)].join(" ");
+  }
+  return (node as ts.StringLiteralLike).text;
+}
+
+/**
+ * The third dimension: copy that lives inside a JSX expression.
+ *
+ * The text scan reads what sits between two tags and the attribute scan reads
+ * what sits inside one. Neither can see a string that is chosen by code —
+ * `{saving ? "Saving..." : "Save"}`, `` {`${n} words`} ``, a noun handed to
+ * `pluralNoun`. Those were the last English strings the guard could not name.
+ */
+function englishJsxExpressions(file: string): string[] {
+  const source = readWithoutComments(file);
+  const parsed = ts.createSourceFile(
+    file,
+    source,
+    ts.ScriptTarget.Latest,
+    /* setParentNodes */ true,
+    ts.ScriptKind.TSX
+  );
+  const found: string[] = [];
+
+  const visit = (node: ts.Node): void => {
+    const isLiteral =
+      ts.isStringLiteral(node) ||
+      ts.isNoSubstitutionTemplateLiteral(node) ||
+      ts.isTemplateExpression(node);
+    if (isLiteral && (rendered(node) || copyHelperArgument(node)) && !insideStyleTag(node)) {
+      const text = literalText(node).replace(/\s+/g, " ").trim();
+      const words = text
+        .replace(HTML_ENTITY, " ")
+        .replace(BRAND, " ")
+        .replace(KEY_COMBO, " ")
+        // `{count}` is a slot in a dictionary value, not a word.
+        .replace(/\{[A-Za-z]+\}/g, " ");
+      if (/[a-z]/.test(words) && /[A-Za-z]{2}/.test(words)) {
+        const { line } = parsed.getLineAndCharacterOfPosition(node.getStart());
+        found.push(`${file.slice(SRC.length + 1)}:${line + 1} — ${text.slice(0, 70)}`);
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(parsed);
+  return found;
+}
+
 describe("the parsed areas of the app", () => {
   it("hold no English text beside an expression either", () => {
     const offenders = PARSED_CLEAN_AREAS.flatMap((area) =>
       walk(join(SRC, area)).flatMap(englishJsxText)
+    );
+    expect(offenders).toEqual([]);
+  });
+});
+
+describe("the expressions the parsed areas render", () => {
+  it("hold no English copy chosen by code", () => {
+    const offenders = EXPRESSION_CLEAN_AREAS.flatMap((area) =>
+      walk(join(SRC, area)).flatMap(englishJsxExpressions)
     );
     expect(offenders).toEqual([]);
   });

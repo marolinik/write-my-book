@@ -418,6 +418,10 @@ export const SR: UIStrings = {
     lensRegister: "Registar",
     lensBlindSpots: "Slepe mrlje",
     addLens: "Dodaj sočivo",
+    editLens: "Izmeni sočivo lika",
+    newLens: "Novo sočivo lika",
+    updateLens: "Ažuriraj",
+    createLens: "Napravi",
     noLenses: "Još nema definisanih sočiva likova. Dodajte jedno da biste razlikovali glasove tačaka gledišta.",
     passagesHint: "Ovi odlomci najbolje pokazuju prepoznatljive osobine pripovedačkog glasa.",
     fullProseFingerprint: "Potpun otisak proze",
@@ -473,6 +477,7 @@ export const SR: UIStrings = {
     allYourKeysHint: "Sve se troši na vaše API ključeve",
     noDocumentsYet: "Još nema dokumenata. Dokumenti nastaju kada pokrenete tokove rada agenata.",
     noFindingsYet: "Još nema uredničkih nalaza. Pokrenite agenta urednika da biste ih dobili.",
+    noAnalysisReport: "Nema izveštaja analize. Prvo pokrenite agenta za analizu rukopisa.",
     betaScores: "Beta ocene",
     readability: "Čitljivost",
     pacing: "Ritam",
@@ -1478,6 +1483,9 @@ export const SR: UIStrings = {
     memory: "Pamćenje",
     writerMemory: "Pamćenje pisca",
     writerMemoryHint: "Ove postavke se ubacuju u svaku sesiju AI agenta. AI pamti ono što mu ovde kažete.",
+    chunkOne: "segment",
+    chunkFew: "segmenta",
+    chunkMany: "segmenata",
   },
 
   onboardingUI: {
@@ -1498,6 +1506,8 @@ export const SR: UIStrings = {
     defaultProviderHint: "Ovaj provajder će se podrazumevano koristiti za sve tokove rada. Uvek ga možete promeniti.",
     finishing: "Završavam...",
     docsCreated: "Svi osnovni dokumenti su napravljeni. Pregledajte ih u čarobnjaku za podešavanje.",
+    skipStartFree: "Preskoči za sada — počni da pišeš besplatno",
+    finishSetup: "Završi podešavanje",
   },
 
   shortcuts: {

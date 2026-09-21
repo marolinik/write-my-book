@@ -25,7 +25,7 @@ function timeAgo(dateStr: string | null): string {
 }
 
 export function MemoryStatsCard({ bookId }: { bookId: string }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { data, isLoading } = useBookMemoryStats(bookId);
   const rebuild = useRebuildIndex();
   const clear = useClearMemory();
@@ -75,7 +75,10 @@ export function MemoryStatsCard({ bookId }: { bookId: string }) {
               {data.chunkCount}
               <span className="text-sm font-normal text-muted-foreground ml-1">
                 {/* D-179: never "1 chunks" — the D-163 pluralisation family. */}
-                {pluralNoun(data.chunkCount, "chunk", "chunks")}
+                {pluralNoun(data.chunkCount, t.memoryUI.chunkOne, t.memoryUI.chunkMany, {
+                  few: t.memoryUI.chunkFew,
+                  language,
+                })}
               </span>
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">

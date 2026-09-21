@@ -186,8 +186,7 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
       <Card>
         <CardContent className="py-12 text-center">
           <p className="text-muted-foreground">
-            {analysisData?.message ||
-              "No analysis report found. Run the manuscript analyst agent first."}
+            {analysisData?.message || t.reportsUI.noAnalysisReport}
           </p>
         </CardContent>
       </Card>

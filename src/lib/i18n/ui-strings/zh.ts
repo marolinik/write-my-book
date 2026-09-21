@@ -418,6 +418,10 @@ export const ZH: UIStrings = {
     lensRegister: "语域",
     lensBlindSpots: "盲点",
     addLens: "添加透镜",
+    editLens: "编辑人物透镜",
+    newLens: "新建人物透镜",
+    updateLens: "更新",
+    createLens: "创建",
     noLenses: "尚未定义人物透镜。添加一个即可区分各视角的声音。",
     passagesHint: "这些段落最能体现该写作声音的独特之处。",
     fullProseFingerprint: "完整文风指纹",
@@ -473,6 +477,7 @@ export const ZH: UIStrings = {
     allYourKeysHint: "全部用量都走你自己的 API 密钥",
     noDocumentsYet: "暂无文档。运行助手工作流后会生成文档。",
     noFindingsYet: "暂无编辑发现。运行编辑助手即可生成。",
+    noAnalysisReport: "未找到分析报告。请先运行稿件分析代理。",
     betaScores: "Beta 评分",
     readability: "可读性",
     pacing: "节奏",
@@ -1478,6 +1483,9 @@ export const ZH: UIStrings = {
     memory: "记忆",
     writerMemory: "作者记忆",
     writerMemoryHint: "这些偏好会注入每一次 AI 助手会话。AI 会记住你在这里告诉它的内容。",
+    chunkOne: "片段",
+    chunkFew: "片段",
+    chunkMany: "片段",
   },
 
   onboardingUI: {
@@ -1498,6 +1506,8 @@ export const ZH: UIStrings = {
     defaultProviderHint: "所有工作流将默认使用该服务商。你随时可以更改。",
     finishing: "正在完成……",
     docsCreated: "所有基础文档已创建。请在设置向导中查看。",
+    skipStartFree: "暂时跳过 — 免费开始写作",
+    finishSetup: "完成设置",
   },
 
   shortcuts: {

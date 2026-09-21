@@ -428,6 +428,10 @@ export const EN: UIStrings = {
     lensRegister: "Register",
     lensBlindSpots: "Blind spots",
     addLens: "Add Lens",
+    editLens: "Edit Character Lens",
+    newLens: "New Character Lens",
+    updateLens: "Update",
+    createLens: "Create",
     noLenses: "No character lenses defined yet. Add one to differentiate POV voices.",
     passagesHint: "These passages best demonstrate the distinctive qualities of the writing voice.",
     fullProseFingerprint: "Full Prose Fingerprint",
@@ -483,6 +487,7 @@ export const EN: UIStrings = {
     allYourKeysHint: "All usage is on your own API keys",
     noDocumentsYet: "No documents yet. Documents are created when you run agent workflows.",
     noFindingsYet: "No editorial findings yet. Run an editor agent to generate findings.",
+    noAnalysisReport: "No analysis report found. Run the manuscript analyst agent first.",
     betaScores: "Beta scores",
     readability: "Readability",
     pacing: "Pacing",
@@ -1489,6 +1494,9 @@ export const EN: UIStrings = {
     memory: "Memory",
     writerMemory: "Writer Memory",
     writerMemoryHint: "These preferences are injected into every AI agent session. The AI remembers what you tell it here.",
+    chunkOne: "chunk",
+    chunkFew: "chunks",
+    chunkMany: "chunks",
   },
 
   onboardingUI: {
@@ -1509,6 +1517,8 @@ export const EN: UIStrings = {
     defaultProviderHint: "This provider will be used by default for all workflows. You can always change it.",
     finishing: "Finishing...",
     docsCreated: "All foundational documents created. Review them in the setup wizard.",
+    skipStartFree: "Skip for now — start writing free",
+    finishSetup: "Finish Setup",
   },
 
   shortcuts: {

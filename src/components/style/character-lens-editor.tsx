@@ -101,7 +101,7 @@ export function CharacterLensEditor({
         <Card>
           <CardHeader>
             <CardTitle className="text-base">
-              {editingId ? "Edit Character Lens" : "New Character Lens"}
+              {editingId ? t.styleUI.editLens : t.styleUI.newLens}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -168,7 +168,7 @@ export function CharacterLensEditor({
                 disabled={createLens.isPending || updateLens.isPending || !form.characterName}
                 size="sm"
               >
-                {editingId ? "Update" : "Create"}
+                {editingId ? t.styleUI.updateLens : t.styleUI.createLens}
               </Button>
               <Button onClick={cancel} variant="ghost" size="sm">
                 <X className="mr-1 h-4 w-4" />{t.common.cancel}</Button>

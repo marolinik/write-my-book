@@ -97,7 +97,7 @@ export function JourneyChecklist({
                     }
                   >
                     {step.label}
-                    {step.optional ? " (optional)" : ""}
+                    {step.optional ? ` (${t.agentUI.stepOptional})` : ""}
                   </span>
 
                   {/* Warning badge */}

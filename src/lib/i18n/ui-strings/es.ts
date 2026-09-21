@@ -418,6 +418,10 @@ export const ES: UIStrings = {
     lensRegister: "Registro",
     lensBlindSpots: "Puntos ciegos",
     addLens: "Añadir lente",
+    editLens: "Editar lente de personaje",
+    newLens: "Nueva lente de personaje",
+    updateLens: "Actualizar",
+    createLens: "Crear",
     noLenses: "Aún no hay lentes de personaje. Añade una para diferenciar las voces narrativas.",
     passagesHint: "Estos pasajes son los que mejor muestran los rasgos distintivos de la voz.",
     fullProseFingerprint: "Huella completa de la prosa",
@@ -473,6 +477,7 @@ export const ES: UIStrings = {
     allYourKeysHint: "Todo el uso corre a cargo de tus propias claves de API",
     noDocumentsYet: "Aún no hay documentos. Se crean cuando ejecutas flujos de trabajo del agente.",
     noFindingsYet: "Aún no hay hallazgos editoriales. Ejecuta un agente editor para generarlos.",
+    noAnalysisReport: "No se encontró ningún informe de análisis. Ejecuta primero el agente analista de manuscrito.",
     betaScores: "Puntuaciones beta",
     readability: "Legibilidad",
     pacing: "Ritmo",
@@ -1478,6 +1483,9 @@ export const ES: UIStrings = {
     memory: "Memoria",
     writerMemory: "Memoria del autor",
     writerMemoryHint: "Estas preferencias se inyectan en cada sesión del agente de IA. La IA recuerda lo que le digas aquí.",
+    chunkOne: "fragmento",
+    chunkFew: "fragmentos",
+    chunkMany: "fragmentos",
   },
 
   onboardingUI: {
@@ -1498,6 +1506,8 @@ export const ES: UIStrings = {
     defaultProviderHint: "Este proveedor se usará por defecto en todos los flujos de trabajo. Puedes cambiarlo cuando quieras.",
     finishing: "Finalizando...",
     docsCreated: "Se han creado todos los documentos base. Revísalos en el asistente de configuración.",
+    skipStartFree: "Omitir por ahora: empieza a escribir gratis",
+    finishSetup: "Finalizar configuración",
   },
 
   shortcuts: {

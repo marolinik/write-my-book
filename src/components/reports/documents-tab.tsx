@@ -80,7 +80,7 @@ export function DocumentsTab({ bookId }: { bookId: string }) {
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {DOC_TYPE_LABELS[doc.type] || doc.type}
-                      {doc.chapterNumber ? ` — Ch. ${doc.chapterNumber}` : ""}
+                      {doc.chapterNumber ? ` — ${t.agentUI.chapterAbbrev} ${doc.chapterNumber}` : ""}
                       {" · v"}{doc.currentVersion}
                     </p>
                   </div>

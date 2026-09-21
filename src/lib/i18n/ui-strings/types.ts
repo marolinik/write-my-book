@@ -436,6 +436,10 @@ export interface UIStrings {
     lensRegister: string;
     lensBlindSpots: string;
     addLens: string;
+    editLens: string;
+    newLens: string;
+    updateLens: string;
+    createLens: string;
     noLenses: string;
     passagesHint: string;
     fullProseFingerprint: string;
@@ -492,6 +496,7 @@ export interface UIStrings {
     allYourKeysHint: string;
     noDocumentsYet: string;
     noFindingsYet: string;
+    noAnalysisReport: string;
     betaScores: string;
     readability: string;
     pacing: string;
@@ -1426,6 +1431,9 @@ export interface UIStrings {
     memory: string;
     writerMemory: string;
     writerMemoryHint: string;
+    chunkOne: string;
+    chunkFew: string;
+    chunkMany: string;
   };
 
   // H-10 - the first five minutes a writer spends in the product.
@@ -1447,6 +1455,8 @@ export interface UIStrings {
     defaultProviderHint: string;
     finishing: string;
     docsCreated: string;
+    skipStartFree: string;
+    finishSetup: string;
   };
 
   // Lo-1 - the keyboard-shortcut help. The table in lib/keyboard-shortcuts.ts

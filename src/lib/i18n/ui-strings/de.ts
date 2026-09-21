@@ -418,6 +418,10 @@ export const DE: UIStrings = {
     lensRegister: "Register",
     lensBlindSpots: "Blinde Flecken",
     addLens: "Linse hinzufügen",
+    editLens: "Figurenlinse bearbeiten",
+    newLens: "Neue Figurenlinse",
+    updateLens: "Aktualisieren",
+    createLens: "Anlegen",
     noLenses: "Noch keine Figurenlinsen. Legen Sie eine an, um Perspektivstimmen zu unterscheiden.",
     passagesHint: "Diese Passagen zeigen die Eigenheiten der Erzählstimme am deutlichsten.",
     fullProseFingerprint: "Vollständiger Prosa-Fingerabdruck",
@@ -473,6 +477,7 @@ export const DE: UIStrings = {
     allYourKeysHint: "Die gesamte Nutzung läuft über Ihre eigenen API-Schlüssel",
     noDocumentsYet: "Noch keine Dokumente. Dokumente entstehen, wenn Sie Agenten-Workflows ausführen.",
     noFindingsYet: "Noch keine Lektoratsbefunde. Starten Sie einen Lektoratsagenten, um welche zu erzeugen.",
+    noAnalysisReport: "Kein Analysebericht gefunden. Führen Sie zuerst den Manuskript-Analysten aus.",
     betaScores: "Beta-Bewertungen",
     readability: "Lesbarkeit",
     pacing: "Tempo",
@@ -1478,6 +1483,9 @@ export const DE: UIStrings = {
     memory: "Gedächtnis",
     writerMemory: "Autorengedächtnis",
     writerMemoryHint: "Diese Vorgaben fließen in jede KI-Agentensitzung ein. Die KI merkt sich, was Sie hier angeben.",
+    chunkOne: "Segment",
+    chunkFew: "Segmente",
+    chunkMany: "Segmente",
   },
 
   onboardingUI: {
@@ -1498,6 +1506,8 @@ export const DE: UIStrings = {
     defaultProviderHint: "Dieser Anbieter wird standardmäßig für alle Workflows verwendet. Sie können das jederzeit ändern.",
     finishing: "Wird abgeschlossen ...",
     docsCreated: "Alle Grundlagendokumente wurden erstellt. Sehen Sie sie im Einrichtungsassistenten durch.",
+    skipStartFree: "Vorerst überspringen — kostenlos schreiben",
+    finishSetup: "Einrichtung abschließen",
   },
 
   shortcuts: {

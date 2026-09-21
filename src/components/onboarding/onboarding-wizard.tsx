@@ -232,7 +232,7 @@ export function OnboardingWizard() {
                     <>
                       <Loader2Icon className="size-4 mr-2 animate-spin" />{t.onboardingUI.starting}</>
                   ) : (
-                    "Skip for now — start writing free"
+                    t.onboardingUI.skipStartFree
                   )}
                 </Button>
               )}
@@ -309,7 +309,7 @@ export function OnboardingWizard() {
                 <>
                   <Loader2Icon className="size-4 mr-2 animate-spin" />{t.onboardingUI.finishing}</>
               ) : (
-                "Finish Setup"
+                t.onboardingUI.finishSetup
               )}
             </Button>
           </div>
