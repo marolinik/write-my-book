@@ -8,6 +8,14 @@
  * detectable: a run of codepoints in U+0080..U+00FF that decodes cleanly as
  * UTF-8 is mojibake, not legitimate Latin-1 text (a lone "e-acute" or
  * "u-diaeresis" is not valid UTF-8 on its own).
+ *
+ * One shape collides with a legitimate one and cannot be told apart: French
+ * spacing before a closing guillemet. "passe-acute" + NO-BREAK SPACE + "»" is
+ * E9 A0 BB, which decodes cleanly, and the mojibake of "a-grave" really is
+ * "A-tilde" + NO-BREAK SPACE — so exempting the no-break space would blind
+ * this test to a real case. French therefore uses U+202F NARROW NO-BREAK
+ * SPACE before « » ? ! ; :, which is the character French typography calls
+ * for anyway and is outside the Latin-1 range this scan reads.
  */
 
 import { describe, it, expect } from "vitest";
