@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/components/providers/language-provider";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 import { useState } from "react";
 import { FocusIcon, EyeOffIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,10 +32,15 @@ interface GraduatedFocusProps {
 
 // Level 3 (sentence) is hidden this phase: there is no sentence-decoration
 // producer, so it would render identically to level 2 (paragraph).
-const FOCUS_LEVELS = [
-  { level: 0 as FocusLevel, label: "Normal", desc: "Everything visible", icon: "👁️" },
-  { level: 1 as FocusLevel, label: "Focused", desc: "Sidebar & header dimmed", icon: "🔍" },
-  { level: 2 as FocusLevel, label: "Paragraph", desc: "Current paragraph highlighted", icon: "📝" },
+const FOCUS_LEVELS: ReadonlyArray<{
+  level: FocusLevel;
+  label: (t: UIStrings) => string;
+  desc: (t: UIStrings) => string;
+  icon: string;
+}> = [
+  { level: 0 as FocusLevel, label: (t) => t.editorChrome.focusNormal, desc: (t) => t.editorChrome.focusNormalDesc, icon: "👁️" },
+  { level: 1 as FocusLevel, label: (t) => t.editorChrome.focusFocused, desc: (t) => t.editorChrome.focusFocusedDesc, icon: "🔍" },
+  { level: 2 as FocusLevel, label: (t) => t.editorChrome.focusParagraph, desc: (t) => t.editorChrome.focusParagraphDesc, icon: "📝" },
 ];
 
 export function GraduatedFocus({ currentLevel: externalLevel, onChange: externalOnChange, onEnterImmersive }: GraduatedFocusProps) {
@@ -74,8 +80,8 @@ export function GraduatedFocus({ currentLevel: externalLevel, onChange: external
           >
             <span className="text-sm" aria-hidden="true">{fl.icon}</span>
             <div>
-              <p className="text-xs font-medium">{fl.label}</p>
-              <p className="text-[9px] text-muted-foreground">{fl.desc}</p>
+              <p className="text-xs font-medium">{fl.label(t)}</p>
+              <p className="text-[9px] text-muted-foreground">{fl.desc(t)}</p>
             </div>
           </button>
         ))}

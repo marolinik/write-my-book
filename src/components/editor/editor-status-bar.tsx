@@ -1,6 +1,7 @@
 "use client";
 
 import { countWithNoun, pluralNoun } from "@/lib/i18n/plural";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 import { useLanguage } from "@/components/providers/language-provider";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -45,33 +46,33 @@ interface EditorStatusBarProps {
 
 const LEGEND_ITEMS = [
   {
-    label: "AI suggestion",
-    description: "Has replacement text",
+    label: (t: UIStrings) => t.editorChrome.annAiSuggestion,
+    description: (t: UIStrings) => t.editorChrome.legendAiSuggestionDesc,
     bgClass: "bg-violet-500/20 dark:bg-violet-400/25",
     borderClass: "border-b-2 border-violet-500 dark:border-violet-400",
   },
   {
-    label: "Editorial finding",
-    description: "Needs review",
+    label: (t: UIStrings) => t.editorChrome.annFinding,
+    description: (t: UIStrings) => t.editorChrome.legendFindingDesc,
     bgClass: "bg-red-500/20 dark:bg-red-400/25",
     borderClass: "border-b-2 border-red-500 dark:border-red-400",
   },
   {
-    label: "Accepted change",
-    description: "Inserted text",
+    label: (t: UIStrings) => t.editorChrome.legendAcceptedChange,
+    description: (t: UIStrings) => t.editorChrome.legendAcceptedDesc,
     bgClass: "bg-green-500/20 dark:bg-green-400/25",
     borderClass: "border-b-2 border-green-500 dark:border-green-400",
   },
   {
-    label: "Deletion",
-    description: "Struck-through text",
+    label: (t: UIStrings) => t.editorChrome.annDeletion,
+    description: (t: UIStrings) => t.editorChrome.legendDeletionDesc,
     bgClass: "bg-red-500/15 dark:bg-red-400/20",
     borderClass: "border-b-0",
     extra: "line-through decoration-red-500/70 dark:decoration-red-400/60",
   },
   {
-    label: "Comment",
-    description: "Inline note",
+    label: (t: UIStrings) => t.editorChrome.annComment,
+    description: (t: UIStrings) => t.editorChrome.legendCommentDesc,
     bgClass: "bg-amber-500/20 dark:bg-amber-400/25",
     borderClass: "border-b-2 border-dashed border-amber-500 dark:border-amber-400",
   },
@@ -120,13 +121,13 @@ function AnnotationLegend() {
         <p className="text-xs font-medium mb-2">{t.editorUI.annotationLegend}</p>
         <ul className="space-y-1.5">
           {LEGEND_ITEMS.map((item) => (
-            <li key={item.label} className="flex items-center gap-2 text-xs">
+            <li key={item.label(t)} className="flex items-center gap-2 text-xs">
               <span
                 className={`inline-block w-8 h-3.5 rounded-sm shrink-0 ${item.bgClass} ${item.borderClass}`}
               />
-              <span className="text-foreground">{item.label}</span>
+              <span className="text-foreground">{item.label(t)}</span>
               <span className="text-muted-foreground ml-auto text-[10px] leading-tight">
-                {item.description}
+                {item.description(t)}
               </span>
             </li>
           ))}

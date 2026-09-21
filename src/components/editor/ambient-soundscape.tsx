@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/components/providers/language-provider";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Volume2Icon,
@@ -40,7 +41,7 @@ import { cn } from "@/lib/utils";
 type SoundscapeType = "rain" | "coffee" | "library" | "fire" | "forest" | "ocean" | "off";
 
 interface SoundscapeConfig {
-  label: string;
+  label: (t: UIStrings) => string;
   icon: React.ElementType;
   /** Brown noise filter frequency (Hz) — lower = deeper */
   frequency: number;
@@ -54,7 +55,7 @@ interface SoundscapeConfig {
 
 const SOUNDSCAPES: Record<Exclude<SoundscapeType, "off">, SoundscapeConfig> = {
   rain: {
-    label: "Rain",
+    label: (t: UIStrings) => t.editorChrome.soundRain,
     icon: CloudRainIcon,
     frequency: 400,
     volume: 0.3,
@@ -62,7 +63,7 @@ const SOUNDSCAPES: Record<Exclude<SoundscapeType, "off">, SoundscapeConfig> = {
     modRate: 0.1,
   },
   coffee: {
-    label: "Coffee Shop",
+    label: (t: UIStrings) => t.editorChrome.soundCoffee,
     icon: CoffeeIcon,
     frequency: 600,
     volume: 0.15,
@@ -70,7 +71,7 @@ const SOUNDSCAPES: Record<Exclude<SoundscapeType, "off">, SoundscapeConfig> = {
     modRate: 0.3,
   },
   library: {
-    label: "Library",
+    label: (t: UIStrings) => t.editorChrome.soundLibrary,
     icon: BookOpenIcon,
     frequency: 200,
     volume: 0.05,
@@ -78,7 +79,7 @@ const SOUNDSCAPES: Record<Exclude<SoundscapeType, "off">, SoundscapeConfig> = {
     modRate: 0.05,
   },
   fire: {
-    label: "Fireplace",
+    label: (t: UIStrings) => t.editorChrome.soundFireplace,
     icon: FlameIcon,
     frequency: 350,
     volume: 0.2,
@@ -86,7 +87,7 @@ const SOUNDSCAPES: Record<Exclude<SoundscapeType, "off">, SoundscapeConfig> = {
     modRate: 0.8,
   },
   forest: {
-    label: "Forest",
+    label: (t: UIStrings) => t.editorChrome.soundForest,
     icon: TreePineIcon,
     frequency: 800,
     volume: 0.12,
@@ -94,7 +95,7 @@ const SOUNDSCAPES: Record<Exclude<SoundscapeType, "off">, SoundscapeConfig> = {
     modRate: 0.2,
   },
   ocean: {
-    label: "Ocean",
+    label: (t: UIStrings) => t.editorChrome.soundOcean,
     icon: WavesIcon,
     frequency: 250,
     volume: 0.25,
@@ -276,7 +277,7 @@ export function AmbientSoundscape({ className }: AmbientSoundscapeProps = {}) {
                   }`}
                 >
                   <Icon className="size-4" />
-                  <span>{config.label}</span>
+                  <span>{config.label(t)}</span>
                 </button>
               );
             }

@@ -173,7 +173,7 @@ interface ToolbarGroup {
   priority: "primary" | "secondary";
   render: (ctx: ToolbarGroupContext) => React.ReactNode;
   renderDropdownItems: (ctx: ToolbarGroupContext) => React.ReactNode;
-  label: string;
+  label: (t: UIStrings["editorUI"]) => string;
 }
 
 interface ToolbarGroupContext {
@@ -214,7 +214,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
   {
     id: "formatting",
     priority: "primary",
-    label: "Formatting",
+    label: (t: UIStrings["editorUI"]) => t.groupFormatting,
     render: (ctx) => (
       <>
         <ToolbarButton
@@ -245,7 +245,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
   {
     id: "headings",
     priority: "primary",
-    label: "Headings",
+    label: (t: UIStrings["editorUI"]) => t.groupHeadings,
     render: (ctx) => (
       <>
         <ToolbarButton
@@ -302,7 +302,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
   {
     id: "blocks",
     priority: "secondary",
-    label: "Lists & Blocks",
+    label: (t: UIStrings["editorUI"]) => t.groupLists,
     render: (ctx) => (
       <>
         <ToolbarButton
@@ -351,7 +351,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
   {
     id: "history",
     priority: "secondary",
-    label: "History",
+    label: (t: UIStrings["editorUI"]) => t.groupHistory,
     render: (ctx) => (
       <>
         <ToolbarButton
@@ -378,7 +378,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
   {
     id: "tools",
     priority: "secondary",
-    label: "Tools",
+    label: (t: UIStrings["editorUI"]) => t.groupTools,
     render: (ctx) => (
       <>
         <ToolbarButton
@@ -516,7 +516,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
   {
     id: "panels",
     priority: "primary",
-    label: "Panels",
+    label: (t: UIStrings["editorUI"]) => t.groupPanels,
     render: (ctx) => (
       <>
         {ctx.density !== "compact" && ctx.onToggleAnnotations && (
@@ -759,7 +759,7 @@ export function EditorToolbar({
                 return (
                   <div key={group.id}>
                     {index > 0 && <DropdownMenuSeparator />}
-                    <DropdownMenuLabel>{group.label}</DropdownMenuLabel>
+                    <DropdownMenuLabel>{group.label(ctx.t)}</DropdownMenuLabel>
                     {items}
                   </div>
                 );

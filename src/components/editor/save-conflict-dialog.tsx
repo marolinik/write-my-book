@@ -137,7 +137,7 @@ export function SaveConflictDialog({
       clearConflictDraft();
       onOpenChange(false);
       toast.success(t.toasts.yourVersionSaved, {
-        description: "The other version is preserved in version history.",
+        description: t.editorChrome.conflictPreserved,
       });
     } catch (error) {
       paneStore.getState().setSaving(false);
@@ -157,13 +157,13 @@ export function SaveConflictDialog({
             serverVersion: body.currentVersion,
           });
         }
-        toast.warning(`${noun} changed again`, {
-          description: "The diff has been updated — please review once more.",
+        toast.warning(t.editorChrome.conflictChangedAgain.replace("{doc}", noun), {
+          description: t.editorChrome.conflictDiffUpdated,
         });
       } else {
         toast.error(t.toasts.yourVersionSaveFailed, {
           description:
-            error instanceof Error ? error.message : "Please try again.",
+            error instanceof Error ? error.message : t.editorChrome.tryAgainHint,
         });
       }
     } finally {
@@ -219,7 +219,7 @@ export function SaveConflictDialog({
       // Words stay safe: editor content and conflict state are untouched.
       toast.error(t.toasts.backupFailed, {
         description:
-          error instanceof Error ? error.message : "Please try again.",
+          error instanceof Error ? error.message : t.editorChrome.tryAgainHint,
       });
     } finally {
       setIsResolving(false);

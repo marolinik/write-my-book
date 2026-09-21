@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
 
 /** Visible reminder of the send/newline keys (also documents Shift+Enter). */
-const KEYBOARD_HINT = "Enter to send · Shift+Enter for new line";
+
 
 interface FloatingAgentInputProps {
   editor: Editor;
@@ -149,7 +149,7 @@ export function FloatingAgentInput({
         >{t.common.send}</Button>
       </div>
       <p className="px-1.5 pt-0.5 text-[10px] text-muted-foreground/70 select-none">
-        {KEYBOARD_HINT}
+        {t.editorChrome.keyboardHint}
       </p>
     </div>
   );

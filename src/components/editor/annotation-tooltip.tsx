@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/components/providers/language-provider";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -34,50 +35,50 @@ interface AnnotationTooltipProps {
 
 const TYPE_CONFIG: Record<
   AnnotationType,
-  { label: string; color: string; bg: string }
+  { label: (t: UIStrings) => string; color: string; bg: string }
 > = {
   insert: {
-    label: "Insertion",
+    label: (t: UIStrings) => t.editorChrome.annInsertion,
     color: "text-green-600 dark:text-green-400",
     bg: "bg-green-100 dark:bg-green-900/30",
   },
   delete: {
-    label: "Deletion",
+    label: (t: UIStrings) => t.editorChrome.annDeletion,
     color: "text-red-600 dark:text-red-400",
     bg: "bg-red-100 dark:bg-red-900/30",
   },
   comment: {
-    label: "Comment",
+    label: (t: UIStrings) => t.editorChrome.annComment,
     color: "text-amber-600 dark:text-amber-400",
     bg: "bg-amber-100 dark:bg-amber-900/30",
   },
   ai: {
-    label: "AI Suggestion",
+    label: (t: UIStrings) => t.editorChrome.annAiSuggestion,
     color: "text-violet-600 dark:text-violet-400",
     bg: "bg-violet-100 dark:bg-violet-900/30",
   },
   finding: {
-    label: "Editorial Finding",
+    label: (t: UIStrings) => t.editorChrome.annFinding,
     color: "text-red-600 dark:text-red-400",
     bg: "bg-red-100 dark:bg-red-900/30",
   },
   "severity-high": {
-    label: "High Severity",
+    label: (t: UIStrings) => t.editorChrome.annHighSeverity,
     color: "text-red-600 dark:text-red-400",
     bg: "bg-red-100 dark:bg-red-900/30",
   },
   "severity-medium": {
-    label: "Medium Severity",
+    label: (t: UIStrings) => t.editorChrome.annMediumSeverity,
     color: "text-orange-600 dark:text-orange-400",
     bg: "bg-orange-100 dark:bg-orange-900/30",
   },
   "severity-low": {
-    label: "Low Severity",
+    label: (t: UIStrings) => t.editorChrome.annLowSeverity,
     color: "text-blue-600 dark:text-blue-400",
     bg: "bg-blue-100 dark:bg-blue-900/30",
   },
   continuity: {
-    label: "Continuity",
+    label: (t: UIStrings) => t.editorChrome.annContinuity,
     color: "text-orange-600 dark:text-orange-400",
     bg: "bg-orange-100 dark:bg-orange-900/30",
   },
@@ -187,7 +188,7 @@ export function AnnotationTooltip({
         {/* Type badge */}
         <div className="flex items-center gap-2">
           <Badge className={`${config.bg} ${config.color} text-xs`}>
-            {config.label}
+            {config.label(t)}
           </Badge>
         </div>
 

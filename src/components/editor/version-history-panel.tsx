@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/components/providers/language-provider";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 import { useState } from "react";
 import { History, RotateCcw, Eye, GitCompareArrows } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -27,11 +28,14 @@ interface VersionHistoryPanelProps {
   documentId: string | null;
 }
 
-const changeTypeBadge: Record<string, { label: string; variant: "default" | "secondary" | "outline" | "destructive" }> = {
-  agent_write: { label: "AI", variant: "default" },
-  manual_edit: { label: "Manual", variant: "secondary" },
-  revision: { label: "Restore", variant: "outline" },
-  import: { label: "Import", variant: "secondary" },
+const changeTypeBadge: Record<
+  string,
+  { label: (t: UIStrings) => string; variant: "default" | "secondary" | "outline" | "destructive" }
+> = {
+  agent_write: { label: () => "AI", variant: "default" },
+  manual_edit: { label: (t) => t.editorChrome.versionManual, variant: "secondary" },
+  revision: { label: (t) => t.editorChrome.versionRestore, variant: "outline" },
+  import: { label: (t) => t.editorChrome.versionImport, variant: "secondary" },
 };
 
 export function VersionHistoryPanel({
@@ -126,7 +130,7 @@ export function VersionHistoryPanel({
                       v{v.version}
                     </span>
                     <Badge variant={badge.variant} className="text-[10px] px-1.5 py-0">
-                      {badge.label}
+                      {badge.label(t)}
                     </Badge>
                     <span className="ml-auto text-[10px] text-muted-foreground">
                       {wordDelta > 0 ? "+" : ""}

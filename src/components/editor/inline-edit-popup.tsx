@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/components/providers/language-provider";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 import { useState, useEffect, useRef, useCallback } from "react";
 import type { Editor } from "@tiptap/react";
 import { Button } from "@/components/ui/button";
@@ -25,14 +26,14 @@ import {
 // ── Preset AI action pills ─────────────────────────────────────
 
 const AI_ACTIONS = [
-  { id: "rewrite", label: "Rewrite", emoji: "\u{1F504}" },
-  { id: "improve", label: "Improve", emoji: "\u2728" },
-  { id: "shorten", label: "Shorten", emoji: "\u2702\uFE0F" },
-  { id: "extend", label: "Extend", emoji: "\u{1F4DD}" },
-  { id: "revise", label: "Revise", emoji: "\u{1F527}" },
-  { id: "dialogue", label: "More dialogue", emoji: "\u{1F4AC}" },
-  { id: "vivid", label: "More vivid", emoji: "\u{1F3A8}" },
-  { id: "formal", label: "More formal", emoji: "\u{1F4CB}" },
+  { id: "rewrite", label: (t: UIStrings) => t.editorChrome.inlineRewrite, emoji: "\u{1F504}" },
+  { id: "improve", label: (t: UIStrings) => t.editorChrome.inlineImprove, emoji: "\u2728" },
+  { id: "shorten", label: (t: UIStrings) => t.editorChrome.inlineShorten, emoji: "\u2702\uFE0F" },
+  { id: "extend", label: (t: UIStrings) => t.editorChrome.inlineExtend, emoji: "\u{1F4DD}" },
+  { id: "revise", label: (t: UIStrings) => t.editorChrome.inlineRevise, emoji: "\u{1F527}" },
+  { id: "dialogue", label: (t: UIStrings) => t.editorChrome.inlineMoreDialogue, emoji: "\u{1F4AC}" },
+  { id: "vivid", label: (t: UIStrings) => t.editorChrome.inlineMoreVivid, emoji: "\u{1F3A8}" },
+  { id: "formal", label: (t: UIStrings) => t.editorChrome.inlineMoreFormal, emoji: "\u{1F4CB}" },
 ] as const;
 
 // ────────────────────────────────────────────────────────────────
@@ -272,10 +273,10 @@ export function InlineEditPopup({
                 key={action.id}
                 type="button"
                 className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs border border-border text-muted-foreground hover:border-violet-500 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-500/5 transition-colors"
-                onClick={() => handleActionClick(action.label)}
+                onClick={() => handleActionClick(action.label(t))}
               >
                 <span aria-hidden="true">{action.emoji}</span>
-                {action.label}
+                {action.label(t)}
               </button>
             ))}
           </div>

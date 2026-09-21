@@ -328,7 +328,7 @@ export function ManuscriptEditor({
   const editor = useEditor({
     immediatelyRender: false,
     extensions: createEditorExtensions({
-      placeholder: "Start writing your chapter...",
+      placeholder: t.editorChrome.chapterPlaceholder,
       onAnnotationClick: handleAnnotationClick,
     }),
     editorProps: {
@@ -417,10 +417,9 @@ export function ManuscriptEditor({
   // content-load effect — draft recovery surfaces conflicts during load.)
   const showConflictToast = useCallback(() => {
     toast.warning(t.toasts.chapterChangedOutside, {
-      description:
-        "Another writer (agent, import, or tab) saved a newer version. Your words are kept in this editor — review to resume saving.",
+      description: t.editorChrome.conflictNewerVersion,
       action: {
-        label: "Review",
+        label: t.workspaceUI.review,
         onClick: () => setShowSaveConflict(true),
       },
     });
@@ -742,9 +741,7 @@ export function ManuscriptEditor({
     }
     if (isDirty && !offlineToastShownRef.current) {
       offlineToastShownRef.current = true;
-      toast.info(
-        "You're offline. Your words are kept on this device and will sync when you reconnect."
-      );
+      toast.info(t.editorChrome.offlineKept);
     }
   }, [isOnline, isDirty]);
 

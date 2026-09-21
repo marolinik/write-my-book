@@ -14,11 +14,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAmbientContext } from "@/hooks/use-ambient-context";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 
 // Human-readable labels — never surface the raw camelCase metric key as UI copy (review fix).
-const TONE_LABELS: Record<string, string> = {
-  avgWordsPerSentence: "Sentence length",
-  avgSentencesPerParagraph: "Paragraph length",
+const TONE_LABELS: Record<string, (t: UIStrings) => string> = {
+  avgWordsPerSentence: (t) => t.styleUI.sentenceLength,
+  avgSentencesPerParagraph: (t) => t.styleUI.paragraphLength,
 };
 
 interface AmbientSeriesPanelProps {
@@ -146,7 +147,7 @@ export function AmbientSeriesPanel({ bookId, chapterNumber, onClose }: AmbientSe
                   </div>
                   {data.toneDrift.metrics.filter((m) => m.material).map((m) => (
                     <p key={m.key} className="text-[11px] text-muted-foreground">
-                      {TONE_LABELS[m.key] ?? m.key}: {m.deltaPct > 0 ? "▲" : "▼"}
+                      {TONE_LABELS[m.key]?.(t) ?? m.key}: {m.deltaPct > 0 ? "▲" : "▼"}
                       {t.editorChrome.pctVsSeries.replace(
                         "{pct}",
                         String(Math.abs(m.deltaPct))

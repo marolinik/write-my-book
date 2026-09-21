@@ -189,7 +189,7 @@ export function AIGhostText({
       if (notice.openSettings) {
         toast.error(notice.message, {
           action: {
-            label: "Open Settings",
+            label: t.editorChrome.openSettings,
             onClick: () => router.push("/settings"),
           },
         });

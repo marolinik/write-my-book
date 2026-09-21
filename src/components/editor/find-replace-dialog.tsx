@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/components/providers/language-provider";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 import { countWithNoun } from "@/lib/i18n/plural";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -117,17 +118,30 @@ export function FindReplaceDialog({
         toast.info(t.toasts.noMatchesReplaced);
         return;
       }
-      const chapterWord = res.replaced.length === 1 ? "chapter" : "chapters";
       toast.success(
-        `Replaced ${res.totalReplacements} ${
-          res.totalReplacements === 1 ? "occurrence" : "occurrences"
-        } across ${res.replaced.length} ${chapterWord}.`
+        t.editorChrome.replacedAcross
+          .replace(
+            "{count}",
+            countWithNoun(
+              res.totalReplacements,
+              t.editorChrome.occurrenceOne,
+              t.editorChrome.occurrenceMany,
+              { few: t.editorChrome.occurrenceFew, language }
+            )
+          )
+          .replace(
+            "{chapters}",
+            countWithNoun(res.replaced.length, t.setup.chapterOne, t.setup.chapterMany, {
+              few: t.setup.chapterFew,
+              language,
+            })
+          )
       );
       onOpenChange(false);
     } catch (error) {
       toast.error(t.toasts.replaceFailed, {
         description:
-          error instanceof Error ? error.message : "Please try again.",
+          error instanceof Error ? error.message : t.editorChrome.tryAgainHint,
       });
     }
   };
@@ -183,8 +197,8 @@ export function FindReplaceDialog({
             >
               {(
                 [
-                  { value: "chapter", label: "This chapter" },
-                  { value: "book", label: "Whole book" },
+                  { value: "chapter", label: (t: UIStrings) => t.editorChrome.scopeThisChapter },
+                  { value: "book", label: (t: UIStrings) => t.editorChrome.scopeWholeBook },
                 ] as const
               ).map((opt) => (
                 <button
@@ -200,7 +214,7 @@ export function FindReplaceDialog({
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  {opt.label}
+                  {opt.label(t)}
                 </button>
               ))}
             </div>

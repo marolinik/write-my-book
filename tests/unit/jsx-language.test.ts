@@ -332,6 +332,7 @@ function englishJsxExpressions(file: string): string[] {
 const DEFINITION_CLEAN_AREAS: string[] = [
   join("app", "(app)"),
   join("components", "agent"),
+  join("components", "editor"),
   join("components", "editorial"),
   join("components", "import-export"),
   join("components", "layout"),
@@ -567,6 +568,8 @@ describe("the dictionaries behind the localized areas", () => {
       // "Version" and "Agent" are spelled the same in German, and "{matches}
       // in {chapters}" needs no other preposition.
       "docVersion", "docAgent", "versionN", "matchesInChapters",
+      // "Import" is the German word too.
+      "versionImport",
       // "Import" and "Genre" are German words too.
       "importStep", "genre",
       "stepOptional", "syntax", "focusNormal", "upgrade", "name", "median",
@@ -579,6 +582,8 @@ describe("the dictionaries behind the localized areas", () => {
       "focusThemeSepia",
       // Spanish took "token" as a loanword, and "no" is the word itself.
       "minutesAbbrev", "tokensAbbrev", "tokensInOut", "feedbackNo", "no",
+      // "Manual" is spelled the same in Spanish.
+      "versionManual",
       // Spanish "serie" pluralises to "series", the English word exactly —
       // both the page title and the two plural forms of the noun.
       "title", "seriesFew", "seriesMany",
@@ -590,6 +595,8 @@ describe("the dictionaries behind the localized areas", () => {
       // "session", "documents" and "Version" are the French words, spelled
       // the same.
       "versionN", "minutesAbbrev",
+      // "Insertion", "Import" and "occurrence" are French words.
+      "annInsertion", "versionImport", "occurrenceOne", "occurrenceFew", "occurrenceMany",
       // "Correction" is the French word, spelled the same.
       "catCorrection",
       // "Style" and "Genre" are the French words.
