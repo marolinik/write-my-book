@@ -5,6 +5,7 @@ import { DocumentType } from "@/generated/prisma/enums";
 import {
   composeSeriesDocument,
   upsertBookSection,
+  resolveSeriesLanguage,
   type MissingBook,
 } from "./compose-series-document";
 
@@ -90,16 +91,29 @@ export async function synthesizeToSeries(
     language: book?.language ?? undefined,
   };
 
-  // The series language is the first book's — the yardstick a mixed-language
-  // section is measured against, not a rule imposed on it.
-  const seriesLanguage = siblings.length
+  // The series language is the yardstick a mixed-language section is measured
+  // against, not a rule imposed on it.
+  // M-4: the series' own column is the answer when it has one. It used to be
+  // ignored entirely in favour of guessing from the first sibling, so a
+  // Serbian series whose first book was English got an English document and
+  // the writer had no way to say otherwise.
+  const series = await db.series.findFirst({
+    where: { id: seriesId },
+    select: { language: true },
+  });
+  const firstBookLanguage = siblings.length
     ? (
         await db.book.findFirst({
           where: { id: siblings[0].id },
           select: { language: true },
         })
-      )?.language ?? undefined
-    : book?.language ?? undefined;
+      )?.language
+    : undefined;
+  const seriesLanguage = resolveSeriesLanguage(
+    series?.language,
+    firstBookLanguage,
+    book?.language
+  );
 
   // H-2: the title used to be the word "Series" with the artifact type spelled
   // out after it, which read "Series series bible" in English and stayed

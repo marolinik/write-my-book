@@ -1081,6 +1081,8 @@ export interface UIStrings {
     memoryUpdated: string;
     onboardingReadyToWrite: string;
     onboardingComplete: string;
+    seriesLanguageSaved: string;
+    seriesLanguageFailed: string;
   };
 
   // H-10 - the agent panel's own chrome. Every string here was an English

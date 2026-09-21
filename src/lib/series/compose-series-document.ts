@@ -46,6 +46,22 @@ function pad(n: number): string {
   return String(n).padStart(2, "0");
 }
 
+/**
+ * M-4: which language a series document is written in. The series' own column
+ * wins; a series created before that column was used falls back to its first
+ * book, then to the book contributing right now. Undefined means "nothing
+ * says", and the composer keeps its own default.
+ */
+export function resolveSeriesLanguage(
+  seriesLanguage: string | null | undefined,
+  firstBookLanguage: string | null | undefined,
+  contributingBookLanguage: string | null | undefined
+): string | undefined {
+  return (
+    seriesLanguage ?? firstBookLanguage ?? contributingBookLanguage ?? undefined
+  );
+}
+
 /** The word a series document uses for "book", in the series' own language. */
 function bookWord(language?: string): string {
   return getUIStrings(language ?? "en").workspaceUI.book;

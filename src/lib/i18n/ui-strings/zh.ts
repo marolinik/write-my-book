@@ -1143,6 +1143,8 @@ export const ZH: UIStrings = {
     memoryUpdated: "记忆已更新",
     onboardingReadyToWrite: "一切就绪——开始你的第一本书吧。",
     onboardingComplete: "设置完成！欢迎使用 Write My Book OK。",
+    seriesLanguageSaved: "已保存系列语言",
+    seriesLanguageFailed: "保存系列语言失败",
   },
 
   agentUI: {

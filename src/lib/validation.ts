@@ -73,6 +73,9 @@ export const createSeriesSchema = z.object({
 
 export const updateSeriesSchema = z.object({
   title: z.string().min(1).max(200).optional(),
+  // M-4: the column was written once at creation and never again, because
+  // nothing accepted it here and no picker existed.
+  language: bookLanguageSchema.optional(),
   genre: z.string().max(50).nullable().optional(),
   seriesType: z
     .enum(["DUOLOGY", "TRILOGY", "TETRALOGY", "PENTALOGY", "SAGA", "OPEN"])

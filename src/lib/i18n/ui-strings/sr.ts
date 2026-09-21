@@ -1143,6 +1143,8 @@ export const SR: UIStrings = {
     memoryUpdated: "Pamćenje je izmenjeno",
     onboardingReadyToWrite: "Sve je spremno — krenimo sa vašom prvom knjigom.",
     onboardingComplete: "Podešavanje je završeno! Dobro došli u Write My Book OK.",
+    seriesLanguageSaved: "Jezik serijala je sačuvan",
+    seriesLanguageFailed: "Čuvanje jezika serijala nije uspelo",
   },
 
   agentUI: {

@@ -153,6 +153,8 @@ export function useUpdateSeries(seriesId: string) {
       seriesType?: string;
       plannedBooks?: number;
       description?: string;
+      /** M-4: the language the series is written in. */
+      language?: string;
     }) =>
       fetchJson(`/api/series/${seriesId}`, {
         method: "PATCH",

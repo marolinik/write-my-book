@@ -25,6 +25,7 @@ import { useSeriesDetail } from "@/hooks/use-series";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
 import { useLanguage, useLocale } from "@/components/providers/language-provider";
 import { SeriesBookManager } from "@/components/series/series-book-manager";
+import { SeriesLanguageSection } from "@/components/series/series-language-section";
 import { SeriesDocumentsPanel } from "@/components/series/series-documents-panel";
 import { SeriesInheritancePanel } from "@/components/series/series-inheritance-panel";
 import { SeriesSynthesisPanel } from "@/components/series/series-synthesis-panel";
@@ -211,6 +212,12 @@ export default function SeriesDetailPage() {
 
           {/* Book list */}
           <SeriesBookManager seriesId={seriesId} books={books} />
+
+          {/* M-4: the language the series is written in, finally visible. */}
+          <SeriesLanguageSection
+            seriesId={seriesId}
+            initialLanguage={series.language ?? null}
+          />
 
           {/* Series documents */}
           <div>

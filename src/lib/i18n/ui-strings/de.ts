@@ -1143,6 +1143,8 @@ export const DE: UIStrings = {
     memoryUpdated: "Gedächtnis aktualisiert",
     onboardingReadyToWrite: "Alles bereit — beginnen wir mit Ihrem ersten Buch.",
     onboardingComplete: "Einrichtung abgeschlossen! Willkommen bei Write My Book OK.",
+    seriesLanguageSaved: "Reihensprache gespeichert",
+    seriesLanguageFailed: "Reihensprache konnte nicht gespeichert werden",
   },
 
   agentUI: {
