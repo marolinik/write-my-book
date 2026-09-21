@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/components/providers/language-provider";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 import { useState, useCallback, useEffect } from "react";
 import { Trash2Icon, SaveIcon, PlusIcon, XIcon } from "lucide-react";
 
@@ -52,13 +53,13 @@ interface WikiEntityDetailProps {
   strings: WikiStrings;
 }
 
-const TYPE_LABELS: Record<string, string> = {
-  character: "Character",
-  location: "Location",
-  item: "Item",
-  event: "Event",
-  lore: "Lore",
-  custom: "Custom",
+const TYPE_LABELS: Record<string, (t: UIStrings) => string> = {
+  character: (t) => t.wiki.typeCharacter,
+  location: (t) => t.wiki.typeLocation,
+  item: (t) => t.wiki.typeItem,
+  event: (t) => t.wiki.typeEvent,
+  lore: (t) => t.wiki.typeLore,
+  custom: (t) => t.wiki.typeCustom,
 };
 
 export function WikiEntityDetail({
@@ -155,7 +156,7 @@ export function WikiEntityDetail({
     item: strings.items,
     event: strings.events,
     lore: strings.lore,
-    custom: TYPE_LABELS.custom,
+    custom: TYPE_LABELS.custom(t),
   };
 
   return (

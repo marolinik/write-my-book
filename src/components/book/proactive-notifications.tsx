@@ -13,6 +13,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/components/providers/language-provider";
+import { getStatusLabel } from "@/lib/i18n/ui-strings";
 import { Button } from "@/components/ui/button";
 
 /**
@@ -60,7 +61,7 @@ export function ProactiveNotifications({
   todayWords,
   lastWritingDate,
 }: ProactiveNotificationsProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const notifications = useMemo((): Notification[] => {
     const notifs: Notification[] = [];
     const now = Date.now();
@@ -70,8 +71,8 @@ export function ProactiveNotifications({
       notifs.push({
         id: "streak-risk",
         icon: AlertTriangleIcon,
-        message: `Your ${currentStreak}-day streak is at risk!`,
-        detail: "Write even 50 words to keep it alive.",
+        message: t.bookUI.notifStreakRisk.replace("{days}", String(currentStreak)),
+        detail: t.bookUI.notifStreakDetail,
         priority: "high",
         color: "text-orange-500",
       });
@@ -82,8 +83,8 @@ export function ProactiveNotifications({
       notifs.push({
         id: "findings",
         icon: SparklesIcon,
-        message: `${pendingFindings} findings waiting for review`,
-        detail: "Your editors have suggestions ready.",
+        message: t.bookUI.notifFindings.replace("{count}", String(pendingFindings)),
+        detail: t.bookUI.notifFindingsDetail,
         href: `/books/${bookId}/editorial`,
         priority: "medium",
         color: "text-blue-500",
@@ -97,8 +98,13 @@ export function ProactiveNotifications({
         notifs.push({
           id: `stale-${ch.chapterNumber}`,
           icon: ClockIcon,
-          message: `Ch.${ch.chapterNumber}${ch.title ? ` "${ch.title}"` : ""} — ${daysSince} days untouched`,
-          detail: `Status: ${ch.status.replace(/_/g, " ")}`,
+          message: t.bookUI.notifStale
+            .replace(
+              "{chapter}",
+              `${t.agentUI.chapterAbbrev}${ch.chapterNumber}${ch.title ? ` “${ch.title}”` : ""}`
+            )
+            .replace("{days}", String(daysSince)),
+          detail: t.bookUI.notifStatus.replace("{status}", getStatusLabel(ch.status, language)),
           href: `/books/${bookId}/chapters/${ch.id}`,
           priority: daysSince >= 30 ? "medium" : "low",
           color: "text-amber-500",

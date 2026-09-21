@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/components/providers/language-provider";
+import { shortMonthNames, shortWeekdayNames } from "@/lib/i18n/calendar-names";
 import { useMemo, useState } from "react";
 import {
   Tooltip,
@@ -51,8 +52,8 @@ function getIntensity(words: number): string {
   return "bg-green-600 dark:bg-green-500"; // 2000+ words
 }
 
-const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const DAY_LABELS = ["", "Mon", "", "Wed", "", "Fri", ""];
+/** Every other weekday, so the column reads without crowding. */
+const SHOWN_WEEKDAYS = [false, true, false, true, false, true, false];
 
 export function WritingHeatmap({
   data,
@@ -62,6 +63,8 @@ export function WritingHeatmap({
   locale,
 }: WritingHeatmapProps) {
   const { t } = useLanguage();
+  const monthNames = useMemo(() => shortMonthNames(locale), [locale]);
+  const weekdayNames = useMemo(() => shortWeekdayNames(locale), [locale]);
   const [hoveredDay, setHoveredDay] = useState<DayData | null>(null);
 
   // Build 365-day grid (52 weeks × 7 days)
@@ -104,14 +107,14 @@ export function WritingHeatmap({
       if (firstDay) {
         const month = new Date(firstDay.date).getMonth();
         if (month !== lastMonth) {
-          labels.push({ label: MONTH_LABELS[month], weekIndex });
+          labels.push({ label: monthNames[month], weekIndex });
           lastMonth = month;
         }
       }
     });
 
     return labels;
-  }, [grid]);
+  }, [grid, monthNames]);
 
   // Stats
   const activeDays = data.filter((d) => d.words > 0).length;
@@ -157,9 +160,9 @@ export function WritingHeatmap({
         <div className="flex gap-0.5">
           {/* Day-of-week labels */}
           <div className="flex flex-col gap-[3px] mr-1">
-            {DAY_LABELS.map((label, i) => (
-              <span key={i} className="text-[9px] text-muted-foreground h-[11px] leading-[11px]">
-                {label}
+            {SHOWN_WEEKDAYS.map((shown, day) => (
+              <span key={day} className="text-[9px] text-muted-foreground h-[11px] leading-[11px]">
+                {shown ? weekdayNames[day] : ""}
               </span>
             ))}
           </div>

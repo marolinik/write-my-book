@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { fetchJson } from "@/lib/api-client";
 import { useLanguage, useLocale } from "@/components/providers/language-provider";
+import { getStatusLabel } from "@/lib/i18n/ui-strings";
 
 /**
  * Gap 2: Drag-and-Drop Corkboard View
@@ -47,19 +48,8 @@ const STATUS_COLORS: Record<string, string> = {
   beta_passed: "bg-green-500",
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  undiscussed: "New",
-  discussed: "Discussed",
-  planned: "Planned",
-  drafted: "Drafted",
-  dev_edited: "Dev Edited",
-  line_edited: "Line Edited",
-  beta_read: "Beta Read",
-  beta_passed: "Passed",
-};
-
 export function CorkboardView({ bookId, chapters: initialChapters, onReorder }: CorkboardViewProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const locale = useLocale();
   const [chapters, setChapters] = useState(initialChapters);
   const [draggedId, setDraggedId] = useState<string | null>(null);
@@ -161,7 +151,7 @@ export function CorkboardView({ bookId, chapters: initialChapters, onReorder }: 
                 </div>
                 <div
                   className={`size-2 rounded-full ${STATUS_COLORS[ch.status] ?? "bg-muted"}`}
-                  title={STATUS_LABELS[ch.status] ?? ch.status}
+                  title={getStatusLabel(ch.status, language)}
                 />
               </div>
 
@@ -186,7 +176,7 @@ export function CorkboardView({ bookId, chapters: initialChapters, onReorder }: 
                   )}
                 </span>
                 <Badge variant="outline" className="text-[8px] px-1 py-0 capitalize">
-                  {STATUS_LABELS[ch.status] ?? ch.status}
+                  {getStatusLabel(ch.status, language)}
                 </Badge>
               </div>
 

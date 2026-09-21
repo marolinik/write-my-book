@@ -332,6 +332,7 @@ function englishJsxExpressions(file: string): string[] {
 const DEFINITION_CLEAN_AREAS: string[] = [
   join("app", "(app)"),
   join("components", "agent"),
+  join("components", "book"),
   join("components", "editor"),
   join("components", "editorial"),
   join("components", "import-export"),
@@ -390,7 +391,14 @@ function looksLikeStyle(value: string): boolean {
  * two surfaces that print them return the string directly rather than a key
  * whose value would be identical in all seven languages.
  */
-const PRODUCT_NAMES = /^(?:Kindle|iPad|iPhone|Markdown|Typst)$/;
+/** Devices, formats and typefaces: named, never translated. */
+const PRODUCT_NAMES = /^(?:Kindle|iPad|iPhone|Markdown|Typst|Garamond|Literata)$/;
+
+/**
+ * A hashtag is an address, not a sentence — `#amwriting` reaches the same
+ * community whatever language the post around it is written in.
+ */
+const HASHTAG = /#[\w]+/g;
 
 /**
  * The four subscription tiers. They are named in `billing/stripe-client.ts`,
@@ -405,7 +413,7 @@ function isProse(raw: string): boolean {
   const value = raw.replace(/\s+/g, " ").trim();
   if (looksLikeStyle(value)) return false;
   if (PRODUCT_NAMES.test(value) || PLAN_NAMES.test(value)) return false;
-  const words = value.replace(HTML_ENTITY, " ").replace(BRAND, " ");
+  const words = value.replace(HTML_ENTITY, " ").replace(BRAND, " ").replace(HASHTAG, " ");
   if (!/[a-z]/.test(words)) return false; // ISBN, EPUB, PDF
   if (!/[A-Za-z]{3}/.test(words)) return false;
   if (/^[a-z][a-zA-Z0-9]*$/.test(words)) return false; // camelCase identifier
@@ -562,7 +570,10 @@ describe("the dictionaries behind the localized areas", () => {
     // The readability indices are named after their authors — proper nouns
     // in every language.
     // "Agent" is the same word in Serbian.
-    sr: ["docAgent", "minutesAbbrev", "fleschKincaid", "gunningFog", "colemanLiau", "enterprise"],
+    sr: [
+      // "Status" is the same word, and NaNoWriMo is an event's name.
+      "notifStatus", "achNaNo",
+      "docAgent", "minutesAbbrev", "fleschKincaid", "gunningFog", "colemanLiau", "enterprise"],
     de: [
       "focusThemeSepia", "lensRegister",
       // "Version" and "Agent" are spelled the same in German, and "{matches}
@@ -572,6 +583,8 @@ describe("the dictionaries behind the localized areas", () => {
       "versionImport",
       // "Import" and "Genre" are German words too.
       "importStep", "genre",
+      // "Pipeline" and "Status" are used as-is; NaNoWriMo is an event's name.
+      "viewPipeline", "notifStatus", "achNaNo",
       "stepOptional", "syntax", "focusNormal", "upgrade", "name", "median",
       "register", "fleschKincaid", "gunningFog", "colemanLiau",
       "contextEditor", "themeSystem", "ghostwriter", "coach", "analyst",
@@ -597,6 +610,8 @@ describe("the dictionaries behind the localized areas", () => {
       "versionN", "minutesAbbrev",
       // "Insertion", "Import" and "occurrence" are French words.
       "annInsertion", "versionImport", "occurrenceOne", "occurrenceFew", "occurrenceMany",
+      // "Pipeline", "Style", "Bible" and "Architecture" are the French words.
+      "viewPipeline", "foundStyle", "foundBible", "foundArchitecture",
       // "Correction" is the French word, spelled the same.
       "catCorrection",
       // "Style" and "Genre" are the French words.
@@ -608,7 +623,7 @@ describe("the dictionaries behind the localized areas", () => {
       "coverCropPositionH", "coverCropPositionV", "consensus", "convergence",
       "enterprise", "pages", "actions",
     ],
-    ru: ["gunningFog", "colemanLiau", "enterprise"],
+    ru: ["gunningFog", "colemanLiau", "enterprise", "achNaNo"],
     zh: ["fleschKincaid", "gunningFog", "colemanLiau", "enterprise"],
   };
 

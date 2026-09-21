@@ -91,10 +91,10 @@ export function BookViewSwitcher({
   }, [view, storageKey]);
 
   const views: { key: ViewMode; label: string; icon: React.ReactNode }[] = [
-    { key: "list", label: "List", icon: <ListIcon className="size-4" /> },
-    { key: "canvas", label: "Canvas", icon: <LayoutGridIcon className="size-4" /> },
-    { key: "pipeline", label: "Pipeline", icon: <KanbanIcon className="size-4" /> },
-    { key: "corkboard", label: "Corkboard", icon: <LayoutGridIcon className="size-4" /> },
+    { key: "list", label: t.bookUI.viewList, icon: <ListIcon className="size-4" /> },
+    { key: "canvas", label: t.bookUI.viewCanvas, icon: <LayoutGridIcon className="size-4" /> },
+    { key: "pipeline", label: t.bookUI.viewPipeline, icon: <KanbanIcon className="size-4" /> },
+    { key: "corkboard", label: t.bookUI.viewCorkboard, icon: <LayoutGridIcon className="size-4" /> },
   ];
 
   return (

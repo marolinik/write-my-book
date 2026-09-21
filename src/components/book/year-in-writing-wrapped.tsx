@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/components/providers/language-provider";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 import { useState, useMemo } from "react";
 import {
   SparklesIcon,
@@ -19,6 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useLocale } from "@/components/providers/language-provider";
+import { shortMonthNames, shortWeekdayNames } from "@/lib/i18n/calendar-names";
 
 /**
  * B: Year in Writing Wrapped — Spotify-style annual recap.
@@ -53,14 +55,16 @@ interface WrappedCard {
   content: React.ReactNode;
 }
 
-function getTimeOfDayLabel(hour: number): { label: string; icon: React.ElementType; emoji: string } {
-  if (hour >= 5 && hour < 12) return { label: "Morning Writer", icon: SunIcon, emoji: "🌅" };
-  if (hour >= 12 && hour < 17) return { label: "Afternoon Author", icon: SunsetIcon, emoji: "☀️" };
-  if (hour >= 17 && hour < 22) return { label: "Evening Storyteller", icon: SunsetIcon, emoji: "🌆" };
-  return { label: "Night Owl", icon: MoonIcon, emoji: "🦉" };
+function getTimeOfDayLabel(
+  hour: number,
+  t: UIStrings
+): { label: string; icon: React.ElementType; emoji: string } {
+  if (hour >= 5 && hour < 12) return { label: t.bookUI.timeMorning, icon: SunIcon, emoji: "🌅" };
+  if (hour >= 12 && hour < 17) return { label: t.bookUI.timeAfternoon, icon: SunsetIcon, emoji: "☀️" };
+  if (hour >= 17 && hour < 22) return { label: t.bookUI.timeEvening, icon: SunsetIcon, emoji: "🌆" };
+  return { label: t.bookUI.timeNight, icon: MoonIcon, emoji: "🦉" };
 }
 
-const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 interface YearInWritingWrappedProps {
   data: WrappedData;
@@ -72,7 +76,7 @@ export function YearInWritingWrapped({ data, authorName }: YearInWritingWrappedP
   const [cardIndex, setCardIndex] = useState(0);
   const locale = useLocale();
 
-  const peakMonthName = MONTH_NAMES[data.peakMonth];
+  const peakMonthName = shortMonthNames(locale)[data.peakMonth];
   const maxMonthWords = Math.max(...data.wordsPerMonth, 1);
 
   const cards: WrappedCard[] = useMemo(() => {
@@ -144,7 +148,7 @@ export function YearInWritingWrapped({ data, authorName }: YearInWritingWrappedP
     // Card: Writing time — only when a favorite hour is known
     if (data.favoriteWritingHour != null) {
       const favoriteHour = data.favoriteWritingHour;
-      const timeOfDay = getTimeOfDayLabel(favoriteHour);
+      const timeOfDay = getTimeOfDayLabel(favoriteHour, t);
       deck.push({
         bg: "from-indigo-500/20 via-background to-indigo-500/10",
         content: (
@@ -190,7 +194,7 @@ export function YearInWritingWrapped({ data, authorName }: YearInWritingWrappedP
                     }`}
                     style={{ height: `${Math.max(2, (w / maxMonthWords) * 60)}px` }}
                   />
-                  <span className="text-[7px] text-muted-foreground">{MONTH_NAMES[i][0]}</span>
+                  <span className="text-[7px] text-muted-foreground">{shortMonthNames(locale)[i][0]}</span>
                 </div>
               ))}
             </div>
@@ -236,7 +240,15 @@ export function YearInWritingWrapped({ data, authorName }: YearInWritingWrappedP
   }, [data, authorName, peakMonthName, maxMonthWords, locale]);
 
   const handleShare = async () => {
-    const text = `My ${data.year} in Writing:\n${data.totalWords.toLocaleString(locale)} words | ${data.longestStreak}-day streak | ${data.writerPersonality}\n#amwriting #WritingCommunity #YearInWriting`;
+    const stats = t.bookUI.wrappedShareStats
+      .replace("{words}", data.totalWords.toLocaleString(locale))
+      .replace("{days}", String(data.longestStreak))
+      .replace("{personality}", data.writerPersonality);
+    const text = [
+      t.bookUI.wrappedShare.replace("{year}", String(data.year)),
+      stats,
+      "#amwriting #WritingCommunity #YearInWriting",
+    ].join("\n");
     try {
       if (navigator.share) { await navigator.share({ text }); return; }
       await navigator.clipboard.writeText(text);

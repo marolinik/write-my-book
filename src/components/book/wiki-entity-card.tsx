@@ -12,14 +12,18 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { WikiEntity } from "@/hooks/use-wiki";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 
-const TYPE_CONFIG: Record<string, { icon: typeof UserIcon; color: string; label: string }> = {
-  character: { icon: UserIcon, color: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20", label: "Character" },
-  location:  { icon: MapPinIcon, color: "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20", label: "Location" },
-  item:      { icon: PackageIcon, color: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20", label: "Item" },
-  event:     { icon: CalendarIcon, color: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20", label: "Event" },
-  lore:      { icon: ScrollIcon, color: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20", label: "Lore" },
-  custom:    { icon: TagIcon, color: "bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-500/20", label: "Custom" },
+const TYPE_CONFIG: Record<
+  string,
+  { icon: typeof UserIcon; color: string; label: (t: UIStrings) => string }
+> = {
+  character: { icon: UserIcon, color: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20", label: (t) => t.wiki.typeCharacter },
+  location:  { icon: MapPinIcon, color: "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20", label: (t) => t.wiki.typeLocation },
+  item:      { icon: PackageIcon, color: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20", label: (t) => t.wiki.typeItem },
+  event:     { icon: CalendarIcon, color: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20", label: (t) => t.wiki.typeEvent },
+  lore:      { icon: ScrollIcon, color: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20", label: (t) => t.wiki.typeLore },
+  custom:    { icon: TagIcon, color: "bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-500/20", label: (t) => t.wiki.typeCustom },
 };
 
 interface WikiEntityCardProps {
@@ -32,7 +36,7 @@ export function WikiEntityCard({ entity, onClick, typeLabels }: WikiEntityCardPr
   const { t } = useLanguage();
   const config = TYPE_CONFIG[entity.type] ?? TYPE_CONFIG.custom;
   const Icon = config.icon;
-  const displayLabel = typeLabels?.[entity.type] ?? config.label;
+  const displayLabel = typeLabels?.[entity.type] ?? config.label(t);
 
   return (
     <Card

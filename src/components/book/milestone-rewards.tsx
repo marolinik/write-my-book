@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 import {
   GiftIcon,
   LockIcon,
@@ -29,8 +30,8 @@ import { toast } from "sonner";
 
 interface Reward {
   id: string;
-  label: string;
-  description: string;
+  label: (t: UIStrings) => string;
+  description: (t: UIStrings) => string;
   icon: React.ElementType;
   category: "theme" | "sound" | "font" | "prompt" | "badge";
   unlockedAt: string; // milestone that unlocks it
@@ -40,16 +41,16 @@ interface Reward {
 }
 
 const ALL_REWARDS: Reward[] = [
-  { id: "theme-midnight", label: "Midnight Theme", description: "Deep blue editor theme", icon: PaletteIcon, category: "theme", unlockedAt: "1000 words", requiresWords: 1000 },
-  { id: "theme-forest", label: "Forest Theme", description: "Deep green nature theme", icon: PaletteIcon, category: "theme", unlockedAt: "5000 words", requiresWords: 5000 },
-  { id: "theme-sunrise", label: "Sunrise Theme", description: "Warm orange morning theme", icon: PaletteIcon, category: "theme", unlockedAt: "10000 words", requiresWords: 10000 },
-  { id: "theme-galaxy", label: "Galaxy Theme", description: "Cosmic purple-blue theme", icon: PaletteIcon, category: "theme", unlockedAt: "50000 words", requiresWords: 50000 },
-  { id: "sound-thunder", label: "Thunderstorm", description: "Ambient thunderstorm soundscape", icon: MusicIcon, category: "sound", unlockedAt: "3-day streak", requiresStreak: 3 },
-  { id: "sound-space", label: "Deep Space", description: "Ambient space hum soundscape", icon: MusicIcon, category: "sound", unlockedAt: "7-day streak", requiresStreak: 7 },
-  { id: "font-garamond", label: "Garamond", description: "Classic publishing font", icon: TypeIcon, category: "font", unlockedAt: "First chapter", requiresChapters: 1 },
-  { id: "font-literata", label: "Literata", description: "Google's book-optimized font", icon: TypeIcon, category: "font", unlockedAt: "5 chapters", requiresChapters: 5 },
-  { id: "badge-novelist", label: "Novelist", description: "Complete a 50K+ word manuscript", icon: SparklesIcon, category: "badge", unlockedAt: "50000 words", requiresWords: 50000 },
-  { id: "badge-ironwriter", label: "Iron Writer", description: "30-day writing streak", icon: SparklesIcon, category: "badge", unlockedAt: "30-day streak", requiresStreak: 30 },
+  { id: "theme-midnight", label: (t: UIStrings) => t.bookUI.rewardMidnight, description: (t: UIStrings) => t.bookUI.rewardMidnightDesc, icon: PaletteIcon, category: "theme", unlockedAt: "1000 words", requiresWords: 1000 },
+  { id: "theme-forest", label: (t: UIStrings) => t.bookUI.rewardForest, description: (t: UIStrings) => t.bookUI.rewardForestDesc, icon: PaletteIcon, category: "theme", unlockedAt: "5000 words", requiresWords: 5000 },
+  { id: "theme-sunrise", label: (t: UIStrings) => t.bookUI.rewardSunrise, description: (t: UIStrings) => t.bookUI.rewardSunriseDesc, icon: PaletteIcon, category: "theme", unlockedAt: "10000 words", requiresWords: 10000 },
+  { id: "theme-galaxy", label: (t: UIStrings) => t.bookUI.rewardGalaxy, description: (t: UIStrings) => t.bookUI.rewardGalaxyDesc, icon: PaletteIcon, category: "theme", unlockedAt: "50000 words", requiresWords: 50000 },
+  { id: "sound-thunder", label: (t: UIStrings) => t.bookUI.rewardThunder, description: (t: UIStrings) => t.bookUI.rewardThunderDesc, icon: MusicIcon, category: "sound", unlockedAt: "3-day streak", requiresStreak: 3 },
+  { id: "sound-space", label: (t: UIStrings) => t.bookUI.rewardSpace, description: (t: UIStrings) => t.bookUI.rewardSpaceDesc, icon: MusicIcon, category: "sound", unlockedAt: "7-day streak", requiresStreak: 7 },
+  { id: "font-garamond", label: () => "Garamond", description: (t: UIStrings) => t.bookUI.rewardGaramondDesc, icon: TypeIcon, category: "font", unlockedAt: "First chapter", requiresChapters: 1 },
+  { id: "font-literata", label: () => "Literata", description: (t: UIStrings) => t.bookUI.rewardLiterataDesc, icon: TypeIcon, category: "font", unlockedAt: "5 chapters", requiresChapters: 5 },
+  { id: "badge-novelist", label: (t: UIStrings) => t.bookUI.rewardNovelist, description: (t: UIStrings) => t.bookUI.rewardNovelistDesc, icon: SparklesIcon, category: "badge", unlockedAt: "50000 words", requiresWords: 50000 },
+  { id: "badge-ironwriter", label: (t: UIStrings) => t.bookUI.rewardIronWriter, description: (t: UIStrings) => t.bookUI.rewardIronWriterDesc, icon: SparklesIcon, category: "badge", unlockedAt: "30-day streak", requiresStreak: 30 },
 ];
 
 interface MilestoneRewardsProps {
@@ -83,7 +84,9 @@ export function MilestoneRewards({ totalWords, currentStreak, chaptersComplete }
         const reward = rewards.find((r) => r.id === newlyUnlocked[0]);
         if (reward) {
           setJustUnlocked(reward.id);
-          toast.success(`🎉 Unlocked: ${reward.label}!`, { description: reward.description });
+          toast.success(t.bookUI.rewardUnlockedNamed.replace("{reward}", reward.label(t)), {
+            description: reward.description(t),
+          });
           setTimeout(() => setJustUnlocked(null), 3000);
         }
         localStorage.setItem(storageKey, JSON.stringify(current));
@@ -122,12 +125,12 @@ export function MilestoneRewards({ totalWords, currentStreak, chaptersComplete }
                     ) : (
                       <LockIcon className="size-5 text-muted-foreground" />
                     )}
-                    <span className="text-[8px] text-center leading-tight">{r.label}</span>
+                    <span className="text-[8px] text-center leading-tight">{r.label(t)}</span>
                   </div>
                 </TooltipTrigger>
                 <TooltipContent className="text-xs max-w-48">
-                  <p className="font-medium">{r.label}</p>
-                  <p className="text-muted-foreground">{r.description}</p>
+                  <p className="font-medium">{r.label(t)}</p>
+                  <p className="text-muted-foreground">{r.description(t)}</p>
                   <p className="text-muted-foreground mt-1">
                     {r.unlocked
                       ? t.bookUI.rewardUnlocked

@@ -39,7 +39,11 @@ export function DraftCertificate({
   const certRef = useRef<HTMLDivElement>(null);
 
   const handleShare = async () => {
-    const text = `🏆 I completed the first draft of "${bookTitle}"!\n${wordCount.toLocaleString(locale)} words | ${chapterCount} chapters | ${daysToComplete} days\n#amwriting #FirstDraft #WritingCommunity`;
+    const text = [
+      t.bookUI.certShare.replace("{book}", bookTitle),
+      `${wordCount.toLocaleString(locale)} ${t.editorChrome.wordMany} | ${chapterCount} ${t.setup.chapterMany} | ${daysToComplete} ${t.writingDashboard.days}`,
+      "#amwriting #FirstDraft #WritingCommunity",
+    ].join("\n");
     try {
       if (navigator.share) { await navigator.share({ text }); return; }
       await navigator.clipboard.writeText(text);

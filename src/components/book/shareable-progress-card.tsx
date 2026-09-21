@@ -51,17 +51,22 @@ export function ShareableProgressCard({
   const cardRef = useRef<HTMLDivElement>(null);
 
   const milestoneLabels: Record<string, string> = {
-    first_draft: "🎉 First Draft Complete!",
-    editing_complete: "✨ Editing Complete!",
-    beta_passed: "🏆 Beta Reading Passed!",
-    custom: milestoneText ?? "📖 Writing Progress",
+    first_draft: t.bookUI.mileFirstDraft,
+    editing_complete: t.bookUI.mileEditing,
+    beta_passed: t.bookUI.mileBetaPassed,
+    custom: milestoneText ?? t.bookUI.mileProgress,
   };
 
-  const label = milestone ? milestoneLabels[milestone] : "📖 Writing Progress";
+  const label = milestone ? milestoneLabels[milestone] : t.bookUI.mileProgress;
   const pct = totalChapters > 0 ? Math.round((chaptersComplete / totalChapters) * 100) : 0;
 
   const handleShare = useCallback(async () => {
-    const text = `${label}\n\n"${bookTitle}"\n${totalWords.toLocaleString(locale)} words | ${chaptersComplete}/${totalChapters} chapters | ${daysWriting} days\n\n#amwriting #WritingCommunity #WriteMyBook`;
+    const stats = t.bookUI.shareStats
+      .replace("{words}", totalWords.toLocaleString(locale))
+      .replace("{done}", String(chaptersComplete))
+      .replace("{total}", String(totalChapters))
+      .replace("{days}", String(daysWriting));
+    const text = `${label}\n\n“${bookTitle}”\n${stats}\n\n#amwriting #WritingCommunity #WriteMyBook`;
 
     if (navigator.share) {
       try {

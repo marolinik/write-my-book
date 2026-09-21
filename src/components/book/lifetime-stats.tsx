@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/components/providers/language-provider";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 import {
   PenLineIcon,
   BookOpenIcon,
@@ -28,12 +29,12 @@ interface LifetimeStatsProps {
   memberSince?: string;
 }
 
-function novelEquivalent(words: number): string {
-  if (words < 10000) return `${(words / 1000).toFixed(1)}K words — keep going!`;
-  if (words < 50000) return `${(words / 1000).toFixed(0)}K words — a solid novella`;
-  if (words < 80000) return `${(words / 1000).toFixed(0)}K words — almost a novel`;
-  const novels = (words / 80000).toFixed(1);
-  return `${novels} novels' worth of words`;
+function novelEquivalent(words: number, t: UIStrings): string {
+  const thousands = (digits: number) => (words / 1000).toFixed(digits);
+  if (words < 10000) return t.bookUI.lifeKeepGoing.replace("{k}", thousands(1));
+  if (words < 50000) return t.bookUI.lifeNovella.replace("{k}", thousands(0));
+  if (words < 80000) return t.bookUI.lifeAlmostNovel.replace("{k}", thousands(0));
+  return t.bookUI.lifeNovels.replace("{n}", (words / 80000).toFixed(1));
 }
 
 export function LifetimeStats({
@@ -59,7 +60,7 @@ export function LifetimeStats({
         <p className="text-xs text-muted-foreground">
           {t.bookUI.memberForDays
             .replace("{days}", String(daysSinceMember))
-            .replace("{equivalent}", novelEquivalent(totalWords))}
+            .replace("{equivalent}", novelEquivalent(totalWords, t))}
         </p>
       </CardHeader>
       <CardContent>

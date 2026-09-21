@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 import {
   HeartPulseIcon,
   AlertTriangleIcon,
@@ -26,7 +27,7 @@ import { useBookState } from "@/hooks/use-book-state";
  */
 
 interface HealthMetric {
-  label: string;
+  label: (t: UIStrings) => string;
   icon: React.ElementType;
   score: number; // 0-100
   status: "healthy" | "warning" | "critical";
@@ -58,50 +59,56 @@ export function StoryHealthDashboard({ bookId }: StoryHealthDashboardProps) {
     const betaPct = Math.round((betaPassed / total) * 100);
     const findingHealth = pending === 0 ? 100 : Math.max(0, 100 - pending * 2);
 
+    const counted = (template: string, done: number) =>
+      template.replace("{done}", String(done)).replace("{total}", String(total));
+
     return [
       {
-        label: "Drafting Progress",
+        label: (t: UIStrings) => t.bookUI.healthDrafting,
         icon: BookOpenIcon,
         score: draftPct,
         status: draftPct >= 100 ? "healthy" : draftPct >= 50 ? "warning" : "critical",
-        detail: `${draftedPlus}/${total} chapters drafted`,
+        detail: counted(t.importExportUI.readyDraftedDetail, draftedPlus),
       },
       {
-        label: "Editorial Coverage",
+        label: (t: UIStrings) => t.bookUI.healthEditorial,
         icon: BarChart3Icon,
         score: editPct,
         status: editPct >= 80 ? "healthy" : editPct >= 30 ? "warning" : "critical",
-        detail: `${editedPlus}/${total} chapters edited`,
+        detail: counted(t.bookUI.healthEditedDetail, editedPlus),
       },
       {
-        label: "Beta Validation",
+        label: (t: UIStrings) => t.bookUI.healthBeta,
         icon: UsersIcon,
         score: betaPct,
         status: betaPct >= 80 ? "healthy" : betaPct >= 20 ? "warning" : "critical",
-        detail: `${betaPassed}/${total} chapters passed`,
+        detail: counted(t.bookUI.healthBetaDetail, betaPassed),
       },
       {
-        label: "Findings Health",
+        label: (t: UIStrings) => t.bookUI.healthFindings,
         icon: HeartPulseIcon,
         score: findingHealth,
         status: findingHealth >= 80 ? "healthy" : findingHealth >= 50 ? "warning" : "critical",
-        detail: pending === 0 ? "No unreviewed findings" : `${pending} findings need review`,
+        detail:
+          pending === 0
+            ? t.importExportUI.readyFindingsNone
+            : t.importExportUI.readyFindingsSome.replace("{count}", String(pending)),
       },
       {
-        label: "Foundation",
+        label: (t: UIStrings) => t.bookUI.healthFoundation,
         icon: MapPinIcon,
         score: [bs.hasFingerprint, bs.hasStoryBible, bs.hasArchitecture].filter(Boolean).length * 33,
         status:
           bs.hasFingerprint && bs.hasStoryBible && bs.hasArchitecture ? "healthy" :
           bs.hasFingerprint || bs.hasStoryBible ? "warning" : "critical",
         detail: [
-          bs.hasFingerprint ? "✓ Style" : "✗ Style",
-          bs.hasStoryBible ? "✓ Bible" : "✗ Bible",
-          bs.hasArchitecture ? "✓ Architecture" : "✗ Architecture",
+          `${bs.hasFingerprint ? "✓" : "✗"} ${t.bookUI.foundStyle}`,
+          `${bs.hasStoryBible ? "✓" : "✗"} ${t.bookUI.foundBible}`,
+          `${bs.hasArchitecture ? "✓" : "✗"} ${t.bookUI.foundArchitecture}`,
         ].join(", "),
       },
     ];
-  }, [bs]);
+  }, [bs, t]);
 
   const overallScore = metrics.length > 0
     ? Math.round(metrics.reduce((sum, m) => sum + m.score, 0) / metrics.length)
@@ -127,11 +134,11 @@ export function StoryHealthDashboard({ bookId }: StoryHealthDashboardProps) {
         {metrics.map((m) => {
           const Icon = m.icon;
           return (
-            <div key={m.label} className="space-y-1">
+            <div key={m.label(t)} className="space-y-1">
               <div className="flex items-center justify-between text-xs">
                 <span className="flex items-center gap-1.5 text-muted-foreground">
                   <Icon className="size-3" />
-                  {m.label}
+                  {m.label(t)}
                 </span>
                 <div className="flex items-center gap-1.5">
                   <span className="text-[10px] text-muted-foreground">{m.detail}</span>

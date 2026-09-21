@@ -73,7 +73,7 @@ export function WikiPage({ bookId, language }: WikiPageProps) {
     createMutation.mutate(
       {
         type: activeTab === "all" ? "character" : activeTab,
-        name: "New Entry",
+        name: t.wiki.newEntry,
         description: "",
         aliases: [],
         attributes: {},
