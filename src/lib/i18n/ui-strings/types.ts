@@ -1190,6 +1190,14 @@ export interface UIStrings {
     modify: string;
     reject: string;
     timedOut: string;
+    endedEarlyBudget: string;
+    endedEarlyTime: string;
+    hideDetail: string;
+    showDetail: string;
+    speakerYou: string;
+    requiresSonnet: string;
+    requiresOpus: string;
+    upgradeModel: string;
     approved: string;
     rejected: string;
     modified: string;

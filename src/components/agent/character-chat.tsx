@@ -189,7 +189,7 @@ export function CharacterChat({ bookId, characters, onClose }: CharacterChatProp
                       : "bg-muted text-muted-foreground"
                   }`}
                 >
-                  {msg.role === "character" ? (selectedChar?.name?.[0] ?? "?") : "You"}
+                  {msg.role === "character" ? (selectedChar?.name?.[0] ?? "?") : t.agentUI.speakerYou}
                 </div>
                 <div
                   className={`rounded-lg px-3 py-2 max-w-[80%] text-sm ${

@@ -762,7 +762,7 @@ function ApprovalCard({
                       : "text-muted-foreground"
                 }`}
               >
-                {timedOut ? "Timed Out" : formatCountdown(remainingSeconds)}
+                {timedOut ? t.agentUI.timedOut : formatCountdown(remainingSeconds)}
               </Badge>
             )}
           </div>
@@ -873,7 +873,10 @@ function DelegationCard({
         )}
         {!block.done && toolCalls.length > 0 && (
           <span className="text-xs text-muted-foreground">
-            {toolCalls.length} {toolCalls.length === 1 ? "step" : "steps"}
+            {countWithNoun(toolCalls.length, t.agentUI.stepOne, t.agentUI.stepMany, {
+              few: t.agentUI.stepFew,
+              language: uiLanguage,
+            })}
           </span>
         )}
         <ChevronRightIcon

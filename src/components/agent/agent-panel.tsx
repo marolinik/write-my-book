@@ -770,8 +770,11 @@ export function AgentPanel({
                   <div className="flex items-center gap-1.5 text-xs font-medium text-amber-700 dark:text-amber-300">
                     <AlertCircleIcon className="size-3.5 shrink-0" />
                     {resultMeta?.endReason === "budget"
-                      ? `Session ended early — budget reached${budgetUsd != null ? ` ($${budgetUsd.toFixed(2)})` : ""}. Partial results saved.`
-                      : "Session ended early — time limit reached. Partial results saved."}
+                      ? t.agentUI.endedEarlyBudget.replace(
+                          "{amount}",
+                          budgetUsd != null ? ` ($${budgetUsd.toFixed(2)})` : ""
+                        )
+                      : t.agentUI.endedEarlyTime}
                   </div>
                   {resultMeta?.wrapUpSummary && (
                     <p className="text-[11px] text-muted-foreground whitespace-pre-wrap">
@@ -801,19 +804,19 @@ export function AgentPanel({
                 <div className="rounded-md border bg-muted/30 p-2.5 space-y-1.5">
                   <div className="flex items-center gap-1.5 text-xs font-medium">
                     <CheckCircle2Icon className="size-3.5 text-green-600 dark:text-green-400" />
-                    {strings.sessionComplete ?? "Session Complete"}
+                    {strings.sessionComplete}
                   </div>
                   <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
                     {resultMeta.findingsCreated > 0 && (
                       <span className="flex items-center gap-1">
                         <FileSearchIcon className="size-3" />
-                        {resultMeta.findingsCreated} {strings.findingsCreated ?? "findings"}
+                        {resultMeta.findingsCreated} {strings.findingsCreated}
                       </span>
                     )}
                     {resultMeta.statusAdvanced && resultMeta.newStatus && (
                       <span className="flex items-center gap-1">
                         <TrendingUpIcon className="size-3" />
-                        {strings.statusAdvanced ?? "Status"}: {getStatusLabel(resultMeta.newStatus, bookLanguage)}
+                        {strings.statusAdvanced}: {getStatusLabel(resultMeta.newStatus, bookLanguage)}
                       </span>
                     )}
                     {resultMeta.betaGateResult && (
@@ -824,9 +827,9 @@ export function AgentPanel({
                         resultMeta.betaGateResult === "near_miss" && "text-amber-600 dark:text-amber-400"
                       )}>
                         <ShieldCheckIcon className="size-3" />
-                        {resultMeta.betaGateResult === "passed" && (strings.betaPassed ?? "Passed")}
-                        {resultMeta.betaGateResult === "near_miss" && (strings.betaNearMiss ?? "Near Miss")}
-                        {resultMeta.betaGateResult === "failed" && (strings.betaFailed ?? "Needs Revision")}
+                        {resultMeta.betaGateResult === "passed" && strings.betaPassed}
+                        {resultMeta.betaGateResult === "near_miss" && strings.betaNearMiss}
+                        {resultMeta.betaGateResult === "failed" && strings.betaFailed}
                       </span>
                     )}
                   </div>

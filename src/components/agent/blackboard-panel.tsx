@@ -136,7 +136,7 @@ function InsightCard({
             ) : (
               <ChevronRight className="h-3 w-3" />
             )}
-            {expanded ? "Hide detail" : "Show detail"}
+            {expanded ? t.agentUI.hideDetail : t.agentUI.showDetail}
           </Button>
           {expanded && (
             <p className="mt-1 rounded bg-muted p-2 text-xs whitespace-pre-wrap">

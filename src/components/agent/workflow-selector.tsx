@@ -82,6 +82,8 @@ function DurationBadge({ workflow }: { workflow: WorkflowDefinition }) {
 // ── Cost Estimate Badge ───────────────────────────────────────
 
 function CostBadge({ cost }: { cost: WorkflowCostData }) {
+  const { t } = useLanguage();
+
   if (cost.blocked) {
     return (
       <Tooltip>
@@ -89,10 +91,10 @@ function CostBadge({ cost }: { cost: WorkflowCostData }) {
           <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400">
             <ShieldAlertIcon className="size-3" />
             {cost.reason?.includes("haiku")
-              ? "Requires sonnet+"
+              ? t.agentUI.requiresSonnet
               : cost.reason?.includes("sonnet")
-                ? "Requires opus+"
-                : "Upgrade model"}
+                ? t.agentUI.requiresOpus
+                : t.agentUI.upgradeModel}
           </span>
         </TooltipTrigger>
         <TooltipContent side="left" className="max-w-56 text-xs">
