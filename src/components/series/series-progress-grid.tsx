@@ -75,7 +75,9 @@ export function SeriesProgressGrid({ seriesId }: SeriesProgressGridProps) {
             <CardHeader className="py-3 px-4">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm">
-                  Book {book.bookNumber}: {book.name}
+                  {t.seriesUI.bookNumberName
+                    .replace("{n}", String(book.bookNumber))
+                    .replace("{name}", book.name)}
                 </CardTitle>
                 <Badge
                   variant="outline"
@@ -87,9 +89,24 @@ export function SeriesProgressGrid({ seriesId }: SeriesProgressGridProps) {
             </CardHeader>
             <CardContent className="px-4 pb-3">
               <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
-                <span>{book.wordCount.toLocaleString(locale)} words</span>
-                <span>{book.chapterCount} chapters</span>
-                <span>{book.documentCount} documents</span>
+                <span>
+                  {t.seriesUI.wordsCount.replace(
+                    "{count}",
+                    book.wordCount.toLocaleString(locale)
+                  )}
+                </span>
+                <span>
+                  {t.seriesUI.chaptersCount.replace(
+                    "{count}",
+                    String(book.chapterCount)
+                  )}
+                </span>
+                <span>
+                  {t.seriesUI.documentsCount.replace(
+                    "{count}",
+                    String(book.documentCount)
+                  )}
+                </span>
               </div>
               {Object.keys(book.chapterStatusCounts).length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1">

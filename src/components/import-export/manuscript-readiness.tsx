@@ -149,17 +149,17 @@ export function ManuscriptReadiness({ bookId, onProceed }: ManuscriptReadinessPr
         <div className="flex flex-wrap gap-2">
           {passCount > 0 && (
             <Badge variant="secondary" className="text-green-600 bg-green-500/10">
-              {passCount} passed
+              {t.importExportUI.passedCount.replace("{count}", String(passCount))}
             </Badge>
           )}
           {warnCount > 0 && (
             <Badge variant="secondary" className="text-amber-600 bg-amber-500/10">
-              {warnCount} warnings
+              {t.importExportUI.warningsCount.replace("{count}", String(warnCount))}
             </Badge>
           )}
           {failCount > 0 && (
             <Badge variant="secondary" className="text-red-600 bg-red-500/10">
-              {failCount} issues
+              {t.importExportUI.issuesCount.replace("{count}", String(failCount))}
             </Badge>
           )}
         </div>

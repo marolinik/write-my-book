@@ -123,7 +123,7 @@ export function ExportConfigDialog({
             {updateConfig.isPending ? (
               <Loader2Icon className="mr-2 size-4 animate-spin" />
             ) : null}
-            Save
+            {t.common.save}
           </Button>
         </div>
       </DialogContent>

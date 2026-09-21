@@ -67,7 +67,9 @@ export function SeriesInheritancePanel({
           <SelectContent>
             {books.map((book) => (
               <SelectItem key={book.id} value={book.id}>
-                Book {book.bookNumber}: {book.name}
+                {t.seriesUI.bookNumberName
+                  .replace("{n}", String(book.bookNumber))
+                  .replace("{name}", book.name)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -104,7 +106,7 @@ export function SeriesInheritancePanel({
                           className="gap-1 text-xs"
                         >
                           <CheckCircleIcon className="size-3" />
-                          Own
+                          {t.seriesUI.ownVersion}
                         </Badge>
                       ) : state.seriesVersion ? (
                         <Badge

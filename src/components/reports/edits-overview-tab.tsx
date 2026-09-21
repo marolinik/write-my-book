@@ -116,7 +116,7 @@ export function EditsOverviewTab({ bookId }: { bookId: string }) {
                       </Badge>
                       <Badge variant="outline">{f.category}</Badge>
                       <span className="text-muted-foreground">
-                        Ch. {f.chapterNumber}
+                        {t.agentUI.chapterAbbrev} {f.chapterNumber}
                       </span>
                     </div>
                     <p>{f.description}</p>

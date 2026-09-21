@@ -13,6 +13,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { countWithNoun } from "@/lib/i18n/plural";
 import { useLanguage } from "@/components/providers/language-provider";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
 import {
@@ -45,6 +46,7 @@ function ReadabilityCard({
   benchmark?: { min: number; max: number } | null;
   description: string;
 }) {
+  const { t } = useLanguage();
   const inRange =
     !benchmark || (value >= benchmark.min && value <= benchmark.max);
 
@@ -58,9 +60,11 @@ function ReadabilityCard({
         <p className="text-4xl font-bold">{value}</p>
         {benchmark && (
           <p className="mt-2 text-sm text-muted-foreground">
-            Genre range: {benchmark.min}-{benchmark.max}{" "}
+            {t.reportsUI.genreRange
+              .replace("{min}", String(benchmark.min))
+              .replace("{max}", String(benchmark.max))}{" "}
             <Badge variant={inRange ? "default" : "destructive"} className="ml-2">
-              {inRange ? "In Range" : "Outside Range"}
+              {inRange ? t.reportsUI.inRange : t.reportsUI.outsideRange}
             </Badge>
           </p>
         )}
@@ -86,7 +90,7 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
   // O13 - the analysis report was a dead end: metrics arrived, nothing consumed
   // them, and the journey stopped at a report. Pacing numbers exist to drive a
   // structural decision, so the report now hands off to the restructure pass.
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const openWithWorkflow = useAgentUIStore((st) => st.openWithWorkflow);
   const router = useRouter();
 
@@ -229,7 +233,7 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
               <CardHeader>
                 <CardTitle>{t.reportsUI.perChapterBeta}</CardTitle>
                 <CardDescription>
-                  Click a bar to navigate to that chapter. Dashed line shows the average ({avgScore.toFixed(1)}).
+                  {t.reportsUI.clickBarHint.replace("{avg}", avgScore.toFixed(1))}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -327,7 +331,7 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
                 <CardHeader>
                   <CardTitle>{t.reportsUI.betaProgression}</CardTitle>
                   <CardDescription>
-                    Score trend across chapters (left to right). Dashed line shows the average ({avgScore.toFixed(1)}).
+                    {t.reportsUI.scoreTrendHint.replace("{avg}", avgScore.toFixed(1))}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -502,8 +506,18 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
                       >
                         <span className="font-medium">{char.character}</span>
                         <div className="flex items-center gap-4 text-muted-foreground">
-                          <span>{char.lineCount} lines</span>
-                          <span>Avg {char.avgLength} words</span>
+                          <span>
+                            {t.reportsUI.linesCount.replace(
+                              "{count}",
+                              String(char.lineCount)
+                            )}
+                          </span>
+                          <span>
+                            {t.reportsUI.avgWords.replace(
+                              "{count}",
+                              String(char.avgLength)
+                            )}
+                          </span>
                           <span>{char.percentage}%</span>
                         </div>
                       </div>
@@ -543,7 +557,9 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
                           &quot;{item.word}&quot;
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          Found {item.count} times (expected ~{item.expected})
+                          {t.reportsUI.foundTimes
+                            .replace("{count}", String(item.count))
+                            .replace("{expected}", String(item.expected))}
                         </p>
                       </div>
                       <div className="flex items-center gap-3">
@@ -552,7 +568,10 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
                             item.ratio >= 2.5 ? "destructive" : "secondary"
                           }
                         >
-                          {item.ratio.toFixed(1)}x overuse
+                          {t.reportsUI.overuseRatio.replace(
+                            "{ratio}",
+                            item.ratio.toFixed(1)
+                          )}
                         </Badge>
                         <div className="h-2 w-24 rounded-full bg-muted">
                           <div
@@ -587,7 +606,15 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
                 <p className="text-4xl font-bold">${totalCost.toFixed(2)}</p>
                 {usageData?.total?.sessions > 0 && (
                   <p className="text-sm text-muted-foreground mt-1">
-                    Across {usageData.total.sessions} session{usageData.total.sessions !== 1 ? "s" : ""}
+                    {t.reportsUI.acrossSessions.replace(
+                      "{countNoun}",
+                      countWithNoun(
+                        usageData.total.sessions,
+                        t.common.sessionOne,
+                        t.common.sessionMany,
+                        { few: t.common.sessionFew, language }
+                      )
+                    )}
                   </p>
                 )}
               </CardContent>
@@ -605,7 +632,7 @@ export function AnalyticsTab({ bookId }: { bookId: string }) {
                     <Badge variant="default" className="mb-3 bg-green-600 hover:bg-green-700">{t.reportsUI.allYourKeys}</Badge>
                     <p className="text-lg font-medium">{t.reportsUI.allYourKeysHint}</p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      You&apos;re paying provider rates directly with no platform markup.
+                      {t.reportsUI.noMarkupHint}
                     </p>
                   </div>
                 ) : (

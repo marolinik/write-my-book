@@ -72,7 +72,7 @@ export function FileDropzone({
       <UploadIcon className="mb-3 size-8 text-muted-foreground" />
       <p className="text-sm font-medium">{t.importExportUI.dropFiles}</p>
       <p className="mt-1 text-xs text-muted-foreground">
-        Supports .md, .txt, .docx (max {maxSizeMB}MB)
+        {t.importExportUI.supportedFiles.replace("{size}", String(maxSizeMB))}
       </p>
       <input
         ref={inputRef}

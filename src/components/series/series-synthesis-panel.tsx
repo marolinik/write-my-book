@@ -102,12 +102,12 @@ export function SeriesSynthesisPanel({ seriesId }: SeriesSynthesisPanelProps) {
                     {c.hasArtifact ? (
                       <Badge variant="default" className="gap-1 text-xs">
                         <CheckIcon className="size-3" />
-                        Yes
+                        {t.common.yes}
                       </Badge>
                     ) : (
                       <Badge variant="outline" className="gap-1 text-xs">
                         <XIcon className="size-3" />
-                        No
+                        {t.common.no}
                       </Badge>
                     )}
                   </td>

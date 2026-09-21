@@ -35,7 +35,10 @@ const CLEAN_AREAS = [
   join("components", "settings"),
   join("components", "agent"),
   join("components", "billing"),
+  join("components", "import-export"),
   join("components", "onboarding"),
+  join("components", "reports"),
+  join("components", "series"),
   join("components", "layout"),
   join("app", "(app)"),
 ];
@@ -267,13 +270,14 @@ describe("the dictionaries behind the localized areas", () => {
     es: [
       "focusThemeSepia",
       // Spanish took "token" as a loanword, and "no" is the word itself.
-      "minutesAbbrev", "tokensAbbrev", "tokensInOut", "feedbackNo",
+      "minutesAbbrev", "tokensAbbrev", "tokensInOut", "feedbackNo", "no",
       "focusNormal", "error", "fleschKincaid", "gunningFog", "colemanLiau",
       "contextEditor", "coach", "editor", "coverCropZoom", "coverCropPositionH",
       "coverCropPositionV", "enterprise",
     ],
     fr: [
-      "minutesAbbrev",
+      // "session" and "documents" are the French words, spelled the same.
+      "minutesAbbrev", "sessionOne", "sessionFew", "sessionMany", "documentsCount",
       "insightSuggestion", "focusNormal", "seriesTabDocuments", "seriesTabStructure",
       "type", "dialogue", "distribution", "fleschKincaid", "gunningFog", "colemanLiau",
       "architecture", "documents", "sessionsUnit", "coach", "styleSection",

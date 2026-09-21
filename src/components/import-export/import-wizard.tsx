@@ -1,5 +1,6 @@
 "use client";
 
+import { countWithNoun } from "@/lib/i18n/plural";
 import { useLanguage } from "@/components/providers/language-provider";
 import { useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,7 +39,7 @@ const FORMAT_INFO = [
 ];
 
 export function ImportWizard({ bookId, onComplete, autoAnalyze = true }: ImportWizardProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [phase, setPhase] = useState<WizardPhase>("upload");
   const [chapters, setChapters] = useState<PreviewChapter[]>([]);
   const [existingChapters, setExistingChapters] = useState<
@@ -198,7 +199,15 @@ export function ImportWizard({ bookId, onComplete, autoAnalyze = true }: ImportW
                     <Loader2Icon className="mr-2 size-4 animate-spin" />{t.importExportUI.importing}</>
                 ) : (
                   <>
-                    Import {chapters.length} chapter{chapters.length !== 1 ? "s" : ""}
+                    {t.importExportUI.importChapters.replace(
+                      "{countNoun}",
+                      countWithNoun(
+                        chapters.length,
+                        t.setup.chapterOne,
+                        t.setup.chapterMany,
+                        { few: t.setup.chapterFew, language }
+                      )
+                    )}
                     <ArrowRightIcon className="ml-1 size-4" />
                   </>
                 )}
@@ -224,8 +233,16 @@ export function ImportWizard({ bookId, onComplete, autoAnalyze = true }: ImportW
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              {chapters.length} chapter{chapters.length !== 1 ? "s" : ""} imported successfully.
-              {autoAnalyze && " Analysis is starting automatically in the agent panel."}
+              {t.importExportUI.importedSuccessfully.replace(
+                "{countNoun}",
+                countWithNoun(
+                  chapters.length,
+                  t.setup.chapterOne,
+                  t.setup.chapterMany,
+                  { few: t.setup.chapterFew, language }
+                )
+              )}
+              {autoAnalyze && t.importExportUI.analysisStartingHint}
             </p>
             <Button variant="outline" onClick={handleReset}>{t.importExportUI.importAnother}</Button>
           </CardContent>

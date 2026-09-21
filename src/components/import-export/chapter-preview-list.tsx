@@ -1,5 +1,6 @@
 "use client";
 
+import { countWithNoun } from "@/lib/i18n/plural";
 import { useLanguage } from "@/components/providers/language-provider";
 import { useState, useCallback } from "react";
 import {
@@ -51,6 +52,7 @@ export function ChapterPreviewList({
   onChange,
   existingChapters,
 }: ChapterPreviewListProps) {
+  const { t, language } = useLanguage();
   const locale = useLocale();
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
@@ -140,25 +142,44 @@ export function ChapterPreviewList({
     <div className="space-y-3">
       <div className="flex items-center justify-between text-sm">
         <span className="font-medium">
-          {chapters.length} chapter{chapters.length !== 1 ? "s" : ""} detected
+          {t.importExportUI.chaptersDetected.replace(
+            "{countNoun}",
+            countWithNoun(chapters.length, t.setup.chapterOne, t.setup.chapterMany, {
+              few: t.setup.chapterFew,
+              language,
+            })
+          )}
         </span>
         <div className="flex items-center gap-2">
           {selected.size >= 2 && (
             <Button variant="outline" size="sm" onClick={handleMerge}>
               <MergeIcon className="mr-1 size-3" />
-              Merge {selected.size}
+              {t.importExportUI.mergeSelected.replace(
+                "{count}",
+                String(selected.size)
+              )}
             </Button>
           )}
           <Badge variant="secondary">
-            {totalWordCount.toLocaleString(locale)} words
+            {t.importExportUI.wordsCount.replace(
+              "{count}",
+              totalWordCount.toLocaleString(locale)
+            )}
           </Badge>
         </div>
       </div>
 
       {existingChapters && existingChapters.length > 0 && (
         <div className="rounded-md border border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 p-2 text-xs text-amber-700 dark:text-amber-300">
-          This book has {existingChapters.length} existing chapter{existingChapters.length !== 1 ? "s" : ""}.
-          Chapters with matching numbers will be available for replacement.
+          {t.importExportUI.existingChaptersHint.replace(
+            "{countNoun}",
+            countWithNoun(
+              existingChapters.length,
+              t.setup.chapterOne,
+              t.setup.chapterMany,
+              { few: t.setup.chapterFew, language }
+            )
+          )}
         </div>
       )}
 

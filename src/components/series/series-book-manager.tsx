@@ -149,7 +149,10 @@ export function SeriesBookManager({ seriesId, books }: SeriesBookManagerProps) {
                     >
                       <span className="font-medium">{book.name}</span>
                       <span className="text-xs text-muted-foreground">
-                        {book.wordCount.toLocaleString(locale)} words
+                        {t.seriesUI.wordsCount.replace(
+                          "{count}",
+                          book.wordCount.toLocaleString(locale)
+                        )}
                       </span>
                     </button>
                   ))}
@@ -233,7 +236,10 @@ export function SeriesBookManager({ seriesId, books }: SeriesBookManagerProps) {
                 </Link>
 
                 <span className="text-xs text-muted-foreground">
-                  {book.wordCount.toLocaleString(locale)} words
+                  {t.seriesUI.wordsCount.replace(
+                    "{count}",
+                    book.wordCount.toLocaleString(locale)
+                  )}
                 </span>
 
                 <Badge variant="secondary" className="text-xs capitalize">

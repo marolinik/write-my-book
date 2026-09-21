@@ -185,6 +185,11 @@ export interface UIStrings {
     edit: string;
     close: string;
     confirm: string;
+    yes: string;
+    no: string;
+    sessionOne: string;
+    sessionFew: string;
+    sessionMany: string;
   };
 
   // Setup wizard
@@ -203,6 +208,7 @@ export interface UIStrings {
     importInfo: string; manuscriptImported: string;
     /** Countable chapter noun — singular/plural pair, picked via pluralNoun(). */
     chapterOne: string; chapterMany: string;
+    chapterFew: string;
     importMore: string; goToImport: string;
     styleInfo: string; fingerprintCaptured: string;
     captureStyle: string; reCaptureStyle: string;
@@ -491,6 +497,17 @@ export interface UIStrings {
     overuse: string;
     cost: string;
     perChapterBeta: string;
+    genreRange: string;
+    inRange: string;
+    outsideRange: string;
+    clickBarHint: string;
+    scoreTrendHint: string;
+    linesCount: string;
+    avgWords: string;
+    foundTimes: string;
+    overuseRatio: string;
+    acrossSessions: string;
+    noMarkupHint: string;
     scoreDistribution: string;
     betaProgression: string;
     fleschKincaid: string;
@@ -1259,6 +1276,11 @@ export interface UIStrings {
     addToSeries: string;
     create: string;
     noBooksInSeries: string;
+    bookNumberName: string;
+    ownVersion: string;
+    wordsCount: string;
+    chaptersCount: string;
+    documentsCount: string;
     noSeriesDocuments: string;
     selectBookForInheritance: string;
     noInheritableDocuments: string;
@@ -1282,6 +1304,17 @@ export interface UIStrings {
     preview: string;
     contents: string;
     dropFiles: string;
+    chaptersDetected: string;
+    mergeSelected: string;
+    wordsCount: string;
+    existingChaptersHint: string;
+    supportedFiles: string;
+    importChapters: string;
+    importedSuccessfully: string;
+    analysisStartingHint: string;
+    passedCount: string;
+    warningsCount: string;
+    issuesCount: string;
     uploadManuscript: string;
     parsingFiles: string;
     supportedFormats: string;
