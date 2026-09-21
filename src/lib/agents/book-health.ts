@@ -4,6 +4,7 @@
  */
 
 import { db } from "@/lib/db";
+import { NOT_AWAITING_REVIEW } from "@/lib/documents/review-gate";
 
 // ─── Types ──────────────────────────────────────────────────────
 
@@ -73,7 +74,7 @@ export async function computeBookHealth(
       orderBy: { chapterNumber: "asc" },
     }),
     db.document.findMany({
-      where: { bookId },
+      where: { bookId, ...NOT_AWAITING_REVIEW },
       select: { type: true, chapterNumber: true },
     }),
     db.editFinding.findMany({

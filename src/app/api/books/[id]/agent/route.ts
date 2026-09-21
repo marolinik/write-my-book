@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { NOT_AWAITING_REVIEW } from "@/lib/documents/review-gate";
 import { decryptApiKey } from "@/lib/encryption";
 import { estimateWorkflowCost } from "@/lib/llm/cost-estimator";
 import { validatePrices } from "@/lib/llm/price-validator";
@@ -122,7 +123,11 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       const wizardComplete = book.settings?.setupComplete ?? false;
       if (!wizardComplete) {
         const docTypes = await db.document.findMany({
-          where: { bookId, type: { in: ["FINGERPRINT", "STORY_BIBLE", "ARCHITECTURE"] } },
+          where: {
+            bookId,
+            type: { in: ["FINGERPRINT", "STORY_BIBLE", "ARCHITECTURE"] },
+            ...NOT_AWAITING_REVIEW,
+          },
           select: { type: true },
         });
         const chapterCount = await db.chapter.count({ where: { bookId } });

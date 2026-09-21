@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { NOT_AWAITING_REVIEW } from "@/lib/documents/review-gate";
 import { getWorkflow } from "./workflows";
 import type { WorkflowPrerequisite } from "./types";
 
@@ -51,7 +52,7 @@ export async function validatePrerequisites(
 
   // Fetch all document types for this book in one query
   const docs = await db.document.findMany({
-    where: { bookId },
+    where: { bookId, ...NOT_AWAITING_REVIEW },
     select: { type: true, chapterNumber: true },
   });
 

@@ -35,8 +35,12 @@ export const MIN_DELIVERABLE_WORDS = 300;
 /** Minimum markdown headings before the text is treated as structured. */
 const MIN_DELIVERABLE_HEADINGS = 2;
 
-/** `change_source` stamped on a document recovered from a session transcript. */
-export const TRANSCRIPT_RECOVERY_SOURCE = "transcript-recovery";
+// `change_source` stamped on a document recovered from a session transcript.
+// It lives beside the gate that reads it (D-201): the stamp is the only record
+// that nobody has reviewed this document, so the writer and the reader of that
+// fact must not be able to drift apart.
+export { TRANSCRIPT_RECOVERY_SOURCE } from "@/lib/documents/review-gate";
+import { TRANSCRIPT_RECOVERY_SOURCE } from "@/lib/documents/review-gate";
 
 /** Just enough of DocumentService for this module to stay db-free and testable. */
 export interface ArtifactDocumentStore {
