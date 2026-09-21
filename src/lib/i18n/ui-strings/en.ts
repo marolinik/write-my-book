@@ -457,6 +457,21 @@ export const EN: UIStrings = {
     capRange: "Enter a budget cap between {min} and {max}.",
     run: "Run",
     status: "Batch status",
+    history: "Past runs",
+    historyEmpty: "No whole-book run has finished yet. The ones you queue will be listed here with what they cost.",
+    historyError: "The list of past runs could not be loaded.",
+    historyRunning: "Running",
+    historyScheduled: "Scheduled",
+    historyDone: "Finished",
+    historyHalted: "Stopped",
+    historyFailed: "Failed",
+    historyChapterRange: "Ch. {a} to {b}",
+    historyWholeBook: "Whole book",
+    historyProgress: "{done} of {total} done",
+    historyFailures: "{n} failed",
+    historySpend: "{spent} of {cap}",
+    historySpendNoCap: "{spent} spent",
+    historyHaltedBecause: "Stopped: {reason}",
   },
 
   styleUI: {
@@ -1465,6 +1480,8 @@ export const EN: UIStrings = {
     feedbackThanks: "Thanks! We’ll suggest more like this.",
     feedbackNoted: "Noted — we’ll adjust.",
     canLoopBackTo: "Can loop back to {workflow}",
+    costFromRuns: "Based on this book's last {n} runs of this pass.",
+    costFromTable: "An estimate from model prices. It sharpens once this book has run this pass a few times.",
   },
 
   editorialUI: {

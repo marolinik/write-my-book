@@ -447,6 +447,21 @@ export const RU: UIStrings = {
     capRange: "Укажите лимит бюджета от {min} до {max}.",
     run: "Запустить",
     status: "Статус пакета",
+    history: "Прошлые запуски",
+    historyEmpty: "Ни один запуск по всей книге ещё не завершён. Те, что вы поставите в очередь, появятся здесь вместе со стоимостью.",
+    historyError: "Не удалось загрузить список прошлых запусков.",
+    historyRunning: "Идёт",
+    historyScheduled: "Запланирован",
+    historyDone: "Завершён",
+    historyHalted: "Остановлен",
+    historyFailed: "Не удался",
+    historyChapterRange: "Гл. {a} по {b}",
+    historyWholeBook: "Вся книга",
+    historyProgress: "{done} из {total} готово",
+    historyFailures: "{n} с ошибкой",
+    historySpend: "{spent} из {cap}",
+    historySpendNoCap: "потрачено {spent}",
+    historyHaltedBecause: "Остановлен: {reason}",
   },
 
   styleUI: {
@@ -1454,6 +1469,8 @@ export const RU: UIStrings = {
     feedbackThanks: "Спасибо! Будем предлагать больше подобного.",
     feedbackNoted: "Учтено — скорректируем.",
     canLoopBackTo: "Может вернуться к {workflow}",
+    costFromRuns: "По последним {n} запускам этого прохода для этой книги.",
+    costFromTable: "Оценка по ценам моделей. Она уточнится, когда книга пройдёт этот проход несколько раз.",
   },
 
   editorialUI: {

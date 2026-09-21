@@ -464,6 +464,21 @@ export interface UIStrings {
     capRange: string;
     run: string;
     status: string;
+    history: string;
+    historyEmpty: string;
+    historyError: string;
+    historyRunning: string;
+    historyScheduled: string;
+    historyDone: string;
+    historyHalted: string;
+    historyFailed: string;
+    historyChapterRange: string;
+    historyWholeBook: string;
+    historyProgress: string;
+    historyFailures: string;
+    historySpend: string;
+    historySpendNoCap: string;
+    historyHaltedBecause: string;
   };
 
   // O1 - the style profile and character lenses.
@@ -1394,6 +1409,8 @@ export interface UIStrings {
     feedbackThanks: string;
     feedbackNoted: string;
     canLoopBackTo: string;
+    costFromRuns: string;
+    costFromTable: string;
   };
 
   // H-10 - editorial badges and the finding conversation's decision row.

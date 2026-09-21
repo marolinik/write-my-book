@@ -35,6 +35,11 @@
     // One-shot QA campaign evidence harnesses / scripts (not product code).
     // Self-contained Playwright probe scripts, excluded from the app typecheck
     // program on purpose.
-    "cowork/**"
+    "cowork/**",
+    // Audit scratch scripts (gitignored, one-shot DB probes). They are not
+    // product code and must not be able to fail `next build`: the 0921 S5
+    // session's first production build in the project's history failed on a
+    // throwaway query script, not on the app.
+    "tmp-audit/**"
   ]
 }

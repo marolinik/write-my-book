@@ -447,6 +447,21 @@ export const SR: UIStrings = {
     capRange: "Unesite budžetsko ograničenje između {min} i {max}.",
     run: "Pokreni",
     status: "Status grupe",
+    history: "Ranija pokretanja",
+    historyEmpty: "Nijedno pokretanje nad celom knjigom još nije završeno. Ona koja zakažeš pojaviće se ovde, sa onim što su koštala.",
+    historyError: "Spisak ranijih pokretanja nije mogao da se učita.",
+    historyRunning: "U toku",
+    historyScheduled: "Zakazano",
+    historyDone: "Završeno",
+    historyHalted: "Zaustavljeno",
+    historyFailed: "Neuspelo",
+    historyChapterRange: "Pogl. {a} do {b}",
+    historyWholeBook: "Cela knjiga",
+    historyProgress: "{done} od {total} gotovo",
+    historyFailures: "{n} neuspelo",
+    historySpend: "{spent} od {cap}",
+    historySpendNoCap: "{spent} potrošeno",
+    historyHaltedBecause: "Zaustavljeno: {reason}",
   },
 
   styleUI: {
@@ -1454,6 +1469,8 @@ export const SR: UIStrings = {
     feedbackThanks: "Hvala! Predlagaćemo više ovakvih.",
     feedbackNoted: "Zabeleženo — prilagodićemo se.",
     canLoopBackTo: "Može da se vrati na {workflow}",
+    costFromRuns: "Na osnovu poslednjih {n} pokretanja ovog prolaza nad ovom knjigom.",
+    costFromTable: "Procena po cenama modela. Izoštriće se kada ova knjiga nekoliko puta prođe ovaj prolaz.",
   },
 
   editorialUI: {

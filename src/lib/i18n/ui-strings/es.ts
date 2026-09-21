@@ -447,6 +447,21 @@ export const ES: UIStrings = {
     capRange: "Introduce un límite de presupuesto entre {min} y {max}.",
     run: "Ejecutar",
     status: "Estado del lote",
+    history: "Ejecuciones anteriores",
+    historyEmpty: "Todavía no ha terminado ninguna ejecución sobre el libro entero. Las que pongas en cola aparecerán aquí con lo que costaron.",
+    historyError: "No se pudo cargar la lista de ejecuciones anteriores.",
+    historyRunning: "En curso",
+    historyScheduled: "Programada",
+    historyDone: "Terminada",
+    historyHalted: "Detenida",
+    historyFailed: "Fallida",
+    historyChapterRange: "Cap. {a} a {b}",
+    historyWholeBook: "Libro entero",
+    historyProgress: "{done} de {total} hechos",
+    historyFailures: "{n} fallidos",
+    historySpend: "{spent} de {cap}",
+    historySpendNoCap: "{spent} gastado",
+    historyHaltedBecause: "Detenida: {reason}",
   },
 
   styleUI: {
@@ -1454,6 +1469,8 @@ export const ES: UIStrings = {
     feedbackThanks: "¡Gracias! Sugeriremos más como esta.",
     feedbackNoted: "Anotado — lo ajustaremos.",
     canLoopBackTo: "Puede volver a {workflow}",
+    costFromRuns: "A partir de las últimas {n} ejecuciones de esta pasada en este libro.",
+    costFromTable: "Una estimación a precios de modelo. Se afina cuando este libro haya hecho la pasada unas cuantas veces.",
   },
 
   editorialUI: {

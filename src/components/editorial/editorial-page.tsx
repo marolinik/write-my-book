@@ -9,6 +9,7 @@ import { useAgentUIStore } from "@/stores/agent-ui-store";
 import { useState } from "react";
 import { ChapterSelector } from "./chapter-selector";
 import { BatchEditorialDialog } from "./batch-editorial-dialog";
+import { BatchHistory } from "./batch-history";
 import { FindingsFilters } from "./findings-filters";
 import { FindingsPanel } from "./findings-panel";
 import { EditorialSummary } from "./editorial-summary";
@@ -190,7 +191,16 @@ export function EditorialPage({ bookId, chapters }: EditorialPageProps) {
           </TabsContent>
 
           <TabsContent value="history" className="flex-1 overflow-auto mt-0">
-            <EditHistoryTimeline bookId={bookId} />
+            {/*
+             * D5: the whole-book runs belong beside the per-chapter history.
+             * The list route and its live corrections shipped with batch and
+             * had no reader at all, so a queued overnight run vanished from
+             * the product the moment its dialog closed.
+             */}
+            <div className="space-y-6">
+              <BatchHistory bookId={bookId} />
+              <EditHistoryTimeline bookId={bookId} />
+            </div>
           </TabsContent>
 
           <TabsContent value="summary" className="flex-1 overflow-auto mt-0">

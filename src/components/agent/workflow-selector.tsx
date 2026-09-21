@@ -112,13 +112,29 @@ function CostBadge({ cost }: { cost: WorkflowCostData }) {
     colorClass = "text-yellow-600 dark:text-yellow-400"; // $$
   }
 
+  // D2: say where the number came from. The table-driven heuristic drifted
+  // 30-38% on real batches, and the writer reads this before agreeing to
+  // spend. "Based on your last 7 runs" is a claim they can check; a bare
+  // number from a price table is not.
+  const provenance =
+    typeof cost.basedOnRuns === "number"
+      ? t.agentUI.costFromRuns.replace("{n}", String(cost.basedOnRuns))
+      : t.agentUI.costFromTable;
+
   return (
-    <span
-      className={`inline-flex items-center gap-0.5 text-[10px] font-normal ${colorClass}`}
-    >
-      <DollarSignIcon className="size-2.5" />
-      {cost.formatted}
-    </span>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span
+          className={`inline-flex items-center gap-0.5 text-[10px] font-normal ${colorClass}`}
+        >
+          <DollarSignIcon className="size-2.5" />
+          {cost.formatted}
+        </span>
+      </TooltipTrigger>
+      <TooltipContent side="left" className="max-w-56 text-xs">
+        {provenance}
+      </TooltipContent>
+    </Tooltip>
   );
 }
 

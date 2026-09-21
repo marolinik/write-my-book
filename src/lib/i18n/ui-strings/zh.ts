@@ -447,6 +447,21 @@ export const ZH: UIStrings = {
     capRange: "请输入介于 {min} 和 {max} 之间的预算上限。",
     run: "运行",
     status: "批次状态",
+    history: "过往运行",
+    historyEmpty: "还没有任何整本书的运行完成。你排入队列的运行会连同花费一起列在这里。",
+    historyError: "无法加载过往运行列表。",
+    historyRunning: "进行中",
+    historyScheduled: "已排期",
+    historyDone: "已完成",
+    historyHalted: "已停止",
+    historyFailed: "已失败",
+    historyChapterRange: "第 {a} 至 {b} 章",
+    historyWholeBook: "整本书",
+    historyProgress: "{total} 个中完成 {done} 个",
+    historyFailures: "{n} 个失败",
+    historySpend: "{cap} 中的 {spent}",
+    historySpendNoCap: "已花费 {spent}",
+    historyHaltedBecause: "已停止：{reason}",
   },
 
   styleUI: {
@@ -1454,6 +1469,8 @@ export const ZH: UIStrings = {
     feedbackThanks: "谢谢！我们会多推荐这类建议。",
     feedbackNoted: "已记录 — 我们会作出调整。",
     canLoopBackTo: "可以回到 {workflow}",
+    costFromRuns: "依据本书最近 {n} 次该轮次的运行。",
+    costFromTable: "按模型价格估算。本书多跑几次该轮次后会更准。",
   },
 
   editorialUI: {

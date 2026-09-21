@@ -11,6 +11,12 @@ export interface WorkflowCostData {
   formatted: string;
   blocked: boolean;
   reason?: string;
+  /**
+   * D2: how many of this book's own runs the number is drawn from, or null
+   * when it is still the table-driven heuristic. The UI says which it is,
+   * because an estimate the writer cannot check is one they cannot trust.
+   */
+  basedOnRuns?: number | null;
 }
 
 interface CostEstimateResponse {
@@ -20,6 +26,7 @@ interface CostEstimateResponse {
     min: number;
     max: number;
     formatted: string;
+    basedOnRuns?: number | null;
   };
   resolvedModel?: {
     registryId: string;
@@ -84,6 +91,7 @@ export function useWorkflowCostEstimates(
             min: json.costEstimate?.min ?? 0,
             max: json.costEstimate?.max ?? 0,
             formatted: json.costEstimate?.formatted ?? "--",
+            basedOnRuns: json.costEstimate?.basedOnRuns ?? null,
             blocked: false,
           },
         };

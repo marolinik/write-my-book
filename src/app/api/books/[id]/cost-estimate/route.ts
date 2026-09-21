@@ -8,7 +8,12 @@ import {
   type BookModelSettings,
   type AgentRole,
 } from "@/lib/llm";
-import { estimateWorkflowCost, estimateEmbeddingCost } from "@/lib/llm/cost-estimator";
+import { estimateWorkflowCost, estimateEmbeddingCost, formatCostRange } from "@/lib/llm/cost-estimator";
+import { calibrateEstimate } from "@/lib/llm/cost-calibration";
+
+/** How many past runs of the same agent the calibration reads. */
+const CALIBRATION_SAMPLE = 12;
+
 import { getWorkflow } from "@/lib/agents/workflows";
 import { globalOverridesOf, userModelSettingsOf, bookModelSettingsOf } from "@/lib/llm/model-resolver";
 
@@ -100,13 +105,37 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
     // Estimate embedding cost (for workflows that trigger vector indexing)
     const embeddingEstimate = estimateEmbeddingCost(workflowId);
 
+    // D2: the heuristic drifts 30-38% on real batches, and the writer reads
+    // this number before agreeing to spend money. Every paid run of this
+    // agent on this book left a UsageRecord; once there are enough of them,
+    // the book's own spread replaces the table and the product says how many
+    // runs it is speaking from.
+    const pastRuns = await db.usageRecord.findMany({
+      where: { bookId, agentType: workflow.primaryAgent, costEstimate: { gt: 0 } },
+      orderBy: { recordedAt: "desc" },
+      take: CALIBRATION_SAMPLE,
+      select: { costEstimate: true },
+    });
+    const calibrated = calibrateEstimate(
+      pastRuns.map((run) => run.costEstimate),
+      costEstimate
+    );
+
     return NextResponse.json({
       blocked: false,
-      costEstimate: {
-        min: costEstimate.min,
-        max: costEstimate.max,
-        formatted: costEstimate.formatted,
-      },
+      costEstimate: calibrated
+        ? {
+            min: calibrated.min,
+            max: calibrated.max,
+            formatted: formatCostRange(calibrated.min, calibrated.max),
+            basedOnRuns: calibrated.basedOn,
+          }
+        : {
+            min: costEstimate.min,
+            max: costEstimate.max,
+            formatted: costEstimate.formatted,
+            basedOnRuns: null,
+          },
       embeddingEstimate: embeddingEstimate
         ? {
             min: embeddingEstimate.min,
