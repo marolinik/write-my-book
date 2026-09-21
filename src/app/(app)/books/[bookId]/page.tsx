@@ -208,7 +208,10 @@ export default async function BookDetailPage({
               <Link href={`/series/${book.series.id}`} className="hover:underline">
                 {book.series.title}
               </Link>{" "}
-              &mdash; Book #{book.bookNumber}
+              {t.pagesUI.bookNumberSuffix.replace(
+                "{n}",
+                String(book.bookNumber)
+              )}
             </p>
           )}
           {/* Synopsis */}
@@ -341,7 +344,10 @@ export default async function BookDetailPage({
                 <div className="mt-2 space-y-1.5">
                   <div className="flex justify-between text-xs">
                     <span className="text-muted-foreground">
-                      of {targetWords.toLocaleString(locale)} target
+                      {t.pagesUI.ofTargetWords.replace(
+                        "{target}",
+                        targetWords.toLocaleString(locale)
+                      )}
                     </span>
                     <span className="font-medium">{wordPct}%</span>
                   </div>
@@ -433,7 +439,7 @@ export default async function BookDetailPage({
                       </span>
                       <div className="flex gap-2 text-[10px] text-muted-foreground">
                         <span>
-                          {((session.tokensInput + session.tokensOutput) / 1000).toFixed(0)}k tok
+                          {((session.tokensInput + session.tokensOutput) / 1000).toFixed(0)}k {t.agentUI.tokensAbbrev}
                         </span>
                         {session.startedAt && (
                           <span>{timeAgo(session.startedAt)}</span>

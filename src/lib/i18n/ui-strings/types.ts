@@ -1421,6 +1421,20 @@ export interface UIStrings {
   pagesUI: {
     errorOccurred: string;
     goToDashboard: string;
+    docType: string;
+    docVersion: string;
+    docModified: string;
+    docCreated: string;
+    docAgent: string;
+    docWordsCount: string;
+    bookNumberSuffix: string;
+    ofTargetWords: string;
+    notFoundHint: string;
+    progressAcrossSeries: string;
+    everythingCreatedIn: string;
+    chaptersEdited: string;
+    booksOfPlanned: string;
+    modelOverridesHint: string;
     guidedSetupInstead: string;
     setTargetInSettings: string;
     findingsNeedReview: string;
@@ -1441,6 +1455,23 @@ export interface UIStrings {
   // the writer pays providers directly.
   billingUI: {
     usageAndBilling: string;
+    agentSessionOne: string;
+    agentSessionFew: string;
+    agentSessionMany: string;
+    freeTrialOf: string;
+    trialEnds: string;
+    monthlyEquivalent: string;
+    founderClaimed: string;
+    founderLeft: string;
+    enterpriseHint: string;
+    ownKeysNoMarkup: string;
+    keySplitBadge: string;
+    costDriftHint: string;
+    priceDiscrepancies: string;
+    tokensEmbedded: string;
+    tokensInOut: string;
+    combinedAcrossSlots: string;
+    totalTokensCount: string;
     requiresPlan: string;
     featureRequiresPlan: string;
     choosePlan: string;

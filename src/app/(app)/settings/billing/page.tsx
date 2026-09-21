@@ -19,6 +19,7 @@ import {
   type UsageModelTotals,
 } from "@/lib/llm/usage-aggregation";
 import { billingStatusNotice } from "@/lib/billing/status-notice";
+import { countWithNoun } from "@/lib/i18n/plural";
 import { useLanguage, useLocale } from "@/components/providers/language-provider";
 import {
   Check,
@@ -113,7 +114,7 @@ const PLAN_CARDS = [
 
 export default function BillingPage() {
   const locale = useLocale();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { data: subscription } = useSubscription();
   const { data: usage, isLoading: usageLoading } = useUsage();
   const { data: founderCount } = useFounderCount();
@@ -182,12 +183,16 @@ export default function BillingPage() {
             <Sparkles className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0" />
             <div>
               <p className="font-medium text-blue-800 dark:text-blue-200">
-                You&apos;re on a 14-day free trial of{" "}
-                {subscription?.planName ?? currentPlan}
+                {t.billingUI.freeTrialOf.replace(
+                  "{plan}",
+                  subscription?.planName ?? currentPlan
+                )}
               </p>
               <p className="text-sm text-blue-700 dark:text-blue-300">
-                Trial ends {trialEnd.toLocaleDateString(locale)}. Add a payment
-                method to continue after your trial.
+                {t.billingUI.trialEnds.replace(
+                  "{date}",
+                  trialEnd.toLocaleDateString(locale)
+                )}
               </p>
             </div>
           </CardContent>
@@ -324,7 +329,10 @@ export default function BillingPage() {
                   </span>
                   {annualBilling && plan.annualPrice && (
                     <span className="block text-xs text-muted-foreground mt-1">
-                      ${Math.round(plan.annualPrice / 12)}/mo equivalent
+                      {t.billingUI.monthlyEquivalent.replace(
+                        "{amount}",
+                        String(Math.round(plan.annualPrice / 12))
+                      )}
                     </span>
                   )}
                 </CardDescription>
@@ -336,9 +344,16 @@ export default function BillingPage() {
                   <div className="mb-4">
                     <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
                       <span>
-                        {founderCount.claimed} of {founderCount.total} claimed
+                        {t.billingUI.founderClaimed
+                          .replace("{claimed}", String(founderCount.claimed))
+                          .replace("{total}", String(founderCount.total))}
                       </span>
-                      <span>{founderCount.available} left</span>
+                      <span>
+                        {t.billingUI.founderLeft.replace(
+                          "{count}",
+                          String(founderCount.available)
+                        )}
+                      </span>
                     </div>
                     <Progress
                       value={
@@ -403,8 +418,7 @@ export default function BillingPage() {
           <div>
             <p className="font-medium">{t.screens.enterprise}</p>
             <p className="text-sm text-muted-foreground">
-              Need custom seats, API access, or white-label export? Let&apos;s
-              talk.
+              {t.billingUI.enterpriseHint}
             </p>
           </div>
           <Button variant="outline" asChild>
@@ -447,7 +461,7 @@ export default function BillingPage() {
               ${usage.total.costEstimate.toFixed(2)}
             </p>
             <p className="text-sm text-muted-foreground mt-1">
-              Paid with your own keys &mdash; no platform markup applied
+              {t.billingUI.ownKeysNoMarkup}
             </p>
             {usage.byKeySource &&
               (() => {
@@ -472,7 +486,9 @@ export default function BillingPage() {
                 }
                 return (
                   <Badge variant="secondary" className="mt-2">
-                    {userPct}% Your Keys / {100 - userPct}% Platform
+                    {t.billingUI.keySplitBadge
+                      .replace("{userPct}", String(userPct))
+                      .replace("{platformPct}", String(100 - userPct))}
                   </Badge>
                 );
               })()}
@@ -488,15 +504,24 @@ export default function BillingPage() {
             <div>
               <p className="font-medium text-amber-800 dark:text-amber-200">{t.billingUI.estimatesInaccurate}</p>
               <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
-                Over the last {usage.costDrift.sessionsAnalyzed} sessions,
-                estimated costs differed from actual costs by{" "}
-                {usage.costDrift.driftPercentage}%. This may be due to model
-                pricing changes or unusual session patterns.
+                {t.billingUI.costDriftHint
+                  .replace(
+                    "{countNoun}",
+                    countWithNoun(
+                      usage.costDrift.sessionsAnalyzed,
+                      t.common.sessionOne,
+                      t.common.sessionMany,
+                      { few: t.common.sessionFew, language }
+                    )
+                  )
+                  .replace("{pct}", String(usage.costDrift.driftPercentage))}
               </p>
               {usage.priceDiscrepancies > 0 && (
                 <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
-                  {usage.priceDiscrepancies} model pricing discrepancies
-                  detected against provider rates.
+                  {t.billingUI.priceDiscrepancies.replace(
+                    "{count}",
+                    String(usage.priceDiscrepancies)
+                  )}
                 </p>
               )}
             </div>
@@ -536,8 +561,12 @@ export default function BillingPage() {
                   ${(usage?.llmCosts?.costEstimate ?? 0).toFixed(2)}
                 </p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {usage?.llmCosts?.sessions ?? 0} agent session
-                  {(usage?.llmCosts?.sessions ?? 0) !== 1 ? "s" : ""}
+                  {countWithNoun(
+                    usage?.llmCosts?.sessions ?? 0,
+                    t.billingUI.agentSessionOne,
+                    t.billingUI.agentSessionMany,
+                    { few: t.billingUI.agentSessionFew, language }
+                  )}
                 </p>
               </CardContent>
             </Card>
@@ -551,8 +580,10 @@ export default function BillingPage() {
                   ${(usage?.embeddingCosts?.costEstimate ?? 0).toFixed(2)}
                 </p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {formatTokens(usage?.embeddingCosts?.tokens ?? 0)} tokens
-                  embedded
+                  {t.billingUI.tokensEmbedded.replace(
+                    "{tokens}",
+                    formatTokens(usage?.embeddingCosts?.tokens ?? 0)
+                  )}
                 </p>
               </CardContent>
             </Card>
@@ -634,8 +665,12 @@ export default function BillingPage() {
                             )}
                           </p>
                           <p className="text-sm text-muted-foreground">
-                            {data.sessions} session
-                            {data.sessions !== 1 ? "s" : ""}
+                            {countWithNoun(
+                              data.sessions,
+                              t.common.sessionOne,
+                              t.common.sessionMany,
+                              { few: t.common.sessionFew, language }
+                            )}
                           </p>
                         </div>
                         <div className="text-right">
@@ -643,8 +678,9 @@ export default function BillingPage() {
                             ${data.costEstimate.toFixed(2)}
                           </p>
                           <p className="text-sm text-muted-foreground">
-                            {formatTokens(data.tokensInput)} in /{" "}
-                            {formatTokens(data.tokensOutput)} out
+                            {t.billingUI.tokensInOut
+                              .replace("{input}", formatTokens(data.tokensInput))
+                              .replace("{output}", formatTokens(data.tokensOutput))}
                           </p>
                         </div>
                       </div>
@@ -691,8 +727,9 @@ export default function BillingPage() {
                         <p className="font-medium">{row.label}</p>
                         {row.modelIds.length > 1 && (
                           <p className="text-xs text-muted-foreground">
-                            Combined across {row.modelIds.length} configured
-                            slots: {row.modelIds.join(", ")}
+                            {t.billingUI.combinedAcrossSlots
+                              .replace("{count}", String(row.modelIds.length))
+                              .replace("{slots}", row.modelIds.join(", "))}
                           </p>
                         )}
                       </div>
@@ -701,8 +738,10 @@ export default function BillingPage() {
                           ${row.costEstimate.toFixed(2)}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          {formatTokens(row.tokensInput + row.tokensOutput)}{" "}
-                          total tokens
+                          {t.billingUI.totalTokensCount.replace(
+                            "{tokens}",
+                            formatTokens(row.tokensInput + row.tokensOutput)
+                          )}
                         </p>
                       </div>
                     </div>
@@ -745,8 +784,12 @@ export default function BillingPage() {
                             {book.bookName}
                           </a>
                           <p className="text-sm text-muted-foreground">
-                            {book.sessions} session
-                            {book.sessions !== 1 ? "s" : ""}
+                            {countWithNoun(
+                              book.sessions,
+                              t.common.sessionOne,
+                              t.common.sessionMany,
+                              { few: t.common.sessionFew, language }
+                            )}
                           </p>
                         </div>
                         <div className="text-right">
@@ -754,8 +797,9 @@ export default function BillingPage() {
                             ${book.costEstimate.toFixed(2)}
                           </p>
                           <p className="text-sm text-muted-foreground">
-                            {formatTokens(book.tokensInput)} in /{" "}
-                            {formatTokens(book.tokensOutput)} out
+                            {t.billingUI.tokensInOut
+                              .replace("{input}", formatTokens(book.tokensInput))
+                              .replace("{output}", formatTokens(book.tokensOutput))}
                           </p>
                         </div>
                       </div>

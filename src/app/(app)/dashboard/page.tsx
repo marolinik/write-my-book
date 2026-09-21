@@ -321,7 +321,7 @@ export default async function DashboardPage() {
                 <p className="font-medium">{lastBook.name}</p>
                 {lastChapter && (
                   <p className="text-sm text-muted-foreground">
-                    Ch. {lastChapter.chapterNumber}
+                    {t.agentUI.chapterAbbrev} {lastChapter.chapterNumber}
                     {lastChapter.title ? `: ${lastChapter.title}` : ""}
                     {" — "}
                     {t.dashboard.lastEdited}{" "}
@@ -476,7 +476,7 @@ export default async function DashboardPage() {
                   </div>
                   <div className="flex items-center gap-3 shrink-0 text-muted-foreground">
                     <span className="text-xs">
-                      {((s.tokensInput + s.tokensOutput) / 1000).toFixed(0)}k tok
+                      {((s.tokensInput + s.tokensOutput) / 1000).toFixed(0)}k {t.agentUI.tokensAbbrev}
                     </span>
                     <span className="text-xs">
                       {s.completedAt

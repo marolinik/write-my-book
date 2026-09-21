@@ -141,7 +141,9 @@ export default function SeriesDetailPage() {
           </p>
         )}
         <p className="text-xs text-muted-foreground mt-2">
-          {series.books.length} / {series.plannedBooks} books
+          {t.pagesUI.booksOfPlanned
+            .replace("{count}", String(series.books.length))
+            .replace("{planned}", String(series.plannedBooks))}
         </p>
       </div>
 

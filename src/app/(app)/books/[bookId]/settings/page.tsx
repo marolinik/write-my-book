@@ -222,8 +222,7 @@ export default function BookSettingsPage() {
         <CardHeader>
           <CardTitle className="text-base">{t.screens.modelOverrides}</CardTitle>
           <CardDescription>
-            Override the global model selection for this book. &quot;Use
-            Default&quot; inherits from your global settings.
+            {t.pagesUI.modelOverridesHint}
           </CardDescription>
           {/* UDG round-6 (Sofija): config-only reassurance — these presets never
               touch manuscript/document content. */}

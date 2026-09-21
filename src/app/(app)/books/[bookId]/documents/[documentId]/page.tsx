@@ -477,7 +477,7 @@ export default function DocumentEditorPage({
           )}
           {chapterNumber && (
             <Badge variant="secondary" className="text-xs">
-              Ch. {chapterNumber}
+              {t.agentUI.chapterAbbrev} {chapterNumber}
             </Badge>
           )}
 
@@ -500,7 +500,7 @@ export default function DocumentEditorPage({
                   )}
                 </Button>
                 <span className="text-xs text-muted-foreground px-1">
-                  Ch. {chapterNumber}
+                  {t.agentUI.chapterAbbrev} {chapterNumber}
                 </span>
                 <Button
                   variant="ghost"
@@ -655,30 +655,57 @@ export default function DocumentEditorPage({
           <div className="space-y-2">
             <div className="flex items-center gap-1.5 text-muted-foreground">
               <FileTextIcon className="size-3" />
-              <span>Type: {docTypeLabel}</span>
+              <span>{t.pagesUI.docType.replace("{value}", docTypeLabel)}</span>
             </div>
             <div className="flex items-center gap-1.5 text-muted-foreground">
               <HashIcon className="size-3" />
-              <span>Version: {docData.currentVersion}</span>
+              <span>
+                {t.pagesUI.docVersion.replace(
+                  "{value}",
+                  String(docData.currentVersion)
+                )}
+              </span>
             </div>
             <div className="flex items-center gap-1.5 text-muted-foreground">
               <ClockIcon className="size-3" />
-              <span>Modified: {docData.updatedAt ? new Date(docData.updatedAt).toLocaleDateString(locale) : "—"}</span>
+              <span>
+                {t.pagesUI.docModified.replace(
+                  "{value}",
+                  docData.updatedAt
+                    ? new Date(docData.updatedAt).toLocaleDateString(locale)
+                    : "—"
+                )}
+              </span>
             </div>
             {docData.createdAt && (
               <div className="flex items-center gap-1.5 text-muted-foreground">
                 <ClockIcon className="size-3" />
-                <span>Created: {new Date(docData.createdAt).toLocaleDateString(locale)}</span>
+                <span>
+                  {t.pagesUI.docCreated.replace(
+                    "{value}",
+                    new Date(docData.createdAt).toLocaleDateString(locale)
+                  )}
+                </span>
               </div>
             )}
             {docData.createdByAgent && (
               <div className="flex items-center gap-1.5 text-muted-foreground">
                 <BotIcon className="size-3" />
-                <span>Agent: {docData.createdByAgent}</span>
+                <span>
+                  {t.pagesUI.docAgent.replace(
+                    "{value}",
+                    docData.createdByAgent
+                  )}
+                </span>
               </div>
             )}
             <div className="flex items-center gap-1.5 text-muted-foreground">
-              <span>{wordCount.toLocaleString(locale)} words</span>
+              <span>
+                {t.pagesUI.docWordsCount.replace(
+                  "{count}",
+                  wordCount.toLocaleString(locale)
+                )}
+              </span>
             </div>
           </div>
         </div>

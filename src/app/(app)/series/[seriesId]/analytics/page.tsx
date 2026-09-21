@@ -57,7 +57,7 @@ export default async function SeriesAnalyticsPage({
         </Button>
         <h1 className="font-display text-3xl font-semibold tracking-tight">{t.nav.analytics}</h1>
         <p className="text-muted-foreground">
-          Progress across &ldquo;{series.title}&rdquo;.
+          {t.pagesUI.progressAcrossSeries.replace("{series}", series.title)}
         </p>
       </div>
 
@@ -114,7 +114,9 @@ export default async function SeriesAnalyticsPage({
                 </span>
               </div>
               <CardDescription>
-                {book.chapters.length} chapters · {editedCount} edited
+                {t.pagesUI.chaptersEdited
+                  .replace("{chapters}", String(book.chapters.length))
+                  .replace("{edited}", String(editedCount))}
               </CardDescription>
             </CardHeader>
             <CardContent>

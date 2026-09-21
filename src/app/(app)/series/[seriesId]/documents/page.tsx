@@ -80,7 +80,7 @@ export default async function SeriesDocumentsPage({
         </Button>
         <h1 className="font-display text-3xl font-semibold tracking-tight">{t.nav.documents}</h1>
         <p className="text-muted-foreground">
-          Everything created in &ldquo;{series.title}&rdquo;.
+          {t.pagesUI.everythingCreatedIn.replace("{series}", series.title)}
         </p>
       </div>
 

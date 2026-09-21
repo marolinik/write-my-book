@@ -181,6 +181,7 @@ function englishAttributes(file: string): string[] {
  * covers everything the list above does, the regex scan is deleted.
  */
 const PARSED_CLEAN_AREAS: string[] = [
+  join("app", "(app)"),
   join("components", "agent"),
   join("components", "billing"),
   join("components", "book"),
@@ -265,9 +266,12 @@ describe("the dictionaries behind the localized areas", () => {
   const COGNATES: Record<string, string[]> = {
     // The readability indices are named after their authors — proper nouns
     // in every language.
-    sr: ["minutesAbbrev", "fleschKincaid", "gunningFog", "colemanLiau", "enterprise"],
+    // "Agent" is the same word in Serbian.
+    sr: ["docAgent", "minutesAbbrev", "fleschKincaid", "gunningFog", "colemanLiau", "enterprise"],
     de: [
       "focusThemeSepia", "lensRegister",
+      // "Version" and "Agent" are spelled the same in German.
+      "docVersion", "docAgent",
       "stepOptional", "syntax", "focusNormal", "upgrade", "name", "median",
       "register", "fleschKincaid", "gunningFog", "colemanLiau",
       "contextEditor", "themeSystem", "ghostwriter", "coach", "analyst",
