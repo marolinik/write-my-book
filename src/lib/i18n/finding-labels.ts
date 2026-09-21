@@ -433,4 +433,13 @@ export const FILTERABLE_FINDING_CATEGORIES = FINDING_CATEGORIES.filter(
  */
 export const FINDING_SEVERITIES = ["critical", "important", "suggestion"] as const;
 
+/**
+ * The statuses a finding moves through, in the order the writer meets them.
+ * The single source: the label table above and every filter read from it, so
+ * a status with no label cannot be offered.
+ */
+export const FINDING_STATUSES = ["pending", "applied", "dismissed", "rejected"] as const;
+
+export type FindingStatus = (typeof FINDING_STATUSES)[number];
+
 export type FindingSeverity = (typeof FINDING_SEVERITIES)[number];
