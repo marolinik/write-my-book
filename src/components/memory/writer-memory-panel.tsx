@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/components/providers/language-provider";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 import { useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -68,13 +69,14 @@ const CATEGORY_COLORS: Record<string, string> = {
   learned: "text-cyan-500",
 };
 
-const CATEGORY_LABELS: Record<string, string> = {
-  style: "Style Preference",
-  name: "Name/Spelling",
-  preference: "Feedback Preference",
-  constraint: "Constraint",
-  correction: "Correction",
-  learned: "AI Learned",
+/** Keyed by the stored category slug; the label is a lookup, not a word. */
+const CATEGORY_LABELS: Record<string, (t: UIStrings) => string> = {
+  style: (t) => t.memoryUI.catStyle,
+  name: (t) => t.memoryUI.catName,
+  preference: (t) => t.memoryUI.catPreference,
+  constraint: (t) => t.memoryUI.catConstraint,
+  correction: (t) => t.memoryUI.catCorrection,
+  learned: (t) => t.memoryUI.catLearned,
 };
 
 interface WriterMemoryPanelProps {
@@ -191,11 +193,13 @@ export function WriterMemoryPanel({ bookId }: WriterMemoryPanelProps) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {Object.entries(CATEGORY_LABELS).filter(([k]) => k !== "learned").map(([key, label]) => (
-                <SelectItem key={key} value={key} className="text-xs">
-                  {label}
-                </SelectItem>
-              ))}
+              {Object.entries(CATEGORY_LABELS)
+                .filter(([key]) => key !== "learned")
+                .map(([key, label]) => (
+                  <SelectItem key={key} value={key} className="text-xs">
+                    {label(t)}
+                  </SelectItem>
+                ))}
             </SelectContent>
           </Select>
           <Input
@@ -227,7 +231,7 @@ export function WriterMemoryPanel({ bookId }: WriterMemoryPanelProps) {
                   <div className="flex items-center gap-1.5 mb-1">
                     <Icon className={`size-3 ${color}`} />
                     <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                      {CATEGORY_LABELS[category] ?? category}
+                      {CATEGORY_LABELS[category]?.(t) ?? category}
                     </span>
                   </div>
                   <div className="space-y-1 pl-4">

@@ -847,6 +847,7 @@ export const EN: UIStrings = {
     noneYet: "No documents yet. Run a pass, or write one yourself.",
     chapterN: "Chapter {n}",
     justNow: "just now",
+    never: "Never",
     minutesAgo: "{n}m ago",
     hoursAgo: "{n}h ago",
     daysAgo: "{n}d ago",
@@ -1556,6 +1557,13 @@ export const EN: UIStrings = {
     chunkOne: "chunk",
     chunkFew: "chunks",
     chunkMany: "chunks",
+    catStyle: "Style Preference",
+    catName: "Name/Spelling",
+    catPreference: "Feedback Preference",
+    catConstraint: "Constraint",
+    catCorrection: "Correction",
+    catLearned: "AI Learned",
+    clearConfirm: "Clear all vector memory for this book? This removes indexed content from the memory system. You can rebuild it later.",
   },
 
   onboardingUI: {

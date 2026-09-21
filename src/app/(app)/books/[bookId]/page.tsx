@@ -18,6 +18,7 @@ import {
   getTodayWords,
 } from "@/lib/writing-stats";
 import { getUIStrings, localeFor } from "@/lib/i18n/ui-strings";
+import { relativeTime } from "@/lib/i18n/relative-time";
 import { getAgentStrings, workflowLabel } from "@/lib/i18n/agent-strings";
 import { getWorkflow } from "@/lib/agents/workflows";
 import {
@@ -53,18 +54,6 @@ function getWorkflowLabel(workflowId: string | null, lang: string): string {
   if (!workflowId) return "Agent session";
   const strings = getAgentStrings(lang);
   return workflowLabel(strings, workflowId) ?? getWorkflow(workflowId)?.label ?? workflowId;
-}
-
-function timeAgo(date: Date | string): string {
-  const d = typeof date === "string" ? new Date(date) : date;
-  const diff = Date.now() - d.getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
 }
 
 export default async function BookDetailPage({
@@ -442,7 +431,7 @@ export default async function BookDetailPage({
                           {((session.tokensInput + session.tokensOutput) / 1000).toFixed(0)}k {t.agentUI.tokensAbbrev}
                         </span>
                         {session.startedAt && (
-                          <span>{timeAgo(session.startedAt)}</span>
+                          <span>{relativeTime(session.startedAt, locale, t.docLibrary)}</span>
                         )}
                       </div>
                     </div>

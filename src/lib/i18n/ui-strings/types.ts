@@ -829,6 +829,7 @@ export interface UIStrings {
     docCount: string; docOne: string; docMany: string; docFew: string;
     organisedBy: string; newDocument: string; noMatch: string; noneYet: string;
     chapterN: string; justNow: string; minutesAgo: string; hoursAgo: string; daysAgo: string;
+    never: string;
     analysis: string; editorial: string; publishing: string; notes: string;
     /** Carries a {group} placeholder. */
     emptyGroup: string;
@@ -1493,6 +1494,13 @@ export interface UIStrings {
     chunkOne: string;
     chunkFew: string;
     chunkMany: string;
+    catStyle: string;
+    catName: string;
+    catPreference: string;
+    catConstraint: string;
+    catCorrection: string;
+    catLearned: string;
+    clearConfirm: string;
   };
 
   // H-10 - the first five minutes a writer spends in the product.

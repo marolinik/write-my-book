@@ -837,6 +837,7 @@ export const RU: UIStrings = {
     noneYet: "Документов пока нет. Запустите проход или напишите сами.",
     chapterN: "Глава {n}",
     justNow: "только что",
+    never: "Никогда",
     minutesAgo: "{n} мин назад",
     hoursAgo: "{n} ч назад",
     daysAgo: "{n} д назад",
@@ -1545,6 +1546,13 @@ export const RU: UIStrings = {
     chunkOne: "фрагмент",
     chunkFew: "фрагмента",
     chunkMany: "фрагментов",
+    catStyle: "Предпочтение стиля",
+    catName: "Имя/написание",
+    catPreference: "Предпочтение по отзывам",
+    catConstraint: "Ограничение",
+    catCorrection: "Исправление",
+    catLearned: "Выучено ИИ",
+    clearConfirm: "Очистить всю векторную память этой книги? Это удалит проиндексированное содержимое из системы памяти. Позже её можно пересобрать.",
   },
 
   onboardingUI: {

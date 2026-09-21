@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { useLanguage } from "@/components/providers/language-provider";
+import { useLanguage, useLocale } from "@/components/providers/language-provider";
+import { relativeTime } from "@/lib/i18n/relative-time";
 import type { UIStrings } from "@/lib/i18n/ui-strings";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -69,19 +70,6 @@ function domainBadge(domain: string) {
   );
 }
 
-function formatRelativeTime(dateStr: string): string {
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  if (diffMins < 1) return "just now";
-  if (diffMins < 60) return `${diffMins}m ago`;
-  const diffHours = Math.floor(diffMins / 60);
-  if (diffHours < 24) return `${diffHours}h ago`;
-  const diffDays = Math.floor(diffHours / 24);
-  return `${diffDays}d ago`;
-}
-
 // ─── Insight Card ────────────────────────────────────────────────
 
 function InsightCard({
@@ -92,6 +80,7 @@ function InsightCard({
   bookId: string;
 }) {
   const { t } = useLanguage();
+  const locale = useLocale();
   const [expanded, setExpanded] = useState(false);
   const dismissMutation = useDismissInsight(bookId);
 
@@ -104,7 +93,7 @@ function InsightCard({
           {insightTypeBadge(insight.insightType, t)}
           {domainBadge(insight.domain)}
           <span className="ml-auto text-xs text-muted-foreground">
-            {formatRelativeTime(insight.createdAt)}
+            {relativeTime(insight.createdAt, locale, t.docLibrary)}
           </span>
         </div>
 

@@ -837,6 +837,7 @@ export const FR: UIStrings = {
     noneYet: "Pas encore de documents. Lancez une passe ou écrivez-en un.",
     chapterN: "Chapitre {n}",
     justNow: "à l'instant",
+    never: "Jamais",
     minutesAgo: "il y a {n} min",
     hoursAgo: "il y a {n} h",
     daysAgo: "il y a {n} j",
@@ -1545,6 +1546,13 @@ export const FR: UIStrings = {
     chunkOne: "segment",
     chunkFew: "segments",
     chunkMany: "segments",
+    catStyle: "Préférence de style",
+    catName: "Nom/orthographe",
+    catPreference: "Préférence de retour",
+    catConstraint: "Contrainte",
+    catCorrection: "Correction",
+    catLearned: "Appris par l’IA",
+    clearConfirm: "Effacer toute la mémoire vectorielle de ce livre ? Cela supprime le contenu indexé du système de mémoire. Vous pourrez la reconstruire plus tard.",
   },
 
   onboardingUI: {

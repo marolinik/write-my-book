@@ -331,6 +331,7 @@ function englishJsxExpressions(file: string): string[] {
 /** Directories whose *definitions* hold no English copy. Grows per phase. */
 const DEFINITION_CLEAN_AREAS: string[] = [
   join("components", "editorial"),
+  join("components", "memory"),
   join("components", "layout"),
   join("components", "onboarding"),
   join("components", "reports"),
@@ -560,6 +561,8 @@ describe("the dictionaries behind the localized areas", () => {
       // "session", "documents" and "Version" are the French words, spelled
       // the same.
       "versionN", "minutesAbbrev",
+      // "Correction" is the French word, spelled the same.
+      "catCorrection",
       // "Style" and "Genre" are the French words.
       "styleStep", "genre", "sessionOne", "sessionFew", "sessionMany", "documentsCount",
       "insightSuggestion", "focusNormal", "seriesTabDocuments", "seriesTabStructure",

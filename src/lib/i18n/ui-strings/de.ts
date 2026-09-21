@@ -837,6 +837,7 @@ export const DE: UIStrings = {
     noneYet: "Noch keine Dokumente. Starten Sie einen Lauf oder schreiben Sie selbst.",
     chapterN: "Kapitel {n}",
     justNow: "gerade eben",
+    never: "Nie",
     minutesAgo: "vor {n} Min.",
     hoursAgo: "vor {n} Std.",
     daysAgo: "vor {n} T.",
@@ -1545,6 +1546,13 @@ export const DE: UIStrings = {
     chunkOne: "Segment",
     chunkFew: "Segmente",
     chunkMany: "Segmente",
+    catStyle: "Stilvorliebe",
+    catName: "Name/Schreibweise",
+    catPreference: "Feedback-Vorliebe",
+    catConstraint: "Einschränkung",
+    catCorrection: "Korrektur",
+    catLearned: "KI-gelernt",
+    clearConfirm: "Den gesamten Vektorspeicher für dieses Buch löschen? Das entfernt die indexierten Inhalte aus dem Speichersystem. Sie können ihn später neu aufbauen.",
   },
 
   onboardingUI: {

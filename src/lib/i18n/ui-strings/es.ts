@@ -837,6 +837,7 @@ export const ES: UIStrings = {
     noneYet: "Aún no hay documentos. Ejecuta un paso o escribe uno.",
     chapterN: "Capítulo {n}",
     justNow: "ahora mismo",
+    never: "Nunca",
     minutesAgo: "hace {n} min",
     hoursAgo: "hace {n} h",
     daysAgo: "hace {n} d",
@@ -1545,6 +1546,13 @@ export const ES: UIStrings = {
     chunkOne: "fragmento",
     chunkFew: "fragmentos",
     chunkMany: "fragmentos",
+    catStyle: "Preferencia de estilo",
+    catName: "Nombre/ortografía",
+    catPreference: "Preferencia de comentarios",
+    catConstraint: "Restricción",
+    catCorrection: "Corrección",
+    catLearned: "Aprendido por IA",
+    clearConfirm: "¿Borrar toda la memoria vectorial de este libro? Esto elimina el contenido indexado del sistema de memoria. Puedes reconstruirlo más tarde.",
   },
 
   onboardingUI: {

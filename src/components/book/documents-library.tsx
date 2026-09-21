@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/select";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
 import { useLanguage, useLocale } from "@/components/providers/language-provider";
+import { relativeTime } from "@/lib/i18n/relative-time";
 import { getDocumentTypeLabels } from "@/lib/agents/tool-labels";
 import { countWithNoun } from "@/lib/i18n/plural";
 import { getAgentStrings, workflowLabel } from "@/lib/i18n/agent-strings";
@@ -127,22 +128,6 @@ const WORKFLOW_ICONS: Record<string, React.ElementType> = {
   "publishing-check": CheckCircleIcon,
   "market-analysis": GlobeIcon,
 };
-
-function relativeTime(
-  date: string,
-  locale: string,
-  s: { justNow: string; minutesAgo: string; hoursAgo: string; daysAgo: string }
-): string {
-  const diff = Date.now() - new Date(date).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return s.justNow;
-  if (mins < 60) return s.minutesAgo.replace("{n}", String(mins));
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return s.hoursAgo.replace("{n}", String(hours));
-  const days = Math.floor(hours / 24);
-  if (days < 7) return s.daysAgo.replace("{n}", String(days));
-  return new Date(date).toLocaleDateString(locale);
-}
 
 // ─── DocumentsLibrary ───────────────────────────────────────────
 

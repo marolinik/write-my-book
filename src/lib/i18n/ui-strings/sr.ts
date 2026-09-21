@@ -837,6 +837,7 @@ export const SR: UIStrings = {
     noneYet: "Još nema dokumenata. Pokrenite prolaz ili napišite sami.",
     chapterN: "Poglavlje {n}",
     justNow: "upravo sad",
+    never: "Nikad",
     minutesAgo: "pre {n} min",
     hoursAgo: "pre {n} h",
     daysAgo: "pre {n} d",
@@ -1545,6 +1546,13 @@ export const SR: UIStrings = {
     chunkOne: "segment",
     chunkFew: "segmenta",
     chunkMany: "segmenata",
+    catStyle: "Stilska preferenca",
+    catName: "Ime/pravopis",
+    catPreference: "Preferenca povratne informacije",
+    catConstraint: "Ograničenje",
+    catCorrection: "Ispravka",
+    catLearned: "AI naučio",
+    clearConfirm: "Obrisati svu vektorsku memoriju za ovu knjigu? Ovo uklanja indeksirani sadržaj iz sistema memorije. Možete ga kasnije ponovo izgraditi.",
   },
 
   onboardingUI: {

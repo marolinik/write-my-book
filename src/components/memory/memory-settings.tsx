@@ -12,23 +12,13 @@ import { Badge } from "@/components/ui/badge";
 import { BrainIcon } from "lucide-react";
 import { useMemoryStats } from "@/hooks/use-memory";
 import { useLocale } from "@/components/providers/language-provider";
+import { relativeTime } from "@/lib/i18n/relative-time";
 
-function timeAgo(dateStr: string | null): string {
-  if (!dateStr) return "Never";
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
-}
-
-function formatTokens(tokens: number): string {
-  if (tokens >= 1_000_000) return `${(tokens / 1_000_000).toFixed(1)}M tokens`;
-  if (tokens >= 1_000) return `${(tokens / 1_000).toFixed(1)}K tokens`;
-  return `${tokens} tokens`;
+/** "1.2M tokens" — the noun is the dictionary's, the SI prefix is not a word. */
+function formatTokens(tokens: number, unit: string): string {
+  if (tokens >= 1_000_000) return `${(tokens / 1_000_000).toFixed(1)}M ${unit}`;
+  if (tokens >= 1_000) return `${(tokens / 1_000).toFixed(1)}K ${unit}`;
+  return `${tokens} ${unit}`;
 }
 
 function formatCost(cost: number): string {
@@ -86,7 +76,7 @@ export function MemorySettings() {
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">{t.workspaceUI.lastIndexed}</p>
-                <p className="text-sm font-medium">{timeAgo(data.lastIndexed)}</p>
+                <p className="text-sm font-medium">{relativeTime(data.lastIndexed, locale, t.docLibrary)}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">{t.workspaceUI.embeddingCost}</p>
@@ -102,7 +92,7 @@ export function MemorySettings() {
                 <p className="text-xs text-muted-foreground">
                   {t.memoryUI.totalEmbeddingUsage.replace(
                     "{tokens}",
-                    formatTokens(data.embeddingTokens)
+                    formatTokens(data.embeddingTokens, t.agentUI.tokensAbbrev)
                   )}
                 </p>
               </div>

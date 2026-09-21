@@ -1,6 +1,7 @@
 "use client";
 
-import { useLanguage } from "@/components/providers/language-provider";
+import { useLanguage, useLocale } from "@/components/providers/language-provider";
+import { relativeTime } from "@/lib/i18n/relative-time";
 import {
   Card,
   CardContent,
@@ -12,26 +13,15 @@ import { BrainIcon, RefreshCwIcon, Trash2Icon } from "lucide-react";
 import { useBookMemoryStats, useRebuildIndex, useClearMemory } from "@/hooks/use-memory";
 import { pluralNoun } from "@/lib/i18n/plural";
 
-function timeAgo(dateStr: string | null): string {
-  if (!dateStr) return "Never";
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
-}
-
 export function MemoryStatsCard({ bookId }: { bookId: string }) {
   const { t, language } = useLanguage();
+  const locale = useLocale();
   const { data, isLoading } = useBookMemoryStats(bookId);
   const rebuild = useRebuildIndex();
   const clear = useClearMemory();
 
   function handleClear() {
-    if (window.confirm("Clear all vector memory for this book? This removes indexed content from the memory system. You can rebuild it later.")) {
+    if (window.confirm(t.memoryUI.clearConfirm)) {
       clear.mutate(bookId);
     }
   }
@@ -82,7 +72,7 @@ export function MemoryStatsCard({ bookId }: { bookId: string }) {
               </span>
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {t.memoryUI.indexedAgo.replace("{when}", timeAgo(data.lastIndexed))}
+              {t.memoryUI.indexedAgo.replace("{when}", relativeTime(data.lastIndexed, locale, t.docLibrary))}
             </p>
           </div>
         ) : (

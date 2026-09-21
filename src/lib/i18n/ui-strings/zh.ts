@@ -837,6 +837,7 @@ export const ZH: UIStrings = {
     noneYet: "尚无文档。运行一次流程，或自行撰写。",
     chapterN: "第 {n} 章",
     justNow: "刚刚",
+    never: "从未",
     minutesAgo: "{n} 分钟前",
     hoursAgo: "{n} 小时前",
     daysAgo: "{n} 天前",
@@ -1545,6 +1546,13 @@ export const ZH: UIStrings = {
     chunkOne: "片段",
     chunkFew: "片段",
     chunkMany: "片段",
+    catStyle: "风格偏好",
+    catName: "名称/拼写",
+    catPreference: "反馈偏好",
+    catConstraint: "约束",
+    catCorrection: "更正",
+    catLearned: "AI 已学习",
+    clearConfirm: "清除本书的全部向量记忆？这会从记忆系统中移除已索引的内容。你之后可以重新构建。",
   },
 
   onboardingUI: {
