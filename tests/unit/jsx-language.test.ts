@@ -199,6 +199,7 @@ function englishJsxText(file: string): string[] {
 
 /** Directories whose JSX *expressions* hold no English copy. Grows per phase. */
 const EXPRESSION_CLEAN_AREAS: string[] = [
+  join("components", "book"),
   join("components", "editorial"),
   join("components", "import-export"),
   join("components", "journey"),

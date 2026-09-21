@@ -310,7 +310,7 @@ export function WikiEntityDetail({
               disabled={!name.trim() || isSaving}
             >
               <SaveIcon className="size-4 mr-1" />
-              {isSaving ? "Saving..." : "Save"}
+              {isSaving ? t.editorUI.saving : t.common.save}
             </Button>
           </div>
         </div>

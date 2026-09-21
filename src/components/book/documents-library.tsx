@@ -543,7 +543,9 @@ function DocumentRow({
           </p>
           <p className="text-xs text-muted-foreground">
             {label}
-            {!hideChapter && doc.chapterNumber ? ` · Ch. ${doc.chapterNumber}` : ""}
+            {!hideChapter && doc.chapterNumber
+              ? ` · ${t.agentUI.chapterAbbrev} ${doc.chapterNumber}`
+              : ""}
             {doc.createdByAgent && ` · ${doc.createdByAgent}`}
           </p>
         </div>

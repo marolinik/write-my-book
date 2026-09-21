@@ -129,7 +129,9 @@ export function MilestoneRewards({ totalWords, currentStreak, chaptersComplete }
                   <p className="font-medium">{r.label}</p>
                   <p className="text-muted-foreground">{r.description}</p>
                   <p className="text-muted-foreground mt-1">
-                    {r.unlocked ? "✅ Unlocked!" : `🔒 Unlock at: ${r.unlockedAt}`}
+                    {r.unlocked
+                      ? t.bookUI.rewardUnlocked
+                      : t.bookUI.rewardUnlockAt.replace("{target}", r.unlockedAt)}
                   </p>
                 </TooltipContent>
               </Tooltip>

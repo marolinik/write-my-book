@@ -23,9 +23,9 @@ interface BookOverviewTabsProps {
   hasDocuments: boolean;
   /** Labels for the tabs */
   labels: {
-    atAGlance?: string;
-    chapters?: string;
-    documents?: string;
+    atAGlance: string;
+    chapters: string;
+    documents: string;
   };
 }
 
@@ -42,12 +42,12 @@ export function BookOverviewTabs({
   return (
     <Tabs value={tab} onValueChange={setTab} className="mt-2">
       <TabsList className="mb-4">
-        <TabsTrigger value="glance">{labels.atAGlance ?? "At a Glance"}</TabsTrigger>
+        <TabsTrigger value="glance">{labels.atAGlance}</TabsTrigger>
         {hasChapters && (
-          <TabsTrigger value="chapters">{labels.chapters ?? "Chapters"}</TabsTrigger>
+          <TabsTrigger value="chapters">{labels.chapters}</TabsTrigger>
         )}
         {hasDocuments && (
-          <TabsTrigger value="documents">{labels.documents ?? "Documents"}</TabsTrigger>
+          <TabsTrigger value="documents">{labels.documents}</TabsTrigger>
         )}
       </TabsList>
 

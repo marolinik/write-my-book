@@ -217,7 +217,7 @@ export function WritingAchievements({ stats, compact }: WritingAchievementsProps
             </TooltipTrigger>
             <TooltipContent className="text-xs max-w-48">
               {a.description}
-              {!a.earned && " — Keep writing!"}
+              {!a.earned && ` — ${t.bookUI.keepWriting}`}
             </TooltipContent>
           </Tooltip>
         ))}

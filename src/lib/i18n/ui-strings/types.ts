@@ -544,6 +544,9 @@ export interface UIStrings {
     completionForecast: string;
     forecastNeedsData: string;
     buildingPlan: string;
+    rewardUnlocked: string;
+    rewardUnlockAt: string;
+    keepWriting: string;
     noTasksToday: string;
     certificateOfCompletion: string;
     share: string;
