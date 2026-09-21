@@ -262,6 +262,52 @@ export const MODEL_REGISTRY: ModelDefinition[] = [
     // D-116/D-117: reasoning model — burns quick-assist budgets on thinking.
     unfitForQuickAssist: true,
   },
+  // ── DeepSeek V4.1 Flash via OpenRouter — THE PLATFORM DEFAULT ─
+  //
+  // One key reaches it, it costs 0.15/0.60 per million, and it carries a
+  // million tokens of context, which is what a manuscript needs. It is a
+  // flash model, NOT a reasoning one: the default has to be fit for
+  // quick-assist, or ghost-text and inline-edit route around it on every
+  // call and the default quietly stops being the default (D-116/D-117).
+  //
+  // The self-hosted fleet keeps its own entries below and stays a model a
+  // writer can pick. It is no longer what a fresh install assumes is there.
+  {
+    id: "openrouter-deepseek-flash/opus",
+    provider: "openrouter",
+    modelId: "deepseek/deepseek-v4.1-flash",
+    displayName: "DeepSeek V4.1 Flash (OpenRouter)",
+    tier: "opus",
+    inputCostPer1M: 0.15,
+    outputCostPer1M: 0.6,
+    costTier: "$",
+    supportsTools: true,
+    supportsStreaming: true,
+  },
+  {
+    id: "openrouter-deepseek-flash/sonnet",
+    provider: "openrouter",
+    modelId: "deepseek/deepseek-v4.1-flash",
+    displayName: "DeepSeek V4.1 Flash (OpenRouter)",
+    tier: "sonnet",
+    inputCostPer1M: 0.15,
+    outputCostPer1M: 0.6,
+    costTier: "$",
+    supportsTools: true,
+    supportsStreaming: true,
+  },
+  {
+    id: "openrouter-deepseek-flash/haiku",
+    provider: "openrouter",
+    modelId: "deepseek/deepseek-v4.1-flash",
+    displayName: "DeepSeek V4.1 Flash (OpenRouter)",
+    tier: "haiku",
+    inputCostPer1M: 0.15,
+    outputCostPer1M: 0.6,
+    costTier: "$",
+    supportsTools: true,
+    supportsStreaming: true,
+  },
   // ── Qwen Max Thinking via OpenRouter ──────────────────────────
   {
     id: "openrouter-qwen-max/opus",

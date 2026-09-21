@@ -19,7 +19,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { clientTimeoutMsFor } from "./client-timeouts";
 import { getModelDef, resolveFromTier, type LLMProvider, type ModelDefinition } from "./model-registry";
-import { FALLBACK_DEFAULT_MODEL_ID, getDefaultModelId, isLocalFallbackEnabled } from "./defaults";
+import { LOCAL_STAND_IN_MODEL_ID, getDefaultModelId, isLocalFallbackEnabled } from "./defaults";
 
 // The Anthropic SDK appends `/v1/messages` to baseURL, so the base must be
 // `/api` (NOT `/api/v1`, which would 404 at `/api/v1/v1/messages`). Verified
@@ -323,7 +323,11 @@ function needsLiteLLMProxy(_model: ModelDefinition, route: ProviderRouteResult):
 function localStandInModel(): ModelDefinition {
   const configured = getModelDef(getDefaultModelId());
   if (configured?.provider === "local") return configured;
-  return getModelDef(FALLBACK_DEFAULT_MODEL_ID)!;
+  // Never FALLBACK_DEFAULT_MODEL_ID: that is the platform default, and since
+  // it moved to OpenRouter it is not local. A keyless writer sent back to a
+  // provider they have no key for is the exact failure this path exists to
+  // prevent.
+  return getModelDef(LOCAL_STAND_IN_MODEL_ID)!;
 }
 
 /**

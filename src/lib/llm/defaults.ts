@@ -6,15 +6,34 @@
  * 15 copies of `?? "anthropic/sonnet"` meant the deployment's default lived in
  * 15 files and could not be changed without touching all of them.
  *
- * The default is the self-hosted fleet gateway (DeepSeek V4.1 Flash): zero token
- * cost and no provider key required, so a fresh install works out of the box.
- * Deployments that want a paid provider set WMB_DEFAULT_MODEL to its registry id.
+ * The default is DeepSeek V4.1 Flash on OpenRouter: one key reaches it, it
+ * costs 0.15/0.60 per million, and it carries a million tokens of context.
+ *
+ * It used to be the self-hosted fleet, which works on a box that HAS a fleet
+ * and on no other — a clean clone or any hosted deployment defaulted to a
+ * gateway that was not there. The fleet keeps its registry entries and stays a
+ * model a writer can pick; with WMB_LOCAL_FALLBACK=1 it also still catches a
+ * writer who has no usable key at all.
+ *
+ * Deployments that want a different provider set WMB_DEFAULT_MODEL to its
+ * registry id.
  */
 
 import { getModelDef } from "./model-registry";
 
 /** Registry id used when WMB_DEFAULT_MODEL is unset or unknown. */
-export const FALLBACK_DEFAULT_MODEL_ID = "local-deepseek/sonnet";
+export const FALLBACK_DEFAULT_MODEL_ID = "openrouter-deepseek-flash/sonnet";
+
+/**
+ * The model WMB_LOCAL_FALLBACK serves when a writer has no usable key.
+ *
+ * This is NOT the platform default and must never be derived from it. The
+ * two were the same constant until the default moved to OpenRouter, at which
+ * point the "local stand-in" stopped being local and the fleet fallback
+ * would have routed keyless writers straight back to a provider they have no
+ * key for. The whole point of the fallback is that it needs no key.
+ */
+export const LOCAL_STAND_IN_MODEL_ID = "local-deepseek/sonnet";
 
 /**
  * The deployment's default model registry id.

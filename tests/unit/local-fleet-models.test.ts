@@ -132,10 +132,13 @@ describe("deployment default", () => {
     else process.env.WMB_DEFAULT_MODEL = ORIGINAL;
   });
 
-  it("defaults to DeepSeek V4.1 Flash on the fleet", async () => {
+  // The default moved off the fleet: a fleet default works on a box that HAS
+  // a fleet and on no other. The fleet is still in the registry and still
+  // catches keyless writers through WMB_LOCAL_FALLBACK below.
+  it("defaults to DeepSeek V4.1 Flash on OpenRouter", async () => {
     delete process.env.WMB_DEFAULT_MODEL;
     const { getDefaultModelId } = await import("@/lib/llm/defaults");
-    expect(getDefaultModelId()).toBe("local-deepseek/sonnet");
+    expect(getDefaultModelId()).toBe("openrouter-deepseek-flash/sonnet");
   });
 
   it("honours a valid WMB_DEFAULT_MODEL override", async () => {
@@ -147,7 +150,7 @@ describe("deployment default", () => {
   it("ignores an unknown WMB_DEFAULT_MODEL instead of billing a stranger", async () => {
     process.env.WMB_DEFAULT_MODEL = "acme/not-a-model";
     const { getDefaultModelId } = await import("@/lib/llm/defaults");
-    expect(getDefaultModelId()).toBe("local-deepseek/sonnet");
+    expect(getDefaultModelId()).toBe("openrouter-deepseek-flash/sonnet");
   });
 });
 
