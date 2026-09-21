@@ -377,6 +377,10 @@ export interface UIStrings {
     groupPanels: string;
     disableGhostText: string;
     enableGhostText: string;
+    ghostTextOn: string;
+    ghostTextOff: string;
+    toggleFindings: string;
+    toggleFindingsPending: string;
     chapterOnly: string;
     splitView: string;
     editorToolbar: string; moreTools: string;
@@ -572,6 +576,10 @@ export interface UIStrings {
   bookUI: {
     bookTarget: string;
     completionForecast: string;
+    pinToDashboard: string;
+    unpinFromDashboard: string;
+    pinBook: string;
+    unpinBook: string;
     forecastNeedsData: string;
     buildingPlan: string;
     rewardUnlocked: string;
@@ -1413,6 +1421,9 @@ export interface UIStrings {
   editorChrome: {
     stillWriting: string;
     rewriteComparison: string;
+    noPreviousChapter: string;
+    noNextChapter: string;
+    serverTiming: string;
     loadingSeriesContext: string;
     intentional: string;
     authorship: string;

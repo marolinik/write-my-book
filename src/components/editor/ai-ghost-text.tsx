@@ -642,7 +642,10 @@ export function AIGhostText({
       <span
         title={
           serverTimingMs !== null
-            ? `server ${(serverTimingMs / 1000).toFixed(1)}s`
+            ? t.editorChrome.serverTiming.replace(
+                "{seconds}",
+                (serverTimingMs / 1000).toFixed(1)
+              )
             : undefined
         }
         className="ml-1 align-middle font-sans text-[10px] not-italic tabular-nums text-muted-foreground/40"

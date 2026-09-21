@@ -4,6 +4,7 @@
 // Recommended" nudge follows it instead of always the most recently updated.
 import { PinIcon, PinOffIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/components/providers/language-provider";
 import { useUpdateBook } from "@/hooks/use-books";
 
 export function PinBookButton({
@@ -14,6 +15,7 @@ export function PinBookButton({
   pinned: boolean;
 }) {
   const { mutate, isPending } = useUpdateBook(bookId);
+  const { t } = useLanguage();
 
   return (
     <Button
@@ -21,9 +23,9 @@ export function PinBookButton({
       variant="ghost"
       size="icon"
       className="size-7 text-muted-foreground"
-      title={pinned ? "Unpin from dashboard" : "Pin to dashboard"}
+      title={pinned ? t.bookUI.unpinFromDashboard : t.bookUI.pinToDashboard}
       aria-pressed={pinned}
-      aria-label={pinned ? "Unpin book" : "Pin book"}
+      aria-label={pinned ? t.bookUI.unpinBook : t.bookUI.pinBook}
       disabled={isPending}
       onClick={(e) => {
         e.preventDefault();

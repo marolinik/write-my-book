@@ -1162,8 +1162,8 @@ export function ManuscriptEditor({
                 aria-label={t.editorUI.previousChapter}
                 title={
                   prevChapter
-                    ? `Ch. ${prevChapter.chapterNumber}${prevChapter.title ? `: ${prevChapter.title}` : ""}`
-                    : "No previous chapter"
+                    ? `${t.agentUI.chapterAbbrev} ${prevChapter.chapterNumber}${prevChapter.title ? `: ${prevChapter.title}` : ""}`
+                    : t.editorChrome.noPreviousChapter
                 }
               >
                 <ChevronLeftIcon className="size-4" />
@@ -1192,8 +1192,8 @@ export function ManuscriptEditor({
                 aria-label={t.editorUI.nextChapter}
                 title={
                   nextChapter
-                    ? `Ch. ${nextChapter.chapterNumber}${nextChapter.title ? `: ${nextChapter.title}` : ""}`
-                    : "No next chapter"
+                    ? `${t.agentUI.chapterAbbrev} ${nextChapter.chapterNumber}${nextChapter.title ? `: ${nextChapter.title}` : ""}`
+                    : t.editorChrome.noNextChapter
                 }
               >
                 <ChevronRightIcon className="size-4" />

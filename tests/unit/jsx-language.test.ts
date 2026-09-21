@@ -225,32 +225,49 @@ const COPY_HELPERS = new Set(["pluralNoun", "countWithNoun"]);
  * "applied"` is a comparison against a stored slug and `formatDate(d, "PP")`
  * is a format string. Neither of those is ever printed.
  */
-function rendered(node: ts.Node): boolean {
+function choosingHost(node: ts.Node): ts.Node | undefined {
   let child: ts.Node = node;
   let parent = node.parent;
   while (parent) {
-    if (ts.isJsxExpression(parent)) {
-      const host = parent.parent;
-      return !!host && (ts.isJsxElement(host) || ts.isJsxFragment(host));
-    }
+    if (ts.isJsxExpression(parent)) return parent.parent;
     if (ts.isParenthesizedExpression(parent)) {
       // Transparent.
     } else if (ts.isConditionalExpression(parent)) {
-      if (parent.whenTrue !== child && parent.whenFalse !== child) return false;
+      if (parent.whenTrue !== child && parent.whenFalse !== child) return undefined;
     } else if (ts.isBinaryExpression(parent)) {
       const kind = parent.operatorToken.kind;
       const chooses =
         kind === ts.SyntaxKind.AmpersandAmpersandToken ||
         kind === ts.SyntaxKind.BarBarToken ||
         kind === ts.SyntaxKind.QuestionQuestionToken;
-      if (!chooses || parent.right !== child) return false;
+      if (!chooses || parent.right !== child) return undefined;
     } else {
-      return false;
+      return undefined;
     }
     child = parent;
     parent = parent.parent;
   }
-  return false;
+  return undefined;
+}
+
+/** The literal ends up as a child of a tag — text the reader sees. */
+function rendered(node: ts.Node): boolean {
+  const host = choosingHost(node);
+  return !!host && (ts.isJsxElement(host) || ts.isJsxFragment(host));
+}
+
+/**
+ * The literal ends up as the value of an attribute a human reads or hears.
+ *
+ * The regular-expression attribute scan reads a quoted value, so it sees
+ * `title="Pin to dashboard"` and nothing else; the expression scan above
+ * stops at the tag by design. A ternary *inside* an attribute — `title={pinned
+ * ? "Unpin" : "Pin"}` — sat between the two and was read by neither.
+ */
+function attributeCopy(node: ts.Node): boolean {
+  const host = choosingHost(node);
+  if (!host || !ts.isJsxAttribute(host)) return false;
+  return (HUMAN_ATTRIBUTES as readonly string[]).includes(host.name.getText());
 }
 
 /** `pluralNoun(n, "chunk", "chunks")` — English grammar passed as arguments. */
@@ -293,7 +310,7 @@ function literalText(node: ts.Node): string {
  * `{saving ? "Saving..." : "Save"}`, `` {`${n} words`} ``, a noun handed to
  * `pluralNoun`. Those were the last English strings the guard could not name.
  */
-function englishJsxExpressions(file: string): string[] {
+function copyLiterals(file: string, isCopy: (node: ts.Node) => boolean): string[] {
   const source = readWithoutComments(file);
   const parsed = ts.createSourceFile(
     file,
@@ -309,7 +326,7 @@ function englishJsxExpressions(file: string): string[] {
       ts.isStringLiteral(node) ||
       ts.isNoSubstitutionTemplateLiteral(node) ||
       ts.isTemplateExpression(node);
-    if (isLiteral && (rendered(node) || copyHelperArgument(node)) && !insideStyleTag(node)) {
+    if (isLiteral && isCopy(node) && !insideStyleTag(node)) {
       const text = literalText(node).replace(/\s+/g, " ").trim();
       const words = text
         .replace(HTML_ENTITY, " ")
@@ -317,7 +334,8 @@ function englishJsxExpressions(file: string): string[] {
         .replace(KEY_COMBO, " ")
         // `{count}` is a slot in a dictionary value, not a word.
         .replace(/\{[A-Za-z]+\}/g, " ");
-      if (/[a-z]/.test(words) && /[A-Za-z]{2}/.test(words)) {
+      // A URL is an example of a setting, not a sentence.
+      if (/[a-z]/.test(words) && /[A-Za-z]{2}/.test(words) && !text.includes("://")) {
         const { line } = parsed.getLineAndCharacterOfPosition(node.getStart());
         found.push(`${file.slice(SRC.length + 1)}:${line + 1} — ${text.slice(0, 70)}`);
       }
@@ -327,6 +345,24 @@ function englishJsxExpressions(file: string): string[] {
   visit(parsed);
   return found;
 }
+
+function englishJsxExpressions(file: string): string[] {
+  return copyLiterals(file, (node) => rendered(node) || copyHelperArgument(node));
+}
+
+/**
+ * The fifth dimension: copy a ternary hands to a human-read attribute.
+ *
+ * `title={saving ? "Saving..." : "Save"}` is the same sentence as
+ * `{saving ? "Saving..." : "Save"}` — only the place it lands differs, and
+ * the reader hears it either way.
+ */
+function englishAttributeExpressions(file: string): string[] {
+  return copyLiterals(file, attributeCopy);
+}
+
+/** Directories whose attribute *expressions* hold no English. Grows per phase. */
+const ATTRIBUTE_EXPRESSION_CLEAN_AREAS: string[] = [...ATTRIBUTE_CLEAN_AREAS];
 
 /** Directories whose *definitions* hold no English copy. Grows per phase. */
 const DEFINITION_CLEAN_AREAS: string[] = [
@@ -539,6 +575,15 @@ describe("the definitions behind the parsed areas", () => {
   it("hold no English copy outside the markup", () => {
     const offenders = DEFINITION_CLEAN_AREAS.flatMap((area) =>
       walk(join(SRC, area)).flatMap(englishDefinitions)
+    );
+    expect(offenders).toEqual([]);
+  });
+});
+
+describe("the expressions the localized attributes take", () => {
+  it("hold no English copy chosen by code", () => {
+    const offenders = ATTRIBUTE_EXPRESSION_CLEAN_AREAS.flatMap((area) =>
+      walk(join(SRC, area)).flatMap(englishAttributeExpressions)
     );
     expect(offenders).toEqual([]);
   });

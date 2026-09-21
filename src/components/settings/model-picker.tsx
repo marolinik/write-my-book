@@ -108,7 +108,7 @@ export function ModelPicker({
       <Select value={selectValue} onValueChange={handleValueChange}>
         {/* Combobox triggers get no accessible name from their value text —
             reuse the visible label as the aria-label (D-10, axe button-name). */}
-        <SelectTrigger className="w-full" aria-label={label ?? "Model"}>
+        <SelectTrigger className="w-full" aria-label={label ?? t.appUI.modelSelection}>
           <SelectValue placeholder={t.appUI.selectModel} />
         </SelectTrigger>
         <SelectContent>

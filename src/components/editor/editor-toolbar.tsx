@@ -411,9 +411,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
           <ToolbarButton
             icon={<Wand2 className="h-4 w-4" />}
             label={
-              ctx.ghostTextEnabled
-                ? "AI Ghost Text (on)"
-                : "AI Ghost Text (off)"
+              ctx.ghostTextEnabled ? ctx.t.ghostTextOn : ctx.t.ghostTextOff
             }
             tooltipHint={QUICK_ASSIST_DISCLOSURE}
             isActive={ctx.ghostTextEnabled}
@@ -539,8 +537,11 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
                 type="button"
                 aria-label={
                   !!ctx.pendingFindingsCount && ctx.pendingFindingsCount > 0
-                    ? `Toggle findings, ${ctx.pendingFindingsCount} pending`
-                    : "Toggle Findings"
+                    ? ctx.t.toggleFindingsPending.replace(
+                        "{count}",
+                        String(ctx.pendingFindingsCount)
+                      )
+                    : ctx.t.toggleFindings
                 }
                 aria-pressed={!!ctx.showFindings}
               >
