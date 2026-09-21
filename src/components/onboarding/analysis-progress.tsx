@@ -24,10 +24,10 @@ export function AnalysisProgress({ messages }: AnalysisProgressProps) {
   const { t } = useLanguage();
   const steps = useMemo(() => {
     const stepDefs: Array<{ id: string; label: string; agentTypes: string[] }> = [
-      { id: "read", label: "Reading manuscript...", agentTypes: ["manuscript-reader"] },
-      { id: "style", label: "Capturing writing style...", agentTypes: ["style-analyst"] },
-      { id: "bible", label: "Building story bible...", agentTypes: ["writing-coach"] },
-      { id: "arch", label: "Designing story structure", agentTypes: ["story-architect"] },
+      { id: "read", label: t.onboardingUI.stepReading, agentTypes: ["manuscript-reader"] },
+      { id: "style", label: t.onboardingUI.stepStyle, agentTypes: ["style-analyst"] },
+      { id: "bible", label: t.onboardingUI.stepBible, agentTypes: ["writing-coach"] },
+      { id: "arch", label: t.onboardingUI.stepStructure, agentTypes: ["story-architect"] },
     ];
 
     const delegationStarts = new Set<string>();
@@ -66,7 +66,7 @@ export function AnalysisProgress({ messages }: AnalysisProgressProps) {
       if (started) return { id: def.id, label: def.label, status: "active" };
       return { id: def.id, label: def.label, status: "pending" };
     });
-  }, [messages]);
+  }, [messages, t]);
 
   const completedCount = steps.filter((s) => s.status === "complete").length;
   const allDone = completedCount === steps.length;

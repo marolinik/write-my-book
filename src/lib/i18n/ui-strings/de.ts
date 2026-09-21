@@ -1465,6 +1465,7 @@ export const DE: UIStrings = {
   },
 
   seriesUI: {
+    artifactFingerprint: "Stilprofil",
     addBook: "Buch hinzufügen",
     existingBook: "Vorhandenes Buch",
     newBook: "Neues Buch",
@@ -1564,6 +1565,10 @@ export const DE: UIStrings = {
     docsCreated: "Alle Grundlagendokumente wurden erstellt. Sehen Sie sie im Einrichtungsassistenten durch.",
     skipStartFree: "Vorerst überspringen — kostenlos schreiben",
     finishSetup: "Einrichtung abschließen",
+    stepReading: "Manuskript wird gelesen ...",
+    stepStyle: "Schreibstil wird erfasst ...",
+    stepBible: "Story-Bibel wird erstellt ...",
+    stepStructure: "Story-Struktur wird entworfen",
   },
 
   shortcuts: {

@@ -1465,6 +1465,7 @@ export const RU: UIStrings = {
   },
 
   seriesUI: {
+    artifactFingerprint: "Отпечаток стиля",
     addBook: "Добавить книгу",
     existingBook: "Существующая книга",
     newBook: "Новая книга",
@@ -1564,6 +1565,10 @@ export const RU: UIStrings = {
     docsCreated: "Все базовые документы созданы. Просмотрите их в мастере настройки.",
     skipStartFree: "Пропустить пока — начать писать бесплатно",
     finishSetup: "Завершить настройку",
+    stepReading: "Чтение рукописи...",
+    stepStyle: "Определение стиля письма...",
+    stepBible: "Сборка библии истории...",
+    stepStructure: "Проектирование структуры истории",
   },
 
   shortcuts: {

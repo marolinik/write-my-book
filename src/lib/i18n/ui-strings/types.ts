@@ -1411,6 +1411,7 @@ export interface UIStrings {
   // and the synthesis panel. The series path is the least language-aware
   // part of the product and the one the owner's trilogy runs through.
   seriesUI: {
+    artifactFingerprint: string;
     addBook: string;
     existingBook: string;
     newBook: string;
@@ -1513,6 +1514,10 @@ export interface UIStrings {
     docsCreated: string;
     skipStartFree: string;
     finishSetup: string;
+    stepReading: string;
+    stepStyle: string;
+    stepBible: string;
+    stepStructure: string;
   };
 
   // Lo-1 - the keyboard-shortcut help. The table in lib/keyboard-shortcuts.ts

@@ -328,6 +328,130 @@ function englishJsxExpressions(file: string): string[] {
   return found;
 }
 
+/** Directories whose *definitions* hold no English copy. Grows per phase. */
+const DEFINITION_CLEAN_AREAS: string[] = [
+  join("components", "editorial"),
+  join("components", "layout"),
+  join("components", "onboarding"),
+  join("components", "reports"),
+  join("components", "series"),
+];
+
+/**
+ * Property names whose value a reader sees. A component that keeps its copy
+ * in a table — `{ id: "theme-midnight", label: "Midnight Theme", description:
+ * "Deep blue editor theme" }` — renders `{r.label}`, which is an identifier.
+ * No scan that reads JSX can see the words, because by then they are a
+ * variable.
+ */
+const COPY_PROPERTIES = new Set([
+  "label", "description", "title", "hint", "placeholder", "message", "text",
+  "caption", "tooltip", "heading", "subtitle", "summary", "note", "name",
+  "detail", "body", "help", "helpText", "errorMessage", "empty", "emptyText",
+]);
+
+/** `window.confirm("…")` and friends: a sentence the browser prints. */
+const DIALOG_METHODS = new Set(["confirm", "alert", "prompt"]);
+/** `toast.success("…")`: a sentence sonner prints. */
+const TOAST_METHODS = new Set(["success", "error", "info", "warning", "message", "loading"]);
+
+/**
+ * A class list, a colour or a CSS value is style, not a sentence. Tailwind
+ * classes are the loudest false positive here: `text: "text-amber-950
+ * dark:text-amber-100"` is a `text` property whose value is not text.
+ */
+function looksLikeStyle(value: string): boolean {
+  if (/^(?:hsl|rgb|rgba|var|calc|url)\(/.test(value)) return true;
+  if (/^#[0-9a-fA-F]{3,8}$/.test(value)) return true;
+  const tokens = value.trim().split(/\s+/);
+  return (
+    tokens.every((token) => /^[a-z0-9]+[a-z0-9:/\[\]().,%#_-]*$/.test(token)) &&
+    tokens.some((token) => /[-:]/.test(token))
+  );
+}
+
+/** Is this string a sentence for a reader, or a value for the code? */
+function isProse(raw: string): boolean {
+  const value = raw.replace(/\s+/g, " ").trim();
+  if (looksLikeStyle(value)) return false;
+  const words = value.replace(HTML_ENTITY, " ").replace(BRAND, " ");
+  if (!/[a-z]/.test(words)) return false; // ISBN, EPUB, PDF
+  if (!/[A-Za-z]{3}/.test(words)) return false;
+  if (/^[a-z][a-zA-Z0-9]*$/.test(words)) return false; // camelCase identifier
+  if (/^[a-z0-9]+([-_.][a-z0-9]+)+$/.test(words)) return false; // slug, key, path
+  if (words.includes("://") || words.startsWith("/")) return false;
+  return true;
+}
+
+function isStringLike(node: ts.Node): boolean {
+  return (
+    ts.isStringLiteral(node) ||
+    ts.isNoSubstitutionTemplateLiteral(node) ||
+    ts.isTemplateExpression(node)
+  );
+}
+
+/**
+ * The fourth dimension: copy that never touches JSX.
+ *
+ * The other three scans all read the markup — between tags, inside a tag, or
+ * an expression a tag renders. A string defined away from the markup reaches
+ * the reader just as surely: a table of labels mapped over, a helper that
+ * returns "just now", the sentence in `window.confirm`. This reads the three
+ * shapes that actually carry copy and leaves the rest of the file alone.
+ */
+function englishDefinitions(file: string): string[] {
+  const source = readWithoutComments(file);
+  const parsed = ts.createSourceFile(
+    file,
+    source,
+    ts.ScriptTarget.Latest,
+    /* setParentNodes */ true,
+    ts.ScriptKind.TSX
+  );
+  const found: string[] = [];
+  const where = (node: ts.Node) =>
+    `${file.slice(SRC.length + 1)}:${parsed.getLineAndCharacterOfPosition(node.getStart()).line + 1}`;
+
+  const visit = (node: ts.Node): void => {
+    // `{ label: "Midnight Theme" }`
+    if (ts.isPropertyAssignment(node) && isStringLike(node.initializer)) {
+      const name =
+        ts.isIdentifier(node.name) || ts.isStringLiteral(node.name) ? node.name.text : "";
+      const value = literalText(node.initializer);
+      if (COPY_PROPERTIES.has(name) && isProse(value)) {
+        found.push(`${where(node)} ${name}: ${value.slice(0, 60)}`);
+      }
+    }
+
+    // `return "just now";`
+    if (ts.isReturnStatement(node) && node.expression && isStringLike(node.expression)) {
+      const value = literalText(node.expression);
+      if (isProse(value)) found.push(`${where(node)} return ${value.slice(0, 60)}`);
+    }
+
+    // `window.confirm("…")`, `toast.success("…")`
+    if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)) {
+      const method = node.expression.name.text;
+      const owner = node.expression.expression.getText();
+      const speaks =
+        (DIALOG_METHODS.has(method) && (owner === "window" || owner === "globalThis")) ||
+        (TOAST_METHODS.has(method) && owner.endsWith("toast"));
+      if (speaks) {
+        for (const argument of node.arguments) {
+          if (isStringLike(argument) && isProse(literalText(argument))) {
+            found.push(`${where(node)} ${method}(${literalText(argument).slice(0, 60)})`);
+          }
+        }
+      }
+    }
+
+    ts.forEachChild(node, visit);
+  };
+  visit(parsed);
+  return found;
+}
+
 describe("the parsed areas of the app", () => {
   it("hold no English text beside an expression either", () => {
     const offenders = PARSED_CLEAN_AREAS.flatMap((area) =>
@@ -341,6 +465,15 @@ describe("the expressions the parsed areas render", () => {
   it("hold no English copy chosen by code", () => {
     const offenders = EXPRESSION_CLEAN_AREAS.flatMap((area) =>
       walk(join(SRC, area)).flatMap(englishJsxExpressions)
+    );
+    expect(offenders).toEqual([]);
+  });
+});
+
+describe("the definitions behind the parsed areas", () => {
+  it("hold no English copy outside the markup", () => {
+    const offenders = DEFINITION_CLEAN_AREAS.flatMap((area) =>
+      walk(join(SRC, area)).flatMap(englishDefinitions)
     );
     expect(offenders).toEqual([]);
   });

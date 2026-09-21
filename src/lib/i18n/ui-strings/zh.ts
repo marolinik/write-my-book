@@ -1465,6 +1465,7 @@ export const ZH: UIStrings = {
   },
 
   seriesUI: {
+    artifactFingerprint: "风格指纹",
     addBook: "添加图书",
     existingBook: "已有图书",
     newBook: "新建图书",
@@ -1564,6 +1565,10 @@ export const ZH: UIStrings = {
     docsCreated: "所有基础文档已创建。请在设置向导中查看。",
     skipStartFree: "暂时跳过 — 免费开始写作",
     finishSetup: "完成设置",
+    stepReading: "正在阅读稿件……",
+    stepStyle: "正在捕捉写作风格……",
+    stepBible: "正在构建故事圣经……",
+    stepStructure: "正在设计故事结构",
   },
 
   shortcuts: {

@@ -14,11 +14,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useSynthesize, type BookContributionItem } from "@/hooks/use-series";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 
-const ARTIFACT_TYPES = [
-  { value: "STORY_BIBLE", label: "Story Bible" },
-  { value: "ARCHITECTURE", label: "Architecture" },
-  { value: "FINGERPRINT", label: "Fingerprint" },
+/**
+ * The three synthesis artifacts. The label is a lookup rather than a string,
+ * because this table is built once at module load, before any language is
+ * known.
+ */
+const ARTIFACT_TYPES: ReadonlyArray<{
+  value: string;
+  label: (t: UIStrings) => string;
+}> = [
+  { value: "STORY_BIBLE", label: (t) => t.setup.storyBible },
+  { value: "ARCHITECTURE", label: (t) => t.setup.architecture },
+  { value: "FINGERPRINT", label: (t) => t.seriesUI.artifactFingerprint },
 ];
 
 interface SeriesSynthesisPanelProps {
@@ -65,9 +74,9 @@ export function SeriesSynthesisPanel({ seriesId }: SeriesSynthesisPanelProps) {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {ARTIFACT_TYPES.map((t) => (
-              <SelectItem key={t.value} value={t.value}>
-                {t.label}
+            {ARTIFACT_TYPES.map((artifact) => (
+              <SelectItem key={artifact.value} value={artifact.value}>
+                {artifact.label(t)}
               </SelectItem>
             ))}
           </SelectContent>

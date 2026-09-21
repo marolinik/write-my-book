@@ -1465,6 +1465,7 @@ export const SR: UIStrings = {
   },
 
   seriesUI: {
+    artifactFingerprint: "Otisak stila",
     addBook: "Dodaj knjigu",
     existingBook: "Postojeća knjiga",
     newBook: "Nova knjiga",
@@ -1564,6 +1565,10 @@ export const SR: UIStrings = {
     docsCreated: "Svi osnovni dokumenti su napravljeni. Pregledajte ih u čarobnjaku za podešavanje.",
     skipStartFree: "Preskoči za sada — počni da pišeš besplatno",
     finishSetup: "Završi podešavanje",
+    stepReading: "Čitanje rukopisa...",
+    stepStyle: "Hvatanje stila pisanja...",
+    stepBible: "Izrada biblije priče...",
+    stepStructure: "Osmišljavanje strukture priče",
   },
 
   shortcuts: {
