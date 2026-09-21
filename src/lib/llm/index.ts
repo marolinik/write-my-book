@@ -51,11 +51,19 @@ export {
   type ConductorUserModelSettings,
   type ConductorWorkflow,
   AGENT_ROLES,
+  ROLE_TO_BOOK_FIELD,
+  ROLE_TO_USER_FIELD,
+  BOOK_MODEL_SELECT,
+  USER_MODEL_SELECT,
+  bookModelSettingsOf,
+  userModelSettingsOf,
+  globalOverridesOf,
   resolveModelForRole,
   resolveConductorModel,
   resolveConductorModelForWorkflow,
   meetsMinimumTier,
   mapAgentTypeToRole,
+  agentTypeToRole,
 } from "./model-resolver";
 
 export {

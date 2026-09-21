@@ -104,6 +104,10 @@ export interface UIStrings {
     roleAnalystDesc: string;
     roleCoachDesc: string;
     roleCreativeDesc: string;
+    roleStylistDesc: string;
+    rolePlannerDesc: string;
+    roleReaderDesc: string;
+    roleResearchDesc: string;
     addKey: string;
     provider: string;
     labelOptional: string;
@@ -305,6 +309,9 @@ export interface UIStrings {
     creative: string; creativeDesc: string;
     editor: string; editorDesc: string;
     betaReader: string; betaReaderDesc: string;
+    stylist: string; stylistDesc: string;
+    planner: string; plannerDesc: string;
+    reader: string; readerDesc: string;
     research: string; researchDesc: string;
     analyst: string; analystDesc: string;
     styleSection: string; styleDesc: string;

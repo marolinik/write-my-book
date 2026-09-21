@@ -17,6 +17,9 @@ export type BookSettingsData = {
   modelCoach: string;
   modelCreative: string;
   modelResearch: string;
+  modelStylist: string;
+  modelPlanner: string;
+  modelReader: string;
   /** Book-level default model override (registry ID or null). */
   modelOverride: string | null;
   autoCommit: boolean;

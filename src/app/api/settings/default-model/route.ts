@@ -6,6 +6,7 @@ import { z } from "zod";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { zodErrorResponse } from "@/lib/api/zod-error";
 import { getDefaultModelId, isLocalFleetConfigured } from "@/lib/llm/defaults";
+import { USER_MODEL_SELECT } from "@/lib/llm/model-resolver";
 
 // ── Validation ─────────────────────────────────────────────────
 
@@ -49,15 +50,7 @@ export async function GET() {
   try {
     const dbUser = await db.user.findUnique({
       where: { id: user.id },
-      select: {
-        defaultModel: true,
-        modelGhostwriter: true,
-        modelEditor: true,
-        modelBetaReader: true,
-        modelAnalyst: true,
-        modelCoach: true,
-        modelCreative: true,
-      },
+      select: USER_MODEL_SELECT,
     });
 
     return NextResponse.json({
@@ -143,15 +136,7 @@ export async function PATCH(request: NextRequest) {
     // Return updated state
     const updated = await db.user.findUnique({
       where: { id: user.id },
-      select: {
-        defaultModel: true,
-        modelGhostwriter: true,
-        modelEditor: true,
-        modelBetaReader: true,
-        modelAnalyst: true,
-        modelCoach: true,
-        modelCreative: true,
-      },
+      select: USER_MODEL_SELECT,
     });
 
     return NextResponse.json({

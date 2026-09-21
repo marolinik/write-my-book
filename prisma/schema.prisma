@@ -23,13 +23,21 @@ model User {
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @updatedAt @map("updated_at")
 
-  // Global model role overrides (registry IDs like "openai/gpt-4o")
+  // Global model role overrides (registry IDs like "openai/gpt-4o").
+  // A-28: one field per role, and a role holds only agents that agree about
+  // how much thinking the job needs. `stylist`, `planner` and `reader` were
+  // split out of `analyst` and `creative`; `research` existed on BookSettings
+  // and had never reached this table at all.
   modelGhostwriter  String?  @map("global_model_ghostwriter")
-  modelEditor       String?  @map("global_model_editor")
-  modelBetaReader   String?  @map("global_model_beta_reader")
-  modelAnalyst      String?  @map("global_model_analyst")
   modelCoach        String?  @map("global_model_coach")
   modelCreative     String?  @map("global_model_creative")
+  modelStylist      String?  @map("global_model_stylist")
+  modelEditor       String?  @map("global_model_editor")
+  modelBetaReader   String?  @map("global_model_beta_reader")
+  modelPlanner      String?  @map("global_model_planner")
+  modelReader       String?  @map("global_model_reader")
+  modelResearch     String?  @map("global_model_research")
+  modelAnalyst      String?  @map("global_model_analyst")
   onboardingComplete Boolean @default(false) @map("onboarding_complete")
 
   apiKeys       ApiKey[]
@@ -466,13 +474,18 @@ model UsageRecord {
 model BookSettings {
   id               String  @id @default(uuid())
   bookId           String  @unique @map("book_id")
+  // A-28: the per-role defaults mirror each agent's own `defaultModel` in
+  // lib/agents/definitions.ts, and no role mixes two of them.
   modelGhostwriter String  @default("opus") @map("model_ghostwriter")
-  modelEditor      String  @default("sonnet") @map("model_editor")
-  modelBetaReader  String  @default("sonnet") @map("model_beta_reader")
-  modelAnalyst     String  @default("haiku") @map("model_analyst")
   modelCoach       String  @default("sonnet") @map("model_coach")
   modelCreative    String  @default("opus") @map("model_creative")
+  modelStylist     String  @default("opus") @map("model_stylist")
+  modelEditor      String  @default("sonnet") @map("model_editor")
+  modelBetaReader  String  @default("sonnet") @map("model_beta_reader")
+  modelPlanner     String  @default("sonnet") @map("model_planner")
+  modelReader      String  @default("sonnet") @map("model_reader")
   modelResearch    String  @default("sonnet") @map("model_research")
+  modelAnalyst     String  @default("haiku") @map("model_analyst")
   modelOverride    String? @map("model_override")
   autoCommit       Boolean @default(true) @map("auto_commit")
   // UDG-4 (Elena): line-edit may load the story synopsis for plot-context-consistent

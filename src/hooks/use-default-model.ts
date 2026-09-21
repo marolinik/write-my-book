@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { AgentRole } from "@/lib/llm";
+import { ROLE_TO_USER_FIELD } from "@/lib/llm";
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -11,22 +12,22 @@ export interface DefaultModelData {
   /** Server-reported: the self-hosted fleet is reachable on this install. */
   localFleet?: boolean;
   modelGhostwriter: string | null;
-  modelEditor: string | null;
-  modelBetaReader: string | null;
-  modelAnalyst: string | null;
   modelCoach: string | null;
   modelCreative: string | null;
+  modelStylist: string | null;
+  modelEditor: string | null;
+  modelBetaReader: string | null;
+  modelPlanner: string | null;
+  modelReader: string | null;
+  modelResearch: string | null;
+  modelAnalyst: string | null;
 }
 
-/** Map AgentRole to the field name in DefaultModelData. */
-const ROLE_TO_FIELD: Record<AgentRole, keyof DefaultModelData> = {
-  ghostwriter: "modelGhostwriter",
-  editor: "modelEditor",
-  "beta-reader": "modelBetaReader",
-  analyst: "modelAnalyst",
-  coach: "modelCoach",
-  creative: "modelCreative",
-};
+// A-28: one role-to-field table, in the resolver. Two more copies used to
+// live in the client -- here and in the settings section -- so a new role
+// reached the server and the UI kept writing to the field it knew.
+const ROLE_TO_FIELD: Record<AgentRole, keyof DefaultModelData> =
+  ROLE_TO_USER_FIELD as Record<AgentRole, keyof DefaultModelData>;
 
 // ── Hooks ─────────────────────────────────────────────────────
 

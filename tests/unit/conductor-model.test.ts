@@ -2,8 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   resolveConductorModel,
   type BookModelSettings,
-  type ConductorUserModelSettings,
-} from "@/lib/llm/model-resolver";
+  type ConductorUserModelSettings, userModelSettingsOf, bookModelSettingsOf } from "@/lib/llm/model-resolver";
 import { getDefaultModelId } from "@/lib/llm/defaults";
 
 /** A user with no overrides and a given default. */
@@ -11,29 +10,12 @@ function user(
   defaultModel: string | null,
   overrides: Partial<ConductorUserModelSettings> = {}
 ): ConductorUserModelSettings {
-  return {
-    defaultModel,
-    modelGhostwriter: null,
-    modelEditor: null,
-    modelBetaReader: null,
-    modelAnalyst: null,
-    modelCoach: null,
-    modelCreative: null,
-    ...overrides,
-  };
+  return { ...userModelSettingsOf({ defaultModel }), ...overrides };
 }
 
 /** Book settings with a given coach override, everything else "default". */
 function bookSettings(coach: string, override: string | null = null): BookModelSettings {
-  return {
-    modelGhostwriter: "default",
-    modelEditor: "default",
-    modelBetaReader: "default",
-    modelAnalyst: "default",
-    modelCoach: coach,
-    modelCreative: "default",
-    modelOverride: override,
-  };
+  return { ...bookModelSettingsOf({ modelCoach: coach, modelOverride: override })! };
 }
 
 describe("resolveConductorModel", () => {

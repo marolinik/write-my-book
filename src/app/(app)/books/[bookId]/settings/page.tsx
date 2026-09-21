@@ -52,6 +52,7 @@ import {
 import type { ProviderKey } from "@/lib/llm/providers";
 import { getDefaultModelId } from "@/lib/llm/defaults";
 import { BookDetailsSection } from "@/components/settings/book-details-section";
+import { globalOverridesOf, userModelSettingsOf, bookModelSettingsOf } from "@/lib/llm/model-resolver";
 
 // ── Role descriptions ─────────────────────────────────────────
 
@@ -112,26 +113,11 @@ export default function BookSettingsPage() {
   // Build resolution chain inputs for preview
   const bookModelSettings: BookModelSettings | null = useMemo(() => {
     if (!settings) return null;
-    return {
-      modelGhostwriter: settings.modelGhostwriter,
-      modelEditor: settings.modelEditor,
-      modelBetaReader: settings.modelBetaReader,
-      modelAnalyst: settings.modelAnalyst,
-      modelCoach: settings.modelCoach,
-      modelCreative: settings.modelCreative,
-      modelOverride: settings.modelOverride,
-    };
+    return bookModelSettingsOf(settings);
   }, [settings]);
 
   const globalRoleOverrides: Record<AgentRole, string | null> = useMemo(
-    () => ({
-      ghostwriter: defaultModelData?.modelGhostwriter ?? null,
-      editor: defaultModelData?.modelEditor ?? null,
-      "beta-reader": defaultModelData?.modelBetaReader ?? null,
-      analyst: defaultModelData?.modelAnalyst ?? null,
-      coach: defaultModelData?.modelCoach ?? null,
-      creative: defaultModelData?.modelCreative ?? null,
-    }),
+    () => (globalOverridesOf(userModelSettingsOf(defaultModelData))),
     [defaultModelData]
   );
 

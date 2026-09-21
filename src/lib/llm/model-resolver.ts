@@ -18,23 +18,45 @@ import type { AgentType } from "@/lib/agents/types";
 
 // ── Agent Roles ─────────────────────────────────────────────────
 
-/** The 6 functional roles that agent types map to for model selection. */
+/**
+ * The functional roles that agent types map to for model selection.
+ *
+ * A-28: a role is a knob, and a knob may only mean one thing. Seven agents
+ * used to land on `analyst` — the style analyst, whose captured voice the
+ * ghostwriter imitates for the whole book and whose own default is opus,
+ * beside the manuscript analyst, which counts words and defaults to haiku.
+ * Raising the knob to buy a better voice capture bought opus word-counting;
+ * lowering it to stop paying for word counting cheapened the voice. `creative`
+ * had the same fault more quietly, holding story-architect (opus) and
+ * scene-planner (sonnet).
+ *
+ * The rule the split obeys, and that `agent-role-split.test.ts` enforces: no
+ * role may contain two agents whose own default models differ.
+ */
 export type AgentRole =
   | "ghostwriter"
+  | "coach"
+  | "creative"
+  | "stylist"
   | "editor"
   | "beta-reader"
-  | "analyst"
-  | "coach"
-  | "creative";
+  | "planner"
+  | "reader"
+  | "research"
+  | "analyst";
 
 /** All agent roles as an array for iteration. */
 export const AGENT_ROLES: AgentRole[] = [
   "ghostwriter",
-  "editor",
-  "beta-reader",
-  "analyst",
   "coach",
   "creative",
+  "stylist",
+  "editor",
+  "beta-reader",
+  "planner",
+  "reader",
+  "research",
+  "analyst",
 ];
 
 // ── Resolved Model ──────────────────────────────────────────────
@@ -64,44 +86,78 @@ export interface ResolvedModel {
  */
 export interface BookModelSettings {
   modelGhostwriter: string;
-  modelEditor: string;
-  modelBetaReader: string;
-  modelAnalyst: string;
   modelCoach: string;
   modelCreative: string;
+  modelStylist: string;
+  modelEditor: string;
+  modelBetaReader: string;
+  modelPlanner: string;
+  modelReader: string;
+  modelResearch: string;
+  modelAnalyst: string;
   modelOverride: string | null;
 }
 
 // ── Role-to-Field Mapping ───────────────────────────────────────
 
 /** Map an AgentRole to the corresponding BookSettings field name. */
-const ROLE_TO_BOOK_FIELD: Record<AgentRole, keyof BookModelSettings> = {
+export const ROLE_TO_BOOK_FIELD: Record<AgentRole, keyof BookModelSettings> = {
   ghostwriter: "modelGhostwriter",
-  editor: "modelEditor",
-  "beta-reader": "modelBetaReader",
-  analyst: "modelAnalyst",
   coach: "modelCoach",
   creative: "modelCreative",
+  stylist: "modelStylist",
+  editor: "modelEditor",
+  "beta-reader": "modelBetaReader",
+  planner: "modelPlanner",
+  reader: "modelReader",
+  research: "modelResearch",
+  analyst: "modelAnalyst",
+};
+
+/**
+ * Map an AgentRole to the corresponding User field name — the writer's global
+ * override, one level below the book's.
+ */
+export const ROLE_TO_USER_FIELD: Record<AgentRole, keyof ConductorUserModelSettings> = {
+  ghostwriter: "modelGhostwriter",
+  coach: "modelCoach",
+  creative: "modelCreative",
+  stylist: "modelStylist",
+  editor: "modelEditor",
+  "beta-reader": "modelBetaReader",
+  planner: "modelPlanner",
+  reader: "modelReader",
+  research: "modelResearch",
+  analyst: "modelAnalyst",
 };
 
 // ── Agent Type to Role Mapping ──────────────────────────────────
 
-/** Map the 14 AgentType values to the 6 functional roles. */
+/**
+ * Map the 14 AgentType values to their roles.
+ *
+ * Grouped by the job, and never grouping two agents whose definitions disagree
+ * about how much thinking the job needs:
+ *  - `reader` reads the whole book and cross-references it (sonnet);
+ *  - `research` leaves the manuscript for the web (sonnet);
+ *  - `analyst` measures what is already there (haiku);
+ *  - `stylist` captures the voice the ghostwriter will imitate (opus).
+ */
 const AGENT_TYPE_TO_ROLE: Record<AgentType, AgentRole> = {
   ghostwriter: "ghostwriter",
   "writing-coach": "coach",
+  "story-architect": "creative",
+  "style-analyst": "stylist",
   "dev-editor": "editor",
   "line-editor": "editor",
   "beta-reader": "beta-reader",
-  "style-analyst": "analyst",
+  "scene-planner": "planner",
+  "manuscript-reader": "reader",
+  "continuity-checker": "reader",
+  "world-researcher": "research",
+  "market-reader": "research",
   "manuscript-analyst": "analyst",
-  "continuity-checker": "analyst",
-  "manuscript-reader": "analyst",
-  "world-researcher": "analyst",
-  "market-reader": "analyst",
   "publishing-editor": "analyst",
-  "story-architect": "creative",
-  "scene-planner": "creative",
 };
 
 /**
@@ -112,7 +168,76 @@ export function mapAgentTypeToRole(agentType: AgentType): AgentRole {
   return AGENT_TYPE_TO_ROLE[agentType];
 }
 
+/** Alias kept for readers of the contract test; same mapping. */
+export const agentTypeToRole = mapAgentTypeToRole;
+
 // ── Helpers ─────────────────────────────────────────────────────
+
+
+/**
+ * The writer's global overrides, keyed by role. Written once: this used to be
+ * two hand-kept object literals, which is how a new role reaches the book
+ * level and never reaches the writer level.
+ */
+export function globalOverridesOf(
+  user: ConductorUserModelSettings
+): Record<AgentRole, string | null> {
+  return Object.fromEntries(
+    AGENT_ROLES.map((role) => [role, user[ROLE_TO_USER_FIELD[role]] as string | null])
+  ) as Record<AgentRole, string | null>;
+}
+
+/**
+ * The Prisma `select` for a book's model settings, and for a writer's.
+ *
+ * Thirteen call sites used to spell these field lists out by hand — routes,
+ * the worker, batch resolution, the settings page. That is the parallel-table
+ * shape this codebase has paid for repeatedly: adding a role meant editing
+ * thirteen places and the one that was missed failed silently, falling through
+ * to the global default as if the writer had never set anything. Derived from
+ * the role mapping, an eleventh role reaches every query for free.
+ */
+export const BOOK_MODEL_SELECT = Object.fromEntries([
+  ...AGENT_ROLES.map((role) => [ROLE_TO_BOOK_FIELD[role], true]),
+  ["modelOverride", true],
+]) as Record<keyof BookModelSettings, true>;
+
+export const USER_MODEL_SELECT = Object.fromEntries([
+  ...AGENT_ROLES.map((role) => [ROLE_TO_USER_FIELD[role], true]),
+  ["defaultModel", true],
+]) as Record<keyof ConductorUserModelSettings, true>;
+
+/** A row selected with `BOOK_MODEL_SELECT`, before it is given its defaults. */
+export type RawBookModelSettings = Partial<Record<keyof BookModelSettings, string | null>>;
+
+/** A row selected with `USER_MODEL_SELECT`. */
+export type RawUserModelSettings = Partial<
+  Record<keyof ConductorUserModelSettings, string | null>
+>;
+
+/** Fill a book settings row out into the shape the resolver takes. */
+export function bookModelSettingsOf(
+  settings: RawBookModelSettings | null | undefined
+): BookModelSettings | null {
+  if (!settings) return null;
+  const roles = Object.fromEntries(
+    AGENT_ROLES.map((role) => [
+      ROLE_TO_BOOK_FIELD[role],
+      settings[ROLE_TO_BOOK_FIELD[role]] ?? "default",
+    ])
+  );
+  return { ...roles, modelOverride: settings.modelOverride ?? null } as BookModelSettings;
+}
+
+/** Fill a user row out into the shape the resolver takes. */
+export function userModelSettingsOf(
+  user: RawUserModelSettings | null | undefined
+): ConductorUserModelSettings {
+  const roles = Object.fromEntries(
+    AGENT_ROLES.map((role) => [ROLE_TO_USER_FIELD[role], user?.[ROLE_TO_USER_FIELD[role]] ?? null])
+  );
+  return { ...roles, defaultModel: user?.defaultModel ?? null } as ConductorUserModelSettings;
+}
 
 /** Check if a settings value is a real override (not null/empty/"default"). */
 function isValidOverride(value: string | null | undefined): value is string {
@@ -209,11 +334,15 @@ export function resolveModelForRole(
 export interface ConductorUserModelSettings {
   defaultModel: string | null;
   modelGhostwriter: string | null;
-  modelEditor: string | null;
-  modelBetaReader: string | null;
-  modelAnalyst: string | null;
   modelCoach: string | null;
   modelCreative: string | null;
+  modelStylist: string | null;
+  modelEditor: string | null;
+  modelBetaReader: string | null;
+  modelPlanner: string | null;
+  modelReader: string | null;
+  modelResearch: string | null;
+  modelAnalyst: string | null;
 }
 
 /**
@@ -238,14 +367,7 @@ export function resolveConductorModel(
     ? user.defaultModel
     : getDefaultModelId();
 
-  const globalRoleOverrides: Record<AgentRole, string | null> = {
-    ghostwriter: user.modelGhostwriter,
-    editor: user.modelEditor,
-    "beta-reader": user.modelBetaReader,
-    analyst: user.modelAnalyst,
-    coach: user.modelCoach,
-    creative: user.modelCreative,
-  };
+  const globalRoleOverrides = globalOverridesOf(user);
 
   return resolveModelForRole("coach", bookSettings, globalRoleOverrides, globalDefault);
 }
@@ -298,14 +420,7 @@ export function resolveConductorModelForWorkflow(
     ? user.defaultModel
     : getDefaultModelId();
 
-  const globalRoleOverrides: Record<AgentRole, string | null> = {
-    ghostwriter: user.modelGhostwriter,
-    editor: user.modelEditor,
-    "beta-reader": user.modelBetaReader,
-    analyst: user.modelAnalyst,
-    coach: user.modelCoach,
-    creative: user.modelCreative,
-  };
+  const globalRoleOverrides = globalOverridesOf(user);
 
   return resolveModelForRole(role, bookSettings, globalRoleOverrides, globalDefault);
 }

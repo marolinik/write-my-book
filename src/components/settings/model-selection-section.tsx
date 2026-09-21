@@ -22,6 +22,7 @@ import type { AgentRole } from "@/lib/llm";
 import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 import type { ProviderKey } from "@/lib/llm/providers";
 import { getDefaultModelId } from "@/lib/llm/defaults";
+import { ROLE_TO_USER_FIELD } from "@/lib/llm";
 
 // ── Role descriptions ─────────────────────────────────────────
 
@@ -43,6 +44,21 @@ const ROLE_INFOS: RoleInfo[] = [
     description: (t) => t.settings.roleGhostwriterDesc,
   },
   {
+    role: "coach",
+    label: (t) => t.bookSettings.coach,
+    description: (t) => t.settings.roleCoachDesc,
+  },
+  {
+    role: "creative",
+    label: (t) => t.bookSettings.creative,
+    description: (t) => t.settings.roleCreativeDesc,
+  },
+  {
+    role: "stylist",
+    label: (t) => t.bookSettings.stylist,
+    description: (t) => t.settings.roleStylistDesc,
+  },
+  {
     role: "editor",
     label: (t) => t.bookSettings.editor,
     description: (t) => t.settings.roleEditorDesc,
@@ -53,31 +69,31 @@ const ROLE_INFOS: RoleInfo[] = [
     description: (t) => t.settings.roleBetaReaderDesc,
   },
   {
+    role: "planner",
+    label: (t) => t.bookSettings.planner,
+    description: (t) => t.settings.rolePlannerDesc,
+  },
+  {
+    role: "reader",
+    label: (t) => t.bookSettings.reader,
+    description: (t) => t.settings.roleReaderDesc,
+  },
+  {
+    role: "research",
+    label: (t) => t.bookSettings.research,
+    description: (t) => t.settings.roleResearchDesc,
+  },
+  {
     role: "analyst",
     label: (t) => t.bookSettings.analyst,
     description: (t) => t.settings.roleAnalystDesc,
   },
-  {
-    role: "coach",
-    label: (t) => t.bookSettings.coach,
-    description: (t) => t.settings.roleCoachDesc,
-  },
-  {
-    role: "creative",
-    label: (t) => t.bookSettings.creative,
-    description: (t) => t.settings.roleCreativeDesc,
-  },
 ];
 
-/** Map AgentRole to the field key on DefaultModelData. */
-const ROLE_FIELD_MAP: Record<AgentRole, string> = {
-  ghostwriter: "modelGhostwriter",
-  editor: "modelEditor",
-  "beta-reader": "modelBetaReader",
-  analyst: "modelAnalyst",
-  coach: "modelCoach",
-  creative: "modelCreative",
-};
+// A-28: the role-to-field table lives in the resolver. This was its third
+// copy, and a copy is how a new role reaches the server while the UI keeps
+// writing to the field it already knew.
+const ROLE_FIELD_MAP: Record<AgentRole, string> = ROLE_TO_USER_FIELD;
 
 // ── Component ─────────────────────────────────────────────────
 

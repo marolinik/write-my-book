@@ -13,6 +13,7 @@ import {
   type AvailableKeys,
 } from "@/lib/batch/resolve-batch-models";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { USER_MODEL_SELECT } from "@/lib/llm/model-resolver";
 import {
   deriveLiveBatchFields,
   isBatchTerminal,
@@ -165,15 +166,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     // ── Load model preferences + validated API keys, resolve coach ──────
     const dbUser = await db.user.findUnique({
       where: { id: user.id },
-      select: {
-        defaultModel: true,
-        modelGhostwriter: true,
-        modelEditor: true,
-        modelBetaReader: true,
-        modelAnalyst: true,
-        modelCoach: true,
-        modelCreative: true,
-      },
+      select: USER_MODEL_SELECT,
     });
 
     const userKeys = await db.apiKey.findMany({

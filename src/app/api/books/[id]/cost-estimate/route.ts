@@ -10,6 +10,7 @@ import {
 } from "@/lib/llm";
 import { estimateWorkflowCost, estimateEmbeddingCost } from "@/lib/llm/cost-estimator";
 import { getWorkflow } from "@/lib/agents/workflows";
+import { globalOverridesOf, userModelSettingsOf, bookModelSettingsOf } from "@/lib/llm/model-resolver";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -59,26 +60,11 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
 
     // Build book model settings (if BookSettings exists)
     const bookSettings: BookModelSettings | null = book.settings
-      ? {
-          modelGhostwriter: book.settings.modelGhostwriter,
-          modelEditor: book.settings.modelEditor,
-          modelBetaReader: book.settings.modelBetaReader,
-          modelAnalyst: book.settings.modelAnalyst,
-          modelCoach: book.settings.modelCoach,
-          modelCreative: book.settings.modelCreative,
-          modelOverride: book.settings.modelOverride,
-        }
+      ? bookModelSettingsOf(book.settings)
       : null;
 
     // Build global role overrides from User model
-    const globalRoleOverrides: Record<AgentRole, string | null> = {
-      ghostwriter: user.modelGhostwriter,
-      editor: user.modelEditor,
-      "beta-reader": user.modelBetaReader,
-      analyst: user.modelAnalyst,
-      coach: user.modelCoach,
-      creative: user.modelCreative,
-    };
+    const globalRoleOverrides: Record<AgentRole, string | null> = globalOverridesOf(userModelSettingsOf(user));
 
     // Resolve model via 4-level chain
     const resolvedModel = resolveModelForRole(

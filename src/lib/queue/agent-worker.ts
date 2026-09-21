@@ -54,6 +54,7 @@ import {
   type BookModelSettings,
 } from "@/lib/llm";
 import { getDefaultModelId } from "@/lib/llm/defaults";
+import { USER_MODEL_SELECT, globalOverridesOf, userModelSettingsOf, bookModelSettingsOf } from "@/lib/llm/model-resolver";
 
 // ── Constants ─────────────────────────────────────────────────────────
 
@@ -388,38 +389,13 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
     const settings = book.settings;
     const dbUser = await db.user.findUnique({
       where: { id: userId },
-      select: {
-        defaultModel: true,
-        modelGhostwriter: true,
-        modelEditor: true,
-        modelBetaReader: true,
-        modelAnalyst: true,
-        modelCoach: true,
-        modelCreative: true,
-      },
+      select: USER_MODEL_SELECT,
     });
 
     const userDefault = dbUser?.defaultModel ?? getDefaultModelId();
-    const globalRoleOverrides: Record<AgentRole, string | null> = {
-      ghostwriter: dbUser?.modelGhostwriter ?? null,
-      editor: dbUser?.modelEditor ?? null,
-      "beta-reader": dbUser?.modelBetaReader ?? null,
-      analyst: dbUser?.modelAnalyst ?? null,
-      coach: dbUser?.modelCoach ?? null,
-      creative: dbUser?.modelCreative ?? null,
-    };
+    const globalRoleOverrides = globalOverridesOf(userModelSettingsOf(dbUser));
 
-    const bookModelSettings: BookModelSettings | null = settings
-      ? {
-          modelGhostwriter: settings.modelGhostwriter ?? "default",
-          modelEditor: settings.modelEditor ?? "default",
-          modelBetaReader: settings.modelBetaReader ?? "default",
-          modelAnalyst: settings.modelAnalyst ?? "default",
-          modelCoach: settings.modelCoach ?? "default",
-          modelCreative: settings.modelCreative ?? "default",
-          modelOverride: settings.modelOverride ?? null,
-        }
-      : null;
+    const bookModelSettings = bookModelSettingsOf(settings);
 
     const createSpecialistClient = async (specAgentType: AgentType) => {
       const specialistDef = getAgentDefinition(specAgentType);

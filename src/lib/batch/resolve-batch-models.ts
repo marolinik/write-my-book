@@ -21,6 +21,9 @@ import {
   resolveRouteWithLocalFallback,
   meetsMinimumTier,
   mapAgentTypeToRole,
+  globalOverridesOf,
+  userModelSettingsOf,
+  bookModelSettingsOf,
   type LLMProvider,
   type AgentRole,
   type BookModelSettings,
@@ -84,15 +87,7 @@ function toBookModelSettings(
   prefs: BookModelPrefs | null
 ): BookModelSettings | null {
   if (!prefs) return null;
-  return {
-    modelGhostwriter: prefs.modelGhostwriter ?? "default",
-    modelEditor: prefs.modelEditor ?? "default",
-    modelBetaReader: prefs.modelBetaReader ?? "default",
-    modelAnalyst: prefs.modelAnalyst ?? "default",
-    modelCoach: prefs.modelCoach ?? "default",
-    modelCreative: prefs.modelCreative ?? "default",
-    modelOverride: prefs.modelOverride ?? null,
-  };
+  return bookModelSettingsOf(prefs);
 }
 
 /**
@@ -108,14 +103,7 @@ export function resolveBatchModels(
   const bookModelSettings = toBookModelSettings(bookSettings);
   const userDefault = userDefaults.defaultModel ?? getDefaultModelId();
 
-  const globalRoleOverrides: Record<AgentRole, string | null> = {
-    ghostwriter: userDefaults.modelGhostwriter,
-    editor: userDefaults.modelEditor,
-    "beta-reader": userDefaults.modelBetaReader,
-    analyst: userDefaults.modelAnalyst,
-    coach: userDefaults.modelCoach,
-    creative: userDefaults.modelCreative,
-  };
+  const globalRoleOverrides: Record<AgentRole, string | null> = globalOverridesOf(userModelSettingsOf(userDefaults));
 
   // ── Per-workflow minimum-tier guardrail (mirror agent/route.ts:215) ──
   for (const workflowId of workflowIds) {
@@ -138,15 +126,7 @@ export function resolveBatchModels(
   }
 
   // ── Resolve the coach conductor (same 4-level chain as the live route) ──
-  const coachResolved = resolveConductorModel(bookModelSettings, {
-    defaultModel: userDefaults.defaultModel,
-    modelGhostwriter: userDefaults.modelGhostwriter,
-    modelEditor: userDefaults.modelEditor,
-    modelBetaReader: userDefaults.modelBetaReader,
-    modelAnalyst: userDefaults.modelAnalyst,
-    modelCoach: userDefaults.modelCoach,
-    modelCreative: userDefaults.modelCreative,
-  });
+  const coachResolved = resolveConductorModel(bookModelSettings, userModelSettingsOf(userDefaults));
 
   // Fallback-aware: WMB_LOCAL_FALLBACK substitutes the local fleet for a model
   // whose provider has no key. `coachModelDef` is what will actually run.

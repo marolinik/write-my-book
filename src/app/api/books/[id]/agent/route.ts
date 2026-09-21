@@ -44,6 +44,7 @@ import { enqueueAgentJob } from "@/lib/queue";
 import type { AgentJobData } from "@/lib/queue";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { getDefaultModelId } from "@/lib/llm/defaults";
+import { USER_MODEL_SELECT, globalOverridesOf, userModelSettingsOf, bookModelSettingsOf } from "@/lib/llm/model-resolver";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -164,40 +165,15 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     // Load user's global defaults and role overrides
     const dbUser = await db.user.findUnique({
       where: { id: user.id },
-      select: {
-        defaultModel: true,
-        modelGhostwriter: true,
-        modelEditor: true,
-        modelBetaReader: true,
-        modelAnalyst: true,
-        modelCoach: true,
-        modelCreative: true,
-      },
+      select: USER_MODEL_SELECT,
     });
     const userDefault = dbUser?.defaultModel ?? getDefaultModelId();
 
     // Build global role overrides from User model
-    const globalRoleOverrides: Record<AgentRole, string | null> = {
-      ghostwriter: dbUser?.modelGhostwriter ?? null,
-      editor: dbUser?.modelEditor ?? null,
-      "beta-reader": dbUser?.modelBetaReader ?? null,
-      analyst: dbUser?.modelAnalyst ?? null,
-      coach: dbUser?.modelCoach ?? null,
-      creative: dbUser?.modelCreative ?? null,
-    };
+    const globalRoleOverrides = globalOverridesOf(userModelSettingsOf(dbUser));
 
     // Build BookModelSettings from BookSettings
-    const bookModelSettings: BookModelSettings | null = settings
-      ? {
-          modelGhostwriter: settings.modelGhostwriter ?? "default",
-          modelEditor: settings.modelEditor ?? "default",
-          modelBetaReader: settings.modelBetaReader ?? "default",
-          modelAnalyst: settings.modelAnalyst ?? "default",
-          modelCoach: settings.modelCoach ?? "default",
-          modelCreative: settings.modelCreative ?? "default",
-          modelOverride: settings.modelOverride ?? null,
-        }
-      : null;
+    const bookModelSettings = bookModelSettingsOf(settings);
 
     // Resolve the specialist model to determine provider + enforce min tier
     const specialistRole = mapAgentTypeToRole(workflow.primaryAgent);
@@ -218,15 +194,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     // per-role override are unaffected: both roles fall through to the shared
     // book-default → global-default levels. Terminal fallback (anthropic/sonnet)
     // is baked into the resolver.
-    const coachResolved = resolveConductorModelForWorkflow(workflow, bookModelSettings, {
-      defaultModel: dbUser?.defaultModel ?? null,
-      modelGhostwriter: dbUser?.modelGhostwriter ?? null,
-      modelEditor: dbUser?.modelEditor ?? null,
-      modelBetaReader: dbUser?.modelBetaReader ?? null,
-      modelAnalyst: dbUser?.modelAnalyst ?? null,
-      modelCoach: dbUser?.modelCoach ?? null,
-      modelCreative: dbUser?.modelCreative ?? null,
-    });
+    const coachResolved = resolveConductorModelForWorkflow(workflow, bookModelSettings, userModelSettingsOf(dbUser));
     // What the 4-level chain chose. The EFFECTIVE model is decided below, after
     // routing: with WMB_LOCAL_FALLBACK on, a model whose provider has no key is
     // served by the local fleet, and everything downstream (pricing, usage rows,

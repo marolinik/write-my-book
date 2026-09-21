@@ -28,6 +28,7 @@ import { evaluateArtifactContract } from "@/lib/agents/artifact-contract";
 import { DocumentService } from "@/lib/documents";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { getDefaultModelId } from "@/lib/llm/defaults";
+import { USER_MODEL_SELECT, globalOverridesOf, userModelSettingsOf } from "@/lib/llm/model-resolver";
 
 type RouteParams = {
   params: Promise<{ id: string; sessionId: string }>;
@@ -111,15 +112,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     const dbUser = await db.user.findUnique({
       where: { id: user.id },
-      select: {
-        defaultModel: true,
-        modelGhostwriter: true,
-        modelEditor: true,
-        modelBetaReader: true,
-        modelAnalyst: true,
-        modelCoach: true,
-        modelCreative: true,
-      },
+      select: USER_MODEL_SELECT,
     });
     const userDefault = dbUser?.defaultModel ?? getDefaultModelId();
 
@@ -127,14 +120,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     const resolved = resolveModelForRole(
       role,
       book?.settings ?? null,
-      {
-        ghostwriter: dbUser?.modelGhostwriter ?? null,
-        editor: dbUser?.modelEditor ?? null,
-        "beta-reader": dbUser?.modelBetaReader ?? null,
-        analyst: dbUser?.modelAnalyst ?? null,
-        coach: dbUser?.modelCoach ?? null,
-        creative: dbUser?.modelCreative ?? null,
-      },
+      globalOverridesOf(userModelSettingsOf(dbUser)),
       userDefault
     );
 

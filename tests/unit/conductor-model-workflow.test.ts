@@ -3,8 +3,7 @@ import {
   resolveConductorModelForWorkflow,
   resolveConductorModel,
   type BookModelSettings,
-  type ConductorUserModelSettings,
-} from "@/lib/llm/model-resolver";
+  type ConductorUserModelSettings, userModelSettingsOf, bookModelSettingsOf } from "@/lib/llm/model-resolver";
 import type { AgentType } from "@/lib/agents/types";
 
 /** A user with the given default and optional per-role overrides. */
@@ -12,16 +11,7 @@ function user(
   defaultModel: string | null,
   overrides: Partial<ConductorUserModelSettings> = {}
 ): ConductorUserModelSettings {
-  return {
-    defaultModel,
-    modelGhostwriter: null,
-    modelEditor: null,
-    modelBetaReader: null,
-    modelAnalyst: null,
-    modelCoach: null,
-    modelCreative: null,
-    ...overrides,
-  };
+  return { ...userModelSettingsOf({ defaultModel }), ...overrides };
 }
 
 /** Minimal workflow shape the resolver reads. */
@@ -34,15 +24,7 @@ function workflow(
 
 /** A book with an editor override, everything else "default". */
 function bookWithEditor(editor: string): BookModelSettings {
-  return {
-    modelGhostwriter: "default",
-    modelEditor: editor,
-    modelBetaReader: "default",
-    modelAnalyst: "default",
-    modelCoach: "default",
-    modelCreative: "default",
-    modelOverride: null,
-  };
+  return { ...bookModelSettingsOf({ modelEditor: editor })! };
 }
 
 const lineEdit = workflow("line-editor", false); // non-conversational editor job
