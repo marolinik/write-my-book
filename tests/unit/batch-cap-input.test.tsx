@@ -1,5 +1,10 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from "vitest";
+import { getUIStrings } from "@/lib/i18n/ui-strings";
+
+/** The gate takes its sentence from the dictionary; the bounds it fills in
+ *  itself, which is what this file checks. */
+const EN = getUIStrings("en");
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 
 /**
@@ -93,13 +98,13 @@ function postedCap(): unknown {
 describe("D-125: parseBatchCapUsd — the gate itself", () => {
   it("accepts the whole advertised range, cents included", () => {
     for (const raw of ["0.01", "0.05", "0.99", " 7 ", "25", "24.99"]) {
-      expect(parseBatchCapUsd(raw)).toEqual({ ok: true, value: Number(raw.trim()) });
+      expect(parseBatchCapUsd(raw, EN.batchEditorial.capRange)).toEqual({ ok: true, value: Number(raw.trim()) });
     }
   });
 
   it("refuses everything outside it, with the bounds named", () => {
     for (const raw of ["", "   ", "0", "0.009", "-1", "25.01", "1e9", "abc", "NaN"]) {
-      const parsed = parseBatchCapUsd(raw);
+      const parsed = parseBatchCapUsd(raw, EN.batchEditorial.capRange);
       expect(parsed.ok).toBe(false);
       if (!parsed.ok) {
         expect(parsed.error).toContain("$0.01");

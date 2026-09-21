@@ -120,7 +120,7 @@ export function FindingConversation({
 
   /** D-183: nothing may settle the finding while a turn is still in flight. */
   const settleDisabled = turnActive;
-  const settleDisabledTitle = "Waiting for the editor's reply — cancel the turn to decide now";
+  const settleDisabledTitle = t.editorialUI.settleDisabledTitle;
 
   const revisionCard =
     view.latestRevision !== undefined ? (

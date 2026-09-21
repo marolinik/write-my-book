@@ -433,6 +433,7 @@ export interface UIStrings {
     firstChapter: string;
     lastChapter: string;
     budgetCap: string;
+    capRange: string;
     run: string;
     status: string;
   };
@@ -1271,6 +1272,7 @@ export interface UIStrings {
     useIt: string;
     keepAsIs: string;
     capReached: string;
+    settleDisabledTitle: string;
     batchScheduledNote: string;
     passesFailed: string;
     haltedWithReason: string;
@@ -1518,6 +1520,11 @@ export interface UIStrings {
     stepStyle: string;
     stepBible: string;
     stepStructure: string;
+    costHintAnthropic: string;
+    costHintOpenrouter: string;
+    costHintOpenai: string;
+    costHintGemini: string;
+    costHintGrok: string;
   };
 
   // Lo-1 - the keyboard-shortcut help. The table in lib/keyboard-shortcuts.ts

@@ -416,6 +416,7 @@ export const ZH: UIStrings = {
     firstChapter: "起始章节",
     lastChapter: "结束章节",
     budgetCap: "预算上限（美元）",
+    capRange: "请输入介于 {min} 和 {max} 之间的预算上限。",
     run: "运行",
     status: "批次状态",
   },
@@ -1330,6 +1331,7 @@ export const ZH: UIStrings = {
     useIt: "采用",
     keepAsIs: "保持原样",
     capReached: "已达到 3 轮对话上限——请在上方决定，或撤销后重新修改。",
+    settleDisabledTitle: "正在等待编辑回复 — 取消本轮即可立即决定",
     batchScheduledNote: "已排期 — 将在所选时间运行。",
     passesFailed: "{count} 个失败",
     haltedWithReason: "已停止（{reason}）",
@@ -1569,6 +1571,11 @@ export const ZH: UIStrings = {
     stepStyle: "正在捕捉写作风格……",
     stepBible: "正在构建故事圣经……",
     stepStructure: "正在设计故事结构",
+    costHintAnthropic: "Claude 模型，每 100 万 tokens 起价 $0.25",
+    costHintOpenrouter: "200+ 模型，Claude 每 100 万 tokens 起价 $0.25",
+    costHintOpenai: "GPT-4o 与 o3 模型，每 100 万 tokens 起价 $0.15",
+    costHintGemini: "Gemini 2.5 Pro 与 Flash，每 100 万 tokens 起价 $0.075",
+    costHintGrok: "Grok-4 与 Grok-3，每 100 万 tokens 起价 $3",
   },
 
   shortcuts: {

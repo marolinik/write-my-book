@@ -416,6 +416,7 @@ export const DE: UIStrings = {
     firstChapter: "Erstes Kapitel",
     lastChapter: "Letztes Kapitel",
     budgetCap: "Budgetgrenze (USD)",
+    capRange: "Geben Sie ein Budgetlimit zwischen {min} und {max} ein.",
     run: "Starten",
     status: "Stapelstatus",
   },
@@ -1330,6 +1331,7 @@ export const DE: UIStrings = {
     useIt: "Übernehmen",
     keepAsIs: "So lassen",
     capReached: "Grenze von 3 Wortwechseln erreicht — entscheiden Sie oben oder machen Sie rückgängig, um zu überarbeiten.",
+    settleDisabledTitle: "Warten auf die Antwort des Lektors — brechen Sie den Zug ab, um jetzt zu entscheiden",
     batchScheduledNote: "Geplant — läuft zur gewählten Zeit.",
     passesFailed: "{count} fehlgeschlagen",
     haltedWithReason: "angehalten ({reason})",
@@ -1569,6 +1571,11 @@ export const DE: UIStrings = {
     stepStyle: "Schreibstil wird erfasst ...",
     stepBible: "Story-Bibel wird erstellt ...",
     stepStructure: "Story-Struktur wird entworfen",
+    costHintAnthropic: "Claude-Modelle, ab $0,25 pro 1M Tokens",
+    costHintOpenrouter: "200+ Modelle, Claude ab $0,25 pro 1M Tokens",
+    costHintOpenai: "GPT-4o- und o3-Modelle, ab $0,15 pro 1M Tokens",
+    costHintGemini: "Gemini 2.5 Pro und Flash, ab $0,075 pro 1M Tokens",
+    costHintGrok: "Grok-4 und Grok-3, ab $3 pro 1M Tokens",
   },
 
   shortcuts: {

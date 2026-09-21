@@ -13,28 +13,14 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useLocale } from "@/components/providers/language-provider";
+// O4: the document-type names already ship per language; this file kept its
+// own English copy of the same table.
+import { getDocumentTypeLabels } from "@/lib/agents/tool-labels";
 
-const DOC_TYPE_LABELS: Record<string, string> = {
-  CONCEPT: "Concept",
-  STORY_BIBLE: "Story Bible",
-  ARCHITECTURE: "Architecture",
-  FINGERPRINT: "Fingerprint",
-  CHAPTER_BRIEF: "Chapter Brief",
-  CHAPTER_PLAN: "Chapter Plan",
-  CHAPTER_CONTENT: "Chapter Content",
-  DEV_EDIT_REPORT: "Dev Edit Report",
-  LINE_EDIT_REPORT: "Line Edit Report",
-  BETA_READ_REPORT: "Beta Read Report",
-  CONTINUITY_REPORT: "Continuity Report",
-  ANALYSIS_REPORT: "Analysis Report",
-  STRUCTURE_PROPOSAL: "Structure Proposal",
-  MARKET_REPORT: "Market Report",
-  EXPORT_CONFIG: "Export Config",
-  FREEWRITE: "Freewrite",
-};
 
 export function DocumentsTab({ bookId }: { bookId: string }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const docTypeLabels = getDocumentTypeLabels(language);
   const locale = useLocale();
   const { data: documents, isLoading } = useQuery({
     queryKey: ["book-documents", bookId],
@@ -76,10 +62,10 @@ export function DocumentsTab({ bookId }: { bookId: string }) {
                   <FileTextIcon className="h-4 w-4 text-muted-foreground" />
                   <div>
                     <p className="text-sm font-medium">
-                      {doc.title || DOC_TYPE_LABELS[doc.type] || doc.type}
+                      {doc.title || docTypeLabels[doc.type] || doc.type}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {DOC_TYPE_LABELS[doc.type] || doc.type}
+                      {docTypeLabels[doc.type] || doc.type}
                       {doc.chapterNumber ? ` — ${t.agentUI.chapterAbbrev} ${doc.chapterNumber}` : ""}
                       {" · v"}{doc.currentVersion}
                     </p>

@@ -426,6 +426,7 @@ export const EN: UIStrings = {
     firstChapter: "First chapter",
     lastChapter: "Last chapter",
     budgetCap: "Budget cap (USD)",
+    capRange: "Enter a budget cap between {min} and {max}.",
     run: "Run",
     status: "Batch status",
   },
@@ -1341,6 +1342,7 @@ export const EN: UIStrings = {
     useIt: "Use it",
     keepAsIs: "Keep as-is",
     capReached: "3-exchange cap reached — decide above, or undo to revise.",
+    settleDisabledTitle: "Waiting for the editor’s reply — cancel the turn to decide now",
     batchScheduledNote: "Scheduled — will run at the chosen time.",
     passesFailed: "{count} failed",
     haltedWithReason: "halted ({reason})",
@@ -1580,6 +1582,11 @@ export const EN: UIStrings = {
     stepStyle: "Capturing writing style...",
     stepBible: "Building story bible...",
     stepStructure: "Designing story structure",
+    costHintAnthropic: "Claude models, from $0.25/1M tokens",
+    costHintOpenrouter: "200+ models, Claude from $0.25/1M tokens",
+    costHintOpenai: "GPT-4o & o3 models, from $0.15/1M tokens",
+    costHintGemini: "Gemini 2.5 Pro & Flash, from $0.075/1M tokens",
+    costHintGrok: "Grok-4 & Grok-3, from $3/1M tokens",
   },
 
   shortcuts: {

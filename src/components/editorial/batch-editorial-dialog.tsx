@@ -63,8 +63,16 @@ const MAX_CAP_USD = 25;
 const MIN_CAP_USD = 0.01;
 const CAP_STEP_USD = 0.01;
 
-/** One message for every rejected cap — the bounds are stated, not implied. */
-const CAP_RANGE_MESSAGE = `Enter a budget cap between $${MIN_CAP_USD.toFixed(2)} and $${MAX_CAP_USD.toFixed(2)}.`;
+/**
+ * One message for every rejected cap — the bounds are stated, not implied.
+ * The sentence comes from the caller's dictionary; the bounds are filled in
+ * here, so no surface can advertise a range the gate does not enforce.
+ */
+function capRangeMessage(template: string): string {
+  return template
+    .replace("{min}", `$${MIN_CAP_USD.toFixed(2)}`)
+    .replace("{max}", `$${MAX_CAP_USD.toFixed(2)}`);
+}
 
 /**
  * Validate the typed cap against the SAME bounds the field advertises (D-125).
@@ -73,13 +81,14 @@ const CAP_RANGE_MESSAGE = `Enter a budget cap between $${MIN_CAP_USD.toFixed(2)}
  * old gate then rejected with a toast that named "$0" as if 0 were allowed).
  */
 export function parseBatchCapUsd(
-  raw: string
+  raw: string,
+  rangeTemplate: string
 ): { ok: true; value: number } | { ok: false; error: string } {
   const trimmed = raw.trim();
-  if (trimmed === "") return { ok: false, error: CAP_RANGE_MESSAGE };
+  if (trimmed === "") return { ok: false, error: capRangeMessage(rangeTemplate) };
   const value = Number(trimmed);
   if (!Number.isFinite(value) || value < MIN_CAP_USD || value > MAX_CAP_USD) {
-    return { ok: false, error: CAP_RANGE_MESSAGE };
+    return { ok: false, error: capRangeMessage(rangeTemplate) };
   }
   return { ok: true, value };
 }
@@ -226,7 +235,7 @@ export function BatchEditorialDialog({
     // D-125: same bounds the field advertises, refused where the writer is
     // looking (inline alert + aria-invalid + focus) instead of by a toast that
     // named a range the code did not enforce.
-    const parsedCap = parseBatchCapUsd(capInput);
+    const parsedCap = parseBatchCapUsd(capInput, t.batchEditorial.capRange);
     if (!parsedCap.ok) {
       setCapError(parsedCap.error);
       capInputRef.current?.focus();
@@ -294,7 +303,7 @@ export function BatchEditorialDialog({
   const isTerminal = status ? isTerminalBatchStatus(status.batch.status) : false;
   // Cap shown while the first poll is still in flight: the value that was
   // actually submitted (the server row wins the moment it arrives).
-  const parsedCap = parseBatchCapUsd(capInput);
+  const parsedCap = parseBatchCapUsd(capInput, t.batchEditorial.capRange);
   const submittedCapUsd = parsedCap.ok ? parsedCap.value : DEFAULT_CAP_USD;
 
   return (

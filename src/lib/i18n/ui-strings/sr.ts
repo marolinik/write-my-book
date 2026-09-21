@@ -416,6 +416,7 @@ export const SR: UIStrings = {
     firstChapter: "Prvo poglavlje",
     lastChapter: "Poslednje poglavlje",
     budgetCap: "Ograničenje budžeta (USD)",
+    capRange: "Unesite budžetsko ograničenje između {min} i {max}.",
     run: "Pokreni",
     status: "Status grupe",
   },
@@ -1330,6 +1331,7 @@ export const SR: UIStrings = {
     useIt: "Iskoristi",
     keepAsIs: "Zadrži kako jeste",
     capReached: "Dostignut je limit od 3 razmene — odlučite gore ili poništite da biste preradili.",
+    settleDisabledTitle: "Čeka se odgovor urednika — otkažite potez da odlučite odmah",
     batchScheduledNote: "Zakazano — pokrenuće se u izabrano vreme.",
     passesFailed: "{count} neuspelih",
     haltedWithReason: "zaustavljeno ({reason})",
@@ -1569,6 +1571,11 @@ export const SR: UIStrings = {
     stepStyle: "Hvatanje stila pisanja...",
     stepBible: "Izrada biblije priče...",
     stepStructure: "Osmišljavanje strukture priče",
+    costHintAnthropic: "Claude modeli, od $0.25 za 1M tokena",
+    costHintOpenrouter: "200+ modela, Claude od $0.25 za 1M tokena",
+    costHintOpenai: "GPT-4o i o3 modeli, od $0.15 za 1M tokena",
+    costHintGemini: "Gemini 2.5 Pro i Flash, od $0.075 za 1M tokena",
+    costHintGrok: "Grok-4 i Grok-3, od $3 za 1M tokena",
   },
 
   shortcuts: {

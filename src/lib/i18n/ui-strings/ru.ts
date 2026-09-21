@@ -416,6 +416,7 @@ export const RU: UIStrings = {
     firstChapter: "Первая глава",
     lastChapter: "Последняя глава",
     budgetCap: "Лимит бюджета (USD)",
+    capRange: "Укажите лимит бюджета от {min} до {max}.",
     run: "Запустить",
     status: "Статус пакета",
   },
@@ -1330,6 +1331,7 @@ export const RU: UIStrings = {
     useIt: "Использовать",
     keepAsIs: "Оставить как есть",
     capReached: "Достигнут предел в 3 обмена — решите выше или отмените, чтобы переработать.",
+    settleDisabledTitle: "Ожидается ответ редактора — отмените ход, чтобы решить сейчас",
     batchScheduledNote: "Запланировано — запустится в выбранное время.",
     passesFailed: "{count} с ошибкой",
     haltedWithReason: "остановлено ({reason})",
@@ -1569,6 +1571,11 @@ export const RU: UIStrings = {
     stepStyle: "Определение стиля письма...",
     stepBible: "Сборка библии истории...",
     stepStructure: "Проектирование структуры истории",
+    costHintAnthropic: "Модели Claude, от $0.25 за 1M токенов",
+    costHintOpenrouter: "200+ моделей, Claude от $0.25 за 1M токенов",
+    costHintOpenai: "Модели GPT-4o и o3, от $0.15 за 1M токенов",
+    costHintGemini: "Gemini 2.5 Pro и Flash, от $0.075 за 1M токенов",
+    costHintGrok: "Grok-4 и Grok-3, от $3 за 1M токенов",
   },
 
   shortcuts: {

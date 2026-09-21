@@ -350,6 +350,14 @@ const COPY_PROPERTIES = new Set([
   "detail", "body", "help", "helpText", "errorMessage", "empty", "emptyText",
 ]);
 
+/**
+ * A table named for what it holds. `CATEGORY_LABELS` is keyed by the stored
+ * slug — `{ style: "Style Preference", name: "Name/Spelling" }` — so the
+ * property names carry no signal and the rule above cannot see the values.
+ * The variable's own name is the signal.
+ */
+const COPY_TABLE_NAME = /(?:LABELS?|COPY|MESSAGES?|TEXTS?|TITLES?|DESCRIPTIONS?|NAMES?|HINTS?)$/i;
+
 /** `window.confirm("…")` and friends: a sentence the browser prints. */
 const DIALOG_METHODS = new Set(["confirm", "alert", "prompt"]);
 /** `toast.success("…")`: a sentence sonner prints. */
@@ -379,6 +387,7 @@ function isProse(raw: string): boolean {
   if (!/[A-Za-z]{3}/.test(words)) return false;
   if (/^[a-z][a-zA-Z0-9]*$/.test(words)) return false; // camelCase identifier
   if (/^[a-z0-9]+([-_.][a-z0-9]+)+$/.test(words)) return false; // slug, key, path
+  if (/^\{[A-Za-z]+\}$/.test(words)) return false; // a slot in a dictionary value
   if (words.includes("://") || words.startsWith("/")) return false;
   return true;
 }
@@ -422,6 +431,23 @@ function englishDefinitions(file: string): string[] {
       if (COPY_PROPERTIES.has(name) && isProse(value)) {
         found.push(`${where(node)} ${name}: ${value.slice(0, 60)}`);
       }
+    }
+
+    // `const CATEGORY_LABELS = { style: "Style Preference" }`
+    const table = ts.isVariableDeclaration(node) && node.initializer
+      && (ts.isObjectLiteralExpression(node.initializer)
+        || ts.isArrayLiteralExpression(node.initializer)
+        || isStringLike(node.initializer));
+    if (table && ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)
+        && COPY_TABLE_NAME.test(node.name.text) && node.initializer) {
+      const name = node.name.text;
+      const readValues = (value: ts.Node): void => {
+        if (isStringLike(value) && isProse(literalText(value))) {
+          found.push(`${where(value)} ${name}: ${literalText(value).slice(0, 60)}`);
+        }
+        ts.forEachChild(value, readValues);
+      };
+      readValues(node.initializer);
     }
 
     // `return "just now";`

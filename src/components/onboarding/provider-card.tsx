@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 import {
   BotIcon,
   GlobeIcon,
@@ -53,12 +54,12 @@ export interface ProviderCardProps {
 
 // ─── Cost hints per provider ───────────────────────────────────
 
-const COST_HINTS: Record<string, string> = {
-  anthropic: "Claude models, from $0.25/1M tokens",
-  openrouter: "200+ models, Claude from $0.25/1M tokens",
-  openai: "GPT-4o & o3 models, from $0.15/1M tokens",
-  gemini: "Gemini 2.5 Pro & Flash, from $0.075/1M tokens",
-  grok: "Grok-4 & Grok-3, from $3/1M tokens",
+const COST_HINTS: Record<string, (t: UIStrings) => string> = {
+  anthropic: (t) => t.onboardingUI.costHintAnthropic,
+  openrouter: (t) => t.onboardingUI.costHintOpenrouter,
+  openai: (t) => t.onboardingUI.costHintOpenai,
+  gemini: (t) => t.onboardingUI.costHintGemini,
+  grok: (t) => t.onboardingUI.costHintGrok,
 };
 
 // ─── Component ─────────────────────────────────────────────────
@@ -187,7 +188,7 @@ export function ProviderCard({
       {/* Cost hint */}
       {effectiveState !== "connected" && !compact && (
         <p className="text-xs text-muted-foreground/70 mb-3 ml-13">
-          {COST_HINTS[provider.key] ?? ""}
+          {COST_HINTS[provider.key]?.(t) ?? ""}
         </p>
       )}
 
