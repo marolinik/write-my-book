@@ -49,37 +49,31 @@ export default function DemoPage() {
                 icon: "📝",
                 title: "Style Fingerprint",
                 description: "See how AI captures your unique voice across 20+ dimensions",
-                action: "Analyze Sample",
               },
               {
                 icon: "✍️",
                 title: "Dev Edit",
                 description: "Watch AI find plot holes and pacing issues automatically",
-                action: "Run Dev Edit",
               },
               {
                 icon: "📖",
                 title: "Line Editing",
                 description: "See sentence-level improvements in real-time",
-                action: "Start Line Edit",
               },
               {
                 icon: "🔍",
                 title: "Continuity Check",
                 description: "Catch cross-chapter inconsistencies instantly",
-                action: "Check Continuity",
               },
               {
                 icon: "📚",
                 title: "Story Bible",
                 description: "Explore auto-generated story architecture",
-                action: "View Bible",
               },
               {
                 icon: "📤",
                 title: "Export",
                 description: "Preview professional formatting for EPUB/PDF/DOCX",
-                action: "Try Export",
               },
             ].map((feature) => (
               <div
@@ -93,9 +87,6 @@ export default function DemoPage() {
                 <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
                   {feature.description}
                 </p>
-                <button className="text-sm font-medium text-primary hover:underline">
-                  {feature.action} →
-                </button>
               </div>
             ))}
           </div>
