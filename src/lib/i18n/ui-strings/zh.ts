@@ -1046,6 +1046,7 @@ export const ZH: UIStrings = {
     doneMerge: "第 {list} 章已合并。",
     doneSplit: "第 {n} 章已一分为二。",
     proposalOne: "项提议", proposalMany: "项提议",
+    proposalFew: "项提议",
     history: "早前的提议（{n}）",
     errNotPending: "该提议已有决定。",
     errChapterGone: "该动作所针对的章节已不存在。请重新运行此流程。",

@@ -332,7 +332,8 @@ export default async function BookDevelopmentPage({
               countWithNoun(
                 structureMovesPending,
                 t.structure.proposalOne,
-                t.structure.proposalMany
+                t.structure.proposalMany,
+                { few: t.structure.proposalFew, language: lang }
               )
             )
           : undefined,

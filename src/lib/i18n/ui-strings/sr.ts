@@ -1046,6 +1046,7 @@ export const SR: UIStrings = {
     doneMerge: "Poglavlja {list} su spojena.",
     doneSplit: "Poglavlje {n} je razdvojeno na dva.",
     proposalOne: "predlog", proposalMany: "predloga",
+    proposalFew: "predloga",
     history: "Raniji predlozi ({n})",
     errNotPending: "O ovom predlogu je već odlučeno.",
     errChapterGone: "Poglavlje za koje je potez napisan više ne postoji. Pokrenite prolaz ponovo.",

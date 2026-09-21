@@ -1046,6 +1046,7 @@ export const ES: UIStrings = {
     doneMerge: "Capítulos {list} fusionados.",
     doneSplit: "Capítulo {n} dividido en dos.",
     proposalOne: "propuesta", proposalMany: "propuestas",
+    proposalFew: "propuestas",
     history: "Propuestas anteriores ({n})",
     errNotPending: "Esta propuesta ya fue decidida.",
     errChapterGone: "Un capítulo de este movimiento ya no existe. Ejecuta el paso de nuevo.",

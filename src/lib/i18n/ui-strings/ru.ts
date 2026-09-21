@@ -1046,6 +1046,7 @@ export const RU: UIStrings = {
     doneMerge: "Главы {list} объединены.",
     doneSplit: "Глава {n} разделена надвое.",
     proposalOne: "предложение", proposalMany: "предложений",
+    proposalFew: "предложения",
     history: "Прежние предложения ({n})",
     errNotPending: "По этому предложению уже принято решение.",
     errChapterGone: "Главы, для которой написан ход, больше нет. Запустите проход заново.",

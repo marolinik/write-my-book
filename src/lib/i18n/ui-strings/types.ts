@@ -1021,6 +1021,7 @@ export interface UIStrings {
     // writer reads, derived from the move itself.
     doneReorder: string; doneMerge: string; doneSplit: string;
     proposalOne: string; proposalMany: string;
+    proposalFew: string;
     /** Fold holding decided, undone and failed moves. Carries {n}. */
     history: string;
     // S3-8: the engine's reasons reached the panel as raw English. Codes are
