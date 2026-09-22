@@ -8,6 +8,7 @@ import { countWords } from "@/lib/utils";
 import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
 import { parseAgentOutput, extractNumericScore } from "@/lib/parsers";
+import { judgeBetaRead } from "@/lib/parsers/beta-reader-judge";
 import type { EditFindingParsed } from "@/lib/parsers";
 import { updateFromChapter } from "@/lib/graph/graph-maintenance";
 import { getExtractionKeysForUser } from "./extraction-keys";
@@ -498,11 +499,35 @@ async function processBetaReadSession(
   // gate.consensus, which is a 0-100 percentage.
   const avgScore = parsed.data.overallScore ?? extractNumericScore(personas);
 
+  // A typed judgement where the regex was guessing. Measured over 28 real
+  // Serbian reports from this project's own book:
+  //   * the parser produced a score on 3 of 28; the judge on 28 of 28, within
+  //     0.52 of the mean the report states about itself;
+  //   * against the report's own stated verdict the parser matched 7 of 21
+  //     and the judge 15 of 21 — 14 of 17 once its confidence clears 0.5.
+  // So the score is taken whenever the judge answers at all (the parser had
+  // nothing on 25 of 28), and the verdict only when it is confident. The
+  // judge is OFF unless the owner set both its switches, and any failure
+  // leaves the parser's answer exactly as it was.
+  const judgement = await judgeBetaRead({ report: reportContent.content });
+  const betaScore =
+    judgement?.scoreUsable === true ? judgement.score : avgScore;
+  const betaVerdict =
+    judgement?.verdictUsable === true ? judgement.verdict : gate.result;
+
+  if (judgement && judgement.verdict !== gate.result) {
+    console.warn(
+      `[BetaGate] ch${ctx.chapterNumber}: parser said ${gate.result}, judge said ` +
+        `${judgement.verdict} (confidence ${judgement.verdictConfidence.toFixed(2)}) — ` +
+        `using ${betaVerdict}`
+    );
+  }
+
   await db.chapter.update({
     where: { id: chapter.id },
     data: {
-      betaScore: avgScore,
-      betaGate: gate.result.toLowerCase(),
+      betaScore,
+      betaGate: betaVerdict.toLowerCase(),
     },
   });
 
@@ -510,7 +535,7 @@ async function processBetaReadSession(
   // status auto-advance is suppressed so the writer promotes manually after the
   // digest (BATCH-SPEC §6.3). The betaScore/betaGate DATA above is still
   // recorded; only the pipeline STATUS move is held back.
-  if (gate.result === "PASSED" && !ctx.batchId) {
+  if (betaVerdict === "PASSED" && !ctx.batchId) {
     await db.chapter.update({
       where: { id: chapter.id },
       data: { status: "beta_passed" },
