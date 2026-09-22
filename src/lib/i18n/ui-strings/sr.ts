@@ -1518,6 +1518,11 @@ export const SR: UIStrings = {
     findingOne: "nalaz",
     findingFew: "nalaza",
     findingMany: "nalaza",
+    triageTitle: "Šta najviše nosi",
+    triageRest: "Prikaži ostalih {n}",
+    triageCollapse: "Prikaži manje",
+    triageUntriaged: "Ovi još nisu odmereni, pa stoje onim redom kojim su nađeni.",
+    triageConflict: "Ide protiv nečega što si već odlučio",
   },
 
   editorChrome: {

@@ -1518,6 +1518,11 @@ export const RU: UIStrings = {
     findingOne: "замечание",
     findingFew: "замечания",
     findingMany: "замечаний",
+    triageTitle: "Что весит больше всего",
+    triageRest: "Показать остальные {n}",
+    triageCollapse: "Показать меньше",
+    triageUntriaged: "Эти ещё не взвешены, поэтому идут в том порядке, в каком были найдены.",
+    triageConflict: "Идёт против того, что вы уже решили",
   },
 
   editorChrome: {

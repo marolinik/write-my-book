@@ -31,6 +31,11 @@ interface FindingItem {
   status: string;
   dismissReason: string | null;
   appliedAt: string | null;
+  /** Triage: what this note would do for a reader, 0-10. Null = not judged. */
+  impactScore: number | null;
+  /** Triage: probability it undoes a rule the writer already stated. */
+  ruleConflict: number | null;
+  triagedAt: string | null;
   createdAt: string;
   confidence?: number | null;
   rationale?: string | null;

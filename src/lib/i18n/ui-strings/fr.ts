@@ -1518,6 +1518,11 @@ export const FR: UIStrings = {
     findingOne: "observation",
     findingFew: "observations",
     findingMany: "observations",
+    triageTitle: "Ce qui compte le plus",
+    triageRest: "Afficher les {n} autres",
+    triageCollapse: "Afficher moins",
+    triageUntriaged: "Ceux-ci n'ont pas encore été pesés : ils sont dans l'ordre où ils ont été trouvés.",
+    triageConflict: "Va contre une décision que vous avez déjà prise",
   },
 
   editorChrome: {

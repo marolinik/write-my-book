@@ -1529,6 +1529,11 @@ export const EN: UIStrings = {
     findingOne: "finding",
     findingFew: "findings",
     findingMany: "findings",
+    triageTitle: "What matters most",
+    triageRest: "Show the other {n}",
+    triageCollapse: "Show fewer",
+    triageUntriaged: "These have not been weighed yet, so they are in the order they were found.",
+    triageConflict: "Goes against something you already decided",
   },
 
   editorChrome: {

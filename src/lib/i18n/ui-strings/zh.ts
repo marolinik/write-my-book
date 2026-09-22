@@ -1518,6 +1518,11 @@ export const ZH: UIStrings = {
     findingOne: "条发现",
     findingFew: "条发现",
     findingMany: "条发现",
+    triageTitle: "最要紧的",
+    triageRest: "显示其余 {n} 条",
+    triageCollapse: "显示更少",
+    triageUntriaged: "这些还没有权衡过，按发现顺序排列。",
+    triageConflict: "与你已经做出的决定相悖",
   },
 
   editorChrome: {

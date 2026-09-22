@@ -543,6 +543,13 @@ model EditFinding {
   alternatives    String?   @map("alternatives") @db.Text  // JSON: [{label, originalText, newText}]
   groundingScore  Float?    @map("grounding_score")
   chapterVersion  Int?      @map("chapter_version")
+  // Triage: what this note would do for a reader, and whether taking it
+  // would undo something the writer already decided. Judged once, ranked
+  // as often as the panel likes — changing a weight must not re-run
+  // inference. Null means not triaged, never "unimportant".
+  impactScore     Float?    @map("impact_score")
+  ruleConflict    Float?    @map("rule_conflict")
+  triagedAt       DateTime? @map("triaged_at")
   rejectedAt      DateTime? @map("rejected_at")
   rejectionReason String?   @map("rejection_reason") @db.Text
 
