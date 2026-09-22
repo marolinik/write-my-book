@@ -94,6 +94,9 @@ export interface AgentStrings {
 
   /** A-44: heading above the passages a continuity finding conflicts with. */
   conflictingPassages: string;
+  /** A paragraph that reads as stock prose and is worth the writer's second look. */
+  stockProseFinding: string;
+  stockProseSuggestion: string;
   memoryHeader: string;
   sessionContinuityHeader: string;
   decisionsLabel: string;
@@ -170,6 +173,8 @@ const EN: AgentStrings = {
   statusBudgetReached: "Budget reached ({spent} of {cap}) — wrapping up.",
   statusTimeLimit: "Time limit reached — wrapping up.",
   conflictingPassages: "Conflicting passages",
+  stockProseFinding: "This paragraph reads like stock prose: images any story could use, feelings named rather than shown, or a line that sounds quotable rather than true. Worth a second look.",
+  stockProseSuggestion: "Read it again. If it is particular to this story and it carries, keep it; if it could sit in any book, make it yours.",
   memoryHeader: "IMPORTANT: The writer has told you the following. Respect these across all interactions.",
   sessionContinuityHeader: "Recent session summaries — use these to maintain continuity:",
   decisionsLabel: "Decisions",
@@ -352,6 +357,8 @@ const SR: AgentStrings = {
   statusBudgetReached: "Dostignut budžet ({spent} od {cap}) — privodimo kraju.",
   statusTimeLimit: "Dostignuto vremensko ograničenje — privodimo kraju.",
   conflictingPassages: "Pasusi koji su u sukobu",
+  stockProseFinding: "Ovaj pasus liči na šablonsku prozu: slike koje bi stale u bilo koju priču, osećanja imenovana umesto pokazana, ili rečenica koja zvuči kao citat a ne kao istina. Vredi ga ponovo pogledati.",
+  stockProseSuggestion: "Pročitaj ga ponovo. Ako pripada baš ovoj priči i nosi, zadrži ga; ako bi stao u bilo koju knjigu, učini ga svojim.",
   memoryHeader: "VAŽNO: Pisac ti je rekao sledeće. Poštuj ovo u svakoj interakciji.",
   sessionContinuityHeader: "Sažeci nedavnih sesija — koristi ih da održiš kontinuitet:",
   decisionsLabel: "Odluke",
@@ -534,6 +541,8 @@ const DE: AgentStrings = {
   statusBudgetReached: "Budget erreicht ({spent} von {cap}) — wir schließen ab.",
   statusTimeLimit: "Zeitlimit erreicht — wir schließen ab.",
   conflictingPassages: "Widersprüchliche Textstellen",
+  stockProseFinding: "Dieser Absatz wirkt wie Standardprosa: Bilder, die in jede Geschichte passen, benannte statt gezeigte Gefühle oder ein Satz, der zitierfähig statt wahr klingt. Ein zweiter Blick lohnt sich.",
+  stockProseSuggestion: "Lies ihn noch einmal. Gehört er genau zu dieser Geschichte und trägt er, behalte ihn; könnte er in jedem Buch stehen, mach ihn zu deinem.",
   memoryHeader: "WICHTIG: Der Autor hat dir Folgendes mitgeteilt. Beachte es in jeder Interaktion.",
   sessionContinuityHeader: "Zusammenfassungen der letzten Sitzungen — nutze sie für die Kontinuität:",
   decisionsLabel: "Entscheidungen",
@@ -716,6 +725,8 @@ const ES: AgentStrings = {
   statusBudgetReached: "Presupuesto alcanzado ({spent} de {cap}) — cerrando.",
   statusTimeLimit: "Límite de tiempo alcanzado — cerrando.",
   conflictingPassages: "Pasajes en conflicto",
+  stockProseFinding: "Este párrafo suena a prosa de repertorio: imágenes que valdrían para cualquier historia, sentimientos nombrados en lugar de mostrados o una frase que suena citable más que verdadera. Merece una segunda mirada.",
+  stockProseSuggestion: "Reléelo. Si es propio de esta historia y funciona, consérvalo; si podría estar en cualquier libro, hazlo tuyo.",
   memoryHeader: "IMPORTANTE: El escritor te ha dicho lo siguiente. Respétalo en todas las interacciones.",
   sessionContinuityHeader: "Resúmenes de sesiones recientes — úsalos para mantener la continuidad:",
   decisionsLabel: "Decisiones",
@@ -898,6 +909,8 @@ const FR: AgentStrings = {
   statusBudgetReached: "Budget atteint ({spent} sur {cap}) — on conclut.",
   statusTimeLimit: "Limite de temps atteinte — on conclut.",
   conflictingPassages: "Passages en contradiction",
+  stockProseFinding: "Ce paragraphe ressemble à de la prose toute faite : des images valables pour n'importe quelle histoire, des émotions nommées plutôt que montrées, ou une phrase qui sonne citable plutôt que vraie. Il mérite une relecture.",
+  stockProseSuggestion: "Relis-le. S'il appartient à cette histoire et qu'il porte, garde-le ; s'il pourrait figurer dans n'importe quel livre, fais-le tien.",
   memoryHeader: "IMPORTANT : l'auteur vous a indiqué ce qui suit. Respectez-le à chaque interaction.",
   sessionContinuityHeader: "Résumés des sessions récentes — utilisez-les pour maintenir la continuité :",
   decisionsLabel: "Décisions",
@@ -1080,6 +1093,8 @@ const RU: AgentStrings = {
   statusBudgetReached: "Бюджет исчерпан ({spent} из {cap}) — завершаем.",
   statusTimeLimit: "Достигнут лимит времени — завершаем.",
   conflictingPassages: "Противоречащие фрагменты",
+  stockProseFinding: "Этот абзац похож на шаблонную прозу: образы, подходящие любой истории, названные, а не показанные чувства, или фраза, которая звучит как цитата, а не как правда. Стоит перечитать.",
+  stockProseSuggestion: "Перечитай его. Если он принадлежит именно этой истории и работает — оставь; если он мог бы стоять в любой книге — сделай его своим.",
   memoryHeader: "ВАЖНО: писатель сообщил вам следующее. Учитывайте это во всех взаимодействиях.",
   sessionContinuityHeader: "Сводки недавних сессий — используйте их для преемственности:",
   decisionsLabel: "Решения",
@@ -1262,6 +1277,8 @@ const ZH: AgentStrings = {
   statusBudgetReached: "已达预算（{spent}／{cap}）——正在收尾。",
   statusTimeLimit: "已达时间上限——正在收尾。",
   conflictingPassages: "冲突段落",
+  stockProseFinding: "这一段读起来像套路化的文字：任何故事都能用的意象、直接点名而非呈现的情绪，或听起来像格言而不真实的句子。值得再看一眼。",
+  stockProseSuggestion: "再读一遍。如果它属于这个故事并且立得住，就保留；如果它可以放进任何一本书，就把它改成你自己的。",
   memoryHeader: "重要：作者已告知以下内容。在所有交互中都要遵守。",
   sessionContinuityHeader: "近期会话摘要——用它们保持连续性：",
   decisionsLabel: "决定",

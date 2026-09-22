@@ -20,6 +20,7 @@ import {
   type TriageJudgement,
   type WriterRule,
 } from "./finding-triage";
+import { readChapterText, readVoiceFingerprint } from "./book-evidence";
 
 /** Both switches, the same rule as the managed tier and the beta judge. */
 export function triageConfigured(env: Record<string, string | undefined>): boolean {
@@ -141,20 +142,6 @@ export async function triageChapter(input: {
   }
 }
 
-async function readChapterText(
-  bookId: string,
-  chapterNumber: number
-): Promise<string | null> {
-  const { db } = await import("@/lib/db");
-  const doc = await db.document.findFirst({
-    where: { bookId, type: "CHAPTER_CONTENT", chapterNumber },
-    select: { storageKey: true, book: { select: { userId: true } } },
-  });
-  if (!doc?.book) return null;
-  const { getBookStorage } = await import("@/lib/storage");
-  return getBookStorage(doc.book.userId, bookId).read(doc.storageKey);
-}
-
 async function readWriterRules(bookId: string): Promise<WriterRule[]> {
   const { db } = await import("@/lib/db");
   const rows = await db.writerMemory.findMany({
@@ -162,15 +149,4 @@ async function readWriterRules(bookId: string): Promise<WriterRule[]> {
     select: { category: true, content: true },
   });
   return rows;
-}
-
-async function readVoiceFingerprint(bookId: string): Promise<string | null> {
-  const { db } = await import("@/lib/db");
-  const doc = await db.document.findFirst({
-    where: { bookId, type: "FINGERPRINT" },
-    select: { storageKey: true, book: { select: { userId: true } } },
-  });
-  if (!doc?.book) return null;
-  const { getBookStorage } = await import("@/lib/storage");
-  return getBookStorage(doc.book.userId, bookId).read(doc.storageKey);
 }

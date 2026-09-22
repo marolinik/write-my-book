@@ -19,6 +19,7 @@ import { synthesizeToSeries } from "@/lib/series/series-synthesizer";
 import { getWorkflow } from "./workflows";
 import { validatePrerequisites } from "./prerequisites";
 import { sessionCompleteDetail, detailForStorage } from "@/lib/editorial/edit-action-detail";
+import { judgeChapterAfterEdit } from "@/lib/editorial/after-edit";
 import {
   evaluateArtifactContract,
   filterBlockedNextSteps,
@@ -232,6 +233,18 @@ export async function processPostSession(
             cascadeErr instanceof Error ? cascadeErr.message : cascadeErr
           );
         }
+      }
+
+      // Judged passes over the fresh findings: read for stock prose, then
+      // rank. Awaited, so the panel's refetch at session end sees the order.
+      // Each is off without its env flag and never throws.
+      if (ctx.chapterNumber) {
+        await judgeChapterAfterEdit({
+          workflowId: ctx.workflowId,
+          bookId: ctx.bookId,
+          chapterNumber: ctx.chapterNumber,
+          sessionId: ctx.sessionId,
+        });
       }
     }
 
