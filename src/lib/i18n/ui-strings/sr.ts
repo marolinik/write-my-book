@@ -1506,6 +1506,18 @@ export const SR: UIStrings = {
     quickTake: "Brz odgovor",
     consideredTake: "Neka promisli",
     takeHint: "Brz odgovor preskače fazu razmišljanja modela. Stiže za nekoliko sekundi i plići je.",
+    actionApplied: "Primenjen nalaz {category} — zamenjeno „{text}“",
+    actionAppliedNoText: "Primenjen nalaz {category}",
+    actionDismissed: "Odbačen nalaz {category}",
+    actionDismissedBecause: "Odbačen nalaz {category} — {reason}",
+    actionUndoneReverted: "Poništeno: {category}, proza je vraćena",
+    actionUndoneKept: "Poništeno: {category}, proza je ostala kakva je bila",
+    actionSessionDone: "{workflow}: {countNoun}",
+    actionSessionDoneRejected: "{workflow}: {countNoun}, {rejected} odbijeno",
+    actionUnknown: "Ranija radnja koju ova verzija ne ume da opiše",
+    findingOne: "nalaz",
+    findingFew: "nalaza",
+    findingMany: "nalaza",
   },
 
   editorChrome: {

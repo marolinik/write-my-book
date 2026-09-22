@@ -30,6 +30,7 @@ describe("a halted batch", () => {
       for (const reason of KNOWN) {
         const label = haltReasonLabel(reason, t);
         expect(label, `${code}/${reason}`).toBeTruthy();
+        if (!label) continue;
         // The giveaway: the label still contains the enum.
         if (label.includes(reason)) raw.push(`${code}/${reason}`);
       }

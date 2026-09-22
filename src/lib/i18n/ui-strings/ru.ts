@@ -1506,6 +1506,18 @@ export const RU: UIStrings = {
     quickTake: "Быстрый ответ",
     consideredTake: "Пусть подумает",
     takeHint: "Быстрый ответ пропускает фазу размышления модели. Он приходит за секунды и получается поверхностнее.",
+    actionApplied: "Применено: {category} — заменено «{text}»",
+    actionAppliedNoText: "Применено: {category}",
+    actionDismissed: "Отклонено: {category}",
+    actionDismissedBecause: "Отклонено: {category} — {reason}",
+    actionUndoneReverted: "Отменено: {category}, текст вернулся",
+    actionUndoneKept: "Отменено: {category}, текст остался прежним",
+    actionSessionDone: "{workflow}: {countNoun}",
+    actionSessionDoneRejected: "{workflow}: {countNoun}, {rejected} отклонено",
+    actionUnknown: "Более раннее действие, которое эта версия не может описать",
+    findingOne: "замечание",
+    findingFew: "замечания",
+    findingMany: "замечаний",
   },
 
   editorChrome: {

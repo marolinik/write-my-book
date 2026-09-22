@@ -696,7 +696,13 @@ model EditAction {
   actionType    String   @map("action_type") // apply, dismiss, undo, revision
   sessionId     String?  @map("session_id")
   findingId     String?  @map("finding_id")
+  // The English machine line, kept for logs and debugging. NOTHING
+  // writer-facing renders it: it was assembled at write time and stored,
+  // so a Serbian reader was shown English no component could fix.
   description   String
+  // What actually happened, so the sentence can be built in the reader's
+  // language when they read it. See lib/editorial/edit-action-detail.ts.
+  details       Json?
   timestamp     DateTime @default(now())
 
   book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)

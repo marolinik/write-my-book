@@ -1506,6 +1506,18 @@ export const FR: UIStrings = {
     quickTake: "Réponse rapide",
     consideredTake: "Qu'il y réfléchisse",
     takeHint: "Une réponse rapide saute la phase de réflexion du modèle. Elle arrive en quelques secondes et reste plus superficielle.",
+    actionApplied: "{category} appliqué — « {text} » remplacé",
+    actionAppliedNoText: "{category} appliqué",
+    actionDismissed: "{category} écarté",
+    actionDismissedBecause: "{category} écarté — {reason}",
+    actionUndoneReverted: "Annulé : {category}, le texte est revenu",
+    actionUndoneKept: "Annulé : {category}, le texte est resté tel quel",
+    actionSessionDone: "{workflow} : {countNoun}",
+    actionSessionDoneRejected: "{workflow} : {countNoun}, {rejected} rejetés",
+    actionUnknown: "Une action antérieure que cette version ne sait pas décrire",
+    findingOne: "observation",
+    findingFew: "observations",
+    findingMany: "observations",
   },
 
   editorChrome: {

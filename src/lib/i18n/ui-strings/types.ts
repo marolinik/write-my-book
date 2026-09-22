@@ -1447,6 +1447,18 @@ export interface UIStrings {
     quickTake: string;
     consideredTake: string;
     takeHint: string;
+    actionApplied: string;
+    actionAppliedNoText: string;
+    actionDismissed: string;
+    actionDismissedBecause: string;
+    actionUndoneReverted: string;
+    actionUndoneKept: string;
+    actionSessionDone: string;
+    actionSessionDoneRejected: string;
+    actionUnknown: string;
+    findingOne: string;
+    findingFew: string;
+    findingMany: string;
   };
 
   // H-10 - the editor's own chrome: status bar, find-and-replace, pacing and

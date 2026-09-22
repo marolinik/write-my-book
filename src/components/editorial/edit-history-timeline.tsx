@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/components/providers/language-provider";
+import { describeEditAction } from "@/lib/editorial/edit-action-detail";
 import type { UIStrings } from "@/lib/i18n/ui-strings";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -47,7 +48,7 @@ function formatTimestamp(ts: string, locale: string) {
 }
 
 export function EditHistoryTimeline({ bookId }: EditHistoryTimelineProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const locale = useLocale();
   const selectedChapter = useEditorialStore((s) => s.selectedChapter);
   const { data, isLoading } = useEditHistory(
@@ -93,7 +94,10 @@ export function EditHistoryTimeline({ bookId }: EditHistoryTimelineProps) {
                 </span>
                 {actionBadge(action.actionType, t)}
               </div>
-              <p className="text-sm">{action.description}</p>
+              {/* Never `action.description`: that is the English machine
+                  line assembled at write time. The sentence is built here,
+                  from structure, in the reader's language. */}
+              <p className="text-sm">{describeEditAction(action, t, language)}</p>
             </div>
           </div>
         ))}

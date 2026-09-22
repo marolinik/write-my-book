@@ -1517,6 +1517,18 @@ export const EN: UIStrings = {
     quickTake: "Quick take",
     consideredTake: "Think it through",
     takeHint: "A quick take skips the model's thinking phase. It answers in seconds and is shallower.",
+    actionApplied: "Applied {category} — replaced “{text}”",
+    actionAppliedNoText: "Applied {category}",
+    actionDismissed: "Dismissed {category}",
+    actionDismissedBecause: "Dismissed {category} — {reason}",
+    actionUndoneReverted: "Undone: {category}, and the prose went back",
+    actionUndoneKept: "Undone: {category}, the prose stayed as it was",
+    actionSessionDone: "{workflow}: {countNoun}",
+    actionSessionDoneRejected: "{workflow}: {countNoun}, {rejected} rejected",
+    actionUnknown: "An earlier action this version cannot describe",
+    findingOne: "finding",
+    findingFew: "findings",
+    findingMany: "findings",
   },
 
   editorChrome: {

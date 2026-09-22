@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { DocumentService, VersionConflictError } from "@/lib/documents";
 import { DocumentType } from "@/generated/prisma/enums";
+import { undoDetail, detailForStorage } from "@/lib/editorial/edit-action-detail";
 
 type RouteParams = { params: Promise<{ id: string; findingId: string }> };
 
@@ -180,7 +181,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         chapterNumber: finding.chapterNumber,
         actionType: "undo",
         findingId,
-        description: `Undid ${finding.status} action on finding: ${finding.category}${textReverted ? " (text reverted)" : ""}`,
+        description: `Undid ${finding.status} action on finding: ${finding.category}`,
+        details: detailForStorage(undoDetail(finding.category, textReverted)),
       },
     });
 

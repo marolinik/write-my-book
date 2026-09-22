@@ -1506,6 +1506,18 @@ export const ZH: UIStrings = {
     quickTake: "快速回答",
     consideredTake: "让它细想",
     takeHint: "快速回答会跳过模型的思考阶段：几秒就到，但更浅。",
+    actionApplied: "已应用{category}——替换了“{text}”",
+    actionAppliedNoText: "已应用{category}",
+    actionDismissed: "已忽略{category}",
+    actionDismissedBecause: "已忽略{category}——{reason}",
+    actionUndoneReverted: "已撤销：{category}，正文已还原",
+    actionUndoneKept: "已撤销：{category}，正文保持原样",
+    actionSessionDone: "{workflow}：{countNoun}",
+    actionSessionDoneRejected: "{workflow}：{countNoun}，{rejected} 项被拒",
+    actionUnknown: "本版本无法描述的早期操作",
+    findingOne: "条发现",
+    findingFew: "条发现",
+    findingMany: "条发现",
   },
 
   editorChrome: {

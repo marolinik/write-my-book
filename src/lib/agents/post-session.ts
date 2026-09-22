@@ -17,6 +17,7 @@ import { CONTINUITY_CATEGORIES } from "@/lib/i18n/finding-labels";
 import { synthesizeToSeries } from "@/lib/series/series-synthesizer";
 import { getWorkflow } from "./workflows";
 import { validatePrerequisites } from "./prerequisites";
+import { sessionCompleteDetail, detailForStorage } from "@/lib/editorial/edit-action-detail";
 import {
   evaluateArtifactContract,
   filterBlockedNextSteps,
@@ -454,7 +455,8 @@ async function verifySessionFindings(
         chapterNumber: ctx.chapterNumber,
         actionType: "session_complete",
         sessionId: ctx.sessionId,
-        description: `${ctx.workflowId} completed: ${findings.length} findings created via tool calls${rejectedCount > 0 ? `, ${rejectedCount} rejected` : ""}`,
+        description: `${ctx.workflowId} completed: ${findings.length} findings created via tool calls`,
+        details: detailForStorage(sessionCompleteDetail(ctx.workflowId, findings.length, rejectedCount)),
       },
     });
   }

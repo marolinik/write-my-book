@@ -1506,6 +1506,18 @@ export const DE: UIStrings = {
     quickTake: "Schnelle Antwort",
     consideredTake: "Gründlich überlegen",
     takeHint: "Eine schnelle Antwort überspringt die Denkphase des Modells. Sie kommt in Sekunden und bleibt oberflächlicher.",
+    actionApplied: "{category} übernommen — „{text}“ ersetzt",
+    actionAppliedNoText: "{category} übernommen",
+    actionDismissed: "{category} verworfen",
+    actionDismissedBecause: "{category} verworfen — {reason}",
+    actionUndoneReverted: "Rückgängig: {category}, der Text ist zurück",
+    actionUndoneKept: "Rückgängig: {category}, der Text blieb unverändert",
+    actionSessionDone: "{workflow}: {countNoun}",
+    actionSessionDoneRejected: "{workflow}: {countNoun}, {rejected} abgelehnt",
+    actionUnknown: "Eine frühere Aktion, die diese Version nicht beschreiben kann",
+    findingOne: "Befund",
+    findingFew: "Befunde",
+    findingMany: "Befunde",
   },
 
   editorChrome: {

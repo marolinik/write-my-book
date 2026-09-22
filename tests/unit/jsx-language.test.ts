@@ -715,7 +715,15 @@ describe("the dictionaries behind the localized areas", () => {
         for (const [key, value] of Object.entries(en[group])) {
           const translated = (dictionary[group] as Record<string, string>)[key];
           expect(translated, `${language}.${group}.${key}`).toBeTruthy();
-          if (translated === value && !allowed.includes(key)) {
+          // A template made of nothing but placeholders and punctuation —
+          // "{workflow}: {countNoun}" — has no word to translate, so an
+          // identical value is not evidence of anything. Flagging it forces
+          // a cognate entry per language for a string that contains no
+          // language at all.
+          const hasWords =
+            typeof value === "string" &&
+            /\p{L}/u.test(value.replace(/\{\w+\}/g, ""));
+          if (hasWords && translated === value && !allowed.includes(key)) {
             untranslated.push(`${language}.${group}.${key} — ${value}`);
           }
         }

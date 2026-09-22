@@ -9,6 +9,7 @@ import { selectLatestConstraint } from "@/lib/editorial/finding-conversation";
 import { isDestructiveReplacement } from "@/lib/editorial/finding-applicability";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { zodErrorResponse } from "@/lib/api/zod-error";
+import { applyDetail, dismissDetail, detailForStorage } from "@/lib/editorial/edit-action-detail";
 
 type RouteParams = { params: Promise<{ id: string; findingId: string }> };
 
@@ -260,7 +261,8 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
           chapterNumber: finding.chapterNumber,
           actionType: "apply",
           findingId,
-          description: `Auto-applied finding: ${finding.category} — replaced "${originalText.substring(0, 80)}${originalText.length > 80 ? "..." : ""}"`,
+          description: `Auto-applied finding: ${finding.category}`,
+          details: detailForStorage(applyDetail(finding.category, originalText)),
         },
       });
 
@@ -295,7 +297,12 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
         description:
           data.action === "apply"
             ? `Applied finding: ${finding.category}`
-            : `Dismissed finding: ${finding.category}${data.reason ? ` — ${data.reason}` : ""}`,
+            : `Dismissed finding: ${finding.category}`,
+        details: detailForStorage(
+          data.action === "apply"
+            ? applyDetail(finding.category, null)
+            : dismissDetail(finding.category, data.reason ?? null)
+        ),
       },
     });
 

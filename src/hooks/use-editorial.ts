@@ -63,7 +63,10 @@ interface EditActionItem {
   actionType: string;
   sessionId: string | null;
   findingId: string | null;
+  /** English machine line, kept for logs. Never rendered to a writer. */
   description: string;
+  /** What happened, so the sentence can be built in the reader's language. */
+  details: unknown;
   timestamp: string;
 }
 
