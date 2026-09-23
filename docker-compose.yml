@@ -31,7 +31,8 @@ services:
       retries: 5
 
   minio:
-    image: minio/minio:latest
+    # MinIO's images left Docker Hub; quay.io is where they are published.
+    image: quay.io/minio/minio:latest
     restart: unless-stopped
     ports:
       - "127.0.0.1:9000:9000"
@@ -49,7 +50,7 @@ services:
       retries: 5
 
   minio-init:
-    image: minio/mc
+    image: quay.io/minio/mc:latest
     depends_on:
       minio:
         condition: service_healthy

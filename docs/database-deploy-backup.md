@@ -80,7 +80,7 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml logs db-backup -
 
 ### Stale-backup watchdog
 
-A second container, `db-backup-watchdog` (image `minio/mc`, no new infrastructure),
+A second container, `db-backup-watchdog` (image `quay.io/minio/mc`, no new infrastructure),
 alerts when the newest hourly backup is missing or older than `STALE_AFTER`
 (default `2h`, tune with `BACKUP_STALE_AFTER`). On staleness it:
 

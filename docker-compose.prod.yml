@@ -57,7 +57,9 @@ services:
       WORKER_HEALTH_PORT: "30401"
 
   db-backup:
-    image: postgres:16-alpine
+    # pg_dump + a bundled mc: see docker/db-backup/Dockerfile for why mc is
+    # no longer downloaded at start.
+    build: ./docker/db-backup
     restart: unless-stopped
     depends_on:
       postgres:
@@ -69,9 +71,6 @@ services:
     entrypoint: /bin/sh
     command: >
       -c "
-      apk add --no-cache curl gzip &&
-      curl -sLo /usr/local/bin/mc https://dl.min.io/client/mc/release/linux-amd64/mc &&
-      chmod +x /usr/local/bin/mc &&
       mc alias set wmb http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD} &&
       mc mb --ignore-existing wmb/wmb-projects/backups/hourly &&
       mc mb --ignore-existing wmb/wmb-projects/backups/daily &&
@@ -131,7 +130,7 @@ services:
   # (docker container state/restart or a passive healthcheck) can alert. The long
   # leading sleep throttles restart churn to at most once per loop.
   db-backup-watchdog:
-    image: minio/mc
+    image: quay.io/minio/mc:latest
     restart: unless-stopped
     depends_on:
       postgres:

@@ -372,7 +372,7 @@ redis://:PASSWORD@HOST:6379
 
 **What it does:** Stores uploaded manuscripts, generated documents (story bibles, architecture reports, etc.), and exported files (EPUB, PDF, DOCX).
 
-**Docker Compose:** Runs `minio/minio:latest` on ports 9000 (API) and 9001 (web console). A helper container (`minio-init`) automatically creates the `wmb-projects` bucket on first startup.
+**Docker Compose:** Runs `quay.io/minio/minio:latest` (MinIO's images are no longer on Docker Hub) on ports 9000 (API) and 9001 (web console). A helper container (`minio-init`) automatically creates the `wmb-projects` bucket on first startup.
 
 > **Tip:** You can use AWS S3, Cloudflare R2, or any S3-compatible service instead. Update `S3_ENDPOINT`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, and set `S3_FORCE_PATH_STYLE=false` for AWS S3.
 
