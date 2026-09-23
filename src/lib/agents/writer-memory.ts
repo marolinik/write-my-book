@@ -232,9 +232,18 @@ export async function upsertConversationConstraint(params: {
   content: string;
 }): Promise<void> {
   const { userId, bookId, findingId, category, content } = params;
-  await db.writerMemory.upsert({
+  const saved = await db.writerMemory.upsert({
     where: { userId_findingId_source: { userId, findingId, source: "conversation" } },
     create: { userId, bookId, findingId, source: "conversation", category, content, active: true },
     update: { content, category, active: true },
   });
+
+  // One decision, one rule: the owner's "two separate objects" was saved
+  // twice from two threads. Off without its flag; never costs the saved rule.
+  try {
+    const { supersedeDuplicateRule } = await import("./rule-dedupe-service");
+    await supersedeDuplicateRule({ memoryId: saved.id });
+  } catch (error) {
+    console.error("[WriterMemory] duplicate check failed (non-fatal):", error instanceof Error ? error.message : error);
+  }
 }

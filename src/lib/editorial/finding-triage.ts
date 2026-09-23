@@ -180,6 +180,18 @@ export function readTriageAnswers(
  */
 const CONFLICT_PENALTY = 0.6;
 
+/**
+ * From here the card tells the writer the note goes against their own
+ * decision. Measured on the owner's book: the two real conflicts (the
+ * re-raised "two objects" note, a cascade reopening a closed beat) judged
+ * 0.77 and 0.88; notes that only brushed a rule's subject 0.63-0.72.
+ */
+const CONFLICT_SHOWN_FROM = 0.75;
+
+export function showsRuleConflict(ruleConflict: number | null | undefined): boolean {
+  return typeof ruleConflict === "number" && ruleConflict >= CONFLICT_SHOWN_FROM;
+}
+
 /** The writer-facing order. Pure: changing this never re-runs inference. */
 export function rankFindings<T extends TriageJudgement>(judged: readonly T[]): T[] {
   return [...judged].sort((a, b) => weight(b) - weight(a));

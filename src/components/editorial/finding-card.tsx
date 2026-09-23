@@ -20,6 +20,7 @@ import {
 import { SuggestionFeedback } from "@/components/agent/suggestion-feedback";
 import { FindingConversation } from "@/components/editorial/finding-conversation";
 import { fixVerdict } from "@/lib/editorial/fix-check";
+import { showsRuleConflict } from "@/lib/editorial/finding-triage";
 import { Check, X, Undo2, AlertTriangle, MoveRight } from "lucide-react";
 
 interface FindingCardProps {
@@ -278,6 +279,14 @@ export function FindingCard({
           <div className="flex items-start gap-2 rounded bg-orange-50 dark:bg-orange-950/30 p-2 text-xs text-orange-800 dark:text-orange-300">
             <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
             <span>{applyError}</span>
+          </div>
+        )}
+
+        {/* Triage measured that taking this note would undo the writer's own decision. */}
+        {finding.status === "pending" && showsRuleConflict(finding.ruleConflict) && (
+          <div className="flex items-start gap-2 rounded bg-orange-50 dark:bg-orange-950/30 p-2 text-xs text-orange-800 dark:text-orange-300">
+            <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+            <span>{t.editorialUI.triageConflict}</span>
           </div>
         )}
 
