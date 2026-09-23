@@ -7,8 +7,8 @@
  * that tab has no idea where to start, which is the single thing standing
  * between them and the product.
  *
- * Two questions per finding, over the chapter they all belong to, in one
- * request:
+ * Two questions per finding, over the chapter they all belong to, in small
+ * requests of a few findings each:
  *
  *   impact   — how much would fixing this improve the chapter for a reader?
  *   conflict — does this ask the writer to undo something they already ruled out?
@@ -39,8 +39,13 @@ export const IMPACT_LEVELS = [
   "Fixing this repairs something that breaks the chapter: a contradiction, a missing beat the story depends on, a moment that loses the reader entirely.",
 ] as const;
 
-/** One request should carry a chapter's worth of findings, not a book's. */
-export const MAX_FINDINGS_PER_REQUEST = 20;
+/**
+ * Measured, not chosen. The same 13 findings sent forwards and reversed moved
+ * 0.43-0.52 on average at 20 per request, up to 1.3 at the ends of the list;
+ * at 6 per request they moved 0.27. A chapter's findings go as several small
+ * requests in parallel, each carrying the whole chapter.
+ */
+export const MAX_FINDINGS_PER_REQUEST = 6;
 
 export interface WriterRule {
   category: string;

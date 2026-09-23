@@ -105,25 +105,39 @@ export async function triageChapter(input: {
     const { TypeSafeClient } = await import("@typesafe-ai/sdk");
     const client = new TypeSafeClient();
 
-    let judged = 0;
-    let requests = 0;
+    // In parallel: each batch is small on purpose, carries the whole chapter,
+    // and waits on no other. A batch that fails leaves its findings untriaged
+    // without costing the others their answers.
+    const batches = chunkForTriage(findings as TriageInput[]);
+    const settled = await Promise.allSettled(
+      batches.map(async (batch) => {
+        const { state, questions } = buildTriageRequest({
+          chapter: chapterText,
+          findings: batch,
+          voiceFingerprint,
+          writerRules: rules,
+        });
+        const response = await client.systemOne({ state, questions } as never);
+        return readTriageAnswers(response.answers as Record<string, unknown>, batch);
+      })
+    );
 
-    for (const batch of chunkForTriage(findings as TriageInput[])) {
-      const { state, questions } = buildTriageRequest({
-        chapter: chapterText,
-        findings: batch,
-        voiceFingerprint,
-        writerRules: rules,
-      });
-
-      const response = await client.systemOne({ state, questions } as never);
-      requests++;
-
-      const answers = readTriageAnswers(
-        response.answers as Record<string, unknown>,
-        batch
+    const failures = settled.filter((s) => s.status === "rejected");
+    if (failures.length === settled.length) {
+      throw (failures[0] as PromiseRejectedResult).reason;
+    }
+    for (const failure of failures) {
+      const reason = (failure as PromiseRejectedResult).reason;
+      console.error(
+        "[Triage] one batch failed, its findings left as they were:",
+        reason instanceof Error ? reason.message : reason
       );
-      for (const judgement of answers) {
+    }
+
+    let judged = 0;
+    for (const result of settled) {
+      if (result.status !== "fulfilled") continue;
+      for (const judgement of result.value) {
         await db.editFinding.update({
           where: { id: judgement.findingId },
           data: rowUpdateFor(judgement),
@@ -131,6 +145,7 @@ export async function triageChapter(input: {
         judged++;
       }
     }
+    const requests = batches.length;
 
     return { judged, unanswered: findings.length - judged, requests };
   } catch (error) {

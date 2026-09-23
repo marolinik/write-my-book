@@ -75,6 +75,13 @@ describe("the request", () => {
     expect(questions.impact_a.type).toBe("score");
   });
 
+  it("carries few enough findings that position in the request does not decide the answer", () => {
+    // Measured on chapter 2's 13 pending findings, same request forwards and
+    // reversed: at 20 per request the mean impact moved 0.43-0.52 and the ends
+    // of the list moved up to 1.3; at 6 per request it moved 0.27.
+    expect(MAX_FINDINGS_PER_REQUEST).toBeLessThanOrEqual(6);
+  });
+
   it("refuses a batch larger than one request should carry", () => {
     const many = Array.from({ length: MAX_FINDINGS_PER_REQUEST + 1 }, (_, i) => ({
       id: `f${i}`,

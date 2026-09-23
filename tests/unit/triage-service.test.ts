@@ -127,4 +127,63 @@ describe("the pass itself", () => {
     expect(result.reason).toBe("disabled");
     expect(updates).toHaveLength(0);
   });
+
+  it("keeps the answers of the batches that came back when one of them fails", async () => {
+    vi.resetModules();
+    const updated: string[] = [];
+    const pending = Array.from({ length: 8 }, (_, i) => ({
+      id: `f${i}`,
+      category: "prose",
+      severity: "suggestion",
+      description: "x",
+      suggestion: null,
+      anchorQuote: null,
+    }));
+    vi.doMock("@/lib/db", () => ({
+      db: {
+        editFinding: {
+          findMany: vi.fn(async () => pending),
+          update: vi.fn(async (args: { where: { id: string } }) => {
+            updated.push(args.where.id);
+            return {};
+          }),
+        },
+        writerMemory: { findMany: vi.fn(async () => []) },
+      },
+    }));
+    vi.doMock("@/lib/editorial/book-evidence", () => ({
+      readChapterText: vi.fn(async () => "Poglavlje."),
+      readVoiceFingerprint: vi.fn(async () => null),
+    }));
+    vi.doMock("@typesafe-ai/sdk", () => ({
+      TypeSafeClient: class {
+        async systemOne(req: { questions: Record<string, unknown> }) {
+          const ids = Object.keys(req.questions)
+            .filter((k) => k.startsWith("impact_"))
+            .map((k) => k.slice("impact_".length));
+          if (ids.includes("f0")) throw new Error("upstream 503");
+          return {
+            answers: Object.fromEntries(
+              ids.flatMap((id) => [
+                [`impact_${id}`, { type: "score", score: 2, confidence: 0.6 }],
+                [`conflict_${id}`, { type: "noul", noul: 0.1 }],
+              ])
+            ),
+          };
+        }
+      },
+    }));
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const { triageChapter } = await import("@/lib/editorial/triage-service");
+    const result = await triageChapter({
+      bookId: "b",
+      chapterNumber: 1,
+      env: { FINDING_TRIAGE_ENABLED: "1", TYPESAFE_API_KEY: "k" },
+    });
+    // 8 findings in batches of 6: the first batch fails, the second lands.
+    expect(result.requests).toBe(2);
+    expect(result.judged).toBe(2);
+    expect(result.unanswered).toBe(6);
+    expect(updated.sort()).toEqual(["f6", "f7"]);
+  });
 });
