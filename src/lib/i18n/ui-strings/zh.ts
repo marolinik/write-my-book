@@ -1523,6 +1523,8 @@ export const ZH: UIStrings = {
     triageCollapse: "显示更少",
     triageUntriaged: "这些还没有权衡过，按发现顺序排列。",
     triageConflict: "与你已经做出的决定相悖",
+    fixNotHeld: "修改后的段落似乎仍有这条备注指出的问题。请再读一遍，或撤销这次修改。",
+    fixHeld: "已检查：这次修改消除了备注指出的问题。",
   },
 
   editorChrome: {

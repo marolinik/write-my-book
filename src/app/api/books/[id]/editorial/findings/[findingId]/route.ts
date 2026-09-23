@@ -10,6 +10,7 @@ import { isDestructiveReplacement } from "@/lib/editorial/finding-applicability"
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { zodErrorResponse } from "@/lib/api/zod-error";
 import { applyDetail, dismissDetail, detailForStorage } from "@/lib/editorial/edit-action-detail";
+import { checkAppliedFix } from "@/lib/editorial/fix-check-service";
 
 type RouteParams = { params: Promise<{ id: string; findingId: string }> };
 
@@ -266,7 +267,20 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
         },
       });
 
-      return NextResponse.json(updated);
+      // Did the fix fix it? Judged on the exact passage replaced and what
+      // replaced it. Bounded and silent: off without its flag, a few seconds
+      // at most, and a failure leaves the finding exactly as applied.
+      const fixRemains = await checkAppliedFix({
+        finding,
+        before: match.matchedText,
+        after: finalNewText,
+      });
+      const checked =
+        fixRemains === null
+          ? updated
+          : (await db.editFinding.findUnique({ where: { id: findingId } })) ?? updated;
+
+      return NextResponse.json(checked);
     }
 
     // Standard apply (advice-only) or dismiss.

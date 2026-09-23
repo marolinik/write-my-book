@@ -1534,6 +1534,8 @@ export const EN: UIStrings = {
     triageCollapse: "Show fewer",
     triageUntriaged: "These have not been weighed yet, so they are in the order they were found.",
     triageConflict: "Goes against something you already decided",
+    fixNotHeld: "The changed passage still seems to have the problem this note named. Read it again, or undo the change.",
+    fixHeld: "Checked: the change removed what this note named.",
   },
 
   editorChrome: {

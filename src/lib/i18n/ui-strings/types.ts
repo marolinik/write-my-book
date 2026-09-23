@@ -1464,6 +1464,8 @@ export interface UIStrings {
     triageCollapse: string;
     triageUntriaged: string;
     triageConflict: string;
+    fixNotHeld: string;
+    fixHeld: string;
   };
 
   // H-10 - the editor's own chrome: status bar, find-and-replace, pacing and

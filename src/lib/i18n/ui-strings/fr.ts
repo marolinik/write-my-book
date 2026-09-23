@@ -1523,6 +1523,8 @@ export const FR: UIStrings = {
     triageCollapse: "Afficher moins",
     triageUntriaged: "Ceux-ci n'ont pas encore été pesés : ils sont dans l'ordre où ils ont été trouvés.",
     triageConflict: "Va contre une décision que vous avez déjà prise",
+    fixNotHeld: "Le passage modifié semble toujours présenter le problème signalé par cette note. Relisez-le ou annulez la modification.",
+    fixHeld: "Vérifié : la modification a supprimé ce que signalait cette note.",
   },
 
   editorChrome: {

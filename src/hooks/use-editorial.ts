@@ -36,6 +36,9 @@ interface FindingItem {
   /** Triage: probability it undoes a rule the writer already stated. */
   ruleConflict: number | null;
   triagedAt: string | null;
+  /** After an apply: probability the changed passage still has the problem. Null = not checked. */
+  fixRemains?: number | null;
+  fixCheckedAt?: string | null;
   createdAt: string;
   confidence?: number | null;
   rationale?: string | null;

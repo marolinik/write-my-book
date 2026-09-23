@@ -19,6 +19,7 @@ import {
 } from "@/lib/i18n/finding-labels";
 import { SuggestionFeedback } from "@/components/agent/suggestion-feedback";
 import { FindingConversation } from "@/components/editorial/finding-conversation";
+import { fixVerdict } from "@/lib/editorial/fix-check";
 import { Check, X, Undo2, AlertTriangle, MoveRight } from "lucide-react";
 
 interface FindingCardProps {
@@ -278,6 +279,20 @@ export function FindingCard({
             <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
             <span>{applyError}</span>
           </div>
+        )}
+
+        {/* After an apply: did the change remove what the note complained about? */}
+        {finding.status === "applied" && fixVerdict(finding.fixRemains) === "not-held" && (
+          <div className="flex items-start gap-2 rounded bg-orange-50 dark:bg-orange-950/30 p-2 text-xs text-orange-800 dark:text-orange-300">
+            <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+            <span>{t.editorialUI.fixNotHeld}</span>
+          </div>
+        )}
+        {finding.status === "applied" && fixVerdict(finding.fixRemains) === "held" && (
+          <p className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Check className="h-3 w-3 shrink-0" />
+            {t.editorialUI.fixHeld}
+          </p>
         )}
 
         {/* Action buttons: Jump to text | Apply | Dismiss */}

@@ -550,6 +550,10 @@ model EditFinding {
   impactScore     Float?    @map("impact_score")
   ruleConflict    Float?    @map("rule_conflict")
   triagedAt       DateTime? @map("triaged_at")
+  // After an apply: the judged probability that the changed passage still
+  // has the problem the note named. Null means not checked, never "held".
+  fixRemains      Float?    @map("fix_remains")
+  fixCheckedAt    DateTime? @map("fix_checked_at")
   rejectedAt      DateTime? @map("rejected_at")
   rejectionReason String?   @map("rejection_reason") @db.Text
 

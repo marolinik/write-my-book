@@ -1523,6 +1523,8 @@ export const SR: UIStrings = {
     triageCollapse: "Prikaži manje",
     triageUntriaged: "Ovi još nisu odmereni, pa stoje onim redom kojim su nađeni.",
     triageConflict: "Ide protiv nečega što si već odlučio",
+    fixNotHeld: "Izmenjeni odlomak i dalje izgleda kao da ima problem koji je ova beleška navela. Pročitaj ga ponovo ili poništi izmenu.",
+    fixHeld: "Provereno: izmena je uklonila ono na šta se beleška žalila.",
   },
 
   editorChrome: {
