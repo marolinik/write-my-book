@@ -37,6 +37,7 @@ import { getAgentStrings } from "@/lib/i18n/agent-strings";
 import { FINDING_CATEGORIES, FINDING_SEVERITIES } from "@/lib/i18n/finding-labels";
 import { enforceBookScript } from "./serbian-script";
 import { planMove, type ChapterRef, type StructureMoveInput } from "@/lib/structure/moves";
+import { addedEditorialNote } from "@/lib/editorial/finding-applicability";
 import {
   verifyCrossReferences,
   formatCrossReferences,
@@ -204,6 +205,22 @@ async function validateFinding(
     return {
       valid: false,
       reason: `REJECTED: alternatives[${malformedAltIndex}] is missing originalText. Every alternative must be an object with label, originalText (the exact chapter text to replace, as a string), and newText. Please resend all alternatives with originalText copied verbatim from the chapter.`,
+    };
+  }
+  // Chapter 31: an alternative's newText is written into the book verbatim
+  // when applied. A bracketed memo in it ("[Napomena: add this to the
+  // bible]") becomes part of the manuscript.
+  const noteAltIndex = input.alternatives.findIndex(
+    (alt) => addedEditorialNote(alt.originalText, alt.newText) !== null
+  );
+  if (noteAltIndex !== -1) {
+    const note = addedEditorialNote(
+      input.alternatives[noteAltIndex].originalText,
+      input.alternatives[noteAltIndex].newText
+    );
+    return {
+      valid: false,
+      reason: `REJECTED: alternatives[${noteAltIndex}].newText contains an editorial note in brackets: ${note}. newText is written into the chapter verbatim when the writer applies it, so it must be prose only. Put instructions to the writer (update the story bible, check the architecture) in description or rationale, and resend every alternative with newText as the replacement prose alone.`,
     };
   }
   return { valid: true };
@@ -578,7 +595,7 @@ const createFindingDef: ToolDefinition = {
           properties: {
             label: { type: "string", description: "e.g. 'Option A — tighten pacing'" },
             originalText: { type: "string", description: "Exact text to replace (verbatim from chapter)" },
-            newText: { type: "string", description: "Replacement text preserving the author's voice" },
+            newText: { type: "string", description: "Replacement text preserving the author's voice. Prose only: it is written into the chapter verbatim when applied, so never put notes or instructions to the writer in it (no [Note: ...]); those go in description or rationale." },
           },
           required: ["label", "originalText", "newText"],
         },

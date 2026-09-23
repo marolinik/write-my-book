@@ -142,3 +142,34 @@ describe("PATCH finding — dismiss vs reject separation (D-55)", () => {
     expect(data.rejectedAt).toBeUndefined();
   });
 });
+
+describe("PATCH finding — a replacement that carries an editor's note", () => {
+  it("refuses to write the note into the chapter (chapter 31)", async () => {
+    h.db.editFinding.findFirst.mockResolvedValue(
+      finding({
+        originalText: "the old line",
+        newText: "the old line [Napomena: upisati u Bibliju priče]",
+      })
+    );
+    const res = await PATCH(req({ action: "apply" }) as never, ctx as never);
+    expect(res.status).toBe(422);
+    expect((await res.json()).error).toMatch(/note/i);
+    expect(h.doc.read).not.toHaveBeenCalled();
+    expect(h.db.editFinding.update).not.toHaveBeenCalled();
+  });
+
+  it("still applies text the writer typed themselves, brackets and all", async () => {
+    h.db.editFinding.findFirst.mockResolvedValue(
+      finding({ newText: "the old line [Napomena: x]" })
+    );
+    h.doc.findByType.mockResolvedValue({ id: "doc-1" });
+    h.doc.read.mockResolvedValue({ document: { currentVersion: 3 }, content: "before the old line after" });
+    h.doc.update.mockResolvedValue({ version: { version: 4 } });
+    const res = await PATCH(
+      req({ action: "apply", overrideText: "the old line, [sic] as written" }) as never,
+      ctx as never
+    );
+    expect(res.status).toBe(200);
+    expect(h.doc.update).toHaveBeenCalledTimes(1);
+  });
+});

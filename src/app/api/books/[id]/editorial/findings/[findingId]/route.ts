@@ -6,7 +6,7 @@ import { DocumentService, VersionConflictError } from "@/lib/documents";
 import { DocumentType } from "@/generated/prisma/enums";
 import { inferPreferenceFromDismissals, upsertConversationConstraint } from "@/lib/agents/writer-memory";
 import { selectLatestConstraint } from "@/lib/editorial/finding-conversation";
-import { isDestructiveReplacement } from "@/lib/editorial/finding-applicability";
+import { isDestructiveReplacement, addedEditorialNote } from "@/lib/editorial/finding-applicability";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { zodErrorResponse } from "@/lib/api/zod-error";
 import { applyDetail, dismissDetail, detailForStorage } from "@/lib/editorial/edit-action-detail";
@@ -147,6 +147,24 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
         {
           error:
             "This finding has no replacement text, so applying it would delete the passage it points to. Dismiss it, or use Discuss to work out a concrete revision.",
+        },
+        { status: 422 }
+      );
+    }
+
+    // Chapter 31: a replacement that carries an editor's memo would write the
+    // memo into the book. Only the agent's text is checked; what the writer
+    // typed in overrideText is theirs, brackets and all.
+    const carriedNote =
+      data.action === "apply" && data.overrideText === undefined
+        ? addedEditorialNote(originalText, finalNewText)
+        : null;
+    if (carriedNote) {
+      return NextResponse.json(
+        {
+          error:
+            "This replacement carries an editor's note, not prose, and applying it would write the note into the chapter. Edit the passage yourself or dismiss the finding.",
+          note: carriedNote,
         },
         { status: 422 }
       );

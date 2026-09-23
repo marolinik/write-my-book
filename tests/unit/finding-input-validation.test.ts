@@ -364,3 +364,29 @@ describe("CreateFinding: anchorQuote and alternatives shape validation (D-34)", 
     expect(h.db.editFinding.create).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("CreateFinding — an alternative that carries an editor's note", () => {
+  it("is REJECTED with guidance, before the note can reach an apply button", async () => {
+    const result = await executeTool(
+      "CreateFinding",
+      ctx,
+      evidenceShapeInput({
+        paragraphNumber: 2,
+        alternatives: [
+          ALTERNATIVES[0],
+          {
+            label: "Option B — flag it",
+            originalText: ANCHOR,
+            newText: `${ANCHOR} [Note: add this beat to the story bible]`,
+          },
+        ],
+      })
+    );
+    expect(result).toMatch(/REJECTED/);
+    expect(result).toContain("alternatives[1]");
+    expect(result).toMatch(/description|rationale/);
+    expect(h.db.editFinding.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: "rejected" }) })
+    );
+  });
+});

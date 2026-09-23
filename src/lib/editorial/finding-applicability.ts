@@ -50,3 +50,27 @@ export function isAutoApplicable(
 ): boolean {
   return !isBlank(originalText) && !isBlank(newText);
 }
+
+/** A square-bracketed span of real content: "[Napomena: …]", "[Note: …]". */
+const BRACKETED_SPAN = /\[[^[\]\n]{3,}\]/g;
+
+/**
+ * The bracketed span a replacement ADDS, or null.
+ *
+ * On the owner's chapter 31 an auto-applied fix wrote "[Napomena: u Bibliju
+ * priče upisati …]" into the manuscript: the editor's instruction to the
+ * writer rode in `newText`. Novels almost never use square brackets, so a
+ * span the original did not already have is a note, in any language. One the
+ * original had is the writer's own and stays.
+ */
+export function addedEditorialNote(
+  originalText: string | null | undefined,
+  newText: string | null | undefined
+): string | null {
+  if (!newText) return null;
+  const original = originalText ?? "";
+  for (const span of newText.match(BRACKETED_SPAN) ?? []) {
+    if (!original.includes(span)) return span;
+  }
+  return null;
+}
