@@ -215,7 +215,7 @@ export interface UIStrings {
     doneStep: string; doneDesc: string;
     bookName: string; genre: string; genrePlaceholder: string;
     language: string; languageHint: string;
-    descriptionOptional: string; descriptionPlaceholder: string;
+    genreOptional: string; descriptionOptional: string; descriptionPlaceholder: string;
     saveAndContinue: string;
     importInfo: string; manuscriptImported: string;
     /** Countable chapter noun — singular/plural pair, picked via pluralNoun(). */

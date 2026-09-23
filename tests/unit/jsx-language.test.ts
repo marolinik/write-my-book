@@ -626,8 +626,8 @@ describe("the dictionaries behind the localized areas", () => {
       "docVersion", "docAgent", "versionN", "matchesInChapters",
       // "Import" is the German word too.
       "versionImport",
-      // "Import" and "Genre" are German words too.
-      "importStep", "genre",
+      // "Import", "Genre" and "optional" are German words too.
+      "importStep", "genre", "genreOptional",
       // "Pipeline" and "Status" are used as-is; NaNoWriMo is an event's name.
       "viewPipeline", "notifStatus", "achNaNo",
       "stepOptional", "syntax", "focusNormal", "upgrade", "name", "median",

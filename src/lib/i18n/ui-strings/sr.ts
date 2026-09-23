@@ -197,7 +197,7 @@ export const SR: UIStrings = {
     doneStep: "Gotovo", doneDesc: "Sve je spremno!",
     bookName: "Naziv knjige", genre: "Žanr", genrePlaceholder: "Fantastika, Naučna fantastika, Ljubavni roman...",
     language: "Jezik", languageHint: "Agenti će pisati i komunicirati na ovom jeziku",
-    descriptionOptional: "Opis (opciono)", descriptionPlaceholder: "Kratak rezime vaše knjige...",
+    genreOptional: "Žanr (opciono)", descriptionOptional: "Opis (opciono)", descriptionPlaceholder: "Kratak rezime vaše knjige...",
     saveAndContinue: "Sačuvaj i nastavi",
     importInfo: "Ako imate postojeći rukopis, možete ga uvesti sada. Ovaj korak je opcioni — uvek možete uvesti kasnije.",
     manuscriptImported: "Rukopis uvezen", chapterOne: "poglavlje", chapterMany: "poglavlja",

@@ -12,10 +12,10 @@ import {
   type StepState,
   type SnapshotEntry,
 } from "@/lib/agents/journeys";
-import { nextSetupWorkflow } from "@/lib/onboarding/setup-surface";
+import { nextSetupWorkflow, basicsComplete } from "@/lib/onboarding/setup-surface";
 
 export interface SetupProgress {
-  basicsComplete: boolean;    // book.name && book.genre
+  basicsComplete: boolean;    // book named (genre optional)
   importComplete: boolean;    // hasChapters || setupImportSkipped
   styleComplete: boolean;     // hasFingerprint
   bibleComplete: boolean;     // hasStoryBible
@@ -325,7 +325,7 @@ export function useBookState(bookId: string): BookStateResult {
 
     // Setup wizard progress
     const setupProgress: SetupProgress = {
-      basicsComplete: !!(book?.name && book?.genre),
+      basicsComplete: basicsComplete(book),
       importComplete: hasChapters || (settingsData?.setupImportSkipped ?? false),
       styleComplete: hasFingerprint,
       bibleComplete: hasStoryBible,

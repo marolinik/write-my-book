@@ -23,6 +23,7 @@ import { getAgentStrings, workflowLabel } from "@/lib/i18n/agent-strings";
 import { getWorkflow } from "@/lib/agents/workflows";
 import {
   SETUP_STEP_TOTAL,
+  basicsComplete,
   countSetupStepsDone,
   setupSurfaceStatus,
 } from "@/lib/onboarding/setup-surface";
@@ -475,7 +476,7 @@ export default async function BookDetailPage({
         // "Getting Started" badge — a skipped import counts as resolved here
         // too, so no two surfaces can report different numbers for one state.
         const stepFlags = {
-          basicsComplete: !!(book.name && book.genre),
+          basicsComplete: basicsComplete(book),
           importComplete: book.chapters.length > 0 || (book.settings?.setupImportSkipped ?? false),
           styleComplete: hasFingerprint,
           bibleComplete: hasBible,

@@ -197,7 +197,7 @@ export const FR: UIStrings = {
     doneStep: "Terminé", doneDesc: "Tout est prêt !",
     bookName: "Nom du livre", genre: "Genre", genrePlaceholder: "Fantaisie, Science-fiction, Romance...",
     language: "Langue", languageHint: "Les agents écriront et communiqueront dans cette langue",
-    descriptionOptional: "Description (optionnel)", descriptionPlaceholder: "Un bref résumé de votre livre...",
+    genreOptional: "Genre (optionnel)", descriptionOptional: "Description (optionnel)", descriptionPlaceholder: "Un bref résumé de votre livre...",
     saveAndContinue: "Enregistrer et continuer",
     importInfo: "Si vous avez un manuscrit existant, vous pouvez l'importer maintenant. Cette étape est optionnelle — vous pouvez toujours importer plus tard.",
     manuscriptImported: "Manuscrit importé", chapterOne: "chapitre", chapterMany: "chapitres",

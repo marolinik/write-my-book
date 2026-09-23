@@ -331,7 +331,7 @@ export default function SetupPage({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="genre">{s.genre}</Label>
+                <Label htmlFor="genre">{s.genreOptional}</Label>
                 <Input
                   id="genre"
                   value={genre}

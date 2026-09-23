@@ -27,7 +27,7 @@ export const SETUP_STEP_TOTAL = 5;
 
 /** The five substantive setup steps, resolved-or-not. */
 export interface SetupStepFlags {
-  /** Book name + genre saved. */
+  /** Book named. Genre is optional: see basicsComplete. */
   basicsComplete: boolean;
   /** Manuscript imported OR import explicitly skipped. */
   importComplete: boolean;
@@ -37,6 +37,18 @@ export interface SetupStepFlags {
   bibleComplete: boolean;
   /** Architecture created. */
   archComplete: boolean;
+}
+
+/**
+ * The basics step is done once the book has a name.
+ *
+ * It used to need a genre too, and basics comes before import: a writer
+ * bringing a finished manuscript had to label it before the product had read
+ * a word. The new-book form already treats genre as optional, and the setup
+ * conversation proposes one from the chapters.
+ */
+export function basicsComplete(book: { name?: string | null; genre?: string | null } | null | undefined): boolean {
+  return !!book?.name?.trim();
 }
 
 /** How many of the five substantive setup steps are resolved (0..5). */

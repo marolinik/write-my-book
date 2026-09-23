@@ -197,7 +197,7 @@ export const RU: UIStrings = {
     doneStep: "Готово", doneDesc: "Всё готово!",
     bookName: "Название книги", genre: "Жанр", genrePlaceholder: "Фэнтези, Научная фантастика, Любовный роман...",
     language: "Язык", languageHint: "Агенты будут писать и общаться на этом языке",
-    descriptionOptional: "Описание (необязательно)", descriptionPlaceholder: "Краткое описание вашей книги...",
+    genreOptional: "Жанр (необязательно)", descriptionOptional: "Описание (необязательно)", descriptionPlaceholder: "Краткое описание вашей книги...",
     saveAndContinue: "Сохранить и продолжить",
     importInfo: "Если у вас есть существующая рукопись, вы можете импортировать её сейчас. Этот шаг необязателен — вы всегда можете импортировать позже.",
     manuscriptImported: "Рукопись импортирована", chapterOne: "глава", chapterMany: "глав",

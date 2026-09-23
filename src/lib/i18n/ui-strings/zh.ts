@@ -197,7 +197,7 @@ export const ZH: UIStrings = {
     doneStep: "完成", doneDesc: "一切就绪！",
     bookName: "书名", genre: "类型", genrePlaceholder: "奇幻、科幻、言情...",
     language: "语言", languageHint: "代理将使用此语言进行写作和交流",
-    descriptionOptional: "描述（可选）", descriptionPlaceholder: "您的书的简要摘要...",
+    genreOptional: "类型（可选）", descriptionOptional: "描述（可选）", descriptionPlaceholder: "您的书的简要摘要...",
     saveAndContinue: "保存并继续",
     importInfo: "如果您有现有稿件，可以现在导入。此步骤是可选的——您随时可以稍后导入。",
     manuscriptImported: "稿件已导入", chapterOne: "章", chapterMany: "章",

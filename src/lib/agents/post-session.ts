@@ -20,6 +20,7 @@ import { getWorkflow } from "./workflows";
 import { validatePrerequisites } from "./prerequisites";
 import { sessionCompleteDetail, detailForStorage } from "@/lib/editorial/edit-action-detail";
 import { judgeChapterAfterEdit } from "@/lib/editorial/after-edit";
+import { cascadeWarningText } from "@/lib/editorial/cascade-text";
 import {
   evaluateArtifactContract,
   filterBlockedNextSteps,
@@ -823,6 +824,12 @@ async function createCascadeWarnings(
     return null;
   }
 
+  // The warning is read by the writer, so it is written in the book's language.
+  const language =
+    ctx.language ??
+    (await db.book.findUnique({ where: { id: ctx.bookId }, select: { language: true } }))?.language ??
+    "en";
+
   let warningsCreated = 0;
 
   for (const finding of entityFindings) {
@@ -861,8 +868,7 @@ async function createCascadeWarnings(
           agentType: "cascade-warning",
           severity: "suggestion",
           category: "continuity",
-          description: `[Cascade] Ch.${ctx.chapterNumber} finding may affect this chapter: ${finding.description}`,
-          suggestion: `Review this chapter for consistency after changes in Chapter ${ctx.chapterNumber}.`,
+          ...cascadeWarningText(language, ctx.chapterNumber, finding.description),
         },
       });
       warningsCreated++;

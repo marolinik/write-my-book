@@ -100,6 +100,9 @@ export interface AgentStrings {
   /** A sentence that contradicts a fact the story bible establishes. */
   canonFinding: string;
   canonSuggestion: string;
+  /** A finding in chapter {n} that may affect this one; {finding} is its text. */
+  cascadeWarning: string;
+  cascadeWarningSuggestion: string;
   memoryHeader: string;
   sessionContinuityHeader: string;
   decisionsLabel: string;
@@ -180,6 +183,8 @@ const EN: AgentStrings = {
   stockProseSuggestion: "Read it again. If it is particular to this story and it carries, keep it; if it could sit in any book, make it yours.",
   canonFinding: "This sentence contradicts something the story bible establishes: a name, date, number, rank, place or relationship is not what the canon says.",
   canonSuggestion: "Compare it with the story bible. If the book is right and the bible is out of date, update the bible; otherwise correct the sentence.",
+  cascadeWarning: "A finding in chapter {n} may affect this chapter too: {finding}",
+  cascadeWarningSuggestion: "Reread this chapter for consistency once chapter {n} has changed.",
   memoryHeader: "IMPORTANT: The writer has told you the following. Respect these across all interactions.",
   sessionContinuityHeader: "Recent session summaries — use these to maintain continuity:",
   decisionsLabel: "Decisions",
@@ -366,6 +371,8 @@ const SR: AgentStrings = {
   stockProseSuggestion: "Pročitaj ga ponovo. Ako pripada baš ovoj priči i nosi, zadrži ga; ako bi stao u bilo koju knjigu, učini ga svojim.",
   canonFinding: "Ova rečenica protivreči nečemu što je utvrđeno u Bibliji priče: ime, datum, broj, čin, mesto ili odnos nije onakav kakav kanon kaže.",
   canonSuggestion: "Uporedi je sa Biblijom priče. Ako je knjiga u pravu a Biblija zastarela, dopuni Bibliju; ako nije, ispravi rečenicu.",
+  cascadeWarning: "Nalaz iz poglavlja {n} može da utiče i na ovo poglavlje: {finding}",
+  cascadeWarningSuggestion: "Kad se poglavlje {n} promeni, pročitaj ovo poglavlje ponovo radi doslednosti.",
   memoryHeader: "VAŽNO: Pisac ti je rekao sledeće. Poštuj ovo u svakoj interakciji.",
   sessionContinuityHeader: "Sažeci nedavnih sesija — koristi ih da održiš kontinuitet:",
   decisionsLabel: "Odluke",
@@ -552,6 +559,8 @@ const DE: AgentStrings = {
   stockProseSuggestion: "Lies ihn noch einmal. Gehört er genau zu dieser Geschichte und trägt er, behalte ihn; könnte er in jedem Buch stehen, mach ihn zu deinem.",
   canonFinding: "Dieser Satz widerspricht etwas, das die Story-Bibel festlegt: Ein Name, Datum, eine Zahl, ein Rang, Ort oder eine Beziehung stimmt nicht mit dem Kanon überein.",
   canonSuggestion: "Vergleiche ihn mit der Story-Bibel. Hat das Buch recht und ist die Bibel veraltet, aktualisiere die Bibel; sonst korrigiere den Satz.",
+  cascadeWarning: "Ein Befund aus Kapitel {n} kann auch dieses Kapitel betreffen: {finding}",
+  cascadeWarningSuggestion: "Lies dieses Kapitel noch einmal auf Stimmigkeit, sobald Kapitel {n} geändert ist.",
   memoryHeader: "WICHTIG: Der Autor hat dir Folgendes mitgeteilt. Beachte es in jeder Interaktion.",
   sessionContinuityHeader: "Zusammenfassungen der letzten Sitzungen — nutze sie für die Kontinuität:",
   decisionsLabel: "Entscheidungen",
@@ -738,6 +747,8 @@ const ES: AgentStrings = {
   stockProseSuggestion: "Reléelo. Si es propio de esta historia y funciona, consérvalo; si podría estar en cualquier libro, hazlo tuyo.",
   canonFinding: "Esta frase contradice algo que establece la biblia de la historia: un nombre, fecha, número, rango, lugar o relación no coincide con el canon.",
   canonSuggestion: "Compárala con la biblia de la historia. Si el libro tiene razón y la biblia está desactualizada, actualiza la biblia; si no, corrige la frase.",
+  cascadeWarning: "Un hallazgo del capítulo {n} puede afectar también a este capítulo: {finding}",
+  cascadeWarningSuggestion: "Vuelve a leer este capítulo por coherencia cuando cambie el capítulo {n}.",
   memoryHeader: "IMPORTANTE: El escritor te ha dicho lo siguiente. Respétalo en todas las interacciones.",
   sessionContinuityHeader: "Resúmenes de sesiones recientes — úsalos para mantener la continuidad:",
   decisionsLabel: "Decisiones",
@@ -924,6 +935,8 @@ const FR: AgentStrings = {
   stockProseSuggestion: "Relisez-le. S'il appartient à cette histoire et qu'il porte, gardez-le ; s'il pourrait figurer dans n'importe quel livre, faites-le vôtre.",
   canonFinding: "Cette phrase contredit un élément établi par la bible de l'histoire : un nom, une date, un nombre, un grade, un lieu ou une relation ne correspond pas au canon.",
   canonSuggestion: "Comparez-la avec la bible de l'histoire. Si le livre a raison et que la bible est dépassée, mettez la bible à jour ; sinon, corrigez la phrase.",
+  cascadeWarning: "Une remarque sur le chapitre {n} peut aussi concerner ce chapitre : {finding}",
+  cascadeWarningSuggestion: "Relisez ce chapitre pour sa cohérence une fois le chapitre {n} modifié.",
   memoryHeader: "IMPORTANT : l'auteur vous a indiqué ce qui suit. Respectez-le à chaque interaction.",
   sessionContinuityHeader: "Résumés des sessions récentes — utilisez-les pour maintenir la continuité :",
   decisionsLabel: "Décisions",
@@ -1110,6 +1123,8 @@ const RU: AgentStrings = {
   stockProseSuggestion: "Перечитайте его. Если он принадлежит именно этой истории и работает — оставьте; если он мог бы стоять в любой книге — сделайте его своим.",
   canonFinding: "Это предложение противоречит тому, что закреплено в библии истории: имя, дата, число, звание, место или отношения не совпадают с каноном.",
   canonSuggestion: "Сверьте его с библией истории. Если права книга, а библия устарела, обновите библию; если нет — исправьте предложение.",
+  cascadeWarning: "Замечание к главе {n} может касаться и этой главы: {finding}",
+  cascadeWarningSuggestion: "Перечитайте эту главу на согласованность, когда глава {n} изменится.",
   memoryHeader: "ВАЖНО: писатель сообщил вам следующее. Учитывайте это во всех взаимодействиях.",
   sessionContinuityHeader: "Сводки недавних сессий — используйте их для преемственности:",
   decisionsLabel: "Решения",
@@ -1296,6 +1311,8 @@ const ZH: AgentStrings = {
   stockProseSuggestion: "再读一遍。如果它属于这个故事并且立得住，就保留；如果它可以放进任何一本书，就把它改成你自己的。",
   canonFinding: "这句话与故事圣经确立的内容相矛盾：某个名字、日期、数字、军衔、地点或关系与设定不符。",
   canonSuggestion: "请与故事圣经对照。如果书是对的而圣经过时了，就更新圣经；否则请修改这句话。",
+  cascadeWarning: "第 {n} 章的一条发现可能也会影响本章：{finding}",
+  cascadeWarningSuggestion: "第 {n} 章修改后，请重读本章以确保前后一致。",
   memoryHeader: "重要：作者已告知以下内容。在所有交互中都要遵守。",
   sessionContinuityHeader: "近期会话摘要——用它们保持连续性：",
   decisionsLabel: "决定",
