@@ -305,6 +305,10 @@ describe("undoStructureMove — restoring into occupied numbers", () => {
   it("parks the restored chapter past the last live number instead of colliding", async () => {
     const res = await undoStructureMove("m1", opts);
     expect(res.ok).toBe(true);
+    // Step 0: "accept all, then undo 5 of 8" was invisible without a time.
+    const done = h.db.structureMove.update.mock.calls.at(-1)?.[0].data;
+    expect(done.status).toBe("undone");
+    expect(done.undoneAt).toBeInstanceOf(Date);
 
     const taken = afterMerge.map((c) => c.chapterNumber);
     const created = h.db.chapter.create.mock.calls[0][0].data;

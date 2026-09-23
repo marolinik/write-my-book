@@ -302,4 +302,10 @@ describe("undo finding (POST) — Finding A exact-location reversal", () => {
     expect(h.db.editFinding.update.mock.calls[0][0].data.status).toBe("pending");
     expect(json.note).toMatch(/left as-is/);
   });
+
+  it("clears the dismissal time with the rest of the decision", async () => {
+    h.db.editFinding.findFirst.mockResolvedValue(appliedFinding({ status: "dismissed", originalText: null, newText: null }));
+    await UNDO(req({}, true), makeCtx({ id: "b1", findingId: "f1" }));
+    expect(h.db.editFinding.update.mock.calls[0][0].data).toMatchObject({ status: "pending", dismissedAt: null });
+  });
 });

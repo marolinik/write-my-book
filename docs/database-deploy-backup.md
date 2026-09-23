@@ -41,6 +41,7 @@ npm run db:push:prod
 1. `npm run db:deploy:check`
 2. `npx prisma generate`
 3. `npx prisma db push`
+4. `npm run db:guards` — applies `scripts/db-guards.sql`: triggers Prisma cannot express. Today that makes `edit_actions` append-only while its book exists (the writer's decision log; 126 rows were lost locally on 2026-09-23, cause unknown). Idempotent; run it alone after any manual `prisma db push`.
 
 ## Backup sidecar
 

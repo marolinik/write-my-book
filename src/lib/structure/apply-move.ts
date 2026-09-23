@@ -437,7 +437,7 @@ export async function undoStructureMove(
 
     await db.structureMove.update({
       where: { id: moveId },
-      data: { status: "undone", resultSummary: "Undone." },
+      data: { status: "undone", resultSummary: "Undone.", undoneAt: new Date() },
     });
 
     return { ok: true, summary: "Undone." };

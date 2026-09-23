@@ -313,6 +313,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
         : {
             status: "dismissed",
             dismissReason: data.reason ?? null,
+            dismissedAt: new Date(),
           };
 
     const updated = await db.editFinding.update({

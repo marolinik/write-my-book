@@ -534,6 +534,9 @@ model EditFinding {
   locationEnd     String?   @map("location_end")
   status          String    @default("pending") // pending, applied, dismissed
   dismissReason   String?   @map("dismiss_reason")
+  // When the writer dismissed it. Without it, time-to-decision and every
+  // behavioural pattern built on it could not be measured.
+  dismissedAt     DateTime? @map("dismissed_at")
   appliedAt       DateTime? @map("applied_at")
   createdAt       DateTime  @default(now()) @map("created_at")
   contentHash     String?   @map("content_hash")
@@ -587,6 +590,8 @@ model StructureMove {
   rejectionReason String? @map("rejection_reason") @db.Text
   decidedAt     DateTime? @map("decided_at")
   appliedAt     DateTime? @map("applied_at")
+  // "Accept all, then undo" is a pattern only a timestamp can show.
+  undoneAt      DateTime? @map("undone_at")
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
 

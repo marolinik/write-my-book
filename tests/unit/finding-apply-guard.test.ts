@@ -141,6 +141,14 @@ describe("PATCH finding — dismiss vs reject separation (D-55)", () => {
     // dismissal conflates the two intents and corrupts analytics (D-55).
     expect(data.rejectedAt).toBeUndefined();
   });
+
+  it("records WHEN the writer dismissed it, so behaviour can be measured at all", async () => {
+    // Step 0 of adapting to the writer: the product knew that a finding was
+    // dismissed and never when. Time-to-decision could not be measured.
+    h.db.editFinding.findFirst.mockResolvedValue(finding());
+    await PATCH(req({ action: "dismiss" }) as never, ctx as never);
+    expect(h.db.editFinding.update.mock.calls[0][0].data.dismissedAt).toBeInstanceOf(Date);
+  });
 });
 
 describe("PATCH finding — a replacement that carries an editor's note", () => {

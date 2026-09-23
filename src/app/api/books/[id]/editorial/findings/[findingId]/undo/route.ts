@@ -172,6 +172,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         appliedAt: null,
         rejectedAt: null,
         dismissReason: null,
+        dismissedAt: null,
       },
     });
 
