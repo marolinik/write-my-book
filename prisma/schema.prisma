@@ -237,6 +237,7 @@ model Book {
   sessionBriefs   SessionBrief[]
   suggestionFeedback SuggestionFeedback[]
   continuityFlags ContinuityFlag[]
+  canonChecks     CanonCheck[]
   batchRuns       BatchRun[]
   sharedSnapshots SharedSnapshot[]
   structureMoves  StructureMove[]
@@ -593,6 +594,25 @@ model StructureMove {
 
   @@index([bookId, status])
   @@map("structure_moves")
+}
+
+// ─── CANON CHECK CACHE ──────────────────────────────────────────
+// One row per paragraph already judged against one version of the story
+// bible, so the check that runs while the writer types only asks about
+// paragraphs that changed. A new bible means new hashes: everything is
+// asked again, because the canon it was judged against is gone.
+model CanonCheck {
+  id            String   @id @default(uuid())
+  bookId        String   @map("book_id")
+  paragraphHash String   @map("paragraph_hash")
+  bibleHash     String   @map("bible_hash")
+  contradiction Float
+  checkedAt     DateTime @default(now()) @map("checked_at")
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([bookId, paragraphHash, bibleHash])
+  @@map("canon_checks")
 }
 
 // ─── LIVE CONTINUITY NET (Tier 4.4) ─────────────────────────────

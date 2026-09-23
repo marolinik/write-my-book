@@ -28,3 +28,15 @@ export async function readVoiceFingerprint(bookId: string): Promise<string | nul
   const { getBookStorage } = await import("@/lib/storage");
   return getBookStorage(doc.book.userId, bookId).read(doc.storageKey);
 }
+
+/** The book's canon, when it has one. */
+export async function readStoryBible(bookId: string): Promise<string | null> {
+  const { db } = await import("@/lib/db");
+  const doc = await db.document.findFirst({
+    where: { bookId, type: "STORY_BIBLE" },
+    select: { storageKey: true, book: { select: { userId: true } } },
+  });
+  if (!doc?.book) return null;
+  const { getBookStorage } = await import("@/lib/storage");
+  return getBookStorage(doc.book.userId, bookId).read(doc.storageKey);
+}

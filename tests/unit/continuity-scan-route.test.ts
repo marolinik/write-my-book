@@ -15,6 +15,7 @@ const h = vi.hoisted(() => ({
   getChapterNodeUpdatedAt: vi.fn(),
   findByType: vi.fn(),
   readPinned: vi.fn(),
+  checkChapterCanon: vi.fn(),
 }));
 
 vi.mock("@/lib/auth", () => ({ requireUser: () => h.requireUser() }));
@@ -38,6 +39,8 @@ vi.mock("@/lib/documents/document-service", () => ({
   },
 }));
 vi.mock("@/generated/prisma/enums", () => ({ DocumentType: { CHAPTER_CONTENT: "CHAPTER_CONTENT" } }));
+
+vi.mock("@/lib/continuity/canon-check-service", () => ({ checkChapterCanon: h.checkChapterCanon }));
 
 import { POST } from "@/app/api/books/[id]/continuity/scan/route";
 
@@ -70,6 +73,7 @@ beforeEach(() => {
   h.findByType.mockResolvedValue({ id: "doc1" });
   h.readPinned.mockResolvedValue({ content: "Ana walked in.", document: { currentVersion: 1 } });
   h.runConsistencyChecks.mockResolvedValue([deadIssue]);
+  h.checkChapterCanon.mockResolvedValue({ judged: 0, cached: 0, flagged: 0 });
 });
 
 describe("POST /continuity/scan", () => {
@@ -244,5 +248,20 @@ describe("POST /continuity/scan", () => {
       const del = h.db.continuityFlag.deleteMany.mock.calls[0][0];
       expect(del.where.id.in).not.toContain("f7");
     }
+  });
+});
+
+describe("POST /continuity/scan — the canon check rides the idle scan", () => {
+  it("checks the chapter against the story bible in the background", async () => {
+    const res = await POST(req("?chapterNumber=18") as never, ctx as never);
+    expect(res.status).toBe(200);
+    expect(h.checkChapterCanon).toHaveBeenCalledWith({ bookId: "b1", chapterNumber: 18 });
+  });
+
+  it("answers the scan normally when the canon check breaks", async () => {
+    h.checkChapterCanon.mockRejectedValue(new Error("boom"));
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const res = await POST(req("?chapterNumber=18") as never, ctx as never);
+    expect(res.status).toBe(200);
   });
 });

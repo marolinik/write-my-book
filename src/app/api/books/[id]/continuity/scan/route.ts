@@ -19,6 +19,7 @@ import {
   type ExtractionStatusView,
 } from "@/lib/continuity/extraction-status";
 import { planFlagSync, type ExistingFlag } from "@/lib/continuity/flag-sync";
+import { checkChapterCanon } from "@/lib/continuity/canon-check-service";
 
 export const dynamic = "force-dynamic";
 
@@ -48,6 +49,13 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     const book = await db.book.findFirst({ where: { id: bookId, userId: user.id } });
     if (!book) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+    // The canon check: paragraphs changed since the last scan, judged against
+    // the story bible. Background, like extraction; off without its flag,
+    // and nothing it does can fail the scan.
+    void checkChapterCanon({ bookId, chapterNumber }).catch((e) =>
+      console.error("[continuity-scan] canon check failed:", e)
+    );
 
     // ── Throttled graph refresh (best-effort; failure never 500s). ──
     // Track WHY extraction did or didn't run so the response can report an
