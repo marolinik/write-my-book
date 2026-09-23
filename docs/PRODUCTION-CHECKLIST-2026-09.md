@@ -29,6 +29,9 @@ The push is cumulative: it brings production to the current `prisma/schema.prism
 | `edit_findings.dismissed_at` | when the writer dismissed a note |
 | `structure_moves.undone_at` | when a structure move was undone |
 | `canon_checks` table | cache for the story-bible check |
+| **removed:** `book_settings.language` | a second, unused copy of the book's language (default `en`); `books.language` is the only one read |
+
+**Expected data-loss warning:** dropping `book_settings.language` makes Prisma stop and ask for confirmation (or, non-interactively, fail with a hint to use `--accept-data-loss`). The column holds nothing anyone reads, so confirm. If the push runs non-interactively, run `npx prisma db push --accept-data-loss` and then `npm run db:guards`.
 
 `db:push:prod` now ends with `npm run db:guards`. That step installs the triggers that keep `edit_actions` append-only while its book exists, and it is idempotent. After any **manual** `prisma db push`, run `npm run db:guards` yourself.
 
@@ -82,4 +85,3 @@ Every Jev pass is **off** unless its flag is `1` **and** `TYPESAFE_API_KEY` is s
 
 - **The cause of the local `edit_actions` loss** (126 rows, 2026-09-23) was not found. The trigger now prevents a repeat.
 - 5 already-decided findings on one local book still point at a chapter number that no longer exists after a restructure.
-- `BookSettings.language` defaults to `en` and appears unused. The book's own `language` is what every surface reads.

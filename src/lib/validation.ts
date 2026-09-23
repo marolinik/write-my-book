@@ -158,7 +158,6 @@ export const updateSettingsSchema = z.object({
   betaPanelSize: z.number().int().min(3).max(10).optional(),
   betaConsensus: z.number().int().min(50).max(100).optional(),
   betaConvergence: z.number().int().min(50).max(100).optional(),
-  language: bookLanguageSchema.optional(),
   journeyId: z.string().max(50).nullable().optional(),
   journeyStepsSnapshot: z.string().max(10000).nullable().optional(),
   // Setup wizard flags (D-35). The wizard PATCHes {setupImportSkipped: true}

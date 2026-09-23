@@ -31,7 +31,6 @@ export type BookSettingsData = {
   betaPanelSize: number;
   betaConsensus: number;
   betaConvergence: number;
-  language: string;
   /**
    * Setup-wizard flags (D-35). Typed here so the wizard can persist them
    * through this mutation instead of hand-rolling a PATCH — a raw fetch left
