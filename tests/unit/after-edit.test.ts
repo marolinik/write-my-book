@@ -20,6 +20,12 @@ function mockPasses(opts: { stockThrows?: boolean } = {}) {
       return { judged: 1, marked: 1, requests: 1 };
     }),
   }));
+  vi.doMock("@/lib/editorial/fix-check-service", () => ({
+    checkChapterHandFixes: vi.fn(async () => {
+      calls.push("fixes");
+      return { checked: 0 };
+    }),
+  }));
   vi.doMock("@/lib/editorial/triage-service", () => ({
     triageChapter: vi.fn(async () => {
       calls.push("triage");
@@ -39,14 +45,14 @@ describe("judgeChapterAfterEdit", () => {
     const calls = mockPasses();
     const { judgeChapterAfterEdit } = await import("@/lib/editorial/after-edit");
     await judgeChapterAfterEdit({ workflowId: "line-edit", bookId: "b", chapterNumber: 3, sessionId: "s" });
-    expect(calls).toEqual(["stock", "triage"]);
+    expect(calls).toEqual(["fixes", "stock", "triage"]);
   });
 
   it("only ranks after a developmental edit: stock prose is a line-level concern", async () => {
     const calls = mockPasses();
     const { judgeChapterAfterEdit } = await import("@/lib/editorial/after-edit");
     await judgeChapterAfterEdit({ workflowId: "dev-edit", bookId: "b", chapterNumber: 3, sessionId: "s" });
-    expect(calls).toEqual(["triage"]);
+    expect(calls).toEqual(["fixes", "triage"]);
   });
 
   it("does nothing for a session that produced no editorial findings", async () => {
@@ -63,6 +69,6 @@ describe("judgeChapterAfterEdit", () => {
     await expect(
       judgeChapterAfterEdit({ workflowId: "line-edit", bookId: "b", chapterNumber: 3, sessionId: "s" })
     ).resolves.toBeUndefined();
-    expect(calls).toEqual(["stock", "triage"]);
+    expect(calls).toEqual(["fixes", "stock", "triage"]);
   });
 });

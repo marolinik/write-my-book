@@ -6,9 +6,10 @@
  * are fresh, the prose is current, and the writer is about to open Lektura:
  * that is when to judge.
  *
- * The stock-prose pass runs first because it writes findings, and triage must see
- * them. Each pass switches itself off without its env flag, and neither may
- * fail the session that called it.
+ * Hand-applied notes are checked first. The stock-prose pass runs before
+ * triage because it writes findings, and triage must see them. Each pass
+ * switches itself off without its env flag, and none may fail the session
+ * that called it.
  */
 
 const STOCK_PROSE_WORKFLOWS = new Set(["line-edit"]);
@@ -21,6 +22,17 @@ export async function judgeChapterAfterEdit(input: {
   sessionId: string;
 }): Promise<void> {
   const { workflowId, bookId, chapterNumber, sessionId } = input;
+
+  // Notes the writer applied by hand since the last pass: did they hold?
+  // First, so a fix that did not hold is known before new notes pile on.
+  if (TRIAGE_WORKFLOWS.has(workflowId)) {
+    try {
+      const { checkChapterHandFixes } = await import("./fix-check-service");
+      await checkChapterHandFixes({ bookId, chapterNumber });
+    } catch (error) {
+      console.error("[AfterEdit] hand-fix check failed (non-fatal):", error instanceof Error ? error.message : error);
+    }
+  }
 
   if (STOCK_PROSE_WORKFLOWS.has(workflowId)) {
     try {

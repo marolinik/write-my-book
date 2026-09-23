@@ -7,7 +7,13 @@
  * left it. An unchecked fix is shown as it always was.
  */
 
-import { buildFixCheckRequest, readFixCheck, unchangedPassage } from "./fix-check";
+import {
+  buildFixCheckRequest,
+  readFixCheck,
+  unchangedPassage,
+  locateRevisedPassage,
+} from "./fix-check";
+import { readChapterText } from "./book-evidence";
 
 // A first request after idle took over 5 s on the owner's machine; 8 s keeps a
 // cold start from leaving a fix unchecked without making the click feel stuck.
@@ -70,4 +76,60 @@ async function judge(
   } finally {
     if (timer) clearTimeout(timer);
   }
+}
+
+/** Never re-judge more than this many hand-applied notes on one pass. */
+const MAX_HAND_CHECKS = 12;
+
+/**
+ * Check the notes the writer applied by hand on one chapter.
+ *
+ * At the click the text has often not changed yet, so this runs on the
+ * chapter's next editorial pass. It finds what became of each quoted passage
+ * and asks the same question as an auto-apply. A passage still there verbatim
+ * is answered without a judge; one that cannot be found is left unchecked
+ * rather than guessed. A note that did not hold last time is asked again,
+ * because the writer may have revised since.
+ */
+export async function checkChapterHandFixes(input: {
+  bookId: string;
+  chapterNumber: number;
+  env?: Record<string, string | undefined>;
+}): Promise<{ checked: number }> {
+  const env = input.env ?? process.env;
+  if (!fixCheckConfigured(env)) return { checked: 0 };
+
+  const { db } = await import("@/lib/db");
+  const findings = await db.editFinding.findMany({
+    where: {
+      bookId: input.bookId,
+      chapterNumber: input.chapterNumber,
+      status: "applied",
+      locationStart: null,
+      anchorQuote: { not: null },
+      OR: [{ fixCheckedAt: null }, { fixRemains: { gte: 0.5 } }],
+    },
+    select: { id: true, category: true, description: true, suggestion: true, anchorQuote: true },
+    orderBy: { appliedAt: "desc" },
+    take: MAX_HAND_CHECKS,
+  });
+  if (findings.length === 0) return { checked: 0 };
+
+  const chapter = await readChapterText(input.bookId, input.chapterNumber);
+  if (!chapter) return { checked: 0 };
+
+  const results = await Promise.all(
+    findings.map(async (finding) => {
+      const quote = finding.anchorQuote as string;
+      const found = locateRevisedPassage(quote, chapter);
+      if (!found) return null;
+      return checkAppliedFix({
+        finding,
+        before: quote,
+        after: found.unchanged ? quote : found.text,
+        env,
+      });
+    })
+  );
+  return { checked: results.filter((r) => r !== null).length };
 }

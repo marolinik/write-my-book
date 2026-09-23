@@ -83,3 +83,71 @@ export function fixVerdict(remains: number | null | undefined): FixVerdict {
   if (remains >= NOT_HELD_FROM) return "not-held";
   return "unsure";
 }
+
+/**
+ * Below this, the best window shares too little of the quote to be its
+ * rewrite. Heavy but genuine rewrites on the measured data sat at 0.38; a
+ * quote matched to an unrelated passage sat under 0.3.
+ */
+const MIN_REWRITE_SIMILARITY = 0.3;
+
+export interface LocatedPassage {
+  unchanged: boolean;
+  text: string;
+  similarity: number;
+}
+
+function words(text: string): string[] {
+  return normalise(text).toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [];
+}
+
+function sentences(text: string): string[] {
+  return text
+    .split(/\n\n+/)
+    .flatMap((p) => p.match(/[^.!?…]+[.!?…]+["'”»)]*|[^.!?…]+$/g) ?? [])
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+/** Shared words over total words, counting repeats: long windows earn nothing for length. */
+function dice(a: readonly string[], b: readonly string[]): number {
+  const counts = new Map<string, number>();
+  for (const w of a) counts.set(w, (counts.get(w) ?? 0) + 1);
+  let shared = 0;
+  for (const w of b) {
+    const c = counts.get(w) ?? 0;
+    if (c > 0) {
+      shared++;
+      counts.set(w, c - 1);
+    }
+  }
+  return (2 * shared) / (a.length + b.length || 1);
+}
+
+/**
+ * What became of a quoted passage after the writer revised by hand.
+ *
+ * Measured on 14 hand-applied findings: whole-paragraph word overlap matched a
+ * short quote to a long unrelated paragraph; a window of about as many
+ * sentences as the quote, scored by Dice, found the rewrite every time.
+ * Returns null rather than guess when nothing is close enough.
+ */
+export function locateRevisedPassage(quote: string, chapter: string): LocatedPassage | null {
+  if (normalise(chapter).toLowerCase().includes(normalise(quote).toLowerCase())) {
+    return { unchanged: true, text: quote, similarity: 1 };
+  }
+  const all = sentences(chapter);
+  const size = Math.max(1, sentences(quote).length);
+  const quoteWords = words(quote);
+
+  let best: LocatedPassage | null = null;
+  for (const width of [size - 1, size, size + 1]) {
+    if (width < 1) continue;
+    for (let i = 0; i + width <= all.length; i++) {
+      const text = all.slice(i, i + width).join(" ");
+      const similarity = dice(quoteWords, words(text));
+      if (!best || similarity > best.similarity) best = { unchanged: false, text, similarity };
+    }
+  }
+  return best && best.similarity >= MIN_REWRITE_SIMILARITY ? best : null;
+}

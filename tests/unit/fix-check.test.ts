@@ -19,6 +19,7 @@ import {
   readFixCheck,
   fixVerdict,
   unchangedPassage,
+  locateRevisedPassage,
 } from "@/lib/editorial/fix-check";
 
 const note = {
@@ -79,5 +80,47 @@ describe("fixVerdict — policy, apart from the judgement", () => {
 
   it("does not claim either answer in the middle", () => {
     expect(fixVerdict(0.52)).toBe("unsure");
+  });
+});
+
+/**
+ * When the writer revises by hand there is no stored "after": the product has
+ * to find what became of the quoted passage. Measured on 14 hand-applied
+ * findings: a whole-paragraph word overlap matched a short quote to a long
+ * unrelated paragraph (1.00 for a different scene); a window of as many
+ * sentences as the quote, scored by Dice, found the rewrite every time,
+ * including two heavy rewrites at 0.38.
+ */
+describe("locateRevisedPassage", () => {
+  const chapter = [
+    "Bez najave, kraj stola je stao posrednik. Kožnu torbu je položio na sto i čekao, a Đorđe ga nije pogledao.",
+    "Spustio je zamotuljak pred Đorđa. Izvukao je stolicu do pola i ostao tako, ni za stolom ni van njega.",
+    "Vetar ih je dočekao čim su izašli iz kafane.",
+  ].join("\n\n");
+
+  it("says unchanged when the quote is still there, whatever the spacing", () => {
+    const found = locateRevisedPassage("Vetar ih je  dočekao čim su izašli iz kafane.", chapter);
+    expect(found).toMatchObject({ unchanged: true });
+  });
+
+  it("finds the rewrite of the quote, not a longer paragraph that shares its words", () => {
+    const found = locateRevisedPassage(
+      "Spustio je zamotuljak pred Đorđa, izvukao stolicu do pola i ostao tako, ni za stolom ni van njega.",
+      chapter
+    );
+    expect(found?.unchanged).toBe(false);
+    expect(found?.text).toBe(
+      "Spustio je zamotuljak pred Đorđa. Izvukao je stolicu do pola i ostao tako, ni za stolom ni van njega."
+    );
+  });
+
+  it("finds a heavy rewrite that keeps only part of the wording", () => {
+    const text = "Iz unutrašnjeg džepa šinjela izvukao je kožnu futrolu, pripremljenu još pre hapšenja, u dan kad je sve počelo.\n\nNešto sasvim drugo.";
+    const found = locateRevisedPassage("Iz nedara je izvukao kožnu futrolu, pripremljenu još pre hapšenja.", text);
+    expect(found?.text.startsWith("Iz unutrašnjeg džepa")).toBe(true);
+  });
+
+  it("finds nothing rather than guess when the passage is gone", () => {
+    expect(locateRevisedPassage("Negde iznad Sredozemlja leteo je avion pun putnika.", chapter)).toBeNull();
   });
 });
