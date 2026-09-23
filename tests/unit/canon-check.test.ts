@@ -45,7 +45,7 @@ describe("buildCanonRequests", () => {
 });
 
 describe("readCanonAnswers and selectContradictions", () => {
-  it("keeps the probability per paragraph and flags from 0.5", () => {
+  it("keeps the probability per paragraph and flags from 0.6", () => {
     const judged = readCanonAnswers(
       { p0: { type: "noul", noul: 0.92 }, p1: { type: "noul", noul: 0.35 } },
       passages.slice(0, 2)
@@ -55,6 +55,12 @@ describe("readCanonAnswers and selectContradictions", () => {
       { paragraphNumber: 2, text: "Pasus 1.", contradiction: 0.35 },
     ]);
     expect(selectContradictions(judged).map((j) => j.paragraphNumber)).toEqual([1]);
+  });
+
+  it("leaves alone the three paragraphs the owner ruled consistent with his canon", () => {
+    const ruled = [0.52, 0.51, 0.56].map((contradiction, i) => ({ paragraphNumber: i + 1, text: "x", contradiction }));
+    expect(selectContradictions(ruled)).toEqual([]);
+    expect(selectContradictions([{ paragraphNumber: 9, text: "x", contradiction: 0.63 }])).toHaveLength(1);
   });
 
   it("skips answers that did not come back", () => {

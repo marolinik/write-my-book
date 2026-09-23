@@ -24,8 +24,12 @@ import { createHash } from "node:crypto";
 /** Measured, not chosen: more questions per request and position starts to decide. */
 export const PARAGRAPHS_PER_REQUEST = 6;
 
-/** Flipped facts started at 0.63; real prose topped out at 0.35. */
-const CONTRADICTION_FROM = 0.5;
+/**
+ * Flipped facts started at 0.63. Over the owner's whole book (2462 paragraphs)
+ * three paragraphs judged 0.51-0.56, and the owner ruled all three consistent
+ * with the canon. 0.6 sits between what he rejected and what was planted.
+ */
+const CONTRADICTION_FROM = 0.6;
 
 export interface CanonPassage {
   paragraphNumber: number;
