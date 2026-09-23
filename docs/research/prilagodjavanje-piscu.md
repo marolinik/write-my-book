@@ -56,7 +56,10 @@ Ništa od ovoga ne zahteva model osim pravila. To je namerno.
 
 ## Predlozi po prioritetu
 
-### P1 — Lektura rangirana po tome šta *ti* prihvataš *(najveći efekat, mali rizik)*
+> **Odluka vlasnika, 23. 9. 2026:** P1 se ne gradi, a ni ostali predlozi ne smeju da **izvode obrazac** iz ponašanja i da po njemu menjaju šta pisac vidi. Nekoliko odluka nije obrazac; rang po prošlim odlukama bi zakucao nešto što ne mora biti tačno i onda bi se sam potvrđivao (pisac ne vidi ono što bi možda prihvatio). Prilagođavanje ostaje tamo gde pisac **sam kaže** (pravila iz niti, bez duplikata; vidljiv razlog na kartici). Predlozi P3–P8 važe samo kao ponuda koju pisac bira, nikad kao pravilo izvedeno iz njegovog ponašanja.
+
+
+### P1 — ~~Lektura rangirana po tome šta *ti* prihvataš~~ *(odbačeno: zakucava obrazac koji ne mora da postoji)*
 Trijaža danas meri „koliko bi ovo pomoglo čitaocu". Dodati drugu osu: **koliko ovaj pisac prihvata ovu vrstu primedbe.** Tvoj slučaj: zanat gore, tvrdnje o svetu niže (ali ne sakriveno — kontinuitet greške postoje).
 - Jev: ne treba novi sud; rang = uticaj × prior po kategoriji. Politika u kodu, kao i sad.
 - Mera uspeha: stopa odluka i vreme do odluke po sesiji.
