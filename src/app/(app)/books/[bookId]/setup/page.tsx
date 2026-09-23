@@ -120,6 +120,7 @@ export default function SetupPage({
     if (book) {
       setName(book.name ?? "");
       setGenre(book.genre ?? "");
+      setDescription(book.description ?? "");
       setLanguage(book.language ?? "en");
     }
   }, [book]);
@@ -133,6 +134,7 @@ export default function SetupPage({
     await updateBook.mutateAsync({
       name: name || undefined,
       genre: genre || undefined,
+      description: description.trim() || null,
       language: language || undefined,
     });
     next();

@@ -31,6 +31,7 @@ export type BookListItem = {
 };
 
 export type BookDetail = BookListItem & {
+  description: string | null;
   chapters: Array<{
     id: string;
     bookId: string;
@@ -119,6 +120,7 @@ export function useUpdateBook(bookId: string) {
     mutationFn: (data: {
       name?: string;
       genre?: string | null;
+      description?: string | null;
       language?: string;
       status?: string;
       pinned?: boolean;

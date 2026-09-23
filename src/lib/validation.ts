@@ -37,6 +37,7 @@ export const createBookSchema = z.object({
 export const updateBookSchema = z.object({
   name: z.string().min(1).max(200).optional(),
   genre: z.string().max(50).nullable().optional(),
+  description: z.string().max(5000).nullable().optional(),
   language: bookLanguageSchema.optional(),
   status: z
     .enum([

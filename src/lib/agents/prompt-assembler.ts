@@ -1316,13 +1316,15 @@ Check character facts, timeline, geography, world rules and paid-off foreshadowi
   // Direct conversation workflows — Coach handles directly, NO delegation
   "coach": "Open-ended writing conversation. Do NOT delegate to any specialist — handle this yourself. Use your expertise as a writing mentor to guide the user.",
   "new-novel": "Guide the user through concept creation for a new novel. If the book ALREADY has chapters (an imported manuscript), do not interview the writer from scratch: read the manuscript first and propose the concept you find in it (logline, premise, protagonist, conflict, themes) for the writer to correct, then save it. Handle this directly — ask about premise, characters, themes, genre. Help them build the foundation. Once you've gathered enough (at minimum: genre, one-sentence premise, protagonist + want/stake, and a sense of the central conflict), you MUST call WriteDocument with documentType='CONCEPT' to save the concept (logline + premise + protagonist + central conflict + themes). Pasting the concept into chat does NOT save it. After writing CONCEPT, tell the user the concept is saved and suggest creating the synopsis (write-synopsis) next, then the story bible.",
-  "create-story-bible": "Build the story bible conversationally with the user. Handle this directly — walk through characters, world rules, themes, and history. You MUST call WriteDocument with documentType='STORY_BIBLE' to save it — pasting the story bible into the chat does NOT save it, and every later step (build-architecture, dev-edit) is blocked until that document exists. Never tell the user the story bible is complete or ready unless you have called WriteDocument in this session. TARGET SIZE: 2,000–4,000 words (max 5,000). Use tables for character lists (name, role, arc). Be a concise reference doc, not an encyclopedia.",
+  "create-story-bible": "Build the story bible conversationally with the user. Handle this directly — walk through characters, world rules, themes, and history. If the book ALREADY has chapters, call ReadAllChapters first and draft the bible from what they establish; ask the writer only about what the chapters leave open, instead of interviewing them about characters they have already written. You MUST call WriteDocument with documentType='STORY_BIBLE' to save it — pasting the story bible into the chat does NOT save it, and every later step (build-architecture, dev-edit) is blocked until that document exists. Never tell the user the story bible is complete or ready unless you have called WriteDocument in this session. TARGET SIZE: 2,000–4,000 words (max 5,000). Use tables for character lists (name, role, arc). Be a concise reference doc, not an encyclopedia.",
   "discuss-chapter": "Discuss the chapter's direction with the user. Handle directly — explore themes, character arcs, key scenes, and emotional beats. When ready, suggest plan-chapter.",
   "discuss-edits": "Review findings with the user. Handle directly — read the existing findings and discuss which to apply, which to reject, and why. Help the user make editorial decisions.",
   "freewrite": "Let the user write freely. Handle directly — offer encouragement, light suggestions, and creative prompts. Do not impose structure.",
 
   // Onboarding workflows
   "onboard-new-book": `You are guiding a writer through setting up a brand new book. This is a CONVERSATIONAL onboarding — you gather information, then delegate to specialists to create foundational documents.
+
+IF THE BOOK ALREADY HAS CHAPTERS (an established_by_the_manuscript section is present, or ReadAllChapters returns chapters): do not interview the writer from scratch. Call ReadAllChapters first, then open with what you found — the genre you would propose, the premise, the protagonist and what they want — for the writer to confirm or correct. Ask only about what the chapters leave open. Do not ask for a writing sample: the chapters are the sample, and capture-style reads them. Then go to PHASE 2.
 
 PHASE 1 — GATHER INFORMATION (handle directly, do NOT delegate yet):
 1. Open warmly: "Tell me about your book! What's the story you want to tell?"
@@ -1395,6 +1397,9 @@ RULES:
 6. For conversational tasks (discuss chapter, brainstorm, etc.) handle directly — no delegation needed.
 7. Never refuse a delegation request. If the user asks for it, do it.`,
 };
+
+/** Setup conversations that should not ask what the chapters already say. */
+const SETUP_WORKFLOWS = new Set(["onboard-new-book", "create-story-bible", "new-novel"]);
 
 /**
  * Build the conductor system prompt for the Writing Coach when it has a target workflow.
@@ -2335,6 +2340,17 @@ export async function assembleAgentPrompt(
         context.language ?? "en"
       )
     );
+  }
+
+  // Setup conversations start from what the manuscript already settles, so
+  // the writer is not asked for the point of view their chapters are written
+  // in. Off without its flag; null (nothing to add) whenever unsure or failed.
+  if (definition.type === "writing-coach" && context.targetWorkflowId && SETUP_WORKFLOWS.has(context.targetWorkflowId)) {
+    const { readManuscriptFacts } = await import("@/lib/setup/manuscript-facts-service");
+    const { factsSection } = await import("@/lib/setup/manuscript-facts");
+    const facts = await readManuscriptFacts(context.bookId);
+    const section = facts ? factsSection(facts) : null;
+    if (section) instructions.push(section);
   }
 
   // A-32: the mirror of the tool-grant contract. Thirteen granted tools were
