@@ -76,7 +76,7 @@ export const WORKFLOW_TOKEN_ESTIMATES: Record<string, TokenEstimate> = {
   "create-series-bible": { inputMin: 80000,  inputMax: 250000,  outputMin: 15000,  outputMax: 40000 },
   "create-series-architecture": { inputMin: 80000, inputMax: 250000, outputMin: 15000, outputMax: 40000 },
   "check-series-continuity":    { inputMin: 100000, inputMax: 400000, outputMin: 10000, outputMax: 30000 },
-  "continuity-check":    { inputMin: 100000, inputMax: 400000,  outputMin: 10000,  outputMax: 30000 },
+  "check-continuity":    { inputMin: 100000, inputMax: 400000,  outputMin: 10000,  outputMax: 30000 },
 };
 
 /** Default token estimate for unknown workflows. */

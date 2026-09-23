@@ -367,7 +367,7 @@ export function generateAlerts(
       severity: "warning",
       message: `Chapter ${chNum} may be inconsistent with recent upstream changes.`,
       chapterNumber: chNum,
-      actionWorkflow: "continuity-check",
+      actionWorkflow: "check-continuity",
     });
   }
 

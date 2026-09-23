@@ -160,7 +160,7 @@ async function deriveSuggestedNext(
       return ["build-architecture", "capture-style"];
     case "publishing-check":
       return [];
-    case "continuity-check":
+    case "check-continuity":
       return ["revise"];
     case "market-analysis":
       return [];

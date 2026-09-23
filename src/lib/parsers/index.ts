@@ -39,7 +39,7 @@ export function parseAgentOutput(
         return { type: "analysis", data, parseSuccess: true };
       }
 
-      case "continuity-check": {
+      case "check-continuity": {
         const timelineContent = extraFiles?.get("timeline") ?? null;
         const subplotsContent = extraFiles?.get("subplots") ?? null;
         const foreshadowingContent = extraFiles?.get("foreshadowing") ?? null;
