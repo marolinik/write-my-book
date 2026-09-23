@@ -25,6 +25,30 @@ describe("buildDiscussPrompt", () => {
   });
 });
 
+/**
+ * On the owner's Serbian book 4 of 8 replies came back in English, all opening
+ * "Understood —", and 2 of 5 remembered rules were stored in English. Every
+ * one followed a message typed without diacritics ("pecatnjak", "razlicita").
+ * The language line said "write in Serbian, match the surrounding prose",
+ * which reads as a rule for the revision text, not for the conversation.
+ */
+describe("buildDiscussPrompt — the reply is in the book's language", () => {
+  const build = (language?: string) =>
+    buildDiscussPrompt({ finding, priorTurns: [], writerMessage: "ovo sam ti vec objasnio", writerMemoryBlock: "", language });
+
+  it("says the whole reply, the revision and the remembered rule are in Serbian, diacritics or not", () => {
+    const { system } = build("sr");
+    expect(system).toMatch(/every sentence of your reply/i);
+    expect(system).toMatch(/REMEMBER/);
+    expect(system).toMatch(/without diacritics/i);
+    expect(system).toContain("Serbian");
+  });
+
+  it("adds nothing for an English book", () => {
+    expect(build("en").system).not.toMatch(/every sentence of your reply/i);
+  });
+});
+
 describe("parseDiscussResponse", () => {
   it("(a) plain reply → whole text is assistantMessage, no blocks", () => {
     const r = parseDiscussResponse("You're right, keep it.");

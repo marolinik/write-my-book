@@ -1,4 +1,5 @@
 import { buildLanguageDirective } from "@/lib/agents/language-directive";
+import { LANGUAGE_NAMES } from "@/lib/agents/language-names";
 
 export const MEMORY_CATEGORIES = ["style", "name", "preference", "constraint", "correction"] as const;
 export type MemoryCategory = (typeof MEMORY_CATEGORIES)[number];
@@ -59,6 +60,7 @@ export function buildDiscussPrompt(input: DiscussPromptInput): { system: string;
     `<<<REMEMBER category="preference">>>\n<one concise preference, imperative voice>\n<<<END>>>\n` +
     `Use a category from: ${MEMORY_CATEGORIES.join(", ")}. Do NOT specify a book or scope.\n` +
     buildLanguageDirective(language) +
+    replyLanguageRule(language) +
     writerMemoryBlock;
 
   const anchor = finding.anchorQuote ? `\nAnchor text: ${finding.anchorQuote}` : "";
@@ -70,6 +72,26 @@ export function buildDiscussPrompt(input: DiscussPromptInput): { system: string;
     `Writer: ${writerMessage}`;
 
   return { system, user };
+}
+
+/**
+ * The conversation, not only the revision, is in the book's language.
+ *
+ * On the owner's Serbian book 4 of 8 replies came back in English, all
+ * opening "Understood —", and 2 of 5 remembered rules were stored in English.
+ * Each followed a message typed without diacritics. The general directive
+ * ("match the surrounding prose") reads as a rule for text going into the
+ * chapter, and this prompt is otherwise English.
+ */
+function replyLanguageRule(language: string | undefined): string {
+  if (!language || language === "en") return "";
+  const name = LANGUAGE_NAMES[language] ?? language;
+  return (
+    `
+REPLY LANGUAGE: Write every sentence of your reply to the writer in ${name}, and the REVISION suggestion and the REMEMBER line too. ` +
+    `The writer may type without diacritics or casually; answer in proper ${name} all the same. Never switch to English.
+`
+  );
 }
 
 /** D-157: the model writes these delimiters, and it intermittently drifts on the
