@@ -3,7 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import {
   getBookChunkCounts,
-  getGlobalMemoryStats,
+  getUserMemoryStats,
   verifyQdrantConnection,
   getEmbeddingCosts,
 } from "@/lib/vector";
@@ -39,17 +39,22 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Global stats
-    const [globalStats, qdrantHealthy, costs] = await Promise.all([
-      getGlobalMemoryStats(),
+    // The caller's own totals (P7-S03): every tenant shares one collection, so
+    // its point count and first point are platform data, never the writer's.
+    const ownBooks = await db.book.findMany({
+      where: { userId: user.id },
+      select: { id: true },
+    });
+    const [userStats, qdrantHealthy, costs] = await Promise.all([
+      getUserMemoryStats(ownBooks.map((b) => b.id)),
       verifyQdrantConnection(),
       getEmbeddingCosts(user.id),
     ]);
 
     return NextResponse.json({
-      totalChunks: globalStats.totalChunks,
-      totalSearches: globalStats.totalSearches,
-      lastIndexed: globalStats.lastIndexed,
+      totalChunks: userStats.totalChunks,
+      totalSearches: userStats.totalSearches,
+      lastIndexed: userStats.lastIndexed,
       qdrantHealthy,
       embeddingCost: costs.totalCost,
       embeddingTokens: costs.totalTokens,

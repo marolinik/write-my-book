@@ -149,6 +149,8 @@ describe("the pass itself", () => {
           }),
         },
         writerMemory: { findMany: vi.fn(async () => []) },
+        // Rules are read for the book's owner only (P7-S02).
+        book: { findUnique: vi.fn(async () => ({ userId: "u" })) },
       },
     }));
     vi.doMock("@/lib/editorial/book-evidence", () => ({

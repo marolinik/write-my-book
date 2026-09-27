@@ -103,52 +103,78 @@ export async function runConsistencyCheck(
   };
 }
 
-// ─── Global Stats ────────────────────────────────────────────
+// ─── Per-User Stats ──────────────────────────────────────────
+
+/** Scroll page size and page cap for the lastIndexed scan (bounds the work). */
+const STATS_SCROLL_PAGE = 1000;
+const STATS_SCROLL_MAX_PAGES = 50;
+
+type BookScopeFilter = {
+  must: { key: "bookId"; match: { any: string[] } }[];
+};
 
 /**
- * Get global memory statistics across all books.
+ * Memory statistics for ONE writer: only chunks of the books they own.
+ *
+ * Every tenant shares the single `wmb_memory` collection, so its
+ * `points_count` and "first scrolled point" are platform data, not the
+ * writer's (P7-S03). Scoped by the caller's own bookIds — every chunk carries
+ * its bookId, while legacy chunks may lack a userId.
  */
-export async function getGlobalMemoryStats(): Promise<{
+export async function getUserMemoryStats(bookIds: readonly string[]): Promise<{
   totalChunks: number;
   totalSearches: number;
   lastIndexed: string | null;
 }> {
+  const empty = { totalChunks: 0, totalSearches: globalSearchCount, lastIndexed: null };
+  if (bookIds.length === 0) return empty;
+
+  const filter: BookScopeFilter = {
+    must: [{ key: "bookId", match: { any: [...bookIds] } }],
+  };
+
   try {
-    const collectionInfo = await qdrantClient.getCollection(
-      WMB_MEMORY_COLLECTION
-    );
-
-    const totalChunks = collectionInfo.points_count ?? 0;
-
-    // Get last indexed timestamp by scrolling recent points
-    let lastIndexed: string | null = null;
-    try {
-      const recent = await qdrantClient.scroll(WMB_MEMORY_COLLECTION, {
-        with_payload: ["timestamp"],
-        with_vector: false,
-        limit: 1,
-        // Qdrant returns points in insertion order by default
-      });
-
-      if (recent.points.length > 0) {
-        lastIndexed =
-          ((recent.points[0].payload as Record<string, unknown>)
-            ?.timestamp as string) ?? null;
-      }
-    } catch {
-      // Ignore
-    }
-
+    const { count } = await qdrantClient.count(WMB_MEMORY_COLLECTION, {
+      filter,
+      exact: true,
+    });
     return {
-      totalChunks,
+      totalChunks: count,
       totalSearches: globalSearchCount,
-      lastIndexed,
+      lastIndexed: count > 0 ? await newestTimestamp(filter) : null,
     };
   } catch {
-    return {
-      totalChunks: 0,
-      totalSearches: globalSearchCount,
-      lastIndexed: null,
-    };
+    return empty;
   }
+}
+
+/**
+ * The newest `timestamp` among the points matching `filter`. There is no
+ * payload index on timestamp to order by, so page through the matches with
+ * only that field loaded. Best-effort: a failure yields null.
+ */
+async function newestTimestamp(filter: BookScopeFilter): Promise<string | null> {
+  let newest: string | null = null;
+  let offset: string | number | undefined;
+  try {
+    for (let page = 0; page < STATS_SCROLL_MAX_PAGES; page++) {
+      const res = await qdrantClient.scroll(WMB_MEMORY_COLLECTION, {
+        filter,
+        with_payload: ["timestamp"],
+        with_vector: false,
+        limit: STATS_SCROLL_PAGE,
+        ...(offset !== undefined ? { offset } : {}),
+      });
+      for (const point of res.points) {
+        const ts = (point.payload as Record<string, unknown> | null)?.timestamp;
+        if (typeof ts === "string" && (newest === null || ts > newest)) newest = ts;
+      }
+      const next = res.next_page_offset;
+      if (next === null || next === undefined || typeof next === "object") break;
+      offset = next;
+    }
+  } catch {
+    // Ignore — the count is still right; the timestamp is a nicety.
+  }
+  return newest;
 }

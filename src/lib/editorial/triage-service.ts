@@ -157,10 +157,20 @@ export async function triageChapter(input: {
   }
 }
 
+/**
+ * The rules the book's OWNER set for this book. Scoped by the owner's userId
+ * as well as the bookId (P7-S02): a row naming this book but written from
+ * another account must never reach the owner's triage prompt.
+ */
 async function readWriterRules(bookId: string): Promise<WriterRule[]> {
   const { db } = await import("@/lib/db");
+  const book = await db.book.findUnique({
+    where: { id: bookId },
+    select: { userId: true },
+  });
+  if (!book) return [];
   const rows = await db.writerMemory.findMany({
-    where: { bookId, active: true },
+    where: { bookId, userId: book.userId, active: true },
     select: { category: true, content: true },
   });
   return rows;

@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { updateBookSchema } from "@/lib/validation";
 import { deleteBookChunks } from "@/lib/vector";
 import { getBookStorage } from "@/lib/storage";
+import { purgeStorage } from "@/lib/storage/purge";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 type RouteParams = { params: Promise<{ id: string }> };
@@ -81,6 +82,15 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
     }
     const zodRes = zodErrorResponse(error);
     if (zodRes) return zodRes;
+    // P7-S12: a rename onto another of the writer's book names trips
+    // @@unique([userId, name]) as P2002 — a conflict, not a server fault. Same
+    // 409 and message as POST /api/books.
+    if ((error as { code?: string })?.code === "P2002") {
+      return NextResponse.json(
+        { error: "A book with this name already exists" },
+        { status: 409 }
+      );
+    }
     console.error("PATCH /api/books/:id error:", error);
     return NextResponse.json(
       { error: "Failed to update book" },
@@ -106,14 +116,20 @@ export async function DELETE(_req: NextRequest, { params }: RouteParams) {
     // Clean up vector memory (fire-and-forget)
     deleteBookChunks(id).catch(() => {});
 
-    // UDG round-6 (Igor): remove the uploaded cover object too so deleting a book never leaves orphans in S3.
-    if (existing.coverUrl) {
-      getBookStorage(user.id, id)
-        .delete(existing.coverUrl)
-        .catch(() => {});
-    }
+    // P7-S20: a book-scoped writer rule belongs to its book. The relation was
+    // onDelete SetNull, and a null bookId MEANS "global preference", so a
+    // deleted book's rules went on steering every other book's agents. They
+    // go with the book, in the same transaction.
+    await db.$transaction([
+      db.writerMemory.deleteMany({ where: { bookId: id } }),
+      db.book.delete({ where: { id } }),
+    ]);
 
-    await db.book.delete({ where: { id } });
+    // P7-S20: every stored object of the book (manuscript, document versions,
+    // front and back cover) lives under its userId/bookId prefix; UDG round-6
+    // removed only the front cover. Purged after the rows are gone so a failed
+    // delete never costs a live book its files.
+    await purgeBookStorage(user.id, id);
 
     return NextResponse.json({ deleted: true });
   } catch (error) {
@@ -125,5 +141,22 @@ export async function DELETE(_req: NextRequest, { params }: RouteParams) {
       { error: "Failed to delete book" },
       { status: 500 }
     );
+  }
+}
+
+/**
+ * Best-effort: the book is already deleted, so a storage fault is logged for
+ * the operator and never turned into an error for the writer.
+ */
+async function purgeBookStorage(userId: string, bookId: string): Promise<void> {
+  try {
+    const { failed } = await purgeStorage(getBookStorage(userId, bookId));
+    if (failed > 0) {
+      console.error(
+        `DELETE /api/books/:id: ${failed} stored object(s) of book ${bookId} could not be removed`
+      );
+    }
+  } catch (error) {
+    console.error(`DELETE /api/books/:id: storage cleanup of book ${bookId} failed:`, error);
   }
 }

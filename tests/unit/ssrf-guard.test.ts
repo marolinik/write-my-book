@@ -58,4 +58,44 @@ describe("assertSafeExternalUrl", () => {
     await expectBlocked("http://[2002:7f00:0001::]/x"); // 6to4 → 127.0.0.1
     await expectBlocked("http://[2001:0000:1234:5678::1]/x"); // teredo
   });
+
+  // P7-S09 (UAT 2026-09-25): WHATWG URL serializes [::ffff:169.254.169.254]
+  // as [::ffff:a9fe:a9fe], and the mapped check only knew the dotted form —
+  // so under the self-host opt-in the metadata address passed and was dialed.
+  // Every carrier of an always-blocked IPv4 must stay blocked with the opt-in.
+  it("keeps always-block IPv4 blocked in every IPv6 carrier, even with private opt-in", async () => {
+    const carriers = [
+      "http://[::ffff:169.254.169.254]/latest", // mapped, dotted (serialized to hex)
+      "http://[::ffff:a9fe:a9fe]/latest", // mapped, hex
+      "http://[0:0:0:0:0:ffff:a9fe:a9fe]/latest", // mapped, uncompressed
+      "http://[::169.254.169.254]/latest", // IPv4-compatible (deprecated)
+      "http://[::a9fe:a9fe]/latest", // IPv4-compatible, hex
+      "http://[::ffff:0:a9fe:a9fe]/latest", // IPv4-translated (SIIT)
+      "http://[64:ff9b::a9fe:a9fe]/latest", // NAT64 well-known prefix
+      "http://[64:ff9b:1::a9fe:a9fe]/latest", // NAT64 local-use prefix
+      "http://[2002:a9fe:a9fe::]/latest", // 6to4
+      "http://[::ffff:0.0.0.0]/x", // this-network
+      "http://[::ffff:e000:1]/x", // multicast 224.0.0.1
+    ];
+    for (const url of carriers) {
+      await expect(
+        assertSafeExternalUrl(url, { allowPrivate: true }),
+        url
+      ).rejects.toThrow();
+    }
+  });
+
+  it("treats a mapped private address like the IPv4 it carries under the opt-in", async () => {
+    // Loopback/LAN are opt-in territory in v4, so their mapped forms are too.
+    await expect(
+      assertSafeExternalUrl("http://[::ffff:127.0.0.1]:8000/v1", { allowPrivate: true })
+    ).resolves.toBeDefined();
+    await expect(
+      assertSafeExternalUrl("http://[::ffff:c0a8:105]:11434/v1", { allowPrivate: true })
+    ).resolves.toBeDefined();
+    // A public IPv6 literal is not collateral damage of the normalisation.
+    await expect(
+      assertSafeExternalUrl("http://[2606:4700:4700::1111]/", { allowPrivate: true })
+    ).resolves.toBeDefined();
+  });
 });

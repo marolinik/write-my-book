@@ -59,5 +59,5 @@ export { trackEmbeddingCost, getEmbeddingCosts } from "./cost-tracker";
 export {
   runConsistencyCheck,
   getBookChunkCounts,
-  getGlobalMemoryStats,
+  getUserMemoryStats,
 } from "./consistency";

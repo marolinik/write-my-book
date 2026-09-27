@@ -12,7 +12,9 @@
  * Policy:
  * - http/https only, no embedded credentials;
  * - hostname resolved via DNS and EVERY returned address checked against
- *   blocklisted ranges (IPv4 + IPv6, incl. IPv4-mapped and 6to4 carriers);
+ *   blocklisted ranges (IPv4 + IPv6, incl. every IPv4 carrier: mapped,
+ *   compatible, translated, NAT64 and 6to4, read from the numeric address
+ *   so no spelling slips past);
  * - link-local/metadata (169.254.0.0/16, fe80::/10), multicast, reserved,
  *   and unspecified ranges are blocked UNCONDITIONALLY;
  * - private LAN ranges (RFC1918, loopback, ULA, CGNAT/Tailscale, .local /
@@ -72,42 +74,85 @@ function v4Blocked(ip: string, allowPrivate: boolean): boolean {
   return false;
 }
 
-function hexGroup(s: string, start: number, len = 4): number {
-  return parseInt(s.slice(start, start + len), 16) || 0;
+/**
+ * Expand an IPv6 address to its eight 16-bit groups, whatever its spelling:
+ * compressed (`::`), uncompressed, or with a dotted-quad tail
+ * (`::ffff:1.2.3.4`). Returns null when it is not a well-formed address.
+ *
+ * The range checks below read the numbers, never the text: WHATWG URL
+ * serializes `[::ffff:169.254.169.254]` as `[::ffff:a9fe:a9fe]`, and a
+ * text match on the dotted form let that through (P7-S09).
+ */
+function expandV6(ip: string): number[] | null {
+  let s = ip;
+  const tail: number[] = [];
+  const dotted = s.match(/^(.*:)(\d{1,3}(?:\.\d{1,3}){3})$/);
+  if (dotted) {
+    const o = parseOctets(dotted[2]);
+    if (!o) return null;
+    tail.push((o[0] << 8) | o[1], (o[2] << 8) | o[3]);
+    s = dotted[1].endsWith("::") ? dotted[1] : dotted[1].slice(0, -1);
+  }
+
+  const halves = s.split("::");
+  if (halves.length > 2) return null;
+  const toGroups = (part: string): number[] | null => {
+    if (part === "") return [];
+    const groups = part.split(":");
+    if (groups.some((g) => !/^[0-9a-f]{1,4}$/.test(g))) return null;
+    return groups.map((g) => parseInt(g, 16));
+  };
+  const head = toGroups(halves[0]);
+  const rest = halves.length === 2 ? toGroups(halves[1]) : [];
+  if (!head || !rest) return null;
+
+  const explicit = [...head, ...rest, ...tail];
+  if (halves.length === 1) return explicit.length === 8 ? explicit : null;
+  if (explicit.length > 7) return null;
+  const zeros: number[] = Array.from({ length: 8 - explicit.length }, () => 0);
+  return [...head, ...zeros, ...rest, ...tail];
 }
 
-function hexToOctets(hexGroup: string): [number, number] {
-  const g = parseInt(hexGroup.padStart(4, "0"), 16);
-  return [(g >> 8) & 0xff, g & 0xff];
+const allZero = (groups: number[]): boolean => groups.every((g) => g === 0);
+
+/**
+ * The IPv4 address an IPv6 address carries, for every carrier that delivers
+ * to that IPv4 host: IPv4-mapped (::ffff:0:0/96), IPv4-compatible (::/96),
+ * IPv4-translated (::ffff:0:0:0/96), the NAT64 well-known prefix
+ * (64:ff9b::/96) and 6to4 (2002::/16). Null when it carries none.
+ */
+function embeddedV4(g: number[]): string | null {
+  const quad = (hi: number, lo: number) =>
+    `${hi >> 8}.${hi & 0xff}.${lo >> 8}.${lo & 0xff}`;
+  if (allZero(g.slice(0, 5)) && (g[5] === 0xffff || g[5] === 0)) return quad(g[6], g[7]);
+  if (allZero(g.slice(0, 4)) && g[4] === 0xffff && g[5] === 0) return quad(g[6], g[7]);
+  if (g[0] === 0x64 && g[1] === 0xff9b && allZero(g.slice(2, 6))) return quad(g[6], g[7]);
+  if (g[0] === 0x2002) return quad(g[1], g[2]);
+  return null;
 }
 
 function v6Blocked(ip: string, allowPrivate: boolean): boolean {
-  const s = ip.toLowerCase().split("%")[0];
-  if (!s) return true;
-  if (s === "::") return true; // unspecified
-  if (s === "::1") return !allowPrivate; // loopback
-  if (s.startsWith("fe8") || s.startsWith("fe9") || s.startsWith("fea") || s.startsWith("feb")) return true; // link-local fe80::/10 — always blocked
-  if (s.startsWith("ff")) return true; // multicast
-  if (s.startsWith("fc") || s.startsWith("fd")) return !allowPrivate; // ULA fc00::/7
+  const g = expandV6(ip.toLowerCase().split("%")[0]);
+  if (!g) return true; // malformed → block
+  if (allZero(g)) return true; // unspecified ::
+  if (allZero(g.slice(0, 7)) && g[7] === 1) return !allowPrivate; // loopback ::1
 
-  // IPv4-mapped ::ffff:a.b.c.d (and the bare ::a.b.c.d form)
-  const mapped = s.match(/^::ffff:(\d{1,3}(?:\.\d{1,3}){3})$/) || s.match(/^::(\d{1,3}(?:\.\d{1,3}){3})$/);
-  if (mapped) return v4Blocked(mapped[1], allowPrivate);
+  // An IPv4 in any carrier gets exactly the IPv4 verdict, so the
+  // always-blocked ranges (169.254/16, 0/8, multicast, ...) stay blocked.
+  const v4 = embeddedV4(g);
+  if (v4) return v4Blocked(v4, allowPrivate);
 
-  // 6to4 2002::/16 embeds the IPv4 address in the next two groups
-  if (s.startsWith("2002:")) {
-    const m = s.match(/^2002:([0-9a-f]{1,4}):([0-9a-f]{1,4})/);
-    if (m) {
-      const [a, b] = hexToOctets(m[1]);
-      const [c, d] = hexToOctets(m[2]);
-      return v4Blocked(`${a}.${b}.${c}.${d}`, allowPrivate);
-    }
-    return true;
-  }
+  if ((g[0] & 0xffc0) === 0xfe80) return true; // link-local fe80::/10 — always blocked
+  if ((g[0] & 0xff00) === 0xff00) return true; // multicast ff00::/8
+  if ((g[0] & 0xfe00) === 0xfc00) return !allowPrivate; // ULA fc00::/7
 
   // Teredo 2001:0000::/32 smuggles v4 addresses in client/computed form —
   // no legitimate use for model endpoints or web research; block outright.
-  if (/^2001:0{0,3}0::/.test(s) || s.startsWith("2001:0")) return true;
+  if (g[0] === 0x2001 && g[1] === 0) return true;
+
+  // NAT64 local-use 64:ff9b:1::/48: where the IPv4 sits depends on the
+  // operator's prefix length, so it cannot be read reliably; block outright.
+  if (g[0] === 0x64 && g[1] === 0xff9b && g[2] === 1) return true;
 
   return false;
 }

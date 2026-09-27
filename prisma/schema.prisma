@@ -884,7 +884,9 @@ model WriterMemory {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   user    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  book    Book?        @relation(fields: [bookId], references: [id], onDelete: SetNull)
+  // Cascade, not SetNull (P7-S20): a null bookId MEANS "global preference", so
+  // SetNull turned a deleted book's rules into rules for every other book.
+  book    Book?        @relation(fields: [bookId], references: [id], onDelete: Cascade)
   finding EditFinding? @relation(fields: [findingId], references: [id], onDelete: SetNull)
 
   @@index([userId, bookId, active])

@@ -42,6 +42,19 @@ export async function POST(req: NextRequest) {
     const body = await parseJsonBody(req);
     const data = createSchema.parse(body);
 
+    // P7-S02: a book-scoped rule may only name a book the caller owns. Without
+    // this any signed-in user could plant a rule in another tenant's book, and
+    // that rule reached the owner's triage prompt.
+    if (data.bookId) {
+      const owned = await db.book.findFirst({
+        where: { id: data.bookId, userId: user.id },
+        select: { id: true },
+      });
+      if (!owned) {
+        return NextResponse.json({ error: "Book not found" }, { status: 404 });
+      }
+    }
+
     const memory = await db.writerMemory.create({
       data: {
         userId: user.id,
