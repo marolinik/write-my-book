@@ -8,7 +8,6 @@
   papersize: "us-letter",
   mainfont: "Times New Roman",
   linestretch: 1.5,
-  draft: false,
   doc,
 ) = {
   // Page setup
@@ -62,13 +61,8 @@
     v(1em)
   }
 
-  // Draft watermark
-  if draft {
-    place(
-      center + horizon,
-      rotate(45deg, text(size: 72pt, fill: luma(230), weight: "bold", "DRAFT")),
-    )
-  }
+  // Draft watermark: draft-watermark.lua sets it as the page background, so it
+  // repeats on every page. A place() here stamped page 1 only (P3-S22).
 
   doc
 }
@@ -91,7 +85,6 @@
   papersize: "$if(papersize)$$papersize$$else$us-letter$endif$",
   mainfont: "$if(mainfont)$$mainfont$$else$Times New Roman$endif$",
   linestretch: $if(linestretch)$$linestretch$$else$1.5$endif$,
-  draft: $if(draft)$true$else$false$endif$,
   doc,
 )
 

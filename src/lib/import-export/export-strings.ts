@@ -28,6 +28,8 @@ export interface ExportStrings {
   aboutTheAuthor: string;
   alsoBy: string;
   acknowledgments: string;
+  /** Heading of the table of contents (P3-S18). */
+  contents: string;
 }
 
 const EN: ExportStrings = {
@@ -43,6 +45,7 @@ const EN: ExportStrings = {
   aboutTheAuthor: "About the Author",
   alsoBy: "Also By",
   acknowledgments: "Acknowledgments",
+  contents: "Contents",
 };
 
 const SR: ExportStrings = {
@@ -58,6 +61,7 @@ const SR: ExportStrings = {
   aboutTheAuthor: "O autoru",
   alsoBy: "Od istog autora",
   acknowledgments: "Zahvalnice",
+  contents: "Sadržaj",
 };
 
 const DE: ExportStrings = {
@@ -73,6 +77,7 @@ const DE: ExportStrings = {
   aboutTheAuthor: "Über den Autor",
   alsoBy: "Ebenfalls erschienen",
   acknowledgments: "Danksagung",
+  contents: "Inhalt",
 };
 
 const ES: ExportStrings = {
@@ -88,6 +93,7 @@ const ES: ExportStrings = {
   aboutTheAuthor: "Sobre el autor",
   alsoBy: "Del mismo autor",
   acknowledgments: "Agradecimientos",
+  contents: "Índice",
 };
 
 const FR: ExportStrings = {
@@ -103,6 +109,7 @@ const FR: ExportStrings = {
   aboutTheAuthor: "À propos de l'auteur",
   alsoBy: "Du même auteur",
   acknowledgments: "Remerciements",
+  contents: "Table des matières",
 };
 
 const RU: ExportStrings = {
@@ -118,6 +125,7 @@ const RU: ExportStrings = {
   aboutTheAuthor: "Об авторе",
   alsoBy: "Того же автора",
   acknowledgments: "Благодарности",
+  contents: "Содержание",
 };
 
 const ZH: ExportStrings = {
@@ -133,6 +141,7 @@ const ZH: ExportStrings = {
   aboutTheAuthor: "关于作者",
   alsoBy: "同一作者作品",
   acknowledgments: "致谢",
+  contents: "目录",
 };
 
 const TABLES: Record<string, ExportStrings> = {

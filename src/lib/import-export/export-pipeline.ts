@@ -11,7 +11,11 @@ import { isOrphanedChapterContent } from "@/lib/documents/orphan-chapter-content
 import type { StorageAdapter } from "@/lib/storage/types";
 import { getBookStorage, getSeriesStorage } from "@/lib/storage";
 import type { ExportConfig, ExportOptions, ExportResult } from "./types";
-import { getDefaultExportConfig, parseExportConfigJson } from "./export-config";
+import {
+  getDefaultExportConfig,
+  parseExportConfigJson,
+  resolveSceneBreakGlyph,
+} from "./export-config";
 import { resolveSafeTemplatePath } from "./safe-path";
 import { getExportFormatConfig } from "./language-config";
 import { assembleFrontMatter, assembleSeriesFrontMatter } from "./front-matter";
@@ -260,6 +264,8 @@ export interface PandocArgsInput {
   sceneBreakGlyph: string;
   /** docx: resolved reference-doc path, or null to let pandoc use its default. */
   referenceDoc?: string | null;
+  /** docx: resolved document template (no title block), or null for pandoc's. */
+  docxTemplate?: string | null;
   /** pdf: resolved typst engine path. */
   typstEngine?: string | null;
   /** pdf: resolved typst template path, or null for pandoc's default. */
@@ -337,6 +343,12 @@ export function buildPandocArgs(input: PandocArgsInput): string[] {
     if (input.referenceDoc) {
       args.push(`--reference-doc=${input.referenceDoc}`);
     }
+    // P3-S19: pandoc's own docx template prints the title/author metadata as a
+    // Title/Author block ahead of the configured half-title. The metadata stays
+    // (it fills dc:title/dc:creator); the template without the block goes in.
+    if (input.docxTemplate) {
+      args.push(`--template=${input.docxTemplate}`);
+    }
   } else if (input.format === "pdf") {
     if (input.typstEngine) {
       args.push(`--pdf-engine=${input.typstEngine}`);
@@ -348,6 +360,9 @@ export function buildPandocArgs(input: PandocArgsInput): string[] {
   } else if (input.format === "epub") {
     args.push("-t", "epub3");
     args.push("--split-level=1");
+    // P3-S19: the front matter has its own half-title and title page; pandoc's
+    // generated title_page.xhtml sat between the cover and them.
+    args.push("--epub-title-page=false");
     if (input.epubCss) {
       args.push(`--css=${input.epubCss}`);
     }
@@ -509,7 +524,7 @@ export async function assembleChapterSections(args: {
   // path-derived assembly is the only option — and with no DB numbers there is
   // no reorder for it to disagree with.
   if (chapters.length === 0) {
-    return assembleChaptersFromStorage(args.storage, args.chapterTitles);
+    return assembleChaptersFromStorage(args.storage, args.chapterTitles, args.language);
   }
 
   const { DocumentService } = await import("@/lib/documents");
@@ -580,7 +595,7 @@ export async function assembleChapterSections(args: {
   // predate document rows) — fall back to the storage listing rather than
   // exporting an empty manuscript.
   if (resolvedCount === 0) {
-    return assembleChaptersFromStorage(args.storage, args.chapterTitles);
+    return assembleChaptersFromStorage(args.storage, args.chapterTitles, args.language);
   }
 
   return {
@@ -630,7 +645,7 @@ async function assembleChaptersFromStorage(
         currentAct = actDir;
         if (i > 0) {
           chapterParts.push(
-            `\n\\newpage\n\n::: {.act-divider}\n## Act ${actMatch[1]}\n:::\n`
+            `\n\\newpage\n\n::: {.act-divider}\n## ${actHeading(parseInt(actMatch[1], 10), language)}\n:::\n`
           );
         }
       }
@@ -702,7 +717,9 @@ export async function exportManuscript(
     config = getDefaultExportConfig(bookName);
   }
 
-  const sceneBreakGlyph = options.sceneBreakGlyph ?? config.sceneBreakGlyph ?? "***";
+  const sceneBreakGlyph = resolveSceneBreakGlyph(
+    options.sceneBreakGlyph ?? config.sceneBreakGlyph ?? "***"
+  );
   const genreTemplate = template ?? config.format.genreTemplate ?? "genre";
 
   // 2. Get language formatting
@@ -738,6 +755,9 @@ export async function exportManuscript(
           userId: options.userId,
           storage,
           chapterTitles,
+          // P6-S17: without it every untitled chapter and act divider fell back
+          // to English ("Chapter 12", "Act 2") in a Serbian book's TOC and body.
+          language,
         });
 
   // 5. Assemble back matter
@@ -760,7 +780,10 @@ export async function exportManuscript(
     `papersize: ${paperSize}`,
     `mainfont: "${langConfig.bodyFont}"`,
     `linestretch: ${langConfig.lineSpacing}`,
-    isDraft ? `draft: true` : "",
+    // P3-S22: `draft-mode` is the key draft-watermark.lua and recto-start.lua
+    // read. The pipeline wrote `draft`, so the watermark filter it adds for
+    // every draft never ran and a draft EPUB/DOCX went out unmarked.
+    isDraft ? `draft-mode: true` : "",
     "---",
   ]
     .filter(Boolean)
@@ -907,6 +930,9 @@ export async function exportManuscript(
     "pagebreak.lua",
     "epigraph.lua",
     "special-format.lua",
+    // P3-S18: the front matter's TOC marker is raw LaTeX, which the Typst
+    // writer drops — this turns it into the PDF's real table of contents.
+    "toc.lua",
   ];
   if (!isDraft) luaFilters.push("recto-start.lua");
   if (isDraft) luaFilters.push("draft-watermark.lua");
@@ -920,6 +946,7 @@ export async function exportManuscript(
   const pandocCmd = resolvedToolPaths["pandoc"] || "pandoc";
 
   let referenceDoc: string | null = null;
+  let docxTemplate: string | null = null;
   let typstEngine: string | null = null;
   let typstTemplate: string | null = null;
   let epubCss: string | null = null;
@@ -947,6 +974,14 @@ export async function exportManuscript(
       } catch {
         // No reference doc available
       }
+    }
+    // P3-S19: the document template without pandoc's title block.
+    const docxTemplatePath = join(TEMPLATES_DIR, "docx-book.openxml");
+    try {
+      await readFile(docxTemplatePath);
+      docxTemplate = docxTemplatePath;
+    } catch {
+      // Template not found, Pandoc will use its default
     }
   } else if (format === "pdf") {
     // Require Typst for PDF export - throw actionable error if missing
@@ -1013,6 +1048,7 @@ export async function exportManuscript(
     title: config.metadata.title || bookName,
     sceneBreakGlyph,
     referenceDoc,
+    docxTemplate,
     typstEngine,
     typstTemplate,
     epubCss,
@@ -1155,6 +1191,7 @@ export async function exportSeriesOmnibus(args: {
       userId: args.userId,
       storage: bookStorage,
       chapterTitles,
+      language: seriesLanguage,
     });
     if (bookList.length > 1) {
       // Between books: a page break + a per-book title marker.

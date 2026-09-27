@@ -32,8 +32,13 @@ export async function POST(req: NextRequest) {
     }
 
     const kind = body.kind === "editorial" ? "editorial" : "book";
+    // Whole days, capped at a year; missing or <= 0 means the link never
+    // expires. P4-S10: a positive TTL under a day floored to 0, which read as
+    // "no TTL" — 0.5 made a link that never expires. It is at least one day.
     const ttlDays =
-      Number(body.ttlDays) > 0 ? Math.min(Math.floor(Number(body.ttlDays)), 365) : null;
+      Number(body.ttlDays) > 0
+        ? Math.min(Math.max(Math.floor(Number(body.ttlDays)), 1), 365)
+        : null;
 
     const token = generateShareToken();
     const expiresAt = ttlDays ? new Date(Date.now() + ttlDays * 24 * 60 * 60 * 1000) : null;

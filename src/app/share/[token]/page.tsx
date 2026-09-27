@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { db } from "@/lib/db";
@@ -10,25 +11,43 @@ export const dynamic = "force-dynamic";
 
 type RouteParams = { params: Promise<{ token: string }> };
 
+/**
+ * The one decision about whether this request may see the snapshot: a
+ * well-formed token, a client inside the public rate limit, a link that exists
+ * and has not expired. Null means Not Found.
+ *
+ * P4-S21: generateMetadata looked the book up for any token that existed,
+ * while only the page checked the limiter and the expiry — so an expired or
+ * throttled link's 404 still streamed the book's current name in its metadata.
+ * Both now ask this. React's cache runs it once per request, so a page view
+ * counts against the limiter once, not twice.
+ */
+const resolveShare = cache(async (token: string) => {
+  if (!isValidShareToken(token)) return null;
+  if (!publicShareLimiter.allow(clientIpFrom(await headers()))) return null;
+  const snap = await db.sharedSnapshot.findUnique({ where: { token } });
+  if (!snap || (snap.expiresAt && snap.expiresAt < new Date())) return null;
+  return snap;
+});
+
 export async function generateMetadata({ params }: RouteParams): Promise<Metadata> {
   const { token } = await params;
-  if (!isValidShareToken(token)) return { title: "Share" };
-  const snap = await db.sharedSnapshot.findUnique({ where: { token }, select: { bookId: true } });
-  if (!snap) return { title: "Share" };
-  const book = await db.book.findFirst({ where: { id: snap.bookId }, select: { name: true } });
-  return { title: book ? `${book.name} · shared snapshot` : "Shared snapshot" };
+  const snap = await resolveShare(token);
+  if (!snap) return {};
+  const book = await db.book.findFirst({
+    where: { id: snap.bookId },
+    select: { name: true, language: true },
+  });
+  if (!book) return {};
+  // P4-S04: in the book's language, like the page itself (M-6).
+  const s = getUIStrings(book.language).snapshot;
+  return { title: `${book.name} · ${snap.kind === "editorial" ? s.editorialBrief : s.title}` };
 }
 
 export default async function SharePage({ params }: RouteParams) {
   const { token } = await params;
-  if (!isValidShareToken(token)) notFound();
-
-  // Public rate limit.
-  const h = await headers();
-  if (!publicShareLimiter.allow(clientIpFrom(h))) notFound();
-
-  const snap = await db.sharedSnapshot.findUnique({ where: { token } });
-  if (!snap || (snap.expiresAt && snap.expiresAt < new Date())) notFound();
+  const snap = await resolveShare(token);
+  if (!snap) notFound();
 
   let data: Awaited<ReturnType<typeof loadShareBook>>;
   try {
@@ -57,8 +76,11 @@ export default async function SharePage({ params }: RouteParams) {
     year: "numeric", month: "long", day: "numeric",
   });
 
+  // P4-S04: <html lang> follows the VIEWER (root layout), and an account-less
+  // reader of a Serbian book got "en-US" around Serbian text. The content says
+  // which language it is in, so a screen reader and spellcheck read it as that.
   return (
-      <div className="min-h-screen bg-background p-4 lg:p-8 print:p-0" data-share>
+      <div lang={locale} className="min-h-screen bg-background p-4 lg:p-8 print:p-0" data-share>
         <main className="mx-auto max-w-3xl space-y-8">
           <header className="border-b pb-4">
             <h1 className="font-display text-3xl font-bold">{data.bookName}</h1>

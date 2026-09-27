@@ -403,15 +403,17 @@ The `export-templates/` directory contains Pandoc Lua filters, CSS, and Typst te
 
 | File | Purpose |
 |------|---------|
-| `draft-watermark.lua` | Adds "DRAFT" watermark to PDF exports |
+| `draft-watermark.lua` | Adds "DRAFT" watermark to draft exports (PDF, EPUB, DOCX) |
 | `epigraph.lua` | Formats chapter epigraphs |
 | `first-para.lua` | Styles the first paragraph of each chapter (drop cap / small caps) |
 | `pagebreak.lua` | Inserts page breaks between chapters |
-| `recto-start.lua` | Forces chapters to start on right-hand (recto) pages in PDF |
+| `recto-start.lua` | Forces chapters to start on right-hand (recto) pages in PDF and DOCX |
 | `scene-break.lua` | Formats scene break markers (e.g., `***` -> centered ornament) |
 | `special-format.lua` | Handles special formatting (letters, documents within the story) |
+| `toc.lua` | Turns the front matter's table-of-contents marker into the PDF's contents |
 | `epub-genre.css` | Genre-specific CSS for EPUB exports |
 | `typst-book.typ` | Typst template for PDF book layout |
+| `docx-book.openxml` | Pandoc DOCX document template without the metadata title block |
 
 These files do not need configuration. They are included automatically in the Docker image via the `COPY --from=builder /app/export-templates ./export-templates` instruction in the Dockerfile.
 

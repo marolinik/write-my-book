@@ -21,12 +21,17 @@ import { createRedisConnection } from "./connection";
 import type { BatchDigestJobData } from "./batch-flow";
 import {
   aggregateBatchDigest,
+  type BatchDigest,
   type BatchDigestSessionInput,
   type BatchDigestFindingInput,
   type BatchDigestChapterInput,
+  type BatchHaltReason,
+  type DerivedBatchStatus,
 } from "@/lib/agents/batch-digest-aggregate";
 import { db } from "@/lib/db";
 import type { Prisma } from "@/generated/prisma/client";
+import { getUIStrings } from "@/lib/i18n/ui-strings";
+import { countWithNoun } from "@/lib/i18n/plural";
 
 /**
  * Format a USD cap for the morning notification. Two decimals for normal
@@ -38,6 +43,78 @@ import type { Prisma } from "@/generated/prisma/client";
 function formatCapUsd(n: number): string {
   if (!Number.isFinite(n) || n <= 0 || n >= 0.01) return n.toFixed(2);
   return n.toFixed(4).replace(/0+$/, "").replace(/\.$/, "");
+}
+
+/**
+ * The morning notification's title, message and action label, in the book's
+ * language. P6-S16: they were English literals, so a Serbian book's dashboard
+ * listed "Overnight batch complete" among its Serbian alerts.
+ *
+ * D-98: the title and message name a non-'done' outcome (halted / cancelled /
+ * failed) — before that fix every digest read "complete", so a budget-cap or
+ * provider-outage stop looked like a clean finish.
+ * D-122: the headline count is what the writer will SEE (gate-rejected rows
+ * excluded by aggregateBatchDigest). Discarded rows are still NAMED, so a
+ * shrunken count is explained instead of reading as a silent zero.
+ */
+function digestNotificationCopy(input: {
+  language: string;
+  status: DerivedBatchStatus;
+  haltReason: BatchHaltReason;
+  passes: BatchDigest["passes"];
+  findings: BatchDigest["findings"];
+  spentUsd: number;
+  budgetCapUsd: number;
+}): { title: string; message: string; actionLabel: string } {
+  const t = getUIStrings(input.language);
+  const s = t.batchEditorial;
+  const fill = (template: string, values: Record<string, string | number>) =>
+    template.replace(/\{(\w+)\}/g, (m, key: string) =>
+      key in values ? String(values[key]) : m
+    );
+
+  let title: string;
+  let haltClause: string | null;
+  if (input.status === "halted") {
+    const budget = input.haltReason === "budget_cap";
+    title = budget ? s.digestTitleHaltedBudget : s.digestTitleHaltedErrors;
+    haltClause = budget ? s.digestClauseBudget : s.digestClauseErrors;
+  } else if (input.status === "cancelled") {
+    title = s.digestTitleCancelled;
+    haltClause = s.digestClauseCancelled;
+  } else if (input.status === "failed") {
+    title = s.digestTitleFailed;
+    haltClause = s.digestClauseNoPasses;
+  } else {
+    title = s.digestTitleDone;
+    haltClause = null;
+  }
+
+  const parts = [
+    fill(s.digestPasses, { done: input.passes.completed, total: input.passes.total }),
+  ];
+  if (input.passes.skipped > 0) {
+    parts.push(fill(s.digestSkipped, { n: input.passes.skipped }));
+  }
+  const { total, suppressed } = input.findings;
+  if (total > 0 || suppressed > 0) {
+    const count = countWithNoun(total, t.agentUI.findingOne, t.agentUI.findingMany, {
+      few: t.agentUI.findingFew,
+      language: input.language,
+    });
+    parts.push(
+      suppressed > 0 ? `${count} ${fill(s.digestDiscarded, { n: suppressed })}` : count
+    );
+  }
+  if (haltClause) parts.push(haltClause);
+  parts.push(
+    fill(s.digestSpend, {
+      spent: `$${input.spentUsd.toFixed(2)}`,
+      cap: `$${formatCapUsd(input.budgetCapUsd)}`,
+    })
+  );
+
+  return { title, message: parts.join(" · "), actionLabel: s.digestAction };
 }
 
 /**
@@ -84,7 +161,12 @@ export async function processBatchDigestJob(
   const { batchId } = job.data;
 
   try {
-    const batch = await db.batchRun.findUnique({ where: { id: batchId } });
+    // The book's language comes with the batch: the morning notification is
+    // persisted text, written in that language (P6-S16).
+    const batch = await db.batchRun.findUnique({
+      where: { id: batchId },
+      include: { book: { select: { language: true } } },
+    });
     if (!batch) {
       console.error(`[BatchDigest] BatchRun ${batchId} not found — skipping.`);
       return;
@@ -207,50 +289,15 @@ export async function processBatchDigestJob(
     });
 
     // ── Morning report: one in-app notification (SMTP/push is Phase-2) ──
-    // D-122: the headline count is what the writer will SEE (gate-rejected rows
-    // excluded by aggregateBatchDigest). Discarded rows are still NAMED, so a
-    // shrunken count is explained instead of reading as a silent zero.
-    const suppressedFindings = digest.findings.suppressed;
-    const suppressedClause =
-      suppressedFindings > 0
-        ? ` (${suppressedFindings} discarded as invalid)`
-        : "";
-    const findingSummary =
-      digest.findings.total > 0 || suppressedFindings > 0
-        ? ` · ${digest.findings.total} findings${suppressedClause}`
-        : "";
-    const skippedSummary =
-      digest.passes.skipped > 0
-        ? ` · ${digest.passes.skipped} skipped`
-        : "";
-
-    // ── D-98: title + message reflect a non-'done' terminal outcome ──────
-    // Before this fix EVERY digest (halted / cancelled / failed included) was
-    // titled "Overnight batch complete" and the message never named the halt, so
-    // a budget-cap or provider-outage stop read as a clean finish. Derive an
-    // honest title + a short halt clause from the derived terminal status +
-    // haltReason. `status`/`haltReason` come from aggregateBatchDigest above.
-    let title: string;
-    let haltClause: string;
-    if (status === "halted") {
-      title =
-        haltReason === "budget_cap"
-          ? "Overnight batch halted — budget cap reached"
-          : "Overnight batch halted — repeated provider errors";
-      haltClause =
-        haltReason === "budget_cap"
-          ? " · halted at budget cap"
-          : " · halted after provider errors";
-    } else if (status === "cancelled") {
-      title = "Overnight batch cancelled";
-      haltClause = " · cancelled";
-    } else if (status === "failed") {
-      title = "Overnight batch failed — no passes completed";
-      haltClause = " · no passes completed";
-    } else {
-      title = "Overnight batch complete";
-      haltClause = "";
-    }
+    const { title, message, actionLabel } = digestNotificationCopy({
+      language: batch.book?.language ?? "en",
+      status,
+      haltReason,
+      passes: digest.passes,
+      findings: digest.findings,
+      spentUsd: effectiveSpent,
+      budgetCapUsd: batch.budgetCapUsd,
+    });
 
     await db.bookNotification.create({
       data: {
@@ -259,12 +306,9 @@ export async function processBatchDigestJob(
         type: "pipeline_complete",
         priority: halted ? "high" : "normal",
         title,
-        message:
-          `${digest.passes.completed}/${digest.passes.total} passes` +
-          `${skippedSummary}${findingSummary}${haltClause} · ` +
-          `$${effectiveSpent.toFixed(2)} / $${formatCapUsd(batch.budgetCapUsd)} cap`,
+        message,
         actionUrl: `/books/${batch.bookId}`,
-        actionLabel: "View digest",
+        actionLabel,
       },
     });
   } catch (err) {

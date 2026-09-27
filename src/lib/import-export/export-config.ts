@@ -21,7 +21,9 @@ export function getDefaultExportConfig(bookName: string): ExportConfig {
       customHeight: "",
       genreTemplate: "genre",
     },
-    sceneBreakGlyph: "diamond-suite",
+    // The glyph itself: scene-break.lua prints whatever string it is given, and
+    // this default used to be the NAME "diamond-suite" (P3-S22).
+    sceneBreakGlyph: "♦",
     frontMatter: {
       coverPage: false,
       halfTitle: true,
@@ -63,6 +65,21 @@ export function getDefaultExportConfig(bookName: string): ExportConfig {
       lastIsDraft: false,
     },
   };
+}
+
+/**
+ * Ornament names the product itself once saved as a book's scene-break glyph.
+ * P3-S22: the default config was "diamond-suite", every config saved from the
+ * dialog kept it, and the ornament printed as that word on the page.
+ */
+const NAMED_SCENE_BREAK_GLYPHS: Record<string, string> = {
+  "diamond-suite": "♦",
+  "diamond-suit": "♦",
+};
+
+/** The glyph to print for a configured scene break; a writer's own glyph is kept. */
+export function resolveSceneBreakGlyph(glyph: string): string {
+  return NAMED_SCENE_BREAK_GLYPHS[glyph.trim().toLowerCase()] ?? glyph;
 }
 
 /** Parse JSON string into validated ExportConfig. */

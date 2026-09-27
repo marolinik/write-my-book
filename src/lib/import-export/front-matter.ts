@@ -38,15 +38,17 @@ export async function assembleFrontMatter(
     }
   }
 
-  // Half-title page
+  // Half-title page. Its heading (and the title page's) is `unlisted`: the
+  // book's own name is not a chapter, and the table of contents must not list
+  // it (P3-S18).
   if (frontMatter.halfTitle) {
-    parts.push(`::: {.half-title}\n\n# ${metadata.title}\n\n:::`);
+    parts.push(`::: {.half-title}\n\n# ${metadata.title} {.unlisted}\n\n:::`);
     parts.push("\\newpage");
   }
 
   // Title page
   if (frontMatter.titlePage) {
-    const titleParts = [`::: {.title-page}`, "", `# ${metadata.title}`];
+    const titleParts = [`::: {.title-page}`, "", `# ${metadata.title} {.unlisted}`];
     if (metadata.subtitle) {
       titleParts.push("", `## ${metadata.subtitle}`);
     }
@@ -96,11 +98,21 @@ export async function assembleFrontMatter(
 
   // Table of contents marker
   if (frontMatter.tableOfContents) {
-    parts.push(`::: {.toc}\n\n\\tableofcontents\n\n:::`);
+    parts.push(tocMarker(strings.contents));
     parts.push("\\newpage");
   }
 
   return parts.join("\n\n");
+}
+
+/**
+ * The table-of-contents marker. The raw `\tableofcontents` only means anything
+ * to a LaTeX writer; toc.lua turns the div into each format's own contents
+ * (Typst's #outline() for the PDF, which printed an empty page before —
+ * P3-S18), titled with the heading the div carries.
+ */
+function tocMarker(heading: string): string {
+  return `::: {.toc title="${heading}"}\n\n\\tableofcontents\n\n:::`;
 }
 
 /** Assemble series-level front matter for omnibus exports. */
@@ -137,7 +149,7 @@ export async function assembleSeriesFrontMatter(
   const titleParts = [
     `::: {.title-page}`,
     "",
-    `# ${seriesTitle}`,
+    `# ${seriesTitle} {.unlisted}`,
     "",
     `## ${strings.completeSeries}`,
   ];
@@ -179,7 +191,7 @@ export async function assembleSeriesFrontMatter(
 
   // TOC
   if (frontMatter.tableOfContents) {
-    parts.push(`::: {.toc}\n\n\\tableofcontents\n\n:::`);
+    parts.push(tocMarker(strings.contents));
     parts.push("\\newpage");
   }
 

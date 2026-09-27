@@ -1,6 +1,26 @@
 import { db } from "@/lib/db";
 import { getAnalysisReport } from "@/lib/reports/analysis-report";
 import { getDailyWordCounts, computeStreaks } from "@/lib/writing-stats";
+import { getUIStrings } from "@/lib/i18n/ui-strings";
+
+/**
+ * The share page's one-line status, in the book's language. P4-S04: it was a
+ * fixed English template ("streak 1 | best 1 | drafted 100% | beta 0%") on an
+ * otherwise Serbian page; the owner's snapshot page already had these words.
+ */
+function statusNote(
+  counts: { currentStreak: number; bestStreak: number; pctDrafted: number; pctPassed: number },
+  language: string
+): string {
+  const s = getUIStrings(language).snapshot;
+  const item = (label: string, value: string) => `${label}${s.colon} ${value}`;
+  return [
+    ...(counts.currentStreak > 0 ? [item(s.currentStreak, String(counts.currentStreak))] : []),
+    item(s.bestStreak, String(counts.bestStreak)),
+    item(s.draftedV, `${counts.pctDrafted}%`),
+    item(s.passBeta, `${counts.pctPassed}%`),
+  ].join(" | ");
+}
 
 /**
  * Safe, owner-agnostic snapshot payloads for the account-less share page.
@@ -83,7 +103,7 @@ export async function loadShareBook(bookId: string, createdById: string): Promis
     bookName: book.name,
     bookLanguage: book.language,
     bookGenre: book.genre,
-    bookStatusNote: `${currentStreak > 0 ? `streak ${currentStreak} | ` : ""}best ${bestStreak} | drafted ${pctDrafted}% | beta ${pctPassed}%`,
+    bookStatusNote: statusNote({ currentStreak, bestStreak, pctDrafted, pctPassed }, book.language),
     series: book.series?.title ?? null,
     wordCount: book.wordCount ?? 0,
     wordPct,
