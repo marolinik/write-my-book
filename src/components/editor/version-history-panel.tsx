@@ -28,15 +28,33 @@ interface VersionHistoryPanelProps {
   documentId: string | null;
 }
 
-const changeTypeBadge: Record<
-  string,
-  { label: (t: UIStrings) => string; variant: "default" | "secondary" | "outline" | "destructive" }
-> = {
+interface ChangeTypeBadge {
+  label: (t: UIStrings) => string;
+  variant: "default" | "secondary" | "outline" | "destructive";
+}
+
+const changeTypeBadge: Record<string, ChangeTypeBadge> = {
   agent_write: { label: () => "AI", variant: "default" },
   manual_edit: { label: (t) => t.editorChrome.versionManual, variant: "secondary" },
   revision: { label: (t) => t.editorChrome.versionRestore, variant: "outline" },
   import: { label: (t) => t.editorChrome.versionImport, variant: "secondary" },
+  // P3-S16/S17: the find & replace route stamps its versions `find_replace`
+  // (R-310) so a bad replace can be restored from here.
+  find_replace: { label: (t) => t.editorUI.findReplace, variant: "outline" },
 };
+
+/**
+ * The badge for a version's change type, or null for a type this panel does
+ * not know. The old fallback stored the raw id where the label FUNCTION
+ * belongs, and `badge.label(t)` threw inside render — the error boundary then
+ * replaced the whole chapter page. An unknown type is rendered without a
+ * badge (never the raw id); the row and its actions stay usable.
+ */
+function badgeFor(changeType: string): ChangeTypeBadge | null {
+  return Object.prototype.hasOwnProperty.call(changeTypeBadge, changeType)
+    ? changeTypeBadge[changeType]
+    : null;
+}
 
 export function VersionHistoryPanel({
   bookId,
@@ -111,10 +129,7 @@ export function VersionHistoryPanel({
         <ScrollArea className="flex-1">
           <div className="p-2 space-y-1">
             {versionList.map((v, idx) => {
-              const badge = changeTypeBadge[v.changeType] ?? {
-                label: v.changeType,
-                variant: "outline" as const,
-              };
+              const badge = badgeFor(v.changeType);
               const prevVersion = versionList[idx + 1];
               const wordDelta = prevVersion
                 ? v.wordCount - prevVersion.wordCount
@@ -129,9 +144,11 @@ export function VersionHistoryPanel({
                     <span className="text-xs font-mono text-muted-foreground">
                       v{v.version}
                     </span>
-                    <Badge variant={badge.variant} className="text-[10px] px-1.5 py-0">
-                      {badge.label(t)}
-                    </Badge>
+                    {badge && (
+                      <Badge variant={badge.variant} className="text-[10px] px-1.5 py-0">
+                        {badge.label(t)}
+                      </Badge>
+                    )}
                     <span className="ml-auto text-[10px] text-muted-foreground">
                       {wordDelta > 0 ? "+" : ""}
                       {wordDelta !== 0 ? `${wordDelta}w` : ""}
@@ -148,7 +165,12 @@ export function VersionHistoryPanel({
                       })}
                     </span>
 
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {/* P5-S10: group-hover only fires where hovering exists
+                        (Tailwind gates it behind @media (hover: hover)), so the
+                        actions are hidden only there. On touch screens — the
+                        Sheet this panel lives in below lg — they stay visible,
+                        and keyboard focus reveals them everywhere. */}
+                    <div className="flex gap-1 [@media(hover:hover)]:opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
                       <Button
                         variant="ghost"
                         size="icon"

@@ -29,6 +29,11 @@ interface AnnotationTooltipProps {
   onGoToChapter?: () => void;
   /** Marks a continuity flag as intentional (suppresses future re-detection). */
   onIntentional?: () => void;
+  /**
+   * Dismisses a continuity flag for now (P3-S13). Transient: a later scan
+   * re-raises it if the contradiction is still in the text.
+   */
+  onDismiss?: () => void;
   /** [Go to Ch N] target chapter for continuity flags. */
   jumpChapter?: number | null;
 }
@@ -114,6 +119,7 @@ export function AnnotationTooltip({
   onDiscuss,
   onGoToChapter,
   onIntentional,
+  onDismiss,
   jumpChapter,
 }: AnnotationTooltipProps) {
   const { t } = useLanguage();
@@ -241,6 +247,10 @@ export function AnnotationTooltip({
               {onIntentional && (
                 <Button variant="secondary" size="sm" className="h-7 text-xs gap-1" onClick={onIntentional}>
                   <Check className="h-3 w-3" />{t.editorChrome.intentional}</Button>
+              )}
+              {onDismiss && (
+                <Button variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={onDismiss}>
+                  <X className="h-3 w-3" />{t.editorUI.dismiss}</Button>
               )}
             </>
           ) : (

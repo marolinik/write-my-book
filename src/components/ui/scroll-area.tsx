@@ -16,9 +16,14 @@ function ScrollArea({
       className={cn("relative", className)}
       {...props}
     >
+      {/* max-h-[inherit]: a Root capped only by max-height (the chapter picker's
+          max-h-48) has an auto height, so size-full's 100% resolves to auto and
+          the viewport grew past the cap — never scrolling, and painting over
+          the controls below it (X-S12). Inheriting the cap makes the viewport
+          the scroll container; with no max-height on the Root it is a no-op. */}
       <ScrollAreaPrimitive.Viewport
         data-slot="scroll-area-viewport"
-        className="focus-visible:ring-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1"
+        className="focus-visible:ring-ring/50 size-full max-h-[inherit] rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1"
       >
         {children}
       </ScrollAreaPrimitive.Viewport>

@@ -35,8 +35,11 @@ export interface ApplyRecoveryOptions {
   serverVersion: number | null;
   /** Surfaces the existing non-blocking conflict toast. */
   onConflictToast: () => void;
-  /** Re-buffers immediately so the row is re-stamped under this tab's clientId. */
-  bufferNow: () => Promise<void>;
+  /**
+   * The draft-buffer hook's adoptDraft: re-stamps BOTH crash-safety rows (IDB
+   * draft + last-chance mirror) under this tab's clientId.
+   */
+  adoptDraft: () => Promise<void>;
   /** The draft-buffer hook's clearDraft (resets the write-skip hash). */
   clearDraft: (chapterId: string) => void;
   /**
@@ -55,7 +58,7 @@ export function applyRecoveryDecision({
   serverMarkdown,
   serverVersion,
   onConflictToast,
-  bufferNow,
+  adoptDraft,
   clearDraft,
   strings,
 }: ApplyRecoveryOptions): void {
@@ -95,10 +98,13 @@ export function applyRecoveryDecision({
     });
   }
 
-  // Re-buffer immediately: adopts the (possibly pre-crash) draft row under
-  // this tab's clientId so the save-success clearDraft ({onlyIfMine}) can
-  // purge it, and stamps the corrected base version.
-  void bufferNow();
+  // Adopt immediately: re-stamps the (possibly pre-crash) rows — the IDB
+  // draft AND the last-chance mirror — under this tab's clientId so the
+  // save-success clearDraft ({onlyIfMine}) and a conflict resolution can
+  // purge them, and stamps the corrected base version. Adopting only the IDB
+  // row left the dead tab's mirror to raise a false conflict later
+  // (P5-S02/S06, X-S23).
+  void adoptDraft();
 
   function discardRecovery(): void {
     const ed = editorRef.current;

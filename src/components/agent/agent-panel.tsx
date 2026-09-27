@@ -29,7 +29,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAgentSessionStore } from "@/stores/agent-session-store";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
-import { useAgentStream } from "@/hooks/use-agent-stream";
 import { useApiKeys } from "@/hooks/use-api-keys";
 import { useBook } from "@/hooks/use-books";
 import { useBookState } from "@/hooks/use-book-state";
@@ -162,8 +161,9 @@ export function AgentPanel({
   // Guard against concurrent session starts (prevents double-fire)
   const isStartingRef = useRef(false);
 
-  // Multi-session SSE manager
-  useAgentStream(bookId);
+  // The SSE streams for these sessions live in AgentStreamHost (app shell),
+  // not here: this panel unmounts when collapsed, and so did the streams
+  // (P5-S12). The panel only reads what the store already holds.
 
   const startMutation = useStartSession(bookId);
   const startSeriesMutation = useStartSeriesSession(seriesId ?? "");

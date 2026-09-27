@@ -13,6 +13,7 @@ import { FloatingAgentOverlay } from "@/components/agent/floating-agent-overlay"
 import { LanguageProvider } from "@/components/providers/language-provider";
 import { CommandPalette } from "@/components/layout/command-palette";
 import { ApprovalNotifier } from "@/components/agent/approval-notifier";
+import { AgentStreamHost } from "@/components/agent/agent-stream-host";
 import { KeyboardShortcutsDialog } from "@/components/layout/keyboard-shortcuts-dialog";
 import { mainBottomPaddingClass } from "@/lib/layout/fab-clearance";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -103,6 +104,9 @@ export function AppShell({
   return (
     <LanguageProvider initialLanguage={initialLanguage}>
       <CommandPalette />
+      {/* The run's live stream, independent of the panel: a collapsed panel is
+          unmounted, and a stream that lived in it went with it (P5-S12). */}
+      <AgentStreamHost />
       {/* Approval gates block the run for ten minutes; without this the writer
           never saw one raised while the panel was collapsed. */}
       <ApprovalNotifier />

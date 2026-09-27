@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { restoreVersionSchema } from "@/lib/validation";
 import { DocumentService } from "@/lib/documents";
+import { reconcileBookCounters } from "@/lib/books/book-counters";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { zodErrorResponse } from "@/lib/api/zod-error";
 
@@ -37,6 +38,18 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     const svc = new DocumentService(user.id, bookId);
     const result = await svc.restoreVersion(docId, version);
+
+    // P5-S13: a restored chapter's counters must follow the text now live —
+    // the restored version row carries its own word count (same countWords as
+    // the content PUT). Without this the chapter list and book total kept the
+    // replaced version's size until the next typed save (D-200 family).
+    if (doc.type === "CHAPTER_CONTENT" && doc.chapterNumber) {
+      await db.chapter.updateMany({
+        where: { bookId, chapterNumber: doc.chapterNumber },
+        data: { wordCount: result.version.wordCount },
+      });
+      await reconcileBookCounters(bookId);
+    }
 
     return NextResponse.json(result);
   } catch (error) {

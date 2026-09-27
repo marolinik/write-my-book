@@ -163,6 +163,12 @@ export interface UseDraftBufferOptions {
 export interface DraftBufferApi {
   /** Serialize + mirror to IDB now (no-op when clean/unchanged). Never rejects. */
   bufferNow: () => Promise<void>;
+  /**
+   * Take ownership of a recovered draft: re-stamp BOTH crash-safety rows (the
+   * IDB draft and the last-chance mirror) under this tab's clientId, so this
+   * tab's own save success / conflict resolution can clear them. Never rejects.
+   */
+  adoptDraft: () => Promise<void>;
   /** Fire-and-forget delete of this tab's draft (multi-tab safe via clientId). */
   clearDraft: (chapterId: string) => void;
   /** Read draft + return the pure recovery decision; prunes equal/stale-equal drafts. */
@@ -339,6 +345,21 @@ export function useDraftBuffer({
     };
   }, [bufferNow, mirrorNow]);
 
+  // Recovery adoption (P5-S02/S06, X-S23). A crashed or closed tab left its
+  // rows stamped with ITS clientId, and a new page load always has a new one.
+  // Re-stamping only the IDB row left the dead tab's mirror behind: the
+  // save-success clearDraft ({onlyIfMine}) deleted the IDB row and skipped
+  // the foreign mirror, which then became the newest "unsaved" source — once
+  // another device saved, the next load raised a false conflict with already
+  // saved text. Both rows are rewritten here, unconditionally (hashes reset),
+  // so they are this tab's to clear.
+  const adoptDraft = useCallback(async (): Promise<void> => {
+    lastBufferedHashRef.current = null;
+    lastMirroredHashRef.current = null;
+    mirrorNow();
+    await bufferNow();
+  }, [bufferNow, mirrorNow]);
+
   const clearDraft = useCallback((chapterId: string): void => {
     // Reset the hashes so the next dirty tick rewrites even if content
     // returns to the exact last-buffered text (the draft rows are gone — a
@@ -380,9 +401,10 @@ export function useDraftBuffer({
         // would reopen the exact D-24 loss window for that tab (its next
         // hard crash loses everything since its last 2s IDB tick). A
         // surviving foreign row is reaped by: the decision-"none" hygiene
-        // below once the server holds its words, restore's immediate
-        // re-buffer making the IDB row the newer source on later loads,
-        // explicit discard's unconditional clear, or the 14-day prune.
+        // below once the server holds its words, recovery's adoptDraft
+        // re-stamping it as this tab's (then cleared on save / conflict
+        // resolution), explicit discard's unconditional clear, or the
+        // 14-day prune.
         clearLastChanceDraft(chapterId, { onlyIfMine: true });
         if (decision.kind === "none") {
           // Words already match the server — garbage for every tab.
@@ -405,5 +427,5 @@ export function useDraftBuffer({
     []
   );
 
-  return { bufferNow, clearDraft, checkRecovery };
+  return { bufferNow, adoptDraft, clearDraft, checkRecovery };
 }

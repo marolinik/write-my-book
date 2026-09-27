@@ -19,8 +19,12 @@ import { toast } from "sonner";
 import { useAgentSessionStore } from "@/stores/agent-session-store";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
 
-/** Panel modes in which the writer can actually see the agent transcript. */
-const VISIBLE_MODES = new Set(["panel", "overlay", "mini"]);
+/**
+ * Panel modes in which the writer can actually see the agent transcript.
+ * Not "mini": the minimised card previews only the last text reply, never an
+ * approval request (P5-S12 — the same unseen-approval failure on desktop).
+ */
+const VISIBLE_MODES = new Set(["panel", "overlay"]);
 
 export function ApprovalNotifier() {
   const { t } = useLanguage();

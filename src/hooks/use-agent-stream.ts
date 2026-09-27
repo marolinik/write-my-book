@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MutableRefObject } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useAgentSessionStore, type SessionState, type SessionResultMeta } from "@/stores/agent-session-store";
@@ -36,13 +36,25 @@ const RECONCILE_INTERVAL_MS = 20_000;
  *
  * Re-checked on an interval, not just at mount: a session started after mount
  * can miss its terminal event too, and nothing else would ever settle it.
+ *
+ * A session whose stream is OPEN is left to the stream (P5-S12): the stream
+ * route only stays open while the server holds the run as live, and it ends
+ * with its own complete/error. The DB row is NOT authoritative there — a
+ * follow-up turn flips only the in-memory status, so the row still reads
+ * "completed" from turn 1 while turn 2 runs (and may be waiting on the
+ * writer's approval). Trusting it closed the live stream of a running turn.
  */
-function useReconcileStaleSessions() {
+function useReconcileStaleSessions(
+  liveSources: MutableRefObject<Map<string, EventSource>>,
+) {
   useEffect(() => {
+    const streamIsLive = (sessionId: string) =>
+      liveSources.current.get(sessionId)?.readyState === EventSource.OPEN;
+
     const reconcile = () => {
       const store = useAgentSessionStore.getState();
       const stale = Object.values(store.sessions).filter(
-        (s: SessionState) => s.status === "running",
+        (s: SessionState) => s.status === "running" && !streamIsLive(s.sessionId),
       );
 
       for (const session of stale) {
@@ -52,6 +64,8 @@ function useReconcileStaleSessions() {
           .then((res) => (res.ok ? res.json() : null))
           .then((data: { status?: string; completedAt?: string | null } | null) => {
             if (!data?.status || data.status === "running") return;
+            // The stream may have opened while this request was out.
+            if (streamIsLive(session.sessionId)) return;
             const current =
               useAgentSessionStore.getState().sessions[session.sessionId];
             if (!current || current.status !== "running") return;
@@ -91,15 +105,25 @@ function useReconcileStaleSessions() {
       clearInterval(interval);
       window.removeEventListener("focus", onFocus);
     };
-  }, []);
+  }, [liveSources]);
 }
 
-export function useAgentStream(bookId: string | null) {
-  useReconcileStaleSessions();
+/**
+ * Streams the running sessions of the book on screen — or, on a series page,
+ * of that series. Mounted ONCE, by AgentStreamHost in the app shell, never by
+ * the agent panel: the panel unmounts whenever it is collapsed to the bubble,
+ * and a stream that lived in it went with it (P5-S12 — an approval requested
+ * while the panel was collapsed reached nobody and expired as a rejection).
+ */
+export function useAgentStream(
+  bookId: string | null,
+  seriesId: string | null = null
+) {
+  const eventSourcesRef = useRef<Map<string, EventSource>>(new Map());
+  useReconcileStaleSessions(eventSourcesRef);
   const [connectedSessions, setConnectedSessions] = useState<Set<string>>(
     new Set()
   );
-  const eventSourcesRef = useRef<Map<string, EventSource>>(new Map());
   // Per-session "first message" timers guarding against a silent queue wait.
   const queueWaitTimersRef = useRef<
     Map<string, ReturnType<typeof setTimeout>>
@@ -113,7 +137,7 @@ export function useAgentStream(bookId: string | null) {
   const router = useRouter();
 
   useEffect(() => {
-    if (!bookId) return;
+    if (!bookId && !seriesId) return;
 
     const currentSources = eventSourcesRef.current;
     const queueWaitTimers = queueWaitTimersRef.current;
@@ -127,16 +151,23 @@ export function useAgentStream(bookId: string | null) {
       }
     };
 
-    // Find running sessions that need an EventSource
+    // Find running sessions that need an EventSource: this book's, or on a
+    // series page any book of the series (the panel there runs workflows on
+    // the book picked in its selector).
     const runningSessions = Object.values(sessions).filter(
-      (s: SessionState) => s.status === "running" && s.bookId === bookId
+      (s: SessionState) =>
+        s.status === "running" &&
+        ((!!bookId && s.bookId === bookId) ||
+          (!!seriesId && s.seriesId === seriesId))
     );
 
     // Create EventSources for new running sessions
     for (const session of runningSessions) {
       if (currentSources.has(session.sessionId)) continue;
 
-      const url = `/api/books/${bookId}/agent/${session.sessionId}/stream`;
+      // The session's own book — on a series page it is not in the URL.
+      const sessionBookId = session.bookId;
+      const url = `/api/books/${sessionBookId}/agent/${session.sessionId}/stream`;
       const es = new EventSource(url);
       currentSources.set(session.sessionId, es);
 
@@ -247,16 +278,16 @@ export function useAgentStream(bookId: string | null) {
             });
 
             // Invalidate caches — use keys that match actual useQuery definitions
-            queryClient.invalidateQueries({ queryKey: ["book-documents", bookId] });
-            queryClient.invalidateQueries({ queryKey: ["style-profile", bookId] });
-            queryClient.invalidateQueries({ queryKey: ["editorial", bookId] });
-            queryClient.invalidateQueries({ queryKey: ["books", bookId] });
-            queryClient.invalidateQueries({ queryKey: ["chapters", bookId] });
-            queryClient.invalidateQueries({ queryKey: ["chapter-content", bookId] });
-            queryClient.invalidateQueries({ queryKey: ["document-content", bookId] });
-            queryClient.invalidateQueries({ queryKey: ["wiki", bookId] });
-            queryClient.invalidateQueries({ queryKey: ["insights", bookId] });
-            queryClient.invalidateQueries({ queryKey: ["writing-stats", bookId] });
+            queryClient.invalidateQueries({ queryKey: ["book-documents", sessionBookId] });
+            queryClient.invalidateQueries({ queryKey: ["style-profile", sessionBookId] });
+            queryClient.invalidateQueries({ queryKey: ["editorial", sessionBookId] });
+            queryClient.invalidateQueries({ queryKey: ["books", sessionBookId] });
+            queryClient.invalidateQueries({ queryKey: ["chapters", sessionBookId] });
+            queryClient.invalidateQueries({ queryKey: ["chapter-content", sessionBookId] });
+            queryClient.invalidateQueries({ queryKey: ["document-content", sessionBookId] });
+            queryClient.invalidateQueries({ queryKey: ["wiki", sessionBookId] });
+            queryClient.invalidateQueries({ queryKey: ["insights", sessionBookId] });
+            queryClient.invalidateQueries({ queryKey: ["writing-stats", sessionBookId] });
             // Server components (the journey board at /books/:id/dev, the book
             // page) hold their own copy of the documents and do not react to
             // react-query. Without this the board still reads "not started"
@@ -358,7 +389,7 @@ export function useAgentStream(bookId: string | null) {
       setConnectedSessions(new Set());
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bookId, Object.entries(sessions).map(([id, s]) => `${id}:${s.status}`).join(",")]);
+  }, [bookId, seriesId, Object.entries(sessions).map(([id, s]) => `${id}:${s.status}`).join(",")]);
 
   return { connectedSessions };
 }

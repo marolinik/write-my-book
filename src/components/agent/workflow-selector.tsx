@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { getAllWorkflows, getWorkflow } from "@/lib/agents/workflows";
+import { isPrerequisiteMet, type PrerequisiteFacts } from "@/lib/agents/prerequisite-check";
 import { getAllJourneys, getJourney } from "@/lib/agents/journeys";
 import type { JourneyDefinition } from "@/lib/agents/journeys";
 import type { WorkflowDefinition } from "@/lib/agents/types";
@@ -208,22 +209,24 @@ export function WorkflowSelector({
   const workflowIds = useMemo(() => workflows.map((w) => w.id), [workflows]);
   const costEstimates = useWorkflowCostEstimates(bookId, workflowIds);
 
-  // Check prerequisites client-side for visual disabling
+  // Check prerequisites client-side for visual disabling — with the server's
+  // own check (P6-S08: a private copy here ignored `anyOf`, so an imported
+  // book's World Research / Write Synopsis stayed locked with no way forward).
   const unmetPrereqs = useMemo(() => {
     const result = new Map<string, string[]>();
     if (!existingDocTypes) return result;
 
+    const facts: PrerequisiteFacts = {
+      docTypes: existingDocTypes,
+      hasManuscript: existingDocTypes.has("CHAPTER_CONTENT"),
+      // No chapter is chosen yet — the book having chapters is what can be known.
+      chapterContent: !!hasChapterContent,
+    };
     for (const w of workflows) {
       if (!w.prerequisites) continue;
-      const missing: string[] = [];
-      for (const p of w.prerequisites) {
-        if (p.type === "document" && !existingDocTypes.has(p.value)) {
-          missing.push(p.description);
-        }
-        if (p.type === "chapter_content" && !hasChapterContent) {
-          missing.push(p.description);
-        }
-      }
+      const missing = w.prerequisites
+        .filter((p) => !isPrerequisiteMet(p, facts))
+        .map((p) => p.description);
       if (missing.length > 0) result.set(w.id, missing);
     }
     return result;

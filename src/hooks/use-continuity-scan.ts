@@ -43,7 +43,20 @@ export function useContinuityScan(bookId: string) {
     } catch { /* next scan reconciles */ }
   }, [bookId]);
 
-  return { flags, scanning, scan, markIntentional };
+  // P3-S13: the writer's transient "clear this now" (DELETE ?flagId). Unlike
+  // Intentional it suppresses nothing — if the contradiction is still in the
+  // text, the next scan raises it again.
+  const dismiss = useCallback(async (flagId: string) => {
+    try {
+      await fetchJson(
+        `/api/books/${bookId}/continuity?flagId=${encodeURIComponent(flagId)}`,
+        { method: "DELETE" }
+      );
+      setFlags((prev) => prev.filter((f) => f.id !== flagId));
+    } catch { /* next scan reconciles */ }
+  }, [bookId]);
+
+  return { flags, scanning, scan, markIntentional, dismiss };
 }
 
 /** Scan ~debounceMs after the last EDIT (activityKey must change per keystroke),

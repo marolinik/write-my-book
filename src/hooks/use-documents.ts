@@ -97,23 +97,34 @@ export function useSaveChapterContent(bookId: string, chapterId: string) {
   });
 }
 
+/** The document row as GET /api/books/:id/documents/:docId returns it. */
+interface DocumentRow {
+  id: string;
+  type: string;
+  title: string | null;
+  currentVersion: number;
+  chapterNumber?: number | null;
+  wordCount?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  createdByAgent?: string | null;
+}
+
 /** Fetch a document's content. */
 export function useDocumentContent(bookId: string, documentId: string) {
   return useQuery({
     queryKey: ["document-content", bookId, documentId],
+    // P5-S23: the route answers DocumentService.read's `{ document, content }`.
+    // Reading it as a flat row made currentVersion undefined, so the page
+    // stamped the pane with nothing and the first autosave PATCHed without
+    // expectedVersion — a concurrent agent write was silently overwritten.
+    // The cache keeps the route's own shape (use-report-document.ts reads the
+    // same key); only this observer flattens it.
     queryFn: () =>
-      fetchJson<{
-        id: string;
-        type: string;
-        title: string | null;
-        content: string;
-        currentVersion: number;
-        chapterNumber?: number | null;
-        wordCount?: number;
-        createdAt?: string;
-        updatedAt?: string;
-        createdByAgent?: string | null;
-      }>(`/api/books/${bookId}/documents/${documentId}`),
+      fetchJson<{ document: DocumentRow; content: string }>(
+        `/api/books/${bookId}/documents/${documentId}`
+      ),
+    select: ({ document, content }) => ({ ...document, content: content ?? "" }),
     enabled: !!bookId && !!documentId,
   });
 }
@@ -206,6 +217,10 @@ export function useRestoreVersion(bookId: string, docId: string | null) {
       qc.invalidateQueries({
         queryKey: ["chapter-content", bookId],
       });
+      // P5-S13: a restored chapter changes its word count and the book total
+      // server-side; the chapter list and book header read those rows.
+      qc.invalidateQueries({ queryKey: ["chapters", bookId] });
+      qc.invalidateQueries({ queryKey: ["books", bookId] });
     },
   });
 }

@@ -25,6 +25,7 @@ import {
 } from "@/hooks/use-documents";
 import { ApiError } from "@/lib/api-client";
 import { deleteDraft } from "@/lib/offline/draft-store";
+import { clearLastChanceDraft } from "@/lib/offline/last-chance-mirror";
 import { DiffView } from "./diff-view";
 import { getMarkdownFromEditor } from "./editor-utils";
 
@@ -99,11 +100,14 @@ export function SaveConflictDialog({
 
   /**
    * Drop the crash-safety drafts once the conflict is explicitly resolved —
-   * the legacy localStorage snapshot and THIS TAB's IDB buffer row.
-   * onlyIfMine is load-bearing: another tab's live offline draft sharing
-   * this chapterId key is by definition NOT settled by this dialog, and
-   * that tab's hash-skip means it would never rewrite a row it doesn't
-   * know was deleted.
+   * the legacy localStorage snapshot, and THIS TAB's IDB buffer row and
+   * last-chance mirror (X-S23: a mirror left behind re-raised the settled
+   * conflict, with stale text, on the next load after another device saved).
+   * A draft recovered from a closed/crashed tab was adopted under this tab's
+   * clientId on load, so it is "mine" here. onlyIfMine is load-bearing:
+   * another tab's live offline draft sharing this chapterId key is by
+   * definition NOT settled by this dialog, and that tab's hash-skip means it
+   * would never rewrite a row it doesn't know was deleted.
    */
   const clearConflictDraft = () => {
     // Document conflicts have no offline crash-draft (that machinery is
@@ -115,6 +119,7 @@ export function SaveConflictDialog({
         // localStorage unavailable — best effort
       }
       void deleteDraft(chapterId, { onlyIfMine: true });
+      clearLastChanceDraft(chapterId, { onlyIfMine: true });
     }
     paneStore.getState().setDraftSavedAt(null);
   };

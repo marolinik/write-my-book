@@ -12,6 +12,8 @@ import {
 import type { FindingItem } from "@/hooks/use-editorial";
 import { useEditorialStore } from "@/stores/editorial-store";
 import { useLanguage } from "@/components/providers/language-provider";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
+import { ApiError } from "@/lib/api-client";
 import {
   findingCategoryLabel,
   findingSeverityLabel,
@@ -111,6 +113,27 @@ function statusBadge(status: string, language: string) {
   }
 }
 
+/**
+ * The writer-facing reason an apply failed. The route's refusal copy is
+ * English and written for an API caller, so each known refusal maps to its
+ * own dictionary entry; anything else still gets a message, never silence.
+ */
+function applyErrorMessage(error: Error, t: UIStrings): string {
+  const findings = t.editorial.findings;
+  // 409: the passage moved since the finding was made.
+  if (error.message.includes("not found in chapter")) {
+    return findings.applyErrorTextNotFound;
+  }
+  if (error instanceof ApiError && error.status === 422) {
+    // Chapter 31: the replacement is an editor's memo (the body names it).
+    const body = error.body as { note?: unknown } | null;
+    if (typeof body?.note === "string") return findings.applyErrorEditorNote;
+    // D-41a: a named passage with a blank replacement would be deleted.
+    return findings.applyErrorNoReplacement;
+  }
+  return findings.applyErrorGeneric;
+}
+
 /** Inline diff view showing original (red strikethrough) and replacement (green) */
 function InlineDiff({
   originalText,
@@ -147,6 +170,7 @@ export function FindingCard({
   const { t, language } = useLanguage();
   const [showDetails, setShowDetails] = useState(false);
   const [applyError, setApplyError] = useState<string | null>(null);
+  const [adviceAccepted, setAdviceAccepted] = useState(false);
   const [discussing, setDiscussing] = useState(false);
   /**
    * D-183: a discuss turn in flight is about to change the replies that Apply and
@@ -171,17 +195,31 @@ export function FindingCard({
 
   const isAutoAppliable = !!(finding.originalText && finding.newText);
 
-  const handleApply = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  /**
+   * Every apply path — auto-apply, advisory, and the Discuss thread's — goes
+   * through here, so none of them can fail silently (P2-S08 / P7-S19: the
+   * route's 422 refusals were written for the writer and never shown; D-129:
+   * server refusals must render, not vanish).
+   */
+  const apply = (input: Parameters<typeof applyMutation.mutate>[0]) => {
     setApplyError(null);
-    applyMutation.mutate(finding.id, {
-      onError: (error: Error) => {
-        // Show 409 conflict errors inline
-        if (error.message.includes("not found in chapter")) {
-          setApplyError(t.editorial.findings.applyErrorTextNotFound);
+    setAdviceAccepted(false);
+    applyMutation.mutate(input, {
+      onSuccess: (data) => {
+        // An advice-only apply changes no text; the route says so in `note`.
+        if (typeof (data as { note?: unknown } | null)?.note === "string") {
+          setAdviceAccepted(true);
         }
       },
+      onError: (error: Error) => {
+        setApplyError(applyErrorMessage(error, t));
+      },
     });
+  };
+
+  const handleApply = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    apply(finding.id);
   };
 
   return (
@@ -276,10 +314,21 @@ export function FindingCard({
 
         {/* Apply error message */}
         {applyError && (
-          <div className="flex items-start gap-2 rounded bg-orange-50 dark:bg-orange-950/30 p-2 text-xs text-orange-800 dark:text-orange-300">
+          <div
+            role="alert"
+            className="flex items-start gap-2 rounded bg-orange-50 dark:bg-orange-950/30 p-2 text-xs text-orange-800 dark:text-orange-300"
+          >
             <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
             <span>{applyError}</span>
           </div>
+        )}
+
+        {/* Advice-only apply: accepted, nothing in the chapter changed. */}
+        {adviceAccepted && (
+          <p className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Check className="h-3 w-3 shrink-0" />
+            {t.editorial.findings.adviceAccepted}
+          </p>
         )}
 
         {/* Triage measured that taking this note would undo the writer's own decision. */}
@@ -354,10 +403,7 @@ export function FindingCard({
                   <Button
                     size="sm"
                     disabled={isMutating}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      applyMutation.mutate(finding.id);
-                    }}
+                    onClick={handleApply}
                   >
                     {t.editorial.findings.apply}
                   </Button>
@@ -394,6 +440,7 @@ export function FindingCard({
               disabled={isMutating}
               onClick={(e) => {
                 e.stopPropagation();
+                setAdviceAccepted(false);
                 undoMutation.mutate(finding.id);
               }}
               className="gap-1"
@@ -409,7 +456,7 @@ export function FindingCard({
             bookId={bookId}
             finding={{ ...finding, alternatives: finding.alternatives ?? undefined }}
             onApply={(overrideText) => {
-              applyMutation.mutate(
+              apply(
                 overrideText ? { findingId: finding.id, overrideText } : finding.id
               );
               setDiscussing(false);

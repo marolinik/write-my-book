@@ -93,7 +93,7 @@ function generateClientId(): string {
  * pass exactly when it must fail. A fresh id per page load loses nothing —
  * a draft that survives a reload is re-offered by recovery (which reads
  * regardless of clientId) and immediately re-stamped under the new id by the
- * post-recovery bufferNow.
+ * post-recovery adoptDraft (IDB row and last-chance mirror alike).
  */
 export function getClientId(): string {
   if (!cachedClientId) {

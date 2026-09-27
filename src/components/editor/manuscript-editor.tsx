@@ -24,6 +24,7 @@ import { useFindings } from "@/hooks/use-editorial";
 import { useOnlineStatus } from "@/hooks/use-online-status";
 import { useDraftBuffer } from "@/hooks/use-draft-buffer";
 import { applyRecoveryDecision } from "./draft-recovery";
+import { usePaneDocumentId } from "./use-pane-document-id";
 import { ApiError, isNetworkError } from "@/lib/api-client";
 import { useServerSaveFlush } from "./save-flush";
 import { cn, countWords } from "@/lib/utils";
@@ -231,12 +232,13 @@ export function ManuscriptEditor({
   const dismissMutation = useDismissFinding(bookId);
 
   // Live continuity net (Tier 4.4): book-wide scan, current-chapter inline
-  // flags + [Go to Ch N] / [Intentional] actions via the tooltip.
+  // flags + [Go to Ch N] / [Intentional] / [Dismiss] actions via the tooltip.
   const {
     flags: continuityFlags,
     scanning: continuityScanning,
     scan: continuityScan,
     markIntentional,
+    dismiss: dismissContinuityFlag,
   } = useContinuityScan(bookId);
 
   // Build annotations from findings + this chapter's continuity flags
@@ -352,7 +354,7 @@ export function ManuscriptEditor({
   // recovery-on-load. Declared after useEditor so the hook can subscribe to
   // the live instance's update events. Server writes stay on the stamped PUT;
   // the buffer never saves anything itself.
-  const { bufferNow, clearDraft, checkRecovery } = useDraftBuffer({
+  const { adoptDraft, clearDraft, checkRecovery } = useDraftBuffer({
     paneStore,
     editorRef,
     editor,
@@ -462,12 +464,8 @@ export function ManuscriptEditor({
     // Stamp the loaded version for optimistic locking on autosave
     paneStore.getState().setDocumentVersion(chapterData.version ?? null);
 
-    if (chapterData.documentId) {
-      paneStore.getState().setDocumentId(chapterData.documentId);
-      if (isPrimary) {
-        useActiveEditorStore.getState().setActiveDocumentId(chapterData.documentId);
-      }
-    }
+    // (The chapter's documentId is adopted by usePaneDocumentId below — not
+    // here, behind this gate: P5-S13.)
 
     if (isInitialLoad) {
       // If scrollToText was set before content loaded (e.g. navigating from editorial page),
@@ -498,7 +496,7 @@ export function ManuscriptEditor({
               serverMarkdown,
               serverVersion,
               onConflictToast: showConflictToast,
-              bufferNow,
+              adoptDraft,
               clearDraft,
               strings: {
                 recovered: t.toasts.draftRecovered,
@@ -508,7 +506,11 @@ export function ManuscriptEditor({
         );
       }
     }
-  }, [chapterData, editor, isPrimary, paneStore, checkRecovery, bufferNow, clearDraft, showConflictToast, t]);
+  }, [chapterData, editor, isPrimary, paneStore, checkRecovery, adoptDraft, clearDraft, showConflictToast, t]);
+
+  // The chapter's documentId whenever the content query carries one — the
+  // first one arrives with the refetch after a new chapter's first save.
+  usePaneDocumentId({ documentId: chapterData?.documentId, paneStore, isPrimary });
 
   // Navigating away silently clears a pending conflict (setChapter resets it)
   // and would strand words typed after the conflict (autosave is suspended) —
@@ -1358,7 +1360,20 @@ export function ManuscriptEditor({
               containerRect={editorAreaRef.current.getBoundingClientRect()}
               jumpChapter={continuityFlag?.jumpChapter ?? null}
               onIntentional={
-                continuityFlag ? () => markIntentional(continuityFlag.id) : undefined
+                continuityFlag
+                  ? () => {
+                      void markIntentional(continuityFlag.id);
+                      setTooltipState(null);
+                    }
+                  : undefined
+              }
+              onDismiss={
+                continuityFlag
+                  ? () => {
+                      void dismissContinuityFlag(continuityFlag.id);
+                      setTooltipState(null);
+                    }
+                  : undefined
               }
               onGoToChapter={
                 continuityFlag &&

@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { NOT_AWAITING_REVIEW } from "@/lib/documents/review-gate";
 import { getWorkflow } from "./workflows";
-import type { WorkflowPrerequisite } from "./types";
+import { isPrerequisiteMet, type PrerequisiteFacts } from "./prerequisite-check";
 
 export interface PrerequisiteResult {
   satisfied: boolean;
@@ -65,20 +65,20 @@ export async function validatePrerequisites(
     : [];
   const chapterDocTypes = new Set(chapterDocs.map((d) => d.type));
 
+  // The same check the agent panel runs (prerequisite-check.ts, P6-S08).
+  const facts: PrerequisiteFacts = {
+    docTypes: docTypeSet,
+    hasManuscript,
+    // Check that chapter content exists for the specified chapter. A missing
+    // chapterNumber is caught above for chapter-scoped workflows; anything
+    // else asking for chapter content book-wide has nothing to check.
+    chapterContent: !chapterNumber || chapterDocTypes.has("CHAPTER_CONTENT"),
+  };
+
   const missing: PrerequisiteResult["missing"] = [];
 
   for (const prereq of workflow.prerequisites) {
-    const satisfied =
-      checkPrerequisite(prereq, docTypeSet, chapterDocTypes, chapterNumber, hasManuscript) ||
-      (prereq.anyOf ?? []).some((alt) =>
-        checkPrerequisite(
-          { ...prereq, type: alt.type, value: alt.value },
-          docTypeSet,
-          chapterDocTypes,
-          chapterNumber,
-          hasManuscript,
-        ),
-      );
+    const satisfied = isPrerequisiteMet(prereq, facts);
     if (!satisfied) {
       missing.push({
         description: prereq.description,
@@ -90,30 +90,4 @@ export async function validatePrerequisites(
   }
 
   return { satisfied: missing.length === 0, missing };
-}
-
-function checkPrerequisite(
-  prereq: WorkflowPrerequisite,
-  bookDocTypes: Set<string>,
-  chapterDocTypes: Set<string>,
-  chapterNumber?: number,
-  hasManuscript = false
-): boolean {
-  switch (prereq.type) {
-    case "document":
-      return bookDocTypes.has(prereq.value);
-
-    case "manuscript":
-      return hasManuscript;
-
-    case "chapter_content":
-      // Check that chapter content exists for the specified chapter. A missing
-      // chapterNumber is caught above for chapter-scoped workflows; anything
-      // else asking for chapter content book-wide has nothing to check.
-      if (!chapterNumber) return true;
-      return chapterDocTypes.has("CHAPTER_CONTENT");
-
-    default:
-      return true;
-  }
 }
