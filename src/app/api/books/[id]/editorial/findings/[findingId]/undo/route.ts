@@ -3,7 +3,11 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { DocumentService, VersionConflictError } from "@/lib/documents";
 import { DocumentType } from "@/generated/prisma/enums";
-import { undoDetail, detailForStorage } from "@/lib/editorial/edit-action-detail";
+import {
+  undoDetail,
+  detailForStorage,
+  appliedSwapOf,
+} from "@/lib/editorial/edit-action-detail";
 
 type RouteParams = { params: Promise<{ id: string; findingId: string }> };
 
@@ -18,6 +22,16 @@ function sanitizeUnicode(text: string): string {
 function countOccurrences(content: string, needle: string): number {
   if (!needle) return 0;
   return content.split(needle).length - 1;
+}
+
+/** The swap recorded by this finding's most recent apply, if it recorded one. */
+async function lastAppliedSwap(bookId: string, findingId: string) {
+  const action = await db.editAction.findFirst({
+    where: { bookId, findingId, actionType: "apply" },
+    orderBy: { timestamp: "desc" },
+    select: { details: true },
+  });
+  return appliedSwapOf(action?.details ?? null);
 }
 
 /** POST /api/books/:id/editorial/findings/:findingId/undo — Revert finding to pending. */
@@ -56,12 +70,18 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     // untouched (text edited further / ambiguous match / pre-fix finding).
     let note: string | undefined;
 
+    // What the apply actually swapped. A chosen alternative or the writer's
+    // own revision is not finding.newText, and comparing against that put
+    // nothing back while claiming the passage had been "edited further"
+    // (X-S05). Older applies recorded no swap and fall back to the finding's
+    // own texts, as before.
+    const swap =
+      finding.status === "applied" ? await lastAppliedSwap(bookId, findingId) : null;
+    const newText = swap?.inserted ?? finding.newText;
+    const originalText = swap?.replaced ?? finding.originalText;
+
     // Reverse auto-applied text changes if the finding was applied with patches
-    if (
-      finding.status === "applied" &&
-      finding.originalText &&
-      finding.newText
-    ) {
+    if (finding.status === "applied" && originalText && newText) {
       const docService = new DocumentService(user.id, bookId);
       const doc = await docService.findByType(
         DocumentType.CHAPTER_CONTENT,
@@ -73,8 +93,6 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         if (result) {
           const currentVersion = result.document.currentVersion;
           const content = result.content;
-          const newText = finding.newText;
-          const originalText = finding.originalText;
 
           // Decide whether and where to reverse. Prefer the EXACT spot this
           // apply touched — a later undo must never re-search the whole doc

@@ -41,30 +41,48 @@ export function toSerbianLatin(text: string): string {
   if (!containsCyrillic(text)) return text;
 
   let out = "";
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    const mapped = CYRILLIC_TO_LATIN[ch];
-    if (mapped === undefined) {
-      out += ch;
-      continue;
-    }
-
-    // Digraph from an uppercase Cyrillic letter: "Lj" normally, "LJ" when the
-    // surrounding run is uppercase.
-    if (mapped.length === 2 && mapped[0] === mapped[0].toUpperCase()) {
-      const next = text[i + 1];
-      const nextIsUpperCyrillic =
-        next !== undefined &&
-        CYRILLIC_RANGE.test(next) &&
-        next === next.toUpperCase() &&
-        next !== next.toLowerCase();
-      out += nextIsUpperCyrillic ? mapped.toUpperCase() : mapped;
-      continue;
-    }
-
-    out += mapped;
-  }
+  for (let i = 0; i < text.length; i++) out += latinAt(text, i);
   return out;
+}
+
+/** The Latin for the character at `i`, which may be a digraph. */
+function latinAt(text: string, i: number): string {
+  const ch = text[i];
+  const mapped = CYRILLIC_TO_LATIN[ch];
+  if (mapped === undefined) return ch;
+
+  // Digraph from an uppercase Cyrillic letter: "Lj" normally, "LJ" when the
+  // surrounding run is uppercase.
+  if (mapped.length === 2 && mapped[0] === mapped[0].toUpperCase()) {
+    const next = text[i + 1];
+    const nextIsUpperCyrillic =
+      next !== undefined &&
+      CYRILLIC_RANGE.test(next) &&
+      next === next.toUpperCase() &&
+      next !== next.toLowerCase();
+    return nextIsUpperCyrillic ? mapped.toUpperCase() : mapped;
+  }
+
+  return mapped;
+}
+
+/**
+ * `toSerbianLatin`, with the way back: `toSource[k]` is the index in `text` of
+ * the character that produced `latin[k]`, and one last entry is `text.length`.
+ *
+ * Lets a Latin quote find the passage it quotes in Cyrillic prose and name that
+ * span in the prose's own characters (P6-S12).
+ */
+export function toSerbianLatinWithMap(text: string): { latin: string; toSource: number[] } {
+  let latin = "";
+  const toSource: number[] = [];
+  for (let i = 0; i < text.length; i++) {
+    const piece = latinAt(text, i);
+    latin += piece;
+    for (let k = 0; k < piece.length; k++) toSource.push(i);
+  }
+  toSource.push(text.length);
+  return { latin, toSource };
 }
 
 /**
@@ -77,4 +95,30 @@ export function toSerbianLatin(text: string): string {
  */
 export function enforceBookScript(text: string, language: string | undefined): string {
   return language === "sr" ? toSerbianLatin(text) : text;
+}
+
+const collapseWhitespace = (text: string) => text.replace(/\s+/g, " ").trim();
+
+/**
+ * Enforce the book's script on a QUOTE of the manuscript — an anchor, or the
+ * passage a finding would replace — without breaking the quote.
+ *
+ * A quote has to be found in the chapter, or Apply cannot use it. The writer's
+ * own prose is never transliterated (a pasted Cyrillic paragraph stays
+ * Cyrillic), so a transliterated quote of it could never be found: every
+ * finding on a Cyrillic passage answered 409 "may have been edited" (P6-S12).
+ * A quote is transliterated only when that is what makes it match — the
+ * model's stray homoglyphs in a quote of Latin prose (C-4).
+ */
+export function enforceQuoteScript(
+  quote: string,
+  manuscript: string,
+  language: string | undefined
+): string {
+  const enforced = enforceBookScript(quote, language);
+  if (enforced === quote) return quote;
+
+  const prose = collapseWhitespace(manuscript);
+  const found = (text: string) => prose.includes(collapseWhitespace(text));
+  return found(quote) && !found(enforced) ? quote : enforced;
 }

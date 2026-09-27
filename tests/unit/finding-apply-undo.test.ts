@@ -23,7 +23,9 @@ const h = vi.hoisted(() => {
     db: {
       book: { findFirst: vi.fn() },
       editFinding: { findFirst: vi.fn(), update: vi.fn() },
-      editAction: { create: vi.fn() },
+      // findFirst: undo reads the swap the apply recorded (X-S05); these rows
+      // predate it, so undo falls back to the finding's own texts.
+      editAction: { create: vi.fn(), findFirst: vi.fn() },
     },
     findByType: vi.fn(),
     read: vi.fn(),

@@ -222,7 +222,14 @@ export function planReorder(
     ...without.slice(move.targetPosition - 1),
   ];
 
-  return { ok: true, plan: { ordering: renumberFrom(reordered), removedChapterIds: [] } };
+  return {
+    ok: true,
+    plan: {
+      ordering: renumberFrom(reordered),
+      removedChapterIds: [],
+      sourceChapterId: moved.id,
+    },
+  };
 }
 
 export function planMerge(

@@ -43,8 +43,14 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       // updateMany, not update: the move id must belong to THIS book, or a
       // guessed id from another writer's book would be decided from here. The
       // apply path gets the same fence inside the engine.
+      //
+      // And only a PENDING move can be rejected, in the same statement so no
+      // accept can slip in between a check and the write. A Reject pressed in a
+      // stale tab wrote `rejected` over a move that had already been APPLIED:
+      // the manuscript kept the change, the row said it was refused, and Undo
+      // answered "never applied" (P2-S12, X-S08).
       const { count } = await db.structureMove.updateMany({
-        where: { id: moveId, bookId },
+        where: { id: moveId, bookId, status: "pending" },
         data: {
           status: "rejected",
           rejectionReason: reason ?? null,
@@ -52,7 +58,17 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         },
       });
       if (count === 0) {
-        return NextResponse.json({ error: "Proposal not found" }, { status: 404 });
+        const existing = await db.structureMove.findFirst({
+          where: { id: moveId, bookId },
+          select: { status: true },
+        });
+        if (!existing) {
+          return NextResponse.json({ error: "Proposal not found" }, { status: 404 });
+        }
+        return NextResponse.json(
+          { error: `This proposal is already ${existing.status}.`, code: "not_pending" },
+          { status: 409 }
+        );
       }
       return NextResponse.json({ applied: false, status: "rejected" });
     }

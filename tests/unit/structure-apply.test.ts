@@ -13,16 +13,22 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 const h = vi.hoisted(() => ({
   db: {
-    structureMove: { findFirst: vi.fn(), update: vi.fn() },
+    // The apply transaction runs on the same fake: rollback semantics are what
+    // structure-apply-atomic.test.ts is for.
+    $transaction: vi.fn(),
+    structureMove: { findFirst: vi.fn(), update: vi.fn(), updateMany: vi.fn() },
     chapter: {
       findMany: vi.fn(),
       findFirst: vi.fn(),
       delete: vi.fn(),
+      deleteMany: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
     },
+    document: { findMany: vi.fn(), findFirst: vi.fn(), deleteMany: vi.fn(), update: vi.fn() },
   },
   renumberChapters: vi.fn(),
+  renumberChaptersWith: vi.fn(),
   reconcileBookCounters: vi.fn(),
   docs: {
     findByType: vi.fn(),
@@ -37,12 +43,15 @@ const h = vi.hoisted(() => ({
 vi.mock("@/lib/db", () => ({ db: h.db }));
 vi.mock("@/lib/chapters/renumber", () => ({
   renumberChapters: (...args: unknown[]) => h.renumberChapters(...args),
+  renumberChaptersWith: (...args: unknown[]) => h.renumberChaptersWith(...args),
+  RENUMBER_TX_OPTIONS: { maxWait: 10_000, timeout: 30_000 },
   // Mirror the real module: undo derives its parking range from this.
   TEMP_OFFSET: 10000,
 }));
 vi.mock("@/lib/books/book-counters", () => ({
   reconcileBookCounters: (...args: unknown[]) => h.reconcileBookCounters(...args),
 }));
+vi.mock("@/lib/storage", () => ({ getBookStorage: () => ({ delete: vi.fn() }) }));
 vi.mock("@/lib/documents/document-service", () => ({
   DocumentService: class {
     findByType = h.docs.findByType;
@@ -83,7 +92,18 @@ const opts = { bookId: "b1", userId: "u1" };
 beforeEach(() => {
   vi.clearAllMocks();
   h.db.chapter.findMany.mockResolvedValue(chapters);
+  h.db.$transaction.mockImplementation(async (fn: (tx: unknown) => unknown) => fn(h.db));
   h.db.structureMove.update.mockImplementation(async (a: unknown) => a);
+  h.db.structureMove.updateMany.mockResolvedValue({ count: 1 });
+  h.db.chapter.deleteMany.mockResolvedValue({ count: 1 });
+  h.db.document.findMany.mockImplementation(
+    async ({ where }: { where: { chapterNumber: { in: number[] } } }) =>
+      where.chapterNumber.in.map((n) => ({ id: `doc-${n}`, storageKey: `k-${n}`, versions: [] }))
+  );
+  h.db.document.findFirst.mockResolvedValue(null);
+  h.db.document.deleteMany.mockResolvedValue({ count: 1 });
+  h.db.document.update.mockResolvedValue({});
+  h.renumberChaptersWith.mockResolvedValue(undefined);
   h.db.chapter.create.mockResolvedValue({ id: "new1", chapterNumber: 4 });
   h.db.chapter.findFirst.mockImplementation(async ({ where }: { where: { id: string } }) =>
     where.id === "new1"
@@ -114,7 +134,7 @@ describe("applyStructureMove — reorder", () => {
     const res = await applyStructureMove("m1", opts);
     expect(res.ok).toBe(true);
 
-    const [bookId, ordering] = h.renumberChapters.mock.calls[0];
+    const [, bookId, ordering] = h.renumberChaptersWith.mock.calls[0];
     expect(bookId).toBe("b1");
     expect(ordering).toEqual([
       { chapterId: "c1", chapterNumber: 1 },
@@ -123,7 +143,10 @@ describe("applyStructureMove — reorder", () => {
       { chapterId: "c3", chapterNumber: 4 },
     ]);
 
-    const data = h.db.structureMove.update.mock.calls.at(-1)?.[0].data;
+    // Applied only if still pending, in the same transaction as the renumber.
+    const commit = h.db.structureMove.updateMany.mock.calls.at(-1)?.[0];
+    expect(commit.where).toMatchObject({ id: "m1", status: "pending" });
+    const data = commit.data;
     expect(data.status).toBe("applied");
     expect(data.appliedAt).toBeInstanceOf(Date);
     // Undo needs the ordering as it stood BEFORE the move.
@@ -141,7 +164,7 @@ describe("applyStructureMove — reorder", () => {
     );
     const res = await applyStructureMove("m1", opts);
     expect(res).toMatchObject({ ok: false, error: { code: "not_pending" } });
-    expect(h.renumberChapters).not.toHaveBeenCalled();
+    expect(h.renumberChaptersWith).not.toHaveBeenCalled();
   });
 
   it("fails the move when the book changed under it", async () => {
@@ -153,8 +176,8 @@ describe("applyStructureMove — reorder", () => {
 
     const res = await applyStructureMove("m1", opts);
     expect(res).toMatchObject({ ok: false, error: { code: "chapter_not_found" } });
-    expect(h.renumberChapters).not.toHaveBeenCalled();
-    expect(h.db.structureMove.update.mock.calls.at(-1)?.[0].data.status).toBe("failed");
+    expect(h.renumberChaptersWith).not.toHaveBeenCalled();
+    expect(h.db.structureMove.updateMany.mock.calls.at(-1)?.[0].data.status).toBe("failed");
   });
 });
 
@@ -175,13 +198,16 @@ describe("applyStructureMove — merge", () => {
     expect(content).toContain("Kad je pao mrak");
     expect(content).toContain("* * *");
 
-    expect(h.db.chapter.delete).toHaveBeenCalledWith({ where: { id: "c3" } });
-    expect(h.reconcileBookCounters).toHaveBeenCalledWith("b1");
+    expect(h.db.chapter.deleteMany).toHaveBeenCalledWith({
+      where: { bookId: "b1", id: { in: ["c3"] } },
+    });
+    // Recounted on the apply's own transaction, so it commits with the rows.
+    expect(h.reconcileBookCounters).toHaveBeenCalledWith("b1", h.db);
   });
 
   it("keeps the absorbed chapter's prose in previousState so undo can restore it", async () => {
     await applyStructureMove("m1", opts);
-    const prev = JSON.parse(h.db.structureMove.update.mock.calls.at(-1)?.[0].data.previousState);
+    const prev = JSON.parse(h.db.structureMove.updateMany.mock.calls.at(-1)?.[0].data.previousState);
     const absorbed = prev.chapters.find((c: { chapterNumber: number }) => c.chapterNumber === 3);
     expect(absorbed).toMatchObject({ chapterNumber: 3, title: "Put", actNumber: 1 });
     expect(absorbed.content).toContain("Kad je pao mrak");
@@ -190,7 +216,7 @@ describe("applyStructureMove — merge", () => {
 
   it("closes the numbering gap left by the absorbed chapter", async () => {
     await applyStructureMove("m1", opts);
-    const [, ordering] = h.renumberChapters.mock.calls[0];
+    const [, , ordering] = h.renumberChaptersWith.mock.calls[0];
     expect(ordering).toEqual([
       { chapterId: "c1", chapterNumber: 1 },
       { chapterId: "c2", chapterNumber: 2 },
@@ -215,7 +241,7 @@ describe("applyStructureMove — split", () => {
     const res = await applyStructureMove("m1", opts);
     expect(res.ok).toBe(true);
 
-    const [, ordering] = h.renumberChapters.mock.calls[0];
+    const [, , ordering] = h.renumberChaptersWith.mock.calls[0];
     expect(ordering).toContainEqual({ chapterId: "c4", chapterNumber: 5 });
 
     const [docId, firstHalf] = h.docs.update.mock.calls[0];
@@ -226,11 +252,17 @@ describe("applyStructureMove — split", () => {
     const created = h.db.chapter.create.mock.calls[0][0].data;
     expect(created).toMatchObject({ bookId: "b1", chapterNumber: 4, actNumber: 1, title: "Mrak" });
 
-    const [type, secondHalf, , chapterNumber] = h.docs.create.mock.calls[0];
+    // Filed parked first (chapter 4's number is still taken), then moved to 4
+    // inside the transaction, after the renumber has freed it.
+    const [type, secondHalf, , parkedAt] = h.docs.create.mock.calls[0];
     expect(type).toBe("CHAPTER_CONTENT");
     expect(secondHalf.startsWith("Kad je pao mrak")).toBe(true);
     expect(secondHalf).toContain("Kraj.");
-    expect(chapterNumber).toBe(4);
+    expect(parkedAt).toBeGreaterThanOrEqual(30000);
+    expect(h.db.document.update).toHaveBeenCalledWith({
+      where: { id: "doc-new" },
+      data: { chapterNumber: 4 },
+    });
   });
 
   it("fails without writing when the anchor is not in the real prose", async () => {
@@ -241,8 +273,8 @@ describe("applyStructureMove — split", () => {
     expect(res).toMatchObject({ ok: false, error: { code: "anchor_not_found" } });
     expect(h.docs.update).not.toHaveBeenCalled();
     expect(h.db.chapter.create).not.toHaveBeenCalled();
-    expect(h.renumberChapters).not.toHaveBeenCalled();
-    expect(h.db.structureMove.update.mock.calls.at(-1)?.[0].data.status).toBe("failed");
+    expect(h.renumberChaptersWith).not.toHaveBeenCalled();
+    expect(h.db.structureMove.updateMany.mock.calls.at(-1)?.[0].data.status).toBe("failed");
   });
 });
 

@@ -19,6 +19,8 @@ export function describeMoveError(
     anchor_too_early: s.errAnchorTooEarly,
     not_adjacent: s.errNotAdjacent,
     book_changed: s.errBookChanged,
+    // The database refused the move and the engine rolled it back (P6-S10).
+    apply_failed: s.errApplyFailed,
   };
   return (code && byCode[code]) || fallback;
 }

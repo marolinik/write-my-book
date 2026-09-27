@@ -42,8 +42,11 @@ describe("the write paths that reach the manuscript or the model's history", () 
       tools.indexOf("async function executeCreateFinding"),
       tools.indexOf("async function executeReadSeriesDocument")
     );
-    expect(executor).toMatch(/const enforcedAnchor = enforceBookScript\(/);
+    // The anchor and the replaced passage are quotes: enforced, but kept in
+    // the script of the prose they quote, or Apply cannot find them (P6-S12).
+    expect(executor).toMatch(/const enforcedAnchor = enforceQuoteScript\(/);
     expect(executor).toMatch(/const enforcedAlternatives = input\.alternatives\.map/);
+    expect(executor).toMatch(/originalText: enforceQuoteScript\(alt\.originalText, prose, lang\)/);
     expect(executor).toMatch(/newText: enforceBookScript\(alt\.newText, lang\)/);
     // Grounding is scored against the enforced anchor, or a contaminated quote
     // scores as ungrounded against the Latin prose it came from.

@@ -1,15 +1,25 @@
 import { db } from "@/lib/db";
+import type { Prisma } from "@/generated/prisma/client";
 import { countWords } from "@/lib/utils";
 import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
-import { renumberChapters, TEMP_OFFSET } from "@/lib/chapters/renumber";
+import { getBookStorage } from "@/lib/storage";
+import {
+  renumberChapters,
+  renumberChaptersWith,
+  RENUMBER_TX_OPTIONS,
+  TEMP_OFFSET,
+} from "@/lib/chapters/renumber";
 import { reconcileBookCounters } from "@/lib/books/book-counters";
 import {
   planMove,
   mergeContent,
   splitContent,
   type ChapterRef,
+  type MergeMove,
   type MoveError,
+  type MovePlan,
+  type SplitMove,
   type StructureMoveInput,
 } from "./moves";
 
@@ -17,16 +27,29 @@ import {
  * O12 phase 2 — apply one accepted structural move.
  *
  * Accepting is the only thing in this feature that touches the manuscript, so
- * three rules hold everywhere below:
+ * these rules hold everywhere below:
  *
  *  1. The move is re-planned against the CURRENT chapter list, never against the
  *     list it was proposed from. The writer may have edited, imported or deleted
  *     in between; a stale plan would renumber the wrong chapters.
- *  2. No prose is destroyed. Content changes go through DocumentService, which
+ *  2. Chapters are found by the ids the plan resolved, never by the numbers in
+ *     the proposal. Another accepted move renumbers the book, and a split once
+ *     went looking for its quote in the chapter that had inherited the number
+ *     (P2-S11).
+ *  3. No prose is destroyed. Content changes go through DocumentService, which
  *     versions every write, and everything the move overwrote or deleted is
  *     captured in `previousState` so it can be put back.
- *  3. A move that cannot run fails loudly — status `failed` with the reason —
- *     and writes nothing.
+ *  4. A move that cannot run fails loudly — status `failed` with the reason —
+ *     and leaves the book as it found it. Everything structural (the absorbed
+ *     chapter's rows, the renumber, the counters and the move's own status)
+ *     commits in ONE transaction. Prose is written before it, because that
+ *     writes files, and is put back if the transaction does not commit; files
+ *     are only deleted after it has. A merge that deleted first and renumbered
+ *     second left a long book a chapter short, with a gap and no undo, when the
+ *     renumber timed out (P6-S10).
+ *  5. The move is applied only if it is STILL pending when that transaction
+ *     commits. A reject from a stale tab that lands first wins, and the apply
+ *     takes nothing (P2-S12).
  *
  * Undo restores chapter rows, their numbering and their prose. It does NOT
  * resurrect derived chapter documents (briefs, plans, edit reports) that were
@@ -71,13 +94,62 @@ interface PreviousState {
   createdChapterNumber?: number;
 }
 
+type Tx = Prisma.TransactionClient;
+type LoadedChapter = ChapterRef & { status?: string };
+
 const CHANGE_SOURCE = "structure";
+
+/**
+ * Where a split's second half waits for its chapter: clear of every real
+ * number and of the renumber's own parking range (TEMP_OFFSET + i) and undo's
+ * (TEMP_OFFSET * 2 and up).
+ */
+const SPLIT_PARK = TEMP_OFFSET * 3;
+
+/**
+ * What the writer is told when the database refused the move. The raw error —
+ * a Prisma invocation dump with bundler paths in it — goes to the log, not to
+ * the panel (P6-S10).
+ */
+const APPLY_FAILED_MESSAGE =
+  "The move could not be applied, and nothing in the book was changed.";
+
+/** Thrown inside the apply transaction when the move stopped being pending. */
+class MoveNoLongerPending extends Error {
+  constructor() {
+    super("The move is no longer pending.");
+    this.name = "MoveNoLongerPending";
+  }
+}
+
+/** Everything one apply works from, resolved before anything is written. */
+interface ApplyRun {
+  moveId: string;
+  ctx: ApplyContext;
+  chapters: LoadedChapter[];
+  plan: MovePlan;
+  docs: DocumentService;
+}
+
+/** A chapter's prose as read, with the version any write back must match. */
+interface ChapterText {
+  docId: string | null;
+  version: number | undefined;
+  content: string;
+}
+
+/** A prose write made outside the transaction, and how to take it back. */
+interface ProseWrite {
+  docId: string;
+  created: boolean;
+  version: number | undefined;
+}
 
 function fail(code: MoveError["code"], message: string): ApplyOutcome {
   return { ok: false, error: { code, message } };
 }
 
-async function loadChapters(bookId: string): Promise<ChapterRef[]> {
+async function loadChapters(bookId: string): Promise<LoadedChapter[]> {
   const rows = await db.chapter.findMany({
     where: { bookId },
     select: {
@@ -90,29 +162,176 @@ async function loadChapters(bookId: string): Promise<ChapterRef[]> {
     },
     orderBy: { chapterNumber: "asc" },
   });
-  return rows as ChapterRef[];
+  return rows as LoadedChapter[];
 }
 
 function currentOrdering(chapters: readonly ChapterRef[]) {
   return chapters.map((c) => ({ chapterId: c.id, chapterNumber: c.chapterNumber }));
 }
 
-async function readChapterContent(
+function chapterById(run: ApplyRun, id: string | undefined): LoadedChapter {
+  const chapter = run.chapters.find((c) => c.id === id);
+  // planMove only names chapters it found in this very list.
+  if (!chapter) throw new Error(`Planned chapter ${id} is missing from the book.`);
+  return chapter;
+}
+
+async function readChapterText(
   docs: DocumentService,
   chapterNumber: number
-): Promise<string> {
+): Promise<ChapterText> {
   const doc = await docs.findByType(DocumentType.CHAPTER_CONTENT, chapterNumber);
-  if (!doc) return "";
+  if (!doc) return { docId: null, version: undefined, content: "" };
   const read = await docs.read(doc.id);
-  return read?.content ?? "";
+  return {
+    docId: doc.id,
+    version: read?.document.currentVersion ?? undefined,
+    content: read?.content ?? "",
+  };
+}
+
+/**
+ * Write a chapter's new prose, guarded by the version it was read at: a writer
+ * who saved in between keeps their text and the move fails before touching
+ * anything else.
+ */
+async function writeProse(
+  docs: DocumentService,
+  text: ChapterText,
+  content: string,
+  create: { title: string | undefined; chapterNumber: number; actNumber: number }
+): Promise<ProseWrite> {
+  if (text.docId) {
+    const saved = await docs.update(
+      text.docId,
+      content,
+      undefined,
+      "agent_write",
+      CHANGE_SOURCE,
+      text.version
+    );
+    return { docId: text.docId, created: false, version: saved?.version?.version };
+  }
+  const doc = await docs.create(
+    DocumentType.CHAPTER_CONTENT,
+    content,
+    create.title,
+    create.chapterNumber,
+    create.actNumber,
+    CHANGE_SOURCE
+  );
+  return { docId: doc.id, created: true, version: undefined };
+}
+
+/**
+ * Take back a prose write after the transaction refused. Guarded by the version
+ * that write produced: if anyone has written since, their text stands and this
+ * steps aside. The old text is in the version history either way.
+ */
+async function putProseBack(
+  docs: DocumentService,
+  written: ProseWrite,
+  original: string
+): Promise<void> {
+  try {
+    if (written.created) {
+      await docs.delete(written.docId);
+    } else {
+      await docs.update(
+        written.docId,
+        original,
+        undefined,
+        "agent_write",
+        CHANGE_SOURCE,
+        written.version
+      );
+    }
+  } catch (error) {
+    console.error("[structure] could not put the prose back after a failed move:", error);
+  }
+}
+
+/**
+ * Every document scoped to an absorbed chapter's number goes, or it would end
+ * up attached to whichever chapter inherits that number. Only the rows go here,
+ * inside the transaction; the files they point at are handed back and deleted
+ * once it has committed, because a rollback cannot un-delete a file.
+ */
+async function dropChapterDocuments(
+  tx: Tx,
+  bookId: string,
+  chapterNumbers: number[]
+): Promise<string[]> {
+  if (chapterNumbers.length === 0) return [];
+  const scoped = await tx.document.findMany({
+    where: { bookId, chapterNumber: { in: chapterNumbers } },
+    select: { id: true, storageKey: true, versions: { select: { storageKey: true } } },
+  });
+  if (scoped.length === 0) return [];
+  await tx.document.deleteMany({
+    where: { bookId, id: { in: scoped.map((d) => d.id) } },
+  });
+  return scoped.flatMap((d) => [d.storageKey, ...d.versions.map((v) => v.storageKey)]);
+}
+
+/** Files of documents already deleted. A leftover file is litter, not damage. */
+async function deleteFiles(ctx: ApplyContext, keys: readonly string[]): Promise<void> {
+  if (keys.length === 0) return;
+  try {
+    const storage = getBookStorage(ctx.userId, ctx.bookId);
+    for (const key of keys) await storage.delete(key);
+  } catch (error) {
+    console.error("[structure] could not delete the files of a merged-away chapter:", error);
+  }
+}
+
+/** A chapter-content number above the book that no document holds yet. */
+async function freeParkNumber(bookId: string): Promise<number> {
+  const highest = await db.document.findFirst({
+    where: { bookId, chapterNumber: { gte: SPLIT_PARK } },
+    orderBy: { chapterNumber: "desc" },
+    select: { chapterNumber: true },
+  });
+  return Math.max(SPLIT_PARK, (highest?.chapterNumber ?? 0) + 1);
 }
 
 async function markFailed(moveId: string, error: MoveError): Promise<ApplyOutcome> {
-  await db.structureMove.update({
-    where: { id: moveId },
+  // Only over `pending`: a concurrent accept may have applied the move, and
+  // writing `failed` over that would take its Undo away.
+  await db.structureMove.updateMany({
+    where: { id: moveId, status: "pending" },
     data: { status: "failed", resultSummary: error.message, decidedAt: new Date() },
   });
   return { ok: false, error };
+}
+
+/** The last statement of every apply transaction. */
+async function commitApplied(
+  tx: Tx,
+  moveId: string,
+  previousState: PreviousState,
+  summary: string
+): Promise<void> {
+  const now = new Date();
+  const { count } = await tx.structureMove.updateMany({
+    where: { id: moveId, status: "pending" },
+    data: {
+      status: "applied",
+      previousState: JSON.stringify(previousState),
+      resultSummary: summary,
+      decidedAt: now,
+      appliedAt: now,
+    },
+  });
+  if (count === 0) throw new MoveNoLongerPending();
+}
+
+async function noLongerPending(moveId: string, bookId: string): Promise<ApplyOutcome> {
+  const current = await db.structureMove.findFirst({
+    where: { id: moveId, bookId },
+    select: { status: true },
+  });
+  return fail("not_pending", `This proposal is already ${current?.status ?? "decided"}.`);
 }
 
 /**
@@ -136,152 +355,23 @@ export async function applyStructureMove(
   const planned = planMove(chapters, input);
   if (!planned.ok) return markFailed(moveId, planned.error);
 
-  const docs = new DocumentService(ctx.userId, ctx.bookId);
-  const before = currentOrdering(chapters);
+  const run: ApplyRun = {
+    moveId,
+    ctx,
+    chapters,
+    plan: planned.plan,
+    docs: new DocumentService(ctx.userId, ctx.bookId),
+  };
 
   try {
     switch (input.kind) {
       case "reorder":
-      case "renumber": {
-        await renumberChapters(ctx.bookId, planned.plan.ordering);
-        return finish(moveId, { ordering: before }, movedSummary(input, planned.plan.ordering));
-      }
-
-      case "merge": {
-        const numbers = [...new Set(input.chapterNumbers)].sort((a, b) => a - b);
-        const snapshots: ChapterSnapshot[] = [];
-        for (const n of numbers) {
-          const ref = chapters.find((c) => c.chapterNumber === n)!;
-          snapshots.push({
-            chapterId: ref.id,
-            chapterNumber: n,
-            title: ref.title,
-            actNumber: ref.actNumber,
-            status: (ref as ChapterRef & { status?: string }).status ?? "drafted",
-            wordCount: ref.wordCount,
-            content: await readChapterContent(docs, n),
-          });
-        }
-
-        const merged = mergeContent(
-          snapshots.map((s) => s.content),
-          { title: input.title }
-        );
-        const survivor = snapshots[0];
-        const survivorDoc = await docs.findByType(
-          DocumentType.CHAPTER_CONTENT,
-          survivor.chapterNumber
-        );
-        if (survivorDoc) {
-          await docs.update(survivorDoc.id, merged, undefined, "agent_write", CHANGE_SOURCE);
-        } else {
-          await docs.create(
-            DocumentType.CHAPTER_CONTENT,
-            merged,
-            input.title ?? survivor.title ?? undefined,
-            survivor.chapterNumber,
-            survivor.actNumber,
-            CHANGE_SOURCE
-          );
-        }
-
-        // Absorbed chapters: every document scoped to their number goes, or it
-        // would end up attached to whichever chapter inherits that number.
-        for (const absorbed of snapshots.slice(1)) {
-          const scoped = await docs.list({ chapterNumber: absorbed.chapterNumber });
-          for (const doc of scoped) await docs.delete(doc.id);
-          await db.chapter.delete({ where: { id: absorbed.chapterId } });
-        }
-
-        await db.chapter.update({
-          where: { id: survivor.chapterId },
-          data: {
-            wordCount: countWords(merged),
-            ...(input.title ? { title: input.title } : {}),
-          },
-        });
-
-        await renumberChapters(ctx.bookId, planned.plan.ordering);
-        await reconcileBookCounters(ctx.bookId);
-
-        return finish(
-          moveId,
-          {
-            ordering: before,
-            survivorChapterId: survivor.chapterId,
-            survivorContent: survivor.content,
-            chapters: snapshots,
-          },
-          `Merged chapters ${numbers.join(" + ")} into chapter ${survivor.chapterNumber}.`
-        );
-      }
-
-      case "split": {
-        const source = chapters.find((c) => c.chapterNumber === input.chapterNumber)!;
-        const content = await readChapterContent(docs, source.chapterNumber);
-        if (content.trim().length === 0) {
-          return markFailed(moveId, {
-            code: "content_missing",
-            message: `Chapter ${source.chapterNumber} has no text to split.`,
-          });
-        }
-
-        const halves = splitContent(content, input.anchorQuote);
-        if (!halves.ok) return markFailed(moveId, halves.error);
-
-        const newNumber = planned.plan.newChapterNumber!;
-        await renumberChapters(ctx.bookId, planned.plan.ordering);
-
-        const sourceDoc = await docs.findByType(
-          DocumentType.CHAPTER_CONTENT,
-          source.chapterNumber
-        );
-        if (sourceDoc) {
-          await docs.update(sourceDoc.id, halves.first, undefined, "agent_write", CHANGE_SOURCE);
-        }
-        await db.chapter.update({
-          where: { id: source.id },
-          data: {
-            wordCount: countWords(halves.first),
-            ...(input.firstTitle ? { title: input.firstTitle } : {}),
-          },
-        });
-
-        const created = await db.chapter.create({
-          data: {
-            bookId: ctx.bookId,
-            chapterNumber: newNumber,
-            actNumber: source.actNumber,
-            title: input.secondTitle ?? null,
-            status: (source as ChapterRef & { status?: string }).status ?? "drafted",
-            wordCount: countWords(halves.second),
-          },
-        });
-        await docs.create(
-          DocumentType.CHAPTER_CONTENT,
-          halves.second,
-          input.secondTitle ?? `Chapter ${newNumber}`,
-          newNumber,
-          source.actNumber,
-          CHANGE_SOURCE
-        );
-
-        await reconcileBookCounters(ctx.bookId);
-
-        return finish(
-          moveId,
-          {
-            ordering: before,
-            sourceChapterId: source.id,
-            sourceContent: content,
-            sourceWordCount: source.wordCount,
-            createdChapterId: created.id,
-            createdChapterNumber: newNumber,
-          },
-          `Split chapter ${source.chapterNumber} into ${source.chapterNumber} and ${newNumber}.`
-        );
-      }
-
+      case "renumber":
+        return await applyReorder(run);
+      case "merge":
+        return await applyMerge(run, input);
+      case "split":
+        return await applySplit(run, input);
       default:
         return markFailed(moveId, {
           code: "unknown_kind",
@@ -289,39 +379,183 @@ export async function applyStructureMove(
         });
     }
   } catch (error) {
-    return markFailed(moveId, {
-      code: "apply_failed",
-      message: error instanceof Error ? error.message : String(error),
-    });
+    if (error instanceof MoveNoLongerPending) return noLongerPending(moveId, ctx.bookId);
+    console.error(`[structure] move ${moveId} could not be applied:`, error);
+    return markFailed(moveId, { code: "apply_failed", message: APPLY_FAILED_MESSAGE });
   }
 }
 
-async function finish(
-  moveId: string,
-  previousState: PreviousState,
-  summary: string
-): Promise<ApplyOutcome> {
-  const now = new Date();
-  await db.structureMove.update({
-    where: { id: moveId },
-    data: {
-      status: "applied",
-      previousState: JSON.stringify(previousState),
-      resultSummary: summary,
-      decidedAt: now,
-      appliedAt: now,
-    },
-  });
+async function applyReorder(run: ApplyRun): Promise<ApplyOutcome> {
+  const moved = chapterById(run, run.plan.sourceChapterId);
+  const target = run.plan.ordering.find((o) => o.chapterId === moved.id)?.chapterNumber;
+  const summary = `Moved chapter ${moved.chapterNumber} to position ${target}.`;
+
+  await db.$transaction(async (tx) => {
+    await renumberChaptersWith(tx, run.ctx.bookId, run.plan.ordering);
+    await commitApplied(tx, run.moveId, { ordering: currentOrdering(run.chapters) }, summary);
+  }, RENUMBER_TX_OPTIONS);
+
   return { ok: true, summary };
 }
 
-function movedSummary(
-  input: StructureMoveInput,
-  ordering: ReadonlyArray<{ chapterId: string; chapterNumber: number }>
-): string {
-  const target = "targetPosition" in input ? input.targetPosition : ordering.length;
-  const from = "chapterNumber" in input ? input.chapterNumber : 0;
-  return `Moved chapter ${from} to position ${target}.`;
+async function applyMerge(run: ApplyRun, input: MergeMove): Promise<ApplyOutcome> {
+  const { plan, docs, ctx } = run;
+  // Survivor first, then the absorbed chapters in reading order — by id.
+  const members = [plan.survivorChapterId, ...plan.removedChapterIds].map((id) =>
+    chapterById(run, id)
+  );
+
+  const texts: ChapterText[] = [];
+  const snapshots: ChapterSnapshot[] = [];
+  for (const ref of members) {
+    const text = await readChapterText(docs, ref.chapterNumber);
+    texts.push(text);
+    snapshots.push({
+      chapterId: ref.id,
+      chapterNumber: ref.chapterNumber,
+      title: ref.title,
+      actNumber: ref.actNumber,
+      status: ref.status ?? "drafted",
+      wordCount: ref.wordCount,
+      content: text.content,
+    });
+  }
+
+  const [survivor, ...absorbed] = snapshots;
+  const merged = mergeContent(
+    snapshots.map((s) => s.content),
+    { title: input.title }
+  );
+  const summary = `Merged chapters ${snapshots
+    .map((s) => s.chapterNumber)
+    .join(" + ")} into chapter ${survivor.chapterNumber}.`;
+  const previousState: PreviousState = {
+    ordering: currentOrdering(run.chapters),
+    survivorChapterId: survivor.chapterId,
+    survivorContent: survivor.content,
+    chapters: snapshots,
+  };
+
+  const written = await writeProse(docs, texts[0], merged, {
+    title: input.title ?? survivor.title ?? undefined,
+    chapterNumber: survivor.chapterNumber,
+    actNumber: survivor.actNumber,
+  });
+
+  let files: string[];
+  try {
+    files = await db.$transaction(async (tx) => {
+      const keys = await dropChapterDocuments(
+        tx,
+        ctx.bookId,
+        absorbed.map((a) => a.chapterNumber)
+      );
+      await tx.chapter.deleteMany({
+        where: { bookId: ctx.bookId, id: { in: absorbed.map((a) => a.chapterId) } },
+      });
+      await tx.chapter.update({
+        where: { id: survivor.chapterId },
+        data: {
+          wordCount: countWords(merged),
+          ...(input.title ? { title: input.title } : {}),
+        },
+      });
+      await renumberChaptersWith(tx, ctx.bookId, plan.ordering);
+      await reconcileBookCounters(ctx.bookId, tx);
+      await commitApplied(tx, run.moveId, previousState, summary);
+      return keys;
+    }, RENUMBER_TX_OPTIONS);
+  } catch (error) {
+    await putProseBack(docs, written, survivor.content);
+    throw error;
+  }
+
+  await deleteFiles(ctx, files);
+  return { ok: true, summary };
+}
+
+async function applySplit(run: ApplyRun, input: SplitMove): Promise<ApplyOutcome> {
+  const { plan, docs, ctx } = run;
+  const source = chapterById(run, plan.sourceChapterId);
+  const text = await readChapterText(docs, source.chapterNumber);
+  if (!text.docId || text.content.trim().length === 0) {
+    return markFailed(run.moveId, {
+      code: "content_missing",
+      message: `Chapter ${source.chapterNumber} has no text to split.`,
+    });
+  }
+
+  const halves = splitContent(text.content, input.anchorQuote);
+  if (!halves.ok) return markFailed(run.moveId, halves.error);
+
+  const newNumber = plan.newChapterNumber!;
+  const summary = `Split chapter ${source.chapterNumber} into ${source.chapterNumber} and ${newNumber}.`;
+
+  // The second half is filed first, parked where no chapter can hold it: its
+  // real number still belongs to the next chapter until the renumber runs.
+  const secondHalf = await docs.create(
+    DocumentType.CHAPTER_CONTENT,
+    halves.second,
+    input.secondTitle ?? `Chapter ${newNumber}`,
+    await freeParkNumber(ctx.bookId),
+    source.actNumber,
+    CHANGE_SOURCE
+  );
+  const parked: ProseWrite = { docId: secondHalf.id, created: true, version: undefined };
+  let firstHalf: ProseWrite | null = null;
+
+  try {
+    firstHalf = await writeProse(docs, text, halves.first, {
+      title: undefined,
+      chapterNumber: source.chapterNumber,
+      actNumber: source.actNumber,
+    });
+
+    await db.$transaction(async (tx) => {
+      await renumberChaptersWith(tx, ctx.bookId, plan.ordering);
+      const created = await tx.chapter.create({
+        data: {
+          bookId: ctx.bookId,
+          chapterNumber: newNumber,
+          actNumber: source.actNumber,
+          title: input.secondTitle ?? null,
+          status: source.status ?? "drafted",
+          wordCount: countWords(halves.second),
+        },
+      });
+      await tx.document.update({
+        where: { id: secondHalf.id },
+        data: { chapterNumber: newNumber },
+      });
+      await tx.chapter.update({
+        where: { id: source.id },
+        data: {
+          wordCount: countWords(halves.first),
+          ...(input.firstTitle ? { title: input.firstTitle } : {}),
+        },
+      });
+      await reconcileBookCounters(ctx.bookId, tx);
+      await commitApplied(
+        tx,
+        run.moveId,
+        {
+          ordering: currentOrdering(run.chapters),
+          sourceChapterId: source.id,
+          sourceContent: text.content,
+          sourceWordCount: source.wordCount,
+          createdChapterId: created.id,
+          createdChapterNumber: newNumber,
+        },
+        summary
+      );
+    }, RENUMBER_TX_OPTIONS);
+  } catch (error) {
+    if (firstHalf) await putProseBack(docs, firstHalf, text.content);
+    await putProseBack(docs, parked, "");
+    throw error;
+  }
+
+  return { ok: true, summary };
 }
 
 /**

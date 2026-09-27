@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import type { Prisma } from "@/generated/prisma/client";
 
 export interface BookCounters {
   chapterCount: number;
@@ -20,11 +21,15 @@ export interface BookCounters {
  * can never disagree about which set of chapter rows they describe. Callers
  * that need the reconciled values back (import, stats responses) get them
  * instead of re-querying.
+ *
+ * `client` lets a caller recount inside its own transaction, so the counters
+ * commit (or roll back) with the chapter rows they describe (P6-S10).
  */
 export async function reconcileBookCounters(
-  bookId: string
+  bookId: string,
+  client: Prisma.TransactionClient = db
 ): Promise<BookCounters> {
-  const agg = await db.chapter.aggregate({
+  const agg = await client.chapter.aggregate({
     where: { bookId },
     _count: { _all: true },
     _sum: { wordCount: true },
@@ -37,7 +42,7 @@ export async function reconcileBookCounters(
     wordCount: agg._sum.wordCount ?? 0,
   };
 
-  await db.book.update({ where: { id: bookId }, data: counters });
+  await client.book.update({ where: { id: bookId }, data: counters });
 
   return counters;
 }

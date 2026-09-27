@@ -11,6 +11,7 @@ import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-bod
 import { zodErrorResponse } from "@/lib/api/zod-error";
 import { applyDetail, dismissDetail, detailForStorage } from "@/lib/editorial/edit-action-detail";
 import { checkAppliedFix } from "@/lib/editorial/fix-check-service";
+import { toSerbianLatin, toSerbianLatinWithMap } from "@/lib/agents/serbian-script";
 
 type RouteParams = { params: Promise<{ id: string; findingId: string }> };
 
@@ -48,7 +49,40 @@ function parseFindingAlternatives(value: string | null): FindingAlternative[] {
   }
 }
 
+/**
+ * Find the passage a finding replaces.
+ *
+ * On a Serbian book the stored quote and the prose can be in different
+ * scripts: CreateFinding used to transliterate a quote of Cyrillic prose to
+ * Latin, and the writer's own Cyrillic is never transliterated — so Apply
+ * answered 409 "may have been edited" about a passage nobody had touched
+ * (P6-S12). The last resort reads both sides in Latin and hands back the span
+ * in the chapter's own characters.
+ */
 function findOriginalText(
+  content: string,
+  originalText: string,
+  language: string | undefined
+): { index: number; matchedText: string } | null {
+  const sameScript = findInSameScript(content, originalText);
+  if (sameScript || language !== "sr") return sameScript;
+
+  const { latin, toSource } = toSerbianLatinWithMap(content);
+  const hit = findInSameScript(latin, toSerbianLatin(originalText));
+  if (!hit) return null;
+
+  const endAt = hit.index + hit.matchedText.length;
+  // A span that starts or ends inside a digraph (the "lj" of "љ") names half
+  // a letter of the prose; refuse it rather than cut the letter.
+  const splitsLetter = (k: number) =>
+    k > 0 && k < latin.length && toSource[k] === toSource[k - 1];
+  if (splitsLetter(hit.index) || splitsLetter(endAt)) return null;
+
+  const start = toSource[hit.index];
+  return { index: start, matchedText: content.substring(start, toSource[endAt]) };
+}
+
+function findInSameScript(
   content: string,
   originalText: string
 ): { index: number; matchedText: string } | null {
@@ -195,7 +229,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
         );
       }
 
-      const match = findOriginalText(result.content, originalText);
+      const match = findOriginalText(result.content, originalText, book.language);
       if (!match) {
         return NextResponse.json(
           {
@@ -273,7 +307,9 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
         },
       });
 
-      // Log the edit action with both old and new text
+      // Log the edit action with both old and new text — exactly as swapped:
+      // the alternative or override may differ from finding.newText, and undo
+      // reverses what is recorded here (X-S05).
       await db.editAction.create({
         data: {
           bookId,
@@ -281,7 +317,12 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
           actionType: "apply",
           findingId,
           description: `Auto-applied finding: ${finding.category}`,
-          details: detailForStorage(applyDetail(finding.category, originalText)),
+          details: detailForStorage(
+            applyDetail(finding.category, originalText, {
+              replaced: match.matchedText,
+              inserted: finalNewText,
+            })
+          ),
         },
       });
 

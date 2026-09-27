@@ -31,6 +31,21 @@ export interface ApplyDetail {
   category: string;
   /** The prose that was replaced, already trimmed. Null when there was none. */
   text: string | null;
+  /**
+   * Exactly what the apply took out of the chapter and put in, untrimmed, for
+   * undo. The writer can apply a chosen alternative or their own edited
+   * revision, and undo compared the chapter against the finding's default
+   * `newText` instead — so it put nothing back (X-S05). Absent on rows written
+   * before it was recorded. Not for display.
+   */
+  replaced?: string;
+  inserted?: string;
+}
+
+/** What an apply swapped, as undo needs it. */
+export interface AppliedSwap {
+  replaced: string;
+  inserted: string;
 }
 
 export interface DismissDetail {
@@ -60,7 +75,11 @@ export type EditActionDetail =
   | UndoDetail
   | SessionCompleteDetail;
 
-export function applyDetail(category: string, text: string | null): ApplyDetail {
+export function applyDetail(
+  category: string,
+  text: string | null,
+  swap?: AppliedSwap
+): ApplyDetail {
   const trimmed = text?.trim() ?? "";
   return {
     kind: "apply",
@@ -70,7 +89,23 @@ export function applyDetail(category: string, text: string | null): ApplyDetail 
         ? `${trimmed.slice(0, QUOTE_LIMIT)}…`
         : trimmed
       : null,
+    ...(swap ? { replaced: swap.replaced, inserted: swap.inserted } : {}),
   };
+}
+
+/** The swap an apply row recorded, or null for one written before it was. */
+export function appliedSwapOf(details: unknown): AppliedSwap | null {
+  const detail = details as Partial<ApplyDetail> | null;
+  if (
+    !detail ||
+    typeof detail !== "object" ||
+    detail.kind !== "apply" ||
+    typeof detail.replaced !== "string" ||
+    typeof detail.inserted !== "string"
+  ) {
+    return null;
+  }
+  return { replaced: detail.replaced, inserted: detail.inserted };
 }
 
 export function dismissDetail(category: string, reason: string | null): DismissDetail {

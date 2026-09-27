@@ -4,6 +4,7 @@ import { useLanguage } from "@/components/providers/language-provider";
 import { useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   PlusIcon,
   XIcon,
@@ -76,11 +77,19 @@ export function SeriesBookManager({ seriesId, books }: SeriesBookManagerProps) {
     setShowAddForm(false);
   };
 
-  const handleAddNew = async () => {
+  const handleAddNew = () => {
     if (!newBookName.trim()) return;
-    await addMutation.mutateAsync({ name: newBookName.trim() });
-    setNewBookName("");
-    setShowAddForm(false);
+    // `mutate`, not `mutateAsync`: a book-cap refusal (X-S19) is answered by
+    // the hook's upgrade modal, and must not escape as an unhandled rejection.
+    addMutation.mutate(
+      { name: newBookName.trim() },
+      {
+        onSuccess: () => {
+          setNewBookName("");
+          setShowAddForm(false);
+        },
+      }
+    );
   };
 
   const handleRemove = (bookId: string) => {
@@ -89,14 +98,23 @@ export function SeriesBookManager({ seriesId, books }: SeriesBookManagerProps) {
     }
   };
 
+  // A refused move used to leave the order as it was without a word, so the
+  // writer could not tell a refusal from a slow network (P3-S08).
+  const reorder = (bookId: string, newBookNumber: number) => {
+    reorderMutation.mutate(
+      { bookId, newBookNumber },
+      { onError: () => toast.error(t.toasts.seriesReorderFailed) }
+    );
+  };
+
   const handleMoveUp = (bookId: string, currentNumber: number) => {
     if (currentNumber <= 1) return;
-    reorderMutation.mutate({ bookId, newBookNumber: currentNumber - 1 });
+    reorder(bookId, currentNumber - 1);
   };
 
   const handleMoveDown = (bookId: string, currentNumber: number) => {
     if (currentNumber >= books.length) return;
-    reorderMutation.mutate({ bookId, newBookNumber: currentNumber + 1 });
+    reorder(bookId, currentNumber + 1);
   };
 
   return (

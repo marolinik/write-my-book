@@ -35,7 +35,7 @@ import {
 import { getUIStrings } from "@/lib/i18n/ui-strings";
 import { getAgentStrings } from "@/lib/i18n/agent-strings";
 import { FINDING_CATEGORIES, FINDING_SEVERITIES } from "@/lib/i18n/finding-labels";
-import { enforceBookScript } from "./serbian-script";
+import { enforceBookScript, enforceQuoteScript } from "./serbian-script";
 import { planMove, type ChapterRef, type StructureMoveInput } from "@/lib/structure/moves";
 import { addedEditorialNote } from "@/lib/editorial/finding-applicability";
 import {
@@ -1942,12 +1942,17 @@ async function executeCreateFinding(
   // Cyrillic homoglyphs (beата, детаља), and a contaminated anchorQuote stops
   // matching the Latin prose it is supposed to anchor to — which is also why
   // the enforcement happens BEFORE grounding is scored against the manuscript.
+  // The anchor and each alternative's originalText are QUOTES, though: they
+  // keep the script of the prose they quote. Transliterating a quote of a
+  // Cyrillic paragraph the writer pasted made it unfindable, and Apply refused
+  // every such finding (P6-S12).
   const lang = ctx.language;
-  const enforcedAnchor = enforceBookScript(input.anchorQuote, lang);
+  const prose = manuscriptContent.content;
+  const enforcedAnchor = enforceQuoteScript(input.anchorQuote, prose, lang);
   const enforcedAlternatives = input.alternatives.map((alt) => ({
     ...alt,
     label: enforceBookScript(alt.label, lang),
-    originalText: enforceBookScript(alt.originalText, lang),
+    originalText: enforceQuoteScript(alt.originalText, prose, lang),
     newText: enforceBookScript(alt.newText, lang),
   }));
 
