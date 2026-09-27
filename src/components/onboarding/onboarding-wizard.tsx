@@ -18,12 +18,14 @@ import { PROVIDERS, type ProviderKey } from "@/lib/llm/providers";
 import { ProviderCard } from "./provider-card";
 
 // ─── Default model per provider ────────────────────────────────
-// The first recommended model for each provider (used when picking default)
+// The first recommended model for each provider (used when picking default).
+// Registry ids (model-registry.ts): PATCH /api/settings/default-model answers
+// 400 for any other string. "gemini/gemini-2.5-pro" was one (UAT P2-S02).
 const DEFAULT_MODEL_PER_PROVIDER: Record<ProviderKey, string> = {
   anthropic: "anthropic/sonnet",
   openrouter: "openrouter/sonnet",
   openai: "openai/gpt-4o",
-  gemini: "gemini/gemini-2.5-pro",
+  gemini: "gemini/2.5-pro",
   grok: "grok/grok-3",
 };
 
@@ -94,8 +96,7 @@ export function OnboardingWizard() {
           method: "POST",
         });
         if (!onboardRes.ok) {
-          const err = await onboardRes.json();
-          throw new Error(err.error || "Failed to complete onboarding");
+          throw new Error(`POST /api/settings/onboarding ${onboardRes.status}`);
         }
 
         // 2. Set the default model only when a provider was chosen. Skip mode
@@ -103,11 +104,19 @@ export function OnboardingWizard() {
         if (!skip && effectiveSelectedProvider) {
           const defaultModel =
             DEFAULT_MODEL_PER_PROVIDER[effectiveSelectedProvider];
-          await fetch("/api/settings/default-model", {
+          const modelRes = await fetch("/api/settings/default-model", {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ defaultModel }),
           });
+          // Onboarding itself is saved by now; the choice the writer just
+          // made is not. Say so and stay, so Finish can be pressed again —
+          // a success toast here was the lie in UAT P2-S02.
+          if (!modelRes.ok) {
+            toast.error(t.onboardingUI.defaultModelNotSaved);
+            setIsFinishing(false);
+            return;
+          }
         }
 
         if (skip) {
@@ -118,14 +127,14 @@ export function OnboardingWizard() {
           toast.success(t.toasts.onboardingComplete);
           router.push("/dashboard");
         }
-      } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : "Failed to complete setup"
-        );
+      } catch {
+        // The route logs its own reason (in English, for us); the writer
+        // gets one in their language.
+        toast.error(t.onboardingUI.setupFailed);
         setIsFinishing(false);
       }
     },
-    [effectiveSelectedProvider, router]
+    [effectiveSelectedProvider, router, t]
   );
 
   return (

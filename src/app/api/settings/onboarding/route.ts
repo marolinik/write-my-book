@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { setOnboardedCookie } from "@/lib/onboarding-cookie";
 
 /**
  * GET /api/settings/onboarding
@@ -37,7 +38,8 @@ export async function GET() {
  * Marks onboarding as complete. No API key required — the card-free / key-free
  * on-ramp lets a writer skip setup and start writing on the Free tier (they can
  * connect a BYOK provider later in Settings → API Keys).
- * Sets the wmb_onboarded cookie for Edge middleware detection.
+ * Sets the wmb_onboarded cookie for Edge middleware detection. The other
+ * setter is GET /onboarding/continue, for a writer on a new browser.
  */
 export async function POST() {
   let user;
@@ -56,12 +58,7 @@ export async function POST() {
 
     // Set cookie for Edge middleware (1 year, HttpOnly, SameSite=Lax)
     const response = NextResponse.json({ success: true });
-    response.cookies.set("wmb_onboarded", "1", {
-      path: "/",
-      httpOnly: true,
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 365, // 1 year
-    });
+    setOnboardedCookie(response);
 
     return response;
   } catch (error) {

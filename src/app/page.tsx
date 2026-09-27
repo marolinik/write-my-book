@@ -115,12 +115,16 @@ export default async function Home() {
     redirect("/dashboard");
   }
 
+  // redirect() works by throwing, so it must stay outside the try: inside it
+  // the catch swallowed the redirect and every signed-in visitor (and every
+  // sign-in, which lands on "/") got the marketing page (UAT P4-S19).
+  let userId: string | null = null;
   try {
-    const { userId } = await auth();
-    if (userId) redirect("/dashboard");
+    ({ userId } = await auth());
   } catch {
     // Clerk misconfigured — show landing page
   }
+  if (userId) redirect("/dashboard");
 
   return (
     <div className="min-h-screen flex flex-col">

@@ -1037,6 +1037,7 @@ export interface UIStrings {
     errAnchorTooEarly: string;
     errNotAdjacent: string;
     errBookChanged: string;
+    errApplyFailed: string;
   };
 
   // S3-10: the reports tabs. Each one states what the pass measured and, once
@@ -1307,6 +1308,7 @@ export interface UIStrings {
     onboardingComplete: string;
     seriesLanguageSaved: string;
     seriesLanguageFailed: string;
+    seriesReorderFailed: string;
   };
 
   // H-10 - the agent panel's own chrome. Every string here was an English
@@ -1690,6 +1692,7 @@ export interface UIStrings {
     wordsCount: string;
     existingChaptersHint: string;
     supportedFiles: string;
+    fileTooLarge: string;
     importChapters: string;
     importedSuccessfully: string;
     analysisStartingHint: string;
@@ -1714,6 +1717,14 @@ export interface UIStrings {
     devicePhone: string;
     formatPlainText: string;
     mergedSuffix: string;
+    numberFrom: string;
+    conflictExisting: string;
+    actionReplace: string;
+    actionSkip: string;
+    replaceAll: string;
+    skipAll: string;
+    unresolvedConflicts: string;
+    beforeFirstHeading: string;
     readyChaptersDrafted: string;
     readyChaptersEdited: string;
     readyBetaReading: string;
@@ -1795,6 +1806,10 @@ export interface UIStrings {
     costHintOpenai: string;
     costHintGemini: string;
     costHintGrok: string;
+    accountReady: string;
+    openDashboard: string;
+    defaultModelNotSaved: string;
+    setupFailed: string;
   };
 
   // Lo-1 - the keyboard-shortcut help. The table in lib/keyboard-shortcuts.ts
@@ -1877,6 +1892,11 @@ export interface UIStrings {
     agentSessionMany: string;
     freeTrialOf: string;
     trialEnds: string;
+    trialEndedOf: string;
+    trialEndedOn: string;
+    onFreePlan: string;
+    planEndedChooseAgain: string;
+    freePlanHint: string;
     monthlyEquivalent: string;
     founderClaimed: string;
     founderLeft: string;
@@ -1890,11 +1910,6 @@ export interface UIStrings {
     combinedAcrossSlots: string;
     totalTokensCount: string;
     requiresPlan: string;
-    trialEndedOf: string;
-    trialEndedOn: string;
-    onFreePlan: string;
-    planEndedChooseAgain: string;
-    freePlanHint: string;
     featureRequiresPlan: string;
     choosePlan: string;
     stripeNotConfigured: string;

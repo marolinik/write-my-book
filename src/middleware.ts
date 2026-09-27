@@ -1,6 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { ONBOARDED_COOKIE } from "@/lib/onboarding-cookie";
 
 const isPublicRoute = createRouteMatcher([
   "/",
@@ -68,9 +69,11 @@ const handler =
             await auth.protect();
 
             // Onboarding gate: redirect to /onboarding if user hasn't completed it.
-            // Uses cookie to avoid DB queries in Edge runtime.
+            // Uses cookie to avoid DB queries in Edge runtime. A writer the DB
+            // already calls onboarded gets the cookie back from the link on
+            // /onboarding (GET /onboarding/continue, exempt via /onboarding(.*)).
             if (!isOnboardingExemptRoute(request)) {
-              const onboarded = request.cookies.get("wmb_onboarded")?.value;
+              const onboarded = request.cookies.get(ONBOARDED_COOKIE)?.value;
               if (onboarded !== "1") {
                 const url = request.nextUrl.clone();
                 url.pathname = "/onboarding";
