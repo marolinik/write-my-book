@@ -50,6 +50,7 @@ const h = vi.hoisted(() => {
       book: { findFirst: vi.fn(), update: vi.fn() },
       chapter: {
         findFirst: vi.fn(),
+        findMany: vi.fn(),
         update: vi.fn(),
         updateMany: vi.fn(),
         upsert: vi.fn(),
@@ -141,6 +142,9 @@ beforeEach(() => {
     // Older than the document below, so the orphan-reclaim branch stays shut.
     createdAt: new Date("2026-01-01T00:00:00Z"),
   });
+  h.db.chapter.findMany.mockResolvedValue([
+    { chapterNumber: 1, title: "One", wordCount: 100 },
+  ]);
   h.db.chapter.update.mockResolvedValue({});
   h.db.chapter.updateMany.mockResolvedValue({ count: 1 });
   h.db.chapter.upsert.mockResolvedValue({ id: "ch1", chapterNumber: 1 });
@@ -205,7 +209,9 @@ describe("D-199: re-importing over an existing chapter is badged Import", () => 
             number: 1,
             title: "One",
             content: "imported prose",
-            action: "create",
+            // Over an existing chapter with prose, only an explicit replace
+            // writes (P6-S04: `create` no longer upserts over the writer's work).
+            action: "replace",
           },
         ],
       }),
