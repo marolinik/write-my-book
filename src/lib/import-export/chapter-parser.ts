@@ -10,6 +10,10 @@ import type { ParsedChapter } from "./types";
  * 4. H2 headings (## Title) — fallback
  * 5. ALL-CAPS standalone lines
  * 6. Entire file as Chapter 1 (ultimate fallback)
+ *
+ * No text is ever dropped (P6-S02): whatever sits before the first marker is
+ * kept as a leading chapter flagged `beforeFirstHeading`, so the preview can
+ * say where it came from.
  */
 export function parseManuscriptChapters(content: string): ParsedChapter[] {
   const lines = content.split("\n");
@@ -97,10 +101,15 @@ function findExplicitChapterHeaders(lines: string[]): ChapterMarker[] {
   return results;
 }
 
-/** Find Prolog/Epilogue headings (H1/H2/H3 with no number). */
+/**
+ * Find Prolog/Epilogue lines (no number), styled as H1-H3 or not. P6-S02: only
+ * the "#" form was recognised, while an unstyled "Poglavlje N" line already
+ * counts as a chapter — so a prologue typed as a plain paragraph in Word was
+ * swallowed with everything else before the first chapter.
+ */
 function findPrologEpilogueHeaders(lines: string[]): ChapterMarker[] {
   const prologWords =
-    /^#{1,3}\s+(Prolog(?:ue)?|Epilog(?:ue)?|Predgovor|Uvod|Pogovor|Préface|Prólogo|Epílogo|Vorwort|Nachwort|Пролог|Эпилог)\s*$/i;
+    /^(?:#{1,3}\s+)?(Prolog(?:ue)?|Epilog(?:ue)?|Predgovor|Uvod|Pogovor|Préface|Prólogo|Epílogo|Vorwort|Nachwort|Пролог|Эпилог)\s*$/i;
   const results: ChapterMarker[] = [];
 
   for (let i = 0; i < lines.length; i++) {
@@ -171,25 +180,69 @@ function findCapsChapterHeaders(lines: string[]): ChapterMarker[] {
   return results;
 }
 
+/** Longest title taken from the first line of lead text. */
+const LEAD_TITLE_MAX = 80;
+
+/** True when the text holds anything a reader would read, not only blanks or rules. */
+function hasReadableText(text: string): boolean {
+  return /[\p{L}\p{N}]/u.test(text);
+}
+
+function countWords(text: string): number {
+  return text.split(/\s+/).filter(Boolean).length;
+}
+
+/**
+ * A title for lead text: its first readable line, without heading or emphasis
+ * marks, cut at a word boundary when long. Taken from the text itself, so it
+ * reads right in any language — it is usually the book's title or a prologue's
+ * first line, and the writer can rename it in the preview.
+ */
+function leadTitle(lead: string): string {
+  const line = lead.split("\n").find(hasReadableText) ?? lead;
+  const plain = line.replace(/^#+\s*/, "").replace(/[*_]+/g, "").trim();
+  if (plain.length <= LEAD_TITLE_MAX) return plain;
+  const cut = plain.slice(0, LEAD_TITLE_MAX);
+  const lastSpace = cut.lastIndexOf(" ");
+  return `${lastSpace > 0 ? cut.slice(0, lastSpace) : cut}…`;
+}
+
 /** Extract chapter content from line ranges. */
 function extractChapters(
   lines: string[],
   markers: ChapterMarker[]
 ): ParsedChapter[] {
   const chapters: ParsedChapter[] = [];
+
+  // P6-S02: the ranges below start at the first marker, so the lines above it
+  // (a title page, an unmarked prologue, 1,816 words in the UAT manuscript)
+  // were never emitted. Keep them as a leading chapter the preview flags.
+  const lead = lines.slice(0, markers[0]?.lineIndex ?? 0).join("\n").trim();
+  if (hasReadableText(lead)) {
+    chapters.push({
+      number: 0, // renumbered below
+      title: leadTitle(lead),
+      content: lead,
+      wordCount: countWords(lead),
+      beforeFirstHeading: true,
+    });
+  }
+
   for (let i = 0; i < markers.length; i++) {
     const start = markers[i].lineIndex;
     const end =
       i + 1 < markers.length ? markers[i + 1].lineIndex : lines.length;
     const chapterContent = lines.slice(start, end).join("\n").trim();
-    const wordCount = chapterContent.split(/\s+/).filter(Boolean).length;
 
     chapters.push({
       number: markers[i].number,
       title: markers[i].title,
       content: chapterContent,
-      wordCount,
+      wordCount: countWords(chapterContent),
     });
   }
-  return chapters;
+
+  // Every pass numbers its markers 1..n by position; with the lead chapter in
+  // front, keep that rule for the whole list.
+  return chapters.map((ch, i) => ({ ...ch, number: i + 1 }));
 }

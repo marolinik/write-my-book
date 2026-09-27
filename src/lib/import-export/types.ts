@@ -7,6 +7,8 @@ export interface ParsedChapter {
   title: string;
   content: string;
   wordCount: number;
+  /** P6-S02: text from before the first chapter marker, kept as a chapter. */
+  beforeFirstHeading?: boolean;
 }
 
 /** Result of importing one or more manuscript files. */

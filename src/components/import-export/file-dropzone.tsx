@@ -4,6 +4,7 @@ import { useCallback, useState, useRef } from "react";
 import { UploadIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/components/providers/language-provider";
+import { MAX_IMPORT_FILE_MB } from "@/lib/import-export/upload-limits";
 
 interface FileDropzoneProps {
   onFilesSelected: (files: File[]) => void;
@@ -15,7 +16,7 @@ interface FileDropzoneProps {
 export function FileDropzone({
   onFilesSelected,
   accept = ".md,.txt,.docx",
-  maxSizeMB = 20,
+  maxSizeMB = MAX_IMPORT_FILE_MB,
   disabled = false,
 }: FileDropzoneProps) {
   const { t } = useLanguage();

@@ -8,6 +8,10 @@ import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
 import { convertDocxToMarkdown } from "@/lib/import-export/docx-to-markdown";
 import { parseManuscriptChapters } from "@/lib/import-export/chapter-parser";
+import {
+  findImportProblems,
+  type ImportPlanProblems,
+} from "@/lib/import-export/import-conflicts";
 import { indexBatch } from "@/lib/vector";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { zodErrorResponse } from "@/lib/api/zod-error";
@@ -40,7 +44,9 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     // ── Mode 1: Structured JSON confirm (from preview → edit → confirm flow) ──
     if (contentType.includes("application/json")) {
-      return handleStructuredImport(req, bookId, user.id);
+      // P6-S05: awaited, so a schema failure reaches the catch below (400 with
+      // a body) instead of escaping it as a bare 500 with no body.
+      return await handleStructuredImport(req, bookId, user.id);
     }
 
     // ── Mode 2: Legacy multipart form upload ──
@@ -76,9 +82,8 @@ async function handleStructuredImport(
   bookId: string,
   userId: string
 ) {
-  // POST's try/catch cannot see this rejection (`return handleStructuredImport(...)`
-  // is not awaited inside the try) — guard the parse locally so a malformed
-  // body answers 400 instead of a raw 500 (D-01).
+  // A malformed body answers 400, not a raw 500 (D-01). POST's catch has no
+  // invalid-JSON branch, so the parse is still guarded here.
   let body: unknown;
   try {
     body = await parseJsonBody(req);
@@ -88,6 +93,30 @@ async function handleStructuredImport(
     throw error;
   }
   const data = importConfirmRequestSchema.parse(body);
+
+  // P6-S04 / P6-S05: check the whole plan before writing anything. `create`
+  // used to upsert over the writer's edited chapters, and `replace` of a
+  // chapter that does not exist wrote its document before the chapter update
+  // threw — an orphan document behind a 500. A bad row now stops the request
+  // while nothing has been written.
+  const existing = await db.chapter.findMany({
+    where: { bookId },
+    select: { chapterNumber: true, title: true, wordCount: true },
+  });
+  const problems = findImportProblems(
+    data.chapters,
+    existing.map((ch) => ({
+      number: ch.chapterNumber,
+      title: ch.title,
+      wordCount: ch.wordCount,
+    }))
+  );
+  if (problems) {
+    return NextResponse.json(
+      { error: describeImportProblems(problems), ...problems },
+      { status: problems.duplicates.length > 0 ? 400 : 409 }
+    );
+  }
 
   const docService = new DocumentService(userId, bookId);
   let createdCount = 0;
@@ -143,6 +172,16 @@ async function handleStructuredImport(
       createdCount++;
       totalWordCount += wordCount;
     } else if (ch.action === "replace") {
+      // The chapter row first: if it fails, no document has been written.
+      await db.chapter.update({
+        where: { bookId_chapterNumber: { bookId, chapterNumber: ch.number } },
+        data: {
+          title: ch.title,
+          wordCount,
+          importedAt: new Date(),
+        },
+      });
+
       const existingDoc = await docService.findByType(
         DocumentType.CHAPTER_CONTENT,
         ch.number
@@ -159,15 +198,6 @@ async function handleStructuredImport(
           "import"
         );
       }
-
-      await db.chapter.update({
-        where: { bookId_chapterNumber: { bookId, chapterNumber: ch.number } },
-        data: {
-          title: ch.title,
-          wordCount,
-          importedAt: new Date(),
-        },
-      });
       replacedCount++;
       totalWordCount += wordCount;
     }
@@ -201,6 +231,40 @@ async function handleStructuredImport(
     totalWordCount,
     chapterCount,
   });
+}
+
+/** Chapter numbers as "1, 2 and 5". */
+function listNumbers(numbers: number[]): string {
+  if (numbers.length === 1) return String(numbers[0]);
+  return `${numbers.slice(0, -1).join(", ")} and ${numbers[numbers.length - 1]}`;
+}
+
+/** Why an import plan was refused, in terms an API caller can act on. */
+function describeImportProblems(problems: ImportPlanProblems): string {
+  const parts: string[] = [];
+  const { duplicates, wouldOverwrite, nothingToReplace } = problems;
+  if (duplicates.length > 0) {
+    parts.push(
+      duplicates.length === 1
+        ? `Chapter number ${duplicates[0]} is used more than once.`
+        : `Chapter numbers ${listNumbers(duplicates)} are each used more than once.`
+    );
+  }
+  if (wouldOverwrite.length > 0) {
+    parts.push(
+      wouldOverwrite.length === 1
+        ? `Chapter ${wouldOverwrite[0]} already holds your work: send action "replace" to overwrite it or "skip" to keep it.`
+        : `Chapters ${listNumbers(wouldOverwrite)} already hold your work: send action "replace" to overwrite them or "skip" to keep them.`
+    );
+  }
+  if (nothingToReplace.length > 0) {
+    parts.push(
+      nothingToReplace.length === 1
+        ? `Chapter ${nothingToReplace[0]} does not exist, so there is nothing to replace: send action "create" to add it.`
+        : `Chapters ${listNumbers(nothingToReplace)} do not exist, so there is nothing to replace: send action "create" to add them.`
+    );
+  }
+  return `Nothing was imported. ${parts.join(" ")}`;
 }
 
 /** Handle legacy multipart form import (backward compatible). */

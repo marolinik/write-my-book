@@ -53,6 +53,13 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: "10mb",
     },
+    // Every body the middleware matches is cloned through the proxy and cut
+    // at this size (Next's default is 10 MB). Route handlers read the clone,
+    // so this is the real upload ceiling: it must hold a 20 MB manuscript
+    // (UAT P6-S01/S06) and an 8 MB cover as base64 JSON. Keep equal to
+    // MAX_UPLOAD_REQUEST_BYTES in src/lib/import-export/upload-limits.ts
+    // (tests/unit/import-upload-size-limit.test.ts holds them together).
+    proxyClientMaxBodySize: 25 * 1024 * 1024,
   },
   async headers() {
     return [

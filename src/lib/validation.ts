@@ -485,6 +485,8 @@ export const importPreviewChapterSchema = z.object({
   content: z.string(),
   wordCount: z.number().int().min(0),
   sourceFile: z.string().max(500),
+  // P6-S02: the row holds text from before the first chapter heading.
+  beforeFirstHeading: z.boolean().optional(),
 });
 
 export const importPreviewResponseSchema = z.object({
