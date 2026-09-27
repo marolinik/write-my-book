@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { createSeriesSchema } from "@/lib/validation";
+import { bookLanguageFromPreference } from "@/lib/i18n/book-languages";
 import { checkPlanAccess } from "@/lib/billing/plan-gating";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { zodErrorResponse } from "@/lib/api/zod-error";
@@ -59,7 +60,7 @@ export async function POST(req: NextRequest) {
         title: data.title,
         genre: data.genre ?? null,
         // Same reason as books: default to the writer's language, not English.
-        language: data.language ?? user.preferredLanguage ?? "en",
+        language: data.language ?? bookLanguageFromPreference(user.preferredLanguage),
         seriesType: data.seriesType ?? "TRILOGY",
         plannedBooks: data.plannedBooks ?? 3,
         description: data.description ?? null,

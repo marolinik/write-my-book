@@ -29,7 +29,9 @@ const safeTemplatePathSchema = z
 export const createBookSchema = z.object({
   name: z.string().min(1).max(200),
   genre: z.string().max(50).nullable().optional(),
-  language: bookLanguageSchema.optional().default("en"),
+  // P6-S23: no `.default("en")` — zod filled it before the route ran, so the
+  // route's fallback to the writer's own language could never fire.
+  language: bookLanguageSchema.optional(),
   seriesId: z.string().uuid().optional(),
   bookNumber: z.number().int().min(1).max(99).optional(),
 });
@@ -63,7 +65,8 @@ export const coverUploadSchema = z.object({
 export const createSeriesSchema = z.object({
   title: z.string().min(1).max(200),
   genre: z.string().max(50).optional(),
-  language: bookLanguageSchema.optional().default("en"),
+  // P6-S23: same as createBookSchema — the route falls back to the writer's language.
+  language: bookLanguageSchema.optional(),
   seriesType: z
     .enum(["DUOLOGY", "TRILOGY", "TETRALOGY", "PENTALOGY", "SAGA", "OPEN"])
     .optional()

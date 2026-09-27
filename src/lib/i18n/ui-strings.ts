@@ -48,10 +48,10 @@ export function getUIStrings(language: string): UIStrings {
 
 /**
  * Languages with a complete UI translation dictionary (D-12). Only these are
- * offered and accepted as the app-interface language. Every other code in
- * SUPPORTED_LANGUAGES remains a valid BOOK/prose language (agents write in
- * it), but the UI chrome would silently fall back to English — so the
- * settings picker and PATCH /api/settings/language must not pretend
+ * offered and accepted as the app-interface language. The languages a book
+ * can be written in are a separate list (BOOK_LANGUAGES, which has no "hr"),
+ * and for any other code the UI chrome would silently fall back to English —
+ * so the settings picker and PATCH /api/settings/language must not pretend
  * otherwise.
  */
 export const UI_SUPPORTED_LANGUAGES = SUPPORTED_LANGUAGES.filter((lang) =>
@@ -64,6 +64,17 @@ export function isUiLanguageSupported(language: string): boolean {
     ownDict(language) !== undefined ||
     ownDict(language.split("-")[0]) !== undefined
   );
+}
+
+/**
+ * The dictionary code a language tag resolves to ("sr-RS" → "sr"), or null
+ * when it has none. P6-S22: the preference is stored as this code, never raw —
+ * it also seeds the New Book language picker, which only knows base codes.
+ */
+export function normalizeUiLanguage(language: string): string | null {
+  if (ownDict(language)) return language;
+  const base = language.split("-")[0];
+  return ownDict(base) ? base : null;
 }
 
 /**

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { createBookSchema } from "@/lib/validation";
+import { bookLanguageFromPreference } from "@/lib/i18n/book-languages";
 import { generateS3Prefix, generateSeriesS3Prefix } from "@/lib/utils";
 import { checkPlanAccess } from "@/lib/billing/plan-gating";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
@@ -84,8 +85,9 @@ export async function POST(req: NextRequest) {
         // The writer's chosen language, not a hardcoded "en": book.language is
         // what every agent prompt enforces (CRITICAL LANGUAGE REQUIREMENT), so
         // defaulting to English made agents answer in English to a writer who
-        // had set the app to Serbian.
-        language: data.language ?? user.preferredLanguage ?? "en",
+        // had set the app to Serbian. The preference is mapped to a book
+        // language, never copied raw (an old "sr-RS" row is not one).
+        language: data.language ?? bookLanguageFromPreference(user.preferredLanguage),
         seriesId: data.seriesId ?? null,
         bookNumber: data.bookNumber ?? 1,
       },

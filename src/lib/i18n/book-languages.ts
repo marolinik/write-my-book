@@ -55,3 +55,17 @@ export const BOOK_LANGUAGE_CODES = BOOK_LANGUAGES.map((l) => l.code) as unknown 
 export function isBookLanguage(code: string): boolean {
   return BOOK_LANGUAGES.some((l) => l.code === code);
 }
+
+/**
+ * The book language a writer's stored interface preference stands for, used
+ * when a book or series is created without one (P6-S23). The preference is a
+ * separate, looser field: rows written before P6-S22 can hold a region tag
+ * ("sr-RS") or a code no book can be written in, and neither may reach
+ * Book.language, which every agent prompt enforces.
+ */
+export function bookLanguageFromPreference(preferred: string | null | undefined): string {
+  if (!preferred) return "en";
+  if (isBookLanguage(preferred)) return preferred;
+  const base = preferred.split("-")[0];
+  return isBookLanguage(base) ? base : "en";
+}

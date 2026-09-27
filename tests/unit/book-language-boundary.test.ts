@@ -40,9 +40,9 @@ describe("the API accepts only a language a book can be written in", () => {
     }
   });
 
-  it("still defaults to English when no language is sent", () => {
+  it("leaves an omitted language to the route, which falls back to the writer's (P6-S23)", () => {
     const parsed = createBookSchema.parse({ name: "A" });
-    expect(parsed.language).toBe("en");
+    expect(parsed.language).toBeUndefined();
   });
 
   it("agrees with its own membership test", () => {
