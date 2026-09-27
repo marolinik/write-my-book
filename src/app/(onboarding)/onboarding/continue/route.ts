@@ -1,12 +1,13 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { setOnboardedCookie } from "@/lib/onboarding-cookie";
 
-function redirectTo(req: NextRequest, pathname: string): NextResponse {
-  const url = req.nextUrl.clone();
-  url.pathname = pathname;
-  url.search = "";
-  return NextResponse.redirect(url, 303);
+/** A same-origin redirect with a relative Location. req.nextUrl.origin can be
+ *  the container's bind address (http://0.0.0.0:3000), which the browser
+ *  cannot open; a relative Location resolves against the address the writer
+ *  actually used. */
+function redirectTo(pathname: string): NextResponse {
+  return new NextResponse(null, { status: 303, headers: { Location: pathname } });
 }
 
 /**
@@ -20,19 +21,19 @@ function redirectTo(req: NextRequest, pathname: string): NextResponse {
  * only mirrors the database, so a writer who has not finished is sent to the
  * wizard without it.
  */
-export async function GET(req: NextRequest) {
+export async function GET() {
   let user;
   try {
     user = await requireUser();
   } catch {
-    return redirectTo(req, "/login");
+    return redirectTo("/login");
   }
 
   if (!user.onboardingComplete) {
-    return redirectTo(req, "/onboarding");
+    return redirectTo("/onboarding");
   }
 
-  const response = redirectTo(req, "/dashboard");
+  const response = redirectTo("/dashboard");
   setOnboardedCookie(response);
   return response;
 }

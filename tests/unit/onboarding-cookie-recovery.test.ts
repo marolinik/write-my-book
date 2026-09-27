@@ -59,7 +59,7 @@ function get(path: string, cookie?: string): NextRequest {
 function isRedirectTo(res: Response | undefined | void, pathname: string): boolean {
   if (!res) return false;
   const location = res.headers.get("location");
-  return res.status >= 300 && res.status < 400 && location !== null && new URL(location).pathname === pathname;
+  return res.status >= 300 && res.status < 400 && location !== null && new URL(location, "http://base.invalid").pathname === pathname;
 }
 
 /** The link an onboarded writer is offered on /onboarding. */
@@ -105,7 +105,8 @@ describe("onboarded writer on a new browser (P5-S09)", () => {
     const { href } = await onboardingPageLink();
 
     const { GET } = await import("@/app/(onboarding)/onboarding/continue/route");
-    const res = await GET(get(href));
+    expect(href).toBe("/onboarding/continue");
+    const res = await GET();
 
     expect(isRedirectTo(res, "/dashboard")).toBe(true);
     const cookie = res.cookies.get("wmb_onboarded");
@@ -117,10 +118,20 @@ describe("onboarded writer on a new browser (P5-S09)", () => {
     expect(await middleware(get("/api/books", "wmb_onboarded=1"))).toBeUndefined();
   });
 
+  it("never points the browser at the server's own bind address", async () => {
+    // In the containerized stack req.nextUrl.origin is http://0.0.0.0:3000,
+    // which the browser cannot open (ERR_ADDRESS_INVALID, see checkout).
+    const { GET } = await import("@/app/(onboarding)/onboarding/continue/route");
+    const res = await GET();
+    const location = res.headers.get("location") ?? "";
+    expect(location).toBe("/dashboard");
+    expect(isRedirectTo(res, "/dashboard")).toBe(true);
+  });
+
   it("does not hand the cookie to a writer who has not finished onboarding", async () => {
     h.requireUser.mockResolvedValue({ id: "u2", onboardingComplete: false, preferredLanguage: "en" });
     const { GET } = await import("@/app/(onboarding)/onboarding/continue/route");
-    const res = await GET(get("/onboarding/continue"));
+    const res = await GET();
 
     expect(isRedirectTo(res, "/onboarding")).toBe(true);
     expect(res.cookies.get("wmb_onboarded")).toBeUndefined();
@@ -129,7 +140,7 @@ describe("onboarded writer on a new browser (P5-S09)", () => {
   it("sends a signed-out visitor to sign in instead of erroring", async () => {
     h.requireUser.mockRejectedValue(new Error("Unauthorized"));
     const { GET } = await import("@/app/(onboarding)/onboarding/continue/route");
-    const res = await GET(get("/onboarding/continue"));
+    const res = await GET();
 
     expect(isRedirectTo(res, "/login")).toBe(true);
     expect(res.cookies.get("wmb_onboarded")).toBeUndefined();
@@ -157,7 +168,7 @@ describe("the wizard's own cookie and the recovery cookie are the same cookie", 
     const withoutExpiry = (c: Cookie | undefined) =>
       c && { name: c.name, value: c.value, path: c.path, httpOnly: c.httpOnly, sameSite: c.sameSite, maxAge: c.maxAge };
     const fromWizard = (await POST()).cookies.get("wmb_onboarded");
-    const fromRecovery = (await GET(get("/onboarding/continue"))).cookies.get("wmb_onboarded");
+    const fromRecovery = (await GET()).cookies.get("wmb_onboarded");
     expect(fromWizard).toBeDefined();
     expect(withoutExpiry(fromWizard)).toEqual(withoutExpiry(fromRecovery));
   });
