@@ -46,6 +46,13 @@ describe("assertSafeExternalUrl", () => {
     ).resolves.toBeDefined();
   });
 
+  it("lets a public IPv6 literal through (it has no dot but is not an internal name)", async () => {
+    const url = await assertSafeExternalUrl("https://[2606:4700:4700::1111]/dns-query");
+    expect(url.hostname).toBe("[2606:4700:4700::1111]");
+    await expectBlocked("http://[::1]/"); // the address rules still decide
+    await expectBlocked("http://[fe80::1]/");
+  });
+
   it("blocks non-http schemes and embedded credentials", async () => {
     await expectBlocked("file:///etc/passwd");
     await expectBlocked("gopher://10.0.0.1:11211/");

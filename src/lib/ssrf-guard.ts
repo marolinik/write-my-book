@@ -195,7 +195,9 @@ export async function assertSafeExternalUrl(
     host.endsWith(".localhost") ||
     host.endsWith(".local") ||
     host.endsWith(".internal") ||
-    !host.includes(".");
+    // A single-label name is internal; an IPv6 literal has no dot either but
+    // is judged by the address rules below.
+    (!host.includes(".") && isIP(host) === 0);
 
   if (isInternalName) {
     if (!allowPrivate) {
