@@ -1076,6 +1076,7 @@ export const ES: UIStrings = {
     errNotAdjacent: "Esos capítulos ya no son contiguos.",
     errBookChanged: "El libro cambió desde la propuesta. Ejecuta el paso de nuevo.",
     errApplyFailed: "No se cambió nada en el libro. Inténtalo de nuevo.",
+    errSplitEdited: "El capítulo creado al dividir se ha editado desde entonces. Deshacerlo borraría ese texto, así que no se cambió nada.",
     applyError: "No se pudo aplicar el movimiento", undoError: "No se pudo deshacer el movimiento",
   },
 

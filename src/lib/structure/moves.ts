@@ -93,7 +93,9 @@ export type MoveErrorCode =
   | "not_pending"
   | "not_applied"
   | "content_missing"
-  | "apply_failed";
+  | "apply_failed"
+  // Undo — the chapter a split created holds writing done after the split.
+  | "split_edited";
 
 export interface MoveError {
   code: MoveErrorCode;

@@ -1076,6 +1076,7 @@ export const SR: UIStrings = {
     errNotAdjacent: "Ta poglavlja više nisu jedno do drugog.",
     errBookChanged: "Knjiga se promenila posle ovog predloga. Pokrenite prolaz ponovo.",
     errApplyFailed: "U knjizi ništa nije promenjeno. Pokušajte ponovo.",
+    errSplitEdited: "Poglavlje nastalo razdvajanjem je u međuvremenu menjano. Poništavanje bi obrisalo taj tekst, pa ništa nije promenjeno.",
     applyError: "Potez nije mogao da se primeni", undoError: "Potez nije mogao da se poništi",
   },
 

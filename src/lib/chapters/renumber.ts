@@ -117,6 +117,60 @@ function withUnnamedChapters(
 export type RenumberClient = Pick<Prisma.TransactionClient, "chapter" | "$executeRaw">;
 
 /**
+ * Serialise everything that renumbers one book's chapters.
+ *
+ * A renumbering transaction reads chapter numbers and then acts on them. Two of
+ * them running on one book at once — a corkboard drag in one tab, an accepted
+ * merge in another — each worked from numbers the other was about to change: a
+ * merge dropped the documents of whichever chapter had just been handed its
+ * absorbed chapter's number, and then deleted their files (review of a07a2f2).
+ * Every such transaction takes this lock as its FIRST statement, so the numbers
+ * it reads cannot move until it commits. It is transaction-scoped: Postgres
+ * lets go of it on commit or rollback, so nothing can leak it.
+ *
+ * `$executeRaw`, not `$queryRaw`: the function returns void, which Prisma
+ * cannot read back as a row. The book id is a bound parameter.
+ */
+export async function lockBookChapters(
+  client: Pick<Prisma.TransactionClient, "$executeRaw">,
+  bookId: string
+): Promise<void> {
+  await client.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`wmb-chapters:${bookId}`}))`;
+}
+
+/** The book's chapters are no longer the ones a plan was made from. */
+export class BookChangedError extends Error {
+  constructor() {
+    super("The book's chapters changed after this was planned.");
+    this.name = "BookChangedError";
+  }
+}
+
+/**
+ * Read the book's chapters under the lock and confirm they are exactly
+ * `expected` — the same chapters at the same numbers. Anything else throws
+ * BookChangedError: a renumber committed after the plan was made, so any number
+ * the plan holds may now name a different chapter. Returns each chapter's
+ * number as read here, the only numbers the transaction may act on.
+ */
+export async function readUnchangedChapters(
+  client: Pick<Prisma.TransactionClient, "chapter">,
+  bookId: string,
+  expected: ReadonlyArray<{ id: string; chapterNumber: number }>
+): Promise<ReadonlyMap<string, number>> {
+  const rows = await client.chapter.findMany({
+    where: { bookId },
+    select: { id: true, chapterNumber: true },
+  });
+  const current = new Map(rows.map((c) => [c.id, c.chapterNumber]));
+  const unchanged =
+    current.size === expected.length &&
+    expected.every((c) => current.get(c.id) === c.chapterNumber);
+  if (!unchanged) throw new BookChangedError();
+  return current;
+}
+
+/**
  * Transaction options for anything that renumbers. Prisma's default interactive
  * timeout is 5 s; a structural move on a long book must not be cut off halfway
  * by a slow database (P6-S10). The renumber itself is four statements, so this
@@ -139,6 +193,9 @@ export const RENUMBER_TX_OPTIONS = { maxWait: 10_000, timeout: 30_000 } as const
  * not) and its documents are parked at TEMP_OFFSET + i before any final number
  * is assigned, because Postgres checks a non-deferrable unique index row by row
  * inside a single UPDATE.
+ *
+ * The caller must already hold lockBookChapters on this transaction: the
+ * numbers read below are only current while no other renumber can run.
  */
 export async function renumberChaptersWith(
   client: RenumberClient,
@@ -193,17 +250,18 @@ export async function renumberChaptersWith(
 }
 
 /**
- * Renumber a book's chapters in their own transaction. Reads each chapter's
- * current number itself, so callers only supply the target ordering. A caller
- * that passes an empty ordering gets a no-op, not an empty transaction.
+ * Renumber a book's chapters in their own transaction, under the book's
+ * chapter lock. Reads each chapter's current number itself, so callers only
+ * supply the target ordering. A caller that passes an empty ordering gets a
+ * no-op, not an empty transaction.
  */
 export async function renumberChapters(
   bookId: string,
   order: readonly OrderingEntry[]
 ): Promise<void> {
   if (order.length === 0) return;
-  await db.$transaction(
-    (tx) => renumberChaptersWith(tx, bookId, order),
-    RENUMBER_TX_OPTIONS
-  );
+  await db.$transaction(async (tx) => {
+    await lockBookChapters(tx, bookId);
+    await renumberChaptersWith(tx, bookId, order);
+  }, RENUMBER_TX_OPTIONS);
 }

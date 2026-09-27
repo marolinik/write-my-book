@@ -1076,6 +1076,7 @@ export const ZH: UIStrings = {
     errNotAdjacent: "这些章节已不再相邻。",
     errBookChanged: "自提议以来本书已更改。请重新运行此流程。",
     errApplyFailed: "书中没有任何改动。请重试。",
+    errSplitEdited: "拆分产生的章节此后已被编辑。撤销会删除这些内容，因此未做任何更改。",
     applyError: "调整未能应用", undoError: "调整未能撤销",
   },
 

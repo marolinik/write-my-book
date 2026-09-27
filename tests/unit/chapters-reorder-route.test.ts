@@ -1,17 +1,43 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
+/**
+ * Review of a07a2f2: the route read each chapter's number OUTSIDE its
+ * transaction and moved documents by those numbers inside it. A structural move
+ * or a second tab that renumbered the book in between made those numbers stale,
+ * and the drag carried one chapter's prose and briefs onto another. The
+ * renumber now runs on an interactive transaction that takes the book's chapter
+ * lock first and reads every number under it.
+ */
+
 const h = vi.hoisted(() => ({
   user: { id: "u1" },
   requireUser: vi.fn(),
+  /** The chapters the book holds when the transaction reads it, under the lock. */
+  bookChapters: [] as Array<{ id: string; chapterNumber: number }>,
+  statements: [] as Array<{ sql: string; values: unknown[] }>,
   db: {
     book: { findFirst: vi.fn() },
-    chapter: { findMany: vi.fn(), update: vi.fn() },
-    document: { updateMany: vi.fn() },
+    chapter: { findMany: vi.fn() },
     $transaction: vi.fn(),
   },
 }));
 vi.mock("@/lib/auth", () => ({ requireUser: () => h.requireUser() }));
 vi.mock("@/lib/db", () => ({ db: h.db }));
+
+/** The transaction client: every raw statement is recorded, in order. */
+function fakeTx() {
+  return {
+    $executeRaw: vi.fn(async (strings: TemplateStringsArray, ...values: unknown[]) => {
+      h.statements.push({ sql: strings.join("?"), values });
+      return 1;
+    }),
+    chapter: {
+      findMany: vi.fn(async () => h.bookChapters.map((c) => ({ ...c }))),
+    },
+  };
+}
+
+const updates = () => h.statements.filter((s) => /^\s*UPDATE/i.test(s.sql));
 
 import { PATCH } from "@/app/api/books/[id]/chapters/reorder/route";
 
@@ -42,11 +68,12 @@ beforeEach(() => {
     { id: ID_A, chapterNumber: 1 },
     { id: ID_B, chapterNumber: 2 },
   ]);
-  // update/updateMany just need to return something thenable-ish; the route
-  // hands them to $transaction which we stub to resolve.
-  h.db.chapter.update.mockImplementation((arg: unknown) => arg);
-  h.db.document.updateMany.mockImplementation((arg: unknown) => arg);
-  h.db.$transaction.mockResolvedValue([]);
+  h.bookChapters = [
+    { id: ID_A, chapterNumber: 1 },
+    { id: ID_B, chapterNumber: 2 },
+  ];
+  h.statements = [];
+  h.db.$transaction.mockImplementation(async (fn: (tx: unknown) => unknown) => fn(fakeTx()));
 });
 
 describe("PATCH /api/books/:id/chapters/reorder", () => {
@@ -128,51 +155,63 @@ describe("PATCH /api/books/:id/chapters/reorder", () => {
     expect(h.db.$transaction).not.toHaveBeenCalled();
   });
 
-  it("renumbers via two-phase temp offset inside ONE transaction and returns count", async () => {
+  it("renumbers inside ONE transaction that takes the book's chapter lock first", async () => {
     const res = await PATCH(req({ order: validOrder }) as never, ctx as never);
     expect(res.status).toBe(200);
     await expect(res.json()).resolves.toEqual({ reordered: 2 });
 
-    // Exactly one transaction wraps the whole renumber.
     expect(h.db.$transaction).toHaveBeenCalledTimes(1);
+    const [fn, options] = h.db.$transaction.mock.calls[0];
+    expect(typeof fn).toBe("function");
+    // A long book must not be cut off by Prisma's 5 s default (P6-S10).
+    expect(options.timeout).toBeGreaterThan(5000);
 
-    // Chapters: phase A parks at 10000+i, phase B writes finals.
-    const chapterData = h.db.chapter.update.mock.calls.map(
-      (c) => c[0].data.chapterNumber
-    );
-    // Phase A temp numbers 10000, 10001 present…
-    expect(chapterData).toContain(10000);
-    expect(chapterData).toContain(10001);
-    // …and phase B finals 2, 1 present.
-    expect(chapterData).toContain(2);
-    expect(chapterData).toContain(1);
+    // The lock comes before anything is read or written, keyed by a bound value.
+    expect(h.statements[0].sql).toMatch(/pg_advisory_xact_lock/);
+    expect(h.statements[0].values).toEqual(["wmb-chapters:b1"]);
 
-    // Every chapter.update targets a requested chapterId.
-    for (const call of h.db.chapter.update.mock.calls) {
-      expect([ID_A, ID_B]).toContain(call[0].where.id);
-    }
+    // Chapters reach their final numbers: A (was 1) -> 2, B (was 2) -> 1.
+    const final = updates().find((s) => /UPDATE\s+chapters/i.test(s.sql) && /target/.test(s.sql));
+    expect(final?.values).toEqual(expect.arrayContaining([[ID_A, ID_B], [2, 1]]));
   });
 
-  it("renumbers the chapter_number of scoped documents but never the storageKey", async () => {
-    await PATCH(req({ order: validOrder }) as never, ctx as never);
+  it("moves scoped documents by the numbers read under the lock, never the storageKey", async () => {
+    // The route's own check saw A at 1 and B at 2; by the time the lock was
+    // granted, another tab had swapped them.
+    h.bookChapters = [
+      { id: ID_A, chapterNumber: 2 },
+      { id: ID_B, chapterNumber: 1 },
+    ];
 
-    // Documents are renumbered by (bookId, chapter_number) — old→temp→final.
-    expect(h.db.document.updateMany).toHaveBeenCalled();
-    for (const call of h.db.document.updateMany.mock.calls) {
-      const { where, data } = call[0];
-      expect(where.bookId).toBe("b1");
-      // Only chapter_number moves; storageKey is never in the update payload.
-      expect(Object.keys(data)).toEqual(["chapterNumber"]);
-      expect(data).not.toHaveProperty("storageKey");
-    }
+    const res = await PATCH(req({ order: validOrder }) as never, ctx as never);
+    expect(res.status).toBe(200);
 
-    // Phase A keys off each chapter's OLD number (1 and 2), so those appear as
-    // source `where.chapterNumber` values.
-    const whereNumbers = h.db.document.updateMany.mock.calls.map(
-      (c) => c[0].where.chapterNumber
-    );
-    expect(whereNumbers).toContain(1); // old number of chapter A
-    expect(whereNumbers).toContain(2); // old number of chapter B
-    expect(whereNumbers).toContain(10000); // temp source in phase B
+    const parkDocs = updates().find((s) => /UPDATE\s+documents/i.test(s.sql) && /old_number/.test(s.sql));
+    // Documents follow each chapter from the number it holds NOW.
+    expect(parkDocs?.values[0]).toEqual([2, 1]);
+    for (const s of h.statements) expect(s.sql).not.toMatch(/storage_key/i);
+  });
+
+  it("409 when the book holds a chapter the ordering does not place (the view was stale)", async () => {
+    // A split in another tab added a chapter the dragged view never saw.
+    h.bookChapters = [
+      { id: ID_A, chapterNumber: 1 },
+      { id: ID_B, chapterNumber: 2 },
+      { id: "33333333-3333-4333-8333-333333333333", chapterNumber: 3 },
+    ];
+
+    const res = await PATCH(req({ order: validOrder }) as never, ctx as never);
+
+    expect(res.status).toBe(409);
+    expect(updates()).toEqual([]);
+  });
+
+  it("409 when a chapter left the book between the check and the transaction", async () => {
+    h.bookChapters = [{ id: ID_A, chapterNumber: 1 }];
+
+    const res = await PATCH(req({ order: validOrder }) as never, ctx as never);
+
+    expect(res.status).toBe(409);
+    expect(updates()).toEqual([]);
   });
 });

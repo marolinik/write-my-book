@@ -1076,6 +1076,7 @@ export const FR: UIStrings = {
     errNotAdjacent: "Ces chapitres ne se suivent plus.",
     errBookChanged: "Le livre a changé depuis cette proposition. Relancez la passe.",
     errApplyFailed: "Rien n'a été modifié dans le livre. Réessayez.",
+    errSplitEdited: "Le chapitre créé par la scission a été modifié depuis. L'annuler supprimerait ce texte, donc rien n'a été changé.",
     applyError: "Le geste n'a pas pu être appliqué", undoError: "Le geste n'a pas pu être annulé",
   },
 

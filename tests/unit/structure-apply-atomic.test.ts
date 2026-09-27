@@ -17,6 +17,15 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
  *
  * P2-S12 / X-S08: a move is applied only if it is STILL pending when the apply
  * commits. A reject that lands mid-apply wins, and the apply takes nothing.
+ *
+ * Review of a07a2f2: a merge read the absorbed chapter's NUMBER before its
+ * transaction and dropped that number's documents inside it. A corkboard drag
+ * committed in between handed the number to another chapter, and the merge
+ * deleted that chapter's prose and then its files. Every renumbering
+ * transaction now takes the book's chapter lock first and refuses to run on a
+ * book that no longer looks the way the plan saw it. Undo follows the survivor
+ * by id, claims the move before it works, and will not delete a split-off
+ * chapter the writer has written in since.
  */
 
 interface Ch {
@@ -36,6 +45,7 @@ interface Doc {
   storageKey: string;
   versions: string[];
   content: string;
+  currentVersion: number;
 }
 interface Move {
   id: string;
@@ -59,6 +69,12 @@ const h = vi.hoisted(() => ({
   duringRenumber: null as null | (() => void),
   /** Makes the next chapter insert fail, after the renumber has run. */
   createFails: false,
+  /**
+   * Runs once, as the next interactive transaction opens: another tab's work
+   * that committed after this apply read the book and before its transaction.
+   */
+  beforeTx: null as null | (() => void),
+  statements: [] as Array<{ sql: string; values: unknown[] }>,
   txOptions: [] as unknown[],
   seq: 0,
 }));
@@ -100,6 +116,9 @@ vi.mock("@/lib/db", () => {
     $transaction: async (fn: unknown, opts?: unknown) => {
       h.txOptions.push(opts);
       if (Array.isArray(fn)) return Promise.all(fn);
+      const racer = h.beforeTx;
+      h.beforeTx = null;
+      racer?.();
       // Moves are left out of the rollback on purpose: a test that races a
       // reject writes it as another transaction that has already committed.
       const snap = structuredClone({
@@ -113,6 +132,10 @@ vi.mock("@/lib/db", () => {
         Object.assign(h.state, snap);
         throw e;
       }
+    },
+    $executeRaw: async (strings: TemplateStringsArray, ...values: unknown[]) => {
+      h.statements.push({ sql: strings.join("?"), values });
+      return 1;
     },
     chapter: {
       findMany: async ({ where }: { where: { bookId: string; id?: { in: string[] } } }) =>
@@ -171,11 +194,14 @@ vi.mock("@/lib/db", () => {
       findFirst: async ({
         where,
       }: {
-        where: { bookId: string; chapterNumber?: { gte: number } };
+        where: { bookId: string; type?: string; chapterNumber?: number | { gte: number } };
       }) => {
         const hits = S()
           .documents.filter(
-            (d) => d.bookId === where.bookId && numberMatches(where.chapterNumber, d.chapterNumber)
+            (d) =>
+              d.bookId === where.bookId &&
+              (!where.type || d.type === where.type) &&
+              numberMatches(where.chapterNumber, d.chapterNumber)
           )
           .sort((a, b) => (b.chapterNumber ?? 0) - (a.chapterNumber ?? 0));
         return hits[0] ? { ...hits[0] } : null;
@@ -254,9 +280,10 @@ async function fakeRenumber(bookId: string, order: Array<{ chapterId: string; ch
   }
 }
 
-vi.mock("@/lib/chapters/renumber", () => ({
-  TEMP_OFFSET: 10000,
-  RENUMBER_TX_OPTIONS: { maxWait: 10_000, timeout: 30_000 },
+// Only the renumber itself is replaced; the lock and the book-changed check are
+// the real ones, running against the fake client above.
+vi.mock("@/lib/chapters/renumber", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/chapters/renumber")>()),
   renumberChaptersWith: (_client: unknown, bookId: string, order: never) => fakeRenumber(bookId, order),
   renumberChapters: (bookId: string, order: never) => fakeRenumber(bookId, order),
 }));
@@ -295,6 +322,7 @@ vi.mock("@/lib/documents/document-service", () => ({
       if (!d) throw new Error("Document not found");
       d.content = content;
       d.versions.push(`versions/${id}/v${d.versions.length + 1}.md`);
+      d.currentVersion = d.versions.length;
       return { document: { ...d }, version: { version: d.versions.length } };
     }
     async create(type: string, content: string, _title?: string, chapterNumber?: number) {
@@ -310,6 +338,7 @@ vi.mock("@/lib/documents/document-service", () => ({
         storageKey: `chapters/${id}.md`,
         versions: [`versions/${id}/v1.md`],
         content,
+        currentVersion: 1,
       };
       S().documents.push(row);
       return { ...row };
@@ -328,15 +357,21 @@ vi.mock("@/lib/documents/document-service", () => ({
   },
 }));
 
-import { applyStructureMove } from "@/lib/structure/apply-move";
+import { applyStructureMove, undoStructureMove } from "@/lib/structure/apply-move";
 
 const ctx = { bookId: "b1", userId: "u1" };
+
+/** The prose chapter N was seeded with. */
+const ORIG = (i: number) =>
+  `Text of orig-${i}.\n\nSecond paragraph of orig-${i}.\n\nAnchor line of orig-${i}.`;
 
 /** Chapter N holds "Text of orig-N." and a brief, and is `oN` for good. */
 function seedBook(n: number) {
   h.seq = 0;
   h.duringRenumber = null;
   h.createFails = false;
+  h.beforeTx = null;
+  h.statements = [];
   h.txOptions = [];
   const chapters: Ch[] = [];
   const documents: Doc[] = [];
@@ -357,7 +392,8 @@ function seedBook(n: number) {
       chapterNumber: i,
       storageKey: `chapters/chapter-${i}.md`,
       versions: [`versions/content-o${i}/v1.md`],
-      content: `Text of orig-${i}.\n\nSecond paragraph of orig-${i}.\n\nAnchor line of orig-${i}.`,
+      content: ORIG(i),
+      currentVersion: 1,
     });
     documents.push({
       id: `brief-o${i}`,
@@ -367,6 +403,7 @@ function seedBook(n: number) {
       storageKey: `briefs/chapter-${i}.md`,
       versions: [`versions/brief-o${i}/v1.md`],
       content: `Brief ${i}`,
+      currentVersion: 1,
     });
   }
   Object.assign(h.state, {
@@ -397,6 +434,18 @@ const contentOf = (chapterId: string) => {
   const n = chapter(chapterId)?.chapterNumber;
   return S().documents.find((d) => d.type === "CHAPTER_CONTENT" && d.chapterNumber === n)?.content;
 };
+
+/** Another tab's corkboard drag, committed: two chapters trade places, documents and all. */
+function dragSwap(a: string, b: string) {
+  const [ca, cb] = [chapter(a)!, chapter(b)!];
+  const [na, nb] = [ca.chapterNumber, cb.chapterNumber];
+  for (const d of S().documents) {
+    if (d.chapterNumber === na) d.chapterNumber = nb;
+    else if (d.chapterNumber === nb) d.chapterNumber = na;
+  }
+  ca.chapterNumber = nb;
+  cb.chapterNumber = na;
+}
 
 beforeEach(() => {
   vi.spyOn(console, "error").mockImplementation(() => {});
@@ -584,5 +633,138 @@ describe("an apply only commits while the move is still pending (P2-S12)", () =>
 
     expect(res).toMatchObject({ ok: false, error: { code: "not_pending" } });
     expect(move().status).toBe("applied");
+  });
+});
+
+describe("a renumber that commits between the plan and the apply (review of a07a2f2)", () => {
+  it("a merge deletes nothing that now belongs to another chapter", async () => {
+    seedBook(5);
+    propose("merge", { chapterIds: ["o2", "o3"], chapterNumbers: [2, 3] });
+    // Planned with orig3 at 3. A drag in another tab then hands 3 to orig4.
+    h.beforeTx = () => dragSwap("o3", "o4");
+
+    const res = await applyStructureMove("m1", ctx);
+
+    expect(res).toMatchObject({ ok: false, error: { code: "apply_failed" } });
+    // orig4 keeps its prose, its brief and its files.
+    expect(contentOf("o4")).toBe(ORIG(4));
+    expect(S().documents.filter((d) => d.id.endsWith("-o4"))).toHaveLength(2);
+    expect(S().deletedBlobs).toEqual([]);
+    // Nothing of the merge landed: the absorbed chapter is still there and the
+    // survivor has its own prose back.
+    expect(chapter("o3")).toBeDefined();
+    expect(contentOf("o2")).toBe(ORIG(2));
+    // The book is as the other tab left it.
+    expect(chapter("o3")?.chapterNumber).toBe(4);
+    expect(chapter("o4")?.chapterNumber).toBe(3);
+    // Still pending: accepting again re-plans against the book as it is now.
+    expect(move().status).toBe("pending");
+  });
+
+  it("a reorder planned on a stale book does not overwrite the newer order", async () => {
+    seedBook(4);
+    propose("reorder", { chapterId: "o4", chapterNumber: 4, targetPosition: 1 });
+    h.beforeTx = () => dragSwap("o1", "o2");
+
+    const res = await applyStructureMove("m1", ctx);
+
+    expect(res).toMatchObject({ ok: false, error: { code: "apply_failed" } });
+    expect(chapter("o2")?.chapterNumber).toBe(1);
+    expect(chapter("o1")?.chapterNumber).toBe(2);
+    expect(chapter("o4")?.chapterNumber).toBe(4);
+    expect(move().status).toBe("pending");
+  });
+
+  it("every apply transaction takes the book's chapter lock, keyed by a bound parameter", async () => {
+    seedBook(3);
+    propose("merge", { chapterIds: ["o1", "o2"], chapterNumbers: [1, 2] });
+
+    await applyStructureMove("m1", ctx);
+
+    const lock = h.statements.find((s) => /pg_advisory_xact_lock/.test(s.sql));
+    expect(lock).toBeDefined();
+    expect(lock!.values).toEqual(["wmb-chapters:b1"]);
+    expect(lock!.sql).not.toContain("b1");
+  });
+});
+
+describe("undo (review of a07a2f2)", () => {
+  it("restores a merge survivor by id, not by the number it had then", async () => {
+    seedBook(5);
+    propose("merge", { chapterIds: ["o2", "o3"], chapterNumbers: [2, 3] }, "merge");
+    expect((await applyStructureMove("merge", ctx)).ok).toBe(true);
+    // A later move takes orig2 to the end: chapter 2 is now orig4.
+    propose("reorder", { chapterId: "o2", chapterNumber: 2, targetPosition: 4 }, "later");
+    expect((await applyStructureMove("later", ctx)).ok).toBe(true);
+    expect(chapter("o4")?.chapterNumber).toBe(2);
+
+    const res = await undoStructureMove("merge", ctx);
+
+    expect(res.ok).toBe(true);
+    expect(contentOf("o4")).toBe(ORIG(4));
+    expect(contentOf("o2")).toBe(ORIG(2));
+  });
+
+  it("two undos pressed at once put the absorbed chapter back once", async () => {
+    seedBook(4);
+    propose("merge", { chapterIds: ["o2", "o3"], chapterNumbers: [2, 3] });
+    expect((await applyStructureMove("m1", ctx)).ok).toBe(true);
+
+    const results = await Promise.all([undoStructureMove("m1", ctx), undoStructureMove("m1", ctx)]);
+
+    expect(results.filter((r) => r.ok)).toHaveLength(1);
+    expect(results.find((r) => !r.ok)).toMatchObject({ error: { code: "not_pending" } });
+    expect(S().chapters).toHaveLength(4);
+    expect(numbers()).toEqual([1, 2, 3, 4]);
+    expect(S().documents.filter((d) => d.type === "CHAPTER_CONTENT")).toHaveLength(4);
+    expect(move().status).toBe("undone");
+  });
+
+  it("an undo that cannot finish hands the move back as applied", async () => {
+    seedBook(4);
+    propose("merge", { chapterIds: ["o2", "o3"], chapterNumbers: [2, 3] });
+    expect((await applyStructureMove("m1", ctx)).ok).toBe(true);
+    h.createFails = true;
+
+    const res = await undoStructureMove("m1", ctx);
+
+    expect(res.ok).toBe(false);
+    expect(move().status).toBe("applied");
+  });
+
+  it("refuses to undo a split whose new chapter the writer has written in since", async () => {
+    seedBook(3);
+    propose("split", { chapterId: "o2", chapterNumber: 2, anchorQuote: "Anchor line of orig-2." });
+    expect((await applyStructureMove("m1", ctx)).ok).toBe(true);
+    const carved = S().chapters.find((c) => c.chapterNumber === 3)!;
+    // The writer saves new prose into the chapter the split created.
+    const prose = S().documents.find((d) => d.type === "CHAPTER_CONTENT" && d.chapterNumber === 3)!;
+    prose.content = "Anchor line of orig-2.\n\nA scene the writer added after the split.";
+    prose.versions.push(`versions/${prose.id}/v2.md`);
+    prose.currentVersion = 2;
+
+    const res = await undoStructureMove("m1", ctx);
+
+    expect(res).toMatchObject({ ok: false, error: { code: "split_edited" } });
+    expect(chapter(carved.id)).toBeDefined();
+    expect(contentOf(carved.id)).toContain("A scene the writer added after the split.");
+    expect(S().deletedBlobs).toEqual([]);
+    expect(move().status).toBe("applied");
+  });
+
+  it("still undoes a split whose new chapter nobody touched", async () => {
+    seedBook(3);
+    propose("split", { chapterId: "o2", chapterNumber: 2, anchorQuote: "Anchor line of orig-2." });
+    expect((await applyStructureMove("m1", ctx)).ok).toBe(true);
+
+    const res = await undoStructureMove("m1", ctx);
+
+    expect(res.ok).toBe(true);
+    expect(S().chapters).toHaveLength(3);
+    expect(numbers()).toEqual([1, 2, 3]);
+    expect(contentOf("o2")).toBe(ORIG(2));
+    expect(contentOf("o3")).toBe(ORIG(3));
+    expect(S().documents.filter((d) => d.type === "CHAPTER_CONTENT")).toHaveLength(3);
+    expect(move().status).toBe("undone");
   });
 });

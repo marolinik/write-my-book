@@ -16,6 +16,7 @@ const h = vi.hoisted(() => ({
     // The apply transaction runs on the same fake: rollback semantics are what
     // structure-apply-atomic.test.ts is for.
     $transaction: vi.fn(),
+    $executeRaw: vi.fn(),
     structureMove: { findFirst: vi.fn(), update: vi.fn(), updateMany: vi.fn() },
     chapter: {
       findMany: vi.fn(),
@@ -41,12 +42,12 @@ const h = vi.hoisted(() => ({
 }));
 
 vi.mock("@/lib/db", () => ({ db: h.db }));
-vi.mock("@/lib/chapters/renumber", () => ({
+// The renumber is a spy; the lock, the book-changed check and the constants
+// (undo derives its parking range from TEMP_OFFSET) are the real module's.
+vi.mock("@/lib/chapters/renumber", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/chapters/renumber")>()),
   renumberChapters: (...args: unknown[]) => h.renumberChapters(...args),
   renumberChaptersWith: (...args: unknown[]) => h.renumberChaptersWith(...args),
-  RENUMBER_TX_OPTIONS: { maxWait: 10_000, timeout: 30_000 },
-  // Mirror the real module: undo derives its parking range from this.
-  TEMP_OFFSET: 10000,
 }));
 vi.mock("@/lib/books/book-counters", () => ({
   reconcileBookCounters: (...args: unknown[]) => h.reconcileBookCounters(...args),
@@ -89,10 +90,17 @@ function move(kind: string, payload: unknown, extra: Record<string, unknown> = {
 
 const opts = { bookId: "b1", userId: "u1" };
 
+/** Every conditional status write made to the move, in order. */
+const moveWrites = () =>
+  h.db.structureMove.updateMany.mock.calls.map(
+    (call) => call[0] as { where: Record<string, unknown>; data: Record<string, unknown> }
+  );
+
 beforeEach(() => {
   vi.clearAllMocks();
   h.db.chapter.findMany.mockResolvedValue(chapters);
   h.db.$transaction.mockImplementation(async (fn: (tx: unknown) => unknown) => fn(h.db));
+  h.db.$executeRaw.mockResolvedValue(1);
   h.db.structureMove.update.mockImplementation(async (a: unknown) => a);
   h.db.structureMove.updateMany.mockResolvedValue({ count: 1 });
   h.db.chapter.deleteMany.mockResolvedValue({ count: 1 });
@@ -337,10 +345,15 @@ describe("undoStructureMove — restoring into occupied numbers", () => {
   it("parks the restored chapter past the last live number instead of colliding", async () => {
     const res = await undoStructureMove("m1", opts);
     expect(res.ok).toBe(true);
+    // Claimed from `applied` before any work, so a second undo cannot run too.
+    expect(moveWrites()[0]).toMatchObject({
+      where: { id: "m1", bookId: "b1", status: "applied" },
+      data: { status: "undone" },
+    });
     // Step 0: "accept all, then undo 5 of 8" was invisible without a time.
-    const done = h.db.structureMove.update.mock.calls.at(-1)?.[0].data;
-    expect(done.status).toBe("undone");
-    expect(done.undoneAt).toBeInstanceOf(Date);
+    const done = moveWrites().at(-1)!;
+    expect(done.where).toMatchObject({ id: "m1", status: "undone" });
+    expect(done.data.undoneAt).toBeInstanceOf(Date);
 
     const taken = afterMerge.map((c) => c.chapterNumber);
     const created = h.db.chapter.create.mock.calls[0][0].data;
@@ -371,10 +384,12 @@ describe("undoStructureMove — restoring into occupied numbers", () => {
 
     const res = await undoStructureMove("m1", opts);
     expect(res.ok).toBe(false);
-    const statuses = h.db.structureMove.update.mock.calls.map(
-      (call) => (call[0] as { data: { status?: string } }).data.status
-    );
-    expect(statuses).not.toContain("undone");
+    // The claim is handed back, so the writer can press Undo again.
+    expect(moveWrites().at(-1)).toMatchObject({
+      where: { id: "m1", status: "undone" },
+      data: { status: "applied" },
+    });
+    expect(moveWrites().some((w) => w.data.undoneAt instanceof Date)).toBe(false);
   });
 });
 
@@ -403,7 +418,8 @@ describe("undoStructureMove", () => {
       { chapterId: "c3", chapterNumber: 3 },
       { chapterId: "c4", chapterNumber: 4 },
     ]);
-    expect(h.db.structureMove.update.mock.calls.at(-1)?.[0].data.status).toBe("undone");
+    expect(moveWrites()[0].data.status).toBe("undone");
+    expect(moveWrites().at(-1)?.data.undoneAt).toBeInstanceOf(Date);
   });
 
   it("restores a merged-away chapter with its prose", async () => {
@@ -473,6 +489,53 @@ describe("undoStructureMove", () => {
     const res = await undoStructureMove("m1", opts);
     expect(res).toMatchObject({ ok: false, error: { code: "not_applied" } });
     expect(h.renumberChapters).not.toHaveBeenCalled();
+  });
+
+  it("does nothing when another undo claimed the move first", async () => {
+    h.db.structureMove.findFirst.mockResolvedValue(
+      move("reorder", { kind: "reorder", chapterNumber: 4, targetPosition: 2 }, {
+        status: "applied",
+        previousState: JSON.stringify({ ordering: [{ chapterId: "c1", chapterNumber: 1 }] }),
+      })
+    );
+    h.db.structureMove.updateMany.mockResolvedValue({ count: 0 });
+
+    const res = await undoStructureMove("m1", opts);
+    expect(res).toMatchObject({ ok: false, error: { code: "not_pending" } });
+    expect(h.renumberChapters).not.toHaveBeenCalled();
+    expect(h.db.chapter.create).not.toHaveBeenCalled();
+  });
+});
+
+describe("every apply transaction takes the book's chapter lock first (review of a07a2f2)", () => {
+  const lockCalls = () =>
+    h.db.$executeRaw.mock.calls.filter(([strings]) =>
+      (strings as string[]).join("?").includes("pg_advisory_xact_lock")
+    );
+
+  it.each([
+    ["reorder", { kind: "reorder", chapterNumber: 4, targetPosition: 2 }],
+    ["merge", { kind: "merge", chapterNumbers: [2, 3] }],
+    ["split", { kind: "split", chapterNumber: 3, anchorQuote: "Kad je pao mrak" }],
+  ])("%s", async (kind, payload) => {
+    h.db.structureMove.findFirst.mockResolvedValue(move(kind, payload));
+
+    const res = await applyStructureMove("m1", opts);
+    expect(res.ok).toBe(true);
+
+    expect(lockCalls()).toHaveLength(1);
+    const [strings, key] = lockCalls()[0];
+    expect(key).toBe("wmb-chapters:b1");
+    expect((strings as string[]).join("")).not.toContain("b1");
+
+    // Before the renumber, and before the chapter list is read again inside
+    // the transaction to confirm the plan still describes the book.
+    const lockedAt = h.db.$executeRaw.mock.invocationCallOrder[0];
+    expect(lockedAt).toBeLessThan(h.renumberChaptersWith.mock.invocationCallOrder[0]);
+    expect(h.db.chapter.findMany.mock.invocationCallOrder.at(-1)!).toBeGreaterThan(lockedAt);
+    if (kind === "merge") {
+      expect(lockedAt).toBeLessThan(h.db.document.findMany.mock.invocationCallOrder[0]);
+    }
   });
 });
 

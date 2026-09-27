@@ -35,6 +35,7 @@ const h = vi.hoisted(() => ({
 vi.mock("@/lib/db", () => ({ db: { $transaction: h.$transaction } }));
 
 import {
+  lockBookChapters,
   renumberChapters,
   renumberChaptersWith,
   TEMP_OFFSET,
@@ -44,6 +45,7 @@ let chapters: ChapterRow[];
 let documents: DocumentRow[];
 let statements: string[];
 let collisions: string[];
+let locks: unknown[][];
 
 function assign<T extends { chapterNumber: number | null }>(
   rows: T[],
@@ -73,6 +75,10 @@ function fakeClient() {
     $executeRaw: vi.fn(async (strings: TemplateStringsArray, ...values: unknown[]) => {
       const sql = strings.join("?");
       statements.push(sql);
+      if (/pg_advisory_xact_lock/.test(sql)) {
+        locks.push(values);
+        return 1;
+      }
       const bookId = values.find((v) => typeof v === "string") as string;
       const [from, to] = values.filter(Array.isArray) as [unknown[], number[]];
 
@@ -115,6 +121,7 @@ function book(n: number) {
 beforeEach(() => {
   statements = [];
   collisions = [];
+  locks = [];
   h.$transaction.mockReset();
 });
 
@@ -214,5 +221,37 @@ describe("renumberChapters — its own transaction", () => {
     expect(typeof fn).toBe("function");
     expect(options.timeout).toBeGreaterThan(5000);
     expect(chapters.find((c) => c.id === "c3")?.chapterNumber).toBe(1);
+  });
+
+  it("takes the book's chapter lock before it reads a single number", async () => {
+    // Two renumbers of one book that both read the numbers before either
+    // wrote would move documents by numbers that are already stale. The lock
+    // makes the second wait until the first has committed (review of a07a2f2).
+    book(3);
+    const client = fakeClient();
+    h.$transaction.mockImplementation(async (fn: (tx: unknown) => unknown) => fn(client));
+
+    await renumberChapters("b1", [
+      { chapterId: "c2", chapterNumber: 1 },
+      { chapterId: "c1", chapterNumber: 2 },
+      { chapterId: "c3", chapterNumber: 3 },
+    ]);
+
+    expect(statements[0]).toMatch(/pg_advisory_xact_lock/);
+    expect(locks).toEqual([["wmb-chapters:b1"]]);
+    const lockedAt = client.$executeRaw.mock.invocationCallOrder[0];
+    expect(lockedAt).toBeLessThan(client.chapter.findMany.mock.invocationCallOrder[0]);
+  });
+});
+
+describe("lockBookChapters", () => {
+  it("binds the book id as a parameter instead of writing it into the SQL", async () => {
+    const client = fakeClient();
+
+    await lockBookChapters(client as never, "b1'; DROP TABLE chapters; --");
+
+    expect(statements).toHaveLength(1);
+    expect(statements[0]).not.toContain("DROP");
+    expect(locks).toEqual([["wmb-chapters:b1'; DROP TABLE chapters; --"]]);
   });
 });

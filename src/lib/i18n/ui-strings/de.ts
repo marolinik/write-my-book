@@ -1076,6 +1076,7 @@ export const DE: UIStrings = {
     errNotAdjacent: "Diese Kapitel stehen nicht mehr nebeneinander.",
     errBookChanged: "Das Buch hat sich seit dem Vorschlag geändert. Lauf erneut starten.",
     errApplyFailed: "Am Buch wurde nichts geändert. Bitte erneut versuchen.",
+    errSplitEdited: "Das durch die Teilung entstandene Kapitel wurde seitdem bearbeitet. Rückgängigmachen würde diesen Text löschen, daher wurde nichts geändert.",
     applyError: "Der Schritt konnte nicht angewendet werden", undoError: "Der Schritt konnte nicht rückgängig gemacht werden",
   },
 

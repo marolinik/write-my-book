@@ -23,3 +23,20 @@ describe("describeMoveError — apply_failed", () => {
     }
   });
 });
+
+/**
+ * Review of a07a2f2: undoing a split deleted the chapter it had created, and
+ * every version of that chapter's prose with it — including whatever the
+ * writer had written there since. Undo now refuses, and the writer is told why
+ * in their own language rather than being shown the engine's English note.
+ */
+describe("describeMoveError — split_edited", () => {
+  it("has its own sentence in every language", () => {
+    for (const lang of ["sr", "en", "de", "es", "fr", "ru", "zh"]) {
+      const s = getUIStrings(lang).structure as unknown as Record<string, string>;
+      const text = describeMoveError("split_edited", "engine note", s);
+      expect(s.errSplitEdited).toBeTruthy();
+      expect(text).toBe(s.errSplitEdited);
+    }
+  });
+});

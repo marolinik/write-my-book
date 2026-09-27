@@ -1086,6 +1086,7 @@ export const EN: UIStrings = {
     errNotAdjacent: "Those chapters are no longer next to each other.",
     errBookChanged: "The book changed since this was proposed. Run the pass again.",
     errApplyFailed: "Nothing in the book was changed. Try again.",
+    errSplitEdited: "The chapter this split created has been edited since. Undoing it would delete that writing, so nothing was changed.",
     applyError: "The move could not be applied", undoError: "The move could not be undone",
   },
 

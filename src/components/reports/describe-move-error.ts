@@ -21,6 +21,8 @@ export function describeMoveError(
     book_changed: s.errBookChanged,
     // The database refused the move and the engine rolled it back (P6-S10).
     apply_failed: s.errApplyFailed,
+    // Undo would have deleted writing done in a split-off chapter since.
+    split_edited: s.errSplitEdited,
   };
   return (code && byCode[code]) || fallback;
 }

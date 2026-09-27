@@ -1055,6 +1055,7 @@ export interface UIStrings {
     errNotAdjacent: string;
     errBookChanged: string;
     errApplyFailed: string;
+    errSplitEdited: string;
   };
 
   // S3-10: the reports tabs. Each one states what the pass measured and, once
