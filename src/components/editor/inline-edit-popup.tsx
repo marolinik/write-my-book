@@ -64,6 +64,11 @@ export function InlineEditPopup({
   const popupRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const inlineEdit = useInlineEdit(bookId);
+  // P5-S20: the in-flight request's controller. Every way the popup closes
+  // (Escape, Cancel, Reject, outside click, unmount) aborts it, so the route
+  // answers 499 and bills nothing (D-142, R-095) instead of charging the
+  // writer for rewrites they dismissed before they arrived.
+  const abortRef = useRef<AbortController | null>(null);
   // D-132: the F2 badge advertises a hardware key that phones don't have — hide
   // it on coarse-pointer devices (the overflow-menu path already covers touch).
   const coarsePointer = useCoarsePointer();
@@ -93,18 +98,32 @@ export function InlineEditPopup({
     }
   }, [phase]);
 
-  // Close on Escape
+  const cancelInFlight = useCallback(() => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+  }, []);
+
+  const cancelAndClose = useCallback(() => {
+    cancelInFlight();
+    onClose();
+  }, [cancelInFlight, onClose]);
+
+  // Abort on unmount too: a parent can drop the popup without going through
+  // one of the close paths above.
+  useEffect(() => cancelInFlight, [cancelInFlight]);
+
+  // Close on Escape (R-099: Esc cancels the request as well as the popup)
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         e.preventDefault();
         e.stopPropagation();
-        onClose();
+        cancelAndClose();
       }
     };
     document.addEventListener("keydown", handler, true);
     return () => document.removeEventListener("keydown", handler, true);
-  }, [onClose]);
+  }, [cancelAndClose]);
 
   // Return focus to the editor whenever the popup closes (Escape, Cancel,
   // Reject, outside click — Accept additionally focuses via its chain).
@@ -120,12 +139,12 @@ export function InlineEditPopup({
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (popupRef.current && !popupRef.current.contains(e.target as Node)) {
-        onClose();
+        cancelAndClose();
       }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [onClose]);
+  }, [cancelAndClose]);
 
   const getSelectedText = useCallback(() => {
     const { from, to } = editor.state.selection;
@@ -154,13 +173,19 @@ export function InlineEditPopup({
       setError(null);
       setPhase("loading");
 
+      cancelInFlight();
+      const controller = new AbortController();
+      abortRef.current = controller;
+
       try {
         const result = await inlineEdit.mutateAsync({
           selectedText,
           surroundingContext: getSurroundingContext(),
           instruction: finalInstruction || undefined,
           count: 3,
+          signal: controller.signal,
         });
+        if (abortRef.current === controller) abortRef.current = null;
 
         if (result.suggestions.length === 0) {
           setError(
@@ -174,6 +199,9 @@ export function InlineEditPopup({
         setActiveIndex(0);
         setPhase("results");
       } catch (err) {
+        // The writer cancelled: nothing to report, the popup is closing.
+        if (controller.signal.aborted) return;
+        if (abortRef.current === controller) abortRef.current = null;
         setError(
           err instanceof Error && err.message.trim().length > 0
             ? err.message
@@ -182,7 +210,7 @@ export function InlineEditPopup({
         setPhase("instruction");
       }
     },
-    [getSelectedText, getSurroundingContext, instruction, inlineEdit, onClose]
+    [getSelectedText, getSurroundingContext, instruction, inlineEdit, onClose, cancelInFlight]
   );
 
   // Auto-submit when opened with an initialInstruction (e.g. from context menu)
@@ -302,7 +330,7 @@ export function InlineEditPopup({
                 variant="ghost"
                 size="sm"
                 className="h-7 text-xs"
-                onClick={onClose}
+                onClick={cancelAndClose}
               >{t.common.cancel}</Button>
             </div>
           </form>
@@ -378,7 +406,7 @@ export function InlineEditPopup({
                 variant="ghost"
                 size="sm"
                 className="h-7 text-xs gap-1"
-                onClick={onClose}
+                onClick={cancelAndClose}
               >
                 <X className="h-3 w-3" />{t.common.reject}</Button>
               <Button

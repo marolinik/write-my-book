@@ -158,7 +158,7 @@ export function upsertBookSection(
   seriesLanguage?: string
 ): string {
   const rendered = buildBookSection(section, seriesLanguage);
-  const lines = existing.split("\n");
+  const lines = withoutMissingBook(existing, section.bookNumber).split("\n");
 
   const headerIndexes: Array<{ index: number; bookNumber: number }> = [];
   lines.forEach((line, i) => {
@@ -190,5 +190,62 @@ export function upsertBookSection(
     return inserted.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd();
   }
 
-  return `${existing.trimEnd()}\n\n${rendered}`;
+  return `${lines.join("\n").trimEnd()}\n\n${rendered}`;
+}
+
+/** Splits the note's book list between entries, never inside a book's name. */
+const NOTE_ENTRY_SEPARATOR = new RegExp(
+  ",\\s+(?=(?:" + BOOK_WORDS.map(escapeForRegex).join("|") + ")\\s+\\d+\\s+—)"
+);
+const NOTE_ENTRY_NUMBER = new RegExp(
+  "^(?:" + BOOK_WORDS.map(escapeForRegex).join("|") + ")\\s+(\\d+)\\s+—"
+);
+
+/** The note's sentence split around its book list, in whichever language wrote it. */
+function noteParts(
+  sentence: string
+): { prefix: string; list: string; suffix: string } | null {
+  for (const { code } of UI_SUPPORTED_LANGUAGES) {
+    const [prefix, suffix = ""] =
+      getUIStrings(code).seriesUI.noContributionYet.split("{books}");
+    if (
+      sentence.length > prefix.length + suffix.length &&
+      sentence.startsWith(prefix) &&
+      sentence.endsWith(suffix)
+    ) {
+      return {
+        prefix,
+        list: sentence.slice(prefix.length, sentence.length - suffix.length),
+        suffix,
+      };
+    }
+  }
+  return null;
+}
+
+/**
+ * X-S20: the note names the books the document does not cover yet. Once one
+ * of them contributes, the note must stop naming it — left alone it read "No
+ * contribution yet from: Book 02" directly above Book 02's section. The note
+ * keeps the language it was written in; it disappears when nobody is left.
+ */
+function withoutMissingBook(document: string, bookNumber: number): string {
+  const lines = document.split("\n");
+  const index = lines.findIndex(
+    (line) => line.startsWith("> ") && noteParts(line.slice(2)) !== null
+  );
+  if (index < 0) return document;
+
+  const { prefix, list, suffix } = noteParts(lines[index].slice(2))!;
+  const entries = list.split(NOTE_ENTRY_SEPARATOR);
+  const kept = entries.filter(
+    (entry) => Number(NOTE_ENTRY_NUMBER.exec(entry)?.[1]) !== bookNumber
+  );
+  if (kept.length === entries.length) return document;
+
+  const note = kept.length > 0 ? [`> ${prefix}${kept.join(", ")}${suffix}`] : [];
+  return lines
+    .flatMap((line, i) => (i === index ? note : [line]))
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n");
 }

@@ -165,6 +165,10 @@ Provide ${data.count} alternative rewrites as a JSON array.`;
         : baseParams,
       { signal: req.signal, timeout: QUICK_ASSIST_TIMEOUT_INLINE_MS }
     );
+    // P5-S20: the provider can settle in the same moment the writer presses
+    // Esc. The rewrites exist but nobody will see them, so the ghost-text rule
+    // applies here too: 499, no usage_record, no Free meter tick.
+    if (req.signal.aborted) return new Response(null, { status: 499 });
 
     // Parse the response (extractQuickAssistText skips leading thinking blocks).
     const rawText = extractQuickAssistText(response.content) || "[]";

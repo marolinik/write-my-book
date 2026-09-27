@@ -74,15 +74,14 @@ export async function synthesizeToSeries(
     select: { id: true, name: true, bookNumber: true },
   });
 
-  const missing: MissingBook[] = [];
-  for (const sibling of siblings) {
-    if (sibling.id === bookId) continue;
-    const siblingDocs = new DocumentService(userId, sibling.id);
-    const has = await siblingDocs.findByType(mapping.book);
-    if (!has) {
-      missing.push({ bookNumber: sibling.bookNumber, bookName: sibling.name });
-    }
-  }
+  // X-S20: the note is read on first creation, when the series document holds
+  // this book alone, so every other book is absent from it. Naming only the
+  // books without a document of their own left the O2 gap open for a book
+  // that has one and was never synthesized — which the automatic path
+  // (post-session synthesizes only the book that just finished) always makes.
+  const missing: MissingBook[] = siblings
+    .filter((sibling) => sibling.id !== bookId)
+    .map((sibling) => ({ bookNumber: sibling.bookNumber, bookName: sibling.name }));
 
   const section = {
     bookNumber,

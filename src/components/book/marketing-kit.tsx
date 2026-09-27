@@ -1,7 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/components/providers/language-provider";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   MegaphoneIcon,
   CopyIcon,
@@ -18,7 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchJson } from "@/lib/api-client";
 import { toast } from "sonner";
 import { useLocale } from "@/components/providers/language-provider";
@@ -73,8 +73,10 @@ function CopyButton({ text }: { text: string }) {
 export function MarketingKit({ bookId, bookTitle }: MarketingKitProps) {
   const { t } = useLanguage();
   const locale = useLocale();
+  const queryClient = useQueryClient();
+  const kitKey = ["marketing-kit", bookId];
   const { data, isLoading } = useQuery<MarketingKitData | null>({
-    queryKey: ["marketing-kit", bookId],
+    queryKey: kitKey,
     queryFn: async () => {
       try {
         return await fetchJson(`/api/books/${bookId}/marketing-kit`);
@@ -84,16 +86,33 @@ export function MarketingKit({ bookId, bookTitle }: MarketingKitProps) {
     },
   });
 
+  // `isPending` only disables the button on the next render, so a quick
+  // double click still sent two billed generations. The ref closes that gap.
+  const generatingRef = useRef(false);
+
   const generateMutation = useMutation({
     mutationFn: () =>
-      fetchJson(`/api/books/${bookId}/marketing-kit`, { method: "POST" }),
-    onSuccess: () => {
+      fetchJson<MarketingKitData>(`/api/books/${bookId}/marketing-kit`, { method: "POST" }),
+    // P3-S25: the POST answers with the kit it saved. Put it on screen now;
+    // a toast alone left the empty state and its Generate button up, and
+    // every further click was another billed generation.
+    onSuccess: (kit) => {
+      queryClient.setQueryData(kitKey, kit);
       toast.success(t.toasts.marketingKitGenerated);
     },
     onError: () => {
       toast.error(t.toasts.marketingKitFailed);
     },
+    onSettled: () => {
+      generatingRef.current = false;
+    },
   });
+
+  const generate = () => {
+    if (generatingRef.current) return;
+    generatingRef.current = true;
+    generateMutation.mutate();
+  };
 
   if (!data && !isLoading) {
     return (
@@ -113,7 +132,7 @@ export function MarketingKit({ bookId, bookTitle }: MarketingKitProps) {
             </p>
           </div>
           <Button
-            onClick={() => generateMutation.mutate()}
+            onClick={generate}
             disabled={generateMutation.isPending}
           >
             {generateMutation.isPending ? (
@@ -146,12 +165,29 @@ export function MarketingKit({ bookId, bookTitle }: MarketingKitProps) {
             <MegaphoneIcon className="size-4" />
             {t.bookUI.marketingKitTitle} — {bookTitle}
           </CardTitle>
-          <Badge variant="outline" className="text-[10px]">
-            {t.bookUI.generatedOn.replace(
-              "{date}",
-              new Date(data.generatedAt).toLocaleDateString(locale)
-            )}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="text-[10px]">
+              {t.bookUI.generatedOn.replace(
+                "{date}",
+                new Date(data.generatedAt).toLocaleDateString(locale)
+              )}
+            </Badge>
+            {/* R-313: a new generation replaces the previous kit. */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-xs"
+              onClick={generate}
+              disabled={generateMutation.isPending}
+            >
+              {generateMutation.isPending ? (
+                <Loader2Icon className="size-3 mr-1 animate-spin" />
+              ) : (
+                <SparklesIcon className="size-3 mr-1" />
+              )}
+              {t.common.regenerate}
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>

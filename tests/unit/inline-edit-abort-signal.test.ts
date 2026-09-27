@@ -94,6 +94,25 @@ describe("POST /api/books/:id/inline-edit — abort is unbilled (D-142)", () => 
     expect(h.recordDailyUse).not.toHaveBeenCalled();
   });
 
+  it("P5-S20: returns 499 and does NOT bill when the client left while the provider call finished", async () => {
+    // The provider settled in the same tick the writer pressed Esc: the reply
+    // exists, but nobody will see it — the ghost-text route's rule applies.
+    const controller = new AbortController();
+    h.create.mockImplementationOnce(async () => {
+      controller.abort();
+      return reply('[{"text":"A tighter line.","label":"Tighter"}]');
+    });
+    const aborted = new Request("http://t/api/books/b1/inline-edit", {
+      method: "POST",
+      body: JSON.stringify({ selectedText: "some prose", count: 3 }),
+      signal: controller.signal,
+    });
+    const res = await POST(aborted as never, ctx as never);
+    expect(res.status).toBe(499);
+    expect(h.db.usageRecord.create).not.toHaveBeenCalled();
+    expect(h.recordDailyUse).not.toHaveBeenCalled();
+  });
+
   it("threads a signal + timeout into client.messages.create", async () => {
     h.create.mockResolvedValueOnce(
       reply('[{"text":"A tighter line.","label":"Tighter"}]')
