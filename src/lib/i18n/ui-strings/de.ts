@@ -83,6 +83,7 @@ export const DE: UIStrings = {
     modelSelectionHint: "Wählen Sie, welche KI-Modelle verwendet werden. Pro Buch lässt sich das in den Bucheinstellungen überschreiben.",
     perRoleOverridesHint: "Überschreiben Sie das Standardmodell für einzelne Agentenrollen. „Standard verwenden“ übernimmt die globale Auswahl oben.",
     noCustomProvider: "Noch kein eigener Anbieter gespeichert. Fügen Sie einen Rechner im LAN, einen Firmen-Proxy oder einen selbst gehosteten Hub hinzu — was verfügbar ist, entscheidet die `/models`-Abfrage des Endpunkts.",
+    customProvidersNotForRuns: "Modelle eigener Anbieter können noch nicht für Agent-Läufe ausgewählt werden. Sie stehen hier, damit Sie die Verbindung prüfen können.",
     addProvider: "Anbieter hinzufügen",
     noProvidersConnected: "Keine Anbieter verbunden. Fügen Sie zuerst einen API-Schlüssel hinzu.",
     title: "Einstellungen",

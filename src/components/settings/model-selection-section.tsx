@@ -17,7 +17,6 @@ import {
   useUpdateGlobalRoleOverride,
 } from "@/hooks/use-default-model";
 import { useApiKeys } from "@/hooks/use-api-keys";
-import { useCustomProviders } from "@/hooks/use-custom-providers";
 import type { AgentRole } from "@/lib/llm";
 import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 import type { ProviderKey } from "@/lib/llm/providers";
@@ -103,7 +102,6 @@ export function ModelSelectionSection() {
   const updateDefaultModel = useUpdateDefaultModel();
   const updateRoleOverride = useUpdateGlobalRoleOverride();
   const { data: apiKeys } = useApiKeys();
-  const { data: customProviders, defs: customModelDefs } = useCustomProviders();
 
   // Derive available providers from user's validated keys
   const availableProviders: ProviderKey[] = (apiKeys ?? [])
@@ -111,13 +109,13 @@ export function ModelSelectionSection() {
     .map((k) => k.provider as ProviderKey)
     // Deduplicate (user can only have 1 key per provider, but be safe)
     .filter((p, i, arr) => arr.indexOf(p) === i);
-  // The "local" slot covers both the self-hosted fleet (keyless, reported by
-  // the server) and user-added custom providers. Without the fleet half, the
-  // fleet models never appear and a user whose default IS one gets a blank
-  // trigger (D-131).
-  const hasLocal =
-    defaultModelData?.localFleet === true ||
-    (customProviders?.length ?? 0) > 0;
+  // The "local" slot is the self-hosted fleet (keyless, reported by the
+  // server). Without it the fleet models never appear and a user whose
+  // default IS one gets a blank trigger (D-131). Custom-provider models are
+  // not offered here: the default-model route accepts registry ids only and
+  // nothing at run time can call a custom provider yet, so every pick failed
+  // with a 400 (P2-S19). They come back when runs can use them.
+  const hasLocal = defaultModelData?.localFleet === true;
   if (hasLocal && !availableProviders.includes("local" as ProviderKey)) {
     availableProviders.push("local" as ProviderKey);
   }
@@ -183,7 +181,6 @@ export function ModelSelectionSection() {
           value={defaultModelData?.defaultModel ?? getDefaultModelId()}
           onChange={handleDefaultModelChange}
           availableProviders={availableProviders}
-          customModels={customModelDefs}
         />
 
         <Separator />
@@ -205,7 +202,6 @@ export function ModelSelectionSection() {
               value={getRoleValue(info.role)}
               onChange={(registryId) => handleRoleChange(info.role, registryId)}
               availableProviders={availableProviders}
-              customModels={customModelDefs}
               showDefaultOption
             />
           ))}

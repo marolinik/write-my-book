@@ -83,6 +83,7 @@ export const ZH: UIStrings = {
     modelSelectionHint: "选择要使用的 AI 模型。每本书都可以在自己的设置中覆盖此选项。",
     perRoleOverridesHint: "为特定的智能体角色覆盖默认模型。“使用默认”将沿用上方的全局选择。",
     noCustomProvider: "尚未保存自定义服务商。可添加局域网机器、企业代理或自建服务——具体可用内容由该端点自身的 `/models` 发现结果决定。",
+    customProvidersNotForRuns: "自定义服务商的模型暂时还不能用于智能体运行。此处列出它们，便于你检查连接。",
     addProvider: "添加服务商",
     noProvidersConnected: "尚未连接服务商。请先添加 API 密钥。",
     title: "设置",

@@ -83,6 +83,7 @@ export const SR: UIStrings = {
     modelSelectionHint: "Izaberite koje AI modele koristite. Podešavanje po knjizi menja se u podešavanjima svake knjige.",
     perRoleOverridesHint: "Zamenite podrazumevani model za pojedine uloge agenata. „Koristi podrazumevano“ nasleđuje globalni izbor iznad.",
     noCustomProvider: "Još nema sačuvanog sopstvenog provajdera. Dodajte mašinu u lokalnoj mreži, korporativni proksi ili sopstveni server — otkrivanje preko `/models` na samom endpointu određuje šta je dostupno.",
+    customProvidersNotForRuns: "Modeli sa sopstvenih provajdera još ne mogu da se izaberu za rad agenata. Ovde su navedeni da biste proverili vezu.",
     addProvider: "Dodaj provajdera",
     noProvidersConnected: "Nema povezanih provajdera. Prvo dodajte API ključ.",
     title: "Podešavanja",

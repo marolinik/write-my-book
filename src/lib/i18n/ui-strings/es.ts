@@ -83,6 +83,7 @@ export const ES: UIStrings = {
     modelSelectionHint: "Elige qué modelos de IA usar. Cada libro puede anularlo en sus propios ajustes.",
     perRoleOverridesHint: "Anula el modelo predeterminado para roles de agente concretos. «Usar predeterminado» hereda la opción global de arriba.",
     noCustomProvider: "Aún no has guardado ningún proveedor propio. Añade un equipo en la LAN, un proxy corporativo o un servidor propio: lo que hay disponible lo decide el descubrimiento `/models` del propio endpoint.",
+    customProvidersNotForRuns: "Los modelos de proveedores propios aún no se pueden elegir para las ejecuciones de los agentes. Aparecen aquí para que puedas comprobar la conexión.",
     addProvider: "Añadir proveedor",
     noProvidersConnected: "No hay proveedores conectados. Añade primero una clave de API.",
     title: "Ajustes",

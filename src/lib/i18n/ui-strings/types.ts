@@ -91,6 +91,7 @@ export interface UIStrings {
     modelSelectionHint: string;
     perRoleOverridesHint: string;
     noCustomProvider: string;
+    customProvidersNotForRuns: string;
     addProvider: string;
     noProvidersConnected: string;
     title: string;

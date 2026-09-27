@@ -83,6 +83,7 @@ export const FR: UIStrings = {
     modelSelectionHint: "Choisissez les modèles d'IA à utiliser. Chaque livre peut les remplacer dans ses propres paramètres.",
     perRoleOverridesHint: "Remplacez le modèle par défaut pour certains rôles d'agent. « Utiliser la valeur par défaut » reprend le choix global ci-dessus.",
     noCustomProvider: "Aucun fournisseur personnalisé enregistré. Ajoutez une machine du réseau local, un proxy d’entreprise ou un hub auto-hébergé — c’est la découverte `/models` du point de terminaison qui décide de ce qui est disponible.",
+    customProvidersNotForRuns: "Les modèles des fournisseurs personnalisés ne peuvent pas encore être choisis pour les exécutions des agents. Ils sont listés ici pour vérifier la connexion.",
     addProvider: "Ajouter un fournisseur",
     noProvidersConnected: "Aucun fournisseur connecté. Ajoutez d’abord une clé d’API.",
     title: "Paramètres",

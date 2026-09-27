@@ -84,6 +84,7 @@ export const EN: UIStrings = {
     modelSelectionHint: "Choose which AI models to use. Per-book overrides can be set in each book's settings.",
     perRoleOverridesHint: "Override the default model for specific agent roles. “Use Default” inherits the global default above.",
     noCustomProvider: "No custom provider saved yet. Add a LAN box, a corporate proxy, or a self-hosted hub — the endpoint's own `/models` discovery decides what's available.",
+    customProvidersNotForRuns: "Models from custom providers can't be chosen for agent runs yet. They are listed here so you can check the connection.",
     addProvider: "Add provider",
     noProvidersConnected: "No providers connected. Add an API key first.",
     title: "Settings",

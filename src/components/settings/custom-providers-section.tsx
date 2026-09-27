@@ -89,6 +89,7 @@ export function CustomProvidersSection() {
           </div>
         </div>
       ))}
+      <p className="text-xs text-muted-foreground">{t.settings.customProvidersNotForRuns}</p>
       {(!providers || providers.length === 0) && (
         <p className="rounded-md border border-dashed p-3 text-xs text-muted-foreground">{t.settings.noCustomProvider}</p>
       )}
