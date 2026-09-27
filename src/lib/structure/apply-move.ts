@@ -643,86 +643,11 @@ export async function undoStructureMove(
     }
 
     if (move.kind === "merge" && previous.chapters) {
-      // The survivor first: it still exists and only its text changed. Found by
-      // id: a move since may have renumbered it, and the number it had at the
-      // merge may now be another chapter's, whose prose this would overwrite.
-      const survivor = previous.chapters[0];
-      const survivorNow = await db.chapter.findFirst({
-        where: { id: survivor.chapterId, bookId: ctx.bookId },
-        select: { chapterNumber: true },
-      });
-      const survivorDoc = survivorNow
-        ? await docs.findByType(DocumentType.CHAPTER_CONTENT, survivorNow.chapterNumber)
-        : null;
-      if (survivorDoc) {
-        await docs.update(
-          survivorDoc.id,
-          survivor.content,
-          undefined,
-          "agent_write",
-          CHANGE_SOURCE
-        );
-      }
-      await db.chapter.update({
-        where: { id: survivor.chapterId },
-        data: { wordCount: survivor.wordCount, title: survivor.title },
-      });
-
-      // The absorbed chapters cannot go straight back to their old numbers:
-      // the merge closed the gap, so every chapter below moved up and those
-      // numbers are taken. Creating there threw a unique-constraint error with
-      // the survivor already restored, which left the book a chapter short and
-      // the move still marked applied (S3-6). Park them above the last live
-      // chapter — where nothing can collide — and let the renumber pass below
-      // walk them home.
-      // Park FAR above the book, not at max + 1. A chapter-scoped document's
-      // storageKey is derived from the chapter number it was created with and
-      // is then never rewritten, so parking at max + 1 hands the restored
-      // chapter a key like `chapter-31.md` that a real chapter may already own
-      // — and the next write to that key silently overwrites the other
-      // chapter's prose. Numbers up here can never collide with a real key.
-      const RESTORE_PARK = TEMP_OFFSET * 2;
-      const live = await loadChapters(ctx.bookId);
-      let park = Math.max(RESTORE_PARK, ...live.map((c) => c.chapterNumber) ) + 1;
-
-      // A re-created row is a new row, so the stored ordering still names the
-      // dead id. Remember the substitution or the renumber will skip it.
-      const restoredIds = new Map<string, string>();
-
-      for (const absorbed of previous.chapters.slice(1)) {
-        const parked = park;
-        park += 1;
-
-        const restored = await db.chapter.create({
-          data: {
-            bookId: ctx.bookId,
-            chapterNumber: parked,
-            actNumber: absorbed.actNumber,
-            title: absorbed.title,
-            status: absorbed.status,
-            wordCount: absorbed.wordCount,
-          },
-        });
-        restoredIds.set(absorbed.chapterId, restored.id);
-
-        await docs.create(
-          DocumentType.CHAPTER_CONTENT,
-          absorbed.content,
-          absorbed.title ?? `Chapter ${absorbed.chapterNumber}`,
-          parked,
-          absorbed.actNumber,
-          CHANGE_SOURCE
-        );
-      }
-
-      previous.ordering = previous.ordering.map((entry) => {
-        const restoredId = restoredIds.get(entry.chapterId);
-        return restoredId ? { ...entry, chapterId: restoredId } : entry;
-      });
+      await undoMerge(ctx, docs, previous);
+    } else {
+      await renumberChapters(ctx.bookId, await existingOnly(db, ctx.bookId, previous.ordering));
+      await reconcileBookCounters(ctx.bookId);
     }
-
-    await renumberChapters(ctx.bookId, await existingOnly(ctx.bookId, previous.ordering));
-    await reconcileBookCounters(ctx.bookId);
 
     await db.structureMove.updateMany({
       where: { id: moveId, status: "undone" },
@@ -733,6 +658,12 @@ export async function undoStructureMove(
   } catch (error) {
     await releaseUndo(moveId);
     if (error instanceof UndoRefused) return fail(error.code, error.message);
+    if (error instanceof BookChangedError) {
+      return fail(
+        "apply_failed",
+        "The book's chapters changed while this was being undone, so nothing was changed. Try again."
+      );
+    }
     return fail(
       "apply_failed",
       error instanceof Error ? error.message : String(error)
@@ -747,6 +678,122 @@ export async function undoStructureMove(
  * one of them can make it. It claims straight to `undone`, so no status exists
  * that the panel cannot name, and releaseUndo hands it back if the undo fails.
  */
+/**
+ * Put a merge back: the survivor gets its own text, the absorbed chapters are
+ * re-created, and the renumber walks them home.
+ *
+ * Prose is written first, because that writes files (rule 4): the survivor's
+ * document is found by the number it holds NOW and written by its id, and the
+ * absorbed chapters' documents are created at parking numbers no real chapter
+ * can hold. The transaction then takes the book's chapter lock and checks the
+ * survivor still holds that number. A renumber that committed in between would
+ * have handed the number to another chapter, whose prose the write above
+ * replaced — so it is put back and the undo refuses (rule 6). Rows, renumber
+ * and counters commit together or not at all; a failure leaves the merged text
+ * in the book and the move applied, never a survivor restored beside an
+ * absorbed chapter that could not be.
+ */
+async function undoMerge(
+  ctx: ApplyContext,
+  docs: DocumentService,
+  previous: PreviousState
+): Promise<void> {
+  const [survivor, ...absorbed] = previous.chapters!;
+  // Found by id: a move since may have renumbered it, and the number it had at
+  // the merge may now be another chapter's.
+  const survivorNow = await db.chapter.findFirst({
+    where: { id: survivor.chapterId, bookId: ctx.bookId },
+    select: { chapterNumber: true },
+  });
+
+  // The absorbed chapters cannot go straight back to their old numbers: the
+  // merge closed the gap, so those numbers are taken (S3-6). Park them FAR
+  // above the book: a chapter document's storageKey is derived from the number
+  // it was created with and never rewritten, so parking at max + 1 handed the
+  // restored chapter a key a real chapter may already own, and the next write
+  // silently overwrote that chapter's prose. Numbers up here never collide.
+  const RESTORE_PARK = TEMP_OFFSET * 2;
+  const live = await loadChapters(ctx.bookId);
+  const firstPark = Math.max(RESTORE_PARK, ...live.map((c) => c.chapterNumber)) + 1;
+  const parkedAt = new Map(absorbed.map((a, i) => [a.chapterId, firstPark + i]));
+
+  const survivorText = survivorNow
+    ? await readChapterText(docs, survivorNow.chapterNumber)
+    : null;
+  const written =
+    survivorNow && survivorText?.docId
+      ? await writeProse(docs, survivorText, survivor.content, {
+          title: survivor.title ?? undefined,
+          chapterNumber: survivorNow.chapterNumber,
+          actNumber: survivor.actNumber,
+        })
+      : null;
+  const createdDocIds: string[] = [];
+
+  try {
+    for (const a of absorbed) {
+      const doc = await docs.create(
+        DocumentType.CHAPTER_CONTENT,
+        a.content,
+        a.title ?? `Chapter ${a.chapterNumber}`,
+        parkedAt.get(a.chapterId)!,
+        a.actNumber,
+        CHANGE_SOURCE
+      );
+      createdDocIds.push(doc.id);
+    }
+
+    await db.$transaction(async (tx) => {
+      await lockBookChapters(tx, ctx.bookId);
+      if (survivorNow) {
+        const underLock = await tx.chapter.findFirst({
+          where: { id: survivor.chapterId, bookId: ctx.bookId },
+          select: { chapterNumber: true },
+        });
+        if (underLock?.chapterNumber !== survivorNow.chapterNumber) throw new BookChangedError();
+        await tx.chapter.update({
+          where: { id: survivor.chapterId },
+          data: { wordCount: survivor.wordCount, title: survivor.title },
+        });
+      }
+
+      // A re-created row is a new row, so the stored ordering still names the
+      // dead id. Remember the substitution or the renumber will skip it.
+      const restoredIds = new Map<string, string>();
+      for (const a of absorbed) {
+        const restored = await tx.chapter.create({
+          data: {
+            bookId: ctx.bookId,
+            chapterNumber: parkedAt.get(a.chapterId)!,
+            actNumber: a.actNumber,
+            title: a.title,
+            status: a.status,
+            wordCount: a.wordCount,
+          },
+        });
+        restoredIds.set(a.chapterId, restored.id);
+      }
+      const ordering = previous.ordering.map((entry) => {
+        const restoredId = restoredIds.get(entry.chapterId);
+        return restoredId ? { ...entry, chapterId: restoredId } : entry;
+      });
+
+      await renumberChaptersWith(tx, ctx.bookId, await existingOnly(tx, ctx.bookId, ordering));
+      await reconcileBookCounters(ctx.bookId, tx);
+    }, RENUMBER_TX_OPTIONS);
+  } catch (error) {
+    if (written && survivorText) await putProseBack(docs, written, survivorText.content);
+    for (const id of createdDocIds) {
+      try {
+        await docs.delete(id);
+      } catch (cleanup) {
+        console.error("[structure] could not remove a restored chapter's document after a failed undo:", cleanup);
+      }
+    }
+    throw error;
+  }
+}
+
 async function claimUndo(moveId: string, bookId: string): Promise<boolean> {
   const { count } = await db.structureMove.updateMany({
     where: { id: moveId, bookId, status: "applied" },
@@ -840,11 +887,12 @@ async function restoreContent(
  * filtered down to the rows that still exist.
  */
 async function existingOnly(
+  client: Pick<Tx, "chapter">,
   bookId: string,
   ordering: ReadonlyArray<{ chapterId: string; chapterNumber: number }>
 ): Promise<Array<{ chapterId: string; chapterNumber: number }>> {
   if (ordering.length === 0) return [];
-  const rows = await db.chapter.findMany({
+  const rows = await client.chapter.findMany({
     where: { bookId, id: { in: ordering.map((o) => o.chapterId) } },
     select: { id: true },
   });

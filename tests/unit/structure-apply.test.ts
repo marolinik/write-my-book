@@ -373,8 +373,9 @@ describe("undoStructureMove — restoring into occupied numbers", () => {
     await undoStructureMove("m1", opts);
 
     // The re-created row has a new id, so the stored ordering — which still
-    // names the dead one — has to be rewritten before it is any use.
-    const [, ordering] = h.renumberChapters.mock.calls[0];
+    // names the dead one — has to be rewritten before it is any use. The
+    // renumber runs inside the undo's own locked transaction.
+    const [, , ordering] = h.renumberChaptersWith.mock.calls[0];
     expect(ordering).toContainEqual({ chapterId: "restored-c3", chapterNumber: 3 });
     expect(ordering.map((o: { chapterId: string }) => o.chapterId)).not.toContain("c3");
   });
@@ -448,14 +449,9 @@ describe("undoStructureMove", () => {
     expect(recreated).toMatchObject({ bookId: "b1", title: "Put", actNumber: 1 });
     const [, restoredContent] = h.docs.create.mock.calls[0];
     expect(restoredContent).toBe(CH3);
-    // The survivor goes back to its pre-merge text.
-    expect(h.docs.update).toHaveBeenCalledWith(
-      "doc-2",
-      "Tekst doc-2.",
-      undefined,
-      expect.anything(),
-      expect.anything()
-    );
+    // The survivor goes back to its pre-merge text, written against the
+    // version that was read so a save landing in between is not overwritten.
+    expect(h.docs.update.mock.calls[0].slice(0, 3)).toEqual(["doc-2", "Tekst doc-2.", undefined]);
   });
 
   it("removes the chapter a split created and restores the whole chapter", async () => {

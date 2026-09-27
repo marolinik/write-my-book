@@ -74,6 +74,12 @@ const h = vi.hoisted(() => ({
    * that committed after this apply read the book and before its transaction.
    */
   beforeTx: null as null | (() => void),
+  /**
+   * Runs once, right after the next chapter row is read by id: another tab's
+   * renumber that commits between an undo reading the survivor's number and
+   * writing prose by it.
+   */
+  afterChapterFindFirst: null as null | (() => void),
   statements: [] as Array<{ sql: string; values: unknown[] }>,
   txOptions: [] as unknown[],
   seq: 0,
@@ -147,7 +153,11 @@ vi.mock("@/lib/db", () => {
         const c = S().chapters.find(
           (x) => idIn(where, x.id) && (!where.bookId || x.bookId === where.bookId)
         );
-        return c ? { ...c } : null;
+        const row = c ? { ...c } : null;
+        const racer = h.afterChapterFindFirst;
+        h.afterChapterFindFirst = null;
+        racer?.();
+        return row;
       },
       delete: async ({ where }: { where: { id: string } }) => {
         S().chapters = S().chapters.filter((c) => c.id !== where.id);
@@ -371,6 +381,7 @@ function seedBook(n: number) {
   h.duringRenumber = null;
   h.createFails = false;
   h.beforeTx = null;
+  h.afterChapterFindFirst = null;
   h.statements = [];
   h.txOptions = [];
   const chapters: Ch[] = [];
@@ -730,6 +741,63 @@ describe("undo (review of a07a2f2)", () => {
 
     expect(res.ok).toBe(false);
     expect(move().status).toBe("applied");
+  });
+
+  // Merge undo wrote the survivor's prose, created the absorbed rows and only
+  // then took the book's chapter lock, inside the renumber. Everything before
+  // it ran on numbers read without the lock.
+  it("a merge undo that cannot finish leaves the merged text in the book", async () => {
+    seedBook(4);
+    propose("merge", { chapterIds: ["o2", "o3"], chapterNumbers: [2, 3] });
+    expect((await applyStructureMove("m1", ctx)).ok).toBe(true);
+    const mergedText = contentOf("o2")!;
+    expect(mergedText).toContain("Text of orig-3.");
+    h.createFails = true;
+
+    const res = await undoStructureMove("m1", ctx);
+
+    expect(res.ok).toBe(false);
+    // The survivor still holds both chapters' words: nothing the writer had is
+    // gone while the absorbed chapter could not be put back.
+    expect(contentOf("o2")).toBe(mergedText);
+    expect(S().chapters).toHaveLength(3);
+    expect(numbers()).toEqual([1, 2, 3]);
+    expect(move().status).toBe("applied");
+  });
+
+  it("a merge undo takes the book's chapter lock before it writes", async () => {
+    seedBook(4);
+    propose("merge", { chapterIds: ["o2", "o3"], chapterNumbers: [2, 3] });
+    expect((await applyStructureMove("m1", ctx)).ok).toBe(true);
+    h.statements = [];
+
+    expect((await undoStructureMove("m1", ctx)).ok).toBe(true);
+
+    const lock = h.statements.find((s) => /pg_advisory_xact_lock/.test(s.sql));
+    expect(lock).toBeDefined();
+    expect(lock!.values).toEqual(["wmb-chapters:b1"]);
+  });
+
+  it("a merge undo raced by a corkboard drag overwrites no other chapter's prose", async () => {
+    seedBook(5);
+    propose("merge", { chapterIds: ["o2", "o3"], chapterNumbers: [2, 3] });
+    expect((await applyStructureMove("m1", ctx)).ok).toBe(true);
+    // Book is now o1=1, o2=2 (merged), o4=3, o5=4. The drag commits right after
+    // the undo has read the survivor's number: chapter 2 is o4 from then on.
+    h.afterChapterFindFirst = () => dragSwap("o2", "o4");
+
+    const res = await undoStructureMove("m1", ctx);
+
+    expect(contentOf("o4")).toBe(ORIG(4));
+    if (res.ok) {
+      // Undone under the lock: every chapter has its own words back.
+      expect(contentOf("o2")).toBe(ORIG(2));
+      expect(contentOf("o3") ?? S().documents.find((d) => d.content === ORIG(3))?.content).toBe(ORIG(3));
+    } else {
+      // Refused because the book moved under it: nothing changed, writer retries.
+      expect(move().status).toBe("applied");
+      expect(S().chapters).toHaveLength(4);
+    }
   });
 
   it("refuses to undo a split whose new chapter the writer has written in since", async () => {
