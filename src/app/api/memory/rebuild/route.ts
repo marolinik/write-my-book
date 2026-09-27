@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { rebuildBookIndex } from "@/lib/vector";
+import {
+  canIndexProseForUser,
+  isProseIndexingPausedForUser,
+} from "@/lib/vector/indexing-gate";
 import { memoryRebuildSchema } from "@/lib/validation";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
@@ -30,6 +34,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "Book not found" },
         { status: 404 }
+      );
+    }
+
+    // A rebuild re-embeds the whole book on the platform's key, so it asks the
+    // same gate the chapter save does. Every other prose-indexing path did; this
+    // one let a paused Free writer embed everything from the memory card whose
+    // own status said indexing was paused.
+    if (!(await canIndexProseForUser(user.id))) {
+      const indexingPaused = await isProseIndexingPausedForUser(user.id);
+      return NextResponse.json(
+        indexingPaused
+          ? {
+              error:
+                "Memory indexing is paused on the Free plan past the AI-eligible word cap. Upgrade to index the rest of your book.",
+              indexingPaused: true,
+            }
+          : {
+              error: "Memory indexing is unavailable right now. Try again later.",
+              indexingPaused: false,
+            },
+        { status: indexingPaused ? 402 : 503 }
       );
     }
 
