@@ -1392,6 +1392,18 @@ export const RU: UIStrings = {
     seriesLanguageSaved: "Язык серии сохранён",
     seriesLanguageFailed: "Не удалось сохранить язык серии",
     seriesReorderFailed: "Не удалось изменить порядок книг в серии",
+    completeSetupFirst: "Сначала завершите настройку книги",
+    apiKeySaved: "API-ключ проверен и сохранён",
+    apiKeyDeleted: "API-ключ удалён",
+    billingPortalFailed: "Не удалось открыть портал оплаты",
+    defaultModelUpdated: "Модель по умолчанию обновлена",
+    languageUpdateFailed: "Не удалось изменить язык",
+    memoryIndexRebuilt: "Индекс памяти перестроен",
+    bookMemoryCleared: "Память книги очищена",
+    styleProfileSaved: "Профиль стиля сохранён",
+    characterLensCreated: "Перспектива персонажа создана",
+    characterLensUpdated: "Перспектива персонажа обновлена",
+    characterLensDeleted: "Перспектива персонажа удалена",
   },
 
   agentUI: {

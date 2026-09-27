@@ -43,7 +43,7 @@ function openUpgradeModalFor(error: Error): void {
 /** Start a new agent session. Automatically includes the current page context. */
 export function useStartSession(bookId: string) {
   const router = useRouter();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
 
   return useMutation({
     mutationFn: async (data: {
@@ -73,7 +73,7 @@ export function useStartSession(bookId: string) {
 
         // SETUP-07: Intercept setupIncomplete 422 and redirect to setup wizard
         if (res.status === 422 && body.setupIncomplete) {
-          toast.info("Please complete book setup first");
+          toast.info(t.toasts.completeSetupFirst);
           router.push(`/books/${bookId}/setup`);
           throw new Error("Setup incomplete");
         }

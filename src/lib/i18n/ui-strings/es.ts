@@ -1392,6 +1392,18 @@ export const ES: UIStrings = {
     seriesLanguageSaved: "Idioma de la serie guardado",
     seriesLanguageFailed: "No se pudo guardar el idioma de la serie",
     seriesReorderFailed: "No se pudo cambiar el orden de los libros de la serie",
+    completeSetupFirst: "Primero complete la configuración del libro",
+    apiKeySaved: "Clave de API verificada y guardada",
+    apiKeyDeleted: "Clave de API eliminada",
+    billingPortalFailed: "No se pudo abrir el portal de facturación",
+    defaultModelUpdated: "Modelo predeterminado actualizado",
+    languageUpdateFailed: "No se pudo cambiar el idioma",
+    memoryIndexRebuilt: "Índice de memoria reconstruido",
+    bookMemoryCleared: "Memoria del libro borrada",
+    styleProfileSaved: "Perfil de estilo guardado",
+    characterLensCreated: "Perspectiva de personaje creada",
+    characterLensUpdated: "Perspectiva de personaje actualizada",
+    characterLensDeleted: "Perspectiva de personaje eliminada",
   },
 
   agentUI: {

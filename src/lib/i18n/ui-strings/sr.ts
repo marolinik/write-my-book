@@ -1392,6 +1392,18 @@ export const SR: UIStrings = {
     seriesLanguageSaved: "Jezik serijala je sačuvan",
     seriesLanguageFailed: "Čuvanje jezika serijala nije uspelo",
     seriesReorderFailed: "Promena redosleda knjiga u serijalu nije uspela",
+    completeSetupFirst: "Prvo završite podešavanje knjige",
+    apiKeySaved: "API ključ je proveren i sačuvan",
+    apiKeyDeleted: "API ključ je obrisan",
+    billingPortalFailed: "Otvaranje portala za naplatu nije uspelo",
+    defaultModelUpdated: "Podrazumevani model je izmenjen",
+    languageUpdateFailed: "Promena jezika nije uspela",
+    memoryIndexRebuilt: "Indeks pamćenja je ponovo izgrađen",
+    bookMemoryCleared: "Pamćenje knjige je obrisano",
+    styleProfileSaved: "Stilski profil je sačuvan",
+    characterLensCreated: "Perspektiva lika je napravljena",
+    characterLensUpdated: "Perspektiva lika je izmenjena",
+    characterLensDeleted: "Perspektiva lika je obrisana",
   },
 
   agentUI: {

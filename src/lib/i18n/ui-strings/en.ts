@@ -1403,6 +1403,18 @@ export const EN: UIStrings = {
     seriesLanguageSaved: "Series language saved",
     seriesLanguageFailed: "Failed to save the series language",
     seriesReorderFailed: "Failed to reorder the books in the series",
+    completeSetupFirst: "Please complete book setup first",
+    apiKeySaved: "API key validated and saved",
+    apiKeyDeleted: "API key deleted",
+    billingPortalFailed: "Failed to open billing portal",
+    defaultModelUpdated: "Default model updated",
+    languageUpdateFailed: "Failed to update language",
+    memoryIndexRebuilt: "Memory index rebuilt successfully",
+    bookMemoryCleared: "Book memory cleared",
+    styleProfileSaved: "Style profile saved",
+    characterLensCreated: "Character lens created",
+    characterLensUpdated: "Character lens updated",
+    characterLensDeleted: "Character lens deleted",
   },
 
   agentUI: {

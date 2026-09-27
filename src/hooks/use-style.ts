@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useLanguage } from "@/components/providers/language-provider";
 
 export function useStyleProfile(bookId: string) {
   return useQuery({
@@ -17,6 +18,7 @@ export function useStyleProfile(bookId: string) {
 
 export function useUpdateStyleProfile(bookId: string) {
   const qc = useQueryClient();
+  const { t } = useLanguage();
   return useMutation({
     mutationFn: async (data: { name: string; description?: string; fingerprint?: string }) => {
       const res = await fetch(`/api/books/${bookId}/style`, {
@@ -29,7 +31,7 @@ export function useUpdateStyleProfile(bookId: string) {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["style-profile", bookId] });
-      toast.success("Style profile saved");
+      toast.success(t.toasts.styleProfileSaved);
     },
     onError: (err) => toast.error(err.message),
   });
@@ -49,6 +51,7 @@ export function useCharacterLenses(bookId: string) {
 
 export function useCreateLens(bookId: string) {
   const qc = useQueryClient();
+  const { t } = useLanguage();
   return useMutation({
     mutationFn: async (data: {
       characterName: string;
@@ -72,7 +75,7 @@ export function useCreateLens(bookId: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["character-lenses", bookId] });
       qc.invalidateQueries({ queryKey: ["style-profile", bookId] });
-      toast.success("Character lens created");
+      toast.success(t.toasts.characterLensCreated);
     },
     onError: (err) => toast.error(err.message),
   });
@@ -80,6 +83,7 @@ export function useCreateLens(bookId: string) {
 
 export function useUpdateLens(bookId: string) {
   const qc = useQueryClient();
+  const { t } = useLanguage();
   return useMutation({
     mutationFn: async ({ lensId, ...data }: { lensId: string; [key: string]: any }) => {
       const res = await fetch(`/api/books/${bookId}/style/lenses/${lensId}`, {
@@ -92,7 +96,7 @@ export function useUpdateLens(bookId: string) {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["character-lenses", bookId] });
-      toast.success("Character lens updated");
+      toast.success(t.toasts.characterLensUpdated);
     },
     onError: (err) => toast.error(err.message),
   });
@@ -100,6 +104,7 @@ export function useUpdateLens(bookId: string) {
 
 export function useDeleteLens(bookId: string) {
   const qc = useQueryClient();
+  const { t } = useLanguage();
   return useMutation({
     mutationFn: async (lensId: string) => {
       const res = await fetch(`/api/books/${bookId}/style/lenses/${lensId}`, {
@@ -111,7 +116,7 @@ export function useDeleteLens(bookId: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["character-lenses", bookId] });
       qc.invalidateQueries({ queryKey: ["style-profile", bookId] });
-      toast.success("Character lens deleted");
+      toast.success(t.toasts.characterLensDeleted);
     },
     onError: (err) => toast.error(err.message),
   });

@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useLanguage } from "@/components/providers/language-provider";
 import type { AgentRole } from "@/lib/llm";
 import { ROLE_TO_USER_FIELD } from "@/lib/llm";
 
@@ -46,6 +47,7 @@ export function useDefaultModel() {
 /** Update the global default model. */
 export function useUpdateDefaultModel() {
   const qc = useQueryClient();
+  const { t } = useLanguage();
   return useMutation({
     mutationFn: async (defaultModel: string) => {
       const res = await fetch("/api/settings/default-model", {
@@ -61,7 +63,7 @@ export function useUpdateDefaultModel() {
     },
     onSuccess: (data) => {
       qc.setQueryData(["default-model"], data);
-      toast.success("Default model updated");
+      toast.success(t.toasts.defaultModelUpdated);
     },
     onError: (err) => toast.error(err.message),
   });

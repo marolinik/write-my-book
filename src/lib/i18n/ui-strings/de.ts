@@ -1392,6 +1392,18 @@ export const DE: UIStrings = {
     seriesLanguageSaved: "Reihensprache gespeichert",
     seriesLanguageFailed: "Reihensprache konnte nicht gespeichert werden",
     seriesReorderFailed: "Die Reihenfolge der Bücher konnte nicht geändert werden",
+    completeSetupFirst: "Bitte schließen Sie zuerst die Bucheinrichtung ab",
+    apiKeySaved: "API-Schlüssel geprüft und gespeichert",
+    apiKeyDeleted: "API-Schlüssel gelöscht",
+    billingPortalFailed: "Das Abrechnungsportal konnte nicht geöffnet werden",
+    defaultModelUpdated: "Standardmodell aktualisiert",
+    languageUpdateFailed: "Die Sprache konnte nicht geändert werden",
+    memoryIndexRebuilt: "Gedächtnisindex neu aufgebaut",
+    bookMemoryCleared: "Buchgedächtnis gelöscht",
+    styleProfileSaved: "Stilprofil gespeichert",
+    characterLensCreated: "Figurenperspektive erstellt",
+    characterLensUpdated: "Figurenperspektive aktualisiert",
+    characterLensDeleted: "Figurenperspektive gelöscht",
   },
 
   agentUI: {

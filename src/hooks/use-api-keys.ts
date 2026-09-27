@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useLanguage } from "@/components/providers/language-provider";
 import type { ProviderKey } from "@/lib/llm/providers";
 
 // ─── Types ─────────────────────────────────────────────────────
@@ -66,6 +67,7 @@ export function useProviderUsage(provider: ProviderKey) {
  */
 export function useAddApiKey() {
   const qc = useQueryClient();
+  const { t } = useLanguage();
   return useMutation<
     ApiKeyCreateResponse,
     Error,
@@ -85,7 +87,7 @@ export function useAddApiKey() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["api-keys"] });
-      toast.success("API key validated and saved");
+      toast.success(t.toasts.apiKeySaved);
     },
     onError: (err) => toast.error(err.message),
   });
@@ -99,6 +101,7 @@ export function useAddApiKey() {
  */
 export function useDeleteApiKey() {
   const qc = useQueryClient();
+  const { t } = useLanguage();
   return useMutation<{ deleted: boolean }, Error, string>({
     mutationFn: async (id) => {
       const res = await fetch(`/api/settings/api-keys/${id}`, {
@@ -118,7 +121,7 @@ export function useDeleteApiKey() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["api-keys"] });
-      toast.success("API key deleted");
+      toast.success(t.toasts.apiKeyDeleted);
     },
     onError: (err) => toast.error(err.message),
   });

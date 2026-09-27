@@ -1392,6 +1392,18 @@ export const ZH: UIStrings = {
     seriesLanguageSaved: "已保存系列语言",
     seriesLanguageFailed: "保存系列语言失败",
     seriesReorderFailed: "调整系列中书籍的顺序失败",
+    completeSetupFirst: "请先完成书籍设置",
+    apiKeySaved: "API 密钥已验证并保存",
+    apiKeyDeleted: "API 密钥已删除",
+    billingPortalFailed: "无法打开账单门户",
+    defaultModelUpdated: "默认模型已更新",
+    languageUpdateFailed: "语言更新失败",
+    memoryIndexRebuilt: "记忆索引已重建",
+    bookMemoryCleared: "书籍记忆已清除",
+    styleProfileSaved: "风格档案已保存",
+    characterLensCreated: "角色视角已创建",
+    characterLensUpdated: "角色视角已更新",
+    characterLensDeleted: "角色视角已删除",
   },
 
   agentUI: {

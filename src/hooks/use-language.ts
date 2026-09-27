@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { getUIStrings } from "@/lib/i18n/ui-strings";
 
 const LANGUAGE_CHANNEL = "wmb:language";
 
@@ -86,7 +87,9 @@ export function useUpdateLanguage() {
       if (context?.previous) {
         qc.setQueryData(["user-language"], context.previous);
       }
-      toast.error("Failed to update language");
+      // The provider reads this hook, so no context here: the dictionary is
+      // read directly, in the language the rollback above just restored.
+      toast.error(getUIStrings(context?.previous?.language ?? "en").toasts.languageUpdateFailed);
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: ["user-language"] });

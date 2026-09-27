@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useLanguage } from "@/components/providers/language-provider";
 import { create } from "zustand";
 
 // ─── Upgrade Modal Store ─────────────────────────────────────────
@@ -89,6 +90,7 @@ export function useCheckout() {
 
 // ─── Manage Billing (Stripe Customer Portal) ────────────────────
 export function useManageBilling() {
+  const { t } = useLanguage();
   return useMutation({
     mutationFn: async () => {
       const res = await fetch("/api/billing/portal", { method: "POST" });
@@ -98,7 +100,7 @@ export function useManageBilling() {
     onSuccess: (data) => {
       if (data.url) window.location.href = data.url;
     },
-    onError: () => toast.error("Failed to open billing portal"),
+    onError: () => toast.error(t.toasts.billingPortalFailed),
   });
 }
 

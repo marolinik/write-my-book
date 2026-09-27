@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useLanguage } from "@/components/providers/language-provider";
 
 interface GlobalMemoryStats {
   totalChunks: number;
@@ -50,6 +51,7 @@ export function useBookMemoryStats(bookId: string) {
 
 export function useRebuildIndex() {
   const qc = useQueryClient();
+  const { t } = useLanguage();
   return useMutation({
     mutationFn: async (bookId: string) => {
       const res = await fetch("/api/memory/rebuild", {
@@ -66,7 +68,7 @@ export function useRebuildIndex() {
     onSuccess: (_data, bookId) => {
       qc.invalidateQueries({ queryKey: ["memory-stats"] });
       qc.invalidateQueries({ queryKey: ["memory-stats", bookId] });
-      toast.success("Memory index rebuilt successfully");
+      toast.success(t.toasts.memoryIndexRebuilt);
     },
     onError: (err) => toast.error(err.message),
   });
@@ -74,6 +76,7 @@ export function useRebuildIndex() {
 
 export function useClearMemory() {
   const qc = useQueryClient();
+  const { t } = useLanguage();
   return useMutation({
     mutationFn: async (bookId: string) => {
       const res = await fetch("/api/memory/clear", {
@@ -90,7 +93,7 @@ export function useClearMemory() {
     onSuccess: (_data, bookId) => {
       qc.invalidateQueries({ queryKey: ["memory-stats"] });
       qc.invalidateQueries({ queryKey: ["memory-stats", bookId] });
-      toast.success("Book memory cleared");
+      toast.success(t.toasts.bookMemoryCleared);
     },
     onError: (err) => toast.error(err.message),
   });

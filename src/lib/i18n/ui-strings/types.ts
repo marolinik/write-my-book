@@ -1331,6 +1331,19 @@ export interface UIStrings {
     seriesLanguageSaved: string;
     seriesLanguageFailed: string;
     seriesReorderFailed: string;
+    // Hook toasts (src/hooks), previously inline English.
+    completeSetupFirst: string;
+    apiKeySaved: string;
+    apiKeyDeleted: string;
+    billingPortalFailed: string;
+    defaultModelUpdated: string;
+    languageUpdateFailed: string;
+    memoryIndexRebuilt: string;
+    bookMemoryCleared: string;
+    styleProfileSaved: string;
+    characterLensCreated: string;
+    characterLensUpdated: string;
+    characterLensDeleted: string;
   };
 
   // H-10 - the agent panel's own chrome. Every string here was an English
