@@ -3,6 +3,61 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { getDefaultModelId } from "@/lib/llm/defaults";
+import { stripe } from "@/lib/billing";
+import { cancelAllStripeSubscriptions } from "@/lib/billing/stripe-cancel";
+
+/**
+ * Cancel, immediately, every Stripe subscription that can still charge the
+ * writer whose account is being deleted. Idempotent: Clerk redelivers, and a
+ * subscription that already ended counts as done. A Stripe failure is logged
+ * and thrown, so the webhook answers 500, Clerk retries, and the account is
+ * not deleted while its billing is still running.
+ */
+async function stopBillingForDeletedUser(clerkId: string): Promise<void> {
+  const sub = await db.subscription.findFirst({
+    where: { user: { clerkId } },
+    select: { userId: true, stripeCustomerId: true, stripeSubscriptionId: true },
+  });
+  if (!sub || (!sub.stripeCustomerId && !sub.stripeSubscriptionId)) return;
+
+  const context = {
+    clerkId,
+    userId: sub.userId,
+    stripeCustomerId: sub.stripeCustomerId,
+    stripeSubscriptionId: sub.stripeSubscriptionId,
+  };
+
+  if (!stripe) {
+    // Retrying cannot help a deployment with no Stripe key, so the account is
+    // still deleted; the ids are logged for someone to cancel by hand.
+    logger.error(
+      "Account deleted with a Stripe billing record, but Stripe is not configured: cancel it by hand",
+      new Error("stripe not configured"),
+      context
+    );
+    return;
+  }
+
+  try {
+    const canceled = await cancelAllStripeSubscriptions(stripe, {
+      customerId: sub.stripeCustomerId,
+      subscriptionId: sub.stripeSubscriptionId,
+    });
+    if (canceled.length > 0) {
+      logger.info("Canceled Stripe subscriptions for deleted account", {
+        ...context,
+        canceled,
+      });
+    }
+  } catch (error) {
+    logger.error(
+      "Could not cancel Stripe billing for deleted account; account kept so the retry can finish it",
+      error,
+      context
+    );
+    throw error;
+  }
+}
 
 /** Clerk webhook handler with svix signature verification. */
 export async function POST(req: NextRequest) {
@@ -93,8 +148,13 @@ export async function POST(req: NextRequest) {
       }
 
       case "user.deleted": {
+        const clerkId = data.id as string;
+        // Stop billing first. Deleting the user cascades away the only row
+        // that links this writer to Stripe; if that went first, a failed
+        // cancel would leave a subscription renewing that nobody can trace.
+        await stopBillingForDeletedUser(clerkId);
         await db.user.deleteMany({
-          where: { clerkId: data.id as string },
+          where: { clerkId },
         });
         break;
       }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { stripe, PLANS, type PlanKey } from "@/lib/billing";
+import { FOUNDER_SLOT_CAP } from "@/lib/billing/founder-slots";
 import { checkoutSchema } from "@/lib/validation";
 import type Stripe from "stripe";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
@@ -123,12 +124,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Founder slot availability check (atomic)
+    // Founder: an early "sold out" answer only. This reserves nothing — any
+    // number of sessions can be open at 199 — so the cap itself is enforced
+    // when the webhook claims the slot (claimFounderSlot), which refuses a
+    // purchase that completes after the last slot went.
     if (plan === "founder") {
       const slotCheck = await db.$transaction(async (tx) => {
         const count = await tx.founderSlot.count();
-        if (count >= 200) {
-          return { available: false, reason: "Founder spots are full. All 200 have been claimed." };
+        if (count >= FOUNDER_SLOT_CAP) {
+          return {
+            available: false,
+            reason: `Founder spots are full. All ${FOUNDER_SLOT_CAP} have been claimed.`,
+          };
         }
 
         const existing = await tx.founderSlot.findUnique({

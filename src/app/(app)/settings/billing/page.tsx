@@ -19,6 +19,7 @@ import {
   type UsageModelTotals,
 } from "@/lib/llm/usage-aggregation";
 import { billingStatusNotice } from "@/lib/billing/status-notice";
+import { effectivePlanKey } from "@/lib/billing/effective-plan";
 import { countWithNoun } from "@/lib/i18n/plural";
 import { useLanguage, useLocale } from "@/components/providers/language-provider";
 import {
@@ -122,13 +123,27 @@ export default function BillingPage() {
   const manageBilling = useManageBilling();
   const [annualBilling, setAnnualBilling] = useState(false);
 
-  const currentPlan = subscription?.plan ?? "none";
+  // A canceled or lapsed subscription keeps its stored plan "for reference"
+  // (R-019/R-060), so the stored plan cannot say which card is current. The
+  // current plan is the one the writer HAS, by the same downgrade rule every
+  // gate uses: once the plan has lapsed the writer is on Free ("none"), and
+  // every paid card offers Upgrade again.
+  const storedPlan = subscription?.plan ?? "none";
+  const storedPlanName =
+    PLAN_CARDS.find((p) => p.key === storedPlan)?.name ?? null;
+  const currentPlan = effectivePlanKey(subscription);
+  const onFreePlan = !!subscription && currentPlan === "none";
   const currentStatus = subscription?.status ?? "none";
   const stripeConfigured = subscription?.stripeConfigured !== false;
   const isTrialing = currentStatus === "trialing";
   const trialEnd = subscription?.trialEnd
     ? new Date(subscription.trialEnd)
     : null;
+  // Still marked trialing but already Free: the trial ran out and Stripe's
+  // cancellation has not landed yet. The banner still shows (R-063) but says
+  // the trial ended, and names the trial's plan, never "Free".
+  const trialEnded = isTrialing && currentPlan === "none";
+  const showTrialBanner = isTrialing && trialEnd !== null;
   // D-52: card-freeness is per-(plan, USER), not per-plan. checkout/route.ts
   // only grants the card-free trial (payment_method_collection "if_required")
   // when `!hasHadTrial`, where hasHadTrial = !!sub?.trialEnd (route.ts:69). A
@@ -177,22 +192,40 @@ export default function BillingPage() {
       )}
 
       {/* Trial Banner */}
-      {isTrialing && trialEnd && (
+      {showTrialBanner && trialEnd && (
         <Card className="mb-6 border-blue-300 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/30">
           <CardContent className="flex items-center gap-3 py-4">
             <Sparkles className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0" />
             <div>
               <p className="font-medium text-blue-800 dark:text-blue-200">
-                {t.billingUI.freeTrialOf.replace(
-                  "{plan}",
-                  subscription?.planName ?? currentPlan
-                )}
+                {(trialEnded
+                  ? t.billingUI.trialEndedOf
+                  : t.billingUI.freeTrialOf
+                ).replace("{plan}", storedPlanName ?? storedPlan)}
               </p>
               <p className="text-sm text-blue-700 dark:text-blue-300">
-                {t.billingUI.trialEnds.replace(
-                  "{date}",
-                  trialEnd.toLocaleDateString(locale)
-                )}
+                {(trialEnded
+                  ? t.billingUI.trialEndedOn
+                  : t.billingUI.trialEnds
+                ).replace("{date}", trialEnd.toLocaleDateString(locale))}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Free plan: no card below is "Current", so say so plainly. An
+          expired trial's banner above already says it. */}
+      {onFreePlan && !showTrialBanner && (
+        <Card className="mb-6">
+          <CardContent className="flex items-start gap-3 py-4">
+            <Info className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+            <div>
+              <p className="font-medium">{t.billingUI.onFreePlan}</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                {storedPlanName
+                  ? t.billingUI.planEndedChooseAgain.replace("{plan}", storedPlanName)
+                  : t.billingUI.freePlanHint}
               </p>
             </div>
           </CardContent>
@@ -276,6 +309,10 @@ export default function BillingPage() {
           const isCurrent = currentPlan === plan.key;
           const isFounder = plan.key === "founder";
           const disabled = isFounder && founderSoldOut && !isCurrent;
+          // R-044: a lapsed Founder keeps their slot and checkout refuses a
+          // second one, so the Founder card offers them no checkout.
+          const founderSlotUsed =
+            isFounder && storedPlan === "founder" && !isCurrent;
 
           return (
             <Card
@@ -393,7 +430,7 @@ export default function BillingPage() {
                   >
                     <ExternalLink className="h-3.5 w-3.5" />{t.billingUI.manageSubscription}</Button>
                 )}
-                {!isCurrent && stripeConfigured && !disabled && (
+                {!isCurrent && stripeConfigured && !disabled && !founderSlotUsed && (
                   <Button
                     className="w-full"
                     size="sm"

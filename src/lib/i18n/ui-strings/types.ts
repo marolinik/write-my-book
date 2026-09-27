@@ -1890,6 +1890,11 @@ export interface UIStrings {
     combinedAcrossSlots: string;
     totalTokensCount: string;
     requiresPlan: string;
+    trialEndedOf: string;
+    trialEndedOn: string;
+    onFreePlan: string;
+    planEndedChooseAgain: string;
+    freePlanHint: string;
     featureRequiresPlan: string;
     choosePlan: string;
     stripeNotConfigured: string;

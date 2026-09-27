@@ -1,7 +1,129 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { logger } from "@/lib/logger";
 import { stripe, PLANS } from "@/lib/billing";
+import { claimFounderSlot } from "@/lib/billing/founder-slots";
+import { cancelStripeSubscription } from "@/lib/billing/stripe-cancel";
 import type Stripe from "stripe";
+
+function idOf(ref: string | { id: string } | null | undefined): string | null {
+  if (!ref) return null;
+  return typeof ref === "string" ? ref : ref.id;
+}
+
+/**
+ * A Founder purchase completed after every slot was taken (sessions opened at
+ * 199 can all complete). The writer is not made a Founder: the subscription is
+ * canceled at once so it never renews, the row records it as canceled (they
+ * are on Free and can buy another plan), and the first charge is flagged for
+ * a refund. A failed cancel throws, so Stripe retries the whole event.
+ */
+async function refuseFounderOverCap(
+  stripeClient: Stripe,
+  session: Stripe.Checkout.Session,
+  userId: string,
+  billingInterval: string
+): Promise<void> {
+  const subscriptionId = session.subscription as string;
+  const customerId = idOf(session.customer);
+  logger.error(
+    "[billing-webhook] Founder purchase completed after all slots were claimed: subscription canceled, REFUND OWED",
+    new Error("founder slot cap reached"),
+    {
+      userId,
+      checkoutSessionId: session.id,
+      stripeSubscriptionId: subscriptionId,
+      stripeCustomerId: customerId,
+      stripeInvoiceId: idOf(session.invoice),
+    }
+  );
+
+  await cancelStripeSubscription(stripeClient, subscriptionId);
+
+  const data = {
+    stripeSubscriptionId: subscriptionId,
+    stripeCustomerId: customerId,
+    plan: "founder",
+    status: "canceled",
+    billingInterval,
+    pendingCheckoutSessionId: null,
+  };
+  await db.subscription.upsert({
+    where: { userId },
+    update: data,
+    create: { userId, ...data },
+  });
+}
+
+/**
+ * Who a Stripe customer belongs to. Checkout stores the customer on the
+ * writer's row before Stripe ever bills it, so a live writer always has a row
+ * carrying it; with no such row, the customer's own userId metadata decides.
+ * A customer we did not create (no userId) is "unknown", never an orphan.
+ */
+async function customerOwner(
+  stripeClient: Stripe,
+  customerId: string | null
+): Promise<"live_writer" | "deleted_writer" | "unknown"> {
+  if (!customerId) return "unknown";
+  const row = await db.subscription.findFirst({
+    where: { stripeCustomerId: customerId },
+    select: { id: true },
+  });
+  if (row) return "live_writer";
+
+  const customer = await stripeClient.customers.retrieve(customerId);
+  if ((customer as Stripe.DeletedCustomer).deleted) return "deleted_writer";
+  const ownerId = (customer as Stripe.Customer).metadata?.userId;
+  if (!ownerId) return "unknown";
+  const owner = await db.user.findUnique({ where: { id: ownerId }, select: { id: true } });
+  return owner ? "live_writer" : "deleted_writer";
+}
+
+/**
+ * invoice.paid for a subscription no row points at. Either the writer deleted
+ * their account and Stripe is still billing a subscription nobody owns, or
+ * this invoice arrived before checkout.session.completed wrote the row. The
+ * orphan is canceled so it never renews and the charge is flagged for a
+ * refund; the race is only logged. Money moved either way, so it is never
+ * acknowledged silently. A failed cancel throws, so Stripe retries.
+ */
+async function handlePaidInvoiceWithoutRow(
+  stripeClient: Stripe,
+  invoice: Stripe.Invoice,
+  subscriptionId: string
+): Promise<void> {
+  const customerId = idOf(invoice.customer);
+  const context = {
+    stripeSubscriptionId: subscriptionId,
+    stripeCustomerId: customerId,
+    stripeInvoiceId: invoice.id,
+  };
+
+  switch (await customerOwner(stripeClient, customerId)) {
+    case "deleted_writer":
+      logger.error(
+        "[billing-webhook] invoice.paid for a deleted writer's subscription: canceling it, REFUND OWED",
+        new Error("orphaned subscription billed"),
+        context
+      );
+      await cancelStripeSubscription(stripeClient, subscriptionId);
+      return;
+    case "live_writer":
+      logger.warn(
+        "[billing-webhook] invoice.paid arrived before its subscription was recorded",
+        context
+      );
+      return;
+    case "unknown":
+      logger.error(
+        "[billing-webhook] invoice.paid for a subscription no writer is linked to; left running, check it by hand",
+        new Error("unlinked subscription billed"),
+        context
+      );
+      return;
+  }
+}
 
 /**
  * Claim an event for processing (H4 hardening). A successful insert means
@@ -107,9 +229,15 @@ export async function POST(req: NextRequest) {
       const billingInterval = session.metadata?.billingInterval ?? "monthly";
 
       if (userId && plan && session.subscription) {
-        // Claim founder slot if applicable (ignore if already claimed)
+        // The Founder cap is enforced here, where the slot is taken — not at
+        // checkout, which reserves nothing. A purchase that completes after
+        // the last slot went is refused rather than granted as slot 201.
         if (plan === "founder") {
-          await db.founderSlot.create({ data: { userId } }).catch(() => {});
+          const claim = await claimFounderSlot(userId);
+          if (claim === "full") {
+            await refuseFounderOverCap(stripe, session, userId, billingInterval);
+            break;
+          }
         }
 
         // Retrieve the full subscription to check trial status
@@ -321,7 +449,10 @@ export async function POST(req: NextRequest) {
       const sub = await db.subscription.findFirst({
         where: { stripeSubscriptionId: subscriptionId },
       });
-      if (!sub) break;
+      if (!sub) {
+        await handlePaidInvoiceWithoutRow(stripe, invoice, subscriptionId);
+        break;
+      }
 
       // Reconcile against Stripe's CURRENT subscription state, never the
       // event's happy-path alone. A DELAYED invoice.paid can arrive after the
