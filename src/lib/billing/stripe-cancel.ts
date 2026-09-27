@@ -5,8 +5,9 @@ import type Stripe from "stripe";
  *
  * Used where the product must be sure Stripe will not charge again: account
  * deletion (the row that links the writer to Stripe is about to cascade away),
- * a Founder purchase that completed after every slot was taken, and a paid
- * invoice for a subscription whose writer no longer exists.
+ * a purchase the webhook refuses (Founder over the cap, a deleted account, a
+ * second live subscription for one writer), a paid invoice for a subscription
+ * whose writer no longer exists, and a checkout session that must not be paid.
  *
  * The Stripe client is passed in rather than imported, so this module stays
  * free of server-only imports and each caller keeps its own client (and mock).
@@ -17,6 +18,61 @@ const ENDED_STATUSES: ReadonlySet<string> = new Set(["canceled", "incomplete_exp
 
 function isResourceMissing(err: unknown): boolean {
   return (err as { code?: string } | null)?.code === "resource_missing";
+}
+
+/**
+ * Stripe statuses the product treats as a live subscription (the webhook maps
+ * every other status to canceled, and checkout lets such a writer buy again).
+ * Narrower than "not ended" on purpose: this decides whether a SECOND
+ * subscription is a duplicate, and an unpaid or incomplete one must not get a
+ * writer's fresh purchase canceled.
+ */
+const LIVE_STATUSES: ReadonlySet<string> = new Set(["active", "trialing", "past_due"]);
+
+/**
+ * Whether Stripe currently reports this subscription live. One Stripe no
+ * longer has is not. Any other lookup failure is thrown: we do not know.
+ */
+export async function subscriptionIsLive(
+  stripe: Stripe,
+  subscriptionId: string
+): Promise<boolean> {
+  try {
+    const current = await stripe.subscriptions.retrieve(subscriptionId);
+    return LIVE_STATUSES.has(current.status);
+  } catch (err) {
+    if (isResourceMissing(err)) return false;
+    throw err;
+  }
+}
+
+/**
+ * Expire a Checkout session so it can no longer be paid, and return the state
+ * it ended in: `expired`, or `complete` when the writer paid before the expiry
+ * landed (a subscription now exists for it). A session Stripe no longer has
+ * returns null. Any other failure is thrown: a session that may still be open
+ * must never be taken as closed.
+ */
+export async function expireCheckoutSession(
+  stripe: Stripe,
+  sessionId: string
+): Promise<Stripe.Checkout.Session | null> {
+  try {
+    return await stripe.checkout.sessions.expire(sessionId);
+  } catch (err) {
+    if (isResourceMissing(err)) return null;
+    // Stripe refuses to expire a session that is no longer open. Ask Stripe
+    // what state it is in instead of guessing from the error text.
+    let current: Stripe.Checkout.Session;
+    try {
+      current = await stripe.checkout.sessions.retrieve(sessionId);
+    } catch (retrieveErr) {
+      if (isResourceMissing(retrieveErr)) return null;
+      throw err;
+    }
+    if (current.status === "open") throw err;
+    return current;
+  }
 }
 
 export type CancelOutcome = "canceled" | "already_ended";

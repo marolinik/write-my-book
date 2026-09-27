@@ -29,6 +29,9 @@ const h = vi.hoisted(() => ({
       cancel: ReturnType<typeof vi.fn>;
       retrieve: ReturnType<typeof vi.fn>;
     };
+    checkout?: {
+      sessions: { expire: ReturnType<typeof vi.fn>; retrieve: ReturnType<typeof vi.fn> };
+    };
   },
   logger: { error: vi.fn(), info: vi.fn(), warn: vi.fn() },
   calls: [] as string[],
@@ -54,6 +57,7 @@ import { POST } from "@/app/api/auth/webhook/route";
 
 const stripeMock = {
   subscriptions: { list: vi.fn(), cancel: vi.fn(), retrieve: vi.fn() },
+  checkout: { sessions: { expire: vi.fn(), retrieve: vi.fn() } },
 };
 
 function req() {
@@ -98,6 +102,11 @@ beforeEach(() => {
     return { id, status: "canceled" };
   });
   stripeMock.subscriptions.retrieve.mockResolvedValue({ status: "canceled" });
+  stripeMock.checkout.sessions.expire.mockImplementation(async (id: string) => {
+    h.calls.push(`expire:${id}`);
+    return { id, status: "expired" };
+  });
+  stripeMock.checkout.sessions.retrieve.mockResolvedValue({ status: "expired" });
 });
 
 describe("Clerk user.deleted — billing stops before the account goes (P3-S06)", () => {
@@ -203,5 +212,67 @@ describe("Clerk user.deleted — billing stops before the account goes (P3-S06)"
     expect(res.status).toBe(200);
     expect(h.db.user.deleteMany).toHaveBeenCalledTimes(1);
     expect(JSON.stringify(h.logger.error.mock.calls)).toContain("sub_1");
+  });
+});
+
+describe("Clerk user.deleted — an open checkout can no longer be paid (FounderSlot has no FK)", () => {
+  // A checkout left open at deletion could still be completed afterwards: the
+  // webhook then claimed a Founder slot for a writer who no longer exists and
+  // billed a subscription nobody owns. Deletion expires it first.
+  beforeEach(() => {
+    h.db.subscription.findFirst.mockResolvedValue({
+      userId: "u1",
+      stripeCustomerId: "cus_1",
+      stripeSubscriptionId: null,
+      pendingCheckoutSessionId: "cs_open",
+    });
+    stripeMock.subscriptions.list.mockImplementation(async () => {
+      h.calls.push("listSubscriptions");
+      return { data: [] };
+    });
+  });
+
+  it("expires the pending session before sweeping subscriptions and deleting the user", async () => {
+    const res = await POST(req() as never);
+    expect(res.status).toBe(200);
+    expect(stripeMock.checkout.sessions.expire).toHaveBeenCalledWith("cs_open");
+    // Expire first: a session paid a moment before is then caught by the sweep.
+    expect(h.calls).toEqual(["expire:cs_open", "listSubscriptions", "deleteUser"]);
+  });
+
+  it("a session paid just before deletion: its fresh subscription is canceled by the sweep", async () => {
+    stripeMock.checkout.sessions.expire.mockRejectedValue(
+      stripeError("checkout_session_not_open", "Only open sessions can be expired.")
+    );
+    stripeMock.checkout.sessions.retrieve.mockResolvedValue({ id: "cs_open", status: "complete" });
+    stripeMock.subscriptions.list.mockResolvedValue({ data: [{ id: "sub_fresh", status: "active" }] });
+
+    const res = await POST(req() as never);
+    expect(res.status).toBe(200);
+    expect(stripeMock.subscriptions.cancel).toHaveBeenCalledWith("sub_fresh");
+    expect(h.db.user.deleteMany).toHaveBeenCalledTimes(1);
+  });
+
+  it("a session that already expired, or that Stripe no longer has, counts as done", async () => {
+    stripeMock.checkout.sessions.expire.mockRejectedValue(stripeError("resource_missing"));
+
+    const res = await POST(req() as never);
+    expect(res.status).toBe(200);
+    expect(stripeMock.checkout.sessions.expire).toHaveBeenCalledWith("cs_open");
+    expect(h.db.user.deleteMany).toHaveBeenCalledTimes(1);
+  });
+
+  it("if Stripe cannot expire a session that may still be open, the account is kept for the retry", async () => {
+    stripeMock.checkout.sessions.expire.mockRejectedValue(
+      Object.assign(new Error("connect ECONNREFUSED"), { type: "StripeConnectionError" })
+    );
+    stripeMock.checkout.sessions.retrieve.mockRejectedValue(
+      Object.assign(new Error("connect ECONNREFUSED"), { type: "StripeConnectionError" })
+    );
+
+    const res = await POST(req() as never);
+    expect(res.status).toBe(500);
+    expect(h.db.user.deleteMany).not.toHaveBeenCalled();
+    expect(JSON.stringify(h.logger.error.mock.calls)).toContain("cs_open");
   });
 });

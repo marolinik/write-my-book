@@ -4,27 +4,43 @@ import { db } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { getDefaultModelId } from "@/lib/llm/defaults";
 import { stripe } from "@/lib/billing";
-import { cancelAllStripeSubscriptions } from "@/lib/billing/stripe-cancel";
+import {
+  cancelAllStripeSubscriptions,
+  expireCheckoutSession,
+} from "@/lib/billing/stripe-cancel";
 
 /**
  * Cancel, immediately, every Stripe subscription that can still charge the
- * writer whose account is being deleted. Idempotent: Clerk redelivers, and a
- * subscription that already ended counts as done. A Stripe failure is logged
- * and thrown, so the webhook answers 500, Clerk retries, and the account is
- * not deleted while its billing is still running.
+ * writer whose account is being deleted, after expiring any checkout they left
+ * open (paid later, it would bill, and claim a Founder slot, for an account
+ * that no longer exists). Idempotent: Clerk redelivers, and a subscription or
+ * session that already ended counts as done. A Stripe failure is logged and
+ * thrown, so the webhook answers 500, Clerk retries, and the account is not
+ * deleted while its billing is still running.
  */
 async function stopBillingForDeletedUser(clerkId: string): Promise<void> {
   const sub = await db.subscription.findFirst({
     where: { user: { clerkId } },
-    select: { userId: true, stripeCustomerId: true, stripeSubscriptionId: true },
+    select: {
+      userId: true,
+      stripeCustomerId: true,
+      stripeSubscriptionId: true,
+      pendingCheckoutSessionId: true,
+    },
   });
-  if (!sub || (!sub.stripeCustomerId && !sub.stripeSubscriptionId)) return;
+  if (
+    !sub ||
+    (!sub.stripeCustomerId && !sub.stripeSubscriptionId && !sub.pendingCheckoutSessionId)
+  ) {
+    return;
+  }
 
   const context = {
     clerkId,
     userId: sub.userId,
     stripeCustomerId: sub.stripeCustomerId,
     stripeSubscriptionId: sub.stripeSubscriptionId,
+    pendingCheckoutSessionId: sub.pendingCheckoutSessionId,
   };
 
   if (!stripe) {
@@ -39,6 +55,11 @@ async function stopBillingForDeletedUser(clerkId: string): Promise<void> {
   }
 
   try {
+    // Expire first: a session paid a moment before has made its subscription
+    // by now, and the sweep below cancels it.
+    if (sub.pendingCheckoutSessionId) {
+      await expireCheckoutSession(stripe, sub.pendingCheckoutSessionId);
+    }
     const canceled = await cancelAllStripeSubscriptions(stripe, {
       customerId: sub.stripeCustomerId,
       subscriptionId: sub.stripeSubscriptionId,

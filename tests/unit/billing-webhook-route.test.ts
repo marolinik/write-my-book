@@ -14,6 +14,7 @@ const h = vi.hoisted(() => ({
       update: vi.fn(),
       findFirst: vi.fn(),
     },
+    user: { findUnique: vi.fn() },
   },
 }));
 
@@ -55,6 +56,8 @@ beforeEach(() => {
   h.db.subscription.upsert.mockResolvedValue({});
   h.db.subscription.update.mockResolvedValue({});
   h.db.subscription.findFirst.mockResolvedValue(null);
+  // The checkout's writer still has an account.
+  h.db.user.findUnique.mockResolvedValue({ id: "u1" });
   h.retrieve.mockResolvedValue({ trial_end: null, status: "active" });
 });
 

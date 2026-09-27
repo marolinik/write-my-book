@@ -10,6 +10,11 @@ const h = vi.hoisted(() => ({
   // Stripe configured by default so the Free-derivation tests below exercise
   // real enforcement; individual tests flip this to model a self-hosted deploy.
   stripeConfigured: true,
+  // A database the new code reached before `prisma db push` added
+  // free_tier_usage.agent_sessions: any read that asks for that column fails.
+  oldSchema: false,
+  missingColumn:
+    "The column `free_tier_usage.agent_sessions` does not exist in the current database.",
 }));
 
 vi.mock("@/lib/billing/stripe-client", () => ({
@@ -34,8 +39,17 @@ vi.mock("@/lib/db", () => ({
     subscription: { findUnique: vi.fn(async () => h.subscription) },
     freeTierUsage: {
       // P7-S13 session-start ledger: empty here, so the row count governs.
-      aggregate: vi.fn(async () => ({ _sum: { agentSessions: null } })),
-      findUnique: vi.fn(async () => h.usageRow),
+      aggregate: vi.fn(async () => {
+        if (h.oldSchema) throw new Error(h.missingColumn);
+        return { _sum: { agentSessions: null } };
+      }),
+      // Without a `select`, Prisma reads every column, agent_sessions included.
+      findUnique: vi.fn(async (args: { select?: Record<string, boolean> }) => {
+        if (h.oldSchema && (!args.select || args.select.agentSessions)) {
+          throw new Error(h.missingColumn);
+        }
+        return h.usageRow;
+      }),
       upsert: vi.fn(async (args: unknown) => {
         h.upsertArgs = args;
         return {};
@@ -64,7 +78,30 @@ beforeEach(() => {
   h.upsertArgs = undefined;
   h.countArgs = undefined;
   h.stripeConfigured = true;
+  h.oldSchema = false;
   delete process.env.FREE_TIER_DISABLED;
+});
+
+describe("daily meters keep working before the agent_sessions column exists (deploy order)", () => {
+  // Prod can ship before `prisma db push`. The ghost-text and inline-edit
+  // meters only need their own counters, so they must not read the new column:
+  // otherwise every Free ghost-text / inline-edit check throws until the push.
+  it("checkDailyMeter reads only its own counters", async () => {
+    h.oldSchema = true;
+    h.usageRow = { ghostTextCalls: 4, inlineEditCalls: 2 };
+    await expect(checkDailyMeter("u", "ghost")).resolves.toMatchObject({ used: 4, allowed: true });
+    await expect(checkDailyMeter("u", "inline")).resolves.toMatchObject({ used: 2, allowed: true });
+  });
+
+  it("getFreeTierSnapshot still answers, counting sessions from the rows", async () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    h.oldSchema = true;
+    h.sessionCount = 3;
+    h.usageRow = { ghostTextCalls: 7, inlineEditCalls: 1 };
+    const s = await getFreeTierSnapshot("u");
+    expect(s).toMatchObject({ sessionsUsed: 3, ghostUsedToday: 7, inlineUsedToday: 1 });
+    spy.mockRestore();
+  });
 });
 
 describe("sumOwnedWordCount", () => {

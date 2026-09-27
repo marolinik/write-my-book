@@ -74,6 +74,15 @@ const STALE_RUNNING_SESSION_MS = 2 * 60 * 60 * 1000; // 2h
 /** Which daily meter a call draws down. */
 export type DailyMeter = "ghost" | "inline";
 
+/**
+ * The only FreeTierUsage columns the daily meters read. Naming them keeps the
+ * reads off `agent_sessions`: production can ship before `prisma db push` adds
+ * that column, and a bare findUnique (every column) would then throw on every
+ * Free ghost-text / inline-edit check. The session ledger's own reads and
+ * writes already degrade on their own.
+ */
+const DAILY_COUNTERS = { ghostTextCalls: true, inlineEditCalls: true } as const;
+
 /** Sum of Book.wordCount across all of a user's books (incl. archived). */
 export async function sumOwnedWordCount(userId: string): Promise<number> {
   const agg = await db.book.aggregate({
@@ -196,6 +205,7 @@ export async function checkDailyMeter(
 ): Promise<DailyMeterResult> {
   const row = await db.freeTierUsage.findUnique({
     where: { userId_day: { userId, day: utcDayKey() } },
+    select: DAILY_COUNTERS,
   });
   const used =
     meter === "ghost"
@@ -228,6 +238,9 @@ export async function recordDailyUse(
       where: { userId_day: { userId, day } },
       update: field,
       create: { userId, day, ...created },
+      // Nothing is read back; not returning every column keeps agent_sessions
+      // out of this statement's result (see DAILY_COUNTERS).
+      select: { id: true },
     });
   } catch (err) {
     // A meter-write failure must NEVER fail an already-billed response: callers
@@ -252,6 +265,7 @@ export async function getFreeTierSnapshot(userId: string): Promise<FreeTierSnaps
     countAgentSessionsThisMonth(userId),
     db.freeTierUsage.findUnique({
       where: { userId_day: { userId, day: utcDayKey() } },
+      select: DAILY_COUNTERS,
     }),
     sumOwnedWordCount(userId),
   ]);
