@@ -64,11 +64,15 @@ export function SeriesOmnibusPanel({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ dataUrl }),
       });
-      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || "upload-failed");
+      if (!res.ok) throw new Error(res.status === 413 ? "too-large" : "upload-failed");
       setPreviewTs(Date.now());
       toast.success(t.seriesPage.coverSaved);
-    } catch {
-      toast.error(t.bookSettings.coverError);
+    } catch (error) {
+      toast.error(
+        error instanceof Error && error.message === "too-large"
+          ? t.bookSettings.coverTooLarge
+          : t.bookSettings.coverError
+      );
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";

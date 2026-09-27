@@ -6,6 +6,11 @@ import { db } from "@/lib/db";
 import { coverUploadSchema } from "@/lib/validation";
 import { getBookStorage } from "@/lib/storage";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import {
+  MAX_COVER_BYTES,
+  MAX_COVER_JSON_BODY_BYTES,
+  parseImageDataUrl,
+} from "@/lib/api/image-data-url";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -14,7 +19,6 @@ const ALLOWED_MIME: Record<string, string> = {
   "image/png": "png",
   "image/webp": "webp",
 };
-const MAX_COVER_BYTES = 8 * 1024 * 1024; // 8 MB
 
 /**
  * UDG round-8 (Igor/Olivera): user-uploaded BACK cover, stored as a binary object in
@@ -32,23 +36,17 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
-    const body = await parseJsonBody(req);
+    const body = await parseJsonBody(req, { maxBytes: MAX_COVER_JSON_BODY_BYTES });
     const { dataUrl } = coverUploadSchema.parse(body);
 
-    const m = /^data:([^;,]+);base64,(.+)$/.exec(dataUrl);
-    if (!m) {
+    const parsed = parseImageDataUrl(dataUrl);
+    if (!parsed) {
       return NextResponse.json({ error: "Invalid image payload — expected a base64 data URL" }, { status: 400 });
     }
-    const mime = m[1].toLowerCase();
+    const { mime, buffer } = parsed;
     const ext = ALLOWED_MIME[mime];
     if (!ext) {
       return NextResponse.json({ error: "Unsupported image type — allow jpeg, png, webp" }, { status: 400 });
-    }
-    let buffer: Buffer;
-    try {
-      buffer = Buffer.from(m[2], "base64");
-    } catch {
-      return NextResponse.json({ error: "Invalid base64 data" }, { status: 400 });
     }
     if (buffer.byteLength === 0) {
       return NextResponse.json({ error: "Empty image" }, { status: 400 });

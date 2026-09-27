@@ -25,8 +25,8 @@ export class BodyTooLargeError extends Error {
 
 /** Ceiling for JSON request bodies. Comfortably above every real payload
  *  (chapter content caps at 2 MB in validation.ts) while keeping worst-case
- *  concurrent buffering bounded. Uploads go through multipart routes, which
- *  have their own size gates. */
+ *  concurrent buffering bounded. Multipart uploads have their own size gates;
+ *  the base64 cover routes pass their own larger ceiling (image-data-url.ts). */
 export const MAX_JSON_BODY_BYTES = 5 * 1024 * 1024;
 
 /** Parse a request's JSON body. Malformed (or empty) bodies throw the typed
@@ -34,9 +34,12 @@ export const MAX_JSON_BODY_BYTES = 5 * 1024 * 1024;
  *  BodyTooLargeError BEFORE and DURING the read (declared length + streamed
  *  byte ceiling). The payload is returned as `unknown` — schema validation
  *  stays with the caller. */
-export async function parseJsonBody(req: Request): Promise<unknown> {
+export async function parseJsonBody(
+  req: Request,
+  { maxBytes = MAX_JSON_BODY_BYTES }: { maxBytes?: number } = {}
+): Promise<unknown> {
   const declared = Number(req.headers.get("content-length") ?? "0");
-  if (declared > MAX_JSON_BODY_BYTES) throw new BodyTooLargeError();
+  if (declared > maxBytes) throw new BodyTooLargeError();
 
   if (!req.body) {
     // No stream to cap (GET-style or mocked requests in tests): fall back to
@@ -57,7 +60,7 @@ export async function parseJsonBody(req: Request): Promise<unknown> {
       if (done) break;
       if (value) {
         total += value.byteLength;
-        if (total > MAX_JSON_BODY_BYTES) {
+        if (total > maxBytes) {
           await reader.cancel().catch(() => {});
           throw new BodyTooLargeError();
         }

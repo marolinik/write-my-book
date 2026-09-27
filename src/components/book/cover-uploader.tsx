@@ -80,16 +80,18 @@ export function CoverUploader({
         body: JSON.stringify({ dataUrl }),
       });
       if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || "upload-failed");
+        // Server errors are English API text; the writer gets the localized
+        // message for the case instead (UAT P7-S11 showed "Request body too
+        // large" in the sr UI).
+        throw new Error(res.status === 413 ? "too-large" : "upload-failed");
       }
       setPreviewTimestamp(Date.now());
       setEditorBlob(null);
       toast.success(t.bookSettings.coverSaved);
     } catch (error) {
       toast.error(
-        error instanceof Error && error.message !== "upload-failed"
-          ? error.message
+        error instanceof Error && error.message === "too-large"
+          ? t.bookSettings.coverTooLarge
           : t.bookSettings.coverError
       );
       throw error; // propagate so the editor can stay open for a retry
