@@ -300,6 +300,13 @@ async function handleLegacyImport(
   }> = [];
   let totalWordCount = 0;
 
+  // Parse every file before writing anything: the whole upload is checked
+  // against the writer's chapters as one plan, like the JSON confirm.
+  const parsedFiles: Array<{
+    file: File;
+    content: string;
+    chapters: ReturnType<typeof parseManuscriptChapters>;
+  }> = [];
   for (const file of files) {
     // Validate extension
     const ext = "." + file.name.split(".").pop()?.toLowerCase();
@@ -323,9 +330,30 @@ async function handleLegacyImport(
       content = await file.text();
     }
 
-    // Parse chapters
-    const chapters = parseManuscriptChapters(content);
+    parsedFiles.push({ file, content, chapters: parseManuscriptChapters(content) });
+  }
 
+  // P6-S04, legacy half: this path upserted straight over whatever numbers the
+  // parser found, so a manuscript starting at "Chapter 1" reset the writer's
+  // edited chapters. It has no per-chapter action, so every row is a `create`,
+  // and a plan that would land on the writer's work is refused before a byte
+  // is written — the same rule the JSON confirm reads.
+  const existing = await db.chapter.findMany({
+    where: { bookId },
+    select: { chapterNumber: true, title: true, wordCount: true },
+  });
+  const problems = findImportProblems(
+    parsedFiles.flatMap((p) => p.chapters.map((ch) => ({ number: ch.number, action: "create" as const }))),
+    existing.map((ch) => ({ number: ch.chapterNumber, title: ch.title, wordCount: ch.wordCount }))
+  );
+  if (problems) {
+    return NextResponse.json(
+      { error: describeImportProblems(problems), ...problems },
+      { status: problems.duplicates.length > 0 ? 400 : 409 }
+    );
+  }
+
+  for (const { file, content, chapters } of parsedFiles) {
     // Save imported file to storage
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
     const importedName = safeName.replace(/\.docx$/i, ".md");
