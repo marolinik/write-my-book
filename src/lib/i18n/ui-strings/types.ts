@@ -483,6 +483,22 @@ export interface UIStrings {
     haltBudgetCap: string;
     haltLedgerWriteFailed: string;
     haltUnknown: string;
+    // P6-S16: the overnight batch's morning notification, written in the
+    // book's language when the digest lands (it is persisted text).
+    digestTitleDone: string;
+    digestTitleHaltedBudget: string;
+    digestTitleHaltedErrors: string;
+    digestTitleCancelled: string;
+    digestTitleFailed: string;
+    digestPasses: string;
+    digestSkipped: string;
+    digestDiscarded: string;
+    digestClauseBudget: string;
+    digestClauseErrors: string;
+    digestClauseCancelled: string;
+    digestClauseNoPasses: string;
+    digestSpend: string;
+    digestAction: string;
   };
 
   // O1 - the style profile and character lenses.
@@ -1247,6 +1263,10 @@ export interface UIStrings {
       showDiff: string; hideDiff: string; showSuggestion: string; hideSuggestion: string;
       discuss: string; hide: string; autoApply: string; textChanged: string;
       applyErrorTextNotFound: string;
+      applyErrorNoReplacement: string;
+      applyErrorEditorNote: string;
+      applyErrorGeneric: string;
+      adviceAccepted: string;
     };
     summary: {
       total: string; pending: string; applied: string; dismissed: string;
@@ -1774,6 +1794,8 @@ export interface UIStrings {
     catCorrection: string;
     catLearned: string;
     clearConfirm: string;
+    /** P1-S06: the Free word cap paused indexing. `{words}` = the cap. */
+    indexingPaused: string;
   };
 
   // H-10 - the first five minutes a writer spends in the product.

@@ -467,6 +467,20 @@ export const SR: UIStrings = {
     haltBudgetCap: "dostigao je granicu budžeta",
     haltLedgerWriteFailed: "knjiga potrošnje nije mogla da se upiše, pa je stao umesto da radi nebrojan",
     haltUnknown: "iz razloga koji ovaj proizvod ne ume da imenuje",
+    digestTitleDone: "Noćna grupa je završena",
+    digestTitleHaltedBudget: "Noćna grupa je zaustavljena — dostignuta granica budžeta",
+    digestTitleHaltedErrors: "Noćna grupa je zaustavljena — ponovljene greške provajdera",
+    digestTitleCancelled: "Noćna grupa je otkazana",
+    digestTitleFailed: "Noćna grupa nije uspela — nijedan prolaz nije završen",
+    digestPasses: "{done}/{total} prolaza",
+    digestSkipped: "{n} preskočeno",
+    digestDiscarded: "({n} odbačeno kao neispravno)",
+    digestClauseBudget: "zaustavljeno na granici budžeta",
+    digestClauseErrors: "zaustavljeno posle grešaka provajdera",
+    digestClauseCancelled: "otkazano",
+    digestClauseNoPasses: "nijedan prolaz nije završen",
+    digestSpend: "{spent} / granica {cap}",
+    digestAction: "Pogledaj sažetak",
   },
 
   styleUI: {
@@ -1271,6 +1285,10 @@ export const SR: UIStrings = {
       autoApply: "auto-primena",
       textChanged: "tekst je promenjen",
       applyErrorTextNotFound: "Originalni tekst nije pronađen u poglavlju — možda je izmenjen od kada je ovaj nalaz kreiran.",
+      applyErrorNoReplacement: "Ovaj nalaz nema zamenski tekst, pa bi primena obrisala odlomak na koji se odnosi. Odbijte ga ili kroz Diskutuj dođite do konkretne izmene.",
+      applyErrorEditorNote: "Predložena zamena je urednička beleška, a ne tekst. Primena bi upisala belešku u vaše poglavlje. Izmenite odlomak sami ili odbijte nalaz.",
+      applyErrorGeneric: "Nalaz nije moguće primeniti. Pokušajte ponovo za trenutak.",
+      adviceAccepted: "Prihvaćeno kao savet. Tekst poglavlja nije menjan.",
     },
     summary: {
       total: "Ukupno",
@@ -1827,6 +1845,7 @@ export const SR: UIStrings = {
     catCorrection: "Ispravka",
     catLearned: "AI naučio",
     clearConfirm: "Obrisati svu vektorsku memoriju za ovu knjigu? Ovo uklanja indeksirani sadržaj iz sistema memorije. Možete ga kasnije ponovo izgraditi.",
+    indexingPaused: "Pamćenje je pauzirano: besplatni plan pamti vaših prvih {words} reči. Sve što napišete i dalje se čuva; pređite na Indie plan da bi pamćenje ostalo ažurno.",
   },
 
   onboardingUI: {

@@ -467,6 +467,20 @@ export const ES: UIStrings = {
     haltBudgetCap: "alcanzó el límite de presupuesto",
     haltLedgerWriteFailed: "no se pudo escribir el registro de gasto, así que se detuvo en vez de correr sin contarse",
     haltUnknown: "por un motivo que este producto no sabe nombrar",
+    digestTitleDone: "Lote nocturno completado",
+    digestTitleHaltedBudget: "Lote nocturno detenido — se alcanzó el límite de presupuesto",
+    digestTitleHaltedErrors: "Lote nocturno detenido — errores repetidos del proveedor",
+    digestTitleCancelled: "Lote nocturno cancelado",
+    digestTitleFailed: "Lote nocturno fallido — ninguna pasada completada",
+    digestPasses: "{done}/{total} pasadas",
+    digestSkipped: "{n} omitidas",
+    digestDiscarded: "({n} descartados por no válidos)",
+    digestClauseBudget: "detenido en el límite de presupuesto",
+    digestClauseErrors: "detenido tras errores del proveedor",
+    digestClauseCancelled: "cancelado",
+    digestClauseNoPasses: "ninguna pasada completada",
+    digestSpend: "{spent} / límite {cap}",
+    digestAction: "Ver resumen",
   },
 
   styleUI: {
@@ -1271,6 +1285,10 @@ export const ES: UIStrings = {
       autoApply: "autoaplicar",
       textChanged: "texto modificado",
       applyErrorTextNotFound: "No se encontró el texto original en el capítulo: es posible que se haya editado desde que se creó este hallazgo.",
+      applyErrorNoReplacement: "Este hallazgo no tiene texto de sustitución, así que aplicarlo borraría el pasaje al que se refiere. Descártalo o usa Discutir para acordar una revisión concreta.",
+      applyErrorEditorNote: "La sustitución propuesta es una nota del editor, no prosa. Aplicarla escribiría la nota en tu capítulo. Edita el pasaje tú mismo o descarta el hallazgo.",
+      applyErrorGeneric: "No se pudo aplicar este hallazgo. Inténtalo de nuevo en un momento.",
+      adviceAccepted: "Aceptado como consejo. No se cambió el texto del capítulo.",
     },
     summary: {
       total: "Total",
@@ -1827,6 +1845,7 @@ export const ES: UIStrings = {
     catCorrection: "Corrección",
     catLearned: "Aprendido por IA",
     clearConfirm: "¿Borrar toda la memoria vectorial de este libro? Esto elimina el contenido indexado del sistema de memoria. Puedes reconstruirlo más tarde.",
+    indexingPaused: "La memoria está en pausa: el plan gratuito recuerda tus primeras {words} palabras. Todo lo que escribes se sigue guardando; pásate a Indie para mantener la memoria al día.",
   },
 
   onboardingUI: {

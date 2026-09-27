@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { CalendarClockIcon, Loader2Icon, MoonIcon, ZapIcon } from "lucide-react";
 
 import { isTerminalBatchStatus } from "@/lib/batch/batch-status";
+import { useUpgradeModal } from "@/hooks/use-billing";
 import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -258,6 +259,14 @@ export function BatchEditorialDialog({
       });
       const body = await res.json();
       if (!res.ok) {
+        // P1-S18: a plan wall (403 + upgradeToTier) goes to the upgrade modal
+        // like every sibling wall, not a toast the writer cannot act on. The
+        // batch dialog steps aside so the two modals do not stack.
+        if (typeof body.upgradeToTier === "string") {
+          setOpen(false);
+          useUpgradeModal.getState().show(body.error ?? t.bookUI.batchFailed, body.upgradeToTier);
+          return;
+        }
         toast.error(body.error ?? t.bookUI.batchFailed);
         return;
       }

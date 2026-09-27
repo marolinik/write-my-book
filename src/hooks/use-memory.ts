@@ -10,6 +10,8 @@ interface GlobalMemoryStats {
   qdrantHealthy: boolean;
   embeddingCost: number;
   embeddingTokens: number;
+  /** P1-S06: the Free word cap has paused prose indexing. */
+  indexingPaused?: boolean;
 }
 
 interface BookMemoryStats {
@@ -18,6 +20,8 @@ interface BookMemoryStats {
   lastIndexed: string | null;
   embeddingCost: number;
   embeddingTokens: number;
+  /** P1-S06: the Free word cap has paused prose indexing. */
+  indexingPaused?: boolean;
 }
 
 export function useMemoryStats() {

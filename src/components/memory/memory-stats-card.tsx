@@ -8,10 +8,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { BrainIcon, RefreshCwIcon, Trash2Icon } from "lucide-react";
+import { BrainIcon, PauseCircleIcon, RefreshCwIcon, Trash2Icon } from "lucide-react";
 import { useBookMemoryStats, useRebuildIndex, useClearMemory } from "@/hooks/use-memory";
 import { pluralNoun } from "@/lib/i18n/plural";
+import { FREE_TIER } from "@/lib/billing/free-tier";
 
 export function MemoryStatsCard({ bookId }: { bookId: string }) {
   const { t, language } = useLanguage();
@@ -78,7 +80,34 @@ export function MemoryStatsCard({ bookId }: { bookId: string }) {
         ) : (
           <p className="text-sm text-muted-foreground">{t.workspaceUI.notIndexed}</p>
         )}
+        {data?.indexingPaused && <IndexingPausedNotice />}
       </CardContent>
     </Card>
+  );
+}
+
+/**
+ * P1-S06: the Free word cap paused indexing. The gate's contract is that the
+ * pause is said wherever memory status renders — without this the card showed
+ * stale memory as if it were current.
+ */
+export function IndexingPausedNotice() {
+  const { t } = useLanguage();
+  const locale = useLocale();
+  return (
+    <div className="mt-2 space-y-2 rounded-md border border-amber-300/60 bg-amber-50 p-2 dark:border-amber-700/50 dark:bg-amber-950/30">
+      <p className="flex gap-1.5 text-xs text-amber-900 dark:text-amber-200">
+        <PauseCircleIcon className="mt-0.5 size-3.5 shrink-0" />
+        <span>
+          {t.memoryUI.indexingPaused.replace(
+            "{words}",
+            FREE_TIER.maxAiEligibleWords.toLocaleString(locale)
+          )}
+        </span>
+      </p>
+      <Button asChild size="sm" variant="outline" className="h-7 text-xs">
+        <Link href="/settings/billing">{t.appUI.viewPlans}</Link>
+      </Button>
+    </div>
   );
 }

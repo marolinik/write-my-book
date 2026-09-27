@@ -4,10 +4,14 @@ import { db } from "@/lib/db";
 import { NOT_AWAITING_REVIEW } from "@/lib/documents/review-gate";
 import { decryptApiKey } from "@/lib/encryption";
 import { estimateWorkflowCost } from "@/lib/llm/cost-estimator";
+import { passUsageType } from "@/lib/llm/cost-calibration";
 import { validatePrices } from "@/lib/llm/price-validator";
 import { checkQuota } from "@/lib/billing/quota-checker";
 import { managedKeyFor } from "@/lib/billing/managed-tier";
-import { checkConcurrencyFence } from "@/lib/billing/free-tier-meters";
+import {
+  checkConcurrencyFence,
+  recordAgentSessionStart,
+} from "@/lib/billing/free-tier-meters";
 import {
   resolveModelForRole,
   resolveConductorModelForWorkflow,
@@ -71,6 +75,66 @@ const startSessionSchema = z.object({
   message: z.string().max(10000).optional(),
   pageContext: pageContextSchema,
 });
+
+/** Default and ceiling for the session-history page size. */
+const HISTORY_DEFAULT_LIMIT = 10;
+const HISTORY_MAX_LIMIT = 50;
+
+/** `?limit=` as a page size: a positive integer, clamped; anything else → default. */
+function historyLimit(raw: string | null): number {
+  const n = raw === null ? NaN : Number(raw);
+  if (!Number.isInteger(n) || n < 1) return HISTORY_DEFAULT_LIMIT;
+  return Math.min(n, HISTORY_MAX_LIMIT);
+}
+
+/**
+ * GET /api/books/:id/agent?limit=N -- the writer's past (completed) sessions on
+ * this book, newest first: the agent panel's "Session history" pane. P5-S17:
+ * the pane has always fetched this, but the route exported only POST, so the
+ * 405 left it permanently empty.
+ */
+export async function GET(req: NextRequest, { params }: RouteParams) {
+  try {
+    const user = await requireUser();
+    const { id: bookId } = await params;
+
+    const book = await db.book.findFirst({
+      where: { id: bookId, userId: user.id },
+      select: { id: true },
+    });
+    if (!book) {
+      return NextResponse.json({ error: "Book not found" }, { status: 404 });
+    }
+
+    const sessions = await db.agentSession.findMany({
+      where: { bookId, userId: user.id, status: "completed" },
+      orderBy: { startedAt: "desc" },
+      take: historyLimit(new URL(req.url).searchParams.get("limit")),
+      select: {
+        id: true,
+        workflowId: true,
+        agentType: true,
+        chapterNumber: true,
+        status: true,
+        tokensInput: true,
+        tokensOutput: true,
+        startedAt: true,
+        completedAt: true,
+      },
+    });
+
+    return NextResponse.json(sessions);
+  } catch (error) {
+    if ((error as Error).message === "Unauthorized") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    console.error("GET /api/books/:id/agent error:", (error as Error).message ?? "Unknown error");
+    return NextResponse.json(
+      { error: "Failed to list agent sessions" },
+      { status: 500 }
+    );
+  }
+}
 
 /** POST /api/books/:id/agent -- start a new agent session. */
 export async function POST(req: NextRequest, { params }: RouteParams) {
@@ -280,7 +344,9 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
           // SIM-03: the key-free on-ramp ends here — hand the client an explicit
           // next step instead of a bare error the UI can't route on.
           code: "NO_PROVIDER_KEY",
-          action: { label: "Open Settings → API Keys", href: "/settings/api-keys" },
+          // P1-S04: there is no /settings/api-keys page (it 404s); the API-keys
+          // section is anchored on the settings page, like every other deep link.
+          action: { label: "Open Settings → API Keys", href: "/settings#api-keys" },
         },
         { status: 400 }
       );
@@ -389,6 +455,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         status: "running",
       },
     });
+    // The monthly cap must not depend on the book still existing (P7-S13).
+    await recordAgentSessionStart(user.id);
 
     // Record pre-session cost estimate for drift tracking
     const preEstimate = estimateWorkflowCost(data.workflowId, effectiveCoachRegistryId);
@@ -653,7 +721,9 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
             data: {
               userId: user.id,
               bookId,
-              agentType: "writing-coach",
+              // P2-S06: filed under the pass so the cost estimate can read
+              // this book's own runs of it back.
+              agentType: passUsageType(data.workflowId),
               model: effectiveCoachRegistryId,
               tokensInput: totalInput,
               tokensOutput: totalOutput,

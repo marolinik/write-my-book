@@ -398,3 +398,15 @@ describe("processAgentJob — M3 ledger-write fail-safe", () => {
     expect(h.db.usageRecord.create).toHaveBeenCalledTimes(1);
   });
 });
+
+// ── P2-S06: the usage row is filed under the pass, so the estimate calibrates ─
+describe("processAgentJob — P2-S06 usage is filed under the pass", () => {
+  it("writes the session's UsageRecord under the workflow id, not 'writing-coach'", async () => {
+    h.fakeResult.current = completedResult();
+
+    await processAgentJob(makeJob({ ...BASE, batchId: undefined, batchBudgetCapUsd: undefined }));
+
+    expect(h.db.usageRecord.create).toHaveBeenCalledTimes(1);
+    expect(h.db.usageRecord.create.mock.calls[0][0].data.agentType).toBe("line-edit");
+  });
+});

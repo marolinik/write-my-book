@@ -53,6 +53,12 @@ vi.mock("@/lib/cost", () => ({ estimateCost: (...a: unknown[]) => h.estimateCost
 vi.mock("@/lib/billing/quota-checker", () => ({
   checkQuota: (...a: unknown[]) => h.checkQuota(...a),
 }));
+// The Free fence + session ledger have their own suite
+// (series-agent-fence-attribution); here they are pass-throughs.
+vi.mock("@/lib/billing/free-tier-meters", () => ({
+  checkConcurrencyFence: vi.fn(async () => ({ allowed: true })),
+  recordAgentSessionStart: vi.fn(async () => undefined),
+}));
 vi.mock("@/lib/validation", () => ({
   startSeriesAgentSchema: { parse: (b: unknown) => h.parse(b) },
 }));

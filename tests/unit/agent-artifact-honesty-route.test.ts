@@ -72,6 +72,7 @@ vi.mock("@/lib/billing/quota-checker", () => ({
 }));
 vi.mock("@/lib/billing/free-tier-meters", () => ({
   checkConcurrencyFence: vi.fn(async () => ({ allowed: true })),
+  recordAgentSessionStart: vi.fn(async () => undefined),
 }));
 vi.mock("@/lib/llm", () => ({
   resolveModelForRole: (...a: unknown[]) => h.resolveModelForRole(...a),

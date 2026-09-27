@@ -5,7 +5,7 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-import { fetchJson } from "@/lib/api-client";
+import { ApiError, fetchJson } from "@/lib/api-client";
 import { useUpgradeModal } from "@/hooks/use-billing";
 
 export type SeriesListItem = {
@@ -212,6 +212,15 @@ export function useAddBookToSeries(seriesId: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["series", seriesId] });
       qc.invalidateQueries({ queryKey: ["books"] });
+    },
+    onError: (error) => {
+      // X-S19 / P7-S14: a new book here passes the same book-cap gate as
+      // /books/new, so its 403 carries upgradeToTier → the modal, as there.
+      const body = error instanceof ApiError ? error.body : null;
+      const tier = (body as { upgradeToTier?: unknown } | null)?.upgradeToTier;
+      if (typeof tier === "string") {
+        useUpgradeModal.getState().show(error.message, tier);
+      }
     },
   });
 }

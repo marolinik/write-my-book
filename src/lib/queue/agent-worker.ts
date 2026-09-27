@@ -43,6 +43,7 @@ import type {
 import { db } from "@/lib/db";
 import { decryptApiKey } from "@/lib/encryption";
 import { estimateWorkflowCost } from "@/lib/llm/cost-estimator";
+import { passUsageType } from "@/lib/llm/cost-calibration";
 import {
   resolveModelForRole,
   mapAgentTypeToRole,
@@ -790,7 +791,9 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
             data: {
               userId,
               bookId,
-              agentType: "writing-coach",
+              // P2-S06: filed under the pass so the cost estimate can read
+              // this book's own runs of it back.
+              agentType: passUsageType(workflowId),
               model: effectiveCoachRegistryId,
               tokensInput: totalInput,
               tokensOutput: totalOutput,

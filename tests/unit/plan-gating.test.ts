@@ -36,6 +36,10 @@ vi.mock("@/lib/db", () => ({
       aggregate: vi.fn(async () => ({ _sum: { wordCount: h.wordSum } })),
     },
     agentSession: { count: vi.fn(async () => h.sessionCount) },
+    // P7-S13 session-start ledger: empty here, so the row count governs.
+    freeTierUsage: {
+      aggregate: vi.fn(async () => ({ _sum: { agentSessions: null } })),
+    },
   },
 }));
 

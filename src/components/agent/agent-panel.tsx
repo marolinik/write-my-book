@@ -55,6 +55,7 @@ import { ProactiveGuide } from "./proactive-guide";
 import { SessionProgressList } from "./session-progress-list";
 import { MessageStream } from "./message-stream";
 import { ConversationInput } from "./conversation-input";
+import { AgentStartError } from "./agent-start-error";
 import { InlineStructureProposals } from "./inline-structure-proposals";
 import { InlineFindings } from "./inline-findings";
 import { useDefaultModel } from "@/hooks/use-default-model";
@@ -930,15 +931,8 @@ export function AgentPanel({
         </div>
       )}
 
-      {/* Mutation error fallback */}
-      {(startMutation.isError || startSeriesMutation.isError) && (
-        <div className="border-t px-4 py-2">
-          <p className="text-xs text-destructive">
-            {startMutation.error?.message ??
-              startSeriesMutation.error?.message}
-          </p>
-        </div>
-      )}
+      {/* Mutation error fallback — a plan wall keeps its Upgrade path (P1-S05) */}
+      <AgentStartError error={startMutation.error ?? startSeriesMutation.error} />
     </div>
   );
 }

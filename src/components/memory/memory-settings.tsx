@@ -13,6 +13,7 @@ import { BrainIcon } from "lucide-react";
 import { useMemoryStats } from "@/hooks/use-memory";
 import { useLocale } from "@/components/providers/language-provider";
 import { relativeTime } from "@/lib/i18n/relative-time";
+import { IndexingPausedNotice } from "./memory-stats-card";
 
 /** "1.2M tokens" — the noun is the dictionary's, the SI prefix is not a word. */
 function formatTokens(tokens: number, unit: string): string {
@@ -97,6 +98,9 @@ export function MemorySettings() {
                 </p>
               </div>
             )}
+
+            {/* P1-S06: the Free word cap paused indexing */}
+            {data.indexingPaused && <IndexingPausedNotice />}
 
             {/* Warning if unhealthy */}
             {!data.qdrantHealthy && (

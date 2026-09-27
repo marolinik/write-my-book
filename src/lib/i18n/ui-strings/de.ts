@@ -467,6 +467,20 @@ export const DE: UIStrings = {
     haltBudgetCap: "er hat die Budgetgrenze erreicht",
     haltLedgerWriteFailed: "das Ausgabenbuch ließ sich nicht schreiben, also hielt er an, statt ungezählt zu laufen",
     haltUnknown: "aus einem Grund, den dieses Produkt nicht benennen kann",
+    digestTitleDone: "Nächtlicher Stapel abgeschlossen",
+    digestTitleHaltedBudget: "Nächtlicher Stapel gestoppt — Budgetgrenze erreicht",
+    digestTitleHaltedErrors: "Nächtlicher Stapel gestoppt — wiederholte Anbieterfehler",
+    digestTitleCancelled: "Nächtlicher Stapel abgebrochen",
+    digestTitleFailed: "Nächtlicher Stapel fehlgeschlagen — kein Durchgang abgeschlossen",
+    digestPasses: "{done}/{total} Durchgänge",
+    digestSkipped: "{n} übersprungen",
+    digestDiscarded: "({n} als ungültig verworfen)",
+    digestClauseBudget: "an der Budgetgrenze gestoppt",
+    digestClauseErrors: "nach Anbieterfehlern gestoppt",
+    digestClauseCancelled: "abgebrochen",
+    digestClauseNoPasses: "kein Durchgang abgeschlossen",
+    digestSpend: "{spent} / Grenze {cap}",
+    digestAction: "Zusammenfassung ansehen",
   },
 
   styleUI: {
@@ -1271,6 +1285,10 @@ export const DE: UIStrings = {
       autoApply: "Automatisch anwenden",
       textChanged: "Text geändert",
       applyErrorTextNotFound: "Originaltext im Kapitel nicht gefunden — er wurde möglicherweise bearbeitet, seit dieser Befund erstellt wurde.",
+      applyErrorNoReplacement: "Dieser Befund hat keinen Ersatztext – ihn anzuwenden würde die betroffene Passage löschen. Verwerfen Sie ihn oder erarbeiten Sie mit „Diskutieren“ eine konkrete Überarbeitung.",
+      applyErrorEditorNote: "Der vorgeschlagene Ersatz ist eine Lektoratsnotiz, kein Text. Ihn anzuwenden würde die Notiz in Ihr Kapitel schreiben. Bearbeiten Sie die Passage selbst oder verwerfen Sie den Befund.",
+      applyErrorGeneric: "Dieser Befund konnte nicht angewendet werden. Versuchen Sie es gleich noch einmal.",
+      adviceAccepted: "Als Rat angenommen. Der Kapiteltext wurde nicht verändert.",
     },
     summary: {
       total: "Gesamt",
@@ -1827,6 +1845,7 @@ export const DE: UIStrings = {
     catCorrection: "Korrektur",
     catLearned: "KI-gelernt",
     clearConfirm: "Den gesamten Vektorspeicher für dieses Buch löschen? Das entfernt die indexierten Inhalte aus dem Speichersystem. Sie können ihn später neu aufbauen.",
+    indexingPaused: "Das Gedächtnis ist pausiert: Der kostenlose Tarif merkt sich Ihre ersten {words} Wörter. Alles, was Sie schreiben, wird weiterhin gespeichert; wechseln Sie zu Indie, damit das Gedächtnis aktuell bleibt.",
   },
 
   onboardingUI: {

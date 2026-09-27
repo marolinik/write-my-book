@@ -477,6 +477,20 @@ export const EN: UIStrings = {
     haltBudgetCap: "it reached the budget cap",
     haltLedgerWriteFailed: "the spend ledger could not be written, so it stopped rather than run uncounted",
     haltUnknown: "for a reason this product cannot name",
+    digestTitleDone: "Overnight batch complete",
+    digestTitleHaltedBudget: "Overnight batch halted — budget cap reached",
+    digestTitleHaltedErrors: "Overnight batch halted — repeated provider errors",
+    digestTitleCancelled: "Overnight batch cancelled",
+    digestTitleFailed: "Overnight batch failed — no passes completed",
+    digestPasses: "{done}/{total} passes",
+    digestSkipped: "{n} skipped",
+    digestDiscarded: "({n} discarded as invalid)",
+    digestClauseBudget: "halted at budget cap",
+    digestClauseErrors: "halted after provider errors",
+    digestClauseCancelled: "cancelled",
+    digestClauseNoPasses: "no passes completed",
+    digestSpend: "{spent} / {cap} cap",
+    digestAction: "View digest",
   },
 
   styleUI: {
@@ -1282,6 +1296,10 @@ export const EN: UIStrings = {
       autoApply: "auto-apply",
       textChanged: "text changed",
       applyErrorTextNotFound: "Original text not found in chapter — it may have been edited since this finding was created.",
+      applyErrorNoReplacement: "This finding has no replacement text, so applying it would delete the passage it points to. Dismiss it, or use Discuss to work out a concrete revision.",
+      applyErrorEditorNote: "The suggested replacement is an editor's note, not prose. Applying it would write the note into your chapter. Edit the passage yourself or dismiss the finding.",
+      applyErrorGeneric: "This finding couldn't be applied. Try again in a moment.",
+      adviceAccepted: "Accepted as advice. No chapter text was changed.",
     },
     summary: {
       total: "Total",
@@ -1838,6 +1856,7 @@ export const EN: UIStrings = {
     catCorrection: "Correction",
     catLearned: "AI Learned",
     clearConfirm: "Clear all vector memory for this book? This removes indexed content from the memory system. You can rebuild it later.",
+    indexingPaused: "Memory is paused: the Free plan remembers your first {words} words. Everything you write is still saved; upgrade to Indie to keep memory up to date.",
   },
 
   onboardingUI: {

@@ -74,6 +74,7 @@ vi.mock("@/lib/billing/quota-checker", () => ({
 // pass-through so these billing-polarity cases reach the session-create path.
 vi.mock("@/lib/billing/free-tier-meters", () => ({
   checkConcurrencyFence: vi.fn(async () => ({ allowed: true })),
+  recordAgentSessionStart: vi.fn(async () => undefined),
 }));
 vi.mock("@/lib/llm", () => ({
   resolveModelForRole: (...a: unknown[]) => h.resolveModelForRole(...a),
@@ -250,6 +251,27 @@ describe("POST /api/books/:id/agent — first-turn empty-reply billing", () => {
     await vi.waitFor(() =>
       expect(h.db.usageRecord.create).toHaveBeenCalledTimes(1)
     );
+  });
+
+  it("P2-S06: files the session's UsageRecord under the pass (workflow id)", async () => {
+    // The cost estimate calibrates from rows filed under the workflow id; a
+    // row filed under "writing-coach" (the conductor of every session) never
+    // reached the pass it paid for.
+    h.workflow = {
+      conversational: false,
+      category: "editorial",
+      primaryAgent: "line-editor",
+    };
+    h.getWorkflow.mockReturnValue(h.workflow);
+    h.agentResult = { ...emptyResult };
+
+    const res = await POST(req() as never, ctx as never);
+    expect(res.status).toBe(200);
+
+    await vi.waitFor(() =>
+      expect(h.db.usageRecord.create).toHaveBeenCalledTimes(1)
+    );
+    expect(h.db.usageRecord.create.mock.calls[0][0].data.agentType).toBe("new-novel");
   });
 
   // ── D-58 / F7 parity lock: on a mid-session failure the route must report

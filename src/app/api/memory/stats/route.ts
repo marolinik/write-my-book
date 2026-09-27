@@ -7,6 +7,7 @@ import {
   verifyQdrantConnection,
   getEmbeddingCosts,
 } from "@/lib/vector";
+import { isProseIndexingPausedForUser } from "@/lib/vector/indexing-gate";
 
 export async function GET(request: NextRequest) {
   try {
@@ -25,9 +26,10 @@ export async function GET(request: NextRequest) {
       }
 
       // Per-book stats
-      const [chunkStats, costs] = await Promise.all([
+      const [chunkStats, costs, indexingPaused] = await Promise.all([
         getBookChunkCounts(bookId),
         getEmbeddingCosts(user.id, bookId),
+        isProseIndexingPausedForUser(user.id),
       ]);
 
       return NextResponse.json({
@@ -36,6 +38,9 @@ export async function GET(request: NextRequest) {
         lastIndexed: chunkStats.lastIndexed,
         embeddingCost: costs.totalCost,
         embeddingTokens: costs.totalTokens,
+        // P1-S06: the Free word cap paused indexing — the card must say so
+        // instead of presenting stale memory as current.
+        indexingPaused,
       });
     }
 
@@ -45,10 +50,11 @@ export async function GET(request: NextRequest) {
       where: { userId: user.id },
       select: { id: true },
     });
-    const [userStats, qdrantHealthy, costs] = await Promise.all([
+    const [userStats, qdrantHealthy, costs, indexingPaused] = await Promise.all([
       getUserMemoryStats(ownBooks.map((b) => b.id)),
       verifyQdrantConnection(),
       getEmbeddingCosts(user.id),
+      isProseIndexingPausedForUser(user.id),
     ]);
 
     return NextResponse.json({
@@ -58,6 +64,7 @@ export async function GET(request: NextRequest) {
       qdrantHealthy,
       embeddingCost: costs.totalCost,
       embeddingTokens: costs.totalTokens,
+      indexingPaused,
     });
   } catch (error) {
     console.error("[memory/stats] Error:", error);

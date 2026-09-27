@@ -4,6 +4,10 @@ import { db } from "@/lib/db";
 import { decryptApiKey } from "@/lib/encryption";
 import { estimateCost } from "@/lib/cost";
 import { checkQuota } from "@/lib/billing/quota-checker";
+import {
+  checkConcurrencyFence,
+  recordAgentSessionStart,
+} from "@/lib/billing/free-tier-meters";
 import { startSeriesAgentSchema } from "@/lib/validation";
 import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
@@ -162,15 +166,33 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       seriesArchitecture = content?.content ?? "";
     }
 
-    // Create DB session record
+    // Free-tier concurrency fence — mirror the book-agent route (P7-S15). A
+    // series is a second door to the same agents, so without this a Free
+    // writer who kept a series after a downgrade ran sessions side by side.
+    // No-op for paid users. Placed right before the session row is created.
+    const concurrency = await checkConcurrencyFence(user.id);
+    if (!concurrency.allowed) {
+      return NextResponse.json(
+        { error: concurrency.reason, upgradeToTier: concurrency.upgradeToTier },
+        { status: 429 }
+      );
+    }
+
+    // Create DB session record. workflowId + chapterNumber, as the book-agent
+    // route and batch-flow record them (P3-S12): the history label, the
+    // chapter's evolution and a follow-up after a restart all read them.
     const dbSession = await db.agentSession.create({
       data: {
         bookId: data.bookId,
         userId: user.id,
         agentType: workflow.primaryAgent,
+        workflowId: data.workflowId,
+        chapterNumber: data.chapterNumber ?? null,
         status: "running",
       },
     });
+    // The monthly cap must not depend on the book still existing (P7-S13).
+    await recordAgentSessionStart(user.id);
 
     // Create in-memory session
     const session = createSession(

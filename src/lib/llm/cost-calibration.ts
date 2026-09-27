@@ -12,6 +12,20 @@
  * heuristic, it is a claim the writer can check: "based on your last 7 runs".
  */
 
+/**
+ * P2-S06 — the key a finished session's UsageRecord is filed under, shared by
+ * the two places that write that row and the estimate that reads it back.
+ *
+ * It is the pass (the workflow id), not the agent. The coach conducts every
+ * session, so filing by agent put every pass under "writing-coach": the
+ * specialist passes never calibrated, and each coach-led pass borrowed the
+ * costs of every other session on the book. The copy promises "runs of this
+ * pass", and this is what makes that true.
+ */
+export function passUsageType(workflowId: string): string {
+  return workflowId;
+}
+
 /** Below this many real runs, the evidence is an anecdote and we stay quiet. */
 export const MIN_CALIBRATION_RUNS = 4;
 

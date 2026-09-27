@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { addBookToSeriesSchema } from "@/lib/validation";
+import { checkPlanAccess } from "@/lib/billing/plan-gating";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { zodErrorResponse } from "@/lib/api/zod-error";
 
@@ -59,6 +60,17 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         },
       });
     } else {
+      // Creating a book through a series is still creating a book: the same
+      // plan gate as POST /api/books (X-S19 / P7-S14). Without it a Free
+      // writer who kept a series after a downgrade minted unlimited books.
+      const access = await checkPlanAccess(user.id, "create_book");
+      if (!access.allowed) {
+        return NextResponse.json(
+          { error: access.reason, upgradeToTier: access.upgradeToTier },
+          { status: 403 }
+        );
+      }
+
       // Create a new book in the series
       book = await db.book.create({
         data: {

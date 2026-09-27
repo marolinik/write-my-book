@@ -122,6 +122,9 @@ beforeEach(() => {
     agentType: "writing-coach",
     workflowId: "new-novel",
     chapterNumber: null,
+    // A finished conversation (the column is never null). P7-S22: the rebuild
+    // now reads it — a failed row is not continuable.
+    status: "completed",
   });
   h.createSession.mockImplementation(() => freshSession());
   h.loadConversationHistory.mockResolvedValue(priorHistory);

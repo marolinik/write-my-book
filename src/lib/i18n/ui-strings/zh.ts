@@ -467,6 +467,20 @@ export const ZH: UIStrings = {
     haltBudgetCap: "它达到了预算上限",
     haltLedgerWriteFailed: "花费账目无法写入，于是它停下，而不是不计数地继续跑",
     haltUnknown: "原因本产品无法说明",
+    digestTitleDone: "夜间批量已完成",
+    digestTitleHaltedBudget: "夜间批量已停止 — 已达预算上限",
+    digestTitleHaltedErrors: "夜间批量已停止 — 服务商反复出错",
+    digestTitleCancelled: "夜间批量已取消",
+    digestTitleFailed: "夜间批量失败 — 没有完成任何轮次",
+    digestPasses: "{done}/{total} 轮",
+    digestSkipped: "跳过 {n} 个",
+    digestDiscarded: "（{n} 条因无效被丢弃）",
+    digestClauseBudget: "在预算上限处停止",
+    digestClauseErrors: "因服务商错误停止",
+    digestClauseCancelled: "已取消",
+    digestClauseNoPasses: "没有完成任何轮次",
+    digestSpend: "{spent} / 上限 {cap}",
+    digestAction: "查看摘要",
   },
 
   styleUI: {
@@ -1271,6 +1285,10 @@ export const ZH: UIStrings = {
       autoApply: "自动应用",
       textChanged: "文本已更改",
       applyErrorTextNotFound: "章节中未找到原始文本——该发现创建后文本可能已被编辑。",
+      applyErrorNoReplacement: "该发现没有替换文本，应用它会删除所指向的段落。请忽略它，或通过“讨论”得出具体的修改。",
+      applyErrorEditorNote: "建议的替换内容是编辑备注，而不是正文。应用它会把备注写入你的章节。请自行修改该段落，或忽略此发现。",
+      applyErrorGeneric: "无法应用此发现，请稍后再试。",
+      adviceAccepted: "已作为建议采纳，章节文本未作改动。",
     },
     summary: {
       total: "总计",
@@ -1827,6 +1845,7 @@ export const ZH: UIStrings = {
     catCorrection: "更正",
     catLearned: "AI 已学习",
     clearConfirm: "清除本书的全部向量记忆？这会从记忆系统中移除已索引的内容。你之后可以重新构建。",
+    indexingPaused: "记忆已暂停：免费套餐只记住你的前 {words} 个字。你写的内容仍会照常保存；升级到 Indie 即可让记忆保持最新。",
   },
 
   onboardingUI: {

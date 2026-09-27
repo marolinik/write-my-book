@@ -14,7 +14,11 @@
 
 import { db } from "@/lib/db";
 import { FREE_TIER } from "@/lib/billing/free-tier";
-import { sumOwnedWordCount, isFreeTierUser } from "@/lib/billing/free-tier-meters";
+import {
+  sumOwnedWordCount,
+  isFreeTierEnforced,
+  isFreeTierUser,
+} from "@/lib/billing/free-tier-meters";
 import { isEmbeddingAvailable } from "./embeddings";
 
 /**
@@ -24,10 +28,21 @@ import { isEmbeddingAvailable } from "./embeddings";
  */
 export async function canIndexProseForUser(userId: string): Promise<boolean> {
   if (!isEmbeddingAvailable()) return false;
+  return !(await isProseIndexingPausedForUser(userId));
+}
+
+/**
+ * Whether the Free-tier word cap has PAUSED this writer's prose indexing — the
+ * state the memory status surfaces must show (P1-S06; see the header). An
+ * embeddings outage is not a plan wall and is not reported here. Self-hosted
+ * and rolled-back deploys enforce no cap, so they never read the subscription.
+ */
+export async function isProseIndexingPausedForUser(userId: string): Promise<boolean> {
+  if (!isFreeTierEnforced()) return false;
 
   const sub = await db.subscription.findUnique({ where: { userId } });
-  if (!isFreeTierUser(sub)) return true;
+  if (!isFreeTierUser(sub)) return false;
 
   const words = await sumOwnedWordCount(userId);
-  return words <= FREE_TIER.maxAiEligibleWords;
+  return words > FREE_TIER.maxAiEligibleWords;
 }

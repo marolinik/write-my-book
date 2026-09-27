@@ -9,7 +9,7 @@ import {
   type AgentRole,
 } from "@/lib/llm";
 import { estimateWorkflowCost, estimateEmbeddingCost, formatCostRange } from "@/lib/llm/cost-estimator";
-import { calibrateEstimate } from "@/lib/llm/cost-calibration";
+import { calibrateEstimate, passUsageType } from "@/lib/llm/cost-calibration";
 
 /** How many past runs of the same agent the calibration reads. */
 const CALIBRATION_SAMPLE = 12;
@@ -108,13 +108,14 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
 
     // D2: the heuristic drifts 30-38% on real batches, and the writer reads
     // this number before agreeing to spend money. Every paid run of this
-    // agent on this book left a UsageRecord; once there are enough of them,
+    // pass on this book left a UsageRecord; once there are enough of them,
     // the book's own spread replaces the table and the product says how many
-    // runs it is speaking from.
+    // runs it is speaking from. P2-S06: read by the pass, the key the session
+    // writers file under, never by the agent (the coach conducts them all).
     const pastRuns = await db.usageRecord.findMany({
       where: {
         bookId,
-        agentType: workflow.primaryAgent,
+        agentType: passUsageType(workflowId),
         costEstimate: { gt: 0 },
         ...BILLED_ONLY,
       },

@@ -65,7 +65,16 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         dbSession.agentType,
         dbSession.workflowId
       );
-      session.status = "completed"; // Will be set to running below
+      // P7-S22: carry the row's own state instead of declaring every rebuilt
+      // session "completed". A failed / cancelled session held in memory is
+      // refused below ("Session is not active"); a restart must not turn the
+      // same row into a live conversation whose turns nothing can cancel. A
+      // row left "running" was cut off by the restart itself — nothing is
+      // still running it — so it resumes like a completed one.
+      session.status =
+        dbSession.status === "completed" || dbSession.status === "running"
+          ? "completed" // Will be set to running below
+          : "failed";
 
       // Load conversation history from DB
       const history = await loadConversationHistory(sessionId);

@@ -1,9 +1,10 @@
 import { getUIStrings, localeFor } from "@/lib/i18n/ui-strings";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeftIcon } from "lucide-react";
+import { ArrowLeftIcon, LockIcon } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { checkPlanAccess } from "@/lib/billing/plan-gating";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -35,6 +36,36 @@ export default async function SeriesAnalyticsPage({
     where: { id: seriesId, userId: user.id },
   });
   if (!series) notFound();
+
+  // X-S19: the same gate as GET /api/series/:id/analytics. The page reads the
+  // same numbers straight from the database, so without it the API's 403 was
+  // one navigation away from a 200 with the full stats.
+  const access = await checkPlanAccess(user.id, "use_analytics");
+  if (!access.allowed) {
+    return (
+      <div className="p-6 lg:p-8 max-w-4xl space-y-6">
+        <div>
+          <Button asChild variant="ghost" size="sm" className="mb-4 -ml-2">
+            <Link href={`/series/${seriesId}`}>
+              <ArrowLeftIcon className="mr-1 size-4" />{t.pagesUI.backToSeries}</Link>
+          </Button>
+          <h1 className="font-display text-3xl font-semibold tracking-tight">{t.nav.analytics}</h1>
+        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <LockIcon className="size-4 text-muted-foreground" />{t.appUI.upgradeRequired}</CardTitle>
+            <CardDescription>{t.appUI.tierProfessional}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild size="sm">
+              <Link href="/settings/billing">{t.appUI.viewPlans}</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const books = await db.book.findMany({
     where: { seriesId, userId: user.id },

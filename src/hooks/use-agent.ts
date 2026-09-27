@@ -12,6 +12,33 @@ import {
   type MissingPrerequisite,
 } from "@/lib/agents/prerequisite-message";
 import type { PageContext } from "@/lib/agents/types";
+import { useUpgradeModal } from "@/hooks/use-billing";
+
+/**
+ * The error a refused start throws. A plan / quota wall (the Free monthly
+ * cap, the one-session fence) answers with `upgradeToTier`; it rides on the
+ * error so the panel can keep an Upgrade path under the message (P1-S05).
+ */
+export type AgentStartFailure = Error & { upgradeToTier?: string };
+
+function startFailure(
+  body: { error?: string; upgradeToTier?: unknown },
+  status: number
+): AgentStartFailure {
+  const err = new Error(body.error ?? `Request failed: ${status}`) as AgentStartFailure;
+  if (typeof body.upgradeToTier === "string") err.upgradeToTier = body.upgradeToTier;
+  return err;
+}
+
+/**
+ * Any plan / quota denial (429 wall or fence, 403 paid feature) carries
+ * upgradeToTier → the upgrade modal, never a silent line of red text — the
+ * same routing use-books and use-series already do (P1-S05).
+ */
+function openUpgradeModalFor(error: Error): void {
+  const tier = (error as AgentStartFailure).upgradeToTier;
+  if (tier) useUpgradeModal.getState().show(error.message, tier);
+}
 
 /** Start a new agent session. Automatically includes the current page context. */
 export function useStartSession(bookId: string) {
@@ -91,11 +118,12 @@ export function useStartSession(bookId: string) {
           throw new Error(notice.text);
         }
 
-        throw new Error(body.error ?? `Request failed: ${res.status}`);
+        throw startFailure(body, res.status);
       }
 
       return res.json() as Promise<{ sessionId: string; queued?: boolean; jobId?: string }>;
     },
+    onError: openUpgradeModalFor,
   });
 }
 
@@ -116,11 +144,12 @@ export function useStartSeriesSession(seriesId: string) {
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? `Request failed: ${res.status}`);
+        throw startFailure(body, res.status);
       }
 
       return res.json() as Promise<{ sessionId: string; queued?: boolean; jobId?: string }>;
     },
+    onError: openUpgradeModalFor,
   });
 }
 

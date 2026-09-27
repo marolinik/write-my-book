@@ -4,7 +4,8 @@
  * Split from `./free-tier` (pure) so the constants + derivation stay
  * db-free and trivially testable. Everything here reads/writes real rows:
  *  - word cap        → sum of Book.wordCount
- *  - session cap     → count of AgentSession rows this UTC month
+ *  - session cap     → AgentSession rows this UTC month, floored by the
+ *                      user-keyed FreeTierUsage session-start ledger
  *  - concurrency     → count of running AgentSession rows
  *  - ghost / inline  → FreeTierUsage per-UTC-day counters
  *
@@ -45,9 +46,17 @@ import {
 export function isFreeTierUser(
   sub: FreeTierSubscriptionShape | null | undefined
 ): boolean {
-  if (!stripe) return false;
-  if (!isFreeTierEnabled()) return false;
+  if (!isFreeTierEnforced()) return false;
   return isFreeTier(sub);
+}
+
+/**
+ * Whether Free caps are live on this deploy at all (billing configured and the
+ * rollback lever off) — the subscription-independent half of `isFreeTierUser`,
+ * for callers that can skip the subscription read when nothing is enforced.
+ */
+export function isFreeTierEnforced(): boolean {
+  return !!stripe && isFreeTierEnabled();
 }
 
 /**
@@ -74,11 +83,64 @@ export async function sumOwnedWordCount(userId: string): Promise<number> {
   return agg._sum.wordCount ?? 0;
 }
 
-/** Agent sessions started since the 1st of the current UTC month. */
+/**
+ * Agent sessions started since the 1st of the current UTC month.
+ *
+ * P7-S13: AgentSession rows cascade with their book, so counting rows alone let
+ * a writer reset the cap by deleting a book (20 → 0). The session-start ledger
+ * on FreeTierUsage is keyed on the USER and survives the delete. The larger of
+ * the two wins: the ledger only exists from the day it shipped, so for that
+ * month the rows still count sessions it never saw.
+ */
 export async function countAgentSessionsThisMonth(userId: string): Promise<number> {
-  return db.agentSession.count({
-    where: { userId, startedAt: { gte: utcMonthStart() } },
-  });
+  const monthStart = utcMonthStart();
+  const [rows, ledger] = await Promise.all([
+    db.agentSession.count({
+      where: { userId, startedAt: { gte: monthStart } },
+    }),
+    sessionStartsSince(userId, monthStart),
+  ]);
+  return Math.max(rows, ledger);
+}
+
+/**
+ * Sum of the ledger's session starts from `since` (a UTC month start) on.
+ * A read failure falls back to 0 so the rows above still govern — the meter
+ * degrades to its old behaviour instead of failing every AI action — and is
+ * logged, never swallowed.
+ */
+async function sessionStartsSince(userId: string, since: Date): Promise<number> {
+  try {
+    const agg = await db.freeTierUsage.aggregate({
+      where: { userId, day: { gte: utcDayKey(since) } },
+      _sum: { agentSessions: true },
+    });
+    return agg._sum.agentSessions ?? 0;
+  } catch (err) {
+    console.error("[free-tier] session ledger read failed", { userId, err });
+    return 0;
+  }
+}
+
+/**
+ * Count one agent-session start in the user-keyed ledger (P7-S13). Call right
+ * after the AgentSession row is created, for every plan: the monthly count is
+ * plan-agnostic ("started since the 1st, any status"), so a writer who
+ * downgrades mid-month is measured the same way. Fire-safe like
+ * `recordDailyUse` — the session has already started, so a ledger failure is
+ * logged, never thrown.
+ */
+export async function recordAgentSessionStart(userId: string): Promise<void> {
+  const day = utcDayKey();
+  try {
+    await db.freeTierUsage.upsert({
+      where: { userId_day: { userId, day } },
+      update: { agentSessions: { increment: 1 } },
+      create: { userId, day, agentSessions: 1 },
+    });
+  } catch (err) {
+    console.error("[free-tier] recordAgentSessionStart failed", { userId, err });
+  }
 }
 
 /**

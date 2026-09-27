@@ -467,6 +467,20 @@ export const FR: UIStrings = {
     haltBudgetCap: "il a atteint le plafond de budget",
     haltLedgerWriteFailed: "le registre des dépenses n'a pas pu être écrit, il s'est donc arrêté plutôt que de tourner sans être compté",
     haltUnknown: "pour une raison que ce produit ne sait pas nommer",
+    digestTitleDone: "Lot de nuit terminé",
+    digestTitleHaltedBudget: "Lot de nuit arrêté — plafond de budget atteint",
+    digestTitleHaltedErrors: "Lot de nuit arrêté — erreurs répétées du fournisseur",
+    digestTitleCancelled: "Lot de nuit annulé",
+    digestTitleFailed: "Lot de nuit échoué — aucun passage terminé",
+    digestPasses: "{done}/{total} passages",
+    digestSkipped: "{n} ignorés",
+    digestDiscarded: "({n} écartées car non valides)",
+    digestClauseBudget: "arrêté au plafond de budget",
+    digestClauseErrors: "arrêté après des erreurs du fournisseur",
+    digestClauseCancelled: "annulé",
+    digestClauseNoPasses: "aucun passage terminé",
+    digestSpend: "{spent} / plafond {cap}",
+    digestAction: "Voir le résumé",
   },
 
   styleUI: {
@@ -1271,6 +1285,10 @@ export const FR: UIStrings = {
       autoApply: "automatiquement",
       textChanged: "texte modifié",
       applyErrorTextNotFound: "Texte d’origine introuvable dans le chapitre — il a peut-être été modifié depuis la création de cette constatation.",
+      applyErrorNoReplacement: "Cette constatation n’a pas de texte de remplacement : l’appliquer supprimerait le passage visé. Rejetez-la ou utilisez Discuter pour aboutir à une révision concrète.",
+      applyErrorEditorNote: "Le remplacement proposé est une note de l’éditeur, pas de la prose. L’appliquer écrirait la note dans votre chapitre. Modifiez le passage vous-même ou rejetez la constatation.",
+      applyErrorGeneric: "Impossible d’appliquer cette constatation. Réessayez dans un instant.",
+      adviceAccepted: "Accepté comme conseil. Le texte du chapitre n’a pas été modifié.",
     },
     summary: {
       total: "Total",
@@ -1827,6 +1845,7 @@ export const FR: UIStrings = {
     catCorrection: "Correction",
     catLearned: "Appris par l’IA",
     clearConfirm: "Effacer toute la mémoire vectorielle de ce livre ? Cela supprime le contenu indexé du système de mémoire. Vous pourrez la reconstruire plus tard.",
+    indexingPaused: "La mémoire est en pause : l’offre gratuite retient vos {words} premiers mots. Tout ce que vous écrivez reste enregistré ; passez à Indie pour garder la mémoire à jour.",
   },
 
   onboardingUI: {

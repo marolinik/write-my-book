@@ -33,6 +33,8 @@ vi.mock("@/lib/db", () => ({
     },
     subscription: { findUnique: vi.fn(async () => h.subscription) },
     freeTierUsage: {
+      // P7-S13 session-start ledger: empty here, so the row count governs.
+      aggregate: vi.fn(async () => ({ _sum: { agentSessions: null } })),
       findUnique: vi.fn(async () => h.usageRow),
       upsert: vi.fn(async (args: unknown) => {
         h.upsertArgs = args;
