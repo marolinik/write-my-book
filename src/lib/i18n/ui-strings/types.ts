@@ -1339,6 +1339,8 @@ export interface UIStrings {
     defaultModelUpdated: string;
     languageUpdateFailed: string;
     memoryIndexRebuilt: string;
+    memoryIndexingPaused: string;
+    memoryIndexingUnavailable: string;
     bookMemoryCleared: string;
     styleProfileSaved: string;
     characterLensCreated: string;

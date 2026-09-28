@@ -1410,6 +1410,8 @@ export const EN: UIStrings = {
     defaultModelUpdated: "Default model updated",
     languageUpdateFailed: "Failed to update language",
     memoryIndexRebuilt: "Memory index rebuilt successfully",
+    memoryIndexingPaused: "Memory indexing is paused on the Free plan: you have passed the AI-eligible word cap. Upgrade to index the rest of your book.",
+    memoryIndexingUnavailable: "Memory indexing is unavailable right now. Try again later.",
     bookMemoryCleared: "Book memory cleared",
     styleProfileSaved: "Style profile saved",
     characterLensCreated: "Character lens created",

@@ -1399,6 +1399,8 @@ export const SR: UIStrings = {
     defaultModelUpdated: "Podrazumevani model je izmenjen",
     languageUpdateFailed: "Promena jezika nije uspela",
     memoryIndexRebuilt: "Indeks pamćenja je ponovo izgrađen",
+    memoryIndexingPaused: "Indeksiranje pamćenja je pauzirano na Free planu: prešli ste granicu reči za AI. Nadogradite plan da bi se indeksirao ostatak knjige.",
+    memoryIndexingUnavailable: "Indeksiranje pamćenja trenutno nije dostupno. Pokušajte kasnije.",
     bookMemoryCleared: "Pamćenje knjige je obrisano",
     styleProfileSaved: "Stilski profil je sačuvan",
     characterLensCreated: "Perspektiva lika je napravljena",

@@ -22,6 +22,8 @@ const HOOK_TOAST_KEYS = [
   "defaultModelUpdated",
   "languageUpdateFailed",
   "memoryIndexRebuilt",
+  "memoryIndexingPaused",
+  "memoryIndexingUnavailable",
   "bookMemoryCleared",
   "styleProfileSaved",
   "characterLensCreated",

@@ -13,7 +13,7 @@ import { NextRequest } from "next/server";
 
 const h = vi.hoisted(() => ({
   requireUser: vi.fn(),
-  canIndex: vi.fn(),
+  embeddings: vi.fn(),
   paused: vi.fn(),
   rebuild: vi.fn(),
   db: { book: { findFirst: vi.fn() } },
@@ -24,8 +24,10 @@ vi.mock("@/lib/db", () => ({ db: h.db }));
 vi.mock("@/lib/vector", () => ({
   rebuildBookIndex: (...a: unknown[]) => h.rebuild(...a),
 }));
+vi.mock("@/lib/vector/embeddings", () => ({
+  isEmbeddingAvailable: () => h.embeddings(),
+}));
 vi.mock("@/lib/vector/indexing-gate", () => ({
-  canIndexProseForUser: (...a: unknown[]) => h.canIndex(...a),
   isProseIndexingPausedForUser: (...a: unknown[]) => h.paused(...a),
 }));
 
@@ -47,7 +49,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   h.requireUser.mockResolvedValue({ id: "u1" });
   h.db.book.findFirst.mockResolvedValue({ id: BOOK });
-  h.canIndex.mockResolvedValue(true);
+  h.embeddings.mockReturnValue(true);
   h.paused.mockResolvedValue(false);
   h.rebuild.mockResolvedValue({ chunksIndexed: 12 });
 });
@@ -61,7 +63,6 @@ describe("POST /api/memory/rebuild — the indexing gate", () => {
   });
 
   it("a Free writer past the cap is told indexing is paused and nothing is embedded", async () => {
-    h.canIndex.mockResolvedValue(false);
     h.paused.mockResolvedValue(true);
 
     const res = await rebuild();
@@ -71,11 +72,12 @@ describe("POST /api/memory/rebuild — the indexing gate", () => {
     expect(body.indexingPaused).toBe(true);
     expect(body.error).toMatch(/paused/i);
     expect(h.rebuild).not.toHaveBeenCalled();
+    // The subscription and word count are read once, not once per gate call.
+    expect(h.paused).toHaveBeenCalledTimes(1);
   });
 
-  it("an embeddings outage is not a plan wall: 503, not paused", async () => {
-    h.canIndex.mockResolvedValue(false);
-    h.paused.mockResolvedValue(false);
+  it("an embeddings outage is not a plan wall: 503, not paused, and the plan is not read", async () => {
+    h.embeddings.mockReturnValue(false);
 
     const res = await rebuild();
 
@@ -83,12 +85,13 @@ describe("POST /api/memory/rebuild — the indexing gate", () => {
     const body = await res.json();
     expect(body.indexingPaused).toBe(false);
     expect(h.rebuild).not.toHaveBeenCalled();
+    expect(h.paused).not.toHaveBeenCalled();
   });
 
   it("asks the gate for the signed-in writer, after the book is confirmed theirs", async () => {
     h.db.book.findFirst.mockResolvedValue(null);
     const res = await rebuild();
     expect(res.status).toBe(404);
-    expect(h.canIndex).not.toHaveBeenCalled();
+    expect(h.paused).not.toHaveBeenCalled();
   });
 });

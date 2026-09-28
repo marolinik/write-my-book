@@ -60,7 +60,14 @@ export function useRebuildIndex() {
         body: JSON.stringify({ bookId }),
       });
       if (!res.ok) {
-        const err = await res.json();
+        const err = await res.json().catch(() => ({}));
+        // The gate's two answers are the product explaining its own limit, so
+        // they are said in the writer's language; anything else is a failure
+        // whose server reason is the best thing to show.
+        if (res.status === 402 || err.indexingPaused === true) {
+          throw new Error(t.toasts.memoryIndexingPaused);
+        }
+        if (res.status === 503) throw new Error(t.toasts.memoryIndexingUnavailable);
         throw new Error(err.error || "Failed to rebuild index");
       }
       return res.json();

@@ -1399,6 +1399,8 @@ export const DE: UIStrings = {
     defaultModelUpdated: "Standardmodell aktualisiert",
     languageUpdateFailed: "Die Sprache konnte nicht geändert werden",
     memoryIndexRebuilt: "Gedächtnisindex neu aufgebaut",
+    memoryIndexingPaused: "Die Gedächtnis-Indexierung ist im Free-Plan pausiert: Sie haben die KI-Wortgrenze überschritten. Upgraden Sie, um den Rest Ihres Buchs zu indexieren.",
+    memoryIndexingUnavailable: "Die Gedächtnis-Indexierung ist derzeit nicht verfügbar. Versuchen Sie es später erneut.",
     bookMemoryCleared: "Buchgedächtnis gelöscht",
     styleProfileSaved: "Stilprofil gespeichert",
     characterLensCreated: "Figurenperspektive erstellt",

@@ -1399,6 +1399,8 @@ export const ES: UIStrings = {
     defaultModelUpdated: "Modelo predeterminado actualizado",
     languageUpdateFailed: "No se pudo cambiar el idioma",
     memoryIndexRebuilt: "Índice de memoria reconstruido",
+    memoryIndexingPaused: "La indexación de la memoria está en pausa en el plan Free: ha superado el límite de palabras con IA. Mejore su plan para indexar el resto del libro.",
+    memoryIndexingUnavailable: "La indexación de la memoria no está disponible ahora. Inténtelo más tarde.",
     bookMemoryCleared: "Memoria del libro borrada",
     styleProfileSaved: "Perfil de estilo guardado",
     characterLensCreated: "Perspectiva de personaje creada",

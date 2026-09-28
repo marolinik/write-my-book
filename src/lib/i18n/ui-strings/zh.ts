@@ -1399,6 +1399,8 @@ export const ZH: UIStrings = {
     defaultModelUpdated: "默认模型已更新",
     languageUpdateFailed: "语言更新失败",
     memoryIndexRebuilt: "记忆索引已重建",
+    memoryIndexingPaused: "免费计划的记忆索引已暂停：您已超过 AI 字数上限。升级以索引书籍的其余部分。",
+    memoryIndexingUnavailable: "记忆索引目前不可用。请稍后重试。",
     bookMemoryCleared: "书籍记忆已清除",
     styleProfileSaved: "风格档案已保存",
     characterLensCreated: "角色视角已创建",

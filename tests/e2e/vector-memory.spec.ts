@@ -127,6 +127,12 @@ test.describe("Vector Memory API", () => {
       // Qdrant not available — acceptable outcome
       const data = await res.json();
       expect(data).toHaveProperty("error");
+    } else if (res.status() === 402 || res.status() === 503) {
+      // The indexing gate: 402 when the Free-tier word cap has paused
+      // indexing, 503 when embeddings are unavailable. Both carry the state.
+      const data = await res.json();
+      expect(data).toHaveProperty("error");
+      expect(data.indexingPaused).toBe(res.status() === 402);
     } else {
       expect([401, 404]).toContain(res.status());
     }

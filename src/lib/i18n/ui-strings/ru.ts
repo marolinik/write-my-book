@@ -1399,6 +1399,8 @@ export const RU: UIStrings = {
     defaultModelUpdated: "Модель по умолчанию обновлена",
     languageUpdateFailed: "Не удалось изменить язык",
     memoryIndexRebuilt: "Индекс памяти перестроен",
+    memoryIndexingPaused: "Индексация памяти приостановлена на плане Free: вы превысили лимит слов для ИИ. Перейдите на платный план, чтобы проиндексировать остальную часть книги.",
+    memoryIndexingUnavailable: "Индексация памяти сейчас недоступна. Попробуйте позже.",
     bookMemoryCleared: "Память книги очищена",
     styleProfileSaved: "Профиль стиля сохранён",
     characterLensCreated: "Перспектива персонажа создана",
