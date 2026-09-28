@@ -46,8 +46,14 @@ import { POST } from "@/app/api/books/[id]/import/route";
 const params = { params: Promise.resolve({ id: "b1" }) };
 
 function upload(text: string, name = "Rukopis.md") {
+  return uploadFiles([[text, name]]);
+}
+
+function uploadFiles(files: Array<[text: string, name: string]>) {
   const form = new FormData();
-  form.append("files", new File([text], name, { type: "text/markdown" }));
+  for (const [text, name] of files) {
+    form.append("files", new File([text], name, { type: "text/markdown" }));
+  }
   return POST(new Request("http://t/api/books/b1/import", { method: "POST", body: form }) as never, params);
 }
 
@@ -99,6 +105,30 @@ describe("legacy multipart import never overwrites the writer's chapters", () =>
     expect(res.status).toBe(200);
     expect(h.db.chapter.upsert).toHaveBeenCalledTimes(2);
     expect(h.doc.create).toHaveBeenCalledTimes(2);
+  });
+
+  it("the refusal points at the preview flow, not at a per-row action multipart cannot send", async () => {
+    const res = await upload(TWO_CHAPTERS);
+    const body = await res.json();
+    expect(body.error).not.toMatch(/send action/);
+    expect(body.error).toMatch(/preview/i);
+  });
+
+  it("two files number their chapters in sequence instead of both starting at 1", async () => {
+    h.db.chapter.findMany.mockResolvedValue([]);
+
+    const res = await uploadFiles([
+      [TWO_CHAPTERS, "Deo1.md"],
+      ["# Chapter 1: Kuća\n\nTreća reč.\n", "Deo2.md"],
+    ]);
+
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.chapters.map((c: { number: number }) => c.number)).toEqual([1, 2, 3]);
+    const numbers = h.db.chapter.upsert.mock.calls.map(
+      (c) => (c[0] as { create: { chapterNumber: number } }).create.chapterNumber
+    );
+    expect(numbers).toEqual([1, 2, 3]);
   });
 
   it("chapters past the last written one are added", async () => {

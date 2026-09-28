@@ -239,10 +239,21 @@ function listNumbers(numbers: number[]): string {
   return `${numbers.slice(0, -1).join(", ")} and ${numbers[numbers.length - 1]}`;
 }
 
-/** Why an import plan was refused, in terms an API caller can act on. */
-function describeImportProblems(problems: ImportPlanProblems): string {
+/**
+ * Why an import plan was refused, in terms an API caller can act on. The JSON
+ * confirm can answer with a per-row action; the multipart upload cannot, so it
+ * is pointed at the preview flow instead.
+ */
+function describeImportProblems(
+  problems: ImportPlanProblems,
+  flow: "json" | "multipart" = "json"
+): string {
   const parts: string[] = [];
   const { duplicates, wouldOverwrite, nothingToReplace } = problems;
+  const overwriteRemedy =
+    flow === "multipart"
+      ? "use the import preview to choose which chapters to replace or keep."
+      : null;
   if (duplicates.length > 0) {
     parts.push(
       duplicates.length === 1
@@ -253,8 +264,12 @@ function describeImportProblems(problems: ImportPlanProblems): string {
   if (wouldOverwrite.length > 0) {
     parts.push(
       wouldOverwrite.length === 1
-        ? `Chapter ${wouldOverwrite[0]} already holds your work: send action "replace" to overwrite it or "skip" to keep it.`
-        : `Chapters ${listNumbers(wouldOverwrite)} already hold your work: send action "replace" to overwrite them or "skip" to keep them.`
+        ? `Chapter ${wouldOverwrite[0]} already holds your work: ${
+            overwriteRemedy ?? 'send action "replace" to overwrite it or "skip" to keep it.'
+          }`
+        : `Chapters ${listNumbers(wouldOverwrite)} already hold your work: ${
+            overwriteRemedy ?? 'send action "replace" to overwrite them or "skip" to keep them.'
+          }`
     );
   }
   if (nothingToReplace.length > 0) {
@@ -330,7 +345,15 @@ async function handleLegacyImport(
       content = await file.text();
     }
 
-    parsedFiles.push({ file, content, chapters: parseManuscriptChapters(content) });
+    // The parser numbers every file from 1. Files continue where the previous
+    // one stopped, as the preview route numbers them, or two files would both
+    // claim chapter 1 and the later one overwrite the earlier.
+    const offset = parsedFiles.reduce((n, p) => n + p.chapters.length, 0);
+    const chapters = parseManuscriptChapters(content).map((ch) => ({
+      ...ch,
+      number: offset + ch.number,
+    }));
+    parsedFiles.push({ file, content, chapters });
   }
 
   // P6-S04, legacy half: this path upserted straight over whatever numbers the
@@ -348,7 +371,7 @@ async function handleLegacyImport(
   );
   if (problems) {
     return NextResponse.json(
-      { error: describeImportProblems(problems), ...problems },
+      { error: describeImportProblems(problems, "multipart"), ...problems },
       { status: problems.duplicates.length > 0 ? 400 : 409 }
     );
   }
@@ -402,11 +425,10 @@ async function handleLegacyImport(
       totalWordCount += ch.wordCount;
     }
 
-    allChapters = chapters.map((ch) => ({
-      number: ch.number,
-      title: ch.title,
-      wordCount: ch.wordCount,
-    }));
+    allChapters = [
+      ...allChapters,
+      ...chapters.map((ch) => ({ number: ch.number, title: ch.title, wordCount: ch.wordCount })),
+    ];
 
     // Fire-and-forget: batch index imported chapters into vector memory
     const legacyChaptersToIndex = chapters.map((ch) => ({
