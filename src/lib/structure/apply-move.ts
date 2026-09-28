@@ -121,6 +121,8 @@ const CHANGE_SOURCE = "structure";
  * (TEMP_OFFSET * 2 and up).
  */
 const SPLIT_PARK = TEMP_OFFSET * 3;
+/** Where a merge undo parks the chapters it re-creates (see freeRestorePark). */
+const RESTORE_PARK = TEMP_OFFSET * 2;
 
 /**
  * What the writer is told when the database refused the move. The raw error —
@@ -636,13 +638,8 @@ export async function undoStructureMove(
 
   try {
     if (move.kind === "split" && previous.createdChapterId) {
-      // Remove the half that was carved out, then give the source its whole text
-      // back — in that order, so the restored chapter never collides with it.
-      await removeSplitChapter(ctx, previous.createdChapterId);
-      await restoreContent(docs, previous.sourceContent ?? "", previous, ctx);
-    }
-
-    if (move.kind === "merge" && previous.chapters) {
+      await undoSplit(ctx, docs, previous, previous.createdChapterId);
+    } else if (move.kind === "merge" && previous.chapters) {
       await undoMerge(ctx, docs, previous);
     } else {
       await renumberChapters(ctx.bookId, await existingOnly(db, ctx.bookId, previous.ordering));
@@ -661,7 +658,7 @@ export async function undoStructureMove(
     if (error instanceof BookChangedError) {
       return fail(
         "apply_failed",
-        "The book's chapters changed while this was being undone, so nothing was changed. Try again."
+        "The book's chapters changed while this was being undone, so the book was left as it was. Try again."
       );
     }
     return fail(
@@ -671,13 +668,6 @@ export async function undoStructureMove(
   }
 }
 
-/**
- * Take the move out of `applied` before undo touches anything. Two undos
- * pressed at once — a double click, a second tab — both read `applied` and both
- * re-created the absorbed chapters. The conditional write is the claim: only
- * one of them can make it. It claims straight to `undone`, so no status exists
- * that the panel cannot name, and releaseUndo hands it back if the undo fails.
- */
 /**
  * Put a merge back: the survivor gets its own text, the absorbed chapters are
  * re-created, and the renumber walks them home.
@@ -712,9 +702,7 @@ async function undoMerge(
   // it was created with and never rewritten, so parking at max + 1 handed the
   // restored chapter a key a real chapter may already own, and the next write
   // silently overwrote that chapter's prose. Numbers up here never collide.
-  const RESTORE_PARK = TEMP_OFFSET * 2;
-  const live = await loadChapters(ctx.bookId);
-  const firstPark = Math.max(RESTORE_PARK, ...live.map((c) => c.chapterNumber)) + 1;
+  const firstPark = await freeRestorePark(ctx.bookId);
   const parkedAt = new Map(absorbed.map((a, i) => [a.chapterId, firstPark + i]));
 
   const survivorText = survivorNow
@@ -794,6 +782,13 @@ async function undoMerge(
   }
 }
 
+/**
+ * Take the move out of `applied` before undo touches anything. Two undos
+ * pressed at once — a double click, a second tab — both read `applied` and both
+ * re-created the absorbed chapters. The conditional write is the claim: only
+ * one of them can make it. It claims straight to `undone`, so no status exists
+ * that the panel cannot name, and releaseUndo hands it back if the undo fails.
+ */
 async function claimUndo(moveId: string, bookId: string): Promise<boolean> {
   const { count } = await db.structureMove.updateMany({
     where: { id: moveId, bookId, status: "applied" },
@@ -815,70 +810,141 @@ async function releaseUndo(moveId: string): Promise<void> {
 }
 
 /**
- * Delete the chapter a split carved off: rows inside the transaction, files
- * once it has committed. Found by id and resolved to its number under the
- * book's chapter lock, so a renumber that lands mid-undo cannot point the
- * delete at another chapter's documents.
- *
- * Refused if the writer has written in it since: the split filed its prose as
- * version 1, so any later version is someone's work, and deleting the document
- * takes every version with it.
+ * The first free parking number for a chapter a merge undo re-creates: above
+ * every chapter row AND every chapter document from RESTORE_PARK up. The
+ * renumber moves documents by number, so a document left at a parking number
+ * by an undo that failed and could not clean up would otherwise be swept onto
+ * the next restored chapter, and its stray text shown as that chapter's prose.
+ * Two undos allocating the same number collide on the document's unique key
+ * and the second fails cleanly instead of sharing a document.
  */
-async function removeSplitChapter(ctx: ApplyContext, chapterId: string): Promise<void> {
-  const files = await db.$transaction(async (tx) => {
-    await lockBookChapters(tx, ctx.bookId);
-    const created = await tx.chapter.findFirst({
-      where: { id: chapterId, bookId: ctx.bookId },
-      select: { id: true, chapterNumber: true },
-    });
-    if (!created) return [];
+async function freeRestorePark(bookId: string): Promise<number> {
+  const [chapterMax, docMax] = await Promise.all([
+    db.chapter.findFirst({
+      where: { bookId },
+      orderBy: { chapterNumber: "desc" },
+      select: { chapterNumber: true },
+    }),
+    db.document.findFirst({
+      where: { bookId, chapterNumber: { gte: RESTORE_PARK, lt: SPLIT_PARK } },
+      orderBy: { chapterNumber: "desc" },
+      select: { chapterNumber: true },
+    }),
+  ]);
+  return Math.max(RESTORE_PARK, chapterMax?.chapterNumber ?? 0, docMax?.chapterNumber ?? 0) + 1;
+}
 
-    const prose = await tx.document.findFirst({
-      where: {
-        bookId: ctx.bookId,
-        type: DocumentType.CHAPTER_CONTENT,
-        chapterNumber: created.chapterNumber,
-      },
-      select: { currentVersion: true },
-    });
-    if (prose && prose.currentVersion > 1) {
-      throw new UndoRefused(
-        "split_edited",
-        "The chapter this split created has been edited since. Undoing it would delete that writing, so nothing was changed."
+/**
+ * Put a split back: the carved-off chapter goes, the source gets its whole
+ * text again. Same shape as undoMerge. The source's prose is written first,
+ * by document id, against the version that was read; then one transaction
+ * takes the book's chapter lock, checks the source still holds the number the
+ * prose was found by, deletes the carved-off chapter's rows, restores the
+ * source row and renumbers. Files go only after it has committed; if it does
+ * not, the prose is put back.
+ *
+ * Refused if the writer has written in the carved-off chapter since: the split
+ * filed its prose as version 1, so any later version is someone's work, and
+ * deleting the document takes every version with it. Checked once before any
+ * write, so a refusal leaves no versions behind, and again under the lock.
+ */
+async function undoSplit(
+  ctx: ApplyContext,
+  docs: DocumentService,
+  previous: PreviousState,
+  createdChapterId: string
+): Promise<void> {
+  await refuseIfSplitEdited(db, ctx.bookId, createdChapterId);
+
+  const content = previous.sourceContent ?? "";
+  const source =
+    previous.sourceChapterId && content.length > 0
+      ? await db.chapter.findFirst({
+          where: { id: previous.sourceChapterId, bookId: ctx.bookId },
+          select: { id: true, chapterNumber: true, actNumber: true },
+        })
+      : null;
+  const sourceText = source ? await readChapterText(docs, source.chapterNumber) : null;
+  const written =
+    source && sourceText?.docId
+      ? await writeProse(docs, sourceText, content, {
+          title: undefined,
+          chapterNumber: source.chapterNumber,
+          actNumber: source.actNumber,
+        })
+      : null;
+
+  let files: string[];
+  try {
+    files = await db.$transaction(async (tx) => {
+      await lockBookChapters(tx, ctx.bookId);
+      if (source) {
+        const underLock = await tx.chapter.findFirst({
+          where: { id: source.id, bookId: ctx.bookId },
+          select: { chapterNumber: true },
+        });
+        if (underLock?.chapterNumber !== source.chapterNumber) throw new BookChangedError();
+      }
+
+      const created = await tx.chapter.findFirst({
+        where: { id: createdChapterId, bookId: ctx.bookId },
+        select: { id: true, chapterNumber: true },
+      });
+      let keys: string[] = [];
+      if (created) {
+        await refuseIfSplitEdited(tx, ctx.bookId, created.id);
+        keys = await dropChapterDocuments(tx, ctx.bookId, [created.chapterNumber]);
+        await tx.chapter.delete({ where: { id: created.id } });
+      }
+
+      if (source) {
+        await tx.chapter.update({
+          where: { id: source.id },
+          data: {
+            // The snapshot's number wins. A recount is only for proposals filed
+            // before it was recorded.
+            wordCount: previous.sourceWordCount ?? countWords(content),
+          },
+        });
+      }
+
+      await renumberChaptersWith(
+        tx,
+        ctx.bookId,
+        await existingOnly(tx, ctx.bookId, previous.ordering)
       );
-    }
-
-    const keys = await dropChapterDocuments(tx, ctx.bookId, [created.chapterNumber]);
-    await tx.chapter.delete({ where: { id: created.id } });
-    return keys;
-  }, RENUMBER_TX_OPTIONS);
+      await reconcileBookCounters(ctx.bookId, tx);
+      return keys;
+    }, RENUMBER_TX_OPTIONS);
+  } catch (error) {
+    if (written && sourceText) await putProseBack(docs, written, sourceText.content);
+    throw error;
+  }
 
   await deleteFiles(ctx, files);
 }
 
-async function restoreContent(
-  docs: DocumentService,
-  content: string,
-  previous: PreviousState,
-  ctx: ApplyContext
+/** Throws UndoRefused if the chapter a split created has been written in since. */
+async function refuseIfSplitEdited(
+  client: Pick<Tx, "chapter" | "document">,
+  bookId: string,
+  createdChapterId: string
 ): Promise<void> {
-  if (!previous.sourceChapterId || content.length === 0) return;
-  const source = await db.chapter.findFirst({
-    where: { id: previous.sourceChapterId, bookId: ctx.bookId },
+  const created = await client.chapter.findFirst({
+    where: { id: createdChapterId, bookId },
+    select: { chapterNumber: true },
   });
-  if (!source) return;
-  const doc = await docs.findByType(DocumentType.CHAPTER_CONTENT, source.chapterNumber);
-  if (doc) {
-    await docs.update(doc.id, content, undefined, "agent_write", CHANGE_SOURCE);
+  if (!created) return;
+  const prose = await client.document.findFirst({
+    where: { bookId, type: DocumentType.CHAPTER_CONTENT, chapterNumber: created.chapterNumber },
+    select: { currentVersion: true },
+  });
+  if (prose && prose.currentVersion > 1) {
+    throw new UndoRefused(
+      "split_edited",
+      "The chapter this split created has been edited since. Undoing it would delete that writing, so nothing was changed."
+    );
   }
-  await db.chapter.update({
-    where: { id: source.id },
-    data: {
-      // The snapshot's number wins. A recount is only for proposals filed
-      // before it was recorded.
-      wordCount: previous.sourceWordCount ?? countWords(content),
-    },
-  });
 }
 
 /**

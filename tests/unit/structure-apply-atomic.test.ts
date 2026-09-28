@@ -79,7 +79,7 @@ const h = vi.hoisted(() => ({
    * renumber that commits between an undo reading the survivor's number and
    * writing prose by it.
    */
-  afterChapterFindFirst: null as null | (() => void),
+  afterChapterFindFirst: null as null | ((where: { id?: string }) => void | boolean),
   statements: [] as Array<{ sql: string; values: unknown[] }>,
   txOptions: [] as unknown[],
   seq: 0,
@@ -154,9 +154,9 @@ vi.mock("@/lib/db", () => {
           (x) => idIn(where, x.id) && (!where.bookId || x.bookId === where.bookId)
         );
         const row = c ? { ...c } : null;
+        // A racer may decline (return false) to wait for a later read.
         const racer = h.afterChapterFindFirst;
-        h.afterChapterFindFirst = null;
-        racer?.();
+        if (racer && racer(where as { id?: string }) !== false) h.afterChapterFindFirst = null;
         return row;
       },
       delete: async ({ where }: { where: { id: string } }) => {
@@ -368,6 +368,7 @@ vi.mock("@/lib/documents/document-service", () => ({
 }));
 
 import { applyStructureMove, undoStructureMove } from "@/lib/structure/apply-move";
+import { TEMP_OFFSET } from "@/lib/chapters/renumber";
 
 const ctx = { bookId: "b1", userId: "u1" };
 
@@ -788,16 +789,76 @@ describe("undo (review of a07a2f2)", () => {
 
     const res = await undoStructureMove("m1", ctx);
 
+    // Refused because the book moved under it: the other chapter has its own
+    // words, the book is as the drag left it, and the writer can press again.
+    expect(res.ok).toBe(false);
     expect(contentOf("o4")).toBe(ORIG(4));
-    if (res.ok) {
-      // Undone under the lock: every chapter has its own words back.
-      expect(contentOf("o2")).toBe(ORIG(2));
-      expect(contentOf("o3") ?? S().documents.find((d) => d.content === ORIG(3))?.content).toBe(ORIG(3));
-    } else {
-      // Refused because the book moved under it: nothing changed, writer retries.
-      expect(move().status).toBe("applied");
-      expect(S().chapters).toHaveLength(4);
-    }
+    expect(move().status).toBe("applied");
+    expect(S().chapters).toHaveLength(4);
+  });
+
+  it("a merge undo parks nothing on a document left behind by an earlier failed undo", async () => {
+    seedBook(4);
+    propose("merge", { chapterIds: ["o2", "o3"], chapterNumbers: [2, 3] });
+    expect((await applyStructureMove("m1", ctx)).ok).toBe(true);
+    // An earlier undo of another merge created its document, failed, and could
+    // not clean it up: the document sits at the first restore parking number.
+    S().documents.push({
+      id: "orphan",
+      bookId: "b1",
+      type: "CHAPTER_CONTENT",
+      chapterNumber: TEMP_OFFSET * 2 + 1,
+      storageKey: "chapters/orphan.md",
+      versions: ["versions/orphan/v1.md"],
+      content: "Stray words from a failed undo.",
+      currentVersion: 1,
+    });
+
+    const res = await undoStructureMove("m1", ctx);
+
+    expect(res.ok).toBe(true);
+    const restored = S().chapters.find((c) => c.chapterNumber === 3)!;
+    expect(restored.title).toBe("Orig 3");
+    expect(contentOf(restored.id)).toBe(ORIG(3));
+    // The stray document stays where it was, attached to nothing.
+    expect(S().documents.find((d) => d.id === "orphan")?.chapterNumber).toBe(TEMP_OFFSET * 2 + 1);
+  });
+
+  it("a split undo raced by a corkboard drag overwrites no other chapter's prose", async () => {
+    seedBook(4);
+    propose("split", { chapterId: "o2", chapterNumber: 2, anchorQuote: "Anchor line of orig-2." });
+    expect((await applyStructureMove("m1", ctx)).ok).toBe(true);
+    // Book is now o1=1, o2=2 (first half), new=3 (second half), o3=4, o4=5. The
+    // drag commits right after the undo has read the source's number: chapter
+    // 2 is o3 from then on.
+    h.afterChapterFindFirst = (where) => {
+      if (where.id !== "o2") return false;
+      dragSwap("o2", "o3");
+    };
+
+    const res = await undoStructureMove("m1", ctx);
+
+    expect(contentOf("o3")).toBe(ORIG(3));
+    expect(res.ok).toBe(false);
+    expect(move().status).toBe("applied");
+    // The split's second half is still there: nothing was deleted either.
+    expect(S().chapters).toHaveLength(5);
+    expect(S().deletedBlobs).toEqual([]);
+  });
+
+  it("a split undo takes the book's chapter lock and commits its rows together", async () => {
+    seedBook(3);
+    propose("split", { chapterId: "o2", chapterNumber: 2, anchorQuote: "Anchor line of orig-2." });
+    expect((await applyStructureMove("m1", ctx)).ok).toBe(true);
+    h.statements = [];
+    h.txOptions = [];
+
+    expect((await undoStructureMove("m1", ctx)).ok).toBe(true);
+
+    expect(h.statements.filter((s) => /pg_advisory_xact_lock/.test(s.sql))).toHaveLength(1);
+    expect(h.txOptions).toHaveLength(1);
+    expect(numbers()).toEqual([1, 2, 3]);
+    expect(contentOf("o2")).toBe(ORIG(2));
   });
 
   it("refuses to undo a split whose new chapter the writer has written in since", async () => {
