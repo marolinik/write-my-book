@@ -414,7 +414,7 @@ export interface UIStrings {
     human: string; aiEdited: string; immersiveFocusMode: string; distractionFree: string;
     reviewSuggestion: string; overlappingFindings: string; closePacing: string;
     headingLevel: string;
-    closeProseHighlights: string; describeChangeExample: string; selectChapter: string;
+    closeProseHighlights: string; selectChapter: string;
   };
 
   // O1 - the export configuration dialog.
@@ -1304,7 +1304,6 @@ export interface UIStrings {
     marketingKitGenerated: string;
     marketingKitFailed: string;
     progressCopied: string;
-    rewriteFailed: string;
     draftRecovered: string;
     discardRecovery: string;
     noMatchesReplaced: string;
@@ -1671,7 +1670,6 @@ export interface UIStrings {
     loadTheirs: string;
     keepMine: string;
     timer: string;
-    describeYourChange: string;
     multipleFindingsHere: string;
     selectChapterToView: string;
     distractionFreeHint: string;
