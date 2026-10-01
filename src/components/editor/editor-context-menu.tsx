@@ -12,6 +12,7 @@ import {
   SparklesIcon,
   PenLineIcon,
   ZapIcon,
+  Feather,
 } from "lucide-react";
 import {
   ContextMenu,
@@ -27,6 +28,8 @@ interface EditorContextMenuProps {
   bookId: string;
   editor: Editor | null;
   onInlineEdit: (instruction: string) => void;
+  /** Opens Polish Scene on the selection: two rewrites of a whole scene. */
+  onPolishScene?: () => void;
 }
 
 export function EditorContextMenu({
@@ -34,6 +37,7 @@ export function EditorContextMenu({
   bookId,
   editor,
   onInlineEdit,
+  onPolishScene,
 }: EditorContextMenuProps) {
   const openWithMessage = useAgentUIStore((s) => s.openWithMessage);
   const { t } = useLanguage();
@@ -131,6 +135,12 @@ export function EditorContextMenu({
               <SparklesIcon className="size-4" />
               {t.bookUI.ctxDescribe}
             </ContextMenuItem>
+            {onPolishScene && (
+              <ContextMenuItem onClick={onPolishScene}>
+                <Feather className="size-4" />
+                {t.polishScene.title}
+              </ContextMenuItem>
+            )}
             <ContextMenuSeparator />
           </>
         )}

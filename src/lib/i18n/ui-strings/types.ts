@@ -1967,6 +1967,22 @@ export interface UIStrings {
     noDataYet: string;
     noPerBookUsage: string;
   };
+  polishScene: {
+    title: string;
+    intro: string;
+    focusLabel: string;
+    focusPlaceholder: string;
+    start: string;
+    working: string;
+    light: string;
+    bold: string;
+    onlyOneVersion: string;
+    tooLong: string;
+    textChanged: string;
+    limitReached: string;
+    failed: string;
+    modelCannotPolish: string;
+  };
 }
 
 export const SUPPORTED_LANGUAGES = [

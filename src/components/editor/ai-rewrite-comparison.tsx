@@ -38,6 +38,8 @@ interface AIRewriteComparisonProps {
   isRegenerating?: boolean;
   /** When true, show an "Edit" affordance that turns the rewrite pane into a textarea. */
   allowEdit?: boolean;
+  /** Height of the two panes; a whole scene needs more room than a passage. */
+  paneHeightClassName?: string;
 }
 
 /** Simple word-level diff for highlighting changes */
@@ -74,6 +76,7 @@ export function AIRewriteComparison({
   onRegenerate,
   isRegenerating,
   allowEdit,
+  paneHeightClassName = "h-48",
 }: AIRewriteComparisonProps) {
   const { t } = useLanguage();
   const [showDiff, setShowDiff] = useState(true);
@@ -120,7 +123,7 @@ export function AIRewriteComparison({
                 String(origWordCount)
               )}
             </p>
-            <ScrollArea className="h-48 rounded-md border p-3 bg-red-500/5">
+            <ScrollArea className={`${paneHeightClassName} rounded-md border p-3 bg-red-500/5`}>
               <p className="text-sm leading-relaxed font-serif">
                 {showDiff
                   ? originalWords.map((w, i) => (
@@ -146,12 +149,12 @@ export function AIRewriteComparison({
             </p>
             {editing ? (
               <textarea
-                className="h-48 w-full rounded-md border p-3 text-sm leading-relaxed font-serif bg-green-500/5"
+                className={`${paneHeightClassName} w-full rounded-md border p-3 text-sm leading-relaxed font-serif bg-green-500/5`}
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
               />
             ) : (
-              <ScrollArea className="h-48 rounded-md border p-3 bg-green-500/5">
+              <ScrollArea className={`${paneHeightClassName} rounded-md border p-3 bg-green-500/5`}>
                 <p className="text-sm leading-relaxed font-serif">
                   {showDiff
                     ? rewriteWords.map((w, i) => (

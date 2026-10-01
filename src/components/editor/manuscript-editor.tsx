@@ -37,6 +37,7 @@ import {
   ResizableHandle,
 } from "@/components/ui/resizable";
 import { InlineEditPopup } from "./inline-edit-popup";
+import { PolishScenePanel } from "./polish-scene-panel";
 import { FindingsSheet } from "./findings-sheet";
 import { LiveAnnouncer } from "@/components/editor/live-announcer";
 import {
@@ -186,6 +187,7 @@ export function ManuscriptEditor({
   const [showFindReplace, setShowFindReplace] = useState(false);
   const [showInlineEdit, setShowInlineEdit] = useState(false);
   const [inlineEditInstruction, setInlineEditInstruction] = useState<string | undefined>(undefined);
+  const [showPolishScene, setShowPolishScene] = useState(false);
   const [tooltipState, setTooltipState] = useState<TooltipState | null>(null);
   const [overlappingState, setOverlappingState] = useState<{
     findings: FindingItem[];
@@ -1287,6 +1289,13 @@ export function ManuscriptEditor({
           setInlineEditInstruction(instruction);
           setShowInlineEdit(true);
         }}
+        onPolishScene={() => {
+          if (!editor) return;
+          const { from, to } = editor.state.selection;
+          if (from === to) return;
+          setShowInlineEdit(false);
+          setShowPolishScene(true);
+        }}
       >
         <div className="flex-1 overflow-y-auto relative" ref={editorAreaRef}>
           <GutterMarkers
@@ -1345,6 +1354,13 @@ export function ManuscriptEditor({
                 setInlineEditInstruction(undefined);
               }}
               initialInstruction={inlineEditInstruction}
+            />
+          )}
+          {showPolishScene && editor && (
+            <PolishScenePanel
+              editor={editor}
+              bookId={bookId}
+              onClose={() => setShowPolishScene(false)}
             />
           )}
           {tooltipState && editorAreaRef.current && (
