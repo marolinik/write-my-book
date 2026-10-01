@@ -10,14 +10,19 @@
 import { getAiTellGuidance } from "@/lib/agents/ai-tells";
 import { buildLanguageDirective } from "@/lib/agents/language-directive";
 import { addedEditorialNote } from "@/lib/editorial/finding-applicability";
-import type { PolishIntensity, PolishRejection } from "./limits";
+import {
+  POLISH_MAX_OUTPUT_TOKENS,
+  polishRewriteTokens,
+  type PolishIntensity,
+  type PolishRejection,
+} from "./limits";
 
 export * from "./limits";
 
 const FINGERPRINT_CAP = 8_000;
 const STORY_BIBLE_CAP = 12_000;
-const MIN_TOKENS = 1_024;
-const MAX_TOKENS = 16_000;
+/** Thinking a reasoning model does before it writes; not every route can switch it off. */
+const REASONING_HEADROOM_TOKENS = 8_000;
 /** A rewrite under this share of the original is a summary, not a polish. */
 const MIN_LENGTH_RATIO = 0.4;
 
@@ -59,7 +64,7 @@ ${cap(input.storyBible.trim(), STORY_BIBLE_CAP)}`
 - Keep every name, place, date and fact exactly as written. Invent no new characters, backstory or plot.
 - Keep the point of view and the tense.
 - Keep dialogue saying the same thing; you may make it sound better.
-- Keep any scene break line ("* * *") where it stands.
+- The scene is Markdown, and your reply is Markdown too. Keep *italics* and **bold** where the meaning needs them (thoughts, emphasis, titles). Keep every scene break line ("---" or "* * *") exactly where it stands, and keep any heading or list as it is.
 - Never add notes, comments or instructions to the writer. No square brackets, no "Note:", no explanation before or after the prose.
 - Separate paragraphs with one blank line.`,
     voice,
@@ -95,10 +100,17 @@ export function buildPolishUserContent(input: PolishUserInput): string {
   return parts.join("\n\n");
 }
 
-/** Room for a rewrite somewhat longer than the scene, plus any preamble. */
-export function polishMaxTokens(selectedText: string): number {
-  const sceneTokens = Math.ceil(selectedText.length / 3);
-  return Math.min(MAX_TOKENS, Math.max(MIN_TOKENS, Math.ceil(sceneTokens * 1.6) + 512));
+/**
+ * Output budget for one rewrite: the scene's token cost in its own script,
+ * with room to grow, plus thinking headroom for a reasoning model. The route
+ * clamps it to the model's ceiling.
+ */
+export function polishMaxTokens(
+  selectedText: string,
+  options: { reasoning?: boolean } = {}
+): number {
+  const rewrite = Math.min(POLISH_MAX_OUTPUT_TOKENS, polishRewriteTokens(selectedText));
+  return rewrite + (options.reasoning ? REASONING_HEADROOM_TOKENS : 0);
 }
 
 export type PolishSettlement =

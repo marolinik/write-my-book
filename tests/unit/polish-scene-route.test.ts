@@ -200,6 +200,55 @@ describe("POST /api/books/:id/polish-scene", () => {
     expect(h.db.usageRecord.create).not.toHaveBeenCalled();
   });
 
+  it("answers a reasoning model that only thought with an honest 422, not an endless retry", async () => {
+    const thinkingOnly = {
+      content: [{ type: "thinking", thinking: "..." }],
+      stop_reason: "max_tokens",
+      usage: { input_tokens: 500, output_tokens: 9000 },
+    };
+    byIntensity(() => thinkingOnly, () => thinkingOnly);
+    const res = await POST(req({ selectedText: SCENE }) as never, ctx as never);
+    const body = await res.json();
+    expect(res.status).toBe(422);
+    expect(body.code).toBe("MODEL_NO_POLISH");
+    expect(body.retryable).toBeUndefined();
+    expect(h.db.usageRecord.create).not.toHaveBeenCalled();
+  });
+
+  it("gives a known reasoning model room to think before it writes", async () => {
+    byIntensity(() => reply(LIGHT), () => reply(BOLD));
+    await POST(req({ selectedText: SCENE }) as never, ctx as never);
+    const plain = (h.create.mock.calls[0][0] as { max_tokens: number }).max_tokens;
+
+    h.create.mockClear();
+    h.resolveModelForRole.mockReturnValue({
+      registryId: "openrouter-qwen36/opus",
+      modelDef: { id: "openrouter-qwen36/opus", provider: "openrouter", unfitForQuickAssist: true },
+    });
+    await POST(req({ selectedText: SCENE }) as never, ctx as never);
+    const reasoning = (h.create.mock.calls[0][0] as { max_tokens: number }).max_tokens;
+    expect(reasoning).toBeGreaterThanOrEqual(plain + 8_000);
+  });
+
+  it("never asks a model for more output than it accepts", async () => {
+    h.resolveModelForRole.mockReturnValue({
+      registryId: "x/capped",
+      modelDef: { id: "x/capped", provider: "anthropic", maxOutputTokens: 1_500 },
+    });
+    byIntensity(() => reply(LIGHT), () => reply(BOLD));
+    await POST(req({ selectedText: "a".repeat(9_000) }) as never, ctx as never);
+    for (const [params] of h.create.mock.calls) {
+      expect((params as { max_tokens: number }).max_tokens).toBeLessThanOrEqual(1_500);
+    }
+  });
+
+  it("refuses a scene whose rewrite cannot fit one reply in its script", async () => {
+    const res = await POST(req({ selectedText: "港".repeat(15_000) }) as never, ctx as never);
+    expect(res.status).toBe(400);
+    expect((await res.json()).code).toBe("SCENE_TOO_LONG");
+    expect(h.create).not.toHaveBeenCalled();
+  });
+
   it("ticks the Free daily meter once, only after a result", async () => {
     h.checkQuota.mockResolvedValue({ allowed: true, isFree: true });
     byIntensity(() => reply(LIGHT), () => reply(BOLD));

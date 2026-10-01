@@ -4,6 +4,7 @@ import {
   POLISH_MAX_SELECTION_CHARS,
   buildPolishSystemPrompt,
   buildPolishUserContent,
+  polishFitsBudget,
   polishMaxTokens,
   settlePolishedText,
 } from "@/lib/polish/polish-scene";
@@ -102,6 +103,32 @@ describe("polish-scene prompt", () => {
     expect(small).toBeGreaterThanOrEqual(1024);
     expect(large).toBeGreaterThan(small);
     expect(large).toBeLessThanOrEqual(16_000);
+  });
+
+  it("budgets a Chinese scene by its token cost, not by English characters per token", () => {
+    const zh = "她站在窗前数着港口的灯".repeat(300); // 3,300 characters
+    expect(polishMaxTokens(zh)).toBeGreaterThanOrEqual(zh.length * 1.5);
+    expect(polishMaxTokens(zh)).toBeGreaterThan(polishMaxTokens("a".repeat(zh.length)));
+  });
+
+  it("gives a reasoning model room to think on top of the rewrite", () => {
+    const scene = "a".repeat(3_000);
+    expect(polishMaxTokens(scene, { reasoning: true })).toBeGreaterThanOrEqual(
+      polishMaxTokens(scene) + 8_000
+    );
+  });
+
+  it("tells the scene that fits one reply from the one that cannot", () => {
+    expect(polishFitsBudget("a".repeat(POLISH_MAX_SELECTION_CHARS))).toBe(true);
+    expect(polishFitsBudget("港".repeat(POLISH_MAX_SELECTION_CHARS))).toBe(false);
+    expect(polishFitsBudget("港".repeat(3_000))).toBe(true);
+  });
+
+  it("tells the model the scene is markdown whose emphasis and scene breaks it keeps", () => {
+    const system = buildPolishSystemPrompt({ intensity: "light", language: "en", fingerprint: null, storyBible: null });
+    expect(system).toMatch(/markdown/i);
+    expect(system).toContain("---");
+    expect(system).toMatch(/italic/i);
   });
 });
 
