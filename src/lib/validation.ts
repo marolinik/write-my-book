@@ -2,6 +2,13 @@ import { z } from "zod";
 import { PROVIDER_KEYS } from "@/lib/llm/providers";
 import { isSafeTemplatePath } from "@/lib/import-export/safe-path";
 import { BOOK_LANGUAGE_CODES } from "@/lib/i18n/book-languages";
+import {
+  POLISH_CONTEXT_CHARS,
+  POLISH_MAX_FOCUS_CHARS,
+  POLISH_MAX_SELECTION_CHARS,
+  type PolishIntensity,
+  type PolishRejection,
+} from "@/lib/polish/limits";
 
 /**
  * The language a book (or series) is written in. L-7: this used to be
@@ -601,6 +608,34 @@ export interface InlineEditSuggestion {
 export interface InlineEditResponse {
   suggestions: InlineEditSuggestion[];
   tokensUsed: { input: number; output: number };
+}
+
+// ─── Polish Scene Schemas ────────────────────────────────────
+
+export const polishSceneRequestSchema = z.object({
+  selectedText: z.string().trim().min(1).max(POLISH_MAX_SELECTION_CHARS),
+  contextBefore: z.string().max(POLISH_CONTEXT_CHARS).optional(),
+  contextAfter: z.string().max(POLISH_CONTEXT_CHARS).optional(),
+  focus: z.string().max(POLISH_MAX_FOCUS_CHARS).optional(),
+});
+
+export type PolishSceneRequest = z.infer<typeof polishSceneRequestSchema>;
+
+export interface PolishSceneVersion {
+  intensity: PolishIntensity;
+  text: string;
+}
+
+export interface PolishSceneFailure {
+  intensity: PolishIntensity;
+  reason: PolishRejection | "error";
+}
+
+export interface PolishSceneResponse {
+  versions: PolishSceneVersion[];
+  failed: PolishSceneFailure[];
+  tokensUsed: { input: number; output: number };
+  elapsedMs: number;
 }
 
 // ─── Ghost Text Schemas ──────────────────────────────────────
