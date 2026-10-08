@@ -25,7 +25,7 @@ services:
       - ./local-llm-proxy.py:/app/local-llm-proxy.py:ro
     environment:
       LOCAL_LLM_BASE_URL: ${LOCAL_LLM_BASE_URL:-http://10.33.0.153:4000/v1}
-      LOCAL_LLM_MODEL: ${LOCAL_LLM_MODEL:-deepseek-v4.1-flash}
+      LOCAL_LLM_MODEL: ${LOCAL_LLM_MODEL:-qwen3.8-flash-next}
       LOCAL_LLM_REASONING_EFFORT: ${LOCAL_LLM_REASONING_EFFORT:-medium}
       LOCAL_LLM_MODEL_MAP: ${LOCAL_LLM_MODEL_MAP:-}
       LOCAL_LLM_PIN_MODEL: ${LOCAL_LLM_PIN_MODEL:-}
@@ -55,7 +55,7 @@ services:
       WMB_DEFAULT_MODEL: ${WMB_DEFAULT_MODEL:-local-deepseek/sonnet}
       WMB_LOCAL_FALLBACK: ${WMB_LOCAL_FALLBACK:-1}
       LOCAL_LLM_BASE_URL: ${LOCAL_LLM_BASE_URL:-http://10.33.0.153:4000/v1}
-      LOCAL_LLM_MODEL: ${LOCAL_LLM_MODEL:-deepseek-v4.1-flash}
+      LOCAL_LLM_MODEL: ${LOCAL_LLM_MODEL:-qwen3.8-flash-next}
       LOCAL_LLM_REASONING_EFFORT: ${LOCAL_LLM_REASONING_EFFORT:-medium}
       # This overlay's whole purpose is LAN endpoints, so custom-provider
       # base URLs may resolve to private ranges here (cloud metadata stays

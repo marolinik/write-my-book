@@ -61,7 +61,7 @@ lists drift.
 | `WMB_LOCAL_PROXY_URL` | `http://local-llm-proxy:30400` | Proxy root. Host dev server uses `http://localhost:30400`. |
 | `WMB_ALLOW_PRIVATE_MODEL_HOSTS` | off | Allow custom-provider base URLs on private ranges. LAN installs only. |
 | `LOCAL_LLM_BASE_URL` | `http://10.33.0.153:4000/v1` | Upstream OpenAI-compatible base. |
-| `LOCAL_LLM_MODEL` | `deepseek-v4.1-flash` | Gateway model used for ids the map does not know. |
+| `LOCAL_LLM_MODEL` | `qwen3.8-flash-next` | Gateway model used for ids the map does not know. Kept on a model the gateway serves: it stopped serving both DeepSeek models in October 2026. |
 | `LOCAL_LLM_MODEL_MAP` | — | JSON object merged over `DEFAULT_MODEL_MAP`. |
 | `LOCAL_LLM_PIN_MODEL` | — | `1` = ignore the requested model, always use `LOCAL_LLM_MODEL`. |
 | `LOCAL_LLM_BIND` | `127.0.0.1` | Proxy listen address. The compose service sets `0.0.0.0`; a host process stays on loopback so the LAN cannot proxy into the gateway. |

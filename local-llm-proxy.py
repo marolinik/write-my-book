@@ -21,7 +21,7 @@ Env:
   LOCAL_LLM_BASE_URL   upstream OpenAI-compatible base (default the LiteLLM
                        fleet gateway http://10.33.0.153:4000/v1)
   LOCAL_LLM_MODEL      upstream model id used for unmapped ids
-                       (default deepseek-v4.1-flash)
+                       (default qwen3.8-flash-next)
   LOCAL_LLM_MODEL_MAP  JSON object {registry id: gateway model}; merged over the
                        built-in DEFAULT_MODEL_MAP
   LOCAL_LLM_PIN_MODEL  "1" = ignore the request model, always use LOCAL_LLM_MODEL
@@ -36,7 +36,7 @@ import urllib.error
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 BASE_URL = os.environ.get("LOCAL_LLM_BASE_URL", "http://10.33.0.153:4000/v1").rstrip("/")
-MODEL = os.environ.get("LOCAL_LLM_MODEL", "deepseek-v4.1-flash")
+MODEL = os.environ.get("LOCAL_LLM_MODEL", "qwen3.8-flash-next")
 PIN_MODEL = os.environ.get("LOCAL_LLM_PIN_MODEL", "") == "1"
 
 # WMB registry id -> model name served by the LAN gateway (see GATEWAY-SETUP.md
