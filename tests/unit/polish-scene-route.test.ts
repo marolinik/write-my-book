@@ -249,11 +249,12 @@ describe("POST /api/books/:id/polish-scene", () => {
     expect(h.create).not.toHaveBeenCalled();
   });
 
-  it("ticks the Free daily meter once, only after a result", async () => {
+  it("ticks the Free polish meter once, only after a result", async () => {
     h.checkQuota.mockResolvedValue({ allowed: true, isFree: true });
     byIntensity(() => reply(LIGHT), () => reply(BOLD));
     await POST(req({ selectedText: SCENE }) as never, ctx as never);
     expect(h.recordDailyUse).toHaveBeenCalledTimes(1);
-    expect(h.recordDailyUse).toHaveBeenCalledWith("u1", "inline");
+    expect(h.recordDailyUse).toHaveBeenCalledWith("u1", "polish");
+    expect(h.checkQuota).toHaveBeenCalledWith("u1", "polish_scene");
   });
 });

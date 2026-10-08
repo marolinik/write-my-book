@@ -76,9 +76,10 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Same plan check and Free daily meter as the inline rewrite: one polish
-    // is one inline edit on the meter.
-    const quotaResult = await checkQuota(user.id, "inline_edit");
+    // Same plan check as the inline rewrite. On Free a polish draws on its own
+    // daily meter: it sends the fingerprint and bible twice, far more than an
+    // inline edit costs.
+    const quotaResult = await checkQuota(user.id, "polish_scene");
     if (!quotaResult.allowed) {
       return NextResponse.json(
         {
@@ -236,7 +237,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       },
     });
     if (quotaResult.isFree) {
-      await recordDailyUse(user.id, "inline");
+      await recordDailyUse(user.id, "polish");
     }
 
     return NextResponse.json(

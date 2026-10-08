@@ -112,6 +112,7 @@ model FreeTierUsage {
   day             String // UTC "2026-07-19"
   ghostTextCalls  Int    @default(0) @map("ghost_text_calls")
   inlineEditCalls Int    @default(0) @map("inline_edit_calls")
+  polishSceneCalls Int   @default(0) @map("polish_scene_calls")
   agentSessions   Int    @default(0) @map("agent_sessions")
   user            User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 

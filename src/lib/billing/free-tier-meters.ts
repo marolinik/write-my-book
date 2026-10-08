@@ -7,7 +7,7 @@
  *  - session cap     → AgentSession rows this UTC month, floored by the
  *                      user-keyed FreeTierUsage session-start ledger
  *  - concurrency     → count of running AgentSession rows
- *  - ghost / inline  → FreeTierUsage per-UTC-day counters
+ *  - ghost / inline / polish → FreeTierUsage per-UTC-day counters
  *
  * Increment-on-SUCCESS only (D-36 lesson: never advance state on failure).
  * The check-then-increment race can leak a few over-cap calls — ACCEPTED for
@@ -72,7 +72,16 @@ export function isFreeTierEnforced(): boolean {
 const STALE_RUNNING_SESSION_MS = 2 * 60 * 60 * 1000; // 2h
 
 /** Which daily meter a call draws down. */
-export type DailyMeter = "ghost" | "inline";
+export type DailyMeter = "ghost" | "inline" | "polish";
+
+type DailyCounterColumn = "ghostTextCalls" | "inlineEditCalls" | "polishSceneCalls";
+
+/** The FreeTierUsage column and FREE_TIER limit behind each daily meter. */
+const DAILY_METERS: Record<DailyMeter, { column: DailyCounterColumn; limit: number }> = {
+  ghost: { column: "ghostTextCalls", limit: FREE_TIER.dailyGhostText },
+  inline: { column: "inlineEditCalls", limit: FREE_TIER.dailyInlineEdit },
+  polish: { column: "polishSceneCalls", limit: FREE_TIER.dailyPolishScene },
+};
 
 /**
  * The only FreeTierUsage columns the daily meters read. Naming them keeps the
@@ -198,23 +207,43 @@ export interface DailyMeterResult {
   remaining: number;
 }
 
-/** Read a Free user's daily meter and compare to its FREE_TIER limit. */
+/**
+ * Read a Free user's daily meter and compare to its FREE_TIER limit.
+ *
+ * Reads only that meter's own column, so a meter added later cannot break the
+ * others before `prisma db push` adds its column. The polish meter's read
+ * degrades to an empty count when its column is missing (a soft cap, like the
+ * session ledger) and logs the failure; ghost and inline still throw, as before.
+ */
 export async function checkDailyMeter(
   userId: string,
   meter: DailyMeter
 ): Promise<DailyMeterResult> {
-  const row = await db.freeTierUsage.findUnique({
-    where: { userId_day: { userId, day: utcDayKey() } },
-    select: DAILY_COUNTERS,
-  });
-  const used =
-    meter === "ghost"
-      ? row?.ghostTextCalls ?? 0
-      : row?.inlineEditCalls ?? 0;
-  const limit =
-    meter === "ghost" ? FREE_TIER.dailyGhostText : FREE_TIER.dailyInlineEdit;
+  const { column, limit } = DAILY_METERS[meter];
+  const used = await readDailyCounter(userId, meter, column);
   const remaining = Math.max(0, limit - used);
   return { allowed: used < limit, used, limit, remaining };
+}
+
+async function readDailyCounter(
+  userId: string,
+  meter: DailyMeter,
+  column: DailyCounterColumn
+): Promise<number> {
+  const read = async (): Promise<number> => {
+    const row = await db.freeTierUsage.findUnique({
+      where: { userId_day: { userId, day: utcDayKey() } },
+      select: { [column]: true },
+    });
+    return (row as Partial<Record<DailyCounterColumn, number>> | null)?.[column] ?? 0;
+  };
+  if (meter !== "polish") return read();
+  try {
+    return await read();
+  } catch (err) {
+    console.error("[free-tier] polish meter read failed", { userId, err });
+    return 0;
+  }
 }
 
 /**
@@ -227,17 +256,12 @@ export async function recordDailyUse(
   meter: DailyMeter
 ): Promise<void> {
   const day = utcDayKey();
-  const field =
-    meter === "ghost"
-      ? { ghostTextCalls: { increment: 1 } }
-      : { inlineEditCalls: { increment: 1 } };
-  const created =
-    meter === "ghost" ? { ghostTextCalls: 1 } : { inlineEditCalls: 1 };
+  const { column } = DAILY_METERS[meter];
   try {
     await db.freeTierUsage.upsert({
       where: { userId_day: { userId, day } },
-      update: field,
-      create: { userId, day, ...created },
+      update: { [column]: { increment: 1 } },
+      create: { userId, day, [column]: 1 },
       // Nothing is read back; not returning every column keeps agent_sessions
       // out of this statement's result (see DAILY_COUNTERS).
       select: { id: true },

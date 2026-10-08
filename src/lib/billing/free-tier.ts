@@ -24,6 +24,9 @@ export const FREE_TIER = {
   dailyGhostText: 100,
   /** Inline edits per UTC day (FreeTierUsage counter). */
   dailyInlineEdit: 50,
+  /** Scene polishes per UTC day (FreeTierUsage counter). Each one sends the
+   *  fingerprint and story bible twice, so it gets its own, smaller budget. */
+  dailyPolishScene: 5,
   /** AI-eligible words across owned books (sum of Book.wordCount). */
   maxAiEligibleWords: 40_000,
   /** Concurrent running agent sessions. */

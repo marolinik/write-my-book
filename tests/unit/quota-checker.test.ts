@@ -102,6 +102,16 @@ describe("checkQuota — Free daily meters (ghost/inline)", () => {
     expect(r.reason).toMatch(/50 inline edits per day/i);
   });
 
+  it("polish_scene draws on its own meter with its own copy", async () => {
+    h.meterResult = { allowed: false, used: 5, limit: 5, remaining: 0 };
+    const r = await checkQuota("u", "polish_scene");
+    expect(vi.mocked(checkDailyMeter)).toHaveBeenCalledWith("u", "polish");
+    expect(vi.mocked(checkPlanAccess)).toHaveBeenCalledWith("u", "run_agent");
+    expect(r.allowed).toBe(false);
+    expect(r.upgradeToTier).toBe("indie");
+    expect(r.reason).toMatch(/scene polishes per day/i);
+  });
+
   it("does NOT consult the meter for a paid user", async () => {
     h.subscription = { status: "active", trialEnd: null };
     const r = await checkQuota("u", "ghost_text");

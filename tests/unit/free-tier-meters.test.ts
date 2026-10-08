@@ -4,7 +4,9 @@ const h = vi.hoisted(() => ({
   wordSum: 0 as number | null,
   sessionCount: 0,
   subscription: null as null | { status: string; trialEnd: Date | null },
-  usageRow: null as null | { ghostTextCalls: number; inlineEditCalls: number },
+  usageRow: null as null | { ghostTextCalls: number; inlineEditCalls: number; polishSceneCalls?: number },
+  // A database reached before `prisma db push` added free_tier_usage.polish_scene_calls.
+  noPolishColumn: false,
   upsertArgs: undefined as unknown,
   countArgs: undefined as unknown,
   // Stripe configured by default so the Free-derivation tests below exercise
@@ -48,6 +50,11 @@ vi.mock("@/lib/db", () => ({
         if (h.oldSchema && (!args.select || args.select.agentSessions)) {
           throw new Error(h.missingColumn);
         }
+        if (h.noPolishColumn && (!args.select || args.select.polishSceneCalls)) {
+          throw new Error(
+            "The column `free_tier_usage.polish_scene_calls` does not exist in the current database."
+          );
+        }
         return h.usageRow;
       }),
       upsert: vi.fn(async (args: unknown) => {
@@ -79,6 +86,7 @@ beforeEach(() => {
   h.countArgs = undefined;
   h.stripeConfigured = true;
   h.oldSchema = false;
+  h.noPolishColumn = false;
   delete process.env.FREE_TIER_DISABLED;
 });
 
@@ -259,5 +267,48 @@ describe("recordDailyUse durability", () => {
     await expect(recordDailyUse("u", "ghost")).resolves.toBeUndefined();
     expect(spy).toHaveBeenCalled();
     spy.mockRestore();
+  });
+});
+
+describe("the scene-polish meter (its own daily budget)", () => {
+  // A polish sends the fingerprint and the story bible twice; it costs far more
+  // than an inline edit, so it draws on its own, smaller daily counter.
+  it("counts polishes, not inline edits, against dailyPolishScene", async () => {
+    h.usageRow = { ghostTextCalls: 0, inlineEditCalls: 0, polishSceneCalls: FREE_TIER.dailyPolishScene };
+    const r = await checkDailyMeter("u", "polish");
+    expect(r).toMatchObject({ allowed: false, used: FREE_TIER.dailyPolishScene, remaining: 0 });
+    expect(r.limit).toBe(FREE_TIER.dailyPolishScene);
+    expect(FREE_TIER.dailyPolishScene).toBeLessThan(FREE_TIER.dailyInlineEdit);
+  });
+
+  it("is not drawn down by inline edits", async () => {
+    h.usageRow = { ghostTextCalls: 0, inlineEditCalls: FREE_TIER.dailyInlineEdit };
+    await expect(checkDailyMeter("u", "polish")).resolves.toMatchObject({ allowed: true, used: 0 });
+  });
+
+  it("ghost and inline checks never read the polish column", async () => {
+    h.noPolishColumn = true;
+    h.usageRow = { ghostTextCalls: 3, inlineEditCalls: 1 };
+    await expect(checkDailyMeter("u", "ghost")).resolves.toMatchObject({ used: 3 });
+    await expect(checkDailyMeter("u", "inline")).resolves.toMatchObject({ used: 1 });
+    await expect(getFreeTierSnapshot("u")).resolves.toMatchObject({ ghostUsedToday: 3 });
+  });
+
+  it("before the column exists, a polish is let through and the failure is logged", async () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    h.noPolishColumn = true;
+    await expect(checkDailyMeter("u", "polish")).resolves.toMatchObject({ allowed: true, used: 0 });
+    expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  it("recordDailyUse targets polishSceneCalls", async () => {
+    await recordDailyUse("u", "polish");
+    const args = h.upsertArgs as {
+      update: Record<string, unknown>;
+      create: Record<string, unknown>;
+    };
+    expect(args.update).toEqual({ polishSceneCalls: { increment: 1 } });
+    expect(args.create.polishSceneCalls).toBe(1);
   });
 });
