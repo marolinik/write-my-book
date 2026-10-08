@@ -84,7 +84,9 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-describe("onboarded writer on a new browser (P5-S09)", () => {
+// Every test cold-imports the real middleware and Clerk after vi.resetModules(),
+// which overruns the 5 s default when the suite runs in parallel shards.
+describe("onboarded writer on a new browser (P5-S09)", { timeout: 30_000 }, () => {
   it("is sent to /onboarding when the cookie is missing (the gate itself is unchanged)", async () => {
     const middleware = await loadMiddleware();
     expect(isRedirectTo(await middleware(get("/dashboard")), "/onboarding")).toBe(true);
