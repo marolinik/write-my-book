@@ -1055,6 +1055,7 @@ export const SR: UIStrings = {
     rejectNote: "Zašto ne? (nije obavezno)",
     reason: "Zašto", evidence: "Na osnovu", confidence: "Sigurnost",
     kindReorder: "Premeštanje", kindRenumber: "Prenumerisanje", kindMerge: "Spajanje", kindSplit: "Razdvajanje",
+    superseded: "Zamenjen", withdrawn: "Povučen", alternativeTo: "Alternativa, ako odbiješ potez iznad",
     moveReorder: "Premesti poglavlje {n} na poziciju {p}",
     moveMerge: "Spoji poglavlja {list} u jedno",
     moveSplit: "Razdvoji poglavlje {n} kod \u201e{anchor}\u201c",

@@ -15,7 +15,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 const h = vi.hoisted(() => ({
   db: {
     chapter: { findMany: vi.fn() },
-    structureMove: { create: vi.fn(), findMany: vi.fn(), findFirst: vi.fn() },
+    structureMove: { create: vi.fn(), findMany: vi.fn(), findFirst: vi.fn(), updateMany: vi.fn() },
   },
 }));
 
@@ -49,6 +49,7 @@ beforeEach(() => {
     ...data,
   }));
   h.db.structureMove.findMany.mockResolvedValue([]);
+  h.db.structureMove.updateMany.mockResolvedValue({ count: 0 });
 });
 
 describe("ListChapters", () => {
@@ -178,8 +179,19 @@ describe("ProposeStructureMove — the same move is never filed twice", () => {
     reason: "Oba su ispod pola medijane i pokrivaju jednu scenu.",
   };
 
+  // A live row as the tool reads it: the same merge, already on the table.
+  const liveMerge = (status: string) => ({
+    id: "m-old",
+    kind: "merge",
+    payload: JSON.stringify({ kind: "merge", chapterIds: ["c2", "c3"], chapterNumbers: [2, 3] }),
+    status,
+    sessionId: "s1",
+    alternativeToId: null,
+    reason: "x",
+  });
+
   it("files a move the book has not seen", async () => {
-    h.db.structureMove.findFirst.mockResolvedValue(null);
+    h.db.structureMove.findMany.mockResolvedValue([]);
 
     const out = await executeTool("ProposeStructureMove", ctx as never, merge);
     expect(h.db.structureMove.create).toHaveBeenCalledTimes(1);
@@ -187,7 +199,7 @@ describe("ProposeStructureMove — the same move is never filed twice", () => {
   });
 
   it("refuses an identical move that is still waiting for a decision", async () => {
-    h.db.structureMove.findFirst.mockResolvedValue({ id: "m-old", status: "pending" });
+    h.db.structureMove.findMany.mockResolvedValue([liveMerge("pending")]);
 
     const out = await executeTool("ProposeStructureMove", ctx as never, merge);
     expect(h.db.structureMove.create).not.toHaveBeenCalled();
@@ -196,7 +208,7 @@ describe("ProposeStructureMove — the same move is never filed twice", () => {
   });
 
   it("refuses an identical move the writer has already applied", async () => {
-    h.db.structureMove.findFirst.mockResolvedValue({ id: "m-old", status: "applied" });
+    h.db.structureMove.findMany.mockResolvedValue([liveMerge("applied")]);
 
     const out = await executeTool("ProposeStructureMove", ctx as never, merge);
     expect(h.db.structureMove.create).not.toHaveBeenCalled();

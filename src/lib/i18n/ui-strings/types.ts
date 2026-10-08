@@ -1030,6 +1030,7 @@ export interface UIStrings {
     accept: string; reject: string; undo: string; rejectNote: string;
     reason: string; evidence: string; confidence: string;
     kindReorder: string; kindRenumber: string; kindMerge: string; kindSplit: string;
+    superseded: string; withdrawn: string; alternativeTo: string;
     moveReorder: string; moveMerge: string; moveSplit: string;
     nothingChangesYet: string; applyError: string; undoError: string;
     fromAnalysis: string;

@@ -191,7 +191,8 @@ export default async function BookDevelopmentPage({
             where: { bookId, workflowId: "read-manuscript", status: "completed" },
           }),
           db.structureMove.count({ where: { bookId } }),
-          db.structureMove.count({ where: { bookId, status: "pending" } }),
+          // Moves to decide, not the alternatives nested under them.
+          db.structureMove.count({ where: { bookId, status: "pending", alternativeToId: null } }),
           // Applied and still standing. An undone move left no mark on the book.
           db.structureMove.count({ where: { bookId, status: "applied" } }),
         ])

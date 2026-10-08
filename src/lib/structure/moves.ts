@@ -172,6 +172,32 @@ function resolveByIdentity(
   return move;
 }
 
+/**
+ * What makes two proposals the SAME move: the kind, the chapters it acts on
+ * (by identity when known), the target position and the split point. Never the
+ * model-written title: the live baseline filed merge [24,25] five times, each
+ * copy with a different working title, because dedup compared whole payloads.
+ */
+export function moveIdentityKey(move: StructureMoveInput): string {
+  switch (move.kind) {
+    case "reorder":
+    case "renumber":
+      return [move.kind, move.chapterId ?? `#${move.chapterNumber}`, move.targetPosition].join("|");
+    case "merge": {
+      const chapters = move.chapterIds?.length
+        ? [...move.chapterIds].sort()
+        : [...move.chapterNumbers].sort((a, b) => a - b).map((n) => `#${n}`);
+      return ["merge", chapters.join("+")].join("|");
+    }
+    case "split":
+      return [
+        "split",
+        move.chapterId ?? `#${move.chapterNumber}`,
+        move.anchorQuote.replace(/\s+/g, " ").trim(),
+      ].join("|");
+  }
+}
+
 export function planMove(
   chapters: readonly ChapterRef[],
   input: StructureMoveInput

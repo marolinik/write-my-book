@@ -51,6 +51,8 @@ export const TOOL_GUIDANCE: Record<string, string> = {
   // ─── Structure and findings ───────────────────────────────────
   ProposeStructureMove:
     "Propose a structural change — split, merge, reorder, move a scene — for the writer to accept or reject. Propose it; never carry it out by rewriting prose yourself.",
+  WithdrawStructureMove:
+    "Withdraw one of your own pending moves from this pass, to make room for a stronger one or because it proved wrong. Moves the writer decided stay decided.",
   CreateFinding:
     "File one editorial finding against a chapter, with the passage quoted. One finding per issue; a finding without the passage it refers to cannot be acted on.",
   RequestApproval:

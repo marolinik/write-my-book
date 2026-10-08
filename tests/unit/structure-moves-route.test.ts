@@ -16,6 +16,7 @@ const h = vi.hoisted(() => ({
       findFirst: vi.fn(),
       update: vi.fn(),
       updateMany: vi.fn(),
+      count: vi.fn(),
     },
   },
   applyStructureMove: vi.fn(),
@@ -62,6 +63,7 @@ beforeEach(() => {
   ]);
   h.db.structureMove.update.mockResolvedValue({ id: "m1", status: "rejected" });
   h.db.structureMove.updateMany.mockResolvedValue({ count: 1 });
+  h.db.structureMove.count = vi.fn().mockResolvedValue(0);
   h.applyStructureMove.mockResolvedValue({ ok: true, summary: "Merged chapters 17 + 18." });
   h.undoStructureMove.mockResolvedValue({ ok: true, summary: "Undone." });
 });
@@ -99,6 +101,47 @@ describe("POST /api/books/:id/structure/moves/:moveId/decision", () => {
       summary: "Merged chapters 17 + 18.",
     });
     expect(h.applyStructureMove).toHaveBeenCalledWith("m1", { bookId: "b1", userId: "u1" });
+  });
+
+  it("accepting an alternative retires its primary and the other alternatives", async () => {
+    h.db.structureMove.findFirst.mockResolvedValueOnce({ id: "m1", alternativeToId: "p1" });
+    const res = await DECIDE(req({ decision: "accept" }) as never, moveCtx as never);
+    expect(res.status).toBe(200);
+    const call = h.db.structureMove.updateMany.mock.calls.find(
+      ([args]) => args.data?.status === "superseded"
+    );
+    expect(call).toBeDefined();
+    expect(call![0].where).toMatchObject({ bookId: "b1", status: "pending", id: { not: "m1" } });
+    expect(JSON.stringify(call![0].where.OR)).toContain("p1");
+  });
+
+  it("refuses to apply a move whose group already has an applied member", async () => {
+    h.db.structureMove.findFirst.mockResolvedValueOnce({ id: "m1", alternativeToId: "p1" });
+    h.db.structureMove.count = vi.fn().mockResolvedValue(1);
+    const res = await DECIDE(req({ decision: "accept" }) as never, moveCtx as never);
+    expect(res.status).toBe(409);
+    expect(h.applyStructureMove).not.toHaveBeenCalled();
+  });
+
+  it("an applied move is reported as applied even if retiring its siblings fails", async () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    h.db.structureMove.findFirst.mockResolvedValueOnce({ id: "m1", alternativeToId: "p1" });
+    h.db.structureMove.updateMany.mockRejectedValueOnce(new Error("db blip"));
+    const res = await DECIDE(req({ decision: "accept" }) as never, moveCtx as never);
+    expect(res.status).toBe(200);
+    spy.mockRestore();
+  });
+
+  it("a failed apply retires nothing", async () => {
+    h.applyStructureMove.mockResolvedValueOnce({
+      ok: false,
+      error: { code: "anchor_missing", message: "gone" },
+    });
+    await DECIDE(req({ decision: "accept" }) as never, moveCtx as never);
+    const superseded = h.db.structureMove.updateMany.mock.calls.filter(
+      ([args]) => args.data?.status === "superseded"
+    );
+    expect(superseded).toHaveLength(0);
   });
 
   it("surfaces an apply failure as 409 with the reason, not a generic 500", async () => {

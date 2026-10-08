@@ -25,6 +25,7 @@ import { useLanguage } from "@/components/providers/language-provider";
 import { useStructureMoves } from "./use-structure-moves";
 import type { StructureMove } from "@/lib/structure/types";
 import { LIVE_MOVE_STATUSES } from "@/lib/structure/types";
+import { groupMoves } from "@/lib/structure/group";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
 import { cn } from "@/lib/utils";
 
@@ -54,6 +55,8 @@ const STATUS_VARIANTS: Record<string, "default" | "secondary" | "destructive" | 
   rejected: "outline",
   failed: "destructive",
   undone: "outline",
+  superseded: "outline",
+  withdrawn: "outline",
 };
 
 export function StructureTab({ bookId }: { bookId: string }) {
@@ -98,6 +101,9 @@ export function StructureTab({ bookId }: { bookId: string }) {
   // the live proposals and made a page full of dead cards look like the whole
   // feature (S3-7). It stays readable, in a fold, under its own heading.
   const live = moves.filter((m) => LIVE_MOVE_STATUSES.includes(m.status));
+  // The pass as the chat presents it: numbered in filing order, each
+  // alternative right under the move it would replace.
+  const groups = groupMoves(live);
   const history = moves.filter((m) => !LIVE_MOVE_STATUSES.includes(m.status));
 
   return (
@@ -142,19 +148,37 @@ export function StructureTab({ bookId }: { bookId: string }) {
           {pending.length > 0 && (
             <p className="text-sm text-muted-foreground">{s.nothingChangesYet}</p>
           )}
-          <div className="space-y-3">
-            {live.map((move) => (
-              <MoveCard
-                key={move.id}
-                move={move}
-                strings={s}
-                busy={busyId === move.id || isDeciding}
-                onAccept={() => decide.mutate({ id: move.id, decision: "accept" })}
-                onReject={() => decide.mutate({ id: move.id, decision: "reject" })}
-                onUndo={() => undo.mutate(move.id)}
-              />
+          <ol className="space-y-3">
+            {groups.map(({ move, alternatives }, i) => (
+              <li key={move.id} className="space-y-2">
+                <MoveCard
+                  move={move}
+                  position={i + 1}
+                  strings={s}
+                  busy={busyId === move.id || isDeciding}
+                  onAccept={() => decide.mutate({ id: move.id, decision: "accept" })}
+                  onReject={() => decide.mutate({ id: move.id, decision: "reject" })}
+                  onUndo={() => undo.mutate(move.id)}
+                />
+                {alternatives.length > 0 && (
+                  <div className="ml-4 space-y-2 border-l-2 border-muted pl-4">
+                    <p className="text-xs font-medium text-muted-foreground">{s.alternativeTo}</p>
+                    {alternatives.map((alt) => (
+                      <MoveCard
+                        key={alt.id}
+                        move={alt}
+                        strings={s}
+                        busy={busyId === alt.id || isDeciding}
+                        onAccept={() => decide.mutate({ id: alt.id, decision: "accept" })}
+                        onReject={() => decide.mutate({ id: alt.id, decision: "reject" })}
+                        onUndo={() => undo.mutate(alt.id)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </li>
             ))}
-          </div>
+          </ol>
         </>
       )}
 
@@ -204,6 +228,7 @@ export function StructureTab({ bookId }: { bookId: string }) {
 
 function MoveCard({
   move,
+  position,
   strings: s,
   busy,
   onAccept,
@@ -211,6 +236,8 @@ function MoveCard({
   onUndo,
 }: {
   move: StructureMove;
+  /** The move's number in the pass, matching the chat's list; none for alternatives. */
+  position?: number;
   strings: ReturnType<typeof useLanguage>["t"]["structure"];
   busy: boolean;
   onAccept: () => void;
@@ -227,25 +254,26 @@ function MoveCard({
           ? s.kindRenumber
           : s.kindReorder;
 
-  const statusLabel =
-    move.status === "pending"
-      ? s.pending
-      : move.status === "applied"
-        ? s.applied
-        : move.status === "rejected"
-          ? s.rejected
-          : move.status === "failed"
-            ? s.failed
-            : move.status === "undone"
-              ? s.undone
-              : s.accepted;
+  const statusLabels: Record<string, string> = {
+    pending: s.pending,
+    applied: s.applied,
+    rejected: s.rejected,
+    failed: s.failed,
+    undone: s.undone,
+    superseded: s.superseded,
+    withdrawn: s.withdrawn,
+  };
+  const statusLabel = statusLabels[move.status] ?? s.accepted;
 
   return (
     <Card className={cn(move.status === "pending" && "border-primary/40")}>
       <CardHeader className="pb-3">
         <div className="flex flex-wrap items-center gap-2">
           <Icon className="size-4 text-muted-foreground" />
-          <CardTitle className="text-base">{describeMove(move, s)}</CardTitle>
+          <CardTitle className="text-base">
+            {position !== undefined && <span className="mr-1 tabular-nums">{position}.</span>}
+            {describeMove(move, s)}
+          </CardTitle>
           <Badge variant="outline">{kindLabel}</Badge>
           <Badge variant={STATUS_VARIANTS[move.status] ?? "outline"}>{statusLabel}</Badge>
           {typeof move.confidence === "number" && (

@@ -357,6 +357,18 @@ const TOOL_LABELS: Record<string, ToolLabelFn> = {
     };
     return templates[lang] ?? templates.en;
   },
+  WithdrawStructureMove: (_input, lang) => {
+    const templates: Record<string, string> = {
+      en: "Withdrawing a weaker proposal...",
+      sr: "Povlačenje slabijeg predloga...",
+      de: "Ziehe einen schwächeren Vorschlag zurück...",
+      es: "Retirando una propuesta más débil...",
+      fr: "Retrait d'une proposition plus faible...",
+      ru: "Отзыв более слабого предложения...",
+      zh: "正在撤回较弱的提议...",
+    };
+    return templates[lang] ?? templates.en;
+  },
   CreateFinding: (input, lang) => {
     const ch = input.chapterNumber ? ` ${chLabel(input.chapterNumber, lang)}` : "";
     const templates: Record<string, string> = {

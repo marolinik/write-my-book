@@ -1065,6 +1065,7 @@ export const EN: UIStrings = {
     rejectNote: "Why not? (optional)",
     reason: "Why", evidence: "Based on", confidence: "Confidence",
     kindReorder: "Reorder", kindRenumber: "Renumber", kindMerge: "Merge", kindSplit: "Split",
+    superseded: "Replaced", withdrawn: "Withdrawn", alternativeTo: "Alternative, if you reject the move above",
     moveReorder: "Move chapter {n} to position {p}",
     moveMerge: "Merge chapters {list} into one",
     moveSplit: "Split chapter {n} at \u201c{anchor}\u201d",

@@ -580,13 +580,21 @@ model EditFinding {
 model StructureMove {
   id            String    @id @default(uuid())
   bookId        String    @map("book_id")
-  sessionId     String?   @map("session_id") // agent session that proposed it
+  // The pass that proposed it: the ROOT agent session, never a delegate's
+  // sub-session, so every delegation inside one run files into one pass.
+  sessionId     String?   @map("session_id")
+  // An alternative to another move of the same pass ("if you reject 24+25,
+  // merge 25+26 instead"). Accepting either retires the rest of the group.
+  alternativeToId String? @map("alternative_to_id")
   kind          String // reorder | renumber | merge | split
   payload       String    @db.Text // JSON: the move's own parameters
   reason        String    @db.Text // WHY, in the writer's language
   evidence      String?   @db.Text // metrics / findings the proposal rests on
   confidence    Float?
-  status        String    @default("pending") // pending | accepted | rejected | applied | failed | undone
+  // pending | accepted | rejected | applied | failed | undone
+  // | superseded (a newer pass or an accepted alternative retired it)
+  // | withdrawn (the editor replaced it within its own pass)
+  status        String    @default("pending")
   previousState String?   @map("previous_state") @db.Text // JSON snapshot for undo
   resultSummary String?   @map("result_summary") @db.Text
   rejectionReason String? @map("rejection_reason") @db.Text

@@ -15,6 +15,8 @@ export interface StructureMove {
   rejectionReason: string | null;
   createdAt: string;
   appliedAt: string | null;
+  /** The move this one replaces if the writer rejects it (same pass). */
+  alternativeToId: string | null;
   payload: {
     kind?: string;
     chapterNumber?: number;

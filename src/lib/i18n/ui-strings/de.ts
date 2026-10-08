@@ -1055,6 +1055,7 @@ export const DE: UIStrings = {
     rejectNote: "Warum nicht? (optional)",
     reason: "Warum", evidence: "Grundlage", confidence: "Sicherheit",
     kindReorder: "Umstellen", kindRenumber: "Neu nummerieren", kindMerge: "Zusammenlegen", kindSplit: "Teilen",
+    superseded: "Ersetzt", withdrawn: "Zurückgezogen", alternativeTo: "Alternative, falls Sie den Schritt oben ablehnen",
     moveReorder: "Kapitel {n} auf Position {p} verschieben",
     moveMerge: "Kapitel {list} zusammenlegen",
     moveSplit: "Kapitel {n} bei \u201e{anchor}\u201c teilen",

@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/components/providers/language-provider";
 import { useStructureMoves } from "@/components/reports/use-structure-moves";
 import { describeMove } from "@/components/reports/structure-tab";
+import { groupMoves } from "@/lib/structure/group";
+import type { StructureMove } from "@/lib/structure/types";
 
 /**
  * The writer's decision on structural proposals, inside the agent panel.
@@ -27,11 +29,13 @@ export function InlineStructureProposals({ bookId }: { bookId: string }) {
   const { pending, error, busyId, isDeciding, decide } = useStructureMoves(bookId);
 
   if (pending.length === 0) return null;
+  // Alternatives are answers to a move, not moves of their own.
+  const groups = groupMoves(pending);
 
   return (
     <div className="flex flex-col gap-2 rounded-md border bg-background/60 p-2">
       <span className="text-xs font-medium">
-        {s.awaitingDecision.replace("{n}", String(pending.length))}
+        {s.awaitingDecision.replace("{n}", String(groups.length))}
       </span>
 
       {error && (
@@ -40,43 +44,90 @@ export function InlineStructureProposals({ bookId }: { bookId: string }) {
         </p>
       )}
 
-      {pending.map((move) => (
-        <div key={move.id} className="flex flex-col gap-1.5 rounded border p-2">
-          <span className="text-xs leading-snug">{describeMove(move, s)}</span>
-
-          <div className="flex items-center gap-1.5">
-            {move.confidence !== null && (
-              <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                {Math.round(move.confidence * 100)}%
-              </Badge>
-            )}
-            <Button
-              size="sm"
-              className="h-7 text-xs"
-              disabled={isDeciding}
-              onClick={() => decide.mutate({ id: move.id, decision: "accept" })}
-            >
-              {busyId === move.id && (
-                <Loader2Icon className="mr-1 size-3 animate-spin" />
-              )}
-              {s.accept}
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-7 text-xs"
-              disabled={isDeciding}
-              onClick={() => decide.mutate({ id: move.id, decision: "reject" })}
-            >
-              {s.reject}
-            </Button>
-          </div>
+      {groups.map(({ move, alternatives }, i) => (
+        <div key={move.id} className="flex flex-col gap-1.5">
+          <ProposalRow
+            move={move}
+            label={`${i + 1}. ${describeMove(move, s)}`}
+            busy={busyId === move.id}
+            disabled={isDeciding}
+            accept={s.accept}
+            reject={s.reject}
+            onDecide={(decision) => decide.mutate({ id: move.id, decision })}
+          />
+          {alternatives.length > 0 && (
+            <div className="ml-3 flex flex-col gap-1.5 border-l-2 border-muted pl-2">
+              <span className="text-[11px] text-muted-foreground">{s.alternativeTo}</span>
+              {alternatives.map((alt) => (
+                <ProposalRow
+                  key={alt.id}
+                  move={alt}
+                  label={describeMove(alt, s)}
+                  busy={busyId === alt.id}
+                  disabled={isDeciding}
+                  accept={s.accept}
+                  reject={s.reject}
+                  onDecide={(decision) => decide.mutate({ id: alt.id, decision })}
+                />
+              ))}
+            </div>
+          )}
         </div>
       ))}
 
       <span className="text-[11px] text-muted-foreground">
         {s.nothingChangesYet}
       </span>
+    </div>
+  );
+}
+
+function ProposalRow({
+  move,
+  label,
+  busy,
+  disabled,
+  accept,
+  reject,
+  onDecide,
+}: {
+  move: StructureMove;
+  label: string;
+  busy: boolean;
+  disabled: boolean;
+  accept: string;
+  reject: string;
+  onDecide: (decision: "accept" | "reject") => void;
+}) {
+  return (
+    <div className="flex flex-col gap-1.5 rounded border p-2">
+      <span className="text-xs leading-snug">{label}</span>
+
+      <div className="flex items-center gap-1.5">
+        {move.confidence !== null && (
+          <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+            {Math.round(move.confidence * 100)}%
+          </Badge>
+        )}
+        <Button
+          size="sm"
+          className="h-7 text-xs"
+          disabled={disabled}
+          onClick={() => onDecide("accept")}
+        >
+          {busy && <Loader2Icon className="mr-1 size-3 animate-spin" />}
+          {accept}
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          className="h-7 text-xs"
+          disabled={disabled}
+          onClick={() => onDecide("reject")}
+        >
+          {reject}
+        </Button>
+      </div>
     </div>
   );
 }

@@ -63,3 +63,25 @@ describe("a book that belongs to a series says so", () => {
     );
   });
 });
+
+describe("a restructure delegation reports its pass (dev editor v2)", () => {
+  // Live baseline: the architect filed moves, wrote no STRUCTURE_PROPOSAL, and
+  // the conductor delegated twice more. The result now carries the pass ledger.
+  const tools = () => src("lib", "agents", "tools.ts");
+  const delegate = () => {
+    const t = tools();
+    const at = t.indexOf("async function executeDelegateToSpecialist(");
+    return t.slice(at, t.indexOf("export async function executeTool(", at));
+  };
+
+  it("finishes a restructure delegation through the pass, keyed on the ROOT session", () => {
+    const body = delegate();
+    expect(body).toMatch(/input\.workflowId === "restructure"/);
+    expect(body).toMatch(/finishRestructureDelegation\(/);
+    expect(body).toMatch(/passIdOf\(delegationCtx\.parentSessionId\)/);
+  });
+
+  it("puts the ledger into what the conductor reads", () => {
+    expect(delegate()).toMatch(/return resultSummary \+ passReport;/);
+  });
+});

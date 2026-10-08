@@ -1055,6 +1055,7 @@ export const ZH: UIStrings = {
     rejectNote: "为什么不？（可选）",
     reason: "原因", evidence: "依据", confidence: "把握",
     kindReorder: "重排", kindRenumber: "重新编号", kindMerge: "合并", kindSplit: "拆分",
+    superseded: "已被取代", withdrawn: "已撤回", alternativeTo: "备选：如果你拒绝上面的调整",
     moveReorder: "将第 {n} 章移到第 {p} 位",
     moveMerge: "把第 {list} 章合并为一章",
     moveSplit: "在 \u201c{anchor}\u201d 处拆分第 {n} 章",

@@ -1055,6 +1055,7 @@ export const FR: UIStrings = {
     rejectNote: "Pourquoi pas ? (facultatif)",
     reason: "Pourquoi", evidence: "Sur la base de", confidence: "Confiance",
     kindReorder: "Réordonner", kindRenumber: "Renuméroter", kindMerge: "Fusionner", kindSplit: "Scinder",
+    superseded: "Remplacée", withdrawn: "Retirée", alternativeTo: "Alternative, si vous refusez le mouvement ci-dessus",
     moveReorder: "Déplacer le chapitre {n} en position {p}",
     moveMerge: "Fusionner les chapitres {list}",
     moveSplit: "Scinder le chapitre {n} à \u00ab{anchor}\u00bb",

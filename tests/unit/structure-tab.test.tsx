@@ -173,4 +173,49 @@ describe("StructureTab", () => {
     renderTab();
     expect(await screen.findByText("Predlozi ne mogu da se učitaju.")).toBeTruthy();
   });
+
+  it("numbers the pass in filing order and nests an alternative under its move", async () => {
+    const second = {
+      ...pendingMerge,
+      id: "m3",
+      reason: "Pismo se čita dvaput.",
+      createdAt: "2026-09-18T00:02:00Z",
+      payload: { kind: "merge", chapterNumbers: [28, 29] },
+    };
+    const alternative = {
+      ...pendingMerge,
+      id: "a1",
+      reason: "Ako odbiješ 17 + 18, spoji 18 i 19.",
+      createdAt: "2026-09-18T00:03:00Z",
+      alternativeToId: "m1",
+      payload: { kind: "merge", chapterNumbers: [18, 19] },
+    };
+    // Newest first, as the API returns them.
+    mockFetch(() => ({ moves: [alternative, second, pendingMerge] }));
+    const { container } = renderTab();
+
+    expect(await screen.findByText("Spoji poglavlja 17 + 18 u jedno")).toBeTruthy();
+    expect(screen.getByText("Alternativa, ako odbiješ potez iznad")).toBeTruthy();
+    const text = container.textContent ?? "";
+    const first = text.indexOf("Spoji poglavlja 17 + 18");
+    const alt = text.indexOf("Spoji poglavlja 18 + 19");
+    const next = text.indexOf("Spoji poglavlja 28 + 29");
+    expect(first).toBeLessThan(alt);
+    expect(alt).toBeLessThan(next);
+    expect(text).toMatch(/1\.\s*Spoji poglavlja 17 \+ 18/);
+    expect(text).toMatch(/2\.\s*Spoji poglavlja 28 \+ 29/);
+  });
+
+  it("files a replaced or withdrawn move under history with its own label", async () => {
+    mockFetch(() => ({
+      moves: [
+        { ...pendingMerge, id: "s1", status: "superseded" },
+        { ...pendingMerge, id: "w1", status: "withdrawn", payload: { kind: "merge", chapterNumbers: [3, 4] } },
+      ],
+    }));
+    renderTab();
+    expect(await screen.findByText("Raniji predlozi (2)")).toBeTruthy();
+    expect(screen.getByText("Zamenjen")).toBeTruthy();
+    expect(screen.getByText("Povučen")).toBeTruthy();
+  });
 });

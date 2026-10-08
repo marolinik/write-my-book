@@ -273,7 +273,7 @@ PROCEDURE (in this order):
 1. ListChapters — the real numbers, titles, word counts and statuses. Every number you cite later must come from this table.
 2. ReadDocument for ARCHITECTURE and ANALYSIS_REPORT if they exist, and CONTINUITY_REPORT if it exists. These are your evidence.
 3. ReadChapter for the specific chapters you suspect — never the whole book. A chapter you propose to move, merge or split must be one you have actually read.
-4. ProposeStructureMove once per concrete move. Then WriteDocument a STRUCTURE_PROPOSAL summarising the moves in the writer's language.
+4. ProposeStructureMove once per concrete move. Every result shows the pass so far; read it before filing the next one. You may then WriteDocument a STRUCTURE_PROPOSAL with the overview the moves cannot carry (what is protected and why, the order to apply them in). If you do not, the app writes it from the moves.
 
 WHAT A GOOD MOVE LOOKS LIKE:
 - "Merge 17 and 18" — both are under half the median chapter length and cover one continuous scene.
@@ -283,7 +283,9 @@ WHAT A GOOD MOVE LOOKS LIKE:
 
 RULES:
 - Evidence or nothing. Every move names the metric, the finding or the beat it rests on. A move you cannot justify is noise.
-- Propose FEW. Three to seven strong moves beat twenty weak ones. This is a manuscript someone finished; most of it is meant to be where it is.
+- Propose FEW. Three to seven strong moves beat twenty weak ones; the tool refuses an eighth. This is a manuscript someone finished; most of it is meant to be where it is. A stronger idea for a full pass replaces a weaker move: WithdrawStructureMove it first.
+- A fallback ("if the writer rejects 24+25, merge 25+26 instead") is filed with alternativeTo set to that move's id, never as a move of its own. Two moves that cannot both be accepted must never both be standalone.
+- Give every move a confidence (0.0–1.0). The writer reads it.
 - For a split, the anchorQuote must be copied VERBATIM from the chapter you read, must appear exactly once, and must not be in the opening paragraph.
 - A merge takes chapters that are adjacent in reading order. Never propose merging across a gap.
 - Never call WriteChapter here, and never renumber anything yourself. You propose; the writer accepts; the app applies. A rejected proposal costs nothing, a silent rewrite costs trust.
@@ -1284,9 +1286,10 @@ export const CONDUCTOR_WORKFLOW_INSTRUCTIONS: Record<string, string> = {
 1. Call ListChapters first — every chapter number it cites must come from that table.
 2. Read ARCHITECTURE, ANALYSIS_REPORT and CONTINUITY_REPORT if they exist; those are the evidence for a move.
 3. ReadChapter only the chapters it suspects — not the whole manuscript.
-4. File each concrete move with ProposeStructureMove (reorder / renumber / merge / split), with a reason in the writer's language, then write the STRUCTURE_PROPOSAL summary document.
-Three to seven strong moves, not twenty weak ones.
-When it completes, present the proposed moves to the writer as a numbered list — what moves, where, and why — and tell them nothing has changed yet: each move waits for their accept or reject on the book's structure panel.`,
+4. File each concrete move with ProposeStructureMove (reorder / renumber / merge / split), with a reason in the writer's language. A fallback for when the writer rejects a move is an alternative (alternativeTo), never a standalone move.
+At most seven moves per pass; the tool refuses an eighth.
+Delegate ONCE. The delegation result ends with a "Structural pass" ledger: that list is the pass, and the app has already written STRUCTURE_PROPOSAL from it. Never delegate again to finish, extend or tidy the same pass.
+When it completes, present exactly the moves in that ledger, in that order, as a numbered list (what moves, where, why; alternatives under their move), and tell the writer nothing has changed yet: each move waits for their accept or reject on the book's structure panel. Never present a move the ledger does not list.`,
   "market-analysis": "Delegate to market-reader. Present the cross-market analysis and positioning recommendations.",
   "publishing-check": "Delegate to publishing-editor. Summarize the 13 production checks — highlight any critical or important issues.",
   "revise": `First, read the chapter's editorial findings to understand what needs fixing. Then delegate to ghostwriter with these EXPLICIT instructions in the task parameter:

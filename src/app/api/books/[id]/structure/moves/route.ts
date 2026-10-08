@@ -41,6 +41,7 @@ export async function GET(
       rejectionReason: m.rejectionReason,
       createdAt: m.createdAt,
       appliedAt: m.appliedAt,
+      alternativeToId: m.alternativeToId,
       payload: safeParse(m.payload),
     }));
 

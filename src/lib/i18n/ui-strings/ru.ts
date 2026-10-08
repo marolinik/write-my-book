@@ -1055,6 +1055,7 @@ export const RU: UIStrings = {
     rejectNote: "Почему нет? (необязательно)",
     reason: "Почему", evidence: "На основании", confidence: "Уверенность",
     kindReorder: "Перестановка", kindRenumber: "Перенумерация", kindMerge: "Объединение", kindSplit: "Разделение",
+    superseded: "Заменено", withdrawn: "Отозвано", alternativeTo: "Альтернатива, если вы отклоните шаг выше",
     moveReorder: "Переместить главу {n} на позицию {p}",
     moveMerge: "Объединить главы {list}",
     moveSplit: "Разделить главу {n} на \u00ab{anchor}\u00bb",

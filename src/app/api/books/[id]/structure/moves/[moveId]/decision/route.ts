@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { applyStructureMove } from "@/lib/structure/apply-move";
+import { supersedeSiblings } from "@/lib/structure/pass";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 /**
@@ -73,12 +74,47 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ applied: false, status: "rejected" });
     }
 
+    // A primary and its alternatives answer one problem. If another member of
+    // the group is already carried out, this one is no longer a choice: two
+    // tabs, or a double click, must not apply both.
+    const target = await db.structureMove.findFirst({
+      where: { id: moveId, bookId },
+      select: { id: true, alternativeToId: true },
+    });
+    if (target) {
+      const primaryId = target.alternativeToId ?? target.id;
+      const appliedSibling = await db.structureMove.count({
+        where: {
+          bookId,
+          id: { not: target.id },
+          status: { in: ["accepted", "applied"] },
+          OR: [{ id: primaryId }, { alternativeToId: primaryId }],
+        },
+      });
+      if (appliedSibling > 0) {
+        return NextResponse.json(
+          { error: "Another option for this problem is already applied.", code: "not_pending" },
+          { status: 409 }
+        );
+      }
+    }
+
     const result = await applyStructureMove(moveId, { bookId, userId: user.id });
     if (!result.ok) {
       return NextResponse.json(
         { error: result.error.message, code: result.error.code },
         { status: 409 }
       );
+    }
+
+    // Once one option is carried out, the others leave the table. The move is
+    // already applied; a failure here must not report the apply as failed.
+    if (target) {
+      try {
+        await supersedeSiblings(bookId, target);
+      } catch (err) {
+        console.error("[structure] retiring siblings failed", { bookId, moveId, err });
+      }
     }
 
     return NextResponse.json({ applied: true, summary: result.summary });

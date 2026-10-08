@@ -36,7 +36,21 @@ import { getUIStrings } from "@/lib/i18n/ui-strings";
 import { getAgentStrings } from "@/lib/i18n/agent-strings";
 import { FINDING_CATEGORIES, FINDING_SEVERITIES } from "@/lib/i18n/finding-labels";
 import { enforceBookScript, enforceQuoteScript } from "./serbian-script";
-import { planMove, type ChapterRef, type StructureMoveInput } from "@/lib/structure/moves";
+import { moveIdentityKey, planMove, type ChapterRef, type StructureMoveInput } from "@/lib/structure/moves";
+import {
+  MAX_ALTERNATIVES_PER_MOVE,
+  MAX_MOVES_PER_PASS,
+  PASS_MOVE_SELECT,
+  blocksRefiling,
+  formatPassLedger,
+  passIdOf,
+  pendingOfPass,
+  retireOlderPasses,
+  withPassLock,
+  withdrawWithAlternatives,
+  type PassMove,
+} from "@/lib/structure/pass";
+import { finishRestructureDelegation } from "@/lib/structure/proposal-doc";
 import { addedEditorialNote } from "@/lib/editorial/finding-applicability";
 import {
   verifyCrossReferences,
@@ -458,7 +472,9 @@ const proposeStructureMoveDef: ToolDefinition = {
     "The proposal is inert: the writer accepts or rejects it, and only an accepted move touches the book. " +
     "Propose only moves you can justify from the architecture, the pacing metrics or the continuity " +
     "findings — say WHY in the writer's language, and name the evidence. " +
-    "Call ListChapters first: a move that cites a chapter that does not exist is rejected outright.",
+    "Call ListChapters first: a move that cites a chapter that does not exist is rejected outright. " +
+    "A pass holds at most 7 moves; every result shows the pass so far. A fallback for when the writer " +
+    "rejects another move is an ALTERNATIVE (alternativeTo), never a standalone move.",
   input_schema: {
     type: "object" as const,
     strict: true,
@@ -506,8 +522,31 @@ const proposeStructureMoveDef: ToolDefinition = {
         type: "number",
         description: "0.0–1.0 — how sure you are this move is right.",
       },
+      alternativeTo: {
+        type: "string",
+        description:
+          "Optional — the id of another move of THIS pass that this one replaces if the writer rejects " +
+          "it (\"if you reject 24+25, merge 25+26 instead\"). At most two alternatives per move; they do " +
+          "not count against the pass limit, and accepting either retires the other.",
+      },
     },
-    required: ["kind", "chapterNumbers", "reason"],
+    required: ["kind", "chapterNumbers", "reason", "confidence"],
+  },
+};
+
+const withdrawStructureMoveDef: ToolDefinition = {
+  name: "WithdrawStructureMove",
+  description:
+    "Withdraw one of YOUR pending moves from this pass — to make room for a stronger one when the pass " +
+    "is full, or because a later reading proved it wrong. Its alternatives go with it. Moves the writer " +
+    "already decided cannot be withdrawn.",
+  input_schema: {
+    type: "object" as const,
+    properties: {
+      moveId: { type: "string", description: "The id of the pending move to withdraw." },
+      reason: { type: "string", description: "Why, in one line (for the log)." },
+    },
+    required: ["moveId"],
   },
 };
 
@@ -1121,6 +1160,7 @@ const ALL_TOOL_DEFINITIONS: ToolDefinition[] = [
   listDocumentsDef,
   listChaptersDef,
   proposeStructureMoveDef,
+  withdrawStructureMoveDef,
   listSeriesBooksDef,
   readSiblingChapterDef,
   createFindingDef,
@@ -1527,6 +1567,7 @@ async function executeProposeStructureMove(
     reason: string;
     evidence?: string;
     confidence?: number;
+    alternativeTo?: string;
   }
 ): Promise<string> {
   const reason = (input.reason ?? "").trim();
@@ -1568,36 +1609,84 @@ async function executeProposeStructureMove(
     return `Proposal rejected — ${planned.error.message}`;
   }
 
-  const payload = JSON.stringify(move);
+  // Every delegation of one run files into the run's own pass.
+  const passId = passIdOf(ctx.sessionId);
+  return withPassLock(passId, () =>
+    fileStructureMove(ctx, input, move, reason, passId)
+  );
+}
+
+async function fileStructureMove(
+  ctx: ToolContext,
+  input: { evidence?: string; confidence?: number; alternativeTo?: string },
+  move: StructureMoveInput,
+  reason: string,
+  passId: string
+): Promise<string> {
+  // A new pass replaces whatever older passes left undecided, BEFORE dedup: an
+  // older pass's pending move must be re-fileable here, or it would be skipped
+  // as a duplicate and then retired, and vanish from every pass.
+  await retireOlderPasses(ctx.bookId, passId);
+
+  const live: PassMove[] = await db.structureMove.findMany({
+    where: { bookId: ctx.bookId, status: { in: ["pending", "accepted", "applied"] } },
+    select: PASS_MOVE_SELECT,
+  });
 
   // The same pass run twice files the same move twice, and accepting both
-  // applies it twice — the second time against whatever shifted into the
-  // numbers the first one vacated. That is how a chapter the editor had
-  // explicitly declined to touch got swallowed (S3-5). A move already on the
-  // table, or already carried out, is not news.
-  const existing = await db.structureMove.findFirst({
-    where: {
-      bookId: ctx.bookId,
-      kind: move.kind,
-      payload,
-      status: { in: ["pending", "accepted", "applied"] },
-    },
-    select: { id: true, status: true },
+  // applies it twice (S3-5). Identity, not payload: a different working title
+  // does not make a different move (merge [24,25] was filed five times).
+  const key = moveIdentityKey(move);
+  const existing = live.filter((m) => blocksRefiling(m, passId)).find((m) => {
+    try {
+      return moveIdentityKey(JSON.parse(m.payload) as StructureMoveInput) === key;
+    } catch {
+      return false;
+    }
   });
   if (existing) {
     return (
-      `Proposal skipped — this book already has that exact move (id ${existing.id}, ` +
+      `Proposal skipped — this book already has that move (id ${existing.id}, ` +
       `status ${existing.status}). Propose something else, or leave the writer's ` +
       `decision on the existing one alone.`
+    );
+  }
+
+  const { primaries, alternatives } = pendingOfPass(live, passId);
+
+  let alternativeToId: string | null = null;
+  if (input.alternativeTo) {
+    const primary = primaries.find((m) => m.id === input.alternativeTo);
+    if (!primary) {
+      return (
+        `Proposal rejected — alternativeTo must name a pending primary move of this pass ` +
+        `(not an alternative, not a move from an earlier run).\n` +
+        formatPassLedger(primaries, alternatives)
+      );
+    }
+    const siblings = alternatives.filter((m) => m.alternativeToId === primary.id).length;
+    if (siblings >= MAX_ALTERNATIVES_PER_MOVE) {
+      return (
+        `Proposal rejected — move ${primary.id} already has ${MAX_ALTERNATIVES_PER_MOVE} alternatives.\n` +
+        formatPassLedger(primaries, alternatives)
+      );
+    }
+    alternativeToId = primary.id;
+  } else if (primaries.length >= MAX_MOVES_PER_PASS) {
+    return (
+      `Proposal rejected — the pass is full. Three to seven strong moves beat twenty weak ones; ` +
+      `if this one is stronger than a filed move, WithdrawStructureMove the weaker one first.\n` +
+      formatPassLedger(primaries, alternatives)
     );
   }
 
   const created = await db.structureMove.create({
     data: {
       bookId: ctx.bookId,
-      sessionId: ctx.sessionId,
+      sessionId: passId,
+      alternativeToId,
       kind: move.kind,
-      payload,
+      payload: JSON.stringify(move),
       reason: enforceBookScript(reason, ctx.language),
       evidence: input.evidence
         ? enforceBookScript(input.evidence, ctx.language)
@@ -1607,7 +1696,45 @@ async function executeProposeStructureMove(
     },
   });
 
-  return `Proposed ${describeMove(move)} (id ${created.id}). Waiting for the writer's decision.`;
+  const row: PassMove = {
+    id: created.id,
+    kind: move.kind,
+    payload: JSON.stringify(move),
+    status: "pending",
+    sessionId: passId,
+    alternativeToId,
+    reason,
+  };
+  const ledger = alternativeToId
+    ? formatPassLedger(primaries, [...alternatives, row])
+    : formatPassLedger([...primaries, row], alternatives);
+
+  return (
+    `Proposed ${describeMove(move)} (id ${created.id})` +
+    `${alternativeToId ? ` as an alternative to ${alternativeToId}` : ""}. ` +
+    `Waiting for the writer's decision.\n${ledger}`
+  );
+}
+
+/** The editor withdraws one of its own pending moves (and its alternatives). */
+async function executeWithdrawStructureMove(
+  ctx: ToolContext,
+  input: { moveId: string; reason?: string }
+): Promise<string> {
+  const passId = passIdOf(ctx.sessionId);
+  const move = await db.structureMove.findFirst({
+    where: { id: input.moveId, bookId: ctx.bookId },
+    select: { id: true, status: true, sessionId: true, alternativeToId: true },
+  });
+  if (!move) return `Withdraw refused — no move ${input.moveId} on this book.`;
+  if (move.sessionId !== passId) {
+    return `Withdraw refused — move ${move.id} belongs to an earlier pass; only this pass's moves can be withdrawn.`;
+  }
+  if (move.status !== "pending") {
+    return `Withdraw refused — the writer already decided move ${move.id} (status ${move.status}).`;
+  }
+  const count = await withdrawWithAlternatives(ctx.bookId, move.id);
+  return `Withdrawn move ${move.id}${count > 1 ? ` and ${count - 1} alternative(s)` : ""}. The slot is free.`;
 }
 
 function toStructureMoveInput(
@@ -2885,7 +3012,23 @@ async function executeDelegateToSpecialist(
       `\n### Specialist Output:\n${truncatedSummary || "(no text output)"}`,
     ].filter(Boolean).join("\n");
 
-    return resultSummary;
+    // Dev editor v2: a restructure delegation reports the pass as filed, and
+    // writes STRUCTURE_PROPOSAL from the moves if the architect did not;
+    // otherwise the conductor reads the missing document as unfinished work and
+    // delegates again, filing anew each time.
+    const passReport =
+      input.workflowId === "restructure"
+        ? await finishRestructureDelegation({
+            bookId: ctx.bookId,
+            userId: ctx.userId,
+            passId: passIdOf(delegationCtx.parentSessionId),
+            language: delegationCtx.language,
+            bookName: delegatedBook?.name ?? "",
+            specialistDocumentIds,
+          })
+        : "";
+
+    return resultSummary + passReport;
   } catch (error) {
     // Clean up on failure
     delegationCtx.parentOnMessage({
@@ -2996,8 +3139,11 @@ async function executeToolInner(
           reason: string;
           evidence?: string;
           confidence?: number;
+          alternativeTo?: string;
         }
       );
+    case "WithdrawStructureMove":
+      return executeWithdrawStructureMove(ctx, input as unknown as { moveId: string; reason?: string });
     case "CreateFinding":
       return executeCreateFinding(
         ctx,

@@ -1055,6 +1055,7 @@ export const ES: UIStrings = {
     rejectNote: "¿Por qué no? (opcional)",
     reason: "Por qué", evidence: "Basado en", confidence: "Confianza",
     kindReorder: "Reordenar", kindRenumber: "Renumerar", kindMerge: "Fusionar", kindSplit: "Dividir",
+    superseded: "Sustituida", withdrawn: "Retirada", alternativeTo: "Alternativa, si rechazas el movimiento de arriba",
     moveReorder: "Mover el capítulo {n} a la posición {p}",
     moveMerge: "Fusionar los capítulos {list} en uno",
     moveSplit: "Dividir el capítulo {n} en \u201c{anchor}\u201d",
