@@ -241,9 +241,16 @@ async function readDailyCounter(
   try {
     return await read();
   } catch (err) {
-    console.error("[free-tier] polish meter read failed", { userId, err });
+    // Only the not-yet-pushed column is forgiven; any other failure (an outage)
+    // still refuses, so it can never become a free pass.
+    if (!isMissingPolishColumn(err)) throw err;
+    console.error("[free-tier] polish meter column missing; run prisma db push", { userId, err });
     return 0;
   }
+}
+
+function isMissingPolishColumn(err: unknown): boolean {
+  return err instanceof Error && err.message.includes("polish_scene_calls");
 }
 
 /**

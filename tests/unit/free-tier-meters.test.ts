@@ -302,6 +302,12 @@ describe("the scene-polish meter (its own daily budget)", () => {
     spy.mockRestore();
   });
 
+  it("any other read failure still refuses, so an outage is never a free pass", async () => {
+    const { db } = await import("@/lib/db");
+    vi.mocked(db.freeTierUsage.findUnique).mockRejectedValueOnce(new Error("Can't reach database server"));
+    await expect(checkDailyMeter("u", "polish")).rejects.toThrow(/reach database/);
+  });
+
   it("recordDailyUse targets polishSceneCalls", async () => {
     await recordDailyUse("u", "polish");
     const args = h.upsertArgs as {
