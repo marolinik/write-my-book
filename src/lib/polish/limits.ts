@@ -18,7 +18,8 @@ export type PolishRejection =
   | "empty"
   | "too-short"
   | "editorial-note"
-  | "reasoning-only";
+  | "reasoning-only"
+  | "foreign-script";
 
 /** The most output one rewrite may ask for, before the model's own ceiling. */
 export const POLISH_MAX_OUTPUT_TOKENS = 16_000;

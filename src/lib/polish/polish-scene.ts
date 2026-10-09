@@ -10,6 +10,7 @@
 import { getAiTellGuidance } from "@/lib/agents/ai-tells";
 import { buildLanguageDirective } from "@/lib/agents/language-directive";
 import { addedEditorialNote } from "@/lib/editorial/finding-applicability";
+import { hasStrayCjk } from "@/lib/agents/serbian-script";
 import {
   POLISH_MAX_OUTPUT_TOKENS,
   polishRewriteTokens,
@@ -128,7 +129,8 @@ function stripFence(text: string): string {
 export function settlePolishedText(
   raw: string,
   stopReason: string | null | undefined,
-  originalText: string
+  originalText: string,
+  language?: string
 ): PolishSettlement {
   if (stopReason === "max_tokens") return { ok: false, reason: "truncated" };
   const text = stripFence(raw.replace(/\r\n/g, "\n"));
@@ -137,5 +139,9 @@ export function settlePolishedText(
     return { ok: false, reason: "too-short" };
   }
   if (addedEditorialNote(originalText, text)) return { ok: false, reason: "editorial-note" };
+  // A leaked character cannot be cut out of a word without breaking it.
+  if (hasStrayCjk(text, language) && !hasStrayCjk(originalText, language)) {
+    return { ok: false, reason: "foreign-script" };
+  }
   return { ok: true, text };
 }

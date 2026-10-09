@@ -224,6 +224,7 @@ export async function draftRewriteMove(
     original: source,
     originalWords: sourceWords,
     targetWords: input.targetWords ?? sourceWords,
+    language: ctx.language,
   });
   if (!settled.ok) {
     await release();

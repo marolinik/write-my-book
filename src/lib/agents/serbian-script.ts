@@ -94,7 +94,39 @@ export function toSerbianLatinWithMap(text: string): { latin: string; toSource: 
  * the rest are Cyrillic by right.
  */
 export function enforceBookScript(text: string, language: string | undefined): string {
-  return language === "sr" ? toSerbianLatin(text) : text;
+  return stripStrayCjk(language === "sr" ? toSerbianLatin(text) : text, language);
+}
+
+/**
+ * Stray CJK in a book that is not Chinese, Japanese or Korean.
+ *
+ * The local model sometimes leaks Chinese characters into a sentence in
+ * another language (live, 2026-10-09: "Na makro平面u, knjiga ima dva ritma").
+ * A leak is a few characters, or a sliver of the text; a longer passage (a
+ * quoted poem the story needs) is deliberate and stays.
+ */
+const CJK_LANGUAGES = new Set(["zh", "ja", "ko"]);
+const CJK_RUN =
+  /[\u3000-\u303F\u3040-\u30FF\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF\uAC00-\uD7AF\uFF00-\uFF65]+/g;
+const MAX_LEAK_CHARS = 8;
+const MAX_LEAK_SHARE = 0.02;
+
+export function hasStrayCjk(text: string, language: string | undefined): boolean {
+  if (!language || CJK_LANGUAGES.has(language)) return false;
+  const cjk = (text.match(CJK_RUN) ?? []).reduce((n, run) => n + run.length, 0);
+  if (cjk === 0) return false;
+  const letters = (text.match(/\p{L}/gu) ?? []).length;
+  return cjk <= MAX_LEAK_CHARS || cjk / Math.max(1, letters) <= MAX_LEAK_SHARE;
+}
+
+/** Remove a stray leak; the spacing it leaves behind is tidied, never the lines. */
+export function stripStrayCjk(text: string, language: string | undefined): string {
+  if (!hasStrayCjk(text, language)) return text;
+  return text
+    .replace(CJK_RUN, "")
+    .replace(/[ \t]{2,}/g, " ")
+    .replace(/ ([,.;:!?])/g, "$1")
+    .replace(/[ \t]+\n/g, "\n");
 }
 
 const collapseWhitespace = (text: string) => text.replace(/\s+/g, " ").trim();

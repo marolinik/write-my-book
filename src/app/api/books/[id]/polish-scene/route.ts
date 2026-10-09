@@ -135,7 +135,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         const settled = settlePolishedText(
           extractQuickAssistText(response.content),
           response.stop_reason,
-          data.selectedText
+          data.selectedText,
+          lang
         );
         if (!settled.ok) {
           return { intensity, failure: { intensity, reason: settled.reason }, tokens: NO_TOKENS };

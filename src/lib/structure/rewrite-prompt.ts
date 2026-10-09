@@ -13,6 +13,7 @@ import { buildLanguageDirective } from "@/lib/agents/language-directive";
 import { addedEditorialNote } from "@/lib/editorial/finding-applicability";
 import { estimatePolishTokens } from "@/lib/polish/limits";
 import { countWords } from "@/lib/utils";
+import { hasStrayCjk } from "@/lib/agents/serbian-script";
 import type { RewriteKind } from "./moves";
 
 const FINGERPRINT_CAP = 8_000;
@@ -37,7 +38,13 @@ const TRIM_FLOOR_OF_TARGET = 0.6;
 const EXPAND_MUST_GROW = 1.02;
 const EXPAND_CEILING_OF_TARGET = 1.6;
 
-export type RewriteRejection = "truncated" | "empty" | "off-target" | "editorial-note" | "reasoning-only";
+export type RewriteRejection =
+  | "truncated"
+  | "empty"
+  | "off-target"
+  | "editorial-note"
+  | "reasoning-only"
+  | "foreign-script";
 
 const HOOK_BRIEF: Record<"opening" | "ending", string> = {
   opening: `HOOK: THE OPENING. Rewrite only this opening so the reader is inside the chapter from its first lines: begin in motion, in a concrete moment, or on a question the chapter goes on to answer. Cut throat-clearing and recap. Keep every event and fact the opening carries; the rest of the chapter continues from it unchanged.`,
@@ -179,12 +186,17 @@ function stripFence(text: string): string {
 export function settleRewrite(
   raw: string,
   stopReason: string | null | undefined,
-  ctx: { kind: RewriteKind; original: string; originalWords: number; targetWords: number }
+  ctx: { kind: RewriteKind; original: string; originalWords: number; targetWords: number; language?: string }
 ): RewriteSettlement {
   if (stopReason === "max_tokens") return { ok: false, reason: "truncated" };
   const text = stripFence(raw.replace(/\r\n/g, "\n"));
   if (text.length === 0) return { ok: false, reason: "empty" };
   if (addedEditorialNote(ctx.original, text)) return { ok: false, reason: "editorial-note" };
+  // Cutting a leaked character out of a word leaves a broken word in the
+  // writer's prose: refuse the draft so the model writes it again.
+  if (hasStrayCjk(text, ctx.language) && !hasStrayCjk(ctx.original, ctx.language)) {
+    return { ok: false, reason: "foreign-script" };
+  }
 
   const words = countWords(text);
   if (ctx.kind === "hook") {
