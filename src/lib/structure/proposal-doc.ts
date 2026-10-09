@@ -49,6 +49,8 @@ interface DocCopy {
   alternative: string;
   /** Opening and closing quotation marks of the language. */
   quotes: [string, string];
+  /** Marks a move the commercial reading (phase D) motivated. */
+  lensCommercial: string;
 }
 
 const COPY: Record<string, DocCopy> = {
@@ -64,6 +66,7 @@ const COPY: Record<string, DocCopy> = {
     confidence: "Confidence",
     alternative: "Alternative (if you reject the move above)",
     quotes: ["\u201c", "\u201d"],
+    lensCommercial: "Commercial reading",
   },
   sr: {
     title: (b) => `Strukturni predlog — ${b}`,
@@ -77,6 +80,7 @@ const COPY: Record<string, DocCopy> = {
     confidence: "Sigurnost",
     alternative: "Alternativa (ako odbiješ potez iznad)",
     quotes: ["\u201e", "\u201c"],
+    lensCommercial: "Komercijalno čitanje",
   },
   de: {
     title: (b) => `Strukturvorschlag — ${b}`,
@@ -90,6 +94,7 @@ const COPY: Record<string, DocCopy> = {
     confidence: "Sicherheit",
     alternative: "Alternative (falls Sie den Schritt oben ablehnen)",
     quotes: ["\u201e", "\u201c"],
+    lensCommercial: "Kommerzielle Lektüre",
   },
   es: {
     title: (b) => `Propuesta estructural — ${b}`,
@@ -103,6 +108,7 @@ const COPY: Record<string, DocCopy> = {
     confidence: "Confianza",
     alternative: "Alternativa (si rechazas el movimiento de arriba)",
     quotes: ["\u00ab", "\u00bb"],
+    lensCommercial: "Lectura comercial",
   },
   fr: {
     title: (b) => `Proposition structurelle — ${b}`,
@@ -116,6 +122,7 @@ const COPY: Record<string, DocCopy> = {
     confidence: "Confiance",
     alternative: "Alternative (si vous refusez le mouvement ci-dessus)",
     quotes: ["\u00ab\u00a0", "\u00a0\u00bb"],
+    lensCommercial: "Lecture commerciale",
   },
   ru: {
     title: (b) => `Структурное предложение — ${b}`,
@@ -129,6 +136,7 @@ const COPY: Record<string, DocCopy> = {
     confidence: "Уверенность",
     alternative: "Альтернатива (если вы отклоните шаг выше)",
     quotes: ["\u00ab", "\u00bb"],
+    lensCommercial: "Коммерческое чтение",
   },
   zh: {
     title: (b) => `结构调整建议 — ${b}`,
@@ -142,6 +150,7 @@ const COPY: Record<string, DocCopy> = {
     confidence: "把握",
     alternative: "备选（如果你拒绝上面的调整）",
     quotes: ["\u201c", "\u201d"],
+    lensCommercial: "商业化阅读",
   },
 };
 
@@ -174,6 +183,13 @@ function headline(move: ProposalMove, c: DocCopy): string {
 
 function block(move: ProposalMove, c: DocCopy, heading: string): string {
   const lines = [heading, "", move.reason.trim()];
+  try {
+    if ((JSON.parse(move.payload) as { lens?: string }).lens === "commercial") {
+      lines.splice(1, 0, "", `*${c.lensCommercial}*`);
+    }
+  } catch {
+    // An unreadable payload carries no lens.
+  }
   if (move.evidence?.trim()) lines.push("", `*${c.evidence}:* ${move.evidence.trim()}`);
   if (typeof move.confidence === "number") {
     lines.push("", `*${c.confidence}:* ${Math.round(move.confidence * 100)}%`);
@@ -186,10 +202,12 @@ export function composeStructureProposal(args: {
   bookName: string;
   language: string;
   moves: readonly ProposalMove[];
+  /** The commercial pass (phase D): the header says which reading this is. */
+  commercial?: boolean;
 }): string {
   const c = copyFor(args.language);
   const primaries = args.moves.filter((m) => !m.alternativeToId);
-  const parts = [`# ${c.title(args.bookName)}`, "", c.intro];
+  const parts = [`# ${c.title(args.bookName)}`, ...(args.commercial ? ["", `*${c.lensCommercial}*`] : []), "", c.intro];
   primaries.forEach((m, i) => {
     parts.push("", block(m, c, `## ${i + 1}. ${headline(m, c)}`));
     for (const alt of args.moves.filter((a) => a.alternativeToId === m.id)) {
@@ -212,6 +230,7 @@ export async function finishRestructureDelegation(args: {
   language: string;
   bookName: string;
   specialistDocumentIds: readonly string[];
+  commercial?: boolean;
 }): Promise<string> {
   // What still waits for the writer. A chat session can hold several runs; a
   // move the writer already applied is history, not part of the proposal.
@@ -247,6 +266,7 @@ export async function finishRestructureDelegation(args: {
         bookName: args.bookName,
         language: args.language,
         moves,
+        commercial: args.commercial,
       });
       const title = copyFor(args.language).title(args.bookName);
       const docs = new DocumentService(args.userId, args.bookId);

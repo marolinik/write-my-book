@@ -308,4 +308,29 @@ describe("StructureTab", () => {
       expect(screen.getByText("Pojačaj kraj poglavlja 2")).toBeTruthy();
     });
   });
+
+  describe("the commercial lens", () => {
+    it("runs the commercial pass when the writer turns the lens on", async () => {
+      mockFetch((url) => (url.endsWith("/book-map") ? { medianWords: 0, totalWords: 0, chapters: [] } : { moves: [pendingMerge] }));
+      renderTab();
+      await screen.findByText("Spoji poglavlja 17 + 18 u jedno");
+      fireEvent.click(screen.getByRole("switch", { name: "Čitaj kao žanrovski čitalac" }));
+      fireEvent.click(screen.getAllByText("Predloži strukturne izmene")[0]);
+      expect(h.openWithWorkflow).toHaveBeenCalledWith("restructure-commercial");
+    });
+
+    it("runs the plain pass by default", async () => {
+      mockFetch(() => ({ moves: [pendingMerge] }));
+      renderTab();
+      await screen.findByText("Spoji poglavlja 17 + 18 u jedno");
+      fireEvent.click(screen.getAllByText("Predloži strukturne izmene")[0]);
+      expect(h.openWithWorkflow).toHaveBeenCalledWith("restructure");
+    });
+
+    it("marks a move the commercial reading motivated", async () => {
+      mockFetch(() => ({ moves: [{ ...pendingMerge, payload: { ...pendingMerge.payload, lens: "commercial" } }] }));
+      renderTab();
+      expect(await screen.findByText("Komercijalno čitanje")).toBeTruthy();
+    });
+  });
 });

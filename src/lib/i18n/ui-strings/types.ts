@@ -1031,6 +1031,7 @@ export interface UIStrings {
     reason: string; evidence: string; confidence: string;
     kindReorder: string; kindRenumber: string; kindMerge: string; kindSplit: string;
     superseded: string; withdrawn: string; alternativeTo: string;
+    commercialToggle: string; commercialHint: string; lensCommercial: string;
     bookMap: string; bookMapDesc: string; colChapter: string; colLength: string; colScenes: string; colDialogue: string;
     colTension: string; colHooks: string; colMoves: string; medianLabel: string; hookScale: string; bookMapError: string;
     kindHook: string; moveHookOpening: string; moveHookEnding: string; doneHookOpening: string; doneHookEnding: string;

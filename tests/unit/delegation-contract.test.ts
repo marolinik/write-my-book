@@ -76,7 +76,7 @@ describe("a restructure delegation reports its pass (dev editor v2)", () => {
 
   it("finishes a restructure delegation through the pass, keyed on the ROOT session", () => {
     const body = delegate();
-    expect(body).toMatch(/input\.workflowId === "restructure"/);
+    expect(body).toMatch(/isRestructureWorkflow\(input\.workflowId\)/);
     expect(body).toMatch(/finishRestructureDelegation\(/);
     expect(body).toMatch(/passIdOf\(delegationCtx\.parentSessionId\)/);
   });

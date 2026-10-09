@@ -11,7 +11,13 @@ import { db } from "@/lib/db";
 import { DocumentType } from "@/generated/prisma/enums";
 import { getAnalysisReport } from "@/lib/reports/analysis-report";
 import type { DocumentService } from "@/lib/documents/document-service";
-import { computeBookShape, formatBookMap, type HookRating } from "./book-shape";
+import {
+  commercialSignals,
+  computeBookShape,
+  formatBookMap,
+  formatCommercialSignals,
+  type HookRating,
+} from "./book-shape";
 import { passIdOf } from "./pass";
 
 interface BookMapContext {
@@ -19,6 +25,8 @@ interface BookMapContext {
   userId: string;
   sessionId: string;
   documentService: Pick<DocumentService, "findByType" | "read">;
+  /** The commercial pass (phase D) adds the genre reader's computed anchors. */
+  commercial?: boolean;
 }
 
 export async function executeBookMap(ctx: BookMapContext): Promise<string> {
@@ -55,7 +63,11 @@ export async function executeBookMap(ctx: BookMapContext): Promise<string> {
     (report?.pacing ?? []).map((p: { chapter: number; tension: number }) => [p.chapter, p.tension])
   );
 
-  return formatBookMap(computeBookShape(withText), { tension, hooks });
+  const shape = computeBookShape(withText);
+  const map = formatBookMap(shape, { tension, hooks });
+  return ctx.commercial
+    ? `${map}\n\n${formatCommercialSignals(commercialSignals(shape, { tension, hooks }))}`
+    : map;
 }
 
 const clampScore = (n: number) => Math.max(0, Math.min(3, Math.round(Number(n) || 0)));

@@ -1,6 +1,6 @@
 # Developmental editor v2: whole-book revision
 
-Status: APPROVED by owner 2026-10-08 (draft-then-apply for trim/expand, cap 7, commercial lens as a run toggle)
+Status: SHIPPED 2026-10-09 (A 821087c, B ea37a91+0614003, C b8ca451, D this commit). Approved 2026-10-08: draft-then-apply, cap 7, commercial lens as a run toggle.
 
 ## Why
 

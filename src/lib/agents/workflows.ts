@@ -443,6 +443,33 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     estimatedMaxMinutes: 15,
     minimumTier: "sonnet",
   },
+  // Dev editor v2, phase D: the same pass, read as a genre reader would.
+  {
+    id: "restructure-commercial",
+    label: "Commercial Structural Reading",
+    description:
+      "Read the structure as a genre reader would and propose moves: beats by share of the book, sagging middle, chapter-end hooks.",
+    writerDescription:
+      "The developmental editor reads your book as a genre reader would and proposes moves you accept or reject.",
+    primaryAgent: "story-architect",
+    category: "analysis",
+    requiresChapter: false,
+    requiresSeriesContext: false,
+    conversational: true,
+    suggestedNext: ["dev-edit"],
+    prerequisites: [
+      {
+        type: "manuscript",
+        value: "any",
+        description: "The book needs chapters before its structure can be revised",
+        satisfiedBy: "write-chapter",
+      },
+    ],
+    producesDocument: "STRUCTURE_PROPOSAL",
+    estimatedMinMinutes: 5,
+    estimatedMaxMinutes: 15,
+    minimumTier: "sonnet",
+  },
   {
     id: "market-analysis",
     label: "Market Analysis",
@@ -654,6 +681,13 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
   },
 ];
 
+/** Both structural passes share every pass rule (ledger, cap, read limit). */
+export const RESTRUCTURE_WORKFLOWS = ["restructure", "restructure-commercial"] as const;
+
+export function isRestructureWorkflow(id: string | undefined | null): boolean {
+  return !!id && (RESTRUCTURE_WORKFLOWS as readonly string[]).includes(id);
+}
+
 /** Look up a workflow definition by ID. */
 export function getWorkflow(id: string): WorkflowDefinition | undefined {
   return WORKFLOW_DEFINITIONS.find((w) => w.id === id);
@@ -708,6 +742,7 @@ export const WORKFLOW_IDS = [
   "publishing-check",
   "analyze",
   "restructure",
+  "restructure-commercial",
   "market-analysis",
   "refresh-style",
   "evolve-style",

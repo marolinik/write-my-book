@@ -101,6 +101,17 @@ describe("composeStructureProposal", () => {
     expect(en).toContain("“U staroj kući”");
   });
 
+  it("marks a move the commercial reading motivated", () => {
+    const tagged = { ...split, payload: JSON.stringify({ kind: "split", chapterNumber: 28, anchorQuote: "U staroj kući", lens: "commercial" }) };
+    const out = composeStructureProposal({ bookName: "B", language: "sr", moves: [tagged] });
+    expect(out).toContain("Komercijalno čitanje");
+  });
+
+  it("says in its header when it is the commercial reading", () => {
+    const out = composeStructureProposal({ bookName: "B", language: "sr", moves: [primary], commercial: true });
+    expect(out.split(/\r?\n/).slice(0, 4).join(" ")).toContain("Komercijalno čitanje");
+  });
+
   it("is a structured document, not a line", () => {
     expect((doc.match(/^#{1,3} /gm) ?? []).length).toBeGreaterThanOrEqual(3);
   });

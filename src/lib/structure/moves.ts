@@ -82,7 +82,10 @@ export interface RewriteMove {
   instructions: string;
 }
 
-export type StructureMoveInput = ReorderMove | MergeMove | SplitMove | RewriteMove;
+/** Set when the commercial reading (phase D) motivated the move; never part of its identity. */
+export type MoveLens = { lens?: "commercial" };
+
+export type StructureMoveInput = (ReorderMove | MergeMove | SplitMove | RewriteMove) & MoveLens;
 
 export interface OrderingEntry {
   chapterId: string;

@@ -34,6 +34,7 @@ import { LIVE_MOVE_STATUSES } from "@/lib/structure/types";
 import { groupMoves } from "@/lib/structure/group";
 import { DraftComparison } from "./draft-comparison";
 import { BookMap } from "./book-map";
+import { Switch } from "@/components/ui/switch";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
 import { cn } from "@/lib/utils";
 
@@ -104,6 +105,10 @@ export function StructureTab({ bookId }: { bookId: string }) {
     discardDraft,
   } = useStructureMoves(bookId);
 
+  // The commercial lens (phase D) is chosen when the pass starts.
+  const [commercial, setCommercial] = useState(false);
+  const runPass = () => openWithWorkflow(commercial ? "restructure-commercial" : "restructure");
+
   /** What every card needs, whatever list it sits in. */
   const cardProps = (move: StructureMove) => ({
     move,
@@ -157,10 +162,26 @@ export function StructureTab({ bookId }: { bookId: string }) {
           <h2 className="text-lg font-semibold">{s.title}</h2>
           <p className="text-sm text-muted-foreground">{s.subtitle}</p>
         </div>
-        <Button size="sm" onClick={() => openWithWorkflow("restructure")}>
-          <SparklesIcon className="mr-1.5 size-3.5" />
-          {s.runPass}
-        </Button>
+        <div className="flex flex-col items-end gap-2">
+          <Button size="sm" onClick={runPass}>
+            <SparklesIcon className="mr-1.5 size-3.5" />
+            {s.runPass}
+          </Button>
+          <label className="flex max-w-xs items-start gap-2 text-sm">
+            <Switch
+              checked={commercial}
+              onCheckedChange={setCommercial}
+              aria-label={s.commercialToggle}
+              aria-describedby="commercial-lens-hint"
+            />
+            <span>
+              {s.commercialToggle}
+              <span id="commercial-lens-hint" className="block text-xs text-muted-foreground">
+                {s.commercialHint}
+              </span>
+            </span>
+          </label>
+        </div>
       </div>
 
       {/* The shape the editor reasoned over, with its proposals pinned to their
@@ -191,7 +212,7 @@ export function StructureTab({ bookId }: { bookId: string }) {
                 {s.emptyDesc}
               </p>
             </div>
-            <Button size="sm" variant="outline" onClick={() => openWithWorkflow("restructure")}>
+            <Button size="sm" variant="outline" onClick={runPass}>
               {s.runPass}
             </Button>
           </CardContent>
@@ -309,6 +330,7 @@ function MoveCard({
             {describeMove(move, s)}
           </CardTitle>
           <Badge variant="outline">{kindLabel}</Badge>
+          {move.payload?.lens === "commercial" && <Badge variant="secondary">{s.lensCommercial}</Badge>}
           <Badge variant={STATUS_VARIANTS[move.status] ?? "outline"}>{statusLabel}</Badge>
           {typeof move.confidence === "number" && (
             <span className="text-xs text-muted-foreground">

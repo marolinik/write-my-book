@@ -160,3 +160,88 @@ export function formatBookMap(
     ...edges,
   ].join("\n");
 }
+
+/**
+ * Dev editor v2, phase D — what a genre reader's expectations can be checked
+ * against without a model: which chapters sit where the story's turns are
+ * expected (as a share of the book's words), how many rated chapters end on a
+ * hook, and the longest low-tension run through the middle. The architect maps
+ * the actual beats from the architecture and the text; these are its anchors.
+ */
+const BEAT_WINDOWS = {
+  inciting: [10, 15],
+  firstTurn: [22, 28],
+  midpoint: [47, 53],
+  darkMoment: [72, 78],
+  climax: [90, 100],
+} as const;
+const MIDDLE_FROM_PCT = 20;
+const MIDDLE_TO_PCT = 75;
+const MIN_SAG_CHAPTERS = 3;
+const HOOKED_ENDING = 2;
+
+export interface CommercialSignals {
+  beats: Record<keyof typeof BEAT_WINDOWS, number[]>;
+  hookedEndings: { rated: number; hooked: number };
+  /** The longest run of middle chapters below the book's median tension; null without tension. */
+  sag: { from: number; to: number } | null;
+}
+
+export function commercialSignals(
+  shape: BookShape,
+  extra: { tension?: ReadonlyMap<number, number>; hooks?: ReadonlyMap<number, HookRating> }
+): CommercialSignals {
+  const spans = shape.chapters.map((c) => ({
+    n: c.chapterNumber,
+    start: c.startsAtPct,
+    end: shape.totalWords === 0 ? c.startsAtPct : c.startsAtPct + (c.words / shape.totalWords) * 100,
+  }));
+  const within = ([lo, hi]: readonly [number, number]) =>
+    spans.filter((s) => s.start < hi && s.end > lo).map((s) => s.n);
+  const beats = Object.fromEntries(
+    Object.entries(BEAT_WINDOWS).map(([k, win]) => [k, within(win)])
+  ) as CommercialSignals["beats"];
+
+  const ratings = [...(extra.hooks?.values() ?? [])];
+  const hookedEndings = { rated: ratings.length, hooked: ratings.filter((r) => r.ending >= HOOKED_ENDING).length };
+
+  let sag: CommercialSignals["sag"] = null;
+  const tension = extra.tension;
+  if (tension && tension.size > 0) {
+    const values = [...tension.values()].sort((a, b) => a - b);
+    const mid = Math.floor(values.length / 2);
+    const median = values.length % 2 ? values[mid] : (values[mid - 1] + values[mid]) / 2;
+    let run: number[] = [];
+    let best: number[] = [];
+    for (const c of shape.chapters) {
+      const inMiddle = c.startsAtPct >= MIDDLE_FROM_PCT && c.startsAtPct < MIDDLE_TO_PCT;
+      const t = tension.get(c.chapterNumber);
+      if (inMiddle && t !== undefined && t < median) {
+        run = [...run, c.chapterNumber];
+        if (run.length > best.length) best = run;
+      } else {
+        run = [];
+      }
+    }
+    if (best.length >= MIN_SAG_CHAPTERS) sag = { from: best[0], to: best[best.length - 1] };
+  }
+  return { beats, hookedEndings, sag };
+}
+
+export function formatCommercialSignals(s: CommercialSignals): string {
+  const list = (ns: number[]) => (ns.length ? ns.join(", ") : "-");
+  return [
+    "## COMMERCIAL READING (computed anchors, not verdicts)",
+    `- Inciting incident expected by about 12% of the book: chapter(s) ${list(s.beats.inciting)}.`,
+    `- First turn, about 25%: chapter(s) ${list(s.beats.firstTurn)}.`,
+    `- Midpoint, about 50%: chapter(s) ${list(s.beats.midpoint)}.`,
+    `- Dark moment, about 75%: chapter(s) ${list(s.beats.darkMoment)}.`,
+    `- Climax, last 10%: chapter(s) ${list(s.beats.climax)}.`,
+    s.hookedEndings.rated > 0
+      ? `- Chapters ending on a hook (rated 2-3): ${s.hookedEndings.hooked} of ${s.hookedEndings.rated} rated.`
+      : "- No hook ratings yet: rate the endings with RateHooks before judging the page-turn.",
+    s.sag
+      ? `- Sagging middle: chapters ${s.sag.from}-${s.sag.to} run below the book's median tension.`
+      : "- No sag computed (no tension from an analysis, or no long low run): judge the middle from lengths, dialogue and the edges.",
+  ].join("\n");
+}

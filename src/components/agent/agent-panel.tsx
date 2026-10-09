@@ -39,7 +39,7 @@ import {
   useApproveAction,
   useCancelSession,
 } from "@/hooks/use-agent";
-import { getWorkflow } from "@/lib/agents/workflows";
+import { getWorkflow, isRestructureWorkflow } from "@/lib/agents/workflows";
 import { getAgentDefinition } from "@/lib/agents/definitions";
 import { getAgentStrings, workflowLabel } from "@/lib/i18n/agent-strings";
 import type { UIStrings } from "@/lib/i18n/ui-strings/types";
@@ -846,7 +846,7 @@ export function AgentPanel({
               {/* Post-session navigation CTAs */}
               {/* A restructure run ends in a question for the writer, so the
                   answer belongs here rather than on another page (S3-7). */}
-              {workflowId === "restructure" && (
+              {isRestructureWorkflow(workflowId) && (
                 <InlineStructureProposals bookId={bookId} />
               )}
 

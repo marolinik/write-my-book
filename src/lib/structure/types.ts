@@ -29,6 +29,7 @@ export interface StructureMove {
     targetWords?: number;
     instructions?: string;
     scope?: "opening" | "ending";
+    lens?: "commercial";
   } | null;
 }
 

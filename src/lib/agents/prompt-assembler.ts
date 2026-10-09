@@ -1125,6 +1125,17 @@ A problem that belongs to NO chapter — a missing copyright page, absent front 
 // These give the agent concrete steps for the specific workflow.
 
 export const WORKFLOW_INSTRUCTION_OVERRIDES: Record<string, string> = {
+  // Dev editor v2, phase D: the structural pass read as a genre reader would.
+  "restructure-commercial": `
+COMMERCIAL LENS (in addition to the structural revision rules)
+
+Read this book as a reader of its genre would, deciding chapter by chapter whether to keep going.
+1. ReadDocument MARKET_REPORT if it exists: the genre, the comparable titles and the reader they promise. Without it, infer the genre from the architecture and say that you did.
+2. BookMap's "COMMERCIAL READING" section gives computed anchors: which chapters sit where the inciting incident (~12%), first turn (~25%), midpoint (~50%), dark moment (~75%) and climax (last 10%) are expected, how many rated chapters end on a hook, and any low-tension run through the middle. Map the book's actual beats from the architecture and the text onto those anchors.
+3. Judge: does the story start where this genre's reader needs it to; does the middle sag; do chapters end on a pull often enough for the genre; are chapter lengths in the genre's range. A literary book is not a thriller: name the genre's norm before you hold the book to it.
+4. Propose only what the commercial reading justifies, within the same limit of seven moves; each move you file here is marked as the commercial reading's. A deliberate choice of the writer (a slow opening, a quiet ending) is protected unless the genre's reader would put the book down there; say which.
+5. If you write STRUCTURE_PROPOSAL, add a section "Commercial reading": the genre and its norm, where the beats land against the anchors, and what the moves change for the reader. If you do not, say the same in your final reply; the app's own proposal lists only the moves.
+`,
   "research-world": `
 WORKFLOW: SYSTEMATIC WORLD RESEARCH
 
@@ -1289,6 +1300,14 @@ export const CONDUCTOR_WORKFLOW_INSTRUCTIONS: Record<string, string> = {
   "read-manuscript": "Delegate to manuscript-reader for a 5-pass analysis. Summarize the findings across all passes when complete.",
   "analyze": "Delegate to manuscript-analyst. Present the key readability and pacing metrics when complete, then tell the writer the metrics can drive a structural revision pass (workflow 'restructure') — do not leave them holding a report with nothing to do next.",
   "restructure": `Delegate to story-architect with workflowId='restructure' (book-level, NO chapterNumber). Tell the specialist explicitly:
+1. Call BookMap first — the whole book's shape and every chapter's first and last lines; every chapter number it cites must come from that table.
+2. Read ARCHITECTURE, ANALYSIS_REPORT and CONTINUITY_REPORT if they exist; those are the evidence for a move.
+3. RateHooks once for the chapters it judged, then ReadChapter only the chapters it means to change (at most six), never the whole manuscript.
+4. File each concrete move with ProposeStructureMove (reorder / renumber / merge / split / trim / expand), with a reason in the writer's language. A fallback for when the writer rejects a move is an alternative (alternativeTo), never a standalone move.
+At most seven moves per pass; the tool refuses an eighth.
+Delegate ONCE. The delegation result ends with a "Structural pass" ledger: that list is the pass, and the app has already written STRUCTURE_PROPOSAL from it. Never delegate again to finish, extend or tidy the same pass.
+When it completes, present exactly the moves in that ledger, in that order, as a numbered list (what moves, where, why; alternatives under their move), and tell the writer nothing has changed yet: each move waits for their accept or reject on the book's structure panel. Never present a move the ledger does not list.`,
+  "restructure-commercial": `Delegate to story-architect with workflowId='restructure-commercial' (book-level, NO chapterNumber). This is the COMMERCIAL reading: the same structural pass, judged as a genre reader would. Tell the specialist explicitly:
 1. Call BookMap first — the whole book's shape and every chapter's first and last lines; every chapter number it cites must come from that table.
 2. Read ARCHITECTURE, ANALYSIS_REPORT and CONTINUITY_REPORT if they exist; those are the evidence for a move.
 3. RateHooks once for the chapters it judged, then ReadChapter only the chapters it means to change (at most six), never the whole manuscript.

@@ -52,6 +52,7 @@ import {
 } from "@/lib/structure/pass";
 import { finishRestructureDelegation } from "@/lib/structure/proposal-doc";
 import { executeBookMap, executeRateHooks } from "@/lib/structure/book-map-tool";
+import { isRestructureWorkflow } from "./workflows";
 import { addedEditorialNote } from "@/lib/editorial/finding-applicability";
 import {
   verifyCrossReferences,
@@ -1444,7 +1445,7 @@ async function executeReadChapter(
   ctx: ToolContext,
   input: { chapterNumber: number }
 ): Promise<string> {
-  const capped = ctx.workflowId === "restructure" && ctx.fullReads ? ctx.fullReads : null;
+  const capped = isRestructureWorkflow(ctx.workflowId) && ctx.fullReads ? ctx.fullReads : null;
   const asked = Number(input.chapterNumber);
   if (capped && !capped.has(asked) && capped.size >= RESTRUCTURE_FULL_READS) {
     return (
@@ -1657,6 +1658,7 @@ async function executeProposeStructureMove(
     targetWords?: number;
     instructions?: string;
     scope?: string;
+    lens?: string;
   }
 ): Promise<string> {
   const reason = (input.reason ?? "").trim();
@@ -1688,7 +1690,12 @@ async function executeProposeStructureMove(
   const idByNumber = new Map(chapters.map((c) => [c.chapterNumber, c.id]));
   const ids = numbers.map((n) => idByNumber.get(n)).filter((id): id is string => !!id);
 
-  const move = toStructureMoveInput(input, numbers, ids);
+  const built = toStructureMoveInput(input, numbers, ids);
+  // The lens rides on the payload; it never makes a move a different move.
+  // Every move of the commercial pass is the commercial reading's; the model
+  // never set a lens flag reliably (live run), so the workflow sets it.
+  const commercialPass = ctx.workflowId === "restructure-commercial";
+  const move = built && commercialPass ? { ...built, lens: "commercial" as const } : built;
   if (!move) {
     return `Proposal rejected — unknown move kind "${input.kind}".`;
   }
@@ -3131,7 +3138,7 @@ async function executeDelegateToSpecialist(
     // otherwise the conductor reads the missing document as unfinished work and
     // delegates again, filing anew each time.
     const passReport =
-      input.workflowId === "restructure"
+      isRestructureWorkflow(input.workflowId)
         ? await finishRestructureDelegation({
             bookId: ctx.bookId,
             userId: ctx.userId,
@@ -3139,6 +3146,7 @@ async function executeDelegateToSpecialist(
             language: delegationCtx.language,
             bookName: delegatedBook?.name ?? "",
             specialistDocumentIds,
+            commercial: input.workflowId === "restructure-commercial",
           })
         : "";
 
@@ -3257,10 +3265,11 @@ async function executeToolInner(
           targetWords?: number;
           instructions?: string;
           scope?: string;
+          lens?: string;
         }
       );
     case "BookMap":
-      return executeBookMap(ctx);
+      return executeBookMap({ ...ctx, commercial: ctx.workflowId === "restructure-commercial" });
     case "RateHooks":
       return executeRateHooks(
         ctx,
