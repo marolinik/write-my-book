@@ -14,7 +14,9 @@ import {
   TEMP_OFFSET,
 } from "@/lib/chapters/renumber";
 import { reconcileBookCounters } from "@/lib/books/book-counters";
+import { applyRewriteMove, restoreRewrite, RewriteEditedError } from "./rewrite-move";
 import {
+  isRewriteKind,
   planMove,
   mergeContent,
   splitContent,
@@ -393,6 +395,8 @@ export async function applyStructureMove(
     where: { id: moveId, bookId: ctx.bookId },
   });
   if (!move) return fail("move_not_found", "This proposal no longer exists.");
+  // Trim and expand apply a draft the writer has read, not a plan (dev editor v2).
+  if (isRewriteKind(move.kind)) return applyRewriteMove(moveId, ctx);
   if (move.status !== "pending") {
     return fail("not_pending", `This proposal is already ${move.status}.`);
   }
@@ -637,7 +641,9 @@ export async function undoStructureMove(
   if (!(await claimUndo(moveId, ctx.bookId))) return noLongerPending(moveId, ctx.bookId);
 
   try {
-    if (move.kind === "split" && previous.createdChapterId) {
+    if (isRewriteKind(move.kind)) {
+      await restoreRewrite(ctx, previous as PreviousState & { rewriteVersion?: number });
+    } else if (move.kind === "split" && previous.createdChapterId) {
       await undoSplit(ctx, docs, previous, previous.createdChapterId);
     } else if (move.kind === "merge" && previous.chapters) {
       await undoMerge(ctx, docs, previous);
@@ -655,6 +661,7 @@ export async function undoStructureMove(
   } catch (error) {
     await releaseUndo(moveId);
     if (error instanceof UndoRefused) return fail(error.code, error.message);
+    if (error instanceof RewriteEditedError) return fail(error.code, error.message);
     if (error instanceof BookChangedError) {
       return fail(
         "apply_failed",

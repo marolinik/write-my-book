@@ -2,22 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { enforceBookScript } from "@/lib/agents/serbian-script";
 import { db } from "@/lib/db";
-import { decryptApiKey } from "@/lib/encryption";
 import { estimateCost } from "@/lib/cost";
 import { checkQuota } from "@/lib/billing/quota-checker";
 import { recordDailyUse } from "@/lib/billing/free-tier-meters";
 import { readStoryBible, readVoiceFingerprint } from "@/lib/editorial/book-evidence";
-import { createLLMClient, resolveModelForRole, resolveRouteWithLocalFallback } from "@/lib/llm";
-import type { ProviderKey } from "@/lib/llm";
-import {
-  USER_MODEL_SELECT,
-  bookModelSettingsOf,
-  globalOverridesOf,
-  userModelSettingsOf,
-} from "@/lib/llm/model-resolver";
+import { resolveGhostwriterClient } from "@/lib/llm/ghostwriter-client";
 import { withQuickAssistReasoning, extractQuickAssistText, isReasoningOnly } from "@/lib/llm/quick-assist";
 import { clampMaxTokens } from "@/lib/llm/model-registry";
-import { getDefaultModelId } from "@/lib/llm/defaults";
 import {
   POLISH_INTENSITIES,
   buildPolishSystemPrompt,
@@ -93,41 +84,14 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     // The ghostwriter's model: the one that writes this book's chapters, through
     // the same book-role → book-default → global-role → global-default chain.
-    const dbUser = await db.user.findUnique({
-      where: { id: user.id },
-      select: USER_MODEL_SELECT,
-    });
-    const resolved = resolveModelForRole(
-      "ghostwriter",
-      bookModelSettingsOf(book.settings),
-      globalOverridesOf(userModelSettingsOf(dbUser)),
-      dbUser?.defaultModel ?? getDefaultModelId()
-    );
-
-    const userKeys = await db.apiKey.findMany({
-      where: { userId: user.id, validatedAt: { not: null } },
-      select: { provider: true, encryptedKey: true },
-    });
-    const decryptedKeys: Partial<Record<ProviderKey, string>> = {};
-    for (const k of userKeys) {
-      decryptedKeys[k.provider as ProviderKey] = decryptApiKey(k.encryptedKey);
-    }
-    const keys = {
-      anthropicApiKey: decryptedKeys.anthropic,
-      openrouterApiKey: decryptedKeys.openrouter,
-      openaiApiKey: decryptedKeys.openai,
-      geminiApiKey: decryptedKeys.gemini,
-      grokApiKey: decryptedKeys.grok,
-    };
-
-    const { route } = resolveRouteWithLocalFallback(resolved.modelDef, keys);
-    if (route.route === "none") {
+    const ghost = await resolveGhostwriterClient(user.id, book);
+    if (!ghost.ok) {
       return NextResponse.json(
         { error: "No API key configured for this model. Add one in Settings > API Keys." },
         { status: 400 }
       );
     }
-    const { client, model } = createLLMClient({ modelId: resolved.registryId, ...keys });
+    const { client, model, resolved, route } = ghost;
 
     const [fingerprint, storyBible] = await Promise.all([
       readVoiceFingerprint(bookId).catch(() => null),

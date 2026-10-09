@@ -111,7 +111,11 @@ describe("POST /api/books/:id/structure/moves/:moveId/decision", () => {
       ([args]) => args.data?.status === "superseded"
     );
     expect(call).toBeDefined();
-    expect(call![0].where).toMatchObject({ bookId: "b1", status: "pending", id: { not: "m1" } });
+    expect(call![0].where).toMatchObject({
+      bookId: "b1",
+      status: { in: ["pending", "drafted"] },
+      id: { not: "m1" },
+    });
     expect(JSON.stringify(call![0].where.OR)).toContain("p1");
   });
 

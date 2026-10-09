@@ -43,7 +43,7 @@ export async function withPassLock<T>(passId: string, fn: () => Promise<T>): Pro
  */
 export function blocksRefiling(m: PassMove, passId: string): boolean {
   if (m.status === "pending") return m.sessionId === passId;
-  if (m.status === "accepted") return true;
+  if (m.status === "accepted" || m.status === "drafted") return true;
   if (m.status === "applied") return m.kind === "merge" || m.kind === "split";
   return false;
 }
@@ -86,7 +86,10 @@ export function pendingOfPass(
   live: readonly PassMove[],
   passId: string
 ): { primaries: PassMove[]; alternatives: PassMove[] } {
-  const ofPass = live.filter((m) => m.status === "pending" && m.sessionId === passId);
+  // A drafted trim/expand is still undecided: it counts as part of the pass.
+  const ofPass = live.filter(
+    (m) => (m.status === "pending" || m.status === "drafted") && m.sessionId === passId
+  );
   return {
     primaries: ofPass.filter((m) => !m.alternativeToId),
     alternatives: ofPass.filter((m) => !!m.alternativeToId),
@@ -159,7 +162,7 @@ export async function supersedeSiblings(
   const { count } = await db.structureMove.updateMany({
     where: {
       bookId,
-      status: "pending",
+      status: { in: ["pending", "drafted"] },
       id: { not: accepted.id },
       OR: [{ id: primaryId }, { alternativeToId: primaryId }],
     },

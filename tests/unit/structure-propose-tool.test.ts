@@ -152,11 +152,11 @@ describe("ProposeStructureMove", () => {
     });
   });
 
-  it("is offered to the agent with an enum of the four kinds", () => {
+  it("is offered to the agent with an enum of the six kinds", () => {
     const [def] = getToolDefinitions(["ProposeStructureMove"]);
     expect(def).toBeDefined();
     const props = def.input_schema.properties as Record<string, { enum?: string[] }>;
-    expect(props.kind.enum).toEqual(["reorder", "renumber", "merge", "split"]);
+    expect(props.kind.enum).toEqual(["reorder", "renumber", "merge", "split", "trim", "expand"]);
     expect(def.input_schema.required).toContain("reason");
   });
 });

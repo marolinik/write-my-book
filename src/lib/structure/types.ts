@@ -28,4 +28,4 @@ export interface StructureMove {
 }
 
 /** Statuses that still offer the writer something to do. */
-export const LIVE_MOVE_STATUSES = ["pending", "accepted", "applied"];
+export const LIVE_MOVE_STATUSES = ["pending", "drafted", "accepted", "applied"];

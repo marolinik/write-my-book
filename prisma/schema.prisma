@@ -591,11 +591,15 @@ model StructureMove {
   reason        String    @db.Text // WHY, in the writer's language
   evidence      String?   @db.Text // metrics / findings the proposal rests on
   confidence    Float?
-  // pending | accepted | rejected | applied | failed | undone
+  // pending | drafted (trim/expand: a draft waits) | accepted | rejected | applied | failed | undone
   // | superseded (a newer pass or an accepted alternative retired it)
   // | withdrawn (the editor replaced it within its own pass)
   status        String    @default("pending")
   previousState String?   @map("previous_state") @db.Text // JSON snapshot for undo
+  // trim/expand (dev editor v2): the ghostwriter's rewrite the writer reads
+  // before applying it, and the version of the chapter it was drafted from.
+  draft         String?   @db.Text
+  draftMeta     String?   @map("draft_meta") @db.Text
   resultSummary String?   @map("result_summary") @db.Text
   rejectionReason String? @map("rejection_reason") @db.Text
   decidedAt     DateTime? @map("decided_at")

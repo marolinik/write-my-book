@@ -50,10 +50,14 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       // stale tab wrote `rejected` over a move that had already been APPLIED:
       // the manuscript kept the change, the row said it was refused, and Undo
       // answered "never applied" (P2-S12, X-S08).
+      // A drafted trim/expand can be rejected too: the writer read the draft
+      // and does not want the change at all.
       const { count } = await db.structureMove.updateMany({
-        where: { id: moveId, bookId, status: "pending" },
+        where: { id: moveId, bookId, status: { in: ["pending", "drafted"] } },
         data: {
           status: "rejected",
+          draft: null,
+          draftMeta: null,
           rejectionReason: reason ?? null,
           decidedAt: new Date(),
         },

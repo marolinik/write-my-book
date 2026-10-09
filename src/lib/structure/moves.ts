@@ -12,7 +12,15 @@
  * Inputs are never mutated; every planner returns new arrays.
  */
 
-export type MoveKind = "reorder" | "renumber" | "merge" | "split";
+export type MoveKind = "reorder" | "renumber" | "merge" | "split" | "trim" | "expand";
+
+/** Kinds that rewrite a chapter's prose through a draft the writer reads first. */
+export const REWRITE_KINDS = ["trim", "expand"] as const;
+export type RewriteKind = (typeof REWRITE_KINDS)[number];
+
+export function isRewriteKind(kind: string): kind is RewriteKind {
+  return (REWRITE_KINDS as readonly string[]).includes(kind);
+}
 
 export interface ChapterRef {
   id: string;
@@ -57,7 +65,22 @@ export interface SplitMove {
   secondTitle?: string;
 }
 
-export type StructureMoveInput = ReorderMove | MergeMove | SplitMove;
+/**
+ * Dev editor v2, phase B: cut or grow one chapter toward a word target. The
+ * plan only checks that the target is honest; the prose comes from a draft the
+ * writer reads and applies (rewrite-move.ts).
+ */
+export interface RewriteMove {
+  kind: RewriteKind;
+  chapterId?: string;
+  chapterNumber: number;
+  /** The length the rewrite aims for, in words. */
+  targetWords: number;
+  /** What to cut or what is missing, with passages quoted: the ghostwriter's brief. */
+  instructions: string;
+}
+
+export type StructureMoveInput = ReorderMove | MergeMove | SplitMove | RewriteMove;
 
 export interface OrderingEntry {
   chapterId: string;
@@ -88,6 +111,7 @@ export type MoveErrorCode =
   | "anchor_ambiguous"
   | "anchor_too_early"
   | "unknown_kind"
+  | "instructions_required"
   // Apply-time (O12 phase 2) — the move was valid when proposed but cannot run now.
   | "move_not_found"
   | "not_pending"
@@ -95,7 +119,13 @@ export type MoveErrorCode =
   | "content_missing"
   | "apply_failed"
   // Undo — the chapter a split created holds writing done after the split.
-  | "split_edited";
+  | "split_edited"
+  // trim/expand (dev editor v2): drafts and their guards.
+  | "draft_rejected"
+  | "model_no_prose"
+  | "chapter_too_long"
+  | "not_drafted"
+  | "chapter_edited";
 
 export interface MoveError {
   code: MoveErrorCode;
@@ -195,6 +225,11 @@ export function moveIdentityKey(move: StructureMoveInput): string {
         move.chapterId ?? `#${move.chapterNumber}`,
         move.anchorQuote.replace(/\s+/g, " ").trim(),
       ].join("|");
+    case "trim":
+    case "expand":
+      // One rewrite of a chapter at a time: a second trim with another target
+      // is the same proposal, not a new one.
+      return [move.kind, move.chapterId ?? `#${move.chapterNumber}`].join("|");
   }
 }
 
@@ -214,9 +249,46 @@ export function planMove(
       return planMerge(chapters, move);
     case "split":
       return planSplit(chapters, move);
+    case "trim":
+    case "expand":
+      return planRewrite(chapters, move);
     default:
       return fail("unknown_kind", `Unknown move kind: ${(move as { kind: string }).kind}`);
   }
+}
+
+/** A trim keeps at least this share of the chapter: below it is a summary. */
+const MIN_TRIM_RATIO = 0.4;
+/** An expansion at most doubles a chapter in one rewrite. */
+const MAX_EXPAND_RATIO = 2;
+/** The target must differ from the chapter by at least this share. */
+const MIN_CHANGE_RATIO = 0.05;
+const MIN_INSTRUCTIONS_CHARS = 20;
+
+export function planRewrite(chapters: readonly ChapterRef[], move: RewriteMove): PlanResult {
+  const chapter = chapters.find((c) => c.chapterNumber === move.chapterNumber);
+  if (!chapter) {
+    return fail("chapter_not_found", `Chapter ${move.chapterNumber} does not exist.`);
+  }
+  if ((move.instructions ?? "").trim().length < MIN_INSTRUCTIONS_CHARS) {
+    return fail(
+      "instructions_required",
+      "Say what to cut or what is missing, with the passages quoted; the ghostwriter works from it."
+    );
+  }
+  const words = chapter.wordCount;
+  const target = move.targetWords;
+  const [low, high] =
+    move.kind === "trim"
+      ? [Math.ceil(words * MIN_TRIM_RATIO), Math.floor(words * (1 - MIN_CHANGE_RATIO))]
+      : [Math.ceil(words * (1 + MIN_CHANGE_RATIO)), Math.floor(words * MAX_EXPAND_RATIO)];
+  if (!Number.isFinite(target) || target < low || target > high) {
+    return fail(
+      "target_out_of_range",
+      `Chapter ${chapter.chapterNumber} has ${words} words; a ${move.kind} target must be ${low}..${high}.`
+    );
+  }
+  return { ok: true, plan: { ordering: [], removedChapterIds: [], sourceChapterId: chapter.id } };
 }
 
 export function planReorder(

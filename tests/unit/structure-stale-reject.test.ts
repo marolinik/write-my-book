@@ -50,9 +50,13 @@ function reject(reason = "stale tab") {
 
 /** Emulates Prisma's where clause, so a status guard is really exercised. */
 function matches(row: MoveRow, where: Record<string, unknown>): boolean {
-  return Object.entries(where).every(
-    ([key, value]) => (row as unknown as Record<string, unknown>)[key] === value
-  );
+  return Object.entries(where).every(([key, value]) => {
+    const actual = (row as unknown as Record<string, unknown>)[key];
+    if (value && typeof value === "object" && "in" in value) {
+      return (value as { in: unknown[] }).in.includes(actual);
+    }
+    return actual === value;
+  });
 }
 
 beforeEach(() => {
@@ -93,6 +97,13 @@ describe("rejecting a move that is no longer pending", () => {
       expect(res.status).toBe(409);
       expect(h.rows[0].status).toBe(status);
     }
+  });
+
+  it("rejects a drafted trim and drops its draft", async () => {
+    h.rows.push({ id: "m1", bookId: "b1", status: "drafted", rejectionReason: null, draft: "x" } as never);
+    const res = await DECIDE(reject("ne treba") as never, ctx as never);
+    expect(res.status).toBe(200);
+    expect(h.rows[0]).toMatchObject({ status: "rejected", draft: null });
   });
 
   it("still rejects a pending move", async () => {

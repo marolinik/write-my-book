@@ -468,7 +468,8 @@ const listChaptersDef: ToolDefinition = {
 const proposeStructureMoveDef: ToolDefinition = {
   name: "ProposeStructureMove",
   description:
-    "Propose ONE concrete structural change to the manuscript — reorder, renumber, merge or split. " +
+    "Propose ONE concrete change to the manuscript — reorder, renumber, merge, split, or trim/expand one " +
+    "chapter toward a word target. " +
     "The proposal is inert: the writer accepts or rejects it, and only an accepted move touches the book. " +
     "Propose only moves you can justify from the architecture, the pacing metrics or the continuity " +
     "findings — say WHY in the writer's language, and name the evidence. " +
@@ -483,13 +484,16 @@ const proposeStructureMoveDef: ToolDefinition = {
         type: "string",
         description:
           "reorder (move a chapter to another position) | renumber (fix a wrong number) | " +
-          "merge (fuse adjacent chapters into one) | split (cut one chapter in two)",
-        enum: ["reorder", "renumber", "merge", "split"],
+          "merge (fuse adjacent chapters into one) | split (cut one chapter in two) | " +
+          "trim (cut a chapter that drags toward targetWords) | expand (grow a chapter that rushes or " +
+          "skips a beat toward targetWords). Trim and expand are drafted by the ghostwriter and read by " +
+          "the writer before anything changes.",
+        enum: ["reorder", "renumber", "merge", "split", "trim", "expand"],
       },
       chapterNumbers: {
         type: "array",
         description:
-          "Chapters the move acts on, by CURRENT number. reorder/renumber/split take exactly one; " +
+          "Chapters the move acts on, by CURRENT number. reorder/renumber/split/trim/expand take exactly one; " +
           "merge takes two or more that are adjacent in reading order.",
         items: { type: "number" },
         minItems: 1,
@@ -507,6 +511,19 @@ const proposeStructureMoveDef: ToolDefinition = {
       title: {
         type: "string",
         description: "merge/split only — a title for the resulting chapter, in the book's language.",
+      },
+      targetWords: {
+        type: "number",
+        description:
+          "trim/expand only — the length to aim for, in words. A trim keeps at least 40% and cuts at " +
+          "least 5%; an expansion grows at least 5% and at most doubles the chapter.",
+      },
+      instructions: {
+        type: "string",
+        description:
+          "trim/expand only — the ghostwriter's brief in the writer's language: for a trim, WHICH " +
+          "passages, scenes or repetitions to cut (quote their first words); for an expansion, WHICH " +
+          "beat, transition or scene is missing and where it belongs. Never 'make it shorter'.",
       },
       reason: {
         type: "string",
@@ -1568,6 +1585,8 @@ async function executeProposeStructureMove(
     evidence?: string;
     confidence?: number;
     alternativeTo?: string;
+    targetWords?: number;
+    instructions?: string;
   }
 ): Promise<string> {
   const reason = (input.reason ?? "").trim();
@@ -1629,7 +1648,7 @@ async function fileStructureMove(
   await retireOlderPasses(ctx.bookId, passId);
 
   const live: PassMove[] = await db.structureMove.findMany({
-    where: { bookId: ctx.bookId, status: { in: ["pending", "accepted", "applied"] } },
+    where: { bookId: ctx.bookId, status: { in: ["pending", "drafted", "accepted", "applied"] } },
     select: PASS_MOVE_SELECT,
   });
 
@@ -1743,6 +1762,8 @@ function toStructureMoveInput(
     targetPosition?: number;
     anchorQuote?: string;
     title?: string;
+    targetWords?: number;
+    instructions?: string;
   },
   numbers: number[],
   /** Chapter ids matching `numbers`, when they could all be resolved. */
@@ -1774,6 +1795,15 @@ function toStructureMoveInput(
         anchorQuote: input.anchorQuote ?? "",
         secondTitle: input.title,
       };
+    case "trim":
+    case "expand":
+      return {
+        kind: input.kind,
+        chapterId: matched ? ids[0] : undefined,
+        chapterNumber: numbers[0],
+        targetWords: Number(input.targetWords ?? NaN),
+        instructions: input.instructions ?? "",
+      };
     default:
       return null;
   }
@@ -1785,6 +1815,9 @@ function describeMove(move: StructureMoveInput): string {
       return `merge of chapters ${move.chapterNumbers.join(" + ")}`;
     case "split":
       return `split of chapter ${move.chapterNumber}`;
+    case "trim":
+    case "expand":
+      return `${move.kind} of chapter ${move.chapterNumber} to about ${move.targetWords} words`;
     default:
       return `${move.kind} of chapter ${move.chapterNumber} to position ${move.targetPosition}`;
   }
@@ -3140,6 +3173,8 @@ async function executeToolInner(
           evidence?: string;
           confidence?: number;
           alternativeTo?: string;
+          targetWords?: number;
+          instructions?: string;
         }
       );
     case "WithdrawStructureMove":

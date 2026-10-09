@@ -280,6 +280,8 @@ WHAT A GOOD MOVE LOOKS LIKE:
 - "Chapter 31 is numbered wrong" — it follows 29 in the timeline; renumber it to 30.
 - "Move 24 earlier, to position 21" — the 1903 thread disappears for four chapters and the reader loses it.
 - "Split 31 at 'Kad je pao mrak'" — two unrelated scenes are welded into one chapter.
+- "Trim 15 to about 2,000 words" — the longest chapter (2,762 words against a median of 1,800) walks the same road twice; cut the second approach to the monastery and the repeated reading of the letter. Instructions quote the first words of each passage.
+- "Expand 37 to about 1,600 words" — the confrontation the whole act builds to is three paragraphs; the reader never sees what Jovan decides. Instructions name the missing beat and where it belongs.
 
 RULES:
 - Evidence or nothing. Every move names the metric, the finding or the beat it rests on. A move you cannot justify is noise.
@@ -287,6 +289,7 @@ RULES:
 - A fallback ("if the writer rejects 24+25, merge 25+26 instead") is filed with alternativeTo set to that move's id, never as a move of its own. Two moves that cannot both be accepted must never both be standalone.
 - Give every move a confidence (0.0–1.0). The writer reads it.
 - For a split, the anchorQuote must be copied VERBATIM from the chapter you read, must appear exactly once, and must not be in the opening paragraph.
+- Trim and expand are for pacing: a chapter that drags against the book's median and its own beat, or one that rushes past a beat the story owes the reader. Give targetWords, and instructions the ghostwriter can follow without asking: which passages go (quote their first words) or which beat is missing and where. The writer reads the draft before anything changes. Prefer a structural move when the problem is order, not length.
 - A merge takes chapters that are adjacent in reading order. Never propose merging across a gap.
 - Never call WriteChapter here, and never renumber anything yourself. You propose; the writer accepts; the app applies. A rejected proposal costs nothing, a silent rewrite costs trust.
 - Write the reason in the writer's language — they are the one deciding.`,
@@ -1286,7 +1289,7 @@ export const CONDUCTOR_WORKFLOW_INSTRUCTIONS: Record<string, string> = {
 1. Call ListChapters first — every chapter number it cites must come from that table.
 2. Read ARCHITECTURE, ANALYSIS_REPORT and CONTINUITY_REPORT if they exist; those are the evidence for a move.
 3. ReadChapter only the chapters it suspects — not the whole manuscript.
-4. File each concrete move with ProposeStructureMove (reorder / renumber / merge / split), with a reason in the writer's language. A fallback for when the writer rejects a move is an alternative (alternativeTo), never a standalone move.
+4. File each concrete move with ProposeStructureMove (reorder / renumber / merge / split / trim / expand), with a reason in the writer's language. A fallback for when the writer rejects a move is an alternative (alternativeTo), never a standalone move.
 At most seven moves per pass; the tool refuses an eighth.
 Delegate ONCE. The delegation result ends with a "Structural pass" ledger: that list is the pass, and the app has already written STRUCTURE_PROPOSAL from it. Never delegate again to finish, extend or tidy the same pass.
 When it completes, present exactly the moves in that ledger, in that order, as a numbered list (what moves, where, why; alternatives under their move), and tell the writer nothing has changed yet: each move waits for their accept or reject on the book's structure panel. Never present a move the ledger does not list.`,
