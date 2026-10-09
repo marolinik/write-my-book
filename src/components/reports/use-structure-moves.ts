@@ -42,6 +42,7 @@ export function useStructureMoves(bookId: string) {
     setError(null);
     queryClient.invalidateQueries({ queryKey: ["structure-moves", bookId] });
     queryClient.invalidateQueries({ queryKey: ["chapters", bookId] });
+    queryClient.invalidateQueries({ queryKey: ["structure-book-map", bookId] });
   };
 
   const decide = useMutation({

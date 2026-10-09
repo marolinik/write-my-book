@@ -19,7 +19,9 @@ import { reconcileBookCounters } from "@/lib/books/book-counters";
 import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
 import { isRewriteKind, planRewrite, type MoveError, type RewriteMove } from "./moves";
+import { joinEdge, splitEdge } from "./chapter-edges";
 import {
+  buildHookUserContent,
   buildRewriteSystemPrompt,
   buildRewriteUserContent,
   rewriteFitsBudget,
@@ -145,8 +147,19 @@ export async function draftRewriteMove(
   if (!text.docId || text.content.trim().length === 0) {
     return fail("content_missing", "This chapter has no text to revise.");
   }
-  const budget = { kind: input.kind, targetWords: input.targetWords, reasoning: ctx.reasoning };
-  if (!rewriteFitsBudget(text.content, budget)) {
+  // A hook rewrites one edge; trim and expand rewrite the whole chapter.
+  const edge = input.kind === "hook" ? splitEdge(text.content, input.scope ?? "ending") : null;
+  const source = edge ? edge.segment : text.content;
+  if (edge && source.trim().length === 0) {
+    return fail("content_missing", "This chapter has no opening or ending to revise.");
+  }
+  const sourceWords = countWords(source);
+  const budget = {
+    kind: input.kind,
+    targetWords: input.targetWords ?? sourceWords,
+    reasoning: ctx.reasoning,
+  };
+  if (!rewriteFitsBudget(source, budget)) {
     return fail("chapter_too_long", "This chapter is too long to revise in one reply.");
   }
 
@@ -170,19 +183,32 @@ export async function draftRewriteMove(
     generation = await generate({
     system: buildRewriteSystemPrompt({
       kind: input.kind,
+      scope: input.scope,
       language: ctx.language,
       fingerprint: ctx.fingerprint,
       storyBible: ctx.storyBible,
     }),
-    user: buildRewriteUserContent({
-      chapterText: text.content,
-      chapterNumber: chapter.chapterNumber,
-      title: chapter.title,
-      currentWords: baseWords,
-      targetWords: input.targetWords,
-      instructions: input.instructions,
-    }),
-    maxTokens: rewriteMaxTokens(text.content, budget),
+    user: edge
+      ? buildHookUserContent({
+          scope: input.scope ?? "ending",
+          segment: edge.segment,
+          context: (input.scope === "opening" ? edge.after : edge.before).slice(
+            input.scope === "opening" ? 0 : -3000,
+            input.scope === "opening" ? 3000 : undefined
+          ),
+          chapterNumber: chapter.chapterNumber,
+          title: chapter.title,
+          instructions: input.instructions,
+        })
+      : buildRewriteUserContent({
+          chapterText: text.content,
+          chapterNumber: chapter.chapterNumber,
+          title: chapter.title,
+          currentWords: baseWords,
+          targetWords: input.targetWords ?? baseWords,
+          instructions: input.instructions,
+        }),
+    maxTokens: rewriteMaxTokens(source, budget),
     });
   } catch (error) {
     await release();
@@ -195,9 +221,9 @@ export async function draftRewriteMove(
   }
   const settled = settleRewrite(generation.text, generation.stopReason, {
     kind: input.kind,
-    original: text.content,
-    originalWords: baseWords,
-    targetWords: input.targetWords,
+    original: source,
+    originalWords: sourceWords,
+    targetWords: input.targetWords ?? sourceWords,
   });
   if (!settled.ok) {
     await release();
@@ -207,7 +233,8 @@ export async function draftRewriteMove(
     };
   }
 
-  const draft = enforceBookScript(settled.text, ctx.language);
+  const rewritten = enforceBookScript(settled.text, ctx.language);
+  const draft = edge ? joinEdge(edge, rewritten) : rewritten;
   const meta: DraftMeta = {
     baseDocId: text.docId,
     baseVersion: text.version,
@@ -262,10 +289,15 @@ export async function applyRewriteMove(moveId: string, ctx: RewriteContext): Pro
     return fail("chapter_edited", "The chapter changed while the draft was being applied. Nothing was replaced.");
   }
 
-  const summary = `${input.kind === "trim" ? "Trimmed" : "Expanded"} chapter ${chapter.chapterNumber} from ${meta.baseWords} to ${meta.draftWords} words.`;
+  const summary =
+    input.kind === "hook"
+      ? `Rewrote the ${input.scope ?? "ending"} of chapter ${chapter.chapterNumber}.`
+      : `${input.kind === "trim" ? "Trimmed" : "Expanded"} chapter ${chapter.chapterNumber} from ${meta.baseWords} to ${meta.draftWords} words.`;
   try {
     await db.$transaction(async (tx) => {
       await tx.chapter.update({ where: { id: chapter.id }, data: { wordCount: meta.draftWords } });
+      // The chapter's opening or ending changed: the old rating no longer describes it.
+      await tx.chapterHookRating.deleteMany({ where: { chapterId: chapter.id } });
       await reconcileBookCounters(ctx.bookId, tx);
       const now = new Date();
       const { count } = await tx.structureMove.updateMany({

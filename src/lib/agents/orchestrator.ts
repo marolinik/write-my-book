@@ -226,6 +226,10 @@ export class AgentOrchestrator {
       interactive: this.interactive,
       // D-58: produced-document sink (see documentIds above).
       documentIds,
+      // Dev editor v2: lets a tool hold a workflow's own limits (a restructure
+      // pass reads at most a few chapters whole).
+      workflowId: options.context.targetWorkflowId ?? options.workflowId,
+      fullReads: new Set<number>(),
     };
 
     const messages: Anthropic.MessageParam[] = [
@@ -345,6 +349,10 @@ export class AgentOrchestrator {
       interactive: this.interactive,
       // D-58: produced-document sink (see documentIds above).
       documentIds,
+      // Dev editor v2: lets a tool hold a workflow's own limits (a restructure
+      // pass reads at most a few chapters whole).
+      workflowId: options.context.targetWorkflowId ?? options.workflowId,
+      fullReads: new Set<number>(),
     };
 
     // Add the new user message to existing conversation

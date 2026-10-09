@@ -85,3 +85,11 @@ describe("a restructure delegation reports its pass (dev editor v2)", () => {
     expect(delegate()).toMatch(/return resultSummary \+ passReport;/);
   });
 });
+
+describe("tools know which workflow they serve (dev editor v2)", () => {
+  it("both orchestrator tool contexts carry the workflow and a fresh read set", () => {
+    const orchestrator = src("lib", "agents", "orchestrator.ts");
+    expect(orchestrator.match(/workflowId: options\.context\.targetWorkflowId \?\? options\.workflowId/g)?.length).toBe(2);
+    expect(orchestrator.match(/fullReads: new Set<number>\(\)/g)?.length).toBe(2);
+  });
+});

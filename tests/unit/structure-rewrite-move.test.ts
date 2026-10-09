@@ -10,6 +10,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 const h = vi.hoisted(() => ({
   db: {
     structureMove: { findFirst: vi.fn(), updateMany: vi.fn() },
+    chapterHookRating: { deleteMany: vi.fn() },
     chapter: { findMany: vi.fn(), update: vi.fn() },
     $transaction: vi.fn(),
   },

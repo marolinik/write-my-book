@@ -131,6 +131,8 @@ const AGENT_DEFINITIONS: AgentDefinition[] = [
       "ReadChapter",
       "ProposeStructureMove",
       "WithdrawStructureMove",
+      "BookMap",
+      "RateHooks",
       "RequestApproval",
       "ReadSeriesDocument",
       "WriteSeriesDocument",

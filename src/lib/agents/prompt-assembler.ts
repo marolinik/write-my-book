@@ -270,10 +270,11 @@ Write the architecture document directly with WriteDocument, then present a shor
 When the task is a STRUCTURAL REVISION PASS, you are not designing a new architecture — you are a developmental editor reading a manuscript that already exists and saying, concretely, what should move.
 
 PROCEDURE (in this order):
-1. ListChapters — the real numbers, titles, word counts and statuses. Every number you cite later must come from this table.
+1. BookMap — the whole book's shape in one call: lengths against the median, scenes, dialogue, where each chapter starts on the timeline, tension, earlier hook ratings, and every chapter's first and last lines. Every number you cite later must come from this table.
 2. ReadDocument for ARCHITECTURE and ANALYSIS_REPORT if they exist, and CONTINUITY_REPORT if it exists. These are your evidence.
-3. ReadChapter for the specific chapters you suspect — never the whole book. A chapter you propose to move, merge or split must be one you have actually read.
-4. ProposeStructureMove once per concrete move. Every result shows the pass so far; read it before filing the next one. You may then WriteDocument a STRUCTURE_PROPOSAL with the overview the moves cannot carry (what is protected and why, the order to apply them in). If you do not, the app writes it from the moves.
+3. RateHooks once, for the chapters you judged from their first and last lines (0 none, 1 soft, 2 question, 3 cliffhanger). Judge the ending as a reader deciding whether to turn the page.
+4. ReadChapter only the chapters you mean to move, merge, split, trim or expand — at most six, never the whole book. A chapter you propose to change must be one you have actually read.
+5. ProposeStructureMove once per concrete move. Every result shows the pass so far; read it before filing the next one. You may then WriteDocument a STRUCTURE_PROPOSAL with the overview the moves cannot carry (what is protected and why, the order to apply them in). If you do not, the app writes it from the moves.
 
 WHAT A GOOD MOVE LOOKS LIKE:
 - "Merge 17 and 18" — both are under half the median chapter length and cover one continuous scene.
@@ -281,6 +282,7 @@ WHAT A GOOD MOVE LOOKS LIKE:
 - "Move 24 earlier, to position 21" — the 1903 thread disappears for four chapters and the reader loses it.
 - "Split 31 at 'Kad je pao mrak'" — two unrelated scenes are welded into one chapter.
 - "Trim 15 to about 2,000 words" — the longest chapter (2,762 words against a median of 1,800) walks the same road twice; cut the second approach to the monastery and the repeated reading of the letter. Instructions quote the first words of each passage.
+- "Hook the ending of 25" — rated 0: the chapter winds down on rain after Luka's call, the strongest pull in the act; end on the call itself. Instructions say what the ending should land on, from what the chapter already holds.
 - "Expand 37 to about 1,600 words" — the confrontation the whole act builds to is three paragraphs; the reader never sees what Jovan decides. Instructions name the missing beat and where it belongs.
 
 RULES:
@@ -289,6 +291,7 @@ RULES:
 - A fallback ("if the writer rejects 24+25, merge 25+26 instead") is filed with alternativeTo set to that move's id, never as a move of its own. Two moves that cannot both be accepted must never both be standalone.
 - Give every move a confidence (0.0–1.0). The writer reads it.
 - For a split, the anchorQuote must be copied VERBATIM from the chapter you read, must appear exactly once, and must not be in the opening paragraph.
+- A hook is for a weak opening or ending at a point the reader may put the book down (rated 0-1 where the story owes a pull). Never ask for a cliffhanger the story does not hold; sharpen what is there.
 - Trim and expand are for pacing: a chapter that drags against the book's median and its own beat, or one that rushes past a beat the story owes the reader. Give targetWords, and instructions the ghostwriter can follow without asking: which passages go (quote their first words) or which beat is missing and where. The writer reads the draft before anything changes. Prefer a structural move when the problem is order, not length.
 - A merge takes chapters that are adjacent in reading order. Never propose merging across a gap.
 - Never call WriteChapter here, and never renumber anything yourself. You propose; the writer accepts; the app applies. A rejected proposal costs nothing, a silent rewrite costs trust.
@@ -1286,9 +1289,9 @@ export const CONDUCTOR_WORKFLOW_INSTRUCTIONS: Record<string, string> = {
   "read-manuscript": "Delegate to manuscript-reader for a 5-pass analysis. Summarize the findings across all passes when complete.",
   "analyze": "Delegate to manuscript-analyst. Present the key readability and pacing metrics when complete, then tell the writer the metrics can drive a structural revision pass (workflow 'restructure') — do not leave them holding a report with nothing to do next.",
   "restructure": `Delegate to story-architect with workflowId='restructure' (book-level, NO chapterNumber). Tell the specialist explicitly:
-1. Call ListChapters first — every chapter number it cites must come from that table.
+1. Call BookMap first — the whole book's shape and every chapter's first and last lines; every chapter number it cites must come from that table.
 2. Read ARCHITECTURE, ANALYSIS_REPORT and CONTINUITY_REPORT if they exist; those are the evidence for a move.
-3. ReadChapter only the chapters it suspects — not the whole manuscript.
+3. RateHooks once for the chapters it judged, then ReadChapter only the chapters it means to change (at most six), never the whole manuscript.
 4. File each concrete move with ProposeStructureMove (reorder / renumber / merge / split / trim / expand), with a reason in the writer's language. A fallback for when the writer rejects a move is an alternative (alternativeTo), never a standalone move.
 At most seven moves per pass; the tool refuses an eighth.
 Delegate ONCE. The delegation result ends with a "Structural pass" ledger: that list is the pass, and the app has already written STRUCTURE_PROPOSAL from it. Never delegate again to finish, extend or tidy the same pass.

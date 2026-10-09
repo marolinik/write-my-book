@@ -357,6 +357,30 @@ const TOOL_LABELS: Record<string, ToolLabelFn> = {
     };
     return templates[lang] ?? templates.en;
   },
+  BookMap: (_input, lang) => {
+    const templates: Record<string, string> = {
+      en: "Reading the shape of the whole book...",
+      sr: "Čitanje oblika cele knjige...",
+      de: "Lese die Form des ganzen Buches...",
+      es: "Leyendo la forma de todo el libro...",
+      fr: "Lecture de la forme du livre entier...",
+      ru: "Чтение формы всей книги...",
+      zh: "正在读取全书结构...",
+    };
+    return templates[lang] ?? templates.en;
+  },
+  RateHooks: (_input, lang) => {
+    const templates: Record<string, string> = {
+      en: "Rating chapter openings and endings...",
+      sr: "Ocenjivanje početaka i krajeva poglavlja...",
+      de: "Bewerte Kapitelanfänge und -enden...",
+      es: "Valorando aperturas y cierres de capítulos...",
+      fr: "Évaluation des débuts et fins de chapitres...",
+      ru: "Оценка начал и концовок глав...",
+      zh: "正在评估章节开头与结尾...",
+    };
+    return templates[lang] ?? templates.en;
+  },
   WithdrawStructureMove: (_input, lang) => {
     const templates: Record<string, string> = {
       en: "Withdrawing a weaker proposal...",

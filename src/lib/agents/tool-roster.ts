@@ -51,6 +51,10 @@ export const TOOL_GUIDANCE: Record<string, string> = {
   // ─── Structure and findings ───────────────────────────────────
   ProposeStructureMove:
     "Propose a structural change — split, merge, reorder, move a scene — for the writer to accept or reject. Propose it; never carry it out by rewriting prose yourself.",
+  BookMap:
+    "The whole book's shape in one call: lengths against the median, scenes, dialogue, tension, hooks, and every chapter's first and last lines. Read it before reading chapters whole.",
+  RateHooks:
+    "Record how strongly chapters open and end (0-3), for the writer's book map and the next pass.",
   WithdrawStructureMove:
     "Withdraw one of your own pending moves from this pass, to make room for a stronger one or because it proved wrong. Moves the writer decided stay decided.",
   CreateFinding:

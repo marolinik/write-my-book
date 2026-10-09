@@ -51,6 +51,7 @@ import {
   type PassMove,
 } from "@/lib/structure/pass";
 import { finishRestructureDelegation } from "@/lib/structure/proposal-doc";
+import { executeBookMap, executeRateHooks } from "@/lib/structure/book-map-tool";
 import { addedEditorialNote } from "@/lib/editorial/finding-applicability";
 import {
   verifyCrossReferences,
@@ -291,6 +292,10 @@ export interface ToolContext {
   userId: string;
   sessionId: string;
   agentType: string;
+  /** The workflow this session runs, when known (dev editor v2: per-workflow limits). */
+  workflowId?: string;
+  /** Chapters this session has read whole (dev editor v2: the restructure read cap). */
+  fullReads?: Set<number>;
   documentService: DocumentService;
   seriesId?: string;
   seriesDocumentService?: DocumentService;
@@ -487,8 +492,9 @@ const proposeStructureMoveDef: ToolDefinition = {
           "merge (fuse adjacent chapters into one) | split (cut one chapter in two) | " +
           "trim (cut a chapter that drags toward targetWords) | expand (grow a chapter that rushes or " +
           "skips a beat toward targetWords). Trim and expand are drafted by the ghostwriter and read by " +
-          "the writer before anything changes.",
-        enum: ["reorder", "renumber", "merge", "split", "trim", "expand"],
+          "the writer before anything changes. hook (rewrite only the chapter's opening or ending, " +
+          "with scope) is for a weak first or last scene at a point the reader may put the book down.",
+        enum: ["reorder", "renumber", "merge", "split", "trim", "expand", "hook"],
       },
       chapterNumbers: {
         type: "array",
@@ -518,12 +524,18 @@ const proposeStructureMoveDef: ToolDefinition = {
           "trim/expand only — the length to aim for, in words. A trim keeps at least 40% and cuts at " +
           "least 5%; an expansion grows at least 5% and at most doubles the chapter.",
       },
+      scope: {
+        type: "string",
+        description: "hook only — which edge of the chapter to rewrite.",
+        enum: ["opening", "ending"],
+      },
       instructions: {
         type: "string",
         description:
-          "trim/expand only — the ghostwriter's brief in the writer's language: for a trim, WHICH " +
+          "trim/expand/hook — the ghostwriter's brief in the writer's language: for a trim, WHICH " +
           "passages, scenes or repetitions to cut (quote their first words); for an expansion, WHICH " +
-          "beat, transition or scene is missing and where it belongs. Never 'make it shorter'.",
+          "beat, transition or scene is missing and where it belongs; for a hook, what the edge should " +
+          "land on, from what the story already holds. Never 'make it shorter' or 'make it gripping'.",
       },
       reason: {
         type: "string",
@@ -548,6 +560,43 @@ const proposeStructureMoveDef: ToolDefinition = {
       },
     },
     required: ["kind", "chapterNumbers", "reason", "confidence"],
+  },
+};
+
+const bookMapDef: ToolDefinition = {
+  name: "BookMap",
+  description:
+    "The whole book's shape in one call: per chapter its words (against the median), scenes, dialogue " +
+    "share, words per sentence, where it starts on the book's timeline, tension from the analysis if one " +
+    "exists, earlier hook ratings, and its first and last lines. Call it FIRST in a structural pass; then " +
+    "ReadChapter only the few chapters you mean to move, cut or grow.",
+  input_schema: { type: "object" as const, properties: {} },
+};
+
+const rateHooksDef: ToolDefinition = {
+  name: "RateHooks",
+  description:
+    "Record how strongly chapters open and end, as you judged them from BookMap's first and last lines: " +
+    "0 none, 1 soft, 2 a question, 3 a cliffhanger. One call for all the chapters you judged. The writer " +
+    "sees these on the book map.",
+  input_schema: {
+    type: "object" as const,
+    properties: {
+      ratings: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            chapterNumber: { type: "number" },
+            opening: { type: "number", description: "0-3" },
+            ending: { type: "number", description: "0-3" },
+            note: { type: "string", description: "Optional, one line, in the writer's language." },
+          },
+          required: ["chapterNumber", "opening", "ending"],
+        },
+      },
+    },
+    required: ["ratings"],
   },
 };
 
@@ -1178,6 +1227,8 @@ const ALL_TOOL_DEFINITIONS: ToolDefinition[] = [
   listChaptersDef,
   proposeStructureMoveDef,
   withdrawStructureMoveDef,
+  bookMapDef,
+  rateHooksDef,
   listSeriesBooksDef,
   readSiblingChapterDef,
   createFindingDef,
@@ -1382,14 +1433,32 @@ async function executeWriteDocument(
   }
 }
 
+/**
+ * A structural pass reads at most this many chapters whole. Every chapter read
+ * stays in context for every later turn: the live run that read ten cost 4.9M
+ * input tokens. BookMap carries the rest of the book.
+ */
+const RESTRUCTURE_FULL_READS = 6;
+
 async function executeReadChapter(
   ctx: ToolContext,
   input: { chapterNumber: number }
 ): Promise<string> {
+  const capped = ctx.workflowId === "restructure" && ctx.fullReads ? ctx.fullReads : null;
+  const asked = Number(input.chapterNumber);
+  if (capped && !capped.has(asked) && capped.size >= RESTRUCTURE_FULL_READS) {
+    return (
+      `Read limit reached: a structural pass reads at most ${RESTRUCTURE_FULL_READS} chapters whole, and you ` +
+      `have read ${[...capped].sort((a, b) => a - b).join(", ")}. Work from BookMap's numbers and ` +
+      `edges for the rest, or propose from what you have read.`
+    );
+  }
   const doc = await ctx.documentService.findByType(
     DocumentType.CHAPTER_CONTENT,
     input.chapterNumber
   );
+  // Counted once the chapter exists: a miss must not spend a read.
+  if (capped && doc) capped.add(asked);
   if (!doc) {
     return `No content found for chapter ${input.chapterNumber}.`;
   }
@@ -1587,6 +1656,7 @@ async function executeProposeStructureMove(
     alternativeTo?: string;
     targetWords?: number;
     instructions?: string;
+    scope?: string;
   }
 ): Promise<string> {
   const reason = (input.reason ?? "").trim();
@@ -1764,6 +1834,7 @@ function toStructureMoveInput(
     title?: string;
     targetWords?: number;
     instructions?: string;
+    scope?: string;
   },
   numbers: number[],
   /** Chapter ids matching `numbers`, when they could all be resolved. */
@@ -1804,6 +1875,14 @@ function toStructureMoveInput(
         targetWords: Number(input.targetWords ?? NaN),
         instructions: input.instructions ?? "",
       };
+    case "hook":
+      return {
+        kind: "hook",
+        chapterId: matched ? ids[0] : undefined,
+        chapterNumber: numbers[0],
+        scope: input.scope as "opening" | "ending",
+        instructions: input.instructions ?? "",
+      };
     default:
       return null;
   }
@@ -1818,6 +1897,8 @@ function describeMove(move: StructureMoveInput): string {
     case "trim":
     case "expand":
       return `${move.kind} of chapter ${move.chapterNumber} to about ${move.targetWords} words`;
+    case "hook":
+      return `hook on the ${move.scope} of chapter ${move.chapterNumber}`;
     default:
       return `${move.kind} of chapter ${move.chapterNumber} to position ${move.targetPosition}`;
   }
@@ -3175,7 +3256,15 @@ async function executeToolInner(
           alternativeTo?: string;
           targetWords?: number;
           instructions?: string;
+          scope?: string;
         }
+      );
+    case "BookMap":
+      return executeBookMap(ctx);
+    case "RateHooks":
+      return executeRateHooks(
+        ctx,
+        input as unknown as { ratings?: Array<{ chapterNumber: number; opening: number; ending: number; note?: string }> | string }
       );
     case "WithdrawStructureMove":
       return executeWithdrawStructureMove(ctx, input as unknown as { moveId: string; reason?: string });

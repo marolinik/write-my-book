@@ -244,6 +244,7 @@ model Book {
   batchRuns       BatchRun[]
   sharedSnapshots SharedSnapshot[]
   structureMoves  StructureMove[]
+  hookRatings     ChapterHookRating[]
 
   @@unique([seriesId, bookNumber])
   @@unique([userId, name])
@@ -269,7 +270,8 @@ model Chapter {
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
-  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  book       Book               @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  hookRating ChapterHookRating?
 
   @@unique([bookId, chapterNumber])
   @@map("chapters")
@@ -613,6 +615,27 @@ model StructureMove {
 
   @@index([bookId, status])
   @@map("structure_moves")
+}
+
+// Dev editor v2: how strongly a chapter opens and ends, as the developmental
+// editor last judged it (0 none, 1 soft, 2 question, 3 cliffhanger). One row
+// per chapter, replaced by each pass; the book map shows it.
+model ChapterHookRating {
+  id        String   @id @default(uuid())
+  bookId    String   @map("book_id")
+  chapterId String   @unique @map("chapter_id")
+  sessionId String?  @map("session_id")
+  opening   Int
+  ending    Int
+  note      String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  book    Book    @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  chapter Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@index([bookId])
+  @@map("chapter_hook_ratings")
 }
 
 // ─── CANON CHECK CACHE ──────────────────────────────────────────

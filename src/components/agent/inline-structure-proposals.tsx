@@ -105,7 +105,7 @@ function ProposalRow({
   onDecide: (decision: "accept" | "reject") => void;
   onDraft: () => void;
 }) {
-  const rewrite = move.kind === "trim" || move.kind === "expand";
+  const rewrite = move.kind === "trim" || move.kind === "expand" || move.kind === "hook";
   // A whole-chapter draft is read side by side on the structure tab; the
   // panel is too narrow for it, so it links there instead of accepting blind.
   if (rewrite && move.status === "drafted") {

@@ -24,6 +24,13 @@ const PREAMBLE_TOKENS = 512;
 /** Room above the target: models overshoot, and a cut-off draft is useless. */
 const TARGET_GROWTH = 1.3;
 
+/** A rewritten edge keeps roughly the edge's length. */
+const HOOK_MIN_RATIO = 0.6;
+const HOOK_MAX_RATIO = 1.6;
+/** An edge kept whole and grown by this much is an extension, not a rewrite. */
+const HOOK_APPEND_MIN_WORDS = 25;
+const HOOK_APPEND_GROWTH = 1.05;
+
 /** How close to its brief a draft must land. */
 const TRIM_MUST_SHRINK = 0.98;
 const TRIM_FLOOR_OF_TARGET = 0.6;
@@ -32,7 +39,15 @@ const EXPAND_CEILING_OF_TARGET = 1.6;
 
 export type RewriteRejection = "truncated" | "empty" | "off-target" | "editorial-note" | "reasoning-only";
 
-const BRIEF: Record<RewriteKind, string> = {
+const HOOK_BRIEF: Record<"opening" | "ending", string> = {
+  opening: `HOOK: THE OPENING. Rewrite only this opening so the reader is inside the chapter from its first lines: begin in motion, in a concrete moment, or on a question the chapter goes on to answer. Cut throat-clearing and recap. Keep every event and fact the opening carries; the rest of the chapter continues from it unchanged.`,
+  ending: `HOOK: THE ENDING. Rewrite only this ending so the reader turns the page: land on a turn, a decision, a revelation or an open question the story genuinely raises. Cut the winding down. Never resolve what the next chapters owe the reader, and never invent an event the story does not support; sharpen what is already there.`,
+};
+
+/** Said to every hook: an edge is rewritten in place, never extended. */
+const HOOK_IN_PLACE = `Rewrite the passage itself: do not keep the passage and add to it, and do not continue past where it ends. The rewritten passage replaces the original exactly where it stands.`;
+
+const BRIEF: Record<Exclude<RewriteKind, "hook">, string> = {
   trim: `TRIM. Cut this chapter toward the target length. Cut what the editor's instructions name first, then tighten what remains: repetition, restated information, over-long description, beats the reader already has. Keep every sentence that carries the story or the voice, and keep the writer's own sentences wherever they survive; this is a cut, not a paraphrase.`,
   expand: `EXPAND. Grow this chapter toward the target length by adding what the editor's instructions name: the missing beat, transition or scene, in the place they name. Keep every existing sentence that works, in its place. Add story, not padding: no extra adjectives, no restated feelings, no description for its own sake.`,
 };
@@ -43,6 +58,8 @@ function cap(text: string, limit: number): string {
 
 export interface RewritePromptInput {
   kind: RewriteKind;
+  /** hook only. */
+  scope?: "opening" | "ending";
   language: string | null | undefined;
   fingerprint: string | null;
   storyBible: string | null;
@@ -63,8 +80,11 @@ ${cap(input.storyBible.trim(), STORY_BIBLE_CAP)}`
     : "";
 
   return [
-    `You are a developmental editor's ghostwriter revising one chapter of a novel. You return the whole chapter, revised, and nothing else.`,
-    BRIEF[input.kind],
+    input.kind === "hook"
+      ? `You are a developmental editor's ghostwriter revising one edge of a chapter of a novel. You return only that passage, revised, and nothing else.`
+      : `You are a developmental editor's ghostwriter revising one chapter of a novel. You return the whole chapter, revised, and nothing else.`,
+    input.kind === "hook" ? `${HOOK_BRIEF[input.scope ?? "ending"]}
+${HOOK_IN_PLACE}` : BRIEF[input.kind],
     `## Rules
 - Keep every name, place, date and fact exactly as written. Contradict nothing in the canon.
 - Keep the point of view and the tense.
@@ -89,6 +109,26 @@ export interface RewriteUserInput {
   currentWords: number;
   targetWords: number;
   instructions: string;
+}
+
+/** The user turn for a hook: the edge to rewrite, with the chapter around it for context. */
+export function buildHookUserContent(input: {
+  scope: "opening" | "ending";
+  segment: string;
+  context: string;
+  chapterNumber: number;
+  title: string | null;
+  instructions: string;
+}): string {
+  const heading = input.title ? `Chapter ${input.chapterNumber}: ${input.title}` : `Chapter ${input.chapterNumber}`;
+  const where = input.scope === "opening" ? "what follows the opening" : "what comes before the ending";
+  return [
+    `${heading}. Rewrite its ${input.scope}.`,
+    `The editor's instructions:\n${input.instructions.trim()}`,
+    `For context only (do not rewrite or repeat it), ${where}:\n<context>\n${input.context}\n</context>`,
+    `<passage>\n${input.segment}\n</passage>`,
+    `Rewrite the passage between the <passage> tags and return only the rewritten passage.`,
+  ].join("\n\n");
 }
 
 export function buildRewriteUserContent(input: RewriteUserInput): string {
@@ -147,6 +187,22 @@ export function settleRewrite(
   if (addedEditorialNote(ctx.original, text)) return { ok: false, reason: "editorial-note" };
 
   const words = countWords(text);
+  if (ctx.kind === "hook") {
+    // The live run kept the whole original ending and appended to it: that is
+    // an extension, not the rewrite the move asked for.
+    // Only a real passage kept whole at one end and grown past it counts: a
+    // rewrite may build toward a short original line.
+    const flat = (t: string) => t.replace(/\s+/g, " ").trim();
+    const original = flat(ctx.original);
+    const out = flat(text);
+    const extended =
+      ctx.originalWords >= HOOK_APPEND_MIN_WORDS &&
+      (out.startsWith(original) || out.endsWith(original)) &&
+      words > ctx.originalWords * HOOK_APPEND_GROWTH;
+    if (extended) return { ok: false, reason: "off-target" };
+    const fits = words >= ctx.originalWords * HOOK_MIN_RATIO && words <= ctx.originalWords * HOOK_MAX_RATIO;
+    return fits ? { ok: true, text, words } : { ok: false, reason: "off-target" };
+  }
   const onTarget =
     ctx.kind === "trim"
       ? words < ctx.originalWords * TRIM_MUST_SHRINK && words >= ctx.targetWords * TRIM_FLOOR_OF_TARGET

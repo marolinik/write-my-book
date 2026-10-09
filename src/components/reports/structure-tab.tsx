@@ -15,6 +15,7 @@ import {
   UnfoldVerticalIcon,
   PenLineIcon,
   FileDiffIcon,
+  FishingHookIcon,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ import type { StructureMove } from "@/lib/structure/types";
 import { LIVE_MOVE_STATUSES } from "@/lib/structure/types";
 import { groupMoves } from "@/lib/structure/group";
 import { DraftComparison } from "./draft-comparison";
+import { BookMap } from "./book-map";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
 import { cn } from "@/lib/utils";
 
@@ -54,9 +56,23 @@ const KIND_ICONS: Record<string, React.ElementType> = {
   split: SplitIcon,
   trim: ScissorsIcon,
   expand: UnfoldVerticalIcon,
+  hook: FishingHookIcon,
 };
 
-const isRewrite = (kind: string) => kind === "trim" || kind === "expand";
+const isRewrite = (kind: string) => kind === "trim" || kind === "expand" || kind === "hook";
+
+/** The kind's name in the writer's language. */
+function kindLabelOf(kind: string, s: ReturnType<typeof useLanguage>["t"]["structure"]): string {
+  const labels: Record<string, string> = {
+    merge: s.kindMerge,
+    split: s.kindSplit,
+    renumber: s.kindRenumber,
+    trim: s.kindTrim,
+    expand: s.kindExpand,
+    hook: s.kindHook,
+  };
+  return labels[kind] ?? s.kindReorder;
+}
 
 const STATUS_VARIANTS: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
   pending: "default",
@@ -146,6 +162,15 @@ export function StructureTab({ bookId }: { bookId: string }) {
           {s.runPass}
         </Button>
       </div>
+
+      {/* The shape the editor reasoned over, with its proposals pinned to their
+          chapters, before the proposals themselves (dev editor v2). */}
+      <BookMap
+        bookId={bookId}
+        moves={moves.filter((m) => LIVE_MOVE_STATUSES.includes(m.status))}
+        s={s as unknown as Record<string, string>}
+        kindLabel={(kind) => kindLabelOf(kind, s)}
+      />
 
       {error && (
         <div
@@ -258,14 +283,7 @@ function MoveCard({
 }) {
   const Icon = KIND_ICONS[move.kind] ?? NetworkIcon;
   const [comparing, setComparing] = useState(false);
-  const kindLabels: Record<string, string> = {
-    merge: s.kindMerge,
-    split: s.kindSplit,
-    renumber: s.kindRenumber,
-    trim: s.kindTrim,
-    expand: s.kindExpand,
-  };
-  const kindLabel = kindLabels[move.kind] ?? s.kindReorder;
+  const kindLabel = kindLabelOf(move.kind, s);
   const rewrite = isRewrite(move.kind);
 
   const statusLabels: Record<string, string> = {
@@ -417,9 +435,23 @@ function MoveCard({
 /** What the move did, in the writer's language, built from the move (D-204). */
 export function describeMoveResult(
   move: Pick<StructureMove, "kind" | "payload" | "resultSummary" | "draft">,
-  s: { doneReorder: string; doneMerge: string; doneSplit: string; doneTrim: string; doneExpand: string }
+  s: {
+    doneReorder: string;
+    doneMerge: string;
+    doneSplit: string;
+    doneTrim: string;
+    doneExpand: string;
+    doneHookOpening: string;
+    doneHookEnding: string;
+  }
 ): string {
   const p = move.payload ?? {};
+  if (move.kind === "hook") {
+    return (p.scope === "opening" ? s.doneHookOpening : s.doneHookEnding).replace(
+      "{n}",
+      String(p.chapterNumber ?? "?")
+    );
+  }
   if (move.kind === "trim" || move.kind === "expand") {
     return (move.kind === "trim" ? s.doneTrim : s.doneExpand)
       .replace("{n}", String(p.chapterNumber ?? "?"))
@@ -442,9 +474,23 @@ export function describeMoveResult(
 /** Render the move as one plain sentence in the writer's language. */
 export function describeMove(
   move: Pick<StructureMove, "kind" | "payload">,
-  s: { moveReorder: string; moveMerge: string; moveSplit: string; moveTrim: string; moveExpand: string }
+  s: {
+    moveReorder: string;
+    moveMerge: string;
+    moveSplit: string;
+    moveTrim: string;
+    moveExpand: string;
+    moveHookOpening: string;
+    moveHookEnding: string;
+  }
 ): string {
   const p = move.payload ?? {};
+  if (move.kind === "hook") {
+    return (p.scope === "opening" ? s.moveHookOpening : s.moveHookEnding).replace(
+      "{n}",
+      String(p.chapterNumber ?? "?")
+    );
+  }
   if (move.kind === "trim" || move.kind === "expand") {
     return (move.kind === "trim" ? s.moveTrim : s.moveExpand)
       .replace("{n}", String(p.chapterNumber ?? "?"))

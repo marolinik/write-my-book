@@ -12,10 +12,10 @@
  * Inputs are never mutated; every planner returns new arrays.
  */
 
-export type MoveKind = "reorder" | "renumber" | "merge" | "split" | "trim" | "expand";
+export type MoveKind = "reorder" | "renumber" | "merge" | "split" | "trim" | "expand" | "hook";
 
 /** Kinds that rewrite a chapter's prose through a draft the writer reads first. */
-export const REWRITE_KINDS = ["trim", "expand"] as const;
+export const REWRITE_KINDS = ["trim", "expand", "hook"] as const;
 export type RewriteKind = (typeof REWRITE_KINDS)[number];
 
 export function isRewriteKind(kind: string): kind is RewriteKind {
@@ -74,8 +74,10 @@ export interface RewriteMove {
   kind: RewriteKind;
   chapterId?: string;
   chapterNumber: number;
-  /** The length the rewrite aims for, in words. */
-  targetWords: number;
+  /** The length the rewrite aims for, in words (trim/expand). */
+  targetWords?: number;
+  /** hook only: which edge of the chapter is rewritten. */
+  scope?: "opening" | "ending";
   /** What to cut or what is missing, with passages quoted: the ghostwriter's brief. */
   instructions: string;
 }
@@ -231,6 +233,8 @@ export function moveIdentityKey(move: StructureMoveInput): string {
       // One rewrite of a chapter at a time: a second trim with another target
       // is the same proposal, not a new one.
       return [move.kind, move.chapterId ?? `#${move.chapterNumber}`].join("|");
+    case "hook":
+      return ["hook", move.chapterId ?? `#${move.chapterNumber}`, move.scope ?? ""].join("|");
   }
 }
 
@@ -252,6 +256,7 @@ export function planMove(
       return planSplit(chapters, move);
     case "trim":
     case "expand":
+    case "hook":
       return planRewrite(chapters, move);
     default:
       return fail("unknown_kind", `Unknown move kind: ${(move as { kind: string }).kind}`);
@@ -277,8 +282,14 @@ export function planRewrite(chapters: readonly ChapterRef[], move: RewriteMove):
       "Say what to cut or what is missing, with the passages quoted; the ghostwriter works from it."
     );
   }
+  if (move.kind === "hook") {
+    if (move.scope !== "opening" && move.scope !== "ending") {
+      return fail("target_out_of_range", "A hook rewrites the chapter's opening or its ending.");
+    }
+    return { ok: true, plan: { ordering: [], removedChapterIds: [], sourceChapterId: chapter.id } };
+  }
   const words = chapter.wordCount;
-  const target = move.targetWords;
+  const target = move.targetWords ?? NaN;
   const [low, high] =
     move.kind === "trim"
       ? [Math.ceil(words * MIN_TRIM_RATIO), Math.floor(words * (1 - MIN_CHANGE_RATIO))]

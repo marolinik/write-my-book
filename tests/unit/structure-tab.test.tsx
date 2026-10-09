@@ -270,4 +270,42 @@ describe("StructureTab", () => {
       await waitFor(() => expect(hits.some((h) => h.url.endsWith("/t1/draft") && h.method === "DELETE")).toBe(true));
     });
   });
+
+  describe("the book map", () => {
+    const map = {
+      totalWords: 3200,
+      medianWords: 1600,
+      chapters: [
+        { chapterId: "c1", chapterNumber: 1, title: "Zakletva", words: 800, scenes: 2, dialogueShare: 0.3, startsAtPct: 0, flags: ["short"], tension: null, hook: { opening: 1, ending: 3, note: "Kraj vuče." } },
+        { chapterId: "c2", chapterNumber: 2, title: "Pustinja", words: 2400, scenes: 1, dialogueShare: 0, startsAtPct: 25, flags: ["long"], tension: 4, hook: null },
+      ],
+    };
+    const hook = {
+      ...pendingMerge,
+      id: "h1",
+      kind: "hook",
+      payload: { kind: "hook", chapterNumber: 2, scope: "ending" },
+    };
+
+    it("shows every chapter with its numbers, hooks and the proposals pinned to it", async () => {
+      mockFetch((url) => (url.endsWith("/book-map") ? map : { moves: [hook] }));
+      const { container } = renderTab();
+      expect(await screen.findByText("Mapa knjige")).toBeTruthy();
+      expect(await screen.findByText("Pustinja")).toBeTruthy();
+      expect(screen.getByText("Zakletva")).toBeTruthy();
+      expect(screen.getByText("1/3")).toBeTruthy();
+      expect(screen.getByText(/medijana 1600 reči/)).toBeTruthy();
+      const row = container.querySelector('[data-chapter="2"]');
+      expect(row?.textContent).toContain("2400");
+      expect(row?.textContent).toContain("Udica");
+      expect(screen.getByText("Pojačaj kraj poglavlja 2")).toBeTruthy();
+    });
+
+    it("says so when the map cannot load, and still lists the proposals", async () => {
+      mockFetch((url) => (url.endsWith("/book-map") ? { __status: 500 } : { moves: [hook] }));
+      renderTab();
+      expect(await screen.findByText("Mapa knjige ne može da se učita.")).toBeTruthy();
+      expect(screen.getByText("Pojačaj kraj poglavlja 2")).toBeTruthy();
+    });
+  });
 });

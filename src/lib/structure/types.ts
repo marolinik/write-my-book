@@ -28,6 +28,7 @@ export interface StructureMove {
     title?: string;
     targetWords?: number;
     instructions?: string;
+    scope?: "opening" | "ending";
   } | null;
 }
 
