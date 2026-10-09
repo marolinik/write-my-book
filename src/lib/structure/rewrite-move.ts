@@ -28,6 +28,12 @@ import {
 } from "./rewrite-prompt";
 
 const CHANGE_SOURCE = "structure";
+/**
+ * A draft holds its move in `drafting` while the model writes, so a second
+ * click or tab cannot run (and bill) a second draft. A claim older than this is
+ * a crashed request, and the move is free again.
+ */
+const DRAFTING_STALE_MS = 15 * 60 * 1000;
 
 export interface RewriteContext {
   bookId: string;
@@ -65,7 +71,7 @@ export type RewriteOutcome = { ok: true; summary: string } | { ok: false; error:
 
 /** The writer saved the chapter after the apply; undo would take that back. */
 export class RewriteEditedError extends Error {
-  readonly code = "chapter_edited" as const;
+  readonly code = "rewrite_edited" as const;
   constructor() {
     super("The chapter was edited after this change was applied, so undo would erase that writing.");
   }
@@ -115,9 +121,18 @@ export async function draftRewriteMove(
   const move = await db.structureMove.findFirst({ where: { id: moveId, bookId: ctx.bookId } });
   if (!move) return fail("move_not_found", "This proposal no longer exists.");
   if (!isRewriteKind(move.kind)) return fail("unknown_kind", "Only a trim or an expansion has a draft.");
-  if (move.status !== "pending") return fail("not_pending", `This proposal is already ${move.status}.`);
+  const staleBefore = new Date(Date.now() - DRAFTING_STALE_MS);
+  const staleClaim = move.status === "drafting" && !!move.updatedAt && move.updatedAt < staleBefore;
+  if (move.status !== "pending" && !staleClaim) {
+    return fail("not_pending", `This proposal is already ${move.status}.`);
+  }
 
   const input = JSON.parse(move.payload) as RewriteMove;
+  // A rewrite runs the model on a whole chapter; it must be the chapter the
+  // editor read, never whichever one now carries the number.
+  if (!input.chapterId) {
+    return fail("chapter_not_found", "This proposal does not name its chapter; ask the editor to propose it again.");
+  }
   const { chapters, chapter } = await loadChapter(ctx.bookId, input.chapterId, input.chapterNumber);
   if (!chapter) return fail("chapter_not_found", "The chapter this move was written for no longer exists.");
   // Re-planned against the chapter as it is now: the writer may have changed
@@ -136,7 +151,23 @@ export async function draftRewriteMove(
   }
 
   const baseWords = countWords(text.content);
-  const generation = await generate({
+  const claimed = await db.structureMove.updateMany({
+    where: {
+      id: moveId,
+      bookId: ctx.bookId,
+      OR: [{ status: "pending" }, { status: "drafting", updatedAt: { lt: staleBefore } }],
+    },
+    data: { status: "drafting" },
+  });
+  if (claimed.count === 0) return fail("not_pending", "A draft of this proposal is already being written.");
+  const release = () =>
+    db.structureMove
+      .updateMany({ where: { id: moveId, status: "drafting" }, data: { status: "pending" } })
+      .catch((err) => console.error(`[structure] could not release the draft claim on ${moveId}:`, err));
+
+  let generation: RewriteGeneration;
+  try {
+    generation = await generate({
     system: buildRewriteSystemPrompt({
       kind: input.kind,
       language: ctx.language,
@@ -152,9 +183,14 @@ export async function draftRewriteMove(
       instructions: input.instructions,
     }),
     maxTokens: rewriteMaxTokens(text.content, budget),
-  });
+    });
+  } catch (error) {
+    await release();
+    throw error;
+  }
 
   if (generation.reasoningOnly) {
+    await release();
     return { ...fail("model_no_prose", "The ghostwriter's model returned only reasoning and no prose."), tokens: generation.tokens };
   }
   const settled = settleRewrite(generation.text, generation.stopReason, {
@@ -164,6 +200,7 @@ export async function draftRewriteMove(
     targetWords: input.targetWords,
   });
   if (!settled.ok) {
+    await release();
     return {
       ...fail("draft_rejected", `The draft could not be used (${settled.reason}). Try again.`),
       tokens: generation.tokens,
@@ -179,11 +216,18 @@ export async function draftRewriteMove(
     model: ctx.modelId,
     draftedAt: new Date().toISOString(),
   };
-  const { count } = await db.structureMove.updateMany({
-    where: { id: moveId, bookId: ctx.bookId, status: "pending" },
-    data: { status: "drafted", draft, draftMeta: JSON.stringify(meta) },
-  });
-  if (count === 0) return { ...fail("not_pending", "This proposal was decided while the draft was written."), tokens: generation.tokens };
+  let stored = 0;
+  try {
+    ({ count: stored } = await db.structureMove.updateMany({
+      where: { id: moveId, bookId: ctx.bookId, status: "drafting" },
+      data: { status: "drafted", draft, draftMeta: JSON.stringify(meta) },
+    }));
+  } catch (error) {
+    console.error(`[structure] draft of ${moveId} could not be stored:`, error);
+    await release();
+    return { ...fail("apply_failed", "The draft could not be saved. Try again."), tokens: generation.tokens };
+  }
+  if (stored === 0) return { ...fail("not_pending", "This proposal was decided while the draft was written."), tokens: generation.tokens };
   return { ok: true, baseWords, draftWords: meta.draftWords, tokens: generation.tokens };
 }
 
@@ -244,10 +288,22 @@ export async function applyRewriteMove(moveId: string, ctx: RewriteContext): Pro
     });
   } catch (error) {
     console.error(`[structure] move ${moveId} could not be committed; putting the chapter back:`, error);
+    // Only over the version this apply wrote: without it, a put-back could
+    // overwrite a save the writer made in between.
+    if (rewriteVersion === undefined) {
+      return fail(
+        "apply_failed",
+        "The draft was written but the change could not be recorded. The previous text is in the chapter's version history."
+      );
+    }
     try {
       await docs.update(text.docId, text.content, undefined, "agent_write", CHANGE_SOURCE, rewriteVersion);
     } catch (putBack) {
       console.error("[structure] could not put the chapter back:", putBack);
+      return fail(
+        "apply_failed",
+        "The draft was written but the change could not be recorded. The previous text is in the chapter's version history."
+      );
     }
     return fail("apply_failed", "The change could not be saved, so the chapter was left as it was.");
   }
@@ -259,15 +315,21 @@ export async function restoreRewrite(
   ctx: RewriteContext,
   previous: { sourceChapterId?: string; sourceContent?: string; sourceWordCount?: number; rewriteVersion?: number }
 ): Promise<void> {
-  const { chapter } = await loadChapter(ctx.bookId, previous.sourceChapterId, -1);
-  if (!chapter || previous.sourceContent === undefined) {
-    throw new Error("The chapter this change was applied to no longer exists.");
+  if (!previous.sourceChapterId || previous.sourceContent === undefined) {
+    throw new Error("This change has no record of the chapter it replaced.");
   }
+  const { chapter } = await loadChapter(ctx.bookId, previous.sourceChapterId, -1);
+  if (!chapter) throw new Error("The chapter this change was applied to no longer exists.");
   const docs = new DocumentService(ctx.userId, ctx.bookId);
   const text = await readChapterText(docs, chapter.chapterNumber);
-  if (!text.docId || text.version !== previous.rewriteVersion) throw new RewriteEditedError();
+  if (!text.docId) throw new RewriteEditedError();
 
-  await docs.update(text.docId, previous.sourceContent, undefined, "agent_write", CHANGE_SOURCE, text.version);
+  // A previous undo may have restored the prose and then failed on the count:
+  // finish it instead of refusing it forever.
+  if (text.content !== previous.sourceContent) {
+    if (text.version !== previous.rewriteVersion) throw new RewriteEditedError();
+    await docs.update(text.docId, previous.sourceContent, undefined, "agent_write", CHANGE_SOURCE, text.version);
+  }
   await db.$transaction(async (tx) => {
     await tx.chapter.update({
       where: { id: chapter.id },

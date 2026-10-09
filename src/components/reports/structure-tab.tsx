@@ -11,7 +11,12 @@ import {
   Undo2Icon,
   NetworkIcon,
   SparklesIcon,
+  ScissorsIcon,
+  UnfoldVerticalIcon,
+  PenLineIcon,
+  FileDiffIcon,
 } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -26,6 +31,7 @@ import { useStructureMoves } from "./use-structure-moves";
 import type { StructureMove } from "@/lib/structure/types";
 import { LIVE_MOVE_STATUSES } from "@/lib/structure/types";
 import { groupMoves } from "@/lib/structure/group";
+import { DraftComparison } from "./draft-comparison";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
 import { cn } from "@/lib/utils";
 
@@ -46,10 +52,15 @@ const KIND_ICONS: Record<string, React.ElementType> = {
   renumber: HashIcon,
   merge: MergeIcon,
   split: SplitIcon,
+  trim: ScissorsIcon,
+  expand: UnfoldVerticalIcon,
 };
+
+const isRewrite = (kind: string) => kind === "trim" || kind === "expand";
 
 const STATUS_VARIANTS: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
   pending: "default",
+  drafted: "default",
   applied: "secondary",
   accepted: "secondary",
   rejected: "outline",
@@ -72,7 +83,24 @@ export function StructureTab({ bookId }: { bookId: string }) {
     isDeciding,
     decide,
     undo,
+    isDrafting,
+    makeDraft,
+    discardDraft,
   } = useStructureMoves(bookId);
+
+  /** What every card needs, whatever list it sits in. */
+  const cardProps = (move: StructureMove) => ({
+    move,
+    bookId,
+    strings: s,
+    busy: busyId === move.id || isDeciding,
+    drafting: isDrafting(move),
+    onAccept: () => decide.mutate({ id: move.id, decision: "accept" }),
+    onReject: () => decide.mutate({ id: move.id, decision: "reject" }),
+    onUndo: () => undo.mutate(move.id),
+    onDraft: () => makeDraft.mutate(move.id),
+    onDiscard: () => discardDraft.mutate(move.id),
+  });
 
   if (isLoading) {
     return (
@@ -94,7 +122,7 @@ export function StructureTab({ bookId }: { bookId: string }) {
     );
   }
 
-  const pending = moves.filter((m) => m.status === "pending");
+  const pending = moves.filter((m) => ["pending", "drafting", "drafted"].includes(m.status));
 
   // A move the writer decided against, or undid, or that could not run, left no
   // mark on the book and offers no action. Keeping it in the main list buried
@@ -151,28 +179,12 @@ export function StructureTab({ bookId }: { bookId: string }) {
           <ol className="space-y-3">
             {groups.map(({ move, alternatives }, i) => (
               <li key={move.id} className="space-y-2">
-                <MoveCard
-                  move={move}
-                  position={i + 1}
-                  strings={s}
-                  busy={busyId === move.id || isDeciding}
-                  onAccept={() => decide.mutate({ id: move.id, decision: "accept" })}
-                  onReject={() => decide.mutate({ id: move.id, decision: "reject" })}
-                  onUndo={() => undo.mutate(move.id)}
-                />
+                <MoveCard {...cardProps(move)} position={i + 1} />
                 {alternatives.length > 0 && (
                   <div className="ml-4 space-y-2 border-l-2 border-muted pl-4">
                     <p className="text-xs font-medium text-muted-foreground">{s.alternativeTo}</p>
                     {alternatives.map((alt) => (
-                      <MoveCard
-                        key={alt.id}
-                        move={alt}
-                        strings={s}
-                        busy={busyId === alt.id || isDeciding}
-                        onAccept={() => decide.mutate({ id: alt.id, decision: "accept" })}
-                        onReject={() => decide.mutate({ id: alt.id, decision: "reject" })}
-                        onUndo={() => undo.mutate(alt.id)}
-                      />
+                      <MoveCard key={alt.id} {...cardProps(alt)} />
                     ))}
                   </div>
                 )}
@@ -209,15 +221,7 @@ export function StructureTab({ bookId }: { bookId: string }) {
           </summary>
           <div className="mt-3 space-y-3">
             {history.map((move) => (
-              <MoveCard
-                key={move.id}
-                move={move}
-                strings={s}
-                busy={busyId === move.id || isDeciding}
-                onAccept={() => decide.mutate({ id: move.id, decision: "accept" })}
-                onReject={() => decide.mutate({ id: move.id, decision: "reject" })}
-                onUndo={() => undo.mutate(move.id)}
-              />
+              <MoveCard key={move.id} {...cardProps(move)} />
             ))}
           </div>
         </details>
@@ -228,14 +232,22 @@ export function StructureTab({ bookId }: { bookId: string }) {
 
 function MoveCard({
   move,
+  bookId,
   position,
   strings: s,
   busy,
+  drafting,
   onAccept,
   onReject,
   onUndo,
+  onDraft,
+  onDiscard,
 }: {
   move: StructureMove;
+  bookId: string;
+  drafting: boolean;
+  onDraft: () => void;
+  onDiscard: () => void;
   /** The move's number in the pass, matching the chat's list; none for alternatives. */
   position?: number;
   strings: ReturnType<typeof useLanguage>["t"]["structure"];
@@ -245,17 +257,21 @@ function MoveCard({
   onUndo: () => void;
 }) {
   const Icon = KIND_ICONS[move.kind] ?? NetworkIcon;
-  const kindLabel =
-    move.kind === "merge"
-      ? s.kindMerge
-      : move.kind === "split"
-        ? s.kindSplit
-        : move.kind === "renumber"
-          ? s.kindRenumber
-          : s.kindReorder;
+  const [comparing, setComparing] = useState(false);
+  const kindLabels: Record<string, string> = {
+    merge: s.kindMerge,
+    split: s.kindSplit,
+    renumber: s.kindRenumber,
+    trim: s.kindTrim,
+    expand: s.kindExpand,
+  };
+  const kindLabel = kindLabels[move.kind] ?? s.kindReorder;
+  const rewrite = isRewrite(move.kind);
 
   const statusLabels: Record<string, string> = {
     pending: s.pending,
+    drafting: s.pending,
+    drafted: s.drafted,
     applied: s.applied,
     rejected: s.rejected,
     failed: s.failed,
@@ -306,8 +322,67 @@ function MoveCard({
           </p>
         )}
 
+        {rewrite && move.status === "drafted" && move.draft && (
+          <p className="text-sm text-muted-foreground">
+            {s.draftWords
+              .replace("{from}", String(move.draft.baseWords ?? "?"))
+              .replace("{to}", String(move.draft.draftWords ?? "?"))}
+          </p>
+        )}
+        {rewrite && drafting && (
+          <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="size-3.5 animate-spin" />
+            {s.drafting}
+          </p>
+        )}
+        {rewrite && move.status === "drafted" && comparing && (
+          <DraftComparison
+            bookId={bookId}
+            moveId={move.id}
+            labels={{ now: s.draftNow, draft: s.draftAfter, error: s.draftError }}
+          />
+        )}
         <div className="flex flex-wrap gap-2">
-          {move.status === "pending" && (
+          {rewrite && (move.status === "pending" || move.status === "drafting") && (
+            <>
+              <Button size="sm" onClick={onDraft} disabled={busy || drafting}>
+                {drafting ? (
+                  <Loader2 className="mr-1.5 size-3.5 animate-spin" />
+                ) : (
+                  <PenLineIcon className="mr-1.5 size-3.5" />
+                )}
+                {s.makeDraft}
+              </Button>
+              <Button size="sm" variant="outline" onClick={onReject} disabled={busy || drafting}>
+                <XIcon className="mr-1.5 size-3.5" />
+                {s.reject}
+              </Button>
+            </>
+          )}
+          {rewrite && move.status === "drafted" && (
+            <>
+              <Button size="sm" variant="outline" onClick={() => setComparing((c) => !c)}>
+                <FileDiffIcon className="mr-1.5 size-3.5" />
+                {comparing ? s.hideDraft : s.viewDraft}
+              </Button>
+              <Button size="sm" onClick={onAccept} disabled={busy}>
+                {busy ? (
+                  <Loader2 className="mr-1.5 size-3.5 animate-spin" />
+                ) : (
+                  <CheckIcon className="mr-1.5 size-3.5" />
+                )}
+                {s.applyDraft}
+              </Button>
+              <Button size="sm" variant="outline" onClick={onDiscard} disabled={busy}>
+                {s.discardDraft}
+              </Button>
+              <Button size="sm" variant="ghost" onClick={onReject} disabled={busy}>
+                <XIcon className="mr-1.5 size-3.5" />
+                {s.reject}
+              </Button>
+            </>
+          )}
+          {!rewrite && move.status === "pending" && (
             <>
               <Button size="sm" onClick={onAccept} disabled={busy}>
                 {busy ? (
@@ -341,10 +416,16 @@ function MoveCard({
 
 /** What the move did, in the writer's language, built from the move (D-204). */
 export function describeMoveResult(
-  move: Pick<StructureMove, "kind" | "payload" | "resultSummary">,
-  s: { doneReorder: string; doneMerge: string; doneSplit: string }
+  move: Pick<StructureMove, "kind" | "payload" | "resultSummary" | "draft">,
+  s: { doneReorder: string; doneMerge: string; doneSplit: string; doneTrim: string; doneExpand: string }
 ): string {
   const p = move.payload ?? {};
+  if (move.kind === "trim" || move.kind === "expand") {
+    return (move.kind === "trim" ? s.doneTrim : s.doneExpand)
+      .replace("{n}", String(p.chapterNumber ?? "?"))
+      .replace("{from}", String(move.draft?.baseWords ?? "?"))
+      .replace("{to}", String(move.draft?.draftWords ?? "?"));
+  }
   if (move.kind === "merge") {
     return s.doneMerge.replace("{list}", (p.chapterNumbers ?? []).join(" + "));
   }
@@ -361,9 +442,14 @@ export function describeMoveResult(
 /** Render the move as one plain sentence in the writer's language. */
 export function describeMove(
   move: Pick<StructureMove, "kind" | "payload">,
-  s: { moveReorder: string; moveMerge: string; moveSplit: string }
+  s: { moveReorder: string; moveMerge: string; moveSplit: string; moveTrim: string; moveExpand: string }
 ): string {
   const p = move.payload ?? {};
+  if (move.kind === "trim" || move.kind === "expand") {
+    return (move.kind === "trim" ? s.moveTrim : s.moveExpand)
+      .replace("{n}", String(p.chapterNumber ?? "?"))
+      .replace("{w}", String(p.targetWords ?? "?"));
+  }
   if (move.kind === "merge") {
     const list = (p.chapterNumbers ?? []).join(" + ");
     return s.moveMerge.replace("{list}", list);

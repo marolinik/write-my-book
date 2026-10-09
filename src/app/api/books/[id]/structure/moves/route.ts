@@ -42,6 +42,7 @@ export async function GET(
       createdAt: m.createdAt,
       appliedAt: m.appliedAt,
       alternativeToId: m.alternativeToId,
+      draft: draftLengths(m.draftMeta),
       payload: safeParse(m.payload),
     }));
 
@@ -56,6 +57,13 @@ export async function GET(
       { status: 500 }
     );
   }
+}
+
+/** A trim/expand draft's lengths; the text itself loads on request. */
+function draftLengths(meta: string | null): { baseWords: number | null; draftWords: number | null } | null {
+  if (!meta) return null;
+  const parsed = safeParse(meta) as { baseWords?: number; draftWords?: number } | null;
+  return parsed ? { baseWords: parsed.baseWords ?? null, draftWords: parsed.draftWords ?? null } : null;
 }
 
 /** A payload that cannot be parsed is data damage, not a crash: report it as null. */

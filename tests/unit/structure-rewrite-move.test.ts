@@ -81,9 +81,8 @@ describe("draftRewriteMove", () => {
     h.db.structureMove.findFirst.mockResolvedValue(pendingTrim());
     const out = await draftRewriteMove("m1", draftCtx, genOk);
     expect(out.ok).toBe(true);
-    const [args] = h.db.structureMove.updateMany.mock.calls[0];
-    expect(args.where).toMatchObject({ id: "m1", bookId: "b1", status: "pending" });
-    expect(args.data.status).toBe("drafted");
+    const [args] = h.db.structureMove.updateMany.mock.calls.find(([a]) => a.data?.status === "drafted")!;
+    expect(args.where).toMatchObject({ id: "m1", bookId: "b1", status: "drafting" });
     expect(args.data.draft).toContain("nova0");
     expect(JSON.parse(args.data.draftMeta)).toMatchObject({ baseDocId: "d2", baseVersion: 4, baseWords: 1000, draftWords: 720 });
   });
@@ -95,6 +94,35 @@ describe("draftRewriteMove", () => {
     expect(call.user).toContain("700");
     expect(call.user).toContain("drugo čitanje pisma");
     expect(call.system).toMatch(/TRIM/);
+  });
+
+  it("claims the move before the model runs, so a second click cannot bill a second draft", async () => {
+    h.db.structureMove.findFirst.mockResolvedValue(pendingTrim());
+    h.db.structureMove.updateMany.mockResolvedValueOnce({ count: 0 });
+    const out = await draftRewriteMove("m1", draftCtx, genOk);
+    expect(out.ok).toBe(false);
+    if (!out.ok) expect(out.error.code).toBe("not_pending");
+    expect(genOk).not.toHaveBeenCalled();
+    expect(h.db.structureMove.updateMany.mock.calls[0][0].data.status).toBe("drafting");
+  });
+
+  it("releases the claim when the draft fails", async () => {
+    h.db.structureMove.findFirst.mockResolvedValue(pendingTrim());
+    const gen: GenerateRewrite = vi.fn(async () => ({
+      text: words(990, "nova"), stopReason: "end_turn", reasoningOnly: false, tokens: { input: 1, output: 1 },
+    }));
+    await draftRewriteMove("m1", draftCtx, gen);
+    const release = h.db.structureMove.updateMany.mock.calls.find(([a]) => a.data?.status === "pending");
+    expect(release![0].where).toMatchObject({ id: "m1", status: "drafting" });
+  });
+
+  it("refuses a rewrite that does not know its chapter by identity", async () => {
+    h.db.structureMove.findFirst.mockResolvedValue(
+      pendingTrim({ payload: JSON.stringify({ ...payload, chapterId: undefined }) })
+    );
+    const out = await draftRewriteMove("m1", draftCtx, genOk);
+    expect(out.ok).toBe(false);
+    expect(genOk).not.toHaveBeenCalled();
   });
 
   it("refuses a move that is not pending, and calls no model", async () => {
@@ -115,7 +143,8 @@ describe("draftRewriteMove", () => {
     const out = await draftRewriteMove("m1", draftCtx, gen);
     expect(out.ok).toBe(false);
     if (!out.ok) expect(out.error.code).toBe("draft_rejected");
-    expect(h.db.structureMove.updateMany).not.toHaveBeenCalled();
+    const stored = h.db.structureMove.updateMany.mock.calls.filter(([a]) => a.data?.status === "drafted");
+    expect(stored).toHaveLength(0);
   });
 
   it("names a model that returned only reasoning", async () => {
@@ -172,6 +201,17 @@ describe("applyRewriteMove", () => {
     if (!out.ok) expect(out.error.code).toBe("not_drafted");
   });
 
+  it("never puts the chapter back blind when the write reported no version", async () => {
+    h.db.structureMove.findFirst.mockResolvedValue(drafted());
+    h.docs.update.mockResolvedValueOnce({});
+    h.db.structureMove.updateMany.mockResolvedValue({ count: 0 });
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const out = await applyRewriteMove("m1", ctx);
+    expect(out.ok).toBe(false);
+    expect(h.docs.update).toHaveBeenCalledTimes(1);
+    spy.mockRestore();
+  });
+
   it("puts the chapter back when the commit is refused", async () => {
     h.db.structureMove.findFirst.mockResolvedValue(drafted());
     h.db.structureMove.updateMany.mockResolvedValue({ count: 0 });
@@ -191,6 +231,13 @@ describe("restoreRewrite (undo)", () => {
     await restoreRewrite(ctx, previous);
     expect(h.docs.update.mock.calls[0][1]).toBe(ORIGINAL);
     expect(h.docs.update.mock.calls[0][5]).toBe(5);
+    expect(h.db.chapter.update.mock.calls[0][0]).toMatchObject({ data: { wordCount: 1000 } });
+  });
+
+  it("finishes a half-done undo: prose already restored, only the count is repaired", async () => {
+    h.docs.read.mockResolvedValue({ document: { currentVersion: 6 }, content: ORIGINAL });
+    await restoreRewrite(ctx, previous);
+    expect(h.docs.update).not.toHaveBeenCalled();
     expect(h.db.chapter.update.mock.calls[0][0]).toMatchObject({ data: { wordCount: 1000 } });
   });
 

@@ -43,7 +43,8 @@ export async function withPassLock<T>(passId: string, fn: () => Promise<T>): Pro
  */
 export function blocksRefiling(m: PassMove, passId: string): boolean {
   if (m.status === "pending") return m.sessionId === passId;
-  if (m.status === "accepted" || m.status === "drafted") return true;
+  if (m.status === "drafted" || m.status === "drafting") return m.sessionId === passId;
+  if (m.status === "accepted") return true;
   if (m.status === "applied") return m.kind === "merge" || m.kind === "split";
   return false;
 }
@@ -88,7 +89,9 @@ export function pendingOfPass(
 ): { primaries: PassMove[]; alternatives: PassMove[] } {
   // A drafted trim/expand is still undecided: it counts as part of the pass.
   const ofPass = live.filter(
-    (m) => (m.status === "pending" || m.status === "drafted") && m.sessionId === passId
+    (m) =>
+      (m.status === "pending" || m.status === "drafted" || m.status === "drafting") &&
+      m.sessionId === passId
   );
   return {
     primaries: ofPass.filter((m) => !m.alternativeToId),
@@ -139,13 +142,14 @@ export function formatPassLedger(
  * coherent proposal, not the residue of every run.
  */
 export async function retireOlderPasses(bookId: string, passId: string): Promise<number> {
+  // A draft from an older pass goes too: the new pass is the proposal now.
   const { count } = await db.structureMove.updateMany({
     where: {
       bookId,
-      status: "pending",
+      status: { in: ["pending", "drafted"] },
       OR: [{ sessionId: { not: passId } }, { sessionId: null }],
     },
-    data: { status: "superseded", decidedAt: new Date() },
+    data: { status: "superseded", decidedAt: new Date(), draft: null, draftMeta: null },
   });
   return count;
 }
@@ -166,7 +170,7 @@ export async function supersedeSiblings(
       id: { not: accepted.id },
       OR: [{ id: primaryId }, { alternativeToId: primaryId }],
     },
-    data: { status: "superseded", decidedAt: new Date() },
+    data: { status: "superseded", decidedAt: new Date(), draft: null, draftMeta: null },
   });
   return count;
 }

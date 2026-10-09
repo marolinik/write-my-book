@@ -35,6 +35,10 @@ describe("buildRewriteSystemPrompt", () => {
     expect(trim).toMatch(/scene break/i);
   });
 
+  it("adds no formatting the chapter does not have (live: a trim italicised a plain letter)", () => {
+    expect(trim).toMatch(/never add italics or bold/i);
+  });
+
   it("briefs a trim and an expansion differently", () => {
     const expand = buildRewriteSystemPrompt({ kind: "expand", language: "sr", fingerprint: null, storyBible: null });
     expect(trim).toMatch(/TRIM/);

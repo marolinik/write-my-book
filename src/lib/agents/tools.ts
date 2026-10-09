@@ -1648,7 +1648,7 @@ async function fileStructureMove(
   await retireOlderPasses(ctx.bookId, passId);
 
   const live: PassMove[] = await db.structureMove.findMany({
-    where: { bookId: ctx.bookId, status: { in: ["pending", "drafted", "accepted", "applied"] } },
+    where: { bookId: ctx.bookId, status: { in: ["pending", "drafting", "drafted", "accepted", "applied"] } },
     select: PASS_MOVE_SELECT,
   });
 

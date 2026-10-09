@@ -23,6 +23,13 @@ export function describeMoveError(
     apply_failed: s.errApplyFailed,
     // Undo would have deleted writing done in a split-off chapter since.
     split_edited: s.errSplitEdited,
+    // trim/expand drafts (dev editor v2).
+    chapter_edited: s.errChapterEdited,
+    rewrite_edited: s.errRewriteEdited,
+    draft_rejected: s.errDraftRejected,
+    model_no_prose: s.errModelNoProse,
+    chapter_too_long: s.errChapterTooLong,
+    not_drafted: s.errNotDrafted,
   };
   return (code && byCode[code]) || fallback;
 }

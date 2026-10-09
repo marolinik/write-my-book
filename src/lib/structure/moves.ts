@@ -125,7 +125,8 @@ export type MoveErrorCode =
   | "model_no_prose"
   | "chapter_too_long"
   | "not_drafted"
-  | "chapter_edited";
+  | "chapter_edited"
+  | "rewrite_edited";
 
 export interface MoveError {
   code: MoveErrorCode;

@@ -17,6 +17,8 @@ export interface StructureMove {
   appliedAt: string | null;
   /** The move this one replaces if the writer rejects it (same pass). */
   alternativeToId: string | null;
+  /** trim/expand: the lengths of the draft once one exists (the text loads on request). */
+  draft?: { baseWords: number | null; draftWords: number | null } | null;
   payload: {
     kind?: string;
     chapterNumber?: number;
@@ -24,8 +26,10 @@ export interface StructureMove {
     chapterNumbers?: number[];
     anchorQuote?: string;
     title?: string;
+    targetWords?: number;
+    instructions?: string;
   } | null;
 }
 
 /** Statuses that still offer the writer something to do. */
-export const LIVE_MOVE_STATUSES = ["pending", "drafted", "accepted", "applied"];
+export const LIVE_MOVE_STATUSES = ["pending", "drafting", "drafted", "accepted", "applied"];

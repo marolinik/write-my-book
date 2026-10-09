@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Loader2Icon } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -26,7 +27,8 @@ import type { StructureMove } from "@/lib/structure/types";
 export function InlineStructureProposals({ bookId }: { bookId: string }) {
   const { t } = useLanguage();
   const s = t.structure;
-  const { pending, error, busyId, isDeciding, decide } = useStructureMoves(bookId);
+  const { undecided: pending, error, busyId, isDeciding, decide, isDrafting, makeDraft } =
+    useStructureMoves(bookId);
 
   if (pending.length === 0) return null;
   // Alternatives are answers to a move, not moves of their own.
@@ -48,12 +50,13 @@ export function InlineStructureProposals({ bookId }: { bookId: string }) {
         <div key={move.id} className="flex flex-col gap-1.5">
           <ProposalRow
             move={move}
+            bookId={bookId}
             label={`${i + 1}. ${describeMove(move, s)}`}
-            busy={busyId === move.id}
-            disabled={isDeciding}
-            accept={s.accept}
-            reject={s.reject}
+            busy={busyId === move.id || isDrafting(move)}
+            disabled={isDeciding || isDrafting(move)}
+            s={s}
             onDecide={(decision) => decide.mutate({ id: move.id, decision })}
+            onDraft={() => makeDraft.mutate(move.id)}
           />
           {alternatives.length > 0 && (
             <div className="ml-3 flex flex-col gap-1.5 border-l-2 border-muted pl-2">
@@ -62,12 +65,13 @@ export function InlineStructureProposals({ bookId }: { bookId: string }) {
                 <ProposalRow
                   key={alt.id}
                   move={alt}
+                  bookId={bookId}
                   label={describeMove(alt, s)}
-                  busy={busyId === alt.id}
-                  disabled={isDeciding}
-                  accept={s.accept}
-                  reject={s.reject}
+                  busy={busyId === alt.id || isDrafting(alt)}
+                  disabled={isDeciding || isDrafting(alt)}
+                  s={s}
                   onDecide={(decision) => decide.mutate({ id: alt.id, decision })}
+                  onDraft={() => makeDraft.mutate(alt.id)}
                 />
               ))}
             </div>
@@ -84,21 +88,41 @@ export function InlineStructureProposals({ bookId }: { bookId: string }) {
 
 function ProposalRow({
   move,
+  bookId,
   label,
   busy,
   disabled,
-  accept,
-  reject,
+  s,
   onDecide,
+  onDraft,
 }: {
   move: StructureMove;
+  bookId: string;
   label: string;
   busy: boolean;
   disabled: boolean;
-  accept: string;
-  reject: string;
+  s: { accept: string; reject: string; makeDraft: string; viewDraft: string };
   onDecide: (decision: "accept" | "reject") => void;
+  onDraft: () => void;
 }) {
+  const rewrite = move.kind === "trim" || move.kind === "expand";
+  // A whole-chapter draft is read side by side on the structure tab; the
+  // panel is too narrow for it, so it links there instead of accepting blind.
+  if (rewrite && move.status === "drafted") {
+    return (
+      <div className="flex flex-col gap-1.5 rounded border p-2">
+        <span className="text-xs leading-snug">{label}</span>
+        <Link
+          href={`/books/${bookId}/reports?tab=structure`}
+          className="text-xs font-medium text-primary underline-offset-2 hover:underline"
+        >
+          {s.viewDraft}
+        </Link>
+      </div>
+    );
+  }
+  const accept = rewrite ? s.makeDraft : s.accept;
+  const reject = s.reject;
   return (
     <div className="flex flex-col gap-1.5 rounded border p-2">
       <span className="text-xs leading-snug">{label}</span>
@@ -113,7 +137,7 @@ function ProposalRow({
           size="sm"
           className="h-7 text-xs"
           disabled={disabled}
-          onClick={() => onDecide("accept")}
+          onClick={() => (rewrite ? onDraft() : onDecide("accept"))}
         >
           {busy && <Loader2Icon className="mr-1 size-3 animate-spin" />}
           {accept}

@@ -228,6 +228,13 @@ describe("review fixes", () => {
 });
 
 describe("a new pass retires the pending moves of older passes", () => {
+  it("retires an older pass's drafted trim too, and drops its draft", async () => {
+    await executeTool("ProposeStructureMove", ctx as never, merge([2, 3]));
+    const call = h.db.structureMove.updateMany.mock.calls.find(([args]) => args.data?.status === "superseded");
+    expect(call![0].where.status).toEqual({ in: ["pending", "drafted"] });
+    expect(call![0].data).toMatchObject({ draft: null, draftMeta: null });
+  });
+
   it("supersedes every still-pending move that is not from this pass", async () => {
     await executeTool("ProposeStructureMove", ctx as never, merge([2, 3]));
     const call = h.db.structureMove.updateMany.mock.calls.find(
@@ -235,7 +242,7 @@ describe("a new pass retires the pending moves of older passes", () => {
     );
     expect(call).toBeDefined();
     const where = call![0].where;
-    expect(where).toMatchObject({ bookId: "b1", status: "pending" });
+    expect(where).toMatchObject({ bookId: "b1", status: { in: ["pending", "drafted"] } });
     // Older passes, including rows filed before passes existed (sessionId null).
     expect(JSON.stringify(where)).toContain(ROOT);
     expect(JSON.stringify(where)).toContain("null");

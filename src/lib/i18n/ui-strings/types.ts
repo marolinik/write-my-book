@@ -1031,6 +1031,11 @@ export interface UIStrings {
     reason: string; evidence: string; confidence: string;
     kindReorder: string; kindRenumber: string; kindMerge: string; kindSplit: string;
     superseded: string; withdrawn: string; alternativeTo: string;
+    kindTrim: string; kindExpand: string; moveTrim: string; moveExpand: string; doneTrim: string; doneExpand: string;
+    drafted: string; makeDraft: string; drafting: string; viewDraft: string; hideDraft: string; applyDraft: string;
+    discardDraft: string; draftNow: string; draftAfter: string; draftWords: string; draftError: string; errChapterEdited: string;
+    errRewriteEdited: string;
+    errDraftRejected: string; errModelNoProse: string; errChapterTooLong: string; errNotDrafted: string;
     moveReorder: string; moveMerge: string; moveSplit: string;
     nothingChangesYet: string; applyError: string; undoError: string;
     fromAnalysis: string;

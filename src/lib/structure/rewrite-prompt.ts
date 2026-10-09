@@ -69,7 +69,7 @@ ${cap(input.storyBible.trim(), STORY_BIBLE_CAP)}`
 - Keep every name, place, date and fact exactly as written. Contradict nothing in the canon.
 - Keep the point of view and the tense.
 - Invent no new characters. An added beat uses the people and places the book already has.
-- The chapter is Markdown, and your reply is Markdown too. Keep *italics* and **bold** where the meaning needs them. Keep every scene break line ("---" or "* * *") between the scenes it separates, and keep any heading.
+- The chapter is Markdown, and your reply is Markdown too. Keep the formatting the chapter has, where it has it; never add italics or bold the writer did not use (a letter, a quote or a thought stays as plain as the writer left it). Keep every scene break line ("---" or "* * *") between the scenes it separates, and keep any heading.
 - Never add notes, comments or instructions to the writer. No square brackets, no "Note:", no explanation before or after the prose.
 - Separate paragraphs with one blank line.`,
     voice,

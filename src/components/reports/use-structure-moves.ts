@@ -108,6 +108,55 @@ export function useStructureMoves(bookId: string) {
     },
   });
 
+  /**
+   * A trim/expand draft: the ghostwriter rewrites a whole chapter, which can
+   * take minutes. It touches nothing in the manuscript, so it locks only its
+   * own card, not every decision.
+   */
+  const [draftingIds, setDraftingIds] = useState<ReadonlySet<string>>(new Set());
+  const markDrafting = (id: string, on: boolean) =>
+    setDraftingIds((prev) => {
+      const next = new Set(prev);
+      if (on) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  const makeDraft = useMutation({
+    mutationFn: async (id: string) => {
+      markDrafting(id, true);
+      const res = await fetch(`/api/books/${bookId}/structure/moves/${id}/draft`, { method: "POST" });
+      const body = await res.json();
+      if (!res.ok) {
+        if (body?.code === "not_pending") return null;
+        throw new Error(describeMoveError(body?.code, body?.error ?? s.draftError, s));
+      }
+      return body;
+    },
+    onSuccess: (_data, id) => {
+      queryClient.invalidateQueries({ queryKey: ["structure-draft", bookId, id] });
+      refresh();
+    },
+    onError: (e: Error) => setError(`${s.draftError}: ${e.message}`),
+    onSettled: (_data, _error, id) => markDrafting(id, false),
+  });
+
+  const discardDraft = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/books/${bookId}/structure/moves/${id}/draft`, { method: "DELETE" });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        if (body?.code === "not_drafted") return null;
+        throw new Error(describeMoveError(body?.code, body?.error ?? s.draftError, s));
+      }
+      return res.json();
+    },
+    onSuccess: (_data, id) => {
+      queryClient.removeQueries({ queryKey: ["structure-draft", bookId, id] });
+      refresh();
+    },
+    onError: (e: Error) => setError(`${s.draftError}: ${e.message}`),
+  });
+
   const moves = query.data?.moves ?? [];
 
   return {
@@ -119,6 +168,8 @@ export function useStructureMoves(bookId: string) {
      */
     isDeciding: busyId !== null,
     pending: moves.filter((m) => m.status === "pending"),
+    /** Everything still waiting for the writer, including a ready draft. */
+    undecided: moves.filter((m) => ["pending", "drafting", "drafted"].includes(m.status)),
     isLoading: query.isLoading,
     isError: query.isError,
     error,
@@ -126,5 +177,9 @@ export function useStructureMoves(bookId: string) {
     busyId,
     decide,
     undo,
+    /** A draft is being written for this move, here or in another tab. */
+    isDrafting: (move: StructureMove) => draftingIds.has(move.id) || move.status === "drafting",
+    makeDraft,
+    discardDraft,
   };
 }

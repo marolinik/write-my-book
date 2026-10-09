@@ -218,4 +218,56 @@ describe("StructureTab", () => {
     expect(screen.getByText("Zamenjen")).toBeTruthy();
     expect(screen.getByText("Povučen")).toBeTruthy();
   });
+
+  describe("trim and expand go through a draft", () => {
+    const trim = {
+      ...pendingMerge,
+      id: "t1",
+      kind: "trim",
+      reason: "Pustinja je najduže poglavlje.",
+      payload: { kind: "trim", chapterNumber: 15, targetWords: 2000 },
+      draft: null,
+    };
+
+    it("offers a draft, never a blind accept", async () => {
+      const hits: Array<{ url: string; method?: string }> = [];
+      mockFetch((url, init) => {
+        hits.push({ url, method: init?.method });
+        if (url.endsWith("/draft")) return { drafted: true, baseWords: 2762, draftWords: 1980 };
+        return { moves: [trim] };
+      });
+      renderTab();
+      expect(await screen.findByText("Skrati poglavlje 15 na oko 2000 reči")).toBeTruthy();
+      expect(screen.queryByText("Prihvati")).toBeNull();
+      fireEvent.click(screen.getByText("Napravi nacrt"));
+      await waitFor(() => expect(hits.some((h) => h.url.endsWith("/structure/moves/t1/draft") && h.method === "POST")).toBe(true));
+    });
+
+    it("shows a ready draft with both lengths, compares, applies and discards", async () => {
+      const drafted = { ...trim, status: "drafted", draft: { baseWords: 2762, draftWords: 1980 } };
+      const hits: Array<{ url: string; method?: string; body?: string }> = [];
+      mockFetch((url, init) => {
+        hits.push({ url, method: init?.method, body: init?.body as string | undefined });
+        if (url.endsWith("/draft") && (!init?.method || init.method === "GET")) {
+          return { before: "Duga Pustinja.", after: "Kratka Pustinja.", baseWords: 2762, draftWords: 1980 };
+        }
+        if (url.endsWith("/draft")) return { discarded: true };
+        if (url.endsWith("/decision")) return { applied: true };
+        return { moves: [drafted] };
+      });
+      renderTab();
+      expect(await screen.findByText("Nacrt spreman")).toBeTruthy();
+      expect(screen.getByText(/sa 2762 na 1980 reči/)).toBeTruthy();
+
+      fireEvent.click(screen.getByText("Uporedi sa poglavljem"));
+      expect(await screen.findByText("Kratka Pustinja.")).toBeTruthy();
+      expect(screen.getByText("Duga Pustinja.")).toBeTruthy();
+
+      fireEvent.click(screen.getByText("Primeni nacrt"));
+      await waitFor(() => expect(hits.some((h) => h.url.endsWith("/t1/decision") && h.body?.includes("accept"))).toBe(true));
+
+      fireEvent.click(screen.getByText("Odbaci nacrt"));
+      await waitFor(() => expect(hits.some((h) => h.url.endsWith("/t1/draft") && h.method === "DELETE")).toBe(true));
+    });
+  });
 });
