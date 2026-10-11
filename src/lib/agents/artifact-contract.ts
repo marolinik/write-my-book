@@ -29,6 +29,8 @@ import { getWorkflow } from "./workflows";
 import { getDocumentTypeLabels } from "./tool-labels";
 import { getAgentStrings } from "@/lib/i18n/agent-strings";
 import { enforceBookScript } from "./serbian-script";
+import { CHAPTER_SCOPED_DOCUMENT_TYPES } from "./prerequisite-check";
+import { splitParagraphs } from "@/lib/text/paragraphs";
 
 /** Minimum words before the run's text can be treated as a document. */
 export const MIN_DELIVERABLE_WORDS = 300;
@@ -144,11 +146,7 @@ export function looksLikeChapterProse(text: string | undefined): boolean {
   if (text.includes("```")) return false;
   const headings = text.match(/^#{1,6}\s+\S/gm)?.length ?? 0;
   if (headings > 1) return false;
-  const paragraphs = text
-    .split(/\n\s*\n/)
-    .map((p) => p.trim())
-    .filter((p) => p.length > 0);
-  return paragraphs.length >= 3;
+  return splitParagraphs(text).length >= 3;
 }
 
 const ARTIFACT_NOUN =
@@ -277,11 +275,21 @@ export async function evaluateArtifactContract(
   const expectedType = workflow?.producesDocument;
   if (!expectedType) return null;
 
+  // A per-chapter document (a chapter plan) is looked up and filed under the
+  // run's chapter. Without the chapter there is no honest answer: another
+  // chapter's plan would read as this one's, so report nothing.
+  const chapterScoped = CHAPTER_SCOPED_DOCUMENT_TYPES.has(expectedType);
+  if (chapterScoped && input.chapterNumber === undefined) return null;
+  const scopeChapter = chapterScoped ? input.chapterNumber : undefined;
+
   const label = getDocumentTypeLabels(input.language)[expectedType] ?? artifactLabel(expectedType);
   const text = enforceBookScript(input.assistantText ?? "", input.language);
   const claimedComplete = claimsArtifactComplete(text);
 
-  const existing = await input.documentService.findByType(expectedType);
+  const existing =
+    scopeChapter === undefined
+      ? await input.documentService.findByType(expectedType)
+      : await input.documentService.findByType(expectedType, scopeChapter);
   let artifactExists = existing !== null;
   let recovered = false;
   let recoveryAttempted = false;
@@ -298,7 +306,7 @@ export async function evaluateArtifactContract(
         expectedType,
         text,
         label,
-        undefined,
+        scopeChapter,
         undefined,
         TRANSCRIPT_RECOVERY_SOURCE
       );
@@ -353,7 +361,13 @@ export type PrerequisiteValidator = (workflowId: string) => Promise<{
  */
 export async function filterBlockedNextSteps(
   suggested: string[],
-  validate: PrerequisiteValidator
+  validate: PrerequisiteValidator,
+  /**
+   * The workflow that just ran. Its own unblocker is never suggested: a
+   * plan-chapter run whose plan was recovered (unreviewed, so not yet counted)
+   * would otherwise answer "write-chapter is blocked — run plan-chapter".
+   */
+  justRan?: string
 ): Promise<string[]> {
   const out: string[] = [];
   for (const id of suggested) {
@@ -363,7 +377,7 @@ export async function filterBlockedNextSteps(
       continue;
     }
     const unblocker = res.missing.find((m) => m.satisfiedBy)?.satisfiedBy;
-    if (unblocker) out.push(unblocker);
+    if (unblocker && unblocker !== justRan) out.push(unblocker);
   }
   return [...new Set(out)];
 }

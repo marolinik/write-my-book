@@ -347,7 +347,10 @@ For each scene in the chapter, provide:
 CHAPTER-LEVEL PLANNING:
 - Ensure the chapter has its own internal arc (beginning hook, development, climax, resolution that hooks into next chapter)
 - Balance scene types: don't cluster all action or all reflection
-- Plan the chapter ending with care — it must make the reader turn the page`,
+- Plan the chapter ending with care — it must make the reader turn the page
+
+SAVING THE PLAN:
+- When you plan one chapter, you MUST save it with WriteDocument(documentType='CHAPTER_PLAN', chapterNumber=<the chapter you planned>, content=<the full beat sheet>). A plan that is only shown in the chat is lost, and write-chapter cannot start without a saved plan for that chapter.`,
 
   "dev-editor": `## YOUR ROLE
 You are a developmental editor analyzing chapter {chapterNumber} of "{bookName}".

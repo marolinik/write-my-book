@@ -10,6 +10,9 @@
  * dialogueRatio here is an approximation (fraction of sentences containing a
  * quotation mark); it is advisory only and never becomes a finding.
  */
+
+import { splitParagraphs } from "@/lib/text/paragraphs";
+
 export interface StyleMetrics {
   avgWordsPerSentence: number;
   dialogueRatio: number;
@@ -73,10 +76,7 @@ export function computeChapterMetrics(text: string): StyleMetrics | null {
   const cleaned = stripMarkdown(text).trim();
   if (cleaned.length === 0) return null;
 
-  const paragraphs = cleaned
-    .split(/\n\s*\n/)
-    .map((p) => p.trim())
-    .filter((p) => p.length > 0);
+  const paragraphs = splitParagraphs(cleaned);
 
   const sentences = splitSentences(cleaned);
   if (sentences.length === 0) return null;

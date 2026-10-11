@@ -73,6 +73,8 @@ export async function validatePrerequisites(
     // chapterNumber is caught above for chapter-scoped workflows; anything
     // else asking for chapter content book-wide has nothing to check.
     chapterContent: !chapterNumber || chapterDocTypes.has("CHAPTER_CONTENT"),
+    // A chapter plan must be THIS chapter's plan, not any chapter's.
+    chapterDocTypes: chapterNumber ? chapterDocTypes : undefined,
   };
 
   const missing: PrerequisiteResult["missing"] = [];

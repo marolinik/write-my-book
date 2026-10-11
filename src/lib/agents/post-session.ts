@@ -346,7 +346,8 @@ export async function processPostSession(
     result.suggestedNext = await filterBlockedNextSteps(
       result.suggestedNext,
       (workflowId) =>
-        validatePrerequisites(workflowId, ctx.bookId, ctx.chapterNumber)
+        validatePrerequisites(workflowId, ctx.bookId, ctx.chapterNumber),
+      ctx.workflowId
     );
 
     // Circuit breaker override: clear suggestions if triggered

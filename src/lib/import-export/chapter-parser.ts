@@ -1,4 +1,5 @@
 import type { ParsedChapter } from "./types";
+import { normalizeLineEndings } from "@/lib/text/paragraphs";
 
 /**
  * Detect chapter boundaries in manuscript content and return parsed chapters.
@@ -16,7 +17,10 @@ import type { ParsedChapter } from "./types";
  * say where it came from.
  */
 export function parseManuscriptChapters(content: string): ParsedChapter[] {
-  const lines = content.split("\n");
+  // A file saved on Windows uses CRLF. Stored as-is, every paragraph break is
+  // "\r\n\r\n" and code that splits on blank lines sees one paragraph per
+  // chapter (finding grounding rejected every finding past paragraph 1).
+  const lines = normalizeLineEndings(content).split("\n");
 
   // --- Pass 1: Try explicit "Chapter N" / multilingual patterns ---
   const explicitChapters = findExplicitChapterHeaders(lines);

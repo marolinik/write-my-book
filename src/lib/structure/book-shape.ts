@@ -9,6 +9,7 @@
  */
 
 import { computeChapterMetrics } from "@/lib/series/chapter-metrics";
+import { splitParagraphs } from "@/lib/text/paragraphs";
 
 /** A chapter this far above or below the median is flagged. */
 const LONG_RATIO = 1.5;
@@ -77,7 +78,7 @@ function shapeOne(chapter: ChapterInput) {
   const words = wordsOf(body);
   const breaks = lines.filter((l) => SCENE_BREAK.test(l) && !HEADING.test(l)).length;
   const metrics = computeChapterMetrics(body);
-  const paragraphs = body.split(/\n\s*\n/).map((p) => p.trim()).filter((p) => p.length > 0);
+  const paragraphs = splitParagraphs(body);
   const dialogue = paragraphs.filter((p) => DIALOGUE_DASH.test(p) || DIALOGUE_QUOTES.test(p)).length;
   return {
     words: words.length,

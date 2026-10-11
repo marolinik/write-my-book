@@ -26,6 +26,7 @@ import {
 } from "./canon-check";
 import { readChapterText, readStoryBible } from "@/lib/editorial/book-evidence";
 import { getAgentStrings } from "@/lib/i18n/agent-strings";
+import { splitParagraphs } from "@/lib/text/paragraphs";
 
 /** Shorter than this, a paragraph rarely states a fact worth checking. */
 const MIN_PARAGRAPH_CHARS = 30;
@@ -43,10 +44,8 @@ export interface CanonCheckResult {
 
 /** Numbered the way CreateFinding numbers paragraphs: 1-indexed over every non-empty block. */
 function chapterParagraphs(chapter: string): CanonPassage[] {
-  return chapter
-    .split(/\n\n+/)
-    .filter((block) => block.trim().length > 0)
-    .map((block, i) => ({ paragraphNumber: i + 1, text: block.trim() }))
+  return splitParagraphs(chapter)
+    .map((text, i) => ({ paragraphNumber: i + 1, text }))
     .filter((p) => !p.text.startsWith("#") && p.text.length >= MIN_PARAGRAPH_CHARS);
 }
 

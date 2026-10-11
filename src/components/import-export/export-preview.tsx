@@ -13,6 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/components/providers/language-provider";
 import type { UIStrings } from "@/lib/i18n/ui-strings/types";
+import { splitParagraphs } from "@/lib/text/paragraphs";
 
 /**
  * Gap 9: Export Format Preview (Vellum-style)
@@ -85,7 +86,7 @@ export function ExportPreview({
   // Generate sample paragraphs from content
   const paragraphs = useMemo(() => {
     if (!sampleContent) return ["Sample text would appear here..."];
-    return sampleContent.split("\n\n").filter((p) => p.trim().length > 0);
+    return splitParagraphs(sampleContent);
   }, [sampleContent]);
 
   return (

@@ -22,6 +22,8 @@
  * list and 2.87 last. Six per request, sent in parallel, held within 0.3.
  */
 
+import { splitParagraphs } from "@/lib/text/paragraphs";
+
 /**
  * The spectrum, bottom to top. Each level names what is on the page, because
  * the position between two of them becomes the number.
@@ -68,10 +70,8 @@ export interface StockProseRequest {
 
 /** The paragraphs worth judging, numbered the way the rest of the product numbers them. */
 export function splitPassages(chapter: string): Passage[] {
-  return chapter
-    .split(/\n\n+/)
-    .filter((block) => block.trim().length > 0)
-    .map((block, i) => ({ paragraphNumber: i + 1, text: block.trim() }))
+  return splitParagraphs(chapter)
+    .map((text, i) => ({ paragraphNumber: i + 1, text }))
     .filter((p) => !p.text.startsWith("#") && p.text.length >= MIN_PASSAGE_CHARS);
 }
 

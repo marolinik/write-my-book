@@ -200,6 +200,11 @@ const WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     requiresChapter: true,
     requiresSeriesContext: false,
     conversational: false,
+    // Live run 2026-10-11: the plan was streamed into the chat and never saved,
+    // the run ended "completed", and write-chapter then 422'd on the missing
+    // plan. Declaring it puts the run under the D-188 contract (recover or
+    // report honestly), filed under the chapter it plans.
+    producesDocument: "CHAPTER_PLAN",
     suggestedNext: ["write-chapter"],
     prerequisites: [
       { type: "document", value: "STORY_BIBLE", description: "Story Bible is needed for chapter planning", satisfiedBy: "create-story-bible" },

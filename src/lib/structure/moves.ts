@@ -12,6 +12,8 @@
  * Inputs are never mutated; every planner returns new arrays.
  */
 
+import { splitParagraphs } from "@/lib/text/paragraphs";
+
 export type MoveKind = "reorder" | "renumber" | "merge" | "split" | "trim" | "expand" | "hook";
 
 /** Kinds that rewrite a chapter's prose through a draft the writer reads first. */
@@ -476,7 +478,7 @@ export function splitContent(markdown: string, anchorQuote: string): SplitResult
     );
   }
 
-  const paragraphs = markdown.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+  const paragraphs = splitParagraphs(markdown);
   const target = paragraphs.findIndex((p) => p.includes(anchor));
   if (target === -1) {
     // The anchor straddles a paragraph boundary (it contains a blank line).

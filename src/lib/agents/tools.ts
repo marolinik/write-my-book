@@ -54,6 +54,7 @@ import { finishRestructureDelegation } from "@/lib/structure/proposal-doc";
 import { executeBookMap, executeRateHooks } from "@/lib/structure/book-map-tool";
 import { isRestructureWorkflow } from "./workflows";
 import { addedEditorialNote } from "@/lib/editorial/finding-applicability";
+import { splitParagraphs } from "@/lib/text/paragraphs";
 import {
   verifyCrossReferences,
   formatCrossReferences,
@@ -146,7 +147,7 @@ async function validateFinding(
       reason: `REJECTED: Your anchorQuote was not found in the chapter text (similarity: ${(similarity * 100).toFixed(0)}%). Please re-read the chapter and provide an exact quote. The anchorQuote you provided: "${input.anchorQuote.slice(0, 80)}..."`,
     };
   }
-  const paragraphs = chapterContent.split(/\n\n+/).filter(p => p.trim().length > 0);
+  const paragraphs = splitParagraphs(chapterContent);
   // D-33: models can omit paragraphNumber (or send a non-numeric value)
   // despite the tool schema. `undefined` sails through the range check below
   // (both comparisons are false) and paragraphs[NaN] then crashes fuzzyMatch

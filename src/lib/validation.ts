@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { PROVIDER_KEYS } from "@/lib/llm/providers";
 import { isSafeTemplatePath } from "@/lib/import-export/safe-path";
+import { normalizeLineEndings } from "@/lib/text/paragraphs";
 import { BOOK_LANGUAGE_CODES } from "@/lib/i18n/book-languages";
 import {
   POLISH_CONTEXT_CHARS,
@@ -515,7 +516,9 @@ export type ImportPreviewResponse = z.infer<typeof importPreviewResponseSchema>;
 export const importConfirmChapterSchema = z.object({
   number: z.number().int().min(1).max(999),
   title: z.string().max(500),
-  content: z.string().max(2_000_000),
+  // Windows CRLF stored as-is reads as one paragraph per chapter wherever
+  // paragraphs are counted; every chapter enters the book with LF only.
+  content: z.string().max(2_000_000).transform(normalizeLineEndings),
   action: z.enum(["create", "replace", "skip"]),
 });
 

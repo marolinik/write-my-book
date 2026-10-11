@@ -13,6 +13,8 @@
  * re-runs inference.
  */
 
+import { splitParagraphs } from "@/lib/text/paragraphs";
+
 export interface FixCheckInput {
   category: string;
   description: string;
@@ -102,8 +104,7 @@ function words(text: string): string[] {
 }
 
 function sentences(text: string): string[] {
-  return text
-    .split(/\n\n+/)
+  return splitParagraphs(text)
     .flatMap((p) => p.match(/[^.!?…]+[.!?…]+["'”»)]*|[^.!?…]+$/g) ?? [])
     .map((s) => s.trim())
     .filter(Boolean);

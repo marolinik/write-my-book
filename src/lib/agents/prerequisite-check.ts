@@ -24,7 +24,23 @@ export interface PrerequisiteFacts {
    * chapter is picked, can only say whether the book has chapters at all.
    */
   chapterContent: boolean;
+  /**
+   * Document types the chosen chapter has. Undefined before a chapter is
+   * picked (the panel), when only the book-wide answer is knowable.
+   */
+  chapterDocTypes?: ReadonlySet<string>;
 }
+
+/**
+ * Document types that belong to one chapter rather than the book. A plan for
+ * chapter 1 says nothing about chapter 5, so these are checked against the
+ * chosen chapter — and the artifact contract files them under it.
+ *
+ * Not the same list as tools.ts CHAPTER_SCOPED_DOC_TYPES, which names every
+ * type WriteDocument requires a chapterNumber for. This one holds only the
+ * types a workflow prerequisite or a declared deliverable treats per chapter.
+ */
+export const CHAPTER_SCOPED_DOCUMENT_TYPES: ReadonlySet<string> = new Set(["CHAPTER_PLAN"]);
 
 function checkOne(
   condition: Pick<WorkflowPrerequisite, "type" | "value">,
@@ -32,6 +48,9 @@ function checkOne(
 ): boolean {
   switch (condition.type) {
     case "document":
+      if (CHAPTER_SCOPED_DOCUMENT_TYPES.has(condition.value) && facts.chapterDocTypes) {
+        return facts.chapterDocTypes.has(condition.value);
+      }
       return facts.docTypes.has(condition.value);
     case "manuscript":
       return facts.hasManuscript;
