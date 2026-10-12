@@ -373,6 +373,7 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
       apiKey: coachRoute.apiKey,
       baseURL: coachRoute.baseURL,
       ...(coachRoute.headers ? { defaultHeaders: coachRoute.headers } : {}),
+      ...(coachRoute.fetch ? { fetch: coachRoute.fetch } : {}),
     });
 
     // ── Build Specialist Client Factory ─────────────────────────────
@@ -430,6 +431,7 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
         apiKey: specRoute.apiKey,
         baseURL: specRoute.baseURL,
         ...(specRoute.headers ? { defaultHeaders: specRoute.headers } : {}),
+        ...(specRoute.fetch ? { fetch: specRoute.fetch } : {}),
       });
 
       return {

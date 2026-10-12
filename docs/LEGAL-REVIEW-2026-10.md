@@ -46,7 +46,7 @@ Pages: `src/app/(public)/privacy/page.tsx` and `src/app/(public)/terms/page.tsx`
 | BYOK routing: Anthropic direct; OpenRouter; OpenAI/Gemini/Grok via the self-run LiteLLM translation proxy, else OpenRouter (P §3) | `src/lib/llm/client-factory.ts:177-276`; `LITELLM_BASE_URL` `:29` |
 | Custom endpoints receive text (P §3) | `src/app/api/settings/custom-providers/route.ts:34` (user-supplied `baseURL`) |
 | Default model is DeepSeek V4.1 Flash on OpenRouter (P §3) | `src/lib/llm/defaults.ts:25` (`openrouter-deepseek-flash/sonnet`), override `WMB_DEFAULT_MODEL` `:46-50` |
-| No OpenRouter routing restriction set by us (P §3, §4) | No `provider`, `data_collection` or `zdr` field anywhere in `src/lib` (grep, 2026-10-12) |
+| Every OpenRouter request asks for `provider.data_collection: "deny"` (P §3, §4) | `src/lib/llm/openrouter-privacy.ts`; applied to every OpenRouter route in `resolveProviderRoute` (`src/lib/llm/client-factory.ts`); test `tests/unit/openrouter-privacy.test.ts`; verified live 2026-10-12 |
 | Platform-funded allowance: Free only, $0.50/day, $3/month, off unless env-enabled (P §3, T §6) | `src/lib/billing/managed-tier.ts:39,41,62-68,92-102`; used by `src/app/api/books/[id]/agent/route.ts:10,321` |
 | Self-hosted fleet stays on our servers (P §3) | `src/lib/llm/client-factory.ts:37,278-287` (`local-llm-proxy`). Not in prod compose; "where we offer" wording. |
 | Memory: passages go to OpenAI embeddings on the platform key, and text plus vectors are stored in Qdrant (P §3, §5) | `src/lib/vector/embeddings.ts:22-24,33,93-94`; payload `text: chunk.text` `src/lib/vector/indexer.ts:102-126` |
@@ -57,7 +57,8 @@ Pages: `src/app/(public)/privacy/page.tsx` and `src/app/(public)/terms/page.tsx`
 | Free plan limits (T §4) | `src/lib/billing/free-tier.ts` `FREE_TIER` (maxBooks 1, monthlyAgentSessions 20, dailyGhostText 100, dailyInlineEdit 50, dailyPolishScene 5, maxAiEligibleWords 40,000, maxConcurrentSessions 1) |
 | Paid plan prices and limits (T §5) | `src/lib/billing/stripe-client.ts:7-90` |
 | Export always allowed; formats EPUB/PDF/DOCX (P §10, T §8) | `src/lib/billing/plan-gating.ts:33,45`; `src/lib/validation.ts:531` |
-| Book deletion purges DB, S3 and Qdrant but not Neo4j (P §8) | `src/app/api/books/[id]/route.ts:117,124-132`; `clearBookGraph` exists (`src/lib/graph/schema.ts:54`) but nothing calls it |
+| Book deletion purges DB, S3, Qdrant and Neo4j (P §8) | `src/app/api/books/[id]/route.ts` (`clearBookGraph` after storage purge); test `tests/unit/book-delete-cleanup.test.ts` |
+| Account deletion purges S3 (user prefix), Qdrant and Neo4j per book (P §8) | `src/lib/erasure/account-data.ts`, called from the `user.deleted` webhook; tests `account-erasure`, `account-deletion-cancels-billing` |
 | Account deletion cascades DB rows only (P §8) | `src/app/api/auth/webhook/route.ts:171-180` (`db.user.deleteMany`); `Book.user onDelete: Cascade`. No S3, Qdrant or Neo4j purge. |
 | Backups 24 hourly / 7 daily / 4 weekly (P §8) | `scripts/backup-rotate.sh:2-34`; sidecar `docker-compose.prod.yml:59` |
 | Share links: expiry and revoke; IP rate limit (P §2, §13, T §9) | `src/app/api/share/route.ts:36-51`; `src/app/api/share/[token]/route.ts:11,54` |
@@ -82,3 +83,8 @@ Pages: `src/app/(public)/privacy/page.tsx` and `src/app/(public)/terms/page.tsx`
    The policy currently works around this with "delete your books first, or email us". Fix in code: call `clearBookGraph` in book DELETE, and purge storage, vectors and graph per book in the `user.deleted` webhook.
 4. **Web research queries go to Perplexity, Serper and Firecrawl on platform keys.** They can carry book topics. This is low risk, and it is disclosed.
 5. **The LiteLLM proxy is not in either compose file.** Direct OpenAI, Gemini and Grok keys only work where `LITELLM_BASE_URL` points to a running proxy. This is not a privacy issue, but the policy's "translation service we run" claim assumes that proxy exists in production.
+
+
+## Resolved 2026-10-12
+
+Risky flow 1 (OpenRouter routing) and 3 (deletion gaps) are fixed in code and the privacy policy updated. Still recommended: turn off "allow training providers" in the owner's OpenRouter account privacy settings as a second guard.

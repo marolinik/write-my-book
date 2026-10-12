@@ -177,9 +177,8 @@ export default function PrivacyPage() {
                 Google Gemini or xAI Grok, your text goes to that provider on your key and under
                 your own agreement with them. Their terms decide whether they keep your text and
                 whether they may train on it. OpenAI, Gemini and Grok keys are relayed through a
-                translation service we run on our own servers. With OpenRouter, OpenRouter chooses
-                which company hosts the model unless your OpenRouter account settings restrict it;
-                we do not add routing restrictions of our own.
+                translation service we run on our own servers. With OpenRouter, every request we send asks it to use only model hosts that do not
+                store or train on prompts (OpenRouter&apos;s &quot;deny data collection&quot; setting).
               </li>
               <li>
                 <Term>Custom endpoints.</Term> If you add a custom AI endpoint, your text goes to
@@ -224,11 +223,11 @@ export default function PrivacyPage() {
             <p className="mt-3">
               What outside providers do is governed by their terms. With your own key, that is
               your agreement with the provider. For memory, we use OpenAI&apos;s API, whose
-              terms state that API data is not used for training by default. For the
-              platform-funded Free allowance we have not yet restricted routing to model hosts
-              that commit not to keep or train on prompts, so we cannot promise that for that
-              route today. If that matters for a piece of work, use your own key with a provider
-              whose terms you accept, or a self-hosted model.
+              terms state that API data is not used for training by default. Every request we send through OpenRouter, including the platform-funded Free
+              allowance, asks OpenRouter to route only to model hosts that do not keep or train on
+              prompts. That relies on OpenRouter&apos;s routing and the hosts&apos; published policies.
+              If that is not enough for a piece of work, use your own key with a provider whose
+              terms you accept, or a self-hosted model.
             </p>
           </Section>
 
@@ -313,15 +312,14 @@ export default function PrivacyPage() {
                 paid plan does not delete anything; you move to the Free plan.
               </li>
               <li>
-                <Term>A deleted book</Term> is removed from our database, file storage and memory
-                vectors when you delete it. Entries for it in the story graph are not yet removed
-                automatically; we remove them on request.
+                <Term>A deleted book</Term> is removed from our database, file storage, memory vectors and story graph when you
+                delete it.
               </li>
               <li>
                 <Term>A deleted account</Term>: your account and all database records, including
-                books and documents, are deleted. Files and memory vectors are removed when each
-                book is deleted, so delete your books first, or email us and we will remove the
-                rest.
+                books and documents, are deleted, and so are your stored files, memory vectors and
+                story graph. If one of those stores is briefly unavailable, we remove what is left on
+                request.
               </li>
               <li>
                 <Term>Backups</Term> of the database are kept for up to about four weeks (24

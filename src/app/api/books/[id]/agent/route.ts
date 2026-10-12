@@ -386,6 +386,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       apiKey: coachRoute.apiKey,
       baseURL: coachRoute.baseURL,
       ...(coachRoute.headers ? { defaultHeaders: coachRoute.headers } : {}),
+      ...(coachRoute.fetch ? { fetch: coachRoute.fetch } : {}),
     });
 
     // -- Specialist Client Factory --
@@ -420,6 +421,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         apiKey: specRoute.apiKey,
         baseURL: specRoute.baseURL,
         ...(specRoute.headers ? { defaultHeaders: specRoute.headers } : {}),
+        ...(specRoute.fetch ? { fetch: specRoute.fetch } : {}),
       });
 
       return {

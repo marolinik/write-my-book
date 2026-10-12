@@ -16,6 +16,7 @@
  * Per-request API keys are passed via x-provider-key header.
  */
 
+import { withOpenRouterPrivacy } from "./openrouter-privacy";
 import Anthropic from "@anthropic-ai/sdk";
 import { clientTimeoutMsFor } from "./client-timeouts";
 import { getModelDef, resolveFromTier, type LLMProvider, type ModelDefinition } from "./model-registry";
@@ -77,6 +78,8 @@ interface RouteResolved {
   headers?: Record<string, string>;
   /** Model ID to use when sending to the API (may differ for OpenRouter fallback). */
   effectiveModelId?: string;
+  /** Set on OpenRouter routes: asks for providers that do not store or train on prompts. */
+  fetch?: typeof fetch;
 }
 
 /** Failed route resolution. */
@@ -168,6 +171,16 @@ export function toOpenRouterModelId(modelIdOrRegistryId: string): string {
  * - grok: LiteLLM proxy (direct key) -> OpenRouter fallback -> error
  */
 export function resolveProviderRoute(
+  modelProvider: LLMProvider,
+  availableKeys: AvailableKeys,
+  modelId?: string,
+  registryId?: string,
+): ProviderRouteResult {
+  const route = resolveRoute(modelProvider, availableKeys, modelId, registryId);
+  return route.route === "openrouter" ? { ...route, fetch: withOpenRouterPrivacy() } : route;
+}
+
+function resolveRoute(
   modelProvider: LLMProvider,
   availableKeys: AvailableKeys,
   modelId?: string,
@@ -444,6 +457,7 @@ export function createLLMClient(options: LLMClientOptions): LLMClient {
     apiKey: routeResult.apiKey,
     baseURL: routeResult.baseURL,
     ...(modelTimeout ? { timeout: modelTimeout } : {}),
+    ...(routeResult.fetch ? { fetch: routeResult.fetch } : {}),
   };
 
   // Add custom headers for LiteLLM proxy (x-provider-key, x-target-provider)
