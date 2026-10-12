@@ -189,8 +189,8 @@ test.describe.serial("Writer Journey — UI Flows", () => {
     await page.goto("/dashboard");
     await page.waitForLoadState("networkidle");
 
-    // The ThemeToggle has a button with sr-only "Toggle theme"
-    const toggleBtn = page.getByRole("button", { name: /toggle theme/i });
+    // The ThemeToggle button is labelled "Toggle the theme" (ui-strings)
+    const toggleBtn = page.getByRole("button", { name: /toggle (the )?theme/i });
     await expect(toggleBtn).toBeVisible();
 
     // Click to open the dropdown menu
@@ -421,8 +421,8 @@ test.describe.serial("Writer Journey — UI Flows", () => {
       page.getByText("This paragraph drags.")
     ).toBeVisible({ timeout: 10_000 });
 
-    // The finding card renders status badge "pending"
-    const pendingBadge = page.getByText("pending", { exact: true }).first();
+    // The finding card renders status badge "Pending" (finding-labels)
+    const pendingBadge = page.getByText("Pending", { exact: true }).first();
     await expect(pendingBadge).toBeVisible();
 
     // Click "Apply" button (for auto-appliable findings with originalText +
@@ -431,9 +431,9 @@ test.describe.serial("Writer Journey — UI Flows", () => {
     await expect(applyBtn).toBeVisible();
     await applyBtn.click();
 
-    // After applying, the status badge should change to "applied"
+    // After applying, the status badge should change to "Applied"
     await expect(
-      page.getByText("applied", { exact: true }).first()
+      page.getByText("Applied", { exact: true }).first()
     ).toBeVisible({ timeout: 10_000 });
 
     // Click "Undo" button that appears after applying
@@ -441,9 +441,9 @@ test.describe.serial("Writer Journey — UI Flows", () => {
     await expect(undoBtn).toBeVisible();
     await undoBtn.click();
 
-    // Should revert to "pending"
+    // Should revert to "Pending"
     await expect(
-      page.getByText("pending", { exact: true }).first()
+      page.getByText("Pending", { exact: true }).first()
     ).toBeVisible({ timeout: 10_000 });
 
     // Now click "Dismiss"
@@ -451,9 +451,9 @@ test.describe.serial("Writer Journey — UI Flows", () => {
     await expect(dismissBtn).toBeVisible();
     await dismissBtn.click();
 
-    // Should show "dismissed"
+    // Should show "Dismissed"
     await expect(
-      page.getByText("dismissed", { exact: true }).first()
+      page.getByText("Dismissed", { exact: true }).first()
     ).toBeVisible({ timeout: 10_000 });
   });
 

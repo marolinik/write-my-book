@@ -7,7 +7,7 @@ import type { APIRequestContext } from "@playwright/test";
 // missing/changed i18n key — catching regressions unit tests (which check key
 // presence, not runtime rendering) would miss.
 //
-// Uses a dedicated language persona (user_qa_lang, seeded by qa-seed-personas)
+// Uses a dedicated language persona (user_qa_lang, seeded by e2e global-setup)
 // so the mutation doesn't touch any shared e2e or persona user.
 
 const LANG_HEADERS = {
@@ -75,6 +75,8 @@ test.describe("Book Development hub — language smoke (UDG-11)", () => {
     page,
     request,
   }) => {
+    // Five hub loads: ~15s warm, past the 30s default on a cold dev server.
+    test.setTimeout(90_000);
     // Quick loop: for a fresh book per locale, load the hub and assert the
     // pipeline still renders (no runtime error from a missing i18n key).
     const locales: Array<{ code: string; label: string; stage: string }> = [

@@ -3,6 +3,13 @@ import pg from "pg";
 
 const E2E_CLERK_ID = "user_test_e2e";
 
+/** Same identity as scripts/qa-seed-personas.ts, so either seeder can create it. */
+const LANG_PERSONA = {
+  clerkId: "user_qa_lang",
+  email: "qa.lang@qa.local",
+  name: "Lang Smoke",
+} as const;
+
 /**
  * Global setup: seed the E2E test user via raw SQL.
  * Avoids importing the Prisma generated client (ESM/CJS mismatch).
@@ -69,6 +76,28 @@ export default async function globalSetup() {
     );
 
     console.log("[global-setup] Test user seeded:", E2E_CLERK_ID, "(plan: professional/active)");
+
+    // Dedicated language persona for book-development-language-smoke.spec.ts.
+    // Upsert only (no wipe): its books carry per-run unique names, and the
+    // spec flips this user's language, so it must stay a separate identity.
+    const {
+      rows: [langUser],
+    } = await client.query(
+      `INSERT INTO users (id, clerk_id, email, display_name, created_at, updated_at)
+       VALUES (gen_random_uuid(), $1, $2, $3, NOW(), NOW())
+       ON CONFLICT (clerk_id)
+       DO UPDATE SET email = $2, display_name = $3, updated_at = NOW()
+       RETURNING id`,
+      [LANG_PERSONA.clerkId, LANG_PERSONA.email, LANG_PERSONA.name]
+    );
+    await client.query(
+      `INSERT INTO subscriptions (id, user_id, plan, status, created_at, updated_at)
+       VALUES (gen_random_uuid(), $1, 'professional', 'active', NOW(), NOW())
+       ON CONFLICT (user_id)
+       DO UPDATE SET plan = 'professional', status = 'active', updated_at = NOW()`,
+      [langUser.id]
+    );
+    console.log("[global-setup] Language persona seeded:", LANG_PERSONA.clerkId);
   } finally {
     client.release();
     await pool.end();

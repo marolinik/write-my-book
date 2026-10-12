@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { test, expect } from "./fixtures";
 import { createBookViaApi } from "./fixtures";
 
@@ -33,10 +34,17 @@ test.describe("Book Development hub", () => {
       ).toBeVisible();
     }
 
-    // UDG-9 (Petar): a fresh book with no research provider key surfaces the
-    // research hint on the Research card (CI runs with no Perplexity/Serper/Firecrawl
-    // keys configured).
-    await expect(page.getByText(/web-search provider key/i).first()).toHaveCount(1);
+    // UDG-9 (Petar): with no research provider key the Research card surfaces
+    // the "add a web-search provider key" hint. Mirrors the dev page's
+    // hasResearchProvider check; the Playwright process shares the app's .env.
+    const hasResearchProvider = Boolean(
+      process.env.PERPLEXITY_API_KEY ||
+        process.env.SERPER_API_KEY ||
+        process.env.FIRECRAWL_API_KEY
+    );
+    await expect(page.getByText(/web-search provider key/i)).toHaveCount(
+      hasResearchProvider ? 0 : 1
+    );
   });
 
   test("hub survives a book that already has concept + synopsis documents", async ({

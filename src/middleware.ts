@@ -2,21 +2,9 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { ONBOARDED_COOKIE } from "@/lib/onboarding-cookie";
+import { PUBLIC_ROUTE_PATTERNS } from "@/lib/public-routes";
 
-const isPublicRoute = createRouteMatcher([
-  "/",
-  "/login(.*)",
-  "/signup(.*)",
-  "/privacy",
-  "/terms",
-  "/api/auth/webhook",
-  "/api/billing/webhook",
-  "/api/billing/founder-count",
-  "/api/health(.*)",
-  // UDG round-7 (Luka 12): tokenized account-less read-only snapshots.
-  "/share(.*)",
-  "/api/share(.*)",
-]);
+const isPublicRoute = createRouteMatcher([...PUBLIC_ROUTE_PATTERNS]);
 
 /**
  * Routes that require auth but are exempt from the onboarding gate.
