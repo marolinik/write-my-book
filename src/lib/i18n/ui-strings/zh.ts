@@ -698,7 +698,7 @@ export const ZH: UIStrings = {
     rewards: "奖励",
     dropHere: "拖到这里",
     headsUp: "提醒",
-    createdWith: "由 WriteMyBook 制作 • writemybook.com",
+    createdWith: "由 WriteMyBook 制作 • writemybook.app",
     shareProgress: "分享进度",
     storyHealth: "故事健康度",
     storyRadar: "故事雷达",

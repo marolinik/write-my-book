@@ -698,7 +698,7 @@ export const DE: UIStrings = {
     rewards: "Belohnungen",
     dropHere: "Hier ablegen",
     headsUp: "Achtung",
-    createdWith: "Erstellt mit WriteMyBook • writemybook.com",
+    createdWith: "Erstellt mit WriteMyBook • writemybook.app",
     shareProgress: "Fortschritt teilen",
     storyHealth: "Zustand der Geschichte",
     storyRadar: "Story-Radar",

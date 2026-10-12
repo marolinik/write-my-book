@@ -14,7 +14,7 @@ export function ImprovedHero() {
       
       <div className="container relative mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl text-center">
-          {/* Value badge — truthful product facts only */}
+          {/* Value badge: truthful product facts only */}
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border bg-background/50 px-4 py-1.5 text-sm backdrop-blur">
             <SparklesIcon className="size-4 text-primary" />
             <span className="text-muted-foreground">
@@ -28,20 +28,20 @@ export function ImprovedHero() {
             Transform Your Manuscript
             <br />
             <span className="bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
-              Into a Published Book
+              Into a Finished Book
             </span>
           </h1>
 
           {/* Subheadline */}
           <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground leading-relaxed">
             The AI-powered writing platform with <strong>14 specialist agents</strong> that 
-            handle everything from first draft to publishing-ready manuscript. 
+            take a book from first draft to export-ready manuscript. 
             <em className="text-foreground">Your voice, amplified.</em>
           </p>
 
           {/* Key benefits */}
           <div className="mt-6 flex flex-wrap justify-center gap-4 text-sm text-muted-foreground">
-            {["Bring Your Own AI Key", "No Token Markup", "14-Day Free Trial"].map((benefit) => (
+            {["Bring Your Own AI Key", "No Token Markup", "Free Plan, No Card"].map((benefit) => (
               <div key={benefit} className="flex items-center gap-1.5">
                 <CheckIcon className="size-3.5 text-primary" />
                 <span>{benefit}</span>
@@ -68,7 +68,7 @@ export function ImprovedHero() {
 
           {/* Trust indicators */}
           <p className="mt-8 text-xs text-muted-foreground">
-            No credit card required · Setup in 2 minutes · Cancel anytime
+            No credit card required · Cancel anytime
           </p>
         </div>
 
@@ -80,7 +80,7 @@ export function ImprovedHero() {
               <span className="size-2.5 rounded-full bg-yellow-500/20" />
               <span className="size-2.5 rounded-full bg-green-500/20" />
               <span className="ml-3 text-xs text-muted-foreground">
-                Chapter 1 - The Opening
+                Chapter 1 - The Opening (example)
               </span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-[1fr_220px]">
@@ -101,7 +101,7 @@ export function ImprovedHero() {
                 <div className="rounded-md border bg-background p-2.5">
                   <p className="font-medium text-foreground">✓ Style Fingerprint</p>
                   <p className="mt-1 text-muted-foreground leading-relaxed">
-                    Voice analyzed · 20+ dimensions
+                    Voice profile captured
                   </p>
                 </div>
                 <div className="rounded-md border bg-background p-2.5">

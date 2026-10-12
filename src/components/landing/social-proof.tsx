@@ -1,24 +1,28 @@
 /**
  * Audience & Product Facts Section
- * Truthful claims only — verifiable product capabilities, never invented
+ * Truthful claims only: verifiable product capabilities, never invented
  * user counts or customer logos (see docs/LAUNCH-REVIEW-2026-08-31.md §P0).
+ * The product is single-user, so the audience list names individual writers.
  */
 
-import { CheckIcon } from "lucide-react";
+import { BookOpenIcon, CheckIcon, LibraryIcon, PenLineIcon, RotateCcwIcon } from "lucide-react";
+
+// The app's UI dictionaries: src/lib/i18n/ui-strings/{en,sr,de,es,fr,ru,zh}.ts
+const APP_INTERFACE_LANGUAGES = 7;
 
 export function SocialProof() {
   const audiences = [
-    { name: "Independent Authors", icon: "✍️" },
-    { name: "Writing Coaches", icon: "📚" },
-    { name: "Series & Fiction Writers", icon: "🏢" },
-    { name: "Writing Workshops", icon: "🎓" },
+    { name: "Independent Authors", icon: PenLineIcon },
+    { name: "Series Writers", icon: LibraryIcon },
+    { name: "Novelists Revising a Draft", icon: RotateCcwIcon },
+    { name: "First-Time Fiction Writers", icon: BookOpenIcon },
   ];
 
   const facts = [
     "14 AI specialist agents",
     "EPUB, PDF & DOCX export",
-    "Interface in 7 languages",
-    "14-day free trial",
+    `App interface in ${APP_INTERFACE_LANGUAGES} languages`,
+    "Free plan, no card needed",
   ];
 
   return (
@@ -29,15 +33,18 @@ export function SocialProof() {
         </p>
 
         <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 opacity-60">
-          {audiences.map((audience) => (
-            <div
-              key={audience.name}
-              className="flex items-center gap-2 text-muted-foreground"
-            >
-              <span className="text-2xl">{audience.icon}</span>
-              <span className="text-sm font-medium">{audience.name}</span>
-            </div>
-          ))}
+          {audiences.map((audience) => {
+            const Icon = audience.icon;
+            return (
+              <div
+                key={audience.name}
+                className="flex items-center gap-2 text-muted-foreground"
+              >
+                <Icon className="size-5" />
+                <span className="text-sm font-medium">{audience.name}</span>
+              </div>
+            );
+          })}
         </div>
 
         <div className="mt-8 flex flex-wrap justify-center gap-4 text-sm text-muted-foreground">

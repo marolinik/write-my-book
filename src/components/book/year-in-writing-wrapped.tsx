@@ -231,7 +231,7 @@ export function YearInWritingWrapped({ data, authorName }: YearInWritingWrappedP
               <p className="text-muted-foreground">{t.bookUI.chapters}</p>
             </div>
           </div>
-          <p className="text-[9px] text-muted-foreground/50 mt-4">WriteMyBook &bull; writemybook.com</p>
+          <p className="text-[9px] text-muted-foreground/50 mt-4">WriteMyBook &bull; writemybook.app</p>
         </div>
       ),
     });

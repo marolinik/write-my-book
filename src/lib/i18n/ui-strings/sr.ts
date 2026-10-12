@@ -698,7 +698,7 @@ export const SR: UIStrings = {
     rewards: "Nagrade",
     dropHere: "Ispustite ovde",
     headsUp: "Pažnja",
-    createdWith: "Napravljeno u WriteMyBook • writemybook.com",
+    createdWith: "Napravljeno u WriteMyBook • writemybook.app",
     shareProgress: "Podeli napredak",
     storyHealth: "Zdravlje priče",
     storyRadar: "Radar priče",

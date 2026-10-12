@@ -6,51 +6,79 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { FREE_TIER } from "@/lib/billing/free-tier";
+import { MAX_IMPORT_FILE_MB } from "@/lib/import-export/upload-limits";
 
-const FAQ_ITEMS = [
-  {
-    question: "What is BYOK (Bring Your Own Key)?",
-    answer:
-      "WriteMyBook uses a Bring Your Own Key model. You pay a flat monthly platform subscription for access to all 14 AI agents, workflows, and features. For the actual AI processing, you provide your own Anthropic or OpenRouter API key. This means you pay the AI provider directly for token usage at their published rates; no markups, no middleman. You stay in full control of your AI spend.",
-  },
-  {
-    question: "How much does AI usage cost?",
-    answer:
-      "AI costs depend on how much you use and which models you choose. Here are some real-world examples: a developmental edit pass on a 5,000-word chapter costs roughly $0.10. A full novel draft of 80,000 words runs about $10-20. A complete editorial pipeline (dev edit, line edit, beta read) costs $5-15 per chapter. Most authors spend $20-50 per month on AI usage for active writing projects. You can monitor your exact usage at any time in your dashboard.",
-  },
-  {
-    question: "What manuscript formats are supported?",
-    answer:
-      "You can import existing manuscripts in DOCX format. Our smart chapter detection uses a 6-pass multilingual algorithm to correctly split your manuscript into chapters regardless of language or formatting style. For export, we support EPUB, PDF, and DOCX with professional typography, genre-appropriate styling, front matter, and back matter, all powered by Pandoc for publishing-quality output.",
-  },
-  {
-    question: "Is my manuscript data safe?",
-    answer:
-      "Absolutely. Your manuscripts are stored with encryption at rest. API keys are encrypted with AES-256 before storage; we never see them in plaintext. Your content is never used to train AI models. You can export your full manuscript at any time, and export is never gated; even if you cancel your subscription, you can always download your work.",
-  },
-  {
-    question: "Can I cancel anytime?",
-    answer:
-      "Yes. You can cancel your subscription at any time from your account settings. When you cancel, you retain access through the end of your current billing period. After that, your account becomes read-only; you can still view and export your manuscripts, but you cannot run new AI workflows. Export is never gated, so your work is always accessible.",
-  },
-  {
-    question: "How many AI agents are included?",
-    answer:
-      "Every plan includes all 14 specialist AI agents: Writing Coach, Ghostwriter, Style Analyst, Story Architect, Scene Planner, Developmental Editor, Line Editor, Beta Reader Panel, Manuscript Analyst, Continuity Checker, Manuscript Reader, World Researcher, Market Reader, and Publishing Editor. There are no agent add-ons or premium tiers for specific agents.",
-  },
-  {
-    question: "What is the Founder plan?",
-    answer:
-      "The Founder plan is a limited-time offer for our first 200 users. For $19/month, you get all Professional-tier features: unlimited books, all 14 agents, series management, and advanced analytics. The price is locked in forever, and it will never increase for Founder members, even as we add new features and raise regular prices. Once all 200 spots are claimed, this plan is gone for good.",
-  },
-];
+interface FaqItem {
+  question: string;
+  answer: string;
+}
 
-export function FaqAccordion() {
+interface FaqAccordionProps {
+  /** True only when the deployment funds a no-key allowance for Free writers. */
+  hostedAllowance?: boolean;
+}
+
+const PROVIDER_LIST = "Anthropic, OpenAI, Google Gemini, xAI Grok, or OpenRouter";
+
+export function buildFaqItems(hostedAllowance: boolean): FaqItem[] {
+  const noKey = hostedAllowance
+    ? " If you have no key yet, a Free account can try the AI on a small, capped daily allowance that we pay for."
+    : "";
+
+  return [
+    {
+      question: "Is there a free plan?",
+      answer: `Yes. Every account starts on Free, with no card. Free includes ${FREE_TIER.maxBooks} book, ${FREE_TIER.monthlyAgentSessions} agent sessions a month, AI on your first ${FREE_TIER.maxAiEligibleWords.toLocaleString("en-US")} words, ${FREE_TIER.dailyGhostText} ghost-text suggestions and ${FREE_TIER.dailyInlineEdit} inline edits a day, and ${FREE_TIER.dailyPolishScene} scene polishes a day. You can upgrade to a paid plan from Billing inside the app whenever you want more.`,
+    },
+    {
+      question: "What is BYOK (Bring Your Own Key)?",
+      answer: `You connect your own API key from ${PROVIDER_LIST}, and you pay that provider directly at its published rates. We add no markup on tokens. The plan you pick covers the platform itself: the agents, workflows, editor, and export.${noKey}`,
+    },
+    {
+      question: "How much does AI usage cost?",
+      answer:
+        "It depends on the model you choose and how much you run. Prices differ widely between the cheapest and the most capable models, so the same edit can cost cents on one and much more on another. Before you queue an overnight batch the app shows an estimated cost, and the Billing page shows what your runs actually spent.",
+    },
+    {
+      question: "What manuscript formats are supported?",
+      answer: `You can import a manuscript as DOCX, Markdown, or plain text, up to ${MAX_IMPORT_FILE_MB} MB per file. Chapter detection recognises common chapter headings in several languages, and you can review the split before anything is saved. Export produces EPUB, PDF, or DOCX through Pandoc, with front matter and back matter.`,
+    },
+    {
+      question: "Which languages does it support?",
+      answer:
+        "The app's interface is available in English, Serbian, German, Spanish, French, Russian, and Chinese. You can set your book's language separately, and the agents write and edit in that language. This website is in English for now.",
+    },
+    {
+      question: "Is my manuscript data safe?",
+      answer:
+        "Your API keys are encrypted with AES-256-GCM before they are stored, and they are never shown back in plain text. We do not use your manuscripts to train AI models. When you run an agent, the relevant text is sent to the AI provider you chose and is handled under that provider's terms. You can export your full manuscript at any time.",
+    },
+    {
+      question: "Can I cancel anytime?",
+      answer:
+        "Yes. Cancel from your account settings and you keep your paid plan until the end of the billing period. After that the account moves to the Free plan: your books stay, export stays open, and AI features continue within the Free plan's limits.",
+    },
+    {
+      question: "How many AI agents are included?",
+      answer:
+        "Every plan includes all 14 specialist AI agents: Writing Coach, Ghostwriter, Style Analyst, Story Architect, Scene Planner, Developmental Editor, Line Editor, Beta Reader Panel, Manuscript Analyst, Continuity Checker, Manuscript Reader, World Researcher, Market Reader, and Publishing Editor. There are no agent add-ons.",
+    },
+    {
+      question: "What is the Founder plan?",
+      answer:
+        "The Founder plan is a limited offer for our first 200 subscribers. For $19/month you get the Professional plan's features: unlimited books, all 14 agents, series management, and advanced analytics. The price is locked in and will not increase for Founder members. Once all 200 spots are claimed, the plan closes.",
+    },
+  ];
+}
+
+export function FaqAccordion({ hostedAllowance = false }: FaqAccordionProps) {
+  const items = buildFaqItems(hostedAllowance);
   return (
     <div className="mx-auto max-w-3xl">
       <Accordion type="single" collapsible className="w-full">
-        {FAQ_ITEMS.map((item, index) => (
-          <AccordionItem key={index} value={`faq-${index}`}>
+        {items.map((item, index) => (
+          <AccordionItem key={item.question} value={`faq-${index}`}>
             <AccordionTrigger className="text-left text-base">
               {item.question}
             </AccordionTrigger>

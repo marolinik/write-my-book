@@ -459,7 +459,7 @@ export default function BillingPage() {
             </p>
           </div>
           <Button variant="outline" asChild>
-            <a href="mailto:enterprise@writemybook.com">{t.screens.contactUs}</a>
+            <a href="mailto:enterprise@writemybook.app">{t.screens.contactUs}</a>
           </Button>
         </CardContent>
       </Card>

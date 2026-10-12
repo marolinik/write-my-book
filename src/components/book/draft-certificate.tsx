@@ -102,7 +102,7 @@ export function DraftCertificate({
               })
             )}
           </p>
-          <p className="text-[9px] text-muted-foreground/50">WriteMyBook &bull; writemybook.com</p>
+          <p className="text-[9px] text-muted-foreground/50">WriteMyBook &bull; writemybook.app</p>
         </div>
       </div>
 

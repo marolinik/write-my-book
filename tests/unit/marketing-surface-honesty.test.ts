@@ -55,6 +55,33 @@ describe("the copy a stranger reads first", () => {
   });
 });
 
+describe("launch 2026-10 truthfulness pass", () => {
+  const files = marketingFiles();
+  const forbidden: Array<[RegExp, string]> = [
+    [/free trial|14-day/i, "no trial at launch"],
+    [/encryption at rest/i, "only API keys are encrypted"],
+    [/95% match/, "invented style score"],
+    [/\$20-50/, "unsourced spend figure"],
+    [/no usage limits|no token (caps|limits)/i, "Free and Indie have limits"],
+    [/becomes read-only/i, "a cancelled account drops to Free"],
+    [/writemybook\.com/, "every address is on .app"],
+    [/\?plan=/, "signup ignores the plan parameter"],
+    [/interactive demo|pre-loaded/i, "the demo is a static tour"],
+    [/[—–]/, "no em or en dashes in copy"],
+  ];
+
+  for (const [pattern, why] of forbidden) {
+    it(`carries no ${pattern} (${why})`, () => {
+      const hits = files.filter(({ text }) => pattern.test(text)).map(({ name }) => name);
+      expect(hits).toEqual([]);
+    });
+  }
+
+  it("gives /demo its own canonical URL", () => {
+    expect(read("app", "demo", "page.tsx")).toMatch(/canonical:\s*"\/demo"/);
+  });
+});
+
 describe("the demo page", () => {
   const demo = read("app", "demo", "page.tsx");
 

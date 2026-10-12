@@ -31,7 +31,7 @@ export const PLANS = {
     annualPrice: 490 as number | null,
     maxBooks: 2,
     maxSlots: null as number | null,
-    trialDays: 14,
+    trialDays: 0,
     features: [
       "2 active books",
       "All 14 agents & workflows",
@@ -49,7 +49,7 @@ export const PLANS = {
     annualPrice: 990 as number | null,
     maxBooks: Infinity,
     maxSlots: null as number | null,
-    trialDays: 14,
+    trialDays: 0,
     features: [
       "Unlimited books",
       "All 14 agents & workflows",

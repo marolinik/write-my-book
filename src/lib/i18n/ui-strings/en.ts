@@ -708,7 +708,7 @@ export const EN: UIStrings = {
     rewards: "Rewards",
     dropHere: "Drop here",
     headsUp: "Heads Up",
-    createdWith: "Created with WriteMyBook • writemybook.com",
+    createdWith: "Created with WriteMyBook • writemybook.app",
     shareProgress: "Share Progress",
     storyHealth: "Story Health",
     storyRadar: "Story Radar",
