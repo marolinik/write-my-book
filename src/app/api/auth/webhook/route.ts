@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { getDefaultModelId } from "@/lib/llm/defaults";
 import { stripe } from "@/lib/billing";
+import { eraseAccountData } from "@/lib/erasure/account-data";
 import {
   cancelAllStripeSubscriptions,
   expireCheckoutSession,
@@ -174,9 +175,22 @@ export async function POST(req: NextRequest) {
         // that links this writer to Stripe; if that went first, a failed
         // cancel would leave a subscription renewing that nobody can trace.
         await stopBillingForDeletedUser(clerkId);
+        // Read what the cascade will not reach before the rows are gone:
+        // stored files, memory chunks and the story graph are keyed by ids
+        // that live only in these rows.
+        const erasure = await db.user.findFirst({
+          where: { clerkId },
+          select: { id: true, books: { select: { id: true } } },
+        });
         await db.user.deleteMany({
           where: { clerkId },
         });
+        if (erasure) {
+          await eraseAccountData({
+            userId: erasure.id,
+            bookIds: erasure.books.map((b) => b.id),
+          });
+        }
         break;
       }
     }

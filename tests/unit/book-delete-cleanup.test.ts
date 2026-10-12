@@ -24,12 +24,16 @@ const h = vi.hoisted(() => ({
   },
   getBookStorage: vi.fn(),
   deleteBookChunks: vi.fn(async () => {}),
+  clearBookGraph: vi.fn(async (_id: string) => {}),
 }));
 
 vi.mock("@/lib/auth", () => ({ requireUser: () => h.requireUser() }));
 vi.mock("@/lib/db", () => ({ db: h.db }));
 vi.mock("@/lib/vector", () => ({
   deleteBookChunks: (...a: unknown[]) => h.deleteBookChunks(...(a as [])),
+}));
+vi.mock("@/lib/graph", () => ({
+  clearBookGraph: (id: string) => h.clearBookGraph(id),
 }));
 vi.mock("@/lib/storage", () => ({
   getBookStorage: (...a: unknown[]) => h.getBookStorage(...a),
@@ -145,5 +149,31 @@ describe("DELETE /api/books/:id — the book's stored files go with it", () => {
     expect(res.status).toBe(404);
     expect(h.db.$transaction).not.toHaveBeenCalled();
     expect(h.getBookStorage).not.toHaveBeenCalled();
+  });
+});
+
+describe("DELETE /api/books/:id — the story graph goes with the book (GDPR erasure)", () => {
+  it("clears the book's Neo4j graph", async () => {
+    h.requireUser.mockResolvedValue({ id: "user-1" });
+    h.db.book.findFirst.mockResolvedValue({ id: BOOK, userId: "user-1" });
+    h.db.$transaction.mockResolvedValue([]);
+    h.getBookStorage.mockReturnValue(fakeStorage([]));
+    const res = await bookDELETE(new NextRequest("http://t/api/books/" + BOOK, { method: "DELETE" }), {
+      params: Promise.resolve({ id: BOOK }),
+    } as never);
+    expect(res.status).toBe(200);
+    expect(h.clearBookGraph).toHaveBeenCalledWith(BOOK);
+  });
+
+  it("a graph outage never fails a completed delete", async () => {
+    h.requireUser.mockResolvedValue({ id: "user-1" });
+    h.db.book.findFirst.mockResolvedValue({ id: BOOK, userId: "user-1" });
+    h.db.$transaction.mockResolvedValue([]);
+    h.getBookStorage.mockReturnValue(fakeStorage([]));
+    h.clearBookGraph.mockRejectedValueOnce(new Error("neo4j down"));
+    const res = await bookDELETE(new NextRequest("http://t/api/books/" + BOOK, { method: "DELETE" }), {
+      params: Promise.resolve({ id: BOOK }),
+    } as never);
+    expect(res.status).toBe(200);
   });
 });

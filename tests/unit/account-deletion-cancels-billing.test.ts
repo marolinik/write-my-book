@@ -18,6 +18,7 @@ const h = vi.hoisted(() => ({
       upsert: vi.fn(),
       updateMany: vi.fn(),
       deleteMany: vi.fn(),
+      findFirst: vi.fn(),
     },
     subscription: { findFirst: vi.fn() },
   },
@@ -35,6 +36,7 @@ const h = vi.hoisted(() => ({
   },
   logger: { error: vi.fn(), info: vi.fn(), warn: vi.fn() },
   calls: [] as string[],
+  eraseAccountData: vi.fn(),
 }));
 
 vi.mock("svix", () => ({
@@ -45,6 +47,9 @@ vi.mock("svix", () => ({
   },
 }));
 vi.mock("@/lib/db", () => ({ db: h.db }));
+vi.mock("@/lib/erasure/account-data", () => ({
+  eraseAccountData: (t: unknown) => h.eraseAccountData(t),
+}));
 vi.mock("@/lib/logger", () => ({ logger: h.logger }));
 vi.mock("@/lib/llm/defaults", () => ({ getDefaultModelId: () => "model-x" }));
 vi.mock("@/lib/billing", () => ({
@@ -87,6 +92,10 @@ beforeEach(() => {
     stripeCustomerId: "cus_1",
     stripeSubscriptionId: "sub_1",
   });
+  h.db.user.findFirst.mockResolvedValue({ id: "u1", books: [{ id: "b1" }, { id: "b2" }] });
+  h.eraseAccountData.mockImplementation(async () => {
+    h.calls.push("erase");
+  });
   h.db.user.deleteMany.mockImplementation(async () => {
     h.calls.push("deleteUser");
     return { count: 1 };
@@ -119,7 +128,7 @@ describe("Clerk user.deleted — billing stops before the account goes (P3-S06)"
     expect(stripeMock.subscriptions.cancel).not.toHaveBeenCalledWith("sub_old");
     // Order matters: the row that links the writer to Stripe must outlive the
     // cancellation, or a failure would leave a charge nobody can trace.
-    expect(h.calls).toEqual(["cancel:sub_1", "deleteUser"]);
+    expect(h.calls).toEqual(["cancel:sub_1", "deleteUser", "erase"]);
     expect(h.db.user.deleteMany).toHaveBeenCalledWith({ where: { clerkId: "user_clerk_1" } });
   });
 
@@ -237,7 +246,7 @@ describe("Clerk user.deleted — an open checkout can no longer be paid (Founder
     expect(res.status).toBe(200);
     expect(stripeMock.checkout.sessions.expire).toHaveBeenCalledWith("cs_open");
     // Expire first: a session paid a moment before is then caught by the sweep.
-    expect(h.calls).toEqual(["expire:cs_open", "listSubscriptions", "deleteUser"]);
+    expect(h.calls).toEqual(["expire:cs_open", "listSubscriptions", "deleteUser", "erase"]);
   });
 
   it("a session paid just before deletion: its fresh subscription is canceled by the sweep", async () => {
@@ -274,5 +283,21 @@ describe("Clerk user.deleted — an open checkout can no longer be paid (Founder
     expect(res.status).toBe(500);
     expect(h.db.user.deleteMany).not.toHaveBeenCalled();
     expect(JSON.stringify(h.logger.error.mock.calls)).toContain("cs_open");
+  });
+});
+
+describe("Clerk user.deleted — the writer's data leaves every store (GDPR erasure)", () => {
+  it("erases files, chunks and graph for the user's books after the rows are gone", async () => {
+    const res = await POST(req() as never);
+    expect(res.status).toBe(200);
+    expect(h.eraseAccountData).toHaveBeenCalledWith({ userId: "u1", bookIds: ["b1", "b2"] });
+    expect(h.calls.indexOf("erase")).toBeGreaterThan(h.calls.indexOf("deleteUser"));
+  });
+
+  it("skips erasure when the user is already gone (Clerk redelivery)", async () => {
+    h.db.user.findFirst.mockResolvedValue(null);
+    const res = await POST(req() as never);
+    expect(res.status).toBe(200);
+    expect(h.eraseAccountData).not.toHaveBeenCalled();
   });
 });

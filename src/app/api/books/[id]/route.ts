@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { updateBookSchema } from "@/lib/validation";
 import { deleteBookChunks } from "@/lib/vector";
+import { clearBookGraph } from "@/lib/graph";
 import { getBookStorage } from "@/lib/storage";
 import { purgeStorage } from "@/lib/storage/purge";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
@@ -130,6 +131,12 @@ export async function DELETE(_req: NextRequest, { params }: RouteParams) {
     // removed only the front cover. Purged after the rows are gone so a failed
     // delete never costs a live book its files.
     await purgeBookStorage(user.id, id);
+
+    // The story graph (Neo4j) is keyed by bookId and no cascade reaches it.
+    // Best-effort, like storage: the book is already gone.
+    await clearBookGraph(id).catch((error) => {
+      console.error(`DELETE /api/books/:id: graph cleanup of book ${id} failed:`, error);
+    });
 
     return NextResponse.json({ deleted: true });
   } catch (error) {
