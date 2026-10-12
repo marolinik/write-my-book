@@ -1,8 +1,80 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+
+const PAGE_TITLE = "Terms of Service";
+const PAGE_DESCRIPTION =
+  "The agreement between you and WriteMyBook: accounts, the Free and paid plans, AI keys and costs, who owns your manuscripts, acceptable use and liability.";
 
 export const metadata: Metadata = {
-  title: "Terms of Service",
+  title: PAGE_TITLE,
+  description: PAGE_DESCRIPTION,
+  alternates: { canonical: "/terms" },
+  openGraph: {
+    title: `${PAGE_TITLE} | WriteMyBook`,
+    description: PAGE_DESCRIPTION,
+    url: "/terms",
+    siteName: "WriteMyBook",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${PAGE_TITLE} | WriteMyBook`,
+    description: PAGE_DESCRIPTION,
+  },
 };
+
+const LINK_CLASS = "text-primary underline underline-offset-4 hover:text-primary/80";
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section>
+      <h2 className="text-xl font-semibold text-foreground">{title}</h2>
+      {children}
+    </section>
+  );
+}
+
+function Term({ children }: { children: React.ReactNode }) {
+  return <strong className="text-foreground">{children}</strong>;
+}
+
+function PrivacyLink() {
+  return (
+    <Link href="/privacy" className={LINK_CLASS}>
+      Privacy Policy
+    </Link>
+  );
+}
+
+interface PaidPlan {
+  name: string;
+  price: string;
+  note: string;
+}
+
+const PAID_PLANS: readonly PaidPlan[] = [
+  {
+    name: "Founder",
+    price: "$19 per month, monthly billing only",
+    note: "Unlimited books, series and analytics. Limited to the first 200 subscribers. The $19 price stays for as long as that subscription remains active without interruption.",
+  },
+  {
+    name: "Indie Author",
+    price: "$49 per month or $490 per year",
+    note: "Up to 2 books; series and analytics are not included.",
+  },
+  {
+    name: "Professional",
+    price: "$99 per month or $990 per year",
+    note: "Unlimited books, series and analytics.",
+  },
+  {
+    name: "Publisher",
+    price: "$499 per month or $4,990 per year",
+    note: "Everything in Professional plus priority support. Features marked “Coming Soon” are not part of the plan until they are released.",
+  },
+];
 
 export default function TermsPage() {
   return (
@@ -11,270 +83,239 @@ export default function TermsPage() {
         <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
           Terms of Service
         </h1>
-        <p className="mt-4 text-sm text-muted-foreground">
-          Last updated: March 2, 2026
-        </p>
-        <p className="mt-2 rounded-md border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-400">
-          These terms are a template and should be reviewed by legal counsel
-          before production use.
-        </p>
+        <p className="mt-4 text-sm text-muted-foreground">Last updated: October 12, 2026</p>
 
         <div className="mt-12 space-y-10 text-base leading-relaxed text-muted-foreground">
-          {/* 1. Service Description */}
-          <section>
-            <h2 className="text-xl font-semibold text-foreground">
-              1. Service Description
-            </h2>
+          <Section title="1. Who you are contracting with">
             <p className="mt-3">
-              WriteMyBook is an AI-powered writing and editorial platform that
-              helps authors create, edit, and publish manuscripts. The platform
-              provides 14 specialist AI agents, a multi-pass editorial pipeline,
-              import/export capabilities, and series management tools.
+              These terms are an agreement between you and{" "}
+              <Term>[Company legal name, registered address and company number: to be completed]</Term>{" "}
+              (&ldquo;we&rdquo;, &ldquo;us&rdquo;), which operates WriteMyBook. By creating an
+              account you accept them. Our <PrivacyLink /> explains how we handle personal data.
             </p>
-            <p className="mt-3">
-              WriteMyBook operates on a Bring Your Own Key (BYOK) model. Users
-              provide their own AI provider API keys (Anthropic, OpenRouter) to
-              power AI workflows. The platform subscription covers access to
-              platform features; AI processing costs are billed separately by
-              your chosen AI provider.
-            </p>
-          </section>
+          </Section>
 
-          {/* 2. Account Terms */}
-          <section>
-            <h2 className="text-xl font-semibold text-foreground">
-              2. Account Terms
-            </h2>
+          <Section title="2. The service">
+            <p className="mt-3">
+              WriteMyBook is a writing and editing platform for novelists. It stores your
+              manuscripts and planning documents and lets you run AI agents that draft, edit,
+              check continuity and review your work, on AI models you choose. Features change as
+              we improve the product.
+            </p>
+          </Section>
+
+          <Section title="3. Your account">
             <ul className="mt-3 list-disc space-y-2 pl-6">
+              <li>You must be at least 18 years old.</li>
+              <li>An account is for one person. Do not share your sign-in.</li>
+              <li>Give accurate information and keep your email address current.</li>
               <li>
-                You must be at least 18 years old to use WriteMyBook.
-              </li>
-              <li>
-                You are responsible for maintaining the security of your account
-                and all activity that occurs under it.
-              </li>
-              <li>
-                Each account is intended for use by a single individual. Sharing
-                account credentials is not permitted.
-              </li>
-              <li>
-                You must provide accurate and complete information when creating
-                your account.
+                You are responsible for activity under your account and for keeping your sign-in
+                and any AI provider keys you add secure.
               </li>
             </ul>
-          </section>
+          </Section>
 
-          {/* 3. BYOK Terms */}
-          <section>
-            <h2 className="text-xl font-semibold text-foreground">
-              3. Bring Your Own Key (BYOK) Terms
-            </h2>
+          <Section title="4. The Free plan">
+            <p className="mt-3">
+              Every account starts on the Free plan. It needs no card. It currently includes:
+            </p>
             <ul className="mt-3 list-disc space-y-2 pl-6">
+              <li>1 book;</li>
+              <li>AI features on the first 40,000 words of your writing;</li>
+              <li>20 agent sessions per month, one running at a time;</li>
+              <li>100 ghost-text suggestions, 50 inline edits and 5 scene polishes per day.</li>
+            </ul>
+            <p className="mt-3">
+              Writing, saving and export are never limited on Free. We may change Free limits; a
+              change applies from the next day or month and does not delete anything you have
+              written.
+            </p>
+          </Section>
+
+          <Section title="5. Paid plans and billing">
+            <ul className="mt-3 list-disc space-y-3 pl-6">
+              {PAID_PLANS.map((plan) => (
+                <li key={plan.name}>
+                  <Term>{plan.name}</Term>: {plan.price}. {plan.note}
+                </li>
+              ))}
+            </ul>
+            <ul className="mt-4 list-disc space-y-2 pl-6">
               <li>
-                You are solely responsible for the costs incurred through your
-                AI provider API keys. WriteMyBook does not control, mark up, or
-                subsidize AI processing costs.
+                Prices are in US dollars. <Term>[Whether prices include VAT or other taxes: to be completed]</Term>.
               </li>
               <li>
-                Your platform subscription covers access to all WriteMyBook
-                features (agents, workflows, import/export, series management).
-                AI usage is billed separately by your AI provider at their
-                published rates.
+                Payments are processed by Stripe. A subscription is charged in advance and renews
+                automatically each month or year until you cancel.
               </li>
               <li>
-                You are responsible for ensuring your API key usage complies
-                with your AI provider&apos;s terms of service.
+                If a plan is offered with a trial, its length is shown at checkout. A trial is
+                available once per account. If you have not added a payment method when it ends,
+                the subscription ends and your account returns to Free.
               </li>
               <li>
-                WriteMyBook stores your API keys using AES-256 encryption and
-                uses them exclusively to execute agent workflows you initiate.
+                You can cancel at any time from the billing page in Settings. Your paid plan
+                continues until the end of the period you have paid for; after that your account
+                moves to the Free plan. Nothing you have written is deleted.
+              </li>
+              <li>
+                Refunds: <Term>[refund policy: to be completed]</Term>. This does not limit any
+                right of withdrawal or refund that consumer law gives you.
+              </li>
+              <li>
+                We will give existing subscribers at least 30 days&apos; notice of a price change
+                before it applies to their next renewal.
               </li>
             </ul>
-          </section>
+          </Section>
 
-          {/* 4. Content Ownership */}
-          <section>
-            <h2 className="text-xl font-semibold text-foreground">
-              4. Content Ownership
-            </h2>
-            <p className="mt-3">
-              You retain full ownership of all manuscripts, documents, editorial
-              findings, style profiles, and any other creative content you
-              create or upload to WriteMyBook. We claim no intellectual property
-              rights over your content.
-            </p>
-            <p className="mt-3">
-              By using the platform, you grant WriteMyBook a limited license to
-              store, process, and transmit your content solely for the purpose
-              of providing the service (e.g., sending text to AI providers for
-              analysis, storing documents in object storage).
-            </p>
-          </section>
-
-          {/* 5. Export Guarantee */}
-          <section>
-            <h2 className="text-xl font-semibold text-foreground">
-              5. Export Guarantee
-            </h2>
-            <p className="mt-3">
-              Export functionality is never gated by subscription status. Even
-              if your subscription expires, is canceled, or is downgraded, you
-              can always export your manuscripts in EPUB, PDF, and DOCX
-              formats. We will never hold your work hostage.
-            </p>
-          </section>
-
-          {/* 6. Subscription & Billing */}
-          <section>
-            <h2 className="text-xl font-semibold text-foreground">
-              6. Subscription and Billing
-            </h2>
+          <Section title="6. AI models, keys and costs">
             <ul className="mt-3 list-disc space-y-2 pl-6">
               <li>
-                Subscriptions are managed through Stripe. All payment processing
-                is handled by Stripe in accordance with their terms of service.
+                <Term>Your own key.</Term> You can add keys for Anthropic, OpenRouter, OpenAI,
+                Google Gemini, xAI Grok or a custom endpoint. The provider bills you directly at
+                its own rates; your subscription does not include AI usage. We do not mark up
+                provider costs. You are responsible for following the provider&apos;s terms.
               </li>
               <li>
-                Eligible plans include a 14-day free trial. You will not be
-                charged during the trial period.
+                We use your key only for AI work you start, including batch or overnight runs you
+                schedule. You can remove a key at any time in Settings.
               </li>
               <li>
-                You may cancel your subscription at any time. Upon cancellation,
-                you retain access to your current plan until the end of the
-                billing period.
+                <Term>Platform-funded allowance.</Term> Where we offer it, a Free writer without a
+                key can run agents on our key up to $0.50 of AI cost per day and $3 per month. We
+                may change or end this allowance at any time.
               </li>
               <li>
-                Refunds are handled on a case-by-case basis. Contact support for
-                refund requests.
-              </li>
-              <li>
-                Prices are subject to change with 30 days&apos; notice to
-                existing subscribers.
+                Cost estimates shown in the app are estimates; the provider&apos;s bill is what
+                counts.
               </li>
             </ul>
-          </section>
+          </Section>
 
-          {/* 7. Acceptable Use */}
-          <section>
-            <h2 className="text-xl font-semibold text-foreground">
-              7. Acceptable Use
-            </h2>
+          <Section title="7. Your work is yours">
+            <p className="mt-3">
+              You own the manuscripts, documents and other content you write or upload, and, as
+              between you and us, the text the AI produces for you. We claim no rights in them and
+              do not use them to train AI models.
+            </p>
+            <p className="mt-3">
+              You give us a limited licence to store, copy, process and transmit your content only
+              as needed to run the service for you: saving it, backing it up, sending it to the AI
+              providers described in the <PrivacyLink />, and showing it to people you share it
+              with. The licence ends when you delete the content, except for backups until they
+              expire.
+            </p>
+            <p className="mt-3">
+              Whether AI-generated text can be protected by copyright depends on the law where you
+              publish and on how much of it is your own creative work. AI output may resemble text
+              produced for others, and we cannot promise it is unique.
+            </p>
+          </Section>
+
+          <Section title="8. Export">
+            <p className="mt-3">
+              You can export your books as EPUB, PDF or DOCX on every plan, including
+              Free and after cancelling a paid plan.
+            </p>
+          </Section>
+
+          <Section title="9. Share links">
+            <p className="mt-3">
+              A share link lets anyone who has it read the text you chose. You are responsible for
+              what you share and with whom. You can revoke a link at any time.
+            </p>
+          </Section>
+
+          <Section title="10. Acceptable use">
             <p className="mt-3">You agree not to:</p>
             <ul className="mt-3 list-disc space-y-2 pl-6">
+              <li>upload or produce content that is illegal or infringes someone else&apos;s rights;</li>
+              <li>use the service to violate an AI provider&apos;s usage policies;</li>
               <li>
-                Use the platform to create, store, or distribute illegal
-                content.
+                access other people&apos;s accounts or data, probe or attack the service, or get
+                around plan limits or the Free allowance (for example with multiple accounts);
               </li>
-              <li>
-                Abuse AI provider APIs through the platform (e.g., generating
-                content that violates AI provider terms of service).
-              </li>
-              <li>
-                Use automated tools to scrape, crawl, or extract data from
-                WriteMyBook.
-              </li>
-              <li>
-                Attempt to gain unauthorized access to other users&apos;
-                accounts, data, or manuscripts.
-              </li>
-              <li>
-                Interfere with or disrupt the platform&apos;s infrastructure or
-                other users&apos; experience.
-              </li>
+              <li>scrape the service or resell access to it;</li>
+              <li>overload or disrupt the service or other writers&apos; use of it.</li>
             </ul>
-          </section>
+          </Section>
 
-          {/* 8. Data Handling */}
-          <section>
-            <h2 className="text-xl font-semibold text-foreground">
-              8. Data Handling
-            </h2>
+          <Section title="11. AI output">
             <p className="mt-3">
-              Your data is handled in accordance with our{" "}
-              <a
-                href="/privacy"
-                className="text-primary underline underline-offset-4 hover:text-primary/80"
-              >
-                Privacy Policy
-              </a>
-              . Key points:
+              AI output can be wrong, inconsistent, or similar to existing works. Editorial
+              findings, continuity checks, research results and scores are suggestions, not
+              professional, legal or factual advice, and can miss problems. Review anything before
+              you rely on it or publish it. You are responsible for what you publish.
+            </p>
+          </Section>
+
+          <Section title="12. Availability and changes">
+            <p className="mt-3">
+              We work to keep WriteMyBook available but do not guarantee it will be uninterrupted
+              or error-free. AI providers we do not control can be slow or unavailable. We may add,
+              change or remove features; if we remove something central to a paid plan we will
+              tell you in advance.
+            </p>
+          </Section>
+
+          <Section title="13. Ending the agreement">
+            <p className="mt-3">
+              You can stop using WriteMyBook and delete your account at any time. We may suspend
+              or close an account that seriously or repeatedly breaks these terms. Except in cases
+              of illegal content or a threat to the service, we will tell you first and give you
+              time to export your work.
+            </p>
+          </Section>
+
+          <Section title="14. Warranties and liability">
+            <p className="mt-3">
+              The service is provided &ldquo;as is&rdquo;. To the extent the law allows:
             </p>
             <ul className="mt-3 list-disc space-y-2 pl-6">
               <li>
-                Manuscripts are stored encrypted at rest in S3-compatible
-                storage.
+                we are not liable for indirect or consequential loss, lost profits, or the cost of
+                AI usage on your own keys;
               </li>
               <li>
-                API keys are encrypted with AES-256 before storage.
-              </li>
-              <li>
-                We do not use your content to train AI models.
-              </li>
-              <li>
-                You can export all your data at any time and request complete
-                account deletion.
+                our total liability for any claim is limited to the amount you paid us in the 12
+                months before the claim.
               </li>
             </ul>
-          </section>
-
-          {/* 9. Limitation of Liability */}
-          <section>
-            <h2 className="text-xl font-semibold text-foreground">
-              9. Limitation of Liability
-            </h2>
             <p className="mt-3">
-              WriteMyBook is provided &ldquo;as is&rdquo; without warranties of
-              any kind, either express or implied. To the maximum extent
-              permitted by law:
+              Nothing in these terms limits liability for death or personal injury caused by
+              negligence, for fraud, or any right you have as a consumer that cannot be limited
+              by contract.
             </p>
-            <ul className="mt-3 list-disc space-y-2 pl-6">
-              <li>
-                We are not liable for any indirect, incidental, special, or
-                consequential damages arising from your use of the platform.
-              </li>
-              <li>
-                Our total liability for any claims related to the service shall
-                not exceed the amount you paid for the service in the 12 months
-                preceding the claim.
-              </li>
-              <li>
-                We are not responsible for AI-generated content quality, AI
-                provider availability, or costs incurred through your AI
-                provider API keys.
-              </li>
-            </ul>
-          </section>
+          </Section>
 
-          {/* 10. Modifications */}
-          <section>
-            <h2 className="text-xl font-semibold text-foreground">
-              10. Modifications to These Terms
-            </h2>
+          <Section title="15. Governing law and disputes">
             <p className="mt-3">
-              We may update these terms from time to time. When we make material
-              changes, we will notify you by email or by posting a notice on the
-              platform at least 30 days before the changes take effect. Your
-              continued use of the platform after the effective date constitutes
-              acceptance of the updated terms.
+              These terms are governed by <Term>[governing law: to be completed]</Term>, and
+              disputes go to <Term>[competent courts: to be completed]</Term>. If you are a
+              consumer, you also keep the protection of the mandatory laws of the country where
+              you live and can bring a claim there.
             </p>
-          </section>
+          </Section>
 
-          {/* 11. Contact */}
-          <section>
-            <h2 className="text-xl font-semibold text-foreground">
-              11. Contact
-            </h2>
+          <Section title="16. Changes to these terms">
             <p className="mt-3">
-              For questions about these terms, please contact us at{" "}
-              <a
-                href="mailto:legal@writemybook.app"
-                className="text-primary underline underline-offset-4 hover:text-primary/80"
-              >
+              If we make a material change we will tell you in the app at least 30 days before it
+              takes effect. If you do not accept it, you can cancel before then. Continuing to use
+              the service after that date means you accept the new terms.
+            </p>
+          </Section>
+
+          <Section title="17. Contact">
+            <p className="mt-3">
+              Questions about these terms:{" "}
+              <a href="mailto:legal@writemybook.app" className={LINK_CLASS}>
                 legal@writemybook.app
               </a>
               .
             </p>
-          </section>
+          </Section>
         </div>
       </div>
     </div>
