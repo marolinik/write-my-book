@@ -65,6 +65,24 @@ describe("buildRewriteUserContent", () => {
   });
 });
 
+describe("the length brief (live: a trim of 2762 to 2100 came back at 2713)", () => {
+  it("says how many words to cut and the length above which the draft is refused", () => {
+    const user = buildRewriteUserContent({
+      chapterText: original, chapterNumber: 15, title: null, currentWords: 2762, targetWords: 2100, instructions: "Skrati opise.",
+    });
+    expect(user).toContain("662");
+    expect(user).toMatch(/refused/i);
+    expect(user).toContain("2706");
+  });
+
+  it("says how many words to add for an expansion", () => {
+    const user = buildRewriteUserContent({
+      chapterText: original, chapterNumber: 37, title: null, currentWords: 1000, targetWords: 1400, instructions: "Dodaj scenu.",
+    });
+    expect(user).toContain("400");
+  });
+});
+
 describe("budget", () => {
   it("asks for more room to expand than to trim", () => {
     expect(rewriteMaxTokens(original, { kind: "expand", targetWords: 1800 })).toBeGreaterThan(

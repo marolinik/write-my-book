@@ -138,10 +138,24 @@ export function buildHookUserContent(input: {
   ].join("\n\n");
 }
 
+/**
+ * The length as a task, not just a target: the live model, told only "about
+ * 2100", returned 2713 of 2762 words. It is told what to cut or add and where
+ * the judge draws the line.
+ */
+function lengthBrief(current: number, target: number): string {
+  if (target < current) {
+    const ceiling = Math.floor(current * TRIM_MUST_SHRINK);
+    return `Cut about ${current - target} words. A draft longer than ${ceiling} words is refused as unchanged.`;
+  }
+  return `Add about ${target - current} words of story where the instructions say. A draft that does not grow is refused.`;
+}
+
 export function buildRewriteUserContent(input: RewriteUserInput): string {
   const heading = input.title ? `Chapter ${input.chapterNumber}: ${input.title}` : `Chapter ${input.chapterNumber}`;
   return [
     `${heading}. It has ${input.currentWords} words; the target is about ${input.targetWords} words.`,
+    lengthBrief(input.currentWords, input.targetWords),
     `The editor's instructions:\n${input.instructions.trim()}`,
     `<chapter>\n${input.chapterText}\n</chapter>`,
     `Revise the chapter between the <chapter> tags.`,
