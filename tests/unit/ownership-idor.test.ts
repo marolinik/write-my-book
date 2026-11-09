@@ -28,6 +28,10 @@ const h = vi.hoisted(() => ({
 
 vi.mock("@/lib/auth", () => ({ requireUser: () => h.requireUser() }));
 vi.mock("@/lib/db", () => ({ db: h.db }));
+vi.mock("@/lib/vector/indexing-gate", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/vector/indexing-gate")>()),
+  isProseIndexingPausedForUser: async () => false,
+}));
 vi.mock("@/lib/vector", () => ({
   getBookChunkCounts: (...a: unknown[]) => h.getBookChunkCounts(...a),
   getEmbeddingCosts: (...a: unknown[]) => h.getEmbeddingCosts(...a),

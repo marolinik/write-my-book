@@ -105,13 +105,17 @@ jobs:
         run: npm run lint
 
       - name: Typecheck (tsc --noEmit)
+        if: ${{ !cancelled() }}
         run: npx tsc --noEmit
 
       - name: Run unit tests
+        if: ${{ !cancelled() }}
         run: npm run test:unit
 
       - name: Build Next.js app
+        if: ${{ !cancelled() }}
         run: npm run build
 
       - name: Build worker
+        if: ${{ !cancelled() }}
         run: npm run worker:build
