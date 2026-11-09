@@ -434,7 +434,8 @@ test.describe.serial("Writer Journey — UI Flows", () => {
     // After applying, the status badge should change to "Applied"
     await expect(
       page.getByText("Applied", { exact: true }).first()
-    ).toBeVisible({ timeout: 10_000 });
+      // The first PATCH on a cold dev server compiles for about 20 s.
+    ).toBeVisible({ timeout: 45_000 });
 
     // Click "Undo" button that appears after applying
     const undoBtn = page.getByRole("button", { name: /undo/i }).first();
