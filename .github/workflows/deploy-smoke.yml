@@ -29,6 +29,8 @@ concurrency:
 jobs:
   guard:
     name: Resolve target
+    # Skipped, not green, until a deployment exists to smoke.
+    if: ${{ github.event.inputs.base_url != '' || vars.PLAYWRIGHT_BASE_URL != '' }}
     runs-on: ubuntu-latest
     outputs:
       base_url: ${{ steps.resolve.outputs.base_url }}

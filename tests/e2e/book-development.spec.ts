@@ -3,6 +3,9 @@ import { test, expect } from "./fixtures";
 import { createBookViaApi } from "./fixtures";
 
 test.describe("Book Development hub", () => {
+  // A cold dev server spends most of the default 30 s compiling this route.
+  test.describe.configure({ timeout: 90_000 });
+
   test("hub page renders the six pre-draft stages on a fresh book", async ({
     page,
     request,
@@ -13,7 +16,6 @@ test.describe("Book Development hub", () => {
     });
 
     await page.goto(`/books/${book.id}/dev`);
-    await page.waitForLoadState("networkidle");
 
     // Header title names the hub.
     await expect(
@@ -63,7 +65,6 @@ test.describe("Book Development hub", () => {
     }
 
     await page.goto(`/books/${book.id}/dev`);
-    await page.waitForLoadState("networkidle");
 
     // The hub still renders the full pipeline once a concept + synopsis exist.
     await expect(
@@ -85,7 +86,6 @@ test.describe("Book Development hub", () => {
     });
 
     await page.goto(`/books/${book.id}`);
-    await page.waitForLoadState("networkidle");
 
     const cta = page.getByRole("link", { name: /run workflow/i }).first();
     await expect(cta).toBeVisible();
@@ -101,7 +101,6 @@ test.describe("Book Development hub", () => {
       data: { type: "CONCEPT", title: "CONCEPT", content: "logline" },
     });
     await page.goto(`/books/${withConcept.id}`);
-    await page.waitForLoadState("networkidle");
     await expect(
       page.getByRole("link", { name: /run workflow/i }).first()
     ).toHaveCount(0);

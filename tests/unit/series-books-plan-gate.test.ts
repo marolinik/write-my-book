@@ -84,3 +84,12 @@ describe("POST /api/series/:id/books — new book passes the create_book gate", 
     expect(h.db.book.create).not.toHaveBeenCalled();
   });
 });
+
+describe("POST /api/series/:id/books — duplicate name", () => {
+  it("answers 409 like POST /api/books, not 500, when the name is taken", async () => {
+    h.db.book.create.mockRejectedValue(Object.assign(new Error("unique"), { code: "P2002" }));
+    const res = await POST(req({ name: "Book Two" }) as never, ctx as never);
+    expect(res.status).toBe(409);
+    expect(await res.json()).toEqual({ error: "A book with this name already exists" });
+  });
+});

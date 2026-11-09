@@ -1,4 +1,4 @@
-import { test, expect, createBookViaApi } from "./fixtures";
+import { test, expect, createBookViaApi, uniqueName } from "./fixtures";
 
 /**
  * Model Selection & Cost Estimate E2E Tests
@@ -17,7 +17,7 @@ test.describe("Model Selection & Cost Estimate", () => {
   // ─── Setup: Create a test book ──────────────────────────────
   test("Setup — Create test book", async ({ request }) => {
     const book = await createBookViaApi(request, {
-      name: "Model Selection Test Book",
+      name: uniqueName("Model Selection Test Book"),
       genre: "Sci-Fi",
       language: "en",
     });

@@ -22,6 +22,8 @@ const eslintConfig = defineConfig([
     "test-results/**",
     // One-shot QA campaign evidence harnesses / scripts (not product code).
     "cowork/**",
+    // Gitignored audit scratch, same reason as in tsconfig.json.
+    "tmp-audit/**",
     "tmp-*.js",
     "tmp-*.ts",
   ]),

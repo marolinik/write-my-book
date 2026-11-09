@@ -10,6 +10,9 @@ export default defineConfig({
     // Component/hook tests that need a DOM opt in per-file via the
     // `// @vitest-environment jsdom` pragma — the default stays node.
     include: ["tests/unit/**/*.test.ts", "tests/unit/**/*.test.tsx"],
+    setupFiles: ["./tests/setup/pin-env.ts"],
+    // Heavy modules are imported in beforeAll; 10 s is too short on a busy runner.
+    hookTimeout: 30_000,
     coverage: {
       provider: "v8",
       reportsDirectory: "./coverage/unit",

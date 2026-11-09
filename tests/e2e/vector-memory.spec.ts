@@ -1,4 +1,4 @@
-import { test, expect, createBookViaApi } from "./fixtures";
+import { test, expect, createBookViaApi, uniqueName } from "./fixtures";
 
 /**
  * Vector Memory API E2E Tests
@@ -19,7 +19,7 @@ test.describe("Vector Memory API", () => {
   // ─── Setup: Create a test book ──────────────────────────────
   test("Setup — Create test book for memory tests", async ({ request }) => {
     const book = await createBookViaApi(request, {
-      name: "Vector Memory Test Book",
+      name: uniqueName("Vector Memory Test Book"),
       genre: "Fantasy",
       language: "en",
     });

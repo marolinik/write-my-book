@@ -130,7 +130,7 @@ services:
   # (docker container state/restart or a passive healthcheck) can alert. The long
   # leading sleep throttles restart churn to at most once per loop.
   db-backup-watchdog:
-    image: quay.io/minio/mc:latest
+    image: ghcr.io/marolinik/wmb-mc@sha256:eb4ea9884b77704230e2423e9004d2fa738dc272876b9cc41a297d29443b8780
     restart: unless-stopped
     depends_on:
       postgres:

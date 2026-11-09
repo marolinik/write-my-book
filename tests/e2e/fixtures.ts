@@ -6,6 +6,14 @@ export const test = base.extend({
 
 export { expect } from "@playwright/test";
 
+let nameCounter = 0;
+
+/** A book name no other test, worker or retry has used: duplicates get a 409. */
+export function uniqueName(base: string): string {
+  nameCounter += 1;
+  return `${base} ${Date.now()}-${process.pid}-${nameCounter}`;
+}
+
 /** Helper to navigate with E2E test auth bypass. */
 export async function navigateAuthenticated(
   page: import("@playwright/test").Page,

@@ -1,5 +1,6 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import { SunIcon, MoonIcon, MonitorIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,19 +12,28 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+const subscribeNever = () => () => {};
+
 export function ThemeToggle() {
   const { t } = useLanguage();
   const { setTheme } = useTheme();
+  // D-203: Radix derives the trigger's id from useId, and it differed between
+  // server and client. The menu only matters once the page is interactive.
+  const mounted = useSyncExternalStore(subscribeNever, () => true, () => false);
 
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+  const button = (
         <Button variant="ghost" size="icon" className="size-7">
           <SunIcon className="size-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
           <MoonIcon className="absolute size-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           <span className="sr-only">{t.appUI.toggleTheme}</span>
         </Button>
-      </DropdownMenuTrigger>
+  );
+
+  if (!mounted) return button;
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>{button}</DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => setTheme("light")}>
           <SunIcon className="mr-2 size-4" />{t.appUI.themeLight}</DropdownMenuItem>

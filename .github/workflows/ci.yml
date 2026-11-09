@@ -101,17 +101,27 @@ jobs:
       - name: Validate Docker Compose production topology
         run: docker compose -f docker-compose.yml -f docker-compose.prod.yml config >/tmp/wmb-compose.yml
 
+      - name: Pull the object store images the deployment depends on
+        # A registry dropped these once and nothing noticed for weeks.
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.prod.yml pull minio minio-init
+          docker build -f docker/db-backup/Dockerfile docker/db-backup
+
       - name: Lint
         run: npm run lint
 
       - name: Typecheck (tsc --noEmit)
+        if: ${{ !cancelled() }}
         run: npx tsc --noEmit
 
       - name: Run unit tests
+        if: ${{ !cancelled() }}
         run: npm run test:unit
 
       - name: Build Next.js app
+        if: ${{ !cancelled() }}
         run: npm run build
 
       - name: Build worker
+        if: ${{ !cancelled() }}
         run: npm run worker:build

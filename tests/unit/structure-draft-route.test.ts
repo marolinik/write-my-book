@@ -65,7 +65,7 @@ beforeEach(() => {
     stop_reason: "end_turn",
     usage: { input_tokens: 9000, output_tokens: 2000 },
   });
-  h.draftRewriteMove.mockImplementation(async (_id: string, _ctx: unknown, generate: Function) => {
+  h.draftRewriteMove.mockImplementation(async (_id: string, _ctx: unknown, generate: (args: { system: string; user: string; maxTokens: number }) => Promise<{ tokens: number }>) => {
     const g = await generate({ system: "s", user: "u", maxTokens: 4000 });
     return { ok: true, baseWords: 1000, draftWords: 720, tokens: g.tokens };
   });

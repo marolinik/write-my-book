@@ -8,7 +8,7 @@ Follow `docs/database-deploy-backup.md`: take a fresh dump and record it in `DB_
 
 ## 2. Pull the MinIO images from quay.io
 
-MinIO's images **are no longer on Docker Hub**. `minio/minio` and `minio/mc` do not resolve, so a fresh host cannot start storage from the old compose. Both compose files now point at `quay.io/minio/*`.
+MinIO's images **are no longer on Docker Hub**. `minio/minio` and `minio/mc` do not resolve, so a fresh host cannot start storage from the old compose. They later vanished from quay.io too. Both compose files now pin `ghcr.io/marolinik/wmb-minio` and `wmb-mc` by digest.
 
 ```sh
 docker compose -f docker-compose.yml -f docker-compose.prod.yml pull minio minio-init db-backup-watchdog
@@ -44,7 +44,7 @@ select tgname from pg_trigger where tgrelid = 'edit_actions'::regclass and not t
 
 ## 4. Backup sidecar
 
-The sidecar used to download `mc` from dl.min.io at start. That URL now answers **410 Gone**, and locally no backup was taken for 14 days because of it. It now builds from `docker/db-backup/Dockerfile`, with `mc` copied from `quay.io/minio/mc`.
+The sidecar used to download `mc` from dl.min.io at start. That URL now answers **410 Gone**, and locally no backup was taken for 14 days because of it. It now builds from `docker/db-backup/Dockerfile`, with `mc` copied from `ghcr.io/marolinik/wmb-mc`.
 
 ```sh
 docker compose -f docker-compose.yml -f docker-compose.prod.yml build db-backup
