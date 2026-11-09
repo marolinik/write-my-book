@@ -386,7 +386,7 @@ test.describe("Full Writing Workflow Smoke Test", () => {
     expect(book1.status()).toBe(201);
 
     const book2 = await request.post(`/api/series/${seriesId}/books`, {
-      data: { name: "Book Two — The Unraveling" },
+      data: { name: uniqueName("Book Two — The Unraveling") },
     });
     expect(book2.status()).toBe(201);
 

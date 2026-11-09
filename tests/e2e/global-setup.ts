@@ -3,6 +3,10 @@ import pg from "pg";
 
 const E2E_CLERK_ID = "user_test_e2e";
 
+// The product default for new accounts. The column default is a local-fleet
+// model that CI does not have, so without this AI routes answer 500, not 400.
+const E2E_DEFAULT_MODEL = "openrouter-deepseek-flash/sonnet";
+
 /** Same identity as scripts/qa-seed-personas.ts, so either seeder can create it. */
 const LANG_PERSONA = {
   clerkId: "user_qa_lang",
@@ -54,12 +58,12 @@ export default async function globalSetup() {
     const {
       rows: [user],
     } = await client.query(
-      `INSERT INTO users (id, clerk_id, email, display_name, created_at, updated_at)
-       VALUES (gen_random_uuid(), $1, $2, $3, NOW(), NOW())
+      `INSERT INTO users (id, clerk_id, email, display_name, default_model, created_at, updated_at)
+       VALUES (gen_random_uuid(), $1, $2, $3, $4, NOW(), NOW())
        ON CONFLICT (clerk_id)
-       DO UPDATE SET email = $2, display_name = $3, default_model = DEFAULT, preferred_language = DEFAULT, updated_at = NOW()
+       DO UPDATE SET email = $2, display_name = $3, default_model = $4, preferred_language = DEFAULT, updated_at = NOW()
        RETURNING id`,
-      [E2E_CLERK_ID, "e2e@test.local", "E2E Tester"]
+      [E2E_CLERK_ID, "e2e@test.local", "E2E Tester", E2E_DEFAULT_MODEL]
     );
 
     // Grant the E2E identity a paid plan. The suite is fullyParallel: every
@@ -83,12 +87,12 @@ export default async function globalSetup() {
     const {
       rows: [langUser],
     } = await client.query(
-      `INSERT INTO users (id, clerk_id, email, display_name, created_at, updated_at)
-       VALUES (gen_random_uuid(), $1, $2, $3, NOW(), NOW())
+      `INSERT INTO users (id, clerk_id, email, display_name, default_model, created_at, updated_at)
+       VALUES (gen_random_uuid(), $1, $2, $3, $4, NOW(), NOW())
        ON CONFLICT (clerk_id)
-       DO UPDATE SET email = $2, display_name = $3, default_model = DEFAULT, preferred_language = DEFAULT, updated_at = NOW()
+       DO UPDATE SET email = $2, display_name = $3, default_model = $4, preferred_language = DEFAULT, updated_at = NOW()
        RETURNING id`,
-      [LANG_PERSONA.clerkId, LANG_PERSONA.email, LANG_PERSONA.name]
+      [LANG_PERSONA.clerkId, LANG_PERSONA.email, LANG_PERSONA.name, E2E_DEFAULT_MODEL]
     );
     await client.query(
       `INSERT INTO subscriptions (id, user_id, plan, status, created_at, updated_at)
