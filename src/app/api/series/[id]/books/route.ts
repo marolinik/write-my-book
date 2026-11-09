@@ -93,6 +93,12 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     }
     const zodRes = zodErrorResponse(error);
     if (zodRes) return zodRes;
+    if ((error as { code?: string })?.code === "P2002") {
+      return NextResponse.json(
+        { error: "A book with this name already exists" },
+        { status: 409 }
+      );
+    }
     console.error("POST /api/series/:id/books error:", error);
     return NextResponse.json(
       { error: "Failed to add book to series" },

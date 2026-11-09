@@ -265,7 +265,7 @@ export function EditorStatusBar({
               </span>
             )}
             {(annotationCounts["severity-medium"] ?? 0) > 0 && (
-              <span className="text-orange-600 dark:text-orange-400">
+              <span className="text-orange-700 dark:text-orange-400">
                 <span aria-hidden="true">
                   {t.editorChrome.severityMediumShort.replace(
                     "{count}",
