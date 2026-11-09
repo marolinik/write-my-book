@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { uniqueName } from "./fixtures";
 
 /**
  * Document & Version API Tests
@@ -14,7 +15,7 @@ test.describe("Documents API", () => {
 
   test.beforeAll(async ({ request }) => {
     const res = await request.post("/api/books", {
-      data: { name: "Doc Test Book", language: "en" },
+      data: { name: uniqueName("Doc Test Book"), language: "en" },
     });
     const data = await res.json();
     bookId = data.id;

@@ -1,4 +1,4 @@
-import { test, expect, createBookViaApi } from "./fixtures";
+import { test, expect, createBookViaApi, uniqueName } from "./fixtures";
 
 /**
  * Local-LLM-overlay E2E: proves a REAL inference round trip through the
@@ -33,7 +33,7 @@ test.describe("Local gateway LLM round trip", () => {
 
     // 2) Ask ghost-text for a continuation and require model output.
     const book = await createBookViaApi(request, {
-      name: "Gateway Ghost Book",
+      name: uniqueName("Gateway Ghost Book"),
       genre: "Mystery",
     });
     const gt = await request.post(`/api/books/${book.id}/ghost-text`, {

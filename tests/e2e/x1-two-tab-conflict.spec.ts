@@ -164,7 +164,7 @@ test.describe("X1 — two-tab edit war (real concurrent writers, no offline simu
     expect(stillA.markdown).not.toContain("Tab B never saw");
 
     await pageB.screenshot({
-      path: "cowork/bulletproof-qa-2026-07-17/evidence/w4-ui-drills/screenshots/x1-b-conflict-chip-dialog-closed.png",
+      path: testInfo.outputPath("x1-b-conflict-chip-dialog-closed.png"),
       fullPage: true,
     });
 
@@ -180,7 +180,7 @@ test.describe("X1 — two-tab edit war (real concurrent writers, no offline simu
     await expect(pageB.getByRole("button", { name: "Load theirs" })).toBeVisible();
 
     await pageB.screenshot({
-      path: "cowork/bulletproof-qa-2026-07-17/evidence/w4-ui-drills/screenshots/x1-b-conflict-dialog-open-diff.png",
+      path: testInfo.outputPath("x1-b-conflict-dialog-open-diff.png"),
       fullPage: true,
     });
 

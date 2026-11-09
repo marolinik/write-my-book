@@ -3,6 +3,7 @@ import {
   expect,
   createBookViaApi,
   createChapterViaApi,
+  uniqueName,
 } from "./fixtures";
 
 /**
@@ -24,7 +25,7 @@ test.describe("Beta Score Pipeline", () => {
   // ─── Setup: Create book and chapter ─────────────────────────
   test("Setup — Create test book with chapter", async ({ request }) => {
     const book = await createBookViaApi(request, {
-      name: "Beta Score Test Book",
+      name: uniqueName("Beta Score Test Book"),
       genre: "Literary Fiction",
       language: "en",
     });

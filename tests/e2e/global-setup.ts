@@ -57,7 +57,7 @@ export default async function globalSetup() {
       `INSERT INTO users (id, clerk_id, email, display_name, created_at, updated_at)
        VALUES (gen_random_uuid(), $1, $2, $3, NOW(), NOW())
        ON CONFLICT (clerk_id)
-       DO UPDATE SET email = $2, display_name = $3, updated_at = NOW()
+       DO UPDATE SET email = $2, display_name = $3, default_model = DEFAULT, preferred_language = DEFAULT, updated_at = NOW()
        RETURNING id`,
       [E2E_CLERK_ID, "e2e@test.local", "E2E Tester"]
     );
@@ -86,7 +86,7 @@ export default async function globalSetup() {
       `INSERT INTO users (id, clerk_id, email, display_name, created_at, updated_at)
        VALUES (gen_random_uuid(), $1, $2, $3, NOW(), NOW())
        ON CONFLICT (clerk_id)
-       DO UPDATE SET email = $2, display_name = $3, updated_at = NOW()
+       DO UPDATE SET email = $2, display_name = $3, default_model = DEFAULT, preferred_language = DEFAULT, updated_at = NOW()
        RETURNING id`,
       [LANG_PERSONA.clerkId, LANG_PERSONA.email, LANG_PERSONA.name]
     );

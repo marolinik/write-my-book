@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { uniqueName } from "./fixtures";
 
 /**
  * Full Writing Workflow Smoke Test
@@ -30,7 +31,7 @@ test.describe("Full Writing Workflow Smoke Test", () => {
   test("Step 1 — Create book", async ({ request }) => {
     const res = await request.post("/api/books", {
       data: {
-        name: "Smoke Test Novel",
+        name: uniqueName("Smoke Test Novel"),
         genre: "Fantasy",
         language: "en",
       },
@@ -380,7 +381,7 @@ test.describe("Full Writing Workflow Smoke Test", () => {
 
     // Add two books
     const book1 = await request.post(`/api/series/${seriesId}/books`, {
-      data: { name: "Smoke Test Novel — Reborn", genre: "Fantasy" },
+      data: { name: uniqueName("Smoke Test Novel — Reborn"), genre: "Fantasy" },
     });
     expect(book1.status()).toBe(201);
 
