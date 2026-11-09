@@ -32,7 +32,7 @@ services:
 
   minio:
     # MinIO's images left Docker Hub; quay.io is where they are published.
-    image: quay.io/minio/minio:latest
+    image: ghcr.io/marolinik/wmb-minio@sha256:a1a8bd4ac40ad7881a245bab97323e18f971e4d4cba2c2007ec1bedd21cbaba2
     restart: unless-stopped
     ports:
       - "127.0.0.1:9000:9000"
@@ -50,7 +50,7 @@ services:
       retries: 5
 
   minio-init:
-    image: quay.io/minio/mc:latest
+    image: ghcr.io/marolinik/wmb-mc@sha256:eb4ea9884b77704230e2423e9004d2fa738dc272876b9cc41a297d29443b8780
     depends_on:
       minio:
         condition: service_healthy
