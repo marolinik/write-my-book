@@ -55,6 +55,13 @@ describe("the copy a stranger reads first", () => {
   });
 });
 
+describe("the in-app paywall", () => {
+  it("promises no trial and no card-free start (trialDays is 0 on every plan)", () => {
+    const page = read("app", "(app)", "settings", "billing", "page.tsx");
+    expect(page).not.toMatch(/free trial|14-day|noCreditCard/i);
+  });
+});
+
 describe("launch 2026-10 truthfulness pass", () => {
   const files = marketingFiles();
   const forbidden: Array<[RegExp, string]> = [
