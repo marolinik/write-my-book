@@ -7,7 +7,7 @@ import { estimateWorkflowCost } from "@/lib/llm/cost-estimator";
 import { passUsageType } from "@/lib/llm/cost-calibration";
 import { validatePrices } from "@/lib/llm/price-validator";
 import { checkQuota } from "@/lib/billing/quota-checker";
-import { managedKeyFor } from "@/lib/billing/managed-tier";
+import { clampSessionBudget, managedKeyFor, sessionBudgetFor } from "@/lib/billing/managed-tier";
 import {
   checkConcurrencyFence,
   recordAgentSessionStart,
@@ -63,11 +63,6 @@ function keyIfProvider(
 }
 
 type RouteParams = { params: Promise<{ id: string }> };
-
-/** Safety multiplier applied to the pre-session max cost estimate. */
-const BUDGET_SAFETY_FACTOR = 2;
-/** Lower bound for the per-session budget so tight estimates don't strangle sessions. */
-const MIN_SESSION_BUDGET_USD = 5;
 
 const startSessionSchema = z.object({
   workflowId: z.string().min(1),
@@ -470,10 +465,14 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     // Finite per-session budget derived from the workflow estimate.
     // CRITICAL: must be finite — Infinity does not survive BullMQ's JSON
     // serialization (it becomes null, silently falling back to defaults).
-    const sessionBudgetUsd = Math.max(
-      preEstimate.max * BUDGET_SAFETY_FACTOR,
-      MIN_SESSION_BUDGET_USD
-    );
+    // On the product's key it is also clamped to what is left of the
+    // writer's allowance (P1-9).
+    const sessionBudgetUsd = managedConfig && managed
+      ? clampSessionBudget(
+          preEstimate.max,
+          Math.min(managed.allowance.remainingTodayUsd, managed.allowance.remainingThisMonthUsd)
+        )
+      : sessionBudgetFor(preEstimate.max);
 
     // Fire-and-forget: validate pricing on first use (24h cache)
     validatePrices().catch(() => {});

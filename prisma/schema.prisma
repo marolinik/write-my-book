@@ -460,7 +460,9 @@ model ConversationTurn {
 model UsageRecord {
   id           String   @id @default(uuid())
   userId       String   @map("user_id")
-  bookId       String   @map("book_id")
+  // Optional, and SetNull on book delete: the row is spend, and the platform
+  // spend cap must not reset when a writer deletes a book (P1-9).
+  bookId       String?  @map("book_id")
   agentType    String   @map("agent_type")
   model        String
   tokensInput  Int      @map("tokens_input")
@@ -475,7 +477,7 @@ model UsageRecord {
   recordedAt   DateTime @default(now()) @map("recorded_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  book Book? @relation(fields: [bookId], references: [id], onDelete: SetNull)
 
   @@map("usage_records")
 }

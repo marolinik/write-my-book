@@ -810,7 +810,7 @@ export default function BillingPage() {
                 <div className="space-y-3">
                   {usage.byBook.map(
                     (book: {
-                      bookId: string;
+                      bookId: string | null;
                       bookName: string;
                       tokensInput: number;
                       tokensOutput: number;
@@ -818,17 +818,24 @@ export default function BillingPage() {
                       sessions: number;
                     }) => (
                       <div
-                        key={book.bookId}
+                        key={book.bookId ?? "deleted-books"}
                         className="flex items-center justify-between rounded-md border p-3"
                       >
                         <div>
-                          <a
-                            href={`/books/${book.bookId}`}
-                            className="font-medium hover:underline flex items-center gap-1.5"
-                          >
-                            <BookOpen className="h-3.5 w-3.5 text-muted-foreground" />
-                            {book.bookName}
-                          </a>
+                          {book.bookId ? (
+                            <a
+                              href={`/books/${book.bookId}`}
+                              className="font-medium hover:underline flex items-center gap-1.5"
+                            >
+                              <BookOpen className="h-3.5 w-3.5 text-muted-foreground" />
+                              {book.bookName}
+                            </a>
+                          ) : (
+                            <p className="font-medium flex items-center gap-1.5">
+                              <BookOpen className="h-3.5 w-3.5 text-muted-foreground" />
+                              {book.bookName}
+                            </p>
+                          )}
                           <p className="text-sm text-muted-foreground">
                             {countWithNoun(
                               book.sessions,
