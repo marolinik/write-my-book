@@ -56,11 +56,11 @@ interface Processor {
 
 const PROCESSORS: readonly Processor[] = [
   {
-    name: "[Hosting provider: to be completed]",
+    name: "Hetzner Online GmbH",
     purpose:
       "Runs the servers that host our application, database (PostgreSQL), file storage (MinIO), vector search (Qdrant), story graph (Neo4j), job queue (Redis) and backups",
     data: "Everything stored in the service",
-    location: "[to be completed]",
+    location: "Germany (EU)",
   },
   {
     name: "Clerk",
@@ -72,13 +72,13 @@ const PROCESSORS: readonly Processor[] = [
     name: "Stripe",
     purpose: "Subscription payments and invoices",
     data: "Name, email address, payment card and billing details, plan and payment history",
-    location: "[to be confirmed: Ireland / United States]",
+    location: "Ireland (Stripe Payments Europe, Limited), with some processing by Stripe, Inc. in the United States",
   },
   {
     name: "Sentry",
     purpose: "Error monitoring and performance traces",
     data: "Error reports: page or API address, browser data, technical context of the error",
-    location: "[to be confirmed: depends on the Sentry account region]",
+    location: "European Union (Sentry's EU data region, Frankfurt, Germany)",
   },
   {
     name: "OpenAI",
@@ -110,19 +110,23 @@ export default function PrivacyPage() {
         <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
           Privacy Policy
         </h1>
-        <p className="mt-4 text-sm text-muted-foreground">Last updated: October 12, 2026</p>
+        <p className="mt-4 text-sm text-muted-foreground">Last updated: November 10, 2026</p>
 
         <div className="mt-12 space-y-10 text-base leading-relaxed text-muted-foreground">
           <Section title="1. Who we are">
             <p className="mt-3">
               WriteMyBook is operated by{" "}
-              <Term>[Company legal name, registered address and company number: to be completed]</Term>{" "}
+              <Term>Egzakta Advisory Amsterdam BV</Term>, Barbara Strozzilaan 201, 1083 HN
+              Amsterdam, the Netherlands, Chamber of Commerce (KvK) number{" "}
+              92747175{" "}
               (&ldquo;we&rdquo;, &ldquo;us&rdquo;). We are the controller of the personal data
               described in this policy. You can reach us about anything in it at <PrivacyEmail />.
             </p>
             <p className="mt-3">
-              Data protection officer or EU representative, if one is required:{" "}
-              <Term>[to be completed]</Term>.
+              We are established in the European Union, so we have no separate EU
+              representative, and the processing we do does not require a data protection
+              officer. Our representative in Serbia under Article 44 of the ZZPL is EGZAKTA
+              d.o.o., Bulevar Zorana Đinđića 125, 11000 Belgrade, Serbia.
             </p>
             <p className="mt-3">
               This policy applies under the EU General Data Protection Regulation (GDPR) and the
@@ -300,7 +304,9 @@ export default function PrivacyPage() {
               reached through OpenRouter may be elsewhere. Where personal data leaves Serbia or the
               European Economic Area, we rely on an adequacy decision where one exists (including
               the EU-US Data Privacy Framework for certified companies) or on standard contractual
-              clauses. <Term>[Transfer mechanism for each provider: to be confirmed]</Term>. You
+              clauses. For each of these companies we rely on its certification under the EU-US Data
+              Privacy Framework where it holds one, and otherwise on the standard contractual
+              clauses in its data processing terms. You
               can ask us for a copy of the safeguards at <PrivacyEmail />.
             </p>
           </Section>
@@ -326,14 +332,14 @@ export default function PrivacyPage() {
                 hourly, 7 daily, 4 weekly) and then overwritten.
               </li>
               <li>
-                <Term>Billing records</Term>: for the period tax and accounting law requires{" "}
-                <Term>[period: to be completed]</Term>.
+                <Term>Billing records</Term>: for the period tax and accounting law requires:{" "}
+                <Term>seven years</Term> under Dutch tax law.
               </li>
               <li>
                 <Term>Usage records</Term>: for the life of your account.
               </li>
               <li>
-                <Term>Error reports</Term> in Sentry: <Term>[period: to be completed]</Term>.
+                <Term>Error reports</Term> in Sentry: <Term>up to 90 days</Term>.
               </li>
               <li>
                 <Term>Share links</Term>: until you revoke them or they expire.
@@ -359,8 +365,8 @@ export default function PrivacyPage() {
               </li>
               <li>
                 Your manuscripts are not encrypted by the application itself; they are protected
-                by these access controls and by the hosting provider&apos;s storage security{" "}
-                <Term>[disk encryption at the host: to be confirmed]</Term>.
+                by these access controls, and the disks of the servers that store them are
+                encrypted at rest.
               </li>
             </ul>
           </Section>
@@ -388,7 +394,12 @@ export default function PrivacyPage() {
                 to <Term>restrict</Term> processing.
               </li>
               <li>
-                <Term>Complain</Term> to a supervisory authority: in Serbia, the Commissioner for
+                <Term>Complain</Term> to a supervisory authority: in the Netherlands, where we are
+                established, the Autoriteit Persoonsgegevens (
+                <a href="https://www.autoriteitpersoonsgegevens.nl" className={LINK_CLASS}>
+                  www.autoriteitpersoonsgegevens.nl
+                </a>
+                ); in Serbia, the Commissioner for
                 Information of Public Importance and Personal Data Protection (Poverenik,{" "}
                 <a href="https://www.poverenik.rs" className={LINK_CLASS}>
                   www.poverenik.rs
