@@ -83,13 +83,15 @@ export default function TermsPage() {
         <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
           Terms of Service
         </h1>
-        <p className="mt-4 text-sm text-muted-foreground">Last updated: October 12, 2026</p>
+        <p className="mt-4 text-sm text-muted-foreground">Last updated: November 10, 2026</p>
 
         <div className="mt-12 space-y-10 text-base leading-relaxed text-muted-foreground">
           <Section title="1. Who you are contracting with">
             <p className="mt-3">
               These terms are an agreement between you and{" "}
-              <Term>[Company legal name, registered address and company number: to be completed]</Term>{" "}
+              <Term>Egzakta Advisory Amsterdam BV</Term>, Barbara Strozzilaan 201, 1083 HN
+              Amsterdam, the Netherlands, Chamber of Commerce (KvK) number{" "}
+              <Term>[KvK number: to be completed]</Term>{" "}
               (&ldquo;we&rdquo;, &ldquo;us&rdquo;), which operates WriteMyBook. By creating an
               account you accept them. Our <PrivacyLink /> explains how we handle personal data.
             </p>
@@ -143,7 +145,7 @@ export default function TermsPage() {
             </ul>
             <ul className="mt-4 list-disc space-y-2 pl-6">
               <li>
-                Prices are in US dollars. <Term>[Whether prices include VAT or other taxes: to be completed]</Term>.
+                Prices are in US dollars and include VAT where VAT applies.
               </li>
               <li>
                 Payments are processed by Stripe. A subscription is charged in advance and renews
@@ -160,7 +162,9 @@ export default function TermsPage() {
                 moves to the Free plan. Nothing you have written is deleted.
               </li>
               <li>
-                Refunds: <Term>[refund policy: to be completed]</Term>. This does not limit any
+                Refunds: if you ask within 14 days of your first payment for a plan, we refund
+                that payment in full. Later payments are not refunded, and a cancellation takes
+                effect at the end of the period you have paid for. This does not limit any
                 right of withdrawal or refund that consumer law gives you.
               </li>
               <li>
@@ -292,8 +296,8 @@ export default function TermsPage() {
 
           <Section title="15. Governing law and disputes">
             <p className="mt-3">
-              These terms are governed by <Term>[governing law: to be completed]</Term>, and
-              disputes go to <Term>[competent courts: to be completed]</Term>. If you are a
+              These terms are governed by the laws of the Netherlands, and
+              disputes go to the competent court in Amsterdam, the Netherlands. If you are a
               consumer, you also keep the protection of the mandatory laws of the country where
               you live and can bring a claim there.
             </p>
