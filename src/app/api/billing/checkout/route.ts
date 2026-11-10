@@ -12,6 +12,7 @@ import type Stripe from "stripe";
 import type { Prisma, Subscription } from "@/generated/prisma/client";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { productOrigin } from "@/lib/http/product-origin";
+import { applyCompletedCheckout } from "@/lib/billing/apply-checkout";
 
 /**
  * The per-user checkout transaction holds its lock across Stripe calls
@@ -57,7 +58,10 @@ function alreadySubscribed(): NextResponse {
   );
 }
 
-type PendingSession = { kind: "reuse"; url: string } | { kind: "paid" } | { kind: "closed" };
+type PendingSession =
+  | { kind: "reuse"; url: string }
+  | { kind: "paid"; session: Stripe.Checkout.Session }
+  | { kind: "closed" };
 
 /**
  * What to do with the checkout session this writer already has pending.
@@ -100,7 +104,7 @@ async function settlePendingSession(
         ? pending.subscription
         : pending.subscription?.id;
     if (subscriptionId && (await subscriptionIsLive(stripeClient, subscriptionId))) {
-      return { kind: "paid" };
+      return { kind: "paid", session: pending };
     }
   }
   return { kind: "closed" };
@@ -168,6 +172,9 @@ function sessionConfigFor(
     success_url: `${origin}/settings/billing?success=true`,
     cancel_url: `${origin}/settings/billing?canceled=true`,
     metadata: { userId: user.id, plan, billingInterval },
+    // The subscription carries the writer too, so customer.subscription.created
+    // can find them even when checkout.session.completed is lost (P2-7).
+    subscription_data: { metadata: { userId: user.id, plan, billingInterval } },
   };
 
   // Card-free trial for Indie and Professional (trialDays > 0), first trial
@@ -182,6 +189,7 @@ function sessionConfigFor(
       ...config,
       payment_method_collection: "if_required",
       subscription_data: {
+        ...config.subscription_data,
         trial_period_days: intent.trialDays,
         trial_settings: {
           end_behavior: {
@@ -218,7 +226,12 @@ async function checkoutUnderLock(
   if (sub?.pendingCheckoutSessionId) {
     const pending = await settlePendingSession(stripeClient, sub.pendingCheckoutSessionId, intent);
     if (pending.kind === "reuse") return NextResponse.json({ url: pending.url });
-    if (pending.kind === "paid") return alreadySubscribed();
+    if (pending.kind === "paid") {
+      // P1-6: record the purchase now instead of waiting for a webhook that
+      // may never come, so the 409 below is true on the next read too.
+      await applyCompletedCheckout(stripeClient, pending.session);
+      return alreadySubscribed();
+    }
   }
 
   if (plan === "founder") {

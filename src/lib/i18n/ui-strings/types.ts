@@ -1960,6 +1960,7 @@ export interface UIStrings {
     featureRequiresPlan: string;
     choosePlan: string;
     stripeNotConfigured: string;
+    paymentStillProcessing: string;
     manageSubscription: string;
     monthly: string;
     annual: string;

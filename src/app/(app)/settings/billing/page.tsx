@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -112,10 +112,28 @@ const PLAN_CARDS = [
   },
 ];
 
+const PAYMENT_POLL_MS = 30_000;
+
 export default function BillingPage() {
   const locale = useLocale();
   const { t, language } = useLanguage();
-  const { data: subscription } = useSubscription();
+  // Back from Stripe (?success=true): keep asking until the paid plan lands
+  // (P1-6), for at most 30 s, then say the payment arrived and is updating.
+  // Read once on the client; the first render is identical either way.
+  const [returnedFromCheckout] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      new URLSearchParams(window.location.search).get("success") === "true"
+  );
+  const [paymentPollExpired, setPaymentPollExpired] = useState(false);
+  useEffect(() => {
+    if (!returnedFromCheckout) return;
+    const timer = setTimeout(() => setPaymentPollExpired(true), PAYMENT_POLL_MS);
+    return () => clearTimeout(timer);
+  }, [returnedFromCheckout]);
+  const { data: subscription } = useSubscription({
+    pollUntilPaid: returnedFromCheckout && !paymentPollExpired,
+  });
   const { data: usage, isLoading: usageLoading } = useUsage();
   const { data: founderCount } = useFounderCount();
   const checkout = useCheckout();
@@ -180,6 +198,14 @@ export default function BillingPage() {
         <Card className="mb-6 border-yellow-300 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950/30">
           <CardContent className="py-4">
             <p className="text-sm text-yellow-800 dark:text-yellow-200">{t.billingUI.stripeNotConfigured}</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {returnedFromCheckout && paymentPollExpired && onFreePlan && (
+        <Card role="status">
+          <CardContent className="pt-6">
+            <p className="text-sm">{t.billingUI.paymentStillProcessing}</p>
           </CardContent>
         </Card>
       )}

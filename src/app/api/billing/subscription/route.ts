@@ -9,27 +9,8 @@ import {
   isFreeTier,
   getFreeTierSnapshot,
 } from "@/lib/billing";
-
-/**
- * Map Stripe subscription status to our internal status.
- */
-function mapStripeStatus(stripeStatus: string): string {
-  switch (stripeStatus) {
-    case "active":
-      return "active";
-    case "trialing":
-      return "trialing";
-    case "past_due":
-      return "past_due";
-    case "canceled":
-    case "incomplete":
-    case "incomplete_expired":
-    case "unpaid":
-      return "canceled";
-    default:
-      return "canceled";
-  }
-}
+import { reconcilePendingCheckout } from "@/lib/billing/apply-checkout";
+import { mapStripeStatus } from "@/lib/billing/stripe-status";
 
 /**
  * Map a Stripe price ID to a plan key in our PLANS config.
@@ -55,6 +36,18 @@ export async function GET() {
     let sub = await db.subscription.findUnique({
       where: { userId: user.id },
     });
+
+    // Self-heal (P1-6): a checkout that completed while the webhook was
+    // failing is applied now, so the payer is never shown Free.
+    if (stripe && sub?.pendingCheckoutSessionId && !sub.stripeSubscriptionId) {
+      try {
+        if (await reconcilePendingCheckout(stripe, user.id)) {
+          sub = await db.subscription.findUnique({ where: { userId: user.id } });
+        }
+      } catch (error) {
+        console.error("[billing] pending checkout reconcile failed:", error);
+      }
+    }
 
     // Poll-fallback: if local data is stale (>5 min), poll Stripe and sync
     if (sub?.stripeSubscriptionId && stripe) {

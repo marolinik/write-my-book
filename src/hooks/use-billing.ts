@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { effectivePlanKey } from "@/lib/billing/effective-plan";
 import { toast } from "sonner";
 import { useLanguage } from "@/components/providers/language-provider";
 import { create } from "zustand";
@@ -36,9 +37,20 @@ export type SubscriptionData = {
   currentPeriodEnd: string | null;
 };
 
-export function useSubscription() {
+/**
+ * While a writer waits for a paid checkout to land, ask again every 3 s until
+ * the plan they paid for shows; then stop.
+ */
+export function paymentPollInterval(data: SubscriptionData | undefined): number | false {
+  return data && effectivePlanKey(data) !== "none" ? false : 3000;
+}
+
+export function useSubscription(options: { pollUntilPaid?: boolean } = {}) {
   return useQuery<SubscriptionData>({
     queryKey: ["subscription"],
+    refetchInterval: options.pollUntilPaid
+      ? (query) => paymentPollInterval(query.state.data)
+      : false,
     queryFn: async () => {
       const res = await fetch("/api/billing/subscription");
       if (!res.ok) throw new Error("Failed to fetch subscription");

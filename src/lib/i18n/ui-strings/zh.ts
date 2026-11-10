@@ -2036,6 +2036,7 @@ export const ZH: UIStrings = {
     featureRequiresPlan: "{feature} 需要 {plan} 或更高方案。",
     choosePlan: "选择套餐并跟踪你的 AI 令牌用量",
     stripeNotConfigured: "尚未配置 Stripe。请在环境中设置 STRIPE_SECRET_KEY 以启用计费。",
+    paymentStillProcessing: "已收到付款。您的套餐仍在更新中，请一分钟后刷新此页面。如果仍显示 Free，请联系我们，我们会处理。",
     manageSubscription: "管理订阅",
     monthly: "按月",
     annual: "按年",

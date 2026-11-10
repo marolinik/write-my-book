@@ -16,6 +16,11 @@ const h = vi.hoisted(() => ({
     },
     user: { findUnique: vi.fn() },
   },
+  loggerError: vi.fn(),
+}));
+
+vi.mock("@/lib/logger", () => ({
+  logger: { error: h.loggerError, warn: vi.fn(), info: vi.fn() },
 }));
 
 vi.mock("@/lib/db", () => ({ db: h.db }));
@@ -61,6 +66,49 @@ beforeEach(() => {
   h.retrieve.mockResolvedValue({ trial_end: null, status: "active" });
 });
 
+describe("POST /api/billing/webhook — payment state (P2-7)", () => {
+  const paidLater = (type: string, payment_status: string) => ({
+    id: `evt_${type}`,
+    type,
+    data: {
+      object: {
+        payment_status,
+        subscription: "sub_123",
+        customer: "cus_123",
+        metadata: { userId: "u1", plan: "indie", billingInterval: "monthly" },
+      },
+    },
+  });
+
+  it("checkout.session.async_payment_succeeded grants the plan", async () => {
+    h.constructEvent.mockReturnValue(paidLater("checkout.session.async_payment_succeeded", "paid"));
+    const res = await POST(req() as never);
+    expect(res.status).toBe(200);
+    expect(h.db.subscription.upsert).toHaveBeenCalledTimes(1);
+    expect(h.db.subscription.upsert.mock.calls[0][0].create.plan).toBe("indie");
+  });
+
+  it("checkout.session.completed with the payment still pending grants nothing", async () => {
+    h.constructEvent.mockReturnValue(paidLater("checkout.session.completed", "unpaid"));
+    const res = await POST(req() as never);
+    expect(res.status).toBe(200);
+    expect(h.db.subscription.upsert).not.toHaveBeenCalled();
+  });
+
+  it("an invalid signature is reported to error monitoring, not just answered 400", async () => {
+    h.constructEvent.mockImplementation(() => {
+      throw new Error("No signatures found matching the expected signature");
+    });
+    const res = await POST(req("sig_bad") as never);
+    expect(res.status).toBe(400);
+    expect(h.loggerError).toHaveBeenCalledWith(
+      expect.stringContaining("signature"),
+      expect.anything(),
+      expect.anything()
+    );
+  });
+});
+
 describe("POST /api/billing/webhook", () => {
   it("checkout.session.completed upserts the subscription with the checkout plan", async () => {
     h.constructEvent.mockReturnValue({
@@ -68,6 +116,7 @@ describe("POST /api/billing/webhook", () => {
       type: "checkout.session.completed",
       data: {
         object: {
+          payment_status: "paid",
           subscription: "sub_123",
           customer: "cus_123",
           metadata: { userId: "u1", plan: "indie", billingInterval: "monthly" },
@@ -167,6 +216,7 @@ describe("POST /api/billing/webhook", () => {
       type: "checkout.session.completed",
       data: {
         object: {
+          payment_status: "paid",
           subscription: "sub_boom",
           customer: "cus_123",
           metadata: { userId: "u1", plan: "indie", billingInterval: "monthly" },

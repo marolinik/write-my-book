@@ -42,11 +42,12 @@ POST https://your-domain.example/api/billing/webhook
 Subscribe at least to:
 
 - `checkout.session.completed`
+- `checkout.session.async_payment_succeeded` (SEPA and other delayed methods are granted on this event)
 - `customer.subscription.created`
 - `customer.subscription.updated`
 - `customer.subscription.deleted`
 - `invoice.payment_failed`
-- `invoice.payment_succeeded`
+- `invoice.paid`
 
 ## Manual test-mode verification
 

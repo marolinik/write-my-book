@@ -2047,6 +2047,7 @@ export const EN: UIStrings = {
     featureRequiresPlan: "{feature} requires the {plan} plan or higher.",
     choosePlan: "Choose your plan and track your AI token usage",
     stripeNotConfigured: "Stripe is not configured. Set STRIPE_SECRET_KEY in your environment to enable billing.",
+    paymentStillProcessing: "Payment received. Your plan is still updating; refresh this page in a minute. If it still shows Free, write to us and we will fix it.",
     manageSubscription: "Manage Subscription",
     monthly: "Monthly",
     annual: "Annual",

@@ -12,6 +12,7 @@ const h = vi.hoisted(() => ({
   sessionsExpire: vi.fn(),
   subscriptionsRetrieve: vi.fn(),
   customersCreate: vi.fn(),
+  applyCompletedCheckout: vi.fn(),
   $executeRaw: vi.fn(),
   db: {
     $executeRaw: vi.fn(),
@@ -25,6 +26,9 @@ const h = vi.hoisted(() => ({
 }));
 
 vi.mock("@/lib/auth", () => ({ requireUser: () => h.requireUser() }));
+vi.mock("@/lib/billing/apply-checkout", () => ({
+  applyCompletedCheckout: (...args: unknown[]) => h.applyCompletedCheckout(...args),
+}));
 vi.mock("@/lib/db", () => ({ db: h.db }));
 vi.mock("@/lib/billing", () => ({
   stripe: {
@@ -187,6 +191,7 @@ describe("POST /api/billing/checkout — card-free trial (A12 / D-52)", () => {
     const cfg = h.sessionsCreate.mock.calls[0][0];
     expect(cfg.payment_method_collection).toBe("if_required");
     expect(cfg.subscription_data?.trial_period_days).toBe(14);
+    expect(cfg.subscription_data?.metadata?.userId).toBe("u1");
     expect(
       cfg.subscription_data?.trial_settings?.end_behavior?.missing_payment_method
     ).toBe("cancel");
@@ -206,7 +211,8 @@ describe("POST /api/billing/checkout — card-free trial (A12 / D-52)", () => {
     const res = await POST(req());
     expect(res.status).toBe(200);
     const cfg = h.sessionsCreate.mock.calls[0][0];
-    expect(cfg.subscription_data).toBeUndefined();
+    expect(cfg.subscription_data?.trial_period_days).toBeUndefined();
+    expect(cfg.subscription_data?.metadata).toEqual({ userId: "u1", plan: "indie", billingInterval: "monthly" });
     expect(cfg.payment_method_collection).toBeUndefined();
   });
 });
@@ -453,7 +459,7 @@ describe("POST /api/billing/checkout — only one payable session per writer", (
     expect(world.open().map((s) => s.id)).toEqual(["cs_2"]);
   });
 
-  it("a pending session the writer already paid (webhook not landed yet) → 409, no second session", async () => {
+  it("a pending session the writer already paid (webhook not landed yet) is applied, then 409, no second session", async () => {
     const world = installCheckoutWorld({ ...LAPSED_ROW, pendingCheckoutSessionId: "cs_paid" });
     world.sessions.set("cs_paid", {
       id: "cs_paid",
@@ -469,6 +475,10 @@ describe("POST /api/billing/checkout — only one payable session per writer", (
     expect((await res.json()).code).toBe("already_subscribed");
     expect(h.subscriptionsRetrieve).toHaveBeenCalledWith("sub_paid");
     expect(h.sessionsCreate).not.toHaveBeenCalled();
+    // P1-6: the paid session is recorded now instead of waiting for a webhook
+    // that may never come.
+    expect(h.applyCompletedCheckout).toHaveBeenCalledTimes(1);
+    expect(h.applyCompletedCheckout.mock.calls[0][1]).toMatchObject({ id: "cs_paid" });
   });
 
   it("a paid pending session whose subscription has since ended does not lock the writer out", async () => {

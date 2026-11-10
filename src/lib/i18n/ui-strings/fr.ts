@@ -2036,6 +2036,7 @@ export const FR: UIStrings = {
     featureRequiresPlan: "{feature} nécessite le forfait {plan} ou supérieur.",
     choosePlan: "Choisissez votre offre et suivez votre consommation de jetons IA",
     stripeNotConfigured: "Stripe n’est pas configuré. Définissez STRIPE_SECRET_KEY dans votre environnement pour activer la facturation.",
+    paymentStillProcessing: "Paiement reçu. Votre formule est en cours de mise à jour ; rechargez cette page dans une minute. Si elle affiche toujours Free, écrivez-nous et nous corrigerons cela.",
     manageSubscription: "Gérer l’abonnement",
     monthly: "Mensuel",
     annual: "Annuel",

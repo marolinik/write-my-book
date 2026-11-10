@@ -2036,6 +2036,7 @@ export const RU: UIStrings = {
     featureRequiresPlan: "Функция «{feature}» требует плана {plan} или выше.",
     choosePlan: "Выберите тариф и следите за расходом ИИ-токенов",
     stripeNotConfigured: "Stripe не настроен. Задайте STRIPE_SECRET_KEY в окружении, чтобы включить оплату.",
+    paymentStillProcessing: "Оплата получена. Ваш тариф ещё обновляется; обновите страницу через минуту. Если по-прежнему отображается Free, напишите нам, и мы всё исправим.",
     manageSubscription: "Управлять подпиской",
     monthly: "Ежемесячно",
     annual: "Ежегодно",

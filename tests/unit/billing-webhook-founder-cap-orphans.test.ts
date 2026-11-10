@@ -63,6 +63,7 @@ function founderCheckout(userId: string, n = 1) {
     data: {
       object: {
         id: `cs_${userId}`,
+        payment_status: "paid",
         subscription: `sub_${userId}`,
         customer: `cus_${userId}`,
         invoice: `in_${userId}`,
@@ -331,6 +332,7 @@ function planCheckout(userId: string, plan: string, n = 1) {
     data: {
       object: {
         id: `cs_${plan}_${userId}`,
+        payment_status: "paid",
         subscription: `sub_${plan}_${userId}`,
         customer: `cus_${userId}`,
         invoice: `in_${plan}_${userId}`,

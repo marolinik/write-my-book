@@ -2036,6 +2036,7 @@ export const SR: UIStrings = {
     featureRequiresPlan: "{feature} zahteva plan {plan} ili viši.",
     choosePlan: "Izaberite plan i pratite potrošnju AI tokena",
     stripeNotConfigured: "Stripe nije podešen. Postavite STRIPE_SECRET_KEY u okruženju da biste omogućili naplatu.",
+    paymentStillProcessing: "Uplata je primljena. Vaš plan se još ažurira; osvežite ovu stranicu za minut. Ako i dalje piše Free, pišite nam i rešićemo to.",
     manageSubscription: "Upravljaj pretplatom",
     monthly: "Mesečno",
     annual: "Godišnje",

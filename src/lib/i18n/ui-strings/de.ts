@@ -2036,6 +2036,7 @@ export const DE: UIStrings = {
     featureRequiresPlan: "{feature} erfordert mindestens den Tarif {plan}.",
     choosePlan: "Wählen Sie Ihren Tarif und behalten Sie Ihren KI-Tokenverbrauch im Blick",
     stripeNotConfigured: "Stripe ist nicht eingerichtet. Setzen Sie STRIPE_SECRET_KEY in Ihrer Umgebung, um die Abrechnung zu aktivieren.",
+    paymentStillProcessing: "Zahlung erhalten. Ihr Tarif wird noch aktualisiert; laden Sie diese Seite in einer Minute neu. Wenn weiterhin Free angezeigt wird, schreiben Sie uns, wir beheben das.",
     manageSubscription: "Abo verwalten",
     monthly: "Monatlich",
     annual: "Jährlich",

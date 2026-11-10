@@ -2,141 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { stripe, PLANS } from "@/lib/billing";
-import { claimFounderSlot } from "@/lib/billing/founder-slots";
-import { cancelStripeSubscription, subscriptionIsLive } from "@/lib/billing/stripe-cancel";
+import { cancelStripeSubscription } from "@/lib/billing/stripe-cancel";
+import { applyCompletedCheckout, idOf, keptSubscriptionFor } from "@/lib/billing/apply-checkout";
+import { mapStripeStatus } from "@/lib/billing/stripe-status";
 import type Stripe from "stripe";
-
-function idOf(ref: string | { id: string } | null | undefined): string | null {
-  if (!ref) return null;
-  return typeof ref === "string" ? ref : ref.id;
-}
-
-/**
- * A purchase the webhook will not grant. Logged with everything a refund
- * needs, then its subscription is canceled at once so it never renews. A
- * failed cancel throws, so Stripe retries the whole event.
- */
-async function cancelRefusedCheckout(
-  stripeClient: Stripe,
-  session: Stripe.Checkout.Session,
-  userId: string,
-  reason: string,
-  context: Record<string, unknown> = {}
-): Promise<void> {
-  const subscriptionId = idOf(session.subscription) as string;
-  logger.error(
-    `[billing-webhook] ${reason}: subscription canceled, REFUND OWED`,
-    new Error(reason),
-    {
-      userId,
-      checkoutSessionId: session.id,
-      stripeSubscriptionId: subscriptionId,
-      stripeCustomerId: idOf(session.customer),
-      stripeInvoiceId: idOf(session.invoice),
-      ...context,
-    }
-  );
-  await cancelStripeSubscription(stripeClient, subscriptionId);
-}
-
-/**
- * A Founder purchase completed after every slot was taken (sessions opened at
- * 199 can all complete). The writer is not made a Founder: the subscription is
- * canceled at once so it never renews, the row records it as canceled (they
- * are on Free and can buy another plan), and the first charge is flagged for
- * a refund.
- */
-async function refuseFounderOverCap(
-  stripeClient: Stripe,
-  session: Stripe.Checkout.Session,
-  userId: string,
-  billingInterval: string
-): Promise<void> {
-  await cancelRefusedCheckout(
-    stripeClient,
-    session,
-    userId,
-    "Founder purchase completed after all slots were claimed"
-  );
-
-  const data = {
-    stripeSubscriptionId: idOf(session.subscription) as string,
-    stripeCustomerId: idOf(session.customer),
-    plan: "founder",
-    status: "canceled",
-    billingInterval,
-    pendingCheckoutSessionId: null,
-  };
-  await db.subscription.upsert({
-    where: { userId },
-    update: data,
-    create: { userId, ...data },
-  });
-}
-
-/**
- * One writer, one subscription. When the writer's row already holds a
- * DIFFERENT subscription that Stripe still reports live, `subscriptionId` is
- * a duplicate (two checkouts paid side by side) and that kept id is returned.
- * The one recorded first is always the one kept, in every handler, so whatever
- * order the events arrive in the same subscription survives and the two are
- * never both canceled. Stripe decides "live", not the row, which can lag.
- */
-async function keptSubscriptionFor(
-  stripeClient: Stripe,
-  userId: string,
-  subscriptionId: string
-): Promise<string | null> {
-  const row = await db.subscription.findFirst({
-    where: { userId },
-    select: { stripeSubscriptionId: true },
-  });
-  const kept = row?.stripeSubscriptionId;
-  if (!kept || kept === subscriptionId) return null;
-  return (await subscriptionIsLive(stripeClient, kept)) ? kept : null;
-}
-
-/**
- * The writer is gone. FounderSlot has no foreign key to User, and the row
- * upsert would fail on its own, 500ing on every retry while the subscription
- * kept billing. Nothing is written; the subscription is stopped.
- */
-async function refuseCheckoutForDeletedWriter(
-  stripeClient: Stripe,
-  session: Stripe.Checkout.Session,
-  userId: string
-): Promise<void> {
-  await cancelRefusedCheckout(
-    stripeClient,
-    session,
-    userId,
-    "Checkout completed for an account that no longer exists"
-  );
-}
-
-/**
- * A second live subscription for one writer. The one their row holds is kept
- * and the row is not overwritten; the new one is canceled. The finished
- * session is no longer pending, so a later checkout never waits on it.
- */
-async function refuseDuplicateCheckout(
-  stripeClient: Stripe,
-  session: Stripe.Checkout.Session,
-  userId: string,
-  keptSubscriptionId: string
-): Promise<void> {
-  await cancelRefusedCheckout(
-    stripeClient,
-    session,
-    userId,
-    "Checkout completed for a writer who already has a live subscription",
-    { keptSubscriptionId }
-  );
-  await db.subscription.updateMany({
-    where: { userId, pendingCheckoutSessionId: session.id },
-    data: { pendingCheckoutSessionId: null },
-  });
-}
 
 type CustomerOwner =
   | { kind: "live_writer"; userId: string }
@@ -266,28 +135,6 @@ function planFromPriceId(priceId: string): string | null {
 }
 
 /**
- * Map Stripe subscription status to our internal status.
- * We only store canonical statuses: active, trialing, past_due, canceled.
- */
-function mapStripeStatus(stripeStatus: string): string {
-  switch (stripeStatus) {
-    case "active":
-      return "active";
-    case "trialing":
-      return "trialing";
-    case "past_due":
-      return "past_due";
-    case "canceled":
-    case "incomplete":
-    case "incomplete_expired":
-    case "unpaid":
-      return "canceled";
-    default:
-      return "canceled";
-  }
-}
-
-/**
  * Extract billing interval from a Stripe subscription's price.
  */
 function extractBillingInterval(subscription: Stripe.Subscription): string {
@@ -316,7 +163,14 @@ export async function POST(req: NextRequest) {
       signature,
       process.env.STRIPE_WEBHOOK_SECRET
     );
-  } catch {
+  } catch (error) {
+    // A wrong or rotated STRIPE_WEBHOOK_SECRET fails every delivery; payers
+    // then depend on the self-heal in GET /subscription. Make it loud.
+    logger.error(
+      "[billing-webhook] signature verification failed",
+      error instanceof Error ? error : new Error(String(error)),
+      { hasSignature: true }
+    );
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
@@ -328,85 +182,11 @@ export async function POST(req: NextRequest) {
   try {
     switch (event.type) {
     // ─── 1. Checkout completed ───────────────────────────────────
-    case "checkout.session.completed": {
-      const session = event.data.object as Stripe.Checkout.Session;
-      const userId = session.metadata?.userId;
-      const plan = session.metadata?.plan;
-      const billingInterval = session.metadata?.billingInterval ?? "monthly";
-
-      if (userId && plan && session.subscription) {
-        // Refusals come before the Founder slot is claimed, so a purchase
-        // that is not granted never takes one.
-        const writer = await db.user.findUnique({
-          where: { id: userId },
-          select: { id: true },
-        });
-        if (!writer) {
-          await refuseCheckoutForDeletedWriter(stripe, session, userId);
-          break;
-        }
-        const keptSubscriptionId = await keptSubscriptionFor(
-          stripe,
-          userId,
-          idOf(session.subscription) as string
-        );
-        if (keptSubscriptionId) {
-          await refuseDuplicateCheckout(stripe, session, userId, keptSubscriptionId);
-          break;
-        }
-
-        // The Founder cap is enforced here, where the slot is taken — not at
-        // checkout, which reserves nothing. A purchase that completes after
-        // the last slot went is refused rather than granted as slot 201.
-        if (plan === "founder") {
-          const claim = await claimFounderSlot(userId);
-          if (claim === "full") {
-            await refuseFounderOverCap(stripe, session, userId, billingInterval);
-            break;
-          }
-        }
-
-        // Retrieve the full subscription to check trial status
-        let trialEnd: Date | null = null;
-        let status = "active";
-        try {
-          const stripeSub = await stripe.subscriptions.retrieve(
-            session.subscription as string
-          );
-          if (stripeSub.trial_end) {
-            trialEnd = new Date(stripeSub.trial_end * 1000);
-            status = "trialing";
-          }
-        } catch {
-          // Fall through with defaults
-        }
-
-        await db.subscription.upsert({
-          where: { userId },
-          update: {
-            stripeSubscriptionId: session.subscription as string,
-            stripeCustomerId: session.customer as string,
-            plan,
-            status,
-            billingInterval,
-            // This session reached its terminal success state — clear the
-            // pending-session marker so a future checkout starts fresh and
-            // the dedup guard never reuses a completed session.
-            pendingCheckoutSessionId: null,
-            ...(trialEnd ? { trialEnd } : {}),
-          },
-          create: {
-            userId,
-            stripeCustomerId: session.customer as string,
-            stripeSubscriptionId: session.subscription as string,
-            plan,
-            status,
-            billingInterval,
-            pendingCheckoutSessionId: null,
-            ...(trialEnd ? { trialEnd } : {}),
-          },
-        });
-      }
+    case "checkout.session.completed":
+    case "checkout.session.async_payment_succeeded": {
+      // A card checkout completes paid; an async method (SEPA, bank debit)
+      // completes unpaid and is granted when its payment succeeds.
+      await applyCompletedCheckout(stripe, event.data.object as Stripe.Checkout.Session);
       break;
     }
 
