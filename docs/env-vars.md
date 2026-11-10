@@ -53,6 +53,7 @@ connections and before starting the background worker.
 | `NEXT_PUBLIC_SENTRY_DSN` | Client-side error reporting |
 | `QDRANT_URL` | Vector memory backend |
 | `NEO4J_URI` | Knowledge graph backend |
+| `STRIPE_AUTOMATIC_TAX` | `1` turns on Stripe Tax at checkout (VAT inside the tax-inclusive price, address and VAT-id collection). Only after Stripe Tax is active; `npm run billing:check` then fails on any price that is not tax-inclusive |
 
 ## Local checks
 

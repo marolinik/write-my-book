@@ -7,7 +7,8 @@ Everything in code is merged on `main`. What remains has to run **on the product
 - `npm run legal:check` must exit 0. It lists each Privacy or Terms placeholder with file:line; the owner and counsel fill them.
 - Clerk dashboard: allow users to delete their own accounts. Record the date it was enabled here.
 - Hetzner server: the volumes holding PostgreSQL, MinIO, Qdrant, Neo4j and the backups are LUKS-encrypted. Privacy section 9 promises encryption at rest; do not deploy without it.
-- Stripe: prices are VAT-inclusive (Terms section 4). Turn on Stripe Tax with inclusive tax behaviour and register for the EU OSS scheme before the first paid sale.
+- Stripe: prices are VAT-inclusive (Terms section 4). Before the first paid sale: activate Stripe Tax, register for the EU OSS scheme (Netherlands), set every plan price to tax-inclusive, set `STRIPE_AUTOMATIC_TAX=1`, and run `npm run billing:check` (it fails on any price that is not tax-inclusive).
+- Refunds: Terms section 4 promises a full refund of the first payment when asked within 14 days. Issue it from the Stripe dashboard (Payments, the charge, Refund); nothing in the app does it.
 
 ## 1. Back up first
 

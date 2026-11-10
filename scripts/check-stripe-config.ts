@@ -1,5 +1,7 @@
 import "dotenv/config";
+import Stripe from "stripe";
 import { PLANS } from "../src/lib/billing/stripe-client";
+import { pricesNotTaxInclusive } from "../src/lib/billing/tax";
 
 interface Issue {
   key: string;
@@ -67,13 +69,33 @@ if (productionRuntime && secretKey.startsWith("sk_test_") && publicKey.startsWit
   issues.push({ key: "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY", message: "Test secret key cannot be paired with a live publishable key" });
 }
 
-if (issues.length > 0) {
-  console.error("Stripe billing configuration is invalid:");
-  for (const issue of issues) {
-    console.error(`- ${issue.key}: ${issue.message}`);
+// Prices are VAT-inclusive (Terms §4). With Stripe Tax on, a price that is
+// not tax-inclusive would add VAT on top of the shown price at checkout.
+async function checkTaxInclusivePrices(): Promise<void> {
+  if (value("STRIPE_AUTOMATIC_TAX") !== "1" || !secretKey.startsWith("sk_")) return;
+  const priceIds = Object.values(priceEnvByPlan).flat().map(value).filter(Boolean);
+  const offenders = await pricesNotTaxInclusive(new Stripe(secretKey), priceIds);
+  for (const offender of offenders) {
+    issues.push({ key: "STRIPE_AUTOMATIC_TAX", message: `Price must be tax-inclusive: ${offender}` });
   }
-  process.exit(1);
 }
 
-console.log(`Stripe billing configuration OK (NODE_ENV=${process.env.NODE_ENV ?? "development"}, CI=${ci})`);
-console.log(`Plans checked: ${Object.keys(priceEnvByPlan).join(", ")}`);
+function report(): void {
+  if (issues.length > 0) {
+    console.error("Stripe billing configuration is invalid:");
+    for (const issue of issues) {
+      console.error(`- ${issue.key}: ${issue.message}`);
+    }
+    process.exit(1);
+  }
+
+  console.log(`Stripe billing configuration OK (NODE_ENV=${process.env.NODE_ENV ?? "development"}, CI=${ci})`);
+  console.log(`Plans checked: ${Object.keys(priceEnvByPlan).join(", ")}`);
+}
+
+checkTaxInclusivePrices()
+  .then(report)
+  .catch((error: unknown) => {
+    console.error("Stripe billing configuration check failed:", error instanceof Error ? error.message : error);
+    process.exit(1);
+  });

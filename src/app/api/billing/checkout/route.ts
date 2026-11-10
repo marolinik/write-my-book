@@ -13,6 +13,7 @@ import type { Prisma, Subscription } from "@/generated/prisma/client";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { productOrigin } from "@/lib/http/product-origin";
 import { applyCompletedCheckout } from "@/lib/billing/apply-checkout";
+import { checkoutTaxParams } from "@/lib/billing/tax";
 
 /**
  * The per-user checkout transaction holds its lock across Stripe calls
@@ -175,6 +176,7 @@ function sessionConfigFor(
     // The subscription carries the writer too, so customer.subscription.created
     // can find them even when checkout.session.completed is lost (P2-7).
     subscription_data: { metadata: { userId: user.id, plan, billingInterval } },
+    ...checkoutTaxParams(),
   };
 
   // Card-free trial for Indie and Professional (trialDays > 0), first trial

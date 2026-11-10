@@ -90,6 +90,28 @@ beforeEach(() => {
   h.sessionsRetrieve.mockRejectedValue(new Error("no such checkout session"));
 });
 
+describe("POST /api/billing/checkout — VAT-inclusive prices", () => {
+  it("the session carries Stripe Tax when STRIPE_AUTOMATIC_TAX=1", async () => {
+    process.env.STRIPE_AUTOMATIC_TAX = "1";
+    try {
+      const res = await POST(req());
+      expect(res.status).toBe(200);
+      const cfg = h.sessionsCreate.mock.calls[0][0];
+      expect(cfg.automatic_tax).toEqual({ enabled: true });
+      expect(cfg.customer_update).toEqual({ address: "auto", name: "auto" });
+      expect(cfg.tax_id_collection).toEqual({ enabled: true });
+    } finally {
+      delete process.env.STRIPE_AUTOMATIC_TAX;
+    }
+  });
+
+  it("the session has no tax settings while the flag is off", async () => {
+    delete process.env.STRIPE_AUTOMATIC_TAX;
+    await POST(req());
+    expect(h.sessionsCreate.mock.calls[0][0].automatic_tax).toBeUndefined();
+  });
+});
+
 describe("POST /api/billing/checkout — double-subscribe guard (D-06)", () => {
   it("active subscription → 409, no Stripe session created", async () => {
     h.db.subscription.findUnique.mockResolvedValue({
