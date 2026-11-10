@@ -11,6 +11,7 @@ import { checkoutSchema } from "@/lib/validation";
 import type Stripe from "stripe";
 import type { Prisma, Subscription } from "@/generated/prisma/client";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { productOrigin } from "@/lib/http/product-origin";
 
 /**
  * The per-user checkout transaction holds its lock across Stripe calls
@@ -298,13 +299,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Build the browser-reachable origin. req.nextUrl.origin can be
-    // "http://0.0.0.0:3000" in the containerized dev stack (container's own
-    // advertised hostname) — a non-navigable host for the user's browser
-    // (Priya test hit ERR_ADDRESS_INVALID). NEXT_PUBLIC_APP_URL is the
-    // canonical product-origin fallback (docs/env-vars.md).
-    const origin =
-      process.env.NEXT_PUBLIC_APP_URL?.trim() || req.nextUrl.origin;
+    // Browser-reachable origin (Priya test hit ERR_ADDRESS_INVALID on the
+    // container's own http://0.0.0.0:3000); see productOrigin.
+    const origin = productOrigin(req);
 
     const intent: CheckoutIntent = {
       user: { id: user.id, email: user.email },

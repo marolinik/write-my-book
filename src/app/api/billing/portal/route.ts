@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { stripe } from "@/lib/billing";
+import { productOrigin } from "@/lib/http/product-origin";
 
 export async function POST(req: NextRequest) {
   try {
@@ -27,7 +28,7 @@ export async function POST(req: NextRequest) {
 
     const session = await stripe.billingPortal.sessions.create({
       customer: sub.stripeCustomerId,
-      return_url: `${req.nextUrl.origin}/settings/billing`,
+      return_url: `${productOrigin(req)}/settings/billing`,
     });
 
     return NextResponse.json({ url: session.url });
