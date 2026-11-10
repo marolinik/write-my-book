@@ -90,6 +90,7 @@ export const DE: UIStrings = {
     subtitle: "Verwalten Sie Ihre API-Schlüssel und Einstellungen",
     apiKeys: "API-Schlüssel",
     apiKeysDescription: "Eigener Schlüssel (BYOK) \u2014 Ihre API-Schlüssel sind verschlüsselt gespeichert",
+    relayKeyUnsupported: "Dieser Schlüssel kann noch nicht direkt verwendet werden. Fügen Sie einen OpenRouter-Schlüssel hinzu, um diese Modelle zu nutzen, und löschen Sie dann diesen.",
     localFleet: "Lokale Flotte (selbst gehostet)",
     roleGhostwriterDesc: "Schreibt Kapitel, plant Gliederungen, baut die Story-Architektur.",
     roleEditorDesc: "Entwicklungslektorat, Zeilenlektorat, Überarbeitungsvorschläge.",

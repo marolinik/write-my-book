@@ -91,6 +91,7 @@ export const EN: UIStrings = {
     subtitle: "Manage your API keys and preferences",
     apiKeys: "API Keys",
     apiKeysDescription: "Bring Your Own Key (BYOK) \u2014 your API keys are encrypted at rest",
+    relayKeyUnsupported: "This key can't be used directly yet. Add an OpenRouter key to use these models, then delete this one.",
     localFleet: "Local fleet (self-hosted)",
     roleGhostwriterDesc: "Writes chapters, plans outlines, builds story architecture.",
     roleEditorDesc: "Dev editing, line editing, revision suggestions.",

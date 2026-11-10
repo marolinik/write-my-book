@@ -14,7 +14,10 @@ import {
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useApiKeys } from "@/hooks/use-api-keys";
-import { PROVIDERS, type ProviderKey } from "@/lib/llm/providers";
+import { PROVIDERS, isRelayOnlyProvider, type ProviderKey } from "@/lib/llm/providers";
+
+/** D3: no relay is deployed, so onboarding offers only keys that work directly. */
+const OFFERED_PROVIDERS = PROVIDERS.filter((p) => !isRelayOnlyProvider(p.key));
 import { ProviderCard } from "./provider-card";
 
 // ─── Default model per provider ────────────────────────────────
@@ -212,7 +215,7 @@ export function OnboardingWizard() {
           </div>
 
           <div className="space-y-3">
-            {PROVIDERS.map((provider) => (
+            {OFFERED_PROVIDERS.map((provider) => (
               <ProviderCard
                 key={provider.key}
                 provider={provider}
@@ -229,7 +232,7 @@ export function OnboardingWizard() {
               <span className="text-xs text-muted-foreground">
                 {t.onboardingUI.providersConnected
                   .replace("{connected}", String(connectedCount))
-                  .replace("{total}", String(PROVIDERS.length))}
+                  .replace("{total}", String(OFFERED_PROVIDERS.length))}
               </span>
               {connectedCount === 0 && (
                 <Button

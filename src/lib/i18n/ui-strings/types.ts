@@ -98,6 +98,7 @@ export interface UIStrings {
     subtitle: string;
     apiKeys: string;
     apiKeysDescription: string;
+    relayKeyUnsupported: string;
     localFleet: string;
     roleGhostwriterDesc: string;
     roleEditorDesc: string;

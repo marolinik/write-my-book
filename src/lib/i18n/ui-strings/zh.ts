@@ -90,6 +90,7 @@ export const ZH: UIStrings = {
     subtitle: "管理您的API密钥和偏好设置",
     apiKeys: "API密钥",
     apiKeysDescription: "自带密钥 (BYOK) \u2014 您的API密钥已加密存储",
+    relayKeyUnsupported: "此密钥暂时无法直接使用。请添加 OpenRouter 密钥来使用这些模型，然后删除此密钥。",
     localFleet: "本地集群（自托管）",
     roleGhostwriterDesc: "撰写章节、规划大纲、搭建故事结构。",
     roleEditorDesc: "结构编辑、语句编辑、修订建议。",

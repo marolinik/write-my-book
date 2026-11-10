@@ -90,6 +90,7 @@ export const SR: UIStrings = {
     subtitle: "Upravljajte API ključevima i preferencama",
     apiKeys: "API ključevi",
     apiKeysDescription: "Koristite sopstveni ključ (BYOK) \u2014 vaši API ključevi su šifrovani",
+    relayKeyUnsupported: "Ovaj ključ još ne može da se koristi direktno. Dodajte OpenRouter ključ da biste koristili ove modele, a ovaj obrišite.",
     localFleet: "Lokalna flota (samostalno hostovana)",
     roleGhostwriterDesc: "Piše poglavlja, planira sinopsise, gradi strukturu priče.",
     roleEditorDesc: "Razvojno uređivanje, uređivanje rečenica, predlozi revizije.",

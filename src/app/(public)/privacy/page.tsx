@@ -177,11 +177,10 @@ export default function PrivacyPage() {
             </p>
             <ul className="mt-3 list-disc space-y-2 pl-6">
               <li>
-                <Term>Your own API key.</Term> If you add a key for Anthropic, OpenRouter, OpenAI,
-                Google Gemini or xAI Grok, your text goes to that provider on your key and under
-                your own agreement with them. Their terms decide whether they keep your text and
-                whether they may train on it. OpenAI, Gemini and Grok keys are relayed through a
-                translation service we run on our own servers. With OpenRouter, every request we send asks it to use only model hosts that do not
+                <Term>Your own API key.</Term> If you add a key for Anthropic or OpenRouter, your
+                text goes to that provider on your key and under your own agreement with them.
+                Their terms decide whether they keep your text and whether they may train on it.
+                OpenAI, Gemini and Grok models are used through OpenRouter. With OpenRouter, every request we send asks it to use only model hosts that do not
                 store or train on prompts (OpenRouter&apos;s &quot;deny data collection&quot; setting).
               </li>
               <li>

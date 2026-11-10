@@ -335,7 +335,10 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
     if (coachRoute.route === "none") {
       await publishMessage({
         type: "error",
-        content: `No API key available for ${effectiveCoachModelDef.provider}. Add one in Settings > API Keys.`,
+        content:
+          coachRoute.code === "DIRECT_KEY_UNSUPPORTED"
+            ? coachRoute.error
+            : `No API key available for ${effectiveCoachModelDef.provider}. Add one in Settings > API Keys.`,
       });
       // No key will appear on a retry: fail once, never three times.
       throw new UnrecoverableError(

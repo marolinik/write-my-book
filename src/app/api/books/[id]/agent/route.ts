@@ -289,6 +289,18 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     const effectiveCoachModelDef = coachRouting.model;
     const effectiveCoachRegistryId = effectiveCoachModelDef.id;
 
+    if (coachRoute.route === "none" && coachRoute.code === "DIRECT_KEY_UNSUPPORTED") {
+      // P1-12: the writer has a key, just not one this deploy can use.
+      return NextResponse.json(
+        {
+          error: coachRoute.error,
+          code: "DIRECT_KEY_UNSUPPORTED",
+          action: { label: "Open Settings → API Keys", href: "/settings#api-keys" },
+        },
+        { status: 400 }
+      );
+    }
+
     if (coachRoute.route === "none") {
       const providerName = effectiveCoachModelDef.provider.charAt(0).toUpperCase() + effectiveCoachModelDef.provider.slice(1);
       return NextResponse.json(
