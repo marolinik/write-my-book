@@ -117,9 +117,16 @@ describe("the agent route", () => {
     "utf-8"
   );
 
+  // P1-11: the key decision moved into resolveSessionKeys, shared by the
+  // start route, /message and the worker.
+  const sessionKeys = readFileSync(
+    join(__dirname, "..", "..", "src", "lib", "billing", "session-keys.ts"),
+    "utf-8"
+  );
+
   it("only reaches for the managed key when the writer has none of their own", () => {
-    expect(route).toContain("const hasOwnKey");
-    expect(route).toMatch(/hasOwnKey[\s\S]{0,80}managedKeyFor/);
+    expect(sessionKeys).toContain("const hasOwnKey");
+    expect(sessionKeys).toMatch(/hasOwnKey[\s\S]{0,300}managedKeyFor/);
   });
 
   it("stamps a managed run as platform spend, or the cap is a no-op", () => {
@@ -129,7 +136,7 @@ describe("the agent route", () => {
   });
 
   it("never hands a platform key to the wrong provider slot", () => {
-    expect(route).toContain("function keyIfProvider");
-    expect(route).toContain("config.provider === provider");
+    expect(sessionKeys).toContain("function keyIfProvider");
+    expect(sessionKeys).toContain("config.provider === provider");
   });
 });

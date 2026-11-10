@@ -41,7 +41,7 @@ import type {
   PageContext,
 } from "@/lib/agents/types";
 import { db } from "@/lib/db";
-import { decryptApiKey } from "@/lib/encryption";
+import { resolveSessionKeys } from "@/lib/billing/session-keys";
 import { estimateWorkflowCost } from "@/lib/llm/cost-estimator";
 import { passUsageType } from "@/lib/llm/cost-calibration";
 import {
@@ -50,7 +50,6 @@ import {
   resolveRouteWithLocalFallback,
   getModelDef,
   type LLMProvider,
-  type ProviderKey,
   type AgentRole,
   type BookModelSettings,
 } from "@/lib/llm";
@@ -312,33 +311,11 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
       );
     }
 
-    // ── Re-fetch API Keys from Database ─────────────────────────────
+    // ── Re-resolve API Keys ─────────────────────────────────────────
+    // The same decision as the session start (P1-11): the writer's own keys,
+    // or for a keyless Free writer the product's key, its caps re-checked now.
 
-    const userKeys = await db.apiKey.findMany({
-      where: { userId },
-      select: { provider: true, encryptedKey: true, validatedAt: true },
-    });
-
-    const decryptedKeys: Partial<Record<ProviderKey, string>> = {};
-    for (const k of userKeys) {
-      if (k.validatedAt) {
-        try {
-          decryptedKeys[k.provider as ProviderKey] = decryptApiKey(
-            k.encryptedKey
-          );
-        } catch {
-          // Skip keys that fail to decrypt
-        }
-      }
-    }
-
-    const availableKeys = {
-      anthropicApiKey: decryptedKeys.anthropic,
-      openrouterApiKey: decryptedKeys.openrouter,
-      openaiApiKey: decryptedKeys.openai,
-      geminiApiKey: decryptedKeys.gemini,
-      grokApiKey: decryptedKeys.grok,
-    };
+    const { availableKeys, keySource } = await resolveSessionKeys(userId);
 
     // ── Build Coach LLM Client ──────────────────────────────────────
 
@@ -360,7 +337,10 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
         type: "error",
         content: `No API key available for ${effectiveCoachModelDef.provider}. Add one in Settings > API Keys.`,
       });
-      throw new Error(`No API key for provider: ${effectiveCoachModelDef.provider}`);
+      // No key will appear on a retry: fail once, never three times.
+      throw new UnrecoverableError(
+        `No API key for provider: ${effectiveCoachModelDef.provider}`
+      );
     }
 
     const effectiveModelId =
@@ -800,7 +780,7 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
               tokensInput: totalInput,
               tokensOutput: totalOutput,
               costEstimate: cost,
-              keySource: "user",
+              keySource,
             },
           });
         }

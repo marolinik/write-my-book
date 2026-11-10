@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { NOT_AWAITING_REVIEW } from "@/lib/documents/review-gate";
-import { decryptApiKey } from "@/lib/encryption";
 import { estimateWorkflowCost } from "@/lib/llm/cost-estimator";
 import { passUsageType } from "@/lib/llm/cost-calibration";
 import { validatePrices } from "@/lib/llm/price-validator";
 import { checkQuota } from "@/lib/billing/quota-checker";
-import { clampSessionBudget, managedKeyFor, sessionBudgetFor } from "@/lib/billing/managed-tier";
+import { clampSessionBudget, sessionBudgetFor } from "@/lib/billing/managed-tier";
+import { resolveSessionKeys } from "@/lib/billing/session-keys";
 import {
   checkConcurrencyFence,
   recordAgentSessionStart,
@@ -50,17 +50,6 @@ import type { AgentJobData } from "@/lib/queue";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { getDefaultModelId } from "@/lib/llm/defaults";
 import { USER_MODEL_SELECT, globalOverridesOf, userModelSettingsOf, bookModelSettingsOf } from "@/lib/llm/model-resolver";
-
-/**
- * The managed key, but only for the provider it actually belongs to. A
- * platform Anthropic key must never be handed to the OpenRouter slot.
- */
-function keyIfProvider(
-  config: { provider: string; apiKey: string } | null,
-  provider: string
-): string | undefined {
-  return config && config.provider === provider ? config.apiKey : undefined;
-}
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -284,46 +273,15 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // -- Multi-Provider Key Loading --
-    const userKeys = await db.apiKey.findMany({
-      where: { userId: user.id },
-      select: { provider: true, encryptedKey: true, validatedAt: true },
-    });
-
-    // Build decrypted keys map (only include validated keys)
-    const decryptedKeys: Partial<Record<ProviderKey, string>> = {};
-    for (const k of userKeys) {
-      if (k.validatedAt) {
-        try {
-          decryptedKeys[k.provider as ProviderKey] = decryptApiKey(k.encryptedKey);
-        } catch {
-          // Skip keys that fail to decrypt
-        }
-      }
-    }
-
-    // D4: a cold Free writer has no key at all, and until now that meant no
-    // working AI whatsoever — the single largest lever on the free-tier
-    // ceiling, named by two separate reviews. When the owner has turned the
-    // managed tier on, and only then, the product lends its own key to a
-    // Free writer who has none, under a daily and a monthly cap. This does
-    // not weaken the client-factory invariant: the fallback is explicit,
-    // metered, and every row it produces carries keySource "platform", which
-    // the spend panel already separates from the writer's own spend.
-    const hasOwnKey = Object.keys(decryptedKeys).length > 0;
-    const managed = hasOwnKey
-      ? null
-      : await managedKeyFor(user.id, quotaResult.isFree === true);
+    // -- Key Loading --
+    // D4: a Free writer with no key of their own may run on the product's
+    // key under the managed tier's caps; every row it produces carries
+    // keySource "platform". /message and the worker decide the same way.
+    const { availableKeys, managed } = await resolveSessionKeys(
+      user.id,
+      quotaResult.isFree === true
+    );
     const managedConfig = managed?.config ?? null;
-
-    // Build available keys for provider routing
-    const availableKeys = {
-      anthropicApiKey: decryptedKeys.anthropic ?? keyIfProvider(managedConfig, "anthropic"),
-      openrouterApiKey: decryptedKeys.openrouter ?? keyIfProvider(managedConfig, "openrouter"),
-      openaiApiKey: decryptedKeys.openai ?? keyIfProvider(managedConfig, "openai"),
-      geminiApiKey: decryptedKeys.gemini ?? keyIfProvider(managedConfig, "gemini"),
-      grokApiKey: decryptedKeys.grok ?? keyIfProvider(managedConfig, "grok"),
-    };
 
     // -- Route Resolution for Coach --
     const coachRouting = resolveRouteWithLocalFallback(coachChainModelDef, availableKeys);
