@@ -523,7 +523,8 @@ export const importConfirmChapterSchema = z.object({
 });
 
 export const importConfirmRequestSchema = z.object({
-  chapters: z.array(importConfirmChapterSchema).min(1),
+  // A book numbers chapters 1-999, so a larger plan can only be abuse.
+  chapters: z.array(importConfirmChapterSchema).min(1).max(999),
   actNumber: z.number().int().min(1).max(10).optional().default(1),
 });
 

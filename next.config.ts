@@ -38,6 +38,11 @@ const productionHeaders: Array<{ key: string; value: string }> = [
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // next/image has no call sites; this turns the optimizer endpoint off.
+  images: { unoptimized: true },
+  // Next 16.4 blocks dev resources (HMR) for any host but localhost, so a page
+  // opened on 127.0.0.1, as Playwright does, never hydrated. Dev only.
+  allowedDevOrigins: ["127.0.0.1"],
   serverExternalPackages: ["@prisma/client", "@prisma/adapter-pg", "pg"],
   experimental: {
     serverActions: {
