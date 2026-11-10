@@ -55,7 +55,8 @@ jobs:
 
   smoke:
     name: Smoke deployment
-    runs-on: ubuntu-latest
+    # Pinned: ubuntu-latest moved to 26.04, where Playwright 1.58 cannot install chromium.
+    runs-on: ubuntu-24.04
     needs: guard
     # Only runs when the CI run succeeded (for workflow_run) AND a target exists.
     if: >-

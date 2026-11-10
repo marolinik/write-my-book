@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 
 const ci = readFileSync(".github/workflows/ci.yml", "utf8");
 const deploySmoke = readFileSync(".github/workflows/deploy-smoke.yml", "utf8");
+const e2e = readFileSync(".github/workflows/e2e.yml", "utf8");
 
 /** The YAML text of one step: from its `- name:` line up to the next step. */
 function stepBlock(workflow: string, name: string): string {
@@ -20,6 +21,19 @@ describe("CI workflow contract", () => {
     "Build worker",
   ])("every gate after lint runs even when lint fails: %s", (name) => {
     expect(stepBlock(ci, name)).toContain("if: ${{ !cancelled() }}");
+  });
+
+  // 2026-11-10: ubuntu-latest started resolving to 26.04, where Playwright
+  // 1.58 refuses to install chromium; every job that installs browsers runs
+  // on an image Playwright supports.
+  it("every job that installs Playwright browsers runs on ubuntu-24.04", () => {
+    for (const workflow of [e2e, deploySmoke]) {
+      // Jobs are the two-space-indented keys under `jobs:`.
+      const jobs = workflow.split(/\r?\n {2}(?=[a-z][\w-]*:\r?\n)/);
+      for (const job of jobs.filter((j) => j.includes("playwright install"))) {
+        expect(job).toMatch(/runs-on: ubuntu-24\.04/);
+      }
+    }
   });
 
   it("deploy smoke is skipped, not green, without a target", () => {
