@@ -327,11 +327,12 @@ export default function BillingPage() {
         {PLAN_CARDS.map((plan) => {
           const isCurrent = currentPlan === plan.key;
           const isFounder = plan.key === "founder";
-          const disabled = isFounder && founderSoldOut && !isCurrent;
-          // R-044: a lapsed Founder keeps their slot and checkout refuses a
-          // second one, so the Founder card offers them no checkout.
-          const founderSlotUsed =
+          // D4: a lapsed Founder keeps their slot and may come back at the
+          // Founder price, even after every slot is claimed.
+          const returningFounder =
             isFounder && storedPlan === "founder" && !isCurrent;
+          const disabled =
+            isFounder && founderSoldOut && !isCurrent && !returningFounder;
 
           return (
             <Card
@@ -360,7 +361,7 @@ export default function BillingPage() {
                         : ""
                     }
                   >
-                    {isFounder && founderSoldOut ? "SOLD OUT" : plan.badge}
+                    {isFounder && founderSoldOut && !returningFounder ? "SOLD OUT" : plan.badge}
                   </Badge>
                 </div>
               )}
@@ -438,7 +439,7 @@ export default function BillingPage() {
                   >
                     <ExternalLink className="h-3.5 w-3.5" />{t.billingUI.manageSubscription}</Button>
                 )}
-                {!isCurrent && stripeConfigured && !disabled && !founderSlotUsed && (
+                {!isCurrent && stripeConfigured && !disabled && (
                   <Button
                     className="w-full"
                     size="sm"

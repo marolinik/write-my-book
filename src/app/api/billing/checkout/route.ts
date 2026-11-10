@@ -121,12 +121,17 @@ async function founderUnavailableReason(
   tx: Prisma.TransactionClient,
   userId: string
 ): Promise<string | null> {
+  // D4: a Founder keeps their slot through a lapse and may subscribe again at
+  // the Founder price, even when every slot is claimed (the webhook grants it
+  // on the slot they hold). A live Founder never gets here: the
+  // double-subscribe guard answers first.
+  const existing = await tx.founderSlot.findUnique({ where: { userId } });
+  if (existing) return null;
   const count = await tx.founderSlot.count();
   if (count >= FOUNDER_SLOT_CAP) {
     return `Founder spots are full. All ${FOUNDER_SLOT_CAP} have been claimed.`;
   }
-  const existing = await tx.founderSlot.findUnique({ where: { userId } });
-  return existing ? "You already have a Founder slot." : null;
+  return null;
 }
 
 /** The writer's row and Stripe customer, creating either as needed. */
