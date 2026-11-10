@@ -28,4 +28,9 @@ describe("CI workflow contract", () => {
     expect(guard).toContain("github.event.inputs.base_url");
     expect(guard).toContain("vars.PLAYWRIGHT_BASE_URL");
   });
+
+  it("the dev server serves the host the e2e suite browses (127.0.0.1)", () => {
+    const config = readFileSync("next.config.ts", "utf8");
+    expect(config).toMatch(/allowedDevOrigins:\s*\[[^\]]*"127\.0\.0\.1"/);
+  });
 });

@@ -10,9 +10,9 @@ import { render, screen, cleanup } from "@testing-library/react";
  * `hasHadTrial = !!sub?.trialEnd` (route.ts:69). A user who already consumed
  * a trial (trialEnd set) is charged from day 1 on the next checkout.
  *
- * The billing page must therefore gate BOTH the "14-day free trial" badge and
- * the "No credit card required" disclosure on `!subscription?.trialEnd`, so we
- * never advertise a card-free trial to someone we will charge immediately.
+ * Since 2026-10-12 no plan has a trial (`trialDays: 0`), so the page must
+ * show neither the "14-day free trial" badge nor "No credit card required"
+ * to anyone, whatever their trial history.
  * (Landing-page pricing-section is correctly scoped already — a logged-out
  * visitor has no trial history — and stays untouched.)
  */
@@ -57,7 +57,7 @@ describe("BillingPage — D-52 card-free disclosure gated per-user", () => {
   // disclosure never leaks into a negative assertion.
   afterEach(() => cleanup());
 
-  it("shows the trial badge + 'No credit card required' when the user has NOT consumed a trial (trialEnd null)", () => {
+  it("promises no trial and no card-free start to a writer who never trialed (trialEnd null)", () => {
     mockState.subscription = {
       plan: "none",
       status: "none",
@@ -67,8 +67,8 @@ describe("BillingPage — D-52 card-free disclosure gated per-user", () => {
 
     render(<BillingPage />);
 
-    expect(screen.getByText("14-day free trial")).toBeTruthy();
-    expect(screen.getByText("No credit card required")).toBeTruthy();
+    expect(screen.queryByText("14-day free trial")).toBeNull();
+    expect(screen.queryByText("No credit card required")).toBeNull();
   });
 
   it("hides BOTH once the user has consumed a trial (trialEnd set) — the next checkout charges from day 1", () => {

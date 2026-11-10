@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
+import { buildContentSecurityPolicy } from "./src/lib/security/csp";
 
 const isProduction = process.env.NODE_ENV === "production";
 
@@ -28,26 +29,20 @@ const productionHeaders: Array<{ key: string; value: string }> = [
   },
   {
     key: "Content-Security-Policy",
-    value: [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.dev",
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https:",
-      "font-src 'self' data:",
-      "connect-src 'self' blob: https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.dev https://o*.ingest.sentry.io wss://*.clerk.com",
-      "worker-src 'self' blob:",
-      "frame-src https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.dev https://js.stripe.com https://hooks.stripe.com",
-      "object-src 'none'",
-      "base-uri 'self'",
-      "form-action 'self' https://checkout.stripe.com",
-      "frame-ancestors 'none'",
-      "upgrade-insecure-requests",
-    ].join("; "),
+    value: buildContentSecurityPolicy({
+      clerkPublishableKey: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+      sentryDsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+    }),
   },
 ];
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // next/image has no call sites; this turns the optimizer endpoint off.
+  images: { unoptimized: true },
+  // Next 16.4 blocks dev resources (HMR) for any host but localhost, so a page
+  // opened on 127.0.0.1, as Playwright does, never hydrated. Dev only.
+  allowedDevOrigins: ["127.0.0.1"],
   serverExternalPackages: ["@prisma/client", "@prisma/adapter-pg", "pg"],
   experimental: {
     serverActions: {

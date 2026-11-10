@@ -68,7 +68,6 @@ const PLAN_CARDS = [
     icon: Sparkles,
     monthlyPrice: 49,
     annualPrice: 490,
-    badge: "14-day free trial",
     highlight: false,
     features: [
       "2 active books",
@@ -144,12 +143,6 @@ export default function BillingPage() {
   // the trial ended, and names the trial's plan, never "Free".
   const trialEnded = isTrialing && currentPlan === "none";
   const showTrialBanner = isTrialing && trialEnd !== null;
-  // D-52: card-freeness is per-(plan, USER), not per-plan. checkout/route.ts
-  // only grants the card-free trial (payment_method_collection "if_required")
-  // when `!hasHadTrial`, where hasHadTrial = !!sub?.trialEnd (route.ts:69). A
-  // user who already consumed a trial is charged from day 1, so we must NOT
-  // advertise the trial badge or "No credit card required" to them.
-  const hasHadTrial = trialEnd !== null;
   const founderSoldOut = (founderCount?.available ?? 1) <= 0;
 
   // D-07: honest banners for degraded-but-live subscription states the API
@@ -325,10 +318,7 @@ export default function BillingPage() {
                     : ""
               }`}
             >
-              {/* Badge (D-52: suppress the "14-day free trial" claim for a
-                  user who already consumed a trial — they are charged day 1) */}
-              {plan.badge &&
-                !(plan.badge === "14-day free trial" && hasHadTrial) && (
+              {plan.badge && (
                 <div className="absolute -top-3 left-4">
                   <Badge
                     variant={
@@ -410,14 +400,6 @@ export default function BillingPage() {
                     </li>
                   ))}
                 </ul>
-
-                {/* D-52: the advertised trial genuinely starts without a card
-                    (checkout: payment_method_collection "if_required"), but ONLY
-                    for a user who has not already used a trial — a returning
-                    trial-user is charged from day 1, so gate on !hasHadTrial. */}
-                {plan.badge === "14-day free trial" && !hasHadTrial && (
-                  <p className="-mt-2 mb-4 text-xs text-muted-foreground">{t.billingUI.noCreditCard}</p>
-                )}
 
                 {/* Actions */}
                 {isCurrent && stripeConfigured && (

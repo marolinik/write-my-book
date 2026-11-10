@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { SignUp } from "@clerk/nextjs";
 
 const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
@@ -13,7 +14,7 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background">
       <SignUp 
         afterSignInUrl="/dashboard"
         afterSignUpUrl="/onboarding"
@@ -24,6 +25,12 @@ export default function SignUpPage() {
           }
         }}
       />
+      <p className="max-w-sm px-4 text-center text-xs text-muted-foreground">
+        By creating an account you accept the{" "}
+        <Link href="/terms" className="underline underline-offset-2">Terms of Service</Link>
+        {" "}and the{" "}
+        <Link href="/privacy" className="underline underline-offset-2">Privacy Policy</Link>.
+      </p>
     </div>
   );
 }

@@ -3,8 +3,19 @@ node_modules
 .git
 .gitignore
 *.md
-.env
-.env.local
+# Every env file holds live secrets; only the example belongs in a build.
+.env*
+!.env.example
+# Local scratch, evidence and build output: never needed in an image.
+cowork/
+coverage/
+test-results/
+playwright-report*/
+uat-screenshots/
+tmp-*
+tmp-audit/
+dist-worker/
+brag-output*/
 tests
 playwright.config.ts
 ~$*
