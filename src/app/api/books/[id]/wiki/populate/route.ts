@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
+import { denyIfOverQuota } from "@/lib/billing/ai-route-gate";
+import { estimateCost } from "@/lib/cost";
 import { db } from "@/lib/db";
 import { decryptApiKey } from "@/lib/encryption";
 import { DocumentService } from "@/lib/documents/document-service";
@@ -56,6 +58,9 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const user = await requireUser();
+  // P2-5: the same plan gate as an agent session, before any model call.
+  const denied = await denyIfOverQuota(user.id);
+  if (denied) return denied;
   const { id: bookId } = await params;
 
   const book = await db.book.findFirst({
@@ -199,6 +204,24 @@ export async function POST(
           content: `${WIKI_EXTRACTION_PROMPT}\n\n${safeText}`,
         },
       ],
+    });
+
+    // P2-5: the extraction is a model call like any other; record what it
+    // cost, before parsing, so a reply we cannot use is still counted.
+    await db.usageRecord.create({
+      data: {
+        userId: user.id,
+        bookId,
+        agentType: "wiki_populate",
+        model: cheapModel.id,
+        tokensInput: response.usage.input_tokens,
+        tokensOutput: response.usage.output_tokens,
+        costEstimate: estimateCost(
+          cheapModel.id,
+          response.usage.input_tokens,
+          response.usage.output_tokens
+        ),
+      },
     });
 
     const textBlock = response.content.find((b) => b.type === "text");

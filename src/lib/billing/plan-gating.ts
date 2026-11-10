@@ -80,7 +80,9 @@ export async function checkPlanAccess(
 
   switch (action) {
     case "create_book": {
-      const bookCount = await db.book.count({ where: { userId } });
+      // P2-6: a paid plan's limit is on ACTIVE books ("2 active books"), so
+      // an archived book frees its slot. Free counts every row (below).
+      const bookCount = await db.book.count({ where: { userId, archivedAt: null } });
       if (bookCount >= planDef.maxBooks) {
         return {
           allowed: false,

@@ -43,6 +43,8 @@ const h = vi.hoisted(() => ({
   },
 }));
 
+// P2-5: the plan gate passes in these route tests; ai-route-gates.test.ts covers the 429.
+vi.mock("@/lib/billing/ai-route-gate", () => ({ denyIfOverQuota: async () => null }));
 vi.mock("@/lib/auth", () => ({ requireUser: () => Promise.resolve(h.user) }));
 vi.mock("@/lib/db", () => ({ db: h.db }));
 vi.mock("@/lib/encryption", () => ({ decryptApiKey: (k: string) => `dec:${k}` }));
