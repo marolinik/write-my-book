@@ -54,9 +54,12 @@ export async function GET() {
       {} as Record<string, { tokensInput: number; tokensOutput: number; costEstimate: number }>
     );
 
+    // Spend outlives its book (bookId SetNull, P1-9): rows from deleted books
+    // are grouped under one entry with no book id.
+    const DELETED_BOOKS = "";
     const byBookMap = records.reduce(
       (acc, r) => {
-        const key = r.bookId;
+        const key = r.bookId ?? DELETED_BOOKS;
         if (!acc[key]) {
           acc[key] = { tokensInput: 0, tokensOutput: 0, costEstimate: 0, sessions: 0 };
         }
@@ -69,7 +72,7 @@ export async function GET() {
       {} as Record<string, { tokensInput: number; tokensOutput: number; costEstimate: number; sessions: number }>
     );
 
-    const bookIds = Object.keys(byBookMap);
+    const bookIds = Object.keys(byBookMap).filter((id) => id !== DELETED_BOOKS);
     const books = bookIds.length > 0
       ? await db.book.findMany({
           where: { id: { in: bookIds } },
@@ -80,7 +83,7 @@ export async function GET() {
 
     const byBook = Object.entries(byBookMap)
       .map(([bookId, data]) => ({
-        bookId,
+        bookId: bookId === DELETED_BOOKS ? null : bookId,
         bookName: bookNameMap.get(bookId) ?? "Deleted Book",
         ...data,
       }))

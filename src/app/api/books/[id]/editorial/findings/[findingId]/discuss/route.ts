@@ -15,6 +15,7 @@ import { sseDiscussBody } from "@/lib/editorial/discuss-stream";
 import { QUICK_ASSIST_SSE_HEADERS } from "@/lib/api/sse-quick-assist";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { markGenerationDiscarded } from "@/lib/billing/billed-usage";
+import { denyIfOverQuota } from "@/lib/billing/ai-route-gate";
 
 export const dynamic = "force-dynamic";
 
@@ -88,6 +89,9 @@ export async function GET(_req: Request, { params }: RouteParams) {
 export async function POST(req: Request, { params }: RouteParams) {
   try {
     const user = await requireUser();
+    // P2-5: the same plan gate as an agent session, before any model call.
+    const denied = await denyIfOverQuota(user.id);
+    if (denied) return denied;
     const { id: bookId, findingId } = await params;
     const { writerMessage, mode } = bodySchema.parse(await parseJsonBody(req));
 

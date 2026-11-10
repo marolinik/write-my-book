@@ -11,6 +11,9 @@ import { checkoutSchema } from "@/lib/validation";
 import type Stripe from "stripe";
 import type { Prisma, Subscription } from "@/generated/prisma/client";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { productOrigin } from "@/lib/http/product-origin";
+import { applyCompletedCheckout } from "@/lib/billing/apply-checkout";
+import { checkoutTaxParams } from "@/lib/billing/tax";
 
 /**
  * The per-user checkout transaction holds its lock across Stripe calls
@@ -56,7 +59,21 @@ function alreadySubscribed(): NextResponse {
   );
 }
 
-type PendingSession = { kind: "reuse"; url: string } | { kind: "paid" } | { kind: "closed" };
+function paymentProcessing(): NextResponse {
+  return NextResponse.json(
+    {
+      error:
+        "Your payment is still being processed. Your plan starts as soon as it clears, so there is no need to pay again.",
+      code: "payment_processing",
+    },
+    { status: 409 }
+  );
+}
+
+type PendingSession =
+  | { kind: "reuse"; url: string }
+  | { kind: "paid"; session: Stripe.Checkout.Session }
+  | { kind: "closed" };
 
 /**
  * What to do with the checkout session this writer already has pending.
@@ -99,7 +116,7 @@ async function settlePendingSession(
         ? pending.subscription
         : pending.subscription?.id;
     if (subscriptionId && (await subscriptionIsLive(stripeClient, subscriptionId))) {
-      return { kind: "paid" };
+      return { kind: "paid", session: pending };
     }
   }
   return { kind: "closed" };
@@ -115,12 +132,17 @@ async function founderUnavailableReason(
   tx: Prisma.TransactionClient,
   userId: string
 ): Promise<string | null> {
+  // D4: a Founder keeps their slot through a lapse and may subscribe again at
+  // the Founder price, even when every slot is claimed (the webhook grants it
+  // on the slot they hold). A live Founder never gets here: the
+  // double-subscribe guard answers first.
+  const existing = await tx.founderSlot.findUnique({ where: { userId } });
+  if (existing) return null;
   const count = await tx.founderSlot.count();
   if (count >= FOUNDER_SLOT_CAP) {
     return `Founder spots are full. All ${FOUNDER_SLOT_CAP} have been claimed.`;
   }
-  const existing = await tx.founderSlot.findUnique({ where: { userId } });
-  return existing ? "You already have a Founder slot." : null;
+  return null;
 }
 
 /** The writer's row and Stripe customer, creating either as needed. */
@@ -166,7 +188,12 @@ function sessionConfigFor(
     line_items: [{ price: priceId, quantity: 1 }],
     success_url: `${origin}/settings/billing?success=true`,
     cancel_url: `${origin}/settings/billing?canceled=true`,
+    // Only the session carries the writer. A subscription with a writer id
+    // would let customer.subscription.* events grant a plan without the
+    // payment, Founder-cap and duplicate checks (Wave 2 review C1); a lost
+    // checkout.session.completed is healed by reconcilePendingCheckout.
     metadata: { userId: user.id, plan, billingInterval },
+    ...checkoutTaxParams(),
   };
 
   // Card-free trial for Indie and Professional (trialDays > 0), first trial
@@ -217,7 +244,14 @@ async function checkoutUnderLock(
   if (sub?.pendingCheckoutSessionId) {
     const pending = await settlePendingSession(stripeClient, sub.pendingCheckoutSessionId, intent);
     if (pending.kind === "reuse") return NextResponse.json({ url: pending.url });
-    if (pending.kind === "paid") return alreadySubscribed();
+    if (pending.kind === "paid") {
+      // P1-6: record the purchase now instead of waiting for a webhook that
+      // may never come, so the 409 below is true on the next read too. An
+      // async payment (SEPA) still clearing is not a subscription yet.
+      const applied = await applyCompletedCheckout(stripeClient, pending.session);
+      if (applied.kind === "unpaid") return paymentProcessing();
+      return alreadySubscribed();
+    }
   }
 
   if (plan === "founder") {
@@ -298,13 +332,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Build the browser-reachable origin. req.nextUrl.origin can be
-    // "http://0.0.0.0:3000" in the containerized dev stack (container's own
-    // advertised hostname) — a non-navigable host for the user's browser
-    // (Priya test hit ERR_ADDRESS_INVALID). NEXT_PUBLIC_APP_URL is the
-    // canonical product-origin fallback (docs/env-vars.md).
-    const origin =
-      process.env.NEXT_PUBLIC_APP_URL?.trim() || req.nextUrl.origin;
+    // Browser-reachable origin (Priya test hit ERR_ADDRESS_INVALID on the
+    // container's own http://0.0.0.0:3000); see productOrigin.
+    const origin = productOrigin(req);
 
     const intent: CheckoutIntent = {
       user: { id: user.id, email: user.email },

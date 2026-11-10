@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { PROVIDERS, type ProviderKey } from "@/lib/llm/providers";
+import { PROVIDERS, isRelayOnlyProvider, type ProviderKey } from "@/lib/llm/providers";
 import { useApiKeys, type ApiKeyEntry } from "@/hooks/use-api-keys";
 import { ProviderCard } from "@/components/onboarding/provider-card";
 import { useLanguage } from "@/components/providers/language-provider";
@@ -55,14 +55,23 @@ export function ApiKeysSection() {
           </div>
         ) : (
           <div className="space-y-3">
-            {PROVIDERS.map((provider) => (
-              <ProviderCard
-                key={provider.key}
-                provider={provider}
-                existingKey={findKeyForProvider(apiKeys, provider.key)}
-                compact
-              />
-            ))}
+            {PROVIDERS.map((provider) => {
+              const existingKey = findKeyForProvider(apiKeys, provider.key);
+              // D3: no relay is deployed, so OpenAI, Gemini and Grok are only
+              // shown to a writer who already saved one, to let them delete it.
+              const relayOnly = isRelayOnlyProvider(provider.key);
+              if (relayOnly && !existingKey) return null;
+              return (
+                <div key={provider.key}>
+                  <ProviderCard provider={provider} existingKey={existingKey} compact />
+                  {relayOnly && (
+                    <p className="mt-1 text-xs text-amber-700 dark:text-amber-400">
+                      {t.settings.relayKeyUnsupported}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
             <CustomProvidersSection />
           </div>
         )}

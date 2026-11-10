@@ -138,15 +138,16 @@ describe("BillingPage — Current follows the effective plan", () => {
     expect(within(card("Indie Author")).getByText("Current")).toBeTruthy();
   });
 
-  it("a lapsed Founder is not shown as Founder, and is not offered a slot checkout would refuse", () => {
+  it("a lapsed Founder is not shown as Founder, and is offered the Founder checkout again", () => {
     sub({ plan: "founder", status: "canceled", cancelAtPeriodEnd: true, planName: "Free" });
     render(<BillingPage />);
 
     const founder = card("Founder");
     expect(within(founder).queryByText("Current")).toBeNull();
     expect(within(founder).queryByRole("button", { name: /Manage Subscription/ })).toBeNull();
-    // R-044: a former Founder keeps their slot and cannot reclaim it (400).
-    expect(within(founder).queryByRole("button", { name: "Upgrade" })).toBeNull();
+    // D4 (replaces R-044): a former Founder keeps their slot and may come back
+    // at the Founder price; checkout lets a slot holder in.
+    expect(within(founder).getByRole("button", { name: "Upgrade" })).toBeTruthy();
     // Every other plan can be bought.
     expect(within(card("Indie Author")).getByRole("button", { name: "Upgrade" })).toBeTruthy();
     expect(screen.getByText(/Your Founder plan has ended/)).toBeTruthy();

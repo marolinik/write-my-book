@@ -80,6 +80,9 @@ export async function triageChapter(input: {
       bookId: input.bookId,
       chapterNumber: input.chapterNumber,
       status: "pending",
+      // Judge a finding once (P1-10): rowUpdateFor never changes the status,
+      // so without this every call re-judged, and re-paid for, the lot.
+      triagedAt: null,
     },
     select: {
       id: true,

@@ -99,8 +99,8 @@ mis-scoped instance passes CI and fails only for a paying user. Run the full
 checklists (`docs/stripe-billing-verification.md`, `docs/clerk-auth-verification.md`).
 
 **Stripe** — endpoint `POST /api/billing/webhook`; subscribe to
-`checkout.session.completed`, `customer.subscription.created|updated|deleted`,
-`invoice.payment_failed|succeeded`.
+`checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`,
+`customer.subscription.created|updated|deleted`, `invoice.paid`, `invoice.payment_failed`.
 - [ ] Create a checkout session for each purchasable plan/interval.
 - [ ] Complete checkout with test card `4242 4242 4242 4242`; confirm the webhook
       creates/updates the local subscription row.

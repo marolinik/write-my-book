@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { encryptApiKey, decryptApiKey, maskApiKey } from "@/lib/encryption";
 import { createApiKeySchema } from "@/lib/validation";
 import { validateApiKey } from "@/lib/llm/key-validator";
+import { directKeyUnsupportedMessage, directRelayBaseUrl, type RelayProvider } from "@/lib/llm/client-factory";
+import { isRelayOnlyProvider } from "@/lib/llm/providers";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { zodErrorResponse } from "@/lib/api/zod-error";
 import { aggregateUsageByProvider } from "@/lib/llm/usage-aggregation";
@@ -107,6 +109,19 @@ export async function POST(req: NextRequest) {
     }
 
     const { provider, key, label } = parsed.data;
+
+    // D3: no relay is deployed, so a direct OpenAI, Gemini or Grok key could
+    // be saved and validated but would fail on every call. Say so now.
+    if (isRelayOnlyProvider(provider) && !directRelayBaseUrl()) {
+      return NextResponse.json(
+        {
+          error: directKeyUnsupportedMessage(provider as RelayProvider),
+          code: "DIRECT_KEY_UNSUPPORTED",
+          provider,
+        },
+        { status: 400 }
+      );
+    }
 
     // Validate key against provider API -- reject if invalid
     const validation = await validateApiKey(provider, key);

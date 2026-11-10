@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -112,10 +112,28 @@ const PLAN_CARDS = [
   },
 ];
 
+const PAYMENT_POLL_MS = 30_000;
+
 export default function BillingPage() {
   const locale = useLocale();
   const { t, language } = useLanguage();
-  const { data: subscription } = useSubscription();
+  // Back from Stripe (?success=true): keep asking until the paid plan lands
+  // (P1-6), for at most 30 s, then say the payment arrived and is updating.
+  // Read once on the client; the first render is identical either way.
+  const [returnedFromCheckout] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      new URLSearchParams(window.location.search).get("success") === "true"
+  );
+  const [paymentPollExpired, setPaymentPollExpired] = useState(false);
+  useEffect(() => {
+    if (!returnedFromCheckout) return;
+    const timer = setTimeout(() => setPaymentPollExpired(true), PAYMENT_POLL_MS);
+    return () => clearTimeout(timer);
+  }, [returnedFromCheckout]);
+  const { data: subscription } = useSubscription({
+    pollUntilPaid: returnedFromCheckout && !paymentPollExpired,
+  });
   const { data: usage, isLoading: usageLoading } = useUsage();
   const { data: founderCount } = useFounderCount();
   const checkout = useCheckout();
@@ -180,6 +198,14 @@ export default function BillingPage() {
         <Card className="mb-6 border-yellow-300 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950/30">
           <CardContent className="py-4">
             <p className="text-sm text-yellow-800 dark:text-yellow-200">{t.billingUI.stripeNotConfigured}</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {returnedFromCheckout && paymentPollExpired && onFreePlan && (
+        <Card role="status">
+          <CardContent className="pt-6">
+            <p className="text-sm">{t.billingUI.paymentStillProcessing}</p>
           </CardContent>
         </Card>
       )}
@@ -301,11 +327,12 @@ export default function BillingPage() {
         {PLAN_CARDS.map((plan) => {
           const isCurrent = currentPlan === plan.key;
           const isFounder = plan.key === "founder";
-          const disabled = isFounder && founderSoldOut && !isCurrent;
-          // R-044: a lapsed Founder keeps their slot and checkout refuses a
-          // second one, so the Founder card offers them no checkout.
-          const founderSlotUsed =
+          // D4: a lapsed Founder keeps their slot and may come back at the
+          // Founder price, even after every slot is claimed.
+          const returningFounder =
             isFounder && storedPlan === "founder" && !isCurrent;
+          const disabled =
+            isFounder && founderSoldOut && !isCurrent && !returningFounder;
 
           return (
             <Card
@@ -334,7 +361,7 @@ export default function BillingPage() {
                         : ""
                     }
                   >
-                    {isFounder && founderSoldOut ? "SOLD OUT" : plan.badge}
+                    {isFounder && founderSoldOut && !returningFounder ? "SOLD OUT" : plan.badge}
                   </Badge>
                 </div>
               )}
@@ -412,7 +439,7 @@ export default function BillingPage() {
                   >
                     <ExternalLink className="h-3.5 w-3.5" />{t.billingUI.manageSubscription}</Button>
                 )}
-                {!isCurrent && stripeConfigured && !disabled && !founderSlotUsed && (
+                {!isCurrent && stripeConfigured && !disabled && (
                   <Button
                     className="w-full"
                     size="sm"
@@ -783,7 +810,7 @@ export default function BillingPage() {
                 <div className="space-y-3">
                   {usage.byBook.map(
                     (book: {
-                      bookId: string;
+                      bookId: string | null;
                       bookName: string;
                       tokensInput: number;
                       tokensOutput: number;
@@ -791,17 +818,24 @@ export default function BillingPage() {
                       sessions: number;
                     }) => (
                       <div
-                        key={book.bookId}
+                        key={book.bookId ?? "deleted-books"}
                         className="flex items-center justify-between rounded-md border p-3"
                       >
                         <div>
-                          <a
-                            href={`/books/${book.bookId}`}
-                            className="font-medium hover:underline flex items-center gap-1.5"
-                          >
-                            <BookOpen className="h-3.5 w-3.5 text-muted-foreground" />
-                            {book.bookName}
-                          </a>
+                          {book.bookId ? (
+                            <a
+                              href={`/books/${book.bookId}`}
+                              className="font-medium hover:underline flex items-center gap-1.5"
+                            >
+                              <BookOpen className="h-3.5 w-3.5 text-muted-foreground" />
+                              {book.bookName}
+                            </a>
+                          ) : (
+                            <p className="font-medium flex items-center gap-1.5">
+                              <BookOpen className="h-3.5 w-3.5 text-muted-foreground" />
+                              {book.bookName}
+                            </p>
+                          )}
                           <p className="text-sm text-muted-foreground">
                             {countWithNoun(
                               book.sessions,

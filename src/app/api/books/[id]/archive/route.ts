@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { checkPlanAccess } from "@/lib/billing/plan-gating";
 
 const archiveSchema = z.object({ archived: z.boolean() });
 
@@ -14,6 +15,24 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     const user = await requireUser();
     const { id } = await params;
     const { archived } = archiveSchema.parse(await parseJsonBody(req));
+
+    // Restoring takes an active-book slot back (Wave 2 review I2): without
+    // this, archive, create, restore gave any number of active books.
+    if (!archived) {
+      const archivedBook = await db.book.findFirst({
+        where: { id, userId: user.id, archivedAt: { not: null } },
+        select: { id: true },
+      });
+      if (archivedBook) {
+        const access = await checkPlanAccess(user.id, "restore_book");
+        if (!access.allowed) {
+          return NextResponse.json(
+            { error: access.reason, upgradeToTier: access.upgradeToTier },
+            { status: 403 }
+          );
+        }
+      }
+    }
 
     // Ownership-fenced, atomic: only the caller's book is touched.
     const result = await db.book.updateMany({

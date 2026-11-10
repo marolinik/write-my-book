@@ -9,6 +9,17 @@ export const PROVIDER_KEYS = ["anthropic", "openrouter", "openai", "gemini", "gr
 
 export const CUSTOM_PROVIDER_KEY = "custom" as const;
 
+/**
+ * Providers whose direct keys need the LiteLLM relay, which is not deployed
+ * (D3). Their models run through OpenRouter; a direct key is not offered for
+ * new saves and a saved one is marked as unusable.
+ */
+export const RELAY_ONLY_PROVIDERS: readonly ProviderKey[] = ["openai", "gemini", "grok"];
+
+export function isRelayOnlyProvider(key: string): boolean {
+  return (RELAY_ONLY_PROVIDERS as readonly string[]).includes(key);
+}
+
 export interface ProviderDefinition {
   /** Unique key identifying this provider */
   key: ProviderKey;

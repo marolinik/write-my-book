@@ -57,7 +57,7 @@ const PAID_PLANS: readonly PaidPlan[] = [
   {
     name: "Founder",
     price: "$19 per month, monthly billing only",
-    note: "Unlimited books, series and analytics. Limited to the first 200 subscribers. The $19 price stays for as long as that subscription remains active without interruption.",
+    note: "Unlimited books, series and analytics. Limited to the first 200 subscribers. The $19 price stays for as long as you hold a Founder slot, including if you subscribe again after a lapse.",
   },
   {
     name: "Indie Author",

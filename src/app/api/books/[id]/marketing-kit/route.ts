@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
+import { denyIfOverQuota } from "@/lib/billing/ai-route-gate";
 import { db } from "@/lib/db";
 import { decryptApiKey } from "@/lib/encryption";
 import { estimateCost } from "@/lib/cost";
@@ -50,6 +51,9 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
  */
 export async function POST(_req: NextRequest, { params }: RouteParams) {
   const user = await requireUser();
+  // P2-5: the same plan gate as an agent session, before any model call.
+  const denied = await denyIfOverQuota(user.id);
+  if (denied) return denied;
   const { id: bookId } = await params;
 
   const book = await db.book.findFirst({

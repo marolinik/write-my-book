@@ -55,6 +55,14 @@ describe("the copy a stranger reads first", () => {
   });
 });
 
+describe("the Founder price", () => {
+  it("Terms promise what the code does: a lapsed Founder returns at the Founder price (D4)", () => {
+    const terms = read("app", "(public)", "terms", "page.tsx");
+    expect(terms).not.toMatch(/without interruption/i);
+    expect(terms).toMatch(/subscribe again after a lapse/i);
+  });
+});
+
 describe("the in-app paywall", () => {
   it("promises no trial and no card-free start (trialDays is 0 on every plan)", () => {
     const page = read("app", "(app)", "settings", "billing", "page.tsx");

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { decryptApiKey } from "@/lib/encryption";
+import { resolveSessionKeys } from "@/lib/billing/session-keys";
 import { estimateCost } from "@/lib/cost";
 import { sendMessageSchema } from "@/lib/validation";
 import {
@@ -10,7 +10,6 @@ import {
   mapAgentTypeToRole,
   resolveRouteWithLocalFallback,
 } from "@/lib/llm";
-import type { ProviderKey } from "@/lib/llm";
 import {
   getSession,
   createSession,
@@ -113,7 +112,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     // Reset status if continuing after completion
     session.status = "running";
 
-    // ── Model Resolution (BYOK — no platform key fallbacks) ─────
+    // ── Model Resolution ─────
     const book = await db.book.findFirst({
       where: { id: bookId, userId: user.id },
       include: { settings: true },
@@ -133,25 +132,15 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       userDefault
     );
 
-    // ── API Key Resolution (all user keys, no platform fallbacks) ──
-    const userKeys = await db.apiKey.findMany({
-      where: { userId: user.id, validatedAt: { not: null } },
-      select: { provider: true, encryptedKey: true },
-    });
-    const decryptedKeys: Partial<Record<ProviderKey, string>> = {};
-    for (const k of userKeys) {
-      decryptedKeys[k.provider as ProviderKey] = decryptApiKey(k.encryptedKey);
-    }
+    // ── API Key Resolution ──
+    // The same decision as the session start (P1-11): the writer's own keys,
+    // or for a keyless Free writer the product's key under the managed caps,
+    // re-checked on every turn.
+    const { availableKeys, keySource } = await resolveSessionKeys(user.id);
 
     // Fallback-aware gate: WMB_LOCAL_FALLBACK lets a keyless model be served
     // by the local fleet, exactly as createLLMClient does below.
-    const { route } = resolveRouteWithLocalFallback(resolved.modelDef, {
-      anthropicApiKey: decryptedKeys.anthropic,
-      openrouterApiKey: decryptedKeys.openrouter,
-      openaiApiKey: decryptedKeys.openai,
-      geminiApiKey: decryptedKeys.gemini,
-      grokApiKey: decryptedKeys.grok,
-    });
+    const { route } = resolveRouteWithLocalFallback(resolved.modelDef, availableKeys);
     if (route.route === "none") {
       return NextResponse.json(
         { error: route.error },
@@ -161,11 +150,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     const { client, model } = createLLMClient({
       modelId: resolved.registryId,
-      anthropicApiKey: decryptedKeys.anthropic,
-      openrouterApiKey: decryptedKeys.openrouter,
-      openaiApiKey: decryptedKeys.openai,
-      geminiApiKey: decryptedKeys.gemini,
-      grokApiKey: decryptedKeys.grok,
+      ...availableKeys,
     });
 
     // Create orchestrator and continue conversation
@@ -305,6 +290,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
             tokensInput: result.tokensInput,
             tokensOutput: result.tokensOutput,
             costEstimate: cost,
+            keySource,
           },
         });
       },

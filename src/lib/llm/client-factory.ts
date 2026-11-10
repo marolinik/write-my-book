@@ -27,7 +27,24 @@ import { LOCAL_STAND_IN_MODEL_ID, getDefaultModelId, isLocalFallbackEnabled } fr
 // live: OpenRouter's Anthropic-compatible endpoint is `/api/v1/messages` and
 // accepts non-Claude models (qwen, deepseek, …) in Anthropic messages format.
 const OPENROUTER_BASE_URL = "https://openrouter.ai/api";
-const LITELLM_BASE_URL = process.env.LITELLM_BASE_URL || "http://localhost:30400";
+/**
+ * The LiteLLM relay that lets direct OpenAI, Gemini and Grok keys speak the
+ * Anthropic messages format. It is not deployed (D3), so it is used only when
+ * LITELLM_BASE_URL is set, and never defaults to a port on this machine (the
+ * local fleet proxy listens on 30400). Read per call so a deploy can set it.
+ */
+export function directRelayBaseUrl(): string | null {
+  return process.env.LITELLM_BASE_URL?.trim() || null;
+}
+
+const RELAY_LABEL = { openai: "OpenAI", gemini: "Gemini", grok: "Grok" } as const;
+export type RelayProvider = keyof typeof RELAY_LABEL;
+
+/** What a writer with only a direct OpenAI, Gemini or Grok key is told. */
+export function directKeyUnsupportedMessage(provider: RelayProvider): string {
+  const label = RELAY_LABEL[provider];
+  return `${label} keys can't be used directly yet. Add an OpenRouter key to use ${label} models.`;
+}
 
 /**
  * Local LAN LLM proxy (Anthropic -> OpenAI translator). The Anthropic SDK
@@ -86,6 +103,8 @@ interface RouteResolved {
 interface RouteNone {
   route: "none";
   error: string;
+  /** Set when the writer has a direct key this deploy cannot use (no relay). */
+  code?: "DIRECT_KEY_UNSUPPORTED";
 }
 
 export type ProviderRouteResult = RouteResolved | RouteNone;
@@ -217,11 +236,12 @@ function resolveRoute(
     }
 
     case "openai": {
-      if (availableKeys.openaiApiKey) {
+      const relay = directRelayBaseUrl();
+      if (availableKeys.openaiApiKey && relay) {
         return {
           route: "litellm-proxy",
           apiKey: "sk-litellm",
-          baseURL: LITELLM_BASE_URL,
+          baseURL: relay,
           headers: {
             "x-provider-key": availableKeys.openaiApiKey,
             "x-target-provider": "openai",
@@ -237,15 +257,19 @@ function resolveRoute(
           effectiveModelId: orModelId,
         };
       }
+      if (availableKeys.openaiApiKey) {
+        return { route: "none", code: "DIRECT_KEY_UNSUPPORTED", error: directKeyUnsupportedMessage("openai") };
+      }
       return { route: "none", error: "No OpenAI or OpenRouter API key configured" };
     }
 
     case "gemini": {
-      if (availableKeys.geminiApiKey) {
+      const relay = directRelayBaseUrl();
+      if (availableKeys.geminiApiKey && relay) {
         return {
           route: "litellm-proxy",
           apiKey: "sk-litellm",
-          baseURL: LITELLM_BASE_URL,
+          baseURL: relay,
           headers: {
             "x-provider-key": availableKeys.geminiApiKey,
             "x-target-provider": "gemini",
@@ -261,15 +285,19 @@ function resolveRoute(
           effectiveModelId: orModelId,
         };
       }
+      if (availableKeys.geminiApiKey) {
+        return { route: "none", code: "DIRECT_KEY_UNSUPPORTED", error: directKeyUnsupportedMessage("gemini") };
+      }
       return { route: "none", error: "No Gemini or OpenRouter API key configured" };
     }
 
     case "grok": {
-      if (availableKeys.grokApiKey) {
+      const relay = directRelayBaseUrl();
+      if (availableKeys.grokApiKey && relay) {
         return {
           route: "litellm-proxy",
           apiKey: "sk-litellm",
-          baseURL: LITELLM_BASE_URL,
+          baseURL: relay,
           headers: {
             "x-provider-key": availableKeys.grokApiKey,
             "x-target-provider": "grok",
@@ -284,6 +312,9 @@ function resolveRoute(
           baseURL: OPENROUTER_BASE_URL,
           effectiveModelId: orModelId,
         };
+      }
+      if (availableKeys.grokApiKey) {
+        return { route: "none", code: "DIRECT_KEY_UNSUPPORTED", error: directKeyUnsupportedMessage("grok") };
       }
       return { route: "none", error: "No Grok or OpenRouter API key configured" };
     }
@@ -303,19 +334,6 @@ function resolveRoute(
       return { route: "none", error: `Unknown provider: ${modelProvider}` };
     }
   }
-}
-
-/**
- * Check if a model needs the LiteLLM proxy for format translation.
- * Returns true ONLY when using direct provider keys via the proxy.
- * OpenRouter-fallback routes do NOT go through LiteLLM proxy — OpenRouter's
- * Anthropic-compatible /messages endpoint natively serves non-Claude models
- * (verified live with qwen/*), so the old detour of openrouter-provider
- * non-Claude models to a localhost LiteLLM (dead by default in dev/prod
- * unless LITELLM_BASE_URL is deployed) broke every such model.
- */
-function needsLiteLLMProxy(_model: ModelDefinition, route: ProviderRouteResult): boolean {
-  return route.route === "litellm-proxy";
 }
 
 /**
@@ -465,17 +483,6 @@ export function createLLMClient(options: LLMClientOptions): LLMClient {
     clientOptions.defaultHeaders = routeResult.headers;
   }
 
-  // For legacy non-Anthropic OpenRouter models that need LiteLLM proxy translation
-  if (needsLiteLLMProxy(model, routeResult) && routeResult.route !== "litellm-proxy") {
-    return {
-      client: new Anthropic({
-        apiKey: "sk-litellm",
-        baseURL: LITELLM_BASE_URL,
-      }),
-      model,
-      effectiveModelId: model.modelId,
-    };
-  }
 
   return {
     client: new Anthropic(clientOptions),

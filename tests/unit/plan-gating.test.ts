@@ -11,6 +11,7 @@ const h = vi.hoisted(() => ({
     trialEnd: Date | null;
   },
   bookCount: 0,
+  activeBookCount: 0,
   sessionCount: 0,
   wordSum: 0,
 }));
@@ -32,7 +33,10 @@ vi.mock("@/lib/db", () => ({
   db: {
     subscription: { findUnique: vi.fn(async () => h.subscription) },
     book: {
-      count: vi.fn(async () => h.bookCount),
+      // A count filtered on archivedAt: null sees only the active books.
+      count: vi.fn(async (args?: { where?: { archivedAt?: null } }) =>
+        args?.where && "archivedAt" in args.where ? h.activeBookCount : h.bookCount
+      ),
       aggregate: vi.fn(async () => ({ _sum: { wordCount: h.wordSum } })),
     },
     agentSession: { count: vi.fn(async () => h.sessionCount) },
@@ -50,9 +54,49 @@ beforeEach(() => {
   h.stripeConfigured = false;
   h.subscription = null;
   h.bookCount = 0;
+  h.activeBookCount = 0;
   h.sessionCount = 0;
   h.wordSum = 0;
   delete process.env.FREE_TIER_DISABLED;
+});
+
+describe("checkPlanAccess — Indie counts active books (P2-6)", () => {
+  it("refuses to restore an archived book past the active-book limit (review I2)", async () => {
+    h.stripeConfigured = true;
+    h.subscription = { userId: "u", status: "active", plan: "indie", trialEnd: null };
+    h.bookCount = 3;
+    h.activeBookCount = 2;
+    const res = await checkPlanAccess("u", "restore_book");
+    expect(res.allowed).toBe(false);
+    expect(res.upgradeToTier).toBe("professional");
+  });
+
+  it("lets a Free writer restore their book (Free counts every book, archived or not)", async () => {
+    h.stripeConfigured = true;
+    h.subscription = null;
+    h.bookCount = 1;
+    h.activeBookCount = 0;
+    const res = await checkPlanAccess("u", "restore_book");
+    expect(res.allowed).toBe(true);
+  });
+
+  it("lets an Indie writer with one archived and one active book create a second active book", async () => {
+    h.stripeConfigured = true;
+    h.subscription = { userId: "u", status: "active", plan: "indie", trialEnd: null };
+    h.bookCount = 2;
+    h.activeBookCount = 1;
+    const res = await checkPlanAccess("u", "create_book");
+    expect(res.allowed).toBe(true);
+  });
+
+  it("still stops an Indie writer at two active books", async () => {
+    h.stripeConfigured = true;
+    h.subscription = { userId: "u", status: "active", plan: "indie", trialEnd: null };
+    h.bookCount = 3;
+    h.activeBookCount = 2;
+    const res = await checkPlanAccess("u", "create_book");
+    expect(res.allowed).toBe(false);
+  });
 });
 
 describe("checkPlanAccess — self-hosted / billing-disabled (no Stripe)", () => {
@@ -265,6 +309,7 @@ describe("checkPlanAccess — PAID path (unchanged)", () => {
       trialEnd: null,
     };
     h.bookCount = 2; // at the limit
+    h.activeBookCount = 2; // both active (P2-6 counts active books)
     const res = await checkPlanAccess("u", "create_book");
     expect(res.allowed).toBe(false);
     expect(res.upgradeToTier).toBe("professional");

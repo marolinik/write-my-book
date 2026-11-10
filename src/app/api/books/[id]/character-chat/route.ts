@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
+import { denyIfOverQuota } from "@/lib/billing/ai-route-gate";
 import { db } from "@/lib/db";
 import { decryptApiKey } from "@/lib/encryption";
 import { estimateCost } from "@/lib/cost";
@@ -24,6 +25,9 @@ interface ChatMessage {
 export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
+    // P2-5: the same plan gate as an agent session, before any model call.
+    const denied = await denyIfOverQuota(user.id);
+    if (denied) return denied;
     const { id: bookId } = await params;
     const body = await parseJsonBody(req);
     const { characterId, characterName, message, history = [] } = body as {

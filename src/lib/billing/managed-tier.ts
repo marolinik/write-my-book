@@ -92,6 +92,25 @@ export interface ManagedAllowanceInput {
   spentThisMonthUsd: number;
 }
 
+/** Safety multiplier applied to the pre-session max cost estimate. */
+export const BUDGET_SAFETY_FACTOR = 2;
+/** Lower bound for the per-session budget so tight estimates don't strangle sessions. */
+export const MIN_SESSION_BUDGET_USD = 5;
+
+/** The per-session budget for a writer's own key. */
+export function sessionBudgetFor(estimateUsd: number): number {
+  return Math.max(estimateUsd * BUDGET_SAFETY_FACTOR, MIN_SESSION_BUDGET_USD);
+}
+
+/**
+ * The per-session budget on the product's key: the usual budget, but never
+ * more than what is left of the writer's allowance (P1-9), so one session
+ * cannot spend past the daily cap.
+ */
+export function clampSessionBudget(estimateUsd: number, remainingUsd: number): number {
+  return Math.min(sessionBudgetFor(estimateUsd), remainingUsd);
+}
+
 /** Whether this writer may run on the product's key right now, and what is left. */
 export function managedAllowance(input: ManagedAllowanceInput): ManagedAllowance {
   const remainingTodayUsd = Math.max(0, MANAGED_TIER.dailyCostCapUsd - input.spentTodayUsd);

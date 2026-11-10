@@ -42,11 +42,13 @@ POST https://your-domain.example/api/billing/webhook
 Subscribe at least to:
 
 - `checkout.session.completed`
+- `checkout.session.async_payment_succeeded` (SEPA and other delayed methods are granted on this event)
+- `checkout.session.async_payment_failed` (the failed debit's subscription is canceled)
 - `customer.subscription.created`
 - `customer.subscription.updated`
 - `customer.subscription.deleted`
 - `invoice.payment_failed`
-- `invoice.payment_succeeded`
+- `invoice.paid`
 
 ## Manual test-mode verification
 
@@ -59,5 +61,7 @@ Subscribe at least to:
 7. Open the customer billing portal from `/settings/billing`.
 8. Cancel a subscription in Stripe and confirm app status becomes canceled.
 9. Simulate `invoice.payment_failed` and confirm app status becomes `past_due` or access remains according to policy.
+10. With `STRIPE_AUTOMATIC_TAX=1`, complete a checkout with an EU address and confirm the invoice shows VAT inside the listed price.
+11. Refund a first payment from the Stripe dashboard (the 14-day promise in Terms section 4) and confirm the subscription is canceled.
 
 Do not launch paid production until all steps pass in staging.

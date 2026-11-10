@@ -6,23 +6,30 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 const h = vi.hoisted(() => ({
   constructEvent: vi.fn(),
   retrieve: vi.fn(),
+  cancel: vi.fn(),
   db: {
     stripeWebhookEvent: { create: vi.fn(), deleteMany: vi.fn() },
     founderSlot: { create: vi.fn() },
     subscription: {
       upsert: vi.fn(),
       update: vi.fn(),
+      updateMany: vi.fn(),
       findFirst: vi.fn(),
     },
     user: { findUnique: vi.fn() },
   },
+  loggerError: vi.fn(),
+}));
+
+vi.mock("@/lib/logger", () => ({
+  logger: { error: h.loggerError, warn: vi.fn(), info: vi.fn() },
 }));
 
 vi.mock("@/lib/db", () => ({ db: h.db }));
 vi.mock("@/lib/billing", () => ({
   stripe: {
     webhooks: { constructEvent: h.constructEvent },
-    subscriptions: { retrieve: h.retrieve },
+    subscriptions: { retrieve: h.retrieve, cancel: h.cancel },
   },
   PLANS: {
     indie: {
@@ -61,6 +68,112 @@ beforeEach(() => {
   h.retrieve.mockResolvedValue({ trial_end: null, status: "active" });
 });
 
+describe("POST /api/billing/webhook — review C1: subscription events never grant on their own", () => {
+  const subEvent = (type: string) => ({
+    id: `evt_${type}`,
+    type,
+    data: {
+      object: {
+        id: "sub_unknown",
+        status: "active",
+        customer: "cus_x",
+        cancel_at_period_end: false,
+        metadata: { userId: "u1", plan: "founder" },
+        items: { data: [{ price: { id: "price_founder_m", recurring: { interval: "month" } } }] },
+      },
+    },
+  });
+
+  it("customer.subscription.created for a subscription no row holds changes nothing", async () => {
+    h.db.subscription.findFirst.mockResolvedValue(null);
+    h.constructEvent.mockReturnValue(subEvent("customer.subscription.created"));
+    const res = await POST(req() as never);
+    expect(res.status).toBe(200);
+    expect(h.db.subscription.upsert).not.toHaveBeenCalled();
+    expect(h.db.subscription.update).not.toHaveBeenCalled();
+  });
+
+  it("customer.subscription.updated for a subscription no row holds changes nothing, whatever its metadata says", async () => {
+    h.db.subscription.findFirst.mockResolvedValue(null);
+    h.constructEvent.mockReturnValue(subEvent("customer.subscription.updated"));
+    const res = await POST(req() as never);
+    expect(res.status).toBe(200);
+    expect(h.db.subscription.upsert).not.toHaveBeenCalled();
+    expect(h.db.subscription.update).not.toHaveBeenCalled();
+  });
+});
+
+describe("POST /api/billing/webhook — review I3: a failed async payment", () => {
+  it("checkout.session.async_payment_failed cancels the subscription and clears the pending checkout", async () => {
+    h.cancel.mockResolvedValue({ id: "sub_123", status: "canceled" });
+    h.db.subscription.updateMany.mockResolvedValue({ count: 1 });
+    h.constructEvent.mockReturnValue({
+      id: "evt_async_failed",
+      type: "checkout.session.async_payment_failed",
+      data: {
+        object: {
+          id: "cs_sepa",
+          payment_status: "unpaid",
+          subscription: "sub_123",
+          customer: "cus_123",
+          metadata: { userId: "u1", plan: "indie", billingInterval: "monthly" },
+        },
+      },
+    });
+    const res = await POST(req() as never);
+    expect(res.status).toBe(200);
+    expect(h.cancel).toHaveBeenCalledWith("sub_123");
+    expect(h.db.subscription.updateMany).toHaveBeenCalledWith({
+      where: { userId: "u1", pendingCheckoutSessionId: "cs_sepa" },
+      data: { pendingCheckoutSessionId: null },
+    });
+    expect(h.db.subscription.upsert).not.toHaveBeenCalled();
+  });
+});
+
+describe("POST /api/billing/webhook — payment state (P2-7)", () => {
+  const paidLater = (type: string, payment_status: string) => ({
+    id: `evt_${type}`,
+    type,
+    data: {
+      object: {
+        payment_status,
+        subscription: "sub_123",
+        customer: "cus_123",
+        metadata: { userId: "u1", plan: "indie", billingInterval: "monthly" },
+      },
+    },
+  });
+
+  it("checkout.session.async_payment_succeeded grants the plan", async () => {
+    h.constructEvent.mockReturnValue(paidLater("checkout.session.async_payment_succeeded", "paid"));
+    const res = await POST(req() as never);
+    expect(res.status).toBe(200);
+    expect(h.db.subscription.upsert).toHaveBeenCalledTimes(1);
+    expect(h.db.subscription.upsert.mock.calls[0][0].create.plan).toBe("indie");
+  });
+
+  it("checkout.session.completed with the payment still pending grants nothing", async () => {
+    h.constructEvent.mockReturnValue(paidLater("checkout.session.completed", "unpaid"));
+    const res = await POST(req() as never);
+    expect(res.status).toBe(200);
+    expect(h.db.subscription.upsert).not.toHaveBeenCalled();
+  });
+
+  it("an invalid signature is reported to error monitoring, not just answered 400", async () => {
+    h.constructEvent.mockImplementation(() => {
+      throw new Error("No signatures found matching the expected signature");
+    });
+    const res = await POST(req("sig_bad") as never);
+    expect(res.status).toBe(400);
+    expect(h.loggerError).toHaveBeenCalledWith(
+      expect.stringContaining("signature"),
+      expect.anything(),
+      expect.anything()
+    );
+  });
+});
+
 describe("POST /api/billing/webhook", () => {
   it("checkout.session.completed upserts the subscription with the checkout plan", async () => {
     h.constructEvent.mockReturnValue({
@@ -68,6 +181,7 @@ describe("POST /api/billing/webhook", () => {
       type: "checkout.session.completed",
       data: {
         object: {
+          payment_status: "paid",
           subscription: "sub_123",
           customer: "cus_123",
           metadata: { userId: "u1", plan: "indie", billingInterval: "monthly" },
@@ -167,6 +281,7 @@ describe("POST /api/billing/webhook", () => {
       type: "checkout.session.completed",
       data: {
         object: {
+          payment_status: "paid",
           subscription: "sub_boom",
           customer: "cus_123",
           metadata: { userId: "u1", plan: "indie", billingInterval: "monthly" },

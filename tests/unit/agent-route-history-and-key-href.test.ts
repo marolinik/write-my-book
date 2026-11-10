@@ -49,7 +49,8 @@ vi.mock("@/lib/llm/price-validator", () => ({ validatePrices: async () => undefi
 vi.mock("@/lib/billing/quota-checker", () => ({
   checkQuota: (...a: unknown[]) => h.checkQuota(...a),
 }));
-vi.mock("@/lib/billing/managed-tier", () => ({
+vi.mock("@/lib/billing/managed-tier", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/billing/managed-tier")>()),
   managedKeyFor: (...a: unknown[]) => h.managedKeyFor(...a),
 }));
 vi.mock("@/lib/billing/free-tier-meters", () => ({

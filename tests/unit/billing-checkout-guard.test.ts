@@ -12,6 +12,7 @@ const h = vi.hoisted(() => ({
   sessionsExpire: vi.fn(),
   subscriptionsRetrieve: vi.fn(),
   customersCreate: vi.fn(),
+  applyCompletedCheckout: vi.fn(),
   $executeRaw: vi.fn(),
   db: {
     $executeRaw: vi.fn(),
@@ -25,6 +26,9 @@ const h = vi.hoisted(() => ({
 }));
 
 vi.mock("@/lib/auth", () => ({ requireUser: () => h.requireUser() }));
+vi.mock("@/lib/billing/apply-checkout", () => ({
+  applyCompletedCheckout: (...args: unknown[]) => h.applyCompletedCheckout(...args),
+}));
 vi.mock("@/lib/db", () => ({ db: h.db }));
 vi.mock("@/lib/billing", () => ({
   stripe: {
@@ -84,6 +88,29 @@ beforeEach(() => {
   });
   // Default: no reusable pending session (retrieve rejects → fresh create).
   h.sessionsRetrieve.mockRejectedValue(new Error("no such checkout session"));
+  h.applyCompletedCheckout.mockResolvedValue({ kind: "applied" });
+});
+
+describe("POST /api/billing/checkout — VAT-inclusive prices", () => {
+  it("the session carries Stripe Tax when STRIPE_AUTOMATIC_TAX=1", async () => {
+    process.env.STRIPE_AUTOMATIC_TAX = "1";
+    try {
+      const res = await POST(req());
+      expect(res.status).toBe(200);
+      const cfg = h.sessionsCreate.mock.calls[0][0];
+      expect(cfg.automatic_tax).toEqual({ enabled: true });
+      expect(cfg.customer_update).toEqual({ address: "auto", name: "auto" });
+      expect(cfg.tax_id_collection).toEqual({ enabled: true });
+    } finally {
+      delete process.env.STRIPE_AUTOMATIC_TAX;
+    }
+  });
+
+  it("the session has no tax settings while the flag is off", async () => {
+    delete process.env.STRIPE_AUTOMATIC_TAX;
+    await POST(req());
+    expect(h.sessionsCreate.mock.calls[0][0].automatic_tax).toBeUndefined();
+  });
 });
 
 describe("POST /api/billing/checkout — double-subscribe guard (D-06)", () => {
@@ -187,6 +214,7 @@ describe("POST /api/billing/checkout — card-free trial (A12 / D-52)", () => {
     const cfg = h.sessionsCreate.mock.calls[0][0];
     expect(cfg.payment_method_collection).toBe("if_required");
     expect(cfg.subscription_data?.trial_period_days).toBe(14);
+    expect(cfg.subscription_data?.metadata).toBeUndefined();
     expect(
       cfg.subscription_data?.trial_settings?.end_behavior?.missing_payment_method
     ).toBe("cancel");
@@ -206,7 +234,10 @@ describe("POST /api/billing/checkout — card-free trial (A12 / D-52)", () => {
     const res = await POST(req());
     expect(res.status).toBe(200);
     const cfg = h.sessionsCreate.mock.calls[0][0];
-    expect(cfg.subscription_data).toBeUndefined();
+    expect(cfg.subscription_data?.trial_period_days).toBeUndefined();
+    // Review C1: no writer id on the subscription, so customer.subscription.*
+    // events can never grant a plan by themselves.
+    expect(cfg.subscription_data?.metadata).toBeUndefined();
     expect(cfg.payment_method_collection).toBeUndefined();
   });
 });
@@ -325,6 +356,7 @@ interface FakeSession {
   status: "open" | "complete" | "expired";
   url: string | null;
   subscription?: string | null;
+  payment_status?: string;
   metadata: Record<string, string>;
 }
 
@@ -453,7 +485,7 @@ describe("POST /api/billing/checkout — only one payable session per writer", (
     expect(world.open().map((s) => s.id)).toEqual(["cs_2"]);
   });
 
-  it("a pending session the writer already paid (webhook not landed yet) → 409, no second session", async () => {
+  it("a pending session the writer already paid (webhook not landed yet) is applied, then 409, no second session", async () => {
     const world = installCheckoutWorld({ ...LAPSED_ROW, pendingCheckoutSessionId: "cs_paid" });
     world.sessions.set("cs_paid", {
       id: "cs_paid",
@@ -468,6 +500,29 @@ describe("POST /api/billing/checkout — only one payable session per writer", (
     expect(res.status).toBe(409);
     expect((await res.json()).code).toBe("already_subscribed");
     expect(h.subscriptionsRetrieve).toHaveBeenCalledWith("sub_paid");
+    expect(h.sessionsCreate).not.toHaveBeenCalled();
+    // P1-6: the paid session is recorded now instead of waiting for a webhook
+    // that may never come.
+    expect(h.applyCompletedCheckout).toHaveBeenCalledTimes(1);
+    expect(h.applyCompletedCheckout.mock.calls[0][1]).toMatchObject({ id: "cs_paid" });
+  });
+
+  it("a pending session whose async payment is still processing answers payment_processing, not already_subscribed (review I3)", async () => {
+    const world = installCheckoutWorld({ ...LAPSED_ROW, pendingCheckoutSessionId: "cs_sepa" });
+    world.sessions.set("cs_sepa", {
+      id: "cs_sepa",
+      status: "complete",
+      payment_status: "unpaid",
+      url: null,
+      subscription: "sub_sepa",
+      metadata: { plan: "indie", billingInterval: "monthly" },
+    });
+    h.subscriptionsRetrieve.mockResolvedValue({ id: "sub_sepa", status: "active" });
+    h.applyCompletedCheckout.mockResolvedValue({ kind: "unpaid" });
+
+    const res = await POST(req({ plan: "indie", billingInterval: "monthly" }));
+    expect(res.status).toBe(409);
+    expect((await res.json()).code).toBe("payment_processing");
     expect(h.sessionsCreate).not.toHaveBeenCalled();
   });
 
