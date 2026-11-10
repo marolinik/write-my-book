@@ -91,7 +91,7 @@ export default function TermsPage() {
               These terms are an agreement between you and{" "}
               <Term>Egzakta Advisory Amsterdam BV</Term>, Barbara Strozzilaan 201, 1083 HN
               Amsterdam, the Netherlands, Chamber of Commerce (KvK) number{" "}
-              <Term>[KvK number: to be completed]</Term>{" "}
+              92747175{" "}
               (&ldquo;we&rdquo;, &ldquo;us&rdquo;), which operates WriteMyBook. By creating an
               account you accept them. Our <PrivacyLink /> explains how we handle personal data.
             </p>

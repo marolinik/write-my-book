@@ -118,7 +118,7 @@ export default function PrivacyPage() {
               WriteMyBook is operated by{" "}
               <Term>Egzakta Advisory Amsterdam BV</Term>, Barbara Strozzilaan 201, 1083 HN
               Amsterdam, the Netherlands, Chamber of Commerce (KvK) number{" "}
-              <Term>[KvK number: to be completed]</Term>{" "}
+              92747175{" "}
               (&ldquo;we&rdquo;, &ldquo;us&rdquo;). We are the controller of the personal data
               described in this policy. You can reach us about anything in it at <PrivacyEmail />.
             </p>
@@ -304,7 +304,9 @@ export default function PrivacyPage() {
               reached through OpenRouter may be elsewhere. Where personal data leaves Serbia or the
               European Economic Area, we rely on an adequacy decision where one exists (including
               the EU-US Data Privacy Framework for certified companies) or on standard contractual
-              clauses. <Term>[Transfer mechanism for each provider: to be confirmed]</Term>. You
+              clauses. For each of these companies we rely on its certification under the EU-US Data
+              Privacy Framework where it holds one, and otherwise on the standard contractual
+              clauses in its data processing terms. You
               can ask us for a copy of the safeguards at <PrivacyEmail />.
             </p>
           </Section>
