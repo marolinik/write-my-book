@@ -38,8 +38,9 @@ export async function GET() {
     });
 
     // Self-heal (P1-6): a checkout that completed while the webhook was
-    // failing is applied now, so the payer is never shown Free.
-    if (stripe && sub?.pendingCheckoutSessionId && !sub.stripeSubscriptionId) {
+    // failing is applied now, so the payer is never shown Free. Whether the
+    // row needs it (no live plan) is decided inside reconcilePendingCheckout.
+    if (stripe && sub?.pendingCheckoutSessionId) {
       try {
         if (await reconcilePendingCheckout(stripe, user.id)) {
           sub = await db.subscription.findUnique({ where: { userId: user.id } });

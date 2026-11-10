@@ -3,7 +3,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 const h = vi.hoisted(() => ({
   user: { id: "u1" },
   requireUser: vi.fn(),
-  db: { book: { updateMany: vi.fn() } },
+  // findFirst null: the restore plan gate (archive-restore-plan-gate.test.ts) is not under test here.
+  db: { book: { updateMany: vi.fn(), findFirst: vi.fn(async () => null) } },
 }));
 vi.mock("@/lib/auth", () => ({ requireUser: () => h.requireUser() }));
 vi.mock("@/lib/db", () => ({ db: h.db }));

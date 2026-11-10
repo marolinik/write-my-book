@@ -61,6 +61,25 @@ beforeEach(() => {
 });
 
 describe("checkPlanAccess — Indie counts active books (P2-6)", () => {
+  it("refuses to restore an archived book past the active-book limit (review I2)", async () => {
+    h.stripeConfigured = true;
+    h.subscription = { userId: "u", status: "active", plan: "indie", trialEnd: null };
+    h.bookCount = 3;
+    h.activeBookCount = 2;
+    const res = await checkPlanAccess("u", "restore_book");
+    expect(res.allowed).toBe(false);
+    expect(res.upgradeToTier).toBe("professional");
+  });
+
+  it("lets a Free writer restore their book (Free counts every book, archived or not)", async () => {
+    h.stripeConfigured = true;
+    h.subscription = null;
+    h.bookCount = 1;
+    h.activeBookCount = 0;
+    const res = await checkPlanAccess("u", "restore_book");
+    expect(res.allowed).toBe(true);
+  });
+
   it("lets an Indie writer with one archived and one active book create a second active book", async () => {
     h.stripeConfigured = true;
     h.subscription = { userId: "u", status: "active", plan: "indie", trialEnd: null };

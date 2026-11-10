@@ -4,6 +4,7 @@ import { logger } from "@/lib/logger";
 import { claimFounderSlot } from "@/lib/billing/founder-slots";
 import { cancelStripeSubscription, subscriptionIsLive } from "@/lib/billing/stripe-cancel";
 import { subscriptionFields, type SubscriptionFields } from "@/lib/billing/stripe-status";
+import { isFreeTier } from "@/lib/billing/free-tier";
 
 // One path from a completed Stripe Checkout to the writer's row, shared by the
 // webhook (checkout.session.completed and async_payment_succeeded) and by the
@@ -222,17 +223,27 @@ export async function applyCompletedCheckout(
 
 /**
  * Self-heal for a payment whose webhook never arrived (wrong secret, disabled
- * endpoint). When the row still points at a pending checkout and holds no
- * subscription, ask Stripe whether that checkout completed and apply it.
+ * endpoint). When the row still points at a pending checkout and the writer
+ * has no live plan (never subscribed, or lapsed: Wave 2 review I1), ask
+ * Stripe whether that checkout completed and apply it. An expired checkout
+ * is forgotten, so it is not asked about on every read.
  */
 export async function reconcilePendingCheckout(
   stripeClient: Stripe,
   userId: string
 ): Promise<boolean> {
   const row = await db.subscription.findUnique({ where: { userId } });
-  if (!row?.pendingCheckoutSessionId || row.stripeSubscriptionId) return false;
+  if (!row?.pendingCheckoutSessionId || !isFreeTier(row)) return false;
 
-  const session = await stripeClient.checkout.sessions.retrieve(row.pendingCheckoutSessionId);
+  const pendingId = row.pendingCheckoutSessionId;
+  const session = await stripeClient.checkout.sessions.retrieve(pendingId);
+  if (session.status === "expired") {
+    await db.subscription.updateMany({
+      where: { userId, pendingCheckoutSessionId: pendingId },
+      data: { pendingCheckoutSessionId: null },
+    });
+    return false;
+  }
   if (session.status !== "complete") return false;
   const result = await applyCompletedCheckout(stripeClient, session);
   return result.kind === "applied";

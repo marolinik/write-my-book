@@ -88,6 +88,7 @@ beforeEach(() => {
   });
   // Default: no reusable pending session (retrieve rejects → fresh create).
   h.sessionsRetrieve.mockRejectedValue(new Error("no such checkout session"));
+  h.applyCompletedCheckout.mockResolvedValue({ kind: "applied" });
 });
 
 describe("POST /api/billing/checkout — VAT-inclusive prices", () => {
@@ -213,7 +214,7 @@ describe("POST /api/billing/checkout — card-free trial (A12 / D-52)", () => {
     const cfg = h.sessionsCreate.mock.calls[0][0];
     expect(cfg.payment_method_collection).toBe("if_required");
     expect(cfg.subscription_data?.trial_period_days).toBe(14);
-    expect(cfg.subscription_data?.metadata?.userId).toBe("u1");
+    expect(cfg.subscription_data?.metadata).toBeUndefined();
     expect(
       cfg.subscription_data?.trial_settings?.end_behavior?.missing_payment_method
     ).toBe("cancel");
@@ -234,7 +235,9 @@ describe("POST /api/billing/checkout — card-free trial (A12 / D-52)", () => {
     expect(res.status).toBe(200);
     const cfg = h.sessionsCreate.mock.calls[0][0];
     expect(cfg.subscription_data?.trial_period_days).toBeUndefined();
-    expect(cfg.subscription_data?.metadata).toEqual({ userId: "u1", plan: "indie", billingInterval: "monthly" });
+    // Review C1: no writer id on the subscription, so customer.subscription.*
+    // events can never grant a plan by themselves.
+    expect(cfg.subscription_data?.metadata).toBeUndefined();
     expect(cfg.payment_method_collection).toBeUndefined();
   });
 });
@@ -353,6 +356,7 @@ interface FakeSession {
   status: "open" | "complete" | "expired";
   url: string | null;
   subscription?: string | null;
+  payment_status?: string;
   metadata: Record<string, string>;
 }
 
@@ -501,6 +505,25 @@ describe("POST /api/billing/checkout — only one payable session per writer", (
     // that may never come.
     expect(h.applyCompletedCheckout).toHaveBeenCalledTimes(1);
     expect(h.applyCompletedCheckout.mock.calls[0][1]).toMatchObject({ id: "cs_paid" });
+  });
+
+  it("a pending session whose async payment is still processing answers payment_processing, not already_subscribed (review I3)", async () => {
+    const world = installCheckoutWorld({ ...LAPSED_ROW, pendingCheckoutSessionId: "cs_sepa" });
+    world.sessions.set("cs_sepa", {
+      id: "cs_sepa",
+      status: "complete",
+      payment_status: "unpaid",
+      url: null,
+      subscription: "sub_sepa",
+      metadata: { plan: "indie", billingInterval: "monthly" },
+    });
+    h.subscriptionsRetrieve.mockResolvedValue({ id: "sub_sepa", status: "active" });
+    h.applyCompletedCheckout.mockResolvedValue({ kind: "unpaid" });
+
+    const res = await POST(req({ plan: "indie", billingInterval: "monthly" }));
+    expect(res.status).toBe(409);
+    expect((await res.json()).code).toBe("payment_processing");
+    expect(h.sessionsCreate).not.toHaveBeenCalled();
   });
 
   it("a paid pending session whose subscription has since ended does not lock the writer out", async () => {

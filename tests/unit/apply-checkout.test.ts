@@ -9,7 +9,7 @@ import type Stripe from "stripe";
 const h = vi.hoisted(() => ({
   db: {
     user: { findUnique: vi.fn() },
-    subscription: { upsert: vi.fn(), findFirst: vi.fn(), findUnique: vi.fn() },
+    subscription: { upsert: vi.fn(), findFirst: vi.fn(), findUnique: vi.fn(), updateMany: vi.fn() },
   },
   claimFounderSlot: vi.fn(),
   cancelStripeSubscription: vi.fn(),
@@ -106,6 +106,7 @@ describe("reconcilePendingCheckout", () => {
   it("applies a paid checkout whose webhook never arrived", async () => {
     h.db.subscription.findUnique.mockResolvedValue({
       userId: "u1",
+      status: "none",
       pendingCheckoutSessionId: "cs_1",
       stripeSubscriptionId: null,
     });
@@ -123,6 +124,56 @@ describe("reconcilePendingCheckout", () => {
     const stripe = client(stripeSub("active"), session());
     expect(await reconcilePendingCheckout(stripe, "u1")).toBe(false);
     expect(stripe.checkout.sessions.retrieve).not.toHaveBeenCalled();
+  });
+
+  it("applies it for a writer who had a subscription before (review I1: lapsed Founder, ended trial)", async () => {
+    h.db.subscription.findUnique.mockResolvedValue({
+      userId: "u1",
+      plan: "founder",
+      status: "canceled",
+      trialEnd: null,
+      pendingCheckoutSessionId: "cs_1",
+      stripeSubscriptionId: "sub_old",
+    });
+    h.db.subscription.findFirst.mockResolvedValue({ stripeSubscriptionId: "sub_old" });
+    h.subscriptionIsLive.mockResolvedValue(false);
+    const applied = await reconcilePendingCheckout(client(stripeSub("active"), session()), "u1");
+    expect(applied).toBe(true);
+    expect(h.db.subscription.upsert.mock.calls[0][0].update.stripeSubscriptionId).toBe("sub_1");
+  });
+
+  it("leaves a live subscription alone even with a pending checkout", async () => {
+    h.db.subscription.findUnique.mockResolvedValue({
+      userId: "u1",
+      plan: "indie",
+      status: "active",
+      trialEnd: null,
+      pendingCheckoutSessionId: "cs_1",
+      stripeSubscriptionId: "sub_live",
+    });
+    const stripe = client(stripeSub("active"), session());
+    expect(await reconcilePendingCheckout(stripe, "u1")).toBe(false);
+    expect(stripe.checkout.sessions.retrieve).not.toHaveBeenCalled();
+  });
+
+  it("forgets an expired checkout so it is not asked about again (review M1)", async () => {
+    h.db.subscription.findUnique.mockResolvedValue({
+      userId: "u1",
+      plan: "none",
+      status: "none",
+      trialEnd: null,
+      pendingCheckoutSessionId: "cs_1",
+      stripeSubscriptionId: null,
+    });
+    const applied = await reconcilePendingCheckout(
+      client(stripeSub("active"), session({ status: "expired", payment_status: "unpaid", subscription: null })),
+      "u1"
+    );
+    expect(applied).toBe(false);
+    expect(h.db.subscription.updateMany).toHaveBeenCalledWith({
+      where: { userId: "u1", pendingCheckoutSessionId: "cs_1" },
+      data: { pendingCheckoutSessionId: null },
+    });
   });
 
   it("does nothing while the checkout is still open", async () => {

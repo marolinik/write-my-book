@@ -55,6 +55,15 @@ describe("GET /api/billing/subscription — pending checkout self-heal", () => {
     expect((await res.json()).plan).toBe("indie");
   });
 
+  it("also heals a writer who had a subscription before (review I1)", async () => {
+    const lapsed = { ...PENDING, plan: "founder", status: "canceled", stripeSubscriptionId: "sub_old" };
+    h.findUnique.mockResolvedValueOnce(lapsed).mockResolvedValueOnce({ ...APPLIED, plan: "founder" });
+    h.reconcile.mockResolvedValue(true);
+    const res = await GET();
+    expect(h.reconcile).toHaveBeenCalledWith(h.stripe, "u1");
+    expect((await res.json()).plan).toBe("founder");
+  });
+
   it("does not call Stripe for a row the webhook already recorded", async () => {
     h.findUnique.mockResolvedValue(APPLIED);
     await GET();

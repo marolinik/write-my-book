@@ -43,6 +43,7 @@ Subscribe at least to:
 
 - `checkout.session.completed`
 - `checkout.session.async_payment_succeeded` (SEPA and other delayed methods are granted on this event)
+- `checkout.session.async_payment_failed` (the failed debit's subscription is canceled)
 - `customer.subscription.created`
 - `customer.subscription.updated`
 - `customer.subscription.deleted`

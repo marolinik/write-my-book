@@ -182,6 +182,29 @@ export async function POST(req: NextRequest) {
   try {
     switch (event.type) {
     // ─── 1. Checkout completed ───────────────────────────────────
+    case "checkout.session.async_payment_failed": {
+      // Wave 2 review I3: a SEPA or bank debit that failed leaves its
+      // subscription active and billing again next period. It was never
+      // granted (the session was unpaid); stop it and forget the checkout so
+      // the writer can try again.
+      const session = event.data.object as Stripe.Checkout.Session;
+      const subscriptionId = idOf(session.subscription);
+      const userId = session.metadata?.userId;
+      logger.warn("[billing-webhook] async payment failed; canceling its subscription", {
+        userId,
+        subscriptionId,
+        checkoutSessionId: session.id,
+      });
+      if (subscriptionId) await cancelStripeSubscription(stripe, subscriptionId);
+      if (userId) {
+        await db.subscription.updateMany({
+          where: { userId, pendingCheckoutSessionId: session.id },
+          data: { pendingCheckoutSessionId: null },
+        });
+      }
+      break;
+    }
+
     case "checkout.session.completed":
     case "checkout.session.async_payment_succeeded": {
       // A card checkout completes paid; an async method (SEPA, bank debit)
@@ -191,66 +214,20 @@ export async function POST(req: NextRequest) {
     }
 
     // ─── 2. Subscription created (backup handler) ────────────────
-    case "customer.subscription.created": {
-      const subscription = event.data.object as Stripe.Subscription;
-      const userId = subscription.metadata?.userId;
-      if (!userId) break;
-
-      const item = subscription.items?.data?.[0];
-      const priceId = item?.price?.id;
-      const plan = priceId ? planFromPriceId(priceId) : (subscription.metadata?.plan ?? null);
-      if (!plan) break;
-
-      const status = mapStripeStatus(subscription.status);
-      const billingInterval = extractBillingInterval(subscription);
-      const periodStart = item?.current_period_start;
-      const periodEnd = item?.current_period_end;
-
-      await db.subscription.upsert({
-        where: { userId },
-        update: {
-          stripeSubscriptionId: subscription.id,
-          stripeCustomerId: typeof subscription.customer === "string"
-            ? subscription.customer
-            : subscription.customer.id,
-          plan,
-          status,
-          billingInterval,
-          ...(subscription.trial_end ? { trialEnd: new Date(subscription.trial_end * 1000) } : {}),
-          ...(periodStart ? { currentPeriodStart: new Date(periodStart * 1000) } : {}),
-          ...(periodEnd ? { currentPeriodEnd: new Date(periodEnd * 1000) } : {}),
-          cancelAtPeriodEnd: subscription.cancel_at_period_end,
-        },
-        create: {
-          userId,
-          stripeSubscriptionId: subscription.id,
-          stripeCustomerId: typeof subscription.customer === "string"
-            ? subscription.customer
-            : subscription.customer.id,
-          plan,
-          status,
-          billingInterval,
-          ...(subscription.trial_end ? { trialEnd: new Date(subscription.trial_end * 1000) } : {}),
-          ...(periodStart ? { currentPeriodStart: new Date(periodStart * 1000) } : {}),
-          ...(periodEnd ? { currentPeriodEnd: new Date(periodEnd * 1000) } : {}),
-          cancelAtPeriodEnd: subscription.cancel_at_period_end,
-        },
-      });
-      break;
-    }
-
     // ─── 3. Subscription updated ─────────────────────────────────
+    case "customer.subscription.created":
     case "customer.subscription.updated": {
       const subscription = event.data.object as Stripe.Subscription;
 
-      // Try to find existing record by stripeSubscriptionId
+      // Only the row that already records this subscription is updated
+      // (Wave 2 review C1). A subscription no row holds is granted only
+      // through applyCompletedCheckout, which checks the payment, the Founder
+      // cap and duplicates; a subscription event never grants on its own.
       const existingSub = await db.subscription.findFirst({
         where: { stripeSubscriptionId: subscription.id },
       });
-
-      // Determine userId from existing record or metadata
-      const userId = existingSub?.userId ?? subscription.metadata?.userId;
-      if (!userId) break;
+      if (!existingSub) break;
+      const userId = existingSub.userId;
 
       const item = subscription.items?.data?.[0];
       const priceId = item?.price?.id;

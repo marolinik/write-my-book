@@ -13,6 +13,7 @@ import {
 
 export type PlanAction =
   | "create_book"
+  | "restore_book"
   | "create_series"
   | "run_agent"
   | "run_batch"
@@ -79,7 +80,10 @@ export async function checkPlanAccess(
   }
 
   switch (action) {
-    case "create_book": {
+    // Restoring an archived book makes it active again, so it takes a slot
+    // exactly like a new one (Wave 2 review I2).
+    case "create_book":
+    case "restore_book": {
       // P2-6: a paid plan's limit is on ACTIVE books ("2 active books"), so
       // an archived book frees its slot. Free counts every row (below).
       const bookCount = await db.book.count({ where: { userId, archivedAt: null } });
@@ -131,6 +135,10 @@ async function evaluateFreeTierAccess(
   action: PlanAction
 ): Promise<PlanAccessResult> {
   switch (action) {
+    case "restore_book":
+      // Free counts every book, archived or not, so restoring never exceeds it.
+      return { allowed: true };
+
     case "create_book": {
       // Count ALL rows incl. archived — archive-cycling mints no slot.
       const bookCount = await db.book.count({ where: { userId } });

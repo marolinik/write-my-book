@@ -59,6 +59,17 @@ function alreadySubscribed(): NextResponse {
   );
 }
 
+function paymentProcessing(): NextResponse {
+  return NextResponse.json(
+    {
+      error:
+        "Your payment is still being processed. Your plan starts as soon as it clears, so there is no need to pay again.",
+      code: "payment_processing",
+    },
+    { status: 409 }
+  );
+}
+
 type PendingSession =
   | { kind: "reuse"; url: string }
   | { kind: "paid"; session: Stripe.Checkout.Session }
@@ -177,10 +188,11 @@ function sessionConfigFor(
     line_items: [{ price: priceId, quantity: 1 }],
     success_url: `${origin}/settings/billing?success=true`,
     cancel_url: `${origin}/settings/billing?canceled=true`,
+    // Only the session carries the writer. A subscription with a writer id
+    // would let customer.subscription.* events grant a plan without the
+    // payment, Founder-cap and duplicate checks (Wave 2 review C1); a lost
+    // checkout.session.completed is healed by reconcilePendingCheckout.
     metadata: { userId: user.id, plan, billingInterval },
-    // The subscription carries the writer too, so customer.subscription.created
-    // can find them even when checkout.session.completed is lost (P2-7).
-    subscription_data: { metadata: { userId: user.id, plan, billingInterval } },
     ...checkoutTaxParams(),
   };
 
@@ -196,7 +208,6 @@ function sessionConfigFor(
       ...config,
       payment_method_collection: "if_required",
       subscription_data: {
-        ...config.subscription_data,
         trial_period_days: intent.trialDays,
         trial_settings: {
           end_behavior: {
@@ -235,8 +246,10 @@ async function checkoutUnderLock(
     if (pending.kind === "reuse") return NextResponse.json({ url: pending.url });
     if (pending.kind === "paid") {
       // P1-6: record the purchase now instead of waiting for a webhook that
-      // may never come, so the 409 below is true on the next read too.
-      await applyCompletedCheckout(stripeClient, pending.session);
+      // may never come, so the 409 below is true on the next read too. An
+      // async payment (SEPA) still clearing is not a subscription yet.
+      const applied = await applyCompletedCheckout(stripeClient, pending.session);
+      if (applied.kind === "unpaid") return paymentProcessing();
       return alreadySubscribed();
     }
   }
