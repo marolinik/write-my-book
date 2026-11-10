@@ -2,11 +2,16 @@
 
 Everything in code is merged on `main`. What remains has to run **on the production host**, because this machine holds no production credentials. Run the steps in order.
 
+## 0. Legal text and Clerk settings (blocks every deploy)
+
+- `npm run legal:check` must exit 0. It lists each Privacy or Terms placeholder with file:line; the owner and counsel fill them.
+- Clerk dashboard: allow users to delete their own accounts. Record the date it was enabled here.
+
 ## 1. Back up first
 
 Follow `docs/database-deploy-backup.md`: take a fresh dump and record it in `DB_BACKUP_CONFIRMED_AT` / `DB_BACKUP_LOCATION`. The schema push refuses to run without them.
 
-## 2. Pull the MinIO images from quay.io
+## 2. Pull the MinIO images (GHCR, pinned by digest)
 
 MinIO's images **are no longer on Docker Hub**. `minio/minio` and `minio/mc` do not resolve, so a fresh host cannot start storage from the old compose. They later vanished from quay.io too. Both compose files now pin `ghcr.io/marolinik/wmb-minio` and `wmb-mc` by digest.
 
