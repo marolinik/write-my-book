@@ -17,6 +17,7 @@ import {
 import { indexBatch } from "@/lib/vector";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { zodErrorResponse } from "@/lib/api/zod-error";
+import { countWords } from "@/lib/utils";
 
 const ALLOWED_EXTENSIONS = [".md", ".txt", ".docx"];
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
@@ -128,12 +129,7 @@ async function handleStructuredImport(
   for (const ch of data.chapters) {
     if (ch.action === "skip") continue;
 
-    const wordCount = ch.content
-      .replace(/```[\s\S]*?```/g, "")
-      .replace(/[#*_~`>|-]/g, "")
-      .trim()
-      .split(/\s+/)
-      .filter(Boolean).length;
+    const wordCount = countWords(ch.content);
 
     if (ch.action === "create") {
       await db.chapter.upsert({

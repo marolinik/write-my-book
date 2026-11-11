@@ -8,6 +8,7 @@ import { onDocumentChanged } from "@/lib/vector/memory-manager";
 import { deleteDocumentChunks } from "@/lib/vector";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { zodErrorResponse } from "@/lib/api/zod-error";
+import { countWords } from "@/lib/utils";
 
 type RouteParams = { params: Promise<{ id: string; docId: string }> };
 
@@ -130,12 +131,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
 
     // Update Chapter.wordCount when CHAPTER_CONTENT is updated via API
     if (doc.type === "CHAPTER_CONTENT" && doc.chapterNumber && data.content) {
-      const wordCount = data.content
-        .replace(/```[\s\S]*?```/g, "")
-        .replace(/[#*_~`>|-]/g, "")
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean).length;
+      const wordCount = countWords(data.content);
       await db.chapter.updateMany({
         where: { bookId, chapterNumber: doc.chapterNumber },
         data: { wordCount },

@@ -11,6 +11,7 @@ import { withSession } from "./neo4j-client";
 import type { ExtractionResult } from "./types";
 import type { LLMClientOptions } from "@/lib/llm";
 import type { ChapterExtractionFacts } from "@/lib/continuity/extraction-status";
+import { countMixedWords } from "@/lib/text/cjk";
 
 /**
  * Minimum word count for content to be considered "substantive" (D-31).
@@ -113,10 +114,9 @@ export interface UpdateFromChapterResult {
   lowYield?: boolean;
 }
 
-/** Whitespace-delimited word count; 0 for blank text. */
+/** Word count, Han/kana per character (P2-47); 0 for blank text. */
 function countWords(text: string): number {
-  const trimmed = text.trim();
-  return trimmed.length === 0 ? 0 : trimmed.split(/\s+/).length;
+  return countMixedWords(text);
 }
 
 /**

@@ -55,6 +55,7 @@ import { executeBookMap, executeRateHooks } from "@/lib/structure/book-map-tool"
 import { isRestructureWorkflow } from "./workflows";
 import { addedEditorialNote } from "@/lib/editorial/finding-applicability";
 import { splitParagraphs } from "@/lib/text/paragraphs";
+import { countWords } from "@/lib/utils";
 import {
   verifyCrossReferences,
   formatCrossReferences,
@@ -1573,12 +1574,7 @@ async function executeWriteChapter(
   }
 
   // Update word count on the chapter record
-  const wordCount = input.markdown
-    .replace(/```[\s\S]*?```/g, "")
-    .replace(/[#*_~`>|-]/g, "")
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean).length;
+  const wordCount = countWords(input.markdown);
 
   await db.chapter.update({
     where: { id: chapter.id },

@@ -21,6 +21,7 @@ import { getExportFormatConfig } from "./language-config";
 import { assembleFrontMatter, assembleSeriesFrontMatter } from "./front-matter";
 import { assembleBackMatter } from "./back-matter";
 import { actHeading, chapterHeading, getExportStrings } from "./export-strings";
+import { countMixedWords } from "@/lib/text/cjk";
 
 const execAsync = promisify(exec);
 // D-18: pandoc/typst are invoked via execFile (argv array, NO shell) so that
@@ -856,11 +857,9 @@ export async function exportManuscript(
       .join("\n\n") + backCoverPage;
 
   // Calculate stats
-  const wordCount = combinedMd
-    .replace(/^---\n[\s\S]*?\n---\n/, "")
-    .replace(/[#*_\-\[\](){}:>|`~]/g, "")
-    .split(/\s+/)
-    .filter(Boolean).length;
+  const wordCount = countMixedWords(
+    combinedMd.replace(/^---\n[\s\S]*?\n---\n/, "").replace(/[#*_\-\[\](){}:>|`~]/g, "")
+  );
   // Approximate RENDERED-page estimate, not submission-manuscript pages
   // (front-matter offset + observed body density; see estimateRenderedPages).
   const estimatedPages = estimateRenderedPages(wordCount);

@@ -7,6 +7,7 @@ import { DocumentService } from "@/lib/documents";
 import type { DocumentType } from "@/generated/prisma/enums";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { zodErrorResponse } from "@/lib/api/zod-error";
+import { countWords } from "@/lib/utils";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -68,12 +69,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     // Update Chapter.wordCount when CHAPTER_CONTENT is created via API
     if (data.type === "CHAPTER_CONTENT" && data.chapterNumber && data.content) {
-      const wordCount = data.content
-        .replace(/```[\s\S]*?```/g, "")
-        .replace(/[#*_~`>|-]/g, "")
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean).length;
+      const wordCount = countWords(data.content);
       await db.chapter.updateMany({
         where: { bookId, chapterNumber: data.chapterNumber },
         data: { wordCount },

@@ -15,6 +15,8 @@
  * confirm by looking.
  */
 
+import { countMixedWords } from "@/lib/text/cjk";
+
 /**
  * Top-level (`# `) headings. A document has exactly one; more than one means
  * something was pasted in whole rather than composed.
@@ -87,7 +89,7 @@ function looksWrongLanguage(text: string, expected: string): boolean {
   const expectedRe = LANGUAGE_MARKERS[expected];
   if (!expectedRe) return false;
 
-  const words = text.trim().split(/\s+/).length;
+  const words = countMixedWords(text);
   if (words < MIN_WORDS_FOR_LANGUAGE) return false;
 
   const expectedHits = count(text, expectedRe);

@@ -1,5 +1,6 @@
 import type { ParsedChapter } from "./types";
 import { normalizeLineEndings } from "@/lib/text/paragraphs";
+import { countMixedWords } from "@/lib/text/cjk";
 
 /**
  * Detect chapter boundaries in manuscript content and return parsed chapters.
@@ -54,7 +55,7 @@ export function parseManuscriptChapters(content: string): ParsedChapter[] {
   }
 
   // --- Fallback: entire file = chapter 1 ---
-  const wordCount = content.split(/\s+/).filter(Boolean).length;
+  const wordCount = countMixedWords(content);
   return [
     {
       number: 1,
@@ -193,7 +194,7 @@ function hasReadableText(text: string): boolean {
 }
 
 function countWords(text: string): number {
-  return text.split(/\s+/).filter(Boolean).length;
+  return countMixedWords(text);
 }
 
 /**

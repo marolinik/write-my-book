@@ -61,3 +61,40 @@ describe("truncateForEmbedding", () => {
     expect(truncateForEmbedding(en)).toBe(en);
   });
 });
+
+// Review I-2 (Wave 4): the import paths and the private helpers still split on
+// whitespace, so an imported Chinese chapter was stored with a tiny wordCount
+// and the Free AI gate (which sums Book.wordCount) never tripped.
+describe("every word counter follows countWords", () => {
+  it("an imported Chinese manuscript stores its character count", async () => {
+    const { parseManuscriptChapters } = await import("@/lib/import-export/chapter-parser");
+    const zh = ZH_SENTENCE.repeat(100);
+    const one = parseManuscriptChapters(zh);
+    expect(one[0].wordCount).toBe(14 * 100);
+    const two = parseManuscriptChapters(`# 第一章\n\n${zh}\n\n# 第二章\n\n${zh}`);
+    // Each chapter keeps its heading line ("# 第一章": the mark plus three characters), as English chapters always did.
+    expect(two.map((c) => c.wordCount)).toEqual([1404, 1404]);
+  });
+
+  it("no module keeps a private whitespace counter", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const root = join(__dirname, "..", "..");
+    const files = [
+      "src/app/api/books/[id]/import/route.ts",
+      "src/lib/import-export/chapter-parser.ts",
+      "src/lib/series/chapter-metrics.ts",
+      "src/lib/structure/chapter-edges.ts",
+      "src/lib/graph/graph-maintenance.ts",
+      "src/lib/documents/damage-scan.ts",
+      "src/app/api/books/[id]/documents/route.ts",
+      "src/app/api/books/[id]/documents/[docId]/route.ts",
+      "src/lib/agents/tools.ts",
+      "src/lib/import-export/export-pipeline.ts",
+    ];
+    const offenders = files.filter((f) =>
+      readFileSync(join(root, f), "utf-8").includes(".split(/\\s+/)")
+    );
+    expect(offenders).toEqual([]);
+  });
+});
