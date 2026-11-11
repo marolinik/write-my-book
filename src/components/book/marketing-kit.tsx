@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchJson } from "@/lib/api-client";
+import { sanitizeStoreHtml, storeHtmlToText } from "@/lib/marketing/marketing-kit";
 import { toast } from "sonner";
 import { useLocale } from "@/components/providers/language-provider";
 
@@ -219,11 +220,13 @@ export function MarketingKit({ bookId, bookTitle }: MarketingKitProps) {
           <TabsContent value="store" className="space-y-2">
             <div className="flex items-start justify-between">
               <p className="text-xs font-medium">{t.bookUI.storeDescriptionHtml}</p>
-              <CopyButton text={data.storeDescription} />
+              <CopyButton text={sanitizeStoreHtml(data.storeDescription)} />
             </div>
-            <div className="text-sm leading-relaxed bg-muted/30 rounded-md p-3 prose prose-sm max-w-none"
-              dangerouslySetInnerHTML={{ __html: data.storeDescription }}
-            />
+            {/* P1-22: model output is shown as text; the copy keeps the store's
+                allowlisted HTML for pasting into KDP and similar. */}
+            <div className="text-sm leading-relaxed whitespace-pre-line bg-muted/30 rounded-md p-3">
+              {storeHtmlToText(data.storeDescription)}
+            </div>
           </TabsContent>
 
           <TabsContent value="social" className="space-y-3">
