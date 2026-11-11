@@ -30,7 +30,6 @@ import { Badge } from "@/components/ui/badge";
 import { useAgentSessionStore } from "@/stores/agent-session-store";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
 import { useApiKeys } from "@/hooks/use-api-keys";
-import { useBook } from "@/hooks/use-books";
 import { useBookState } from "@/hooks/use-book-state";
 import {
   useStartSession,
@@ -124,11 +123,11 @@ export function AgentPanel({
     defaultModelData?.localFleet === true;
 
   const router = useRouter();
-  const { t: uiT } = useLanguage();
+  // P2-57: the panel is chrome, so it speaks the interface language, as the
+  // SessionProgressList inside it does; the book language stays with the prose.
+  const { t: uiT, language: uiLanguage } = useLanguage();
   const locale = useLocale();
-  const { data: book } = useBook(bookId);
-  const bookLanguage = book?.language ?? "en";
-  const strings = getAgentStrings(bookLanguage);
+  const strings = getAgentStrings(uiLanguage);
   const bookState = useBookState(bookId);
 
   // Derive sets for WorkflowSelector props
@@ -374,12 +373,12 @@ export function AgentPanel({
         const tool = msg.metadata?.tool as string | undefined;
         if (tool) {
           const input = parseToolInput(msg);
-          return getToolLabel(tool, input, bookLanguage);
+          return getToolLabel(tool, input, uiLanguage);
         }
       }
     }
     return null;
-  }, [isRunning, messages, bookLanguage]);
+  }, [isRunning, messages, uiLanguage]);
 
   // Count tool_use turns for the turn counter
   const turnCount = useMemo(() => {
@@ -751,7 +750,7 @@ export function AgentPanel({
           <MessageStream
             messages={messages}
             isRunning={isRunning}
-            language={bookLanguage}
+            language={uiLanguage}
             onApprove={handleApprove}
             startedAt={activeSession?.startedAt}
             estimatedMaxMinutes={activeSession?.estimatedMaxMinutes}
@@ -823,7 +822,7 @@ export function AgentPanel({
                     {resultMeta.statusAdvanced && resultMeta.newStatus && (
                       <span className="flex items-center gap-1">
                         <TrendingUpIcon className="size-3" />
-                        {strings.statusAdvanced}: {getStatusLabel(resultMeta.newStatus, bookLanguage)}
+                        {strings.statusAdvanced}: {getStatusLabel(resultMeta.newStatus, uiLanguage)}
                       </span>
                     )}
                     {resultMeta.betaGateResult && (
