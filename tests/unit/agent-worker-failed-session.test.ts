@@ -1,3 +1,4 @@
+import { decodeLiveEvent } from "@/lib/queue/session-stream";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { Job } from "bullmq";
 import type { AgentJobData } from "@/lib/queue/agent-queue";
@@ -178,8 +179,9 @@ function statusKeyWrites(): string[] {
 
 /** All SSE message types published to the session channel/list. */
 function publishedTypes(): string[] {
+  // P2-15: the channel carries { i: listIndex, d: message }.
   return h.redis.publish.mock.calls.map(
-    (c) => (JSON.parse(String(c[1])) as { type: string }).type
+    (c) => (JSON.parse(decodeLiveEvent(String(c[1])).data) as { type: string }).type
   );
 }
 
@@ -191,6 +193,7 @@ beforeEach(() => {
   h.redis.incrbyfloat.mockResolvedValue("0.5");
   h.redis.expire.mockResolvedValue(1);
   h.redis.publish.mockResolvedValue(1);
+  h.redis.rpush.mockResolvedValue(1);
   h.redis.rpush.mockResolvedValue(1);
   h.redis.del.mockResolvedValue(1);
   h.db.agentSession.update.mockResolvedValue({});
@@ -302,7 +305,7 @@ describe("processAgentJob — failed session honesty (D-36)", () => {
     const complete = h.redis.publish.mock.calls
       .map(
         (c) =>
-          JSON.parse(String(c[1])) as {
+          JSON.parse(decodeLiveEvent(String(c[1])).data) as {
             type: string;
             metadata?: { documentIds?: string[] };
           }

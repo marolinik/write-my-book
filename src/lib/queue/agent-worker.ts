@@ -42,6 +42,7 @@ import type {
 } from "@/lib/agents/types";
 import { db } from "@/lib/db";
 import { resolveSessionKeys } from "@/lib/billing/session-keys";
+import { appendSessionEvent } from "@/lib/queue/session-stream";
 import { estimateWorkflowCost } from "@/lib/llm/cost-estimator";
 import { passUsageType } from "@/lib/llm/cost-calibration";
 import {
@@ -305,13 +306,8 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
      * Late-connecting clients read from the list to catch up.
      */
     async function publishMessage(msg: AgentStreamMessage): Promise<void> {
-      const serialized = JSON.stringify(msg);
-      await publisher.publish(`session:${sessionId}`, serialized);
-      await publisher.rpush(`session:${sessionId}:messages`, serialized);
-      await publisher.expire(
-        `session:${sessionId}:messages`,
-        REDIS_TTL_SECONDS
-      );
+      // rpush, then publish with the list index (P2-15).
+      await appendSessionEvent(publisher, sessionId, JSON.stringify(msg), REDIS_TTL_SECONDS);
     }
 
     // ── Re-resolve API Keys ─────────────────────────────────────────
@@ -1059,10 +1055,7 @@ export async function waitForApproval(
       approvalDeadline: Date.now() + APPROVAL_TIMEOUT_MS,
     },
   };
-  const serialized = JSON.stringify(approvalMsg);
-  await publisher.publish(`session:${sessionId}`, serialized);
-  await publisher.rpush(`session:${sessionId}:messages`, serialized);
-  await publisher.expire(`session:${sessionId}:messages`, REDIS_TTL_SECONDS);
+  await appendSessionEvent(publisher, sessionId, JSON.stringify(approvalMsg), REDIS_TTL_SECONDS);
 
   // Poll for resolution
   const deadline = Date.now() + APPROVAL_TIMEOUT_MS;

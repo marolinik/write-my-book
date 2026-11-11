@@ -3,6 +3,8 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getSession, addListener } from "@/lib/agents";
 import { createRedisConnection } from "@/lib/queue";
+import { getAppConnection } from "@/lib/queue/connection";
+import { decodeLiveEvent } from "@/lib/queue/session-stream";
 import {
   isJobStuckWithoutWorker,
   WORKER_ABSENT_MESSAGE,
@@ -78,57 +80,98 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
       const stream = new ReadableStream({
         async start(controller) {
           try {
-            // Check session status in Redis
-            const sessionStatus = await subscriber.get(
-              `session:${sessionId}:status`
-            );
+            // P2-15: subscribe FIRST, buffer live events while the list is
+            // replayed, then drop live copies of what was replayed (by list
+            // index). Replay-then-subscribe lost anything published between
+            // the two, including a final "complete" (a spinner forever).
+            let nextIndex = replayOffset;
+            let finished = false;
+            let replaying = true;
+            const pendingLive: string[] = [];
+            let keepaliveInterval: ReturnType<typeof setInterval> | undefined;
+            let workerWatchdog: ReturnType<typeof setTimeout> | undefined;
 
-            // Replay buffered messages from Redis list
-            const buffered = await subscriber.lrange(
-              `session:${sessionId}:messages`,
-              0,
-              -1
-            );
-            let idx = 0;
-            for (let i = 0; i < buffered.length; i++) {
-              if (i < replayOffset) {
-                idx++;
-                continue;
+            const finish = () => {
+              if (finished) return;
+              finished = true;
+              if (keepaliveInterval) clearInterval(keepaliveInterval);
+              if (workerWatchdog) {
+                clearTimeout(workerWatchdog);
+                workerWatchdog = undefined;
               }
-              try {
-                controller.enqueue(
-                  encoder.encode(`id: ${i}\ndata: ${buffered[i]}\n\n`)
-                );
-              } catch {
-                // Stream closed by client during replay
-                subscriber.disconnect();
-                return;
-              }
-              idx = i + 1;
-            }
-
-            // If session already completed/failed, close the stream
-            if (
-              sessionStatus === "completed" ||
-              sessionStatus === "failed"
-            ) {
+              subscriber
+                .unsubscribe()
+                .then(() => subscriber.disconnect())
+                .catch(() => {});
               try {
                 controller.close();
               } catch {
                 // Already closed
               }
-              subscriber.disconnect();
+            };
+
+            const deliver = (index: number | null, data: string) => {
+              if (finished) return;
+              let id: number;
+              if (index === null) {
+                id = nextIndex++;
+              } else {
+                if (index < nextIndex) return; // already replayed
+                id = index;
+                nextIndex = index + 1;
+              }
+              try {
+                controller.enqueue(encoder.encode(`id: ${id}\ndata: ${data}\n\n`));
+              } catch {
+                finish(); // stream closed by the client
+                return;
+              }
+              // Any event means the worker is consuming — stand down.
+              if (workerWatchdog) {
+                clearTimeout(workerWatchdog);
+                workerWatchdog = undefined;
+              }
+              try {
+                const parsed = JSON.parse(data) as { type?: string };
+                if (parsed.type === "complete" || parsed.type === "error") finish();
+              } catch {
+                // not JSON: not terminal
+              }
+            };
+
+            subscriber.on("message", (_channel: string, raw: string) => {
+              if (replaying) {
+                pendingLive.push(raw);
+                return;
+              }
+              const live = decodeLiveEvent(raw);
+              deliver(live.index, live.data);
+            });
+            await subscriber.subscribe(`session:${sessionId}`);
+
+            const reader = getAppConnection();
+            const buffered = await reader.lrange(`session:${sessionId}:messages`, 0, -1);
+            for (let i = replayOffset; i < buffered.length; i++) deliver(i, buffered[i]);
+            replaying = false;
+            for (const raw of pendingLive.splice(0)) {
+              const live = decodeLiveEvent(raw);
+              deliver(live.index, live.data);
+            }
+            if (finished) return;
+
+            // Re-read the status after subscribing: a session that ended
+            // before we subscribed has nothing more to send.
+            const sessionStatus = await reader.get(`session:${sessionId}:status`);
+            if (sessionStatus === "completed" || sessionStatus === "failed") {
+              finish();
               return;
             }
-
-            // Session is still running — subscribe for live events
-            await subscriber.subscribe(`session:${sessionId}`);
 
             // Worker-liveness watchdog: if the job is never picked up because no
             // worker is consuming the queue, surface an error instead of leaving
             // the client on a silent infinite spinner. Fires once after a short
             // grace; a running worker will have advanced the job by then.
-            let workerWatchdog: ReturnType<typeof setTimeout> | undefined =
+            workerWatchdog =
               setTimeout(() => {
                 void (async () => {
                   try {
@@ -137,63 +180,16 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
                       type: "error" as const,
                       content: WORKER_ABSENT_MESSAGE,
                     };
-                    try {
-                      controller.enqueue(
-                        encoder.encode(
-                          `id: ${idx++}\ndata: ${JSON.stringify(errorMsg)}\n\n`
-                        )
-                      );
-                    } catch {
-                      // Stream already closed by client
-                    }
-                    subscriber
-                      .unsubscribe()
-                      .then(() => subscriber.disconnect())
-                      .catch(() => {});
-                    try {
-                      controller.close();
-                    } catch {
-                      // Already closed
-                    }
+                    // deliver() numbers it and finish()es on the terminal error.
+                    deliver(null, JSON.stringify(errorMsg));
                   } catch (err) {
                     console.error("[SSE-Redis] Worker watchdog error:", err);
                   }
                 })();
               }, WORKER_GRACE_MS);
 
-            subscriber.on("message", (_channel: string, message: string) => {
-              try {
-                controller.enqueue(
-                  encoder.encode(`id: ${idx++}\ndata: ${message}\n\n`)
-                );
-                // Any live event means the worker is consuming — stand down.
-                if (workerWatchdog) {
-                  clearTimeout(workerWatchdog);
-                  workerWatchdog = undefined;
-                }
-                // Check if this is a terminal message
-                const parsed = JSON.parse(message);
-                if (
-                  parsed.type === "complete" ||
-                  parsed.type === "error"
-                ) {
-                  subscriber
-                    .unsubscribe()
-                    .then(() => subscriber.disconnect())
-                    .catch(() => {});
-                  try {
-                    controller.close();
-                  } catch {
-                    // Already closed
-                  }
-                }
-              } catch {
-                // Stream closed by client
-              }
-            });
-
             // Keepalive heartbeat (same interval as inline path)
-            const keepaliveInterval = setInterval(() => {
+            keepaliveInterval = setInterval(() => {
               try {
                 controller.enqueue(encoder.encode(`: keepalive\n\n`));
               } catch {

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { appendSessionEvent } from "@/lib/queue/session-stream";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getSession, cancelSession } from "@/lib/agents";
@@ -48,8 +49,7 @@ export async function POST(_req: NextRequest, { params }: RouteParams) {
         type: "error",
         content: "Session cancelled by user",
       });
-      await redis.publish(`session:${sessionId}`, cancelMsg);
-      await redis.rpush(`session:${sessionId}:messages`, cancelMsg);
+      await appendSessionEvent(redis, sessionId, cancelMsg);
 
       // Set terminal status key for polling clients
       await redis.set(
