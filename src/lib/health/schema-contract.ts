@@ -17,6 +17,7 @@
  *   - column  writer_memories.finding_id   (Tier 4.2 conversational findings)
  */
 
+import { GENERATED_SCHEMA_OBJECTS } from "./schema-contract.generated";
 import { db } from "@/lib/db";
 
 /** One physical object the running release requires. */
@@ -30,57 +31,28 @@ export interface RequiredSchemaObject {
 }
 
 /**
- * Objects that MUST exist for this release to serve requests without 500s.
- * Physical names are the Prisma `@@map`/`@map` values, not the model names.
+ * Every table and column the app reads (P1-19), generated from
+ * prisma/schema.prisma by `npm run schema:contract`. Physical names are the
+ * Prisma `@@map`/`@map` values, not the model names.
  */
-export const REQUIRED_SCHEMA_OBJECTS: readonly RequiredSchemaObject[] = [
-  { label: "books.archived_at", table: "books", column: "archived_at" },
-  { label: "continuity_flags", table: "continuity_flags" },
-  { label: "finding_replies.role", table: "finding_replies", column: "role" },
-  { label: "writer_memories.finding_id", table: "writer_memories", column: "finding_id" },
-];
-
-/** True when `table.column` exists in the public schema. Parameterized. */
-async function columnExists(table: string, column: string): Promise<boolean> {
-  const rows = await db.$queryRaw<Array<{ present: boolean }>>`
-    SELECT EXISTS (
-      SELECT 1
-      FROM information_schema.columns
-      WHERE table_schema = 'public'
-        AND table_name = ${table}
-        AND column_name = ${column}
-    ) AS present
-  `;
-  return rows[0]?.present === true;
-}
-
-/** True when `table` exists in the public schema. Parameterized. */
-async function tableExists(table: string): Promise<boolean> {
-  const rows = await db.$queryRaw<Array<{ present: boolean }>>`
-    SELECT EXISTS (
-      SELECT 1
-      FROM information_schema.tables
-      WHERE table_schema = 'public'
-        AND table_name = ${table}
-    ) AS present
-  `;
-  return rows[0]?.present === true;
-}
+export const REQUIRED_SCHEMA_OBJECTS: readonly RequiredSchemaObject[] = GENERATED_SCHEMA_OBJECTS;
 
 /**
  * Labels of every required object that is NOT present in the live schema.
- * Empty array → the deployed schema satisfies this release's contract.
+ * One query for the whole public schema. Empty array → the deployed schema
+ * satisfies this release's contract.
  */
 export async function findMissingSchemaObjects(): Promise<string[]> {
-  const results = await Promise.all(
-    REQUIRED_SCHEMA_OBJECTS.map(async (obj) => {
-      const present = obj.column
-        ? await columnExists(obj.table, obj.column)
-        : await tableExists(obj.table);
-      return present ? null : obj.label;
-    })
-  );
-  return results.filter((label): label is string => label !== null);
+  const rows = await db.$queryRaw<Array<{ table_name: string; column_name: string }>>`
+    SELECT table_name, column_name
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+  `;
+  const tables = new Set(rows.map((r) => r.table_name));
+  const columns = new Set(rows.map((r) => `${r.table_name}.${r.column_name}`));
+  return REQUIRED_SCHEMA_OBJECTS.filter((obj) =>
+    obj.column ? !columns.has(`${obj.table}.${obj.column}`) : !tables.has(obj.table)
+  ).map((obj) => obj.label);
 }
 
 /**

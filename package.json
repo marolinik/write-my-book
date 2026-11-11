@@ -19,6 +19,8 @@
     "worker:start": "node dist-worker/worker.js",
     "env:check": "tsx scripts/check-env.ts web",
     "legal:check": "tsx scripts/check-legal-placeholders.ts",
+    "graph:init": "tsx scripts/graph-init.ts",
+    "schema:contract": "tsx scripts/generate-schema-contract.ts",
     "env:check:worker": "tsx scripts/check-env.ts worker",
     "smoke:deployment": "tsx scripts/smoke-deployment.ts",
     "billing:check": "tsx scripts/check-stripe-config.ts",

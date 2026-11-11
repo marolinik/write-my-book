@@ -10,6 +10,7 @@
  *   Production:  node dist-worker/src/worker.js
  */
 
+import "./worker-env";
 import "dotenv/config";
 import { createServer } from "node:http";
 import * as Sentry from "@sentry/node";
@@ -24,6 +25,7 @@ import { ERASURE_QUEUE_NAME, enqueueErasure } from "@/lib/queue/erasure-queue";
 import { processErasureJob, reapPendingErasures } from "@/lib/queue/erasure-worker";
 import { isFinalFailure, markSessionTerminal, reapStrandedSessions } from "@/lib/queue/session-terminal";
 import { assertEnvReady } from "@/lib/env";
+import { initGraphSchema } from "@/lib/graph";
 
 // ── Error monitoring ─────────────────────────────────────────────────
 // The worker is a separate Node process, uncovered by the Next.js
@@ -36,6 +38,12 @@ Sentry.init({
 });
 
 assertEnvReady("worker");
+
+// P1-20: the story graph's MERGEs rely on these uniqueness constraints;
+// nothing created them before. Idempotent (IF NOT EXISTS).
+initGraphSchema().catch((error: unknown) =>
+  reportWorkerError("[Worker] graph schema init failed:", error as Error)
+);
 
 const connection = createRedisConnection();
 

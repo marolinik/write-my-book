@@ -8,7 +8,9 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function createPrismaClient() {
-  assertEnvReady("web");
+  // P1-17: the worker sets WMB_RUNTIME_TARGET=worker (src/worker-env.ts)
+  // before importing this; its env has no Clerk or Stripe keys.
+  assertEnvReady(process.env.WMB_RUNTIME_TARGET === "worker" ? "worker" : "web");
   const pool = new pg.Pool({
     connectionString: process.env.DATABASE_URL,
   });
