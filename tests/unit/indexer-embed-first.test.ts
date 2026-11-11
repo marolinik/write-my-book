@@ -47,8 +47,23 @@ describe("indexDocument", () => {
     }));
     await indexDocument("b1", "chapter", "d1", "The sea kept the letters.", { chapterNumber: 3, chapterContent: true });
     expect(h.qdrant.delete).toHaveBeenCalledTimes(1);
-    expect(h.qdrant.delete.mock.invocationCallOrder[0]).toBeLessThan(h.qdrant.upsert.mock.invocationCallOrder[0]);
-    expect(h.embedBatch.mock.invocationCallOrder[0]).toBeLessThan(h.qdrant.delete.mock.invocationCallOrder[0]);
+    expect(h.embedBatch.mock.invocationCallOrder[0]).toBeLessThan(h.qdrant.upsert.mock.invocationCallOrder[0]);
+    // Review M-1: the new points land first; the delete then removes only the old ones.
+    expect(h.qdrant.upsert.mock.invocationCallOrder[0]).toBeLessThan(h.qdrant.delete.mock.invocationCallOrder[0]);
+    const newIds = h.qdrant.upsert.mock.calls[0][1].points.map((p: { id: string }) => p.id);
+    expect(h.qdrant.delete.mock.calls[0][1].filter.must_not).toEqual([{ has_id: newIds }]);
+  });
+
+  it("keeps the previous chunks when the vector store refuses the new ones", async () => {
+    h.embedBatch.mockImplementation(async (texts: string[]) => ({
+      vectors: texts.map(() => [0.1, 0.2]),
+      tokensUsed: 10,
+    }));
+    h.qdrant.upsert.mockRejectedValue(new Error("qdrant down"));
+    await expect(
+      indexDocument("b1", "story_bible", "d9", "The sea kept the letters.", {})
+    ).rejects.toThrow("qdrant down");
+    expect(h.qdrant.delete).not.toHaveBeenCalled();
   });
 });
 

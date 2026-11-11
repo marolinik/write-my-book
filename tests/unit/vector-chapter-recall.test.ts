@@ -57,9 +57,11 @@ vi.mock("@/lib/vector/qdrant-client", () => ({
         .filter((p) => h.matchesFilter(p.payload, opts.filter))
         .slice(0, opts.limit ?? 5)
         .map((p) => ({ id: p.id, score: 0.9, payload: p.payload })),
-    delete: async (_c: string, { filter }: { filter: unknown }) => {
+    delete: async (_c: string, { filter }: { filter: any }) => {
+      // Qdrant's `must_not: [{ has_id }]` spares the points just upserted (review M-1).
+      const keep = new Set<string>((filter?.must_not ?? []).flatMap((c: any) => c.has_id ?? []));
       for (let i = h.store.length - 1; i >= 0; i--) {
-        if (h.matchesFilter(h.store[i].payload, filter)) h.store.splice(i, 1);
+        if (!keep.has(h.store[i].id) && h.matchesFilter(h.store[i].payload, filter)) h.store.splice(i, 1);
       }
       return {};
     },
