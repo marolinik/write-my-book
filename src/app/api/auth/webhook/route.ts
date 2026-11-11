@@ -5,6 +5,7 @@ import { logger } from "@/lib/logger";
 import { getDefaultModelId } from "@/lib/llm/defaults";
 import { stripe } from "@/lib/billing";
 import { eraseAccountData } from "@/lib/erasure/account-data";
+import { parseClerkEvent } from "@/lib/auth/clerk-webhook-schema";
 import {
   cancelAllStripeSubscriptions,
   expireCheckoutSession,
@@ -125,10 +126,20 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // 5. Process the verified event
+  // 5. Validate the verified event before anything touches the database
+  // (P1-1): a user.deleted without an id once meant deleteMany({}).
+  const parsedEvent = parseClerkEvent(payload);
+  if (parsedEvent.kind === "invalid") {
+    logger.error("Clerk webhook payload rejected", new Error(parsedEvent.reason));
+    return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+  }
+  if (parsedEvent.kind === "ignored") {
+    return NextResponse.json({ received: true, ignored: parsedEvent.type });
+  }
+
+  // 6. Process it
   try {
-    const type = payload.type as string;
-    const data = payload.data as Record<string, unknown>;
+    const { type, data } = parsedEvent.event;
 
     switch (type) {
       case "user.created": {
@@ -136,9 +147,9 @@ export async function POST(req: NextRequest) {
           | Array<{ email_address: string }>
           | undefined;
         await db.user.upsert({
-          where: { clerkId: data.id as string },
+          where: { clerkId: data.id },
           create: {
-            clerkId: data.id as string,
+            clerkId: data.id,
             email: emailAddresses?.[0]?.email_address ?? "",
             // Keep in step with lib/auth.ts: the deployment default governs new
             // accounts, not the Prisma column default.
@@ -158,7 +169,7 @@ export async function POST(req: NextRequest) {
           | Array<{ email_address: string }>
           | undefined;
         await db.user.updateMany({
-          where: { clerkId: data.id as string },
+          where: { clerkId: data.id },
           data: {
             email: emailAddresses?.[0]?.email_address,
             displayName:
@@ -170,7 +181,7 @@ export async function POST(req: NextRequest) {
       }
 
       case "user.deleted": {
-        const clerkId = data.id as string;
+        const clerkId = data.id;
         // Stop billing first. Deleting the user cascades away the only row
         // that links this writer to Stripe; if that went first, a failed
         // cancel would leave a subscription renewing that nobody can trace.
