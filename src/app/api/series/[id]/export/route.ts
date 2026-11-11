@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ExportConversionError } from "@/lib/import-export/export-pipeline";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { exportRequestSchema } from "@/lib/validation";
@@ -42,11 +43,13 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     }
     const zodRes = zodErrorResponse(error);
     if (zodRes) return zodRes;
+    if (error instanceof ExportConversionError) {
+      // P1-23: the writer is told it failed; the detail stays in the log.
+      return NextResponse.json({ error: "Export failed", code: "CONVERSION_FAILED" }, { status: 502 });
+    }
     console.error("POST /api/series/:id/export error:", error);
-    return NextResponse.json(
-      { error: (error as Error).message || "Series export failed" },
-      { status: 500 }
-    );
+    // P2-8: never echo error.message (storage hosts, temp paths, Prisma text).
+    return NextResponse.json({ error: "Export failed", code: "EXPORT_FAILED" }, { status: 500 });
   }
 }
 
@@ -64,15 +67,16 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
     }
 
     const storage = (await import("@/lib/storage")).getSeriesStorage(user.id, seriesId);
-    const files = await storage.list("exports/*");
+    // P2-77: list only exports/ and sort by when each file was written.
+    const files = await storage.listDetailed("exports/*");
     const exports = files
-      .filter((f) => !f.includes("_assembled-"))
+      .filter((f) => !f.key.includes("_assembled-"))
+      .sort((a, b) => (b.lastModified?.getTime() ?? 0) - (a.lastModified?.getTime() ?? 0))
       .map((f) => {
-        const filename = f.split("/").pop() ?? f;
+        const filename = f.key.split("/").pop() ?? f.key;
         const ext = filename.split(".").pop() ?? "";
-        return { storageKey: f, filename, format: ext };
-      })
-      .sort((a, b) => b.filename.localeCompare(a.filename));
+        return { storageKey: f.key, filename, format: ext, lastModified: f.lastModified };
+      });
 
     return NextResponse.json({ exports });
   } catch (error) {

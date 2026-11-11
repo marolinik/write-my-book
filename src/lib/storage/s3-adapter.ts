@@ -95,15 +95,22 @@ export class S3StorageAdapter implements StorageAdapter {
   }
 
   async list(pattern?: string): Promise<string[]> {
-    const results: string[] = [];
+    return (await this.listDetailed(pattern)).map((o) => o.key);
+  }
+
+  async listDetailed(pattern?: string): Promise<Array<{ key: string; lastModified: Date | null }>> {
+    const results: Array<{ key: string; lastModified: Date | null }> = [];
     let continuationToken: string | undefined;
     const prefixKey = this.prefix ? `${this.prefix}/` : "";
+    // P2-77: ask S3 only for the pattern's literal lead, not every object
+    // under the book (version snapshots included).
+    const listPrefix = prefixKey + (pattern ? literalPrefixOf(pattern) : "");
 
     do {
       const res = await this.client.send(
         new ListObjectsV2Command({
           Bucket: this.bucket,
-          Prefix: prefixKey,
+          Prefix: listPrefix,
           ContinuationToken: continuationToken,
         })
       );
@@ -113,7 +120,7 @@ export class S3StorageAdapter implements StorageAdapter {
         const relative = obj.Key.startsWith(prefixKey)
           ? obj.Key.slice(prefixKey.length)
           : obj.Key;
-        results.push(relative);
+        results.push({ key: relative, lastModified: obj.LastModified ?? null });
       }
 
       continuationToken = res.NextContinuationToken;
@@ -121,7 +128,7 @@ export class S3StorageAdapter implements StorageAdapter {
 
     if (!pattern) return results;
     const regex = globToRegex(pattern);
-    return results.filter((f) => regex.test(f));
+    return results.filter((f) => regex.test(f.key));
   }
 
   async mkdir(): Promise<void> {
@@ -138,6 +145,14 @@ function isNotFound(err: unknown): boolean {
     (err as { $metadata?: { httpStatusCode?: number } })?.$metadata
       ?.httpStatusCode === 404
   );
+}
+
+/** The part of a glob before its first wildcard, cut back to the last "/". */
+export function literalPrefixOf(pattern: string): string {
+  const wildcard = pattern.search(/[*?[]/);
+  const lead = wildcard === -1 ? pattern : pattern.slice(0, wildcard);
+  const slash = lead.lastIndexOf("/");
+  return slash === -1 ? "" : lead.slice(0, slash + 1);
 }
 
 /** Convert a simple glob pattern to regex. Supports * and **. */

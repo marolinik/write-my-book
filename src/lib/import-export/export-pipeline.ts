@@ -40,6 +40,57 @@ const execFileAsync = promisify(execFile);
  * - Otherwise `# <title>` is PREPENDED.
  * - Falls back to `Chapter <n>` when no DB title is available.
  */
+
+/**
+ * P1-23: a conversion that failed is a failure. The message the writer sees
+ * is fixed; the detail (pandoc's command line, stderr, temp paths) stays on
+ * the server, in `detail` and the log.
+ */
+export class ExportConversionError extends Error {
+  readonly code = "CONVERSION_FAILED" as const;
+  readonly detail: string;
+  constructor(detail: string) {
+    super("Export conversion failed");
+    this.name = "ExportConversionError";
+    this.detail = detail;
+  }
+}
+
+export interface YamlMetadataInput {
+  title: string;
+  author?: string;
+  lang: string;
+  sceneBreak: string;
+  paperSize: string;
+  mainFont: string;
+  lineStretch: number;
+  draft: boolean;
+}
+
+/**
+ * P2-74: every scalar is emitted with JSON.stringify (a JSON string is a valid
+ * YAML double-quoted scalar), so a quote, a backslash or a newline in a title
+ * can neither break pandoc's YAML parse nor inject a metadata key.
+ */
+export function buildYamlMetadata(input: YamlMetadataInput): string {
+  const q = (value: string) => JSON.stringify(value);
+  return [
+    "---",
+    `title: ${q(input.title)}`,
+    input.author ? `author: ${q(input.author)}` : "",
+    `lang: ${q(input.lang)}`,
+    `scene-break-ornament: ${q(input.sceneBreak)}`,
+    `papersize: ${q(input.paperSize)}`,
+    `mainfont: ${q(input.mainFont)}`,
+    `linestretch: ${Number(input.lineStretch)}`,
+    // P3-S22: `draft-mode` is the key draft-watermark.lua and recto-start.lua read.
+    input.draft ? "draft-mode: true" : "",
+    "---",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
 export function applyChapterHeading(
   content: string,
   chapterNumber: number,
@@ -770,24 +821,17 @@ export async function exportManuscript(
     format === "pdf" && langConfig.pageSize === "letter"
       ? "us-letter"
       : langConfig.pageSize;
-  const yamlMeta = [
-    "---",
+  const yamlMeta = buildYamlMetadata({
     // UDG round-9 (Olivera/Igor): omnibus exports default the doc title to the series title.
-    `title: "${options.seriesTitle ?? (config.metadata.title || bookName)}"`,
-    config.metadata.author ? `author: "${config.metadata.author}"` : "",
-    `lang: ${language}`,
-    `scene-break-ornament: "${sceneBreakGlyph}"`,
-    `papersize: ${paperSize}`,
-    `mainfont: "${langConfig.bodyFont}"`,
-    `linestretch: ${langConfig.lineSpacing}`,
-    // P3-S22: `draft-mode` is the key draft-watermark.lua and recto-start.lua
-    // read. The pipeline wrote `draft`, so the watermark filter it adds for
-    // every draft never ran and a draft EPUB/DOCX went out unmarked.
-    isDraft ? `draft-mode: true` : "",
-    "---",
-  ]
-    .filter(Boolean)
-    .join("\n");
+    title: options.seriesTitle ?? (config.metadata.title || bookName),
+    author: config.metadata.author || undefined,
+    lang: language,
+    sceneBreak: sceneBreakGlyph,
+    paperSize,
+    mainFont: langConfig.bodyFont,
+    lineStretch: langConfig.lineSpacing,
+    draft: isDraft,
+  });
 
   // 7. Combine all sections
   // UDG round-8 (Igor/Olivera): a user-uploaded back cover renders as a trailing
@@ -1088,27 +1132,12 @@ export async function exportManuscript(
           : "application/epub+zip";
     await storage.writeBuffer(storageKey, outputBuffer, contentType);
   } catch (error) {
-    const err = error instanceof Error ? error.message : String(error);
-    // Fallback to markdown on Pandoc error
-    const fallbackName = outputFilename.replace(`.${format}`, ".md");
-    const fallbackKey = `exports/${fallbackName}`;
-    // Fall back to the SANITIZED manuscript, so an attacker-triggered conversion
-    // failure never writes the raw (possibly resource-smuggling) content back.
-    await storage.write(fallbackKey, sanitizedMd);
-    warnings.push(`Pandoc export failed (${err}). Saved as markdown.`);
-
-    // Cleanup temp dir
+    // P1-23: a failed conversion is a failure, not "Export Complete" with a
+    // markdown file. The command line and stderr stay in the server log.
+    const detail = error instanceof Error ? error.message : String(error);
+    console.error(`[export] ${format} conversion failed:`, detail);
     await cleanupTemp(tmpDir);
-
-    return {
-      filename: fallbackName,
-      storageKey: fallbackKey,
-      wordCount,
-      chapterCount,
-      estimatedPages,
-      warnings,
-      format: "md",
-    };
+    throw new ExportConversionError(detail);
   }
 
   // 11. Cleanup temp files
