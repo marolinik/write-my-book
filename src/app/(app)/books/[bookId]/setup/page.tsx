@@ -54,6 +54,7 @@ import {
   pickStartWritingChapter,
 } from "@/lib/onboarding/setup-surface";
 import { BOOK_LANGUAGES } from "@/lib/i18n/book-languages";
+import { describeApiError } from "@/lib/api/describe-api-error";
 
 export default function SetupPage({
   params,
@@ -173,7 +174,7 @@ export default function SetupPage({
       await patchSettings({ setupComplete: true });
     } catch (err) {
       // Never a silent no-op: say why setup could not be saved.
-      toast.error(t.pagesUI.setupFailed.replace("{error}", (err as Error).message));
+      toast.error(t.pagesUI.setupFailed.replace("{error}", describeApiError(err, t)));
       setFinishing(false);
       return;
     }
@@ -193,7 +194,7 @@ export default function SetupPage({
         // Setup itself IS saved — say what happened instead of swallowing it,
         // then land on the overview rather than stranding them on the wizard.
         toast.error(
-          t.pagesUI.setupSavedNoChapter.replace("{error}", (err as Error).message)
+          t.pagesUI.setupSavedNoChapter.replace("{error}", describeApiError(err, t))
         );
       }
     }

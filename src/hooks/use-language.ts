@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { getUIStrings } from "@/lib/i18n/ui-strings";
+import { responseError } from "@/lib/api/describe-api-error";
 
 const LANGUAGE_CHANNEL = "wmb:language";
 
@@ -51,7 +52,7 @@ export function useUserLanguage(initialLanguage?: string) {
     queryKey: ["user-language"],
     queryFn: async () => {
       const res = await fetch("/api/settings/language");
-      if (!res.ok) throw new Error("Failed to fetch language preference");
+      if (!res.ok) throw await responseError(res);
       return res.json();
     },
     staleTime: Infinity,
@@ -72,7 +73,7 @@ export function useUpdateLanguage() {
       });
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || "Failed to update language");
+        throw await responseError(res, err);
       }
       return res.json();
     },

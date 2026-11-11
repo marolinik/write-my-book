@@ -21,6 +21,7 @@ import {
   DownloadIcon,
   InfoIcon,
 } from "lucide-react";
+import { describeApiError } from "@/lib/api/describe-api-error";
 
 interface ExportPageProps {
   bookId: string;
@@ -264,7 +265,7 @@ export function ExportPage({ bookId }: ExportPageProps) {
           {/* Error */}
           {exportMutation.isError && (
             <p className="text-sm text-destructive">
-              {exportMutation.error.message}
+              {describeApiError(exportMutation.error, t)}
             </p>
           )}
         </CardContent>

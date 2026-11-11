@@ -5,7 +5,7 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-import { fetchJson } from "@/lib/api-client";
+import { fetchJson, ApiError } from "@/lib/api-client";
 import { useUpgradeModal } from "@/hooks/use-billing";
 
 export type BookListItem = {
@@ -88,7 +88,7 @@ export function useCreateBook() {
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         // Attach upgradeToTier to the error for onError handling
-        const err = new Error(body.error ?? `Request failed: ${res.status}`) as Error & {
+        const err = new ApiError(body.error ?? `Request failed: ${res.status}`, res.status, body) as ApiError & {
           status?: number;
           upgradeToTier?: string;
         };

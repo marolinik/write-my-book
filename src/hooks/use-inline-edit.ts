@@ -5,6 +5,7 @@ import type {
   InlineEditRequest,
   InlineEditResponse,
 } from "@/lib/validation";
+import { responseError } from "@/lib/api/describe-api-error";
 
 /**
  * The request plus the caller's AbortSignal. The signal never goes into the
@@ -26,7 +27,7 @@ async function fetchInlineEdit(
   });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.error ?? `Request failed: ${res.status}`);
+    throw await responseError(res, body);
   }
   return res.json();
 }

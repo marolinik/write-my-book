@@ -3,13 +3,14 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useLanguage } from "@/components/providers/language-provider";
+import { responseError, describeApiError } from "@/lib/api/describe-api-error";
 
 export function useStyleProfile(bookId: string) {
   return useQuery({
     queryKey: ["style-profile", bookId],
     queryFn: async () => {
       const res = await fetch(`/api/books/${bookId}/style`);
-      if (!res.ok) throw new Error("Failed to fetch style profile");
+      if (!res.ok) throw await responseError(res);
       return res.json();
     },
     enabled: !!bookId,
@@ -26,14 +27,14 @@ export function useUpdateStyleProfile(bookId: string) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error("Failed to update style profile");
+      if (!res.ok) throw await responseError(res);
       return res.json();
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["style-profile", bookId] });
       toast.success(t.toasts.styleProfileSaved);
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err) => toast.error(describeApiError(err, t)),
   });
 }
 
@@ -42,7 +43,7 @@ export function useCharacterLenses(bookId: string) {
     queryKey: ["character-lenses", bookId],
     queryFn: async () => {
       const res = await fetch(`/api/books/${bookId}/style/lenses`);
-      if (!res.ok) throw new Error("Failed to fetch character lenses");
+      if (!res.ok) throw await responseError(res);
       return res.json();
     },
     enabled: !!bookId,
@@ -68,7 +69,7 @@ export function useCreateLens(bookId: string) {
       });
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || "Failed to create lens");
+        throw await responseError(res, err);
       }
       return res.json();
     },
@@ -77,7 +78,7 @@ export function useCreateLens(bookId: string) {
       qc.invalidateQueries({ queryKey: ["style-profile", bookId] });
       toast.success(t.toasts.characterLensCreated);
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err) => toast.error(describeApiError(err, t)),
   });
 }
 
@@ -91,14 +92,14 @@ export function useUpdateLens(bookId: string) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error("Failed to update lens");
+      if (!res.ok) throw await responseError(res);
       return res.json();
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["character-lenses", bookId] });
       toast.success(t.toasts.characterLensUpdated);
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err) => toast.error(describeApiError(err, t)),
   });
 }
 
@@ -110,7 +111,7 @@ export function useDeleteLens(bookId: string) {
       const res = await fetch(`/api/books/${bookId}/style/lenses/${lensId}`, {
         method: "DELETE",
       });
-      if (!res.ok) throw new Error("Failed to delete lens");
+      if (!res.ok) throw await responseError(res);
       return res.json();
     },
     onSuccess: () => {
@@ -118,6 +119,6 @@ export function useDeleteLens(bookId: string) {
       qc.invalidateQueries({ queryKey: ["style-profile", bookId] });
       toast.success(t.toasts.characterLensDeleted);
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err) => toast.error(describeApiError(err, t)),
   });
 }

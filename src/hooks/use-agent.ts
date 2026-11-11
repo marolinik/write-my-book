@@ -13,6 +13,8 @@ import {
 } from "@/lib/agents/prerequisite-message";
 import type { PageContext } from "@/lib/agents/types";
 import { useUpgradeModal } from "@/hooks/use-billing";
+import { responseError } from "@/lib/api/describe-api-error";
+import { ApiError } from "@/lib/api-client";
 
 /**
  * The error a refused start throws. A plan / quota wall (the Free monthly
@@ -25,7 +27,8 @@ function startFailure(
   body: { error?: string; upgradeToTier?: unknown },
   status: number
 ): AgentStartFailure {
-  const err = new Error(body.error ?? `Request failed: ${status}`) as AgentStartFailure;
+  // P1-26: an ApiError, so the panel can describe it in the writer's language.
+  const err = new ApiError(body.error ?? `Request failed: ${status}`, status, body) as AgentStartFailure;
   if (typeof body.upgradeToTier === "string") err.upgradeToTier = body.upgradeToTier;
   return err;
 }
@@ -75,7 +78,7 @@ export function useStartSession(bookId: string) {
         if (res.status === 422 && body.setupIncomplete) {
           toast.info(t.toasts.completeSetupFirst);
           router.push(`/books/${bookId}/setup`);
-          throw new Error("Setup incomplete");
+          throw new Error("SETUP_INCOMPLETE");
         }
 
         if (res.status === 401) {
@@ -157,7 +160,7 @@ export function useStartSeriesSession(seriesId: string) {
 export function useSendMessage(bookId: string, sessionId: string | null) {
   return useMutation({
     mutationFn: async (message: string) => {
-      if (!sessionId) throw new Error("No active session");
+      if (!sessionId) throw new Error("NO_ACTIVE_SESSION");
       const ctx = useAgentUIStore.getState().pageContext;
 
       const res = await fetch(
@@ -174,7 +177,7 @@ export function useSendMessage(bookId: string, sessionId: string | null) {
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? `Request failed: ${res.status}`);
+        throw await responseError(res, body);
       }
 
       return res.json() as Promise<{ ok: boolean }>;
@@ -190,7 +193,7 @@ export function useApproveAction(bookId: string, sessionId: string | null) {
       decision: "approve" | "reject" | "modify";
       message?: string;
     }) => {
-      if (!sessionId) throw new Error("No active session");
+      if (!sessionId) throw new Error("NO_ACTIVE_SESSION");
 
       const res = await fetch(
         `/api/books/${bookId}/agent/${sessionId}/approve`,
@@ -203,7 +206,7 @@ export function useApproveAction(bookId: string, sessionId: string | null) {
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? `Request failed: ${res.status}`);
+        throw await responseError(res, body);
       }
 
       return res.json() as Promise<{ ok: boolean }>;
@@ -215,7 +218,7 @@ export function useApproveAction(bookId: string, sessionId: string | null) {
 export function useCancelSession(bookId: string, sessionId: string | null) {
   return useMutation({
     mutationFn: async () => {
-      if (!sessionId) throw new Error("No active session");
+      if (!sessionId) throw new Error("NO_ACTIVE_SESSION");
 
       const res = await fetch(
         `/api/books/${bookId}/agent/${sessionId}/cancel`,
@@ -224,7 +227,7 @@ export function useCancelSession(bookId: string, sessionId: string | null) {
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? `Request failed: ${res.status}`);
+        throw await responseError(res, body);
       }
 
       return res.json() as Promise<{ ok: boolean }>;

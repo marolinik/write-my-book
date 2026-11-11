@@ -107,14 +107,15 @@ describe("P1-S05: the panel's start error keeps an Upgrade path", () => {
   it("offers View Plans → /settings/billing next to a plan-wall message", () => {
     const err = Object.assign(new Error(WALL), { upgradeToTier: "indie" });
     render(<AgentStartError error={err} />);
-    expect(screen.getByText(WALL)).toBeTruthy();
+    // P1-26: the wall is named in the writer's language, not the server's English.
+    expect(screen.getByText(EN.apiErrors.PLAN_LIMIT)).toBeTruthy();
     const link = screen.getByRole("link", { name: EN.appUI.viewPlans });
     expect(link.getAttribute("href")).toBe("/settings/billing");
   });
 
   it("shows just the message for an error that is not a plan wall", () => {
     render(<AgentStartError error={new Error("Unknown workflow")} />);
-    expect(screen.getByText("Unknown workflow")).toBeTruthy();
+    expect(screen.getByText(EN.apiErrors.GENERIC)).toBeTruthy();
     expect(screen.queryByRole("link")).toBeNull();
   });
 

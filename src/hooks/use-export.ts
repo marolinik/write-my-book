@@ -6,6 +6,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { fetchJson } from "@/lib/api-client";
+import { responseError } from "@/lib/api/describe-api-error";
 
 // ─── Types ──────────────────────────────────────────────────────
 
@@ -155,7 +156,7 @@ export function useDownloadExport(bookId: string) {
   return async (filename: string) => {
     const res = await fetch(`/api/books/${bookId}/export/${filename}`);
     if (!res.ok) {
-      throw new Error(`Download failed: ${res.status}`);
+      throw await responseError(res);
     }
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);

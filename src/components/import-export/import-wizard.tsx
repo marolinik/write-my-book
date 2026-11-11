@@ -27,6 +27,7 @@ import {
   UploadIcon,
   ArrowRightIcon,
 } from "lucide-react";
+import { describeApiError } from "@/lib/api/describe-api-error";
 
 interface ImportWizardProps {
   bookId: string;
@@ -171,7 +172,7 @@ export function ImportWizard({ bookId, onComplete, autoAnalyze = true }: ImportW
             {previewMutation.isError && (
               <div className="flex items-center gap-2 rounded bg-destructive/10 p-3 text-sm text-destructive">
                 <AlertTriangleIcon className="size-4" />
-                {previewMutation.error.message}
+                {describeApiError(previewMutation.error, t)}
               </div>
             )}
 
@@ -271,7 +272,7 @@ export function ImportWizard({ bookId, onComplete, autoAnalyze = true }: ImportW
             {confirmMutation.isError && (
               <div className="flex items-center gap-2 rounded bg-destructive/10 p-3 text-sm text-destructive">
                 <AlertTriangleIcon className="size-4" />
-                {confirmMutation.error.message}
+                {describeApiError(confirmMutation.error, t)}
               </div>
             )}
           </CardContent>

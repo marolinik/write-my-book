@@ -2,6 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ImportPreviewResponse } from "@/lib/validation";
+import { responseError } from "@/lib/api/describe-api-error";
 
 interface ImportResponse {
   chapters: Array<{ number: number; title: string; wordCount: number }>;
@@ -27,7 +28,7 @@ export function useImportManuscript(bookId: string) {
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? `Import failed: ${res.status}`);
+        throw await responseError(res, body);
       }
 
       return res.json();
@@ -50,7 +51,7 @@ async function previewOneFile(bookId: string, file: File): Promise<ImportPreview
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.error ?? `Preview failed: ${res.status}`);
+    throw await responseError(res, body);
   }
 
   return res.json();
@@ -118,7 +119,7 @@ export function useImportConfirm(bookId: string) {
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? `Import confirm failed: ${res.status}`);
+        throw await responseError(res, body);
       }
 
       return res.json();

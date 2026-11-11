@@ -3,6 +3,8 @@
  * Keyed by language code (ISO 639-1). Falls back to English.
  */
 
+import type { ApiErrorCode } from "@/lib/api/error-codes";
+
 export interface UIStrings {
   // Navigation
   nav: {
@@ -1995,6 +1997,8 @@ export interface UIStrings {
     failed: string;
     modelCannotPolish: string;
   };
+  /** P1-26: what the writer reads when a request fails, by API error code. */
+  apiErrors: Record<ApiErrorCode, string>;
 }
 
 export const SUPPORTED_LANGUAGES = [

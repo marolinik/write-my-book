@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useLanguage } from "@/components/providers/language-provider";
 import type { AgentRole } from "@/lib/llm";
 import { ROLE_TO_USER_FIELD } from "@/lib/llm";
+import { responseError, describeApiError } from "@/lib/api/describe-api-error";
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -38,7 +39,7 @@ export function useDefaultModel() {
     queryKey: ["default-model"],
     queryFn: async () => {
       const res = await fetch("/api/settings/default-model");
-      if (!res.ok) throw new Error("Failed to fetch default model");
+      if (!res.ok) throw await responseError(res);
       return res.json() as Promise<DefaultModelData>;
     },
   });
@@ -57,7 +58,7 @@ export function useUpdateDefaultModel() {
       });
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || "Failed to update default model");
+        throw await responseError(res, err);
       }
       return res.json() as Promise<DefaultModelData>;
     },
@@ -65,12 +66,13 @@ export function useUpdateDefaultModel() {
       qc.setQueryData(["default-model"], data);
       toast.success(t.toasts.defaultModelUpdated);
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err) => toast.error(describeApiError(err, t)),
   });
 }
 
 /** Update a single global role override. Pass null to clear. */
 export function useUpdateGlobalRoleOverride() {
+  const { t } = useLanguage();
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({
@@ -88,13 +90,13 @@ export function useUpdateGlobalRoleOverride() {
       });
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || "Failed to update role override");
+        throw await responseError(res, err);
       }
       return res.json() as Promise<DefaultModelData>;
     },
     onSuccess: (data) => {
       qc.setQueryData(["default-model"], data);
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err) => toast.error(describeApiError(err, t)),
   });
 }

@@ -28,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { describeApiError } from "@/lib/api/describe-api-error";
 
 export default function NewBookPage() {
   const router = useRouter();
@@ -93,7 +94,7 @@ export default function NewBookPage() {
           : `/books/${book.id}/chapters/${book.firstChapterId}`
       );
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(describeApiError(err, t));
     }
   }
 

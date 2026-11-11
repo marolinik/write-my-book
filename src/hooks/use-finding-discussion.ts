@@ -8,6 +8,7 @@ import {
 } from "@/lib/editorial/discuss-stream-client";
 import { DISCUSS_TURN_CANCELLED } from "@/lib/editorial/discuss-turn-notice";
 import type { DiscussMode } from "@/lib/editorial/discuss-mode";
+import { responseError } from "@/lib/api/describe-api-error";
 
 export interface DiscussionReply {
   role: "user" | "assistant";
@@ -57,7 +58,7 @@ export function useFindingDiscussion(bookId: string, findingId: string) {
     queryKey: key,
     queryFn: async () => {
       const res = await fetch(`/api/books/${bookId}/editorial/findings/${findingId}/discuss`);
-      if (!res.ok) throw new Error("Failed to load conversation");
+      if (!res.ok) throw await responseError(res);
       return (await res.json()) as DiscussionData;
     },
     staleTime: 10_000,
@@ -94,7 +95,7 @@ export function useFindingDiscussion(bookId: string, findingId: string) {
           });
         }
 
-        if (!res.ok && res.status !== 409) throw new Error("Failed to send");
+        if (!res.ok && res.status !== 409) throw await responseError(res);
         return (await res.json()) as DiscussTurnResult;
       } catch (err) {
         // A writer-initiated cancel is an outcome, not a failure: the fetch
