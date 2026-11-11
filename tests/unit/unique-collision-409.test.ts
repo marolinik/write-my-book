@@ -66,16 +66,28 @@ describe("PATCH /api/books/:id — a taken name", () => {
   });
 });
 
-describe("PATCH /api/books/:id/chapters/:chapterId — a taken number", () => {
-  it("is a 409 that says the number exists, not a 500", async () => {
+describe("PATCH /api/books/:id/chapters/:chapterId — a chapter number", () => {
+  // P1-4: PATCH renumbered the row without its documents. Renumbering now
+  // goes only through /chapters/reorder, which moves the documents too.
+  it("is refused with 400 and points at the reorder route; nothing is written", async () => {
     h.db.chapter.update.mockRejectedValue(p2002());
     const res = await chapterPATCH(
       patch("http://t/api/books/b1/chapters/c2", { chapterNumber: 1 }),
       { params: Promise.resolve({ id: "b1", chapterId: "c2" }) }
     );
-    expect(res.status).toBe(409);
-    expect((await res.json()).error).toBe(
-      "A chapter with that number already exists in this book"
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.code).toBe("USE_REORDER");
+    expect(body.reorderUrl).toBe("/api/books/b1/chapters/reorder");
+    expect(h.db.chapter.update).not.toHaveBeenCalled();
+  });
+
+  it("a title-only edit still works", async () => {
+    h.db.chapter.update.mockResolvedValue({ id: "c2", title: "New" });
+    const res = await chapterPATCH(
+      patch("http://t/api/books/b1/chapters/c2", { title: "New" }),
+      { params: Promise.resolve({ id: "b1", chapterId: "c2" }) }
     );
+    expect(res.status).toBe(200);
   });
 });

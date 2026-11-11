@@ -50,6 +50,18 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
     const user = await requireUser();
     const { id: bookId, chapterId } = await params;
     const body = await parseJsonBody(req);
+    // P1-4: a PATCH renumbered the row and left its documents under the old
+    // number. Renumbering goes only through /chapters/reorder.
+    if (body && typeof body === "object" && "chapterNumber" in body) {
+      return NextResponse.json(
+        {
+          error: "Chapter numbers change only by reordering chapters.",
+          code: "USE_REORDER",
+          reorderUrl: `/api/books/${bookId}/chapters/reorder`,
+        },
+        { status: 400 }
+      );
+    }
     const data = updateChapterSchema.parse(body);
 
     const book = await db.book.findFirst({
@@ -82,15 +94,6 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
     }
     const zodRes = zodErrorResponse(error);
     if (zodRes) return zodRes;
-    // P7-S12: renumbering onto a taken number trips
-    // @@unique([bookId, chapterNumber]) as P2002 — a conflict, not a server
-    // fault. Same 409 and message as the create route (D-20).
-    if ((error as { code?: string })?.code === "P2002") {
-      return NextResponse.json(
-        { error: "A chapter with that number already exists in this book" },
-        { status: 409 }
-      );
-    }
     console.error("PATCH /api/books/:id/chapters/:chapterId error:", error);
     return NextResponse.json(
       { error: "Failed to update chapter" },

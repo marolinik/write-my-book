@@ -65,7 +65,6 @@ export function useUpdateChapter(bookId: string, chapterId: string) {
       title?: string;
       status?: string;
       actNumber?: number;
-      chapterNumber?: number;
       targetWordCount?: number | null;
     }) =>
       fetchJson(`/api/books/${bookId}/chapters/${chapterId}`, {
@@ -87,7 +86,7 @@ export function useUpdateAnyChapter(bookId: string) {
   return useMutation({
     mutationFn: (args: {
       chapterId: string;
-      data: { title?: string; status?: string; actNumber?: number; chapterNumber?: number };
+      data: { title?: string; status?: string; actNumber?: number };
     }) =>
       fetchJson(`/api/books/${bookId}/chapters/${args.chapterId}`, {
         method: "PATCH",
