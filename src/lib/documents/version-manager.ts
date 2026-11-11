@@ -69,7 +69,9 @@ export class VersionManager {
       });
 
       return version;
-    });
+      // P2-75: the snapshot upload runs inside this transaction while the
+      // document row is locked; the 5 s default closed it under a slow PUT.
+    }, { timeout: 30_000, maxWait: 10_000 });
 
     return result;
   }

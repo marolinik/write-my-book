@@ -16,7 +16,7 @@ Set the four `OFFSITE_*` variables (Backblaze B2, EU; see `docs/LAUNCH-2026-10.m
 
 ## 1. Back up first
 
-Schema changes owed by Wave 2 (2026-11): `usage_records.book_id` becomes nullable with `ON DELETE SET NULL`, so platform spend survives a deleted book. Wave 3 adds the `account_erasures` table (durable account erasure). The schema push in the steps below applies them. After it, `/api/health/dependencies` checks every table and column of `prisma/schema.prisma` (regenerate the list with `npm run schema:contract` after any schema change), and the worker creates the Neo4j constraints at boot (`npm run graph:init` does the same by hand).
+Schema changes owed by Wave 2 (2026-11): `usage_records.book_id` becomes nullable with `ON DELETE SET NULL`, so platform spend survives a deleted book. Wave 3 adds the `account_erasures` table (durable account erasure) and indexes on the hot tables (usage_records, agent_sessions, edit_actions and six foreign keys). The schema push in the steps below applies them. After it, `/api/health/dependencies` checks every table and column of `prisma/schema.prisma` (regenerate the list with `npm run schema:contract` after any schema change), and the worker creates the Neo4j constraints at boot (`npm run graph:init` does the same by hand).
 
 
 Follow `docs/database-deploy-backup.md`: take a fresh dump and record it in `DB_BACKUP_CONFIRMED_AT` / `DB_BACKUP_LOCATION`. The schema push refuses to run without them.

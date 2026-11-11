@@ -16,7 +16,9 @@ function createDriver(): Driver {
 
   return neo4j.driver(uri, neo4j.auth.basic(user, password), {
     maxConnectionPoolSize: 50,
-    connectionAcquisitionTimeout: 30_000,
+    // P2-44: give up on a busy or down Neo4j within 10 s.
+    connectionAcquisitionTimeout: 10_000,
+    connectionTimeout: 10_000,
     maxTransactionRetryTime: 15_000,
   });
 }

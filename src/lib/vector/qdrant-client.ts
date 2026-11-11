@@ -20,6 +20,8 @@ function createClient(): QdrantClient {
     url,
     ...(apiKey ? { apiKey } : {}),
     checkCompatibility: false,
+    // P2-44: the library default is 300 s; a hung Qdrant pinned a worker slot.
+    timeout: 10_000,
   });
 }
 
