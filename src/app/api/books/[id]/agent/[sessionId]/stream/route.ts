@@ -88,13 +88,13 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
             let finished = false;
             let replaying = true;
             const pendingLive: string[] = [];
-            let keepaliveInterval: ReturnType<typeof setInterval> | undefined;
+            const keepalive: { timer?: ReturnType<typeof setInterval> } = {};
             let workerWatchdog: ReturnType<typeof setTimeout> | undefined;
 
             const finish = () => {
               if (finished) return;
               finished = true;
-              if (keepaliveInterval) clearInterval(keepaliveInterval);
+              if (keepalive.timer) clearInterval(keepalive.timer);
               if (workerWatchdog) {
                 clearTimeout(workerWatchdog);
                 workerWatchdog = undefined;
@@ -189,17 +189,17 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
               }, WORKER_GRACE_MS);
 
             // Keepalive heartbeat (same interval as inline path)
-            keepaliveInterval = setInterval(() => {
+            keepalive.timer = setInterval(() => {
               try {
                 controller.enqueue(encoder.encode(`: keepalive\n\n`));
               } catch {
-                clearInterval(keepaliveInterval);
+                clearInterval(keepalive.timer);
               }
             }, 15_000);
 
             // Handle client disconnect
             _req.signal.addEventListener("abort", () => {
-              clearInterval(keepaliveInterval);
+              clearInterval(keepalive.timer);
               if (workerWatchdog) {
                 clearTimeout(workerWatchdog);
                 workerWatchdog = undefined;
