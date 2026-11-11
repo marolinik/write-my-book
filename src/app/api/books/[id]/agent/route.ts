@@ -45,7 +45,7 @@ import type {
   DelegationContext,
 } from "@/lib/agents";
 import { processPostSession } from "@/lib/agents";
-import { enqueueAgentJob } from "@/lib/queue";
+import { enqueueOrRollback } from "@/lib/queue/queue-status";
 import type { AgentJobData } from "@/lib/queue";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { getDefaultModelId } from "@/lib/llm/defaults";
@@ -476,18 +476,27 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         isConversational: workflow.conversational,
       };
 
-      const job = await enqueueAgentJob(jobData);
-
-      // Store jobId in DB so the SSE stream route knows this is a background job
-      await db.agentSession.update({
-        where: { id: dbSession.id },
-        data: { jobId: job.id },
+      // P2-32: enqueue, or undo the start (row and Free session) and say so,
+      // instead of hanging on an unreachable Redis.
+      const enqueued = await enqueueOrRollback({
+        sessionId: dbSession.id,
+        userId: user.id,
+        jobData,
       });
+      if (!enqueued.ok) {
+        return NextResponse.json(
+          {
+            error: "The background queue is unavailable right now. Please try again in a minute.",
+            code: "QUEUE_UNAVAILABLE",
+          },
+          { status: 503 }
+        );
+      }
 
       return NextResponse.json({
         sessionId: dbSession.id,
         queued: true,
-        jobId: job.id,
+        jobId: enqueued.jobId,
       });
     } else {
       // --- Existing Inline SSE Path (unchanged) ---

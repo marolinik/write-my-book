@@ -5,6 +5,9 @@ import { getSession, addListener } from "@/lib/agents";
 import { createRedisConnection } from "@/lib/queue";
 import { getAppConnection } from "@/lib/queue/connection";
 import { decodeLiveEvent } from "@/lib/queue/session-stream";
+import { queuePosition } from "@/lib/queue/queue-status";
+import { agentQueue } from "@/lib/queue/agent-queue";
+import { markSessionTerminal } from "@/lib/queue/session-terminal";
 import {
   isJobStuckWithoutWorker,
   WORKER_ABSENT_MESSAGE,
@@ -16,6 +19,7 @@ import {
  * consumer gap before we declare the job unconsumable.
  */
 const WORKER_GRACE_MS = 10_000;
+const WATCHDOG_INTERVAL_MS = 10_000;
 
 type RouteParams = {
   params: Promise<{ id: string; sessionId: string }>;
@@ -171,22 +175,43 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
             // worker is consuming the queue, surface an error instead of leaving
             // the client on a silent infinite spinner. Fires once after a short
             // grace; a running worker will have advanced the job by then.
-            workerWatchdog =
-              setTimeout(() => {
-                void (async () => {
-                  try {
-                    if (!(await isJobStuckWithoutWorker(sessionId))) return;
-                    const errorMsg = {
-                      type: "error" as const,
-                      content: WORKER_ABSENT_MESSAGE,
-                    };
-                    // deliver() numbers it and finish()es on the terminal error.
-                    deliver(null, JSON.stringify(errorMsg));
-                  } catch (err) {
-                    console.error("[SSE-Redis] Worker watchdog error:", err);
+            // P1-16: re-armed every 10 s while the job waits, not fired once.
+            // A job queued behind a busy worker streams its place in line (a
+            // status event, not stored, so it never replays); only a job with
+            // no worker at all is an outage, and it is removed so a retry
+            // cannot run it twice.
+            const checkQueue = async () => {
+              if (finished) return;
+              try {
+                if (await isJobStuckWithoutWorker(sessionId)) {
+                  if (dbSession.jobId) {
+                    const job = await agentQueue.getJob(dbSession.jobId);
+                    await job?.remove().catch(() => {});
                   }
-                })();
-              }, WORKER_GRACE_MS);
+                  await markSessionTerminal(sessionId, "failed", WORKER_ABSENT_MESSAGE).catch(() => {});
+                  deliver(null, JSON.stringify({ type: "error", content: WORKER_ABSENT_MESSAGE }));
+                  return;
+                }
+                const position = dbSession.jobId ? await queuePosition(dbSession.jobId) : null;
+                if (position !== null) {
+                  const status = {
+                    type: "status",
+                    content: `Waiting for the background worker: position ${position} in the queue.`,
+                    metadata: { queued: true, position },
+                  };
+                  try {
+                    controller.enqueue(encoder.encode(`data: ${JSON.stringify(status)}\n\n`));
+                  } catch {
+                    finish();
+                    return;
+                  }
+                }
+              } catch (err) {
+                console.error("[SSE-Redis] Worker watchdog error:", err);
+              }
+              if (!finished) workerWatchdog = setTimeout(checkQueue, WATCHDOG_INTERVAL_MS);
+            };
+            workerWatchdog = setTimeout(checkQueue, WORKER_GRACE_MS);
 
             // Keepalive heartbeat (same interval as inline path)
             keepalive.timer = setInterval(() => {
