@@ -328,7 +328,17 @@ export async function deleteBookVectors(bookId: string): Promise<void> {
         must: [{ key: "bookId", match: { value: bookId } }],
       },
     });
-  } catch {
-    // Ignore errors if collection doesn't exist
+  } catch (error) {
+    // Same rule as deleteBookChunks (P2-46): only a missing collection is fine.
+    if (isQdrantNotFound(error)) return;
+    console.error(`[vector] deleteBookVectors(${bookId}) failed:`, error);
+    throw error;
   }
 }
+
+/** Qdrant answers 404 when the collection does not exist: nothing to delete. */
+function isQdrantNotFound(error: unknown): boolean {
+  const e = error as { status?: number; message?: string } | null;
+  return e?.status === 404 || /not found/i.test(e?.message ?? "");
+}
+
