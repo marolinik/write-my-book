@@ -1462,6 +1462,7 @@ export const ZH: UIStrings = {
     memoryIndexRebuilt: "记忆索引已重建",
     memoryIndexingPaused: "免费计划的记忆索引已暂停：您已超过 AI 字数上限。升级以索引书籍的其余部分。",
     memoryIndexingUnavailable: "记忆索引目前不可用。请稍后重试。",
+    memoryIndexRebuildPartial: "有 {count} 个文档未能建立索引。其余记忆已重建，请稍后重试。",
     bookMemoryCleared: "书籍记忆已清除",
     styleProfileSaved: "风格档案已保存",
     characterLensCreated: "角色视角已创建",
@@ -2115,5 +2116,7 @@ export const ZH: UIStrings = {
     DIRECT_KEY_UNSUPPORTED: "此模型无法使用直连密钥。请在设置中选择其他模型。",
     AI_RESPONSE_INVALID: "AI 返回了无法使用的回答。请重试。",
     AI_GENERATION_FAILED: "AI 未能完成。请重试。",
+    LAST_API_KEY: "无法删除最后一个 API 密钥。请先添加另一个密钥。",
+    KEY_IN_USE: "AI 会话运行期间无法删除此密钥。请等待其完成后重试。",
   },
 };

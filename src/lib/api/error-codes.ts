@@ -32,6 +32,8 @@ export const API_ERROR_CODES = [
   "DIRECT_KEY_UNSUPPORTED",
   "AI_RESPONSE_INVALID",
   "AI_GENERATION_FAILED",
+  "LAST_API_KEY",
+  "KEY_IN_USE",
 ] as const;
 
 export type ApiErrorCode = (typeof API_ERROR_CODES)[number];

@@ -1462,6 +1462,7 @@ export const ES: UIStrings = {
     memoryIndexRebuilt: "Índice de memoria reconstruido",
     memoryIndexingPaused: "La indexación de la memoria está en pausa en el plan Free: ha superado el límite de palabras con IA. Mejore su plan para indexar el resto del libro.",
     memoryIndexingUnavailable: "La indexación de la memoria no está disponible ahora. Inténtelo más tarde.",
+    memoryIndexRebuildPartial: "No se pudieron indexar {count} documentos. El resto de la memoria se reconstruyó; inténtelo más tarde.",
     bookMemoryCleared: "Memoria del libro borrada",
     styleProfileSaved: "Perfil de estilo guardado",
     characterLensCreated: "Perspectiva de personaje creada",
@@ -2115,5 +2116,7 @@ export const ES: UIStrings = {
     DIRECT_KEY_UNSUPPORTED: "Este modelo no se puede usar con una clave directa. Elige otro modelo en Ajustes.",
     AI_RESPONSE_INVALID: "La IA devolvió una respuesta inutilizable. Inténtalo de nuevo.",
     AI_GENERATION_FAILED: "La IA no pudo terminar. Inténtalo de nuevo.",
+    LAST_API_KEY: "No puede eliminar su última clave de API. Añada otra clave primero.",
+    KEY_IN_USE: "No se puede eliminar la clave mientras se ejecuta una sesión de IA. Espere a que termine e inténtelo de nuevo.",
   },
 };

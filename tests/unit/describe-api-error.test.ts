@@ -88,3 +88,35 @@ describe("the hooks", () => {
     expect(offenders).toEqual([]);
   });
 });
+
+// Review I-1 (Wave 4): hooks that had already said the failure in the writer's
+// language threw a plain Error, and describeApiError turned it into "Something
+// went wrong" (the missing-prerequisite line under the agent panel, the Free
+// indexing gate, the last-API-key refusal).
+describe("a sentence the hook already localized", () => {
+  it("is shown as it is", async () => {
+    const { LocalizedError } = await import("@/lib/api/describe-api-error");
+    expect(describeApiError(new LocalizedError("Nedostaje biblija priče."), sr)).toBe("Nedostaje biblija priče.");
+  });
+
+  it("the api-key refusals carry codes with their own sentence", () => {
+    expect(describeApiError(new ApiError("x", 400, { code: "LAST_API_KEY" }), sr)).toBe(sr.apiErrors.LAST_API_KEY);
+    expect(describeApiError(new ApiError("x", 409, { code: "KEY_IN_USE" }), sr)).toBe(sr.apiErrors.KEY_IN_USE);
+    const route = readFileSync(join(__dirname, "..", "..", "src", "app", "api", "settings", "api-keys", "[id]", "route.ts"), "utf-8");
+    expect(route).toContain('code: "LAST_API_KEY"');
+    expect(route).toContain('code: "KEY_IN_USE"');
+  });
+
+  it("no hook throws a translated or server sentence as a plain Error", () => {
+    const dir = join(__dirname, "..", "..", "src", "hooks");
+    const offenders: string[] = [];
+    for (const file of readdirSync(dir).filter((f) => /\.tsx?$/.test(f))) {
+      readFileSync(join(dir, file), "utf-8").split(/\r?\n/).forEach((line, i) => {
+        if (/new Error\(\s*(?:t\.|notice\.|err\.error|body\.error|"SETUP_INCOMPLETE")/.test(line)) {
+          offenders.push(`${file}:${i + 1}: ${line.trim()}`);
+        }
+      });
+    }
+    expect(offenders).toEqual([]);
+  });
+});

@@ -1462,6 +1462,7 @@ export const DE: UIStrings = {
     memoryIndexRebuilt: "Gedächtnisindex neu aufgebaut",
     memoryIndexingPaused: "Die Gedächtnis-Indexierung ist im Free-Plan pausiert: Sie haben die KI-Wortgrenze überschritten. Upgraden Sie, um den Rest Ihres Buchs zu indexieren.",
     memoryIndexingUnavailable: "Die Gedächtnis-Indexierung ist derzeit nicht verfügbar. Versuchen Sie es später erneut.",
+    memoryIndexRebuildPartial: "{count} Dokumente konnten nicht indexiert werden. Der Rest des Gedächtnisses wurde neu aufgebaut; versuchen Sie es später erneut.",
     bookMemoryCleared: "Buchgedächtnis gelöscht",
     styleProfileSaved: "Stilprofil gespeichert",
     characterLensCreated: "Figurenperspektive erstellt",
@@ -2115,5 +2116,7 @@ export const DE: UIStrings = {
     DIRECT_KEY_UNSUPPORTED: "Dieses Modell kann nicht mit einem direkten Schlüssel genutzt werden. Wählen Sie in den Einstellungen ein anderes Modell.",
     AI_RESPONSE_INVALID: "Die KI hat eine unbrauchbare Antwort geliefert. Bitte versuchen Sie es erneut.",
     AI_GENERATION_FAILED: "Die KI konnte nicht fertig werden. Bitte versuchen Sie es erneut.",
+    LAST_API_KEY: "Sie können Ihren letzten API-Schlüssel nicht entfernen. Fügen Sie zuerst einen weiteren hinzu.",
+    KEY_IN_USE: "Der Schlüssel kann nicht entfernt werden, solange eine KI-Sitzung läuft. Warten Sie, bis sie beendet ist, und versuchen Sie es erneut.",
   },
 };

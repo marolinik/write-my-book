@@ -1354,6 +1354,8 @@ export interface UIStrings {
     memoryIndexRebuilt: string;
     memoryIndexingPaused: string;
     memoryIndexingUnavailable: string;
+    /** {count} = documents that could not be embedded (P2-42). */
+    memoryIndexRebuildPartial: string;
     bookMemoryCleared: string;
     styleProfileSaved: string;
     characterLensCreated: string;

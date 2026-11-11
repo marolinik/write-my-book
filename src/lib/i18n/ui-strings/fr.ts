@@ -1462,6 +1462,7 @@ export const FR: UIStrings = {
     memoryIndexRebuilt: "Index de mémoire reconstruit",
     memoryIndexingPaused: "L’indexation de la mémoire est en pause sur le plan Free : vous avez dépassé la limite de mots IA. Passez à un plan supérieur pour indexer le reste du livre.",
     memoryIndexingUnavailable: "L’indexation de la mémoire est indisponible pour le moment. Réessayez plus tard.",
+    memoryIndexRebuildPartial: "{count} documents n’ont pas pu être indexés. Le reste de la mémoire a été reconstruit ; réessayez plus tard.",
     bookMemoryCleared: "Mémoire du livre effacée",
     styleProfileSaved: "Profil de style enregistré",
     characterLensCreated: "Perspective de personnage créée",
@@ -2115,5 +2116,7 @@ export const FR: UIStrings = {
     DIRECT_KEY_UNSUPPORTED: "Ce modèle ne peut pas être utilisé avec une clé directe. Choisissez un autre modèle dans les Paramètres.",
     AI_RESPONSE_INVALID: "L’IA a renvoyé une réponse inutilisable. Veuillez réessayer.",
     AI_GENERATION_FAILED: "L’IA n’a pas pu terminer. Veuillez réessayer.",
+    LAST_API_KEY: "Vous ne pouvez pas supprimer votre dernière clé API. Ajoutez d’abord une autre clé.",
+    KEY_IN_USE: "Impossible de supprimer la clé pendant qu’une session IA est en cours. Attendez qu’elle se termine, puis réessayez.",
   },
 };

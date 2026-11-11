@@ -13,7 +13,7 @@ import {
 } from "@/lib/agents/prerequisite-message";
 import type { PageContext } from "@/lib/agents/types";
 import { useUpgradeModal } from "@/hooks/use-billing";
-import { responseError } from "@/lib/api/describe-api-error";
+import { responseError, LocalizedError } from "@/lib/api/describe-api-error";
 import { ApiError } from "@/lib/api-client";
 
 /**
@@ -78,7 +78,7 @@ export function useStartSession(bookId: string) {
         if (res.status === 422 && body.setupIncomplete) {
           toast.info(t.toasts.completeSetupFirst);
           router.push(`/books/${bookId}/setup`);
-          throw new Error("SETUP_INCOMPLETE");
+          throw new LocalizedError(t.toasts.completeSetupFirst);
         }
 
         if (res.status === 401) {
@@ -118,7 +118,7 @@ export function useStartSession(bookId: string) {
                 }
               : {}),
           });
-          throw new Error(notice.text);
+          throw new LocalizedError(notice.text);
         }
 
         throw startFailure(body, res.status);

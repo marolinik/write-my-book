@@ -1462,6 +1462,7 @@ export const SR: UIStrings = {
     memoryIndexRebuilt: "Indeks pamćenja je ponovo izgrađen",
     memoryIndexingPaused: "Indeksiranje pamćenja je pauzirano na Free planu: prešli ste granicu reči za AI. Nadogradite plan da bi se indeksirao ostatak knjige.",
     memoryIndexingUnavailable: "Indeksiranje pamćenja trenutno nije dostupno. Pokušajte kasnije.",
+    memoryIndexRebuildPartial: "Nije uspelo indeksiranje dokumenata: {count}. Ostatak pamćenja je ponovo izgrađen; pokušajte kasnije.",
     bookMemoryCleared: "Pamćenje knjige je obrisano",
     styleProfileSaved: "Stilski profil je sačuvan",
     characterLensCreated: "Perspektiva lika je napravljena",
@@ -2115,5 +2116,7 @@ export const SR: UIStrings = {
     DIRECT_KEY_UNSUPPORTED: "Ovaj model ne može da se koristi s direktnim ključem. Izaberi drugi model u podešavanjima.",
     AI_RESPONSE_INVALID: "AI je vratio odgovor koji ne može da se iskoristi. Pokušaj ponovo.",
     AI_GENERATION_FAILED: "AI nije uspeo da završi. Pokušaj ponovo.",
+    LAST_API_KEY: "Ne možeš da ukloniš poslednji API ključ. Prvo dodaj drugi ključ.",
+    KEY_IN_USE: "Ključ ne može da se ukloni dok AI sesija radi. Sačekaj da se završi, pa pokušaj ponovo.",
   },
 };

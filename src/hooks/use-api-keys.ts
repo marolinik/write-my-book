@@ -109,14 +109,9 @@ export function useDeleteApiKey() {
         method: "DELETE",
       });
       if (!res.ok) {
-        const err = await res.json();
-
-        // Surface specific error messages from the server
-        if (res.status === 400 || res.status === 409) {
-          throw new Error(err.error);
-        }
-
-        throw await responseError(res, err);
+        // 400 LAST_API_KEY and 409 KEY_IN_USE carry codes with their own
+        // sentence in every UI language (describeApiError).
+        throw await responseError(res);
       }
       return res.json();
     },

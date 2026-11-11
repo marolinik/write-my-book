@@ -3,7 +3,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useLanguage } from "@/components/providers/language-provider";
-import { responseError, describeApiError } from "@/lib/api/describe-api-error";
+import { responseError, describeApiError, LocalizedError } from "@/lib/api/describe-api-error";
+import { rebuildOutcome, type RebuildResponse } from "@/lib/memory/rebuild-outcome";
 
 interface GlobalMemoryStats {
   totalChunks: number;
@@ -66,17 +67,19 @@ export function useRebuildIndex() {
         // they are said in the writer's language; anything else is a failure
         // whose server reason is the best thing to show.
         if (res.status === 402 || err.indexingPaused === true) {
-          throw new Error(t.toasts.memoryIndexingPaused);
+          throw new LocalizedError(t.toasts.memoryIndexingPaused);
         }
-        if (res.status === 503) throw new Error(t.toasts.memoryIndexingUnavailable);
+        if (res.status === 503) throw new LocalizedError(t.toasts.memoryIndexingUnavailable);
         throw await responseError(res, err);
       }
-      return res.json();
+      return res.json() as Promise<RebuildResponse>;
     },
-    onSuccess: (_data, bookId) => {
+    onSuccess: (data, bookId) => {
       qc.invalidateQueries({ queryKey: ["memory-stats"] });
       qc.invalidateQueries({ queryKey: ["memory-stats", bookId] });
-      toast.success(t.toasts.memoryIndexRebuilt);
+      const outcome = rebuildOutcome(data, t);
+      if (outcome.ok) toast.success(outcome.text);
+      else toast.error(outcome.text);
     },
     onError: (err) => toast.error(describeApiError(err, t)),
   });

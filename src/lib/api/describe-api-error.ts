@@ -35,7 +35,20 @@ function isTransportFailure(error: unknown): boolean {
   return error instanceof TypeError && /fetch|network|load failed/i.test(error.message);
 }
 
+/**
+ * A failure the client already said in the writer's language (a missing
+ * prerequisite, a plan gate it explains itself). describeApiError shows its
+ * message as it is instead of a family sentence.
+ */
+export class LocalizedError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "LocalizedError";
+  }
+}
+
 export function describeApiError(error: unknown, t: UIStrings): string {
+  if (error instanceof LocalizedError) return error.message;
   if (error instanceof ApiError || isFailureShape(error)) {
     return t.apiErrors[codeForFailure(error.status, error.body)];
   }

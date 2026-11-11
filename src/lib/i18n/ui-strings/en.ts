@@ -1473,6 +1473,7 @@ export const EN: UIStrings = {
     memoryIndexRebuilt: "Memory index rebuilt successfully",
     memoryIndexingPaused: "Memory indexing is paused on the Free plan: you have passed the AI-eligible word cap. Upgrade to index the rest of your book.",
     memoryIndexingUnavailable: "Memory indexing is unavailable right now. Try again later.",
+    memoryIndexRebuildPartial: "{count} documents could not be indexed. The rest of the memory was rebuilt; try again later.",
     bookMemoryCleared: "Book memory cleared",
     styleProfileSaved: "Style profile saved",
     characterLensCreated: "Character lens created",
@@ -2126,5 +2127,7 @@ export const EN: UIStrings = {
     DIRECT_KEY_UNSUPPORTED: "This model can't be used with a direct key. Choose another model in Settings.",
     AI_RESPONSE_INVALID: "The AI returned an unusable answer. Please try again.",
     AI_GENERATION_FAILED: "The AI could not finish. Please try again.",
+    LAST_API_KEY: "You can't remove your last API key. Add another key first.",
+    KEY_IN_USE: "This key can't be removed while an AI session is running. Wait for it to finish, then try again.",
   },
 };

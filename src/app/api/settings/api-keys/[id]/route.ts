@@ -106,6 +106,7 @@ export async function DELETE(
         {
           error:
             "Cannot remove your last API key. You must have at least one active key.",
+          code: "LAST_API_KEY",
         },
         { status: 400 }
       );
@@ -121,6 +122,7 @@ export async function DELETE(
         {
           error:
             "Cannot remove key while agent sessions are running.",
+          code: "KEY_IN_USE",
         },
         { status: 409 }
       );
