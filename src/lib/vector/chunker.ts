@@ -4,6 +4,8 @@
  * Strips markdown formatting before chunking for cleaner embeddings.
  */
 
+import { estimateTextTokens, hasHanKana } from "@/lib/text/cjk";
+
 import crypto from "crypto";
 
 export interface ChunkOptions {
@@ -24,10 +26,53 @@ export interface TextChunk {
 const SCENE_BREAK_PATTERN =
   /(?:^|\n)(?:\* \* \*|---|\*\*\*|#{1,6} |\n{3,})/;
 
-/** Approximate tokens as words * 1.3 */
+/** Approximate tokens: words * 1.3, and about 1.5 per Han or kana character (P2-43). */
 function estimateTokens(text: string): number {
-  const wordCount = text.split(/\s+/).filter(Boolean).length;
-  return Math.ceil(wordCount * 1.3);
+  return estimateTextTokens(text);
+}
+
+/**
+ * P2-43: Chinese and Japanese have no spaces to split on. The units are
+ * sentences (ended by 。！？ or a line break); a sentence over the budget is
+ * cut by characters.
+ */
+function cjkUnits(text: string, maxTokens: number): string[] {
+  const sentences = text.match(/[^。！？!?\n]+[。！？!?\n]*|[。！？!?\n]+/g) ?? [text];
+  const maxChars = Math.max(1, Math.floor(maxTokens / 1.5));
+  const units: string[] = [];
+  for (const sentence of sentences) {
+    if (estimateTokens(sentence) <= maxTokens) {
+      units.push(sentence);
+      continue;
+    }
+    for (let i = 0; i < sentence.length; i += maxChars) units.push(sentence.slice(i, i + maxChars));
+  }
+  return units;
+}
+
+function splitCjkWindows(text: string, maxTokens: number, overlapTokens: number): string[] {
+  if (estimateTokens(text) <= maxTokens) return [text];
+  const units = cjkUnits(text, maxTokens);
+  const windows: string[] = [];
+  let start = 0;
+  while (start < units.length) {
+    let end = start;
+    let tokens = 0;
+    while (end < units.length && (end === start || tokens + estimateTokens(units[end]) <= maxTokens)) {
+      tokens += estimateTokens(units[end]);
+      end++;
+    }
+    windows.push(units.slice(start, end).join(""));
+    if (end >= units.length) break;
+    let back = end;
+    let overlap = 0;
+    while (back - 1 > start && overlap + estimateTokens(units[back - 1]) <= overlapTokens) {
+      overlap += estimateTokens(units[back - 1]);
+      back--;
+    }
+    start = back;
+  }
+  return windows;
 }
 
 /**
@@ -280,6 +325,7 @@ function splitIntoWindows(
   maxTokens: number,
   overlapTokens: number
 ): string[] {
+  if (hasHanKana(text)) return splitCjkWindows(text, maxTokens, overlapTokens);
   const words = text.split(/\s+/).filter(Boolean);
   if (words.length === 0) return [];
 

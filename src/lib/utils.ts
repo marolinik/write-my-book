@@ -1,19 +1,22 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { countMixedWords } from "@/lib/text/cjk";
 
 /** Merge Tailwind classes with conflict resolution. */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-/** Count words in a markdown/text string. */
+/**
+ * Count words in a markdown/text string. P2-47: each Han or kana character is
+ * a word, as word processors count Chinese and Japanese; everything else is
+ * split on whitespace as before.
+ */
 export function countWords(text: string): number {
-  return text
+  const plain = text
     .replace(/```[\s\S]*?```/g, "") // strip code blocks
-    .replace(/[#*_~`>|-]/g, "") // strip markdown syntax
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean).length;
+    .replace(/[#*_~`>|-]/g, ""); // strip markdown syntax
+  return countMixedWords(plain);
 }
 
 /** Generate an S3 prefix for a book. */

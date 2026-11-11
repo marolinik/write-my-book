@@ -86,15 +86,18 @@ export async function indexDocument(
   // `chapterContent: true`, so it can never touch a chapter's brief/plan (which share
   // the mapped "chapter" docType and the same chapterNumber). Everything else
   // (findings, sessions, research, briefs, plans) stays docId-scoped.
+  //
+  // P2-42: embed FIRST. Deleting before embedding meant an OpenAI 429, 5xx or
+  // timeout wiped the chapter from memory until the next save; now a failed
+  // embed throws before anything is deleted and the previous chunks stay.
+  const texts = chunks.map((c) => c.text);
+  const { vectors, tokensUsed } = await embedBatch(texts);
+
   if (metadata.chapterContent && metadata.chapterNumber != null) {
     await deleteChapterContentChunks(bookId, metadata.chapterNumber);
   } else {
     await deleteChunksForDocument(bookId, docType, docId);
   }
-
-  // Embed all chunks in batch
-  const texts = chunks.map((c) => c.text);
-  const { vectors, tokensUsed } = await embedBatch(texts);
 
   // Build points with unified MemoryChunkPayload
   const now = new Date().toISOString();
