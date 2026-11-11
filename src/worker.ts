@@ -20,6 +20,8 @@ import { processAgentJob } from "@/lib/queue/agent-worker";
 import { QUEUE_NAME } from "@/lib/queue/agent-queue";
 import { processBatchDigestJob } from "@/lib/queue/batch-digest";
 import { BATCH_DIGEST_QUEUE_NAME } from "@/lib/queue/batch-flow";
+import { ERASURE_QUEUE_NAME, enqueueErasure } from "@/lib/queue/erasure-queue";
+import { processErasureJob, reapPendingErasures } from "@/lib/queue/erasure-worker";
 import { assertEnvReady } from "@/lib/env";
 
 // ── Error monitoring ─────────────────────────────────────────────────
@@ -90,6 +92,29 @@ digestWorker.on("failed", (job, error) => {
   });
   console.error(`[DigestWorker] Job ${job?.id} failed:`, error.message);
 });
+
+// ── Account erasure Worker (P1-3) ────────────────────────────────────
+// Retries each store of a deleted account until all are erased. Concurrency 1:
+// erasures are rare and should not compete with writers' sessions.
+const erasureWorker = new Worker(ERASURE_QUEUE_NAME, processErasureJob, {
+  connection: createRedisConnection(),
+  concurrency: 1,
+});
+
+erasureWorker.on("failed", (job, error) => {
+  Sentry.captureException(error, { extra: { jobId: job?.id, attemptsMade: job?.attemptsMade } });
+  console.error(`[ErasureWorker] Job ${job?.id} failed:`, error.message);
+});
+
+// The reaper re-queues erasures still pending: an enqueue lost to a Redis
+// outage, or a job that used up its attempts.
+const ERASURE_REAP_MS = 15 * 60_000;
+const reapErasures = () =>
+  reapPendingErasures(enqueueErasure).catch((error: unknown) =>
+    reportWorkerError("[ErasureReaper] Error:", error as Error)
+  );
+void reapErasures();
+const erasureReaper = setInterval(reapErasures, ERASURE_REAP_MS);
 
 worker.on("completed", (job) => {
   console.log(
@@ -165,7 +190,8 @@ process.on("uncaughtException", (error) => {
 
 const shutdown = async (signal: string) => {
   console.log(`[Worker] ${signal} received, closing gracefully...`);
-  await Promise.all([worker.close(), digestWorker.close()]);
+  clearInterval(erasureReaper);
+  await Promise.all([worker.close(), digestWorker.close(), erasureWorker.close()]);
   if (healthServer) {
     await new Promise<void>((resolve) => healthServer.close(() => resolve()));
   }

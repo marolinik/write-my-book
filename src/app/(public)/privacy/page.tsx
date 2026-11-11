@@ -346,6 +346,11 @@ export default function PrivacyPage() {
               <li>
                 Text sent to an AI provider is kept according to that provider&apos;s terms.
               </li>
+              <li>
+                <Term>Background jobs</Term>: a long AI task waits in our job queue, with the
+                message you sent it, for at most a day after it ends. Deleting your account
+                removes it sooner.
+              </li>
             </ul>
           </Section>
 

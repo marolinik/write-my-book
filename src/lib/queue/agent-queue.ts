@@ -67,10 +67,12 @@ export const agentQueue = new Queue<AgentJobData>(QUEUE_NAME, {
       type: "exponential",
       delay: 30_000, // 30s base delay: 30s -> 60s -> 120s
     },
-    /** Keep the last 100 completed jobs for inspection. */
-    removeOnComplete: { count: 100 },
-    /** Keep the last 50 failed jobs for debugging. */
-    removeOnFail: { count: 50 },
+    /**
+     * Keep recent jobs for inspection, but never past a day: job data holds
+     * the writer's message text (P2-33).
+     */
+    removeOnComplete: { age: 86_400, count: 100 },
+    removeOnFail: { age: 86_400, count: 50 },
   },
 });
 

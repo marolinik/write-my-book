@@ -12,7 +12,7 @@ Everything in code is merged on `main`. What remains has to run **on the product
 
 ## 1. Back up first
 
-Schema changes owed by Wave 2 (2026-11): `usage_records.book_id` becomes nullable with `ON DELETE SET NULL`, so platform spend survives a deleted book. The schema push in the steps below applies it.
+Schema changes owed by Wave 2 (2026-11): `usage_records.book_id` becomes nullable with `ON DELETE SET NULL`, so platform spend survives a deleted book. Wave 3 adds the `account_erasures` table (durable account erasure). The schema push in the steps below applies them.
 
 
 Follow `docs/database-deploy-backup.md`: take a fresh dump and record it in `DB_BACKUP_CONFIRMED_AT` / `DB_BACKUP_LOCATION`. The schema push refuses to run without them.

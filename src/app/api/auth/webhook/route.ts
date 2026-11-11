@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { getDefaultModelId } from "@/lib/llm/defaults";
 import { stripe } from "@/lib/billing";
-import { eraseAccountData } from "@/lib/erasure/account-data";
+import { enqueueErasure } from "@/lib/queue/erasure-queue";
 import { parseClerkEvent } from "@/lib/auth/clerk-webhook-schema";
 import {
   cancelAllStripeSubscriptions,
@@ -186,21 +186,45 @@ export async function POST(req: NextRequest) {
         // that links this writer to Stripe; if that went first, a failed
         // cancel would leave a subscription renewing that nobody can trace.
         await stopBillingForDeletedUser(clerkId);
-        // Read what the cascade will not reach before the rows are gone:
-        // stored files, memory chunks and the story graph are keyed by ids
-        // that live only in these rows.
-        const erasure = await db.user.findFirst({
-          where: { clerkId },
-          select: { id: true, books: { select: { id: true } } },
-        });
-        await db.user.deleteMany({
-          where: { clerkId },
-        });
-        if (erasure) {
-          await eraseAccountData({
-            userId: erasure.id,
-            bookIds: erasure.books.map((b) => b.id),
+        // P1-3: record what the cascade will not reach (stored files, memory
+        // chunks, the story graph, Redis, the Stripe customer) in the same
+        // transaction that deletes the rows, then queue the erasure. The job
+        // retries each store until all are done; a redelivery re-queues it.
+        const erasureId = await db.$transaction(async (tx) => {
+          const existing = await tx.accountErasure.findUnique({
+            where: { clerkId },
+            select: { id: true },
           });
+          if (existing) return existing.id;
+          const user = await tx.user.findFirst({
+            where: { clerkId },
+            select: {
+              id: true,
+              books: { select: { id: true } },
+              agentSessions: { select: { id: true } },
+              subscription: { select: { stripeCustomerId: true } },
+            },
+          });
+          if (!user) return null;
+          const erasure = await tx.accountErasure.create({
+            data: {
+              clerkId,
+              userId: user.id,
+              bookIds: user.books.map((b) => b.id),
+              sessionIds: (user.agentSessions ?? []).map((s) => s.id),
+              stripeCustomerId: user.subscription?.stripeCustomerId ?? null,
+            },
+          });
+          await tx.user.deleteMany({ where: { clerkId } });
+          return erasure.id;
+        });
+        if (erasureId) {
+          try {
+            await enqueueErasure(erasureId);
+          } catch (error) {
+            // The row is committed; the worker's reaper queues it later.
+            logger.error("Erasure enqueue failed; the reaper will pick it up", error);
+          }
         }
         break;
       }

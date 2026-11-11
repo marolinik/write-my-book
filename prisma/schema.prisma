@@ -358,6 +358,27 @@ model DocumentVersion {
 
 // ─── AGENT SESSIONS (with SDK team hierarchy) ───────────────────
 
+// P1-3: a deleted account's erasure from the stores the cascade does not
+// reach (S3, Qdrant, Neo4j, Redis, Stripe). Written with the user delete;
+// the account-erasure job retries each store until all are done.
+model AccountErasure {
+  id               String    @id @default(uuid())
+  clerkId          String    @unique @map("clerk_id")
+  userId           String    @map("user_id")
+  bookIds          String[]  @map("book_ids")
+  sessionIds       String[]  @map("session_ids")
+  stripeCustomerId String?   @map("stripe_customer_id")
+  doneStores       String[]  @default([]) @map("done_stores")
+  status           String    @default("pending") // pending, done
+  attempts         Int       @default(0)
+  lastError        String?   @map("last_error")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  completedAt      DateTime? @map("completed_at")
+
+  @@index([status, createdAt])
+  @@map("account_erasures")
+}
+
 model AgentSession {
   id              String    @id @default(uuid())
   bookId          String    @map("book_id")

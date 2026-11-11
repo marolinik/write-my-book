@@ -21,7 +21,7 @@ vi.mock("svix", () => ({
   },
 }));
 vi.mock("@/lib/db", () => ({ db: h.db }));
-vi.mock("@/lib/erasure/account-data", () => ({ eraseAccountData: vi.fn() }));
+vi.mock("@/lib/queue/erasure-queue", () => ({ enqueueErasure: vi.fn() }));
 vi.mock("@/lib/logger", () => ({ logger: h.logger }));
 vi.mock("@/lib/llm/defaults", () => ({ getDefaultModelId: () => "model-x" }));
 vi.mock("@/lib/billing", () => ({ stripe: null }));
