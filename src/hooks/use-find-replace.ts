@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchJson } from "@/lib/api-client";
+import { flushAllPendingSaves } from "@/components/editor/save-flush";
 
 export interface SearchSnippet {
   before: string;
@@ -55,18 +56,22 @@ export function useBookSearch(
 export function useBookReplace(bookId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (body: {
+    mutationFn: async (body: {
       find: string;
       replace: string;
       chapterIds?: string[];
       caseSensitive: boolean;
       wholeWord: boolean;
-    }) =>
-      fetchJson<ReplaceResponse>(`/api/books/${bookId}/search/replace`, {
+    }) => {
+      // P2-48: save what the writer typed first, so the rewrite starts from it
+      // and the next autosave does not 409 against the new version.
+      await flushAllPendingSaves();
+      return fetchJson<ReplaceResponse>(`/api/books/${bookId}/search/replace`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
-      }),
+      });
+    },
     onSuccess: () => {
       // Prefix-match invalidation reloads whichever chapter the editor holds;
       // the editor's clean-resync effect adopts the new version when idle.

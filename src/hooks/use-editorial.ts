@@ -6,6 +6,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { fetchJson } from "@/lib/api-client";
+import { flushAllPendingSaves } from "@/components/editor/save-flush";
 
 // Types for API responses
 interface FindingAlternative {
@@ -150,7 +151,10 @@ export function useApplyFinding(bookId: string) {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: (input: ApplyFindingInput) => {
+    mutationFn: async (input: ApplyFindingInput) => {
+      // P2-48: save what the writer typed first, so the rewrite starts from it
+      // and the next autosave does not 409 against the new version.
+      await flushAllPendingSaves();
       const findingId = typeof input === "string" ? input : input.findingId;
       const alternativeIndex = typeof input === "string" ? undefined : input.alternativeIndex;
       const overrideText = typeof input === "string" ? undefined : input.overrideText;
