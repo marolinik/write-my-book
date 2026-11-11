@@ -42,9 +42,9 @@ The push is cumulative: it brings production to the current `prisma/schema.prism
 | `canon_checks` table | cache for the story-bible check |
 | **removed:** `book_settings.language` | a second, unused copy of the book's language (default `en`); `books.language` is the only one read |
 
-**Expected data-loss warning:** dropping `book_settings.language` makes Prisma stop and ask for confirmation (or, non-interactively, fail with a hint to use `--accept-data-loss`). The column holds nothing anyone reads, so confirm. If the push runs non-interactively, run `npx prisma db push --accept-data-loss` and then `npm run db:guards`.
+**How a schema change is applied (P1-18):** `npm run db:diff` writes the SQL that takes the production database to `prisma/schema.prisma` into `prisma/pending-change.sql`. Read it. Every `DROP` must be one you expect (for example `book_settings.language`, which nothing reads). Then `npm run db:apply` repairs duplicate book-level documents, runs the reviewed SQL and installs the guards. Both steps refuse a remote database without `DB_DEPLOY_APPROVED=true` and a backup confirmed within two hours. There is no forced push.
 
-`db:push:prod` now ends with `npm run db:guards`. That step installs the triggers that keep `edit_actions` append-only while its book exists, and it is idempotent. After any **manual** `prisma db push`, run `npm run db:guards` yourself.
+`db:apply` ends with `npm run db:guards`. That step installs the triggers that keep `edit_actions` append-only while its book exists, and it is idempotent.
 
 Verify:
 

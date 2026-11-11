@@ -78,3 +78,5 @@ logz*
 
 # Python bytecode from local-llm-proxy.py
 __pycache__/
+# Reviewed per deploy, never committed (npm run db:diff)
+prisma/pending-change.sql

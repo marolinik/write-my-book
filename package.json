@@ -26,7 +26,9 @@
     "billing:check": "tsx scripts/check-stripe-config.ts",
     "auth:check": "tsx scripts/check-clerk-config.ts",
     "db:deploy:check": "tsx scripts/check-db-deploy.ts",
-    "db:push:prod": "npm run db:deploy:check && npx prisma generate && npx prisma db push && npm run db:guards",
+    "db:diff": "npm run db:deploy:check && npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --script -o prisma/pending-change.sql",
+    "db:apply": "npm run db:deploy:check && npx tsx scripts/repair-duplicate-documents.ts --execute && npx prisma db execute --file prisma/pending-change.sql && npm run db:guards",
+    "db:push:prod": "echo \"Schema changes are reviewed SQL now: npm run db:diff, read prisma/pending-change.sql, then npm run db:apply\" && exit 1",
     "db:guards": "tsx scripts/apply-db-guards.ts",
     "test:deployment-smoke": "playwright test --config playwright.deployment.config.ts"
   },
