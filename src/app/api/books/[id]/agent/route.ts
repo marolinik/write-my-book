@@ -36,6 +36,8 @@ import {
   validatePrerequisites,
   addUserMessage,
   addAssistantMessage,
+  beginTurn,
+  endTurn,
 } from "@/lib/agents";
 import type {
   AgentStreamMessage,
@@ -509,6 +511,9 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         "writing-coach",
         data.workflowId
       );
+      // Wave 3 review I2: the opening turn holds the session too, so a
+      // /message sent while it runs gets 409 instead of a second orchestrator.
+      beginTurn(dbSession.id);
 
       // -- Shared Cost Tracker --
       const sharedCostTracker: SharedCostTracker = {
@@ -748,7 +753,10 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       }
 
       // Fire and forget
-      orchestrator.runAgent(spawnOptions).catch(() => {});
+      orchestrator
+        .runAgent(spawnOptions)
+        .catch(() => {})
+        .finally(() => endTurn(dbSession.id));
 
       return NextResponse.json({ sessionId: dbSession.id });
     }

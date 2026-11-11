@@ -80,6 +80,9 @@ vi.mock("@anthropic-ai/sdk", () => ({
   },
 }));
 vi.mock("@/lib/agents", () => ({
+  // Wave 3 review I2 turn guard: always free in these route tests.
+  beginTurn: () => true,
+  endTurn: () => {},
   AgentOrchestrator: class {
     runAgent(opts: unknown) {
       return h.runAgent(opts);

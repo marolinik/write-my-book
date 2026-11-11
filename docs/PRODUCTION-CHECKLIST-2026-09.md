@@ -32,7 +32,8 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml pull minio minio
 ## 3. Schema and database guards
 
 ```sh
-npm run db:push:prod
+npm run db:diff     # writes prisma/pending-change.sql; read every DROP
+npm run db:apply    # needs DB_DEPLOY_APPROVED=true and a backup from the last 2 hours
 ```
 
 The push is cumulative: it brings production to the current `prisma/schema.prisma` in one go. New since the last production push:

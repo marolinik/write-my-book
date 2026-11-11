@@ -23,6 +23,7 @@ const h = vi.hoisted(() => ({
     subscription: { findFirst: vi.fn() },
     accountErasure: { findUnique: vi.fn(), create: vi.fn() },
     $transaction: vi.fn(),
+    $executeRaw: vi.fn(),
   },
   stripe: {
     subscriptions: { list: vi.fn(), cancel: vi.fn(), retrieve: vi.fn() },
@@ -323,5 +324,16 @@ describe("Clerk user.deleted — the writer's data leaves every store (GDPR eras
     const res = await POST(req() as never);
     expect(res.status).toBe(200);
     expect(h.eraseAccountData).not.toHaveBeenCalled();
+  });
+});
+
+describe("the user.deleted transaction (Wave 3 review I5)", () => {
+  it("is sized for a heavy account's cascade, not Prisma's 5 s default", async () => {
+    const res = await POST(req() as never);
+    expect(res.status).toBe(200);
+    const options = h.db.$transaction.mock.calls[0][1] as { timeout?: number; maxWait?: number } | undefined;
+    expect(options?.timeout ?? 0).toBeGreaterThanOrEqual(60_000);
+    const raw = h.db.$executeRaw.mock.calls.map((c) => String((c[0] as TemplateStringsArray).join("")));
+    expect(raw.some((sql) => sql.includes("statement_timeout"))).toBe(true);
   });
 });

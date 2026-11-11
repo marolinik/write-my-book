@@ -20,6 +20,9 @@ import {
  */
 const WORKER_GRACE_MS = 10_000;
 const WATCHDOG_INTERVAL_MS = 10_000;
+// Wave 3 review I3: a redeploy or crash restart leaves a few seconds with no
+// worker; only a gap that lasts this many checks (about a minute) is an outage.
+const WORKER_ABSENT_CHECKS = 6;
 
 type RouteParams = {
   params: Promise<{ id: string; sessionId: string }>;
@@ -180,17 +183,36 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
             // status event, not stored, so it never replays); only a job with
             // no worker at all is an outage, and it is removed so a retry
             // cannot run it twice.
+            let absentChecks = 0;
             const checkQueue = async () => {
               if (finished) return;
               try {
                 if (await isJobStuckWithoutWorker(sessionId)) {
+                  absentChecks += 1;
+                  if (absentChecks < WORKER_ABSENT_CHECKS) {
+                    workerWatchdog = setTimeout(checkQueue, WATCHDOG_INTERVAL_MS);
+                    return;
+                  }
+                  // Remove first; a new worker may have taken the job in the
+                  // meantime (remove() then fails on its lock), and a running
+                  // session must not be failed.
+                  let removed = false;
                   if (dbSession.jobId) {
                     const job = await agentQueue.getJob(dbSession.jobId);
-                    await job?.remove().catch(() => {});
+                    try {
+                      await job?.remove();
+                      removed = Boolean(job);
+                    } catch {
+                      removed = false;
+                    }
                   }
-                  await markSessionTerminal(sessionId, "failed", WORKER_ABSENT_MESSAGE).catch(() => {});
-                  deliver(null, JSON.stringify({ type: "error", content: WORKER_ABSENT_MESSAGE }));
-                  return;
+                  if (removed) {
+                    await markSessionTerminal(sessionId, "failed", WORKER_ABSENT_MESSAGE).catch(() => {});
+                    deliver(null, JSON.stringify({ type: "error", content: WORKER_ABSENT_MESSAGE }));
+                    return;
+                  }
+                } else {
+                  absentChecks = 0;
                 }
                 const position = dbSession.jobId ? await queuePosition(dbSession.jobId) : null;
                 if (position !== null) {

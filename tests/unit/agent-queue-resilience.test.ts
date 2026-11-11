@@ -94,3 +94,20 @@ describe("the routes", () => {
     expect(connection).toMatch(/commandTimeout: \d+/);
   });
 });
+
+describe("a worker restart does not kill queued work (Wave 3 review I3)", () => {
+  const SRC2 = join(__dirname, "..", "..", "src");
+  const route = readFileSync(
+    join(SRC2, "app", "api", "books", "[id]", "agent", "[sessionId]", "stream", "route.ts"),
+    "utf-8"
+  );
+
+  it("removes the job only after no worker has been seen for several checks in a row", () => {
+    expect(route).toMatch(/WORKER_ABSENT_CHECKS = [6-9]/);
+    expect(route).toMatch(/absentChecks < WORKER_ABSENT_CHECKS/);
+  });
+
+  it("fails the session only when the job was actually removed (not taken by a new worker)", () => {
+    expect(route).toMatch(/if \(removed\)[\s\S]{0,200}markSessionTerminal\(/);
+  });
+});

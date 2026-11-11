@@ -7,7 +7,9 @@ import { dbDeployIssues } from "../src/lib/deploy/db-deploy-preflight";
  * DATABASE_URL needs DB_DEPLOY_APPROVED=true and a backup confirmed within two
  * hours, whatever NODE_ENV says (P1-18).
  */
-const issues = dbDeployIssues(process.env);
+const issues = dbDeployIssues(process.env, new Date(), {
+  mode: process.argv.includes("--diff") ? "diff" : "apply",
+});
 if (!existsSync("prisma/schema.prisma")) {
   issues.push({ key: "prisma/schema.prisma", message: "Prisma schema file not found" });
 }

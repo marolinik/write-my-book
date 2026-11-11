@@ -43,8 +43,21 @@ describe("dbDeployIssues", () => {
     expect(keys).toContain("DB_BACKUP_CONFIRMED_AT");
   });
 
-  it("skips approval and backup for a local database", () => {
-    expect(dbDeployIssues({ DATABASE_URL: "postgresql://wmb:wmb@localhost:5432/wmb" }, NOW)).toEqual([]);
+  it("still requires approval and backup for localhost (production Postgres is the compose service on the host)", () => {
+    const keys = dbDeployIssues({ DATABASE_URL: "postgresql://wmb:wmb@localhost:5432/wmb" }, NOW).map((i) => i.key);
+    expect(keys).toContain("DB_DEPLOY_APPROVED");
+    expect(dbDeployIssues({ DATABASE_URL: "postgresql://wmb:wmb@postgres:5432/wmb" }, NOW).map((i) => i.key)).toContain(
+      "DB_DEPLOY_APPROVED"
+    );
+  });
+
+  it("skips approval and backup only for an explicit dev target or CI", () => {
+    expect(dbDeployIssues({ DATABASE_URL: "postgresql://wmb:wmb@localhost:5432/wmb", DB_DEPLOY_TARGET: "dev" }, NOW)).toEqual([]);
+    expect(dbDeployIssues({ DATABASE_URL: "postgresql://wmb:wmb@localhost:5432/wmb", CI: "true" }, NOW)).toEqual([]);
+  });
+
+  it("the read-only diff needs no approval (the file to approve does not exist yet)", () => {
+    expect(dbDeployIssues({ DATABASE_URL: REMOTE }, NOW, { mode: "diff" })).toEqual([]);
   });
 });
 

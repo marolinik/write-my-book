@@ -66,3 +66,13 @@ describe("cancel reaches everything", () => {
     expect(route).toMatch(/session:\$\{child\.id\}:cancel/);
   });
 });
+
+describe("the opening turn is claimed too (Wave 3 review I2)", () => {
+  it("the start route claims the turn for its inline opening run and releases it when the run ends", () => {
+    const route = read("app", "api", "books", "[id]", "agent", "route.ts");
+    const created = route.indexOf("createSession(");
+    expect(created).toBeGreaterThan(-1);
+    expect(route.indexOf("beginTurn(dbSession.id)")).toBeGreaterThan(created);
+    expect(route).toMatch(/\.finally\(\(\) => endTurn\(dbSession\.id\)\)/);
+  });
+});

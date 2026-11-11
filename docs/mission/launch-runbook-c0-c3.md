@@ -87,8 +87,9 @@ DRIFT probe in readiness will now catch it; see step 4.)
   npm run db:diff             # writes prisma/pending-change.sql — review every DROP
   npm run db:apply            # repair duplicates → run the reviewed SQL → db:guards
   ```
-  `db:deploy:check` refuses to proceed if `DATABASE_URL` is localhost, approval is
-  unset, or the backup timestamp is stale (> 2h).
+  `db:apply` refuses to proceed if approval is unset or the backup timestamp is
+  stale (> 2h), whatever the host (production Postgres is reached as localhost or
+  `postgres`); only `DB_DEPLOY_TARGET=dev` or CI skips that.
 - [ ] ✅ Confirm via the DRIFT probe (step 4) that the 4 objects now exist.
 
 ---

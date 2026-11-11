@@ -191,6 +191,11 @@ export async function POST(req: NextRequest) {
         // transaction that deletes the rows, then queue the erasure. The job
         // retries each store until all are done; a redelivery re-queues it.
         const erasureId = await db.$transaction(async (tx) => {
+          // Wave 3 review I5: the user delete cascades through every book,
+          // version and finding (edit_actions has a per-row trigger); the
+          // pool's 30 s statement timeout and Prisma's 5 s transaction default
+          // would fail it on every Clerk retry for a heavy account.
+          await tx.$executeRaw`SET LOCAL statement_timeout = '300s'`;
           const existing = await tx.accountErasure.findUnique({
             where: { clerkId },
             select: { id: true },
@@ -217,7 +222,7 @@ export async function POST(req: NextRequest) {
           });
           await tx.user.deleteMany({ where: { clerkId } });
           return erasure.id;
-        });
+        }, { timeout: 300_000, maxWait: 10_000 });
         if (erasureId) {
           try {
             await enqueueErasure(erasureId);

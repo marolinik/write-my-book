@@ -316,3 +316,24 @@ describe("processAgentJob — failed session honesty (D-36)", () => {
     expect(complete?.metadata?.documentIds).toEqual(["doc-a", "doc-b"]);
   });
 });
+
+describe("retries after a setup error (Wave 3 review I1)", () => {
+  const failedFlips = () =>
+    h.db.agentSession.updateMany.mock.calls.filter(
+      (c) => (c[0] as { data?: { status?: string } })?.data?.status === "failed"
+    );
+
+  it("does not mark the session failed while BullMQ will retry, so the retry can run", async () => {
+    h.fakeResult.current = null; // the orchestrator throws
+    const job = { ...makeJob({ ...BASE }), attemptsMade: 0, opts: { attempts: 3 } } as unknown as Job<AgentJobData>;
+    await expect(processAgentJob(job)).rejects.toThrow();
+    expect(failedFlips()).toHaveLength(0);
+  });
+
+  it("marks it failed on the last attempt", async () => {
+    h.fakeResult.current = null;
+    const job = { ...makeJob({ ...BASE }), attemptsMade: 2, opts: { attempts: 3 } } as unknown as Job<AgentJobData>;
+    await expect(processAgentJob(job)).rejects.toThrow();
+    expect(failedFlips()).toHaveLength(1);
+  });
+});

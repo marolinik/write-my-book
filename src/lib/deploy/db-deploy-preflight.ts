@@ -3,33 +3,36 @@ export interface DbDeployIssue {
   message: string;
 }
 
-const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "0.0.0.0", "::1", "postgres"]);
 const PLACEHOLDER = /placeholder|changeme|replace_me|ci-placeholder|your[_-]|example/i;
 const MAX_BACKUP_AGE_MINUTES = 120;
 
 /**
  * What blocks a schema deploy against `env.DATABASE_URL` (P1-18). Approval and
- * a fresh backup are required whenever the target is a remote host, whatever
- * NODE_ENV the operator's shell exports (they used to apply only with
- * NODE_ENV=production). A local or compose-internal database needs neither.
+ * a fresh backup are required for every apply, whatever host or NODE_ENV:
+ * production Postgres is the compose service on the host, so "localhost" and
+ * "postgres" ARE production (Wave 3 review I4). Only an explicit
+ * DB_DEPLOY_TARGET=dev or CI skips them. The read-only diff needs neither.
  */
-export function dbDeployIssues(env: Record<string, string | undefined>, now: Date = new Date()): DbDeployIssue[] {
+export function dbDeployIssues(
+  env: Record<string, string | undefined>,
+  now: Date = new Date(),
+  options: { mode?: "diff" | "apply" } = {}
+): DbDeployIssue[] {
   const issues: DbDeployIssue[] = [];
   const value = (key: string) => env[key]?.trim() ?? "";
   const databaseUrl = value("DATABASE_URL");
   if (!databaseUrl) return [{ key: "DATABASE_URL", message: "Missing required database deploy variable" }];
 
-  let host: string;
   try {
     const parsed = new URL(databaseUrl);
     if (parsed.protocol !== "postgresql:" && parsed.protocol !== "postgres:") {
       return [{ key: "DATABASE_URL", message: "DATABASE_URL must be a PostgreSQL URL" }];
     }
-    host = parsed.hostname;
   } catch {
     return [{ key: "DATABASE_URL", message: "DATABASE_URL is not a valid URL" }];
   }
-  if (LOCAL_HOSTS.has(host)) return issues;
+  if (options.mode === "diff") return issues;
+  if (value("DB_DEPLOY_TARGET") === "dev" || value("CI") === "true") return issues;
 
   if (PLACEHOLDER.test(databaseUrl)) {
     issues.push({ key: "DATABASE_URL", message: "Placeholder value is not allowed for a remote database deploy" });

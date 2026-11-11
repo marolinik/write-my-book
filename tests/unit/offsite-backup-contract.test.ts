@@ -54,3 +54,20 @@ describe("operator docs", () => {
     expect(launch).toMatch(/offsite mirror[^\n]*blocking/i);
   });
 });
+
+describe("offsite-mirror resilience (Wave 3 review I6)", () => {
+  const mirror = service("offsite-mirror");
+
+  it("restarts after any failure instead of staying down after three", () => {
+    expect(mirror).toMatch(/restart: unless-stopped/);
+  });
+
+  it("will not mirror deletions from a local bucket that lost its dumps", () => {
+    expect(mirror).toContain("OFFSITE GUARD");
+  });
+
+  it("raises a staleness marker on the shared health volume", () => {
+    expect(mirror).toMatch(/backup-health:\/var\/backup-health/);
+    expect(mirror).toContain("/var/backup-health/offsite-stale-marker");
+  });
+});

@@ -1009,16 +1009,26 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
     // never clobbers a 'completed'/'skipped'/'failed'/cancel-owned row, and a
     // later successful retry's onComplete still overwrites it to 'completed').
     // Guarded so it can never mask the original error being re-thrown below.
-    try {
-      await db.agentSession.updateMany({
-        where: { id: sessionId, status: { in: ["queued", "running"] } },
-        data: { status: "failed", completedAt: new Date() },
-      });
-    } catch (statusErr) {
-      console.error(
-        "[AgentWorker] failed to mark non-terminal session failed:",
-        statusErr
-      );
+    //
+    // Wave 3 review I1: only when BullMQ will NOT retry. The rerun guard treats
+    // a failed row as finished, so flipping it on attempt 1 turned every
+    // transient setup error into a silent permanent failure; the terminal
+    // event for the final attempt comes from the worker's failed handler.
+    const willRetry =
+      !(err instanceof UnrecoverableError) &&
+      (job.attemptsMade ?? 0) + 1 < (job.opts?.attempts ?? 1);
+    if (!willRetry) {
+      try {
+        await db.agentSession.updateMany({
+          where: { id: sessionId, status: { in: ["queued", "running"] } },
+          data: { status: "failed", completedAt: new Date() },
+        });
+      } catch (statusErr) {
+        console.error(
+          "[AgentWorker] failed to mark non-terminal session failed:",
+          statusErr
+        );
+      }
     }
     // All other errors propagate normally (BullMQ handles retry)
     throw err;
