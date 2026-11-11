@@ -10,6 +10,10 @@ Everything in code is merged on `main`. What remains has to run **on the product
 - Stripe: prices are VAT-inclusive (Terms section 4). Before the first paid sale: activate Stripe Tax, register for the EU OSS scheme (Netherlands), set every plan price to tax-inclusive, set `STRIPE_AUTOMATIC_TAX=1`, and run `npm run billing:check` (it fails on any price that is not tax-inclusive).
 - Refunds: Terms section 4 promises a full refund of the first payment when asked within 14 days. Issue it from the Stripe dashboard (Payments, the charge, Refund); nothing in the app does it.
 
+## 0b. Off-host backup (blocks launch)
+
+Set the four `OFFSITE_*` variables (Backblaze B2, EU; see `docs/LAUNCH-2026-10.md`) and start the `offsite-mirror` service. Confirm `OFFSITE MIRROR OK` in its log.
+
 ## 1. Back up first
 
 Schema changes owed by Wave 2 (2026-11): `usage_records.book_id` becomes nullable with `ON DELETE SET NULL`, so platform spend survives a deleted book. Wave 3 adds the `account_erasures` table (durable account erasure). The schema push in the steps below applies them. After it, `/api/health/dependencies` checks every table and column of `prisma/schema.prisma` (regenerate the list with `npm run schema:contract` after any schema change), and the worker creates the Neo4j constraints at boot (`npm run graph:init` does the same by hand).
