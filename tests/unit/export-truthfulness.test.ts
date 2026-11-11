@@ -41,6 +41,12 @@ describe("conversion failure", () => {
     expect(err.message).not.toContain("/tmp/");
   });
 
+  it("a missing pandoc or typst is a failed conversion (502), not a bare 500", () => {
+    const pipeline = read("src", "lib", "import-export", "export-pipeline.ts");
+    const requireTool = pipeline.slice(pipeline.indexOf("async function requireTool("));
+    expect(requireTool.slice(0, 400)).toContain("throw new ExportConversionError(");
+  });
+
   it("the pipeline no longer returns a markdown fallback as if it were the export", () => {
     const pipeline = read("src", "lib", "import-export", "export-pipeline.ts");
     expect(pipeline).not.toContain("Saved as markdown.");

@@ -1,4 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+// P1-24: the import routes rate limit through Redis; these tests run without one.
+vi.mock("@/lib/security/rate-limit", () => ({ rateLimit: async () => true }));
 
 /**
  * UAT P6-S01 + P6-S06 — manuscripts between 10 and 20 MB could not be

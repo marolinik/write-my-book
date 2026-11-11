@@ -521,7 +521,9 @@ export function sanitizeManuscriptForConverter(markdown: string): string {
 async function requireTool(name: string): Promise<void> {
   const available = await checkToolAvailable(name);
   if (!available) {
-    throw new Error(
+    // A server without the converter cannot convert: the writer is told the
+    // export failed (502), the setup detail stays in the log.
+    throw new ExportConversionError(
       `${name} is not installed or not on PATH. ` +
       `${name} is required for manuscript export. ` +
       `See the setup guide: https://github.com/writemybookok/write-my-book-ok#pandoc--typst-setup`
