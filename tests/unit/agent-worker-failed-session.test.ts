@@ -1,3 +1,4 @@
+import { decodeLiveEvent } from "@/lib/queue/session-stream";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { Job } from "bullmq";
 import type { AgentJobData } from "@/lib/queue/agent-queue";
@@ -36,7 +37,8 @@ const h = vi.hoisted(() => {
   return {
     redis,
     db: {
-      agentSession: { update: vi.fn(), updateMany: vi.fn() },
+      // findUnique: the P1-14 rerun guard reads the row; null = a fresh session.
+      agentSession: { update: vi.fn(), updateMany: vi.fn(), findUnique: vi.fn(async () => null) },
       batchRun: { findUnique: vi.fn(), update: vi.fn() },
       apiKey: { findMany: vi.fn() },
       book: { findFirst: vi.fn() },
@@ -178,8 +180,9 @@ function statusKeyWrites(): string[] {
 
 /** All SSE message types published to the session channel/list. */
 function publishedTypes(): string[] {
+  // P2-15: the channel carries { i: listIndex, d: message }.
   return h.redis.publish.mock.calls.map(
-    (c) => (JSON.parse(String(c[1])) as { type: string }).type
+    (c) => (JSON.parse(decodeLiveEvent(String(c[1])).data) as { type: string }).type
   );
 }
 
@@ -191,6 +194,7 @@ beforeEach(() => {
   h.redis.incrbyfloat.mockResolvedValue("0.5");
   h.redis.expire.mockResolvedValue(1);
   h.redis.publish.mockResolvedValue(1);
+  h.redis.rpush.mockResolvedValue(1);
   h.redis.rpush.mockResolvedValue(1);
   h.redis.del.mockResolvedValue(1);
   h.db.agentSession.update.mockResolvedValue({});
@@ -302,7 +306,7 @@ describe("processAgentJob — failed session honesty (D-36)", () => {
     const complete = h.redis.publish.mock.calls
       .map(
         (c) =>
-          JSON.parse(String(c[1])) as {
+          JSON.parse(decodeLiveEvent(String(c[1])).data) as {
             type: string;
             metadata?: { documentIds?: string[] };
           }
@@ -310,5 +314,26 @@ describe("processAgentJob — failed session honesty (D-36)", () => {
       .find((m) => m.type === "complete");
     expect(complete, "a 'complete' SSE message should be published").toBeDefined();
     expect(complete?.metadata?.documentIds).toEqual(["doc-a", "doc-b"]);
+  });
+});
+
+describe("retries after a setup error (Wave 3 review I1)", () => {
+  const failedFlips = () =>
+    h.db.agentSession.updateMany.mock.calls.filter(
+      (c) => (c[0] as { data?: { status?: string } })?.data?.status === "failed"
+    );
+
+  it("does not mark the session failed while BullMQ will retry, so the retry can run", async () => {
+    h.fakeResult.current = null; // the orchestrator throws
+    const job = { ...makeJob({ ...BASE }), attemptsMade: 0, opts: { attempts: 3 } } as unknown as Job<AgentJobData>;
+    await expect(processAgentJob(job)).rejects.toThrow();
+    expect(failedFlips()).toHaveLength(0);
+  });
+
+  it("marks it failed on the last attempt", async () => {
+    h.fakeResult.current = null;
+    const job = { ...makeJob({ ...BASE }), attemptsMade: 2, opts: { attempts: 3 } } as unknown as Job<AgentJobData>;
+    await expect(processAgentJob(job)).rejects.toThrow();
+    expect(failedFlips()).toHaveLength(1);
   });
 });

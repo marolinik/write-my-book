@@ -184,6 +184,7 @@ model Series {
   documents Document[]
 
   @@map("series")
+  @@index([userId]) // P2-35: hot query path
 }
 
 // ─── BOOK (core entity) ─────────────────────────────────────────
@@ -337,6 +338,7 @@ model Document {
   // Run scripts/repair-duplicate-documents.ts BEFORE pushing this constraint.
   @@unique([bookId, type, chapterNumber])
   @@map("documents")
+  @@index([seriesId]) // P2-35: hot query path
 }
 
 model DocumentVersion {
@@ -357,6 +359,27 @@ model DocumentVersion {
 }
 
 // ─── AGENT SESSIONS (with SDK team hierarchy) ───────────────────
+
+// P1-3: a deleted account's erasure from the stores the cascade does not
+// reach (S3, Qdrant, Neo4j, Redis, Stripe). Written with the user delete;
+// the account-erasure job retries each store until all are done.
+model AccountErasure {
+  id               String    @id @default(uuid())
+  clerkId          String    @unique @map("clerk_id")
+  userId           String    @map("user_id")
+  bookIds          String[]  @map("book_ids")
+  sessionIds       String[]  @map("session_ids")
+  stripeCustomerId String?   @map("stripe_customer_id")
+  doneStores       String[]  @default([]) @map("done_stores")
+  status           String    @default("pending") // pending, done
+  attempts         Int       @default(0)
+  lastError        String?   @map("last_error")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  completedAt      DateTime? @map("completed_at")
+
+  @@index([status, createdAt])
+  @@map("account_erasures")
+}
 
 model AgentSession {
   id              String    @id @default(uuid())
@@ -387,6 +410,8 @@ model AgentSession {
 
   @@index([batchId])
   @@map("agent_sessions")
+  @@index([bookId, status]) // P2-35: hot query path
+  @@index([userId, status, completedAt]) // P2-35: hot query path
 }
 
 // ─── BATCH RUNS (overnight / batch editorial) ───────────────────
@@ -480,6 +505,8 @@ model UsageRecord {
   book Book? @relation(fields: [bookId], references: [id], onDelete: SetNull)
 
   @@map("usage_records")
+  @@index([userId, recordedAt]) // P2-35: hot query path
+  @@index([bookId, recordedAt]) // P2-35: hot query path
 }
 
 // ─── BOOK SETTINGS ──────────────────────────────────────────────
@@ -783,6 +810,7 @@ model EditAction {
   book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
 
   @@map("edit_actions")
+  @@index([bookId, chapterNumber, timestamp]) // P2-35: hot query path
 }
 
 // ─── BLACKBOARD (Inter-Agent Communication) ────────────────────
@@ -866,6 +894,7 @@ model BookNotification {
 
   @@index([userId, read])
   @@map("book_notifications")
+  @@index([bookId]) // P2-35: hot query path
 }
 
 // ─── WRITING GOALS ──────────────────────────────────────────────
@@ -932,6 +961,7 @@ model WriterMemory {
   @@index([userId, bookId, active])
   @@unique([userId, findingId, source])
   @@map("writer_memories")
+  @@index([findingId]) // P2-35: hot query path
 }
 
 // ─── SUGGESTION FEEDBACK (closes the AI feedback loop) ──────────
@@ -985,6 +1015,7 @@ model SessionBrief {
 
   @@index([bookId, createdAt])
   @@map("session_briefs")
+  @@index([userId]) // P2-35: hot query path
 }
 
 // ─── SHARED SNAPSHOTS (UDG round-7, Luka 12) ────────────────────
@@ -1009,4 +1040,5 @@ model SharedSnapshot {
 
   @@index([bookId])
   @@map("shared_snapshots")
+  @@index([createdById]) // P2-35: hot query path
 }

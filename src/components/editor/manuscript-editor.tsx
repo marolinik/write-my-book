@@ -19,6 +19,7 @@ import { useActiveEditorStore } from "@/stores/active-editor-store";
 import {
   useChapterContent,
   useSaveChapterContent,
+  useSaveChapterSnapshot,
 } from "@/hooks/use-documents";
 import { useFindings } from "@/hooks/use-editorial";
 import { useOnlineStatus } from "@/hooks/use-online-status";
@@ -26,7 +27,12 @@ import { useDraftBuffer } from "@/hooks/use-draft-buffer";
 import { applyRecoveryDecision } from "./draft-recovery";
 import { usePaneDocumentId } from "./use-pane-document-id";
 import { ApiError, isNetworkError } from "@/lib/api-client";
-import { useServerSaveFlush } from "./save-flush";
+import {
+  useServerSaveFlush,
+  capturePendingSave,
+  flushPendingSave,
+  registerPendingFlush,
+} from "./save-flush";
 import { cn, countWords } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
@@ -314,6 +320,11 @@ export function ManuscriptEditor({
   const saveMutation = useSaveChapterContent(bookId, chapterId);
   const saveMutationRef = useRef(saveMutation);
   saveMutationRef.current = saveMutation;
+  // P1-5: the outgoing chapter is saved through an explicit-target PUT; the
+  // mutation above already points at the incoming chapter by cleanup time.
+  const saveChapterSnapshot = useSaveChapterSnapshot(bookId);
+  const saveSnapshotRef = useRef(saveChapterSnapshot);
+  saveSnapshotRef.current = saveChapterSnapshot;
 
   // Prev/next chapter navigation
   const currentIdx = allChapters?.findIndex((ch) => ch.id === chapterId) ?? -1;
@@ -356,6 +367,7 @@ export function ManuscriptEditor({
   // recovery-on-load. Declared after useEditor so the hook can subscribe to
   // the live instance's update events. Server writes stay on the stamped PUT;
   // the buffer never saves anything itself.
+  const clearDraftRef = useRef<(chapterId: string) => void>(() => {});
   const { adoptDraft, clearDraft, checkRecovery } = useDraftBuffer({
     paneStore,
     editorRef,
@@ -366,6 +378,7 @@ export function ManuscriptEditor({
       paneStore.getState().setDraftSavedAt(result.ok ? result.at : null);
     },
   });
+  clearDraftRef.current = clearDraft;
 
   // Live continuity net: scan on chapter switch + ~20s after the last edit.
   useIdleContinuityScan({ chapterNumber, activityKey: editTick, scan: continuityScan });
@@ -399,6 +412,21 @@ export function ManuscriptEditor({
     });
     editor.view.dispatch(tr);
   }, [editor, showAnnotations]);
+
+  // P1-5: switching chapters in place (or leaving the editor) cleared the only
+  // armed autosave timer and reset the store, losing up to 2 s of typing. This
+  // cleanup runs before the next chapter's store reset, while the editor and
+  // the store still hold the outgoing chapter: snapshot it and save it there.
+  useEffect(() => {
+    return () => {
+      const ed = editorRef.current;
+      if (!ed || ed.isDestroyed) return;
+      const snapshot = capturePendingSave(paneStore.getState(), getMarkdownFromEditor(ed));
+      void flushPendingSave(snapshot, saveSnapshotRef.current).then((outcome) => {
+        if (outcome === "saved" && snapshot) clearDraftRef.current(snapshot.chapterId);
+      });
+    };
+  }, [chapterId, paneStore]);
 
   // Set chapter in pane store on mount; sync primary pane to active-editor-store
   useEffect(() => {
@@ -714,6 +742,22 @@ export function ManuscriptEditor({
       }
     };
   }, [isDirty, isSaving, saveConflict, paneChapterId, saveContent]);
+
+  // P2-48: a first-party rewrite (Replace all, Restore, accepting a finding)
+  // first saves this pane's pending text, so the server rewrite starts from
+  // it and the next autosave does not 409.
+  const saveContentRef = useRef(saveContent);
+  saveContentRef.current = saveContent;
+  useEffect(
+    () =>
+      registerPendingFlush(async () => {
+        const s = paneStore.getState();
+        if (!s.isDirty || s.saveConflict) return;
+        if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+        await saveContentRef.current();
+      }),
+    [paneStore]
+  );
 
   // Reconnect short-circuit: the backoff timer can sit at up to 60s — when
   // connectivity returns, save immediately through the normal stamped PUT

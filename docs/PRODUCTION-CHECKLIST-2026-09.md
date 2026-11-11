@@ -10,9 +10,13 @@ Everything in code is merged on `main`. What remains has to run **on the product
 - Stripe: prices are VAT-inclusive (Terms section 4). Before the first paid sale: activate Stripe Tax, register for the EU OSS scheme (Netherlands), set every plan price to tax-inclusive, set `STRIPE_AUTOMATIC_TAX=1`, and run `npm run billing:check` (it fails on any price that is not tax-inclusive).
 - Refunds: Terms section 4 promises a full refund of the first payment when asked within 14 days. Issue it from the Stripe dashboard (Payments, the charge, Refund); nothing in the app does it.
 
+## 0b. Off-host backup (blocks launch)
+
+Set the four `OFFSITE_*` variables (Backblaze B2, EU; see `docs/LAUNCH-2026-10.md`) and start the `offsite-mirror` service. Confirm `OFFSITE MIRROR OK` in its log.
+
 ## 1. Back up first
 
-Schema changes owed by Wave 2 (2026-11): `usage_records.book_id` becomes nullable with `ON DELETE SET NULL`, so platform spend survives a deleted book. The schema push in the steps below applies it.
+Schema changes owed by Wave 2 (2026-11): `usage_records.book_id` becomes nullable with `ON DELETE SET NULL`, so platform spend survives a deleted book. Wave 3 adds the `account_erasures` table (durable account erasure) and indexes on the hot tables (usage_records, agent_sessions, edit_actions and six foreign keys). The schema push in the steps below applies them. After it, `/api/health/dependencies` checks every table and column of `prisma/schema.prisma` (regenerate the list with `npm run schema:contract` after any schema change), and the worker creates the Neo4j constraints at boot (`npm run graph:init` does the same by hand).
 
 
 Follow `docs/database-deploy-backup.md`: take a fresh dump and record it in `DB_BACKUP_CONFIRMED_AT` / `DB_BACKUP_LOCATION`. The schema push refuses to run without them.
@@ -28,7 +32,8 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml pull minio minio
 ## 3. Schema and database guards
 
 ```sh
-npm run db:push:prod
+npm run db:diff     # writes prisma/pending-change.sql; read every DROP
+npm run db:apply    # needs DB_DEPLOY_APPROVED=true and a backup from the last 2 hours
 ```
 
 The push is cumulative: it brings production to the current `prisma/schema.prisma` in one go. New since the last production push:
@@ -42,9 +47,9 @@ The push is cumulative: it brings production to the current `prisma/schema.prism
 | `canon_checks` table | cache for the story-bible check |
 | **removed:** `book_settings.language` | a second, unused copy of the book's language (default `en`); `books.language` is the only one read |
 
-**Expected data-loss warning:** dropping `book_settings.language` makes Prisma stop and ask for confirmation (or, non-interactively, fail with a hint to use `--accept-data-loss`). The column holds nothing anyone reads, so confirm. If the push runs non-interactively, run `npx prisma db push --accept-data-loss` and then `npm run db:guards`.
+**How a schema change is applied (P1-18):** `npm run db:diff` writes the SQL that takes the production database to `prisma/schema.prisma` into `prisma/pending-change.sql`. Read it. Every `DROP` must be one you expect (for example `book_settings.language`, which nothing reads). Then `npm run db:apply` repairs duplicate book-level documents, runs the reviewed SQL and installs the guards. Both steps refuse a remote database without `DB_DEPLOY_APPROVED=true` and a backup confirmed within two hours. There is no forced push.
 
-`db:push:prod` now ends with `npm run db:guards`. That step installs the triggers that keep `edit_actions` append-only while its book exists, and it is idempotent. After any **manual** `prisma db push`, run `npm run db:guards` yourself.
+`db:apply` ends with `npm run db:guards`. That step installs the triggers that keep `edit_actions` append-only while its book exists, and it is idempotent.
 
 Verify:
 

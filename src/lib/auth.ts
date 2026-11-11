@@ -2,6 +2,7 @@
 import { headers } from "next/headers";
 import { db } from "./db";
 import { getDefaultModelId } from "@/lib/llm/defaults";
+import { AuthUnavailableError, UnauthorizedError } from "@/lib/auth/errors";
 
 const E2E_TEST_SECRET = process.env.E2E_TEST_SECRET;
 const E2E_TEST_CLERK_ID = "user_test_e2e";
@@ -17,37 +18,52 @@ const isClerkConfigured =
 export async function getDbUser() {
   // Only attempt Clerk auth when properly configured
   if (isClerkConfigured) {
+    let userId: string | null = null;
     try {
-      const { userId } = await auth();
-
-      if (userId) {
-        let user = await db.user.findUnique({
-          where: { clerkId: userId },
-        });
-
-        if (!user) {
-          const clerkUser = await currentUser();
-          if (!clerkUser) return null;
-
-          user = await db.user.create({
-            data: {
-              clerkId: userId,
-              email: clerkUser.emailAddresses[0]?.emailAddress ?? "",
-              // Explicit, so WMB_DEFAULT_MODEL actually governs new accounts.
-              // Relying on the Prisma column default made the env knob inert.
-              defaultModel: getDefaultModelId(),
-              displayName:
-                clerkUser.firstName && clerkUser.lastName
-                  ? `${clerkUser.firstName} ${clerkUser.lastName}`
-                  : clerkUser.username ?? "Writer",
-            },
-          });
-        }
-
-        return user;
+      ({ userId } = await auth());
+    } catch (error) {
+      // In production a failing Clerk is an outage, not a signed-out writer
+      // (P1-2). Elsewhere, clerkMiddleware may not run (tests, dev bypass):
+      // fall through to the bypasses below as before.
+      if (process.env.NODE_ENV === "production") {
+        throw new AuthUnavailableError("Clerk auth() failed", { cause: error });
       }
-    } catch {
-      // clerkMiddleware() didn't run or Clerk is misconfigured — fall through
+    }
+
+    if (userId) {
+      try {
+        const existing = await db.user.findUnique({ where: { clerkId: userId } });
+        if (existing) return existing;
+
+        const clerkUser = await currentUser();
+        if (!clerkUser) return null;
+
+        // Upsert on the Clerk id: the user.created webhook may land first
+        // (P2-2), and a writer with no email gets a unique placeholder so two
+        // of them never collide on the unique email column.
+        const email =
+          clerkUser.primaryEmailAddress?.emailAddress ??
+          clerkUser.emailAddresses[0]?.emailAddress ??
+          `${userId}@no-email.writemybook.invalid`;
+        return await db.user.upsert({
+          where: { clerkId: userId },
+          update: {},
+          create: {
+            clerkId: userId,
+            email,
+            // Explicit, so WMB_DEFAULT_MODEL actually governs new accounts.
+            // Relying on the Prisma column default made the env knob inert.
+            defaultModel: getDefaultModelId(),
+            displayName:
+              clerkUser.firstName && clerkUser.lastName
+                ? `${clerkUser.firstName} ${clerkUser.lastName}`
+                : clerkUser.username ?? "Writer",
+          },
+        });
+      } catch (error) {
+        console.error("[auth] user lookup failed:", error);
+        throw new AuthUnavailableError("User lookup failed", { cause: error });
+      }
     }
   }
 
@@ -115,7 +131,7 @@ export async function getDbUser() {
 export async function requireUser() {
   const user = await getDbUser();
   if (!user) {
-    throw new Error("Unauthorized");
+    throw new UnauthorizedError();
   }
   return user;
 }

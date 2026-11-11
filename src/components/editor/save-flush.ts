@@ -235,3 +235,74 @@ export function useServerSaveFlush(options: UseServerSaveFlushOptions): void {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 }
+
+// ── Outgoing-chapter and pre-rewrite flush (P1-5, P2-48) ──────────────
+
+/** What a pane had not saved yet, captured before the pane moves on. */
+export interface PendingSaveSnapshot {
+  chapterId: string;
+  markdown: string;
+  documentVersion: number | undefined;
+}
+
+interface PaneSaveState {
+  isDirty: boolean;
+  saveConflict: unknown;
+  chapterId: string | null;
+  documentVersion: number | null | undefined;
+}
+
+/**
+ * Snapshot the outgoing chapter's unsaved text, synchronously, before the
+ * store resets for the next chapter. Nothing for a clean pane, and nothing
+ * while a save conflict is open: the conflict dialog owns those words.
+ */
+export function capturePendingSave(state: PaneSaveState, markdown: string): PendingSaveSnapshot | null {
+  if (!state.isDirty || state.saveConflict || !state.chapterId) return null;
+  return {
+    chapterId: state.chapterId,
+    markdown,
+    documentVersion: state.documentVersion ?? undefined,
+  };
+}
+
+export type SaveSnapshot = (snapshot: PendingSaveSnapshot) => Promise<unknown>;
+
+/**
+ * Save a captured snapshot to ITS chapter (never to whatever chapter the pane
+ * shows by the time the request runs). Never throws: it runs from React
+ * cleanups. A failure is reported; the local draft buffer still holds the text.
+ */
+export async function flushPendingSave(
+  snapshot: PendingSaveSnapshot | null,
+  save: SaveSnapshot
+): Promise<"saved" | "clean" | "failed"> {
+  if (!snapshot) return "clean";
+  try {
+    await save(snapshot);
+    return "saved";
+  } catch (error) {
+    console.error(`[editor] saving chapter ${snapshot.chapterId} on the way out failed:`, error);
+    return "failed";
+  }
+}
+
+const pendingFlushers = new Set<() => Promise<void>>();
+
+/** A pane registers how to save its pending text now; returns the unregister. */
+export function registerPendingFlush(flush: () => Promise<void>): () => void {
+  pendingFlushers.add(flush);
+  return () => {
+    pendingFlushers.delete(flush);
+  };
+}
+
+/**
+ * Save every pane's pending text before a first-party rewrite (Replace all,
+ * version Restore, accepting a finding) changes the chapter on the server, so
+ * the rewrite starts from what the writer typed and the next autosave does not
+ * 409 against it (P2-48).
+ */
+export async function flushAllPendingSaves(): Promise<void> {
+  await Promise.allSettled([...pendingFlushers].map((flush) => flush()));
+}

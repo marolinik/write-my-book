@@ -89,10 +89,22 @@ export async function deleteBookChunks(bookId: string): Promise<void> {
         must: [{ key: "bookId", match: { value: bookId } }],
       },
     });
-  } catch {
-    // Ignore errors if collection doesn't exist
+  } catch (error) {
+    // P2-46: only a missing collection means "nothing to delete". Any other
+    // failure is reported, so book delete and account erasure know the
+    // writer's memory is still there.
+    if (isQdrantNotFound(error)) return;
+    console.error(`[vector] deleteBookChunks(${bookId}) failed:`, error);
+    throw error;
   }
 }
+
+/** Qdrant answers 404 when the collection does not exist: nothing to delete. */
+function isQdrantNotFound(error: unknown): boolean {
+  const e = error as { status?: number; message?: string } | null;
+  return e?.status === 404 || /not found/i.test(e?.message ?? "");
+}
+
 
 // ─── Rebuild Operations ──────────────────────────────────────
 

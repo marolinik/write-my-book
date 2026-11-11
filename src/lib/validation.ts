@@ -117,7 +117,8 @@ export const updateChapterSchema = z.object({
     ])
     .optional(),
   actNumber: z.number().int().min(1).max(10).optional(),
-  chapterNumber: z.number().int().min(1).optional(),
+  // No chapterNumber (P1-4): renumbering goes through /chapters/reorder,
+  // which moves the chapter's documents with it.
   betaGate: z.enum(["pending", "passed", "near_miss", "failed"]).optional(),
   betaScore: z.number().min(0).max(100).nullable().optional(),
   // S13: settable word target — nullable so a user can CLEAR a target.

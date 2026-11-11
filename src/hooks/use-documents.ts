@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import {
   useQuery,
   useMutation,
@@ -10,7 +11,9 @@ import {
   bodyFitsKeepalive,
   keepaliveBodyBytes,
   reserveKeepaliveBudget,
+  type PendingSaveSnapshot,
   releaseKeepaliveBudget,
+  flushAllPendingSaves,
 } from "@/components/editor/save-flush";
 
 /** Fetch chapter markdown content. */
@@ -95,6 +98,34 @@ export function useSaveChapterContent(bookId: string, chapterId: string) {
       qc.setQueryData<number>(["book-wordcount", bookId], data.bookWordCount);
     },
   });
+}
+
+/**
+ * Save a captured snapshot to the chapter it was taken from (P1-5). The
+ * regular save mutation is bound to the chapter the pane shows NOW, so on an
+ * in-place chapter switch it would send the outgoing text to the new chapter.
+ */
+export function useSaveChapterSnapshot(bookId: string) {
+  const qc = useQueryClient();
+  return useCallback(
+    async (snapshot: PendingSaveSnapshot) => {
+      const result = await fetchJson<{ version: number; bookWordCount: number }>(
+        `/api/books/${bookId}/chapters/${snapshot.chapterId}/content`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            markdown: snapshot.markdown,
+            expectedVersion: snapshot.documentVersion,
+          }),
+        }
+      );
+      qc.invalidateQueries({ queryKey: ["chapter-content", bookId, snapshot.chapterId] });
+      qc.setQueryData<number>(["book-wordcount", bookId], result.bookWordCount);
+      return result;
+    },
+    [bookId, qc]
+  );
 }
 
 /** The document row as GET /api/books/:id/documents/:docId returns it. */
@@ -204,12 +235,16 @@ export function useRestoreVersion(bookId: string, docId: string | null) {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: (version: number) =>
-      fetchJson(`/api/books/${bookId}/documents/${docId}/restore`, {
+    mutationFn: async (version: number) => {
+      // P2-48: save what the writer typed first, so the rewrite starts from it
+      // and the next autosave does not 409 against the new version.
+      await flushAllPendingSaves();
+      return fetchJson(`/api/books/${bookId}/documents/${docId}/restore`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ version }),
-      }),
+      });
+    },
     onSuccess: () => {
       qc.invalidateQueries({
         queryKey: ["document-versions", bookId, docId],

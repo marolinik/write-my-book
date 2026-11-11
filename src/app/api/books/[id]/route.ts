@@ -114,9 +114,6 @@ export async function DELETE(_req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
-    // Clean up vector memory (fire-and-forget)
-    deleteBookChunks(id).catch(() => {});
-
     // P7-S20: a book-scoped writer rule belongs to its book. The relation was
     // onDelete SetNull, and a null bookId MEANS "global preference", so a
     // deleted book's rules went on steering every other book's agents. They
@@ -131,6 +128,13 @@ export async function DELETE(_req: NextRequest, { params }: RouteParams) {
     // removed only the front cover. Purged after the rows are gone so a failed
     // delete never costs a live book its files.
     await purgeBookStorage(user.id, id);
+
+    // Vector memory (Qdrant) goes after the commit too (P2-46): purged first,
+    // a failed delete cost a live book its memory. A failure is logged with
+    // the book id so the orphaned chunks can be removed by hand.
+    await deleteBookChunks(id).catch((error) => {
+      console.error(`DELETE /api/books/:id: memory purge of book ${id} failed; chunks orphaned:`, error);
+    });
 
     // The story graph (Neo4j) is keyed by bookId and no cascade reaches it.
     // Best-effort, like storage: the book is already gone.

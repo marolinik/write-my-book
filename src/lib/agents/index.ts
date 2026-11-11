@@ -49,6 +49,8 @@ export {
   completeSession,
   addListener,
   cancelSession,
+  beginTurn,
+  endTurn,
   addUserMessage,
   addAssistantMessage,
   loadConversationHistory,

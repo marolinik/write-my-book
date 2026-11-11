@@ -42,6 +42,8 @@ import type {
 } from "@/lib/agents/types";
 import { db } from "@/lib/db";
 import { resolveSessionKeys } from "@/lib/billing/session-keys";
+import { appendSessionEvent } from "@/lib/queue/session-stream";
+import { SESSION_TERMINAL_STATUSES } from "@/lib/queue/session-terminal";
 import { estimateWorkflowCost } from "@/lib/llm/cost-estimator";
 import { passUsageType } from "@/lib/llm/cost-calibration";
 import {
@@ -218,8 +220,25 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
   // Cancellation state — declared outside try so catch can read it
   let cancelDetected = false;
   const cancelKey = `session:${sessionId}:cancel`;
+  const cancelPollRef: { current: ReturnType<typeof setInterval> | null } = { current: null };
+  /** P2-28: specialists the coach delegated to, so a cancel reaches them. */
+  const activeSpecialists = new Set<{ cancel(): void }>();
 
   try {
+    // ── Rerun guard (P1-14) ─────────────────────────────────────────
+    // A retried attempt (worker redeploy, crash after finishing) must not run
+    // a session that already ended: that would spend and write twice.
+    const existingRow = await db.agentSession.findUnique({
+      where: { id: sessionId },
+      select: { status: true },
+    });
+    if (existingRow && SESSION_TERMINAL_STATUSES.has(existingRow.status)) {
+      console.log(
+        `[AgentWorker] Session ${sessionId} is already ${existingRow.status}; attempt ${job.attemptsMade + 1} does nothing`
+      );
+      return;
+    }
+
     // ── Batch Pre-Child Budget / Breaker Guard ──────────────────────
     // For BATCH children only (byte-for-byte no-op when batchId is absent):
     // consult the aggregate ledger BEFORE building or running anything. If the
@@ -302,13 +321,8 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
      * Late-connecting clients read from the list to catch up.
      */
     async function publishMessage(msg: AgentStreamMessage): Promise<void> {
-      const serialized = JSON.stringify(msg);
-      await publisher.publish(`session:${sessionId}`, serialized);
-      await publisher.rpush(`session:${sessionId}:messages`, serialized);
-      await publisher.expire(
-        `session:${sessionId}:messages`,
-        REDIS_TTL_SECONDS
-      );
+      // rpush, then publish with the list index (P2-15).
+      await appendSessionEvent(publisher, sessionId, JSON.stringify(msg), REDIS_TTL_SECONDS);
     }
 
     // ── Re-resolve API Keys ─────────────────────────────────────────
@@ -449,6 +463,10 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
       language,
       chapterNumber,
       createSpecialistClient,
+      registerSpecialist: (specialist) => {
+        activeSpecialists.add(specialist);
+        return () => activeSpecialists.delete(specialist);
+      },
     };
 
     // ── Record Pre-Session Cost Estimate ─────────────────────────────
@@ -489,6 +507,7 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
 
         // Poll Redis for resolution every 2 seconds
         while (Date.now() < deadline) {
+          await checkCancellation();
           if (cancelDetected) {
             await publisher.del(`approval:${approvalId}`);
             return { decision: "reject" as const, message: "Session cancelled" };
@@ -545,8 +564,9 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
             "EX",
             REDIS_TTL_SECONDS
           );
-          // Stop the orchestrator
+          // Stop the orchestrator and every delegated specialist (P2-28).
           orchestrator.cancel();
+          for (const specialist of activeSpecialists) specialist.cancel();
           console.log(
             `[AgentWorker] Cancellation detected for session ${sessionId}`
           );
@@ -556,6 +576,11 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
         console.warn("[AgentWorker] Cancel check failed:", err);
       }
     }
+
+    // P2-14: poll the cancel flag on a timer too, not only every 5th message:
+    // a session waiting on a slow model turn or a specialist sends none.
+    const cancelPoll = setInterval(() => void checkCancellation(), 2_000);
+    cancelPollRef.current = cancelPoll;
 
     // ── Message Callback ────────────────────────────────────────────
 
@@ -944,7 +969,9 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
 
     // Persist the initial user message so the first turn is part of the
     // rehydratable history for later /message continuations (fire-safe).
-    if (message) {
+    // Once per session, not once per attempt (P1-14): a retry would append
+    // the writer's message to the history a second time.
+    if (message && job.attemptsMade === 0) {
       await addUserMessage(sessionId, message);
     }
 
@@ -982,20 +1009,31 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
     // never clobbers a 'completed'/'skipped'/'failed'/cancel-owned row, and a
     // later successful retry's onComplete still overwrites it to 'completed').
     // Guarded so it can never mask the original error being re-thrown below.
-    try {
-      await db.agentSession.updateMany({
-        where: { id: sessionId, status: { in: ["queued", "running"] } },
-        data: { status: "failed", completedAt: new Date() },
-      });
-    } catch (statusErr) {
-      console.error(
-        "[AgentWorker] failed to mark non-terminal session failed:",
-        statusErr
-      );
+    //
+    // Wave 3 review I1: only when BullMQ will NOT retry. The rerun guard treats
+    // a failed row as finished, so flipping it on attempt 1 turned every
+    // transient setup error into a silent permanent failure; the terminal
+    // event for the final attempt comes from the worker's failed handler.
+    const willRetry =
+      !(err instanceof UnrecoverableError) &&
+      (job.attemptsMade ?? 0) + 1 < (job.opts?.attempts ?? 1);
+    if (!willRetry) {
+      try {
+        await db.agentSession.updateMany({
+          where: { id: sessionId, status: { in: ["queued", "running"] } },
+          data: { status: "failed", completedAt: new Date() },
+        });
+      } catch (statusErr) {
+        console.error(
+          "[AgentWorker] failed to mark non-terminal session failed:",
+          statusErr
+        );
+      }
     }
     // All other errors propagate normally (BullMQ handles retry)
     throw err;
   } finally {
+    if (cancelPollRef.current) clearInterval(cancelPollRef.current);
     // Always clean up the Redis publisher connection
     publisher.disconnect();
   }
@@ -1044,10 +1082,7 @@ export async function waitForApproval(
       approvalDeadline: Date.now() + APPROVAL_TIMEOUT_MS,
     },
   };
-  const serialized = JSON.stringify(approvalMsg);
-  await publisher.publish(`session:${sessionId}`, serialized);
-  await publisher.rpush(`session:${sessionId}:messages`, serialized);
-  await publisher.expire(`session:${sessionId}:messages`, REDIS_TTL_SECONDS);
+  await appendSessionEvent(publisher, sessionId, JSON.stringify(approvalMsg), REDIS_TTL_SECONDS);
 
   // Poll for resolution
   const deadline = Date.now() + APPROVAL_TIMEOUT_MS;

@@ -23,6 +23,8 @@ function getS3Client(): S3Client {
       credentials: { accessKeyId, secretAccessKey },
       ...(endpoint && { endpoint }),
       forcePathStyle,
+      // P2-44: no SDK default bounds a hung object store.
+      requestHandler: { connectionTimeout: 5_000, requestTimeout: 30_000 },
     });
   }
   return _s3Client;

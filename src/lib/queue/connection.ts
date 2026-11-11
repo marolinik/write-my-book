@@ -49,7 +49,10 @@ let subscriberConnection: IORedis | null = null;
  */
 export function getAppConnection(): IORedis {
   if (!appConnection) {
-    appConnection = new IORedis(REDIS_URL, bullmqOptions);
+    // P2-32: the app connection serves request paths (start, cancel, approve,
+    // stream replay); a command must fail within seconds when Redis is down,
+    // not hang the request. BullMQ Workers keep their own connections.
+    appConnection = new IORedis(REDIS_URL, { ...bullmqOptions, commandTimeout: 5_000 });
   }
   return appConnection;
 }

@@ -3,6 +3,11 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getSession, addListener } from "@/lib/agents";
 import { createRedisConnection } from "@/lib/queue";
+import { getAppConnection } from "@/lib/queue/connection";
+import { decodeLiveEvent } from "@/lib/queue/session-stream";
+import { queuePosition } from "@/lib/queue/queue-status";
+import { agentQueue } from "@/lib/queue/agent-queue";
+import { markSessionTerminal } from "@/lib/queue/session-terminal";
 import {
   isJobStuckWithoutWorker,
   WORKER_ABSENT_MESSAGE,
@@ -14,6 +19,10 @@ import {
  * consumer gap before we declare the job unconsumable.
  */
 const WORKER_GRACE_MS = 10_000;
+const WATCHDOG_INTERVAL_MS = 10_000;
+// Wave 3 review I3: a redeploy or crash restart leaves a few seconds with no
+// worker; only a gap that lasts this many checks (about a minute) is an outage.
+const WORKER_ABSENT_CHECKS = 6;
 
 type RouteParams = {
   params: Promise<{ id: string; sessionId: string }>;
@@ -78,132 +87,166 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
       const stream = new ReadableStream({
         async start(controller) {
           try {
-            // Check session status in Redis
-            const sessionStatus = await subscriber.get(
-              `session:${sessionId}:status`
-            );
+            // P2-15: subscribe FIRST, buffer live events while the list is
+            // replayed, then drop live copies of what was replayed (by list
+            // index). Replay-then-subscribe lost anything published between
+            // the two, including a final "complete" (a spinner forever).
+            let nextIndex = replayOffset;
+            let finished = false;
+            let replaying = true;
+            const pendingLive: string[] = [];
+            const keepalive: { timer?: ReturnType<typeof setInterval> } = {};
+            let workerWatchdog: ReturnType<typeof setTimeout> | undefined;
 
-            // Replay buffered messages from Redis list
-            const buffered = await subscriber.lrange(
-              `session:${sessionId}:messages`,
-              0,
-              -1
-            );
-            let idx = 0;
-            for (let i = 0; i < buffered.length; i++) {
-              if (i < replayOffset) {
-                idx++;
-                continue;
+            const finish = () => {
+              if (finished) return;
+              finished = true;
+              if (keepalive.timer) clearInterval(keepalive.timer);
+              if (workerWatchdog) {
+                clearTimeout(workerWatchdog);
+                workerWatchdog = undefined;
               }
-              try {
-                controller.enqueue(
-                  encoder.encode(`id: ${i}\ndata: ${buffered[i]}\n\n`)
-                );
-              } catch {
-                // Stream closed by client during replay
-                subscriber.disconnect();
-                return;
-              }
-              idx = i + 1;
-            }
-
-            // If session already completed/failed, close the stream
-            if (
-              sessionStatus === "completed" ||
-              sessionStatus === "failed"
-            ) {
+              subscriber
+                .unsubscribe()
+                .then(() => subscriber.disconnect())
+                .catch(() => {});
               try {
                 controller.close();
               } catch {
                 // Already closed
               }
-              subscriber.disconnect();
+            };
+
+            const deliver = (index: number | null, data: string) => {
+              if (finished) return;
+              let id: number;
+              if (index === null) {
+                id = nextIndex++;
+              } else {
+                if (index < nextIndex) return; // already replayed
+                id = index;
+                nextIndex = index + 1;
+              }
+              try {
+                controller.enqueue(encoder.encode(`id: ${id}\ndata: ${data}\n\n`));
+              } catch {
+                finish(); // stream closed by the client
+                return;
+              }
+              // Any event means the worker is consuming — stand down.
+              if (workerWatchdog) {
+                clearTimeout(workerWatchdog);
+                workerWatchdog = undefined;
+              }
+              try {
+                const parsed = JSON.parse(data) as { type?: string };
+                if (parsed.type === "complete" || parsed.type === "error") finish();
+              } catch {
+                // not JSON: not terminal
+              }
+            };
+
+            subscriber.on("message", (_channel: string, raw: string) => {
+              if (replaying) {
+                pendingLive.push(raw);
+                return;
+              }
+              const live = decodeLiveEvent(raw);
+              deliver(live.index, live.data);
+            });
+            await subscriber.subscribe(`session:${sessionId}`);
+
+            const reader = getAppConnection();
+            const buffered = await reader.lrange(`session:${sessionId}:messages`, 0, -1);
+            for (let i = replayOffset; i < buffered.length; i++) deliver(i, buffered[i]);
+            replaying = false;
+            for (const raw of pendingLive.splice(0)) {
+              const live = decodeLiveEvent(raw);
+              deliver(live.index, live.data);
+            }
+            if (finished) return;
+
+            // Re-read the status after subscribing: a session that ended
+            // before we subscribed has nothing more to send.
+            const sessionStatus = await reader.get(`session:${sessionId}:status`);
+            if (sessionStatus === "completed" || sessionStatus === "failed") {
+              finish();
               return;
             }
-
-            // Session is still running — subscribe for live events
-            await subscriber.subscribe(`session:${sessionId}`);
 
             // Worker-liveness watchdog: if the job is never picked up because no
             // worker is consuming the queue, surface an error instead of leaving
             // the client on a silent infinite spinner. Fires once after a short
             // grace; a running worker will have advanced the job by then.
-            let workerWatchdog: ReturnType<typeof setTimeout> | undefined =
-              setTimeout(() => {
-                void (async () => {
-                  try {
-                    if (!(await isJobStuckWithoutWorker(sessionId))) return;
-                    const errorMsg = {
-                      type: "error" as const,
-                      content: WORKER_ABSENT_MESSAGE,
-                    };
-                    try {
-                      controller.enqueue(
-                        encoder.encode(
-                          `id: ${idx++}\ndata: ${JSON.stringify(errorMsg)}\n\n`
-                        )
-                      );
-                    } catch {
-                      // Stream already closed by client
-                    }
-                    subscriber
-                      .unsubscribe()
-                      .then(() => subscriber.disconnect())
-                      .catch(() => {});
-                    try {
-                      controller.close();
-                    } catch {
-                      // Already closed
-                    }
-                  } catch (err) {
-                    console.error("[SSE-Redis] Worker watchdog error:", err);
-                  }
-                })();
-              }, WORKER_GRACE_MS);
-
-            subscriber.on("message", (_channel: string, message: string) => {
+            // P1-16: re-armed every 10 s while the job waits, not fired once.
+            // A job queued behind a busy worker streams its place in line (a
+            // status event, not stored, so it never replays); only a job with
+            // no worker at all is an outage, and it is removed so a retry
+            // cannot run it twice.
+            let absentChecks = 0;
+            const checkQueue = async () => {
+              if (finished) return;
               try {
-                controller.enqueue(
-                  encoder.encode(`id: ${idx++}\ndata: ${message}\n\n`)
-                );
-                // Any live event means the worker is consuming — stand down.
-                if (workerWatchdog) {
-                  clearTimeout(workerWatchdog);
-                  workerWatchdog = undefined;
+                if (await isJobStuckWithoutWorker(sessionId)) {
+                  absentChecks += 1;
+                  if (absentChecks < WORKER_ABSENT_CHECKS) {
+                    workerWatchdog = setTimeout(checkQueue, WATCHDOG_INTERVAL_MS);
+                    return;
+                  }
+                  // Remove first; a new worker may have taken the job in the
+                  // meantime (remove() then fails on its lock), and a running
+                  // session must not be failed.
+                  let removed = false;
+                  if (dbSession.jobId) {
+                    const job = await agentQueue.getJob(dbSession.jobId);
+                    try {
+                      await job?.remove();
+                      removed = Boolean(job);
+                    } catch {
+                      removed = false;
+                    }
+                  }
+                  if (removed) {
+                    await markSessionTerminal(sessionId, "failed", WORKER_ABSENT_MESSAGE).catch(() => {});
+                    deliver(null, JSON.stringify({ type: "error", content: WORKER_ABSENT_MESSAGE }));
+                    return;
+                  }
+                } else {
+                  absentChecks = 0;
                 }
-                // Check if this is a terminal message
-                const parsed = JSON.parse(message);
-                if (
-                  parsed.type === "complete" ||
-                  parsed.type === "error"
-                ) {
-                  subscriber
-                    .unsubscribe()
-                    .then(() => subscriber.disconnect())
-                    .catch(() => {});
+                const position = dbSession.jobId ? await queuePosition(dbSession.jobId) : null;
+                if (position !== null) {
+                  const status = {
+                    type: "status",
+                    content: `Waiting for the background worker: position ${position} in the queue.`,
+                    metadata: { queued: true, position },
+                  };
                   try {
-                    controller.close();
+                    controller.enqueue(encoder.encode(`data: ${JSON.stringify(status)}\n\n`));
                   } catch {
-                    // Already closed
+                    finish();
+                    return;
                   }
                 }
-              } catch {
-                // Stream closed by client
+              } catch (err) {
+                console.error("[SSE-Redis] Worker watchdog error:", err);
               }
-            });
+              if (!finished) workerWatchdog = setTimeout(checkQueue, WATCHDOG_INTERVAL_MS);
+            };
+            workerWatchdog = setTimeout(checkQueue, WORKER_GRACE_MS);
 
             // Keepalive heartbeat (same interval as inline path)
-            const keepaliveInterval = setInterval(() => {
+            keepalive.timer = setInterval(() => {
               try {
                 controller.enqueue(encoder.encode(`: keepalive\n\n`));
               } catch {
-                clearInterval(keepaliveInterval);
+                clearInterval(keepalive.timer);
               }
             }, 15_000);
 
             // Handle client disconnect
             _req.signal.addEventListener("abort", () => {
-              clearInterval(keepaliveInterval);
+              clearInterval(keepalive.timer);
               if (workerWatchdog) {
                 clearTimeout(workerWatchdog);
                 workerWatchdog = undefined;

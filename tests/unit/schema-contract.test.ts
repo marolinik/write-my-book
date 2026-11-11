@@ -1,8 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-// Mock the db module so no real Postgres connection is created. The probe issues
-// tagged-template `db.$queryRaw` calls; each yields `values` = [table] for a
-// table check or [table, column] for a column check.
 const h = vi.hoisted(() => ({ queryRaw: vi.fn() }));
 vi.mock("@/lib/db", () => ({
   db: {
@@ -18,16 +15,16 @@ import {
 } from "@/lib/health/schema-contract";
 
 /**
- * Make `$queryRaw` answer EXISTS() per object, treating every label in
- * `absent` as physically missing. Label = `${table}.${column}` for a column
- * probe, `${table}` for a table probe — matching REQUIRED_SCHEMA_OBJECTS.
+ * Readiness checks every table and column of schema.prisma (P1-19), not four
+ * hand-picked July objects. The probe is one information_schema query; this
+ * mock answers it with the contract minus the labels a test marks absent (an
+ * absent table drops all of its columns).
  */
 function mockSchema(absent: Set<string> = new Set()) {
-  h.queryRaw.mockImplementation((_strings: TemplateStringsArray, ...values: string[]) => {
-    const [table, column] = values;
-    const label = column ? `${table}.${column}` : table;
-    return Promise.resolve([{ present: !absent.has(label) }]);
-  });
+  const rows = REQUIRED_SCHEMA_OBJECTS.filter(
+    (o) => o.column && !absent.has(o.label) && !absent.has(o.table)
+  ).map((o) => ({ table_name: o.table, column_name: o.column as string }));
+  h.queryRaw.mockResolvedValue(rows);
 }
 
 beforeEach(() => {
@@ -35,18 +32,18 @@ beforeEach(() => {
 });
 
 describe("schema-contract probe", () => {
-  it("guards all four pending-migration gates", () => {
-    expect(REQUIRED_SCHEMA_OBJECTS.map((o) => o.label)).toEqual([
-      "books.archived_at",
-      "continuity_flags",
-      "finding_replies.role",
-      "writer_memories.finding_id",
-    ]);
+  it("guards every table and column of schema.prisma, including the old four gates", () => {
+    const labels = REQUIRED_SCHEMA_OBJECTS.map((o) => o.label);
+    expect(labels.length).toBeGreaterThan(400);
+    for (const gate of ["books.archived_at", "continuity_flags", "finding_replies.role", "writer_memories.finding_id"]) {
+      expect(labels).toContain(gate);
+    }
   });
 
   it("reports no missing objects when the full contract is present", async () => {
     mockSchema();
     await expect(findMissingSchemaObjects()).resolves.toEqual([]);
+    expect(h.queryRaw).toHaveBeenCalledTimes(1);
   });
 
   it("passes the assertion (→ readiness stays healthy) when schema is current", async () => {
@@ -60,20 +57,19 @@ describe("schema-contract probe", () => {
   });
 
   it("throws (→ readiness 503) when a required column is missing", async () => {
-    mockSchema(new Set(["writer_memories.finding_id"]));
-    await expect(assertSchemaContract()).rejects.toThrow(/writer_memories\.finding_id/);
+    mockSchema(new Set(["usage_records.book_id"]));
+    await expect(assertSchemaContract()).rejects.toThrow(/usage_records\.book_id/);
   });
 
   it("throws (→ readiness 503) when a required table is missing", async () => {
-    mockSchema(new Set(["continuity_flags"]));
-    await expect(assertSchemaContract()).rejects.toThrow(/continuity_flags/);
+    mockSchema(new Set(["account_erasures"]));
+    await expect(assertSchemaContract()).rejects.toThrow(/account_erasures/);
   });
 
   it("lists every missing object when the schema is badly drifted", async () => {
-    mockSchema(new Set(["books.archived_at", "finding_replies.role"]));
-    await expect(findMissingSchemaObjects()).resolves.toEqual([
-      "books.archived_at",
-      "finding_replies.role",
-    ]);
+    mockSchema(new Set(["continuity_flags", "finding_replies.role"]));
+    const missing = await findMissingSchemaObjects();
+    expect(missing).toContain("continuity_flags");
+    expect(missing).toContain("finding_replies.role");
   });
 });

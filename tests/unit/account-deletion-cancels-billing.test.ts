@@ -21,6 +21,9 @@ const h = vi.hoisted(() => ({
       findFirst: vi.fn(),
     },
     subscription: { findFirst: vi.fn() },
+    accountErasure: { findUnique: vi.fn(), create: vi.fn() },
+    $transaction: vi.fn(),
+    $executeRaw: vi.fn(),
   },
   stripe: {
     subscriptions: { list: vi.fn(), cancel: vi.fn(), retrieve: vi.fn() },
@@ -47,8 +50,10 @@ vi.mock("svix", () => ({
   },
 }));
 vi.mock("@/lib/db", () => ({ db: h.db }));
-vi.mock("@/lib/erasure/account-data", () => ({
-  eraseAccountData: (t: unknown) => h.eraseAccountData(t),
+// P1-3: erasure is now a durable row plus a job; the "erase" step in these
+// call orders is the enqueue of that job.
+vi.mock("@/lib/queue/erasure-queue", () => ({
+  enqueueErasure: (id: unknown) => h.eraseAccountData(id),
 }));
 vi.mock("@/lib/logger", () => ({ logger: h.logger }));
 vi.mock("@/lib/llm/defaults", () => ({ getDefaultModelId: () => "model-x" }));
@@ -92,7 +97,10 @@ beforeEach(() => {
     stripeCustomerId: "cus_1",
     stripeSubscriptionId: "sub_1",
   });
-  h.db.user.findFirst.mockResolvedValue({ id: "u1", books: [{ id: "b1" }, { id: "b2" }] });
+  h.db.user.findFirst.mockResolvedValue({ id: "u1", books: [{ id: "b1" }, { id: "b2" }], agentSessions: [{ id: "s1" }], subscription: { stripeCustomerId: "cus_1" } });
+  h.db.accountErasure.findUnique.mockResolvedValue(null);
+  h.db.accountErasure.create.mockImplementation(async (args: { data: Record<string, unknown> }) => ({ id: "er_1", ...args.data }));
+  h.db.$transaction.mockImplementation(async (fn: (tx: unknown) => unknown) => fn(h.db));
   h.eraseAccountData.mockImplementation(async () => {
     h.calls.push("erase");
   });
@@ -287,11 +295,28 @@ describe("Clerk user.deleted — an open checkout can no longer be paid (Founder
 });
 
 describe("Clerk user.deleted — the writer's data leaves every store (GDPR erasure)", () => {
-  it("erases files, chunks and graph for the user's books after the rows are gone", async () => {
+  it("records what to erase with the rows and queues the erasure after they are gone", async () => {
     const res = await POST(req() as never);
     expect(res.status).toBe(200);
-    expect(h.eraseAccountData).toHaveBeenCalledWith({ userId: "u1", bookIds: ["b1", "b2"] });
+    expect(h.db.accountErasure.create).toHaveBeenCalledTimes(1);
+    expect(h.db.accountErasure.create.mock.calls[0][0].data).toMatchObject({
+      clerkId: "user_clerk_1",
+      userId: "u1",
+      bookIds: ["b1", "b2"],
+      sessionIds: ["s1"],
+      stripeCustomerId: "cus_1",
+    });
+    expect(h.eraseAccountData).toHaveBeenCalledWith("er_1");
     expect(h.calls.indexOf("erase")).toBeGreaterThan(h.calls.indexOf("deleteUser"));
+  });
+
+  it("a redelivery after the rows are gone re-queues the same erasure and records nothing new", async () => {
+    h.db.user.findFirst.mockResolvedValue(null);
+    h.db.accountErasure.findUnique.mockResolvedValue({ id: "er_1", status: "pending" });
+    const res = await POST(req() as never);
+    expect(res.status).toBe(200);
+    expect(h.db.accountErasure.create).not.toHaveBeenCalled();
+    expect(h.eraseAccountData).toHaveBeenCalledWith("er_1");
   });
 
   it("skips erasure when the user is already gone (Clerk redelivery)", async () => {
@@ -299,5 +324,16 @@ describe("Clerk user.deleted — the writer's data leaves every store (GDPR eras
     const res = await POST(req() as never);
     expect(res.status).toBe(200);
     expect(h.eraseAccountData).not.toHaveBeenCalled();
+  });
+});
+
+describe("the user.deleted transaction (Wave 3 review I5)", () => {
+  it("is sized for a heavy account's cascade, not Prisma's 5 s default", async () => {
+    const res = await POST(req() as never);
+    expect(res.status).toBe(200);
+    const options = h.db.$transaction.mock.calls[0][1] as { timeout?: number; maxWait?: number } | undefined;
+    expect(options?.timeout ?? 0).toBeGreaterThanOrEqual(60_000);
+    const raw = h.db.$executeRaw.mock.calls.map((c) => String((c[0] as TemplateStringsArray).join("")));
+    expect(raw.some((sql) => sql.includes("statement_timeout"))).toBe(true);
   });
 });

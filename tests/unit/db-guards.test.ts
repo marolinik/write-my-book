@@ -34,7 +34,8 @@ describe("edit_actions is append-only while its book exists", () => {
 
   it("is applied by every production schema push", () => {
     const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
-    expect(pkg.scripts["db:push:prod"]).toMatch(/prisma db push && npm run db:guards$/);
+    // P1-18: schema changes are a reviewed diff applied by db:apply.
+    expect(pkg.scripts["db:apply"]).toMatch(/prisma db execute --file prisma\/pending-change\.sql && npm run db:guards$/);
     expect(pkg.scripts["db:guards"]).toBe("tsx scripts/apply-db-guards.ts");
   });
 });

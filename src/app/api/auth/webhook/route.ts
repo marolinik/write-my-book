@@ -4,7 +4,8 @@ import { db } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { getDefaultModelId } from "@/lib/llm/defaults";
 import { stripe } from "@/lib/billing";
-import { eraseAccountData } from "@/lib/erasure/account-data";
+import { enqueueErasure } from "@/lib/queue/erasure-queue";
+import { parseClerkEvent } from "@/lib/auth/clerk-webhook-schema";
 import {
   cancelAllStripeSubscriptions,
   expireCheckoutSession,
@@ -125,10 +126,20 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // 5. Process the verified event
+  // 5. Validate the verified event before anything touches the database
+  // (P1-1): a user.deleted without an id once meant deleteMany({}).
+  const parsedEvent = parseClerkEvent(payload);
+  if (parsedEvent.kind === "invalid") {
+    logger.error("Clerk webhook payload rejected", new Error(parsedEvent.reason));
+    return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+  }
+  if (parsedEvent.kind === "ignored") {
+    return NextResponse.json({ received: true, ignored: parsedEvent.type });
+  }
+
+  // 6. Process it
   try {
-    const type = payload.type as string;
-    const data = payload.data as Record<string, unknown>;
+    const { type, data } = parsedEvent.event;
 
     switch (type) {
       case "user.created": {
@@ -136,9 +147,9 @@ export async function POST(req: NextRequest) {
           | Array<{ email_address: string }>
           | undefined;
         await db.user.upsert({
-          where: { clerkId: data.id as string },
+          where: { clerkId: data.id },
           create: {
-            clerkId: data.id as string,
+            clerkId: data.id,
             email: emailAddresses?.[0]?.email_address ?? "",
             // Keep in step with lib/auth.ts: the deployment default governs new
             // accounts, not the Prisma column default.
@@ -158,7 +169,7 @@ export async function POST(req: NextRequest) {
           | Array<{ email_address: string }>
           | undefined;
         await db.user.updateMany({
-          where: { clerkId: data.id as string },
+          where: { clerkId: data.id },
           data: {
             email: emailAddresses?.[0]?.email_address,
             displayName:
@@ -170,26 +181,55 @@ export async function POST(req: NextRequest) {
       }
 
       case "user.deleted": {
-        const clerkId = data.id as string;
+        const clerkId = data.id;
         // Stop billing first. Deleting the user cascades away the only row
         // that links this writer to Stripe; if that went first, a failed
         // cancel would leave a subscription renewing that nobody can trace.
         await stopBillingForDeletedUser(clerkId);
-        // Read what the cascade will not reach before the rows are gone:
-        // stored files, memory chunks and the story graph are keyed by ids
-        // that live only in these rows.
-        const erasure = await db.user.findFirst({
-          where: { clerkId },
-          select: { id: true, books: { select: { id: true } } },
-        });
-        await db.user.deleteMany({
-          where: { clerkId },
-        });
-        if (erasure) {
-          await eraseAccountData({
-            userId: erasure.id,
-            bookIds: erasure.books.map((b) => b.id),
+        // P1-3: record what the cascade will not reach (stored files, memory
+        // chunks, the story graph, Redis, the Stripe customer) in the same
+        // transaction that deletes the rows, then queue the erasure. The job
+        // retries each store until all are done; a redelivery re-queues it.
+        const erasureId = await db.$transaction(async (tx) => {
+          // Wave 3 review I5: the user delete cascades through every book,
+          // version and finding (edit_actions has a per-row trigger); the
+          // pool's 30 s statement timeout and Prisma's 5 s transaction default
+          // would fail it on every Clerk retry for a heavy account.
+          await tx.$executeRaw`SET LOCAL statement_timeout = '300s'`;
+          const existing = await tx.accountErasure.findUnique({
+            where: { clerkId },
+            select: { id: true },
           });
+          if (existing) return existing.id;
+          const user = await tx.user.findFirst({
+            where: { clerkId },
+            select: {
+              id: true,
+              books: { select: { id: true } },
+              agentSessions: { select: { id: true } },
+              subscription: { select: { stripeCustomerId: true } },
+            },
+          });
+          if (!user) return null;
+          const erasure = await tx.accountErasure.create({
+            data: {
+              clerkId,
+              userId: user.id,
+              bookIds: user.books.map((b) => b.id),
+              sessionIds: (user.agentSessions ?? []).map((s) => s.id),
+              stripeCustomerId: user.subscription?.stripeCustomerId ?? null,
+            },
+          });
+          await tx.user.deleteMany({ where: { clerkId } });
+          return erasure.id;
+        }, { timeout: 300_000, maxWait: 10_000 });
+        if (erasureId) {
+          try {
+            await enqueueErasure(erasureId);
+          } catch (error) {
+            // The row is committed; the worker's reaper queues it later.
+            logger.error("Erasure enqueue failed; the reaper will pick it up", error);
+          }
         }
         break;
       }

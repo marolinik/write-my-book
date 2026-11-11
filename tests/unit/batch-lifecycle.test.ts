@@ -71,6 +71,8 @@ const h = vi.hoisted(() => {
         findUnique: vi.fn(),
       },
       agentSession: {
+        // P1-14 rerun guard reads the row; null = a fresh child.
+        findUnique: vi.fn(async () => null),
         createMany: vi.fn(),
         update: vi.fn(),
         updateMany: vi.fn(),

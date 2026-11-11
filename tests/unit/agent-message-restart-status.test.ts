@@ -48,6 +48,9 @@ vi.mock("@/lib/llm", () => ({
   }),
 }));
 vi.mock("@/lib/agents", () => ({
+  // P1-13 turn guard: always free in these route tests.
+  beginTurn: () => true,
+  endTurn: () => {},
   getSession: (...a: unknown[]) => h.getSession(...a),
   createSession: (...a: unknown[]) => h.createSession(...a),
   loadConversationHistory: (...a: unknown[]) => h.loadConversationHistory(...a),

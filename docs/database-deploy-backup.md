@@ -29,19 +29,21 @@ real backup.
 After a fresh backup is confirmed:
 
 ```bash
-export NODE_ENV=production
 export DB_DEPLOY_APPROVED=true
 export DB_BACKUP_CONFIRMED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 export DB_BACKUP_LOCATION="s3://wmb-projects/backups/hourly/backup-YYYYMMDD-HHMMSS.sql.gz"
-npm run db:push:prod
+npm run db:diff     # writes prisma/pending-change.sql — read it before going on
+npm run db:apply
 ```
 
-`npm run db:push:prod` runs:
+The preflight (`npm run db:deploy:check`) applies to any non-local `DATABASE_URL`, whatever `NODE_ENV` is. `npm run db:apply` runs:
 
 1. `npm run db:deploy:check`
-2. `npx prisma generate`
-3. `npx prisma db push`
-4. `npm run db:guards` — applies `scripts/db-guards.sql`: triggers Prisma cannot express. Today that makes `edit_actions` append-only while its book exists (the writer's decision log; 126 rows were lost locally on 2026-09-23, cause unknown). Idempotent; run it alone after any manual `prisma db push`.
+2. `scripts/repair-duplicate-documents.ts --execute` (before any unique index on documents)
+3. `npx prisma db execute --file prisma/pending-change.sql` — the SQL you reviewed
+4. `npm run db:guards` — applies `scripts/db-guards.sql`: triggers Prisma cannot express. Today that makes `edit_actions` append-only while its book exists (the writer's decision log; 126 rows were lost locally on 2026-09-23, cause unknown). Idempotent.
+
+There is no forced push: every destructive change is one you read in the diff first.
 
 ## Backup sidecar
 

@@ -51,6 +51,8 @@ services:
       # (The opt-in lives in docker-compose.local-llm.yml for self-hosters.)
 
   worker:
+    # P1-14: let the active agent job finish on redeploy (see docker-compose.yml).
+    stop_grace_period: 30m
     environment:
       NODE_ENV: production
       NEO4J_PASSWORD: ${NEO4J_PASSWORD:?NEO4J_PASSWORD must be set for production}
@@ -166,6 +168,68 @@ services:
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD must be set for production}
       STALE_AFTER: ${BACKUP_STALE_AFTER:-2h}
       WATCHDOG_INTERVAL: ${BACKUP_WATCHDOG_INTERVAL:-3600}
+
+  # P1-21 / D8: manuscripts and dumps leave the host. Mirrors the whole
+  # wmb-projects bucket (manuscripts, covers, versions, hourly/daily/weekly
+  # dumps) to an off-host S3 bucket (Backblaze B2, EU). --remove mirrors
+  # deletions, so an erased account leaves the offsite copy too; keep 30 days
+  # of prior versions on the offsite bucket to survive a mistaken delete.
+  # Refuses to run until the OFFSITE_* settings are set.
+  offsite-mirror:
+    image: ghcr.io/marolinik/wmb-mc@sha256:eb4ea9884b77704230e2423e9004d2fa738dc272876b9cc41a297d29443b8780
+    # Wave 3 review I6: restart after ANY failure (a B2 or DNS hiccup at boot
+    # must not leave the launch-blocking backup down for good).
+    restart: unless-stopped
+    depends_on:
+      minio-init:
+        condition: service_completed_successfully
+    volumes:
+      - backup-health:/var/backup-health:rw
+    entrypoint: /bin/sh
+    command: >
+      -c "
+      if [ -z \"$${OFFSITE_S3_ENDPOINT}\" ] || [ -z \"$${OFFSITE_S3_BUCKET}\" ] || [ -z \"$${OFFSITE_S3_ACCESS_KEY_ID}\" ] || [ -z \"$${OFFSITE_S3_SECRET_ACCESS_KEY}\" ]; then
+        echo 'OFFSITE MIRROR NOT CONFIGURED: set OFFSITE_S3_ENDPOINT, OFFSITE_S3_BUCKET, OFFSITE_S3_ACCESS_KEY_ID and OFFSITE_S3_SECRET_ACCESS_KEY' >&2;
+        echo NOT-CONFIGURED > /var/backup-health/offsite-stale-marker;
+        sleep 3600;
+        exit 1;
+      fi;
+      until mc alias set wmb http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD} && mc alias set offsite $${OFFSITE_S3_ENDPOINT} $${OFFSITE_S3_ACCESS_KEY_ID} $${OFFSITE_S3_SECRET_ACCESS_KEY}; do
+        echo 'OFFSITE MIRROR: storage not reachable yet, retrying in 60 s' >&2;
+        sleep 60;
+      done;
+      echo 'Offsite mirror started' &&
+      while true; do
+        TS=$$(date +%Y%m%d-%H%M%S);
+        LOCAL_COUNT=$$(mc ls --recursive wmb/wmb-projects 2>/dev/null | wc -l | tr -d ' ');
+        REMOTE_COUNT=$$(mc ls --recursive offsite/$${OFFSITE_S3_BUCKET} 2>/dev/null | wc -l | tr -d ' ');
+        RECENT_LOCAL=$$(mc find wmb/wmb-projects/backups/hourly --newer-than 26h 2>/dev/null | head -1);
+        if [ -z \"$$RECENT_LOCAL\" ] || [ \"$$((LOCAL_COUNT * 2))\" -lt \"$$REMOTE_COUNT\" ]; then
+          echo \"OFFSITE GUARD at $$TS: local bucket looks wiped ($$LOCAL_COUNT local, $$REMOTE_COUNT offsite, recent dump: $${RECENT_LOCAL:-none}); copying without --remove\" >&2;
+          mc mirror --overwrite wmb/wmb-projects offsite/$${OFFSITE_S3_BUCKET} || echo \"OFFSITE MIRROR FAILED at $$TS\" >&2;
+        elif mc mirror --overwrite --remove wmb/wmb-projects offsite/$${OFFSITE_S3_BUCKET}; then
+          echo \"OFFSITE MIRROR OK at $$TS\";
+        else
+          echo \"OFFSITE MIRROR FAILED at $$TS\" >&2;
+        fi;
+        if [ -z \"$$(mc find offsite/$${OFFSITE_S3_BUCKET}/backups/hourly --newer-than $${OFFSITE_STALE_AFTER} 2>/dev/null)\" ]; then
+          echo \"OFFSITE STALE at $$TS: no hourly dump newer than $${OFFSITE_STALE_AFTER} in the offsite bucket\" >&2;
+          echo $$TS STALE > /var/backup-health/offsite-stale-marker;
+        else
+          rm -f /var/backup-health/offsite-stale-marker;
+        fi;
+        sleep $${OFFSITE_INTERVAL};
+      done
+      "
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER must be set for production}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD must be set for production}
+      OFFSITE_S3_ENDPOINT: ${OFFSITE_S3_ENDPOINT:-}
+      OFFSITE_S3_BUCKET: ${OFFSITE_S3_BUCKET:-}
+      OFFSITE_S3_ACCESS_KEY_ID: ${OFFSITE_S3_ACCESS_KEY_ID:-}
+      OFFSITE_S3_SECRET_ACCESS_KEY: ${OFFSITE_S3_SECRET_ACCESS_KEY:-}
+      OFFSITE_STALE_AFTER: ${OFFSITE_STALE_AFTER:-2h}
+      OFFSITE_INTERVAL: ${OFFSITE_INTERVAL:-3600}
 
 volumes:
   # Shared marker dir: the watchdog writes /var/backup-health/stale-marker here on
