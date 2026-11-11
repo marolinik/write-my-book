@@ -34,3 +34,7 @@ export function partitionBySize<T extends { size: number }>(
     oversized: files.filter((f) => f.size > MAX_IMPORT_FILE_BYTES),
   };
 }
+
+/** P1-24: DOCX imports and previews per writer per window (a 40-chapter import previews 40 files). */
+export const IMPORT_RATE_LIMIT = 60;
+export const IMPORT_RATE_WINDOW_SECONDS = 600;

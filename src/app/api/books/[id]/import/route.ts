@@ -6,7 +6,9 @@ import { importUploadSchema, importConfirmRequestSchema } from "@/lib/validation
 import { reconcileBookCounters } from "@/lib/books/book-counters";
 import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
-import { convertDocxToMarkdown } from "@/lib/import-export/docx-to-markdown";
+import { convertDocxSafely } from "@/lib/import-export/docx-to-markdown";
+import { rateLimit } from "@/lib/security/rate-limit";
+import { IMPORT_RATE_LIMIT, IMPORT_RATE_WINDOW_SECONDS } from "@/lib/import-export/upload-limits";
 import { parseManuscriptChapters } from "@/lib/import-export/chapter-parser";
 import {
   findImportProblems,
@@ -288,6 +290,13 @@ async function handleLegacyImport(
   bookId: string,
   userId: string
 ) {
+  // P1-24: DOCX conversion is the expensive path; cap how often one writer runs it.
+  if (!(await rateLimit(`import:${userId}`, IMPORT_RATE_LIMIT, IMPORT_RATE_WINDOW_SECONDS))) {
+    return NextResponse.json(
+      { error: "Too many uploads. Wait a few minutes and try again.", code: "RATE_LIMITED" },
+      { status: 429 }
+    );
+  }
   const formData = await req.formData();
   const actNumberRaw = formData.get("actNumber");
   const { actNumber } = importUploadSchema.parse({
@@ -339,8 +348,24 @@ async function handleLegacyImport(
     // Get content: convert .docx to markdown, else read as text
     let content: string;
     if (ext === ".docx") {
-      const arrayBuffer = await file.arrayBuffer();
-      content = await convertDocxToMarkdown(arrayBuffer);
+      const converted = await convertDocxSafely(await file.arrayBuffer());
+      if (!converted.ok) {
+        if (converted.code === "CONVERSION_TIMEOUT") {
+          return NextResponse.json(
+            { error: `${file.name}: the document took too long to convert`, code: converted.code },
+            { status: 422 }
+          );
+        }
+        if (converted.code !== "NOT_A_DOCX") {
+          return NextResponse.json(
+            { error: `${file.name}: the document is too large once unpacked`, code: converted.code },
+            { status: 413 }
+          );
+        }
+        warnings.push(`${file.name}: not a readable Word document`);
+        continue;
+      }
+      content = converted.markdown;
     } else {
       content = await file.text();
     }
