@@ -22,6 +22,7 @@ import { processBatchDigestJob } from "@/lib/queue/batch-digest";
 import { BATCH_DIGEST_QUEUE_NAME } from "@/lib/queue/batch-flow";
 import { ERASURE_QUEUE_NAME, enqueueErasure } from "@/lib/queue/erasure-queue";
 import { processErasureJob, reapPendingErasures } from "@/lib/queue/erasure-worker";
+import { isFinalFailure, markSessionTerminal, reapStrandedSessions } from "@/lib/queue/session-terminal";
 import { assertEnvReady } from "@/lib/env";
 
 // ── Error monitoring ─────────────────────────────────────────────────
@@ -134,7 +135,28 @@ worker.on("failed", (job, error) => {
     `[Worker] Job ${job?.id} failed (attempt ${job?.attemptsMade}/${job?.opts?.attempts}):`,
     error.message
   );
+  // P1-15: a failure outside the processor (stall limit, crash) left the
+  // session "running" forever with no terminal event. When BullMQ will not
+  // retry, end the session here.
+  if (job?.data?.sessionId && isFinalFailure(job, error)) {
+    markSessionTerminal(
+      job.data.sessionId,
+      "failed",
+      "This session could not finish in the background. Start it again to continue."
+    ).catch((markError: unknown) =>
+      reportWorkerError("[Worker] could not mark the failed session:", markError as Error)
+    );
+  }
 });
+
+// P1-15: sessions whose job vanished (a crash between attempts, a lost
+// enqueue) are failed by a periodic reaper so no writer waits forever.
+const STRANDED_REAP_MS = 5 * 60_000;
+const strandedReaper = setInterval(() => {
+  reapStrandedSessions().catch((error: unknown) =>
+    reportWorkerError("[SessionReaper] Error:", error as Error)
+  );
+}, STRANDED_REAP_MS);
 
 worker.on("error", (error) => {
   reportWorkerError("[Worker] Error:", error as Error);
@@ -191,6 +213,7 @@ process.on("uncaughtException", (error) => {
 const shutdown = async (signal: string) => {
   console.log(`[Worker] ${signal} received, closing gracefully...`);
   clearInterval(erasureReaper);
+  clearInterval(strandedReaper);
   await Promise.all([worker.close(), digestWorker.close(), erasureWorker.close()]);
   if (healthServer) {
     await new Promise<void>((resolve) => healthServer.close(() => resolve()));

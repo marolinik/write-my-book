@@ -43,6 +43,7 @@ import type {
 import { db } from "@/lib/db";
 import { resolveSessionKeys } from "@/lib/billing/session-keys";
 import { appendSessionEvent } from "@/lib/queue/session-stream";
+import { SESSION_TERMINAL_STATUSES } from "@/lib/queue/session-terminal";
 import { estimateWorkflowCost } from "@/lib/llm/cost-estimator";
 import { passUsageType } from "@/lib/llm/cost-calibration";
 import {
@@ -224,6 +225,20 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
   const activeSpecialists = new Set<{ cancel(): void }>();
 
   try {
+    // ── Rerun guard (P1-14) ─────────────────────────────────────────
+    // A retried attempt (worker redeploy, crash after finishing) must not run
+    // a session that already ended: that would spend and write twice.
+    const existingRow = await db.agentSession.findUnique({
+      where: { id: sessionId },
+      select: { status: true },
+    });
+    if (existingRow && SESSION_TERMINAL_STATUSES.has(existingRow.status)) {
+      console.log(
+        `[AgentWorker] Session ${sessionId} is already ${existingRow.status}; attempt ${job.attemptsMade + 1} does nothing`
+      );
+      return;
+    }
+
     // ── Batch Pre-Child Budget / Breaker Guard ──────────────────────
     // For BATCH children only (byte-for-byte no-op when batchId is absent):
     // consult the aggregate ledger BEFORE building or running anything. If the
@@ -954,7 +969,9 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
 
     // Persist the initial user message so the first turn is part of the
     // rehydratable history for later /message continuations (fire-safe).
-    if (message) {
+    // Once per session, not once per attempt (P1-14): a retry would append
+    // the writer's message to the history a second time.
+    if (message && job.attemptsMade === 0) {
       await addUserMessage(sessionId, message);
     }
 

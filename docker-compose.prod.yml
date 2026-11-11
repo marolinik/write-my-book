@@ -51,6 +51,8 @@ services:
       # (The opt-in lives in docker-compose.local-llm.yml for self-hosters.)
 
   worker:
+    # P1-14: let the active agent job finish on redeploy (see docker-compose.yml).
+    stop_grace_period: 30m
     environment:
       NODE_ENV: production
       NEO4J_PASSWORD: ${NEO4J_PASSWORD:?NEO4J_PASSWORD must be set for production}
