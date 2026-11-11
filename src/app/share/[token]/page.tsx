@@ -1,3 +1,4 @@
+import { textDirection } from "@/lib/i18n/text-direction";
 import type { Metadata } from "next";
 import { cache } from "react";
 import { notFound } from "next/navigation";
@@ -80,7 +81,12 @@ export default async function SharePage({ params }: RouteParams) {
   // reader of a Serbian book got "en-US" around Serbian text. The content says
   // which language it is in, so a screen reader and spellcheck read it as that.
   return (
-      <div lang={locale} className="min-h-screen bg-background p-4 lg:p-8 print:p-0" data-share>
+      <div
+        lang={locale}
+        dir={textDirection(data.bookLanguage)}
+        className="min-h-screen bg-background p-4 lg:p-8 print:p-0"
+        data-share
+      >
         <main className="mx-auto max-w-3xl space-y-8">
           <header className="border-b pb-4">
             <h1 className="font-display text-3xl font-bold">{data.bookName}</h1>

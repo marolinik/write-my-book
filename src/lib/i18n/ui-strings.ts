@@ -92,6 +92,17 @@ const LOCALE_TAGS: Record<string, string> = {
   fr: "fr-FR",
   ru: "ru-RU",
   zh: "zh-CN",
+  // P1-25: book languages without an interface, for surfaces keyed by the book.
+  it: "it-IT",
+  pt: "pt-BR",
+  ja: "ja-JP",
+  ko: "ko-KR",
+  nl: "nl-NL",
+  pl: "pl-PL",
+  sv: "sv-SE",
+  tr: "tr-TR",
+  ar: "ar",
+  hi: "hi-IN",
 };
 
 /**

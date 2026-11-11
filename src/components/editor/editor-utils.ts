@@ -1,3 +1,4 @@
+import { textDirection } from "@/lib/i18n/text-direction";
 import { useEffect, useState } from "react";
 import type { Editor } from "@tiptap/react";
 import type { Node as PMNode } from "@tiptap/pm/model";
@@ -46,13 +47,16 @@ export const EDITOR_MEASURE_CLASS = "max-w-[680px]";
  */
 export function getEditorContentAttributes(
   focusMode: boolean,
-  label: string
+  label: string,
+  /** P2-58: the book's language, so the prose is read, spelled and laid out as it. */
+  bookLanguage?: string
 ): Record<string, string> {
   return {
     class: `tiptap ${EDITOR_MEASURE_CLASS} w-full mx-auto px-4 sm:px-6 ${focusMode ? "focus-mode" : ""}`,
     role: "textbox",
     "aria-multiline": "true",
     "aria-label": label,
+    ...(bookLanguage ? { lang: bookLanguage, dir: textDirection(bookLanguage) } : {}),
   };
 }
 

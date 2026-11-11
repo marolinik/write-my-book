@@ -61,7 +61,8 @@ describe("the copyright page", () => {
   });
 
   it("falls back to English for a language with no table, without throwing", () => {
-    expect(getExportStrings("ja").allRightsReserved).toBe("All rights reserved.");
+    // P1-25: every offered book language has a table now; "xx" is no language.
+    expect(getExportStrings("xx").allRightsReserved).toBe("All rights reserved.");
     expect(getExportStrings(null).allRightsReserved).toBe("All rights reserved.");
   });
 

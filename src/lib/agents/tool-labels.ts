@@ -4,6 +4,8 @@
  * Supports multi-language output.
  */
 
+import { MORE_DOC_TYPE_LABELS, MORE_DOCUMENT_WORDS } from "./doc-type-labels-more";
+
 interface ToolInput {
   documentType?: string;
   chapterNumber?: number;
@@ -202,6 +204,8 @@ const DOC_TYPE_LABELS: Record<string, Record<string, string>> = {
     SERIES_FINGERPRINT: "系列风格指纹",
     KNOWLEDGE_LEDGER: "知识台账",
   },
+  // P1-25: the book languages the interface does not speak.
+  ...MORE_DOC_TYPE_LABELS,
 };
 
 /** O4: the localized document-type labels, for any surface that must name an
@@ -221,6 +225,7 @@ function docLabel(type?: string, lang?: string): string {
       fr: "document",
       ru: "документ",
       zh: "文档",
+      ...MORE_DOCUMENT_WORDS,
     };
     const l = lang && defaults[lang] ? lang : "en";
     return defaults[l];

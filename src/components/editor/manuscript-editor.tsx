@@ -347,7 +347,7 @@ export function ManuscriptEditor({
       onAnnotationClick: handleAnnotationClick,
     }),
     editorProps: {
-      attributes: getEditorContentAttributes(focusMode, editorAriaLabel),
+      attributes: getEditorContentAttributes(focusMode, editorAriaLabel, bookLanguage),
       scrollThreshold: CARET_SCROLL_CLEARANCE_PX,
       scrollMargin: CARET_SCROLL_CLEARANCE_PX,
     },
@@ -389,13 +389,13 @@ export function ManuscriptEditor({
     if (editor) {
       editor.setOptions({
         editorProps: {
-          attributes: getEditorContentAttributes(focusMode, editorAriaLabel),
+          attributes: getEditorContentAttributes(focusMode, editorAriaLabel, bookLanguage),
           scrollThreshold: CARET_SCROLL_CLEARANCE_PX,
           scrollMargin: CARET_SCROLL_CLEARANCE_PX,
         },
       });
     }
-  }, [editor, focusMode, editorAriaLabel]);
+  }, [editor, focusMode, editorAriaLabel, bookLanguage]);
 
   // Push annotations into the ProseMirror plugin when they change
   useEffect(() => {
@@ -1545,6 +1545,7 @@ export function ManuscriptEditor({
           }}
           onExit={exitImmersive}
           onFlush={flushImmersiveToEditor}
+          bookLanguage={bookLanguage}
         />
       )}
 

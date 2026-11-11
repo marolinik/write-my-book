@@ -13,6 +13,7 @@ import { XIcon, TargetIcon, ClockIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { countWords } from "@/lib/utils";
 import { EDITOR_MEASURE_CLASS } from "./editor-utils";
+import { textDirection } from "@/lib/i18n/text-direction";
 import { announce } from "./live-announcer";
 import {
   sanitizeImmersiveHtml,
@@ -62,6 +63,8 @@ interface ImmersiveFocusModeProps {
   onFlush?: () => void;
   /** Initial theme */
   defaultTheme?: FocusTheme;
+  /** P2-58: the book's language, for `lang` and `dir` on the typing surface. */
+  bookLanguage?: string;
 }
 
 /**
@@ -109,6 +112,7 @@ export function ImmersiveFocusMode({
   onExit,
   onFlush,
   defaultTheme = "dark",
+  bookLanguage,
 }: ImmersiveFocusModeProps) {
   const { t } = useLanguage();
 
@@ -362,6 +366,8 @@ export function ImmersiveFocusMode({
           role="textbox"
           aria-multiline="true"
           aria-label={t.editorUI.distractionFree}
+          lang={bookLanguage}
+          dir={textDirection(bookLanguage)}
           className={`w-full ${EDITOR_MEASURE_CLASS} px-5 sm:px-8 pt-[35dvh] pb-[55dvh] outline-none
             font-serif text-lg leading-relaxed ${styles.caret}
             [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mb-4

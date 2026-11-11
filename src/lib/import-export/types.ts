@@ -80,6 +80,8 @@ export interface ExportFormatConfig {
   paragraphIndent: number;
   openQuote: string;
   closeQuote: string;
+  /** P2-58: set for right-to-left languages; passed to pandoc as `dir`. */
+  direction?: "rtl";
 }
 
 /** Full export configuration — inferred from Zod schema. */

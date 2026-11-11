@@ -65,6 +65,8 @@ export interface YamlMetadataInput {
   mainFont: string;
   lineStretch: number;
   draft: boolean;
+  /** P2-58: "rtl" for a right-to-left book. */
+  dir?: "rtl";
 }
 
 /**
@@ -83,6 +85,7 @@ export function buildYamlMetadata(input: YamlMetadataInput): string {
     `papersize: ${q(input.paperSize)}`,
     `mainfont: ${q(input.mainFont)}`,
     `linestretch: ${Number(input.lineStretch)}`,
+    input.dir ? `dir: ${q(input.dir)}` : "",
     // P3-S22: `draft-mode` is the key draft-watermark.lua and recto-start.lua read.
     input.draft ? "draft-mode: true" : "",
     "---",
@@ -831,6 +834,7 @@ export async function exportManuscript(
     mainFont: langConfig.bodyFont,
     lineStretch: langConfig.lineSpacing,
     draft: isDraft,
+    dir: langConfig.direction,
   });
 
   // 7. Combine all sections

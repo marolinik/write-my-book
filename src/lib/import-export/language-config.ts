@@ -82,6 +82,103 @@ const EXPORT_CONFIGS: Record<string, ExportFormatConfig> = {
     openQuote: "\u201C",
     closeQuote: "\u201D",
   },
+  // P1-25: the ten book languages below fell through to the English entry
+  // (US letter, en-US hyphenation, English quotes).
+  it: {
+    pageSize: "a4",
+    bodyFont: "Times New Roman",
+    hyphenationLang: "it-IT",
+    lineSpacing: 1.5,
+    paragraphIndent: 1.25,
+    openQuote: "\u00AB",
+    closeQuote: "\u00BB",
+  },
+  pt: {
+    pageSize: "a4",
+    bodyFont: "Times New Roman",
+    hyphenationLang: "pt-BR",
+    lineSpacing: 1.5,
+    paragraphIndent: 1.25,
+    openQuote: "\u201C",
+    closeQuote: "\u201D",
+  },
+  // Japanese dialogue takes corner brackets.
+  ja: {
+    pageSize: "a4",
+    bodyFont: "Noto Serif CJK JP",
+    hyphenationLang: "ja-JP",
+    lineSpacing: 1.5,
+    paragraphIndent: 1.25,
+    openQuote: "\u300C",
+    closeQuote: "\u300D",
+  },
+  ko: {
+    pageSize: "a4",
+    bodyFont: "Noto Serif CJK KR",
+    hyphenationLang: "ko-KR",
+    lineSpacing: 1.5,
+    paragraphIndent: 1.25,
+    openQuote: "\u201C",
+    closeQuote: "\u201D",
+  },
+  nl: {
+    pageSize: "a4",
+    bodyFont: "Times New Roman",
+    hyphenationLang: "nl-NL",
+    lineSpacing: 1.5,
+    paragraphIndent: 1.25,
+    openQuote: "\u201C",
+    closeQuote: "\u201D",
+  },
+  // Polish opens low and closes high.
+  pl: {
+    pageSize: "a4",
+    bodyFont: "Times New Roman",
+    hyphenationLang: "pl-PL",
+    lineSpacing: 1.5,
+    paragraphIndent: 1.25,
+    openQuote: "\u201E",
+    closeQuote: "\u201D",
+  },
+  // Swedish uses the same closing mark on both sides.
+  sv: {
+    pageSize: "a4",
+    bodyFont: "Times New Roman",
+    hyphenationLang: "sv-SE",
+    lineSpacing: 1.5,
+    paragraphIndent: 1.25,
+    openQuote: "\u201D",
+    closeQuote: "\u201D",
+  },
+  tr: {
+    pageSize: "a4",
+    bodyFont: "Times New Roman",
+    hyphenationLang: "tr-TR",
+    lineSpacing: 1.5,
+    paragraphIndent: 1.25,
+    openQuote: "\u201C",
+    closeQuote: "\u201D",
+  },
+  // P2-58: right to left; pandoc gets dir=rtl from the metadata block.
+  ar: {
+    pageSize: "a4",
+    bodyFont: "Noto Naskh Arabic",
+    hyphenationLang: "ar",
+    lineSpacing: 1.5,
+    paragraphIndent: 1.25,
+    openQuote: "\u00AB",
+    closeQuote: "\u00BB",
+    direction: "rtl",
+  },
+  hi: {
+    pageSize: "a4",
+    bodyFont: "Noto Serif Devanagari",
+    hyphenationLang: "hi-IN",
+    lineSpacing: 1.5,
+    paragraphIndent: 1.25,
+    openQuote: "\u201C",
+    closeQuote: "\u201D",
+  },
 };
 
 /** Normalize language codes — e.g. plain "sr" → "sr-Latn" */
