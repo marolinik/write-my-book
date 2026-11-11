@@ -1129,6 +1129,7 @@ export interface UIStrings {
     // UDG round-7 (Darko/Tamara): analysis stats table in the printable snapshot.
     analytics: string; fleschKincaid: string; gunningFog: string; colemanLiau: string;
     genreRange: string; dialogueShare: string; dialogueLines: string; pacingTension: string;
+    shareDialogTitle: string; shareDialogDescription: string; linkLifetime: string; lifetime7: string; lifetime30: string; lifetime90: string; lifetimeNever: string; createAndCopy: string; activeLinks: string; noActiveLinks: string; expiresOn: string; neverExpires: string; lastOpened: string; notOpenedYet: string; revoke: string; linkRevoked: string;
   };
 
   chapterNew: {

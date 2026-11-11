@@ -449,7 +449,9 @@ export default function PrivacyPage() {
           <Section title="13. Share links">
             <p className="mt-3">
               A share link makes a read-only copy of the text you chose visible to anyone who has
-              the link. You can revoke it at any time.
+              the link. A new link expires after 30 days unless you choose another lifetime when
+              you create it. You can see your links and revoke any of them at any time from the
+              book&apos;s share dialog.
             </p>
           </Section>
 

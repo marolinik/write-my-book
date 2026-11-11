@@ -31,18 +31,28 @@ const resolveShare = cache(async (token: string) => {
   return snap;
 });
 
+/**
+ * P2-78: every branch says noindex. The root layout's `index: true` and
+ * `canonical: "/"` were inherited by a branch that returned `{}`.
+ */
+const SHARE_ROBOTS: Metadata["robots"] = { index: false, follow: false, nocache: true };
+
 export async function generateMetadata({ params }: RouteParams): Promise<Metadata> {
   const { token } = await params;
   const snap = await resolveShare(token);
-  if (!snap) return {};
+  if (!snap) return { robots: SHARE_ROBOTS };
   const book = await db.book.findFirst({
     where: { id: snap.bookId },
     select: { name: true, language: true },
   });
-  if (!book) return {};
+  if (!book) return { robots: SHARE_ROBOTS };
   // P4-S04: in the book's language, like the page itself (M-6).
   const s = getUIStrings(book.language).snapshot;
-  return { title: `${book.name} · ${snap.kind === "editorial" ? s.editorialBrief : s.title}` };
+  return {
+    title: `${book.name} · ${snap.kind === "editorial" ? s.editorialBrief : s.title}`,
+    robots: SHARE_ROBOTS,
+    alternates: { canonical: `/share/${token}` },
+  };
 }
 
 export default async function SharePage({ params }: RouteParams) {

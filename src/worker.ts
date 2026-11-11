@@ -23,6 +23,7 @@ import { processBatchDigestJob } from "@/lib/queue/batch-digest";
 import { BATCH_DIGEST_QUEUE_NAME } from "@/lib/queue/batch-flow";
 import { ERASURE_QUEUE_NAME, enqueueErasure } from "@/lib/queue/erasure-queue";
 import { processErasureJob, reapPendingErasures } from "@/lib/queue/erasure-worker";
+import { purgeExpiredShares } from "@/lib/share/purge";
 import { isFinalFailure, markSessionTerminal, reapStrandedSessions } from "@/lib/queue/session-terminal";
 import { assertEnvReady } from "@/lib/env";
 import { initGraphSchema } from "@/lib/graph";
@@ -166,6 +167,15 @@ const strandedReaper = setInterval(() => {
   );
 }, STRANDED_REAP_MS);
 
+// P1-27: expired share links are refused when opened; once a day their rows go.
+const SHARE_PURGE_MS = 24 * 60 * 60_000;
+const purgeShares = () =>
+  purgeExpiredShares().catch((error: unknown) =>
+    reportWorkerError("[SharePurge] Error:", error as Error)
+  );
+void purgeShares();
+const sharePurger = setInterval(purgeShares, SHARE_PURGE_MS);
+
 worker.on("error", (error) => {
   reportWorkerError("[Worker] Error:", error as Error);
 });
@@ -222,6 +232,7 @@ const shutdown = async (signal: string) => {
   console.log(`[Worker] ${signal} received, closing gracefully...`);
   clearInterval(erasureReaper);
   clearInterval(strandedReaper);
+  clearInterval(sharePurger);
   await Promise.all([worker.close(), digestWorker.close(), erasureWorker.close()]);
   if (healthServer) {
     await new Promise<void>((resolve) => healthServer.close(() => resolve()));
