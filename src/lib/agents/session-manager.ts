@@ -19,6 +19,8 @@ export interface ActiveSession {
   completionListeners: Set<(result: AgentResult, suggestedNext: string[]) => void>;
   result: AgentResult | null;
   suggestedNext: string[];
+  /** P1-13: a conversation turn is running in this process. */
+  turnInFlight?: boolean;
 }
 
 /**
@@ -115,6 +117,24 @@ export function addListener(
 }
 
 /** Cancel a running session. */
+/**
+ * Claim the session for one conversation turn (P1-13). Two concurrent turns
+ * ran two orchestrators over one shared history, and cancel or approve reached
+ * only the newest. Returns false while another turn is running.
+ */
+export function beginTurn(sessionId: string): boolean {
+  const session = sessions.get(sessionId);
+  if (!session) return true;
+  if (session.turnInFlight) return false;
+  session.turnInFlight = true;
+  return true;
+}
+
+export function endTurn(sessionId: string): void {
+  const session = sessions.get(sessionId);
+  if (session) session.turnInFlight = false;
+}
+
 export function cancelSession(sessionId: string): void {
   const session = sessions.get(sessionId);
   if (!session || session.status !== "running") return;
@@ -123,6 +143,11 @@ export function cancelSession(sessionId: string): void {
 
   if (session.orchestrator) {
     session.orchestrator.cancel();
+  }
+  // P2-28: delegated specialists run their own orchestrators; the coach
+  // cannot finish its turn until they return, so they are cancelled too.
+  for (const specialist of session.subOrchestrators.values()) {
+    specialist.cancel();
   }
 
   const result: AgentResult = {

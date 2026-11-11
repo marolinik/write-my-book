@@ -218,6 +218,9 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
   // Cancellation state — declared outside try so catch can read it
   let cancelDetected = false;
   const cancelKey = `session:${sessionId}:cancel`;
+  const cancelPollRef: { current: ReturnType<typeof setInterval> | null } = { current: null };
+  /** P2-28: specialists the coach delegated to, so a cancel reaches them. */
+  const activeSpecialists = new Set<{ cancel(): void }>();
 
   try {
     // ── Batch Pre-Child Budget / Breaker Guard ──────────────────────
@@ -449,6 +452,10 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
       language,
       chapterNumber,
       createSpecialistClient,
+      registerSpecialist: (specialist) => {
+        activeSpecialists.add(specialist);
+        return () => activeSpecialists.delete(specialist);
+      },
     };
 
     // ── Record Pre-Session Cost Estimate ─────────────────────────────
@@ -489,6 +496,7 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
 
         // Poll Redis for resolution every 2 seconds
         while (Date.now() < deadline) {
+          await checkCancellation();
           if (cancelDetected) {
             await publisher.del(`approval:${approvalId}`);
             return { decision: "reject" as const, message: "Session cancelled" };
@@ -545,8 +553,9 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
             "EX",
             REDIS_TTL_SECONDS
           );
-          // Stop the orchestrator
+          // Stop the orchestrator and every delegated specialist (P2-28).
           orchestrator.cancel();
+          for (const specialist of activeSpecialists) specialist.cancel();
           console.log(
             `[AgentWorker] Cancellation detected for session ${sessionId}`
           );
@@ -556,6 +565,11 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
         console.warn("[AgentWorker] Cancel check failed:", err);
       }
     }
+
+    // P2-14: poll the cancel flag on a timer too, not only every 5th message:
+    // a session waiting on a slow model turn or a specialist sends none.
+    const cancelPoll = setInterval(() => void checkCancellation(), 2_000);
+    cancelPollRef.current = cancelPoll;
 
     // ── Message Callback ────────────────────────────────────────────
 
@@ -996,6 +1010,7 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
     // All other errors propagate normally (BullMQ handles retry)
     throw err;
   } finally {
+    if (cancelPollRef.current) clearInterval(cancelPollRef.current);
     // Always clean up the Redis publisher connection
     publisher.disconnect();
   }

@@ -20,6 +20,8 @@ import {
   loadConversationHistory,
   addUserMessage,
   addAssistantMessage,
+  beginTurn,
+  endTurn,
 } from "@/lib/agents";
 import type { AgentStreamMessage, AgentResult } from "@/lib/agents";
 // Deep import on purpose: pure, db-free module (see artifact-contract.ts).
@@ -94,6 +96,16 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       );
     }
 
+    // P1-13: one turn at a time. The input is disabled while a turn runs;
+    // this is the server half for a second tab or a double submit.
+    if (!beginTurn(sessionId)) {
+      return NextResponse.json(
+        { error: "The agent is still answering. Send your message when it finishes.", code: "TURN_IN_PROGRESS" },
+        { status: 409 }
+      );
+    }
+    let turnHandedOff = false;
+    try {
     const workflow = getWorkflow(session.workflowId);
     if (!workflow?.conversational) {
       return NextResponse.json(
@@ -320,9 +332,15 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         session.conversationHistory,
         message
       )
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => endTurn(sessionId));
+    turnHandedOff = true;
 
     return NextResponse.json({ ok: true });
+    } finally {
+      // Any early return or throw before the turn started releases the claim.
+      if (!turnHandedOff) endTurn(sessionId);
+    }
   } catch (error) {
     const invalidJson = invalidJsonBodyResponse(error);
     if (invalidJson) return invalidJson;

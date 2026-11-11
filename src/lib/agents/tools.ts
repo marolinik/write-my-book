@@ -3005,6 +3005,7 @@ async function executeDelegateToSpecialist(
     if (parentSession) {
       parentSession.subOrchestrators.set(delegationId, specialistOrchestrator);
     }
+    const unregisterSpecialist = delegationCtx.registerSpecialist?.(specialistOrchestrator);
 
     // Track specialist results
     let specialistSuccess = false;
@@ -3086,6 +3087,7 @@ async function executeDelegateToSpecialist(
     if (parentSession) {
       parentSession.subOrchestrators.delete(delegationId);
     }
+    unregisterSpecialist?.();
 
     // Run post-session processing for the specialist's workflow
     if (input.workflowId) {

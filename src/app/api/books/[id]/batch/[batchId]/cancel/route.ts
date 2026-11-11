@@ -97,6 +97,7 @@ export async function POST(_req: NextRequest, { params }: RouteParams) {
     // them), i.e. the pre-D-186a behaviour for this one request, and says so in
     // the log rather than swallowing it.
     let children: Array<{
+      id: string;
       status: string;
       actualCostUsd: number | null;
       startedAt: Date | null;
@@ -104,7 +105,7 @@ export async function POST(_req: NextRequest, { params }: RouteParams) {
     try {
       children = await db.agentSession.findMany({
         where: { batchId },
-        select: { status: true, actualCostUsd: true, startedAt: true },
+        select: { id: true, status: true, actualCostUsd: true, startedAt: true },
       });
     } catch (childErr) {
       console.error(
@@ -113,6 +114,17 @@ export async function POST(_req: NextRequest, { params }: RouteParams) {
       );
     }
     const live = deriveLiveBatchFields(batch, children, true);
+
+    // P2-34: the halt flag only stops children that have not started; a
+    // running child would spend to its own cap. The worker honours a
+    // session's cancel flag, so set it for every running child.
+    for (const child of children.filter((c) => c.status === "running")) {
+      try {
+        await redis.set(`session:${child.id}:cancel`, "true", "EX", 3600);
+      } catch (err) {
+        console.error(`[batch:cancel] could not signal child ${child.id}:`, err);
+      }
+    }
 
     await db.batchRun.update({
       where: { id: batchId },

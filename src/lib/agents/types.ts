@@ -182,6 +182,12 @@ export interface DelegationContext {
     modelId: string;
     registryId: string;
   }>;
+  /**
+   * P2-28: lets the session's owner cancel a specialist when the writer
+   * cancels. The background worker has no in-memory session, so it registers
+   * specialists here; returns the unregister.
+   */
+  registerSpecialist?: (specialist: { cancel(): void }) => () => void;
 }
 
 /** Result returned from a specialist delegation. */
