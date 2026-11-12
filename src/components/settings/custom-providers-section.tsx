@@ -56,12 +56,25 @@ export function CustomProvidersSection() {
     }
   }, [name, baseURL, apiKey, refresh]);
 
+  // P2-55: a failed delete used to be swallowed, leaving the provider and its
+  // key in place with no word to the writer. It now says why, like add().
   const remove = useCallback(async (id: string) => {
     setBusy(true);
-    await fetch(`/api/settings/custom-providers?id=${id}`, { method: "DELETE" }).catch(() => {});
-    refresh();
-    setBusy(false);
-  }, [refresh]);
+    setError(null);
+    try {
+      const res = await fetch(`/api/settings/custom-providers?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        setError(describeApiError({ status: res.status, body: data }, t));
+        return;
+      }
+      refresh();
+    } catch {
+      setError(describeApiError(new TypeError("Failed to fetch"), t));
+    } finally {
+      setBusy(false);
+    }
+  }, [refresh, t]);
 
   return (
     <div className="space-y-3 rounded-md border bg-muted/30 p-4">

@@ -3,10 +3,13 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { createInsight } from "@/lib/agents/blackboard";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { zodErrorResponse } from "@/lib/api/zod-error";
+import { legacyRouteErrorResponse } from "@/lib/api/legacy-route-errors";
+import { createInsightSchema, insightsQuerySchema } from "@/lib/validation";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
-/** GET /api/books/:id/insights — List active insights with optional filters. */
+/** GET /api/books/:id/insights — List insights with optional filters, paginated (P2-10). */
 export async function GET(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
@@ -19,32 +22,28 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
-    const url = new URL(req.url);
-    const status = url.searchParams.get("status") ?? "active";
-    const domain = url.searchParams.get("domain");
+    const query = insightsQuerySchema.parse(
+      Object.fromEntries(new URL(req.url).searchParams.entries())
+    );
 
-    const where: Record<string, unknown> = { bookId };
-    if (status) where.status = status;
-    if (domain) where.domain = domain;
+    const where: Record<string, unknown> = { bookId, status: query.status };
+    if (query.domain) where.domain = query.domain;
 
     const [insights, total] = await Promise.all([
       db.bookInsight.findMany({
         where,
         orderBy: { createdAt: "desc" },
+        take: query.limit,
+        skip: query.offset,
       }),
       db.bookInsight.count({ where }),
     ]);
 
     return NextResponse.json({ insights, total });
   } catch (error) {
-    if ((error as Error).message === "Unauthorized") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    console.error("GET /api/books/:id/insights error:", error);
-    return NextResponse.json(
-      { error: "Failed to list insights" },
-      { status: 500 }
-    );
+    const zodRes = zodErrorResponse(error);
+    if (zodRes) return zodRes;
+    return legacyRouteErrorResponse(error, "GET /api/books/:id/insights", "Failed to list insights");
   }
 }
 
@@ -61,54 +60,28 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
-    // Hand-validated legacy body (no Zod schema here) — keep the pre-D-01
-    // any-typed access; the field checks below are the validation.
-    const body = (await parseJsonBody(req)) as Record<string, any>;
-
-    // Validate required fields
-    const { sourceAgentType, insightType, domain, summary, detail } = body;
-    if (!sourceAgentType || !insightType || !domain || !summary || !detail) {
-      return NextResponse.json(
-        {
-          error:
-            "Missing required fields: sourceAgentType, insightType, domain, summary, detail",
-        },
-        { status: 400 }
-      );
-    }
-
-    const validTypes = ["WARNING", "SUGGESTION", "FLAG", "CONSTRAINT"];
-    if (!validTypes.includes(insightType)) {
-      return NextResponse.json(
-        { error: `insightType must be one of: ${validTypes.join(", ")}` },
-        { status: 400 }
-      );
-    }
+    // P2-10: typed and bounded before anything reaches Prisma or a prompt.
+    const body = createInsightSchema.parse(await parseJsonBody(req));
 
     const result = await createInsight({
       bookId,
-      sourceSessionId: body.sourceSessionId ?? undefined,
-      sourceAgentType,
-      insightType,
-      domain,
-      summary,
-      detail,
+      sourceSessionId: body.sourceSessionId,
+      sourceAgentType: body.sourceAgentType,
+      insightType: body.insightType,
+      domain: body.domain,
+      summary: body.summary,
+      detail: body.detail,
       targetAgents: body.targetAgents ?? [],
       chapterScope: body.chapterScope ?? [],
-      expiresAt: body.expiresAt ? new Date(body.expiresAt) : undefined,
+      expiresAt: body.expiresAt,
     });
 
     return NextResponse.json(result, { status: 201 });
   } catch (error) {
     const invalidJson = invalidJsonBodyResponse(error);
     if (invalidJson) return invalidJson;
-    if ((error as Error).message === "Unauthorized") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    console.error("POST /api/books/:id/insights error:", error);
-    return NextResponse.json(
-      { error: "Failed to create insight" },
-      { status: 500 }
-    );
+    const zodRes = zodErrorResponse(error);
+    if (zodRes) return zodRes;
+    return legacyRouteErrorResponse(error, "POST /api/books/:id/insights", "Failed to create insight");
   }
 }

@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { z } from "zod";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { legacyRouteErrorResponse } from "@/lib/api/legacy-route-errors";
 import { zodErrorResponse } from "@/lib/api/zod-error";
 
 const createSchema = z.object({
@@ -28,10 +29,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(memories);
   } catch (err) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Failed to load memories" },
-      { status: 500 }
-    );
+    return legacyRouteErrorResponse(err, "GET /api/memory", "Failed to load memories");
   }
 }
 
@@ -71,9 +69,6 @@ export async function POST(req: NextRequest) {
     if (invalidJson) return invalidJson;
     const zodRes = zodErrorResponse(err);
     if (zodRes) return zodRes;
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Failed to create memory" },
-      { status: 500 }
-    );
+    return legacyRouteErrorResponse(err, "POST /api/memory", "Failed to create memory");
   }
 }

@@ -10,9 +10,8 @@
  */
 
 import { db } from "@/lib/db";
-import { decryptApiKey } from "@/lib/encryption";
+import { decryptValidatedKeys } from "@/lib/llm/decrypt-validated-keys";
 import { createLLMClient, resolveModelForRole, resolveRouteWithLocalFallback } from "@/lib/llm";
-import type { ProviderKey } from "@/lib/llm";
 import {
   USER_MODEL_SELECT,
   bookModelSettingsOf,
@@ -50,14 +49,7 @@ export async function resolveGhostwriterClient(
     dbUser?.defaultModel ?? getDefaultModelId()
   );
 
-  const userKeys = await db.apiKey.findMany({
-    where: { userId, validatedAt: { not: null } },
-    select: { provider: true, encryptedKey: true },
-  });
-  const decryptedKeys: Partial<Record<ProviderKey, string>> = {};
-  for (const k of userKeys) {
-    decryptedKeys[k.provider as ProviderKey] = decryptApiKey(k.encryptedKey);
-  }
+  const decryptedKeys = await decryptValidatedKeys(userId);
   const keys = {
     anthropicApiKey: decryptedKeys.anthropic,
     openrouterApiKey: decryptedKeys.openrouter,

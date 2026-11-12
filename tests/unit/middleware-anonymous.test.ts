@@ -7,15 +7,15 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { NextRequest } from "next/server";
 
-const h = vi.hoisted(() => ({ protect: vi.fn() }));
+const h = vi.hoisted(() => ({ protect: vi.fn(), userId: null as string | null }));
 
 vi.mock("@clerk/nextjs/server", () => ({
   createRouteMatcher: (patterns: string[]) => (req: NextRequest) =>
     patterns.some((p) => new RegExp(`^${p.replace(/\(\.\*\)/g, ".*")}$`).test(req.nextUrl.pathname)),
   clerkMiddleware:
-    (fn: (auth: { protect: () => Promise<void> }, req: NextRequest) => Promise<Response | void>) =>
+    (fn: (auth: (() => Promise<{ userId: string | null }>) & { protect: () => Promise<void> }, req: NextRequest) => Promise<Response | void>) =>
     (req: NextRequest) =>
-      fn({ protect: h.protect }, req),
+      fn(Object.assign(async () => ({ userId: h.userId }), { protect: h.protect }), req),
 }));
 
 const env = process.env as Record<string, string | undefined>;
@@ -36,6 +36,7 @@ const CLERK = "pk_live_Y2xlcmsud3JpdGVteWJvb2suYXBwJA";
 
 beforeEach(() => {
   vi.clearAllMocks();
+  h.userId = null;
   h.protect.mockRejectedValue(Object.assign(new Error("NEXT_HTTP_ERROR_FALLBACK;404"), { status: 404 }));
 });
 
@@ -47,10 +48,28 @@ afterEach(() => {
 });
 
 describe("an anonymous request to a protected route", () => {
-  it("goes through Clerk's protect() and is refused", async () => {
+  it("a page goes through Clerk's protect() and is refused", async () => {
     const handler = await middleware({ NODE_ENV: "production", NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: CLERK });
-    await expect(handler(anonymous("/api/books"))).rejects.toThrow();
+    await expect(handler(anonymous("/dashboard"))).rejects.toThrow();
     expect(h.protect).toHaveBeenCalledTimes(1);
+  });
+
+  it("P2-1: an API call answers 401 JSON (not Clerk's 404), so the client can send the writer to sign in", async () => {
+    const handler = await middleware({ NODE_ENV: "production", NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: CLERK });
+    const res = await handler(anonymous("/api/books"));
+    expect(res?.status).toBe(401);
+    expect(await res?.json()).toEqual({ error: "Unauthorized" });
+    expect(h.protect).not.toHaveBeenCalled();
+  });
+
+  it("a signed-in API call passes through", async () => {
+    h.userId = "user_1";
+    h.protect.mockResolvedValue(undefined);
+    const handler = await middleware({ NODE_ENV: "production", NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: CLERK });
+    const res = await handler(
+      new NextRequest("http://test/api/books", { headers: { cookie: "wmb_onboarded=1" } })
+    );
+    expect(res?.status ?? 200).not.toBe(401);
   });
 
   it("a public route needs no session", async () => {
@@ -65,8 +84,7 @@ describe("an anonymous request to a protected route", () => {
       NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: CLERK,
       E2E_TEST_SECRET: "s3cret",
     });
-    await expect(handler(anonymous("/api/books", { "x-e2e-test-secret": "s3cret" }))).rejects.toThrow();
-    expect(h.protect).toHaveBeenCalled();
+    expect((await handler(anonymous("/api/books", { "x-e2e-test-secret": "s3cret" })))?.status).toBe(401);
   });
 
   it("the e2e header is honoured outside production (control)", async () => {
@@ -85,8 +103,8 @@ describe("an anonymous request to a protected route", () => {
       NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: CLERK,
       DEV_AUTH_BYPASS: "true",
     });
-    await expect(handler(anonymous("/api/books"))).rejects.toThrow();
-    expect(h.protect).toHaveBeenCalled();
+    expect((await handler(anonymous("/api/books")))?.status).toBe(401);
+    await expect(handler(anonymous("/dashboard"))).rejects.toThrow();
   });
 
   it("with Clerk unconfigured, production answers 503 and development 401, never a pass", async () => {

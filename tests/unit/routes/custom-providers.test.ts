@@ -11,7 +11,9 @@ const h = vi.hoisted(() => {
   return {
     user: { id: "u1" } as { id: string } | null,
     findMany: vi.fn(),
+    count: vi.fn(),
     create: vi.fn(),
+    rateLimit: vi.fn(),
     deleteMany: vi.fn(),
     safeExternalFetch: vi.fn(),
     allowPrivate: false,
@@ -26,11 +28,13 @@ vi.mock("@/lib/auth", () => ({
   },
 }));
 vi.mock("@/lib/db", () => ({
-  db: { customProvider: { findMany: h.findMany, create: h.create, deleteMany: h.deleteMany } },
+  db: { customProvider: { findMany: h.findMany, count: h.count, create: h.create, deleteMany: h.deleteMany } },
 }));
+vi.mock("@/lib/security/rate-limit", () => ({ rateLimit: h.rateLimit }));
 vi.mock("@/lib/encryption", () => ({
   encryptApiKey: (k: string) => `enc(${k})`,
   decryptApiKey: (k: string) => k.replace(/^enc\((.*)\)$/, "$1"),
+  tryDecryptApiKey: (k: string) => (k.startsWith("enc(") ? k.replace(/^enc\((.*)\)$/, "$1") : null),
 }));
 vi.mock("@/lib/ssrf-guard", () => ({
   UnsafeUrlError: h.UnsafeUrlError,
@@ -66,6 +70,43 @@ beforeEach(() => {
   h.allowPrivate = false;
   h.safeExternalFetch.mockResolvedValue(listing([{ id: "qwen-32b", context_length: 32768 }]));
   h.create.mockImplementation(async ({ data }) => ({ id: "cp1", ...data }));
+  h.count.mockResolvedValue(0);
+  h.rateLimit.mockResolvedValue(true);
+});
+
+describe("POST caps (P2-25)", () => {
+  it("refuses an 11th provider before any outbound fetch", async () => {
+    h.count.mockResolvedValue(10);
+    const res = await post({ displayName: "Box", baseURL: "https://llm.example.com/v1" });
+    expect(res.status).toBe(409);
+    expect((await res.json()).code).toBe("CUSTOM_PROVIDER_LIMIT");
+    expect(h.safeExternalFetch).not.toHaveBeenCalled();
+    expect(h.create).not.toHaveBeenCalled();
+  });
+
+  it("is rate limited per writer before any outbound fetch", async () => {
+    h.rateLimit.mockResolvedValue(false);
+    const res = await post({ displayName: "Box", baseURL: "https://llm.example.com/v1" });
+    expect(res.status).toBe(429);
+    expect((await res.json()).code).toBe("RATE_LIMITED");
+    expect(h.rateLimit.mock.calls[0][0]).toContain("u1");
+    expect(h.safeExternalFetch).not.toHaveBeenCalled();
+  });
+
+  it("stores at most 500 models with bounded ids", async () => {
+    const many = [
+      { id: "y".repeat(300) }, // an id over 200 characters is skipped, never cut
+      ...Array.from({ length: 900 }, (_, i) => ({ id: `m${i}-${"x".repeat(140)}` })),
+    ];
+    h.safeExternalFetch.mockResolvedValue(listing(many));
+    const res = await post({ displayName: "Box", baseURL: "https://llm.example.com/v1" });
+    expect(res.status).toBe(201);
+    const saved = h.create.mock.calls[0][0].data.models as { id: string }[];
+    expect(saved).toHaveLength(500);
+    expect(JSON.stringify(saved).length).toBeLessThanOrEqual(256 * 1024);
+    expect(saved.every((m) => m.id.length <= 200)).toBe(true);
+    expect(saved[0].id.startsWith("m0-")).toBe(true);
+  });
 });
 
 describe("POST", () => {

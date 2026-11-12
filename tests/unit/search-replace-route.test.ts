@@ -117,12 +117,12 @@ describe("POST /api/books/:id/search/replace", () => {
 
   it("chapterIds scopes findMany to the given chapters within the book", async () => {
     await POST(
-      req({ find: "Bob", replace: "Al", chapterIds: ["c2"] }) as never,
+      req({ find: "Bob", replace: "Al", chapterIds: ["00000000-0000-4000-8000-0000000000c2"] }) as never,
       ctx as never
     );
     expect(h.db.chapter.findMany.mock.calls[0][0].where).toEqual({
       bookId: "b1",
-      id: { in: ["c2"] },
+      id: { in: ["00000000-0000-4000-8000-0000000000c2"] },
     });
   });
 

@@ -52,7 +52,7 @@ export function buildFaqItems(hostedAllowance: boolean): FaqItem[] {
     {
       question: "Is my manuscript data safe?",
       answer:
-        "Your API keys are encrypted with AES-256-GCM before they are stored, and they are never shown back in plain text. We do not use your manuscripts to train AI models. When you run an agent, the relevant text is sent to the AI provider you chose and is handled under that provider's terms. You can export your full manuscript at any time.",
+        "Your API keys are encrypted with AES-256-GCM before they are stored, and they are never shown back in plain text. We do not use your manuscripts to train AI models. Your text leaves the app in three ways: when you run an agent, the relevant text goes to the AI provider you chose, under that provider's terms; each chapter you save is sent to OpenAI on our account to build the book's search memory (embeddings); and research workflows send their search queries to web search services. Section 3 of the Privacy Policy names each one. You can export your full manuscript at any time.",
     },
     {
       question: "Can I cancel anytime?",

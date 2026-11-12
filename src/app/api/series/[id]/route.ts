@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { updateSeriesSchema } from "@/lib/validation";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { zodErrorResponse } from "@/lib/api/zod-error";
+import { getSeriesStorage } from "@/lib/storage";
+import { purgeStorage } from "@/lib/storage/purge";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -97,13 +99,22 @@ export async function DELETE(_req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Series not found" }, { status: 404 });
     }
 
-    // Detach books from series (make them standalone) before deleting
-    await db.book.updateMany({
-      where: { seriesId: id },
-      data: { seriesId: null },
+    // P2-37: detach the books (they become standalone) and delete the series
+    // together, or neither.
+    await db.$transaction(async (tx) => {
+      await tx.book.updateMany({
+        where: { seriesId: id },
+        data: { seriesId: null },
+      });
+      await tx.series.delete({ where: { id } });
     });
 
-    await db.series.delete({ where: { id } });
+    // Then the series' own objects: its documents and their versions, the
+    // cover and the omnibus exports. Best effort after the row is gone: a
+    // storage outage is logged, and the writer's delete still stands.
+    await purgeStorage(getSeriesStorage(user.id, id)).catch((error) =>
+      console.error(`DELETE /api/series/:id: storage purge failed for series ${id}:`, error)
+    );
 
     return NextResponse.json({ deleted: true });
   } catch (error) {

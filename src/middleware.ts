@@ -54,6 +54,16 @@ const handler =
           }
 
           if (!isPublicRoute(request)) {
+            // P2-1: for an API call Clerk's protect() answers 404 (it is not a
+            // page request), so an expired session showed up as "Request
+            // failed: 404" while autosave failed. The client redirects to
+            // sign-in on 401, so API calls get that instead.
+            if (request.nextUrl.pathname.startsWith("/api/")) {
+              const { userId } = await auth();
+              if (!userId) {
+                return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+              }
+            }
             await auth.protect();
 
             // Onboarding gate: redirect to /onboarding if user hasn't completed it.

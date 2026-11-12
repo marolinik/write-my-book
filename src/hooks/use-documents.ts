@@ -89,10 +89,16 @@ export function useSaveChapterContent(bookId: string, chapterId: string) {
         if (useKeepalive) releaseKeepaliveBudget(bodyBytes);
       }
     },
-    onSuccess: (data) => {
-      qc.invalidateQueries({
-        queryKey: ["chapter-content", bookId, chapterId],
-      });
+    onSuccess: (data, variables) => {
+      // P2-49: the save response and the text just sent ARE the new state; a
+      // refetch of the whole chapter after every autosave was discarded anyway.
+      qc.setQueryData<{ markdown: string; wordCount: number; documentId?: string; version?: number }>(
+        ["chapter-content", bookId, chapterId],
+        (old) =>
+          old
+            ? { ...old, markdown: variables.markdown, wordCount: data.wordCount, version: data.version }
+            : old
+      );
       // Publish the live cumulative book word count for the onboarding watcher
       // (no refetch — the value came back with the save response).
       qc.setQueryData<number>(["book-wordcount", bookId], data.bookWordCount);

@@ -6,6 +6,14 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
+# P2-84: the runtime gets production dependencies only. devDependencies
+# (vitest, playwright, jsdom, eslint, the prisma CLI) carry advisories the
+# worker never loads, and ~100 MB.
+FROM base AS prod-deps
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev --ignore-scripts
+
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
@@ -28,8 +36,9 @@ RUN adduser --system --uid 1001 worker
 # Copy compiled worker output
 COPY --from=builder /app/dist-worker ./dist-worker
 
-# Copy node_modules (needed for runtime dependencies: bullmq, ioredis, @anthropic-ai/sdk, prisma, etc.)
-COPY --from=builder /app/node_modules ./node_modules
+# Production node_modules only (P2-84): bullmq, ioredis, @anthropic-ai/sdk,
+# @prisma/client and the rest of "dependencies".
+COPY --from=prod-deps /app/node_modules ./node_modules
 
 # Copy Prisma schema and generated client
 COPY --from=builder /app/prisma ./prisma
@@ -38,6 +47,11 @@ COPY --from=builder /app/src/generated ./src/generated
 
 # Copy package.json for module resolution
 COPY --from=builder /app/package.json ./package.json
+
+# Fail the build, not the boot, if the worker requires a package the pruned
+# install does not have.
+COPY scripts/check-worker-deps.mjs ./scripts/check-worker-deps.mjs
+RUN node scripts/check-worker-deps.mjs dist-worker
 
 USER worker
 CMD ["node", "dist-worker/worker.js"]

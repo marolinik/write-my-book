@@ -231,6 +231,8 @@ export class AgentOrchestrator {
       // pass reads at most a few chapters whole).
       workflowId: options.context.targetWorkflowId ?? options.workflowId,
       fullReads: new Set<number>(),
+      // P2-19: versions this session read, for WriteChapter's expectedVersion.
+      chapterVersionsSeen: new Map<number, number>(),
     };
 
     const messages: Anthropic.MessageParam[] = [
@@ -354,6 +356,8 @@ export class AgentOrchestrator {
       // pass reads at most a few chapters whole).
       workflowId: options.context.targetWorkflowId ?? options.workflowId,
       fullReads: new Set<number>(),
+      // P2-19: versions this session read, for WriteChapter's expectedVersion.
+      chapterVersionsSeen: new Map<number, number>(),
     };
 
     // Add the new user message to existing conversation
@@ -955,6 +959,8 @@ export class AgentOrchestrator {
               ? this.grantedApprovals.get(cacheKey)
               : undefined;
             if (alreadyGranted) {
+              // P2-18: the writer's approval, recorded where WriteChapter checks it.
+              toolCtx.overwriteApproved = true;
               options.onMessage({
                 type: "tool_result",
                 content: `Writer: APPROVED (already approved this session)`,
@@ -1027,6 +1033,10 @@ export class AgentOrchestrator {
 
             if (cacheKey && isCacheableDecision(approvalResponse.decision)) {
               this.grantedApprovals.set(cacheKey, approvalResponse);
+            }
+            // P2-18: only the writer's own "approve" unlocks overwriting prose.
+            if (approvalResponse.decision === "approve") {
+              toolCtx.overwriteApproved = true;
             }
 
             const approvalText =

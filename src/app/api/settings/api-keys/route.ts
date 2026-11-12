@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { encryptApiKey, decryptApiKey, maskApiKey } from "@/lib/encryption";
+import { encryptApiKey, maskApiKey, maskStoredKey } from "@/lib/encryption";
 import { createApiKeySchema } from "@/lib/validation";
 import { validateApiKey } from "@/lib/llm/key-validator";
 import { directKeyUnsupportedMessage, directRelayBaseUrl, type RelayProvider } from "@/lib/llm/client-factory";
@@ -72,7 +72,8 @@ export async function GET() {
       isDefault: k.isDefault,
       validatedAt: k.validatedAt,
       createdAt: k.createdAt,
-      maskedKey: maskApiKey(decryptApiKey(k.encryptedKey)),
+      // P2-21: one undecryptable row is flagged for re-entry, not a 500 for the whole list.
+      ...maskStoredKey(k.encryptedKey),
       usage: usageByProvider.get(k.provider) ?? {
         totalTokens: 0,
         totalCost: 0,

@@ -12,7 +12,12 @@ const globalForNeo4j = globalThis as unknown as {
 function createDriver(): Driver {
   const uri = process.env.NEO4J_URI ?? "bolt://localhost:7687";
   const user = process.env.NEO4J_USER ?? "neo4j";
-  const password = process.env.NEO4J_PASSWORD ?? "wmb-neo4j-dev";
+  // P2-45: the public dev password is a fallback for local development only.
+  // In production a missing password fails authentication, and validateEnv
+  // reports it at boot.
+  const password =
+    process.env.NEO4J_PASSWORD ??
+    (process.env.NODE_ENV === "production" ? "" : "wmb-neo4j-dev");
 
   return neo4j.driver(uri, neo4j.auth.basic(user, password), {
     maxConnectionPoolSize: 50,

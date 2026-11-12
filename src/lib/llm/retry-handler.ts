@@ -12,7 +12,7 @@ import { translateProviderError, type TranslatedError } from "./error-translator
 export const RETRY_CONFIG = {
   maxRetries: 3,
   backoffMs: [10_000, 30_000, 60_000] as readonly number[],
-  retryableStatuses: [429, 500, 502, 503, 529] as readonly number[],
+  retryableStatuses: [429, 500, 502, 503, 504, 529] as readonly number[],
   nonRetryableStatuses: [400, 401, 402, 403, 404] as readonly number[],
 } as const;
 
@@ -50,6 +50,39 @@ function extractStatus(error: unknown): number | null {
   return null;
 }
 
+const TRANSPORT_CODES = new Set([
+  "ECONNRESET",
+  "ECONNREFUSED",
+  "ETIMEDOUT",
+  "EPIPE",
+  "EAI_AGAIN",
+  "ENOTFOUND",
+  "UND_ERR_SOCKET",
+  "UND_ERR_CONNECT_TIMEOUT",
+  "UND_ERR_HEADERS_TIMEOUT",
+  "UND_ERR_BODY_TIMEOUT",
+]);
+
+/**
+ * P2-30: a connection that dropped or timed out has no HTTP status. It used to
+ * become an immediate ProviderError(500); it is a transient failure and is
+ * retried like a gateway timeout (the SDK's own 2 fast retries come first).
+ */
+export function isTransportError(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const e = error as { code?: unknown; name?: unknown; message?: unknown; cause?: unknown };
+  if (typeof e.code === "string" && TRANSPORT_CODES.has(e.code)) return true;
+  if (e.name === "APIConnectionError" || e.name === "APIConnectionTimeoutError") return true;
+  if (e.name === "TypeError" && e.message === "fetch failed") return true;
+  if (typeof e.message === "string" && /socket hang up|ECONNRESET|ETIMEDOUT/i.test(e.message)) return true;
+  return e.cause !== undefined && e.cause !== error && isTransportError(e.cause);
+}
+
+/** The status the retry decision uses: a transport failure counts as a 504. */
+function effectiveStatus(error: unknown): number | null {
+  return extractStatus(error) ?? (isTransportError(error) ? 504 : null);
+}
+
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -57,7 +90,7 @@ function sleep(ms: number): Promise<void> {
 /**
  * Execute fn() with automatic retry on retryable provider errors.
  *
- * - Retryable errors (429, 5xx, 529): Wait with exponential backoff, call onRetry, retry.
+ * - Retryable errors (429, 5xx incl. 504, 529, and connection failures): Wait with exponential backoff, call onRetry, retry.
  * - Non-retryable errors (400, 401-403, 404): Throw immediately with translated error.
  * - Unknown errors or max retries exhausted: Throw with translated error.
  */
@@ -72,7 +105,7 @@ export async function withProviderRetry<T>(
       return await fn();
     } catch (error) {
       lastError = error;
-      const status = extractStatus(error);
+      const status = effectiveStatus(error);
 
       // Non-retryable: throw immediately with translated error
       if (status !== null && RETRY_CONFIG.nonRetryableStatuses.includes(status)) {

@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { parseMarketingKit } from "@/lib/marketing/marketing-kit";
-import { requireUser } from "@/lib/auth";
+import { requireUserOrResponse } from "@/lib/api/require-user-response";
 import { denyIfOverQuota } from "@/lib/billing/ai-route-gate";
 import { db } from "@/lib/db";
-import { decryptApiKey } from "@/lib/encryption";
+import { decryptValidatedKeys } from "@/lib/llm/decrypt-validated-keys";
 import { estimateCost } from "@/lib/cost";
 import { createLLMClient, resolveRouteWithLocalFallback } from "@/lib/llm";
-import type { ProviderKey } from "@/lib/llm";
 import { DocumentService } from "@/lib/documents";
 import { localeFor } from "@/lib/i18n/ui-strings";
 import { getDefaultModelId } from "@/lib/llm/defaults";
@@ -21,7 +20,9 @@ export const dynamic = "force-dynamic";
  * Returns the last generated marketing kit, or null if none exists.
  */
 export async function GET(_req: NextRequest, { params }: RouteParams) {
-  const user = await requireUser();
+  const auth = await requireUserOrResponse();
+  if (auth.response) return auth.response;
+  const user = auth.user;
   const { id: bookId } = await params;
 
   const book = await db.book.findFirst({
@@ -51,7 +52,9 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
  * Generates a marketing kit from the manuscript using the user's LLM.
  */
 export async function POST(_req: NextRequest, { params }: RouteParams) {
-  const user = await requireUser();
+  const auth = await requireUserOrResponse();
+  if (auth.response) return auth.response;
+  const user = auth.user;
   // P2-5: the same plan gate as an agent session, before any model call.
   const denied = await denyIfOverQuota(user.id);
   if (denied) return denied;
@@ -91,14 +94,7 @@ export async function POST(_req: NextRequest, { params }: RouteParams) {
   const modelDef = getModelDef(userDefault) ?? resolveFromTier(userDefault);
   const registryId = userDefault;
 
-  const userKeys = await db.apiKey.findMany({
-    where: { userId: user.id, validatedAt: { not: null } },
-    select: { provider: true, encryptedKey: true },
-  });
-  const decryptedKeys: Partial<Record<ProviderKey, string>> = {};
-  for (const k of userKeys) {
-    decryptedKeys[k.provider as ProviderKey] = decryptApiKey(k.encryptedKey);
-  }
+  const decryptedKeys = await decryptValidatedKeys(user.id);
 
   const { route } = resolveRouteWithLocalFallback(modelDef, {
     anthropicApiKey: decryptedKeys.anthropic,

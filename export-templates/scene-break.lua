@@ -21,9 +21,10 @@ end
 --- Convert HorizontalRule to format-specific ornamental scene break.
 local function HorizontalRule()
   if FORMAT:match 'docx' then
-    -- DOCX: Para with custom-style span (reference doc defines Scene Break as centered)
-    local span = pandoc.Span(ornament, pandoc.Attr('', {}, {{'custom-style', 'Scene Break'}}))
-    return pandoc.Para({span})
+    -- DOCX: a Div with custom-style, so the PARAGRAPH style 'Scene Break' in
+    -- reference-genre.docx (centered, spaced) applies. A Span could only carry
+    -- a character style, which cannot centre a line (P2-73).
+    return pandoc.Div({pandoc.Para({pandoc.Str(ornament)})}, pandoc.Attr('', {}, {{'custom-style', 'Scene Break'}}))
 
   elseif FORMAT:match 'html' or FORMAT:match 'epub' then
     -- EPUB/HTML: Div with role="separator" and CSS class for styling

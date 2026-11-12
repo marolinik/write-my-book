@@ -40,4 +40,15 @@ describe("the compiled schema's delete rules", () => {
   it("deleting a finding keeps the memory it produced, unlinked", () => {
     expect(foreignKey("writer_memories", "finding_id")).toMatch(/ON DELETE SET NULL/);
   });
+
+  it("P2-38 / D16: deleting a Founder releases their slot, so the public counter is true", () => {
+    expect(foreignKey("founder_slots", "user_id")).toMatch(/REFERENCES "users"\("id"\) ON DELETE CASCADE/);
+  });
+
+  it("P2-38: the pre-apply step removes orphan slots so the constraint can be built", () => {
+    const pre = require("node:fs").readFileSync(join(ROOT, "scripts", "pre-apply.sql"), "utf-8") as string;
+    expect(pre).toMatch(/DELETE FROM founder_slots[\s\S]*NOT EXISTS[\s\S]*users/i);
+    const pkg = JSON.parse(require("node:fs").readFileSync(join(ROOT, "package.json"), "utf-8"));
+    expect(pkg.scripts["db:apply"]).toMatch(/pre-apply\.sql[\s\S]*pending-change\.sql/);
+  });
 });

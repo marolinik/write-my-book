@@ -116,6 +116,7 @@ function GreenfieldOnboarding({
           variant="ghost"
           size="icon"
           className="absolute bottom-2 right-2 size-7"
+          aria-label={t.common.send}
           onClick={handleSendMessage}
           disabled={disabled || !chatInput.trim()}
         >

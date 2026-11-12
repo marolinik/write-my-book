@@ -102,6 +102,8 @@ export interface UIStrings {
     apiKeys: string;
     apiKeysDescription: string;
     relayKeyUnsupported: string;
+    keyNeedsReentry: string;
+    apiKeysLoadFailed: string;
     localFleet: string;
     roleGhostwriterDesc: string;
     roleEditorDesc: string;
@@ -201,6 +203,14 @@ export interface UIStrings {
     delete: string;
     edit: string;
     close: string;
+    back: string;
+    copy: string;
+    previous: string;
+    next: string;
+    remove: string;
+    addToQueue: string;
+    goToCard: string;
+    refresh: string;
     confirm: string;
     add: string;
     yes: string;
@@ -871,6 +881,7 @@ export interface UIStrings {
     clearMemory: string;
     notIndexed: string;
     memoryExample: string;
+    memoryCategory: string;
     edit: string;
     forgetThis: string;
     noMemories: string;
@@ -968,6 +979,7 @@ export interface UIStrings {
     atCurrentPace: string;
     wordCountTarget: string;
     clickToEditTitle: string;
+    titleSaveFailed: string;
     dayStreak: string;
     marketAnalysis: string;
     marketReport: string;

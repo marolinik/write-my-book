@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { encryptApiKey, decryptApiKey } from "@/lib/encryption";
+import { encryptApiKey, tryDecryptApiKey } from "@/lib/encryption";
 import { zodErrorResponse } from "@/lib/api/zod-error";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import {
@@ -11,6 +11,7 @@ import {
   readCappedText,
   safeExternalFetch,
 } from "@/lib/ssrf-guard";
+import { rateLimit } from "@/lib/security/rate-limit";
 
 /**
  * Custom providers — user-added OpenAI-compatible endpoints (LAN vLLM boxes,
@@ -28,6 +29,18 @@ import {
  */
 
 const WIRE_APIS = ["openai-completions"] as const;
+
+/**
+ * P2-25: the stored listing comes from an endpoint the writer (or an attacker
+ * with their session) controls, and each save triggers an outbound fetch, so
+ * both are bounded.
+ */
+const MAX_CUSTOM_PROVIDERS = 10;
+const MAX_MODELS = 500;
+const MAX_MODEL_ID_LENGTH = 200;
+const MAX_MODELS_BYTES = 256 * 1024;
+const DISCOVERY_LIMIT = 10;
+const DISCOVERY_WINDOW_SECONDS = 3600;
 
 const createSchema = z.object({
   displayName: z.string().min(1).max(80),
@@ -90,14 +103,25 @@ async function discoverModels(baseURL: string, apiKey?: string): Promise<Discove
   const data = (body as { data?: unknown }).data;
   if (!Array.isArray(data)) throw new DiscoveryError("The endpoint's model listing has no `data` array — enter models by hand or check the wire protocol.");
   const out: DiscoveredModel[] = [];
+  let bytes = 2;
   for (const raw of data) {
+    if (out.length >= MAX_MODELS) break;
     const entry = raw as { id?: unknown; name?: unknown; display_name?: unknown; context_window?: unknown; context_length?: unknown; max_output_tokens?: unknown; max_tokens?: unknown };
     const id = typeof entry?.id === "string" && entry.id.length > 0 ? entry.id : undefined;
-    if (!id) continue;
+    // An id is skipped, never cut: a shortened id would name a model that does not exist.
+    if (!id || id.length > MAX_MODEL_ID_LENGTH) continue;
     const name = typeof entry?.name === "string" ? entry.name : typeof entry?.display_name === "string" ? entry.display_name : undefined;
     const ctxW = typeof entry?.context_window === "number" ? entry.context_window : typeof entry?.context_length === "number" ? entry.context_length : undefined;
     const maxT = typeof entry?.max_output_tokens === "number" ? entry.max_output_tokens : typeof entry?.max_tokens === "number" ? entry.max_tokens : undefined;
-    out.push({ id, ...(name ? { name } : {}), ...(ctxW ? { contextWindow: ctxW } : {}), ...(maxT ? { maxTokens: maxT } : {}) });
+    const model: DiscoveredModel = {
+      id,
+      ...(name ? { name: name.slice(0, MAX_MODEL_ID_LENGTH) } : {}),
+      ...(ctxW ? { contextWindow: ctxW } : {}),
+      ...(maxT ? { maxTokens: maxT } : {}),
+    };
+    bytes += JSON.stringify(model).length + 1;
+    if (bytes > MAX_MODELS_BYTES) break;
+    out.push(model);
   }
   return out;
 }
@@ -118,7 +142,7 @@ export async function GET() {
         baseURL: r.baseURL,
         api: r.api,
         hasKey: !!r.apiKey,
-        maskedKey: r.apiKey ? truncateMask(decryptApiKey(r.apiKey)) : null,
+        maskedKey: maskCustomKey(r.apiKey),
         models: r.models,
       }))
     );
@@ -132,6 +156,13 @@ function truncateMask(raw: string): string {
   return raw.length <= 11 ? "***" : `${raw.slice(0, 7)}...${raw.slice(-4)}`;
 }
 
+/** P2-21: an undecryptable stored key shows as masked-unknown instead of failing the list. */
+function maskCustomKey(stored: string | null): string | null {
+  if (!stored) return null;
+  const plain = tryDecryptApiKey(stored, "custom provider");
+  return plain === null ? "***" : truncateMask(plain);
+}
+
 /** POST — add one; discovery must succeed before saving. */
 export async function POST(req: NextRequest) {
   let user;
@@ -140,6 +171,18 @@ export async function POST(req: NextRequest) {
     const body = await parseJsonBody(req);
     const data = createSchema.parse(body);
     const plaintextKey = data.apiKey?.trim() || undefined;
+
+    // P2-25: bounded before any outbound fetch.
+    const existing = await db.customProvider.count({ where: { userId: user.id } });
+    if (existing >= MAX_CUSTOM_PROVIDERS) {
+      return NextResponse.json(
+        { error: `You can save up to ${MAX_CUSTOM_PROVIDERS} custom providers`, code: "CUSTOM_PROVIDER_LIMIT" },
+        { status: 409 }
+      );
+    }
+    if (!(await rateLimit(`custom-provider-discovery:${user.id}`, DISCOVERY_LIMIT, DISCOVERY_WINDOW_SECONDS))) {
+      return NextResponse.json({ error: "Too many requests", code: "RATE_LIMITED" }, { status: 429 });
+    }
 
     const models = await discoverModels(data.baseURL, plaintextKey);
     if (models.length === 0) {

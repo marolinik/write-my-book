@@ -31,7 +31,7 @@ import {
   managedAllowance,
 } from "@/lib/billing/managed-tier";
 
-const KEY_ENV = { MANAGED_TIER_ENABLED: "1", WMB_MANAGED_KEY: "sk-test", WMB_MANAGED_KEY_PROVIDER: "anthropic" };
+const KEY_ENV = { MANAGED_TIER_ENABLED: "1", WMB_MANAGED_KEY: "sk-test", WMB_MANAGED_KEY_PROVIDER: "openrouter" };
 
 describe("the managed tier switch", () => {
   it("is off with no environment at all", () => {
@@ -39,7 +39,7 @@ describe("the managed tier switch", () => {
   });
 
   it("is off when only the key is present", () => {
-    expect(managedTierConfig({ WMB_MANAGED_KEY: "sk-test", WMB_MANAGED_KEY_PROVIDER: "anthropic" })).toBeNull();
+    expect(managedTierConfig({ WMB_MANAGED_KEY: "sk-test", WMB_MANAGED_KEY_PROVIDER: "openrouter" })).toBeNull();
   });
 
   it("is off when only the flag is present", () => {
@@ -49,9 +49,16 @@ describe("the managed tier switch", () => {
   it("is on only when the owner set both", () => {
     const config = managedTierConfig(KEY_ENV);
     expect(config).not.toBeNull();
-    expect(config!.provider).toBe("anthropic");
+    expect(config!.provider).toBe("openrouter");
     expect(config!.apiKey).toBe("sk-test");
   });
+
+  it.each(["anthropic", "openai", "gemini", "grok"])(
+    "P2-81 / D21: refuses %s, which the privacy table and the no-training guard do not cover",
+    (provider) => {
+      expect(managedTierConfig({ ...KEY_ENV, WMB_MANAGED_KEY_PROVIDER: provider })).toBeNull();
+    }
+  );
 
   it("refuses a provider this product cannot route", () => {
     expect(managedTierConfig({ ...KEY_ENV, WMB_MANAGED_KEY_PROVIDER: "nonsense" })).toBeNull();

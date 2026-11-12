@@ -65,7 +65,7 @@ function CopyButton({ text }: { text: string }) {
   };
 
   return (
-    <Button variant="ghost" size="icon" className="size-6 shrink-0" onClick={handleCopy}>
+    <Button variant="ghost" size="icon" className="size-6 shrink-0" onClick={handleCopy} aria-label={t.common.copy}>
       {copied ? <CheckIcon className="size-3 text-green-500" /> : <CopyIcon className="size-3" />}
     </Button>
   );

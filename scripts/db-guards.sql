@@ -35,3 +35,15 @@ DROP TRIGGER IF EXISTS edit_actions_no_truncate ON edit_actions;
 CREATE TRIGGER edit_actions_no_truncate
   BEFORE TRUNCATE ON edit_actions
   FOR EACH STATEMENT EXECUTE FUNCTION edit_actions_no_truncate();
+
+-- P2-40 / D17: one book-level SYNOPSIS, STORY_BIBLE, BOOK_PLAN and FINGERPRINT
+-- per book. chapter_number is NULL for these rows, and NULL is distinct in the
+-- (book_id, type, chapter_number) unique, so two concurrent creates used to
+-- leave two rows that agents and the report tab read differently. Run
+-- scripts/repair-duplicate-documents.ts --execute first (db:apply does) so
+-- existing duplicates are collapsed before this index is built.
+CREATE UNIQUE INDEX IF NOT EXISTS documents_book_level_single
+  ON documents (book_id, type)
+  WHERE chapter_number IS NULL
+    AND book_id IS NOT NULL
+    AND type IN ('SYNOPSIS', 'STORY_BIBLE', 'BOOK_PLAN', 'FINGERPRINT');

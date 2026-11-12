@@ -20,7 +20,8 @@ vi.mock("@/lib/vector/qdrant-client", () => ({
   qdrantClient: h.qdrant,
   ensureMemoryCollection: async () => true,
 }));
-vi.mock("@/lib/vector/cost-tracker", () => ({ trackEmbeddingCost: vi.fn() }));
+vi.mock("@/lib/vector/cost-tracker", () => ({ trackEmbeddingCost: vi.fn(async () => undefined) }));
+vi.mock("@/lib/vector/indexing-gate", () => ({ canIndexProseForUser: async () => true }));
 
 import { indexDocument } from "@/lib/vector/indexer";
 
@@ -34,7 +35,7 @@ describe("indexDocument", () => {
   it("keeps the chapter's previous chunks when embedding fails", async () => {
     h.embedBatch.mockRejectedValue(new Error("429 rate limited"));
     await expect(
-      indexDocument("b1", "chapter", "d1", "The sea kept the letters.", { chapterNumber: 3, chapterContent: true })
+      indexDocument("b1", "chapter", "d1", "The sea kept the letters.", { userId: "u1", chapterNumber: 3, chapterContent: true })
     ).rejects.toThrow("429");
     expect(h.qdrant.delete).not.toHaveBeenCalled();
     expect(h.qdrant.upsert).not.toHaveBeenCalled();
@@ -45,7 +46,7 @@ describe("indexDocument", () => {
       vectors: texts.map(() => [0.1, 0.2]),
       tokensUsed: 10,
     }));
-    await indexDocument("b1", "chapter", "d1", "The sea kept the letters.", { chapterNumber: 3, chapterContent: true });
+    await indexDocument("b1", "chapter", "d1", "The sea kept the letters.", { userId: "u1", chapterNumber: 3, chapterContent: true });
     expect(h.qdrant.delete).toHaveBeenCalledTimes(1);
     expect(h.embedBatch.mock.invocationCallOrder[0]).toBeLessThan(h.qdrant.upsert.mock.invocationCallOrder[0]);
     // Review M-1: the new points land first; the delete then removes only the old ones.
@@ -61,7 +62,7 @@ describe("indexDocument", () => {
     }));
     h.qdrant.upsert.mockRejectedValue(new Error("qdrant down"));
     await expect(
-      indexDocument("b1", "story_bible", "d9", "The sea kept the letters.", {})
+      indexDocument("b1", "story_bible", "d9", "The sea kept the letters.", { userId: "u1" })
     ).rejects.toThrow("qdrant down");
     expect(h.qdrant.delete).not.toHaveBeenCalled();
   });

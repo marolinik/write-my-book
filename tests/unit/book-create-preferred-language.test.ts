@@ -13,6 +13,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 const h = vi.hoisted(() => ({
   requireUser: vi.fn(),
   db: {
+    // P2-11: book creation runs in one transaction; hand the callback this same mock.
+    $transaction: async (fn: (tx: unknown) => unknown) => fn(h.db),
     book: { findFirst: vi.fn(), create: vi.fn(), update: vi.fn() },
     bookSettings: { create: vi.fn() },
     chapter: { create: vi.fn() },

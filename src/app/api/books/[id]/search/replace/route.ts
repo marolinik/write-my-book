@@ -7,6 +7,7 @@ import { DocumentType } from "@/generated/prisma/enums";
 import { replaceInText } from "@/lib/search/find-replace";
 import { countWords } from "@/lib/utils";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { reconcileBookCounters } from "@/lib/books/book-counters";
 
 export const dynamic = "force-dynamic";
 
@@ -58,8 +59,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const svc = new DocumentService(user.id, bookId);
     const replaced: ReplacedChapter[] = [];
     let totalReplacements = 0;
-    let bookWordDelta = 0;
 
+    // P2-13: each chapter is its own versioned save, so a failure on chapter k
+    // leaves 1..k-1 replaced. The writer is told which, and the book's word
+    // total is recomputed from the chapter rows whether the run finished or not
+    // (no delta increment that a failure could skip).
+    try {
     for (const chapter of chapters) {
       const doc = await svc.findByType(
         DocumentType.CHAPTER_CONTENT,
@@ -95,8 +100,6 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       // for the same user; cross-user/agent races are guarded elsewhere).
 
       const newWordCount = countWords(result);
-      const wordDelta = newWordCount - chapter.wordCount;
-      bookWordDelta += wordDelta;
 
       await db.chapter.update({
         where: { id: chapter.id },
@@ -111,11 +114,16 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       });
     }
 
-    if (bookWordDelta !== 0) {
-      await db.book.update({
-        where: { id: bookId },
-        data: { wordCount: { increment: bookWordDelta } },
-      });
+    } catch (error) {
+      console.error("POST /api/books/:id/search/replace failed mid-run:", error);
+      return NextResponse.json(
+        { error: "Replace failed", code: "SERVER_ERROR", partial: true, replaced, totalReplacements },
+        { status: 500 }
+      );
+    } finally {
+      await reconcileBookCounters(bookId).catch((error) =>
+        console.error("POST /api/books/:id/search/replace: counter reconcile failed:", error)
+      );
     }
 
     return NextResponse.json({ replaced, totalReplacements });

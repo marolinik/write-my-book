@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { validateApiKey } from "@/lib/llm/key-validator";
-import { decryptApiKey } from "@/lib/encryption";
+import { tryDecryptApiKey } from "@/lib/encryption";
 import type { ProviderKey } from "@/lib/llm/providers";
 
 /**
@@ -36,8 +36,13 @@ export async function GET(
       );
     }
 
-    const decrypted = decryptApiKey(key.encryptedKey);
-    const result = await validateApiKey(key.provider as ProviderKey, decrypted);
+    // P2-21: a row no configured secret opens is reported as invalid (enter it
+    // again), not a 500.
+    const decrypted = tryDecryptApiKey(key.encryptedKey, `validate ${key.provider}`);
+    const result =
+      decrypted === null
+        ? { valid: false as const, error: "KEY_NEEDS_REENTRY" }
+        : await validateApiKey(key.provider as ProviderKey, decrypted);
 
     if (result.valid) {
       const now = new Date();

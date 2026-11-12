@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
-import { isValidShareToken, InMemoryRateLimiter, clientIpFrom } from "@/lib/share/token";
+import { isValidShareToken, allowShareLoad } from "@/lib/share/token";
 import { loadShareBook, loadShareEditorial } from "@/lib/share/snapshot-data";
 
 /**
@@ -14,9 +14,6 @@ import { loadShareBook, loadShareEditorial } from "@/lib/share/snapshot-data";
  */
 type RouteParams = { params: Promise<{ token: string }> };
 
-// Per-process, fixed-window: 120 loads / 60s per IP. Docs note: resets on restart.
-const publicLimiter = new InMemoryRateLimiter(60_000, 120);
-
 export const dynamic = "force-dynamic";
 
 export async function GET(_req: NextRequest, { params }: RouteParams) {
@@ -24,7 +21,8 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
   if (!isValidShareToken(token)) {
     return NextResponse.json({ error: "Share not found" }, { status: 404 });
   }
-  if (!publicLimiter.allow(clientIpFrom(_req.headers))) {
+  // P2-23: the same shared budget as the page, per client address and per token.
+  if (!(await allowShareLoad(_req.headers, token))) {
     return NextResponse.json({ error: "Too many requests", retryAfterSec: 60 }, { status: 429 });
   }
 

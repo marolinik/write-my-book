@@ -67,7 +67,7 @@ This secret encrypts user API keys (AES-256-GCM). Losing this value makes all st
 |----------|---------|-------|
 | `NEO4J_URI` | `bolt://localhost:7687` | Neo4j Bolt protocol endpoint |
 | `NEO4J_USER` | `neo4j` | Username |
-| `NEO4J_PASSWORD` | `wmb-neo4j-dev` | Password |
+| `NEO4J_PASSWORD` | (generate: `openssl rand -hex 24`) | Required in production when `NEO4J_URI` is set. The dev default `wmb-neo4j-dev` is refused at boot. |
 
 ### Billing (Stripe) -- Optional
 

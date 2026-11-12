@@ -15,10 +15,10 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useApiKeys } from "@/hooks/use-api-keys";
 import { PROVIDERS, isRelayOnlyProvider, type ProviderKey } from "@/lib/llm/providers";
+import { ProviderCard } from "./provider-card";
 
 /** D3: no relay is deployed, so onboarding offers only keys that work directly. */
 const OFFERED_PROVIDERS = PROVIDERS.filter((p) => !isRelayOnlyProvider(p.key));
-import { ProviderCard } from "./provider-card";
 
 // ─── Default model per provider ────────────────────────────────
 // The first recommended model for each provider (used when picking default).

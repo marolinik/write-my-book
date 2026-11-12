@@ -92,12 +92,9 @@ export function decideNodeUserIdBackfill(
 // ─── I/O runner ─────────────────────────────────────────────────────────────
 
 const TAG = "[migrate-backfill-node-userid]";
-const CENSUS_PATH = join(
-  "cowork",
-  "bulletproof-qa-2026-07-17",
-  "evidence",
-  "node-userid-census.md"
-);
+// P2-85: QA evidence no longer lives in the repository; the census goes to
+// MIGRATION_EVIDENCE_DIR (default tmp-evidence/, gitignored).
+const CENSUS_PATH = join(process.env.MIGRATION_EVIDENCE_DIR ?? "tmp-evidence", "node-userid-census.md");
 const SAMPLE_LIMIT = 20;
 
 function toNum(v: unknown): number | null {

@@ -120,7 +120,9 @@ async function agentSave(
   chapterNumber: number,
   content: string
 ): Promise<void> {
+  // Mirrors post-session's agent re-index, which passes the writer (P2-41).
   await onDocumentChanged(bookId, "CHAPTER_CONTENT", content, {
+    userId: "user-1",
     chapterNumber,
     seriesId: null,
   });

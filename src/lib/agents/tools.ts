@@ -1,4 +1,5 @@
 import { createHash } from "crypto";
+import { VersionConflictError } from "@/lib/documents/errors";
 import { db } from "@/lib/db";
 import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
@@ -14,6 +15,7 @@ import { upsertEntities } from "@/lib/graph/graph-builder";
 import { RELATIONSHIP_TYPES } from "@/lib/graph/types";
 import type { GraphNodeLabel, ExtractionResult, RelationshipType } from "@/lib/graph/types";
 import { searchMemory, formatSearchResults } from "@/lib/vector/retriever";
+import { withTimeout, StoreTimeoutError, STORE_CALL_TIMEOUT_MS } from "@/lib/async/with-timeout";
 import { indexDocument } from "@/lib/vector/indexer";
 import type { DocType } from "@/lib/vector/types";
 import { UnsafeUrlError, readCappedText, safeExternalFetch } from "@/lib/ssrf-guard";
@@ -332,6 +334,20 @@ export interface ToolContext {
    * state, and with no user watching there is no D-80 "1 updated" no-op to mislead.
    */
   interactive?: boolean;
+  /**
+   * P2-19: the CHAPTER_CONTENT version this session last read or wrote, per
+   * chapter number. WriteChapter passes it as expectedVersion, so a chapter
+   * the writer (or another session) changed meanwhile is a conflict the agent
+   * is told about instead of a silent last-write-wins.
+   */
+  chapterVersionsSeen?: Map<number, number>;
+  /**
+   * P2-18: set by the orchestrator when the writer approves a RequestApproval
+   * in this session. In an interactive session WriteChapter refuses to
+   * overwrite existing prose until it is set: the gate is enforced by the
+   * server, not left to the model's choice to ask.
+   */
+  overwriteApproved?: boolean;
 }
 
 // ─── Tool Definitions ──────────────────────────────────────────
@@ -1465,6 +1481,7 @@ async function executeReadChapter(
   if (!doc) {
     return `No content found for chapter ${input.chapterNumber}.`;
   }
+  ctx.chapterVersionsSeen?.set(asked, doc.currentVersion);
   const result = await ctx.documentService.read(doc.id);
   if (!result) return "Chapter content not found.";
   return result.content;
@@ -1520,13 +1537,10 @@ async function executeWriteChapter(
   ctx: ToolContext,
   input: { chapterNumber: number; markdown: string }
 ): Promise<string> {
-  // Finding B audit: this is the agent's "write whole chapter" tool. It writes
-  // CHAPTER_CONTENT with changeSource "agent" and no expectedVersion — the same
-  // trusted, single-session writer the chapter-content PUT's
-  // TRUSTED_VERSIONLESS_SOURCES("agent") treats as safely last-write-wins. A
-  // single agent session is the only writer of a chapter it authors (it also
-  // guards concurrent agents via acquireDocLock in executeWriteDocument), so no
-  // interactive "stale tab" clobber exists here. Deliberately no CAS stamp.
+  // P2-19: this used to write with no expectedVersion on the assumption that
+  // a session is the only writer of its chapter. It is not: the writer keeps
+  // typing in the editor, and a paid writer can run two sessions on one
+  // chapter. The write now names the version this session last read.
   // Find the chapter record
   const chapter = await db.chapter.findFirst({
     where: { bookId: ctx.bookId, chapterNumber: input.chapterNumber },
@@ -1544,19 +1558,43 @@ async function executeWriteChapter(
     input.chapterNumber
   );
 
+  // P2-18: overwriting prose the writer already has is irreversible from the
+  // writer's side of the session, so an interactive run needs the writer's
+  // recorded approval. (A background run has no one to ask; the earlier prose
+  // stays recoverable as a DocumentVersion.)
+  if (existing && chapter.wordCount > 0 && ctx.interactive === true && !ctx.overwriteApproved) {
+    return (
+      `Chapter ${input.chapterNumber} already has ${chapter.wordCount} words of the writer's prose. ` +
+      `Call RequestApproval first, naming the chapter and what you will replace; write only after the writer approves.`
+    );
+  }
+
   // A-13: report the chapter document this run wrote, exactly as
   // executeWriteDocument does (D-58). Without it a saved chapter was invisible
   // to AgentResult.documentIds, so nothing downstream could tell a run that
   // persisted its draft from one that streamed the prose and lost it.
   let writtenChapterDocumentId: string;
   if (existing) {
-    await ctx.documentService.update(
-      existing.id,
-      markdown,
-      undefined,
-      "agent_write",
-      "agent"
-    );
+    const expectedVersion = ctx.chapterVersionsSeen?.get(input.chapterNumber) ?? existing.currentVersion;
+    try {
+      const updated = await ctx.documentService.update(
+        existing.id,
+        markdown,
+        undefined,
+        "agent_write",
+        "agent",
+        expectedVersion
+      );
+      ctx.chapterVersionsSeen?.set(input.chapterNumber, updated.version.version);
+    } catch (error) {
+      if (error instanceof VersionConflictError) {
+        return (
+          `Chapter ${input.chapterNumber} changed since you read it (the writer or another session edited it). ` +
+          `Nothing was written. ReadChapter again and work from the current text.`
+        );
+      }
+      throw error;
+    }
     writtenChapterDocumentId = existing.id;
   } else {
     const created = await ctx.documentService.create(
@@ -2372,6 +2410,21 @@ async function executeQueryGraph(
   input: { queryType: string; chapterNumber?: number }
 ): Promise<string> {
   try {
+    // P2-44: a hung Neo4j must not pin the session for the driver's timeout.
+    return await withTimeout(runGraphQuery(ctx, input), STORE_CALL_TIMEOUT_MS, "graph query");
+  } catch (error) {
+    if (error instanceof StoreTimeoutError) {
+      return "Graph unavailable (the graph database did not answer in time). Continue without graph context.";
+    }
+    return `Graph query failed: ${error instanceof Error ? error.message : String(error)}`;
+  }
+}
+
+async function runGraphQuery(
+  ctx: ToolContext,
+  input: { queryType: string; chapterNumber?: number }
+): Promise<string> {
+  {
     switch (input.queryType) {
       case "character-network": {
         const data = await getCharacterNetwork(ctx.bookId);
@@ -2401,8 +2454,6 @@ async function executeQueryGraph(
       default:
         return `Unknown query type: ${input.queryType}`;
     }
-  } catch (error) {
-    return `Graph query failed: ${error instanceof Error ? error.message : String(error)}`;
   }
 }
 
@@ -2463,17 +2514,22 @@ async function executeSearchMemory(
   input: { query: string; docType?: string; chapterNumber?: number; limit?: number }
 ): Promise<string> {
   try {
-    const results = await searchMemory(ctx.bookId, input.query, {
-      docType: input.docType as DocType | undefined,
-      chapterNumber: input.chapterNumber,
-      limit: input.limit ?? 5,
-    });
+    // P2-44: a hung Qdrant must not pin the session for the client's 300 s.
+    const results = await withTimeout(
+      searchMemory(ctx.bookId, input.query, {
+        docType: input.docType as DocType | undefined,
+        chapterNumber: input.chapterNumber,
+        limit: input.limit ?? 5,
+      }),
+      STORE_CALL_TIMEOUT_MS,
+      "memory search"
+    );
 
     if (results.length === 0) return "No relevant passages found for this query.";
 
     return formatSearchResults(results);
   } catch (error) {
-    if (error instanceof Error && error.message.includes("connect")) {
+    if (error instanceof StoreTimeoutError || (error instanceof Error && error.message.includes("connect"))) {
       return "Memory search unavailable (vector database unreachable). Continuing without memory context.";
     }
     return `Memory search failed: ${error instanceof Error ? error.message : String(error)}`;
@@ -2492,7 +2548,7 @@ async function executeRememberInsight(
       "conversation",
       `${ctx.sessionId}:insight:${Date.now()}`,
       `[${input.category}] ${enforceBookScript(input.content, ctx.language)}`,
-      { userId: undefined }
+      { userId: ctx.userId }
     );
     return `Insight stored in episodic memory (category: ${input.category}).`;
   } catch (error) {

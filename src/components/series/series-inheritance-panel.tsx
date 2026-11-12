@@ -84,7 +84,7 @@ export function SeriesInheritancePanel({
         <p className="text-sm text-muted-foreground">{t.seriesUI.noInheritableDocuments}</p>
       ) : (
         <>
-          <div className="rounded-md border">
+          <div className="rounded-md border overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/50">

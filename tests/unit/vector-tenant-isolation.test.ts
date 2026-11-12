@@ -92,9 +92,10 @@ describe("indexDocument tenant payload (RC-6 B1)", () => {
     for (const p of points) expect(p.payload.userId).toBe("user-42");
   });
 
-  it("writes userId=null when the caller omits it (legacy, backward compatible)", async () => {
-    await indexDocument("book-1", "chapter", "doc-1", "some prose", {});
-    const { points } = h.upsert.mock.calls[0][1] as { points: Array<{ payload: any }> };
-    for (const p of points) expect(p.payload.userId).toBeNull();
+  it("P2-41: refuses a call without a userId instead of stamping null", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    const r = await indexDocument("book-1", "chapter", "doc-1", "some prose", {});
+    expect(r.skipped).toBe(true);
+    expect(h.upsert).not.toHaveBeenCalled();
   });
 });

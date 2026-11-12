@@ -379,7 +379,7 @@ export async function processPostSession(
       ctx.sessionId,
       ctx.agentType,
       ctx.workflowId,
-      { chapterNumber: ctx.chapterNumber }
+      { userId: ctx.userId, chapterNumber: ctx.chapterNumber }
     ).catch((err) =>
       console.error("[PostSession] Vector session indexing failed (non-fatal):", err)
     );
@@ -1013,6 +1013,8 @@ export async function updateChapterGraph(
     select: { seriesId: true },
   });
   await onDocumentChanged(bookId, "CHAPTER_CONTENT", content.content, {
+    // P2-41: the writer, for the spend gate, the per-user filter and the cost ledger.
+    userId,
     chapterNumber,
     seriesId: book?.seriesId ?? null,
   });

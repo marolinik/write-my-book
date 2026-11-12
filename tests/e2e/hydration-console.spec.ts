@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { test as fixtureTest, createBookViaApi } from "./fixtures";
 
 /**
  * O7 / D-203 — a Radix `useId` hydration mismatch was reported in the console on
@@ -71,3 +72,25 @@ for (const page of PAGES) {
     ).toEqual([]);
   });
 }
+
+// P2-50 / P2-51: the book overview read the stored view in its useState
+// initializer and built the heatmap from local dates; both hydrated wrong.
+fixtureTest("a book overview with a stored Canvas view hydrates without a mismatch", async ({ page: browserPage, request }) => {
+  fixtureTest.skip(!AUDIT, "set HYDRATION_AUDIT=1 to run the hydration audit");
+  const book = await createBookViaApi(request, { name: `Hydration ${Date.now()}` });
+  const hydrationErrors: string[] = [];
+  browserPage.on("console", (message) => {
+    if (message.type() !== "error" && message.type() !== "warning") return;
+    if (HYDRATION_PATTERNS.some((pattern) => pattern.test(message.text()))) hydrationErrors.push(message.text());
+  });
+  browserPage.on("pageerror", (error) => {
+    if (HYDRATION_PATTERNS.some((pattern) => pattern.test(error.message))) hydrationErrors.push(error.message);
+  });
+  await browserPage.addInitScript((key) => window.localStorage.setItem(key, "canvas"), `wmb-book-view-${book.id}`);
+  await browserPage.goto(`/books/${book.id}`, { waitUntil: "networkidle" });
+  await browserPage.waitForFunction(() => document.readyState === "complete");
+  await browserPage.evaluate(
+    () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())))
+  );
+  expect(hydrationErrors, hydrationErrors.join("\n")).toEqual([]);
+});

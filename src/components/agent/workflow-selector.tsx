@@ -453,6 +453,7 @@ export function WorkflowSelector({
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <button
+                                aria-label={t.common.addToQueue}
                                 className="p-1.5 mr-1 rounded hover:bg-primary/10 text-muted-foreground hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -596,7 +597,7 @@ function JourneyDetailView({
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center gap-2 border-b px-4 py-3">
-        <Button variant="ghost" size="icon" className="size-7" onClick={onBack}>
+        <Button variant="ghost" size="icon" className="size-7" onClick={onBack} aria-label={t.common.back}>
           <ArrowLeftIcon className="size-4" />
         </Button>
         <Icon className="size-4 text-primary" />

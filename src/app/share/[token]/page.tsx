@@ -4,7 +4,7 @@ import { cache } from "react";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { db } from "@/lib/db";
-import { isValidShareToken, clientIpFrom, publicShareLimiter } from "@/lib/share/token";
+import { isValidShareToken, allowShareLoad } from "@/lib/share/token";
 import { loadShareBook, loadShareEditorial } from "@/lib/share/snapshot-data";
 import { getUIStrings, localeFor } from "@/lib/i18n/ui-strings";
 
@@ -25,7 +25,7 @@ type RouteParams = { params: Promise<{ token: string }> };
  */
 const resolveShare = cache(async (token: string) => {
   if (!isValidShareToken(token)) return null;
-  if (!publicShareLimiter.allow(clientIpFrom(await headers()))) return null;
+  if (!(await allowShareLoad(await headers(), token))) return null;
   const snap = await db.sharedSnapshot.findUnique({ where: { token } });
   if (!snap || (snap.expiresAt && snap.expiresAt < new Date())) return null;
   return snap;

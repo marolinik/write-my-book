@@ -153,6 +153,8 @@ export default async function BookSnapshotPage({
         {/* Per-chapter table */}
         <section className="rounded-lg border">
           <div className="border-b px-4 py-2 text-sm font-semibold">{s.chapterStatus}</div>
+          {/* P2-54: scrolls inside its box on a phone instead of panning the page. */}
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
@@ -173,6 +175,7 @@ export default async function BookSnapshotPage({
               ))}
             </tbody>
           </table>
+          </div>
         </section>
 
         {/* UDG round-7 (Darko/Tamara): analytics from the manuscript analyst. */}

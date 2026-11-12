@@ -47,6 +47,7 @@ model User {
   agentSessions AgentSession[]
   usageRecords  UsageRecord[]
   subscription  Subscription?
+  founderSlot   FounderSlot?
   styleProfiles StyleProfile[]
   notifications BookNotification[]
   writerMemories WriterMemory[]
@@ -97,6 +98,11 @@ model FounderSlot {
   id        String   @id @default(uuid())
   userId    String   @unique @map("user_id")
   claimedAt DateTime @default(now()) @map("claimed_at")
+
+  // P2-38 / D16: a deleted Founder releases the slot, so the public "N left"
+  // counter is true. Before this FK, scripts/pre-apply.sql removes slots whose
+  // user is already gone (db:apply runs it before the schema change).
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("founder_slots")
 }
@@ -397,6 +403,10 @@ model AgentSession {
   tokensOutput    Int       @default(0) @map("tokens_output")
   estimatedCostUsd Float?  @map("estimated_cost_usd")
   actualCostUsd    Float?  @map("actual_cost_usd")
+  // P2-29: the conductor model and per-session budget decided at start, so a
+  // later conversational turn runs on the same ones. Null on older rows.
+  registryId      String?   @map("registry_id")
+  budgetUsd       Float?    @map("budget_usd")
   startedAt       DateTime  @default(now()) @map("started_at")
   completedAt     DateTime? @map("completed_at")
 

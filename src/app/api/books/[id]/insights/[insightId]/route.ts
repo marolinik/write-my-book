@@ -3,6 +3,9 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { resolveInsight, dismissInsight } from "@/lib/agents/blackboard";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { zodErrorResponse } from "@/lib/api/zod-error";
+import { legacyRouteErrorResponse } from "@/lib/api/legacy-route-errors";
+import { updateInsightSchema } from "@/lib/validation";
 
 type RouteParams = { params: Promise<{ id: string; insightId: string }> };
 
@@ -29,21 +32,13 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Hand-validated legacy body (no Zod schema here) — keep the pre-D-01
-    // any-typed access; the field checks below are the validation.
-    const body = (await parseJsonBody(req)) as Record<string, any>;
-    const { action } = body;
+    // P2-10: the action is an enum and the resolving session id is bounded.
+    const body = updateInsightSchema.parse(await parseJsonBody(req));
 
-    if (action === "resolve") {
-      const sessionId = body.sessionId ?? "manual";
-      await resolveInsight(insightId, sessionId);
-    } else if (action === "dismiss") {
-      await dismissInsight(insightId);
+    if (body.action === "resolve") {
+      await resolveInsight(insightId, body.sessionId ?? "manual");
     } else {
-      return NextResponse.json(
-        { error: 'action must be "resolve" or "dismiss"' },
-        { status: 400 }
-      );
+      await dismissInsight(insightId);
     }
 
     const updated = await db.bookInsight.findUnique({
@@ -54,17 +49,9 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
   } catch (error) {
     const invalidJson = invalidJsonBodyResponse(error);
     if (invalidJson) return invalidJson;
-    if ((error as Error).message === "Unauthorized") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    console.error(
-      "PATCH /api/books/:id/insights/:insightId error:",
-      error
-    );
-    return NextResponse.json(
-      { error: "Failed to update insight" },
-      { status: 500 }
-    );
+    const zodRes = zodErrorResponse(error);
+    if (zodRes) return zodRes;
+    return legacyRouteErrorResponse(error, "PATCH /api/books/:id/insights/:insightId", "Failed to update insight");
   }
 }
 

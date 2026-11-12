@@ -223,7 +223,7 @@ export function WikiEntityDetail({
                   }
                 }}
               />
-              <Button type="button" variant="outline" size="sm" onClick={addAlias}>
+              <Button type="button" variant="outline" size="sm" onClick={addAlias} aria-label={t.common.add}>
                 <PlusIcon className="size-4" />
               </Button>
             </div>
@@ -276,6 +276,7 @@ export function WikiEntityDetail({
                     variant="ghost"
                     size="icon"
                     className="shrink-0"
+                    aria-label={t.common.remove}
                     onClick={() => removeAttribute(i)}
                   >
                     <XIcon className="size-4" />

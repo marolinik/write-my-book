@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { decryptApiKey } from "@/lib/encryption";
+import { decryptValidatedKeys } from "@/lib/llm/decrypt-validated-keys";
 import { checkQuota } from "@/lib/billing/quota-checker";
-import { estimateWorkflowCost, type ProviderKey } from "@/lib/llm";
+import { estimateWorkflowCost } from "@/lib/llm";
 import { getWorkflow } from "@/lib/agents/workflows";
 import { enqueueBatchFlow, type BatchChildPayload } from "@/lib/queue/batch-flow";
 import { findIneligibleWorkflows } from "@/lib/batch/eligibility";
@@ -169,22 +169,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       select: USER_MODEL_SELECT,
     });
 
-    const userKeys = await db.apiKey.findMany({
-      where: { userId: user.id },
-      select: { provider: true, encryptedKey: true, validatedAt: true },
-    });
-    const decryptedKeys: Partial<Record<ProviderKey, string>> = {};
-    for (const k of userKeys) {
-      if (k.validatedAt) {
-        try {
-          decryptedKeys[k.provider as ProviderKey] = decryptApiKey(
-            k.encryptedKey
-          );
-        } catch {
-          // Skip keys that fail to decrypt
-        }
-      }
-    }
+    const decryptedKeys = await decryptValidatedKeys(user.id);
     const availableKeys: AvailableKeys = {
       anthropicApiKey: decryptedKeys.anthropic,
       openrouterApiKey: decryptedKeys.openrouter,

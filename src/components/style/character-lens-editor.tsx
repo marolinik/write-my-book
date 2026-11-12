@@ -215,6 +215,7 @@ export function CharacterLensEditor({
                     <Button
                       variant="ghost"
                       size="icon"
+                      aria-label={t.common.edit}
                       onClick={() => startEdit(lens)}
                     >
                       <Pencil className="h-4 w-4" />
@@ -222,6 +223,7 @@ export function CharacterLensEditor({
                     <Button
                       variant="ghost"
                       size="icon"
+                      aria-label={t.common.delete}
                       onClick={() => deleteLens.mutate(lens.id)}
                       disabled={deleteLens.isPending}
                     >

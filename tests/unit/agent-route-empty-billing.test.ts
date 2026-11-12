@@ -26,7 +26,7 @@ const h = vi.hoisted(() => ({
     chapter: { count: vi.fn() },
     user: { findUnique: vi.fn() },
     apiKey: { findMany: vi.fn() },
-    agentSession: { create: vi.fn(), update: vi.fn() },
+    agentSession: { create: vi.fn(), update: vi.fn(), findFirst: vi.fn() },
     usageRecord: { create: vi.fn() },
   },
   decryptApiKey: vi.fn(),
@@ -306,5 +306,47 @@ describe("POST /api/books/:id/agent — first-turn empty-reply billing", () => {
     const lastArgs = h.completeSession.mock.calls.at(-1) as [string, AgentResult];
     expect(lastArgs[1].success).toBe(false);
     expect(lastArgs[1].documentIds).toEqual(["b-doc-1"]);
+  });
+});
+
+describe("POST /api/books/:id/agent — one session per chapter (P2-19)", () => {
+  const chapterReq = () =>
+    new Request("http://t/api/books/b1/agent", {
+      method: "POST",
+      body: JSON.stringify({
+        workflowId: "line-edit",
+        chapterNumber: 3,
+        pageContext: { currentRoute: "/books/b1/write" },
+      }),
+    });
+
+  beforeEach(() => {
+    h.workflow = { conversational: true, category: "editing", primaryAgent: "line-editor", requiresChapter: true };
+    h.getWorkflow.mockReturnValue(h.workflow);
+    h.agentResult = { ...emptyResult, assistantText: "done" };
+  });
+
+  it("a second session on a chapter with a running one answers 409 and creates nothing", async () => {
+    h.db.agentSession.findFirst.mockResolvedValue({ id: "running-1" });
+    const res = await POST(chapterReq() as never, ctx as never);
+    expect(res.status).toBe(409);
+    expect(await res.json()).toMatchObject({ code: "SESSION_ALREADY_RUNNING", sessionId: "running-1" });
+    expect(h.db.agentSession.create).not.toHaveBeenCalled();
+    const where = h.db.agentSession.findFirst.mock.calls[0][0].where;
+    expect(where).toMatchObject({ bookId: "b1", chapterNumber: 3, status: "running" });
+    expect(where.startedAt.gte).toBeInstanceOf(Date);
+  });
+
+  it("a paid writer is fenced too (the fence is not the Free concurrency cap)", async () => {
+    h.checkQuota.mockResolvedValue({ allowed: true, currentPlan: "professional", isFree: false });
+    h.db.agentSession.findFirst.mockResolvedValue({ id: "running-1" });
+    expect((await POST(chapterReq() as never, ctx as never)).status).toBe(409);
+  });
+
+  it("with no running session on the chapter, the session starts", async () => {
+    h.db.agentSession.findFirst.mockResolvedValue(null);
+    const res = await POST(chapterReq() as never, ctx as never);
+    expect(res.status).toBe(200);
+    expect(h.db.agentSession.create).toHaveBeenCalled();
   });
 });

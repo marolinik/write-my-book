@@ -3,6 +3,7 @@
 import { useLanguage } from "@/components/providers/language-provider";
 import { shortMonthNames, shortWeekdayNames } from "@/lib/i18n/calendar-names";
 import { useMemo, useState } from "react";
+import { buildHeatmapGrid, utcMonthOf, utcToday } from "@/lib/writing/heatmap-grid";
 import {
   Tooltip,
   TooltipContent,
@@ -40,6 +41,11 @@ interface WritingHeatmapProps {
   totalWords: number;
   /** BCP-47 locale tag for number/date formatting (e.g. "en-US") */
   locale: string;
+  /**
+   * P2-51: today's UTC date (YYYY-MM-DD) from the server, so the server and
+   * the browser build the same grid. Defaults to the current UTC date.
+   */
+  today?: string;
 }
 
 /** Color intensity based on word count — NEVER empty for any writing */
@@ -61,41 +67,15 @@ export function WritingHeatmap({
   bestStreak,
   totalWords,
   locale,
+  today,
 }: WritingHeatmapProps) {
   const { t } = useLanguage();
   const monthNames = useMemo(() => shortMonthNames(locale), [locale]);
   const weekdayNames = useMemo(() => shortWeekdayNames(locale), [locale]);
   const [hoveredDay, setHoveredDay] = useState<DayData | null>(null);
 
-  // Build 365-day grid (52 weeks × 7 days)
-  const grid = useMemo(() => {
-    const dataMap = new Map<string, number>();
-    for (const d of data) {
-      dataMap.set(d.date, d.words);
-    }
-
-    const today = new Date();
-    const weeks: Array<Array<{ date: string; words: number; dayOfWeek: number }>> = [];
-    let currentWeek: Array<{ date: string; words: number; dayOfWeek: number }> = [];
-
-    for (let i = 364; i >= 0; i--) {
-      const d = new Date(today);
-      d.setDate(d.getDate() - i);
-      const dateStr = d.toISOString().split("T")[0];
-      const dayOfWeek = d.getDay();
-
-      const entry = { date: dateStr, words: dataMap.get(dateStr) ?? 0, dayOfWeek };
-
-      if (dayOfWeek === 0 && currentWeek.length > 0) {
-        weeks.push(currentWeek);
-        currentWeek = [];
-      }
-      currentWeek.push(entry);
-    }
-    if (currentWeek.length > 0) weeks.push(currentWeek);
-
-    return weeks;
-  }, [data]);
+  // P2-51: the grid is built in UTC (the data is keyed by UTC date).
+  const grid = useMemo(() => buildHeatmapGrid(data, today ?? utcToday()), [data, today]);
 
   // Month labels positioned above the correct weeks
   const monthLabels = useMemo(() => {
@@ -105,7 +85,7 @@ export function WritingHeatmap({
     grid.forEach((week, weekIndex) => {
       const firstDay = week[0];
       if (firstDay) {
-        const month = new Date(firstDay.date).getMonth();
+        const month = utcMonthOf(firstDay.date);
         if (month !== lastMonth) {
           labels.push({ label: monthNames[month], weekIndex });
           lastMonth = month;
@@ -179,6 +159,9 @@ export function WritingHeatmap({
                   <Tooltip key={day.date}>
                     <TooltipTrigger asChild>
                       <button
+                        type="button"
+                        // P2-52: each day cell is named for a screen reader (date and words).
+                        aria-label={`${new Date(`${day.date}T00:00:00Z`).toLocaleDateString(locale, { month: "short", day: "numeric", timeZone: "UTC" })}: ${t.bookUI.wordsCount.replace("{count}", day.words.toLocaleString(locale))}`}
                         className={`size-[11px] rounded-[2px] transition-colors ${getIntensity(day.words)} hover:ring-1 hover:ring-foreground/30`}
                         onMouseEnter={() => setHoveredDay(day)}
                         onMouseLeave={() => setHoveredDay(null)}
@@ -192,10 +175,11 @@ export function WritingHeatmap({
                         )}
                       </p>
                       <p className="text-muted-foreground">
-                        {new Date(day.date).toLocaleDateString(locale, {
+                        {new Date(`${day.date}T00:00:00Z`).toLocaleDateString(locale, {
                           weekday: "short",
                           month: "short",
                           day: "numeric",
+                          timeZone: "UTC",
                         })}
                       </p>
                     </TooltipContent>

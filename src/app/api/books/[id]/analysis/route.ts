@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
+import { legacyRouteErrorResponse } from "@/lib/api/legacy-route-errors";
 import { db } from "@/lib/db";
 
 export async function GET(
@@ -80,7 +81,8 @@ export async function GET(
       console.error("S3 read error:", err);
       return NextResponse.json({ empty: true, message: "Could not read analysis report." });
     }
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  } catch (error) {
+    // P2-24: only a missing user is 401; a database outage is a 500.
+    return legacyRouteErrorResponse(error, "GET /api/books/:id/analysis", "Failed to load analysis");
   }
 }

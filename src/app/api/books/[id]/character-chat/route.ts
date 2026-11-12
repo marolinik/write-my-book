@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
+import { legacyRouteErrorResponse } from "@/lib/api/legacy-route-errors";
 import { denyIfOverQuota } from "@/lib/billing/ai-route-gate";
 import { db } from "@/lib/db";
-import { decryptApiKey } from "@/lib/encryption";
+import { decryptValidatedKeys } from "@/lib/llm/decrypt-validated-keys";
 import { estimateCost } from "@/lib/cost";
 import { createLLMClient, resolveRouteWithLocalFallback, resolveCheapModelFor } from "@/lib/llm";
-import type { ProviderKey } from "@/lib/llm";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { getDefaultModelId } from "@/lib/llm/defaults";
 
@@ -76,14 +76,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     const userDefault = dbUser?.defaultModel ?? getDefaultModelId();
     const cheapModel = resolveCheapModelFor(userDefault);
 
-    const userKeys = await db.apiKey.findMany({
-      where: { userId: user.id, validatedAt: { not: null } },
-      select: { provider: true, encryptedKey: true },
-    });
-    const decryptedKeys: Partial<Record<ProviderKey, string>> = {};
-    for (const k of userKeys) {
-      decryptedKeys[k.provider as ProviderKey] = decryptApiKey(k.encryptedKey);
-    }
+    const decryptedKeys = await decryptValidatedKeys(user.id);
 
     // Fallback-aware: with WMB_LOCAL_FALLBACK on, a missing key is served by
     // the local fleet instead of 400-ing here (createLLMClient below makes the
@@ -167,11 +160,7 @@ Rules:
   } catch (error: unknown) {
     const invalidJson = invalidJsonBodyResponse(error);
     if (invalidJson) return invalidJson;
-    const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("[Character Chat] Error:", message);
-    return NextResponse.json(
-      { error: `Character chat failed: ${message}` },
-      { status: 500 }
-    );
+    // P2-8: the cause stays in the server log; the body is a fixed sentence.
+    return legacyRouteErrorResponse(error, "[Character Chat]", "Character chat failed");
   }
 }

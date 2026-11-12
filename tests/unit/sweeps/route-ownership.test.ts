@@ -172,6 +172,13 @@ const EXCEPTIONS: Record<string, string> = {
   "books/[id]/agent/[sessionId]/stream#GET": "refuses inside the SSE stream, asserted in agent-stream-ordering",
 };
 
+/**
+ * The first case of a shard pays the cold import of the route modules, which
+ * passes vitest's 5 s default under a parallel run. The handler itself is still
+ * raced against its own 5 s limit below.
+ */
+const CASE_TIMEOUT_MS = 20_000;
+
 const METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE"] as const;
 /** 405: the route exports the method only to say it is not allowed. */
 const REFUSALS = new Set([400, 403, 404, 405]);
@@ -280,7 +287,7 @@ describe("every id route refuses another writer's ids", () => {
       status: REFUSALS.has(res.status) ? res.status : "a refusal (400/403/404/405)",
       touched: [],
     });
-  });
+  }, CASE_TIMEOUT_MS);
 });
 
 afterAll(() => {
@@ -335,7 +342,7 @@ describe("every id route with a body answers malformed JSON without a 500 (P2-69
       status: res.status === 400 || res.status === 404 || res.status === 403 ? res.status : "400 (or an ownership refusal)",
       touched: [],
     });
-  });
+  }, CASE_TIMEOUT_MS);
 });
 
 describe("every id route keeps Zod internals out of its 400s (P2-69)", () => {
@@ -351,5 +358,5 @@ describe("every id route keeps Zod internals out of its 400s (P2-69)", () => {
     expect(res.status, `${key}: ${text.slice(0, 200)}`).toBeLessThan(500);
     expect(text, key).not.toMatch(RAW_INTERNALS);
     expect(h.touched, key).toEqual([]);
-  });
+  }, CASE_TIMEOUT_MS);
 });

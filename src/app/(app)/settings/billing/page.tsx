@@ -310,6 +310,7 @@ export default function BillingPage() {
         <Switch
           checked={annualBilling}
           onCheckedChange={setAnnualBilling}
+          aria-label={t.billingUI.annual}
         />
         <span
           className={`text-sm font-medium ${annualBilling ? "text-foreground" : "text-muted-foreground"}`}

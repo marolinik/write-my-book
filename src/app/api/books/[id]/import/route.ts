@@ -126,64 +126,18 @@ async function handleStructuredImport(
   let replacedCount = 0;
   let totalWordCount = 0;
 
-  for (const ch of data.chapters) {
-    if (ch.action === "skip") continue;
+  // P2-12: each chapter's DOCUMENT is written before its ROW, so a failure
+  // can never leave a row claiming new prose its document does not hold. The
+  // request was validated as a whole above; a failure here is the store's, and
+  // the writer is told exactly which chapters were imported.
+  const imported: number[] = [];
+  try {
+    for (const ch of data.chapters) {
+      if (ch.action === "skip") continue;
 
-    const wordCount = countWords(ch.content);
+      const wordCount = countWords(ch.content);
 
-    if (ch.action === "create") {
-      await db.chapter.upsert({
-        where: { bookId_chapterNumber: { bookId, chapterNumber: ch.number } },
-        create: {
-          bookId,
-          actNumber: data.actNumber,
-          chapterNumber: ch.number,
-          title: ch.title,
-          status: "drafted",
-          wordCount,
-          importedAt: new Date(),
-        },
-        update: {
-          title: ch.title,
-          wordCount,
-          status: "drafted",
-          importedAt: new Date(),
-        },
-      });
-
-      const existing = await docService.findByType(
-        DocumentType.CHAPTER_CONTENT,
-        ch.number
-      );
-      if (existing) {
-        await docService.update(existing.id, ch.content, ch.title, "import", "import");
-      } else {
-        await docService.create(
-          DocumentType.CHAPTER_CONTENT,
-          ch.content,
-          ch.title,
-          ch.number,
-          data.actNumber,
-          "import"
-        );
-      }
-      createdCount++;
-      totalWordCount += wordCount;
-    } else if (ch.action === "replace") {
-      // The chapter row first: if it fails, no document has been written.
-      await db.chapter.update({
-        where: { bookId_chapterNumber: { bookId, chapterNumber: ch.number } },
-        data: {
-          title: ch.title,
-          wordCount,
-          importedAt: new Date(),
-        },
-      });
-
-      const existingDoc = await docService.findByType(
-        DocumentType.CHAPTER_CONTENT,
-        ch.number
-      );
+      const existingDoc = await docService.findByType(DocumentType.CHAPTER_CONTENT, ch.number);
       if (existingDoc) {
         await docService.update(existingDoc.id, ch.content, ch.title, "import", "import");
       } else {
@@ -196,9 +150,54 @@ async function handleStructuredImport(
           "import"
         );
       }
-      replacedCount++;
+
+      if (ch.action === "create") {
+        await db.chapter.upsert({
+          where: { bookId_chapterNumber: { bookId, chapterNumber: ch.number } },
+          create: {
+            bookId,
+            actNumber: data.actNumber,
+            chapterNumber: ch.number,
+            title: ch.title,
+            status: "drafted",
+            wordCount,
+            importedAt: new Date(),
+          },
+          update: {
+            title: ch.title,
+            wordCount,
+            status: "drafted",
+            importedAt: new Date(),
+          },
+        });
+        createdCount++;
+      } else {
+        await db.chapter.update({
+          where: { bookId_chapterNumber: { bookId, chapterNumber: ch.number } },
+          data: {
+            title: ch.title,
+            wordCount,
+            importedAt: new Date(),
+          },
+        });
+        replacedCount++;
+      }
       totalWordCount += wordCount;
+      imported.push(ch.number);
     }
+  } catch (error) {
+    console.error(`[Import] failed after importing chapters [${imported.join(", ")}]:`, error);
+    await reconcileBookCounters(bookId).catch((reconcileError) =>
+      console.error("[Import] counter reconcile after a failed import failed:", reconcileError)
+    );
+    return NextResponse.json(
+      {
+        error: "Import failed partway",
+        code: "IMPORT_PARTIAL",
+        imported,
+      },
+      { status: 500 }
+    );
   }
 
   // Fire-and-forget: batch index all imported chapters into vector memory

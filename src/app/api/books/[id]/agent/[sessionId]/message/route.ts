@@ -6,6 +6,7 @@ import { estimateCost } from "@/lib/cost";
 import { sendMessageSchema } from "@/lib/validation";
 import {
   createLLMClient,
+  getModelDef,
   resolveModelForRole,
   mapAgentTypeToRole,
   resolveRouteWithLocalFallback,
@@ -31,6 +32,8 @@ import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-bod
 import { getDefaultModelId } from "@/lib/llm/defaults";
 import { USER_MODEL_SELECT, globalOverridesOf, userModelSettingsOf } from "@/lib/llm/model-resolver";
 import { agentErrorFrame } from "@/lib/agents/agent-error-frame";
+import { clampSessionBudget } from "@/lib/billing/managed-tier";
+import { passUsageType } from "@/lib/llm/cost-calibration";
 
 type RouteParams = {
   params: Promise<{ id: string; sessionId: string }>;
@@ -137,19 +140,38 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     });
     const userDefault = dbUser?.defaultModel ?? getDefaultModelId();
 
-    const role = mapAgentTypeToRole(workflow.primaryAgent);
-    const resolved = resolveModelForRole(
-      role,
-      book?.settings ?? null,
-      globalOverridesOf(userModelSettingsOf(dbUser)),
-      userDefault
-    );
+    // P2-29: the model and budget the session started with. A row from before
+    // these columns existed falls back to resolving the model here.
+    const dbSessionRecord = await db.agentSession.findFirst({
+      where: { id: sessionId, bookId, userId: user.id },
+      select: { chapterNumber: true, workflowId: true, registryId: true, budgetUsd: true },
+    });
+    const startedOn = dbSessionRecord?.registryId ? getModelDef(dbSessionRecord.registryId) : undefined;
+    const resolved = startedOn
+      ? { registryId: startedOn.id, modelDef: startedOn }
+      : resolveModelForRole(
+          mapAgentTypeToRole(workflow.primaryAgent),
+          book?.settings ?? null,
+          globalOverridesOf(userModelSettingsOf(dbUser)),
+          userDefault
+        );
 
     // ── API Key Resolution ──
     // The same decision as the session start (P1-11): the writer's own keys,
     // or for a keyless Free writer the product's key under the managed caps,
     // re-checked on every turn.
-    const { availableKeys, keySource } = await resolveSessionKeys(user.id);
+    const { availableKeys, keySource, managed } = await resolveSessionKeys(user.id);
+
+    // The session's budget, not a fresh default per turn. On the product's key
+    // it is clamped again to what is left of the writer's allowance (P1-9).
+    const storedBudget = dbSessionRecord?.budgetUsd ?? undefined;
+    const turnBudgetUsd =
+      managed?.config && storedBudget !== undefined
+        ? clampSessionBudget(
+            storedBudget,
+            Math.min(managed.allowance.remainingTodayUsd, managed.allowance.remainingThisMonthUsd)
+          )
+        : storedBudget;
 
     // Fallback-aware gate: WMB_LOCAL_FALLBACK lets a keyless model be served
     // by the local fleet, exactly as createLLMClient does below.
@@ -175,17 +197,14 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       // local-fleet outage to the writer as "Anthropic is experiencing
       // temporary issues" — a lie on any non-Anthropic default.
       providerKey: model.provider,
+      ...(turnBudgetUsd !== undefined ? { maxSessionCostUsd: turnBudgetUsd } : {}),
       // D-83: user-initiated conversational turn — a real user is present, so
       // authoritative graph corrections (UpdateGraphEntity) are permitted.
       interactive: true,
     });
     session.orchestrator = orchestrator;
 
-    // Restore full context from the original session (not hardcoded)
-    const dbSessionRecord = await db.agentSession.findFirst({
-      where: { id: sessionId, bookId, userId: user.id },
-      select: { chapterNumber: true, workflowId: true },
-    });
+    // Restore full context from the original session (read above).
     const originalWorkflow = getWorkflow(session.workflowId);
 
     const spawnOptions = {
@@ -294,7 +313,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
           data: {
             userId: user.id,
             bookId,
-            agentType: workflow.primaryAgent,
+            // Same label as turn 1's usage row (passUsageType of the workflow).
+            agentType: passUsageType(session.workflowId),
             model: model.id,
             tokensInput: result.tokensInput,
             tokensOutput: result.tokensOutput,

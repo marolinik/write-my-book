@@ -57,6 +57,8 @@ export function MobileBottomNav() {
             <Link
               key={key}
               href={`/books/${bookId}/dev`}
+              aria-label={labels.dev}
+              aria-current={isActive ? "page" : undefined}
               className={`flex flex-col items-center gap-0.5 px-3 py-1 text-[10px] ${
                 isActive ? "text-primary" : "text-muted-foreground"
               }`}
@@ -80,6 +82,8 @@ export function MobileBottomNav() {
             <button
               key={tab.key}
               onClick={() => setPanelMode(panelOpen ? "bubble" : "overlay")}
+              aria-label={labels[tab.key]}
+              aria-pressed={isActive}
               className={`flex flex-col items-center gap-0.5 px-3 py-1 text-[10px] ${
                 isActive ? "text-primary" : "text-muted-foreground"
               }`}
@@ -94,6 +98,8 @@ export function MobileBottomNav() {
           <Link
             key={tab.key}
             href={tab.href}
+            aria-label={labels[tab.key]}
+            aria-current={isActive ? "page" : undefined}
             className={`flex flex-col items-center gap-0.5 px-3 py-1 text-[10px] ${
               isActive ? "text-primary" : "text-muted-foreground"
             }`}

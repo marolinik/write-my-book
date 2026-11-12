@@ -53,6 +53,7 @@ import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-bod
 import { getDefaultModelId } from "@/lib/llm/defaults";
 import { USER_MODEL_SELECT, globalOverridesOf, userModelSettingsOf, bookModelSettingsOf } from "@/lib/llm/model-resolver";
 import { agentErrorFrame } from "@/lib/agents/agent-error-frame";
+import { findRunningChapterSession } from "@/lib/agents/chapter-session-fence";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -417,6 +418,22 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       );
     }
 
+    // P2-19: one session per chapter for every plan. The answer names the
+    // running session so the client can show it instead of starting a second.
+    if (chapterNumber != null) {
+      const running = await findRunningChapterSession(bookId, chapterNumber);
+      if (running) {
+        return NextResponse.json(
+          {
+            error: "An agent session is already running on this chapter",
+            code: "SESSION_ALREADY_RUNNING",
+            sessionId: running.id,
+          },
+          { status: 409 }
+        );
+      }
+    }
+
     // Create DB session record (needed for both inline and background paths)
     const dbSession = await db.agentSession.create({
       data: {
@@ -433,10 +450,6 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     // Record pre-session cost estimate for drift tracking
     const preEstimate = estimateWorkflowCost(data.workflowId, effectiveCoachRegistryId);
-    await db.agentSession.update({
-      where: { id: dbSession.id },
-      data: { estimatedCostUsd: preEstimate.max },
-    });
 
     // Finite per-session budget derived from the workflow estimate.
     // CRITICAL: must be finite — Infinity does not survive BullMQ's JSON
@@ -449,6 +462,16 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
           Math.min(managed.allowance.remainingTodayUsd, managed.allowance.remainingThisMonthUsd)
         )
       : sessionBudgetFor(preEstimate.max);
+
+    // P2-29: the model and budget a later conversational turn must reuse.
+    await db.agentSession.update({
+      where: { id: dbSession.id },
+      data: {
+        estimatedCostUsd: preEstimate.max,
+        registryId: effectiveCoachRegistryId,
+        budgetUsd: sessionBudgetUsd,
+      },
+    });
 
     // Fire-and-forget: validate pricing on first use (24h cache)
     validatePrices().catch(() => {});
