@@ -1055,7 +1055,7 @@ export interface UIStrings {
     bookMap: string; bookMapDesc: string; colChapter: string; colLength: string; colScenes: string; colDialogue: string;
     colTension: string; colHooks: string; colMoves: string; medianLabel: string; hookScale: string; bookMapError: string;
     kindHook: string; moveHookOpening: string; moveHookEnding: string; doneHookOpening: string; doneHookEnding: string;
-    kindTrim: string; kindExpand: string; moveTrim: string; moveExpand: string; doneTrim: string; doneExpand: string;
+    kindTrim: string; kindExpand: string; moveTrim: string; moveExpand: string; doneTrim: string; doneExpand: string; kindRewrite: string; moveRewrite: string; doneRewrite: string;
     drafted: string; makeDraft: string; drafting: string; viewDraft: string; hideDraft: string; applyDraft: string;
     discardDraft: string; draftNow: string; draftAfter: string; draftWords: string; draftError: string; errChapterEdited: string;
     errRewriteEdited: string;

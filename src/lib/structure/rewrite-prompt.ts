@@ -54,7 +54,8 @@ const HOOK_BRIEF: Record<"opening" | "ending", string> = {
 /** Said to every hook: an edge is rewritten in place, never extended. */
 const HOOK_IN_PLACE = `Rewrite the passage itself: do not keep the passage and add to it, and do not continue past where it ends. The rewritten passage replaces the original exactly where it stands.`;
 
-const BRIEF: Record<Exclude<RewriteKind, "hook">, string> = {
+// "rewrite" is filed already drafted by a background run and never prompted.
+const BRIEF: Record<Exclude<RewriteKind, "hook" | "rewrite">, string> = {
   trim: `TRIM. Cut this chapter toward the target length. Cut what the editor's instructions name first, then tighten what remains: repetition, restated information, over-long description, beats the reader already has. Keep every sentence that carries the story or the voice, and keep the writer's own sentences wherever they survive; this is a cut, not a paraphrase.`,
   expand: `EXPAND. Grow this chapter toward the target length by adding what the editor's instructions name: the missing beat, transition or scene, in the place they name. Keep every existing sentence that works, in its place. Add story, not padding: no extra adjectives, no restated feelings, no description for its own sake.`,
 };
@@ -91,7 +92,7 @@ ${cap(input.storyBible.trim(), STORY_BIBLE_CAP)}`
       ? `You are a developmental editor's ghostwriter revising one edge of a chapter of a novel. You return only that passage, revised, and nothing else.`
       : `You are a developmental editor's ghostwriter revising one chapter of a novel. You return the whole chapter, revised, and nothing else.`,
     input.kind === "hook" ? `${HOOK_BRIEF[input.scope ?? "ending"]}
-${HOOK_IN_PLACE}` : BRIEF[input.kind],
+${HOOK_IN_PLACE}` : BRIEF[input.kind === "rewrite" ? "trim" : input.kind],
     `## Rules
 - Keep every name, place, date and fact exactly as written. Contradict nothing in the canon.
 - Keep the point of view and the tense.

@@ -14,10 +14,12 @@
 
 import { splitParagraphs } from "@/lib/text/paragraphs";
 
-export type MoveKind = "reorder" | "renumber" | "merge" | "split" | "trim" | "expand" | "hook";
+// "rewrite" (Wave 7, D23) is filed only by an unattended WriteChapter over
+// existing prose; agents cannot propose it.
+export type MoveKind = "reorder" | "renumber" | "merge" | "split" | "trim" | "expand" | "hook" | "rewrite";
 
 /** Kinds that rewrite a chapter's prose through a draft the writer reads first. */
-export const REWRITE_KINDS = ["trim", "expand", "hook"] as const;
+export const REWRITE_KINDS = ["trim", "expand", "hook", "rewrite"] as const;
 export type RewriteKind = (typeof REWRITE_KINDS)[number];
 
 export function isRewriteKind(kind: string): kind is RewriteKind {
@@ -240,6 +242,8 @@ export function moveIdentityKey(move: StructureMoveInput): string {
       return [move.kind, move.chapterId ?? `#${move.chapterNumber}`].join("|");
     case "hook":
       return ["hook", move.chapterId ?? `#${move.chapterNumber}`, move.scope ?? ""].join("|");
+    case "rewrite":
+      return ["rewrite", move.chapterId ?? `#${move.chapterNumber}`].join("|");
   }
 }
 
@@ -277,6 +281,10 @@ const MIN_CHANGE_RATIO = 0.05;
 const MIN_INSTRUCTIONS_CHARS = 20;
 
 export function planRewrite(chapters: readonly ChapterRef[], move: RewriteMove): PlanResult {
+  if (move.kind === "rewrite") {
+    // Only an unattended WriteChapter files one, already drafted.
+    return fail("unknown_kind", "A rewrite is filed by a background run, not proposed.");
+  }
   const chapter = chapters.find((c) => c.chapterNumber === move.chapterNumber);
   if (!chapter) {
     return fail("chapter_not_found", `Chapter ${move.chapterNumber} does not exist.`);

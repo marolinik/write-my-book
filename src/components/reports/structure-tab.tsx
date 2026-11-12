@@ -16,6 +16,7 @@ import {
   PenLineIcon,
   FileDiffIcon,
   FishingHookIcon,
+  FileTextIcon,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -58,9 +59,10 @@ const KIND_ICONS: Record<string, React.ElementType> = {
   trim: ScissorsIcon,
   expand: UnfoldVerticalIcon,
   hook: FishingHookIcon,
+  rewrite: FileTextIcon,
 };
 
-const isRewrite = (kind: string) => kind === "trim" || kind === "expand" || kind === "hook";
+const isRewrite = (kind: string) => kind === "trim" || kind === "expand" || kind === "hook" || kind === "rewrite";
 
 /** The kind's name in the writer's language. */
 function kindLabelOf(kind: string, s: ReturnType<typeof useLanguage>["t"]["structure"]): string {
@@ -71,6 +73,7 @@ function kindLabelOf(kind: string, s: ReturnType<typeof useLanguage>["t"]["struc
     trim: s.kindTrim,
     expand: s.kindExpand,
     hook: s.kindHook,
+    rewrite: s.kindRewrite,
   };
   return labels[kind] ?? s.kindReorder;
 }
@@ -465,9 +468,16 @@ export function describeMoveResult(
     doneExpand: string;
     doneHookOpening: string;
     doneHookEnding: string;
+    doneRewrite: string;
   }
 ): string {
   const p = move.payload ?? {};
+  if (move.kind === "rewrite") {
+    return s.doneRewrite
+      .replace("{n}", String(p.chapterNumber ?? "?"))
+      .replace("{from}", String(move.draft?.baseWords ?? "?"))
+      .replace("{to}", String(move.draft?.draftWords ?? "?"));
+  }
   if (move.kind === "hook") {
     return (p.scope === "opening" ? s.doneHookOpening : s.doneHookEnding).replace(
       "{n}",
@@ -504,9 +514,13 @@ export function describeMove(
     moveExpand: string;
     moveHookOpening: string;
     moveHookEnding: string;
+    moveRewrite: string;
   }
 ): string {
   const p = move.payload ?? {};
+  if (move.kind === "rewrite") {
+    return s.moveRewrite.replace("{n}", String(p.chapterNumber ?? "?"));
+  }
   if (move.kind === "hook") {
     return (p.scope === "opening" ? s.moveHookOpening : s.moveHookEnding).replace(
       "{n}",
