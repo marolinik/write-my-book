@@ -3,7 +3,6 @@ import {
   quickAssistErrorNotice,
   shouldSurfaceGhostError,
   isWallSuppressionActive,
-  QUICK_ASSIST_DISCLOSURE,
   GHOST_ERROR_COOLDOWN_MS,
   WALL_RETRY_MS,
 } from "@/components/editor/quick-assist-client-errors";
@@ -150,9 +149,10 @@ describe("isWallSuppressionActive — D-134 doomed-loop suppression with expiry"
  * than the writer's default. The point-of-use disclosure line must exist and
  * say so; both quick-assist surfaces render it.
  */
-describe("QUICK_ASSIST_DISCLOSURE — D-127 point-of-use copy", () => {
+describe("quickAssistDisclosure — D-127 point-of-use copy (P2-59: now in the dictionaries)", () => {
   it("names the substitution in writer-facing terms", () => {
-    expect(QUICK_ASSIST_DISCLOSURE.toLowerCase()).toContain("faster model");
-    expect(QUICK_ASSIST_DISCLOSURE.length).toBeGreaterThan(20);
+    const en = getUIStrings("en").editorChrome.quickAssistDisclosure;
+    expect(en.toLowerCase()).toContain("faster model");
+    expect(sr.editorChrome.quickAssistDisclosure).not.toBe(en);
   });
 });

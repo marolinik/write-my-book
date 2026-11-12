@@ -34,8 +34,6 @@ import {
 type FocusTheme = "dark" | "sepia" | "paper";
 
 /** Screen-reader announcements for entering/leaving the overlay (spec §2). */
-const ENTER_ANNOUNCEMENT = "Entered immersive mode, press Escape to exit";
-const EXIT_ANNOUNCEMENT = "Exited immersive mode";
 
 /** Elements the minimal Tab-cycling focus trap considers focusable. */
 const FOCUSABLE_SELECTOR =
@@ -160,7 +158,7 @@ export function ImmersiveFocusMode({
   useEffect(() => {
     const underlyingEditable =
       document.querySelector<HTMLElement>(".ProseMirror");
-    announce(ENTER_ANNOUNCEMENT);
+    announce(t.editorChrome.immersiveEntered);
     requestAnimationFrame(() => {
       const el = editorRef.current;
       if (!el) return;
@@ -170,7 +168,7 @@ export function ImmersiveFocusMode({
       moveCaretToEnd(el);
     });
     return () => {
-      announce(EXIT_ANNOUNCEMENT);
+      announce(t.editorChrome.immersiveExited);
       if (underlyingEditable) {
         requestAnimationFrame(() => {
           if (underlyingEditable.isConnected) {

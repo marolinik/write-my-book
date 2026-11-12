@@ -167,6 +167,7 @@ export const ZH: UIStrings = {
     nameRequired: "请输入书名以继续。",
   },
   common: {
+    notNow: "暂不",
     cancel: "取消",
     accept: "接受",
     reject: "拒绝",
@@ -889,6 +890,8 @@ export const ZH: UIStrings = {
   },
 
   appUI: {
+    sidebarTitle: "侧边栏",
+    sidebarDescription: "显示移动端侧边栏。",
     tierProfessional: "Professional 套餐解锁无限图书、系列管理和进阶分析。",
     showAllChapters: "显示全部 {count} 章",
     tierPublisher: "Publisher 套餐包含 Professional 的全部内容，另加优先支持与后续的多用户席位。",
@@ -999,6 +1002,7 @@ export const ZH: UIStrings = {
   },
 
   screens: {
+    unexpectedErrorNotified: "发生了意外错误。我们的团队已收到通知。",
     bookProgress: "书稿进度", drafted: "已起草", edited: "已编辑", betaPassed: "通过 Beta",
     wordCount: "字数", recentSessions: "最近的代理会话", editorialFindings: "编辑发现",
     modelOverrides: "模型覆盖", bookDefaultModel: "本书默认模型",
@@ -1627,6 +1631,9 @@ export const ZH: UIStrings = {
   },
 
   editorChrome: {
+    quickAssistDisclosure: "快速建议可能会使用比默认模型更快的模型。",
+    immersiveEntered: "已进入沉浸模式，按 Esc 退出",
+    immersiveExited: "已退出沉浸模式",
     stillWriting: "仍在书写……",
     rewriteComparison: "AI 改写对比",
     noPreviousChapter: "没有上一章",

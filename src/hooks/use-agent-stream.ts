@@ -5,7 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useAgentSessionStore, type SessionState, type SessionResultMeta } from "@/stores/agent-session-store";
 import type { AgentStreamMessage, AgentResult } from "@/lib/agents/types";
-import { localizeAgentStreamMessage } from "@/lib/agents/agent-errors";
+import { localizeAgentStreamMessage, renderAgentError } from "@/lib/agents/agent-errors";
 import { useLanguage } from "@/components/providers/language-provider";
 
 /**
@@ -187,10 +187,7 @@ export function useAgentStream(
           queueWaitTimers.delete(sid);
           const st = useAgentSessionStore.getState().sessions[sid];
           if (!st || st.status !== "running") return;
-          setSessionError(
-            sid,
-            "Still waiting for background processing to start — no worker appears to be available. Please try again in a moment."
-          );
+          setSessionError(sid, renderAgentError(languageRef.current.t, "WORKER_ABSENT"));
           es.close();
           currentSources.delete(sid);
           setConnectedSessions((prev) => {
@@ -230,7 +227,7 @@ export function useAgentStream(
                 sid,
                 typeof message.content === "string" && message.content
                   ? message.content
-                  : "Session failed"
+                  : renderAgentError(languageRef.current.t, "SESSION_FAILED")
               );
               es.close();
               currentSources.delete(sid);
@@ -370,10 +367,7 @@ export function useAgentStream(
         const currentState = useAgentSessionStore.getState();
         const s = currentState.sessions[sid];
         if (s && s.status === "running") {
-          setSessionError(
-            sid,
-            "Connection to agent lost. The agent may have crashed or the server restarted. Try starting a new workflow."
-          );
+          setSessionError(sid, renderAgentError(languageRef.current.t, "STREAM_UNAVAILABLE"));
         }
       };
     }

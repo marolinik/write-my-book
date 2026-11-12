@@ -186,6 +186,7 @@ export interface UIStrings {
 
   // Common
   common: {
+    notNow: string;
     cancel: string;
     accept: string;
     reject: string;
@@ -896,6 +897,8 @@ export interface UIStrings {
 
   // O1 - the remaining app surfaces.
   appUI: {
+    sidebarTitle: string;
+    sidebarDescription: string;
     tierProfessional: string;
     showAllChapters: string;
     tierPublisher: string;
@@ -994,6 +997,7 @@ export interface UIStrings {
   };
 
   screens: {
+    unexpectedErrorNotified: string;
     bookProgress: string; drafted: string; edited: string; betaPassed: string;
     wordCount: string; recentSessions: string; editorialFindings: string;
     modelOverrides: string; bookDefaultModel: string; bookDefaultModelDesc: string;
@@ -1526,6 +1530,9 @@ export interface UIStrings {
   // H-10 - the editor's own chrome: status bar, find-and-replace, pacing and
   // syntax panels, the conflict dialog's two choices.
   editorChrome: {
+    quickAssistDisclosure: string;
+    immersiveEntered: string;
+    immersiveExited: string;
     stillWriting: string;
     rewriteComparison: string;
     noPreviousChapter: string;

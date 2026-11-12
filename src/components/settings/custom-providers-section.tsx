@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Trash2, Plus, RefreshCw } from "lucide-react";
+import { describeApiError } from "@/lib/api/describe-api-error";
 
 /**
  * Custom provider manager — add OpenAI-compatible endpoints (LAN vLLM,
@@ -43,7 +44,7 @@ export function CustomProvidersSection() {
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) {
-        setError(data?.error ?? `Discovery failed (${res.status})`);
+        setError(describeApiError({ status: res.status, body: data }, t));
         return;
       }
       setName("");

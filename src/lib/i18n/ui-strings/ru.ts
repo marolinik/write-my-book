@@ -167,6 +167,7 @@ export const RU: UIStrings = {
     nameRequired: "Введите название книги, чтобы продолжить.",
   },
   common: {
+    notNow: "Не сейчас",
     cancel: "Отмена",
     accept: "Принять",
     reject: "Отклонить",
@@ -889,6 +890,8 @@ export const RU: UIStrings = {
   },
 
   appUI: {
+    sidebarTitle: "Боковая панель",
+    sidebarDescription: "Показывает мобильную боковую панель.",
     tierProfessional: "Тариф Professional открывает неограниченное число книг, управление сериями и расширенную аналитику.",
     showAllChapters: "Показать все главы ({count})",
     tierPublisher: "Тариф Publisher включает всё из Professional, а также приоритетную поддержку и будущие места для нескольких пользователей.",
@@ -999,6 +1002,7 @@ export const RU: UIStrings = {
   },
 
   screens: {
+    unexpectedErrorNotified: "Произошла непредвиденная ошибка. Наша команда уже уведомлена.",
     bookProgress: "Прогресс книги", drafted: "Написано", edited: "Отредактировано", betaPassed: "Бета пройдена",
     wordCount: "Число слов", recentSessions: "Недавние сессии", editorialFindings: "Редакторские замечания",
     modelOverrides: "Переопределение моделей", bookDefaultModel: "Модель книги по умолчанию",
@@ -1627,6 +1631,9 @@ export const RU: UIStrings = {
   },
 
   editorChrome: {
+    quickAssistDisclosure: "Для быстрых подсказок может использоваться более быстрая модель, чем выбранная по умолчанию.",
+    immersiveEntered: "Включён режим погружения, нажмите Escape для выхода",
+    immersiveExited: "Режим погружения выключен",
     stillWriting: "Ещё пишет…",
     rewriteComparison: "Сравнение с переписанным ИИ",
     noPreviousChapter: "Нет предыдущей главы",

@@ -167,6 +167,7 @@ export const SR: UIStrings = {
     nameRequired: "Unesite naziv knjige da biste nastavili.",
   },
   common: {
+    notNow: "Ne sada",
     cancel: "Otkaži",
     accept: "Prihvati",
     reject: "Odbij",
@@ -889,6 +890,8 @@ export const SR: UIStrings = {
   },
 
   appUI: {
+    sidebarTitle: "Bočna traka",
+    sidebarDescription: "Prikazuje bočnu traku na telefonu.",
     tierProfessional: "Plan Professional otključava neograničen broj knjiga, upravljanje serijalima i naprednu analitiku.",
     showAllChapters: "Prikaži svih {count} poglavlja",
     tierPublisher: "Plan Publisher obuhvata sve iz plana Professional, uz prioritetnu podršku i buduće naloge za više korisnika.",
@@ -999,6 +1002,7 @@ export const SR: UIStrings = {
   },
 
   screens: {
+    unexpectedErrorNotified: "Došlo je do neočekivane greške. Naš tim je obavešten.",
     bookProgress: "Napredak knjige", drafted: "Napisano", edited: "Uređeno", betaPassed: "Prošlo beta čitanje",
     wordCount: "Broj reči", recentSessions: "Nedavne sesije agenata", editorialFindings: "Urednički nalazi",
     modelOverrides: "Izmene modela", bookDefaultModel: "Podrazumevani model knjige",
@@ -1627,6 +1631,9 @@ export const SR: UIStrings = {
   },
 
   editorChrome: {
+    quickAssistDisclosure: "Brzi predlozi mogu da koriste brži model od tvog podrazumevanog.",
+    immersiveEntered: "Uključen je režim uranjanja, pritisni Escape za izlaz",
+    immersiveExited: "Režim uranjanja je isključen",
     stillWriting: "Još pišem…",
     rewriteComparison: "Poređenje AI prepisa",
     noPreviousChapter: "Nema prethodnog poglavlja",

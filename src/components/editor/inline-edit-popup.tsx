@@ -19,9 +19,6 @@ import { useInlineEdit } from "@/hooks/use-inline-edit";
 import type { InlineEditSuggestion } from "@/lib/validation";
 import { useCoarsePointer } from "./use-coarse-pointer";
 import { describeApiError } from "@/lib/api/describe-api-error";
-import {
-  QUICK_ASSIST_DISCLOSURE,
-} from "./quick-assist-client-errors";
 
 // ── Preset AI action pills ─────────────────────────────────────
 
@@ -339,7 +336,7 @@ export function InlineEditPopup({
             </p>
           )}
           <p className="mt-2 text-[10px] text-muted-foreground">
-            {QUICK_ASSIST_DISCLOSURE}
+            {t.editorChrome.quickAssistDisclosure}
           </p>
         </div>
       )}

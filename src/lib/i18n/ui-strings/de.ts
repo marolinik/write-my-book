@@ -167,6 +167,7 @@ export const DE: UIStrings = {
     nameRequired: "Bitte gib einen Buchnamen ein, um fortzufahren.",
   },
   common: {
+    notNow: "Nicht jetzt",
     cancel: "Abbrechen",
     accept: "Annehmen",
     reject: "Ablehnen",
@@ -889,6 +890,8 @@ export const DE: UIStrings = {
   },
 
   appUI: {
+    sidebarTitle: "Seitenleiste",
+    sidebarDescription: "Zeigt die mobile Seitenleiste an.",
     tierProfessional: "Der Professional-Tarif schaltet unbegrenzt viele Bücher, Reihenverwaltung und erweiterte Auswertungen frei.",
     showAllChapters: "Alle {count} Kapitel anzeigen",
     tierPublisher: "Der Publisher-Tarif enthält alles aus Professional sowie bevorzugten Support und künftige Plätze für mehrere Nutzer.",
@@ -999,6 +1002,7 @@ export const DE: UIStrings = {
   },
 
   screens: {
+    unexpectedErrorNotified: "Ein unerwarteter Fehler ist aufgetreten. Unser Team wurde benachrichtigt.",
     bookProgress: "Fortschritt", drafted: "Entworfen", edited: "Lektoriert", betaPassed: "Beta bestanden",
     wordCount: "Wortzahl", recentSessions: "Letzte Agentenläufe", editorialFindings: "Lektoratsbefunde",
     modelOverrides: "Modell-Überschreibungen", bookDefaultModel: "Standardmodell des Buchs",
@@ -1627,6 +1631,9 @@ export const DE: UIStrings = {
   },
 
   editorChrome: {
+    quickAssistDisclosure: "Schnelle Vorschläge können ein schnelleres Modell als Ihr Standardmodell verwenden.",
+    immersiveEntered: "Immersiver Modus aktiviert, zum Beenden Escape drücken",
+    immersiveExited: "Immersiver Modus beendet",
     stillWriting: "Schreibt noch …",
     rewriteComparison: "KI-Neufassung im Vergleich",
     noPreviousChapter: "Kein vorheriges Kapitel",

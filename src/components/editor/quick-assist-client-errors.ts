@@ -21,13 +21,6 @@ export interface QuickAssistErrorNotice {
   upgrade: boolean;
 }
 
-/**
- * D-127 — quick suggestions can run on a different model than the writer's
- * default (reasoning models are routed around at quick-assist budgets).
- * Point-of-use disclosure rendered by both quick-assist surfaces.
- */
-export const QUICK_ASSIST_DISCLOSURE =
-  "Quick suggestions may use a faster model than your default.";
 
 /**
  * P2-31: the notice is the failure's code (or status) in the writer's
