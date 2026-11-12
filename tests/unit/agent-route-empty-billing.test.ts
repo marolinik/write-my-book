@@ -229,7 +229,7 @@ describe("POST /api/books/:id/agent — first-turn empty-reply billing", () => {
         "s1",
         expect.objectContaining({
           type: "error",
-          content: expect.stringContaining("empty response"),
+          metadata: expect.objectContaining({ code: "EMPTY_RESPONSE" }),
         })
       )
     );

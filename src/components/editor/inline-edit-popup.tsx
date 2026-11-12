@@ -18,9 +18,9 @@ import {
 import { useInlineEdit } from "@/hooks/use-inline-edit";
 import type { InlineEditSuggestion } from "@/lib/validation";
 import { useCoarsePointer } from "./use-coarse-pointer";
+import { describeApiError } from "@/lib/api/describe-api-error";
 import {
   QUICK_ASSIST_DISCLOSURE,
-  QUICK_ASSIST_FALLBACK_MESSAGE,
 } from "./quick-assist-client-errors";
 
 // ── Preset AI action pills ─────────────────────────────────────
@@ -188,9 +188,7 @@ export function InlineEditPopup({
         if (abortRef.current === controller) abortRef.current = null;
 
         if (result.suggestions.length === 0) {
-          setError(
-            "No suggestions came back — try again, or rephrase the instruction."
-          );
+          setError(t.apiErrors.AI_RESPONSE_INVALID);
           setPhase("instruction");
           return;
         }
@@ -202,15 +200,12 @@ export function InlineEditPopup({
         // The writer cancelled: nothing to report, the popup is closing.
         if (controller.signal.aborted) return;
         if (abortRef.current === controller) abortRef.current = null;
-        setError(
-          err instanceof Error && err.message.trim().length > 0
-            ? err.message
-            : QUICK_ASSIST_FALLBACK_MESSAGE
-        );
+        // P2-31: the failure in the writer's language, by code or status.
+        setError(describeApiError(err, t));
         setPhase("instruction");
       }
     },
-    [getSelectedText, getSurroundingContext, instruction, inlineEdit, onClose, cancelInFlight]
+    [getSelectedText, getSurroundingContext, instruction, inlineEdit, onClose, cancelInFlight, t]
   );
 
   // Auto-submit when opened with an initialInstruction (e.g. from context menu)

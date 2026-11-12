@@ -2,6 +2,8 @@ import { db } from "@/lib/db";
 import { getAppConnection } from "@/lib/queue/connection";
 import { agentQueue } from "@/lib/queue/agent-queue";
 import { appendSessionEvent } from "@/lib/queue/session-stream";
+import { agentErrorFrame } from "@/lib/agents/agent-error-frame";
+import type { AgentErrorCode } from "@/lib/agents/agent-errors";
 
 /** Rows in these states are finished; a retried job must not run them again. */
 export const SESSION_TERMINAL_STATUSES = new Set(["completed", "failed", "cancelled", "skipped"]);
@@ -17,7 +19,7 @@ const STATUS_TTL_SECONDS = 86_400;
 export async function markSessionTerminal(
   sessionId: string,
   status: "failed",
-  reason: string
+  code: AgentErrorCode
 ): Promise<void> {
   await db.agentSession.updateMany({
     where: { id: sessionId, status: { in: ["queued", "running"] } },
@@ -28,7 +30,7 @@ export async function markSessionTerminal(
   await appendSessionEvent(
     redis,
     sessionId,
-    JSON.stringify({ type: "error", content: reason }),
+    JSON.stringify(agentErrorFrame(code)),
     STATUS_TTL_SECONDS
   );
 }
@@ -67,7 +69,7 @@ export async function reapStrandedSessions(now: Date = new Date()): Promise<stri
     await markSessionTerminal(
       row.id,
       "failed",
-      "This session stopped when the background worker restarted. Start it again to continue."
+      "WORKER_RESTARTED"
     );
     reaped.push(row.id);
   }

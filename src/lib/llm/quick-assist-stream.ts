@@ -449,6 +449,7 @@ async function pump(
         status: 502,
         error:
           "The suggestion stream ended without a complete result. Please try again.",
+        code: "AI_GENERATION_FAILED",
         retryable: true,
       });
     }
@@ -462,6 +463,7 @@ async function pump(
           type: "error",
           status: 502,
           error: "The suggestion stream was interrupted. Please try again.",
+          code: "AI_GENERATION_FAILED",
           retryable: true,
         });
       } catch {

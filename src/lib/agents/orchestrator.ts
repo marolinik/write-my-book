@@ -14,6 +14,7 @@ import { isOverBudget, isBudgetWarning, resolveEndReason } from "./budget";
 import { approvalCacheKey, isCacheableDecision, type ApprovalCache } from "./approval-cache";
 import { enforceBookScript } from "./serbian-script";
 import { getAgentStrings } from "@/lib/i18n/agent-strings";
+import { agentErrorFrame } from "./agent-error-frame";
 import {
   withProviderRetry,
   ProviderError,
@@ -530,10 +531,10 @@ export class AgentOrchestrator {
           {
             provider: this.providerKey,
             onRetry: (attempt, waitMs, error) => {
-              // H-8: a status line is rendered verbatim by the client, so it
-              // is the writer's language. The provider's own message keeps
-              // its wording — it names a key, an account or a rate limit.
-              const strings = getAgentStrings(options.context.language ?? "en");
+              // P2-31: the status carries a code and its numbers; the client
+              // renders both in the interface language. `content` is English,
+              // for logs and older clients.
+              const strings = getAgentStrings("en");
               const retry = strings.statusRetrying
                 .replace("{seconds}", String(waitMs / 1000))
                 .replace("{attempt}", String(attempt))
@@ -541,6 +542,13 @@ export class AgentOrchestrator {
               options.onMessage({
                 type: "status",
                 content: `${error.userMessage} ${retry}`,
+                metadata: {
+                  code: "PROVIDER_RETRYING",
+                  provider: this.providerKey,
+                  retryInSeconds: waitMs / 1000,
+                  attempt,
+                  max: RETRY_CONFIG.maxRetries,
+                },
               });
             },
           }
@@ -566,20 +574,19 @@ export class AgentOrchestrator {
         }
         // Non-retryable or exhausted retries — emit translated error
         if (error instanceof ProviderError) {
-          options.onMessage({
-            type: "error",
-            content: error.translated.userMessage,
-            metadata: {
-              action: error.translated.action,
-              ...(error.translated.action === "check-key" ? { switchable: true } : {}),
-            },
-          });
+          options.onMessage(
+            agentErrorFrame(
+              error.translated.code,
+              { provider: this.providerKey },
+              {
+                action: error.translated.action,
+                ...(error.translated.action === "check-key" ? { switchable: true } : {}),
+              }
+            )
+          );
         } else {
           const translated = translateProviderError(500, this.providerKey);
-          options.onMessage({
-            type: "error",
-            content: translated.userMessage,
-          });
+          options.onMessage(agentErrorFrame(translated.code, { provider: this.providerKey }));
         }
         // D-36: record any partial spend the dying turn already streamed
         // (the provider billed those tokens even though finalMessage never
@@ -623,10 +630,7 @@ export class AgentOrchestrator {
       );
       if (turn === 0 && !producedWork && finalMessage.usage.output_tokens === 0) {
         const translated = translateProviderError(500, this.providerKey);
-        options.onMessage({
-          type: "error",
-          content: translated.userMessage,
-        });
+        options.onMessage(agentErrorFrame(translated.code, { provider: this.providerKey }));
         providerFailure = true;
         endReason = "error";
         break;

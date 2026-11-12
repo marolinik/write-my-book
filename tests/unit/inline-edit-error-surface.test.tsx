@@ -19,7 +19,8 @@ vi.mock("@/hooks/use-inline-edit", () => ({
 }));
 
 import { InlineEditPopup } from "@/components/editor/inline-edit-popup";
-import { QUICK_ASSIST_FALLBACK_MESSAGE } from "@/components/editor/quick-assist-client-errors";
+import { ApiError } from "@/lib/api-client";
+import { getUIStrings } from "@/lib/i18n/ui-strings";
 
 function makeEditorStub() {
   const rect = {
@@ -58,10 +59,11 @@ describe("InlineEditPopup — D-129 error copy renders, D-127 disclosure", () =>
     mutateAsync.mockReset();
   });
 
-  it("renders the server's error copy as an alert and returns to the instruction phase", async () => {
-    const serverCopy =
-      "This model returns only internal reasoning at this budget, so it can't produce inline rewrite suggestions.";
-    mutateAsync.mockRejectedValue(new Error(serverCopy));
+  it("renders the failure in the writer's language as an alert and returns to the instruction phase", async () => {
+    // P2-31: the hook throws an ApiError; the popup shows its code's sentence, never the server's English.
+    mutateAsync.mockRejectedValue(
+      new ApiError("only internal reasoning", 422, { error: "only internal reasoning", code: "MODEL_NO_QUICK_SUGGEST" })
+    );
 
     render(
       <InlineEditPopup
@@ -73,7 +75,8 @@ describe("InlineEditPopup — D-129 error copy renders, D-127 disclosure", () =>
     );
 
     const alert = await screen.findByRole("alert");
-    expect(alert.textContent).toContain(serverCopy);
+    expect(alert.textContent).toContain(getUIStrings("en").apiErrors.MODEL_NO_QUICK_SUGGEST);
+    expect(alert.textContent).not.toContain("internal reasoning");
     // Retryable: the instruction input is back on screen alongside the error.
     expect(
       screen.getByPlaceholderText(/describe what you want/i)
@@ -96,7 +99,7 @@ describe("InlineEditPopup — D-129 error copy renders, D-127 disclosure", () =>
     );
 
     const alert = await screen.findByRole("alert");
-    expect(alert.textContent).toContain(QUICK_ASSIST_FALLBACK_MESSAGE);
+    expect(alert.textContent).toContain(getUIStrings("en").apiErrors.GENERIC);
     // Still retryable: the instruction input remains on screen.
     expect(
       screen.getByPlaceholderText(/describe what you want/i)
@@ -116,7 +119,7 @@ describe("InlineEditPopup — D-129 error copy renders, D-127 disclosure", () =>
     );
 
     const alert = await screen.findByRole("alert");
-    expect(alert.textContent).toMatch(/no suggestions/i);
+    expect(alert.textContent).toContain(getUIStrings("en").apiErrors.AI_RESPONSE_INVALID);
   });
 
   it("clears the previous error when a new attempt starts", async () => {

@@ -57,6 +57,7 @@ import {
 } from "@/lib/llm";
 import { getDefaultModelId } from "@/lib/llm/defaults";
 import { USER_MODEL_SELECT, globalOverridesOf, userModelSettingsOf, bookModelSettingsOf } from "@/lib/llm/model-resolver";
+import { agentErrorFrame } from "@/lib/agents/agent-error-frame";
 
 // ── Constants ─────────────────────────────────────────────────────────
 
@@ -347,13 +348,11 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
     const effectiveCoachModelDef = coachRouting.model;
 
     if (coachRoute.route === "none") {
-      await publishMessage({
-        type: "error",
-        content:
-          coachRoute.code === "DIRECT_KEY_UNSUPPORTED"
-            ? coachRoute.error
-            : `No API key available for ${effectiveCoachModelDef.provider}. Add one in Settings > API Keys.`,
-      });
+      await publishMessage(
+        coachRoute.code === "DIRECT_KEY_UNSUPPORTED"
+          ? agentErrorFrame("DIRECT_KEY_UNSUPPORTED")
+          : agentErrorFrame("NO_PROVIDER_KEY", { provider: effectiveCoachModelDef.provider })
+      );
       // No key will appear on a retry: fail once, never three times.
       throw new UnrecoverableError(
         `No API key for provider: ${effectiveCoachModelDef.provider}`
@@ -907,11 +906,8 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
 
     const onError = async (error: Error) => {
       try {
-        await publishMessage({
-          type: "error",
-          content:
-            "An error occurred during the agent session. Please try again.",
-        });
+        console.error("[AgentWorker] session error:", error);
+        await publishMessage(agentErrorFrame("SESSION_FAILED"));
 
         await db.agentSession.update({
           where: { id: sessionId },

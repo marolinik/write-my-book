@@ -4,6 +4,7 @@
  */
 
 import type { ApiErrorCode } from "@/lib/api/error-codes";
+import type { AgentErrorCode } from "@/lib/agents/agent-errors";
 
 export interface UIStrings {
   // Navigation
@@ -2002,6 +2003,8 @@ export interface UIStrings {
   };
   /** P1-26: what the writer reads when a request fails, by API error code. */
   apiErrors: Record<ApiErrorCode, string>;
+  /** P2-31: agent stream failures by code; {provider} is the provider's name. */
+  agentErrors: Record<AgentErrorCode, string> & { localFleet: string };
 }
 
 export const SUPPORTED_LANGUAGES = [

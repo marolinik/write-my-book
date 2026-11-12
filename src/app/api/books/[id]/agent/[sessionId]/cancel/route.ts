@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { getSession, cancelSession } from "@/lib/agents";
 import { getAppConnection } from "@/lib/queue/connection";
 import { agentQueue } from "@/lib/queue/agent-queue";
+import { agentErrorFrame } from "@/lib/agents/agent-error-frame";
 
 type RouteParams = {
   params: Promise<{ id: string; sessionId: string }>;
@@ -45,10 +46,7 @@ export async function POST(_req: NextRequest, { params }: RouteParams) {
       const redis = getAppConnection();
 
       // Publish terminal error event to SSE channel so frontend stops spinner
-      const cancelMsg = JSON.stringify({
-        type: "error",
-        content: "Session cancelled by user",
-      });
+      const cancelMsg = JSON.stringify(agentErrorFrame("SESSION_CANCELLED"));
       await appendSessionEvent(redis, sessionId, cancelMsg);
 
       // Set terminal status key for polling clients

@@ -15,7 +15,6 @@ import {
   quickAssistErrorNotice,
   shouldSurfaceGhostError,
   isWallSuppressionActive,
-  QUICK_ASSIST_FALLBACK_MESSAGE,
   type QuickAssistErrorNotice,
 } from "./quick-assist-client-errors";
 import { readQuickAssistFrames } from "./quick-assist-stream-client";
@@ -300,7 +299,7 @@ export function AIGhostText({
           // the request meanwhile, stay silent rather than toast a stale wall
           // (the success path below already rechecks the abort flag).
           if (controller.signal.aborted) return;
-          surfaceError(quickAssistErrorNotice(body));
+          surfaceError(quickAssistErrorNotice(body, t, res.status));
           return;
         }
 
@@ -352,7 +351,7 @@ export function AIGhostText({
               // quickAssistErrorNotice/surfaceError seam as a real 422/502.
               clearStillWriting();
               if (controller.signal.aborted) return;
-              surfaceError(quickAssistErrorNotice(frame));
+              surfaceError(quickAssistErrorNotice(frame, t));
               setSuggestion(null);
             }
           }
@@ -385,7 +384,7 @@ export function AIGhostText({
         // failure the writer must hear about (D-129).
         if (!controller.signal.aborted) {
           surfaceError({
-            message: QUICK_ASSIST_FALLBACK_MESSAGE,
+            message: t.apiErrors.NETWORK,
             openSettings: false,
             upgrade: false,
           });

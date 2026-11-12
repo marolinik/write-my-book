@@ -8,9 +8,10 @@ import { decodeLiveEvent } from "@/lib/queue/session-stream";
 import { queuePosition } from "@/lib/queue/queue-status";
 import { agentQueue } from "@/lib/queue/agent-queue";
 import { markSessionTerminal } from "@/lib/queue/session-terminal";
+import { agentErrorFrame } from "@/lib/agents/agent-error-frame";
+import type { AgentErrorCode } from "@/lib/agents/agent-errors";
 import {
   isJobStuckWithoutWorker,
-  WORKER_ABSENT_MESSAGE,
 } from "@/lib/health/worker-liveness";
 
 /**
@@ -35,11 +36,11 @@ const SSE_HEADERS = {
 } as const;
 
 /** Helper: return an SSE stream with a single error event, then close. */
-function sseError(message: string): Response {
+function sseError(code: AgentErrorCode): Response {
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     start(controller) {
-      const errorMsg = { type: "error" as const, content: message };
+      const errorMsg = agentErrorFrame(code);
       controller.enqueue(
         encoder.encode(`id: 0\ndata: ${JSON.stringify(errorMsg)}\n\n`)
       );
@@ -62,9 +63,7 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
     });
 
     if (!dbSession) {
-      return sseError(
-        "Session not found. The server may have restarted. Please start a new workflow."
-      );
+      return sseError("SESSION_NOT_FOUND");
     }
 
     const isBackgroundJob = dbSession.jobId != null;
@@ -207,8 +206,8 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
                     }
                   }
                   if (removed) {
-                    await markSessionTerminal(sessionId, "failed", WORKER_ABSENT_MESSAGE).catch(() => {});
-                    deliver(null, JSON.stringify({ type: "error", content: WORKER_ABSENT_MESSAGE }));
+                    await markSessionTerminal(sessionId, "failed", "WORKER_ABSENT").catch(() => {});
+                    deliver(null, JSON.stringify(agentErrorFrame("WORKER_ABSENT")));
                     return;
                   }
                 } else {
@@ -268,11 +267,7 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
               err
             );
             try {
-              const errorMsg = {
-                type: "error" as const,
-                content:
-                  "Failed to connect to background job stream. Please try refreshing.",
-              };
+              const errorMsg = agentErrorFrame("STREAM_UNAVAILABLE");
               controller.enqueue(
                 encoder.encode(
                   `id: 0\ndata: ${JSON.stringify(errorMsg)}\n\n`
@@ -300,9 +295,7 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
         session.bookId !== bookId ||
         session.userId !== user.id
       ) {
-        return sseError(
-          "Session not found. The server may have restarted. Please start a new workflow."
-        );
+        return sseError("SESSION_NOT_FOUND");
       }
 
       const stream = new ReadableStream({
