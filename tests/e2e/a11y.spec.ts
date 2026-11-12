@@ -319,3 +319,26 @@ test.describe("Editor accessibility (WCAG 2.1 AA)", () => {
     );
   });
 });
+
+// P2-52: icon-only buttons across the app have names. axe's button-name and
+// link-name rules over the pages a writer visits most, not only the editor.
+test.describe("button and link names across the app (P2-52)", () => {
+  for (const path of ["/dashboard", "/books", "/settings", "/settings/billing"]) {
+    test(`${path} has no unnamed buttons or links`, async ({ page }) => {
+      await page.goto(path);
+      await page.waitForLoadState("networkidle");
+      const results = await new AxeBuilder({ page })
+        .withRules(["button-name", "link-name"])
+        .analyze();
+      expect(results.violations, JSON.stringify(results.violations.map((v) => v.nodes.map((n) => n.target)))).toEqual([]);
+    });
+  }
+
+  test("a book page has no unnamed buttons or links", async ({ page, request }) => {
+    const { bookId } = await seedChapter(request, `A11y Names ${Date.now()}`);
+    await page.goto(`/books/${bookId}`);
+    await page.waitForLoadState("networkidle");
+    const results = await new AxeBuilder({ page }).withRules(["button-name", "link-name"]).analyze();
+    expect(results.violations, JSON.stringify(results.violations.map((v) => v.nodes.map((n) => n.target)))).toEqual([]);
+  });
+});

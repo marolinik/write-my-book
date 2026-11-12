@@ -252,6 +252,7 @@ export function WriterMemoryPanel({ bookId }: WriterMemoryPanelProps) {
                               size="icon"
                               variant="ghost"
                               className="size-6"
+                              aria-label={t.common.save}
                               onClick={() => updateMutation.mutate({ id: m.id, content: editContent })}
                             >
                               <CheckIcon className="size-3" />
@@ -260,6 +261,7 @@ export function WriterMemoryPanel({ bookId }: WriterMemoryPanelProps) {
                               size="icon"
                               variant="ghost"
                               className="size-6"
+                              aria-label={t.common.cancel}
                               onClick={() => setEditingId(null)}
                             >
                               <XIcon className="size-3" />

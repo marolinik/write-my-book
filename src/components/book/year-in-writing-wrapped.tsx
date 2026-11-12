@@ -273,6 +273,7 @@ export function YearInWritingWrapped({ data, authorName }: YearInWritingWrappedP
         <Button
           variant="ghost" size="icon" className="size-8"
           onClick={() => setCardIndex(Math.max(0, activeIndex - 1))}
+          aria-label={t.common.previous}
           disabled={activeIndex === 0}
         >
           <ChevronLeftIcon className="size-4" />
@@ -287,6 +288,8 @@ export function YearInWritingWrapped({ data, authorName }: YearInWritingWrappedP
                 i === activeIndex ? "bg-primary scale-125" : "bg-muted-foreground/30"
               }`}
               onClick={() => setCardIndex(i)}
+              aria-label={t.common.goToCard.replace("{n}", String(i + 1))}
+              aria-current={i === activeIndex ? "true" : undefined}
             />
           ))}
         </div>
@@ -294,6 +297,7 @@ export function YearInWritingWrapped({ data, authorName }: YearInWritingWrappedP
         <Button
           variant="ghost" size="icon" className="size-8"
           onClick={() => setCardIndex(Math.min(cards.length - 1, activeIndex + 1))}
+          aria-label={t.common.next}
           disabled={activeIndex === cards.length - 1}
         >
           <ChevronRightIcon className="size-4" />

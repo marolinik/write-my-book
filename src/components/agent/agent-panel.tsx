@@ -573,6 +573,7 @@ export function AgentPanel({
             size="icon"
             className="size-7"
             onClick={onClose}
+            aria-label={t.common.close}
           >
             <XIcon className="size-4" />
           </Button>

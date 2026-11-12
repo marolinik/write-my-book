@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { SendIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { useLanguage } from "@/components/providers/language-provider";
 
 interface ConversationInputProps {
   onSend: (message: string) => void | Promise<void>;
@@ -16,6 +17,7 @@ export function ConversationInput({
   disabled,
   placeholder = "Type a message...",
 }: ConversationInputProps) {
+  const { t } = useLanguage();
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -85,6 +87,7 @@ export function ConversationInput({
         onClick={handleSend}
         disabled={disabled || sending || !value.trim()}
         className="shrink-0"
+        aria-label={t.common.send}
       >
         <SendIcon className="size-4" />
       </Button>

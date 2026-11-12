@@ -350,7 +350,7 @@ test.describe.serial("Writer Journey — UI Flows", () => {
       .catch(() => {});
 
     // Verify: the agent panel overlay or panel wrapper appeared
-    // The FloatingAgentOverlay renders a div with role="dialog" or a visible container
+    // The FloatingAgentOverlay renders a labelled role="complementary" region
     // Or the docked panel appears. Either way, AgentPanelWrapper should be in DOM.
     // A simpler check: the header agent button now has the "secondary" variant
     // (rendered as `variant={agentOpen ? "secondary" : "ghost"}`)

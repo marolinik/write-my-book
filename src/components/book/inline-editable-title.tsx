@@ -4,6 +4,7 @@ import { useLanguage } from "@/components/providers/language-provider";
 import { useState, useRef, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 interface InlineEditableTitleProps {
   bookId: string;
@@ -49,10 +50,13 @@ export function InlineEditableTitle({
       if (res.ok) {
         qc.invalidateQueries({ queryKey: ["books", bookId] });
       } else {
+        // P2-56: a failed save is said, not silently reverted.
         setTitle(initialTitle);
+        toast.error(t.appUI.titleSaveFailed);
       }
     } catch {
       setTitle(initialTitle);
+      toast.error(t.appUI.titleSaveFailed);
     } finally {
       setSaving(false);
       setEditing(false);
@@ -80,15 +84,19 @@ export function InlineEditableTitle({
     );
   }
 
+  // P2-56: a real button, so a keyboard can start the rename (Enter / Space);
+  // this is the only rename path on the book overview.
   return (
-    <span
+    <button
+      type="button"
       onClick={() => setEditing(true)}
-      className="cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 transition-colors"
+      className="cursor-pointer text-left hover:bg-muted/50 rounded px-1 -mx-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       title={t.appUI.clickToEditTitle}
+      aria-label={`${t.appUI.clickToEditTitle}: ${initialTitle || placeholder}`}
     >
       {initialTitle || (
         <span className="text-muted-foreground italic">{placeholder}</span>
       )}
-    </span>
+    </button>
   );
 }

@@ -10,6 +10,7 @@ import { AgentPanelWrapper } from "@/components/agent/agent-panel-wrapper";
 import { AICompanionBubble } from "@/components/agent/ai-companion-bubble";
 import { AIMiniPanel } from "@/components/agent/ai-mini-panel";
 import { FloatingAgentOverlay } from "@/components/agent/floating-agent-overlay";
+import { MobileAgentSheet } from "@/components/agent/mobile-agent-sheet";
 import { LanguageProvider } from "@/components/providers/language-provider";
 import { CommandPalette } from "@/components/layout/command-palette";
 import { ApprovalNotifier } from "@/components/agent/approval-notifier";
@@ -125,22 +126,10 @@ export function AppShell({
                 <main className={`flex-1 overflow-y-auto ${mainBottomPaddingClass({ pathname, isMobile: true })}`}>
                   {children}
                 </main>
-                {showOverlay && (
-                  <>
-                    {/* Backdrop */}
-                    <div
-                      className="fixed inset-0 z-30 bg-black/40"
-                      onClick={() => setPanelMode("bubble")}
-                    />
-                    {/* Bottom sheet */}
-                    <div className="fixed inset-x-0 bottom-0 z-40 h-[60vh] bg-background border-t rounded-t-xl shadow-lg flex flex-col">
-                      <div className="w-12 h-1 bg-muted-foreground/30 rounded-full mx-auto mt-2 shrink-0" />
-                      <div className="flex-1 overflow-hidden">
-                        <AgentPanelWrapper onClose={() => setPanelMode("bubble")} />
-                      </div>
-                    </div>
-                  </>
-                )}
+                {/* P2-53: a real modal sheet (dialog role, focus trap, Escape). */}
+                <MobileAgentSheet open={showOverlay} onClose={() => setPanelMode("bubble")}>
+                  <AgentPanelWrapper onClose={() => setPanelMode("bubble")} />
+                </MobileAgentSheet>
                 <AICompanionBubble />
                 <MobileBottomNav />
               </>

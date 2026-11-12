@@ -70,6 +70,7 @@ export function StoryRadar({ bookId }: StoryRadarProps) {
             )}
             <Button
               variant="ghost" size="icon" className="size-6"
+              aria-label={t.common.refresh}
               onClick={() => refetch()}
               disabled={isFetching}
             >

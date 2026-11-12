@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useLanguage } from "@/components/providers/language-provider";
 
 interface FloatingAgentOverlayProps {
   children: React.ReactNode;
@@ -11,6 +12,7 @@ export function FloatingAgentOverlay({
   children,
   onClose,
 }: FloatingAgentOverlayProps) {
+  const { t } = useLanguage();
   const panelRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ dragging: boolean; offsetX: number; offsetY: number }>({
     dragging: false,
@@ -22,7 +24,8 @@ export function FloatingAgentOverlay({
     const panel = panelRef.current;
     if (!panel) return;
 
-    const handleMouseMove = (e: MouseEvent) => {
+    // P2-53: pointer events, so a pen or a touch screen can drag it too.
+    const handleMouseMove = (e: PointerEvent) => {
       if (!dragRef.current.dragging) return;
       const x = e.clientX - dragRef.current.offsetX;
       const y = e.clientY - dragRef.current.offsetY;
@@ -38,15 +41,15 @@ export function FloatingAgentOverlay({
       document.body.style.userSelect = "";
     };
 
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener("pointermove", handleMouseMove);
+    document.addEventListener("pointerup", handleMouseUp);
     return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("pointermove", handleMouseMove);
+      document.removeEventListener("pointerup", handleMouseUp);
     };
   }, []);
 
-  const handleDragStart = (e: React.MouseEvent) => {
+  const handleDragStart = (e: React.PointerEvent) => {
     const panel = panelRef.current;
     if (!panel) return;
     if ((e.target as HTMLElement).closest("button")) return;
@@ -60,8 +63,18 @@ export function FloatingAgentOverlay({
   };
 
   return (
+    // P2-53: a labelled region a screen reader can find, closed with Escape
+    // while focus is inside it (non-modal, so the page stays usable).
     <div
       ref={panelRef}
+      role="complementary"
+      aria-label={t.nav.agent}
+      onKeyDown={(e) => {
+        if (e.key === "Escape" && !e.defaultPrevented) {
+          e.stopPropagation();
+          onClose();
+        }
+      }}
       className="fixed z-30 flex flex-col rounded-xl border bg-background shadow-2xl overflow-hidden overscroll-contain"
       style={{
         right: 20,
@@ -73,7 +86,8 @@ export function FloatingAgentOverlay({
       {/* Thin drag grip — replaces the old duplicate header */}
       <div
         className="flex items-center justify-center py-1 cursor-grab active:cursor-grabbing select-none shrink-0 bg-muted/30 hover:bg-muted/50 transition-colors"
-        onMouseDown={handleDragStart}
+        onPointerDown={handleDragStart}
+        aria-hidden="true"
       >
         <div className="w-8 h-1 rounded-full bg-muted-foreground/30" />
       </div>

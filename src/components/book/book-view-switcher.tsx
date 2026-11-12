@@ -137,7 +137,8 @@ export function BookViewSwitcher({
           </CardContent>
         </Card>
       ) : view === "list" ? (
-        <div className="rounded-md border">
+        // P2-54: eight columns do not fit a phone; the table scrolls inside its box.
+        <div className="rounded-md border overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b bg-muted/50">

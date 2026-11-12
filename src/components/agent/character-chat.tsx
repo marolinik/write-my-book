@@ -134,7 +134,7 @@ export function CharacterChat({ bookId, characters, onClose }: CharacterChatProp
           <CardTitle className="text-sm flex items-center gap-2">
             <SparklesIcon className="size-4 text-primary" />{t.agentUI.characterChat}</CardTitle>
           {onClose && (
-            <Button variant="ghost" size="icon" className="size-6" onClick={onClose}>
+            <Button variant="ghost" size="icon" className="size-6" onClick={onClose} aria-label={t.common.close}>
               <XIcon className="size-3" />
             </Button>
           )}
@@ -245,6 +245,7 @@ export function CharacterChat({ bookId, characters, onClose }: CharacterChatProp
           onClick={sendMessage}
           disabled={isLoading || !input.trim() || !selectedChar}
           className="shrink-0"
+          aria-label={t.common.send}
         >
           <SendIcon className="size-4" />
         </Button>
