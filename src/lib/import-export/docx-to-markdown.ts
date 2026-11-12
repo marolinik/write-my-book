@@ -42,12 +42,31 @@ export const DOCX_CONVERSION_TIMEOUT_MS = 30_000;
 
 export type DocxConversionResult =
   | { ok: true; markdown: string }
-  | { ok: false; code: DocxArchiveRefusal | "CONVERSION_TIMEOUT" };
+  | { ok: false; code: DocxArchiveRefusal | "CONVERSION_TIMEOUT" | "RATE_LIMITED" };
+
+/** Review M-2: conversions one writer may have running at once in this process. */
+export const DOCX_MAX_CONCURRENT_PER_WRITER = 2;
+const running = new Map<string, number>();
+
+function takeSlot(key: string): boolean {
+  const now = running.get(key) ?? 0;
+  if (now >= DOCX_MAX_CONCURRENT_PER_WRITER) return false;
+  running.set(key, now + 1);
+  return true;
+}
+
+function releaseSlot(key: string): void {
+  const now = (running.get(key) ?? 1) - 1;
+  if (now <= 0) running.delete(key);
+  else running.set(key, now);
+}
 
 interface ConvertDocxOptions {
   timeoutMs?: number;
   /** Injected in tests; the real converter otherwise. */
   convert?: (buffer: Buffer) => Promise<string>;
+  /** The writer: at most DOCX_MAX_CONCURRENT_PER_WRITER conversions run at once. */
+  slotKey?: string;
 }
 
 const TIMED_OUT = Symbol("timed-out");
@@ -62,16 +81,33 @@ export async function convertDocxSafely(
   options: ConvertDocxOptions = {}
 ): Promise<DocxConversionResult> {
   const buffer = Buffer.isBuffer(input) ? input : Buffer.from(input);
+  const slot = options.slotKey;
+  if (slot !== undefined && !takeSlot(slot)) return { ok: false, code: "RATE_LIMITED" };
+  // The slot covers the inspection and the conversion, and is released only
+  // when the conversion really stops: a timed-out mammoth run keeps working.
+  let released = false;
+  const release = () => {
+    if (slot !== undefined && !released) {
+      released = true;
+      releaseSlot(slot);
+    }
+  };
+
   const inspection = await inspectDocxArchive(buffer);
-  if (!inspection.ok) return inspection;
+  if (!inspection.ok) {
+    release();
+    return inspection;
+  }
 
   const convert = options.convert ?? convertDocxToMarkdown;
   let timer: ReturnType<typeof setTimeout> | undefined;
   const timeout = new Promise<typeof TIMED_OUT>((resolve) => {
     timer = setTimeout(() => resolve(TIMED_OUT), options.timeoutMs ?? DOCX_CONVERSION_TIMEOUT_MS);
   });
+  const conversion = convert(buffer);
+  conversion.then(release, release);
   try {
-    const result = await Promise.race([convert(buffer), timeout]);
+    const result = await Promise.race([conversion, timeout]);
     return result === TIMED_OUT
       ? { ok: false, code: "CONVERSION_TIMEOUT" }
       : { ok: true, markdown: result };

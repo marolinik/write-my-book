@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { BarChart3Icon, XIcon } from "lucide-react";
+import { countMixedWords } from "@/lib/text/cjk";
 
 /**
  * Gap 8: Sentence-Length Visual Pacing Heatmap
@@ -73,7 +74,7 @@ export function PacingHeatmap({
       .filter((s) => s.trim().length > 0);
 
     return raw.map((s) => {
-      const words = s.trim().split(/\s+/).length;
+      const words = countMixedWords(s);
       return {
         text: s.trim(),
         words,

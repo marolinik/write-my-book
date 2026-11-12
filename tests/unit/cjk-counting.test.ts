@@ -92,6 +92,15 @@ describe("every word counter follows countWords", () => {
       "src/lib/agents/tools.ts",
       "src/lib/import-export/export-pipeline.ts",
     ];
+    // Wave 5 Task 3: the display-only counters (rewrite comparison, pacing
+    // heatmap, setup style sample) may split for a word diff, never count.
+    const widgets = [
+      "src/components/editor/ai-rewrite-comparison.tsx",
+      "src/components/editor/pacing-heatmap.tsx",
+      "src/app/(app)/books/[bookId]/setup/page.tsx",
+    ];
+    const countingWidgets = widgets.filter((f) => readFileSync(join(root, f), "utf-8").includes(".split(/\\s+/).length"));
+    expect(countingWidgets).toEqual([]);
     const offenders = files.filter((f) =>
       readFileSync(join(root, f), "utf-8").includes(".split(/\\s+/)")
     );

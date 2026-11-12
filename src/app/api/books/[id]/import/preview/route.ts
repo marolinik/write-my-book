@@ -93,8 +93,14 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
       let content: string;
       if (ext === ".docx") {
-        const converted = await convertDocxSafely(await file.arrayBuffer());
+        const converted = await convertDocxSafely(await file.arrayBuffer(), { slotKey: user.id });
         if (!converted.ok) {
+          if (converted.code === "RATE_LIMITED") {
+            return NextResponse.json(
+              { error: "Too many Word documents are being converted at once", code: converted.code },
+              { status: 429 }
+            );
+          }
           if (converted.code === "CONVERSION_TIMEOUT") {
             return NextResponse.json(
               { error: `${file.name}: the document took too long to convert`, code: converted.code },

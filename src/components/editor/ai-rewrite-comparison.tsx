@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLanguage } from "@/components/providers/language-provider";
+import { countMixedWords } from "@/lib/text/cjk";
 
 /**
  * Gap 5: AI Rewrite Split-View Comparison
@@ -89,8 +90,8 @@ export function AIRewriteComparison({
   );
 
   // Word count comparison
-  const origWordCount = original.split(/\s+/).length;
-  const rewWordCount = rewrite.split(/\s+/).length;
+  const origWordCount = countMixedWords(original);
+  const rewWordCount = countMixedWords(rewrite);
   const wordDelta = rewWordCount - origWordCount;
 
   return (
