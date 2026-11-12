@@ -2141,6 +2141,7 @@ export const DE: UIStrings = {
     AI_RESPONSE_TRUNCATED: "Die Antwort wurde abgeschnitten, bevor sie verwendet werden konnte. Markieren Sie weniger Text und versuchen Sie es erneut.",
     CUSTOM_PROVIDER_LIMIT: "Sie können bis zu 10 eigene Anbieter speichern. Löschen Sie einen, um einen neuen hinzuzufügen.",
     SESSION_ALREADY_RUNNING: "An diesem Kapitel arbeitet bereits ein Agent. Warten Sie, bis er fertig ist, oder stoppen Sie ihn zuerst.",
+    IMPORT_PARTIAL: "Der Import wurde unterbrochen: Einige Kapitel wurden importiert, die übrigen nicht. Prüfen Sie die Kapitelliste und importieren Sie die fehlenden Kapitel erneut.",
   },
   agentErrors: {
     PROVIDER_KEY_INVALID: "Ihr {provider}-API-Schlüssel ist ungültig oder wurde widerrufen. Prüfen Sie ihn in den Einstellungen.",

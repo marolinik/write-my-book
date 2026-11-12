@@ -16,7 +16,11 @@
 --- @param block pandoc.Block The block to check
 --- @return boolean True if block is a transformed scene break
 local function is_scene_break(block)
-  -- DOCX: Para with a Span that has custom-style 'Scene Break'
+  -- DOCX: a Div with custom-style 'Scene Break' (scene-break.lua, P2-73)
+  if block.t == 'Div' and block.attr.attributes['custom-style'] == 'Scene Break' then
+    return true
+  end
+  -- DOCX (older form): Para with a Span that has custom-style 'Scene Break'
   if block.t == 'Para' then
     for _, inline in ipairs(block.content) do
       if inline.t == 'Span' then

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { StorageAdapter } from "@/lib/storage/types";
+import { readFileSync } from "node:fs";
 
 /**
  * D-18 transport lock — exportManuscript must run pandoc via execFile with an
@@ -102,7 +103,11 @@ describe("exportManuscript transport (D-18)", () => {
     expect(args).toContain("--to=docx");
     expect(args).toContain("--standalone");
     expect(args).toContain("--metadata=title:My Book");
-    expect(opts).toMatchObject({ timeout: 120000 });
+    // P2-76: the 120 s limit is enforced by runConverter, which kills the whole
+    // process group (pandoc and its Typst child); the child runs in its own
+    // group on POSIX and in the export temp dir.
+    expect(opts).toMatchObject({ detached: process.platform !== "win32", cwd: expect.any(String) });
+    expect(readFileSync("src/lib/import-export/export-pipeline.ts", "utf8")).toMatch(/timeoutMs: 120000/);
 
     // exec (shell) was used ONLY for tool detection, never to run pandoc itself.
     for (const call of h.execAsyncSpy.mock.calls) {

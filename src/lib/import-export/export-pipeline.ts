@@ -1,4 +1,5 @@
 import { exec, execFile } from "child_process";
+import { runConverter } from "./export-limits";
 import { promisify } from "util";
 import { writeFile, readFile, copyFile, rm, mkdir } from "fs/promises";
 import { join, dirname, basename } from "path";
@@ -28,7 +29,6 @@ const execAsync = promisify(exec);
 // writer-controlled fields can never be parsed as shell syntax. execAsync
 // (shell) survives ONLY for tool DETECTION below, which interpolates a
 // hardcoded tool name and never any user data — see checkToolAvailable's guard.
-const execFileAsync = promisify(execFile);
 
 /**
  * Ensure a chapter's markdown leads with a canonical level-1 heading taken from
@@ -1021,7 +1021,8 @@ export async function exportManuscript(
         await readFile(refDocPath);
         referenceDoc = refDocPath;
       } catch {
-        // No reference doc available
+        // P2-73: say so; without it scene breaks, epigraphs and letters are unstyled.
+        warnings.push(`DOCX styles unavailable: reference-${genreTemplate}.docx is missing, so the document uses Word's default styles.`);
       }
     }
     // P3-S19: the document template without pandoc's title block.
@@ -1118,7 +1119,8 @@ export async function exportManuscript(
         : "application/epub+zip";
   let outputBuffer: Buffer;
   try {
-    await execFileAsync(pandocArgs[0], pandocArgs.slice(1), { timeout: 120000, cwd: dirname(inputPath) });
+    // P2-76: in its own process group, so a timeout also kills the Typst child.
+    await runConverter(pandocArgs[0], pandocArgs.slice(1), { timeoutMs: 120000, cwd: dirname(inputPath) });
 
     // Read the output file; it is uploaded below, outside this try.
     outputBuffer = await readFile(outputPath);

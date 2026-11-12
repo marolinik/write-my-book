@@ -173,7 +173,10 @@ describe("P6-S04 — create never overwrites the writer's chapter", () => {
     expect((await res.json()).created).toBe(1);
   });
 
-  it("an explicit replace keeps the chapter's status and writes the row before the document", async () => {
+  // P2-12: the document is written first, so a failed document write can never
+  // leave the row claiming new prose. (A replace of a missing chapter, the old
+  // reason for row-first, is refused by the whole-request check above.)
+  it("an explicit replace keeps the chapter's status and writes the document before the row", async () => {
     h.doc.findByType.mockResolvedValue({ id: "d5" });
     const order: string[] = [];
     h.db.chapter.update.mockImplementation(async () => {
@@ -188,7 +191,7 @@ describe("P6-S04 — create never overwrites the writer's chapter", () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.replaced).toBe(1);
-    expect(order).toEqual(["chapter", "document"]);
+    expect(order).toEqual(["document", "chapter"]);
     const update = h.db.chapter.update.mock.calls[0][0];
     expect(update.where.bookId_chapterNumber.chapterNumber).toBe(5);
     expect(update.data.status).toBeUndefined();

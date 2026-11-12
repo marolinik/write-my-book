@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { withExportSlot } from "@/lib/import-export/export-limits";
 import { ExportConversionError } from "@/lib/import-export/export-pipeline";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -25,14 +26,22 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     const body = await parseJsonBody(req);
     const data = exportRequestSchema.parse(body);
 
-    const result = await exportSeriesOmnibus({
+    // P2-76 / D19: one export per writer at a time; a second answers 429.
+    const slot = await withExportSlot(user.id, () => exportSeriesOmnibus({
       userId: user.id,
       seriesId,
       format: data.format,
       isDraft: data.isDraft,
       sceneBreakGlyph: data.sceneBreakGlyph,
       template: data.template,
-    });
+    }));
+    if (!slot) {
+      return NextResponse.json(
+        { error: "An export is already running", code: "RATE_LIMITED" },
+        { status: 429 }
+      );
+    }
+    const result = slot.value;
 
     return NextResponse.json(result);
   } catch (error) {

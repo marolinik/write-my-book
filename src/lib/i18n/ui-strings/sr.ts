@@ -2141,6 +2141,7 @@ export const SR: UIStrings = {
     AI_RESPONSE_TRUNCATED: "Odgovor je odsečen pre nego što je mogao da se iskoristi. Izaberi manje teksta i pokušaj ponovo.",
     CUSTOM_PROVIDER_LIMIT: "Možeš da sačuvaš najviše 10 prilagođenih provajdera. Obriši jedan da bi dodao novi.",
     SESSION_ALREADY_RUNNING: "Agent već radi na ovom poglavlju. Sačekaj da završi ili ga prvo zaustavi.",
+    IMPORT_PARTIAL: "Uvoz je prekinut na pola: neka poglavlja su uvezena, a ostala nisu. Proveri spisak poglavlja, pa ponovo uvezi ona koja nedostaju.",
   },
   agentErrors: {
     PROVIDER_KEY_INVALID: "Tvoj {provider} API ključ nije ispravan ili je opozvan. Proveri ga u Podešavanjima.",

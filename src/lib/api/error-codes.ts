@@ -39,6 +39,7 @@ export const API_ERROR_CODES = [
   "AI_RESPONSE_TRUNCATED",
   "CUSTOM_PROVIDER_LIMIT",
   "SESSION_ALREADY_RUNNING",
+  "IMPORT_PARTIAL",
 ] as const;
 
 export type ApiErrorCode = (typeof API_ERROR_CODES)[number];

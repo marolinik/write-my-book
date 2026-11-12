@@ -2141,6 +2141,7 @@ export const FR: UIStrings = {
     AI_RESPONSE_TRUNCATED: "La réponse a été coupée avant de pouvoir être utilisée. Sélectionnez moins de texte et réessayez.",
     CUSTOM_PROVIDER_LIMIT: "Vous pouvez enregistrer jusqu’à 10 fournisseurs personnalisés. Supprimez-en un pour en ajouter un autre.",
     SESSION_ALREADY_RUNNING: "Un agent travaille déjà sur ce chapitre. Attendez qu’il ait fini ou arrêtez-le d’abord.",
+    IMPORT_PARTIAL: "L’import s’est arrêté en cours de route : certains chapitres ont été importés, les autres non. Vérifiez la liste des chapitres, puis importez à nouveau ceux qui manquent.",
   },
   agentErrors: {
     PROVIDER_KEY_INVALID: "Votre clé API {provider} est invalide ou a été révoquée. Vérifiez-la dans les Paramètres.",

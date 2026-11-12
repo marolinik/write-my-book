@@ -2152,6 +2152,7 @@ export const EN: UIStrings = {
     AI_RESPONSE_TRUNCATED: "The answer was cut off before it could be used. Select less text and try again.",
     CUSTOM_PROVIDER_LIMIT: "You can save up to 10 custom providers. Delete one to add another.",
     SESSION_ALREADY_RUNNING: "An agent is already working on this chapter. Wait for it to finish or stop it first.",
+    IMPORT_PARTIAL: "The import stopped partway: some chapters were imported and the rest were not. Check the chapter list, then import the missing chapters again.",
   },
   agentErrors: {
     PROVIDER_KEY_INVALID: "Your {provider} API key is invalid or has been revoked. Check it in Settings.",
