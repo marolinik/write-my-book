@@ -68,7 +68,10 @@ export function PacingHeatmap({
           : t.editorChrome.pacingVeryLong;
   const [expanded, setExpanded] = useState(false);
 
+  // P2-49: nothing is split while collapsed (the collapsed button shows no
+  // stats), so typing with the strip closed costs nothing here.
   const sentences = useMemo((): SentenceStats[] => {
+    if (!expanded) return [];
     const raw = text
       .split(/(?<=[.!?])\s+/)
       .filter((s) => s.trim().length > 0);
@@ -81,7 +84,7 @@ export function PacingHeatmap({
         category: categorize(words),
       };
     });
-  }, [text]);
+  }, [text, expanded]);
 
   const maxWords = Math.max(...sentences.map((s) => s.words), 1);
 

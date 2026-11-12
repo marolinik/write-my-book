@@ -79,16 +79,31 @@ export function BookViewSwitcher({
   const locale = localeFor(language);
   const storageKey = `wmb-book-view-${bookId}`;
 
-  const [view, setView] = useState<ViewMode>(() => {
-    if (typeof window === "undefined") return "list";
-    const saved = localStorage.getItem(storageKey);
-    if (saved === "canvas" || saved === "pipeline" || saved === "list" || saved === "corkboard") return saved;
-    return "list";
-  });
+  // P2-50: the first render is always the list, as the server renders it; the
+  // stored view is adopted after mount (reading localStorage in the initializer
+  // gave a Canvas writer a different first render and a hydration error).
+  const [view, setView] = useState<ViewMode>("list");
+  const [restored, setRestored] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem(storageKey, view);
-  }, [view, storageKey]);
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved === "canvas" || saved === "pipeline" || saved === "list" || saved === "corkboard") setView(saved);
+    } catch {
+      // Storage blocked: stay on the list.
+    }
+    setRestored(true);
+  }, [storageKey]);
+
+  useEffect(() => {
+    // Not before the stored view was read, or the default would overwrite it.
+    if (!restored) return;
+    try {
+      localStorage.setItem(storageKey, view);
+    } catch {
+      // Storage blocked: the choice lasts for this visit only.
+    }
+  }, [view, storageKey, restored]);
 
   const views: { key: ViewMode; label: string; icon: React.ReactNode }[] = [
     { key: "list", label: t.bookUI.viewList, icon: <ListIcon className="size-4" /> },

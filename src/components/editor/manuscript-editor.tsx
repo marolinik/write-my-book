@@ -127,6 +127,9 @@ interface ManuscriptEditorProps {
 
 // ── Component ────────────────────────────────────────────────
 
+/** P2-49: how often typing re-renders the pane (activity tick + one serialization). */
+const EDIT_TICK_THROTTLE_MS = 250;
+
 export function ManuscriptEditor({
   bookId,
   chapterId,
@@ -204,6 +207,12 @@ export function ManuscriptEditor({
   // is sticky (stays true across many keystrokes) so it can't debounce a scan
   // per-edit; this counter changes on every onUpdate call instead.
   const [editTick, setEditTick] = useState(0);
+  // P2-49: one activity tick per EDIT_TICK_THROTTLE_MS, not one per keystroke.
+  // Each tick re-renders the pane and re-serializes the document once.
+  const editTickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (editTickTimerRef.current) clearTimeout(editTickTimerRef.current);
+  }, []);
   // Immersive focus mode: content snapshot on enter; edits stream back into
   // tiptap through a debounced CAS sync during editing (S10) and on exit — not
   // per-keystroke setContent, which would churn undo history and markdown.
@@ -354,8 +363,14 @@ export function ManuscriptEditor({
     onUpdate: () => {
       // TipTap is sole content source — just mark dirty in the pane store
       paneStore.getState().markDirty();
-      // Per-edit activity signal for the continuity idle-scan debounce.
-      setEditTick((n) => n + 1);
+      // Per-edit activity signal for the continuity idle-scan debounce,
+      // throttled (P2-49): a burst of keystrokes is one re-render.
+      if (!editTickTimerRef.current) {
+        editTickTimerRef.current = setTimeout(() => {
+          editTickTimerRef.current = null;
+          setEditTick((n) => n + 1);
+        }, EDIT_TICK_THROTTLE_MS);
+      }
     },
   });
 
@@ -1125,10 +1140,17 @@ export function ManuscriptEditor({
     return () => { editor.off("selectionUpdate", handler); };
   }, [editor]);
 
+  // P2-49: the document is serialized once per tick and shared by the word
+  // count, the pacing strip and the syntax strip (it used to be serialized
+  // three times on every render, i.e. every keystroke).
+  const liveMarkdown = useMemo(
+    () => (editor && contentLoadedRef.current ? getMarkdownFromEditor(editor) : null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- editTick and the loaded chapter are the change signals
+    [editor, editTick, chapterData]
+  );
+
   // Word count — use DB word count until editor content is loaded, then compute from editor
-  const editorWordCount = editor && contentLoadedRef.current
-    ? countWords(getMarkdownFromEditor(editor))
-    : null;
+  const editorWordCount = liveMarkdown !== null ? countWords(liveMarkdown) : null;
   const wordCount = editorWordCount ?? chapterData?.wordCount ?? 0;
 
   if (isLoading) {
@@ -1318,8 +1340,8 @@ export function ManuscriptEditor({
       {/* Prose analysis strip: collapsed = ghost buttons; expanded pushes content down */}
       {editor && (
         <div className="flex gap-2 px-2 py-1">
-          <PacingHeatmap text={getMarkdownFromEditor(editor)} />
-          <ProseSyntaxHighlight text={getMarkdownFromEditor(editor)} />
+          <PacingHeatmap text={liveMarkdown ?? ""} />
+          <ProseSyntaxHighlight text={liveMarkdown ?? ""} />
         </div>
       )}
 

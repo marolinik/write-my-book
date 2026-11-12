@@ -44,6 +44,7 @@ import { DailyWritingPlan } from "@/components/book/daily-writing-plan";
 import { ProactiveNotifications } from "@/components/book/proactive-notifications";
 import { ChapterWordGoals } from "@/components/book/chapter-word-goals";
 import { WritingHeatmap } from "@/components/book/writing-heatmap";
+import { utcToday } from "@/lib/writing/heatmap-grid";
 import { MilestoneRewards } from "@/components/book/milestone-rewards";
 import { LifetimeStats } from "@/components/book/lifetime-stats";
 import { DraftCertificate } from "@/components/book/draft-certificate";
@@ -561,6 +562,7 @@ export default async function BookDetailPage({
           bestStreak={bestStreak}
           totalWords={periodWords}
           locale={localeFor(user.preferredLanguage ?? "en")}
+          today={utcToday()}
         />
       </div>
 
