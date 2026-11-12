@@ -99,6 +99,29 @@ function requiredKeysFor(target: RuntimeTarget): readonly string[] {
   return REQUIRED_WEB_ENV;
 }
 
+/**
+ * P2-45: when a store is configured in production its secret must be set and
+ * must not be one of the dev defaults published in this repository.
+ */
+const STORE_SECRETS = [
+  { urlKey: "NEO4J_URI", secretKey: "NEO4J_PASSWORD", devDefault: "wmb-neo4j-dev" },
+  { urlKey: "QDRANT_URL", secretKey: "QDRANT_API_KEY", devDefault: "wmb-qdrant-prod" },
+] as const;
+
+function storeSecretIssues(): EnvIssue[] {
+  const issues: EnvIssue[] = [];
+  for (const { urlKey, secretKey, devDefault } of STORE_SECRETS) {
+    if (isMissing(process.env[urlKey])) continue;
+    const secret = process.env[secretKey];
+    if (isMissing(secret)) {
+      issues.push({ key: secretKey, severity: "error", message: `Required when ${urlKey} is set` });
+    } else if (secret === devDefault) {
+      issues.push({ key: secretKey, severity: "error", message: "The public development default is not allowed in production" });
+    }
+  }
+  return issues;
+}
+
 export function validateEnv(target: RuntimeTarget = "web"): EnvValidationResult {
   const nodeEnv = process.env.NODE_ENV ?? "development";
   const ci = process.env.CI === "true";
@@ -138,6 +161,8 @@ export function validateEnv(target: RuntimeTarget = "web"): EnvValidationResult 
     if (!dbHost) {
       issues.push({ key: "DATABASE_URL", severity: "error", message: "Invalid database URL" });
     }
+
+    issues.push(...storeSecretIssues());
 
     for (const key of OPTIONAL_PRODUCTION_ENV) {
       if (isMissing(process.env[key])) {

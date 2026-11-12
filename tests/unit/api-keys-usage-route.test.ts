@@ -20,6 +20,10 @@ vi.mock("@/lib/db", () => ({ db: h.db }));
 vi.mock("@/lib/encryption", () => ({
   decryptApiKey: (v: string) => v,
   maskApiKey: () => "sk-or-v...705e",
+  maskStoredKey: (v: string) =>
+    v === "undecryptable"
+      ? { maskedKey: null, needsReentry: true }
+      : { maskedKey: "sk-or-v...705e", needsReentry: false },
   encryptApiKey: (v: string) => v,
 }));
 
@@ -95,5 +99,20 @@ describe("GET /api/settings/api-keys — per-key usage (D-44)", () => {
       totalCost: 0,
       sessionCount: 0,
     });
+  });
+
+  it("P2-21: one undecryptable row is flagged for re-entry and the rest of the list still loads", async () => {
+    h.db.apiKey.findMany.mockResolvedValue([
+      { id: "bad", provider: "anthropic", label: null, isDefault: false, validatedAt: new Date(), createdAt: new Date(), encryptedKey: "undecryptable" },
+      { id: "good", provider: "openrouter", label: null, isDefault: true, validatedAt: new Date(), createdAt: new Date(), encryptedKey: "enc" },
+    ]);
+    h.db.usageRecord.groupBy.mockResolvedValue([]);
+
+    const res = await GET();
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.map((k: { id: string }) => k.id)).toEqual(["bad", "good"]);
+    expect(body[0]).toMatchObject({ maskedKey: null, needsReentry: true });
+    expect(body[1]).toMatchObject({ maskedKey: "sk-or-v...705e", needsReentry: false });
   });
 });

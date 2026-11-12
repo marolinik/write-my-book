@@ -3,11 +3,10 @@ import { requireUser } from "@/lib/auth";
 import { denyIfOverQuota } from "@/lib/billing/ai-route-gate";
 import { estimateCost } from "@/lib/cost";
 import { db } from "@/lib/db";
-import { decryptApiKey } from "@/lib/encryption";
+import { decryptValidatedKeys } from "@/lib/llm/decrypt-validated-keys";
 import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
 import { createLLMClient, resolveRouteWithLocalFallback, resolveCheapModelFor } from "@/lib/llm";
-import type { ProviderKey } from "@/lib/llm";
 import type Anthropic from "@anthropic-ai/sdk";
 import { getDefaultModelId } from "@/lib/llm/defaults";
 
@@ -146,14 +145,7 @@ export async function POST(
   const userDefault = dbUser?.defaultModel ?? getDefaultModelId();
   const cheapModel = resolveCheapModelFor(userDefault);
 
-  const userKeys = await db.apiKey.findMany({
-    where: { userId: user.id, validatedAt: { not: null } },
-    select: { provider: true, encryptedKey: true },
-  });
-  const decryptedKeys: Partial<Record<ProviderKey, string>> = {};
-  for (const k of userKeys) {
-    decryptedKeys[k.provider as ProviderKey] = decryptApiKey(k.encryptedKey);
-  }
+  const decryptedKeys = await decryptValidatedKeys(user.id);
 
   // Fallback-aware: with WMB_LOCAL_FALLBACK on, a missing key is served by
     // the local fleet instead of 400-ing here (createLLMClient below makes the

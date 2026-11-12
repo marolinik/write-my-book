@@ -31,6 +31,7 @@ vi.mock("@/lib/db", () => ({
 vi.mock("@/lib/encryption", () => ({
   encryptApiKey: (k: string) => `enc(${k})`,
   decryptApiKey: (k: string) => k.replace(/^enc\((.*)\)$/, "$1"),
+  tryDecryptApiKey: (k: string) => (k.startsWith("enc(") ? k.replace(/^enc\((.*)\)$/, "$1") : null),
 }));
 vi.mock("@/lib/ssrf-guard", () => ({
   UnsafeUrlError: h.UnsafeUrlError,

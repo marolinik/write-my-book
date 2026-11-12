@@ -91,6 +91,8 @@ export const ES: UIStrings = {
     apiKeys: "Claves API",
     apiKeysDescription: "Trae tu propia clave (BYOK) \u2014 tus claves API están cifradas en reposo",
     relayKeyUnsupported: "Esta clave todavía no se puede usar directamente. Añade una clave de OpenRouter para usar estos modelos y luego borra esta.",
+    keyNeedsReentry: "Esta clave ya no se puede leer. Vuelve a introducirla con Reemplazar.",
+    apiKeysLoadFailed: "No se pudieron cargar tus claves guardadas. Recarga la página para intentarlo de nuevo.",
     localFleet: "Flota local (autoalojada)",
     roleGhostwriterDesc: "Escribe capítulos, planifica esquemas, construye la arquitectura de la historia.",
     roleEditorDesc: "Edición de desarrollo, edición de línea, sugerencias de revisión.",

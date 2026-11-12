@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { decryptApiKey } from "@/lib/encryption";
+import { decryptValidatedKeys } from "@/lib/llm/decrypt-validated-keys";
 import { estimateCost } from "@/lib/cost";
 import { checkQuota } from "@/lib/billing/quota-checker";
 import {
@@ -17,7 +17,6 @@ import {
   mapAgentTypeToRole,
   resolveRouteWithLocalFallback,
 } from "@/lib/llm";
-import type { ProviderKey } from "@/lib/llm";
 import {
   AgentOrchestrator,
   getWorkflow,
@@ -108,14 +107,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     );
 
     // ── API Key Resolution (all user keys, no platform fallbacks) ──
-    const userKeys = await db.apiKey.findMany({
-      where: { userId: user.id, validatedAt: { not: null } },
-      select: { provider: true, encryptedKey: true },
-    });
-    const decryptedKeys: Partial<Record<ProviderKey, string>> = {};
-    for (const k of userKeys) {
-      decryptedKeys[k.provider as ProviderKey] = decryptApiKey(k.encryptedKey);
-    }
+    const decryptedKeys = await decryptValidatedKeys(user.id);
 
     // Fallback-aware gate: WMB_LOCAL_FALLBACK lets a keyless model be served
     // by the local fleet, exactly as createLLMClient does below.

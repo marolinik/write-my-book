@@ -91,6 +91,8 @@ export const DE: UIStrings = {
     apiKeys: "API-Schlüssel",
     apiKeysDescription: "Eigener Schlüssel (BYOK) \u2014 Ihre API-Schlüssel sind verschlüsselt gespeichert",
     relayKeyUnsupported: "Dieser Schlüssel kann noch nicht direkt verwendet werden. Fügen Sie einen OpenRouter-Schlüssel hinzu, um diese Modelle zu nutzen, und löschen Sie dann diesen.",
+    keyNeedsReentry: "Dieser Schlüssel kann nicht mehr gelesen werden. Geben Sie ihn über Ersetzen erneut ein.",
+    apiKeysLoadFailed: "Ihre gespeicherten Schlüssel konnten nicht geladen werden. Laden Sie die Seite neu und versuchen Sie es erneut.",
     localFleet: "Lokale Flotte (selbst gehostet)",
     roleGhostwriterDesc: "Schreibt Kapitel, plant Gliederungen, baut die Story-Architektur.",
     roleEditorDesc: "Entwicklungslektorat, Zeilenlektorat, Überarbeitungsvorschläge.",

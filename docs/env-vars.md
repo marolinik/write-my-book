@@ -19,6 +19,9 @@ connections and before starting the background worker.
 |---|---|
 | `DATABASE_URL` | PostgreSQL connection string for Prisma 7 adapter |
 | `API_KEY_ENCRYPTION_SECRET` | Secret used to encrypt stored BYOK provider keys |
+| `API_KEY_ENCRYPTION_SECRET_PREVIOUS` | Optional. During a rotation, set it to the old secret: rows written under it still decrypt, and each is re-encrypted with the new secret when the writer saves it again. Remove it once no row needs it. |
+| `NEO4J_PASSWORD` / `QDRANT_API_KEY` | Required in production when `NEO4J_URI` / `QDRANT_URL` is set; the dev defaults in this repo are refused at boot. |
+| `HEALTH_TOKEN` | Optional. A caller sending it as a bearer token gets the full dependency detail from the health endpoint. |
 | `REDIS_URL` | BullMQ Redis connection string used by API routes |
 | `NEXT_PUBLIC_APP_URL` | Canonical public app URL |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk browser key |

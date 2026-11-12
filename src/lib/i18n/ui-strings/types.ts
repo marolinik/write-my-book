@@ -102,6 +102,8 @@ export interface UIStrings {
     apiKeys: string;
     apiKeysDescription: string;
     relayKeyUnsupported: string;
+    keyNeedsReentry: string;
+    apiKeysLoadFailed: string;
     localFleet: string;
     roleGhostwriterDesc: string;
     roleEditorDesc: string;

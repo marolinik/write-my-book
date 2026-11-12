@@ -19,7 +19,7 @@ import { CustomProvidersSection } from "./custom-providers-section";
 function findKeyForProvider(
   keys: ApiKeyEntry[] | undefined,
   provider: ProviderKey
-): Pick<ApiKeyEntry, "id" | "maskedKey" | "validatedAt"> | null {
+): Pick<ApiKeyEntry, "id" | "maskedKey" | "validatedAt" | "needsReentry"> | null {
   if (!keys) return null;
   const entry = keys.find((k) => k.provider === provider);
   if (!entry) return null;
@@ -27,13 +27,14 @@ function findKeyForProvider(
     id: entry.id,
     maskedKey: entry.maskedKey,
     validatedAt: entry.validatedAt,
+    needsReentry: entry.needsReentry,
   };
 }
 
 // ── Component ───────────────────────────────────────────────────
 
 export function ApiKeysSection() {
-  const { data: apiKeys, isLoading } = useApiKeys();
+  const { data: apiKeys, isLoading, isError } = useApiKeys();
   const { t } = useLanguage();
 
   return (
@@ -55,6 +56,12 @@ export function ApiKeysSection() {
           </div>
         ) : (
           <div className="space-y-3">
+            {/* P2-21: a failed list load is said, not shown as "no keys saved". */}
+            {isError && (
+              <p role="alert" className="text-xs text-amber-700 dark:text-amber-400">
+                {t.settings.apiKeysLoadFailed}
+              </p>
+            )}
             {PROVIDERS.map((provider) => {
               const existingKey = findKeyForProvider(apiKeys, provider.key);
               // D3: no relay is deployed, so OpenAI, Gemini and Grok are only
@@ -64,6 +71,11 @@ export function ApiKeysSection() {
               return (
                 <div key={provider.key}>
                   <ProviderCard provider={provider} existingKey={existingKey} compact />
+                  {existingKey?.needsReentry && (
+                    <p className="mt-1 text-xs text-amber-700 dark:text-amber-400">
+                      {t.settings.keyNeedsReentry}
+                    </p>
+                  )}
                   {relayOnly && (
                     <p className="mt-1 text-xs text-amber-700 dark:text-amber-400">
                       {t.settings.relayKeyUnsupported}

@@ -3,10 +3,9 @@ import { parseMarketingKit } from "@/lib/marketing/marketing-kit";
 import { requireUser } from "@/lib/auth";
 import { denyIfOverQuota } from "@/lib/billing/ai-route-gate";
 import { db } from "@/lib/db";
-import { decryptApiKey } from "@/lib/encryption";
+import { decryptValidatedKeys } from "@/lib/llm/decrypt-validated-keys";
 import { estimateCost } from "@/lib/cost";
 import { createLLMClient, resolveRouteWithLocalFallback } from "@/lib/llm";
-import type { ProviderKey } from "@/lib/llm";
 import { DocumentService } from "@/lib/documents";
 import { localeFor } from "@/lib/i18n/ui-strings";
 import { getDefaultModelId } from "@/lib/llm/defaults";
@@ -91,14 +90,7 @@ export async function POST(_req: NextRequest, { params }: RouteParams) {
   const modelDef = getModelDef(userDefault) ?? resolveFromTier(userDefault);
   const registryId = userDefault;
 
-  const userKeys = await db.apiKey.findMany({
-    where: { userId: user.id, validatedAt: { not: null } },
-    select: { provider: true, encryptedKey: true },
-  });
-  const decryptedKeys: Partial<Record<ProviderKey, string>> = {};
-  for (const k of userKeys) {
-    decryptedKeys[k.provider as ProviderKey] = decryptApiKey(k.encryptedKey);
-  }
+  const decryptedKeys = await decryptValidatedKeys(user.id);
 
   const { route } = resolveRouteWithLocalFallback(modelDef, {
     anthropicApiKey: decryptedKeys.anthropic,

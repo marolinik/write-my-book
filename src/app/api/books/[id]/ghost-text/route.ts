@@ -3,12 +3,11 @@ import { requireUser } from "@/lib/auth";
 import { buildLanguageDirective } from "@/lib/agents/language-directive";
 import { enforceBookScript } from "@/lib/agents/serbian-script";
 import { db } from "@/lib/db";
-import { decryptApiKey } from "@/lib/encryption";
+import { decryptValidatedKeys } from "@/lib/llm/decrypt-validated-keys";
 import { estimateCost } from "@/lib/cost";
 import { checkQuota } from "@/lib/billing/quota-checker";
 import { recordDailyUse } from "@/lib/billing/free-tier-meters";
 import { createLLMClient, resolveRouteWithLocalFallback, resolveQuickAssistModelFor } from "@/lib/llm";
-import type { ProviderKey } from "@/lib/llm";
 import {
   withQuickAssistReasoning,
   settleQuickAssist,
@@ -85,14 +84,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     const cheapModel = resolveQuickAssistModelFor(userDefault);
 
     // Load all user keys (no platform key fallbacks)
-    const userKeys = await db.apiKey.findMany({
-      where: { userId: user.id, validatedAt: { not: null } },
-      select: { provider: true, encryptedKey: true },
-    });
-    const decryptedKeys: Partial<Record<ProviderKey, string>> = {};
-    for (const k of userKeys) {
-      decryptedKeys[k.provider as ProviderKey] = decryptApiKey(k.encryptedKey);
-    }
+    const decryptedKeys = await decryptValidatedKeys(user.id);
 
     // Fallback-aware: with WMB_LOCAL_FALLBACK on, a missing key is served by
     // the local fleet instead of 400-ing here (createLLMClient below makes the

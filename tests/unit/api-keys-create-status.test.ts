@@ -22,6 +22,7 @@ vi.mock("@/lib/encryption", () => ({
   encryptApiKey: (v: string) => `enc:${v}`,
   decryptApiKey: (v: string) => v,
   maskApiKey: () => "sk-or-v...mask",
+  maskStoredKey: () => ({ maskedKey: "sk-or-v...mask", needsReentry: false }),
 }));
 vi.mock("@/lib/llm/key-validator", () => ({
   validateApiKey: (...args: unknown[]) => h.validateApiKey(...args),

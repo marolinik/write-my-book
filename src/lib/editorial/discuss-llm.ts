@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { decryptApiKey } from "@/lib/encryption";
+import { decryptValidatedKeys } from "@/lib/llm/decrypt-validated-keys";
 import { estimateCost } from "@/lib/cost";
 import { createLLMClient, resolveCheapModelFor } from "@/lib/llm";
 import {
@@ -79,16 +79,9 @@ export interface DiscussTurnArgs {
  * model id (D-44) — there is no second place for provider routing to drift.
  */
 async function resolveDiscussClient(userId: string, mode: DiscussMode = DEFAULT_DISCUSS_MODE) {
-  const userKeys = await db.apiKey.findMany({
-    where: { userId, validatedAt: { not: null } },
-    select: { provider: true, encryptedKey: true },
-  });
-  let anthropicApiKey: string | undefined;
-  let openrouterApiKey: string | undefined;
-  for (const k of userKeys) {
-    if (k.provider === "anthropic") anthropicApiKey = decryptApiKey(k.encryptedKey);
-    if (k.provider === "openrouter") openrouterApiKey = decryptApiKey(k.encryptedKey);
-  }
+  const decrypted = await decryptValidatedKeys(userId);
+  const anthropicApiKey = decrypted.anthropic;
+  const openrouterApiKey = decrypted.openrouter;
 
   // Pick the cheap ("haiku"-tier) variant for the user's OWN provider — mirrors
   // inline-edit/route.ts:45-46. Hardcoding anthropic/haiku here 400/500'd every

@@ -21,7 +21,10 @@ export interface ApiKeyEntry {
   isDefault: boolean;
   validatedAt: string | null;
   createdAt: string;
-  maskedKey: string;
+  /** Null when the stored row can no longer be decrypted (see needsReentry). */
+  maskedKey: string | null;
+  /** P2-21: the row could not be decrypted; the writer must enter the key again. */
+  needsReentry?: boolean;
   usage: ApiKeyUsage;
 }
 

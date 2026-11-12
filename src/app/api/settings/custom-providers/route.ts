@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { encryptApiKey, decryptApiKey } from "@/lib/encryption";
+import { encryptApiKey, tryDecryptApiKey } from "@/lib/encryption";
 import { zodErrorResponse } from "@/lib/api/zod-error";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import {
@@ -118,7 +118,7 @@ export async function GET() {
         baseURL: r.baseURL,
         api: r.api,
         hasKey: !!r.apiKey,
-        maskedKey: r.apiKey ? truncateMask(decryptApiKey(r.apiKey)) : null,
+        maskedKey: maskCustomKey(r.apiKey),
         models: r.models,
       }))
     );
@@ -130,6 +130,13 @@ export async function GET() {
 
 function truncateMask(raw: string): string {
   return raw.length <= 11 ? "***" : `${raw.slice(0, 7)}...${raw.slice(-4)}`;
+}
+
+/** P2-21: an undecryptable stored key shows as masked-unknown instead of failing the list. */
+function maskCustomKey(stored: string | null): string | null {
+  if (!stored) return null;
+  const plain = tryDecryptApiKey(stored, "custom provider");
+  return plain === null ? "***" : truncateMask(plain);
 }
 
 /** POST — add one; discovery must succeed before saving. */

@@ -91,6 +91,8 @@ export const SR: UIStrings = {
     apiKeys: "API ključevi",
     apiKeysDescription: "Koristite sopstveni ključ (BYOK) \u2014 vaši API ključevi su šifrovani",
     relayKeyUnsupported: "Ovaj ključ još ne može da se koristi direktno. Dodajte OpenRouter ključ da biste koristili ove modele, a ovaj obrišite.",
+    keyNeedsReentry: "Ovaj ključ više ne može da se pročita. Unesite ga ponovo preko opcije Zameni.",
+    apiKeysLoadFailed: "Sačuvani ključevi nisu mogli da se učitaju. Osvežite stranicu i pokušajte ponovo.",
     localFleet: "Lokalna flota (samostalno hostovana)",
     roleGhostwriterDesc: "Piše poglavlja, planira sinopsise, gradi strukturu priče.",
     roleEditorDesc: "Razvojno uređivanje, uređivanje rečenica, predlozi revizije.",
