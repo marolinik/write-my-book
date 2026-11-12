@@ -3,6 +3,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useLanguage } from "@/components/providers/language-provider";
+import { responseError, describeApiError, LocalizedError } from "@/lib/api/describe-api-error";
+import { rebuildOutcome, type RebuildResponse } from "@/lib/memory/rebuild-outcome";
 
 interface GlobalMemoryStats {
   totalChunks: number;
@@ -30,7 +32,7 @@ export function useMemoryStats() {
     queryKey: ["memory-stats"],
     queryFn: async () => {
       const res = await fetch("/api/memory/stats");
-      if (!res.ok) throw new Error("Failed to fetch memory stats");
+      if (!res.ok) throw await responseError(res);
       return res.json();
     },
     refetchInterval: 30000,
@@ -42,7 +44,7 @@ export function useBookMemoryStats(bookId: string) {
     queryKey: ["memory-stats", bookId],
     queryFn: async () => {
       const res = await fetch(`/api/memory/stats?bookId=${bookId}`);
-      if (!res.ok) throw new Error("Failed to fetch book memory stats");
+      if (!res.ok) throw await responseError(res);
       return res.json();
     },
     enabled: !!bookId,
@@ -65,19 +67,21 @@ export function useRebuildIndex() {
         // they are said in the writer's language; anything else is a failure
         // whose server reason is the best thing to show.
         if (res.status === 402 || err.indexingPaused === true) {
-          throw new Error(t.toasts.memoryIndexingPaused);
+          throw new LocalizedError(t.toasts.memoryIndexingPaused);
         }
-        if (res.status === 503) throw new Error(t.toasts.memoryIndexingUnavailable);
-        throw new Error(err.error || "Failed to rebuild index");
+        if (res.status === 503) throw new LocalizedError(t.toasts.memoryIndexingUnavailable);
+        throw await responseError(res, err);
       }
-      return res.json();
+      return res.json() as Promise<RebuildResponse>;
     },
-    onSuccess: (_data, bookId) => {
+    onSuccess: (data, bookId) => {
       qc.invalidateQueries({ queryKey: ["memory-stats"] });
       qc.invalidateQueries({ queryKey: ["memory-stats", bookId] });
-      toast.success(t.toasts.memoryIndexRebuilt);
+      const outcome = rebuildOutcome(data, t);
+      if (outcome.ok) toast.success(outcome.text);
+      else toast.error(outcome.text);
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err) => toast.error(describeApiError(err, t)),
   });
 }
 
@@ -93,7 +97,7 @@ export function useClearMemory() {
       });
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || "Failed to clear memory");
+        throw await responseError(res, err);
       }
       return res.json();
     },
@@ -102,6 +106,6 @@ export function useClearMemory() {
       qc.invalidateQueries({ queryKey: ["memory-stats", bookId] });
       toast.success(t.toasts.bookMemoryCleared);
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err) => toast.error(describeApiError(err, t)),
   });
 }

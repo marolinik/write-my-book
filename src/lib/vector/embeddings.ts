@@ -4,6 +4,7 @@
  * Returns token usage counts for cost tracking.
  */
 
+import { estimateTextTokens } from "@/lib/text/cjk";
 import OpenAI from "openai";
 
 const globalForOpenAI = globalThis as unknown as {
@@ -44,12 +45,31 @@ export interface EmbedBatchResult {
 }
 
 /**
+ * text-embedding-3-small takes 8,191 tokens. P2-43: inputs were cut at 8,191
+ * CHARACTERS, which for Chinese is well over the token limit (a 400 that left
+ * the chapter unindexed) and for English a quarter of it. Cut by estimated
+ * tokens instead, with room for the estimate's error.
+ */
+export const EMBEDDING_TOKEN_BUDGET = 6_000;
+
+export function truncateForEmbedding(text: string): string {
+  let estimate = estimateTextTokens(text);
+  if (estimate <= EMBEDDING_TOKEN_BUDGET) return text;
+  let end = text.length;
+  while (estimate > EMBEDDING_TOKEN_BUDGET && end > 0) {
+    end = Math.floor(end * (EMBEDDING_TOKEN_BUDGET / estimate) * 0.98);
+    estimate = estimateTextTokens(text.slice(0, end));
+  }
+  return text.slice(0, end);
+}
+
+/**
  * Embed a single text string. Returns a 1536-dimensional vector and token count.
  */
 export async function embedText(text: string): Promise<EmbedResult> {
   const response = await getOpenAIClient().embeddings.create({
     model: EMBEDDING_MODEL,
-    input: text.slice(0, 8191), // text-embedding-3-small has 8191 token limit
+    input: truncateForEmbedding(text),
   });
   return {
     vector: response.data[0].embedding,
@@ -70,7 +90,7 @@ export async function embedBatch(texts: string[]): Promise<EmbedBatchResult> {
   // Process in batches of MAX_BATCH_SIZE
   for (let i = 0; i < texts.length; i += MAX_BATCH_SIZE) {
     const batch = texts.slice(i, i + MAX_BATCH_SIZE).map(
-      (t) => t.slice(0, 8191) // truncate each text
+      (t) => truncateForEmbedding(t)
     );
 
     const response = await getOpenAIClient().embeddings.create({

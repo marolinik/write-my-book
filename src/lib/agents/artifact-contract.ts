@@ -24,6 +24,7 @@
  * cry failure on an in-progress conversational turn that promised nothing.
  */
 
+import { countWords } from "@/lib/utils";
 import type { DocumentType } from "@/generated/prisma/enums";
 import { getWorkflow } from "./workflows";
 import { getDocumentTypeLabels } from "./tool-labels";
@@ -114,9 +115,9 @@ export function artifactLabel(type: string): string {
     .join(" ");
 }
 
+/** P2-47: the shared counter, so CJK prose is recognised as prose. */
 function wordCount(text: string): number {
-  const trimmed = text.trim();
-  return trimmed.length === 0 ? 0 : trimmed.split(/\s+/).length;
+  return countWords(text);
 }
 
 /**

@@ -15,6 +15,8 @@ export default function robots(): MetadataRoute.Robots {
           "/books/",
           "/settings/",
           "/onboarding/",
+          // P2-78: share links are for the people they are sent to.
+          "/share/",
         ],
       },
     ],

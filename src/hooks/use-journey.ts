@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { responseError } from "@/lib/api/describe-api-error";
 
 interface JourneyMutationInput {
   journeyId: string | null;
@@ -30,7 +31,7 @@ export function useJourneyMutation(bookId: string) {
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: "Unknown error" }));
-        throw new Error(err.error ?? "Failed to update journey");
+        throw await responseError(res, err);
       }
       return res.json();
     },

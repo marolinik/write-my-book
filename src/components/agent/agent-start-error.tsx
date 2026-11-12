@@ -5,6 +5,7 @@ import { ArrowUpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/components/providers/language-provider";
 import type { AgentStartFailure } from "@/hooks/use-agent";
+import { describeApiError } from "@/lib/api/describe-api-error";
 
 /**
  * Why an agent session did not start, under the panel.
@@ -19,7 +20,7 @@ export function AgentStartError({ error }: { error: AgentStartFailure | null }) 
 
   return (
     <div className="border-t px-4 py-2 space-y-2">
-      <p className="text-xs text-destructive">{error.message}</p>
+      <p className="text-xs text-destructive">{describeApiError(error, t)}</p>
       {error.upgradeToTier && (
         <Button asChild size="sm" variant="outline" className="h-7 text-xs">
           <Link href="/settings/billing">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { responseError } from "@/lib/api/describe-api-error";
 
 interface WikiEntity {
   id: string;
@@ -26,7 +27,7 @@ export function useWikiEntities(bookId: string, type = "all", search = "") {
       if (type !== "all") params.set("type", type);
       if (search) params.set("search", search);
       const res = await fetch(`/api/books/${bookId}/wiki?${params}`);
-      if (!res.ok) throw new Error("Failed to fetch wiki entities");
+      if (!res.ok) throw await responseError(res);
       return res.json();
     },
     enabled: !!bookId,
@@ -42,7 +43,7 @@ export function useCreateWikiEntity(bookId: string) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error("Failed to create wiki entity");
+      if (!res.ok) throw await responseError(res);
       return res.json();
     },
     onSuccess: () => {
@@ -60,7 +61,7 @@ export function useUpdateWikiEntity(bookId: string) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error("Failed to update wiki entity");
+      if (!res.ok) throw await responseError(res);
       return res.json();
     },
     onSuccess: () => {
@@ -76,7 +77,7 @@ export function useDeleteWikiEntity(bookId: string) {
       const res = await fetch(`/api/books/${bookId}/wiki/${entityId}`, {
         method: "DELETE",
       });
-      if (!res.ok) throw new Error("Failed to delete wiki entity");
+      if (!res.ok) throw await responseError(res);
       return res.json();
     },
     onSuccess: () => {
@@ -94,7 +95,7 @@ export function usePopulateWiki(bookId: string) {
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? "Failed to populate wiki");
+        throw await responseError(res, body);
       }
       return res.json();
     },

@@ -5,6 +5,7 @@ import { effectivePlanKey } from "@/lib/billing/effective-plan";
 import { toast } from "sonner";
 import { useLanguage } from "@/components/providers/language-provider";
 import { create } from "zustand";
+import { responseError, describeApiError } from "@/lib/api/describe-api-error";
 
 // ─── Upgrade Modal Store ─────────────────────────────────────────
 export const useUpgradeModal = create<{
@@ -53,7 +54,7 @@ export function useSubscription(options: { pollUntilPaid?: boolean } = {}) {
       : false,
     queryFn: async () => {
       const res = await fetch("/api/billing/subscription");
-      if (!res.ok) throw new Error("Failed to fetch subscription");
+      if (!res.ok) throw await responseError(res);
       return res.json();
     },
   });
@@ -65,7 +66,7 @@ export function useFounderCount() {
     queryKey: ["founder-count"],
     queryFn: async () => {
       const res = await fetch("/api/billing/founder-count");
-      if (!res.ok) throw new Error("Failed to fetch founder count");
+      if (!res.ok) throw await responseError(res);
       return res.json() as Promise<{ claimed: number; total: number; available: number }>;
     },
     refetchInterval: 30000, // Refresh every 30s on pricing page
@@ -74,6 +75,7 @@ export function useFounderCount() {
 
 // ─── Checkout ────────────────────────────────────────────────────
 export function useCheckout() {
+  const { t } = useLanguage();
   return useMutation({
     mutationFn: async ({
       plan,
@@ -89,14 +91,14 @@ export function useCheckout() {
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || "Failed to start checkout");
+        throw await responseError(res, data);
       }
       return res.json();
     },
     onSuccess: (data) => {
       if (data.url) window.location.href = data.url;
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err) => toast.error(describeApiError(err, t)),
   });
 }
 
@@ -106,7 +108,7 @@ export function useManageBilling() {
   return useMutation({
     mutationFn: async () => {
       const res = await fetch("/api/billing/portal", { method: "POST" });
-      if (!res.ok) throw new Error("Failed to open portal");
+      if (!res.ok) throw await responseError(res);
       return res.json();
     },
     onSuccess: (data) => {
@@ -122,7 +124,7 @@ export function useUsage() {
     queryKey: ["usage"],
     queryFn: async () => {
       const res = await fetch("/api/usage");
-      if (!res.ok) throw new Error("Failed to fetch usage");
+      if (!res.ok) throw await responseError(res);
       return res.json();
     },
   });
@@ -133,7 +135,7 @@ export function useBookUsage(bookId: string) {
     queryKey: ["usage", "book", bookId],
     queryFn: async () => {
       const res = await fetch(`/api/usage/books/${bookId}`);
-      if (!res.ok) throw new Error("Failed to fetch book usage");
+      if (!res.ok) throw await responseError(res);
       return res.json();
     },
     enabled: !!bookId,

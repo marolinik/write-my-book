@@ -13,6 +13,7 @@ import {
   type SnapshotEntry,
 } from "@/lib/agents/journeys";
 import { nextSetupWorkflow, basicsComplete } from "@/lib/onboarding/setup-surface";
+import { responseError } from "@/lib/api/describe-api-error";
 
 export interface SetupProgress {
   basicsComplete: boolean;    // book named (genre optional)
@@ -83,7 +84,7 @@ export function useBookState(bookId: string): BookStateResult {
     queryKey: ["book-documents", bookId],
     queryFn: async () => {
       const res = await fetch(`/api/books/${bookId}/documents`);
-      if (!res.ok) throw new Error("Failed to load documents");
+      if (!res.ok) throw await responseError(res);
       return res.json();
     },
     enabled: !!bookId,
@@ -93,7 +94,7 @@ export function useBookState(bookId: string): BookStateResult {
     queryKey: ["style-profile", bookId],
     queryFn: async () => {
       const res = await fetch(`/api/books/${bookId}/style`);
-      if (!res.ok) throw new Error("Failed to load style");
+      if (!res.ok) throw await responseError(res);
       return res.json();
     },
     enabled: !!bookId,
@@ -103,7 +104,7 @@ export function useBookState(bookId: string): BookStateResult {
     queryKey: ["editorial", bookId, "summary"],
     queryFn: async (): Promise<EditorialSummary> => {
       const res = await fetch(`/api/books/${bookId}/editorial/summary`);
-      if (!res.ok) throw new Error("Failed to load editorial summary");
+      if (!res.ok) throw await responseError(res);
       return res.json();
     },
     enabled: !!bookId,

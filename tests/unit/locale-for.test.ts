@@ -17,7 +17,8 @@ describe("localeFor", () => {
   it("falls back to en-US for unsupported codes", () => {
     expect(localeFor("xx")).toBe("en-US");
     expect(localeFor("")).toBe("en-US");
-    expect(localeFor("it")).toBe("en-US");
+    // P1-25: "it" became a book language with its own locale; "zz" is none.
+    expect(localeFor("zz")).toBe("en-US");
   });
 
   it("strips a region suffix and maps the base language", () => {

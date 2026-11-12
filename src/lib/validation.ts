@@ -325,7 +325,8 @@ export const exportConfigSchema = z.object({
     trimSize: z.string().max(20),
     customWidth: z.string().max(20),
     customHeight: z.string().max(20),
-    genreTemplate: z.string().max(100),
+    // P2-72: a bare template name, never a path (it is joined into one).
+    genreTemplate: z.string().max(100).regex(/^[a-z0-9-]*$/),
   }),
   sceneBreakGlyph: z.string().max(50),
   frontMatter: z.object({
@@ -533,7 +534,8 @@ export const exportRequestSchema = z.object({
   format: z.enum(["docx", "pdf", "epub"]),
   isDraft: z.boolean().optional().default(false),
   sceneBreakGlyph: z.string().max(50).optional(),
-  template: z.string().max(100).optional(),
+  // P2-72: a bare template name, never a path.
+  template: z.string().max(100).regex(/^[a-z0-9-]+$/).optional(),
 });
 
 // D-39: .strict() rejects unknown top-level export-config keys (partial nested

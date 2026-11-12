@@ -1,4 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
+// P1-24: the import routes rate limit through Redis; these tests run without one.
+vi.mock("@/lib/security/rate-limit", () => ({ rateLimit: async () => true }));
 
 /**
  * P6-S02 — importing a DOCX whose prologue is a plain (unstyled) "Prolog"

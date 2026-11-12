@@ -3,6 +3,8 @@
  * Keyed by language code (ISO 639-1). Falls back to English.
  */
 
+import type { ApiErrorCode } from "@/lib/api/error-codes";
+
 export interface UIStrings {
   // Navigation
   nav: {
@@ -1127,6 +1129,7 @@ export interface UIStrings {
     // UDG round-7 (Darko/Tamara): analysis stats table in the printable snapshot.
     analytics: string; fleschKincaid: string; gunningFog: string; colemanLiau: string;
     genreRange: string; dialogueShare: string; dialogueLines: string; pacingTension: string;
+    shareDialogTitle: string; shareDialogDescription: string; linkLifetime: string; lifetime7: string; lifetime30: string; lifetime90: string; lifetimeNever: string; createAndCopy: string; activeLinks: string; noActiveLinks: string; expiresOn: string; neverExpires: string; lastOpened: string; notOpenedYet: string; revoke: string; linkRevoked: string;
   };
 
   chapterNew: {
@@ -1351,6 +1354,8 @@ export interface UIStrings {
     memoryIndexRebuilt: string;
     memoryIndexingPaused: string;
     memoryIndexingUnavailable: string;
+    /** {count} = documents that could not be embedded (P2-42). */
+    memoryIndexRebuildPartial: string;
     bookMemoryCleared: string;
     styleProfileSaved: string;
     characterLensCreated: string;
@@ -1995,6 +2000,8 @@ export interface UIStrings {
     failed: string;
     modelCannotPolish: string;
   };
+  /** P1-26: what the writer reads when a request fails, by API error code. */
+  apiErrors: Record<ApiErrorCode, string>;
 }
 
 export const SUPPORTED_LANGUAGES = [

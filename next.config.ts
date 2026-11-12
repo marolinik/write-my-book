@@ -62,6 +62,11 @@ const nextConfig: NextConfig = {
         source: "/(.*)",
         headers: isProduction ? productionHeaders : securityHeaders,
       },
+      {
+        // P2-78: share links stay out of search results even if one leaks.
+        source: "/share/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
     ];
   },
 };

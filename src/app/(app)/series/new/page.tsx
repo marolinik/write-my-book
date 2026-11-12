@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { describeApiError } from "@/lib/api/describe-api-error";
 
 /** The shape of a series, named for how many books it holds. */
 const SERIES_TYPES: ReadonlyArray<{ value: string; label: (t: UIStrings) => string }> = [
@@ -63,7 +64,7 @@ export default function NewSeriesPage() {
       toast.success(t.toasts.seriesCreated);
       router.push(`/series/${series.id}`);
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(describeApiError(err, t));
     }
   }
 

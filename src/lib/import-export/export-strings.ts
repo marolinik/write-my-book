@@ -13,6 +13,8 @@
  * never see this app.
  */
 
+import { MORE_EXPORT_STRINGS } from "./export-strings-more";
+
 export interface ExportStrings {
   /** Fallback chapter heading for an untitled chapter, with {n}. */
   chapter: string;
@@ -154,6 +156,8 @@ const TABLES: Record<string, ExportStrings> = {
   fr: FR,
   ru: RU,
   zh: ZH,
+  // P1-25: it, pt, ja, ko, nl, pl, sv, tr, ar, hi.
+  ...MORE_EXPORT_STRINGS,
 };
 
 /** The book's own boilerplate. Falls back to English for a language with none. */

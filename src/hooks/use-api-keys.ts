@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useLanguage } from "@/components/providers/language-provider";
 import type { ProviderKey } from "@/lib/llm/providers";
+import { responseError, describeApiError } from "@/lib/api/describe-api-error";
 
 // ─── Types ─────────────────────────────────────────────────────
 
@@ -44,7 +45,7 @@ export function useApiKeys() {
     queryKey: ["api-keys"],
     queryFn: async () => {
       const res = await fetch("/api/settings/api-keys");
-      if (!res.ok) throw new Error("Failed to fetch API keys");
+      if (!res.ok) throw await responseError(res);
       return res.json();
     },
   });
@@ -81,7 +82,7 @@ export function useAddApiKey() {
       });
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || "Failed to add API key");
+        throw await responseError(res, err);
       }
       return res.json();
     },
@@ -89,7 +90,7 @@ export function useAddApiKey() {
       qc.invalidateQueries({ queryKey: ["api-keys"] });
       toast.success(t.toasts.apiKeySaved);
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err) => toast.error(describeApiError(err, t)),
   });
 }
 
@@ -108,14 +109,9 @@ export function useDeleteApiKey() {
         method: "DELETE",
       });
       if (!res.ok) {
-        const err = await res.json();
-
-        // Surface specific error messages from the server
-        if (res.status === 400 || res.status === 409) {
-          throw new Error(err.error);
-        }
-
-        throw new Error(err.error || "Failed to delete API key");
+        // 400 LAST_API_KEY and 409 KEY_IN_USE carry codes with their own
+        // sentence in every UI language (describeApiError).
+        throw await responseError(res);
       }
       return res.json();
     },
@@ -123,6 +119,6 @@ export function useDeleteApiKey() {
       qc.invalidateQueries({ queryKey: ["api-keys"] });
       toast.success(t.toasts.apiKeyDeleted);
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err) => toast.error(describeApiError(err, t)),
   });
 }

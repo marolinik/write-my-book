@@ -228,7 +228,8 @@ export default function TermsPage() {
           <Section title="9. Share links">
             <p className="mt-3">
               A share link lets anyone who has it read the text you chose. You are responsible for
-              what you share and with whom. You can revoke a link at any time.
+              what you share and with whom. A new link expires after 30 days unless you choose
+              another lifetime, and you can revoke a link at any time.
             </p>
           </Section>
 

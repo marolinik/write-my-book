@@ -86,13 +86,14 @@ export async function indexDocument(
   // `chapterContent: true`, so it can never touch a chapter's brief/plan (which share
   // the mapped "chapter" docType and the same chapterNumber). Everything else
   // (findings, sessions, research, briefs, plans) stays docId-scoped.
-  if (metadata.chapterContent && metadata.chapterNumber != null) {
-    await deleteChapterContentChunks(bookId, metadata.chapterNumber);
-  } else {
-    await deleteChunksForDocument(bookId, docType, docId);
-  }
-
-  // Embed all chunks in batch
+  //
+  // P2-42: embed FIRST. Deleting before embedding meant an OpenAI 429, 5xx or
+  // timeout wiped the chapter from memory until the next save; now a failed
+  // embed throws before anything is deleted and the previous chunks stay.
+  //
+  // Review M-1: the new points are also UPSERTED before the old ones are
+  // deleted, and the delete spares the new ids, so a vector-store failure
+  // between the two steps leaves the old chunks (or old + new) rather than none.
   const texts = chunks.map((c) => c.text);
   const { vectors, tokensUsed } = await embedBatch(texts);
 
@@ -132,6 +133,13 @@ export async function indexDocument(
     points,
     wait: true,
   });
+
+  const keepIds = points.map((p) => p.id);
+  if (metadata.chapterContent && metadata.chapterNumber != null) {
+    await deleteChapterContentChunks(bookId, metadata.chapterNumber, keepIds);
+  } else {
+    await deleteChunksForDocument(bookId, docType, docId, keepIds);
+  }
 
   // Track embedding cost (fire-and-forget)
   if (metadata.userId && tokensUsed > 0) {
@@ -272,7 +280,8 @@ export async function indexBatch(
 async function deleteChunksForDocument(
   bookId: string,
   docType: string,
-  docId: string
+  docId: string,
+  keepIds: string[] = []
 ): Promise<void> {
   try {
     await qdrantClient.delete(WMB_MEMORY_COLLECTION, {
@@ -282,6 +291,7 @@ async function deleteChunksForDocument(
           { key: "docType", match: { value: docType } },
           { key: "docId", match: { value: docId } },
         ],
+        ...(keepIds.length > 0 ? { must_not: [{ has_id: keepIds }] } : {}),
       },
     });
   } catch {
@@ -301,7 +311,8 @@ async function deleteChunksForDocument(
  */
 async function deleteChapterContentChunks(
   bookId: string,
-  chapterNumber: number
+  chapterNumber: number,
+  keepIds: string[] = []
 ): Promise<void> {
   try {
     await qdrantClient.delete(WMB_MEMORY_COLLECTION, {
@@ -311,6 +322,7 @@ async function deleteChapterContentChunks(
           { key: "chapterNumber", match: { value: chapterNumber } },
           { key: "chapterContent", match: { value: true } },
         ],
+        ...(keepIds.length > 0 ? { must_not: [{ has_id: keepIds }] } : {}),
       },
     });
   } catch {

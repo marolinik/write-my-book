@@ -12,6 +12,7 @@
  */
 
 import { splitParagraphs } from "@/lib/text/paragraphs";
+import { countMixedWords } from "@/lib/text/cjk";
 
 export interface StyleMetrics {
   avgWordsPerSentence: number;
@@ -67,9 +68,7 @@ function splitSentences(text: string): string[] {
 }
 
 function countWords(text: string): number {
-  const t = text.trim();
-  if (t.length === 0) return 0;
-  return t.split(/\s+/).length;
+  return countMixedWords(text);
 }
 
 export function computeChapterMetrics(text: string): StyleMetrics | null {

@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { convertDocxToMarkdown } from "@/lib/import-export/docx-to-markdown";
+import { convertDocxSafely } from "@/lib/import-export/docx-to-markdown";
+import { rateLimit } from "@/lib/security/rate-limit";
 import { parseManuscriptChapters } from "@/lib/import-export/chapter-parser";
 import type { ImportPreviewChapter } from "@/lib/validation";
 import {
   MAX_IMPORT_FILE_BYTES,
   MAX_IMPORT_FILE_MB,
   MAX_UPLOAD_REQUEST_BYTES,
+  IMPORT_RATE_LIMIT,
+  IMPORT_RATE_WINDOW_SECONDS,
 } from "@/lib/import-export/upload-limits";
 
 const ALLOWED_EXTENSIONS = [".md", ".txt", ".docx"];
@@ -26,6 +29,14 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     });
     if (!book) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
+    }
+
+    // P1-24: DOCX conversion is the expensive path; cap how often one writer runs it.
+    if (!(await rateLimit(`import-preview:${user.id}`, IMPORT_RATE_LIMIT, IMPORT_RATE_WINDOW_SECONDS))) {
+      return NextResponse.json(
+        { error: "Too many uploads. Wait a few minutes and try again.", code: "RATE_LIMITED" },
+        { status: 429 }
+      );
     }
 
     // A body over the proxy's cap reaches the route cut short, and a cut
@@ -82,13 +93,24 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
       let content: string;
       if (ext === ".docx") {
-        try {
-          const arrayBuffer = await file.arrayBuffer();
-          content = await convertDocxToMarkdown(arrayBuffer);
-        } catch (err) {
-          warnings.push(`${file.name}: failed to parse DOCX — ${(err as Error).message}`);
+        const converted = await convertDocxSafely(await file.arrayBuffer());
+        if (!converted.ok) {
+          if (converted.code === "CONVERSION_TIMEOUT") {
+            return NextResponse.json(
+              { error: `${file.name}: the document took too long to convert`, code: converted.code },
+              { status: 422 }
+            );
+          }
+          if (converted.code !== "NOT_A_DOCX") {
+            return NextResponse.json(
+              { error: `${file.name}: the document is too large once unpacked`, code: converted.code },
+              { status: 413 }
+            );
+          }
+          warnings.push(`${file.name}: not a readable Word document`);
           continue;
         }
+        content = converted.markdown;
       } else {
         content = await file.text();
       }

@@ -115,11 +115,13 @@ function isQdrantNotFound(error: unknown): boolean {
 export async function rebuildBookIndex(
   bookId: string,
   userId: string
-): Promise<{ chunksIndexed: number }> {
+): Promise<{ chunksIndexed: number; failedDocuments: number }> {
   // Delete all existing chunks for this book
   await deleteBookChunks(bookId);
 
   let totalChunks = 0;
+
+  let failedDocuments = 0;
 
   // D-76: the book's seriesId must SURVIVE a rebuild. A rebuilt chapter chunk stamped
   // seriesId:null is invisible to every series-filtered (cross-book) recall, silently
@@ -190,11 +192,16 @@ export async function rebuildBookIndex(
     for (const result of results) {
       if (result.status === "fulfilled" && !result.value.skipped) {
         totalChunks += result.value.chunksIndexed;
+      } else if (result.status === "rejected") {
+        // P2-42: a document that failed to index was dropped silently and the
+        // rebuild still answered success with a smaller count.
+        failedDocuments += 1;
+        console.error(`[rebuildBookIndex] a document of book ${bookId} failed to index:`, result.reason);
       }
     }
   }
 
-  return { chunksIndexed: totalChunks };
+  return { chunksIndexed: totalChunks, failedDocuments };
 }
 
 /**

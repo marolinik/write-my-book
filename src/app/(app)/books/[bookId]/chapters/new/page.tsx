@@ -16,6 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { describeApiError } from "@/lib/api/describe-api-error";
 
 export default function NewChapterPage() {
   const router = useRouter();
@@ -49,7 +50,7 @@ export default function NewChapterPage() {
       toast.success(s.created);
       router.push(`/books/${bookId}/chapters/${chapter.id}`);
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(describeApiError(err, t));
     }
   }
 

@@ -8,6 +8,8 @@
  * outside the edge provably survives the rewrite.
  */
 
+import { countMixedWords } from "@/lib/text/cjk";
+
 const SCENE_BREAK = /^\s*(?:\*\s*\*\s*\*|-{3,}|_{3,}|◆|●|⁂|#)\s*$/;
 const HEADING = /^\s*#{1,6}\s/;
 /** A single-scene chapter's edge: this share of its paragraphs, two to five. */
@@ -57,7 +59,7 @@ function withoutLeadingHeading(span: { start: number; end: number; text: string 
   return skip === 0 ? span : { start: span.start + offset, end: span.end, text: span.text.slice(offset) };
 }
 
-const wordCount = (t: string) => (t.trim() ? t.trim().split(/\s+/).length : 0);
+const wordCount = (t: string) => countMixedWords(t);
 
 export function splitEdge(content: string, scope: EdgeScope): ChapterEdge {
   const eol = content.includes("\r\n") ? "\r\n" : "\n";

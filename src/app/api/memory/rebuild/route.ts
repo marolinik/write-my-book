@@ -61,8 +61,10 @@ export async function POST(request: NextRequest) {
     const result = await rebuildBookIndex(bookId, user.id);
 
     return NextResponse.json({
-      success: true,
+      // P2-42: a rebuild with failed documents is not a success.
+      success: result.failedDocuments === 0,
       chunksIndexed: result.chunksIndexed,
+      failedDocuments: result.failedDocuments,
     });
   } catch (error) {
     const invalidJson = invalidJsonBodyResponse(error);

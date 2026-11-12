@@ -20,6 +20,8 @@ export interface StorageAdapter {
 
   /** List files matching an optional glob pattern. */
   list(pattern?: string): Promise<string[]>;
+  /** Like list, with each object's last-modified time (P2-77). */
+  listDetailed(pattern?: string): Promise<Array<{ key: string; lastModified: Date | null }>>;
 
   /** Create a directory (no-op for S3). */
   mkdir(path?: string): Promise<void>;

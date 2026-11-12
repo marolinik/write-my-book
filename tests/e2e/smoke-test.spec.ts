@@ -360,8 +360,12 @@ test.describe("Full Writing Workflow Smoke Test", () => {
     const res = await request.post(`/api/books/${bookId}/export`, {
       data: { format: "docx" },
     });
-    // Accept either 200 (success) or 500 (Pandoc not available)
-    expect([200, 500]).toContain(res.status());
+    // 200 (success) or 502 CONVERSION_FAILED when Pandoc is not available
+    // (P1-23: a failed conversion is reported as a failure, not a .md file).
+    expect([200, 502]).toContain(res.status());
+    if (res.status() === 502) {
+      expect((await res.json()).code).toBe("CONVERSION_FAILED");
+    }
   });
 
   // ─── Step 11: Series ──────────────────────────────────────────

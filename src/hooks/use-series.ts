@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-query";
 import { ApiError, fetchJson } from "@/lib/api-client";
 import { useUpgradeModal } from "@/hooks/use-billing";
+import { responseError } from "@/lib/api/describe-api-error";
 
 export type SeriesListItem = {
   id: string;
@@ -83,7 +84,7 @@ async function runSeriesExport(
   });
   if (!res.ok) {
     const errBody = await res.json().catch(() => ({}));
-    throw new Error(errBody.error ?? `Export failed: ${res.status}`);
+    throw await responseError(res, errBody);
   }
   return (await res.json()) as SeriesExportResult;
 }
@@ -119,7 +120,7 @@ export function useCreateSeries() {
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        const err = new Error(body.error ?? `Request failed: ${res.status}`) as Error & {
+        const err = new ApiError(body.error ?? `Request failed: ${res.status}`, res.status, body) as ApiError & {
           status?: number;
           upgradeToTier?: string;
         };

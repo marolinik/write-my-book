@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { parseMarketingKit } from "@/lib/marketing/marketing-kit";
 import { requireUser } from "@/lib/auth";
 import { denyIfOverQuota } from "@/lib/billing/ai-route-gate";
 import { db } from "@/lib/db";
@@ -186,24 +187,17 @@ Generate a complete marketing kit for this book.`;
     const textBlock = response.content.find((b) => b.type === "text");
     const rawText = textBlock && "text" in textBlock ? textBlock.text : "{}";
 
-    // Parse response
-    const cleaned = rawText
-      .replace(/^```(?:json)?\s*/i, "")
-      .replace(/\s*```\s*$/, "")
-      .trim();
-
-    let kit;
-    try {
-      kit = JSON.parse(cleaned);
-    } catch {
+    // P1-22: the kit is model output. Validate its shape and reduce the store
+    // HTML to the allowlist before anything is saved; refuse an invalid kit.
+    const fields = parseMarketingKit(rawText);
+    if (!fields) {
+      console.error("[Marketing Kit] the model returned an invalid kit");
       return NextResponse.json(
-        { error: "Failed to parse AI response" },
-        { status: 500 }
+        { error: "The AI returned an unusable marketing kit. Please try again.", code: "AI_RESPONSE_INVALID" },
+        { status: 502 }
       );
     }
-
-    // Add metadata
-    kit.generatedAt = new Date().toISOString();
+    const kit = { ...fields, generatedAt: new Date().toISOString() };
 
     // Save to book record via raw query (field may not be in generated client yet)
     await db.$executeRaw`
@@ -228,10 +222,10 @@ Generate a complete marketing kit for this book.`;
 
     return NextResponse.json(kit);
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("[Marketing Kit] LLM error:", message);
+    // The provider's message can carry account or key detail: log it only.
+    console.error("[Marketing Kit] LLM error:", error instanceof Error ? error.message : error);
     return NextResponse.json(
-      { error: `AI generation failed: ${message}` },
+      { error: "AI generation failed", code: "AI_GENERATION_FAILED" },
       { status: 500 }
     );
   }
