@@ -119,7 +119,16 @@ jobs:
 
       - name: Run unit tests
         if: ${{ !cancelled() }}
-        run: npm run test:unit
+        run: npx vitest run --coverage.enabled
+
+      # P2-70: the coverage report, so the number behind the floor is visible.
+      - name: Upload coverage report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: unit-coverage
+          path: coverage/unit
+          retention-days: 14
 
       - name: Build Next.js app
         if: ${{ !cancelled() }}
@@ -179,3 +188,20 @@ jobs:
         env:
           REQUIRE_EXPORT_TOOLS: "1"
         run: npx vitest run tests/unit/integration
+
+  # P2-62 (item 36): build what production runs. Both images build from the
+  # pinned base on every PR, so a Dockerfile, lockfile or dependency change
+  # that breaks the image is caught before deploy.
+  docker-images:
+    name: Docker images build (web + worker)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Build the web image
+        run: docker build -f Dockerfile -t wmb-web:ci .
+      - name: Build the worker image
+        run: docker build -f Dockerfile.worker -t wmb-worker:ci .
+      - name: The web image carries pandoc, Typst and the fonts
+        run: docker run --rm -i --entrypoint sh wmb-web:ci < scripts/check-export-fonts.sh

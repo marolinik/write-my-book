@@ -126,5 +126,13 @@ describe.skipIf(!TOOLS && !REQUIRED)("a real export, opened (pandoc + Typst)", (
     const text = file.toString("latin1");
     const pages = Number(text.match(/\/Type\s*\/Pages\b[^>]*?\/Count\s+(\d+)/)?.[1] ?? text.match(/\/Count\s+(\d+)/)?.[1] ?? 0);
     expect(pages).toBeGreaterThan(1);
+    // P2-70 / D-05: the title is in the PDF's own metadata (XMP or the Info
+    // dictionary), not only matched in the template's source text.
+    const titleHex = Buffer.from("﻿The Salt Letters", "utf16le").swap16().toString("hex").toUpperCase();
+    expect(
+      text.includes("<dc:title>") && /The Salt Letters/.test(text.slice(text.indexOf("<dc:title>"), text.indexOf("</dc:title>"))) ||
+        /\/Title\s*\(The Salt Letters\)/.test(text) ||
+        text.toUpperCase().includes(titleHex)
+    ).toBe(true);
   }, 120_000);
 });

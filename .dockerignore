@@ -8,6 +8,9 @@ node_modules
 !.env.example
 # Local scratch, evidence and build output: never needed in an image.
 cowork/
+# QA-only harness provisioning: imports from cowork/, so `next build` in the
+# image cannot type-check it (Wave 5 Task 11).
+scripts/qa-provision-harness.ts
 coverage/
 test-results/
 playwright-report*/
