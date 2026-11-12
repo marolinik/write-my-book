@@ -875,6 +875,7 @@ export const FR: UIStrings = {
     clearMemory: "Effacer la mémoire",
     notIndexed: "Non indexé",
     memoryExample: "p. ex. ne signale pas mes phrases nominales",
+    memoryCategory: "Catégorie du souvenir",
     edit: "Modifier",
     forgetThis: "Oublier cela",
     noMemories: "Aucun souvenir pour l'instant.",

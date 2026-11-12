@@ -875,6 +875,7 @@ export const RU: UIStrings = {
     clearMemory: "Очистить память",
     notIndexed: "Не проиндексировано",
     memoryExample: "напр. не отмечай мои неполные предложения",
+    memoryCategory: "Категория записи памяти",
     edit: "Изменить",
     forgetThis: "Забыть это",
     noMemories: "Пока ничего не запомнено.",

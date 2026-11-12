@@ -159,6 +159,9 @@ export function WritingHeatmap({
                   <Tooltip key={day.date}>
                     <TooltipTrigger asChild>
                       <button
+                        type="button"
+                        // P2-52: each day cell is named for a screen reader (date and words).
+                        aria-label={`${new Date(`${day.date}T00:00:00Z`).toLocaleDateString(locale, { month: "short", day: "numeric", timeZone: "UTC" })}: ${t.bookUI.wordsCount.replace("{count}", day.words.toLocaleString(locale))}`}
                         className={`size-[11px] rounded-[2px] transition-colors ${getIntensity(day.words)} hover:ring-1 hover:ring-foreground/30`}
                         onMouseEnter={() => setHoveredDay(day)}
                         onMouseLeave={() => setHoveredDay(null)}

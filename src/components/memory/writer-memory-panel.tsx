@@ -189,7 +189,7 @@ export function WriterMemoryPanel({ bookId }: WriterMemoryPanelProps) {
         {/* Add new memory */}
         <div className="flex gap-2">
           <Select value={newCategory} onValueChange={setNewCategory}>
-            <SelectTrigger className="w-36 h-8 text-xs">
+            <SelectTrigger className="w-36 h-8 text-xs" aria-label={t.workspaceUI.memoryCategory}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -212,6 +212,7 @@ export function WriterMemoryPanel({ bookId }: WriterMemoryPanelProps) {
           <Button
             size="sm"
             className="h-8"
+            aria-label={t.common.add}
             onClick={handleAdd}
             disabled={!newContent.trim() || addMutation.isPending}
           >

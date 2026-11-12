@@ -885,6 +885,7 @@ export const EN: UIStrings = {
     clearMemory: "Clear the memory",
     notIndexed: "Not indexed",
     memoryExample: "e.g. do not flag my sentence fragments",
+    memoryCategory: "Memory category",
     edit: "Edit",
     forgetThis: "Forget this",
     noMemories: "No memories yet.",

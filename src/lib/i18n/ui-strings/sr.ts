@@ -875,6 +875,7 @@ export const SR: UIStrings = {
     clearMemory: "Obriši pamćenje",
     notIndexed: "Nije indeksirano",
     memoryExample: "npr. nemoj da označavaš moje nepotpune rečenice",
+    memoryCategory: "Kategorija sećanja",
     edit: "Izmeni",
     forgetThis: "Zaboravi ovo",
     noMemories: "Još nema zapamćenog.",

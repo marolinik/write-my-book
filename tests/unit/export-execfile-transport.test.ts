@@ -1,4 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+
+// runConverter spawns the real process; these tests drive the pipeline through
+// their child_process.execFile mock, so route it there (P2-76).
+vi.mock("@/lib/import-export/export-limits", async (orig) => {
+  const actual = await orig<typeof import("@/lib/import-export/export-limits")>();
+  const cp = await import("child_process");
+  const { promisify } = await import("util");
+  return {
+    ...actual,
+    runConverter: (command: string, args: readonly string[], options: { cwd: string; timeoutMs: number }) =>
+      promisify(cp.execFile)(command, [...args], { cwd: options.cwd, timeout: options.timeoutMs }),
+  };
+});
 import type { StorageAdapter } from "@/lib/storage/types";
 import { readFileSync } from "node:fs";
 
@@ -103,10 +116,9 @@ describe("exportManuscript transport (D-18)", () => {
     expect(args).toContain("--to=docx");
     expect(args).toContain("--standalone");
     expect(args).toContain("--metadata=title:My Book");
-    // P2-76: the 120 s limit is enforced by runConverter, which kills the whole
-    // process group (pandoc and its Typst child); the child runs in its own
-    // group on POSIX and in the export temp dir.
-    expect(opts).toMatchObject({ detached: process.platform !== "win32", cwd: expect.any(String) });
+    // P2-76: the pipeline hands runConverter a 120 s budget (routed to the
+    // execFile mock here); runConverter itself kills the whole process group.
+    expect(opts).toMatchObject({ timeout: 120000, cwd: expect.any(String) });
     expect(readFileSync("src/lib/import-export/export-pipeline.ts", "utf8")).toMatch(/timeoutMs: 120000/);
 
     // exec (shell) was used ONLY for tool detection, never to run pandoc itself.

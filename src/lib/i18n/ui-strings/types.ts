@@ -881,6 +881,7 @@ export interface UIStrings {
     clearMemory: string;
     notIndexed: string;
     memoryExample: string;
+    memoryCategory: string;
     edit: string;
     forgetThis: string;
     noMemories: string;

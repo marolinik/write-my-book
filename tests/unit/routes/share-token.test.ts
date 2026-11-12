@@ -14,6 +14,9 @@ const h = vi.hoisted(() => ({
   loadShareEditorial: vi.fn(),
 }));
 
+// P2-23: the shared Redis budget is covered in share-rate-limit.test.ts; here
+// the in-memory per-address backstop answers (no Redis in the unit job).
+vi.mock("@/lib/security/rate-limit", () => ({ rateLimit: async () => true }));
 vi.mock("@/lib/auth", () => ({
   requireUser: async () => {
     if (!h.user) throw new Error("Unauthorized");

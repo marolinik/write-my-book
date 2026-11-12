@@ -68,6 +68,11 @@ describe("named icon buttons and current-page marks (source)", () => {
     ["src/components/memory/writer-memory-panel.tsx", "aria-label={t.common.cancel}"],
     ["src/components/style/character-lens-editor.tsx", "aria-label={t.common.delete}"],
     ["src/components/layout/mobile-bottom-nav.tsx", 'aria-current={isActive ? "page" : undefined}'],
+    // Found by the e2e axe pass (P2-52) on settings, billing and the book page.
+    ["src/components/memory/writer-memory-panel.tsx", "aria-label={t.workspaceUI.memoryCategory}"],
+    ["src/components/memory/writer-memory-panel.tsx", "aria-label={t.common.add}"],
+    ["src/app/(app)/settings/billing/page.tsx", "aria-label={t.billingUI.annual}"],
+    ["src/components/book/writing-heatmap.tsx", "aria-label={`${new Date("],
   ])("%s has %s", (file, needle) => {
     expect(readFileSync(file, "utf8")).toContain(needle);
   });

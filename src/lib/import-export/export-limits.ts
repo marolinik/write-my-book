@@ -1,7 +1,4 @@
-import { execFile, type ChildProcess, type ExecFileOptions } from "child_process";
-import { promisify } from "util";
-
-const execFileAsync = promisify(execFile);
+import { spawn } from "node:child_process";
 
 /**
  * P2-76 / D19: exports run pandoc (and Typst under it) inside the request.
@@ -43,48 +40,52 @@ export class ConverterExitError extends Error {
  * Run a converter with no shell (argv array, D-18) in its OWN process group,
  * and on timeout kill the whole group: execFile's timeout sent SIGTERM to
  * pandoc only, so the Typst child it spawned for a PDF kept running.
+ * spawn, not execFile: execFile hands spawn only a fixed set of options and
+ * drops `detached`, so the child never became a group leader.
  */
-export async function runConverter(
+export function runConverter(
   command: string,
   args: readonly string[],
   options: { cwd: string; timeoutMs: number }
 ): Promise<{ stdout: string; stderr: string }> {
-  const posix = process.platform !== "win32";
-  // promisify(execFile) attaches the ChildProcess to the returned promise.
-  // execFile hands its options to spawn, which honours `detached`; the typings
-  // for execFile just do not list it.
-  const execOptions: ExecFileOptions & { detached?: boolean } = {
-    cwd: options.cwd,
-    // A new process group on POSIX, so -pid reaches pandoc's children too.
-    detached: posix,
-    windowsHide: true,
-    maxBuffer: 10 * 1024 * 1024,
-    encoding: "utf8",
-  };
-  const run = execFileAsync(command, [...args], execOptions) as Promise<{ stdout: string | Buffer; stderr: string | Buffer }> & {
-    child?: ChildProcess;
-  };
-  const child = run.child;
-  let timedOut = false;
-  const timer = setTimeout(() => {
-    timedOut = true;
-    try {
-      if (posix && child?.pid) process.kill(-child.pid, "SIGKILL");
-      else child?.kill("SIGKILL");
-    } catch {
-      child?.kill("SIGKILL");
-    }
-  }, options.timeoutMs);
-  timer.unref?.();
-  try {
-    const { stdout, stderr } = await run;
-    return { stdout: String(stdout ?? ""), stderr: String(stderr ?? "") };
-  } catch (error) {
-    if (timedOut) throw new ConverterTimeoutError(options.timeoutMs);
-    const e = error as { code?: unknown; stderr?: unknown };
-    if (typeof e.code === "number") throw new ConverterExitError(e.code, String(e.stderr ?? ""));
-    throw error;
-  } finally {
-    clearTimeout(timer);
-  }
+  return new Promise((resolve, reject) => {
+    const posix = process.platform !== "win32";
+    const child = spawn(command, [...args], {
+      cwd: options.cwd,
+      shell: false,
+      detached: posix, // a new process group, so -pid reaches the children too
+      stdio: ["ignore", "pipe", "pipe"],
+      windowsHide: true,
+    });
+    let stdout = "";
+    let stderr = "";
+    child.stdout?.on("data", (chunk: Buffer) => {
+      if (stdout.length < 1_000_000) stdout += chunk.toString();
+    });
+    child.stderr?.on("data", (chunk: Buffer) => {
+      if (stderr.length < 1_000_000) stderr += chunk.toString();
+    });
+
+    let timedOut = false;
+    const timer = setTimeout(() => {
+      timedOut = true;
+      try {
+        if (posix && child.pid) process.kill(-child.pid, "SIGKILL");
+        else child.kill("SIGKILL");
+      } catch {
+        child.kill("SIGKILL");
+      }
+    }, options.timeoutMs);
+
+    child.on("error", (error) => {
+      clearTimeout(timer);
+      reject(error);
+    });
+    child.on("close", (code) => {
+      clearTimeout(timer);
+      if (timedOut) reject(new ConverterTimeoutError(options.timeoutMs));
+      else if (code === 0) resolve({ stdout, stderr });
+      else reject(new ConverterExitError(code, stderr));
+    });
+  });
 }

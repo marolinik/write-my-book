@@ -875,6 +875,7 @@ export const ZH: UIStrings = {
     clearMemory: "清空记忆",
     notIndexed: "未索引",
     memoryExample: "例如：不要标记我的句子片段",
+    memoryCategory: "记忆类别",
     edit: "编辑",
     forgetThis: "忘记这条",
     noMemories: "还没有记忆。",

@@ -3,6 +3,19 @@
 // is made to fail, the pipeline throws ExportConversionError and uploads
 // nothing, and the route answers 502 CONVERSION_FAILED without the detail.
 import { describe, it, expect, vi, beforeEach } from "vitest";
+
+// runConverter spawns the real process; these tests drive the pipeline through
+// their child_process.execFile mock, so route it there (P2-76).
+vi.mock("@/lib/import-export/export-limits", async (orig) => {
+  const actual = await orig<typeof import("@/lib/import-export/export-limits")>();
+  const cp = await import("child_process");
+  const { promisify } = await import("util");
+  return {
+    ...actual,
+    runConverter: (command: string, args: readonly string[], options: { cwd: string; timeoutMs: number }) =>
+      promisify(cp.execFile)(command, [...args], { cwd: options.cwd, timeout: options.timeoutMs }),
+  };
+});
 import { NextRequest } from "next/server";
 
 const h = vi.hoisted(() => ({

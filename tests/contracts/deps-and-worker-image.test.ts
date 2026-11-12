@@ -51,3 +51,14 @@ describe("worker image (P2-84)", () => {
     expect(pkg.dependencies.shadcn).toBeUndefined();
   });
 });
+
+describe("web image (Wave 6 CI)", () => {
+  it("every repository directory the Dockerfile copies from the build exists in the tree", () => {
+    const dockerfile = readFileSync(join(ROOT, "Dockerfile"), "utf8");
+    const { existsSync } = require("node:fs") as typeof import("node:fs");
+    const copied = [...dockerfile.matchAll(/COPY --from=builder \/app\/(public|export-templates|prisma)\b/g)].map((m) => m[1]);
+    expect(copied).toContain("public");
+    // An emptied public/ (git keeps no empty directory) broke `docker build`.
+    for (const dir of copied) expect(existsSync(join(ROOT, dir)), dir).toBe(true);
+  });
+});
