@@ -389,7 +389,10 @@ export async function POST(req: NextRequest) {
       const sub = await db.subscription.findFirst({
         where: { stripeSubscriptionId: subscriptionId },
       });
-      if (sub) {
+      // past_due still grants the plan (plan-gating), so only a live row may
+      // become past_due: a late failure for a canceled subscription must not
+      // give its access back.
+      if (sub && (sub.status === "active" || sub.status === "trialing")) {
         await db.subscription.update({
           where: { id: sub.id },
           data: { status: "past_due" },

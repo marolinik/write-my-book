@@ -44,9 +44,6 @@ vi.mock("@/lib/billing/free-tier-meters", () => ({
   checkConcurrencyFence: (...a: unknown[]) => h.checkConcurrencyFence(...a),
   recordAgentSessionStart: (...a: unknown[]) => h.recordAgentSessionStart(...a),
 }));
-vi.mock("@/lib/validation", () => ({
-  startSeriesAgentSchema: { parse: (b: unknown) => h.parse(b) },
-}));
 vi.mock("@/lib/documents/document-service", () => ({
   DocumentService: class {
     findByType() {
@@ -89,19 +86,21 @@ vi.mock("@/lib/agents", () => ({
 
 import { POST } from "@/app/api/series/[id]/agent/route";
 
+// P2-71: the real startSeriesAgentSchema runs, so the book id is a UUID.
+const BOOK_ID = "11111111-1111-4111-8111-111111111111";
+
 const ctx = { params: Promise.resolve({ id: "series1" }) };
-const req = () =>
+const req = (body: unknown = { workflowId: "plan-chapter", bookId: BOOK_ID, chapterNumber: 1 }) =>
   new Request("http://t/api/series/series1/agent", {
     method: "POST",
-    body: JSON.stringify({ workflowId: "plan-chapter", bookId: "b1", chapterNumber: 1 }),
+    body: JSON.stringify(body),
   });
 
 beforeEach(() => {
   vi.clearAllMocks();
   h.requireUser.mockResolvedValue(h.user);
-  h.parse.mockReturnValue({ workflowId: "plan-chapter", bookId: "b1", chapterNumber: 1 });
   h.db.series.findFirst.mockResolvedValue({ id: "series1" });
-  h.db.book.findFirst.mockResolvedValue({ id: "b1", name: "Book", language: "en", settings: null });
+  h.db.book.findFirst.mockResolvedValue({ id: BOOK_ID, name: "Book", language: "en", settings: null });
   h.db.user.findUnique.mockResolvedValue({ defaultModel: "anthropic/sonnet" });
   h.db.apiKey.findMany.mockResolvedValue([{ provider: "anthropic", encryptedKey: "enc" }]);
   h.db.agentSession.create.mockResolvedValue({ id: "s1" });
@@ -148,8 +147,7 @@ describe("P3-S12: series sessions record what they ran", () => {
   });
 
   it("stores chapterNumber null for a book-level run", async () => {
-    h.parse.mockReturnValue({ workflowId: "series-planning", bookId: "b1" });
-    await POST(req() as never, ctx as never);
+    await POST(req({ workflowId: "series-planning", bookId: BOOK_ID }) as never, ctx as never);
     const args = h.db.agentSession.create.mock.calls[0][0] as { data: Record<string, unknown> };
     expect(args.data.workflowId).toBe("series-planning");
     expect(args.data.chapterNumber).toBeNull();

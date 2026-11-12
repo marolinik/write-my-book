@@ -417,3 +417,56 @@ describe("POST /api/billing/webhook", () => {
     expect(call.update.status).toBe("active");
   });
 });
+
+// P2-65 (Wave 5 Task 8): the handled events no test exercised.
+describe("POST /api/billing/webhook — payment failures and trial reminders", () => {
+  const failedInvoice = (subscription: unknown) => ({
+    id: "evt_pf",
+    type: "invoice.payment_failed",
+    data: { object: { id: "in_1", parent: { subscription_details: { subscription } } } },
+  });
+
+  it("invoice.payment_failed marks only the matching live row past_due", async () => {
+    h.db.subscription.findFirst.mockResolvedValueOnce({ id: "s1", userId: "u1", status: "active" });
+    h.constructEvent.mockReturnValue(failedInvoice("sub_123"));
+    expect((await POST(req() as never)).status).toBe(200);
+    expect(h.db.subscription.findFirst).toHaveBeenCalledWith({ where: { stripeSubscriptionId: "sub_123" } });
+    expect(h.db.subscription.update).toHaveBeenCalledWith({ where: { id: "s1" }, data: { status: "past_due" } });
+  });
+
+  it("invoice.payment_failed reads the subscription id from an expanded object too", async () => {
+    h.db.subscription.findFirst.mockResolvedValueOnce({ id: "s1", userId: "u1", status: "trialing" });
+    h.constructEvent.mockReturnValue(failedInvoice({ id: "sub_123" }));
+    await POST(req() as never);
+    expect(h.db.subscription.update).toHaveBeenCalledWith({ where: { id: "s1" }, data: { status: "past_due" } });
+  });
+
+  it("invoice.payment_failed never turns a canceled row into past_due (which gating treats as paid)", async () => {
+    h.db.subscription.findFirst.mockResolvedValueOnce({ id: "s1", userId: "u1", status: "canceled" });
+    h.constructEvent.mockReturnValue(failedInvoice("sub_123"));
+    expect((await POST(req() as never)).status).toBe(200);
+    expect(h.db.subscription.update).not.toHaveBeenCalled();
+  });
+
+  it("invoice.payment_failed with no matching row, or no subscription, writes nothing", async () => {
+    h.db.subscription.findFirst.mockResolvedValueOnce(null);
+    h.constructEvent.mockReturnValue(failedInvoice("sub_unknown"));
+    expect((await POST(req() as never)).status).toBe(200);
+    h.constructEvent.mockReturnValue({ id: "evt_pf2", type: "invoice.payment_failed", data: { object: { id: "in_2", parent: null } } });
+    expect((await POST(req() as never)).status).toBe(200);
+    expect(h.db.subscription.update).not.toHaveBeenCalled();
+    expect(h.db.subscription.upsert).not.toHaveBeenCalled();
+  });
+
+  it("customer.subscription.trial_will_end changes nothing", async () => {
+    h.constructEvent.mockReturnValue({
+      id: "evt_twe",
+      type: "customer.subscription.trial_will_end",
+      data: { object: { id: "sub_123", trial_end: 1_800_000_000 } },
+    });
+    expect((await POST(req() as never)).status).toBe(200);
+    expect(h.db.subscription.update).not.toHaveBeenCalled();
+    expect(h.db.subscription.updateMany).not.toHaveBeenCalled();
+    expect(h.db.subscription.upsert).not.toHaveBeenCalled();
+  });
+});

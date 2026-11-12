@@ -59,9 +59,6 @@ vi.mock("@/lib/billing/free-tier-meters", () => ({
   checkConcurrencyFence: vi.fn(async () => ({ allowed: true })),
   recordAgentSessionStart: vi.fn(async () => undefined),
 }));
-vi.mock("@/lib/validation", () => ({
-  startSeriesAgentSchema: { parse: (b: unknown) => h.parse(b) },
-}));
 vi.mock("@/lib/documents/document-service", () => ({
   DocumentService: class {
     findByType(...a: unknown[]) {
@@ -106,19 +103,21 @@ vi.mock("@/lib/agents", () => ({
 
 import { POST } from "@/app/api/series/[id]/agent/route";
 
+// P2-71: the real startSeriesAgentSchema runs, so the book id is a UUID.
+const BOOK_ID = "11111111-1111-4111-8111-111111111111";
+
 const ctx = { params: Promise.resolve({ id: "series1" }) };
 const req = () =>
   new Request("http://t/api/series/series1/agent", {
     method: "POST",
-    body: JSON.stringify({ workflowId: "series-planning", bookId: "b1" }),
+    body: JSON.stringify({ workflowId: "series-planning", bookId: BOOK_ID }),
   });
 
 beforeEach(() => {
   vi.clearAllMocks();
   h.requireUser.mockResolvedValue(h.user);
-  h.parse.mockReturnValue({ workflowId: "series-planning", bookId: "b1" });
   h.db.series.findFirst.mockResolvedValue({ id: "series1" });
-  h.db.book.findFirst.mockResolvedValue({ id: "b1", settings: null });
+  h.db.book.findFirst.mockResolvedValue({ id: BOOK_ID, settings: null });
   h.checkQuota.mockResolvedValue({ allowed: true, currentPlan: "professional" });
   h.getWorkflow.mockReturnValue({
     primaryAgent: "writing-coach",
