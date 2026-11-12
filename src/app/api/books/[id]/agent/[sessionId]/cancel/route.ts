@@ -6,6 +6,7 @@ import { getSession, cancelSession } from "@/lib/agents";
 import { getAppConnection } from "@/lib/queue/connection";
 import { agentQueue } from "@/lib/queue/agent-queue";
 import { agentErrorFrame } from "@/lib/agents/agent-error-frame";
+import { SESSION_TERMINAL_STATUSES } from "@/lib/queue/session-terminal";
 
 type RouteParams = {
   params: Promise<{ id: string; sessionId: string }>;
@@ -33,7 +34,9 @@ export async function POST(_req: NextRequest, { params }: RouteParams) {
 
     // ── Step 2: Idempotent — already terminal ────────────────────────────
 
-    if (dbSession.status === "completed" || dbSession.status === "failed") {
+    // Every terminal state, not only completed/failed: re-cancelling a
+    // cancelled or skipped session must not rewrite it as failed.
+    if (SESSION_TERMINAL_STATUSES.has(dbSession.status)) {
       return NextResponse.json({ ok: true, alreadyDone: true });
     }
 

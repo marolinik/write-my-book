@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getBookStorage } from "@/lib/storage";
+import { isExportFilename } from "@/lib/import-export/export-filename";
 
 type RouteParams = { params: Promise<{ id: string; filename: string }> };
 
@@ -18,8 +19,8 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
     const user = await requireUser();
     const { id: bookId, filename } = await params;
 
-    // Reject path traversal and directory separators
-    if (!filename || /\.\./.test(filename) || /[/\\]/.test(filename)) {
+    // Only names the exporter produces (see isExportFilename).
+    if (!isExportFilename(filename)) {
       return NextResponse.json({ error: "Invalid filename" }, { status: 400 });
     }
     const safeFilename = filename;

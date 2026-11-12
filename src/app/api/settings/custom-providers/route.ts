@@ -36,6 +36,9 @@ const createSchema = z.object({
   apiKey: z.string().max(500).optional(),
 });
 
+/** A discovery failure: about the writer's endpoint, so its message is theirs to read. */
+class DiscoveryError extends Error {}
+
 interface DiscoveredModel {
   id: string;
   name?: string;
@@ -64,28 +67,28 @@ async function discoverModels(baseURL: string, apiKey?: string): Promise<Discove
     if (error instanceof UnsafeUrlError) {
       // Refuse with a neutral message — never echo which internal probe
       // "worked" (pre-fix the error oracle enabled port scanning).
-      throw new Error(
+      throw new DiscoveryError(
         allowPrivate
           ? "That base URL points at a blocked internal range."
           : "That base URL is not a publicly reachable endpoint. Self-hosted LAN providers require WMB_ALLOW_PRIVATE_MODEL_HOSTS=1 on the server."
       );
     }
-    throw new Error("Could not reach the endpoint — check the base URL and your network.");
+    throw new DiscoveryError("Could not reach the endpoint — check the base URL and your network.");
   }
   if (!response.ok) {
-    throw new Error(`${url} answered ${response.status}${response.status === 401 || response.status === 403 ? " — check the API key." : ""}`);
+    throw new DiscoveryError(`${url} answered ${response.status}${response.status === 401 || response.status === 403 ? " — check the API key." : ""}`);
   }
   let text: string;
   try {
     text = await readCappedText(response, 4 * 1024 * 1024);
   } catch {
-    throw new Error("Listing bigger than 4MB — endpoint unusable.");
+    throw new DiscoveryError("Listing bigger than 4MB — endpoint unusable.");
   }
-  if (text.length === 0) throw new Error(`${url} did not answer with JSON.`);
+  if (text.length === 0) throw new DiscoveryError(`${url} did not answer with JSON.`);
   let body: unknown;
-  try { body = JSON.parse(text); } catch { throw new Error(`${url} did not answer with JSON.`); }
+  try { body = JSON.parse(text); } catch { throw new DiscoveryError(`${url} did not answer with JSON.`); }
   const data = (body as { data?: unknown }).data;
-  if (!Array.isArray(data)) throw new Error("The endpoint's model listing has no `data` array — enter models by hand or check the wire protocol.");
+  if (!Array.isArray(data)) throw new DiscoveryError("The endpoint's model listing has no `data` array — enter models by hand or check the wire protocol.");
   const out: DiscoveredModel[] = [];
   for (const raw of data) {
     const entry = raw as { id?: unknown; name?: unknown; display_name?: unknown; context_window?: unknown; context_length?: unknown; max_output_tokens?: unknown; max_tokens?: unknown };
@@ -167,8 +170,12 @@ export async function POST(req: NextRequest) {
     if (invalidJson) return invalidJson;
     const zodRes = zodErrorResponse(error);
     if (zodRes) return zodRes;
-    const msg = error instanceof Error ? error.message : "Discovery failed";
-    return NextResponse.json({ error: msg }, { status: 400 });
+    if (error instanceof DiscoveryError) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+    // Anything else (the database, encryption) is ours, not the endpoint's.
+    console.error("POST /api/settings/custom-providers error:", error);
+    return NextResponse.json({ error: "Failed to save the provider" }, { status: 500 });
   }
 }
 

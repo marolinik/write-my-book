@@ -43,3 +43,34 @@ describe("POST /api/billing/portal", () => {
     });
   });
 });
+
+// P2-64 (Wave 5 Task 6): the rest of the route's answers.
+describe("POST /api/billing/portal — refusals", () => {
+  const post = () => POST(new NextRequest("http://0.0.0.0:3000/api/billing/portal", { method: "POST" }));
+
+  it("answers 404 with no Stripe call when the writer has no billing account", async () => {
+    h.findUnique.mockResolvedValue({ stripeCustomerId: null });
+    expect((await post()).status).toBe(404);
+    h.findUnique.mockResolvedValue(null);
+    expect((await post()).status).toBe(404);
+    expect(h.portalCreate).not.toHaveBeenCalled();
+  });
+
+  it("looks up only the caller's own subscription", async () => {
+    await post();
+    expect(h.findUnique).toHaveBeenCalledWith({ where: { userId: "u1" } });
+  });
+
+  it("answers 401, not 500, when signed out", async () => {
+    h.requireUser.mockRejectedValue(new Error("Unauthorized"));
+    expect((await post()).status).toBe(401);
+    expect(h.portalCreate).not.toHaveBeenCalled();
+  });
+
+  it("answers 500 without Stripe's message when Stripe fails", async () => {
+    h.portalCreate.mockRejectedValue(new Error("No such customer: cus_1; a similar object exists in live mode"));
+    const res = await post();
+    expect(res.status).toBe(500);
+    expect(JSON.stringify(await res.json())).not.toContain("cus_1");
+  });
+});
