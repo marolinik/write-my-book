@@ -28,6 +28,9 @@ const eslintConfig = defineConfig([
     "tmp-*.ts",
   ]),
   {
+    // The file types eslint-config-next attaches its plugins to; a .cjs script
+    // script has no react-hooks plugin to configure.
+    files: ["**/*.{js,jsx,mjs,ts,tsx,mts,cts}"],
     rules: {
       // React Compiler diagnostics are valuable migration signals, but the
       // current app predates those rules. Keep them visible without blocking

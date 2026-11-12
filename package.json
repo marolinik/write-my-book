@@ -109,6 +109,7 @@
     "eslint-config-next": "16.4.6",
     "jsdom": "^29.1.1",
     "prisma": "^7.10.1",
+    "shadcn": "^3.8.5",
     "tailwindcss": "^4",
     "tsc-alias": "^1.8.16",
     "tsx": "^4.21.0",

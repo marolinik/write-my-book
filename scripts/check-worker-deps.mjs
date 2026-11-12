@@ -4,11 +4,13 @@
  * resolve from the pruned node_modules, or the build fails here instead of
  * the worker crashing at boot in production.
  *
- *   node scripts/check-worker-deps.cjs [distDir]
+ *   node scripts/check-worker-deps.mjs [distDir]
  */
-const fs = require("node:fs");
-const path = require("node:path");
-const { builtinModules } = require("node:module");
+import fs from "node:fs";
+import path from "node:path";
+import { builtinModules, createRequire } from "node:module";
+
+const require = createRequire(path.join(process.cwd(), "package.json"));
 
 const dist = path.resolve(process.argv[2] ?? "dist-worker");
 const builtins = new Set([...builtinModules, ...builtinModules.map((m) => `node:${m}`)]);

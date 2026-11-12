@@ -47,7 +47,7 @@ describe("worker image (P2-84)", () => {
 
   it("the prisma CLI and shadcn are not runtime dependencies", () => {
     expect(pkg.dependencies.prisma).toBeUndefined();
+    // shadcn stays a devDependency: globals.css imports shadcn/tailwind.css at build time.
     expect(pkg.dependencies.shadcn).toBeUndefined();
-    expect(pkg.devDependencies.shadcn).toBeUndefined();
   });
 });

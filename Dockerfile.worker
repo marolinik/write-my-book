@@ -50,8 +50,8 @@ COPY --from=builder /app/package.json ./package.json
 
 # Fail the build, not the boot, if the worker requires a package the pruned
 # install does not have.
-COPY scripts/check-worker-deps.cjs ./scripts/check-worker-deps.cjs
-RUN node scripts/check-worker-deps.cjs dist-worker
+COPY scripts/check-worker-deps.mjs ./scripts/check-worker-deps.mjs
+RUN node scripts/check-worker-deps.mjs dist-worker
 
 USER worker
 CMD ["node", "dist-worker/worker.js"]
