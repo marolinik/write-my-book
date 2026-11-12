@@ -1721,6 +1721,25 @@ export interface UIStrings {
   // H-10 - the series surfaces: the book manager, the inheritance panel
   // and the synthesis panel. The series path is the least language-aware
   // part of the product and the one the owner's trilogy runs through.
+  seriesReport: {
+    title: string;
+    book: string;
+    status: string;
+    chapters: string;
+    documents: string;
+    words: string;
+    books: string;
+    generated: string;
+    bookOne: string;
+    bookMany: string;
+    concept: string;
+    planning: string;
+    writing: string;
+    editing: string;
+    beta: string;
+    export: string;
+    complete: string;
+  };
   seriesUI: {
     artifactFingerprint: string;
     addBook: string;

@@ -1822,6 +1822,26 @@ export const ZH: UIStrings = {
     focusParagraph: "段落",
   },
 
+  // Wave 7: the printable series report (src/app/api/series/[id]/report).
+  seriesReport: {
+    title: "系列报告",
+    book: "书",
+    status: "状态",
+    chapters: "章节",
+    documents: "文档",
+    words: "字数",
+    books: "书",
+    generated: "生成于 {date}",
+    bookOne: "本书",
+    bookMany: "本书",
+    concept: "构思",
+    planning: "规划",
+    writing: "写作",
+    editing: "编辑",
+    beta: "试读",
+    export: "导出",
+    complete: "完成",
+  },
   seriesUI: {
     artifactFingerprint: "风格指纹",
     addBook: "添加图书",

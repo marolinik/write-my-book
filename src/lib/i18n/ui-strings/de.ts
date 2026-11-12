@@ -1822,6 +1822,26 @@ export const DE: UIStrings = {
     focusParagraph: "Absatz",
   },
 
+  // Wave 7: the printable series report (src/app/api/series/[id]/report).
+  seriesReport: {
+    title: "Reihenbericht",
+    book: "Buch",
+    status: "Status",
+    chapters: "Kapitel",
+    documents: "Dok.",
+    words: "Wörter",
+    books: "Bücher",
+    generated: "erstellt am {date}",
+    bookOne: "Buch",
+    bookMany: "Bücher",
+    concept: "Konzept",
+    planning: "Planung",
+    writing: "Schreiben",
+    editing: "Überarbeitung",
+    beta: "Testlesen",
+    export: "Export",
+    complete: "Fertig",
+  },
   seriesUI: {
     artifactFingerprint: "Stilprofil",
     addBook: "Buch hinzufügen",

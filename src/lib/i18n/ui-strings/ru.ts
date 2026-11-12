@@ -1822,6 +1822,26 @@ export const RU: UIStrings = {
     focusParagraph: "Абзац",
   },
 
+  // Wave 7: the printable series report (src/app/api/series/[id]/report).
+  seriesReport: {
+    title: "Отчёт о серии",
+    book: "Книга",
+    status: "Статус",
+    chapters: "Главы",
+    documents: "Док.",
+    words: "Слова",
+    books: "Книги",
+    generated: "создан {date}",
+    bookOne: "книга",
+    bookMany: "книги",
+    concept: "Замысел",
+    planning: "Планирование",
+    writing: "Написание",
+    editing: "Редактура",
+    beta: "Бета-чтение",
+    export: "Экспорт",
+    complete: "Готово",
+  },
   seriesUI: {
     artifactFingerprint: "Отпечаток стиля",
     addBook: "Добавить книгу",

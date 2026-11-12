@@ -1822,6 +1822,26 @@ export const SR: UIStrings = {
     focusParagraph: "Pasus",
   },
 
+  // Wave 7: the printable series report (src/app/api/series/[id]/report).
+  seriesReport: {
+    title: "Izveštaj serijala",
+    book: "Knjiga",
+    status: "Status",
+    chapters: "Poglavlja",
+    documents: "Dok.",
+    words: "Reči",
+    books: "Knjige",
+    generated: "napravljeno {date}",
+    bookOne: "knjiga",
+    bookMany: "knjiga",
+    concept: "Ideja",
+    planning: "Planiranje",
+    writing: "Pisanje",
+    editing: "Uređivanje",
+    beta: "Beta čitanje",
+    export: "Izvoz",
+    complete: "Završeno",
+  },
   seriesUI: {
     artifactFingerprint: "Otisak stila",
     addBook: "Dodaj knjigu",

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
-import { localeFor } from "@/lib/i18n/ui-strings";
+import { getUIStrings, localeFor } from "@/lib/i18n/ui-strings";
 import { db } from "@/lib/db";
 
 type RouteParams = { params: Promise<{ id: string }> };
@@ -14,7 +14,10 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
     // M-5: a printable report formatted its numbers in the SERVER locale.
-    const locale = localeFor(user.preferredLanguage ?? "en");
+    const language = user.preferredLanguage ?? "en";
+    const locale = localeFor(language);
+    // Wave 7: every word of the report comes from the writer's dictionary.
+    const r = getUIStrings(language).seriesReport;
     const { id: seriesId } = await params;
 
     const series = await db.series.findFirst({
@@ -41,7 +44,16 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
     const totalChapters = books.reduce((s, b) => s + b._count.chapters, 0);
     const totalDocs = books.reduce((s, b) => s + b._count.documents, 0);
     const date = new Date().toISOString().slice(0, 10);
-    const statusLabel = (s: string) => s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    const statusLabels: Record<string, string> = {
+      concept: r.concept,
+      planning: r.planning,
+      writing: r.writing,
+      editing: r.editing,
+      beta: r.beta,
+      export: r.export,
+      complete: r.complete,
+    };
+    const statusLabel = (s: string) => statusLabels[s] ?? s;
 
     const rows = books
       .map(
@@ -49,7 +61,7 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
       <tr>
         <td>${b.bookNumber}</td>
         <td>${escapeHtml(b.name)}</td>
-        <td>${statusLabel(b.status || "planned")}</td>
+        <td>${escapeHtml(statusLabel(b.status || "concept"))}</td>
         <td class="num">${b._count.chapters}</td>
         <td class="num">${b._count.documents}</td>
         <td class="num">${b.wordCount.toLocaleString(locale)}</td>
@@ -58,10 +70,10 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
       .join("\n");
 
     const html = `<!DOCTYPE html>
-<html lang="${user.preferredLanguage ?? "en"}">
+<html lang="${escapeHtml(language)}">
 <head>
 <meta charset="utf-8" />
-<title>Series Report — ${escapeHtml(series.title)}</title>
+<title>${escapeHtml(r.title)}: ${escapeHtml(series.title)}</title>
 <style>
   * { box-sizing: border-box; }
   body { font-family: ui-sans-serif, system-ui, sans-serif; color: #111; max-width: 820px; margin: 32px auto; padding: 0 16px; line-height: 1.5; }
@@ -78,20 +90,20 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
 <body>
   <h1>${escapeHtml(series.title)}</h1>
   <div class="meta">
-    ${series.genre ? escapeHtml(series.genre) + " · " : ""}${books.length} book${books.length === 1 ? "" : "s"} · generated ${date}
+    ${escapeHtml(r.title)} · ${series.genre ? escapeHtml(series.genre) + " · " : ""}${books.length} ${escapeHtml(books.length === 1 ? r.bookOne : r.bookMany)} · ${escapeHtml(r.generated.replace("{date}", date))}
     ${series.description ? `<p style="margin:8px 0 0;max-width:70ch">${escapeHtml(series.description)}</p>` : ""}
   </div>
   <table>
     <thead>
-      <tr><th>#</th><th>Book</th><th>Status</th><th class="num">Chapters</th><th class="num">Docs</th><th class="num">Words</th></tr>
+      <tr><th>#</th><th>${escapeHtml(r.book)}</th><th>${escapeHtml(r.status)}</th><th class="num">${escapeHtml(r.chapters)}</th><th class="num">${escapeHtml(r.documents)}</th><th class="num">${escapeHtml(r.words)}</th></tr>
     </thead>
     <tbody>${rows}</tbody>
   </table>
   <div class="totals">
-    <span>Books: ${books.length}</span>
-    <span>Chapters: ${totalChapters}</span>
-    <span>Documents: ${totalDocs}</span>
-    <span>Words: ${totalWords.toLocaleString(locale)}</span>
+    <span>${escapeHtml(r.books)}: ${books.length}</span>
+    <span>${escapeHtml(r.chapters)}: ${totalChapters}</span>
+    <span>${escapeHtml(r.documents)}: ${totalDocs}</span>
+    <span>${escapeHtml(r.words)}: ${totalWords.toLocaleString(locale)}</span>
   </div>
 </body>
 </html>`;
