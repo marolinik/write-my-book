@@ -8,7 +8,10 @@ export default defineConfig({
   globalSetup: "./tests/e2e/global-setup.ts",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  // P2-67: one retry to collect a trace, and a test that only passes on
+  // retry fails the run: flaky is a finding, not a pass.
+  retries: process.env.CI ? 1 : 0,
+  failOnFlakyTests: !!process.env.CI,
   workers: process.env.CI ? 1 : undefined,
   reporter: "html",
   timeout: 30_000,

@@ -58,7 +58,9 @@ env:
   NEXT_PUBLIC_CLERK_SIGN_IN_URL: "/login"
   NEXT_PUBLIC_CLERK_SIGN_UP_URL: "/signup"
   STRIPE_SECRET_KEY: "placeholder"
-  STRIPE_WEBHOOK_SECRET: "placeholder"
+  # D15: a throwaway signing secret (no Stripe account behind it), so the
+  # billing-webhook-signed e2e can sign real events with Stripe's helper.
+  STRIPE_WEBHOOK_SECRET: "whsec_e2e_throwaway_not_a_real_account_0000"
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: "placeholder"
   STRIPE_FOUNDER_MONTHLY_PRICE_ID: "price_ci_founder_monthly"
   STRIPE_INDIE_MONTHLY_PRICE_ID: "price_ci_indie_monthly"

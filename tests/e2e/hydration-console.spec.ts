@@ -58,8 +58,12 @@ for (const page of PAGES) {
     });
 
     await browserPage.goto(page.path, { waitUntil: "networkidle" });
-    // Hydration happens after first paint; give React a beat to complain.
-    await browserPage.waitForTimeout(1500);
+    // P2-67: hydration runs once the scripts load; two animation frames after
+    // a complete document is when React has reported any mismatch.
+    await browserPage.waitForFunction(() => document.readyState === "complete");
+    await browserPage.evaluate(
+      () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())))
+    );
 
     expect(
       hydrationErrors,
