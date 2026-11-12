@@ -1,5 +1,6 @@
 import type { AgentDefinition, AgentContext } from "./types";
 import { fenceText, FENCED_MATERIAL_NOTICE } from "@/lib/agents/prompt-fence";
+import { withTimeout, STORE_CALL_TIMEOUT_MS } from "@/lib/async/with-timeout";
 import { LANGUAGE_NAMES } from "./language-names";
 import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
@@ -2126,7 +2127,12 @@ export async function assembleAgentPrompt(
   // ─── SECTION 12: Knowledge Graph Context (priority 45) ────────
   if (profile.architecture !== "none" && context.chapterNumber) {
     try {
-      const entities = await getChapterEntities(context.bookId, context.chapterNumber);
+      // P2-44: the graph section is optional; a hung Neo4j must not hold the prompt.
+      const entities = await withTimeout(
+        getChapterEntities(context.bookId, context.chapterNumber),
+        STORE_CALL_TIMEOUT_MS,
+        "graph context"
+      );
       if (entities.characters.length > 0 || entities.locations.length > 0 || entities.events.length > 0) {
         const graphLines: string[] = [];
         if (entities.characters.length > 0) {
@@ -2141,7 +2147,7 @@ export async function assembleAgentPrompt(
         sections.push({
           name: "knowledge_graph",
           priority: 45,
-          content: `\n<knowledge_graph_context chapter="${context.chapterNumber}">\n${graphLines.join("\n")}\n</knowledge_graph_context>`,
+          content: `\n<knowledge_graph_context chapter="${context.chapterNumber}">\n${fenceText(graphLines.join("\n"))}\n</knowledge_graph_context>`,
         });
       }
     } catch {

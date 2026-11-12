@@ -47,6 +47,7 @@ model User {
   agentSessions AgentSession[]
   usageRecords  UsageRecord[]
   subscription  Subscription?
+  founderSlot   FounderSlot?
   styleProfiles StyleProfile[]
   notifications BookNotification[]
   writerMemories WriterMemory[]
@@ -97,6 +98,11 @@ model FounderSlot {
   id        String   @id @default(uuid())
   userId    String   @unique @map("user_id")
   claimedAt DateTime @default(now()) @map("claimed_at")
+
+  // P2-38 / D16: a deleted Founder releases the slot, so the public "N left"
+  // counter is true. Before this FK, scripts/pre-apply.sql removes slots whose
+  // user is already gone (db:apply runs it before the schema change).
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("founder_slots")
 }

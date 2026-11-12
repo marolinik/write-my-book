@@ -7,6 +7,7 @@ import { qdrantClient, ensureMemoryCollection } from "./qdrant-client";
 import { embedBatch, isEmbeddingAvailable } from "./embeddings";
 import { chunkChapterContent, stripMarkdown } from "./chunker";
 import { trackEmbeddingCost } from "./cost-tracker";
+import { canIndexProseForUser } from "./indexing-gate";
 import { WMB_MEMORY_COLLECTION, type DocType, type MemoryChunkPayload } from "./types";
 
 // ─── Debounce Map ────────────────────────────────────────────
@@ -56,6 +57,16 @@ export async function indexDocument(
   }
 
   if (!content || content.trim().length === 0) {
+    return { chunksIndexed: 0, skipped: true };
+  }
+
+  // P2-41: every path goes through the spend gate here, and a chunk without
+  // its writer is refused: the per-user filter and the cost ledger both need it.
+  if (!metadata.userId) {
+    console.warn(`[indexer] refused to index ${docType}:${docId} for book ${bookId}: no userId`);
+    return { chunksIndexed: 0, skipped: true };
+  }
+  if (!(await canIndexProseForUser(metadata.userId))) {
     return { chunksIndexed: 0, skipped: true };
   }
 

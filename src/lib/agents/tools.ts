@@ -15,6 +15,7 @@ import { upsertEntities } from "@/lib/graph/graph-builder";
 import { RELATIONSHIP_TYPES } from "@/lib/graph/types";
 import type { GraphNodeLabel, ExtractionResult, RelationshipType } from "@/lib/graph/types";
 import { searchMemory, formatSearchResults } from "@/lib/vector/retriever";
+import { withTimeout, StoreTimeoutError, STORE_CALL_TIMEOUT_MS } from "@/lib/async/with-timeout";
 import { indexDocument } from "@/lib/vector/indexer";
 import type { DocType } from "@/lib/vector/types";
 import { UnsafeUrlError, readCappedText, safeExternalFetch } from "@/lib/ssrf-guard";
@@ -2409,6 +2410,21 @@ async function executeQueryGraph(
   input: { queryType: string; chapterNumber?: number }
 ): Promise<string> {
   try {
+    // P2-44: a hung Neo4j must not pin the session for the driver's timeout.
+    return await withTimeout(runGraphQuery(ctx, input), STORE_CALL_TIMEOUT_MS, "graph query");
+  } catch (error) {
+    if (error instanceof StoreTimeoutError) {
+      return "Graph unavailable (the graph database did not answer in time). Continue without graph context.";
+    }
+    return `Graph query failed: ${error instanceof Error ? error.message : String(error)}`;
+  }
+}
+
+async function runGraphQuery(
+  ctx: ToolContext,
+  input: { queryType: string; chapterNumber?: number }
+): Promise<string> {
+  {
     switch (input.queryType) {
       case "character-network": {
         const data = await getCharacterNetwork(ctx.bookId);
@@ -2438,8 +2454,6 @@ async function executeQueryGraph(
       default:
         return `Unknown query type: ${input.queryType}`;
     }
-  } catch (error) {
-    return `Graph query failed: ${error instanceof Error ? error.message : String(error)}`;
   }
 }
 
@@ -2500,17 +2514,22 @@ async function executeSearchMemory(
   input: { query: string; docType?: string; chapterNumber?: number; limit?: number }
 ): Promise<string> {
   try {
-    const results = await searchMemory(ctx.bookId, input.query, {
-      docType: input.docType as DocType | undefined,
-      chapterNumber: input.chapterNumber,
-      limit: input.limit ?? 5,
-    });
+    // P2-44: a hung Qdrant must not pin the session for the client's 300 s.
+    const results = await withTimeout(
+      searchMemory(ctx.bookId, input.query, {
+        docType: input.docType as DocType | undefined,
+        chapterNumber: input.chapterNumber,
+        limit: input.limit ?? 5,
+      }),
+      STORE_CALL_TIMEOUT_MS,
+      "memory search"
+    );
 
     if (results.length === 0) return "No relevant passages found for this query.";
 
     return formatSearchResults(results);
   } catch (error) {
-    if (error instanceof Error && error.message.includes("connect")) {
+    if (error instanceof StoreTimeoutError || (error instanceof Error && error.message.includes("connect"))) {
       return "Memory search unavailable (vector database unreachable). Continuing without memory context.";
     }
     return `Memory search failed: ${error instanceof Error ? error.message : String(error)}`;
@@ -2529,7 +2548,7 @@ async function executeRememberInsight(
       "conversation",
       `${ctx.sessionId}:insight:${Date.now()}`,
       `[${input.category}] ${enforceBookScript(input.content, ctx.language)}`,
-      { userId: undefined }
+      { userId: ctx.userId }
     );
     return `Insight stored in episodic memory (category: ${input.category}).`;
   } catch (error) {

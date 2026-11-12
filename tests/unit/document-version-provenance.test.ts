@@ -34,6 +34,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 const h = vi.hoisted(() => ({
   db: {
+    // P2-40: create() runs in a transaction; hand the callback this same mock.
+    $transaction: async (fn: (tx: unknown) => unknown) => fn(h.db),
     document: { create: vi.fn(), findFirst: vi.fn(), updateMany: vi.fn(), count: vi.fn() },
     documentVersion: { create: vi.fn() },
   },

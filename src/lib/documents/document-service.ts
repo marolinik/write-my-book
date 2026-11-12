@@ -64,35 +64,51 @@ export class DocumentService {
     // Write content to S3
     await this.storage.write(storagePath, content);
 
-    // Create document record
-    const document = await db.document.create({
-      data: {
-        bookId: this.bookId ?? null,
-        seriesId: this.seriesId ?? null,
-        type,
-        title: title ?? null,
-        storageKey: storagePath,
-        currentVersion: 1,
-        chapterNumber: chapterNumber ?? null,
-      },
-    });
+    // P2-40: the row and its first version land together. When the partial
+    // unique index (scripts/db-guards.sql) refuses a racing second create of
+    // a single-instance book-level type, the content is saved onto the row
+    // the other create wrote instead of failing or leaving a second row.
+    try {
+      return await db.$transaction(async (tx) => {
+        const document = await tx.document.create({
+          data: {
+            bookId: this.bookId ?? null,
+            seriesId: this.seriesId ?? null,
+            type,
+            title: title ?? null,
+            storageKey: storagePath,
+            currentVersion: 1,
+            chapterNumber: chapterNumber ?? null,
+          },
+        });
 
-    // Create initial version
-    const versionPath = getVersionStoragePath(document.id, 1);
-    await this.storage.write(versionPath, content);
+        // Create initial version
+        const versionPath = getVersionStoragePath(document.id, 1);
+        await this.storage.write(versionPath, content);
 
-    await db.documentVersion.create({
-      data: {
-        documentId: document.id,
-        version: 1,
-        storageKey: versionPath,
-        changeType,
-        changeSource,
-        wordCount: countWords(content),
-      },
-    });
+        await tx.documentVersion.create({
+          data: {
+            documentId: document.id,
+            version: 1,
+            storageKey: versionPath,
+            changeType,
+            changeSource,
+            wordCount: countWords(content),
+          },
+        });
 
-    return document;
+        return document;
+      });
+    } catch (error) {
+      if ((error as { code?: string } | null)?.code === "P2002" && chapterNumber === undefined) {
+        const existing = await this.findByType(type);
+        if (existing) {
+          await this.update(existing.id, content, title, changeType, changeSource);
+          return existing;
+        }
+      }
+      throw error;
+    }
   }
 
   /**

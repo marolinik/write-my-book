@@ -156,8 +156,17 @@ export async function copyVersionSnapshots(
 }
 
 /** Group key for chapter-scoped documents. */
-function groupKey(d: { bookId: string; type: string; chapterNumber: number }): string {
-  return `${d.bookId}|${d.type}|${d.chapterNumber}`;
+/**
+ * P2-40 / D17: book-level types a book holds once. Their rows have
+ * chapterNumber null, which the (bookId, type, chapterNumber) unique cannot
+ * see, so duplicates are collapsed here before db-guards.sql builds the
+ * partial unique index. The kept row is the oldest (what findByType already
+ * returns); every version of the extras moves onto it, so no text is lost.
+ */
+export const SINGLE_BOOK_LEVEL_TYPES = ["SYNOPSIS", "STORY_BIBLE", "BOOK_PLAN", "FINGERPRINT"] as const;
+
+function groupKey(d: { bookId: string; type: string; chapterNumber: number | null }): string {
+  return `${d.bookId}|${d.type}|${d.chapterNumber ?? "book"}`;
 }
 
 async function main(): Promise<void> {
@@ -181,12 +190,18 @@ async function main(): Promise<void> {
   );
 
   try {
-    // Chapter-scoped rows only; series docs (bookId null) and non-chapter docs
-    // (chapterNumber null) are exempt from the unique and never touched here.
+    // Chapter-scoped rows, plus the single-instance book-level types (P2-40).
+    // Series docs (bookId null) and other book-level docs are never touched.
     // book.userId is needed to build the book-scoped storage prefix for the
     // snapshot copy (`${userId}/${bookId}`).
     const candidates = await db.document.findMany({
-      where: { bookId: { not: null }, chapterNumber: { not: null } },
+      where: {
+        bookId: { not: null },
+        OR: [
+          { chapterNumber: { not: null } },
+          { chapterNumber: null, type: { in: [...SINGLE_BOOK_LEVEL_TYPES] } },
+        ],
+      },
       select: {
         id: true,
         bookId: true,
@@ -205,7 +220,7 @@ async function main(): Promise<void> {
       const key = groupKey({
         bookId: doc.bookId!,
         type: doc.type,
-        chapterNumber: doc.chapterNumber!,
+        chapterNumber: doc.chapterNumber,
       });
       groups.set(key, [...(groups.get(key) ?? []), doc]);
     }
