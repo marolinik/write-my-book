@@ -1,4 +1,20 @@
-FROM node:22-alpine AS base
+# P2-62: node pinned by exact version and digest (the 22-alpine tag on 2026-11-12).
+FROM node:22.23-alpine3.24@sha256:5b05da3f938f1c604b24c633646d48805a6667f378cb4908438616f3cc48a0bf AS base
+
+# Pandoc, Typst and the fonts the PDF export names, in their own stage so CI
+# can build and check them without building the app (D13, P2-62).
+FROM base AS export-tools
+ENV TMPDIR=/tmp TEMP=/tmp TMP=/tmp
+RUN apk add --no-cache pandoc curl \
+    font-noto-cjk font-noto-naskh-arabic font-noto-arabic font-noto-devanagari
+# Typst: static musl binary from GitHub releases, checked against its sha256.
+ARG TYPST_VERSION=v0.13.0
+ARG TYPST_SHA256=cd1148da61d6844e62c330fc6222e988480acafe33b76daec8eb5d221258feb6
+RUN wget -qO /tmp/typst.tar.xz https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-x86_64-unknown-linux-musl.tar.xz \
+    && echo "${TYPST_SHA256}  /tmp/typst.tar.xz" | sha256sum -c - \
+    && tar -xf /tmp/typst.tar.xz -C /tmp \
+    && mv /tmp/typst-x86_64-unknown-linux-musl/typst /usr/local/bin/ \
+    && rm -rf /tmp/typst*
 
 FROM base AS deps
 WORKDIR /app
@@ -30,21 +46,12 @@ RUN npx prisma generate
 # runtime validation still applies to the deployed process.
 RUN CI=true npm run build
 
-FROM base AS runner
+FROM export-tools AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 # Pandoc shells out for PDF via temp files; with no TMPDIR it resolved its temp
 # dir to the read-only /app cwd and PDF export silently degraded to markdown
-# (persona campaign H2). Point temp resolution at writable /tmp.
-ENV TMPDIR=/tmp TEMP=/tmp TMP=/tmp
-
-# Install Pandoc + Typst for manuscript export pipeline
-RUN apk add --no-cache pandoc curl
-# Typst: install static musl binary from GitHub releases
-RUN wget -qO /tmp/typst.tar.xz https://github.com/typst/typst/releases/download/v0.13.0/typst-x86_64-unknown-linux-musl.tar.xz \
-    && tar -xf /tmp/typst.tar.xz -C /tmp \
-    && mv /tmp/typst-x86_64-unknown-linux-musl/typst /usr/local/bin/ \
-    && rm -rf /tmp/typst*
+# (persona campaign H2). TMPDIR is set in export-tools, which this stage extends.
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs

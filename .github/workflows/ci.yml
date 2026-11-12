@@ -128,3 +128,18 @@ jobs:
       - name: Build worker
         if: ${{ !cancelled() }}
         run: npm run worker:build
+
+  # D13 / P2-62: the PDF export's fonts and tools exist in the image that
+  # ships them. Builds only the export-tools stage (pandoc, Typst checked by
+  # sha256, Noto CJK/Arabic/Devanagari), then renders a page in every script.
+  export-tools:
+    name: Export tools image (fonts + Typst)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Build the export-tools stage
+        run: docker build --target export-tools -t wmb-export-tools .
+      - name: Fonts and a page in every script
+        run: docker run --rm -i wmb-export-tools sh < scripts/check-export-fonts.sh

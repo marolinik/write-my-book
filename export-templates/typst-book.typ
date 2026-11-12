@@ -33,8 +33,10 @@
   )
 
   // Font setup
+  // D13: per-glyph fallback, so a script the body font lacks still prints
+  // (Libertinus is Typst's built-in serif; the Noto families are in the image).
   set text(
-    font: mainfont,
+    font: (mainfont, "Libertinus Serif", "Noto Serif CJK SC", "Noto Sans CJK SC", "Noto Naskh Arabic", "Noto Sans Arabic", "Noto Serif Devanagari", "Noto Sans Devanagari"),
     size: 11pt,
     lang: lang,
   )
