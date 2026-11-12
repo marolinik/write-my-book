@@ -167,6 +167,7 @@ export const DE: UIStrings = {
     nameRequired: "Bitte gib einen Buchnamen ein, um fortzufahren.",
   },
   common: {
+    notNow: "Nicht jetzt",
     cancel: "Abbrechen",
     accept: "Annehmen",
     reject: "Ablehnen",
@@ -889,6 +890,8 @@ export const DE: UIStrings = {
   },
 
   appUI: {
+    sidebarTitle: "Seitenleiste",
+    sidebarDescription: "Zeigt die mobile Seitenleiste an.",
     tierProfessional: "Der Professional-Tarif schaltet unbegrenzt viele Bücher, Reihenverwaltung und erweiterte Auswertungen frei.",
     showAllChapters: "Alle {count} Kapitel anzeigen",
     tierPublisher: "Der Publisher-Tarif enthält alles aus Professional sowie bevorzugten Support und künftige Plätze für mehrere Nutzer.",
@@ -999,6 +1002,7 @@ export const DE: UIStrings = {
   },
 
   screens: {
+    unexpectedErrorNotified: "Ein unerwarteter Fehler ist aufgetreten. Unser Team wurde benachrichtigt.",
     bookProgress: "Fortschritt", drafted: "Entworfen", edited: "Lektoriert", betaPassed: "Beta bestanden",
     wordCount: "Wortzahl", recentSessions: "Letzte Agentenläufe", editorialFindings: "Lektoratsbefunde",
     modelOverrides: "Modell-Überschreibungen", bookDefaultModel: "Standardmodell des Buchs",
@@ -1627,6 +1631,9 @@ export const DE: UIStrings = {
   },
 
   editorChrome: {
+    quickAssistDisclosure: "Schnelle Vorschläge können ein schnelleres Modell als Ihr Standardmodell verwenden.",
+    immersiveEntered: "Immersiver Modus aktiviert, zum Beenden Escape drücken",
+    immersiveExited: "Immersiver Modus beendet",
     stillWriting: "Schreibt noch …",
     rewriteComparison: "KI-Neufassung im Vergleich",
     noPreviousChapter: "Kein vorheriges Kapitel",
@@ -2118,5 +2125,28 @@ export const DE: UIStrings = {
     AI_GENERATION_FAILED: "Die KI konnte nicht fertig werden. Bitte versuchen Sie es erneut.",
     LAST_API_KEY: "Sie können Ihren letzten API-Schlüssel nicht entfernen. Fügen Sie zuerst einen weiteren hinzu.",
     KEY_IN_USE: "Der Schlüssel kann nicht entfernt werden, solange eine KI-Sitzung läuft. Warten Sie, bis sie beendet ist, und versuchen Sie es erneut.",
+    PROVIDER_KEY_INVALID: "Der Schlüssel Ihres KI-Anbieters ist nicht mehr gültig. Aktualisieren Sie ihn in den Einstellungen.",
+    MODEL_NO_QUICK_SUGGEST: "Dieses Modell kann keine schnellen Vorschläge machen. Wählen Sie in den Einstellungen ein anderes Modell.",
+    AI_RESPONSE_TRUNCATED: "Die Antwort wurde abgeschnitten, bevor sie verwendet werden konnte. Markieren Sie weniger Text und versuchen Sie es erneut.",
+  },
+  agentErrors: {
+    PROVIDER_KEY_INVALID: "Ihr {provider}-API-Schlüssel ist ungültig oder wurde widerrufen. Prüfen Sie ihn in den Einstellungen.",
+    PROVIDER_NO_CREDIT: "Ihr {provider}-Konto hat kein Guthaben. Laden Sie Guthaben auf oder wählen Sie in den Einstellungen ein anderes Modell.",
+    PROVIDER_FORBIDDEN: "Ihr {provider}-API-Schlüssel darf dieses Modell nicht verwenden. Prüfen Sie seine Berechtigungen.",
+    PROVIDER_RATE_LIMITED: "{provider} begrenzt gerade die Anfragen. Versuchen Sie es in einer Minute erneut.",
+    PROVIDER_UNAVAILABLE: "{provider} hat vorübergehend Probleme. Versuchen Sie es gleich erneut.",
+    PROVIDER_TIMEOUT: "{provider} hat zu lange für die Antwort gebraucht. Versuchen Sie es erneut.",
+    PROVIDER_RETRYING: "{provider} hat diesmal nicht geantwortet.",
+    NO_PROVIDER_KEY: "Für {provider} ist kein API-Schlüssel eingerichtet. Fügen Sie einen unter Einstellungen > API-Schlüssel hinzu.",
+    DIRECT_KEY_UNSUPPORTED: "Dieses Modell kann nicht mit einem direkten Schlüssel verwendet werden. Wählen Sie in den Einstellungen ein anderes Modell.",
+    EMPTY_RESPONSE: "Der Assistent hat eine leere Antwort geliefert. Es wurde nichts berechnet; versuchen Sie es erneut.",
+    SESSION_FAILED: "Die Sitzung wurde wegen eines Fehlers beendet. Versuchen Sie es erneut.",
+    SESSION_CANCELLED: "Sitzung abgebrochen.",
+    SESSION_NOT_FOUND: "Diese Sitzung ist nicht mehr verfügbar. Der Server wurde möglicherweise neu gestartet; starten Sie den Ablauf erneut.",
+    STREAM_UNAVAILABLE: "Die Verbindung zur Sitzung ist abgebrochen. Laden Sie die Seite neu, um sich wieder zu verbinden.",
+    WORKER_ABSENT: "Die Hintergrundverarbeitung ist gerade nicht verfügbar. Versuchen Sie es erneut, sobald sie wieder läuft.",
+    BACKGROUND_FAILED: "Diese Sitzung konnte im Hintergrund nicht abgeschlossen werden. Starten Sie sie erneut, um fortzufahren.",
+    WORKER_RESTARTED: "Diese Sitzung wurde beendet, als der Hintergrundprozess neu startete. Starten Sie sie erneut, um fortzufahren.",
+    localFleet: "die lokale Flotte",
   },
 };

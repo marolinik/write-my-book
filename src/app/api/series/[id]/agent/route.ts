@@ -31,6 +31,7 @@ import type { AgentStreamMessage, AgentResult } from "@/lib/agents";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { getDefaultModelId } from "@/lib/llm/defaults";
 import { USER_MODEL_SELECT, globalOverridesOf, userModelSettingsOf } from "@/lib/llm/model-resolver";
+import { agentErrorFrame } from "@/lib/agents/agent-error-frame";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -288,10 +289,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         });
       },
       onError: async (error: Error, partial?: { documentIds: string[] }) => {
-        pushMessage(dbSession.id, {
-          type: "error",
-          content: "An error occurred during the agent session",
-        });
+        console.error("[series/agent] session error:", error);
+        pushMessage(dbSession.id, agentErrorFrame("SESSION_FAILED"));
         completeSession(dbSession.id, {
           success: false,
           tokensInput: 0,

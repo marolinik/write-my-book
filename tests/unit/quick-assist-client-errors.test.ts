@@ -3,95 +3,62 @@ import {
   quickAssistErrorNotice,
   shouldSurfaceGhostError,
   isWallSuppressionActive,
-  QUICK_ASSIST_FALLBACK_MESSAGE,
-  QUICK_ASSIST_DISCLOSURE,
   GHOST_ERROR_COOLDOWN_MS,
   WALL_RETRY_MS,
 } from "@/components/editor/quick-assist-client-errors";
 import { MODEL_NO_QUICK_SUGGEST_CODE } from "@/lib/llm/quick-assist";
+import { getUIStrings } from "@/lib/i18n/ui-strings";
+
+const sr = getUIStrings("sr");
 
 /**
  * D-129 — both quick-assist clients discarded every non-200 response, so the
- * server's honest 429 cap-wall copy, the D-118 422 backstop copy, and all 5xx
- * messages died before reaching the writer. These helpers map an error
- * response body to the writer-facing notice the clients now surface.
+ * writer never heard why a suggestion failed. P2-31: the notice is now the
+ * failure's code or status in the writer's language; the server's English
+ * `error` stays in the body for logs and is never shown.
  */
-describe("quickAssistErrorNotice — D-129 server copy reaches the writer", () => {
-  it("surfaces the server's 429 cap-wall copy verbatim", () => {
-    const notice = quickAssistErrorNotice({
-      error:
-        "Free plan includes 100 ghost-text completions per day. Resets at midnight UTC.",
-      upgradeToTier: "indie",
-      remainingToday: 0,
-    });
-    expect(notice.message).toBe(
-      "Free plan includes 100 ghost-text completions per day. Resets at midnight UTC."
+describe("quickAssistErrorNotice — every failure reaches the writer, in their language", () => {
+  it("a cap-wall 429 is a plan limit, with the billing deep-link", () => {
+    const notice = quickAssistErrorNotice(
+      { error: "Free plan includes 100 ghost-text completions per day.", upgradeToTier: "indie", remainingToday: 0 },
+      sr,
+      429
     );
+    expect(notice.message).toBe(sr.apiErrors.PLAN_LIMIT);
+    expect(notice.upgrade).toBe(true);
     expect(notice.openSettings).toBe(false);
   });
 
   it("flags the MODEL_NO_QUICK_SUGGEST 422 for the settings deep-link", () => {
-    const notice = quickAssistErrorNotice({
-      error:
-        "This model returns only internal reasoning at ghost-text's tiny budget, so it can't produce autocomplete suggestions.",
-      code: MODEL_NO_QUICK_SUGGEST_CODE,
-    });
-    expect(notice.message).toContain("internal reasoning");
+    const notice = quickAssistErrorNotice(
+      { error: "This model returns only internal reasoning.", code: MODEL_NO_QUICK_SUGGEST_CODE },
+      sr,
+      422
+    );
+    expect(notice.message).toBe(sr.apiErrors.MODEL_NO_QUICK_SUGGEST);
     expect(notice.openSettings).toBe(true);
   });
 
-  it("falls back to generic copy when the body has no usable error string", () => {
-    expect(quickAssistErrorNotice({}).message).toBe(
-      QUICK_ASSIST_FALLBACK_MESSAGE
-    );
-    expect(quickAssistErrorNotice({ error: "   " }).message).toBe(
-      QUICK_ASSIST_FALLBACK_MESSAGE
-    );
-    expect(quickAssistErrorNotice({ error: 42 }).message).toBe(
-      QUICK_ASSIST_FALLBACK_MESSAGE
-    );
+  it("never shows the server's English", () => {
+    expect(quickAssistErrorNotice({ error: "Failed to generate suggestion" }, sr, 500).message).toBe(sr.apiErrors.SERVER_ERROR);
   });
 
-  it("falls back to generic copy for non-object bodies (failed JSON parse, null)", () => {
-    expect(quickAssistErrorNotice(null).message).toBe(
-      QUICK_ASSIST_FALLBACK_MESSAGE
-    );
-    expect(quickAssistErrorNotice(undefined).message).toBe(
-      QUICK_ASSIST_FALLBACK_MESSAGE
-    );
-    expect(quickAssistErrorNotice("boom").message).toBe(
-      QUICK_ASSIST_FALLBACK_MESSAGE
-    );
+  it("falls back to the status family for empty or unreadable bodies", () => {
+    expect(quickAssistErrorNotice({}, sr, 503).message).toBe(sr.apiErrors.SERVICE_UNAVAILABLE);
+    expect(quickAssistErrorNotice(null, sr, 502).message).toBe(sr.apiErrors.SERVICE_UNAVAILABLE);
+    expect(quickAssistErrorNotice("boom", sr).message).toBe(sr.apiErrors.SERVICE_UNAVAILABLE);
   });
 
   it("never deep-links to settings without the machine-readable code", () => {
-    expect(
-      quickAssistErrorNotice({ error: "Failed to generate suggestion" })
-        .openSettings
-    ).toBe(false);
-    expect(quickAssistErrorNotice(null).openSettings).toBe(false);
-  });
-
-  it("flags a cap-wall 429 (non-empty upgradeToTier) for the billing deep-link", () => {
-    const notice = quickAssistErrorNotice({
-      error: "Free plan includes 100 ghost-text completions per day.",
-      upgradeToTier: "indie",
-      remainingToday: 0,
-    });
-    expect(notice.upgrade).toBe(true);
-    // The upgrade wall is distinct from the 422 settings deep-link.
-    expect(notice.openSettings).toBe(false);
+    expect(quickAssistErrorNotice({ error: "Failed to generate suggestion" }, sr, 500).openSettings).toBe(false);
+    expect(quickAssistErrorNotice(null, sr).openSettings).toBe(false);
   });
 
   it("does not flag upgrade when upgradeToTier is empty, blank, or non-string", () => {
-    expect(quickAssistErrorNotice({ error: "boom" }).upgrade).toBe(false);
-    expect(
-      quickAssistErrorNotice({ error: "boom", upgradeToTier: "   " }).upgrade
-    ).toBe(false);
-    expect(
-      quickAssistErrorNotice({ error: "boom", upgradeToTier: 3 }).upgrade
-    ).toBe(false);
-    expect(quickAssistErrorNotice(null).upgrade).toBe(false);
+    expect(quickAssistErrorNotice({ error: "boom" }, sr).upgrade).toBe(false);
+    expect(quickAssistErrorNotice({ error: "boom", upgradeToTier: "   " }, sr).upgrade).toBe(false);
+    expect(quickAssistErrorNotice({ error: "boom", upgradeToTier: 3 }, sr).upgrade).toBe(false);
+    expect(quickAssistErrorNotice(null, sr).upgrade).toBe(false);
   });
 });
 
@@ -182,9 +149,10 @@ describe("isWallSuppressionActive — D-134 doomed-loop suppression with expiry"
  * than the writer's default. The point-of-use disclosure line must exist and
  * say so; both quick-assist surfaces render it.
  */
-describe("QUICK_ASSIST_DISCLOSURE — D-127 point-of-use copy", () => {
+describe("quickAssistDisclosure — D-127 point-of-use copy (P2-59: now in the dictionaries)", () => {
   it("names the substitution in writer-facing terms", () => {
-    expect(QUICK_ASSIST_DISCLOSURE.toLowerCase()).toContain("faster model");
-    expect(QUICK_ASSIST_DISCLOSURE.length).toBeGreaterThan(20);
+    const en = getUIStrings("en").editorChrome.quickAssistDisclosure;
+    expect(en.toLowerCase()).toContain("faster model");
+    expect(sr.editorChrome.quickAssistDisclosure).not.toBe(en);
   });
 });

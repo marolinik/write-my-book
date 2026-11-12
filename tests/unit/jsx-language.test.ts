@@ -24,6 +24,10 @@ import { getUIStrings } from "@/lib/i18n/ui-strings";
 const SRC = join(__dirname, "..", "..", "src");
 const LANGUAGES = ["en", "sr", "de", "es", "fr", "ru", "zh"];
 
+/** The design system's primitives and the root error page: copy too (P2-59). */
+const UI_PRIMITIVES = join("components", "ui");
+const GLOBAL_ERROR = join("app", "global-error.tsx");
+
 /** Directories whose human-readable attributes are fully localized. */
 const ATTRIBUTE_CLEAN_AREAS = [
   join("components", "agent"),
@@ -42,15 +46,30 @@ const ATTRIBUTE_CLEAN_AREAS = [
   join("components", "onboarding"),
   join("components", "layout"),
   join("app", "(app)"),
+  UI_PRIMITIVES,
+  GLOBAL_ERROR,
 ];
 
+/**
+ * P2-59: the scans read `.ts` as well as `.tsx` — copy kept in a plain module
+ * (`QUICK_ASSIST_*`, a hook's toast) reached the reader unseen. An area can be
+ * a single file (`app/global-error.tsx`).
+ */
 function walk(dir: string): string[] {
+  if (!statSync(dir).isDirectory()) return [dir];
   return readdirSync(dir).flatMap((entry) => {
     const full = join(dir, entry);
     if (statSync(full).isDirectory()) return walk(full);
-    return entry.endsWith(".tsx") ? [full] : [];
+    if (/.(test|spec).tsx?$/.test(entry) || entry.endsWith(".d.ts")) return [];
+    return /.tsx?$/.test(entry) ? [full] : [];
   });
 }
+
+/** A `.ts` file parsed as TSX misreads `<T>(x) =>` generics; parse each by its kind. */
+function kindFor(file: string): ts.ScriptKind {
+  return file.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
+}
+
 
 /** A JSX comment holds prose about the code, not copy for the reader. */
 function readWithoutComments(file: string): string {
@@ -155,6 +174,8 @@ const PARSED_CLEAN_AREAS: string[] = [
   join("components", "series"),
   join("components", "settings"),
   join("components", "style"),
+  UI_PRIMITIVES,
+  GLOBAL_ERROR,
 ];
 
 /** `&middot;`, `&mdash;`, `&nbsp;` — a glyph spelled out, not a word. */
@@ -174,7 +195,7 @@ function englishJsxText(file: string): string[] {
     source,
     ts.ScriptTarget.Latest,
     /* setParentNodes */ true,
-    ts.ScriptKind.TSX
+    kindFor(file)
   );
   const found: string[] = [];
 
@@ -210,6 +231,8 @@ const EXPRESSION_CLEAN_AREAS: string[] = [
   join("components", "onboarding"),
   join("components", "reports"),
   join("components", "style"),
+  UI_PRIMITIVES,
+  GLOBAL_ERROR,
 ];
 
 /** The pluralisation helpers: their noun forms are copy wherever they sit. */
@@ -317,7 +340,7 @@ function copyLiterals(file: string, isCopy: (node: ts.Node) => boolean): string[
     source,
     ts.ScriptTarget.Latest,
     /* setParentNodes */ true,
-    ts.ScriptKind.TSX
+    kindFor(file)
   );
   const found: string[] = [];
 
@@ -378,6 +401,9 @@ const DEFINITION_CLEAN_AREAS: string[] = [
   join("components", "reports"),
   join("components", "series"),
   join("components", "settings"),
+  UI_PRIMITIVES,
+  GLOBAL_ERROR,
+  "hooks",
 ];
 
 /**
@@ -483,7 +509,7 @@ function englishDefinitions(file: string): string[] {
     source,
     ts.ScriptTarget.Latest,
     /* setParentNodes */ true,
-    ts.ScriptKind.TSX
+    kindFor(file)
   );
   const found: string[] = [];
   const where = (node: ts.Node) =>
@@ -529,6 +555,42 @@ function englishDefinitions(file: string): string[] {
     if (ts.isReturnStatement(node) && node.expression && isStringLike(node.expression)) {
       const value = literalText(node.expression);
       if (isProse(value)) found.push(`${where(node)} return ${value.slice(0, 60)}`);
+    }
+
+    // P2-59: `export const QUICK_ASSIST_DISCLOSURE = "Quick suggestions may…"`
+    // — a module-level constant named in capitals that holds a sentence.
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)
+        && /^[A-Z][A-Z0-9_]+$/.test(node.name.text)
+        // A CSS selector, a media query, a size or a sentinel is named for it.
+        && !/(?:SELECTOR|QUERY|WIDTH|HEIGHT|VALUE|KEY|ID|URL|PATH|PREFIX|CLASS|PATTERN)(?:_|$)/.test(node.name.text)
+        && node.initializer
+        && isStringLike(node.initializer) && ts.isSourceFile(node.parent.parent.parent)) {
+      const value = literalText(node.initializer);
+      if (isProse(value)) found.push(`${where(node)} ${node.name.text}: ${value.slice(0, 60)}`);
+    }
+
+    // P2-59: `setErrorMessage(ok ? t.x : "Validation failed")` — React state
+    // set to a sentence, however the value is chosen.
+    if (ts.isCallExpression(node) && ts.isIdentifier(node.expression)
+        && /^set[A-Z]\w*$/.test(node.expression.text)) {
+      const readValues = (value: ts.Node): void => {
+        if (isStringLike(value)) {
+          const text = literalText(value);
+          if (isProse(text)) found.push(`${where(value)} ${node.expression.getText()}(${text.slice(0, 60)})`);
+          return;
+        }
+        if (ts.isConditionalExpression(value)) {
+          readValues(value.whenTrue);
+          readValues(value.whenFalse);
+        } else if (ts.isBinaryExpression(value)
+            && [ts.SyntaxKind.BarBarToken, ts.SyntaxKind.QuestionQuestionToken].includes(value.operatorToken.kind)) {
+          readValues(value.left);
+          readValues(value.right);
+        } else if (ts.isParenthesizedExpression(value)) {
+          readValues(value.expression);
+        }
+      };
+      for (const argument of node.arguments) readValues(argument);
     }
 
     // `window.confirm("…")`, `toast.success("…")`

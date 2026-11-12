@@ -1110,11 +1110,18 @@ export async function exportManuscript(
   //     resolves some intermediate temp files relative to CWD (the musl build
   //     ignores TMPDIR), and the container's default cwd is the read-only /app —
   //     PDF silently degraded to markdown. The export dir is always writable.
+  const contentType =
+    format === "docx"
+      ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      : format === "pdf"
+        ? "application/pdf"
+        : "application/epub+zip";
+  let outputBuffer: Buffer;
   try {
     await execFileAsync(pandocArgs[0], pandocArgs.slice(1), { timeout: 120000, cwd: dirname(inputPath) });
 
-    // Read output file and upload to S3
-    let outputBuffer: Buffer = await readFile(outputPath);
+    // Read the output file; it is uploaded below, outside this try.
+    outputBuffer = await readFile(outputPath);
     // F10: pandoc copies each EPUB split filename (chNNN.xhtml) into that file's
     // <title>; rewrite them to the chapter heading. Best-effort — on any failure
     // keep the original (already-valid) EPUB rather than risk a corrupt archive.
@@ -1129,13 +1136,6 @@ export async function exportManuscript(
         );
       }
     }
-    const contentType =
-      format === "docx"
-        ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        : format === "pdf"
-          ? "application/pdf"
-          : "application/epub+zip";
-    await storage.writeBuffer(storageKey, outputBuffer, contentType);
   } catch (error) {
     // P1-23: a failed conversion is a failure, not "Export Complete" with a
     // markdown file. The command line and stderr stay in the server log.
@@ -1143,6 +1143,16 @@ export async function exportManuscript(
     console.error(`[export] ${format} conversion failed:`, detail);
     await cleanupTemp(tmpDir);
     throw new ExportConversionError(detail);
+  }
+
+  // Review M-3: a storage failure after a good conversion is an export
+  // failure (500 EXPORT_FAILED), not a conversion failure.
+  try {
+    await storage.writeBuffer(storageKey, outputBuffer, contentType);
+  } catch (error) {
+    console.error(`[export] ${format} upload failed:`, error);
+    await cleanupTemp(tmpDir);
+    throw error;
   }
 
   // 11. Cleanup temp files

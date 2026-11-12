@@ -168,6 +168,7 @@ export const EN: UIStrings = {
     nameRequired: "Please enter a book name to continue.",
   },
   common: {
+    notNow: "Not now",
     cancel: "Cancel",
     accept: "Accept",
     reject: "Reject",
@@ -899,6 +900,8 @@ export const EN: UIStrings = {
   },
 
   appUI: {
+    sidebarTitle: "Sidebar",
+    sidebarDescription: "Displays the mobile sidebar.",
     tierProfessional: "The Professional plan unlocks unlimited books, series management, and advanced analytics.",
     showAllChapters: "Show all {count} chapters",
     tierPublisher: "The Publisher plan includes everything in Professional plus priority support and upcoming multi-user seats.",
@@ -1009,6 +1012,7 @@ export const EN: UIStrings = {
   },
 
   screens: {
+    unexpectedErrorNotified: "An unexpected error occurred. Our team has been notified.",
     bookProgress: "Book progress", drafted: "Drafted", edited: "Edited", betaPassed: "Beta passed",
     wordCount: "Word count", recentSessions: "Recent agent sessions", editorialFindings: "Editorial findings",
     modelOverrides: "Model overrides", bookDefaultModel: "Book default model",
@@ -1638,6 +1642,9 @@ export const EN: UIStrings = {
   },
 
   editorChrome: {
+    quickAssistDisclosure: "Quick suggestions may use a faster model than your default.",
+    immersiveEntered: "Entered immersive mode, press Escape to exit",
+    immersiveExited: "Exited immersive mode",
     stillWriting: "Still writing…",
     rewriteComparison: "AI Rewrite Comparison",
     noPreviousChapter: "No previous chapter",
@@ -2129,5 +2136,28 @@ export const EN: UIStrings = {
     AI_GENERATION_FAILED: "The AI could not finish. Please try again.",
     LAST_API_KEY: "You can't remove your last API key. Add another key first.",
     KEY_IN_USE: "This key can't be removed while an AI session is running. Wait for it to finish, then try again.",
+    PROVIDER_KEY_INVALID: "Your AI provider key is no longer valid. Update it in Settings.",
+    MODEL_NO_QUICK_SUGGEST: "This model can't make quick suggestions. Choose another model in Settings.",
+    AI_RESPONSE_TRUNCATED: "The answer was cut off before it could be used. Select less text and try again.",
+  },
+  agentErrors: {
+    PROVIDER_KEY_INVALID: "Your {provider} API key is invalid or has been revoked. Check it in Settings.",
+    PROVIDER_NO_CREDIT: "Your {provider} account is out of credit. Add credit, or choose another model in Settings.",
+    PROVIDER_FORBIDDEN: "Your {provider} API key is not allowed to use this model. Check its permissions.",
+    PROVIDER_RATE_LIMITED: "{provider} is limiting requests right now. Try again in a minute.",
+    PROVIDER_UNAVAILABLE: "{provider} is having temporary problems. Try again in a moment.",
+    PROVIDER_TIMEOUT: "{provider} took too long to answer. Try again.",
+    PROVIDER_RETRYING: "{provider} did not answer this time.",
+    NO_PROVIDER_KEY: "No API key is set up for {provider}. Add one in Settings > API Keys.",
+    DIRECT_KEY_UNSUPPORTED: "This model can't be used with a direct key. Choose another model in Settings.",
+    EMPTY_RESPONSE: "The assistant returned an empty answer. Nothing was billed; please try again.",
+    SESSION_FAILED: "The session stopped because of an error. Please try again.",
+    SESSION_CANCELLED: "Session cancelled.",
+    SESSION_NOT_FOUND: "This session is no longer available. The server may have restarted; start the workflow again.",
+    STREAM_UNAVAILABLE: "Lost the connection to the session. Refresh the page to reconnect.",
+    WORKER_ABSENT: "Background processing is unavailable right now. Try again once it is back.",
+    BACKGROUND_FAILED: "This session could not finish in the background. Start it again to continue.",
+    WORKER_RESTARTED: "This session stopped when the background worker restarted. Start it again to continue.",
+    localFleet: "the local fleet",
   },
 };

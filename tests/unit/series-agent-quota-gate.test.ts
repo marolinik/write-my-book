@@ -25,9 +25,6 @@ vi.mock("@/lib/db", () => ({ db: h.db }));
 vi.mock("@/lib/billing/quota-checker", () => ({
   checkQuota: (...a: unknown[]) => h.checkQuota(...a),
 }));
-vi.mock("@/lib/validation", () => ({
-  startSeriesAgentSchema: { parse: (b: unknown) => h.parse(b) },
-}));
 // Stub heavy import seams so the module loads; none should be reached when the
 // gate denies (the gate is before workflow resolution).
 vi.mock("@/lib/encryption", () => ({ decryptApiKey: vi.fn() }));
@@ -51,19 +48,21 @@ vi.mock("@/lib/agents", () => ({
 }));
 
 import { POST } from "@/app/api/series/[id]/agent/route";
+
+// P2-71: the real startSeriesAgentSchema runs, so the book id is a UUID.
+const BOOK_ID = "11111111-1111-4111-8111-111111111111";
 const ctx = { params: Promise.resolve({ id: "series1" }) };
 const req = () =>
   new Request("http://t/api/series/series1/agent", {
     method: "POST",
-    body: JSON.stringify({ workflowId: "w", bookId: "b1" }),
+    body: JSON.stringify({ workflowId: "w", bookId: BOOK_ID }),
   });
 
 beforeEach(() => {
   vi.clearAllMocks();
   h.requireUser.mockResolvedValue(h.user);
-  h.parse.mockReturnValue({ workflowId: "w", bookId: "b1" });
   h.db.series.findFirst.mockResolvedValue({ id: "series1" });
-  h.db.book.findFirst.mockResolvedValue({ id: "b1" });
+  h.db.book.findFirst.mockResolvedValue({ id: BOOK_ID });
 });
 
 describe("Z3: series-agent plan/quota gate", () => {
@@ -87,5 +86,23 @@ describe("Z3: series-agent plan/quota gate", () => {
     const res = await POST(req() as never, ctx as never);
     expect(h.checkQuota).toHaveBeenCalled();
     expect(res.status).not.toBe(429);
+  });
+});
+
+// P2-71 (Wave 5 Task 8): with the real schema, an invalid body is refused
+// before anything else runs, and the 400 carries only plain messages.
+describe("series-agent body validation (real schema)", () => {
+  it("answers 400 for a non-UUID book id before the quota gate, without raw Zod internals", async () => {
+    const res = await POST(
+      new Request("http://t/api/series/series1/agent", {
+        method: "POST",
+        body: JSON.stringify({ workflowId: "w", bookId: "b1" }),
+      }) as never,
+      ctx as never
+    );
+    expect(res.status).toBe(400);
+    const text = await res.text();
+    expect(text).not.toMatch(/"code"\s*:\s*"invalid_|"expected"\s*:|"received"\s*:/);
+    expect(h.checkQuota).not.toHaveBeenCalled();
   });
 });

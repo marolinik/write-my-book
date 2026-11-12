@@ -190,3 +190,33 @@ describe("reconcilePendingCheckout", () => {
     expect(h.db.subscription.upsert).not.toHaveBeenCalled();
   });
 });
+
+// Wave 2 ledger M8 / M9 (Wave 5 Task 5).
+describe("checkout grants only on Stripe's word, and only to its owner", () => {
+  it("a trial whose subscription Stripe cannot report is retried, never stored as active (M8)", async () => {
+    const stripe = {
+      subscriptions: { retrieve: vi.fn().mockRejectedValue(new Error("Stripe unreachable")) },
+    } as unknown as Stripe;
+    await expect(applyCompletedCheckout(stripe, session({ payment_status: "no_payment_required" }))).rejects.toThrow();
+    expect(h.db.subscription.upsert).not.toHaveBeenCalled();
+  });
+
+  it("a paid checkout still defaults to active when the subscription read fails", async () => {
+    const stripe = {
+      subscriptions: { retrieve: vi.fn().mockRejectedValue(new Error("Stripe unreachable")) },
+    } as unknown as Stripe;
+    expect(await applyCompletedCheckout(stripe, session())).toEqual({ kind: "applied" });
+    expect(h.db.subscription.upsert.mock.calls[0][0].update.status).toBe("active");
+  });
+
+  it("reconcile refuses a pending checkout that belongs to another writer (M9)", async () => {
+    h.db.subscription.findUnique.mockResolvedValue({ userId: "u1", status: "none", pendingCheckoutSessionId: "cs_1", stripeSubscriptionId: null });
+    const stripe = client(stripeSub("active"), session({ metadata: { userId: "someone-else", plan: "indie" } }));
+    expect(await reconcilePendingCheckout(stripe, "u1")).toBe(false);
+    expect(h.db.subscription.upsert).not.toHaveBeenCalled();
+    expect(h.db.subscription.updateMany).toHaveBeenCalledWith({
+      where: { userId: "u1", pendingCheckoutSessionId: "cs_1" },
+      data: { pendingCheckoutSessionId: null },
+    });
+  });
+});

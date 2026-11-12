@@ -167,6 +167,7 @@ export const ZH: UIStrings = {
     nameRequired: "请输入书名以继续。",
   },
   common: {
+    notNow: "暂不",
     cancel: "取消",
     accept: "接受",
     reject: "拒绝",
@@ -889,6 +890,8 @@ export const ZH: UIStrings = {
   },
 
   appUI: {
+    sidebarTitle: "侧边栏",
+    sidebarDescription: "显示移动端侧边栏。",
     tierProfessional: "Professional 套餐解锁无限图书、系列管理和进阶分析。",
     showAllChapters: "显示全部 {count} 章",
     tierPublisher: "Publisher 套餐包含 Professional 的全部内容，另加优先支持与后续的多用户席位。",
@@ -999,6 +1002,7 @@ export const ZH: UIStrings = {
   },
 
   screens: {
+    unexpectedErrorNotified: "发生了意外错误。我们的团队已收到通知。",
     bookProgress: "书稿进度", drafted: "已起草", edited: "已编辑", betaPassed: "通过 Beta",
     wordCount: "字数", recentSessions: "最近的代理会话", editorialFindings: "编辑发现",
     modelOverrides: "模型覆盖", bookDefaultModel: "本书默认模型",
@@ -1627,6 +1631,9 @@ export const ZH: UIStrings = {
   },
 
   editorChrome: {
+    quickAssistDisclosure: "快速建议可能会使用比默认模型更快的模型。",
+    immersiveEntered: "已进入沉浸模式，按 Esc 退出",
+    immersiveExited: "已退出沉浸模式",
     stillWriting: "仍在书写……",
     rewriteComparison: "AI 改写对比",
     noPreviousChapter: "没有上一章",
@@ -2118,5 +2125,28 @@ export const ZH: UIStrings = {
     AI_GENERATION_FAILED: "AI 未能完成。请重试。",
     LAST_API_KEY: "无法删除最后一个 API 密钥。请先添加另一个密钥。",
     KEY_IN_USE: "AI 会话运行期间无法删除此密钥。请等待其完成后重试。",
+    PROVIDER_KEY_INVALID: "您的 AI 服务商密钥已失效。请在设置中更新。",
+    MODEL_NO_QUICK_SUGGEST: "此模型无法提供快速建议。请在设置中选择其他模型。",
+    AI_RESPONSE_TRUNCATED: "回答在可用之前被截断了。请选择更少的文本后重试。",
+  },
+  agentErrors: {
+    PROVIDER_KEY_INVALID: "您的 {provider} API 密钥无效或已被撤销。请在设置中检查。",
+    PROVIDER_NO_CREDIT: "您的 {provider} 账户余额不足。请充值，或在设置中选择其他模型。",
+    PROVIDER_FORBIDDEN: "您的 {provider} API 密钥无权使用此模型。请检查其权限。",
+    PROVIDER_RATE_LIMITED: "{provider} 当前正在限制请求。请一分钟后重试。",
+    PROVIDER_UNAVAILABLE: "{provider} 暂时出现问题。请稍后重试。",
+    PROVIDER_TIMEOUT: "{provider} 响应时间过长。请重试。",
+    PROVIDER_RETRYING: "{provider} 这次没有响应。",
+    NO_PROVIDER_KEY: "尚未为 {provider} 设置 API 密钥。请在“设置 > API 密钥”中添加。",
+    DIRECT_KEY_UNSUPPORTED: "此模型无法使用直连密钥。请在设置中选择其他模型。",
+    EMPTY_RESPONSE: "助手返回了空回复。未产生任何费用；请重试。",
+    SESSION_FAILED: "会话因错误而停止。请重试。",
+    SESSION_CANCELLED: "会话已取消。",
+    SESSION_NOT_FOUND: "此会话已不可用。服务器可能已重启；请重新开始流程。",
+    STREAM_UNAVAILABLE: "与会话的连接已断开。请刷新页面重新连接。",
+    WORKER_ABSENT: "后台处理当前不可用。请在恢复后重试。",
+    BACKGROUND_FAILED: "此会话无法在后台完成。请重新开始以继续。",
+    WORKER_RESTARTED: "后台进程重启时此会话已停止。请重新开始以继续。",
+    localFleet: "本地集群",
   },
 };

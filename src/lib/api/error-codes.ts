@@ -34,6 +34,9 @@ export const API_ERROR_CODES = [
   "AI_GENERATION_FAILED",
   "LAST_API_KEY",
   "KEY_IN_USE",
+  "PROVIDER_KEY_INVALID",
+  "MODEL_NO_QUICK_SUGGEST",
+  "AI_RESPONSE_TRUNCATED",
 ] as const;
 
 export type ApiErrorCode = (typeof API_ERROR_CODES)[number];

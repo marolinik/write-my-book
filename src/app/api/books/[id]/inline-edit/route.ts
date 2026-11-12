@@ -225,6 +225,7 @@ Provide ${data.count} alternative rewrites as a JSON array.`;
           error: truncated
             ? "The rewrite response was cut off before it could be parsed. Try selecting less text, then try again."
             : "No usable rewrites were generated. Please try again.",
+          code: truncated ? "AI_RESPONSE_TRUNCATED" : "AI_RESPONSE_INVALID",
           retryable: true,
         },
         { status: 502, headers: timing }

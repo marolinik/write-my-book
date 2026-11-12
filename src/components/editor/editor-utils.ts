@@ -149,7 +149,7 @@ export function createEditorExtensions(options: {
     // Underline ships inside StarterKit v3; registering it again triggers
     // a duplicate-extension warning and a second schema mark of the same name.
     Placeholder.configure({
-      placeholder: options.placeholder ?? "Start writing...",
+      placeholder: options.placeholder ?? "",
     }),
     TextAlign.configure({
       types: ["heading", "paragraph"],

@@ -30,6 +30,7 @@ import { DocumentService } from "@/lib/documents";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { getDefaultModelId } from "@/lib/llm/defaults";
 import { USER_MODEL_SELECT, globalOverridesOf, userModelSettingsOf } from "@/lib/llm/model-resolver";
+import { agentErrorFrame } from "@/lib/agents/agent-error-frame";
 
 type RouteParams = {
   params: Promise<{ id: string; sessionId: string }>;
@@ -280,11 +281,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         });
 
         if (emptyReply) {
-          pushMessage(sessionId, {
-            type: "error",
-            content:
-              "The assistant returned an empty response — it may have run out of output space. Nothing was billed; please try again.",
-          });
+          pushMessage(sessionId, agentErrorFrame("EMPTY_RESPONSE"));
           return;
         }
 
@@ -307,7 +304,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         });
       },
       onError: async (error: Error, partial?: { documentIds: string[] }) => {
-        pushMessage(sessionId, { type: "error", content: error.message });
+        console.error("[agent/message] session error:", error);
+        pushMessage(sessionId, agentErrorFrame("SESSION_FAILED"));
         completeSession(sessionId, {
           success: false,
           tokensInput: 0,

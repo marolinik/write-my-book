@@ -117,6 +117,7 @@ async function typeForMs(
   do {
     await typeSlow(page, `${words[i % words.length]} `);
     i++;
+    // Deliberate pacing (P2-67 ruling): models a writer's pause, waits on nothing.
     if (totalMs > 400) await page.waitForTimeout(300);
   } while (Date.now() - start < totalMs);
 }
@@ -322,6 +323,7 @@ test.describe("Z13 — rapid navigation / panel-toggle console hygiene", () => {
       const target = i % 2 === 0 ? chapter2 : chapter1;
       await page.goto(`/books/${bookId}/chapters/${target}`);
       // Intentionally no networkidle wait — that's the point of "rapid".
+      // Deliberate pacing (P2-67 ruling).
       await page.waitForTimeout(150);
     }
     await page.waitForLoadState("networkidle");
@@ -337,7 +339,9 @@ test.describe("Z13 — rapid navigation / panel-toggle console hygiene", () => {
       await page.waitForTimeout(80);
     }
 
-    await page.waitForTimeout(1_000); // let any deferred async rejections surface
+    // Deliberate (P2-67 ruling): this asserts an ABSENCE of late rejections,
+    // which no poll can prove; the second is the window they get to appear.
+    await page.waitForTimeout(1_000);
 
     // ERR_NAME_NOT_RESOLVED / Clerk-load failures are ambient noise in this
     // env (clerk.example.test is an unresolvable placeholder domain) —

@@ -45,6 +45,9 @@ vi.mock("next/navigation", () => ({ useRouter: () => routerMock }));
 
 import { AIGhostText } from "@/components/editor/ai-ghost-text";
 import { WALL_RETRY_MS } from "@/components/editor/quick-assist-client-errors";
+import { getUIStrings } from "@/lib/i18n/ui-strings";
+
+const EN_T = getUIStrings("en");
 
 const LONG_TEXT =
   "That night Sam sat at the desk and wrote about the"; // 50 chars — meets MIN_CONTEXT_LENGTH
@@ -394,7 +397,8 @@ describe("AIGhostText — errors surface, accept joins + is tappable, wall persi
     await typePauseAndSettle(fireUpdate);
 
     const banner = screen.getByRole("alert");
-    expect(banner.textContent).toContain(capCopy);
+    // P2-31: the wall is the plan-limit sentence in the writer's language, not the server's English.
+    expect(banner.textContent).toContain(EN_T.apiErrors.PLAN_LIMIT);
     // The wall does NOT go through the cooled-down toast anymore.
     expect(toastMock.error).not.toHaveBeenCalled();
 
@@ -427,7 +431,7 @@ describe("AIGhostText — errors surface, accept joins + is tappable, wall persi
     // Still exactly one banner, still visible — no silent wall (D-129 regression).
     const banners = screen.getAllByRole("alert");
     expect(banners).toHaveLength(1);
-    expect(banners[0].textContent).toContain("Free plan cap reached.");
+    expect(banners[0].textContent).toContain(EN_T.apiErrors.PLAN_LIMIT);
     expect(toastMock.error).not.toHaveBeenCalled();
   });
 
@@ -650,8 +654,6 @@ describe("AIGhostText — errors surface, accept joins + is tappable, wall persi
     });
 
     expect(screen.queryByRole("status")).toBeNull();
-    expect(toastMock.error).toHaveBeenCalledWith(
-      "The suggestion service is down."
-    );
+    expect(toastMock.error).toHaveBeenCalledWith(EN_T.apiErrors.SERVER_ERROR);
   });
 });

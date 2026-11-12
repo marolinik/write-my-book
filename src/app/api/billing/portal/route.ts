@@ -33,6 +33,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ url: session.url });
   } catch (error) {
+    if ((error as Error).message === "Unauthorized") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     console.error("Portal error:", error);
     return NextResponse.json(
       { error: "Failed to create portal session" },

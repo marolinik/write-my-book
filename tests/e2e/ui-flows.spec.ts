@@ -263,8 +263,6 @@ test.describe.serial("Writer Journey — UI Flows", () => {
     // width < 768 (use-mobile.ts), so 768 exactly is desktop; use a
     // clearly-mobile width to avoid the boundary.
     await page.setViewportSize({ width: 640, height: 900 });
-    // Wait for resize to take effect
-    await page.waitForTimeout(500);
 
     // On offcanvas mode, the sidebar should not be visible by default
     // The Sidebar uses collapsible="offcanvas" which hides it on narrow screens
@@ -275,13 +273,13 @@ test.describe.serial("Writer Journey — UI Flows", () => {
     // The sidebar wrapper gets data-state="collapsed" or becomes offscreen
     const sidebarWrapper = page.locator('[data-state="collapsed"]');
     // Either sidebar is hidden or the wrapper is collapsed
-    const sidebarHidden = await sidebarAfterNarrow.isHidden().catch(() => true);
-    const wrapperCollapsed = (await sidebarWrapper.count()) > 0;
-    expect(sidebarHidden || wrapperCollapsed).toBeTruthy();
+    // P2-67: poll for the collapse instead of sleeping 500 ms.
+    await expect
+      .poll(async () => (await sidebarAfterNarrow.isHidden().catch(() => true)) || (await sidebarWrapper.count()) > 0)
+      .toBe(true);
 
     // 5. Restore wide viewport — sidebar visible again
     await page.setViewportSize({ width: 1600, height: 900 });
-    await page.waitForTimeout(500);
     await expect(
       page.locator('[data-sidebar="sidebar"]').first()
     ).toBeVisible();
@@ -344,8 +342,12 @@ test.describe.serial("Writer Journey — UI Flows", () => {
       .filter({ has: page.locator('svg') })
       .last();
 
-    // Give the UI a moment to transition
-    await page.waitForTimeout(500);
+    // P2-67: wait for the panel's content to appear (bounded), not a fixed 500 ms.
+    await page
+      .getByText(/workflow|recommend|writing coach|api key|getting started|select a workflow/i)
+      .first()
+      .waitFor({ state: "visible", timeout: 5_000 })
+      .catch(() => {});
 
     // Verify: the agent panel overlay or panel wrapper appeared
     // The FloatingAgentOverlay renders a div with role="dialog" or a visible container
@@ -484,7 +486,7 @@ test.describe.serial("Writer Journey — UI Flows", () => {
 
     // After filtering to dismissed, the finding from test (n) should appear
     // (it was dismissed in the previous test)
-    await page.waitForTimeout(500);
+    await expect(page.getByRole("listbox")).toBeHidden();
 
     // Now click "Reset all" to clear filters
     const resetBtn = page.getByRole("button", { name: /reset all/i });
@@ -492,7 +494,6 @@ test.describe.serial("Writer Journey — UI Flows", () => {
     await resetBtn.click();
 
     // After reset, findings should appear again (or empty state)
-    await page.waitForTimeout(500);
     // The filter triggers should show "All..." values again
     await expect(statusTrigger).toContainText(/all/i);
   });
@@ -522,7 +523,11 @@ test.describe.serial("Writer Journey — UI Flows", () => {
 
     // Click to open the agent panel
     await toggleBtn.click();
-    await page.waitForTimeout(500);
+    await page
+      .getByText(/workflow|writing coach|recommend|getting started|select|api key/i)
+      .first()
+      .waitFor({ state: "visible", timeout: 5_000 })
+      .catch(() => {});
 
     // The panel/overlay should now be visible
     // In desktop mode, it opens as overlay (FloatingAgentOverlay) or panel
@@ -544,7 +549,6 @@ test.describe.serial("Writer Journey — UI Flows", () => {
       // At minimum the bot button should now have secondary variant
       // We can check that a second click closes it (toggle behavior)
       await toggleBtn.click();
-      await page.waitForTimeout(300);
       // If we got here without errors, the toggle mechanism works
     }
   });

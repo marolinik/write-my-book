@@ -24,6 +24,7 @@ import {
 } from "@/hooks/use-api-keys";
 import { useLanguage } from "@/components/providers/language-provider";
 import type { ProviderDefinition } from "@/lib/llm/providers";
+import { describeApiError } from "@/lib/api/describe-api-error";
 
 // ─── Icon map ──────────────────────────────────────────────────
 
@@ -120,11 +121,9 @@ export function ProviderCard({
       onKeyAdded?.();
     } catch (err) {
       setState("error");
-      setErrorMessage(
-        err instanceof Error ? err.message : "Validation failed"
-      );
+      setErrorMessage(describeApiError(err, t));
     }
-  }, [keyInput, labelInput, provider.key, addKey, onKeyAdded]);
+  }, [keyInput, labelInput, provider.key, addKey, onKeyAdded, t]);
 
   const handleRemove = useCallback(async () => {
     if (!existingKey?.id) return;

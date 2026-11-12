@@ -11,11 +11,20 @@ const h = vi.hoisted(() => ({
   list: [] as string[],
   status: null as string | null,
   beforeLrange: null as null | (() => void),
+  dbSession: { jobId: "job1", status: "running" } as null | { jobId: string; status: string },
+  findFirstArgs: [] as unknown[],
 }));
 
 vi.mock("@/lib/auth", () => ({ requireUser: async () => ({ id: "u1" }) }));
 vi.mock("@/lib/db", () => ({
-  db: { agentSession: { findFirst: async () => ({ jobId: "job1", status: "running" }) } },
+  db: {
+    agentSession: {
+      findFirst: async (args: unknown) => {
+        h.findFirstArgs.push(args);
+        return h.dbSession;
+      },
+    },
+  },
 }));
 vi.mock("@/lib/agents", () => ({ getSession: () => undefined, addListener: () => () => {} }));
 vi.mock("@/lib/health/worker-liveness", () => ({
@@ -63,6 +72,24 @@ beforeEach(() => {
   h.list = [];
   h.status = null;
   h.beforeLrange = null;
+  h.dbSession = { jobId: "job1", status: "running" };
+  h.findFirstArgs = [];
+});
+
+// P2-64 (Wave 5 Task 6): the stream is ownership-checked like every other session route.
+describe("stream ownership", () => {
+  it("answers another writer's session with one coded SESSION_NOT_FOUND event and closes", async () => {
+    h.dbSession = null;
+    const res = await GET(new NextRequest("http://test/api/books/b1/agent/s1/stream"), {
+      params: Promise.resolve({ id: "b1", sessionId: "s1" }),
+    });
+    const body = await readAll(res);
+    const frames = body.split("\n\n").filter(Boolean);
+    expect(frames).toHaveLength(1);
+    const data = frames[0].slice(frames[0].indexOf("data: ") + "data: ".length);
+    expect(JSON.parse(data)).toMatchObject({ type: "error", metadata: { code: "SESSION_NOT_FOUND" } });
+    expect(h.findFirstArgs[0]).toMatchObject({ where: { id: "s1", bookId: "b1", userId: "u1" } });
+  });
 });
 
 describe("live event envelope", () => {

@@ -167,6 +167,7 @@ export const FR: UIStrings = {
     nameRequired: "Saisissez un nom de livre pour continuer.",
   },
   common: {
+    notNow: "Pas maintenant",
     cancel: "Annuler",
     accept: "Accepter",
     reject: "Rejeter",
@@ -889,6 +890,8 @@ export const FR: UIStrings = {
   },
 
   appUI: {
+    sidebarTitle: "Barre latérale",
+    sidebarDescription: "Affiche la barre latérale mobile.",
     tierProfessional: "L’offre Professional débloque un nombre illimité de livres, la gestion des séries et les analyses avancées.",
     showAllChapters: "Afficher les {count} chapitres",
     tierPublisher: "L’offre Publisher comprend tout Professional, plus le support prioritaire et les futurs sièges multi-utilisateurs.",
@@ -999,6 +1002,7 @@ export const FR: UIStrings = {
   },
 
   screens: {
+    unexpectedErrorNotified: "Une erreur inattendue s’est produite. Notre équipe a été prévenue.",
     bookProgress: "Progression du livre", drafted: "Rédigé", edited: "Révisé", betaPassed: "Bêta validée",
     wordCount: "Nombre de mots", recentSessions: "Sessions récentes", editorialFindings: "Constats éditoriaux",
     modelOverrides: "Modifications de modèle", bookDefaultModel: "Modèle par défaut du livre",
@@ -1627,6 +1631,9 @@ export const FR: UIStrings = {
   },
 
   editorChrome: {
+    quickAssistDisclosure: "Les suggestions rapides peuvent utiliser un modèle plus rapide que celui par défaut.",
+    immersiveEntered: "Mode immersif activé, appuyez sur Échap pour quitter",
+    immersiveExited: "Mode immersif quitté",
     stillWriting: "Écrit encore…",
     rewriteComparison: "Comparaison de la réécriture IA",
     noPreviousChapter: "Aucun chapitre précédent",
@@ -2118,5 +2125,28 @@ export const FR: UIStrings = {
     AI_GENERATION_FAILED: "L’IA n’a pas pu terminer. Veuillez réessayer.",
     LAST_API_KEY: "Vous ne pouvez pas supprimer votre dernière clé API. Ajoutez d’abord une autre clé.",
     KEY_IN_USE: "Impossible de supprimer la clé pendant qu’une session IA est en cours. Attendez qu’elle se termine, puis réessayez.",
+    PROVIDER_KEY_INVALID: "La clé de votre fournisseur d’IA n’est plus valide. Mettez-la à jour dans les Paramètres.",
+    MODEL_NO_QUICK_SUGGEST: "Ce modèle ne peut pas faire de suggestions rapides. Choisissez un autre modèle dans les Paramètres.",
+    AI_RESPONSE_TRUNCATED: "La réponse a été coupée avant de pouvoir être utilisée. Sélectionnez moins de texte et réessayez.",
+  },
+  agentErrors: {
+    PROVIDER_KEY_INVALID: "Votre clé API {provider} est invalide ou a été révoquée. Vérifiez-la dans les Paramètres.",
+    PROVIDER_NO_CREDIT: "Votre compte {provider} n’a plus de crédit. Ajoutez du crédit ou choisissez un autre modèle dans les Paramètres.",
+    PROVIDER_FORBIDDEN: "Votre clé API {provider} n’est pas autorisée à utiliser ce modèle. Vérifiez ses autorisations.",
+    PROVIDER_RATE_LIMITED: "{provider} limite les requêtes pour le moment. Réessayez dans une minute.",
+    PROVIDER_UNAVAILABLE: "{provider} rencontre des problèmes temporaires. Réessayez dans un instant.",
+    PROVIDER_TIMEOUT: "{provider} a mis trop de temps à répondre. Réessayez.",
+    PROVIDER_RETRYING: "{provider} n’a pas répondu cette fois.",
+    NO_PROVIDER_KEY: "Aucune clé API n’est configurée pour {provider}. Ajoutez-en une dans Paramètres > Clés API.",
+    DIRECT_KEY_UNSUPPORTED: "Ce modèle ne peut pas être utilisé avec une clé directe. Choisissez un autre modèle dans les Paramètres.",
+    EMPTY_RESPONSE: "L’assistant a renvoyé une réponse vide. Rien n’a été facturé ; réessayez.",
+    SESSION_FAILED: "La session s’est arrêtée à cause d’une erreur. Réessayez.",
+    SESSION_CANCELLED: "Session annulée.",
+    SESSION_NOT_FOUND: "Cette session n’est plus disponible. Le serveur a peut-être redémarré ; relancez le flux.",
+    STREAM_UNAVAILABLE: "La connexion à la session a été perdue. Rechargez la page pour vous reconnecter.",
+    WORKER_ABSENT: "Le traitement en arrière-plan est indisponible pour le moment. Réessayez quand il sera rétabli.",
+    BACKGROUND_FAILED: "Cette session n’a pas pu se terminer en arrière-plan. Relancez-la pour continuer.",
+    WORKER_RESTARTED: "Cette session s’est arrêtée au redémarrage du processus en arrière-plan. Relancez-la pour continuer.",
+    localFleet: "la flotte locale",
   },
 };

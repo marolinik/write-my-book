@@ -2,6 +2,7 @@
 import { describe, it, expect } from "vitest";
 import { readQuickAssistFrames } from "@/components/editor/quick-assist-stream-client";
 import { quickAssistErrorNotice } from "@/components/editor/quick-assist-client-errors";
+import { getUIStrings } from "@/lib/i18n/ui-strings";
 
 /**
  * D5 — `readQuickAssistFrames` reassembles `data: {json}\n\n` SSE frames from a
@@ -99,9 +100,9 @@ describe("readQuickAssistFrames (D5) — SSE frame reassembly", () => {
       new AbortController().signal
     )) as Array<Record<string, unknown>>;
     expect(frames).toHaveLength(1);
-    const notice = quickAssistErrorNotice(frames[0]);
+    const notice = quickAssistErrorNotice(frames[0], getUIStrings("en"));
     expect(notice.openSettings).toBe(true);
-    expect(notice.message).toContain("only reasoning");
+    expect(notice.message).toBe(getUIStrings("en").apiErrors.MODEL_NO_QUICK_SUGGEST);
   });
 
   it("returns silently on an aborted signal before reading", async () => {

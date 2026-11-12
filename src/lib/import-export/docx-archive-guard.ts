@@ -1,5 +1,4 @@
-import { inflateRaw } from "node:zlib";
-import { promisify } from "node:util";
+import { createInflateRaw } from "node:zlib";
 
 /**
  * P1-24: a .docx is a zip, and mammoth inflated it whole with no cap, so a
@@ -26,7 +25,6 @@ const ZIP64_MARKER = 0xffffffff;
 const METHOD_STORED = 0;
 const METHOD_DEFLATE = 8;
 
-const inflateRawAsync = promisify(inflateRaw);
 
 interface CentralEntry {
   name: string;
@@ -94,14 +92,41 @@ async function inflatesWithinDeclaredSize(
   if (entry.method !== METHOD_DEFLATE) return "NOT_A_DOCX";
   const data = entryData(buf, entry);
   if (!data) return "NOT_A_DOCX";
-  try {
-    await inflateRawAsync(data, { maxOutputLength: Math.max(entry.uncompressedSize, 1) });
-    return true;
-  } catch (error) {
-    return (error as NodeJS.ErrnoException).code === "ERR_BUFFER_TOO_LARGE"
-      ? "ARCHIVE_TOO_LARGE"
-      : "NOT_A_DOCX";
-  }
+  return inflatesWithin(data, Math.max(entry.uncompressedSize, 1));
+}
+
+/**
+ * Review M-2: inflate as a stream, counting bytes and keeping none, so an
+ * inspection holds one zlib chunk (16 KB) at a time instead of the whole
+ * entry, and stops the moment the output passes `limit`. `onChunk` lets a
+ * test see the chunk sizes.
+ */
+export function inflatesWithin(
+  data: Buffer,
+  limit: number,
+  onChunk?: (bytes: number) => void
+): Promise<true | DocxArchiveRefusal> {
+  return new Promise((resolve) => {
+    const inflate = createInflateRaw();
+    let total = 0;
+    let settled = false;
+    const finish = (verdict: true | DocxArchiveRefusal) => {
+      if (settled) return;
+      settled = true;
+      resolve(verdict);
+    };
+    inflate.on("data", (chunk: Buffer) => {
+      onChunk?.(chunk.length);
+      total += chunk.length;
+      if (total > limit) {
+        finish("ARCHIVE_TOO_LARGE");
+        inflate.destroy();
+      }
+    });
+    inflate.on("end", () => finish(true));
+    inflate.on("error", () => finish("NOT_A_DOCX"));
+    inflate.end(data);
+  });
 }
 
 export async function inspectDocxArchive(input: Buffer | ArrayBuffer): Promise<DocxArchiveInspection> {

@@ -9,10 +9,11 @@ import { deflateRawSync } from "node:zlib";
 import JSZip from "jszip";
 import { inspectDocxArchive, convertDocxSafely } from "@/lib/import-export/docx-to-markdown";
 
-const h = vi.hoisted(() => ({ counts: new Map<string, number>() }));
+const h = vi.hoisted(() => ({ counts: new Map<string, number>(), hang: false }));
 vi.mock("@/lib/queue/connection", () => ({
   getAppConnection: () => ({
     set: async (key: string) => {
+      if (h.hang) await new Promise(() => {});
       if (!h.counts.has(key)) h.counts.set(key, 0);
       return "OK";
     },
@@ -22,6 +23,30 @@ vi.mock("@/lib/queue/connection", () => ({
       return next;
     },
     expire: async () => 1,
+    // Review M-5: one MULTI round trip; `hang` stands for a Redis that never answers.
+    multi: () => {
+      const ops: Array<() => unknown> = [];
+      const chain = {
+        set: (key: string) => {
+          ops.push(() => {
+            if (!h.counts.has(key)) h.counts.set(key, 0);
+            return "OK";
+          });
+          return chain;
+        },
+        incr: (key: string) => {
+          ops.push(() => {
+            const next = (h.counts.get(key) ?? 0) + 1;
+            h.counts.set(key, next);
+            return next;
+          });
+          return chain;
+        },
+        exec: () =>
+          h.hang ? new Promise(() => {}) : Promise.resolve(ops.map((op) => [null, op()])),
+      };
+      return chain;
+    },
   }),
 }));
 
@@ -121,11 +146,70 @@ describe("the import routes", () => {
 });
 
 describe("rateLimit", () => {
-  beforeEach(() => h.counts.clear());
+  beforeEach(() => {
+    h.counts.clear();
+    h.hang = false;
+  });
+
+  it("lets the request through within about a second when Redis does not answer (review M-5)", async () => {
+    h.hang = true;
+    const started = Date.now();
+    expect(await rateLimit("import:u9", 10, 600)).toBe(true);
+    expect(Date.now() - started).toBeLessThan(1500);
+  });
 
   it("allows up to the limit in the window, then refuses", async () => {
     for (let i = 0; i < 10; i++) expect(await rateLimit("import:u1", 10, 600)).toBe(true);
     expect(await rateLimit("import:u1", 10, 600)).toBe(false);
     expect(await rateLimit("import:u2", 10, 600)).toBe(true);
+  });
+});
+
+// Wave 4 review M-2: the inspection inflated each entry whole (up to 200 MB in
+// memory) before mammoth inflated it again, and the limiter counted requests,
+// not concurrency, so one writer could run many inspections at once.
+describe("the inspection streams, and conversions per writer are bounded", () => {
+  it("counts inflated bytes chunk by chunk without keeping them", async () => {
+    const { inflatesWithin } = await import("@/lib/import-export/docx-archive-guard");
+    const data = deflateRawSync(Buffer.alloc(20 * 1024 * 1024));
+    let largest = 0;
+    expect(await inflatesWithin(data, 20 * 1024 * 1024, (n) => (largest = Math.max(largest, n)))).toBe(true);
+    expect(largest).toBeGreaterThan(0);
+    expect(largest).toBeLessThanOrEqual(64 * 1024);
+    expect(await inflatesWithin(data, 1024 * 1024)).toBe("ARCHIVE_TOO_LARGE");
+    expect(await inflatesWithin(Buffer.from("not deflate"), 10)).toBe("NOT_A_DOCX");
+  });
+
+  it("a third conversion at once for the same writer is refused, others are not", async () => {
+    const buffer = await zip({ "[Content_Types].xml": "<Types/>", "word/document.xml": "<w:document>hi</w:document>" });
+    const gates: Array<() => void> = [];
+    const slow = () => new Promise<string>((resolve) => gates.push(() => resolve("# done")));
+    const first = convertDocxSafely(buffer, { convert: slow, slotKey: "u1" });
+    const second = convertDocxSafely(buffer, { convert: slow, slotKey: "u1" });
+    await vi.waitFor(() => expect(gates).toHaveLength(2));
+    expect(await convertDocxSafely(buffer, { convert: slow, slotKey: "u1" })).toEqual({ ok: false, code: "RATE_LIMITED" });
+    const other = convertDocxSafely(buffer, { convert: async () => "# other", slotKey: "u2" });
+    expect(await other).toEqual({ ok: true, markdown: "# other" });
+    gates.forEach((open) => open());
+    await Promise.all([first, second]);
+    expect(await convertDocxSafely(buffer, { convert: async () => "# again", slotKey: "u1" })).toEqual({ ok: true, markdown: "# again" });
+  });
+
+  it("a timed-out conversion keeps its slot until it really stops", async () => {
+    const buffer = await zip({ "[Content_Types].xml": "<Types/>", "word/document.xml": "<w:document>hi</w:document>" });
+    let release: () => void = () => {};
+    const stuck = () => new Promise<string>((resolve) => (release = () => resolve("# late")));
+    expect(await convertDocxSafely(buffer, { convert: stuck, slotKey: "u3", timeoutMs: 5 })).toEqual({ ok: false, code: "CONVERSION_TIMEOUT" });
+    expect(await convertDocxSafely(buffer, { convert: stuck, slotKey: "u3", timeoutMs: 5 })).toEqual({ ok: false, code: "CONVERSION_TIMEOUT" });
+    expect(await convertDocxSafely(buffer, { convert: stuck, slotKey: "u3" })).toEqual({ ok: false, code: "RATE_LIMITED" });
+    release();
+  });
+
+  it("both import routes pass the writer as the slot and answer 429 when busy", () => {
+    for (const route of ["src/app/api/books/[id]/import/route.ts", "src/app/api/books/[id]/import/preview/route.ts"]) {
+      const src = readFileSync(join(__dirname, "..", "..", route), "utf-8");
+      expect(src, route).toMatch(/slotKey: /);
+      expect(src, route).toMatch(/converted\.code === "RATE_LIMITED"[\s\S]{0,200}status: 429/);
+    }
   });
 });

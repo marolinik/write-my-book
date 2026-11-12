@@ -5,6 +5,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useAgentSessionStore, type SessionState, type SessionResultMeta } from "@/stores/agent-session-store";
 import type { AgentStreamMessage, AgentResult } from "@/lib/agents/types";
+import { localizeAgentStreamMessage, renderAgentError } from "@/lib/agents/agent-errors";
+import { useLanguage } from "@/components/providers/language-provider";
 
 /**
  * Manages SSE connections for all running agent sessions.
@@ -135,6 +137,10 @@ export function useAgentStream(
   const updateSessionCost = useAgentSessionStore((s) => s.updateSessionCost);
   const queryClient = useQueryClient();
   const router = useRouter();
+  // Read at message time, so a language switch does not reopen every stream.
+  const { t, language } = useLanguage();
+  const languageRef = useRef({ t, language });
+  languageRef.current = { t, language };
 
   useEffect(() => {
     if (!bookId && !seriesId) return;
@@ -181,10 +187,7 @@ export function useAgentStream(
           queueWaitTimers.delete(sid);
           const st = useAgentSessionStore.getState().sessions[sid];
           if (!st || st.status !== "running") return;
-          setSessionError(
-            sid,
-            "Still waiting for background processing to start — no worker appears to be available. Please try again in a moment."
-          );
+          setSessionError(sid, renderAgentError(languageRef.current.t, "WORKER_ABSENT"));
           es.close();
           currentSources.delete(sid);
           setConnectedSessions((prev) => {
@@ -203,7 +206,13 @@ export function useAgentStream(
         // First byte from the stream means the worker is consuming — stand down.
         clearQueueWaitTimer(sid);
         try {
-          const message = JSON.parse(event.data) as AgentStreamMessage;
+          // P2-31: a coded error or retry status is rendered in the interface language.
+          const { t, language } = languageRef.current;
+          const message = localizeAgentStreamMessage(
+            JSON.parse(event.data) as AgentStreamMessage,
+            t,
+            language
+          );
 
           if (message.type === "complete") {
             // D-36: inline sessions replay a trailing 'complete' whose
@@ -218,7 +227,7 @@ export function useAgentStream(
                 sid,
                 typeof message.content === "string" && message.content
                   ? message.content
-                  : "Session failed"
+                  : renderAgentError(languageRef.current.t, "SESSION_FAILED")
               );
               es.close();
               currentSources.delete(sid);
@@ -316,13 +325,13 @@ export function useAgentStream(
           if (message.type === "error") {
             const content = message.content ?? "";
 
-            // Detect key revocation/invalidation from error messages.
-            // error-translator.ts produces messages containing these patterns
-            // when an LLM provider rejects the API key mid-session.
+            // A provider that rejected the key mid-session says so by code and
+            // action (P2-31), not by English text the client had to match.
+            const code = message.metadata?.code;
             const isKeyError =
-              /API key.*(invalid|revoked|expired|no longer valid)/i.test(content) ||
-              /check your key|update.*in Settings|authentication.*failed/i.test(content) ||
-              /401|Unauthorized/i.test(content);
+              message.metadata?.action === "check-key" ||
+              code === "PROVIDER_KEY_INVALID" ||
+              code === "PROVIDER_FORBIDDEN";
 
             if (isKeyError) {
               // Invalidate API keys cache so settings page refreshes key status
@@ -358,10 +367,7 @@ export function useAgentStream(
         const currentState = useAgentSessionStore.getState();
         const s = currentState.sessions[sid];
         if (s && s.status === "running") {
-          setSessionError(
-            sid,
-            "Connection to agent lost. The agent may have crashed or the server restarted. Try starting a new workflow."
-          );
+          setSessionError(sid, renderAgentError(languageRef.current.t, "STREAM_UNAVAILABLE"));
         }
       };
     }

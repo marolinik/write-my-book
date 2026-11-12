@@ -151,7 +151,7 @@ worker.on("failed", (job, error) => {
     markSessionTerminal(
       job.data.sessionId,
       "failed",
-      "This session could not finish in the background. Start it again to continue."
+      "BACKGROUND_FAILED"
     ).catch((markError: unknown) =>
       reportWorkerError("[Worker] could not mark the failed session:", markError as Error)
     );

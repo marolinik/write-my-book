@@ -52,6 +52,7 @@ import type { AgentJobData } from "@/lib/queue";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { getDefaultModelId } from "@/lib/llm/defaults";
 import { USER_MODEL_SELECT, globalOverridesOf, userModelSettingsOf, bookModelSettingsOf } from "@/lib/llm/model-resolver";
+import { agentErrorFrame } from "@/lib/agents/agent-error-frame";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -341,7 +342,10 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       if (!keyValid.valid) {
         const providerName = validationProvider.charAt(0).toUpperCase() + validationProvider.slice(1);
         return NextResponse.json(
-          { error: `Your ${providerName} API key is no longer valid: ${keyValid.error}. Please update it in Settings.` },
+          {
+            error: `Your ${providerName} API key is no longer valid: ${keyValid.error}. Please update it in Settings.`,
+            code: "PROVIDER_KEY_INVALID",
+          },
           { status: 400 }
         );
       }
@@ -693,11 +697,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
             !result.cancelled &&
             replyText.length === 0
           ) {
-            onMessage({
-              type: "error",
-              content:
-                "The assistant returned an empty response — it may have run out of output space. Nothing was billed; please try again.",
-            });
+            onMessage(agentErrorFrame("EMPTY_RESPONSE"));
             return;
           }
 
@@ -722,10 +722,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         },
         onError: async (error: Error, partial?: { documentIds: string[] }) => {
           // Sanitize error before sending to client
-          onMessage({
-            type: "error",
-            content: "An error occurred during the agent session. Please try again.",
-          });
+          console.error("[agent] session error:", error);
+          onMessage(agentErrorFrame("SESSION_FAILED"));
           completeSession(dbSession.id, {
             success: false,
             tokensInput: 0,

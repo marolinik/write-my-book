@@ -1,5 +1,16 @@
 import { test, expect } from "@playwright/test";
 import { uniqueName } from "./fixtures";
+import { execFileSync } from "node:child_process";
+
+/** Pandoc on the machine running the server (local runs share it). */
+function pandocInstalled(): boolean {
+  try {
+    execFileSync("pandoc", ["--version"], { stdio: "ignore" });
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Full Writing Workflow Smoke Test
@@ -356,14 +367,19 @@ test.describe("Full Writing Workflow Smoke Test", () => {
   test("Step 10 — Export manuscript", async ({ request }) => {
     expect(bookId).toBeTruthy();
 
-    // Try export — may fail if Pandoc not installed, that's OK
     const res = await request.post(`/api/books/${bookId}/export`, {
       data: { format: "docx" },
     });
-    // 200 (success) or 502 CONVERSION_FAILED when Pandoc is not available
-    // (P1-23: a failed conversion is reported as a failure, not a .md file).
-    expect([200, 502]).toContain(res.status());
-    if (res.status() === 502) {
+    // P2-66: with Pandoc present the export must succeed AND be the format
+    // asked for (the 09-19 defect answered 200 with a .md). Without it, the
+    // only honest answer is 502 CONVERSION_FAILED (P1-23), never a 500.
+    if (process.env.E2E_EXPECT_EXPORT === "1" || pandocInstalled()) {
+      expect(res.status()).toBe(200);
+      const result = await res.json();
+      expect(result.format).toBe("docx");
+      expect(result.filename).toMatch(/\.docx$/);
+    } else {
+      expect(res.status()).toBe(502);
       expect((await res.json()).code).toBe("CONVERSION_FAILED");
     }
   });

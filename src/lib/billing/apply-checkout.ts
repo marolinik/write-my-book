@@ -194,12 +194,19 @@ export async function applyCompletedCheckout(
   try {
     fields = subscriptionFields(await stripeClient.subscriptions.retrieve(subscriptionId));
   } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    // Wave 2 M8: a trial took no money, so only Stripe can say it is a trial
+    // (and until when). Grant nothing yet: the webhook answers 500 and Stripe
+    // retries; the self-heal tries again on the next read.
+    if (session.payment_status !== "paid") {
+      throw new Error(`could not read the subscription of trial checkout ${session.id}: ${detail}`);
+    }
     // The session is paid, so "active" is the honest default; the
     // subscription poll fills the period in on the next read.
     logger.warn("[billing] could not read the subscription of a paid checkout", {
       userId,
       subscriptionId,
-      error: error instanceof Error ? error.message : String(error),
+      error: detail,
     });
   }
 
@@ -245,6 +252,19 @@ export async function reconcilePendingCheckout(
     return false;
   }
   if (session.status !== "complete") return false;
+  // Wave 2 M9: the row names the session, but the session names its buyer.
+  // A session bought by someone else is never applied to this writer.
+  if (session.metadata?.userId !== userId) {
+    logger.error("[billing] pending checkout belongs to another writer", new Error("checkout owner mismatch"), {
+      userId,
+      checkoutSessionId: pendingId,
+    });
+    await db.subscription.updateMany({
+      where: { userId, pendingCheckoutSessionId: pendingId },
+      data: { pendingCheckoutSessionId: null },
+    });
+    return false;
+  }
   const result = await applyCompletedCheckout(stripeClient, session);
   return result.kind === "applied";
 }

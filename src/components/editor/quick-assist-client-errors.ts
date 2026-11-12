@@ -6,9 +6,11 @@
  * writer-facing notice the clients surface.
  */
 import { MODEL_NO_QUICK_SUGGEST_CODE } from "@/lib/llm/quick-assist";
+import { describeApiError } from "@/lib/api/describe-api-error";
+import type { UIStrings } from "@/lib/i18n/ui-strings/types";
 
 export interface QuickAssistErrorNotice {
-  /** Writer-facing copy — the server's own `error` string when present. */
+  /** Writer-facing copy in the interface language (P2-31), by code or status. */
   message: string;
   /** True for the MODEL_NO_QUICK_SUGGEST 422 — offer the settings deep-link. */
   openSettings: boolean;
@@ -19,31 +21,23 @@ export interface QuickAssistErrorNotice {
   upgrade: boolean;
 }
 
-export const QUICK_ASSIST_FALLBACK_MESSAGE =
-  "AI suggestions are unavailable right now. Please try again in a moment.";
 
 /**
- * D-127 — quick suggestions can run on a different model than the writer's
- * default (reasoning models are routed around at quick-assist budgets).
- * Point-of-use disclosure rendered by both quick-assist surfaces.
+ * P2-31: the notice is the failure's code (or status) in the writer's
+ * language; the server's English `error` stays in the body for logs. A
+ * stream error frame carries its own `status`; a response passes it in.
  */
-export const QUICK_ASSIST_DISCLOSURE =
-  "Quick suggestions may use a faster model than your default.";
-
-export function quickAssistErrorNotice(body: unknown): QuickAssistErrorNotice {
+export function quickAssistErrorNotice(body: unknown, t: UIStrings, status?: number): QuickAssistErrorNotice {
   const rec =
     typeof body === "object" && body !== null
       ? (body as Record<string, unknown>)
       : {};
-  const serverMessage =
-    typeof rec.error === "string" && rec.error.trim().length > 0
-      ? rec.error
-      : null;
   const upgrade =
     typeof rec.upgradeToTier === "string" &&
     rec.upgradeToTier.trim().length > 0;
+  const effectiveStatus = status ?? (typeof rec.status === "number" ? rec.status : 502);
   return {
-    message: serverMessage ?? QUICK_ASSIST_FALLBACK_MESSAGE,
+    message: describeApiError({ status: effectiveStatus, body: rec }, t),
     openSettings: rec.code === MODEL_NO_QUICK_SUGGEST_CODE,
     upgrade,
   };

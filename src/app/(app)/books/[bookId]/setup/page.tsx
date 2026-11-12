@@ -55,6 +55,7 @@ import {
 } from "@/lib/onboarding/setup-surface";
 import { BOOK_LANGUAGES } from "@/lib/i18n/book-languages";
 import { describeApiError } from "@/lib/api/describe-api-error";
+import { countMixedWords } from "@/lib/text/cjk";
 
 export default function SetupPage({
   params,
@@ -444,9 +445,9 @@ export default function SetupPage({
                   />
                   {styleSample.trim().length > 0 && (
                     <p className="text-xs text-muted-foreground">
-                      {styleSample.trim().split(/\s+/).length}{" "}
+                      {countMixedWords(styleSample)}{" "}
                       {pluralNoun(
-                        styleSample.trim().split(/\s+/).length,
+                        countMixedWords(styleSample),
                         t.editorChrome.wordOne,
                         t.editorChrome.wordMany,
                         { few: t.editorChrome.wordFew, language: uiLanguage }

@@ -47,6 +47,14 @@ describe("conversion failure", () => {
     expect(requireTool.slice(0, 400)).toContain("throw new ExportConversionError(");
   });
 
+  it("a storage failure after a good conversion is EXPORT_FAILED, not a conversion failure (review M-3)", () => {
+    const pipeline = read("src", "lib", "import-export", "export-pipeline.ts");
+    const conversionThrow = pipeline.indexOf("throw new ExportConversionError(detail)");
+    const write = pipeline.indexOf("await storage.writeBuffer(storageKey, outputBuffer");
+    expect(conversionThrow).toBeGreaterThan(0);
+    expect(write).toBeGreaterThan(conversionThrow);
+  });
+
   it("the pipeline no longer returns a markdown fallback as if it were the export", () => {
     const pipeline = read("src", "lib", "import-export", "export-pipeline.ts");
     expect(pipeline).not.toContain("Saved as markdown.");

@@ -55,7 +55,6 @@ import type { FocusLevel } from "./graduated-focus";
 import { AmbientSoundscape } from "./ambient-soundscape";
 import { ReadAloud } from "./read-aloud";
 import { useToolbarRoving } from "./use-toolbar-roving";
-import { QUICK_ASSIST_DISCLOSURE } from "./quick-assist-client-errors";
 
 interface EditorToolbarProps {
   editor: Editor | null;
@@ -413,7 +412,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
             label={
               ctx.ghostTextEnabled ? ctx.t.ghostTextOn : ctx.t.ghostTextOff
             }
-            tooltipHint={QUICK_ASSIST_DISCLOSURE}
+            tooltipHint={ctx.chrome.quickAssistDisclosure}
             isActive={ctx.ghostTextEnabled}
             pressed={!!ctx.ghostTextEnabled}
             onClick={ctx.onToggleGhostText}
@@ -485,7 +484,7 @@ const TOOLBAR_GROUPS: ToolbarGroup[] = [
               </span>
               {/* D-127: point-of-use disclosure for the quick-assist model substitution */}
               <span className="text-[10px] text-muted-foreground">
-                {QUICK_ASSIST_DISCLOSURE}
+                {ctx.chrome.quickAssistDisclosure}
               </span>
             </span>
           </DropdownMenuItem>

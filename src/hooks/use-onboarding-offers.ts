@@ -6,6 +6,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useAgentUIStore } from "@/stores/agent-ui-store";
 import { computeOnboardingOffers } from "@/lib/onboarding/offers";
+import { useLanguage } from "@/components/providers/language-provider";
 import {
   getOnboardingState,
   addDismissed,
@@ -28,6 +29,7 @@ export function useOnboardingOffers({
   setupComplete,
 }: UseOnboardingOffersParams): void {
   const qc = useQueryClient();
+  const { t } = useLanguage();
   const openWithWorkflow = useAgentUIStore((s) => s.openWithWorkflow);
   const setOnboardingOffers = useAgentUIStore((s) => s.setOnboardingOffers);
 
@@ -91,7 +93,7 @@ export function useOnboardingOffers({
           onClick: () => openWithWorkflow(toFire.workflowId),
         },
         cancel: {
-          label: "Not now",
+          label: t.common.notNow,
           onClick: () => {
             addDismissed(bookId, toFire.workflowId);
             setDismissed((s) => new Set(s).add(toFire.workflowId));
@@ -115,6 +117,7 @@ export function useOnboardingOffers({
     bookId,
     openWithWorkflow,
     setOnboardingOffers,
+    t,
   ]);
 
   // Clear the badge when leaving the book.

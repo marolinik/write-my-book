@@ -167,6 +167,7 @@ export const ES: UIStrings = {
     nameRequired: "Introduce un nombre de libro para continuar.",
   },
   common: {
+    notNow: "Ahora no",
     cancel: "Cancelar",
     accept: "Aceptar",
     reject: "Rechazar",
@@ -889,6 +890,8 @@ export const ES: UIStrings = {
   },
 
   appUI: {
+    sidebarTitle: "Barra lateral",
+    sidebarDescription: "Muestra la barra lateral móvil.",
     tierProfessional: "El plan Professional desbloquea libros ilimitados, gestión de series y analítica avanzada.",
     showAllChapters: "Mostrar los {count} capítulos",
     tierPublisher: "El plan Publisher incluye todo lo de Professional más soporte prioritario y las futuras plazas para varios usuarios.",
@@ -999,6 +1002,7 @@ export const ES: UIStrings = {
   },
 
   screens: {
+    unexpectedErrorNotified: "Se produjo un error inesperado. Nuestro equipo ha sido notificado.",
     bookProgress: "Progreso del libro", drafted: "Escrito", edited: "Editado", betaPassed: "Beta superada",
     wordCount: "Número de palabras", recentSessions: "Sesiones recientes", editorialFindings: "Hallazgos editoriales",
     modelOverrides: "Modelos personalizados", bookDefaultModel: "Modelo por defecto del libro",
@@ -1627,6 +1631,9 @@ export const ES: UIStrings = {
   },
 
   editorChrome: {
+    quickAssistDisclosure: "Las sugerencias rápidas pueden usar un modelo más rápido que el predeterminado.",
+    immersiveEntered: "Modo inmersivo activado; pulse Escape para salir",
+    immersiveExited: "Modo inmersivo desactivado",
     stillWriting: "Sigue escribiendo…",
     rewriteComparison: "Comparación de la reescritura con IA",
     noPreviousChapter: "No hay capítulo anterior",
@@ -2118,5 +2125,28 @@ export const ES: UIStrings = {
     AI_GENERATION_FAILED: "La IA no pudo terminar. Inténtalo de nuevo.",
     LAST_API_KEY: "No puede eliminar su última clave de API. Añada otra clave primero.",
     KEY_IN_USE: "No se puede eliminar la clave mientras se ejecuta una sesión de IA. Espere a que termine e inténtelo de nuevo.",
+    PROVIDER_KEY_INVALID: "La clave de su proveedor de IA ya no es válida. Actualícela en Configuración.",
+    MODEL_NO_QUICK_SUGGEST: "Este modelo no puede hacer sugerencias rápidas. Elija otro modelo en Configuración.",
+    AI_RESPONSE_TRUNCATED: "La respuesta se cortó antes de poder usarse. Seleccione menos texto e inténtelo de nuevo.",
+  },
+  agentErrors: {
+    PROVIDER_KEY_INVALID: "Su clave de API de {provider} no es válida o ha sido revocada. Revísela en Configuración.",
+    PROVIDER_NO_CREDIT: "Su cuenta de {provider} no tiene saldo. Añada saldo o elija otro modelo en Configuración.",
+    PROVIDER_FORBIDDEN: "Su clave de API de {provider} no tiene permiso para usar este modelo. Revise sus permisos.",
+    PROVIDER_RATE_LIMITED: "{provider} está limitando las solicitudes. Inténtelo de nuevo en un minuto.",
+    PROVIDER_UNAVAILABLE: "{provider} tiene problemas temporales. Inténtelo de nuevo en un momento.",
+    PROVIDER_TIMEOUT: "{provider} tardó demasiado en responder. Inténtelo de nuevo.",
+    PROVIDER_RETRYING: "{provider} no respondió esta vez.",
+    NO_PROVIDER_KEY: "No hay ninguna clave de API configurada para {provider}. Añada una en Configuración > Claves de API.",
+    DIRECT_KEY_UNSUPPORTED: "Este modelo no se puede usar con una clave directa. Elija otro modelo en Configuración.",
+    EMPTY_RESPONSE: "El asistente devolvió una respuesta vacía. No se cobró nada; inténtelo de nuevo.",
+    SESSION_FAILED: "La sesión se detuvo por un error. Inténtelo de nuevo.",
+    SESSION_CANCELLED: "Sesión cancelada.",
+    SESSION_NOT_FOUND: "Esta sesión ya no está disponible. Puede que el servidor se haya reiniciado; inicie el flujo de nuevo.",
+    STREAM_UNAVAILABLE: "Se perdió la conexión con la sesión. Recargue la página para reconectar.",
+    WORKER_ABSENT: "El procesamiento en segundo plano no está disponible ahora. Inténtelo de nuevo cuando vuelva.",
+    BACKGROUND_FAILED: "Esta sesión no pudo terminar en segundo plano. Iníciela de nuevo para continuar.",
+    WORKER_RESTARTED: "Esta sesión se detuvo cuando se reinició el proceso en segundo plano. Iníciela de nuevo para continuar.",
+    localFleet: "la flota local",
   },
 };

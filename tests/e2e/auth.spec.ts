@@ -24,14 +24,22 @@ test.describe("Authentication", () => {
     ).toBeVisible();
   });
 
-  test("dashboard redirects to login without auth", async ({ page }) => {
-    // Without the E2E test header, dashboard should redirect
-    const context = await page.context();
-    // Remove the default E2E header for this test
-    await context.clearCookies();
-    const response = await page.goto("/dashboard");
-    // Should redirect to login or show auth wall
-    const url = page.url();
-    expect(url).toMatch(/login|sign-in|dashboard/);
+  // P2-3: this test used to accept /dashboard as a pass while still sending
+  // the e2e header, so it could never fail. Anonymous rejection is only
+  // observable on a server without the dev bypass; under the e2e job's
+  // DEV_AUTH_BYPASS it is proven by tests/unit/middleware-anonymous.test.ts.
+  test("an anonymous request is refused", async ({ playwright, baseURL }) => {
+    test.skip(
+      process.env.DEV_AUTH_BYPASS === "true" && !!process.env.DEV_CLERK_ID,
+      "the server signs every request in as the dev user (DEV_AUTH_BYPASS)"
+    );
+    // A fresh context: no e2e header, no cookies.
+    const anonymous = await playwright.request.newContext({ baseURL, extraHTTPHeaders: {} });
+    const api = await anonymous.get("/api/books", { maxRedirects: 0 });
+    expect([401, 404]).toContain(api.status());
+    const page = await anonymous.get("/dashboard", { maxRedirects: 0 });
+    expect([302, 307, 308, 401]).toContain(page.status());
+    if (page.status() !== 401) expect(page.headers()["location"] ?? "").toMatch(/login|sign-in/);
+    await anonymous.dispose();
   });
 });

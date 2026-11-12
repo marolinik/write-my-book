@@ -176,8 +176,8 @@ test.describe("API Key Management", () => {
 
     expect(deleteRes.status()).toBe(400);
     const data = await deleteRes.json();
-    expect(data.error).toBeDefined();
-    expect(data.error.toLowerCase()).toContain("last");
+    // Wave 4 review I-1: the refusal carries a stable code the client localizes.
+    expect(data.code).toBe("LAST_API_KEY");
   });
 
   // ─── Test 7: Usage endpoint returns expected shape ──────────

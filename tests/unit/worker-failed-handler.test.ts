@@ -32,14 +32,14 @@ beforeEach(() => {
 
 describe("markSessionTerminal", () => {
   it("flips a non-terminal row, sets the Redis status and publishes a terminal error", async () => {
-    await markSessionTerminal("s1", "failed", "The background worker stopped while running this session.");
+    await markSessionTerminal("s1", "failed", "WORKER_RESTARTED");
     expect(h.updateMany).toHaveBeenCalledWith({
       where: { id: "s1", status: { in: ["queued", "running"] } },
       data: expect.objectContaining({ status: "failed" }),
     });
     expect(h.redis.set).toHaveBeenCalledWith("session:s1:status", "failed", "EX", expect.any(Number));
     const published = decodeLiveEvent(String(h.redis.publish.mock.calls[0][1]));
-    expect(JSON.parse(published.data)).toMatchObject({ type: "error" });
+    expect(JSON.parse(published.data)).toMatchObject({ type: "error", metadata: { code: "WORKER_RESTARTED" } });
   });
 });
 

@@ -167,6 +167,7 @@ export const SR: UIStrings = {
     nameRequired: "Unesite naziv knjige da biste nastavili.",
   },
   common: {
+    notNow: "Ne sada",
     cancel: "Otkaži",
     accept: "Prihvati",
     reject: "Odbij",
@@ -889,6 +890,8 @@ export const SR: UIStrings = {
   },
 
   appUI: {
+    sidebarTitle: "Bočna traka",
+    sidebarDescription: "Prikazuje bočnu traku na telefonu.",
     tierProfessional: "Plan Professional otključava neograničen broj knjiga, upravljanje serijalima i naprednu analitiku.",
     showAllChapters: "Prikaži svih {count} poglavlja",
     tierPublisher: "Plan Publisher obuhvata sve iz plana Professional, uz prioritetnu podršku i buduće naloge za više korisnika.",
@@ -999,6 +1002,7 @@ export const SR: UIStrings = {
   },
 
   screens: {
+    unexpectedErrorNotified: "Došlo je do neočekivane greške. Naš tim je obavešten.",
     bookProgress: "Napredak knjige", drafted: "Napisano", edited: "Uređeno", betaPassed: "Prošlo beta čitanje",
     wordCount: "Broj reči", recentSessions: "Nedavne sesije agenata", editorialFindings: "Urednički nalazi",
     modelOverrides: "Izmene modela", bookDefaultModel: "Podrazumevani model knjige",
@@ -1627,6 +1631,9 @@ export const SR: UIStrings = {
   },
 
   editorChrome: {
+    quickAssistDisclosure: "Brzi predlozi mogu da koriste brži model od tvog podrazumevanog.",
+    immersiveEntered: "Uključen je režim uranjanja, pritisni Escape za izlaz",
+    immersiveExited: "Režim uranjanja je isključen",
     stillWriting: "Još pišem…",
     rewriteComparison: "Poređenje AI prepisa",
     noPreviousChapter: "Nema prethodnog poglavlja",
@@ -2118,5 +2125,28 @@ export const SR: UIStrings = {
     AI_GENERATION_FAILED: "AI nije uspeo da završi. Pokušaj ponovo.",
     LAST_API_KEY: "Ne možeš da ukloniš poslednji API ključ. Prvo dodaj drugi ključ.",
     KEY_IN_USE: "Ključ ne može da se ukloni dok AI sesija radi. Sačekaj da se završi, pa pokušaj ponovo.",
+    PROVIDER_KEY_INVALID: "Ključ tvog AI provajdera više nije ispravan. Ažuriraj ga u Podešavanjima.",
+    MODEL_NO_QUICK_SUGGEST: "Ovaj model ne može da daje brze predloge. Izaberi drugi model u Podešavanjima.",
+    AI_RESPONSE_TRUNCATED: "Odgovor je odsečen pre nego što je mogao da se iskoristi. Izaberi manje teksta i pokušaj ponovo.",
+  },
+  agentErrors: {
+    PROVIDER_KEY_INVALID: "Tvoj {provider} API ključ nije ispravan ili je opozvan. Proveri ga u Podešavanjima.",
+    PROVIDER_NO_CREDIT: "Na tvom {provider} nalogu nema kredita. Dopuni kredit ili izaberi drugi model u Podešavanjima.",
+    PROVIDER_FORBIDDEN: "Tvoj {provider} API ključ nema dozvolu za ovaj model. Proveri njegove dozvole.",
+    PROVIDER_RATE_LIMITED: "{provider} trenutno ograničava zahteve. Pokušaj ponovo za minut.",
+    PROVIDER_UNAVAILABLE: "{provider} ima privremene probleme. Pokušaj ponovo uskoro.",
+    PROVIDER_TIMEOUT: "{provider} je predugo odgovarao. Pokušaj ponovo.",
+    PROVIDER_RETRYING: "{provider} ovaj put nije odgovorio.",
+    NO_PROVIDER_KEY: "Nijedan API ključ nije podešen za {provider}. Dodaj ga u Podešavanja > API ključevi.",
+    DIRECT_KEY_UNSUPPORTED: "Ovaj model ne može da se koristi sa direktnim ključem. Izaberi drugi model u Podešavanjima.",
+    EMPTY_RESPONSE: "Asistent je vratio prazan odgovor. Ništa nije naplaćeno; pokušaj ponovo.",
+    SESSION_FAILED: "Sesija je prekinuta zbog greške. Pokušaj ponovo.",
+    SESSION_CANCELLED: "Sesija je otkazana.",
+    SESSION_NOT_FOUND: "Ova sesija više nije dostupna. Server je možda restartovan; pokreni tok rada ponovo.",
+    STREAM_UNAVAILABLE: "Veza sa sesijom je prekinuta. Osveži stranicu da se ponovo povežeš.",
+    WORKER_ABSENT: "Obrada u pozadini trenutno nije dostupna. Pokušaj ponovo kada proradi.",
+    BACKGROUND_FAILED: "Ova sesija nije mogla da se završi u pozadini. Pokreni je ponovo da nastaviš.",
+    WORKER_RESTARTED: "Ova sesija je prekinuta kada se pozadinski proces restartovao. Pokreni je ponovo da nastaviš.",
+    localFleet: "lokalna flota",
   },
 };

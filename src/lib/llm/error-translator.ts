@@ -4,9 +4,12 @@
  */
 
 import type { LLMProvider } from "./model-registry";
+import type { ProviderErrorCode } from "@/lib/agents/agent-errors";
 
 export interface TranslatedError {
-  /** User-facing error message (never contains raw provider text) */
+  /** P2-31: stable code; the client renders it in the interface language. */
+  code: ProviderErrorCode;
+  /** English (never raw provider text), for logs and Error.message; not shown as is. */
   userMessage: string;
   /** Recommended action for the user */
   action: "retry" | "switch-provider" | "check-key" | "contact-support";
@@ -58,6 +61,7 @@ export function translateProviderError(
       // Reset rate limit counter on auth errors
       rateLimitCounters.delete(provider);
       return {
+        code: "PROVIDER_KEY_INVALID",
         userMessage: `Your ${name} API key appears to be invalid or has been revoked. Please check your key in Settings.`,
         action: "check-key",
         retryable: false,
@@ -66,6 +70,7 @@ export function translateProviderError(
     case 402:
       rateLimitCounters.delete(provider);
       return {
+        code: "PROVIDER_NO_CREDIT",
         userMessage: `Your ${name} account has insufficient balance. Please add credits or switch to a different provider.`,
         action: "check-key",
         retryable: false,
@@ -74,6 +79,7 @@ export function translateProviderError(
     case 403:
       rateLimitCounters.delete(provider);
       return {
+        code: "PROVIDER_FORBIDDEN",
         userMessage: `Your ${name} API key does not have permission for this operation. Please verify your key permissions.`,
         action: "check-key",
         retryable: false,
@@ -85,6 +91,7 @@ export function translateProviderError(
       const retryAfterMs = RATE_LIMIT_BACKOFF_MS[backoffIndex];
       rateLimitCounters.set(provider, count + 1);
       return {
+        code: "PROVIDER_RATE_LIMITED",
         userMessage: `${name} rate limit reached. Retrying automatically in ${retryAfterMs / 1000} seconds.`,
         action: "retry",
         retryable: true,
@@ -97,6 +104,7 @@ export function translateProviderError(
     case 503:
       rateLimitCounters.delete(provider);
       return {
+        code: "PROVIDER_UNAVAILABLE",
         userMessage: `${name} is experiencing temporary issues. The request will be retried automatically.`,
         action: "retry",
         retryable: true,
@@ -106,6 +114,7 @@ export function translateProviderError(
     case 504:
       rateLimitCounters.delete(provider);
       return {
+        code: "PROVIDER_TIMEOUT",
         userMessage: `${name} request timed out. This usually resolves on retry.`,
         action: "retry",
         retryable: true,
@@ -115,6 +124,7 @@ export function translateProviderError(
     default:
       rateLimitCounters.delete(provider);
       return {
+        code: "PROVIDER_UNAVAILABLE",
         userMessage: `An unexpected error occurred with ${name} (status ${status}). The request will be retried.`,
         action: "retry",
         retryable: true,
