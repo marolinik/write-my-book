@@ -35,7 +35,7 @@
  * ── Safety model ────────────────────────────────────────────────────────────
  *  - DRY-RUN IS THE DEFAULT. With no flag (or with --dry-run) nothing is
  *    written; the script censuses all three classes, writes a full report to
- *    cowork/bulletproof-qa-2026-07-17/evidence/edge-purge-census.md, and exits
+ *    $MIGRATION_EVIDENCE_DIR/edge-purge-census.md (default tmp-evidence/), and exits
  *    NON-ZERO if any contamination is found (so CI / the team-lead notices).
  *  - --execute performs the remediation, applied in the safe order
  *    (c) merge → (b) delete → (a) backfill, skipping any edge already removed by
@@ -354,12 +354,9 @@ export function resolveMergedEdgeUserId(
 // ─── I/O runner ─────────────────────────────────────────────────────────────
 
 const TAG = "[migrate-purge-contaminated-edges]";
-const CENSUS_PATH = join(
-  "cowork",
-  "bulletproof-qa-2026-07-17",
-  "evidence",
-  "edge-purge-census.md"
-);
+// P2-85: QA evidence no longer lives in the repository; the census goes to
+// MIGRATION_EVIDENCE_DIR (default tmp-evidence/, gitignored).
+const CENSUS_PATH = join(process.env.MIGRATION_EVIDENCE_DIR ?? "tmp-evidence", "edge-purge-census.md");
 const SAMPLE_LIMIT = 20;
 
 /** A canonical relationship type is always a bare [A-Za-z0-9_] identifier. */
